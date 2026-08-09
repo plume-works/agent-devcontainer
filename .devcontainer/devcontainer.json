@@ -243,6 +243,7 @@
   },
   "postCreateCommand": "./.devcontainer/scripts/postCreateCommand.sh",
   "postAttachCommand": {
+    "agentdev-plugins": "./.devcontainer/scripts/reinstall-agentdev-plugins.sh",
     "git config": "git config --global gpg.ssh.program ssh-keygen",
     "python-venv": "./.devcontainer/scripts/uv-sync.sh"
   },
