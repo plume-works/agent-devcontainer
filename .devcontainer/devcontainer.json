@@ -242,10 +242,6 @@
     }
   },
   "postCreateCommand": "./.devcontainer/scripts/postCreateCommand.sh",
-  "postAttachCommand": {
-    "agentdev-plugins": "./.devcontainer/scripts/reinstall-agentdev-plugins.sh",
-    "git config": "git config --global gpg.ssh.program ssh-keygen",
-    "python-venv": "./.devcontainer/scripts/uv-sync.sh"
-  },
+  "postAttachCommand": "./.devcontainer/scripts/postAttachCommand.sh",
   "postStartCommand": "./.devcontainer/scripts/postStartCommand.sh"
 }
