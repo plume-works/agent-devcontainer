@@ -61,24 +61,25 @@ template files below even though it does not need the catalog publisher source.
 The default devcontainer surface is the complete tracked `.devcontainer/` directory plus
 two root companions:
 
-| Path                                                 | Responsibility                                                                                    |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `.devcontainer/devcontainer.json`                    | Dev Container entry point, features, mounts, ports, editor configuration, and lifecycle commands. |
-| `.devcontainer/docker-compose.yml`                   | Devcontainer service, MCP gateway, worktree mounts, and persistent Claude/Codex volumes.          |
-| `.devcontainer/devcontainer-init.sh`                 | Generates host-specific Compose state and creates shared agent volumes before startup.            |
-| `.devcontainer/devcontainer-lock.json`               | Locks the Docker-in-Docker and SSH feature digests.                                               |
-| `.devcontainer/firewall-allowlist.txt`               | Project-owned allowlist read when the opt-in firewall starts.                                     |
-| `.devcontainer/scripts/postCreateCommand.sh`         | Sets up persistent Claude state, syncs the uv environment, and installs the image-staged catalog. |
-| `.devcontainer/scripts/postStartCommand.sh`          | Starts repository hooks, keyring, firewall, Xpra, Codex policy, and workspace catalog override.   |
-| `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` and links the cached environment to `.venv`.                                       |
-| `.devcontainer/scripts/setup-pre-commit.sh`          | Trusts the checkout and installs pre-commit and pre-push hooks.                                   |
-| `.devcontainer/scripts/setup-keyring.sh`             | Starts and persists the headless keyring used by authenticated tooling.                           |
-| `.devcontainer/scripts/firewall.sh`                  | Activates the image-provided egress firewall when enabled.                                        |
-| `.devcontainer/scripts/configure-codex.py`           | Sets devcontainer-only Codex sandbox and approval policy.                                         |
-| `.devcontainer/scripts/reinstall-agentdev-claude.sh` | Installs the staged Claude plugin and overrides it with a workspace marketplace when present.     |
-| `.devcontainer/scripts/reinstall-agentdev-codex.sh`  | Performs the equivalent Codex marketplace/plugin installation.                                    |
-| `compose.pins.yml`                                   | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.   |
-| `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                              |
+| Path                                                 | Responsibility                                                                                                   |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `.devcontainer/devcontainer.json`                    | Dev Container entry point, features, mounts, ports, editor configuration, and lifecycle commands.                |
+| `.devcontainer/docker-compose.yml`                   | Devcontainer service, MCP gateway, worktree mounts, and persistent Claude/Codex volumes.                         |
+| `.devcontainer/devcontainer-init.sh`                 | Generates host-specific Compose state and creates shared agent volumes before startup.                           |
+| `.devcontainer/devcontainer-lock.json`               | Locks the Docker-in-Docker and SSH feature digests.                                                              |
+| `.devcontainer/firewall-allowlist.txt`               | Project-owned allowlist read when the opt-in firewall starts.                                                    |
+| `.devcontainer/scripts/postCreateCommand.sh`         | Sets up persistent Claude and Codex auth state, syncs the uv environment, and installs the image-staged catalog. |
+| `.devcontainer/scripts/postStartCommand.sh`          | Starts repository hooks, keyring, firewall, Xpra, Codex policy, and workspace catalog override.                  |
+| `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` and links the cached environment to `.venv`.                                                      |
+| `.devcontainer/scripts/setup-pre-commit.sh`          | Trusts the checkout and installs pre-commit and pre-push hooks.                                                  |
+| `.devcontainer/scripts/setup-keyring.sh`             | Starts and persists the headless keyring used by authenticated tooling.                                          |
+| `.devcontainer/scripts/firewall.sh`                  | Activates the image-provided egress firewall when enabled.                                                       |
+| `.devcontainer/scripts/configure-codex.py`           | Sets devcontainer-only Codex sandbox and approval policy.                                                        |
+| `.devcontainer/scripts/link-codex-auth.sh`           | Persists Codex's `auth.json` in the shared `agentdev-agents-auth` volume and symlinks it into place.             |
+| `.devcontainer/scripts/reinstall-agentdev-claude.sh` | Installs the staged Claude plugin and overrides it with a workspace marketplace when present.                    |
+| `.devcontainer/scripts/reinstall-agentdev-codex.sh`  | Performs the equivalent Codex marketplace/plugin installation.                                                   |
+| `compose.pins.yml`                                   | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
+| `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                                             |
 
 These files are one runtime unit. Copying only `devcontainer.json` and
 `docker-compose.yml` leaves direct references unresolved.

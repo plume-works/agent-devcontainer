@@ -10,6 +10,11 @@ sudo chown -R root:root \
     "$workspace/.cache" \
     /uv
 
+# Both agents' credential setup below needs their subdirectory of the shared
+# agentdev-agents-auth volume to exist first.
+mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex
+chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex
+
 # ~/.claude.json can't be backed directly by a named volume (Docker volumes are always
 # directory-backed, so mounting one at a file path materializes an empty directory
 # there instead of the file Claude Code expects). Persist it as a plain file inside the
@@ -21,6 +26,11 @@ elif [[ ! -e "$claude_json_target" ]]; then
     echo '{}' >"$claude_json_target"
 fi
 ln -sf "$claude_json_target" /root/.claude.json
+
+# See link-codex-auth.sh for why Codex's auth.json needs the same file-in-a-shared-
+# volume-plus-symlink treatment, and why this also has to run again from
+# postStartCommand.sh.
+"$script_dir/link-codex-auth.sh"
 
 # Sync the project environment into the container's .venv directory so that
 # extension settings are valid when the container is rebuilt. This is a no-op if the environment is already up to date.

@@ -9,6 +9,10 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 /start-xpra.sh --background
 "$script_dir/configure-codex.py"
 
+# Repairs the shared auth.json symlink if a `codex logout` during this container's
+# previous run destroyed it; see link-codex-auth.sh for why that can happen.
+"$script_dir/link-codex-auth.sh"
+
 # Re-register this checkout's catalog over whatever postCreateCommand.sh installed
 # from the image, so the workspace copy is the one agents load. A no-op in a
 # project that ships no marketplace of its own.

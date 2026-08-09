@@ -25,10 +25,10 @@
     "DEV_WORKSPACE_FOLDER": "/workspaces/${localWorkspaceFolderBasename}",
 
     // Claude Code resolves .credentials.json from this directory, independently of
-    // ~/.claude. It points at the shared agentdev-claude-auth volume so authentication
-    // survives a rebuild and is shared with every other worktree, while nothing else in
-    // ~/.claude is.
-    "CLAUDE_SECURESTORAGE_CONFIG_DIR": "/root/.claude-auth",
+    // ~/.claude. It points at the shared agentdev-agents-auth volume (Claude's subdirectory of
+    // it) so authentication survives a rebuild and is shared with every other worktree,
+    // while nothing else in ~/.claude is.
+    "CLAUDE_SECURESTORAGE_CONFIG_DIR": "/root/.agents-auth/claude",
 
     "UV_CACHE_DIR": "/uv/cache",
     "UV_PYTHON_INSTALL_DIR": "/uv/python",
@@ -60,7 +60,7 @@
       // rather than in docker-compose.yml so Compose prefixes it per project: this
       // state records absolute workspace paths, so worktrees sharing one copy fight
       // over the marketplace registry and the plugin cache. Only the credentials are
-      // shared, via the agentdev-claude-auth volume in docker-compose.yml.
+      // shared, via the agentdev-agents-auth volume in docker-compose.yml.
       //
       // ~/.claude.json is a single file, not a directory, and Docker named volumes are
       // always directory-backed (mounting one straight at a file path materializes an
@@ -70,10 +70,22 @@
       "source": "agentdev-claude",
       "target": "/root/.claude",
       "type": "volume"
+    },
+    {
+      // Codex's plugins, marketplaces, sessions, logs, and sqlite state. Declared
+      // here rather than in docker-compose.yml so Compose prefixes it per project,
+      // for the same reason as agentdev-claude: this state records absolute
+      // workspace paths, so worktrees sharing one copy fight over the marketplace
+      // registry (see reinstall-agentdev-codex.sh). Only auth.json is shared, via
+      // the agentdev-agents-auth volume in docker-compose.yml and
+      // .devcontainer/scripts/link-codex-auth.sh.
+      "source": "agentdev-codex",
+      "target": "/root/.codex",
+      "type": "volume"
     }
-    // agentdev-claude-auth and agentdev-codex are mounted via docker-compose.yml
-    // (top-level `volumes:` with explicit `name:`) so they're shared across every
-    // devcontainer instance instead of being isolated per compose project.
+    // agentdev-agents-auth is mounted via docker-compose.yml (top-level `volumes:` with
+    // explicit `name:`) so it's shared across every devcontainer instance instead
+    // of being isolated per compose project.
   ],
   "customizations": {
     "vscode": {

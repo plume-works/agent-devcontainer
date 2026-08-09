@@ -18,8 +18,8 @@ The default setup retains all runtime capabilities provided by the current devco
 - worktree-safe workspace mounts;
 - Xpra/VirtualGL desktop access;
 - the Docker Desktop MCP gateway and secrets socket integration;
-- persistent state volumes: shared Codex state and Claude credentials, with the rest of
-  Claude's state scoped per devcontainer instance;
+- persistent state volumes: one shared volume holding both agents' credentials, with the
+  rest of each agent's state scoped per devcontainer instance;
 - the `agentdev` catalog staged in the image and installed after volume mounts;
 - Codex devcontainer policy configuration;
 - keyring and GitHub authentication support;
@@ -44,13 +44,14 @@ Before pruning files, record:
 - whether it will publish a custom development image; and
 - whether agent authentication/configuration should remain shared with other local projects.
 
-The supplied configuration uses the literal Docker volumes `agentdev-claude-auth` and
-`agentdev-codex`. Keeping them shares Claude Code's credentials, and all of Codex's
-authentication and user configuration, across this project, its worktrees, and other
-projects using the same names. That is the default behavior supplied here. The rest of
-Claude's state — plugins, marketplaces, sessions, `~/.claude.json` — lives in the
-`agentdev-claude` mount, which Compose scopes per devcontainer instance because that state
-records absolute workspace paths that differ between worktrees.
+The supplied configuration uses the literal Docker volume `agentdev-agents-auth`, mounted at
+`/root/.agents-auth` with one subdirectory per agent. Keeping it shares Claude Code's and
+Codex's credentials only — nothing else — across this project, its worktrees, and other
+projects using the same volume name. That is the default behavior supplied here. The rest
+of each agent's state — plugins, marketplaces, sessions, `~/.claude.json`,
+`~/.codex`'s logs and sqlite state — lives in the `agentdev-claude` and `agentdev-codex`
+mounts, which Compose scopes per devcontainer instance because that state records absolute
+workspace paths that differ between worktrees.
 
 Replace the publisher-oriented `README.md` sections with the consuming project's purpose,
 setup, tests, and ownership. Remove image/catalog publishing instructions that the project
