@@ -13,9 +13,9 @@ software project's memory and system of record. The division of labor:
 
 ## Start of every session
 
-1. Read `data/product.md`. If it still contains ✏️ placeholders, run the setup
-   flow (`.claude/skills/setup/SKILL.md`) before anything else — planning
-   without product context is guessing. Note `## Constraints` and
+1. Read `docs/knowledge/data/product.md`. If it still contains ✏️ placeholders,
+   run the setup flow (`.claude/skills/setup/SKILL.md`) before anything else —
+   planning without product context is guessing. Note `## Constraints` and
    `## Authoring rules`: they bind everything you write.
 2. Check the state of work: active plans under `## Active` in `data/plans.md`,
    and high-priority tasks —
@@ -125,9 +125,11 @@ software project's memory and system of record. The division of labor:
 The graph is managed by [IWE](https://iwe.md) — the `iwe` CLI. What you must
 know:
 
-- A document's **key** is its extension-less path relative to the repo root
-  (`data/product`, `data/plans/20260801-dark-mode`) — that's what `-k` and the
-  structural flags take.
+- A document's **key** is its extension-less path relative to `[library].path`
+  in `.iwe/config.toml` (`docs/knowledge` in this repo) — e.g. `data/product`,
+  `data/plans/20260801-dark-mode` — that's what `-k` and the structural flags
+  take. `iwe` must be invoked with the repo root as the working directory; it
+  does not search upward for `.iwe/`.
 - A document's title resolves from its H1 header.
 - **Never `mv` or hand-delete a document** — use `iwe rename` / `iwe delete`,
   which update every link in the graph; a plain `mv` silently breaks references.
