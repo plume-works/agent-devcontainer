@@ -13,7 +13,7 @@ wrap_column = 80
 # it when the whole repo is opened as the workspace. iwe must always be
 # invoked with CWD at the repo root (it does not search upward for .iwe/, nor
 # does it accept a --root flag); this path is what lets document keys stay
-# short (e.g. data/plans/mvp) instead of docs/knowledge/data/plans/mvp.
+# short (e.g. docs/knowledge/data/plans/mvp) instead of docs/knowledge/docs/knowledge/data/plans/mvp.
 path = "docs/knowledge"
 date_format = "%Y-%m-%d"
 frontmatter_document_title = "title"
@@ -56,70 +56,70 @@ reverse = false
 # Document-schema bindings. Each entry names a schema file in .iwe/schemas/<name>.yaml
 # and a key-glob that binds it. Bindings are BY PATH, not by frontmatter fields,
 # and are relative to [library].path above (docs/knowledge), not to the repo
-# root or to .iwe/ itself. The extension-less hub keys (data/plans, data/bugs,
+# root or to .iwe/ itself. The extension-less hub keys (docs/knowledge/data/plans, docs/knowledge/data/bugs,
 # ...) match none of these globs, so hub documents stay unvalidated by design.
 # Run: iwe schema validate  (--explain shows the binding trace).
 
 [schemas.plan]
-match = "data/plans/**"
+match = "docs/knowledge/data/plans/**"
 
 [schemas.feature]
-match = "data/features/**"
+match = "docs/knowledge/data/features/**"
 
 [schemas.bug]
-match = "data/bugs/**"
+match = "docs/knowledge/data/bugs/**"
 
 [schemas.release]
-match = "data/releases/**"
+match = "docs/knowledge/data/releases/**"
 
 [schemas.task]
-match = "data/backlog/**"
+match = "docs/knowledge/data/backlog/**"
 
 [schemas.codebase]
-match = "data/codebase/**"
+match = "docs/knowledge/data/codebase/**"
 
 [schemas.spec]
-match = "data/spec/**"
+match = "docs/knowledge/data/spec/**"
 
 [schemas.architecture]
-match = "data/architecture/**"
+match = "docs/knowledge/data/architecture/**"
 
 [schemas.concept]
-match = "data/concept/**"
+match = "docs/knowledge/data/concept/**"
 
 [schemas.someday]
-match = "data/someday/**"
+match = "docs/knowledge/data/someday/**"
 
 # Directory hubs. OKF conformance requires every non-reserved document under the
 # bundle to carry a type, so the hubs are typed and validated too — the earlier
 # "hubs stay unvalidated by design" exemption is deliberately retired.
 [schemas.hub]
 match = [
-  "data/architecture",
-  "data/backlog",
-  "data/bugs",
-  "data/codebase",
-  "data/concept",
-  "data/features",
-  "data/plans",
-  "data/releases",
-  "data/someday",
-  "data/spec",
+  "docs/knowledge/data/architecture",
+  "docs/knowledge/data/backlog",
+  "docs/knowledge/data/bugs",
+  "docs/knowledge/data/codebase",
+  "docs/knowledge/data/concept",
+  "docs/knowledge/data/features",
+  "docs/knowledge/data/plans",
+  "docs/knowledge/data/releases",
+  "docs/knowledge/data/someday",
+  "docs/knowledge/data/spec",
 ]
 
 [schemas.tracker]
-match = ["data/product", "data/milestone"]
+match = ["docs/knowledge/data/product", "docs/knowledge/data/milestone"]
 
 # OKF v0.2 conformance (SPEC §11). okf stacks on top of the per-type schemas and
 # catches any document arriving without a type; okf-index and okf-log check the
 # body shapes of the reserved files, which a frontmatter-only check cannot see.
-# The bundle root is data/, so these bind under data/ only. The reserved
+# The bundle root is docs/knowledge/data/, so these bind under docs/knowledge/data/ only. The reserved
 # index/log files are unbound via negated patterns.
 [schemas.okf]
-match = ["data/**", "!data/index", "!data/**/index", "!data/log", "!data/**/log"]
+match = ["docs/knowledge/data/**", "!docs/knowledge/data/index", "!docs/knowledge/data/**/index", "!docs/knowledge/data/log", "!docs/knowledge/data/**/log"]
 
 [schemas.okf-index]
-match = ["data/index", "data/**/index"]
+match = ["docs/knowledge/data/index", "docs/knowledge/data/**/index"]
 
 [schemas.okf-log]
-match = ["data/log", "data/**/log"]
+match = ["docs/knowledge/data/log", "docs/knowledge/data/**/log"]
