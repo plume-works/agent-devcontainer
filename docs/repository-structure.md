@@ -9,8 +9,7 @@ This repository has three responsibilities:
 Those responsibilities share one checkout but have different distribution mechanisms. The
 image is consumed from GHCR, the catalog is installed from the copy staged in that image,
 and repository scaffolding is copied manually. This document is the persistent inventory of
-that boundary. The spike under `docs/agents/specs/` is a historical decision record, not the
-current template manifest.
+that boundary.
 
 ## Classification
 

@@ -14,7 +14,7 @@ for confirmation — act, then report.
 ## Requirements source (in priority order)
 
 1. **Spec file path passed in the prompt.** The orchestrator points you at a
-   `docs/agents/specs/<program>/` file. Use its **"Test plan (write first)"**
+   `docs/knowledge/data/...` file. Use its **"Test plan (write first)"**
    section verbatim as the list of tests to write.
 2. **Explicit issue number passed in the prompt.** Fetch with `gh issue view <n>`.
 3. **Fallback only — branch-name heuristic.** Extract a number from the branch
