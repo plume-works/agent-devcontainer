@@ -102,11 +102,11 @@ Consequences worth knowing:
   project declaration composes with it the usual way — nothing has to be disabled
   first.
 - **A project that ships the catalog itself** — this repository, or a fork of it
-  — needs no opt-out. `postStartCommand` re-runs
-  [`reinstall-agentdev-claude.sh`](.devcontainer/scripts/reinstall-agentdev-claude.sh)
-  and its Codex counterpart with no arguments on every container start, which
-  re-registers the marketplace from the workspace over the image's copy. In any
-  other project those scripts find no marketplace manifest and exit quietly.
+  — needs no opt-out. `postAttachCommand` refreshes both the Claude and Codex
+  plugin installations from the workspace on every editor attachment, including
+  after a window reload. This re-registers the marketplace from the workspace
+  over the image's copy. In any other project the reinstall scripts find no
+  marketplace manifest and exit quietly.
 
 ### Staying on the current image
 
