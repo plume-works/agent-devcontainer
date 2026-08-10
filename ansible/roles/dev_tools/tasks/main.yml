@@ -62,3 +62,34 @@
   ansible.builtin.file:
     path: "{{ dev_tools_zizmor_temp_dir.path }}"
     state: absent
+
+- name: Ensure iwe supports the current architecture
+  ansible.builtin.assert:
+    that: system_arch in dev_tools_iwe_archives
+    fail_msg: "iwe is not available for architecture {{ system_arch }}"
+
+- name: Create temporary directory for iwe
+  ansible.builtin.tempfile:
+    state: directory
+  register: dev_tools_iwe_temp_dir
+
+- name: Download iwe
+  ansible.builtin.get_url:
+    url: >-
+      {{ 'https://github.com/iwe-org/iwe/releases/download/'
+      ~ dev_tools_iwe_version ~ '/' ~ dev_tools_iwe_version ~ '-'
+      ~ dev_tools_iwe_archives[system_arch].target ~ '.tar.gz' }}
+    dest: "{{ dev_tools_iwe_temp_dir.path }}/iwe.tar.gz"
+    checksum: "sha256:{{ dev_tools_iwe_archives[system_arch].checksum }}"
+    mode: "0644"
+
+- name: Install iwe, iwes, and iwec
+  ansible.builtin.unarchive:
+    src: "{{ dev_tools_iwe_temp_dir.path }}/iwe.tar.gz"
+    dest: "{{ dev_tools_iwe_install_path | dirname }}"
+    remote_src: true
+
+- name: Clean up temporary iwe files
+  ansible.builtin.file:
+    path: "{{ dev_tools_iwe_temp_dir.path }}"
+    state: absent

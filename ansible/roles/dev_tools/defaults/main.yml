@@ -8,3 +8,15 @@ dev_tools_zizmor_archives:
   arm64:
     target: aarch64-unknown-linux-gnu
     checksum: afa6ea4ad183582adaf1610399ed9e697322a2374d377ccdb149216840f5171d
+
+# iwe ships iwe (CLI), iwes (LSP server), and iwec (MCP server) together in one
+# per-arch tarball; installing it to /usr/local/bin installs all three.
+dev_tools_iwe_version: iwe-v0.19.0
+dev_tools_iwe_install_path: /usr/local/bin/iwe
+dev_tools_iwe_archives:
+  amd64:
+    target: x86_64-unknown-linux-gnu
+    checksum: 2ba5d5a9f644d58de6d92ee9741fec1215e2572f206cda97dc4b2cc28b9532ff
+  arm64:
+    target: aarch64-unknown-linux-gnu
+    checksum: d8a241560754f21547c851d7d8fe6bc97f6fd931b2d4770bcd58f17ee718b2ea

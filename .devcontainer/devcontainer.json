@@ -90,17 +90,14 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        // Agents
         "anthropic.claude-code",
         "openai.chatgpt",
-        // Python
         "ms-python.python",
         "ms-python.vscode-pylance",
         "ms-python.debugpy",
         "charliermarsh.ruff",
         "ms-toolsai.jupyter",
         "ms-toolsai.vscode-jupyter-cell-tags",
-        // Config & markup formats
         "tamasfe.even-better-toml",
         "redhat.vscode-yaml",
         "redhat.vscode-xml",
@@ -111,22 +108,18 @@
         "esbenp.prettier-vscode",
         "executablebookproject.myst-highlight",
         "editorconfig.editorconfig",
-        // Git & GitHub
         "eamodio.gitlens",
         "mhutchie.git-graph",
         "github.vscode-pull-request-github",
         "github.vscode-github-actions",
-        // Containers & remote
         "ms-azuretools.vscode-containers",
         "ms-vscode-remote.remote-containers",
         "ms-vscode-remote.remote-ssh",
         "ms-vscode-remote.remote-ssh-edit",
-        // Build & shell
         "ms-vscode.cmake-tools",
         "mads-hartmann.bash-ide-vscode",
         "rogalmic.bash-debug",
         "rpinski.shebang-snippets",
-        // Editor utilities
         "streetsidesoftware.code-spell-checker",
         "ryanluker.vscode-coverage-gutters",
         "elagil.pre-commit-helper",
@@ -137,7 +130,8 @@
         "chrisdias.vscode-opennewinstance",
         "davidkol.fastcompare",
         "batyan-soft.fast-tasks",
-        "1password.op-vscode"
+        "1password.op-vscode",
+        "IWE.iwe"
       ],
       "settings": {
         // Python: uv owns the virtualenv, so never let VS Code auto-activate it.
@@ -194,6 +188,8 @@
           "dotfiles",
           "fisher",
           "hadolint",
+          "iwec",
+          "iwes",
           "noqa",
           "pytest",
           "rgba",
