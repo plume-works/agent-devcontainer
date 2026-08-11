@@ -3,6 +3,11 @@
 #
 # Capability roles are opt-in; docker/desktop/agent-desktop.Dockerfile turns them
 # all on when building the published image.
+#
+# The interleaved perm_probe roles are temporary diagnostics for the
+# /usr/local/bin ownership drift (owner=UNKNOWN, uid/gid 1001). Each probe emits
+# greppable PERM_PROBE lines; the culprit is the role between the last clean
+# probe and the first PERM_PROBE DRIFT line. Remove them once the cause is fixed.
 - name: Setup development environment
   hosts: all
   become: true
@@ -10,22 +15,39 @@
 
   roles:
     - { role: extra_facts, tags: ["extra_facts", "always"] }
+    - { role: perm_probe, perm_probe_label: "baseline", tags: ["always"] }
     - { role: basic_prereqs, tags: ["basic_prereqs"] }
+    - { role: perm_probe, perm_probe_label: "after basic_prereqs", tags: ["always"] }
     - { role: install_docker, tags: ["install_docker"], when: install_docker | default(false) | bool }
+    - { role: perm_probe, perm_probe_label: "after install_docker", tags: ["always"] }
     - { role: locale_setup, tags: ["locale_setup"] }
+    - { role: perm_probe, perm_probe_label: "after locale_setup", tags: ["always"] }
     - { role: utc_timezone, tags: ["utc_timezone"] }
+    - { role: perm_probe, perm_probe_label: "after utc_timezone", tags: ["always"] }
     - { role: fish_setup, tags: ["fish_setup"] }
+    - { role: perm_probe, perm_probe_label: "after fish_setup", tags: ["always"] }
     - { role: bash_setup, tags: ["bash_setup"] }
+    - { role: perm_probe, perm_probe_label: "after bash_setup", tags: ["always"] }
     - { role: cmake_kitware, tags: ["cmake"] }
+    - { role: perm_probe, perm_probe_label: "after cmake_kitware", tags: ["always"] }
     - { role: dev_tools, tags: ["dev_tools"] }
+    - { role: perm_probe, perm_probe_label: "after dev_tools", tags: ["always"] }
     - { role: github_cli, tags: ["github_cli"] }
+    - { role: perm_probe, perm_probe_label: "after github_cli", tags: ["always"] }
     # bun_setup must precede nodejs and agentic_tools: both install global
     # packages through `bun add --global`.
     - { role: bun_setup, tags: ["bun_setup", "nodejs", "agentic_tools"] }
+    - { role: perm_probe, perm_probe_label: "after bun_setup", tags: ["always"] }
     - { role: nodejs, tags: ["nodejs"] }
+    - { role: perm_probe, perm_probe_label: "after nodejs", tags: ["always"] }
     - { role: uv_setup, tags: ["uv_setup"] }
+    - { role: perm_probe, perm_probe_label: "after uv_setup", tags: ["always"] }
     # Must follow uv_setup: the validator is installed as a uv tool.
     - { role: validate_agent_files, tags: ["validate_agent_files"], when: install_validate_agent_files | default(false) | bool }
+    - { role: perm_probe, perm_probe_label: "after validate_agent_files", tags: ["always"] }
     - { role: agentic_tools, tags: ["agentic_tools"], when: install_agentic_tools | default(false) | bool }
+    - { role: perm_probe, perm_probe_label: "after agentic_tools", tags: ["always"] }
     - { role: xpra_setup, tags: ["xpra_setup"], when: install_xpra | default(false) | bool }
+    - { role: perm_probe, perm_probe_label: "after xpra_setup", tags: ["always"] }
     - { role: devcontainer_firewall, tags: ["devcontainer_firewall"], when: install_devcontainer_firewall | default(false) | bool }
+    - { role: perm_probe, perm_probe_label: "after devcontainer_firewall", tags: ["always"] }

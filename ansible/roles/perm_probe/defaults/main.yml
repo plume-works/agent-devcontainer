@@ -1,0 +1,25 @@
+---
+# Default variables for perm_probe role
+
+# Label identifying the probe point, e.g. "before dev_tools". Every log line
+# carries this so a drifting path can be attributed to the role that ran
+# between two probes.
+perm_probe_label: unlabeled
+
+# Paths to stat. /usr/local/bin is the shared system directory that third-party
+# installer scripts and archives are known to re-own; the rest are the sibling
+# directories those same installers write into.
+perm_probe_paths:
+  - /usr/local/bin
+  - /usr/local
+  - /usr/local/lib
+  - /usr/local/share
+
+# Ownership every probed path is expected to hold. A path deviating from this
+# is what the probe exists to catch.
+perm_probe_expected_uid: 0
+perm_probe_expected_gid: 0
+
+# When true, the first drifting path aborts the play so the run stops at the
+# role that caused it rather than continuing through later roles.
+perm_probe_fail_on_drift: false
