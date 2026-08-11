@@ -19,11 +19,15 @@ if ! command -v codebase-memory-mcp &>/dev/null; then
   exit 0
 fi
 
-cbm_cache_dir="${CBM_CACHE_DIR:-$HOME/.cache/codebase-memory-mcp}"
+if [[ -z $CBM_CACHE_DIR ]]; then
+  echo "CBM_CACHE_DIR is required for codebase-memory-mcp install; it is not set in this container." >&2
+  exit 1
+fi
+
 cbm_bin_path="$(command -v codebase-memory-mcp)"
 cbm_install_dir="${CBM_INSTALL_DIR:-$HOME/.local/bin}"
 
-echo "codebase-memory-mcp install: user=$(id -un) home=$HOME cache_dir=$cbm_cache_dir binary=$cbm_bin_path"
+echo "codebase-memory-mcp install: user=$(id -un) home=$HOME cache_dir=$CBM_CACHE_DIR binary=$cbm_bin_path"
 echo "umask=$(umask)"
 
 # The activation-transaction staging step refuses a candidate/target that
@@ -76,7 +80,7 @@ CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force |
 if ((install_status != 0)); then
   echo "codebase-memory-mcp install failed with exit code $install_status" >&2
 
-  activation_log="$cbm_cache_dir/logs/activation-events.ndjson"
+  activation_log="$CBM_CACHE_DIR/logs/activation-events.ndjson"
   if [[ -f "$activation_log" ]]; then
     echo "--- tail of $activation_log ---" >&2
     tail -n 50 "$activation_log" >&2
@@ -84,7 +88,7 @@ if ((install_status != 0)); then
     echo "no activation log found at $activation_log" >&2
   fi
 
-  daemon_log="$cbm_cache_dir/logs/cbm-daemon.log"
+  daemon_log="$CBM_CACHE_DIR/logs/cbm-daemon.log"
   if [[ -f "$daemon_log" ]]; then
     echo "--- tail of $daemon_log ---" >&2
     tail -n 50 "$daemon_log" >&2
@@ -92,7 +96,7 @@ if ((install_status != 0)); then
     echo "no daemon log found at $daemon_log" >&2
   fi
 
-  conflicts_log="$cbm_cache_dir/logs/daemon-conflicts.ndjson"
+  conflicts_log="$CBM_CACHE_DIR/logs/daemon-conflicts.ndjson"
   if [[ -f "$conflicts_log" ]]; then
     echo "--- tail of $conflicts_log ---" >&2
     tail -n 50 "$conflicts_log" >&2

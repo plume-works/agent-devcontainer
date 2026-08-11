@@ -51,4 +51,4 @@ fi
 
 # Wire the codebase-memory-mcp binary staged by dev_tools into this user's
 # agent config now that the real ~/.claude and ~/.codex volumes are mounted.
-"$script_dir/install-codebase-memory-mcp.sh"
+"$script_dir/codebase-memory-mcp-install.sh"
