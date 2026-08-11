@@ -101,11 +101,10 @@ Two properties are worth knowing before changing any of it:
 ## Required External Variables
 
 These variables are not defined by this role and must be supplied by the
-playbook or inventory (the `extra_facts` and `dev_user_setup` roles provide them
-in this repository):
+playbook or inventory (the `extra_facts` role provides them in this
+repository):
 
-| Variable                                    | Description                                                            |
-| ------------------------------------------- | ---------------------------------------------------------------------- |
-| `system_arch`                               | Target CPU architecture (`amd64` or `arm64`) for the binary URL.       |
-| `user_home`                                 | Home directory of the target user (locates `~/.claude/settings.json`). |
-| `dev_user_setup_uid` / `dev_user_setup_gid` | UID/GID used for ownership of the Claude config files.                 |
+| Variable      | Description                                                            |
+| ------------- | ---------------------------------------------------------------------- |
+| `system_arch` | Target CPU architecture (`amd64` or `arm64`) for the binary URL.       |
+| `user_home`   | Home directory of the target user (locates `~/.claude/settings.json`). |

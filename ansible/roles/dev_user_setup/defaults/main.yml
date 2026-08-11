@@ -1,7 +1,0 @@
----
-# Default variables for the dev_user_setup role
-
-dev_user_setup_username: devuser
-dev_user_setup_uid: 1001
-dev_user_setup_gid: "{{ dev_user_setup_uid }}"
-dev_user_setup_workspace_dir: "/home/{{ dev_user_setup_username }}/workspace"

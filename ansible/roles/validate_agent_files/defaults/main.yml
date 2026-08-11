@@ -9,8 +9,7 @@ validate_agent_files_source_dir: "{{ role_path }}/../../../py_packages/validate_
 # agentic_tools_plugin_version.
 validate_agent_files_version: ""
 
-# The entry point goes somewhere every user has on PATH, so the command works for
-# root and for the non-root user dev_user_setup creates.
+# The entry point goes somewhere every user has on PATH.
 validate_agent_files_bin_dir: /usr/local/bin
 
 # Isolated tool environment, outside $HOME so a mounted home volume cannot shadow

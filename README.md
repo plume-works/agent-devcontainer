@@ -174,7 +174,6 @@ build a leaner image, flip them off — they default to `false` in
 | `install_agentic_tools`         | Claude Code, Codex, MCP inspector                                       |
 | `install_validate_agent_files`  | The `validate_agent_files` CLI, on `PATH` as an isolated `uv` tool      |
 | `install_devcontainer_firewall` | `init-firewall.sh` + sudoers entry (still runtime-gated)                |
-| `setup_user`                    | Create a non-root `devuser` (1001:1001) instead of running as root      |
 | `workspace_folder`              | Fallback workspace path baked into the image                            |
 
 The staged catalog rides on `install_agentic_tools` and is switched separately by

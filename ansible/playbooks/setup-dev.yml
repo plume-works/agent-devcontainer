@@ -14,7 +14,6 @@
     - { role: install_docker, tags: ["install_docker"], when: install_docker | default(false) | bool }
     - { role: locale_setup, tags: ["locale_setup"] }
     - { role: utc_timezone, tags: ["utc_timezone"] }
-    - { role: dev_user_setup, tags: ["setup_user"], when: setup_user | default(false) | bool }
     - { role: fish_setup, tags: ["fish_setup"] }
     - { role: bash_setup, tags: ["bash_setup"] }
     - { role: cmake_kitware, tags: ["cmake"] }
