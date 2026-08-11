@@ -164,8 +164,9 @@ configured_versions[ruff]=$(pre_commit_rev https://github.com/astral-sh/ruff-pre
 configured_versions[shellcheck]=$(pre_commit_rev https://github.com/shellcheck-py/shellcheck-py)
 configured_versions[gitleaks]=$(pre_commit_rev https://github.com/gitleaks/gitleaks)
 configured_versions[actionlint]=$(pre_commit_rev https://github.com/rhysd/actionlint)
-configured_versions[zizmor]=$(sed -nE \
-  's/^dev_tools_zizmor_version: v?([0-9.]+).*/\1/p' "$zizmor_defaults" | head -n 1)
+configured_versions[zizmor]=$(awk \
+  '/- name: zizmor/ { found=1 } found && /version:/ { sub(/.*version: v?/, ""); print; exit }' \
+  "$zizmor_defaults")
 
 validation_failed=0
 

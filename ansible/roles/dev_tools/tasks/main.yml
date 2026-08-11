@@ -32,80 +32,9 @@
     install_recommends: false
     update_cache: true
 
-- name: Ensure zizmor supports the current architecture
-  ansible.builtin.assert:
-    that: system_arch in dev_tools_zizmor_archives
-    fail_msg: "zizmor is not available for architecture {{ system_arch }}"
-
-- name: Create temporary directory for zizmor
-  ansible.builtin.tempfile:
-    state: directory
-  register: dev_tools_zizmor_temp_dir
-
-- name: Download zizmor
-  ansible.builtin.get_url:
-    url: >-
-      {{ 'https://github.com/zizmorcore/zizmor/releases/download/'
-      ~ dev_tools_zizmor_version ~ '/zizmor-'
-      ~ dev_tools_zizmor_archives[system_arch].target ~ '.tar.gz' }}
-    dest: "{{ dev_tools_zizmor_temp_dir.path }}/zizmor.tar.gz"
-    checksum: "sha256:{{ dev_tools_zizmor_archives[system_arch].checksum }}"
-    mode: "0644"
-
-- name: Install zizmor
-  ansible.builtin.unarchive:
-    src: "{{ dev_tools_zizmor_temp_dir.path }}/zizmor.tar.gz"
-    dest: "{{ dev_tools_zizmor_install_path | dirname }}"
-    remote_src: true
-    # The release tarball's "./" entry carries the upstream release runner's
-    # numeric uid/gid (1001:1001), and unarchive applies that ownership to the
-    # destination directory itself when the archive contains one — silently
-    # handing /usr/local/bin to an unrelated account. Pin both the extracted
-    # file and the directory it lands in back to root explicitly.
-    owner: root
-    group: root
-
-- name: Clean up temporary zizmor files
-  ansible.builtin.file:
-    path: "{{ dev_tools_zizmor_temp_dir.path }}"
-    state: absent
-
-- name: Ensure codebase-memory-mcp supports the current architecture
-  ansible.builtin.assert:
-    that: system_arch in dev_tools_codebase_memory_mcp_archives
-    fail_msg: "codebase-memory-mcp is not available for architecture {{ system_arch }}"
-
-- name: Create temporary directory for codebase-memory-mcp
-  ansible.builtin.tempfile:
-    state: directory
-  register: dev_tools_codebase_memory_mcp_temp_dir
-
-- name: Download codebase-memory-mcp
-  ansible.builtin.get_url:
-    url: >-
-      {{ 'https://github.com/DeusData/codebase-memory-mcp/releases/download/'
-      ~ dev_tools_codebase_memory_mcp_version ~ '/codebase-memory-mcp-'
-      ~ dev_tools_codebase_memory_mcp_archives[system_arch].target ~ '.tar.gz' }}
-    dest: "{{ dev_tools_codebase_memory_mcp_temp_dir.path }}/codebase-memory-mcp.tar.gz"
-    checksum: "sha256:{{ dev_tools_codebase_memory_mcp_archives[system_arch].checksum }}"
-    mode: "0644"
-
-- name: Extract codebase-memory-mcp archive
-  ansible.builtin.unarchive:
-    src: "{{ dev_tools_codebase_memory_mcp_temp_dir.path }}/codebase-memory-mcp.tar.gz"
-    dest: "{{ dev_tools_codebase_memory_mcp_temp_dir.path }}"
-    remote_src: true
-
-- name: Install codebase-memory-mcp binary
-  ansible.builtin.copy:
-    src: "{{ dev_tools_codebase_memory_mcp_temp_dir.path }}/codebase-memory-mcp"
-    dest: "{{ dev_tools_codebase_memory_mcp_install_path }}"
-    remote_src: true
-    owner: root
-    group: root
-    mode: "0755"
-
-- name: Clean up temporary codebase-memory-mcp files
-  ansible.builtin.file:
-    path: "{{ dev_tools_codebase_memory_mcp_temp_dir.path }}"
-    state: absent
+- name: Install pinned single-binary tools
+  ansible.builtin.include_tasks: install_pinned_tool.yml
+  loop: "{{ dev_tools_pinned_tools }}"
+  loop_control:
+    loop_var: dev_tools_tool
+    label: "{{ dev_tools_tool.name }}"
