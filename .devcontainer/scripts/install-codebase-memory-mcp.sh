@@ -40,6 +40,36 @@ for path in "$cbm_bin_path" "$(dirname "$cbm_bin_path")" "$cbm_install_dir" "$HO
   fi
 done
 
+# postCreateCommand.sh symlinks ~/.claude.json into the persistent ~/.claude
+# volume (Docker volumes are directory-backed, so the file cannot be mounted
+# directly). The installer's MCP write refuses to operate on that symlink and
+# fails with `op=mcp_install path=$HOME/.claude.json`, which aborts the whole
+# activation. Materialize the symlink target as a real file for the duration of
+# the install, then fold the result back into the volume and relink — so the
+# installed MCP entry persists across container restarts either way.
+claude_json="$HOME/.claude.json"
+claude_json_link_target=""
+if [[ -L "$claude_json" ]]; then
+  claude_json_link_target="$(readlink -f "$claude_json")"
+  echo "temporarily materializing $claude_json (symlink -> $claude_json_link_target) for the install"
+  rm "$claude_json"
+  cp -a "$claude_json_link_target" "$claude_json"
+fi
+
+# shellcheck disable=SC2317  # reached via the EXIT trap below, not inline.
+restore_claude_json_symlink() {
+  [[ -n "$claude_json_link_target" ]] || return 0
+  if [[ -f "$claude_json" && ! -L "$claude_json" ]]; then
+    cp -a "$claude_json" "$claude_json_link_target"
+    rm -f "$claude_json"
+  fi
+  ln -sf "$claude_json_link_target" "$claude_json"
+  echo "restored $claude_json -> $claude_json_link_target"
+}
+# Restore on any exit path, so an installer crash cannot leave the symlink off
+# and strand later config writes outside the persistent volume.
+trap restore_claude_json_symlink EXIT
+
 install_status=0
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
 
