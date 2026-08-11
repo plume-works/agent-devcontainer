@@ -224,12 +224,12 @@ docker run --rm local/agent-desktop bash -lc '
   ls "$AGENTDEV_CATALOG_DIR/.agents/plugins"/*/skills | head -3'
 ```
 
-Ansible alone, without a build:
+Ansible alone, without a build. Run from the repository root — `ansible.cfg`
+lives there, and Ansible only auto-loads it from the current directory:
 
 ```bash
-cd ansible
-uv run ansible-lint .
-uv run ansible-playbook --syntax-check playbooks/setup-dev.yml
+uv run ansible-lint ansible
+uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml
 ```
 
 ## The agent catalog

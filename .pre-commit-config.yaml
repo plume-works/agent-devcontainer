@@ -28,7 +28,9 @@ repos:
     hooks:
       - id: ansible-lint
         files: '^ansible/.*\.ya?ml$'
-        args: ['--project-dir=ansible']
+        # The repository root: ansible.cfg lives there, so that is where the
+        # inventory and roles paths resolve from.
+        args: ['--project-dir=.']
         language_version: python3
         pass_filenames: true
         always_run: false
