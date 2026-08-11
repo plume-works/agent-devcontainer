@@ -73,6 +73,24 @@ trap restore_claude_json_symlink EXIT
 install_status=0
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
 
+# Auto-start the background git watcher (auto_watch, on by default) and
+# auto-index the workspace when an MCP session connects (auto_index, off by
+# default). Without auto_index the graph tools are registered but every query
+# returns "No projects indexed" until someone calls index_repository by hand.
+#
+# These persist in $cbm_cache_dir/_config.db, which lives under ~/.cache — and
+# unlike ~/.claude and ~/.codex that path has NO persistent volume behind it,
+# so a rebuild resets both keys to their defaults. Re-assert them on every
+# container start; `config set` is idempotent.
+if ((install_status == 0)); then
+  for key_value in "auto_index true" "auto_watch true"; do
+    read -r key value <<<"$key_value"
+    if ! codebase-memory-mcp config set "$key" "$value"; then
+      echo "warning: failed to set codebase-memory-mcp $key=$value" >&2
+    fi
+  done
+fi
+
 if ((install_status != 0)); then
   echo "codebase-memory-mcp install failed with exit code $install_status" >&2
 
