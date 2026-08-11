@@ -35,13 +35,13 @@ dev_tools_pinned_tools:
   # mount over anything written at image-build time — the same reason
   # agentic_tools only stages its catalog at build time instead of installing it.
   - name: codebase-memory-mcp
-    version: v0.10.0
+    version: v0.10.2
     url_prefix: https://github.com/DeusData/codebase-memory-mcp/releases/download
     asset_prefix: codebase-memory-mcp-
     archives:
       amd64:
         target: linux-amd64-portable
-        checksum: 3868eecb025c93b0018b2c48f00f2ba435557aaf2ac83edbfe613b7fca9a23b1
+        checksum: 4ead161715fe959ef8a0e38946d63b1728d31e5fb1762a85dbb4b8c4abfbe481
       arm64:
         target: linux-arm64-portable
-        checksum: a97089ec5ccf011e9fc936fa4648e728f10f8cde7ba3b3a81be8d9264d7df5b0
+        checksum: dcd6f31f4004c25e7945b355ae23a5a381acb2a620301bca93e1ddb159b672fd
