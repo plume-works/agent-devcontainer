@@ -57,6 +57,13 @@
     src: "{{ dev_tools_zizmor_temp_dir.path }}/zizmor.tar.gz"
     dest: "{{ dev_tools_zizmor_install_path | dirname }}"
     remote_src: true
+    # The release tarball's "./" entry carries the upstream release runner's
+    # numeric uid/gid (1001:1001), and unarchive applies that ownership to the
+    # destination directory itself when the archive contains one — silently
+    # handing /usr/local/bin to an unrelated account. Pin both the extracted
+    # file and the directory it lands in back to root explicitly.
+    owner: root
+    group: root
 
 - name: Clean up temporary zizmor files
   ansible.builtin.file:
