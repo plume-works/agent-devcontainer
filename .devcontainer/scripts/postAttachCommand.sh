@@ -10,3 +10,5 @@ git config --global gpg.ssh.program ssh-keygen
 # and skills are copied into both clients' plugin caches after a window reload.
 "$script_dir/reinstall-agentdev-codex.sh"
 "$script_dir/reinstall-agentdev-claude.sh"
+
+codebase-memory-mcp cli index_repository --repo-path "$DEV_WORKSPACE_FOLDER"

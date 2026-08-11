@@ -100,19 +100,3 @@ if ((install_status != 0)); then
 
   exit "$install_status"
 fi
-
-# Auto-start the background git watcher (auto_watch, on by default) and
-# auto-index the workspace when an MCP session connects (auto_index, off by
-# default). Without auto_index the graph tools are registered but every query
-# returns "No projects indexed" until someone calls index_repository by hand.
-#
-# These persist in $cbm_cache_dir/_config.db, which lives under ~/.cache — and
-# unlike ~/.claude and ~/.codex that path has NO persistent volume behind it,
-# so a rebuild resets both keys to their defaults. Re-assert them on every
-# container start; `config set` is idempotent.
-for key_value in "auto_index true" "auto_watch true"; do
-  read -r key value <<<"$key_value"
-  if ! codebase-memory-mcp config set "$key" "$value"; then
-    echo "warning: failed to set codebase-memory-mcp $key=$value" >&2
-  fi
-done
