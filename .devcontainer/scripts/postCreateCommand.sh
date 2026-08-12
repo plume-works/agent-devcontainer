@@ -10,6 +10,11 @@ sudo chown -R root:root \
     "$workspace/.cache" \
     /uv
 
+# Wire the codebase-memory-mcp binary staged by dev_tools into this user's
+# agent config now that the real ~/.claude and ~/.codex volumes are mounted.
+# This script has to run before symlinking ~/.claude.json
+"$script_dir/codebase-memory-mcp-install.sh"
+
 # Both agents' credential setup below needs their subdirectory of the shared
 # agentdev-agents-auth volume to exist first.
 mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex
@@ -48,7 +53,3 @@ if [[ -n "${AGENTDEV_CATALOG_DIR:-}" && -d "$AGENTDEV_CATALOG_DIR" ]]; then
 else
     echo "No catalog staged in the image; skipping the image-scoped plugin install."
 fi
-
-# Wire the codebase-memory-mcp binary staged by dev_tools into this user's
-# agent config now that the real ~/.claude and ~/.codex volumes are mounted.
-"$script_dir/codebase-memory-mcp-install.sh"

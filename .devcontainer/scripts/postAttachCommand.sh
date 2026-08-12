@@ -5,7 +5,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 git config --global gpg.ssh.program ssh-keygen
 
-"$script_dir/codebase-memory-mcp-start.sh"
+"$script_dir/codebase-memory-mcp-index.sh"
 
 "$script_dir/uv-sync.sh"
 
