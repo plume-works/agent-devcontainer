@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -xeuo pipefail
+set -euo pipefail
 
 # Wire the codebase-memory-mcp binary (installed system-wide by the dev_tools
 # Ansible role at image-build time) into the current user's agent config.
@@ -35,6 +35,7 @@ fi
 stat_cache_dir() {
   local stat_dir="$CBM_CACHE_DIR"
   while [[ -n "$stat_dir" && "$stat_dir" != "/" ]]; do
+    sudo chown root:root "$stat_dir" # fix ownership
     stat -c 'cache preflight: %n dev=%d mode=%a owner=%U:%G' \
       "$stat_dir" 2>&1 || true
     stat_dir="$(dirname "$stat_dir")"
