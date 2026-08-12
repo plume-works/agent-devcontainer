@@ -111,6 +111,7 @@ jobs:
             - '**/Dockerfile.*'
             - '**/Dockerfile'
             - ansible/**
+            - ansible.cfg
             - .agents/plugins/agentdev/bin/super-linter-defaults.sh
             - .agents/plugins/agentdev/bin/super-linter-local.sh
             - .agents/plugins/agentdev/**/*.py

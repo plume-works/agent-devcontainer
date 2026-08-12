@@ -1,6 +1,7 @@
 services:
   mcp-gateway:
     image: docker/mcp-gateway
+    init: true
     pull_policy: if_not_present
     restart: unless-stopped
     profiles: ['mcp']
@@ -54,6 +55,8 @@ services:
     # use. The digest pin lives in ../compose.pins.yml, which devcontainer.json layers on
     # top of this file; pass `-f compose.pins.yml` too when invoking compose directly.
     image: ghcr.io/plume-works/agent-desktop:edge
+    # required for codebase-memory-mcp to stop leaving zombie processes behind
+    init: true
     # Required for Docker in Docker (dind) to allow nested containers, and for
     # privileged access to the host's GPU for hardware-accelerated rendering
     # through Xpra/VirtualGL.

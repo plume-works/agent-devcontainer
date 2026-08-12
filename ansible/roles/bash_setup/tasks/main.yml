@@ -6,8 +6,8 @@
     line: 'export PATH="$HOME/.local/bin:$PATH"'
     state: present
     create: true
-    owner: "{{ dev_user_setup_uid }}"
-    group: "{{ dev_user_setup_gid }}"
+    owner: root
+    group: root
     mode: "0644"
 
 - name: Enable a larger, de-duplicated shell history
@@ -21,6 +21,6 @@
       shopt -s histappend
     state: present
     create: true
-    owner: "{{ dev_user_setup_uid }}"
-    group: "{{ dev_user_setup_gid }}"
+    owner: root
+    group: root
     mode: "0644"

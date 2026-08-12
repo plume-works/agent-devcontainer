@@ -53,3 +53,7 @@ design decisions, and implementation strategies.
 ## Spikes
 
 When doing investigation work aka spikes document your findings in specs under `docs/agents/specs/<spike-topic>` in a structured way, create new subfolder `<spike-topic>` for the subject of investigation. Create `README.md` with raw findings, including list of issues with assigned priorities. Create a series of spec files with implementation guidance.
+
+## Other
+
+Before calling any codebase-memory-mcp tools read `AGENTS-codebase-memory-mcp.md`

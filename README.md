@@ -174,7 +174,6 @@ build a leaner image, flip them off — they default to `false` in
 | `install_agentic_tools`         | Claude Code, Codex, MCP inspector                                       |
 | `install_validate_agent_files`  | The `validate_agent_files` CLI, on `PATH` as an isolated `uv` tool      |
 | `install_devcontainer_firewall` | `init-firewall.sh` + sudoers entry (still runtime-gated)                |
-| `setup_user`                    | Create a non-root `devuser` (1001:1001) instead of running as root      |
 | `workspace_folder`              | Fallback workspace path baked into the image                            |
 
 The staged catalog rides on `install_agentic_tools` and is switched separately by
@@ -225,12 +224,12 @@ docker run --rm local/agent-desktop bash -lc '
   ls "$AGENTDEV_CATALOG_DIR/.agents/plugins"/*/skills | head -3'
 ```
 
-Ansible alone, without a build:
+Ansible alone, without a build. Run from the repository root — `ansible.cfg`
+lives there, and Ansible only auto-loads it from the current directory:
 
 ```bash
-cd ansible
-uv run ansible-lint .
-uv run ansible-playbook --syntax-check playbooks/setup-dev.yml
+uv run ansible-lint ansible
+uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml
 ```
 
 ## The agent catalog

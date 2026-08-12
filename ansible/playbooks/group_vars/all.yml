@@ -8,12 +8,6 @@ workspace_folder: /workspaces/project
 # devcontainer docker-in-docker feature) starts the daemon.
 install_docker: false
 
-# Non-root development user. Off by default: the devcontainer image runs as root.
-setup_user: false
-dev_user_setup_username: devuser
-dev_user_setup_uid: 1001
-dev_user_setup_gid: 1001
-
 # Xpra remote desktop with the HTML5 client.
 install_xpra: false
 

@@ -91,6 +91,7 @@ For the normal consumer path, delete the optional bundle:
 
 ```text
 ansible/
+ansible.cfg
 docker/
 .dockerignore
 .github/actions/docker/
@@ -455,6 +456,7 @@ Retain or copy:
 
 ```text
 ansible/
+ansible.cfg
 docker/
 .dockerignore
 .github/actions/docker/

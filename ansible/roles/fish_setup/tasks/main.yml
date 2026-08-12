@@ -12,8 +12,8 @@
     path: "{{ user_home }}/.config/fish/conf.d"
     state: directory
     mode: "0755"
-    owner: "{{ dev_user_setup_uid }}"
-    group: "{{ dev_user_setup_gid }}"
+    owner: root
+    group: root
   become: true
   become_user: "{{ dev_user }}"
 
@@ -55,8 +55,8 @@
     src: dev.fish.j2
     dest: "{{ user_home }}/.config/fish/conf.d/dev.fish"
     mode: "0644"
-    owner: "{{ dev_user_setup_uid }}"
-    group: "{{ dev_user_setup_gid }}"
+    owner: root
+    group: root
   become: false
 
 - name: Clean up temporary directory
