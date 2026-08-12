@@ -4,6 +4,17 @@ set -exuo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 workspace="${DEV_WORKSPACE_FOLDER:-$(cd "$script_dir/../.." && pwd)}"
 
+chmod_up() {
+  local owner="$1"
+  local loop_dir="$2"
+  while [[ -n "$loop_dir" && "$loop_dir" != "/" ]]; do
+    sudo chown "$owner" "$loop_dir"
+    loop_dir="$(dirname "$loop_dir")"
+  done
+}
+
+chmod_up "root:root" "$workspace"
+
 # Named volumes are created root-owned by the daemon; make sure the container
 # user owns the mount points it writes to.
 sudo chown -R root:root \
