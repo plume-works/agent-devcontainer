@@ -8,6 +8,18 @@ import tempfile
 
 import toml
 
+# https://github.com/DeusData/codebase-memory-mcp#environment-variables
+CMB_KNOWN_ENV_VARS = [
+    'CBM_ALLOWED_ROOT',
+    'CBM_CACHE_DIR',
+    'CBM_DIAGNOSTICS',
+    'CBM_DOWNLOAD_URL',
+    'CBM_LOG_LEVEL',
+    'CBM_WORKERS',
+    'CBM_MEM_BUDGET_MB',
+    'CBM_DUMP_VERIFY_MIN_RATIO',
+]
+
 
 def main(args: argparse.Namespace) -> None:
     """Patch codebase-memory-mcp codex configuration for custom environment."""
@@ -22,8 +34,8 @@ def main(args: argparse.Namespace) -> None:
     if isinstance(cbm_server, dict):
         if args.revert:
             cbm_server.pop('env_vars', None)
-        elif os.environ.get('CBM_CACHE_DIR'):
-            cbm_server['env_vars'] = ['CBM_CACHE_DIR']
+        else:
+            cbm_server['env_vars'] = CMB_KNOWN_ENV_VARS
 
     with tempfile.NamedTemporaryFile(
         mode='w',
