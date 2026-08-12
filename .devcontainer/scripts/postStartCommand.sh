@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# This script is run after the container is started, but before the VSCode extension host is started.
+# This allows to avoid race conditions and setup safe environment for the extension host to run in.
+
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
