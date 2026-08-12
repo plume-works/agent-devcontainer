@@ -76,6 +76,9 @@ trap restore_claude_json_symlink EXIT
 
 install_status=0
 
+codebase-memory-mcp daemon status || true  # log any existing daemon status, but don't fail the install if it's not running
+codebase-memory-mcp daemon stop || true  # stop any existing daemon so the install can run without conflicting with it
+
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
 if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   echo "found ${#zombie_pids[@]} zombie codebase-memory-mcp process(es) with PID(s): ${zombie_pids[*]}"
