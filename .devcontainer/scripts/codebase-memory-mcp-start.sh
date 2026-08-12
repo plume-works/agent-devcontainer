@@ -11,6 +11,12 @@ if [[ -z $CBM_CACHE_DIR ]]; then
   exit 1
 fi
 
+mapfile -t zombie_pids < <(pgrep codebase-me || true)
+if [[ ${#zombie_pids[@]} -gt 0 ]]; then
+  echo "found ${#zombie_pids[@]} zombie codebase-memory-mcp process(es) with PID(s): ${zombie_pids[*]}"
+  ps -fp "${zombie_pids[@]}"
+fi
+
 # Keep the codebase-memory-mcp daemon running in the background so that the
 # CLI can talk to it without needing to start a new daemon on every invocation.
 # Environment used by daemon-owned components—such as diagnostics, daemon logging, and process-wide indexing resource limits—is captured from the first daemon-backed session that starts the daemon. Later sessions join that process and cannot replace those values. To change them, close all daemon-backed sessions, update the relevant agent configurations consistently, and restart a session. CBM_ALLOWED_ROOT remains session-specific, a conflicting CBM_CACHE_DIR is rejected, and one-shot CLI commands read their own environment without starting the daemon.
