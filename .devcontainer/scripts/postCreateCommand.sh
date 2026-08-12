@@ -13,6 +13,10 @@ chmod_up() {
   done
 }
 
+# Fix ownership of the workspace and its parent directories.
+# This was originally needed for GitHub Actions where workspace is owned by 1001:1001
+# which blows up the CBM internal checks of ownership of the cache directory and workspace
+# Fix is placed next to other ownership fixes as it might be needed for other tools
 chmod_up "root:root" "$workspace"
 
 # Named volumes are created root-owned by the daemon; make sure the container
