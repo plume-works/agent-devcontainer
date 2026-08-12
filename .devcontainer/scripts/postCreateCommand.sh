@@ -8,7 +8,8 @@ workspace="${DEV_WORKSPACE_FOLDER:-$(cd "$script_dir/../.." && pwd)}"
 # user owns the mount points it writes to.
 sudo chown -R root:root \
     "$workspace/.cache" \
-    /uv
+    /uv \
+    /cmb-cache
 
 # Wire the codebase-memory-mcp binary staged by dev_tools into this user's
 # agent config now that the real ~/.claude and ~/.codex volumes are mounted.
