@@ -30,7 +30,7 @@
     // while nothing else in ~/.claude is.
     "CLAUDE_SECURESTORAGE_CONFIG_DIR": "/root/.agents-auth/claude",
 
-    "CBM_CACHE_DIR": "/cmb-cache",
+    "CBM_CACHE_DIR": "/workspaces/${localWorkspaceFolderBasename}/.cache/codebase-memory-mcp",
 
     "UV_CACHE_DIR": "/uv/cache",
     "UV_PYTHON_INSTALL_DIR": "/uv/python",
@@ -55,11 +55,6 @@
     {
       "source": "agentdev-cache",
       "target": "/workspaces/${localWorkspaceFolderBasename}/.cache",
-      "type": "volume"
-    },
-    {
-      "source": "agentdev-cmb-cache",
-      "target": "/cmb-cache",
       "type": "volume"
     },
     {
