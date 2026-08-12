@@ -16,3 +16,7 @@ Record a design decision here the moment it's made — the alternatives you
 rejected are as valuable as the one you picked.*
 
 [Module layout](architecture/module-layout.md)
+
+[Template boundary](architecture/template-boundary.md)
+
+[Validator image install](architecture/validator-image-install.md)

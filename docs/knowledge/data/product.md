@@ -145,9 +145,13 @@ it):
   to generalize.
 - Shell: `#!/usr/bin/env bash`, `set -euo pipefail`, shellcheck-clean, quote
   every expansion.
-- Investigation/spike work gets documented under
-  `docs/agents/specs/<spike-topic>/README.md` with prioritized findings, plus
-  implementation-guidance spec files.
+- Investigation/spike work gets documented directly in IWE project memory: an
+  issue found during a spike → `data/bugs/<slug>.md`; a design decision the
+  spike settles → `data/architecture/<slug>.md`; implementation guidance for
+  follow-up → a plan or `data/backlog/<slug>.md` task. (The `agentdev` catalog's
+  `implement-agent-specs` skill and its `docs/agents/specs/` convention still
+  exist for consumers of that catalog who don't run IWE — not used in this
+  repository.)
 - This workspace uses IWE project memory under `docs/knowledge/data/` — query it
   before planning/implementing substantial work; update it when work changes
   durable project knowledge; follow `docs/knowledge/data/AGENTS.md` when editing
@@ -158,3 +162,7 @@ it):
 - 2026-08-01 — document created.
 - 2026-08-12 — filled from codebase scan (README, AGENTS.md, pyproject.toml,
   repository-structure.md, CI workflows) via the setup skill.
+- 2026-08-12 — folded `docs/agents/specs/`, `docs/repository-structure.md`, and
+  `docs/using-as-template.md` into IWE (architecture, spec, and bug docs); the
+  spike-documentation authoring rule now routes to IWE instead of
+  `docs/agents/specs/`.

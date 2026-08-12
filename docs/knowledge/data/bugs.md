@@ -13,3 +13,5 @@ generated:
 Fix. No `status` means open; `status: done` means fixed, `status: cancelled`
 means closed without a fix. Bugs stay listed here either way — the status chip
 tells them apart.*
+
+[Validator warning visibility](bugs/validator-warning-visibility.md)

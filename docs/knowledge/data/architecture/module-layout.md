@@ -12,8 +12,8 @@ generated:
 ## The three responsibilities
 
 The repository carries three distinct build/publish surfaces from one checkout,
-documented as the authoritative inventory in `docs/repository-structure.md`
-(repository root):
+documented as the authoritative inventory in
+[Template boundary](template-boundary.md):
 
 1. **Image build** (`ansible/` + `docker/`) — provisions and publishes
    `ghcr.io/plume-works/agent-desktop` and its `ubuntu-ansible` base,
@@ -50,7 +50,8 @@ ansible/ + docker/ + catalog publisher source
 
 The image stages the catalog read-only at `/opt/agentdev`
 (`AGENTDEV_CATALOG_DIR`); it does not stage the devcontainer scaffolding itself
-— that's copied manually per `docs/using-as-template.md`.
+— that's copied manually per
+[Template consumption](../spec/template-consumption.md).
 
 ## Key design decisions
 

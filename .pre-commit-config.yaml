@@ -75,9 +75,9 @@ repos:
 
       # `uv run` on purpose. The agent-desktop image also ships a
       # `validate_agent_files` on PATH, and that is what a consuming project
-      # should call (see docs/using-as-template.md), but the publisher must
-      # validate against the working-tree source it is editing rather than the
-      # copy frozen into the image.
+      # should call (see docs/knowledge/data/spec/template-consumption.md),
+      # but the publisher must validate against the working-tree source it is
+      # editing rather than the copy frozen into the image.
       - id: validate-agent-files
         name: validate-agent-files
         entry: uv run validate_agent_files

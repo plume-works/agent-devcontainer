@@ -21,3 +21,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Catalog lifecycle](spec/catalog-lifecycle.md)
 
 [Firewall](spec/firewall.md)
+
+[Template consumption](spec/template-consumption.md)
