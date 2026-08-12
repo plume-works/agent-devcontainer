@@ -43,7 +43,9 @@ describe the old behavior.
 7. **Log it.** Append a bullet to `data/log.md` under a `## YYYY-MM-DD` group
    for today (create the group if it isn't there, newest group first), one line
    per state change, each linking the document it describes —
+   <!-- validate_skills: ignore-cross-reference-start -->
    `- **Update**: [Focus sessions](features/focus-sessions.md) implemented.`
+   <!-- validate_skills: ignore-cross-reference-end -->
    A release cut gets its own line linking the release page.
 8. **Validate & commit.** `iwe normalize`, then `iwe schema validate` — must
    pass. Commit with a message describing the state change, e.g.
