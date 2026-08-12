@@ -76,6 +76,9 @@ restore_claude_json_symlink() {
 # and strand later config writes outside the persistent volume.
 trap restore_claude_json_symlink EXIT
 
+# Revert any previous patch to codex's config.toml, otherwise codebase-memory-mcp freaks out and refuses to install
+"$script_dir/codebase-memory-mcp-patch-codex.py" --revert
+
 install_status=0
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
 

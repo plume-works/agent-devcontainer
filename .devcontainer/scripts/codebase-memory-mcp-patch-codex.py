@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Configure Codex's persistent user settings inside the devcontainer."""
 
+import argparse
 import os
 from pathlib import Path
 import tempfile
@@ -8,7 +9,7 @@ import tempfile
 import toml
 
 
-def main() -> None:
+def main(args: argparse.Namespace) -> None:
     """Patch codebase-memory-mcp codex configuration for custom environment."""
     codex_home = Path(os.environ.get('CODEX_HOME', Path.home() / '.codex'))
     config_path = codex_home / 'config.toml'
@@ -18,8 +19,11 @@ def main() -> None:
     config = toml.load(config_path) if config_path.exists() else {}
 
     cbm_server = config.get('mcp_servers', {}).get('codebase-memory-mcp')
-    if os.environ.get('CBM_CACHE_DIR') and isinstance(cbm_server, dict):
-        cbm_server['env_vars'] = ['CBM_CACHE_DIR']
+    if isinstance(cbm_server, dict):
+        if args.revert:
+            cbm_server.pop('env_vars', None)
+        elif os.environ.get('CBM_CACHE_DIR'):
+            cbm_server['env_vars'] = ['CBM_CACHE_DIR']
 
     with tempfile.NamedTemporaryFile(
         mode='w',
@@ -36,4 +40,13 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    main()
+    argument_parser = argparse.ArgumentParser(
+        description='Patch codebase-memory-mcp codex configuration for custom environment.'
+    )
+    argument_parser.add_argument(
+        '--revert',
+        action='store_true',
+        help="Revert any previous patch to codex's config.toml",
+    )
+    args = argument_parser.parse_args()
+    main(args)
