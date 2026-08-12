@@ -241,5 +241,6 @@
   },
   "postCreateCommand": "./.devcontainer/scripts/postCreateCommand.sh",
   "postAttachCommand": "./.devcontainer/scripts/postAttachCommand.sh",
-  "postStartCommand": "./.devcontainer/scripts/postStartCommand.sh"
+  "postStartCommand": "./.devcontainer/scripts/postStartCommand.sh",
+  "waitFor": "postStartCommand"
 }
