@@ -19,6 +19,10 @@ def main() -> None:
     config['sandbox_mode'] = 'danger-full-access'
     config['approval_policy'] = 'never'
 
+    cbm_server = config.get('mcp_servers', {}).get('codebase-memory-mcp')
+    if os.environ.get('CBM_CACHE_DIR') and isinstance(cbm_server, dict):
+        cbm_server['env_vars'] = ['CBM_CACHE_DIR']
+
     with tempfile.NamedTemporaryFile(
         mode='w',
         encoding='utf-8',
