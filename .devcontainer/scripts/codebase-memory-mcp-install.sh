@@ -25,13 +25,19 @@ if [[ -z $CBM_CACHE_DIR ]]; then
 fi
 
 # CBM's activation walks CBM_CACHE_DIR's ancestry to verify its cache-private
-# executable identity, and fails with `ancestry component validation failed
-# (errno 17)`. Mode is not the discriminator: CBM creates the leaf itself at
-# 0700 and still rejects it. What differs between a passing and a failing layout
-# is where the volume mount boundary falls -- nesting `agentdev-cache` at
-# <workspace>/.cache puts a device change midway through the walk, while a
-# top-level mount puts it at the cache root. Log the device number per component
-# so that boundary is visible in CI output.
+# executable identity, and refuses a component this user does not own, failing
+# with `exact executable identity could not be verified (cache-private) ...
+# ancestry component validation failed (errno 17)`.
+#
+# On GitHub Actions the checkout is owned by the runner's UID 1001, which is
+# unmapped inside the container, so the walk hit `/workspaces/<repo>` as
+# `owner=UNKNOWN:ssh` and rejected it. postCreateCommand.sh's chown_up corrects
+# the whole chain before this runs. Neither the mode nor the volume mount
+# boundary is involved: the run that first passed still had every component at
+# 0755, and .cache shares its device with the workspace.
+#
+# Log owner (and dev/mode for context) per component so a recurrence is
+# diagnosable straight from CI output.
 stat_cache_dir() {
   local stat_dir="$CBM_CACHE_DIR"
   while [[ -n "$stat_dir" && "$stat_dir" != "/" ]]; do
@@ -108,20 +114,7 @@ if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   ps -fp "${zombie_pids[@]}"
 fi
 
-echo "##### Installing attempt 1 #####"
-
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
-
-echo "##### Installing attempt 1 DONE #####"
-
-if ((install_status != 0)); then
-  mkdir -p "$CBM_CACHE_DIR"
-  chmod 700 "$CBM_CACHE_DIR"
-
-  echo "##### Installing attempt 2 #####"
-  CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
-echo "##### Installing attempt 2 DONE #####"
-fi
 
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
 if [[ ${#zombie_pids[@]} -gt 0 ]]; then

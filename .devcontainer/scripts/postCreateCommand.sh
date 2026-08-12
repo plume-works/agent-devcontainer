@@ -9,7 +9,6 @@ chown_up() {
   local loop_dir="$2"
   while [[ -n "$loop_dir" && "$loop_dir" != "/" ]]; do
     sudo chown "$owner" "$loop_dir"
-    chmod 700 "$loop_dir"
     loop_dir="$(dirname "$loop_dir")"
   done
 }
@@ -18,6 +17,17 @@ chown_up() {
 # This was originally needed for GitHub Actions where workspace is owned by 1001:1001
 # which blows up the CBM internal checks of ownership of the cache directory and workspace
 # Fix is placed next to other ownership fixes as it might be needed for other tools
+#
+# Ownership alone is what CBM's ancestry check rejects; the mode is not part of
+# it. The run that first passed had every component still at 0755 and only the
+# owner corrected.
+#
+# Do NOT add a chmod here. This loop walks up to /, and narrowing /workspaces
+# to 0700 was tried: it strips traverse for every non-root user, so the
+# postStartCommand died with `spawn docker EACCES`. Worse, the workspace is a
+# bind mount of the runner's checkout, so the mode change propagates back to
+# the host and the rest of the job fails to read its own files ("Can't find
+# 'action.yml' ... under .github/actions/...").
 chown_up "root:root" "$workspace"
 
 # Named volumes are created root-owned by the daemon; make sure the container
