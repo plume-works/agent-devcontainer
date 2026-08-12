@@ -4,11 +4,12 @@ set -exuo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 workspace="${DEV_WORKSPACE_FOLDER:-$(cd "$script_dir/../.." && pwd)}"
 
-chmod_up() {
+chown_up() {
   local owner="$1"
   local loop_dir="$2"
   while [[ -n "$loop_dir" && "$loop_dir" != "/" ]]; do
     sudo chown "$owner" "$loop_dir"
+    chmod 700 "$loop_dir"
     loop_dir="$(dirname "$loop_dir")"
   done
 }
@@ -17,7 +18,7 @@ chmod_up() {
 # This was originally needed for GitHub Actions where workspace is owned by 1001:1001
 # which blows up the CBM internal checks of ownership of the cache directory and workspace
 # Fix is placed next to other ownership fixes as it might be needed for other tools
-chmod_up "root:root" "$workspace"
+chown_up "root:root" "$workspace"
 
 # Named volumes are created root-owned by the daemon; make sure the container
 # user owns the mount points it writes to.
