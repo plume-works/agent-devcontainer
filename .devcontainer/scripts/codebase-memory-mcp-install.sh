@@ -24,27 +24,25 @@ if [[ -z $CBM_CACHE_DIR ]]; then
   exit 1
 fi
 
+# CBM's activation walks CBM_CACHE_DIR's ancestry to verify its cache-private
+# executable identity, and fails with `ancestry component validation failed
+# (errno 17)`. Mode is not the discriminator: CBM creates the leaf itself at
+# 0700 and still rejects it. What differs between a passing and a failing layout
+# is where the volume mount boundary falls -- nesting `agentdev-cache` at
+# <workspace>/.cache puts a device change midway through the walk, while a
+# top-level mount puts it at the cache root. Log the device number per component
+# so that boundary is visible in CI output.
 stat_cache_dir() {
-  stat_dir="$CBM_CACHE_DIR"
+  local stat_dir="$CBM_CACHE_DIR"
   while [[ -n "$stat_dir" && "$stat_dir" != "/" ]]; do
-    stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
+    stat -c 'cache preflight: %n dev=%d mode=%a owner=%U:%G' \
       "$stat_dir" 2>&1 || true
     stat_dir="$(dirname "$stat_dir")"
   done
+  stat -c 'cache preflight: %n dev=%d mode=%a owner=%U:%G' / 2>&1 || true
 }
 
-# CBM's activation opens the cache directory through a "private directory" walk
-# that rejects a component it does not consider exclusively owned, and reports
-# `ancestry component validation failed (errno 17)` when the directory already
-# exists with a mode it will not accept. On a fresh `agentdev-cache` volume the
-# leaf is created under this container's umask (0022 -> 0755), whereas a working
-# tree has it at 0700 — so pre-create it at 0700 before the installer sees it.
-#
-# Only the leaf is forced: the parent `.cache` mount point is 0755 in a known
-# working container, so the check does not extend up the whole ancestry.
 stat_cache_dir
-# mkdir -p "$CBM_CACHE_DIR"
-# chmod 700 "$CBM_CACHE_DIR"
 
 cbm_bin_path="$(command -v codebase-memory-mcp)"
 cbm_install_dir="${CBM_INSTALL_DIR:-$HOME/.local/bin}"
