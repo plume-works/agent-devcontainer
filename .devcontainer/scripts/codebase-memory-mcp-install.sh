@@ -24,9 +24,19 @@ if [[ -z $CBM_CACHE_DIR ]]; then
   exit 1
 fi
 
-stat "$CBM_CACHE_DIR" || true
-# mkdir -p "$CBM_CACHE_DIR"
-# chmod 700 "$CBM_CACHE_DIR"
+# CBM's activation opens the cache directory through a "private directory" walk
+# that rejects a component it does not consider exclusively owned, and reports
+# `ancestry component validation failed (errno 17)` when the directory already
+# exists with a mode it will not accept. On a fresh `agentdev-cache` volume the
+# leaf is created under this container's umask (0022 -> 0755), whereas a working
+# tree has it at 0700 — so pre-create it at 0700 before the installer sees it.
+#
+# Only the leaf is forced: the parent `.cache` mount point is 0755 in a known
+# working container, so the check does not extend up the whole ancestry.
+stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
+  "$CBM_CACHE_DIR" "$(dirname "$CBM_CACHE_DIR")" 2>&1 || true
+mkdir -p "$CBM_CACHE_DIR"
+chmod 700 "$CBM_CACHE_DIR"
 
 cbm_bin_path="$(command -v codebase-memory-mcp)"
 cbm_install_dir="${CBM_INSTALL_DIR:-$HOME/.local/bin}"
@@ -97,32 +107,25 @@ if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   ps -fp "${zombie_pids[@]}"
 fi
 
-stat "$CBM_CACHE_DIR" || true
+stat -c 'cache postinstall: %n mode=%a owner=%U:%G' "$CBM_CACHE_DIR" 2>&1 || true
 
 if ((install_status != 0)); then
   echo "codebase-memory-mcp install failed with exit code $install_status" >&2
 
-  activation_log="$CBM_CACHE_DIR/logs/activation-events.ndjson"
-  if [[ -f "$activation_log" ]]; then
-    echo "--- tail of $activation_log ---" >&2
-    tail -n 50 "$activation_log" >&2
-  else
-    echo "no activation log found at $activation_log" >&2
-  fi
-
-  daemon_log="$CBM_CACHE_DIR/logs/cbm-daemon.log"
-  if [[ -f "$daemon_log" ]]; then
-    echo "--- tail of $daemon_log ---" >&2
-    tail -n 50 "$daemon_log" >&2
-  else
-    echo "no daemon log found at $daemon_log" >&2
-  fi
-
-  conflicts_log="$CBM_CACHE_DIR/logs/daemon-conflicts.ndjson"
-  if [[ -f "$conflicts_log" ]]; then
-    echo "--- tail of $conflicts_log ---" >&2
-    tail -n 50 "$conflicts_log" >&2
-  fi
+  # When the configured cache directory is itself what activation rejected,
+  # nothing is written under it and every tail below reports "not found". CBM
+  # falls back to the HOME-default tree in that case, so check both roots.
+  for log_root in "$CBM_CACHE_DIR" "$HOME/.cache/codebase-memory-mcp"; do
+    for log_name in activation-events.ndjson cbm-daemon.log daemon-conflicts.ndjson; do
+      log_path="$log_root/logs/$log_name"
+      if [[ -f "$log_path" ]]; then
+        echo "--- tail of $log_path ---" >&2
+        tail -n 50 "$log_path" >&2
+      else
+        echo "no log found at $log_path" >&2
+      fi
+    done
+  done
 
   exit "$install_status"
 fi
