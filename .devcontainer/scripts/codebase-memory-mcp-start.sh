@@ -6,10 +6,10 @@ if ! command -v codebase-memory-mcp &>/dev/null; then
   exit 0
 fi
 
-if [[ -z $CBM_CACHE_DIR ]]; then
-  echo "CBM_CACHE_DIR is required for codebase-memory-mcp install; it is not set in this container." >&2
-  exit 1
-fi
+# if [[ -z $CBM_CACHE_DIR ]]; then
+#   echo "CBM_CACHE_DIR is required for codebase-memory-mcp install; it is not set in this container." >&2
+#   exit 1
+# fi
 
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
 if [[ ${#zombie_pids[@]} -gt 0 ]]; then
