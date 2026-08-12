@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Wire the codebase-memory-mcp binary (installed system-wide by the dev_tools
 # Ansible role at image-build time) into the current user's agent config.
 #
@@ -97,3 +99,5 @@ if ((install_status != 0)); then
 
   exit "$install_status"
 fi
+
+"$script_dir/codebase-memory-mcp-patch-codex.py"
