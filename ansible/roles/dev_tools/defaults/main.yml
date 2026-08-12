@@ -1,22 +1,64 @@
 ---
-dev_tools_zizmor_version: v1.22.0
-dev_tools_zizmor_install_path: /usr/local/bin/zizmor
-dev_tools_zizmor_archives:
-  amd64:
-    target: x86_64-unknown-linux-gnu
-    checksum: f7633bbf155cddebd3fdfdcbfaa777a4e89e4da1bc719b08dfa9ae50e5daae46
-  arm64:
-    target: aarch64-unknown-linux-gnu
-    checksum: afa6ea4ad183582adaf1610399ed9e697322a2374d377ccdb149216840f5171d
+# Pinned single-binary tools, each released as a per-arch tar.gz. Every entry is
+# downloaded, checksum-verified, extracted to a scratch tempdir, and only the
+# named binary is copied out to /usr/local/bin/<name> as root:root — the archive
+# itself is never unpacked directly into /usr/local/bin, so an unrelated owner
+# baked into the archive's own "./" entry (see zizmor below) can never leak onto
+# a shared system directory.
+#
+# The download URL is assembled as
+# "{{ url_prefix }}/{{ version }}/{{ asset_prefix }}{{ archives[system_arch].target }}.tar.gz".
+# Add an entry here (plus a checksum pair per architecture) to pin a new tool.
+# Set `binaries` when a tarball ships more than one binary to install (see iwe);
+# it defaults to a single-element list containing `name`.
+dev_tools_pinned_tools:
+  - name: zizmor
+    version: v1.22.0
+    url_prefix: https://github.com/zizmorcore/zizmor/releases/download
+    asset_prefix: zizmor-
+    archives:
+      amd64:
+        target: x86_64-unknown-linux-gnu
+        checksum: f7633bbf155cddebd3fdfdcbfaa777a4e89e4da1bc719b08dfa9ae50e5daae46
+      arm64:
+        target: aarch64-unknown-linux-gnu
+        checksum: afa6ea4ad183582adaf1610399ed9e697322a2374d377ccdb149216840f5171d
 
-# iwe ships iwe (CLI), iwes (LSP server), and iwec (MCP server) together in one
-# per-arch tarball; installing it to /usr/local/bin installs all three.
-dev_tools_iwe_version: iwe-v0.19.0
-dev_tools_iwe_install_path: /usr/local/bin/iwe
-dev_tools_iwe_archives:
-  amd64:
-    target: x86_64-unknown-linux-gnu
-    checksum: 2ba5d5a9f644d58de6d92ee9741fec1215e2572f206cda97dc4b2cc28b9532ff
-  arm64:
-    target: aarch64-unknown-linux-gnu
-    checksum: d8a241560754f21547c851d7d8fe6bc97f6fd931b2d4770bcd58f17ee718b2ea
+  # iwe ships iwe (CLI), iwes (LSP server), and iwec (MCP server) together in one
+  # per-arch tarball; `binaries` installs all three to /usr/local/bin.
+  - name: iwe
+    version: iwe-v0.19.0
+    url_prefix: https://github.com/iwe-org/iwe/releases/download
+    asset_prefix: iwe-v0.19.0-
+    binaries: [iwe, iwes, iwec]
+    archives:
+      amd64:
+        target: x86_64-unknown-linux-gnu
+        checksum: 2ba5d5a9f644d58de6d92ee9741fec1215e2572f206cda97dc4b2cc28b9532ff
+      arm64:
+        target: aarch64-unknown-linux-gnu
+        checksum: d8a241560754f21547c851d7d8fe6bc97f6fd931b2d4770bcd58f17ee718b2ea
+
+  # codebase-memory-mcp ships a per-OS/arch archive containing the binary plus its
+  # own install.sh. That installer re-downloads from GitHub's "latest" alias even
+  # when run from an already-extracted archive, which floats the pinned version —
+  # so this role downloads and verifies the archive itself and unpacks only the
+  # binary. Linux always needs the "-portable" (fully static) variant: the plain
+  # linux build dynamically links glibc 2.38+ and fails on older bases (Debian 11,
+  # Ubuntu 20.04) this image's roles target elsewhere.
+  # Agent config wiring (`codebase-memory-mcp install`) is deliberately left to
+  # container-create time (see .devcontainer/scripts/postCreateCommand.sh),
+  # because it writes into ~/.claude.json and ~/.codex, which persistent volumes
+  # mount over anything written at image-build time — the same reason
+  # agentic_tools only stages its catalog at build time instead of installing it.
+  - name: codebase-memory-mcp
+    version: v0.10.2
+    url_prefix: https://github.com/DeusData/codebase-memory-mcp/releases/download
+    asset_prefix: codebase-memory-mcp-
+    archives:
+      amd64:
+        target: linux-amd64-portable
+        checksum: 4ead161715fe959ef8a0e38946d63b1728d31e5fb1762a85dbb4b8c4abfbe481
+      arm64:
+        target: linux-arm64-portable
+        checksum: dcd6f31f4004c25e7945b355ae23a5a381acb2a620301bca93e1ddb159b672fd

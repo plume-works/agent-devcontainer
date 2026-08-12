@@ -164,6 +164,7 @@ unless the project deliberately adopts a compatible alternative.
 Keep these paths together only when a project needs to build a customized development image:
 
 - `ansible/`;
+- `ansible.cfg`;
 - `docker/`;
 - `.dockerignore`;
 - `.github/workflows/ci.yml`;

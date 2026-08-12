@@ -33,15 +33,17 @@ ARG VALIDATE_AGENT_FILES_VERSION=1.0.0
 # The build context is the repository root, bind-mounted read-only rather than
 # COPY'd so none of the provisioning sources end up in the final layer. Omitting
 # `source` on the bind mount takes the whole context.
-# `cd` (not WORKDIR) into /provision/ansible: that path only exists for the
-# duration of this RUN's bind mount, so WORKDIR would break later build steps.
+# `cd` (not WORKDIR) into /provision: that path only exists for the duration of
+# this RUN's bind mount, so WORKDIR would break later build steps. The context
+# root is also where ansible.cfg lives, which is how the playbook resolves its
+# inventory and roles.
 # hadolint ignore=DL3003
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,readonly,target=/provision \
     apt-get update \
-    && cd /provision/ansible \
-    && ansible-playbook playbooks/setup-dev.yml \
+    && cd /provision \
+    && ansible-playbook ansible/playbooks/setup-dev.yml \
       -vvv \
       -e "workspace_folder=$WORKSPACE_FOLDER \
            install_xpra=true \

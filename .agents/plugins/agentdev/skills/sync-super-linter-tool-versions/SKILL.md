@@ -32,8 +32,9 @@ maintained version table.
    component; its first three components must match Super-Linter's ShellCheck
    binary.
 
-4. Update `dev_tools_zizmor_version` in the Ansible dev-tools defaults
-   (`ansible/roles/dev_tools/defaults/main.yml`). The local pre-commit hook uses
+4. Update the `version` of the `zizmor` entry in `dev_tools_pinned_tools`, in the
+   Ansible dev-tools defaults (`ansible/roles/dev_tools/defaults/main.yml`),
+   along with its per-architecture checksums. The local pre-commit hook uses
    the binary provisioned by that role.
 
 5. Re-run the validator. It must report every tool as `OK` before considering

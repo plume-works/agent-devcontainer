@@ -1,0 +1,44 @@
+---
+# Install a single entry from dev_tools_pinned_tools. Included once per tool by
+# main.yml via `loop`; `dev_tools_tool` is the current loop item. Installs every
+# name in `dev_tools_tool.binaries` when the tarball ships more than one binary
+# (see iwe), otherwise just `dev_tools_tool.name`.
+- name: "Ensure the current architecture is supported: {{ dev_tools_tool.name }}"
+  ansible.builtin.assert:
+    that: system_arch in dev_tools_tool.archives
+    fail_msg: "{{ dev_tools_tool.name }} is not available for architecture {{ system_arch }}"
+
+- name: "Create temporary directory: {{ dev_tools_tool.name }}"
+  ansible.builtin.tempfile:
+    state: directory
+  register: dev_tools_tool_temp_dir
+
+- name: "Download archive: {{ dev_tools_tool.name }}"
+  ansible.builtin.get_url:
+    url: >-
+      {{ dev_tools_tool.url_prefix }}/{{ dev_tools_tool.version }}/{{ dev_tools_tool.asset_prefix }}{{
+         dev_tools_tool.archives[system_arch].target }}.tar.gz
+    dest: "{{ dev_tools_tool_temp_dir.path }}/{{ dev_tools_tool.name }}.tar.gz"
+    checksum: "sha256:{{ dev_tools_tool.archives[system_arch].checksum }}"
+    mode: "0644"
+
+- name: "Extract archive: {{ dev_tools_tool.name }}"
+  ansible.builtin.unarchive:
+    src: "{{ dev_tools_tool_temp_dir.path }}/{{ dev_tools_tool.name }}.tar.gz"
+    dest: "{{ dev_tools_tool_temp_dir.path }}"
+    remote_src: true
+
+- name: "Install binaries: {{ dev_tools_tool.name }}"
+  ansible.builtin.copy:
+    src: "{{ dev_tools_tool_temp_dir.path }}/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ dev_tools_tool.binaries | default([dev_tools_tool.name]) }}"
+
+- name: "Clean up temporary files: {{ dev_tools_tool.name }}"
+  ansible.builtin.file:
+    path: "{{ dev_tools_tool_temp_dir.path }}"
+    state: absent

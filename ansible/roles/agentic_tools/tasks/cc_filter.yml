@@ -37,8 +37,8 @@
       ansible.builtin.file:
         path: "{{ agentic_tools_cc_filter_claude_settings_path | dirname }}"
         state: directory
-        owner: "{{ dev_user_setup_uid }}"
-        group: "{{ dev_user_setup_gid }}"
+        owner: root
+        group: root
         mode: "0755"
 
     - name: Stat existing Claude settings
@@ -72,6 +72,6 @@
             | to_nice_json
           }}
         dest: "{{ agentic_tools_cc_filter_claude_settings_path }}"
-        owner: "{{ dev_user_setup_uid }}"
-        group: "{{ dev_user_setup_gid }}"
+        owner: root
+        group: root
         mode: "0644"

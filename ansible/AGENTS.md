@@ -4,8 +4,13 @@ These instructions apply when retaining the optional Ansible image-customization
 
 ## Validation
 
-- Run `uv run ansible-lint .` from this directory.
-- Run `uv run ansible-playbook --syntax-check playbooks/setup-dev.yml` from this directory.
+Run every Ansible command from the **repository root**, not from this directory:
+`ansible.cfg` lives at the root and Ansible only auto-loads it from the current
+working directory. Running from here silently loses the inventory and roles path.
+
+- Run `uv run ansible-lint ansible` from the repository root.
+- Run `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml` from the
+  repository root.
 - The real validation gate is a local image build documented in the repository README.
 
 ## Role conventions

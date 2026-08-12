@@ -1,0 +1,59 @@
+---
+# Stat a set of shared system paths and emit one greppable line per path, so an
+# ownership change can be attributed to the role that ran between two probes.
+#
+# `stat -c` is used rather than ansible.builtin.stat because the failure being
+# hunted involves a numeric owner that resolves to no passwd entry: the raw
+# syscall reports the uid/gid verbatim, which is the whole signal.
+- name: "Probe ownership of shared system paths: {{ perm_probe_label }}"
+  ansible.builtin.command:
+    argv:
+      - stat
+      - "-c"
+      - "%n uid=%u gid=%g user=%U group=%G mode=%a"
+      - "{{ perm_probe_path_item }}"
+  loop: "{{ perm_probe_paths }}"
+  loop_control:
+    loop_var: perm_probe_path_item
+  register: perm_probe_stats
+  changed_when: false
+  failed_when: false
+
+- name: "PERM_PROBE report: {{ perm_probe_label }}"
+  ansible.builtin.debug:
+    msg: >-
+      PERM_PROBE [{{ perm_probe_label }}]
+      {{
+        perm_probe_stats.results
+        | map(attribute='stdout')
+        | select('truthy')
+        | list
+      }}
+
+- name: "Detect ownership drift: {{ perm_probe_label }}"
+  ansible.builtin.set_fact:
+    perm_probe_drifted: >-
+      {{
+        perm_probe_stats.results
+        | selectattr('rc', 'equalto', 0)
+        | rejectattr('stdout', 'search',
+                     'uid=' ~ perm_probe_expected_uid ~ ' gid=' ~ perm_probe_expected_gid ~ ' ')
+        | map(attribute='stdout')
+        | list
+      }}
+
+- name: "PERM_PROBE DRIFT detected: {{ perm_probe_label }}"
+  ansible.builtin.debug:
+    msg: >-
+      PERM_PROBE DRIFT [{{ perm_probe_label }}]
+      expected uid={{ perm_probe_expected_uid }} gid={{ perm_probe_expected_gid }},
+      found: {{ perm_probe_drifted }}
+  when: perm_probe_drifted | length > 0
+
+- name: "Fail on ownership drift: {{ perm_probe_label }}"
+  ansible.builtin.fail:
+    msg: >-
+      PERM_PROBE DRIFT [{{ perm_probe_label }}] {{ perm_probe_drifted }}
+  when:
+    - perm_probe_drifted | length > 0
+    - perm_probe_fail_on_drift | bool

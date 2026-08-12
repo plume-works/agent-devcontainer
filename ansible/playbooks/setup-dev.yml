@@ -9,12 +9,19 @@
   gather_facts: true
 
   roles:
+    # Guard, not diagnostics: fail the build if any role handed a shared
+    # /usr/local directory to an unrelated owner. A third-party release archive
+    # carrying its build runner's numeric uid/gid can silently chown the
+    # directory it unpacks into (see ansible/roles/perm_probe/README.md), and a
+    # bad ownership baked into the published image is inherited by every warm
+    # build layered on top of it — so this must break the build rather than ship.
+    - { role: perm_probe, perm_probe_label: "pre-check", perm_probe_fail_on_drift: true, tags: ["always"] }
+
     - { role: extra_facts, tags: ["extra_facts", "always"] }
     - { role: basic_prereqs, tags: ["basic_prereqs"] }
     - { role: install_docker, tags: ["install_docker"], when: install_docker | default(false) | bool }
     - { role: locale_setup, tags: ["locale_setup"] }
     - { role: utc_timezone, tags: ["utc_timezone"] }
-    - { role: dev_user_setup, tags: ["setup_user"], when: setup_user | default(false) | bool }
     - { role: fish_setup, tags: ["fish_setup"] }
     - { role: bash_setup, tags: ["bash_setup"] }
     - { role: cmake_kitware, tags: ["cmake"] }
@@ -30,3 +37,4 @@
     - { role: agentic_tools, tags: ["agentic_tools"], when: install_agentic_tools | default(false) | bool }
     - { role: xpra_setup, tags: ["xpra_setup"], when: install_xpra | default(false) | bool }
     - { role: devcontainer_firewall, tags: ["devcontainer_firewall"], when: install_devcontainer_firewall | default(false) | bool }
+    - { role: perm_probe, perm_probe_label: "final", perm_probe_fail_on_drift: true, tags: ["always"] }

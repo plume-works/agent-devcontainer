@@ -36,6 +36,7 @@ runs:
           - .devcontainer/**
           - .github/actions/**
           - ansible/**
+          - ansible.cfg
           - docker/**
           - scripts/**
           # The whole catalog is seeded into the image, so any change to it
