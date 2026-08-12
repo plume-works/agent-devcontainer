@@ -24,32 +24,6 @@ if [[ -z $CBM_CACHE_DIR ]]; then
   exit 1
 fi
 
-# CBM's activation walks CBM_CACHE_DIR's ancestry to verify its cache-private
-# executable identity, and refuses a component this user does not own, failing
-# with `exact executable identity could not be verified (cache-private) ...
-# ancestry component validation failed (errno 17)`.
-#
-# On GitHub Actions the checkout is owned by the runner's UID 1001, which is
-# unmapped inside the container, so the walk hit `/workspaces/<repo>` as
-# `owner=UNKNOWN:ssh` and rejected it. postCreateCommand.sh's chown_up corrects
-# the whole chain before this runs. Neither the mode nor the volume mount
-# boundary is involved: the run that first passed still had every component at
-# 0755, and .cache shares its device with the workspace.
-#
-# Log owner (and dev/mode for context) per component so a recurrence is
-# diagnosable straight from CI output.
-stat_cache_dir() {
-  local stat_dir="$CBM_CACHE_DIR"
-  while [[ -n "$stat_dir" && "$stat_dir" != "/" ]]; do
-    stat -c 'cache preflight: %n dev=%d mode=%a owner=%U:%G' \
-      "$stat_dir" 2>&1 || true
-    stat_dir="$(dirname "$stat_dir")"
-  done
-  stat -c 'cache preflight: %n dev=%d mode=%a owner=%U:%G' / 2>&1 || true
-}
-
-stat_cache_dir
-
 cbm_bin_path="$(command -v codebase-memory-mcp)"
 cbm_install_dir="${CBM_INSTALL_DIR:-$HOME/.local/bin}"
 
@@ -102,12 +76,6 @@ trap restore_claude_json_symlink EXIT
 
 install_status=0
 
-codebase-memory-mcp daemon status || true  # log any existing daemon status, but don't fail the install if it's not running
-stat_cache_dir
-
-codebase-memory-mcp daemon stop || true  # stop any existing daemon so the install can run without conflicting with it
-stat_cache_dir
-
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
 if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   echo "found ${#zombie_pids[@]} zombie codebase-memory-mcp process(es) with PID(s): ${zombie_pids[*]}"
@@ -121,8 +89,6 @@ if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   echo "found ${#zombie_pids[@]} zombie codebase-memory-mcp process(es) with PID(s): ${zombie_pids[*]}"
   ps -fp "${zombie_pids[@]}"
 fi
-
-stat_cache_dir
 
 if ((install_status != 0)); then
   echo "codebase-memory-mcp install failed with exit code $install_status" >&2
