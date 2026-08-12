@@ -35,8 +35,8 @@ fi
 # working container, so the check does not extend up the whole ancestry.
 stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
   "$CBM_CACHE_DIR" "$(dirname "$CBM_CACHE_DIR")" 2>&1 || true
-mkdir -p "$CBM_CACHE_DIR"
-chmod 700 "$CBM_CACHE_DIR"
+# mkdir -p "$CBM_CACHE_DIR"
+# chmod 700 "$CBM_CACHE_DIR"
 
 cbm_bin_path="$(command -v codebase-memory-mcp)"
 cbm_install_dir="${CBM_INSTALL_DIR:-$HOME/.local/bin}"
@@ -91,7 +91,12 @@ trap restore_claude_json_symlink EXIT
 install_status=0
 
 codebase-memory-mcp daemon status || true  # log any existing daemon status, but don't fail the install if it's not running
+stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
+  "$CBM_CACHE_DIR" "$(dirname "$CBM_CACHE_DIR")" 2>&1 || true
+
 codebase-memory-mcp daemon stop || true  # stop any existing daemon so the install can run without conflicting with it
+stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
+  "$CBM_CACHE_DIR" "$(dirname "$CBM_CACHE_DIR")" 2>&1 || true
 
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
 if [[ ${#zombie_pids[@]} -gt 0 ]]; then
@@ -100,6 +105,13 @@ if [[ ${#zombie_pids[@]} -gt 0 ]]; then
 fi
 
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
+
+if ((install_status != 0)); then
+  mkdir -p "$CBM_CACHE_DIR"
+  chmod 700 "$CBM_CACHE_DIR"
+
+  CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
+fi
 
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
 if [[ ${#zombie_pids[@]} -gt 0 ]]; then
