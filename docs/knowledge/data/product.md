@@ -9,66 +9,152 @@ generated:
 
 # Product
 
-*The foundation document. Every plan, spec, and release decision derives from
-what's written here — fill it in before anything else (the setup skill walks you
-through it, drafting most sections from your codebase). Replace each ✏️ block;
-delete the instruction lines when done. Log every material change in the
-Changelog section at the bottom.*
-
 ## What is it
 
-*One-liner first (the sentence you'd say at a party), then a short paragraph:
-what the product does, for whom, and what changes for them when it works.*
+A general-purpose, Ansible-provisioned devcontainer built for agent-driven
+development, published as `ghcr.io/plume-works/agent-desktop`.
 
-✏️
+The repository has three responsibilities in one checkout: it publishes the
+`agent-desktop` image (Python + Node, Docker-in-Docker, an Xpra remote desktop,
+Claude Code and Codex preinstalled, an opt-in egress firewall), it publishes the
+`agentdev` catalog of agents and skills for Claude Code and Codex, and it
+carries reusable devcontainer scaffolding that other projects copy in (either by
+pointing at the published image, or by copying the template surface — lifecycle
+scripts, MCP config, GitHub workflows). A project adopting it gets a
+digital-pinned, reproducible agent development environment without building its
+own container tooling.
 
 ## Users
 
-*Who actually uses it — role, context, the moment they reach for it. If there
-are distinct user groups, name each one and what a win looks like for them.
-Honest notes on who it is NOT for save entire feature debates later.*
+Two audiences, matching the repo's own dual role:
 
-✏️
+- **This repository's maintainers** — build and evolve the `agent-desktop`
+  image, the `agentdev` catalog (Principal Engineer + TDD Red/Green/Refactor
+  agents, 24+ skills), and the Ansible/Docker publishing pipeline itself.
+- **Consuming-project developers** — point their own devcontainer at the
+  published image, or copy the template surface into an existing repository, to
+  get the same environment and agent catalog without building it themselves.
+
+Built internal-first for plume-works' own projects: external reuse is welcome
+and supported (the template/copy workflow exists deliberately), but it is not
+the driver of design decisions — internal needs come first.
 
 ## Platforms
 
-*Where it runs and how it's distributed: OS/browser targets, minimum versions,
-app stores or package registries, update mechanism. Note the platforms you have
-deliberately decided not to support.*
-
-✏️
+- **Distribution**: multi-arch (`linux/amd64` + `linux/arm64`) container images
+  on GHCR — `ghcr.io/plume-works/agent-desktop:edge` and
+  `ghcr.io/plume-works/ubuntu-ansible:edge` — pinned by tag *and* digest
+  (`compose.pins.yml`), kept current by Renovate.
+  - Consumed via VS Code / any `devcontainer.json`-compatible tool (Dev
+    Containers spec), or GitHub Codespaces.
+- **Host requirement**: a Docker daemon (Docker-in-Docker is provisioned inside
+  the container itself for nested builds).
+- **Base OS**: Ubuntu, provisioned with Ansible.
+- **Deliberately not supported**: no non-container/bare-metal install path; the
+  environment is only distributed as a container image plus copyable
+  devcontainer scaffolding, not as a standalone installer.
 
 ## Stack
 
-*Languages, frameworks, key dependencies, and the repository layout in a few
-lines: where the entry points are, how the code is organized, how to build and
-run the tests. This is what a fresh agent session reads first to orient in the
-codebase.*
-
-✏️
+- **Languages**: Python (`uv`-managed, `requires-python >= 3.12`) and shell
+  (bash, `set -euo pipefail`, shellcheck-clean) for tooling; Ansible YAML for
+  provisioning; the devcontainer/catalog surfaces are JSON/YAML/Markdown.
+- **Package/build tools**: `uv` for Python, `bun` for JavaScript — see
+  `AGENTS.md` at the repository root. Never install packages globally.
+- **Key entry points**:
+  - `pyproject.toml` — root Python project (`agent-devcontainer`), dev
+    dependency group only, `package = false`.
+  - `py_packages/validate_agent_files/` — an independently-released Python
+    package (its own `pyproject.toml`, isolated test suite) that validates
+    agent/skill definitions.
+  - `.agents/plugins/agentdev/` — the canonical source for the `agentdev` Claude
+    Code / Codex plugin (agents, skills, hooks, `bin/` scripts); this directory
+    is the source of truth, everything else under `.claude-plugin/`,
+    `.agents/plugins/marketplace.json`, and the reinstall scripts is derived.
+  - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
+  - `docker/desktop/agent-desktop.Dockerfile`, `docker/ansible/` — image build.
+  - `.devcontainer/` — the devcontainer definition and lifecycle scripts
+    (`postCreateCommand`, `postStartCommand`, firewall, Xpra startup).
+- **Tests**: two independent pytest suites declared in `pyproject.toml`'s
+  `testpaths` — `.agents/plugins/agentdev/tests/` (plugin script behavior, via a
+  `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
+  `validate_agent_files` package, must pass with no knowledge of this
+  repository:
+  `cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest`).
+  Run both from root with `uv run pytest`.
+- **Lint/format**: ruff (Python, 99-char line limit per `.ruff.toml`, not 79),
+  ansible-lint, shellcheck, clang-format, Prettier — orchestrated through
+  Super-Linter locally (`agentdev:local-reformat`) and in CI
+  (`.github/workflows/reformat.yml`); pre-commit hooks wire the same tools in
+  locally.
+- **CI**: GitHub Actions — `ci.yml` (image build/publish), `primary-checks.yml`,
+  `validate-agent-files.yml`, `validate-knowledge-base.yml`, `reformat.yml`,
+  `delete-old-containers.yml`.
 
 ## Constraints
 
-*The rules that bound every plan: performance budgets, offline requirements,
-compatibility promises, licensing limits, security or privacy obligations. A
-constraint written here is a constraint no plan has to rediscover.*
+- Images are pinned by tag **and** digest everywhere they're consumed
+  (`compose.pins.yml`); moving off a pin is a deliberate Renovate-driven update,
+  never a silent float.
+- The staged `agentdev` catalog inside the image is root-owned and read-only;
+  updating it requires rebuilding the image, not a runtime patch.
+- `py_packages/validate_agent_files` must remain installable and testable with
+  zero knowledge of this repository — it is released independently.
+- The firewall (`init-firewall.sh`) ships inert by default (`ENABLE_FIREWALL`
+  opt-in); when enabled it default-DROPs IPv4 egress and blocks IPv6 entirely,
+  self-verifying at start.
+- License: MIT.
 
-✏️
+No additional performance budgets, compatibility promises, or privacy/security
+obligations beyond what's already encoded above — confirmed with the maintainer.
 
 ## Authoring rules
 
-*Optional but powerful: project-specific rules the agent must follow when
-writing each document type, checked by the plan and ship skills before they
-write. Group by target, e.g.:*
+From `AGENTS.md` at the repository root (canonical; `CLAUDE.md` only includes
+it):
 
-- *specs — "every requirement touching file paths must state cross-platform
-  behavior"*
-- *plans — "any task touching the storage layer must include a migration step"*
-- *code anchors — "verify line numbers against the current checkout, never cite
-  from memory"*
-
-✏️
+- Never use `$TMPDIR`; always use `./.tmp` (relative to repo root), creating it
+  if absent.
+- Never use the GitHub API/MCP tools to update branch refs or push branch
+  content — local git workflows only; stop and report if push auth is
+  unavailable.
+- Commit at meaningful checkpoints during a task, not only at the end.
+- Never change git config (local or global) or switch/change the remote unless
+  explicitly instructed.
+- Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
+  install globally.
+- Scope test runs narrowly while iterating (`uv run pytest <path>::<test>`);
+  full suite only when asked.
+- If the local toolchain is missing, escalate — don't give up: Docker available
+  → `/agentdev:microvm-sandbox`; no Docker →
+  `/agentdev:remote-codespace-session` over SSH. Only report a blocker if both
+  are unavailable.
+- Prefer the structured-question tool (`AskUserQuestion` /
+  `vscode/askQuestions`) for yes/no and multiple-choice questions over free
+  text.
+- Keep devcontainer-related scripts under `.devcontainer/scripts`.
+- Edit `.agents/plugins/agentdev/` for catalog changes, never `.codex/`; Codex
+  reads the canonical plugin tree directly.
+- Consult the **Principal Engineer** agent for
+  architecture/design/implementation strategy decisions ("When in Doubt").
+- Python: PEP 8, 99-char line limit, type hints + PEP 257 docstrings, ruff for
+  style (never stock flake8/black — their defaults don't match this repo), no
+  empty `except: pass` handlers.
+- Python testing: pytest only, never `unittest`; prefer several small focused
+  test files; keep fixtures independent of repo identity when behavior is meant
+  to generalize.
+- Shell: `#!/usr/bin/env bash`, `set -euo pipefail`, shellcheck-clean, quote
+  every expansion.
+- Investigation/spike work gets documented under
+  `docs/agents/specs/<spike-topic>/README.md` with prioritized findings, plus
+  implementation-guidance spec files.
+- This workspace uses IWE project memory under `docs/knowledge/data/` — query it
+  before planning/implementing substantial work; update it when work changes
+  durable project knowledge; follow `docs/knowledge/data/AGENTS.md` when editing
+  it directly.
 
 ## Changelog
 
 - 2026-08-01 — document created.
+- 2026-08-12 — filled from codebase scan (README, AGENTS.md, pyproject.toml,
+  repository-structure.md, CI workflows) via the setup skill.

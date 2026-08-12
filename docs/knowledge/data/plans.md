@@ -17,12 +17,6 @@ moves them.*
 
 ## Active
 
-[Streak widget](plans/20260720-streak-widget.example)
-
-[MVP](plans/mvp.example)
-
 ## Done
-
-[Focus sessions](plans/20260701-focus-sessions.example)
 
 ## Cancelled
