@@ -24,6 +24,10 @@ if [[ -z $CBM_CACHE_DIR ]]; then
   exit 1
 fi
 
+stat "$CBM_CACHE_DIR" || true
+# mkdir -p "$CBM_CACHE_DIR"
+# chmod 700 "$CBM_CACHE_DIR"
+
 cbm_bin_path="$(command -v codebase-memory-mcp)"
 cbm_install_dir="${CBM_INSTALL_DIR:-$HOME/.local/bin}"
 
@@ -92,6 +96,8 @@ if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   echo "found ${#zombie_pids[@]} zombie codebase-memory-mcp process(es) with PID(s): ${zombie_pids[*]}"
   ps -fp "${zombie_pids[@]}"
 fi
+
+stat "$CBM_CACHE_DIR" || true
 
 if ((install_status != 0)); then
   echo "codebase-memory-mcp install failed with exit code $install_status" >&2
