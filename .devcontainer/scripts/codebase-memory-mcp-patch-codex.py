@@ -9,15 +9,13 @@ import toml
 
 
 def main() -> None:
-    """Write devcontainer-only Codex settings to the user's config file."""
+    """Patch codebase-memory-mcp codex configuration for custom environment."""
     codex_home = Path(os.environ.get('CODEX_HOME', Path.home() / '.codex'))
     config_path = codex_home / 'config.toml'
 
     codex_home.mkdir(mode=0o700, parents=True, exist_ok=True)
     os.chmod(codex_home, 0o700)
     config = toml.load(config_path) if config_path.exists() else {}
-    config['sandbox_mode'] = 'danger-full-access'
-    config['approval_policy'] = 'never'
 
     cbm_server = config.get('mcp_servers', {}).get('codebase-memory-mcp')
     if os.environ.get('CBM_CACHE_DIR') and isinstance(cbm_server, dict):
