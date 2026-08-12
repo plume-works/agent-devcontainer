@@ -1,2 +1,8 @@
 ansible/**/*.yml
 ansible/**/*.yaml
+
+# docs/knowledge is normalized by `iwe normalize` (enforced in
+# validate-knowledge-base.yml), which disagrees with prettier on markdown
+# emphasis style; letting both fight over the same files makes every commit
+# re-flip the formatting.
+docs/knowledge/**

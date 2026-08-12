@@ -50,6 +50,18 @@ design decisions, and implementation strategies.
 
 **Edit `AGENTS.md`; `CLAUDE.md` only includes it (`@AGENTS.md`), so changes there cover all agents.**
 
+## Project memory
+
+This repository uses IWE project memory under `docs/knowledge/data/`.
+
+For substantial feature, bug, architecture, or behavior work:
+
+- query relevant project memory before planning or implementation;
+- treat `docs/knowledge/data/` as the source of truth for project state and decisions;
+- update project memory when the work changes durable project knowledge.
+
+When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/data/AGENTS.md`.
+
 ## Spikes
 
 When doing investigation work aka spikes document your findings in specs under `docs/agents/specs/<spike-topic>` in a structured way, create new subfolder `<spike-topic>` for the subject of investigation. Create `README.md` with raw findings, including list of issues with assigned priorities. Create a series of spec files with implementation guidance.

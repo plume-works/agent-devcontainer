@@ -9,6 +9,8 @@
 # The download URL is assembled as
 # "{{ url_prefix }}/{{ version }}/{{ asset_prefix }}{{ archives[system_arch].target }}.tar.gz".
 # Add an entry here (plus a checksum pair per architecture) to pin a new tool.
+# Set `binaries` when a tarball ships more than one binary to install (see iwe);
+# it defaults to a single-element list containing `name`.
 dev_tools_pinned_tools:
   - name: zizmor
     version: v1.22.0
@@ -21,6 +23,21 @@ dev_tools_pinned_tools:
       arm64:
         target: aarch64-unknown-linux-gnu
         checksum: afa6ea4ad183582adaf1610399ed9e697322a2374d377ccdb149216840f5171d
+
+  # iwe ships iwe (CLI), iwes (LSP server), and iwec (MCP server) together in one
+  # per-arch tarball; `binaries` installs all three to /usr/local/bin.
+  - name: iwe
+    version: iwe-v0.19.0
+    url_prefix: https://github.com/iwe-org/iwe/releases/download
+    asset_prefix: iwe-v0.19.0-
+    binaries: [iwe, iwes, iwec]
+    archives:
+      amd64:
+        target: x86_64-unknown-linux-gnu
+        checksum: 2ba5d5a9f644d58de6d92ee9741fec1215e2572f206cda97dc4b2cc28b9532ff
+      arm64:
+        target: aarch64-unknown-linux-gnu
+        checksum: d8a241560754f21547c851d7d8fe6bc97f6fd931b2d4770bcd58f17ee718b2ea
 
   # codebase-memory-mcp ships a per-OS/arch archive containing the binary plus its
   # own install.sh. That installer re-downloads from GitHub's "latest" alias even

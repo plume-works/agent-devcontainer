@@ -47,7 +47,7 @@ whose behavior can be exercised by an automated unit or integration test:
 3. **[TDD Refactor](tdd-refactor.agent.md)** — improve quality while tests stay green.
 
 Each sub-agent starts cold, so pass the context it needs: the requirements source
-(a `docs/agents/specs/` file path or issue number) and the target package for Red,
+(a `docs/knowledge/data/...` file path or issue number) and the target package for Red,
 and the prior phase's output downstream. Verify each phase's result before the next
 (the test fails for the right reason, then passes, then still passes).
 

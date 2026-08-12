@@ -1,6 +1,8 @@
 ---
 # Install a single entry from dev_tools_pinned_tools. Included once per tool by
-# main.yml via `loop`; `dev_tools_tool` is the current loop item.
+# main.yml via `loop`; `dev_tools_tool` is the current loop item. Installs every
+# name in `dev_tools_tool.binaries` when the tarball ships more than one binary
+# (see iwe), otherwise just `dev_tools_tool.name`.
 - name: "Ensure the current architecture is supported: {{ dev_tools_tool.name }}"
   ansible.builtin.assert:
     that: system_arch in dev_tools_tool.archives
@@ -26,14 +28,15 @@
     dest: "{{ dev_tools_tool_temp_dir.path }}"
     remote_src: true
 
-- name: "Install binary: {{ dev_tools_tool.name }}"
+- name: "Install binaries: {{ dev_tools_tool.name }}"
   ansible.builtin.copy:
-    src: "{{ dev_tools_tool_temp_dir.path }}/{{ dev_tools_tool.name }}"
-    dest: "/usr/local/bin/{{ dev_tools_tool.name }}"
+    src: "{{ dev_tools_tool_temp_dir.path }}/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
     remote_src: true
     owner: root
     group: root
     mode: "0755"
+  loop: "{{ dev_tools_tool.binaries | default([dev_tools_tool.name]) }}"
 
 - name: "Clean up temporary files: {{ dev_tools_tool.name }}"
   ansible.builtin.file:
