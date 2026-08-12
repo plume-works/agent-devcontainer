@@ -75,20 +75,7 @@ restore_claude_json_symlink() {
 trap restore_claude_json_symlink EXIT
 
 install_status=0
-
-mapfile -t zombie_pids < <(pgrep codebase-me || true)
-if [[ ${#zombie_pids[@]} -gt 0 ]]; then
-  echo "found ${#zombie_pids[@]} zombie codebase-memory-mcp process(es) with PID(s): ${zombie_pids[*]}"
-  ps -fp "${zombie_pids[@]}"
-fi
-
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
-
-mapfile -t zombie_pids < <(pgrep codebase-me || true)
-if [[ ${#zombie_pids[@]} -gt 0 ]]; then
-  echo "found ${#zombie_pids[@]} zombie codebase-memory-mcp process(es) with PID(s): ${zombie_pids[*]}"
-  ps -fp "${zombie_pids[@]}"
-fi
 
 if ((install_status != 0)); then
   echo "codebase-memory-mcp install failed with exit code $install_status" >&2
