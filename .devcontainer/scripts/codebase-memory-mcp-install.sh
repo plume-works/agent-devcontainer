@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -xeuo pipefail
 
 # Wire the codebase-memory-mcp binary (installed system-wide by the dev_tools
 # Ansible role at image-build time) into the current user's agent config.
@@ -104,13 +104,19 @@ if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   ps -fp "${zombie_pids[@]}"
 fi
 
+echo "##### Installing attempt 1 #####"
+
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
+
+echo "##### Installing attempt 1 DONE #####"
 
 if ((install_status != 0)); then
   mkdir -p "$CBM_CACHE_DIR"
   chmod 700 "$CBM_CACHE_DIR"
 
+  echo "##### Installing attempt 2 #####"
   CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
+echo "##### Installing attempt 2 DONE #####"
 fi
 
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
