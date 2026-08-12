@@ -24,6 +24,15 @@ if [[ -z $CBM_CACHE_DIR ]]; then
   exit 1
 fi
 
+stat_cache_dir() {
+  stat_dir="$CBM_CACHE_DIR"
+  while [[ -n "$stat_dir" && "$stat_dir" != "/" ]]; do
+    stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
+      "$stat_dir" 2>&1 || true
+    stat_dir="$(dirname "$stat_dir")"
+  done
+}
+
 # CBM's activation opens the cache directory through a "private directory" walk
 # that rejects a component it does not consider exclusively owned, and reports
 # `ancestry component validation failed (errno 17)` when the directory already
@@ -33,8 +42,7 @@ fi
 #
 # Only the leaf is forced: the parent `.cache` mount point is 0755 in a known
 # working container, so the check does not extend up the whole ancestry.
-stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
-  "$CBM_CACHE_DIR" "$(dirname "$CBM_CACHE_DIR")" 2>&1 || true
+stat_cache_dir
 # mkdir -p "$CBM_CACHE_DIR"
 # chmod 700 "$CBM_CACHE_DIR"
 
@@ -91,12 +99,10 @@ trap restore_claude_json_symlink EXIT
 install_status=0
 
 codebase-memory-mcp daemon status || true  # log any existing daemon status, but don't fail the install if it's not running
-stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
-  "$CBM_CACHE_DIR" "$(dirname "$CBM_CACHE_DIR")" 2>&1 || true
+stat_cache_dir
 
 codebase-memory-mcp daemon stop || true  # stop any existing daemon so the install can run without conflicting with it
-stat -c 'cache preflight: %n mode=%a owner=%U:%G' \
-  "$CBM_CACHE_DIR" "$(dirname "$CBM_CACHE_DIR")" 2>&1 || true
+stat_cache_dir
 
 mapfile -t zombie_pids < <(pgrep codebase-me || true)
 if [[ ${#zombie_pids[@]} -gt 0 ]]; then
@@ -125,7 +131,7 @@ if [[ ${#zombie_pids[@]} -gt 0 ]]; then
   ps -fp "${zombie_pids[@]}"
 fi
 
-stat -c 'cache postinstall: %n mode=%a owner=%U:%G' "$CBM_CACHE_DIR" 2>&1 || true
+stat_cache_dir
 
 if ((install_status != 0)); then
   echo "codebase-memory-mcp install failed with exit code $install_status" >&2
