@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
+
 ## Done
 
 ## Cancelled
