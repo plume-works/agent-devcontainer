@@ -148,10 +148,7 @@ it):
 - Investigation/spike work gets documented directly in IWE project memory: an
   issue found during a spike → `data/bugs/<slug>.md`; a design decision the
   spike settles → `data/architecture/<slug>.md`; implementation guidance for
-  follow-up → a plan or `data/backlog/<slug>.md` task. (The `agentdev` catalog's
-  `implement-agent-specs` skill and its `docs/agents/specs/` convention still
-  exist for consumers of that catalog who don't run IWE — not used in this
-  repository.)
+  follow-up → a plan or `data/backlog/<slug>.md` task.
 - This workspace uses IWE project memory under `docs/knowledge/data/` — query it
   before planning/implementing substantial work; update it when work changes
   durable project knowledge; follow `docs/knowledge/data/AGENTS.md` when editing

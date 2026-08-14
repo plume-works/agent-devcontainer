@@ -62,25 +62,6 @@ For substantial feature, bug, architecture, or behavior work:
 
 When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/data/AGENTS.md`.
 
-## Spikes
-
-When doing investigation work aka spikes, record findings directly in the IWE
-project memory under `docs/knowledge/data/` instead of a standalone
-`docs/agents/specs/` folder:
-
-- an issue found during a spike that is broken today → `data/bugs/<slug>.md`
-  (Symptom / Reproduction / Root cause / Fix), linked from `data/bugs.md`;
-- a design decision the spike settles, including rejected alternatives →
-  `data/architecture/<slug>.md`, linked from `data/architecture.md`;
-- implementation guidance for follow-up work → a plan
-  (`.claude/skills/plan/SKILL.md`) or a `data/backlog/<slug>.md` task,
-  depending on size.
-
-This applies to this repository's own investigation work. The
-`implement-agent-specs` catalog skill and its `docs/agents/specs/` convention
-still exist for consumers of the `agentdev` catalog that do not run IWE; do
-not use that convention here.
-
 ## Other
 
 Before calling any codebase-memory-mcp tools read `AGENTS-codebase-memory-mcp.md`
