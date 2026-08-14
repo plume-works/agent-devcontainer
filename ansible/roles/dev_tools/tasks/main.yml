@@ -24,7 +24,6 @@
       - python3-pip
       - python3-setuptools
       - python3-venv
-      - python3-toml # for configuring .codex
       - shellcheck
       - ffmpeg # for rendering animations and screen captures
       - btop # for monitoring resource usage in development
