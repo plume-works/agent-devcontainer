@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # Wire the codebase-memory-mcp binary (installed system-wide by the dev_tools
 # Ansible role at image-build time) into the current user's agent config.
 #
@@ -76,9 +74,6 @@ restore_claude_json_symlink() {
 # and strand later config writes outside the persistent volume.
 trap restore_claude_json_symlink EXIT
 
-# Revert any previous patch to codex's config.toml, otherwise codebase-memory-mcp freaks out and refuses to install
-"$script_dir/codebase-memory-mcp-patch-codex.py" --revert
-
 install_status=0
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?
 
@@ -102,5 +97,3 @@ if ((install_status != 0)); then
 
   exit "$install_status"
 fi
-
-"$script_dir/codebase-memory-mcp-patch-codex.py"
