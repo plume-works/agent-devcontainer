@@ -12,4 +12,4 @@
 # is discovered without any manager override — keep the `compose.` prefix if renaming.
 services:
   devcontainer:
-    image: ghcr.io/plume-works/agent-desktop:edge@sha256:efa691e292821f2ac1335c4375d3cb9a7f020ff49bcdcd88007a87d7e9c2d294
+    image: ghcr.io/plume-works/agent-desktop:edge@sha256:9753fb9e92e908381f452720715143982891cb818ec2a44b3e24a84d58229302
