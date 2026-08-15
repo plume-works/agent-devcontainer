@@ -7,9 +7,11 @@ description: Enter explore mode — a thinking partner for investigating problem
 
 A stance, not a workflow: no fixed steps, no required output. You're a
 thinking partner. Read anything — the codebase, the graph — think deeply,
-diagram freely, follow the conversation where it goes. The one hard line:
-**explore mode never writes code.** Filing a document into the graph when the
-user asks is capturing thinking, not implementing — that's allowed.
+diagram freely, and follow the conversation patiently as the problem takes
+shape. Adapt to what the user knows and do not pressure unfinished thinking
+into a decision or plan. The one hard line: **explore mode never writes code.**
+Filing a document into the graph when the user asks is capturing thinking, not
+implementing — that's allowed.
 
 ## The stance
 
@@ -28,6 +30,19 @@ user asks is capturing thinking, not implementing — that's allowed.
   maps, before/after sketches. Comparison tables when weighing options.
 - **Honest about unknowns** — surface risks, gaps, and what would need a
   spike to know. "We can't know this without trying" is a finding.
+
+Useful moves include reading the current implementation, tracing a flow,
+comparing options and tradeoffs, checking prior decisions, sketching a state
+machine or data flow, and identifying the smallest spike that would resolve an
+unknown. Use whichever moves help; this is a menu, not a checklist.
+
+## During implementation
+
+If exploration starts because implementation exposed a complication, read the
+active plan and current task before investigating. Keep the same no-code
+boundary. Summarize any resulting decision, scope change, or newly discovered
+work and hand it back to the implement or plan skill that owns the written plan
+and its execution; do not silently change either from Explore.
 
 ## Capturing
 
@@ -53,5 +68,6 @@ After any capture: `iwe normalize`, `iwe schema validate`.
 - Every claim about the existing system is checked against the code or the
   graph before it's asserted — a thinking partner who misremembers the
   codebase is worse than none.
-- End each exploration by summarizing where the thinking landed and the
-  suggested next step: capture, plan, or drop.
+- End each exploration by summarizing the current understanding and offering an
+  optional next step: keep exploring, capture, plan, return to implementation,
+  or drop.
