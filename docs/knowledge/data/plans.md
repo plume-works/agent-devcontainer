@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md)
+
 ## Done
 
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
