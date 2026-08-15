@@ -1,10 +1,9 @@
 ---
 type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
-stage: living
 generated:
-  by: human:author
-  at: 2026-08-12T00:00:00Z
+  by: codex
+  at: 2026-08-15T03:30:00Z
 ---
 
 # Module layout
