@@ -13,3 +13,5 @@ generated:
 deprecation — the `status` frontmatter (`proposed` → `accepted` → `implemented`,
 terminal `deprecated`/`cancelled`) carries the lifecycle, so the list stays
 flat. Group with `##` headings once it outgrows a single list.*
+
+[Verification in the main loop](features/verification-in-the-main-loop.md)

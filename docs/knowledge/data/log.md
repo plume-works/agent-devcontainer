@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-08-15
+
+- **Creation**: Proposed
+  [Verification in the main loop](features/verification-in-the-main-loop.md) —
+  verify results live only in conversation context, so a `/ship` in a fresh
+  session cannot tell a clean verify from no verify.
+
 ## 2026-08-01
 
 - **Initialization**: Created the project workspace — [product](product.md) as
