@@ -70,9 +70,12 @@ environment, and a stale link whenever the target path changes.
   `/uv/venvs/ws-project/...`. Changing the environment path means changing them
   together.
 - A real `.venv` in the workspace is still expected outside the devcontainer:
-  host checkouts and CI (`.github/actions/setup-python-venv`) build their own
-  in-tree environment. `.gitignore`, `search.exclude`, and the lint prunes keep
-  covering it.
+  host checkouts and CI (`.github/actions/setup-python-venv`) get their own
+  in-tree environment, because `UV_PROJECT_ENVIRONMENT` is unset there and uv
+  falls back to its default location. `.gitignore`, `search.exclude`, and the
+  lint prunes keep covering it. CI no longer *activates* that environment — the
+  setup action provisions it and callers use `uv run` — so the invocation
+  contract is the same in both places even though the location is not.
 - `uv-sync.sh` carries a narrow migration cleanup that removes `.venv` only when
   it is a symlink **and** its target is under `/uv/venvs/` — the shape earlier
   revisions created with `ln -s "$UV_PROJECT_ENVIRONMENT" .venv`. A real

@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-08-15
 
+- **Creation**: [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md) — all
+  tasks implemented. CI stops activating the environment, syncs with `--locked`
+  so lockfile drift fails at provisioning, and pins uv to the
+  `actions/setup-python` interpreter; `python-lint-check.sh` no longer installs
+  as a side effect of a check. Harvested from the parallel `no-venv-openspec`
+  branch (PR #60); two of its changes declined with reasoning recorded.
 - **Update**: [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md) done
   — the in-tree symlink is gone and every consumer reaches the environment
   through `uv run` or the fixed `/uv/venvs/ws-project` path.

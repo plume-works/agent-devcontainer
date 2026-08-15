@@ -93,20 +93,20 @@ stay different; only the *invocation* contract is unified.
 
 ## Tasks
 
-- [ ] **1. Stop activating the environment in `setup-python-venv`.** Delete the
+- [x] **1. Stop activating the environment in `setup-python-venv`.** Delete the
   `Restore venv cache`, `Create venv`, and `Activate venv` steps from
   `.github/actions/setup-python-venv/action.yml:26-45`, along with the
   `zizmor: ignore[github-env]` comment that only existed to permit the
   `VIRTUAL_ENV` export. Update `description:` to say the action provisions
   Python, uv, and a synced environment, and that callers must use `uv run`.
-- [ ] **2. Move caching from the environment to uv's package cache.** Set
+- [x] **2. Move caching from the environment to uv's package cache.** Set
   `enable-cache: true` on the `astral-sh/setup-uv` step and delete the
   `# we just cache the venv-dir directly` comment above it, which Task 1 makes
   false. With uv owning environment creation, caching its package cache is the
   idiomatic equivalent and survives interpreter and lockfile churn. Cold runs
   get slower — uv rebuilds where a restored `.venv` was ready — which is
   accepted for a three-step workflow.
-- [ ] **3. Sync with `--locked` and enforce the interpreter.** Replace
+- [x] **3. Sync with `--locked` and enforce the interpreter.** Replace
   `uv sync --frozen --active --all-groups --all-extras` with
   `uv sync --locked --all-groups --all-extras` (`--active` is meaningless once
   nothing is activated), and add `env: UV_PYTHON_PREFERENCE: only-system` to
@@ -114,12 +114,12 @@ stay different; only the *invocation* contract is unified.
   interpreter. Note the intended failure mode: if the setup action ever stops
   putting the interpreter on `PATH`, the job fails outright rather than silently
   downloading one.
-- [ ] **4. Route `validate-agent-files.yml` through `uv run`.** Prefix the three
+- [x] **4. Route `validate-agent-files.yml` through `uv run`.** Prefix the three
   steps at `.github/workflows/validate-agent-files.yml:70-76` — `pytest` ×2 and
   `validate_agent_files --recommend . --require-marketplace claude codex` — with
   `uv run`. Must land with Tasks 1–3; bare tools break the moment activation is
   gone.
-- [ ] **5. Align the in-container sync in `ci.yml`.** At
+- [x] **5. Align the in-container sync in `ci.yml`.** At
   `.github/workflows/ci.yml:272`, make it
   `uv sync --locked --all-groups --all-extras` to match Task 3. Then correct the
   comment at lines 265-267: it claims the `validate_agent_files` identity check
@@ -127,7 +127,7 @@ stay different; only the *invocation* contract is unified.
   install". Nothing activates an environment any more, so the environment can no
   longer mask the image's copy — the ordering constraint it documents no longer
   exists, though the check itself stays.
-- [ ] **6. Make `python-lint-check.sh` non-mutating.** Add `--no-sync` to the
+- [x] **6. Make `python-lint-check.sh` non-mutating.** Add `--no-sync` to the
   `uv run` invocation in `.agents/plugins/agentdev/bin/python-lint-check.sh` so
   the check never installs as a side effect. Reorder the fallback chain to
   `uv run --no-sync` → in-tree `.venv/bin/ruff` → `PATH`: the script ships to
@@ -135,16 +135,39 @@ stay different; only the *invocation* contract is unified.
   Update the header comment to match. Note that call sites *other* than this one
   need no `--no-sync` — with `--locked` upstream from Task 3, `uv run`'s sync
   check is a no-op.
-- [ ] **7. Update the docs that describe CI provisioning.** Extend
+- [x] **7. Update the docs that describe CI provisioning.** Extend
   [uv environment location](../architecture/uv-environment-location.md) — its
   Consequences section currently says CI "builds their own in-tree environment",
   which stays true, but should record that CI no longer *activates* it. Add the
   CI half to [uv-run-only environment](../features/uv-run-only-environment.md).
-- [ ] **8. Verify.** Push and confirm `validate-agent-files.yml` and `ci.yml`
+- [x] **8. Verify.** Push and confirm `validate-agent-files.yml` and `ci.yml`
   both pass — CI is the only place these paths execute, so a green run is the
   test. Locally, check that `python-lint-check.sh` still resolves ruff in the
   devcontainer (where ruff is *not* on `PATH`, making `uv run` its only source)
   and that it installs nothing when `pyproject.toml` has an unlocked dependency.
+
+## Verification results
+
+Run locally on 2026-08-15, before pushing:
+
+- `uv.lock` was already current — `uv sync --locked --all-groups --all-extras`
+  exits 0, so the `--locked` switch surfaces no pre-existing drift.
+- `python-lint-check.sh` resolves ruff and passes with a PATH scrubbed back to
+  `/usr/local/bin:/usr/bin:/bin`, where ruff is absent. Worth noting for anyone
+  reproducing this: ruff *is* on `PATH` in a normal devcontainer terminal,
+  because the VS Code Python extension injects the environment's `bin/` — so the
+  fallback rung under test is only exercised with an explicitly clean PATH.
+- `--no-sync` holds. With `cowsay` added to `pyproject.toml` and left unlocked,
+  the check still passes and installs nothing (`cowsay` absent from
+  site-packages afterwards). `pyproject.toml` restored, `uv.lock` untouched.
+- Gates: `actionlint`, `shellcheck`, `prettier`, `zizmor` (no findings),
+  `iwe schema validate`, `validate_agent_files` 40/40, and
+  `pytest py_packages .agents/plugins/agentdev/tests` 136 passed.
+- Removing the `VIRTUAL_ENV` export also removed the only reason for the
+  `zizmor: ignore[github-env]` suppression, which went with it.
+
+CI itself is the remaining check: `validate-agent-files.yml` and `ci.yml` are
+the only places the changed paths execute end to end.
 
 ## Risks
 

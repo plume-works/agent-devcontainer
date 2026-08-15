@@ -48,17 +48,37 @@ only when it is a symlink *and* its target matches the prefix earlier revisions
 created, so existing containers shed the stale link on the next postAttach
 without a rebuild, and a real or deliberately-placed `.venv` is never touched.
 
+CI follows the same invocation contract, by a different mechanism. The two
+provisioning styles stay distinct — a persistent volume in the devcontainer, an
+ephemeral runner in Actions — but neither activates anything:
+
+- `.github/actions/setup-python-venv` provisions Python, uv, and a synced
+  environment, and stops there. It no longer creates a virtualenv by hand,
+  exports `VIRTUAL_ENV`/`GITHUB_PATH`, or caches the environment directory;
+  `setup-uv`'s own package cache replaces that last one.
+- Provisioning syncs with `--locked`, so lockfile drift fails there rather than
+  being installed mid-job by a later `uv run`. `--frozen` skips the currency
+  check entirely and cannot serve this role.
+- `UV_PYTHON_PREFERENCE: only-system` binds uv to the interpreter
+  `actions/setup-python` installed. Without it uv's default `managed` preference
+  selects that interpreter only incidentally, by finding a matching system
+  Python on `PATH`.
+- Callers invoke tools through `uv run` — the three steps in
+  `validate-agent-files.yml`, matching what `ci.yml` already did inside the
+  container.
+
 ## Edge cases
 
 - **Host and CI checkouts still produce a real `.venv`.** `.gitignore`,
   `.dockerignore`, `search.exclude`, and the `shellcheck-fix.sh` prune all keep
-  their `.venv` entries. `.github/actions/setup-python-venv/action.yml` builds
-  its own in-tree environment and is unaffected.
+  their `.venv` entries. `.github/actions/setup-python-venv/action.yml` lets uv
+  create one in-tree, since `UV_PROJECT_ENVIRONMENT` is unset on a runner; it is
+  never referenced by name and dies with the runner.
 - **The lint script ships in a portable plugin.** A bare `uv run` would convert
-  its PATH fallback into a hard failure outside a uv project. It resolves in
-  three tiers instead — `uv run --project` → ruff on PATH → `uv tool run ruff` —
-  with PATH ahead of `uv tool run` so the common case never pays a network
-  fetch.
+  its fallback into a hard failure outside a uv project. It resolves in three
+  tiers instead — `uv run --no-sync --project` → an in-tree `.venv/bin/ruff` →
+  ruff on PATH. `--no-sync` is what keeps a *check* from installing packages
+  when a developer's `pyproject.toml` is mid-edit.
 - **`find_up` survives without its only in-repo caller.** `venv_activate` is
   gone, since `find_up .venv` can no longer succeed, but `find_up` itself stays:
   the fish README advertises it as a standalone interactive helper, so grep
