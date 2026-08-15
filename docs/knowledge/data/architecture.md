@@ -22,3 +22,5 @@ rejected are as valuable as the one you picked.*
 [Validator image install](architecture/validator-image-install.md)
 
 [uv environment location](architecture/uv-environment-location.md)
+
+[PR verification sections](architecture/pr-verification-sections.md)
