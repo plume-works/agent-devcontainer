@@ -16,4 +16,10 @@ requirements as `### Requirement:` sections with SHALL statements and
 `#### Scenario:` WHEN/THEN examples. The ship skill updates affected specs
 whenever a plan ships, so this section never drifts from the code.*
 
-[Timer](spec/timer.example)
+[Image pinning](spec/image-pinning.md)
+
+[Catalog lifecycle](spec/catalog-lifecycle.md)
+
+[Firewall](spec/firewall.md)
+
+[Template consumption](spec/template-consumption.md)

@@ -8,7 +8,8 @@ curated catalog of agents and skills.
 The runtime is project-agnostic. This publishing repository also contains image,
 catalog, validator, and CI source that a consuming project does not need. Point an
 existing devcontainer at the published image for the environment, or follow the
-[manual template guide](docs/using-as-template.md) for the complete setup.
+manual template guide (`docs/knowledge/data/spec/template-consumption.md`) for
+the complete setup.
 
 ## What's in the image
 
@@ -61,10 +62,10 @@ scripts from Option 2 when the existing project should receive it automatically.
 
 The template surface is broader than the two visible devcontainer files: lifecycle
 scripts, the feature lock, digest pin, MCP configuration, agent settings, tooling,
-and adaptable GitHub workflows all participate. Use the
-[step-by-step manual guide](docs/using-as-template.md) for either a full repository
+and adaptable GitHub workflows all participate. Use the step-by-step manual guide
+(`docs/knowledge/data/spec/template-consumption.md`) for either a full repository
 copy or a selective copy into an existing project. The complete classified inventory
-is in [Repository structure](docs/repository-structure.md).
+is in `docs/knowledge/data/architecture/template-boundary.md`.
 
 ### The catalog ships with the image
 
@@ -128,7 +129,8 @@ example:
 This repository's own [`.github/renovate.json`](.github/renovate.json) shows how
 the consumer pin is discovered and why it lives outside the image-build path filter.
 It also contains publisher-specific rules that a copied project must review; see the
-[manual template guide](docs/using-as-template.md#renovate).
+manual template guide's Renovate section
+(`docs/knowledge/data/spec/template-consumption.md#renovate`).
 
 #### Renovate dashboard
 
@@ -306,10 +308,10 @@ package.
 
 ## Repository layout
 
-[Repository structure](docs/repository-structure.md) is the persistent inventory of
+`docs/knowledge/data/architecture/template-boundary.md` is the persistent inventory of
 the live tree, including the default template surface, files that require manual
 customization, the optional image-building bundle, publisher-only source, and generated
-state. The [template guide](docs/using-as-template.md) turns that inventory into manual
+state. `docs/knowledge/data/spec/template-consumption.md` turns that inventory into manual
 full-copy and selective-copy procedures.
 
 ## License

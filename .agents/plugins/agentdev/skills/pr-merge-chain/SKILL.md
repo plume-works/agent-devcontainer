@@ -43,8 +43,7 @@ Accept exactly one input: the number, URL, or head branch of the top PR.
 
 1. Resolve the top PR with its body, then read only the content below its
    `## Dependencies` heading and before the next level-two heading. The section
-   must list every included predecessor PR in merge order, as required by
-   `implement-agent-specs`, followed conceptually by the top PR. For example,
+   must list every included predecessor PR in merge order, followed conceptually by the top PR. For example,
    a top PR whose section lists `#123` and `#124` declares the linear order
    `#123, #124, <top>`.
 
@@ -245,8 +244,6 @@ private worktree in place and report its path.
 
 ## Related Skills
 
-- [implement-agent-specs](../implement-agent-specs/SKILL.md) — creates the
-  main-targeted ready-root/draft-successor chains consumed by this workflow.
 - [pr-merge](../pr-merge/SKILL.md) — required workflow for each individual
   GitHub PR merge.
 - [git-merge-resolve](../git-merge-resolve/SKILL.md) — required workflow for

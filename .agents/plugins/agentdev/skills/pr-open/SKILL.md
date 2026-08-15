@@ -134,8 +134,7 @@ After `local-reformat` completes successfully, inspect `git status`. If the
 PR-scope changes are uncommitted, invoke and follow the `git-commit` skill to
 stage only that scope and create one conventional commit before drafting a PR.
 
-If the caller already created the scoped commit (for example,
-`implement-agent-specs`), verify the branch is clean for that scope and do not
+If the caller already created the scoped commit, verify the branch is clean for that scope and do not
 create a duplicate or empty commit. If a formatter leaves new tracked changes,
 commit those changes before continuing. Do not reimplement the commit-message
 or staging workflow inline.

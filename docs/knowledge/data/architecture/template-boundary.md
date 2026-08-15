@@ -1,19 +1,18 @@
-# Repository structure
+---
+type: architecture
+description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
+generated:
+  by: claude-sonnet-5
+  at: 2026-08-12T00:00:00Z
+sources:
+- docs/repository-structure.md (folded and removed)
+---
 
-This repository has three responsibilities:
-
-1. publish the `agent-desktop` development image;
-2. publish the `agentdev` catalog for Claude Code and Codex; and
-3. carry reusable repository scaffolding for projects that consume the image.
-
-Those responsibilities share one checkout but have different distribution mechanisms. The
-image is consumed from GHCR, the catalog is installed from the copy staged in that image,
-and repository scaffolding is copied manually. This document is the persistent inventory of
-that boundary.
+# Template boundary
 
 ## Classification
 
-Every tracked surface belongs to one of these classes:
+Every tracked path in this repository belongs to one of these classes:
 
 | Class     | Meaning                                                                     |
 | --------- | --------------------------------------------------------------------------- |
@@ -23,12 +22,13 @@ Every tracked surface belongs to one of these classes:
 | Publisher | Required to publish this repository's image/catalog/package, not to use it. |
 | Generated | Host, container, test, or tool state; never template source.                |
 
-“Template” and “customize” describe manual reuse. This repository does not currently ship a
-Copier template, generator, or synchronization tool.
+"Template" and "customize" describe manual reuse. This repository does not ship
+a Copier template, generator, or synchronization tool — adoption is a manual
+copy, guided by [Template consumption](../spec/template-consumption.md).
 
 ## Runtime flow
 
-```text
+``` text
 ansible/ + docker/ + catalog publisher source
                     |
                     v
@@ -49,16 +49,20 @@ ansible/ + docker/ + catalog publisher source
  and a workspace catalog override when one exists
 ```
 
-The image contains the environment and a read-only catalog staged at `/opt/agentdev`. It
-does not contain the repository scaffolding. A consuming project therefore needs the
-template files below even though it does not need the catalog publisher source.
+The image contains the environment and a read-only catalog staged at
+`/opt/agentdev`. It does not contain the repository scaffolding — a consuming
+project needs the template files below even though it does not need the catalog
+publisher source. See [Module layout](module-layout.md) for how these pieces
+compose internally.
 
 ## Default template surface
 
 ### Devcontainer runtime
 
-The default devcontainer surface is the complete tracked `.devcontainer/` directory plus
-two root companions:
+The default devcontainer surface is the complete tracked `.devcontainer/`
+directory plus two root companions — one runtime unit; copying only
+`devcontainer.json` and `docker-compose.yml` leaves direct references
+unresolved:
 
 | Path                                                 | Responsibility                                                                                                   |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -79,18 +83,11 @@ two root companions:
 | `compose.pins.yml`                                   | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
 | `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                                             |
 
-These files are one runtime unit. Copying only `devcontainer.json` and
-`docker-compose.yml` leaves direct references unresolved.
-
-The default runtime intentionally retains all capabilities currently supplied here:
-
-- Docker-in-Docker;
-- Xpra and VirtualGL desktop access;
-- the Docker Desktop MCP gateway and secret socket integration;
-- shared Claude and Codex authentication/configuration volumes;
-- image-staged `agentdev` installation;
-- the opt-in egress firewall; and
-- Codespaces SSH and worktree-safe mounts.
+The default runtime intentionally retains all capabilities currently supplied
+here: Docker-in-Docker; Xpra and VirtualGL desktop access; the Docker Desktop
+MCP gateway and secret socket integration; shared Claude and Codex
+authentication/configuration volumes; image-staged `agentdev` installation; the
+opt-in egress firewall; and Codespaces SSH and worktree-safe mounts.
 
 ### Agent-facing repository configuration
 
@@ -101,15 +98,15 @@ The default runtime intentionally retains all capabilities currently supplied he
 | `.claude/`  | Customize   | Shared Claude permissions, official plugins, local ignore rules, and explanatory README. |
 | `.codex/`   | Customize   | Codex Cloud bootstrap and explanation of where the shared catalog lives.                 |
 
-Publisher-only instructions are scoped below `.agents/`, `.claude-plugin/`, `ansible/`,
-and `py_packages/validate_agent_files/`. Deleting those sources also deletes their local
-maintenance contract; the reusable root instructions remain.
+Publisher-only instructions are scoped below `.agents/`, `.claude-plugin/`,
+`ansible/`, and `py_packages/validate_agent_files/`. Deleting those sources also
+deletes their local maintenance contract; the reusable root instructions remain.
 
 ### Project tooling
 
-The following files are template starting points. They express the development conventions
-supplied by this repository, but several contain publisher-owned package names or paths and
-must be reviewed in a copied project.
+These files are template starting points. They express this repository's
+development conventions, but several contain publisher-owned package names or
+paths and must be reviewed in a copied project:
 
 | Path                                 | Purpose and required review                                                                                                                                |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -127,8 +124,9 @@ must be reviewed in a copied project.
 | `.editorconfig`                      | Cross-editor whitespace and newline conventions.                                                                                                           |
 | `.gitignore`                         | Ignores devcontainer, agent, environment, test, and tool state.                                                                                            |
 
-`scripts/validate-super-linter-tool-versions.sh` is deliberately not in this group. It
-checks this publisher repository's CI/tool pin synchronization and stays behind.
+`scripts/validate-super-linter-tool-versions.sh` is deliberately not in this
+group. It checks this publisher repository's CI/tool pin synchronization and
+stays behind.
 
 ### GitHub surface
 
@@ -148,48 +146,46 @@ The `.github/` tree is template-related, but it is mixed rather than copy-ready:
 | `.github/workflows/delete-old-containers.yml` | Optional  | Deletes old GHCR versions for repositories that publish custom images.                                                            |
 | `.github/actions/docker/`                     | Optional  | Composite actions used by the image publishing workflow.                                                                          |
 
-The existing workflows are evidence of the supplied CI design; they are not claimed to run
-unchanged after publisher source is removed.
+The existing workflows are evidence of the supplied CI design; they are not
+claimed to run unchanged after publisher source is removed.
 
 ### Repository presentation
 
-`README.md`, `LICENSE`, this document, and `docs/using-as-template.md` are template content.
-The root README and the READMEs under `.claude/` and `.codex/` must be rewritten to remove
-publisher-only descriptions and links. The MIT license and its existing notice remain
-unless the project deliberately adopts a compatible alternative.
+`README.md` and `LICENSE` are template content. The root README and the READMEs
+under `.claude/` and `.codex/` must be rewritten to remove publisher-only
+descriptions and links. The MIT license and its existing notice remain unless
+the project deliberately adopts a compatible alternative.
 
 ## Optional custom-image bundle
 
-Keep these paths together only when a project needs to build a customized development image:
+Keep these paths together only when a project needs to build a customized
+development image: `ansible/`, `ansible.cfg`, `docker/`, `.dockerignore`,
+`.github/workflows/ci.yml`, `.github/workflows/delete-old-containers.yml`,
+`.github/actions/docker/`, and the matching image paths and job invocation in
+the shared GitHub files.
 
-- `ansible/`;
-- `ansible.cfg`;
-- `docker/`;
-- `.dockerignore`;
-- `.github/workflows/ci.yml`;
-- `.github/workflows/delete-old-containers.yml`;
-- `.github/actions/docker/`; and
-- the matching image paths and job invocation in the shared GitHub files.
+This is the source used to publish `agent-desktop`, not a generic
+derivative-image template. The current desktop Dockerfile reads publisher-only
+source from the build context twice: it sets `agentic_tools_stage_catalog=true`
+for `.claude-plugin/` plus `.agents/`, and `install_validate_agent_files=true`
+for `py_packages/validate_agent_files/`. A full template copy deletes both, so
+the optional image bundle cannot build unchanged afterward. A project retaining
+the bundle must explicitly choose one of these manual directions:
 
-This is the source used to publish `agent-desktop`, not a generic derivative-image template.
-The current desktop Dockerfile reads publisher-only source from the build context twice: it
-sets `agentic_tools_stage_catalog=true` for `.claude-plugin/` plus `.agents/`, and
-`install_validate_agent_files=true` for `py_packages/validate_agent_files/`. A full template
-copy deletes both, so the optional image bundle cannot build unchanged afterward. A project
-retaining the bundle must explicitly choose one of these manual directions:
-
-1. retain the publisher source too and keep building this repository's full image;
+1. retain the publisher source too and keep building this repository's full
+   image;
 2. stop staging a local catalog and stop building the validator — set
-   `agentic_tools_stage_catalog=false` and `install_validate_agent_files=false`, and adapt
-   the image build accordingly; or
+   `agentic_tools_stage_catalog=false` and `install_validate_agent_files=false`,
+   and adapt the image build accordingly; or
 3. create a derivative build based on the published `agent-desktop` image.
 
-The repository currently implements the first direction. The other two are customization
-work, not hidden template behavior.
+The repository currently implements the first direction. The other two are
+customization work, not hidden template behavior.
 
 ## Publisher-only source
 
-These paths stay in this repository but are deleted from a normal full template copy:
+These paths stay in this repository but are deleted from a normal full template
+copy:
 
 | Path                                             | Responsibility                                                                                               |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -197,44 +193,44 @@ These paths stay in this repository but are deleted from a normal full template 
 | `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                 |
 | `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                       |
 | `scripts/validate-super-linter-tool-versions.sh` | Publisher CI consistency check.                                                                              |
-| `docs/agents/specs/`                             | Historical spikes and implementation records, including catalog distribution.                                |
 
-After deleting `py_packages/validate_agent_files/`, remove the now-empty `py_packages/`
-wrapper and its standalone `LICENSE` as well. `scripts/` holds nothing but the tool-version
-check, so it disappears with it.
+After deleting `py_packages/validate_agent_files/`, remove the now-empty
+`py_packages/` wrapper and its standalone `LICENSE` as well. `scripts/` holds
+nothing but the tool-version check, so it disappears with it.
 
-`validate_agent_files` itself remains available from the `agent-desktop` image, which
-installs it at `/usr/local/bin/validate_agent_files` as an isolated `uv` tool
-(`ansible/roles/validate_agent_files/`). It can still be used locally or by CI that executes
-through the image, with no `uv run` prefix and no copy of the package source.
+`validate_agent_files` itself remains available from the `agent-desktop` image,
+which installs it at `/usr/local/bin/validate_agent_files` as an isolated `uv`
+tool (`ansible/roles/validate_agent_files/`). It can still be used locally or by
+CI that executes through the image, with no `uv run` prefix and no copy of the
+package source. See [Validator image install](validator-image-install.md) for
+how that install works and the decisions behind it.
 
 ## Generated and local-only state
 
-The following observed paths are not repository structure and must never be treated as
-template input:
+The following observed paths are not repository structure and must never be
+treated as template input: `.devcontainer/.env` (generated by
+`devcontainer-init.sh`); `.devcontainer/local.env` (ignored host-specific
+overrides); `.claude/settings.local.json` (ignored machine-specific Claude
+permissions); `.tmp/` (required scratch root for agents and audits); `.venv`,
+`.cache/`, `.pytest_cache/`, `.coverage`, and tool caches; `.ansible/`,
+`ansible/.ansible/`, and `ansible/ansible.log`; and `log/` and Super-Linter
+output.
 
-- `.devcontainer/.env` — generated by `devcontainer-init.sh`;
-- `.devcontainer/local.env` — ignored host-specific overrides;
-- `.claude/settings.local.json` — ignored machine-specific Claude permissions;
-- `.tmp/` — required scratch root for agents and audits;
-- `.venv`, `.cache/`, `.pytest_cache/`, `.coverage`, and tool caches;
-- `.ansible/`, `ansible/.ansible/`, and `ansible/ansible.log`; and
-- `log/` and Super-Linter output.
+## Why the boundary is drawn here
 
-## Why this differs from the original spike
+The repository history explains the boundary's evolution:
 
-The repository history explains the boundary change:
-
-- `c1dce21` extracted a project-agnostic image publisher and described `.devcontainer/` as
-  ready to copy.
+- `c1dce21` extracted a project-agnostic image publisher and described
+  `.devcontainer/` as ready to copy.
 - `efc55c1` added digest pinning and Renovate.
 - `a07718f` moved the Claude catalog into the `agentdev` plugin.
 - `d2270b6` packaged the same tree for Codex.
 - `6cb9487` moved lifecycle helpers from root `scripts/` into
   `.devcontainer/scripts/`.
-- `07e125b` replaced build-time plugin seeding with a staged catalog plus lifecycle
-  installation for both agents.
+- `07e125b` replaced build-time plugin seeding with a staged catalog plus
+  lifecycle installation for both agents.
 
-The catalog-distribution spike's four-file estimate predates the final lifecycle layout.
-The live dependency chain now makes the complete `.devcontainer/` tree, `compose.pins.yml`,
-and related configuration part of the manual template inventory.
+An earlier estimate of the publisher/template boundary (a four-file catalog
+split) predates this final lifecycle layout — the live dependency chain now
+makes the complete `.devcontainer/` tree, `compose.pins.yml`, and related
+configuration part of the manual template inventory.
