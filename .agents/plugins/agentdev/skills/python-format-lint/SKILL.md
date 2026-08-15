@@ -54,8 +54,8 @@ not match this repo and do not fail CI.
    automatically):
 
    ```bash
-   .venv/bin/ruff format path/to/file.py
-   .venv/bin/ruff check --fix path/to/file.py
+   uv run ruff format path/to/file.py
+   uv run ruff check --fix path/to/file.py
    ```
 
    To reproduce the full CI pass across every language, use the
@@ -71,13 +71,13 @@ not match this repo and do not fail CI.
 
 ## Troubleshooting
 
-| Symptom                                                   | Cause                                           | Fix                                                                                 |
-| --------------------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `flake8` locally flags `E501` at 79 chars but CI is green | You ran stock `flake8`, not ruff                | Use `python-lint-check.sh`; the repo limit is 99                                    |
-| CI committed a formatting change you did not expect       | Super-Linter's autofix pass runs `ruff --fix`   | Run pre-commit locally before pushing so the fix lands in your commit               |
-| Formatter keeps fighting your import order                | isort settings live in `.ruff.toml`             | Adjust `lint.isort` there; do not add a separate isort pass                         |
-| `ruff: command not found`                                 | The uv environment is not synced                | Run `.devcontainer/scripts/uv-sync.sh` (or `uv sync`); the script activates `.venv` |
-| Super-Linter reports ruff findings the local check misses | Version skew between `.venv` ruff and the image | Run `scripts/validate-super-linter-tool-versions.sh`                                |
+| Symptom                                                   | Cause                                                      | Fix                                                                                           |
+| --------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `flake8` locally flags `E501` at 79 chars but CI is green | You ran stock `flake8`, not ruff                           | Use `python-lint-check.sh`; the repo limit is 99                                              |
+| CI committed a formatting change you did not expect       | Super-Linter's autofix pass runs `ruff --fix`              | Run pre-commit locally before pushing so the fix lands in your commit                         |
+| Formatter keeps fighting your import order                | isort settings live in `.ruff.toml`                        | Adjust `lint.isort` there; do not add a separate isort pass                                   |
+| `ruff: command not found`                                 | ruff was invoked bare, or the uv environment is not synced | Invoke it as `uv run ruff`; run `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) if unsynced |
+| Super-Linter reports ruff findings the local check misses | Version skew between the project's ruff and the image      | Run `scripts/validate-super-linter-tool-versions.sh`                                          |
 
 ## References
 

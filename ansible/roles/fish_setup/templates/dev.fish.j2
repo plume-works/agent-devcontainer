@@ -18,16 +18,9 @@ function xpra_display
   set -xg DISPLAY ":100"
 end
 
-function venv_activate
-  # Activate the project's uv-managed virtualenv from anywhere in the tree.
-  set -l ws (find_up .venv)
-  if test -z "$ws"
-    echo "No .venv found in this directory or any parent"
-    return 1
-  end
-  echo "Activating $ws/.venv"
-  source "$ws/.venv/bin/activate.fish"
-end
+# BREAKING CHANGE: `venv_activate` was removed. The project environment is no
+# longer activated — run project tools through `uv run <tool>`, which works from
+# anywhere in the tree and needs no helper.
 
 if status is-interactive
   fish_add_path -g "$HOME/.local/bin"

@@ -16,30 +16,30 @@
 
 ## 3. CI provisioning action
 
-- [ ] 3.1 In `.github/actions/setup-python-venv/action.yml`, drop the `python -m venv` step, the activate step, and the `VIRTUAL_ENV`/`GITHUB_PATH` exports
-- [ ] 3.2 Remove the now-unused `zizmor: ignore[github-env]` suppression that guarded the `GITHUB_ENV` write
-- [ ] 3.3 Add `UV_PYTHON_PREFERENCE: only-system` so uv binds to the interpreter `actions/setup-python` installed
-- [ ] 3.4 Replace the `actions/cache` step on `path: .venv` with `enable-cache` on `astral-sh/setup-uv`, and delete the `we just cache the venv-dir directly` comment
-- [ ] 3.5 Change the sync to `--locked --all-groups --all-extras`, dropping `--active` and replacing `--frozen`, which skips the lockfile currency check rather than enforcing it
-- [ ] 3.6 Update the action's `description` to state that it provisions but does not activate, and that callers must use `uv run`
+- [x] 3.1 In `.github/actions/setup-python-venv/action.yml`, drop the `python -m venv` step, the activate step, and the `VIRTUAL_ENV`/`GITHUB_PATH` exports
+- [x] 3.2 Remove the now-unused `zizmor: ignore[github-env]` suppression that guarded the `GITHUB_ENV` write
+- [x] 3.3 Add `UV_PYTHON_PREFERENCE: only-system` so uv binds to the interpreter `actions/setup-python` installed
+- [x] 3.4 Replace the `actions/cache` step on `path: .venv` with `enable-cache` on `astral-sh/setup-uv`, and delete the `we just cache the venv-dir directly` comment
+- [x] 3.5 Change the sync to `--locked --all-groups --all-extras`, dropping `--active` and replacing `--frozen`, which skips the lockfile currency check rather than enforcing it
+- [x] 3.6 Update the action's `description` to state that it provisions but does not activate, and that callers must use `uv run`
 
 ## 4. CI callers
 
-- [ ] 4.1 Change the two `pytest` steps and the `validate_agent_files` step in `.github/workflows/validate-agent-files.yml` to `uv run`
-- [ ] 4.2 Align the sync flags at `.github/workflows/ci.yml:272` with the action's (`--locked --all-groups --all-extras`)
-- [ ] 4.3 Remove or rewrite the `ci.yml` comment about checking `validate_agent_files` before `uv sync` — with no activation anywhere, the project environment can no longer mask the image's copy
+- [x] 4.1 Change the two `pytest` steps and the `validate_agent_files` step in `.github/workflows/validate-agent-files.yml` to `uv run`
+- [x] 4.2 Align the sync flags at `.github/workflows/ci.yml:272` with the action's (`--locked --all-groups --all-extras`)
+- [x] 4.3 Remove or rewrite the `ci.yml` comment about checking `validate_agent_files` before `uv sync` — with no activation anywhere, the project environment can no longer mask the image's copy
 
 ## 5. Shell helper
 
-- [ ] 5.1 Remove `venv_activate` from `ansible/roles/fish_setup/templates/dev.fish.j2`, keeping `find_up`
-- [ ] 5.2 Update `ansible/roles/fish_setup/README.md`, which lists the removed helper
+- [x] 5.1 Remove `venv_activate` from `ansible/roles/fish_setup/templates/dev.fish.j2`, keeping `find_up`
+- [x] 5.2 Update `ansible/roles/fish_setup/README.md`, which lists the removed helper
 
 ## 6. Documentation
 
-- [ ] 6.1 Update the `setup-python-venv` row in `docs/knowledge/data/architecture/template-boundary.md` to describe the new contract, following `docs/knowledge/data/AGENTS.md`
-- [ ] 6.2 Fix `.agents/plugins/agentdev/skills/microvm-sandbox/SKILL.md`, which states that the sync script links `.venv`
-- [ ] 6.3 Fix `.agents/plugins/agentdev/skills/python-format-lint/SKILL.md`: the `.venv/bin/ruff` invocations and the two troubleshooting rows referencing `.venv`
-- [ ] 6.4 Record the breaking contract changes where contributors will see them — the action description, and the sync-script and fish-template comments
+- [x] 6.1 Update the `setup-python-venv` row in `docs/knowledge/data/architecture/template-boundary.md` to describe the new contract, following `docs/knowledge/data/AGENTS.md`
+- [x] 6.2 Fix `.agents/plugins/agentdev/skills/microvm-sandbox/SKILL.md`, which states that the sync script links `.venv`
+- [x] 6.3 Fix `.agents/plugins/agentdev/skills/python-format-lint/SKILL.md`: the `.venv/bin/ruff` invocations and the two troubleshooting rows referencing `.venv`
+- [x] 6.4 Record the breaking contract changes where contributors will see them — the action description, and the sync-script and fish-template comments
 
 ## 7. Verification
 

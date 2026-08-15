@@ -2,8 +2,8 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: claude-opus-5
+  at: 2026-08-15T00:00:00Z
 sources:
 - docs/repository-structure.md (folded and removed)
 ---
@@ -141,7 +141,7 @@ The `.github/` tree is template-related, but it is mixed rather than copy-ready:
 | `.github/workflows/reformat.yml`              | Customize | Calls `super-linter-env.sh` from the catalog and this repository's excluded tool-version check; both must be replaced inline.     |
 | `.github/workflows/validate-agent-files.yml`  | Customize | Tests publisher sources and uses local validator packaging; consumers run validator-dependent CI through `agent-desktop` instead. |
 | `.github/actions/log-debug-stats/`            | Template  | Reusable GitHub API diagnostic action.                                                                                            |
-| `.github/actions/setup-python-venv/`          | Customize | Reusable for uv projects after the consumer lockfile/project metadata is established.                                             |
+| `.github/actions/setup-python-venv/`          | Customize | Provisions Python, uv, and a `--locked` synced environment; it does not activate one, so callers must use `uv run`.               |
 | `.github/actions/paths-filter/`               | Customize | Its current filters name image and catalog publisher paths.                                                                       |
 | `.github/workflows/ci.yml`                    | Optional  | Builds, publishes, merges, and smoke-tests the two container images.                                                              |
 | `.github/workflows/delete-old-containers.yml` | Optional  | Deletes old GHCR versions for repositories that publish custom images.                                                            |

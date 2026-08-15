@@ -263,13 +263,13 @@ jobs:
             command -v gnome-keyring-daemon
 
             # The bundled validator must be the image's copy, not the project
-            # environment's editable install. Checked before `uv sync` so the
-            # project environment cannot mask a missing install.
+            # environment's editable install. Nothing activates an environment,
+            # so the project environment can no longer mask the image's copy.
             test "$(command -v validate_agent_files)" = /usr/local/bin/validate_agent_files
             validate_agent_files --help > /dev/null
 
             # The repo's own checks
-            uv sync --all-groups
+            uv sync --locked --all-groups --all-extras
             uv run pytest py_packages .agents/plugins/agentdev/tests
 
       - name: Log debug stats

@@ -31,8 +31,9 @@ devcontainer exec --workspace-folder . bash -lc 'bun test <path>'
 Keep the same selectors and paths the command would have used locally — the
 container mounts the workspace, so relative paths resolve identically. If a
 dependency was added, run `uv sync` (or `bun install`) inside the container
-first; `.devcontainer/scripts/uv-sync.sh` does this and links `.venv` to the cached
-environment volume.
+first; `.devcontainer/scripts/uv-sync.sh` does this, syncing into the cached
+environment volume. Nothing is linked into the workspace tree — invoke project
+tools through `uv run`.
 
 The container is not disposable: it keeps its state between `exec` calls. Stop it
 with `docker compose -f .devcontainer/docker-compose.yml -f compose.pins.yml down`
