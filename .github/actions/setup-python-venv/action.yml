@@ -1,5 +1,7 @@
 name: Setup Python venv
-description: Setup Python virtual environment with caching for uv-managed dependencies
+description:
+  Provision Python, uv, and a synced project environment. The environment is NOT activated — callers
+  must invoke project tools through `uv run`.
 
 inputs:
   python-version:
@@ -20,29 +22,19 @@ runs:
       uses: astral-sh/setup-uv@v10.0.1
       with:
         version: '0.12.5'
-        # we just cache the venv-dir directly in action-setup-venv
-        enable-cache: false
+        # uv owns environment creation, so caching its package cache is the
+        # equivalent of caching the environment directory -- and stays correct
+        # across interpreter and lockfile changes.
+        enable-cache: true
 
-    - name: Restore venv cache
-      uses: actions/cache@v6
-      id: cache-venv
-      with:
-        path: .venv
-        key: setup-venv-${{ runner.os }}-${{ runner.arch }}-py-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('uv.lock') }}-uv-sync-frozen-all
-
-    - name: Create venv
-      if: steps.cache-venv.outputs.cache-hit != 'true'
-      run: python -m venv .venv
-      shell: bash
-
-    - name: Activate venv
-      run:
-        | # zizmor: ignore[github-env] VIRTUAL_ENV is a local venv path, not attacker-controlled
-        source .venv/bin/activate
-        echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> "${GITHUB_ENV}"
-        echo "${VIRTUAL_ENV}/bin" >> "${GITHUB_PATH}"
-      shell: bash
-
+    # `--locked` fails here on lockfile drift. `--frozen` skips the currency
+    # check entirely, letting a dependency that is in pyproject.toml but not in
+    # uv.lock through provisioning, to be installed later by a bare `uv run`.
     - name: Install dependencies
-      run: uv sync --frozen --active --all-groups --all-extras
+      run: uv sync --locked --all-groups --all-extras
       shell: bash
+      env:
+        # Bind uv to the interpreter actions/setup-python installed, instead of
+        # resolving or downloading one of its own. Without this uv selects it
+        # only incidentally, by finding a matching system Python on PATH.
+        UV_PYTHON_PREFERENCE: only-system
