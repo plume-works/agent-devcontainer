@@ -9,6 +9,8 @@ sources:
 - .devcontainer/scripts/uv-sync.sh
 - .devcontainer/devcontainer.json
 - .agents/plugins/agentdev/bin/python-lint-check.sh
+stage: done
+completed: 2026-08-15
 ---
 
 # Drop the .venv symlink

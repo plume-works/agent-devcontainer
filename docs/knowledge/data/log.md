@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-08-15
 
+- **Update**: [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md) done
+  — the in-tree symlink is gone and every consumer reaches the environment
+  through `uv run` or the fixed `/uv/venvs/ws-project` path.
+- **Creation**: [uv-run-only environment](features/uv-run-only-environment.md)
+  implemented, recorded in [unreleased](releases/unreleased.md).
 - **Creation**: Proposed
   [Verification in the main loop](features/verification-in-the-main-loop.md) —
   ship's step 1 names the verify skill without invoking it, so verification at
