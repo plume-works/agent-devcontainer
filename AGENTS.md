@@ -60,6 +60,13 @@ For substantial feature, bug, architecture, or behavior work:
 - treat `docs/knowledge/data/` as the source of truth for project state and decisions;
 - update project memory when the work changes durable project knowledge.
 
+**Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
+documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
+the whole repo is opened as the workspace. `iwe` does not search upward for `.iwe/` and has no
+`--root` flag, so invoking it from any subdirectory fails or reads the wrong config. Document
+keys are therefore relative to `docs/knowledge/` (`[library].path`): `data/plans/<slug>`, not
+`docs/knowledge/data/plans/<slug>`.
+
 When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/data/AGENTS.md`.
 
 ## Other
