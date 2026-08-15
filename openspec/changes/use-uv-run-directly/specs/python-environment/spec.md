@@ -146,7 +146,7 @@ provisioning step rather than during a later step when it is not.
 - **THEN** the provisioning step fails
 - **AND** no test or validation step runs
 
-#### Scenario: Later steps do not re-resolve the environment
+#### Scenario: Later steps do not modify the environment
 
 - **WHEN** a workflow step invokes a project tool after successful provisioning
 - **THEN** the step does not modify the provisioned environment

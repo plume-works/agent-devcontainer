@@ -69,13 +69,31 @@ worse than a missing environment because a `.venv`-preferring tool would silentl
 use a stale toolchain. Narrowing the removal to symlinks only (never a directory)
 keeps the script safe to run in a consuming project.
 
-### `uv run --no-sync` at call sites, `uv sync --frozen` at provisioning
+### `uv sync --locked` at provisioning, plain `uv run` at call sites
 
-Provision once, loudly; then guarantee no call site mutates the environment.
-Without `--no-sync`, each `uv run` re-resolves and may re-sync, which converts a
-lockfile problem into a confusing failure inside an unrelated test step. This
-applies identically to `python-lint-check.sh` — a _check_ script must not install
-packages as a side effect.
+Provisioning must fail loudly on lockfile drift, and `--frozen` does not do that —
+it skips the currency check entirely. Measured on uv 0.12.4, against a project with
+a dependency added to `pyproject.toml` but not locked:
+
+```text
+uv sync --frozen --all-groups   Checked 2 packages in 1ms       exit 0
+uv sync --locked --all-groups   error: The lockfile at `uv.lock`
+                                needs to be updated             exit 1
+```
+
+After the `--frozen` sync passed with that dependency missing, a later bare
+`uv run` re-locked and installed it mid-step. `--locked` moves the failure to
+provisioning, where it is legible.
+
+With `--locked` upstream, call sites need no `--no-sync` — the sync check on each
+`uv run` is a no-op. Two candidate rationales for adding it anyway were tested and
+did not hold: drift is caught earlier, and `uv run` does not prune what
+`uv sync --all-groups` installed (its sync is inexact — a package from a
+non-default group survived a subsequent bare `uv run`).
+
+`python-lint-check.sh` is the exception and keeps `--no-sync`. Nothing provisions
+before it, and a developer's `pyproject.toml` can legitimately be mid-edit, so
+without it a _check_ script would install packages as a side effect.
 
 ### `python-lint-check.sh` keeps a fallback chain
 

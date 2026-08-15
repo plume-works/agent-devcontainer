@@ -45,8 +45,9 @@ only-system` is added so uv binds to that interpreter instead of resolving or
   rather than by coincidence.
 - Caching moves from the `.venv` directory to uv's package cache via `setup-uv`'s
   `enable-cache`.
-- `validate-agent-files.yml` invokes its three steps through `uv run --no-sync`, so
-  lockfile drift fails at the provisioning step rather than mid-test.
+- Provisioning syncs with `--locked` rather than `--frozen`, so lockfile drift
+  fails there. `--frozen` skips the currency check entirely and lets drift through.
+- `validate-agent-files.yml` invokes its three steps through `uv run`.
 
 ### Repository tooling
 
@@ -75,7 +76,7 @@ Affected code:
 - `.devcontainer/devcontainer.json` — `UV_PROJECT_ENVIRONMENT` and four VS Code settings
 - `.devcontainer/scripts/uv-sync.sh` — symlink creation removed, removal narrowed
 - `.github/actions/setup-python-venv/action.yml` — activation and PATH export removed
-- `.github/workflows/validate-agent-files.yml` — three steps move to `uv run --no-sync`
+- `.github/workflows/validate-agent-files.yml` — three steps move to `uv run`
 - `.github/workflows/ci.yml` — sync flags aligned; the "checked before `uv sync`"
   ordering note becomes obsolete once no step activates an environment
 - `.agents/plugins/agentdev/bin/python-lint-check.sh` — ruff resolution order

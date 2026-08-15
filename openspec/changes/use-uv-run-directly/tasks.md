@@ -20,13 +20,13 @@
 - [ ] 3.2 Remove the now-unused `zizmor: ignore[github-env]` suppression that guarded the `GITHUB_ENV` write
 - [ ] 3.3 Add `UV_PYTHON_PREFERENCE: only-system` so uv binds to the interpreter `actions/setup-python` installed
 - [ ] 3.4 Replace the `actions/cache` step on `path: .venv` with `enable-cache` on `astral-sh/setup-uv`, and delete the `we just cache the venv-dir directly` comment
-- [ ] 3.5 Drop `--active` from the sync, keeping `--frozen --all-groups --all-extras`
+- [ ] 3.5 Change the sync to `--locked --all-groups --all-extras`, dropping `--active` and replacing `--frozen`, which skips the lockfile currency check rather than enforcing it
 - [ ] 3.6 Update the action's `description` to state that it provisions but does not activate, and that callers must use `uv run`
 
 ## 4. CI callers
 
-- [ ] 4.1 Change the two `pytest` steps and the `validate_agent_files` step in `.github/workflows/validate-agent-files.yml` to `uv run --no-sync`
-- [ ] 4.2 Align the sync flags at `.github/workflows/ci.yml:272` with the action's, and use `--no-sync` on the `uv run pytest` call
+- [ ] 4.1 Change the two `pytest` steps and the `validate_agent_files` step in `.github/workflows/validate-agent-files.yml` to `uv run`
+- [ ] 4.2 Align the sync flags at `.github/workflows/ci.yml:272` with the action's (`--locked --all-groups --all-extras`)
 - [ ] 4.3 Remove or rewrite the `ci.yml` comment about checking `validate_agent_files` before `uv sync` — with no activation anywhere, the project environment can no longer mask the image's copy
 
 ## 5. Shell helper
@@ -49,3 +49,4 @@
 - [ ] 7.4 Confirm a worktree that still holds the old `.venv` symlink has it cleared by one run of the sync script
 - [ ] 7.5 Run `uv run pytest py_packages .agents/plugins/agentdev/tests` and `python-lint-check.sh` in the rebuilt container
 - [ ] 7.6 Confirm `validate-agent-files.yml` passes in CI, and that `pre-commit run --all-files` is unaffected
+- [ ] 7.7 Confirm lockfile drift fails at provisioning: with a dependency added to `pyproject.toml` and not locked, the sync step exits non-zero and no test step runs
