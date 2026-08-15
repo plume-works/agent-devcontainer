@@ -1,7 +1,7 @@
 ---
 type: plan
 created: 2026-08-15
-description: Replace How to Test with Verification and Reviewer Handoff across the PR template and the three agentdev skill sites that write or update it.
+description: Replace How to Test with Verification and Reviewer Handoff, moving PR structure into the pr-gen-description skill and deleting the repository template.
 generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
@@ -21,7 +21,14 @@ that a pull request body splits `## How to Test` into two sections:
 child, and `## Reviewer Handoff`, holding open items as unchecked boxes with a
 `**Closed by:**` child. Both sections omit what an automated check already
 covers, and reference rather than restate what another document owns. This plan
-carries that decision into the four places that define the section.
+carries that decision into the places that define the section — and, while doing
+so, reduces how many such places exist.
+
+`.github/pull_request_template.md` is deleted rather than rewritten. Nobody
+opens a pull request by hand in this project or in a consuming one, so the
+template's only reader is the skill that generates the body — and that skill is
+about to describe the same structure itself. Keeping both means keeping them in
+sync forever, which is the drift this whole change exists to remove.
 
 The decision records the failure that motivated it: PR #61's `## How to Test`
 held six numbered items spanning three moods — a state to observe, commands
@@ -40,17 +47,28 @@ deliberately.
 
 ## Approach
 
-Change the template first, then the skills that fill it, so no intermediate
-commit has a skill instructing a section the template does not contain.
+Invert the authority. Today `pr-gen-description` *defers* to a discovered
+template ("start from it… when the repository has no template, use the section
+list below"), which is what creates the sync problem: two documents describing
+one structure, either able to drift. After this change the skill states the
+structure unconditionally and looks for no template at all.
+
+A consuming repository that has its own `pull_request_template.md` is therefore
+no longer honored — so the skill must **say so** rather than ignore it in
+silence. Step 7 gains an instruction to check for one and, when found, tell the
+caller plainly that the skill's structure was used instead and their template
+was not consulted. A consumer discovering that from a diff is a bug; a consumer
+told during the run can decide whether to keep the file, delete it, or ask for
+the structure to change.
 
 The section format is the easy half. The hard half is the two filters, because
-applying them requires knowing what CI covers — and the skill that generates the
-body currently instructs the opposite. `pr-gen-description` Step 5 says "Assess
-Testing Strategy: Unit tests, integration tests, manual testing, coverage
-impact", which invites exactly the transcript of automated runs the decision
-removes. Step 5 is therefore a fourth site, not merely a fourth mention: it must
-tell the author to read `.github/workflows/` and treat everything CI runs as
-excluded, keeping only the residue.
+applying them requires knowing what CI covers — and the skill currently
+instructs the opposite. `pr-gen-description` Step 5 says "Assess Testing
+Strategy: Unit tests, integration tests, manual testing, coverage impact", which
+invites exactly the transcript of automated runs the decision removes. Step 5 is
+a site in its own right, not merely another mention: it must tell the author to
+read `.github/workflows/` and treat everything CI runs as excluded, keeping only
+the residue.
 
 The rejected alternative is a rename-only edit at each site, leaving the prose
 that feeds the sections untouched. That was already rejected at the decision
@@ -65,63 +83,84 @@ assume the neighbouring site does.
 
 ## Implementation Steps
 
-### Task 1: Template
-
-**Files:** Modify: `.github/pull_request_template.md`
-
-- [ ] **1. Replace the `## How to Test` block with the two sections.** Swap
-  lines 16-20 for `## Verification` and `## Reviewer Handoff`, each with a
-  commented example showing one item in the required shape (`- [x]` +
-  `**Evidence:**`; `- [ ]` + `**Closed by:**`). State in the template that
-  `## Verification` is often empty when CI covers the change, so an author does
-  not read emptiness as an omission to fill.
-
-### Task 2: Generation skill
+### Task 1: Skill owns the structure
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`
 
-- [ ] **2. Rewrite Step 5 to select rather than inventory.** Replace the current
-  "Assess Testing Strategy" line (`:88-90`) with instructions to read
+- [ ] **1. Make the Step 7 section list authoritative and add the two
+  sections.** Rewrite `:100` so the skill states the structure rather than
+  discovering one: drop "Locate the repository's pull request template … start
+  from it" and the no-template fallback wording. In the list at `:105`, replace
+  the `How to Test` entry with `Verification` (closed items, `- [x]` +
+  `**Evidence:**`) and `Reviewer Handoff` (open items, `- [ ]` +
+  `**Closed by:**`), each defined by tense, and note that `## Verification` is
+  often empty when CI covers the change.
+- [ ] **2. Warn when a consuming repository has its own template.** Still check
+  for `.github/pull_request_template.md` and `.github/PULL_REQUEST_TEMPLATE/`,
+  but only to report: when one exists, tell the caller the skill's structure was
+  used and their template was not consulted. Never silently ignore it, and never
+  merge the two structures.
+- [ ] **3. Rewrite Step 5 to select rather than inventory.** Replace the "Assess
+  Testing Strategy" line (`:88-90`) with instructions to read
   `.github/workflows/` for what CI already runs on the branch, then keep only
   what survives both filters — no linter, formatter, image build, or test suite
   CI executes, and no restatement of a plan's own verification record.
-- [ ] **3. Replace the `How to Test` entry in the Step 7 section list.** At
-  `:105`, substitute the two sections with one-line definitions distinguishing
-  them by tense, so a repository with no template of its own gets the same
-  structure.
 - [ ] **4. Add the empty-section and unclosable-item edge cases.** In
   `## Edge Cases` (`:114-121`), record that an empty `## Verification` under
   green CI is the expected outcome rather than a gap to fill, and that an item
   no reviewer can close still belongs under `## Reviewer Handoff` with its
   closer named. Reconcile the existing "**No tests**: Warn incomplete testing
   section" bullet, which otherwise contradicts both.
+- [ ] **5. Update the skill's own template references.** The intro at `:9` and
+  the `## Related Resources` entry at `:125` both name the repository template
+  as the source of structure; both must instead point at the Step 7 list.
+
+### Task 2: Delete the template
+
+**Files:** Delete: `.github/pull_request_template.md`
+
+- [ ] **6. Remove the template.** Delete the file. Nothing in CI reads it, and
+  after Task 1 nothing in the skills does either — confirm with
+  `rg -n "pull_request_template|PULL_REQUEST_TEMPLATE"` that the only remaining
+  hits are the knowledge documents describing this change and the Task 1 warning
+  path. Do this after Task 1, so no commit leaves the skill deferring to a file
+  that is gone.
 
 ### Task 3: Review standards skill
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md`
 
-- [ ] **5. Rewrite the worked example.** Replace step 4 of
+- [ ] **7. Rewrite the worked example.** Replace step 4 of
   `### Recommended Template` (`:75-83`) — the `## How to Test` heading and its
   three-command example — with both sections in the required shape. The example
   is what most readers copy, so it must show an `**Evidence:**` line and a
   `**Closed by:**` line rather than describe them.
-- [ ] **6. Update the feedback-loop instruction.** At `:180`, "Update 'How to
+- [ ] **8. Update the feedback-loop instruction.** At `:180`, "Update 'How to
   Test' if testing changes" becomes an instruction naming both sections, and
   states the direction items travel: work closed since the last review moves
   from `## Reviewer Handoff` to `## Verification` with its evidence, never the
   reverse.
 
-### Task 4: Breaking-change record
+### Task 4: Template boundary
+
+**Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`
+
+- [ ] **9. Remove the template from the GitHub surface table.** Drop the
+  `.github/pull_request_template.md` row at `:137` and note that PR structure
+  now ships in the `agentdev` catalog rather than as copyable repository
+  content. This removes one of only two `Template`-class rows in that table, so
+  state the reclassification rather than deleting the row silently.
+
+### Task 5: Downstream record
 
 **Files:** Modify: `docs/knowledge/data/log.md`
 
-- [ ] **7. Record the change as a downstream break.** The `agentdev` plugin
-  ships to template consumers, so a consuming repository's own
-  `pull_request_template.md` keeps `## How to Test` while its skills instruct
-  two different sections. Note the mismatch and that consumers adopt by copying
-  the new template, in the same register as the `setup-python-venv` activation
-  break.
+- [ ] **10. Record the change as a downstream break.** A consuming repository
+  that copied `.github/pull_request_template.md` still has it, and its updated
+  `agentdev` skills will now ignore it — reporting that it was ignored, per task
+  2. Note that adopting means deleting the copied file, in the same register as
+  the `setup-python-venv` activation break.
 
 ## Spec changes
 
@@ -151,12 +190,17 @@ order.
 - `rg -n "How to Test|How to test" --glob '!.tmp' .` returns no hits outside
   `docs/knowledge/data/` — the knowledge documents quote the old heading when
   describing the defect and must keep it.
-- `rg -n "Reviewer Handoff" .github/ .agents/plugins/agentdev/skills/` returns
-  hits in all three files, confirming no site was missed.
+- `rg -n "Reviewer Handoff" .agents/plugins/agentdev/skills/` returns hits in
+  both skill files, confirming no site was missed.
+- `rg -n "pull_request_template|PULL_REQUEST_TEMPLATE" --glob '!.tmp' .` returns
+  only the knowledge documents and the task-2 warning path in
+  `pr-gen-description` — no skill still treats a template as the source of
+  structure.
+- `test ! -e .github/pull_request_template.md`.
 - `.agents/plugins/agentdev/bin/super-linter-local.sh` passes — the edits are
   Markdown, and Prettier is the gate that will reformat the example blocks.
 - `uv run pytest .agents/plugins/agentdev/tests` passes, confirming no bundled
-  script asserted on the old heading.
+  script asserted on the old heading or read the template.
 - Read the resulting `## Edge Cases` and Step 5 together and confirm they do not
   contradict: Step 5 excludes CI-covered work, and no edge case asks for it
   back.
@@ -182,14 +226,20 @@ cannot be closed by the session doing the work — see `## Out of scope`.
 
 Verified anchor points (line numbers as of 2026-08-15):
 
-- `.github/pull_request_template.md:16` — `## How to Test` heading
-- `.github/pull_request_template.md:18-20` — the three numbered instructions
-  that mix "commands you actually ran" with coverage gaps
+- `.github/pull_request_template.md:16` — `## How to Test` heading, in the file
+  this plan deletes
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:9` — intro naming
+  the repository template as what the skill fills
 - `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:88-90` — Step 5,
   "Assess Testing Strategy"
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:100` — Step 7's
+  "Locate the repository's pull request template … start from it", the deference
+  this plan inverts
 - `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:105` — the
-  `**How to Test**: Actual verification performed` entry in the Step 7 fallback
-  section list
+  `**How to Test**: Actual verification performed` entry in the Step 7 section
+  list
+- `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:125` —
+  `## Related Resources` entry pointing at the repository template
 - `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:114-121` —
   `## Edge Cases`, including the `**No tests**` bullet
 - `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md:75-83` — step
@@ -197,3 +247,6 @@ Verified anchor points (line numbers as of 2026-08-15):
 - `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md:180` —
   `Update "How to Test" if testing changes`, in
   `## Responding To Review Feedback`
+- `docs/knowledge/data/architecture/template-boundary.md:137` — the
+  `.github/pull_request_template.md` row in the GitHub surface table, classed
+  `Template`

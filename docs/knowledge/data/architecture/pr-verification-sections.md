@@ -56,13 +56,12 @@ good.
 
 ## Why
 
-The concrete failure is [PR
-#61's](https://github.com/plume-works/agent-devcontainer/pull/61)
-`## How to Test`: six numbered items spanning three moods — a state to observe
-("CI on this PR is green"), commands already run in the past tense, and
-instructions addressed to the reader — under one heading and one continuous
-numbering, as though they were one kind of thing. Four of the six restated work
-CI already performs.
+The concrete failure is the `## How to Test` section of [pull request
+61](https://github.com/plume-works/agent-devcontainer/pull/61): six numbered
+items spanning three moods — a state to observe ("CI on this PR is green"),
+commands already run in the past tense, and instructions addressed to the reader
+— under one heading and one continuous numbering, as though they were one kind
+of thing. Four of the six restated work CI already performs.
 
 This is the pull-request-shaped instance of
 [plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md), whose
@@ -115,12 +114,28 @@ not close, turning the section into a dialogue.
   without that knowledge will duplicate (harmless, noisy) or omit wrongly
   (dangerous — a genuinely manual check silently dropped). The skills must
   therefore instruct reading the workflows, not merely applying the filters.
-- Three call sites in the portable `agentdev` plugin must change together, and
-  they ship to downstream template consumers:
-  `.github/pull_request_template.md:16`;
-  `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md:105`, the section
-  list used when a repository has no template of its own; and
+- **The skill owns the structure; `.github/pull_request_template.md` is
+  deleted.** No pull request in this project or a consuming one is opened by
+  hand, so the template's only reader was the skill that generates the body.
+  `pr-gen-description` previously *deferred* to a discovered template and fell
+  back to its own section list; that deference is what made one structure live
+  in two documents that could drift. The skill now states the structure
+  unconditionally and looks for no template.
+- A consuming repository's own `pull_request_template.md` is consequently
+  ignored — but never silently. The skill still checks for one and reports that
+  it was not consulted, so a consumer can delete the file, keep it for human
+  readers, or argue for a change to the structure. Adopting the new behavior
+  means deleting the copied file.
+- The cost is that PR structure is no longer visible to anyone who has not
+  loaded the skill: GitHub will no longer pre-fill the web textarea, and a human
+  reader has no in-repo statement of the expected shape. Acceptable here because
+  authorship and review are both automated; it would not be in a
+  human-contributor project.
+- Two call sites remain in the portable `agentdev` plugin and must change
+  together: `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md` (Step
+  5's testing-strategy prompt, Step 7's now-authoritative section list, the
+  `## Edge Cases` entries, and the intro and `## Related Resources` template
+  references) and
   `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md:75-83` (the
   worked example) and `:180` (the feedback loop's "update How to Test"
-  instruction). A rename in one place alone produces drift between the template
-  and the skill that fills it.
+  instruction).
