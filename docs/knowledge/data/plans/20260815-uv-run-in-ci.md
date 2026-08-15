@@ -140,11 +140,15 @@ stay different; only the *invocation* contract is unified.
   Consequences section currently says CI "builds their own in-tree environment",
   which stays true, but should record that CI no longer *activates* it. Add the
   CI half to [uv-run-only environment](../features/uv-run-only-environment.md).
-- [x] **8. Verify.** Push and confirm `validate-agent-files.yml` and `ci.yml`
-  both pass — CI is the only place these paths execute, so a green run is the
-  test. Locally, check that `python-lint-check.sh` still resolves ruff in the
-  devcontainer (where ruff is *not* on `PATH`, making `uv run` its only source)
-  and that it installs nothing when `pyproject.toml` has an unlocked dependency.
+- [x] **8. Verify locally.** Check that `python-lint-check.sh` still resolves
+  ruff with no ruff on `PATH` (the `uv run` rung is then its only source) and
+  that it installs nothing when `pyproject.toml` has an unlocked dependency. Run
+  the lint gates and the test suite.
+- [ ] **9. Verify in CI.** Push and confirm `validate-agent-files.yml` and
+  `ci.yml` both pass. CI is the only place the changed workflow paths execute,
+  so a green run is the real test — the local checks in Task 8 cannot cover the
+  action's contract, `--locked` on a cold runner, or `only-system` binding to
+  the `actions/setup-python` interpreter.
 
 ## Verification results
 
@@ -166,8 +170,10 @@ Run locally on 2026-08-15, before pushing:
 - Removing the `VIRTUAL_ENV` export also removed the only reason for the
   `zizmor: ignore[github-env]` suppression, which went with it.
 
-CI itself is the remaining check: `validate-agent-files.yml` and `ci.yml` are
-the only places the changed paths execute end to end.
+Task 9 is outstanding. Nothing has been pushed, so `validate-agent-files.yml`
+and `ci.yml` have not run against these changes — and they are the only places
+the changed workflow paths execute end to end. The plan is not shippable until
+that run is green.
 
 ## Risks
 
