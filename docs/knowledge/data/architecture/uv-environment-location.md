@@ -74,5 +74,10 @@ environment, and a stale link whenever the target path changes.
   in-tree environment. `.gitignore`, `search.exclude`, and the lint prunes keep
   covering it.
 - `uv-sync.sh` carries a narrow migration cleanup that removes `.venv` only when
-  it is a symlink, so existing containers shed the old link without a rebuild.
-  It is removable once every active worktree has re-synced.
+  it is a symlink **and** its target is under `/uv/venvs/` — the shape earlier
+  revisions created with `ln -s "$UV_PROJECT_ENVIRONMENT" .venv`. A real
+  directory, or a link a developer deliberately pointed somewhere else, is
+  reported and left in place. The prefix is matched rather than the current
+  `UV_PROJECT_ENVIRONMENT` because stale links predate the path change and still
+  carry the old per-workspace basename. It is removable once every active
+  worktree has re-synced.

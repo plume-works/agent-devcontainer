@@ -88,6 +88,9 @@ entirely. Simpler to explain, but it breaks cache-to-venv hardlinking as above.
   host-created `.venv` is never touched. This lets existing containers shed the
   stale link on the next postAttach without a rebuild, and is removable once
   every active worktree has re-synced
+- [x] Also verify the link *target* before removing it, so the cleanup only
+  claims links this repository created and never a deliberate one pointing
+  somewhere else
 - [x] Update the postCreate comment, which says the sync targets "the
   container's `.venv` directory"
 
