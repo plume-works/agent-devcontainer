@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
+
 ## Done
 
 [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md)

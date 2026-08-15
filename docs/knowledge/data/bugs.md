@@ -17,3 +17,5 @@ tells them apart.*
 [Validator warning visibility](bugs/validator-warning-visibility.md)
 
 [Missing map skill](bugs/missing-map-skill.md)
+
+[Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
