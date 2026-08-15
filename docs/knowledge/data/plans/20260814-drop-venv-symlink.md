@@ -78,17 +78,17 @@ entirely. Simpler to explain, but it breaks cache-to-venv hardlinking as above.
 **Files:** Modify: `.devcontainer/scripts/uv-sync.sh`,
 `.devcontainer/scripts/postCreateCommand.sh`
 
-- [ ] Delete the `rm -rf`/`ln -s` blocks and the comment above them; the script
+- [x] Delete the `rm -rf`/`ln -s` blocks and the comment above them; the script
   becomes `cd "$workspace"` + `uv sync --all-groups --all-extras`
-- [ ] Replace the deleted comment with the real rationale: the environment lives
+- [x] Replace the deleted comment with the real rationale: the environment lives
   on the `/uv` volume so uv can hardlink from `UV_CACHE_DIR` on the same
   filesystem
-- [ ] Keep a narrow migration cleanup: remove `$workspace/.venv` only when it is
+- [x] Keep a narrow migration cleanup: remove `$workspace/.venv` only when it is
   a symlink, guarding on `-L` and using a plain `rm`, never `rm -rf`, so a real
   host-created `.venv` is never touched. This lets existing containers shed the
   stale link on the next postAttach without a rebuild, and is removable once
   every active worktree has re-synced
-- [ ] Update the postCreate comment, which says the sync targets "the
+- [x] Update the postCreate comment, which says the sync targets "the
   container's `.venv` directory"
 
 ### Task 3: Route the lint script through `uv run`
