@@ -73,7 +73,7 @@ unresolved:
 | `.devcontainer/firewall-allowlist.txt`               | Project-owned allowlist read when the opt-in firewall starts.                                                    |
 | `.devcontainer/scripts/postCreateCommand.sh`         | Sets up persistent Claude and Codex auth state, syncs the uv environment, and installs the image-staged catalog. |
 | `.devcontainer/scripts/postStartCommand.sh`          | Starts the CBM daemon, repository hooks, keyring, firewall, Xpra, and workspace catalog override.                |
-| `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` and links the cached environment to `.venv`.                                                      |
+| `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` into the out-of-tree environment on the `/uv` volume ([why](uv-environment-location.md)).         |
 | `.devcontainer/scripts/setup-pre-commit.sh`          | Trusts the checkout and installs pre-commit and pre-push hooks.                                                  |
 | `.devcontainer/scripts/setup-keyring.sh`             | Starts and persists the headless keyring used by authenticated tooling.                                          |
 | `.devcontainer/scripts/firewall.sh`                  | Activates the image-provided egress firewall when enabled.                                                       |

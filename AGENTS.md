@@ -13,6 +13,11 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
 3. **Escalate to a container when the host lacks the toolchain — never give up after a local failure.** If `uv` or `bun` is missing, or a command needs the provisioned image, escalate in this order: (a) Docker daemon available → use the `/agentdev:microvm-sandbox` skill to run the command through `devcontainer exec`; (b) no Docker daemon → use the `/agentdev:remote-codespace-session` skill to run it on a GitHub Codespace over SSH. Only report a blocker if both escalation paths are unavailable (e.g. no `gh` auth).
 4. **For yes/no and multiple-choice questions, prefer the assistant's structured-question tool** over free-text (VS Code Copilot: `vscode/askQuestions`; Claude Code: `AskUserQuestion`).
 5. Keep devcontainer-related scripts in `.devcontainer/scripts`.
+6. **Listing a symlinked directory needs a trailing slash.** `ls -la .iwe` prints the _link_
+   (`.iwe -> ../../.iwe`) — one line, no contents. `ls -la .iwe/` follows it and lists what is
+   inside. A single line of `l`-prefixed output is not evidence that a directory is missing or
+   empty; it means you asked about the link. Re-run with the slash before drawing any conclusion,
+   and never escalate to "the directory is gone" on that basis.
 
 ### When in Doubt
 
@@ -59,6 +64,13 @@ For substantial feature, bug, architecture, or behavior work:
 - query relevant project memory before planning or implementation;
 - treat `docs/knowledge/data/` as the source of truth for project state and decisions;
 - update project memory when the work changes durable project knowledge.
+
+**Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
+documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
+the whole repo is opened as the workspace. `iwe` does not search upward for `.iwe/` and has no
+`--root` flag, so invoking it from any subdirectory fails or reads the wrong config. Document
+keys are therefore relative to `docs/knowledge/` (`[library].path`): `data/plans/<slug>`, not
+`docs/knowledge/data/plans/<slug>`.
 
 When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/data/AGENTS.md`.
 

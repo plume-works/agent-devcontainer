@@ -17,4 +17,6 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
+[uv-run-only environment](../features/uv-run-only-environment.md)
+
 ## Fixed

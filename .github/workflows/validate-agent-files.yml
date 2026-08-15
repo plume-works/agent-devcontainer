@@ -67,13 +67,13 @@ jobs:
         uses: ./.github/actions/setup-python-venv
 
       - name: Test validate_agent_files
-        run: pytest py_packages/validate_agent_files/tests
+        run: uv run pytest py_packages/validate_agent_files/tests
 
       - name: Test agentdev plugin scripts
-        run: pytest .agents/plugins/agentdev/tests
+        run: uv run pytest .agents/plugins/agentdev/tests
 
       - name: Validate Agent Files
-        run: validate_agent_files --recommend . --require-marketplace claude codex
+        run: uv run validate_agent_files --recommend . --require-marketplace claude codex
 
       - name: Log debug stats
         if: ${{ always() }}

@@ -22,6 +22,8 @@ write a plan and link the plan instead.*
 
 [Import the existing backlog](backlog/import-existing-backlog.md)
 
+[Write a capture skill](backlog/capture-skill.md)
+
 ## Low
 
 ## Done

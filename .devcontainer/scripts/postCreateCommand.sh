@@ -63,8 +63,9 @@ ln -sf "$claude_json_target" /root/.claude.json
 # postStartCommand.sh.
 "$script_dir/link-codex-auth.sh"
 
-# Sync the project environment into the container's .venv directory so that
-# extension settings are valid when the container is rebuilt. This is a no-op if the environment is already up to date.
+# Sync the project environment on the /uv volume so that extension settings are
+# valid when the container is rebuilt. This is a no-op if the environment is
+# already up to date.
 "$script_dir/uv-sync.sh"
 
 # Install the catalog staged in the image. This has to happen here rather than
