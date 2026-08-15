@@ -66,8 +66,7 @@ software project's memory and system of record. The division of labor:
    `description` if it has none, and — when you derived it from code or an
    external page — a `sources` entry naming that path or URL. Whenever you set
    `stage`, derive OKF `status` from the table in `SCHEMA.md` and set or clear
-   it in the same edit. If a hub gained or lost a document, update
-   `data/index.md`.
+   it in the same edit.
 6. **Validate & commit** — `iwe normalize`, then `iwe schema validate` must
    pass; commit with a short message describing the state change.
 
@@ -78,6 +77,12 @@ software project's memory and system of record. The division of labor:
   inclusion-link their members; that link, not the directory, is what makes a
   document a plan or a feature. Inline links (inside sentences/list items) are
   soft references for cross-cutting relationships.
+- **`data/index.md` lists hubs, not documents.** Adding a document to an
+  existing hub never touches it — the hub's own inclusion links are what change.
+  Update `data/index.md` only when you add or remove a *hub* itself, which also
+  means adding a `[schemas.*]` binding in `.iwe/config.toml`; the hub set is
+  enumerated there and closed by design. Never put a plan task on
+  `data/index.md` for ordinary document work.
 - **Dual representation**: a work item's stage lives in frontmatter *and* as its
   link's position in the hub (`## Active`/`## Done`/`## Cancelled` in plans,
   `## High`/`## Done` in backlog). Change both together; every item stays listed
