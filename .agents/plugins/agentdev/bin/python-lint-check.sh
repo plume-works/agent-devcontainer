@@ -6,6 +6,9 @@
 # and autofixes; this script is the non-mutating check, so it is safe to run
 # anywhere and needs no Docker.
 #
+# ruff runs through `uv run` when the target repository is a uv project, so the
+# version matches the pinned one; otherwise it falls back to ruff on PATH.
+#
 # Usage:
 #   python-lint-check.sh [PATH ...]
 #
@@ -28,17 +31,24 @@ else
   targets=("$root_dir")
 fi
 
-# Prefer the project virtualenv, so the ruff version matches the pinned one.
-# Fall back to whatever ruff is on PATH (CI containers, `uv run`, the dev image)
-# rather than hard-failing when .venv has not been created yet.
+# Prefer the project environment via `uv run`, so the ruff version matches the
+# pinned one. uv resolves the project from the working directory, so point it at
+# $root_dir explicitly -- the targets may be anywhere.
+#
+# This script ships in the portable `agentdev` plugin and must still work in a
+# repository that is not a uv project. Fall back in order: the project
+# environment, then a uv-provided ruff, then whatever ruff is on PATH.
 # shellcheck disable=SC2154 # root_dir is exported by __utils.sh
-if [ -f "$root_dir/.venv/bin/activate" ]; then
-  # shellcheck source=/dev/null
-  source "$root_dir/.venv/bin/activate"
-elif ! command -v ruff >/dev/null 2>&1; then
-  echo "ruff not found: run 'uv sync', or invoke via 'uv run'." >&2
+if command -v uv >/dev/null 2>&1 && [ -f "$root_dir/pyproject.toml" ]; then
+  ruff=(uv run --project "$root_dir" ruff)
+elif command -v ruff >/dev/null 2>&1; then
+  ruff=(ruff)
+elif command -v uv >/dev/null 2>&1; then
+  ruff=(uv tool run ruff)
+else
+  echo "ruff not found: install uv or ruff, or invoke via 'uv run'." >&2
   exit 1
 fi
 
-ruff format --check --quiet "${targets[@]}"
-ruff check --quiet "${targets[@]}"
+"${ruff[@]}" format --check --quiet "${targets[@]}"
+"${ruff[@]}" check --quiet "${targets[@]}"

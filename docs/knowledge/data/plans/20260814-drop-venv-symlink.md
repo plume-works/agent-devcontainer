@@ -95,17 +95,25 @@ entirely. Simpler to explain, but it breaks cache-to-venv hardlinking as above.
 
 **Files:** Modify: `.agents/plugins/agentdev/bin/python-lint-check.sh`
 
-- [ ] Replace the `source .venv/bin/activate` branch with `uv run`. Note that it
+- [x] Replace the `source .venv/bin/activate` branch with `uv run`. Note that it
   resolves the project from the cwd while the script works from `$root_dir`
   supplied by `__utils.sh` — use `uv run --project "$root_dir"` or an explicit
   `cd`
-- [ ] Decide the fallback contract deliberately. The script ships inside the
+- [x] Decide the fallback contract deliberately. The script ships inside the
   portable `agentdev` plugin, and today its PATH fallback lets it work in repos
   with no synced environment. Bare `uv run` converts that into a hard failure
   outside a uv project — keep a PATH fallback for when `uv` or a project
   manifest is absent
-- [ ] Update the header comment, which still explains the `.venv` preference
-- [ ] `shellcheck` clean (pre-commit)
+- [x] Update the header comment, which still explains the `.venv` preference
+- [x] `shellcheck` clean (pre-commit)
+
+Deviation (2026-08-15): a two-tier `uv run` → PATH fallback still regressed the
+portable case. The old activate branch put ruff on PATH *by activating*, so in a
+non-uv repo with no ruff installed the new script hard-failed where the old one
+worked. Verified by running it in a standalone git repo with no `pyproject.toml`.
+Resolved with a third tier — `uv run --project` → ruff on PATH →
+`uv tool run ruff` — which restores and widens the original reach. PATH is
+ordered ahead of `uv tool run` so the common case never pays a network fetch.
 
 ### Task 4: Remove `venv_activate` from the fish helpers
 
