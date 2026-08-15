@@ -18,17 +18,6 @@ function xpra_display
   set -xg DISPLAY ":100"
 end
 
-function venv_activate
-  # Activate the project's uv-managed virtualenv from anywhere in the tree.
-  set -l ws (find_up .venv)
-  if test -z "$ws"
-    echo "No .venv found in this directory or any parent"
-    return 1
-  end
-  echo "Activating $ws/.venv"
-  source "$ws/.venv/bin/activate.fish"
-end
-
 if status is-interactive
   fish_add_path -g "$HOME/.local/bin"
 end

@@ -120,12 +120,12 @@ ordered ahead of `uv tool run` so the common case never pays a network fetch.
 **Files:** Modify: `ansible/roles/fish_setup/templates/dev.fish.j2`,
 `ansible/roles/fish_setup/README.md`
 
-- [ ] Delete `venv_activate` — with no in-tree `.venv`, `find_up .venv` can
+- [x] Delete `venv_activate` — with no in-tree `.venv`, `find_up .venv` can
   never succeed
-- [ ] **Keep `find_up`** unless the maintainer says otherwise. It has no
+- [x] **Keep `find_up`** unless the maintainer says otherwise. It has no
   remaining in-repo caller, but the README advertises it as a standalone
   interactive helper, so grep cannot see its real usage
-- [ ] Drop `venv_activate` from the README's helper list
+- [x] Drop `venv_activate` from the README's helper list
 
 ### Task 5: Update the docs that describe the symlink
 

@@ -2,8 +2,8 @@
 
 This Ansible role sets up the fish shell for development. It installs fish, the
 fisher package manager, and bass (for sourcing bash scripts from fish), then
-drops a `conf.d/dev.fish` with the `find_up`, `xpra_display`, and
-`venv_activate` helper functions.
+drops a `conf.d/dev.fish` with the `find_up` and `xpra_display` helper
+functions.
 
 ## Example Usage
 
