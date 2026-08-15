@@ -7,8 +7,9 @@ description: Verify that implementation matches the graph — check a plan's tas
 
 The graph makes claims — tasks checked, requirements SHALL-ed, features marked
 implemented. This skill tests those claims against the code and reports what
-doesn't hold. It never fixes anything: the report is the deliverable, and the
-fixes belong to the skills and sessions it points at.
+doesn't hold. It is independently invocable before, during, or after
+implementation. It never fixes code or mutates project state: the report is the
+deliverable, and the fixes belong to the skills and sessions it points at.
 
 ## Steps
 
@@ -38,8 +39,10 @@ fixes belong to the skills and sessions it points at.
      should change); `## Out of scope` items stayed out; the
      `## Authoring rules` in `data/product.md` were honored.
 4. **Report and stop.** Issues ranked most severe first, then the verdict:
-   **ready to ship** (zero CRITICAL — hand off to the ship skill) or the
-   blocker list. Do not fix, tick, or edit anything.
+   **ready to ship** (zero CRITICAL — when Ship invoked this check, return the
+   report for Ship's decision) or the blocker list. Do not fix, tick, edit,
+   invoke Ship, or perform any shipping state transition. A standalone Verify
+   invocation always ends with its report.
 5. **Audit mode** — the same discipline over the whole graph, against the
    codebase:
    - Specs whose requirements the code now contradicts (sample the
@@ -64,6 +67,8 @@ fixes belong to the skills and sessions it points at.
 
 - Report, never fix — even a one-character hub-section fix is someone else's
   commit, so the audit trail stays clean.
+- Zero CRITICAL findings are the required handoff for normal Ship; Verify
+  supplies that verdict but never performs Ship's spec or lifecycle mutations.
 - Every claim cites `path:line` evidence or is explicitly labeled
   "unverified" — a requirement you couldn't trace is unverified, not failed,
   and says so.
