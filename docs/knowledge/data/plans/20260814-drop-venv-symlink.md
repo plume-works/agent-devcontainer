@@ -42,11 +42,17 @@ that need a filesystem path get the absolute path instead.
 Because the `agentdev-uv` volume is declared in `devcontainer.json` `mounts`
 rather than pinned to a literal name in Compose (only `agentdev-agents-auth` is
 pinned that way), it is Compose-project-scoped — one `/uv` per devcontainer
-instance. `/uv/venvs/` in this worktree holds exactly one entry, consistent with
-that. So the path needs no `${localWorkspaceFolderBasename}` disambiguation and
+instance. So the path needs no `${localWorkspaceFolderBasename}` disambiguation and
 can be a fixed string, `/uv/venvs/ws-project`. That matters: it reduces the cost
 of hardcoding the path in five places from "a templated convention that must
 stay in sync" to "a constant".
+
+Verified as of 2026-08-15 (Task 1): `/uv/venvs/` now holds two entries, the
+pre-existing `agent-devcontainer-wortree-2` and the new `ws-project`. These are
+the old and new environment names within this one instance, not two workspaces
+sharing a mount, so the Compose-project-scoping argument above is unaffected.
+The stale `agent-devcontainer-wortree-2/` directory is left for the container
+rebuild in `## Verification` to supersede; nothing reads it after Task 1.
 
 Rejected: moving the environment back in-tree to remove the indirection
 entirely. Simpler to explain, but it breaks cache-to-venv hardlinking as above.
@@ -57,14 +63,14 @@ entirely. Simpler to explain, but it breaks cache-to-venv hardlinking as above.
 
 **Files:** Modify: `.devcontainer/devcontainer.json`
 
-- [ ] `UV_PROJECT_ENVIRONMENT` → `/uv/venvs/ws-project` (drop the trailing
+- [x] `UV_PROJECT_ENVIRONMENT` → `/uv/venvs/ws-project` (drop the trailing
   slash; the settings below append `/bin/...`)
-- [ ] `python.defaultInterpreterPath` → `/uv/venvs/ws-project/bin/python3`
-- [ ] `ansible.ansible.path` → `/uv/venvs/ws-project/bin/ansible` (currently
+- [x] `python.defaultInterpreterPath` → `/uv/venvs/ws-project/bin/python3`
+- [x] `ansible.ansible.path` → `/uv/venvs/ws-project/bin/ansible` (currently
   workspace-relative)
-- [ ] `ansible.python.interpreterPath` → `/uv/venvs/ws-project/bin/python3`
-- [ ] `ansible.validation.lint.path` → `/uv/venvs/ws-project/bin/ansible-lint`
-- [ ] Leave `search.exclude`'s `**/.venv` entry alone — host checkouts still
+- [x] `ansible.python.interpreterPath` → `/uv/venvs/ws-project/bin/python3`
+- [x] `ansible.validation.lint.path` → `/uv/venvs/ws-project/bin/ansible-lint`
+- [x] Leave `search.exclude`'s `**/.venv` entry alone — host checkouts still
   produce a real one
 
 ### Task 2: Stop creating the symlink
