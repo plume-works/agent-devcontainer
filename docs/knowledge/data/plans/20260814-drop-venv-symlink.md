@@ -42,10 +42,10 @@ that need a filesystem path get the absolute path instead.
 Because the `agentdev-uv` volume is declared in `devcontainer.json` `mounts`
 rather than pinned to a literal name in Compose (only `agentdev-agents-auth` is
 pinned that way), it is Compose-project-scoped — one `/uv` per devcontainer
-instance. So the path needs no `${localWorkspaceFolderBasename}` disambiguation and
-can be a fixed string, `/uv/venvs/ws-project`. That matters: it reduces the cost
-of hardcoding the path in five places from "a templated convention that must
-stay in sync" to "a constant".
+instance. So the path needs no `${localWorkspaceFolderBasename}` disambiguation
+and can be a fixed string, `/uv/venvs/ws-project`. That matters: it reduces the
+cost of hardcoding the path in five places from "a templated convention that
+must stay in sync" to "a constant".
 
 Verified as of 2026-08-15 (Task 1): `/uv/venvs/` now holds two entries, the
 pre-existing `agent-devcontainer-wortree-2` and the new `ws-project`. These are
