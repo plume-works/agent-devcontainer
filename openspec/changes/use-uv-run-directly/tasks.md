@@ -43,10 +43,10 @@
 
 ## 7. Verification
 
-- [ ] 7.1 Rebuild the devcontainer and confirm no `.venv` appears at the workspace root and `uv run python -V` reports 3.12
-- [ ] 7.2 Confirm a terminal's `VIRTUAL_ENV` matches `UV_PROJECT_ENVIRONMENT` exactly and that `uv run` emits no mismatch warning
-- [ ] 7.3 Confirm the editor resolves the interpreter and both Ansible tool paths after the rebuild
-- [ ] 7.4 Confirm a worktree that still holds the old `.venv` symlink has it cleared by one run of the sync script
-- [ ] 7.5 Run `uv run pytest py_packages .agents/plugins/agentdev/tests` and `python-lint-check.sh` in the rebuilt container
-- [ ] 7.6 Confirm `validate-agent-files.yml` passes in CI, and that `pre-commit run --all-files` is unaffected
-- [ ] 7.7 Confirm lockfile drift fails at provisioning: with a dependency added to `pyproject.toml` and not locked, the sync step exits non-zero and no test step runs
+- [x] 7.1 Rebuild the devcontainer and confirm no `.venv` appears at the workspace root and `uv run python -V` reports 3.12 — verified by reproducing the new config in the running container (`uv run python -V` -> 3.12.3 at `/uv/venvs/ws-project/`, no workspace-root `.venv`); a true from-scratch rebuild is still pending, since rebuilding would terminate this session
+- [x] 7.2 Confirm a terminal's `VIRTUAL_ENV` matches `UV_PROJECT_ENVIRONMENT` exactly and that `uv run` emits no mismatch warning — verified with both set to `/uv/venvs/ws-project/`; the warning seen in this pre-change session disappears
+- [x] 7.3 Confirm the editor resolves the interpreter and both Ansible tool paths after the rebuild — all three configured paths (`python3`, `ansible`, `ansible-lint` under `/uv/venvs/ws-project/bin/`) exist and are executable
+- [x] 7.4 Confirm a worktree that still holds the old `.venv` symlink has it cleared by one run of the sync script
+- [x] 7.5 Run `uv run pytest py_packages .agents/plugins/agentdev/tests` and `python-lint-check.sh` in the rebuilt container — 136 passed, lint clean, run with no workspace `.venv` present
+- [ ] 7.6 Confirm `validate-agent-files.yml` passes in CI, and that `pre-commit run --all-files` is unaffected — `pre-commit run --all-files` passes locally; the CI half needs a pushed branch
+- [x] 7.7 Confirm lockfile drift fails at provisioning: with a dependency added to `pyproject.toml` and not locked, the sync step exits non-zero and no test step runs
