@@ -8,8 +8,8 @@ to the current day's group.
 
 - **Creation**: Proposed
   [Verification in the main loop](features/verification-in-the-main-loop.md) —
-  verify results live only in conversation context, so a `/ship` in a fresh
-  session cannot tell a clean verify from no verify.
+  ship's step 1 names the verify skill without invoking it, so verification at
+  ship time is discretionary rather than compelled.
 
 ## 2026-08-01
 
