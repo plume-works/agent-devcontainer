@@ -110,9 +110,9 @@ entirely. Simpler to explain, but it breaks cache-to-venv hardlinking as above.
 Deviation (2026-08-15): a two-tier `uv run` → PATH fallback still regressed the
 portable case. The old activate branch put ruff on PATH *by activating*, so in a
 non-uv repo with no ruff installed the new script hard-failed where the old one
-worked. Verified by running it in a standalone git repo with no `pyproject.toml`.
-Resolved with a third tier — `uv run --project` → ruff on PATH →
-`uv tool run ruff` — which restores and widens the original reach. PATH is
+worked. Verified by running it in a standalone git repo with no
+`pyproject.toml`. Resolved with a third tier — `uv run --project` → ruff on PATH
+→ `uv tool run ruff` — which restores and widens the original reach. PATH is
 ordered ahead of `uv tool run` so the common case never pays a network fetch.
 
 ### Task 4: Remove `venv_activate` from the fish helpers
@@ -134,11 +134,11 @@ ordered ahead of `uv tool run` so the common case never pays a network fetch.
 `.agents/plugins/agentdev/skills/microvm-sandbox/SKILL.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] `python-format-lint` SKILL.md: the two `.venv/bin/ruff` invocations become
+- [x] `python-format-lint` SKILL.md: the two `.venv/bin/ruff` invocations become
   `uv run ruff`; fix the two troubleshooting rows that name `.venv`
-- [ ] `microvm-sandbox` SKILL.md: drop "links `.venv` to the cached environment"
-- [ ] `template-boundary.md`: the `uv-sync.sh` row no longer links anything
-- [ ] Leave `template-boundary.md`'s generated-state list as is — `.venv` still
+- [x] `microvm-sandbox` SKILL.md: drop "links `.venv` to the cached environment"
+- [x] `template-boundary.md`: the `uv-sync.sh` row no longer links anything
+- [x] Leave `template-boundary.md`'s generated-state list as is — `.venv` still
   belongs there for host and CI checkouts
 
 ### Task 6: Record the environment-location decision

@@ -31,7 +31,7 @@ devcontainer exec --workspace-folder . bash -lc 'bun test <path>'
 Keep the same selectors and paths the command would have used locally — the
 container mounts the workspace, so relative paths resolve identically. If a
 dependency was added, run `uv sync` (or `bun install`) inside the container
-first; `.devcontainer/scripts/uv-sync.sh` does this and links `.venv` to the cached
+first; `.devcontainer/scripts/uv-sync.sh` does this, syncing into the cached
 environment volume.
 
 The container is not disposable: it keeps its state between `exec` calls. Stop it
