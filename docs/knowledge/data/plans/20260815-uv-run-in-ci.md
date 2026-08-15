@@ -10,6 +10,8 @@ sources:
 - .github/workflows/validate-agent-files.yml
 - .github/workflows/ci.yml
 - .agents/plugins/agentdev/bin/python-lint-check.sh
+stage: done
+completed: 2026-08-15
 ---
 
 # Finish uv-run-only in CI

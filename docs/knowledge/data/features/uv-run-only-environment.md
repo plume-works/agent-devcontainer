@@ -1,7 +1,7 @@
 ---
 type: feature
 stage: implemented
-description: Reach the devcontainer's Python environment exclusively through `uv run`, with no in-tree .venv symlink and a fixed out-of-tree path.
+description: Reach the Python environment exclusively through `uv run` — in the devcontainer, with no in-tree .venv symlink and a fixed out-of-tree path, and in CI, which provisions without activating.
 generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
@@ -9,6 +9,8 @@ sources:
 - .devcontainer/devcontainer.json
 - .devcontainer/scripts/uv-sync.sh
 - .agents/plugins/agentdev/bin/python-lint-check.sh
+- .github/actions/setup-python-venv/action.yml
+- .github/workflows/validate-agent-files.yml
 ---
 
 # uv-run-only environment
@@ -16,13 +18,21 @@ sources:
 ## Purpose
 
 The repository's stated convention, in `AGENTS.md` and throughout `README.md`,
-is to run project commands through `uv run`. An in-tree `.venv` symlink,
-recreated on every postCreate and postAttach as a compatibility shim, was the
-one affordance contradicting it — a second way to reach the environment that
-tooling could quietly prefer.
+is to run project commands through `uv run`. Two affordances contradicted it,
+one on each side of the repository.
 
-Nothing was broken: `uv run` resolved the symlink without complaint. This is a
-simplification, judged on that basis rather than as a bug fix.
+In the devcontainer, an in-tree `.venv` symlink recreated on every postCreate
+and postAttach as a compatibility shim — a second way to reach the environment
+that tooling could quietly prefer. Nothing was broken there: `uv run` resolved
+the symlink without complaint, so removing it is a simplification rather than a
+bug fix.
+
+In CI, the setup action built its own virtualenv, activated it, and exported
+`VIRTUAL_ENV`/`GITHUB_PATH` so callers could invoke bare tools. Removing that is
+not merely tidying: it came with `uv sync --frozen`, which skips the lockfile
+currency check entirely, so a dependency present in `pyproject.toml` but absent
+from `uv.lock` passed provisioning and was installed mid-job by a later
+`uv run`. `--locked` moves that failure to provisioning, where it is legible.
 
 ## Behaviour
 
