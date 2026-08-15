@@ -65,7 +65,7 @@ jobs:
 
       - name: Cache the iwe binary
         id: cache-iwe
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cargo/bin/iwe
           key: iwe-${{ runner.os }}-${{ env.IWE_VERSION }}

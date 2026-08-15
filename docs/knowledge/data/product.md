@@ -3,8 +3,8 @@ type: tracker
 description: What the product is, who it is for, and the decisions every plan and spec derives from.
 stage: living
 generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
+  by: codex
+  at: 2026-08-15T03:30:00Z
 ---
 
 # Product
@@ -100,8 +100,9 @@ the driver of design decisions — internal needs come first.
   updating it requires rebuilding the image, not a runtime patch.
 - `py_packages/validate_agent_files` must remain installable and testable with
   zero knowledge of this repository — it is released independently.
-- The firewall (`init-firewall.sh`) ships inert by default (`ENABLE_FIREWALL`
-  opt-in); when enabled it default-DROPs IPv4 egress and blocks IPv6 entirely,
+- The firewall lifecycle wrapper (`.devcontainer/scripts/firewall.sh`) leaves
+  `init-firewall.sh` inert by default (`ENABLE_FIREWALL` opt-in); when enabled,
+  the init script default-DROPs IPv4 egress and blocks IPv6 entirely,
   self-verifying at start.
 - License: MIT.
 
@@ -163,3 +164,5 @@ it):
   `docs/using-as-template.md` into IWE (architecture, spec, and bug docs); the
   spike-documentation authoring rule now routes to IWE instead of
   `docs/agents/specs/`.
+- 2026-08-15 — clarified that the lifecycle wrapper, not the init script,
+  enforces the firewall opt-in gate.
