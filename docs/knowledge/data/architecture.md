@@ -20,3 +20,5 @@ rejected are as valuable as the one you picked.*
 [Template boundary](architecture/template-boundary.md)
 
 [Validator image install](architecture/validator-image-install.md)
+
+[uv environment location](architecture/uv-environment-location.md)

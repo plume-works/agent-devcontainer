@@ -147,13 +147,20 @@ ordered ahead of `uv tool run` so the common case never pays a network fetch.
 `docs/knowledge/data/architecture/uv-environment-location.md`; Modify:
 `docs/knowledge/data/architecture.md`, `docs/knowledge/data/index.md`
 
-- [ ] Why the environment is out of tree: hardlinking from `UV_CACHE_DIR`
+- [x] Why the environment is out of tree: hardlinking from `UV_CACHE_DIR`
   requires cache and environment on one filesystem
-- [ ] Why the path is a fixed string: `agentdev-uv` is Compose-project-scoped,
+- [x] Why the path is a fixed string: `agentdev-uv` is Compose-project-scoped,
   so there is one `/uv` per instance and nothing to disambiguate
-- [ ] Rejected alternatives: in-tree `.venv` (breaks hardlinking), and keeping
+- [x] Rejected alternatives: in-tree `.venv` (breaks hardlinking), and keeping
   the symlink (contradicts the `uv run` convention for no remaining benefit)
-- [ ] Inclusion link from `architecture.md`; update `index.md`
+- [x] Inclusion link from `architecture.md`; update `index.md`
+
+Note (2026-08-15): `index.md` needed no edit — it links hubs, not individual
+documents, so the new doc is already reachable through the Architecture hub.
+`template-boundary.md`'s `uv-sync.sh` row gained a cross-reference to the new
+doc. The "survives container rebuilds" wording the Context attributes to
+`template-boundary.md` was actually in the `uv-sync.sh` comment, replaced in
+Task 2.
 
 ## Spec changes
 
