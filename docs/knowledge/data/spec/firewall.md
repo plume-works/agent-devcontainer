@@ -2,9 +2,10 @@
 type: spec
 description: The opt-in egress firewall's default-DROP policy and its self-verification check.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: codex
+  at: 2026-08-15T03:30:00Z
 sources:
+- .devcontainer/scripts/firewall.sh
 - ansible/roles/devcontainer_firewall/files/init-firewall.sh
 - README.md
 ---
@@ -13,9 +14,10 @@ sources:
 
 ## Requirement: the firewall is inert unless explicitly enabled
 
-`init-firewall.sh` SHALL take no effect unless `ENABLE_FIREWALL=true` is set in
-`containerEnv`; the script and its NOPASSWD sudoers entry are installed in the
-image regardless, but do nothing by default.
+The `.devcontainer/scripts/firewall.sh` lifecycle wrapper SHALL invoke
+`init-firewall.sh` only when `ENABLE_FIREWALL=true` is set in `containerEnv`;
+the init script and its NOPASSWD sudoers entry are installed in the image
+regardless, but the wrapper does nothing by default.
 
 ### Scenario: a devcontainer starts with no `ENABLE_FIREWALL` set
 
