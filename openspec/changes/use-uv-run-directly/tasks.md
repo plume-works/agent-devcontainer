@@ -1,18 +1,18 @@
 ## 1. Unblock the devcontainer change
 
-- [ ] 1.1 Change ruff resolution in `.agents/plugins/agentdev/bin/python-lint-check.sh` to try `uv run --no-sync` first, then an in-tree `.venv`, then `PATH`; keep the existing error message when all three miss
-- [ ] 1.2 Update the script's header comment, which currently explains the `.venv`-first preference
-- [ ] 1.3 Verify it passes in the devcontainer with no `.venv` present and reports the pinned ruff version
-- [ ] 1.4 Verify it still resolves a linter in a scratch project that has an in-tree `.venv` and no uv project
+- [x] 1.1 Change ruff resolution in `.agents/plugins/agentdev/bin/python-lint-check.sh` to try `uv run --no-sync` first, then an in-tree `.venv`, then `PATH`; keep the existing error message when all three miss
+- [x] 1.2 Update the script's header comment, which currently explains the `.venv`-first preference
+- [x] 1.3 Verify it passes in the devcontainer with no `.venv` present and reports the pinned ruff version
+- [x] 1.4 Verify it still resolves a linter in a scratch project that has an in-tree `.venv` and no uv project
 
 ## 2. Devcontainer
 
-- [ ] 2.1 Set `UV_PROJECT_ENVIRONMENT` to `/uv/venvs/ws-project/` in `.devcontainer/devcontainer.json`
-- [ ] 2.2 Point `python.defaultInterpreterPath` and `ansible.python.interpreterPath` at `/uv/venvs/ws-project/bin/python3`
-- [ ] 2.3 Point `ansible.ansible.path` and `ansible.validation.lint.path` at `/uv/venvs/ws-project/bin/ansible` and `.../bin/ansible-lint`
-- [ ] 2.4 Remove the `ln -s` from `.devcontainer/scripts/uv-sync.sh` and narrow its removal to symlinks only, never a directory
-- [ ] 2.5 Rewrite the comment in `uv-sync.sh` that explains the symlink
-- [ ] 2.6 Leave `search.exclude`, `.gitignore`, `.dockerignore`, and the shellcheck/Super-Linter `.venv` exclusions in place
+- [x] 2.1 Set `UV_PROJECT_ENVIRONMENT` to `/uv/venvs/ws-project/` in `.devcontainer/devcontainer.json`
+- [x] 2.2 Point `python.defaultInterpreterPath` and `ansible.python.interpreterPath` at `/uv/venvs/ws-project/bin/python3`
+- [x] 2.3 Point `ansible.ansible.path` and `ansible.validation.lint.path` at `/uv/venvs/ws-project/bin/ansible` and `.../bin/ansible-lint`
+- [x] 2.4 Remove the `ln -s` from `.devcontainer/scripts/uv-sync.sh` and narrow its removal to symlinks only, never a directory
+- [x] 2.5 Rewrite the comment in `uv-sync.sh` that explains the symlink
+- [x] 2.6 Leave `search.exclude`, `.gitignore`, `.dockerignore`, and the shellcheck/Super-Linter `.venv` exclusions in place
 
 ## 3. CI provisioning action
 
