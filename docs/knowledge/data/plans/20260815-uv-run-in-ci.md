@@ -144,7 +144,7 @@ stay different; only the *invocation* contract is unified.
   ruff with no ruff on `PATH` (the `uv run` rung is then its only source) and
   that it installs nothing when `pyproject.toml` has an unlocked dependency. Run
   the lint gates and the test suite.
-- [ ] **9. Verify in CI.** Push and confirm `validate-agent-files.yml` and
+- [x] **9. Verify in CI.** Push and confirm `validate-agent-files.yml` and
   `ci.yml` both pass. CI is the only place the changed workflow paths execute,
   so a green run is the real test — the local checks in Task 8 cannot cover the
   action's contract, `--locked` on a cold runner, or `only-system` binding to
@@ -170,10 +170,31 @@ Run locally on 2026-08-15, before pushing:
 - Removing the `VIRTUAL_ENV` export also removed the only reason for the
   `zizmor: ignore[github-env]` suppression, which went with it.
 
-Task 9 is outstanding. Nothing has been pushed, so `validate-agent-files.yml`
-and `ci.yml` have not run against these changes — and they are the only places
-the changed workflow paths execute end to end. The plan is not shippable until
-that run is green.
+Confirmed in CI on 2026-08-15, commit `48d0f79`, PR #61 — all three runs green:
+Agent files validation (31871460991), Knowledge base validation (31871460997),
+Primary checks (31871461082).
+
+The two things only a real runner could settle, read out of the Agent files
+validation log rather than inferred from the green check:
+
+- **`only-system` binds to the right interpreter.** With
+  `UV_PYTHON_PREFERENCE: only-system` in the step env, uv reports
+  `Using CPython 3.12.13 interpreter at: /opt/hostedtoolcache/Python/3.12.13/x64/bin/python3`
+  — the `actions/setup-python` install, now by enforcement rather than
+  coincidence.
+- **The action provisions without activating.** No `Create venv` or
+  `Activate venv` steps remain; `uv sync --locked --all-groups --all-extras`
+  creates `.venv` itself (`Creating virtual environment at: .venv`), confirming
+  the runner still gets an in-tree environment while nothing activates it, and
+  the three `uv run` steps then pass against it.
+
+`ci.yml`'s in-container half ran too:
+`uv sync --locked --all-groups --all-extras` executes inside the devcontainer
+image job, followed by the test suite.
+
+First run took a cache miss (`No GitHub Actions cache found`), expected since
+the key moved from the old `.venv` directory cache to setup-uv's package cache.
+Subsequent runs populate it.
 
 ## Risks
 
