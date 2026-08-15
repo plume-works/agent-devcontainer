@@ -48,13 +48,14 @@ skill drafts from your code and you correct; greenfield, it's a short interview.
 but never implements) → **plan** (`"plan dark mode"` — files a plan with
 verified code anchors and the specs it will touch) → **implement**
 (`"work on the next task"` — executes the plan task-by-task, ticking checkboxes
-as tests pass) → **verify** (`"is it ready to ship?"` — checks tasks,
-requirements, and scenarios against the actual code) → **ship**
-(`"ship dark mode"` — syncs the specs, flips stages, records the work in the
-unreleased page) → occasionally **weekly** (`"weekly digest"` — what moved,
-what's stuck, what's next). Enter and leave the loop anywhere — small work can
-skip straight from plan to ship. Each step leaves the graph consistent, so the
-next session — or the next agent — picks up exactly where this one stopped.
+as tests pass) → **verify** (`"is it ready to ship?"` — an optional standalone
+check of tasks, requirements, and scenarios against the actual code) → **ship**
+(`"ship dark mode"` — invokes that verification as a mandatory gate, then syncs
+the specs, flips stages, and records the work in the unreleased page) →
+occasionally **weekly** (`"weekly digest"` — what moved, what's stuck, what's
+next). Enter and leave the loop anywhere — invoking Ship directly still runs its
+verification gate. Each step leaves the graph consistent, so the next session —
+or the next agent — picks up exactly where this one stopped.
 
 Ask questions against the graph instead of re-reading the codebase:
 
