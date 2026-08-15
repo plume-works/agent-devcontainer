@@ -19,6 +19,8 @@ moves them.*
 
 [Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
 
+[Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
+
 ## Done
 
 [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md)
