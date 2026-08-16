@@ -56,6 +56,13 @@ unprompted):
   `data/architecture.md`.
 - A principle that should outlive this conversation →
   `data/concept/<slug>.md`, linked from `data/concept.md`.
+- A defect the exploration established — code that contradicts a `data/spec/`
+  doc, or any reproducible wrong behavior → `data/bugs/<slug>.md` in the
+  Symptom / Reproduction / Root cause / Fix shape with `path:line` anchors,
+  linked from `data/bugs.md`. A finding that belongs to a plan already in
+  flight is not this one: hand it back per `## During implementation` so it
+  reaches the plan that owns it, rather than becoming a bug doc standing
+  beside it.
 - Ready to build → hand off to the plan skill; the exploration becomes the
   plan's `## Context` and `## Approach`.
 

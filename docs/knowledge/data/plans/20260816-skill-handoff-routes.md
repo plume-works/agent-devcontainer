@@ -77,7 +77,7 @@ own audit mode exists to catch.
 
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
-- [ ] **1. Add the defect destination to `## Capturing`.** Insert a bullet after
+- [x] **1. Add the defect destination to `## Capturing`.** Insert a bullet after
   the principle bullet (`.claude/skills/explore/SKILL.md:57-58`) and before
   "Ready to build": a defect the exploration established — code that contradicts
   a `data/spec/` doc, or any reproducible wrong behavior — goes to
@@ -126,9 +126,11 @@ risk, and would duplicate what that feature doc already owns.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-  reports 46/46 skills valid with 0 errors and 0 warnings — the same result it
+  reports every skill valid with 0 errors and 0 warnings — the same result it
   gave on the unmodified checkout on 2026-08-16, so any regression is this
-  change's.
+  change's. The skill count itself is not the assertion: the command walks `.`,
+  so scratch skills under `.tmp/` change the denominator (46 on a clean tree, 47
+  with one such artifact present) without meaning anything.
 - `iwe normalize` followed by `iwe schema validate` exits 0.
 - `uv run pre-commit run --all-files` passes.
 - Read-back of `.claude/skills/explore/SKILL.md`: `## Capturing` names a
