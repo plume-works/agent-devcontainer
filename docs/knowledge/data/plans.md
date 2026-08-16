@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
+  by: codex
+  at: 2026-08-16T01:27:59Z
 ---
 
 # 🗺️ Plans
@@ -16,6 +16,8 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
+
+[Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
 
 [Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
 
