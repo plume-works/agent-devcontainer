@@ -92,7 +92,7 @@ own audit mode exists to catch.
 
 **Files:** Modify: `.claude/skills/verify/SKILL.md`
 
-- [ ] **2. Extend the unchecked-box recommendation to three routes.** At
+- [x] **2. Extend the unchecked-box recommendation to three routes.** At
   `.claude/skills/verify/SKILL.md:25-26`, keep the CRITICAL severity and the two
   existing routes, and add the third: revise the plan to drop the task, via the
   plan skill's revise mode, which treats dropping a task as a material scope

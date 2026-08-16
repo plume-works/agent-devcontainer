@@ -22,8 +22,13 @@ deliverable, and the fixes belong to the skills and sessions it points at.
    (`iwe retrieve -k data/plans/<key>`).
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
    SUGGESTION, each with a concrete recommendation:
-   - **Completeness** — every unchecked `- [ ]` task is a CRITICAL
-     ("complete it, or tick it if already done"). Every spec in
+   - **Completeness** — every unchecked `- [ ]` task is a CRITICAL, with three
+     routes out: complete it, tick it if already done, or revise the plan to
+     drop it via the plan skill's revise mode, which treats dropping a task as
+     a material scope change and so asks the user before doing it. The third
+     route exists because Ship refuses any CRITICAL and has no override: a task
+     the user has decided against can't be ticked while undone, so without it
+     the plan is unshippable. Naming a route is not taking it. Every spec in
      `## Spec changes` exists and reflects the change (a back-ticked
      not-yet-created spec still pending at verify time is a CRITICAL). Every
      `### Requirement:` in the touched specs has implementation evidence in
