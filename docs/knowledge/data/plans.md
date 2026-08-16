@@ -21,6 +21,8 @@ moves them.*
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
 
+[AI responder workflows](plans/20260816-ai-responder-workflows.md)
+
 ## Done
 
 [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)

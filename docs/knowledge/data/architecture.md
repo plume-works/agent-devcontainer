@@ -24,3 +24,5 @@ rejected are as valuable as the one you picked.*
 [uv environment location](architecture/uv-environment-location.md)
 
 [PR verification sections](architecture/pr-verification-sections.md)
+
+[CI agent plugin availability](architecture/ci-agent-plugin-availability.md)
