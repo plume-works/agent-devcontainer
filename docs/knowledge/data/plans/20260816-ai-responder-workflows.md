@@ -1,6 +1,6 @@
 ---
 created: 2026-08-16
-description: Import Dr-QP's AI responder and required-AI-review workflows, Claude-only, on top of an agent-desktop image that installs the agentdev catalog at build time.
+description: Import Dr-QP's AI responder and required-AI-review workflows, Claude-only, with the responder running the devcontainer lifecycle hooks so it reviews using the branch's own agentdev catalog and an indexed CBM.
 generated:
   by: claude-code/opus-5
   at: 2026-08-16T00:00:00Z
@@ -18,35 +18,47 @@ review.
 
 Importing them surfaced a prerequisite. The responder must run in a container
 with the project toolchain to produce a grounded review, and the review is
-driven by the `agentdev:pr-review` skill. The `agent-desktop` image *stages* the
-catalog at `/opt/agentdev` but does not install it, deferring installation to
-`postCreate`. A GitHub Actions `container:` job runs no lifecycle hooks, so the
-skill would not resolve and the responder would improvise a review — producing a
-green required check over an ungrounded review.
+driven by the `agentdev:pr-review` skill. A GitHub Actions `container:` job runs
+no devcontainer lifecycle hooks, so nothing installs that skill and the
+responder would improvise a review — producing a green required check over an
+ungrounded review.
 
-The decision to install the catalog at image build time, why the original
-staging-only rationale did not hold, and the rejected alternatives are recorded
-in
+The fix is the one the devcontainer already uses: the job checks out the branch
+and runs the lifecycle scripts itself. That gives the responder the *branch's
+own* catalog — a PR that changes a skill is reviewed by the skill as changed —
+plus an indexed codebase-memory-mcp, which is what makes the review grounded.
+
+The reasoning, including the image-build-time install that was considered and
+rejected once the checkout was recognized as always present, is recorded in
 [CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
 
 ## Approach
 
-Three pieces, strictly ordered by dependency: the image change ships first and
-`:edge` rebuilds, then the responder can work, then the gate can be required.
+The image is used as-is. The responder job checks out the branch and runs the
+devcontainer lifecycle scripts, which is how the workspace catalog already
+reaches both agents.
 
-`agentic_tools` gains an install step after staging, for both Claude and Codex,
-mirroring what `postCreate` already does. This serves the *raw image* consumer:
-a `container:` job, a plain `docker run`. The devcontainer path is essentially
-untouched — its `agentdev-claude` / `agentdev-codex` volumes mount over
-`/root/.claude` and `/root/.codex`, so the build-time install is not visible
-there and `postCreate` installs into the volumes exactly as it does today.
+Which scripts matters more than "postCreate and postStart" suggests. The
+checkout-based catalog install and the CBM *index* live in **postAttach**, not
+postStart; postStart only *starts* CBM. All three hooks are therefore needed:
 
-One exception keeps the two from being fully disjoint: `~/.claude.json` is not
-volume-backed (Docker volumes are directory-backed, so it is persisted inside
-the volume and symlinked into place). The image will now ship that file where it
-previously shipped none, which changes which branch of
-`postCreateCommand.sh:52-59` fires on a fresh volume. Task 3 verifies both the
-fresh and existing-volume cases rather than assuming the handoff is unaffected.
+| hook       | what the responder needs from it                         |
+| ---------- | -------------------------------------------------------- |
+| postCreate | auth symlinks, `uv-sync`, image-scoped catalog           |
+| postStart  | `codebase-memory-mcp-start.sh`                           |
+| postAttach | **CBM index**, `uv-sync`, **catalog from this checkout** |
+
+Two postStart steps are pure cost in a review job and get `AGENTDEV_*` guards,
+defaulting to today's behavior so the devcontainer is unchanged:
+`setup-pre-commit.sh` runs `pre-commit install --install-hooks`, which eagerly
+builds a virtualenv for every hook in the repo — minutes, for hooks a review job
+never fires — and `/start-xpra.sh --background` starts a remote desktop nothing
+will connect to. `setup-keyring.sh` needs no guard: it already exits cleanly
+when the keyring stack is absent.
+
+The rest of the setup is cheap. A cold CBM index measures ~3.5s in this
+repository, so hook installation is the only step worth skipping for time;
+upstream's 30-minute job timeout carries over unchanged.
 
 `ai-responder.yml` is imported Claude-only: the `codex-respond` job, the codex
 preflight conditions, the `AI_RESPONDERS` variable with its validation step and
@@ -59,87 +71,60 @@ the security spine.
 not dead: Codex reviews arrive via Codex web as `chatgpt-codex-connector[bot]`,
 entirely outside GitHub Actions.
 
-Rejected: running the responder on a bare runner (gives up the toolchain that
-makes a review grounded) and vendoring a repo-local `pr-review` skill (forks
-from the catalog copy and drifts).
+Rejected: installing the catalog into the image at build time (the checkout is
+always present, so the image never needed to carry an install — and it would
+have made the image ship a `~/.claude.json` it does not ship today); running the
+responder on a bare runner (gives up the toolchain that makes a review
+grounded); and vendoring a repo-local `pr-review` skill (forks from the catalog
+copy and drifts).
 
 ## Implementation Steps
 
-### Task 1: Install the agentdev catalog at image build time
+### Task 1: Split git safe.directory setup out of pre-commit setup
 
-**Files:** Create: `ansible/roles/agentic_tools/tasks/install_catalog.yml`;
-Modify: `ansible/roles/agentic_tools/tasks/main.yml`,
-`ansible/roles/agentic_tools/defaults/main.yml`,
-`ansible/roles/agentic_tools/tasks/stage_catalog.yml` (comment only)
+**Files:** Create: `.devcontainer/scripts/setup-git-safe-directory.sh`; Modify:
+`.devcontainer/scripts/setup-pre-commit.sh`,
+`.devcontainer/scripts/postStartCommand.sh`
 
-The install runs as the same user the rest of the Ansible provisioning runs as:
-`user_home` is `ansible_facts['env'].HOME`, i.e. `/root` — the same path the
-devcontainer mounts `agentdev-claude` over and the same `$HOME` a consumer of
-the image runs as, since the Dockerfile declares no `USER`. The marketplace is
-added from a local path, so the build needs no auth and stays offline.
+Separating these is what lets Task 2 guard hook installation without also
+skipping safe.directory — the responder needs the latter (its checkout is owned
+by a different uid) and never needs the former.
 
-- [ ] Add `agentic_tools_install_catalog` (default `false`) to the role
-  defaults, gating the new task file the same way `agentic_tools_stage_catalog`
-  gates staging
-- [ ] Write `install_catalog.yml` registering the staged root as a marketplace
-  and installing the plugin for Claude at user scope and for Codex, reading the
-  marketplace and plugin names from the manifests rather than hardcoding them
-- [ ] Import `install_catalog.yml` from `main.yml` after the staging import,
-  guarded by both `agentic_tools_install_catalog` and
-  `agentic_tools_stage_catalog` (installing without staging is incoherent)
-- [ ] Correct the staging comments in `stage_catalog.yml` and the
-  `agentic_tools_stage_catalog` default that assert the install cannot happen at
-  build time
+- [ ] Move `git config --global --add safe.directory` and its `command -v git`
+  check out of `setup-pre-commit.sh:8-11` into `setup-git-safe-directory.sh`
+- [ ] Call the new script from `postStartCommand.sh` before
+  `setup-pre-commit.sh`
+- [ ] Remove the leftover `git status` troubleshooting line
+  (`setup-pre-commit.sh:12`)
+- [ ] Confirm `shellcheck` passes on both scripts
 
-### Task 2: Turn the build-time install on and document it
+### Task 2: Guard the lifecycle steps a review job does not need
 
-**Files:** Modify: `docker/desktop/agent-desktop.Dockerfile`,
-`ansible/roles/agentic_tools/README.md`
+**Files:** Modify: `.devcontainer/scripts/setup-pre-commit.sh`,
+`.devcontainer/scripts/postStartCommand.sh`
 
-- [ ] Pass `agentic_tools_install_catalog=true` in the Dockerfile's
-  `ansible-playbook` invocation
-- [ ] Correct the `ENV AGENTDEV_CATALOG_DIR` comment block, which states the
-  catalog is "only staged here, never installed"
-- [ ] Rewrite the README's staged-catalog rationale: staging and installing now
-  both happen, the volume-shadowing explanation stays as the reason `postCreate`
-  must *also* install, and link the architecture doc
+Both guards default to today's behavior, so the devcontainer is unchanged and
+only a caller that opts in skips anything.
 
-### Task 3: Prove the image install works (local build)
+- [ ] Guard `pre-commit install --install-hooks` behind
+  `AGENTDEV_SKIP_PRE_COMMIT`; it eagerly builds a virtualenv per hook, which
+  costs minutes for hooks a review job never fires
+- [ ] Guard `/start-xpra.sh --background` in `postStartCommand.sh:14` behind
+  `AGENTDEV_SKIP_XPRA`
+- [ ] Confirm `shellcheck` passes and that neither guard changes behavior when
+  its variable is unset
 
-**Files:** none — verification only
-
-Stands alone: its evidence is a real image build, which the session writing
-Tasks 1-2 cannot produce by editing files.
-
-- [ ] Build `agent-desktop` locally through `/agentdev:microvm-sandbox`
-- [ ] Run a container from the built image with **no** `~/.claude` volume
-  mounted and confirm `claude plugin list` shows `agentdev` installed
-- [ ] Start a devcontainer from the built image on a **fresh** volume and
-  confirm the `~/.claude.json` handoff is still correct. This is the one place
-  the two paths meet: `~/.claude.json` is not volume-backed, so
-  `postCreateCommand.sh:52-59` moves it into the volume and symlinks it back.
-  Today the image ships no such file and the `elif` writes `{}`; after this
-  change the image ships one, so the `mv` branch fires instead and seeds the
-  volume from the image. Confirm the resulting install is coherent and that
-  `codebase-memory-mcp-install.sh` (which runs before the symlink exists,
-  `postCreateCommand.sh:40`) still behaves when `~/.claude.json` is a real file
-  rather than absent
-- [ ] Start a devcontainer on an **existing** volume and confirm the image's
-  `~/.claude.json` is correctly ignored (`/root/.claude.json` is already a
-  symlink, so both branches skip), and that a workspace edit to a skill still
-  wins on attach
-
-### Task 4: Provision repository secrets and environment
+### Task 3: Provision repository secrets and environment
 
 **Files:** none — repository settings
 
 Stands alone: it is the maintainer's action in GitHub settings, not a code
-change, and Task 5 cannot be exercised until it is done.
+change, and Task 4 cannot be exercised until it is done.
 
 - [ ] Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret
 - [ ] Create the `claude-review` environment
 
-### Task 5: Import ai-responder.yml, Claude-only
+### Task 4: Import ai-responder.yml, Claude-only
 
 **Files:** Create: `.github/workflows/ai-responder.yml`
 
@@ -153,9 +138,15 @@ change, and Task 5 cannot be exercised until it is done.
 - [ ] Add the `claude-respond` job in
   `container: ghcr.io/plume-works/agent-desktop:edge` with no `credentials:`
   (the package is public), keeping the artifact upload and the usage-limit check
+- [ ] Run `postCreateCommand.sh`, `postStartCommand.sh`, and
+  `postAttachCommand.sh` as a job step after checkout and before the Claude
+  action, with `AGENTDEV_SKIP_PRE_COMMIT` and `AGENTDEV_SKIP_XPRA` set —
+  postAttach is what installs the catalog from this checkout and indexes CBM
+- [ ] Keep upstream's `timeout-minutes: 30`; a cold CBM index is ~3.5s in this
+  repo, so the lifecycle setup is not a meaningful share of the budget
 - [ ] Confirm `actionlint` and `zizmor` pass on the new workflow
 
-### Task 6: Import require-ai-review.yml verbatim
+### Task 5: Import require-ai-review.yml verbatim
 
 **Files:** Create: `.github/workflows/require-ai-review.yml`
 
@@ -164,12 +155,12 @@ change, and Task 5 cannot be exercised until it is done.
 - [ ] Confirm `.github/actions/log-debug-stats` resolves for its final step
 - [ ] Confirm `actionlint` and `zizmor` pass on the new workflow
 
-### Task 7: Prove the responder runs green, then require the gate
+### Task 6: Prove the responder runs green, then require the gate
 
 **Files:** none — CI and repository settings
 
 Stands alone: its evidence is a CI run on a real PR plus a branch-protection
-change, neither of which the session writing Tasks 5-6 can produce.
+change, neither of which the session writing Tasks 4-5 can produce.
 
 - [ ] Trigger the responder on a real PR and confirm it posts a review, with the
   job log showing `agentdev:pr-review` resolved rather than improvised
@@ -178,47 +169,15 @@ change, neither of which the session writing Tasks 5-6 can produce.
 
 ## Spec changes
 
-[Catalog lifecycle](../spec/catalog-lifecycle.md) — its first requirement
-currently forbids exactly what this plan does. The contract-heavy form applies:
-the requirement is reversed rather than extended, and its scenario set changes.
+[Catalog lifecycle](../spec/catalog-lifecycle.md) is **unchanged**. An earlier
+revision of this plan would have reversed its first requirement by installing
+the catalog at image build time; using the checkout instead leaves every
+requirement in that spec exactly as written, including the attach-time workspace
+override this plan now depends on.
 
-``` markdown
-## MODIFIED Requirements
-
-### Requirement: the catalog is installed at image build time and reinstalled by postCreateCommand
-
-The `agentdev` catalog staged at `$AGENTDEV_CATALOG_DIR` SHALL be installed into
-each agent's plugin state during the image build, at Claude user scope and via
-Codex's own registration, so that any direct consumer of the image resolves
-`agentdev:*` skills with no additional step. `postCreateCommand.sh` SHALL
-additionally perform the same install, because a mounted `~/.claude` /
-`~/.codex` volume shadows what the image build wrote.
-
-#### Scenario: a GitHub Actions container job runs the image with no volumes
-
-- **WHEN** a workflow job runs in `ghcr.io/plume-works/agent-desktop` and no
-  lifecycle hook runs
-- **THEN** the catalog installed during the image build is already present, and
-  an `agentdev:*` skill resolves.
-
-#### Scenario: a devcontainer starts for the first time on a fresh volume
-
-- **WHEN** `postCreateCommand` runs and `$AGENTDEV_CATALOG_DIR` exists
-- **THEN** `reinstall-agentdev-codex.sh` and
-  `reinstall-agentdev-claude.sh ... user` install the staged catalog into the
-  newly created `agentdev-claude` / `agentdev-codex` volumes.
-
-#### Scenario: a devcontainer starts with a catalog already installed on its volume
-
-- **WHEN** the `agentdev-claude` / `agentdev-codex` volumes already contain a
-  prior install (they persist per devcontainer instance)
-- **THEN** the volume mount shadows the image-build install, and
-  `postCreateCommand` re-applies it every time the container is created, so it
-  is never silently stale.
-```
-
-The other two requirements in that spec — the attach-time workspace override and
-the credentials-only sharing — are unaffected and unchanged.
+The lifecycle scripts do gain skip guards, but they default to today's behavior
+and change nothing observable in a devcontainer — no requirement in that spec
+describes them.
 
 New behavior for the workflows themselves goes in a new spec,
 `data/spec/ai-review-gate`, created at ship time:
@@ -270,23 +229,21 @@ from a fork, and SHALL NOT act on a request from an actor without write access.
 
 ## Depends on
 
-None — no active plan touches CI workflows or the `agentic_tools` role.
+None — no active plan touches CI workflows or the devcontainer lifecycle
+scripts.
 
 ## Verification
 
-- `uv run ansible-lint ansible` and
-  `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml`, both
-  from the repository root, pass after Tasks 1-2.
-- A locally built `agent-desktop` image, run as a plain container with no
-  volumes, reports `agentdev` in `claude plugin list` (Task 3).
-- A devcontainer started from that image completes `postCreate` without error
-  and picks up a workspace skill edit on attach (Task 3).
-- `actionlint` and `zizmor` pass on both new workflows, via
-  `/agentdev:local-reformat` or the pre-commit hooks.
+- `shellcheck` passes on every modified script, via the pre-commit hooks or
+  `/agentdev:local-reformat` (Tasks 1-2).
+- A devcontainer starts unchanged with neither guard set: pre-commit hooks are
+  installed and Xpra runs, exactly as today (Task 2).
+- `actionlint` and `zizmor` pass on both new workflows.
 - The responder posts a review on a real PR, its log showing the `pr-review`
-  skill resolved (Task 7).
+  skill resolved from **this checkout** rather than improvised, and CBM indexed
+  (Task 6).
 - `ai-review-present` passes on that PR before it is made a required check (Task
-  7).
+  6).
 
 ## Out of scope
 
@@ -295,9 +252,11 @@ None — no active plan touches CI workflows or the `agentic_tools` role.
   is upstream's design; changing it during an import would conflate two
   decisions. Worth a backlog item.
 - **A Codex responder job in CI.** Codex reviews come from Codex web.
-- **Changing `postCreate` / `postAttach` behavior.** The devcontainer path is
-  deliberately untouched; that it stays identical is the argument for the image
-  change being safe.
+- **Installing the catalog into the image.** Considered and rejected: the
+  responder checks out the branch, so the checkout's catalog is both available
+  and more correct than the image's.
+- **Changing what the lifecycle scripts do when unguarded.** Both guards default
+  off; the devcontainer path stays byte-identical.
 - **Renovate, branch-protection automation, or importing any other Dr-QP
   workflow.**
 
@@ -305,25 +264,26 @@ None — no active plan touches CI workflows or the `agentic_tools` role.
 
 Verified anchor points (line numbers as of 2026-08-16):
 
-- `ansible/roles/agentic_tools/tasks/main.yml:26` —
-  `Stage the agent catalog into the image`, the import the install task follows
-- `ansible/roles/agentic_tools/defaults/main.yml:26` —
-  `agentic_tools_stage_catalog`, whose comment asserts the install belongs to
-  lifecycle scripts
-- `ansible/roles/agentic_tools/defaults/main.yml:45` —
-  `agentic_tools_catalog_root: /opt/agentdev`
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:123` —
-  `Make the staged catalog root-owned and read-only`, the last staging task
-- `ansible/roles/extra_facts/tasks/main.yml:16` — `user_home` resolves from
-  `ansible_facts['env'].HOME`, i.e. `/root`
-- `docker/desktop/agent-desktop.Dockerfile:54` —
-  `agentic_tools_stage_catalog=true`, where the install flag joins
-- `docker/desktop/agent-desktop.Dockerfile:67` — `ENV AGENTDEV_CATALOG_DIR`,
-  whose comment claims the catalog is never installed
-- `.devcontainer/scripts/postCreateCommand.sh:78-79` — the existing install,
-  which the build-time install mirrors
-- `.devcontainer/scripts/reinstall-agentdev-claude.sh:64-73` — the
-  remove-across-scopes sweep that makes reinstall-over-install safe
-- `.github/actions/paths-filter/action.yml:38` — `ansible/**`, so the image
-  change triggers a CI rebuild
-- `.github/workflows/ci.yml:30` — `DESKTOP_IMAGE_NAME: agent-desktop`
+- `.devcontainer/scripts/postAttachCommand.sh:8` —
+  `codebase-memory-mcp-index.sh`; a cold index measures ~3.5s in this repository
+- `.devcontainer/scripts/postAttachCommand.sh:14-15` — the checkout-scoped
+  catalog reinstall; this, not postCreate, is what gives the responder the
+  branch's own skills
+- `.devcontainer/scripts/postStartCommand.sh:9` —
+  `codebase-memory-mcp-start.sh`, which starts CBM but does not index
+- `.devcontainer/scripts/postStartCommand.sh:11` — `setup-pre-commit.sh`, the
+  call site the `AGENTDEV_SKIP_PRE_COMMIT` guard protects
+- `.devcontainer/scripts/postStartCommand.sh:14` —
+  `/start-xpra.sh --background`, guarded by `AGENTDEV_SKIP_XPRA`
+- `.devcontainer/scripts/setup-pre-commit.sh:11` —
+  `git config --global --add safe.directory`, moving to its own script
+- `.devcontainer/scripts/setup-pre-commit.sh:12` — the leftover `git status` to
+  remove
+- `.devcontainer/scripts/setup-pre-commit.sh:16` —
+  `pre-commit install --install-hooks`, the minutes-long step
+- `.devcontainer/scripts/setup-keyring.sh:99-107` — the graceful skip that makes
+  a keyring guard unnecessary
+- `.devcontainer/scripts/reinstall-agentdev-claude.sh:14-15` — the no-argument
+  default that resolves the catalog root to this checkout
+- `.github/workflows/ci.yml:30` — `DESKTOP_IMAGE_NAME: agent-desktop`, the image
+  the responder job runs in
