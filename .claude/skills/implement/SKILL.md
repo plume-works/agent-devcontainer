@@ -19,7 +19,13 @@ is not proof that behavior exists; current code and passing task evidence are.
    user wants built? Stop and point at the plan skill.
 2. **Load the context.** Read the full plan, the specs in its
    `## Spec changes`, and `data/product.md` `## Constraints` and
-   `## Authoring rules` — they bind the code you're about to write.
+   `## Authoring rules` — they bind the code you're about to write. Note which
+   form the plan's spec impact takes — an explicit `None`, a concise normative
+   outcome, or a fenced `ADDED` / `MODIFIED` / `REMOVED` delta — and read it
+   against the current durable spec. The recorded form is the behavior this
+   work is meant to produce; the durable spec is what remains true until Ship
+   merges that intent. Both bind the code, and where they differ, the
+   difference is the work.
 3. **Check `## Depends on`.** Every prerequisite plan must carry
    `stage: done`; if one doesn't, say so and stop — building on an unshipped
    dependency is how two plans end up half-true.
@@ -44,10 +50,17 @@ is not proof that behavior exists; current code and passing task evidence are.
      detail can be corrected while preserving intent and every material
      boundary, update the plan first, report the correction and why it
      preserves intent, then continue within the user's requested task boundary.
+     The plan's recorded spec impact is one of those boundaries: a correction
+     may proceed only while the recorded behavioral outcome still holds exactly
+     as written.
    - **Material deviation:** if completing the task would add scope or drop,
      narrow, defer, or accept an exception to specified behavior, leave the
      task unchecked. Explain the needed change and wait for user direction
-     before changing the plan or coding beyond it.
+     before changing the plan or coding beyond it. Any change to a recorded
+     normative outcome, delta operation, requirement, or scenario is material
+     by definition — never edit the delta to match what you built. It goes back
+     through the plan skill's revise mode, with the user's direction, before
+     coding continues.
 7. **Stop at a clean boundary.** After each task (or more, if the user asked
    for a longer run), report progress — "3/5 tasks, next: <task name>" — plus
    the actual code changed and tests/checks run as evidence, and stop. Blocked

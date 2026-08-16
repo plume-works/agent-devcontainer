@@ -157,13 +157,23 @@ Rejected alternatives:
 **Files:** Modify: `.claude/skills/implement/SKILL.md`,
 `.claude/skills/verify/SKILL.md`
 
-- [ ] **4. Make Implement preserve or escalate the delta.** Load the selected
+- [x] **4. Make Implement preserve or escalate the delta.** Load the selected
   plan's chosen spec-impact form with the current durable specs. Tactical
   corrections may continue only when they preserve the recorded behavioral
   outcome; any change to a normative outcome, operation, requirement, or
   scenario is a material deviation requiring user direction and Plan revision
   before coding continues.
-- [ ] **5. Make Verify evaluate the effective pre-ship contract.** Replace the
+  - **Evidence:** `.claude/skills/implement/SKILL.md:20-28` loads the plan's
+    chosen form — `None`, concise normative outcome, or fenced
+    `ADDED`/`MODIFIED`/`REMOVED` delta — against the current durable spec, and
+    states which of the two binds when they differ. `:49-55` limits tactical
+    corrections to those leaving the recorded outcome exactly as written, and
+    `:56-63` makes any change to a normative outcome, delta operation,
+    requirement, or scenario material by definition, forbids editing the delta
+    to match what was built, and routes it through Plan revise mode with user
+    direction. `uv run validate_agent_files --kind skills .claude/skills --ci`
+    exits 0.
+- [x] **5. Make Verify evaluate the effective pre-ship contract.** Replace the
   requirement that durable specs already reflect the unshipped change. For a
   structured delta, compare implementation evidence with the current durable
   spec plus the delta; for a concise low-risk entry, compare against its
@@ -172,6 +182,16 @@ Rejected alternatives:
   supplies the required planned contract. Report a CRITICAL when the selected
   form is too weak for the risk, the implementation contradicts the delta, or
   the delta would silently discard an unaffected scenario.
+  - **Evidence:** `.claude/skills/verify/SKILL.md:39-52` replaces the "spec
+    exists and reflects the change" check with the effective contract (current
+    durable spec plus the plan's recorded intent). A back-ticked not-yet-created
+    spec is now valid when the plan introduces it and supplies its planned
+    contract; the per-form checks cover fenced delta, concise normative outcome,
+    and `None`; and the three named CRITICALs are an under-scaled form, an
+    implementation contradicting recorded intent, and a delta silently dropping
+    an unaffected scenario. Requirement-evidence search now runs over the
+    effective contract rather than the durable spec alone.
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 4: Make Ship consume deltas without pretending to compile them
 

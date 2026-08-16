@@ -36,11 +36,20 @@ deliverable, and the fixes belong to the skills and sessions it points at.
      actually done is a nuisance the next session clears in a minute, while a
      checked box that is not done is a false premise the next session builds
      on. Taking a tick on faith is how the second one survives verification.
-     Every spec in `## Spec changes` exists and reflects the change (a
-     back-ticked
-     not-yet-created spec still pending at verify time is a CRITICAL). Every
-     `### Requirement:` in the touched specs has implementation evidence in
-     the codebase — search for it; none found is a CRITICAL.
+     Every entry in `## Spec changes` is judged against the **effective
+     contract**: the current durable spec plus the intent the plan records
+     against it. Durable specs are not expected to describe the unshipped
+     change — Ship merges them after this report — so a back-ticked
+     not-yet-created spec is valid here whenever the plan explicitly introduces
+     it and supplies its planned contract. Check by the form the plan chose: a
+     fenced delta against the durable spec plus every `ADDED` / `MODIFIED` /
+     `REMOVED` operation, a concise entry against its normative outcome, and
+     `None` by confirming no externally observable behavior changed. Three
+     CRITICALs live here — the chosen form is too weak for what the change
+     actually touches, the implementation contradicts the recorded intent, or
+     the delta would silently drop a scenario this change does not affect.
+     Every `### Requirement:` in the effective contract has implementation
+     evidence in the codebase — search for it; none found is a CRITICAL.
    - **Correctness** — map each requirement to `path:line` evidence and judge
      whether the implementation matches its SHALL statement (divergence is a
      WARNING with the file and lines to review). For each `#### Scenario:`,
