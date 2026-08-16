@@ -12,6 +12,8 @@ sources:
 - .claude/skills/ship/SKILL.md
 - docs/knowledge/data/spec/iwe-workflow-skills.md
 - docs/knowledge/STRUCTURE.md
+stage: done
+completed: 2026-08-16
 ---
 
 # Embed structured spec deltas in IWE plans

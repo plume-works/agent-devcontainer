@@ -17,6 +17,8 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
+[Risk-scaled spec deltas](../features/risk-scaled-spec-deltas.md)
+
 [uv-run-only environment](../features/uv-run-only-environment.md)
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)

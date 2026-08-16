@@ -17,13 +17,13 @@ moves them.*
 
 ## Active
 
-[Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
-
 [Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
 
 ## Done
+
+[Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
 
 [Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
 

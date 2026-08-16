@@ -7,6 +7,27 @@ to the current day's group.
 ## 2026-08-16
 
 - **Update**:
+  [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
+  done — `## Spec changes` now has three risk-scaled forms: an explicit `None`,
+  a linked spec plus a concise normative outcome, or a fenced
+  `ADDED`/`MODIFIED`/`REMOVED` delta carrying complete post-change requirements.
+  The change that mattered was naming the delta *intent* rather than truth,
+  which dissolved a structural disagreement: Verify had demanded that durable
+  specs already reflect an unshipped change while Ship was the skill that
+  updates them afterwards. Verify now judges code against the durable spec plus
+  the plan's intent, and a not-yet-created spec is valid when the plan supplies
+  its contract.
+- **Creation**: [Risk-scaled spec deltas](features/risk-scaled-spec-deltas.md)
+  records the three forms, the intent-versus-truth boundary, and the four
+  exclusions — no change bundle, store, separate delta file, or application
+  engine. OpenSpec's notation is adopted; its parser is not.
+- **Creation**:
+  [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
+  files the gap this shipment left open. `ADDED` and `MODIFIED` were worked end
+  to end by the plan's own delta; `REMOVED` was specified in the same pass and
+  never run, so the plan's fixture bullet asking for all three is unmet. Verify
+  flagged it as a WARNING, not a CRITICAL — no ticked task claimed otherwise.
+- **Update**:
   [Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
   done — a ticked `- [x]` now requires an indented `- **Evidence:**` child
   naming the commit, test run, or CI run that closed it. A find-and-replace can

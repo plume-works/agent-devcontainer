@@ -20,6 +20,8 @@ write a plan and link the plan instead.*
 
 ## Medium
 
+[Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
+
 [Import the existing backlog](backlog/import-existing-backlog.md)
 
 [Write a capture skill](backlog/capture-skill.md)

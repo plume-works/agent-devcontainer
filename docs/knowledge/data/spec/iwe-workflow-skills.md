@@ -84,6 +84,46 @@ code anchors.
 - **THEN** Plan recommends distinct work instead of silently replacing the
   existing plan's intent
 
+### Requirement: Plans express spec impact at risk-appropriate fidelity
+
+The Plan skill SHALL record the intended spec impact in the plan's existing
+`## Spec changes` section, SHALL scale detail with behavioral risk, and SHALL
+keep that contract coherent when material decisions change.
+
+#### Scenario: A plan has no behavioral change
+
+- **WHEN** planned work changes no externally observable behavior
+- **THEN** Plan records `None — no behavioral change` rather than inventing a
+  spec delta
+
+#### Scenario: A simple low-risk behavior changes
+
+- **WHEN** one unambiguous low-risk behavior changes and a full scenario delta
+  would add ceremony without resolving uncertainty
+- **THEN** Plan links the affected durable spec and records a concise normative
+  post-change outcome
+
+#### Scenario: Contract-heavy or risky behavior changes
+
+- **WHEN** a change affects compatibility, acceptance criteria,
+  security/privacy/data-loss behavior, or a requirement's scenario set
+- **THEN** Plan embeds complete ADDED, MODIFIED, or REMOVED requirement content
+  for every affected durable spec
+
+#### Scenario: Implementation would contradict the planned contract
+
+- **WHEN** implementation requires a material change to a recorded normative
+  outcome, delta operation, requirement, or scenario
+- **THEN** Implement leaves the current task unchecked and waits for user
+  direction and Plan revision before coding through the change
+
+#### Scenario: Verify runs before durable spec synchronization
+
+- **WHEN** implementation is ready for pre-ship verification while the durable
+  spec still describes current released behavior
+- **THEN** Verify evaluates the implementation against the effective contract
+  formed by the durable spec and the plan's risk-appropriate spec changes
+
 ### Requirement: Implement never hides a material deviation
 
 The Implement skill SHALL distinguish intent-preserving task corrections from
@@ -147,10 +187,11 @@ project state.
 
 ### Requirement: Ship synchronizes durable specs by intelligent merge
 
-The Ship skill SHALL derive spec updates from the verified shipped behavior,
-SHALL preserve unaffected requirements and scenarios, SHALL complete and verify
-all required spec updates before marking work done, and SHALL be safe to resume
-after a partial prior attempt.
+The Ship skill SHALL treat a plan-local spec delta as reviewed intent, SHALL
+derive durable updates only from intent that agrees with verified shipped
+behavior, SHALL preserve unaffected requirements and scenarios, SHALL complete
+and verify all required spec updates before marking work done, and SHALL be safe
+to resume after a partial prior attempt.
 
 #### Scenario: Existing behavior remains unaffected
 
@@ -158,6 +199,20 @@ after a partial prior attempt.
   durable spec
 - **THEN** Ship updates the changed behavior while preserving all unaffected
   requirements, scenarios, ordering, and still-accurate explanatory content
+
+#### Scenario: A structured delta agrees with implementation
+
+- **WHEN** Verify confirms that every planned delta operation and post-change
+  scenario agrees with implementation evidence
+- **THEN** Ship intelligently merges that behavior into the durable spec and
+  verifies the complete resulting contract
+
+#### Scenario: Plan intent and implementation disagree
+
+- **WHEN** a normative outcome or structured delta disagrees with the verified
+  implementation
+- **THEN** Ship makes no lifecycle transition, does not rewrite intent from
+  code, and reports that the plan requires revision
 
 #### Scenario: A spec update cannot be validated
 
@@ -184,8 +239,10 @@ after a partial prior attempt.
 
 The strengthened skills SHALL continue to use IWE's single-plan-document
 workflow, graph links, durable specs, existing stage and status conventions,
-provenance requirements, and schema validation without introducing OpenSpec
-change bundles or delta-spec machinery into IWE.
+provenance requirements, and schema validation. Risk-scaled spec deltas SHALL
+remain embedded planning content without introducing OpenSpec change bundles,
+stores, separate delta files, archive moves, or a claimed programmatic delta
+application engine.
 
 #### Scenario: Updated skills write project memory
 
