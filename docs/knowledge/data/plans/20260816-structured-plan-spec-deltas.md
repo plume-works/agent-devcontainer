@@ -95,12 +95,23 @@ Rejected alternatives:
 
 **Files:** No file changes (analysis only)
 
-- [ ] **1. Re-read and re-anchor the workflow after both dependency plans
+- [x] **1. Re-read and re-anchor the workflow after both dependency plans
   ship.** Capture the then-current Plan, Implement, Verify, and Ship prompts;
   refresh every affected line reference below before editing; and confirm the
   checkbox-evidence and unchecked-task routing changes remain intact. Record a
   scenario-to-owner checklist so each new rule has exactly one primary owner and
   cross-skill handoffs do not duplicate it.
+  - **Evidence:** both dependencies verified `stage: done` /
+    `completed: 2026-08-16`; all four prompts re-read at that state; three moved
+    anchors refreshed under `## Key references`
+    (`plan/SKILL.md:99-102`→`111-114`, `implement/SKILL.md:20-45`→`20-50`,
+    `verify/SKILL.md:20-40`→`23-43`), seven re-confirmed unchanged; the ten-row
+    scenario-to-owner checklist and the intactness check for the evidence and
+    unchecked-task-routing contracts are recorded under
+    `## Verification results`. `iwe normalize` left the fenced `## Spec changes`
+    delta byte-identical (`git diff` touches only the two edited sections);
+    `iwe schema validate` and
+    `uv run validate_agent_files --kind skills .claude/skills --ci` both exit 0.
 
 ### Task 2: Make Plan author risk-scaled spec contracts
 
@@ -335,6 +346,43 @@ rewrites the surrounding pre-ship contract.
 - Setup and Weekly remain unchanged; repository diff contains no new change
   bundle, separate delta file, store, archive move, parser, or schema type.
 
+## Verification results
+
+**Task 1 — rebase and scenario-to-owner checklist (2026-08-16).** Both
+dependency plans carry `stage: done` / `completed: 2026-08-16`. The prompts were
+re-read at that state; the checkbox-evidence contract is intact
+(`.claude/skills/plan/SKILL.md:57-61` and `:68-70`,
+`.claude/skills/implement/SKILL.md:30-39` and `:66-71`,
+`.claude/skills/verify/SKILL.md:31-38`, `docs/knowledge/AGENTS.md:117-121`), and
+Verify's unchecked-task routing with its three named routes is intact
+(`.claude/skills/verify/SKILL.md:25-31`). Three anchors had moved and were
+refreshed under `## Key references`; the other seven still resolve.
+
+Each new rule gets exactly one primary owner; the other skills reference it
+rather than restating it:
+
+- **Three `## Spec changes` forms and their selection threshold** → Plan (task
+  2). Other skills refer to "the plan's chosen spec-impact form" and never
+  restate the threshold.
+- **No behavioral change means an explicit `None` entry** → Plan (task 2).
+  Verify only confirms no observable behavior changed (task 5).
+- **Delta coherence during revision** → Plan (task 3). Implement routes material
+  changes back to Plan revision (task 4) rather than reconciling them itself.
+- **A material contradiction pauses coding** → Implement (task 4). No other
+  skill owns the pause.
+- **Effective contract = current durable spec + plan delta** → Verify (task 5).
+  Ship consumes Verify's verdict and does not re-derive it (task 6).
+- **A missing durable spec is valid before Ship** → Verify (task 5). Ship still
+  owns creating that spec at merge time (existing step 4).
+- **Delta/evidence disagreement blocks the merge** → Ship (task 6). Verify
+  reports the contradiction as a CRITICAL; only Ship refuses the transition.
+- **Full delta representation checked before lifecycle flips** → Ship (task 7).
+- **Durable specs mutate only during Ship** → Ship (existing rule). Plan,
+  Implement, and Verify never write durable specs.
+- **The OpenSpec boundary and its rationale** → `docs/knowledge/STRUCTURE.md`
+  (task 8). `AGENTS.md` and `README.md` summarize it; the skill prompts do not
+  carry the rationale.
+
 ## Out of scope
 
 - A programmatic delta parser, fixed application order, conflict engine, or
@@ -353,16 +401,16 @@ rewrites the surrounding pre-ship contract.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-16; Task 1 must refresh them
-after the dependency plans ship):
+Verified anchor points (line numbers as of 2026-08-16, refreshed by Task 1 after
+both dependency plans shipped):
 
 - `.claude/skills/plan/SKILL.md:52-67` — plan body contract, including the
   current name-only `## Spec changes` rule
-- `.claude/skills/plan/SKILL.md:99-102` — mandatory spec-impact thinking and
+- `.claude/skills/plan/SKILL.md:111-114` — mandatory spec-impact thinking and
   progressive-rigor rules
-- `.claude/skills/implement/SKILL.md:20-45` — spec loading and tactical versus
+- `.claude/skills/implement/SKILL.md:20-50` — spec loading and tactical versus
   material deviation handling
-- `.claude/skills/verify/SKILL.md:20-40` — the current pre-ship checks,
+- `.claude/skills/verify/SKILL.md:23-43` — the current pre-ship checks,
   including the requirement that durable specs already reflect the change
 - `.claude/skills/ship/SKILL.md:42-60` — intelligent merge and post-merge
   verification before lifecycle transitions
