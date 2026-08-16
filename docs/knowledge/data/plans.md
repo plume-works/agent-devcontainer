@@ -21,6 +21,8 @@ moves them.*
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
 
+[Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
+
 ## Done
 
 [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md)
