@@ -106,7 +106,7 @@ own audit mode exists to catch.
 **Files:** Modify:
 `docs/knowledge/data/features/verification-in-the-main-loop.md`
 
-- [ ] **3. Add the revision route to `## Resolved decisions`.** That section
+- [x] **3. Add the revision route to `## Resolved decisions`.** That section
   currently reads that a plan with a CRITICAL "remains active for fixes or can
   be explicitly cancelled". Add revising the plan to drop the task as the third
   outcome, so the feature doc and Task 2's recommendation agree. Keep

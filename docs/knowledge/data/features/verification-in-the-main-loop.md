@@ -68,8 +68,13 @@ Properties that should hold:
 
 - Mandatory verification lives in normal Ship only. Verify remains available
   independently, and Implement does not gain a second automatic invocation.
-- A CRITICAL finding is not overridable. The plan remains active for fixes or
-  can be explicitly cancelled; known-false durable claims are never shipped.
+- A CRITICAL finding is not overridable. Three outcomes remain: the plan stays
+  active for fixes, it can be revised to drop the offending work (via the plan
+  skill's revise mode, which treats that as a material scope change and asks the
+  user first), or it can be explicitly cancelled. Known-false durable claims are
+  never shipped. Revision is the proportionate route when the user has decided
+  against a single task: it cannot be ticked while undone, and cancelling the
+  whole plan over it is out of scale.
 - Explicit cancellation is exempt because it records abandonment rather than
   implemented behavior and performs no release or implemented-feature
   transition.
