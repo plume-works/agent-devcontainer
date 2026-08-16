@@ -60,7 +60,8 @@ editing implementation code.
      commit, test run, or CI run that closed it; leave the checkbox bare while
      it is unticked
    - `## Spec changes` — every `data/spec/` doc this work will create or
-     change; name not-yet-existing specs in back-ticks (never dangling links)
+     change, written in whichever of the three forms below fits the risk;
+     name not-yet-existing specs in back-ticks (never dangling links)
    - `## Depends on` — inline links to plans that must ship first (omit if
      none)
    - `## Verification` — how a session proves the work is done: commands,
@@ -76,10 +77,17 @@ editing implementation code.
    section in either direction: Context, Approach, Implementation Steps, Spec
    changes, Depends on, Verification, Out of scope, and Key references. For
    example, a task edit may require an Approach or Verification edit, and an
-   Approach edit may require new tasks or spec impact. Re-locate every affected
-   code anchor in the current checkout and refresh its date. Identify checked
-   tasks or existing implementation evidence made stale by the revision and
-   report them; do not rewrite that implementation from this skill.
+   Approach edit may require new tasks or spec impact. When the decision
+   changes behavior, `## Spec changes` moves with it in the same pass — the
+   form may need to escalate, and the tasks, verification, and out-of-scope
+   boundaries that depend on it are reconciled together. A delta edited alone,
+   or left describing the old intent while the tasks around it change, is the
+   split this pass exists to prevent. What you are updating is intent: the
+   durable spec keeps describing current released behavior until Ship succeeds.
+   Re-locate every affected code anchor in the current checkout and refresh its
+   date. Identify checked tasks or existing implementation evidence made stale
+   by the revision and report them; do not rewrite that implementation from
+   this skill.
 
 5. **File a created plan.** In create mode, add an inclusion link under
    `## Active` in `data/plans.md`. If the plan implements a proposed feature,
@@ -96,6 +104,42 @@ editing implementation code.
    assumptions, collisions, and implementation that may now be stale. Stop
    before implementation code changes.
 
+## The three forms of `## Spec changes`
+
+This section is the plan's spec impact in one place: what the affected contract
+is _intended_ to say once this work ships. It is not a second durable truth —
+the spec documents keep describing current released behavior until Ship merges
+the change. Choose the lightest form that leaves a reviewer no room to guess.
+
+1. **No behavioral change** — `None — no behavioral change`. Refactors, tooling,
+   and docs-only work stop here. Never invent requirements to fill the section.
+2. **Simple, low-risk behavior** — link the affected spec and state the intended
+   post-change outcome in a sentence or two of normative language. Use it when
+   one unambiguous behavior changes and a scenario block would add ceremony
+   without resolving anything.
+3. **Contract-heavy or risky behavior** — link the affected spec and embed a
+   fenced delta. Required when the change touches compatibility, acceptance
+   criteria, security/privacy/data-loss behavior, or a requirement's scenario
+   set: exactly the cases where a prose summary reads as agreement while hiding
+   a disagreement.
+
+The delta goes in a Markdown-tagged fence, so canonical Requirement/Scenario
+headings survive inside the plan without turning it into a spec. `iwe normalize`
+rewrites the opening fence as ` ``` markdown ` — that spacing is normalized
+output, not damage, so leave it alone:
+
+- `## ADDED Requirements` and `## MODIFIED Requirements` carry the **complete
+  post-change** requirement — its SHALL statement and _every_ surviving
+  scenario, not only the edited ones. A scenario left out of a MODIFIED block
+  reads as one this plan deliberately dropped, and Verify treats it that way.
+- `## REMOVED Requirements` names the requirement and why the behavior is
+  intentionally retired.
+- There is no `RENAMED` operation. A rename is an explicit removal plus an
+  addition.
+
+A spec that does not exist yet stays a back-ticked key here and in the delta;
+Ship creates the document and replaces the key with a real link.
+
 ## Rules
 
 - One plan per topic; if the plan needs two unrelated verification stories,
@@ -109,7 +153,9 @@ editing implementation code.
 - Code anchors are verified against the current checkout and stamped with the
   date — never cite from memory.
 - `## Spec changes` is mandatory thinking, even when its honest content is
-  "none — no behavioral change".
+  "none — no behavioral change". Picking the form is part of that thinking:
+  a contract-heavy change written as a one-line summary is a Verify CRITICAL,
+  not a matter of taste.
 - Scale ceremony with risk: a small low-risk plan can be short, but never
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as

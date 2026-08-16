@@ -117,7 +117,7 @@ Rejected alternatives:
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] **2. Define the three `## Spec changes` forms and their selection
+- [x] **2. Define the three `## Spec changes` forms and their selection
   threshold.** Preserve the explicit no-behavior form; require a linked spec
   plus concise normative outcome for simple low-risk behavior; and require the
   fenced `ADDED` / `MODIFIED` / `REMOVED Requirements` form for changes whose
@@ -126,11 +126,31 @@ Rejected alternatives:
   blocks under `ADDED` and `MODIFIED`, including every surviving scenario, and a
   reason under `REMOVED`. Keep future spec keys back-ticked until Ship creates
   them.
-- [ ] **3. Reconcile deltas during Plan revision.** Extend the existing
+  - **Evidence:** `.claude/skills/plan/SKILL.md:107-141` adds
+    `## The three forms of ## Spec changes` — form 1 keeps
+    `None — no behavioral change`, form 2 requires a linked spec plus a concise
+    normative outcome, form 3 requires the fenced delta and names the
+    compatibility / acceptance-criteria / security-privacy-data-loss /
+    scenario-set threshold; `ADDED` and `MODIFIED` are required to carry every
+    surviving scenario, `REMOVED` a retirement reason, with `RENAMED` explicitly
+    excluded and future spec keys kept back-ticked until Ship. `:62-64` routes
+    the body contract to those forms and `:155-158` makes an under-scaled form a
+    Verify CRITICAL.
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
+- [x] **3. Reconcile deltas during Plan revision.** Extend the existing
   bidirectional coherence pass so a decision affecting behavior updates the
   delta, tasks, verification, and out-of-scope boundaries together. State that
   the delta describes intended behavior while the durable spec remains current
   truth until Ship succeeds.
+  - **Evidence:** `.claude/skills/plan/SKILL.md:76-86` extends the revise-mode
+    reconciliation pass — a behavior-changing decision moves `## Spec changes`
+    in the same pass, may escalate its form, and carries the dependent tasks,
+    verification, and out-of-scope boundaries with it; it names the split it
+    prevents (a delta edited alone or left on old intent) and states that the
+    revision updates intent while the durable spec keeps describing released
+    behavior until Ship succeeds. The same intent-versus-truth boundary opens
+    the forms section at `:107-112`, so the two statements agree.
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 3: Bind implementation and verification to the effective contract
 
