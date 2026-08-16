@@ -28,10 +28,15 @@ is not proof that behavior exists; current code and passing task evidence are.
    relying on it. If lines moved, update the anchor list and its
    "verified as of" date — that edit is part of this session's work.
 5. **Execute the next unchecked task.** Follow its `**Files:**` list; write
-   the code; run every test and check required for that task. Tick its
-   `- [ ]` → `- [x]` and run `iwe normalize` only when the task's complete
-   specified behavior is implemented with passing evidence. Partial work,
-   deferred behavior, or a failing required test or check stays unchecked.
+   the code; run every test and check required for that task. Closing it is a
+   single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's indented
+   `- **Evidence:**` child naming what closed it — the commit, the test run and
+   its result, the CI run — specifically enough that a later session can go
+   look. Do it only when the task's complete specified behavior is implemented
+   with passing evidence, then run `iwe normalize`. Partial work, deferred
+   behavior, or a failing required test or check stays unchecked, with no
+   evidence line. If you cannot name the evidence, the box is not closable:
+   that is the check working, not a formatting obstacle.
 6. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
    criteria, dependencies, or an explicit out-of-scope boundary.
@@ -58,8 +63,12 @@ is not proof that behavior exists; current code and passing task evidence are.
   required test or check fails or was not run — an unchecked box that's
   actually done is a nuisance; a checked box that isn't done is a lie the next
   session builds on.
-- Checkbox flips and anchor updates belong in the same commit as the code they
-  describe.
+- One edit never changes more than one checkbox. A blanket `- [ ]` → `- [x]`
+  substitution across the file is itself the defect, not a faster route to the
+  same result: eight verified ticks and one careless sweep produce identical
+  bytes, and only the per-box evidence line tells them apart.
+- Checkbox flips, their evidence lines, and anchor updates belong in the same
+  commit as the code they describe.
 - One task at a time unless the user asks for more; small honest increments
   beat a big unreviewable one.
 - Never silently expand the plan or narrow its specified behavior to fit the

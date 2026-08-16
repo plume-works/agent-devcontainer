@@ -28,8 +28,16 @@ deliverable, and the fixes belong to the skills and sessions it points at.
      a material scope change and so asks the user before doing it. The third
      route exists because Ship refuses any CRITICAL and has no override: a task
      the user has decided against can't be ticked while undone, so without it
-     the plan is unshippable. Naming a route is not taking it. Every spec in
-     `## Spec changes` exists and reflects the change (a back-ticked
+     the plan is unshippable. Naming a route is not taking it. Mirroring it,
+     every ticked `- [x]` task whose indented `- **Evidence:**` line is missing
+     or empty, or whose evidence names nothing traceable to a commit, test run,
+     or CI run, is also a CRITICAL, recommendation "untick it". Audit the two
+     asymmetrically, because they fail asymmetrically: an unchecked box that is
+     actually done is a nuisance the next session clears in a minute, while a
+     checked box that is not done is a false premise the next session builds
+     on. Taking a tick on faith is how the second one survives verification.
+     Every spec in `## Spec changes` exists and reflects the change (a
+     back-ticked
      not-yet-created spec still pending at verify time is a CRITICAL). Every
      `### Requirement:` in the touched specs has implementation evidence in
      the codebase — search for it; none found is a CRITICAL.

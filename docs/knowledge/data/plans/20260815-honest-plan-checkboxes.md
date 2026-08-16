@@ -73,50 +73,67 @@ no enforcement, or an enforced format with nothing specifying it.
 
 **Files:** Modify: `.claude/skills/verify/SKILL.md`
 
-- [ ] **1. Give the Completeness dimension a `- [x]` counterpart.** After the
-  existing unchecked-box rule at `.claude/skills/verify/SKILL.md:24-26`, add its
+- [x] **1. Give the Completeness dimension a `- [x]` counterpart.** After the
+  existing unchecked-box rule at `.claude/skills/verify/SKILL.md:25-31`, add its
   mirror: a ticked task whose `**Evidence:**` line is missing, or whose evidence
   cannot be traced to a commit, test run, or CI run, is a CRITICAL with the
   recommendation "untick it". State the asymmetry being corrected so the rule
   survives editing: the unchecked-but-done box is a nuisance, the
   checked-but-not-done box is what the next session builds on.
+  - **Evidence:** `.claude/skills/verify/SKILL.md:31-38` now carries the
+    ticked-box CRITICAL with recommendation "untick it" and the stated
+    asymmetry; `uv run validate_agent_files --kind skills .claude/skills --ci`
+    exits 0.
 
 ### Task 2: Plan constrains task granularity
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] **2. Add the task-atomicity rule.** Under `## Rules`
-  (`.claude/skills/plan/SKILL.md:55`), next to the existing "One plan per topic"
-  rule at line 57: one task is one outcome — if the task could ever be described
-  as half-done, split it. A task whose evidence is external (a CI run, a deploy,
-  a review, a published artifact) is always its own task, because the session
-  that writes the code cannot close it. Name the failure it prevents so the rule
-  reads as a lesson rather than a preference.
+- [x] **2. Add the task-atomicity rule.** Under `## Rules`
+  (`.claude/skills/plan/SKILL.md:93`), next to the existing "One plan per topic"
+  rule at lines 95-96: one task is one outcome — if the task could ever be
+  described as half-done, split it. A task whose evidence is external (a CI run,
+  a deploy, a review, a published artifact) is always its own task, because the
+  session that writes the code cannot close it. Name the failure it prevents so
+  the rule reads as a lesson rather than a preference.
+  - **Evidence:** `.claude/skills/plan/SKILL.md:103-109` states one task / one
+    outcome, the standalone-task rule for externally-evidenced work, and the
+    bundled-tick failure it prevents;
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 3: Evidence gets a specified home
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] **3. Specify the evidence format and the results section.** In the section
-  list at `.claude/skills/plan/SKILL.md:32-47`: extend the
-  `## Implementation Steps` bullet (line 37) to state that each `- [ ]` carries
+- [x] **3. Specify the evidence format and the results section.** In the section
+  list at `.claude/skills/plan/SKILL.md:52-67`: extend the
+  `## Implementation Steps` bullet (line 57) to state that each `- [ ]` carries
   an indented `- **Evidence:**` child once ticked, and add
   `## Verification results` to the ordered list, after `## Verification` —
   narrative evidence for the plan as a whole, written as the work happens. The
   section is already being improvised by sessions; this makes it specified
   rather than invented per plan.
+  - **Evidence:** `.claude/skills/plan/SKILL.md:57-61` requires the indented
+    `- **Evidence:**` child on a ticked box;
+    `.claude/skills/plan/SKILL.md:68-70` adds `## Verification results` after
+    `## Verification`;
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 4: Implement ticks one box at a time
 
 **Files:** Modify: `.claude/skills/implement/SKILL.md`
 
-- [ ] **4. Make the tick an evidence-writing step.** Rewrite step 5
-  (`.claude/skills/implement/SKILL.md:29-32`) so ticking means writing the
-  `- **Evidence:**` line in the same edit, and add to `## Rules` (line 45) that
+- [x] **4. Make the tick an evidence-writing step.** Rewrite step 5
+  (`.claude/skills/implement/SKILL.md:30-34`) so ticking means writing the
+  `- **Evidence:**` line in the same edit, and add to `## Rules` (line 55) that
   a single edit never changes more than one checkbox — a blanket `- [ ]` →
   `- [x]` substitution across the file is itself the defect, not a shortcut to
-  the same result. Keep the existing same-commit rule at line 50 and point it at
-  the evidence line too.
+  the same result. Keep the existing same-commit rule at lines 61-62 and point
+  it at the evidence line too.
+  - **Evidence:** `.claude/skills/implement/SKILL.md:30-39` makes the tick and
+    its evidence line one edit; `:66-70` adds the one-checkbox-per-edit rule;
+    `:71-72` extends the same-commit rule to cover evidence lines;
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 
 ### Task 5: The convention reaches every session
 
@@ -208,9 +225,11 @@ no enforcement, or an enforced format with nothing specifying it.
   [Verification in the main loop](../features/verification-in-the-main-loop.md),
   still `stage: proposed`. This plan only removes the reason it would have been
   toothless.
-- Backfilling evidence lines into `stage: done` plans. Both existing plans are
-  closed and stay as written; `## Active` is empty, so there is no live plan to
-  migrate.
+- Backfilling evidence lines into `stage: done` plans. The four closed plans
+  stay as written. The two other live plans
+  ([PR verification sections](20260815-pr-verification-sections.md),
+  [structured spec deltas](20260816-structured-plan-spec-deltas.md)) have no
+  ticked task, so nothing needs migrating — checked 2026-08-16.
 - Checking whether an evidence claim is *true*. The gate reads shape. Judging
   the claim is verify's job, and a human's.
 - The `agentdev` catalog skills under `.agents/plugins/agentdev/skills/` — they
@@ -218,20 +237,24 @@ no enforcement, or an enforced format with nothing specifying it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-15, at `8ca1eff`):
+Verified anchor points (line numbers as of 2026-08-16, at `1d3021f`; the
+2026-08-15 numbers were taken at `8ca1eff`, before the
+[workflow skill contracts](20260815-strengthen-workflow-skill-contracts.md) and
+[handoff routes](20260816-skill-handoff-routes.md) plans shipped into the same
+four files):
 
-- `.claude/skills/verify/SKILL.md:24` — the unchecked-box CRITICAL with no
-  ticked-box counterpart
-- `.claude/skills/verify/SKILL.md:63` — `## Rules`
-- `.claude/skills/plan/SKILL.md:37` — the `## Implementation Steps` section
+- `.claude/skills/verify/SKILL.md:25-31` — the unchecked-box CRITICAL and its
+  three routes, with no ticked-box counterpart
+- `.claude/skills/verify/SKILL.md:71` — `## Rules`
+- `.claude/skills/plan/SKILL.md:57` — the `## Implementation Steps` section
   description
-- `.claude/skills/plan/SKILL.md:43` — the `## Verification` section description,
+- `.claude/skills/plan/SKILL.md:63` — the `## Verification` section description,
   where `## Verification results` follows
-- `.claude/skills/plan/SKILL.md:55-57` — `## Rules`, "One plan per topic"
-- `.claude/skills/implement/SKILL.md:29-32` — step 5, where ticking happens
-- `.claude/skills/implement/SKILL.md:47` — "a checked box that isn't done is a
-  lie the next session builds on"
-- `.claude/skills/implement/SKILL.md:50` — checkbox flips share the code's
+- `.claude/skills/plan/SKILL.md:93-96` — `## Rules`, "One plan per topic"
+- `.claude/skills/implement/SKILL.md:30-34` — step 5, where ticking happens
+- `.claude/skills/implement/SKILL.md:57-60` — "a checked box that isn't done is
+  a lie the next session builds on"
+- `.claude/skills/implement/SKILL.md:61-62` — checkbox flips share the code's
   commit
 - `pyproject.toml:29-32` — `testpaths`
 - `.pre-commit-config.yaml:68` — `repo: local` hooks

@@ -55,13 +55,19 @@ editing implementation code.
    - `## Approach` — the shape of the solution and the alternative you
      rejected, in a few sentences
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
-     `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes
+     `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. Each checkbox
+     carries an indented `- **Evidence:**` child once it is ticked, naming the
+     commit, test run, or CI run that closed it; leave the checkbox bare while
+     it is unticked
    - `## Spec changes` — every `data/spec/` doc this work will create or
      change; name not-yet-existing specs in back-ticks (never dangling links)
    - `## Depends on` — inline links to plans that must ship first (omit if
      none)
    - `## Verification` — how a session proves the work is done: commands,
      tests, manual checks
+   - `## Verification results` — narrative evidence for the plan as a whole,
+     written as the work happens rather than reconstructed at the end (omit
+     until there is something to record)
    - `## Out of scope` — what this plan deliberately does not do
    - `## Key references` — `path:line — symbol` list under a line
      `Verified anchor points (line numbers as of <today>):`
@@ -94,6 +100,12 @@ editing implementation code.
 
 - One plan per topic; if the plan needs two unrelated verification stories,
   it's two plans.
+- One task is one outcome; if the task could ever be described as half-done,
+  split it. A task whose evidence is external — a CI run, a deploy, a review, a
+  published artifact — always stands alone, because the session writing the code
+  cannot close it. The failure this prevents is a bundled task ticked for the
+  half that was done locally, which then reads as a claim about the half that
+  was not.
 - Code anchors are verified against the current checkout and stamped with the
   date — never cite from memory.
 - `## Spec changes` is mandatory thinking, even when its honest content is
