@@ -25,6 +25,8 @@ moves them.*
 
 ## Done
 
+[Strengthen the workflow skill contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
+
 [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md)
 
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)

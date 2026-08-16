@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-08-16
 
+- **Creation**:
+  [Strengthen the workflow skill contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
+  reconstructed post-hoc from the OpenSpec change bundle's proposal, design, and
+  tasks artifacts, which `.gitignore` keeps out of the repository. Records the
+  eight design decisions and their rejected alternatives behind the Explore-to-
+  Ship prompt edits in `0d4d37b`, `61cce13`, `fcdd45a`, and `a35c802`; filed
+  `done` because the graph already carries the shipped state.
 - **Creation**: [IWE workflow skills](spec/iwe-workflow-skills.md) records the
   verified Explore, Plan, Implement, Verify, and Ship behavior as durable
   requirements and scenarios.
