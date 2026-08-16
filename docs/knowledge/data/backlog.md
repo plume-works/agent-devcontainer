@@ -16,8 +16,6 @@ write a plan and link the plan instead.*
 
 ## High
 
-[Plan the first feature](backlog/plan-first-feature.md)
-
 ## Medium
 
 [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
@@ -27,7 +25,5 @@ write a plan and link the plan instead.*
 ## Low
 
 ## Done
-
-[Fill in the product doc](backlog/fill-product-doc.md)
 
 [Capture the current architecture](backlog/capture-current-architecture.md)
