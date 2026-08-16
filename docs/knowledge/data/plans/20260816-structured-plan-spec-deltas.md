@@ -126,7 +126,7 @@ Rejected alternatives:
   blocks under `ADDED` and `MODIFIED`, including every surviving scenario, and a
   reason under `REMOVED`. Keep future spec keys back-ticked until Ship creates
   them.
-  - **Evidence:** `.claude/skills/plan/SKILL.md:107-141` adds
+  - **Evidence:** `.claude/skills/plan/SKILL.md:107-143` adds
     `## The three forms of ## Spec changes` — form 1 keeps
     `None — no behavioral change`, form 2 requires a linked spec plus a concise
     normative outcome, form 3 requires the fenced delta and names the
@@ -134,7 +134,7 @@ Rejected alternatives:
     scenario-set threshold; `ADDED` and `MODIFIED` are required to carry every
     surviving scenario, `REMOVED` a retirement reason, with `RENAMED` explicitly
     excluded and future spec keys kept back-ticked until Ship. `:62-64` routes
-    the body contract to those forms and `:155-158` makes an under-scaled form a
+    the body contract to those forms and `:157-160` makes an under-scaled form a
     Verify CRITICAL.
     `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
 - [x] **3. Reconcile deltas during Plan revision.** Extend the existing
@@ -254,15 +254,40 @@ Rejected alternatives:
 
 **Files:** No file changes (validation only)
 
-- [ ] **9. Validate prompts and project memory.** Run
+- [x] **9. Validate prompts and project memory.** Run
   `uv run validate_agent_files --kind skills .claude/skills --ci`, then
   `iwe normalize` and `iwe schema validate`; resolve every introduced error and
   inspect normalization to confirm fenced deltas remain byte-stable.
-- [ ] **10. Perform scenario read-back.** Confirm the four skills agree on all
+  - **Evidence:** all three commands exit 0 at `9cfee7a` (`validate_agent_files`
+    0, `iwe normalize` 0, `iwe schema validate` 0), and no error or warning was
+    introduced. Byte stability checked by copying the plan to
+    `.tmp/delta-before.md`, re-running `iwe normalize`, and diffing: identical.
+    The fenced delta specifically survives header-level normalization — 115
+    lines, `## ADDED Requirements` and `## MODIFIED Requirements` still at H2
+    inside the fence, three `### Requirement:` blocks and all 13
+    `#### Scenario:` blocks intact. `git diff --exit-code` after normalize is
+    clean, so the validate-knowledge-base.yml no-op gate passes.
+- [x] **10. Perform scenario read-back.** Confirm the four skills agree on all
   three risk forms; Verify no longer requires an unshipped durable spec to
   contain future behavior; Ship stops on delta/evidence disagreement; Setup and
   Weekly remain unchanged; and no OpenSpec store, change directory, archive
   move, or separate delta document entered the IWE workflow.
+  - **Evidence:** all five claims checked against the tree, not asserted. (a)
+    All four skills carry all three forms — Plan `plan/SKILL.md:107-143`,
+    Implement `:20-28`, Verify `:39-52`, Ship `:42-50`; the "normative outcome"
+    wording was aligned in Plan `:116-119` during this read-back so the four
+    share one vocabulary. (b) Verify's old "spec exists and reflects the change"
+    / "not-yet-created spec still pending is a CRITICAL" text is absent (grep
+    returns nothing), replaced by the effective-contract check. (c) Ship stops
+    on disagreement at `ship/SKILL.md:54` and `:76`, with the rule at
+    `:127-130`. (d)
+    `git diff --quiet 4f0f3ad..HEAD -- .claude/skills/setup .claude/skills/weekly`
+    reports no changes. (e) The branch touches nine files — the four skills,
+    three knowledge docs, this plan, and `docs/knowledge/.markdownlint.yml`; the
+    only file added is that lint config. No store, change directory, archive
+    move, separate delta document, parser, or schema type appears, and
+    `.iwe/config.toml` is untouched; the sole diff hit for "change bundle" is a
+    disclaimer.
 
 ## Spec changes
 

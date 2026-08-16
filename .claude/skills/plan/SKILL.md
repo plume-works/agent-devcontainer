@@ -113,8 +113,10 @@ the change. Choose the lightest form that leaves a reviewer no room to guess.
 
 1. **No behavioral change** — `None — no behavioral change`. Refactors, tooling,
    and docs-only work stop here. Never invent requirements to fill the section.
-2. **Simple, low-risk behavior** — link the affected spec and state the intended
-   post-change outcome in a sentence or two of normative language. Use it when
+2. **Simple, low-risk behavior** — link the affected spec and state a concise
+   **normative outcome**: the intended post-change behavior in a sentence or
+   two, written with SHALL. That phrase is what the other skills check against
+   this form, so keep it recognizable as one. Use it when
    one unambiguous behavior changes and a scenario block would add ceremony
    without resolving anything.
 3. **Contract-heavy or risky behavior** — link the affected spec and embed a
