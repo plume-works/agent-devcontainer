@@ -41,10 +41,21 @@ and continue from the first incomplete operation.
    with a zero-CRITICAL verdict.
 4. **Merge every planned durable spec.** Use the plan's complete
    `## Spec changes` list and Verify's implementation evidence, not plan prose
-   alone. For each entry:
+   alone. The plan's recorded form — `None`, a concise normative outcome, or a
+   fenced `ADDED` / `MODIFIED` / `REMOVED` delta — is reviewed intent, and
+   Verify's zero-CRITICAL report is the evidence that the intent was built.
+   Merge only what both support. This is a careful reading, not a patch
+   application: nothing here parses the delta, applies operations in a fixed
+   order, or resolves conflicts mechanically, so never describe or perform it
+   as though it did. For each entry:
    - Read the current spec before editing. Merge the verified changed behavior
      into it while preserving unaffected requirements, scenarios, ordering,
      and still-accurate explanatory content.
+   - If the recorded intent and the verified implementation disagree, stop.
+     Make no lifecycle transition, do not rewrite the plan's intent from the
+     code, and report that the plan needs revision — the reviewed contract is
+     the thing worth keeping, and silently restating it from the implementation
+     destroys the only record of what was agreed.
    - If the spec does not exist, create it in Requirement / Scenario format,
      add one inclusion link to `data/spec.md`, and replace the plan's
      back-ticked name with a real link. Check for each result before adding it.
@@ -54,7 +65,14 @@ and continue from the first incomplete operation.
      orphaned spec or hand-delete its file.
 5. **Verify the complete spec merge before lifecycle changes.** Re-read every
    spec named by the plan and compare each affected requirement and scenario
-   with the zero-CRITICAL implementation evidence. Run `iwe normalize`, then
+   with the zero-CRITICAL implementation evidence. Then walk the plan's
+   recorded intent a second time and account for **every** part of it: each
+   `ADDED`, `MODIFIED`, and `REMOVED` operation, each post-change requirement,
+   and each scenario inside them, plus every normative outcome a concise entry
+   states. A merge that lands most of the delta is a failed merge, not a
+   partial success — an operation you cannot find in the durable spec is a
+   mismatch to report, not a detail to tidy up later. Confirm too that content
+   the delta never mentioned survived untouched. Run `iwe normalize`, then
    `iwe schema validate`. If any planned update is incomplete, disagrees with
    verified behavior, has broken references, or fails validation, report the
    mismatch and stop without marking the plan, feature, or bug complete.
@@ -106,6 +124,10 @@ and continue from the first incomplete operation.
 - Specs sync and validate before lifecycle stage changes, never after them.
 - Derive durable specs from verified shipped behavior and preserve unaffected
   content; never overwrite a whole spec from plan prose.
+- Reviewed intent and verified behavior must agree before anything merges. When
+  they don't, the plan goes back for revision — Ship never edits the intent to
+  match the code, and never presents its merge as a deterministic application
+  of the delta.
 - Inspect before every mutation so rerunning Ship cannot duplicate plan-hub,
   feature/bug, unreleased, release-hub, or log entries.
 - Never invent verification results or mark durable state complete after a

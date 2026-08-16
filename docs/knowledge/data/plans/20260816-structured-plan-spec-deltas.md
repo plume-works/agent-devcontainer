@@ -197,17 +197,35 @@ Rejected alternatives:
 
 **Files:** Modify: `.claude/skills/ship/SKILL.md`
 
-- [ ] **6. Use the plan-local delta as reviewed intent and Verify as the
+- [x] **6. Use the plan-local delta as reviewed intent and Verify as the
   evidence gate.** During intelligent merge, preserve the existing read-before-
   write and restart-safe rules, apply only behavior supported by the
   zero-CRITICAL report, and stop for Plan revision when the delta and verified
   implementation disagree. Do not silently rewrite the delta from code or
   present the merge as programmatic/deterministic.
-- [ ] **7. Verify the delta is fully represented before lifecycle changes.** In
+  - **Evidence:** `.claude/skills/ship/SKILL.md:42-50` names the recorded form
+    as reviewed intent and the zero-CRITICAL report as the evidence it was
+    built, merges only what both support, and forbids describing or performing
+    the merge as a parser, fixed operation order, or mechanical conflict
+    resolution. `:55-58` stops on intent/evidence disagreement with no lifecycle
+    transition and no rewriting intent from code; `:127-130` repeats that as a
+    rule. The existing read-before-write and restart-safe rules are untouched
+    (`:51-53`, `:79`, `:131-133`, and the preamble at `:10-12`).
+    `uv run validate_agent_files --kind skills .claude/skills --ci` exits 0.
+- [x] **7. Verify the delta is fully represented before lifecycle changes.** In
   addition to re-reading every touched durable spec, compare the result with
   every operation and post-change requirement/scenario in the plan. Preserve
   unaffected content, reject a partial merge, and retain the existing
   graph-aware whole-spec retirement rules.
+  - **Evidence:** `.claude/skills/ship/SKILL.md:66-78` adds a second pass over
+    the recorded intent that must account for every `ADDED`/`MODIFIED`/
+    `REMOVED` operation, post-change requirement, scenario, and concise
+    normative outcome; states that a mostly-landed merge is a failed merge and
+    an unfound operation is a mismatch to report; and requires confirming that
+    content the delta never mentioned survived untouched. The graph-aware
+    whole-spec retirement rule using `iwe delete` is retained unchanged at
+    `:62-65`. `uv run validate_agent_files --kind skills .claude/skills --ci`
+    exits 0.
 
 ### Task 5: Reconcile the operating documentation
 
