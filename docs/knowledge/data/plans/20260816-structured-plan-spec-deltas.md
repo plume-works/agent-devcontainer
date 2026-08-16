@@ -232,12 +232,23 @@ Rejected alternatives:
 **Files:** Modify: `docs/knowledge/AGENTS.md`, `docs/knowledge/STRUCTURE.md`,
 `docs/knowledge/README.md`
 
-- [ ] **8. Document the risk-scaled plan-local contract.** Update the operating
+- [x] **8. Document the risk-scaled plan-local contract.** Update the operating
   manual's planning and spec conventions, revise Structure's statement that
   delta headers are deliberately not adopted, and extend the OpenSpec
   acknowledgment only as needed. Keep the distinctions explicit: one plan
   document, no separate change bundle, durable specs update only during Ship,
   and no deterministic application engine.
+  - **Evidence:** `docs/knowledge/AGENTS.md:115-125` adds the three forms to the
+    conventions, names Plan as owner of the threshold, and states
+    intent-versus-truth plus the four exclusions; `:40-42` routes plan creation
+    to the risk-appropriate form. `docs/knowledge/STRUCTURE.md:73-82` adds "Spec
+    impact scales with risk"; `:128-134` moves delta headers into *adopted* as a
+    representation; `:147-153` replaces the old blanket rejection with a
+    rejection of the *application engine* specifically (no parser, order,
+    conflict rules, or postconditions) and explains why there is no `RENAMED`.
+    `docs/knowledge/README.md:107-111` extends the OpenSpec acknowledgment to
+    the notation while disclaiming change bundles and programmatic application.
+    `iwe normalize` then `iwe schema validate` exit 0.
 
 ### Task 6: Validate the complete workflow
 

@@ -64,10 +64,22 @@ traversable via `iwe find --references`.
 `implemented` → `releases/unreleased` → a cut release. Each promotion is just a
 new doc plus a moved link.
 
-**Spec sync at ship.** A plan names the specs it will touch (`## Spec changes`);
-the ship skill updates those specs *before* the plan's stage flips. This is the
-single strongest defense against the failure mode of every long-lived doc set:
-specs that describe last quarter's behavior.
+**Spec sync at ship.** A plan names the specs it will touch (`## Spec changes`)
+and says what they should end up saying; the ship skill updates those specs
+*before* the plan's stage flips. This is the single strongest defense against
+the failure mode of every long-lived doc set: specs that describe last quarter's
+behavior.
+
+**Spec impact scales with risk.** `## Spec changes` has three forms: an explicit
+`None — no behavioral change`, a linked spec plus a concise normative outcome,
+or a fenced `ADDED` / `MODIFIED` / `REMOVED Requirements` delta with complete
+post-change requirements. The delta is *intent*, not a second durable truth —
+the spec still describes released behavior until ship merges it, and verify
+therefore judges implementation against the durable spec plus the plan's intent.
+Nothing applies the delta mechanically: ship reads it, merges deliberately, and
+stops for plan revision when intent and verified behavior disagree. The point is
+a reviewable contract before implementation, bought without a second document
+lifecycle.
 
 **Milestones are plans of plans.** An aggregator plan inclusion-links its child
 plans and sequences them; `milestone.md` links the aggregators. No special
@@ -113,6 +125,12 @@ Adopted, in IWE-native form:
   relocated into the product doc.
 - **Dependencies** — OpenSpec's `dependsOn` metadata becomes a `## Depends on`
   section of inline links: queryable, no new machinery.
+- **Delta headers** (`## ADDED/MODIFIED/REMOVED Requirements`) — adopted as a
+  *representation* inside the plan's `## Spec changes`, for changes whose risk
+  makes a prose summary ambiguous. What is adopted is the notation and the
+  discipline of writing complete post-change requirements before implementing;
+  what is not adopted is the parser behind it. See "deliberately not adopted"
+  below.
 - **The explore / implement / verify skills** — adapted from OpenSpec's explore
   (thinking-partner stance, never writes code), apply/continue (task-by-task
   execution with artifact discipline), and verify-change (completeness /
@@ -126,8 +144,13 @@ Deliberately not adopted:
 - **Per-change file bundles** (proposal/design/tasks/specs per change) — one
   plan document with sections is leaner; when a plan genuinely outgrows one
   file, inclusion links split it natively.
-- **Delta headers** (`## ADDED/MODIFIED/REMOVED Requirements`) — machinery for a
-  parser this workspace doesn't need; `iwe` handles renames and references.
+- **The delta *application engine*** — no parser, no fixed operation order, no
+  conflict resolution rules, no executable postconditions. The headers are read
+  by an agent performing an intelligent merge, gated on a zero-CRITICAL verify
+  report; a disagreement between intent and verified behavior returns the plan
+  for revision rather than being resolved automatically. `iwe` still handles
+  renames and references, which is why there is no `RENAMED` operation — a
+  rename is an explicit removal plus an addition.
 
 ## Improvements over the source KB
 

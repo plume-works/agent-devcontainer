@@ -38,7 +38,8 @@ software project's memory and system of record. The division of labor:
    - Actionable item → `data/backlog/<slug>.md` (`stage: planned`, priority),
      linked under the priority section of `data/backlog.md`.
    - Work starts → plan skill: `data/plans/YYYYMMDD-<slug>.md` (`created`,
-     verified code anchors, `## Spec changes`) + link under `## Active`.
+     verified code anchors, and `## Spec changes` in the form the risk calls
+     for), plus a link under `## Active`.
    - Work ships → verify skill green (tasks, requirements, and scenarios checked
      against the code), then ship skill: specs synced first, then `stage: done`
      with `completed`, link moved to `## Done`, feature doc `implemented`,
@@ -111,6 +112,17 @@ software project's memory and system of record. The division of labor:
   a plan is not done while the specs it touched describe the old behavior. Scale
   rigor with risk: low-risk behavior gets two lines, contract behavior gets full
   scenarios.
+- **A plan states its spec impact at the fidelity the risk deserves.** The three
+  forms of `## Spec changes` are an explicit `None — no behavioral change`; a
+  linked spec plus a concise normative outcome; or a fenced `ADDED` / `MODIFIED`
+  / `REMOVED Requirements` delta carrying complete post-change requirements and
+  every surviving scenario. The plan skill owns the threshold. What a plan
+  records is *intent*: the durable spec keeps describing released behavior until
+  ship succeeds, which is why verify judges code against the durable spec plus
+  the plan's intent rather than expecting an unshipped change to already be
+  synced. The delta lives inside the one plan document — there is no change
+  bundle, no separate delta file, and no engine that applies it; ship reads it
+  and merges deliberately, and stops when intent and verified behavior disagree.
 - **Code anchors**: `path:line — symbol` lists under `## Key references`,
   stamped `Verified anchor points (line numbers as of YYYY-MM-DD):` — always
   from the current checkout, never from memory.

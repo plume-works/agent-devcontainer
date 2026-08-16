@@ -104,9 +104,12 @@ refactors it safely (`iwe rename` updates every reference), and validates it
 
 ## Acknowledgments
 
-The spec-sync-at-ship discipline and the Requirement/Scenario spec format are
-adapted from [OpenSpec](https://github.com/Fission-AI/OpenSpec)'s spec-driven
-workflow. The workspace shape follows its sibling template,
+The spec-sync-at-ship discipline, the Requirement/Scenario spec format, and the
+`ADDED` / `MODIFIED` / `REMOVED Requirements` delta notation are adapted from
+[OpenSpec](https://github.com/Fission-AI/OpenSpec)'s spec-driven workflow. The
+notation is used inside the single plan document, without OpenSpec's change
+bundles or its programmatic delta application. The workspace shape follows its
+sibling template,
 [marketing-workspace](https://github.com/iwe-org/marketing-workspace).
 
 ## License
