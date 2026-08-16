@@ -82,6 +82,12 @@ jobs:
           iwe normalize
           git diff --exit-code
 
+      - name: Set up the Python environment
+        uses: ./.github/actions/setup-python-venv
+
+      - name: Check that ticked plan checkboxes carry evidence
+        run: uv run pytest docs/knowledge/tests
+
       - name: Log debug stats
         if: ${{ always() }}
         uses: ./.github/actions/log-debug-stats

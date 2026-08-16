@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Ship invokes report-only Verify for every normal plan shipment and refuses all CRITICAL findings, while cancellation remains exempt.
 generated:
-  by: codex
-  at: 2026-08-15T23:43:32Z
+  by: claude-code/opus-5
+  at: 2026-08-16T00:00:00Z
 sources:
 - .claude/skills/verify/SKILL.md
 - .claude/skills/ship/SKILL.md
@@ -46,6 +46,21 @@ Properties that should hold:
 - Implement continues to run task evidence and final plan commands, but does not
   automatically invoke the full Verify workflow. Ship is the one mandatory
   integration point.
+
+**The coupling only bites for defects Verify can name.** Making Ship refuse a
+CRITICAL raises the cost of a finding; it does not widen what counts as one. A
+defect Verify has no rule for passes straight through the gate, and the
+mandatory invocation makes that silence look like assurance.
+
+Ticked-box over-claiming was exactly that blind spot. Verify audited unchecked
+boxes and took ticked ones on faith, so a plan whose boxes were all flipped in
+one careless edit produced a clean report — the loop's strongest gate had
+nothing to say about its most load-bearing claim. Verify gained the ticked-box
+counterpart in
+[Make plan checkboxes carry their evidence](../plans/20260815-honest-plan-checkboxes.md);
+before that, this feature would have inherited the gap rather than closed it.
+The general lesson holds for the next defect class: this feature is a
+transmission, not a detector.
 
 ## Edge cases
 

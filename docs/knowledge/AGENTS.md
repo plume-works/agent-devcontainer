@@ -114,6 +114,11 @@ software project's memory and system of record. The division of labor:
 - **Code anchors**: `path:line — symbol` lists under `## Key references`,
   stamped `Verified anchor points (line numbers as of YYYY-MM-DD):` — always
   from the current checkout, never from memory.
+- **A ticked task carries the evidence that closed it**: every `- [x]` under a
+  plan's `## Implementation Steps` has an indented `- **Evidence:**` child
+  naming the commit, test run, or CI run behind it, written in the same edit as
+  the tick. One edit ticks one box — a sweep across the file is the defect, not
+  a shortcut. Unticked boxes stay bare.
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
   kebab slug; releases are `<semver>` plus `unreleased`. One topic per file.
 - **Markdown links only, never wiki links.** References are extension-less

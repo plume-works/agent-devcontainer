@@ -22,15 +22,19 @@ in a docs commit landed after the code, one of them a task beginning "Push" with
 nothing pushed. `48d0f79` fixed the instance and left both root causes standing.
 
 The causes are that a tick carries no evidence — so a blanket substitution and
-eight careful verifications produce identical bytes — and that
-`.claude/skills/verify/SKILL.md:24` audits unchecked boxes while taking ticked
-ones on faith, inverting the severity `implement` itself states at
-`.claude/skills/implement/SKILL.md:47`.
+eight careful verifications produce identical bytes — and that verify audits
+unchecked boxes while taking ticked ones on faith, inverting the severity
+`implement` itself states. (Diagnosed at `8ca1eff`, where those two sat at
+`.claude/skills/verify/SKILL.md:24` and `.claude/skills/implement/SKILL.md:47`;
+both have since moved, and Task 1 closes the first of them. `## Key references`
+carries the current lines.)
 
 This also unblocks
 [Verification in the main loop](../features/verification-in-the-main-loop.md):
 making ship invoke verify only helps if verify has something to say about a
-ticked box. That feature stays proposed; this plan gives it teeth to inherit.
+ticked box. That feature reached `stage: implemented` on 2026-08-15, before this
+plan started, so what it inherits is no longer hypothetical: until Task 1 lands,
+the mandatory pre-ship gate is silent about the claim it most depends on.
 
 ## Approach
 
@@ -139,18 +143,22 @@ no enforcement, or an enforced format with nothing specifying it.
 
 **Files:** Modify: `docs/knowledge/AGENTS.md`
 
-- [ ] **5. Record the evidence convention in the operating manual.** Add a
+- [x] **5. Record the evidence convention in the operating manual.** Add a
   `## Conventions` entry next to the existing "Code anchors" bullet: a ticked
   task carries the evidence that closed it. `AGENTS.md` loads every session
   while a skill loads only when invoked, so the convention needs to live in both
   or it binds only sessions that happen to run the skill.
+  - **Evidence:** `docs/knowledge/AGENTS.md:117-122` adds the "A ticked task
+    carries the evidence that closed it" `## Conventions` bullet immediately
+    after "Code anchors", covering the evidence child, the same-edit rule, and
+    one-box-per-edit.
 
 ### Task 6: The mechanical gate
 
 **Files:** Create: `docs/knowledge/tests/test_plan_checkboxes.py`. Modify:
 `pyproject.toml`
 
-- [ ] **6a. Add the checkbox linter as a test.** Walk
+- [x] **6a. Add the checkbox linter as a test.** Walk
   `docs/knowledge/data/plans/*.md` and assert two rules. **Evidence**: in a plan
   with no `stage` in frontmatter, every `- [x]` task line under
   `## Implementation Steps` is followed by an indented `- **Evidence:**` line
@@ -160,42 +168,73 @@ no enforcement, or an enforced format with nothing specifying it.
   which is the sin under repair. Report every violation with `path:line`, not
   just the first. Cover both rules with fixture plans built in `tmp_path`, so
   the test does not depend on what this repository's own plans currently say.
-- [ ] **6b. Register the new test path.** Add `docs/knowledge/tests` to
+  - **Evidence:** `docs/knowledge/tests/test_plan_checkboxes.py` — 14 tests pass
+    (`uv run pytest docs/knowledge/tests -q`), 12 of them `tmp_path` fixtures
+    covering both rules, the done-plan exemption, empty and wrapped evidence,
+    and multi-violation reporting. Mutation-checked against the real graph:
+    flipping this plan's own task 6a to `- [x]` without an evidence child made
+    `test_repository_plans_satisfy_the_checkbox_rules` fail with
+    ```…20260815-honest-plan-checkboxes.md:157 [evidence] ticked task has no indented ``- **Evidence:**`` line```,
+    and pass again once reverted. `uv run ruff check` and `ruff format --check`
+    are clean.
+- [x] **6b. Register the new test path.** Add `docs/knowledge/tests` to
   `testpaths` in `pyproject.toml:29-32` so `uv run pytest` from the root picks
   it up.
+  - **Evidence:** `pyproject.toml:29-33` lists `docs/knowledge/tests` between
+    the two existing entries; `uv run pytest --collect-only -q` from the repo
+    root collects the 14 checkbox tests.
 
 ### Task 7: Wire the gate into the local hooks
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] **7. Add a `repo: local` hook.** Alongside the existing local hooks at
+- [x] **7. Add a `repo: local` hook.** Alongside the existing local hooks at
   `.pre-commit-config.yaml:68`, run the checkbox test with
   `entry: uv run pytest docs/knowledge/tests`, `language: system`,
   `pass_filenames: false`, filtered to
   `files: '^docs/knowledge/data/plans/.*\.md$'`. `uv run` on purpose, matching
   the reasoning already recorded above the `validate-agent-files` hook.
+  - **Evidence:** `.pre-commit-config.yaml:88-96` adds the `plan-checkboxes`
+    hook with exactly those settings;
+    `uv run pre-commit run plan-checkboxes --all-files` reports Passed.
 
 ### Task 8: Wire the gate into CI
 
 **Files:** Modify: `.github/workflows/validate-knowledge-base.yml`
 
-- [ ] **8. Run the checkbox test in the knowledge-base job.** Add
+- [x] **8. Run the checkbox test in the knowledge-base job.** Add
   `./.github/actions/setup-python-venv` and a
   `uv run pytest docs/knowledge/tests` step after the normalization check at
   `.github/workflows/validate-knowledge-base.yml:80`. The job currently installs
   only `iwe`, so it needs the Python provisioning step; the existing
   `docs/knowledge/**` paths filter already covers the new test directory.
+  - **Evidence:** `.github/workflows/validate-knowledge-base.yml:80-87` adds the
+    `setup-python-venv` step and the `uv run pytest docs/knowledge/tests` step
+    directly after the normalization check;
+    `uv run pre-commit run actionlint --all-files` and
+    `... run zizmor --all-files` both report Passed. The step's behaviour on a
+    real runner is unproven until this branch pushes — the plan's
+    `## Verification` requires only the two linters for this task.
 
 ### Task 9: Close the loop on the related feature
 
 **Files:** Modify:
 `docs/knowledge/data/features/verification-in-the-main-loop.md`
 
-- [ ] **9. Record what ship-invokes-verify does and does not catch.** Add to
+- [x] **9. Record what ship-invokes-verify does and does not catch.** Add to
   that feature's `## Behaviour` or `## Open questions` that the coupling only
   bites for defects verify can name, and that ticked-box over-claiming was
-  invisible to it until Task 1 landed. Leave `stage: proposed` — this plan does
-  not implement that feature.
+  invisible to it until Task 1 landed. Do not change the feature's stage — this
+  plan does not implement that feature. (It read `stage: proposed` when this
+  plan was written and reached `stage: implemented` on 2026-08-15; the
+  instruction was always "leave the lifecycle alone", so it stays
+  `implemented`.)
+  - **Evidence:**
+    `docs/knowledge/data/features/verification-in-the-main-loop.md:49-64` adds
+    the "coupling only bites for defects Verify can name" paragraphs under
+    `## Behaviour`, naming ticked-box over-claiming as the blind spot and
+    linking this plan; `stage: implemented` is unchanged in that file's
+    frontmatter; `iwe schema validate` exits 0.
 
 ## Spec changes
 
@@ -219,12 +258,43 @@ no enforcement, or an enforced format with nothing specifying it.
   against anything else. A plan that cannot satisfy its own rule is the rule
   failing, not the plan.
 
+## Verification results
+
+Recorded 2026-08-16 while implementing, at `017876a` plus the working tree.
+
+- **Gate proves itself on the real graph.** `uv run pytest docs/knowledge/tests`
+  → 14 passed. Twelve are `tmp_path` fixtures; the thirteenth walks this
+  repository's seven plans. Mutation check: flipping this plan's own task 6a to
+  `- [x]` with no evidence child made
+  `test_repository_plans_satisfy_the_checkbox_rules` fail with
+  ```…20260815-honest-plan-checkboxes.md:157 [evidence] ticked task has no indented ``- **Evidence:**`` line```;
+  reverting made it pass. The gate is not vacuous.
+- **The parser was initially blind to a whole plan.** First run reported
+  `20260815-uv-run-in-ci.md: 0 tasks` — that plan heads its checkboxes
+  `## Tasks`, not `## Implementation Steps`, so nine ticked boxes were
+  invisible. `TASK_SECTIONS` now accepts both headings, with a parametrized test
+  pinning it; the plan then reads 9 tasks, 9 ticked. A gate that silently skips
+  a document is the failure mode this plan exists to remove, so this was fixed
+  rather than documented as a limitation.
+- **Normalization is safe for the nested bullet.** `iwe normalize` re-wrapped
+  prose but left every `- **Evidence:**` child at its indentation, confirming
+  the risk retired during planning. `iwe schema validate` → exit 0.
+- **Hooks and CI.** `uv run pre-commit run plan-checkboxes --all-files` →
+  Passed; `actionlint` and `zizmor` → Passed on the changed workflow. The CI
+  step's behaviour on a real runner is unproven until this branch pushes.
+- **No regressions.** Full suite `uv run pytest` → 150 passed (136 before this
+  plan). `python-lint-check.sh` → exit 0.
+- **Dogfood held.** All eleven boxes were ticked one edit at a time, each with
+  its evidence line, and the gate has been green against this document
+  throughout.
+
 ## Out of scope
 
 - Making ship invoke verify — that is
   [Verification in the main loop](../features/verification-in-the-main-loop.md),
-  still `stage: proposed`. This plan only removes the reason it would have been
-  toothless.
+  which reached `stage: implemented` on 2026-08-15, after this plan was written.
+  This plan only removes the reason it would have been toothless; Task 9 records
+  that limit in the feature doc without touching its lifecycle.
 - Backfilling evidence lines into `stage: done` plans. The four closed plans
   stay as written. The two other live plans
   ([PR verification sections](20260815-pr-verification-sections.md),
