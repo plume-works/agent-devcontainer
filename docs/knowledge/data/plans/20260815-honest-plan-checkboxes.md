@@ -10,6 +10,8 @@ sources:
 - .claude/skills/implement/SKILL.md
 - .claude/skills/verify/SKILL.md
 - docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
+stage: done
+completed: 2026-08-16
 ---
 
 # Make plan checkboxes carry their evidence
@@ -208,9 +210,9 @@ no enforcement, or an enforced format with nothing specifying it.
   `.github/workflows/validate-knowledge-base.yml:80`. The job currently installs
   only `iwe`, so it needs the Python provisioning step; the existing
   `docs/knowledge/**` paths filter already covers the new test directory.
-  - **Evidence:** `.github/workflows/validate-knowledge-base.yml:80-87` adds the
+  - **Evidence:** `.github/workflows/validate-knowledge-base.yml:85-89` adds the
     `setup-python-venv` step and the `uv run pytest docs/knowledge/tests` step
-    directly after the normalization check;
+    directly after the normalization check at `:80-83`;
     `uv run pre-commit run actionlint --all-files` and
     `... run zizmor --all-files` both report Passed. The step's behaviour on a
     real runner is unproven until this branch pushes — the plan's
@@ -238,10 +240,13 @@ no enforcement, or an enforced format with nothing specifying it.
 
 ## Spec changes
 
-- `data/spec/plan-checkbox-evidence.md` — new. The contract the linter enforces:
-  a ticked task carries an `**Evidence:**` line; a plan marked done has no
-  unchecked tasks; closed plans are exempt from the evidence rule. Written at
-  ship time, per the ship skill's spec-sync step.
+[Plan checkbox evidence](../spec/plan-checkbox-evidence.md) — new. The contract
+the linter enforces: a ticked task carries an `**Evidence:**` line; a plan
+marked done has no unchecked tasks; closed plans are exempt from the evidence
+rule. Written at ship time, per the ship skill's spec-sync step. It also carries
+the task-atomicity, `## Verification results`, and Verify ticked-box
+requirements, since those are the same contract seen from the other three
+skills.
 
 ## Verification
 

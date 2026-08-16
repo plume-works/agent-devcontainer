@@ -19,11 +19,11 @@ moves them.*
 
 [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
 
-[Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
-
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
 
 ## Done
+
+[Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
 
 [Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
 

@@ -22,3 +22,5 @@ renames this file to the version number and starts a fresh one.*
 [Verification in the main loop](../features/verification-in-the-main-loop.md)
 
 ## Fixed
+
+[Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

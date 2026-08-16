@@ -8,6 +8,7 @@ sources:
 - .claude/skills/plan/SKILL.md
 - .claude/skills/implement/SKILL.md
 - .claude/skills/verify/SKILL.md
+stage: done
 ---
 
 # Plan checkbox over-claiming

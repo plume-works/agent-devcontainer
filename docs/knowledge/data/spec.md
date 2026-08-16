@@ -25,3 +25,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Template consumption](spec/template-consumption.md)
 
 [IWE workflow skills](spec/iwe-workflow-skills.md)
+
+[Plan checkbox evidence](spec/plan-checkbox-evidence.md)

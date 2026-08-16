@@ -7,6 +7,24 @@ to the current day's group.
 ## 2026-08-16
 
 - **Update**:
+  [Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
+  done — a ticked `- [x]` now requires an indented `- **Evidence:**` child
+  naming the commit, test run, or CI run that closed it. A find-and-replace can
+  flip eight boxes; it cannot write eight evidence lines. Plan specifies the
+  format and gains a task-atomicity rule, Implement writes the evidence in the
+  same edit and never changes two boxes at once, and Verify's unchecked-box
+  CRITICAL finally has a ticked-box counterpart recommending "untick it". A
+  pytest over `data/plans/` enforces the shape from the suite, a pre-commit
+  hook, and the knowledge-base CI job — the first gate here that reads plan
+  documents rather than agent files.
+- **Creation**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) records
+  the contract as durable requirements: what a tick must carry, how tasks are
+  sized so a tick can be honest, and what the gate does and cannot do. It reads
+  shape only; whether a claim is *true* stays Verify's judgment and a human's.
+- **Update**: [Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
+  fixed and recorded in [unreleased](releases/unreleased.md). `48d0f79` had
+  fixed the instance and left both root causes standing; this closes them.
+- **Update**:
   [Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
   done — Explore's `## Capturing` now routes an established defect to
   `data/bugs/<slug>.md`, and Verify's unchecked-box CRITICAL offers a third way
