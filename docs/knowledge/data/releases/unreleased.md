@@ -19,4 +19,6 @@ renames this file to the version number and starts a fresh one.*
 
 [uv-run-only environment](../features/uv-run-only-environment.md)
 
+[Verification in the main loop](../features/verification-in-the-main-loop.md)
+
 ## Fixed

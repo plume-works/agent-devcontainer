@@ -23,3 +23,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Firewall](spec/firewall.md)
 
 [Template consumption](spec/template-consumption.md)
+
+[IWE workflow skills](spec/iwe-workflow-skills.md)

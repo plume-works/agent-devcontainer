@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-08-16
+
+- **Creation**: [IWE workflow skills](spec/iwe-workflow-skills.md) records the
+  verified Explore, Plan, Implement, Verify, and Ship behavior as durable
+  requirements and scenarios.
+- **Update**:
+  [Verification in the main loop](features/verification-in-the-main-loop.md)
+  implemented and recorded in [unreleased](releases/unreleased.md).
+
 ## 2026-08-15
 
 - **Update**: [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md) done —
