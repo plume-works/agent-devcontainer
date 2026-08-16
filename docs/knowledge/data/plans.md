@@ -23,9 +23,9 @@ moves them.*
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
 
-[Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
-
 ## Done
+
+[Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
 
 [Strengthen the workflow skill contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
 

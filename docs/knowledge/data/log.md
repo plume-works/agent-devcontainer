@@ -6,6 +6,17 @@ to the current day's group.
 
 ## 2026-08-16
 
+- **Update**:
+  [Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
+  done — Explore's `## Capturing` now routes an established defect to
+  `data/bugs/<slug>.md`, and Verify's unchecked-box CRITICAL offers a third way
+  out (revise the plan to drop the task) alongside completing and ticking, which
+  Ship's no-override rule had left unstated.
+  [Verification in the main loop](features/verification-in-the-main-loop.md)
+  records the same three routes. No spec changed: the plan's rationale for that
+  was corrected at ship time, since
+  [IWE workflow skills](spec/iwe-workflow-skills.md) now covers these skills and
+  was re-checked against both edits.
 - **Creation**:
   [Strengthen the workflow skill contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
   reconstructed post-hoc from the OpenSpec change bundle's proposal, design, and

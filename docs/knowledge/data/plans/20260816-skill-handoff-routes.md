@@ -11,6 +11,8 @@ sources:
 - .claude/skills/ship/SKILL.md
 - .claude/skills/plan/SKILL.md
 - docs/knowledge/data/features/verification-in-the-main-loop.md
+stage: done
+completed: 2026-08-16
 ---
 
 # Name the missing handoff routes in explore and verify
@@ -115,13 +117,20 @@ own audit mode exists to catch.
 
 ## Spec changes
 
-None — no behavioral change to the published product. The workspace skills under
-`.claude/skills/` have no `data/spec/` doc, and neither does the ship↔verify
-coupling
-([Verification in the main loop](../features/verification-in-the-main-loop.md)
-is an implemented feature carrying its own behaviour and edge cases). Writing a
-durable spec for two routing bullets would be ceremony out of proportion to the
-risk, and would duplicate what that feature doc already owns.
+None — no behavioral change to the published product.
+
+*Corrected at ship time, 2026-08-16.* This section originally reasoned that the
+workspace skills under `.claude/skills/` have no `data/spec/` doc. That stopped
+being true in `b0bc56a`, which created
+[IWE workflow skills](../spec/iwe-workflow-skills.md) listing all five skill
+files as its `sources`. The conclusion survives the correction: every
+requirement in that spec was re-read against both edits and none is contradicted
+or left incomplete. It states that Explore "SHALL offer capture or a phase
+handoff" and that Verify "produces its evidence-backed report and stops" —
+neither enumerates Capturing's destinations nor the routes out of an unchecked
+box, so both edits sit below its altitude and refine behavior it already
+permits. The ship↔verify coupling's own detail stays where it already lives, in
+[Verification in the main loop](../features/verification-in-the-main-loop.md).
 
 ## Verification
 
