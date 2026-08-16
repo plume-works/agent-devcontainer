@@ -1,0 +1,12 @@
+---
+# `iwe normalize` owns formatting in this tree, and CI enforces that it is a
+# no-op (validate-knowledge-base.yml). Prettier already steps aside here for the
+# same reason — see the docs/knowledge entry in .prettierignore.
+#
+# iwe exposes no table-layout setting (.iwe/config.toml sets only wrap_column,
+# and the CLI takes only --verbose), so its table output is not adjustable. When
+# that output does not match a style MD060 recognizes, the rule reports a
+# violation that no tool in this tree can fix. Turn it off rather than leave a
+# permanent unfixable warning on knowledge documents.
+extends: ../../.markdownlint.yml
+MD060: false
