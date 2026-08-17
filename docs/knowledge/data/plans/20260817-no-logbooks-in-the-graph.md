@@ -64,7 +64,13 @@ generates the most findings has the least guidance on where they belong.
 
 ## Approach
 
-Three coordinated edits, each aimed at a different half of the gap.
+Three coordinated edits, each aimed at a different half of the gap. All three
+were drafted and approved as finished text before this plan existed, so Tasks
+1-3 carry that wording verbatim in fenced blocks rather than describing it.
+Approved wording is a deliverable, not an instruction to produce one: a
+paraphrase silently drops the specifics — which document owns a finding before a
+new one is created, the exact bug-document shape — and a future session applying
+a description would write something reasonable and different.
 
 **Scope the clause that leaks.** `## Verification results` keeps its purpose and
 gains a boundary: it is the plan's only narrative section, it holds results of
@@ -105,36 +111,101 @@ instead, so the idea is not lost.
 
 ## Implementation Steps
 
+The wording below was reviewed and approved before this plan was written. It is
+reproduced verbatim rather than described, so a future session applies the
+approved text instead of re-deriving something merely equivalent. Replace the
+whole `## Verification results` bullet at `.claude/skills/plan/SKILL.md:69-71`
+with the block in Task 1; insert Tasks 2 and 3 as new sections.
+
 ### Task 1: Scope `## Verification results` to its actual purpose
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] Extend the `## Verification results` bullet so it names itself the plan's
-  only narrative section, admits verification results and findings that change
-  what the plan claims, excludes a running account of attempts, and points at
-  the prohibition in `docs/knowledge/AGENTS.md`
+- [ ] Replace the `## Verification results` bullet with exactly this text,
+  preserving its three-space list indentation in the surrounding section list
+
+``` markdown
+   - `## Verification results` — narrative evidence for the plan as a whole,
+     written as the work happens rather than reconstructed at the end (omit
+     until there is something to record). This is the plan's only narrative
+     section: results of the `## Verification` checks, and findings that
+     change what the plan claims. Not a running account of attempts — see
+     `## Rules`.
+```
+
+The trailing pointer needs one resolution the approved draft left open: plan's
+`## Rules` (`.claude/skills/plan/SKILL.md:145-164`) carries no narration rule
+today, so `see ## Rules` currently dangles. Point it at
+`docs/knowledge/AGENTS.md` `## Never write a working logbook into the graph`
+instead — that is where Task 3 puts the rule, and it is the only change to the
+approved wording in this plan.
 
 ### Task 2: Give Implement a capture-and-route section
 
 **Files:** Modify: `.claude/skills/implement/SKILL.md`
 
-- [ ] Add a `## Capturing what implementation turns up` section between
-  `## Steps` and `## Rules`, routing a durable design fact to
-  `data/architecture/`, a pre-existing defect to `data/bugs/`, deferred work to
-  `data/backlog/`, and a material boundary change back through Step 6
-- [ ] State in that section that `## Context` and `## Approach` belong to the
-  plan skill and stay stable during implementation, that a reproduction harness
-  is code that lives in the repository while its output is not plan content, and
-  cross-reference the prohibition
+- [ ] Insert this section verbatim between `## Steps` and `## Rules`
+  (`.claude/skills/implement/SKILL.md:73`)
+
+``` markdown
+## Capturing what implementation turns up
+
+Implementation produces findings the plan never anticipated, and they are often
+the most expensive knowledge in the session. They do not belong in the plan.
+Each has a home:
+
+- A durable design fact — a constraint, a boundary, why the obvious approach
+  fails → `data/architecture/<slug>.md`, linked from `data/architecture.md`.
+  Add to the existing doc that owns the area before creating a new one.
+- A defect in shipped behavior, not caused by this work →
+  `data/bugs/<slug>.md` (Symptom / Reproduction / Root cause / Fix, with
+  `path:line` anchors), linked from `data/bugs.md`.
+- Work this plan should not absorb → `data/backlog/<slug>.md`, and say so in
+  the handoff report rather than growing `## Out of scope` silently.
+- A finding that changes a material boundary → stop and take it back through
+  the plan skill (Step 6), which is the only route that may edit intent.
+
+`## Context` and `## Approach` state intent and stay stable while you build.
+The plan skill owns them; implement edits them only via Step 6's material
+deviation route. Writing a finding into them, rather than routing it, is the
+most common way a plan stops being executable — it grows to where a future
+session cannot tell what was planned from what merely happened.
+
+Reproducing a finding is normal work: a harness, a script, an ablation. The
+harness is code and lives in the repository. Its *output* is not plan content.
+```
 
 ### Task 3: State the settled-versus-path rule in the operating manual
 
 **Files:** Modify: `docs/knowledge/AGENTS.md`
 
-- [ ] Add a `## Never write a working logbook into the graph` section after
-  `## Conventions` carrying the rule, the "would this still be true if the work
-  had gone right the first time" test, the explicit carve-outs for `data/bugs/`
-  and `data/log.md`, and the note that plans are where it fails most often
+- [ ] Insert this section verbatim after `## Conventions`
+  (`docs/knowledge/AGENTS.md:74`) and before `## iwe basics`
+
+``` markdown
+## Never write a working logbook into the graph
+
+Knowledge documents record what is **settled**, not the path taken to settle it.
+A blow-by-blow account of an in-flight investigation — attempt one failed,
+attempt two failed differently, CI run IDs, per-attempt tables, "died one script
+later" — belongs in the conversation and the commit history, never in `data/`.
+
+The test: **would this sentence still be true if the work had gone right the
+first time?** A constraint, a root cause, a rejected alternative: yes. The
+sequence of failures that revealed it: no. Keep the first, drop the second.
+
+This is not a ban on troubleshooting content. `data/bugs/` requires
+Reproduction and Root cause; `data/architecture/` is where a hard-won
+constraint belongs, with the alternatives that lost. Both record a *conclusion*,
+written once, in its own document. `data/log.md` is retrospective by design —
+one entry per shipped change, after the fact. What has no home anywhere is the
+running account written *while* you are still finding out.
+
+Plans are where this fails most often, because the plan is the document already
+open. A plan that doubles in length during implementation has almost certainly
+absorbed a logbook; the fix is to route each finding to its own document (see
+the implement skill's `## Capturing`) and cut the narration.
+```
 
 ### Task 4: Fix the stale operating-manual path
 
