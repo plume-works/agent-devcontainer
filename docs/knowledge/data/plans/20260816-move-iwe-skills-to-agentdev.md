@@ -6,15 +6,15 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-17T00:00:00Z
 sources:
-- .claude/skills/ship/SKILL.md
-- .claude/skills/explore/SKILL.md
-- .claude/skills/implement/SKILL.md
-- .claude/skills/verify/SKILL.md
-- .agents/AGENTS.md
-- docs/knowledge/AGENTS.md
-- docs/knowledge/data/spec/iwe-workflow-skills.md
-- docs/knowledge/data/spec/template-consumption.md
-- docs/knowledge/data/architecture/template-boundary.md
+- resource: .claude/skills/ship/SKILL.md
+- resource: .claude/skills/explore/SKILL.md
+- resource: .claude/skills/implement/SKILL.md
+- resource: .claude/skills/verify/SKILL.md
+- resource: .agents/AGENTS.md
+- resource: docs/knowledge/AGENTS.md
+- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: docs/knowledge/data/spec/template-consumption.md
+- resource: docs/knowledge/data/architecture/template-boundary.md
 ---
 
 # Move the IWE workflow skills into the agentdev plugin

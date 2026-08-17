@@ -1,4 +1,5 @@
 ---
+type: plan
 created: 2026-08-17
 description: Install the agentdev catalog into the agent-desktop image at build time so a raw-image consumer resolves agentdev skills without running devcontainer lifecycle hooks.
 generated:

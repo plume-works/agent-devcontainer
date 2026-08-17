@@ -8,9 +8,9 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- .claude/skills/explore/SKILL.md
-- docs/knowledge/AGENTS.md
-- docs/knowledge/SCHEMA.md
+- resource: .claude/skills/explore/SKILL.md
+- resource: docs/knowledge/AGENTS.md
+- resource: docs/knowledge/SCHEMA.md
 ---
 
 # Write a capture skill

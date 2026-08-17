@@ -5,8 +5,8 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
-- .github/pull_request_template.md
+- resource: docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
+- resource: .github/pull_request_template.md
 ---
 
 # Evidence and outstanding work

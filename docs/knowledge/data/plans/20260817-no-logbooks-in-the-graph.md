@@ -6,13 +6,13 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-17T00:00:00Z
 sources:
-- .claude/skills/plan/SKILL.md
-- .claude/skills/implement/SKILL.md
-- .claude/skills/explore/SKILL.md
-- docs/knowledge/AGENTS.md
-- docs/knowledge/data/product.md
-- docs/knowledge/data/spec/iwe-workflow-skills.md
-- docs/knowledge/data/spec/plan-checkbox-evidence.md
+- resource: .claude/skills/plan/SKILL.md
+- resource: .claude/skills/implement/SKILL.md
+- resource: .claude/skills/explore/SKILL.md
+- resource: docs/knowledge/AGENTS.md
+- resource: docs/knowledge/data/product.md
+- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 ---
 
 # Keep working logbooks out of the knowledge graph

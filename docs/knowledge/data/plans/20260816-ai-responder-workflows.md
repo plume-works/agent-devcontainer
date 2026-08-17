@@ -1,4 +1,5 @@
 ---
+type: plan
 created: 2026-08-16
 description: Import Dr-QP's AI responder and required-AI-review workflows, Claude-only, with the responder running the devcontainer lifecycle hooks so it reviews using the branch's own agentdev catalog and an indexed CBM.
 generated:

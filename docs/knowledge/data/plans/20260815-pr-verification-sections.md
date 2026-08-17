@@ -6,9 +6,9 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- .github/pull_request_template.md
-- .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
-- .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
+- resource: .github/pull_request_template.md
+- resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
+- resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
 ---
 
 # Split PR How to Test into Verification and Reviewer Handoff

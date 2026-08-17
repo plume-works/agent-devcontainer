@@ -5,12 +5,12 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-16T00:00:00Z
 sources:
-- .devcontainer/scripts/postCreateCommand.sh
-- .devcontainer/scripts/postAttachCommand.sh
-- .devcontainer/scripts/postStartCommand.sh
-- .devcontainer/scripts/reinstall-agentdev-claude.sh
-- .devcontainer/devcontainer.json
-- ansible/roles/agentic_tools/README.md
+- resource: .devcontainer/scripts/postCreateCommand.sh
+- resource: .devcontainer/scripts/postAttachCommand.sh
+- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
+- resource: .devcontainer/devcontainer.json
+- resource: ansible/roles/agentic_tools/README.md
 ---
 
 # CI agent plugin availability

@@ -6,11 +6,11 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-17T00:00:00Z
 sources:
-- .claude/skills/explore/SKILL.md
-- .claude/skills/plan/SKILL.md
-- AGENTS.md
-- docs/knowledge/AGENTS.md
-- docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: .claude/skills/explore/SKILL.md
+- resource: .claude/skills/plan/SKILL.md
+- resource: AGENTS.md
+- resource: docs/knowledge/AGENTS.md
+- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 ---
 
 # Preserve approved wording across the explore handoff

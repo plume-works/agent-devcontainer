@@ -6,9 +6,9 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-14T00:00:00Z
 sources:
-- .devcontainer/scripts/uv-sync.sh
-- .devcontainer/devcontainer.json
-- .agents/plugins/agentdev/bin/python-lint-check.sh
+- resource: .devcontainer/scripts/uv-sync.sh
+- resource: .devcontainer/devcontainer.json
+- resource: .agents/plugins/agentdev/bin/python-lint-check.sh
 stage: done
 completed: 2026-08-15
 ---
