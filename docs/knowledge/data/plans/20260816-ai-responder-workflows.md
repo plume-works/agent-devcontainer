@@ -147,23 +147,50 @@ change, and Task 4 cannot be exercised until it is done.
 
 **Files:** Create: `.github/workflows/ai-responder.yml`
 
-- [ ] Add the preflight job with the owner gate set to `plume-works`, the fork
+- [x] Add the preflight job with the owner gate set to `plume-works`, the fork
   gate, and the write-access gate kept verbatim from upstream
-- [ ] Drop `AI_RESPONDERS` entirely — the env var, the validation step, the
+  - **Evidence:** `.github/workflows/ai-responder.yml` `preflight` job —
+    `github.repository_owner == 'plume-works'`, the `Determine checkout ref`
+    step's `isFork` computation, and the `Authorize responder requester` step
+    carried over unchanged from upstream.
+- [x] Drop `AI_RESPONDERS` entirely — the env var, the validation step, the
   `enabled()` helper — and reduce the trigger conditions and prompt builder to
   Claude only
-- [ ] Drop the `scripts/with-ros-env.sh` preflight step and the ROS line in the
+  - **Evidence:** no `AI_RESPONDERS`, no `Validate AI_RESPONDERS` step, and no
+    `enabled()` in the new workflow; the preflight `if:` tests only `@claude`,
+    the `codex-respond` job and every codex output are gone, and
+    `claudeRequested` is now just `mentions('claude')`.
+- [x] Drop the `scripts/with-ros-env.sh` preflight step and the ROS line in the
   prompt, replacing neither
-- [ ] Add the `claude-respond` job in
+  - **Evidence:** the `Verify ROS command wrapper` step is absent and the prompt
+    array ends at the "Do not push…" line;
+    `grep -c 'AI_RESPONDERS\|enabled(\|codex'` and a grep for `ROS` over
+    `ai-responder.yml` both return 0.
+- [x] Add the `claude-respond` job in
   `container: ghcr.io/plume-works/agent-desktop:edge` with no `credentials:`
   (the package is public), keeping the artifact upload and the usage-limit check
-- [ ] Run `postCreateCommand.sh`, `postStartCommand.sh`, and
+  - **Evidence:** the `claude-respond` job declares that `container:` image with
+    no `credentials:` key, and both the `Attach responder output file` upload
+    and the `Fail on Claude usage limit` jq check are carried over.
+- [x] Run `postCreateCommand.sh`, `postStartCommand.sh`, and
   `postAttachCommand.sh` as a job step after checkout and before the Claude
   action, with `AGENTDEV_SKIP_PRE_COMMIT` and `AGENTDEV_SKIP_XPRA` set —
   postAttach is what installs the catalog from this checkout and indexes CBM
-- [ ] Keep upstream's `timeout-minutes: 30`; a cold CBM index is ~3.5s in this
+  - **Evidence:** the `Run devcontainer lifecycle scripts` step sits between
+    checkout and the Claude action, runs all three hooks in order with both
+    `AGENTDEV_SKIP_*` set and `DEV_WORKSPACE_FOLDER` pointed at the checkout.
+    Upstream's separate safe.directory step is dropped because
+    `postStartCommand.sh` now calls `setup-git-safe-directory.sh` (Task 1); no
+    script in the postCreate chain touches a git repository before it runs.
+- [x] Keep upstream's `timeout-minutes: 30`; a cold CBM index is ~3.5s in this
   repo, so the lifecycle setup is not a meaningful share of the budget
-- [ ] Confirm `actionlint` and `zizmor` pass on the new workflow
+  - **Evidence:** `claude-respond` carries `timeout-minutes: 30`, unchanged from
+    upstream.
+- [x] Confirm `actionlint` and `zizmor` pass on the new workflow
+  - **Evidence:**
+    `pre-commit run actionlint --files .github/workflows/ai-responder.yml` —
+    Passed; `pre-commit run zizmor --files .github/workflows/ai-responder.yml` —
+    Passed.
 
 ### Task 5: Import require-ai-review.yml verbatim
 
