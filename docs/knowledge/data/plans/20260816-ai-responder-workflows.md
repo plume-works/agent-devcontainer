@@ -116,13 +116,22 @@ by a different uid) and never needs the former.
 Both guards default to today's behavior, so the devcontainer is unchanged and
 only a caller that opts in skips anything.
 
-- [ ] Guard `pre-commit install --install-hooks` behind
+- [x] Guard `pre-commit install --install-hooks` behind
   `AGENTDEV_SKIP_PRE_COMMIT`; it eagerly builds a virtualenv per hook, which
   costs minutes for hooks a review job never fires
-- [ ] Guard `/start-xpra.sh --background` in `postStartCommand.sh:14` behind
+  - **Evidence:** early `exit 0` added to `setup-pre-commit.sh` when the
+    variable is non-empty; run with it set prints the skip message and exits 0,
+    run with it unset still reaches `pre-commit install --install-hooks`.
+- [x] Guard `/start-xpra.sh --background` in `postStartCommand.sh:14` behind
   `AGENTDEV_SKIP_XPRA`
-- [ ] Confirm `shellcheck` passes and that neither guard changes behavior when
+  - **Evidence:** `if/else` around the call in `postStartCommand.sh`; the guard
+    block sourced with the variable set prints only the skip message, and unset
+    it runs `/start-xpra.sh --background` (Xpra server startup banner).
+- [x] Confirm `shellcheck` passes and that neither guard changes behavior when
   its variable is unset
+  - **Evidence:** `shellcheck setup-pre-commit.sh postStartCommand.sh` — exit 0.
+    Unset runs reach `pre-commit install --install-hooks` and start Xpra, the
+    same steps as before the guards.
 
 ### Task 3: Provision repository secrets and environment
 
