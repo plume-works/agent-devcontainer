@@ -27,12 +27,7 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  # `agentdev:pr-review` publishes through the three pending-review tools; the
-  # action's own `mcp__github_comment__`/`mcp__github_inline_comment__` servers
-  # cannot create or submit a review. Without these three the skill runs to
-  # completion and posts nothing while the job stays green.
-  CLAUDE_PR_REVIEW_ARGS: >-
-    mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__,mcp__github__create_pending_pull_request_review,mcp__github__add_comment_to_pending_review,mcp__github__submit_pending_pull_request_review,mcp__github__add_issue_comment,Skill,Read,Grep,Glob,Bash
+  CLAUDE_PR_REVIEW_ARGS: 'mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__'
 
 jobs:
   preflight:
