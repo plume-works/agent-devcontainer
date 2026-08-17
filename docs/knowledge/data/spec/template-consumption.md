@@ -323,19 +323,20 @@ answers `@claude` mentions and reviews pull requests, and `ai-review-present`
 blocks merge until an AI review exists. Keep both or drop both — keeping only
 the gate blocks every merge with nothing able to satisfy it.
 
-Three prerequisites live outside the repository, and **all three must be in
-place before the responder can run**. Missing any one produces a failure that
-looks like a workflow bug rather than a provisioning gap:
+Two prerequisites live outside the repository and are **required**; a third
+changes only how the review is attributed:
 
-1. **Install the [Claude GitHub App](https://github.com/apps/claude) on the
-   organization or repository.** This is the one most easily missed, because
-   nothing in the checked-in files references it and its absence is not reported
-   as a configuration error.
-2. **Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret**, which
+1. **Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret**, which
    `anthropics/claude-code-action` authenticates with.
-3. **Create the `claude-review` environment** named by the `claude-respond`
+2. **Create the `claude-review` environment** named by the `claude-respond`
    job's `environment:` key. A job naming an environment that does not exist
    does not run.
+3. Optionally install the [Claude GitHub App](https://github.com/apps/claude).
+   The workflow passes `github_token: ${{ secrets.GITHUB_TOKEN }}` explicitly,
+   so the responder authenticates and posts without it; installing the app makes
+   comments appear as Claude rather than as `github-actions[bot]`. The gate's
+   `claudeLogins` set accepts both, so either attribution satisfies
+   `ai-review-present`.
 
 Then adapt the workflows themselves:
 
@@ -354,11 +355,20 @@ Then adapt the workflows themselves:
   check over an ungrounded review. See
   [CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
 
-Note that the responder's `pull_request` triggers are `opened`, `reopened`,
-`assigned`, and `ready_for_review` — **not `synchronize`**. Pushing new commits
-to an open pull request does not re-run it; re-request a review by commenting
-`@claude review`. Adding `synchronize` would re-review on every push, which is
-usually not what a project wants.
+Two trigger behaviors surprise people, and both cost a debugging session here:
+
+- The `pull_request` triggers are `opened`, `reopened`, `assigned`, and
+  `ready_for_review` — **not `synchronize`**. Pushing new commits to an open
+  pull request does not re-run the responder. Adding `synchronize` would
+  re-review on every push, which is usually not what a project wants; re-request
+  a review by commenting `@claude review` instead.
+- **Comment triggers only work once the workflow is on the default branch.**
+  `issue_comment` is a repository-level event, and GitHub dispatches it using
+  the workflow file on the default branch — so while these workflows exist only
+  on a feature branch, `@claude review` starts nothing. The Claude app may still
+  react with 👀, which makes this look like an app or authentication problem when
+  it is purely a trigger-resolution one. Plan for the first end-to-end comment
+  test to happen after the workflows merge.
 
 A project that wants neither should delete both workflows together, and must not
 add `ai-review-present` to its branch protection.

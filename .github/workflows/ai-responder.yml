@@ -211,7 +211,21 @@ jobs:
           DEV_WORKSPACE_FOLDER: ${{ github.workspace }}
           AGENTDEV_SKIP_PRE_COMMIT: '1'
           AGENTDEV_SKIP_XPRA: '1'
+          # devcontainer.json supplies these through containerEnv, which a
+          # `container:` job does not apply. Only these two are needed; the rest
+          # of containerEnv is unused by the hooks or has a working default.
+          # Established by ablation with ci-hooks-repro.sh — run it before
+          # changing this list.
+          #
+          # CBM_CACHE_DIR: dereferenced under `set -u`, so unset is a hard error.
+          # UV_PROJECT_ENVIRONMENT: unset does NOT fail — uv silently creates a
+          # .venv inside the checkout the responder is about to review.
+          CBM_CACHE_DIR: ${{ github.workspace }}/.cache/codebase-memory-mcp
+          UV_PROJECT_ENVIRONMENT: /opt/ci-venv
         run: |
+          # A devcontainer supplies these as volumes; postCreateCommand.sh writes
+          # claude.json into ~/.claude and expects it to exist.
+          mkdir -p /root/.claude /root/.codex
           .devcontainer/scripts/postCreateCommand.sh
           .devcontainer/scripts/postStartCommand.sh
           .devcontainer/scripts/postAttachCommand.sh

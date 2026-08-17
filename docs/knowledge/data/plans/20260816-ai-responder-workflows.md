@@ -64,16 +64,67 @@ The rest of the setup is cheap. A cold CBM index measures ~3.5s in this
 repository, so hook installation is the only step worth skipping for time;
 upstream's 30-minute job timeout carries over unchanged.
 
-Two guards turned out not to be sufficient. The first responder run showed
-`postCreateCommand.sh` also assumes devcontainer-only *mount points* —
-`$workspace/.cache` and `/uv`, which `devcontainer.json` mounts and a
-`container:` job does not. Task 7 makes that one chown tolerant of absent
-targets. Other devcontainer-shaped assumptions remain further down the same
-script (the `/root/.agents-auth` setup, the `~/.claude.json` symlink, `uv-sync`
-writing to `/uv`) and `firewall.sh` shells out to
-`sudo /usr/local/bin/init-firewall.sh`; none has been observed failing yet
-because the run never got past the chown. If any does, it is the same class of
-finding and belongs in a revision, not in an unplanned fix.
+Two guards turned out not to be sufficient, and two failed runs showed why the
+gap is structural rather than a list of bugs.
+
+Run 31982718867 died on a `chown` of `$workspace/.cache` and `/uv` — mount
+points that exist only because `devcontainer.json` mounts them. Task 7 made that
+chown tolerant of absent targets, and run 31983567248 confirmed it: both paths
+logged their skip and execution continued. It then died one script later on
+`CBM_CACHE_DIR: unbound variable` (`codebase-memory-mcp-install.sh:22`).
+
+That second failure is the same finding as the first, one layer down. **The
+lifecycle scripts depend on `devcontainer.json` — its `containerEnv` and its
+`mounts` — not only on the image.** A GitHub Actions `container:` job applies
+neither. `devcontainer.json` supplies eleven `containerEnv` variables, of which
+the responder job currently sets exactly one (`DEV_WORKSPACE_FOLDER`):
+
+| variable                                                          | what depends on it                  |
+| ----------------------------------------------------------------- | ----------------------------------- |
+| `CBM_CACHE_DIR`                                                   | `codebase-memory-mcp-install.sh:22` |
+| `UV_CACHE_DIR`, `UV_PYTHON_INSTALL_DIR`, `UV_PROJECT_ENVIRONMENT` | `uv-sync.sh` target environment     |
+| `CLAUDE_SECURESTORAGE_CONFIG_DIR`                                 | Claude auth location                |
+| `ENABLE_FIREWALL`                                                 | `firewall.sh` opt-in                |
+| `DISPLAY`, `DOCKER_HOST`, `DEVCONTAINER_ID`                       | desktop, Docker, instance identity  |
+
+Fixing these one unbound variable per CI run is the wrong shape — each round
+trip costs a full run and only finds the next one. Instead the container was
+reproduced locally over Docker-in-Docker (`docker run` with no devcontainer
+`containerEnv` and no mounts, the checkout copied to `/__w/<repo>/<repo>`),
+which turns a ~10-minute CI round trip into a ~2-minute local one and reproduced
+the CI failure exactly.
+
+Ablation against that harness gives the **minimal contract** — two environment
+variables and two directories, no volumes:
+
+| what                                  | why it is required                                                                            |
+| ------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `DEV_WORKSPACE_FOLDER`                | workspace root for every script                                                               |
+| `CBM_CACHE_DIR`                       | `codebase-memory-mcp-install.sh:22` dereferences it under `set -u`                            |
+| `UV_PROJECT_ENVIRONMENT`              | **silent corruption if unset** — see below                                                    |
+| `mkdir -p /root/.claude /root/.codex` | `postCreateCommand.sh:63-69` writes `claude.json` into a directory a volume normally provides |
+
+Ablation results worth keeping:
+
+- `ENABLE_FIREWALL` is **not** needed; `firewall.sh` is already inert by
+  default.
+- `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR` are **not** needed; they are cache
+  locations, and uv falls back to its own defaults.
+- `DISPLAY`, `DOCKER_HOST`, `DEVCONTAINER_ID`, and
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR` are **not** exercised by the hooks.
+- Volumes are **not** needed at all: plain directories suffice.
+
+`UV_PROJECT_ENVIRONMENT` is the dangerous one and the reason this had to be
+found locally rather than in CI. Unset, `uv sync` does not fail — it creates
+`.venv` **inside the checkout** and the job stays green. A CI run would have
+reported success while the responder reviewed a working tree the setup had just
+written into. Confirmed by ablation: dropping only that variable yields exit 0
+plus `Creating virtual environment at: .venv`.
+
+With those two variables and two directories, all three hooks pass with no
+volumes, no `.venv` leak, CBM indexed (2505 nodes / 5125 edges), and the catalog
+installed **from the checkout** at local scope — the branch's-own-skills
+property this whole design exists for.
 
 `ai-responder.yml` is imported Claude-only: the `codex-respond` job, the codex
 preflight conditions, the `AI_RESPONDERS` variable with its validation step and
@@ -158,17 +209,19 @@ only a caller that opts in skips anything.
 Stands alone: it is the maintainer's action in GitHub settings, not a code
 change, and Task 4 cannot be exercised until it is done.
 
-The prerequisite list was incomplete when this plan was written: it named the
-secret and the environment but not the **Claude GitHub App installation**, which
-the maintainer found missing on the org/repo after the first responder attempt.
-Nothing in the checked-in files references the app, and its absence is not
-reported as a configuration error — which is exactly why it belongs in a written
-list. All three are now documented for template consumers in
+The Claude GitHub App was installed during this work, but it is **not** a
+prerequisite for the responder to run, and an earlier revision of this section
+wrongly said it was. The workflow passes `github_token` explicitly, so the
+action authenticates without the app; the app only changes whether the review is
+attributed to `claude[bot]` or `github-actions[bot]`, and
+`require-ai-review.yml:71-74` accepts both. It was briefly suspected of causing
+the missing comment-triggered run, which it did not — see Task 6. All three
+items are documented for template consumers, with the app marked optional, in
 [Template consumption](../spec/template-consumption.md).
 
-- [x] Install the [Claude GitHub App](https://github.com/apps/claude) on the
-  organization or repository
-  - **Evidence:** installed by the maintainer after the first responder attempt;
+- [x] Install the [Claude GitHub App](https://github.com/apps/claude) —
+  optional, affects review attribution only
+  - **Evidence:** installed by the maintainer during this work;
     `gh api orgs/plume-works/installations` lists `claude` alongside `renovate`
     and `chatgpt-codex-connector`.
 - [x] Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret
@@ -290,6 +343,42 @@ proceed. Task 6 is blocked until this lands.
     neither created it skips both and continues instead of exiting 1 (the
     `container:` case that failed run 31982718867).
 
+### Task 8: Supply the devcontainer contract the hooks need
+
+**Files:** Modify: `.github/workflows/ai-responder.yml`
+
+Added 2026-08-17, after local Docker-in-Docker ablation established the minimal
+set (see Approach). The responder job currently supplies only
+`DEV_WORKSPACE_FOLDER`, so it dies on `CBM_CACHE_DIR` and — once past that —
+would silently write a `.venv` into the checkout.
+
+Scope note: this changes the *workflow*, not the lifecycle scripts, so it stays
+inside the Out of scope boundary as written. Whether the scripts should instead
+default these values themselves is a separate question, deliberately not decided
+here.
+
+- [x] Set `CBM_CACHE_DIR` and `UV_PROJECT_ENVIRONMENT` on the lifecycle step,
+  alongside the existing `DEV_WORKSPACE_FOLDER` and the two `AGENTDEV_SKIP_*`
+  guards
+  - **Evidence:** both added to the step's `env:` in `ai-responder.yml`, with a
+    comment recording why only these two of the eleven `containerEnv` variables
+    are needed and which one fails silently.
+- [x] Create `/root/.claude` and `/root/.codex` before running the hooks
+  - **Evidence:** `mkdir -p /root/.claude /root/.codex` added as the step's
+    first command; without it `postCreateCommand.sh:67` fails with
+    `/root/.claude/claude.json: No such file or directory`, reproduced locally.
+- [x] Confirm the whole sequence passes locally through
+  `.devcontainer/scripts/ci-hooks-repro.sh` with no volumes and no `.venv` leak
+  - **Evidence:** harness added and run against
+    `ghcr.io/plume-works/agent-desktop:pr-41` — exit 0 with all three hooks OK
+    and `ok: no .venv in the checkout`. `BARE=1` (contract withheld) exits 1 on
+    `CBM_CACHE_DIR: unbound variable`, the same line CI run 31983567248 died on,
+    so the harness reproduces the failure and the fix in both directions.
+- [x] Confirm `actionlint` and `zizmor` still pass
+  - **Evidence:**
+    `pre-commit run actionlint --files .github/workflows/ai-responder.yml` —
+    Passed; same for `zizmor`.
+
 ### Task 6: Prove the responder runs green, then require the gate
 
 **Files:** none — CI and repository settings
@@ -302,7 +391,20 @@ before Claude ever started.
 Re-running it is not a matter of pushing. The responder's `pull_request`
 triggers are `opened`, `reopened`, `assigned`, and `ready_for_review` —
 deliberately not `synchronize` — so new commits on an open PR do not re-run it.
-Comment `@claude review` on the PR to request another run.
+
+Commenting `@claude review` does not work either while the workflow lives only
+on a branch. `issue_comment` is a repository-level event, and GitHub dispatches
+those using the workflow file **on the default branch**; until these files land
+on `main`, a comment starts no run. Observed on #65: the Claude app reacted with
+👀 — so the app saw the comment — while no workflow run appeared. The app
+installation and the workflow trigger are independent, and here only the latter
+was missing.
+
+`pull_request`-triggered runs *do* fire from the branch, so branch iteration
+works, but each attempt needs a `pull_request` event (reopen the PR, or toggle
+draft/ready) rather than a comment. Comment-driven behavior is only fully
+testable after merge — which means this task's evidence is necessarily split
+across before-merge and after-merge observations.
 
 - [ ] Trigger the responder on a real PR and confirm it posts a review, with the
   job log showing `agentdev:pr-review` resolved rather than improvised
@@ -381,6 +483,10 @@ scripts.
 - A devcontainer starts unchanged with neither guard set: pre-commit hooks are
   installed and Xpra runs, exactly as today (Task 2).
 - `actionlint` and `zizmor` pass on both new workflows.
+- `.devcontainer/scripts/ci-hooks-repro.sh` exits 0 — all three hooks pass in a
+  bare `container:`-shaped run with no volumes, and no `.venv` is written into
+  the checkout. `BARE=1` exits 1, confirming the harness still detects the
+  regression it was built for (Tasks 7-8).
 - The responder posts a review on a real PR, its log showing the `pr-review`
   skill resolved from **this checkout** rather than improvised, and CBM indexed
   (Task 6).
@@ -437,6 +543,16 @@ Verified anchor points (line numbers as of 2026-08-17):
   default that resolves the catalog root to this checkout
 - `.github/workflows/ci.yml:31` — `DESKTOP_IMAGE_NAME: agent-desktop`, the image
   the responder job runs in
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh:22` — the
+  `CBM_CACHE_DIR` dereference that fails under `set -u` when unset
+- `.devcontainer/scripts/postCreateCommand.sh:63-69` — the `claude.json` write
+  that assumes `/root/.claude` exists
+- `.devcontainer/scripts/uv-sync.sh:32` — `uv sync`, which silently creates an
+  in-tree `.venv` when `UV_PROJECT_ENVIRONMENT` is unset
+- `.devcontainer/devcontainer.json:33` — `CBM_CACHE_DIR` in `containerEnv`, the
+  devcontainer-only source of the contract a `container:` job must supply itself
+- `.devcontainer/scripts/ci-hooks-repro.sh` — the local `container:`
+  reproduction
 - `.github/workflows/ai-responder.yml` — the imported Claude-only responder
 - `.github/workflows/require-ai-review.yml` — the imported `ai-review-present`
   gate

@@ -151,16 +151,18 @@ skill is reviewed by that skill as changed. Without that step nothing installs
 `agentdev:pr-review` and the agent improvises a review, which is worse than no
 review because the required check still turns green.
 
-Three prerequisites live outside the repository and are all required:
-
-1. the [Claude GitHub App](https://github.com/apps/claude), installed on the
-   organization or repository;
-2. the `CLAUDE_CODE_OAUTH_TOKEN` repository secret; and
-3. the `claude-review` environment.
+Two prerequisites live outside the repository and are required: the
+`CLAUDE_CODE_OAUTH_TOKEN` repository secret, and the `claude-review` environment
+named by the responder job. Installing the
+[Claude GitHub App](https://github.com/apps/claude) is optional — the workflow
+passes `github_token` explicitly, so the app only changes whether reviews are
+attributed to Claude or to `github-actions[bot]`, both of which satisfy the gate.
 
 The responder triggers on pull request `opened`, `reopened`, `assigned`, and
 `ready_for_review` — **not on pushes to an open pull request**. Comment
-`@claude review` to re-request one.
+`@claude review` to re-request one, noting that comment triggers resolve against
+the workflow file on the default branch, so they only work once these workflows
+have merged.
 
 Projects adopting this repository as a template should read the AI responder
 section of the manual template guide
