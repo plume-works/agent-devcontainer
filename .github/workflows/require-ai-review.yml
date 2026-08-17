@@ -60,6 +60,15 @@ jobs:
             //   return;
             // }
 
+            // This gate asserts that the PR has been reviewed, NOT that its
+            // current head SHA has been. Accepting an earlier review is
+            // deliberate: reviewing every commit is prohibitively expensive,
+            // and neither AI nor human reviewers work that way. It is the PR
+            // author's call when to refresh a review -- by asking for one with
+            // an `@claude review` comment, the same way a human re-review is
+            // re-requested. (GitHub can dismiss approvals on every push; that
+            // option is deliberately not used here.) So do not "fix" this by
+            // comparing review.commit_id against the head SHA.
             const pullRequest = {
               owner: context.repo.owner,
               repo: context.repo.repo,

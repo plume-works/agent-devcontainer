@@ -4,7 +4,9 @@ created: 2026-08-16
 description: Import Dr-QP's AI responder and required-AI-review workflows, Claude-only, with the responder running the devcontainer lifecycle hooks so it reviews using the branch's own agentdev catalog and an indexed CBM.
 generated:
   by: claude-code/opus-5
-  at: 2026-08-16T00:00:00Z
+  at: 2026-08-17T18:10:00Z
+sources:
+- resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 ---
 
 # AI responder workflows
@@ -373,6 +375,20 @@ it. The `ai-review-present` check SHALL accept a review from `claude[bot]` or
 reaction from `chatgpt-codex-connector[bot]`, in state `approved`,
 `changes_requested`, or `commented`.
 
+The check SHALL NOT require that the review name the pull request's current head
+commit. It asserts that the pull request has been reviewed, not that each pushed
+commit has been: reviewing every commit is prohibitively expensive, and neither
+AI nor human reviewers work that way. Refreshing a review is the author's call,
+requested with an `@claude review` comment the way a human re-review is
+re-requested.
+
+#### Scenario: a reviewed PR receives a further push
+
+- **WHEN** an accepted AI review exists on the pull request and the author
+  pushes a commit after it
+- **THEN** `ai-review-present` still passes, and the review is refreshed only
+  when the author asks for one.
+
 #### Scenario: Claude reviews a PR through the responder workflow
 
 - **WHEN** `ai-responder.yml` posts a review on a pull request
@@ -434,7 +450,11 @@ scripts.
 - **Loosening the gate's acceptance rules.** The `+1`-reaction path and the
   `commented` state are weak — nearly any bot comment satisfies the check. That
   is upstream's design; changing it during an import would conflate two
-  decisions. Worth a backlog item.
+  decisions.
+- **Requiring the review to name the current head SHA.** Filed as a backlog item
+  on 2026-08-17 and withdrawn on maintainer review the same day: it mistook what
+  the gate is for. Accepting an earlier review is the intended behavior, not a
+  defect — see the requirement above.
 - **A Codex responder job in CI.** Codex reviews come from Codex web.
 - **Installing the catalog into the image.** Considered and rejected: the
   responder checks out the branch, so the checkout's catalog is both available

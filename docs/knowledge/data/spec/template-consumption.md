@@ -2,10 +2,11 @@
 type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: claude-code/opus-5
+  at: 2026-08-17T18:10:00Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
+- resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 ---
 
 # Template consumption
@@ -337,6 +338,13 @@ changes only how the review is attributed:
    comments appear as Claude rather than as `github-actions[bot]`. The gate's
    `claudeLogins` set accepts both, so either attribution satisfies
    `ai-review-present`.
+
+The gate checks that the pull request has been reviewed, not that its current
+head commit has. A push after a review does not re-open it; the author refreshes
+the review when they judge it stale, by commenting `@claude review`. This is
+deliberate — a review per commit would be prohibitively expensive — so treat a
+copy that compares the review's `commit_id` against the head SHA as a change in
+policy, not a bug fix.
 
 Then adapt the workflows themselves:
 
