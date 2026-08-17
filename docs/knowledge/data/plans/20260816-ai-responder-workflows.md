@@ -319,8 +319,19 @@ Commenting `@claude review` will not work until these files are on the default
 branch, because GitHub resolves `issue_comment` against the workflow file there.
 Comment-driven behavior is therefore only testable after merge.
 
-- [ ] Trigger the responder on a real PR and confirm it posts a review, with the
+- [x] Trigger the responder on a real PR and confirm it posts a review, with the
   job log showing `agentdev:pr-review` resolved rather than improvised
+  - **Evidence:** run `31994816348` on PR #65 (commit `1bb8c62`) posted a
+    `COMMENTED` review as `github-actions[bot]` at 2026-08-17T04:46:04Z with
+    three inline comments; its body opens "Automated review via
+    `agentdev:pr-review`. Four independent passes…", and the review dropped two
+    candidates as refuted — improvised output does not validate and discard its
+    own findings. Took two attempts: run `31992249608` went green having posted
+    nothing because the prompt asked for "the pr-review skill" unqualified,
+    which resolved to Claude Code's built-in `code-review` skill
+    (`Skill(skill: "code-review")` in that log) whose `ReportFindings` reporting
+    is a no-op in a headless action; commit `e385672` names `agentdev:pr-review`
+    explicitly.
 - [ ] Confirm `ai-review-present` passes on that PR
 - [ ] Only then add `ai-review-present` to the branch protection required checks
 
