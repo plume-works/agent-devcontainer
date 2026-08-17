@@ -8,6 +8,7 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 "$script_dir/codebase-memory-mcp-start.sh"
 
+"$script_dir/setup-git-safe-directory.sh"
 "$script_dir/setup-pre-commit.sh"
 "$script_dir/setup-keyring.sh"
 "$script_dir/firewall.sh"

@@ -90,13 +90,23 @@ Separating these is what lets Task 2 guard hook installation without also
 skipping safe.directory — the responder needs the latter (its checkout is owned
 by a different uid) and never needs the former.
 
-- [ ] Move `git config --global --add safe.directory` and its `command -v git`
+- [x] Move `git config --global --add safe.directory` and its `command -v git`
   check out of `setup-pre-commit.sh:8-11` into `setup-git-safe-directory.sh`
-- [ ] Call the new script from `postStartCommand.sh` before
+  - **Evidence:** `.devcontainer/scripts/setup-git-safe-directory.sh` created
+    with the `command -v git` check and the `safe.directory` config; both lines
+    removed from `setup-pre-commit.sh`.
+- [x] Call the new script from `postStartCommand.sh` before
   `setup-pre-commit.sh`
-- [ ] Remove the leftover `git status` troubleshooting line
+  - **Evidence:** `postStartCommand.sh` now calls `setup-git-safe-directory.sh`
+    on the line above `setup-pre-commit.sh`.
+- [x] Remove the leftover `git status` troubleshooting line
   (`setup-pre-commit.sh:12`)
-- [ ] Confirm `shellcheck` passes on both scripts
+  - **Evidence:** `setup-pre-commit.sh` no longer contains `git status`; the
+    file is now 13 lines, ending at the `pre-commit install` call.
+- [x] Confirm `shellcheck` passes on both scripts
+  - **Evidence:**
+    `shellcheck setup-git-safe-directory.sh setup-pre-commit.sh postStartCommand.sh`
+    — exit 0, no output.
 
 ### Task 2: Guard the lifecycle steps a review job does not need
 
