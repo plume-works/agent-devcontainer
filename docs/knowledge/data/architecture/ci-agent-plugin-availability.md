@@ -91,6 +91,12 @@ image ship a `~/.claude.json` it does not ship today, changing which branch of
 the devcontainer path in exchange for a capability the checkout already
 provides.
 
+Rejected *for CI*, not discarded: it still closes a real gap for consumers that
+never run the lifecycle hooks — a plain `docker run`, a Codespace. That is
+planned separately in
+[Install the agentdev catalog into the image](../plans/20260817-catalog-install-in-image.md),
+which owns the `~/.claude.json` risk.
+
 **Install from an explicit workflow step rather than the lifecycle hooks.**
 Rejected: it duplicates logic the hooks already own and drifts from them. The
 hooks are the tested path.

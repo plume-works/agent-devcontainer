@@ -23,6 +23,8 @@ moves them.*
 
 [AI responder workflows](plans/20260816-ai-responder-workflows.md)
 
+[Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
+
 ## Done
 
 [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
