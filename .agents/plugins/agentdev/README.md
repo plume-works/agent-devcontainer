@@ -78,8 +78,8 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:pr-gen-description`     | Write a PR description from the change analysis.                        |
 | `/agentdev:pr-review`              | Full automated review, published as one GitHub review.                  |
 | `/agentdev:pr-feedback-resolution` | Work through review threads, CI failures, and CodeQL findings.          |
-| `/agentdev:pr-eval-review-needed`  | Decide if pushed work went beyond what was already reviewed.            |
-| `/agentdev:pr-request-ai-review`   | Post the `@claude review` trigger with a one-line rationale.            |
+| `/agentdev:pr-eval-review-needed`  | Decide if pushed work needs a fresh AI review, and request it.          |
+| `/agentdev:pr-request-ai-review`   | Ask an AI agent to review a PR.                                         |
 | `/agentdev:pr-merge`               | Merge a PR, preferring auto-merge with squash.                          |
 | `/agentdev:pr-merge-chain`         | Merge a linear chain of stacked PRs in dependency order.                |
 

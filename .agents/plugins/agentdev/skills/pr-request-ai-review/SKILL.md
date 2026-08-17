@@ -1,23 +1,17 @@
 ---
 name: pr-request-ai-review
-description: 'Request a fresh AI review on an open GitHub pull request by posting an `@claude review` comment with a one-line rationale. Use when a re-review has been decided on — after pushing work that goes beyond what a reviewer already saw — or when asked to ask Claude to review, re-review, or take another look at a PR. Covers only the mechanics of posting the request; whether a re-review is warranted belongs to /agentdev:pr-eval-review-needed, and recovering a failed AI-review gate before merge belongs to /agentdev:pr-merge. Keywords: request review, re-review, @claude review, ask for AI review, refresh review.'
+description: Use this skill to request an AI agent to review a pull request.
 ---
 
 # Request an AI Review
 
-Post the comment that triggers a fresh AI review on an open pull request. This
-skill is deliberately small: it performs the request and confirms it started.
-Deciding whether the request is warranted is
-[pr-eval-review-needed](../pr-eval-review-needed/SKILL.md).
+Post the comment that triggers a fresh AI review on an open pull request, then
+confirm the review actually started.
 
-## Why the request is explicit
-
-The repository's `ai-review-present` merge gate asserts that a pull request has
-been reviewed, not that its current head commit has. Pushing to a reviewed PR
-therefore leaves the gate green and never asks for a new review — reviewing
-every commit would be prohibitively expensive, so refreshing a review is a
-deliberate act, not an automatic one. Nothing else will post this request on
-your behalf.
+This is a playbook, not a judgment call: run it when a review has been asked
+for, either by the user directly or by
+[pr-eval-review-needed](../pr-eval-review-needed/SKILL.md), which decides when a
+re-review is warranted. Do not evaluate here whether the request is justified.
 
 ## Post the request
 

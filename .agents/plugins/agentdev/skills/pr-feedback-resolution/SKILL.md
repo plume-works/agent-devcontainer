@@ -293,10 +293,8 @@ Ensure all feedback is addressed before requesting re-review.
 3. **Decide whether a fresh AI review is needed**: resolving feedback often
    changes more than the feedback asked for, and the `ai-review-present` gate
    stays green across pushes, so nothing else raises the question. Apply
-   [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) and, when it says
-   yes, request the review through
-   [pr-request-ai-review](../pr-request-ai-review/SKILL.md). Report the decision
-   either way.
+   [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md), which decides and
+   requests the review when one is warranted. Report the decision either way.
 
 4. **Request human re-review**:
    - Tag original reviewers
@@ -499,7 +497,6 @@ Maintain an internal execution log documenting:
 ## Related Resources
 
 - [Evaluate Whether a Re-Review Is Needed](../pr-eval-review-needed/SKILL.md) - decide if work went beyond what was reviewed
-- [Request an AI Review](../pr-request-ai-review/SKILL.md) - post the `@claude review` trigger
 - [Code Review Standards](../code-review-standards/) - PR description and review practices
 - [Extract GitHub Actions Logs](../extract-github-actions-logs/) - Fetch CI job logs and download test-report artifacts
 - [Get CodeQL Data](../get-codeql-data/) - Fetch PR, branch, or repository CodeQL alerts with `gh api`

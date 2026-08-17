@@ -1,14 +1,16 @@
 ---
 name: pr-eval-review-needed
-description: 'Decide whether work just pushed to an open pull request needs a fresh AI review, because it went beyond what a reviewer already saw. Use after implementing, refactoring, or fixing anything on a branch with an open PR that has already been reviewed — especially when resolving review feedback led to changes wider than the feedback asked for, or when new behavior, files, or dependencies entered the PR since the last review. Answers only whether to request; posting the request is /agentdev:pr-request-ai-review. Keywords: re-review needed, stale review, reviewed changed since, beyond feedback scope, review scope.'
+description: 'Decide whether work just pushed to an open pull request needs a fresh AI review, because it went beyond what a reviewer already saw. Use after implementing, refactoring, or fixing anything on a branch with an open PR that has already been reviewed — especially when resolving review feedback led to changes wider than the feedback asked for, or when new behavior, files, or dependencies entered the PR since the last review. Keywords: re-review needed, stale review, reviewed changed since, beyond feedback scope, review scope.'
 ---
 
 # Evaluate Whether a Re-Review Is Needed
 
 Decide whether the current head of an open, already-reviewed pull request
-contains work the last review never saw. Run this after pushing to such a PR —
-particularly at the end of a feedback-resolution pass — and act on the answer by
-invoking [pr-request-ai-review](../pr-request-ai-review/SKILL.md).
+contains work the last review never saw, and request a fresh review when it
+does. Run this after pushing to such a PR, particularly at the end of a
+feedback-resolution pass. This skill owns the outcome: it decides, and when the
+answer is yes it carries the request out through
+[pr-request-ai-review](../pr-request-ai-review/SKILL.md).
 
 ## Why this decision has an owner
 
@@ -85,11 +87,10 @@ unsatisfied, and that is a merge-time concern for `/agentdev:pr-merge`.
 
 ## Report the decision
 
-State the call and the reason in one or two sentences, so the user can override
-it before anything is posted:
+State the call and the reason in one or two sentences:
 
-- Requesting — name what entered the PR beyond the feedback, then invoke
-  [pr-request-ai-review](../pr-request-ai-review/SKILL.md).
+- Requesting — name what entered the PR beyond the feedback, then run
+  [pr-request-ai-review](../pr-request-ai-review/SKILL.md) to post it.
 - Not requesting — say that the changes since the last review only apply what
   reviewers asked for.
 
