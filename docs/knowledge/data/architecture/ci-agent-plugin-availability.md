@@ -67,6 +67,35 @@ Running only postCreate and postStart would leave the responder with the image's
 catalog and an unindexed CBM — the two things that make the review grounded are
 both in postAttach (`postAttachCommand.sh:8` and `:14-15`).
 
+## What a `container:` job must supply itself
+
+The hooks depend on `devcontainer.json` — its `containerEnv` and its `mounts` —
+not only on the image, and a `container:` job applies neither. Of the eleven
+`containerEnv` variables, exactly two are load-bearing, established by ablation
+with `.devcontainer/scripts/ci-hooks-repro.sh`:
+
+| what                                  | why                                                                              |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| `DEV_WORKSPACE_FOLDER`                | workspace root for every script                                                  |
+| `CBM_CACHE_DIR`                       | `codebase-memory-mcp-install.sh:22` dereferences it under `set -u`               |
+| `UV_PROJECT_ENVIRONMENT`              | see below — unset is silent, not fatal                                           |
+| `mkdir -p /root/.claude /root/.codex` | `postCreateCommand.sh:63-69` writes `claude.json` where a volume normally mounts |
+
+Not needed: `ENABLE_FIREWALL` (already inert by default), `UV_CACHE_DIR` and
+`UV_PYTHON_INSTALL_DIR` (uv falls back to its own defaults), `DISPLAY`,
+`DOCKER_HOST`, `DEVCONTAINER_ID`, and `CLAUDE_SECURESTORAGE_CONFIG_DIR` (not
+exercised by the hooks). No volumes are required; plain directories suffice.
+
+`UV_PROJECT_ENVIRONMENT` deserves the emphasis. Unset, `uv sync` does not fail —
+it creates `.venv` **inside the checkout** and the job stays green. A review job
+would report success while having written into the very tree it is reviewing.
+That failure mode is invisible to CI, which is why the minimal set was derived
+locally with an explicit side-effect check rather than by pushing commits.
+
+Mounts have the same shape: `postCreateCommand.sh` chowns `$workspace/.cache`
+and `/uv`, which exist only because `devcontainer.json` mounts them, so that
+chown skips targets that are absent rather than aborting the script.
+
 ## What a review job should skip
 
 Two postStart steps are pure cost in CI and are guarded by `AGENTDEV_*`

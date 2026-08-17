@@ -64,67 +64,11 @@ The rest of the setup is cheap. A cold CBM index measures ~3.5s in this
 repository, so hook installation is the only step worth skipping for time;
 upstream's 30-minute job timeout carries over unchanged.
 
-Two guards turned out not to be sufficient, and two failed runs showed why the
-gap is structural rather than a list of bugs.
-
-Run 31982718867 died on a `chown` of `$workspace/.cache` and `/uv` — mount
-points that exist only because `devcontainer.json` mounts them. Task 7 made that
-chown tolerant of absent targets, and run 31983567248 confirmed it: both paths
-logged their skip and execution continued. It then died one script later on
-`CBM_CACHE_DIR: unbound variable` (`codebase-memory-mcp-install.sh:22`).
-
-That second failure is the same finding as the first, one layer down. **The
-lifecycle scripts depend on `devcontainer.json` — its `containerEnv` and its
-`mounts` — not only on the image.** A GitHub Actions `container:` job applies
-neither. `devcontainer.json` supplies eleven `containerEnv` variables, of which
-the responder job currently sets exactly one (`DEV_WORKSPACE_FOLDER`):
-
-| variable                                                          | what depends on it                  |
-| ----------------------------------------------------------------- | ----------------------------------- |
-| `CBM_CACHE_DIR`                                                   | `codebase-memory-mcp-install.sh:22` |
-| `UV_CACHE_DIR`, `UV_PYTHON_INSTALL_DIR`, `UV_PROJECT_ENVIRONMENT` | `uv-sync.sh` target environment     |
-| `CLAUDE_SECURESTORAGE_CONFIG_DIR`                                 | Claude auth location                |
-| `ENABLE_FIREWALL`                                                 | `firewall.sh` opt-in                |
-| `DISPLAY`, `DOCKER_HOST`, `DEVCONTAINER_ID`                       | desktop, Docker, instance identity  |
-
-Fixing these one unbound variable per CI run is the wrong shape — each round
-trip costs a full run and only finds the next one. Instead the container was
-reproduced locally over Docker-in-Docker (`docker run` with no devcontainer
-`containerEnv` and no mounts, the checkout copied to `/__w/<repo>/<repo>`),
-which turns a ~10-minute CI round trip into a ~2-minute local one and reproduced
-the CI failure exactly.
-
-Ablation against that harness gives the **minimal contract** — two environment
-variables and two directories, no volumes:
-
-| what                                  | why it is required                                                                            |
-| ------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `DEV_WORKSPACE_FOLDER`                | workspace root for every script                                                               |
-| `CBM_CACHE_DIR`                       | `codebase-memory-mcp-install.sh:22` dereferences it under `set -u`                            |
-| `UV_PROJECT_ENVIRONMENT`              | **silent corruption if unset** — see below                                                    |
-| `mkdir -p /root/.claude /root/.codex` | `postCreateCommand.sh:63-69` writes `claude.json` into a directory a volume normally provides |
-
-Ablation results worth keeping:
-
-- `ENABLE_FIREWALL` is **not** needed; `firewall.sh` is already inert by
-  default.
-- `UV_CACHE_DIR` and `UV_PYTHON_INSTALL_DIR` are **not** needed; they are cache
-  locations, and uv falls back to its own defaults.
-- `DISPLAY`, `DOCKER_HOST`, `DEVCONTAINER_ID`, and
-  `CLAUDE_SECURESTORAGE_CONFIG_DIR` are **not** exercised by the hooks.
-- Volumes are **not** needed at all: plain directories suffice.
-
-`UV_PROJECT_ENVIRONMENT` is the dangerous one and the reason this had to be
-found locally rather than in CI. Unset, `uv sync` does not fail — it creates
-`.venv` **inside the checkout** and the job stays green. A CI run would have
-reported success while the responder reviewed a working tree the setup had just
-written into. Confirmed by ablation: dropping only that variable yields exit 0
-plus `Creating virtual environment at: .venv`.
-
-With those two variables and two directories, all three hooks pass with no
-volumes, no `.venv` leak, CBM indexed (2505 nodes / 5125 edges), and the catalog
-installed **from the checkout** at local scope — the branch's-own-skills
-property this whole design exists for.
+The guards are not the whole story: the hooks also depend on
+`devcontainer.json`'s `containerEnv` and mounts, which a `container:` job does
+not apply. Tasks 7 and 8 supply what they need. The boundary and its minimal
+contract are recorded in
+[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
 
 `ai-responder.yml` is imported Claude-only: the `codex-respond` job, the codex
 preflight conditions, the `AI_RESPONDERS` variable with its validation step and
@@ -209,15 +153,11 @@ only a caller that opts in skips anything.
 Stands alone: it is the maintainer's action in GitHub settings, not a code
 change, and Task 4 cannot be exercised until it is done.
 
-The Claude GitHub App was installed during this work, but it is **not** a
-prerequisite for the responder to run, and an earlier revision of this section
-wrongly said it was. The workflow passes `github_token` explicitly, so the
-action authenticates without the app; the app only changes whether the review is
-attributed to `claude[bot]` or `github-actions[bot]`, and
-`require-ai-review.yml:71-74` accepts both. It was briefly suspected of causing
-the missing comment-triggered run, which it did not — see Task 6. All three
-items are documented for template consumers, with the app marked optional, in
-[Template consumption](../spec/template-consumption.md).
+The Claude GitHub App is **not** required: the workflow passes `github_token`
+explicitly, so the app only changes whether the review is attributed to
+`claude[bot]` or `github-actions[bot]`, and `require-ai-review.yml:71-74`
+accepts both. All three items are documented for template consumers, with the
+app marked optional, in [Template consumption](../spec/template-consumption.md).
 
 - [x] Install the [Claude GitHub App](https://github.com/apps/claude) —
   optional, affects review attribution only
@@ -308,21 +248,9 @@ items are documented for template consumers, with the app marked optional, in
 
 **Files:** Modify: `.devcontainer/scripts/postCreateCommand.sh`
 
-Added 2026-08-17, after the first responder run (#65, run 31982718867) failed in
-the `Run devcontainer lifecycle scripts` step:
-
-```
-+ sudo chown -R root:root /__w/.../.cache /uv
-chown: cannot access '/__w/.../.cache': No such file or directory
-chown: cannot access '/uv': No such file or directory
-```
-
 `postCreateCommand.sh:35-37` chowns `$workspace/.cache` and `/uv`. Both exist in
-a devcontainer only because `devcontainer.json:52-60` mounts them — `/uv` is the
-`agentdev-uv` volume and `.cache` is a bind mount. A GitHub Actions `container:`
-job mounts neither, so `set -e` kills the script. The plan's Approach assumed
-the hooks would run as-is given the two `AGENTDEV_SKIP_*` guards; that
-assumption was wrong, and only a real `container:` job could expose it.
+a devcontainer only because `devcontainer.json:52-60` mounts them, so `set -e`
+kills the script wherever they are absent.
 
 Chowning only what exists keeps the devcontainer path identical in effect (every
 target is a mount and always present there) while letting a mountless caller
@@ -340,22 +268,20 @@ proceed. Task 6 is blocked until this lands.
   the same `chown` still runs against both
   - **Evidence:** the loop exercised against a temp workspace — with both
     targets created it selects both for chown (the devcontainer case); with
-    neither created it skips both and continues instead of exiting 1 (the
-    `container:` case that failed run 31982718867).
+    neither created it skips both and continues instead of exiting 1.
 
 ### Task 8: Supply the devcontainer contract the hooks need
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-Added 2026-08-17, after local Docker-in-Docker ablation established the minimal
-set (see Approach). The responder job currently supplies only
-`DEV_WORKSPACE_FOLDER`, so it dies on `CBM_CACHE_DIR` and — once past that —
-would silently write a `.venv` into the checkout.
+The job supplies only `DEV_WORKSPACE_FOLDER`; the hooks also need
+`CBM_CACHE_DIR` and `UV_PROJECT_ENVIRONMENT`, and two directories a volume
+normally provides. The minimal contract and how it was derived are in
+[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
 
-Scope note: this changes the *workflow*, not the lifecycle scripts, so it stays
-inside the Out of scope boundary as written. Whether the scripts should instead
-default these values themselves is a separate question, deliberately not decided
-here.
+This changes the *workflow*, not the lifecycle scripts, so it stays inside the
+Out of scope boundary. Whether the scripts should default these values
+themselves is a separate question, deliberately not decided here.
 
 - [x] Set `CBM_CACHE_DIR` and `UV_PROJECT_ENVIRONMENT` on the lifecycle step,
   alongside the existing `DEV_WORKSPACE_FOLDER` and the two `AGENTDEV_SKIP_*`
@@ -372,8 +298,8 @@ here.
   - **Evidence:** harness added and run against
     `ghcr.io/plume-works/agent-desktop:pr-41` — exit 0 with all three hooks OK
     and `ok: no .venv in the checkout`. `BARE=1` (contract withheld) exits 1 on
-    `CBM_CACHE_DIR: unbound variable`, the same line CI run 31983567248 died on,
-    so the harness reproduces the failure and the fix in both directions.
+    `CBM_CACHE_DIR: unbound variable`, so the harness reproduces the failure and
+    the fix in both directions.
 - [x] Confirm `actionlint` and `zizmor` still pass
   - **Evidence:**
     `pre-commit run actionlint --files .github/workflows/ai-responder.yml` —
@@ -384,27 +310,14 @@ here.
 **Files:** none — CI and repository settings
 
 Stands alone: its evidence is a CI run on a real PR plus a branch-protection
-change, neither of which the session writing Tasks 4-5 can produce. Blocked on
-Task 7 — the first attempt (#65, run 31982718867) died in the lifecycle step
-before Claude ever started.
+change, neither of which the session writing Tasks 4-5 can produce.
 
-Re-running it is not a matter of pushing. The responder's `pull_request`
-triggers are `opened`, `reopened`, `assigned`, and `ready_for_review` —
-deliberately not `synchronize` — so new commits on an open PR do not re-run it.
-
-Commenting `@claude review` does not work either while the workflow lives only
-on a branch. `issue_comment` is a repository-level event, and GitHub dispatches
-those using the workflow file **on the default branch**; until these files land
-on `main`, a comment starts no run. Observed on #65: the Claude app reacted with
-👀 — so the app saw the comment — while no workflow run appeared. The app
-installation and the workflow trigger are independent, and here only the latter
-was missing.
-
-`pull_request`-triggered runs *do* fire from the branch, so branch iteration
-works, but each attempt needs a `pull_request` event (reopen the PR, or toggle
-draft/ready) rather than a comment. Comment-driven behavior is only fully
-testable after merge — which means this task's evidence is necessarily split
-across before-merge and after-merge observations.
+How to trigger a run matters here. The `pull_request` triggers are `opened`,
+`reopened`, `assigned`, and `ready_for_review` — deliberately not `synchronize`
+— so pushing does not re-run the responder; reopen the PR or toggle draft/ready.
+Commenting `@claude review` will not work until these files are on the default
+branch, because GitHub resolves `issue_comment` against the workflow file there.
+Comment-driven behavior is therefore only testable after merge.
 
 - [ ] Trigger the responder on a real PR and confirm it posts a review, with the
   job log showing `agentdev:pr-review` resolved rather than improvised
