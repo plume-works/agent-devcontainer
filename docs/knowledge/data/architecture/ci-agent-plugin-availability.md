@@ -5,9 +5,11 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-16T00:00:00Z
 sources:
+- .devcontainer/scripts/postCreateCommand.sh
 - .devcontainer/scripts/postAttachCommand.sh
 - .devcontainer/scripts/postStartCommand.sh
 - .devcontainer/scripts/reinstall-agentdev-claude.sh
+- .devcontainer/devcontainer.json
 - ansible/roles/agentic_tools/README.md
 ---
 
@@ -46,7 +48,8 @@ a red one.
 
 The naming does not match the responsibilities, so the split is worth stating.
 The checkout-scoped catalog install and the CBM *index* both live in
-**postAttach**; postStart only *starts* CBM.
+**postAttach**; postStart only *starts* CBM, and postCreate is what *installs*
+it in the first place.
 
 | hook       | what a review job needs from it                                         |
 | ---------- | ----------------------------------------------------------------------- |
@@ -132,6 +135,10 @@ exists and why upstream's 30-minute job timeout carries over unchanged.
 
 - The lifecycle scripts become a CI contract, not only a devcontainer one. A
   change that assumes an interactive editor session will break the responder.
+  This is not hypothetical: the first responder run died in
+  `postCreateCommand.sh` on a `chown` of `$workspace/.cache` and `/uv`, two
+  paths that exist only because `devcontainer.json` mounts them. The scripts may
+  no longer assume a devcontainer's *mounts* either, not just its editor.
 - Skill availability is a property of the *job*, not the image — reading the
   Dockerfile will suggest otherwise, since it stages a catalog it never
   installs.
