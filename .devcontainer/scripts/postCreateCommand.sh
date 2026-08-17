@@ -30,6 +30,10 @@ chown_up() {
 # 'action.yml' ... under .github/actions/...").
 chown_up "root:root" "$workspace"
 
+# Fix ownership of the home directory and its parent directories. This is needed for
+# GitHub Actions where $HOME is /github/home which is owned by 1001:1001
+chown_up "root:root" "$HOME"
+
 # Named volumes are created root-owned by the daemon; make sure the container
 # user owns the mount points it writes to.
 #
