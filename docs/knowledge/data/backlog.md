@@ -16,6 +16,8 @@ write a plan and link the plan instead.*
 
 ## High
 
+[Tighten the ai-review-present gate](backlog/tighten-ai-review-gate.md)
+
 ## Medium
 
 [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
