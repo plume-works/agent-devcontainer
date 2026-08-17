@@ -7,8 +7,9 @@ description: Verify that implementation matches the graph — check a plan's tas
 
 The graph makes claims — tasks checked, requirements SHALL-ed, features marked
 implemented. This skill tests those claims against the code and reports what
-doesn't hold. It never fixes anything: the report is the deliverable, and the
-fixes belong to the skills and sessions it points at.
+doesn't hold. It is independently invocable before, during, or after
+implementation. It never fixes code or mutates project state: the report is the
+deliverable, and the fixes belong to the skills and sessions it points at.
 
 ## Steps
 
@@ -21,12 +22,34 @@ fixes belong to the skills and sessions it points at.
    (`iwe retrieve -k data/plans/<key>`).
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
    SUGGESTION, each with a concrete recommendation:
-   - **Completeness** — every unchecked `- [ ]` task is a CRITICAL
-     ("complete it, or tick it if already done"). Every spec in
-     `## Spec changes` exists and reflects the change (a back-ticked
-     not-yet-created spec still pending at verify time is a CRITICAL). Every
-     `### Requirement:` in the touched specs has implementation evidence in
-     the codebase — search for it; none found is a CRITICAL.
+   - **Completeness** — every unchecked `- [ ]` task is a CRITICAL, with three
+     routes out: complete it, tick it if already done, or revise the plan to
+     drop it via the plan skill's revise mode, which treats dropping a task as
+     a material scope change and so asks the user before doing it. The third
+     route exists because Ship refuses any CRITICAL and has no override: a task
+     the user has decided against can't be ticked while undone, so without it
+     the plan is unshippable. Naming a route is not taking it. Mirroring it,
+     every ticked `- [x]` task whose indented `- **Evidence:**` line is missing
+     or empty, or whose evidence names nothing traceable to a commit, test run,
+     or CI run, is also a CRITICAL, recommendation "untick it". Audit the two
+     asymmetrically, because they fail asymmetrically: an unchecked box that is
+     actually done is a nuisance the next session clears in a minute, while a
+     checked box that is not done is a false premise the next session builds
+     on. Taking a tick on faith is how the second one survives verification.
+     Every entry in `## Spec changes` is judged against the **effective
+     contract**: the current durable spec plus the intent the plan records
+     against it. Durable specs are not expected to describe the unshipped
+     change — Ship merges them after this report — so a back-ticked
+     not-yet-created spec is valid here whenever the plan explicitly introduces
+     it and supplies its planned contract. Check by the form the plan chose: a
+     fenced delta against the durable spec plus every `ADDED` / `MODIFIED` /
+     `REMOVED` operation, a concise entry against its normative outcome, and
+     `None` by confirming no externally observable behavior changed. Three
+     CRITICALs live here — the chosen form is too weak for what the change
+     actually touches, the implementation contradicts the recorded intent, or
+     the delta would silently drop a scenario this change does not affect.
+     Every `### Requirement:` in the effective contract has implementation
+     evidence in the codebase — search for it; none found is a CRITICAL.
    - **Correctness** — map each requirement to `path:line` evidence and judge
      whether the implementation matches its SHALL statement (divergence is a
      WARNING with the file and lines to review). For each `#### Scenario:`,
@@ -38,8 +61,10 @@ fixes belong to the skills and sessions it points at.
      should change); `## Out of scope` items stayed out; the
      `## Authoring rules` in `data/product.md` were honored.
 4. **Report and stop.** Issues ranked most severe first, then the verdict:
-   **ready to ship** (zero CRITICAL — hand off to the ship skill) or the
-   blocker list. Do not fix, tick, or edit anything.
+   **ready to ship** (zero CRITICAL — when Ship invoked this check, return the
+   report for Ship's decision) or the blocker list. Do not fix, tick, edit,
+   invoke Ship, or perform any shipping state transition. A standalone Verify
+   invocation always ends with its report.
 5. **Audit mode** — the same discipline over the whole graph, against the
    codebase:
    - Specs whose requirements the code now contradicts (sample the
@@ -64,6 +89,8 @@ fixes belong to the skills and sessions it points at.
 
 - Report, never fix — even a one-character hub-section fix is someone else's
   commit, so the audit trail stays clean.
+- Zero CRITICAL findings are the required handoff for normal Ship; Verify
+  supplies that verdict but never performs Ship's spec or lifecycle mutations.
 - Every claim cites `path:line` evidence or is explicitly labeled
   "unverified" — a requirement you couldn't trace is unverified, not failed,
   and says so.

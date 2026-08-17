@@ -4,6 +4,72 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-08-16
+
+- **Update**:
+  [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
+  done — `## Spec changes` now has three risk-scaled forms: an explicit `None`,
+  a linked spec plus a concise normative outcome, or a fenced
+  `ADDED`/`MODIFIED`/`REMOVED` delta carrying complete post-change requirements.
+  The change that mattered was naming the delta *intent* rather than truth,
+  which dissolved a structural disagreement: Verify had demanded that durable
+  specs already reflect an unshipped change while Ship was the skill that
+  updates them afterwards. Verify now judges code against the durable spec plus
+  the plan's intent, and a not-yet-created spec is valid when the plan supplies
+  its contract.
+- **Creation**: [Risk-scaled spec deltas](features/risk-scaled-spec-deltas.md)
+  records the three forms, the intent-versus-truth boundary, and the four
+  exclusions — no change bundle, store, separate delta file, or application
+  engine. OpenSpec's notation is adopted; its parser is not.
+- **Creation**:
+  [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
+  files the gap this shipment left open. `ADDED` and `MODIFIED` were worked end
+  to end by the plan's own delta; `REMOVED` was specified in the same pass and
+  never run, so the plan's fixture bullet asking for all three is unmet. Verify
+  flagged it as a WARNING, not a CRITICAL — no ticked task claimed otherwise.
+- **Update**:
+  [Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
+  done — a ticked `- [x]` now requires an indented `- **Evidence:**` child
+  naming the commit, test run, or CI run that closed it. A find-and-replace can
+  flip eight boxes; it cannot write eight evidence lines. Plan specifies the
+  format and gains a task-atomicity rule, Implement writes the evidence in the
+  same edit and never changes two boxes at once, and Verify's unchecked-box
+  CRITICAL finally has a ticked-box counterpart recommending "untick it". A
+  pytest over `data/plans/` enforces the shape from the suite, a pre-commit
+  hook, and the knowledge-base CI job — the first gate here that reads plan
+  documents rather than agent files.
+- **Creation**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) records
+  the contract as durable requirements: what a tick must carry, how tasks are
+  sized so a tick can be honest, and what the gate does and cannot do. It reads
+  shape only; whether a claim is *true* stays Verify's judgment and a human's.
+- **Update**: [Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
+  fixed and recorded in [unreleased](releases/unreleased.md). `48d0f79` had
+  fixed the instance and left both root causes standing; this closes them.
+- **Update**:
+  [Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
+  done — Explore's `## Capturing` now routes an established defect to
+  `data/bugs/<slug>.md`, and Verify's unchecked-box CRITICAL offers a third way
+  out (revise the plan to drop the task) alongside completing and ticking, which
+  Ship's no-override rule had left unstated.
+  [Verification in the main loop](features/verification-in-the-main-loop.md)
+  records the same three routes. No spec changed: the plan's rationale for that
+  was corrected at ship time, since
+  [IWE workflow skills](spec/iwe-workflow-skills.md) now covers these skills and
+  was re-checked against both edits.
+- **Creation**:
+  [Strengthen the workflow skill contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
+  reconstructed post-hoc from the OpenSpec change bundle's proposal, design, and
+  tasks artifacts, which `.gitignore` keeps out of the repository. Records the
+  eight design decisions and their rejected alternatives behind the Explore-to-
+  Ship prompt edits in `0d4d37b`, `61cce13`, `fcdd45a`, and `a35c802`; filed
+  `done` because the graph already carries the shipped state.
+- **Creation**: [IWE workflow skills](spec/iwe-workflow-skills.md) records the
+  verified Explore, Plan, Implement, Verify, and Ship behavior as durable
+  requirements and scenarios.
+- **Update**:
+  [Verification in the main loop](features/verification-in-the-main-loop.md)
+  implemented and recorded in [unreleased](releases/unreleased.md).
+
 ## 2026-08-15
 
 - **Update**: [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md) done —

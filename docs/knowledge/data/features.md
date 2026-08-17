@@ -14,6 +14,8 @@ deprecation — the `status` frontmatter (`proposed` → `accepted` → `impleme
 terminal `deprecated`/`cancelled`) carries the lifecycle, so the list stays
 flat. Group with `##` headings once it outgrows a single list.*
 
+[Risk-scaled spec deltas](features/risk-scaled-spec-deltas.md)
+
 [Verification in the main loop](features/verification-in-the-main-loop.md)
 
 [uv-run-only environment](features/uv-run-only-environment.md)

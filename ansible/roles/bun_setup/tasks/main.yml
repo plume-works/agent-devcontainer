@@ -53,9 +53,20 @@
     state: absent
   when: not bun_setup_bun_binary.stat.exists and bun_setup_temp_dir.path is defined
 
+# `bun install -g` creates this directory lazily on the first global install, so the
+# existence guards in the PATH blocks below only hold once something has been installed
+# globally. Creating it here makes the directory exist from image build onward, so those
+# guards pass in every shell and a freshly installed global binary is on PATH immediately
+# instead of only after the next shell restart.
+- name: Ensure Bun global bin directory exists
+  ansible.builtin.file:
+    path: "{{ user_home }}/.bun/bin"
+    state: directory
+    mode: "0755"
+
 - name: Ensure Bun bin is on bash PATH
   ansible.builtin.blockinfile:
-    path: /root/.bashrc
+    path: "{{ user_home }}/.bashrc"
     create: true
     mode: "0644"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: bun_setup"
@@ -69,13 +80,13 @@
 
 - name: Ensure fish config directory exists
   ansible.builtin.file:
-    path: /root/.config/fish
+    path: "{{ user_home }}/.config/fish"
     state: directory
     mode: "0755"
 
 - name: Ensure Bun bin is on fish PATH
   ansible.builtin.blockinfile:
-    path: /root/.config/fish/config.fish
+    path: "{{ user_home }}/.config/fish/config.fish"
     create: true
     mode: "0644"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: bun_setup"

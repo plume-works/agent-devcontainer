@@ -84,3 +84,13 @@ repos:
         language: system
         files: '(\.agents/plugins/agentdev/skills/.*/SKILL\.md|\.agents/plugins/agentdev/agents/.*\.agent\.md|\.codex/agents/.*\.md)$'
         pass_filenames: true
+
+      # `uv run` for the same reason as validate-agent-files above: the gate
+      # must read the working-tree plans being committed. It audits the whole
+      # plans directory rather than the staged subset, so it takes no filenames.
+      - id: plan-checkboxes
+        name: plan-checkboxes
+        entry: uv run pytest docs/knowledge/tests
+        language: system
+        files: '^docs/knowledge/data/plans/.*\.md$'
+        pass_filenames: false

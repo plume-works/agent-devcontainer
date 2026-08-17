@@ -16,18 +16,14 @@ write a plan and link the plan instead.*
 
 ## High
 
-[Plan the first feature](backlog/plan-first-feature.md)
-
 ## Medium
 
-[Import the existing backlog](backlog/import-existing-backlog.md)
+[Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
 
 [Write a capture skill](backlog/capture-skill.md)
 
 ## Low
 
 ## Done
-
-[Fill in the product doc](backlog/fill-product-doc.md)
 
 [Capture the current architecture](backlog/capture-current-architecture.md)

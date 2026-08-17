@@ -77,3 +77,9 @@ ENV/
 # Node
 node_modules/
 .venv-local/
+
+
+# Keep openspec stuff out of the repo
+openspec/
+**/skills/openspec-*/
+.openspec-target
