@@ -42,11 +42,15 @@ Which scripts matters more than "postCreate and postStart" suggests. The
 checkout-based catalog install and the CBM *index* live in **postAttach**, not
 postStart; postStart only *starts* CBM. All three hooks are therefore needed:
 
-| hook       | what the responder needs from it                         |
-| ---------- | -------------------------------------------------------- |
-| postCreate | auth symlinks, `uv-sync`, image-scoped catalog           |
-| postStart  | `codebase-memory-mcp-start.sh`                           |
-| postAttach | **CBM index**, `uv-sync`, **catalog from this checkout** |
+| hook       | what the responder needs from it                                |
+| ---------- | --------------------------------------------------------------- |
+| postCreate | **CBM install**, auth symlinks, `uv-sync`, image-scoped catalog |
+| postStart  | `codebase-memory-mcp-start.sh` — starts CBM, does not index     |
+| postAttach | **CBM index**, `uv-sync`, **catalog from this checkout**        |
+
+CBM needs all three: it is *installed* into agent config from postCreate
+(`postCreateCommand.sh:52`), *started* by postStart, and *indexed* by
+postAttach.
 
 Two postStart steps are pure cost in a review job and get `AGENTDEV_*` guards,
 defaulting to today's behavior so the devcontainer is unchanged:
@@ -59,6 +63,17 @@ when the keyring stack is absent.
 The rest of the setup is cheap. A cold CBM index measures ~3.5s in this
 repository, so hook installation is the only step worth skipping for time;
 upstream's 30-minute job timeout carries over unchanged.
+
+Two guards turned out not to be sufficient. The first responder run showed
+`postCreateCommand.sh` also assumes devcontainer-only *mount points* —
+`$workspace/.cache` and `/uv`, which `devcontainer.json` mounts and a
+`container:` job does not. Task 7 makes that one chown tolerant of absent
+targets. Other devcontainer-shaped assumptions remain further down the same
+script (the `/root/.agents-auth` setup, the `~/.claude.json` symlink, `uv-sync`
+writing to `/uv`) and `firewall.sh` shells out to
+`sudo /usr/local/bin/init-firewall.sh`; none has been observed failing yet
+because the run never got past the chown. If any does, it is the same class of
+finding and belongs in a revision, not in an unplanned fix.
 
 `ai-responder.yml` is imported Claude-only: the `codex-respond` job, the codex
 preflight conditions, the `AI_RESPONDERS` variable with its validation step and
@@ -218,12 +233,53 @@ change, and Task 4 cannot be exercised until it is done.
     `pre-commit run zizmor --files .github/workflows/require-ai-review.yml` —
     Passed.
 
+### Task 7: Chown only the mount points that exist
+
+**Files:** Modify: `.devcontainer/scripts/postCreateCommand.sh`
+
+Added 2026-08-17, after the first responder run (#65, run 31982718867) failed in
+the `Run devcontainer lifecycle scripts` step:
+
+```
++ sudo chown -R root:root /__w/.../.cache /uv
+chown: cannot access '/__w/.../.cache': No such file or directory
+chown: cannot access '/uv': No such file or directory
+```
+
+`postCreateCommand.sh:35-37` chowns `$workspace/.cache` and `/uv`. Both exist in
+a devcontainer only because `devcontainer.json:52-60` mounts them — `/uv` is the
+`agentdev-uv` volume and `.cache` is a bind mount. A GitHub Actions `container:`
+job mounts neither, so `set -e` kills the script. The plan's Approach assumed
+the hooks would run as-is given the two `AGENTDEV_SKIP_*` guards; that
+assumption was wrong, and only a real `container:` job could expose it.
+
+Chowning only what exists keeps the devcontainer path identical in effect (every
+target is a mount and always present there) while letting a mountless caller
+proceed. Task 6 is blocked until this lands.
+
+- [x] Make the `.cache` / `/uv` chown skip targets that do not exist, leaving
+  ownership of present targets exactly as today
+  - **Evidence:** `postCreateCommand.sh` now loops over both mount points and
+    runs the identical `sudo chown -R root:root` only when `[[ -e ]]`, logging a
+    skip otherwise.
+- [x] Confirm `shellcheck` passes
+  - **Evidence:** `shellcheck .devcontainer/scripts/postCreateCommand.sh` — exit
+    0, no output.
+- [x] Confirm the devcontainer path is unaffected: with both targets present,
+  the same `chown` still runs against both
+  - **Evidence:** the loop exercised against a temp workspace — with both
+    targets created it selects both for chown (the devcontainer case); with
+    neither created it skips both and continues instead of exiting 1 (the
+    `container:` case that failed run 31982718867).
+
 ### Task 6: Prove the responder runs green, then require the gate
 
 **Files:** none — CI and repository settings
 
 Stands alone: its evidence is a CI run on a real PR plus a branch-protection
-change, neither of which the session writing Tasks 4-5 can produce.
+change, neither of which the session writing Tasks 4-5 can produce. Blocked on
+Task 7 — the first attempt (#65, run 31982718867) died in the lifecycle step
+before Claude ever started.
 
 - [ ] Trigger the responder on a real PR and confirm it posts a review, with the
   job log showing `agentdev:pr-review` resolved rather than improvised
@@ -318,8 +374,13 @@ scripts.
 - **Installing the catalog into the image.** Considered and rejected: the
   responder checks out the branch, so the checkout's catalog is both available
   and more correct than the image's.
-- **Changing what the lifecycle scripts do when unguarded.** Both guards default
-  off; the devcontainer path stays byte-identical.
+- **Changing what the lifecycle scripts do when unguarded** — with one exception
+  added after the first CI run (Task 7): `postCreateCommand.sh` may skip a
+  `chown` whose target does not exist. In a devcontainer every such target is a
+  mount and always exists, so the devcontainer path stays byte-identical in
+  effect; only an environment that never had the mount behaves differently, and
+  there the current behavior is an unconditional failure. No other change to
+  unguarded behavior is in scope.
 - **Renovate, branch-protection automation, or importing any other Dr-QP
   workflow.**
 

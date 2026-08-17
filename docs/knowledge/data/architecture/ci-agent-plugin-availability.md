@@ -48,11 +48,17 @@ The naming does not match the responsibilities, so the split is worth stating.
 The checkout-scoped catalog install and the CBM *index* both live in
 **postAttach**; postStart only *starts* CBM.
 
-| hook       | what a review job needs from it                          |
-| ---------- | -------------------------------------------------------- |
-| postCreate | auth symlinks, `uv-sync`, image-scoped catalog install   |
-| postStart  | `codebase-memory-mcp-start.sh`                           |
-| postAttach | **CBM index**, `uv-sync`, **catalog from this checkout** |
+| hook       | what a review job needs from it                                         |
+| ---------- | ----------------------------------------------------------------------- |
+| postCreate | **CBM install**, auth symlinks, `uv-sync`, image-scoped catalog install |
+| postStart  | `codebase-memory-mcp-start.sh` — starts CBM, does not index             |
+| postAttach | **CBM index**, `uv-sync`, **catalog from this checkout**                |
+
+CBM is spread across all three hooks and no one of them is sufficient:
+`codebase-memory-mcp-install.sh` wires the binary into agent config from
+**postCreate** (`postCreateCommand.sh:52`), postStart starts it, postAttach
+indexes. Dropping postCreate to slim a CI job would leave the responder with no
+CBM wiring at all.
 
 Running only postCreate and postStart would leave the responder with the image's
 catalog and an unindexed CBM — the two things that make the review grounded are
