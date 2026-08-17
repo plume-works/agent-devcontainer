@@ -4,7 +4,7 @@ created: 2026-08-16
 description: Relocate the seven IWE workflow skills from .claude/skills/ into the agentdev plugin under iwe- prefixed names, making them plugin-portable and shipping them to catalog consumers.
 generated:
   by: claude-code/opus-5
-  at: 2026-08-16T02:28:06Z
+  at: 2026-08-17T00:00:00Z
 sources:
 - .claude/skills/ship/SKILL.md
 - .claude/skills/explore/SKILL.md
@@ -157,7 +157,7 @@ every row points at a deleted path.
 **Files:** Modify: `docs/knowledge/data/spec/iwe-workflow-skills.md`,
 `docs/knowledge/data/bugs/{plan-checkbox-over-claiming,missing-map-skill}.md`,
 `docs/knowledge/data/features/verification-in-the-main-loop.md`,
-`docs/knowledge/data/backlog/{capture-skill,fill-product-doc,plan-first-feature}.md`,
+`docs/knowledge/data/backlog/capture-skill.md`,
 `docs/knowledge/data/plans/*.md`
 
 Roughly 124 references across fifteen files, in three shapes: `sources:`
