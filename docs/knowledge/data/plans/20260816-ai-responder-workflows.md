@@ -67,9 +67,12 @@ preflight conditions, the `AI_RESPONDERS` variable with its validation step and
 dropped. The fork gate and the write-access gate are kept verbatim — they are
 the security spine.
 
-`require-ai-review.yml` is imported verbatim. Its codex acceptance path is live,
-not dead: Codex reviews arrive via Codex web as `chatgpt-codex-connector[bot]`,
-entirely outside GitHub Actions.
+`require-ai-review.yml` is imported verbatim apart from one line:
+`actions/checkout` is repinned from upstream's `v6.0.3` to the `v7.0.1` every
+other workflow here uses, because this repository pins actions and images
+deliberately rather than letting a second version float in. Its codex acceptance
+path is live, not dead: Codex reviews arrive via Codex web as
+`chatgpt-codex-connector[bot]`, entirely outside GitHub Actions.
 
 Rejected: installing the catalog into the image at build time (the checkout is
 always present, so the image never needed to carry an install — and it would
@@ -196,10 +199,24 @@ change, and Task 4 cannot be exercised until it is done.
 
 **Files:** Create: `.github/workflows/require-ai-review.yml`
 
-- [ ] Copy the upstream workflow unchanged, including both the Claude and Codex
+- [x] Copy the upstream workflow unchanged, including both the Claude and Codex
   acceptance paths
-- [ ] Confirm `.github/actions/log-debug-stats` resolves for its final step
-- [ ] Confirm `actionlint` and `zizmor` pass on the new workflow
+  - **Evidence:** `diff` against the fetched upstream copy shows exactly one
+    changed line — `actions/checkout` repinned from `v6.0.3` to this repo's
+    `v7.0.1`, per the pin-everywhere constraint in `data/product.md`. Both
+    `claudeLogins`/`codexLogins` sets, all three accepted review states, and the
+    `+1`-reaction path are byte-identical to upstream.
+- [x] Confirm `.github/actions/log-debug-stats` resolves for its final step
+  - **Evidence:** `.github/actions/log-debug-stats/action.yml` exists and
+    declares the `github-token` input the workflow's final step passes;
+    actionlint resolves the local `./.github/actions/log-debug-stats` reference
+    without error.
+- [x] Confirm `actionlint` and `zizmor` pass on the new workflow
+  - **Evidence:**
+    `pre-commit run actionlint --files .github/workflows/require-ai-review.yml`
+    — Passed;
+    `pre-commit run zizmor --files .github/workflows/require-ai-review.yml` —
+    Passed.
 
 ### Task 6: Prove the responder runs green, then require the gate
 
