@@ -333,7 +333,18 @@ Comment-driven behavior is therefore only testable after merge.
     (`Skill(skill: "code-review")` in that log) whose `ReportFindings` reporting
     is a no-op in a headless action; commit `e385672` names `agentdev:pr-review`
     explicitly.
-- [ ] Confirm `ai-review-present` passes on that PR
+- [x] Confirm `ai-review-present` passes on that PR
+  - **Evidence:** `ai-review-present` passes on PR #65 (run `32010195815`),
+    satisfied by the responder's own review. Two reviews from
+    `github-actions[bot]` back it: the original at 2026-08-17T04:46:04Z
+    (`pull_request` event, run `31994816348`) and a second at
+    2026-08-17T08:44:25Z from run `32009898440` on a `pull_request_review`
+    event. The second exercises the `isReview` fix in commit `4aa9835`: its job
+    log records `EVENT TYPE: pull_request_review` with the qualified
+    `agentdev:pr-review` prompt, which before the fix would have been the
+    freeform review body. Both review bodies carry the `agentdev:pr-review`
+    signature — independent passes, deduplication, and candidates refuted during
+    validation.
 - [ ] Only then add `ai-review-present` to the branch protection required checks
 
 ## Spec changes
