@@ -157,8 +157,7 @@ every row points at a deleted path.
 **Files:** Modify: `docs/knowledge/data/spec/iwe-workflow-skills.md`,
 `docs/knowledge/data/bugs/{plan-checkbox-over-claiming,missing-map-skill}.md`,
 `docs/knowledge/data/features/verification-in-the-main-loop.md`,
-`docs/knowledge/data/backlog/capture-skill.md`,
-`docs/knowledge/data/plans/*.md`
+`docs/knowledge/data/backlog/capture-skill.md`, `docs/knowledge/data/plans/*.md`
 
 Roughly 124 references across fifteen files, in three shapes: `sources:`
 frontmatter entries, backticked `path:line` anchors in prose, and prose naming
