@@ -206,42 +206,54 @@ otherwise report the concrete error as a blocker.
 ## AI Review Recovery
 
 This repository's `Require AI Review` check accepts a submitted review from
-Claude or Codex. Its `Claude Responder` workflow runs a pull-request review
-when an issue comment contains `@claude review`.
+Claude or Codex. Its AI responder workflow runs a pull-request review
+when an issue comment opens with `@claude review`.
 
 1. Confirm that the failed AI-review check actually says no accepted AI review
    was found. Inspect its log before triggering anything.
-2. Check current PR reviews and active `Claude Responder` runs first. If a
+
+   Resolve the responder workflow's filename first; it is not the same in every
+   repository (`ai-responder.yml` and `claude-review.yml` are both in use), and
+   a wrong name makes every `gh run list` below return nothing, which reads
+   exactly like "no responder ran":
+
+   ```bash
+   RESPONDER_WORKFLOW=$(gh workflow list --all --json name,path \
+     --jq '.[] | select(.name | test("responder|claude"; "i")) | .path' | head -1)
+   RESPONDER_WORKFLOW=$(basename "${RESPONDER_WORKFLOW:?no AI responder workflow found}")
+   ```
+
+2. Check current PR reviews and active responder runs first. If a
    responder is already reviewing this PR, wait for that run rather than
    starting a duplicate review. Maintain a per-head-SHA trigger ledger in the
    conversation so a trigger is posted at most once for each head SHA.
 
    **`gh pr checks <pr>` is not sufficient to find these runs.**
-   `claude-review.yml` triggers on `issue_comment`, `pull_request_review`,
+   The responder workflow triggers on `issue_comment`, `pull_request_review`,
    and `pull_request_review_comment` in addition to `pull_request`. For those
    non-`pull_request` events, GitHub records the run against
    `context.sha`/`context.ref` — the repo's default branch — not the PR's
    head SHA, even though the workflow's "Determine checkout ref" step then
    checks out the PR's real head commit internally. Because `gh pr checks`
-   only lists checks attached to the PR head commit, a `Claude Responder` run
+   only lists checks attached to the PR head commit, a responder run
    started by an `@claude review` comment routinely never appears there,
    including while it is still running. Always cross-check the workflow's
    own run list instead of trusting `gh pr checks` alone:
 
    ```bash
-   # All recent Claude Responder runs, regardless of which branch/SHA GitHub filed them under
-   gh run list --workflow=claude-review.yml \
+   # All recent responder runs, regardless of which branch/SHA GitHub filed them under
+   gh run list --workflow="$RESPONDER_WORKFLOW" \
      --json databaseId,status,conclusion,event,headBranch,headSha,createdAt,url,displayTitle \
      --limit 20
 
    # Narrow to in-flight runs only
-   gh run list --workflow=claude-review.yml --status in_progress \
+   gh run list --workflow="$RESPONDER_WORKFLOW" --status in_progress \
      --json databaseId,event,createdAt,url,displayTitle
-   gh run list --workflow=claude-review.yml --status queued \
+   gh run list --workflow="$RESPONDER_WORKFLOW" --status queued \
      --json databaseId,event,createdAt,url,displayTitle
 
    # Narrow to runs from comment triggers specifically (these are the ones gh pr checks misses)
-   gh run list --workflow=claude-review.yml --event issue_comment \
+   gh run list --workflow="$RESPONDER_WORKFLOW" --event issue_comment \
      --json databaseId,status,conclusion,createdAt,url,displayTitle --limit 10
    ```
 
@@ -274,13 +286,13 @@ when an issue comment contains `@claude review`.
    directly instead of polling `gh pr checks`:
 
    ```bash
-   gh run list --workflow=claude-review.yml --event issue_comment \
+   gh run list --workflow="$RESPONDER_WORKFLOW" --event issue_comment \
      --json databaseId,status,createdAt,url --limit 1
    ```
 
-4. Wait for the `Claude Responder` workflow to complete — via `gh run watch
+4. Wait for the responder workflow to complete — via `gh run watch
 <run-id> --exit-status` on the run captured above, or by repeating the
-   `gh run list --workflow=claude-review.yml` query until its `status`
+   `gh run list --workflow="$RESPONDER_WORKFLOW"` query until its `status`
    reaches `completed` — then refresh both `gh pr checks` and PR reviews. Do
    not treat workflow start, a plain comment, or a pending review as
    completion.
@@ -306,4 +318,4 @@ evidenced.
 - [extract-github-actions-logs](../extract-github-actions-logs/SKILL.md) —
   retrieve GitHub Actions logs and uploaded test artifacts.
 - [pr-review](../pr-review/SKILL.md) — automated-review behavior used by the
-  Claude Responder workflow.
+  AI responder workflow.
