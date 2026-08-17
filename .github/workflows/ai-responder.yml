@@ -32,20 +32,28 @@ env:
 jobs:
   preflight:
     name: AI responder preflight
+    # The mention must *open* the body (startsWith, not contains). A substring
+    # test cannot tell invocation from discussion: any comment quoting
+    # "@claude" while talking *about* the responder -- a review of this
+    # workflow, a doc example, a fix description -- starts a container job.
+    # That is not hypothetical; it fired repeatedly while this workflow was
+    # being reviewed. Requiring the mention up front keeps the deliberate
+    # "@claude review ..." working while quoted or code-fenced mentions stay
+    # inert. Trailing text is unrestricted, so the request itself is free-form.
     if: |
       github.repository_owner == 'plume-works' &&
       (github.event_name != 'pull_request' ||
         github.event.pull_request.head.repo.full_name == github.repository) &&
       (
         (github.event_name == 'issue_comment' &&
-          contains(github.event.comment.body, '@claude')) ||
+          startsWith(github.event.comment.body, '@claude')) ||
         (github.event_name == 'pull_request_review_comment' &&
-          contains(github.event.comment.body, '@claude')) ||
+          startsWith(github.event.comment.body, '@claude')) ||
         (github.event_name == 'pull_request_review' &&
-          contains(github.event.review.body, '@claude')) ||
+          startsWith(github.event.review.body, '@claude')) ||
         (github.event_name == 'issues' &&
-          (contains(github.event.issue.body, '@claude') ||
-           contains(github.event.issue.title, '@claude'))) ||
+          (startsWith(github.event.issue.body, '@claude') ||
+           startsWith(github.event.issue.title, '@claude'))) ||
         github.event_name == 'pull_request'
       )
     runs-on: ubuntu-24.04
@@ -135,23 +143,35 @@ jobs:
             const comment = payload.comment?.body ?? '';
             const review = payload.review?.body ?? '';
             const issueText = `${payload.issue?.title ?? ''}\n${payload.issue?.body ?? ''}`;
+            // Mirrors the preflight `startsWith` gate: the mention opens the
+            // body, so discussing "@claude" never counts as invoking it.
+            // Checked per field -- issueText joins title and body with a
+            // newline, so a single startsWith over it would only ever see the
+            // title.
             const mentions = (responder) => {
               const mention = `@${responder}`;
               if (eventName === 'pull_request') {
                 return true;
               }
               if (eventName === 'issues') {
-                return issueText.includes(mention);
+                return (payload.issue?.title ?? '').startsWith(mention) ||
+                  (payload.issue?.body ?? '').startsWith(mention);
               }
-              return comment.includes(mention) || review.includes(mention);
+              return comment.startsWith(mention) || review.startsWith(mention);
             };
             const requestedTask =
               payload.comment?.body ?? payload.review?.body ?? issueText;
             const promptFor = (responder) => {
+              // startsWith for the same reason as `mentions`: a body that
+              // merely contains "@claude review" is discussing the request,
+              // not making it. Checked against both comment and review bodies
+              // -- on a pull_request_review event payload.comment is undefined,
+              // so a comment-only test silently falls through to the freeform
+              // task and the review is never posted.
               const isReview =
                 eventName === 'pull_request' ||
-                comment.includes(`@${responder} review`) ||
-                review.includes(`@${responder} review`);
+                comment.startsWith(`@${responder} review`) ||
+                review.startsWith(`@${responder} review`);
               const prompt = [
                 `REPOSITORY: ${context.repo.owner}/${context.repo.repo}`,
                 `EVENT TYPE: ${eventName}`,
