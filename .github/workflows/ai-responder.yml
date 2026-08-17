@@ -150,7 +150,8 @@ jobs:
             const promptFor = (responder) => {
               const isReview =
                 eventName === 'pull_request' ||
-                comment.includes(`@${responder} review`);
+                comment.includes(`@${responder} review`) ||
+                review.includes(`@${responder} review`);
               const prompt = [
                 `REPOSITORY: ${context.repo.owner}/${context.repo.repo}`,
                 `EVENT TYPE: ${eventName}`,

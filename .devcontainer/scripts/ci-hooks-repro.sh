@@ -15,7 +15,7 @@
 #   BARE=1 .devcontainer/scripts/ci-hooks-repro.sh       # supply nothing; expect failure
 #
 # Exit status is the hooks' own: 0 only when all three succeed.
-set -uo pipefail
+set -euo pipefail
 
 IMAGE="${IMAGE:-ghcr.io/plume-works/agent-desktop:edge}"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -45,7 +45,7 @@ docker run --rm \
     "$@" \
     "$IMAGE" \
     bash -c '
-set -uo pipefail
+set -euo pipefail
 workspace="$DEV_WORKSPACE_FOLDER"
 
 # postCreateCommand.sh writes claude.json into ~/.claude, which a devcontainer
