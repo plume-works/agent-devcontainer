@@ -65,11 +65,12 @@ if [[ ! -d .git ]]; then
 fi
 
 status=0
+mkdir -p ./.tmp
 for hook in postCreate postStart postAttach; do
     echo "=================== $hook ==================="
-    if ! ".devcontainer/scripts/${hook}Command.sh" >"/tmp/$hook.log" 2>&1; then
+    if ! ".devcontainer/scripts/${hook}Command.sh" >"./.tmp/$hook.log" 2>&1; then
         echo "!!! $hook FAILED"
-        tail -15 "/tmp/$hook.log"
+        tail -15 "./.tmp/$hook.log"
         status=1
         break
     fi
