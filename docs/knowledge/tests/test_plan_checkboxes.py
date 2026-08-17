@@ -31,7 +31,8 @@ PLANS_DIR = Path(__file__).resolve().parents[1] / 'data' / 'plans'
 TASK_SECTIONS = frozenset({'Implementation Steps', 'Tasks'})
 
 TASK_LINE = re.compile(r'^- \[(?P<mark>[ xX])\]\s+(?P<text>.*)$')
-EVIDENCE_LINE = re.compile(r'^[ \t]+- \*\*Evidence:\*\*(?P<body>.*)$')
+EVIDENCE_LINE = re.compile(r'^(?P<indent>[ \t]+)- \*\*Evidence:\*\*(?P<body>.*)$')
+LIST_ITEM = re.compile(r'^(?P<indent>[ \t]+)(?:[-+*]|\d+[.)])\s+')
 FENCE = re.compile(r'^[ \t]*(?:```|~~~)')
 HEADING = re.compile(r'^(?P<hashes>#{1,6})\s+(?P<title>.*)$')
 
@@ -143,9 +144,13 @@ def evidence_text(block: TaskBlock) -> str | None:
         marker = EVIDENCE_LINE.match(line)
         if marker is None:
             continue
+        marker_indent = len(marker.group('indent').expandtabs())
         parts = [marker.group('body').strip()]
         for continuation in block.body[index + 1 :]:
             if not continuation.strip() or not continuation.startswith((' ', '\t')):
+                break
+            list_item = LIST_ITEM.match(continuation)
+            if list_item and len(list_item.group('indent').expandtabs()) <= marker_indent:
                 break
             if EVIDENCE_LINE.match(continuation):
                 break
@@ -316,7 +321,8 @@ def test_empty_evidence_marker_is_a_violation(plans_dir: Path) -> None:
         '## Implementation Steps\n'
         '\n'
         '- [x] **1. Push the branch.**\n'
-        '  - **Evidence:**\n',
+        '  - **Evidence:**\n'
+        '  - **Notes:** no test was run.\n',
     )
 
     violations = check_plan(path, path.read_text(encoding='utf-8'))
