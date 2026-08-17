@@ -316,6 +316,53 @@ validate with the same version — Renovate already bumps that file.
 A project that ships no skills or agents of its own should delete the workflow
 and the `validate-agent-files` pre-commit hook outright.
 
+### AI responder and the review gate
+
+`ai-responder.yml` and `require-ai-review.yml` are a matched pair: the responder
+answers `@claude` mentions and reviews pull requests, and `ai-review-present`
+blocks merge until an AI review exists. Keep both or drop both — keeping only
+the gate blocks every merge with nothing able to satisfy it.
+
+Three prerequisites live outside the repository, and **all three must be in
+place before the responder can run**. Missing any one produces a failure that
+looks like a workflow bug rather than a provisioning gap:
+
+1. **Install the [Claude GitHub App](https://github.com/apps/claude) on the
+   organization or repository.** This is the one most easily missed, because
+   nothing in the checked-in files references it and its absence is not reported
+   as a configuration error.
+2. **Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret**, which
+   `anthropics/claude-code-action` authenticates with.
+3. **Create the `claude-review` environment** named by the `claude-respond`
+   job's `environment:` key. A job naming an environment that does not exist
+   does not run.
+
+Then adapt the workflows themselves:
+
+- Change the owner gate. The preflight `if:` opens with
+  `github.repository_owner == 'plume-works'`; a copy that keeps that literal
+  never runs anywhere else. This gate is deliberate — it stops the workflow
+  running in forks of the template.
+- Keep the fork gate and the write-access gate exactly as written. They are the
+  security spine: together they ensure no fork's code is checked out and no
+  actor without write access can drive the responder.
+- Repoint `container.image` at whichever image the consuming project uses.
+- Review the `Run devcontainer lifecycle scripts` step against that image's own
+  lifecycle scripts. It exists because a `container:` job runs no devcontainer
+  hooks, so without it nothing installs the `agentdev` catalog and the responder
+  improvises a review instead of running `agentdev:pr-review` — a green required
+  check over an ungrounded review. See
+  [CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+
+Note that the responder's `pull_request` triggers are `opened`, `reopened`,
+`assigned`, and `ready_for_review` — **not `synchronize`**. Pushing new commits
+to an open pull request does not re-run it; re-request a review by commenting
+`@claude review`. Adding `synchronize` would re-review on every push, which is
+usually not what a project wants.
+
+A project that wants neither should delete both workflows together, and must not
+add `ai-review-present` to its branch protection.
+
 ### Renovate
 
 Retain `.github/renovate.json`, but review every rule:
@@ -507,6 +554,12 @@ actions, and the workflow starting points described in
 [Template boundary](../architecture/template-boundary.md). Apply the same manual
 CI edits from Workflow A; selecting fewer files does not remove their internal
 publisher assumptions.
+
+If the AI responder workflows are among the files taken, their three
+out-of-repository prerequisites apply here too — the Claude GitHub App
+installation, the `CLAUDE_CODE_OAUTH_TOKEN` secret, and the `claude-review`
+environment. Copying the files alone is not enough, and none of the three is
+visible in a diff.
 
 ## 5. Verify
 

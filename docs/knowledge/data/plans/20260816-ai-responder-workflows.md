@@ -158,8 +158,26 @@ only a caller that opts in skips anything.
 Stands alone: it is the maintainer's action in GitHub settings, not a code
 change, and Task 4 cannot be exercised until it is done.
 
-- [ ] Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret
-- [ ] Create the `claude-review` environment
+The prerequisite list was incomplete when this plan was written: it named the
+secret and the environment but not the **Claude GitHub App installation**, which
+the maintainer found missing on the org/repo after the first responder attempt.
+Nothing in the checked-in files references the app, and its absence is not
+reported as a configuration error — which is exactly why it belongs in a written
+list. All three are now documented for template consumers in
+[Template consumption](../spec/template-consumption.md).
+
+- [x] Install the [Claude GitHub App](https://github.com/apps/claude) on the
+  organization or repository
+  - **Evidence:** installed by the maintainer after the first responder attempt;
+    `gh api orgs/plume-works/installations` lists `claude` alongside `renovate`
+    and `chatgpt-codex-connector`.
+- [x] Create the `CLAUDE_CODE_OAUTH_TOKEN` repository secret
+  - **Evidence:** created by the maintainer, who confirmed it is in place.
+    Secret *values* are not readable via the API by design, so this rests on
+    that confirmation; a green responder run is what proves it end to end.
+- [x] Create the `claude-review` environment
+  - **Evidence:** `gh api repos/:owner/:repo/environments` lists `claude-review`
+    alongside `reformat-commit`.
 
 ### Task 4: Import ai-responder.yml, Claude-only
 
@@ -280,6 +298,11 @@ Stands alone: its evidence is a CI run on a real PR plus a branch-protection
 change, neither of which the session writing Tasks 4-5 can produce. Blocked on
 Task 7 — the first attempt (#65, run 31982718867) died in the lifecycle step
 before Claude ever started.
+
+Re-running it is not a matter of pushing. The responder's `pull_request`
+triggers are `opened`, `reopened`, `assigned`, and `ready_for_review` —
+deliberately not `synchronize` — so new commits on an open PR do not re-run it.
+Comment `@claude review` on the PR to request another run.
 
 - [ ] Trigger the responder on a real PR and confirm it posts a review, with the
   job log showing `agentdev:pr-review` resolved rather than improvised

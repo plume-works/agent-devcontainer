@@ -136,6 +136,37 @@ manual template guide's Renovate section
 
 The [Renovate dashboard is here](https://developer.mend.io/github/plume-works/agent-devcontainer).
 
+## AI pull request review
+
+Two workflows provide automated review: `ai-responder.yml` answers `@claude`
+mentions and reviews pull requests, and `require-ai-review.yml` contributes the
+`ai-review-present` check that blocks merge until an AI review exists. They are a
+matched pair — keeping only the gate blocks every merge with nothing able to
+satisfy it.
+
+The responder runs in the `agent-desktop` container and executes the devcontainer
+lifecycle scripts against its own checkout before invoking Claude, so it reviews
+using the **branch's own** `agentdev` catalog — a pull request that changes a
+skill is reviewed by that skill as changed. Without that step nothing installs
+`agentdev:pr-review` and the agent improvises a review, which is worse than no
+review because the required check still turns green.
+
+Three prerequisites live outside the repository and are all required:
+
+1. the [Claude GitHub App](https://github.com/apps/claude), installed on the
+   organization or repository;
+2. the `CLAUDE_CODE_OAUTH_TOKEN` repository secret; and
+3. the `claude-review` environment.
+
+The responder triggers on pull request `opened`, `reopened`, `assigned`, and
+`ready_for_review` — **not on pushes to an open pull request**. Comment
+`@claude review` to re-request one.
+
+Projects adopting this repository as a template should read the AI responder
+section of the manual template guide
+(`docs/knowledge/data/spec/template-consumption.md`), which covers the owner gate
+and the security gates that must be preserved.
+
 ## Enabling the firewall
 
 The firewall is installed in the image but does nothing until you ask for it.
