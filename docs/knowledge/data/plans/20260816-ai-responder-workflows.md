@@ -325,7 +325,7 @@ scripts.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-16):
+Verified anchor points (line numbers as of 2026-08-17):
 
 - `.devcontainer/scripts/postAttachCommand.sh:8` —
   `codebase-memory-mcp-index.sh`; a cold index measures ~3.5s in this repository
@@ -334,19 +334,25 @@ Verified anchor points (line numbers as of 2026-08-16):
   branch's own skills
 - `.devcontainer/scripts/postStartCommand.sh:9` —
   `codebase-memory-mcp-start.sh`, which starts CBM but does not index
-- `.devcontainer/scripts/postStartCommand.sh:11` — `setup-pre-commit.sh`, the
+- `.devcontainer/scripts/postStartCommand.sh:11` —
+  `setup-git-safe-directory.sh`, the split-out call added by Task 1
+- `.devcontainer/scripts/postStartCommand.sh:12` — `setup-pre-commit.sh`, the
   call site the `AGENTDEV_SKIP_PRE_COMMIT` guard protects
-- `.devcontainer/scripts/postStartCommand.sh:14` —
-  `/start-xpra.sh --background`, guarded by `AGENTDEV_SKIP_XPRA`
-- `.devcontainer/scripts/setup-pre-commit.sh:11` —
-  `git config --global --add safe.directory`, moving to its own script
-- `.devcontainer/scripts/setup-pre-commit.sh:12` — the leftover `git status` to
-  remove
-- `.devcontainer/scripts/setup-pre-commit.sh:16` —
+- `.devcontainer/scripts/postStartCommand.sh:16-21` — the `AGENTDEV_SKIP_XPRA`
+  guard around `/start-xpra.sh --background`
+- `.devcontainer/scripts/setup-git-safe-directory.sh:11` —
+  `git config --global --add safe.directory`, the call a CI checkout needs and
+  the pre-commit guard must not skip
+- `.devcontainer/scripts/setup-pre-commit.sh:11-14` — the
+  `AGENTDEV_SKIP_PRE_COMMIT` early exit
+- `.devcontainer/scripts/setup-pre-commit.sh:20` —
   `pre-commit install --install-hooks`, the minutes-long step
-- `.devcontainer/scripts/setup-keyring.sh:99-107` — the graceful skip that makes
+- `.devcontainer/scripts/setup-keyring.sh:99-105` — the graceful skip that makes
   a keyring guard unnecessary
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:14-15` — the no-argument
   default that resolves the catalog root to this checkout
-- `.github/workflows/ci.yml:30` — `DESKTOP_IMAGE_NAME: agent-desktop`, the image
+- `.github/workflows/ci.yml:31` — `DESKTOP_IMAGE_NAME: agent-desktop`, the image
   the responder job runs in
+- `.github/workflows/ai-responder.yml` — the imported Claude-only responder
+- `.github/workflows/require-ai-review.yml` — the imported `ai-review-present`
+  gate
