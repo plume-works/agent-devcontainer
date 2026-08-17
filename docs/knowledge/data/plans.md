@@ -25,6 +25,8 @@ moves them.*
 
 [Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
 
+[Keep working logbooks out of the knowledge graph](plans/20260817-no-logbooks-in-the-graph.md)
+
 ## Done
 
 [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
