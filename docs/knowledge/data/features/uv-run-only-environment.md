@@ -6,11 +6,11 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- .devcontainer/devcontainer.json
-- .devcontainer/scripts/uv-sync.sh
-- .agents/plugins/agentdev/bin/python-lint-check.sh
-- .github/actions/setup-python-venv/action.yml
-- .github/workflows/validate-agent-files.yml
+- resource: .devcontainer/devcontainer.json
+- resource: .devcontainer/scripts/uv-sync.sh
+- resource: .agents/plugins/agentdev/bin/python-lint-check.sh
+- resource: .github/actions/setup-python-venv/action.yml
+- resource: .github/workflows/validate-agent-files.yml
 ---
 
 # uv-run-only environment

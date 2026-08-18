@@ -5,9 +5,9 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- .devcontainer/devcontainer.json
-- .devcontainer/scripts/uv-sync.sh
-- .devcontainer/docker-compose.yml
+- resource: .devcontainer/devcontainer.json
+- resource: .devcontainer/scripts/uv-sync.sh
+- resource: .devcontainer/docker-compose.yml
 ---
 
 # uv environment location

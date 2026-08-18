@@ -8,10 +8,17 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 "$script_dir/codebase-memory-mcp-start.sh"
 
+"$script_dir/setup-git-safe-directory.sh"
 "$script_dir/setup-pre-commit.sh"
 "$script_dir/setup-keyring.sh"
 "$script_dir/firewall.sh"
-/start-xpra.sh --background
+# Headless callers — the CI responder job — opt out of the remote desktop
+# nothing will connect to. Unset (the devcontainer default) starts it as before.
+if [[ -n "${AGENTDEV_SKIP_XPRA:-}" ]]; then
+  echo "AGENTDEV_SKIP_XPRA is set; skipping Xpra startup."
+else
+  /start-xpra.sh --background
+fi
 
 # Repairs the shared auth.json symlink if a `codex logout` during this container's
 # previous run destroyed it; see link-codex-auth.sh for why that can happen.

@@ -5,8 +5,8 @@ generated:
   by: claude-sonnet-5
   at: 2026-08-12T00:00:00Z
 sources:
-- compose.pins.yml
-- README.md
+- resource: compose.pins.yml
+- resource: README.md
 ---
 
 # Image pinning

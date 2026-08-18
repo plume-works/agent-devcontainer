@@ -5,11 +5,11 @@ generated:
   by: codex
   at: 2026-08-16T00:40:24Z
 sources:
-- .claude/skills/explore/SKILL.md
-- .claude/skills/plan/SKILL.md
-- .claude/skills/implement/SKILL.md
-- .claude/skills/verify/SKILL.md
-- .claude/skills/ship/SKILL.md
+- resource: .claude/skills/explore/SKILL.md
+- resource: .claude/skills/plan/SKILL.md
+- resource: .claude/skills/implement/SKILL.md
+- resource: .claude/skills/verify/SKILL.md
+- resource: .claude/skills/ship/SKILL.md
 ---
 
 # IWE workflow skills

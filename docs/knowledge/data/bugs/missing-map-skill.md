@@ -5,9 +5,9 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- .claude/skills/setup/SKILL.md
-- .claude/skills/verify/SKILL.md
-- https://github.com/iwe-org/dev-workspace/issues/1
+- resource: .claude/skills/setup/SKILL.md
+- resource: .claude/skills/verify/SKILL.md
+- resource: https://github.com/iwe-org/dev-workspace/issues/1
 ---
 
 # Missing map skill

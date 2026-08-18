@@ -6,10 +6,10 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- .claude/skills/plan/SKILL.md
-- .claude/skills/implement/SKILL.md
-- .claude/skills/verify/SKILL.md
-- docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
+- resource: .claude/skills/plan/SKILL.md
+- resource: .claude/skills/implement/SKILL.md
+- resource: .claude/skills/verify/SKILL.md
+- resource: docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
 stage: done
 completed: 2026-08-16
 ---

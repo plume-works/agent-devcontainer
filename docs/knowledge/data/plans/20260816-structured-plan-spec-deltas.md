@@ -6,12 +6,12 @@ generated:
   by: codex
   at: 2026-08-16T01:27:59Z
 sources:
-- .claude/skills/plan/SKILL.md
-- .claude/skills/implement/SKILL.md
-- .claude/skills/verify/SKILL.md
-- .claude/skills/ship/SKILL.md
-- docs/knowledge/data/spec/iwe-workflow-skills.md
-- docs/knowledge/STRUCTURE.md
+- resource: .claude/skills/plan/SKILL.md
+- resource: .claude/skills/implement/SKILL.md
+- resource: .claude/skills/verify/SKILL.md
+- resource: .claude/skills/ship/SKILL.md
+- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+- resource: docs/knowledge/STRUCTURE.md
 stage: done
 completed: 2026-08-16
 ---

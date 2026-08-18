@@ -5,9 +5,9 @@ generated:
   by: codex
   at: 2026-08-15T03:30:00Z
 sources:
-- .devcontainer/scripts/firewall.sh
-- ansible/roles/devcontainer_firewall/files/init-firewall.sh
-- README.md
+- resource: .devcontainer/scripts/firewall.sh
+- resource: ansible/roles/devcontainer_firewall/files/init-firewall.sh
+- resource: README.md
 ---
 
 # Firewall

@@ -30,11 +30,25 @@ chown_up() {
 # 'action.yml' ... under .github/actions/...").
 chown_up "root:root" "$workspace"
 
+# Fix ownership of the home directory and its parent directories. This is needed for
+# GitHub Actions where $HOME is /github/home which is owned by 1001:1001
+chown_up "root:root" "$HOME"
+
 # Named volumes are created root-owned by the daemon; make sure the container
 # user owns the mount points it writes to.
-sudo chown -R root:root \
-    "$workspace/.cache" \
-    /uv
+#
+# Only chown what is actually mounted. In a devcontainer both targets are always
+# present (devcontainer.json mounts the agentdev-uv volume at /uv and binds
+# .cache), so this is a no-op there. A caller that mounts neither — a GitHub
+# Actions `container:` job — would otherwise die here under `set -e` before any
+# agent setup ran.
+for mount_point in "$workspace/.cache" /uv; do
+    if [[ -e "$mount_point" ]]; then
+        sudo chown -R root:root "$mount_point"
+    else
+        echo "$mount_point is not mounted; skipping its ownership fix."
+    fi
+done
 
 # Wire the codebase-memory-mcp binary staged by dev_tools into this user's
 # agent config now that the real ~/.claude and ~/.codex volumes are mounted.

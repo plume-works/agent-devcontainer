@@ -5,7 +5,7 @@ generated:
   by: claude-sonnet-5
   at: 2026-08-12T00:00:00Z
 sources:
-- docs/repository-structure.md (folded and removed)
+- resource: docs/repository-structure.md (folded and removed)
 ---
 
 # Template boundary
@@ -132,19 +132,21 @@ stays behind.
 
 The `.github/` tree is template-related, but it is mixed rather than copy-ready:
 
-| Path                                          | Class     | Current coupling                                                                                                                  |
-| --------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/pull_request_template.md`            | Template  | General pull request structure.                                                                                                   |
-| `.github/renovate.json`                       | Customize | Contains image-publisher and catalog-release assumptions in addition to the consumer image pin.                                   |
-| `.github/workflows/primary-checks.yml`        | Customize | Calls both reformatting and the optional image-building CI workflow.                                                              |
-| `.github/workflows/reformat.yml`              | Customize | Calls `super-linter-env.sh` from the catalog and this repository's excluded tool-version check; both must be replaced inline.     |
-| `.github/workflows/validate-agent-files.yml`  | Customize | Tests publisher sources and uses local validator packaging; consumers run validator-dependent CI through `agent-desktop` instead. |
-| `.github/actions/log-debug-stats/`            | Template  | Reusable GitHub API diagnostic action.                                                                                            |
-| `.github/actions/setup-python-venv/`          | Customize | Reusable for uv projects after the consumer lockfile/project metadata is established.                                             |
-| `.github/actions/paths-filter/`               | Customize | Its current filters name image and catalog publisher paths.                                                                       |
-| `.github/workflows/ci.yml`                    | Optional  | Builds, publishes, merges, and smoke-tests the two container images.                                                              |
-| `.github/workflows/delete-old-containers.yml` | Optional  | Deletes old GHCR versions for repositories that publish custom images.                                                            |
-| `.github/actions/docker/`                     | Optional  | Composite actions used by the image publishing workflow.                                                                          |
+| Path                                          | Class     | Current coupling                                                                                                                                                               |
+| --------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.github/pull_request_template.md`            | Template  | General pull request structure.                                                                                                                                                |
+| `.github/renovate.json`                       | Customize | Contains image-publisher and catalog-release assumptions in addition to the consumer image pin.                                                                                |
+| `.github/workflows/primary-checks.yml`        | Customize | Calls both reformatting and the optional image-building CI workflow.                                                                                                           |
+| `.github/workflows/reformat.yml`              | Customize | Calls `super-linter-env.sh` from the catalog and this repository's excluded tool-version check; both must be replaced inline.                                                  |
+| `.github/workflows/validate-agent-files.yml`  | Customize | Tests publisher sources and uses local validator packaging; consumers run validator-dependent CI through `agent-desktop` instead.                                              |
+| `.github/workflows/ai-responder.yml`          | Customize | Owner gate names `plume-works` and `container.image` names this image; needs the Claude GitHub App, the `CLAUDE_CODE_OAUTH_TOKEN` secret, and the `claude-review` environment. |
+| `.github/workflows/require-ai-review.yml`     | Customize | The `ai-review-present` merge gate; satisfiable only when the responder is retained too.                                                                                       |
+| `.github/actions/log-debug-stats/`            | Template  | Reusable GitHub API diagnostic action.                                                                                                                                         |
+| `.github/actions/setup-python-venv/`          | Customize | Reusable for uv projects after the consumer lockfile/project metadata is established.                                                                                          |
+| `.github/actions/paths-filter/`               | Customize | Its current filters name image and catalog publisher paths.                                                                                                                    |
+| `.github/workflows/ci.yml`                    | Optional  | Builds, publishes, merges, and smoke-tests the two container images.                                                                                                           |
+| `.github/workflows/delete-old-containers.yml` | Optional  | Deletes old GHCR versions for repositories that publish custom images.                                                                                                         |
+| `.github/actions/docker/`                     | Optional  | Composite actions used by the image publishing workflow.                                                                                                                       |
 
 The existing workflows are evidence of the supplied CI design; they are not
 claimed to run unchanged after publisher source is removed.

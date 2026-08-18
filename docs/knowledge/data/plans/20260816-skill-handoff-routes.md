@@ -6,11 +6,11 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-16T00:00:00Z
 sources:
-- .claude/skills/explore/SKILL.md
-- .claude/skills/verify/SKILL.md
-- .claude/skills/ship/SKILL.md
-- .claude/skills/plan/SKILL.md
-- docs/knowledge/data/features/verification-in-the-main-loop.md
+- resource: .claude/skills/explore/SKILL.md
+- resource: .claude/skills/verify/SKILL.md
+- resource: .claude/skills/ship/SKILL.md
+- resource: .claude/skills/plan/SKILL.md
+- resource: docs/knowledge/data/features/verification-in-the-main-loop.md
 stage: done
 completed: 2026-08-16
 ---

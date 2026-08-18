@@ -6,11 +6,11 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-16T02:00:00Z
 sources:
-- .claude/skills/explore/SKILL.md
-- .claude/skills/plan/SKILL.md
-- .claude/skills/implement/SKILL.md
-- .claude/skills/verify/SKILL.md
-- .claude/skills/ship/SKILL.md
+- resource: .claude/skills/explore/SKILL.md
+- resource: .claude/skills/plan/SKILL.md
+- resource: .claude/skills/implement/SKILL.md
+- resource: .claude/skills/verify/SKILL.md
+- resource: .claude/skills/ship/SKILL.md
 stage: done
 completed: 2026-08-16
 ---

@@ -21,6 +21,14 @@ moves them.*
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
 
+[AI responder workflows](plans/20260816-ai-responder-workflows.md)
+
+[Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
+
+[Keep working logbooks out of the knowledge graph](plans/20260817-no-logbooks-in-the-graph.md)
+
+[Preserve approved wording across the explore handoff](plans/20260817-preserve-approved-wording.md)
+
 ## Done
 
 [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)

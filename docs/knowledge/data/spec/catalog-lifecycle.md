@@ -5,9 +5,9 @@ generated:
   by: claude-sonnet-5
   at: 2026-08-12T00:00:00Z
 sources:
-- .devcontainer/scripts/postCreateCommand.sh
-- .devcontainer/scripts/postAttachCommand.sh
-- README.md
+- resource: .devcontainer/scripts/postCreateCommand.sh
+- resource: .devcontainer/scripts/postAttachCommand.sh
+- resource: README.md
 ---
 
 # Catalog lifecycle
