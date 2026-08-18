@@ -1,17 +1,12 @@
 ---
 name: pr-request-ai-review
-description: Use this skill to request an AI agent to review a pull request.
+description: 'Post the comment that triggers a fresh AI review on an open pull request, then confirm a run actually picked it up. Use when asked to request, re-request, or trigger an AI or Claude review of a PR, to ask for a re-review after new work landed, or to check whether a requested review started. This is a playbook, not a judgment call: deciding whether a re-review is warranted belongs to pr-eval-review-needed, and merge-time review recovery belongs to pr-merge.'
 ---
 
 # Request an AI Review
 
 Post the comment that triggers a fresh AI review on an open pull request, then
 confirm the review actually started.
-
-This is a playbook, not a judgment call: run it when a review has been asked
-for, either by the user directly or by
-[pr-eval-review-needed](../pr-eval-review-needed/SKILL.md), which decides when a
-re-review is warranted. Do not evaluate here whether the request is justified.
 
 ## Post the request
 
@@ -34,14 +29,14 @@ threads; the review itself reports findings.
 
 ## Confirm it started
 
-A posted comment is not a started review. Confirm a run picked it up, and note
-that comment-triggered runs are filed against the default branch rather than the
-PR head — so `gh pr checks` routinely does not list them:
+A posted comment is not a started review. Confirm a run picked it up, using
+[pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) to resolve the
+responder workflow and list its `issue_comment` runs. Do not assume the
+workflow's filename — it differs between repositories, and a wrong one returns
+an empty list that reads exactly like "no run started".
 
-```bash
-gh run list --workflow=ai-responder.yml --event issue_comment \
-  --json databaseId,status,createdAt,url --limit 5
-```
+Note that comment-triggered runs are filed against the default branch rather
+than the PR head, so `gh pr checks` routinely does not list them.
 
 Report the comment URL and the run you observed. If no run appears within a
 minute or two, say so plainly rather than posting the comment again — a
@@ -57,3 +52,10 @@ duplicate mention starts a second review.
   with a resolution summary, a checklist, or review findings of your own.
 - Never edit or delete a previously posted trigger to retry; push the work that
   justifies a new one.
+
+## Related Skills
+
+- [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) — resolve the
+  responder workflow's filename and find its runs.
+- [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) — decide whether
+  pushed work warrants the request this skill posts.
