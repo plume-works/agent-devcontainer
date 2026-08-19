@@ -5,137 +5,73 @@ description: Create, update, or review repository skills in the agentdev plugin 
 
 # Create Repository Skills
 
-Create focused, portable task playbooks. Keep only knowledge, procedures, and
-resources that another capable agent would not reliably infer from the task or
-the repository.
+Both host runtimes ship a general skill-authoring guide, and it is the better teacher for
+craft — degrees of freedom, progressive disclosure, description triggering, forward-testing
+discipline. Invoke it first and follow it:
 
-## Work in the Canonical Location
+- **Codex**: `$skill-creator`, a system skill under `~/.codex/skills/.system/skill-creator/`.
+  Always present; nothing to enable.
+- **Claude Code**: `/skill-creator:skill-creator`, from the official plugin marketplace.
 
-Create or update repository skills under `.agents/plugins/agentdev/skills/<skill-name>/`, the
-`agentdev` plugin catalog. Codex discovers the same directory through the plugin
-manifest, so never create a separate Codex copy. Use a personal skill directory
-only when the user explicitly requests a user-wide skill.
+If neither is available, do that work yourself. Either way, the rules below override the
+general guide wherever they disagree, because they encode what this catalog is.
 
-For an existing skill, read its `SKILL.md` and every resource it directly
-references before editing. Preserve its directory and frontmatter `name` unless
-the user asks for a rename.
+## Where the Skill Lives
 
-## Discover the Smallest Useful Scope
+Create or update skills under `.agents/plugins/agentdev/skills/<skill-name>/` and edit them
+in place. Both guides default elsewhere — Codex's `init_skill.py` writes to `~/.codex/skills`
+and Claude's suggests copying to `/tmp/` first — so pass
+`--path .agents/plugins/agentdev/skills` if you scaffold, and never edit from a copy. Codex
+discovers this same directory through the plugin manifest, so never create a separate Codex
+copy. Use a personal skill directory only when the user explicitly asks for a user-wide skill.
 
-1. Extract the workflow, inputs, outputs, constraints, and corrections already
-   present in the conversation or repository.
-2. Identify several realistic requests that should trigger the skill and a few
-   close requests that should not. Ask the user only about gaps that materially
-   change the skill's scope or output.
-3. Choose the narrowest useful workflow. Put general repository rules in
-   `AGENTS.md`, not in a skill that would repeat them on every invocation.
-   Refer to `AGENTS.md` and other per-repository files (lint configuration, the
-   pull request template) in prose rather than by relative link: a skill runs
-   from the plugin cache of whatever repository enables it, so a link that
-   climbs out of the plugin root resolves against the wrong tree. The validator
-   rejects any reference that leaves the plugin, in `SKILL.md` and in the
-   `references/` pages and README a plugin ships alongside it.
-4. Select the appropriate degree of prescription: explain heuristics when
-   judgment varies; provide a parameterized pattern when a preferred approach
-   exists; bundle and invoke a tested script when correctness depends on a
-   repeatable, fragile sequence.
+There is also nothing to package. The catalog ships as a plugin through
+`claude plugin install` and `codex plugin add`, so the `.skill` zip Claude's guide produces
+at the end would be a dead artifact outside the tree. The edited files are the deliverable.
 
-## Design for Progressive Disclosure
+For an existing skill, read its `SKILL.md` and every resource it references before editing.
+Preserve its directory and frontmatter `name` unless the user asks for a rename.
 
-Keep the body concise—well below 500 lines whenever practical. Put the core
-workflow and routing decisions in `SKILL.md`; add resources only when they
-remove repeated work or substantial context.
+Scratch — including anything a skill-creator writes for evals, review, or forward-tests —
+goes in `./.tmp/` at the repo root. Never `$TMPDIR`, never `/tmp/`, and never a
+`<skill-name>-workspace/` sibling inside the catalog, which the plugin would ship and the
+validator would walk.
 
-| Resource      | Add it when                                                                          | Guidance                                                                                      |
-| ------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| `scripts/`    | A deterministic operation would otherwise be rewritten or is error-prone.            | Test the script, give it clear arguments and errors, and state exactly when to run it.        |
-| `references/` | Detailed schemas, policies, API material, or variant-specific procedures are needed. | Link directly from `SKILL.md` and say when to read it. Add a table of contents to long files. |
-| `assets/`     | A file is copied or used in the generated output rather than read as instructions.   | Keep templates, images, fonts, and boilerplate here.                                          |
+## Frontmatter Is `name` and `description`, and There Is No `agents/openai.yaml`
 
-Do not add README files, changelogs, quick-reference duplicates, placeholder
-examples, or empty resource directories. Keep references one level from
-`SKILL.md`; do not make an agent chase a chain of documents to begin work.
+Ship no other frontmatter key — not `license`, `allowed-tools`, `metadata`, or
+`compatibility` — even though both `quick_validate.py` scripts permit them.
 
-## Write `SKILL.md`
+Do not add the `agents/openai.yaml` that Codex's guide recommends and its `init_skill.py`
+generates; delete it if a scaffold created one. Its `interface` block duplicates per skill
+what `.codex-plugin/plugin.json` already declares once for the whole catalog. Add it only
+for something frontmatter genuinely cannot express — `policy.allow_implicit_invocation` to
+suppress implicit invocation, `dependencies.tools` for a hard tool dependency, or
+`interface.icon_*` for required assets — and include only the keys that requirement needs.
 
-Use this minimal frontmatter exactly. Do not add platform-specific frontmatter
-such as `allowed-tools`, `license`, or `compatibility`.
+Two forces pull on the description. Claude's guide pushes toward eager triggering, which is
+right for the skill's own domain: claim the phrasings a user would actually type. But this
+catalog runs more than two dozen skills competing for adjacent requests, so where nearby
+work belongs to a sibling, name the boundary in prose the way
+`/agentdev:code-review-standards` hands commits off to `/agentdev:git-commit`.
 
-```yaml
----
-name: example-skill
-description: Create and validate example artifacts. Use when asked to generate, update, or check example artifacts for this repository.
----
-```
+## Nothing May Reference Outside the Plugin
 
-Choose a lowercase hyphen-case name of at most 64 characters. Match the skill
-directory name unless the repository has a deliberate naming convention that
-requires otherwise.
+A skill runs from the plugin cache of whatever repository enables it, so a link that climbs
+out of the plugin root resolves against the wrong tree. Name per-repository files —
+`AGENTS.md`, lint configuration, the pull request template — in prose instead, and name the
+host guides by path in prose rather than linking them. Use `${CLAUDE_SKILL_DIR}/...` within
+one skill and a namespaced invocation for a sibling. The validator enforces this across
+`SKILL.md`, `references/` pages, and the plugin README.
 
-Write the description as the discovery contract:
+Put general repository rules in `AGENTS.md`, not in a skill that repeats them on every
+invocation. Add no README, changelog, or quick-reference file to a skill directory.
 
-- State what the skill accomplishes and the concrete requests, files, or
-  situations that should invoke it.
-- Include natural alternate phrasings and useful adjacent cases, so the skill
-  is not missed when the user does not name it directly.
-- State meaningful boundaries when nearby work belongs to another skill.
-- Prefer precise language to a keyword list. The body is not available during
-  discovery, so do not rely on a `When to use` section to define triggers.
+## Gates Before Done
 
-Write the body in imperative form. Explain the reason for consequential
-guidance so the agent can adapt it correctly instead of following brittle,
-overly rigid rules. Use a workflow layout for sequences, a task layout for
-independent operations, and separate references for framework or domain
-variants. Include examples, decision tables, or exact output structures only
-when they make a recurring choice unambiguous.
-
-Use relative Markdown links for bundled resources. Keep an instruction in one
-place; link to its detailed explanation instead of duplicating it.
-
-## Prefer Portable Frontmatter
-
-Do not create platform-specific skill metadata by default. `SKILL.md`
-frontmatter is the portable source for a skill's name and discovery description,
-and it is sufficient for normal Codex discovery, implicit selection, and
-explicit invocation.
-
-Add a platform-specific metadata file only when the user explicitly requires a
-capability that `SKILL.md` frontmatter cannot express, such as disabling
-implicit invocation, declaring tool dependencies, or supplying required UI
-assets. Keep that exceptional metadata narrowly scoped to the unmet requirement;
-do not duplicate the skill name, description, or instructions merely to provide
-alternate presentation copy.
-
-## Validate and Iterate
-
-1. For a creation or substantial revision, delegate a read-only validation pass
-   to a fresh subagent using the environment-provided `$skill-creator` skill.
-   Give it the skill path and the task, but not an intended answer or diagnosis.
-   Ask it to perform full validation, then report concrete corrections or that the capability
-   is unavailable. Apply the relevant findings yourself.
-2. Test bundled scripts with representative inputs. Use `./.tmp/` for
-   temporary artifacts; never use `$TMPDIR`. Beyond exercising a script by hand,
-   pin the outcomes a caller branches on with a test in the plugin's `tests/`
-   directory, resolving the script from the plugin root — see
-   `/agentdev:skill-scripts` for the shape.
-3. Forward-test a new, complex, or high-risk skill with realistic prompts when
-   feasible. Give an independent evaluator only the task and relevant
-   artifacts—not the intended answer or diagnosis. For an existing skill,
-   compare the revision with a snapshot of the prior version when measuring an
-   improvement.
-4. Use objective checks for deterministic outcomes and human review for
-   subjective quality. Remove instructions or resources that do not improve
-   correctness, clarity, or efficiency.
-
-## Definition of Done
-
-- The description selects the skill for its intended requests without broadly
-  colliding with adjacent skills.
-- `SKILL.md` has only `name` and `description` in valid frontmatter.
-- The body is concise, actionable, and routes detailed material to directly
-  linked resources.
-- Every bundled file has a purpose, and scripts have been exercised. A bundled
-  script's result and exit code are pinned by a test in the plugin's `tests/`.
-- Findings from proportionate independent validation are addressed, and no
-  platform-specific metadata exists without an explicit unsupported-by-frontmatter
-  requirement.
+1. `uv run validate_agent_files --recommend . --require-marketplace claude codex` passes.
+2. Every bundled script follows `/agentdev:skill-scripts`, and its result and exit code are
+   pinned by a test in the plugin's `tests/` resolved from the plugin root — a hand-run is
+   not enough. Then `uv run pytest .agents/plugins/agentdev/tests`.
+3. Findings from the host guide's validation or forward-test pass are applied, and anything
+   that did not improve correctness, clarity, or efficiency is removed.
