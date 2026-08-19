@@ -40,8 +40,8 @@ Results (RESULT / exit code):
   SUCCESS               0  Exactly one responder workflow resolved
   NO_RESPONDER_WORKFLOW 3  No workflow name matched the pattern
   AMBIGUOUS_WORKFLOW    4  Several matched; candidates are listed on stderr
-  GH_UNAVAILABLE        5  gh is missing or not authenticated
-  PREFLIGHT_ERROR       2  Usage error
+  GH_UNAVAILABLE        5  gh is missing, unauthenticated, or its API call failed
+  PREFLIGHT_ERROR       2  Usage error or invalid pattern
   SCRIPT_FAILURE        1  Unhandled error
 
 Examples:
@@ -88,13 +88,30 @@ fi
 # Filter with gh's own --jq so the script needs no standalone jq. A repository
 # may file its workflows under a nested path, so reduce to the basename that
 # `gh run list --workflow=` accepts.
+invalid_pattern_marker="__AGENTDEV_INVALID_RESPONDER_NAME_PATTERN__"
 if ! matched_paths="$(
-  gh workflow list --all --json name,path \
-    --jq ".[] | select(.name | test(\"${name_pattern}\"; \"i\")) | .path" 2>&1
+  # shellcheck disable=SC2016 # jq variables must remain literal for gh.
+  NAME_PATTERN="${name_pattern}" gh workflow list --all --json name,path \
+    --jq '. as $workflows
+      | env.NAME_PATTERN as $pattern
+      | (try ("" | test($pattern; "i"))
+         catch "__AGENTDEV_INVALID_RESPONDER_NAME_PATTERN__") as $pattern_validation
+      | if $pattern_validation == "__AGENTDEV_INVALID_RESPONDER_NAME_PATTERN__"
+        then "__AGENTDEV_INVALID_RESPONDER_NAME_PATTERN__"
+        else
+          $workflows[]
+          | select(.name | test($pattern; "i"))
+          | .path
+        end' 2>&1
 )"; then
   print_error "Could not list workflows. Check 'gh auth status' and the current repository."
   printf '%s\n' "${matched_paths}" >&2
   quit_by_code 5
+fi
+
+if [[ "${matched_paths}" == "${invalid_pattern_marker}" ]]; then
+  print_error "Invalid workflow name pattern: ${name_pattern}"
+  quit_by_code 2
 fi
 
 candidates=()
