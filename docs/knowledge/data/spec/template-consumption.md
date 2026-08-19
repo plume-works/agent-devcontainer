@@ -354,7 +354,15 @@ Then adapt the workflows themselves:
   running in forks of the template.
 - Keep the fork gate and the write-access gate exactly as written. They are the
   security spine: together they ensure no fork's code is checked out and no
-  actor without write access can drive the responder.
+  actor without write access can drive the responder. The one sanctioned
+  relaxation is `TRUSTED_BOT_ACTORS` on the `Authorize responder requester`
+  step: `getCollaboratorPermissionLevel` reports a non-write permission for an
+  app actor, so without it a Renovate pull request fails preflight and never
+  gets its automatic review. The bypass applies only to the `pull_request`
+  event, whose prompt is the fixed "review this PR" text — a bot *comment*
+  mentioning `@claude` still has to pass the collaborator check, so no bot can
+  relay an arbitrary prompt into the responder. List only apps whose branches
+  you already trust, and drop the ones your project does not install.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's own
   lifecycle scripts. It exists because a `container:` job runs no devcontainer
