@@ -115,8 +115,10 @@ jobs:
           # non-write permission for an app actor, so the collaborator check
           # below rejects them and the automatic review never runs on a
           # dependency update. Comma-separated; the `[bot]` suffix is part of
-          # `github.actor`.
-          TRUSTED_BOT_ACTORS: 'renovate[bot]'
+          # `github.actor`. Dependabot is listed for projects that adopt this
+          # workflow with it instead of Renovate -- an actor that never opens a
+          # pull request here simply never matches.
+          TRUSTED_BOT_ACTORS: 'renovate[bot],dependabot[bot]'
         with:
           script: |
             // Only for `pull_request`, whose prompt is the fixed "review this

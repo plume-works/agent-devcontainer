@@ -357,12 +357,17 @@ Then adapt the workflows themselves:
   actor without write access can drive the responder. The one sanctioned
   relaxation is `TRUSTED_BOT_ACTORS` on the `Authorize responder requester`
   step: `getCollaboratorPermissionLevel` reports a non-write permission for an
-  app actor, so without it a Renovate pull request fails preflight and never
-  gets its automatic review. The bypass applies only to the `pull_request`
-  event, whose prompt is the fixed "review this PR" text — a bot *comment*
-  mentioning `@claude` still has to pass the collaborator check, so no bot can
-  relay an arbitrary prompt into the responder. List only apps whose branches
-  you already trust, and drop the ones your project does not install.
+  app actor, so without it a Renovate or Dependabot pull request fails preflight
+  and never gets its automatic review. The bypass applies only to the
+  `pull_request` event, whose prompt is the fixed "review this PR" text — a bot
+  *comment* mentioning `@claude` still has to pass the collaborator check, so no
+  bot can relay an arbitrary prompt into the responder. List only apps whose
+  branches you already trust, and drop the ones your project does not install.
+  Dependabot needs one thing more than the allowlist entry: GitHub runs
+  Dependabot-triggered `pull_request` events with a read-only `GITHUB_TOKEN` and
+  the separate Dependabot secret store, so the responder cannot post its review
+  until `CLAUDE_CODE_OAUTH_TOKEN` also exists as a Dependabot secret and the
+  repository allows Dependabot pull requests to run with write permissions.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's own
   lifecycle scripts. It exists because a `container:` job runs no devcontainer
