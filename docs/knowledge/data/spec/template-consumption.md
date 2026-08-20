@@ -2,10 +2,11 @@
 type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: claude-code/opus-5
+  at: 2026-08-17T18:10:00Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
+- resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 ---
 
 # Template consumption
@@ -338,6 +339,13 @@ changes only how the review is attributed:
    `claudeLogins` set accepts both, so either attribution satisfies
    `ai-review-present`.
 
+The gate checks that the pull request has been reviewed, not that its current
+head commit has. A push after a review does not re-open it; the author refreshes
+the review when they judge it stale, by commenting `@claude review`. This is
+deliberate — a review per commit would be prohibitively expensive — so treat a
+copy that compares the review's `commit_id` against the head SHA as a change in
+policy, not a bug fix.
+
 Then adapt the workflows themselves:
 
 - Change the owner gate. The preflight `if:` opens with
@@ -346,7 +354,20 @@ Then adapt the workflows themselves:
   running in forks of the template.
 - Keep the fork gate and the write-access gate exactly as written. They are the
   security spine: together they ensure no fork's code is checked out and no
-  actor without write access can drive the responder.
+  actor without write access can drive the responder. The one sanctioned
+  relaxation is `TRUSTED_BOT_ACTORS` on the `Authorize responder requester`
+  step: `getCollaboratorPermissionLevel` reports a non-write permission for an
+  app actor, so without it a Renovate or Dependabot pull request fails preflight
+  and never gets its automatic review. The bypass applies only to the
+  `pull_request` event, whose prompt is the fixed "review this PR" text — a bot
+  *comment* mentioning `@claude` still has to pass the collaborator check, so no
+  bot can relay an arbitrary prompt into the responder. List only apps whose
+  branches you already trust, and drop the ones your project does not install.
+  Dependabot needs one thing more than the allowlist entry: GitHub runs
+  Dependabot-triggered `pull_request` events with a read-only `GITHUB_TOKEN` and
+  the separate Dependabot secret store, so the responder cannot post its review
+  until `CLAUDE_CODE_OAUTH_TOKEN` also exists as a Dependabot secret and the
+  repository allows Dependabot pull requests to run with write permissions.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's own
   lifecycle scripts. It exists because a `container:` job runs no devcontainer

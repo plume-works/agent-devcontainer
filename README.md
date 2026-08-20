@@ -298,7 +298,9 @@ section is about developing it here.
   not recreate `.codex/agents/` trampolines or a `.codex/skills` symlink.
 - Use the [create-agent](.agents/plugins/agentdev/skills/create-agent/SKILL.md) and
   [create-skill](.agents/plugins/agentdev/skills/create-skill/SKILL.md) skills — they encode the
-  frontmatter, discovery-description, and validation rules.
+  frontmatter, discovery-description, and validation rules. `create-skill` layers those
+  catalog rules over whichever general skill-authoring guide the host ships: Codex's
+  `$skill-creator` system skill, or the `skill-creator` plugin in Claude Code.
 - **Never write a repository-relative catalog path** such as
   `.claude/skills/<name>/...`: inside a plugin it resolves nowhere. Use
   `${CLAUDE_SKILL_DIR}/...` for a path within the same skill, and a namespaced

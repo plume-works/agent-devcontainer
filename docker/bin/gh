@@ -3,10 +3,37 @@
 # then delegates to the real gh. Silent by default; set VERBOSE_GH=1 to see what it did.
 set -euo pipefail
 
-real_gh=/usr/bin/gh
+# Marker used to recognise copies of this wrapper on PATH (see discovery below).
+# Kept as the bare string "gh-wrapper" so that older, pre-marker copies of this
+# script — which still say "gh-wrapper:" in their log output — are detected too.
+# gh-wrapper-marker: transparent-auth-shim
 
-if [[ ! -x "$real_gh" ]]; then
-  echo "gh-wrapper: real gh not found at $real_gh" >&2
+# Discover the real gh by walking PATH and skipping every copy of this wrapper
+# (a live workspace copy and the image-baked /usr/local/bin/gh both shadow the
+# real binary). Hard-coding /usr/bin/gh breaks whenever gh lives elsewhere, so
+# that path is only the last-resort fallback.
+self_path=$(readlink -f -- "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")
+real_gh=""
+while IFS= read -r candidate; do
+  [[ -x "$candidate" ]] || continue
+  resolved=$(readlink -f -- "$candidate" 2>/dev/null || echo "$candidate")
+  [[ "$resolved" == "$self_path" ]] && continue
+  # Only script candidates can be a copy of this wrapper; skip the grep for the
+  # real (multi-megabyte) gh binary.
+  IFS= read -r first_line < "$resolved" 2>/dev/null || first_line=""
+  if [[ "$first_line" == '#!'* ]] && grep -qsF -m1 -- 'gh-wrapper' "$resolved"; then
+    continue
+  fi
+  real_gh="$resolved"
+  break
+done < <(type -aPf gh 2>/dev/null || true)
+
+if [[ -z "$real_gh" && -x /usr/bin/gh ]]; then
+  real_gh=/usr/bin/gh
+fi
+
+if [[ -z "$real_gh" ]]; then
+  echo "gh-wrapper: real gh not found on PATH" >&2
   exit 127
 fi
 
