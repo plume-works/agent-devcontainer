@@ -73,6 +73,26 @@ provision_environment() {
            "
 }
 
+run_devcontainer_lifecycle() {
+    log "Running devcontainer lifecycle scripts"
+
+    # Codex Cloud does not apply devcontainer.json's containerEnv or mounts.
+    # Supply the values required by the hooks and create the agent state paths
+    # that are normally backed by named volumes. Xpra startup is image-runtime
+    # behavior and /start-xpra.sh is not present on the Cloud host; unlike the
+    # headless CI responder, Cloud still installs this checkout's git hooks.
+    export DEV_WORKSPACE_FOLDER=$REPO_ROOT
+    export CBM_CACHE_DIR="${CBM_CACHE_DIR:-$REPO_ROOT/.cache/codebase-memory-mcp}"
+    export UV_PROJECT_ENVIRONMENT="${UV_PROJECT_ENVIRONMENT:-$REPO_ROOT/.venv}"
+    export AGENTDEV_CATALOG_DIR
+    export AGENTDEV_SKIP_XPRA=1
+
+    mkdir -p /root/.claude /root/.codex
+    .devcontainer/scripts/postCreateCommand.sh
+    .devcontainer/scripts/postStartCommand.sh
+    .devcontainer/scripts/postAttachCommand.sh
+}
+
 verify_github_auth() {
     if gh auth status >/dev/null 2>&1; then
         log "GitHub CLI is authenticated"
@@ -94,6 +114,7 @@ MSG
 main() {
     install_ansible
     provision_environment
+    run_devcontainer_lifecycle
     verify_github_auth
 
     log "Codex Cloud environment is ready"
