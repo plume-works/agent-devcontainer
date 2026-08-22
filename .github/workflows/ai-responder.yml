@@ -41,15 +41,8 @@ jobs:
     # "@claude review ..." working while quoted or code-fenced mentions stay
     # inert. Trailing text is unrestricted, so the request itself is free-form.
     #
-    # Bot-authored pull requests get no automatic review. A dependency bump
-    # from Renovate or Dependabot is not what this responder is for, and
-    # `claude-code-action` refuses a bot actor outright ("Workflow initiated by
-    # non-human actor"), so the run could only ever end red. `require-ai-review`
-    # skips the same pull requests, so nothing blocks their merge. The gate is
-    # on the pull request *author*, not the actor: a maintainer who wants the
-    # review anyway asks for it with an `@claude review` comment, which arrives
-    # as `issue_comment` under their own name and passes the collaborator check
-    # below.
+    # Bot-authored pull requests get no automatic review,
+    # see spec/template-consumption.
     if: |
       github.repository_owner == 'plume-works' &&
       (github.event_name != 'pull_request' ||

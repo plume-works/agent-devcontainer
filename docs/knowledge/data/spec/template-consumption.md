@@ -355,18 +355,22 @@ Then adapt the workflows themselves:
 - Keep the fork gate and the write-access gate exactly as written. They are the
   security spine: together they ensure no fork's code is checked out and no
   actor without write access can drive the responder.
-- Keep the bot-author exemption in both workflows, or remove it from both. The
-  responder's `pull_request` gate tests
-  `github.event.pull_request.user.type != 'Bot'`, and `ai-review-present`
-  returns early — green — for the same pull requests. Dependency updates from
-  Renovate or Dependabot are not what the responder is for, and
-  `claude-code-action` refuses a bot actor outright
-  (`Workflow initiated by non-human actor`), so a review of one could only ever
-  end red. Splitting the pair deadlocks every dependency update: no review is
-  produced and the gate keeps demanding one. The exemption is on the pull
-  request *author*, so a maintainer who does want a review of a bot's pull
-  request asks for it with an `@claude review` comment, which arrives under
-  their own account.
+- Keep the two bot gates as they are: the responder does not auto-review any bot
+  author, while `ai-review-present` waives its requirement only for the bots
+  named in `TRUSTED_BOT_ACTORS`. The asymmetry is deliberate. Bot-authored pull
+  requests get no automatic review — that is a decision about what the responder
+  is for, not a limitation. Waiving the *requirement* is a separate statement of
+  trust, so it is spelled out as a list rather than inferred from the author
+  being a bot: routine dependency bumps from Renovate and Dependabot merge
+  unreviewed, while a pull request from any other bot stays blocked until a
+  maintainer asks for a review with an `@claude review` comment, which arrives
+  under their own account.
+- Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
+  comma-separated list of bot logins, matched exactly and only for authors whose
+  `user.type` is `Bot`. A consuming project running its own Renovate app, or
+  another bot whose pull requests should merge without review, adds that login
+  here. Widening it to every bot restores the old blanket exemption and hands a
+  green required check to any app that can open a pull request.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's own
   lifecycle scripts. It exists because a `container:` job runs no devcontainer

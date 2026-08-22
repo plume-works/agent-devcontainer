@@ -40,6 +40,9 @@ jobs:
 
       - name: Verify AI reviewed PR
         uses: actions/github-script@v9.0.0
+        env:
+          # Bots whose pull requests do not need an AI review to merge.
+          TRUSTED_BOT_ACTORS: 'renovate[bot],dependabot[bot]'
         with:
           github-token: ${{ github.token }}
           script: |
@@ -60,16 +63,10 @@ jobs:
             //   return;
             // }
 
-            // Bot-authored pull requests -- Renovate, Dependabot -- are exempt.
-            // The responder deliberately does not review them (see the
-            // `pull_request` author gate in ai-responder.yml), and
-            // claude-code-action refuses a bot actor outright, so requiring a
-            // review here would block every dependency update forever. This
-            // must stay in step with that gate: a copy that skips the review
-            // but keeps requiring it deadlocks those pull requests. Returning
-            // early passes the check, which is what a required status needs --
-            // a skipped *job* would leave the check pending.
-            if (pr.user?.type === 'Bot') {
+            // Trusted bots are allowed to merge without an AI review.
+            // Trust-list policy: see spec/template-consumption.
+            const trustedBotActors = process.env.TRUSTED_BOT_ACTORS?.split(',').map(s => s.trim()) || [];
+            if (pr.user?.type === 'Bot' && trustedBotActors.includes(pr.user.login)) {
               core.info(
                 `Pull request authored by ${pr.user.login} (bot); AI review is not required.`
               );

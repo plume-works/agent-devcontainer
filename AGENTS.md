@@ -26,6 +26,24 @@ design decisions, and implementation strategies.
 
 ## Coding Conventions
 
+### Comments
+
+Three hard rules, in every language:
+
+1. **No comment may exceed 3 lines.** If it needs more, the reasoning belongs in
+   `docs/knowledge/data/`, not in the source file.
+2. **Never restate the code next to it.** A comment that names what the adjacent
+   line already shows (`// explicit trust list` above
+   `trustedBotActors.includes(...)`) is noise, and goes stale the moment the line
+   changes. Before writing one, ask what it adds that the code cannot express.
+3. **Never duplicate the knowledge base.** Rationale, alternatives, and
+   invariants live in the matching `docs/knowledge/data/spec/` or
+   `data/architecture/` document. Reference it by key instead of copying it:
+   `// Trust-list policy: see spec/template-consumption.`
+
+A pointer to where a decision is recorded usually earns its line; a paraphrase of
+the mechanism never does.
+
 ### Python
 
 - Follow **PEP 8**: 4 spaces per indentation level, descriptive names. The line limit is **99** (`.ruff.toml`), not 79.
@@ -58,6 +76,14 @@ design decisions, and implementation strategies.
 ## Project memory
 
 This repository uses IWE project memory under `docs/knowledge/data/`.
+
+**Never rely on an agent's own local memory store for durable rules.** Agents run
+in an ephemeral devcontainer: anything written to a per-agent memory directory
+(for example `~/.claude/.../memory/`) is destroyed when the container is
+recreated, and is invisible to every other agent and to the user. Standing
+instructions and conventions go in `AGENTS.md`; project state goes in
+`docs/knowledge/data/`. Both are committed to the repository, so they survive and
+apply to everyone.
 
 For substantial feature, bug, architecture, or behavior work:
 
