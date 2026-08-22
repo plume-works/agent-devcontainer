@@ -41,13 +41,6 @@ while text that was never written down is unrecoverable once the session ends.
 conversation." Nothing makes approved wording count as project state, so the
 rule never engaged.
 
-The handoff that matters is narrow. The maintainer runs `/clear` or starts a new
-session before `/implement` in roughly nine cases out of ten, so plan→implement
-and implement→ship deliberately carry no conversational context — implement
-follows the written plan, and ship has nothing to take from implement. That
-makes the plan document the sole channel to implementation, and the
-approval-to-plan window the only gap a carrier can close.
-
 ## Approach
 
 Four edits across both sides of the handoff, reproduced verbatim in Tasks 1-4
@@ -73,15 +66,6 @@ already mandates it for temporary files, it is gitignored (`.gitignore:11`), and
 the maintainer notes it avoids the sandbox restrictions that other temporary
 paths can hit. The window it spans is short by design: once the plan exists, its
 fenced task blocks are the durable copy.
-
-Both sides are bound because either alone leaves the failure reachable. Explore
-can hand over perfect text while nothing obliges plan to copy rather than
-describe it, and under the maintainer's `/clear` habit the plan skill often runs
-where explore's instruction is the only trace — one skipped read and the wording
-is gone. The plan-side rules also hold when explore never ran, since approved
-wording arrives directly in conversation, which is how it arrived the day the
-defect occurred. The task-format bullet is the specific place to put it: that
-bullet is the template the approved text was reshaped to fit.
 
 Rejected: a `data/drafts/` hub. The hub set is closed by design
 (`docs/knowledge/AGENTS.md` `## Conventions` requires a `data/index.md` entry
@@ -294,9 +278,7 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 ## Out of scope
 
-- Rules for the plan→implement and implement→ship handoffs. Both carry no
-  conversational context by construction — the maintainer runs `/clear` or a new
-  session before `/implement` in roughly nine cases out of ten — so the written
+- Rules for the plan→implement and implement→ship handoffs. Written
   plan is already the sole channel and there is nothing for a carrier to
   preserve across them. What the plan may contain is governed by
   [Keep working logbooks out of the knowledge graph](20260817-no-logbooks-in-the-graph.md)
