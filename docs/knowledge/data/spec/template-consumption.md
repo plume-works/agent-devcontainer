@@ -354,20 +354,23 @@ Then adapt the workflows themselves:
   running in forks of the template.
 - Keep the fork gate and the write-access gate exactly as written. They are the
   security spine: together they ensure no fork's code is checked out and no
-  actor without write access can drive the responder. The one sanctioned
-  relaxation is `TRUSTED_BOT_ACTORS` on the `Authorize responder requester`
-  step: `getCollaboratorPermissionLevel` reports a non-write permission for an
-  app actor, so without it a Renovate or Dependabot pull request fails preflight
-  and never gets its automatic review. The bypass applies only to the
-  `pull_request` event, whose prompt is the fixed "review this PR" text — a bot
-  *comment* mentioning `@claude` still has to pass the collaborator check, so no
-  bot can relay an arbitrary prompt into the responder. List only apps whose
-  branches you already trust, and drop the ones your project does not install.
-  Dependabot needs one thing more than the allowlist entry: GitHub runs
-  Dependabot-triggered `pull_request` events with a read-only `GITHUB_TOKEN` and
-  the separate Dependabot secret store, so the responder cannot post its review
-  until `CLAUDE_CODE_OAUTH_TOKEN` also exists as a Dependabot secret and the
-  repository allows Dependabot pull requests to run with write permissions.
+  actor without write access can drive the responder.
+- Keep the two bot gates as they are: the responder does not auto-review any bot
+  author, while `ai-review-present` waives its requirement only for the bots
+  named in `TRUSTED_BOT_ACTORS`. The asymmetry is deliberate. Bot-authored pull
+  requests get no automatic review — that is a decision about what the responder
+  is for, not a limitation. Waiving the *requirement* is a separate statement of
+  trust, so it is spelled out as a list rather than inferred from the author
+  being a bot: routine dependency bumps from Renovate and Dependabot merge
+  unreviewed, while a pull request from any other bot stays blocked until a
+  maintainer asks for a review with an `@claude review` comment, which arrives
+  under their own account.
+- Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
+  comma-separated list of bot logins, matched exactly and only for authors whose
+  `user.type` is `Bot`. A consuming project running its own Renovate app, or
+  another bot whose pull requests should merge without review, adds that login
+  here. Widening it to every bot restores the old blanket exemption and hands a
+  green required check to any app that can open a pull request.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's own
   lifecycle scripts. It exists because a `container:` job runs no devcontainer

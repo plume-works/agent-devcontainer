@@ -26,6 +26,23 @@ design decisions, and implementation strategies.
 
 ## Coding Conventions
 
+### Comments
+
+Three hard rules, in every language:
+
+1. **No comment may exceed 3 lines.**
+2. **Never restate the code next to it.** A comment that names what the adjacent
+   line already shows is noise, and goes stale the moment the line
+   changes. Before writing one, ask what it adds that the code cannot express.
+3. **Never duplicate the knowledge base.** Rationale, alternatives, and
+   invariants live in the matching `docs/knowledge/data/spec/` or
+   `data/architecture/` document. Reference it by key instead of copying it:
+   `// Trust-list policy: see spec/template-consumption.`
+
+A pointer to where a decision is recorded usually earns its line; a paraphrase of
+the mechanism never does. Only durable rationale is worth forwarding — see
+Project memory.
+
 ### Python
 
 - Follow **PEP 8**: 4 spaces per indentation level, descriptive names. The line limit is **99** (`.ruff.toml`), not 79.
@@ -59,11 +76,34 @@ design decisions, and implementation strategies.
 
 This repository uses IWE project memory under `docs/knowledge/data/`.
 
+**Never record durable knowledge in an agent's own memory store** — it is wiped
+when the devcontainer is recreated and is invisible to everyone else. Standing
+rules and conventions go in `AGENTS.md`; project state, decisions, plans, and
+specs go in `docs/knowledge/data/`. This applies to explicit "remember this"
+requests and to any automatic save the harness prompts for. Auto-memory stays
+enabled for session-local scratch only.
+
+Make the edit in the same turn and name the file you changed; ask if the
+destination is unclear, rather than parking it in a memory file meanwhile.
+
 For substantial feature, bug, architecture, or behavior work:
 
 - query relevant project memory before planning or implementation;
 - treat `docs/knowledge/data/` as the source of truth for project state and decisions;
 - update project memory when the work changes durable project knowledge.
+
+**Durable knowledge only.** A document records what a reader needs to work here,
+not what one session happened to discover.
+
+- **Durable** — the decision and who made it, the constraint it creates, the
+  invariant that must hold, the interface. Survives a reimplementation.
+- **Not durable** — how the decision was reached, what broke on the way, a
+  tool's behavior on one day, the alternative that was almost written, whether
+  something was hard to find. Dies with the code that provoked it.
+
+The test: _would this still be true if the code were rewritten from scratch?_ If
+no, drop it. Record a decision as a decision — never as the obstacle that
+prompted it, which goes stale and reads as a workaround.
 
 **Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
