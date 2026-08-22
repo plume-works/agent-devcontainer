@@ -33,15 +33,24 @@ that is a move, not a deletion.
 Seed with grep, then read around each hit — the pattern is a smell, not a
 verdict:
 
-- Provenance: `turned out|we found|originally|previously|used to|at the time|
-cost a debugging session|in one run|discovered`
-- Defensive adverbs: `deliberate|deliberately|intentionally|on purpose|
-note that|worth noting|be aware|keep in mind`
-- Rejected alternatives: `rather than|instead of|as opposed to` — flag when the
-  named alternative does not exist in the current code
+```bash
+# Provenance
+grep -rEni 'turned out|we found|originally|previously|used to|at the time|cost a debugging session|in one run|discovered' <TARGET>
+
+# Defensive adverbs
+grep -rEni 'deliberate|intentionally|on purpose|note that|worth noting|be aware|keep in mind' <TARGET>
+
+# Rejected alternatives — flag when the named alternative is absent from current code
+grep -rEni 'rather than|instead of|as opposed to' <TARGET>
+
+# Generalization from one incident
+grep -rEni 'surprises|people often|commonly|tends to' <TARGET>
+```
+
+Two more that grep cannot find:
+
 - Dated third-party behavior: a named external tool plus a present-tense claim
   about how it behaves
-- Generalization from one incident: `surprises|people often|commonly|tends to`
 - Comments only: over 3 lines; restates the line below it; commented-out code
 
 ## 2. Classify
