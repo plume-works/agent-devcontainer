@@ -11,9 +11,10 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
 1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally.
 2. **Scope test runs narrowly** while iterating: `uv run pytest <path>::<test_name>`, `bun test <path>`. Run the full suite only when asked.
 3. **Escalate to a container when the host lacks the toolchain — never give up after a local failure.** If `uv` or `bun` is missing, or a command needs the provisioned image, escalate in this order: (a) Docker daemon available → use the `/agentdev:microvm-sandbox` skill to run the command through `devcontainer exec`; (b) no Docker daemon → use the `/agentdev:remote-codespace-session` skill to run it on a GitHub Codespace over SSH. Only report a blocker if both escalation paths are unavailable (e.g. no `gh` auth).
-4. **For yes/no and multiple-choice questions, prefer the assistant's structured-question tool** over free-text (VS Code Copilot: `vscode/askQuestions`; Claude Code: `AskUserQuestion`).
-5. Keep devcontainer-related scripts in `.devcontainer/scripts`.
-6. **Listing a symlinked directory needs a trailing slash.** `ls -la .iwe` prints the _link_
+4. **For yes/no and multiple-choice questions, prefer the assistant's structured-question tool** over free-text (VS Code Copilot: `vscode/askQuestions`; Claude Code: `AskUserQuestion`). Where it is unavailable, ask in prose and stop — a question costs one turn. Neither a missing tool nor a plausible default is authorization to decide alone.
+5. **Report the delta when building from approved input.** Before handing over an artifact derived from something the user approved — a prompt, a draft, a spec — state what was approved, what was added beyond it, and why. Expansion past the approved text is the finding, not a detail.
+6. Keep devcontainer-related scripts in `.devcontainer/scripts`.
+7. **Listing a symlinked directory needs a trailing slash.** `ls -la .iwe` prints the _link_
    (`.iwe -> ../../.iwe`) — one line, no contents. `ls -la .iwe/` follows it and lists what is
    inside. A single line of `l`-prefixed output is not evidence that a directory is missing or
    empty; it means you asked about the link. Re-run with the slash before drawing any conclusion,
