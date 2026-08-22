@@ -30,11 +30,9 @@ design decisions, and implementation strategies.
 
 Three hard rules, in every language:
 
-1. **No comment may exceed 3 lines.** If it needs more, the reasoning belongs in
-   `docs/knowledge/data/`, not in the source file.
+1. **No comment may exceed 3 lines.**
 2. **Never restate the code next to it.** A comment that names what the adjacent
-   line already shows (`// explicit trust list` above
-   `trustedBotActors.includes(...)`) is noise, and goes stale the moment the line
+   line already shows is noise, and goes stale the moment the line
    changes. Before writing one, ask what it adds that the code cannot express.
 3. **Never duplicate the knowledge base.** Rationale, alternatives, and
    invariants live in the matching `docs/knowledge/data/spec/` or
@@ -42,7 +40,8 @@ Three hard rules, in every language:
    `// Trust-list policy: see spec/template-consumption.`
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
-the mechanism never does.
+the mechanism never does. Only durable rationale is worth forwarding — see
+Project memory.
 
 ### Python
 
@@ -92,6 +91,19 @@ For substantial feature, bug, architecture, or behavior work:
 - query relevant project memory before planning or implementation;
 - treat `docs/knowledge/data/` as the source of truth for project state and decisions;
 - update project memory when the work changes durable project knowledge.
+
+**Durable knowledge only.** A document records what a reader needs to work here,
+not what one session happened to discover.
+
+- **Durable** — the decision and who made it, the constraint it creates, the
+  invariant that must hold, the interface. Survives a reimplementation.
+- **Not durable** — how the decision was reached, what broke on the way, a
+  tool's behavior on one day, the alternative that was almost written, whether
+  something was hard to find. Dies with the code that provoked it.
+
+The test: _would this still be true if the code were rewritten from scratch?_ If
+no, drop it. Record a decision as a decision — never as the obstacle that
+prompted it, which goes stale and reads as a workaround.
 
 **Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
