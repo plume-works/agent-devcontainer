@@ -40,10 +40,21 @@ jobs:
     # being reviewed. Requiring the mention up front keeps the deliberate
     # "@claude review ..." working while quoted or code-fenced mentions stay
     # inert. Trailing text is unrestricted, so the request itself is free-form.
+    #
+    # Bot-authored pull requests get no automatic review. A dependency bump
+    # from Renovate or Dependabot is not what this responder is for, and
+    # `claude-code-action` refuses a bot actor outright ("Workflow initiated by
+    # non-human actor"), so the run could only ever end red. `require-ai-review`
+    # skips the same pull requests, so nothing blocks their merge. The gate is
+    # on the pull request *author*, not the actor: a maintainer who wants the
+    # review anyway asks for it with an `@claude review` comment, which arrives
+    # as `issue_comment` under their own name and passes the collaborator check
+    # below.
     if: |
       github.repository_owner == 'plume-works' &&
       (github.event_name != 'pull_request' ||
-        github.event.pull_request.head.repo.full_name == github.repository) &&
+        (github.event.pull_request.head.repo.full_name == github.repository &&
+         github.event.pull_request.user.type != 'Bot')) &&
       (
         (github.event_name == 'issue_comment' &&
           startsWith(github.event.comment.body, '@claude')) ||
@@ -108,36 +119,8 @@ jobs:
       - name: Authorize responder requester
         if: steps.checkout_ref.outputs.isFork != 'true'
         uses: actions/github-script@v9.0.0
-        env:
-          # Apps that open pull requests on branches of this repository. They
-          # already hold write access through their installation -- pushing the
-          # branch requires it -- but getCollaboratorPermissionLevel reports a
-          # non-write permission for an app actor, so the collaborator check
-          # below rejects them and the automatic review never runs on a
-          # dependency update. Comma-separated; the `[bot]` suffix is part of
-          # `github.actor`. Dependabot is listed for projects that adopt this
-          # workflow with it instead of Renovate -- an actor that never opens a
-          # pull request here simply never matches.
-          TRUSTED_BOT_ACTORS: 'renovate[bot],dependabot[bot]'
         with:
           script: |
-            // Only for `pull_request`, whose prompt is the fixed "review this
-            // PR" text and whose head the preflight gate has already
-            // restricted to this repository. A bot comment mentioning
-            // "@claude" still has to pass the collaborator check, so a bot
-            // that relays text written elsewhere cannot use this to drive the
-            // responder with an arbitrary prompt.
-            const trustedBots = (process.env.TRUSTED_BOT_ACTORS ?? '')
-              .split(',')
-              .map((actor) => actor.trim())
-              .filter(Boolean);
-            if (context.eventName === 'pull_request' && trustedBots.includes(context.actor)) {
-              console.log(
-                `Actor ${context.actor} is a trusted bot; skipping the collaborator check.`
-              );
-              return;
-            }
-
             let permission;
             try {
               const { data } = await github.rest.repos.getCollaboratorPermissionLevel({

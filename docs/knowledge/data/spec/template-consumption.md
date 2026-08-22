@@ -354,20 +354,19 @@ Then adapt the workflows themselves:
   running in forks of the template.
 - Keep the fork gate and the write-access gate exactly as written. They are the
   security spine: together they ensure no fork's code is checked out and no
-  actor without write access can drive the responder. The one sanctioned
-  relaxation is `TRUSTED_BOT_ACTORS` on the `Authorize responder requester`
-  step: `getCollaboratorPermissionLevel` reports a non-write permission for an
-  app actor, so without it a Renovate or Dependabot pull request fails preflight
-  and never gets its automatic review. The bypass applies only to the
-  `pull_request` event, whose prompt is the fixed "review this PR" text — a bot
-  *comment* mentioning `@claude` still has to pass the collaborator check, so no
-  bot can relay an arbitrary prompt into the responder. List only apps whose
-  branches you already trust, and drop the ones your project does not install.
-  Dependabot needs one thing more than the allowlist entry: GitHub runs
-  Dependabot-triggered `pull_request` events with a read-only `GITHUB_TOKEN` and
-  the separate Dependabot secret store, so the responder cannot post its review
-  until `CLAUDE_CODE_OAUTH_TOKEN` also exists as a Dependabot secret and the
-  repository allows Dependabot pull requests to run with write permissions.
+  actor without write access can drive the responder.
+- Keep the bot-author exemption in both workflows, or remove it from both. The
+  responder's `pull_request` gate tests
+  `github.event.pull_request.user.type != 'Bot'`, and `ai-review-present`
+  returns early — green — for the same pull requests. Dependency updates from
+  Renovate or Dependabot are not what the responder is for, and
+  `claude-code-action` refuses a bot actor outright
+  (`Workflow initiated by non-human actor`), so a review of one could only ever
+  end red. Splitting the pair deadlocks every dependency update: no review is
+  produced and the gate keeps demanding one. The exemption is on the pull
+  request *author*, so a maintainer who does want a review of a bot's pull
+  request asks for it with an `@claude review` comment, which arrives under
+  their own account.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's own
   lifecycle scripts. It exists because a `container:` job runs no devcontainer

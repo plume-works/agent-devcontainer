@@ -60,6 +60,22 @@ jobs:
             //   return;
             // }
 
+            // Bot-authored pull requests -- Renovate, Dependabot -- are exempt.
+            // The responder deliberately does not review them (see the
+            // `pull_request` author gate in ai-responder.yml), and
+            // claude-code-action refuses a bot actor outright, so requiring a
+            // review here would block every dependency update forever. This
+            // must stay in step with that gate: a copy that skips the review
+            // but keeps requiring it deadlocks those pull requests. Returning
+            // early passes the check, which is what a required status needs --
+            // a skipped *job* would leave the check pending.
+            if (pr.user?.type === 'Bot') {
+              core.info(
+                `Pull request authored by ${pr.user.login} (bot); AI review is not required.`
+              );
+              return;
+            }
+
             // This gate asserts that the PR has been reviewed, NOT that its
             // current head SHA has been. Accepting an earlier review is
             // deliberate: reviewing every commit is prohibitively expensive,
