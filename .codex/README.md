@@ -7,6 +7,6 @@ Codex discovers the canonical `.agents/plugins/agentdev/agents/` and `.agents/pl
 directly, so this directory no longer contains generated trampolines or a
 skills symlink.
 
-| Path                   | Nature                                                            |
-| ---------------------- | ----------------------------------------------------------------- |
-| `setup-codex-cloud.sh` | Codex Cloud bootstrap: ensures `gh` is present and authenticated. |
+| Path                   | Nature                                                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `setup-codex-cloud.sh` | Codex Cloud bootstrap: provisions the same tools and capabilities as the agent-desktop image, then checks `gh` authentication. |
