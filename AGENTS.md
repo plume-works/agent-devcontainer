@@ -77,13 +77,15 @@ the mechanism never does.
 
 This repository uses IWE project memory under `docs/knowledge/data/`.
 
-**Never rely on an agent's own local memory store for durable rules.** Agents run
-in an ephemeral devcontainer: anything written to a per-agent memory directory
-(for example `~/.claude/.../memory/`) is destroyed when the container is
-recreated, and is invisible to every other agent and to the user. Standing
-instructions and conventions go in `AGENTS.md`; project state goes in
-`docs/knowledge/data/`. Both are committed to the repository, so they survive and
-apply to everyone.
+**Never record durable knowledge in an agent's own memory store** — it is wiped
+when the devcontainer is recreated and is invisible to everyone else. Standing
+rules and conventions go in `AGENTS.md`; project state, decisions, plans, and
+specs go in `docs/knowledge/data/`. This applies to explicit "remember this"
+requests and to any automatic save the harness prompts for. Auto-memory stays
+enabled for session-local scratch only.
+
+Make the edit in the same turn and name the file you changed; ask if the
+destination is unclear, rather than parking it in a memory file meanwhile.
 
 For substantial feature, bug, architecture, or behavior work:
 
