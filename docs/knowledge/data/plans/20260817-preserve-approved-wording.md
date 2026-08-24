@@ -28,8 +28,8 @@ and the drafts existed nowhere but the conversation.
 
 Recovery worked only by grepping the session transcript on disk, after two
 context compactions had already passed. That is luck, not a mechanism.
-[Keep working logbooks out of the knowledge graph](20260817-no-logbooks-in-the-graph.md)
-was corrected by inlining the recovered text, but nothing prevents a repeat.
+[Never write a working logbook](20260817-no-logbooks-in-the-graph.md) was
+corrected by inlining the recovered text, but nothing prevents a repeat.
 
 Two distinct failures sit behind that outcome. The plan reshaped approved text
 to fit a checkbox template, and the approved text was never persisted at all.
@@ -76,8 +76,8 @@ and once the plan exists a separate copy of the same bytes would drift from it.
 Rejected: extending the rule to plan→implement and implement→ship. Those
 handoffs carry no context by construction, so there is nothing for a carrier to
 preserve; the written plan already is the channel, and
-[Keep working logbooks out of the knowledge graph](20260817-no-logbooks-in-the-graph.md)
-governs what it may contain.
+[Never write a working logbook](20260817-no-logbooks-in-the-graph.md) governs
+what it may contain.
 
 ## Implementation Steps
 
@@ -278,10 +278,10 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 ## Out of scope
 
-- Rules for the plan→implement and implement→ship handoffs. Written
-  plan is already the sole channel and there is nothing for a carrier to
-  preserve across them. What the plan may contain is governed by
-  [Keep working logbooks out of the knowledge graph](20260817-no-logbooks-in-the-graph.md)
+- Rules for the plan→implement and implement→ship handoffs. Written plan is
+  already the sole channel and there is nothing for a carrier to preserve across
+  them. What the plan may contain is governed by
+  [Never write a working logbook](20260817-no-logbooks-in-the-graph.md)
 - Any edit to `.claude/skills/implement/SKILL.md`. Implement applies what the
   plan carries; this work is about getting the text into the plan intact
 - A durable graph home for drafts. Rejected in `## Approach`; `.tmp/` spans the
