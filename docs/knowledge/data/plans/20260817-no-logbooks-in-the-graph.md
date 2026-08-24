@@ -227,10 +227,14 @@ Practice 8.
 
 **Files:** Modify: `docs/knowledge/AGENTS.md`
 
-- [ ] Insert this section verbatim after `## Conventions`
+- [x] Insert this section verbatim after `## Conventions`
   (`docs/knowledge/AGENTS.md:74-144`) and before `## iwe basics`
   (`docs/knowledge/AGENTS.md:145`). It states the exceptions only; Best Practice
   8 states the prohibition
+  - **Evidence:** `## Where narrative is the format` now sits between
+    `## Conventions` and `## iwe basics` in `docs/knowledge/AGENTS.md`, matching
+    this task's fenced block word-for-word; it names only the three carve-outs
+    and points at Best Practice 8 for the prohibition.
 
 ``` markdown
 ## Where narrative is the format
