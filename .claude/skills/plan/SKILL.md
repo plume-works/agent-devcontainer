@@ -68,7 +68,10 @@ editing implementation code.
      tests, manual checks
    - `## Verification results` — narrative evidence for the plan as a whole,
      written as the work happens rather than reconstructed at the end (omit
-     until there is something to record)
+     until there is something to record). This is the plan's only narrative
+     section: results of the `## Verification` checks, and findings that
+     change what the plan claims. Not a running account of attempts — see
+     `AGENTS.md` Best Practice 8.
    - `## Out of scope` — what this plan deliberately does not do
    - `## Key references` — `path:line — symbol` list under a line
      `Verified anchor points (line numbers as of <today>):`

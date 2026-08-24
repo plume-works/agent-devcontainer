@@ -261,8 +261,12 @@ the implement skill's `## Capturing`) and cut the narration.
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] Replace the `## Verification results` bullet with exactly this text,
+- [x] Replace the `## Verification results` bullet with exactly this text,
   preserving its three-space list indentation in the surrounding section list
+  - **Evidence:** `.claude/skills/plan/SKILL.md:69-74` now carries the scoped
+    bullet, word-for-word against this task's fenced block except for the
+    trailing pointer, which this task directs be resolved to `AGENTS.md` Best
+    Practice 8 instead of the dangling `## Rules`.
 
 ``` markdown
    - `## Verification results` — narrative evidence for the plan as a whole,
