@@ -172,13 +172,6 @@ rather than described. Apply the blocks exactly as given.
   before writing the task.
 ```
 
-### Task 5: Update the workflow skills spec
-
-**Files:** Modify: `docs/knowledge/data/spec/iwe-workflow-skills.md`
-
-- [ ] Apply the `## Spec changes` delta below, and confirm the surrounding
-  Explore and Plan requirements still read true beside the two modified ones
-
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — the durable contract for
