@@ -65,8 +65,8 @@ Three hard rules, in every language:
    `// Trust-list policy: see spec/template-consumption.`
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
-the mechanism never does. Only durable rationale is worth forwarding — see
-Project memory.
+the mechanism never does. Only durable rationale is worth forwarding — see Best
+Practice 8.
 
 ### Python
 
@@ -117,18 +117,7 @@ For substantial feature, bug, architecture, or behavior work:
 - treat `docs/knowledge/data/` as the source of truth for project state and decisions;
 - update project memory when the work changes durable project knowledge.
 
-**Durable knowledge only.** A document records what a reader needs to work here,
-not what one session happened to discover.
-
-- **Durable** — the decision and who made it, the constraint it creates, the
-  invariant that must hold, the interface. Survives a reimplementation.
-- **Not durable** — how the decision was reached, what broke on the way, a
-  tool's behavior on one day, the alternative that was almost written, whether
-  something was hard to find. Dies with the code that provoked it.
-
-The test: _would this still be true if the code were rewritten from scratch?_ If
-no, drop it. Record a decision as a decision — never as the obstacle that
-prompted it, which goes stale and reads as a workaround.
+**Durable knowledge only** — see Best Practice 8 for the definition and the test.
 
 **Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when

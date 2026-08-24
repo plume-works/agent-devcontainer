@@ -199,16 +199,23 @@ the edit.
 
 **Files:** Modify: `AGENTS.md`
 
-- [ ] Delete `AGENTS.md:96-107` — the block Task 1 moved — and leave this single
+- [x] Delete `AGENTS.md:96-107` — the block Task 1 moved — and leave this single
   line in its place, so `## Project memory` still names the rule without
   restating it
+  - **Evidence:** the twelve-line block is gone from `## Project memory`,
+    replaced by the single approved pointer line at `AGENTS.md:120`;
+    `grep -n "see Project memory" AGENTS.md` returns nothing, so no reference to
+    the old location dangles.
 
 ``` markdown
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.
 ```
 
-- [ ] Replace the closing sentence of `### Comments` (`AGENTS.md:43-45`), whose
+- [x] Replace the closing sentence of `### Comments` (`AGENTS.md:43-45`), whose
   "see Project memory" pointer no longer resolves to the definition
+  - **Evidence:** `### Comments` now closes with the approved sentence pointing
+    at Best Practice 8 (`AGENTS.md:67-69`), matching this task's fenced block
+    word-for-word.
 
 ``` markdown
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
