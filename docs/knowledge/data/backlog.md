@@ -24,6 +24,8 @@ write a plan and link the plan instead.*
 
 ## Low
 
+[Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
+
 ## Done
 
 [Capture the current architecture](backlog/capture-current-architecture.md)

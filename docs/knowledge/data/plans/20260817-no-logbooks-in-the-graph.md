@@ -375,9 +375,14 @@ move, not a deletion.
 `docs/knowledge/data/backlog/detect-plan-narration-growth.md`; Modify:
 `docs/knowledge/data/backlog.md`
 
-- [ ] File a `stage: planned` backlog task for investigating whether plan
+- [x] File a `stage: planned` backlog task for investigating whether plan
   narration growth can be detected mechanically, recording why the shape gate
   cannot do it today, and link it under the appropriate priority section
+  - **Evidence:** `data/backlog/detect-plan-narration-growth.md` created with
+    `stage: planned`, `priority: low`, recording why the shape gate in
+    `docs/knowledge/tests/test_plan_checkboxes.py` cannot detect narration and
+    which proxies fail; linked under `## Low` in `data/backlog.md`.
+    `iwe schema validate` passes.
 
 ### Task 9: Update the workflow skills spec
 
