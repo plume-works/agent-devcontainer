@@ -2,8 +2,8 @@
 type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Plan, Implement, Verify, and Ship skills.
 generated:
-  by: codex
-  at: 2026-08-16T00:40:24Z
+  by: claude-code/opus-5
+  at: 2026-08-24T00:00:00Z
 sources:
 - resource: .claude/skills/explore/SKILL.md
 - resource: .claude/skills/plan/SKILL.md
@@ -27,7 +27,9 @@ durable shipping state.
 The Explore skill SHALL investigate the project graph and codebase without
 editing application code, SHALL remain adaptive and patient as the problem takes
 shape, and SHALL offer capture or a phase handoff without pressuring the user to
-formalize unfinished thinking.
+formalize unfinished thinking. When the user approves specific text, Explore
+SHALL persist it verbatim outside the conversation and reproduce it verbatim in
+the handoff, and SHALL never paraphrase it.
 
 #### Scenario: Exploration starts from an open-ended idea
 
@@ -44,13 +46,22 @@ formalize unfinished thinking.
   code, and hands any resulting decision, scope change, or new work back to the
   skill that owns plan execution
 
+#### Scenario: The user approves specific wording
+
+- **WHEN** the user agrees to specific text — wording for a document, a snippet,
+  a message — that a later plan or edit will apply
+- **THEN** Explore writes it verbatim to `.tmp/approved-wording-<slug>.md`
+  before continuing, names that file in the handoff, and reproduces the text
+  verbatim rather than describing it
+
 ### Requirement: Plan creates or revises planning state without implementing
 
 The Plan skill SHALL treat its invocation as authorization to write planning
 state only, SHALL resolve material ambiguity before committing the plan, and
 SHALL keep a created or revised plan coherent across context, approach, tasks,
 spec impact, dependencies, verification, out-of-scope boundaries, and current
-code anchors.
+code anchors. When a decision was made as specific text, Plan SHALL reproduce
+that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 #### Scenario: A planning request also asks to build the change
 
@@ -83,6 +94,14 @@ code anchors.
   verification story
 - **THEN** Plan recommends distinct work instead of silently replacing the
   existing plan's intent
+
+#### Scenario: A task applies text the user already approved
+
+- **WHEN** a plan task would apply wording, a snippet, or a message that the
+  user has already agreed to
+- **THEN** Plan reproduces that text verbatim in a fenced block under the task,
+  consulting `.tmp/approved-wording-<slug>.md` rather than writing it from
+  memory, so a session holding only the plan can reproduce the approved bytes
 
 ### Requirement: Plans express spec impact at risk-appropriate fidelity
 
