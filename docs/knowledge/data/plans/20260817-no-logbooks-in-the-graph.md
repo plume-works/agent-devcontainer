@@ -360,10 +360,14 @@ move, not a deletion.
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] Correct `docs/knowledge/data/AGENTS.md` to `docs/knowledge/AGENTS.md` in
+- [x] Correct `docs/knowledge/data/AGENTS.md` to `docs/knowledge/AGENTS.md` in
   `AGENTS.md:116` and `docs/knowledge/data/product.md:155` — the file has never
   existed at the referenced path, so the manual Task 3's exceptions live in is
   currently pointed at by two dead references
+  - **Evidence:** both references now name `docs/knowledge/AGENTS.md`, which
+    exists; `grep -rn "data/AGENTS.md" AGENTS.md docs/` returns matches only
+    inside this plan document, where the tasks and verification describe the fix
+    itself.
 
 ### Task 8: Record the deferred automation
 
@@ -438,7 +442,8 @@ remain the Plan skill's to own.
   confirm `## Capturing` and `## Rules` do not contradict each other, and that
   Step 6's material-deviation route is reachable from the new section
 - Confirm no remaining reference to `docs/knowledge/data/AGENTS.md`:
-  `grep -rn "data/AGENTS.md" AGENTS.md docs/` returns nothing
+  `grep -rn "data/AGENTS.md" AGENTS.md docs/ | grep -v plans/20260817-no-logbooks`
+  returns nothing — this plan's own tasks name the dead path to describe the fix
 - Confirm the extracted block survived the move word-for-word — normalize
   whitespace on the pre-edit text and the applied item 8 and diff them; only
   indentation and line-wrap positions may differ

@@ -126,7 +126,7 @@ the whole repo is opened as the workspace. `iwe` does not search upward for `.iw
 keys are therefore relative to `docs/knowledge/` (`[library].path`): `data/plans/<slug>`, not
 `docs/knowledge/data/plans/<slug>`.
 
-When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/data/AGENTS.md`.
+When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/AGENTS.md`.
 
 ## Other
 
