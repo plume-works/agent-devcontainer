@@ -153,6 +153,36 @@ behavior has passing evidence.
 - **THEN** Implement leaves the task unchecked and reports the remaining work or
   failing evidence
 
+### Requirement: Plans record intent, not the path taken to it
+
+Plan documents SHALL record what is settled rather than the sequence of attempts
+that settled it. `## Verification results` SHALL be a plan's only narrative
+section. Implement SHALL route a finding that does not change the plan's intent
+to its own document — `data/architecture/`, `data/bugs/`, or `data/backlog/` —
+rather than into the plan's `## Context` or `## Approach`, which state intent
+and remain the Plan skill's to own.
+
+#### Scenario: Implementation produces a durable finding
+
+- **WHEN** implementation establishes a constraint, root cause, or rejected
+  alternative that the plan did not anticipate
+- **THEN** Implement records it in the reference document that owns the area and
+  reports the capture, leaving the plan's intent sections unchanged
+
+#### Scenario: A session narrates its attempts into a plan
+
+- **WHEN** a plan would gain a running account of an in-flight investigation —
+  failed attempts, CI run identifiers, per-attempt tables
+- **THEN** that content is excluded from the plan, because it would not be true
+  had the work succeeded the first time
+
+#### Scenario: A finding changes the plan's intent
+
+- **WHEN** a finding alters scope, observable behavior, compatibility,
+  acceptance criteria, dependencies, or an out-of-scope boundary
+- **THEN** it goes back through the Plan skill's revise mode rather than being
+  captured elsewhere or written into the plan directly
+
 ### Requirement: Normal shipping requires a clean independent verification
 
 The Ship skill SHALL run the report-only Verify workflow before normal shipping

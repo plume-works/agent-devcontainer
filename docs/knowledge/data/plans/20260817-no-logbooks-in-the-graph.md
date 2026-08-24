@@ -388,9 +388,18 @@ move, not a deletion.
 
 **Files:** Modify: `docs/knowledge/data/spec/iwe-workflow-skills.md`
 
-- [ ] Apply the `## Spec changes` delta below — one new requirement plus its
+- [x] Apply the `## Spec changes` delta below — one new requirement plus its
   scenarios — and confirm the existing Implement and Plan requirements still
   read true beside it
+  - **Evidence:** `Requirement: Plans record intent, not the path taken to it`
+    added to `data/spec/iwe-workflow-skills.md` beside
+    `Requirement: Implement never hides a material deviation`, carrying all
+    three scenarios word-for-word from the delta. Re-read against its
+    neighbours: the Implement requirement governs deviations and evidence, the
+    Plan requirement governs planning-state authorship, and neither is
+    contradicted — the new requirement's material-change scenario routes through
+    the same Plan revise mode they already specify. `iwe schema validate`
+    passes.
 
 ## Spec changes
 
