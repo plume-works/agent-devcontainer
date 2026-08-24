@@ -7,6 +7,20 @@ to the current day's group.
 ## 2026-08-24
 
 - **Update**:
+  [Preserve approved wording across the explore handoff](plans/20260817-preserve-approved-wording.md)
+  done — Explore now writes approved text to `.tmp/approved-wording-<slug>.md`
+  before the conversation continues and names that file in the handoff, and
+  Plan's task format distinguishes describing an action from paraphrasing
+  approved content. Both skills carry the same falsifiable test: whether a
+  session starting cold from the written plan could reproduce the agreed bytes.
+- **Creation**:
+  [Preserved approved wording](features/preserved-approved-wording.md) records
+  the split obligation — Explore writes, Plan inlines — and why neither half
+  binds alone, plus the rejection of a `data/drafts/` hub in favour of `.tmp/`.
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) extends the
+  Explore and Plan requirements with the verbatim-preservation obligation, one
+  new scenario on each side.
+- **Update**:
   [Never write a working logbook](plans/20260817-no-logbooks-in-the-graph.md)
   done — the rule against working-logbook prose now binds every file in the
   repository from `AGENTS.md` Best Practice 8, with the durable-knowledge

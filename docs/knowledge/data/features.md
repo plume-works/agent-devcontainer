@@ -21,3 +21,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [uv-run-only environment](features/uv-run-only-environment.md)
 
 [Never write a working logbook](features/no-working-logbooks.md)
+
+[Preserved approved wording](features/preserved-approved-wording.md)

@@ -25,6 +25,8 @@ renames this file to the version number and starts a fresh one.*
 
 [Never write a working logbook](../features/no-working-logbooks.md)
 
+[Preserved approved wording](../features/preserved-approved-wording.md)
+
 ## Fixed
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

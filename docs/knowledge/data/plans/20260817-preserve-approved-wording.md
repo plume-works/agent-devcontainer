@@ -11,6 +11,8 @@ sources:
 - resource: AGENTS.md
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+stage: done
+completed: 2026-08-24
 ---
 
 # Preserve approved wording across the explore handoff

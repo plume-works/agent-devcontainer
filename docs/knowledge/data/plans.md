@@ -25,9 +25,9 @@ moves them.*
 
 [Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
 
-[Preserve approved wording across the explore handoff](plans/20260817-preserve-approved-wording.md)
-
 ## Done
+
+[Preserve approved wording across the explore handoff](plans/20260817-preserve-approved-wording.md)
 
 [Never write a working logbook](plans/20260817-no-logbooks-in-the-graph.md)
 
