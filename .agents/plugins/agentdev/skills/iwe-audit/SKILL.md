@@ -21,12 +21,15 @@ Test: would this still be true if the code were rewritten from scratch?
 
 ## Scope
 
-Audit: `data/spec/`, `data/architecture/`, `data/features/`, `product.md`, and
-code comments. These promise durable content.
+Audit any text that promises durable content: `data/spec/`,
+`data/architecture/`, `data/features/`, `product.md`, code comments, and —
+outside the graph — `README.md`, `AGENTS.md`, skill and agent definitions, and
+docstrings.
 
-Do not audit: `data/plans/`, `data/bugs/`, `data/releases/`, `data/log.md`.
-Process detail is their job. Residue in a spec may belong in one of these —
-that is a move, not a deletion.
+Do not audit: `data/plans/`, `data/bugs/`, `data/releases/`, `data/log.md`, or
+commit messages. Process detail is their job; commit messages are owned by
+`/agentdev:git-commit`. Residue in a spec may belong in one of these — that is a
+move, not a deletion.
 
 ## 1. Collect candidates
 

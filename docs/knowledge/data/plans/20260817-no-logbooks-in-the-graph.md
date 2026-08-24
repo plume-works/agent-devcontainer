@@ -329,11 +329,18 @@ harness is code and lives in the repository. Its *output* is not plan content.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md`
 
-- [ ] Replace `## Scope` and its two paragraphs
+- [x] Replace `## Scope` and its two paragraphs
   (`.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:22-29`) with this text
   verbatim. Leave the skill's own `## Durable vs not` block (`:14-20`) untouched
   — it is the same shared vocabulary Task 1 moves, and the two copies must stay
   identical
+  - **Evidence:** `## Scope` now matches this task's fenced block word-for-word,
+    naming the non-graph surfaces and excluding commit messages;
+    `## Durable vs not` was not edited. A scripted comparison confirms both
+    durable/not-durable definitions and the rewritten-from-scratch test are
+    word-for-word identical across the two copies — they differ only in the
+    emphasis markers and the `Test:`/`The test:` label, as they did before this
+    work.
 
 ``` markdown
 ## Scope
