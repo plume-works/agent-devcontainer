@@ -38,13 +38,42 @@ from .validators.prompts import (
 )
 from .validators.uniqueness import UniquenessValidator
 
+# Claude Code frontmatter fields absent from the vendor-neutral Agent Skills
+# Spec that skills-ref enforces. Valid here, unknown to upstream.
+VENDOR_FRONTMATTER_FIELDS = frozenset({'disable-model-invocation'})
+
+_UNEXPECTED_FIELDS_PREFIX = 'Unexpected fields in frontmatter: '
+
+
+def _filter_vendor_field_error(message: str) -> str | None:
+    """
+    Drop upstream unknown-field errors that name only vendor fields.
+
+    skills-ref reports every unknown field in one message. Returns None to
+    discard it when all named fields are vendor ones, the message narrowed to
+    the genuinely unknown remainder otherwise, and the message unchanged when
+    it is a different error.
+    """
+    if not message.startswith(_UNEXPECTED_FIELDS_PREFIX):
+        return message
+
+    field_list = message[len(_UNEXPECTED_FIELDS_PREFIX) :].split('.', 1)[0]
+    reported = {field.strip() for field in field_list.split(',') if field.strip()}
+    unknown = reported - VENDOR_FRONTMATTER_FIELDS
+    if not unknown:
+        return None
+    if unknown == reported:
+        return message
+    return message.replace(field_list, ', '.join(sorted(unknown)), 1)
+
 
 def skills_ref_validate(skill_dir: Path | str) -> list[str]:
     """Validate a skill directory using the upstream skills-ref package."""
     from skills_ref import validate as validate_skill  # type: ignore[import-not-found]
 
     skill_dir = Path(skill_dir)
-    return list(validate_skill(skill_dir))
+    messages = (_filter_vendor_field_error(m) for m in validate_skill(skill_dir))
+    return [message for message in messages if message is not None]
 
 
 class ValidationEngine:
