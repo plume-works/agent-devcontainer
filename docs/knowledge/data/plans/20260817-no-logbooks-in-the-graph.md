@@ -288,8 +288,14 @@ left open rather than altering a sentence.
 
 **Files:** Modify: `.claude/skills/implement/SKILL.md`
 
-- [ ] Insert this section verbatim between `## Steps` and `## Rules`
+- [x] Insert this section verbatim between `## Steps` and `## Rules`
   (`.claude/skills/implement/SKILL.md:73`)
+  - **Evidence:** `## Capturing what implementation turns up` now sits between
+    `## Steps` and `## Rules`, matching this task's fenced block word-for-word.
+    Read end to end, the two sections do not overlap — `## Rules` governs
+    checkboxes, evidence, commits, and deviations; `## Capturing` governs where
+    findings go — and Step 6's material-deviation route is reachable, cited by
+    name as the only route that may edit intent.
 
 ``` markdown
 ## Capturing what implementation turns up

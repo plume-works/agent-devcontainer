@@ -70,6 +70,32 @@ is not proof that behavior exists; current code and passing task evidence are.
    commands, report the results, and suggest the verify skill for the full
    pre-ship check, then the ship skill.
 
+## Capturing what implementation turns up
+
+Implementation produces findings the plan never anticipated, and they are often
+the most expensive knowledge in the session. They do not belong in the plan.
+Each has a home:
+
+- A durable design fact — a constraint, a boundary, why the obvious approach
+  fails → `data/architecture/<slug>.md`, linked from `data/architecture.md`.
+  Add to the existing doc that owns the area before creating a new one.
+- A defect in shipped behavior, not caused by this work →
+  `data/bugs/<slug>.md` (Symptom / Reproduction / Root cause / Fix, with
+  `path:line` anchors), linked from `data/bugs.md`.
+- Work this plan should not absorb → `data/backlog/<slug>.md`, and say so in
+  the handoff report rather than growing `## Out of scope` silently.
+- A finding that changes a material boundary → stop and take it back through
+  the plan skill (Step 6), which is the only route that may edit intent.
+
+`## Context` and `## Approach` state intent and stay stable while you build.
+The plan skill owns them; implement edits them only via Step 6's material
+deviation route. Writing a finding into them, rather than routing it, is the
+most common way a plan stops being executable — it grows to where a future
+session cannot tell what was planned from what merely happened.
+
+Reproducing a finding is normal work: a harness, a script, an ablation. The
+harness is code and lives in the repository. Its _output_ is not plan content.
+
 ## Rules
 
 - Never tick a box for partially implemented or deferred behavior, or when a
