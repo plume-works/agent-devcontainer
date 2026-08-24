@@ -77,6 +77,14 @@ it. For every REWRITE and KEEP, confirm it against the current code and cite
 it as needing a human. A stale claim restated confidently is worse than the
 sloppy version, because it now reads as settled.
 
+DROP carries the same burden, for the opposite reason: it is the one verdict
+that destroys text rather than leaving it in place. Its `evidence` must show the
+sentence carries no constraint — the fact it states is asserted elsewhere and
+cited `file:line`, or it asserts nothing checkable at all. A sentence that
+grep flagged but that constrains behavior is a REWRITE or a KEEP, never a DROP;
+`rather than` and `instead of` introduce load-bearing prohibitions as often as
+they introduce dead alternatives. Cannot show it → UNVERIFIED, same as above.
+
 ## 4. Report, then apply
 
 Output a table before editing anything: `file:line` | quoted text | pattern |

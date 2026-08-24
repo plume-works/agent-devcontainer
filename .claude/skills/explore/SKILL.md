@@ -72,7 +72,10 @@ unprompted):
   the plan skill inlines the approved bytes instead of re-deriving something
   merely equivalent. `.tmp/` is the repo-root scratch directory `AGENTS.md`
   mandates; it is gitignored, and the plan that absorbs the wording becomes its
-  durable home.
+  durable home. The slug names this approval, not the topic — until a plan
+  absorbs the text this file is its only copy, so never write over an existing
+  one. If the path is taken, append under a new heading or pick a fresh slug,
+  and name the file you actually wrote.
 
 After any capture: `iwe normalize`, `iwe schema validate`.
 

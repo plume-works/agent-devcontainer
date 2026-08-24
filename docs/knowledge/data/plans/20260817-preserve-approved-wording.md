@@ -174,6 +174,21 @@ rather than described. Apply the blocks exactly as given.
   before writing the task.
 ```
 
+### Task 5: State the reporting duty in the repository manual
+
+**Files:** Modify: `AGENTS.md`
+
+- [x] Extend Best Practice 4 so an unavailable structured-question tool is not
+  authorization to decide alone, and add a new Best Practice 5 requiring the
+  delta against approved input to be reported before handover. Both are the
+  maintainer's own wording, applied verbatim
+  - **Evidence:** commit 1456034; `AGENTS.md:14` carries the extended item 4 and
+    `AGENTS.md:15` the new item 5. The insertion renumbers the two items below
+    it (old 5 → 6, old 6 → 7), which is what makes `AGENTS.md:21` the end of
+    item 7 that
+    [Never write a working logbook](20260817-no-logbooks-in-the-graph.md) Task 1
+    anchors on
+
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — the durable contract for
@@ -318,10 +333,10 @@ Verified anchor points (line numbers as of 2026-08-24):
   4 appends to
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:25-46` —
   `Requirement: Explore remains an adaptive thinking mode`, one of the two
-  requirements Task 5 modifies
+  requirements `## Spec changes` modifies
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:47-85` —
   `Requirement: Plan creates or revises planning state without implementing`,
-  the other requirement Task 5 modifies
+  the other requirement `## Spec changes` modifies
 - `AGENTS.md:4` — the mandate to use `./.tmp` for temporary files
 - `.gitignore:11` — `.tmp/`, confirming the carrier is untracked
 - `docs/knowledge/AGENTS.md:74` — `## Conventions`, which closes the hub set and

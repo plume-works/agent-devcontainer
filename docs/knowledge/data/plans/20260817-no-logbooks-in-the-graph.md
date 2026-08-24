@@ -192,11 +192,6 @@ the edit.
    prompted it, which goes stale and reads as a workaround.
 ```
 
-- **Evidence:** `AGENTS.md:23-46` now carries item 8; a scripted diff of the
-  applied text against this task's fenced block reports an exact match, and a
-  whitespace-normalized diff of the pre-edit `AGENTS.md:96-107` against the
-  applied `**Durable knowledge only.**` half confirms it moved word-for-word.
-
 ### Task 2: Repoint what referenced the extracted block
 
 **Files:** Modify: `AGENTS.md`

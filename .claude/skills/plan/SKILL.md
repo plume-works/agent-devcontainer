@@ -177,4 +177,7 @@ Ship creates the document and replaces the key with a real link.
   and no one can see what was dropped. The test is whether a session with only
   this plan could reproduce the approved bytes. If the text isn't at hand, stop
   and recover it — from `.tmp/`, from the conversation, from the transcript —
-  before writing the task.
+  before writing the task. Recovered text is a candidate, not a source of
+  truth: `.tmp/` is the repo-wide scratch directory, so a file sitting at a
+  plausible path proves nothing about who wrote it. Show what you recovered and
+  get the user to confirm it is what they approved before it goes into a task.
