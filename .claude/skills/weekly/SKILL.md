@@ -1,6 +1,7 @@
 ---
 name: weekly
-description: Compose a weekly project digest from the workspace — what shipped, active plans and their staleness, open bugs, top backlog, and graph health, ending with the single most leveraged next action. Read-only; prints without writing files. Use when the user asks for a "weekly digest", "status report", or a start-of-week review.
+description: Compose a weekly project digest from the workspace — what shipped, active plans and their staleness, open bugs, top backlog, and graph health, ending with the single most leveraged next action. Read-only; prints without writing files.
+disable-model-invocation: true
 ---
 
 # Weekly digest

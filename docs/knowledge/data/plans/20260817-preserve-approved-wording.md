@@ -11,6 +11,8 @@ sources:
 - resource: AGENTS.md
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+stage: done
+completed: 2026-08-24
 ---
 
 # Preserve approved wording across the explore handoff
@@ -28,8 +30,8 @@ and the drafts existed nowhere but the conversation.
 
 Recovery worked only by grepping the session transcript on disk, after two
 context compactions had already passed. That is luck, not a mechanism.
-[Keep working logbooks out of the knowledge graph](20260817-no-logbooks-in-the-graph.md)
-was corrected by inlining the recovered text, but nothing prevents a repeat.
+[Never write a working logbook](20260817-no-logbooks-in-the-graph.md) was
+corrected by inlining the recovered text, but nothing prevents a repeat.
 
 Two distinct failures sit behind that outcome. The plan reshaped approved text
 to fit a checkbox template, and the approved text was never persisted at all.
@@ -40,13 +42,6 @@ while text that was never written down is unrecoverable once the session ends.
 `docs/knowledge/AGENTS.md` already states "Never keep project state only in
 conversation." Nothing makes approved wording count as project state, so the
 rule never engaged.
-
-The handoff that matters is narrow. The maintainer runs `/clear` or starts a new
-session before `/implement` in roughly nine cases out of ten, so plan→implement
-and implement→ship deliberately carry no conversational context — implement
-follows the written plan, and ship has nothing to take from implement. That
-makes the plan document the sole channel to implementation, and the
-approval-to-plan window the only gap a carrier can close.
 
 ## Approach
 
@@ -74,15 +69,6 @@ the maintainer notes it avoids the sandbox restrictions that other temporary
 paths can hit. The window it spans is short by design: once the plan exists, its
 fenced task blocks are the durable copy.
 
-Both sides are bound because either alone leaves the failure reachable. Explore
-can hand over perfect text while nothing obliges plan to copy rather than
-describe it, and under the maintainer's `/clear` habit the plan skill often runs
-where explore's instruction is the only trace — one skipped read and the wording
-is gone. The plan-side rules also hold when explore never ran, since approved
-wording arrives directly in conversation, which is how it arrived the day the
-defect occurred. The task-format bullet is the specific place to put it: that
-bullet is the template the approved text was reshaped to fit.
-
 Rejected: a `data/drafts/` hub. The hub set is closed by design
 (`docs/knowledge/AGENTS.md` `## Conventions` requires a `data/index.md` entry
 plus a `[schemas.*]` binding), a drafts hub would be the first whose contents
@@ -92,8 +78,8 @@ and once the plan exists a separate copy of the same bytes would drift from it.
 Rejected: extending the rule to plan→implement and implement→ship. Those
 handoffs carry no context by construction, so there is nothing for a carrier to
 preserve; the written plan already is the channel, and
-[Keep working logbooks out of the knowledge graph](20260817-no-logbooks-in-the-graph.md)
-governs what it may contain.
+[Never write a working logbook](20260817-no-logbooks-in-the-graph.md) governs
+what it may contain.
 
 ## Implementation Steps
 
@@ -106,9 +92,12 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
-- [ ] Insert this bullet verbatim after the "Ready to build" bullet
+- [x] Insert this bullet verbatim after the "Ready to build" bullet
   (`.claude/skills/explore/SKILL.md:66-67`) and before the `After any capture:`
   line at `:69`
+  - **Evidence:** commit 52ddd06; the bullet is present at
+    `.claude/skills/explore/SKILL.md:68-75`, byte-identical to Block 1 of
+    `.tmp/approved-wording-explore-handoff.md` (substring check passed)
 
 ``` markdown
 - Approved wording → `.tmp/approved-wording-<slug>.md`, written before the
@@ -125,8 +114,11 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
-- [ ] Append this bullet verbatim to the `## Rules` list
+- [x] Append this bullet verbatim to the `## Rules` list
   (`.claude/skills/explore/SKILL.md:71-80`), after the existing three bullets
+  - **Evidence:** commit 52ddd06; the bullet closes the `## Rules` list at
+    `.claude/skills/explore/SKILL.md:89-93`, byte-identical to Block 2 of
+    `.tmp/approved-wording-explore-handoff.md`
 
 ``` markdown
 - **Approved text is never paraphrased.** Once the user has agreed to specific
@@ -140,9 +132,14 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] Replace the `## Implementation Steps` bullet
+- [x] Replace the `## Implementation Steps` bullet
   (`.claude/skills/plan/SKILL.md:57-61`) with exactly this text, preserving its
   three-space list indentation in Step 4's section list
+  - **Evidence:** commit 52ddd06; the extended bullet sits at
+    `.claude/skills/plan/SKILL.md:57-67` with its three-space indentation
+    intact. Content matches Block 1 of `.tmp/approved-wording-plan-side.md`; the
+    pre-commit prettier hook rewrote the two `*emphasis*` spans to `_emphasis_`,
+    the repo-wide markdown convention, leaving the rendered wording unchanged
 
 ``` markdown
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
@@ -161,8 +158,11 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] Append this bullet verbatim to the end of the `## Rules` list
-  (`.claude/skills/plan/SKILL.md:145-164`), after the existing final bullet
+- [x] Append this bullet verbatim to the end of the `## Rules` list
+  (`.claude/skills/plan/SKILL.md:148-167`), after the existing final bullet
+  - **Evidence:** commit 52ddd06; the bullet closes the `## Rules` list at
+    `.claude/skills/plan/SKILL.md:173-179`, byte-identical to Block 2 of
+    `.tmp/approved-wording-plan-side.md`
 
 ``` markdown
 - **Approved text is copied, never described.** A plan that says what wording
@@ -174,12 +174,20 @@ rather than described. Apply the blocks exactly as given.
   before writing the task.
 ```
 
-### Task 5: Update the workflow skills spec
+### Task 5: State the reporting duty in the repository manual
 
-**Files:** Modify: `docs/knowledge/data/spec/iwe-workflow-skills.md`
+**Files:** Modify: `AGENTS.md`
 
-- [ ] Apply the `## Spec changes` delta below, and confirm the surrounding
-  Explore and Plan requirements still read true beside the two modified ones
+- [x] Extend Best Practice 4 so an unavailable structured-question tool is not
+  authorization to decide alone, and add a new Best Practice 5 requiring the
+  delta against approved input to be reported before handover. Both are the
+  maintainer's own wording, applied verbatim
+  - **Evidence:** commit 1456034; `AGENTS.md:14` carries the extended item 4 and
+    `AGENTS.md:15` the new item 5. The insertion renumbers the two items below
+    it (old 5 → 6, old 6 → 7), which is what makes `AGENTS.md:21` the end of
+    item 7 that
+    [Never write a working logbook](20260817-no-logbooks-in-the-graph.md) Task 1
+    anchors on
 
 ## Spec changes
 
@@ -294,12 +302,10 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 ## Out of scope
 
-- Rules for the plan→implement and implement→ship handoffs. Both carry no
-  conversational context by construction — the maintainer runs `/clear` or a new
-  session before `/implement` in roughly nine cases out of ten — so the written
-  plan is already the sole channel and there is nothing for a carrier to
-  preserve across them. What the plan may contain is governed by
-  [Keep working logbooks out of the knowledge graph](20260817-no-logbooks-in-the-graph.md)
+- Rules for the plan→implement and implement→ship handoffs. Written plan is
+  already the sole channel and there is nothing for a carrier to preserve across
+  them. What the plan may contain is governed by
+  [Never write a working logbook](20260817-no-logbooks-in-the-graph.md)
 - Any edit to `.claude/skills/implement/SKILL.md`. Implement applies what the
   plan carries; this work is about getting the text into the plan intact
 - A durable graph home for drafts. Rejected in `## Approach`; `.tmp/` spans the
@@ -310,7 +316,7 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-17):
+Verified anchor points (line numbers as of 2026-08-24):
 
 - `.claude/skills/explore/SKILL.md:47` — `## Capturing`, the section Task 1
   extends
@@ -323,14 +329,14 @@ Verified anchor points (line numbers as of 2026-08-17):
 - `.claude/skills/plan/SKILL.md:57-61` — the `## Implementation Steps` bullet
   Task 3 replaces; the task-format template the approved text was reshaped to
   fit
-- `.claude/skills/plan/SKILL.md:145-164` — `## Rules`, the six-bullet list Task
+- `.claude/skills/plan/SKILL.md:148-167` — `## Rules`, the six-bullet list Task
   4 appends to
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:25-46` —
   `Requirement: Explore remains an adaptive thinking mode`, one of the two
-  requirements Task 5 modifies
+  requirements `## Spec changes` modifies
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:47-85` —
   `Requirement: Plan creates or revises planning state without implementing`,
-  the other requirement Task 5 modifies
+  the other requirement `## Spec changes` modifies
 - `AGENTS.md:4` — the mandate to use `./.tmp` for temporary files
 - `.gitignore:11` — `.tmp/`, confirming the carrier is untracked
 - `docs/knowledge/AGENTS.md:74` — `## Conventions`, which closes the hub set and

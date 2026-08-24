@@ -152,8 +152,8 @@ it):
   follow-up → a plan or `data/backlog/<slug>.md` task.
 - This workspace uses IWE project memory under `docs/knowledge/data/` — query it
   before planning/implementing substantial work; update it when work changes
-  durable project knowledge; follow `docs/knowledge/data/AGENTS.md` when editing
-  it directly.
+  durable project knowledge; follow `docs/knowledge/AGENTS.md` when editing it
+  directly.
 
 ## Changelog
 

@@ -8,6 +8,11 @@ from pathlib import Path
 
 import pytest
 
+from validate_agent_files.core import (
+    _filter_vendor_field_error,
+    skills_ref_validate,
+    VENDOR_FRONTMATTER_FIELDS,
+)
 from validate_agent_files.main import main
 from validate_agent_files.validators.skill import (
     SkillFrontmatterValidator,
@@ -208,3 +213,59 @@ def test_issue310_skill_structure_validator_accepts_sufficient_top_section() -> 
     )
 
     assert issues == []
+
+
+def _write_skill_with_frontmatter(skill_dir: Path, frontmatter: str) -> None:
+    skill_dir.mkdir(parents=True, exist_ok=True)
+    (skill_dir / 'SKILL.md').write_text(
+        f'---\n{frontmatter}\n---\n\n# Title\n\nEnough body text to satisfy structure checks.\n'
+    )
+
+
+def test_vendor_frontmatter_field_accepted_by_skills_ref_wrapper(tmp_path: Path) -> None:
+    """Claude Code's disable-model-invocation must not be reported as unknown."""
+    _write_skill_with_frontmatter(
+        tmp_path / 'vendor-skill',
+        'name: vendor-skill\n'
+        'description: A comprehensive description of what this skill does and when to use it.\n'
+        'disable-model-invocation: true',
+    )
+
+    assert skills_ref_validate(tmp_path / 'vendor-skill') == []
+
+
+def test_unknown_frontmatter_field_still_reported(tmp_path: Path) -> None:
+    """Filtering vendor fields must not suppress genuinely unknown ones."""
+    _write_skill_with_frontmatter(
+        tmp_path / 'bogus-skill',
+        'name: bogus-skill\n'
+        'description: A comprehensive description of what this skill does and when to use it.\n'
+        'not-a-real-field: true',
+    )
+
+    errors = skills_ref_validate(tmp_path / 'bogus-skill')
+
+    assert any('not-a-real-field' in error for error in errors)
+
+
+def test_unknown_field_reported_when_mixed_with_vendor_field(tmp_path: Path) -> None:
+    """A vendor field alongside an unknown one must not mask the unknown one."""
+    _write_skill_with_frontmatter(
+        tmp_path / 'mixed-skill',
+        'name: mixed-skill\n'
+        'description: A comprehensive description of what this skill does and when to use it.\n'
+        'disable-model-invocation: true\n'
+        'not-a-real-field: true',
+    )
+
+    errors = skills_ref_validate(tmp_path / 'mixed-skill')
+
+    assert any('not-a-real-field' in error for error in errors)
+    assert not any(field in error for error in errors for field in VENDOR_FRONTMATTER_FIELDS)
+
+
+def test_non_field_errors_pass_through_unchanged() -> None:
+    """Messages that are not unknown-field reports must be left alone."""
+    assert _filter_vendor_field_error('Missing required file: SKILL.md') == (
+        'Missing required file: SKILL.md'
+    )

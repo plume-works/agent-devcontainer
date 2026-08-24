@@ -11,13 +11,38 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
 1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally.
 2. **Scope test runs narrowly** while iterating: `uv run pytest <path>::<test_name>`, `bun test <path>`. Run the full suite only when asked.
 3. **Escalate to a container when the host lacks the toolchain — never give up after a local failure.** If `uv` or `bun` is missing, or a command needs the provisioned image, escalate in this order: (a) Docker daemon available → use the `/agentdev:microvm-sandbox` skill to run the command through `devcontainer exec`; (b) no Docker daemon → use the `/agentdev:remote-codespace-session` skill to run it on a GitHub Codespace over SSH. Only report a blocker if both escalation paths are unavailable (e.g. no `gh` auth).
-4. **For yes/no and multiple-choice questions, prefer the assistant's structured-question tool** over free-text (VS Code Copilot: `vscode/askQuestions`; Claude Code: `AskUserQuestion`).
-5. Keep devcontainer-related scripts in `.devcontainer/scripts`.
-6. **Listing a symlinked directory needs a trailing slash.** `ls -la .iwe` prints the _link_
+4. **For yes/no and multiple-choice questions, prefer the assistant's structured-question tool** over free-text (VS Code Copilot: `vscode/askQuestions`; Claude Code: `AskUserQuestion`). Where it is unavailable, ask in prose and stop — a question costs one turn. Neither a missing tool nor a plausible default is authorization to decide alone.
+5. **Report the delta when building from approved input.** Before handing over an artifact derived from something the user approved — a prompt, a draft, a spec — state what was approved, what was added beyond it, and why. Expansion past the approved text is the finding, not a detail.
+6. Keep devcontainer-related scripts in `.devcontainer/scripts`.
+7. **Listing a symlinked directory needs a trailing slash.** `ls -la .iwe` prints the _link_
    (`.iwe -> ../../.iwe`) — one line, no contents. `ls -la .iwe/` follows it and lists what is
    inside. A single line of `l`-prefixed output is not evidence that a directory is missing or
    empty; it means you asked about the link. Re-run with the slash before drawing any conclusion,
    and never escalate to "the directory is gone" on that basis.
+
+8. **Never write a working logbook — in any text you produce.** Documents,
+   READMEs, code comments, skills, agent definitions, docstrings, issue and PR
+   bodies: record what is **settled**, not the path taken to settle it. A
+   blow-by-blow account of an in-flight investigation — attempt one failed,
+   attempt two failed differently, CI run IDs, per-attempt tables, "died one
+   script later" — belongs in the conversation, never in a file. The test:
+   **would this still be true if the work had gone right the first time?** A
+   constraint, a root cause, a rejected alternative: yes. The sequence of
+   failures that revealed it: no. Keep the first, drop the second. Where
+   narrative _is_ the format, the rules that own that format say so; nothing
+   here overrides them.
+
+   **Durable knowledge only.** A document records what a reader needs to work
+   here, not what one session happened to discover.
+   - **Durable** — the decision and who made it, the constraint it creates, the
+     invariant that must hold, the interface. Survives a reimplementation.
+   - **Not durable** — how the decision was reached, what broke on the way, a
+     tool's behavior on one day, the alternative that was almost written,
+     whether something was hard to find. Dies with the code that provoked it.
+
+   The test: _would this still be true if the code were rewritten from scratch?_
+   If no, drop it. Record a decision as a decision — never as the obstacle that
+   prompted it, which goes stale and reads as a workaround.
 
 ### When in Doubt
 
@@ -40,8 +65,8 @@ Three hard rules, in every language:
    `// Trust-list policy: see spec/template-consumption.`
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
-the mechanism never does. Only durable rationale is worth forwarding — see
-Project memory.
+the mechanism never does. Only durable rationale is worth forwarding — see Best
+Practice 8.
 
 ### Python
 
@@ -92,18 +117,7 @@ For substantial feature, bug, architecture, or behavior work:
 - treat `docs/knowledge/data/` as the source of truth for project state and decisions;
 - update project memory when the work changes durable project knowledge.
 
-**Durable knowledge only.** A document records what a reader needs to work here,
-not what one session happened to discover.
-
-- **Durable** — the decision and who made it, the constraint it creates, the
-  invariant that must hold, the interface. Survives a reimplementation.
-- **Not durable** — how the decision was reached, what broke on the way, a
-  tool's behavior on one day, the alternative that was almost written, whether
-  something was hard to find. Dies with the code that provoked it.
-
-The test: _would this still be true if the code were rewritten from scratch?_ If
-no, drop it. Record a decision as a decision — never as the obstacle that
-prompted it, which goes stale and reads as a workaround.
+**Durable knowledge only** — see Best Practice 8 for the definition and the test.
 
 **Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
@@ -112,7 +126,7 @@ the whole repo is opened as the workspace. `iwe` does not search upward for `.iw
 keys are therefore relative to `docs/knowledge/` (`[library].path`): `data/plans/<slug>`, not
 `docs/knowledge/data/plans/<slug>`.
 
-When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/data/AGENTS.md`.
+When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/AGENTS.md`.
 
 ## Other
 

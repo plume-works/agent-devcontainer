@@ -142,6 +142,25 @@ software project's memory and system of record. The division of labor:
 - **Frontmatter shapes are enforced** — `.iwe/schemas/*.yaml` is the validation
   gate, bound to key globs in `.iwe/config.toml`.
 
+## Where narrative is the format
+
+Best Practice 8 in the repository `AGENTS.md` binds every file: record what is
+settled, not the path taken to settle it. Three places in `data/` are the
+exception, by design, and only these:
+
+- `data/bugs/` requires Reproduction and Root cause.
+- `data/log.md` is retrospective — one entry per shipped change, after the fact.
+- A plan's `## Verification results` holds results of the `## Verification`
+  checks and findings that change what the plan claims.
+
+Each records a *conclusion*, written once, in its own document. What has no home
+anywhere is the running account written *while* you are still finding out.
+
+Plans are where this fails most often, because the plan is the document already
+open. A plan that doubles in length during implementation has almost certainly
+absorbed a logbook; the fix is to route each finding to its own document (see
+the implement skill's `## Capturing`) and cut the narration.
+
 ## iwe basics
 
 The graph is managed by [IWE](https://iwe.md) — the `iwe` CLI. What you must

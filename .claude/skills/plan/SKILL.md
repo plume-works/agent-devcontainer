@@ -1,6 +1,7 @@
 ---
 name: plan
-description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies. Never edits implementation code. Use when the user says "plan <feature>", "revise the plan", "write a plan for ...", or asks to turn a backlog task or accepted feature into work.
+description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies. Never edits implementation code.
+disable-model-invocation: true
 ---
 
 # Create or revise a plan
@@ -58,7 +59,12 @@ editing implementation code.
      `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. Each checkbox
      carries an indented `- **Evidence:**` child once it is ticked, naming the
      commit, test run, or CI run that closed it; leave the checkbox bare while
-     it is unticked
+     it is unticked. A task may describe an _action_; it may never paraphrase
+     _approved content_. When a decision was made as specific text — wording for
+     a document, a snippet, a message — reproduce that text verbatim in a fenced
+     block under the task that applies it, and check
+     `.tmp/approved-wording-<slug>.md` for it before writing the task from
+     memory
    - `## Spec changes` — every `data/spec/` doc this work will create or
      change, written in whichever of the three forms below fits the risk;
      name not-yet-existing specs in back-ticks (never dangling links)
@@ -68,7 +74,10 @@ editing implementation code.
      tests, manual checks
    - `## Verification results` — narrative evidence for the plan as a whole,
      written as the work happens rather than reconstructed at the end (omit
-     until there is something to record)
+     until there is something to record). This is the plan's only narrative
+     section: results of the `## Verification` checks, and findings that
+     change what the plan claims. Not a running account of attempts — see
+     `AGENTS.md` Best Practice 8.
    - `## Out of scope` — what this plan deliberately does not do
    - `## Key references` — `path:line — symbol` list under a line
      `Verified anchor points (line numbers as of <today>):`
@@ -162,3 +171,13 @@ Ship creates the document and replaces the key with a real link.
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as
   described above, but never application code or implementation tests.
+- **Approved text is copied, never described.** A plan that says what wording
+  should accomplish, in place of the wording itself, has lost it: the session
+  that applies the plan starts cold, writes something reasonable and different,
+  and no one can see what was dropped. The test is whether a session with only
+  this plan could reproduce the approved bytes. If the text isn't at hand, stop
+  and recover it — from `.tmp/`, from the conversation, from the transcript —
+  before writing the task. Recovered text is a candidate, not a source of
+  truth: `.tmp/` is the repo-wide scratch directory, so a file sitting at a
+  plausible path proves nothing about who wrote it. Show what you recovered and
+  get the user to confirm it is what they approved before it goes into a task.

@@ -65,6 +65,17 @@ unprompted):
   beside it.
 - Ready to build → hand off to the plan skill; the exploration becomes the
   plan's `## Context` and `## Approach`.
+- Approved wording → `.tmp/approved-wording-<slug>.md`, written before the
+  conversation continues. When the user approves specific text — wording for a
+  document, a snippet, a message — that text is the deliverable, not a
+  description of one. Reproduce it verbatim in the handoff and name the file, so
+  the plan skill inlines the approved bytes instead of re-deriving something
+  merely equivalent. `.tmp/` is the repo-root scratch directory `AGENTS.md`
+  mandates; it is gitignored, and the plan that absorbs the wording becomes its
+  durable home. The slug names this approval, not the topic — until a plan
+  absorbs the text this file is its only copy, so never write over an existing
+  one. If the path is taken, append under a new heading or pick a fresh slug,
+  and name the file you actually wrote.
 
 After any capture: `iwe normalize`, `iwe schema validate`.
 
@@ -78,3 +89,8 @@ After any capture: `iwe normalize`, `iwe schema validate`.
 - End each exploration by summarizing the current understanding and offering an
   optional next step: keep exploring, capture, plan, return to implementation,
   or drop.
+- **Approved text is never paraphrased.** Once the user has agreed to specific
+  wording, it survives verbatim or not at all — into `.tmp/` at approval time
+  and into the plan's tasks as fenced blocks. Conversation is not storage: a
+  session ends, a context compacts, and the agreed bytes are gone. The test is
+  whether a session starting cold from the written plan could reproduce them.

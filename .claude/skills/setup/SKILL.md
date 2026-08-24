@@ -1,6 +1,7 @@
 ---
 name: setup
 description: Brownfield-first workspace onboarding — scan the codebase and draft data/product.md plus starting architecture and spec docs from what the code shows, interview the developer only for what the code can't answer, mark the onboarding tasks done, and delete the example documents. Use when the user says "run the setup", "set up the workspace", or when product.md still contains ✏️ placeholders.
+disable-model-invocation: true
 ---
 
 # Workspace setup
