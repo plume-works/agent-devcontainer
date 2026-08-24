@@ -153,11 +153,15 @@ the edit.
 
 **Files:** Modify: `AGENTS.md`
 
-- [ ] Insert this item verbatim after item 7 (`AGENTS.md:21`) and before
+- [x] Insert this item verbatim after item 7 (`AGENTS.md:21`) and before
   `### When in Doubt`, as a new numbered item 8. The second half is the
   `**Durable knowledge only.**` block extracted from `## Project memory`
   (`AGENTS.md:96-107`) — word-for-word, with only the three-space list indent
   and the resulting line wraps changed
+  - **Evidence:** `AGENTS.md:23-46` now carries item 8; a scripted diff of the
+    applied text against this task's fenced block reports an exact match, and a
+    whitespace-normalized diff of the pre-edit `AGENTS.md:96-107` against the
+    applied `**Durable knowledge only.**` half confirms it moved word-for-word.
 
 ``` markdown
 8. **Never write a working logbook — in any text you produce.** Documents,
@@ -185,6 +189,11 @@ the edit.
    If no, drop it. Record a decision as a decision — never as the obstacle that
    prompted it, which goes stale and reads as a workaround.
 ```
+
+- **Evidence:** `AGENTS.md:23-46` now carries item 8; a scripted diff of the
+  applied text against this task's fenced block reports an exact match, and a
+  whitespace-normalized diff of the pre-edit `AGENTS.md:96-107` against the
+  applied `**Durable knowledge only.**` half confirms it moved word-for-word.
 
 ### Task 2: Repoint what referenced the extracted block
 
@@ -406,7 +415,11 @@ remain the Plan skill's to own.
   whitespace on the pre-edit text and the applied item 8 and diff them; only
   indentation and line-wrap positions may differ
 - Confirm each applied edit matches this plan's corresponding fenced block
-  word-for-word, allowing only the indentation each insertion point requires
+  word-for-word, allowing only the indentation each insertion point requires and
+  the Markdown normalizations the repository's `prettier` hook enforces on
+  commit (emphasis written `_x_` rather than `*x*`, and no blank line between a
+  paragraph and the list that follows it). Every word must still match; the hook
+  owns the syntax, this plan owns the wording
 - Confirm the two copies of the durable-knowledge vocabulary still agree:
   `AGENTS.md` item 8 and
   `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:14-20`

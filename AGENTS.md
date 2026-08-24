@@ -20,6 +20,30 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
    empty; it means you asked about the link. Re-run with the slash before drawing any conclusion,
    and never escalate to "the directory is gone" on that basis.
 
+8. **Never write a working logbook — in any text you produce.** Documents,
+   READMEs, code comments, skills, agent definitions, docstrings, issue and PR
+   bodies: record what is **settled**, not the path taken to settle it. A
+   blow-by-blow account of an in-flight investigation — attempt one failed,
+   attempt two failed differently, CI run IDs, per-attempt tables, "died one
+   script later" — belongs in the conversation, never in a file. The test:
+   **would this still be true if the work had gone right the first time?** A
+   constraint, a root cause, a rejected alternative: yes. The sequence of
+   failures that revealed it: no. Keep the first, drop the second. Where
+   narrative _is_ the format, the rules that own that format say so; nothing
+   here overrides them.
+
+   **Durable knowledge only.** A document records what a reader needs to work
+   here, not what one session happened to discover.
+   - **Durable** — the decision and who made it, the constraint it creates, the
+     invariant that must hold, the interface. Survives a reimplementation.
+   - **Not durable** — how the decision was reached, what broke on the way, a
+     tool's behavior on one day, the alternative that was almost written,
+     whether something was hard to find. Dies with the code that provoked it.
+
+   The test: _would this still be true if the code were rewritten from scratch?_
+   If no, drop it. Record a decision as a decision — never as the obstacle that
+   prompted it, which goes stale and reads as a workaround.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
