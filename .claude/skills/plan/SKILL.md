@@ -58,7 +58,12 @@ editing implementation code.
      `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. Each checkbox
      carries an indented `- **Evidence:**` child once it is ticked, naming the
      commit, test run, or CI run that closed it; leave the checkbox bare while
-     it is unticked
+     it is unticked. A task may describe an _action_; it may never paraphrase
+     _approved content_. When a decision was made as specific text — wording for
+     a document, a snippet, a message — reproduce that text verbatim in a fenced
+     block under the task that applies it, and check
+     `.tmp/approved-wording-<slug>.md` for it before writing the task from
+     memory
    - `## Spec changes` — every `data/spec/` doc this work will create or
      change, written in whichever of the three forms below fits the risk;
      name not-yet-existing specs in back-ticks (never dangling links)
@@ -165,3 +170,10 @@ Ship creates the document and replaces the key with a real link.
   skip Verification.
 - Planning changes may update project-memory documents and graph membership as
   described above, but never application code or implementation tests.
+- **Approved text is copied, never described.** A plan that says what wording
+  should accomplish, in place of the wording itself, has lost it: the session
+  that applies the plan starts cold, writes something reasonable and different,
+  and no one can see what was dropped. The test is whether a session with only
+  this plan could reproduce the approved bytes. If the text isn't at hand, stop
+  and recover it — from `.tmp/`, from the conversation, from the transcript —
+  before writing the task.

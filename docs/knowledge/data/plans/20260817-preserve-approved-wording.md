@@ -146,7 +146,7 @@ rather than described. Apply the blocks exactly as given.
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
 - [ ] Append this bullet verbatim to the end of the `## Rules` list
-  (`.claude/skills/plan/SKILL.md:145-164`), after the existing final bullet
+  (`.claude/skills/plan/SKILL.md:148-167`), after the existing final bullet
 
 ``` markdown
 - **Approved text is copied, never described.** A plan that says what wording
@@ -292,7 +292,7 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-17):
+Verified anchor points (line numbers as of 2026-08-24):
 
 - `.claude/skills/explore/SKILL.md:47` — `## Capturing`, the section Task 1
   extends
@@ -305,7 +305,7 @@ Verified anchor points (line numbers as of 2026-08-17):
 - `.claude/skills/plan/SKILL.md:57-61` — the `## Implementation Steps` bullet
   Task 3 replaces; the task-format template the approved text was reshaped to
   fit
-- `.claude/skills/plan/SKILL.md:145-164` — `## Rules`, the six-bullet list Task
+- `.claude/skills/plan/SKILL.md:148-167` — `## Rules`, the six-bullet list Task
   4 appends to
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:25-46` —
   `Requirement: Explore remains an adaptive thinking mode`, one of the two
