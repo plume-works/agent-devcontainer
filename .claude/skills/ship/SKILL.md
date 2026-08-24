@@ -1,6 +1,7 @@
 ---
 name: ship
-description: Close or cancel planned work safely — normal shipping requires a zero-CRITICAL Verify report, merges verified behavior into durable specs, and records idempotent graph transitions; cancellation bypasses implementation and release transitions. Also cuts a release when asked. Use when the user says "ship <plan>", "mark <plan> done", "cancel <plan>", "the <feature> work is finished", or "cut release X.Y.Z".
+description: Close or cancel planned work safely — normal shipping requires a zero-CRITICAL Verify report, merges verified behavior into durable specs, and records idempotent graph transitions; cancellation bypasses implementation and release transitions. Also cuts a release when asked.
+disable-model-invocation: true
 ---
 
 # Ship or cancel finished work

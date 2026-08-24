@@ -1,6 +1,7 @@
 ---
 name: plan
-description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies. Never edits implementation code. Use when the user says "plan <feature>", "revise the plan", "write a plan for ...", or asks to turn a backlog task or accepted feature into work.
+description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies. Never edits implementation code.
+disable-model-invocation: true
 ---
 
 # Create or revise a plan

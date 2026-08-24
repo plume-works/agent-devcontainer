@@ -1,6 +1,7 @@
 ---
 name: implement
-description: Execute an active plan task-by-task with state discipline — verified anchors, tests before checkbox ticks, clean stopping points, deviations written back into the plan. Use when the user says "implement <plan>", "continue the plan", "work on the next task", or asks to start building something that already has a plan.
+description: Execute an active plan task-by-task with state discipline — verified anchors, tests before checkbox ticks, clean stopping points, deviations written back into the plan.
+disable-model-invocation: true
 ---
 
 # Implement a plan
