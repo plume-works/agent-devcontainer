@@ -90,9 +90,12 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
-- [ ] Insert this bullet verbatim after the "Ready to build" bullet
+- [x] Insert this bullet verbatim after the "Ready to build" bullet
   (`.claude/skills/explore/SKILL.md:66-67`) and before the `After any capture:`
   line at `:69`
+  - **Evidence:** commit 52ddd06; the bullet is present at
+    `.claude/skills/explore/SKILL.md:68-75`, byte-identical to Block 1 of
+    `.tmp/approved-wording-explore-handoff.md` (substring check passed)
 
 ``` markdown
 - Approved wording → `.tmp/approved-wording-<slug>.md`, written before the
@@ -109,8 +112,11 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/explore/SKILL.md`
 
-- [ ] Append this bullet verbatim to the `## Rules` list
+- [x] Append this bullet verbatim to the `## Rules` list
   (`.claude/skills/explore/SKILL.md:71-80`), after the existing three bullets
+  - **Evidence:** commit 52ddd06; the bullet closes the `## Rules` list at
+    `.claude/skills/explore/SKILL.md:89-93`, byte-identical to Block 2 of
+    `.tmp/approved-wording-explore-handoff.md`
 
 ``` markdown
 - **Approved text is never paraphrased.** Once the user has agreed to specific
@@ -124,9 +130,14 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] Replace the `## Implementation Steps` bullet
+- [x] Replace the `## Implementation Steps` bullet
   (`.claude/skills/plan/SKILL.md:57-61`) with exactly this text, preserving its
   three-space list indentation in Step 4's section list
+  - **Evidence:** commit 52ddd06; the extended bullet sits at
+    `.claude/skills/plan/SKILL.md:57-67` with its three-space indentation
+    intact. Content matches Block 1 of `.tmp/approved-wording-plan-side.md`; the
+    pre-commit prettier hook rewrote the two `*emphasis*` spans to `_emphasis_`,
+    the repo-wide markdown convention, leaving the rendered wording unchanged
 
 ``` markdown
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
@@ -145,8 +156,11 @@ rather than described. Apply the blocks exactly as given.
 
 **Files:** Modify: `.claude/skills/plan/SKILL.md`
 
-- [ ] Append this bullet verbatim to the end of the `## Rules` list
+- [x] Append this bullet verbatim to the end of the `## Rules` list
   (`.claude/skills/plan/SKILL.md:148-167`), after the existing final bullet
+  - **Evidence:** commit 52ddd06; the bullet closes the `## Rules` list at
+    `.claude/skills/plan/SKILL.md:173-179`, byte-identical to Block 2 of
+    `.tmp/approved-wording-plan-side.md`
 
 ``` markdown
 - **Approved text is copied, never described.** A plan that says what wording
