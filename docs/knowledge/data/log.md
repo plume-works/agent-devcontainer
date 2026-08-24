@@ -4,6 +4,29 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-08-24
+
+- **Update**:
+  [Never write a working logbook](plans/20260817-no-logbooks-in-the-graph.md)
+  done — the rule against working-logbook prose now binds every file in the
+  repository from `AGENTS.md` Best Practice 8, with the durable-knowledge
+  vocabulary extracted there from `## Project memory` so the graph manual and
+  the `iwe-audit` skill point at one definition instead of three.
+- **Creation**: [Never write a working logbook](features/no-working-logbooks.md)
+  records the two coexisting tests, the graph's three narrative exceptions, the
+  plan's single narrative section, Implement's capture-and-route contract, and
+  the widened auditor scope. Commit messages stay out; `/agentdev:git-commit`
+  owns them.
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gains
+  `Requirement: Plans record intent, not the path taken to it` — the
+  workflow-skill half of the rule. The general authoring convention gets no spec
+  document, since `AGENTS.md` is its only statement.
+- **Creation**:
+  [Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
+  files the deferred automation. The plan-shape gate reads structure, and
+  narration has none — every proxy considered fires on legitimately long plans
+  or misses a short dense one.
+
 ## 2026-08-16
 
 - **Update**:

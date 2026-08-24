@@ -19,3 +19,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Verification in the main loop](features/verification-in-the-main-loop.md)
 
 [uv-run-only environment](features/uv-run-only-environment.md)
+
+[Never write a working logbook](features/no-working-logbooks.md)

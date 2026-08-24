@@ -15,6 +15,8 @@ sources:
 - resource: docs/knowledge/data/product.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
+stage: done
+completed: 2026-08-24
 ---
 
 # Never write a working logbook
