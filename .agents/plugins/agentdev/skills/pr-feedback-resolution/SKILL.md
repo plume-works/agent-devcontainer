@@ -290,9 +290,7 @@ Ensure all feedback is addressed before requesting re-review.
 
 2. **Post resolution summary** using the Feedback Resolution Summary template (see Pattern below)
 
-3. **Decide whether a fresh AI review is needed**: resolving feedback often
-   changes more than the feedback asked for, and the `ai-review-present` gate
-   stays green across pushes, so nothing else raises the question. Apply
+3. **Decide whether a fresh AI review is needed**: apply
    [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md), which decides and
    requests the review when one is warranted. Report the decision either way.
 
@@ -472,7 +470,7 @@ Maintain an internal execution log documenting:
 
 ### Problem: CodeQL false positive
 
-**Solution**: Review carefully; often not false positive. If genuinely incorrect, document why and request CodeQL suppression approval.
+**Solution**: Validate the finding against current code. Suppress only a confirmed false positive, document why, and request CodeQL suppression approval.
 
 ### Problem: Coverage target cannot be met
 

@@ -226,9 +226,8 @@ when an issue comment opens with `@claude review`.
    conversation so a trigger is posted at most once for each head SHA.
 
    **`gh pr checks <pr>` is not sufficient to find these runs.**
-   Comment-triggered responder runs are filed against the default branch, not
-   the PR head, so they routinely never appear in `gh pr checks`. Use the run
-   queries and the "Determine checkout ref" confirmation in
+   Comment-triggered responder runs may not appear in `gh pr checks`. Use the
+   run queries and the "Determine checkout ref" confirmation in
    [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) to find
    responder runs and decide which ones belong to this PR.
 

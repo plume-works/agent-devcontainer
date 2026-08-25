@@ -53,9 +53,8 @@ non-`pull_request` events, GitHub records the run against `context.sha` /
 though the workflow's "Determine checkout ref" step then checks out the PR's
 real head commit internally. Because `gh pr checks` only lists checks attached
 to the PR head commit, a responder run started by an `@claude review` comment
-routinely never appears there, including while it is still running. Always
-cross-check the workflow's own run list instead of trusting `gh pr checks`
-alone:
+may not appear there. Always cross-check the workflow's own run list instead of
+trusting `gh pr checks` alone:
 
 ```bash
 # All recent responder runs, regardless of which branch/SHA GitHub filed them under
@@ -76,10 +75,9 @@ gh run list --workflow="$RESPONDER_WORKFLOW" --event issue_comment \
 
 ## Confirm a run belongs to this PR
 
-For comment-triggered runs the `headBranch` will usually read as the default
-branch rather than the PR branch, so the run list alone does not tell you which
-PR a run is reviewing. Open the run and check the "Determine checkout ref" step
-output, or the PR number embedded in its logs:
+For comment-triggered runs, `headBranch` may name the default branch rather than
+the PR branch. Confirm which PR the run is reviewing from the "Determine checkout
+ref" step output or the PR number embedded in its logs:
 
 ```bash
 gh run view <run-id> --json databaseId,status,conclusion,event,headBranch,headSha,url
