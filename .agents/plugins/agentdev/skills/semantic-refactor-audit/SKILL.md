@@ -31,10 +31,9 @@ every difference gets rationalized after the fact.
 
 ### 2. Choose contexts that can expose the failure
 
-This is the step most often skipped, and skipping it invalidates everything
-downstream. Ask: _in which environment does the suspected defect actually
-appear?_ If the answer is not the one you are sitting in, a single-context audit
-cannot detect it.
+This step is required; skipping it invalidates all downstream evidence. Ask:
+_in which environment does the suspected defect actually appear?_ If the answer
+is not the one you are sitting in, a single-context audit cannot detect it.
 
 Construct the second context so the failure is reachable — a copy of the subtree
 in isolation, a different working directory, a checkout without the surrounding
@@ -102,11 +101,9 @@ intent:
 
 ### Do not trust a probe's factual claims
 
-Subagents misreport deterministic facts at a rate that will corrupt an audit —
-in the worked example, 3 of 14 reports asserted path resolutions that were
-false, in both directions (claiming a missing file resolved, and claiming a
-present file dangled). Any claim of the form "this exists", "this resolves to
-X", or "this command outputs Y" must come from the deterministic axis.
+Subagent reports are not evidence for deterministic facts. Any claim of the form
+"this exists", "this resolves to X", or "this command outputs Y" must come from
+the deterministic axis.
 
 When a probe contradicts another probe, or contradicts your expectation, resolve
 it with a command rather than a third probe.
