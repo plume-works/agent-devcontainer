@@ -21,7 +21,7 @@ runs:
     - name: Install uv
       uses: astral-sh/setup-uv@v10.0.1
       with:
-        version: '0.12.5'
+        version: '0.12.6'
         # uv owns environment creation, so caching its package cache is the
         # equivalent of caching the environment directory -- and stays correct
         # across interpreter and lockfile changes.
