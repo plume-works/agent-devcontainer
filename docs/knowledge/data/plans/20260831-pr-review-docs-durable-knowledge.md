@@ -188,7 +188,13 @@ Once Tasks 1–5 land and the PR is open, request an AI review so the edited
 lens (per `/agentdev:pr-request-ai-review`). This closes the loop and is why the
 new prose in Tasks 1–5 must be free of session residue by its own rule.
 
-- [ ] AI review requested and a responder run confirmed picked it up.
+- [x] AI review requested and a responder run confirmed picked it up.
+  - **Evidence:** `@claude review` trigger posted on PR #81 at head `aac88bd`
+    (comment
+    https://github.com/plume-works/agent-devcontainer/pull/81#issuecomment-5484246239).
+    `ai-responder.yml` run 33437077950 (`event: issue_comment`,
+    `status: in_progress`) picked it up —
+    https://github.com/plume-works/agent-devcontainer/actions/runs/33437077950.
 
 ## Spec changes
 
