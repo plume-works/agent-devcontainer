@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Let pre-commit own formatting](plans/20260831-pre-commit-owns-formatting.md)
+
 [Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
