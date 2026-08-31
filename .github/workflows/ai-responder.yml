@@ -296,6 +296,8 @@ jobs:
 
       # settings.local.json enables agentdev; the action takes one file, so
       # deep-merge both into the inline JSON string its `settings:` input accepts.
+      # Plugin inputs still matter: the action restores `.claude` before setup,
+      # then installs these marketplaces/plugins into the active Claude home.
       - name: Merge Claude settings
         id: claude_settings
         run: |
@@ -314,6 +316,8 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           settings: ${{ steps.claude_settings.outputs.json }}
+          plugin_marketplaces: ./
+          plugins: agentdev@agent-devcontainer
           claude_args: --allowedTools '${{ env.CLAUDE_PR_REVIEW_ARGS }}'
           assignee_trigger: 'claude-bot'
           show_full_output: true
