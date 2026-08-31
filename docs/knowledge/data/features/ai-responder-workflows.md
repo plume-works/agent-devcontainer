@@ -3,12 +3,14 @@ type: feature
 stage: implemented
 description: Two matched GitHub Actions workflows give the repository automated PR review — a Claude-only responder that reviews using the branch's own agentdev catalog, and a required gate that blocks merge until an AI review exists.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-08-31T00:00:00Z
+  by: codex
+  at: 2026-08-31T21:07:36Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/workflows/require-ai-review.yml
 - resource: data/plans/20260816-ai-responder-workflows.md
+- resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
+- resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
 
 # AI responder workflows
@@ -39,6 +41,14 @@ variable and its validation, and every ROS-specific element from upstream are
 dropped. The fork gate and the write-access gate are kept verbatim — they are
 the security spine: the responder never checks out or executes code for a fork
 PR, and never acts for an actor without write access.
+
+**Review output stays on the formal review path.** The Claude responder uses a
+custom prompt, but intentionally leaves `track_progress` unset. That action
+input restores tag-mode tracking comments for custom prompts, but for this
+review workflow it routes findings into a regular PR comment instead of a
+submitted GitHub PR review. The review artifact is more important than the
+progress comment: a future job-link/status affordance must be implemented
+separately from `track_progress`.
 
 **The gate accepts any AI review, past or present.** `ai-review-present` accepts
 a review from `claude[bot]`/`github-actions[bot]`, a review from

@@ -3,10 +3,12 @@ type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
   by: codex
-  at: 2026-08-31T17:36:33Z
+  at: 2026-08-31T21:07:36Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
+- resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
+- resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
 
 # Template consumption
@@ -378,6 +380,11 @@ Then adapt the workflows themselves:
   improvises a review instead of running `agentdev:pr-review` — a green required
   check over an ungrounded review. See
   [CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+- Do not set `track_progress` on the Claude responder review step. Although that
+  input restores the action's progress comment when `prompt` is set, it also
+  changes review delivery from a formal GitHub PR review into a regular PR
+  comment. Preserve the review artifact, and add job-link or status reporting
+  through a separate workflow step if the comment affordance is needed.
 
 Two trigger behaviors are part of the workflow contract:
 
