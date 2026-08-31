@@ -283,7 +283,6 @@ jobs:
           claude_args: --allowedTools '${{ env.CLAUDE_PR_REVIEW_ARGS }}'
           assignee_trigger: 'claude-bot'
           show_full_output: true
-          track_progress: true
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
 
       - name: Attach responder output file
