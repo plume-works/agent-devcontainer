@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
   by: codex
-  at: 2026-08-31T21:07:36Z
+  at: 2026-08-31T21:20:30Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
@@ -383,8 +383,9 @@ Then adapt the workflows themselves:
 - Do not set `track_progress` on the Claude responder review step. Although that
   input restores the action's progress comment when `prompt` is set, it also
   changes review delivery from a formal GitHub PR review into a regular PR
-  comment. Preserve the review artifact, and add job-link or status reporting
-  through a separate workflow step if the comment affordance is needed.
+  comment. Preserve the review artifact, and keep job-link or status reporting
+  in a separate workflow step, such as the `github-script` step that appends the
+  current Actions run link to comment-triggered `@claude review` requests.
 
 Two trigger behaviors are part of the workflow contract:
 
