@@ -89,8 +89,10 @@ without extra prose.
   - **Evidence:** `bash -n .devcontainer/scripts/setup-pre-commit.sh` passed and
     the installation command retains both existing hook types and failure
     logging.
-- [ ] Update the comment above the call so it names all three hook types rather
+- [x] Update the comment above the call so it names all three hook types rather
   than "both staged-file and pre-push checks".
+  - **Evidence:** `bash -n .devcontainer/scripts/setup-pre-commit.sh` passed and
+    the comment names staged-file, pre-push, and pre-merge-commit checks.
 
 ### Task 2: Remove the formatting mandate from pr-open
 
