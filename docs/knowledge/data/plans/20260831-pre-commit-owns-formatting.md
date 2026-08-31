@@ -98,16 +98,28 @@ without extra prose.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] Delete the responsibility bullet at line 52 ("delegating mandatory
+- [x] Delete the responsibility bullet at line 52 ("delegating mandatory
   formatting and validation to the `local-reformat` skill").
-- [ ] Delete the `### 3. Mandatory Local Reformat` section (lines 121-130) in
+  - **Evidence:** `grep -n "local-reformat" pr-open/SKILL.md` shows the
+    responsibility list at lines 48-55 no longer names formatting; only the
+    `update-branch` delegation remains.
+- [x] Delete the `### 3. Mandatory Local Reformat` section (lines 121-130) in
   full, renumbering the sections that follow.
-- [ ] Rewrite the opening of `### 4. Commit Any Uncommitted PR Scope` so it no
+  - **Evidence:** `grep -n "^### [0-9]" pr-open/SKILL.md` shows the section is
+    gone and the following sections renumber contiguously 3-11 with no
+    "Mandatory Local Reformat" heading.
+- [x] Rewrite the opening of `### 4. Commit Any Uncommitted PR Scope` so it no
   longer depends on a completed reformat: it currently begins "After
   `local-reformat` completes successfully, inspect `git status`."
-- [ ] Delete the `### 6. Post-sync Formatter and Commit Check` section (lines
+  - **Evidence:** the section (now `### 3. Commit Any Uncommitted PR Scope`)
+    opens "Inspect `git status`." and notes the pre-commit hooks format staged
+    files as part of the commit; no `local-reformat` precondition remains.
+- [x] Delete the `### 6. Post-sync Formatter and Commit Check` section (lines
   155-160), whose premise is that a formatter must be re-run after
   `update-branch`.
+  - **Evidence:** `grep -in "Post-sync\|reformat" pr-open/SKILL.md` returns no
+    hits; the section is removed and the Branch Sync section (now `### 4`) is
+    followed directly by Optional Issue Linking (now `### 6`).
 
 ### Task 3: Remove the post-merge reformat from git-merge-resolve
 

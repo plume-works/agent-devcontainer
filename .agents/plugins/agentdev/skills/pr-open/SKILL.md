@@ -49,7 +49,6 @@ The pr-open skill is responsible for:
 
 - detecting whether the branch already has a pull request
 - optional issue linking in title/body when issue context exists
-- delegating mandatory formatting and validation to the `local-reformat` skill
 - delegating staging and commit creation to the `git-commit` skill
 - delegating branch sync with the base branch to the `update-branch` skill
 - pushing the branch to its remote head ref
@@ -118,28 +117,19 @@ differently named ref, and the local branch name otherwise. Use `HEAD_BRANCH`
 — never the local branch name — as the head when creating the PR, so it matches
 the ref `push-branch.sh` writes to.
 
-### 3. Mandatory Local Reformat
+### 3. Commit Any Uncommitted PR Scope
 
-**CRITICAL:** Before reviewing, committing, or creating a PR, the AI agent
-**MUST** invoke and follow the `local-reformat` skill.
-
-Run every formatter and validation required by that skill. Do not substitute a
-partial set of formatters or bypass failures. If `local-reformat` cannot
-complete successfully, stop PR creation and report the actionable failure to
-the user.
-
-### 4. Commit Any Uncommitted PR Scope
-
-After `local-reformat` completes successfully, inspect `git status`. If the
+Inspect `git status`. If the
 PR-scope changes are uncommitted, invoke and follow the `git-commit` skill to
 stage only that scope and create one conventional commit before drafting a PR.
+The pre-commit hooks format staged files as part of that commit.
 
 If the caller already created the scoped commit, verify the branch is clean for that scope and do not
 create a duplicate or empty commit. If a formatter leaves new tracked changes,
 commit those changes before continuing. Do not reimplement the commit-message
 or staging workflow inline.
 
-### 5. Branch Sync with the Base Branch
+### 4. Branch Sync with the Base Branch
 
 **CRITICAL:** Before PR-body generation, sync the current branch with its base
 branch (`PR_BASE` in update mode, otherwise `main`) using the
@@ -151,14 +141,7 @@ re-implementing merge logic inline.
 If `update-branch` reports unresolved conflicts or requires user input, stop
 PR creation and ask the user to resolve or confirm conflict decisions first.
 
-### 6. Post-sync Formatter and Commit Check
-
-Branch synchronization can introduce formatter changes. Run the required
-`local-reformat` workflow once more after `update-branch`. If it changes
-tracked files, invoke `git-commit` to make one focused formatting commit. Do
-not continue with formatter edits left uncommitted.
-
-### 7. Optional Issue Linking
+### 6. Optional Issue Linking
 
 Issue linking is recommended but not required.
 
@@ -187,7 +170,7 @@ Issue linking is recommended but not required.
 In update mode, preserve the existing title's issue prefix (for example `[#42]`)
 rather than re-deriving the link.
 
-### 8. PR Draft Construction
+### 7. PR Draft Construction
 
 **CRITICAL:** Run this only after the branch is synchronized and clean, so the
 description reflects the final changes the PR will contain.
@@ -208,7 +191,7 @@ Use the generated output as the PR body, and use one of these title formats:
 In update mode, keep `PR_TITLE` unchanged when it still describes the branch
 accurately — an update should not churn a good title.
 
-### 9. Proceed Without Confirmation
+### 8. Proceed Without Confirmation
 
 Do **not** pause to ask the user to approve the draft. Once the title and body
 are generated, continue directly to the branch push and PR creation or update.
@@ -221,7 +204,7 @@ through `pr-gen-description` first.
   input to resolve
 - Afterwards, report the resulting PR URL/number
 
-### 10. Push the Branch
+### 9. Push the Branch
 
 **CRITICAL:** Before creating or updating the PR, push the branch so the remote
 head ref contains every commit the body describes.
@@ -250,7 +233,7 @@ output and abort.
 Never force-push, and never update the branch ref through a GitHub API or MCP
 tool — reconcile locally with `/agentdev:update-branch` and rerun this step.
 
-### 11. Create or Update the Pull Request
+### 10. Create or Update the Pull Request
 
 In **update mode**, edit the existing PR in place with `gh`. Write the body to a
 file under `./.tmp/` (relative to the repository root; create the directory if
@@ -295,7 +278,7 @@ If `gh` is unavailable or unauthenticated, fall back to the connected GitHub
 MCP server's pull-request creation operation with the same title, body, base,
 and head values.
 
-### 12. Error Handling
+### 11. Error Handling
 
 Handle common error scenarios gracefully:
 
