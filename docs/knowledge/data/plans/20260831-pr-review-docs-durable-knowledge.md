@@ -89,9 +89,15 @@ because applying is the caller's decision made outside this skill. Leave
 §"Durable vs not", §1 patterns, §2 verdicts, and §3 verify unchanged and shared
 by both scopes.
 
-- [ ] iwe-audit documents a report-only diff scope: candidates = changed lines,
+- [x] iwe-audit documents a report-only diff scope: candidates = changed lines,
   stops at the §4 table, applies nothing; shared criteria/verdicts/verify
   untouched.
+  - **Evidence:** Two additive insertions in
+    `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md` — a "Diff scope"
+    paragraph under `## Scope` (candidates = added lines; §"Durable vs
+    not"/§2/§3 shared) and a "Diff scope stops here" paragraph under `## 4`
+    (report-only, changed lines untouched). `validate_agent_files` passes 43/43,
+    0 errors.
 
 ### Task 2: Add the Documentation focus lens invoking iwe-audit diff mode
 
