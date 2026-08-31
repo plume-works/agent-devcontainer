@@ -2,8 +2,8 @@
 type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-17T18:10:00Z
+  by: codex
+  at: 2026-08-31T17:36:33Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
@@ -379,7 +379,7 @@ Then adapt the workflows themselves:
   check over an ungrounded review. See
   [CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
 
-Two trigger behaviors surprise people, and both cost a debugging session here:
+Two trigger behaviors are part of the workflow contract:
 
 - The `pull_request` triggers are `opened`, `reopened`, `assigned`, and
   `ready_for_review` — **not `synchronize`**. Pushing new commits to an open

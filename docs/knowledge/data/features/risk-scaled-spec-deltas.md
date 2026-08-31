@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Plans state spec impact in one of three risk-scaled forms, so a behavior-changing plan carries a reviewable contract before implementation without importing OpenSpec's change bundles or a delta application engine.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-16T00:00:00Z
+  by: codex
+  at: 2026-08-31T17:36:33Z
 sources:
 - resource: .claude/skills/plan/SKILL.md
 - resource: .claude/skills/implement/SKILL.md
@@ -16,17 +16,10 @@ sources:
 
 ## Purpose
 
-A plan's `## Spec changes` used to name the durable specs the work would touch
-and stop there. Naming a spec locates the contract without stating what it
-should say afterwards, so the intended behavior stayed in prose — reviewable
-only by reading the tasks and inferring.
-
-The sharper failure was at the Verify → Ship boundary. Verify expected each
-named durable spec to already reflect the change, while Ship is the skill that
-updates those specs *after* Verify passes. A plan introducing a new spec was
-therefore valid planning state to Plan and a pre-ship CRITICAL to Verify — the
-two skills disagreed about the same document, and the disagreement was
-structural rather than incidental.
+A plan's `## Spec changes` states intended post-change contract because Verify
+evaluates implementation before Ship merges durable specs. Naming a spec locates
+the contract; the plan must also state what the contract is intended to say once
+the work ships.
 
 ## Behaviour
 
@@ -76,9 +69,8 @@ zero-CRITICAL report both support.
   fence as ```` ``` markdown ````; the Requirement/Scenario headings inside stay
   at their canonical levels rather than being absorbed into the plan's own
   hierarchy.
-- **`REMOVED` is specified but not yet exercised.** `ADDED` and `MODIFIED` were
-  worked end to end by the plan that introduced them; no plan has retired a
-  requirement yet. Tracked as
+- **`REMOVED` is specified but still tracked for an end-to-end worked
+  instance.** No plan has retired a requirement yet. Tracked as
   [Exercise REMOVED delta blocks end to end](../backlog/exercise-removed-delta-blocks.md).
 
 ## Resolved decisions
