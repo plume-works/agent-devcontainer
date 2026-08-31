@@ -83,9 +83,12 @@ without extra prose.
 
 **Files:** Modify: `.devcontainer/scripts/setup-pre-commit.sh`
 
-- [ ] Add `--hook-type pre-merge-commit` to the `pre-commit install` invocation
+- [x] Add `--hook-type pre-merge-commit` to the `pre-commit install` invocation
   at line 20, keeping the existing `pre-commit` and `pre-push` types and the
   surrounding failure-logging behavior.
+  - **Evidence:** `bash -n .devcontainer/scripts/setup-pre-commit.sh` passed and
+    the installation command retains both existing hook types and failure
+    logging.
 - [ ] Update the comment above the call so it names all three hook types rather
   than "both staged-file and pre-push checks".
 
