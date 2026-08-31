@@ -114,9 +114,15 @@ high-signal bar: flag a finding only when you can quote the added line and name
 the specific rule it breaks — the same anti-nitpick threshold the compliance
 lens uses — so exhaustive iwe-audit findings are filtered to review-worthy ones.
 
-- [ ] A **Documentation focus** block invokes iwe-audit diff mode, maps its
+- [x] A **Documentation focus** block invokes iwe-audit diff mode, maps its
   table rows to inline comments, and states the quote-the-rule high-signal bar;
   it restates no durable-knowledge criteria.
+  - **Evidence:** New **Documentation focus** block in
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md` after the Correctness
+    material — runs `/agentdev:iwe-audit` in diff mode over changed docs/skills
+    files, maps each `file:line | verdict | replacement` row to an inline
+    comment, and states the quote-the-line/name-the-rule bar. No criteria
+    restated. `validate_agent_files` 43/43, 0 errors.
 
 ### Task 3: Place durable-knowledge findings in the severity taxonomy
 
@@ -128,8 +134,13 @@ existing Step-8 wording — that the tier governs Step-4 dedup priority and inli
 emphasis only, and never changes the submit event (still `COMMENT`, never
 `REQUEST_CHANGES`).
 
-- [ ] Blocking tier lists durable-knowledge findings; the note that tier does
+- [x] Blocking tier lists durable-knowledge findings; the note that tier does
   not change the submit event is present.
+  - **Evidence:** The **Blocking (critical/P1)** tier in
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md` now names the
+    durable-knowledge pass alongside correctness, with the note that the tier
+    governs Step-4 dedup and inline emphasis only and never changes the submit
+    event (stays `COMMENT`, never `REQUEST_CHANGES`, per Step 8).
 
 ### Task 4: Make Step 3 fan-out conditional and file-following
 
@@ -142,8 +153,15 @@ files, the durable-knowledge pass scans docs/skills files, each ignoring files
 outside its lens; on a mixed diff both lenses run against their own file subsets
 in the same review. Update the "four independent" framing to "four or five".
 
-- [ ] Step 3 documents the conditional 5th durable-knowledge pass and the
+- [x] Step 3 documents the conditional 5th durable-knowledge pass and the
   per-file lens split.
+  - **Evidence:** Step 3 in `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
+    reframed to "four or five" passes: 2 compliance + 2 correctness always, plus
+    1 durable-knowledge pass only when the diff contains docs/skills files. The
+    "lens follows the file" rule splits code files to correctness and
+    docs/skills to durable-knowledge, each ignoring files outside its lens. Step
+    1 gate also narrowed to version-only/generated-only (docs-only no longer
+    fast-approved).
 
 ### Task 5: Update the parallel-pass budget wording
 
@@ -154,8 +172,12 @@ from "4" to "4 or 5" (line 117 completion-count status line; the "per Step-3
 pass" budget at line 116). The durable-knowledge pass gets the same 16-minute
 ceiling as the other Step-3 passes.
 
-- [ ] Budget and completion-count wording accommodate the optional 5th pass at
+- [x] Budget and completion-count wording accommodate the optional 5th pass at
   the same 16-minute ceiling.
+  - **Evidence:** "Waiting on Parallel Passes" in
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md` — per-pass budget now
+    states the durable-knowledge pass gets the same 16-minute ceiling, and the
+    completion-count status line reads "4 or 5 initial passes".
 
 ### Task 6: Request an AI review of the change
 

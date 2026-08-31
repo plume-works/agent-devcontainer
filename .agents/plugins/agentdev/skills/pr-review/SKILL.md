@@ -64,25 +64,34 @@ Do NOT flag:
 
 Flag only significant bugs; ignore nitpicks and likely false positives. Do not flag issues that you cannot validate without looking at context outside of the git diff.
 
+**Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent definitions (`SKILL.md`, `*.agent.md`), and docstrings:
+
+- Run `/agentdev:iwe-audit` in diff mode over the changed docs/skills files. It scans the added lines for session residue and returns a `file:line | verdict | replacement | evidence` table (DROP / MOVE / REWRITE / KEEP); it does not restate its criteria here, and it applies nothing.
+- Map each table row to an inline review comment: the `file:line` anchors the comment, and the verdict plus its replacement/destination becomes the comment body.
+- **High-signal bar:** flag a finding only when you can quote the added line and name the specific rule it breaks — the same anti-nitpick threshold the Compliance focus uses. iwe-audit audits exhaustively; this bar filters its rows down to the review-worthy ones. Drop any row you cannot tie to a quoted line and a named rule.
+
 **Severity tiers** (carried through Steps 3–8 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — anything from a **correctness pass**: compile/parse failures, definite-wrong-result logic bugs, security implications.
+- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, definite-wrong-result logic bugs, security implications) or a **durable-knowledge pass** (session residue a rule forbids). The tier governs Step-4 dedup priority and inline emphasis only; it never changes the submit event, which stays `COMMENT` (never `REQUEST_CHANGES`) per Step 8.
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed.
 
 ## Steps
 
 1. **Gate.** Run `gh pr view <PR_NUMBER>`. If the PR is a draft or already
-   closed/merged, stop. For a docs-only, version-only, or generated-file-only
-   diff, do not launch the four review passes. Instead, confirm the changed
-   file list with `gh pr diff <PR_NUMBER> --name-only`, then publish a clean
-   `APPROVE` review with a short summary. This preserves the required AI-review
-   gate for a harmless PR without spending a full review cycle.
+   closed/merged, stop. For a version-only or generated-file-only diff, do not
+   launch the review passes. Instead, confirm the changed file list with
+   `gh pr diff <PR_NUMBER> --name-only`, then publish a clean `APPROVE` review
+   with a short summary. This preserves the required AI-review gate for a
+   mechanical PR without spending a full review cycle. A docs-only diff is not
+   fast-approved: it still runs the durable-knowledge pass (Step 3).
 2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add the `/agentdev:python-format-lint` skill when the diff touches Python, `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
-3. **Run four independent initial-review passes in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
+3. **Run four or five independent initial-review passes in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
    - 2x **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2.
    - 2x **correctness pass** — audit the diff against the Correctness focus list, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code.
-   - Codex: use available multi-agent/sub-agent tools when present; otherwise perform the four passes sequentially in this session, restarting the review lens from the diff for each pass.
-   - Claude Code: issue four `Agent` tool calls in a single message (`subagent_type: general-purpose`; use a fast model for compliance and the strongest available model for correctness).
+   - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list.
+   - **The lens follows the file.** The correctness passes scan code files, the durable-knowledge pass scans docs/skills files, and each ignores files outside its lens. On a mixed docs+code diff both lenses run against their own file subsets in the same review; on a code-only diff the durable-knowledge pass does not run and there are four passes.
+   - Codex: use available multi-agent/sub-agent tools when present; otherwise perform the passes sequentially in this session, restarting the review lens from the diff for each pass.
+   - Claude Code: issue the four or five `Agent` tool calls in a single message (`subagent_type: general-purpose`; use a fast model for compliance and the strongest available model for correctness and durable-knowledge).
    - **Block until every pass reports back or hard-times-out — see "Waiting on parallel passes" below.** Do not proceed to Step 4 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
 4. **Merge and deduplicate.** Collect the candidate findings from all passes that completed (see fallback below if any didn't). Collapse candidates that name the same file/line and describe the same underlying issue into one, keeping the **blocking** tier if either collapsed candidate was blocking.
 5. **Validate each candidate independently, in parallel when supported** — for every surviving candidate, run one validation pass that sees only that single candidate plus the diff/description (not the other candidates, not which pass raised it), and must confirm with high confidence that it is a real, worth-flagging issue. Drop any candidate the validator cannot confirm with high confidence. Preserve each surviving candidate's severity tier from Step 4 unchanged — validation confirms or drops a finding, it never changes its tier. Use the same runner-specific parallel-vs-sequential approach as Step 3, and the same blocking policy in "Waiting on parallel passes" below (cap: one blocking wait, up to 5 minutes per candidate; a validator that doesn't return in time counts as "cannot confirm" — drop the candidate).
@@ -113,8 +122,8 @@ Concretely:
 - After dispatching a batch of workers, use the runner's blocking wait primitive for each task ID that has not reported back yet:
   - Codex: use the multi-agent tool's blocking output/wait facility if available; if no blocking worker primitive exists, do not launch background work — run the passes sequentially.
   - Claude Code: call `TaskOutput` with `block: true` and an explicit `timeout` (ms) for each outstanding task ID before ending the turn.
-- **Budget, so Steps 4–8 still have room inside the action timeout:** per Step-3 pass, allow up to 16 minutes total. For Step 5 validation passes, allow up to 5 minutes each.
-- **Hard fallback:** if a pass still has not completed when its ceiling is reached, stop/cancel it if the runner supports cancellation, drop that pass, and continue with only the passes/validations that did complete — do not block indefinitely on a single hung pass, and do not let one hang stall the whole review. Note in the final review summary body how many of the 4 initial passes completed if any were dropped (a completion-count status line, not a per-finding location reference, so it does not conflict with the "never write location references" constraint below).
+- **Budget, so Steps 4–8 still have room inside the action timeout:** per Step-3 pass, allow up to 16 minutes total — the durable-knowledge pass gets the same ceiling as the others. For Step 5 validation passes, allow up to 5 minutes each.
+- **Hard fallback:** if a pass still has not completed when its ceiling is reached, stop/cancel it if the runner supports cancellation, drop that pass, and continue with only the passes/validations that did complete — do not block indefinitely on a single hung pass, and do not let one hang stall the whole review. Note in the final review summary body how many of the 4 or 5 initial passes completed if any were dropped (a completion-count status line, not a per-finding location reference, so it does not conflict with the "never write location references" constraint below).
 
 ## Fallback: single-call script
 
