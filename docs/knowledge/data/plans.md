@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Critical docs and durable-knowledge review in pr-review](plans/20260831-pr-review-docs-durable-knowledge.md)
+
 [Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
