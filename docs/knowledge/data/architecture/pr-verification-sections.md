@@ -2,8 +2,8 @@
 type: architecture
 description: Replace the PR template's How to Test with a Verification section of closed items carrying evidence and a Reviewer Handoff section of open items naming who can close them.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
+  by: codex
+  at: 2026-08-31T17:34:08Z
 sources:
 - resource: .github/pull_request_template.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
@@ -94,28 +94,15 @@ line whose closure cannot be told from its text — the evidence child is what
 makes a tick expensive enough to be honest. Two vocabularies for one rule is
 worse than one heavier vocabulary.
 
-**Delete `.github/pull_request_template.md` outright.** The file carries no
-structure after this change, so deleting it is the honest end state. Rejected
-for a small but real cost: GitHub's web-UI textarea would open blank, and a
-human arriving at the repository would find nothing pointing at where PR
-structure lives. A stub that names no sections buys both back and can never
-drift, because it makes no structural claim.
+**Delete `.github/pull_request_template.md` outright.** Rejected because
+`generate-pr-description` fills the consumer's template when one exists.
+Deleting this repository's template would remove project-owned PR-body wording
+and force the built-in fallback section list instead.
 
-**Symlink the template at the skill.** Keeps one copy of the content while the
-path still exists. Rejected on three grounds: nothing reads the template
-(`pr-open` always passes `gh pr create --body-file`, and templates auto-populate
-only in the web UI), so the link would faithfully preserve an unread file; the
-skill's structure is a section list *inside* `SKILL.md`, not a standalone file
-to point at, so a symlink would need a third artifact extracted first; and this
-repository tracks no symlinks at all, having just removed its only one — the
-reasoning in [uv environment location](uv-environment-location.md) transfers
-clause for clause, since a template symlink would likewise duplicate a
-structure, go stale when the target moves, and teach that the template is the
-source of truth. Whether GitHub resolves symlinks for template lookup is
-undetermined — the workflow case is [known
-broken](https://github.com/orgs/community/discussions/109744) and the template
-case has no authoritative answer — but the payoff is zero either way, so it was
-not worth establishing.
+**Treat this repository's template as the portable fallback.** Rejected because
+a consumer's PR template is consumer-owned. A repository with no template gets
+the skill's built-in section list rather than this repository's template
+silently standing in.
 
 **Have the reviewing agent write the handoff instead of the author.** Arguably
 better-informed: a reviewer knows what it was and was not able to close, where
@@ -137,33 +124,17 @@ not close, turning the section into a dialogue.
   without that knowledge will duplicate (harmless, noisy) or omit wrongly
   (dangerous — a genuinely manual check silently dropped). The skills must
   therefore instruct reading the workflows, not merely applying the filters.
-- **The skill owns the structure; `.github/pull_request_template.md` becomes a
-  pointer stub.** No pull request in this project or a consuming one is opened
-  by hand, and `pr-open` always passes `gh pr create --body-file`, so nothing
-  ever read the template's structure. `pr-gen-description` previously *deferred*
-  to a discovered template and fell back to its own section list; that deference
-  is what made one structure live in two documents that could drift. The skill
-  now states the structure unconditionally and looks for no template.
-- The stub keeps GitHub's web-UI textarea non-empty and gives a human reader an
-  in-repo pointer to the authority, at no drift cost — it names no sections, so
-  it makes no structural claim that can go stale. A stub that ever lists
-  sections has reintroduced the defect.
-- A consuming repository's own `pull_request_template.md` is consequently
-  ignored — but never silently. The skill still checks for one and reports that
-  it was not consulted, so a consumer can replace it with a stub of their own,
-  keep it for human readers, or argue for a change to the structure. Adopting
-  the new behavior means the copied file stops being a format and becomes a
-  pointer, or goes away.
-- The cost is that PR structure is no longer *visible* to anyone who has not
-  loaded the skill. The stub keeps the web textarea non-empty and says where the
-  structure lives, but it does not state the shape, so a human reader must open
-  the skill to learn it. Acceptable here because authorship and review are both
-  automated; it would not be in a human-contributor project.
+- **`generate-pr-description` fills the consumer's template.** A repository with
+  no template gets the skill's built-in section list rather than this
+  repository's template silently standing in.
+- This repository's pull request template remains project-owned structure.
+  Portable generation behavior belongs in
+  `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`;
+  project-specific PR-body wording stays in `.github/pull_request_template.md`.
 - Two call sites remain in the portable `agentdev` plugin and must change
-  together: `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md` (Step
-  5's testing-strategy prompt, Step 7's now-authoritative section list, the
-  `## Edge Cases` entries, and the intro and `## Related Resources` template
-  references) and
-  `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md:75-83` (the
-  worked example) and `:180` (the feedback loop's "update How to Test"
-  instruction).
+  together when the generated PR-body contract changes:
+  `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md` (template
+  discovery, fallback sections, testing-strategy prompt, edge cases, and related
+  resources) and
+  `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md` (the worked
+  example and feedback-loop wording).
