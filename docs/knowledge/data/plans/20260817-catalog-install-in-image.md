@@ -177,7 +177,7 @@ file, not a symlink. Move the full `~/.claude.json` handoff up front, ahead of
 the cbm-install call, and remove the now-dead in-place handoff block that
 follows it.
 
-- [ ] Ahead of the `codebase-memory-mcp-install.sh` call, perform the handoff:
+- [x] Ahead of the `codebase-memory-mcp-install.sh` call, perform the handoff:
   discard a real (non-symlink) image `/root/.claude.json` without `mv`-ing it
   into the volume; when `/root/.claude/claude.json` does not exist, seed it with
   `{}`; then `ln -sf /root/.claude/claude.json /root/.claude.json`. So an
@@ -185,6 +185,16 @@ follows it.
   seeded clean with no image content. Remove the later in-place handoff block
   (now redundant — the file is already a symlink when it is reached), and
   comment why the handoff must precede cbm-install. `shellcheck` clean.
+  - **Evidence:** `.devcontainer/scripts/postCreateCommand.sh:53-62` now runs
+    the full up-front handoff before the `codebase-memory-mcp-install.sh` call
+    at line 66 — it `rm -f`s a real (non-symlink) image `/root/.claude.json`,
+    seeds `/root/.claude/claude.json` with `{}` when the volume has none, then
+    `ln -sf`s the symlink into place; the superseded `rm`-only block and the
+    dead in-place move-and-symlink block below cbm-install are both removed,
+    with the volume-backing rationale folded into the up-front comment
+    (`Spec: catalog-lifecycle`).
+    `shellcheck .devcontainer/scripts/postCreateCommand.sh` is clean. Committed
+    on `skills-updates` in this task's commit.
 
 ### Task 4: Prove it, including both volume states
 
@@ -329,7 +339,8 @@ no common files.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-01):
+Verified anchor points (line numbers as of 2026-09-01; postCreateCommand.sh
+re-verified after Task 3):
 
 - `ansible/roles/agentic_tools/tasks/main.yml:26,30` — the `stage_catalog.yml`
   import and, right after it, the `install_catalog.yml` import Task 1 added
@@ -350,20 +361,17 @@ Verified anchor points (line numbers as of 2026-09-01):
   `agentic_tools_stage_catalog=true` and `agentic_tools_install_catalog=true`
 - `docker/desktop/agent-desktop.Dockerfile:68` — the `ENV AGENTDEV_CATALOG_DIR`
   declaration whose comment block Task 2 corrected
-- `.devcontainer/scripts/postCreateCommand.sh:53-58` — the current Task-3
-  `rm -f` block (from the superseded `ba184b0`), which Task 3 replaces with the
-  up-front handoff
-- `.devcontainer/scripts/postCreateCommand.sh:63` —
-  `codebase-memory-mcp-install.sh`, which the handoff must precede so the
+- `.devcontainer/scripts/postCreateCommand.sh:53-62` — the up-front
+  `~/.claude.json` handoff Task 3 added (discard the image file, seed `{}` when
+  fresh, `ln -sf` the volume symlink), replacing the superseded `rm`-only block
+- `.devcontainer/scripts/postCreateCommand.sh:66` —
+  `codebase-memory-mcp-install.sh`, which the handoff now precedes so the
   symlink exists when cbm-install runs
-- `.devcontainer/scripts/postCreateCommand.sh:74-80` — the in-place
-  move-and-symlink handoff; Task 3 moves this logic ahead of cbm-install and
-  removes what remains here as dead code
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:56-61` — cbm-install's
   symlink-materialization guard (`if [[ -L … ]]`), which folds its edit back
   into the volume only when `/root/.claude.json` is already a symlink — the
   reason the handoff must precede this call
-- `.devcontainer/scripts/postCreateCommand.sh:99-100` — the existing lifecycle
+- `.devcontainer/scripts/postCreateCommand.sh:91` — the existing lifecycle
   catalog install this one mirrors
 - `.github/actions/paths-filter/action.yml:38` — `ansible/**`, so the change
   triggers a CI image rebuild

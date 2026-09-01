@@ -50,34 +50,25 @@ for mount_point in "$workspace/.cache" /uv; do
     fi
 done
 
-# Remove the image build's real /root/.claude.json before cbm-install edits it
-# and the handoff below mv's it into the volume, keeping the agentdev-claude
-# volume authoritative (-L guard spares an existing volume's symlink). Spec: catalog-lifecycle.
+# Symlink ~/.claude.json into the volume BEFORE cbm-install so it folds its MCP
+# entry back in (only happens when the path is already a symlink). Discard the
+# image's real file; seed {} if fresh. Spec: catalog-lifecycle.
 if [[ -f /root/.claude.json && ! -L /root/.claude.json ]]; then
     rm -f /root/.claude.json
 fi
+if [[ ! -e /root/.claude/claude.json ]]; then
+    echo '{}' >/root/.claude/claude.json
+fi
+ln -sf /root/.claude/claude.json /root/.claude.json
 
 # Wire the codebase-memory-mcp binary staged by dev_tools into this user's
 # agent config now that the real ~/.claude and ~/.codex volumes are mounted.
-# This script has to run before symlinking ~/.claude.json
 "$script_dir/codebase-memory-mcp-install.sh"
 
 # Both agents' credential setup below needs their subdirectory of the shared
 # agentdev-agents-auth volume to exist first.
 mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex
 chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex
-
-# ~/.claude.json can't be backed directly by a named volume (Docker volumes are always
-# directory-backed, so mounting one at a file path materializes an empty directory
-# there instead of the file Claude Code expects). Persist it as a plain file inside the
-# already-mounted agentdev-claude volume and symlink it into place instead.
-claude_json_target="/root/.claude/claude.json"
-if [[ -f /root/.claude.json && ! -L /root/.claude.json ]]; then
-    mv /root/.claude.json "$claude_json_target"
-elif [[ ! -e "$claude_json_target" ]]; then
-    echo '{}' >"$claude_json_target"
-fi
-ln -sf "$claude_json_target" /root/.claude.json
 
 # See link-codex-auth.sh for why Codex's auth.json needs the same file-in-a-shared-
 # volume-plus-symlink treatment, and why this also has to run again from
