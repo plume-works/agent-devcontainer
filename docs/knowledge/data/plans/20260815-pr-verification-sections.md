@@ -214,12 +214,16 @@ tracks no symlinks, having just removed its only one for the reasons in
 
 **Files:** Modify: `docs/knowledge/data/log.md`
 
-- [ ] **10. Record the change as a downstream break.** A consuming repository
+- [x] **10. Record the change as a downstream break.** A consuming repository
   that copied `.github/pull_request_template.md` still has the old structural
   version, and its updated `agentdev` skills will now ignore it — reporting that
   it was ignored, per task 2. Note that adopting means replacing the copied file
   with the stub, or deleting it, in the same register as the `setup-python-venv`
   activation break.
+  - **Evidence:** `data/log.md` gains a `## 2026-09-01` group whose `**Update**`
+    entry names the break explicitly — the copied template is now ignored and
+    reported as not consulted — and states the two adoption routes, matching the
+    register of the `setup-python-venv` entry at the `## 2026-08-15` group.
 
 ## Spec changes
 

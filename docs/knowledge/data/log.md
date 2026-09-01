@@ -4,6 +4,22 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-01
+
+- **Update**: PR body structure moved into the `agentdev` catalog, replacing
+  `## How to Test` with `## Verification` (closed items, `- [x]` +
+  `**Evidence:**`) and `## Reviewer Handoff` (open items, `- [ ]` +
+  `**Closed by:**`), per
+  [PR verification sections](architecture/pr-verification-sections.md).
+  **Downstream break**, in the same register as the `setup-python-venv`
+  activation change: a consuming repository that copied
+  `.github/pull_request_template.md` still holds the old structural version, and
+  its updated `agentdev` skills now ignore it — `pr-gen-description` states the
+  structure itself and reports that the copied template was not consulted rather
+  than reading one out of it. Adopting means replacing the copied file with the
+  pointer stub or deleting it; keeping it costs nothing but a report on every
+  run.
+
 ## 2026-08-31
 
 - **Update**:
