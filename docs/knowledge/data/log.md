@@ -23,6 +23,13 @@ to the current day's group.
   [Split PR How to Test into Verification and Reviewer Handoff](features/pr-verification-sections.md)
   implemented, recorded in [unreleased](releases/unreleased.md);
   [its plan](plans/20260815-pr-verification-sections.md) is done.
+- **Creation**:
+  [Critical docs and durable-knowledge review in pr-review](features/pr-review-docs-durable-knowledge.md)
+  implemented, recorded in [unreleased](releases/unreleased.md);
+  [its plan](plans/20260831-pr-review-docs-durable-knowledge.md) is done.
+  `pr-review` now reviews docs and skills critically by invoking `iwe-audit` in
+  a report-only diff mode, with a conditional file-following durable-knowledge
+  pass; only version-only and generated-file-only diffs stay fast-approved.
 
 ## 2026-08-31
 

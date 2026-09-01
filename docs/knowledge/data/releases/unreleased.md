@@ -33,6 +33,8 @@ renames this file to the version number and starts a fresh one.*
 
 [Split PR How to Test into Verification and Reviewer Handoff](../features/pr-verification-sections.md)
 
+[Critical docs and durable-knowledge review in pr-review](../features/pr-review-docs-durable-knowledge.md)
+
 ## Fixed
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)
