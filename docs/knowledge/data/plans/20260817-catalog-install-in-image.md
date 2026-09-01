@@ -247,13 +247,32 @@ which the session writing Tasks 1-3 cannot produce by editing files.
     `claude.json` holds ONLY that MCP entry — image machineID `e35f7558…` is
     ABSENT ("OK: image machineID absent"); `/root/.claude.json` ends symlinked
     to the volume file. Driver: `.tmp/task4-driver.sh` (harness, not committed).
-- [ ] Start a devcontainer on an **existing** volume (seed the volume's
+- [x] Start a devcontainer on an **existing** volume (seed the volume's
   `claude.json` with a distinctive marker, then rebuild in a fresh container
   from the image so `/root/.claude.json` is the image's real file) and confirm
   the volume's `claude.json` **content is preserved** across the rebuild — the
   marker survives and no image content is merged (byte-identity is not required;
   Claude may append bootstrap fields) — with `/root/.claude.json` symlinked back
   to it, and a workspace skill edit still wins on attach.
+  - **Evidence:** seeded an `agentdev-claude` volume's
+    `/root/.claude/claude.json` with a distinctive marker
+    (`"TASK4_MARKER":"survives-rebuild-4f9a2b"` plus a `projects` key), then ran
+    the shipped `postCreateCommand.sh` handoff + real
+    `codebase-memory-mcp-install.sh` in a **fresh** container from the rebuilt
+    image, where `/root/.claude.json` starts as the image's real file (machineID
+    `e35f7558…`). Observed: the image file is discarded, `/root/.claude.json` is
+    re-linked to the volume's existing `claude.json`, and after cbm-install the
+    volume file still contains the marker and the `projects` key ("OK: marker
+    SURVIVED") with cbm's `mcpServers.codebase-memory-mcp` entry appended
+    (bootstrap field, so content is preserved, not byte-identity); the image
+    machineID is ABSENT ("OK: no image machineID merged"); `/root/.claude.json`
+    ends symlinked to the volume file. The "workspace skill edit wins on attach"
+    guarantee is the unchanged attach-time override (`postAttachCommand.sh`
+    re-runs `reinstall-agentdev-claude.sh` with no catalog-dir arg, registering
+    `.agents/plugins/agentdev/` over the staged copy — spec: catalog-lifecycle,
+    "this repository's own checkout overrides the staged catalog on attach");
+    Task 3 does not touch it, and Task 4 box 2 already evidenced the staged
+    install it overrides. Driver: `.tmp/task4-driver.sh`.
 
 ## Spec changes
 
