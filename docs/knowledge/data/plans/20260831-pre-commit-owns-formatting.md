@@ -275,12 +275,19 @@ Modify: `AGENTS.md`
 
 **Files:** Modify: `docs/knowledge/data/product.md`
 
-- [ ] Update the `**Lint/format**` bullet in `## Stack`, which currently reads
+- [x] Update the `**Lint/format**` bullet in `## Stack`, which currently reads
   "orchestrated through Super-Linter locally (`agentdev:local-reformat`) and in
   CI …; pre-commit hooks wire the same tools in locally". State that the
   pre-commit hooks are the local path and Super-Linter is the CI gate, with
   `local-reformat` available for manual runs.
-- [ ] Add a `## Changelog` entry dated 2026-08-31 recording the change.
+  - **Evidence:** the bullet now reads "applied locally by the pre-commit hooks
+    that run on every commit, and gated in CI by Super-Linter… The
+    `agentdev:local-reformat` skill runs the full Super-Linter pass locally for
+    manual use."
+- [x] Add a `## Changelog` entry dated 2026-08-31 recording the change.
+  - **Evidence:** the `## Changelog` list gains a 2026-08-31 entry recording the
+    pre-commit-owns-formatting change; the doc's `generated` stamp is refreshed
+    to `claude-code/opus-5` / 2026-08-31.
 
 ## Spec changes
 
