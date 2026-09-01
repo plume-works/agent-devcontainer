@@ -61,6 +61,9 @@ gh api graphql --paginate --slurp \
   -f query='query($owner: String!, $name: String!, $number: Int!, $endCursor: String) {
     repository(owner: $owner, name: $name) {
       pullRequest(number: $number) {
+        reviews(first: 100) {
+          nodes { databaseId state author { login } submittedAt url body }
+        }
         reviewThreads(first: 100, after: $endCursor) {
           nodes {
             id isResolved
@@ -84,6 +87,19 @@ gh api graphql --paginate --slurp \
     first 100 comments as complete feedback. `gh pr view <pr-number>
     --comments` is insufficient because it flattens comments and omits thread
     resolution metadata.
+
+    **Review-level bodies are separate feedback and must not be skipped.** The
+    `reviews` block above returns each submitted review's own `body` — the
+    summary a reviewer writes with the verdict, distinct from any inline
+    thread. A review can carry a non-empty `body` with **zero** inline
+    comments, so it never appears under `reviewThreads`. A blocking
+    *metadata gate* — `pr-review` stops before its inline passes when the PR
+    description misrepresents the change set — is always posted this way, with
+    no thread to anchor to. Collect every review whose `body` is non-empty,
+    process the newest per author, and classify a blocking or gate body as
+    feedback to act on (typically: update the PR title/description to match the
+    diff, then re-request review) even when no review thread exists.
+    `reviewThreads` alone is structurally blind to these.
 
 After fetching, **filter out resolved threads** using these rules (apply in order):
 
