@@ -198,13 +198,17 @@ tracks no symlinks, having just removed its only one for the reasons in
 
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] **9. Reclassify the template row in the GitHub surface table.** The
+- [x] **9. Reclassify the template row in the GitHub surface table.** The
   `.github/pull_request_template.md` row at `:137` currently reads
   `Template | General pull request structure`. It is no longer structure: change
   its coupling text to say it is a stub pointing at the `agentdev` catalog,
   where PR structure now lives. A consumer copying it gets a pointer, not a
   format, so the `Template` class still holds — say why, since this is one of
   only two `Template`-class rows in that table.
+  - **Evidence:** the row's coupling text now reads that the file is a stub
+    pointing at the `agentdev` catalog, which owns PR structure, and states why
+    `Template` still holds — a consumer copying it gets a pointer to the same
+    authority rather than a format able to drift from it.
 
 ### Task 5: Downstream record
 
