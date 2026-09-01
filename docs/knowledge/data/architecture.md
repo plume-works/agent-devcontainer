@@ -26,3 +26,5 @@ rejected are as valuable as the one you picked.*
 [PR verification sections](architecture/pr-verification-sections.md)
 
 [CI agent plugin availability](architecture/ci-agent-plugin-availability.md)
+
+[AI review never requests changes](architecture/ai-review-never-request-changes.md)
