@@ -54,8 +54,8 @@ have `pr-review` invoke it.
   preserving full code-correctness coverage rather than repurposing a
   correctness slot.
 - **Durable-knowledge findings are blocking (critical/P1)**, the same tier as
-  correctness, so they win Step-4 dedup collisions. This does not change the
-  submit event: Step 8 still caps at `COMMENT`, never `REQUEST_CHANGES`.
+  correctness, so they win Step-5 dedup collisions. This does not change the
+  submit event: Step 9 still caps at `COMMENT`, never `REQUEST_CHANGES`.
 
 Rejected alternative: restate the durable-knowledge criteria inline in
 `pr-review`. Rejected because it duplicates the durable-vs-not test, the smell
@@ -130,7 +130,7 @@ lens uses — so exhaustive iwe-audit findings are filtered to review-worthy one
 
 In the Severity tiers block (lines 67–70), add durable-knowledge findings to the
 **Blocking (critical/P1)** tier alongside correctness. Clarify — reusing the
-existing Step-8 wording — that the tier governs Step-4 dedup priority and inline
+existing Step-9 wording — that the tier governs Step-5 dedup priority and inline
 emphasis only, and never changes the submit event (still `COMMENT`, never
 `REQUEST_CHANGES`).
 
@@ -139,8 +139,8 @@ emphasis only, and never changes the submit event (still `COMMENT`, never
   - **Evidence:** The **Blocking (critical/P1)** tier in
     `.agents/plugins/agentdev/skills/pr-review/SKILL.md` now names the
     durable-knowledge pass alongside correctness, with the note that the tier
-    governs Step-4 dedup and inline emphasis only and never changes the submit
-    event (stays `COMMENT`, never `REQUEST_CHANGES`, per Step 8).
+    governs Step-5 dedup and inline emphasis only and never changes the submit
+    event (stays `COMMENT`, never `REQUEST_CHANGES`, per Step 9).
 
 ### Task 4: Make Step 3 fan-out conditional and file-following
 
@@ -259,7 +259,7 @@ Verified anchor points (line numbers as of 2026-08-31):
   convention-source selection (per-file skill mapping)
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:81` — Step 3 "four
   independent initial-review passes"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:92` — Step 8 event rule
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:108` — Step 9 event rule
   (APPROVE/COMMENT)
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:116` — per-pass 16-minute
   budget
