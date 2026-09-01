@@ -50,6 +50,13 @@ for mount_point in "$workspace/.cache" /uv; do
     fi
 done
 
+# Remove the image build's real /root/.claude.json before cbm-install edits it
+# and the handoff below mv's it into the volume, keeping the agentdev-claude
+# volume authoritative (-L guard spares an existing volume's symlink). Spec: catalog-lifecycle.
+if [[ -f /root/.claude.json && ! -L /root/.claude.json ]]; then
+    rm -f /root/.claude.json
+fi
+
 # Wire the codebase-memory-mcp binary staged by dev_tools into this user's
 # agent config now that the real ~/.claude and ~/.codex volumes are mounted.
 # This script has to run before symlinking ~/.claude.json

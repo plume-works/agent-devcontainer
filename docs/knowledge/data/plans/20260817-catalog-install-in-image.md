@@ -158,11 +158,19 @@ the volume. Removing it up front reproduces the pre-image sequence (no file
 present when cbm-install runs); the existing `mv`/`elif`/`ln -sf` handoff then
 stays as written, with its `mv` branch dead on first start.
 
-- [ ] Before the `codebase-memory-mcp-install.sh` call, remove a real
+- [x] Before the `codebase-memory-mcp-install.sh` call, remove a real
   (non-symlink) `/root/.claude.json` so the mounted `agentdev-claude` volume
   remains the source of truth for Claude files. Guard it to `-f && ! -L` so an
   existing volume's symlink into the volume is never removed, and comment why
   the removal precedes cbm-install. `shellcheck` clean.
+  - **Evidence:** `.devcontainer/scripts/postCreateCommand.sh` now guards
+    `rm -f /root/.claude.json` with
+    `[[ -f /root/.claude.json && ! -L /root/.claude.json ]]` immediately before
+    the `codebase-memory-mcp-install.sh` call, with a comment stating why it
+    must precede cbm-install and the handoff;
+    `shellcheck .devcontainer/scripts/postCreateCommand.sh` exits 0 (clean).
+    Committed on `remaining-plans`
+    (`fix(devcontainer): remove image's /root/.claude.json before cbm-install`).
 
 ### Task 4: Prove it, including both volume states
 
