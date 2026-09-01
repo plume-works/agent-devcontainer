@@ -4,6 +4,25 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-08-31
+
+- **Update**:
+  [Let pre-commit own formatting](plans/20260831-pre-commit-owns-formatting.md)
+  done — the pre-commit hooks are the single local formatting path, now extended
+  to merge commits via the `pre-merge-commit` hook type. The `local-reformat`
+  mandates in `pr-open` and `git-merge-resolve` and the formatting routes in the
+  `principal-engineer` and `tdd-refactor` agents are removed, `local-reformat`'s
+  obligation language is softened, and the redundant `python-format-lint` skill
+  is retired into the `AGENTS.md` Python section.
+- **Creation**:
+  [Let pre-commit own formatting](features/pre-commit-owns-formatting.md)
+  implemented, recorded in [unreleased](releases/unreleased.md).
+- **Update**: [Template consumption](spec/template-consumption.md) §5 item 5 now
+  keeps the consuming project's `zizmor` hook as `language: system` resolved
+  from `PATH`, dropping the bare-host `zizmorcore/zizmor-pre-commit`
+  substitution — a workflow this container-only product does not support. No
+  requirement or scenario changed; the edit is procedural adoption guidance.
+
 ## 2026-08-24
 
 - **Update**:

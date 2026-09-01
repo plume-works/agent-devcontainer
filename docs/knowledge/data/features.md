@@ -23,3 +23,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Never write a working logbook](features/no-working-logbooks.md)
 
 [Preserved approved wording](features/preserved-approved-wording.md)
+
+[Let pre-commit own formatting](features/pre-commit-owns-formatting.md)

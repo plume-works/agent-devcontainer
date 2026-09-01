@@ -5,6 +5,8 @@ description: Remove the skill-level formatting mandates so the pre-commit git ho
 generated:
   by: claude-code/opus-5
   at: 2026-08-31T00:00:00Z
+stage: done
+completed: 2026-08-31
 ---
 
 # Let pre-commit own formatting
