@@ -6,10 +6,10 @@ generated:
   by: codex
   at: 2026-08-16T01:27:59Z
 sources:
-- resource: .claude/skills/plan/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
-- resource: .claude/skills/verify/SKILL.md
-- resource: .claude/skills/ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: docs/knowledge/STRUCTURE.md
 stage: done

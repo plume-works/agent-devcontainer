@@ -6,10 +6,10 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-17T00:00:00Z
 sources:
-- resource: .claude/skills/ship/SKILL.md
-- resource: .claude/skills/explore/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
-- resource: .claude/skills/verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/AGENTS.md
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
@@ -215,17 +215,38 @@ every row points at a deleted path.
 `docs/knowledge/data/features/verification-in-the-main-loop.md`,
 `docs/knowledge/data/backlog/capture-skill.md`, `docs/knowledge/data/plans/*.md`
 
-Roughly 124 references across fifteen files, in three shapes: `sources:`
-frontmatter entries, backticked `path:line` anchors in prose, and prose naming
-the old directory. None are markdown links between graph documents, so
-`iwe rename` will not touch them.
+Roughly 219 references across nineteen files (Task 1 re-counted; the earlier
+"124 across fifteen" estimate predated the plans and features merged since), in
+three shapes: `sources:` frontmatter entries, backticked `path:line` anchors in
+prose, and prose naming the old directory. None are markdown links between graph
+documents, so `iwe rename` will not touch them.
 
-- [ ] Rewrite every `.claude/skills/<name>/` reference in `docs/knowledge/data/`
+- [x] Rewrite every `.claude/skills/<name>/` reference in `docs/knowledge/data/`
   to its new plugin path, preserving each anchor's line number only where it is
   still correct and re-locating it where the move or the dependency plan shifted
   it. Leave documents in `## Done` factually intact: a shipped plan records
   where the file was when it shipped, so update its `sources:` and leave its
   prose history alone.
+  - **Evidence:** The estimate was low: 219 `.claude/skills` occurrences across
+    19 files (not ~124/15). All 51 `sources:` `resource:` entries — across the
+    live specs, features, backlog, bugs, this active plan, and every `## Done`
+    plan/bug — rewritten to
+    `.agents/plugins/agentdev/skills/iwe-<name>/SKILL.md` (0 old-path
+    `resource:` lines remain; all rewrites confirmed in frontmatter, none in
+    prose). Live-doc prose anchors re-located and rewritten:
+    `backlog/exercise-removed-delta-blocks.md` (Plan :137-138→:146-147,
+    Implement :24→:25, Verify :46→:48, Ship :45,:70→:46,:71 — the dependency
+    plan had shifted them) and the open bug `bugs/missing-map-skill.md` (Verify
+    :51-54→:78-80, :65→:92; Setup :29-30→:30-31; anchor date restamped
+    2026-09-01, `AGENTS.md:56-58` re-verified still-correct). The 137 prose
+    references inside the seven `## Done` plans and the done bug
+    `plan-checkbox-over-claiming.md` were left intact (git diff confirms only
+    `resource:` lines changed there); this active plan's own move narrative and
+    `## Key references` keep their pre-move `.claude/skills/` paths by design.
+    `ci-agent-plugin-availability.md:146` is out of scope — it names a
+    hypothetical vendored `.claude/skills/pr-review/`, not one of the seven
+    moved IWE skills. `iwe normalize` and `iwe schema validate` exit 0.
+    Committed with this task.
 
 ### Task 7: Amend the dependency plan's out-of-scope clause
 

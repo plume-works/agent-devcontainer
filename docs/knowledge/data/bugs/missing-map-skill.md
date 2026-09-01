@@ -5,8 +5,8 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- resource: .claude/skills/setup/SKILL.md
-- resource: .claude/skills/verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-setup/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: https://github.com/iwe-org/dev-workspace/issues/1
 ---
 
@@ -15,7 +15,7 @@ sources:
 ## Symptom
 
 Two shipped skills delegate codebase-map work to a skill that is not present in
-`.claude/skills/`, so both delegations are silent no-ops.
+`.agents/plugins/agentdev/skills/`, so both delegations are silent no-ops.
 
 `setup` defers the per-module map as "follow-up work" without naming an owner.
 `verify` audit mode detects stale `data/codebase/` docs and flags them "for the
@@ -84,14 +84,14 @@ empty and `verify`'s stale-map audit stays unactionable.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-15):
+Verified anchor points (line numbers as of 2026-09-01):
 
-- `.claude/skills/verify/SKILL.md:51-54` — stale-map audit, "flag for the map
-  skill's refresh mode"
-- `.claude/skills/verify/SKILL.md:65` — "Report, never fix", which blocks the
-  only skill that detects the problem
-- `.claude/skills/setup/SKILL.md:29-30` — per-module map deferred as follow-up,
-  no owner named
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:78-80` — stale-map audit,
+  "flag for the map skill's refresh mode"
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:92` — "Report, never
+  fix", which blocks the only skill that detects the problem
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-31` — per-module map
+  deferred as follow-up, no owner named
 - `docs/knowledge/AGENTS.md:56-58` — Record step assigns the refresh to the bare
   session
 - `docs/knowledge/SCHEMA.md:144-166` — the codebase-map authoring contract
