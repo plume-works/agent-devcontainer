@@ -125,14 +125,22 @@ without extra prose.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md`
 
-- [ ] Delete step 2 of `## Workflow 4` (lines 169-171), which invokes
+- [x] Delete step 2 of `## Workflow 4` (lines 169-171), which invokes
   `local-reformat`, and renumber the remaining steps. The merge commit created
   by step 1 now runs the hooks itself via `pre-merge-commit`.
-- [ ] Delete the completion criterion at line 206 ("The mandatory local reformat
+  - **Evidence:** Workflow 4 now runs `git commit`, targeted checks,
+    conflict-marker verification, then return-to-caller as steps 1-4;
+    `grep -in reformat git-merge-resolve/SKILL.md` returns no hits.
+- [x] Delete the completion criterion at line 206 ("The mandatory local reformat
   workflow completed successfully after a merge").
-- [ ] Check the `SUCCESS` row of the exit-code table at line 88, which sends the
+  - **Evidence:** the `## Completion Criteria` list no longer contains the
+    reformat bullet; it runs from the confidence-threshold bullet directly to
+    "Relevant targeted validation passes".
+- [x] Check the `SUCCESS` row of the exit-code table at line 88, which sends the
   reader to "Workflow 4 for the required reformat and validation", and restate
   it in terms of the validation that remains.
+  - **Evidence:** the `SUCCESS` row now reads "Continue with Workflow 4 for
+    targeted validation of the merged files."
 
 ### Task 4: Remove the formatting routes from the agents
 
