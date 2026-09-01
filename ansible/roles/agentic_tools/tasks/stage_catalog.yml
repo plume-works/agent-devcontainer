@@ -1,10 +1,10 @@
 ---
 # Stage the agent catalog into the image.
 #
-# This is a plain copy, not an installation: the container's lifecycle scripts
-# install from it through each agent's own plugin CLI once the persistent
-# ~/.claude and ~/.codex volumes are mounted. Installing here instead would write
-# under $HOME, which those volumes shadow for every container after the first.
+# This is a plain copy; install_catalog.yml installs from it through each agent's
+# own plugin CLI. That build-time install lets a raw-image consumer resolve the
+# catalog with no lifecycle hooks, and the container's lifecycle scripts install
+# again into the mounted ~/.claude and ~/.codex volumes, which shadow it.
 #
 # The staged root holds both marketplace manifests, and each resolves its plugin
 # by a path relative to that root, so the source layout has to be preserved.

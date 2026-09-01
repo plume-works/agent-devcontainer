@@ -68,21 +68,44 @@ Modify: `ansible/roles/agentic_tools/tasks/main.yml`,
 `ansible/roles/agentic_tools/defaults/main.yml`,
 `ansible/roles/agentic_tools/tasks/stage_catalog.yml` (comments only)
 
-- [ ] Add `agentic_tools_install_catalog` (default `false`) to the role
+- [x] Add `agentic_tools_install_catalog` (default `false`) to the role
   defaults, gating the new task file the way `agentic_tools_stage_catalog` gates
   staging
-- [ ] Write `install_catalog.yml` registering the staged root as a marketplace
+  - **Evidence:** `ansible/roles/agentic_tools/defaults/main.yml` now declares
+    `agentic_tools_install_catalog: false` with a comment pointing at the spec
+    and architecture docs; committed on `skills-updates`.
+- [x] Write `install_catalog.yml` registering the staged root as a marketplace
   and installing the plugin for Claude at user scope and for Codex, reading the
   marketplace and plugin names from the manifests rather than hardcoding them
-- [ ] Import `install_catalog.yml` from `main.yml` after the staging import,
+  - **Evidence:** `ansible/roles/agentic_tools/tasks/install_catalog.yml` slurps
+    the staged Claude and Codex marketplace manifests, resolves each marketplace
+    name via `from_json`, then runs
+    `claude plugin marketplace add/install --scope user` and
+    `codex plugin marketplace add`/`plugin add`; plugin name comes from
+    `agentic_tools_plugin_name`. Mirrors
+    `.devcontainer/scripts/reinstall-agentdev-{claude,codex}.sh`.
+- [x] Import `install_catalog.yml` from `main.yml` after the staging import,
   guarded by both `agentic_tools_install_catalog` and
   `agentic_tools_stage_catalog` (installing without staging is incoherent)
-- [ ] Correct the comments in `stage_catalog.yml:2-7` and on
+  - **Evidence:** `ansible/roles/agentic_tools/tasks/main.yml` imports
+    `install_catalog.yml` immediately after the `stage_catalog.yml` import,
+    under
+    `when: [agentic_tools_stage_catalog | bool, agentic_tools_install_catalog | bool]`.
+- [x] Correct the comments in `stage_catalog.yml:2-7` and on
   `agentic_tools_stage_catalog` that assert the install cannot happen at build
   time
-- [ ] `uv run ansible-lint ansible` and
+  - **Evidence:** `stage_catalog.yml`'s header now says staging is a plain copy
+    that `install_catalog.yml` installs from at build time so a raw-image
+    consumer resolves with no hooks; the `agentic_tools_stage_catalog` comment
+    in `defaults/main.yml` no longer claims install belongs only to lifecycle
+    scripts.
+- [x] `uv run ansible-lint ansible` and
   `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml` pass
   from the repository root
+  - **Evidence:** both run from the repo root exit 0 —
+    `uv run ansible-lint ansible` clean (no findings), and the syntax check
+    reports only pre-existing `apt_repository` deprecation warnings in unrelated
+    roles.
 
 ### Task 2: Turn the install on and correct the documentation
 
