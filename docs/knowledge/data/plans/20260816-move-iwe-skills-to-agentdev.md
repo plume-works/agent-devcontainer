@@ -134,13 +134,24 @@ Ship and grew the bare-name references from nine to thirteen, so this task's
 scope widened from "nine" to "thirteen" bare-name references plus the one
 backticked path.)
 
-- [ ] Replace the backticked `.claude/skills/verify/SKILL.md` in Ship's step 3
+- [x] Replace the backticked `.claude/skills/verify/SKILL.md` in Ship's step 3
   with the `/agentdev:iwe-verify` invocation, and rewrite the thirteen bare-name
   sibling references in Explore, Implement, and Verify as namespaced
   invocations, matching the existing idiom in `pr-open` and `pr-sync`. Then grep
   the seven files for any remaining `.claude/`, `.agents/`, or `docs/knowledge/`
   path and confirm the only survivors are IWE document keys relative to the
   library root, which resolve at runtime and must stay as they are.
+  - **Evidence:** Ship step 3 now invokes `/agentdev:iwe-verify` (no backticked
+    repo path). The thirteen bare-name references are namespaced: Explore (4) at
+    :44,67,74,88 → `/agentdev:iwe-{implement,plan}`; Implement (7) at
+    :20,63,76,77,101,105,130 → `/agentdev:iwe-{plan,verify,ship}`; Verify (2) at
+    :28,88 → `/agentdev:iwe-{plan,ship}`.
+    `grep -rE '\.claude/|\.agents/|docs/knowledge/'` over the seven files
+    returns nothing (exit 1); the only surviving in-repo-looking references are
+    IWE document keys (`data/spec/`, `data/plans/`, …) relative to the library
+    root, which resolve at runtime and must stay. `validate_agent_files` reports
+    43/43 valid, 0 errors, 0 warnings — the ship:37 catalog-path error is gone.
+    Committed with this task.
 
 ### Task 4: Widen and version the plugin manifests
 

@@ -17,7 +17,7 @@ is not proof that behavior exists; current code and passing task evidence are.
 1. **Select the plan.** Infer from conversation; if ambiguous, list the plans
    under `## Active` in `data/plans.md` and ask (most recently created first).
    Announce: "Working on: <plan> — task N of M". No plan exists for what the
-   user wants built? Stop and point at the plan skill.
+   user wants built? Stop and point at the `/agentdev:iwe-plan` skill.
 2. **Load the context.** Read the full plan, the specs in its
    `## Spec changes`, and `data/product.md` `## Constraints` and
    `## Authoring rules` — they bind the code you're about to write. Note which
@@ -60,7 +60,8 @@ is not proof that behavior exists; current code and passing task evidence are.
      before changing the plan or coding beyond it. Any change to a recorded
      normative outcome, delta operation, requirement, or scenario is material
      by definition — never edit the delta to match what you built. It goes back
-     through the plan skill's revise mode, with the user's direction, before
+     through the `/agentdev:iwe-plan` skill's revise mode, with the user's
+     direction, before
      coding continues.
 7. **Run to completion.** Execute tasks continuously until the plan's last box
    ticks, without pausing for approval between them — each task still closes
@@ -72,8 +73,9 @@ is not proof that behavior exists; current code and passing task evidence are.
    name>".
 8. **Finish.** Report a rollup of the tasks executed this session — the first
    and only report of a continuous run — then run the plan's `## Verification`
-   commands, report the results, and suggest the verify skill for the full
-   pre-ship check, then the ship skill. Lead with the position line
+   commands, report the results, and suggest the `/agentdev:iwe-verify` skill
+   for the full pre-ship check, then the `/agentdev:iwe-ship` skill. Lead with
+   the position line
    `Plan: <name> — tasks N-M of T`, then:
 
    | #   | Task | Status | Commit | Evidence |
@@ -96,10 +98,12 @@ Implementation findings do not belong in the plan. Route each finding by type:
 - Work this plan should not absorb → `data/backlog/<slug>.md`, and say so in
   the handoff report rather than growing `## Out of scope` silently.
 - A finding that changes a material boundary → stop and take it back through
-  the plan skill (Step 6), which is the only route that may edit intent.
+  the `/agentdev:iwe-plan` skill (Step 6), which is the only route that may edit
+  intent.
 
 `## Context` and `## Approach` state intent and stay stable while you build.
-The plan skill owns them; implement edits them only via Step 6's material
+The `/agentdev:iwe-plan` skill owns them; implement edits them only via Step 6's
+material
 deviation route. Do not write findings into these sections; a future implementer
 must be able to distinguish planned intent from implementation findings.
 
@@ -123,4 +127,4 @@ harness is code and lives in the repository. Its _output_ is not plan content.
 - Never silently expand the plan or narrow its specified behavior to fit the
   implementation. Material changes require user direction before coding.
 - This skill implements; it doesn't ship. Status flips, spec sync, and release
-  recording stay with the ship skill.
+  recording stay with the `/agentdev:iwe-ship` skill.

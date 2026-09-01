@@ -25,7 +25,8 @@ deliverable, and the fixes belong to the skills and sessions it points at.
    SUGGESTION, each with a concrete recommendation:
    - **Completeness** — every unchecked `- [ ]` task is a CRITICAL, with three
      routes out: complete it, tick it if already done, or revise the plan to
-     drop it via the plan skill's revise mode, which treats dropping a task as
+     drop it via the `/agentdev:iwe-plan` skill's revise mode, which treats
+     dropping a task as
      a material scope change and so asks the user before doing it. The third
      route exists because Ship refuses any CRITICAL and has no override: a task
      the user has decided against can't be ticked while undone, so without it
@@ -84,7 +85,7 @@ deliverable, and the fixes belong to the skills and sessions it points at.
      violations; `iwe stats` dangling links and `data/` orphans other than
      `data/index`.
    - Report in the same CRITICAL/WARNING/SUGGESTION format, grouped by fix
-     owner: "run the ship skill on X", "update spec Y", "close bug Z".
+     owner: "run `/agentdev:iwe-ship` on X", "update spec Y", "close bug Z".
 
 ## Rules
 
