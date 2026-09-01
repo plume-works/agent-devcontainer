@@ -273,7 +273,7 @@ session that reads it.
 
 **Files:** none
 
-- [ ] Run
+- [x] Run
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`,
   `claude plugin validate ./.agents/plugins/agentdev`, `iwe normalize`, and
   `iwe schema validate`, and record the skill count reported by the validator.
@@ -282,6 +282,15 @@ session that reads it.
   the total is unchanged by a relocation); the post-move run must be equally
   clean. The agentdev plugin holds 27 tracked skills before the move and 34
   after it.
+  - **Evidence:**
+    `validate_agent_files --recommend . --require-marketplace claude codex` →
+    "Summary: 43/43 skills valid, Errors: 0, Warnings: 0" (unchanged by the
+    relocation, as predicted).
+    `claude plugin validate ./.agents/plugins/agentdev` → "✔ Validation passed".
+    `iwe normalize` and `iwe schema validate` both exit 0. The agentdev plugin
+    now holds 34 skill directories
+    (`ls -1d .agents/plugins/agentdev/skills/*/ | wc -l` = 34). Committed with
+    this task.
 
 ## Spec changes
 
