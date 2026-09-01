@@ -257,13 +257,19 @@ Modify: `AGENTS.md`
 
 **Files:** Modify: `docs/knowledge/data/spec/template-consumption.md`
 
-- [ ] Rewrite item 5 of `## 5. Adapt pre-commit and lint configuration` (lines
+- [x] Rewrite item 5 of `## 5. Adapt pre-commit and lint configuration` (lines
   160-164) so it states that the `zizmor` hook is `language: system` and expects
   `zizmor` on `PATH`, which the development image provides — matching the
   `validate-agent-files` hook directly above it. Remove the
   `zizmorcore/zizmor-pre-commit` substitution, which exists to make
   `pre-commit run --all-files` work on a bare host and would add a second
   version pin outside the sync script's coverage.
+  - **Evidence:** item 5 now reads "the `zizmor` hook is `language: system` and
+    expects `zizmor` on `PATH`, which the development image provides — the same
+    arrangement as the `validate_agent_files` hook above";
+    `grep -n "zizmorcore\|bare host" template-consumption.md` returns no hits.
+    The edit is inside the procedural `## 5` section, touching no
+    `### Requirement:` or `#### Scenario:`.
 
 ### Task 9: Correct the lint description in product.md
 
