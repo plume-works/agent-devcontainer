@@ -69,9 +69,8 @@ itself require a new Red→Green→Refactor cycle.
   commands through `uv run`. Node/JS tooling runs through `bun`.
 - **Build / test** — `uv run pytest <path>` for Python, `bun run test` for
   JavaScript. Scope to the narrowest path or test id while iterating.
-- **Python style** — [python-format-lint](../skills/python-format-lint/SKILL.md)
-  (ruff formats and autofixes; `python-lint-check.sh` is the CI gate).
-- **Repo-wide formatting** — [local-reformat](../skills/local-reformat/SKILL.md).
+- **Python style** — ruff formats and autofixes via the pre-commit hooks;
+  verify with `python-lint-check.sh` (the same tools run in CI).
 
 ## Pull Requests
 

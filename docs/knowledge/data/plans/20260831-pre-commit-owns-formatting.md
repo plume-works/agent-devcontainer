@@ -148,15 +148,25 @@ without extra prose.
 `.agents/plugins/agentdev/agents/principal-engineer.agent.md`,
 `.agents/plugins/agentdev/agents/tdd-refactor.agent.md`
 
-- [ ] Delete the `**Repo-wide formatting**` bullet at
+- [x] Delete the `**Repo-wide formatting**` bullet at
   `principal-engineer.agent.md:74`.
-- [ ] Rewrite the `**Python style**` bullet at
+  - **Evidence:**
+    `grep -in "Repo-wide formatting\|local-reformat" principal-engineer.agent.md`
+    returns no hits.
+- [x] Rewrite the `**Python style**` bullet at
   `principal-engineer.agent.md:72-73` so it no longer links the deleted skill,
   keeping the `python-lint-check.sh` reference.
-- [ ] Remove the `python-format-lint` link from the `**Python**` bullet at
+  - **Evidence:** the `**Python style**` bullet now reads "ruff formats and
+    autofixes via the pre-commit hooks; verify with `python-lint-check.sh`" with
+    no `python-format-lint` link.
+- [x] Remove the `python-format-lint` link from the `**Python**` bullet at
   `tdd-refactor.agent.md:40-43`, keeping the `python-lint-check.sh` verification
   and the existing pre-commit sentence. The checklist item at line 61 is
   unaffected.
+  - **Evidence:** the `**Python**` bullet keeps the `python-lint-check.sh`
+    verification and the `pre-commit run --files <paths>` sentence; the trailing
+    "See the python-format-lint skill." sentence is gone.
+    `grep -in python-format-lint tdd-refactor.agent.md` returns no hits.
 
 ### Task 5: Delete the python-format-lint skill and move its policy
 
