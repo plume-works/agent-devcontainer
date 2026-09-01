@@ -187,7 +187,7 @@ These are the documents that tell a session where the skills are. The workspace
 skills table is the highest-value fix: it is the router, and after the move
 every row points at a deleted path.
 
-- [ ] Rewrite the seven-row table in `docs/knowledge/AGENTS.md` and the setup
+- [x] Rewrite the seven-row table in `docs/knowledge/AGENTS.md` and the setup
   reference in its start-of-session step to name `/agentdev:iwe-*` invocations
   rather than file paths, update the `.claude/skills/` line in `STRUCTURE.md`,
   correct the `.claude/` row in `template-boundary.md`, and correct both stale
@@ -196,6 +196,17 @@ every row points at a deleted path.
   wrong: the agentdev plugin carries 27 tracked skills before this move (Task 1
   re-counted; the plan's original 23/30 predates the iwe-audit and
   iwe-implement-all skills merged since).
+  - **Evidence:** The `docs/knowledge/AGENTS.md` router table now lists
+    `/agentdev:iwe-{setup,explore,plan,implement,verify,ship,weekly}` and its
+    start-of-session step (line 17) points at `/agentdev:iwe-setup` instead of a
+    file path. `STRUCTURE.md`'s workflow-skills line names
+    `.agents/plugins/agentdev/skills/iwe-*/` invoked as `/agentdev:iwe-*`.
+    `template-boundary.md`'s `.claude/` row (line 98) is now accurate as written
+    — it never claimed skills, and the move makes the omission correct — and its
+    `.agents/` count reads "34 skills"; `product.md` reads "34 skills". The
+    agentdev plugin directory holds 34 skill dirs post-move (verified by `ls`
+    and `git ls-files`). No `.claude/skills` reference survives in any of the
+    four documents. Committed with this task.
 
 ### Task 6: Repoint the graph document anchors
 

@@ -14,8 +14,8 @@ software project's memory and system of record. The division of labor:
 ## Start of every session
 
 1. Read `docs/knowledge/data/product.md`. If it still contains ✏️ placeholders,
-   run the setup flow (`.claude/skills/setup/SKILL.md`) before anything else —
-   planning without product context is guessing. Note `## Constraints` and
+   run the setup flow (`/agentdev:iwe-setup`) before anything else — planning
+   without product context is guessing. Note `## Constraints` and
    `## Authoring rules`: they bind everything you write.
 2. Check the state of work: active plans under `## Active` in `data/plans.md`,
    and high-priority tasks —
@@ -209,12 +209,12 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 
 ## Workspace skills
 
-| Skill                               | What it does                                                            |
-| ----------------------------------- | ----------------------------------------------------------------------- |
-| `.claude/skills/setup/SKILL.md`     | Brownfield onboarding: scans the codebase, drafts product/architecture  |
-| `.claude/skills/explore/SKILL.md`   | Thinking partner: investigate and compare options; never writes code    |
-| `.claude/skills/plan/SKILL.md`      | Files a plan: discovery, verified anchors, spec impact, Active listing  |
-| `.claude/skills/implement/SKILL.md` | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries   |
-| `.claude/skills/verify/SKILL.md`    | Pre-ship gate + drift audit: claims in the graph checked against code   |
-| `.claude/skills/ship/SKILL.md`      | Closes the loop: spec sync, stage flips, release recording, release cut |
-| `.claude/skills/weekly/SKILL.md`    | Read-only digest: shipped, in flight, bugs, backlog, graph health       |
+| Skill                     | What it does                                                            |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `/agentdev:iwe-setup`     | Brownfield onboarding: scans the codebase, drafts product/architecture  |
+| `/agentdev:iwe-explore`   | Thinking partner: investigate and compare options; never writes code    |
+| `/agentdev:iwe-plan`      | Files a plan: discovery, verified anchors, spec impact, Active listing  |
+| `/agentdev:iwe-implement` | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries   |
+| `/agentdev:iwe-verify`    | Pre-ship gate + drift audit: claims in the graph checked against code   |
+| `/agentdev:iwe-ship`      | Closes the loop: spec sync, stage flips, release recording, release cut |
+| `/agentdev:iwe-weekly`    | Read-only digest: shipped, in flight, bugs, backlog, graph health       |
