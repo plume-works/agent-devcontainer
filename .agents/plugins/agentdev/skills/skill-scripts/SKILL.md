@@ -7,9 +7,8 @@ description: "Write and document a skill's bundled scripts so their outcome is r
 
 A bundled script has two callers with different needs. A shell or test caller
 branches on `$?` and needs numeric codes. An agent reads the tool result and
-needs an outcome it can act on without resolving a bare number against a table
-printed thousands of tokens earlier. Serve both: **keep the exit code, and name
-it on stdout.**
+needs a self-describing outcome. Serve both: **keep the exit code, and name it
+on stdout.**
 
 Apply this to every script under a skill's `scripts/` directory.
 
@@ -172,10 +171,9 @@ owner_repo="$(resolve_owner_repo)" || quit_by_code 6
 ## Guard External Commands and Validate Their Products
 
 **Wrap every tool call whose own status could be mistaken for yours.** An
-unwrapped `gh` or `git` left to `set -e` does not just produce
-`RESULT=UNKNOWN_CODE_128` — worse, `gh` exits `4` on an auth failure, and if
-`4` is your `CREATE_FAILED` the run reports a confident, wrong outcome. Capture
-the status, decide what it means, and `quit_by_code` a code you declared.
+external command may return a number assigned to a different script outcome; if
+that status escapes through `set -e`, the script can report a confident, wrong
+result. Capture the status, decide what it means, and `quit_by_code` a code you declared.
 Keep the tool's stderr visible when it explains the failure:
 
 ```bash
@@ -338,8 +336,8 @@ assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
 
 Drive the script through a mock world rather than a live one: a throwaway `git`
 repository built in the fixture directory, or stub `git`/`gh` executables placed
-first on `PATH`. The three tests already in `tests/` show both shapes, plus the
-signal-status case. These tests live with the plugin, not with any package that
+first on `PATH`. Existing plugin tests demonstrate mock repositories, stub tools,
+and signal handling. These tests live with the plugin, not with any package that
 happens to sit beside it in the developing repository.
 
 ## Definition of Done
@@ -350,8 +348,7 @@ happens to sit beside it in the developing repository.
   shared `bin/result-codes.sh`; none copies or inlines its helpers.
 - Every terminal path exits through `quit_by_code`; no bare `exit N` remains
   outside the shared result-code implementation.
-- Exactly one `RESULT=` line reaches stdout, last; no lowercase or ad-hoc
-  `RESULT=` values survive from an earlier convention.
+- Exactly one declared, uppercase `RESULT=` value reaches stdout last.
 - HUP, INT, and TERM emit exactly one matching `SIGNAL_*` result, re-raise the
   signal, and produce shell statuses `129`, `130`, and `143` respectively.
 - Diagnostics and remediation advice are on stderr, not stdout.

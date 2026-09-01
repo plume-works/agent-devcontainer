@@ -26,11 +26,10 @@ a temporary directory before building. Installing in place fails with
 /opt/uv-tools/validate-agent-files/      # isolated tool environment, root-owned 0755
 ```
 
-`uv tool install` is deliberate: it keeps the validator out of the system interpreter
-and out of any `uv`-managed project environment, while putting exactly one command on
-`PATH`. `/opt` rather than `$HOME` because `~/.claude`, `~/.codex`, and the home
-directory itself are commonly mounted as volumes, which would shadow anything written
-under them.
+The role installs with `uv tool install` to keep the validator out of the system
+interpreter and out of any `uv`-managed project environment, while putting exactly
+one command on `PATH`. `/opt` keeps the tool environment outside agent and home
+state that can be volume-mounted.
 
 ## Variables
 

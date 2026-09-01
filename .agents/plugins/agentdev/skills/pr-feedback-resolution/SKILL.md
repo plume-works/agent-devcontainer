@@ -61,6 +61,9 @@ gh api graphql --paginate --slurp \
   -f query='query($owner: String!, $name: String!, $number: Int!, $endCursor: String) {
     repository(owner: $owner, name: $name) {
       pullRequest(number: $number) {
+        reviews(first: 100) {
+          nodes { databaseId state author { login } submittedAt url body }
+        }
         reviewThreads(first: 100, after: $endCursor) {
           nodes {
             id isResolved
@@ -84,6 +87,19 @@ gh api graphql --paginate --slurp \
     first 100 comments as complete feedback. `gh pr view <pr-number>
     --comments` is insufficient because it flattens comments and omits thread
     resolution metadata.
+
+    **Review-level bodies are separate feedback and must not be skipped.** The
+    `reviews` block above returns each submitted review's own `body` — the
+    summary a reviewer writes with the verdict, distinct from any inline
+    thread. A review can carry a non-empty `body` with **zero** inline
+    comments, so it never appears under `reviewThreads`. A blocking
+    *metadata gate* — `pr-review` stops before its inline passes when the PR
+    description misrepresents the change set — is always posted this way, with
+    no thread to anchor to. Collect every review whose `body` is non-empty,
+    process the newest per author, and classify a blocking or gate body as
+    feedback to act on (typically: update the PR title/description to match the
+    diff, then re-request review) even when no review thread exists.
+    `reviewThreads` alone is structurally blind to these.
 
 After fetching, **filter out resolved threads** using these rules (apply in order):
 
@@ -290,9 +306,7 @@ Ensure all feedback is addressed before requesting re-review.
 
 2. **Post resolution summary** using the Feedback Resolution Summary template (see Pattern below)
 
-3. **Decide whether a fresh AI review is needed**: resolving feedback often
-   changes more than the feedback asked for, and the `ai-review-present` gate
-   stays green across pushes, so nothing else raises the question. Apply
+3. **Decide whether a fresh AI review is needed**: apply
    [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md), which decides and
    requests the review when one is warranted. Report the decision either way.
 
@@ -472,7 +486,7 @@ Maintain an internal execution log documenting:
 
 ### Problem: CodeQL false positive
 
-**Solution**: Review carefully; often not false positive. If genuinely incorrect, document why and request CodeQL suppression approval.
+**Solution**: Validate the finding against current code. Suppress only a confirmed false positive, document why, and request CodeQL suppression approval.
 
 ### Problem: Coverage target cannot be met
 

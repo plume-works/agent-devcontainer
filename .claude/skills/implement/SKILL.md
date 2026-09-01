@@ -73,9 +73,7 @@ is not proof that behavior exists; current code and passing task evidence are.
 
 ## Capturing what implementation turns up
 
-Implementation produces findings the plan never anticipated, and they are often
-the most expensive knowledge in the session. They do not belong in the plan.
-Each has a home:
+Implementation findings do not belong in the plan. Route each finding by type:
 
 - A durable design fact — a constraint, a boundary, why the obvious approach
   fails → `data/architecture/<slug>.md`, linked from `data/architecture.md`.
@@ -90,9 +88,8 @@ Each has a home:
 
 `## Context` and `## Approach` state intent and stay stable while you build.
 The plan skill owns them; implement edits them only via Step 6's material
-deviation route. Writing a finding into them, rather than routing it, is the
-most common way a plan stops being executable — it grows to where a future
-session cannot tell what was planned from what merely happened.
+deviation route. Do not write findings into these sections; a future implementer
+must be able to distinguish planned intent from implementation findings.
 
 Reproducing a finding is normal work: a harness, a script, an ablation. The
 harness is code and lives in the repository. Its _output_ is not plan content.

@@ -58,9 +58,9 @@ Accept exactly one input: the number, URL, or head branch of the top PR.
    detached worktree, for example
    `./.tmp/pr-merge-chain-<top-pr-number>`. Fetch every declared PR and every
    other open candidate's `refs/pull/<number>/head` into a dedicated local
-   branch in that worktree. Do this before the first merge: GitHub commonly
-   deletes a PR's remote head branch once it is merged. Non-declared candidate
-   refs are used only for the omitted-ancestor check.
+   branch in that worktree. Fetch every PR ref before the first merge so the
+   coordinator refs remain available throughout the chain. Non-declared
+   candidate refs are used only for the omitted-ancestor check.
 
    ```bash
    cd "$(git rev-parse --show-toplevel)"

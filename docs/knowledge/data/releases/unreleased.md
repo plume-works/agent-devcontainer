@@ -27,6 +27,8 @@ renames this file to the version number and starts a fresh one.*
 
 [Preserved approved wording](../features/preserved-approved-wording.md)
 
+[AI responder workflows](../features/ai-responder-workflows.md)
+
 ## Fixed
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

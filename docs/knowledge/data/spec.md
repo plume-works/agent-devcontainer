@@ -27,3 +27,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [IWE workflow skills](spec/iwe-workflow-skills.md)
 
 [Plan checkbox evidence](spec/plan-checkbox-evidence.md)
+
+[AI review gate](spec/ai-review-gate.md)

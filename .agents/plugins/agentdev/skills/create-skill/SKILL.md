@@ -5,29 +5,24 @@ description: Create, update, or review repository skills in the agentdev plugin 
 
 # Create Repository Skills
 
-Both host runtimes ship a general skill-authoring guide, and it is the better teacher for
-craft — degrees of freedom, progressive disclosure, description triggering, forward-testing
-discipline. Invoke it first and follow it:
+Use a general skill-authoring guide when the host provides one. Invoke it first for craft —
+degrees of freedom, progressive disclosure, description triggering, and forward-testing:
 
 - **Codex**: `$skill-creator`, a system skill under `~/.codex/skills/.system/skill-creator/`.
-  Always present; nothing to enable.
 - **Claude Code**: `/skill-creator:skill-creator`, from the official plugin marketplace.
 
-If neither is available, do that work yourself. Either way, the rules below override the
-general guide wherever they disagree, because they encode what this catalog is.
+If neither is available, do that work yourself. The catalog rules below override a general
+guide wherever they disagree.
 
 ## Where the Skill Lives
 
 Create or update skills under `.agents/plugins/agentdev/skills/<skill-name>/` and edit them
-in place. Both guides default elsewhere — Codex's `init_skill.py` writes to `~/.codex/skills`
-and Claude's suggests copying to `/tmp/` first — so pass
-`--path .agents/plugins/agentdev/skills` if you scaffold, and never edit from a copy. Codex
-discovers this same directory through the plugin manifest, so never create a separate Codex
-copy. Use a personal skill directory only when the user explicitly asks for a user-wide skill.
+in place. Pass `--path .agents/plugins/agentdev/skills` when scaffolding. Never edit from a
+copy or create a separate Codex copy. Use a personal skill directory only when the user
+explicitly asks for a user-wide skill.
 
-There is also nothing to package. The catalog ships as a plugin through
-`claude plugin install` and `codex plugin add`, so the `.skill` zip Claude's guide produces
-at the end would be a dead artifact outside the tree. The edited files are the deliverable.
+The catalog ships as a plugin through `claude plugin install` and `codex plugin add`. The
+edited repository files are the deliverable; do not create a separate `.skill` archive.
 
 For an existing skill, read its `SKILL.md` and every resource it references before editing.
 Preserve its directory and frontmatter `name` unless the user asks for a rename.

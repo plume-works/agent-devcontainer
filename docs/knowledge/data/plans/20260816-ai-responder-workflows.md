@@ -7,6 +7,8 @@ generated:
   at: 2026-08-17T18:10:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
+stage: done
+completed: 2026-08-31
 ---
 
 # AI responder workflows
@@ -347,7 +349,11 @@ Comment-driven behavior is therefore only testable after merge.
     freeform review body. Both review bodies carry the `agentdev:pr-review`
     signature — independent passes, deduplication, and candidates refuted during
     validation.
-- [ ] Only then add `ai-review-present` to the branch protection required checks
+- [x] Only then add `ai-review-present` to the branch protection required checks
+  - **Evidence:** `ai-review-present` is an active required status check in the
+    `main` branch ruleset (`gh api repos/:owner/:repo/rulesets/20021618` lists
+    it alongside `CI/CD / CI finished` and `Agent files validation finished`);
+    the ruleset's `enforcement` is `active`.
 
 ## Spec changes
 
@@ -362,7 +368,7 @@ and change nothing observable in a devcontainer — no requirement in that spec
 describes them.
 
 New behavior for the workflows themselves goes in a new spec,
-`data/spec/ai-review-gate`, created at ship time:
+[AI review gate](../spec/ai-review-gate.md), created at ship time:
 
 ``` markdown
 ## ADDED Requirements

@@ -31,17 +31,13 @@ $agentic_tools_catalog_root/
 ```
 
 **This role stages; it does not install.** Registering the marketplace and
-installing the plugin belong to the container's lifecycle scripts, because
-`~/.claude` and `~/.codex` — where both agents keep their marketplace registry,
-enablement flags, and plugin cache — are commonly mounted as volumes. Docker
-copies image content into a named volume only when that volume is empty, so a
-build-time `claude plugin install` would be correct on a clean machine and
-silently inert for every container whose volume already exists. A `postCreate`
-hook runs after the mounts and has no such problem; this repository's
-`.devcontainer/scripts/reinstall-agentdev-{claude,codex}.sh` take the staged root
-as their first argument for exactly that.
+installing the plugin belong to the container's lifecycle scripts because they
+write under persistent `~/.claude` and `~/.codex` volumes, where both agents keep
+their marketplace registry, enablement flags, and plugin cache. This
+repository's `.devcontainer/scripts/reinstall-agentdev-{claude,codex}.sh` take
+the staged root as their first argument.
 
-Two properties are worth knowing before changing any of it:
+Two properties constrain changes:
 
 - **The catalog is staged from the provisioning sources**
   (`agentic_tools_catalog_source_dir`, the build context under Docker), so the
