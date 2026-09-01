@@ -141,15 +141,44 @@ Modify: `ansible/roles/agentic_tools/tasks/main.yml`,
 Stands alone: its evidence is a real image build, which the session writing
 Tasks 1-2 cannot produce by editing files.
 
-- [ ] Build `agent-desktop` locally through `/agentdev:microvm-sandbox`
-- [ ] Run a container from the built image with **no** volumes mounted and
+- [x] Build `agent-desktop` locally through `/agentdev:microvm-sandbox`
+  - **Evidence:** on this Docker-enabled host,
+    `docker build -t local/ubuntu-ansible docker/ansible` then
+    `docker buildx build -f docker/desktop/agent-desktop.Dockerfile --build-arg FROM_IMAGE=local/ubuntu-ansible --build-arg AGENTDEV_PLUGIN_VERSION=3.1.0 -t local/agent-desktop-install-test .`
+    both exit 0. The Ansible log shows the four
+    `agentic_tools : Register/Install ... marketplace/plugin` tasks running with
+    no fatal/failed. `AGENTDEV_PLUGIN_VERSION=3.1.0` matches the manifest's
+    current version (the Dockerfile default `3.0.0` is a stale pin that
+    CI/release bumps; it is unrelated to this plan).
+- [x] Run a container from the built image with **no** volumes mounted and
   confirm `claude plugin list` shows `agentdev` installed, and that a Codex
   skill resolves too
-- [ ] Start a devcontainer on a **fresh** volume and confirm the
+  - **Evidence:** `docker run --rm local/agent-desktop-install-test` (no
+    volumes) reports `claude plugin list` → `agentdev@agent-devcontainer`
+    version 3.1.0, scope user, status enabled. `codex plugin list` reports the
+    same plugin `installed, enabled` from
+    `/opt/agentdev/.agents/plugins/marketplace.json`, and Codex materialized the
+    skills into
+    `/root/.codex/plugins/cache/agent-devcontainer/agentdev/3.1.0/skills/` (e.g.
+    `iwe-ship/SKILL.md`, `microvm-sandbox/SKILL.md`) with the marketplace and
+    plugin registered in `/root/.codex/config.toml` — a Codex skill resolves.
+- [x] Start a devcontainer on a **fresh** volume and confirm the
   `~/.claude.json` handoff is correct: the `mv` branch now fires where the
   `elif` used to, and `codebase-memory-mcp-install.sh` (which runs before the
   symlink exists, `postCreateCommand.sh:42`) still behaves when `~/.claude.json`
   is a real file rather than absent
+  - **Evidence:** ran the real `.devcontainer/scripts/postCreateCommand.sh` in a
+    container from the built image with fresh `agentdev-claude`/`agentdev-codex`
+    volumes, the workspace bind-mounted, and `/uv` + auth volumes provisioned
+    (`devcontainer` CLI is absent on this host, so the lifecycle was reproduced
+    directly per the microvm-sandbox escalation). `/root/.claude.json` started
+    as a REAL FILE; `codebase-memory-mcp-install.sh` wrote its
+    `mcp: /root/.claude.json` entry with no error while it was a real file (not
+    the absent case); the handoff took
+    `mv /root/.claude.json /root/.claude/claude.json` (the `mv` branch, where
+    the `elif` used to fire) then symlinked; `POSTCREATE_EXIT=0`, zero
+    fatal/Traceback lines, and the final `/root/.claude/claude.json` is valid
+    JSON with `/root/.claude.json` a symlink to it. Log: `.tmp/t3-fresh.log`.
 - [ ] Start a devcontainer on an **existing** volume and confirm the image's
   `~/.claude.json` is ignored (`/root/.claude.json` is already a symlink, so
   both branches skip) and a workspace skill edit still wins on attach
