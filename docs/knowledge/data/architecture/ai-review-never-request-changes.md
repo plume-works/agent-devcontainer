@@ -8,6 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/require-ai-review.yml
 - resource: https://github.com/Dr-QP/Dr.QP/commit/d836554c11984d3116f454dcb19a1e08d8e43349
+- resource: https://github.com/Dr-QP/Dr.QP/pull/409
 ---
 
 # AI review never requests changes
@@ -107,12 +108,15 @@ The rule was inherited into this repository with the `pr-review` skill when the
 `agentdev` catalog was extracted from the Dr.QP workspace. It originated in
 Dr.QP commit `d836554c1` (2026-07-06, "Drop REQUEST_CHANGES from pr-review
 skill, always use COMMENT"), whose message states the self-review rejection as
-the cause. That rationale was over-general: at that commit the Dr.QP responder
-reviewed as the `claude[bot]` GitHub App (OIDC, `id-token: write`), and no Dr.QP
-PR was ever authored by `claude[bot]`, so the rejection could not have fired in
-practice. The tooling failure actually observed on a live run (sibling commit
-`81ab18702`, "observed on PR #410's Claude Responder run", PR #410 authored by a
-human) was the review MCP tools being missing, a separate problem. The durable
-reason the rule is correct is the cosmetic-event reason under `## Why`. The
-extraction carried the rule but not its history, which is why this note records
-it on this side.
+the cause. The commit shipped in [Dr.QP PR
+#409](https://github.com/Dr-QP/Dr.QP/pull/409) — a PR about flaky launch tests
+whose title and body do not mention the skill change, which is why the decision
+left no trace outside the commit message. That rationale was over-general: at
+that commit the Dr.QP responder reviewed as the `claude[bot]` GitHub App (OIDC,
+`id-token: write`), and no Dr.QP PR was ever authored by `claude[bot]`, so the
+rejection could not have fired in practice. The tooling failure actually
+observed on a live run (sibling commit `81ab18702`, "observed on PR #410's
+Claude Responder run", PR #410 authored by a human) was the review MCP tools
+being missing, a separate problem. The durable reason the rule is correct is the
+cosmetic-event reason under `## Why`. The extraction carried the rule but not
+its history, which is why this note records it on this side.
