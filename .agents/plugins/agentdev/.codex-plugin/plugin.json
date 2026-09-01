@@ -1,7 +1,7 @@
 {
   "name": "agentdev",
-  "version": "3.0.0",
-  "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, container and Codespace escalation.",
+  "version": "3.1.0",
+  "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, container and Codespace escalation, and an IWE knowledge-graph planning workflow.",
   "author": {
     "name": "PlumeWorks",
     "url": "https://github.com/plume-works"
@@ -9,12 +9,21 @@
   "homepage": "https://github.com/plume-works/agent-devcontainer",
   "repository": "https://github.com/plume-works/agent-devcontainer",
   "license": "MIT",
-  "keywords": ["agents", "development", "git", "pull-requests", "code-review"],
+  "keywords": [
+    "agents",
+    "development",
+    "git",
+    "pull-requests",
+    "code-review",
+    "planning",
+    "knowledge-graph",
+    "iwe"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Dev",
     "shortDescription": "Shared agents and development workflows",
-    "longDescription": "Agents, skills, and helper scripts for git, pull requests, review, CI triage, formatting, and container or Codespace escalation.",
+    "longDescription": "Agents, skills, and helper scripts for git, pull requests, review, CI triage, formatting, container or Codespace escalation, and an IWE knowledge-graph workflow that carries work from exploration through planning, implementation, verification, and shipping.",
     "developerName": "PlumeWorks",
     "category": "Developer Tools",
     "capabilities": ["Agents", "Skills"],

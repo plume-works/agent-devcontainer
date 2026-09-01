@@ -165,9 +165,17 @@ not in that sentence, and the Codex `longDescription` and `keywords` repeat the
 omission. Neither manifest enumerates individual skills — Codex points at
 `./skills/` and Claude auto-discovers — so no skill list needs extending.
 
-- [ ] Extend the shared `description`, the Codex `longDescription`, and the
+- [x] Extend the shared `description`, the Codex `longDescription`, and the
   Codex `keywords` to cover the IWE planning and knowledge-graph workflow, then
   bump `version` from `3.0.0` to `3.1.0` in all three files together.
+  - **Evidence:** The shared `description` in all three manifests now appends
+    "and an IWE knowledge-graph planning workflow"; the Codex `longDescription`
+    describes the workflow "from exploration through planning, implementation,
+    verification, and shipping"; the Codex `keywords` gains `planning`,
+    `knowledge-graph`, and `iwe`. `version` bumped 3.0.0 → 3.1.0 in
+    `.claude-plugin`, `.codex-plugin`, and `marketplace.json` together. All
+    three parse as valid JSON; `validate_agent_files` reports 43/43 valid, 0
+    errors, 0 warnings. Committed with this task.
 
 ### Task 5: Repoint the operating manual and structure documents
 
