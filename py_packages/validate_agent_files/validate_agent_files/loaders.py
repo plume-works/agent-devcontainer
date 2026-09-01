@@ -16,7 +16,9 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
-EXCLUDED_DIRS = {'test', 'tests', '.pytest_cache', '__pycache__', '.git', 'node_modules'}
+DEFAULT_EXCLUDED_DIRS = {'test', 'tests', '.pytest_cache', '__pycache__', '.git', 'node_modules'}
+
+GIT_DIR = '.git'
 
 
 def _in_work_tree(root: str) -> bool:
@@ -68,6 +70,21 @@ def _git_ignored(root: str, candidates: List[str]) -> Set[str]:
     return ignored
 
 
+def _kept_subdirs(root: str, dirs: List[str], in_repo: bool, excluded_dirs: Set[str]) -> List[str]:
+    """
+    Return the subdirectories to keep walking, always pruning ``.git``.
+
+    Inside a work tree, prune every directory ``git check-ignore`` flags;
+    otherwise prune those whose basename is in ``excluded_dirs``.
+    """
+    named = [name for name in dirs if name != GIT_DIR]
+    if not in_repo:
+        return [name for name in named if name not in excluded_dirs]
+
+    ignored = _git_ignored(root, [os.path.join(root, name) for name in named])
+    return [name for name in named if os.path.abspath(os.path.join(root, name)) not in ignored]
+
+
 @dataclass
 class CustomFileContent:
     """Parsed contents for an agent or prompt markdown file."""
@@ -78,7 +95,7 @@ class CustomFileContent:
     has_frontmatter: bool
 
 
-def find_skill_files(path: str) -> List[str]:
+def find_skill_files(path: str, excluded_dirs: Set[str] = DEFAULT_EXCLUDED_DIRS) -> List[str]:
     """Find all SKILL.md files in a directory or return a single matching file."""
     path = str(path)
 
@@ -88,11 +105,15 @@ def find_skill_files(path: str) -> List[str]:
     if not os.path.exists(path):
         return []
 
+    in_repo = _in_work_tree(path)
     skill_files = []
     for root, dirs, files in os.walk(path):
-        dirs[:] = [dirname for dirname in dirs if dirname not in EXCLUDED_DIRS]
-        if 'SKILL.md' in files:
-            skill_files.append(os.path.join(root, 'SKILL.md'))
+        dirs[:] = _kept_subdirs(root, dirs, in_repo, excluded_dirs)
+        matches = [os.path.join(root, 'SKILL.md')] if 'SKILL.md' in files else []
+        if in_repo:
+            ignored = _git_ignored(root, matches)
+            matches = [match for match in matches if os.path.abspath(match) not in ignored]
+        skill_files.extend(matches)
 
     return sorted(skill_files)
 
@@ -214,40 +235,47 @@ def load_all_skills(skill_files: List[str]) -> Dict[str, Dict]:
 class SkillFileLoader:
     """Loads and parses skill files."""
 
-    def find_skill_files(self, path: str) -> List[str]:
+    def find_skill_files(
+        self, path: str, excluded_dirs: Set[str] = DEFAULT_EXCLUDED_DIRS
+    ) -> List[str]:
         """Find all SKILL.md files under a path."""
-        return find_skill_files(path)
+        return find_skill_files(path, excluded_dirs=excluded_dirs)
 
     def load_skill(self, path: str) -> Tuple[Dict, str]:
         """Load a single skill file."""
         return safe_load_frontmatter(path)
 
 
-def _find_matching_files(path: str, suffix: str) -> List[str]:
+def _find_matching_files(
+    path: str, suffix: str, excluded_dirs: Set[str] = DEFAULT_EXCLUDED_DIRS
+) -> List[str]:
     candidate = Path(path)
     if candidate.is_file():
         return [str(candidate)] if candidate.name.endswith(suffix) else []
     if not candidate.exists():
         return []
 
+    in_repo = _in_work_tree(str(candidate))
     matches: List[str] = []
     for root, dirs, files in os.walk(candidate):
-        dirs[:] = [dirname for dirname in dirs if dirname not in EXCLUDED_DIRS]
-        for filename in files:
-            if filename.endswith(suffix):
-                matches.append(str(Path(root) / filename))
+        dirs[:] = _kept_subdirs(root, dirs, in_repo, excluded_dirs)
+        found = [str(Path(root) / name) for name in files if name.endswith(suffix)]
+        if in_repo:
+            ignored = _git_ignored(root, found)
+            found = [match for match in found if os.path.abspath(match) not in ignored]
+        matches.extend(found)
 
     return sorted(matches)
 
 
-def find_agent_files(path: str) -> List[str]:
+def find_agent_files(path: str, excluded_dirs: Set[str] = DEFAULT_EXCLUDED_DIRS) -> List[str]:
     """Find all .agent.md files under a path."""
-    return _find_matching_files(path, '.agent.md')
+    return _find_matching_files(path, '.agent.md', excluded_dirs=excluded_dirs)
 
 
-def find_prompt_files(path: str) -> List[str]:
+def find_prompt_files(path: str, excluded_dirs: Set[str] = DEFAULT_EXCLUDED_DIRS) -> List[str]:
     """Find all .prompt.md files under a path."""
-    return _find_matching_files(path, '.prompt.md')
+    return _find_matching_files(path, '.prompt.md', excluded_dirs=excluded_dirs)
 
 
 def load_custom_file(file_path: str) -> CustomFileContent:

@@ -73,18 +73,29 @@ no-git-context fallback where nothing else can answer.
 **Files:** Modify:
 `py_packages/validate_agent_files/validate_agent_files/loaders.py`
 
-- [ ] Rename the module constant to `DEFAULT_EXCLUDED_DIRS` (keep membership
+- [x] Rename the module constant to `DEFAULT_EXCLUDED_DIRS` (keep membership
   identical to today) and add `excluded_dirs` keyword parameters defaulting to
   it on `find_skill_files`, `find_agent_files`, `find_prompt_files`, and the
   shared `_find_matching_files`. `SkillFileLoader.find_skill_files` forwards the
   parameter.
-- [ ] In both `os.walk` bodies compute `in_repo = _in_work_tree(root)` once per
+  - **Evidence:** constant renamed at `loaders.py:19` (membership unchanged) and
+    `excluded_dirs` added to all four functions plus the loader method; no
+    remaining importers of the old name (`grep` clean); ruff check/format pass.
+- [x] In both `os.walk` bodies compute `in_repo = _in_work_tree(root)` once per
   root. When `in_repo`, prune a directory iff it is `.git` OR `git check-ignore`
   flags it; when not, prune iff its basename is `.git` OR in `excluded_dirs`.
   `.git` is pruned in both branches.
-- [ ] Filter matched files through `_git_ignored` when `in_repo` so an ignored
+  - **Evidence:** `in_repo` computed once per walk root in `find_skill_files`
+    (`loaders.py:108`) and `_find_matching_files` (`loaders.py:~248`); shared
+    `_kept_subdirs` (`loaders.py:73`) drops `.git` unconditionally then applies
+    git-vs-`excluded_dirs`; 136 existing package tests pass unchanged.
+- [x] Filter matched files through `_git_ignored` when `in_repo` so an ignored
   file beside tracked siblings in a walked directory is dropped; when not
   `in_repo` keep all matched files (no file-level filtering in the fallback).
+  - **Evidence:** both walkers filter matched files through `_git_ignored` only
+    when `in_repo` (`loaders.py:113-115` and the `_find_matching_files` body),
+    keeping all matches in the fallback; Task 3 tests exercise the drop and the
+    fallback; ruff check/format pass and 136 existing tests stay green.
 
 ### Task 3: Tests
 
