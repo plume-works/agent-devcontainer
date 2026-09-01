@@ -92,7 +92,7 @@ assume the neighbouring site does.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md`
 
-- [ ] **1. Make the Step 7 section list authoritative and add the two
+- [x] **1. Make the Step 7 section list authoritative and add the two
   sections.** Rewrite `:100` so the skill states the structure rather than
   discovering one: drop "Locate the repository's pull request template … start
   from it" and the no-template fallback wording. In the list at `:105`, replace
@@ -100,25 +100,48 @@ assume the neighbouring site does.
   `**Evidence:**`) and `Reviewer Handoff` (open items, `- [ ]` +
   `**Closed by:**`), each defined by tense, and note that `## Verification` is
   often empty when CI covers the change.
-- [ ] **2. Warn when a consuming repository has its own template.** Still check
+  - **Evidence:** `pr-gen-description/SKILL.md` Step 7 now opens "This section
+    list is the structure"; the list carries `Verification` and
+    `Reviewer Handoff` defined by tense with their child-line vocabulary, and
+    Step 8 no longer syncs against a template.
+    `validate_agent_files --recommend .agents --require-marketplace claude codex`
+    → 35/35 skills valid, 0 errors.
+- [x] **2. Warn when a consuming repository has its own template.** Still check
   for `.github/pull_request_template.md` and `.github/PULL_REQUEST_TEMPLATE/`,
   but only to report: when one exists, tell the caller the skill's structure was
   used and their template was not consulted. Never silently ignore it, and never
   merge the two structures.
-- [ ] **3. Rewrite Step 5 to select rather than inventory.** Replace the "Assess
+  - **Evidence:** Step 7 closes with a paragraph instructing the skill to check
+    both template paths "only in order to report it", tell the caller the
+    skill's structure was used and their template was not consulted, and never
+    merge or silently ignore. Validator clean (35/35).
+- [x] **3. Rewrite Step 5 to select rather than inventory.** Replace the "Assess
   Testing Strategy" line (`:88-90`) with instructions to read
   `.github/workflows/` for what CI already runs on the branch, then keep only
   what survives both filters — no linter, formatter, image build, or test suite
   CI executes, and no restatement of a plan's own verification record.
-- [ ] **4. Add the empty-section and unclosable-item edge cases.** In
+  - **Evidence:** Step 5 is now "Select What Needs Stating" — reads
+    `.github/workflows/`, states both filters (no CI-executed linter, formatter,
+    image build or test suite; reference rather than restate a plan's record),
+    and sorts the residue by tense into the two Step 7 sections.
+- [x] **4. Add the empty-section and unclosable-item edge cases.** In
   `## Edge Cases` (`:114-121`), record that an empty `## Verification` under
   green CI is the expected outcome rather than a gap to fill, and that an item
   no reviewer can close still belongs under `## Reviewer Handoff` with its
   closer named. Reconcile the existing "**No tests**: Warn incomplete testing
   section" bullet, which otherwise contradicts both.
-- [ ] **5. Update the skill's own template references.** The intro at `:9` and
+  - **Evidence:** `## Edge Cases` gains **Empty `## Verification`** (expected
+    under green CI, not a gap) and **An item nobody reviewing can close** (stays
+    in `## Reviewer Handoff` with its closer named). The contradicting **No
+    tests** bullet is replaced by **No test covers a change**, which routes to
+    `## Reviewer Handoff` and drops the warn-on-thin-section instruction.
+- [x] **5. Update the skill's own template references.** The intro at `:9` and
   the `## Related Resources` entry at `:125` both name the repository template
   as the source of structure; both must instead point at the Step 7 list.
+  - **Evidence:** the intro now says the structure is "defined by Step 7 below,
+    which is this skill's own and does not come from any repository file", and
+    the `## Related Resources` template bullet is replaced by "The section
+    structure: the list in Step 7 of this skill".
 
 ### Task 2: Reduce the template to a pointer stub
 
