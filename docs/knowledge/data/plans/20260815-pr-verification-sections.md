@@ -250,15 +250,17 @@ order.
 
 ## Verification
 
-- `rg -n "How to Test|How to test" --glob '!.tmp' .` returns no hits outside
-  `docs/knowledge/data/` — the knowledge documents quote the old heading when
-  describing the defect and must keep it.
+- `rg -n --hidden "How to Test|How to test" --glob '!.tmp' --glob '!.git' .`
+  returns no hits outside `docs/knowledge/data/` — the knowledge documents quote
+  the old heading when describing the defect and must keep it. `--hidden` is
+  required: without it `rg` skips dot-directories, so the command never reaches
+  `.agents/` or `.github/` and passes whether or not the work was done.
 - `rg -n "Reviewer Handoff" .agents/plugins/agentdev/skills/` returns hits in
   both skill files, confirming no site was missed.
-- `rg -n "pull_request_template|PULL_REQUEST_TEMPLATE" --glob '!.tmp' .` returns
-  only the knowledge documents and the task-2 warning path in
+- `rg -n --hidden "pull_request_template|PULL_REQUEST_TEMPLATE" --glob '!.tmp' --glob '!.git' .`
+  returns only the knowledge documents and the task-2 warning path in
   `pr-gen-description` — no skill still treats a template as the source of
-  structure.
+  structure. `--hidden` is required here for the same reason.
 - `.github/pull_request_template.md` still exists, contains no `##` heading and
   no checkbox, and names `pr-gen-description` —
   `rg -c "^##|- \[[ x]\]" .github/pull_request_template.md` returns no matches
