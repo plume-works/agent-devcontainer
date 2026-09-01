@@ -3,7 +3,7 @@ type: architecture
 description: The AI reviewer prefers COMMENT over REQUEST_CHANGES so an author unblocks by resolving inline threads without forcing a re-review; REQUEST_CHANGES is used only for a blocking finding with no inline anchor, where no thread would gate merge.
 generated:
   by: claude-code/opus-4-8
-  at: 2026-09-01T06:00:00Z
+  at: 2026-09-01T17:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/require-ai-review.yml
@@ -135,19 +135,11 @@ The rule was inherited into this repository with the `pr-review` skill when the
 `agentdev` catalog was extracted from the Dr.QP workspace. It originated in
 Dr.QP commit `d836554c1` (2026-07-06, "Drop REQUEST_CHANGES from pr-review
 skill, always use COMMENT"), which shipped in [Dr.QP PR
-#409](https://github.com/Dr-QP/Dr.QP/pull/409) — a PR about flaky launch tests
-whose title and body do not mention the skill change, which is why the decision
-left no trace outside the commit message.
+#409](https://github.com/Dr-QP/Dr.QP/pull/409).
 
-The commit's stated cause was the self-review rejection, and that was
-over-general on two counts. It was never the operative reason: the operative
-reason is the re-review cost under `## Why` (a sticky `CHANGES_REQUESTED`
-verdict that resolving threads cannot clear), which the author recalled later.
-And the rejection could not even have fired in Dr.QP: the responder there
-reviewed as the `claude[bot]` GitHub App (OIDC, `id-token: write`) and no Dr.QP
-PR was ever authored by `claude[bot]`. The live-run failure on PR #410 (sibling
-commit `81ab18702`, PR #410 authored by a human) was the review MCP tools being
-missing — a separate problem.
+The operative reason for preferring `COMMENT` is the re-review cost under
+`## Why` (a sticky `CHANGES_REQUESTED` verdict that resolving threads cannot
+clear), not the self-review rejection.
 
 That commit made the rule a **blanket** ban on `REQUEST_CHANGES`. This
 repository later refined it to the conditional rule under `## Decision`, once
