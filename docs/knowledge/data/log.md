@@ -19,6 +19,10 @@ to the current day's group.
   than reading one out of it. Adopting means replacing the copied file with the
   pointer stub or deleting it; keeping it costs nothing but a report on every
   run.
+- **Creation**:
+  [Split PR How to Test into Verification and Reviewer Handoff](features/pr-verification-sections.md)
+  implemented, recorded in [unreleased](releases/unreleased.md);
+  [its plan](plans/20260815-pr-verification-sections.md) is done.
 
 ## 2026-08-31
 

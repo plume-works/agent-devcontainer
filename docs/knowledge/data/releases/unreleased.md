@@ -31,6 +31,8 @@ renames this file to the version number and starts a fresh one.*
 
 [AI responder workflows](../features/ai-responder-workflows.md)
 
+[Split PR How to Test into Verification and Reviewer Handoff](../features/pr-verification-sections.md)
+
 ## Fixed
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

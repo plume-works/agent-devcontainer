@@ -23,11 +23,11 @@ moves them.*
 
 [Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
-[Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
-
 [Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
 
 ## Done
+
+[Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
 
 [Let pre-commit own formatting](plans/20260831-pre-commit-owns-formatting.md)
 
