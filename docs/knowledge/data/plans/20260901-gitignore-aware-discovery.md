@@ -50,15 +50,23 @@ no-git-context fallback where nothing else can answer.
 **Files:** Modify:
 `py_packages/validate_agent_files/validate_agent_files/loaders.py`
 
-- [ ] Add `_in_work_tree(root)` — returns whether `root` is inside a git work
+- [x] Add `_in_work_tree(root)` — returns whether `root` is inside a git work
   tree via `git -C <root> rev-parse --is-inside-work-tree`, treating a non-zero
   exit, missing binary, or any subprocess error as `False` (degrade, never
   raise).
-- [ ] Add `_git_ignored(root, candidates)` — runs one
+  - **Evidence:** `_in_work_tree` added in
+    `py_packages/validate_agent_files/validate_agent_files/loaders.py:22`; smoke
+    test returned `True` for the repo root and `False` for `/`;
+    `uv run ruff check` / `ruff format --check` on `loaders.py` pass.
+- [x] Add `_git_ignored(root, candidates)` — runs one
   `git -C <root> check-ignore --stdin -z` fed all candidate paths NUL-
   separated, returning the subset git reports as ignored as a set of absolute
   paths. On any subprocess failure return an empty set (nothing ignored) so
   discovery degrades to the fallback rather than failing.
+  - **Evidence:** `_git_ignored` added in
+    `py_packages/validate_agent_files/validate_agent_files/loaders.py:38`; smoke
+    test reported `.tmp/x` ignored and `README.md` not; exit codes 0/1 treated
+    as success, others degrade to empty set; ruff check/format pass.
 
 ### Task 2: Apply the decision in both walkers
 

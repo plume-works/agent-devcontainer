@@ -9,13 +9,63 @@ import logging
 import os
 from pathlib import Path
 import re
-from typing import Dict, List, Tuple
+import subprocess
+from typing import Dict, List, Set, Tuple
 
 import yaml
 
 logger = logging.getLogger(__name__)
 
 EXCLUDED_DIRS = {'test', 'tests', '.pytest_cache', '__pycache__', '.git', 'node_modules'}
+
+
+def _in_work_tree(root: str) -> bool:
+    """Return whether ``root`` lies inside a git work tree, degrading to False on any error."""
+    try:
+        result = subprocess.run(
+            ['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree'],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except (OSError, ValueError) as exc:
+        logger.debug('git rev-parse failed for %s: %s', root, exc)
+        return False
+
+    return result.returncode == 0 and result.stdout.strip() == 'true'
+
+
+def _git_ignored(root: str, candidates: List[str]) -> Set[str]:
+    """
+    Return the subset of ``candidates`` git reports as ignored, as absolute paths.
+
+    Feeds every candidate to one ``git check-ignore --stdin -z`` invocation. Any
+    subprocess failure degrades to an empty set so discovery falls back rather
+    than aborting.
+    """
+    if not candidates:
+        return set()
+
+    absolute = [os.path.abspath(candidate) for candidate in candidates]
+    stdin_data = '\0'.join(absolute) + '\0'
+    try:
+        result = subprocess.run(
+            ['git', '-C', str(root), 'check-ignore', '--stdin', '-z'],
+            input=stdin_data,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except (OSError, ValueError) as exc:
+        logger.debug('git check-ignore failed for %s: %s', root, exc)
+        return set()
+
+    if result.returncode not in (0, 1):
+        logger.debug('git check-ignore returned %s for %s', result.returncode, root)
+        return set()
+
+    ignored = {entry for entry in result.stdout.split('\0') if entry}
+    return ignored
 
 
 @dataclass
