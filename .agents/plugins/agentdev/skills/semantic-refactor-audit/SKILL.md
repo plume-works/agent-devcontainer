@@ -1,6 +1,6 @@
 ---
 name: semantic-refactor-audit
-description: Prove that a behavior-preserving change actually preserved behavior, by capturing a ground-truth baseline before editing and comparing it afterwards. Use when a rewrite must not change meaning and no test covers it — rewording instructions or documentation, replacing links with prose, migrating configuration, renaming across a tree, or any mechanical refactor claimed to be semantics-free. Use it especially when a change looks correct in the environment you are running in but could behave differently in another checkout, container, or downstream consumer. Not for reviewing newly written logic, which belongs to /agentdev:pr-review, and not for formatting or lint fixes, which belong to /agentdev:python-format-lint and /agentdev:local-reformat.
+description: Prove that a behavior-preserving change actually preserved behavior, by capturing a ground-truth baseline before editing and comparing it afterwards. Use when a rewrite must not change meaning and no test covers it — rewording instructions or documentation, replacing links with prose, migrating configuration, renaming across a tree, or any mechanical refactor claimed to be semantics-free. Use it especially when a change looks correct in the environment you are running in but could behave differently in another checkout, container, or downstream consumer. Not for reviewing newly written logic, which belongs to /agentdev:pr-review, and not for formatting or lint fixes, which belong to /agentdev:local-reformat.
 ---
 
 # Semantic Refactor Audit

@@ -86,15 +86,14 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 
 #### Review, CI, and formatting
 
-| Skill                                       | What it does                                                |
-| ------------------------------------------- | ----------------------------------------------------------- |
-| `/agentdev:code-review-standards`           | The review standards the other review skills apply.         |
-| `/agentdev:extract-github-actions-logs`     | Pull failing job logs out of a workflow run.                |
-| `/agentdev:get-codeql-data`                 | Fetch CodeQL code-scanning alerts.                          |
-| `/agentdev:local-reformat`                  | Run the full reformat workflow locally via Super-Linter.    |
-| `/agentdev:python-format-lint`              | Format and lint Python with this repo's ruff configuration. |
-| `/agentdev:semantic-refactor-audit`         | Prove a behavior-preserving rewrite preserved behavior.     |
-| `/agentdev:sync-super-linter-tool-versions` | Realign local tools with the pinned Super-Linter image.     |
+| Skill                                       | What it does                                             |
+| ------------------------------------------- | -------------------------------------------------------- |
+| `/agentdev:code-review-standards`           | The review standards the other review skills apply.      |
+| `/agentdev:extract-github-actions-logs`     | Pull failing job logs out of a workflow run.             |
+| `/agentdev:get-codeql-data`                 | Fetch CodeQL code-scanning alerts.                       |
+| `/agentdev:local-reformat`                  | Run the full reformat workflow locally via Super-Linter. |
+| `/agentdev:semantic-refactor-audit`         | Prove a behavior-preserving rewrite preserved behavior.  |
+| `/agentdev:sync-super-linter-tool-versions` | Realign local tools with the pinned Super-Linter image.  |
 
 #### Specs and escalation
 

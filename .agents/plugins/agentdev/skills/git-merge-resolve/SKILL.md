@@ -85,7 +85,7 @@ Handle its result:
 
 | RESULT               | Exit | Meaning                                      | Action                                                                                                   |
 | -------------------- | ---- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`            | `0`  | The merge commit was created                 | Continue with Workflow 4 for the required reformat and validation.                                       |
+| `SUCCESS`            | `0`  | The merge commit was created                 | Continue with Workflow 4 for targeted validation of the merged files.                                    |
 | `ALREADY_UP_TO_DATE` | `3`  | The source ref is already merged into `HEAD` | Report that the source is already merged; make no changes.                                               |
 | `MERGE_CONFLICTS`    | `4`  | The merge stopped on conflicted paths        | Continue with Workflow 3.                                                                                |
 | `PREFLIGHT_ERROR`    | `2`  | Bad usage, not a repo, bad ref, dirty tree   | **STOP.** Fix the reported error before retrying. Do not discard or stash changes without user approval. |
@@ -166,14 +166,10 @@ Do not commit while any unmerged paths remain.
    git commit
    ```
 
-2. Invoke and complete the [local-reformat](../local-reformat/SKILL.md)
-   workflow. Run every formatter and validation required by that skill; do not
-   substitute a partial formatter command.
-
-3. Run targeted build, test, lint, or static checks for files affected by the
+2. Run targeted build, test, lint, or static checks for files affected by the
    merge.
 
-4. Confirm that the repository has no unresolved paths or conflict markers:
+3. Confirm that the repository has no unresolved paths or conflict markers:
 
    ```bash
    git diff --name-only --diff-filter=U
@@ -182,7 +178,7 @@ Do not commit while any unmerged paths remain.
    git log --oneline --decorate -n 5
    ```
 
-5. Return control to the calling workflow. Pushing, opening a pull request, or
+4. Return control to the calling workflow. Pushing, opening a pull request, or
    performing another external action requires separate authorization or
    caller instructions.
 
@@ -203,7 +199,6 @@ Do not commit while any unmerged paths remain.
   merged
 - No unmerged paths or unresolved conflict markers remain
 - All conflict resolutions met the confidence threshold or were user-approved
-- The mandatory local reformat workflow completed successfully after a merge
 - Relevant targeted validation passes
 - No push or force-push was performed by this skill
 

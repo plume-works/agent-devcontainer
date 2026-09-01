@@ -39,8 +39,7 @@ Run before finishing — CI gates on these:
 
 - **Python** — verify with `python-lint-check.sh` (ruff, non-mutating).
   Autofixes come from the pre-commit hooks; run `pre-commit run --files <paths>`
-  to apply them. See the
-  [python-format-lint](../skills/python-format-lint/SKILL.md) skill.
+  to apply them.
 - **Test** — `uv run pytest <path>` for Python, `bun test <path>` for JavaScript.
 
 ## Execution guidelines

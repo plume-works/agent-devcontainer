@@ -27,7 +27,13 @@ renames this file to the version number and starts a fresh one.*
 
 [Preserved approved wording](../features/preserved-approved-wording.md)
 
+[Let pre-commit own formatting](../features/pre-commit-owns-formatting.md)
+
 [AI responder workflows](../features/ai-responder-workflows.md)
+
+[Split PR How to Test into Verification and Reviewer Handoff](../features/pr-verification-sections.md)
+
+[Critical docs and durable-knowledge review in pr-review](../features/pr-review-docs-durable-knowledge.md)
 
 ## Fixed
 

@@ -62,14 +62,26 @@ is not proof that behavior exists; current code and passing task evidence are.
      by definition — never edit the delta to match what you built. It goes back
      through the plan skill's revise mode, with the user's direction, before
      coding continues.
-7. **Stop at a clean boundary.** After each task (or more, if the user asked
-   for a longer run), report progress — "3/5 tasks, next: <task name>" — plus
-   the actual code changed and tests/checks run as evidence, and stop. Blocked
-   or incomplete mid-task? Leave the box unchecked, describe the remaining
-   work or failing evidence, and stop there instead.
-8. **Finish.** When the last box ticks, run the plan's `## Verification`
+7. **Run to completion.** Execute tasks continuously until the plan's last box
+   ticks, without pausing for approval between them — each task still closes
+   under Step 5 and commits with its own evidence line and code. Stop only when
+   an interlock fires: a material deviation (Step 6), or a task that is blocked
+   or incomplete mid-task — leave that box unchecked, describe the remaining
+   work or failing evidence, and stop there. If the user asks to review each
+   task, stop after each instead and report progress: "3/5 tasks, next: <task
+   name>".
+8. **Finish.** Report a rollup of the tasks executed this session — the first
+   and only report of a continuous run — then run the plan's `## Verification`
    commands, report the results, and suggest the verify skill for the full
-   pre-ship check, then the ship skill.
+   pre-ship check, then the ship skill. Lead with the position line
+   `Plan: <name> — tasks N-M of T`, then:
+
+   | #   | Task | Status | Commit | Evidence |
+   | --- | ---- | ------ | ------ | -------- |
+
+   One row per task attempted this session, `Status` one of `done`, `blocked`,
+   `not started`. Where a run stopped early, name the reason in prose below the
+   table — a deviation needing direction does not fit in a cell.
 
 ## Capturing what implementation turns up
 
@@ -106,8 +118,8 @@ harness is code and lives in the repository. Its _output_ is not plan content.
   bytes, and only the per-box evidence line tells them apart.
 - Checkbox flips, their evidence lines, and anchor updates belong in the same
   commit as the code they describe.
-- One task at a time unless the user asks for more; small honest increments
-  beat a big unreviewable one.
+- Small honest increments beat a big unreviewable one: one task per commit,
+  even when the run never pauses between them.
 - Never silently expand the plan or narrow its specified behavior to fit the
   implementation. Material changes require user direction before coding.
 - This skill implements; it doesn't ship. Status flips, spec sync, and release

@@ -160,10 +160,8 @@ Review `.pre-commit-config.yaml` hook by hook:
    `entry: validate_agent_files`, keeping `language: system`. The hook then
    requires the development image, like the `zizmor` hook below;
 5. the `zizmor` hook is `language: system` and expects `zizmor` on `PATH`, which
-   holds inside the development image and not on a bare host. A project that
-   does not run Super-Linter should point the hook at the pinned
-   `zizmorcore/zizmor-pre-commit` repository instead, so
-   `pre-commit run --all-files` works anywhere; and
+   the development image provides — the same arrangement as the
+   `validate_agent_files` hook above; and
 6. update file selectors for the consuming project's source layout.
 
 In `.ruff.toml`, remove `validate_agent_files` and `mock_catalog` from

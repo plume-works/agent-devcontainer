@@ -3,8 +3,8 @@ type: tracker
 description: What the product is, who it is for, and the decisions every plan and spec derives from.
 stage: living
 generated:
-  by: codex
-  at: 2026-08-15T03:30:00Z
+  by: claude-code/opus-5
+  at: 2026-08-31T00:00:00Z
 ---
 
 # Product
@@ -83,10 +83,10 @@ the driver of design decisions — internal needs come first.
   `cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest`).
   Run both from root with `uv run pytest`.
 - **Lint/format**: ruff (Python, 99-char line limit per `.ruff.toml`, not 79),
-  ansible-lint, shellcheck, clang-format, Prettier — orchestrated through
-  Super-Linter locally (`agentdev:local-reformat`) and in CI
-  (`.github/workflows/reformat.yml`); pre-commit hooks wire the same tools in
-  locally.
+  ansible-lint, shellcheck, clang-format, Prettier — applied locally by the
+  pre-commit hooks that run on every commit, and gated in CI by Super-Linter
+  (`.github/workflows/reformat.yml`). The `agentdev:local-reformat` skill runs
+  the full Super-Linter pass locally for manual use.
 - **CI**: GitHub Actions — `ci.yml` (image build/publish), `primary-checks.yml`,
   `validate-agent-files.yml`, `validate-knowledge-base.yml`, `reformat.yml`,
   `delete-old-containers.yml`.
@@ -166,3 +166,8 @@ it):
   `docs/agents/specs/`.
 - 2026-08-15 — clarified that the lifecycle wrapper, not the init script,
   enforces the firewall opt-in gate.
+- 2026-08-31 — made the pre-commit hooks the local formatting path and
+  Super-Linter the CI gate: removed the skill/agent formatting mandates, deleted
+  the standalone Python format/lint skill (its policy folded into `AGENTS.md`),
+  extended the hooks to merge commits, and kept `agentdev:local-reformat` for
+  manual runs.

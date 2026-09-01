@@ -13,11 +13,11 @@ intended changes.
 
 ## When to Use This Skill
 
-- Applying all automatic formatting before committing or opening a pull request
-- Reproducing the formatter portions of the `Reformat code` GitHub Actions job
-- Formatting Python, Ansible, Markdown, YAML, JSON, JSONC, or GitHub Actions
-  files in one workflow
-- Investigating a Super-Linter failure locally
+- Investigating a Super-Linter failure locally and reproducing the formatter
+  portions of the `Reformat code` GitHub Actions job
+- Applying a full local formatting pass across Python, Ansible, Markdown, YAML,
+  JSON, JSONC, and GitHub Actions files at once, when you want more than the
+  pre-commit hooks that format staged files on every commit
 
 ## Prerequisites
 
@@ -38,14 +38,10 @@ intended changes.
 
 ## Codex Managed-Sandbox Execution
 
-The Super-Linter container is an approved, required local validation action.
-Codex must run `super-linter-local.sh` with
-`sandbox_permissions: "require_escalated"` so Docker daemon access and the
-repository mount are available. Do not omit this step or substitute a partial
-lint command when opening a pull request.
-
-The Super-Linter local wrapper includes Ansible, clang-format, and Prettier
-autofixes and must run with the same elevated sandbox permission.
+The Super-Linter container needs Docker daemon access and the repository mount,
+so when this skill runs under Codex, invoke `super-linter-local.sh` with
+`sandbox_permissions: "require_escalated"`. The local wrapper's Ansible,
+clang-format, and Prettier autofixes run under the same escalated permission.
 
 ## Full Workflow
 
@@ -171,6 +167,3 @@ pinned CI image unless the workflow itself is intentionally being updated.
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | [super-linter-local.sh](../../bin/super-linter-local.sh) | Run one local pass with all checks enabled and available autofixes applied.                 |
 | [super-linter-env.sh](../../bin/super-linter-env.sh)     | Generate the shared Ansible, clang-format, Prettier, and validation settings for each pass. |
-
-For a fast, Docker-free Python check (and the pre-commit-based autofix loop),
-use the [python-format-lint](../python-format-lint/SKILL.md) skill.

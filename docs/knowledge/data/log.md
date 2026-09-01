@@ -4,8 +4,51 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-01
+
+- **Update**: PR body structure moved into the `agentdev` catalog, replacing
+  `## How to Test` with `## Verification` (closed items, `- [x]` +
+  `**Evidence:**`) and `## Reviewer Handoff` (open items, `- [ ]` +
+  `**Closed by:**`), per
+  [PR verification sections](architecture/pr-verification-sections.md).
+  **Downstream break**, in the same register as the `setup-python-venv`
+  activation change: a consuming repository that copied
+  `.github/pull_request_template.md` still holds the old structural version, and
+  its updated `agentdev` skills now ignore it — `pr-gen-description` states the
+  structure itself and reports that the copied template was not consulted rather
+  than reading one out of it. Adopting means replacing the copied file with the
+  pointer stub or deleting it; keeping it costs nothing but a report on every
+  run.
+- **Creation**:
+  [Split PR How to Test into Verification and Reviewer Handoff](features/pr-verification-sections.md)
+  implemented, recorded in [unreleased](releases/unreleased.md);
+  [its plan](plans/20260815-pr-verification-sections.md) is done.
+- **Creation**:
+  [Critical docs and durable-knowledge review in pr-review](features/pr-review-docs-durable-knowledge.md)
+  implemented, recorded in [unreleased](releases/unreleased.md);
+  [its plan](plans/20260831-pr-review-docs-durable-knowledge.md) is done.
+  `pr-review` now reviews docs and skills critically by invoking `iwe-audit` in
+  a report-only diff mode, with a conditional file-following durable-knowledge
+  pass; only version-only and generated-file-only diffs stay fast-approved.
+
 ## 2026-08-31
 
+- **Update**:
+  [Let pre-commit own formatting](plans/20260831-pre-commit-owns-formatting.md)
+  done — the pre-commit hooks are the single local formatting path, now extended
+  to merge commits via the `pre-merge-commit` hook type. The `local-reformat`
+  mandates in `pr-open` and `git-merge-resolve` and the formatting routes in the
+  `principal-engineer` and `tdd-refactor` agents are removed, `local-reformat`'s
+  obligation language is softened, and the redundant `python-format-lint` skill
+  is retired into the `AGENTS.md` Python section.
+- **Creation**:
+  [Let pre-commit own formatting](features/pre-commit-owns-formatting.md)
+  implemented, recorded in [unreleased](releases/unreleased.md).
+- **Update**: [Template consumption](spec/template-consumption.md) §5 item 5 now
+  keeps the consuming project's `zizmor` hook as `language: system` resolved
+  from `PATH`, dropping the bare-host `zizmorcore/zizmor-pre-commit`
+  substitution — a workflow this container-only product does not support. No
+  requirement or scenario changed; the edit is procedural adoption guidance.
 - **Update**: [AI responder workflows](plans/20260816-ai-responder-workflows.md)
   done — the Claude-only `ai-responder.yml` and the `require-ai-review.yml` gate
   are imported; the responder reviews with the branch's own agentdev catalog and
