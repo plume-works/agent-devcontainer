@@ -112,14 +112,27 @@ Modify: `ansible/roles/agentic_tools/tasks/main.yml`,
 **Files:** Modify: `docker/desktop/agent-desktop.Dockerfile`,
 `ansible/roles/agentic_tools/README.md`
 
-- [ ] Pass `agentic_tools_install_catalog=true` in the Dockerfile's
+- [x] Pass `agentic_tools_install_catalog=true` in the Dockerfile's
   `ansible-playbook` invocation
-- [ ] Correct the `ENV AGENTDEV_CATALOG_DIR` comment block
+  - **Evidence:** `docker/desktop/agent-desktop.Dockerfile` now passes
+    `agentic_tools_install_catalog=true` on the line after
+    `agentic_tools_stage_catalog=true` in the `ansible-playbook -e` block.
+- [x] Correct the `ENV AGENTDEV_CATALOG_DIR` comment block
   (`agent-desktop.Dockerfile:62-67`), which states the catalog is "only staged
   here, never installed"
-- [ ] Rewrite the README's staged-catalog rationale: staging and installing both
+  - **Evidence:** the `ENV AGENTDEV_CATALOG_DIR` comment now states the catalog
+    is staged and installed at build time so a raw-image consumer resolves with
+    no hooks, and that a devcontainer's mounted volumes shadow that install so
+    postCreate installs again.
+- [x] Rewrite the README's staged-catalog rationale: staging and installing both
   happen now, the volume-shadowing explanation stays as the reason `postCreate`
   must *also* install, and link the architecture doc
+  - **Evidence:** `ansible/roles/agentic_tools/README.md` now heads the section
+    "This role both stages and installs", explains the build-time install for
+    raw-image consumers, keeps volume-shadowing as the reason the lifecycle
+    scripts must also install, links `ci-agent-plugin-availability`, and adds
+    `agentic_tools_install_catalog` and the Codex marketplace manifest var to
+    the table (prettier-aligned).
 
 ### Task 3: Prove it, including both volume states
 
