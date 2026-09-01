@@ -233,15 +233,25 @@ Modify: `AGENTS.md`
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/local-reformat/SKILL.md`
 
-- [ ] Rewrite the `## Codex Managed-Sandbox Execution` section (lines 39-48) so
+- [x] Rewrite the `## Codex Managed-Sandbox Execution` section (lines 39-48) so
   the escalated permission is described as what the skill needs when it is
   invoked, not as a required step. Drop "approved, required local validation
   action", "Do not omit this step or substitute a partial lint command when
   opening a pull request", and "must run with the same elevated sandbox
   permission".
-- [ ] Reword the `## When to Use This Skill` list so the first entry no longer
+  - **Evidence:** the section now reads "The Super-Linter container needs Docker
+    daemon access… so when this skill runs under Codex, invoke
+    `super-linter-local.sh` with `sandbox_permissions: \"require_escalated\"`";
+    `grep -n "required local validation\|Do not omit this step\|must run with the same" local-reformat/SKILL.md`
+    returns no hits.
+- [x] Reword the `## When to Use This Skill` list so the first entry no longer
   reads as a pre-commit/pre-PR obligation, and the skill presents as CI-failure
   triage plus an optional full local pass.
+  - **Evidence:** the list now leads with "Investigating a Super-Linter failure
+    locally and reproducing the formatter portions of the `Reformat code`…job"
+    and offers a full local pass "when you want more than the pre-commit hooks
+    that format staged files on every commit"; no before-committing/opening-a-PR
+    entry remains.
 
 ### Task 8: Drop the bare-host zizmor advice from the consumption spec
 
