@@ -168,6 +168,6 @@ it):
   enforces the firewall opt-in gate.
 - 2026-08-31 — made the pre-commit hooks the local formatting path and
   Super-Linter the CI gate: removed the skill/agent formatting mandates, deleted
-  the `agentdev:python-format-lint` skill (its policy folded into `AGENTS.md`),
+  the standalone Python format/lint skill (its policy folded into `AGENTS.md`),
   extended the hooks to merge commits, and kept `agentdev:local-reformat` for
   manual runs.
