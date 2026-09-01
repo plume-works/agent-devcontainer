@@ -47,13 +47,23 @@ visible there and `postCreate` installs into the volumes exactly as today.
 
 `~/.claude.json` is the one shared surface and the main risk this plan carries.
 It cannot be volume-backed (Docker volumes are directory-backed), so
-`postCreateCommand.sh:52-59` persists it inside the volume and symlinks it into
-place. Today the image ships no such file and a fresh volume takes the `elif`
-branch, starting from `{}`. After this change the image *will* ship one, so the
-`mv` branch fires instead and seeds the volume from the image — a behavior
-change to the devcontainer path caused entirely by the image, with no
-devcontainer script changing. Task 3 verifies both volume states rather than
-assuming it is benign.
+`postCreateCommand.sh:67-73` persists it inside the volume and symlinks it into
+place. Today the image ships no such file, so on first start
+`/root/.claude.json` is absent: `codebase-memory-mcp-install.sh` creates it
+fresh with just its MCP entry, then the handoff takes the `elif` branch and the
+volume starts from that `{}`-plus-MCP file. After the build-time install, the
+image *will* ship a real `/root/.claude.json`. Left in place it would poison
+this sequence: cbm-install runs before the handoff (`postCreateCommand.sh:56`)
+and, because the file is not yet a symlink, writes its MCP entry straight into
+the image's file rather than a clean one; the handoff's `mv` then carries that
+combined file into the volume, clobbering an existing volume's `claude.json` on
+every rebuild and seeding a fresh volume from image content. The mounted volume
+is the source of truth for Claude files, so postCreate removes the image's
+`/root/.claude.json` before cbm-install runs (guarded to a real, non-symlink
+file, so an existing volume's symlink is never disturbed). That restores the
+pre-image behavior exactly: no `/root/.claude.json` exists when cbm-install
+runs, so a fresh volume is seeded clean and an existing volume keeps its
+accumulated state. Task 3 verifies both volume states.
 
 Rejected: having each raw-image consumer install the catalog itself as an
 explicit step (duplicates logic the lifecycle scripts own, and leaves the image
@@ -134,12 +144,32 @@ Modify: `ansible/roles/agentic_tools/tasks/main.yml`,
     `agentic_tools_install_catalog` and the Codex marketplace manifest var to
     the table (prettier-aligned).
 
-### Task 3: Prove it, including both volume states
+### Task 3: Remove the image's `/root/.claude.json` before the volume handoff
+
+**Files:** Modify: `.devcontainer/scripts/postCreateCommand.sh`
+
+The image now ships a real `/root/.claude.json`. It must be removed before
+`codebase-memory-mcp-install.sh` runs (`postCreateCommand.sh:56`), not in the
+handoff at 67-73: cbm-install writes its MCP entry into whatever
+`/root/.claude.json` is present, and on first start the file is not yet a
+symlink, so its materialization guard is skipped and it edits the file in place.
+Leaving the image copy for the handoff to `mv` would carry image content into
+the volume. Removing it up front reproduces the pre-image sequence (no file
+present when cbm-install runs); the existing `mv`/`elif`/`ln -sf` handoff then
+stays as written, with its `mv` branch dead on first start.
+
+- [ ] Before the `codebase-memory-mcp-install.sh` call, remove a real
+  (non-symlink) `/root/.claude.json` so the mounted `agentdev-claude` volume
+  remains the source of truth for Claude files. Guard it to `-f && ! -L` so an
+  existing volume's symlink into the volume is never removed, and comment why
+  the removal precedes cbm-install. `shellcheck` clean.
+
+### Task 4: Prove it, including both volume states
 
 **Files:** none — verification only
 
 Stands alone: its evidence is a real image build, which the session writing
-Tasks 1-2 cannot produce by editing files.
+Tasks 1-3 cannot produce by editing files.
 
 - [x] Build `agent-desktop` locally through `/agentdev:microvm-sandbox`
   - **Evidence:** on this Docker-enabled host,
@@ -162,26 +192,17 @@ Tasks 1-2 cannot produce by editing files.
     `/root/.codex/plugins/cache/agent-devcontainer/agentdev/3.1.0/skills/` (e.g.
     `iwe-ship/SKILL.md`, `microvm-sandbox/SKILL.md`) with the marketplace and
     plugin registered in `/root/.codex/config.toml` — a Codex skill resolves.
-- [x] Start a devcontainer on a **fresh** volume and confirm the
-  `~/.claude.json` handoff is correct: the `mv` branch now fires where the
-  `elif` used to, and `codebase-memory-mcp-install.sh` (which runs before the
-  symlink exists, `postCreateCommand.sh:42`) still behaves when `~/.claude.json`
-  is a real file rather than absent
-  - **Evidence:** ran the real `.devcontainer/scripts/postCreateCommand.sh` in a
-    container from the built image with fresh `agentdev-claude`/`agentdev-codex`
-    volumes, the workspace bind-mounted, and `/uv` + auth volumes provisioned
-    (`devcontainer` CLI is absent on this host, so the lifecycle was reproduced
-    directly per the microvm-sandbox escalation). `/root/.claude.json` started
-    as a REAL FILE; `codebase-memory-mcp-install.sh` wrote its
-    `mcp: /root/.claude.json` entry with no error while it was a real file (not
-    the absent case); the handoff took
-    `mv /root/.claude.json /root/.claude/claude.json` (the `mv` branch, where
-    the `elif` used to fire) then symlinked; `POSTCREATE_EXIT=0`, zero
-    fatal/Traceback lines, and the final `/root/.claude/claude.json` is valid
-    JSON with `/root/.claude.json` a symlink to it. Log: `.tmp/t3-fresh.log`.
+- [ ] Start a devcontainer on a **fresh** volume and confirm Task 3's removal
+  restores the pre-image sequence: `/root/.claude.json` is gone before
+  `codebase-memory-mcp-install.sh` runs, so cbm-install creates a clean file
+  with only its MCP entry, the handoff takes the `elif` branch (not `mv`), and
+  the volume's `claude.json` is that clean file with `/root/.claude.json`
+  symlinked to it — no image content folded in.
 - [ ] Start a devcontainer on an **existing** volume and confirm the image's
-  `~/.claude.json` is ignored (`/root/.claude.json` is already a symlink, so
-  both branches skip) and a workspace skill edit still wins on attach
+  `/root/.claude.json` is removed before cbm-install and the volume's existing
+  `claude.json` is preserved unchanged across the rebuild (byte-identical to
+  before, no image content merged), with `/root/.claude.json` symlinked back to
+  it, and a workspace skill edit still wins on attach
 
 ## Spec changes
 
@@ -199,7 +220,11 @@ each agent's plugin state during the image build, at Claude user scope and via
 Codex's own registration, so a consumer that runs the image without devcontainer
 lifecycle hooks resolves `agentdev:*` skills. `postCreateCommand.sh` SHALL also
 install it, because a mounted `~/.claude` / `~/.codex` volume shadows what the
-image build wrote.
+image build wrote. Because the build-time Claude install seeds a real
+`/root/.claude.json` into the image, `postCreateCommand.sh` SHALL remove that
+file before `codebase-memory-mcp-install.sh` runs whenever it is a real,
+non-symlink file, so the mounted `agentdev-claude` volume remains the source of
+truth for `claude.json` and no image content is folded into it.
 
 #### Scenario: the image runs with no volumes and no lifecycle hooks
 
@@ -210,18 +235,25 @@ image build wrote.
 
 #### Scenario: a devcontainer starts for the first time on a fresh volume
 
-- **WHEN** `postCreateCommand` runs and `$AGENTDEV_CATALOG_DIR` exists
-- **THEN** `reinstall-agentdev-codex.sh` and
-  `reinstall-agentdev-claude.sh ... user` install the staged catalog into the
-  newly created `agentdev-claude` / `agentdev-codex` volumes.
+- **WHEN** `postCreateCommand` runs, `$AGENTDEV_CATALOG_DIR` exists, and the
+  image ships a real `/root/.claude.json`
+- **THEN** `postCreateCommand` removes that image file before
+  `codebase-memory-mcp-install.sh` runs, so cbm-install seeds a clean
+  `claude.json` carrying only its MCP entry into the newly created volume, and
+  `reinstall-agentdev-codex.sh` and `reinstall-agentdev-claude.sh ... user`
+  install the staged catalog into the fresh `agentdev-claude` / `agentdev-codex`
+  volumes.
 
 #### Scenario: a devcontainer starts with a catalog already installed on its volume
 
 - **WHEN** the `agentdev-claude` / `agentdev-codex` volumes already contain a
-  prior install (they persist per devcontainer instance)
-- **THEN** the volume mount shadows the image-build install, and
-  `postCreateCommand` re-applies it every time the container is created, so it
-  is never silently stale.
+  prior install and `claude.json` (they persist per devcontainer instance), and
+  the recreated container carries the image's `/root/.claude.json`
+- **THEN** `postCreateCommand` removes the image's `/root/.claude.json` before
+  the handoff so the volume's existing `claude.json` is preserved unchanged and
+  re-symlinked, the volume mount shadows the image-build catalog install, and
+  `postCreateCommand` re-applies that install every time the container is
+  created, so it is never silently stale.
 ```
 
 The other two requirements in that spec — the attach-time workspace override and
@@ -241,16 +273,23 @@ no common files.
   from the repository root (Task 1).
 - A locally built image, run as a plain container with no volumes, reports
   `agentdev` in `claude plugin list` and resolves a Codex skill (Task 3).
-- A devcontainer on a fresh volume completes `postCreate` without error and ends
-  with a coherent `~/.claude.json` (Task 3).
-- A devcontainer on an existing volume ignores the image's `~/.claude.json` and
-  still picks up a workspace skill edit on attach (Task 3).
+- A devcontainer on a fresh volume completes `postCreate` without error, and the
+  image's `/root/.claude.json` is removed before cbm-install so the volume's
+  `claude.json` holds only cbm-install's clean output — no image content (Task
+  4).
+- A devcontainer on an existing volume has the image's `/root/.claude.json`
+  removed before the handoff, preserves its volume `claude.json` byte-identical
+  across the rebuild, and still picks up a workspace skill edit on attach (Task
+  4).
 
 ## Out of scope
 
-- **Changing what the devcontainer lifecycle scripts do.** They keep installing
-  unconditionally; this plan only adds a second, earlier install for consumers
-  that never run them.
+- **Changing how the devcontainer lifecycle scripts install the catalog.** They
+  keep installing unconditionally; this plan only adds a second, earlier install
+  for consumers that never run them. The one lifecycle-script change it does
+  make is Task 3's removal of the image's `/root/.claude.json` before the
+  handoff — a consequence of the image now shipping that file, needed to keep
+  the volume authoritative, not a change to the catalog-install behavior.
 - **The AI responder workflows.** They use the checkout and do not depend on
   this.
 - **Making `~/.claude.json` volume-backed.** Docker volumes are
@@ -258,30 +297,37 @@ no common files.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-17):
+Verified anchor points (line numbers as of 2026-09-01):
 
-- `ansible/roles/agentic_tools/tasks/main.yml:26` —
-  `Stage the agent catalog into the image`, the import the install follows
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:2-7` — the header comment
-  asserting this is "not an installation"
+- `ansible/roles/agentic_tools/tasks/main.yml:26,30` — the `stage_catalog.yml`
+  import and, right after it, the `install_catalog.yml` import Task 1 added
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:2-7` — the header
+  comment, corrected by Task 1 to say `install_catalog.yml` installs from the
+  staged copy
 - `ansible/roles/agentic_tools/tasks/stage_catalog.yml:123` —
   `Make the staged catalog root-owned and read-only`, the last staging task
-- `ansible/roles/agentic_tools/defaults/main.yml:26` —
-  `agentic_tools_stage_catalog`, whose comment says the install belongs to
-  lifecycle scripts
-- `ansible/roles/agentic_tools/defaults/main.yml:45` —
+- `ansible/roles/agentic_tools/defaults/main.yml:25` —
+  `agentic_tools_stage_catalog`
+- `ansible/roles/agentic_tools/defaults/main.yml:32` —
+  `agentic_tools_install_catalog`, added by Task 1
+- `ansible/roles/agentic_tools/defaults/main.yml:53` —
   `agentic_tools_catalog_root: /opt/agentdev`
 - `ansible/roles/extra_facts/tasks/main.yml:16` — `user_home` resolves from
   `ansible_facts['env'].HOME`, i.e. `/root`
-- `docker/desktop/agent-desktop.Dockerfile:54` —
-  `agentic_tools_stage_catalog=true`, where the install flag joins
-- `docker/desktop/agent-desktop.Dockerfile:62-67` — the
-  `ENV AGENTDEV_CATALOG_DIR` comment claiming the catalog is never installed
-- `.devcontainer/scripts/postCreateCommand.sh:42` —
-  `codebase-memory-mcp-install.sh`, which runs before the symlink exists
-- `.devcontainer/scripts/postCreateCommand.sh:52-59` — the `~/.claude.json`
-  move-and-symlink whose branch selection this plan changes
-- `.devcontainer/scripts/postCreateCommand.sh:77-79` — the existing lifecycle
-  install this one mirrors
+- `docker/desktop/agent-desktop.Dockerfile:54-55` —
+  `agentic_tools_stage_catalog=true` and `agentic_tools_install_catalog=true`
+- `docker/desktop/agent-desktop.Dockerfile:68` — the `ENV AGENTDEV_CATALOG_DIR`
+  declaration whose comment block Task 2 corrected
+- `.devcontainer/scripts/postCreateCommand.sh:56` —
+  `codebase-memory-mcp-install.sh`, which runs before the handoff; Task 3's
+  removal must precede this call
+- `.devcontainer/scripts/postCreateCommand.sh:67-73` — the `~/.claude.json`
+  move-and-symlink handoff; its `mv` branch is the one Task 3's removal keeps
+  from ever firing on image content
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh:56-61` — cbm-install's
+  symlink-materialization guard (`if [[ -L … ]]`), skipped on first start when
+  the file is a real image copy, which is why removal must precede it
+- `.devcontainer/scripts/postCreateCommand.sh:91-93` — the existing lifecycle
+  catalog install this one mirrors
 - `.github/actions/paths-filter/action.yml:38` — `ansible/**`, so the change
   triggers a CI image rebuild
