@@ -102,16 +102,36 @@ no-git-context fallback where nothing else can answer.
 **Files:** Create:
 `py_packages/validate_agent_files/tests/test_gitignore_discovery.py`
 
-- [ ] Temp git repo with `.gitignore`: an ignored directory containing a
+- [x] Temp git repo with `.gitignore`: an ignored directory containing a
   matching file is pruned, an ignored file beside a tracked matching sibling is
   dropped, and tracked matching files are kept. Covers all three suffixes
   (`SKILL.md`, `.agent.md`, `.prompt.md`).
-- [ ] Non-repo directory: the `excluded_dirs` parameter governs dir pruning; a
+  - **Evidence:** `test_repo_prunes_ignored_dir_and_file_but_keeps_tracked` in
+    `tests/test_gitignore_discovery.py`, parametrized across all three suffixes
+    (`vendored/` dir + `generated-*` sibling ignored via `.gitignore`); passes
+    in the isolated run.
+- [x] Non-repo directory: the `excluded_dirs` parameter governs dir pruning; a
   custom `excluded_dirs` overrides the default; a directory name absent from
   `excluded_dirs` is walked (proving git rules are not applied outside a repo).
-- [ ] `.git/` is pruned in both the repo and non-repo cases.
-- [ ] Fixtures build their own temp git repo and use invented names — no
+  - **Evidence:** `test_non_repo_uses_excluded_dirs_not_git` and
+    `test_non_repo_custom_excluded_dirs_override_default` in
+    `tests/test_gitignore_discovery.py` cover the default set, a custom
+    override, and an unlisted (walked) directory; the excluded name is drawn
+    from the imported `DEFAULT_EXCLUDED_DIRS`, not a literal; pass in the
+    isolated run.
+- [x] `.git/` is pruned in both the repo and non-repo cases.
+  - **Evidence:** `test_repo_prunes_git_directory` and
+    `test_non_repo_prunes_git_directory` in `tests/test_gitignore_discovery.py`
+    assert no discovered path contains a `.git` component, the non-repo case
+    passing `excluded_dirs=set()` to prove `.git` is pruned unconditionally;
+    pass in the isolated run.
+- [x] Fixtures build their own temp git repo and use invented names — no
   dependence on this repository's identity, per the package's `AGENTS.md`.
+  - **Evidence:** `_init_repo` builds an isolated repo under pytest's `tmp_path`
+    with a repo-local `discovery@example.invalid` identity and invented file and
+    directory names (`workspace`, `vendored`, `sample.*`); the suffixes and
+    excluded-dir name are imported from the code under test; the whole file
+    passes `uv run --isolated --extra dev pytest`, confirming standalone shape.
 
 ## Spec changes
 
