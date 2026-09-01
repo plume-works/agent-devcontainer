@@ -27,4 +27,4 @@ rejected are as valuable as the one you picked.*
 
 [CI agent plugin availability](architecture/ci-agent-plugin-availability.md)
 
-[AI review never requests changes](architecture/ai-review-never-request-changes.md)
+[AI review event selection](architecture/ai-review-event-selection.md)

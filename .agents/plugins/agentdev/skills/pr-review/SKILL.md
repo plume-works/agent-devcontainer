@@ -78,8 +78,8 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Do not f
 
 **Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, definite-wrong-result logic bugs, security implications) or a **durable-knowledge pass** (session residue a rule forbids). The tier governs Step-5 dedup priority and inline emphasis only; it never changes the submit event, which stays `COMMENT` (never `REQUEST_CHANGES`) per Step 9.
-- **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. This stops the review before the in-depth passes and submits a `COMMENT` review with the metadata finding in the review body.
+- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, definite-wrong-result logic bugs, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority, inline emphasis, and the submit event per Step 9.
+- **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed.
 
 ## Steps
@@ -92,7 +92,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Do not f
    mechanical PR without spending a full review cycle. A docs-only diff is not
    fast-approved: it still runs the durable-knowledge pass (Step 4).
 2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR title and description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add the `/agentdev:python-format-lint` skill when the diff touches Python, `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
-3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. If the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, submit a `COMMENT` pull request review with a short blocking summary of the metadata problem and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
+3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. If the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, submit a `REQUEST_CHANGES` pull request review with a short blocking summary of the metadata problem and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
 4. **Run four or five independent initial-review passes in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
    - 2x **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2.
    - 2x **correctness pass** — audit the diff against the Correctness focus list, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code.
@@ -106,10 +106,11 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Do not f
 7. Create a pending review with `create_pending_pull_request_review`.
 8. For every validated finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes; never describe a finding's location in prose. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) stating the file/line in prose and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
 9. Submit the review with `submit_pending_pull_request_review`, choosing `event` from the validated findings that survived Step 6:
-   - **No validated findings at all → `APPROVE`.** A clean pass must be approved, not left as a silent `COMMENT`. A finding that fell back to a normal PR comment in Step 8 still counts as a finding → `COMMENT`.
-   - **One or more validated findings, of any severity tier → `COMMENT`.** Never use `REQUEST_CHANGES`, even for blocking (critical/P1) findings — the severity tier still controls dedup priority in Step 5 and can be called out in the inline comment text, but it never changes the review event.
+   - **No validated findings → `APPROVE`.** Do not leave a clean pass as a silent `COMMENT`.
+   - **A blocking finding with no live inline anchor** — the Step-3 metadata gate, or a blocking finding whose inline location GitHub rejected in Step 8 and that fell back to a prose PR comment — **→ `REQUEST_CHANGES`.** Name those findings in the body.
+   - **Otherwise (every blocking finding is attached inline, or only non-blocking findings remain) → `COMMENT`.**
 
-   `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments); for an `APPROVE` with zero findings, state plainly that no issues were found.
+   `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments); for an `APPROVE` with zero findings, state plainly that no issues were found. If GitHub rejects `REQUEST_CHANGES` because the account owns the PR, retry as `COMMENT` and note in the body that the account could not request changes on its own PR.
 
    Codex: if using `mcp__codex_apps__github._add_review_to_pr` instead of Steps 7-9, pass the same event as `action`,
    the summary as `review`, and all validated inline findings as `file_comments`.
@@ -142,7 +143,7 @@ Write two plain files under `./.tmp` (never assemble this JSON live in a shell c
 - a summary file containing only the short overall review body (no per-finding detail)
 - a comments file containing a JSON array of every validated finding: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if no findings survived Step 6)
 
-Then run `${CLAUDE_SKILL_DIR}/scripts/post-review.sh --pr <PR_NUMBER> --event <COMMENT|APPROVE> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely, including the `event` decision rule from Step 9 (`APPROVE` when `[]`/no findings, `COMMENT` otherwise — never `REQUEST_CHANGES`). Do not fall further back to typing `gh api` calls by hand.
+Then run `${CLAUDE_SKILL_DIR}/scripts/post-review.sh --pr <PR_NUMBER> --event <COMMENT|APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule. Do not fall further back to typing `gh api` calls by hand.
 
 The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a bare number:
 
