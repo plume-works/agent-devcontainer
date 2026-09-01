@@ -77,7 +77,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Do not f
    file list with `gh pr diff <PR_NUMBER> --name-only`, then publish a clean
    `APPROVE` review with a short summary. This preserves the required AI-review
    gate for a harmless PR without spending a full review cycle.
-2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add the `/agentdev:python-format-lint` skill when the diff touches Python, `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
+2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
 3. **Run four independent initial-review passes in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
    - 2x **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2.
    - 2x **correctness pass** — audit the diff against the Correctness focus list, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code.

@@ -171,6 +171,3 @@ pinned CI image unless the workflow itself is intentionally being updated.
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | [super-linter-local.sh](../../bin/super-linter-local.sh) | Run one local pass with all checks enabled and available autofixes applied.                 |
 | [super-linter-env.sh](../../bin/super-linter-env.sh)     | Generate the shared Ansible, clang-format, Prettier, and validation settings for each pass. |
-
-For a fast, Docker-free Python check (and the pre-commit-based autofix loop),
-use the [python-format-lint](../python-format-lint/SKILL.md) skill.

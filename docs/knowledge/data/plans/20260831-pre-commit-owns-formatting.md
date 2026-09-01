@@ -173,10 +173,14 @@ without extra prose.
 **Files:** Delete: `.agents/plugins/agentdev/skills/python-format-lint/`;
 Modify: `AGENTS.md`
 
-- [ ] Delete the `.agents/plugins/agentdev/skills/python-format-lint/`
+- [x] Delete the `.agents/plugins/agentdev/skills/python-format-lint/`
   directory.
 
-- [ ] Replace the ruff bullet at `AGENTS.md:75` so it drops the
+  - **Evidence:** `ls .agents/plugins/agentdev/skills/python-format-lint/`
+    reports "No such file or directory"; the directory and its `SKILL.md` are
+    gone.
+
+- [x] Replace the ruff bullet at `AGENTS.md:75` so it drops the
   `/agentdev:python-format-lint` pointer and absorbs the skill's two unique
   rules. Use this text verbatim:
 
@@ -186,6 +190,12 @@ Modify: `AGENTS.md`
   ```
   ````
 
+  - **Evidence:** `AGENTS.md:75` now matches the verbatim block above. The live
+    bullet also carried a `super-linter-local.sh` clause the plan's quote
+    predated; the mandated verbatim text omits it, so this replacement drops it
+    (Super-Linter's CI role is stated as "Super-Linter runs the same tools in
+    CI"). `grep -n python-format-lint AGENTS.md` returns no hits.
+
 ### Task 6: Update the remaining references to the deleted skill
 
 **Files:** Modify: `.agents/plugins/agentdev/README.md`,
@@ -193,19 +203,31 @@ Modify: `AGENTS.md`
 `.agents/plugins/agentdev/skills/semantic-refactor-audit/SKILL.md`,
 `.agents/plugins/agentdev/skills/local-reformat/SKILL.md`
 
-- [ ] Delete the `/agentdev:python-format-lint` row from the skill table at
+- [x] Delete the `/agentdev:python-format-lint` row from the skill table at
   `README.md:95`.
-- [ ] In `pr-review/SKILL.md:80`, drop the clause adding the
+  - **Evidence:** the skill table now runs `local-reformat` directly to
+    `semantic-refactor-audit`; `grep -n python-format-lint README.md` returns no
+    hits.
+- [x] In `pr-review/SKILL.md:80`, drop the clause adding the
   `/agentdev:python-format-lint` skill for Python diffs. The same sentence
   already states that the Coding Conventions section of `AGENTS.md` always
   applies, which is where Task 5 puts the policy.
-- [ ] In `semantic-refactor-audit/SKILL.md:3`, remove
+  - **Evidence:** Step 2's convention-source sentence now reads "…always
+    applies; add `/agentdev:create-agent` for `*.agent.md` changes, and
+    `/agentdev:create-skill` for `SKILL.md` changes." — no Python clause.
+- [x] In `semantic-refactor-audit/SKILL.md:3`, remove
   `/agentdev:python-format-lint` from the `description` frontmatter, leaving
   `/agentdev:local-reformat` as the routing target for formatting and lint
   fixes. This field drives skill discovery, so keep the sentence well-formed
   rather than leaving a dangling conjunction.
-- [ ] Delete the closing cross-reference at `local-reformat/SKILL.md:175-176`
+  - **Evidence:** the `description` closes "…lint fixes, which belong to
+    /agentdev:local-reformat." — well-formed, single routing target; validator
+    reports the file `✓`.
+- [x] Delete the closing cross-reference at `local-reformat/SKILL.md:175-176`
   that points at the deleted skill.
+  - **Evidence:** the `## CI-Equivalent Entry Points` table is now the last
+    content; the "For a fast, Docker-free Python check… python-format-lint"
+    sentence is gone and the validator's `Broken reference` error cleared.
 
 ### Task 7: Soften local-reformat's internal obligation language
 
