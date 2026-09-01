@@ -1,5 +1,5 @@
 ---
-name: ship
+name: iwe-ship
 description: Close or cancel planned work safely — normal shipping requires a zero-CRITICAL Verify report, merges verified behavior into durable specs, and records idempotent graph transitions; cancellation bypasses implementation and release transitions. Also cuts a release when asked.
 disable-model-invocation: true
 ---

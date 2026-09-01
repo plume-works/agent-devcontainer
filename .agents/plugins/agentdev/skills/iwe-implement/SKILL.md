@@ -1,5 +1,5 @@
 ---
-name: implement
+name: iwe-implement
 description: Execute an active plan task-by-task with state discipline — verified anchors, tests before checkbox ticks, clean stopping points, deviations written back into the plan.
 disable-model-invocation: true
 ---

@@ -1,5 +1,5 @@
 ---
-name: explore
+name: iwe-explore
 description: Enter explore mode — a thinking partner for investigating problems, comparing approaches, and clarifying ideas before they become plans. Reads code and the graph freely, never writes code. Use when the user says "let's think about ...", "explore <idea>", "what are our options for ...", or wants to talk something through before committing.
 ---
 

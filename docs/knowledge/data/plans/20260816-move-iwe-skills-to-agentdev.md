@@ -109,10 +109,18 @@ Delete: `.claude/skills/{setup,explore,plan,implement,verify,ship,weekly}/`
 Each skill is a lone `SKILL.md` with no `references/` or `scripts/`
 subdirectory, so the move is a directory rename plus one frontmatter line.
 
-- [ ] `git mv` all seven directories to their `iwe-` prefixed names under
+- [x] `git mv` all seven directories to their `iwe-` prefixed names under
   `.agents/plugins/agentdev/skills/`, set each frontmatter `name` to
   `iwe-<name>`, leave every description unchanged, and confirm `.claude/skills/`
   no longer exists.
+  - **Evidence:** `git mv` relocated all seven (setup, explore, plan, implement,
+    verify, ship, weekly) to `.agents/plugins/agentdev/skills/iwe-*/` — git
+    records each as a rename (R) whose only content change is the `name:`
+    frontmatter line (`-name: <bare>` / `+name: iwe-<bare>`), descriptions and
+    bodies byte-identical. Empty `.claude/skills/` removed; `ls .claude/skills/`
+    returns "No such file or directory". The untracked working-tree skill
+    `iwe-implement-all/` is not part of this plan and was left untouched.
+    Committed with this task.
 
 ### Task 3: Make every in-skill cross-reference plugin-portable
 
