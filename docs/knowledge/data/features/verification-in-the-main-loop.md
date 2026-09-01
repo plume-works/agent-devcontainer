@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Ship invokes report-only Verify for every normal plan shipment and refuses all CRITICAL findings, while cancellation remains exempt.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-16T00:00:00Z
+  by: codex
+  at: 2026-08-31T17:36:33Z
 sources:
 - resource: .claude/skills/verify/SKILL.md
 - resource: .claude/skills/ship/SKILL.md
@@ -15,16 +15,12 @@ sources:
 ## Purpose
 
 The workspace skills form a loop — explore → plan → implement → ship — and
-normal shipping now invokes verification itself instead of relying on the user
-to remember a separate pre-ship step.
+normal shipping invokes verification itself instead of relying on the user to
+remember a separate pre-ship step.
 
-Previously, Ship asked for a loose confirmation of the plan's `## Verification`
-section and described Verify as only the thorough form of that step. That
-allowed normal shipping without requirement tracing, scenario coverage, or
-coherence checks against `## Approach` and `## Out of scope`.
-
-Ship now closes that gap by consuming a Verify report in the same invocation,
-before it synchronizes specs or changes durable lifecycle state.
+Ship invokes Verify before spec synchronization or lifecycle transitions, so
+requirement tracing, scenario coverage, and coherence checks are mandatory in
+normal shipping.
 
 ## Behaviour
 
@@ -52,13 +48,9 @@ CRITICAL raises the cost of a finding; it does not widen what counts as one. A
 defect Verify has no rule for passes straight through the gate, and the
 mandatory invocation makes that silence look like assurance.
 
-Ticked-box over-claiming was exactly that blind spot. Verify audited unchecked
-boxes and took ticked ones on faith, so a plan whose boxes were all flipped in
-one careless edit produced a clean report — the loop's strongest gate had
-nothing to say about its most load-bearing claim. Verify gained the ticked-box
-counterpart in
-[Make plan checkboxes carry their evidence](../plans/20260815-honest-plan-checkboxes.md);
-before that, this feature would have inherited the gap rather than closed it.
+Verify only blocks defects covered by its rules. Unsupported ticked tasks
+produce a CRITICAL through
+[Make plan checkboxes carry their evidence](../plans/20260815-honest-plan-checkboxes.md).
 The general lesson holds for the next defect class: this feature is a
 transmission, not a detector.
 

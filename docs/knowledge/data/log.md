@@ -38,6 +38,14 @@ to the current day's group.
   from `PATH`, dropping the bare-host `zizmorcore/zizmor-pre-commit`
   substitution — a workflow this container-only product does not support. No
   requirement or scenario changed; the edit is procedural adoption guidance.
+- **Update**: [AI responder workflows](plans/20260816-ai-responder-workflows.md)
+  done — the Claude-only `ai-responder.yml` and the `require-ai-review.yml` gate
+  are imported; the responder reviews with the branch's own agentdev catalog and
+  an indexed CBM by running the devcontainer lifecycle hooks after checkout, and
+  `ai-review-present` is now a required status check in the `main` ruleset.
+- **Creation**: [AI responder workflows](features/ai-responder-workflows.md)
+  implemented, and [AI review gate](spec/ai-review-gate.md) records the gate's
+  acceptance contract and the responder's fork/write-access security boundary.
 
 ## 2026-08-24
 

@@ -127,9 +127,8 @@ gh api repos/<owner>/<repo>/actions/runs/12345678901/artifacts --jq '.artifacts[
 gh run download 12345678901 --repo <owner>/<repo> -n <artifact-name> -D ./.tmp/actions-run-12345678901
 ```
 
-When a workflow builds a matrix, artifact names usually carry the matrix value
-(for example an `-amd64` / `-arm64` suffix). Pick the one matching the failing
-job rather than guessing.
+List the artifacts and choose the one matching the failing matrix job. Suffixes
+such as `-amd64` and `-arm64` are hints, not evidence.
 
 Given this failing CI job URL:
 

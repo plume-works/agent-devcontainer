@@ -29,6 +29,8 @@ renames this file to the version number and starts a fresh one.*
 
 [Let pre-commit own formatting](../features/pre-commit-owns-formatting.md)
 
+[AI responder workflows](../features/ai-responder-workflows.md)
+
 ## Fixed
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

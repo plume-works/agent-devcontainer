@@ -327,8 +327,8 @@ uv run validate_agent_files --recommend . --require-marketplace claude codex
 uv run pytest   # both suites: py_packages/ and .agents/plugins/agentdev/tests/
 ```
 
-The two test suites are separate on purpose and stay that way. `py_packages/validate_agent_files/tests/`
-covers a package that is released independently, so it must pass with no knowledge of this
+The two test suites stay separate. `py_packages/validate_agent_files/tests/` covers a
+package that is released independently, so it must pass with no knowledge of this
 repository — check that directly with:
 
 ```bash

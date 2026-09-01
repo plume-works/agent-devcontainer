@@ -2,8 +2,8 @@
 type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-16T00:00:00Z
+  by: codex
+  at: 2026-08-31T17:36:33Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
@@ -70,9 +70,8 @@ both in postAttach (`postAttachCommand.sh:8` and `:14-15`).
 ## What a `container:` job must supply itself
 
 The hooks depend on `devcontainer.json` — its `containerEnv` and its `mounts` —
-not only on the image, and a `container:` job applies neither. Of the eleven
-`containerEnv` variables, exactly two are load-bearing, established by ablation
-with `.devcontainer/scripts/ci-hooks-repro.sh`:
+not only on the image, and a `container:` job applies neither. The responder job
+supplies the load-bearing hook environment explicitly:
 
 | what                                  | why                                                                              |
 | ------------------------------------- | -------------------------------------------------------------------------------- |
@@ -81,16 +80,17 @@ with `.devcontainer/scripts/ci-hooks-repro.sh`:
 | `UV_PROJECT_ENVIRONMENT`              | see below — unset is silent, not fatal                                           |
 | `mkdir -p /root/.claude /root/.codex` | `postCreateCommand.sh:63-69` writes `claude.json` where a volume normally mounts |
 
-Not needed: `ENABLE_FIREWALL` (already inert by default), `UV_CACHE_DIR` and
-`UV_PYTHON_INSTALL_DIR` (uv falls back to its own defaults), `DISPLAY`,
-`DOCKER_HOST`, `DEVCONTAINER_ID`, and `CLAUDE_SECURESTORAGE_CONFIG_DIR` (not
-exercised by the hooks). No volumes are required; plain directories suffice.
+The remaining devcontainer `containerEnv` variables are not required here:
+`ENABLE_FIREWALL` is already inert by default; `UV_CACHE_DIR` and
+`UV_PYTHON_INSTALL_DIR` fall back to uv defaults; and `DISPLAY`, `DOCKER_HOST`,
+`DEVCONTAINER_ID`, and `CLAUDE_SECURESTORAGE_CONFIG_DIR` are not exercised by
+the hooks. No volumes are required; plain directories suffice.
 
 `UV_PROJECT_ENVIRONMENT` deserves the emphasis. Unset, `uv sync` does not fail —
 it creates `.venv` **inside the checkout** and the job stays green. A review job
 would report success while having written into the very tree it is reviewing.
-That failure mode is invisible to CI, which is why the minimal set was derived
-locally with an explicit side-effect check rather than by pushing commits.
+That failure mode is invisible to CI, so the local reproducer checks for this
+side effect explicitly.
 
 Mounts have the same shape: `postCreateCommand.sh` chowns `$workspace/.cache`
 and `/uv`, which exist only because `devcontainer.json` mounts them, so that
@@ -162,12 +162,9 @@ exists and why upstream's 30-minute job timeout carries over unchanged.
 
 ## Consequences
 
-- The lifecycle scripts become a CI contract, not only a devcontainer one. A
-  change that assumes an interactive editor session will break the responder.
-  This is not hypothetical: the first responder run died in
-  `postCreateCommand.sh` on a `chown` of `$workspace/.cache` and `/uv`, two
-  paths that exist only because `devcontainer.json` mounts them. The scripts may
-  no longer assume a devcontainer's *mounts* either, not just its editor.
+- The lifecycle scripts become a CI contract, not only a devcontainer one. They
+  must tolerate missing devcontainer mounts in `container:` jobs, not just the
+  absence of an interactive editor session.
 - Skill availability is a property of the *job*, not the image — reading the
   Dockerfile will suggest otherwise, since it stages a catalog it never
   installs.

@@ -31,6 +31,11 @@ commit messages. Process detail is their job; commit messages are owned by
 `/agentdev:git-commit`. Residue in a spec may belong in one of these — that is a
 move, not a deletion.
 
+**Diff scope.** When a caller runs this skill over a diff, the candidate set is
+the diff's added lines, not a grep over `<TARGET>`. §1's patterns are the smell
+list applied to those added lines. Everything downstream — §"Durable vs not",
+§2 verdicts, §3 verify — is unchanged and shared with the local-tree scope.
+
 ## 1. Collect candidates
 
 Seed with grep, then read around each hit — the pattern is a smell, not a
@@ -89,6 +94,11 @@ they introduce dead alternatives. Cannot show it → UNVERIFIED, same as above.
 
 Output a table before editing anything: `file:line` | quoted text | pattern |
 verdict | replacement | evidence. Wait for approval.
+
+**Diff scope stops here.** In diff mode the skill is report-only: it produces
+the table and stops. Every verdict is a recommendation — MOVE names the
+destination, DROP/REWRITE quote the replacement — but the changed lines are left
+untouched. Applying is the caller's decision, made outside this skill.
 
 When applying: no note in the document saying it was audited, no changelog
 entry, no "(revised)" markers. The audit leaves no trace but a shorter file.

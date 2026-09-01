@@ -16,5 +16,5 @@ configuring the daemon, and adding the user to the `docker` group.
 
 ## Notes
 
-This role is intentionally focused on core installation only. Service startup
-is handled by the `install_docker_service` role where systemd is available.
+This role handles core installation only. Service startup is handled by the
+`install_docker_service` role where systemd is available.

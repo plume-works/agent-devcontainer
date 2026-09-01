@@ -212,12 +212,46 @@ jobs:
       image: ghcr.io/plume-works/agent-desktop:edge
     permissions:
       contents: read
-      pull-requests: write
-      issues: write
-      actions: read
+      pull-requests: write # For PR reviews and inline comments
+      issues: write # For issue comments
+      actions: read # Required for Claude to read CI results on PRs
+      id-token: write # required for the OIDC exchange (claude-action auth as claude[bot])
     timeout-minutes: 30
     environment: claude-review
     steps:
+      - name: Append run link to Claude review request
+        if: |
+          (github.event_name == 'issue_comment' ||
+           github.event_name == 'pull_request_review_comment') &&
+          startsWith(github.event.comment.body, '@claude review')
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            const marker = '<!-- claude-review-run-link -->';
+            const body = context.payload.comment?.body ?? '';
+            const serverUrl = process.env.GITHUB_SERVER_URL ?? 'https://github.com';
+            const runUrl = `${serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const footer = `${marker}\n\n[View Claude review run](${runUrl})`;
+            const nextBody = body.includes(marker)
+              ? body.replace(new RegExp(`${marker}[\\s\\S]*$`), footer)
+              : `${body.trimEnd()}\n\n${footer}`;
+
+            if (nextBody === body) {
+              return;
+            }
+
+            const params = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              body: nextBody,
+            };
+            if (process.env.GITHUB_EVENT_NAME === 'pull_request_review_comment') {
+              await github.rest.pulls.updateReviewComment(params);
+            } else {
+              await github.rest.issues.updateComment(params);
+            }
+
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
         with:
@@ -260,13 +294,26 @@ jobs:
           .devcontainer/scripts/postStartCommand.sh
           .devcontainer/scripts/postAttachCommand.sh
 
+      # settings.local.json enables agentdev; the action takes one file, so
+      # deep-merge both into the inline JSON string its `settings:` input accepts.
+      - name: Merge Claude settings
+        id: claude_settings
+        run: |
+          merged=$(jq -cs '.[0] * .[1]' \
+            .claude/settings.json .claude/settings.local.json)
+          {
+            echo 'json<<CLAUDE_SETTINGS_EOF'
+            echo "$merged"
+            echo 'CLAUDE_SETTINGS_EOF'
+          } >>"$GITHUB_OUTPUT"
+
       - name: Claude Responder
         id: claude_responder
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          settings: .claude/settings.json
+          settings: ${{ steps.claude_settings.outputs.json }}
           claude_args: --allowedTools '${{ env.CLAUDE_PR_REVIEW_ARGS }}'
           assignee_trigger: 'claude-bot'
           show_full_output: true

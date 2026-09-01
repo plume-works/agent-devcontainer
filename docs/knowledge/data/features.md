@@ -25,3 +25,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Preserved approved wording](features/preserved-approved-wording.md)
 
 [Let pre-commit own formatting](features/pre-commit-owns-formatting.md)
+
+[AI responder workflows](features/ai-responder-workflows.md)

@@ -48,9 +48,9 @@ list its `issue_comment` runs with
 assuming the workflow's filename: it differs between repositories, and a wrong
 one returns an empty list that reads exactly like "no run started".
 
-`gh pr checks` will not settle it either. Comment-triggered runs are filed
-against the default branch rather than the PR head, so the PR's check list
-routinely omits them even while the review is running.
+Comment-triggered runs may not be attached to the PR head. Use
+[pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) instead of
+relying on `gh pr checks` alone.
 
 Report the comment URL and the run you observed. When nothing turns up, the
 shape of the gap points at the cause:
@@ -58,9 +58,8 @@ shape of the gap points at the cause:
 - **No run at all** — the mention never qualified. Re-read the comment as
   posted and confirm it truly opens with `@claude`.
 - **A run that ends without a review** — the preflight rejected the request.
-  These workflows commonly refuse pull requests from forks and requesters
-  without write access; either one ends the run before a review happens, and
-  both need a person rather than a retry.
+  Check whether the pull request comes from a fork or the requester lacks write
+  access. Either rejection needs a person rather than a retry.
 
 If neither applies and the run is simply slow, say so plainly instead of
 posting the comment again.
@@ -72,14 +71,12 @@ unit: it is what makes an existing review stale, and it is what justifies the
 next request. Push the work first, then request the review for the head that
 push produced.
 
-While a review of the current head is running or already published, another
-mention buys noise rather than information. Responder concurrency is keyed to
-the comment id, so a second mention does not supersede the first — both runs
-proceed and both post findings.
+Post at most one trigger per head SHA. Responder concurrency is keyed to the
+comment ID, so a second comment starts a separate run instead of superseding
+the first.
 
-Retrying by editing or deleting the trigger does not work either: the workflow
-listens for `issue_comment: created` only, so an edit never re-triggers, and
-deleting the comment just erases the thread's record of what was requested.
+The workflow listens for `issue_comment: created` only, so editing a trigger does
+not start another run. Do not delete the trigger comment.
 When a run genuinely fails without publishing a review, inspect its logs and
 report that failure; wait for a new head SHA or explicit user direction before
 triggering again.

@@ -3,23 +3,18 @@
 Stats a set of shared system paths and emits one greppable `PERM_PROBE` line per
 probe point, failing the play when a path is owned by anyone but root.
 
-`setup-dev.yml` runs it once, last, as a build guard. A third-party release
-archive can carry its build runner's numeric uid/gid and silently chown the
-directory it unpacks into, handing a shared system directory to an account that
-does not exist on the target. That is not hypothetical: zizmor's tarball did
-exactly this to `/usr/local/bin` (uid/gid 1001), which broke every later install
-writing there — including `codebase-memory-mcp`, whose activation staging
-refuses a target directory with an unexpected owner.
+`setup-dev.yml` runs it once, last, as a build guard. Third-party release
+archives can carry numeric uid/gid metadata and silently chown the directory
+they unpack into, handing a shared system directory to an account that does not
+exist on the target. The guard catches non-root ownership before publication.
 
 The guard has to run in the build because a bad ownership baked into the
 published image is inherited by every warm build layered on top of it. Once it
 ships, the image reproduces the breakage even after the offending role is fixed,
 so the failure must stop the build rather than reach the registry.
 
-The probe shells out to `stat -c` rather than using `ansible.builtin.stat`: the
-raw syscall reports numeric uid/gid verbatim, while the module hides the signal
-behind name resolution — and an owner resolving to no passwd entry is precisely
-the signal.
+The probe uses `stat -c` so the report includes numeric uid/gid and resolved
+names.
 
 ## Guard usage
 
