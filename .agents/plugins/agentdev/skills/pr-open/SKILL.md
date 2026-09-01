@@ -141,7 +141,7 @@ re-implementing merge logic inline.
 If `update-branch` reports unresolved conflicts or requires user input, stop
 PR creation and ask the user to resolve or confirm conflict decisions first.
 
-### 6. Optional Issue Linking
+### 5. Optional Issue Linking
 
 Issue linking is recommended but not required.
 
@@ -170,7 +170,7 @@ Issue linking is recommended but not required.
 In update mode, preserve the existing title's issue prefix (for example `[#42]`)
 rather than re-deriving the link.
 
-### 7. PR Draft Construction
+### 6. PR Draft Construction
 
 **CRITICAL:** Run this only after the branch is synchronized and clean, so the
 description reflects the final changes the PR will contain.
@@ -191,7 +191,7 @@ Use the generated output as the PR body, and use one of these title formats:
 In update mode, keep `PR_TITLE` unchanged when it still describes the branch
 accurately — an update should not churn a good title.
 
-### 8. Proceed Without Confirmation
+### 7. Proceed Without Confirmation
 
 Do **not** pause to ask the user to approve the draft. Once the title and body
 are generated, continue directly to the branch push and PR creation or update.
@@ -204,7 +204,7 @@ through `pr-gen-description` first.
   input to resolve
 - Afterwards, report the resulting PR URL/number
 
-### 9. Push the Branch
+### 8. Push the Branch
 
 **CRITICAL:** Before creating or updating the PR, push the branch so the remote
 head ref contains every commit the body describes.
@@ -233,7 +233,7 @@ output and abort.
 Never force-push, and never update the branch ref through a GitHub API or MCP
 tool — reconcile locally with `/agentdev:update-branch` and rerun this step.
 
-### 10. Create or Update the Pull Request
+### 9. Create or Update the Pull Request
 
 In **update mode**, edit the existing PR in place with `gh`. Write the body to a
 file under `./.tmp/` (relative to the repository root; create the directory if
@@ -278,7 +278,7 @@ If `gh` is unavailable or unauthenticated, fall back to the connected GitHub
 MCP server's pull-request creation operation with the same title, body, base,
 and head values.
 
-### 11. Error Handling
+### 10. Error Handling
 
 Handle common error scenarios gracefully:
 

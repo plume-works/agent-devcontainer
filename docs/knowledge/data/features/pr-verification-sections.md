@@ -1,10 +1,10 @@
 ---
 type: feature
 stage: implemented
-description: A pull request body splits work into
+description: 'A pull request body splits work into a ## Verification section for closed items and a ## Reviewer Handoff section for open items, with the pr-gen-description skill owning the structure.'
 generated:
   by: claude-code/opus-5
-  at: 2026-09-01T00:00:00Z
+  at: 2026-09-01T17:47:39Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
