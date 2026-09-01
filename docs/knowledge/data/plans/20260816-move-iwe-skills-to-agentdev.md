@@ -258,9 +258,16 @@ out-of-scope boundary. Once it has shipped and this plan has moved the tree, the
 sentence describes a layout that no longer exists and would mislead the next
 session that reads it.
 
-- [ ] Amend the clause to record that the boundary applied while that plan was
+- [x] Amend the clause to record that the boundary applied while that plan was
   active and that this plan superseded it, without rewriting the plan's
   completed tasks or their evidence.
+  - **Evidence:** The `## Out of scope` clause in
+    `20260816-structured-plan-spec-deltas.md` now states the
+    `.claude/skills/`-as-tracked-source boundary "held only for this plan's
+    lifetime" and links this plan as the one that superseded it by relocating
+    the seven skills to `.agents/plugins/agentdev/skills/iwe-*/`. No completed
+    task or evidence line in that plan was touched. `iwe normalize` and
+    `iwe schema validate` exit 0. Committed with this task.
 
 ### Task 8: Validate the catalog and the graph
 
