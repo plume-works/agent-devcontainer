@@ -175,16 +175,24 @@ tracks no symlinks, having just removed its only one for the reasons in
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/code-review-standards/SKILL.md`
 
-- [ ] **7. Rewrite the worked example.** Replace step 4 of
+- [x] **7. Rewrite the worked example.** Replace step 4 of
   `### Recommended Template` (`:75-83`) — the `## How to Test` heading and its
   three-command example — with both sections in the required shape. The example
   is what most readers copy, so it must show an `**Evidence:**` line and a
   `**Closed by:**` line rather than describe them.
-- [ ] **8. Update the feedback-loop instruction.** At `:180`, "Update 'How to
+  - **Evidence:** step 4 of `### Recommended Template` now shows both headings
+    with a real `- [x]` + `**Evidence:**` item and a real `- [ ]` +
+    `**Closed by:**` item, followed by the rule that neither section may hold
+    the other's box type. `validate_agent_files` 35/35, 0 errors;
+    `uv run pytest .agents/plugins/agentdev/tests` 14 passed.
+- [x] **8. Update the feedback-loop instruction.** At `:180`, "Update 'How to
   Test' if testing changes" becomes an instruction naming both sections, and
   states the direction items travel: work closed since the last review moves
   from `## Reviewer Handoff` to `## Verification` with its evidence, never the
   reverse.
+  - **Evidence:** the bullet in `## Responding To Review Feedback` now names
+    both sections and states the one-way direction of travel — closed work moves
+    to `## Verification` with its evidence, never back.
 
 ### Task 4: Template boundary
 

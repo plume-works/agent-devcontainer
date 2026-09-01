@@ -72,16 +72,28 @@ Create a comprehensive pull request description.
    and log meaningful errors for debugging.
    ```
 
-4. Add "How to test" section with verification steps:
+4. Add the two verification sections. Omit anything CI already runs and
+   anything another document records — what is left is usually short, and an
+   empty `## Verification` under green CI is the expected outcome:
 
    ```markdown
-   ## How to Test
+   ## Verification
 
-   1. Run the affected tests: `uv run pytest py_packages/http_client`
-   2. Verify coverage increased: `uv run pytest --cov=http_client`
-   3. Manual test: point the client at an unresponsive endpoint,
-      verify the timeout fires and the retry recovers
+   - [x] Retry recovers from an unresponsive endpoint
+     - **Evidence:** pointed the client at a black-holed port by hand; the
+       timeout fired at 5s and the second attempt succeeded.
+
+   ## Reviewer Handoff
+
+   - [ ] Behavior under a proxy that half-closes the connection
+     - **Closed by:** a human on the staging network — no CI runner reaches
+       the proxy.
    ```
+
+   `## Verification` holds only closed items, each `- [x]` with an
+   `**Evidence:**` child naming what closed it. `## Reviewer Handoff` holds
+   only open items, each `- [ ]` with a `**Closed by:**` child naming the party
+   who can close it. Neither section may hold the other's box type.
 
 5. Add "Related issues" if applicable:
 
@@ -177,7 +189,10 @@ Update PR based on code review feedback.
 
 3. Update PR description if scope changed:
    - Add new accomplishments to "What Changed"
-   - Update "How to Test" if testing changes
+   - Update `## Verification` and `## Reviewer Handoff`. Work closed since
+     the last review moves from `## Reviewer Handoff` to `## Verification`
+     with the evidence that closed it — items travel in that direction
+     only, never back
    - Document why feedback was accepted or rejected
    - Only amend the existing PR description when the overall scope or test instructions materially changed; preserve prior content and append deltas instead of rewriting from scratch.
 
