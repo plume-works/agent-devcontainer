@@ -224,7 +224,7 @@ which the session writing Tasks 1-3 cannot produce by editing files.
     `/root/.codex/plugins/cache/agent-devcontainer/agentdev/3.1.0/skills/` (e.g.
     `iwe-ship/SKILL.md`, `microvm-sandbox/SKILL.md`) with the marketplace and
     plugin registered in `/root/.codex/config.toml` — a Codex skill resolves.
-- [ ] Start a devcontainer on a **fresh** volume and confirm Task 3's up-front
+- [x] Start a devcontainer on a **fresh** volume and confirm Task 3's up-front
   handoff seeds it clean: the image's `/root/.claude.json` is discarded and
   `/root/.claude.json` is a symlink into the volume **before**
   `codebase-memory-mcp-install.sh` runs, so cbm-install materializes and folds
@@ -232,6 +232,21 @@ which the session writing Tasks 1-3 cannot produce by editing files.
   carries only cbm-install's output (no image content, checked by the image's
   distinctive machineID being absent), and `/root/.claude.json` ends symlinked
   to it.
+  - **Evidence:** rebuilt `local/agent-desktop-install-test` from the current
+    tree (`docker build docker/ansible` then the `docker buildx build` from Task
+    4 box 1, both exit 0). The rebuilt image bakes a real `/root/.claude.json`
+    with machineID `e35f7558…c7333076` and ships the cbm binary at
+    `/usr/local/bin/codebase-memory-mcp`. Ran the shipped `postCreateCommand.sh`
+    handoff (verified verbatim in the shipped script by an in-driver fidelity
+    guard) + the real `codebase-memory-mcp-install.sh` in a fresh container
+    against an empty `agentdev-claude` volume mounted at `/root/.claude`.
+    Observed: the image file is `rm`ed and `/root/.claude.json` is a symlink to
+    `/root/.claude/claude.json` **before** cbm-install runs ("is symlink? YES");
+    cbm-install then materializes it and folds its
+    `mcpServers.codebase-memory-mcp` entry into the volume; the volume's
+    `claude.json` holds ONLY that MCP entry — image machineID `e35f7558…` is
+    ABSENT ("OK: image machineID absent"); `/root/.claude.json` ends symlinked
+    to the volume file. Driver: `.tmp/task4-driver.sh` (harness, not committed).
 - [ ] Start a devcontainer on an **existing** volume (seed the volume's
   `claude.json` with a distinctive marker, then rebuild in a fresh container
   from the image so `/root/.claude.json` is the image's real file) and confirm
