@@ -94,8 +94,8 @@ the driver of design decisions — internal needs come first.
 ## Constraints
 
 - Images are pinned by tag **and** digest everywhere they're consumed
-  (`devcontainer-compose-pins.yml`); moving off a pin is a deliberate Renovate-driven update,
-  never a silent float.
+  (`devcontainer-compose-pins.yml`); moving off a pin is a deliberate
+  Renovate-driven update, never a silent float.
 - The staged `agentdev` catalog inside the image is root-owned and read-only;
   updating it requires rebuilding the image, not a runtime patch.
 - `py_packages/validate_agent_files` must remain installable and testable with

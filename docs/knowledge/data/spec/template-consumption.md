@@ -184,8 +184,8 @@ nothing.
 
 ## 6. Review the devcontainer configuration
 
-Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and `.mcp.json`.
-Then review these project-owned values:
+Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
+`.mcp.json`. Then review these project-owned values:
 
 1. Change `name` in `.devcontainer/devcontainer.json`.
 2. Keep `workspaceFolder`, `DEV_WORKSPACE_FOLDER`, and the Compose workspace
@@ -203,11 +203,11 @@ Then review these project-owned values:
    until the allowlist contains every destination the project needs, then opt in
    deliberately.
 7. Keep the `14500-14599` forwarded range when retaining Xpra.
-8. Keep `devcontainer-compose-pins.yml` in the `dockerComposeFile` list; it is the actual
-   digest pin.
-9. Rewrite publisher-specific comments in `devcontainer-compose-pins.yml` when the consumer
-   no longer builds `agent-desktop` itself; keep the pinned image reference and
-   Renovate discovery behavior intact.
+8. Keep `devcontainer-compose-pins.yml` in the `dockerComposeFile` list; it is
+   the actual digest pin.
+9. Rewrite publisher-specific comments in `devcontainer-compose-pins.yml` when
+   the consumer no longer builds `agent-desktop` itself; keep the pinned image
+   reference and Renovate discovery behavior intact.
 
 The lifecycle scripts are not optional fragments: post-create depends on
 `uv-sync.sh` and both plugin installers; post-start depends on pre-commit,
@@ -280,8 +280,8 @@ it will fail if copied and pruned without these edits.
 Retain agent-file validation only for agent files the consuming repository owns.
 Adapt `.github/workflows/validate-agent-files.yml` so validator-dependent jobs
 execute through the digest-pinned `agent-desktop` image: give the job a
-`container.image` carrying the same tag-plus-digest as `devcontainer-compose-pins.yml`, never
-the moving `edge` tag. Remove: tests for
+`container.image` carrying the same tag-plus-digest as
+`devcontainer-compose-pins.yml`, never the moving `edge` tag. Remove: tests for
 `py_packages/validate_agent_files/tests`; tests for
 `.agents/plugins/agentdev/tests`; the `--require-marketplace claude codex`
 argument, which asserts publisher manifests a consumer does not have; and path
@@ -311,8 +311,8 @@ jobs:
 fails, so a green run stays quiet in the log. Add `--verbose` if the report is
 wanted either way.
 
-Keep the digest in step with `devcontainer-compose-pins.yml` so CI and the devcontainer
-validate with the same version — Renovate already bumps that file.
+Keep the digest in step with `devcontainer-compose-pins.yml` so CI and the
+devcontainer validate with the same version — Renovate already bumps that file.
 
 A project that ships no skills or agents of its own should delete the workflow
 and the `validate-agent-files` pre-commit hook outright.
@@ -407,8 +407,8 @@ add `ai-review-present` to its branch protection.
 
 Retain `.github/renovate.json`, but review every rule:
 
-1. keep Docker dependency management for `devcontainer-compose-pins.yml` so the development
-   image does not become stale;
+1. keep Docker dependency management for `devcontainer-compose-pins.yml` so the
+   development image does not become stale;
 2. remove the image-publisher self-build/automerge explanation when the project
    consumes rather than publishes the image;
 3. remove the publisher-only Super-Linter synchronization rule if its excluded

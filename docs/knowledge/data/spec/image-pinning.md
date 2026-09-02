@@ -15,8 +15,8 @@ sources:
 
 The devcontainer SHALL reference `ghcr.io/plume-works/agent-desktop` by tag and
 digest (`:edge@sha256:...` for consumers; this repository pins to a PR-scoped
-tag in `devcontainer-compose-pins.yml` while iterating) so that a rebuild upstream never
-silently changes what a running container uses.
+tag in `devcontainer-compose-pins.yml` while iterating) so that a rebuild
+upstream never silently changes what a running container uses.
 
 ### Scenario: upstream image is rebuilt with the same tag
 
@@ -26,9 +26,9 @@ silently changes what a running container uses.
 
 ## Requirement: `devcontainer-compose-pins.yml` stays outside the image-build path filter
 
-`devcontainer-compose-pins.yml` SHALL live at the repository root, outside `.devcontainer/`
-and `docker/`, so that a digest-only bump does not match the `image` path filter
-in `.github/actions/paths-filter/action.yml`.
+`devcontainer-compose-pins.yml` SHALL live at the repository root, outside
+`.devcontainer/` and `docker/`, so that a digest-only bump does not match the
+`image` path filter in `.github/actions/paths-filter/action.yml`.
 
 ### Scenario: Renovate bumps the digest pin
 
@@ -41,8 +41,8 @@ in `.github/actions/paths-filter/action.yml`.
 ## Requirement: `.devcontainer/docker-compose.yml` carries tag only
 
 `.devcontainer/docker-compose.yml` SHALL reference the image by tag only;
-`devcontainer-compose-pins.yml` overrides it with the digest-qualified reference via
-`dockerComposeFile` in `devcontainer.json`.
+`devcontainer-compose-pins.yml` overrides it with the digest-qualified reference
+via `dockerComposeFile` in `devcontainer.json`.
 
 ## Unknowns
 
