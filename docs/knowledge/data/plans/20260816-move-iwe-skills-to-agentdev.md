@@ -192,9 +192,7 @@ every row points at a deleted path.
   correct the `.claude/` row in `template-boundary.md`, and correct both stale
   skill counts — `24 skills` in `template-boundary.md` and `24+ skills` in
   `product.md` — to the post-move total of 34, noting that both were already
-  wrong: the agentdev plugin carries 27 tracked skills before this move (Task 1
-  re-counted; the plan's original 23/30 predates the iwe-audit and
-  iwe-implement-all skills merged since).
+  wrong: the agentdev plugin carries 27 tracked skills before this move.
   - **Evidence:** The `docs/knowledge/AGENTS.md` router table now lists
     `/agentdev:iwe-{setup,explore,plan,implement,verify,ship,weekly}` and its
     start-of-session step (line 17) points at `/agentdev:iwe-setup` instead of a
@@ -214,11 +212,10 @@ every row points at a deleted path.
 `docs/knowledge/data/features/verification-in-the-main-loop.md`,
 `docs/knowledge/data/backlog/capture-skill.md`, `docs/knowledge/data/plans/*.md`
 
-Roughly 219 references across nineteen files (Task 1 re-counted; the earlier
-"124 across fifteen" estimate predated the plans and features merged since), in
-three shapes: `sources:` frontmatter entries, backticked `path:line` anchors in
-prose, and prose naming the old directory. None are markdown links between graph
-documents, so `iwe rename` will not touch them.
+Roughly 219 references across nineteen files, in three shapes: `sources:`
+frontmatter entries, backticked `path:line` anchors in prose, and prose naming
+the old directory. None are markdown links between graph documents, so
+`iwe rename` will not touch them.
 
 - [x] Rewrite every `.claude/skills/<name>/` reference in `docs/knowledge/data/`
   to its new plugin path, preserving each anchor's line number only where it is
@@ -276,9 +273,8 @@ session that reads it.
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`,
   `claude plugin validate ./.agents/plugins/agentdev`, `iwe normalize`, and
   `iwe schema validate`, and record the skill count reported by the validator.
-  The baseline before this work is 43/43 valid with 0 errors and 0 warnings
-  (Task 1 re-measured; the plan's original 45 predates skills merged since, and
-  the total is unchanged by a relocation); the post-move run must be equally
+  The baseline before this work is 43/43 valid with 0 errors and 0 warnings (a
+  relocation does not change the total); the post-move run must be equally
   clean. The agentdev plugin holds 27 tracked skills before the move and 34
   after it.
   - **Evidence:**
