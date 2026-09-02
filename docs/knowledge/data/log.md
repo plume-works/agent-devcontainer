@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-02
+
+- **Creation**:
+  [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
+  implemented, recorded in [unreleased](releases/unreleased.md), and specified
+  by [Agent file discovery](spec/agent-file-discovery.md);
+  [its plan](plans/20260901-gitignore-aware-discovery.md) is done.
+
 ## 2026-09-01
 
 - **Update**: PR body structure moved into the `agentdev` catalog, replacing
