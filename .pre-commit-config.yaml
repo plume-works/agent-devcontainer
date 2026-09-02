@@ -95,10 +95,8 @@ repos:
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false
 
-      # Mirrors the Knowledge base validation workflow so a violation is caught
-      # before the commit instead of on the pull request. Both hooks read the
-      # whole graph from the repo root (iwe has no --root flag and does not
-      # search upward for .iwe/), so they take no filenames and trigger on any
+      # Mirrors the Knowledge base validation workflow. Hooks read the whole graph
+      # from the repo root, so they take no filenames and trigger on any
       # graph-affecting change under docs/knowledge/ or .iwe/.
       - id: iwe-schema-validate
         name: iwe-schema-validate
@@ -107,10 +105,9 @@ repos:
         files: '^(docs/knowledge/.*\.md|\.iwe/.*)$'
         pass_filenames: false
 
-      # normalize rewrites files in place and returns 0 whether or not it
-      # changed anything, so `git diff --exit-code` is what turns a rewrite into
-      # a failure. It leaves the normalized files staged-out for the author to
-      # review and re-add, exactly as CI's no-op check reports the same drift.
+      # normalize rewrites files in place and returns 0 even after changing files;
+      # git diff --exit-code turns drift into failure while leaving normalized files
+      # staged-out for review and re-add, matching CI's no-op check.
       - id: iwe-normalize
         name: iwe-normalize
         entry: bash -c 'iwe normalize && git diff --exit-code'

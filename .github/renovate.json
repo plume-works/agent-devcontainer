@@ -2,6 +2,9 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "rebaseWhen": "auto",
+  "docker-compose": {
+    "managerFilePatterns": ["/(^|/)devcontainer-compose-pins\\.ya?ml$/"]
+  },
   "packageRules": [
     {
       "description": "Automatically merge GitHub Actions dependency updates after Renovate observes green CI.",
