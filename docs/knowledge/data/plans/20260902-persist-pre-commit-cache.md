@@ -124,7 +124,7 @@ be revisited if first-create-per-worktree cost becomes a pain.
   `PRE_COMMIT_HOME` is set.
   - **Evidence:** `.devcontainer/scripts/setup-pre-commit.sh:20` failure branch
     now tails `${PRE_COMMIT_HOME:-$HOME/.cache/pre-commit}/pre-commit.log`;
-    shellcheck passed in the Task 2 pre-commit run (commit below).
+    shellcheck passed in the pre-commit run for commit `a53276a`.
 
 ## Spec changes
 
