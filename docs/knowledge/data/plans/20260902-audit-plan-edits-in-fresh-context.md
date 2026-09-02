@@ -71,9 +71,15 @@ it. If it cannot, the auditor prose instead `Read`s
 single source of truth, one hop further — and Tasks 2 and 4 adjust their wording
 accordingly.
 
-- [ ] The subagent-invokes-skill capability is confirmed, or the
+- [x] The subagent-invokes-skill capability is confirmed, or the
   `Read`-and-follow fallback is chosen and recorded in
   `## Verification results`.
+  - **Evidence:** Smoke test — a dispatched `general-purpose` subagent invoked
+    `agentdev:extract-github-actions-logs` via the Skill tool and received the
+    skill's instructions; verdict "SKILL TOOL AVAILABLE — invocation succeeded".
+    The primary skill-invocation path is confirmed; the `Read`-and-follow
+    fallback is not needed, so Tasks 2 and 4 use the skill-invocation wording.
+    Recorded in `## Verification results`.
 
 ### Task 2: Add the auditor agent
 
@@ -150,6 +156,15 @@ the new agent must pass, including a `--recommend`-worthy description. The
 durable spec after Verify.
 
 - [ ] `validate_agent_files --recommend` passes with the new agent present.
+
+## Verification results
+
+- **Task 1 (subagent-invokes-skill capability):** Confirmed. A dispatched
+  `general-purpose` subagent invoked `agentdev:extract-github-actions-logs`
+  through the Skill tool and received that skill's instructions. The primary
+  path in the Approach holds; the `Read`-and-follow fallback is unused, so the
+  auditor agent (Task 2) and the Plan-skill gate (Task 4) invoke
+  `/agentdev:iwe-audit` directly rather than reading its SKILL.md.
 
 ## Spec changes
 
@@ -228,15 +243,15 @@ the audit scope and the plan file, before the edit is validated.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-02):
+Verified anchor points (line numbers as of 2026-09-02, re-verified 2026-09-02):
 
 - `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:29 — Do not audit: data/plans/ (exclusion to reconcile)`
 - `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:34 — Diff scope (caller-scoped report-only precedent)`
 - `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:98 — Diff scope stops here (report-only contract)`
 - `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:107 — Step 6 Check coherence`
 - `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:111 — Step 7 Validate and stop (gate goes before this)`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:40 — Evidence child, "specifically enough that a later session can go look"`
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:42 — Evidence child, "specifically enough that a later session can go look"`
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:101 — the only route that may edit plan intent`
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:35 — untraceable evidence is a CRITICAL`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:36 — untraceable evidence is a CRITICAL`
 - `.agents/plugins/agentdev/agents/tdd-red.agent.md:10 — autonomous-subagent stance to reuse`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:175 — Requirement: Plans record intent, not the path taken to it`
