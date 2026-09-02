@@ -17,6 +17,8 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
+[Persist the pre-commit hook cache](../features/persist-pre-commit-cache.md)
+
 [Risk-scaled spec deltas](../features/risk-scaled-spec-deltas.md)
 
 [uv-run-only environment](../features/uv-run-only-environment.md)
