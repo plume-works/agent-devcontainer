@@ -162,8 +162,15 @@ and citations of uncommitted `.tmp/` harnesses. Add it where Implement writes
 the Evidence child and mirror it in Verify's Evidence check, sharing the
 auditor's vocabulary rather than restating the rule.
 
-- [ ] Both skills name the raw-stdout, ephemeral-identifier, and
+- [x] Both skills name the raw-stdout, ephemeral-identifier, and
   uncommitted-`.tmp/` smells as disqualifying an Evidence citation.
+  - **Evidence:** `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md` Step
+    5 and `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md` Completeness
+    bullet each add the three-smell list — raw command stdout, ephemeral
+    identifiers, uncommitted `.tmp/` harnesses — Implement forbidding them as
+    evidence and Verify failing them the same way an empty line.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings.
 
 ### Task 6: Validate the catalog and record the spec
 

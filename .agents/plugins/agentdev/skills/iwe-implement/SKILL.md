@@ -39,11 +39,15 @@ is not proof that behavior exists; current code and passing task evidence are.
    single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's indented
    `- **Evidence:**` child naming what closed it — the commit, the test run and
    its result, the CI run — specifically enough that a later session can go
-   look. Do it only when the task's complete specified behavior is implemented
-   with passing evidence, then run `iwe normalize`. Partial work, deferred
-   behavior, or a failing required test or check stays unchecked, with no
-   evidence line. If you cannot name the evidence, the box is not closable:
-   that is the check working, not a formatting obstacle.
+   look. Cite what survives the session, not what it produced: raw command
+   stdout transcribed as evidence, an ephemeral identifier that will not exist
+   next session (a container or machine id, a temp path), and a citation of an
+   uncommitted `.tmp/` harness are all residue, not evidence — name the commit,
+   test run, or CI run instead. Do it only when the task's complete specified
+   behavior is implemented with passing evidence, then run `iwe normalize`.
+   Partial work, deferred behavior, or a failing required test or check stays
+   unchecked, with no evidence line. If you cannot name the evidence, the box is
+   not closable: that is the check working, not a formatting obstacle.
 6. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
    criteria, dependencies, or an explicit out-of-scope boundary.

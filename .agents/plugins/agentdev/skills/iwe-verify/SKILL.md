@@ -33,7 +33,11 @@ deliverable, and the fixes belong to the skills and sessions it points at.
      the plan is unshippable. Naming a route is not taking it. Mirroring it,
      every ticked `- [x]` task whose indented `- **Evidence:**` line is missing
      or empty, or whose evidence names nothing traceable to a commit, test run,
-     or CI run, is also a CRITICAL, recommendation "untick it". Audit the two
+     or CI run, is also a CRITICAL, recommendation "untick it". Residue is not
+     traceable evidence: raw command stdout transcribed as evidence, an
+     ephemeral identifier that will not exist next session (a container or
+     machine id, a temp path), and a citation of an uncommitted `.tmp/` harness
+     each fail this check the same way an empty line does. Audit the two
      asymmetrically, because they fail asymmetrically: an unchecked box that is
      actually done is a nuisance the next session clears in a minute, while a
      checked box that is not done is a false premise the next session builds
