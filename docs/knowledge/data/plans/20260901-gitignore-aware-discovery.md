@@ -1,6 +1,12 @@
 ---
 created: 2026-09-01
 type: plan
+stage: done
+completed: 2026-09-02
+description: validate_agent_files directory discovery honors .gitignore inside git work trees and uses caller-supplied directory pruning outside git work trees.
+generated:
+  by: codex/gpt-5
+  at: 2026-09-02T05:46:35Z
 ---
 
 # Gitignore-aware file discovery in validate_agent_files
@@ -50,49 +56,88 @@ no-git-context fallback where nothing else can answer.
 **Files:** Modify:
 `py_packages/validate_agent_files/validate_agent_files/loaders.py`
 
-- [ ] Add `_in_work_tree(root)` — returns whether `root` is inside a git work
+- [x] Add `_in_work_tree(root)` — returns whether `root` is inside a git work
   tree via `git -C <root> rev-parse --is-inside-work-tree`, treating a non-zero
   exit, missing binary, or any subprocess error as `False` (degrade, never
   raise).
-- [ ] Add `_git_ignored(root, candidates)` — runs one
+  - **Evidence:** `_in_work_tree` added in
+    `py_packages/validate_agent_files/validate_agent_files/loaders.py:22`; smoke
+    test returned `True` for the repo root and `False` for `/`;
+    `uv run ruff check` / `ruff format --check` on `loaders.py` pass.
+- [x] Add `_git_ignored(root, candidates)` — runs one
   `git -C <root> check-ignore --stdin -z` fed all candidate paths NUL-
   separated, returning the subset git reports as ignored as a set of absolute
   paths. On any subprocess failure return an empty set (nothing ignored) so
   discovery degrades to the fallback rather than failing.
+  - **Evidence:** `_git_ignored` added in
+    `py_packages/validate_agent_files/validate_agent_files/loaders.py:38`; smoke
+    test reported `.tmp/x` ignored and `README.md` not; exit codes 0/1 treated
+    as success, others degrade to empty set; ruff check/format pass.
 
 ### Task 2: Apply the decision in both walkers
 
 **Files:** Modify:
 `py_packages/validate_agent_files/validate_agent_files/loaders.py`
 
-- [ ] Rename the module constant to `DEFAULT_EXCLUDED_DIRS` (keep membership
+- [x] Rename the module constant to `DEFAULT_EXCLUDED_DIRS` (keep membership
   identical to today) and add `excluded_dirs` keyword parameters defaulting to
   it on `find_skill_files`, `find_agent_files`, `find_prompt_files`, and the
   shared `_find_matching_files`. `SkillFileLoader.find_skill_files` forwards the
   parameter.
-- [ ] In both `os.walk` bodies compute `in_repo = _in_work_tree(root)` once per
+  - **Evidence:** constant renamed at `loaders.py:19` (membership unchanged) and
+    `excluded_dirs` added to all four functions plus the loader method; no
+    remaining importers of the old name (`grep` clean); ruff check/format pass.
+- [x] In both `os.walk` bodies compute `in_repo = _in_work_tree(root)` once per
   root. When `in_repo`, prune a directory iff it is `.git` OR `git check-ignore`
   flags it; when not, prune iff its basename is `.git` OR in `excluded_dirs`.
   `.git` is pruned in both branches.
-- [ ] Filter matched files through `_git_ignored` when `in_repo` so an ignored
+  - **Evidence:** `in_repo` computed once per walk root in `find_skill_files`
+    (`loaders.py:108`) and `_find_matching_files` (`loaders.py:~248`); shared
+    `_kept_subdirs` (`loaders.py:73`) drops `.git` unconditionally then applies
+    git-vs-`excluded_dirs`; 136 existing package tests pass unchanged.
+- [x] Filter matched files through `_git_ignored` when `in_repo` so an ignored
   file beside tracked siblings in a walked directory is dropped; when not
   `in_repo` keep all matched files (no file-level filtering in the fallback).
+  - **Evidence:** both walkers filter matched files through `_git_ignored` only
+    when `in_repo` (`loaders.py:113-115` and the `_find_matching_files` body),
+    keeping all matches in the fallback; Task 3 tests exercise the drop and the
+    fallback; ruff check/format pass and 136 existing tests stay green.
 
 ### Task 3: Tests
 
 **Files:** Create:
 `py_packages/validate_agent_files/tests/test_gitignore_discovery.py`
 
-- [ ] Temp git repo with `.gitignore`: an ignored directory containing a
+- [x] Temp git repo with `.gitignore`: an ignored directory containing a
   matching file is pruned, an ignored file beside a tracked matching sibling is
   dropped, and tracked matching files are kept. Covers all three suffixes
   (`SKILL.md`, `.agent.md`, `.prompt.md`).
-- [ ] Non-repo directory: the `excluded_dirs` parameter governs dir pruning; a
+  - **Evidence:** `test_repo_prunes_ignored_dir_and_file_but_keeps_tracked` in
+    `tests/test_gitignore_discovery.py`, parametrized across all three suffixes
+    (`vendored/` dir + `generated-*` sibling ignored via `.gitignore`); passes
+    in the isolated run.
+- [x] Non-repo directory: the `excluded_dirs` parameter governs dir pruning; a
   custom `excluded_dirs` overrides the default; a directory name absent from
   `excluded_dirs` is walked (proving git rules are not applied outside a repo).
-- [ ] `.git/` is pruned in both the repo and non-repo cases.
-- [ ] Fixtures build their own temp git repo and use invented names — no
+  - **Evidence:** `test_non_repo_uses_excluded_dirs_not_git` and
+    `test_non_repo_custom_excluded_dirs_override_default` in
+    `tests/test_gitignore_discovery.py` cover the default set, a custom
+    override, and an unlisted (walked) directory; the excluded name is drawn
+    from the imported `DEFAULT_EXCLUDED_DIRS`, not a literal; pass in the
+    isolated run.
+- [x] `.git/` is pruned in both the repo and non-repo cases.
+  - **Evidence:** `test_repo_prunes_git_directory` and
+    `test_non_repo_prunes_git_directory` in `tests/test_gitignore_discovery.py`
+    assert no discovered path contains a `.git` component, the non-repo case
+    passing `excluded_dirs=set()` to prove `.git` is pruned unconditionally;
+    pass in the isolated run.
+- [x] Fixtures build their own temp git repo and use invented names — no
   dependence on this repository's identity, per the package's `AGENTS.md`.
+  - **Evidence:** `_init_repo` builds an isolated repo under pytest's `tmp_path`
+    with a repo-local `discovery@example.invalid` identity and invented file and
+    directory names (`workspace`, `vendored`, `sample.*`); the suffixes and
+    excluded-dir name are imported from the code under test; the whole file
+    passes `uv run --isolated --extra dev pytest`, confirming standalone shape.
 
 ## Spec changes
 

@@ -8,9 +8,9 @@ generated:
 sources:
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
-- resource: .claude/skills/plan/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
-- resource: .claude/skills/explore/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/data/product.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md

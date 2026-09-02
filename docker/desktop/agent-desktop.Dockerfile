@@ -15,7 +15,7 @@ ARG WORKSPACE_FOLDER=/workspaces/project
 # the build context, so this is a pin the build verifies rather than a version it
 # fetches: .claude-plugin/marketplace.json must declare exactly this version or the
 # provisioning fails. Bump both together when releasing the catalog.
-ARG AGENTDEV_PLUGIN_VERSION=3.0.0
+ARG AGENTDEV_PLUGIN_VERSION=3.1.0
 
 # Where the staged catalog lives. Outside $HOME on purpose: ~/.claude and ~/.codex
 # are commonly mounted as volumes, which would shadow anything placed under them.
@@ -52,6 +52,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
            install_devcontainer_firewall=true \
            install_validate_agent_files=true \
            agentic_tools_stage_catalog=true \
+           agentic_tools_install_catalog=true \
            agentic_tools_catalog_source_dir=/provision \
            agentic_tools_plugin_version=$AGENTDEV_PLUGIN_VERSION \
            agentic_tools_catalog_root=$AGENTDEV_CATALOG_DIR \
@@ -60,10 +61,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
          "
 
 # Inherited by any consumer of this image, including one that writes its own
-# devcontainer.json. The catalog is only staged here, never installed: a container
-# installs from this path through each agent's plugin CLI once the persistent
-# ~/.claude and ~/.codex volumes are mounted, which is what the devcontainer
-# template's postCreate hook does.
+# devcontainer.json. The catalog is staged here and installed into each agent's
+# plugin state at build time, so a raw-image consumer resolves agentdev:* skills
+# with no lifecycle hooks. A devcontainer mounts persistent ~/.claude and
+# ~/.codex volumes over that install, so its postCreate hook installs again.
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
 
 LABEL org.opencontainers.image.version.agentdev="$AGENTDEV_PLUGIN_VERSION"

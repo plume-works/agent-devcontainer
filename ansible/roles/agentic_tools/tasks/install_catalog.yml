@@ -1,0 +1,67 @@
+---
+# Build-time catalog install, mirroring postCreateCommand's reinstall-agentdev-*.sh
+# so a consumer running the image without the devcontainer lifecycle still resolves
+# agentdev:* skills; the devcontainer path shadows it via mounted volumes.
+# See spec/catalog-lifecycle and architecture/ci-agent-plugin-availability.
+#
+# Names come from the staged marketplace manifests, never hardcoded: the two
+# agents publish the same plugin under separate manifests, and a rename must not
+# require editing this role.
+- name: Read the staged Claude marketplace manifest
+  ansible.builtin.slurp:
+    src: "{{ agentic_tools_catalog_root }}/{{ agentic_tools_catalog_marketplace_manifest }}"
+  register: agentic_tools_install_claude_manifest_raw
+
+- name: Read the staged Codex marketplace manifest
+  ansible.builtin.slurp:
+    src: "{{ agentic_tools_catalog_root }}/{{ agentic_tools_catalog_codex_marketplace_manifest }}"
+  register: agentic_tools_install_codex_manifest_raw
+
+- name: Resolve the marketplace names the staged manifests declare
+  ansible.builtin.set_fact:
+    agentic_tools_install_claude_marketplace_name: >-
+      {{ (agentic_tools_install_claude_manifest_raw.content | b64decode | from_json).name }}
+    agentic_tools_install_codex_marketplace_name: >-
+      {{ (agentic_tools_install_codex_manifest_raw.content | b64decode | from_json).name }}
+
+- name: Register the staged catalog as a Claude marketplace at user scope
+  ansible.builtin.command:
+    argv:
+      - claude
+      - plugin
+      - marketplace
+      - add
+      - "{{ agentic_tools_catalog_root }}"
+      - --scope
+      - user
+  changed_when: true
+
+- name: Install the plugin for Claude at user scope
+  ansible.builtin.command:
+    argv:
+      - claude
+      - plugin
+      - install
+      - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_claude_marketplace_name }}"
+      - --scope
+      - user
+  changed_when: true
+
+- name: Register the staged catalog as a Codex marketplace
+  ansible.builtin.command:
+    argv:
+      - codex
+      - plugin
+      - marketplace
+      - add
+      - "{{ agentic_tools_catalog_root }}"
+  changed_when: true
+
+- name: Install the plugin for Codex
+  ansible.builtin.command:
+    argv:
+      - codex
+      - plugin
+      - add
+      - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_codex_marketplace_name }}"
+  changed_when: true

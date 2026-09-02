@@ -9,8 +9,8 @@
     {
       "name": "agentdev",
       "source": "./.agents/plugins/agentdev",
-      "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, container and Codespace escalation.",
-      "version": "3.0.0"
+      "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, container and Codespace escalation, and an IWE knowledge-graph planning workflow.",
+      "version": "3.1.0"
     }
   ]
 }

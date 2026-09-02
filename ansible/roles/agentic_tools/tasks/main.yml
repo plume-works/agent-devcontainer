@@ -26,3 +26,9 @@
 - name: Stage the agent catalog into the image
   ansible.builtin.import_tasks: stage_catalog.yml
   when: agentic_tools_stage_catalog | bool
+
+- name: Install the staged catalog into each agent's plugin state
+  ansible.builtin.import_tasks: install_catalog.yml
+  when:
+    - agentic_tools_stage_catalog | bool
+    - agentic_tools_install_catalog | bool

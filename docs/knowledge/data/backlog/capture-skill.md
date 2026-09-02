@@ -8,7 +8,7 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- resource: .claude/skills/explore/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/SCHEMA.md
 ---

@@ -5,11 +5,11 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-24T00:00:00Z
 sources:
-- resource: .claude/skills/explore/SKILL.md
-- resource: .claude/skills/plan/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
-- resource: .claude/skills/verify/SKILL.md
-- resource: .claude/skills/ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 ---
 
 # IWE workflow skills

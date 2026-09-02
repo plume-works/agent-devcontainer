@@ -191,7 +191,7 @@ copy:
 
 | Path                                             | Responsibility                                                                                               |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `.agents/`                                       | Canonical `agentdev` plugin source: four agents, 24 skills, hooks, helper commands, and plugin-script tests. |
+| `.agents/`                                       | Canonical `agentdev` plugin source: four agents, 34 skills, hooks, helper commands, and plugin-script tests. |
 | `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                 |
 | `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                       |
 | `scripts/validate-super-linter-tool-versions.sh` | Publisher CI consistency check.                                                                              |

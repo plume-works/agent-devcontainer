@@ -1,5 +1,5 @@
 ---
-name: ship
+name: iwe-ship
 description: Close or cancel planned work safely — normal shipping requires a zero-CRITICAL Verify report, merges verified behavior into durable specs, and records idempotent graph transitions; cancellation bypasses implementation and release transitions. Also cuts a release when asked.
 disable-model-invocation: true
 ---
@@ -33,8 +33,8 @@ and continue from the first incomplete operation.
    link to `## Cancelled`; do not duplicate the link if either change already
    happened. Run `iwe normalize` and `iwe schema validate`, commit the
    cancellation, report it, and stop.
-3. **Run Verify for normal shipping.** Invoke the report-only workflow in
-   `.claude/skills/verify/SKILL.md` for the selected plan, including its named
+3. **Run Verify for normal shipping.** Invoke the report-only
+   `/agentdev:iwe-verify` workflow for the selected plan, including its named
    verification commands and evidence checks. Preserve Verify's requirement
    for user approval before commands with effects beyond the working tree. If
    the report contains any CRITICAL finding, make no shipping state transition,

@@ -6,8 +6,8 @@ generated:
   by: codex
   at: 2026-08-31T17:36:33Z
 sources:
-- resource: .claude/skills/verify/SKILL.md
-- resource: .claude/skills/ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 ---
 
 # Verification in the main loop

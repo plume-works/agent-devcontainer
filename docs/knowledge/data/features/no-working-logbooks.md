@@ -8,8 +8,8 @@ generated:
 sources:
 - resource: AGENTS.md
 - resource: docs/knowledge/AGENTS.md
-- resource: .claude/skills/plan/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
 ---
 

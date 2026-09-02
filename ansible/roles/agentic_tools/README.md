@@ -13,6 +13,10 @@ that guards it:
 - **The staged agent catalog** (`agentic_tools_stage_catalog`): a build-time copy
   of the plugin marketplaces both Claude Code and Codex read, so a container
   built from the image can install the catalog with no clone and no network.
+- **The build-time install** (`agentic_tools_install_catalog`): registers that
+  staged copy and installs the plugin into each agent's plugin state during the
+  build, so a raw-image consumer resolves the catalog without any lifecycle
+  hooks.
 
 Gated by `install_agentic_tools` in the playbook.
 
@@ -30,12 +34,20 @@ $agentic_tools_catalog_root/
   .agents/plugins/<plugin>/           # the plugin both publish
 ```
 
-**This role stages; it does not install.** Registering the marketplace and
-installing the plugin belong to the container's lifecycle scripts because they
-write under persistent `~/.claude` and `~/.codex` volumes, where both agents keep
-their marketplace registry, enablement flags, and plugin cache. This
+**This role both stages and installs.** With `agentic_tools_install_catalog`,
+`install_catalog.yml` registers the staged root as a Claude and Codex
+marketplace and installs the plugin (Claude at user scope) during the build, so
+a consumer that runs the image without lifecycle hooks — a plain `docker run`, a
+Codespace, a CI job — still resolves `agentdev:*` skills. See
+[CI agent plugin availability](../../../docs/knowledge/data/architecture/ci-agent-plugin-availability.md).
+
+The container's lifecycle scripts **also** install, and must: a devcontainer
+mounts persistent `~/.claude` and `~/.codex` volumes over where both agents keep
+their marketplace registry, enablement flags, and plugin cache, so the
+build-time install is shadowed there and would otherwise go stale. This
 repository's `.devcontainer/scripts/reinstall-agentdev-{claude,codex}.sh` take
-the staged root as their first argument.
+the staged root as their first argument and re-apply it on every container
+create.
 
 Two properties constrain changes:
 
@@ -81,18 +93,20 @@ Two properties constrain changes:
 
 ### Staged catalog
 
-| Variable                                      | Default                           | Description                                                                      |
-| --------------------------------------------- | --------------------------------- | -------------------------------------------------------------------------------- |
-| `agentic_tools_stage_catalog`                 | `false`                           | Stage the agent catalog into the image.                                          |
-| `agentic_tools_catalog_source_dir`            | the repository root               | Tree whose root holds the marketplace manifests to copy from.                    |
-| `agentic_tools_catalog_marketplace_manifest`  | `.claude-plugin/marketplace.json` | Claude manifest path within that tree.                                           |
-| `agentic_tools_catalog_codex_plugin_manifest` | `.codex-plugin/plugin.json`       | Codex manifest path within the plugin; its version must match.                   |
-| `agentic_tools_plugin_name`                   | `agentdev`                        | Plugin to resolve out of the manifest.                                           |
-| `agentic_tools_plugin_version`                | `""`                              | Version pin; the manifests must declare it. Empty means "whatever they declare". |
-| `agentic_tools_catalog_root`                  | `/opt/agentdev`                   | Where the catalog is staged.                                                     |
-| `agentic_tools_catalog_trees`                 | `.claude-plugin`, `.agents`       | Top-level directories copied from the source tree.                               |
-| `agentic_tools_catalog_prune_names`           | scratch dir names                 | Build scratch directories removed from the staged copy.                          |
-| `agentic_tools_catalog_mode`                  | `u=rwX,go=rX`                     | Permissions applied across the staged copy.                                      |
+| Variable                                           | Default                            | Description                                                                      |
+| -------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------- |
+| `agentic_tools_stage_catalog`                      | `false`                            | Stage the agent catalog into the image.                                          |
+| `agentic_tools_install_catalog`                    | `false`                            | Install the staged catalog into each agent's plugin state (requires staging).    |
+| `agentic_tools_catalog_source_dir`                 | the repository root                | Tree whose root holds the marketplace manifests to copy from.                    |
+| `agentic_tools_catalog_marketplace_manifest`       | `.claude-plugin/marketplace.json`  | Claude manifest path within that tree.                                           |
+| `agentic_tools_catalog_codex_marketplace_manifest` | `.agents/plugins/marketplace.json` | Codex marketplace manifest path; supplies the Codex marketplace name.            |
+| `agentic_tools_catalog_codex_plugin_manifest`      | `.codex-plugin/plugin.json`        | Codex manifest path within the plugin; its version must match.                   |
+| `agentic_tools_plugin_name`                        | `agentdev`                         | Plugin to resolve out of the manifest.                                           |
+| `agentic_tools_plugin_version`                     | `""`                               | Version pin; the manifests must declare it. Empty means "whatever they declare". |
+| `agentic_tools_catalog_root`                       | `/opt/agentdev`                    | Where the catalog is staged.                                                     |
+| `agentic_tools_catalog_trees`                      | `.claude-plugin`, `.agents`        | Top-level directories copied from the source tree.                               |
+| `agentic_tools_catalog_prune_names`                | scratch dir names                  | Build scratch directories removed from the staged copy.                          |
+| `agentic_tools_catalog_mode`                       | `u=rwX,go=rX`                      | Permissions applied across the staged copy.                                      |
 
 ## Required External Variables
 
