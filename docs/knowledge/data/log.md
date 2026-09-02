@@ -4,6 +4,29 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-02
+
+- **Creation**:
+  [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
+  implemented, recorded in [unreleased](releases/unreleased.md), and specified
+  by [Agent file discovery](spec/agent-file-discovery.md);
+  [its plan](plans/20260901-gitignore-aware-discovery.md) is done.
+- **Creation**:
+  [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
+  implemented, recorded in [unreleased](releases/unreleased.md), and reflected
+  in [Template consumption](spec/template-consumption.md);
+  [its plan](plans/20260816-move-iwe-skills-to-agentdev.md) is done.
+- **Update**:
+  [Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
+  done — `PRE_COMMIT_HOME` now points at the per-worktree `agentdev-cache`
+  volume, so the ~33s cold hook install is paid only on the first create per
+  worktree and every rebuild starts warm. The failure-log tail in
+  `setup-pre-commit.sh` follows `PRE_COMMIT_HOME`. No behavioral change — cache
+  location and startup latency only, so no spec changed.
+- **Creation**:
+  [Persist the pre-commit hook cache](features/persist-pre-commit-cache.md)
+  implemented, recorded in [unreleased](releases/unreleased.md).
+
 ## 2026-09-01
 
 - **Update**: PR body structure moved into the `agentdev` catalog, replacing

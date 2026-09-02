@@ -8,8 +8,8 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-16T00:00:00Z
 sources:
-- resource: .claude/skills/plan/SKILL.md
-- resource: .claude/skills/ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: docs/knowledge/data/plans/20260816-structured-plan-spec-deltas.md
 ---
 
@@ -36,7 +36,7 @@ Wait for the first plan that genuinely retires a requirement and use it as the
 fixture, rather than inventing a retirement to exercise the path. When it comes:
 
 - Author the `## REMOVED Requirements` block with the retirement reason that
-  `.claude/skills/plan/SKILL.md` requires.
+  `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` requires.
 - Confirm Verify treats a removal that drops a still-live scenario as a
   CRITICAL, and that a legitimate retirement passes.
 - Confirm Ship's second pass accounts for the `REMOVED` operation and that the
@@ -52,8 +52,9 @@ than leaving an unmet bullet standing in a shipped plan.
 ## Why it is not urgent
 
 The operation is fully specified and carried by all four skills — Plan
-`.claude/skills/plan/SKILL.md:137-138`, Implement `:24`, Verify `:46`, Ship
-`:45` and `:70`. Nothing is missing from the contract; what is missing is a
-worked instance proving the four agree in practice. The risk is that the three
-operations were written together and only two were ever pressure-tested, so a
-disagreement about `REMOVED` would first surface during a real retirement.
+`.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:146-147`, Implement `:25`,
+Verify `:48`, Ship `:46` and `:71`. Nothing is missing from the contract; what
+is missing is a worked instance proving the four agree in practice. The risk is
+that the three operations were written together and only two were ever
+pressure-tested, so a disagreement about `REMOVED` would first surface during a
+real retirement.

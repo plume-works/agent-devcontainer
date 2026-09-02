@@ -6,9 +6,9 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
 sources:
-- resource: .claude/skills/plan/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
-- resource: .claude/skills/verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: docs/knowledge/data/bugs/plan-checkbox-over-claiming.md
 stage: done
 completed: 2026-08-16

@@ -6,8 +6,8 @@ generated:
   by: claude-code/opus-5
   at: 2026-08-24T00:00:00Z
 sources:
-- resource: .claude/skills/explore/SKILL.md
-- resource: .claude/skills/plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 ---
 
 # Preserved approved wording

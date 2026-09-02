@@ -30,7 +30,7 @@ Two audiences, matching the repo's own dual role:
 
 - **This repository's maintainers** — build and evolve the `agent-desktop`
   image, the `agentdev` catalog (Principal Engineer + TDD Red/Green/Refactor
-  agents, 24+ skills), and the Ansible/Docker publishing pipeline itself.
+  agents, 35 skills), and the Ansible/Docker publishing pipeline itself.
 - **Consuming-project developers** — point their own devcontainer at the
   published image, or copy the template surface into an existing repository, to
   get the same environment and agent catalog without building it themselves.

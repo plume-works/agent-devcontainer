@@ -3,8 +3,8 @@ type: hub
 description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-02T05:54:56Z
 ---
 
 # ✨ Features
@@ -13,6 +13,8 @@ generated:
 deprecation — the `status` frontmatter (`proposed` → `accepted` → `implemented`,
 terminal `deprecated`/`cancelled`) carries the lifecycle, so the list stays
 flat. Group with `##` headings once it outgrows a single list.*
+
+[Persist the pre-commit hook cache](features/persist-pre-commit-cache.md)
 
 [Risk-scaled spec deltas](features/risk-scaled-spec-deltas.md)
 
@@ -31,3 +33,7 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Split PR How to Test into Verification and Reviewer Handoff](features/pr-verification-sections.md)
 
 [Critical docs and durable-knowledge review in pr-review](features/pr-review-docs-durable-knowledge.md)
+
+[Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
+
+[Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)

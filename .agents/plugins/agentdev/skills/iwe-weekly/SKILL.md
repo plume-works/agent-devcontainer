@@ -1,5 +1,5 @@
 ---
-name: weekly
+name: iwe-weekly
 description: Compose a weekly project digest from the workspace — what shipped, active plans and their staleness, open bugs, top backlog, and graph health, ending with the single most leveraged next action. Read-only; prints without writing files.
 disable-model-invocation: true
 ---

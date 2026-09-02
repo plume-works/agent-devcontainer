@@ -1,15 +1,17 @@
 ---
 type: plan
+stage: done
 created: 2026-08-16
+completed: 2026-09-02
 description: Relocate the seven IWE workflow skills from .claude/skills/ into the agentdev plugin under iwe- prefixed names, making them plugin-portable and shipping them to catalog consumers.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-17T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-02T05:54:56Z
 sources:
-- resource: .claude/skills/ship/SKILL.md
-- resource: .claude/skills/explore/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
-- resource: .claude/skills/verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/AGENTS.md
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
@@ -82,11 +84,23 @@ This plan is written to run after
 ships, and that plan rewrites Plan, Implement, Verify, and Ship. Every line
 number in `## Key references` predates those edits.
 
-- [ ] Re-locate each anchor in `## Key references`, correct the line numbers,
+- [x] Re-locate each anchor in `## Key references`, correct the line numbers,
   and restamp the section date. Confirm the nine bare-name sibling references
   and the single backticked path still exist and have not already been reworded
   by the dependency; if the count changed, correct Task 3's scope before
   starting it.
+  - **Evidence:** `## Key references` re-anchored against the 2026-09-01
+    checkout and date-restamped. The dependency plan's rewrite moved every line
+    number (ship verify 36→37, ship link 76-78→95-97, AGENTS table 183-189→
+    214-220, template-consumption 215-232→219-239, template-boundary count
+    192→194, structured-plan clause 600-602→495-496, cross_reference 53→56,
+    pr-open idiom 146,148→136,138). The bare-name sibling references grew from
+    nine to thirteen (Implement 4→7 at :20,63,75,76,99,102,126; Explore 3→4 at
+    :44,66,72,85; Verify 2 at :28,87) and the single backticked path survives
+    intact at ship:37 — Task 3's scope corrected to thirteen accordingly. Skill
+    counts re-measured: the agentdev plugin holds 27 tracked skills pre-move
+    (not the plan's 23), so Task 5/8/Verification totals corrected to 34 post-
+    move and the validator baseline to 43/43. Committed with the code.
 
 ### Task 2: Relocate and rename the seven skill directories
 
@@ -97,26 +111,46 @@ Delete: `.claude/skills/{setup,explore,plan,implement,verify,ship,weekly}/`
 Each skill is a lone `SKILL.md` with no `references/` or `scripts/`
 subdirectory, so the move is a directory rename plus one frontmatter line.
 
-- [ ] `git mv` all seven directories to their `iwe-` prefixed names under
+- [x] `git mv` all seven directories to their `iwe-` prefixed names under
   `.agents/plugins/agentdev/skills/`, set each frontmatter `name` to
   `iwe-<name>`, leave every description unchanged, and confirm `.claude/skills/`
   no longer exists.
+  - **Evidence:** `git mv` relocated all seven (setup, explore, plan, implement,
+    verify, ship, weekly) to `.agents/plugins/agentdev/skills/iwe-*/` — git
+    records each as a rename (R) whose only content change is the `name:`
+    frontmatter line (`-name: <bare>` / `+name: iwe-<bare>`), descriptions and
+    bodies byte-identical. Empty `.claude/skills/` removed; `ls .claude/skills/`
+    returns "No such file or directory". The untracked working-tree skill
+    `iwe-implement-all/` is not part of this plan and was left untouched.
+    Committed with this task.
 
 ### Task 3: Make every in-skill cross-reference plugin-portable
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-{ship,explore,implement,verify}/SKILL.md`
 
-Ten references assume the skills can see each other by repository path or bare
-name. Inside a plugin cache neither holds.
+Fourteen references — thirteen bare-name plus one backticked path — assume the
+skills can see each other by repository path or bare name. Inside a plugin cache
+neither holds.
 
-- [ ] Replace the backticked `.claude/skills/verify/SKILL.md` in Ship's step 3
-  with the `/agentdev:iwe-verify` invocation, and rewrite the nine bare-name
+- [x] Replace the backticked `.claude/skills/verify/SKILL.md` in Ship's step 3
+  with the `/agentdev:iwe-verify` invocation, and rewrite the thirteen bare-name
   sibling references in Explore, Implement, and Verify as namespaced
   invocations, matching the existing idiom in `pr-open` and `pr-sync`. Then grep
   the seven files for any remaining `.claude/`, `.agents/`, or `docs/knowledge/`
   path and confirm the only survivors are IWE document keys relative to the
   library root, which resolve at runtime and must stay as they are.
+  - **Evidence:** Ship step 3 now invokes `/agentdev:iwe-verify` (no backticked
+    repo path). The thirteen bare-name references are namespaced: Explore (4) at
+    :44,67,74,88 → `/agentdev:iwe-{implement,plan}`; Implement (7) at
+    :20,63,76,77,101,105,130 → `/agentdev:iwe-{plan,verify,ship}`; Verify (2) at
+    :28,88 → `/agentdev:iwe-{plan,ship}`.
+    `grep -rE '\.claude/|\.agents/|docs/knowledge/'` over the seven files
+    returns nothing (exit 1); the only surviving in-repo-looking references are
+    IWE document keys (`data/spec/`, `data/plans/`, …) relative to the library
+    root, which resolve at runtime and must stay. `validate_agent_files` reports
+    43/43 valid, 0 errors, 0 warnings — the ship:37 catalog-path error is gone.
+    Committed with this task.
 
 ### Task 4: Widen and version the plugin manifests
 
@@ -130,9 +164,17 @@ not in that sentence, and the Codex `longDescription` and `keywords` repeat the
 omission. Neither manifest enumerates individual skills — Codex points at
 `./skills/` and Claude auto-discovers — so no skill list needs extending.
 
-- [ ] Extend the shared `description`, the Codex `longDescription`, and the
+- [x] Extend the shared `description`, the Codex `longDescription`, and the
   Codex `keywords` to cover the IWE planning and knowledge-graph workflow, then
   bump `version` from `3.0.0` to `3.1.0` in all three files together.
+  - **Evidence:** The shared `description` in all three manifests now appends
+    "and an IWE knowledge-graph planning workflow"; the Codex `longDescription`
+    describes the workflow "from exploration through planning, implementation,
+    verification, and shipping"; the Codex `keywords` gains `planning`,
+    `knowledge-graph`, and `iwe`. `version` bumped 3.0.0 → 3.1.0 in
+    `.claude-plugin`, `.codex-plugin`, and `marketplace.json` together. All
+    three parse as valid JSON; `validate_agent_files` reports 43/43 valid, 0
+    errors, 0 warnings. Committed with this task.
 
 ### Task 5: Repoint the operating manual and structure documents
 
@@ -144,13 +186,24 @@ These are the documents that tell a session where the skills are. The workspace
 skills table is the highest-value fix: it is the router, and after the move
 every row points at a deleted path.
 
-- [ ] Rewrite the seven-row table in `docs/knowledge/AGENTS.md` and the setup
+- [x] Rewrite the seven-row table in `docs/knowledge/AGENTS.md` and the setup
   reference in its start-of-session step to name `/agentdev:iwe-*` invocations
   rather than file paths, update the `.claude/skills/` line in `STRUCTURE.md`,
   correct the `.claude/` row in `template-boundary.md`, and correct both stale
   skill counts — `24 skills` in `template-boundary.md` and `24+ skills` in
-  `product.md` — to the post-move total of 30, noting that both were already
-  wrong at 23.
+  `product.md` — to the post-move total of 34, noting that both were already
+  wrong: the agentdev plugin carries 27 tracked skills before this move.
+  - **Evidence:** The `docs/knowledge/AGENTS.md` router table now lists
+    `/agentdev:iwe-{setup,explore,plan,implement,verify,ship,weekly}` and its
+    start-of-session step (line 17) points at `/agentdev:iwe-setup` instead of a
+    file path. `STRUCTURE.md`'s workflow-skills line names
+    `.agents/plugins/agentdev/skills/iwe-*/` invoked as `/agentdev:iwe-*`.
+    `template-boundary.md`'s `.claude/` row (line 98) is now accurate as written
+    — it never claimed skills, and the move makes the omission correct — and its
+    `.agents/` count reads "34 skills"; `product.md` reads "34 skills". The
+    agentdev plugin directory holds 34 skill dirs post-move (verified by `ls`
+    and `git ls-files`). No `.claude/skills` reference survives in any of the
+    four documents. Committed with this task.
 
 ### Task 6: Repoint the graph document anchors
 
@@ -159,17 +212,37 @@ every row points at a deleted path.
 `docs/knowledge/data/features/verification-in-the-main-loop.md`,
 `docs/knowledge/data/backlog/capture-skill.md`, `docs/knowledge/data/plans/*.md`
 
-Roughly 124 references across fifteen files, in three shapes: `sources:`
+Roughly 219 references across nineteen files, in three shapes: `sources:`
 frontmatter entries, backticked `path:line` anchors in prose, and prose naming
 the old directory. None are markdown links between graph documents, so
 `iwe rename` will not touch them.
 
-- [ ] Rewrite every `.claude/skills/<name>/` reference in `docs/knowledge/data/`
+- [x] Rewrite every `.claude/skills/<name>/` reference in `docs/knowledge/data/`
   to its new plugin path, preserving each anchor's line number only where it is
   still correct and re-locating it where the move or the dependency plan shifted
   it. Leave documents in `## Done` factually intact: a shipped plan records
   where the file was when it shipped, so update its `sources:` and leave its
   prose history alone.
+  - **Evidence:** The estimate was low: 219 `.claude/skills` occurrences across
+    19 files (not ~124/15). All 51 `sources:` `resource:` entries — across the
+    live specs, features, backlog, bugs, this active plan, and every `## Done`
+    plan/bug — rewritten to
+    `.agents/plugins/agentdev/skills/iwe-<name>/SKILL.md` (0 old-path
+    `resource:` lines remain; all rewrites confirmed in frontmatter, none in
+    prose). Live-doc prose anchors re-located and rewritten:
+    `backlog/exercise-removed-delta-blocks.md` (Plan :137-138→:146-147,
+    Implement :24→:25, Verify :46→:48, Ship :45,:70→:46,:71 — the dependency
+    plan had shifted them) and the open bug `bugs/missing-map-skill.md` (Verify
+    :51-54→:78-80, :65→:92; Setup :29-30→:30-31; anchor date restamped
+    2026-09-01, `AGENTS.md:56-58` re-verified still-correct). The 137 prose
+    references inside the seven `## Done` plans and the done bug
+    `plan-checkbox-over-claiming.md` were left intact (git diff confirms only
+    `resource:` lines changed there); this active plan's own move narrative and
+    `## Key references` keep their pre-move `.claude/skills/` paths by design.
+    `ci-agent-plugin-availability.md:146` is out of scope — it names a
+    hypothetical vendored `.claude/skills/pr-review/`, not one of the seven
+    moved IWE skills. `iwe normalize` and `iwe schema validate` exit 0.
+    Committed with this task.
 
 ### Task 7: Amend the dependency plan's out-of-scope clause
 
@@ -181,20 +254,38 @@ out-of-scope boundary. Once it has shipped and this plan has moved the tree, the
 sentence describes a layout that no longer exists and would mislead the next
 session that reads it.
 
-- [ ] Amend the clause to record that the boundary applied while that plan was
+- [x] Amend the clause to record that the boundary applied while that plan was
   active and that this plan superseded it, without rewriting the plan's
   completed tasks or their evidence.
+  - **Evidence:** The `## Out of scope` clause in
+    `20260816-structured-plan-spec-deltas.md` now states the
+    `.claude/skills/`-as-tracked-source boundary "held only for this plan's
+    lifetime" and links this plan as the one that superseded it by relocating
+    the seven skills to `.agents/plugins/agentdev/skills/iwe-*/`. No completed
+    task or evidence line in that plan was touched. `iwe normalize` and
+    `iwe schema validate` exit 0. Committed with this task.
 
 ### Task 8: Validate the catalog and the graph
 
 **Files:** none
 
-- [ ] Run
+- [x] Run
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`,
   `claude plugin validate ./.agents/plugins/agentdev`, `iwe normalize`, and
   `iwe schema validate`, and record the skill count reported by the validator.
-  The baseline before this work was 45/45 valid with 0 errors and 0 warnings;
-  the post-move run must be equally clean.
+  The baseline before this work is 43/43 valid with 0 errors and 0 warnings (a
+  relocation does not change the total); the post-move run must be equally
+  clean. The agentdev plugin holds 27 tracked skills before the move and 34
+  after it.
+  - **Evidence:**
+    `validate_agent_files --recommend . --require-marketplace claude codex` →
+    "Summary: 43/43 skills valid, Errors: 0, Warnings: 0" (unchanged by the
+    relocation, as predicted).
+    `claude plugin validate ./.agents/plugins/agentdev` → "✔ Validation passed".
+    `iwe normalize` and `iwe schema validate` both exit 0. The agentdev plugin
+    now holds 34 skill directories
+    (`ls -1d .agents/plugins/agentdev/skills/*/ | wc -l` = 34). Committed with
+    this task.
 
 ## Spec changes
 
@@ -232,7 +323,8 @@ it.
 ## Verification
 
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-  exits 0 with no errors and no warnings, reporting 30 plugin skills.
+  exits 0 with no errors and no warnings; the agentdev plugin then holds 34
+  skills (27 pre-move + the 7 relocated).
 - `claude plugin validate ./.agents/plugins/agentdev` passes.
 - `iwe normalize` then `iwe schema validate` both exit 0.
 - `.claude/README.md` is re-read and confirmed accurate without edits: its table
@@ -266,39 +358,40 @@ it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-08-16; Task 1 must refresh them
-after the dependency plan ships):
+Verified anchor points (line numbers as of 2026-09-01, re-anchored against the
+checkout the dependency plans left behind):
 
-- `.claude/skills/ship/SKILL.md:36` — the backticked
+- `.claude/skills/ship/SKILL.md:37` — the backticked
   `.claude/skills/verify/SKILL.md` invocation, the only repository path inside
   the seven skills
-- `.claude/skills/implement/SKILL.md:19,57,58,77` — four bare-name sibling
-  references to the plan, verify, and ship skills
-- `.claude/skills/explore/SKILL.md:44,66,74` — three bare-name sibling
-  references
-- `.claude/skills/verify/SKILL.md:27,77` — two bare-name sibling references
-- `.claude/skills/ship/SKILL.md:76-78` — the only markdown link in the seven
+- `.claude/skills/implement/SKILL.md:20,63,75,76,99,102,126` — seven bare-name
+  sibling references to the plan, verify, and ship skills (the dependency plan
+  rewrote Implement and added references; see Task 3's corrected scope)
+- `.claude/skills/explore/SKILL.md:44,66,72,85` — four bare-name sibling
+  references naming the plan and implement skills
+- `.claude/skills/verify/SKILL.md:28,87` — two bare-name sibling references
+- `.claude/skills/ship/SKILL.md:95-97` — the only markdown link in the seven
   files, already fenced by `validate_skills: ignore-cross-reference` markers
-- `docs/knowledge/AGENTS.md:183-189` — the workspace skills router table
+- `docs/knowledge/AGENTS.md:214-220` — the workspace skills router table
 - `docs/knowledge/AGENTS.md:17` — start-of-session reference to the setup skill
 - `docs/knowledge/STRUCTURE.md:26` — `.claude/skills/` in the tree diagram
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:8-12` — the five `sources:`
   entries
-- `docs/knowledge/data/spec/template-consumption.md:215-232` — §7's `.claude/`
+- `docs/knowledge/data/spec/template-consumption.md:219-239` — §7's `.claude/`
   enumeration, which omits `skills/`
 - `docs/knowledge/data/architecture/template-boundary.md:98` — the `.claude/`
   disposition row
-- `docs/knowledge/data/architecture/template-boundary.md:192` — "four agents, 24
-  skills", already off by one against the 23 present
+- `docs/knowledge/data/architecture/template-boundary.md:194` — "four agents, 24
+  skills", stale: the agentdev plugin already carries 27 tracked skills
 - `docs/knowledge/data/product.md:33` — "24+ skills"
-- `docs/knowledge/data/plans/20260816-structured-plan-spec-deltas.md:600-602` —
+- `docs/knowledge/data/plans/20260816-structured-plan-spec-deltas.md:495-496` —
   the out-of-scope clause naming `.claude/skills/` as the tracked source
 - `.claude/README.md:7-9` — the table listing `settings.json` as the directory's
   sole occupant
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — `version: 3.0.0`
 - `.agents/plugins/agentdev/.codex-plugin/plugin.json:3` — `version: 3.0.0`
 - `.claude-plugin/marketplace.json:13` — `version: 3.0.0`
-- `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py:53`
+- `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py:56`
   — `link_pattern`, which matches only `[x](y)` and is why backticked paths pass
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:146,148` — the
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:136,138` — the
   `/agentdev:<skill>` sibling-invocation idiom Task 3 follows

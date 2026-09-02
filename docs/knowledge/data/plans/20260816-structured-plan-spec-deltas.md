@@ -6,10 +6,10 @@ generated:
   by: codex
   at: 2026-08-16T01:27:59Z
 sources:
-- resource: .claude/skills/plan/SKILL.md
-- resource: .claude/skills/implement/SKILL.md
-- resource: .claude/skills/verify/SKILL.md
-- resource: .claude/skills/ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: docs/knowledge/STRUCTURE.md
 stage: done
@@ -492,8 +492,12 @@ rather than restating it:
 - Synchronizing durable specs before Ship or weakening the zero-CRITICAL Verify
   gate.
 - Editing or deleting the untracked `.agents/skills/` runtime copies currently
-  present in this working tree; the tracked workspace source remains
-  `.claude/skills/`.
+  present in this working tree. While this plan was active the tracked workspace
+  source was `.claude/skills/`; that boundary held only for this plan's
+  lifetime, and
+  [Move the IWE workflow skills into the agentdev plugin](20260816-move-iwe-skills-to-agentdev.md)
+  superseded it by relocating the seven skills to
+  `.agents/plugins/agentdev/skills/iwe-*/`.
 
 ## Key references
 

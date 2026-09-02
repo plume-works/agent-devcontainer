@@ -20,16 +20,24 @@ agentic_tools_cc_filter_configure_hooks: true
 agentic_tools_cc_filter_claude_settings_path: "{{ user_home }}/.claude/settings.json"
 
 # Stage the agent catalog into the image, so a container built from it can install
-# the catalog with no clone, no network, and no firewall allowlist entry. The
-# install itself belongs to the container's lifecycle scripts, which run after the
-# persistent ~/.claude and ~/.codex volumes are mounted over what the image wrote.
+# the catalog with no clone, no network, and no firewall allowlist entry. Staging
+# is a plain copy; the install below turns it into resolvable plugin state.
 agentic_tools_stage_catalog: false
+
+# Install the staged catalog into each agent's plugin state at build time, so a
+# consumer that runs the image without the devcontainer lifecycle hooks still
+# resolves agentdev:* skills. The devcontainer path re-installs into its mounted
+# ~/.claude and ~/.codex volumes, which shadow this build-time install.
+# See spec/catalog-lifecycle and architecture/ci-agent-plugin-availability.
+agentic_tools_install_catalog: false
 
 # The catalog is staged from the provisioning sources themselves, so the image and
 # the catalog it carries always come from the same commit. Point this at any tree
 # whose root holds a Claude Code marketplace manifest.
 agentic_tools_catalog_source_dir: "{{ role_path }}/../../.."
 agentic_tools_catalog_marketplace_manifest: .claude-plugin/marketplace.json
+# Codex resolves its marketplace from a separate manifest under .agents/plugins/.
+agentic_tools_catalog_codex_marketplace_manifest: .agents/plugins/marketplace.json
 agentic_tools_plugin_name: agentdev
 
 # Path of the Codex plugin manifest within the plugin, checked against the version

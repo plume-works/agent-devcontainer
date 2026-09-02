@@ -1,5 +1,5 @@
 ---
-name: explore
+name: iwe-explore
 description: Enter explore mode — a thinking partner for investigating problems, comparing approaches, and clarifying ideas before they become plans. Reads code and the graph freely, never writes code. Use when the user says "let's think about ...", "explore <idea>", "what are our options for ...", or wants to talk something through before committing.
 ---
 
@@ -41,7 +41,8 @@ unknown. Use whichever moves help; this is a menu, not a checklist.
 If exploration starts because implementation exposed a complication, read the
 active plan and current task before investigating. Keep the same no-code
 boundary. Summarize any resulting decision, scope change, or newly discovered
-work and hand it back to the implement or plan skill that owns the written plan
+work and hand it back to the `/agentdev:iwe-implement` or `/agentdev:iwe-plan`
+skill that owns the written plan
 and its execution; do not silently change either from Explore.
 
 ## Capturing
@@ -63,13 +64,15 @@ unprompted):
   flight is not this one: hand it back per `## During implementation` so it
   reaches the plan that owns it, rather than becoming a bug doc standing
   beside it.
-- Ready to build → hand off to the plan skill; the exploration becomes the
+- Ready to build → hand off to the `/agentdev:iwe-plan` skill; the exploration
+  becomes the
   plan's `## Context` and `## Approach`.
 - Approved wording → `.tmp/approved-wording-<slug>.md`, written before the
   conversation continues. When the user approves specific text — wording for a
   document, a snippet, a message — that text is the deliverable, not a
   description of one. Reproduce it verbatim in the handoff and name the file, so
-  the plan skill inlines the approved bytes instead of re-deriving something
+  the `/agentdev:iwe-plan` skill inlines the approved bytes instead of
+  re-deriving something
   merely equivalent. `.tmp/` is the repo-root scratch directory `AGENTS.md`
   mandates; it is gitignored, and the plan that absorbs the wording becomes its
   durable home. The slug names this approval, not the topic — until a plan
@@ -82,7 +85,8 @@ After any capture: `iwe normalize`, `iwe schema validate`.
 ## Rules
 
 - No code, no implementation, no "quick fix while we're here" — if asked,
-  point at the plan or implement skill and stay in the conversation.
+  point at the `/agentdev:iwe-plan` or `/agentdev:iwe-implement` skill and stay
+  in the conversation.
 - Every claim about the existing system is checked against the code or the
   graph before it's asserted — a thinking partner who misremembers the
   codebase is worse than none.

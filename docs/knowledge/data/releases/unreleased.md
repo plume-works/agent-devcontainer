@@ -5,8 +5,8 @@ version: unreleased
 stage: unreleased
 status: draft
 generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-02T05:54:56Z
 ---
 
 # Unreleased
@@ -16,6 +16,8 @@ inclusion link here for every feature or fix as it lands; cutting a release
 renames this file to the version number and starts a fresh one.*
 
 ## Added
+
+[Persist the pre-commit hook cache](../features/persist-pre-commit-cache.md)
 
 [Risk-scaled spec deltas](../features/risk-scaled-spec-deltas.md)
 
@@ -34,6 +36,10 @@ renames this file to the version number and starts a fresh one.*
 [Split PR How to Test into Verification and Reviewer Handoff](../features/pr-verification-sections.md)
 
 [Critical docs and durable-knowledge review in pr-review](../features/pr-review-docs-durable-knowledge.md)
+
+[Gitignore-aware agent file discovery](../features/gitignore-aware-agent-file-discovery.md)
+
+[Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)
 
 ## Fixed
 

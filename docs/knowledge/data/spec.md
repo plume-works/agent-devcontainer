@@ -3,8 +3,8 @@ type: hub
 description: Behavioral specifications — the durable truth about how the product must work.
 stage: living
 generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-02T05:46:35Z
 ---
 
 # 📐 Spec
@@ -29,3 +29,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Plan checkbox evidence](spec/plan-checkbox-evidence.md)
 
 [AI review gate](spec/ai-review-gate.md)
+
+[Agent file discovery](spec/agent-file-discovery.md)
