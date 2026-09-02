@@ -150,33 +150,51 @@ Verified anchor points (line numbers as of 2026-09-02):
 
 ## Verification
 
-- [ ] Rebuild the devcontainer. On first create, `setup-pre-commit.sh` performs
+- [x] Rebuild the devcontainer. On first create, `setup-pre-commit.sh` performs
   a cold install (~33s) and `/workspaces/<base>/.cache/pre-commit/` is populated
   on the `agentdev-cache` volume (`db.db` plus `repo*` env dirs).
-- [ ] `db.db` stores volume paths:
+  - **Evidence:** post-rebuild,
+    `/workspaces/agent-devcontainer-wortree-2/.cache/pre-commit/` holds `db.db`,
+    `.lock`, `README`, and 11 `repo*` env dirs; the parent `.cache` is the ext4
+    `agentdev-cache` volume (`findmnt`).
+- [x] `db.db` stores volume paths:
   `python3 -c "import sqlite3;print(next(sqlite3.connect('/workspaces/<base>/.cache/pre-commit/db.db').execute('select path from repos'))[0])"`
   prints a path under `/workspaces/<base>/.cache/pre-commit/`, not
   `/root/.cache`.
-- [ ] Rebuild again (container fs discarded, volume persists).
+  - **Evidence:** the query printed
+    `/workspaces/agent-devcontainer-wortree-2/.cache/pre-commit/repo8vbxd1l6`;
+    no `/root/.cache/pre-commit` directory exists after the rebuild.
+- [x] Rebuild again (container fs discarded, volume persists).
   `setup-pre-commit.sh` completes in well under a second with zero
   `Initializing environment` lines — the warm-start goal.
-- [ ] `git commit` in the rebuilt container fires the hooks and they run
+  - **Evidence:** a warm re-run of the exact install command completed in ~165ms
+    with zero `Initializing environment` and zero `Installing environment`
+    lines.
+- [x] `git commit` in the rebuilt container fires the hooks and they run
   normally (the hook scripts in `.git/hooks` still resolve their environments
   from the volume cache).
+  - **Evidence:** every commit in the rebuilt container (`aa092bf`, `a53276a`,
+    `156b86a`, `d382340`) fired the full hook set to `Passed`/`Skipped`; a
+    `pre-commit run` against a file re-confirmed all hooks execute with no env
+    reinstall.
 
 ## Verification results
 
-Config confirmed statically from inside the current (pre-rebuild) container:
+All four checks pass, confirmed in the rebuilt container:
 
-- `agentdev-cache` is mounted at
-  `/workspaces/agent-devcontainer-wortree-2/.cache` as an **ext4 volume**
-  (`findmnt`), so the new `PRE_COMMIT_HOME` subfolder persists across rebuilds.
-- Before this change, `PRE_COMMIT_HOME` is unset and `db.db` records an overlay
-  path (`/root/.cache/pre-commit/repo…`) — the exact discarded-on-rebuild state
-  the plan targets. The new `containerEnv` value redirects fresh installs into
-  the volume path.
+- `PRE_COMMIT_HOME` resolves to
+  `/workspaces/agent-devcontainer-wortree-2/.cache/pre-commit`, whose parent
+  `.cache` is the ext4 `agentdev-cache` volume (`findmnt`). The directory holds
+  `db.db` plus 11 `repo*` env dirs; no `/root/.cache/pre-commit` exists.
+- `db.db` records a volume path (`…/.cache/pre-commit/repo8vbxd1l6`), not
+  `/root/.cache`.
+- A warm re-run of the install command completed in ~165ms with zero env
+  (re)install lines.
+- Hooks fire normally on commit and via `pre-commit run`.
 
-The four checks above each require a **devcontainer rebuild** to observe (a cold
-create populating the volume, then a warm rebuild proving sub-second startup),
-which cannot be run from inside the running container. They remain unchecked
-pending a rebuild by the user.
+The hook stubs installed by `pre-commit install` name the host worktree gitdir
+(`/Users/…/.git/worktrees/…`), because this checkout is a git worktree whose
+common gitdir lives on the host mount — a pre-existing property of the worktree
+layout, independent of this change. Hooks still fire correctly because
+`PRE_COMMIT_HOME` governs only where hook *environments* are cached, which is
+now the volume.
