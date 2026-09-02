@@ -105,23 +105,26 @@ be revisited if first-create-per-worktree cost becomes a pain.
   to the `containerEnv` block, next to `CBM_CACHE_DIR` which already points into
   the same volume.
   - **Evidence:** `.devcontainer/devcontainer.json` `containerEnv` now sets
-    `PRE_COMMIT_HOME` to the agentdev-cache subfolder; committed with Task 1.
+    `PRE_COMMIT_HOME` to the agentdev-cache subfolder; commit `aa092bf`.
 - [x] Update the `CBM_CACHE_DIR` comment and the `agentdev-cache` mount comment
   so they state the volume now also persists the pre-commit hook cache, not only
   codebase-memory-mcp.
   - **Evidence:** both comments in `.devcontainer/devcontainer.json` (above
     `CBM_CACHE_DIR` and above the `agentdev-cache` mount) now name the
-    pre-commit hook cache as a co-tenant of the volume; committed with Task 1.
+    pre-commit hook cache as a co-tenant of the volume; commit `aa092bf`.
 
 ### Task 2: Fix the failure-log path in setup-pre-commit.sh
 
 **Files:** Modify: `.devcontainer/scripts/setup-pre-commit.sh`
 
-- [ ] Change the error-branch log tail from
+- [x] Change the error-branch log tail from
   `"$HOME/.cache/pre-commit/pre-commit.log"` to
   `"${PRE_COMMIT_HOME:-$HOME/.cache/pre-commit}/pre-commit.log"` so a failing
   install reports the log where it actually lives, whether or not
   `PRE_COMMIT_HOME` is set.
+  - **Evidence:** `.devcontainer/scripts/setup-pre-commit.sh:20` failure branch
+    now tails `${PRE_COMMIT_HOME:-$HOME/.cache/pre-commit}/pre-commit.log`;
+    shellcheck passed in the Task 2 pre-commit run (commit below).
 
 ## Spec changes
 
