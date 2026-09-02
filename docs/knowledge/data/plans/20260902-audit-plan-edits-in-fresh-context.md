@@ -117,9 +117,16 @@ longer blanket-excludes plans — it excludes only those two sanctioned homes
 within a plan. Everything downstream (Durable vs not, verdicts, verify,
 report-only) is unchanged and shared with the other scopes.
 
-- [ ] iwe-audit audits a plan's intent sections and leaves
+- [x] iwe-audit audits a plan's intent sections and leaves
   `## Verification results` and `- **Evidence:**` children untouched, with the
   exclusion line reconciled to match.
+  - **Evidence:** `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md` §Scope
+    drops `data/plans/` from the blanket exclusion and names the two sanctioned
+    homes as out-of-scope; a new **Plan scope** paragraph puts intent sections
+    in scope and those two homes out; §4 "Diff scope and Plan scope stop here"
+    makes plan mode report-only.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings.
 
 ### Task 4: Gate plan edits in the Plan skill
 
