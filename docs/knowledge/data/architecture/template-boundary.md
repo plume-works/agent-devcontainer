@@ -2,10 +2,12 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: claude-code/opus-4.8
+  at: 2026-09-02T00:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
+- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: .devcontainer/scripts/postAttachCommand.sh
 ---
 
 # Template boundary
@@ -38,15 +40,28 @@ ansible/ + docker/ + catalog publisher source
                     v
  .devcontainer/devcontainer.json + docker-compose.yml
                     |
+        initializeCommand (host, before build)
+                    |
+   generate .devcontainer/.env, create the shared
+   agentdev-agents-auth volume, wire host MCP/secrets
+                    |
           postCreateCommand (once)
                     |
-     install staged agentdev catalog into the
-     persistent Claude and Codex state volumes
+   ownership fixups, CBM binary install, persist
+   Claude/Codex auth into shared volumes, uv sync,
+   then install the image-staged agentdev catalog
+   (codex + claude) at user scope
                     |
            postStartCommand (each start)
                     |
- CBM daemon, pre-commit, keyring, firewall, Xpra,
- and a workspace catalog override when one exists
+   CBM daemon, git safe.directory, pre-commit,
+   keyring, firewall, Xpra, Codex auth symlink repair
+                    |
+          postAttachCommand (each attach)
+                    |
+   git SSH signing, CBM index, uv sync, then reinstall
+   the workspace agentdev catalog at local scope when
+   this checkout ships one
 ```
 
 The image contains the environment and a read-only catalog staged at
@@ -72,7 +87,8 @@ unresolved:
 | `.devcontainer/devcontainer-lock.json`               | Locks the Docker-in-Docker and SSH feature digests.                                                              |
 | `.devcontainer/firewall-allowlist.txt`               | Project-owned allowlist read when the opt-in firewall starts.                                                    |
 | `.devcontainer/scripts/postCreateCommand.sh`         | Sets up persistent Claude and Codex auth state, syncs the uv environment, and installs the image-staged catalog. |
-| `.devcontainer/scripts/postStartCommand.sh`          | Starts the CBM daemon, repository hooks, keyring, firewall, Xpra, and workspace catalog override.                |
+| `.devcontainer/scripts/postStartCommand.sh`          | Starts the CBM daemon, sets git safe.directory, and starts pre-commit hooks, keyring, firewall, and Xpra.        |
+| `.devcontainer/scripts/postAttachCommand.sh`         | Configures git SSH signing, indexes CBM, syncs uv, and reinstalls the workspace catalog on each editor attach.   |
 | `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` into the out-of-tree environment on the `/uv` volume ([why](uv-environment-location.md)).         |
 | `.devcontainer/scripts/setup-pre-commit.sh`          | Trusts the checkout and installs pre-commit and pre-push hooks.                                                  |
 | `.devcontainer/scripts/setup-keyring.sh`             | Starts and persists the headless keyring used by authenticated tooling.                                          |
@@ -80,7 +96,7 @@ unresolved:
 | `.devcontainer/scripts/link-codex-auth.sh`           | Persists Codex's `auth.json` in the shared `agentdev-agents-auth` volume and symlinks it into place.             |
 | `.devcontainer/scripts/reinstall-agentdev-claude.sh` | Installs the staged Claude plugin and overrides it with a workspace marketplace when present.                    |
 | `.devcontainer/scripts/reinstall-agentdev-codex.sh`  | Performs the equivalent Codex marketplace/plugin installation.                                                   |
-| `devcontainer-compose-pins.yml`                                   | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
+| `devcontainer-compose-pins.yml`                      | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
 | `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                                             |
 
 The default runtime intentionally retains all capabilities currently supplied
@@ -234,5 +250,5 @@ The repository history explains the boundary's evolution:
 
 An earlier estimate of the publisher/template boundary (a four-file catalog
 split) predates this final lifecycle layout — the live dependency chain now
-makes the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and related
-configuration part of the manual template inventory.
+makes the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
+related configuration part of the manual template inventory.
