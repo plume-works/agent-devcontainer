@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Audit every plan edit in a fresh context](plans/20260902-audit-plan-edits-in-fresh-context.md)
+
 ## Done
 
 [Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
