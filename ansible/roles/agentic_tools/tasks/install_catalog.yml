@@ -1,10 +1,7 @@
 ---
-# Install the staged catalog into each agent's plugin state at build time.
-#
-# This mirrors what postCreateCommand's reinstall-agentdev-*.sh scripts do at
-# container start, so a consumer that runs the image without the devcontainer
-# lifecycle hooks still resolves agentdev:* skills. The devcontainer path shadows
-# this install with its mounted ~/.claude and ~/.codex volumes and re-installs.
+# Build-time catalog install, mirroring postCreateCommand's reinstall-agentdev-*.sh
+# so a consumer running the image without the devcontainer lifecycle still resolves
+# agentdev:* skills; the devcontainer path shadows it via mounted volumes.
 # See spec/catalog-lifecycle and architecture/ci-agent-plugin-availability.
 #
 # Names come from the staged marketplace manifests, never hardcoded: the two

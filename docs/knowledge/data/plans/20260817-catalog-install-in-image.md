@@ -232,20 +232,15 @@ which the session writing Tasks 1-3 cannot produce by editing files.
   distinctive machineID being absent), and `/root/.claude.json` ends symlinked
   to it.
   - **Evidence:** rebuilt `local/agent-desktop-install-test` from the current
-    tree (`docker build docker/ansible` then the `docker buildx build` from Task
-    4 box 1, both exit 0). The rebuilt image bakes a real `/root/.claude.json`
-    with machineID `e35f7558…c7333076` and ships the cbm binary at
-    `/usr/local/bin/codebase-memory-mcp`. Ran the shipped `postCreateCommand.sh`
-    handoff (verified verbatim in the shipped script by an in-driver fidelity
-    guard) + the real `codebase-memory-mcp-install.sh` in a fresh container
-    against an empty `agentdev-claude` volume mounted at `/root/.claude`.
-    Observed: the image file is `rm`ed and `/root/.claude.json` is a symlink to
-    `/root/.claude/claude.json` **before** cbm-install runs ("is symlink? YES");
-    cbm-install then materializes it and folds its
-    `mcpServers.codebase-memory-mcp` entry into the volume; the volume's
-    `claude.json` holds ONLY that MCP entry — image machineID `e35f7558…` is
-    ABSENT ("OK: image machineID absent"); `/root/.claude.json` ends symlinked
-    to the volume file. Driver: `.tmp/task4-driver.sh` (harness, not committed).
+    tree, then ran the shipped `postCreateCommand.sh` handoff plus the real
+    `codebase-memory-mcp-install.sh` in a fresh container against an empty
+    `agentdev-claude` volume mounted at `/root/.claude`. The image's baked
+    `/root/.claude.json` is discarded and `/root/.claude.json` is symlinked to
+    `/root/.claude/claude.json` **before** cbm-install runs; cbm-install then
+    materializes the volume file and folds only its
+    `mcpServers.codebase-memory-mcp` entry in, so the volume's `claude.json`
+    carries that MCP entry and no image content, with `/root/.claude.json` left
+    symlinked to it.
 - [x] Start a devcontainer on an **existing** volume (seed the volume's
   `claude.json` with a distinctive marker, then rebuild in a fresh container
   from the image so `/root/.claude.json` is the image's real file) and confirm
@@ -254,24 +249,22 @@ which the session writing Tasks 1-3 cannot produce by editing files.
   Claude may append bootstrap fields) — with `/root/.claude.json` symlinked back
   to it, and a workspace skill edit still wins on attach.
   - **Evidence:** seeded an `agentdev-claude` volume's
-    `/root/.claude/claude.json` with a distinctive marker
-    (`"TASK4_MARKER":"survives-rebuild-4f9a2b"` plus a `projects` key), then ran
-    the shipped `postCreateCommand.sh` handoff + real
+    `/root/.claude/claude.json` with a distinctive marker plus a `projects` key,
+    then ran the shipped `postCreateCommand.sh` handoff + real
     `codebase-memory-mcp-install.sh` in a **fresh** container from the rebuilt
-    image, where `/root/.claude.json` starts as the image's real file (machineID
-    `e35f7558…`). Observed: the image file is discarded, `/root/.claude.json` is
-    re-linked to the volume's existing `claude.json`, and after cbm-install the
-    volume file still contains the marker and the `projects` key ("OK: marker
-    SURVIVED") with cbm's `mcpServers.codebase-memory-mcp` entry appended
-    (bootstrap field, so content is preserved, not byte-identity); the image
-    machineID is ABSENT ("OK: no image machineID merged"); `/root/.claude.json`
-    ends symlinked to the volume file. The "workspace skill edit wins on attach"
+    image, where `/root/.claude.json` starts as the image's real file. The image
+    file is discarded, `/root/.claude.json` is re-linked to the volume's
+    existing `claude.json`, and after cbm-install the volume file still contains
+    the marker and the `projects` key with cbm's
+    `mcpServers.codebase-memory-mcp` entry appended (content preserved, not
+    byte-identity) and no image content merged; `/root/.claude.json` ends
+    symlinked to the volume file. The "workspace skill edit wins on attach"
     guarantee is the unchanged attach-time override (`postAttachCommand.sh`
     re-runs `reinstall-agentdev-claude.sh` with no catalog-dir arg, registering
     `.agents/plugins/agentdev/` over the staged copy — spec: catalog-lifecycle,
     "this repository's own checkout overrides the staged catalog on attach");
     Task 3 does not touch it, and Task 4 box 2 already evidenced the staged
-    install it overrides. Driver: `.tmp/task4-driver.sh`.
+    install it overrides.
 
 ## Spec changes
 
