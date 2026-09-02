@@ -16,6 +16,16 @@ to the current day's group.
   implemented, recorded in [unreleased](releases/unreleased.md), and reflected
   in [Template consumption](spec/template-consumption.md);
   [its plan](plans/20260816-move-iwe-skills-to-agentdev.md) is done.
+- **Update**:
+  [Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
+  done — `PRE_COMMIT_HOME` now points at the per-worktree `agentdev-cache`
+  volume, so the ~33s cold hook install is paid only on the first create per
+  worktree and every rebuild starts warm. The failure-log tail in
+  `setup-pre-commit.sh` follows `PRE_COMMIT_HOME`. No behavioral change — cache
+  location and startup latency only, so no spec changed.
+- **Creation**:
+  [Persist the pre-commit hook cache](features/persist-pre-commit-cache.md)
+  implemented, recorded in [unreleased](releases/unreleased.md).
 
 ## 2026-09-01
 

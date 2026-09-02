@@ -25,6 +25,8 @@ moves them.*
 
 [Gitignore-aware file discovery in validate_agent_files](plans/20260901-gitignore-aware-discovery.md)
 
+[Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
+
 [Critical docs and durable-knowledge review in pr-review](plans/20260831-pr-review-docs-durable-knowledge.md)
 
 [Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
