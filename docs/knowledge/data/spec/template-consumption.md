@@ -2,8 +2,8 @@
 type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
-  by: codex
-  at: 2026-08-31T21:20:30Z
+  by: codex/gpt-5
+  at: 2026-09-02T05:54:56Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
@@ -237,6 +237,9 @@ The project does not need to declare `agentdev` in `.claude/settings.json`
 merely to use the devcontainer. The image-staged installation is handled by
 `postCreateCommand`. The retained post-start installers look for a workspace
 marketplace and exit successfully when the consumer has none.
+
+The IWE workflow skills are delivered by the installed `agentdev` catalog as
+`/agentdev:iwe-*` skills, not by the copied `.claude/` directory.
 
 ## 8. Adapt GitHub Actions and Renovate
 

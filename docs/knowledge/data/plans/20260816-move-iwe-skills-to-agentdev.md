@@ -1,10 +1,12 @@
 ---
 type: plan
+stage: done
 created: 2026-08-16
+completed: 2026-09-02
 description: Relocate the seven IWE workflow skills from .claude/skills/ into the agentdev plugin under iwe- prefixed names, making them plugin-portable and shipping them to catalog consumers.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-17T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-02T05:54:56Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md

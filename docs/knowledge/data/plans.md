@@ -4,7 +4,7 @@ description: Implementation plans, migrations, and design proposals, one documen
 stage: living
 generated:
   by: codex/gpt-5
-  at: 2026-09-02T05:46:35Z
+  at: 2026-09-02T05:54:56Z
 ---
 
 # 🗺️ Plans
@@ -17,11 +17,11 @@ moves them.*
 
 ## Active
 
-[Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
-
 [Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
 
 ## Done
+
+[Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
 [Gitignore-aware file discovery in validate_agent_files](plans/20260901-gitignore-aware-discovery.md)
 

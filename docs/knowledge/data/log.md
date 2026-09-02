@@ -11,6 +11,11 @@ to the current day's group.
   implemented, recorded in [unreleased](releases/unreleased.md), and specified
   by [Agent file discovery](spec/agent-file-discovery.md);
   [its plan](plans/20260901-gitignore-aware-discovery.md) is done.
+- **Creation**:
+  [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
+  implemented, recorded in [unreleased](releases/unreleased.md), and reflected
+  in [Template consumption](spec/template-consumption.md);
+  [its plan](plans/20260816-move-iwe-skills-to-agentdev.md) is done.
 
 ## 2026-09-01
 

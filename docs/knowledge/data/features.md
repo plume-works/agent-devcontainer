@@ -4,7 +4,7 @@ description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
   by: codex/gpt-5
-  at: 2026-09-02T05:46:35Z
+  at: 2026-09-02T05:54:56Z
 ---
 
 # ✨ Features
@@ -33,3 +33,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Critical docs and durable-knowledge review in pr-review](features/pr-review-docs-durable-knowledge.md)
 
 [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
+
+[Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
