@@ -39,8 +39,6 @@ renames this file to the version number and starts a fresh one.*
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)
 
-[Build-time agentdev catalog install](../features/build-time-agentdev-catalog-install.md)
-
 ## Fixed
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)
