@@ -5,6 +5,8 @@ description: Persist the pre-commit hook cache on the agentdev-cache volume so o
 generated:
   by: claude-code/opus-5
   at: 2026-09-02T03:05:00Z
+stage: done
+completed: 2026-09-02
 ---
 
 # Persist the pre-commit hook cache on the agentdev-cache volume

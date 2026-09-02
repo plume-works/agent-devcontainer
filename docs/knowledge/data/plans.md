@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
-
 [Gitignore-aware file discovery in validate_agent_files](plans/20260901-gitignore-aware-discovery.md)
 
 [Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
@@ -26,6 +24,8 @@ moves them.*
 [Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
 
 ## Done
+
+[Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
 
 [Critical docs and durable-knowledge review in pr-review](plans/20260831-pr-review-docs-durable-knowledge.md)
 
