@@ -198,6 +198,22 @@ durable spec after Verify.
   path in the Approach holds; the `Read`-and-follow fallback is unused, so the
   auditor agent (Task 2) and the Plan-skill gate (Task 4) invoke
   `/agentdev:iwe-audit` directly rather than reading its SKILL.md.
+- **`## Verification` commands:**
+  `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  → 45/45 valid, 0 errors, 0 warnings.
+  `uv run pytest .agents/plugins/agentdev/tests` → 14 passed. `iwe normalize`
+  and `iwe schema validate` → both exit 0. The spec sync at Ship is still
+  pending, so the durable spec still describes pre-change behavior — expected at
+  this stage.
+- **Manual trace — funnel:** Every plan-intent edit path reaches the Plan
+  skill's audit gate. Plan Step 7 runs in create and revise mode before
+  validation; Implement's material-deviation route and Verify's task-drop route
+  return to `/agentdev:iwe-plan` revise mode; Ship stops on an intent/behavior
+  disagreement rather than editing intent, sending the user back through Plan.
+  The auditor agent carries no rule text, deferring to `/agentdev:iwe-audit`.
+- **Manual trace — audit scope:** iwe-audit's Plan scope keeps
+  `## Verification results` and `- **Evidence:**` children out of scope while
+  auditing the intent sections, and §Scope no longer blanket-excludes plans.
 
 ## Spec changes
 
