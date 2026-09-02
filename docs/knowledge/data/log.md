@@ -7,6 +7,12 @@ to the current day's group.
 ## 2026-09-02
 
 - **Creation**:
+  [Build-time agentdev catalog install](features/build-time-agentdev-catalog-install.md)
+  implemented, recorded in [unreleased](releases/unreleased.md), reflected in
+  [Catalog lifecycle](spec/catalog-lifecycle.md), and reconciled with
+  [CI agent plugin availability](architecture/ci-agent-plugin-availability.md);
+  [its plan](plans/20260817-catalog-install-in-image.md) is done.
+- **Creation**:
   [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
   implemented, recorded in [unreleased](releases/unreleased.md), and specified
   by [Agent file discovery](spec/agent-file-discovery.md);

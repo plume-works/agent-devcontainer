@@ -35,3 +35,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
 
 [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
+
+[Build-time agentdev catalog install](features/build-time-agentdev-catalog-install.md)

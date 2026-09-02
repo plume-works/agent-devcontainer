@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
+description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout even though raw-image consumers get a build-time catalog install.
 generated:
-  by: codex
-  at: 2026-08-31T17:36:33Z
+  by: codex/gpt-5
+  at: 2026-09-02T06:07:09Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
@@ -19,8 +19,8 @@ sources:
 
 A GitHub Actions job that needs an `agentdev:*` skill **checks out the branch
 and runs the devcontainer lifecycle hooks** — postCreate, postStart, and
-postAttach — before invoking the agent. The image is used as published; nothing
-about it changes.
+postAttach — before invoking the agent. The job uses the image as published and
+does not rely on the image's baked plugin state.
 
 The skill the job gets is therefore the one **on the branch under review**, not
 one baked into the image. A pull request that changes a skill is reviewed by the
@@ -31,11 +31,12 @@ job needs no `packages: read` permission.
 
 ## Problem this solved
 
-The `agent-desktop` image stages the plugin catalog at `/opt/agentdev` but does
-not install it: the marketplace is not registered and the plugin cache under
-`~/.claude` is empty. Installation belongs to the container's lifecycle scripts,
-because `~/.claude` and `~/.codex` are commonly mounted as volumes that would
-shadow anything the build wrote.
+At the time this CI decision was made, the `agent-desktop` image staged the
+plugin catalog at `/opt/agentdev` but did not install it: the marketplace was
+not registered and the plugin cache under `~/.claude` was empty. Installation
+into a devcontainer still belongs to the container's lifecycle scripts, because
+`~/.claude` and `~/.codex` are commonly mounted as volumes that shadow anything
+the build wrote.
 
 **A GitHub Actions `container:` job runs no lifecycle hooks.** It starts the
 image and runs steps. So a job that names a skill gets nothing, and the failure
@@ -115,25 +116,16 @@ into its own script rather than living behind the pre-commit guard.
 
 ## Alternatives considered
 
-**Install the catalog into the image at build time.** Decided, then reversed
-before implementation. It would have made skills resolve for any raw-image
-consumer with no extra step, and the devcontainer path would have been
-unaffected because its volumes shadow `/root/.claude` and `/root/.codex`.
+**Rely on the image's build-time catalog install for CI.** Rejected for review
+jobs. A review job clones the repository anyway, so the catalog is already
+there, and using it is strictly better because it reflects the branch under
+review rather than the image's pinned `AGENTDEV_PLUGIN_VERSION`.
 
-Rejected once the checkout was recognized as always present: a review job clones
-the repository anyway, so the catalog is already there, and using it is strictly
-better because it reflects the branch under review rather than the image's
-pinned `AGENTDEV_PLUGIN_VERSION`. The image change would also have made the
-image ship a `~/.claude.json` it does not ship today, changing which branch of
-`postCreateCommand.sh:52-59` fires on a fresh volume — a real behavior change to
-the devcontainer path in exchange for a capability the checkout already
-provides.
-
-Rejected *for CI*, not discarded: it still closes a real gap for consumers that
-never run the lifecycle hooks — a plain `docker run`, a Codespace. That is
-planned separately in
-[Install the agentdev catalog into the image](../plans/20260817-catalog-install-in-image.md),
-which owns the `~/.claude.json` risk.
+The image now installs the catalog at build time for raw-image consumers that
+never run the lifecycle hooks — a plain `docker run`, a Codespace, or a
+containerized job that only needs the published catalog. That path is specified
+in [Catalog lifecycle](../spec/catalog-lifecycle.md) and recorded by
+[Build-time agentdev catalog install](../features/build-time-agentdev-catalog-install.md).
 
 **Install from an explicit workflow step rather than the lifecycle hooks.**
 Rejected: it duplicates logic the hooks already own and drifts from them. The
@@ -165,15 +157,16 @@ exists and why upstream's 30-minute job timeout carries over unchanged.
 - The lifecycle scripts become a CI contract, not only a devcontainer one. They
   must tolerate missing devcontainer mounts in `container:` jobs, not just the
   absence of an interactive editor session.
-- Skill availability is a property of the *job*, not the image — reading the
-  Dockerfile will suggest otherwise, since it stages a catalog it never
-  installs.
-- `data/spec/catalog-lifecycle` is unaffected: nothing about staging, the
-  postCreate install, or the attach-time override changes.
+- Branch-local skill availability is a property of the *job*, not only the
+  image. The image's build-time install supplies the published catalog, while
+  the lifecycle hook install supplies the checkout's catalog.
+- [Catalog lifecycle](../spec/catalog-lifecycle.md) describes both install
+  paths: the image-build install for raw-image consumers and the lifecycle
+  install for mounted devcontainer volumes.
 
 ## Status
 
-Decided during exploration of the AI responder workflow import, and revised once
-when the checkout made the image change unnecessary. Not yet implemented.
-Planned in
-[AI responder workflows](../plans/20260816-ai-responder-workflows.md).
+Implemented for CI by
+[AI responder workflows](../plans/20260816-ai-responder-workflows.md). The
+separate raw-image catalog install is implemented by
+[Install the agentdev catalog into the image](../plans/20260817-catalog-install-in-image.md).

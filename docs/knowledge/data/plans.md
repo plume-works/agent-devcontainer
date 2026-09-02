@@ -17,9 +17,9 @@ moves them.*
 
 ## Active
 
-[Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
-
 ## Done
+
+[Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
 
 [Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
