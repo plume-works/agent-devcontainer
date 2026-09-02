@@ -5,6 +5,8 @@ description: Install the agentdev catalog into the agent-desktop image at build 
 generated:
   by: claude-code/opus-5
   at: 2026-08-17T00:00:00Z
+stage: done
+completed: 2026-09-02
 ---
 
 # Install the agentdev catalog into the image
