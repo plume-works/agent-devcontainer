@@ -57,6 +57,20 @@
       - "{{ agentic_tools_catalog_root }}"
   changed_when: true
 
+- name: Remove the existing Codex plugin install
+  ansible.builtin.command:
+    argv:
+      - codex
+      - plugin
+      - remove
+      - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_codex_marketplace_name }}"
+  register: agentic_tools_install_codex_remove
+  changed_when: agentic_tools_install_codex_remove.rc == 0
+  failed_when: >
+    agentic_tools_install_codex_remove.rc != 0 and
+    'is not configured or installed' not in agentic_tools_install_codex_remove.stderr and
+    'not found' not in agentic_tools_install_codex_remove.stderr
+
 - name: Install the plugin for Codex
   ansible.builtin.command:
     argv:
