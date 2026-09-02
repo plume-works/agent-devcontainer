@@ -95,8 +95,15 @@ audits the file named in its prompt against the scope named in its prompt by
 invoking `/agentdev:iwe-audit`, returns that skill's report table verbatim, and
 changes nothing.
 
-- [ ] The agent file exists with the tools and stance above and carries no rule
+- [x] The agent file exists with the tools and stance above and carries no rule
   text of its own.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` created
+    with `tools: Bash, Read, Grep, Glob, Skill` (no Edit/Write), the
+    autonomous-subagent stance, and a body that invokes `/agentdev:iwe-audit`
+    and returns its table with no rule text.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings, with the agent listed.
 
 ### Task 3: Give iwe-audit a plan-mode scope
 
