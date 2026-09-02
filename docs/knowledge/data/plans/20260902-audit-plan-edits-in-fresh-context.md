@@ -138,8 +138,15 @@ its report-only verdicts to the draft, then proceed to `iwe normalize` /
 `iwe schema validate`. Because create, revise, and every back-to-revise route
 funnel through this skill, this one gate covers all plan-intent edits.
 
-- [ ] Both create mode and revise mode dispatch the auditor before validation
+- [x] Both create mode and revise mode dispatch the auditor before validation
   and apply its verdicts.
+  - **Evidence:** `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` gains Step
+    7 "Audit the plan from a fresh context" between the coherence check (Step 6)
+    and validation (renumbered Step 8), stated to run in both create and revise
+    mode: it dispatches the `Durable Knowledge Auditor` in plan scope, applies
+    its report-only verdicts, then validates.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings.
 
 ### Task 5: Extend the Evidence-residue vocabulary in Implement and Verify
 
