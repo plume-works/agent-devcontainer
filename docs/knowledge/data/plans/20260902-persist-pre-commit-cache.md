@@ -100,13 +100,18 @@ be revisited if first-create-per-worktree cost becomes a pain.
 
 **Files:** Modify: `.devcontainer/devcontainer.json`
 
-- [ ] Add
+- [x] Add
   `"PRE_COMMIT_HOME": "/workspaces/${localWorkspaceFolderBasename}/.cache/pre-commit"`
   to the `containerEnv` block, next to `CBM_CACHE_DIR` which already points into
   the same volume.
-- [ ] Update the `CBM_CACHE_DIR` comment and the `agentdev-cache` mount comment
+  - **Evidence:** `.devcontainer/devcontainer.json` `containerEnv` now sets
+    `PRE_COMMIT_HOME` to the agentdev-cache subfolder; committed with Task 1.
+- [x] Update the `CBM_CACHE_DIR` comment and the `agentdev-cache` mount comment
   so they state the volume now also persists the pre-commit hook cache, not only
   codebase-memory-mcp.
+  - **Evidence:** both comments in `.devcontainer/devcontainer.json` (above
+    `CBM_CACHE_DIR` and above the `agentdev-cache` mount) now name the
+    pre-commit hook cache as a co-tenant of the volume; committed with Task 1.
 
 ### Task 2: Fix the failure-log path in setup-pre-commit.sh
 
