@@ -34,7 +34,7 @@ ansible/ + docker/ + catalog publisher source
                     v
         ghcr.io/plume-works/agent-desktop
                     |
-                    | digest pin in compose.pins.yml
+                    | digest pin in devcontainer-compose-pins.yml
                     v
  .devcontainer/devcontainer.json + docker-compose.yml
                     |
@@ -80,7 +80,7 @@ unresolved:
 | `.devcontainer/scripts/link-codex-auth.sh`           | Persists Codex's `auth.json` in the shared `agentdev-agents-auth` volume and symlinks it into place.             |
 | `.devcontainer/scripts/reinstall-agentdev-claude.sh` | Installs the staged Claude plugin and overrides it with a workspace marketplace when present.                    |
 | `.devcontainer/scripts/reinstall-agentdev-codex.sh`  | Performs the equivalent Codex marketplace/plugin installation.                                                   |
-| `compose.pins.yml`                                   | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
+| `devcontainer-compose-pins.yml`                                   | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
 | `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                                             |
 
 The default runtime intentionally retains all capabilities currently supplied
@@ -234,5 +234,5 @@ The repository history explains the boundary's evolution:
 
 An earlier estimate of the publisher/template boundary (a four-file catalog
 split) predates this final lifecycle layout — the live dependency chain now
-makes the complete `.devcontainer/` tree, `compose.pins.yml`, and related
+makes the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and related
 configuration part of the manual template inventory.

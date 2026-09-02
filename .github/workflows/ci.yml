@@ -234,13 +234,13 @@ jobs:
         env:
           MERGED_IMAGE: ${{ needs.merge-dev-image.outputs.image_pinned }}
         run: |
-          echo "The digest pin lives in compose.pins.yml, which devcontainer.json layers"
+          echo "The digest pin lives in devcontainer-compose-pins.yml, which devcontainer.json layers"
           echo "over .devcontainer/docker-compose.yml; patching it here points the smoke"
           echo "test at the image built in this workflow."
           echo
           sed -i "s|image: ghcr.io/.*/agent-desktop:.*|image: ${MERGED_IMAGE}|g" \
-            compose.pins.yml
-          grep -n 'image:' compose.pins.yml
+            devcontainer-compose-pins.yml
+          grep -n 'image:' devcontainer-compose-pins.yml
 
       - name: Build and test dev container image
         uses: devcontainers/ci@v0.3.1900000450

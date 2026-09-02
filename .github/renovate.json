@@ -11,7 +11,7 @@
       "platformAutomerge": true
     },
     {
-      "description": "agent-desktop is built by this repository's own pipeline. Its pin lives in compose.pins.yml, outside the CI image path filter, so merging a bump cannot retrigger the build that produced the digest and bump itself again. That is what makes automerge safe here.",
+      "description": "agent-desktop is built by this repository's own pipeline. Its pin lives in devcontainer-compose-pins.yml, outside the CI image path filter, so merging a bump cannot retrigger the build that produced the digest and bump itself again. That is what makes automerge safe here.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/plume-works/agent-desktop"],
       "automerge": true,
