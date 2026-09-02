@@ -127,12 +127,9 @@ subdirectory, so the move is a directory rename plus one frontmatter line.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-{ship,explore,implement,verify}/SKILL.md`
 
-Fourteen references assume the skills can see each other by repository path or
-bare name. Inside a plugin cache neither holds. (Task 1 re-counted against the
-post-dependency checkout: the dependency plan rewrote Implement, Verify, and
-Ship and grew the bare-name references from nine to thirteen, so this task's
-scope widened from "nine" to "thirteen" bare-name references plus the one
-backticked path.)
+Fourteen references — thirteen bare-name plus one backticked path — assume the
+skills can see each other by repository path or bare name. Inside a plugin cache
+neither holds.
 
 - [x] Replace the backticked `.claude/skills/verify/SKILL.md` in Ship's step 3
   with the `/agentdev:iwe-verify` invocation, and rewrite the thirteen bare-name

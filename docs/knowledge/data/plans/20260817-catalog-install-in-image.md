@@ -48,9 +48,8 @@ visible there and `postCreate` installs into the volumes exactly as today.
 `~/.claude.json` is the one shared surface and the main risk this plan carries.
 It cannot be volume-backed (Docker volumes are directory-backed), so postCreate
 persists it as a plain file inside the `agentdev-claude` volume
-(`/root/.claude/claude.json`) and symlinks `/root/.claude.json` to it. Two
-facts, both confirmed by a real image build rather than assumed, force the
-ordering:
+(`/root/.claude/claude.json`) and symlinks `/root/.claude.json` to it. Two facts
+force the ordering:
 
 - `/root/.claude.json` lives in `/root/`, which is **not** volume-backed, so on
   every fresh container it is whatever the image ships — after the build-time
@@ -67,22 +66,22 @@ ordering:
 So the volume can only stay authoritative if the volume→`/root/.claude.json`
 symlink is established **before** cbm-install runs. postCreate does the full
 handoff up front, ahead of the cbm-install call: it discards the image's real
-`/root/.claude.json` (never `mv`-ing image content into the volume — a real
-build proved an image `mv` folds image content in), seeds
-`/root/.claude/claude.json` with `{}` only when the volume has none, then
-symlinks `/root/.claude.json` to it. cbm-install then sees a symlink,
-materializes the volume's file, installs, and folds the MCP entry back into the
-volume — so an existing volume's `claude.json` content is preserved (Claude may
-append bootstrap fields, so the guarantee is content/marker preservation, not
-byte-identity) and a fresh volume is seeded clean with no image content. The old
-in-place handoff block becomes dead code once the symlink exists up front, and
-is removed. Task 4 verifies both volume states against this corrected sequence.
+`/root/.claude.json` (never `mv`-ing image content into the volume — an image
+`mv` folds image content in), seeds `/root/.claude/claude.json` with `{}` only
+when the volume has none, then symlinks `/root/.claude.json` to it. cbm-install
+then sees a symlink, materializes the volume's file, installs, and folds the MCP
+entry back into the volume — so an existing volume's `claude.json` content is
+preserved (Claude may append bootstrap fields, so the guarantee is
+content/marker preservation, not byte-identity) and a fresh volume is seeded
+clean with no image content. The old in-place handoff block becomes dead code
+once the symlink exists up front, and is removed. Task 4 verifies both volume
+states against this corrected sequence.
 
-A first design — an unconditional `rm` of the image's `/root/.claude.json`
-before cbm-install — was tried and rejected: a real rebuild proved it clobbers
-an existing volume, because removing the file severs cbm-install's only path
-back to the volume's content, so cbm-install then creates a fresh file that the
-handoff `mv`s over the volume's real `claude.json`.
+Rejected: an unconditional `rm` of the image's `/root/.claude.json` before
+cbm-install — it clobbers an existing volume, because removing the file severs
+cbm-install's only path back to the volume's content, so cbm-install then
+creates a fresh file that the handoff `mv`s over the volume's real
+`claude.json`.
 
 Rejected: having each raw-image consumer install the catalog itself as an
 explicit step (duplicates logic the lifecycle scripts own, and leaves the image
