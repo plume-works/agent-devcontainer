@@ -166,4 +166,17 @@ Verified anchor points (line numbers as of 2026-09-02):
 
 ## Verification results
 
-*(to be filled during implementation)*
+Config confirmed statically from inside the current (pre-rebuild) container:
+
+- `agentdev-cache` is mounted at
+  `/workspaces/agent-devcontainer-wortree-2/.cache` as an **ext4 volume**
+  (`findmnt`), so the new `PRE_COMMIT_HOME` subfolder persists across rebuilds.
+- Before this change, `PRE_COMMIT_HOME` is unset and `db.db` records an overlay
+  path (`/root/.cache/pre-commit/repo…`) — the exact discarded-on-rebuild state
+  the plan targets. The new `containerEnv` value redirects fresh installs into
+  the volume path.
+
+The four checks above each require a **devcontainer rebuild** to observe (a cold
+create populating the volume, then a warm rebuild proving sub-second startup),
+which cannot be run from inside the running container. They remain unchecked
+pending a rebuild by the user.
