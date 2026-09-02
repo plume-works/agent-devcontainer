@@ -19,9 +19,9 @@ moves them.*
 
 [Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
 
-[Audit every plan edit in a fresh context](plans/20260902-audit-plan-edits-in-fresh-context.md)
-
 ## Done
+
+[Audit every plan edit in a fresh context](plans/20260902-audit-plan-edits-in-fresh-context.md)
 
 [Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 

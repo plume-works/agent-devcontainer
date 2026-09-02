@@ -179,7 +179,9 @@ that settled it. `## Verification results` SHALL be a plan's only narrative
 section. Implement SHALL route a finding that does not change the plan's intent
 to its own document — `data/architecture/`, `data/bugs/`, or `data/backlog/` —
 rather than into the plan's `## Context` or `## Approach`, which state intent
-and remain the Plan skill's to own.
+and remain the Plan skill's to own. Every edit to a plan's intent sections SHALL
+be audited for durable-knowledge residue by a reviewer holding no context beyond
+the audit scope and the plan file, before the edit is validated.
 
 #### Scenario: Implementation produces a durable finding
 
@@ -201,6 +203,14 @@ and remain the Plan skill's to own.
   acceptance criteria, dependencies, or an out-of-scope boundary
 - **THEN** it goes back through the Plan skill's revise mode rather than being
   captured elsewhere or written into the plan directly
+
+#### Scenario: A plan edit is audited before validation
+
+- **WHEN** Plan creates or revises a plan and reaches validation
+- **THEN** a reviewer holding only the audit scope and the plan file audits its
+  intent sections for durable-knowledge residue, its verdicts are applied, and
+  the narrative-sanctioned `## Verification results` and `- **Evidence:**`
+  children are left out of that audit
 
 ### Requirement: Normal shipping requires a clean independent verification
 

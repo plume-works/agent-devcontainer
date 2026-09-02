@@ -5,6 +5,8 @@ description: Add a fresh-context durable-knowledge auditor that gates every plan
 generated:
   by: claude-code/opus-4.8
   at: 2026-09-02T00:00:00Z
+stage: done
+completed: 2026-09-02
 ---
 
 # Audit every plan edit in a fresh context
