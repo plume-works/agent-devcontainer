@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-09-02
 
+- **Update**:
+  [Audit every plan edit in a fresh context](plans/20260902-audit-plan-edits-in-fresh-context.md)
+  done — a fresh-context `Durable Knowledge Auditor` agent now gates every
+  plan-intent edit in the Plan skill, and Implement and Verify share its
+  Evidence-residue vocabulary. Recorded under
+  [Never write a working logbook](features/no-working-logbooks.md) and specified
+  in [IWE workflow skills](spec/iwe-workflow-skills.md).
 - **Creation**:
   [Install the agentdev catalog into the image](features/catalog-installed-in-image.md)
   implemented, recorded in [unreleased](releases/unreleased.md), with the

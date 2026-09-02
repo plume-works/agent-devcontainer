@@ -1,16 +1,18 @@
 ---
 type: feature
 stage: implemented
-description: A repository-wide authoring rule against working-logbook prose, stated once in AGENTS.md as Best Practice 8, with the graph's three narrative exceptions, a capture-and-route section for Implement, and a widened iwe-audit scope.
+description: A repository-wide authoring rule against working-logbook prose, stated once in AGENTS.md as Best Practice 8, with the graph's three narrative exceptions, a capture-and-route section for Implement, a widened iwe-audit scope, and a fresh-context audit gate that enforces the rule on every plan-intent edit.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-24T00:00:00Z
+  by: claude-code/opus-4.8
+  at: 2026-09-02T00:00:00Z
 sources:
 - resource: AGENTS.md
 - resource: docs/knowledge/AGENTS.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
+- resource: .agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md
 ---
 
 # Never write a working logbook
@@ -65,7 +67,24 @@ and lives in the repository, but its output is not plan content.
 
 **The auditor's scope matches the rule.** `iwe-audit` audits the non-graph prose
 the rule now covers — `README.md`, `AGENTS.md`, skill and agent definitions, and
-docstrings — alongside the graph documents and code comments it already read.
+docstrings — alongside the graph documents and code comments it already read. A
+plan-mode scope puts a plan's intent sections in scope and keeps
+`## Verification results` and `- **Evidence:**` children out.
+
+**Every plan-intent edit is audited from a fresh context.** The rule is
+enforced, not only stated: the Plan skill dispatches a
+`Durable Knowledge Auditor` agent on the draft before validation, in both create
+and revise mode, and applies its report-only verdicts. The agent holds no
+context beyond the plan file and the scope and carries no `Edit`/`Write` tool,
+so a writer's polluted context cannot proofread its own draft. Because create,
+revise, and every Implement/Verify/Ship route back to revise funnel through the
+Plan skill, this one gate covers every intent edit.
+
+**Implement and Verify name the Evidence-residue smells.** Evidence blocks
+bypass the Plan gate, so both skills share the auditor's vocabulary at that
+surface: raw command stdout transcribed as evidence, an ephemeral identifier
+that will not exist next session, and a citation of an uncommitted `.tmp/`
+harness each disqualify an Evidence citation.
 
 ## Edge cases
 
@@ -97,3 +116,11 @@ docstrings — alongside the graph documents and code comments it already read.
 - No new spec document. The general rule is an authoring convention, not a
   workflow-skill contract; the workflow-skill half is recorded as a requirement
   in [IWE workflow skills](../spec/iwe-workflow-skills.md).
+- Enforcement is a fresh context, not a louder rule. The residue survives
+  because the rule is buried under the session that wrote it, so a writer cannot
+  proofread their own draft cold. The gate reads the draft from an isolated
+  subagent that never saw the work. Rejected: a self-audit step inside the Plan
+  skill's own context, which re-reads the polluted context; and each caller
+  inlining the rule into a spawned subagent, which drifts at every call site.
+  The named auditor keeps the rule in one rulebook (`iwe-audit`) and the
+  isolation boundary in one agent.

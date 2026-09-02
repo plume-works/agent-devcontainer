@@ -108,7 +108,14 @@ editing implementation code.
    Confirm its context, approach, tasks, spec impact, dependencies,
    verification, out-of-scope boundaries, and current code anchors agree with
    one another and with every recorded decision or assumption.
-7. **Validate and stop.** Run `iwe normalize`, then `iwe schema validate` —
+7. **Audit the plan from a fresh context.** In both create and revise mode,
+   dispatch the `Durable Knowledge Auditor` agent on the plan draft in plan
+   scope — its prompt names the plan file and the scope, nothing more, so it
+   reads the draft with none of this conversation's context. Apply its
+   report-only verdicts to the draft (DROP/REWRITE/MOVE as recommended), then
+   continue. This gate runs on every plan-intent edit: create, revise, and each
+   route Implement, Verify, and Ship take back to revise mode all funnel here.
+8. **Validate and stop.** Run `iwe normalize`, then `iwe schema validate` —
    both must pass. Report whether the plan was created or revised, any
    assumptions, collisions, and implementation that may now be stale. Stop
    before implementation code changes.

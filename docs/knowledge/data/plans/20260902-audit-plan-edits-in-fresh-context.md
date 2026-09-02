@@ -5,6 +5,8 @@ description: Add a fresh-context durable-knowledge auditor that gates every plan
 generated:
   by: claude-code/opus-4.8
   at: 2026-09-02T00:00:00Z
+stage: done
+completed: 2026-09-02
 ---
 
 # Audit every plan edit in a fresh context
@@ -71,9 +73,15 @@ it. If it cannot, the auditor prose instead `Read`s
 single source of truth, one hop further — and Tasks 2 and 4 adjust their wording
 accordingly.
 
-- [ ] The subagent-invokes-skill capability is confirmed, or the
+- [x] The subagent-invokes-skill capability is confirmed, or the
   `Read`-and-follow fallback is chosen and recorded in
   `## Verification results`.
+  - **Evidence:** Smoke test — a dispatched `general-purpose` subagent invoked
+    `agentdev:extract-github-actions-logs` via the Skill tool and received the
+    skill's instructions; verdict "SKILL TOOL AVAILABLE — invocation succeeded".
+    The primary skill-invocation path is confirmed; the `Read`-and-follow
+    fallback is not needed, so Tasks 2 and 4 use the skill-invocation wording.
+    Recorded in `## Verification results`.
 
 ### Task 2: Add the auditor agent
 
@@ -89,8 +97,15 @@ audits the file named in its prompt against the scope named in its prompt by
 invoking `/agentdev:iwe-audit`, returns that skill's report table verbatim, and
 changes nothing.
 
-- [ ] The agent file exists with the tools and stance above and carries no rule
+- [x] The agent file exists with the tools and stance above and carries no rule
   text of its own.
+  - **Evidence:**
+    `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` created
+    with `tools: Bash, Read, Grep, Glob, Skill` (no Edit/Write), the
+    autonomous-subagent stance, and a body that invokes `/agentdev:iwe-audit`
+    and returns its table with no rule text.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings, with the agent listed.
 
 ### Task 3: Give iwe-audit a plan-mode scope
 
@@ -104,9 +119,16 @@ longer blanket-excludes plans — it excludes only those two sanctioned homes
 within a plan. Everything downstream (Durable vs not, verdicts, verify,
 report-only) is unchanged and shared with the other scopes.
 
-- [ ] iwe-audit audits a plan's intent sections and leaves
+- [x] iwe-audit audits a plan's intent sections and leaves
   `## Verification results` and `- **Evidence:**` children untouched, with the
   exclusion line reconciled to match.
+  - **Evidence:** `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md` §Scope
+    drops `data/plans/` from the blanket exclusion and names the two sanctioned
+    homes as out-of-scope; a new **Plan scope** paragraph puts intent sections
+    in scope and those two homes out; §4 "Diff scope and Plan scope stop here"
+    makes plan mode report-only.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings.
 
 ### Task 4: Gate plan edits in the Plan skill
 
@@ -118,8 +140,15 @@ its report-only verdicts to the draft, then proceed to `iwe normalize` /
 `iwe schema validate`. Because create, revise, and every back-to-revise route
 funnel through this skill, this one gate covers all plan-intent edits.
 
-- [ ] Both create mode and revise mode dispatch the auditor before validation
+- [x] Both create mode and revise mode dispatch the auditor before validation
   and apply its verdicts.
+  - **Evidence:** `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md` gains Step
+    7 "Audit the plan from a fresh context" between the coherence check (Step 6)
+    and validation (renumbered Step 8), stated to run in both create and revise
+    mode: it dispatches the `Durable Knowledge Auditor` in plan scope, applies
+    its report-only verdicts, then validates.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings.
 
 ### Task 5: Extend the Evidence-residue vocabulary in Implement and Verify
 
@@ -135,8 +164,15 @@ and citations of uncommitted `.tmp/` harnesses. Add it where Implement writes
 the Evidence child and mirror it in Verify's Evidence check, sharing the
 auditor's vocabulary rather than restating the rule.
 
-- [ ] Both skills name the raw-stdout, ephemeral-identifier, and
+- [x] Both skills name the raw-stdout, ephemeral-identifier, and
   uncommitted-`.tmp/` smells as disqualifying an Evidence citation.
+  - **Evidence:** `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md` Step
+    5 and `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md` Completeness
+    bullet each add the three-smell list — raw command stdout, ephemeral
+    identifiers, uncommitted `.tmp/` harnesses — Implement forbidding them as
+    evidence and Verify failing them the same way an empty line.
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passed 45/45, 0 errors 0 warnings.
 
 ### Task 6: Validate the catalog and record the spec
 
@@ -149,7 +185,37 @@ the new agent must pass, including a `--recommend`-worthy description. The
 `## Spec changes` delta below is the intended contract; Ship merges it into the
 durable spec after Verify.
 
-- [ ] `validate_agent_files --recommend` passes with the new agent present.
+- [x] `validate_agent_files --recommend` passes with the new agent present.
+  - **Evidence:**
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    exits 0, "45/45 skills valid, Errors: 0, Warnings: 0", with
+    `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` listed
+    — a clean `--recommend` run confirms the description is recommend-worthy.
+
+## Verification results
+
+- **Task 1 (subagent-invokes-skill capability):** Confirmed. A dispatched
+  `general-purpose` subagent invoked `agentdev:extract-github-actions-logs`
+  through the Skill tool and received that skill's instructions. The primary
+  path in the Approach holds; the `Read`-and-follow fallback is unused, so the
+  auditor agent (Task 2) and the Plan-skill gate (Task 4) invoke
+  `/agentdev:iwe-audit` directly rather than reading its SKILL.md.
+- **`## Verification` commands:**
+  `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  → 45/45 valid, 0 errors, 0 warnings.
+  `uv run pytest .agents/plugins/agentdev/tests` → 14 passed. `iwe normalize`
+  and `iwe schema validate` → both exit 0. The spec sync at Ship is still
+  pending, so the durable spec still describes pre-change behavior — expected at
+  this stage.
+- **Manual trace — funnel:** Every plan-intent edit path reaches the Plan
+  skill's audit gate. Plan Step 7 runs in create and revise mode before
+  validation; Implement's material-deviation route and Verify's task-drop route
+  return to `/agentdev:iwe-plan` revise mode; Ship stops on an intent/behavior
+  disagreement rather than editing intent, sending the user back through Plan.
+  The auditor agent carries no rule text, deferring to `/agentdev:iwe-audit`.
+- **Manual trace — audit scope:** iwe-audit's Plan scope keeps
+  `## Verification results` and `- **Evidence:**` children out of scope while
+  auditing the intent sections, and §Scope no longer blanket-excludes plans.
 
 ## Spec changes
 
@@ -228,15 +294,15 @@ the audit scope and the plan file, before the edit is validated.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-02):
+Verified anchor points (line numbers as of 2026-09-02, re-verified 2026-09-02):
 
 - `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:29 — Do not audit: data/plans/ (exclusion to reconcile)`
 - `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:34 — Diff scope (caller-scoped report-only precedent)`
 - `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:98 — Diff scope stops here (report-only contract)`
 - `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:107 — Step 6 Check coherence`
 - `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:111 — Step 7 Validate and stop (gate goes before this)`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:40 — Evidence child, "specifically enough that a later session can go look"`
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:42 — Evidence child, "specifically enough that a later session can go look"`
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:101 — the only route that may edit plan intent`
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:35 — untraceable evidence is a CRITICAL`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:36 — untraceable evidence is a CRITICAL`
 - `.agents/plugins/agentdev/agents/tdd-red.agent.md:10 — autonomous-subagent stance to reuse`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:175 — Requirement: Plans record intent, not the path taken to it`

@@ -26,15 +26,25 @@ Audit any text that promises durable content: `data/spec/`,
 outside the graph — `README.md`, `AGENTS.md`, skill and agent definitions, and
 docstrings.
 
-Do not audit: `data/plans/`, `data/bugs/`, `data/releases/`, `data/log.md`, or
-commit messages. Process detail is their job; commit messages are owned by
+Do not audit: `data/bugs/`, `data/releases/`, `data/log.md`, or commit messages.
+Process detail is their job; commit messages are owned by
 `/agentdev:git-commit`. Residue in a spec may belong in one of these — that is a
-move, not a deletion.
+move, not a deletion. A plan is audited only in plan mode below, and only its
+intent sections: a plan's `## Verification results` and `- **Evidence:**`
+children are narrative-sanctioned and stay out of scope.
 
 **Diff scope.** When a caller runs this skill over a diff, the candidate set is
 the diff's added lines, not a grep over `<TARGET>`. §1's patterns are the smell
 list applied to those added lines. Everything downstream — §"Durable vs not",
 §2 verdicts, §3 verify — is unchanged and shared with the local-tree scope.
+
+**Plan scope.** When the `<TARGET>` is a plan, the candidate set is every plan
+section except the two narrative-sanctioned homes — `## Verification results`
+and the `- **Evidence:**` children under `## Implementation Steps` — which stay
+out of scope. `## Context`, `## Approach`, task descriptions, and the rest are
+in scope: they state intent and must record what is settled, not the path taken
+to settle it. Like Diff scope, this scope is report-only (see §4). Everything
+downstream is unchanged and shared with the other scopes.
 
 ## 1. Collect candidates
 
@@ -95,10 +105,11 @@ they introduce dead alternatives. Cannot show it → UNVERIFIED, same as above.
 Output a table before editing anything: `file:line` | quoted text | pattern |
 verdict | replacement | evidence. Wait for approval.
 
-**Diff scope stops here.** In diff mode the skill is report-only: it produces
-the table and stops. Every verdict is a recommendation — MOVE names the
-destination, DROP/REWRITE quote the replacement — but the changed lines are left
-untouched. Applying is the caller's decision, made outside this skill.
+**Diff scope and Plan scope stop here.** In either scope the skill is
+report-only: it produces the table and stops. Every verdict is a recommendation
+— MOVE names the destination, DROP/REWRITE quote the replacement — but the
+changed lines are left untouched. Applying is the caller's decision, made
+outside this skill.
 
 When applying: no note in the document saying it was audited, no changelog
 entry, no "(revised)" markers. The audit leaves no trace but a shorter file.
