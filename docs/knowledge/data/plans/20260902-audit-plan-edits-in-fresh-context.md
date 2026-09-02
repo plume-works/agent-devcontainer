@@ -183,7 +183,12 @@ the new agent must pass, including a `--recommend`-worthy description. The
 `## Spec changes` delta below is the intended contract; Ship merges it into the
 durable spec after Verify.
 
-- [ ] `validate_agent_files --recommend` passes with the new agent present.
+- [x] `validate_agent_files --recommend` passes with the new agent present.
+  - **Evidence:**
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    exits 0, "45/45 skills valid, Errors: 0, Warnings: 0", with
+    `.agents/plugins/agentdev/agents/durable-knowledge-auditor.agent.md` listed
+    — a clean `--recommend` run confirms the description is recommend-worthy.
 
 ## Verification results
 
