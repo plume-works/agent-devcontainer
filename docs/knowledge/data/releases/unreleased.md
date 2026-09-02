@@ -17,6 +17,8 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
+[Install the agentdev catalog into the image](../features/catalog-installed-in-image.md)
+
 [Persist the pre-commit hook cache](../features/persist-pre-commit-cache.md)
 
 [Risk-scaled spec deltas](../features/risk-scaled-spec-deltas.md)

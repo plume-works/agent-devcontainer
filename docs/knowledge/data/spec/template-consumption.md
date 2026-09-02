@@ -184,8 +184,8 @@ nothing.
 
 ## 6. Review the devcontainer configuration
 
-Keep the complete `.devcontainer/` tree, `compose.pins.yml`, and `.mcp.json`.
-Then review these project-owned values:
+Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
+`.mcp.json`. Then review these project-owned values:
 
 1. Change `name` in `.devcontainer/devcontainer.json`.
 2. Keep `workspaceFolder`, `DEV_WORKSPACE_FOLDER`, and the Compose workspace
@@ -203,11 +203,11 @@ Then review these project-owned values:
    until the allowlist contains every destination the project needs, then opt in
    deliberately.
 7. Keep the `14500-14599` forwarded range when retaining Xpra.
-8. Keep `compose.pins.yml` in the `dockerComposeFile` list; it is the actual
-   digest pin.
-9. Rewrite publisher-specific comments in `compose.pins.yml` when the consumer
-   no longer builds `agent-desktop` itself; keep the pinned image reference and
-   Renovate discovery behavior intact.
+8. Keep `devcontainer-compose-pins.yml` in the `dockerComposeFile` list; it is
+   the actual digest pin.
+9. Rewrite publisher-specific comments in `devcontainer-compose-pins.yml` when
+   the consumer no longer builds `agent-desktop` itself; keep the pinned image
+   reference and Renovate discovery behavior intact.
 
 The lifecycle scripts are not optional fragments: post-create depends on
 `uv-sync.sh` and both plugin installers; post-start depends on pre-commit,
@@ -283,8 +283,8 @@ it will fail if copied and pruned without these edits.
 Retain agent-file validation only for agent files the consuming repository owns.
 Adapt `.github/workflows/validate-agent-files.yml` so validator-dependent jobs
 execute through the digest-pinned `agent-desktop` image: give the job a
-`container.image` carrying the same tag-plus-digest as `compose.pins.yml`, never
-the moving `edge` tag. Remove: tests for
+`container.image` carrying the same tag-plus-digest as
+`devcontainer-compose-pins.yml`, never the moving `edge` tag. Remove: tests for
 `py_packages/validate_agent_files/tests`; tests for
 `.agents/plugins/agentdev/tests`; the `--require-marketplace claude codex`
 argument, which asserts publisher manifests a consumer does not have; and path
@@ -298,7 +298,7 @@ jobs:
   validate-agent-files:
     runs-on: ubuntu-latest
     container:
-      # Same tag-plus-digest as compose.pins.yml. Never the moving `edge` tag.
+      # Same tag-plus-digest as devcontainer-compose-pins.yml. Never the moving `edge` tag.
       image: ghcr.io/plume-works/agent-desktop:edge@sha256:<digest>
       credentials:
         username: ${{ github.actor }}
@@ -314,8 +314,8 @@ jobs:
 fails, so a green run stays quiet in the log. Add `--verbose` if the report is
 wanted either way.
 
-Keep the digest in step with `compose.pins.yml` so CI and the devcontainer
-validate with the same version — Renovate already bumps that file.
+Keep the digest in step with `devcontainer-compose-pins.yml` so CI and the
+devcontainer validate with the same version — Renovate already bumps that file.
 
 A project that ships no skills or agents of its own should delete the workflow
 and the `validate-agent-files` pre-commit hook outright.
@@ -410,8 +410,8 @@ add `ai-review-present` to its branch protection.
 
 Retain `.github/renovate.json`, but review every rule:
 
-1. keep Docker dependency management for `compose.pins.yml` so the development
-   image does not become stale;
+1. keep Docker dependency management for `devcontainer-compose-pins.yml` so the
+   development image does not become stale;
 2. remove the image-publisher self-build/automerge explanation when the project
    consumes rather than publishes the image;
 3. remove the publisher-only Super-Linter synchronization rule if its excluded
@@ -431,7 +431,7 @@ Run these checks from the new repository:
    ``` bash
    docker compose \
      -f .devcontainer/docker-compose.yml \
-     -f compose.pins.yml \
+     -f devcontainer-compose-pins.yml \
      config
    ```
 
@@ -481,7 +481,7 @@ Copy all of these paths, preserving executable bits:
 
 ``` text
 .devcontainer/
-compose.pins.yml
+devcontainer-compose-pins.yml
 .mcp.json
 ```
 
@@ -652,7 +652,7 @@ GHCR permissions, digest update flow, and cleanup workflow to match it.
 
 Do not publish under `plume-works` names from a consuming repository. Update
 image names and metadata to the new repository owner, then pin the resulting
-consumer image in `compose.pins.yml`.
+consumer image in `devcontainer-compose-pins.yml`.
 
 ## Ongoing maintenance
 

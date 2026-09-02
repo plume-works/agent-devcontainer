@@ -14,6 +14,12 @@ to the current day's group.
   [Never write a working logbook](features/no-working-logbooks.md) and specified
   in [IWE workflow skills](spec/iwe-workflow-skills.md).
 - **Creation**:
+  [Install the agentdev catalog into the image](features/catalog-installed-in-image.md)
+  implemented, recorded in [unreleased](releases/unreleased.md), with the
+  build-time install and the `~/.claude.json` handoff reorder synced into
+  [Catalog lifecycle](spec/catalog-lifecycle.md);
+  [its plan](plans/20260817-catalog-install-in-image.md) is done.
+- **Creation**:
   [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
   implemented, recorded in [unreleased](releases/unreleased.md), and specified
   by [Agent file discovery](spec/agent-file-discovery.md);

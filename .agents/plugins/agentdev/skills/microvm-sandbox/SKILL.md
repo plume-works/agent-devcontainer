@@ -35,7 +35,7 @@ first; `.devcontainer/scripts/uv-sync.sh` does this, syncing into the cached
 environment volume.
 
 The container is not disposable: it keeps its state between `exec` calls. Stop it
-with `docker compose -f .devcontainer/docker-compose.yml -f compose.pins.yml down`
+with `docker compose -f .devcontainer/docker-compose.yml -f devcontainer-compose-pins.yml down`
 from the repository root when finished, or leave it running for the rest of the
-session. Both files are needed: `compose.pins.yml` carries the image digest pin
+session. Both files are needed: `devcontainer-compose-pins.yml` carries the image digest pin
 that `devcontainer up` layers on through `devcontainer.json`.

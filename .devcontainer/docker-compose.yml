@@ -52,8 +52,8 @@ services:
 
   devcontainer:
     # Tag-only fallback for standalone `docker compose -f .devcontainer/docker-compose.yml`
-    # use. The digest pin lives in ../compose.pins.yml, which devcontainer.json layers on
-    # top of this file; pass `-f compose.pins.yml` too when invoking compose directly.
+    # use. The digest pin lives in ../devcontainer-compose-pins.yml, which devcontainer.json layers on
+    # top of this file; pass `-f devcontainer-compose-pins.yml` too when invoking compose directly.
     image: ghcr.io/plume-works/agent-desktop:edge
     # required for codebase-memory-mcp to stop leaving zombie processes behind
     init: true

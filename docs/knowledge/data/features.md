@@ -14,6 +14,8 @@ deprecation — the `status` frontmatter (`proposed` → `accepted` → `impleme
 terminal `deprecated`/`cancelled`) carries the lifecycle, so the list stays
 flat. Group with `##` headings once it outgrows a single list.*
 
+[Install the agentdev catalog into the image](features/catalog-installed-in-image.md)
+
 [Persist the pre-commit hook cache](features/persist-pre-commit-cache.md)
 
 [Risk-scaled spec deltas](features/risk-scaled-spec-deltas.md)

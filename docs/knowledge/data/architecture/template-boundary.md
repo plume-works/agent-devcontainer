@@ -2,10 +2,12 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: claude-code/opus-4.8
+  at: 2026-09-02T00:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
+- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: .devcontainer/scripts/postAttachCommand.sh
 ---
 
 # Template boundary
@@ -34,19 +36,32 @@ ansible/ + docker/ + catalog publisher source
                     v
         ghcr.io/plume-works/agent-desktop
                     |
-                    | digest pin in compose.pins.yml
+                    | digest pin in devcontainer-compose-pins.yml
                     v
  .devcontainer/devcontainer.json + docker-compose.yml
                     |
+        initializeCommand (host, before build)
+                    |
+   generate .devcontainer/.env, create the shared
+   agentdev-agents-auth volume, wire host MCP/secrets
+                    |
           postCreateCommand (once)
                     |
-     install staged agentdev catalog into the
-     persistent Claude and Codex state volumes
+   ownership fixups, CBM binary install, persist
+   Claude/Codex auth into shared volumes, uv sync,
+   then install the image-staged agentdev catalog
+   (codex + claude) at user scope
                     |
            postStartCommand (each start)
                     |
- CBM daemon, pre-commit, keyring, firewall, Xpra,
- and a workspace catalog override when one exists
+   CBM daemon, git safe.directory, pre-commit,
+   keyring, firewall, Xpra, Codex auth symlink repair
+                    |
+          postAttachCommand (each attach)
+                    |
+   git SSH signing, CBM index, uv sync, then reinstall
+   the workspace agentdev catalog at local scope when
+   this checkout ships one
 ```
 
 The image contains the environment and a read-only catalog staged at
@@ -72,7 +87,8 @@ unresolved:
 | `.devcontainer/devcontainer-lock.json`               | Locks the Docker-in-Docker and SSH feature digests.                                                              |
 | `.devcontainer/firewall-allowlist.txt`               | Project-owned allowlist read when the opt-in firewall starts.                                                    |
 | `.devcontainer/scripts/postCreateCommand.sh`         | Sets up persistent Claude and Codex auth state, syncs the uv environment, and installs the image-staged catalog. |
-| `.devcontainer/scripts/postStartCommand.sh`          | Starts the CBM daemon, repository hooks, keyring, firewall, Xpra, and workspace catalog override.                |
+| `.devcontainer/scripts/postStartCommand.sh`          | Starts the CBM daemon, sets git safe.directory, and starts pre-commit hooks, keyring, firewall, and Xpra.        |
+| `.devcontainer/scripts/postAttachCommand.sh`         | Configures git SSH signing, indexes CBM, syncs uv, and reinstalls the workspace catalog on each editor attach.   |
 | `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` into the out-of-tree environment on the `/uv` volume ([why](uv-environment-location.md)).         |
 | `.devcontainer/scripts/setup-pre-commit.sh`          | Trusts the checkout and installs pre-commit and pre-push hooks.                                                  |
 | `.devcontainer/scripts/setup-keyring.sh`             | Starts and persists the headless keyring used by authenticated tooling.                                          |
@@ -80,7 +96,7 @@ unresolved:
 | `.devcontainer/scripts/link-codex-auth.sh`           | Persists Codex's `auth.json` in the shared `agentdev-agents-auth` volume and symlinks it into place.             |
 | `.devcontainer/scripts/reinstall-agentdev-claude.sh` | Installs the staged Claude plugin and overrides it with a workspace marketplace when present.                    |
 | `.devcontainer/scripts/reinstall-agentdev-codex.sh`  | Performs the equivalent Codex marketplace/plugin installation.                                                   |
-| `compose.pins.yml`                                   | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
+| `devcontainer-compose-pins.yml`                      | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
 | `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                                             |
 
 The default runtime intentionally retains all capabilities currently supplied
@@ -132,21 +148,22 @@ stays behind.
 
 The `.github/` tree is template-related, but it is mixed rather than copy-ready:
 
-| Path                                          | Class     | Current coupling                                                                                                                                                                                          |
-| --------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/pull_request_template.md`            | Template  | A stub pointing at the `agentdev` catalog, which owns PR structure. Copy-ready precisely because it carries none: a consumer gets a pointer to the same authority, not a format that could drift from it. |
-| `.github/renovate.json`                       | Customize | Contains image-publisher and catalog-release assumptions in addition to the consumer image pin.                                                                                                           |
-| `.github/workflows/primary-checks.yml`        | Customize | Calls both reformatting and the optional image-building CI workflow.                                                                                                                                      |
-| `.github/workflows/reformat.yml`              | Customize | Calls `super-linter-env.sh` from the catalog and this repository's excluded tool-version check; both must be replaced inline.                                                                             |
-| `.github/workflows/validate-agent-files.yml`  | Customize | Tests publisher sources and uses local validator packaging; consumers run validator-dependent CI through `agent-desktop` instead.                                                                         |
-| `.github/workflows/ai-responder.yml`          | Customize | Owner gate names `plume-works` and `container.image` names this image; needs the Claude GitHub App, the `CLAUDE_CODE_OAUTH_TOKEN` secret, and the `claude-review` environment.                            |
-| `.github/workflows/require-ai-review.yml`     | Customize | The `ai-review-present` merge gate; satisfiable only when the responder is retained too.                                                                                                                  |
-| `.github/actions/log-debug-stats/`            | Template  | Reusable GitHub API diagnostic action.                                                                                                                                                                    |
-| `.github/actions/setup-python-venv/`          | Customize | Reusable for uv projects after the consumer lockfile/project metadata is established.                                                                                                                     |
-| `.github/actions/paths-filter/`               | Customize | Its current filters name image and catalog publisher paths.                                                                                                                                               |
-| `.github/workflows/ci.yml`                    | Optional  | Builds, publishes, merges, and smoke-tests the two container images.                                                                                                                                      |
-| `.github/workflows/delete-old-containers.yml` | Optional  | Deletes old GHCR versions for repositories that publish custom images.                                                                                                                                    |
-| `.github/actions/docker/`                     | Optional  | Composite actions used by the image publishing workflow.                                                                                                                                                  |
+| Path                                            | Class     | Current coupling                                                                                                                                                                                          |
+| ----------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/pull_request_template.md`              | Template  | A stub pointing at the `agentdev` catalog, which owns PR structure. Copy-ready precisely because it carries none: a consumer gets a pointer to the same authority, not a format that could drift from it. |
+| `.github/renovate.json`                         | Customize | Contains image-publisher and catalog-release assumptions in addition to the consumer image pin.                                                                                                           |
+| `.github/workflows/primary-checks.yml`          | Customize | Calls both reformatting and the optional image-building CI workflow.                                                                                                                                      |
+| `.github/workflows/reformat.yml`                | Customize | Calls `super-linter-env.sh` from the catalog and this repository's excluded tool-version check; both must be replaced inline.                                                                             |
+| `.github/workflows/validate-agent-files.yml`    | Customize | Tests publisher sources and uses local validator packaging; consumers run validator-dependent CI through `agent-desktop` instead.                                                                         |
+| `.github/workflows/validate-knowledge-base.yml` | Customize | Installs `iwe`, runs `iwe schema validate`/`normalize` and `docs/knowledge/tests`; retained only when the consumer keeps an IWE knowledge base, and it shares this repository's `paths-filter`.           |
+| `.github/workflows/ai-responder.yml`            | Customize | Owner gate names `plume-works` and `container.image` names this image; needs the Claude GitHub App, the `CLAUDE_CODE_OAUTH_TOKEN` secret, and the `claude-review` environment.                            |
+| `.github/workflows/require-ai-review.yml`       | Customize | The `ai-review-present` merge gate; satisfiable only when the responder is retained too.                                                                                                                  |
+| `.github/actions/log-debug-stats/`              | Template  | Reusable GitHub API diagnostic action.                                                                                                                                                                    |
+| `.github/actions/setup-python-venv/`            | Customize | Reusable for uv projects after the consumer lockfile/project metadata is established.                                                                                                                     |
+| `.github/actions/paths-filter/`                 | Customize | Its current filters name image and catalog publisher paths.                                                                                                                                               |
+| `.github/workflows/ci.yml`                      | Optional  | Builds, publishes, merges, and smoke-tests the two container images.                                                                                                                                      |
+| `.github/workflows/delete-old-containers.yml`   | Optional  | Deletes old GHCR versions for repositories that publish custom images.                                                                                                                                    |
+| `.github/actions/docker/`                       | Optional  | Composite actions used by the image publishing workflow.                                                                                                                                                  |
 
 The existing workflows are evidence of the supplied CI design; they are not
 claimed to run unchanged after publisher source is removed.
@@ -191,7 +208,7 @@ copy:
 
 | Path                                             | Responsibility                                                                                               |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `.agents/`                                       | Canonical `agentdev` plugin source: four agents, 34 skills, hooks, helper commands, and plugin-script tests. |
+| `.agents/`                                       | Canonical `agentdev` plugin source: four agents, 35 skills, hooks, helper commands, and plugin-script tests. |
 | `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                 |
 | `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                       |
 | `scripts/validate-super-linter-tool-versions.sh` | Publisher CI consistency check.                                                                              |
@@ -234,5 +251,5 @@ The repository history explains the boundary's evolution:
 
 An earlier estimate of the publisher/template boundary (a four-file catalog
 split) predates this final lifecycle layout — the live dependency chain now
-makes the complete `.devcontainer/` tree, `compose.pins.yml`, and related
-configuration part of the manual template inventory.
+makes the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
+related configuration part of the manual template inventory.

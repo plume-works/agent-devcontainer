@@ -30,7 +30,7 @@ Two audiences, matching the repo's own dual role:
 
 - **This repository's maintainers** — build and evolve the `agent-desktop`
   image, the `agentdev` catalog (Principal Engineer + TDD Red/Green/Refactor
-  agents, 34 skills), and the Ansible/Docker publishing pipeline itself.
+  agents, 35 skills), and the Ansible/Docker publishing pipeline itself.
 - **Consuming-project developers** — point their own devcontainer at the
   published image, or copy the template surface into an existing repository, to
   get the same environment and agent catalog without building it themselves.
@@ -44,7 +44,7 @@ the driver of design decisions — internal needs come first.
 - **Distribution**: multi-arch (`linux/amd64` + `linux/arm64`) container images
   on GHCR — `ghcr.io/plume-works/agent-desktop:edge` and
   `ghcr.io/plume-works/ubuntu-ansible:edge` — pinned by tag *and* digest
-  (`compose.pins.yml`), kept current by Renovate.
+  (`devcontainer-compose-pins.yml`), kept current by Renovate.
   - Consumed via VS Code / any `devcontainer.json`-compatible tool (Dev
     Containers spec), or GitHub Codespaces.
 - **Host requirement**: a Docker daemon (Docker-in-Docker is provisioned inside
@@ -94,8 +94,8 @@ the driver of design decisions — internal needs come first.
 ## Constraints
 
 - Images are pinned by tag **and** digest everywhere they're consumed
-  (`compose.pins.yml`); moving off a pin is a deliberate Renovate-driven update,
-  never a silent float.
+  (`devcontainer-compose-pins.yml`); moving off a pin is a deliberate
+  Renovate-driven update, never a silent float.
 - The staged `agentdev` catalog inside the image is root-owned and read-only;
   updating it requires rebuilding the image, not a runtime patch.
 - `py_packages/validate_agent_files` must remain installable and testable with

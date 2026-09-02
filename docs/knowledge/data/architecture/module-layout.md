@@ -25,7 +25,7 @@ documented as the authoritative inventory in
    derived from this tree, never edited directly.
 3. **Devcontainer scaffolding** (`.devcontainer/`) — the template surface a
    consuming project copies in: lifecycle scripts, MCP configuration, firewall
-   allowlist, digest pin (`compose.pins.yml`).
+   allowlist, digest pin (`devcontainer-compose-pins.yml`).
 
 A fourth, independently-released unit lives alongside these:
 `py_packages/validate_agent_files/` — a Python package (own `pyproject.toml`,
@@ -39,7 +39,7 @@ How the three main surfaces come together for a consumer, per the README's
 
 ``` text
 ansible/ + docker/ + catalog publisher source
-        -> ghcr.io/plume-works/agent-desktop  (digest-pinned in compose.pins.yml)
+        -> ghcr.io/plume-works/agent-desktop  (digest-pinned in devcontainer-compose-pins.yml)
         -> .devcontainer/devcontainer.json + docker-compose.yml
         -> postCreateCommand (once): install staged agentdev catalog into
            persistent Claude/Codex state volumes
