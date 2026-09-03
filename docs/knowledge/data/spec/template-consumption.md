@@ -322,10 +322,12 @@ and the `validate-agent-files` pre-commit hook outright.
 
 ### AI responder and the review gate
 
-`ai-responder.yml` and `require-ai-review.yml` are a matched pair: the responder
-answers `@claude` mentions and reviews pull requests, and `ai-review-present`
-blocks merge until an AI review exists. Keep both or drop both — keeping only
-the gate blocks every merge with nothing able to satisfy it.
+One workflow file, `ai-responder.yml`, both answers `@claude` mentions and
+reviews pull requests through its `claude-respond` job and contributes the
+`ai-review-present` merge gate through a job of the same workflow that `needs`
+the review job. Because the gate is a job of the review workflow, it is
+satisfiable only while that workflow is retained: dropping the review job leaves
+the required check with nothing able to satisfy it.
 
 Two prerequisites live outside the repository and are **required**; a third
 changes only how the review is attributed:
@@ -390,21 +392,25 @@ Then adapt the workflows themselves:
 
 Two trigger behaviors are part of the workflow contract:
 
-- The `pull_request` triggers are `opened`, `reopened`, `assigned`, and
-  `ready_for_review` — **not `synchronize`**. Pushing new commits to an open
-  pull request does not re-run the responder. Adding `synchronize` would
-  re-review on every push, which is usually not what a project wants; re-request
-  a review by commenting `@claude review` instead.
+- The `pull_request` triggers include `synchronize`, but a push re-reviews only
+  a pull request that has no accepted review yet; a push to an already-reviewed
+  pull request runs the gate alone, which passes on the existing review. Adding
+  a blanket review-every-push would be prohibitively expensive; re-request a
+  review of a reviewed pull request by commenting `@claude review` instead.
 - **Comment triggers only work once the workflow is on the default branch.**
   `issue_comment` is a repository-level event, and GitHub dispatches it using
-  the workflow file on the default branch — so while these workflows exist only
-  on a feature branch, `@claude review` starts nothing. The Claude app may still
+  the workflow file on the default branch — so while the workflow exists only on
+  a feature branch, `@claude review` starts nothing. The Claude app may still
   react with 👀, which makes this look like an app or authentication problem when
   it is purely a trigger-resolution one. Plan for the first end-to-end comment
-  test to happen after the workflows merge.
+  test to happen after the workflow merges. A comment mention on the default
+  branch is bridged into a `workflow_dispatch` of this workflow on the pull
+  request's head branch, so the review runs the branch's own file and its checks
+  attach to the head commit; the `workflow_dispatch` trigger and its inputs are
+  therefore part of the contract and must be retained.
 
-A project that wants neither should delete both workflows together, and must not
-add `ai-review-present` to its branch protection.
+A project that wants neither the responder nor the gate should delete the
+workflow, and must not add `ai-review-present` to its branch protection.
 
 ### Renovate
 
