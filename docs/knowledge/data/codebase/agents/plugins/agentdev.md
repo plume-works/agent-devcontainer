@@ -5,7 +5,7 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+commit: 9c19a7030150207d0ac4547e47f9ee3e6a0437e3
 verified:
   by: claude-code/fable-5.1
   at: 2026-09-03T20:12:49Z
@@ -16,7 +16,7 @@ generated:
 sources:
 - id: code
   resource: .agents/plugins/agentdev
-  title: the code this map describes, read at commit 37fcab8
+  title: the code this map describes, read at commit 9c19a70
 ---
 
 # The agentdev catalog
