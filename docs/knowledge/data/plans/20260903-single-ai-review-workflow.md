@@ -227,18 +227,36 @@ composite action so preflight and the gate evaluate the same rule.
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] Add job `bridge`, running only for `issue_comment`,
+- [x] Add job `bridge`, running only for `issue_comment`,
   `pull_request_review_comment`, and `pull_request_review` events whose body
   opens with `@claude` **and** whose subject is a pull request; it reuses
   preflight's PR resolution and gates (fork → skip, write access → fail)
-- [ ] With `actions: write`, dispatch this workflow to the PR head branch with
+  - **Evidence:** the `bridge` job in `.github/workflows/ai-responder.yml` —
+    `needs: preflight`, `if:` requires `preflight.result == 'success'` (the
+    write-access step fails preflight), `is_fork != 'true'`,
+    `is_pull_request == 'true'`, and one of the three event names; the `@claude`
+    opening is preflight's own `if:`. Committed as "feat(ai-responder): bridge
+    PR comment mentions into a dispatch on the head branch".
+- [x] With `actions: write`, dispatch this workflow to the PR head branch with
   `pr_number`, `task` (empty when the body opens with `@claude review`, else the
   body), `comment_id`, and `comment_kind`; stop with a failure naming the branch
   when the head branch has no `ai-responder.yml`
-- [ ] Remove the direct review path for those three events so a PR mention is
+  - **Evidence:** `Dispatch the responder on the head branch` — permissions
+    `actions: write`, `contents: read`; `repos.getContent` on the head ref turns
+    a 404 into `core.setFailed` naming the branch, then
+    `actions.createWorkflowDispatch` with `ref: head_ref` and the four inputs;
+    same commit.
+- [x] Remove the direct review path for those three events so a PR mention is
   answered only through the dispatched run; `issues` events keep their free-form
   path on `main`
-- [ ] `actionlint` and `zizmor` pass
+  - **Evidence:** `Determine agent prompts` — `wantsTask` returns false when
+    `IS_PULL_REQUEST` is true, `wantsReview` is true only for `pull_request`
+    events and an empty-task dispatch, so `claude-respond` never runs for a PR
+    comment; a mention on a plain issue or on an `issues` event still sets
+    `wantsTask`; same commit.
+- [x] `actionlint` and `zizmor` pass
+  - **Evidence:** `pre-commit run actionlint --files …` → Passed; `zizmor` → "No
+    findings to report"; both re-run by the pre-commit hooks on the commit.
 
 ### Task 5: Repository documentation names one workflow
 
