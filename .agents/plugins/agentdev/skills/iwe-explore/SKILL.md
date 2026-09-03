@@ -1,6 +1,7 @@
 ---
 name: iwe-explore
-description: Enter explore mode — a thinking partner for investigating problems, comparing approaches, and clarifying ideas before they become plans. Reads code and the graph freely, never writes code. Use when the user says "let's think about ...", "explore <idea>", "what are our options for ...", or wants to talk something through before committing.
+description: Enter explore mode — a thinking partner for investigating problems, comparing approaches, and clarifying ideas before they become plans. Reads code and the graph freely, never writes code. Use when the user says "let's think about ...", "explore <idea>", "what are our options for ...", or wants to talk something through before committing. Also the entry point for a GitHub issue — pass an issue URL, `OWNER/REPO#N`, or `#N` to explore it and turn it into a plan.
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 ---
 
 # Explore mode
@@ -12,6 +13,43 @@ shape. Adapt to what the user knows and do not pressure unfinished thinking
 into a decision or plan. The one hard line: **explore mode never writes code.**
 Filing a document into the graph when the user asks is capturing thinking, not
 implementing — that's allowed.
+
+## Starting from a GitHub issue
+
+An issue is a valid starting point: an issue URL, `OWNER/REPO#N`, `#N`, or a
+bare number, which resolves against the current repository. Read it with the
+bundled script before forming any view of the problem:
+
+```bash
+${CLAUDE_SKILL_DIR}/scripts/fetch-issue.sh 123
+```
+
+It prints `ISSUE_REPO`, `ISSUE_NUMBER`, `ISSUE_URL`, `ISSUE_STATE`,
+`ISSUE_TITLE`, and `ISSUE_FILE` — a Markdown file under `./.tmp/` holding the
+title, labels, body, and every comment. Read that file in full; comments often
+carry the decision the body lacks. The last stdout line is `RESULT=<NAME>`:
+
+| RESULT            | Exit   | Action                                                                                                                                                                                |
+| ----------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`         | `0`    | Read `ISSUE_FILE`, then explore as usual. Keep `ISSUE_URL` for the handoff.                                                                                                           |
+| `ISSUE_NOT_FOUND` | `4`    | **STOP.** Show the resolved `OWNER/REPO#N` and ask for the right reference.                                                                                                           |
+| `GH_UNAVAILABLE`  | `3`    | **Fallback.** Read the issue through a connected GitHub MCP server, if one is present, and save its text to `./.tmp/` yourself. **STOP** and ask for the issue text if there is none. |
+| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repo, unparseable reference).                                                                                                            |
+| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                |
+| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it.                                                                                                                                         |
+
+The issue is the user's framing, not the spec. Treat its body the way you treat
+any claim about the system: verify it against the code and the graph before
+building on it, and say plainly where the issue and the checkout disagree.
+Search the repository for the issue's concrete terms — a claim about behavior
+is only as good as the line it points to. A clarifying question goes to the
+user in the conversation; never edit the issue from Explore.
+
+When the exploration crystallizes into work, the handoff to the
+`/agentdev:iwe-plan` skill carries `ISSUE_URL` so the plan links the issue and
+closes it once filed. An issue that turns out to need no plan — already fixed,
+out of scope, a duplicate — is reported as such; closing it for those reasons
+is the user's call, made in the conversation.
 
 ## The stance
 
@@ -65,8 +103,9 @@ unprompted):
   reaches the plan that owns it, rather than becoming a bug doc standing
   beside it.
 - Ready to build → hand off to the `/agentdev:iwe-plan` skill; the exploration
-  becomes the
-  plan's `## Context` and `## Approach`.
+  becomes the plan's `## Context` and `## Approach`. When the exploration
+  started from a GitHub issue, name its `ISSUE_URL` in the handoff — the plan
+  links it and closes it.
 - Approved wording → `.tmp/approved-wording-<slug>.md`, written before the
   conversation continues. When the user approves specific text — wording for a
   document, a snippet, a message — that text is the deliverable, not a

@@ -2,11 +2,13 @@
 type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Plan, Implement, Verify, and Ship skills.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-24T00:00:00Z
+  by: claude-code/fable-5.1
+  at: 2026-09-03T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-explore/scripts/fetch-issue.sh
+- resource: .agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
@@ -38,6 +40,15 @@ the handoff, and SHALL never paraphrase it.
   current project evidence, and ends with the current understanding and an
   optional next step
 
+#### Scenario: Exploration starts from a GitHub issue
+
+- **WHEN** the user invokes Explore with an issue URL, an `OWNER/REPO#N`
+  reference, or an issue number
+- **THEN** Explore reads the issue and all of its comments into `./.tmp/` before
+  investigating, verifies the issue's claims against the code and the graph
+  rather than adopting them, never edits the issue, and carries the issue URL
+  into any handoff to Plan
+
 #### Scenario: Exploration starts during implementation
 
 - **WHEN** the user invokes Explore because an active implementation task
@@ -62,6 +73,14 @@ SHALL keep a created or revised plan coherent across context, approach, tasks,
 spec impact, dependencies, verification, out-of-scope boundaries, and current
 code anchors. When a decision was made as specific text, Plan SHALL reproduce
 that text verbatim in the task that applies it and SHALL never paraphrase it.
+
+#### Scenario: A plan grows from a GitHub issue
+
+- **WHEN** Plan creates a plan for work that arrived as a GitHub issue
+- **THEN** the plan links the issue URL in `## Context` and under `sources:`,
+  and after the plan validates, Plan closes the issue with a comment naming the
+  plan path, so the issue and the plan reference each other and the issue no
+  longer competes with the plan as the open record of the work
 
 #### Scenario: A planning request also asks to build the change
 

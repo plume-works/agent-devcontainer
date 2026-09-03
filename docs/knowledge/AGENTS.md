@@ -212,7 +212,7 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 | Skill                     | What it does                                                            |
 | ------------------------- | ----------------------------------------------------------------------- |
 | `/agentdev:iwe-setup`     | Brownfield onboarding: scans the codebase, drafts product/architecture  |
-| `/agentdev:iwe-explore`   | Thinking partner: investigate and compare options; never writes code    |
+| `/agentdev:iwe-explore`   | Thinking partner from an idea or a GitHub issue; never writes code      |
 | `/agentdev:iwe-plan`      | Files a plan: discovery, verified anchors, spec impact, Active listing  |
 | `/agentdev:iwe-implement` | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries   |
 | `/agentdev:iwe-verify`    | Pre-ship gate + drift audit: claims in the graph checked against code   |

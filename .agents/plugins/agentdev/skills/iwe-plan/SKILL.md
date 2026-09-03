@@ -2,6 +2,7 @@
 name: iwe-plan
 description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies. Never edits implementation code.
 disable-model-invocation: true
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 ---
 
 # Create or revise a plan
@@ -52,7 +53,8 @@ editing implementation code.
 
    Body sections, in order (omit a section only when it's genuinely empty):
    - `## Context` — why now, linking the feature/bug/backlog doc that
-     motivates it
+     motivates it. A plan that grew from a GitHub issue links the issue URL
+     here and lists it under `sources:` in the frontmatter
    - `## Approach` — the shape of the solution and the alternative you
      rejected, in a few sentences
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
@@ -101,7 +103,8 @@ editing implementation code.
 5. **File a created plan.** In create mode, add an inclusion link under
    `## Active` in `data/plans.md`. If the plan implements a proposed feature,
    set the feature doc to `stage: accepted`. If it grew from a backlog task,
-   mark the task done and move its link. In revise mode, preserve the plan's
+   mark the task done and move its link. An issue it grew from is closed in
+   step 8, after validation — never before the plan is known to be sound. In revise mode, preserve the plan's
    existing graph membership and lifecycle unless the requested planning
    change explicitly requires another valid planning-state update.
 6. **Check coherence.** Re-read the complete plan as a future implementer.
@@ -115,10 +118,39 @@ editing implementation code.
    report-only verdicts to the draft (DROP/REWRITE/MOVE as recommended), then
    continue. This gate runs on every plan-intent edit: create, revise, and each
    route Implement, Verify, and Ship take back to revise mode all funnel here.
-8. **Validate and stop.** Run `iwe normalize`, then `iwe schema validate` —
-   both must pass. Report whether the plan was created or revised, any
-   assumptions, collisions, and implementation that may now be stale. Stop
-   before implementation code changes.
+8. **Validate, close the issue, and stop.** Run `iwe normalize`, then
+   `iwe schema validate` — both must pass. When a created plan grew from a
+   GitHub issue, close that issue now with the bundled script, which posts a
+   comment naming the plan and then closes it:
+
+   ```bash
+   ${CLAUDE_SKILL_DIR}/scripts/close-issue.sh \
+     --issue <url-or-ref> --plan docs/knowledge/data/plans/<YYYYMMDD>-<slug>.md
+   ```
+
+   The last stdout line is `RESULT=<NAME>`; see `## Closing the issue` for
+   what each result means. Report whether the plan was created or revised,
+   any assumptions, collisions, implementation that may now be stale, and
+   the issue outcome. Stop before implementation code changes.
+
+## Closing the issue
+
+A plan is the issue's replacement, not its companion: once the plan is filed
+and validated, the issue's job is done, and leaving it open invites a second
+plan for the same work. The plan keeps the link in both directions — the issue
+URL under `sources:` and in `## Context`, and the closing comment naming the
+plan path — so the history stays reachable from either side. This applies to a
+created plan only; revising a plan never touches the issue it came from.
+
+| RESULT            | Exit   | Action                                                                                                                                                    |
+| ----------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`         | `0`    | Report the closed `ISSUE_URL` alongside the plan.                                                                                                         |
+| `ALREADY_CLOSED`  | `5`    | Nothing to do; report that the issue was already closed. The plan still links it.                                                                         |
+| `ISSUE_NOT_FOUND` | `4`    | **STOP.** Show the resolved `OWNER/REPO#N` and ask for the right reference; the plan stays filed.                                                         |
+| `GH_UNAVAILABLE`  | `3`    | **Fallback.** Comment and close through a connected GitHub MCP server, if one is present. Otherwise report the plan as filed and the issue as still open. |
+| `PREFLIGHT_ERROR` | `2`    | **STOP.** Report the blocker verbatim (not a repo, missing plan file, unparseable reference).                                                             |
+| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                    |
+| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it and whether the issue closed.                                                                                |
 
 ## The three forms of `## Spec changes`
 
