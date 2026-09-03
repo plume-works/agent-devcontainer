@@ -1,0 +1,161 @@
+name: Run Claude responder
+description: Prepare the CI agent environment and run the Claude responder action.
+
+inputs:
+  append-run-link:
+    description: Whether to append this run's link to the requesting review comment.
+    required: false
+    default: 'false'
+  artifact-name:
+    description: Name for the responder execution artifact.
+    required: true
+  claude-code-oauth-token:
+    description: OAuth token for the Claude Code action.
+    required: true
+  github_token:
+    description: GitHub token passed to the Claude Code action.
+    required: true
+  prompt:
+    description: Prompt for the Claude responder.
+    required: true
+  comment-id:
+    description: Id of the comment or review that requested this run.
+    required: false
+    default: ''
+  comment-kind:
+    description: Kind of requesting comment or review.
+    required: false
+    default: ''
+  pr-number:
+    description: Pull request number for review update calls.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Append run link to Claude review request
+      if: inputs.append-run-link == 'true'
+      uses: actions/github-script@v9.0.0
+      env:
+        COMMENT_ID: ${{ inputs.comment-id }}
+        COMMENT_KIND: ${{ inputs.comment-kind }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+      with:
+        github-token: ${{ inputs.github_token }}
+        script: |
+          const marker = '<!-- claude-review-run-link -->';
+          const serverUrl = process.env.GITHUB_SERVER_URL ?? 'https://github.com';
+          const runUrl = `${serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+          const footer = `${marker}\n\n[View Claude review run](${runUrl})`;
+
+          const ids = {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            comment_id: Number(process.env.COMMENT_ID),
+            review_id: Number(process.env.COMMENT_ID),
+            pull_number: Number(process.env.PR_NUMBER),
+          };
+          const kinds = {
+            issue_comment: {
+              read: () => github.rest.issues.getComment(ids),
+              write: (body) => github.rest.issues.updateComment({ ...ids, body }),
+            },
+            pull_request_review_comment: {
+              read: () => github.rest.pulls.getReviewComment(ids),
+              write: (body) => github.rest.pulls.updateReviewComment({ ...ids, body }),
+            },
+            pull_request_review: {
+              read: () => github.rest.pulls.getReview(ids),
+              write: (body) => github.rest.pulls.updateReview({ ...ids, body }),
+            },
+          };
+          const kind = kinds[process.env.COMMENT_KIND];
+          if (!kind) {
+            core.warning(`Unknown comment_kind ${JSON.stringify(process.env.COMMENT_KIND)}; not appending the run link.`);
+            return;
+          }
+
+          const { data } = await kind.read();
+          const body = data.body ?? '';
+          const nextBody = body.includes(marker)
+            ? body.replace(new RegExp(`${marker}[\\s\\S]*$`), footer)
+            : `${body.trimEnd()}\n\n${footer}`;
+          if (nextBody !== body) {
+            await kind.write(nextBody);
+          }
+
+    # See docs/knowledge/data/architecture/ci-agent-plugin-availability.md.
+    - name: Run devcontainer lifecycle scripts
+      shell: bash
+      env:
+        DEV_WORKSPACE_FOLDER: ${{ github.workspace }}
+        AGENTDEV_SKIP_PRE_COMMIT: '1'
+        AGENTDEV_SKIP_XPRA: '1'
+        CBM_CACHE_DIR: ${{ github.workspace }}/.cache/codebase-memory-mcp
+        UV_PROJECT_ENVIRONMENT: /opt/ci-venv
+      run: |
+        mkdir -p /root/.claude /root/.codex
+        .devcontainer/scripts/postCreateCommand.sh
+        .devcontainer/scripts/postStartCommand.sh
+        .devcontainer/scripts/postAttachCommand.sh
+
+    - name: Merge Claude settings
+      id: claude_settings
+      shell: bash
+      run: |
+        merged=$(jq -cs '.[0] * .[1]' \
+          .claude/settings.json .claude/settings.local.json)
+        {
+          echo 'json<<CLAUDE_SETTINGS_EOF'
+          echo "$merged"
+          echo 'CLAUDE_SETTINGS_EOF'
+        } >>"$GITHUB_OUTPUT"
+
+    # For dispatched reviews the requester was authorized by preflight.
+    - name: Claude Responder
+      id: claude_responder
+      uses: anthropics/claude-code-action@v1
+      with:
+        allowed_bots: github-actions[bot]
+        claude_code_oauth_token: ${{ inputs.claude-code-oauth-token }}
+        github_token: ${{ inputs.github_token }}
+        settings: ${{ steps.claude_settings.outputs.json }}
+        claude_args: --allowedTools '${{ env.CLAUDE_PR_REVIEW_ARGS }}'
+        assignee_trigger: 'claude-bot'
+        show_full_output: true
+        prompt: ${{ inputs.prompt }}
+
+    - name: Attach responder output file
+      if: steps.claude_responder.outputs.execution_file != ''
+      uses: actions/upload-artifact@v7.0.1
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: ${{ steps.claude_responder.outputs.execution_file }}
+        retention-days: 7
+
+    - name: Fail on Claude usage limit
+      if: steps.claude_responder.outputs.execution_file != ''
+      shell: bash
+      env:
+        EXECUTION_FILE: ${{ steps.claude_responder.outputs.execution_file }}
+      run: |
+        if jq --exit-status '
+          any(
+            .[]?
+            | select(
+                .type? == "assistant"
+                and .message.type? == "message"
+                and .message.role? == "assistant"
+              )
+            | .message.content[]?
+            | select(
+                .type? == "text"
+                and (.text? | contains("You'\''ve hit your org'\''s monthly spend limit"))
+              );
+            true
+          )
+        ' "$EXECUTION_FILE" >/dev/null; then
+          echo "::error::Claude hit the organization's monthly spend limit."
+          exit 1
+        fi

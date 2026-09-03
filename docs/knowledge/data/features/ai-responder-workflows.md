@@ -1,13 +1,14 @@
 ---
 type: feature
 stage: implemented
-description: One Claude-only GitHub Actions workflow gives the repository automated PR review — a responder that reviews using the branch's own agentdev catalog, plus a gate job that depends on the review job and blocks merge until an AI review exists.
+description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-09-03T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-03T18:41:56Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
+- resource: .github/actions/run-claude-responder/action.yml
 - resource: data/plans/20260816-ai-responder-workflows.md
 - resource: data/plans/20260903-single-ai-review-workflow.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
@@ -19,23 +20,29 @@ sources:
 ## Purpose
 
 The repository had no automated PR review. One workflow, `ai-responder.yml`,
-provides it: a `claude-respond` job answers `@claude` mentions and reviews PRs,
-and an `ai-review-present` gate job — in the same workflow, depending on the
-review job — blocks merge until an AI review exists. The gate is satisfiable
-because the responder produces the review, and it stays pending for as long as a
-review is running in the same run rather than polling for one.
+provides it: a `claude-respond` job reviews PRs, a `claude-task` job answers
+free-form `@claude` tasks, and an `ai-review-present` gate job — in the same
+workflow, depending on the review job — blocks merge until an AI review exists.
+The gate is satisfiable because the review responder produces the review, and it
+stays pending for as long as a review is running in the same run rather than
+polling for one.
 
 ## Behaviour
 
-**The responder reviews with the branch's own catalog.** The responder must run
-in a container with the project toolchain to produce a grounded review, and the
-review is driven by the `agentdev:pr-review` skill. Because a GitHub Actions
-`container:` job runs no devcontainer lifecycle hooks, the responder job checks
-out the branch and runs the lifecycle scripts (`postCreate`, `postStart`,
-`postAttach`) itself. That gives it the *branch's own* catalog — a PR that
-changes a skill is reviewed by the skill as changed — plus an indexed
-codebase-memory-mcp that grounds the review. Two lifecycle steps a review job
-never needs (`pre-commit install --install-hooks`, Xpra) are skipped through
+**Responders run with fixed content permissions.** The PR review responder keeps
+`contents: read`; the free-form task responder has `contents: write`. Both jobs
+call the same local composite action after checkout, so the agent setup remains
+shared while GitHub receives a static permission map for each job.
+
+**The responder reviews with the branch's own catalog.** The responder jobs must
+run in a container with the project toolchain to produce grounded output, and PR
+reviews are driven by the `agentdev:pr-review` skill. Because a GitHub Actions
+`container:` job runs no devcontainer lifecycle hooks, the shared responder
+action runs the lifecycle scripts (`postCreate`, `postStart`, `postAttach`)
+itself. That gives it the *branch's own* catalog — a PR that changes a skill is
+reviewed by the skill as changed — plus an indexed codebase-memory-mcp that
+grounds the review. Two lifecycle steps a review job never needs
+(`pre-commit install --install-hooks`, Xpra) are skipped through
 `AGENTDEV_SKIP_PRE_COMMIT` and `AGENTDEV_SKIP_XPRA` guards that default to
 today's behavior, so the devcontainer is unchanged.
 

@@ -2,11 +2,12 @@
 type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-09-03T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-03T18:41:56Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
+- resource: .github/actions/run-claude-responder/action.yml
 ---
 
 # AI review gate
@@ -72,6 +73,10 @@ The responder SHALL NOT check out or execute code for a pull request originating
 from a fork, and SHALL NOT act on a request from an actor without write access.
 Both gates SHALL apply before a dispatch is issued for a comment and again in
 the dispatched run.
+
+The PR review responder SHALL run with read-only repository contents access.
+Free-form task requests that may edit repository contents SHALL run in a
+separate job with write repository contents access.
 
 ### Scenario: a fork PR triggers the responder
 
