@@ -32,10 +32,15 @@ goes in `./.tmp/` at the repo root. Never `$TMPDIR`, never `/tmp/`, and never a
 `<skill-name>-workspace/` sibling inside the catalog, which the plugin would ship and the
 validator would walk.
 
-## Frontmatter Is `name` and `description`, and There Is No `agents/openai.yaml`
+## Frontmatter Follows the Agent Skills Spec, and There Is No `agents/openai.yaml`
 
-Ship no other frontmatter key — not `license`, `allowed-tools`, `metadata`, or
-`compatibility` — even though both `quick_validate.py` scripts permit them.
+`name` and `description` are required. Beyond them, use only keys the open Agent
+Skills Specification defines — `license`, `compatibility`, `allowed-tools`, and
+`metadata` — plus the Claude Code vendor key `disable-model-invocation`; the
+validator accepts exactly this set. Ship a key only when the skill needs it:
+`allowed-tools` when a skill runs bundled scripts
+(`Bash(${CLAUDE_SKILL_DIR}/scripts/*)`), `disable-model-invocation` to suppress
+implicit invocation. Do not invent keys outside this set.
 
 Do not add the `agents/openai.yaml` that Codex's guide recommends and its `init_skill.py`
 generates; delete it if a scaffold created one. Its `interface` block duplicates per skill
