@@ -138,11 +138,12 @@ The [Renovate dashboard is here](https://developer.mend.io/github/plume-works/ag
 
 ## AI pull request review
 
-Two workflows provide automated review: `ai-responder.yml` answers `@claude`
-mentions and reviews pull requests, and `require-ai-review.yml` contributes the
-`ai-review-present` check that blocks merge until an AI review exists. They are a
-matched pair — keeping only the gate blocks every merge with nothing able to
-satisfy it.
+One workflow, `ai-responder.yml`, provides automated review: its `claude-respond`
+job answers `@claude` mentions and reviews pull requests, and its
+`ai-review-present` job — which depends on the review job, so the check stays
+pending while a review runs — blocks merge until an AI review exists. The gate
+is satisfiable only with the responder: keeping the gate job alone blocks every
+merge.
 
 The responder runs in the `agent-desktop` container and executes the devcontainer
 lifecycle scripts against its own checkout before invoking Claude, so it reviews
@@ -158,11 +159,13 @@ named by the responder job. Installing the
 passes `github_token` explicitly, so the app only changes whether reviews are
 attributed to Claude or to `github-actions[bot]`, both of which satisfy the gate.
 
-The responder triggers on pull request `opened`, `reopened`, `assigned`, and
-`ready_for_review` — **not on pushes to an open pull request**. Comment
-`@claude review` to re-request one, noting that comment triggers resolve against
-the workflow file on the default branch, so they only work once these workflows
-have merged.
+A review runs on pull request `opened`, `reopened`, `assigned`, and
+`ready_for_review`, and on a push to a pull request that has no accepted review
+yet — **a push after a review does not refresh it**. Comment `@claude review`
+to re-request one: the comment is received by the workflow file on the default
+branch, which dispatches a run of the pull request branch's own copy, so the
+review lands its check on the head commit and uses the branch's workflow. That
+bridge only works once this workflow has merged.
 
 Projects adopting this repository as a template should read the AI responder
 section of the manual template guide

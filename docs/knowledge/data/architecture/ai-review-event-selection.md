@@ -2,11 +2,11 @@
 type: architecture
 description: The AI reviewer prefers COMMENT over REQUEST_CHANGES so an author unblocks by resolving inline threads without forcing a re-review; REQUEST_CHANGES is used only for a blocking finding with no inline anchor, where no thread would gate merge.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-09-01T17:30:00Z
+  by: claude-code/fable-5-1
+  at: 2026-09-03T03:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
-- resource: .github/workflows/require-ai-review.yml
+- resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/Dr-QP/Dr.QP/commit/d836554c11984d3116f454dcb19a1e08d8e43349
 - resource: https://github.com/Dr-QP/Dr.QP/pull/409
 ---
@@ -77,16 +77,16 @@ identity (`claude[bot]` under OIDC App auth, or `github-actions[bot]` under
 cross-identity review, and the bot may submit `APPROVE` or `REQUEST_CHANGES`
 without rejection. This repository already keeps bot-authored PRs out of the
 responder path (`ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and
-`require-ai-review.yml` trust-lists `renovate[bot]`/`dependabot[bot]`), so the
-collision case does not arise for the AI reviewer here in normal operation.
+its `ai-review-present` job trust-lists `renovate[bot]`/`dependabot[bot]`), so
+the collision case does not arise for the AI reviewer here in normal operation.
 
 This is why `REQUEST_CHANGES` carries a retry-to-`COMMENT` fallback in the
 skill: on a bot- or self-authored PR the verdict event is rejected, and a
 `COMMENT` noting the downgrade is the best available. On the normal
 human-authored PR the bot is a distinct identity and `REQUEST_CHANGES` succeeds.
 This repository already keeps bot-authored PRs out of the responder path anyway
-(`ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and
-`require-ai-review.yml` trust-lists `renovate[bot]`/`dependabot[bot]`), so the
+(`ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and its
+`ai-review-present` job trust-lists `renovate[bot]`/`dependabot[bot]`), so the
 collision rarely arises for the AI reviewer here.
 
 ### Consequence for a verdict gate
