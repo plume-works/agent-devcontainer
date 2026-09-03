@@ -174,16 +174,27 @@ may itself already carry a guidance file to preserve). Record
 update mode preserves it, and note that it is consumer-created rather than part
 of the default copied surface.
 
-- [ ] Update Mode step 2 (or a new adjacent step) directs the agent to re-run
+- [x] Update Mode step 2 (or a new adjacent step) directs the agent to re-run
   the guide's §4 PR-template evaluation when the PR-template path is among the
   changed paths.
-- [ ] The marker/`tracked_paths` guidance says to add
+  - **Evidence:** `template-consume/SKILL.md` Update Mode gains step 4 ("Re-run
+    the PR-template evaluation") triggered when `CHANGED_PATHS` includes
+    `.github/pull_request_template.md`, walking §4 against the consumer's
+    current template. Committed on `consumption-review`.
+- [x] The marker/`tracked_paths` guidance says to add
   `.github/pr-description-guidance.md` to `tracked_paths` when setup created it,
   so update mode preserves consumer guidance.
-- [ ] The Default Template Surface note records that
+  - **Evidence:** The Default Template Surface note directs adding the path to
+    `tracked_paths` "the moment capture creates it, so update mode's step 4
+    preserves it." Committed on `consumption-review`.
+- [x] The Default Template Surface note records that
   `.github/pr-description-guidance.md` is consumer-created (not in the default
   copied list) but is tracked once it exists — consistent with
   `template-boundary` classifying it as Customize.
+  - **Evidence:** The note states the path "is not in the copied list above:
+    this repository does not carry it," is created only by §4 capture, and
+    "`template-boundary` classifies it as Customize / consumer-created."
+    Committed on `consumption-review`.
 
 ### Task 4: Add the normative requirement to the template-consumption spec
 

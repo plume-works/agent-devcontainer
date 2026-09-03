@@ -119,7 +119,13 @@ A marker file exists.
    paths touch lint configuration: confirm `.ruff.toml` and `pyproject.toml`
    never both configure ruff, and confirm no formatter change was just pointed
    at a directory holding verbatim third-party captures.
-4. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
+4. **Re-run the PR-template evaluation** if `CHANGED_PATHS` includes
+   `.github/pull_request_template.md`: walk the guide's §4 "The pull request
+   template" procedure against the consumer's _current_ template (which may
+   itself already carry a `.github/pr-description-guidance.md` to preserve), so
+   an upstream template change does not silently discard captured guidance or a
+   consumer heading.
+5. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
    was taken from (not necessarily the latest — the user may stop partway
    through the changed-paths list) and `last_synced_at` to now. Commit the
    applied changes and the marker update together, or in clearly separated
@@ -161,3 +167,10 @@ only when it includes `"knowledge-base"`. Never add `.agents/`,
 `.claude-plugin/`, `py_packages/`, or `scripts/validate-super-linter-tool-versions.sh`
 — those are publisher-only source this guide has the consumer delete during
 setup, so they can never be legitimate members of a consumer's `tracked_paths`.
+
+`.github/pr-description-guidance.md` is not in the copied list above: this
+repository does not carry it, and it is created only when the guide's §4 capture
+step writes a consumer's PR-template extras into it. Add it to `tracked_paths`
+the moment capture creates it, so update mode's step 4 preserves it on later
+PR-template changes. `template-boundary` classifies it as Customize /
+consumer-created.
