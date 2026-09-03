@@ -65,12 +65,18 @@ necessarily breaks; it cannot see preflight's verdict.
 - The residual exposure of `allowed_bots` is any other workflow on `main` that
   could be induced to dispatch the responder. The setting rests on the
   trustworthiness of `main`'s workflows, not on the actor field.
-- A fork pull request never reaches either gate: preflight's `if:` requires the
-  head repository to equal the workflow repository, so no dispatch is issued and
-  every responder job is skipped before a checkout. The gate job still runs and
-  fails for want of a review, so an unreviewed fork pull request stays blocked
-  rather than passing silently. GitHub's own first-time-contributor approval
-  holds such runs at `action_required` before any of this executes.
+- A fork pull request never reaches either gate, but where that is enforced
+  depends on the event. On a `pull_request` event preflight's `if:` requires the
+  head repository to equal the workflow repository, so the job never starts. On
+  a comment event that clause is bypassed — it is guarded by
+  `github.event_name != 'pull_request'` — so preflight runs,
+  `Determine checkout ref` records the fork as `isFork` without emitting a
+  checkout ref, and every downstream step and job is skipped by its
+  `isFork != 'true'` guard, the bridge included. Either way no dispatch is
+  issued and nothing is checked out. The gate job still runs and fails for want
+  of a review, so an unreviewed fork pull request stays blocked rather than
+  passing silently. GitHub's own first-time-contributor approval holds such runs
+  at `action_required` before any of this executes.
 - Adding a dispatch path for a new event means forwarding a `requester` for it
   too, or the write-access gate silently judges the wrong identity.
 

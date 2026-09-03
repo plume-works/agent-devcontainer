@@ -319,11 +319,14 @@ is testable only after the workflow is on `main`, because GitHub resolves
   nothing
   - **Evidence:** fork PR #105 from `we-are-code-artisans` (permission `read`,
     head `we-are-code-artisans/agent-devcontainer`, head `681a5be`): run
-    33776829317 skipped preflight, `claude-respond`, and `bridge` before any
+    33776829317 (a `pull_request` event, where preflight's `if:` itself rejects
+    a fork) skipped preflight, `claude-respond`, and `bridge` before any
     checkout, posted no review, and `ai-review-present` failed with "No AI
     review found", so merge stays blocked rather than passing unreviewed. GitHub
     additionally held all four workflow runs at `action_required` until a
-    maintainer approved them, a gate upstream of the workflow's own.
+    maintainer approved them, a gate upstream of the workflow's own. On a
+    comment event the fork is caught one step later, by `isFork` — see
+    [dispatched-review identity](../architecture/dispatched-review-identity.md).
 
 ## Spec changes
 
