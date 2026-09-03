@@ -484,3 +484,63 @@ jobs:
             echo "::error::Claude hit the organization's monthly spend limit."
             exit 1
           fi
+
+  # Depends on the review job so the check stays pending while a review runs.
+  # Acceptance rule: see spec/ai-review-gate.
+  ai-review-present:
+    name: ai-review-present
+    needs:
+      - preflight
+      - claude-respond
+    if: |
+      always() &&
+      contains(fromJSON('["pull_request", "pull_request_review", "merge_group", "workflow_dispatch"]'), github.event_name)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - name: Checkout composite actions
+        if: github.event_name != 'merge_group'
+        uses: actions/checkout@v7.0.1
+        with:
+          sparse-checkout: .github/actions
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check for an accepted AI review
+        id: review_status
+        if: github.event_name != 'merge_group'
+        uses: ./.github/actions/ai-review-status
+        with:
+          pr-number: ${{ github.event.pull_request.number || inputs.pr_number }}
+          github-token: ${{ github.token }}
+          # Bots whose pull requests do not need an AI review to merge.
+          trusted-bot-actors: 'renovate[bot],dependabot[bot]'
+
+      - name: Verify AI reviewed PR
+        env:
+          REVIEW_JOB_RESULT: ${{ needs.claude-respond.result }}
+          REVIEW_FOUND: ${{ steps.review_status.outputs.found }}
+          REVIEW_REASON: ${{ steps.review_status.outputs.reason }}
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == 'merge_group' ]]; then
+            echo 'Merge group event, skipping AI review check'
+            exit 0
+          fi
+          case "${REVIEW_JOB_RESULT}" in
+            failure | cancelled)
+              echo "::error::The review job ended with ${REVIEW_JOB_RESULT}."
+              exit 1
+              ;;
+          esac
+          echo "Review job: ${REVIEW_JOB_RESULT}. ${REVIEW_REASON}"
+          [[ "${REVIEW_FOUND}" == 'true' ]]
+
+      - name: Log debug stats
+        if: ${{ always() }}
+        uses: ./.github/actions/log-debug-stats
+        with:
+          github-token: ${{ github.token }}

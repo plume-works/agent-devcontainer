@@ -196,17 +196,32 @@ composite action so preflight and the gate evaluate the same rule.
 **Files:** Modify: `.github/workflows/ai-responder.yml`; Delete:
 `.github/workflows/require-ai-review.yml`
 
-- [ ] Add job `ai-review-present` with `needs: [preflight, claude-respond]`,
+- [x] Add job `ai-review-present` with `needs: [preflight, claude-respond]`,
   `if: always()`, `timeout-minutes: 10`, and the gate's current read-only
   permissions, that: skips on `merge_group`; passes when
   `needs.claude-respond.result == 'success'` **and** the composite action
   reports `found`; fails when the review job failed or was cancelled; and
   otherwise passes if and only if the composite action reports `found`
-- [ ] Keep the trusted-bot waiver (`renovate[bot]`, `dependabot[bot]`) and the
+  - **Evidence:** the `ai-review-present` job at the end of
+    `.github/workflows/ai-responder.yml` — `if: always() && <PR-bearing event>`,
+    read-only permissions, `timeout-minutes: 10`; `Verify AI reviewed PR` exits
+    0 on `merge_group`, 1 on a `failure`/`cancelled` review job, and otherwise
+    `[[ "${REVIEW_FOUND}" == 'true' ]]`. Committed as "feat(ai-responder): the
+    gate job depends on the review job".
+- [x] Keep the trusted-bot waiver (`renovate[bot]`, `dependabot[bot]`) and the
   `log-debug-stats` step
-- [ ] Delete `require-ai-review.yml`; the required-check context name
+  - **Evidence:** the gate passes
+    `trusted-bot-actors: 'renovate[bot],dependabot[bot]'` to the composite
+    action, whose waiver reads the PR author; `Log debug stats` closes the job
+    with `if: always()`; same commit.
+- [x] Delete `require-ai-review.yml`; the required-check context name
   `ai-review-present` is unchanged, so the `main` ruleset needs no edit
-- [ ] `actionlint` and `zizmor` pass
+  - **Evidence:** `git rm .github/workflows/require-ai-review.yml` in the same
+    commit; the new job is `name: ai-review-present`.
+- [x] `actionlint` and `zizmor` pass
+  - **Evidence:** `pre-commit run actionlint --files …` → Passed; `zizmor` on
+    the workflow and the composite action → "No findings to report"; both re-run
+    by the pre-commit hooks on the commit.
 
 ### Task 4: Bridge PR comment mentions into a dispatch on the head branch
 
