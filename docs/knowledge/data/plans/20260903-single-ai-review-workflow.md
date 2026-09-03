@@ -263,10 +263,17 @@ composite action so preflight and the gate evaluate the same rule.
 **Files:** Modify: `README.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] Rewrite `README.md:141-145` so it describes one workflow contributing
+- [x] Rewrite `README.md:141-145` so it describes one workflow contributing
   `ai-review-present`, and drop the `require-ai-review.yml` row from
   `template-boundary.md:159-160`, folding its "satisfiable only with the
   responder" note into the `ai-responder.yml` row
+  - **Evidence:** `README.md` "AI pull request review" opens with the
+    one-workflow description and its trigger paragraph now states the
+    push-without-review and comment-bridge behavior; `template-boundary.md`
+    keeps one `ai-responder.yml` row carrying the "satisfiable only while the
+    responder job is retained" note and gains an `ai-review-status/` row;
+    `ai-review-event-selection.md`'s two gate mentions name the
+    `ai-review-present` job. Committed as "docs: one AI review workflow".
 
 ### Task 6: Prove the flow on a real pull request
 
