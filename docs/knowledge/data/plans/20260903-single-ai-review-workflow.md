@@ -291,8 +291,12 @@ is testable only after the workflow is on `main`, because GitHub resolves
     run. GitHub creates the gate job only once its `needs` complete, so during
     the review the required check reads as expected-but-unreported on the head
     SHA; the ruleset blocks merge in that state exactly as for a pending job.
-- [ ] A push to a PR with an accepted review runs the gate only (review job
+- [x] A push to a PR with an accepted review runs the gate only (review job
   skipped) and passes without a poll
+  - **Evidence:** PR #97, run 33713536553 (`pull_request` `synchronize`, head
+    `55f91d2`, pushed after the `5e03697` review): preflight success,
+    `claude-respond` skipped, `bridge` skipped, `ai-review-present` success; the
+    run finished within a minute of the push.
 - [ ] A push to a PR with no accepted review runs the review job and the gate
   passes on its result
 - [ ] After merge: an `@claude review` comment produces a `workflow_dispatch`
