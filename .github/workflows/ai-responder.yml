@@ -450,6 +450,7 @@ jobs:
           comment-id: ${{ inputs.comment_id }}
           comment-kind: ${{ inputs.comment_kind }}
           pr-number: ${{ needs.preflight.outputs.pr_number }}
+          post-result-comment: 'true'
 
   # Depends on the review job so the check stays pending while a review runs.
   # Acceptance rule: see spec/ai-review-gate.

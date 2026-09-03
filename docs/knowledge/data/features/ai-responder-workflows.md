@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: codex/gpt-5
-  at: 2026-09-03T18:41:56Z
+  at: 2026-09-03T19:20:27Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -61,6 +61,8 @@ submitted GitHub PR review. A `@claude` mention on a pull request is bridged
 into a `workflow_dispatch` on the head branch, so the review runs the branch's
 own file and its checks attach to the head commit; the dispatched run appends
 its Actions run link to the triggering comment before the responder starts.
+Free-form task runs additionally post Claude's final task result back to the
+issue or pull request thread.
 
 **The gate accepts any AI review, past or present.** `ai-review-present` accepts
 a review from `claude[bot]`/`github-actions[bot]`, a review from
