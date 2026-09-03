@@ -196,8 +196,12 @@ sources:
 ---
 ```
 
-`commit` is quoted because an all-digit SHA parses as a number and fails the
-schema. The actor is the one writing — `claude-code/<model>`, `human:<handle>`.
+`commit` is written quoted because an all-digit SHA parses as a number and
+fails the schema; `iwe normalize` drops quotes it considers unnecessary, which
+is why the pin is the full 40-character SHA rather than a short one — the
+all-digit case is then out of reach. Match the pin unquoted when editing a
+normalized doc. The actor is the one writing — `claude-code/<model>`,
+`human:<handle>`.
 `commit` is the HEAD you _read_; the map commit itself never touches a
 `source` path, which is why a map doc never lists the knowledge directory that
 holds it as its own source.
