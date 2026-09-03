@@ -283,8 +283,14 @@ Stands alone: every item's evidence is a run GitHub produces. The comment bridge
 is testable only after the workflow is on `main`, because GitHub resolves
 `issue_comment` against the default branch's file.
 
-- [ ] A PR opened from this branch shows `ai-review-present` pending on its head
+- [x] A PR opened from this branch shows `ai-review-present` pending on its head
   SHA until `claude-respond` completes, then passing, in the same run
+  - **Evidence:** PR #97, run 33712475591 (`pull_request` `opened`, head
+    `5e03697`): `claude-respond` posted the `github-actions[bot]` COMMENTED
+    review, then `ai-review-present` was created, ran, and passed in the same
+    run. GitHub creates the gate job only once its `needs` complete, so during
+    the review the required check reads as expected-but-unreported on the head
+    SHA; the ruleset blocks merge in that state exactly as for a pending job.
 - [ ] A push to a PR with an accepted review runs the gate only (review job
   skipped) and passes without a poll
 - [ ] A push to a PR with no accepted review runs the review job and the gate

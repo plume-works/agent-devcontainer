@@ -547,7 +547,6 @@ jobs:
       pull-requests: read
     steps:
       - name: Checkout composite actions
-        if: github.event_name != 'merge_group'
         uses: actions/checkout@v7.0.1
         with:
           sparse-checkout: .github/actions
