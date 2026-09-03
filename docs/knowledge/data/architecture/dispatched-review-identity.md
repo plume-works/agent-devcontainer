@@ -67,7 +67,10 @@ necessarily breaks; it cannot see preflight's verdict.
   trustworthiness of `main`'s workflows, not on the actor field.
 - A fork pull request never reaches either gate: preflight's `if:` requires the
   head repository to equal the workflow repository, so no dispatch is issued and
-  every responder job is skipped before a checkout.
+  every responder job is skipped before a checkout. The gate job still runs and
+  fails for want of a review, so an unreviewed fork pull request stays blocked
+  rather than passing silently. GitHub's own first-time-contributor approval
+  holds such runs at `action_required` before any of this executes.
 - Adding a dispatch path for a new event means forwarding a `requester` for it
   too, or the write-access gate silently judges the wrong identity.
 

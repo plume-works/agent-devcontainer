@@ -315,8 +315,15 @@ is testable only after the workflow is on `main`, because GitHub resolves
     checks are filed on the head commit. The run link was appended to the
     comment body. Two prior gates had to be opened for this to work — see
     [dispatched-review identity](../architecture/dispatched-review-identity.md).
-- [ ] After merge: a comment on a fork PR or from a non-writer dispatches
+- [x] After merge: a comment on a fork PR or from a non-writer dispatches
   nothing
+  - **Evidence:** fork PR #105 from `we-are-code-artisans` (permission `read`,
+    head `we-are-code-artisans/agent-devcontainer`, head `681a5be`): run
+    33776829317 skipped preflight, `claude-respond`, and `bridge` before any
+    checkout, posted no review, and `ai-review-present` failed with "No AI
+    review found", so merge stays blocked rather than passing unreviewed. GitHub
+    additionally held all four workflow runs at `action_required` until a
+    maintainer approved them, a gate upstream of the workflow's own.
 
 ## Spec changes
 
