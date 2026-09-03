@@ -4,6 +4,20 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-03
+
+- **Update**:
+  [One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
+  done — the responder and the merge gate are now one workflow whose
+  `ai-review-present` job `needs` the review job, so the check stays pending
+  while a review runs and evaluates without polling; PR comment mentions bridge
+  into a `workflow_dispatch` on the head branch so the review runs the branch's
+  own file. `require-ai-review.yml` is deleted and the acceptance test moved to
+  the `ai-review-status` composite action. Recorded under
+  [AI responder workflows](features/ai-responder-workflows.md) and synced into
+  [AI review gate](spec/ai-review-gate.md) and
+  [Template consumption](spec/template-consumption.md).
+
 ## 2026-09-02
 
 - **Update**:

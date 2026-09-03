@@ -2,8 +2,8 @@
 type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-03T19:50:54Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -65,14 +65,16 @@ Directories holding byte-exact third-party captures SHALL be excluded in
 
 ## Requirement: the AI review gate's trust is explicit
 
-`ai-responder.yml` and `require-ai-review.yml` SHALL be kept or dropped
-together. The responder SHALL NOT auto-review any bot-authored pull request;
-`ai-review-present` SHALL waive its requirement only for the bot logins listed
-in `TRUSTED_BOT_ACTORS`, matched exactly and only when `user.type` is `Bot`. The
-gate checks that the pull request has a review, not that its head commit does —
-a copy comparing the review's `commit_id` to the head SHA is a policy change.
-The fork gate and write-access gate SHALL be preserved as written; the owner
-gate SHALL be repointed at the consumer.
+The `claude-respond` and `ai-review-present` jobs in `ai-responder.yml` SHALL be
+kept or dropped together. The responder SHALL NOT auto-review any bot-authored
+pull request; `ai-review-present` SHALL waive its requirement only for the bot
+logins listed in `TRUSTED_BOT_ACTORS`, matched exactly and only when `user.type`
+is `Bot`. The gate checks that the pull request has a review, not that its head
+commit does — a copy comparing the review's `commit_id` to the head SHA is a
+policy change. The fork gate and write-access gate SHALL be preserved as
+written; the owner gate SHALL be repointed at the consumer. The
+`workflow_dispatch` bridge SHALL be retained so default-branch comment events
+can run the pull request head branch's workflow and attach checks to that head.
 
 ## Requirement: adoption is recorded for later updates
 
