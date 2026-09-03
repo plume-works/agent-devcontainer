@@ -241,9 +241,14 @@ instructions and does not exist in this publisher repository.
 
 **Files:** (no source files) — validation only
 
-- [ ] `iwe normalize` and `iwe schema validate` both pass.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [x] `iwe normalize` and `iwe schema validate` both pass.
+  - **Evidence:** `iwe normalize` → exit 0; `iwe schema validate` → exit 0, run
+    on `consumption-review` after all Task 1–5 edits.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes for the edited skills.
+  - **Evidence:**
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    → 46/46 skills valid, 0 errors, 0 warnings, on `consumption-review`.
 
 ## Spec changes
 
