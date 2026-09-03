@@ -2,8 +2,8 @@
 type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
-  by: codex
-  at: 2026-08-15T03:30:00Z
+  by: claude-code/fable-5.1
+  at: 2026-09-03T00:00:00Z
 ---
 
 # Module layout
@@ -49,8 +49,8 @@ ansible/ + docker/ + catalog publisher source
 
 The image stages the catalog read-only at `/opt/agentdev`
 (`AGENTDEV_CATALOG_DIR`); it does not stage the devcontainer scaffolding itself
-— that's copied manually per
-[Template consumption](../spec/template-consumption.md).
+— that's copied by the `/agentdev:template-consume` skill under the requirements
+in [Template consumption](../spec/template-consumption.md).
 
 ## Key design decisions
 
