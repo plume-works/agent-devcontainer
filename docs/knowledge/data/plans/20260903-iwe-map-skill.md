@@ -31,9 +31,9 @@ proposing a `map` skill with an initial mode and a refresh mode. Upstream has
 not shipped it, and this repository's IWE skills now live in the `agentdev`
 catalog rather than arriving by template sync, so the fix lands here.
 
-The maintainer's stated priority is an archaeology skill good enough to map a
-whole repository into durable knowledge as part of setup — not a thin wrapper
-around the frontmatter contract.
+The bar the maintainer set for the skill: an archaeology pass that maps a whole
+repository into durable knowledge as part of setup, not a thin wrapper around
+the frontmatter contract.
 
 ## Approach
 
@@ -76,13 +76,16 @@ gate requires.
 
 **Files:** Create: `.agents/plugins/agentdev/skills/iwe-map/SKILL.md`
 
-- [ ] Write `SKILL.md` with frontmatter (`name: iwe-map`, a description that
+- [x] Write `SKILL.md` with frontmatter (`name: iwe-map`, a description that
   triggers on "map the codebase / repo", "refresh the map", and Verify's stale
   handoff, `disable-model-invocation: true`, `allowed-tools` for the bundled
   script), the initial-mode and refresh-mode steps, the canonical-key rules, the
   frontmatter template with a quoted `commit`, the script's `RESULT` table, and
   the rules (read the code never memory; what not why; unknown beats fiction;
   never `mv`).
+  - **Evidence:** commit `eb60f60`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 47/47 skills valid, 0 errors, 0 warnings with `iwe-map` counted.
 
 ### Task 2: Bundle the staleness script with its test
 
@@ -90,16 +93,23 @@ gate requires.
 `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh`,
 `.agents/plugins/agentdev/tests/test_stale_map_docs.py`
 
-- [ ] Write `stale-map-docs.sh`: resolve the repo root and the IWE library path
+- [x] Write `stale-map-docs.sh`: resolve the repo root and the IWE library path
   from `.iwe/config.toml`, walk `data/codebase/**/*.md`, parse `commit`,
   `source` (scalar or list), and `stale_after` from frontmatter, print one
   `FRESH|STALE|GONE|EXPIRED|UNKNOWN_COMMIT <key> ...` line per doc plus count
   keys, and exit `SUCCESS` (all fresh), `STALE_FOUND`, or `NO_MAP_DOCS`;
   shellcheck-clean.
-- [ ] Pin every `RESULT` the skill branches on with pytest tests that build a
+  - **Evidence:** commit `eb60f60`; `shellcheck -x` on the script is clean; run
+    against this workspace after the map commit it prints 26 `FRESH` lines and
+    `RESULT=SUCCESS`.
+- [x] Pin every `RESULT` the skill branches on with pytest tests that build a
   throwaway repository under `plugin_tmp_path`.
+  - **Evidence:** commit `eb60f60`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_stale_map_docs.py` — 7
+    passed, covering `SUCCESS`, `STALE_FOUND` (stale, gone, unknown commit,
+    expired), `NO_MAP_DOCS`, `PREFLIGHT_ERROR`, and `--help`.
 
-### Task 3: Rewire the handoffs that named a skill that did not exist
+### Task 3: Rewire the codebase-map handoffs to `/agentdev:iwe-map`
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`,
@@ -108,12 +118,15 @@ gate requires.
 `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md`,
 `docs/knowledge/data/bugs/missing-map-skill.md`
 
-- [ ] Point Setup's deferred map and Verify's stale-map audit at
+- [x] Point Setup's deferred map and Verify's stale-map audit at
   `/agentdev:iwe-map`, route the operating loop's "code structure changed" step
   to the skill's refresh mode, add the skill to the workspace skills table and
   STRUCTURE's skill list, add a knowledge-graph workflow table to the plugin
   README, and update the feature and bug docs to describe the shipped state (the
   bug's `stage` stays for Ship).
+  - **Evidence:** commit `eb60f60`; `grep -rn "map skill"` over the skills and
+    `docs/knowledge/AGENTS.md` finds only mentions that name
+    `/agentdev:iwe-map`.
 
 ### Task 4: Release the catalog version
 
@@ -121,21 +134,29 @@ gate requires.
 `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
 `.claude-plugin/marketplace.json`, `docker/desktop/agent-desktop.Dockerfile`
 
-- [ ] Bump the four aligned pins from `3.2.0` to `3.3.0` — a new skill is a
+- [x] Bump the four aligned pins from `3.2.0` to `3.3.0` — a new skill is a
   minor release, and the image build verifies the marketplace version against
   its `AGENTDEV_PLUGIN_VERSION` pin.
+  - **Evidence:** commit `eb60f60`; both plugin manifests, the marketplace
+    entry, and the Dockerfile `ARG` read `3.3.0`, and the validator's
+    marketplace check passes on the aligned versions.
 
 ### Task 5: Map this repository in initial mode
 
 **Files:** Create: `docs/knowledge/data/codebase/**/*.md` Modify:
 `docs/knowledge/data/codebase.md`
 
-- [ ] Run the skill's initial mode on this checkout: component docs for the
+- [x] Run the skill's initial mode on this checkout: component docs for the
   image build, the devcontainer scaffolding, the catalog, the validator package,
   the GitHub workflows and actions, and the knowledge workspace machinery; flow
   docs for the image build, the devcontainer lifecycle, and pull-request checks;
   api docs for the image's runtime contract and the validator CLI;
   `## Getting around` filled and the ✏️ removed.
+  - **Evidence:** commit `d132a6c` — 26 docs (19 components, 3 flows, 2
+    interfaces) pinned to `eb60f60`; `iwe schema validate` clean;
+    `iwe tree -k data/codebase -d 3` renders the containment tree;
+    `grep -c '✏️' docs/knowledge/data/codebase.md` prints `0`;
+    `stale-map-docs.sh` ends `RESULT=SUCCESS`.
 
 ## Spec changes
 
@@ -201,6 +222,23 @@ when refreshing.
 - `grep -rn "map skill" .agents/plugins/agentdev/skills docs/knowledge/AGENTS.md`
   finds no dangling reference — every mention names `/agentdev:iwe-map`.
 
+## Verification results
+
+Every `## Verification` check passed on the tree at `d132a6c`: the validator
+reports 47/47 skills valid with no warnings, the seven script tests pass,
+shellcheck is clean, `iwe normalize` and `iwe schema validate` are clean, the
+hub has no placeholder, the tree renders 26 docs under the hub, the staleness
+script reports every doc fresh, and no handoff still says "map skill" without
+naming `/agentdev:iwe-map`. The plan-scope audit by the Durable Knowledge
+Auditor returned two rewrites, both applied, and no drops.
+
+Two judgment calls from the mapping run, recorded here because they shape what
+the map covers: the catalog's consumer-facing surface is described in the
+catalog component doc's `## Public surface` rather than a separate `api-` doc,
+since the two would duplicate each other; and the thirteen one-task Ansible
+roles are rows in the `ansible` doc's `## Contains` rather than docs, per the
+skill's depth budget.
+
 ## Out of scope
 
 - Writing `data/architecture/` docs from what the map run reveals — reported as
@@ -211,18 +249,24 @@ when refreshing.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-03, tree `d132a6c`):
 
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-31` — the deferred
-  per-module map
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:78-80` — stale-map audit
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:22` — `## Steps`; `:122`
+  refresh mode; `:158` canonical keys; `:180` frontmatter; `:204` rules
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:14` —
+  declared results; `:146` the per-doc loop; `:206` `STALE_FOUND` exit
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:76-206` — the seven
+  contract tests
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-32` — the deferred
+  per-module map, now naming the skill
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:81-85` — stale-map audit
   handoff
-- `docs/knowledge/AGENTS.md:55-57` — Record step for code-structure changes
-- `docs/knowledge/AGENTS.md:214-222` — workspace skills table
+- `docs/knowledge/AGENTS.md:57-61` — Record step for code-structure changes
+- `docs/knowledge/AGENTS.md:217` — the skill's row in the workspace table
 - `docs/knowledge/STRUCTURE.md:26-27` — skill list in the layout block
+- `.agents/plugins/agentdev/README.md:109-127` — knowledge-graph workflow table
 - `docs/knowledge/SCHEMA.md:144-166` — codebase-map authoring contract
-- `.iwe/schemas/codebase.yaml:10-20` — `source`, `commit` pattern
-- `docs/knowledge/data/codebase.md:22-26` — `## Getting around` placeholder
-- `.agents/plugins/agentdev/README.md:98-108` — last skills table
+- `.iwe/schemas/codebase.yaml:13-21` — `source`, `commit` pattern
+- `docs/knowledge/data/codebase.md:22,66` — `## Getting around`, `## Components`
 - `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`
-- `.agents/plugins/agentdev/bin/result-codes.sh:38-41` — `quit_by_code`
+- `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`

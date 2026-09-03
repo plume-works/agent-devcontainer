@@ -115,9 +115,10 @@ that one subtree and wires it into the existing map.
    ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh          # RESULT=SUCCESS: every doc is fresh at HEAD
    ```
 
-   Commit with a message like `map: <n> components, <m> flows, <k> interfaces`
-   and report the tree, the candidate architecture docs, and what stayed
-   unmapped.
+   Add one bullet to today's group in `data/log.md` naming the map and its
+   commit, creating the group if absent. Commit with a message like
+   `map: <n> components, <m> flows, <k> interfaces` and report the tree, the
+   candidate architecture docs, and what stayed unmapped.
 
 8. **Refresh mode.** Run `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh` and
    branch on its last line (table below). Verify's audit produces the same

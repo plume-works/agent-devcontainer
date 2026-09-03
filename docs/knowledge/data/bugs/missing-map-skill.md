@@ -87,16 +87,15 @@ expired, and repoints Setup, Verify, and the operating loop at it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-01):
+Verified anchor points (line numbers as of 2026-09-03):
 
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:78-80` — stale-map audit,
-  "flag for the map skill's refresh mode"
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:92` — "Report, never
-  fix", which blocks the only skill that detects the problem
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-31` — per-module map
-  deferred as follow-up, no owner named
-- `docs/knowledge/AGENTS.md:56-58` — Record step assigns the refresh to the bare
-  session
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:81-85` — stale-map audit,
+  handing off to `/agentdev:iwe-map`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:96` — "Report, never
+  fix", which is why the handoff needs a real owner
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-32` — per-module map
+  deferred to the map skill's initial mode
+- `docs/knowledge/AGENTS.md:57-61` — Record step routes refreshes to the skill
 - `docs/knowledge/SCHEMA.md:144-166` — the codebase-map authoring contract
-- `docs/knowledge/data/codebase.md:27` — the unfilled `✏️` placeholder
+- `docs/knowledge/data/codebase.md:22` — `## Getting around`, filled
 - `docs/knowledge/data/index.md:32` — the hub advertised to readers

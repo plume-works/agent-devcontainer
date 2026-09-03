@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-03
+
+- **Creation**: the codebase map — 26 documents under [Codebase](codebase.md)
+  (19 components, 3 flows, 2 interfaces), written by `/agentdev:iwe-map` in
+  initial mode from the tree at `eb60f60`, per
+  [Add the iwe-map skill](plans/20260903-iwe-map-skill.md).
+
 ## 2026-09-02
 
 - **Update**:
