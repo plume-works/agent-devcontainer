@@ -94,10 +94,12 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-require_git_repo
-
 if [[ -z "${consumer_root}" ]]; then
+  require_git_repo
   consumer_root="$(git rev-parse --show-toplevel)"
+elif ! git -C "${consumer_root}" rev-parse --show-toplevel >/dev/null 2>&1; then
+  print_error "--root ${consumer_root} is not inside a Git repository."
+  quit_by_code 2
 fi
 
 marker_name="$(marker_file_name)"
@@ -114,15 +116,22 @@ if ! command -v jq >/dev/null 2>&1; then
 fi
 
 consumed_ref="$(jq -r '.consumed_ref // empty' "${marker_path}" 2>/dev/null)" || consumed_ref=""
-tracked_paths_json="$(jq -c '.tracked_paths // []' "${marker_path}" 2>/dev/null)" || tracked_paths_json=""
 
-if [[ -z "${consumed_ref}" || -z "${tracked_paths_json}" ]]; then
+if [[ -z "${consumed_ref}" ]] ||
+  ! jq -e '(.tracked_paths | type) == "array" and (.tracked_paths | length) > 0' \
+    "${marker_path}" >/dev/null 2>&1; then
   print_error "${marker_name} is missing consumed_ref or tracked_paths."
   quit_by_code 7
 fi
 
+tracked_paths_json="$(jq -c '.tracked_paths' "${marker_path}")"
+
 cleanup() {
+  local exit_code=$?
   [[ -n "${clone_dir}" && -d "${clone_dir}" ]] && rm -rf "${clone_dir}"
+  # Re-run report_unhandled_exit here: this trap replaces the one it installed.
+  (exit "${exit_code}") || report_unhandled_exit
+  return "${exit_code}"
 }
 trap cleanup EXIT
 

@@ -5,8 +5,16 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import subprocess
+
+
+def _env_without_repo_discovery(ceiling: Path) -> dict[str, str]:
+    """Return an env stopping git's upward .git search at ``ceiling``, so cwd reads non-git."""
+    env = dict(os.environ)
+    env['GIT_CEILING_DIRECTORIES'] = str(ceiling)
+    return env
 
 
 def _run_git(args: list[str], cwd: Path) -> None:
@@ -209,6 +217,122 @@ def test_check_updates_reports_invalid_marker_when_consumed_ref_is_missing(
     assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
         7,
         'RESULT=INVALID_MARKER',
+    )
+
+
+def test_check_updates_honors_root_from_a_non_git_cwd(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """--root must be validated as the repo, not the process CWD (finding 3)."""
+    # Arrange
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
+    consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['tracked-dir'])
+    non_git_cwd = plugin_tmp_path / 'not-a-git-repo'
+    non_git_cwd.mkdir()
+
+    # Act
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        cwd=non_git_cwd,
+        env=_env_without_repo_discovery(plugin_tmp_path),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    # Assert
+    last_line = completed.stdout.splitlines()[-1]
+    assert (completed.returncode, last_line) == (5, 'RESULT=CHANGES_FOUND')
+
+
+def test_check_updates_reports_invalid_marker_when_tracked_paths_is_empty(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A marker with an empty tracked_paths array must fail INVALID_MARKER (finding 2)."""
+    # Arrange: a reachable consumed_ref so the gap under test is tracked_paths, not the ref.
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
+    consumer_dir = plugin_tmp_path / 'fixture-consumer-empty-tracked'
+    consumer_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], consumer_dir)
+    (consumer_dir / '.agentdev-template.json').write_text(
+        json.dumps({'consumed_ref': first_sha, 'tracked_paths': []})
+    )
+    _run_git(['add', '-A'], consumer_dir)
+    _run_git(['commit', '-m', 'init'], consumer_dir)
+
+    # Act
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    # Assert
+    assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
+        7,
+        'RESULT=INVALID_MARKER',
+    )
+
+
+def test_check_updates_reports_invalid_marker_when_tracked_paths_is_absent(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A marker with no tracked_paths key must fail INVALID_MARKER (finding 2)."""
+    # Arrange: a reachable consumed_ref so the gap under test is tracked_paths, not the ref.
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
+    consumer_dir = plugin_tmp_path / 'fixture-consumer-no-tracked'
+    consumer_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], consumer_dir)
+    (consumer_dir / '.agentdev-template.json').write_text(json.dumps({'consumed_ref': first_sha}))
+    _run_git(['add', '-A'], consumer_dir)
+    _run_git(['commit', '-m', 'init'], consumer_dir)
+
+    # Act
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    # Assert
+    assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
+        7,
+        'RESULT=INVALID_MARKER',
+    )
+
+
+def test_check_updates_emits_result_on_unhandled_abort_after_trap(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """An unhandled set -e abort after the trap must still emit RESULT (finding 1)."""
+    # Arrange
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
+    consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['tracked-dir'])
+    # A regular file at .tmp makes `mkdir -p "${consumer_root}/.tmp"` abort under set -e.
+    (consumer_dir / '.tmp').write_text('not a directory\n')
+
+    # Act
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    # Assert
+    assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
+        1,
+        'RESULT=SCRIPT_FAILURE',
     )
 
 
