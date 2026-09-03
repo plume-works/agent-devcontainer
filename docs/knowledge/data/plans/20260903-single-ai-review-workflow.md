@@ -304,9 +304,17 @@ is testable only after the workflow is on `main`, because GitHub resolves
     review job cancelled, gate failed on the superseded head) and run
     33714813477 (`synchronize`, head `56fc89a`) found no accepted review, ran
     `claude-respond` to success, and `ai-review-present` passed.
-- [ ] After merge: an `@claude review` comment produces a `workflow_dispatch`
+- [x] After merge: an `@claude review` comment produces a `workflow_dispatch`
   run filed on the PR head branch, running the branch's file, with the run link
   appended to the comment and the check visible in `gh pr checks`
+  - **Evidence:** throwaway PR #101 (closed): comment 5528342317 produced bridge
+    run 33775175948 (`issue_comment`, on `main`'s file) which dispatched run
+    33775210264 on `scratch/ai-review-item4`, head `3d4d5b0`. That run's
+    preflight authorized the forwarded requester, `claude-respond` posted an
+    APPROVED review on `3d4d5b0`, `ai-review-present` passed, and all four
+    checks are filed on the head commit. The run link was appended to the
+    comment body. Two prior gates had to be opened for this to work — see
+    [dispatched-review identity](../architecture/dispatched-review-identity.md).
 - [ ] After merge: a comment on a fork PR or from a non-writer dispatches
   nothing
 
