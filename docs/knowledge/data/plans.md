@@ -17,11 +17,11 @@ moves them.*
 
 ## Active
 
-[One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
-
 [Consumer PR description guidance](plans/20260903-pr-description-guidance.md)
 
 ## Done
+
+[One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
 
 [Audit every plan edit in a fresh context](plans/20260902-audit-plan-edits-in-fresh-context.md)
 
