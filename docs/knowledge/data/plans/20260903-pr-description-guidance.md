@@ -228,9 +228,14 @@ Add `.github/pr-description-guidance.md` to the GitHub surface table as
 **Customize**, consumer-created, noting it holds `pr-gen-description`
 instructions and does not exist in this publisher repository.
 
-- [ ] The GitHub surface table (or an adjacent note) classifies
+- [x] The GitHub surface table (or an adjacent note) classifies
   `.github/pr-description-guidance.md` as Customize / consumer-created and
   explains its relationship to the `pull_request_template.md` stub row.
+  - **Evidence:** template-boundary.md GitHub surface table gains a Customize
+    row for `.github/pr-description-guidance.md` directly below the
+    `pull_request_template.md` row, noting it is consumer-created, absent here,
+    and written when §4 capture reduces the template to the stub. Committed on
+    `consumption-review`.
 
 ### Task 6: Validate the graph and skill catalog
 
