@@ -407,7 +407,7 @@ jobs:
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
-          append-run-link: ${{ github.event_name == 'workflow_dispatch' && inputs.comment_id != '' && inputs.task == '' }}
+          append-run-link: ${{ github.event_name == 'workflow_dispatch' && inputs.comment_id != '' }}
           comment-id: ${{ inputs.comment_id }}
           comment-kind: ${{ inputs.comment_kind }}
           pr-number: ${{ needs.preflight.outputs.pr_number }}
@@ -446,6 +446,10 @@ jobs:
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: ${{ needs.preflight.outputs.claude_prompt }}
+          append-run-link: ${{ github.event_name == 'workflow_dispatch' && inputs.comment_id != '' }}
+          comment-id: ${{ inputs.comment_id }}
+          comment-kind: ${{ inputs.comment_kind }}
+          pr-number: ${{ needs.preflight.outputs.pr_number }}
 
   # Depends on the review job so the check stays pending while a review runs.
   # Acceptance rule: see spec/ai-review-gate.

@@ -3,7 +3,7 @@ description: Prepare the CI agent environment and run the Claude responder actio
 
 inputs:
   append-run-link:
-    description: Whether to append this run's link to the requesting review comment.
+    description: Whether to append this run's link to the requesting comment.
     required: false
     default: 'false'
   artifact-name:
@@ -34,7 +34,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Append run link to Claude review request
+    - name: Append run link to Claude request
       if: inputs.append-run-link == 'true'
       uses: actions/github-script@v9.0.0
       env:

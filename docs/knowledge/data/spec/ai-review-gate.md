@@ -3,7 +3,7 @@ type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
   by: codex/gpt-5
-  at: 2026-09-03T18:41:56Z
+  at: 2026-09-03T18:51:21Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -107,7 +107,9 @@ a pull request that has no accepted review. It SHALL NOT run for a
 A `@claude` mention opening a comment, review, or review comment on a pull
 request SHALL be answered by a `workflow_dispatch` of this workflow on the pull
 request's head branch, so the run executes the branch's own workflow file and
-its checks attach to the head commit.
+its checks attach to the head commit. The dispatched responder run SHALL append
+its run link to the requesting comment, review, or review comment before Claude
+starts.
 
 ### Scenario: a maintainer comments `@claude review`
 
