@@ -15,7 +15,7 @@ ARG WORKSPACE_FOLDER=/workspaces/project
 # the build context, so this is a pin the build verifies rather than a version it
 # fetches: .claude-plugin/marketplace.json must declare exactly this version or the
 # provisioning fails. Bump both together when releasing the catalog.
-ARG AGENTDEV_PLUGIN_VERSION=3.1.0
+ARG AGENTDEV_PLUGIN_VERSION=3.2.0
 
 # Where the staged catalog lives. Outside $HOME on purpose: ~/.claude and ~/.codex
 # are commonly mounted as volumes, which would shadow anything placed under them.
