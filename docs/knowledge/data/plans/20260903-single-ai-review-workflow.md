@@ -304,11 +304,29 @@ is testable only after the workflow is on `main`, because GitHub resolves
     review job cancelled, gate failed on the superseded head) and run
     33714813477 (`synchronize`, head `56fc89a`) found no accepted review, ran
     `claude-respond` to success, and `ai-review-present` passed.
-- [ ] After merge: an `@claude review` comment produces a `workflow_dispatch`
+- [x] After merge: an `@claude review` comment produces a `workflow_dispatch`
   run filed on the PR head branch, running the branch's file, with the run link
   appended to the comment and the check visible in `gh pr checks`
-- [ ] After merge: a comment on a fork PR or from a non-writer dispatches
+  - **Evidence:** throwaway PR #101 (closed): comment 5528342317 produced bridge
+    run 33775175948 (`issue_comment`, on `main`'s file) which dispatched run
+    33775210264 on `scratch/ai-review-item4`, head `3d4d5b0`. That run's
+    preflight authorized the forwarded requester, `claude-respond` posted an
+    APPROVED review on `3d4d5b0`, `ai-review-present` passed, and all four
+    checks are filed on the head commit. The run link was appended to the
+    comment body. Two prior gates had to be opened for this to work — see
+    [dispatched-review identity](../architecture/dispatched-review-identity.md).
+- [x] After merge: a comment on a fork PR or from a non-writer dispatches
   nothing
+  - **Evidence:** fork PR #105 from `we-are-code-artisans` (permission `read`,
+    head `we-are-code-artisans/agent-devcontainer`, head `681a5be`): run
+    33776829317 (a `pull_request` event, where preflight's `if:` itself rejects
+    a fork) skipped preflight, `claude-respond`, and `bridge` before any
+    checkout, posted no review, and `ai-review-present` failed with "No AI
+    review found", so merge stays blocked rather than passing unreviewed. GitHub
+    additionally held all four workflow runs at `action_required` until a
+    maintainer approved them, a gate upstream of the workflow's own. On a
+    comment event the fork is caught one step later, by `isFork` — see
+    [dispatched-review identity](../architecture/dispatched-review-identity.md).
 
 ## Spec changes
 
