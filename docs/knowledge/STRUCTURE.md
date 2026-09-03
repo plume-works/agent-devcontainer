@@ -23,7 +23,7 @@ STRUCTURE.md       # this file: design rationale
 .iwe/
   config.toml      # markdown conventions + schema→glob bindings
   schemas/         # validation schemas: plan, feature, bug, release, task, codebase
-.agents/plugins/agentdev/skills/iwe-*/  # state workflows: setup, explore, plan,
+.agents/plugins/agentdev/skills/iwe-*/  # state workflows: setup, map, explore, plan,
                    # implement, verify, ship, weekly (invoked as /agentdev:iwe-*)
 data/              # the graph
   index.md         # the root hub — every hub is its child

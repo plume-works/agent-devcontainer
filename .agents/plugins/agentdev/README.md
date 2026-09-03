@@ -106,6 +106,26 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:skill-scripts`            | Write a skill script's result and exit-code contract.                  |
 | `/agentdev:template-consume`         | Adopt or update the agent-devcontainer template in another repository. |
 
+#### Knowledge-graph workflow (IWE)
+
+These skills run against an [IWE](https://iwe.md) workspace — a markdown
+knowledge graph with a `data/` bundle of product, spec, architecture, plan,
+and codebase-map documents. They are the project's memory across sessions.
+
+| Skill                         | What it does                                                         |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `/agentdev:iwe-setup`         | Brownfield onboarding: drafts the product and architecture docs.     |
+| `/agentdev:iwe-map`           | Codebase archaeology: writes and refreshes the `data/codebase/` map. |
+| `/agentdev:iwe-explore`       | Thinking partner from an idea or a GitHub issue; never writes code.  |
+| `/agentdev:iwe-plan`          | Files a plan with verified anchors and its spec impact.              |
+| `/agentdev:iwe-implement`     | Executes a plan task-by-task, ticking boxes with evidence.           |
+| `/agentdev:iwe-implement-all` | Implements every active plan in turn.                                |
+| `/agentdev:iwe-verify`        | Pre-ship gate and drift audit: graph claims checked against code.    |
+| `/agentdev:iwe-ship`          | Closes the loop: spec sync, stage flips, release recording.          |
+| `/agentdev:iwe-ship-all`      | Ships every implemented plan in turn.                                |
+| `/agentdev:iwe-weekly`        | Read-only digest: shipped, in flight, bugs, backlog, graph health.   |
+| `/agentdev:iwe-audit`         | Prunes session residue from documents and comments.                  |
+
 ### Hooks
 
 A `SessionStart` hook brings up the project devcontainer, but **only** in the

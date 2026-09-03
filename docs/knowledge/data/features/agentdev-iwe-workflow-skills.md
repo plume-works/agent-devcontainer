@@ -15,6 +15,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-setup/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-weekly/SKILL.md
 ---
 
@@ -28,9 +29,13 @@ repository-local Claude skills from `.claude/`.
 
 ## Behaviour
 
-**The seven workflow skills live in the plugin.** Setup, Explore, Plan,
+**The eight workflow skills live in the plugin.** Setup, Map, Explore, Plan,
 Implement, Verify, Ship, and Weekly are shipped from
 `.agents/plugins/agentdev/skills/iwe-*/` and invoked as `/agentdev:iwe-*`.
+
+**Map owns the `data/codebase/` lane.** Setup defers the per-module map to Map's
+initial mode, and Verify's audit hands stale map docs to Map's refresh mode, so
+every `data/` lane has exactly one writer.
 
 **Skill-to-skill references are plugin-portable.** The workflow instructions use
 namespaced `/agentdev:iwe-*` invocations for sibling handoffs, so the catalog
