@@ -99,7 +99,6 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 
 | Skill                                | What it does                                               |
 | ------------------------------------ | ---------------------------------------------------------- |
-| `/agentdev:refine-issue`             | Turn an issue into an implementation-ready spec.           |
 | `/agentdev:microvm-sandbox`          | Run a command through the project devcontainer.            |
 | `/agentdev:remote-codespace-session` | Use a GitHub Codespace as a remote build and test machine. |
 | `/agentdev:create-agent`             | Add or update an agent in this catalog.                    |
