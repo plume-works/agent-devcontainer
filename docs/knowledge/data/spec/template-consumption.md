@@ -2,13 +2,16 @@
 type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:54:56Z
+  by: claude-code/haiku-4.5
+  at: 2026-09-03T00:00:00Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
 - resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
+- resource: .github/workflows/validate-agent-files.yml
+- resource: .github/workflows/validate-knowledge-base.yml
+- resource: pyproject.toml
 ---
 
 # Template consumption
@@ -128,12 +131,14 @@ In `pyproject.toml`:
 2. remove `validate_agent_files` from the development dependency list;
 3. remove the editable `validate_agent_files` entry from `[tool.uv.sources]`,
    and delete the now-empty `[tool.uv.sources]` table;
-4. remove `toml`, `pydantic`, and `python-frontmatter` — they exist for the
-   validator package, not for the development environment;
+4. remove `pydantic` and `python-frontmatter` — they exist for the validator
+   package, not for the development environment;
 5. remove `.agents/plugins/agentdev/tests` and `py_packages` from pytest
-   `testpaths`. If that empties the list, delete the whole
-   `[tool.pytest.ini_options]` table rather than leaving `testpaths = []`, which
-   makes a bare `pytest` collect nothing;
+   `testpaths`, and remove `docs/knowledge/tests` too unless the project keeps
+   IWE-based project memory under `docs/knowledge/` (see [Knowledge-base
+   validation](#knowledge-base-validation)). If that empties the list, delete
+   the whole `[tool.pytest.ini_options]` table rather than leaving
+   `testpaths = []`, which makes a bare `pytest` collect nothing;
 6. remove `ansible` and `ansible-lint` when the optional image bundle is not
    retained; and
 7. add only the dependencies and test paths the consuming project actually owns.
@@ -161,8 +166,13 @@ Review `.pre-commit-config.yaml` hook by hook:
    requires the development image, like the `zizmor` hook below;
 5. the `zizmor` hook is `language: system` and expects `zizmor` on `PATH`, which
    the development image provides — the same arrangement as the
-   `validate_agent_files` hook above; and
-6. update file selectors for the consuming project's source layout.
+   `validate_agent_files` hook above;
+6. remove the `plan-checkboxes`, `iwe-schema-validate`, and `iwe-normalize`
+   local hooks unless the project keeps IWE-based project memory under
+   `docs/knowledge/` (see [Knowledge-base
+   validation](#knowledge-base-validation)); they require the `iwe` binary on
+   `PATH`, which the development image also provides; and
+7. update file selectors for the consuming project's source layout.
 
 In `.ruff.toml`, remove `validate_agent_files` and `mock_catalog` from
 `known-first-party`, then add the consuming project's own first-party packages.
@@ -281,17 +291,22 @@ it will fail if copied and pruned without these edits.
 ### Agent-file validation
 
 Retain agent-file validation only for agent files the consuming repository owns.
-Adapt `.github/workflows/validate-agent-files.yml` so validator-dependent jobs
-execute through the digest-pinned `agent-desktop` image: give the job a
-`container.image` carrying the same tag-plus-digest as
-`devcontainer-compose-pins.yml`, never the moving `edge` tag. Remove: tests for
-`py_packages/validate_agent_files/tests`; tests for
-`.agents/plugins/agentdev/tests`; the `--require-marketplace claude codex`
+The current `.github/workflows/validate-agent-files.yml` builds a `uv`
+environment on a plain `ubuntu-latest` runner (through the shared
+`setup-python-venv` action) and runs the *editable, working-tree* validator —
+the same publisher-only package this guide deletes in step 2. Copying that
+workflow as-is fails once `py_packages/` is gone. Remove: the
+`py_packages/validate_agent_files/tests` step; the
+`.agents/plugins/agentdev/tests` step; the `--require-marketplace claude codex`
 argument, which asserts publisher manifests a consumer does not have; and path
-filters for deleted catalog/package source.
+filters for deleted catalog/package source in the `paths-filter` job's
+`extra-filter`.
 
-What remains is a job that needs no Python setup at all, because the image
-already carries the validator:
+Rebuild the remaining job to run through the digest-pinned `agent-desktop` image
+instead of `uv run`, since the working-tree package that made `uv run` necessary
+is gone. Give the job a `container.image` carrying the same tag-plus-digest as
+`devcontainer-compose-pins.yml`, never the moving `edge` tag — the image already
+carries the installed validator, so the job needs no Python setup at all:
 
 ``` yaml
 jobs:
@@ -312,13 +327,27 @@ jobs:
 
 `--ci` prints nothing when everything passes and the full report when anything
 fails, so a green run stays quiet in the log. Add `--verbose` if the report is
-wanted either way.
+wanted either way. This trades the publisher's from-source validation (needed
+here because the working-tree package under `py_packages/` is what is being
+edited) for validating against whatever validator version the pinned image
+carries — the correct trade once that source is deleted.
 
 Keep the digest in step with `devcontainer-compose-pins.yml` so CI and the
 devcontainer validate with the same version — Renovate already bumps that file.
 
 A project that ships no skills or agents of its own should delete the workflow
 and the `validate-agent-files` pre-commit hook outright.
+
+### Knowledge-base validation
+
+`.github/workflows/validate-knowledge-base.yml` checks the IWE knowledge graph
+under `docs/knowledge/` (schema validation, normalization drift, and plan
+checkbox evidence). It is part of this repository's own project-memory practice
+— see the "Project memory" section of the root `AGENTS.md` — not part of the
+devcontainer runtime. Retain it only when the consuming project also adopts
+IWE-based project memory under `docs/knowledge/`; otherwise delete the workflow
+along with the `iwe-schema-validate` and `iwe-normalize` pre-commit hooks and
+the `docs/knowledge/tests` pytest path.
 
 ### AI responder and the review gate
 
