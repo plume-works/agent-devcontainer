@@ -34,8 +34,8 @@ Options:
 
 Reads the marker file (.agentdev-template.json) at the consumer repository root,
 shallow-clones the template repository's default branch into ./.tmp/, and lists
-which template-owned paths changed between the marker's consumed_ref and the
-upstream HEAD. Prints nothing about paths this consumer already deleted.
+which files under template-owned paths changed between the marker's consumed_ref
+and the upstream HEAD. Prints nothing about paths this consumer already deleted.
 
 Output (key=value lines):
   RESULT, CONSUMED_REF, UPSTREAM_REF
@@ -43,7 +43,7 @@ Output (key=value lines):
 
 Results (RESULT / exit code):
   UP_TO_DATE      4  consumed_ref already matches the upstream default branch
-  CHANGES_FOUND   5  One or more tracked template paths changed upstream
+  CHANGES_FOUND   5  One or more files under tracked template paths changed upstream
   NO_MARKER       3  No .agentdev-template.json at the consumer root; run setup mode first
   INVALID_MARKER  7  Marker file exists but is not valid JSON or is missing consumed_ref
   CLONE_FAILED    6  Could not fetch the template repository
@@ -165,11 +165,16 @@ fi
 
 mapfile -t tracked_paths < <(printf '%s' "${tracked_paths_json}" | jq -r '.[]')
 
+declare -A seen_changed_paths=()
 changed_paths=()
 for path in "${tracked_paths[@]}"; do
-  if ! git -C "${clone_dir}" diff --quiet "${consumed_ref}" "${upstream_ref}" -- "${path}" 2>/dev/null; then
-    changed_paths+=("${path}")
-  fi
+  while IFS= read -r changed_path; do
+    [[ -n "${changed_path}" ]] || continue
+    if [[ -z "${seen_changed_paths[${changed_path}]+x}" ]]; then
+      changed_paths+=("${changed_path}")
+      seen_changed_paths["${changed_path}"]=1
+    fi
+  done < <(git -C "${clone_dir}" diff --name-only "${consumed_ref}" "${upstream_ref}" -- "${path}" 2>/dev/null)
 done
 
 if [[ ${#changed_paths[@]} -eq 0 ]]; then

@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-4-8
-  at: 2026-09-03T20:00:00Z
+  at: 2026-09-03T21:08:55Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -85,7 +85,9 @@ bundles kept, and the template paths still tracked. Update mode SHALL diff only
 those paths from that SHA and SHALL NOT advance the SHA past what was actually
 applied.
 
-## Requirement: a consumer may customize generated PR descriptions through a guidance file
+## Pull request description guidance
+
+### Requirement: a consumer may customize generated PR descriptions through a guidance file
 
 Template setup and update SHALL evaluate a consuming repository's existing
 `.github/pull_request_template.md` against the section structure the
@@ -100,3 +102,20 @@ apply its instructions with precedence over the default generation of its own
 sections, except that the guidance SHALL NOT collapse or rename the Verification
 / Reviewer Handoff split. `pr-gen-description` SHALL NOT read description
 structure from the pull request template itself.
+
+#### Scenario: an extra template section is captured as guidance
+
+- **WHEN** a Workflow B consumer's `.github/pull_request_template.md` contains a
+  section with no equivalent in the `pr-gen-description` structure, and the user
+  chooses to capture it
+- **THEN** the section is written as an instruction in
+  `.github/pr-description-guidance.md`, the template is reduced to the
+  `<!-- pr-gen-description: no-template -->` stub, and the guidance path is
+  added to the marker's tracked paths
+
+#### Scenario: guidance may not break the tense split
+
+- **WHEN** `.github/pr-description-guidance.md` carries an instruction that
+  would merge or rename the Verification and Reviewer Handoff sections
+- **THEN** `pr-gen-description` preserves the two sections and their `- [x]` /
+  `- [ ]` tense split regardless of the guidance
