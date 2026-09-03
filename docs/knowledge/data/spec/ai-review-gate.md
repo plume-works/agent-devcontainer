@@ -3,7 +3,7 @@ type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
   by: codex/gpt-5
-  at: 2026-09-03T18:51:21Z
+  at: 2026-09-03T19:13:06Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -96,6 +96,10 @@ The review job SHALL run when a pull request is opened, marked ready for review,
 reopened, or assigned; when a `workflow_dispatch` requests it; and on a push to
 a pull request that has no accepted review. It SHALL NOT run for a
 `pull_request` event on a draft pull request.
+
+The `ai-review-present` gate SHALL run for pull request, pull request review,
+merge group, and empty-task review dispatch events. It SHALL NOT run for
+free-form task dispatches.
 
 ### Scenario: a draft is opened
 

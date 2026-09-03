@@ -460,7 +460,8 @@ jobs:
       - claude-respond
     if: |
       always() &&
-      contains(fromJSON('["pull_request", "pull_request_review", "merge_group", "workflow_dispatch"]'), github.event_name)
+      (contains(fromJSON('["pull_request", "pull_request_review", "merge_group"]'), github.event_name) ||
+       (github.event_name == 'workflow_dispatch' && inputs.task == ''))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
