@@ -22,6 +22,8 @@ write a plan and link the plan instead.*
 
 [Write a capture skill](backlog/capture-skill.md)
 
+[Simplify the pr-* skills for the single review workflow](backlog/simplify-pr-skills-single-review-workflow.md)
+
 ## Low
 
 [Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
