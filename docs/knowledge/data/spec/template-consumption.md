@@ -2,11 +2,12 @@
 type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T00:00:00Z
+  by: claude-code/opus-4-8
+  at: 2026-09-03T20:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
+- resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 ---
 
@@ -81,3 +82,19 @@ full commit SHA of the template consumed, the workflow used, the optional
 bundles kept, and the template paths still tracked. Update mode SHALL diff only
 those paths from that SHA and SHALL NOT advance the SHA past what was actually
 applied.
+
+## Requirement: a consumer may customize generated PR descriptions through a guidance file
+
+Template setup and update SHALL evaluate a consuming repository's existing
+`.github/pull_request_template.md` against the section structure the
+`pr-gen-description` skill generates, proposing a section-by-section mapping for
+the user to confirm. Sections with no equivalent in that structure MAY be
+captured, at the user's choice, as instructions in a consumer-owned
+`.github/pr-description-guidance.md`; capturing SHALL translate a template
+section into a generation instruction rather than copying its heading verbatim.
+
+When `.github/pr-description-guidance.md` exists, `pr-gen-description` SHALL
+apply its instructions with precedence over the default generation of its own
+sections, except that the guidance SHALL NOT collapse or rename the Verification
+/ Reviewer Handoff split. `pr-gen-description` SHALL NOT read description
+structure from the pull request template itself.

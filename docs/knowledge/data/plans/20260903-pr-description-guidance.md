@@ -206,10 +206,19 @@ evaluate the consumer's PR template, extras may be captured as instructions in
 `pr-gen-description`'s default section generation except that it SHALL preserve
 the Verification / Reviewer Handoff tense split.
 
-- [ ] A new `## Requirement` covers PR-template evaluation and the guidance-file
+- [x] A new `## Requirement` covers PR-template evaluation and the guidance-file
   precedence floor, in the spec's existing SHALL style.
-- [ ] Its `sources:` / prose reference the two skills that implement it
+  - **Evidence:** `template-consumption.md` gains "## Requirement: a consumer
+    may customize generated PR descriptions through a guidance file" — prose
+    SHALL statements matching the doc's existing scenario-free style (the
+    delta's `#### Scenario:` blocks are not carried, as no requirement in this
+    doc uses them). Committed on `consumption-review`.
+- [x] Its `sources:` / prose reference the two skills that implement it
   (`pr-gen-description`, `template-consume`).
+  - **Evidence:** The requirement prose names both `pr-gen-description` and
+    template setup/update (`template-consume`); `sources:` adds
+    `.agents/plugins/agentdev/skills/pr-gen-description/SKILL.md` alongside the
+    existing `template-consume` entries. Committed on `consumption-review`.
 
 ### Task 5: Classify the guidance path in the template-boundary architecture doc
 
