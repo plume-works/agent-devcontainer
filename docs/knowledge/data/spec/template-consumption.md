@@ -12,15 +12,27 @@ sources:
 - resource: .github/workflows/validate-agent-files.yml
 - resource: .github/workflows/validate-knowledge-base.yml
 - resource: pyproject.toml
+- resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 ---
 
 # Template consumption
 
-This is the manual guide for projects that want the development environment and
-repository conventions supplied by `agent-devcontainer`. It covers both starting
-from a complete copy and adding the template surface to an existing repository.
-It does not introduce a generator, synchronization service, or new capability
-this repository does not already carry.
+This is the durable specification for how a project adopts the development
+environment and repository conventions supplied by `agent-devcontainer`. It
+covers both starting from a complete copy and adding the template surface to an
+existing repository, and it is the source of truth this repository edits when
+either workflow changes.
+
+The executable form is the `agentdev` catalog's `/agentdev:template-consume`
+skill (`.agents/plugins/agentdev/skills/template-consume/`), whose
+`references/consumption-guide.md` carries the same step content for a consumer
+running the skill from an installed plugin cache — it has no access to this
+document's location in the tree. Keep the two in sync: a change here that alters
+a step, a deleted/retained path, or a workflow requirement belongs in both. The
+skill also supplies what this document alone could not: an update mode that
+tracks a consumer's last-adopted commit SHA in a `.agentdev-template.json`
+marker file and diffs tracked template paths against the template repository's
+current default branch.
 
 Read [Template boundary](../architecture/template-boundary.md) first — it is the
 authoritative keep/customize/optional/delete inventory this guide walks through.
@@ -685,12 +697,16 @@ consumer image in `devcontainer-compose-pins.yml`.
 
 ## Ongoing maintenance
 
-Manual copying creates no upstream relationship. After bootstrap: Renovate
+Bootstrap creates no automatic upstream relationship. After bootstrap: Renovate
 advances external image and tool pins configured in the consumer; fixes to the
 reusable scaffolding do not automatically arrive from this repository; catalog
 updates arrive through a rebuilt/pinned `agent-desktop` image; and
 project-specific changes remain owned by the consuming repository.
 
-Compare template files manually when adopting a later improvement. Reconsider a
-real template synchronization mechanism only if the number of consumers or the
-scaffolding churn makes manual review unreliable.
+A consumer that recorded its adoption with `/agentdev:template-consume`'s setup
+mode compares template files against a later improvement with that skill's
+update mode, which diffs tracked template paths against the recorded commit SHA
+rather than a manual side-by-side review. A consumer that adopted the template
+before the skill existed, or by other means, still compares files manually —
+retroactively adopting the marker file for such a consumer requires only
+choosing the commit SHA it currently reflects.
