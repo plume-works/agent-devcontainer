@@ -2,8 +2,8 @@
 type: spec
 description: How a project adopts this repository as a template — full-copy and existing-repository workflows, and the collisions each one must avoid.
 generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:54:56Z
+  by: claude-code/opus-4-8
+  at: 2026-09-03T00:00:00Z
 sources:
 - resource: docs/using-as-template.md (folded and removed)
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
