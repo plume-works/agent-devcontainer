@@ -297,8 +297,13 @@ is testable only after the workflow is on `main`, because GitHub resolves
     `55f91d2`, pushed after the `5e03697` review): preflight success,
     `claude-respond` skipped, `bridge` skipped, `ai-review-present` success; the
     run finished within a minute of the push.
-- [ ] A push to a PR with no accepted review runs the review job and the gate
+- [x] A push to a PR with no accepted review runs the review job and the gate
   passes on its result
+  - **Evidence:** throwaway PR #99 (closed): a second commit pushed while the
+    `opened` review of `f8a2ba5` was running cancelled that run (33714763006 —
+    review job cancelled, gate failed on the superseded head) and run
+    33714813477 (`synchronize`, head `56fc89a`) found no accepted review, ran
+    `claude-respond` to success, and `ai-review-present` passed.
 - [ ] After merge: an `@claude review` comment produces a `workflow_dispatch`
   run filed on the PR head branch, running the branch's file, with the run link
   appended to the comment and the check visible in `gh pr checks`
