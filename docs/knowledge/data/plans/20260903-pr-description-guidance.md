@@ -131,19 +131,37 @@ writes the extras as translated instructions into
 `.github/pr-description-guidance.md` and reduces the template to the
 `no-template` stub.
 
-- [ ] §4 states the mapping is agent-proposed then user-confirmed, showing both
+- [x] §4 states the mapping is agent-proposed then user-confirmed, showing both
   buckets (covered vs. extras) before anything is written.
-- [ ] §4 makes the heading→instruction translation explicit (a consumer heading
+  - **Evidence:** consumption-guide.md §4 "The pull request template" step 1
+    ("Map, then confirm.") proposes the mapping, presents covered/extras
+    buckets, and states "Nothing is captured or deleted until the user confirms
+    the buckets." Committed on `consumption-review`.
+- [x] §4 makes the heading→instruction translation explicit (a consumer heading
   becomes an instruction telling `pr-gen-description` to emit that content), so
   a future agent does not paste headings verbatim and recreate a structure file.
-- [ ] §4 presents the extras' disposition as one batch decision with a
+  - **Evidence:** §4 step 3 ("Capture translates headings into instructions.")
+    translates `## Rollback plan` into an emit instruction and warns "A guidance
+    file full of pasted headings is a structure file by another name." Committed
+    on `consumption-review`.
+- [x] §4 presents the extras' disposition as one batch decision with a
   recommended default of capture, and enumerates the three outcomes: capture as
   guidance, drop all, keep template as-is.
-- [ ] §4 notes that "keep template as-is" leaves the consumer's real template in
+  - **Evidence:** §4 step 2 ("Decide the extras as one batch.") defaults to
+    capture and enumerates Capture as guidance / Drop all / Keep template as-is.
+    Committed on `consumption-review`.
+- [x] §4 notes that "keep template as-is" leaves the consumer's real template in
   place, which `pr-gen-description` then reports as not consulted.
-- [ ] The procedure names the guidance-file precedence floor (may add/override
+  - **Evidence:** §4 step 2's "Keep template as-is" outcome states it "leave[s]
+    the consumer's real template in place. `pr-gen-description` then reports it
+    as not consulted on every run." Committed on `consumption-review`.
+- [x] The procedure names the guidance-file precedence floor (may add/override
   but not collapse or rename the Verification / Reviewer Handoff split), so
   captured instructions never encode a forbidden override.
+  - **Evidence:** §4 step 4 ("Respect the precedence floor.") states guidance
+    "may not collapse or rename the Verification / Reviewer Handoff split" and
+    "Never capture an instruction that would merge or rename those two
+    sections." Committed on `consumption-review`.
 
 ### Task 3: Extend `template-consume` update mode and template surface
 

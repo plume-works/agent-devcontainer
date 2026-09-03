@@ -614,10 +614,57 @@ the first time.
 
 ### 4. Merge GitHub configuration
 
-Copy or merge the pull request template, Renovate configuration, reusable
-actions, and the workflow starting points under `.github/` in the template
-repository. Apply the same manual CI edits from Workflow A; selecting fewer
-files does not remove their internal publisher assumptions.
+Copy or merge the Renovate configuration, reusable actions, and the workflow
+starting points under `.github/` in the template repository. Apply the same
+manual CI edits from Workflow A; selecting fewer files does not remove their
+internal publisher assumptions.
+
+#### The pull request template
+
+The template's `.github/pull_request_template.md` is a
+`<!-- pr-gen-description: no-template -->` stub: `pr-gen-description` owns the PR
+description structure, and the stub defers to it silently. A Workflow B
+consumer, though, may already have a real `.github/pull_request_template.md`
+full of its own sections. Do not copy the stub over it blindly, and do not keep
+the real template as unexamined structure — evaluate it first:
+
+1. **Map, then confirm.** Propose a section-by-section mapping of the consumer's
+   existing template headings onto the sections `pr-gen-description` generates
+   (its Step 7 list: Summary, What Changed, Why, Verification, Reviewer Handoff,
+   Breaking Changes, Migration, Related). Present two buckets — **covered** (a
+   consumer heading with a Step 7 equivalent) and **extras** (a heading with no
+   equivalent) — and let the user correct the split before anything is written.
+   Nothing is captured or deleted until the user confirms the buckets.
+
+2. **Decide the extras as one batch.** Offer the extras' disposition as a single
+   decision, defaulting to **capture**, with three outcomes:
+   - **Capture as guidance** (recommended): write the extras into a
+     consumer-owned `.github/pr-description-guidance.md` and reduce the template
+     to the `<!-- pr-gen-description: no-template -->` stub.
+   - **Drop all:** discard the extras and reduce the template to the stub.
+   - **Keep template as-is:** leave the consumer's real template in place.
+     `pr-gen-description` then reports it as not consulted on every run (its
+     three-way template-reporting path), because the skill never reads structure
+     out of the template itself.
+
+3. **Capture translates headings into instructions.** When capturing, translate
+   each extra _heading_ into an _instruction_ that tells `pr-gen-description` to
+   emit that content — never paste the heading verbatim. A consumer
+   `## Rollback plan` becomes an instruction like "always include a Rollback
+   plan section describing how to revert this change." A guidance file full of
+   pasted headings is a structure file by another name, which is exactly what
+   Step 7 supersedes.
+
+4. **Respect the precedence floor.** Guidance instructions take precedence over
+   `pr-gen-description`'s default section generation, but they may not collapse
+   or rename the Verification / Reviewer Handoff split — that tense split is what
+   makes each item's state readable. Never capture an instruction that would
+   merge or rename those two sections.
+
+Record `.github/pr-description-guidance.md` in the marker's `tracked_paths` when
+capture creates it, so update mode preserves it. See
+[Update Mode](../SKILL.md) for how a later PR-template change re-runs this
+evaluation.
 
 If the AI responder workflows are among the files taken, their three
 out-of-repository prerequisites apply here too — the Claude GitHub App
