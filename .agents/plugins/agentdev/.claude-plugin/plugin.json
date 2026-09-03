@@ -1,6 +1,6 @@
 {
   "name": "agentdev",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, container and Codespace escalation, and an IWE knowledge-graph planning workflow.",
   "author": {
     "name": "PlumeWorks"
