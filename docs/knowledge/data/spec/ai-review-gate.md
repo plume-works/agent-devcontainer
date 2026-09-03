@@ -2,11 +2,12 @@
 type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-09-03T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-03T19:24:53Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
+- resource: .github/actions/run-claude-responder/action.yml
 ---
 
 # AI review gate
@@ -73,6 +74,12 @@ from a fork, and SHALL NOT act on a request from an actor without write access.
 Both gates SHALL apply before a dispatch is issued for a comment and again in
 the dispatched run.
 
+The PR review responder SHALL run with read-only repository contents access.
+Free-form task requests that may edit repository contents SHALL run in a
+separate job with write repository contents access. A free-form task responder
+prompt SHALL instruct Claude to post its response back to the issue or pull
+request thread, quoting the original request.
+
 ### Scenario: a fork PR triggers the responder
 
 - **WHEN** the pull request head repository differs from the workflow repository
@@ -92,6 +99,10 @@ reopened, or assigned; when a `workflow_dispatch` requests it; and on a push to
 a pull request that has no accepted review. It SHALL NOT run for a
 `pull_request` event on a draft pull request.
 
+The `ai-review-present` gate SHALL run for pull request, pull request review,
+merge group, and empty-task review dispatch events. It SHALL NOT run for
+free-form task dispatches.
+
 ### Scenario: a draft is opened
 
 - **WHEN** a pull request is opened as a draft
@@ -102,7 +113,9 @@ a pull request that has no accepted review. It SHALL NOT run for a
 A `@claude` mention opening a comment, review, or review comment on a pull
 request SHALL be answered by a `workflow_dispatch` of this workflow on the pull
 request's head branch, so the run executes the branch's own workflow file and
-its checks attach to the head commit.
+its checks attach to the head commit. The dispatched responder run SHALL append
+its run link to the requesting comment, review, or review comment before Claude
+starts.
 
 ### Scenario: a maintainer comments `@claude review`
 
