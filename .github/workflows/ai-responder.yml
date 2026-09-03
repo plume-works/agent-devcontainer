@@ -497,10 +497,14 @@ jobs:
             echo 'CLAUDE_SETTINGS_EOF'
           } >>"$GITHUB_OUTPUT"
 
+      # A bridged review is dispatched by this repository's own token, so the
+      # action sees a bot actor; preflight already authorized the human
+      # requester. See spec/ai-review-gate.
       - name: Claude Responder
         id: claude_responder
         uses: anthropics/claude-code-action@v1
         with:
+          allowed_bots: github-actions[bot]
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           settings: ${{ steps.claude_settings.outputs.json }}
