@@ -130,6 +130,16 @@ This section list is the structure. Follow the wording rules from [code-review-s
 Neither verification section may hold the other's box type — the split by tense
 is what makes each item's state readable without reading its text.
 
+When a consumer-owned guidance file `.github/pr-description-guidance.md` exists,
+read it and let its instructions take precedence over the default generation of
+the sections above. It holds instructions — repository-specific directions such
+as "always link the Jira ticket in Related" — not section headings; a heading
+list would be a structure file, which this step supersedes. Its instructions
+MAY add to or override how any section is generated, but SHALL NOT collapse or
+rename the `## Verification` / `## Reviewer Handoff` split: that tense split is
+the one floor guidance may not override. This is the only customization channel;
+the skill still never reads structure out of the pull request template itself.
+
 Check whether the repository has its own pull request template —
 `.github/pull_request_template.md` or a file under
 `.github/PULL_REQUEST_TEMPLATE/` — but only in order to report it. When one
@@ -171,5 +181,8 @@ Ensure completeness, technical accuracy, valid links, and that every `## Verific
 ## Related Resources
 
 - The section structure: the list in Step 7 of this skill
+- The consumer customization point: `.github/pr-description-guidance.md`, a
+  consumer-owned instructions file whose directions take precedence over the
+  default section generation (subject to the Step 7 tense-split floor)
 - [code-review-standards](../code-review-standards/)
 - Coding Conventions in the repository's root `AGENTS.md`
