@@ -7,9 +7,10 @@ curated catalog of agents and skills.
 
 The runtime is project-agnostic. This publishing repository also contains image,
 catalog, validator, and CI source that a consuming project does not need. Point an
-existing devcontainer at the published image for the environment, or follow the
-manual template guide (`docs/knowledge/data/spec/template-consumption.md`) for
-the complete setup.
+existing devcontainer at the published image for the environment, or run the
+`/agentdev:template-consume` skill (its guide is at
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`)
+for the complete setup.
 
 ## What's in the image
 
@@ -62,10 +63,13 @@ scripts from Option 2 when the existing project should receive it automatically.
 
 The template surface is broader than the two visible devcontainer files: lifecycle
 scripts, the feature lock, digest pin, MCP configuration, agent settings, tooling,
-and adaptable GitHub workflows all participate. Use the step-by-step manual guide
-(`docs/knowledge/data/spec/template-consumption.md`) for either a full repository
-copy or a selective copy into an existing project. The complete classified inventory
-is in `docs/knowledge/data/architecture/template-boundary.md`.
+and adaptable GitHub workflows all participate. Run the `/agentdev:template-consume`
+skill for either a full repository copy or a selective copy into an existing project;
+its step-by-step guide is
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
+and its update mode later diffs the adopted paths against this repository. The
+complete classified inventory is in
+`docs/knowledge/data/architecture/template-boundary.md`.
 
 ### The catalog ships with the image
 
@@ -129,8 +133,8 @@ example:
 This repository's own [`.github/renovate.json`](.github/renovate.json) shows how
 the consumer pin is discovered and why it lives outside the image-build path filter.
 It also contains publisher-specific rules that a copied project must review; see the
-manual template guide's Renovate section
-(`docs/knowledge/data/spec/template-consumption.md#renovate`).
+Renovate section of the template-consume guide
+(`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`).
 
 #### Renovate dashboard
 
@@ -168,9 +172,9 @@ review lands its check on the head commit and uses the branch's workflow. That
 bridge only works once this workflow has merged.
 
 Projects adopting this repository as a template should read the AI responder
-section of the manual template guide
-(`docs/knowledge/data/spec/template-consumption.md`), which covers the owner gate
-and the security gates that must be preserved.
+section of the template-consume guide
+(`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`),
+which covers the owner gate and the security gates that must be preserved.
 
 ## Enabling the firewall
 
@@ -349,8 +353,9 @@ package.
 `docs/knowledge/data/architecture/template-boundary.md` is the persistent inventory of
 the live tree, including the default template surface, files that require manual
 customization, the optional image-building bundle, publisher-only source, and generated
-state. `docs/knowledge/data/spec/template-consumption.md` turns that inventory into manual
-full-copy and selective-copy procedures.
+state. The `/agentdev:template-consume` skill turns that inventory into full-copy and
+selective-copy procedures, and `docs/knowledge/data/spec/template-consumption.md` holds
+the requirements those procedures must satisfy.
 
 ## License
 

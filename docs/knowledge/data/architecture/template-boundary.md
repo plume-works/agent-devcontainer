@@ -24,9 +24,11 @@ Every tracked path in this repository belongs to one of these classes:
 | Publisher | Required to publish this repository's image/catalog/package, not to use it. |
 | Generated | Host, container, test, or tool state; never template source.                |
 
-"Template" and "customize" describe manual reuse. This repository does not ship
-a Copier template, generator, or synchronization tool — adoption is a manual
-copy, guided by [Template consumption](../spec/template-consumption.md).
+"Template" and "customize" describe file-level reuse. This repository ships no
+Copier template or generator — adoption is a copy or merge driven by the
+`/agentdev:template-consume` skill, whose update mode later diffs the adopted
+paths against this repository from a recorded commit SHA. The requirements it
+must satisfy are in [Template consumption](../spec/template-consumption.md).
 
 ## Runtime flow
 

@@ -2,8 +2,8 @@
 type: architecture
 description: Why validate_agent_files is built from the repository build context and installed as an isolated uv tool in the agent-desktop image, rather than published to PyPI or installed another way.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: claude-code/fable-5.1
+  at: 2026-09-03T00:00:00Z
 sources:
 - resource: docs/agents/specs/template-reuse-validation/ (folded and removed)
 ---
@@ -76,8 +76,9 @@ directory first.
 3. The version installed into the image is pinned and updated deliberately, the
    same way the catalog version is pinned by `AGENTDEV_PLUGIN_VERSION`.
 4. A CI job running in the digest-pinned image can validate a consuming
-   repository's agent files — see
-   [Template consumption](../spec/template-consumption.md#agent-file-validation).
+   repository's agent files — the "Agent-file validation" section of the
+   `/agentdev:template-consume` guide shows the job;
+   [Template consumption](../spec/template-consumption.md) requires it.
 5. The image build does not depend on the consuming repository's checkout — the
    package is installed at build time, not staged for a lifecycle hook to
    install.
