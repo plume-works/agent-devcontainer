@@ -54,9 +54,18 @@ on:
         type: string
         default: ''
 
+# pull_request runs for one PR share a group and a push cancels the unfinished
+# review of an older head; a dispatched run is keyed by the comment that
+# requested it and is never cancelled by a push.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number}}-${{ github.event.comment.id || github.event.review.id }}
-  cancel-in-progress: true
+  group: >-
+    ${{ github.workflow }}-${{
+      (github.event_name == 'workflow_dispatch' && format('dispatch-{0}', inputs.comment_id || github.run_id)) ||
+      (github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number)) ||
+      (github.event_name == 'merge_group' && format('merge-group-{0}', github.event.merge_group.head_sha)) ||
+      format('{0}-{1}', github.event.pull_request.number || github.event.issue.number, github.event.comment.id || github.event.review.id)
+    }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' && github.event.action == 'synchronize' }}
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
@@ -108,7 +117,7 @@ jobs:
       pr_number: ${{ steps.checkout_ref.outputs.prNumber }}
       review_exists: ${{ steps.review_status.outputs.found }}
       wants_review: ${{ steps.agent_prompts.outputs.wantsReview }}
-      claude_requested: ${{ steps.agent_prompts.outputs.claudeRequested }}
+      wants_task: ${{ steps.agent_prompts.outputs.wantsTask }}
       claude_prompt: ${{ steps.agent_prompts.outputs.claudePrompt }}
     steps:
       - name: Determine checkout ref
@@ -244,28 +253,37 @@ jobs:
             // title.
             const mentions = (responder) => {
               const mention = `@${responder}`;
-              if (eventName === 'pull_request') {
-                return true;
-              }
               if (eventName === 'issues') {
                 return (payload.issue?.title ?? '').startsWith(mention) ||
                   (payload.issue?.body ?? '').startsWith(mention);
               }
               return comment.startsWith(mention) || review.startsWith(mention);
             };
-            const requestedTask =
-              payload.comment?.body ?? payload.review?.body ?? issueText;
+            // A free-form task: an issue or comment mention that is not a
+            // review request, or a dispatch carrying a non-empty task.
+            const wantsTask = (responder) => {
+              if (eventName === 'workflow_dispatch') {
+                return dispatchTask !== '';
+              }
+              if (eventName === 'pull_request') {
+                return false;
+              }
+              return mentions(responder) && !isReviewRequest(responder);
+            };
+            // startsWith for the same reason as `mentions`: a body that
+            // merely contains "@claude review" is discussing the request,
+            // not making it. Checked against both comment and review bodies
+            // -- on a pull_request_review event payload.comment is undefined,
+            // so a comment-only test silently falls through to the freeform
+            // task and the review is never posted.
+            const isReviewRequest = (responder) =>
+              comment.startsWith(`@${responder} review`) ||
+              review.startsWith(`@${responder} review`);
+            const requestedTask = eventName === 'workflow_dispatch'
+              ? dispatchTask
+              : payload.comment?.body ?? payload.review?.body ?? issueText;
             const promptFor = (responder) => {
-              // startsWith for the same reason as `mentions`: a body that
-              // merely contains "@claude review" is discussing the request,
-              // not making it. Checked against both comment and review bodies
-              // -- on a pull_request_review event payload.comment is undefined,
-              // so a comment-only test silently falls through to the freeform
-              // task and the review is never posted.
-              const isReview =
-                eventName === 'pull_request' ||
-                comment.startsWith(`@${responder} review`) ||
-                review.startsWith(`@${responder} review`);
+              const isReview = wantsReview || isReviewRequest(responder);
               const prompt = [
                 `REPOSITORY: ${context.repo.owner}/${context.repo.repo}`,
                 `EVENT TYPE: ${eventName}`,
@@ -287,7 +305,10 @@ jobs:
               return { isReview, prompt: prompt.join('\n') };
             };
             const claude = promptFor('claude');
-            core.setOutput('claudeRequested', mentions('claude'));
+            // A comment review request still runs directly here; until it is
+            // bridged into a dispatch it must count as a review.
+            core.setOutput('wantsReview', wantsReview || isReviewRequest('claude'));
+            core.setOutput('wantsTask', wantsTask('claude'));
             core.setOutput('claudePrompt', claude.prompt);
 
   claude-respond:
@@ -296,7 +317,8 @@ jobs:
     if: |
       needs.preflight.result == 'success' &&
       needs.preflight.outputs.is_fork != 'true' &&
-      needs.preflight.outputs.claude_requested == 'true'
+      (needs.preflight.outputs.wants_review == 'true' ||
+       needs.preflight.outputs.wants_task == 'true')
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
       image: ghcr.io/plume-works/agent-desktop:edge
@@ -309,37 +331,58 @@ jobs:
     timeout-minutes: 30
     environment: claude-review
     steps:
+      # A dispatched review annotates the comment that requested it.
       - name: Append run link to Claude review request
         if: |
-          (github.event_name == 'issue_comment' ||
-           github.event_name == 'pull_request_review_comment') &&
-          startsWith(github.event.comment.body, '@claude review')
+          github.event_name == 'workflow_dispatch' &&
+          inputs.comment_id != '' &&
+          inputs.task == ''
         uses: actions/github-script@v9.0.0
+        env:
+          COMMENT_ID: ${{ inputs.comment_id }}
+          COMMENT_KIND: ${{ inputs.comment_kind }}
+          PR_NUMBER: ${{ needs.preflight.outputs.pr_number }}
         with:
           script: |
             const marker = '<!-- claude-review-run-link -->';
-            const body = context.payload.comment?.body ?? '';
             const serverUrl = process.env.GITHUB_SERVER_URL ?? 'https://github.com';
             const runUrl = `${serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const footer = `${marker}\n\n[View Claude review run](${runUrl})`;
-            const nextBody = body.includes(marker)
-              ? body.replace(new RegExp(`${marker}[\\s\\S]*$`), footer)
-              : `${body.trimEnd()}\n\n${footer}`;
 
-            if (nextBody === body) {
+            const ids = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: Number(process.env.COMMENT_ID),
+              review_id: Number(process.env.COMMENT_ID),
+              pull_number: Number(process.env.PR_NUMBER),
+            };
+            const kinds = {
+              issue_comment: {
+                read: () => github.rest.issues.getComment(ids),
+                write: (body) => github.rest.issues.updateComment({ ...ids, body }),
+              },
+              pull_request_review_comment: {
+                read: () => github.rest.pulls.getReviewComment(ids),
+                write: (body) => github.rest.pulls.updateReviewComment({ ...ids, body }),
+              },
+              pull_request_review: {
+                read: () => github.rest.pulls.getReview(ids),
+                write: (body) => github.rest.pulls.updateReview({ ...ids, body }),
+              },
+            };
+            const kind = kinds[process.env.COMMENT_KIND];
+            if (!kind) {
+              core.warning(`Unknown comment_kind ${JSON.stringify(process.env.COMMENT_KIND)}; not appending the run link.`);
               return;
             }
 
-            const params = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: context.payload.comment.id,
-              body: nextBody,
-            };
-            if (process.env.GITHUB_EVENT_NAME === 'pull_request_review_comment') {
-              await github.rest.pulls.updateReviewComment(params);
-            } else {
-              await github.rest.issues.updateComment(params);
+            const { data } = await kind.read();
+            const body = data.body ?? '';
+            const nextBody = body.includes(marker)
+              ? body.replace(new RegExp(`${marker}[\\s\\S]*$`), footer)
+              : `${body.trimEnd()}\n\n${footer}`;
+            if (nextBody !== body) {
+              await kind.write(nextBody);
             }
 
       - name: Checkout repository

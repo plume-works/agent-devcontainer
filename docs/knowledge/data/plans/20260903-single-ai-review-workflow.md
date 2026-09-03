@@ -155,20 +155,41 @@ composite action so preflight and the gate evaluate the same rule.
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] Gate `claude-respond` on `needs.preflight.outputs.wants_review == 'true'`
+- [x] Gate `claude-respond` on `needs.preflight.outputs.wants_review == 'true'`
   in place of the per-event `claude_requested` test, keeping the `is_fork` and
   result checks
-- [ ] Build the prompt from `inputs.task` on `workflow_dispatch` (empty → the
+  - **Evidence:** `claude-respond` `if:` in `.github/workflows/ai-responder.yml`
+    reads `wants_review == 'true' || wants_task == 'true'` — `wants_task` is the
+    free-form path (`issues` mentions, non-PR comments, a dispatch with a task)
+    that the plan keeps as-is and `wants_review` does not cover;
+    `claude_requested` is removed. Committed as "feat(ai-responder): run the
+    review job on preflight's decision".
+- [x] Build the prompt from `inputs.task` on `workflow_dispatch` (empty → the
   fixed `agentdev:pr-review` review prompt), leaving the `issues` and non-PR
   free-form paths as they are
-- [ ] Move the run-link footer step to read `inputs.comment_id` and
+  - **Evidence:** `Determine agent prompts` — `requestedTask` is `dispatchTask`
+    on `workflow_dispatch`, `isReview` is `wantsReview || isReviewRequest`, the
+    `issues` branch of `mentions` and the `issueText` fallback are untouched;
+    same commit.
+- [x] Move the run-link footer step to read `inputs.comment_id` and
   `inputs.comment_kind`, so a dispatched review annotates the comment that
   requested it
-- [ ] Key concurrency so `pull_request`-event runs for one PR share a group with
-  `cancel-in-progress: true` (a newer push supersedes an unfinished review of an
-  older head, and the new run reviews it if no review exists) and
-  `workflow_dispatch` runs are keyed by `inputs.comment_id`, never cancelled by
-  a push
+  - **Evidence:** `Append run link to Claude review request` runs only on
+    `workflow_dispatch` with a `comment_id` and an empty `task`; it fetches the
+    body by id for each of the three `comment_kind` values (issue comment,
+    review comment, review) and updates it through the matching API; same
+    commit.
+- [x] Key concurrency so `pull_request`-event runs for one PR share a group,
+  cancelling in progress only on `synchronize` (a newer push supersedes an
+  unfinished review of an older head, and the new run reviews it if no review
+  exists; `review_requested`, `assigned`, and the other activity types queue
+  behind a running review instead of cancelling it, since none of them starts a
+  replacement review) and `workflow_dispatch` runs are keyed by
+  `inputs.comment_id`, never cancelled by a push
+  - **Evidence:** the `concurrency:` block — `pr-<number>` group for
+    `pull_request`, `dispatch-<comment_id>` for `workflow_dispatch`,
+    `cancel-in-progress` is the expression
+    `event_name == 'pull_request' && action == 'synchronize'`; same commit.
 
 ### Task 3: The gate job depends on the review job
 
