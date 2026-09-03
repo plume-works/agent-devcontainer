@@ -6,10 +6,6 @@ inputs:
     description: Whether to append this run's link to the requesting comment.
     required: false
     default: 'false'
-  post-result-comment:
-    description: Whether to post Claude's final response as an issue or PR comment.
-    required: false
-    default: 'false'
   artifact-name:
     description: Name for the responder execution artifact.
     required: true
@@ -137,53 +133,6 @@ runs:
         name: ${{ inputs.artifact-name }}
         path: ${{ steps.claude_responder.outputs.execution_file }}
         retention-days: 7
-
-    - name: Post Claude task result
-      if: inputs.post-result-comment == 'true' && steps.claude_responder.outputs.execution_file != ''
-      uses: actions/github-script@v9.0.0
-      env:
-        EXECUTION_FILE: ${{ steps.claude_responder.outputs.execution_file }}
-        ISSUE_NUMBER: ${{ inputs.pr-number }}
-      with:
-        github-token: ${{ inputs.github_token }}
-        script: |
-          const fs = require('node:fs');
-          const messages = JSON.parse(fs.readFileSync(process.env.EXECUTION_FILE, 'utf8'));
-
-          const assistantTexts = [];
-          for (const item of Array.isArray(messages) ? messages : [messages]) {
-            if (typeof item?.result === 'string') {
-              assistantTexts.push(item.result);
-            }
-            if (item?.type !== 'assistant' || item?.message?.role !== 'assistant') {
-              continue;
-            }
-            for (const block of item.message.content ?? []) {
-              if (block?.type === 'text' && typeof block.text === 'string') {
-                assistantTexts.push(block.text);
-              }
-            }
-          }
-
-          const result = assistantTexts.at(-1)?.trim();
-          if (!result) {
-            core.warning('Claude produced no text result to post.');
-            return;
-          }
-
-          const serverUrl = process.env.GITHUB_SERVER_URL ?? 'https://github.com';
-          const runUrl = `${serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-          const prefix = `Claude task result\n\n`;
-          const suffix = `\n\n[View run](${runUrl})`;
-          const maxResultLength = 65000 - prefix.length - suffix.length;
-          const body = `${prefix}${result.slice(0, maxResultLength)}${result.length > maxResultLength ? '\n\n[truncated]' : ''}${suffix}`;
-
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: Number(process.env.ISSUE_NUMBER),
-            body,
-          });
 
     - name: Fail on Claude usage limit
       if: steps.claude_responder.outputs.execution_file != ''

@@ -3,7 +3,7 @@ type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
   by: codex/gpt-5
-  at: 2026-09-03T19:20:27Z
+  at: 2026-09-03T19:24:53Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -77,7 +77,8 @@ the dispatched run.
 The PR review responder SHALL run with read-only repository contents access.
 Free-form task requests that may edit repository contents SHALL run in a
 separate job with write repository contents access. A free-form task responder
-SHALL post Claude's final task result back to the issue or pull request thread.
+prompt SHALL instruct Claude to post its response back to the issue or pull
+request thread, quoting the original request.
 
 ### Scenario: a fork PR triggers the responder
 
