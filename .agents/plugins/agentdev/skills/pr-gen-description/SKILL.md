@@ -138,6 +138,12 @@ was not consulted, so they can keep it, replace it with a pointer stub, or ask
 for the structure to change. Never read a structure out of it, never merge it
 with the list above, and never ignore it in silence.
 
+The one exception is a template that opts out: if the file contains the HTML
+comment `<!-- pr-gen-description: no-template -->`, it is a deliberate
+placeholder that defers to this skill's structure, so use the structure and say
+nothing about the template. Report only templates that carry a real structure
+this skill overrode.
+
 ### Step 8: Review and Validate
 
 Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list and does not repeat generic review or clean-code checklists from the referenced documents.
