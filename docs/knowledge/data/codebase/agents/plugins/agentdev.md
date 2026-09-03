@@ -8,15 +8,15 @@ source:
 commit: eb60f60450c6009b076bc51993b49a924653eaa4
 verified:
   by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  at: 2026-09-03T20:12:49Z
 stale_after: 2026-12-02
 generated:
   by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  at: 2026-09-03T20:12:49Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
-  title: the code this map describes, read at commit eb60f60
+  title: the code this map describes, read at commit 37fcab8
 ---
 
 # The agentdev catalog
