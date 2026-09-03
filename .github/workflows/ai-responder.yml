@@ -53,6 +53,13 @@ on:
         required: false
         type: string
         default: ''
+      requester:
+        description: >-
+          Login of the user who requested this run; empty means the
+          dispatching actor
+        required: false
+        type: string
+        default: ''
 
 # pull_request runs for one PR share a group and a push cancels the unfinished
 # review of an older head; a dispatched run is keyed by the comment that
@@ -189,28 +196,33 @@ jobs:
           pr-number: ${{ steps.checkout_ref.outputs.prNumber }}
           github-token: ${{ github.token }}
 
+      # A dispatched run's actor is the bridge's token; the gate re-checks the
+      # forwarded requester instead. See spec/ai-review-gate.
       - name: Authorize responder requester
         if: steps.checkout_ref.outputs.isFork != 'true'
         uses: actions/github-script@v9.0.0
+        env:
+          REQUESTER: ${{ inputs.requester }}
         with:
           script: |
+            const requester = process.env.REQUESTER || context.actor;
             let permission;
             try {
               const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                username: context.actor,
+                username: requester,
               });
               permission = data.permission;
             } catch (error) {
               throw new Error(
-                `Could not verify write access for ${context.actor}: ${error.message}`
+                `Could not verify write access for ${requester}: ${error.message}`
               );
             }
 
             if (!['admin', 'maintain', 'write'].includes(permission)) {
               throw new Error(
-                `User ${context.actor} does not have permission to request the responder.`
+                `User ${requester} does not have permission to request the responder.`
               );
             }
 
@@ -345,6 +357,7 @@ jobs:
               task: body.startsWith('@claude review') ? '' : body,
               comment_id: String(requester?.id ?? ''),
               comment_kind: context.eventName,
+              requester: context.actor,
             };
             await github.rest.actions.createWorkflowDispatch({
               owner,
