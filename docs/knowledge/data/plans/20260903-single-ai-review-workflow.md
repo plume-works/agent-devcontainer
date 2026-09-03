@@ -11,6 +11,8 @@ sources:
 - resource: .github/workflows/require-ai-review.yml
 - resource: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
 - resource: https://docs.github.com/en/actions/concepts/security/github_token
+stage: done
+completed: 2026-09-03
 ---
 
 # One AI review workflow with a needs-coupled gate

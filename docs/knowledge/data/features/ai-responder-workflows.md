@@ -1,14 +1,15 @@
 ---
 type: feature
 stage: implemented
-description: Two matched GitHub Actions workflows give the repository automated PR review — a Claude-only responder that reviews using the branch's own agentdev catalog, and a required gate that blocks merge until an AI review exists.
+description: One Claude-only GitHub Actions workflow gives the repository automated PR review — a responder that reviews using the branch's own agentdev catalog, plus a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
-  by: codex
-  at: 2026-08-31T21:20:30Z
+  by: claude-code/opus-4-8
+  at: 2026-09-03T00:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
-- resource: .github/workflows/require-ai-review.yml
+- resource: .github/actions/ai-review-status/action.yml
 - resource: data/plans/20260816-ai-responder-workflows.md
+- resource: data/plans/20260903-single-ai-review-workflow.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
 - resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
@@ -17,10 +18,12 @@ sources:
 
 ## Purpose
 
-The repository had no automated PR review. Two workflows imported from Dr-QP
-together provide one: a responder that answers `@claude` mentions and reviews
-PRs, and a gate that blocks merge until an AI review exists. They are a matched
-pair — the gate is satisfiable because the responder produces the review.
+The repository had no automated PR review. One workflow, `ai-responder.yml`,
+provides it: a `claude-respond` job answers `@claude` mentions and reviews PRs,
+and an `ai-review-present` gate job — in the same workflow, depending on the
+review job — blocks merge until an AI review exists. The gate is satisfiable
+because the responder produces the review, and it stays pending for as long as a
+review is running in the same run rather than polling for one.
 
 ## Behaviour
 
@@ -40,15 +43,17 @@ today's behavior, so the devcontainer is unchanged.
 variable and its validation, and every ROS-specific element from upstream are
 dropped. The fork gate and the write-access gate are kept verbatim — they are
 the security spine: the responder never checks out or executes code for a fork
-PR, and never acts for an actor without write access.
+PR, and never acts for an actor without write access. Both gates apply before a
+comment is bridged into a dispatch and again in the dispatched run.
 
 **Review output stays on the formal review path.** The Claude responder uses a
 custom prompt, but intentionally leaves `track_progress` unset. That action
 input restores tag-mode tracking comments for custom prompts, but for this
 review workflow it routes findings into a regular PR comment instead of a
-submitted GitHub PR review. For comment-triggered `@claude review` requests, a
-separate `github-script` step appends the Actions run link to the triggering
-comment before the responder starts.
+submitted GitHub PR review. A `@claude` mention on a pull request is bridged
+into a `workflow_dispatch` on the head branch, so the review runs the branch's
+own file and its checks attach to the head commit; the dispatched run appends
+its Actions run link to the triggering comment before the responder starts.
 
 **The gate accepts any AI review, past or present.** `ai-review-present` accepts
 a review from `claude[bot]`/`github-actions[bot]`, a review from
