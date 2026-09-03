@@ -107,26 +107,49 @@ The acceptance test (Claude or Codex review in an accepted state, or a Codex
 `+1` reaction, trusted-bot waiver) moves out of the gate's inline script into a
 composite action so preflight and the gate evaluate the same rule.
 
-- [ ] Add the `workflow_dispatch` trigger with inputs `pr_number` (required),
+- [x] Add the `workflow_dispatch` trigger with inputs `pr_number` (required),
   `task` (the requested free-form task; empty means a review), `comment_id`, and
   `comment_kind` (`issue_comment`, `pull_request_review_comment`, or
   `pull_request_review`), and add the gate's `pull_request` activity types
   (`synchronize`, `review_requested`, `review_request_removed`),
   `pull_request_review` types (`dismissed`, `edited`), and `merge_group` to the
   existing `on:` block
-- [ ] Create `.github/actions/ai-review-status` as a composite action wrapping
+  - **Evidence:** `.github/workflows/ai-responder.yml` `on:` block carries all
+    four `workflow_dispatch` inputs (all `type: string`) and the merged trigger
+    set; committed as "feat(ai-responder): preflight computes the trigger
+    decision once".
+- [x] Create `.github/actions/ai-review-status` as a composite action wrapping
   the acceptance logic now at `require-ai-review.yml:66-172` — inputs
   `pr-number`, `github-token`, `trusted-bot-actors`; outputs `found` and
   `reason` — with no sleep loop
-- [ ] Extend `preflight` to resolve the PR from the `workflow_dispatch` input as
+  - **Evidence:** `.github/actions/ai-review-status/action.yml` — one
+    `github-script` step, the three inputs, `found`/`reason` outputs, a single
+    pass over reviews then reactions; same commit as above.
+- [x] Extend `preflight` to resolve the PR from the `workflow_dispatch` input as
   well as from the event payload, and emit `review_exists` (from the composite
   action), `is_draft`, and `wants_review`, where `wants_review` is true for
   `opened`, `ready_for_review`, `reopened`, `assigned`, `workflow_dispatch` with
   an empty `task`, and `synchronize` when `review_exists` is false — and always
   false while `is_draft` is true on a `pull_request` event
-- [ ] Keep the owner, fork, and write-access gates exactly as they are for every
+  - **Evidence:** `preflight` in `.github/workflows/ai-responder.yml` —
+    `Determine checkout ref` fetches the PR from `inputs.pr_number` on
+    `workflow_dispatch`; `Check for an accepted AI review` runs the composite
+    action after a sparse checkout of `.github/actions`;
+    `Determine agent prompts` computes `wantsReview` from `payload.action`,
+    `IS_DRAFT`, and `REVIEW_EXISTS`; job outputs `review_exists`, `is_draft`,
+    `wants_review` (plus `head_ref` and `is_pull_request` for the bridge); same
+    commit.
+- [x] Keep the owner, fork, and write-access gates exactly as they are for every
   event, including `workflow_dispatch`
-- [ ] `actionlint` and `zizmor` pass on the workflow and the composite action
+  - **Evidence:** the preflight `if:` gains only
+    `github.event_name == 'workflow_dispatch'` as an accepted event; the
+    `isFork` computation and `Authorize responder requester` step are unchanged
+    and apply to the PR resolved from `inputs.pr_number`; same commit.
+- [x] `actionlint` and `zizmor` pass on the workflow and the composite action
+  - **Evidence:** `pre-commit run actionlint --files …` → Passed;
+    `zizmor .github/workflows/ai-responder.yml .github/actions/ai-review-status/action.yml`
+    → "No findings to report" (zizmor v1.22.0); the pre-commit hooks re-run both
+    on the commit.
 
 ### Task 2: The review job runs on preflight's decision
 

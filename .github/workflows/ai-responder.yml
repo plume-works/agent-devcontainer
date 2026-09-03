@@ -14,12 +14,45 @@ on:
   pull_request_review:
     types:
       - submitted
+      - dismissed
+      - edited
   pull_request:
     types:
       - opened
       - reopened
       - assigned
       - ready_for_review
+      - synchronize
+      - review_requested
+      - review_request_removed
+  merge_group:
+    types:
+      - checks_requested
+  # A comment mention is bridged into a dispatch on the PR head branch, so the
+  # review runs the branch's own file. See spec/ai-review-gate.
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to act on
+        required: true
+        type: string
+      task:
+        description: Free-form request; empty means a review
+        required: false
+        type: string
+        default: ''
+      comment_id:
+        description: Id of the comment or review that requested this run
+        required: false
+        type: string
+        default: ''
+      comment_kind:
+        description: >-
+          Kind of the requesting comment: issue_comment,
+          pull_request_review_comment, or pull_request_review
+        required: false
+        type: string
+        default: ''
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number}}-${{ github.event.comment.id || github.event.review.id }}
@@ -58,7 +91,8 @@ jobs:
         (github.event_name == 'issues' &&
           (startsWith(github.event.issue.body, '@claude') ||
            startsWith(github.event.issue.title, '@claude'))) ||
-        github.event_name == 'pull_request'
+        github.event_name == 'pull_request' ||
+        github.event_name == 'workflow_dispatch'
       )
     runs-on: ubuntu-24.04
     permissions:
@@ -67,14 +101,21 @@ jobs:
       pull-requests: read
     outputs:
       checkout_ref: ${{ steps.checkout_ref.outputs.ref }}
+      head_ref: ${{ steps.checkout_ref.outputs.headRef }}
       is_fork: ${{ steps.checkout_ref.outputs.isFork }}
+      is_pull_request: ${{ steps.checkout_ref.outputs.isPullRequest }}
+      is_draft: ${{ steps.checkout_ref.outputs.isDraft }}
       pr_number: ${{ steps.checkout_ref.outputs.prNumber }}
+      review_exists: ${{ steps.review_status.outputs.found }}
+      wants_review: ${{ steps.agent_prompts.outputs.wantsReview }}
       claude_requested: ${{ steps.agent_prompts.outputs.claudeRequested }}
       claude_prompt: ${{ steps.agent_prompts.outputs.claudePrompt }}
     steps:
       - name: Determine checkout ref
         id: checkout_ref
         uses: actions/github-script@v9.0.0
+        env:
+          DISPATCH_PR_NUMBER: ${{ inputs.pr_number }}
         with:
           script: |
             const { eventName, payload } = context;
@@ -82,13 +123,24 @@ jobs:
             let pullRequest = payload.pull_request;
             let prNumber = pullRequest?.number ?? payload.issue?.number ?? '';
 
-            if (!pullRequest && eventName === 'issue_comment' && payload.issue?.pull_request) {
+            const fetchPullRequest = async (pull_number) => {
               const { data: pr } = await github.rest.pulls.get({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                pull_number: payload.issue.number,
+                pull_number,
               });
-              pullRequest = pr;
+              return pr;
+            };
+
+            if (!pullRequest && eventName === 'issue_comment' && payload.issue?.pull_request) {
+              pullRequest = await fetchPullRequest(payload.issue.number);
+            }
+            if (eventName === 'workflow_dispatch') {
+              prNumber = Number(process.env.DISPATCH_PR_NUMBER);
+              if (!Number.isInteger(prNumber) || prNumber <= 0) {
+                throw new Error(`pr_number must be a positive integer, got ${JSON.stringify(process.env.DISPATCH_PR_NUMBER)}`);
+              }
+              pullRequest = await fetchPullRequest(prNumber);
             }
 
             if (pullRequest?.head?.sha) {
@@ -106,8 +158,27 @@ jobs:
               console.log(`Pull request originates from the same repository: ${context.repo.owner}/${context.repo.repo}`);
               core.setOutput('ref', ref);
               core.setOutput('prNumber', prNumber);
+              core.setOutput('headRef', pullRequest?.head?.ref ?? '');
             }
             core.setOutput('isFork', isFork);
+            core.setOutput('isPullRequest', Boolean(pullRequest));
+            core.setOutput('isDraft', Boolean(pullRequest?.draft));
+
+      - name: Checkout composite actions
+        if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
+        uses: actions/checkout@v7.0.1
+        with:
+          sparse-checkout: .github/actions
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Check for an accepted AI review
+        id: review_status
+        if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
+        uses: ./.github/actions/ai-review-status
+        with:
+          pr-number: ${{ steps.checkout_ref.outputs.prNumber }}
+          github-token: ${{ github.token }}
 
       - name: Authorize responder requester
         if: steps.checkout_ref.outputs.isFork != 'true'
@@ -140,10 +211,29 @@ jobs:
         uses: actions/github-script@v9.0.0
         env:
           PR_NUMBER: ${{ steps.checkout_ref.outputs.prNumber }}
+          IS_DRAFT: ${{ steps.checkout_ref.outputs.isDraft }}
+          REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
+          DISPATCH_TASK: ${{ inputs.task }}
         with:
           script: |
             const { eventName, payload } = context;
             const prNumber = process.env.PR_NUMBER;
+            const dispatchTask = (process.env.DISPATCH_TASK ?? '').trim();
+            // When the review job runs: see spec/ai-review-gate, "a review
+            // runs on first push and on explicit request".
+            const wantsReview = (() => {
+              if (eventName === 'workflow_dispatch') {
+                return dispatchTask === '';
+              }
+              if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
+                return false;
+              }
+              if (['opened', 'ready_for_review', 'reopened', 'assigned'].includes(payload.action)) {
+                return true;
+              }
+              return payload.action === 'synchronize' && process.env.REVIEW_EXISTS !== 'true';
+            })();
+            core.setOutput('wantsReview', wantsReview);
             const comment = payload.comment?.body ?? '';
             const review = payload.review?.body ?? '';
             const issueText = `${payload.issue?.title ?? ''}\n${payload.issue?.body ?? ''}`;
