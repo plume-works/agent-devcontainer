@@ -214,7 +214,10 @@ jq -r '.[].databaseId' "$runs_json" | while IFS= read -r run_id; do
   fi
 done
 
-artifact_files=("$output_dir"/artifacts/*.json)
+mapfile -t artifact_files < <(
+  jq -r --arg artifacts_dir "$output_dir/artifacts" \
+    '.[] | "\($artifacts_dir)/\(.databaseId).json"' "$runs_json"
+)
 if ((${#artifact_files[@]})); then
   jq -s --arg artifact_name "$artifact_name" '
     [
