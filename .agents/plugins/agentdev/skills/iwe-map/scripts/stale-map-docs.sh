@@ -16,7 +16,7 @@ RESULT_CODES+=("3=STALE_FOUND" "4=NO_MAP_DOCS")
 usage() {
   cat <<'HELP'
 Classify every codebase-map doc (data/codebase/**/*.md) by whether the code it
-describes moved after the commit it was read at.
+describes changed after the source fingerprint or commit it was read at.
 
 Usage:
   stale-map-docs.sh [--library <path>]
@@ -29,7 +29,8 @@ Options:
 
 Output:
   One line per map doc, then the counts, then RESULT:
-    FRESH <key>                          no commit touched any source path
+    FRESH <key>                          source digest or commit check is current
+    STALE <key> source_digest <digest>   tracked source content changed
     STALE <key> <commit> <n>             n commits touched a source path
     GONE <key> <source>                  a source path no longer exists
     UNKNOWN_COMMIT <key> <commit>        the pinned commit is not in this clone
@@ -137,6 +138,29 @@ source_paths() {
     in_list { exit }'
 }
 
+source_digest_for_paths() {
+  local tracked_file
+  local content_hash
+
+  if [[ "$#" -eq 0 ]]; then
+    printf '' | sha256sum | awk '{ print $1 }'
+    return
+  fi
+
+  git ls-files -z -- "$@" \
+    | LC_ALL=C sort -z -u \
+    | while IFS= read -r -d '' tracked_file; do
+      if [[ -e "${tracked_file}" ]]; then
+        content_hash="$(git hash-object -- "${tracked_file}")"
+      else
+        content_hash="MISSING"
+      fi
+      printf '%s\0%s\0' "${tracked_file}" "${content_hash}"
+    done \
+    | sha256sum \
+    | awk '{ print $1 }'
+}
+
 today="$(date +%F)"
 fresh_count=0
 stale_count=0
@@ -148,17 +172,12 @@ for file in "${doc_files[@]}"; do
   key="${key#"${library_path%/}"/}"
   frontmatter="$(frontmatter_of "${file}")"
   commit="$(printf '%s\n' "${frontmatter}" | scalar_field commit)"
+  source_digest="$(printf '%s\n' "${frontmatter}" | scalar_field source_digest)"
   stale_after="$(printf '%s\n' "${frontmatter}" | scalar_field stale_after)"
   sources=()
   while IFS= read -r source_path; do
     [[ -n "${source_path}" ]] && sources+=("${source_path}")
   done < <(printf '%s\n' "${frontmatter}" | source_paths)
-
-  if [[ -z "${commit}" ]]; then
-    printf 'NO_COMMIT %s\n' "${key}"
-    stale_count=$((stale_count + 1))
-    continue
-  fi
 
   missing=""
   for source_path in ${sources[@]+"${sources[@]}"}; do
@@ -167,6 +186,31 @@ for file in "${doc_files[@]}"; do
   if [[ -n "${missing}" ]]; then
     printf 'GONE %s %s\n' "${key}" "${missing}"
     gone_count=$((gone_count + 1))
+    continue
+  fi
+
+  if [[ -n "${source_digest}" ]]; then
+    current_digest="$(source_digest_for_paths "${sources[@]}")"
+    if [[ "${current_digest}" != "${source_digest}" ]]; then
+      printf 'STALE %s source_digest %s\n' "${key}" "${current_digest}"
+      stale_count=$((stale_count + 1))
+      continue
+    fi
+
+    if [[ -n "${stale_after}" && "${stale_after}" < "${today}" ]]; then
+      printf 'EXPIRED %s %s\n' "${key}" "${stale_after}"
+      expired_count=$((expired_count + 1))
+      continue
+    fi
+
+    printf 'FRESH %s\n' "${key}"
+    fresh_count=$((fresh_count + 1))
+    continue
+  fi
+
+  if [[ -z "${commit}" ]]; then
+    printf 'NO_COMMIT %s\n' "${key}"
+    stale_count=$((stale_count + 1))
     continue
   fi
 

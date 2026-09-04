@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 import subprocess
 
@@ -32,6 +33,31 @@ def commit_file(repository: Path, relative: str, content: str, message: str) -> 
     git(repository, 'add', relative)
     git(repository, 'commit', '-m', message)
     return git(repository, 'rev-parse', 'HEAD')
+
+
+def source_digest(repository: Path, *sources: str) -> str:
+    """Return the stale-map source_digest for the tracked source contents."""
+    if not sources:
+        return hashlib.sha256(b'').hexdigest()
+
+    listed = subprocess.run(
+        ['git', 'ls-files', '-z', '--', *sources],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+    ).stdout
+    digest = hashlib.sha256()
+    for raw_path in sorted({path for path in listed.split(b'\0') if path}):
+        relative = raw_path.decode()
+        if (repository / relative).exists():
+            content_hash = git(repository, 'hash-object', '--', relative)
+        else:
+            content_hash = 'MISSING'
+        digest.update(raw_path)
+        digest.update(b'\0')
+        digest.update(content_hash.encode())
+        digest.update(b'\0')
+    return digest.hexdigest()
 
 
 def build_workspace(path: Path) -> Path:
@@ -122,6 +148,55 @@ def test_commit_touching_a_source_marks_the_doc_stale(
     assert verdict(completed) == (3, 'RESULT=STALE_FOUND')
     assert f'STALE data/codebase/timer {pinned} 1' in lines
     assert 'FRESH data/codebase/store/log' in lines
+    assert 'STALE_COUNT=1' in lines
+
+
+def test_source_digest_fresh_does_not_need_commit_history(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A matching source_digest is fresh without resolving the pinned commit."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    digest = source_digest(repository, 'src/timer')
+    write_map_doc(
+        repository,
+        'data/codebase/timer',
+        f"type: codebase\nsource: src/timer\ncommit: 'deadbeefcafe'\nsource_digest: '{digest}'\n",
+    )
+    commit_file(repository, 'docs/unrelated.txt', 'notes\n', 'add unrelated docs')
+
+    # Act
+    completed = run_script(plugin_root, repository)
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert 'FRESH data/codebase/timer' in lines
+    assert 'UNKNOWN_COMMIT data/codebase/timer deadbeefcafe' not in lines
+
+
+def test_source_digest_content_change_marks_the_doc_stale(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Changing tracked source content makes a source_digest doc stale."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    digest = source_digest(repository, 'src/timer')
+    write_map_doc(
+        repository,
+        'data/codebase/timer',
+        f"type: codebase\nsource: src/timer\nsource_digest: '{digest}'\n",
+    )
+    (repository / 'src/timer/engine.txt').write_text('tick tock\n')
+    current_digest = source_digest(repository, 'src/timer')
+
+    # Act
+    completed = run_script(plugin_root, repository)
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (3, 'RESULT=STALE_FOUND')
+    assert f'STALE data/codebase/timer source_digest {current_digest}' in lines
     assert 'STALE_COUNT=1' in lines
 
 
