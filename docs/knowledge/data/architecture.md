@@ -30,3 +30,13 @@ rejected are as valuable as the one you picked.*
 [AI review event selection](architecture/ai-review-event-selection.md)
 
 [Dispatched review identity](architecture/dispatched-review-identity.md)
+
+[Agent auth persistence](architecture/agent-auth-persistence.md)
+
+[Nested Docker provisioning](architecture/nested-docker-provisioning.md)
+
+[MCP gateway transport](architecture/mcp-gateway-transport.md)
+
+[gh authentication shim](architecture/gh-authentication-shim.md)
+
+[Formatter ownership](architecture/formatter-ownership.md)
