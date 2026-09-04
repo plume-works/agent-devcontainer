@@ -111,7 +111,10 @@ A marker file exists.
    clone is gone by the time the script returns, so re-clone or use
    `git log`/`git show` against `https://github.com/<source_repo>` — do not
    guess from the path name alone) and decide with the user whether to pull it
-   in. A path this consumer customized (renamed values, pruned an unwanted
+   in. The script reports concrete changed files inside tracked directories,
+   so a marker that tracks `.github/` still exposes a changed
+   `.github/pull_request_template.md`. A path this consumer customized
+   (renamed values, pruned an unwanted
    hook, edited a workflow's owner gate) needs a manual merge, not a blind
    overwrite — copying the upstream file verbatim would silently undo the
    consumer's own edits.
@@ -119,7 +122,13 @@ A marker file exists.
    paths touch lint configuration: confirm `.ruff.toml` and `pyproject.toml`
    never both configure ruff, and confirm no formatter change was just pointed
    at a directory holding verbatim third-party captures.
-4. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
+4. **Re-run the PR-template evaluation** if `CHANGED_PATHS` includes
+   `.github/pull_request_template.md`: walk the guide's §4 "The pull request
+   template" procedure against the consumer's _current_ template (which may
+   itself already carry a `.github/pr-description-guidance.md` to preserve), so
+   an upstream template change does not silently discard captured guidance or a
+   consumer heading.
+5. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
    was taken from (not necessarily the latest — the user may stop partway
    through the changed-paths list) and `last_synced_at` to now. Commit the
    applied changes and the marker update together, or in clearly separated
@@ -161,3 +170,12 @@ only when it includes `"knowledge-base"`. Never add `.agents/`,
 `.claude-plugin/`, `py_packages/`, or `scripts/validate-super-linter-tool-versions.sh`
 — those are publisher-only source this guide has the consumer delete during
 setup, so they can never be legitimate members of a consumer's `tracked_paths`.
+
+`.github/pr-description-guidance.md` is not in the copied list above: this
+repository does not carry it, and it is created only when the guide's §4 capture
+step writes a consumer's PR-template extras into it. It is consumer-created
+state, not a `tracked_paths` diff input. When update mode's step 4 re-runs
+PR-template evaluation after `.github/pull_request_template.md` changes, it
+must preserve an existing guidance file unless the user explicitly replaces or
+removes it. `template-boundary` classifies the path as Customize /
+consumer-created.

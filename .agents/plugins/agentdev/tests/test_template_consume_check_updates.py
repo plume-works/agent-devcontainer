@@ -93,6 +93,9 @@ def test_check_updates_reports_changes_found_for_a_changed_tracked_path(
     script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
     template_dir, first_sha, second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['tracked-dir'])
+    consumer_tracked_dir = consumer_dir / 'tracked-dir'
+    consumer_tracked_dir.mkdir()
+    (consumer_tracked_dir / 'file-b.txt').write_text('consumer copy\n')
 
     # Act
     completed = subprocess.run(
@@ -107,7 +110,100 @@ def test_check_updates_reports_changes_found_for_a_changed_tracked_path(
     assert (completed.returncode, lines[-1]) == (5, 'RESULT=CHANGES_FOUND')
     assert f'CONSUMED_REF={first_sha}' in lines
     assert f'UPSTREAM_REF={second_sha}' in lines
-    assert '  tracked-dir' in lines
+    assert '  tracked-dir/file-b.txt' in lines
+
+
+def test_check_updates_reports_files_inside_a_tracked_github_directory(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A tracked .github/ directory must expose the changed PR-template file."""
+    # Arrange
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    template_dir = plugin_tmp_path / 'fixture-template-github'
+    template_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], template_dir)
+    github_dir = template_dir / '.github'
+    github_dir.mkdir()
+    (github_dir / 'pull_request_template.md').write_text('old template\n')
+    _run_git(['add', '-A'], template_dir)
+    _run_git(['commit', '-m', 'first'], template_dir)
+    first_sha = subprocess.run(
+        ['git', 'rev-parse', 'HEAD'],
+        cwd=template_dir,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    (github_dir / 'pull_request_template.md').write_text('new template\n')
+    _run_git(['add', '-A'], template_dir)
+    _run_git(['commit', '-m', 'second'], template_dir)
+
+    consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['.github/'])
+    consumer_github_dir = consumer_dir / '.github'
+    consumer_github_dir.mkdir()
+    (consumer_github_dir / 'pull_request_template.md').write_text('consumer template\n')
+
+    # Act
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert (completed.returncode, lines[-1]) == (5, 'RESULT=CHANGES_FOUND')
+    assert '  .github/pull_request_template.md' in lines
+
+
+def test_check_updates_filters_consumer_deleted_descendants_but_keeps_new_upstream_files(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A tracked directory must not resurrect descendants deleted by the consumer."""
+    # Arrange
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    template_dir = plugin_tmp_path / 'fixture-template-github-new-file'
+    template_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], template_dir)
+    github_dir = template_dir / '.github'
+    github_dir.mkdir()
+    workflows_dir = github_dir / 'workflows'
+    workflows_dir.mkdir()
+    (github_dir / 'pull_request_template.md').write_text('old template\n')
+    _run_git(['add', '-A'], template_dir)
+    _run_git(['commit', '-m', 'first'], template_dir)
+    first_sha = subprocess.run(
+        ['git', 'rev-parse', 'HEAD'],
+        cwd=template_dir,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    (github_dir / 'pull_request_template.md').write_text('new template\n')
+    (workflows_dir / 'ci.yml').write_text('name: ci\n')
+    _run_git(['add', '-A'], template_dir)
+    _run_git(['commit', '-m', 'second'], template_dir)
+
+    consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['.github/'])
+
+    # Act
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert (completed.returncode, lines[-1]) == (5, 'RESULT=CHANGES_FOUND')
+    assert '  .github/pull_request_template.md' not in lines
+    assert '  .github/workflows/ci.yml' in lines
 
 
 def test_check_updates_reports_up_to_date_when_consumed_ref_matches_head(
@@ -229,6 +325,9 @@ def test_check_updates_honors_root_from_a_non_git_cwd(
     script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['tracked-dir'])
+    consumer_tracked_dir = consumer_dir / 'tracked-dir'
+    consumer_tracked_dir.mkdir()
+    (consumer_tracked_dir / 'file-b.txt').write_text('consumer copy\n')
     non_git_cwd = plugin_tmp_path / 'not-a-git-repo'
     non_git_cwd.mkdir()
 

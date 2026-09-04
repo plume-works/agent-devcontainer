@@ -2,8 +2,8 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-code/fable-5-1
-  at: 2026-09-03T03:00:00Z
+  by: claude-code/opus-4-8
+  at: 2026-09-03T20:05:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -153,6 +153,7 @@ The `.github/` tree is template-related, but it is mixed rather than copy-ready:
 | Path                                            | Class     | Current coupling                                                                                                                                                                                                                                                                      |
 | ----------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `.github/pull_request_template.md`              | Template  | A stub pointing at the `agentdev` catalog, which owns PR structure. Copy-ready precisely because it carries none: a consumer gets a pointer to the same authority, not a format that could drift from it.                                                                             |
+| `.github/pr-description-guidance.md`            | Customize | Consumer-created, absent from this publisher repository. Holds `pr-gen-description` instructions that take precedence over its default section generation; written when `template-consume` §4 captures a consumer's PR-template extras and the template is reduced to the stub above. |
 | `.github/renovate.json`                         | Customize | Contains image-publisher and catalog-release assumptions in addition to the consumer image pin.                                                                                                                                                                                       |
 | `.github/workflows/primary-checks.yml`          | Customize | Calls both reformatting and the optional image-building CI workflow.                                                                                                                                                                                                                  |
 | `.github/workflows/reformat.yml`                | Customize | Calls `super-linter-env.sh` from the catalog and this repository's excluded tool-version check; both must be replaced inline.                                                                                                                                                         |

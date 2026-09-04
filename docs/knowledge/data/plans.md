@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Consumer PR description guidance](plans/20260903-pr-description-guidance.md)
+
 ## Done
 
 [One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)

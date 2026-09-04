@@ -130,6 +130,16 @@ This section list is the structure. Follow the wording rules from [code-review-s
 Neither verification section may hold the other's box type — the split by tense
 is what makes each item's state readable without reading its text.
 
+When a consumer-owned guidance file `.github/pr-description-guidance.md` exists,
+read it and let its instructions take precedence over the default generation of
+the sections above. It holds instructions — repository-specific directions such
+as "always link the Jira ticket in Related" — not section headings; a heading
+list would be a structure file, which this step supersedes. Its instructions
+MAY add to or override how any section is generated, but SHALL NOT collapse or
+rename the `## Verification` / `## Reviewer Handoff` split: that tense split is
+the one floor guidance may not override. This is the only customization channel;
+the skill still never reads structure out of the pull request template itself.
+
 Check whether the repository has its own pull request template —
 `.github/pull_request_template.md` or a file under
 `.github/PULL_REQUEST_TEMPLATE/` — but only in order to report it. When one
@@ -138,9 +148,18 @@ was not consulted, so they can keep it, replace it with a pointer stub, or ask
 for the structure to change. Never read a structure out of it, never merge it
 with the list above, and never ignore it in silence.
 
+The one exception is a template that opts out with no real structure: if the
+file contains the HTML comment
+`<!-- pr-gen-description: no-template -->` and no Markdown section headings, it
+is a deliberate placeholder that defers to this skill's structure, so use the
+structure and say nothing about the template. A marker-bearing template with
+section headings still carries real structure; report it through the template
+not-consulted path. Report only templates that carry a real structure this skill
+overrode.
+
 ### Step 8: Review and Validate
 
-Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list and does not repeat generic review or clean-code checklists from the referenced documents.
+Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list plus any guidance-added sections that comply with the Verification / Reviewer Handoff split, and does not repeat generic review or clean-code checklists from the referenced documents.
 
 ## Edge Cases
 
@@ -165,5 +184,8 @@ Ensure completeness, technical accuracy, valid links, and that every `## Verific
 ## Related Resources
 
 - The section structure: the list in Step 7 of this skill
+- The consumer customization point: `.github/pr-description-guidance.md`, a
+  consumer-owned instructions file whose directions take precedence over the
+  default section generation (subject to the Step 7 tense-split floor)
 - [code-review-standards](../code-review-standards/)
 - Coding Conventions in the repository's root `AGENTS.md`
