@@ -5,11 +5,11 @@ source: .agents/plugins/agentdev/skills
 source_digest: sha256:1d446e2b955c68d69d7a64f6cd43833dda3b7178071d78b760ad79eeb752a262
 verified:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  at: 2026-09-04T20:50:58Z
 stale_after: 2026-12-03
 generated:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  at: 2026-09-04T20:50:58Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -33,11 +33,9 @@ specification plus Claude Code's `disable-model-invocation` — and optionally
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-merge-resolve`,
 `iwe-explore`, `iwe-map`, `iwe-plan`, `pr-discover-ai-responder`,
-`pr-gen-description`, `pr-open`, `pr-open`, `pr-review`,
-`remote-codespace-session`, `remote-codespace-session`,
-`remote-codespace-session`, `remote-codespace-session`, `template-consume`,
-`update-branch`. Skills with `references/` pages: `semantic-refactor-audit`,
-`template-consume`.
+`pr-gen-description`, `pr-open`, `pr-review`, `remote-codespace-session`,
+`template-consume`, `update-branch`. Skills with `references/` pages:
+`semantic-refactor-audit`, `template-consume`.
 
 ## How it works
 

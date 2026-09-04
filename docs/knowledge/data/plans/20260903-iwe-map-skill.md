@@ -231,8 +231,7 @@ reports 47/47 skills valid with no warnings, the seven script tests pass,
 shellcheck is clean, `iwe normalize` and `iwe schema validate` are clean, the
 hub has no placeholder, the tree renders 26 docs under the hub, the staleness
 script reports every doc fresh, and no handoff still says "map skill" without
-naming `/agentdev:iwe-map`. The plan-scope audit by the Durable Knowledge
-Auditor returned two rewrites, both applied, and no drops.
+naming `/agentdev:iwe-map`.
 
 Two judgment calls from the mapping run, recorded here because they shape what
 the map covers: the catalog's consumer-facing surface is described in the
