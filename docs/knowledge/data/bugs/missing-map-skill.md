@@ -63,9 +63,10 @@ and concept docs.
 it the heaviest authoring contract: canonical keys mirroring source paths with
 wrapper segments elided, a `## Contains` tree that `iwe tree` depends on, and
 required `source` + `commit` + `verified` frontmatter where `commit` must be
-quoted or an all-digit SHA parses as a number. `stale_after` is recommended
-precisely because these docs rot the moment code moves — so the refresh path
-`verify` cannot reach is the one the design expects to run most often.
+required `source` + `source_digest` + `verified` frontmatter. `source_digest`
+fingerprints tracked source contents so codebase docs rot when the code they
+describe moves — so the refresh path `verify` cannot reach is the one the design
+expects to run most often.
 
 ## Fix
 
@@ -76,24 +77,27 @@ filed 2026-08-15 against
 proposing a `map` skill with two modes — **initial** (walk the containment tree,
 one doc per component at its canonical key, wire `## Contains`, stamp
 provenance, fill the `## Getting around` placeholder) and **refresh** (consume
-`verify`'s stale list, re-read changed sources, bump `commit` and `verified`).
+`verify`'s stale list, re-read changed sources, bump `source_digest` and
+`verified`).
 
-This repository consumes the workspace template, so the fix lands here on the
-next template sync rather than by local edit. Until then `data/codebase/` stays
-empty and `verify`'s stale-map audit stays unactionable.
+The IWE skills ship from this repository's `agentdev` catalog rather than by
+template sync, so the fix is local:
+[Add the iwe-map skill](../plans/20260903-iwe-map-skill.md) adds
+`/agentdev:iwe-map` with the two modes the issue proposes, a bundled
+`stale-map-docs.sh` that classifies every map doc as fresh, stale, gone, or
+expired, and repoints Setup, Verify, and the operating loop at it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-01):
+Verified anchor points (line numbers as of 2026-09-03):
 
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:78-80` — stale-map audit,
-  "flag for the map skill's refresh mode"
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:92` — "Report, never
-  fix", which blocks the only skill that detects the problem
-- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-31` — per-module map
-  deferred as follow-up, no owner named
-- `docs/knowledge/AGENTS.md:56-58` — Record step assigns the refresh to the bare
-  session
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:81-85` — stale-map audit,
+  handing off to `/agentdev:iwe-map`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:96` — "Report, never
+  fix", which is why the handoff needs a real owner
+- `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:30-32` — per-module map
+  deferred to the map skill's initial mode
+- `docs/knowledge/AGENTS.md:57-61` — Record step routes refreshes to the skill
 - `docs/knowledge/SCHEMA.md:144-166` — the codebase-map authoring contract
-- `docs/knowledge/data/codebase.md:27` — the unfilled `✏️` placeholder
+- `docs/knowledge/data/codebase.md:22` — `## Getting around`, filled
 - `docs/knowledge/data/index.md:32` — the hub advertised to readers

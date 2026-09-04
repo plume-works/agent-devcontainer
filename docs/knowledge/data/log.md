@@ -4,8 +4,24 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-04
+
+- **Creation**: five decision records recovered from the Dr.QP history the
+  template was extracted from —
+  [Agent auth persistence](architecture/agent-auth-persistence.md),
+  [Nested Docker provisioning](architecture/nested-docker-provisioning.md),
+  [MCP gateway transport](architecture/mcp-gateway-transport.md),
+  [gh authentication shim](architecture/gh-authentication-shim.md), and
+  [Formatter ownership](architecture/formatter-ownership.md). Each records a
+  rejected alternative that the code alone cannot show; every decision was
+  re-verified against this repository before being written.
+
 ## 2026-09-03
 
+- **Creation**: the codebase map — 26 documents under [Codebase](codebase.md)
+  (19 components, 3 flows, 2 interfaces), written by `/agentdev:iwe-map` in
+  initial mode from the tree at `eb60f60`, per
+  [Add the iwe-map skill](plans/20260903-iwe-map-skill.md).
 - **Update**:
   [One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
   done — the responder and the merge gate are now one workflow whose

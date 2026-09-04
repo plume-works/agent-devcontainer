@@ -153,7 +153,7 @@ fields are provenance, not lifecycle.
 ---
 type: codebase # required
 source: src/timer # required; one path, or a list of paths (first is primary)
-commit: '3f1a9c2' # required, always quoted — an all-digit SHA parses as a number
+source_digest: sha256:... # required; deterministic tracked-source fingerprint
 verified: { by: human:author, at: 2026-07-25T00:00:00Z } # required; who last confirmed the doc against the code
 stale_after: 2026-11-01 # the day to re-check it
 ---

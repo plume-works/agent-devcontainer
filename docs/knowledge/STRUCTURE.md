@@ -23,7 +23,7 @@ STRUCTURE.md       # this file: design rationale
 .iwe/
   config.toml      # markdown conventions + schema→glob bindings
   schemas/         # validation schemas: plan, feature, bug, release, task, codebase
-.agents/plugins/agentdev/skills/iwe-*/  # state workflows: setup, explore, plan,
+.agents/plugins/agentdev/skills/iwe-*/  # state workflows: setup, map, explore, plan,
                    # implement, verify, ship, weekly (invoked as /agentdev:iwe-*)
 data/              # the graph
   index.md         # the root hub — every hub is its child
@@ -97,14 +97,14 @@ the code is*, written only from reading it. The map mirrors the code's
 containment tree: every component gets a doc at a canonical key matching its
 source path, and parents inclusion-link children (`## Contains`), so
 `iwe tree -k data/codebase` renders the code's structure. Map docs carry the
-most provenance of any type — `source` (the code described), `commit` (the
-revision it was read at), and OKF's `verified` (who last confirmed the doc
+most provenance of any type — `source` (the code described), `source_digest`
+(the tracked source contents), and OKF's `verified` (who last confirmed the doc
 against that code) — because provenance is what makes incremental refresh cheap:
-`git log <commit>..HEAD -- <source>` finds exactly the dirty docs. Each
-relationship is written in one direction only (`## Contains` down,
-`## Depends on` out); "part of" and "used by" are backlink queries, so they can
-never rot. Map docs are freely rewritable from a fresh read of the code;
-decision records never are.
+the stale-map script compares current tracked source contents to the recorded
+digest and finds exactly the dirty docs. Each relationship is written in one
+direction only (`## Contains` down, `## Depends on` out); "part of" and "used
+by" are backlink queries, so they can never rot. Map docs are freely rewritable
+from a fresh read of the code; decision records never are.
 
 **Authoring rules travel with the product doc.** `data/product.md` carries an
 optional `## Authoring rules` section — per-document-type constraints the plan

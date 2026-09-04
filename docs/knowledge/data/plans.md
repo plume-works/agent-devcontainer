@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
+
 [Consumer PR description guidance](plans/20260903-pr-description-guidance.md)
 
 ## Done

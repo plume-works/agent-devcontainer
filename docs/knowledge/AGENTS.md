@@ -54,9 +54,11 @@ software project's memory and system of record. The division of labor:
      an afterthought.
    - Design decision made → `data/architecture/<slug>.md`, including the
      rejected alternatives.
-   - Code structure changed (module added, split, or moved) → re-read the code
-     and refresh the touched `data/codebase/` docs, bumping their `commit` and
-     `verified`. `git log <commit>..HEAD -- <source>` finds the stale ones.
+   - Code structure changed (module added, split, or moved) → the map skill's
+     refresh mode (`/agentdev:iwe-map`) re-reads the touched `data/codebase/`
+     docs and bumps their `source_digest` and `verified`; its
+     `stale-map-docs.sh` finds the stale ones. A workspace with no map yet gets
+     one from the same skill's initial mode.
    - Vision insight → `data/concept/<slug>.md`.
    - Task finished → `stage: done` + `completed` on the task doc, link moved to
      `## Done` in `data/backlog.md`.
@@ -93,8 +95,8 @@ software project's memory and system of record. The division of labor:
   features `proposed|accepted|implemented|deprecated|cancelled`; bugs
   `done|cancelled` (absent = open); releases `released|unreleased`; backlog
   `planned|done`. Reference docs (spec/architecture/concept/someday) carry a
-  `type` and no stage; codebase-map docs carry `source` + `commit` + `verified`
-  — provenance, not lifecycle.
+  `type` and no stage; codebase-map docs carry `source` + `source_digest` +
+  `verified` — provenance, not lifecycle.
 - **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
   Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
@@ -212,6 +214,7 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 | Skill                     | What it does                                                            |
 | ------------------------- | ----------------------------------------------------------------------- |
 | `/agentdev:iwe-setup`     | Brownfield onboarding: scans the codebase, drafts product/architecture  |
+| `/agentdev:iwe-map`       | Codebase archaeology: writes and refreshes the `data/codebase/` map     |
 | `/agentdev:iwe-explore`   | Thinking partner from an idea or a GitHub issue; never writes code      |
 | `/agentdev:iwe-plan`      | Files a plan: discovery, verified anchors, spec impact, Active listing  |
 | `/agentdev:iwe-implement` | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries   |
