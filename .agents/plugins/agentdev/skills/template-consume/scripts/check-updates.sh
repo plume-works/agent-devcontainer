@@ -170,6 +170,10 @@ changed_paths=()
 for path in "${tracked_paths[@]}"; do
   while IFS= read -r changed_path; do
     [[ -n "${changed_path}" ]] || continue
+    if git -C "${clone_dir}" cat-file -e "${consumed_ref}:${changed_path}" 2>/dev/null &&
+      [[ ! -e "${consumer_root}/${changed_path}" && ! -L "${consumer_root}/${changed_path}" ]]; then
+      continue
+    fi
     if [[ -z "${seen_changed_paths[${changed_path}]+x}" ]]; then
       changed_paths+=("${changed_path}")
       seen_changed_paths["${changed_path}"]=1
