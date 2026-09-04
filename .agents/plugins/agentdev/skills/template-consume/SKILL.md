@@ -173,7 +173,9 @@ setup, so they can never be legitimate members of a consumer's `tracked_paths`.
 
 `.github/pr-description-guidance.md` is not in the copied list above: this
 repository does not carry it, and it is created only when the guide's §4 capture
-step writes a consumer's PR-template extras into it. Add it to `tracked_paths`
-the moment capture creates it, so update mode's step 4 preserves it on later
-PR-template changes. `template-boundary` classifies it as Customize /
+step writes a consumer's PR-template extras into it. It is consumer-created
+state, not a `tracked_paths` diff input. When update mode's step 4 re-runs
+PR-template evaluation after `.github/pull_request_template.md` changes, it
+must preserve an existing guidance file unless the user explicitly replaces or
+removes it. `template-boundary` classifies the path as Customize /
 consumer-created.

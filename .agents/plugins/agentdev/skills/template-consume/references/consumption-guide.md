@@ -666,10 +666,11 @@ the real template as unexamined structure — evaluate it first:
    makes each item's state readable. Never capture an instruction that would
    merge or rename those two sections.
 
-Record `.github/pr-description-guidance.md` in the marker's `tracked_paths` when
-capture creates it, so update mode preserves it. See
+Leave `.github/pr-description-guidance.md` out of the marker's `tracked_paths`;
+it is consumer-created state, not a template-owned upstream diff input. See
 [Update Mode](../SKILL.md) for how a later PR-template change re-runs this
-evaluation.
+evaluation while preserving an existing guidance file unless the user explicitly
+replaces or removes it.
 
 If the AI responder workflows are among the files taken, their three
 out-of-repository prerequisites apply here too — the Claude GitHub App

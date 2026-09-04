@@ -2,8 +2,8 @@
 type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-09-03T21:08:55Z
+  by: codex/gpt-5
+  at: 2026-09-04T04:52:22Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -110,8 +110,8 @@ structure from the pull request template itself.
   chooses to capture it
 - **THEN** the section is written as an instruction in
   `.github/pr-description-guidance.md`, the template is reduced to the
-  `<!-- pr-gen-description: no-template -->` stub, and the guidance path is
-  added to the marker's tracked paths
+  `<!-- pr-gen-description: no-template -->` stub, and later PR-template updates
+  preserve the guidance file unless the user explicitly replaces or removes it
 
 #### Scenario: guidance may not break the tense split
 

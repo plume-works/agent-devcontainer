@@ -148,11 +148,14 @@ was not consulted, so they can keep it, replace it with a pointer stub, or ask
 for the structure to change. Never read a structure out of it, never merge it
 with the list above, and never ignore it in silence.
 
-The one exception is a template that opts out: if the file contains the HTML
-comment `<!-- pr-gen-description: no-template -->`, it is a deliberate
-placeholder that defers to this skill's structure, so use the structure and say
-nothing about the template. Report only templates that carry a real structure
-this skill overrode.
+The one exception is a template that opts out with no real structure: if the
+file contains the HTML comment
+`<!-- pr-gen-description: no-template -->` and no Markdown section headings, it
+is a deliberate placeholder that defers to this skill's structure, so use the
+structure and say nothing about the template. A marker-bearing template with
+section headings still carries real structure; report it through the template
+not-consulted path. Report only templates that carry a real structure this skill
+overrode.
 
 ### Step 8: Review and Validate
 
