@@ -4,7 +4,7 @@ created: 2026-09-03
 description: Let a consuming repository capture its extra PR-template sections as instructions in a consumer-owned guidance file that pr-gen-description reads with precedence, via a template-consume evaluate/map/capture step.
 generated:
   by: claude-code/opus-4-8
-  at: 2026-09-03T19:10:00Z
+  at: 2026-09-03T21:08:55Z
 ---
 
 # Consumer PR description guidance
@@ -206,13 +206,12 @@ evaluate the consumer's PR template, extras may be captured as instructions in
 `pr-gen-description`'s default section generation except that it SHALL preserve
 the Verification / Reviewer Handoff tense split.
 
-- [x] A new `## Requirement` covers PR-template evaluation and the guidance-file
-  precedence floor, in the spec's existing SHALL style.
-  - **Evidence:** `template-consumption.md` gains "## Requirement: a consumer
-    may customize generated PR descriptions through a guidance file" — prose
-    SHALL statements matching the doc's existing scenario-free style (the
-    delta's `#### Scenario:` blocks are not carried, as no requirement in this
-    doc uses them). Committed on `consumption-review`.
+- [x] A new `### Requirement` covers PR-template evaluation and the
+  guidance-file precedence floor, in the spec's existing SHALL style.
+  - **Evidence:** `template-consumption.md` gains "### Requirement: a consumer
+    may customize generated PR descriptions through a guidance file" with the
+    plan's two `#### Scenario:` blocks for capture and the tense-split floor.
+    Committed on `consumption-review`.
 - [x] Its `sources:` / prose reference the two skills that implement it
   (`pr-gen-description`, `template-consume`).
   - **Evidence:** The requirement prose names both `pr-gen-description` and

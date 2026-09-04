@@ -22,6 +22,17 @@ to the current day's group.
   (19 components, 3 flows, 2 interfaces), written by `/agentdev:iwe-map` in
   initial mode from the tree at `eb60f60`, per
   [Add the iwe-map skill](plans/20260903-iwe-map-skill.md).
+- **Update**:
+  [One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
+  done — the responder and the merge gate are now one workflow whose
+  `ai-review-present` job `needs` the review job, so the check stays pending
+  while a review runs and evaluates without polling; PR comment mentions bridge
+  into a `workflow_dispatch` on the head branch so the review runs the branch's
+  own file. `require-ai-review.yml` is deleted and the acceptance test moved to
+  the `ai-review-status` composite action. Recorded under
+  [AI responder workflows](features/ai-responder-workflows.md) and synced into
+  [AI review gate](spec/ai-review-gate.md) and
+  [Template consumption](spec/template-consumption.md).
 
 ## 2026-09-02
 

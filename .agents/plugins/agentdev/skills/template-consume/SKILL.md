@@ -111,7 +111,10 @@ A marker file exists.
    clone is gone by the time the script returns, so re-clone or use
    `git log`/`git show` against `https://github.com/<source_repo>` — do not
    guess from the path name alone) and decide with the user whether to pull it
-   in. A path this consumer customized (renamed values, pruned an unwanted
+   in. The script reports concrete changed files inside tracked directories,
+   so a marker that tracks `.github/` still exposes a changed
+   `.github/pull_request_template.md`. A path this consumer customized
+   (renamed values, pruned an unwanted
    hook, edited a workflow's owner gate) needs a manual merge, not a blind
    overwrite — copying the upstream file verbatim would silently undo the
    consumer's own edits.

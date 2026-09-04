@@ -107,7 +107,50 @@ def test_check_updates_reports_changes_found_for_a_changed_tracked_path(
     assert (completed.returncode, lines[-1]) == (5, 'RESULT=CHANGES_FOUND')
     assert f'CONSUMED_REF={first_sha}' in lines
     assert f'UPSTREAM_REF={second_sha}' in lines
-    assert '  tracked-dir' in lines
+    assert '  tracked-dir/file-b.txt' in lines
+
+
+def test_check_updates_reports_files_inside_a_tracked_github_directory(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A tracked .github/ directory must expose the changed PR-template file."""
+    # Arrange
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    template_dir = plugin_tmp_path / 'fixture-template-github'
+    template_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], template_dir)
+    github_dir = template_dir / '.github'
+    github_dir.mkdir()
+    (github_dir / 'pull_request_template.md').write_text('old template\n')
+    _run_git(['add', '-A'], template_dir)
+    _run_git(['commit', '-m', 'first'], template_dir)
+    first_sha = subprocess.run(
+        ['git', 'rev-parse', 'HEAD'],
+        cwd=template_dir,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+    (github_dir / 'pull_request_template.md').write_text('new template\n')
+    _run_git(['add', '-A'], template_dir)
+    _run_git(['commit', '-m', 'second'], template_dir)
+
+    consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['.github/'])
+
+    # Act
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir), '--repo-url', str(template_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert (completed.returncode, lines[-1]) == (5, 'RESULT=CHANGES_FOUND')
+    assert '  .github/pull_request_template.md' in lines
 
 
 def test_check_updates_reports_up_to_date_when_consumed_ref_matches_head(
@@ -224,7 +267,7 @@ def test_check_updates_honors_root_from_a_non_git_cwd(
     plugin_root: Path,
     plugin_tmp_path: Path,
 ) -> None:
-    """--root must be validated as the repo, not the process CWD (finding 3)."""
+    """--root must be validated as the repo, not the process CWD."""
     # Arrange
     script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
@@ -251,7 +294,7 @@ def test_check_updates_reports_invalid_marker_when_tracked_paths_is_empty(
     plugin_root: Path,
     plugin_tmp_path: Path,
 ) -> None:
-    """A marker with an empty tracked_paths array must fail INVALID_MARKER (finding 2)."""
+    """A marker with an empty tracked_paths array must fail INVALID_MARKER."""
     # Arrange: a reachable consumed_ref so the gap under test is tracked_paths, not the ref.
     script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
@@ -283,7 +326,7 @@ def test_check_updates_reports_invalid_marker_when_tracked_paths_is_absent(
     plugin_root: Path,
     plugin_tmp_path: Path,
 ) -> None:
-    """A marker with no tracked_paths key must fail INVALID_MARKER (finding 2)."""
+    """A marker with no tracked_paths key must fail INVALID_MARKER."""
     # Arrange: a reachable consumed_ref so the gap under test is tracked_paths, not the ref.
     script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
@@ -313,7 +356,7 @@ def test_check_updates_emits_result_on_unhandled_abort_after_trap(
     plugin_root: Path,
     plugin_tmp_path: Path,
 ) -> None:
-    """An unhandled set -e abort after the trap must still emit RESULT (finding 1)."""
+    """An unhandled set -e abort after the trap must still emit RESULT."""
     # Arrange
     script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)

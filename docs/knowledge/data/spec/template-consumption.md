@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-4-8
-  at: 2026-09-03T20:00:00Z
+  at: 2026-09-03T21:08:55Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -66,14 +66,16 @@ Directories holding byte-exact third-party captures SHALL be excluded in
 
 ## Requirement: the AI review gate's trust is explicit
 
-`ai-responder.yml` and `require-ai-review.yml` SHALL be kept or dropped
-together. The responder SHALL NOT auto-review any bot-authored pull request;
-`ai-review-present` SHALL waive its requirement only for the bot logins listed
-in `TRUSTED_BOT_ACTORS`, matched exactly and only when `user.type` is `Bot`. The
-gate checks that the pull request has a review, not that its head commit does —
-a copy comparing the review's `commit_id` to the head SHA is a policy change.
-The fork gate and write-access gate SHALL be preserved as written; the owner
-gate SHALL be repointed at the consumer.
+The `claude-respond` and `ai-review-present` jobs in `ai-responder.yml` SHALL be
+kept or dropped together. The responder SHALL NOT auto-review any bot-authored
+pull request; `ai-review-present` SHALL waive its requirement only for the bot
+logins listed in `TRUSTED_BOT_ACTORS`, matched exactly and only when `user.type`
+is `Bot`. The gate checks that the pull request has a review, not that its head
+commit does — a copy comparing the review's `commit_id` to the head SHA is a
+policy change. The fork gate and write-access gate SHALL be preserved as
+written; the owner gate SHALL be repointed at the consumer. The
+`workflow_dispatch` bridge SHALL be retained so default-branch comment events
+can run the pull request head branch's workflow and attach checks to that head.
 
 ## Requirement: adoption is recorded for later updates
 
@@ -83,7 +85,9 @@ bundles kept, and the template paths still tracked. Update mode SHALL diff only
 those paths from that SHA and SHALL NOT advance the SHA past what was actually
 applied.
 
-## Requirement: a consumer may customize generated PR descriptions through a guidance file
+## Pull request description guidance
+
+### Requirement: a consumer may customize generated PR descriptions through a guidance file
 
 Template setup and update SHALL evaluate a consuming repository's existing
 `.github/pull_request_template.md` against the section structure the
@@ -98,3 +102,20 @@ apply its instructions with precedence over the default generation of its own
 sections, except that the guidance SHALL NOT collapse or rename the Verification
 / Reviewer Handoff split. `pr-gen-description` SHALL NOT read description
 structure from the pull request template itself.
+
+#### Scenario: an extra template section is captured as guidance
+
+- **WHEN** a Workflow B consumer's `.github/pull_request_template.md` contains a
+  section with no equivalent in the `pr-gen-description` structure, and the user
+  chooses to capture it
+- **THEN** the section is written as an instruction in
+  `.github/pr-description-guidance.md`, the template is reduced to the
+  `<!-- pr-gen-description: no-template -->` stub, and the guidance path is
+  added to the marker's tracked paths
+
+#### Scenario: guidance may not break the tense split
+
+- **WHEN** `.github/pr-description-guidance.md` carries an instruction that
+  would merge or rename the Verification and Reviewer Handoff sections
+- **THEN** `pr-gen-description` preserves the two sections and their `- [x]` /
+  `- [ ]` tense split regardless of the guidance

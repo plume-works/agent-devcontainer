@@ -156,7 +156,7 @@ this skill overrode.
 
 ### Step 8: Review and Validate
 
-Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list and does not repeat generic review or clean-code checklists from the referenced documents.
+Ensure completeness, technical accuracy, valid links, and that every `## Verification` item names evidence that actually exists. Confirm that the final description follows the Step 7 section list plus any guidance-added sections that comply with the Verification / Reviewer Handoff split, and does not repeat generic review or clean-code checklists from the referenced documents.
 
 ## Edge Cases
 
