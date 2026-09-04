@@ -2,18 +2,17 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth symlinks.'
 source: .devcontainer/scripts
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:c5aef005b3b4fb6acf771d906e3488e077ae2b5d72da1e5e04e2d5ac215c31bb
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .devcontainer/scripts
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Devcontainer lifecycle scripts
@@ -72,7 +71,7 @@ The image's tools (`claude`, `codex`, `codebase-memory-mcp`, `uv`, `jq`,
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56-62` — `~/.claude.json` symlink
   into the volume

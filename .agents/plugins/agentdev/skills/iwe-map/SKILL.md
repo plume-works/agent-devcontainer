@@ -1,6 +1,6 @@
 ---
 name: iwe-map
-description: Map a codebase into data/codebase/ — an archaeology pass that reads the code and writes one derived doc per component at its canonical key, plus flow- and api- docs, each pinned to the commit it was read at — and refresh that map by re-reading only what moved. Use when the user says "map the codebase", "map the repo", "refresh the map", after setup for the per-module map it defers, or when verify flags stale data/codebase/ docs.
+description: Map a codebase into data/codebase/ — an archaeology pass that reads the code and writes one derived doc per component at its canonical key, plus flow- and api- docs, each pinned to a tracked-source digest — and refresh that map by re-reading only what moved. Use when the user says "map the codebase", "map the repo", "refresh the map", after setup for the per-module map it defers, or when verify flags stale data/codebase/ docs.
 disable-model-invocation: true
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 ---
@@ -112,7 +112,7 @@ that one subtree and wires it into the existing map.
    ```bash
    iwe normalize && iwe schema validate
    iwe tree -k data/codebase -d 3                         # renders the containment tree
-   ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh          # RESULT=SUCCESS: every doc is fresh at HEAD
+   ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh          # RESULT=SUCCESS: every doc matches source_digest
    ```
 
    Add one bullet to today's group in `data/log.md` naming the map and its
@@ -123,18 +123,20 @@ that one subtree and wires it into the existing map.
 8. **Refresh mode.** Run `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh` and
    branch on its last line (table below). Verify's audit produces the same
    list; take its report as the worklist when it hands off. For each doc:
-   - `STALE` — `git diff --stat <commit>..HEAD -- <source>`, re-read the
-     changed files and any test that changed with them, rewrite only the
-     sections they affect, re-verify every anchor, and bump `commit`,
-     `verified`, `stale_after`, and `generated`. A new subdirectory that now
-     earns a doc gets one (steps 4–5) and a `## Contains` link.
+   - `STALE` — re-read the changed files and any test that changed with them,
+     rewrite only the sections they affect, re-verify every anchor, and bump
+     `source_digest`, `verified`, `stale_after`, and `generated`. A new
+     subdirectory that now earns a doc gets one (steps 4–5) and a `## Contains`
+     link. When the line came from a legacy `commit` fallback, use
+     `git diff --stat <commit>..HEAD -- <source>` as a lead.
    - `GONE` — `git log --oneline --diff-filter=D -- <source>` and
      `git log --follow` on a file it held show whether the code moved or was
      removed. Moved: `iwe rename data/codebase/<old> data/codebase/<new>`, fix
      `source`, refresh as stale. Removed: `iwe delete data/codebase/<key>`, then
      sweep the parent's `## Contains` and any flow that traced through it.
-   - `UNKNOWN_COMMIT` — the pinned revision is not in this clone (a rewritten
-     branch, a shallow clone). Treat as stale over the whole `source`.
+   - `UNKNOWN_COMMIT` — a legacy `commit` pin is not in this clone (a rewritten
+     branch, a shallow clone). Treat as stale over the whole `source` and write
+     a `source_digest` when refreshing.
    - `EXPIRED` — untouched code past its `stale_after`. Re-read the entry file
      and tests, confirm the doc still holds, and bump `verified` and
      `stale_after`; rewrite what no longer holds.
@@ -144,17 +146,20 @@ that one subtree and wires it into the existing map.
 
 ## Script results
 
-`stale-map-docs.sh` reads every `data/codebase/**/*.md` under the IWE library
-and prints one status line per doc, then the counts, then `RESULT`:
+`stale-map-docs.sh` reads every `data/codebase/**/*.md` under the IWE library,
+compares `source_digest` with the current tracked source contents, and prints
+one status line per doc, then the counts, then `RESULT`. A legacy doc without
+`source_digest` falls back to `commit`-range checking so old maps can be
+refreshed into the digest format:
 
-| RESULT            | Exit   | Action                                                                                    |
-| ----------------- | ------ | ----------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`    | Every doc is fresh. Nothing to refresh; report so.                                        |
-| `STALE_FOUND`     | `3`    | Work the `STALE`, `GONE`, `UNKNOWN_COMMIT`, and `EXPIRED` lines as in step 8.             |
-| `NO_MAP_DOCS`     | `4`    | The lane is empty — switch to initial mode.                                               |
-| `PREFLIGHT_ERROR` | `2`    | **STOP.** Not a git repository, or no `.iwe/config.toml` at the root; report it verbatim. |
-| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not work around it.                             |
-| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; rerun it.                                              |
+| RESULT            | Exit   | Action                                                                                     |
+| ----------------- | ------ | ------------------------------------------------------------------------------------------ |
+| `SUCCESS`         | `0`    | Every doc is fresh. Nothing to refresh; report so.                                         |
+| `STALE_FOUND`     | `3`    | Work the `STALE`, `GONE`, `UNKNOWN_COMMIT`, `NO_COMMIT`, and `EXPIRED` lines as in step 8. |
+| `NO_MAP_DOCS`     | `4`    | The lane is empty — switch to initial mode.                                                |
+| `PREFLIGHT_ERROR` | `2`    | **STOP.** Not a git repository, or no `.iwe/config.toml` at the root; report it verbatim.  |
+| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not work around it.                              |
+| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; rerun it.                                               |
 
 ## Canonical keys
 
@@ -185,26 +190,22 @@ the code that enforces the surface.
 type: codebase
 description: <one sentence — what this component is>
 source: <repo-relative path, or a list whose first entry is primary>
-commit: '<git rev-parse HEAD when the code was read>' # always quoted
+source_digest: sha256:<tracked-source digest from stale-map-docs.sh>
 verified: { by: <actor>, at: <ISO 8601 now> }
 stale_after: <today + 90 days, sooner for code that churns>
 generated: { by: <actor>, at: <ISO 8601 now> }
 sources:
   - id: code
     resource: <the primary source path>
-    title: the code this map describes, read at commit <short sha>
 ---
 ```
 
-`commit` is written quoted because an all-digit SHA parses as a number and
-fails the schema; `iwe normalize` drops quotes it considers unnecessary, which
-is why the pin is the full 40-character SHA rather than a short one — the
-all-digit case is then out of reach. Match the pin unquoted when editing a
-normalized doc. The actor is the one writing — `claude-code/<model>`,
-`human:<handle>`.
-`commit` is the HEAD you _read_; the map commit itself never touches a
-`source` path, which is why a map doc never lists the knowledge directory that
-holds it as its own source.
+`source_digest` is a deterministic fingerprint of tracked files under
+`source`, not a commit SHA. That keeps map provenance valid across squash
+merges and branch rewrites: the doc goes stale when described content changes,
+not when history is reshaped. The actor is the one writing —
+`claude-code/<model>`, `human:<handle>`. A map doc never lists the knowledge
+directory that holds it as its own source.
 
 ## Rules
 

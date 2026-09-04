@@ -2,18 +2,17 @@
 type: codebase
 description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-commit: 9c19a7030150207d0ac4547e47f9ee3e6a0437e3
+source_digest: sha256:1d446e2b955c68d69d7a64f6cd43833dda3b7178071d78b760ad79eeb752a262
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:12:49Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:12:49Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
-  title: the code this map describes, read at commit 9c19a70
 ---
 
 # Catalog skills
@@ -64,7 +63,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows

@@ -2,18 +2,17 @@
 type: codebase
 description: The two Dockerfiles that produce ubuntu-ansible and agent-desktop, plus the entrypoint, the Xpra start script, and the gh auth wrapper baked into the image.
 source: docker
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:a91fafcbf368a7d6eb05a336bb38cebf92967133886d0772aaffce2efd9ac063
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: docker
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Image build (Docker)
@@ -71,7 +70,7 @@ copies out of `/provision`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `docker/desktop/agent-desktop.Dockerfile:41` — the provisioning `RUN`
 - `docker/desktop/agent-desktop.Dockerfile:68-71` — `ENV` and version labels

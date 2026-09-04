@@ -2,18 +2,17 @@
 type: codebase
 description: Builds Xpra and its HTML5 client from pinned tags, installs VirtualGL from GitHub releases, and adds Mesa software rendering.
 source: ansible/roles/xpra_setup
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:9470828b4489b4bdee4f40dbd1694839ced71189da6ea175e33319633787f198
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: ansible/roles/xpra_setup
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # xpra_setup role
@@ -47,7 +46,7 @@ The port and display conventions are owned by the start script, not this role.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `ansible/roles/xpra_setup/tasks/main.yml:4` — Xpra `v6.4.3` clone
 - `ansible/roles/xpra_setup/tasks/main.yml:28` — xpra-html5 `v19` clone

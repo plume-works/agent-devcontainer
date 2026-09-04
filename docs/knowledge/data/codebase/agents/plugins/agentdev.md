@@ -5,18 +5,17 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-commit: 9c19a7030150207d0ac4547e47f9ee3e6a0437e3
+source_digest: sha256:b9bd7a665faffb5e7f81e1857f0ef8b6a4dcebc6572161c3d59c815a37c333d9
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:12:49Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:12:49Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
-  title: the code this map describes, read at commit 9c19a70
 ---
 
 # The agentdev catalog
@@ -81,7 +80,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

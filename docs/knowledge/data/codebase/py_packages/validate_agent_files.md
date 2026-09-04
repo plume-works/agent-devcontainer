@@ -2,18 +2,17 @@
 type: codebase
 description: The independently released Python package that validates skills, agents, prompts, and plugin packaging; its CLI is the repository gate and ships in the image as a uv tool.
 source: py_packages/validate_agent_files
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:3130f9e88bca3d31e6089d423434c2729edd3afd86b6a628cdf3167077e41384
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # validate_agent_files package
@@ -69,7 +68,7 @@ nothing in this repository.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `py_packages/validate_agent_files/validate_agent_files/main.py:15` — `main`
 - `py_packages/validate_agent_files/validate_agent_files/cli.py:13` —

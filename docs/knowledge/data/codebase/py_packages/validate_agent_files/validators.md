@@ -2,18 +2,17 @@
 type: codebase
 description: 'The rule modules the engine composes: skill frontmatter and structure, agent handoffs, prompts, name uniqueness, cross-references, plugin manifests, marketplaces, bundled Markdown containment, and literal catalog paths.'
 source: py_packages/validate_agent_files/validate_agent_files/validators
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:9c3d6ff531d5822eab54ba4839334a12f2b3e4806ac5a9e0923b26341b3edcb8
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/validate_agent_files/validators
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Validator rules
@@ -54,7 +53,7 @@ because a repository-relative path resolves nowhere from a plugin cache.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.../validators/skill.py:11,123` — the two skill validators
 - `.../validators/agents.py:12,67` — frontmatter and handoff

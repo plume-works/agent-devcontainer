@@ -19,6 +19,7 @@ TOKEN_FIELDS = (
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line options for the cost analyzer."""
     parser = argparse.ArgumentParser(
         description=('Analyze artifacts downloaded by scripts/download-claude-responder-runs.sh.')
     )
@@ -35,6 +36,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def add_usage(target: dict[str, float], usage: dict[str, Any]) -> None:
+    """Add token usage fields into an aggregate usage dictionary."""
     for field in TOKEN_FIELDS:
         target[field] += float(usage.get(field) or 0)
     details = usage.get('output_tokens_details') or {}
@@ -42,6 +44,7 @@ def add_usage(target: dict[str, float], usage: dict[str, Any]) -> None:
 
 
 def model_usage_row(usage: dict[str, Any]) -> list[float]:
+    """Return the token fields used for per-model cost fitting."""
     return [
         float(usage.get('inputTokens') or 0),
         float(usage.get('cacheCreationInputTokens') or 0),
@@ -51,6 +54,7 @@ def model_usage_row(usage: dict[str, Any]) -> list[float]:
 
 
 def solve_linear_system(matrix: list[list[float]], vector: list[float]) -> list[float] | None:
+    """Solve a square linear system with Gaussian elimination."""
     size = len(vector)
     augmented = [row[:] + [value] for row, value in zip(matrix, vector, strict=True)]
 
@@ -73,6 +77,7 @@ def solve_linear_system(matrix: list[list[float]], vector: list[float]) -> list[
 
 
 def least_squares(rows: list[list[float]], costs: list[float]) -> list[float] | None:
+    """Fit usage-to-cost coefficients by ordinary least squares."""
     width = len(rows[0])
     normal = [[0.0 for _ in range(width)] for _ in range(width)]
     rhs = [0.0 for _ in range(width)]
@@ -85,21 +90,25 @@ def least_squares(rows: list[list[float]], costs: list[float]) -> list[float] | 
 
 
 def cost_from_usage(usage: dict[str, float], coeffs: list[float] | None) -> float:
+    """Estimate cost from token usage and fitted coefficients."""
     if coeffs is None:
         return 0.0
     return sum(coeff * usage[field] for coeff, field in zip(coeffs, TOKEN_FIELDS, strict=True))
 
 
 def read_json(path: Path) -> Any:
+    """Read a JSON document from disk."""
     return json.loads(path.read_text())
 
 
 def result_event(events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Return the final result event from a Claude execution log."""
     result_events = [event for event in events if event.get('type') == 'result']
     return result_events[-1] if result_events else {}
 
 
 def assistant_usage_by_message(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Index assistant events that carry message usage by stable message key."""
     messages: dict[str, dict[str, Any]] = {}
     for event in events:
         if event.get('type') != 'assistant':
@@ -119,6 +128,7 @@ def task_rows(
     coefficients: dict[str, list[float] | None],
     run_cost_usd: float,
 ) -> list[dict[str, Any]]:
+    """Build one cost row for each observed subagent task and model."""
     tasks = {
         event.get('task_id'): {
             'description': event.get('description') or 'unknown',
@@ -204,6 +214,7 @@ def task_rows(
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
+    """Write dictionaries as a CSV file, preserving row key order."""
     if not rows:
         path.write_text('')
         return
@@ -214,6 +225,7 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 
 
 def main() -> None:
+    """Read downloaded responder artifacts and write cost summaries."""
     args = parse_args()
     data_dir = Path(args.data_dir)
     output_dir = Path(args.output_dir) if args.output_dir else data_dir

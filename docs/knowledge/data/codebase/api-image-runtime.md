@@ -5,18 +5,17 @@ source:
 - docker
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:a528fedebb7a88c66525f08e6ccda6b6a3675b03b8b8bf2b1dd0d6d1a5627598
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: docker
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Interface: image runtime contract

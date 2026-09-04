@@ -143,11 +143,11 @@ source_digest_for_paths() {
   local content_hash
 
   if [[ "$#" -eq 0 ]]; then
-    printf '' | sha256sum | awk '{ print $1 }'
+    printf 'sha256:%s\n' "$(printf '' | sha256sum | awk '{ print $1 }')"
     return
   fi
 
-  git ls-files -z -- "$@" \
+  printf 'sha256:%s\n' "$(git ls-files -z -- "$@" \
     | LC_ALL=C sort -z -u \
     | while IFS= read -r -d '' tracked_file; do
       if [[ -e "${tracked_file}" ]]; then
@@ -158,7 +158,7 @@ source_digest_for_paths() {
       printf '%s\0%s\0' "${tracked_file}" "${content_hash}"
     done \
     | sha256sum \
-    | awk '{ print $1 }'
+    | awk '{ print $1 }')"
 }
 
 today="$(date +%F)"

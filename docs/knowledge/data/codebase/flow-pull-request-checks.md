@@ -4,18 +4,17 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:51078c65846062787648fec8ee413afcfd083143885722bd2594bcc461a59b8b
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .github
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Flow: pull request checks
@@ -49,7 +48,7 @@ before the push.
    non-fork, non-bot PRs or `@claude` mentions; `claude-respond` runs the review
    or task through `anthropics/claude-code-action`; `ai-review-present` reports
    whether an accepted review exists —
-   `.github/workflows/ai-responder.yml:82,371,551`
+   `.github/workflows/ai-responder.yml:82,377,462`
 7. Merge: `merge_group` runs steps 2–6 again with a clean image build.
 
 ## Failure modes

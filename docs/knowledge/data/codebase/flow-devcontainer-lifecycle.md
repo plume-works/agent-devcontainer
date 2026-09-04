@@ -5,18 +5,17 @@ source:
 - .devcontainer
 - docker/desktop
 - .agents/plugins/agentdev/hooks
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:e147b7e7a74574487caf97238d136336271c5cf5ace917bb9438d75f8d05aa34
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .devcontainer
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Flow: devcontainer lifecycle

@@ -1,6 +1,6 @@
 ---
 type: hub
-description: Codebase maps derived from the code, each pinned to the commit it was read at.
+description: Codebase maps derived from the code, each pinned to the tracked-source fingerprint it was read from.
 stage: living
 generated:
   by: claude-code/fable-5.1

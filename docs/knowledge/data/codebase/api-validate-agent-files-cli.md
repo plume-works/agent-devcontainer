@@ -2,18 +2,17 @@
 type: codebase
 description: 'The command-line contract of the validator: arguments, flags, discovery rules, and exit codes, as consumed by pre-commit, CI, and the image.'
 source: py_packages/validate_agent_files/validate_agent_files/cli.py
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:3e1818693683bc3ffc2ee21982f962e4df537c11b642813a71f566bf405e1e43
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/validate_agent_files/cli.py
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Interface: validate_agent_files CLI

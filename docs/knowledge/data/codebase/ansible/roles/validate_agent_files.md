@@ -2,18 +2,17 @@
 type: codebase
 description: Builds the validate_agent_files package from the provisioning sources and installs it as an isolated uv tool, verifying the installed version against a pin.
 source: ansible/roles/validate_agent_files
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:7da197584c92911e544bd152d5c08b1abaea2e99fef024a2b44f2d0bccaafba0
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: ansible/roles/validate_agent_files
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # validate_agent_files role
@@ -51,7 +50,7 @@ the pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `ansible/roles/validate_agent_files/tasks/main.yml:12` — fail when the source
   is missing

@@ -38,7 +38,7 @@ def commit_file(repository: Path, relative: str, content: str, message: str) -> 
 def source_digest(repository: Path, *sources: str) -> str:
     """Return the stale-map source_digest for the tracked source contents."""
     if not sources:
-        return hashlib.sha256(b'').hexdigest()
+        return f'sha256:{hashlib.sha256(b"").hexdigest()}'
 
     listed = subprocess.run(
         ['git', 'ls-files', '-z', '--', *sources],
@@ -57,7 +57,7 @@ def source_digest(repository: Path, *sources: str) -> str:
         digest.update(b'\0')
         digest.update(content_hash.encode())
         digest.update(b'\0')
-    return digest.hexdigest()
+    return f'sha256:{digest.hexdigest()}'
 
 
 def build_workspace(path: Path) -> Path:

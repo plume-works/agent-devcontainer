@@ -2,18 +2,17 @@
 type: codebase
 description: Installs Claude Code, Codex, and the MCP inspector, optionally cc-filter, and stages and installs the agentdev catalog into the image.
 source: ansible/roles/agentic_tools
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:21c366be6379dedb0b62857b2b24368fbb1deb3a5cb964d843c64b97a2e2332f
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: ansible/roles/agentic_tools
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # agentic_tools role
@@ -65,7 +64,7 @@ through `agentic_tools_catalog_source_dir` (`/provision` in the image build).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `ansible/roles/agentic_tools/tasks/main.yml:2` — Bun global installs
 - `ansible/roles/agentic_tools/tasks/stage_catalog.yml:28` — exactly one plugin

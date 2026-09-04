@@ -2,18 +2,17 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:38b3b7b488124d344c19272797c87d23b1425d8f862f2196fdf9a49b64a890fa
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .github/workflows
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Workflows
@@ -30,7 +29,7 @@ one manual job.
 | `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished` |
 | `validate-agent-files.yml`    | PR, push, merge group                           | both pytest suites, then the validator with `--require-marketplace claude codex`                         |
 | `validate-knowledge-base.yml` | PR, push, merge group                           | `iwe schema validate`, `iwe normalize` no-op check, plan-checkbox tests                                  |
-| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` → `ai-review-present`                                          |
+| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                          |
 | `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                               |
 
 ## How it works
@@ -65,7 +64,7 @@ The full traces are [the image build flow](../flow-image-build.md) and
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
@@ -76,4 +75,4 @@ Verified anchor points (line numbers as of 2026-09-03):
 - `.github/workflows/validate-agent-files.yml:68-74` — the three check steps
 - `.github/workflows/validate-knowledge-base.yml:18,78-89` — `IWE_VERSION`, the
   three checks
-- `.github/workflows/ai-responder.yml:82,319,371,551` — the four jobs
+- `.github/workflows/ai-responder.yml:82,325,377,421,462` — the five jobs

@@ -2,18 +2,17 @@
 type: codebase
 description: Stats the shared /usr/local paths and fails the play when any is owned by a non-root account; run first and last in the playbook as a build guard.
 source: ansible/roles/perm_probe
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:bac169d0c24f5e248f41759e446989b0abc4a4625632ec8b786a94efa62ceb75
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: ansible/roles/perm_probe
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # perm_probe role
@@ -51,7 +50,7 @@ role.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `ansible/roles/perm_probe/tasks/main.yml:8` — the stat loop
 - `ansible/roles/perm_probe/tasks/main.yml:33` — drift detection

@@ -63,9 +63,10 @@ and concept docs.
 it the heaviest authoring contract: canonical keys mirroring source paths with
 wrapper segments elided, a `## Contains` tree that `iwe tree` depends on, and
 required `source` + `commit` + `verified` frontmatter where `commit` must be
-quoted or an all-digit SHA parses as a number. `stale_after` is recommended
-precisely because these docs rot the moment code moves — so the refresh path
-`verify` cannot reach is the one the design expects to run most often.
+required `source` + `source_digest` + `verified` frontmatter. `source_digest`
+fingerprints tracked source contents so codebase docs rot when the code they
+describe moves — so the refresh path `verify` cannot reach is the one the design
+expects to run most often.
 
 ## Fix
 
@@ -76,7 +77,8 @@ filed 2026-08-15 against
 proposing a `map` skill with two modes — **initial** (walk the containment tree,
 one doc per component at its canonical key, wire `## Contains`, stamp
 provenance, fill the `## Getting around` placeholder) and **refresh** (consume
-`verify`'s stale list, re-read changed sources, bump `commit` and `verified`).
+`verify`'s stale list, re-read changed sources, bump `source_digest` and
+`verified`).
 
 The IWE skills ship from this repository's `agentdev` catalog rather than by
 template sync, so the fix is local:

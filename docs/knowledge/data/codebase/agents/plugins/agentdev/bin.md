@@ -2,18 +2,17 @@
 type: codebase
 description: 'Shell helpers on PATH while the plugin is enabled: the shared result-code and GitHub-issue libraries, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:03ca2e650730073345911befd349f7594328e1fe2e3775958b80daa8cd48bee2
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Catalog bin helpers
@@ -58,7 +57,7 @@ shell caller still sees `128+N`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.agents/plugins/agentdev/bin/result-codes.sh:15-22` — the reserved codes
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`

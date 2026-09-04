@@ -2,18 +2,17 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:6c92b643836b55644ff9f98ef41f11200f41c4a13b63175c803728389f0fac73
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .github
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # GitHub automation
@@ -57,7 +56,7 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.github/renovate.json:9-15` — Actions automerge
 - `.github/renovate.json:16-23` — `agent-desktop` digest automerge

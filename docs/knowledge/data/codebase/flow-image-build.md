@@ -6,18 +6,17 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:ce7cd446278b4f213389eda32c450428d02faef1e73e77839ffdb09fb9c901c2
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Flow: image build

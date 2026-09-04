@@ -49,15 +49,16 @@ the issue proposes plus the discipline that makes the map worth reading:
   and `api-` docs for external surfaces. It fills `## Getting around` in the hub
   and wires `## Contains` so `iwe tree -k data/codebase` renders the code.
 - **Refresh mode** consumes a bundled script that classifies every map doc as
-  fresh, stale (commits touched `source` after `commit`), gone (`source` no
-  longer exists), or expired (`stale_after` passed), re-reads only what moved,
-  and repairs structure with `iwe rename` / `iwe delete` rather than `mv`.
+  fresh, stale (`source_digest` no longer matches tracked source contents), gone
+  (`source` no longer exists), or expired (`stale_after` passed), re-reads only
+  what moved, and repairs structure with `iwe rename` / `iwe delete` rather than
+  `mv`.
 
 The script exists because the staleness query is the one part of the workflow
-that must be exact and is tedious to reconstruct: frontmatter parsing, quoted
-SHAs, list-valued `source`, and the `git log <commit>..HEAD -- <source>` range
-per doc. It follows the `/agentdev:skill-scripts` contract so Verify's audit and
-the skill branch on the same `RESULT` names.
+that must be exact and is tedious to reconstruct: frontmatter parsing,
+tracked-source fingerprints, list-valued `source`, and legacy commit fallback
+for older maps. It follows the `/agentdev:skill-scripts` contract so Verify's
+audit and the skill branch on the same `RESULT` names.
 
 Rejected: writing the map from the Setup skill. Setup's job is the product doc
 and a first architecture note, drafted in one conversation; a full map is a
@@ -80,9 +81,9 @@ gate requires.
   triggers on "map the codebase / repo", "refresh the map", and Verify's stale
   handoff, `disable-model-invocation: true`, `allowed-tools` for the bundled
   script), the initial-mode and refresh-mode steps, the canonical-key rules, the
-  frontmatter template with a quoted `commit`, the script's `RESULT` table, and
-  the rules (read the code never memory; what not why; unknown beats fiction;
-  never `mv`).
+  frontmatter template with a tracked-source digest, the script's `RESULT`
+  table, and the rules (read the code never memory; what not why; unknown beats
+  fiction; never `mv`).
   - **Evidence:** commit `eb60f60`;
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
     reports 47/47 skills valid, 0 errors, 0 warnings with `iwe-map` counted.
@@ -94,11 +95,12 @@ gate requires.
 `.agents/plugins/agentdev/tests/test_stale_map_docs.py`
 
 - [x] Write `stale-map-docs.sh`: resolve the repo root and the IWE library path
-  from `.iwe/config.toml`, walk `data/codebase/**/*.md`, parse `commit`,
-  `source` (scalar or list), and `stale_after` from frontmatter, print one
-  `FRESH|STALE|GONE|EXPIRED|UNKNOWN_COMMIT <key> ...` line per doc plus count
-  keys, and exit `SUCCESS` (all fresh), `STALE_FOUND`, or `NO_MAP_DOCS`;
-  shellcheck-clean.
+  from `.iwe/config.toml`, walk `data/codebase/**/*.md`, parse `source_digest`,
+  legacy `commit`, `source` (scalar or list), and `stale_after` from
+  frontmatter, print one
+  `FRESH|STALE|GONE|EXPIRED|NO_COMMIT|UNKNOWN_COMMIT <key> ...` line per doc
+  plus count keys, and exit `SUCCESS` (all fresh), `STALE_FOUND`, or
+  `NO_MAP_DOCS`; shellcheck-clean.
   - **Evidence:** commit `eb60f60`; `shellcheck -x` on the script is clean; run
     against this workspace after the map commit it prints 26 `FRESH` lines and
     `RESULT=SUCCESS`.
@@ -169,11 +171,11 @@ gate requires.
 
 The Map skill SHALL write `data/codebase/` only from reading the current
 checkout, SHALL place each component doc at the canonical key that mirrors its
-source path, SHALL stamp every doc with the `source` it describes, the quoted
-`commit` it was read at, and a `verified` record, SHALL link children from
-their parent's `## Contains` so the hub tree renders the code's containment,
-and SHALL re-read only the docs whose `source` changed after their `commit`
-when refreshing.
+source path, SHALL stamp every doc with the `source` it describes, a
+`source_digest` fingerprint of tracked source contents, and a `verified` record,
+SHALL link children from their parent's `## Contains` so the hub tree renders
+the code's containment, and SHALL re-read only the docs whose tracked source
+contents differ from `source_digest` when refreshing.
 
 #### Scenario: The map is written for the first time
 
@@ -188,9 +190,9 @@ when refreshing.
 #### Scenario: Code moved after the map was written
 
 - **WHEN** Map runs in refresh mode, or Verify's audit hands it stale map docs
-- **THEN** Map re-reads only the components whose `source` has commits after
-  their `commit`, rewrites the affected sections, bumps `commit`, `verified`,
-  and `stale_after`, and leaves fresh docs untouched
+- **THEN** Map re-reads only the components whose tracked source contents differ
+  from `source_digest`, rewrites the affected sections, bumps `source_digest`,
+  `verified`, and `stale_after`, and leaves fresh docs untouched
 
 #### Scenario: A mapped component was moved or deleted
 
@@ -266,7 +268,7 @@ Verified anchor points (line numbers as of 2026-09-03, tree `d132a6c`):
 - `docs/knowledge/STRUCTURE.md:26-27` — skill list in the layout block
 - `.agents/plugins/agentdev/README.md:109-127` — knowledge-graph workflow table
 - `docs/knowledge/SCHEMA.md:144-166` — codebase-map authoring contract
-- `.iwe/schemas/codebase.yaml:13-21` — `source`, `commit` pattern
+- `.iwe/schemas/codebase.yaml:13-25` — `source`, `source_digest` pattern
 - `docs/knowledge/data/codebase.md:22,66` — `## Getting around`, `## Components`
 - `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`

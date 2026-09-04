@@ -2,12 +2,13 @@ $schema: https://document-schema.org/draft/2026-06/schema
 description: >-
   Codebase map documents (data/codebase/**) — derived by reading the code.
   source names the code the doc describes (one path, or a list whose
-  first entry is primary); commit is the git revision it was read at; the OKF
-  verified family records who last confirmed the doc against that code.
+  first entry is primary); source_digest fingerprints the tracked source
+  content; the OKF verified family records who last confirmed the doc against
+  that code.
 maxDepth: 4
 frontmatter:
   type: object
-  required: [type, source, commit, verified]
+  required: [type, source, source_digest, verified]
   properties:
     type: { const: codebase }
     source:
@@ -21,7 +22,11 @@ frontmatter:
     commit:
       type: string
       pattern: '^[0-9a-f]{7,40}$'
-      description: git commit SHA of the codebase when the code was read
+      description: optional legacy git commit SHA of the codebase when the code was read
+    source_digest:
+      type: string
+      pattern: '^sha256:[0-9a-f]{64}$'
+      description: deterministic hash of tracked source-path contents when the map was verified
     description:
       type: string
       description: one sentence summarizing this document — what OKF consumers and data/index.md show

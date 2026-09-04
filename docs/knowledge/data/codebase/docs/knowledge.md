@@ -7,18 +7,17 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:9861aeb6b87ceb9304a3b3d9dd188b3c10d2b57bc7f0bedaf779aad6cf671a6c
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:07:17Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .iwe
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Knowledge workspace machinery
@@ -70,7 +69,7 @@ test.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings

@@ -4,18 +4,17 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-commit: eb60f60450c6009b076bc51993b49a924653eaa4
+source_digest: sha256:1b4767f3352895da217f7f0e29aeb5955f77550bfc2294cb377d66eaea5c9a77
 verified:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
-stale_after: 2026-12-02
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
+stale_after: 2026-12-03
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:04:51Z
+  by: codex/gpt-5
+  at: 2026-09-04T20:20:44Z
 sources:
 - id: code
   resource: .devcontainer
-  title: the code this map describes, read at commit eb60f60
 ---
 
 # Devcontainer scaffolding
@@ -77,7 +76,7 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-03):
+Verified anchor points (line numbers as of 2026-09-04):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:62-97` — the four volume mounts
