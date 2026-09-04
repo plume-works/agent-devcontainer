@@ -176,6 +176,24 @@ section of the template-consume guide
 (`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`),
 which covers the owner gate and the security gates that must be preserved.
 
+To audit Claude responder token use and cost over a date-time range, download
+the workflow runs and then analyze the downloaded execution artifacts:
+
+```bash
+scripts/download-claude-responder-runs.sh \
+  --start 2026-09-01T00:00:00Z \
+  --end 2026-09-04T04:35:05Z \
+  --repo plume-works/agent-devcontainer
+
+uv run python scripts/analyze-claude-responder-costs.py \
+  --data-dir ./.tmp/claude-review-costs
+```
+
+The downloader writes `runs.json`, `all-ai-responder-runs.csv`, artifact
+inventories, and downloaded `claude-execution-output.json` files. The analyzer
+writes `summary.json`, `runs-costs.csv`, `models-costs.csv`, and
+`subagents-costs.csv`.
+
 ## Enabling the firewall
 
 The firewall is installed in the image but does nothing until you ask for it.
