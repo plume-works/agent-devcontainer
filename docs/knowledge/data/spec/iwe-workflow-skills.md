@@ -1,14 +1,16 @@
 ---
 type: spec
-description: Behavioral contracts and handoffs for IWE's Explore, Plan, Implement, Verify, and Ship skills.
+description: Behavioral contracts and handoffs for IWE's Explore, Plan, Map, Implement, Verify, and Ship skills.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T00:00:00Z
+  by: claude-code/opus-5
+  at: 2026-09-05T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/scripts/fetch-issue.sh
 - resource: .agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh
+- resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
@@ -312,6 +314,46 @@ to resume after a partial prior attempt.
   behavior represented by a durable spec
 - **THEN** Ship uses IWE's graph-aware deletion operation, repairs references,
   and does not leave an empty or orphaned spec document
+
+### Requirement: Map derives the codebase lane from the code and refreshes it incrementally
+
+The Map skill SHALL write `data/codebase/` only from reading the current
+checkout, SHALL place each component doc at the canonical key that mirrors its
+source path, SHALL stamp every doc with the `source` it describes, a
+`source_digest` fingerprint of tracked source contents, and a `verified` record,
+SHALL link children from their parent's `## Contains` so the hub tree renders
+the code's containment, and SHALL re-read only the docs whose tracked source
+contents differ from `source_digest` when refreshing.
+
+#### Scenario: The map is written for the first time
+
+- **WHEN** the user asks to map the codebase and `data/codebase.md` has no
+  members
+- **THEN** Map surveys entry points, external surfaces, and the build, run, and
+  test commands first, proposes the containment tree before writing, writes one
+  doc per confirmed component plus flow and api docs, fills `## Getting around`,
+  and ends with `iwe normalize` and `iwe schema validate` passing
+
+#### Scenario: Code moved after the map was written
+
+- **WHEN** Map runs in refresh mode, or Verify's audit hands it stale map docs
+- **THEN** Map re-reads only the components whose tracked source contents differ
+  from `source_digest`, rewrites the affected sections, bumps `source_digest`,
+  `verified`, and `stale_after`, and leaves fresh docs untouched
+
+#### Scenario: A mapped component was moved or deleted
+
+- **WHEN** a map doc's `source` no longer exists in the checkout
+- **THEN** Map relocates the doc with `iwe rename` when the code moved, or
+  removes it with `iwe delete` when the code is gone, and never moves or deletes
+  the file by hand
+
+#### Scenario: The code answers a question the map cannot
+
+- **WHEN** reading a component reveals a design decision or its rationale
+- **THEN** Map records what the code does in the map doc and reports the
+  rationale as a candidate `data/architecture/` doc rather than writing it into
+  the map
 
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
