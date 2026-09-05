@@ -412,7 +412,7 @@ jobs:
           artifact-name: claude-review-responder-output
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          prompt: ${{ needs.preflight.outputs.claude_prompt }}
+          prompt: 'are you alive?' # DEBUG CHANGE: ${{ needs.preflight.outputs.claude_prompt }}
           append-run-link: ${{ github.event_name == 'workflow_dispatch' && inputs.comment_id != '' }}
           comment-id: ${{ inputs.comment_id }}
           comment-kind: ${{ inputs.comment_kind }}
