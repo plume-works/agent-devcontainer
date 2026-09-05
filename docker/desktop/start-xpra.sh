@@ -7,7 +7,6 @@ HOST=${XPRA_HOST:-127.0.0.1}
 PORT=14500
 DISPLAY=:100
 BACKGROUND=false
-PORT_EXPLICIT=false
 VIDEO_ENCODERS=${XPRA_VIDEO_ENCODERS:-x264,vpx}
 XPRA_DAEMON_MODE=no
 XPRA_LOG_FILE="${XPRA_LOG_FILE:-$PWD/.tmp/xpra.log}"
@@ -20,7 +19,7 @@ Usage: start-xpra.sh [--host HOST] [--port PORT] [--display DISPLAY] [--backgrou
 Start an Xpra server with the HTML5 web client enabled.
 
 Options:
-  --port PORT       HTTP port for the HTML5 client (default: derived from DEVCONTAINER_ID in range 14500-14599, or 14500 if DEVCONTAINER_ID is unset)
+  --port PORT       Container HTTP port for the HTML5 client (default: 14500)
   --host HOST       Host/IP to bind the Xpra server (default: XPRA_HOST or 127.0.0.1)
   --display DISPLAY X display (accepts :100 or 100; default: :100)
   --background      Start Xpra in the background and exit immediately
@@ -157,7 +156,6 @@ while [[ $# -gt 0 ]]; do
         exit 1
       fi
       PORT="$2"
-      PORT_EXPLICIT=true
       shift 2
       ;;
     --display)
@@ -184,12 +182,6 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-
-# Derive unique port per devcontainer instance when DEVCONTAINER_ID is set
-if [[ "${PORT_EXPLICIT}" != "true" ]] && [[ -n "${DEVCONTAINER_ID:-}" ]]; then
-  port_hash=$(echo -n "${DEVCONTAINER_ID}" | cksum | awk '{print $1}')
-  PORT=$((14500 + (port_hash % 100)))
-fi
 
 normalize_display
 
@@ -229,7 +221,8 @@ export DISPLAY
 
 echo ""
 echo "Starting Xpra server..."
-echo "HTML5 client will be available at: http://$HOST:$PORT"
+echo "HTML5 container address: http://$HOST:$PORT"
+echo "For browser access, open the forwarded address in VS Code's Ports panel."
 echo ""
 
 # Shared Xpra options (defined once for both foreground/background modes)

@@ -48,11 +48,9 @@
     "UV_PROJECT_ENVIRONMENT": "/uv/venvs/ws-project"
   },
 
-  // start-xpra.sh derives a per-devcontainer port from DEVCONTAINER_ID so
-  // parallel worktrees do not collide on a single port.
-  "forwardPorts": ["14500-14599"],
+  "forwardPorts": [14500],
   "portsAttributes": {
-    "14500-14599": {
+    "14500": {
       "label": "Xpra HTML5",
       "onAutoForward": "silent"
     }

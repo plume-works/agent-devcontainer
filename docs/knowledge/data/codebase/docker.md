@@ -2,14 +2,14 @@
 type: codebase
 description: The two Dockerfiles that produce ubuntu-ansible and agent-desktop, plus the entrypoint, the Xpra start script, and the gh auth wrapper baked into the image.
 source: docker
-source_digest: sha256:a91fafcbf368a7d6eb05a336bb38cebf92967133886d0772aaffce2efd9ac063
+source_digest: sha256:63d6f89884736fb750f7c38df228eecccd13c37c38ec891e577d25f2fddae63f
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-05T17:42:03Z
+stale_after: 2026-12-04
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-05T17:42:03Z
 sources:
 - id: code
   resource: docker
@@ -43,12 +43,12 @@ sources land in a layer. It then exports `AGENTDEV_CATALOG_DIR`, labels the
 image with both versions, copies the two scripts, exposes `14500`, and sets the
 entrypoint, which only `exec`s the command.
 
-`start-xpra.sh` derives the HTML5 port from `DEVCONTAINER_ID`
-(`14500 + cksum % 100`) unless `--port` is explicit, clears a stale display
-lock, and supports `--background` and `--stop`. The `gh` wrapper finds the real
-`gh` by walking `PATH` and skipping every copy of itself, derives `GH_TOKEN`
-from the host's git credential helper when no token is set, and `exec`s, with a
-re-entrancy guard for the two copies that can share a `PATH`.
+`start-xpra.sh` serves the HTML5 client on container port `14500` unless
+`--port` overrides it, clears a stale display lock, and supports `--background`
+and `--stop`. The `gh` wrapper finds the real `gh` by walking `PATH` and
+skipping every copy of itself, derives `GH_TOKEN` from the host's git credential
+helper when no token is set, and `exec`s, with a re-entrancy guard for the two
+copies that can share a `PATH`.
 
 ## Depends on
 
@@ -70,12 +70,13 @@ copies out of `/provision`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-05):
 
 - `docker/desktop/agent-desktop.Dockerfile:41` — the provisioning `RUN`
 - `docker/desktop/agent-desktop.Dockerfile:68-71` — `ENV` and version labels
 - `docker/desktop/agent-desktop.Dockerfile:76-86` — scripts, port, entrypoint
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
-- `docker/desktop/start-xpra.sh:188-190` — per-devcontainer port derivation
+- `docker/desktop/start-xpra.sh:7` — default HTML5 container port
+- `docker/desktop/start-xpra.sh:152-158` — `--port` override
 - `docker/bin/gh:58-59` — `GH_TOKEN` from `git credential fill`
 - `docker/bin/gh:51` — re-entrancy `exec`

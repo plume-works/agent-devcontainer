@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:1b4767f3352895da217f7f0e29aeb5955f77550bfc2294cb377d66eaea5c9a77
+source_digest: sha256:8ef26c0aabf4da552bb4c5aab83b0af19670d7ce4b0f946f611c724f08cb611c
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-05T17:42:42Z
+stale_after: 2026-12-04
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-05T17:42:42Z
 sources:
 - id: code
   resource: .devcontainer
@@ -33,9 +33,10 @@ pulled.
 - `.devcontainer/devcontainer.json` — `initializeCommand:3`, the layered
   `dockerComposeFile:7`, `containerEnv` (`ENABLE_FIREWALL`, `DISPLAY`,
   `DEVCONTAINER_ID`, `DEV_WORKSPACE_FOLDER`, `CLAUDE_SECURESTORAGE_CONFIG_DIR`,
-  `CBM_CACHE_DIR`, `PRE_COMMIT_HOME`, `UV_*`), `forwardPorts:53`, four named
-  volume mounts (`:62-97`), the VS Code extension and settings block, and the
-  three lifecycle commands (`:255-258`)
+  `CBM_CACHE_DIR`, `PRE_COMMIT_HOME`, `UV_*`), the Xpra `forwardPorts` and
+  `portsAttributes` block (`:51-57`), four named volume mounts (`:58-102`), the
+  VS Code extension and settings block, and the three lifecycle commands
+  (`:253-256`)
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the shared
   `agentdev-agents-auth` volume (`:99-103`)
@@ -76,11 +77,12 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-05):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
-- `.devcontainer/devcontainer.json:62-97` — the four volume mounts
-- `.devcontainer/devcontainer.json:255-258` — lifecycle commands
+- `.devcontainer/devcontainer.json:51-57` — Xpra port forwarding
+- `.devcontainer/devcontainer.json:58-102` — the four volume mounts
+- `.devcontainer/devcontainer.json:253-256` — lifecycle commands
 - `.devcontainer/docker-compose.yml:2,53,103` — sidecar, service, volumes
 - `.devcontainer/devcontainer-init.sh:9` — `HOME` default for Codespaces
 - `devcontainer-compose-pins.yml:14` — the digest pin

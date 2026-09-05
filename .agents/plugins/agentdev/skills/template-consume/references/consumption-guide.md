@@ -204,7 +204,7 @@ Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
 6. Review `.devcontainer/firewall-allowlist.txt`. Leave `ENABLE_FIREWALL=false`
    until the allowlist contains every destination the project needs, then opt
    in deliberately.
-7. Keep the `14500-14599` forwarded range when retaining Xpra.
+7. Keep port `14500` in `forwardPorts` when retaining Xpra.
 8. Keep `devcontainer-compose-pins.yml` in the `dockerComposeFile` list; it is
    the actual digest pin.
 9. Rewrite publisher-specific comments in `devcontainer-compose-pins.yml` when

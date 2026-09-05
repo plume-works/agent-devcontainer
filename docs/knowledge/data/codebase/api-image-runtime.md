@@ -5,14 +5,14 @@ source:
 - docker
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
-source_digest: sha256:a528fedebb7a88c66525f08e6ccda6b6a3675b03b8b8bf2b1dd0d6d1a5627598
+source_digest: sha256:2c3465df5917b6a31599bfbb4f662c9ac5b9c0e47b7acdc7ec959084b0c19996
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-05T17:43:20Z
+stale_after: 2026-12-04
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-05T17:43:20Z
 sources:
 - id: code
   resource: docker
@@ -41,7 +41,6 @@ is the surface those consumers touch; the build that produces it is
 | `DEV_WORKSPACE_FOLDER`                              | firewall allowlist lookup, lifecycle scripts                          | the mounted workspace; falls back to the baked `WORKSPACE_FOLDER`        |
 | `ENABLE_FIREWALL`                                   | `.devcontainer/scripts/firewall.sh`                                   | `true` applies `init-firewall.sh`; anything else leaves it inert         |
 | `FIREWALL_ALLOWLIST`                                | `init-firewall.sh:14`                                                 | overrides the allowlist path                                             |
-| `DEVCONTAINER_ID`                                   | `/start-xpra.sh:188-190`                                              | derives the Xpra port `14500 + cksum % 100`                              |
 | `XPRA_HOST`, `XPRA_VIDEO_ENCODERS`, `XPRA_LOG_FILE` | `/start-xpra.sh:6-13`                                                 | bind host, encoders, log path                                            |
 | `AGENTDEV_CATALOG_DIR`                              | set by the image (`Dockerfile:68`), read by `postCreateCommand.sh:89` | where the catalog is staged (`/opt/agentdev`)                            |
 | `CBM_CACHE_DIR`                                     | the `codebase-memory-mcp-*.sh` scripts                                | required; cache and logs location                                        |
@@ -59,8 +58,8 @@ is the surface those consumers touch; the build that produces it is
   `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`/`iwec`, `codebase-memory-mcp`,
   `validate_agent_files`, `pre-commit`, `xpra`, `gnome-keyring-daemon`, Docker
   CE with buildx and compose
-- `EXPOSE 14500` — the Xpra HTML5 base port; the devcontainer forwards
-  `14500-14599`
+- `EXPOSE 14500` — the Xpra HTML5 container port, fixed by default and
+  overridable with `/start-xpra.sh --port`; the devcontainer forwards `14500`
 
 ## Guarantees
 
