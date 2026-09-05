@@ -6,6 +6,17 @@ to the current day's group.
 
 ## 2026-09-05
 
+- **Update**: [Missing map skill](bugs/missing-map-skill.md) fixed —
+  `/agentdev:iwe-map` now owns the `data/codebase/` lane that Setup, Verify, and
+  the operating loop all handed to a skill that did not exist. Initial mode
+  surveys the outside of the system, confirms the containment tree, then writes
+  one doc per component at its canonical key plus flow and api docs; refresh
+  mode re-reads only the docs whose tracked source contents no longer match
+  their `source_digest`, classified by the bundled `stale-map-docs.sh`. This
+  repository is mapped: 26 docs under [Codebase](codebase.md). Recorded in
+  [unreleased](releases/unreleased.md) and specified in
+  [IWE workflow skills](spec/iwe-workflow-skills.md);
+  [its plan](plans/20260903-iwe-map-skill.md) is done.
 - **Creation**:
   [Consumer PR description guidance](features/pr-description-guidance.md)
   implemented, recorded in [unreleased](releases/unreleased.md) — a consuming

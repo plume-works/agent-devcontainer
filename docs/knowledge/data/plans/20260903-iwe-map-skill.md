@@ -13,6 +13,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-setup/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/skill-scripts/SKILL.md
+stage: done
+completed: 2026-09-05
 ---
 
 # Add the iwe-map skill

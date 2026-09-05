@@ -47,4 +47,6 @@ renames this file to the version number and starts a fresh one.*
 
 ## Fixed
 
+[Missing map skill](../bugs/missing-map-skill.md)
+
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

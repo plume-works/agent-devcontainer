@@ -19,9 +19,9 @@ moves them.*
 
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 
-[Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
-
 ## Done
+
+[Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
 
 [Consumer PR description guidance](plans/20260903-pr-description-guidance.md)
 
