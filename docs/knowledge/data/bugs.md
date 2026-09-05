@@ -19,3 +19,5 @@ tells them apart.*
 [Missing map skill](bugs/missing-map-skill.md)
 
 [Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
+
+[Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md)

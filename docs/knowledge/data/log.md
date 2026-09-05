@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-09-05
 
+- **Creation**:
+  [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md) —
+  `source_digest` fingerprints whole tracked files, so an automerged Renovate
+  pin bump marks a map doc stale even when the doc never mentions the pinned
+  value. Five of twenty-six docs went amber on three one-line bumps.
 - **Update**: [Missing map skill](bugs/missing-map-skill.md) fixed —
   `/agentdev:iwe-map` now owns the `data/codebase/` lane that Setup, Verify, and
   the operating loop all handed to a skill that did not exist. Initial mode
