@@ -4,6 +4,21 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-05
+
+- **Creation**:
+  [Consumer PR description guidance](features/pr-description-guidance.md)
+  implemented, recorded in [unreleased](releases/unreleased.md) — a consuming
+  repository may now capture its extra PR-template sections as instructions in a
+  consumer-owned `.github/pr-description-guidance.md`, which
+  `pr-gen-description` reads with precedence over its own section generation
+  while preserving the Verification / Reviewer Handoff tense split, and template
+  setup and update evaluate an existing template into covered/extras buckets
+  before anything is written. Specified in
+  [Template consumption](spec/template-consumption.md) and classified in
+  [Template boundary](architecture/template-boundary.md);
+  [its plan](plans/20260903-pr-description-guidance.md) is done.
+
 ## 2026-09-04
 
 - **Creation**: five decision records recovered from the Dr.QP history the

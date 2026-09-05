@@ -17,6 +17,8 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
+[Consumer PR description guidance](../features/pr-description-guidance.md)
+
 [Install the agentdev catalog into the image](../features/catalog-installed-in-image.md)
 
 [Persist the pre-commit hook cache](../features/persist-pre-commit-cache.md)

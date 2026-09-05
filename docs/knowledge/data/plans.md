@@ -21,9 +21,9 @@ moves them.*
 
 [Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
 
-[Consumer PR description guidance](plans/20260903-pr-description-guidance.md)
-
 ## Done
+
+[Consumer PR description guidance](plans/20260903-pr-description-guidance.md)
 
 [One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
 

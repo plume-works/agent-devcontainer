@@ -5,6 +5,8 @@ description: Let a consuming repository capture its extra PR-template sections a
 generated:
   by: codex/gpt-5
   at: 2026-09-04T04:52:22Z
+stage: done
+completed: 2026-09-05
 ---
 
 # Consumer PR description guidance
