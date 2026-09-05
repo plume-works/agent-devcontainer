@@ -98,9 +98,13 @@ container on its old digest does not update `/start-xpra.sh`.
   - **Evidence:** Commit on branch `ws2` rewriting README's "Reaching the Xpra
     desktop" section with all four points; changed-file pre-commit, including
     prettier, passed.
-- [ ] Remove the architecture document's obsolete port-derivation detail and
+- [x] Remove the architecture document's obsolete port-derivation detail and
   refresh the affected codebase maps through `agentdev:iwe-map`, including their
   source digests and verified anchors.
+  - **Evidence:** Commit on branch `ws2` updating `module-layout.md` and
+    refreshing `docker.md`, `devcontainer.md`, and `api-image-runtime.md`;
+    `stale-map-docs.sh` reports all three FRESH, `iwe schema validate` and
+    changed-file pre-commit checks passed.
 
 ### Task 4: Verify concurrent forwarded desktops
 
