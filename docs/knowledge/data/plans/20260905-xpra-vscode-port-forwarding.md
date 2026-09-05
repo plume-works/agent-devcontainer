@@ -4,7 +4,7 @@ created: 2026-09-05
 description: Use a fixed Xpra container port and let VS Code resolve local forwarding conflicts.
 generated:
   by: codex/gpt-6
-  at: 2026-09-05T17:28:33Z
+  at: 2026-09-05T17:37:57Z
 sources:
 - resource: docker/desktop/start-xpra.sh
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -47,12 +47,20 @@ container on its old digest does not update `/start-xpra.sh`.
 **Files:** Modify: `docker/desktop/start-xpra.sh`,
 `docker/desktop/agent-desktop.Dockerfile`
 
-- [ ] Retain `PORT=14500` and the `--port` argument; remove the hash block and
+- [x] Retain `PORT=14500` and the `--port` argument; remove the hash block and
   both `PORT_EXPLICIT` assignments, and update the usage text to state the fixed
   default. Preserve bind-host, display, rendering, and lifecycle behavior.
-- [ ] Describe the startup URL as the container address and direct browser users
+  - **Evidence:** 2026-09-05 disposable-container runtime check on display :199:
+    unset, alpha, and beta IDs bound 127.0.0.1:14500; an explicit --port 14600
+    with an ID bound 127.0.0.1:14600. All four startup/stop cycles passed.
+    `bash -n`, `shellcheck`, and changed-file pre-commit checks passed.
+- [x] Describe the startup URL as the container address and direct browser users
   to the forwarded address in VS Code's Ports panel.
-- [ ] Remove the Dockerfile's derived-port claim while retaining `EXPOSE 14500`.
+  - **Evidence:** The 2026-09-05 four-case runtime check displayed the container
+    address and Ports panel instruction in every startup; pre-commit passed.
+- [x] Remove the Dockerfile's derived-port claim while retaining `EXPOSE 14500`.
+  - **Evidence:** 2026-09-05 source review confirmed EXPOSE 14500 and the fixed
+    default comment; changed-file pre-commit, including hadolint, passed.
 
 ### Task 2: Forward the fixed container port
 
@@ -171,12 +179,10 @@ direct users to the actual forwarded address in VS Code's Ports panel.
 Verified anchor points (line numbers as of 2026-09-05):
 
 - `docker/desktop/start-xpra.sh:7` — default port
-- `docker/desktop/start-xpra.sh:10` — explicit-port tracking
-- `docker/desktop/start-xpra.sh:23` — port usage text
-- `docker/desktop/start-xpra.sh:153` — --port parsing
-- `docker/desktop/start-xpra.sh:188` — ID-derived port selection
-- `docker/desktop/start-xpra.sh:232` — printed client URL
-- `docker/desktop/start-xpra.sh:238` — Xpra TCP bind argument
+- `docker/desktop/start-xpra.sh:22` — port usage text
+- `docker/desktop/start-xpra.sh:152` — --port parsing
+- `docker/desktop/start-xpra.sh:222` — printed client URL
+- `docker/desktop/start-xpra.sh:228` — Xpra TCP bind argument
 - `docker/desktop/agent-desktop.Dockerfile:76` — startup script copied into
   image
 - `docker/desktop/agent-desktop.Dockerfile:78` — exposed-port documentation
