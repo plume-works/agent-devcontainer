@@ -16,34 +16,28 @@ sources:
 
 ## Context
 
-The requested behavior:
+Consumers choosing IWE need a complete starting workspace: reusable schemas,
+document hubs, product placeholders, onboarding tasks, and examples. This
+repository's live `docs/knowledge/data/` describes the publisher. Removing it
+leaves consumers without that starting structure, while retaining it gives them
+another project's memory. The consumption guide makes IWE optional but does not
+initialize consumer data or invoke onboarding.
 
-> Current IWE database is filled with the current repo and consumer instructions
-> say to just nuke it. That would leave consumer repo with only half of IWE
-> setup. This repo has to carry a template version of data folder from
-> https://github.com/plume-works/iwe-dev-workspace in its pristine form.
-> Template-consume skill should use that template data folder as part of setup.
-> It should call IWE-map and IWE-setup skills to populate it on initial setup
-
-The consumption skill makes knowledge-base adoption optional, but its guide does
-not initialize consumer data or invoke onboarding. This repository's live
-`docs/knowledge/data/` describes the publisher and cannot serve as a blank seed.
-
-The maintainer decided that this repository owns and maintains the seed. The
-unmaintained `plume-works/iwe-dev-workspace` fork is an initial import source
-only; adoption and maintenance must survive its removal. See
-[Template consumption](../spec/template-consumption.md) for the existing
-adoption contract.
+This repository will own a clean seed and maintain it alongside its schemas and
+skills. The data tree from `plume-works/iwe-dev-workspace` supplies the initial
+content; subsequent maintenance and consumer setup must remain independent of
+that fork. Template consumption will install the seed and run iwe-setup followed
+by iwe-map to populate the consumer's own project memory. This extends the
+existing [template consumption contract](../spec/template-consumption.md).
 
 ## Approach
 
 Keep the canonical seed in `templates/iwe/data/`, outside the live IWE library.
 Import the upstream data tree once, preserve its license notice, and maintain it
-alongside this repository's schemas and skills. A pristine seed means a clean
-reusable starting point, not an immutable upstream snapshot. Retain
-placeholders, onboarding tasks, hubs, and fictional examples; adapt example
-metadata and guidance to the current `source_digest` contract without claiming
-that fictional source was verified against this repository.
+alongside this repository's schemas and skills. Retain placeholders, onboarding
+tasks, hubs, and fictional examples; adapt example metadata and guidance to the
+current `source_digest` contract without claiming that fictional source was
+verified against this repository.
 
 The installed consumption skill reads the seed from the agent-devcontainer
 checkout at the ref being adopted, just as it reads other template files. There
