@@ -175,6 +175,23 @@ direct users to the actual forwarded address in VS Code's Ports panel.
   performed; a listener or HTTP response alone is insufficient.
 - Run `iwe normalize` and `iwe schema validate` after updating project memory.
 
+## Verification results
+
+The runtime behavior of Task 4 is confirmed; its packaging half is not.
+
+On 2026-09-05 a maintainer ran the edited `docker/desktop/start-xpra.sh`
+directly, with `--background` and no `--port`, in two VS Code devcontainer
+windows on one client machine. Both bound container port 14500 with
+`DEVCONTAINER_ID` set, and both desktops were reachable through their respective
+forwarded local addresses. This exercises the fixed default and concurrent
+forwarding.
+
+It does not exercise image adoption: both containers ran the pre-change
+`agent-desktop` digest, so the installed `/start-xpra.sh` was still the old
+script and did not match the edited source. Task 4 stays open for that check —
+two containers built from an image carrying the updated script, each confirmed
+to have it installed.
+
 ## Out of scope
 
 - Removing `DEVCONTAINER_ID` from the container environment or changing other
