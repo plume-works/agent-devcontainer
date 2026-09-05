@@ -330,7 +330,7 @@ jobs:
       needs.preflight.outputs.is_fork != 'true' &&
       needs.preflight.outputs.is_pull_request == 'true' &&
       contains(fromJSON('["issue_comment", "pull_request_review_comment", "pull_request_review"]'), github.event_name)
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     permissions:
       actions: write
       contents: read
@@ -381,7 +381,7 @@ jobs:
       needs.preflight.result == 'success' &&
       needs.preflight.outputs.is_fork != 'true' &&
       needs.preflight.outputs.wants_review == 'true'
-    runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+    runs-on: self-hosted
     container:
       image: ghcr.io/plume-works/agent-desktop:edge
     permissions:
@@ -425,7 +425,7 @@ jobs:
       needs.preflight.result == 'success' &&
       needs.preflight.outputs.is_fork != 'true' &&
       needs.preflight.outputs.wants_task == 'true'
-    runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+    runs-on: self-hosted
     container:
       image: ghcr.io/plume-works/agent-desktop:edge
     permissions:
@@ -468,7 +468,7 @@ jobs:
       always() &&
       (contains(fromJSON('["pull_request", "pull_request_review", "merge_group"]'), github.event_name) ||
        (github.event_name == 'workflow_dispatch' && inputs.task == ''))
-    runs-on: ubuntu-24.04
+    runs-on: self-hosted
     timeout-minutes: 10
     permissions:
       contents: read
