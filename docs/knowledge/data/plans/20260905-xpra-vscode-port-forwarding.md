@@ -66,9 +66,12 @@ container on its old digest does not update `/start-xpra.sh`.
 
 **Files:** Modify: `.devcontainer/devcontainer.json`
 
-- [ ] Replace the derived-port comment and range configuration with this exact
+- [x] Replace the derived-port comment and range configuration with this exact
   configuration fragment, retaining the default `requireLocalPort: false` by
   omission:
+  - **Evidence:** 2026-09-05 exact-fragment assertions passed for forwardPorts,
+    label, silent forwarding, and omitted requireLocalPort; changed-file
+    pre-commit checks passed.
 
 ``` json
 "forwardPorts": [14500],
