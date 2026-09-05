@@ -91,10 +91,13 @@ container on its old digest does not update `/start-xpra.sh`.
 `docs/knowledge/data/codebase/api-image-runtime.md`,
 `docs/knowledge/data/codebase/devcontainer.md`
 
-- [ ] Update the README's Xpra access instructions: fixed internal port,
+- [x] Update the README's Xpra access instructions: fixed internal port,
   possibly different local address in the Ports panel, retained `--port`
   override requiring forwarding of the selected port, and adoption of an image
   containing the changed script before relying on the new configuration.
+  - **Evidence:** Commit on branch `ws2` rewriting README's "Reaching the Xpra
+    desktop" section with all four points; changed-file pre-commit, including
+    prettier, passed.
 - [ ] Remove the architecture document's obsolete port-derivation detail and
   refresh the affected codebase maps through `agentdev:iwe-map`, including their
   source digests and verified anchors.
