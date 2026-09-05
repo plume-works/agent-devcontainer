@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:54:56Z
+  by: codex/gpt-6
+  at: 2026-09-05T17:28:33Z
 ---
 
 # 🗺️ Plans
@@ -16,6 +16,8 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
+
+[Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
 
 [Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
 
