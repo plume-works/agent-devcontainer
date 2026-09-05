@@ -224,11 +224,9 @@ Manage it directly with `/start-xpra.sh --background`, `--stop`, or
 `--port <n>`. `--port` changes the _container_ port, so forward that port too —
 otherwise the desktop is unreachable from the client machine.
 
-The startup script is baked into the image, so this behavior needs an
-`agent-desktop` image that contains the updated script. Reopening a container on
-an older digest keeps the previous `/start-xpra.sh`; advance the pin (see
-[Staying on the current image](#staying-on-the-current-image)) before relying on
-the fixed port.
+`/start-xpra.sh` is baked into the `agent-desktop` image, so changes to its
+behavior reach a container only when its digest pin advances (see
+[Staying on the current image](#staying-on-the-current-image)).
 
 ## Provisioning knobs
 

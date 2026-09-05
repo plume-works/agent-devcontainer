@@ -208,8 +208,8 @@ Verified anchor points (line numbers as of 2026-09-05):
 - `docker/desktop/start-xpra.sh:7` — default port
 - `docker/desktop/start-xpra.sh:22` — port usage text
 - `docker/desktop/start-xpra.sh:152` — --port parsing
-- `docker/desktop/start-xpra.sh:222` — printed client URL
-- `docker/desktop/start-xpra.sh:228` — Xpra TCP bind argument
+- `docker/desktop/start-xpra.sh:224` — printed client URL
+- `docker/desktop/start-xpra.sh:231` — Xpra TCP bind argument
 - `docker/desktop/agent-desktop.Dockerfile:76` — startup script copied into
   image
 - `docker/desktop/agent-desktop.Dockerfile:78` — exposed-port documentation
