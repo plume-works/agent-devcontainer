@@ -154,11 +154,19 @@ consumer memory.
     adds `templates/iwe/` and `test_iwe_seed.py` to the never-track list.
     `template-boundary.md` gains `## Optional knowledge-base bundle` with the
     seed's source→destination table and post-adoption ownership.
-- [ ] Before invoking check-updates.sh, migrate legacy markers that broadly
+- [x] Before invoking check-updates.sh, migrate legacy markers that broadly
   track knowledge to that retained support inventory without advancing
   `consumed_ref`. Preserve unrelated tracked paths and optional bundle choices.
   Update mode must never reseed or automatically rerun onboarding; review
   schema/support-file changes against existing consumer data before applying.
+  - **Evidence:** commit `91b4a4e`. `## Update Mode` step 1 now narrows a broad
+    `docs/knowledge/` entry to the retained inventory before `check-updates.sh`
+    runs, explicitly leaving `consumed_ref`, `optional_bundles`, `workflow`, and
+    every other tracked path untouched; the later steps renumbered to 2–7. New
+    step 6 states update mode has no seeding step and no iwe-setup/iwe-map
+    invocation, and gates an `.iwe/` schema change on running
+    `iwe schema validate` from the consumer root first. The guide's
+    `## Ongoing maintenance` carries the same rules.
 
 ### Task 4: Validate the seed as a consumer workspace
 
