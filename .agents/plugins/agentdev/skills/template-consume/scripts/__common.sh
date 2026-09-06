@@ -27,5 +27,5 @@ show_help_header() {
 }
 
 marker_file_name() {
-  printf '.agentdev-template.json'
+  printf '.agent.metadata.json'
 }

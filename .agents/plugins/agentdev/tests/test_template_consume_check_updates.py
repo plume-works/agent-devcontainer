@@ -72,13 +72,15 @@ def build_consumer_repository(
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
     marker = {
-        'source_repo': source_repo,
-        'consumed_ref': consumed_ref,
-        'workflow': 'A',
-        'tracked_paths': tracked_paths,
-        'last_synced_at': '2026-09-03T00:00:00Z',
+        'template-consume': {
+            'source_repo': source_repo,
+            'consumed_ref': consumed_ref,
+            'workflow': 'A',
+            'tracked_paths': tracked_paths,
+            'last_synced_at': '2026-09-03T00:00:00Z',
+        }
     }
-    (consumer_dir / '.agentdev-template.json').write_text(json.dumps(marker))
+    (consumer_dir / '.agent.metadata.json').write_text(json.dumps(marker))
     _run_git(['add', '-A'], consumer_dir)
     _run_git(['commit', '-m', 'init'], consumer_dir)
     return consumer_dir
@@ -295,8 +297,8 @@ def test_check_updates_reports_invalid_marker_when_consumed_ref_is_missing(
     consumer_dir = plugin_tmp_path / 'fixture-consumer-bad-marker'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
-    (consumer_dir / '.agentdev-template.json').write_text(
-        json.dumps({'source_repo': 'fixture/template'})
+    (consumer_dir / '.agent.metadata.json').write_text(
+        json.dumps({'template-consume': {'source_repo': 'fixture/template'}})
     )
     _run_git(['add', '-A'], consumer_dir)
     _run_git(['commit', '-m', 'init'], consumer_dir)
@@ -310,6 +312,58 @@ def test_check_updates_reports_invalid_marker_when_consumed_ref_is_missing(
     )
 
     # Assert
+    assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
+        7,
+        'RESULT=INVALID_MARKER',
+    )
+
+
+def test_check_updates_reports_no_marker_when_section_is_absent(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """Metadata without template-consume must select setup mode."""
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    consumer_dir = plugin_tmp_path / 'fixture-consumer-no-section'
+    consumer_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], consumer_dir)
+    (consumer_dir / '.agent.metadata.json').write_text(json.dumps({'iwe-map': {}}))
+    _run_git(['add', '-A'], consumer_dir)
+    _run_git(['commit', '-m', 'init'], consumer_dir)
+
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
+        3,
+        'RESULT=NO_MARKER',
+    )
+
+
+def test_check_updates_reports_invalid_marker_for_malformed_metadata(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """Malformed root metadata must fail with INVALID_MARKER."""
+    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    consumer_dir = plugin_tmp_path / 'fixture-consumer-malformed-metadata'
+    consumer_dir.mkdir()
+    _run_git(['init', '--initial-branch=main'], consumer_dir)
+    (consumer_dir / '.agent.metadata.json').write_text('{')
+    _run_git(['add', '-A'], consumer_dir)
+    _run_git(['commit', '-m', 'init'], consumer_dir)
+
+    completed = subprocess.run(
+        [str(script), '--root', str(consumer_dir)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
     assert (completed.returncode, completed.stdout.splitlines()[-1]) == (
         7,
         'RESULT=INVALID_MARKER',
@@ -357,8 +411,8 @@ def test_check_updates_reports_invalid_marker_when_tracked_paths_is_empty(
     consumer_dir = plugin_tmp_path / 'fixture-consumer-empty-tracked'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
-    (consumer_dir / '.agentdev-template.json').write_text(
-        json.dumps({'consumed_ref': first_sha, 'tracked_paths': []})
+    (consumer_dir / '.agent.metadata.json').write_text(
+        json.dumps({'template-consume': {'consumed_ref': first_sha, 'tracked_paths': []}})
     )
     _run_git(['add', '-A'], consumer_dir)
     _run_git(['commit', '-m', 'init'], consumer_dir)
@@ -389,7 +443,9 @@ def test_check_updates_reports_invalid_marker_when_tracked_paths_is_absent(
     consumer_dir = plugin_tmp_path / 'fixture-consumer-no-tracked'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
-    (consumer_dir / '.agentdev-template.json').write_text(json.dumps({'consumed_ref': first_sha}))
+    (consumer_dir / '.agent.metadata.json').write_text(
+        json.dumps({'template-consume': {'consumed_ref': first_sha}})
+    )
     _run_git(['add', '-A'], consumer_dir)
     _run_git(['commit', '-m', 'init'], consumer_dir)
 

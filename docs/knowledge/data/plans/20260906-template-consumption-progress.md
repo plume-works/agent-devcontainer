@@ -170,9 +170,10 @@ this way; the root file stays the live record.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/scripts/__common.sh`,
 `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh`,
-`.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
+`.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_template_consume_check_updates.py`.
 
-- [ ] Repoint the scripts at `.agent.metadata.json`, reading the fields from the
+- [x] Repoint the scripts at `.agent.metadata.json`, reading the fields from the
   `template-consume` object. The filename is centralized in `__common.sh`'s
   `marker_file_name` (line 29), so the path itself changes in one place; the
   `jq` expressions in `check-updates.sh` change alongside it. Keep every
@@ -180,6 +181,9 @@ this way; the root file stays the live record.
   a missing `consumed_ref`, and `NO_MARKER` when the file is absent or carries
   no `template-consume` section. Update the `--help` text, which names the
   marker file literally at lines 35 and 47.
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_template_consume_check_updates.py`
+    passed with the nested metadata section and unchanged result codes.
 - [ ] Rewrite `## The Marker File` (line 21) as the `template-consume` section
   of `.agent.metadata.json`, keeping the field table intact and noting the
   section is read root-only.
