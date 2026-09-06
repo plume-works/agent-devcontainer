@@ -92,18 +92,26 @@ consumer memory.
   `docs/knowledge/data/`, retain root `.iwe/` with library path
   `docs/knowledge`, and enumerate reusable supporting files, validation hooks,
   and workflow requirements. Preserve the seed's license notice in consumers.
-  - **Evidence:** commit `d0a5be6` adds `## Optional knowledge-base setup` to
+  - **Evidence:** commit `b990f17` adds `## Optional knowledge-base setup` to
     the consumption guide, reached from Workflow A step 9 and Workflow B step 5
     and from the knowledge-base validation subsection. It lists the reusable
     scaffold (root `.iwe/` with `[library].path = "docs/knowledge"`, the
     supporting docs, `test_plan_checkboxes.py`), the retained validation
     (workflow, both pre-commit hooks, the `testpaths` entry), and copies
     `templates/iwe/LICENSE.md` to `docs/knowledge/LICENSE.md`.
-- [ ] In Workflow A, replace only the identified unmodified publisher data
+- [x] In Workflow A, replace only the identified unmodified publisher data
   copied from that ref; if data differs, treat it as existing consumer memory.
   In Workflow B, seed only an absent or empty data directory. Ask how to merge
   any existing knowledge/configuration collision without deleting or replacing
   it. Keep the publisher checkout unchanged when targeting another directory.
+  - **Evidence:** commit `b990f17`, the guide's `### Seed the consumer's data`.
+    Step 1 makes Workflow A compare the copied data against the adopted ref's
+    and seed only on a byte-identical match, and makes Workflow B seed only an
+    absent or empty directory. Step 2 forbids deleting, overwriting, or
+    resetting existing data and requires asking how to reconcile it — including
+    a root `.iwe/` whose schemas or `[library].path` differ. The closing
+    paragraph keeps the publisher's `docs/knowledge/` and `templates/iwe/`
+    unmodified when the skill runs against another target directory.
 - [ ] Invoke iwe-setup and then iwe-map for fresh onboarding, preserving their
   interviews and confirmation gates. Use the consumer root for IWE commands. For
   greenfield projects, complete setup and report mapping as deferred until code
