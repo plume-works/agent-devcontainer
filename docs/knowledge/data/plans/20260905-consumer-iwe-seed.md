@@ -1,10 +1,12 @@
 ---
 type: plan
+stage: done
 created: 2026-09-05
+completed: 2026-09-06
 description: Maintain a reusable IWE seed in this repository and initialize consumer project memory through setup and mapping without overwriting existing knowledge.
 generated:
-  by: codex/gpt-6
-  at: 2026-09-05T17:30:00Z
+  by: claude-code/opus-5
+  at: 2026-09-06T05:39:02Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md

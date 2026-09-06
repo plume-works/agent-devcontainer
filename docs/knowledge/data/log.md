@@ -6,6 +6,18 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Update**:
+  [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
+  done — both adoption workflows can seed and onboard fresh IWE project memory
+  without replacing existing consumer knowledge, and update mode excludes both
+  publisher memory and initialization-only seed content.
+- **Creation**: [Consumer IWE seed](features/consumer-iwe-seed.md) implemented
+  and recorded in [unreleased](releases/unreleased.md). The reusable seed is
+  maintained in this repository, validated in an isolated consumer layout, and
+  specified in [Template consumption](spec/template-consumption.md).
+- **Update**: [Template consumption](spec/template-consumption.md) now requires
+  a repository-owned seed, ordered setup and mapping for fresh adoption, and
+  preservation of consumer-authored knowledge during adoption and updates.
 - **Update**: [Python skill scripts](plans/20260905-python-skill-scripts.md)
   done — the codebase-map freshness classifier now runs as standard-library
   Python on the shared Python result-code helper while preserving its output,
