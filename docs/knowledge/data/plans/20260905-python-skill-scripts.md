@@ -68,30 +68,45 @@ and inline Python inside bash is neither testable nor lintable.
 
 **Files:** Create: `.agents/plugins/agentdev/bin/result_codes.py`
 
-- [ ] Implement the contract from `bin/result-codes.sh`: a mutable code-to-name
+- [x] Implement the contract from `bin/result-codes.sh`: a mutable code-to-name
   mapping seeded with `0=SUCCESS`, `1=SCRIPT_FAILURE`, `2=PREFLIGHT_ERROR`,
   `129=SIGNAL_HUP`, `130=SIGNAL_INT`, `143=SIGNAL_TERM`; a `quit_by_code`
   equivalent that prints `RESULT=<NAME>` to stdout and exits with the code; an
   unknown code rendering as `UNKNOWN_CODE_<n>` as `emit_result` does.
-- [ ] Guarantee `RESULT=` is emitted exactly once and last on every path,
+  - **Evidence:** `RESULT_CODES` and `quit_by_code` in `bin/result_codes.py`;
+    `test_python_unknown_code_renders_as_unknown` covers the `UNKNOWN_CODE_<n>`
+    rendering.
+- [x] Guarantee `RESULT=` is emitted exactly once and last on every path,
   including an uncaught exception, via an `atexit` hook mirroring
   `report_unhandled_exit`. An uncaught exception exits `1` with its traceback on
   stderr.
-- [ ] Install HUP/INT/TERM handlers that emit the result, restore
+  - **Evidence:** `test_python_result_line_is_last_on_a_normal_exit` and
+    `test_python_result_line_is_last_on_an_uncaught_exception` pass; the `run`
+    entry point also names a bare `sys.exit`, covered by
+    `test_python_bare_exit_is_named_like_the_shell_helper`.
+- [x] Install HUP/INT/TERM handlers that emit the result, restore
   `signal.SIG_DFL`, and re-raise with `os.kill`, so the caller sees `-SIGINT`
   rather than a normal exit of 130 — matching `report_signal` at
   `bin/result-codes.sh:62-72`.
+  - **Evidence:** `test_python_result_codes_preserve_terminating_signals`
+    asserts the same `(-signal, 129/130/143, RESULT=SIGNAL_*)` triples as the
+    bash case.
 
 ### Task 2: Cover the Python helper in the result-codes test
 
 **Files:** Modify: `.agents/plugins/agentdev/tests/test_result_codes.py`
 
-- [ ] Add a case asserting the Python helper produces the same
+- [x] Add a case asserting the Python helper produces the same
   `(returncode, shell_status, stdout)` triples the existing bash case asserts at
   `test_result_codes.py:42-46`: negative return codes for HUP/INT/TERM, statuses
   129/130/143, and the matching `RESULT=SIGNAL_*` line.
-- [ ] Assert `RESULT=` is last on a normal-exit path and on an uncaught
+  - **Evidence:** `test_python_result_codes_preserve_terminating_signals` in
+    `tests/test_result_codes.py`, asserting the identical triple dict.
+- [x] Assert `RESULT=` is last on a normal-exit path and on an uncaught
   exception, which the bash case does not cover for either implementation.
+  - **Evidence:** `test_python_result_line_is_last_on_a_normal_exit` and
+    `test_python_result_line_is_last_on_an_uncaught_exception` assert the exact
+    stdout line sequence.
 
 ### Task 3: Port the script, preserving digests and output byte-for-byte
 
