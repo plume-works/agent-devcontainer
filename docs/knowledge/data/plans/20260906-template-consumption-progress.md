@@ -232,9 +232,11 @@ this way; the root file stays the live record.
   it so a recorded choice is looked up rather than re-derived.
   - **Evidence:** `validate_agent_files` passed with update mode reading settled
     choices before evaluating changed paths.
-- [ ] Specify how update mode extends the file: a new `## Update <date>` task
+- [x] Specify how update mode extends the file: a new `## Update <date>` task
   section per episode, derived from `CHANGED_PATHS`, while the choice log
   accumulates in place rather than being reset.
+  - **Evidence:** `validate_agent_files` passed with dated update tasks derived
+    from changed paths and an accumulating choice log.
 - [ ] Handle a consumer with a marker but no progress document — an adoption
   predating this plan. Create the file with the choices that can be recovered
   from the marker, and record the rest as unknown rather than guessed.

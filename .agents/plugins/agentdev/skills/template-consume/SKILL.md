@@ -174,6 +174,11 @@ A marker section or legacy marker file exists.
    | `PREFLIGHT_ERROR` | `2`  | STOP and report the blocker verbatim.                                                       |
    | `SCRIPT_FAILURE`  | `1`  | STOP and report the blocker verbatim.                                                       |
 
+   For `CHANGES_FOUND`, append a `## Update <YYYY-MM-DD>` section to the
+   progress document. Generate its unticked task list from `CHANGED_PATHS`, one
+   review/apply task per reported path. Keep `## Choices` in place and append
+   newly settled decisions; never reset the existing choice log.
+
 5. **For each changed path**, inspect the actual upstream diff (the scratch
    clone is gone by the time the script returns, so re-clone or use
    `git log`/`git show` against `https://github.com/<source_repo>` — do not
