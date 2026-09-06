@@ -108,9 +108,11 @@ this way; the root file stays the live record.
   leaves a resumable record.
   - **Evidence:** `iwe schema validate` passed with setup ordered to persist the
     progress document before guide execution.
-- [ ] Add a requirement that a ticked task in the progress document carries an
+- [x] Add a requirement that a ticked task in the progress document carries an
   `- **Evidence:**` child, matching
   [Plan checkbox evidence](../spec/plan-checkbox-evidence.md).
+  - **Evidence:** `iwe schema validate` passed with the checkbox-evidence
+    scenario in the durable specification.
 - [ ] Add a requirement that the progress document is never a `tracked_paths`
   member, being consumer-created state rather than a template path.
 - [ ] Add a scenario for a resumed setup: a session finding a progress document

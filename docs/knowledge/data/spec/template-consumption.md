@@ -93,6 +93,12 @@ and the choices the user made. Setup SHALL write it before executing the guide's
 steps, so an interrupted session leaves a resumable record. It MAY name the
 adopted SHA as context, but SHALL NOT be read as the source of truth for it.
 
+### Scenario: a task is completed during consumption
+
+- **WHEN** a consumption task is finished
+- **THEN** its checkbox is ticked in the same edit that writes an indented
+  `- **Evidence:**` child naming what closed it
+
 ## Pull request description guidance
 
 ### Requirement: a consumer may customize generated PR descriptions through a guidance file
