@@ -126,13 +126,15 @@ this way; the root file stays the live record.
 
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`.
 
-- [ ] Add a subsection under `## Default template surface` classifying
+- [x] Add a subsection under `## Default template surface` classifying
   `.agent.metadata.json` per top-level key: `iwe-map` rules are Template and
   travel with the directory holding them, while the `template-consume` section
   is consumer-created adoption state, written by setup and never copied from the
   publisher. This is the one file the "inherits its directory's class" shortcut
   in [Agent metadata files](../architecture/agent-metadata-files.md) does not
   cover.
+  - **Evidence:** `iwe schema validate` passed with the root metadata file
+    classified per top-level key.
 - [ ] Classify `.agentdev-template-progress.md` as Customize / consumer-created,
   tracked in git, and never a `tracked_paths` member — the same treatment
   `.github/pr-description-guidance.md` already receives at line 156. Neither it

@@ -2,8 +2,8 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-09-03T20:05:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -73,6 +73,14 @@ publisher source. See [Module layout](module-layout.md) for how these pieces
 compose internally.
 
 ## Default template surface
+
+### Adoption state
+
+The root `.agent.metadata.json` is classified per top-level key, unlike
+colocated metadata files that inherit their directory's class. Its `iwe-map`
+rules are Template content and travel with the directory whose sources they
+govern. Its `template-consume` section is consumer-created adoption state,
+written during setup and never copied from the publisher.
 
 ### Devcontainer runtime
 
