@@ -268,8 +268,10 @@ this way; the root file stays the live record.
   state the reason in the guide.
   - **Evidence:** `iwe schema validate` passed with `data/template-adoption`
     bound as a living `tracker` document.
-- [ ] Specify that update mode refreshes this summary at the end of each
+- [x] Specify that update mode refreshes this summary at the end of each
   episode, and that a consumer without IWE skips the step entirely.
+  - **Evidence:** `validate_agent_files` passed with update-mode summary refresh
+    gated on the consumer retaining IWE.
 
 ### Task 8: Extend the guide's own procedure
 

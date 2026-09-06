@@ -226,6 +226,11 @@ A marker section or legacy marker file exists.
    commits whose final commit couples both state records — never leave the
    marker advanced past what was actually applied.
 
+   When `optional_bundles` includes `knowledge-base`, refresh
+   `data/template-adoption` with the adopted SHA, workflow, settled choices, and
+   progress-document pointer at the end of the episode. A consumer without IWE
+   skips this summary entirely; its absence does not block the update.
+
 ## Default Template Surface
 
 The paths a fresh Workflow A setup keeps, before any project-specific pruning —
