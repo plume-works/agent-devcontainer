@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Map**: refreshed
+  [the agentdev catalog](codebase/agents/plugins/agentdev.md),
+  [its skills](codebase/agents/plugins/agentdev/skills.md),
+  [its tests](codebase/agents/plugins/agentdev/tests.md), and
+  [the knowledge workspace](codebase/docs/knowledge.md) against their current
+  sources (`b928025`); all 27 map docs match their tracked-source digests.
 - **Update**:
   [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
   done — both adoption workflows can seed and onboard fresh IWE project memory
