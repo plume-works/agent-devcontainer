@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: codex/gpt-6
-  at: 2026-09-06T04:28:00Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 ---
 
 # 🗺️ Plans
@@ -16,6 +16,8 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
+
+[Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
 
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 
