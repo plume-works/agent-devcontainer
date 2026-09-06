@@ -7,13 +7,13 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:05572d86d3252de11c9f7512ff488f9b083ee0ab427849e94350f2527e9a29c0
+source_digest: sha256:67d27ebeb4d611e4fcd795ecc3101511304dbbed67c05b655393859ce57e2d9b
 verified:
-  by: claude-code/opus-5
+  by: claude/opus-5
   at: 2026-09-06T00:00:00Z
 stale_after: 2026-12-05
 generated:
-  by: claude-code/opus-5
+  by: claude/opus-5
   at: 2026-09-06T00:00:00Z
 sources:
 - id: code

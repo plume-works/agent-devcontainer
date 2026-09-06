@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Update**: `source_digest` is now the only map-freshness mechanism. The
+  legacy `commit` pin, its `UNKNOWN_COMMIT`/`NO_COMMIT` verdicts, and the
+  `codebase` schema's `commit` field are gone; a doc without a digest is
+  `NO_DIGEST`. `stale-map-docs.py` now runs in the agent-files CI job, so a map
+  doc that drifts from its sources fails the build.
 - **Map**: refreshed
   [the agentdev catalog](codebase/agents/plugins/agentdev.md),
   [its skills](codebase/agents/plugins/agentdev/skills.md),

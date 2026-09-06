@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:d3aef9605e57083f036f27394ac96284e3677e0bd39f55d14dc147282698ce2a
+source_digest: sha256:5d18a507612e28382e827ae37c8f16cddfefef919961603c62422c56d5857156
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude/opus-5
+  at: 2026-09-06T00:00:00Z
 stale_after: 2026-12-05
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude/opus-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - id: code
   resource: .github
@@ -36,10 +36,11 @@ before the push.
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched:
    [the image build](flow-image-build.md)
-4. `validate-agent-files.yml`, when the catalog or the validator changed: both
-   pytest suites, then
-   `validate_agent_files --recommend . --require-marketplace claude codex` —
-   `.github/workflows/validate-agent-files.yml:68-74`
+4. `validate-agent-files.yml`, when the catalog, the validator, or the codebase
+   map changed: both pytest suites,
+   `validate_agent_files --recommend . --require-marketplace claude codex`, then
+   `stale-map-docs.py`, which fails the job when a map doc no longer matches the
+   code it describes — `.github/workflows/validate-agent-files.yml:73-83`
 5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, or the IWE
    seed changed: `iwe schema validate`, `iwe normalize` must be a no-op, and the
    plan-checkbox tests; a second, path-filtered pytest pass assembles and

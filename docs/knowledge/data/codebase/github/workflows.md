@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:0f4f4d9c6953a2c7e5757d8ce9316382933750a2ecc73fd59df39cae8bb913cf
+source_digest: sha256:c3999e85181bc2a6f23bc8a7c5c29ba12cfe63b7aa88b629771e6c3162992b92
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude/opus-5
+  at: 2026-09-06T00:00:00Z
 stale_after: 2026-12-05
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude/opus-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -22,15 +22,15 @@ one manual job.
 
 ## Public surface
 
-| Workflow                      | Trigger                                         | Jobs                                                                                                     |
-| ----------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `primary-checks.yml`          | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                           |
-| `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                             |
-| `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished` |
-| `validate-agent-files.yml`    | PR, push, merge group                           | both pytest suites, then the validator with `--require-marketplace claude codex`                         |
-| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                     |
-| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                          |
-| `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                               |
+| Workflow                      | Trigger                                         | Jobs                                                                                                      |
+| ----------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `primary-checks.yml`          | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                            |
+| `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                              |
+| `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`  |
+| `validate-agent-files.yml`    | PR, push, merge group                           | both pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
+| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                      |
+| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                           |
+| `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                                |
 
 ## How it works
 
@@ -74,7 +74,7 @@ Verified anchor points (line numbers as of 2026-09-06):
 - `.github/workflows/ci.yml:62,97,165,204` — build matrix, base-image selection,
   merge, devcontainer smoke
 - `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
-- `.github/workflows/validate-agent-files.yml:68-74` — the three check steps
+- `.github/workflows/validate-agent-files.yml:73-83` — the four check steps
 - `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:82,325,377,421,462` — the five jobs
