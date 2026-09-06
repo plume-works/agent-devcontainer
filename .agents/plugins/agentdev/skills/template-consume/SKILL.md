@@ -216,11 +216,14 @@ A marker section or legacy marker file exists.
    schemas and show the user what fails. Migrating their documents is the
    user's decision, not an automatic consequence of a template update.
 
-9. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
+9. **Advance the marker and progress document**: set `consumed_ref` to the
+   upstream SHA the update
    was taken from (not necessarily the latest — the user may stop partway
-   through the changed-paths list) and `last_synced_at` to now. Commit the
-   applied changes and the marker update together, or in clearly separated
-   commits — never leave the marker advanced past what was actually applied.
+   through the changed-paths list) and `last_synced_at` to now. Finish the
+   episode's progress tasks and evidence. Commit the applied changes, advanced
+   marker, and extended progress document together, or in clearly separated
+   commits whose final commit couples both state records — never leave the
+   marker advanced past what was actually applied.
 
 ## Default Template Surface
 

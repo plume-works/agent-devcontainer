@@ -242,8 +242,10 @@ this way; the root file stays the live record.
   from the marker, and record the rest as unknown rather than guessed.
   - **Evidence:** `validate_agent_files` passed with pre-progress adoptions
     recovering only explicit marker choices and labeling the rest unknown.
-- [ ] Amend step 7 (line 170) so the advanced marker and the extended progress
+- [x] Amend step 7 (line 170) so the advanced marker and the extended progress
   document are committed together.
+  - **Evidence:** `validate_agent_files` passed with update completion coupling
+    the advanced marker and extended progress record.
 
 ### Task 7: Summarize the adoption into the consumer's IWE graph
 
