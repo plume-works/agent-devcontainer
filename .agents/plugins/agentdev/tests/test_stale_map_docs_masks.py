@@ -244,14 +244,14 @@ def test_an_unparseable_metadata_file_breaks_only_its_own_subtree(
     """A metadata file that cannot be read reports BROKEN, leaving other docs alone."""
     # Arrange
     repository = build_workspace(plugin_tmp_path)
-    head = git(repository, 'rev-parse', 'HEAD')
+    timer_digest = current_digest(repository, 'src/timer')
     commit_file(repository, 'deploy/compose.yml', compose_text(PIN), 'add compose')
     (repository / 'deploy' / '.agent.metadata.json').write_text('{ not json')
     write_map_doc(repository, 'data/codebase/deploy', 'type: codebase\nsource: deploy\n')
     write_map_doc(
         repository,
         'data/codebase/timer',
-        f"type: codebase\nsource: src/timer\ncommit: '{head}'\n",
+        f"type: codebase\nsource: src/timer\nsource_digest: '{timer_digest}'\n",
     )
 
     # Act
@@ -289,7 +289,7 @@ def test_editing_a_mask_invalidates_only_the_docs_it_reaches(
     """A doc's digest folds in the masks that matched its own sources, and no others."""
     # Arrange
     repository = build_workspace(plugin_tmp_path)
-    head = git(repository, 'rev-parse', 'HEAD')
+    timer_digest = current_digest(repository, 'src/timer')
     commit_file(repository, 'deploy/compose.yml', compose_text(PIN), 'add compose')
     write_metadata(repository / 'deploy', {'*.yml': digest_mask()})
     git(repository, 'add', '-A')
@@ -304,7 +304,7 @@ def test_editing_a_mask_invalidates_only_the_docs_it_reaches(
     write_map_doc(
         repository,
         'data/codebase/timer',
-        f"type: codebase\nsource: src/timer\ncommit: '{head}'\n",
+        f"type: codebase\nsource: src/timer\nsource_digest: '{timer_digest}'\n",
     )
     assert verdict(run_script(plugin_root, repository)) == (0, 'RESULT=SUCCESS')
 

@@ -42,6 +42,10 @@ jobs:
             - .github/workflows/validate-agent-files.yml
             - .github/actions/log-debug-stats/**
             - py_packages/**/*.py
+            # The map-staleness check reads these docs and the .iwe config
+            # that locates them.
+            - docs/knowledge/data/codebase/**
+            - .iwe/**
 
       - name: Log debug stats
         if: ${{ always() }}
@@ -74,6 +78,9 @@ jobs:
 
       - name: Validate Agent Files
         run: uv run validate_agent_files --recommend . --require-marketplace claude codex
+
+      - name: Check codebase map docs against their sources
+        run: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 
       - name: Log debug stats
         if: ${{ always() }}

@@ -102,14 +102,14 @@ def verdict(completed: subprocess.CompletedProcess[str]) -> tuple[int, str]:
 
 
 def test_every_doc_fresh_reports_success(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """Docs whose sources have no commits after their pin are fresh."""
+    """Docs whose sources still match their recorded digest are fresh."""
     # Arrange
     repository = build_workspace(plugin_tmp_path)
-    head = git(repository, 'rev-parse', 'HEAD')
+    digest = source_digest(repository, 'src/timer')
     write_map_doc(
         repository,
         'data/codebase/timer',
-        f"type: codebase\nsource: src/timer\ncommit: '{head}'\n",
+        f"type: codebase\nsource: src/timer\nsource_digest: '{digest}'\n",
     )
 
     # Act
@@ -123,24 +123,26 @@ def test_every_doc_fresh_reports_success(plugin_root: Path, plugin_tmp_path: Pat
     assert 'DOC_COUNT=1' in lines
 
 
-def test_commit_touching_a_source_marks_the_doc_stale(
+def test_a_change_marks_only_the_docs_that_source_it(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
-    """A commit under any listed source path after the pin makes the doc stale."""
+    """A change under one doc's sources leaves a doc that sources elsewhere fresh."""
     # Arrange
     repository = build_workspace(plugin_tmp_path)
-    pinned = git(repository, 'rev-parse', 'HEAD')
+    multi_digest = source_digest(repository, 'src/timer', 'src/store')
+    log_digest = source_digest(repository, 'src/store/log.txt')
     write_map_doc(
         repository,
         'data/codebase/timer',
-        f'type: codebase\nsource:\n- src/timer\n- src/store\ncommit: "{pinned}"\n',
+        f'type: codebase\nsource:\n- src/timer\n- src/store\nsource_digest: "{multi_digest}"\n',
     )
     write_map_doc(
         repository,
         'data/codebase/store/log',
-        f"type: codebase\nsource: [src/store/log.txt]\ncommit: '{pinned}'\n",
+        f"type: codebase\nsource: [src/store/log.txt]\nsource_digest: '{log_digest}'\n",
     )
     commit_file(repository, 'src/timer/engine.txt', 'tick tock\n', 'change timer')
+    current_digest = source_digest(repository, 'src/timer', 'src/store')
 
     # Act
     completed = run_script(plugin_root, repository)
@@ -148,22 +150,20 @@ def test_commit_touching_a_source_marks_the_doc_stale(
     # Assert
     lines = completed.stdout.splitlines()
     assert verdict(completed) == (3, 'RESULT=STALE_FOUND')
-    assert f'STALE data/codebase/timer {pinned} 1' in lines
+    assert f'STALE data/codebase/timer source_digest {current_digest}' in lines
     assert 'FRESH data/codebase/store/log' in lines
     assert 'STALE_COUNT=1' in lines
 
 
-def test_source_digest_fresh_does_not_need_commit_history(
-    plugin_root: Path, plugin_tmp_path: Path
-) -> None:
-    """A matching source_digest is fresh without resolving the pinned commit."""
+def test_freshness_ignores_commit_history(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """Commits that leave the tracked content alone do not affect a verdict."""
     # Arrange
     repository = build_workspace(plugin_tmp_path)
     digest = source_digest(repository, 'src/timer')
     write_map_doc(
         repository,
         'data/codebase/timer',
-        f"type: codebase\nsource: src/timer\ncommit: 'deadbeefcafe'\nsource_digest: '{digest}'\n",
+        f"type: codebase\nsource: src/timer\nsource_digest: '{digest}'\n",
     )
     commit_file(repository, 'docs/unrelated.txt', 'notes\n', 'add unrelated docs')
 
@@ -171,10 +171,8 @@ def test_source_digest_fresh_does_not_need_commit_history(
     completed = run_script(plugin_root, repository)
 
     # Assert
-    lines = completed.stdout.splitlines()
     assert verdict(completed) == (0, 'RESULT=SUCCESS')
-    assert 'FRESH data/codebase/timer' in lines
-    assert 'UNKNOWN_COMMIT data/codebase/timer deadbeefcafe' not in lines
+    assert 'FRESH data/codebase/timer' in completed.stdout.splitlines()
 
 
 def test_source_digest_content_change_marks_the_doc_stale(
@@ -206,11 +204,11 @@ def test_missing_source_reports_gone(plugin_root: Path, plugin_tmp_path: Path) -
     """A source path absent from the checkout is reported as GONE, not as stale."""
     # Arrange
     repository = build_workspace(plugin_tmp_path)
-    head = git(repository, 'rev-parse', 'HEAD')
+    digest = source_digest(repository, 'src/timer')
     write_map_doc(
         repository,
         'data/codebase/legacy',
-        f"type: codebase\nsource: src/legacy\ncommit: '{head}'\n",
+        f"type: codebase\nsource: src/legacy\nsource_digest: '{digest}'\n",
     )
 
     # Act
@@ -223,22 +221,23 @@ def test_missing_source_reports_gone(plugin_root: Path, plugin_tmp_path: Path) -
     assert 'GONE_COUNT=1' in lines
 
 
-def test_unknown_commit_and_past_stale_after_are_flagged(
+def test_missing_digest_and_past_stale_after_are_flagged(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
-    """An unresolvable pin and an elapsed stale_after both need a refresh."""
+    """A doc with no source_digest and an elapsed stale_after both need a refresh."""
     # Arrange
     repository = build_workspace(plugin_tmp_path)
-    head = git(repository, 'rev-parse', 'HEAD')
+    store_digest = source_digest(repository, 'src/store')
     write_map_doc(
         repository,
         'data/codebase/timer',
-        "type: codebase\nsource: src/timer\ncommit: 'deadbeefcafe'\n",
+        'type: codebase\nsource: src/timer\n',
     )
     write_map_doc(
         repository,
         'data/codebase/store',
-        f"type: codebase\nsource: src/store\ncommit: '{head}'\nstale_after: 2000-01-01\n",
+        f'type: codebase\nsource: src/store\n'
+        f"source_digest: '{store_digest}'\nstale_after: 2000-01-01\n",
     )
 
     # Act
@@ -247,7 +246,7 @@ def test_unknown_commit_and_past_stale_after_are_flagged(
     # Assert
     lines = completed.stdout.splitlines()
     assert verdict(completed) == (3, 'RESULT=STALE_FOUND')
-    assert 'UNKNOWN_COMMIT data/codebase/timer deadbeefcafe' in lines
+    assert 'NO_DIGEST data/codebase/timer' in lines
     assert 'EXPIRED data/codebase/store 2000-01-01' in lines
     assert 'EXPIRED_COUNT=1' in lines
 

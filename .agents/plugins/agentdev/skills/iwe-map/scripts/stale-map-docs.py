@@ -24,7 +24,7 @@ import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ re
 
 USAGE = """\
 Classify every codebase-map doc (data/codebase/**/*.md) by whether the code it
-describes changed after the source fingerprint or commit it was read at.
+describes changed after the source fingerprint it was read at.
 
 Usage:
   stale-map-docs.py [--library <path>] [--explain]
@@ -40,13 +40,11 @@ Options:
 
 Output:
   One line per map doc, then the counts, then RESULT:
-    FRESH <key>                          source digest or commit check is current
+    FRESH <key>                          the source digest is current
     STALE <key> source_digest <digest>   tracked source content changed
-    STALE <key> <commit> <n>             n commits touched a source path
     GONE <key> <source>                  a source path no longer exists
-    UNKNOWN_COMMIT <key> <commit>        the pinned commit is not in this clone
     EXPIRED <key> <stale_after>          fresh, but stale_after has passed
-    NO_COMMIT <key>                      frontmatter has no commit (treated as stale)
+    NO_DIGEST <key>                      frontmatter has no source_digest (treated as stale)
     BROKEN <key> <metadata-path>         a .agent.metadata.json could not be read
   With --explain, one line per applied mask:
     MASK <key> <source> <metadata-path> <pattern> <reason>
@@ -59,7 +57,7 @@ fingerprint is computed, so an automerged pin bump does not mark a doc stale.
 
 Results (RESULT / exit code):
   SUCCESS          0  Every map doc is fresh
-  STALE_FOUND      3  At least one doc is STALE, GONE, UNKNOWN_COMMIT, NO_COMMIT, or EXPIRED
+  STALE_FOUND      3  At least one doc is STALE, GONE, NO_DIGEST, or EXPIRED
   NO_MAP_DOCS      4  The library holds no data/codebase/ docs
   BROKEN_METADATA  5  A .agent.metadata.json could not be read or compiled
   PREFLIGHT_ERROR  2  Usage error, not a git repository, or no .iwe/config.toml
@@ -381,7 +379,6 @@ def classify(
     applied: list[tuple[str, Mask]],
 ) -> tuple[str, str]:
     """Return the verdict line and its counter name for one map doc."""
-    commit = scalar_field(frontmatter, 'commit')
     recorded_digest = scalar_field(frontmatter, 'source_digest')
     stale_after = scalar_field(frontmatter, 'stale_after')
     sources = source_paths(frontmatter)
@@ -400,32 +397,12 @@ def classify(
             return f'EXPIRED {key} {stale_after}', 'expired'
         return f'FRESH {key}', 'fresh'
 
-    if recorded_digest:
-        current_digest = fold_in_masks(
-            source_digest_for_paths(sources, resolver, applied), applied
-        )
-        if current_digest != recorded_digest:
-            return f'STALE {key} source_digest {current_digest}', 'stale'
-        return expired_or_fresh()
+    if not recorded_digest:
+        return f'NO_DIGEST {key}', 'stale'
 
-    if not commit:
-        return f'NO_COMMIT {key}', 'stale'
-
-    resolved = subprocess.run(
-        ['git', 'cat-file', '-e', f'{commit}^{{commit}}'],
-        check=False,
-        capture_output=True,
-    )
-    if resolved.returncode != 0:
-        return f'UNKNOWN_COMMIT {key} {commit}', 'stale'
-
-    touching = 0
-    if sources:
-        log = git('log', '--oneline', f'{commit}..HEAD', '--', *sources)
-        touching = len(log.splitlines()) if log else 0
-    if touching > 0:
-        return f'STALE {key} {commit} {touching}', 'stale'
-
+    current_digest = fold_in_masks(source_digest_for_paths(sources, resolver, applied), applied)
+    if current_digest != recorded_digest:
+        return f'STALE {key} source_digest {current_digest}', 'stale'
     return expired_or_fresh()
 
 
