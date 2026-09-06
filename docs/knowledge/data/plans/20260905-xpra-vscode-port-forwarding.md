@@ -4,7 +4,7 @@ created: 2026-09-05
 description: Use a fixed Xpra container port and let VS Code resolve local forwarding conflicts.
 generated:
   by: codex/gpt-6
-  at: 2026-09-06T04:16:00Z
+  at: 2026-09-06T04:26:49Z
 sources:
 - resource: docker/desktop/start-xpra.sh
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -124,9 +124,9 @@ access.
 
 ## Spec changes
 
-Create `data/spec/xpra-port-forwarding` during Ship and include it in the spec
-hub. Existing specs remain unchanged. The new spec captures the changed default
-and preserved explicit-port contract:
+Create [Xpra port forwarding](../spec/xpra-port-forwarding.md) during Ship and
+include it in the spec hub. Existing specs remain unchanged. The new spec
+captures the changed default and preserved explicit-port contract:
 
 ``` markdown
 ## ADDED Requirements
