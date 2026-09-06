@@ -112,7 +112,7 @@ that one subtree and wires it into the existing map.
    ```bash
    iwe normalize && iwe schema validate
    iwe tree -k data/codebase -d 3                         # renders the containment tree
-   ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh          # RESULT=SUCCESS: every doc matches source_digest
+   ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py          # RESULT=SUCCESS: every doc matches source_digest
    ```
 
    Add one bullet to today's group in `data/log.md` naming the map and its
@@ -120,7 +120,7 @@ that one subtree and wires it into the existing map.
    `map: <n> components, <m> flows, <k> interfaces` and report the tree, the
    candidate architecture docs, and what stayed unmapped.
 
-8. **Refresh mode.** Run `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh` and
+8. **Refresh mode.** Run `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py` and
    branch on its last line (table below). Verify's audit produces the same
    list; take its report as the worklist when it hands off. For each doc:
    - `STALE` — re-read the changed files and any test that changed with them,
@@ -146,7 +146,7 @@ that one subtree and wires it into the existing map.
 
 ## Script results
 
-`stale-map-docs.sh` reads every `data/codebase/**/*.md` under the IWE library,
+`stale-map-docs.py` reads every `data/codebase/**/*.md` under the IWE library,
 compares `source_digest` with the current tracked source contents, and prints
 one status line per doc, then the counts, then `RESULT`. A legacy doc without
 `source_digest` falls back to `commit`-range checking so old maps can be
@@ -190,7 +190,7 @@ the code that enforces the surface.
 type: codebase
 description: <one sentence — what this component is>
 source: <repo-relative path, or a list whose first entry is primary>
-source_digest: sha256:<tracked-source digest from stale-map-docs.sh>
+source_digest: sha256:<tracked-source digest from stale-map-docs.py>
 verified: { by: <actor>, at: <ISO 8601 now> }
 stale_after: <today + 90 days, sooner for code that churns>
 generated: { by: <actor>, at: <ISO 8601 now> }
@@ -226,4 +226,4 @@ directory that holds it as its own source.
 - **Refresh touches only what moved.** A fresh doc is not rewritten because
   the session would phrase it differently.
 - **Ends green.** `iwe normalize`, `iwe schema validate`, and
-  `stale-map-docs.sh` at `RESULT=SUCCESS` before the commit, every time.
+  `stale-map-docs.py` at `RESULT=SUCCESS` before the commit, every time.

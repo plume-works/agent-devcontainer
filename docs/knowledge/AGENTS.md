@@ -57,7 +57,7 @@ software project's memory and system of record. The division of labor:
    - Code structure changed (module added, split, or moved) → the map skill's
      refresh mode (`/agentdev:iwe-map`) re-reads the touched `data/codebase/`
      docs and bumps their `source_digest` and `verified`; its
-     `stale-map-docs.sh` finds the stale ones. A workspace with no map yet gets
+     `stale-map-docs.py` finds the stale ones. A workspace with no map yet gets
      one from the same skill's initial mode.
    - Vision insight → `data/concept/<slug>.md`.
    - Task finished → `stage: done` + `completed` on the task doc, link moved to

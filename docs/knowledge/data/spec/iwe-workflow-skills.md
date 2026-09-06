@@ -10,7 +10,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/scripts/fetch-issue.sh
 - resource: .agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh
+- resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md

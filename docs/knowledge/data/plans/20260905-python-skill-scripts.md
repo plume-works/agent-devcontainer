@@ -172,13 +172,20 @@ and inline Python inside bash is neither testable nor lintable.
 `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`;
 `docs/knowledge/data/spec/iwe-workflow-skills.md`; `docs/knowledge/AGENTS.md`
 
-- [ ] Rename the script in `iwe-map/SKILL.md` at lines 115, 123, 149, 193, and
+- [x] Rename the script in `iwe-map/SKILL.md` at lines 115, 123, 149, 193, and
   229, in `iwe-verify/SKILL.md:85`, in `AGENTS.md:60`, and in the `sources:`
   entry of `data/spec/iwe-workflow-skills.md:13`.
   `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)` at `iwe-map/SKILL.md:5`
   already admits a `.py` file and needs no change.
-- [ ] Leave the historical references in `data/plans/20260903-iwe-map-skill.md`
+  - **Evidence:** all eight references renamed (five in `iwe-map/SKILL.md`, one
+    each in the other three files); `grep stale-map-docs\.sh` over those four
+    files returns nothing, and
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 47/47 skills valid with 0 errors.
+- [x] Leave the historical references in `data/plans/20260903-iwe-map-skill.md`
   and `data/bugs/missing-map-skill.md` alone: they record what shipped then.
+  - **Evidence:** `git diff --name-only` over both files is empty; they still
+    name the `.sh`.
 
 ### Task 6: Re-anchor the documents citing the deleted script
 
