@@ -352,17 +352,21 @@ checkout stayed clean throughout.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-05):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:55` — setup mode.
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:90` — update mode.
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:168` — broad
-  knowledge tracking.
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:335`
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:99` — update mode.
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:105` — legacy broad
+  knowledge tracking, now narrowed before diffing.
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:209` — the
+  knowledge-base tracked-path inventory.
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:343`
   — knowledge validation adoption.
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:505`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:525`
   — Workflow B.
-- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:166`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:714`
+  — the shared knowledge-base adoption procedure.
+- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:170`
   — tracked-path diff loop.
 - `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:13` — onboarding steps.
 - `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:22` — initial mapping and
