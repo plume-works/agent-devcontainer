@@ -8,33 +8,37 @@ allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 
 Two modes, chosen by what the consuming repository already has:
 
-- **Setup mode** — no `.agentdev-template.json` marker file at the consumer
-  repository root. Walk the user through first-time adoption, then write the
-  marker file.
-- **Update mode** — a marker file exists. Diff the tracked template paths
-  between its `consumed_ref` and the template repository's current default
-  branch, then apply the changes the user wants and advance the marker.
+- **Setup mode** — no `template-consume` section in the root
+  `.agent.metadata.json`. Walk the user through first-time adoption, then write
+  the section.
+- **Update mode** — the section exists. Diff the tracked template paths between
+  its `consumed_ref` and the template repository's current default branch, then
+  apply the changes the user wants and advance the marker.
 
-Detect the mode by checking for `.agentdev-template.json` at the target
-repository root before doing anything else.
+Detect the mode by checking first for a legacy `.agentdev-template.json`, then
+for the `template-consume` section of the target repository's root
+`.agent.metadata.json`. Either record selects update mode; neither selects setup.
 
 ## The Marker File
 
-`.agentdev-template.json`, at the consumer repository root, tracked in git:
+The root-only `template-consume` section of `.agent.metadata.json`, tracked in
+git at the consumer repository root:
 
 ```json
 {
-  "source_repo": "plume-works/agent-devcontainer",
-  "consumed_ref": "<full 40-character commit SHA>",
-  "workflow": "A",
-  "optional_bundles": ["custom-image", "knowledge-base"],
-  "tracked_paths": [
-    ".devcontainer/",
-    "devcontainer-compose-pins.yml",
-    ".mcp.json",
-    "..."
-  ],
-  "last_synced_at": "<ISO 8601 timestamp>"
+  "template-consume": {
+    "source_repo": "plume-works/agent-devcontainer",
+    "consumed_ref": "<full 40-character commit SHA>",
+    "workflow": "A",
+    "optional_bundles": ["custom-image", "knowledge-base"],
+    "tracked_paths": [
+      ".devcontainer/",
+      "devcontainer-compose-pins.yml",
+      ".mcp.json",
+      "..."
+    ],
+    "last_synced_at": "<ISO 8601 timestamp>"
+  }
 }
 ```
 
@@ -50,7 +54,22 @@ repository root before doing anything else.
 `consumed_ref` is what [check-updates.sh](scripts/check-updates.sh) diffs
 from; `tracked_paths` is what it diffs. Both must stay accurate — a stale
 `tracked_paths` after setup mode deletes a bundle produces false positives
-forever after.
+forever after. This section is read only from the repository-root metadata
+file; `template-consume` in a nested `.agent.metadata.json` is broken metadata,
+not another record to merge.
+
+## The Progress Document
+
+`.agentdev-template-progress.md` is the git-tracked, consumer-owned live record.
+Its `## Tasks` section contains the chosen workflow's manifest as `- [ ]` items.
+Tick a completed item only in the same edit that adds its indented
+`- **Evidence:**` child naming the commit, test run, or verification that closed
+it. Its `## Choices` section records each settled choice and accumulates across
+setup and later updates.
+
+The document may record the adopted SHA as episode context. That prose is never
+authoritative: `template-consume.consumed_ref` in `.agent.metadata.json` remains
+the only machine-parsed source of the adopted ref.
 
 ## Setup Mode
 
@@ -60,27 +79,48 @@ every collision to avoid, and the two Requirement scenarios (a silently
 dead `[tool.ruff]` block, a reformatted verbatim capture) that setup must not
 recreate.
 
+When `.agentdev-template-progress.md` already exists with unticked setup tasks,
+resume from those tasks and its recorded choices. Do not restart the workflow
+or scope interview.
+
 1. **Ask which workflow applies** (AskUserQuestion, or ask in prose and stop if
    unavailable): Workflow A (a fresh full copy — GitHub "Use this template",
    or a clone into a new repository) or Workflow B (adding the template
    surface to an existing repository that already has its own source, CI, and
    possibly its own `pyproject.toml`/pre-commit config).
-2. **Ask the scope questions** the guide's own steps depend on: keep custom-image
+2. **Write the progress document before executing any guide step.** Generate
+   `## Tasks` from the chosen workflow's task-list manifest in the guide, with
+   every item unticked, and create `## Choices` with the workflow decision.
+   Commit or otherwise persist this file immediately so interruption from this
+   point onward leaves a resumable record.
+3. **Ask the scope questions** the guide's own steps depend on: keep custom-image
    publishing (§3 / Optional custom-image setup)? Keep IWE-based project memory
    under `docs/knowledge/`? Keep the shared `agentdev-agents-auth` credential
-   volume default?
-3. **Execute the guide's numbered steps** for the chosen workflow using your
+   volume default? Keeping project memory pulls in the seed and the onboarding
+   run in step 4.
+4. **Execute the guide's numbered steps** for the chosen workflow using your
    normal file tools — this is an agent-guided walkthrough, not a script. Merge
    rather than overwrite wherever the guide says to (Workflow B step 3
    especially: never replace an existing project manifest, lockfile, or lint
    config without the user's go-ahead).
-4. **Run the guide's verification section** before declaring success.
-5. **Write the marker file**: resolve the exact commit SHA of the template
+5. **When IWE was kept, run the guide's Optional knowledge-base setup**: seed
+   `docs/knowledge/data/` from `templates/iwe/data/` at the ref being adopted,
+   then invoke `/agentdev:iwe-setup` and `/agentdev:iwe-map` in that order from
+   the consumer root. Those skills own their interviews and confirmations —
+   never answer for the user or skip a gate. Existing consumer knowledge is
+   never replaced: ask how to reconcile it. Report onboarding as pending, not
+   complete, while any required input is outstanding, and report mapping as
+   deferred for a project with no code. Finish by writing the guide's thin
+   adoption summary; keep the checklist only in the root progress document.
+6. **Run the guide's verification section** before declaring success.
+7. **Write the marker and complete the progress document**: resolve the exact
+   commit SHA of the template
    checkout you copied from or merged from (`git rev-parse HEAD` in that
    checkout, or the release/ref the user named), record `workflow`,
    `optional_bundles`, and a `tracked_paths` list pruned to what this consumer
-   actually kept, and set `last_synced_at` to now. Commit it with the rest of
-   the setup changes.
+   actually kept, and set `last_synced_at` to now. Finish the progress document
+   with evidence for every completed task. Commit the marker section and the
+   completed progress document together with the rest of the setup changes.
 
 If the user is running this skill _from inside the template repository itself_
 against a different target directory, make that explicit before touching
@@ -89,9 +129,40 @@ repository's own tracked source.
 
 ## Update Mode
 
-A marker file exists.
+A marker section or legacy marker file exists.
 
-1. Run [check-updates.sh](scripts/check-updates.sh) from the consumer
+1. **Read the progress document's choice log first.** Treat its settled choices
+   as consumer intent throughout the episode. When a changed path was recorded
+   as customized, use that decision to drive a manual merge rather than
+   re-deriving intent from the current diff. If a marker exists but the progress
+   document does not, create it for this pre-progress adoption. Recover only
+   choices explicit in the marker (`workflow`, `optional_bundles`, and retained
+   `tracked_paths`); record every other choice as unknown rather than guessing.
+2. **Consolidate a legacy marker.** When the consumer root carries
+   `.agentdev-template.json`, move its object unchanged into the
+   `template-consume` section of the root `.agent.metadata.json`, preserving
+   every other top-level metadata key, then delete the legacy file. Do not
+   advance or rewrite `consumed_ref`: this migration changes only where the
+   record lives. Commit the consolidation on its own, then continue.
+
+3. **Narrow a legacy knowledge marker**, before running any script. A
+   marker written before the knowledge inventory existed tracks
+   `docs/knowledge/` as a whole (or `docs/knowledge` without the slash). Left
+   alone, the diff proposes overwriting the consumer's project memory with the
+   publisher's — the one outcome update mode must never produce. Replace that
+   single entry with the retained support inventory from [Default Template
+   Surface](#default-template-surface), and drop `templates/iwe/` or
+   `docs/knowledge/tests/test_iwe_seed.py` if an old marker lists either.
+
+   Leave everything else exactly as it is: other `tracked_paths` entries,
+   `optional_bundles`, `workflow`, and above all `consumed_ref` — this
+   migration changes _what_ is compared, not _from when_, so advancing the ref
+   here would silently skip every upstream change since. Commit the narrowed
+   marker on its own, then continue.
+
+   A marker that never tracked knowledge needs none of this; skip to step 4.
+
+4. Run [check-updates.sh](scripts/check-updates.sh) from the consumer
    repository. It clones the template repository into a scratch directory
    under `./.tmp/`, diffs every path in `tracked_paths` between `consumed_ref`
    and the clone's current default-branch HEAD, and cleans up the clone on
@@ -100,39 +171,65 @@ A marker file exists.
    | RESULT            | Exit | Action                                                                                      |
    | ----------------- | ---- | ------------------------------------------------------------------------------------------- |
    | `UP_TO_DATE`      | `4`  | Report it and stop; nothing to do.                                                          |
-   | `CHANGES_FOUND`   | `5`  | Continue to step 2 with the printed `CHANGED_PATHS` list.                                   |
+   | `CHANGES_FOUND`   | `5`  | Continue to step 3 with the printed `CHANGED_PATHS` list.                                   |
    | `NO_MARKER`       | `3`  | Wrong mode — fall back to [Setup Mode](#setup-mode).                                        |
    | `INVALID_MARKER`  | `7`  | Report the marker is malformed; fix `consumed_ref`/`tracked_paths` by hand or re-run setup. |
    | `CLONE_FAILED`    | `6`  | STOP and report the blocker — check network access and `--repo`/`--repo-url`.               |
    | `PREFLIGHT_ERROR` | `2`  | STOP and report the blocker verbatim.                                                       |
    | `SCRIPT_FAILURE`  | `1`  | STOP and report the blocker verbatim.                                                       |
 
-2. **For each changed path**, inspect the actual upstream diff (the scratch
+   For `CHANGES_FOUND`, append a `## Update <YYYY-MM-DD>` section to the
+   progress document. Generate its unticked task list from `CHANGED_PATHS`, one
+   review/apply task per reported path. Keep `## Choices` in place and append
+   newly settled decisions; never reset the existing choice log.
+
+5. **For each changed path**, inspect the actual upstream diff (the scratch
    clone is gone by the time the script returns, so re-clone or use
    `git log`/`git show` against `https://github.com/<source_repo>` — do not
    guess from the path name alone) and decide with the user whether to pull it
    in. The script reports concrete changed files inside tracked directories,
    so a marker that tracks `.github/` still exposes a changed
-   `.github/pull_request_template.md`. A path this consumer customized
-   (renamed values, pruned an unwanted
+   `.github/pull_request_template.md`. Consult the progress document before
+   deciding. A path this consumer customized (renamed values, pruned an unwanted
    hook, edited a workflow's owner gate) needs a manual merge, not a blind
    overwrite — copying the upstream file verbatim would silently undo the
    consumer's own edits.
-3. **Re-run the two silent-drift requirements from the guide** if the changed
+6. **Re-run the two silent-drift requirements from the guide** if the changed
    paths touch lint configuration: confirm `.ruff.toml` and `pyproject.toml`
    never both configure ruff, and confirm no formatter change was just pointed
    at a directory holding verbatim third-party captures.
-4. **Re-run the PR-template evaluation** if `CHANGED_PATHS` includes
+7. **Re-run the PR-template evaluation** if `CHANGED_PATHS` includes
    `.github/pull_request_template.md`: walk the guide's §4 "The pull request
    template" procedure against the consumer's _current_ template (which may
    itself already carry a `.github/pr-description-guidance.md` to preserve), so
    an upstream template change does not silently discard captured guidance or a
    consumer heading.
-5. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
+8. **Never reseed or re-onboard.** Update mode has no seeding step and no
+   `/agentdev:iwe-setup` or `/agentdev:iwe-map` invocation. A change to the
+   publisher's `docs/knowledge/data/` or to `templates/iwe/` is not a consumer
+   change and produces no consumer edit — neither path is tracked, so neither
+   should appear in `CHANGED_PATHS` at all; one that does means the marker was
+   not narrowed in step 1.
+
+   A change to `.iwe/schemas/` or `.iwe/config.toml` _is_ tracked, and applying
+   it can invalidate documents the consumer already wrote. Before applying one,
+   run `iwe schema validate` from the consumer root against the proposed
+   schemas and show the user what fails. Migrating their documents is the
+   user's decision, not an automatic consequence of a template update.
+
+9. **Advance the marker and progress document**: set `consumed_ref` to the
+   upstream SHA the update
    was taken from (not necessarily the latest — the user may stop partway
-   through the changed-paths list) and `last_synced_at` to now. Commit the
-   applied changes and the marker update together, or in clearly separated
-   commits — never leave the marker advanced past what was actually applied.
+   through the changed-paths list) and `last_synced_at` to now. Finish the
+   episode's progress tasks and evidence. Commit the applied changes, advanced
+   marker, and extended progress document together, or in clearly separated
+   commits whose final commit couples both state records — never leave the
+   marker advanced past what was actually applied.
+
+   When `optional_bundles` includes `knowledge-base`, refresh
+   `data/template-adoption` with the adopted SHA, workflow, settled choices, and
+   progress-document pointer at the end of the episode. A consumer without IWE
+   skips this summary entirely; its absence does not block the update.
 
 ## Default Template Surface
 
@@ -165,11 +262,35 @@ zizmor.yaml
 ```
 
 Add `ansible/`, `ansible.cfg`, `docker/`, `.dockerignore` only when
-`optional_bundles` includes `"custom-image"`. Add `docs/knowledge/` and `.iwe/`
-only when it includes `"knowledge-base"`. Never add `.agents/`,
-`.claude-plugin/`, `py_packages/`, or `scripts/validate-super-linter-tool-versions.sh`
-— those are publisher-only source this guide has the consumer delete during
-setup, so they can never be legitimate members of a consumer's `tracked_paths`.
+`optional_bundles` includes `"custom-image"`.
+
+When it includes `"knowledge-base"`, add exactly these — never `docs/knowledge/`
+as a whole:
+
+```text
+.iwe/
+docs/knowledge/AGENTS.md
+docs/knowledge/CLAUDE.md
+docs/knowledge/README.md
+docs/knowledge/SCHEMA.md
+docs/knowledge/STRUCTURE.md
+docs/knowledge/CHANGELOG.md
+docs/knowledge/tests/test_plan_checkboxes.py
+```
+
+`docs/knowledge/data/` is deliberately absent. It is the publisher's project
+memory upstream and the consumer's project memory here — the same path, two
+owners — so every diff of it is noise at best and a proposal to overwrite the
+consumer's memory at worst. `docs/knowledge/LICENSE.md` is absent for the same
+reason: it arrives from the seed and is consumer-owned afterward.
+`templates/iwe/` never belongs in `tracked_paths` either; it is
+initialization-only publisher source, read once at adoption.
+
+Never add `.agents/`, `.claude-plugin/`, `py_packages/`,
+`scripts/validate-super-linter-tool-versions.sh`, `templates/iwe/`, or
+`docs/knowledge/tests/test_iwe_seed.py` — those are publisher-only source this
+guide has the consumer delete during setup, so they can never be legitimate
+members of a consumer's `tracked_paths`.
 
 `.github/pr-description-guidance.md` is not in the copied list above: this
 repository does not carry it, and it is created only when the guide's §4 capture

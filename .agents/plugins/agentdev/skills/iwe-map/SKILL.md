@@ -112,7 +112,7 @@ that one subtree and wires it into the existing map.
    ```bash
    iwe normalize && iwe schema validate
    iwe tree -k data/codebase -d 3                         # renders the containment tree
-   ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh          # RESULT=SUCCESS: every doc matches source_digest
+   ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py          # RESULT=SUCCESS: every doc matches source_digest
    ```
 
    Add one bullet to today's group in `data/log.md` naming the map and its
@@ -120,23 +120,21 @@ that one subtree and wires it into the existing map.
    `map: <n> components, <m> flows, <k> interfaces` and report the tree, the
    candidate architecture docs, and what stayed unmapped.
 
-8. **Refresh mode.** Run `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.sh` and
+8. **Refresh mode.** Run `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py` and
    branch on its last line (table below). Verify's audit produces the same
    list; take its report as the worklist when it hands off. For each doc:
    - `STALE` — re-read the changed files and any test that changed with them,
      rewrite only the sections they affect, re-verify every anchor, and bump
      `source_digest`, `verified`, `stale_after`, and `generated`. A new
      subdirectory that now earns a doc gets one (steps 4–5) and a `## Contains`
-     link. When the line came from a legacy `commit` fallback, use
-     `git diff --stat <commit>..HEAD -- <source>` as a lead.
+     link.
    - `GONE` — `git log --oneline --diff-filter=D -- <source>` and
      `git log --follow` on a file it held show whether the code moved or was
      removed. Moved: `iwe rename data/codebase/<old> data/codebase/<new>`, fix
      `source`, refresh as stale. Removed: `iwe delete data/codebase/<key>`, then
      sweep the parent's `## Contains` and any flow that traced through it.
-   - `UNKNOWN_COMMIT` — a legacy `commit` pin is not in this clone (a rewritten
-     branch, a shallow clone). Treat as stale over the whole `source` and write
-     a `source_digest` when refreshing.
+   - `NO_DIGEST` — the doc carries no `source_digest`. Treat as stale over the
+     whole `source` and write one when refreshing.
    - `EXPIRED` — untouched code past its `stale_after`. Re-read the entry file
      and tests, confirm the doc still holds, and bump `verified` and
      `stale_after`; rewrite what no longer holds.
@@ -146,20 +144,28 @@ that one subtree and wires it into the existing map.
 
 ## Script results
 
-`stale-map-docs.sh` reads every `data/codebase/**/*.md` under the IWE library,
-compares `source_digest` with the current tracked source contents, and prints
-one status line per doc, then the counts, then `RESULT`. A legacy doc without
-`source_digest` falls back to `commit`-range checking so old maps can be
-refreshed into the digest format:
+`stale-map-docs.py` resolves the workspace root with
+`git rev-parse --show-toplevel`, not the working directory, so it must be run
+inside the repository whose map it should check — from a directory that is not
+its own git repository it silently reads the enclosing repository's graph.
 
-| RESULT            | Exit   | Action                                                                                     |
-| ----------------- | ------ | ------------------------------------------------------------------------------------------ |
-| `SUCCESS`         | `0`    | Every doc is fresh. Nothing to refresh; report so.                                         |
-| `STALE_FOUND`     | `3`    | Work the `STALE`, `GONE`, `UNKNOWN_COMMIT`, `NO_COMMIT`, and `EXPIRED` lines as in step 8. |
-| `NO_MAP_DOCS`     | `4`    | The lane is empty — switch to initial mode.                                                |
-| `PREFLIGHT_ERROR` | `2`    | **STOP.** Not a git repository, or no `.iwe/config.toml` at the root; report it verbatim.  |
-| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not work around it.                              |
-| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; rerun it.                                               |
+It reads every `data/codebase/**/*.md` under the IWE library,
+compares `source_digest` with the current tracked source contents, and prints
+one status line per doc, then the counts, then `RESULT`. `source_digest` is the
+only freshness mechanism: a doc without one is stale by definition. `--explain`
+adds one `MASK` line per applied digest mask, naming the doc, the source file,
+the metadata file that declared it, the pattern, and its reason — use it to
+audit a `FRESH` verdict a mask is holding up:
+
+| RESULT            | Exit   | Action                                                                                    |
+| ----------------- | ------ | ----------------------------------------------------------------------------------------- |
+| `SUCCESS`         | `0`    | Every doc is fresh. Nothing to refresh; report so.                                        |
+| `STALE_FOUND`     | `3`    | Work the `STALE`, `GONE`, `NO_DIGEST`, and `EXPIRED` lines as in step 8.                  |
+| `NO_MAP_DOCS`     | `4`    | The lane is empty — switch to initial mode.                                               |
+| `BROKEN_METADATA` | `5`    | **STOP.** A `.agent.metadata.json` the named docs depend on cannot be read; fix it first. |
+| `PREFLIGHT_ERROR` | `2`    | **STOP.** Not a git repository, or no `.iwe/config.toml` at the root; report it verbatim. |
+| `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not work around it.                             |
+| `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; rerun it.                                              |
 
 ## Canonical keys
 
@@ -190,7 +196,7 @@ the code that enforces the surface.
 type: codebase
 description: <one sentence — what this component is>
 source: <repo-relative path, or a list whose first entry is primary>
-source_digest: sha256:<tracked-source digest from stale-map-docs.sh>
+source_digest: sha256:<tracked-source digest from stale-map-docs.py>
 verified: { by: <actor>, at: <ISO 8601 now> }
 stale_after: <today + 90 days, sooner for code that churns>
 generated: { by: <actor>, at: <ISO 8601 now> }
@@ -206,6 +212,15 @@ merges and branch rewrites: the doc goes stale when described content changes,
 not when history is reshaped. The actor is the one writing —
 `claude-code/<model>`, `human:<handle>`. A map doc never lists the knowledge
 directory that holds it as its own source.
+
+Content designated machine-managed is normalized to a fixed placeholder before
+the fingerprint is computed, so an automerged pin bump does not mark a doc
+stale. The designations live in `.agent.metadata.json` files colocated with the
+sources they describe; where they sit and how they resolve is the
+`iwe-map.digest_ignore` key described in the agent-metadata-files architecture
+document. Substitution keeps structure tracked: the identity of a pinned
+artifact, the set of pinned entries, and the presence of a pin all still move
+the digest.
 
 ## Rules
 
@@ -226,4 +241,4 @@ directory that holds it as its own source.
 - **Refresh touches only what moved.** A fresh doc is not rewritten because
   the session would phrase it differently.
 - **Ends green.** `iwe normalize`, `iwe schema validate`, and
-  `stale-map-docs.sh` at `RESULT=SUCCESS` before the commit, every time.
+  `stale-map-docs.py` at `RESULT=SUCCESS` before the commit, every time.

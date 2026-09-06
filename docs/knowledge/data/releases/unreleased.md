@@ -5,8 +5,8 @@ version: unreleased
 stage: unreleased
 status: draft
 generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:54:56Z
+  by: claude-code/opus-5
+  at: 2026-09-06T05:39:02Z
 ---
 
 # Unreleased
@@ -16,6 +16,10 @@ inclusion link here for every feature or fix as it lands; cutting a release
 renames this file to the version number and starts a fresh one.*
 
 ## Added
+
+[Consumer IWE seed](../features/consumer-iwe-seed.md)
+
+[Consumer PR description guidance](../features/pr-description-guidance.md)
 
 [Install the agentdev catalog into the image](../features/catalog-installed-in-image.md)
 
@@ -44,5 +48,9 @@ renames this file to the version number and starts a fresh one.*
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)
 
 ## Fixed
+
+[Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md)
+
+[Missing map skill](../bugs/missing-map-skill.md)
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

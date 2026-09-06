@@ -3,8 +3,8 @@ type: hub
 description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:54:56Z
+  by: claude-code/opus-5
+  at: 2026-09-06T05:39:02Z
 ---
 
 # ✨ Features
@@ -39,3 +39,7 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
 
 [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
+
+[Consumer PR description guidance](features/pr-description-guidance.md)
+
+[Consumer IWE seed](features/consumer-iwe-seed.md)

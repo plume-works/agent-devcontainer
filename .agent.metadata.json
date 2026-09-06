@@ -1,0 +1,13 @@
+{
+  "iwe-map": {
+    "digest_ignore": {
+      "devcontainer-compose-pins.yml": [
+        {
+          "pattern": "@sha256:[0-9a-f]{64}",
+          "replace": "@sha256:<PIN>",
+          "reason": "Renovate automerges agent-desktop digest bumps (.github/renovate.json)."
+        }
+      ]
+    }
+  }
+}

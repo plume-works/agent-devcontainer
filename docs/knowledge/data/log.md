@@ -4,6 +4,95 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-06
+
+- **Map**: refreshed the agentdev catalog, bin, skills, tests, pull-request
+  checks, GitHub automation, workflows, and consumer seed against their current
+  sources; all codebase-map digests match the checkout.
+- **Update**: `source_digest` is now the only map-freshness mechanism. The
+  legacy `commit` pin, its `UNKNOWN_COMMIT`/`NO_COMMIT` verdicts, and the
+  `codebase` schema's `commit` field are gone; a doc without a digest is
+  `NO_DIGEST`. `stale-map-docs.py` now runs in the agent-files CI job, so a map
+  doc that drifts from its sources fails the build.
+- **Map**: refreshed
+  [the agentdev catalog](codebase/agents/plugins/agentdev.md),
+  [its skills](codebase/agents/plugins/agentdev/skills.md),
+  [its tests](codebase/agents/plugins/agentdev/tests.md), and
+  [the knowledge workspace](codebase/docs/knowledge.md) against their current
+  sources (`b928025`); all 27 map docs match their tracked-source digests.
+- **Update**:
+  [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
+  done — both adoption workflows can seed and onboard fresh IWE project memory
+  without replacing existing consumer knowledge, and update mode excludes both
+  publisher memory and initialization-only seed content.
+- **Creation**: [Consumer IWE seed](features/consumer-iwe-seed.md) implemented
+  and recorded in [unreleased](releases/unreleased.md). The reusable seed is
+  maintained in this repository, validated in an isolated consumer layout, and
+  specified in [Template consumption](spec/template-consumption.md).
+- **Update**: [Template consumption](spec/template-consumption.md) now requires
+  a repository-owned seed, ordered setup and mapping for fresh adoption, and
+  preservation of consumer-authored knowledge during adoption and updates.
+- **Update**: [Python skill scripts](plans/20260905-python-skill-scripts.md)
+  done — the codebase-map freshness classifier now runs as standard-library
+  Python on the shared Python result-code helper while preserving its output,
+  exit-code, and source-digest contracts.
+- **Update**: [Digest masks for map docs](plans/20260905-digest-masks.md) done —
+  machine-managed pins are normalized before codebase-map source fingerprints
+  are computed, while surrounding structural changes still mark affected
+  documents stale.
+- **Update**:
+  [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md) fixed
+  and recorded in [unreleased](releases/unreleased.md).
+- **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
+  re-read, all source digests were verified, and the tested
+  [consumer IWE seed](codebase/templates/iwe.md) was added as the twenty-seventh
+  mapped document.
+- **Update**: Refreshed the [codebase map](codebase.md) — the catalog,
+  [bin helpers](codebase/agents/plugins/agentdev/bin.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [plugin tests](codebase/agents/plugins/agentdev/tests.md),
+  [knowledge machinery](codebase/docs/knowledge.md), and the
+  [devcontainer lifecycle flow](codebase/flow-devcontainer-lifecycle.md) re-read
+  against the checkout, anchors re-verified, and source digests bumped.
+- **Creation**: [Xpra port forwarding](spec/xpra-port-forwarding.md) specifies
+  the fixed container-port and VS Code local-remapping contracts.
+- **Update**:
+  [Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
+  done — Xpra uses container port 14500 independently of `DEVCONTAINER_ID`,
+  explicit `--port` overrides remain supported, and concurrent devcontainers are
+  reachable through distinct VS Code-forwarded local addresses.
+
+## 2026-09-05
+
+- **Creation**:
+  [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md) —
+  `source_digest` fingerprints whole tracked files, so an automerged Renovate
+  pin bump marks a map doc stale even when the doc never mentions the pinned
+  value. Five of twenty-six docs went amber on three one-line bumps.
+- **Update**: [Missing map skill](bugs/missing-map-skill.md) fixed —
+  `/agentdev:iwe-map` now owns the `data/codebase/` lane that Setup, Verify, and
+  the operating loop all handed to a skill that did not exist. Initial mode
+  surveys the outside of the system, confirms the containment tree, then writes
+  one doc per component at its canonical key plus flow and api docs; refresh
+  mode re-reads only the docs whose tracked source contents no longer match
+  their `source_digest`, classified by the bundled `stale-map-docs.sh`. This
+  repository is mapped: 26 docs under [Codebase](codebase.md). Recorded in
+  [unreleased](releases/unreleased.md) and specified in
+  [IWE workflow skills](spec/iwe-workflow-skills.md);
+  [its plan](plans/20260903-iwe-map-skill.md) is done.
+- **Creation**:
+  [Consumer PR description guidance](features/pr-description-guidance.md)
+  implemented, recorded in [unreleased](releases/unreleased.md) — a consuming
+  repository may now capture its extra PR-template sections as instructions in a
+  consumer-owned `.github/pr-description-guidance.md`, which
+  `pr-gen-description` reads with precedence over its own section generation
+  while preserving the Verification / Reviewer Handoff tense split, and template
+  setup and update evaluate an existing template into covered/extras buckets
+  before anything is written. Specified in
+  [Template consumption](spec/template-consumption.md) and classified in
+  [Template boundary](architecture/template-boundary.md);
+  [its plan](plans/20260903-pr-description-guidance.md) is done.
+
 ## 2026-09-04
 
 - **Creation**: five decision records recovered from the Dr.QP history the

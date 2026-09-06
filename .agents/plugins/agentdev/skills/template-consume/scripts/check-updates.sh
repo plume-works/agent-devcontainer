@@ -32,7 +32,7 @@ Options:
   --root <path>        Consumer repository root. Default: discovered via `git rev-parse`.
   -h, --help           Show this help text.
 
-Reads the marker file (.agentdev-template.json) at the consumer repository root,
+Reads the template-consume section of .agent.metadata.json at the consumer repository root,
 shallow-clones the template repository's default branch into ./.tmp/, and lists
 which files under template-owned paths changed between the marker's consumed_ref
 and the upstream HEAD. Prints nothing about paths this consumer already deleted.
@@ -44,7 +44,7 @@ Output (key=value lines):
 Results (RESULT / exit code):
   UP_TO_DATE      4  consumed_ref already matches the upstream default branch
   CHANGES_FOUND   5  One or more files under tracked template paths changed upstream
-  NO_MARKER       3  No .agentdev-template.json at the consumer root; run setup mode first
+  NO_MARKER       3  No .agent.metadata.json or template-consume section; run setup mode first
   INVALID_MARKER  7  Marker file exists but is not valid JSON or is missing consumed_ref
   CLONE_FAILED    6  Could not fetch the template repository
   PREFLIGHT_ERROR 2  Usage or preflight error (not a repo)
@@ -116,16 +116,28 @@ if ! command -v jq >/dev/null 2>&1; then
   quit_by_code 1
 fi
 
-consumed_ref="$(jq -r '.consumed_ref // empty' "${marker_path}" 2>/dev/null)" || consumed_ref=""
-
-if [[ -z "${consumed_ref}" ]] ||
-  ! jq -e '(.tracked_paths | type) == "array" and (.tracked_paths | length) > 0' \
-    "${marker_path}" >/dev/null 2>&1; then
-  print_error "${marker_name} is missing consumed_ref or tracked_paths."
+if ! jq -e '.' "${marker_path}" >/dev/null 2>&1; then
+  print_error "${marker_name} is not valid JSON."
   quit_by_code 7
 fi
 
-tracked_paths_json="$(jq -c '.tracked_paths' "${marker_path}")"
+if ! jq -e 'has("template-consume") and (.["template-consume"] | type == "object")' \
+  "${marker_path}" >/dev/null; then
+  print_error "No template-consume section in ${marker_name}. Run setup mode first."
+  quit_by_code 3
+fi
+
+consumed_ref="$(jq -r '.["template-consume"].consumed_ref // empty' "${marker_path}")"
+
+if [[ -z "${consumed_ref}" ]] ||
+  ! jq -e '(.["template-consume"].tracked_paths | type) == "array" and
+    (.["template-consume"].tracked_paths | length) > 0' \
+    "${marker_path}" >/dev/null 2>&1; then
+  print_error "The template-consume section in ${marker_name} is missing consumed_ref or tracked_paths."
+  quit_by_code 7
+fi
+
+tracked_paths_json="$(jq -c '.["template-consume"].tracked_paths' "${marker_path}")"
 
 cleanup() {
   local exit_code=$?

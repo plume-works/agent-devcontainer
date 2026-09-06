@@ -2,8 +2,8 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-code/opus-4-8
-  at: 2026-09-03T20:05:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -20,7 +20,7 @@ Every tracked path in this repository belongs to one of these classes:
 | --------- | --------------------------------------------------------------------------- |
 | Template  | Retain for a normal project consuming `agent-desktop`.                      |
 | Customize | Retain as a starting point, then edit project identity or owned paths.      |
-| Optional  | Retain only when building a customized image.                               |
+| Optional  | Retain only when building a customized image or keeping project memory.     |
 | Publisher | Required to publish this repository's image/catalog/package, not to use it. |
 | Generated | Host, container, test, or tool state; never template source.                |
 
@@ -73,6 +73,17 @@ publisher source. See [Module layout](module-layout.md) for how these pieces
 compose internally.
 
 ## Default template surface
+
+### Adoption state
+
+The root `.agent.metadata.json` is classified per top-level key, unlike
+colocated metadata files that inherit their directory's class. Its `iwe-map`
+rules are Template content and travel with the directory whose sources they
+govern. Its `template-consume` section is consumer-created adoption state,
+written during setup and never copied from the publisher.
+
+`.agentdev-template-progress.md` is Customize / consumer-created state. It is
+tracked in git, survives template updates, and never appears in `tracked_paths`.
 
 ### Devcontainer runtime
 
@@ -204,6 +215,38 @@ the bundle must explicitly choose one of these manual directions:
 The repository currently implements the first direction. The other two are
 customization work, not hidden template behavior.
 
+## Optional knowledge-base bundle
+
+Keep these paths together only when a project adopts IWE project memory:
+`.iwe/`, the supporting documents under `docs/knowledge/` (`AGENTS.md`,
+`CLAUDE.md`, `README.md`, `SCHEMA.md`, `STRUCTURE.md`, `CHANGELOG.md`,
+`LICENSE.md`), `docs/knowledge/tests/test_plan_checkboxes.py`,
+`.github/workflows/validate-knowledge-base.yml`, the `iwe-schema-validate` and
+`iwe-normalize` pre-commit hooks, and the `docs/knowledge/tests` entry in
+`pyproject.toml`'s `testpaths`. Those are the paths a consumer tracks; they are
+what update mode may legitimately diff.
+
+`docs/knowledge/data/` is **not** among them. That directory is this
+repository's own project memory in the publisher and the consumer's own project
+memory in a consumer — the same path holding different owners' content. Update
+mode must never compare it, because there is no version of that diff that is
+meaningful: every difference is either the publisher's history or the
+consumer's, and applying either direction destroys memory.
+
+The consumer's starting content for that directory comes from the seed, which
+has its own source path and a fixed destination:
+
+| Source                     | Destination                 | Owner after adoption |
+| -------------------------- | --------------------------- | -------------------- |
+| `templates/iwe/data/`      | `docs/knowledge/data/`      | Consumer             |
+| `templates/iwe/LICENSE.md` | `docs/knowledge/LICENSE.md` | Consumer             |
+
+The seed is initialization-only. It is read once, at adoption, from the
+agent-devcontainer checkout at the ref being adopted; `templates/iwe/` itself is
+publisher-only source that the consumer deletes afterward, so it never appears
+in `tracked_paths` and a later change to the seed never reaches an already-
+onboarded consumer.
+
 ## Publisher-only source
 
 These paths stay in this repository but are deleted from a normal full template
@@ -215,6 +258,8 @@ copy:
 | `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                 |
 | `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                       |
 | `scripts/validate-super-linter-tool-versions.sh` | Publisher CI consistency check.                                                                              |
+| `templates/iwe/`                                 | Initialization-only IWE seed; copied to `docs/knowledge/data/` at adoption, then deleted.                    |
+| `docs/knowledge/tests/test_iwe_seed.py`          | Validates the seed source above, which no consumer keeps.                                                    |
 
 After deleting `py_packages/validate_agent_files/`, remove the now-empty
 `py_packages/` wrapper and its standalone `LICENSE` as well. `scripts/` holds

@@ -19,10 +19,6 @@ frontmatter:
             type: string
           minItems: 1
       description: repo-relative path(s) of the code this document describes; first entry is primary
-    commit:
-      type: string
-      pattern: '^[0-9a-f]{7,40}$'
-      description: optional legacy git commit SHA of the codebase when the code was read
     source_digest:
       type: string
       pattern: '^sha256:[0-9a-f]{64}$'

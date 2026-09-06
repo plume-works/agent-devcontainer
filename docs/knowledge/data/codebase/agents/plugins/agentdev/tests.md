@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:1e8a8beb10bf254bc2c0233c4c008475c33cd1be4e0570e74a9b6c6322eee6c9
+source_digest: sha256:fe103cf2a57dad22a0c1133719f3b02f73d4871c586eae6593e3522368f21a6b
 verified:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  at: 2026-09-06T19:05:00Z
+stale_after: 2026-12-05
 generated:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  at: 2026-09-06T19:05:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -17,7 +17,7 @@ sources:
 
 # Plugin tests
 
-8 test modules plus `conftest.py`, run with
+9 test modules plus `conftest.py`, run with
 `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`.
 
@@ -30,14 +30,28 @@ sources:
 - Modules: `test_close_issue.py`, `test_discover_ai_responder.py`,
   `test_fetch_issue.py`, `test_remote_codespace_session.py`,
   `test_result_codes.py`, `test_stale_map_docs.py`,
-  `test_template_consume_check_updates.py`, `test_update_branch.py`
+  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
+  `test_update_branch.py`
 
 ## How it works
 
 Each module builds a throwaway world — a `git init` repository, stub `gh` or
 `git` executables placed first on `PATH` — runs the script with
 `subprocess.run`, and asserts on the pair `(returncode, last stdout line)`.
-Signal handling is exercised by sending the signal to the running process.
+Signal handling is exercised by sending the signal to the running process, for
+both result-code libraries: `test_result_codes.py` drives the bash one through a
+fixture script and the Python one by generating a `main()` around a body of
+source. The two `stale_map_docs` modules also import the script by path so a
+fixture computes the expected digest from the same code under test rather than
+restating it; the masks module builds `.agent.metadata.json` files and checks
+that a masked pin bump stays `FRESH`, that structure around a masked value still
+moves the digest, that a rule reaches a subdirectory and a child adds to it, and
+that unreadable, uncompilable, or inapplicable metadata is `BROKEN_METADATA`
+confined to its own subtree, including invalid replacements and masked binary
+files. `test_template_consume_check_updates.py` builds the same metadata file to
+hold the marker section, and pins `NO_MARKER` for an absent file and for an
+absent section, and `INVALID_MARKER` for malformed metadata or a section missing
+`consumed_ref` or `tracked_paths`.
 
 ## Depends on
 
@@ -53,9 +67,18 @@ Signal handling is exercised by sending the signal to the running process.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
 - `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
   `initialize_repository`, the shared mock-repository builder
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:18` —
+  `_load_script_module`, the by-path import the digest fixtures share
+- `.agents/plugins/agentdev/tests/test_result_codes.py:49` — `run_python_helper`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:33` —
+  `write_metadata`, the masking-rule fixture builder
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:286` — invalid
+  replacement and masked binary regressions
+- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
+  an absent marker section is `NO_MARKER`
