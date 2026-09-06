@@ -283,6 +283,57 @@ def test_an_uncompilable_pattern_is_broken_metadata(
     assert 'BROKEN_COUNT=1' in completed.stdout.splitlines()
 
 
+def test_an_invalid_replacement_template_is_broken_metadata(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A regex replacement error reports the metadata file that declared it."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    commit_file(repository, 'deploy/compose.yml', compose_text(PIN), 'add compose')
+    rules = [{'pattern': 'sha256', 'replace': r'\d', 'reason': MASK_REASON}]
+    write_metadata(repository / 'deploy', {'*.yml': rules})
+    write_map_doc(
+        repository,
+        'data/codebase/deploy',
+        "type: codebase\nsource: deploy\nsource_digest: 'sha256:recorded'\n",
+    )
+
+    # Act
+    completed = run_script(plugin_root, repository)
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
+    assert 'BROKEN data/codebase/deploy deploy/.agent.metadata.json' in lines
+
+
+def test_a_masked_non_utf8_file_is_broken_metadata(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A masked file that cannot be decoded reports its mask's metadata file."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    binary = repository / 'deploy' / 'fixture.bin'
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b'\xff\xfe')
+    write_metadata(repository / 'deploy', {'*.bin': digest_mask(pattern='payload')})
+    git(repository, 'add', 'deploy')
+    git(repository, 'commit', '-m', 'add masked binary fixture')
+    write_map_doc(
+        repository,
+        'data/codebase/deploy',
+        "type: codebase\nsource: deploy\nsource_digest: 'sha256:recorded'\n",
+    )
+
+    # Act
+    completed = run_script(plugin_root, repository)
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
+    assert 'BROKEN data/codebase/deploy deploy/.agent.metadata.json' in lines
+
+
 def test_editing_a_mask_invalidates_only_the_docs_it_reaches(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:

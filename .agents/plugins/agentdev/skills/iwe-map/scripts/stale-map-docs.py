@@ -274,9 +274,15 @@ class MetadataResolver:
 
 def masked_hash(relative_path: str, masks: list[Mask]) -> str:
     """Hash `relative_path` with each mask applied in resolution order."""
-    content = Path(relative_path).read_text()
+    try:
+        content = Path(relative_path).read_text()
+    except (OSError, UnicodeError) as error:
+        raise BrokenMetadata(masks[0].declared_in) from error
     for mask in masks:
-        content = mask.expression.sub(mask.replace, content)
+        try:
+            content = mask.expression.sub(mask.replace, content)
+        except re.error as error:
+            raise BrokenMetadata(mask.declared_in) from error
     return hashlib.sha256(content.encode()).hexdigest()
 
 
