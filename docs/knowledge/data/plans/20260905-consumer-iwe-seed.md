@@ -65,15 +65,22 @@ consumer memory.
   digest terminology; retain the onboarding keys iwe-setup closes and remove
   publisher-specific content. Document local ownership, seed purpose, and
   maintenance against the shared schemas.
-  - **Evidence:** commit `1de0ffc` — the four `data/codebase/*.example.md` docs
+  - **Evidence:** commit `27af41b` — the four `data/codebase/*.example.md` docs
     carry `source_digest` instead of `commit`, the hub and index describe the
     digest, the two onboarding tasks point at `/agentdev:iwe-setup` and
     `/agentdev:iwe-plan` instead of `.claude/skills/` paths, and
     `templates/iwe/README.md` records ownership and schema-coupled maintenance.
     `iwe schema validate` exits 0 against the consumer fixture built from the
     repo's own `.iwe/`.
-- [ ] Exclude seed Markdown from Prettier and normalize it through an isolated
+- [x] Exclude seed Markdown from Prettier and normalize it through an isolated
   consumer fixture, keeping it outside the publisher's active graph.
+  - **Evidence:** `.prettierignore` gained `templates/iwe/**` in commit
+    `19baf92`, and the pre-commit `prettier` hook has passed on every commit
+    since. `docs/knowledge/tests/test_iwe_seed.py` normalizes the seed in a
+    throwaway `.tmp/` consumer workspace and asserts the checked-in bytes match;
+    `test_seed_is_not_a_member_of_the_publisher_graph` asserts root-level `iwe`
+    never lists a `templates/` key.
+    `uv run pytest docs/knowledge/tests/test_iwe_seed.py` — 8 passed.
 
 ### Task 2: Initialize consumer knowledge through both adoption workflows
 
