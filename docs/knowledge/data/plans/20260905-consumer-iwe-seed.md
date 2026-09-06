@@ -143,10 +143,17 @@ consumer memory.
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `docs/knowledge/data/architecture/template-boundary.md`.
 
-- [ ] Replace broad `docs/knowledge/` tracking with an explicit inventory of
+- [x] Replace broad `docs/knowledge/` tracking with an explicit inventory of
   reusable support files/directories and `.iwe/`; exclude `docs/knowledge/data/`
   and the initialization-only seed. Document ownership and the seed's
   source-to-destination mapping in the template boundary.
+  - **Evidence:** commit `2ecefac`. `SKILL.md`'s `## Default Template Surface`
+    now enumerates `.iwe/` plus the seven supporting `docs/knowledge/` files for
+    the `"knowledge-base"` bundle instead of the directory, states why
+    `docs/knowledge/data/` and `docs/knowledge/LICENSE.md` are excluded, and
+    adds `templates/iwe/` and `test_iwe_seed.py` to the never-track list.
+    `template-boundary.md` gains `## Optional knowledge-base bundle` with the
+    seed's source→destination table and post-adoption ownership.
 - [ ] Before invoking check-updates.sh, migrate legacy markers that broadly
   track knowledge to that retained support inventory without advancing
   `consumed_ref`. Preserve unrelated tracked paths and optional bundle choices.

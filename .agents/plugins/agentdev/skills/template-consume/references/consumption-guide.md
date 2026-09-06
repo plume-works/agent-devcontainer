@@ -899,3 +899,16 @@ arrive through a rebuilt/pinned `agent-desktop` image; and project-specific
 changes remain owned by the consuming repository. Use update mode to compare
 template files against a later improvement instead of tracking scaffolding
 churn by hand.
+
+Project memory is outside that loop. `docs/knowledge/data/` is the consumer's
+own from the moment it is seeded, so update mode neither compares it nor reseeds
+it, and it never re-runs `/agentdev:iwe-setup` or `/agentdev:iwe-map`. Only the
+reusable scaffold listed above is tracked. A marker written before that
+distinction existed tracks `docs/knowledge/` wholesale; update mode narrows it
+to the scaffold before diffing anything, without advancing `consumed_ref`.
+
+The one tracked knowledge path that can affect existing documents is `.iwe/`. A
+schema or config change applied from upstream can invalidate documents the
+consumer already wrote, so validate the consumer's graph against the proposed
+schemas — `iwe schema validate` from the consumer root — and decide with the
+user before applying.
