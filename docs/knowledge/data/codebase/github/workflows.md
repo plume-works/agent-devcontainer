@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:c3999e85181bc2a6f23bc8a7c5c29ba12cfe63b7aa88b629771e6c3162992b92
+source_digest: sha256:970b313470311f05f49324897ede68ecfd03b9252b6bac8901eeee3018dee53f
 verified:
-  by: claude/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 stale_after: 2026-12-05
 generated:
-  by: claude/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -47,7 +47,9 @@ the devcontainer with `devcontainers/ci`. The responder only runs for
 and a task, and `ai-review-present` reports whether an accepted review exists.
 Knowledge validation always checks this graph when its outer filter passes and
 runs the standalone consumer-seed suite only when its inner seed filter passes.
-The full traces are [the image build flow](../flow-image-build.md) and
+Agent-file validation's filter covers the union of codebase map `source` paths,
+then its final step verifies every recorded digest. The full traces are
+[the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
 ## Depends on
@@ -74,7 +76,8 @@ Verified anchor points (line numbers as of 2026-09-06):
 - `.github/workflows/ci.yml:62,97,165,204` — build matrix, base-image selection,
   merge, devcontainer smoke
 - `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
-- `.github/workflows/validate-agent-files.yml:73-83` — the four check steps
+- `.github/workflows/validate-agent-files.yml:38-88` — map-source filter and the
+  four check steps
 - `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:82,325,377,421,462` — the five jobs

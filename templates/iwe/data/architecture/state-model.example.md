@@ -37,7 +37,7 @@ Rejected alternatives:
 - **Mutable JSON snapshot** — a crash during write can lose the whole history,
   not just the last entry.
 
-*Convention notes: like specs, architecture notes carry no frontmatter. Record
-the decision when it's made, with the rejected options — the
+*Convention notes: architecture notes carry `type: architecture` and no stage.
+Record the decision when it's made, with the rejected options — the
 [streak widget plan](../plans/20260720-streak-widget.example) builds directly on
 the derived-aggregates rule stated here.*

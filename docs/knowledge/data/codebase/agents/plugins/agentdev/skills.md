@@ -2,14 +2,14 @@
 type: codebase
 description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:5d5e5d90a3b95fa5288e968663c6a0adcd94315c7c8df0f85bc57a2bb48a7113
+source_digest: sha256:91520236b4a57e3c8f119ed79167538951496ee0a1c0279886bd7f5c95490b96
 verified:
-  by: claude/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 stale_after: 2026-12-05
 generated:
-  by: claude/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -49,15 +49,15 @@ behind every `data/codebase/` doc, normalizing content that an
 `iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
 machine-managed so an automerged pin bump does not register as a change. Its
 `--explain` flag prints one `MASK` line per applied rule, and it adds
-`BROKEN_METADATA` (exit 5) to the shared result vocabulary for a metadata file
-it cannot read or whose pattern will not compile. The IWE family runs against
-the [knowledge workspace](../../../docs/knowledge.md). `template-consume`
-optionally copies the repository's IWE seed into a consumer, then hands
-onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the reusable
-knowledge scaffold and never replaces consumer-owned project memory. Its state
-is split three ways: the `template-consume` section of the consumer root's
-`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
-the tracked paths — `check-updates.sh` reads nothing else, and a legacy
+`BROKEN_METADATA` (exit 5) to the shared result vocabulary for metadata it
+cannot read, compile, or apply to a masked text file. The IWE family runs
+against the [knowledge workspace](../../../docs/knowledge.md).
+`template-consume` optionally copies the repository's IWE seed into a consumer,
+then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
+reusable knowledge scaffold and never replaces consumer-owned project memory.
+Its state is split three ways: the `template-consume` section of the consumer
+root's `.agent.metadata.json` is the only machine-parsed record of the adopted
+ref and the tracked paths — `check-updates.sh` reads nothing else, and a legacy
 `.agentdev-template.json` is consolidated into it on the next update;
 `.agentdev-template-progress.md` is the consumer-owned task and choice ledger
 that survives an interrupted setup; and `data/template-adoption` summarizes the
@@ -94,5 +94,5 @@ Verified anchor points (line numbers as of 2026-09-06):
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:228` —
   `MetadataResolver`, which walks a source's ancestors for masking rules
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:283` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:289` —
   `source_digest_for_paths`

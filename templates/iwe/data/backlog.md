@@ -10,7 +10,7 @@ generated:
 # 📋 Backlog
 
 *Prioritized work waiting to become plans, one task per document in
-`backlog/<slug>.md`. A finished task gets `status: done` + `completed` and its
+`backlog/<slug>.md`. A finished task gets `stage: done` + `completed` and its
 link moves to `## Done`. When a task grows past a single sitting, promote it:
 write a plan and link the plan instead.*
 

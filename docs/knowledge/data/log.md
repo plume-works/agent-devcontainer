@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Map**: refreshed the agentdev catalog, bin, skills, tests, pull-request
+  checks, GitHub automation, workflows, and consumer seed against their current
+  sources; all codebase-map digests match the checkout.
 - **Update**: `source_digest` is now the only map-freshness mechanism. The
   legacy `commit` pin, its `UNKNOWN_COMMIT`/`NO_COMMIT` verdicts, and the
   `codebase` schema's `commit` field are gone; a doc without a digest is

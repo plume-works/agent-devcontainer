@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:510637e42b528775a803f12ec0a6a15a2c08ad519beccce259b9bb00e0d642cc
+source_digest: sha256:07b20c2b8dc3a6b49d7ad970f1310a9e76d0809cf0ac9bc9f64e2e323c2ef6ee
 verified:
-  by: claude/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 stale_after: 2026-12-05
 generated:
-  by: claude/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 sources:
 - id: code
   resource: .github
@@ -42,6 +42,8 @@ the composite actions they share, `renovate.json`, and
 and `ci.yml`. Three more workflows trigger independently on their own path
 filters, and one is manual. Knowledge validation has its own inner filter so the
 consumer IWE seed tests run only when the seed, schemas, or seed test moved.
+Agent-file validation includes every source path declared by a codebase map doc,
+so source drift cannot skip the staleness gate.
 
 ## Depends on
 
@@ -54,6 +56,8 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 - The digest pin Renovate advances lives outside every path the image filter
   watches; that is what makes its automerge safe.
 - Actions are pinned to exact versions and audited by `zizmor` in pre-commit.
+- The agent-file workflow's source filter stays aligned with codebase map
+  frontmatter.
 
 ## Key references
 

@@ -13,7 +13,7 @@ generated:
 
 *Example document — this shows the full body template of a shipped plan,
 including the `## Spec changes` section the ship skill synced before flipping
-the status to done. The setup skill deletes `*.example.md` files after
+the stage to done. The setup skill deletes `*.example.md` files after
 onboarding.*
 
 ## Context
@@ -78,7 +78,7 @@ Verified anchor points (line numbers as of 2026-07-01):
 - `src/store/sessions.ts:15` — `appendSession()`, the log writer
 - `src/main.ts:31` — window/tray bootstrap where the view mounts
 
-*Convention notes: `status: done` requires `completed` (schema-enforced), and
-the plan's link in the plans hub sits under `## Done`. `## Spec changes` names
-every spec this work touches — the ship skill walks that list before the status
-flips, which is what keeps specs from drifting.*
+*Convention notes: `stage: done` requires `completed` (schema-enforced), and the
+plan's link in the plans hub sits under `## Done`. `## Spec changes` names every
+spec this work touches — the ship skill walks that list before the stage flips,
+which is what keeps specs from drifting.*

@@ -34,7 +34,7 @@ plays a soft chime and logs the session; abandoned sessions log with an
 - Should the default length be onboarding-configurable?
   - Deferred until real usage data exists.
 
-*Convention notes: the feature's `status` chip carries its lifecycle; the story
+*Convention notes: the feature's `stage` chip carries its lifecycle; the story
 of how it was built lives in the
 [focus sessions plan](../plans/20260701-focus-sessions.example), and the
 [0.1.0 release](../releases/0.1.0.example) inclusion-links this doc as shipped

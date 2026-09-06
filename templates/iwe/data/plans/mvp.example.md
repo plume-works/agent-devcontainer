@@ -27,7 +27,7 @@ one piece of retention surface.
 ## Sequencing
 
 Focus sessions ships first — the streak widget derives from the session log it
-creates. The milestone closes when both child plans carry `status: done`.
+creates. The milestone closes when both child plans carry `stage: done`.
 
 *Convention notes: the child plans are inclusion links, so the milestone's
 subtree is queryable

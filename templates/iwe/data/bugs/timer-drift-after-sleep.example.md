@@ -8,7 +8,7 @@ generated:
 
 # Bug: Timer drifts after laptop sleep
 
-*Example document — this shows the shape of a bug report; absent `status`
+*Example document — this shows the shape of a bug report; absent `stage`
 frontmatter means the bug is open. The setup skill deletes `*.example.md` files
 after onboarding.*
 
@@ -44,4 +44,4 @@ Verified anchor points (line numbers as of 2026-07-25):
 
 *Convention notes: code anchors are `path:line — symbol`, stamped with the date
 they were verified, so a reader knows how much to trust them. When the fix
-ships, the bug gets `status: done` and stays listed in the bugs hub.*
+ships, the bug gets `stage: done` and stays listed in the bugs hub.*

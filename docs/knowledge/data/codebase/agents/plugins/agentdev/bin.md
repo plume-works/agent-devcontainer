@@ -2,14 +2,14 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared result-code libraries for bash and Python, the GitHub-issue library, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:17f474a42b38d1c8f97ed8bd396281058c10e4e867d7e4d42e74179c09d22963
+source_digest: sha256:5f573f18c15fe0b4309d0b0f90b92c0a4dda98851d022217a3ef1a5a21eb2d9f
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 stale_after: 2026-12-05
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T19:05:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
@@ -76,9 +76,9 @@ Verified anchor points (line numbers as of 2026-09-06):
 - `.agents/plugins/agentdev/bin/result-codes.sh:15-22` — the reserved codes
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
 - `.agents/plugins/agentdev/bin/result-codes.sh:51` — `report_unhandled_exit`
-- `.agents/plugins/agentdev/bin/result_codes.py:29-36` — the same reserved codes
-- `.agents/plugins/agentdev/bin/result_codes.py:94` — `run`
-- `.agents/plugins/agentdev/bin/result_codes.py:111` — `install`
+- `.agents/plugins/agentdev/bin/result_codes.py:24-31` — the same reserved codes
+- `.agents/plugins/agentdev/bin/result_codes.py:89` — `run`
+- `.agents/plugins/agentdev/bin/result_codes.py:106` — `install`
 - `.agents/plugins/agentdev/bin/github-issue.sh:10,29,41,46` — the four helpers
 - `.agents/plugins/agentdev/bin/__utils.sh:6` — `root_dir`
 - `.agents/plugins/agentdev/bin/super-linter-defaults.sh:6` — image pin

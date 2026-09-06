@@ -2,14 +2,14 @@
 type: codebase
 description: The licensed starter IWE data tree copied into consumers that adopt project memory, with placeholders and examples for the onboarding skills to replace.
 source: templates/iwe
-source_digest: sha256:a4a23c4ff76d60f8bd6c00267867fea985dab57db649d3ed60a09399c3849130
+source_digest: sha256:04f90a04e72831949f088835c16d4478adf0206a9afb07330f9190525fa80400
 verified:
   by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  at: 2026-09-06T19:05:00Z
 stale_after: 2026-12-05
 generated:
   by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  at: 2026-09-06T19:05:00Z
 sources:
 - id: code
   resource: templates/iwe
@@ -51,6 +51,8 @@ placeholder replacement and example removal, and `iwe-map` fills the empty map.
   root-level `iwe normalize`.
 - Consumer project memory is seeded once. Template update mode never compares,
   replaces, or reseeds `docs/knowledge/data/`.
+- Workflow state is named by `stage`; reference examples carry `type` and no
+  stage, matching the schemas consumers validate against.
 - `fill-product-doc` and `capture-current-architecture` are interface keys for
   `iwe-setup`; renaming either breaks onboarding.
 
