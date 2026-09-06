@@ -214,8 +214,10 @@ this way; the root file stays the live record.
   cannot be generated before the workflow is known.
   - **Evidence:** `validate_agent_files` passed with progress persisted between
     workflow selection and the scope interview.
-- [ ] Amend setup mode's step 6 (line 87) so the marker and the completed
+- [x] Amend setup mode's step 6 (line 87) so the marker and the completed
   progress document are committed together.
+  - **Evidence:** `validate_agent_files` passed with setup's final step coupling
+    the marker and completed progress document in one commit.
 - [ ] State that a setup mode run finding an existing progress document resumes
   from its unticked tasks instead of restarting the interview.
 

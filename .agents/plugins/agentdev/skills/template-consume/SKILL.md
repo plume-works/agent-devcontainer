@@ -108,12 +108,14 @@ recreate.
    complete, while any required input is outstanding, and report mapping as
    deferred for a project with no code.
 6. **Run the guide's verification section** before declaring success.
-7. **Write the marker file**: resolve the exact commit SHA of the template
+7. **Write the marker and complete the progress document**: resolve the exact
+   commit SHA of the template
    checkout you copied from or merged from (`git rev-parse HEAD` in that
    checkout, or the release/ref the user named), record `workflow`,
    `optional_bundles`, and a `tracked_paths` list pruned to what this consumer
-   actually kept, and set `last_synced_at` to now. Commit it with the rest of
-   the setup changes.
+   actually kept, and set `last_synced_at` to now. Finish the progress document
+   with evidence for every completed task. Commit the marker section and the
+   completed progress document together with the rest of the setup changes.
 
 If the user is running this skill _from inside the template repository itself_
 against a different target directory, make that explicit before touching
