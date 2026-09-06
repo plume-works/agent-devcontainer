@@ -154,8 +154,10 @@ this way; the root file stays the live record.
   add a general scalar-merge rule.
   - **Evidence:** `iwe schema validate` passed with root-only resolution scoped
     to consumers that explicitly declare it.
-- [ ] Name `template-consume` in `## Consumers` as root-only, with the reason: a
+- [x] Name `template-consume` in `## Consumers` as root-only, with the reason: a
   repository has exactly one adopted ref.
+  - **Evidence:** `iwe schema validate` passed with `template-consume` declared
+    root-only because the adopted ref is a repository singleton.
 - [ ] Amend `## Relationship to the template boundary` so the "inherits the
   class of the directory holding it" rule states its exception — the root file
   is classified per top-level key, since it now carries both Template-class
