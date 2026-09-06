@@ -2,8 +2,8 @@
 type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T00:00:00Z
+  by: claude-code/opus-5
+  at: 2026-09-05T17:41:16Z
 ---
 
 # Module layout
@@ -86,5 +86,5 @@ in [Template consumption](../spec/template-consumption.md).
   (role dependency graph, which roles are load-bearing vs. optional) — not
   mapped yet; see the provisioning knobs table in the README for the toggles,
   but not the role internals.
-- The Xpra/VirtualGL desktop subsystem's internal wiring beyond port derivation
-  (`14500 + cksum(DEVCONTAINER_ID) % 100`) is not detailed here.
+- The Xpra/VirtualGL desktop subsystem's internal wiring beyond its fixed
+  container port `14500` is not detailed here.

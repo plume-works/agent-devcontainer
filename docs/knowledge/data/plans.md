@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
+
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 
 [Python skill scripts](plans/20260905-python-skill-scripts.md)

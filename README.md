@@ -213,13 +213,20 @@ exiting non-zero if either check goes the wrong way.
 ## Reaching the Xpra desktop
 
 `.devcontainer/scripts/postStartCommand.sh` starts Xpra in the background on
-display `:100`. The HTML5 client port is derived per devcontainer as
-`14500 + cksum(DEVCONTAINER_ID) % 100`, so parallel worktrees never collide;
-`forwardPorts` covers the whole `14500-14599` range. Open the forwarded port in a
-browser. For GPU-accelerated rendering, prefix the app with `vglrun`.
+display `:100`. The HTML5 client listens on container port `14500`, which
+`forwardPorts` forwards explicitly. Each devcontainer has its own network
+namespace, so parallel worktrees all use `14500` internally; VS Code picks a
+free _local_ port per window, which is often not `14500`. Open the **Xpra HTML5**
+entry in VS Code's Ports panel rather than typing a port from memory. For
+GPU-accelerated rendering, prefix the app with `vglrun`.
 
 Manage it directly with `/start-xpra.sh --background`, `--stop`, or
-`--port <n>`.
+`--port <n>`. `--port` changes the _container_ port, so forward that port too —
+otherwise the desktop is unreachable from the client machine.
+
+`/start-xpra.sh` is baked into the `agent-desktop` image, so changes to its
+behavior reach a container only when its digest pin advances (see
+[Staying on the current image](#staying-on-the-current-image)).
 
 ## Provisioning knobs
 

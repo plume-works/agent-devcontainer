@@ -75,8 +75,7 @@ WORKDIR $WORKSPACE_FOLDER
 # Xpra HTML5 client startup script
 COPY --chmod=755 docker/desktop/start-xpra.sh /start-xpra.sh
 
-# Xpra HTML5 base port. start-xpra.sh derives a per-devcontainer port in
-# 14500-14599 from DEVCONTAINER_ID so parallel worktrees do not collide.
+# Default Xpra HTML5 container port.
 EXPOSE 14500
 
 ENV PATH="/root/.local/bin:$PATH"
