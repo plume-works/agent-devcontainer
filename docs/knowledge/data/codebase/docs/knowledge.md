@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:f2c5c8cf06a0dbc8306be73bf61ac43072b06c8b22a066f09a22cb87c4abb37a
+source_digest: sha256:05572d86d3252de11c9f7512ff488f9b083ee0ab427849e94350f2527e9a29c0
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 stale_after: 2026-12-05
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -33,7 +33,8 @@ would otherwise make itself stale.
 ## Public surface
 
 - `.iwe/config.toml` — `[library] path`, `refs_extension = ".md"`,
-  `wrap_column = 80`, and the `[schemas.*]` bindings
+  `wrap_column = 80`, and the `[schemas.*]` bindings; `[schemas.tracker]` also
+  binds `data/template-adoption`, a document only a consumer workspace holds
 - `.iwe/schemas/*.yaml` — 15 schemas: `architecture`, `bug`, `codebase`,
   `concept`, `feature`, `hub`, `okf`, `okf-index`, `okf-log`, `plan`, `release`,
   `someday`, `spec`, `task`, `tracker`
@@ -78,6 +79,8 @@ Verified anchor points (line numbers as of 2026-09-06):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings
+- `.iwe/config.toml:111` — the tracker binding, including the consumer-only
+  `data/template-adoption`
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture

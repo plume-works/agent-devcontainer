@@ -2,7 +2,7 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:54744558b6ad0c313deac915a4ea1d94414d56b6e0b4b84dc71d3637849ada22
+source_digest: sha256:3825f103a624f210ffc17ed3e05ad57308fa6d0968e377fa7f2b3989cd08c191
 verified:
   by: claude-code/opus-5
   at: 2026-09-06T00:00:00Z
@@ -47,7 +47,10 @@ restating it; the masks module builds `.agent.metadata.json` files and checks
 that a masked pin bump stays `FRESH`, that structure around a masked value still
 moves the digest, that a rule reaches a subdirectory and a child adds to it, and
 that unreadable or uncompilable metadata is `BROKEN_METADATA` confined to its
-own subtree.
+own subtree. `test_template_consume_check_updates.py` builds the same metadata
+file to hold the marker section, and pins `NO_MARKER` for an absent file and for
+an absent section, and `INVALID_MARKER` for malformed metadata or a section
+missing `consumed_ref` or `tracked_paths`.
 
 ## Depends on
 
@@ -72,5 +75,7 @@ Verified anchor points (line numbers as of 2026-09-06):
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:18` —
   `_load_script_module`, the by-path import the digest fixtures share
 - `.agents/plugins/agentdev/tests/test_result_codes.py:49` — `run_python_helper`
-- `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:32` —
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:33` —
   `write_metadata`, the masking-rule fixture builder
+- `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
+  an absent marker section is `NO_MARKER`

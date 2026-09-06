@@ -2,14 +2,14 @@
 type: codebase
 description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:dae04ab63fc243b864fab0d6af2b9438a4d53a8147617b017c215009b37b45c1
+source_digest: sha256:f2f34d4332e99aac01f13de9093b6a6b78bb7eeed836fbadf4dfeb64c15279d7
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 stale_after: 2026-12-05
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -54,7 +54,14 @@ it cannot read or whose pattern will not compile. The IWE family runs against
 the [knowledge workspace](../../../docs/knowledge.md). `template-consume`
 optionally copies the repository's IWE seed into a consumer, then hands
 onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the reusable
-knowledge scaffold and never replaces consumer-owned project memory.
+knowledge scaffold and never replaces consumer-owned project memory. Its state
+is split three ways: the `template-consume` section of the consumer root's
+`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
+the tracked paths — `check-updates.sh` reads nothing else, and a legacy
+`.agentdev-template.json` is consolidated into it on the next update;
+`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
+that survives an interrupted setup; and `data/template-adoption` summarizes the
+episode for a consumer that kept the knowledge base.
 
 ## Depends on
 
@@ -77,8 +84,12 @@ Verified anchor points (line numbers as of 2026-09-06):
   rules every skill follows
 - `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:1` — the script
   contract
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:78` — consumer IWE
-  seeding and onboarding handoff
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:22` — the marker
+  section that selects setup or update mode
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:61` — the progress
+  document
+- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:124`
+  — the only read of the marker section
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:74` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:230` —
