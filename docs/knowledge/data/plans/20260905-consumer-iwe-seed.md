@@ -112,11 +112,18 @@ consumer memory.
     a root `.iwe/` whose schemas or `[library].path` differ. The closing
     paragraph keeps the publisher's `docs/knowledge/` and `templates/iwe/`
     unmodified when the skill runs against another target directory.
-- [ ] Invoke iwe-setup and then iwe-map for fresh onboarding, preserving their
+- [x] Invoke iwe-setup and then iwe-map for fresh onboarding, preserving their
   interviews and confirmation gates. Use the consumer root for IWE commands. For
   greenfield projects, complete setup and report mapping as deferred until code
   exists. For interrupted onboarding, resume from consumer state rather than
   recopying the seed; do not claim completion while required input is pending.
+  - **Evidence:** commit `b990f17`, the guide's
+    `### Onboard the consumer's project memory`, plus step 4 of `## Setup Mode`
+    in `SKILL.md`. Both invoke `/agentdev:iwe-setup` then `/agentdev:iwe-map`
+    from the consumer root, state that the skills own their interviews and
+    gates, defer mapping for a greenfield consumer, and require reporting
+    onboarding as pending — resuming from the consumer's current data rather
+    than recopying the seed — while any input is outstanding.
 - [ ] When IWE is declined, skip seeding and onboarding and prune copied
   publisher knowledge, seed-source files, and IWE-only validation as
   appropriate; preserve any pre-existing consumer knowledge. Normal consumers
