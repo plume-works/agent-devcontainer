@@ -189,8 +189,15 @@ consumer memory.
     was confirmed to fail when its condition is broken. Commit `b990f17` marks
     the file publisher-only in the guide's Workflow A step 2, its knowledge-base
     validation subsection, and the reusable-scaffold list.
-- [ ] Make the knowledge validation workflow run the seed tests when seed,
+- [x] Make the knowledge validation workflow run the seed tests when seed,
   schema, or relevant support files change, without expanding to the full suite.
+  - **Evidence:** commit `a4d5f70`. `validate-knowledge-base.yml`'s job filter
+    gains `templates/iwe/**`, and a `seed-filter` step gates
+    `uv run pytest docs/knowledge/tests/test_iwe_seed.py` on `templates/iwe/**`,
+    `.iwe/**`, or the test file changing. The existing checkbox step now passes
+    `--ignore=docs/knowledge/tests/test_iwe_seed.py`, so the two partition the
+    suite rather than widening it — 14 and 8 tests locally, 22 total. actionlint
+    and zizmor pass on the workflow.
 - [ ] Exercise the guide on disposable Workflow A, Workflow B, existing-memory,
   interrupted-onboarding, IWE-declined, greenfield, and legacy-marker fixtures.
   Check file preservation by comparing before/after bytes and review the skill
