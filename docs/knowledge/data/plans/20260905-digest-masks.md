@@ -333,17 +333,17 @@ moves in Task 6 is attributable to a mask and nothing else.
 
 Verified anchor points (line numbers as of 2026-09-06):
 
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:141-162` —
-  `source_digest_for_paths`, the whole-file fingerprint the masks filter; the
-  dependency plan ports it to `stale-map-docs.py`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:174-189` —
-  the per-document verdict loop the `BROKEN` verdict joins, alongside `GONE`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:14` —
-  `RESULT_CODES+=("3=STALE_FOUND" "4=NO_MAP_DOCS")`, the two codes already
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:123-138` —
+  `source_digest_for_paths`, the whole-file fingerprint the masks filter
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:175-215` —
+  `classify`, the per-document verdict function the `BROKEN` verdict joins,
+  alongside `GONE`
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:59-60` —
+  the `STALE_FOUND = 3` and `NO_MAP_DOCS = 4` constants, the two codes already
   taken, which is why the new verdict is `5`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:41-49` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:48-56` —
   the usage block's result table Task 4 extends
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:243-250` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:265-273` —
   the counter block and the exit selection the new code slots into
 - `.agents/plugins/agentdev/bin/result-codes.sh:5-14` — the contract reserving
   0, 1, 2, 129, 130, 143 and assigning 3 through 125 to the script

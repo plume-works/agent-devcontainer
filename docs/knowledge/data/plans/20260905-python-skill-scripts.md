@@ -193,15 +193,23 @@ and inline Python inside bash is neither testable nor lintable.
 `docs/knowledge/data/plans/20260905-digest-masks.md`;
 `docs/knowledge/data/architecture/agent-metadata-files.md`
 
-- [ ] Re-locate every `## Key references` anchor in those three files that cites
+- [x] Re-locate every `## Key references` anchor in those three files that cites
   a `stale-map-docs.sh` line number against `stale-map-docs.py`, and restamp
   each file's `Verified anchor points (line numbers as of ...)` line. Deleting
   the `.sh` breaks all of them; they are pointers meant to resolve, not history.
   `grep -n 'stale-map-docs\.sh:' docs/knowledge/` enumerates the live set, which
   changes as those plans are revised.
-- [ ] Update the bug's `sources:` entry naming the `.sh` file. Leave its Symptom
+  - **Evidence:** nine anchors re-located across the three files and each
+    checked against the ported script — `source_digest_for_paths` at 123-138,
+    `classify` at 175-215, the digest comparison at 192-194, the result
+    constants at 59-60, the usage result table at 48-56, and the counter and
+    exit block at 265-273. All three files carry the 2026-09-06 stamp, and
+    `grep 'stale-map-docs\.sh:'` over `docs/knowledge/` returns nothing.
+- [x] Update the bug's `sources:` entry naming the `.sh` file. Leave its Symptom
   and Reproduction prose alone — those record an observation made against the
   script as it then was.
+  - **Evidence:** the bug's `- resource:` entry now names the `.py`; its Symptom
+    and Reproduction still cite `stale-map-docs.sh`, unchanged.
 
 ## Spec changes
 

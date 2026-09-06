@@ -5,7 +5,7 @@ generated:
   by: claude-code/opus-5
   at: 2026-09-05T00:00:00Z
 sources:
-- resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh
+- resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: .github/renovate.json
 - resource: docs/knowledge/data/codebase/devcontainer.md
 ---
@@ -96,11 +96,11 @@ happens to hold a digest.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-05):
+Verified anchor points (line numbers as of 2026-09-06):
 
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:141-162` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:123-138` —
   `source_digest_for_paths`, the whole-file `git hash-object` fingerprint
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh:192-196` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:192-194` —
   the digest comparison that emits `STALE`
 - `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:203` — why the digest is not
   a commit SHA
