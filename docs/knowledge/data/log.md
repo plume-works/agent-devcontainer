@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-06
+
+- **Creation**: [Xpra port forwarding](spec/xpra-port-forwarding.md) specifies
+  the fixed container-port and VS Code local-remapping contracts.
+- **Update**:
+  [Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
+  done — Xpra uses container port 14500 independently of `DEVCONTAINER_ID`,
+  explicit `--port` overrides remain supported, and concurrent devcontainers are
+  reachable through distinct VS Code-forwarded local addresses.
+
 ## 2026-09-04
 
 - **Creation**: five decision records recovered from the Dr.QP history the

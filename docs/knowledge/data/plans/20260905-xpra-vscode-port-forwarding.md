@@ -4,13 +4,15 @@ created: 2026-09-05
 description: Use a fixed Xpra container port and let VS Code resolve local forwarding conflicts.
 generated:
   by: codex/gpt-6
-  at: 2026-09-06T04:26:49Z
+  at: 2026-09-06T04:28:00Z
 sources:
 - resource: docker/desktop/start-xpra.sh
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/docker-compose.yml
 - resource: https://github.com/devcontainers/spec/blob/main/docs/specs/devcontainerjson-reference.md
+stage: done
+completed: 2026-09-06
 ---
 
 # Use VS Code port forwarding for Xpra
