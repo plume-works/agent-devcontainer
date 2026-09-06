@@ -218,8 +218,10 @@ this way; the root file stays the live record.
   progress document are committed together.
   - **Evidence:** `validate_agent_files` passed with setup's final step coupling
     the marker and completed progress document in one commit.
-- [ ] State that a setup mode run finding an existing progress document resumes
+- [x] State that a setup mode run finding an existing progress document resumes
   from its unticked tasks instead of restarting the interview.
+  - **Evidence:** `validate_agent_files` passed with setup resuming from
+    unticked tasks and recorded choices.
 
 ### Task 6: Read and extend the progress document in update mode
 

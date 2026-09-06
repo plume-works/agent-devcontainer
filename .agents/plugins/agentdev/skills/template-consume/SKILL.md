@@ -79,6 +79,10 @@ every collision to avoid, and the two Requirement scenarios (a silently
 dead `[tool.ruff]` block, a reformatted verbatim capture) that setup must not
 recreate.
 
+When `.agentdev-template-progress.md` already exists with unticked setup tasks,
+resume from those tasks and its recorded choices. Do not restart the workflow
+or scope interview.
+
 1. **Ask which workflow applies** (AskUserQuestion, or ask in prose and stop if
    unavailable): Workflow A (a fresh full copy — GitHub "Use this template",
    or a clone into a new repository) or Workflow B (adding the template
