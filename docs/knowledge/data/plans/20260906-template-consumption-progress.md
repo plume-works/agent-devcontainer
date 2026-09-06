@@ -278,8 +278,10 @@ this way; the root file stays the live record.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`.
 
-- [ ] Give Workflow A and Workflow B each an explicit task-list manifest the
+- [x] Give Workflow A and Workflow B each an explicit task-list manifest the
   progress document is generated from, so two sessions produce the same list.
+  - **Evidence:** `validate_agent_files` passed with deterministic ten-item and
+    six-item manifests matching the two workflow procedures.
 - [ ] Point the existing "Onboarding interrupted" paragraph (line 814) at the
   progress document, so a pending report names the file that holds the state
   instead of only describing what is outstanding.

@@ -38,6 +38,21 @@ project's product.
 Use this workflow with GitHub's "Use this template" operation, a normal clone
 copied into a new repository, or any equivalent complete checkout.
 
+Generate the progress document's setup task list from this manifest exactly:
+
+```text
+- [ ] Establish the new repository identity
+- [ ] Delete publisher-only source
+- [ ] Choose whether to retain custom-image publishing
+- [ ] Adapt the uv project
+- [ ] Adapt pre-commit and lint configuration
+- [ ] Review the devcontainer configuration
+- [ ] Review agent configuration
+- [ ] Adapt GitHub Actions and Renovate
+- [ ] Set up or remove project memory
+- [ ] Verify the copied project
+```
+
 ### 1. Establish the new repository identity
 
 Before pruning files, record: the new repository name and owner; its default
@@ -525,6 +540,17 @@ Run these checks from the new repository:
 ## Workflow B: add the template to an existing repository
 
 This workflow avoids copying publisher source in the first place.
+
+Generate the progress document's setup task list from this manifest exactly:
+
+```text
+- [ ] Copy the runtime unit
+- [ ] Merge agent-facing configuration
+- [ ] Merge the tooling baseline
+- [ ] Merge GitHub configuration
+- [ ] Set up project memory
+- [ ] Verify
+```
 
 ### 1. Copy the runtime unit
 
