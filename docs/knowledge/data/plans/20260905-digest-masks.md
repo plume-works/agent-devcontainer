@@ -130,87 +130,147 @@ masking itself:
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py`
 
-- [ ] For a tracked file being hashed, walk from `git rev-parse --show-toplevel`
+- [x] For a tracked file being hashed, walk from `git rev-parse --show-toplevel`
   down to that file's own directory, reading each `.agent.metadata.json` found
   and taking its `iwe-map.digest_ignore` object. A file with no such key
   contributes nothing and is not an error.
-- [ ] Accumulate shallowest first: a deeper file's entries are appended to its
+  - **Evidence:** `MetadataResolver._for_directory` walks root-to-leaf and
+    caches per directory; `read_metadata` returns `[]` for a file without the
+    key. `test_a_parent_rule_reaches_a_subdirectory_and_a_child_adds_to_it`
+    passes.
+- [x] Accumulate shallowest first: a deeper file's entries are appended to its
   ancestors', never substituted for them. Within the resulting list, patterns
   apply in order, so a deeper rule transforms what a shallower one left.
-- [ ] Match each glob against the candidate file's path *relative to the
+  - **Evidence:**
+    `test_a_parent_rule_reaches_a_subdirectory_and_a_child_adds_to_it` — the
+    parent's digest rule and the child's build-number rule both apply to the
+    same file, which a replace implementation would fail.
+- [x] Match each glob against the candidate file's path *relative to the
   directory declaring it*, so a copied directory's rules keep working. `**`
   crosses directory separators and a single `*` does not, matching the pathspec
   semantics the `source` fields already assume; `fnmatch` does not make that
   distinction, so it is not the matcher to reach for.
-- [ ] A file no glob matches keeps its `git hash-object` value unchanged, so
+  - **Evidence:** `glob_to_regex` compiles `**` to cross separators and `*` to
+    stop at one; `test_globs_match_relative_to_the_declaring_directory` copies
+    the same rules to two depths and both mask their own relative paths.
+- [x] A file no glob matches keeps its `git hash-object` value unchanged, so
   digests for unmasked sources stay identical to the ported script's, and a
   repository with no metadata files behaves exactly as before.
+  - **Evidence:** `test_absent_metadata_reproduces_the_unmasked_digest` asserts
+    the digest equals the unmasked `git hash-object` fold; the 48 pre-existing
+    plugin tests pass unchanged.
 
 ### Task 3: Mask matched content before hashing
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py`
 
-- [ ] A matched file is read, each pattern applied with `re.sub` in resolution
+- [x] A matched file is read, each pattern applied with `re.sub` in resolution
   order, and the result hashed with sha256. The masked content is hashed, never
   written back to the worktree.
-- [ ] Fold the applied masks into the doc's digest: each doc's hash includes the
+  - **Evidence:** `masked_hash` substitutes into an in-memory string and hashes
+    it; no write path exists. `test_a_masked_pin_bump_leaves_the_doc_fresh`
+    passes.
+- [x] Fold the applied masks into the doc's digest: each doc's hash includes the
   `{pattern, replace}` of every mask that matched at least one of its own source
   files, so editing a mask invalidates the docs that mask reaches and no others.
-- [ ] Add `--explain`, printing one line per applied mask naming the doc key,
+  - **Evidence:** `fold_in_masks` folds in only masks recorded as applied;
+    `test_editing_a_mask_invalidates_only_the_docs_it_reaches` shows the masked
+    doc go STALE and an unrelated doc stay FRESH.
+- [x] Add `--explain`, printing one line per applied mask naming the doc key,
   the file, the glob, the declaring metadata file, and the `reason`. A mask that
   is too broad makes a doc permanently `FRESH` — the check stops firing on real
   changes, which is worse than the false staleness it replaced — so a `FRESH`
   verdict reached through masking must be auditable.
-- [ ] Keep `RESULT=` last on stdout with `--explain` active, and leave the
+  - **Evidence:** `test_explain_names_the_mask_its_source_and_its_reason`
+    asserts the exact MASK line; on this checkout `--explain` names each mask's
+    doc, source file, declaring metadata file, pattern, and reason.
+- [x] Keep `RESULT=` last on stdout with `--explain` active, and leave the
   default output unchanged so the existing verdict lines stay stable.
+  - **Evidence:** the same test asserts `lines[-1] == 'RESULT=SUCCESS'` with
+    `--explain`; the 9 pre-existing `test_stale_map_docs.py` cases pass with
+    assertions unchanged.
 
 ### Task 4: Report an unresolvable subtree as its own verdict
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py`
 
-- [ ] A `.agent.metadata.json` that is unparseable, whose `digest_ignore` is
+- [x] A `.agent.metadata.json` that is unparseable, whose `digest_ignore` is
   malformed, or that holds an uncompilable pattern makes its directory subtree
   unresolvable. Every doc whose sources reach that file emits
   `BROKEN <key> <metadata-path>` and is counted separately; docs whose walks
   never enter that subtree are unaffected and keep their normal verdicts.
-- [ ] Register `5=BROKEN_METADATA` in the code-to-name mapping
+  - **Evidence:**
+    `test_an_unparseable_metadata_file_breaks_only_its_own_subtree` and
+    `test_an_uncompilable_pattern_is_broken_metadata` pass. `classify` calls
+    `MetadataResolver.verify` for every doc, so a broken file is reported on the
+    legacy commit path too, not only the digest path.
+- [x] Register `5=BROKEN_METADATA` in the code-to-name mapping
   `bin/result_codes.py` provides, alongside the `3=STALE_FOUND` and
   `4=NO_MAP_DOCS` the ported script already declares. 5 is the next free code:
   `bin/result-codes.sh:5-14` reserves 0, 1, 2, 129, 130 and 143 and leaves 3
   through 125 to the script, and this script has taken 3 and 4.
-- [ ] Exit `5` when any doc is `BROKEN`, in preference to `3`. A broken subtree
+  - **Evidence:** `rc.RESULT_CODES[BROKEN_METADATA] = 'BROKEN_METADATA'` beside
+    the existing two registrations; the broken-metadata tests observe
+    `RESULT=BROKEN_METADATA`.
+- [x] Exit `5` when any doc is `BROKEN`, in preference to `3`. A broken subtree
   means some verdicts were not computed, so it outranks a staleness the run may
   have only partly established.
-- [ ] Add `BROKEN_COUNT` to the `KEY=VALUE` block and document the verdict and
+  - **Evidence:** the exit selection returns `BROKEN_METADATA` before
+    `STALE_FOUND`; both broken-metadata tests assert exit 5, and
+    `test_an_unparseable_metadata_file_breaks_only_its_own_subtree` has a stale
+    doc present at the same time.
+- [x] Add `BROKEN_COUNT` to the `KEY=VALUE` block and document the verdict and
   the result code in the script's usage text, beside `STALE` and `NO_MAP_DOCS`.
+  - **Evidence:** `BROKEN_COUNT` prints after `EXPIRED_COUNT`; the usage text
+    documents the `BROKEN` line, the `MASK` line, `--explain`, `BROKEN_COUNT`,
+    and `BROKEN_METADATA 5`.
 
 ### Task 5: Test the resolution and masking behavior
 
 **Files:** Create: `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py`
 
-- [ ] A fixture repository where a masked pin changes and the doc stays `FRESH`;
+- [x] A fixture repository where a masked pin changes and the doc stays `FRESH`;
   the same repository where an unmasked line in the same file changes and the
   doc goes `STALE`.
-- [ ] A change to the *structure* around a masked value — a second service, a
+  - **Evidence:** `test_a_masked_pin_bump_leaves_the_doc_fresh` and
+    `test_an_unmasked_change_in_the_same_file_marks_the_doc_stale`.
+- [x] A change to the *structure* around a masked value — a second service, a
   changed image name, a deleted pin line — marks the doc `STALE`, proving
   substitution keeps structure tracked where deletion would not.
-- [ ] A rule declared in a parent directory reaches a file in a subdirectory,
+  - **Evidence:**
+    `test_structural_change_around_a_masked_value_is_still_staleness` covers all
+    three changes and asserts `STALE_FOUND` for each.
+- [x] A rule declared in a parent directory reaches a file in a subdirectory,
   and a child `.agent.metadata.json` declaring its own rule leaves the parent's
   still applying — the accumulate semantics, which a replace implementation
   would fail.
-- [ ] A glob is matched relative to the directory declaring it: the same
+  - **Evidence:**
+    `test_a_parent_rule_reaches_a_subdirectory_and_a_child_adds_to_it`.
+- [x] A glob is matched relative to the directory declaring it: the same
   metadata file copied to a different depth masks the same relative paths.
-- [ ] Absent metadata files reproduce the unmasked digest exactly, so a
+  - **Evidence:** `test_globs_match_relative_to_the_declaring_directory` writes
+    identical rules at `shallow/` and `nested/deeper/` and both docs stay
+    `FRESH` after a pin bump.
+- [x] Absent metadata files reproduce the unmasked digest exactly, so a
   repository that adopts none of this behaves as the ported script does.
-- [ ] An unparseable metadata file makes docs whose sources reach it emit
+  - **Evidence:** `test_absent_metadata_reproduces_the_unmasked_digest`.
+- [x] An unparseable metadata file makes docs whose sources reach it emit
   `BROKEN` and exit `5`, while a doc in an unrelated subtree still reports its
   normal verdict.
-- [ ] Editing a mask entry marks the docs whose sources it matches `STALE` and
+  - **Evidence:**
+    `test_an_unparseable_metadata_file_breaks_only_its_own_subtree` asserts the
+    BROKEN line, `FRESH data/codebase/timer`, and `BROKEN_COUNT=1`.
+- [x] Editing a mask entry marks the docs whose sources it matches `STALE` and
   leaves an unrelated doc `FRESH`.
-- [ ] Keep the fixtures independent of this repository's identity, as
+  - **Evidence:** `test_editing_a_mask_invalidates_only_the_docs_it_reaches`.
+- [x] Keep the fixtures independent of this repository's identity, as
   `conftest.py:21-24` establishes for the suite.
+  - **Evidence:** the fixtures build their own repositories through
+    `build_workspace` with invented paths (`deploy/`, `stack/`,
+    `example.invalid/app`) and resolve the script through the `plugin_root`
+    fixture.
 
 ### Task 6: Re-bump the digests the masks change
 
