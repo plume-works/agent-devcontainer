@@ -174,11 +174,35 @@ zizmor.yaml
 ```
 
 Add `ansible/`, `ansible.cfg`, `docker/`, `.dockerignore` only when
-`optional_bundles` includes `"custom-image"`. Add `docs/knowledge/` and `.iwe/`
-only when it includes `"knowledge-base"`. Never add `.agents/`,
-`.claude-plugin/`, `py_packages/`, or `scripts/validate-super-linter-tool-versions.sh`
-— those are publisher-only source this guide has the consumer delete during
-setup, so they can never be legitimate members of a consumer's `tracked_paths`.
+`optional_bundles` includes `"custom-image"`.
+
+When it includes `"knowledge-base"`, add exactly these — never `docs/knowledge/`
+as a whole:
+
+```text
+.iwe/
+docs/knowledge/AGENTS.md
+docs/knowledge/CLAUDE.md
+docs/knowledge/README.md
+docs/knowledge/SCHEMA.md
+docs/knowledge/STRUCTURE.md
+docs/knowledge/CHANGELOG.md
+docs/knowledge/tests/test_plan_checkboxes.py
+```
+
+`docs/knowledge/data/` is deliberately absent. It is the publisher's project
+memory upstream and the consumer's project memory here — the same path, two
+owners — so every diff of it is noise at best and a proposal to overwrite the
+consumer's memory at worst. `docs/knowledge/LICENSE.md` is absent for the same
+reason: it arrives from the seed and is consumer-owned afterward.
+`templates/iwe/` never belongs in `tracked_paths` either; it is
+initialization-only publisher source, read once at adoption.
+
+Never add `.agents/`, `.claude-plugin/`, `py_packages/`,
+`scripts/validate-super-linter-tool-versions.sh`, `templates/iwe/`, or
+`docs/knowledge/tests/test_iwe_seed.py` — those are publisher-only source this
+guide has the consumer delete during setup, so they can never be legitimate
+members of a consumer's `tracked_paths`.
 
 `.github/pr-description-guidance.md` is not in the copied list above: this
 repository does not carry it, and it is created only when the guide's §4 capture
