@@ -355,6 +355,40 @@ contents differ from `source_digest` when refreshing.
   rationale as a candidate `data/architecture/` doc rather than writing it into
   the map
 
+### Requirement: Map staleness reflects described content
+
+The codebase-map staleness check SHALL classify a map document by whether the
+content it describes changed, not by whether any byte under its `source`
+changed. Content designated machine-managed SHALL be normalized to a fixed
+placeholder before the source fingerprint is computed.
+
+#### Scenario: An automerged pin bump leaves the document fresh
+
+- **WHEN** a dependency-update commit changes only a pinned value designated
+  machine-managed under a map document's `source`
+- **THEN** the staleness check reports that document as `FRESH`
+
+#### Scenario: A structural change around a masked value is still staleness
+
+- **WHEN** a commit changes the structure holding a masked value — the identity
+  of the pinned artifact, the set of pinned entries, or the presence of the pin
+- **THEN** the staleness check reports the document as `STALE`
+
+#### Scenario: Changing the mask set invalidates the documents it reaches
+
+- **WHEN** the mask designations change
+- **THEN** the staleness check reports as `STALE` every document with a source
+  file the changed designation matches, and reports the remaining documents
+  unchanged
+
+#### Scenario: An unreadable designation breaks only its own subtree
+
+- **WHEN** a mask designation cannot be read or a pattern cannot be compiled
+- **THEN** the check reports every document whose sources reach that designation
+  as broken, naming it, rather than computing a fingerprint from unmasked
+  content
+- **AND** documents whose sources do not reach it keep their normal verdicts
+
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
 The strengthened skills SHALL continue to use IWE's single-plan-document

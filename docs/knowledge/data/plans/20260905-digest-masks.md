@@ -277,10 +277,15 @@ masking itself:
 **Files:** Modify: `docs/knowledge/data/codebase/*.md` (only those whose digest
 moves)
 
-- [ ] Run the script and re-record `source_digest` for every doc whose value
+- [x] Run the script and re-record `source_digest` for every doc whose value
   changed because a mask now applies. This is a one-time mechanical re-bump: the
   described code has not changed, so `verified`, `stale_after`, and the prose
   stay as they are.
+  - **Evidence:** six docs re-bumped — `devcontainer`, `flow-image-build`,
+    `flow-pull-request-checks`, `github`, `github/actions`, and
+    `github/workflows` — identified by comparing each doc's masked and unmasked
+    digest, so only mask-caused movement was re-recorded. Only the
+    `source_digest` line changed in each.
 - [ ] Rerun until `RESULT=SUCCESS`, which `iwe-map/SKILL.md:229` requires before
   any map commit.
 
@@ -289,15 +294,23 @@ moves)
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-map/SKILL.md`;
 `docs/knowledge/data/spec/iwe-workflow-skills.md`
 
-- [ ] Extend the `source_digest` paragraph at `iwe-map/SKILL.md:203` to state
+- [x] Extend the `source_digest` paragraph at `iwe-map/SKILL.md:203` to state
   that machine-managed content is masked before hashing, and point at
   [Agent metadata files](../architecture/agent-metadata-files.md) for where the
   masks live and how they resolve. Add `--explain` and the `BROKEN` verdict to
   the script's documented interface.
-- [ ] State the durable rule in `data/spec/iwe-workflow-skills.md`: the map
+  - **Evidence:** the `source_digest` paragraph now states the placeholder
+    normalization and names the `iwe-map.digest_ignore` key and the
+    agent-metadata-files document in prose — a plugin file cannot link outside
+    the plugin root. `--explain` is documented in the Script results intro and
+    `BROKEN_METADATA 5` is a row in the results table.
+- [x] State the durable rule in `data/spec/iwe-workflow-skills.md`: the map
   skill's staleness check reflects described content, and a change confined to
   masked machine-managed values is not staleness. The metadata files are the
   mechanism; the spec carries the requirement.
+  - **Evidence:** `### Requirement: Map staleness reflects described content`
+    added to `data/spec/iwe-workflow-skills.md` with all four scenarios from the
+    plan's delta; `iwe schema validate` passes.
 
 ### Task 8: Close the bug
 

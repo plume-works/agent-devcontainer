@@ -2,7 +2,7 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:183db93e10b2a6f2d9c3c1714a32aeecd4f564c6cae1b9b06c5ec51ca19008b4
+source_digest: sha256:219dcfdccf388398958f9aa5eeba750f5ababee3ebe279803ac647e1925916e2
 verified:
   by: codex/gpt-5
   at: 2026-09-04T20:20:44Z

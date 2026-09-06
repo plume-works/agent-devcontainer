@@ -2,7 +2,7 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:38b3b7b488124d344c19272797c87d23b1425d8f862f2196fdf9a49b64a890fa
+source_digest: sha256:873ad1a68d44ddf15308bfd5d693e2595f0fe78864ce639015062922c9c9d354
 verified:
   by: codex/gpt-5
   at: 2026-09-04T20:20:44Z

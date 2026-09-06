@@ -150,13 +150,17 @@ that one subtree and wires it into the existing map.
 compares `source_digest` with the current tracked source contents, and prints
 one status line per doc, then the counts, then `RESULT`. A legacy doc without
 `source_digest` falls back to `commit`-range checking so old maps can be
-refreshed into the digest format:
+refreshed into the digest format. `--explain` adds one `MASK` line per applied
+digest mask, naming the doc, the source file, the metadata file that declared
+it, the pattern, and its reason — use it to audit a `FRESH` verdict a mask is
+holding up:
 
 | RESULT            | Exit   | Action                                                                                     |
 | ----------------- | ------ | ------------------------------------------------------------------------------------------ |
 | `SUCCESS`         | `0`    | Every doc is fresh. Nothing to refresh; report so.                                         |
 | `STALE_FOUND`     | `3`    | Work the `STALE`, `GONE`, `UNKNOWN_COMMIT`, `NO_COMMIT`, and `EXPIRED` lines as in step 8. |
 | `NO_MAP_DOCS`     | `4`    | The lane is empty — switch to initial mode.                                                |
+| `BROKEN_METADATA` | `5`    | **STOP.** A `.agent.metadata.json` the named docs depend on cannot be read; fix it first.  |
 | `PREFLIGHT_ERROR` | `2`    | **STOP.** Not a git repository, or no `.iwe/config.toml` at the root; report it verbatim.  |
 | `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not work around it.                              |
 | `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; rerun it.                                               |
@@ -206,6 +210,15 @@ merges and branch rewrites: the doc goes stale when described content changes,
 not when history is reshaped. The actor is the one writing —
 `claude-code/<model>`, `human:<handle>`. A map doc never lists the knowledge
 directory that holds it as its own source.
+
+Content designated machine-managed is normalized to a fixed placeholder before
+the fingerprint is computed, so an automerged pin bump does not mark a doc
+stale. The designations live in `.agent.metadata.json` files colocated with the
+sources they describe; where they sit and how they resolve is the
+`iwe-map.digest_ignore` key described in the agent-metadata-files architecture
+document. Substitution keeps structure tracked: the identity of a pinned
+artifact, the set of pinned entries, and the presence of a pin all still move
+the digest.
 
 ## Rules
 
