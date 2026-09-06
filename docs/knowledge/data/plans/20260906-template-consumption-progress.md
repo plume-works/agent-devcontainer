@@ -22,12 +22,12 @@ runs a ten-step Workflow A and a six-step Workflow B, four scope questions, and
 a PR-template mapping sub-interview. A user is not expected to finish it in one
 sitting.
 
-Today the only persisted state is `.agentdev-template.json`, written in setup
-mode's final step. An interrupted setup therefore leaves nothing behind: the
-next session finds no marker, detects setup mode, and restarts from the first
-question. The guide already recognizes interruption as a real state — it tells
-the agent to report onboarding as pending and name what is outstanding — but
-there is no artifact to resume from, so the report is the whole remedy.
+Today the only persisted state is the marker file, written in setup mode's final
+step. An interrupted setup therefore leaves nothing behind: the next session
+finds no marker, detects setup mode, and restarts from the first question. The
+guide already recognizes interruption as a real state — it tells the agent to
+report onboarding as pending and name what is outstanding — but there is no
+artifact to resume from, so the report is the whole remedy.
 
 The same gap costs update mode. Its step 3 warns that a path the consumer
 customized needs a manual merge rather than a blind overwrite, but nothing
@@ -59,11 +59,28 @@ scoped to `docs/knowledge/data/plans/` — so the convention in
 [Plan checkbox evidence](../spec/plan-checkbox-evidence.md) is the only thing
 distinguishing a real tick from an optimistic one.
 
-`consumed_ref` stays in `.agentdev-template.json` and is parsed only there.
-`check-updates.sh` returns `INVALID_MARKER` on a malformed marker, giving the
-SHA one parse with one failure signal; a SHA carried in prose has neither, and a
-wrongly advanced ref silently skips upstream changes forever. The progress
-document names the SHA as context only.
+`consumed_ref` stays in JSON and is parsed only there. `check-updates.sh`
+returns `INVALID_MARKER` on a malformed marker, giving the SHA one parse with
+one failure signal; a SHA carried in prose has neither, and a wrongly advanced
+ref silently skips upstream changes forever. The progress document names the SHA
+as context only.
+
+That JSON record moves out of its own `.agentdev-template.json` and into a
+`template-consume` section of the root
+[.agent.metadata.json](../architecture/agent-metadata-files.md), whose top-level
+keys namespace one consumer apiece; `iwe-map` is currently its only section. The
+fields and their `jq` parse are unchanged by the move; what goes is a second
+root dotfile in every consuming repository.
+
+Two properties of that format need extending, because consumption state is not
+the per-directory rule set it was built for. `consumed_ref` is a
+repository-level singleton, so accumulating a nested declaration into it is
+meaningless: `template-consume` is declared **root-only** — it reads the root
+file and does not walk, and a nested declaration is a broken-metadata condition
+rather than a merge. And the root file now mixes classes, so the template
+boundary classifies it per top-level key rather than by the directory holding
+it: `iwe-map` rules travel with their directory, while the `template-consume`
+section is consumer-created and never copied from the publisher.
 
 When the consumer keeps IWE, the end of each episode writes a thin summary into
 their graph: the adopted SHA, the workflow, the settled choices, and a pointer
@@ -99,13 +116,60 @@ this way; the root file stays the live record.
 
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`.
 
-- [ ] Add a subsection under `## Default template surface` classifying both
-  `.agentdev-template.json` and `.agentdev-template-progress.md` as Customize /
-  consumer-created, tracked in git, and never `tracked_paths` members — the same
-  treatment `.github/pr-description-guidance.md` already receives at line 156.
-  Neither path is currently classified anywhere in the document.
+- [ ] Add a subsection under `## Default template surface` classifying
+  `.agent.metadata.json` per top-level key: `iwe-map` rules are Template and
+  travel with the directory holding them, while the `template-consume` section
+  is consumer-created adoption state, written by setup and never copied from the
+  publisher. This is the one file the "inherits its directory's class" shortcut
+  in [Agent metadata files](../architecture/agent-metadata-files.md) does not
+  cover.
+- [ ] Classify `.agentdev-template-progress.md` as Customize / consumer-created,
+  tracked in git, and never a `tracked_paths` member — the same treatment
+  `.github/pr-description-guidance.md` already receives at line 156. Neither it
+  nor `.agent.metadata.json` is currently classified anywhere in the document.
 
-### Task 3: Write the progress document up front in setup mode
+### Task 3: Declare template-consume root-only in the metadata format
+
+**Files:** Modify: `docs/knowledge/data/architecture/agent-metadata-files.md`.
+
+- [ ] Add a root-only resolution rule to `## Resolution`: a consumer whose data
+  is a repository-level singleton rather than a per-directory rule MAY declare
+  itself root-only, reading the repository-root file without walking, and a
+  nested declaration of a root-only key is a broken-metadata condition rather
+  than a merge. Accumulation stays the default for every other consumer; do not
+  add a general scalar-merge rule.
+- [ ] Name `template-consume` in `## Consumers` as root-only, with the reason: a
+  repository has exactly one adopted ref.
+- [ ] Amend `## Relationship to the template boundary` so the "inherits the
+  class of the directory holding it" rule states its exception — the root file
+  is classified per top-level key, since it now carries both Template-class
+  `iwe-map` rules and consumer-created consumption state.
+
+### Task 4: Move the consumption record into .agent.metadata.json
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/template-consume/scripts/__common.sh`,
+`.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh`,
+`.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
+
+- [ ] Repoint the scripts at `.agent.metadata.json`, reading the fields from the
+  `template-consume` object. The filename is centralized in `__common.sh`'s
+  `marker_file_name` (line 29), so the path itself changes in one place; the
+  `jq` expressions in `check-updates.sh` change alongside it. Keep every
+  `RESULT` code and exit status as it is: `INVALID_MARKER` for malformed JSON or
+  a missing `consumed_ref`, and `NO_MARKER` when the file is absent or carries
+  no `template-consume` section. Update the `--help` text, which names the
+  marker file literally at lines 35 and 47.
+- [ ] Rewrite `## The Marker File` (line 21) as the `template-consume` section
+  of `.agent.metadata.json`, keeping the field table intact and noting the
+  section is read root-only.
+- [ ] Add a migration to update mode, before its existing legacy-marker
+  narrowing step: a consumer with a root `.agentdev-template.json` has its
+  fields moved into the `template-consume` section and the legacy file deleted.
+  `consumed_ref` is carried across unchanged — this migration changes where the
+  record lives, never how far it has been consumed.
+
+### Task 5: Write the progress document up front in setup mode
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
 
@@ -123,7 +187,7 @@ this way; the root file stays the live record.
 - [ ] State that a setup mode run finding an existing progress document resumes
   from its unticked tasks instead of restarting the interview.
 
-### Task 4: Read and extend the progress document in update mode
+### Task 6: Read and extend the progress document in update mode
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
 
@@ -139,7 +203,7 @@ this way; the root file stays the live record.
 - [ ] Amend step 7 (line 170) so the advanced marker and the extended progress
   document are committed together.
 
-### Task 5: Summarize the adoption into the consumer's IWE graph
+### Task 7: Summarize the adoption into the consumer's IWE graph
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
@@ -159,7 +223,7 @@ this way; the root file stays the live record.
 - [ ] Specify that update mode refreshes this summary at the end of each
   episode, and that a consumer without IWE skips the step entirely.
 
-### Task 6: Extend the guide's own procedure
+### Task 8: Extend the guide's own procedure
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`.
@@ -185,11 +249,13 @@ fails silently.
 
 Setup SHALL write two records at the consumer root, both tracked in git.
 
-`.agentdev-template.json` SHALL record the full commit SHA of the template
-consumed, the workflow used, the optional bundles kept, and the template paths
-still tracked. It SHALL remain the only machine-parsed record of the consumed
-ref. Update mode SHALL diff only those paths from that SHA and SHALL NOT
-advance the SHA past what was actually applied.
+The `template-consume` section of `.agent.metadata.json` SHALL record the full
+commit SHA of the template consumed, the workflow used, the optional bundles
+kept, and the template paths still tracked. It SHALL remain the only
+machine-parsed record of the consumed ref, and SHALL be read root-only: the
+consumer reads the repository-root file and does not walk, because a repository
+has exactly one adopted ref. Update mode SHALL diff only those paths from that
+SHA and SHALL NOT advance the SHA past what was actually applied.
 
 `.agentdev-template-progress.md` SHALL record the task list for the chosen
 workflow and the choices the user made. Setup SHALL write it before executing
@@ -213,6 +279,14 @@ not template paths.
 - **THEN** its checkbox is ticked in the same edit that writes an indented
   `- **Evidence:**` child naming what closed it
 
+#### Scenario: a consumer adopted before the records were consolidated
+
+- **WHEN** update mode finds a legacy `.agentdev-template.json` at the consumer
+  root
+- **THEN** its fields are moved into the `template-consume` section of
+  `.agent.metadata.json` and the legacy file is deleted, without advancing
+  `consumed_ref`
+
 #### Scenario: a choice constrains a later update
 
 - **WHEN** update mode considers a changed template path the consumer's choice
@@ -235,8 +309,11 @@ absence SHALL NOT block consumption.
 ## Depends on
 
 [Repository-owned IWE seed for consumers](20260905-consumer-iwe-seed.md) — Task
-5 writes into the consumer graph that plan's seeding step creates, and Task 5's
+7 writes into the consumer graph that plan's seeding step creates, and Task 7's
 schema decision may add a match to the `.iwe/config.toml` it ships.
+
+[Digest masks for map docs](20260905-digest-masks.md) — establishes
+`.agent.metadata.json` and its resolution contract; Tasks 3 and 4 extend both.
 
 ## Verification
 
@@ -245,23 +322,34 @@ schema decision may add a match to the `.iwe/config.toml` it ships.
 - `uv run pytest docs/knowledge/tests/` passes.
 - The spec's modified requirement names both artifacts and states which one owns
   `consumed_ref`.
-- `.agentdev-template.json` and `.agentdev-template-progress.md` each appear
-  exactly once in the boundary classification.
+- `.agent.metadata.json` and `.agentdev-template-progress.md` each appear
+  exactly once in the boundary classification, the former classified per
+  top-level key.
+- `check-updates.sh` reads `.agent.metadata.json`, still returns
+  `INVALID_MARKER` on malformed JSON or a missing `consumed_ref`, and returns
+  `NO_MARKER` when the file carries no `template-consume` section.
+- A repository with a legacy `.agentdev-template.json` is migrated by update
+  mode without advancing `consumed_ref`.
 - Reading `SKILL.md` alone, a session can state when the progress document is
   written, what generates its task list, and how update mode extends it.
-- `check-updates.sh` is unchanged: no task in this plan alters marker parsing.
 
 ## Out of scope
 
-- Changing `consumed_ref`'s format, location, or parser, or any edit to
-  `check-updates.sh`.
+- Changing `consumed_ref`'s format or value semantics. Its location moves and
+  `check-updates.sh` is repointed at the new file, but the 40-character SHA, its
+  `jq` parse, and every `RESULT` code keep their current meaning.
+- Adding a general scalar-merge rule to `.agent.metadata.json`. Root-only
+  resolution is declared for `template-consume` alone; accumulation is unchanged
+  for every other consumer.
 - Making the progress document machine-parsed. It is written and read by agents;
   no script consumes it.
 - A mechanical gate over the progress document's checkboxes. The plan gate in
   `docs/knowledge/tests/test_plan_checkboxes.py` is scoped to `data/plans/` and
   stays that way; the evidence convention here is a written contract only.
-- Migrating existing consumers. Update mode creates a missing progress document
-  as Task 4 specifies; no separate migration is shipped.
+- A standalone migration tool or release step. Existing consumers are migrated
+  in place by update mode: Task 4 moves a legacy `.agentdev-template.json` into
+  `.agent.metadata.json`, and Task 6 creates a missing progress document.
+  Neither advances `consumed_ref`.
 - Changing the guide's actual consumption steps. This plan records progress
   through them, it does not alter them.
 
@@ -299,3 +387,15 @@ Verified anchor points (line numbers as of 2026-09-06):
   `.github/pr-description-guidance.md` consumer-created row
 - `.iwe/config.toml:110` — `[schemas.tracker]`, matching only `data/product` and
   `data/milestone`
+- `.agent.metadata.json` — the root file, currently carrying only an `iwe-map`
+  section
+- `docs/knowledge/data/architecture/agent-metadata-files.md:36` —
+  `## Resolution`, the accumulation contract Task 3 extends
+- `docs/knowledge/data/architecture/agent-metadata-files.md:88` —
+  `## Relationship to the template boundary`
+- `docs/knowledge/data/architecture/agent-metadata-files.md:120` —
+  `## Consumers`
+- `.agents/plugins/agentdev/skills/template-consume/scripts/__common.sh:29` —
+  `marker_file_name`, the single definition of the marker filename
+- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:119-128`
+  — the `jq` reads of `consumed_ref` and `tracked_paths`
