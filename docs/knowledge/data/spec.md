@@ -4,7 +4,7 @@ description: Behavioral specifications — the durable truth about how the produ
 stage: living
 generated:
   by: codex/gpt-5
-  at: 2026-09-02T05:46:35Z
+  at: 2026-09-06T04:26:49Z
 ---
 
 # 📐 Spec
@@ -31,3 +31,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [AI review gate](spec/ai-review-gate.md)
 
 [Agent file discovery](spec/agent-file-discovery.md)
+
+[Xpra port forwarding](spec/xpra-port-forwarding.md)

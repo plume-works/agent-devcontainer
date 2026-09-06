@@ -4,7 +4,7 @@ description: Implementation plans, migrations, and design proposals, one documen
 stage: living
 generated:
   by: codex/gpt-6
-  at: 2026-09-05T17:30:00Z
+  at: 2026-09-06T04:28:00Z
 ---
 
 # 🗺️ Plans
@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
-
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 
 [Python skill scripts](plans/20260905-python-skill-scripts.md)
@@ -26,6 +24,8 @@ moves them.*
 [Digest masks for map docs](plans/20260905-digest-masks.md)
 
 ## Done
+
+[Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
 
 [Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
 

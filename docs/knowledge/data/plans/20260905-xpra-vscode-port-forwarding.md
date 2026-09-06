@@ -4,13 +4,15 @@ created: 2026-09-05
 description: Use a fixed Xpra container port and let VS Code resolve local forwarding conflicts.
 generated:
   by: codex/gpt-6
-  at: 2026-09-05T17:37:57Z
+  at: 2026-09-06T04:28:00Z
 sources:
 - resource: docker/desktop/start-xpra.sh
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/docker-compose.yml
 - resource: https://github.com/devcontainers/spec/blob/main/docs/specs/devcontainerjson-reference.md
+stage: done
+completed: 2026-09-06
 ---
 
 # Use VS Code port forwarding for Xpra
@@ -113,15 +115,20 @@ container on its old digest does not update `/start-xpra.sh`.
 Closed by: a maintainer with two VS Code devcontainer windows and browser
 access.
 
-- [ ] Complete the two-container check below using the updated script and
+- [x] Complete the two-container check below using the updated script and
   configuration in both containers. Record the image identity, internal and
   local addresses, and successful connections to distinct desktops.
+  - **Evidence:** On 2026-09-06, two VS Code devcontainers using pinned image
+    digest `5001a1148a8d5f9e5fc0dedbaad26b4536109d7a421d5a54350c6b7d8e901e07`
+    each ran the installed updated script on `127.0.0.1:14500`; their Ports
+    panels forwarded them to `localhost:14500` and `localhost:14501`, and the
+    maintainer successfully used both distinct desktops in the browser.
 
 ## Spec changes
 
-Create `data/spec/xpra-port-forwarding` during Ship and include it in the spec
-hub. Existing specs remain unchanged. The new spec captures the changed default
-and preserved explicit-port contract:
+Create [Xpra port forwarding](../spec/xpra-port-forwarding.md) during Ship and
+include it in the spec hub. Existing specs remain unchanged. The new spec
+captures the changed default and preserved explicit-port contract:
 
 ``` markdown
 ## ADDED Requirements
@@ -177,20 +184,12 @@ direct users to the actual forwarded address in VS Code's Ports panel.
 
 ## Verification results
 
-The runtime behavior of Task 4 is confirmed; its packaging half is not.
-
-On 2026-09-05 a maintainer ran the edited `docker/desktop/start-xpra.sh`
-directly, with `--background` and no `--port`, in two VS Code devcontainer
-windows on one client machine. Both bound container port 14500 with
-`DEVCONTAINER_ID` set, and both desktops were reachable through their respective
-forwarded local addresses. This exercises the fixed default and concurrent
-forwarding.
-
-It does not exercise image adoption: both containers ran the pre-change
-`agent-desktop` digest, so the installed `/start-xpra.sh` was still the old
-script and did not match the edited source. Task 4 stays open for that check —
-two containers built from an image carrying the updated script, each confirmed
-to have it installed.
+On 2026-09-06, two VS Code devcontainers built from pinned `agent-desktop`
+digest `5001a1148a8d5f9e5fc0dedbaad26b4536109d7a421d5a54350c6b7d8e901e07` ran
+the updated installed `/start-xpra.sh`. Both Xpra servers listened on their
+isolated containers' `127.0.0.1:14500`; VS Code forwarded them to
+`localhost:14500` and `localhost:14501`. The maintainer opened and interacted
+with both distinct desktops successfully.
 
 ## Out of scope
 
@@ -203,7 +202,7 @@ to have it installed.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-05):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `docker/desktop/start-xpra.sh:7` — default port
 - `docker/desktop/start-xpra.sh:22` — port usage text

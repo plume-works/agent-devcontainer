@@ -13,6 +13,13 @@ to the current day's group.
   [knowledge machinery](codebase/docs/knowledge.md), and the
   [devcontainer lifecycle flow](codebase/flow-devcontainer-lifecycle.md) re-read
   against the checkout, anchors re-verified, and source digests bumped.
+- **Creation**: [Xpra port forwarding](spec/xpra-port-forwarding.md) specifies
+  the fixed container-port and VS Code local-remapping contracts.
+- **Update**:
+  [Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
+  done — Xpra uses container port 14500 independently of `DEVCONTAINER_ID`,
+  explicit `--port` overrides remain supported, and concurrent devcontainers are
+  reachable through distinct VS Code-forwarded local addresses.
 
 ## 2026-09-05
 
