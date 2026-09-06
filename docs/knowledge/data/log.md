@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Update**: [Python skill scripts](plans/20260905-python-skill-scripts.md)
+  done — the codebase-map freshness classifier now runs as standard-library
+  Python on the shared Python result-code helper while preserving its output,
+  exit-code, and source-digest contracts.
 - **Update**: [Digest masks for map docs](plans/20260905-digest-masks.md) done —
   machine-managed pins are normalized before codebase-map source fingerprints
   are computed, while surrounding structural changes still mark affected
