@@ -82,6 +82,9 @@ rules are Template content and travel with the directory whose sources they
 govern. Its `template-consume` section is consumer-created adoption state,
 written during setup and never copied from the publisher.
 
+`.agentdev-template-progress.md` is Customize / consumer-created state. It is
+tracked in git, survives template updates, and never appears in `tracked_paths`.
+
 ### Devcontainer runtime
 
 The default devcontainer surface is the complete tracked `.devcontainer/`

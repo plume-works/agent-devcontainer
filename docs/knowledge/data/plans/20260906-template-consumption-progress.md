@@ -135,10 +135,12 @@ this way; the root file stays the live record.
   cover.
   - **Evidence:** `iwe schema validate` passed with the root metadata file
     classified per top-level key.
-- [ ] Classify `.agentdev-template-progress.md` as Customize / consumer-created,
+- [x] Classify `.agentdev-template-progress.md` as Customize / consumer-created,
   tracked in git, and never a `tracked_paths` member — the same treatment
   `.github/pr-description-guidance.md` already receives at line 156. Neither it
   nor `.agent.metadata.json` is currently classified anywhere in the document.
+  - **Evidence:** `iwe schema validate` passed with the progress document
+    classified as consumer-created Customize state outside `tracked_paths`.
 
 ### Task 3: Declare template-consume root-only in the metadata format
 
