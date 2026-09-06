@@ -18,8 +18,6 @@ write a plan and link the plan instead.*
 
 ## Medium
 
-[Refresh the map docs the Python port and prior drift left stale](backlog/refresh-map-docs-after-python-port.md)
-
 [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
 
 [Write a capture skill](backlog/capture-skill.md)

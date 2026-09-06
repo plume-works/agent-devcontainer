@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:9861aeb6b87ceb9304a3b3d9dd188b3c10d2b57bc7f0bedaf779aad6cf671a6c
+source_digest: sha256:a84c644a219e5d35cd642623a0f318b4a8d7f7b28f371f40951283d8d4c9a37d
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
+stale_after: 2026-12-05
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -69,7 +69,7 @@ test.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings

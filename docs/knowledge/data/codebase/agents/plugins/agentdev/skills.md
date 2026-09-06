@@ -2,14 +2,14 @@
 type: codebase
 description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:1d446e2b955c68d69d7a64f6cd43833dda3b7178071d78b760ad79eeb752a262
+source_digest: sha256:f0393b175cffd4051f7463274545ba8f5e04c4745cf80e1b45022caa46a1ea8c
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:50:58Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
+stale_after: 2026-12-05
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:50:58Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -41,10 +41,17 @@ Skills with bundled scripts: `extract-github-actions-logs`, `git-merge-resolve`,
 
 A `SKILL.md` is loaded into the conversation when the user invokes it or when
 its description matches the request; `disable-model-invocation: true` limits a
-skill to explicit invocation. Scripts source the shared
-[result-code helpers](bin.md) and end every path with `RESULT=<NAME>` on stdout,
-and the `SKILL.md` carries a table keyed on those names. The IWE family runs
-against the [knowledge workspace](../../../docs/knowledge.md).
+skill to explicit invocation. Scripts are bash or Python, pull in the matching
+[result-code helpers](bin.md), and end every path with `RESULT=<NAME>` on
+stdout; the `SKILL.md` carries a table keyed on those names. `iwe-map`'s
+`stale-map-docs.py` is the Python case: it fingerprints the tracked source
+behind every `data/codebase/` doc, normalizing content that an
+`iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
+machine-managed so an automerged pin bump does not register as a change. Its
+`--explain` flag prints one `MASK` line per applied rule, and it adds
+`BROKEN_METADATA` (exit 5) to the shared result vocabulary for a metadata file
+it cannot read or whose pattern will not compile. The IWE family runs against
+the [knowledge workspace](../../../docs/knowledge.md).
 
 ## Depends on
 
@@ -61,9 +68,15 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
 - `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:1` — the script
   contract
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:74` —
+  `BROKEN_METADATA`
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:230` —
+  `MetadataResolver`, which walks a source's ancestors for masking rules
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:285` —
+  `source_digest_for_paths`

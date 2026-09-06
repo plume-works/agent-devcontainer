@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:b9bd7a665faffb5e7f81e1857f0ef8b6a4dcebc6572161c3d59c815a37c333d9
+source_digest: sha256:22b0f62750290fb6a78baa02276fc10584e10478ae3ba18126f3a41429b9a70f
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
+stale_after: 2026-12-05
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-06T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -46,7 +46,8 @@ each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`
-- `bin/*.sh` on `PATH` while the plugin is enabled
+- `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
+  `result_codes.py`, which a Python skill script imports from there
 - `hooks/session-start.sh` — brings up the project devcontainer, only when
   `CLAUDE_CODE_REMOTE=true`
 - `version` — `3.3.0`, declared identically in both plugin manifests, the
@@ -80,7 +81,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
@@ -89,3 +90,5 @@ Verified anchor points (line numbers as of 2026-09-04):
   version
 - `.agents/plugins/agentdev/hooks/session-start.sh:5` — the remote-only gate
 - `.agents/plugins/agentdev/hooks/session-start.sh:29` — `devcontainer up`
+- `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`, the
+  fourth pin

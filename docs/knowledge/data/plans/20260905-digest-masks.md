@@ -286,8 +286,12 @@ moves)
     `github/workflows` — identified by comparing each doc's masked and unmasked
     digest, so only mask-caused movement was re-recorded. Only the
     `source_digest` line changed in each.
-- [ ] Rerun until `RESULT=SUCCESS`, which `iwe-map/SKILL.md:229` requires before
+- [x] Rerun until `RESULT=SUCCESS`, which `iwe-map/SKILL.md:229` requires before
   any map commit.
+  - **Evidence:** `stale-map-docs.py` ends `RESULT=SUCCESS` with `DOC_COUNT=26`,
+    `FRESH_COUNT=26`, and every other count zero. The six docs stale for content
+    reasons were refreshed through the map skill's refresh mode, which re-read
+    their sources and re-stamped `verified`.
 
 ### Task 7: Document the mechanism where the map skill is specified
 
@@ -316,9 +320,14 @@ moves)
 
 **Files:** Modify: `docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md`
 
-- [ ] Set `stage: done` once Tasks 1-7 are complete and the reproduction no
+- [x] Set `stage: done` once Tasks 1-7 are complete and the reproduction no
   longer reproduces. The bug's link stays under `data/bugs.md`; the status chip
   is what changes.
+  - **Evidence:** `stage: done` set via `iwe update`; the link is unmoved, and
+    `data/bugs.md` has no status sections to move it between. Replaying the
+    reproduction — a compose digest bump and a `setup-uv` version bump applied
+    together — leaves all 26 docs `FRESH` at `RESULT=SUCCESS`, where it
+    previously marked five stale.
 
 ## Spec changes
 

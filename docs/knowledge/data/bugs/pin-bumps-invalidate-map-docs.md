@@ -8,6 +8,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: .github/renovate.json
 - resource: docs/knowledge/data/codebase/devcontainer.md
+stage: done
 ---
 
 # Pin bumps invalidate map docs

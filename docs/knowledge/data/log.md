@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-06
+
+- **Update**: Refreshed the [codebase map](codebase.md) — the catalog,
+  [bin helpers](codebase/agents/plugins/agentdev/bin.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [plugin tests](codebase/agents/plugins/agentdev/tests.md),
+  [knowledge machinery](codebase/docs/knowledge.md), and the
+  [devcontainer lifecycle flow](codebase/flow-devcontainer-lifecycle.md) re-read
+  against the checkout, anchors re-verified, and source digests bumped.
+
 ## 2026-09-05
 
 - **Creation**:
