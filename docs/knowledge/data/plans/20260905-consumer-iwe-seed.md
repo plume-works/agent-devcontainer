@@ -198,10 +198,22 @@ consumer memory.
     `--ignore=docs/knowledge/tests/test_iwe_seed.py`, so the two partition the
     suite rather than widening it — 14 and 8 tests locally, 22 total. actionlint
     and zizmor pass on the workflow.
-- [ ] Exercise the guide on disposable Workflow A, Workflow B, existing-memory,
+- [x] Exercise the guide on disposable Workflow A, Workflow B, existing-memory,
   interrupted-onboarding, IWE-declined, greenfield, and legacy-marker fixtures.
   Check file preservation by comparing before/after bytes and review the skill
   handoff order and pending-input behavior; record results when executed.
+  - **Evidence:** walked in this session against seven throwaway fixtures built
+    from `git archive` at `f0c264f`; results recorded under
+    `## Verification results`. Workflow A fresh seeded and validated clean with
+    no publisher memory left; the two existing-memory fixtures were byte-
+    identical before and after (446 and 2 files); Workflow B seeded only the
+    absent directory; the declined fixture's four IWE-only paths were removed
+    while the hooks and `testpaths` entry the guide flags were confirmed
+    present; the legacy marker narrowed to the eight-path inventory with
+    `consumed_ref`, `optional_bundles`, and unrelated paths untouched, after
+    which no tracked path matches consumer memory or the seed. The publisher
+    checkout stayed clean throughout. Corrected the `stale-map-docs.sh` →
+    `stale-map-docs.py` reference in `## Verification` while walking it.
 
 ## Spec changes
 
@@ -299,9 +311,34 @@ onboarding flow invokes that skill and uses its digest-based schema.
   `docs/knowledge`, examples disappear after completed setup, and mapping uses
   the consumer's source rather than the publisher or template tree.
 - For initialized brownfield fixtures, run the installed iwe-map
-  `stale-map-docs.sh` from the consumer root and require `RESULT=SUCCESS`.
+  `stale-map-docs.py` from the consumer root and require `RESULT=SUCCESS`.
 - Verify legacy marker narrowing happens before the update helper and that
   publisher-data-only changes produce no consumer memory changes.
+
+## Verification results
+
+Run 2026-09-06 against seven throwaway fixtures built with `git archive` at
+`f0c264f`, using only this repository as the template source.
+
+| Check                                                 | Result                                                                                                                                |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `uv run pytest docs/knowledge/tests/test_iwe_seed.py` | 8 passed                                                                                                                              |
+| Publisher `iwe schema validate` + `iwe normalize`     | clean; no `templates/` key in the graph                                                                                               |
+| Workflow A, unmodified publisher data                 | seeded; validates clean, no publisher memory left                                                                                     |
+| Workflow A, edited data                               | not seeded; 446 files byte-identical                                                                                                  |
+| Workflow B, absent data                               | seeded; validates clean                                                                                                               |
+| Workflow B, existing data                             | not seeded; byte-identical                                                                                                            |
+| Greenfield                                            | no code to map; mapping deferred                                                                                                      |
+| IWE declined                                          | four IWE-only paths removed; the two hooks and the `testpaths` entry the guide flags were present, so the instruction is load-bearing |
+| Legacy marker                                         | narrowed to the eight-path inventory; `consumed_ref`, `optional_bundles`, and unrelated paths unchanged                               |
+| Brownfield `stale-map-docs.py` from the consumer root | `RESULT=SUCCESS`                                                                                                                      |
+
+Consumer `iwe` commands resolve `data/*` under `docs/knowledge`, the seed's
+examples are gone once setup completes, and the map doc's `source` is the
+consumer's own code rather than the publisher or template tree. After narrowing,
+no tracked path matches `docs/knowledge/data/` or `templates/iwe/`, so a
+publisher-data-only change produces no consumer memory change. The publisher
+checkout stayed clean throughout.
 
 ## Out of scope
 

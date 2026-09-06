@@ -146,7 +146,12 @@ that one subtree and wires it into the existing map.
 
 ## Script results
 
-`stale-map-docs.py` reads every `data/codebase/**/*.md` under the IWE library,
+`stale-map-docs.py` resolves the workspace root with
+`git rev-parse --show-toplevel`, not the working directory, so it must be run
+inside the repository whose map it should check — from a directory that is not
+its own git repository it silently reads the enclosing repository's graph.
+
+It reads every `data/codebase/**/*.md` under the IWE library,
 compares `source_digest` with the current tracked source contents, and prints
 one status line per doc, then the counts, then `RESULT`. A legacy doc without
 `source_digest` falls back to `commit`-range checking so old maps can be
