@@ -850,9 +850,10 @@ Two states need naming explicitly:
   map against an empty tree and do not record it as done.
 - **Onboarding interrupted** — a question unanswered, a confirmation not given,
   the session ended partway. Report onboarding as pending, naming what is
-  outstanding; never report it complete. Resuming picks up from the consumer's
-  current `docs/knowledge/data/`, which is now consumer memory: re-copying the
-  seed would discard the answers already given.
+  outstanding and `.agentdev-template-progress.md` as the file holding that
+  state; never report it complete. Resuming follows its unticked tasks and the
+  consumer's current `docs/knowledge/data/`, which is now consumer memory:
+  re-copying the seed would discard the answers already given.
 
 Verify the result from the consumer root: `iwe schema validate` and
 `iwe normalize` both clean, `data/product.md` free of `✏️` placeholders, and

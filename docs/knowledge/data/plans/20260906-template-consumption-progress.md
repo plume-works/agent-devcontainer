@@ -282,9 +282,11 @@ this way; the root file stays the live record.
   progress document is generated from, so two sessions produce the same list.
   - **Evidence:** `validate_agent_files` passed with deterministic ten-item and
     six-item manifests matching the two workflow procedures.
-- [ ] Point the existing "Onboarding interrupted" paragraph (line 814) at the
+- [x] Point the existing "Onboarding interrupted" paragraph (line 814) at the
   progress document, so a pending report names the file that holds the state
   instead of only describing what is outstanding.
+  - **Evidence:** `validate_agent_files` passed with interrupted onboarding
+    reports naming the progress document and its unticked tasks.
 - [ ] Record in `## Ongoing maintenance` that the progress document is
   consumer-owned and survives updates.
 
