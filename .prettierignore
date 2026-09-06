@@ -6,3 +6,7 @@ ansible/**/*.yaml
 # emphasis style; letting both fight over the same files makes every commit
 # re-flip the formatting.
 docs/knowledge/**
+
+# templates/iwe holds the IWE seed a consumer receives; `iwe normalize` owns its
+# markdown formatting, the same way it owns docs/knowledge above.
+templates/iwe/**

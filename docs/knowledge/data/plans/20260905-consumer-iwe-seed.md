@@ -55,9 +55,12 @@ consumer memory.
 **Files:** Create: `templates/iwe/data/**`, `templates/iwe/README.md`,
 `templates/iwe/LICENSE.md`. Modify: `.prettierignore`.
 
-- [ ] Import the data tree from the initial source at commit
+- [x] Import the data tree from the initial source at commit
   `249943bcc30ac1016469d5ee89a16ce454cc882f`, retaining the MIT notice. Commit
   the complete seed so no future consumer needs the import checkout.
+  - **Evidence:** the commit adding `templates/iwe/` on this branch checks in
+    all 34 seed documents plus the upstream MIT `LICENSE.md` verbatim, so the
+    seed resolves from this repository alone.
 - [ ] Adapt the seed to current schemas, including fictional map examples and
   digest terminology; retain the onboarding keys iwe-setup closes and remove
   publisher-specific content. Document local ownership, seed purpose, and
