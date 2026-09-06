@@ -2,8 +2,8 @@
 type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T05:39:02Z
+  by: codex/gpt-5
+  at: 2026-09-06T21:49:04Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -20,10 +20,11 @@ conventions in another project is owned by the `agentdev` catalog's
 `references/consumption-guide.md` is the single step-by-step guide — Workflow A
 (full repository copy), Workflow B (existing repository), the optional
 custom-image bundle, and verification — and its `SKILL.md` defines setup mode,
-update mode, and the `.agentdev-template.json` marker file. Edit the guide, not
-this document, when a step, a deleted-or-retained path, or a CI adaptation
-changes. The skill ships in the plugin, so a consumer runs it from an installed
-catalog without this repository checked out.
+update mode, the `template-consume` section of `.agent.metadata.json`, and the
+progress document. Edit the guide, not this document, when a step, a
+deleted-or-retained path, or a CI adaptation changes. The skill ships in the
+plugin, so a consumer runs it from an installed catalog without this repository
+checked out.
 
 This document holds only the requirements the procedure must satisfy. Read
 [Template boundary](../architecture/template-boundary.md) for the
@@ -84,9 +85,10 @@ Setup SHALL write two records at the consumer root, both tracked in git.
 The `template-consume` section of `.agent.metadata.json` SHALL record the full
 commit SHA of the template consumed, the workflow used, the optional bundles
 kept, and the template paths still tracked. It SHALL remain the only
-machine-parsed record of the consumed ref. Update mode SHALL diff only those
-paths from that SHA and SHALL NOT advance the SHA past what was actually
-applied.
+machine-parsed record of the consumed ref, and SHALL be read root-only: the
+consumer reads the repository-root file and does not walk, because a repository
+has exactly one adopted ref. Update mode SHALL diff only those paths from that
+SHA and SHALL NOT advance the SHA past what was actually applied.
 
 `.agentdev-template-progress.md` SHALL own the task list for the chosen workflow
 and the choices the user made. Setup SHALL write it before executing the guide's
@@ -108,6 +110,30 @@ not template paths.
 - **WHEN** a consumption task is finished
 - **THEN** its checkbox is ticked in the same edit that writes an indented
   `- **Evidence:**` child naming what closed it
+
+### Scenario: a consumer adopted before the records were consolidated
+
+- **WHEN** update mode finds a legacy `.agentdev-template.json` at the consumer
+  root
+- **THEN** its fields are moved into the `template-consume` section of
+  `.agent.metadata.json` and the legacy file is deleted, without advancing
+  `consumed_ref`
+
+### Scenario: a choice constrains a later update
+
+- **WHEN** update mode considers a changed template path the consumer's choice
+  log records as customized
+- **THEN** the recorded choice is applied rather than re-derived, and the path
+  is merged manually rather than overwritten
+
+## Requirement: adoption is summarized into a consumer's knowledge base
+
+When the consumer kept the IWE knowledge base, setup and update SHALL write a
+summary document into the consumer's graph at the end of the episode recording
+the adopted SHA, the workflow, and the settled choices, and pointing at
+`.agentdev-template-progress.md` as the live record. It SHALL NOT mirror the
+task list. A consumer without a knowledge base SHALL skip this step, and its
+absence SHALL NOT block consumption.
 
 ## Pull request description guidance
 

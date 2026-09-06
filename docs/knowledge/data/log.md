@@ -6,6 +6,15 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Update**:
+  [Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
+  done — setup now persists a resumable task and choice record before executing
+  the consumption guide, and update mode retains those choices across episodes.
+- **Creation**:
+  [Resumable template consumption](features/resumable-template-consumption.md)
+  implemented and recorded in [unreleased](releases/unreleased.md), with the
+  two-record ownership, migration, resume, and IWE-summary contract synced into
+  [Template consumption](spec/template-consumption.md).
 - **Map**: refreshed the agentdev catalog, bin, skills, tests, pull-request
   checks, GitHub automation, workflows, and consumer seed against their current
   sources; all codebase-map digests match the checkout.

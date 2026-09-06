@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T05:39:02Z
+  by: codex/gpt-5
+  at: 2026-09-06T21:49:04Z
 ---
 
 # 🗺️ Plans
@@ -17,9 +17,9 @@ moves them.*
 
 ## Active
 
-[Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
-
 ## Done
+
+[Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
 
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 

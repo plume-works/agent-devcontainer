@@ -1,10 +1,12 @@
 ---
 type: plan
+stage: done
 created: 2026-09-06
+completed: 2026-09-06
 description: Give template consumption a resumable root-level progress document that records the task list and the user's choices, and summarize the adoption into the consumer's IWE graph when one exists.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T21:49:04Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md

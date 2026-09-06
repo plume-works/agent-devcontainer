@@ -5,8 +5,8 @@ version: unreleased
 stage: unreleased
 status: draft
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T05:39:02Z
+  by: codex/gpt-5
+  at: 2026-09-06T21:49:04Z
 ---
 
 # Unreleased
@@ -16,6 +16,8 @@ inclusion link here for every feature or fix as it lands; cutting a release
 renames this file to the version number and starts a fresh one.*
 
 ## Added
+
+[Resumable template consumption](../features/resumable-template-consumption.md)
 
 [Consumer IWE seed](../features/consumer-iwe-seed.md)
 

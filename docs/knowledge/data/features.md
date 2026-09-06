@@ -3,8 +3,8 @@ type: hub
 description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T05:39:02Z
+  by: codex/gpt-5
+  at: 2026-09-06T21:49:04Z
 ---
 
 # ✨ Features
@@ -43,3 +43,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Consumer PR description guidance](features/pr-description-guidance.md)
 
 [Consumer IWE seed](features/consumer-iwe-seed.md)
+
+[Resumable template consumption](features/resumable-template-consumption.md)
