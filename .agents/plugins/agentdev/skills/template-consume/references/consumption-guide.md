@@ -801,6 +801,10 @@ root:
    documents.
 2. `/agentdev:iwe-map` — writes the per-module `data/codebase/` map that setup
    deliberately defers.
+3. At the end of the consumption episode, write the adoption summary described
+   below into the consumer graph. Record the adopted SHA, workflow, and settled
+   choices, and point to `.agentdev-template-progress.md` as the live record.
+   Do not copy the checklist into the graph.
 
 Both skills own their own interviews and confirmation gates. This guide invokes
 them; it does not answer for the user, skip a confirmation, or pre-fill an

@@ -251,13 +251,15 @@ this way; the root file stays the live record.
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-`.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
+`.agents/plugins/agentdev/skills/template-consume/SKILL.md`, `.iwe/config.toml`.
 
-- [ ] Add a step to the guide's `### Onboard the consumer's project memory`
+- [x] Add a step to the guide's `### Onboard the consumer's project memory`
   section writing a thin summary into the consumer's graph at the end of the
   episode: adopted SHA, workflow, settled choices, and a pointer to
   `.agentdev-template-progress.md` as the live record. It must not mirror the
   checklist.
+  - **Evidence:** `validate_agent_files` passed with the consumer graph summary
+    limited to adoption context and a pointer to the live checklist.
 - [ ] Choose and record the summary's document key and `type`. `tracker` fits
   the schema's own description of a living document edited in place, but
   `[schemas.tracker]` in `.iwe/config.toml` (line 110) matches only

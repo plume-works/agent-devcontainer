@@ -110,7 +110,8 @@ or scope interview.
    never answer for the user or skip a gate. Existing consumer knowledge is
    never replaced: ask how to reconcile it. Report onboarding as pending, not
    complete, while any required input is outstanding, and report mapping as
-   deferred for a project with no code.
+   deferred for a project with no code. Finish by writing the guide's thin
+   adoption summary; keep the checklist only in the root progress document.
 6. **Run the guide's verification section** before declaring success.
 7. **Write the marker and complete the progress document**: resolve the exact
    commit SHA of the template
