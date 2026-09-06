@@ -66,16 +66,30 @@ claiming that subtree.
 
 ## Fix
 
-Filter what the digest covers, at line granularity rather than by whole file: a
-pin file's structure is worth tracking even when its pinned values are not. A
-per-doc `digest_ignore` frontmatter list keeps the decision next to the doc that
-owns it.
+Mask machine-managed content out of the digest input before hashing, driven by a
+repository-level map of glob to pattern at `docs/knowledge/digest-masks.json`.
+Each pattern carries a replacement rather than deleting its match, so the
+structure around a pinned value stays tracked while the value itself stops
+mattering: a changed image name or a dropped pin line still marks the doc stale.
 
-Two alternatives were considered and rejected. Skipping Renovate-authored
-commits hides a real signal — a major-version bump genuinely can invalidate a
-doc. Narrowing `source` fields helps the `.github` fan-out but not
-`devcontainer-compose-pins.yml`, which is legitimately described content that
-happens to hold a digest.
+The map is keyed by glob so one entry covers a fan-out — `.github/**/*.yml`
+serves `github`, `github/actions`, and `flow-pull-request-checks` together. It
+sits beside `data/` rather than inside it, because `data/` is an OKF bundle of
+typed Markdown documents, and it is JSON so a consuming repository needs no
+third-party parser.
+
+Planned in [Digest masks for map docs](../plans/20260905-digest-masks.md), which
+depends on [Python skill scripts](../plans/20260905-python-skill-scripts.md) —
+the glob, JSON, and regex work needs the ported script.
+
+Three alternatives were considered and rejected. Per-doc `digest_ignore`
+frontmatter puts a property of a file into every doc that claims it — five
+copies of two facts here — and directory-scoped `source` fields mean a per-doc
+entry needs a path scope anyway, which is the same map sharded. Skipping
+Renovate-authored commits hides a real signal, since a major-version bump
+genuinely can invalidate a doc. Narrowing `source` fields helps the `.github`
+fan-out but not `devcontainer-compose-pins.yml`, which is legitimately described
+content that happens to hold a digest.
 
 ## Key references
 

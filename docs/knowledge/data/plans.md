@@ -19,6 +19,10 @@ moves them.*
 
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 
+[Python skill scripts](plans/20260905-python-skill-scripts.md)
+
+[Digest masks for map docs](plans/20260905-digest-masks.md)
+
 ## Done
 
 [Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
