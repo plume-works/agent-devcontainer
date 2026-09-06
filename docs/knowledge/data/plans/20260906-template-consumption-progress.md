@@ -287,8 +287,10 @@ this way; the root file stays the live record.
   instead of only describing what is outstanding.
   - **Evidence:** `validate_agent_files` passed with interrupted onboarding
     reports naming the progress document and its unticked tasks.
-- [ ] Record in `## Ongoing maintenance` that the progress document is
+- [x] Record in `## Ongoing maintenance` that the progress document is
   consumer-owned and survives updates.
+  - **Evidence:** `validate_agent_files` passed with ongoing maintenance
+    preserving and extending the consumer-owned progress document.
 
 ## Spec changes
 

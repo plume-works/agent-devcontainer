@@ -938,6 +938,10 @@ changes remain owned by the consuming repository. Use update mode to compare
 template files against a later improvement instead of tracking scaffolding
 churn by hand.
 
+`.agentdev-template-progress.md` is consumer-owned state, never a template
+path. Keep it tracked in the consumer repository and extend it across update
+episodes; template updates neither replace nor delete it.
+
 Project memory is outside that loop. `docs/knowledge/data/` is the consumer's
 own from the moment it is seeded, so update mode neither compares it nor reseeds
 it, and it never re-runs `/agentdev:iwe-setup` or `/agentdev:iwe-map`. Only the
