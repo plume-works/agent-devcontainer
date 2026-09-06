@@ -30,7 +30,7 @@ okf_version: '0.2'
 - [Spec](spec.md) - Behavioral specifications — the durable truth about how the
   product must work.
 - [Codebase](codebase.md) - Codebase maps derived from the code, each pinned to
-  the commit it was read at.
+  the tracked-source fingerprint it was read from.
 - [Architecture](architecture.md) - System design notes and the reasoning behind
   them, rejected alternatives included.
 - [Concept](concept.md) - Product vision and the principles that outlive any

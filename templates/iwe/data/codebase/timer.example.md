@@ -2,12 +2,12 @@
 type: codebase
 description: 'Example codebase map: the timer module and its tick and drift handling.'
 source: src/timer
-commit: 3f1a9c2
+source_digest: sha256:2bc6168f431950ad9ab4b978817897691ba2af9c3dd04111aeb65dea8ca67a0b
 stale_after: 2026-11-01
 sources:
 - id: code
   resource: src/timer
-  title: the code this map describes, read at commit 3f1a9c2
+  title: the code this map describes, fingerprinted by source_digest
   author: human:author
   last_modified: 2026-07-25
 verified:
@@ -67,7 +67,7 @@ Verified anchor points (line numbers as of 2026-07-25):
 Convention notes: the key is canonical — code at `src/timer` maps to
 `data/codebase/timer` (wrapper segments like `src/` are elided), so an agent
 holding a code path computes the doc key without searching. Together, `source`,
-`commit`, and `verified` make staleness queryable — the refresh pass runs
-`git log <commit>..HEAD -- <source>` and re-reads only dirty components.
-`## Depends on` is written; "used by" is a query:
+`source_digest`, and `verified` make staleness queryable — the refresh pass
+re-hashes the tracked files under `source` and re-reads only the components
+whose digest moved. `## Depends on` is written; "used by" is a query:
 `iwe find --references data/codebase/timer.example`.

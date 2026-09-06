@@ -2,12 +2,12 @@
 type: codebase
 description: 'Example codebase map: the streak slice of the store and how it is computed.'
 source: src/store/streak.ts
-commit: 3f1a9c2
+source_digest: sha256:b11b76d0ccd8d3818f95d90865d7a1b6265ec65bf308b4f0f41ab17a206c9105
 stale_after: 2026-11-01
 sources:
 - id: code
   resource: src/store/streak.ts
-  title: the code this map describes, read at commit 3f1a9c2
+  title: the code this map describes, fingerprinted by source_digest
   author: human:author
   last_modified: 2026-07-25
 verified:

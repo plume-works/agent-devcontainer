@@ -2,12 +2,12 @@
 type: codebase
 description: 'Example codebase map: the store module and the state it owns.'
 source: src/store
-commit: 3f1a9c2
+source_digest: sha256:5af5243e402bf4b63138c8423b30a9e634e112acc22f42fe1304b95111423111
 stale_after: 2026-11-01
 sources:
 - id: code
   resource: src/store
-  title: the code this map describes, read at commit 3f1a9c2
+  title: the code this map describes, fingerprinted by source_digest
   author: human:author
   last_modified: 2026-07-25
 verified:

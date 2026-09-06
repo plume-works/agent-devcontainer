@@ -2,12 +2,12 @@
 type: codebase
 description: 'Example codebase map: the session lifecycle flow, from start through completion.'
 source: src
-commit: 3f1a9c2
+source_digest: sha256:489af571d71a93a61445ec43f29113024b016a49fe6f811039798597ed0d3a08
 stale_after: 2026-11-01
 sources:
 - id: code
   resource: src
-  title: the code this map describes, read at commit 3f1a9c2
+  title: the code this map describes, fingerprinted by source_digest
   author: human:author
   last_modified: 2026-07-25
 verified:

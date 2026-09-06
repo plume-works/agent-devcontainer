@@ -58,13 +58,20 @@ consumer memory.
 - [x] Import the data tree from the initial source at commit
   `249943bcc30ac1016469d5ee89a16ce454cc882f`, retaining the MIT notice. Commit
   the complete seed so no future consumer needs the import checkout.
-  - **Evidence:** the commit adding `templates/iwe/` on this branch checks in
-    all 34 seed documents plus the upstream MIT `LICENSE.md` verbatim, so the
-    seed resolves from this repository alone.
-- [ ] Adapt the seed to current schemas, including fictional map examples and
+  - **Evidence:** commit `19baf92` checks in all 34 seed documents plus the
+    upstream MIT `LICENSE.md` verbatim, so the seed resolves from this
+    repository alone.
+- [x] Adapt the seed to current schemas, including fictional map examples and
   digest terminology; retain the onboarding keys iwe-setup closes and remove
   publisher-specific content. Document local ownership, seed purpose, and
   maintenance against the shared schemas.
+  - **Evidence:** commit `1de0ffc` — the four `data/codebase/*.example.md` docs
+    carry `source_digest` instead of `commit`, the hub and index describe the
+    digest, the two onboarding tasks point at `/agentdev:iwe-setup` and
+    `/agentdev:iwe-plan` instead of `.claude/skills/` paths, and
+    `templates/iwe/README.md` records ownership and schema-coupled maintenance.
+    `iwe schema validate` exits 0 against the consumer fixture built from the
+    repo's own `.iwe/`.
 - [ ] Exclude seed Markdown from Prettier and normalize it through an isolated
   consumer fixture, keeping it outside the publisher's active graph.
 

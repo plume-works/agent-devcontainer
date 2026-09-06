@@ -26,6 +26,17 @@ elsewhere at adoption time.
   showing the shape of each type. `/agentdev:iwe-setup` deletes them once real
   documents exist.
 
+## Maintenance
+
+The seed validates against the schemas in `.iwe/schemas/` — the same ones this
+repository's own graph uses. A schema change is therefore a seed change: adjust
+the seed documents in the same commit, or the next consumer adopts a workspace
+that fails `iwe schema validate` on its first run.
+
+The onboarding tasks `fill-product-doc` and `capture-current-architecture` are
+the two keys `/agentdev:iwe-setup` closes; renaming or removing either breaks
+that skill's closing step.
+
 ## Boundaries
 
 The seed is not part of this repository's own IWE graph: `.iwe/config.toml`

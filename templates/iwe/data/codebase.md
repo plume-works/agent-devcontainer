@@ -1,6 +1,6 @@
 ---
 type: hub
-description: Codebase maps derived from the code, each pinned to the commit it was read at.
+description: Codebase maps derived from the code, each pinned to the tracked-source fingerprint it was read from.
 stage: living
 generated:
   by: human:author
@@ -14,10 +14,10 @@ from memory. The map mirrors the code's containment tree: one doc per component
 (crate, package, module) at a canonical key matching its source path, children
 linked from their parent's `## Contains` — so `iwe tree -k data/codebase`
 renders the component tree. Every doc carries `source` (the code it describes),
-`commit` (the git revision it was read at), and `verified` (the date); code
-newer than `commit` means the doc is suspect — refresh it. Division of truth:
-spec/ is what must be, architecture/ is why it's shaped this way, this hub is
-what is.*
+`source_digest` (a fingerprint of that code's tracked contents), and `verified`
+(the date); a digest that no longer matches the code means the doc is suspect —
+refresh it. Division of truth: spec/ is what must be, architecture/ is why it's
+shaped this way, this hub is what is.*
 
 ## Getting around
 
