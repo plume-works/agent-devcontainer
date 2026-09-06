@@ -87,11 +87,18 @@ consumer memory.
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`.
 
-- [ ] Add a shared knowledge-base adoption procedure used by Workflow A and B.
+- [x] Add a shared knowledge-base adoption procedure used by Workflow A and B.
   Copy the seed from the selected agent-devcontainer ref to
   `docs/knowledge/data/`, retain root `.iwe/` with library path
   `docs/knowledge`, and enumerate reusable supporting files, validation hooks,
   and workflow requirements. Preserve the seed's license notice in consumers.
+  - **Evidence:** commit `d0a5be6` adds `## Optional knowledge-base setup` to
+    the consumption guide, reached from Workflow A step 9 and Workflow B step 5
+    and from the knowledge-base validation subsection. It lists the reusable
+    scaffold (root `.iwe/` with `[library].path = "docs/knowledge"`, the
+    supporting docs, `test_plan_checkboxes.py`), the retained validation
+    (workflow, both pre-commit hooks, the `testpaths` entry), and copies
+    `templates/iwe/LICENSE.md` to `docs/knowledge/LICENSE.md`.
 - [ ] In Workflow A, replace only the identified unmodified publisher data
   copied from that ref; if data differs, treat it as existing consumer memory.
   In Workflow B, seed only an absent or empty data directory. Ask how to merge

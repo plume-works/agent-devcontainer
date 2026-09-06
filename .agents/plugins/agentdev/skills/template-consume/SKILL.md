@@ -68,14 +68,23 @@ recreate.
 2. **Ask the scope questions** the guide's own steps depend on: keep custom-image
    publishing (§3 / Optional custom-image setup)? Keep IWE-based project memory
    under `docs/knowledge/`? Keep the shared `agentdev-agents-auth` credential
-   volume default?
+   volume default? Keeping project memory pulls in the seed and the onboarding
+   run in step 4.
 3. **Execute the guide's numbered steps** for the chosen workflow using your
    normal file tools — this is an agent-guided walkthrough, not a script. Merge
    rather than overwrite wherever the guide says to (Workflow B step 3
    especially: never replace an existing project manifest, lockfile, or lint
    config without the user's go-ahead).
-4. **Run the guide's verification section** before declaring success.
-5. **Write the marker file**: resolve the exact commit SHA of the template
+4. **When IWE was kept, run the guide's Optional knowledge-base setup**: seed
+   `docs/knowledge/data/` from `templates/iwe/data/` at the ref being adopted,
+   then invoke `/agentdev:iwe-setup` and `/agentdev:iwe-map` in that order from
+   the consumer root. Those skills own their interviews and confirmations —
+   never answer for the user or skip a gate. Existing consumer knowledge is
+   never replaced: ask how to reconcile it. Report onboarding as pending, not
+   complete, while any required input is outstanding, and report mapping as
+   deferred for a project with no code.
+5. **Run the guide's verification section** before declaring success.
+6. **Write the marker file**: resolve the exact commit SHA of the template
    checkout you copied from or merged from (`git rev-parse HEAD` in that
    checkout, or the release/ref the user named), record `workflow`,
    `optional_bundles`, and a `tracked_paths` list pruned to what this consumer

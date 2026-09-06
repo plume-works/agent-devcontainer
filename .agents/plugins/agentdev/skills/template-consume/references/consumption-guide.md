@@ -69,7 +69,15 @@ Delete these paths from the copied repository:
 .claude-plugin/
 py_packages/
 scripts/validate-super-linter-tool-versions.sh
+templates/iwe/
+docs/knowledge/tests/test_iwe_seed.py
 ```
+
+`templates/iwe/` is the IWE seed's source. Delete it only _after_ [Optional
+knowledge-base setup](#optional-knowledge-base-setup) has copied the seed to
+`docs/knowledge/data/`, or when IWE is being declined; `docs/knowledge/` is
+handled there too, not here. `templates/` holds nothing else, so it goes with
+it.
 
 `scripts/` holds nothing else, so it disappears with its one file; delete the
 empty directory rather than leaving it behind. The same applies to the
@@ -339,9 +347,14 @@ under `docs/knowledge/` (schema validation, normalization drift, and plan
 checkbox evidence). It is part of the template repository's own
 project-memory practice, not part of the devcontainer runtime. Retain it only
 when the consuming project also adopts IWE-based project memory under
-`docs/knowledge/`; otherwise delete the workflow along with the
-`iwe-schema-validate` and `iwe-normalize` pre-commit hooks and the
-`docs/knowledge/tests` pytest path.
+`docs/knowledge/` — see [Optional knowledge-base
+setup](#optional-knowledge-base-setup) for the full adoption path; otherwise
+delete the workflow along with the `iwe-schema-validate` and `iwe-normalize`
+pre-commit hooks and the `docs/knowledge/tests` pytest path.
+
+The workflow's seed-test step is publisher-only: it validates `templates/iwe/`,
+which no consumer keeps. Drop that step along with
+`docs/knowledge/tests/test_iwe_seed.py`.
 
 #### AI responder and the review gate
 
@@ -453,7 +466,14 @@ The catalog needs no Renovate rule of its own: the devcontainer reinstalls
 the bundled catalog on start, so its version follows the image pin rather
 than a separate one.
 
-### 9. Verify the copied project
+### 9. Set up or remove project memory
+
+The copied repository carries the publisher's own `docs/knowledge/data/`, which
+is never the consumer's memory. Follow [Optional knowledge-base
+setup](#optional-knowledge-base-setup) to replace it with the seed and onboard
+the consumer, or to remove IWE entirely.
+
+### 10. Verify the copied project
 
 Run these checks from the new repository:
 
@@ -678,11 +698,152 @@ installation, the `CLAUDE_CODE_OAUTH_TOKEN` secret, and the `claude-review`
 environment. Copying the files alone is not enough, and none of the three is
 visible in a diff.
 
-### 5. Verify
+### 5. Set up project memory
+
+If the project is adopting IWE-based project memory, follow [Optional
+knowledge-base setup](#optional-knowledge-base-setup). An existing
+`docs/knowledge/` in this repository is the consumer's own and is never
+replaced — that section's step 2 covers it. Skip this step otherwise.
+
+### 6. Verify
 
 Run the same verification sequence from Workflow A. Pay particular attention
 to merged mounts, lifecycle command keys, GitHub workflow permissions, and
 duplicate pre-commit hooks.
+
+## Optional knowledge-base setup
+
+Follow this section whenever the consumer keeps IWE-based project memory —
+`optional_bundles` includes `"knowledge-base"`. Both workflows use it; the one
+step that differs is which starting state counts as "no knowledge yet", and that
+is called out below.
+
+The consumer's knowledge lives at `docs/knowledge/data/`, validated by schemas
+at the consumer's repository **root** `.iwe/`. `.iwe/config.toml` sets
+`[library].path = "docs/knowledge"`, and `iwe` neither searches upward for
+`.iwe/` nor takes a `--root` flag — so the config stays at the root and every
+`iwe` command runs with the consumer root as the working directory.
+
+### Reusable scaffold
+
+These paths are template-owned and copy across as-is:
+
+```text
+.iwe/
+docs/knowledge/AGENTS.md
+docs/knowledge/CLAUDE.md
+docs/knowledge/README.md
+docs/knowledge/SCHEMA.md
+docs/knowledge/STRUCTURE.md
+docs/knowledge/CHANGELOG.md
+docs/knowledge/LICENSE.md
+docs/knowledge/tests/test_plan_checkboxes.py
+```
+
+Alongside them, retain the validation the scaffold depends on:
+
+- `.github/workflows/validate-knowledge-base.yml` (see [Knowledge-base
+  validation](#knowledge-base-validation));
+- the `iwe-schema-validate` and `iwe-normalize` pre-commit hooks, which need
+  the `iwe` binary on PATH — the devcontainer image provides it;
+- `docs/knowledge/tests` in `pyproject.toml`'s `testpaths`.
+
+`docs/knowledge/tests/test_iwe_seed.py` is **not** in that list. It validates
+the publisher's seed source under `templates/iwe/`, which a consumer does not
+keep; copying it leaves a test that fails on a missing directory. Delete it if
+the copy brought it along.
+
+### Seed the consumer's data
+
+`docs/knowledge/data/` is the one part a consumer must not receive from the
+publisher — that directory is the publisher's own project memory. The starting
+content comes from the seed at `templates/iwe/data/` in the agent-devcontainer
+checkout at the ref being adopted, the same checkout every other template file
+is read from. There is no copy of the seed inside the installed plugin, and
+nothing is fetched from anywhere else.
+
+1. **Decide whether the consumer has knowledge already.**
+   - **Workflow A**: the copy carries the publisher's `docs/knowledge/data/`.
+     Compare it against that same ref's `docs/knowledge/data/`. Identical means
+     it is the untouched publisher copy — replace it wholesale with the seed.
+     Any difference means the user has already written into it: it is consumer
+     memory from here on, and step 2 applies instead.
+   - **Workflow B**: an absent or empty `docs/knowledge/data/` is the only state
+     that gets seeded. Anything present is consumer memory.
+2. **When knowledge already exists, do not seed.** Never delete, overwrite, or
+   reset a consumer's data directory. Present what is there and what the seed
+   would add, and ask how to reconcile it — the same question applies to an
+   existing root `.iwe/` whose schemas or `[library].path` differ from the
+   template's. Proceed only on the user's answer; leaving both in place
+   unmerged is a valid answer.
+3. **Copy the seed** into `docs/knowledge/data/`, and copy
+   `templates/iwe/LICENSE.md` to `docs/knowledge/LICENSE.md` so the notice the
+   seed carries survives into the consumer.
+4. **Do not retain `templates/iwe/` itself.** It is publisher source; the seed's
+   destination is `docs/knowledge/data/`, and the source directory is deleted
+   with the rest of the publisher-only trees.
+
+When this skill runs from inside the template repository against a different
+target directory, every path above is read from the publisher checkout and
+written only under the target. The publisher's own `docs/knowledge/` and
+`templates/iwe/` are never modified.
+
+### Onboard the consumer's project memory
+
+A freshly seeded workspace holds placeholders, not project memory. Fill it by
+invoking the two onboarding skills, in order, from the **consumer** repository
+root:
+
+1. `/agentdev:iwe-setup` — reads the consumer's codebase, interviews the
+   developer for what the code cannot answer, fills `data/product.md`, writes
+   the first architecture doc, closes the `fill-product-doc` and
+   `capture-current-architecture` backlog tasks, and deletes the `*.example.md`
+   documents.
+2. `/agentdev:iwe-map` — writes the per-module `data/codebase/` map that setup
+   deliberately defers.
+
+Both skills own their own interviews and confirmation gates. This guide invokes
+them; it does not answer for the user, skip a confirmation, or pre-fill an
+interview.
+
+Two states need naming explicitly:
+
+- **A greenfield consumer** — no code to map. Run setup, which works from the
+  interview alone, and report mapping as deferred until code exists. Do not run
+  map against an empty tree and do not record it as done.
+- **Onboarding interrupted** — a question unanswered, a confirmation not given,
+  the session ended partway. Report onboarding as pending, naming what is
+  outstanding; never report it complete. Resuming picks up from the consumer's
+  current `docs/knowledge/data/`, which is now consumer memory: re-copying the
+  seed would discard the answers already given.
+
+Verify the result from the consumer root: `iwe schema validate` and
+`iwe normalize` both clean, `data/product.md` free of `✏️` placeholders, and
+no `*.example.md` documents left under `data/`. For a mapped brownfield
+consumer, the installed iwe-map skill's `stale-map-docs.py` must report
+`RESULT=SUCCESS`.
+
+### When IWE is declined
+
+Skip seeding and onboarding entirely, and remove the IWE-only artifacts a copy
+may have brought in:
+
+```text
+.iwe/
+docs/knowledge/
+templates/iwe/
+.github/workflows/validate-knowledge-base.yml
+```
+
+Also drop the `iwe-schema-validate` and `iwe-normalize` pre-commit hooks and the
+`docs/knowledge/tests` entry in `testpaths` — deleting the list's last entry
+means deleting the empty list. Leave `"knowledge-base"` out of
+`optional_bundles`, and keep `.iwe/` and the knowledge paths out of
+`tracked_paths`.
+
+Declining IWE never authorizes deleting knowledge the consumer already had. In
+Workflow B a pre-existing `docs/knowledge/` belongs to the consumer: leave it,
+and remove only what this adoption would have added.
 
 ## Optional custom-image setup
 
