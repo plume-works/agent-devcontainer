@@ -71,9 +71,12 @@ masking itself:
 
 **Files:** Create: `.agent.metadata.json`; `.github/.agent.metadata.json`
 
-- [ ] Write the repository-root file for the compose pin. Globs are relative to
+- [x] Write the repository-root file for the compose pin. Globs are relative to
   the file's own directory, so `devcontainer-compose-pins.yml` names the pin
   file at the root without a path.
+  - **Evidence:** `.agent.metadata.json` at the repository root; its pattern
+    matches the `@sha256:` pin in `devcontainer-compose-pins.yml` once, leaving
+    the image name and tag in place.
 
 ``` json
 {
@@ -91,11 +94,15 @@ masking itself:
 }
 ```
 
-- [ ] Write the `.github` file. Its globs are relative to `.github/`, and the
+- [x] Write the `.github` file. Its globs are relative to `.github/`, and the
   walk reaches every workflow and action below it, so one entry serves `github`,
   `github/actions`, and `flow-pull-request-checks`. Both the pinned action
   reference and the pinned tool version churn, so both are masked; `reason` is a
   field, printed by `--explain`.
+  - **Evidence:** `.github/.agent.metadata.json`; against
+    `actions/setup-python-venv/action.yml` the action-reference pattern masks
+    two `uses:` pins and the tool-version pattern masks one `version:` input,
+    each keeping the action name it qualifies.
 
 ``` json
 {
