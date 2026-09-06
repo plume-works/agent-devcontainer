@@ -3,8 +3,10 @@ type: plan
 description: Mask machine-managed content out of source_digest so an automerged pin bump stops marking map docs stale.
 created: 2026-09-05
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-05T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T05:35:53Z
+stage: done
+completed: 2026-09-06
 ---
 
 # Digest masks for map docs

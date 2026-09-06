@@ -3,8 +3,8 @@ type: hub
 description: Codebase maps derived from the code, each pinned to the tracked-source fingerprint it was read from.
 stage: living
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:09:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T05:05:02Z
 ---
 
 # 🧭 Codebase
@@ -14,10 +14,10 @@ from memory. The map mirrors the code's containment tree: one doc per component
 (crate, package, module) at a canonical key matching its source path, children
 linked from their parent's `## Contains` — so `iwe tree -k data/codebase`
 renders the component tree. Every doc carries `source` (the code it describes),
-`commit` (the git revision it was read at), and `verified` (the date); code
-newer than `commit` means the doc is suspect — refresh it. Division of truth:
-spec/ is what must be, architecture/ is why it's shaped this way, this hub is
-what is.*
+`source_digest` (a fingerprint of its tracked contents), and `verified` (the
+date); a digest mismatch means the doc is suspect and must be refreshed.
+Division of truth: spec/ is what must be, architecture/ is why it's shaped this
+way, this hub is what is.*
 
 ## Getting around
 
@@ -55,6 +55,7 @@ script, `/agentdev:<skill>` (the catalog), and `.codex/setup-codex-cloud.sh`
 | `py_packages/validate_agent_files/`                                                                                                                                                           | [validate_agent_files package](codebase/py_packages/validate_agent_files.md)                      |
 | `.github/`                                                                                                                                                                                    | [GitHub automation](codebase/github.md)                                                           |
 | `.iwe/`, `docs/knowledge/`                                                                                                                                                                    | [Knowledge workspace machinery](codebase/docs/knowledge.md) — the `data/` inside it is this graph |
+| `templates/iwe/`                                                                                                                                                                              | [Consumer IWE seed](codebase/templates/iwe.md)                                                    |
 | `scripts/validate-super-linter-tool-versions.sh`                                                                                                                                              | checks pre-commit and local tool versions against the pinned Super-Linter image; no doc           |
 | `.codex/`, `.claude/`, `.mcp.json`, `.vscode/`                                                                                                                                                | project-local agent and editor configuration, not the catalog; no doc                             |
 | `README.md`, `AGENTS.md`, `CLAUDE.md`, `AGENTS-codebase-memory-mcp.md`, `LICENSE`                                                                                                             | the human and agent entry documents; `CLAUDE.md` only includes `AGENTS.md`                        |
@@ -78,6 +79,8 @@ script, `/agentdev:<skill>` (the catalog), and `.codex/setup-codex-cloud.sh`
 [GitHub automation](codebase/github.md)
 
 [Knowledge workspace machinery](codebase/docs/knowledge.md)
+
+[Consumer IWE seed](codebase/templates/iwe.md)
 
 ## Flows
 

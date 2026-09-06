@@ -2,8 +2,8 @@
 type: architecture
 description: A colocated per-directory file carrying agent tooling metadata, resolved root-to-leaf with accumulating namespaced sections.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T05:35:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: docs/knowledge/data/architecture/template-boundary.md
@@ -14,9 +14,9 @@ sources:
 ## Decision
 
 Agent tooling reads per-directory metadata from `.agent.metadata.json` files
-placed anywhere in the source tree. No consumer implements this yet; the rules
-below bind the first one that does. Each file is a JSON object whose top-level
-keys namespace one consumer apiece:
+placed anywhere in the source tree. The `iwe-map` digest staleness check is the
+first consumer. Each file is a JSON object whose top-level keys namespace one
+consumer apiece:
 
 ``` json
 {
@@ -120,7 +120,7 @@ removes the portability that motivates colocation.
 ## Consumers
 
 - `iwe-map` / `digest_ignore` — masks machine-managed content out of the
-  codebase-map source fingerprint. Planned in
+  codebase-map source fingerprint. Implemented by
   [Digest masks for map docs](../plans/20260905-digest-masks.md).
 
 ## Key references

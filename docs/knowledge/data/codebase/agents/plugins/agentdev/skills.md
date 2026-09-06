@@ -2,14 +2,14 @@
 type: codebase
 description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:f0393b175cffd4051f7463274545ba8f5e04c4745cf80e1b45022caa46a1ea8c
+source_digest: sha256:dae04ab63fc243b864fab0d6af2b9438a4d53a8147617b017c215009b37b45c1
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T05:05:02Z
 stale_after: 2026-12-05
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T05:05:02Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -51,7 +51,10 @@ machine-managed so an automerged pin bump does not register as a change. Its
 `--explain` flag prints one `MASK` line per applied rule, and it adds
 `BROKEN_METADATA` (exit 5) to the shared result vocabulary for a metadata file
 it cannot read or whose pattern will not compile. The IWE family runs against
-the [knowledge workspace](../../../docs/knowledge.md).
+the [knowledge workspace](../../../docs/knowledge.md). `template-consume`
+optionally copies the repository's IWE seed into a consumer, then hands
+onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the reusable
+knowledge scaffold and never replaces consumer-owned project memory.
 
 ## Depends on
 
@@ -74,6 +77,8 @@ Verified anchor points (line numbers as of 2026-09-06):
   rules every skill follows
 - `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:1` — the script
   contract
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:78` — consumer IWE
+  seeding and onboarding handoff
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:74` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:230` —

@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:873ad1a68d44ddf15308bfd5d693e2595f0fe78864ce639015062922c9c9d354
+source_digest: sha256:0f4f4d9c6953a2c7e5757d8ce9316382933750a2ecc73fd59df39cae8bb913cf
 verified:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  at: 2026-09-06T05:05:02Z
+stale_after: 2026-12-05
 generated:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  at: 2026-09-06T05:05:02Z
 sources:
 - id: code
   resource: .github/workflows
@@ -28,7 +28,7 @@ one manual job.
 | `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                             |
 | `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished` |
 | `validate-agent-files.yml`    | PR, push, merge group                           | both pytest suites, then the validator with `--require-marketplace claude codex`                         |
-| `validate-knowledge-base.yml` | PR, push, merge group                           | `iwe schema validate`, `iwe normalize` no-op check, plan-checkbox tests                                  |
+| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                     |
 | `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                          |
 | `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                               |
 
@@ -45,6 +45,8 @@ per-arch digests into one manifest; then patches the digest pin and smoke-tests
 the devcontainer with `devcontainers/ci`. The responder only runs for
 `plume-works` and never for a fork PR; its preflight decides between a review
 and a task, and `ai-review-present` reports whether an accepted review exists.
+Knowledge validation always checks this graph when its outer filter passes and
+runs the standalone consumer-seed suite only when its inner seed filter passes.
 The full traces are [the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
@@ -64,7 +66,7 @@ The full traces are [the image build flow](../flow-image-build.md) and
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
@@ -73,6 +75,6 @@ Verified anchor points (line numbers as of 2026-09-04):
   merge, devcontainer smoke
 - `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
 - `.github/workflows/validate-agent-files.yml:68-74` — the three check steps
-- `.github/workflows/validate-knowledge-base.yml:18,78-89` — `IWE_VERSION`, the
-  three checks
+- `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
+  graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:82,325,377,421,462` — the five jobs

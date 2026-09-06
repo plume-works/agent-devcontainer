@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:b1f0203ecced08d4ca7ca661f4ee1ebc6d6c50cf58e7cda1f84947867e361168
+source_digest: sha256:b0d85308976b7caf60cc82e66df0059983ff711d437a82a562ae3008b0aaefcc
 verified:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  at: 2026-09-06T05:05:02Z
+stale_after: 2026-12-05
 generated:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  at: 2026-09-06T05:05:02Z
 sources:
 - id: code
   resource: .github
@@ -40,7 +40,8 @@ the composite actions they share, `renovate.json`, and
 
 `primary-checks.yml` is the entry workflow; it calls the reusable `reformat.yml`
 and `ci.yml`. Three more workflows trigger independently on their own path
-filters, and one is manual.
+filters, and one is manual. Knowledge validation has its own inner filter so the
+consumer IWE seed tests run only when the seed, schemas, or seed test moved.
 
 ## Depends on
 
@@ -56,8 +57,10 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-06):
 
 - `.github/renovate.json:9-15` — Actions automerge
 - `.github/renovate.json:16-23` — `agent-desktop` digest automerge
 - `.github/renovate.json:24-40` — Super-Linter family disabled
+- `.github/workflows/validate-knowledge-base.yml:69-109` — seed filter and
+  standalone seed validation

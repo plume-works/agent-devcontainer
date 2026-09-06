@@ -5,6 +5,8 @@ created: 2026-09-05
 generated:
   by: claude-code/opus-5
   at: 2026-09-05T00:00:00Z
+stage: done
+completed: 2026-09-06
 ---
 
 # Python skill scripts

@@ -4,7 +4,7 @@ description: Implementation plans, migrations, and design proposals, one documen
 stage: living
 generated:
   by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  at: 2026-09-06T05:39:02Z
 ---
 
 # 🗺️ Plans
@@ -19,13 +19,13 @@ moves them.*
 
 [Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
 
+## Done
+
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 
 [Python skill scripts](plans/20260905-python-skill-scripts.md)
 
 [Digest masks for map docs](plans/20260905-digest-masks.md)
-
-## Done
 
 [Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
 
