@@ -96,6 +96,13 @@ adopted SHA as context, but SHALL NOT be read as the source of truth for it.
 Neither file SHALL appear in `tracked_paths`; both are consumer-created state,
 not template paths.
 
+### Scenario: setup is interrupted and resumed
+
+- **WHEN** a setup session ends with tasks in `.agentdev-template-progress.md`
+  still unticked
+- **THEN** the next session continues from those tasks and the recorded choices,
+  rather than restarting the workflow and scope interview
+
 ### Scenario: a task is completed during consumption
 
 - **WHEN** a consumption task is finished

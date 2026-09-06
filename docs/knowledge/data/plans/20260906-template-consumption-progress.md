@@ -117,8 +117,10 @@ this way; the root file stays the live record.
   member, being consumer-created state rather than a template path.
   - **Evidence:** `iwe schema validate` passed with both consumer-created state
     files excluded from `tracked_paths`.
-- [ ] Add a scenario for a resumed setup: a session finding a progress document
+- [x] Add a scenario for a resumed setup: a session finding a progress document
   with unticked tasks continues from them rather than restarting the interview.
+  - **Evidence:** `iwe schema validate` passed with interrupted setup resuming
+    from unticked tasks and recorded choices.
 
 ### Task 2: Classify the adoption-state files in the boundary
 
