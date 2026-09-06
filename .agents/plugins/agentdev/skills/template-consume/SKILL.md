@@ -8,33 +8,36 @@ allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 
 Two modes, chosen by what the consuming repository already has:
 
-- **Setup mode** — no `.agentdev-template.json` marker file at the consumer
-  repository root. Walk the user through first-time adoption, then write the
-  marker file.
-- **Update mode** — a marker file exists. Diff the tracked template paths
-  between its `consumed_ref` and the template repository's current default
-  branch, then apply the changes the user wants and advance the marker.
+- **Setup mode** — no `template-consume` section in the root
+  `.agent.metadata.json`. Walk the user through first-time adoption, then write
+  the section.
+- **Update mode** — the section exists. Diff the tracked template paths between
+  its `consumed_ref` and the template repository's current default branch, then
+  apply the changes the user wants and advance the marker.
 
-Detect the mode by checking for `.agentdev-template.json` at the target
-repository root before doing anything else.
+Detect the mode by checking the `template-consume` section of the target
+repository's root `.agent.metadata.json` before doing anything else.
 
 ## The Marker File
 
-`.agentdev-template.json`, at the consumer repository root, tracked in git:
+The root-only `template-consume` section of `.agent.metadata.json`, tracked in
+git at the consumer repository root:
 
 ```json
 {
-  "source_repo": "plume-works/agent-devcontainer",
-  "consumed_ref": "<full 40-character commit SHA>",
-  "workflow": "A",
-  "optional_bundles": ["custom-image", "knowledge-base"],
-  "tracked_paths": [
-    ".devcontainer/",
-    "devcontainer-compose-pins.yml",
-    ".mcp.json",
-    "..."
-  ],
-  "last_synced_at": "<ISO 8601 timestamp>"
+  "template-consume": {
+    "source_repo": "plume-works/agent-devcontainer",
+    "consumed_ref": "<full 40-character commit SHA>",
+    "workflow": "A",
+    "optional_bundles": ["custom-image", "knowledge-base"],
+    "tracked_paths": [
+      ".devcontainer/",
+      "devcontainer-compose-pins.yml",
+      ".mcp.json",
+      "..."
+    ],
+    "last_synced_at": "<ISO 8601 timestamp>"
+  }
 }
 ```
 
@@ -50,7 +53,9 @@ repository root before doing anything else.
 `consumed_ref` is what [check-updates.sh](scripts/check-updates.sh) diffs
 from; `tracked_paths` is what it diffs. Both must stay accurate — a stale
 `tracked_paths` after setup mode deletes a bundle produces false positives
-forever after.
+forever after. This section is read only from the repository-root metadata
+file; `template-consume` in a nested `.agent.metadata.json` is broken metadata,
+not another record to merge.
 
 ## Setup Mode
 

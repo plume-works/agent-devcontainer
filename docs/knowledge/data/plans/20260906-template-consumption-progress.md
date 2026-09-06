@@ -184,9 +184,11 @@ this way; the root file stays the live record.
   - **Evidence:**
     `uv run pytest .agents/plugins/agentdev/tests/test_template_consume_check_updates.py`
     passed with the nested metadata section and unchanged result codes.
-- [ ] Rewrite `## The Marker File` (line 21) as the `template-consume` section
+- [x] Rewrite `## The Marker File` (line 21) as the `template-consume` section
   of `.agent.metadata.json`, keeping the field table intact and noting the
   section is read root-only.
+  - **Evidence:** `validate_agent_files` passed with the marker documented as a
+    root-only namespaced section and the field table retained.
 - [ ] Add a migration to update mode, before its existing legacy-marker
   narrowing step: a consumer with a root `.agentdev-template.json` has its
   fields moved into the `template-consume` section and the legacy file deleted.
