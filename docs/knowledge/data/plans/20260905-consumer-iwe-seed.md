@@ -174,11 +174,21 @@ consumer memory.
 `.github/workflows/validate-knowledge-base.yml`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`.
 
-- [ ] Add focused fixture tests that assemble `.iwe/`, reusable support files,
+- [x] Add focused fixture tests that assemble `.iwe/`, reusable support files,
   and the seed at the consumer layout under repo-root `.tmp/`, run schema
   validation and normalization, and check links and onboarding keys. Require the
   checked-in seed to match normalized output and remain separate from live
   publisher data. Keep these seed-source tests publisher-only during adoption.
+  - **Evidence:** `docs/knowledge/tests/test_iwe_seed.py` (commit `4cff99c`) —
+    eight tests over a `.tmp/iwe-seed-consumer/` fixture built from `.iwe/` plus
+    the seed at `docs/knowledge/data/`: schema validation, normalize-is-a-no-op
+    against the checked-in bytes, link resolution, both onboarding keys open,
+    product placeholders intact, the MIT notice present, no publisher paths, and
+    no `templates/` key in the publisher graph.
+    `uv run pytest docs/knowledge/tests/test_iwe_seed.py` — 8 passed; each check
+    was confirmed to fail when its condition is broken. Commit `b990f17` marks
+    the file publisher-only in the guide's Workflow A step 2, its knowledge-base
+    validation subsection, and the reusable-scaffold list.
 - [ ] Make the knowledge validation workflow run the seed tests when seed,
   schema, or relevant support files change, without expanding to the full suite.
 - [ ] Exercise the guide on disposable Workflow A, Workflow B, existing-memory,
