@@ -133,7 +133,10 @@ A marker section or legacy marker file exists.
 1. **Read the progress document's choice log first.** Treat its settled choices
    as consumer intent throughout the episode. When a changed path was recorded
    as customized, use that decision to drive a manual merge rather than
-   re-deriving intent from the current diff.
+   re-deriving intent from the current diff. If a marker exists but the progress
+   document does not, create it for this pre-progress adoption. Recover only
+   choices explicit in the marker (`workflow`, `optional_bundles`, and retained
+   `tracked_paths`); record every other choice as unknown rather than guessing.
 2. **Consolidate a legacy marker.** When the consumer root carries
    `.agentdev-template.json`, move its object unchanged into the
    `template-consume` section of the root `.agent.metadata.json`, preserving

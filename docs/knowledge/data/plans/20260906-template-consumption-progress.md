@@ -237,9 +237,11 @@ this way; the root file stays the live record.
   accumulates in place rather than being reset.
   - **Evidence:** `validate_agent_files` passed with dated update tasks derived
     from changed paths and an accumulating choice log.
-- [ ] Handle a consumer with a marker but no progress document — an adoption
+- [x] Handle a consumer with a marker but no progress document — an adoption
   predating this plan. Create the file with the choices that can be recovered
   from the marker, and record the rest as unknown rather than guessed.
+  - **Evidence:** `validate_agent_files` passed with pre-progress adoptions
+    recovering only explicit marker choices and labeling the rest unknown.
 - [ ] Amend step 7 (line 170) so the advanced marker and the extended progress
   document are committed together.
 
