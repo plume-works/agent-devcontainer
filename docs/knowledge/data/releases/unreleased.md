@@ -47,6 +47,8 @@ renames this file to the version number and starts a fresh one.*
 
 ## Fixed
 
+[Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md)
+
 [Missing map skill](../bugs/missing-map-skill.md)
 
 [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

@@ -21,9 +21,9 @@ moves them.*
 
 [Python skill scripts](plans/20260905-python-skill-scripts.md)
 
-[Digest masks for map docs](plans/20260905-digest-masks.md)
-
 ## Done
+
+[Digest masks for map docs](plans/20260905-digest-masks.md)
 
 [Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
 

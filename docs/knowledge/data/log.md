@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Update**: [Digest masks for map docs](plans/20260905-digest-masks.md) done —
+  machine-managed pins are normalized before codebase-map source fingerprints
+  are computed, while surrounding structural changes still mark affected
+  documents stale.
+- **Update**:
+  [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md) fixed
+  and recorded in [unreleased](releases/unreleased.md).
 - **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
   re-read, all source digests were verified, and the tested
   [consumer IWE seed](codebase/templates/iwe.md) was added as the twenty-seventh
