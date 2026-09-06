@@ -806,6 +806,11 @@ root:
    choices, and point to `.agentdev-template-progress.md` as the live record.
    Do not copy the checklist into the graph.
 
+The summary key is `data/template-adoption` and its frontmatter `type` is
+`tracker`. Adoption state is a living record refreshed in place, which matches
+the tracker schema; it is not a design decision or a one-time release record.
+The seeded `.iwe/config.toml` binds that exact key to `[schemas.tracker]`.
+
 Both skills own their own interviews and confirmation gates. This guide invokes
 them; it does not answer for the user, skip a confirmation, or pre-fill an
 interview.

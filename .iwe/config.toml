@@ -108,7 +108,7 @@ match = [
 ]
 
 [schemas.tracker]
-match = ["data/product", "data/milestone"]
+match = ["data/product", "data/milestone", "data/template-adoption"]
 
 # OKF v0.2 conformance (SPEC §11). okf stacks on top of the per-type schemas and
 # catches any document arriving without a type; okf-index and okf-log check the

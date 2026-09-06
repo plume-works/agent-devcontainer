@@ -260,12 +260,14 @@ this way; the root file stays the live record.
   checklist.
   - **Evidence:** `validate_agent_files` passed with the consumer graph summary
     limited to adoption context and a pointer to the live checklist.
-- [ ] Choose and record the summary's document key and `type`. `tracker` fits
+- [x] Choose and record the summary's document key and `type`. `tracker` fits
   the schema's own description of a living document edited in place, but
   `[schemas.tracker]` in `.iwe/config.toml` (line 110) matches only
   `data/product` and `data/milestone`, so adopting it means adding a third match
   to the seeded config. Decide between that and an existing bound type, and
   state the reason in the guide.
+  - **Evidence:** `iwe schema validate` passed with `data/template-adoption`
+    bound as a living `tracker` document.
 - [ ] Specify that update mode refreshes this summary at the end of each
   episode, and that a consumer without IWE skips the step entirely.
 
