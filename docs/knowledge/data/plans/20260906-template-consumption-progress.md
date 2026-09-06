@@ -95,12 +95,14 @@ this way; the root file stays the live record.
 
 **Files:** Modify: `docs/knowledge/data/spec/template-consumption.md`.
 
-- [ ] Rewrite `## Requirement: adoption is recorded for later updates` so it
+- [x] Rewrite `## Requirement: adoption is recorded for later updates` so it
   covers both artifacts and states the division of ownership: the JSON marker
   owns `consumed_ref` and remains the only machine-parsed record, the Markdown
   progress document owns the task list and the choice log. Keep the existing
   sentences about diffing only tracked paths and never advancing the SHA past
   what was applied.
+  - **Evidence:** `iwe schema validate` passed with the two-record ownership
+    contract in the durable specification.
 - [ ] Add a requirement that setup writes `.agentdev-template-progress.md`
   before executing the guide's steps, not after, so an interrupted session
   leaves a resumable record.

@@ -79,11 +79,18 @@ can run the pull request head branch's workflow and attach checks to that head.
 
 ## Requirement: adoption is recorded for later updates
 
-Setup SHALL write `.agentdev-template.json` at the consumer root recording the
-full commit SHA of the template consumed, the workflow used, the optional
-bundles kept, and the template paths still tracked. Update mode SHALL diff only
-those paths from that SHA and SHALL NOT advance the SHA past what was actually
+Setup SHALL write two records at the consumer root, both tracked in git.
+
+The `template-consume` section of `.agent.metadata.json` SHALL record the full
+commit SHA of the template consumed, the workflow used, the optional bundles
+kept, and the template paths still tracked. It SHALL remain the only
+machine-parsed record of the consumed ref. Update mode SHALL diff only those
+paths from that SHA and SHALL NOT advance the SHA past what was actually
 applied.
+
+`.agentdev-template-progress.md` SHALL own the task list for the chosen workflow
+and the choices the user made. It MAY name the adopted SHA as context, but SHALL
+NOT be read as the source of truth for it.
 
 ## Pull request description guidance
 
