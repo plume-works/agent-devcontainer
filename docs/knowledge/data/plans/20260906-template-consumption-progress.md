@@ -146,12 +146,14 @@ this way; the root file stays the live record.
 
 **Files:** Modify: `docs/knowledge/data/architecture/agent-metadata-files.md`.
 
-- [ ] Add a root-only resolution rule to `## Resolution`: a consumer whose data
+- [x] Add a root-only resolution rule to `## Resolution`: a consumer whose data
   is a repository-level singleton rather than a per-directory rule MAY declare
   itself root-only, reading the repository-root file without walking, and a
   nested declaration of a root-only key is a broken-metadata condition rather
   than a merge. Accumulation stays the default for every other consumer; do not
   add a general scalar-merge rule.
+  - **Evidence:** `iwe schema validate` passed with root-only resolution scoped
+    to consumers that explicitly declare it.
 - [ ] Name `template-consume` in `## Consumers` as root-only, with the reason: a
   repository has exactly one adopted ref.
 - [ ] Amend `## Relationship to the template boundary` so the "inherits the

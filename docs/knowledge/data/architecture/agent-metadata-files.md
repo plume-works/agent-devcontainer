@@ -3,7 +3,7 @@ type: architecture
 description: A colocated per-directory file carrying agent tooling metadata, resolved root-to-leaf with accumulating namespaced sections.
 generated:
   by: codex/gpt-5
-  at: 2026-09-06T05:35:53Z
+  at: 2026-09-06T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: docs/knowledge/data/architecture/template-boundary.md
@@ -62,6 +62,13 @@ resolving .github/workflows/ci.yml
 Accumulation has no removal operation. If a subtree ever needs to escape an
 inherited rule, that is a new key with its own semantics, not a reinterpretation
 of this one.
+
+A consumer whose data is a repository-level singleton rather than a
+per-directory rule MAY declare its key root-only. It reads that key from the
+repository-root file without walking. The same key in a nested metadata file is
+a broken-metadata condition, not a value to merge. Accumulation remains the
+default for every consumer that does not explicitly declare root-only
+resolution; the format defines no general scalar-merge rule.
 
 ## Failure containment
 
