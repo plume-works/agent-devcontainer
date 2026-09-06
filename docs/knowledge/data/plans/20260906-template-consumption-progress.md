@@ -201,10 +201,12 @@ this way; the root file stays the live record.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
 
-- [ ] Add a `## The Progress Document` section beside `## The Marker File` (line
+- [x] Add a `## The Progress Document` section beside `## The Marker File` (line
   21) giving the file's shape: a `## Tasks` section of `- [ ]` items with
   evidence children, a `## Choices` section, and the adopted SHA recorded as
   context with an explicit note that the marker owns the authoritative ref.
+  - **Evidence:** `validate_agent_files` passed with the progress document's
+    task, evidence, choice, and SHA-ownership shape defined.
 - [ ] Insert a step into `## Setup Mode` (line 55), after the workflow question
   at line 63 and before the scope questions at line 68, that generates the task
   list for the chosen workflow and writes the file. The workflow question must
@@ -385,21 +387,21 @@ schema decision may add a match to the `.iwe/config.toml` it ships.
 
 Verified anchor points (line numbers as of 2026-09-06):
 
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:21` —
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:22` —
   `## The Marker File`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:55` —
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:74` —
   `## Setup Mode`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:63` — setup step 1,
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:82` — setup step 1,
   the workflow question
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:68` — setup step 2,
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:87` — setup step 2,
   the scope questions
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:87` — setup step 6,
-  writing the marker
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:99` —
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:106` — setup step
+  6, writing the marker
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:118` —
   `## Update Mode`
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:170` — update step
-  7, advancing the marker
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:176` —
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:196` — update step
+  8, advancing the marker
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:202` —
   `## Default Template Surface`
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:791`
   — `### Onboard the consumer's project memory`
@@ -411,7 +413,7 @@ Verified anchor points (line numbers as of 2026-09-06):
   `## Requirement: adoption is recorded for later updates`
 - `docs/knowledge/data/architecture/template-boundary.md:75` —
   `## Default template surface`
-- `docs/knowledge/data/architecture/template-boundary.md:156` — the
+- `docs/knowledge/data/architecture/template-boundary.md:167` — the
   `.github/pr-description-guidance.md` consumer-created row
 - `.iwe/config.toml:110` — `[schemas.tracker]`, matching only `data/product` and
   `data/milestone`
@@ -419,11 +421,11 @@ Verified anchor points (line numbers as of 2026-09-06):
   section
 - `docs/knowledge/data/architecture/agent-metadata-files.md:36` —
   `## Resolution`, the accumulation contract Task 3 extends
-- `docs/knowledge/data/architecture/agent-metadata-files.md:88` —
+- `docs/knowledge/data/architecture/agent-metadata-files.md:95` —
   `## Relationship to the template boundary`
-- `docs/knowledge/data/architecture/agent-metadata-files.md:120` —
+- `docs/knowledge/data/architecture/agent-metadata-files.md:132` —
   `## Consumers`
 - `.agents/plugins/agentdev/skills/template-consume/scripts/__common.sh:29` —
   `marker_file_name`, the single definition of the marker filename
-- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:119-128`
+- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:130-140`
   — the `jq` reads of `consumed_ref` and `tracked_paths`

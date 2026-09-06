@@ -58,6 +58,19 @@ forever after. This section is read only from the repository-root metadata
 file; `template-consume` in a nested `.agent.metadata.json` is broken metadata,
 not another record to merge.
 
+## The Progress Document
+
+`.agentdev-template-progress.md` is the git-tracked, consumer-owned live record.
+Its `## Tasks` section contains the chosen workflow's manifest as `- [ ]` items.
+Tick a completed item only in the same edit that adds its indented
+`- **Evidence:**` child naming the commit, test run, or verification that closed
+it. Its `## Choices` section records each settled choice and accumulates across
+setup and later updates.
+
+The document may record the adopted SHA as episode context. That prose is never
+authoritative: `template-consume.consumed_ref` in `.agent.metadata.json` remains
+the only machine-parsed source of the adopted ref.
+
 ## Setup Mode
 
 No marker file. Read [the full consumption guide](references/consumption-guide.md)
