@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:a84c644a219e5d35cd642623a0f318b4a8d7f7b28f371f40951283d8d4c9a37d
+source_digest: sha256:f2c5c8cf06a0dbc8306be73bf61ac43072b06c8b22a066f09a22cb87c4abb37a
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T05:05:02Z
 stale_after: 2026-12-05
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-06T05:05:02Z
 sources:
 - id: code
   resource: .iwe
@@ -26,9 +26,9 @@ The scaffolding around the project's memory. `.iwe/config.toml` at the
 repository root points the library at `docs/knowledge`, binds a schema to every
 `data/` path, and configures normalization; the three Markdown files beside
 `data/` explain the manual, the frontmatter shapes, and the design rationale;
-one pytest module gates plan checkboxes. This doc deliberately excludes
-`docs/knowledge/data/` from its `source`: the map commit would otherwise make
-itself stale.
+two pytest modules gate plan checkboxes and the consumer seed. This doc
+deliberately excludes `docs/knowledge/data/` from its `source`: the map commit
+would otherwise make itself stale.
 
 ## Public surface
 
@@ -42,6 +42,9 @@ itself stale.
 - `docs/knowledge/tests/test_plan_checkboxes.py` — every ticked task in an
   active plan carries an `- **Evidence:**` child; a done plan has no unticked
   task
+- `docs/knowledge/tests/test_iwe_seed.py` — assembles
+  [the consumer seed](../templates/iwe.md) as a standalone workspace and checks
+  its schema, normalization, onboarding tasks, links, license, and boundaries
 - `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works
@@ -50,7 +53,9 @@ Bindings are by key glob, not frontmatter, so a document is validated by where
 it lives; hubs and the OKF reserved files have their own schemas, and `okf.yaml`
 catches any document under `data/` without a `type`. The IWE skills in the
 [catalog](../agents/plugins/agentdev/skills.md) write the data; `iwe normalize`
-rewrites links and wrapping after every manual edit.
+rewrites links and wrapping after every manual edit. The seed test mounts the
+root schemas over a copied `templates/iwe/data/` tree because the seed is not a
+member of this repository's graph.
 
 ## Depends on
 
@@ -74,6 +79,8 @@ Verified anchor points (line numbers as of 2026-09-06):
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
+- `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
+  fixture
 - `.pre-commit-config.yaml:91-111` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
-- `.github/workflows/validate-knowledge-base.yml:78-89` — the CI checks
+- `.github/workflows/validate-knowledge-base.yml:91-109` — graph and seed checks

@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-09-06
 
+- **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
+  re-read, all source digests were verified, and the tested
+  [consumer IWE seed](codebase/templates/iwe.md) was added as the twenty-seventh
+  mapped document.
 - **Update**: Refreshed the [codebase map](codebase.md) — the catalog,
   [bin helpers](codebase/agents/plugins/agentdev/bin.md),
   [skills](codebase/agents/plugins/agentdev/skills.md),

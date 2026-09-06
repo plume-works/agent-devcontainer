@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:ddcf09b631f6e503e465fc86e9c0d5f856325ab053ba8b81dd26f822916c20d0
+source_digest: sha256:d3aef9605e57083f036f27394ac96284e3677e0bd39f55d14dc147282698ce2a
 verified:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  at: 2026-09-06T05:05:02Z
+stale_after: 2026-12-05
 generated:
   by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  at: 2026-09-06T05:05:02Z
 sources:
 - id: code
   resource: .github
@@ -40,9 +40,11 @@ before the push.
    pytest suites, then
    `validate_agent_files --recommend . --require-marketplace claude codex` —
    `.github/workflows/validate-agent-files.yml:68-74`
-5. `validate-knowledge-base.yml`, when `docs/knowledge/` or `.iwe/` changed:
-   `iwe schema validate`, `iwe normalize` must be a no-op, and the plan-checkbox
-   tests — `.github/workflows/validate-knowledge-base.yml:78-89`, in
+5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, or the IWE
+   seed changed: `iwe schema validate`, `iwe normalize` must be a no-op, and the
+   plan-checkbox tests; a second, path-filtered pytest pass assembles and
+   validates the consumer seed —
+   `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in
    [the knowledge workspace](docs/knowledge.md)
 6. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions; `claude-respond` runs the review
