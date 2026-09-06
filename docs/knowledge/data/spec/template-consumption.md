@@ -89,8 +89,9 @@ paths from that SHA and SHALL NOT advance the SHA past what was actually
 applied.
 
 `.agentdev-template-progress.md` SHALL own the task list for the chosen workflow
-and the choices the user made. It MAY name the adopted SHA as context, but SHALL
-NOT be read as the source of truth for it.
+and the choices the user made. Setup SHALL write it before executing the guide's
+steps, so an interrupted session leaves a resumable record. It MAY name the
+adopted SHA as context, but SHALL NOT be read as the source of truth for it.
 
 ## Pull request description guidance
 

@@ -103,9 +103,11 @@ this way; the root file stays the live record.
   what was applied.
   - **Evidence:** `iwe schema validate` passed with the two-record ownership
     contract in the durable specification.
-- [ ] Add a requirement that setup writes `.agentdev-template-progress.md`
+- [x] Add a requirement that setup writes `.agentdev-template-progress.md`
   before executing the guide's steps, not after, so an interrupted session
   leaves a resumable record.
+  - **Evidence:** `iwe schema validate` passed with setup ordered to persist the
+    progress document before guide execution.
 - [ ] Add a requirement that a ticked task in the progress document carries an
   `- **Evidence:**` child, matching
   [Plan checkbox evidence](../spec/plan-checkbox-evidence.md).
