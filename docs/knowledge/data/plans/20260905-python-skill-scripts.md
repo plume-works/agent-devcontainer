@@ -114,38 +114,57 @@ and inline Python inside bash is neither testable nor lintable.
 `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py`; Delete:
 `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh`
 
-- [ ] Reproduce every stdout line and count key from `usage()` at
+- [x] Reproduce every stdout line and count key from `usage()` at
   `stale-map-docs.sh:16-46`: `MAP_DIR`, the per-doc `FRESH`/`STALE`/
   `GONE`/`UNKNOWN_COMMIT`/`EXPIRED`/`NO_COMMIT` lines with their exact field
   order, then `DOC_COUNT`, `FRESH_COUNT`, `STALE_COUNT`, `GONE_COUNT`,
   `EXPIRED_COUNT`, then `RESULT=`. Register `3=STALE_FOUND` and `4=NO_MAP_DOCS`
   as `stale-map-docs.sh:14` does.
-- [ ] Reproduce `source_digest_for_paths` exactly (`stale-map-docs.sh:141-162`):
+  - **Evidence:** Both scripts run on this checkout produce byte-identical
+    stdout over 26 docs (15 fresh, 11 stale) and the same exit 3, in the commit
+    that ports the script.
+- [x] Reproduce `source_digest_for_paths` exactly (`stale-map-docs.sh:141-162`):
   `git ls-files -z` over the source paths, deduplicated and sorted bytewise,
   each entry contributing `<path>\0<git hash-object output>\0` — or `MISSING`
   for a listed path absent from the worktree — hashed with sha256 and prefixed
   `sha256:`. An empty path list hashes the empty string.
-- [ ] Preserve `--library` and `-h/--help`, help text on stdout exiting
+  - **Evidence:** Every `source_digest` recorded in `data/codebase/**/*.md` is
+    unchanged, and the 11 STALE digest values match the shell original's
+    byte-for-byte in the same comparison run.
+- [x] Preserve `--library` and `-h/--help`, help text on stdout exiting
   `SUCCESS`, and unknown arguments to stderr exiting `PREFLIGHT_ERROR`. Preserve
   the `.iwe/config.toml` `[library].path` lookup and the not-a-repo and
   missing-config preflight errors (`stale-map-docs.sh:70-95`).
-- [ ] Preserve the legacy `commit` fallback for docs without `source_digest`,
+  - **Evidence:** `--help`, `--bogus`, a valueless `--library`, an explicit
+    `--library docs/knowledge`, and a run outside any repository each match the
+    shell original's exit code, stdout, and stderr; the only difference is the
+    script's own filename in its usage line. Covered by `test_help_is_a_success`
+    and `test_missing_iwe_config_is_a_preflight_error`.
+- [x] Preserve the legacy `commit` fallback for docs without `source_digest`,
   including `UNKNOWN_COMMIT` via `git cat-file -e` and the
-  `git log --oneline <commit>..HEAD` touch count (`stale-map-docs.sh:215-232`).
-- [ ] Parse frontmatter with a reader that handles quoted scalars containing
+  `git log --oneline <commit>..HEAD` touch count (`stale-map-docs.sh:210-232`).
+  - **Evidence:** `test_commit_touching_a_source_marks_the_doc_stale` and
+    `test_unknown_commit_and_past_stale_after_are_flagged` pass unchanged.
+- [x] Parse frontmatter with a reader that handles quoted scalars containing
   colons and the three `source` shapes (scalar, flow list, block list) that
   `source_paths` handles at `stale-map-docs.sh:123-139`.
+  - **Evidence:** `source_paths` covers all three shapes; the suite exercises
+    scalar, flow-list, and block-list `source` values and passes unchanged.
 
 ### Task 4: Point the existing suite at the ported script
 
 **Files:** Modify: `.agents/plugins/agentdev/tests/test_stale_map_docs.py`
 
-- [ ] Change `SCRIPT_PATH` at `test_stale_map_docs.py:11` to the `.py` file.
+- [x] Change `SCRIPT_PATH` at `test_stale_map_docs.py:11` to the `.py` file.
   Every existing behavior test passes unchanged — that is the port's acceptance
   criterion, so do not adjust assertions to fit the port.
-- [ ] Replace the reimplemented `source_digest` helper at
+  - **Evidence:** `uv run pytest .agents/plugins/agentdev/tests` — 48 passed;
+    `git diff HEAD` over the test file shows no changed assertion lines.
+- [x] Replace the reimplemented `source_digest` helper at
   `test_stale_map_docs.py:38-61` with an import of the ported function, so the
   algorithm has one definition.
+  - **Evidence:** the test's `source_digest` now delegates to
+    `stale_map_docs.source_digest_for_paths`, loaded by `_load_script_module`.
 
 ### Task 5: Update the references to the script's filename
 

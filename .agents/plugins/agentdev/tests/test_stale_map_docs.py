@@ -4,13 +4,28 @@
 
 from __future__ import annotations
 
-import hashlib
+import importlib.util
+import os
 from pathlib import Path
 import subprocess
+import sys
 
-SCRIPT_PATH = 'skills/iwe-map/scripts/stale-map-docs.sh'
+SCRIPT_PATH = 'skills/iwe-map/scripts/stale-map-docs.py'
 LIBRARY = 'docs/knowledge'
 GIT_IDENTITY = ['-c', 'user.name=Fixture Author', '-c', 'user.email=fixture@example.invalid']
+
+
+def _load_script_module():
+    """Import the ported script by path, so the digest has one definition."""
+    plugin_root = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(plugin_root / 'bin'))
+    spec = importlib.util.spec_from_file_location('stale_map_docs', plugin_root / SCRIPT_PATH)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+stale_map_docs = _load_script_module()
 
 
 def git(repository: Path, *arguments: str) -> str:
@@ -36,28 +51,15 @@ def commit_file(repository: Path, relative: str, content: str, message: str) -> 
 
 
 def source_digest(repository: Path, *sources: str) -> str:
-    """Return the stale-map source_digest for the tracked source contents."""
-    if not sources:
-        return f'sha256:{hashlib.sha256(b"").hexdigest()}'
-
-    listed = subprocess.run(
-        ['git', 'ls-files', '-z', '--', *sources],
-        cwd=repository,
-        check=True,
-        capture_output=True,
-    ).stdout
-    digest = hashlib.sha256()
-    for raw_path in sorted({path for path in listed.split(b'\0') if path}):
-        relative = raw_path.decode()
-        if (repository / relative).exists():
-            content_hash = git(repository, 'hash-object', '--', relative)
-        else:
-            content_hash = 'MISSING'
-        digest.update(raw_path)
-        digest.update(b'\0')
-        digest.update(content_hash.encode())
-        digest.update(b'\0')
-    return f'sha256:{digest.hexdigest()}'
+    """Return the stale-map source_digest, computed by the script under test."""
+    # The script resolves paths against the working directory, so it computes a
+    # digest for `repository` only while that is the CWD.
+    previous = Path.cwd()
+    os.chdir(repository)
+    try:
+        return stale_map_docs.source_digest_for_paths(list(sources))
+    finally:
+        os.chdir(previous)
 
 
 def build_workspace(path: Path) -> Path:
