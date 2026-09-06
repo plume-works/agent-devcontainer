@@ -104,6 +104,11 @@ Template-class `.devcontainer/`; a file under `ansible/` stays Publisher and is
 never copied. A consuming repository that adopts a directory receives the rules
 governing that directory in the same operation, with nothing to reconcile.
 
+The repository-root file is the exception because it mixes ownership classes.
+Its `iwe-map` key is Template-class configuration, while `template-consume` is
+consumer-created adoption state. The boundary therefore classifies the root file
+per top-level key rather than assigning one class to the whole file.
+
 ## Alternatives considered
 
 **A single repository-level map.** One file — say

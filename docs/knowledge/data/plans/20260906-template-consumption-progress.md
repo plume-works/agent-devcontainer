@@ -158,10 +158,12 @@ this way; the root file stays the live record.
   repository has exactly one adopted ref.
   - **Evidence:** `iwe schema validate` passed with `template-consume` declared
     root-only because the adopted ref is a repository singleton.
-- [ ] Amend `## Relationship to the template boundary` so the "inherits the
+- [x] Amend `## Relationship to the template boundary` so the "inherits the
   class of the directory holding it" rule states its exception — the root file
   is classified per top-level key, since it now carries both Template-class
   `iwe-map` rules and consumer-created consumption state.
+  - **Evidence:** `iwe schema validate` passed with the mixed-ownership root
+    file explicitly classified per top-level key.
 
 ### Task 4: Move the consumption record into .agent.metadata.json
 
