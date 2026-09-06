@@ -207,11 +207,13 @@ this way; the root file stays the live record.
   context with an explicit note that the marker owns the authoritative ref.
   - **Evidence:** `validate_agent_files` passed with the progress document's
     task, evidence, choice, and SHA-ownership shape defined.
-- [ ] Insert a step into `## Setup Mode` (line 55), after the workflow question
+- [x] Insert a step into `## Setup Mode` (line 55), after the workflow question
   at line 63 and before the scope questions at line 68, that generates the task
   list for the chosen workflow and writes the file. The workflow question must
   stay first: Workflow A and Workflow B have different step lists, so the list
   cannot be generated before the workflow is known.
+  - **Evidence:** `validate_agent_files` passed with progress persisted between
+    workflow selection and the scope interview.
 - [ ] Amend setup mode's step 6 (line 87) so the marker and the completed
   progress document are committed together.
 - [ ] State that a setup mode run finding an existing progress document resumes
