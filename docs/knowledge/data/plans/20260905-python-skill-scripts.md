@@ -149,14 +149,15 @@ and inline Python inside bash is neither testable nor lintable.
 ### Task 6: Re-anchor the documents citing the deleted script
 
 **Files:** Modify: `docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md`;
-`docs/knowledge/data/plans/20260905-digest-masks.md`
+`docs/knowledge/data/plans/20260905-digest-masks.md`;
+`docs/knowledge/data/architecture/agent-metadata-files.md`
 
-- [ ] Re-locate the two `## Key references` anchors in each file that cite
-  `stale-map-docs.sh` line numbers — `:141-162` (`source_digest_for_paths`) and
-  `:192-196` (the digest comparison emitting `STALE`) — against
-  `stale-map-docs.py`, and restamp each file's
-  `Verified anchor points (line numbers as of ...)` line. Deleting the `.sh`
-  breaks all four; they are pointers meant to resolve, not history.
+- [ ] Re-locate every `## Key references` anchor in those three files that cites
+  a `stale-map-docs.sh` line number against `stale-map-docs.py`, and restamp
+  each file's `Verified anchor points (line numbers as of ...)` line. Deleting
+  the `.sh` breaks all of them; they are pointers meant to resolve, not history.
+  `grep -n 'stale-map-docs\.sh:' docs/knowledge/` enumerates the live set, which
+  changes as those plans are revised.
 - [ ] Update the bug's `sources:` entry naming the `.sh` file. Leave its Symptom
   and Reproduction prose alone — those record an observation made against the
   script as it then was.
@@ -182,14 +183,17 @@ plan, which is what makes the port provable.
   `uv run ruff format --check` on both new files.
 - `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py` ends `RESULT=SUCCESS` on the
   current checkout, as `iwe-map/SKILL.md:229` requires before a map commit.
-- No `stale-map-docs.sh` reference survives outside the two narrative documents
-  Task 5 exempts: `grep -rn 'stale-map-docs\.sh'` returns only
-  `data/plans/20260903-iwe-map-skill.md` and `data/bugs/missing-map-skill.md`.
+- No forward-looking document anchors the deleted script. Grepping
+  `stale-map-docs\.sh:` across the bug, the digest-masks plan, and
+  `data/architecture/agent-metadata-files.md` returns nothing once Task 6 lands.
+  This plan's own anchors and `data/plans/20260903-iwe-map-skill.md` keep citing
+  the `.sh` deliberately: they record the script this port consumed and the work
+  that built it, not pointers a future session should follow.
 
 ## Out of scope
 
-- Digest masking, `digest-masks.json`, and any change to what content the digest
-  covers — that is the plan this one unblocks.
+- Digest masking, `.agent.metadata.json`, and any change to what content the
+  digest covers — that is the plan this one unblocks.
 - Porting the remaining bash scripts under `skills/*/scripts/`.
   `bin/result-codes.sh` stays, and stays the implementation they source.
 - Changing the `RESULT=` vocabulary, exit codes, or output keys.

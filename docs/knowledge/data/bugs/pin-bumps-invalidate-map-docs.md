@@ -66,30 +66,33 @@ claiming that subtree.
 
 ## Fix
 
-Mask machine-managed content out of the digest input before hashing, driven by a
-repository-level map of glob to pattern at `docs/knowledge/digest-masks.json`.
-Each pattern carries a replacement rather than deleting its match, so the
-structure around a pinned value stays tracked while the value itself stops
-mattering: a changed image name or a dropped pin line still marks the doc stale.
+Mask machine-managed content out of the digest input before hashing, driven by
+`.agent.metadata.json` files colocated with the sources they describe. Each
+pattern carries a replacement rather than deleting its match, so the structure
+around a pinned value stays tracked while the value itself stops mattering: a
+changed image name or a dropped pin line still marks the doc stale.
 
-The map is keyed by glob so one entry covers a fan-out — `.github/**/*.yml`
-serves `github`, `github/actions`, and `flow-pull-request-checks` together. It
-sits beside `data/` rather than inside it, because `data/` is an OKF bundle of
-typed Markdown documents, and it is JSON so a consuming repository needs no
-third-party parser.
+The masks sit beside what they govern — one file at the repository root for the
+compose pin, one under `.github/` covering every workflow and action below it,
+so a single entry serves `github`, `github/actions`, and
+`flow-pull-request-checks`. A directory copied into another repository carries
+its own rules, and a metadata file that cannot be read breaks only the subtree
+holding it. The format is
+[Agent metadata files](../architecture/agent-metadata-files.md); a single
+repository-level map was considered and rejected there.
 
 Planned in [Digest masks for map docs](../plans/20260905-digest-masks.md), which
 depends on [Python skill scripts](../plans/20260905-python-skill-scripts.md) —
-the glob, JSON, and regex work needs the ported script.
+the walk, JSON, and regex work needs the ported script.
 
-Three alternatives were considered and rejected. Per-doc `digest_ignore`
-frontmatter puts a property of a file into every doc that claims it — five
-copies of two facts here — and directory-scoped `source` fields mean a per-doc
-entry needs a path scope anyway, which is the same map sharded. Skipping
-Renovate-authored commits hides a real signal, since a major-version bump
-genuinely can invalidate a doc. Narrowing `source` fields helps the `.github`
-fan-out but not `devcontainer-compose-pins.yml`, which is legitimately described
-content that happens to hold a digest.
+Three alternatives to masking were considered and rejected. Per-doc
+`digest_ignore` frontmatter puts a property of a file into every doc that claims
+it — five copies of two facts here — and directory-scoped `source` fields mean a
+per-doc entry needs a path scope anyway. Skipping Renovate-authored commits
+hides a real signal, since a major-version bump genuinely can invalidate a doc.
+Narrowing `source` fields helps the `.github` fan-out but not
+`devcontainer-compose-pins.yml`, which is legitimately described content that
+happens to hold a digest.
 
 ## Key references
 
