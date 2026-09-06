@@ -113,8 +113,10 @@ this way; the root file stays the live record.
   [Plan checkbox evidence](../spec/plan-checkbox-evidence.md).
   - **Evidence:** `iwe schema validate` passed with the checkbox-evidence
     scenario in the durable specification.
-- [ ] Add a requirement that the progress document is never a `tracked_paths`
+- [x] Add a requirement that the progress document is never a `tracked_paths`
   member, being consumer-created state rather than a template path.
+  - **Evidence:** `iwe schema validate` passed with both consumer-created state
+    files excluded from `tracked_paths`.
 - [ ] Add a scenario for a resumed setup: a session finding a progress document
   with unticked tasks continues from them rather than restarting the interview.
 

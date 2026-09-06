@@ -93,6 +93,9 @@ and the choices the user made. Setup SHALL write it before executing the guide's
 steps, so an interrupted session leaves a resumable record. It MAY name the
 adopted SHA as context, but SHALL NOT be read as the source of truth for it.
 
+Neither file SHALL appear in `tracked_paths`; both are consumer-created state,
+not template paths.
+
 ### Scenario: a task is completed during consumption
 
 - **WHEN** a consumption task is finished
