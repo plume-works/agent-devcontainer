@@ -124,10 +124,18 @@ consumer memory.
     gates, defer mapping for a greenfield consumer, and require reporting
     onboarding as pending — resuming from the consumer's current data rather
     than recopying the seed — while any input is outstanding.
-- [ ] When IWE is declined, skip seeding and onboarding and prune copied
+- [x] When IWE is declined, skip seeding and onboarding and prune copied
   publisher knowledge, seed-source files, and IWE-only validation as
   appropriate; preserve any pre-existing consumer knowledge. Normal consumers
   need not retain `templates/iwe/` after the seed has been copied.
+  - **Evidence:** commit `b990f17`, the guide's `### When IWE is declined` — it
+    skips seeding and onboarding, removes `.iwe/`, `docs/knowledge/`,
+    `templates/iwe/` and the validation workflow, drops both pre-commit hooks
+    and the `testpaths` entry, keeps `"knowledge-base"` out of
+    `optional_bundles` and `tracked_paths`, and states that a Workflow B
+    consumer's pre-existing `docs/knowledge/` is never deleted. Workflow A step
+    2 lists `templates/iwe/` and `test_iwe_seed.py` as publisher-only deletions,
+    ordered after the seed copy.
 
 ### Task 3: Protect consumer memory during template updates
 
