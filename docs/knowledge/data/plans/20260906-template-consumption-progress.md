@@ -227,9 +227,11 @@ this way; the root file stays the live record.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
 
-- [ ] Add a step at the start of `## Update Mode` (line 99) that reads the
+- [x] Add a step at the start of `## Update Mode` (line 99) that reads the
   progress document's choice log, and point step 3's customized-path warning at
   it so a recorded choice is looked up rather than re-derived.
+  - **Evidence:** `validate_agent_files` passed with update mode reading settled
+    choices before evaluating changed paths.
 - [ ] Specify how update mode extends the file: a new `## Update <date>` task
   section per episode, derived from `CHANGED_PATHS`, while the choice log
   accumulates in place rather than being reset.

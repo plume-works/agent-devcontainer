@@ -130,14 +130,18 @@ repository's own tracked source.
 
 A marker section or legacy marker file exists.
 
-1. **Consolidate a legacy marker first.** When the consumer root carries
+1. **Read the progress document's choice log first.** Treat its settled choices
+   as consumer intent throughout the episode. When a changed path was recorded
+   as customized, use that decision to drive a manual merge rather than
+   re-deriving intent from the current diff.
+2. **Consolidate a legacy marker.** When the consumer root carries
    `.agentdev-template.json`, move its object unchanged into the
    `template-consume` section of the root `.agent.metadata.json`, preserving
    every other top-level metadata key, then delete the legacy file. Do not
    advance or rewrite `consumed_ref`: this migration changes only where the
    record lives. Commit the consolidation on its own, then continue.
 
-2. **Narrow a legacy knowledge marker**, before running any script. A
+3. **Narrow a legacy knowledge marker**, before running any script. A
    marker written before the knowledge inventory existed tracks
    `docs/knowledge/` as a whole (or `docs/knowledge` without the slash). Left
    alone, the diff proposes overwriting the consumer's project memory with the
@@ -152,9 +156,9 @@ A marker section or legacy marker file exists.
    here would silently skip every upstream change since. Commit the narrowed
    marker on its own, then continue.
 
-   A marker that never tracked knowledge needs none of this; skip to step 3.
+   A marker that never tracked knowledge needs none of this; skip to step 4.
 
-3. Run [check-updates.sh](scripts/check-updates.sh) from the consumer
+4. Run [check-updates.sh](scripts/check-updates.sh) from the consumer
    repository. It clones the template repository into a scratch directory
    under `./.tmp/`, diffs every path in `tracked_paths` between `consumed_ref`
    and the clone's current default-branch HEAD, and cleans up the clone on
@@ -170,28 +174,28 @@ A marker section or legacy marker file exists.
    | `PREFLIGHT_ERROR` | `2`  | STOP and report the blocker verbatim.                                                       |
    | `SCRIPT_FAILURE`  | `1`  | STOP and report the blocker verbatim.                                                       |
 
-4. **For each changed path**, inspect the actual upstream diff (the scratch
+5. **For each changed path**, inspect the actual upstream diff (the scratch
    clone is gone by the time the script returns, so re-clone or use
    `git log`/`git show` against `https://github.com/<source_repo>` — do not
    guess from the path name alone) and decide with the user whether to pull it
    in. The script reports concrete changed files inside tracked directories,
    so a marker that tracks `.github/` still exposes a changed
-   `.github/pull_request_template.md`. A path this consumer customized
-   (renamed values, pruned an unwanted
+   `.github/pull_request_template.md`. Consult the progress document before
+   deciding. A path this consumer customized (renamed values, pruned an unwanted
    hook, edited a workflow's owner gate) needs a manual merge, not a blind
    overwrite — copying the upstream file verbatim would silently undo the
    consumer's own edits.
-5. **Re-run the two silent-drift requirements from the guide** if the changed
+6. **Re-run the two silent-drift requirements from the guide** if the changed
    paths touch lint configuration: confirm `.ruff.toml` and `pyproject.toml`
    never both configure ruff, and confirm no formatter change was just pointed
    at a directory holding verbatim third-party captures.
-6. **Re-run the PR-template evaluation** if `CHANGED_PATHS` includes
+7. **Re-run the PR-template evaluation** if `CHANGED_PATHS` includes
    `.github/pull_request_template.md`: walk the guide's §4 "The pull request
    template" procedure against the consumer's _current_ template (which may
    itself already carry a `.github/pr-description-guidance.md` to preserve), so
    an upstream template change does not silently discard captured guidance or a
    consumer heading.
-7. **Never reseed or re-onboard.** Update mode has no seeding step and no
+8. **Never reseed or re-onboard.** Update mode has no seeding step and no
    `/agentdev:iwe-setup` or `/agentdev:iwe-map` invocation. A change to the
    publisher's `docs/knowledge/data/` or to `templates/iwe/` is not a consumer
    change and produces no consumer edit — neither path is tracked, so neither
@@ -204,7 +208,7 @@ A marker section or legacy marker file exists.
    schemas and show the user what fails. Migrating their documents is the
    user's decision, not an automatic consequence of a template update.
 
-8. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
+9. **Advance the marker**: set `consumed_ref` to the upstream SHA the update
    was taken from (not necessarily the latest — the user may stop partway
    through the changed-paths list) and `last_synced_at` to now. Commit the
    applied changes and the marker update together, or in clearly separated
