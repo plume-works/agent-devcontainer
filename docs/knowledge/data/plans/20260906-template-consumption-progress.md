@@ -189,11 +189,13 @@ this way; the root file stays the live record.
   section is read root-only.
   - **Evidence:** `validate_agent_files` passed with the marker documented as a
     root-only namespaced section and the field table retained.
-- [ ] Add a migration to update mode, before its existing legacy-marker
+- [x] Add a migration to update mode, before its existing legacy-marker
   narrowing step: a consumer with a root `.agentdev-template.json` has its
   fields moved into the `template-consume` section and the legacy file deleted.
   `consumed_ref` is carried across unchanged — this migration changes where the
   record lives, never how far it has been consumed.
+  - **Evidence:** `validate_agent_files` passed with update mode consolidating
+    the legacy marker before narrowing tracked knowledge paths.
 
 ### Task 5: Write the progress document up front in setup mode
 
