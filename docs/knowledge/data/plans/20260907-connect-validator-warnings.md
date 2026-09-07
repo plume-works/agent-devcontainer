@@ -134,8 +134,12 @@ description's phrase `local lint tools` matches the vague term `tools`. Reword
 that phrase so the catalog is clean under `--recommend`, keeping the skill's
 discovery keywords intact.
 
-- [ ] The skill's description no longer trips the vague-term check, and
+- [x] The skill's description no longer trips the vague-term check, and
   `--recommend` over `.agents/` reports no warnings
+  - **Evidence:** `uv run validate_agent_files --recommend .agents` reports
+    41/41 valid with 0 warnings; the publisher gate
+    (`--recommend . --require-marketplace claude codex`) reports 47/47 valid
+    with 0 warnings
 
 ### Task 6: Update the CLI interface map document
 
