@@ -119,8 +119,10 @@ The parameter is stored at `cross_reference.py:44` and never read. The agent and
 prompt call sites (`core.py:345`, `core.py:394`) already omit it, so the skill
 site at `core.py:125-129` is the only one to update.
 
-- [ ] `CrossReferenceValidator.__init__` no longer accepts `show_warnings`, and
+- [x] `CrossReferenceValidator.__init__` no longer accepts `show_warnings`, and
   the skill call site no longer passes it
+  - **Evidence:** `show_warnings` no longer appears in `cross_reference.py`;
+    isolated suite green at 159 passed
 
 ### Task 5: Reword the description that trips the new check
 

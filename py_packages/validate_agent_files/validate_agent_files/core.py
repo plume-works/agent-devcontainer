@@ -132,7 +132,6 @@ class ValidationEngine:
 
         xref_validator = CrossReferenceValidator(
             base_path=str(skill_dir),
-            show_warnings=self.show_warnings,
             plugin_root=None if plugin_root is None else str(plugin_root),
         )
         result.issues.extend(

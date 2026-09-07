@@ -37,11 +37,9 @@ class CrossReferenceValidator:
     def __init__(
         self,
         base_path: Optional[str] = None,
-        show_warnings: bool = False,
         plugin_root: Optional[str] = None,
     ):
         self.base_path = base_path
-        self.show_warnings = show_warnings
         self.plugin_root = plugin_root
 
     def validate(
