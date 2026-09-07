@@ -60,7 +60,7 @@ are already bound, passing `show_warnings=self.show_warnings` to each.
 - [x] `SkillFrontmatterValidator().validate(frontmatter, show_warnings=...)` and
   `SkillStructureValidator().validate(body, show_warnings=...)` run for every
   discovered skill, with their issues appended to the result
-  - **Evidence:** commit `bd3bc8b` — isolated package suite green (152 passed,
+  - **Evidence:** commit `e53993a` — isolated package suite green (152 passed,
     `uv run --isolated --extra dev pytest`); a scratch skill with a vague
     description and a short top-level section reports both warnings under
     `--recommend`, none without it, exit `0` either way
@@ -73,11 +73,18 @@ are already bound, passing `show_warnings=self.show_warnings` to each.
 Assert against a fixture the test builds, never repository content. Import flag
 names from the code under test per the package's `AGENTS.md`.
 
-- [ ] A skill whose description carries a vague term reports a warning under
+- [x] A skill whose description carries a vague term reports a warning under
   `--recommend` and reports nothing extra without it
-- [ ] A fixture with warnings and no errors exits `0` both with and without
+  - **Evidence:** `tests/test_recommendations.py` —
+    `test_recommend_flag_reports_skill_warnings` and
+    `test_without_recommend_no_warnings_are_reported`; both fail against the
+    pre-wiring `core.py` and pass after it
+- [x] A fixture with warnings and no errors exits `0` both with and without
   `--recommend` — warnings never drive the exit code, per
   `ValidationResult.is_valid`
+  - **Evidence:** `tests/test_recommendations.py` —
+    `test_warnings_never_change_the_exit_code`, parametrised over both flag
+    states; full isolated suite green at 158 passed
 
 ### Task 3: Remove `--no-warnings` and read real argparse destinations
 
