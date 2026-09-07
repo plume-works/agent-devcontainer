@@ -1,7 +1,6 @@
 ---
 name: iwe-map
 description: Map a codebase into data/codebase/ — an archaeology pass that reads the code and writes one derived doc per component at its canonical key, plus flow- and api- docs, each pinned to a tracked-source digest — and refresh that map by re-reading only what moved. Use when the user says "map the codebase", "map the repo", "refresh the map", after setup for the per-module map it defers, or when verify flags stale data/codebase/ docs.
-disable-model-invocation: true
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 ---
 
