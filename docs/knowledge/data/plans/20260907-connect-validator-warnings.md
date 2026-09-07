@@ -97,10 +97,17 @@ the `no_warnings` lookup and read `parsed_args.recommend` and
 `parsed_args.errors_only` as plain attributes — the parser always defines both,
 so a `getattr` default would mask a destination rename instead of raising.
 
-- [ ] `--no-warnings` is gone from the parser and `--errors-only` remains the
+- [x] `--no-warnings` is gone from the parser and `--errors-only` remains the
   single suppression flag
-- [ ] `main.py` reads `parsed_args.recommend` and `parsed_args.errors_only`
+  - **Evidence:** `tests/test_recommendations.py` —
+    `test_parser_rejects_the_removed_no_warnings_flag`; the CLI exits `2` on
+    `--no-warnings` rather than ignoring it
+- [x] `main.py` reads `parsed_args.recommend` and `parsed_args.errors_only`
   directly, with no `getattr` default on either
+  - **Evidence:** `main.py:20` — a single
+    `parsed_args.recommend and not parsed_args.errors_only`; pinned by
+    `test_parser_exposes_recommend_and_errors_only_destinations`, isolated suite
+    green at 159 passed
 
 ### Task 4: Drop the dead `show_warnings` field from `CrossReferenceValidator`
 

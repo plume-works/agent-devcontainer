@@ -111,3 +111,9 @@ def test_parser_exposes_recommend_and_errors_only_destinations() -> None:
     assert parsed.errors_only is False
     assert parse_arguments(['--recommend']).recommend is True
     assert parse_arguments(['--errors-only']).errors_only is True
+
+
+def test_parser_rejects_the_removed_no_warnings_flag() -> None:
+    """``--errors-only`` is the single suppression flag; the old alias is gone."""
+    with pytest.raises(SystemExit):
+        parse_arguments(['--no-warnings'])

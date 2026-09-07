@@ -16,12 +16,10 @@ def main(args: Optional[List[str]] = None) -> int:
     """Run the validate_agent_files tool."""
     parsed_args = parse_arguments(args)
 
-    # Determine whether warnings should be shown based on CLI flags.
-    # Start from the existing "recommend" behavior and allow explicit flags
-    # like --no-warnings / --errors-only to disable warnings.
-    show_warnings = getattr(parsed_args, 'recommend', True)
-    if getattr(parsed_args, 'no_warnings', False) or getattr(parsed_args, 'errors_only', False):
-        show_warnings = False
+    # --errors-only wins over --recommend. Both destinations are always
+    # defined by the parser, so read them directly: a getattr default would
+    # mask a rename instead of raising.
+    show_warnings = parsed_args.recommend and not parsed_args.errors_only
 
     engine = CustomizationsValidationEngine(
         show_warnings=show_warnings,
