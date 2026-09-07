@@ -150,9 +150,12 @@ The invocation synopsis and flag prose both name `--no-warnings`, and the "How
 it works" claim that `core.py` calls the per-file validators only becomes true
 with Task 1.
 
-- [ ] The synopsis drops `--no-warnings`, the flag prose describes `--recommend`
+- [x] The synopsis drops `--no-warnings`, the flag prose describes `--recommend`
   and `--errors-only` only, and `source_digest` plus `verified` are refreshed
   for the edited `cli.py`
+  - **Evidence:** `stale-map-docs.py` reports
+    `FRESH data/codebase/api-validate-agent-files-cli` after the edit, having
+    reported `STALE` before it
 
 ## Spec changes
 

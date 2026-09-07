@@ -2,10 +2,10 @@
 type: codebase
 description: 'The command-line contract of the validator: arguments, flags, discovery rules, and exit codes, as consumed by pre-commit, CI, and the image.'
 source: py_packages/validate_agent_files/validate_agent_files/cli.py
-source_digest: sha256:3e1818693683bc3ffc2ee21982f962e4df537c11b642813a71f566bf405e1e43
+source_digest: sha256:94ae5872ab8dd3753802351f7797baefad377b1fd7682831c791001470a7eca8
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-07T23:43:50Z
 stale_after: 2026-12-03
 generated:
   by: codex/gpt-5
@@ -28,7 +28,7 @@ installed as a uv tool.
 ``` text
 validate_agent_files [paths...] [--kind all|skills|agents|prompts]
                      [--mode files|plugin] [--require-marketplace ECOSYSTEM...]
-                     [--recommend] [--ci] [--no-warnings] [--errors-only]
+                     [--recommend] [--ci] [--errors-only]
                      [--format text|json|csv] [-q] [-v] [--json] [--csv]
 ```
 
@@ -38,8 +38,9 @@ validate_agent_files [paths...] [--kind all|skills|agents|prompts]
 - `--mode plugin` adds plugin packaging discovered through the two marketplace
   manifests; `--require-marketplace claude codex` implies it and makes each
   named ecosystem's manifest mandatory.
-- `--recommend` shows warnings; `--no-warnings` and `--errors-only` hide them.
-  `--ci` prints only on failure unless `-v`.
+- `--recommend` emits skill frontmatter and structure recommendations as
+  warnings; `--errors-only` suppresses them, overriding `--recommend`. Warnings
+  never move the exit code. `--ci` prints only on failure unless `-v`.
 
 ## Exit codes
 
