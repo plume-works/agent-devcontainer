@@ -57,9 +57,13 @@ Construct both validators in `ValidationEngine.validate`, after the
 `UniquenessValidator` call at `core.py:114-117` where `frontmatter` and `body`
 are already bound, passing `show_warnings=self.show_warnings` to each.
 
-- [ ] `SkillFrontmatterValidator().validate(frontmatter, show_warnings=...)` and
+- [x] `SkillFrontmatterValidator().validate(frontmatter, show_warnings=...)` and
   `SkillStructureValidator().validate(body, show_warnings=...)` run for every
   discovered skill, with their issues appended to the result
+  - **Evidence:** commit `bd3bc8b` — isolated package suite green (152 passed,
+    `uv run --isolated --extra dev pytest`); a scratch skill with a vague
+    description and a short top-level section reports both warnings under
+    `--recommend`, none without it, exit `0` either way
 
 ### Task 2: Cover the recommendation path with a CLI-level regression test
 

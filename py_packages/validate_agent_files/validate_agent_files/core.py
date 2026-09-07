@@ -36,6 +36,7 @@ from .validators.prompts import (
     validate_prompt_frontmatter,
     validate_prompt_references,
 )
+from .validators.skill import SkillFrontmatterValidator, SkillStructureValidator
 from .validators.uniqueness import UniquenessValidator
 
 # Claude Code frontmatter fields absent from the vendor-neutral Agent Skills
@@ -115,6 +116,13 @@ class ValidationEngine:
         unique_validator = UniquenessValidator(all_skills=all_skills)
         result.issues.extend(
             unique_validator.validate(skill_path=skill_path, metadata=frontmatter, content=body)
+        )
+
+        result.issues.extend(
+            SkillFrontmatterValidator().validate(frontmatter, show_warnings=self.show_warnings)
+        )
+        result.issues.extend(
+            SkillStructureValidator().validate(body, show_warnings=self.show_warnings)
         )
 
         # Only plugin-hosted skills are affected: outside a plugin the literal
