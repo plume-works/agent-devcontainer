@@ -208,6 +208,21 @@ with recommendations live:
 uv run validate_agent_files --recommend . --require-marketplace claude codex
 ```
 
+## Verification results
+
+All checks pass as of 2026-09-07, at commit `7333146`:
+
+- Isolated package suite: 159 passed.
+- The bare run and `--recommend --errors-only` produce byte-identical output
+  with no warnings; `--recommend` reports both the vague-description and
+  short-section warnings and still exits `0`.
+- `--no-warnings` exits `2`.
+- Publisher gate: 47/47 skills valid, 0 errors, 0 warnings.
+
+The fixture must sit outside the work tree, not under `.tmp/`. Discovery skips
+gitignored paths, so a `.tmp/` fixture reports
+`contains no skills, agents, or prompts` and exercises nothing.
+
 ## Out of scope
 
 - Adding new validators or new rules. This connects an existing path; it does
