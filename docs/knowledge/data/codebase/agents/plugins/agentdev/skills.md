@@ -2,14 +2,14 @@
 type: codebase
 description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:91520236b4a57e3c8f119ed79167538951496ee0a1c0279886bd7f5c95490b96
+source_digest: sha256:bc2c6acac314c4f82bdcc2f7e8e216c9284f6ab2e918367490fe2052dc5453bd
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
-stale_after: 2026-12-05
+  by: claude-code/opus-5
+  at: 2026-09-08T01:07:21Z
+stale_after: 2026-12-07
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
+  by: claude-code/opus-5
+  at: 2026-09-08T01:07:21Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -40,12 +40,13 @@ Skills with bundled scripts: `extract-github-actions-logs`, `git-merge-resolve`,
 ## How it works
 
 A `SKILL.md` is loaded into the conversation when the user invokes it or when
-its description matches the request; `disable-model-invocation: true` limits a
-skill to explicit invocation. Scripts are bash or Python, pull in the matching
-[result-code helpers](bin.md), and end every path with `RESULT=<NAME>` on
-stdout; the `SKILL.md` carries a table keyed on those names. `iwe-map`'s
-`stale-map-docs.py` is the Python case: it fingerprints the tracked source
-behind every `data/codebase/` doc, normalizing content that an
+its description matches the request; five IWE workflow skills use
+`disable-model-invocation: true` to require explicit invocation, while `iwe-map`
+remains model-invocable for workflow handoffs. Scripts are bash or Python, pull
+in the matching [result-code helpers](bin.md), and end every path with
+`RESULT=<NAME>` on stdout; the `SKILL.md` carries a table keyed on those names.
+`iwe-map`'s `stale-map-docs.py` is the Python case: it fingerprints the tracked
+source behind every `data/codebase/` doc, normalizing content that an
 `iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
 machine-managed so an automerged pin bump does not register as a change. Its
 `--explain` flag prints one `MASK` line per applied rule, and it adds
@@ -78,7 +79,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
+Verified anchor points (line numbers as of 2026-09-08):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows

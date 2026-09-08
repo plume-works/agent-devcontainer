@@ -2,14 +2,14 @@
 type: codebase
 description: The independently released Python package that validates skills, agents, prompts, and plugin packaging; its CLI is the repository gate and ships in the image as a uv tool.
 source: py_packages/validate_agent_files
-source_digest: sha256:3130f9e88bca3d31e6089d423434c2729edd3afd86b6a628cdf3167077e41384
+source_digest: sha256:1afa700dd6ae03ed1ea32a57efcaeaa80a3c3b79ad1cd2eda79e2b59f6adf9a6
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-08T01:12:06Z
+stale_after: 2026-12-07
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-08T01:12:06Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files
@@ -50,7 +50,9 @@ validates required and present marketplaces, then plugin manifests and bundled
 Markdown containment for every plugin root it can see, then discovers and
 validates skills, agents, and prompts by `kind`. Discovery walks the tree
 skipping gitignored entries when inside a work tree. Formatters render text,
-JSON, or CSV.
+JSON, or CSV. Skill frontmatter and structure recommendations enter results only
+when warnings are enabled, and the engine filters out those legacy validators'
+stricter error-level rules.
 
 ## Depends on
 
@@ -68,14 +70,14 @@ nothing in this repository.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-08):
 
 - `py_packages/validate_agent_files/validate_agent_files/main.py:15` — `main`
 - `py_packages/validate_agent_files/validate_agent_files/cli.py:13` —
   `parse_arguments`
-- `py_packages/validate_agent_files/validate_agent_files/core.py:145` —
+- `py_packages/validate_agent_files/validate_agent_files/core.py:152` —
   `CustomizationsValidationEngine`
-- `py_packages/validate_agent_files/validate_agent_files/core.py:167` —
+- `py_packages/validate_agent_files/validate_agent_files/core.py:174` —
   `validate_paths`
 - `py_packages/validate_agent_files/validate_agent_files/loaders.py:40` —
   `_git_ignored`

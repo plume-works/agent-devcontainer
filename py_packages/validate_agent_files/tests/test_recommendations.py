@@ -1,0 +1,180 @@
+#!/usr/bin/env python3
+
+"""Tests for the ``--recommend`` path from the CLI through to reported warnings."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+
+from validate_agent_files.cli import parse_arguments
+from validate_agent_files.main import main
+from validate_agent_files.types import ValidationLevel
+from validate_agent_files.validators.skill import (
+    SkillFrontmatterValidator,
+    SkillStructureValidator,
+)
+
+# A description carrying a term the frontmatter validator calls vague, over a
+# top-level section short enough to trip the structure validator.
+RECOMMENDABLE_SKILL = """---
+name: sample-skill
+description: A bundle of tools for the invented sample workflow.
+---
+# Sample
+
+## Detail
+
+The recommendation under test is about the top-level section, so this one
+carries enough prose to stand on its own.
+"""
+
+UPSTREAM_VALID_SKILLS = {
+    'empty-body': """---
+name: empty-body
+description: An intentionally empty skill body.
+---
+""",
+    'no-h1': """---
+name: no-h1
+description: A skill whose body has no top-level heading.
+---
+This body intentionally uses plain prose without a top-level heading.
+""",
+    'short-description': """---
+name: short-description
+description: Brief
+---
+# Short Description
+
+This body is long enough to avoid an unrelated recommendation warning.
+""",
+    'crème-brûlée': """---
+name: crème-brûlée
+description: A skill with an internationalized name.
+---
+# International Name
+
+This body is long enough to avoid an unrelated recommendation warning.
+""",
+}
+
+
+def _write_skill(root: Path) -> Path:
+    """Write the recommendation fixture and return its SKILL.md path."""
+    skill_dir = root / 'sample-skill'
+    skill_dir.mkdir(parents=True)
+    skill_file = skill_dir / 'SKILL.md'
+    skill_file.write_text(RECOMMENDABLE_SKILL)
+    return skill_file
+
+
+def _write_named_skill(root: Path, name: str, content: str) -> Path:
+    """Write an invented skill fixture under its package-local directory."""
+    skill_dir = root / name
+    skill_dir.mkdir(parents=True)
+    skill_file = skill_dir / 'SKILL.md'
+    skill_file.write_text(content)
+    return skill_file
+
+
+def _expected_messages() -> set[str]:
+    """Ask the validators directly what the fixture should be warned about."""
+    frontmatter = {
+        'name': 'sample-skill',
+        'description': 'A bundle of tools for the invented sample workflow.',
+    }
+    body = RECOMMENDABLE_SKILL.split('---\n', 2)[2]
+    issues = SkillFrontmatterValidator().validate(frontmatter, show_warnings=True)
+    issues += SkillStructureValidator().validate(body, show_warnings=True)
+    return {issue.message for issue in issues if issue.level == ValidationLevel.WARNING}
+
+
+def test_recommend_flag_reports_skill_warnings(package_tmp_path, capsys) -> None:
+    """The recommendation flag surfaces both skill validators' warnings."""
+    skill_file = _write_skill(package_tmp_path)
+
+    exit_code = main([str(skill_file), '--recommend'])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0
+    expected = _expected_messages()
+    assert expected, 'the fixture must trip at least one recommendation check'
+    for message in expected:
+        assert message in output
+
+
+def test_without_recommend_no_warnings_are_reported(package_tmp_path, capsys) -> None:
+    """Without the flag the same fixture reports none of those warnings."""
+    skill_file = _write_skill(package_tmp_path)
+
+    exit_code = main([str(skill_file)])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0
+    for message in _expected_messages():
+        assert message not in output
+
+
+def test_errors_only_suppresses_recommendations(package_tmp_path, capsys) -> None:
+    """``--errors-only`` suppresses warnings even alongside ``--recommend``."""
+    skill_file = _write_skill(package_tmp_path)
+
+    exit_code = main([str(skill_file), '--recommend', '--errors-only'])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0
+    for message in _expected_messages():
+        assert message not in output
+
+
+@pytest.mark.parametrize('extra_args', [[], ['--recommend']])
+def test_warnings_never_change_the_exit_code(
+    package_tmp_path, capsys, extra_args: list[str]
+) -> None:
+    """A fixture with warnings and no errors exits 0 whether or not warnings show."""
+    skill_file = _write_skill(package_tmp_path)
+
+    exit_code = main([str(skill_file), *extra_args])
+    capsys.readouterr()
+
+    assert exit_code == 0
+
+
+@pytest.mark.parametrize('extra_args', [[], ['--recommend']], ids=['default', 'recommend'])
+@pytest.mark.parametrize(
+    ('name', 'content'),
+    UPSTREAM_VALID_SKILLS.items(),
+    ids=UPSTREAM_VALID_SKILLS,
+)
+def test_upstream_valid_skills_remain_non_errors(
+    package_tmp_path,
+    capsys,
+    name: str,
+    content: str,
+    extra_args: list[str],
+) -> None:
+    """Local recommendations never reject inputs accepted by skills-ref."""
+    skill_file = _write_named_skill(package_tmp_path, name, content)
+
+    exit_code = main([str(skill_file), *extra_args])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0, output
+
+
+def test_parser_exposes_recommend_and_errors_only_destinations() -> None:
+    """``main`` reads these destinations directly, so the parser must define both."""
+    parsed = parse_arguments([])
+
+    assert parsed.recommend is False
+    assert parsed.errors_only is False
+    assert parse_arguments(['--recommend']).recommend is True
+    assert parse_arguments(['--errors-only']).errors_only is True
+
+
+def test_parser_rejects_the_removed_no_warnings_flag() -> None:
+    """``--errors-only`` is the single suppression flag; the old alias is gone."""
+    with pytest.raises(SystemExit):
+        parse_arguments(['--no-warnings'])

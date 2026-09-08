@@ -2,14 +2,14 @@
 type: codebase
 description: 'The rule modules the engine composes: skill frontmatter and structure, agent handoffs, prompts, name uniqueness, cross-references, plugin manifests, marketplaces, bundled Markdown containment, and literal catalog paths.'
 source: py_packages/validate_agent_files/validate_agent_files/validators
-source_digest: sha256:9c3d6ff531d5822eab54ba4839334a12f2b3e4806ac5a9e0923b26341b3edcb8
+source_digest: sha256:9a31665397b3bbec2070759e40d38ff06fb5907aa3f33cb11751fa7251bbdc0a
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-08T01:12:06Z
+stale_after: 2026-12-07
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-08T01:12:06Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/validate_agent_files/validators
@@ -50,10 +50,15 @@ because a repository-relative path resolves nowhere from a plugin cache.
   repository-relative `.claude/` paths are.
 - Marketplace requirements are opt-in per ecosystem so the tool stays general;
   nothing is required by default.
+- The two skill validators are the recommendation producers: each takes
+  `show_warnings` and emits no warning when it is false, so recommendation
+  suppression happens before an issue exists. `CrossReferenceValidator` also has
+  an ungated warning path for an unresolvable reference at
+  `cross_reference.py:81`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-08):
 
 - `.../validators/skill.py:11,123` — the two skill validators
 - `.../validators/agents.py:12,67` — frontmatter and handoff

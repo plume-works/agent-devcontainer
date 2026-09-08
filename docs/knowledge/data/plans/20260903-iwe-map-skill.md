@@ -3,8 +3,8 @@ type: plan
 created: 2026-09-03
 description: Add the iwe-map skill that writes and refreshes data/codebase/ — the codebase-map lane every other skill hands off to but nothing populates — and map this repository with it.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T20:00:00Z
+  by: claude-code/opus-5
+  at: 2026-09-08T01:12:06Z
 sources:
 - resource: https://github.com/iwe-org/dev-workspace/issues/1
   title: Missing "map" skill — verify and setup both refer to it, data/codebase/ has no writer
@@ -73,6 +73,11 @@ The skill is validated by running it: this repository gets mapped in initial
 mode as the plan's last task, which is also the forward-test the create-skill
 gate requires.
 
+`iwe-map` intentionally remains available for model invocation so
+`iwe-implement` and `iwe-ship` can refresh stale maps at their documented
+handoffs without interrupting the workflow. Its discovery description is limited
+to explicit map and refresh requests to constrain incidental use.
+
 ## Implementation Steps
 
 ### Task 1: Write the iwe-map skill
@@ -81,12 +86,13 @@ gate requires.
 
 - [x] Write `SKILL.md` with frontmatter (`name: iwe-map`, a description that
   triggers on "map the codebase / repo", "refresh the map", and Verify's stale
-  handoff, `disable-model-invocation: true`, `allowed-tools` for the bundled
-  script), the initial-mode and refresh-mode steps, the canonical-key rules, the
-  frontmatter template with a tracked-source digest, the script's `RESULT`
-  table, and the rules (read the code never memory; what not why; unknown beats
-  fiction; never `mv`).
-  - **Evidence:** commit `eb60f60`;
+  handoff, and `allowed-tools` for the bundled script), the initial-mode and
+  refresh-mode steps, the canonical-key rules, the frontmatter template with a
+  tracked-source digest, the script's `RESULT` table, and the rules (read the
+  code never memory; what not why; unknown beats fiction; never `mv`). Keep the
+  skill model-invocable for workflow handoffs and narrowly scope its discovery
+  description.
+  - **Evidence:** commits `eb60f60`, `cdc5611`, and `17fe803`;
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
     reports 47/47 skills valid, 0 errors, 0 warnings with `iwe-map` counted.
 

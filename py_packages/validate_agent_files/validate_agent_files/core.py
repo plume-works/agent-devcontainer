@@ -36,6 +36,7 @@ from .validators.prompts import (
     validate_prompt_frontmatter,
     validate_prompt_references,
 )
+from .validators.skill import SkillFrontmatterValidator, SkillStructureValidator
 from .validators.uniqueness import UniquenessValidator
 
 # Claude Code frontmatter fields absent from the vendor-neutral Agent Skills
@@ -117,6 +118,13 @@ class ValidationEngine:
             unique_validator.validate(skill_path=skill_path, metadata=frontmatter, content=body)
         )
 
+        if self.show_warnings:
+            local_issues = SkillFrontmatterValidator().validate(frontmatter, show_warnings=True)
+            local_issues.extend(SkillStructureValidator().validate(body, show_warnings=True))
+            result.issues.extend(
+                issue for issue in local_issues if issue.level == ValidationLevel.WARNING
+            )
+
         # Only plugin-hosted skills are affected: outside a plugin the literal
         # path still resolves, so flagging it would be a false positive. Either
         # ecosystem's manifest marks a plugin, since both ship to a cache.
@@ -124,7 +132,6 @@ class ValidationEngine:
 
         xref_validator = CrossReferenceValidator(
             base_path=str(skill_dir),
-            show_warnings=self.show_warnings,
             plugin_root=None if plugin_root is None else str(plugin_root),
         )
         result.issues.extend(

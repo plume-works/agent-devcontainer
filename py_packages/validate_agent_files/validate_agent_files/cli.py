@@ -63,13 +63,6 @@ def parse_arguments(args: Optional[List[str]] = None) -> argparse.Namespace:
         help='Enable CI mode (no colors, structured output)',
     )
     parser.add_argument(
-        '--no-warnings',
-        action='store_false',
-        dest='warnings',
-        default=True,
-        help='Exclude warnings from validation results',
-    )
-    parser.add_argument(
         '--errors-only',
         action='store_true',
         default=False,

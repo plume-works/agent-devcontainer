@@ -7,3 +7,7 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+
+# A library resolves against its consumer's constraints, so the lock a bare
+# `uv run` writes here is scratch, not a pin.
+uv.lock

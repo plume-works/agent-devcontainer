@@ -1,6 +1,6 @@
 ---
 name: sync-super-linter-tool-versions
-description: 'Synchronize pre-commit hooks and local lint tools with the pinned Super-Linter image. Use when upgrading Super-Linter, fixing a tool-version sync failure, or updating Prettier, clang-format, Ruff, Gitleaks, Actionlint, Zizmor, Hadolint, Ansible Lint, or ShellCheck. Keywords: Super-Linter versions, pre-commit versions, tool sync, lint tool upgrade, zizmor.'
+description: 'Synchronize pre-commit hooks and local linter binaries with the pinned Super-Linter image. Use when upgrading Super-Linter, fixing a tool-version sync failure, or updating Prettier, clang-format, Ruff, Gitleaks, Actionlint, Zizmor, Hadolint, Ansible Lint, or ShellCheck. Keywords: Super-Linter versions, pre-commit versions, tool sync, lint tool upgrade, zizmor.'
 ---
 
 # Sync Super-Linter Tool Versions

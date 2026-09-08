@@ -2,14 +2,14 @@
 type: codebase
 description: The self-contained pytest suite for the validator package, built on an invented mock catalog so it passes from an extracted package.
 source: py_packages/validate_agent_files/tests
-source_digest: sha256:a85bc865846cdfa35a75bdd5b2fe660b73f01772f974fddc136b8ffc849735bc
+source_digest: sha256:6fb0487d30258908f38b01b825ca3b8c5b7057a4a64ec882c10adbf8497f45b3
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-08T01:12:06Z
+stale_after: 2026-12-07
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-08T01:12:06Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/tests
@@ -17,7 +17,7 @@ sources:
 
 # Validator package tests
 
-15 modules plus `conftest.py` and `mock_catalog.py`; run from the package
+16 modules plus `conftest.py` and `mock_catalog.py`; run from the package
 directory with `pytest`, or in isolation with
 `uv run --isolated --extra dev pytest`.
 
@@ -31,15 +31,17 @@ directory with `pytest`, or in isolation with
   `test_entrypoints.py`, `test_formatters.py`, `test_gitignore_discovery.py`,
   `test_loaders.py`, `test_path_resolution.py`, `test_plugin_layout.py`,
   `test_plugin_link_containment.py`, `test_plugin_mode.py`,
-  `test_prompt_validation.py`, `test_require_marketplace.py`,
-  `test_skill_validation.py`
+  `test_prompt_validation.py`, `test_recommendations.py`,
+  `test_require_marketplace.py`, `test_skill_validation.py`
 
 ## How it works
 
 Each module builds a fictional catalog on disk from `mock_catalog` builders and
 drives either the engine directly or the CLI entry point, asserting on issues
 and exit codes. Contract values — manifest locations, flags, entry points — are
-imported from the code under test rather than restated.
+imported from the code under test rather than restated. Recommendation tests
+also pin that local warning checks do not reject inputs accepted by
+`skills-ref`, with and without `--recommend`.
 
 ## Depends on
 
@@ -54,8 +56,10 @@ imported from the code under test rather than restated.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-08):
 
 - `py_packages/validate_agent_files/tests/mock_catalog.py:1` — fixture identity
 - `py_packages/validate_agent_files/AGENTS.md:1` — the package's own contributor
   rules
+- `py_packages/validate_agent_files/tests/test_recommendations.py:151` —
+  accepted-input compatibility matrix

@@ -6,7 +6,7 @@ stage: unreleased
 status: draft
 generated:
   by: claude-code/opus-5
-  at: 2026-09-06T05:39:02Z
+  at: 2026-09-08T00:00:00Z
 ---
 
 # Unreleased
@@ -17,40 +17,4 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
-[Consumer IWE seed](../features/consumer-iwe-seed.md)
-
-[Consumer PR description guidance](../features/pr-description-guidance.md)
-
-[Install the agentdev catalog into the image](../features/catalog-installed-in-image.md)
-
-[Persist the pre-commit hook cache](../features/persist-pre-commit-cache.md)
-
-[Risk-scaled spec deltas](../features/risk-scaled-spec-deltas.md)
-
-[uv-run-only environment](../features/uv-run-only-environment.md)
-
-[Verification in the main loop](../features/verification-in-the-main-loop.md)
-
-[Never write a working logbook](../features/no-working-logbooks.md)
-
-[Preserved approved wording](../features/preserved-approved-wording.md)
-
-[Let pre-commit own formatting](../features/pre-commit-owns-formatting.md)
-
-[AI responder workflows](../features/ai-responder-workflows.md)
-
-[Split PR How to Test into Verification and Reviewer Handoff](../features/pr-verification-sections.md)
-
-[Critical docs and durable-knowledge review in pr-review](../features/pr-review-docs-durable-knowledge.md)
-
-[Gitignore-aware agent file discovery](../features/gitignore-aware-agent-file-discovery.md)
-
-[Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)
-
 ## Fixed
-
-[Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md)
-
-[Missing map skill](../bugs/missing-map-skill.md)
-
-[Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md)

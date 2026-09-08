@@ -15,3 +15,5 @@ accumulates work as it ships; cutting a release renames it to the version number
 and starts a fresh accumulator (the ship skill does this).*
 
 [Unreleased](releases/unreleased.md)
+
+[1.0.0](releases/1.0.0.md)
