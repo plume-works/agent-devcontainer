@@ -5,7 +5,7 @@ version: unreleased
 stage: unreleased
 status: draft
 generated:
-  by: claude/opus-5
+  by: claude-code/opus-5
   at: 2026-09-08T00:00:00Z
 ---
 

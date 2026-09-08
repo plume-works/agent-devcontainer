@@ -3,7 +3,7 @@ type: bug
 description: validate_agent_files' --recommend, --no-warnings, and --errors-only flags have no effect on any run — the warning/recommendation path is entirely disconnected from the validation engine.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-07T00:00:00Z
+  at: 2026-09-08T01:15:00Z
 sources:
 - resource: docs/agents/specs/validator-warning-visibility/ (folded and removed)
 - resource: py_packages/validate_agent_files/
@@ -81,78 +81,5 @@ Fixed by
 `ValidationEngine.validate` and receive `show_warnings`; `main.py` reads the
 real argparse destinations; `--no-warnings` is removed in favour of
 `--errors-only`; and `CrossReferenceValidator` no longer accepts the field it
-never read. The original analysis follows.
-
-Wire `SkillFrontmatterValidator` and `SkillStructureValidator` into
-`CustomizationsValidationEngine`, treating their existing checks as the intended
-recommendation set — `tests/test_skill_validation.py` already describes the
-behavior. Redesigning the recommendation set from scratch was considered and
-rejected: it would only be warranted by a reason to distrust the existing
-checks, and since they were never wired in (see Root cause), nothing was ever
-rejected about them.
-
-Fixing the `--no-warnings`/`args.no_warnings` attribute mismatch alone is not
-worth shipping on its own — it would make the flag control a value that still
-reaches nothing. Fix the wiring first, or fix all three together.
-
-Acceptance criteria for the eventual fix:
-
-1. A skill that triggers a recommendation check reports it under `--recommend`
-   and does not report it without the flag. A regression test asserts both
-   directions against a fixture, not against repository content.
-2. `--no-warnings` suppresses warning-level issues. Suppression is upstream of
-   rendering — when `show_warnings` is false the issues are never generated, so
-   no formatter sees them and one test covers all three. If the design instead
-   becomes generate-then-filter, `text`, `json`, and `csv` each need their own.
-3. Warning-level issues never change the exit code — it stays error-driven, per
-   `ValidationResult.is_valid`. A test pins this: a fixture with warnings and no
-   errors exits 0 with and without `--recommend`.
-4. `main.py` reads the real argparse destinations — no
-   `getattr(parsed_args, ..., default)` on a flag the parser always defines;
-   that pattern is what let the `--no-warnings` mismatch pass silently, and will
-   hide the next rename the same way.
-5. `CrossReferenceValidator` either uses `show_warnings` or stops accepting it —
-   no stored, unread field survives the change.
-6. The redundancy between `--no-warnings` and `--errors-only` is resolved. They
-   are not merely documented alike ("Exclude warnings from validation results"
-   vs. "Show only errors, exclude warnings") — both land on the same
-   `show_warnings = False` at `main.py:23-24` with no distinct behavior, so
-   documenting a difference would mean inventing one. Remove one, or keep it as
-   an explicit alias.
-
-Constraints for whoever picks this up: tests reference no path outside
-`py_packages/validate_agent_files/` and import flag names/contract values from
-the code under test rather than restating them as literals (per
-`py_packages/validate_agent_files/AGENTS.md`); CLI/library tests belong in
-`py_packages/validate_agent_files/tests/`, never the plugin suite; turning
-recommendations on for the first time surfaces one finding in the catalog —
-`sync-super-linter-tool-versions` trips the vague-term check on "tools" — so
-triage it rather than weakening the check, and keep any catalog edit out of this
-fix. `.github/workflows/validate-agent-files.yml` runs `--recommend` today, but
-warnings cannot fail it: `ValidationResult.is_valid` is error-only. Out of
-scope: adding new validators — this connects a path, it does not extend the rule
-set.
-
-## Verification
-
-``` bash
-cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest
-```
-
-Then, from the repository root, against a scratch fixture under `.tmp/` — a
-skill whose description carries the vague terms the frontmatter validator looks
-for:
-
-``` bash
-uv run validate_agent_files .tmp/<fixture>
-uv run validate_agent_files --recommend .tmp/<fixture>
-uv run validate_agent_files --recommend --no-warnings .tmp/<fixture>
-```
-
-The first and third must match; the second must differ from both.
-
-Finally, run the publisher gate the repository actually depends on:
-
-``` bash
-uv run validate_agent_files --recommend . --require-marketplace claude codex
-```
+never read. The engine exposes only the validators' warning-level issues, so
+their stricter error checks do not expand the default validation contract.
