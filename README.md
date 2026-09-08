@@ -1,49 +1,46 @@
 # agent-devcontainer
 
-A general-purpose, Ansible-provisioned development container built for
-agent-driven development. Python + Node, Docker-in-Docker, an Xpra remote
-desktop, Claude Code and Codex preinstalled, an opt-in egress firewall, and a
-curated catalog of agents and skills.
+A reproducible, multi-architecture development environment built for agent-driven
+software development.
 
-The runtime is project-agnostic. This publishing repository also contains image,
-catalog, validator, and CI source that a consuming project does not need. Point an
-existing devcontainer at the published image for the environment, or run the
-`/agentdev:template-consume` skill (its guide is at
-`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`)
-for the complete setup.
+`agent-devcontainer` combines a ready-to-use container image, a shared Claude Code
+and Codex plugin, project-memory workflows, automated pull-request review,
+validation tooling, and reusable scaffolding for adopting the environment in other
+repositories.
 
-## What's in the image
+## What you get
 
-| Area          | Contents                                                                                  |
-| ------------- | ----------------------------------------------------------------------------------------- |
-| Python        | `uv` (installer, resolver, venv manager), system `python3`, `pre-commit`                  |
-| JavaScript    | `bun` (also used to install global CLIs), Node.js 24 from NodeSource, `yarn`              |
-| Agents        | `@anthropic-ai/claude-code`, `@openai/codex`, `@modelcontextprotocol/inspector`           |
-| Build tooling | `build-essential`, CMake (Kitware), Ninja, `pkg-config`                                   |
-| Lint / CI     | `shellcheck`, `zizmor` (pinned + checksummed), `jq`, `ffmpeg`, `btop`                     |
-| Git / GitHub  | `git`, `git-lfs`, `gh` + a transparent auth wrapper that injects `GH_TOKEN` from the host |
-| Shells        | `bash` and `fish` (with fisher + bass), UTC timezone, `en_US.UTF-8` locale                |
-| Desktop       | Xpra 6.4.3 with the HTML5 client, xpra-html5 v19, VirtualGL 3.1.4, mesa, Xvfb             |
-| Containers    | Docker CE + CLI + buildx + compose (daemon started by the devcontainer DinD feature)      |
-| Secrets       | GNOME Keyring Secret Service, brought up headless so `gh auth login` can persist a token  |
-| Firewall      | `init-firewall.sh` + a NOPASSWD sudoers entry — **installed but inert unless enabled**    |
+- Multi-architecture `linux/amd64` and `linux/arm64` images published through GHCR.
+- Python development through `uv`, plus Bun and Node.js 24.
+- Docker-in-Docker, Buildx, Compose, CMake, Ninja, Git LFS, and GitHub CLI.
+- Claude Code and Codex preinstalled with the shared `agentdev` catalog.
+- A browser-accessible Xpra desktop with VirtualGL support.
+- An optional default-deny egress firewall with repository-controlled allowlisting.
+- IWE knowledge-graph workflows from project setup through verified shipment.
+- GitHub Actions for validation, formatting, image publishing, and AI review.
+- A resumable template workflow for adopting or updating the environment elsewhere.
 
-Images are published multi-arch (`linux/amd64` + `linux/arm64`), built on native
-runners and merged into a single manifest:
+The repository publishes two images:
 
-- `ghcr.io/plume-works/agent-desktop:edge` — the development image
-- `ghcr.io/plume-works/ubuntu-ansible:edge` — the Ansible base it is built from
+- `ghcr.io/plume-works/agent-desktop:edge` — the development environment.
+- `ghcr.io/plume-works/ubuntu-ansible:edge` — its Ansible-ready base image.
 
-## Using it in another project
+Both are built on native runners and merged into multi-architecture manifests.
 
-### Option 1 — point an existing devcontainer at the image
+## Quick start
+
+There are two supported adoption paths.
+
+### Use the image
+
+Point an existing devcontainer at the published image:
 
 ```jsonc
 // .devcontainer/devcontainer.json
 {
-  "image": "ghcr.io/plume-works/agent-desktop:edge@sha256:dfd576e3ad4afb6b3b5dfae01582bd88f4542d7bab528eae36be158931fe001d",
+  "image": "ghcr.io/plume-works/agent-desktop:edge@sha256:b5175b7e5e9d2e7b99a67cbb3f25d37523fc0763800495ca613443f538b3eed8",
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:4.0.0": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:4.1.0": {},
   },
   "containerEnv": {
     "DEV_WORKSPACE_FOLDER": "/workspaces/${localWorkspaceFolderBasename}",
@@ -51,217 +48,147 @@ runners and merged into a single manifest:
 }
 ```
 
-`DEV_WORKSPACE_FOLDER` is the one variable the image cares about: the `gh`
-wrapper PATH shim and the firewall allowlist lookup both read it, falling back to
-the `workspace_folder` baked in at build time.
+Pin by tag and digest so the environment never changes silently. Renovate or an
+equivalent dependency updater can advance the digest when a new image is available;
+this repository's [Renovate configuration](.github/renovate.json) provides a working
+example.
 
-That is the whole setup for the development environment. The catalog is staged in
-the image but must be installed after user volumes are mounted. Use the lifecycle
-scripts from Option 2 when the existing project should receive it automatically.
+### Adopt the complete template
 
-### Option 2 — copy the template
+Run `/agentdev:template-consume` to copy the complete setup or merge selected parts
+into an existing repository. The workflow installs the devcontainer lifecycle,
+agent settings, MCP configuration, project tooling, and adaptable GitHub workflows.
+It also records the adopted revision so future runs can safely propose upstream
+updates.
 
-The template surface is broader than the two visible devcontainer files: lifecycle
-scripts, the feature lock, digest pin, MCP configuration, agent settings, tooling,
-and adaptable GitHub workflows all participate. Run the `/agentdev:template-consume`
-skill for either a full repository copy or a selective copy into an existing project;
-its step-by-step guide is
-`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-and its update mode later diffs the adopted paths against this repository. The
-complete classified inventory is in
-`docs/knowledge/data/architecture/template-boundary.md`.
+Template adoption is resumable, preserves settled choices, and never overwrites
+consumer-authored IWE knowledge. See the
+[template consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md)
+for prerequisites and the full-copy and selective-copy workflows.
 
-### The catalog ships with the image
+## Development environment
 
-The image stages the catalog at `AGENTDEV_CATALOG_DIR` (`/opt/agentdev`), and the
-template's `postCreateCommand` installs it from there through each agent's own
-plugin CLI — `claude plugin install` at user scope and `codex plugin add`. No
-clone, no network, no firewall allowlist entry, and no per-repository
-configuration. Skills are namespaced by the plugin: `/agentdev:pr-open`,
-`/agentdev:pr-merge`, and so on. Codex gets the same catalog, agents included.
+| Area          | Included tools and capabilities                                                      |
+| ------------- | ------------------------------------------------------------------------------------ |
+| Python        | `uv`, system Python, and `pre-commit`                                                |
+| JavaScript    | Bun, Node.js 24, and Yarn                                                            |
+| Agents        | Claude Code, Codex, MCP Inspector, and Codebase Memory MCP                           |
+| Build tooling | `build-essential`, Kitware CMake, Ninja, and `pkg-config`                            |
+| Quality       | Ruff, ShellCheck, Zizmor, Ansible Lint, Prettier, Hadolint, Gitleaks, and Actionlint |
+| GitHub        | Git, Git LFS, `gh`, and a transparent host-token wrapper                             |
+| Containers    | Docker CE, Buildx, and Compose                                                       |
+| Desktop       | Xpra with its HTML5 client, VirtualGL, Mesa, and Xvfb                                |
+| Credentials   | Headless GNOME Keyring and shared agent authentication                               |
+| Security      | An opt-in egress firewall with an allowlist and startup checks                       |
 
-The install happens in a lifecycle hook rather than during the image build
-because the `agentdev-claude` and `agentdev-codex` volumes mount over `~/.claude`
-and `~/.codex`, which is exactly where both agents record installed plugins. An
-install baked into the image would be hidden by those volumes for every container
-after the first. Both volumes are scoped per devcontainer instance, so the
-install also runs once per worktree rather than once per machine; only each
-agent's credentials are shared across worktrees, via the separate `agentdev-agents-auth`
-volume.
+Python commands run through `uv run`. Python environments, agent state, Codebase
+Memory data, and pre-commit environments persist across container rebuilds and remain
+isolated per worktree. Authentication is shared so opening another worktree does not
+require signing in again.
 
-Consequences worth knowing:
+## The `agentdev` catalog
 
-- **Updating the catalog means updating the image.** The staged copy is
-  root-owned and read-only, and nothing rewrites it at runtime. Which version an
-  image carries is inspectable:
+The image carries `agentdev` 3.3.0, a cross-agent plugin with 36 skills and five
+agent definitions for Claude Code and Codex. It covers:
 
-  ```bash
-  docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.version.agentdev" }}' \
-    ghcr.io/plume-works/agent-desktop:edge
-  ```
+- Git commits, branch updates, merges, and conflict resolution.
+- Pull-request creation, synchronization, review, feedback resolution, and merging.
+- GitHub Actions and CodeQL diagnostics.
+- Formatting, linting, and semantic-refactor auditing.
+- Agent and skill authoring.
+- Docker-backed execution and remote GitHub Codespace sessions.
+- Template adoption and updates.
+- The complete IWE project-memory workflow.
 
-- **To run a different version than the image carries**, declare it in your
-  project's `.claude/settings.json` as
-  [`.agents/plugins/agentdev/README.md`](.agents/plugins/agentdev/README.md)
-  describes. Because the image install is an ordinary user-scope install, a
-  project declaration composes with it the usual way — nothing has to be disabled
-  first.
-- **A project that ships the catalog itself** — this repository, or a fork of it
-  — needs no opt-out. `postAttachCommand` refreshes both the Claude and Codex
-  plugin installations from the workspace on every editor attachment, including
-  after a window reload. This re-registers the marketplace from the workspace
-  over the image's copy. In any other project the reinstall scripts find no
-  marketplace manifest and exit quietly.
+The catalog is installed during image construction. The devcontainer lifecycle
+installs it again after persistent agent volumes mount and refreshes a repository's
+workspace copy on editor attachment.
 
-### Staying on the current image
+Skills use the `/agentdev:<name>` namespace, including `/agentdev:pr-open`,
+`/agentdev:pr-review`, and `/agentdev:pr-merge`. See the
+[catalog README](.agents/plugins/agentdev/README.md) for the complete skill list,
+standalone installation instructions, and contributor guidance.
 
-Both options pin `agent-desktop` by tag **and** digest
-(`:edge@sha256:...`) rather than a bare moving tag, so the image a consumer runs
-never changes silently under it. That only helps if something advances the pin
-when the image is rebuilt — point [Renovate](https://docs.renovatebot.com/) (or
-an equivalent) at the repository with a config that includes the `docker` (or
-`docker-compose`/`dockerfile`, depending on where the pin lives) manager, for
-example:
+## IWE project memory
 
-```jsonc
-// renovate.json
-{
-  "extends": ["config:recommended"],
-}
-```
+IWE stores product context, architecture, specifications, plans, releases, and a
+source-backed codebase map as a Markdown knowledge graph. The catalog provides a
+complete workflow:
 
-This repository's own [`.github/renovate.json`](.github/renovate.json) shows how
-the consumer pin is discovered and why it lives outside the image-build path filter.
-It also contains publisher-specific rules that a copied project must review; see the
-Renovate section of the template-consume guide
-(`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`).
+| Skill                              | Purpose                                                               |
+| ---------------------------------- | --------------------------------------------------------------------- |
+| `iwe-setup`                        | Onboard an existing project and establish its product context.        |
+| `iwe-map`                          | Create and refresh the codebase map.                                  |
+| `iwe-explore`                      | Investigate ideas or GitHub issues without changing code.             |
+| `iwe-plan`                         | Plan work with verified anchors and risk-scaled specification impact. |
+| `iwe-implement`                    | Execute plans task by task and record evidence.                       |
+| `iwe-verify`                       | Check implementation claims against code and specifications.          |
+| `iwe-ship`                         | Block CRITICAL findings and record released behavior.                 |
+| `iwe-weekly`                       | Summarize project status and graph health.                            |
+| `iwe-audit`                        | Keep durable documents free of session residue.                       |
+| `iwe-implement-all`/`iwe-ship-all` | Process all eligible plans in sequence.                               |
 
-#### Renovate dashboard
+Plan checkboxes carry traceable evidence, and behavior-changing plans state their
+intended contract before implementation. Machine-managed dependency pins can be
+masked from map freshness checks without hiding structural source changes.
 
-The [Renovate dashboard is here](https://developer.mend.io/github/plume-works/agent-devcontainer).
+Consumers adopting IWE receive a schema-valid seed without inheriting this
+publisher repository's project knowledge.
 
-## AI pull request review
+## Pull-request automation
 
-One workflow, `ai-responder.yml`, provides automated review: its `claude-respond`
-job answers `@claude` mentions and reviews pull requests, and its
-`ai-review-present` job — which depends on the review job, so the check stays
-pending while a review runs — blocks merge until an AI review exists. The gate
-is satisfiable only with the responder: keeping the gate job alone blocks every
-merge.
+The optional `ai-responder.yml` workflow performs Claude-powered reviews and handles
+authorized `@claude` tasks. Its merge gate stays pending while review runs and
+requires an accepted AI review.
 
-The responder runs in the `agent-desktop` container and executes the devcontainer
-lifecycle scripts against its own checkout before invoking Claude, so it reviews
-using the **branch's own** `agentdev` catalog — a pull request that changes a
-skill is reviewed by that skill as changed. Without that step nothing installs
-`agentdev:pr-review` and the agent improvises a review, which is worse than no
-review because the required check still turns green.
+Security gates prevent the responder from checking out or executing untrusted fork
+code and restrict task execution to actors with write access. Reviews use the pull
+request branch's own catalog, so changes to agent workflows are reviewed as changed.
+Comment `@claude review` to request another review after new work lands.
 
-Two prerequisites live outside the repository and are required: the
-`CLAUDE_CODE_OAUTH_TOKEN` repository secret, and the `claude-review` environment
-named by the responder job. Installing the
-[Claude GitHub App](https://github.com/apps/claude) is optional — the workflow
-passes `github_token` explicitly, so the app only changes whether reviews are
-attributed to Claude or to `github-actions[bot]`, both of which satisfy the gate.
+Adopters must configure the `CLAUDE_CODE_OAUTH_TOKEN` repository secret and the
+`claude-review` environment before enabling the workflow.
 
-A review runs on pull request `opened`, `reopened`, `assigned`, and
-`ready_for_review`, and on a push to a pull request that has no accepted review
-yet — **a push after a review does not refresh it**. Comment `@claude review`
-to re-request one: the comment is received by the workflow file on the default
-branch, which dispatches a run of the pull request branch's own copy, so the
-review lands its check on the head commit and uses the branch's workflow. That
-bridge only works once this workflow has merged.
+Pull-request descriptions separate completed `Verification` evidence from open
+`Reviewer Handoff` tasks. Repository-specific additions belong in
+`.github/pr-description-guidance.md`.
 
-Projects adopting this repository as a template should read the AI responder
-section of the template-consume guide
-(`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`),
-which covers the owner gate and the security gates that must be preserved.
+## Validation and quality
 
-To audit Claude responder token use and cost over a date-time range, download
-the workflow runs and then analyze the downloaded execution artifacts:
+`validate_agent_files` 1.0.0 validates agents, skills, prompts, plugin manifests,
+marketplace metadata, references, and plugin layout. Repository discovery respects
+`.gitignore`, while explicitly named files remain directly validatable.
+`--recommend` enables warning-level guidance and `--errors-only` suppresses it.
 
-```bash
-scripts/download-claude-responder-runs.sh \
-  --start 2026-09-01T00:00:00Z \
-  --end 2026-09-04T04:35:05Z \
-  --repo plume-works/agent-devcontainer
+Pre-commit is the single local formatting path, and its environments persist across
+container rebuilds. CI runs the matching Super-Linter checks, validator suites,
+knowledge-base gates, and image builds.
 
-uv run python scripts/analyze-claude-responder-costs.py \
-  --data-dir ./.tmp/claude-review-costs
-```
+## Firewall and desktop
 
-The downloader writes `runs.json`, `all-ai-responder-runs.csv`, artifact
-inventories, and downloaded `claude-execution-output.json` files. The analyzer
-writes `summary.json`, `runs-costs.csv`, `models-costs.csv`, and
-`subagents-costs.csv`.
-
-## Enabling the firewall
-
-The firewall is installed in the image but does nothing until you ask for it.
-Set `ENABLE_FIREWALL=true` and edit the allowlist:
+The firewall is installed but disabled by default. Enable it and edit the allowlist:
 
 ```jsonc
 // .devcontainer/devcontainer.json
 "containerEnv": { "ENABLE_FIREWALL": "true" }
 ```
 
-`.devcontainer/firewall-allowlist.txt` is read at container start, so per-branch
-edits take effect on the next start with no image rebuild. It default-DROPs IPv4
-egress, blocks IPv6 entirely, preserves Docker's embedded-DNS NAT rules, and
-self-verifies (a known-blocked host must fail, `api.github.com` must succeed) —
-exiting non-zero if either check goes the wrong way.
+Rules come from [`.devcontainer/firewall-allowlist.txt`](.devcontainer/firewall-allowlist.txt).
+When enabled, the firewall default-denies IPv4 egress, blocks IPv6, preserves Docker
+DNS, and verifies both an allowed and a blocked destination during startup.
 
-## Reaching the Xpra desktop
+The supplied devcontainer runs in privileged mode for Docker-in-Docker and optional
+GPU access. Use it only with trusted repositories and container contents.
 
-`.devcontainer/scripts/postStartCommand.sh` starts Xpra in the background on
-display `:100`. The HTML5 client listens on container port `14500`, which
-`forwardPorts` forwards explicitly. Each devcontainer has its own network
-namespace, so parallel worktrees all use `14500` internally; VS Code picks a
-free _local_ port per window, which is often not `14500`. Open the **Xpra HTML5**
-entry in VS Code's Ports panel rather than typing a port from memory. For
-GPU-accelerated rendering, prefix the app with `vglrun`.
+Xpra starts on display `:100` and container port `14500`. Open the **Xpra HTML5**
+entry in VS Code's Ports panel to reach the desktop; concurrent worktrees receive
+distinct local ports. Prefix graphical applications with `vglrun` for GPU
+acceleration. Advanced users can manage the service with
+`/start-xpra.sh --background`, `--stop`, or `--port <n>`.
 
-Manage it directly with `/start-xpra.sh --background`, `--stop`, or
-`--port <n>`. `--port` changes the _container_ port, so forward that port too —
-otherwise the desktop is unreachable from the client machine.
+## Build and contribute
 
-`/start-xpra.sh` is baked into the `agent-desktop` image, so changes to its
-behavior reach a container only when its digest pin advances (see
-[Staying on the current image](#staying-on-the-current-image)).
-
-## Provisioning knobs
-
-`docker/desktop/agent-desktop.Dockerfile` enables every capability role. To
-build a leaner image, flip them off — they default to `false` in
-`ansible/playbooks/group_vars/all.yml`:
-
-| Variable                        | Effect when `true`                                                      |
-| ------------------------------- | ----------------------------------------------------------------------- |
-| `install_xpra`                  | Xpra + xpra-html5 + VirtualGL + mesa/Xvfb (the largest single addition) |
-| `install_docker`                | Docker CE, CLI, buildx, compose (installed, daemon not started)         |
-| `install_agentic_tools`         | Claude Code, Codex, MCP inspector                                       |
-| `install_validate_agent_files`  | The `validate_agent_files` CLI, on `PATH` as an isolated `uv` tool      |
-| `install_devcontainer_firewall` | `init-firewall.sh` + sudoers entry (still runtime-gated)                |
-| `workspace_folder`              | Fallback workspace path baked into the image                            |
-
-The staged catalog rides on `install_agentic_tools` and is switched separately by
-`agentic_tools_stage_catalog`, which the desktop dockerfile turns on; the version
-it stages comes from the `AGENTDEV_PLUGIN_VERSION` build argument.
-[`ansible/roles/agentic_tools/README.md`](ansible/roles/agentic_tools/README.md)
-documents the staged layout and the variables that shape it.
-
-`install_validate_agent_files` works the same way: the package is built from
-`py_packages/validate_agent_files/` in the build context, and the
-`VALIDATE_AGENT_FILES_VERSION` build argument is a pin the build verifies against
-the version it actually installs. Bump it together with the package's
-`pyproject.toml`.
-[`ansible/roles/validate_agent_files/README.md`](ansible/roles/validate_agent_files/README.md)
-documents the install layout.
-
-## Building locally
-
-The desktop image's build context is the repository root — the dockerfile
-bind-mounts the whole context at `/provision` so Ansible can read `ansible/`,
-`docker/bin/gh`, the catalog, and the validator package.
+Build both images from the repository root:
 
 ```bash
 docker build -t local/ubuntu-ansible docker/ansible
@@ -272,115 +199,28 @@ docker buildx build \
   -t local/agent-desktop .
 ```
 
-Then smoke it:
-
-```bash
-docker run --rm local/agent-desktop bash -lc '
-  bun --version && node --version && uv --version &&
-  gh --version | head -1 && cmake --version | head -1 && zizmor --version &&
-  command -v xpra init-firewall.sh gnome-keyring-daemon validate_agent_files &&
-  validate_agent_files --help >/dev/null'
-```
-
-And check the staged catalog:
-
-```bash
-docker run --rm local/agent-desktop bash -lc '
-  cat "$AGENTDEV_CATALOG_DIR/.claude-plugin/marketplace.json" | jq -r .name &&
-  cat "$AGENTDEV_CATALOG_DIR/.agents/plugins/marketplace.json" | jq -r .name &&
-  ls "$AGENTDEV_CATALOG_DIR/.agents/plugins"/*/skills | head -3'
-```
-
-Ansible alone, without a build. Run from the repository root — `ansible.cfg`
-lives there, and Ansible only auto-loads it from the current directory:
-
-```bash
-uv run ansible-lint ansible
-uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml
-```
-
-## The agent catalog
-
-The catalog ships as the `agentdev` Claude Code and Codex plugin in [`.agents/plugins/agentdev/`](.agents/plugins/agentdev/) —
-four agents (Principal Engineer plus the TDD Red/Green/Refactor trio) and 24
-skills covering git, pull requests, review, CI log extraction, formatting, and
-container/Codespace escalation. **[`.agents/plugins/agentdev/README.md`](.agents/plugins/agentdev/README.md) documents
-what it contains and how to enable it in another repository**; the rest of this
-section is about developing it here.
-
-### Source of truth
-
-`.agents/plugins/agentdev/` is canonical. Everything else is derived:
-
-| Path                                            | Role                                                                         |
-| ----------------------------------------------- | ---------------------------------------------------------------------------- |
-| `.agents/plugins/agentdev/`                     | Canonical agents, skills, hooks, and `bin/` scripts.                         |
-| `.agents/plugins/agentdev/tests/`               | The plugin's own tests for the scripts it ships.                             |
-| `.agents/plugins/agentdev/.claude-plugin/`      | Packages the catalog for Claude Code.                                        |
-| `.agents/plugins/agentdev/.codex-plugin/`       | Packages the same catalog for Codex.                                         |
-| `.claude-plugin/marketplace.json`               | Publishes the plugin so other repositories can consume it.                   |
-| `.agents/plugins/marketplace.json`              | Publishes the repo-local Codex marketplace entry.                            |
-| `.devcontainer/scripts/reinstall-agentdev-*.sh` | Registers the image or workspace marketplace after persistent volumes mount. |
-| `.claude/settings.json`                         | Repository permissions and enabled third-party Claude plugins.               |
-
-### Editing rules
-
-- **Edit files under `.agents/plugins/agentdev/`, never under `.codex/`.**
-- Codex consumes agents and skills directly from the canonical plugin tree; do
-  not recreate `.codex/agents/` trampolines or a `.codex/skills` symlink.
-- Use the [create-agent](.agents/plugins/agentdev/skills/create-agent/SKILL.md) and
-  [create-skill](.agents/plugins/agentdev/skills/create-skill/SKILL.md) skills — they encode the
-  frontmatter, discovery-description, and validation rules. `create-skill` layers those
-  catalog rules over whichever general skill-authoring guide the host ships: Codex's
-  `$skill-creator` system skill, or the `skill-creator` plugin in Claude Code.
-- **Never write a repository-relative catalog path** such as
-  `.claude/skills/<name>/...`: inside a plugin it resolves nowhere. Use
-  `${CLAUDE_SKILL_DIR}/...` for a path within the same skill, and a namespaced
-  invocation for a sibling skill.
-- A script in `.agents/plugins/agentdev/bin/` must not assume it sits inside the repository it
-  operates on. Resolve the target repository from the working directory (see
-  [`.agents/plugins/agentdev/bin/__utils.sh`](.agents/plugins/agentdev/bin/__utils.sh)).
-- Bump `version` in both plugin manifests and the marketplace entry together.
-
-[AGENTS.md](AGENTS.md) has the repository conventions agents follow.
-
-### Iterating and validating
-
-```bash
-claude --plugin-dir ./.agents/plugins/agentdev
-claude plugin validate ./.agents/plugins/agentdev
-```
-
-Run the repository validator and both test suites before pushing a catalog change:
+Install dependencies and run the primary repository checks:
 
 ```bash
 uv sync --all-groups
 uv run validate_agent_files --recommend . --require-marketplace claude codex
-uv run pytest   # both suites: py_packages/ and .agents/plugins/agentdev/tests/
+uv run pytest
+uv run ansible-lint ansible
+uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml
 ```
 
-The two test suites stay separate. `py_packages/validate_agent_files/tests/` covers a
-package that is released independently, so it must pass with no knowledge of this
-repository — check that directly with:
+The independently released validator must also pass outside the publisher project:
 
 ```bash
-cd py_packages/validate_agent_files && uv run --isolated --extra dev pytest
+cd py_packages/validate_agent_files
+uv run --isolated --extra dev pytest
 ```
 
-`.agents/plugins/agentdev/tests/` covers the behavior of the scripts the plugin ships — `bin/`
-helpers and the `scripts/` bundled with individual skills. It resolves them through a
-`plugin_root` fixture rather than a repository-relative path, so the suite also passes from a
-consumer's plugin cache. A test that exercises a shipped script belongs here, never in the
-package.
-
-## Repository layout
-
-`docs/knowledge/data/architecture/template-boundary.md` is the persistent inventory of
-the live tree, including the default template surface, files that require manual
-customization, the optional image-building bundle, publisher-only source, and generated
-state. The `/agentdev:template-consume` skill turns that inventory into full-copy and
-selective-copy procedures, and `docs/knowledge/data/spec/template-consumption.md` holds
-the requirements those procedures must satisfy.
+The canonical catalog source is
+[`.agents/plugins/agentdev/`](.agents/plugins/agentdev/). Repository conventions live
+in [AGENTS.md](AGENTS.md), while the
+[template boundary](docs/knowledge/data/architecture/template-boundary.md) classifies
+the reusable, customizable, and publisher-only parts of the tree.
 
 ## License
 
