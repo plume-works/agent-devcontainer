@@ -5,11 +5,11 @@ source: py_packages/validate_agent_files/validate_agent_files/validators
 source_digest: sha256:9a31665397b3bbec2070759e40d38ff06fb5907aa3f33cb11751fa7251bbdc0a
 verified:
   by: claude-code/opus-5
-  at: 2026-09-08T00:00:00Z
+  at: 2026-09-08T01:12:06Z
 stale_after: 2026-12-07
 generated:
   by: claude-code/opus-5
-  at: 2026-09-08T00:00:00Z
+  at: 2026-09-08T01:12:06Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/validate_agent_files/validators
@@ -50,9 +50,11 @@ because a repository-relative path resolves nowhere from a plugin cache.
   repository-relative `.claude/` paths are.
 - Marketplace requirements are opt-in per ecosystem so the tool stays general;
   nothing is required by default.
-- The two skill validators are the only warning producers: each takes
-  `show_warnings` and emits nothing when it is false, so suppression happens
-  before an issue exists and no formatter ever sees one.
+- The two skill validators are the recommendation producers: each takes
+  `show_warnings` and emits no warning when it is false, so recommendation
+  suppression happens before an issue exists. `CrossReferenceValidator` also has
+  an ungated warning path for an unresolvable reference at
+  `cross_reference.py:81`.
 
 ## Key references
 

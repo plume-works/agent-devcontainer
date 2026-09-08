@@ -2,14 +2,14 @@
 type: codebase
 description: The self-contained pytest suite for the validator package, built on an invented mock catalog so it passes from an extracted package.
 source: py_packages/validate_agent_files/tests
-source_digest: sha256:7b84dd0b0cd3e05e021521abdef3a5ed9e97efc7d5f46b0792932e3a891c0e3a
+source_digest: sha256:6fb0487d30258908f38b01b825ca3b8c5b7057a4a64ec882c10adbf8497f45b3
 verified:
   by: claude-code/opus-5
-  at: 2026-09-08T00:00:00Z
+  at: 2026-09-08T01:12:06Z
 stale_after: 2026-12-07
 generated:
   by: claude-code/opus-5
-  at: 2026-09-08T00:00:00Z
+  at: 2026-09-08T01:12:06Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/tests
@@ -39,7 +39,9 @@ directory with `pytest`, or in isolation with
 Each module builds a fictional catalog on disk from `mock_catalog` builders and
 drives either the engine directly or the CLI entry point, asserting on issues
 and exit codes. Contract values — manifest locations, flags, entry points — are
-imported from the code under test rather than restated.
+imported from the code under test rather than restated. Recommendation tests
+also pin that local warning checks do not reject inputs accepted by
+`skills-ref`, with and without `--recommend`.
 
 ## Depends on
 
@@ -59,3 +61,5 @@ Verified anchor points (line numbers as of 2026-09-08):
 - `py_packages/validate_agent_files/tests/mock_catalog.py:1` — fixture identity
 - `py_packages/validate_agent_files/AGENTS.md:1` — the package's own contributor
   rules
+- `py_packages/validate_agent_files/tests/test_recommendations.py:151` —
+  accepted-input compatibility matrix

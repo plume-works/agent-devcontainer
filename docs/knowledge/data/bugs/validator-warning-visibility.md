@@ -3,7 +3,7 @@ type: bug
 description: validate_agent_files' --recommend, --no-warnings, and --errors-only flags have no effect on any run — the warning/recommendation path is entirely disconnected from the validation engine.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-08T01:15:00Z
+  at: 2026-09-08T01:12:06Z
 sources:
 - resource: docs/agents/specs/validator-warning-visibility/ (folded and removed)
 - resource: py_packages/validate_agent_files/
