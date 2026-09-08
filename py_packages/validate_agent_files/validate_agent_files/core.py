@@ -118,12 +118,12 @@ class ValidationEngine:
             unique_validator.validate(skill_path=skill_path, metadata=frontmatter, content=body)
         )
 
-        result.issues.extend(
-            SkillFrontmatterValidator().validate(frontmatter, show_warnings=self.show_warnings)
-        )
-        result.issues.extend(
-            SkillStructureValidator().validate(body, show_warnings=self.show_warnings)
-        )
+        if self.show_warnings:
+            local_issues = SkillFrontmatterValidator().validate(frontmatter, show_warnings=True)
+            local_issues.extend(SkillStructureValidator().validate(body, show_warnings=True))
+            result.issues.extend(
+                issue for issue in local_issues if issue.level == ValidationLevel.WARNING
+            )
 
         # Only plugin-hosted skills are affected: outside a plugin the literal
         # path still resolves, so flagging it would be a false positive. Either

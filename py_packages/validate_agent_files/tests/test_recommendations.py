@@ -30,6 +30,36 @@ The recommendation under test is about the top-level section, so this one
 carries enough prose to stand on its own.
 """
 
+UPSTREAM_VALID_SKILLS = {
+    'empty-body': """---
+name: empty-body
+description: An intentionally empty skill body.
+---
+""",
+    'no-h1': """---
+name: no-h1
+description: A skill whose body has no top-level heading.
+---
+This body intentionally uses plain prose without a top-level heading.
+""",
+    'short-description': """---
+name: short-description
+description: Brief
+---
+# Short Description
+
+This body is long enough to avoid an unrelated recommendation warning.
+""",
+    'crème-brûlée': """---
+name: crème-brûlée
+description: A skill with an internationalized name.
+---
+# International Name
+
+This body is long enough to avoid an unrelated recommendation warning.
+""",
+}
+
 
 def _write_skill(root: Path) -> Path:
     """Write the recommendation fixture and return its SKILL.md path."""
@@ -37,6 +67,15 @@ def _write_skill(root: Path) -> Path:
     skill_dir.mkdir(parents=True)
     skill_file = skill_dir / 'SKILL.md'
     skill_file.write_text(RECOMMENDABLE_SKILL)
+    return skill_file
+
+
+def _write_named_skill(root: Path, name: str, content: str) -> Path:
+    """Write an invented skill fixture under its package-local directory."""
+    skill_dir = root / name
+    skill_dir.mkdir(parents=True)
+    skill_file = skill_dir / 'SKILL.md'
+    skill_file.write_text(content)
     return skill_file
 
 
@@ -101,6 +140,28 @@ def test_warnings_never_change_the_exit_code(
     capsys.readouterr()
 
     assert exit_code == 0
+
+
+@pytest.mark.parametrize('extra_args', [[], ['--recommend']], ids=['default', 'recommend'])
+@pytest.mark.parametrize(
+    ('name', 'content'),
+    UPSTREAM_VALID_SKILLS.items(),
+    ids=UPSTREAM_VALID_SKILLS,
+)
+def test_upstream_valid_skills_remain_non_errors(
+    package_tmp_path,
+    capsys,
+    name: str,
+    content: str,
+    extra_args: list[str],
+) -> None:
+    """Local recommendations never reject inputs accepted by skills-ref."""
+    skill_file = _write_named_skill(package_tmp_path, name, content)
+
+    exit_code = main([str(skill_file), *extra_args])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0, output
 
 
 def test_parser_exposes_recommend_and_errors_only_destinations() -> None:
