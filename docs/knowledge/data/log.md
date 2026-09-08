@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-09-08
 
+- **Release**: cut [1.0.0](releases/1.0.0.md) from the unreleased accumulator —
+  16 features and 4 fixes — and started a fresh
+  [unreleased](releases/unreleased.md) page.
 - **Update**:
   [Connect validator warnings](plans/20260907-connect-validator-warnings.md)
   done — `--recommend` now produces skill frontmatter and structure
@@ -13,8 +16,8 @@ to the current day's group.
   still never move the exit code.
 - **Update**:
   [Validator warning visibility](bugs/validator-warning-visibility.md) fixed and
-  recorded in [unreleased](releases/unreleased.md). The two skill validators are
-  wired into the engine, `main.py` reads the real argparse destinations,
+  recorded in [1.0.0](releases/1.0.0.md). The two skill validators are wired
+  into the engine, `main.py` reads the real argparse destinations,
   `--no-warnings` is gone, and the CLI contract is stated in
   [the validator CLI interface](codebase/api-validate-agent-files-cli.md).
 - **Map**: refreshed
@@ -33,8 +36,8 @@ to the current day's group.
   the consumption guide, and update mode retains those choices across episodes.
 - **Creation**:
   [Resumable template consumption](features/resumable-template-consumption.md)
-  implemented and recorded in [unreleased](releases/unreleased.md), with the
-  two-record ownership, migration, resume, and IWE-summary contract synced into
+  implemented and recorded in [1.0.0](releases/1.0.0.md), with the two-record
+  ownership, migration, resume, and IWE-summary contract synced into
   [Template consumption](spec/template-consumption.md).
 - **Map**: refreshed the agentdev catalog, bin, skills, tests, pull-request
   checks, GitHub automation, workflows, and consumer seed against their current
@@ -56,9 +59,9 @@ to the current day's group.
   without replacing existing consumer knowledge, and update mode excludes both
   publisher memory and initialization-only seed content.
 - **Creation**: [Consumer IWE seed](features/consumer-iwe-seed.md) implemented
-  and recorded in [unreleased](releases/unreleased.md). The reusable seed is
-  maintained in this repository, validated in an isolated consumer layout, and
-  specified in [Template consumption](spec/template-consumption.md).
+  and recorded in [1.0.0](releases/1.0.0.md). The reusable seed is maintained in
+  this repository, validated in an isolated consumer layout, and specified in
+  [Template consumption](spec/template-consumption.md).
 - **Update**: [Template consumption](spec/template-consumption.md) now requires
   a repository-owned seed, ordered setup and mapping for fresh adoption, and
   preservation of consumer-authored knowledge during adoption and updates.
@@ -72,7 +75,7 @@ to the current day's group.
   documents stale.
 - **Update**:
   [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md) fixed
-  and recorded in [unreleased](releases/unreleased.md).
+  and recorded in [1.0.0](releases/1.0.0.md).
 - **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
   re-read, all source digests were verified, and the tested
   [consumer IWE seed](codebase/templates/iwe.md) was added as the twenty-seventh
@@ -107,13 +110,13 @@ to the current day's group.
   mode re-reads only the docs whose tracked source contents no longer match
   their `source_digest`, classified by the bundled `stale-map-docs.sh`. This
   repository is mapped: 26 docs under [Codebase](codebase.md). Recorded in
-  [unreleased](releases/unreleased.md) and specified in
+  [1.0.0](releases/1.0.0.md) and specified in
   [IWE workflow skills](spec/iwe-workflow-skills.md);
   [its plan](plans/20260903-iwe-map-skill.md) is done.
 - **Creation**:
   [Consumer PR description guidance](features/pr-description-guidance.md)
-  implemented, recorded in [unreleased](releases/unreleased.md) — a consuming
-  repository may now capture its extra PR-template sections as instructions in a
+  implemented, recorded in [1.0.0](releases/1.0.0.md) — a consuming repository
+  may now capture its extra PR-template sections as instructions in a
   consumer-owned `.github/pr-description-guidance.md`, which
   `pr-gen-description` reads with precedence over its own section generation
   while preserving the Verification / Reviewer Handoff tense split, and template
@@ -164,19 +167,19 @@ to the current day's group.
   in [IWE workflow skills](spec/iwe-workflow-skills.md).
 - **Creation**:
   [Install the agentdev catalog into the image](features/catalog-installed-in-image.md)
-  implemented, recorded in [unreleased](releases/unreleased.md), with the
-  build-time install and the `~/.claude.json` handoff reorder synced into
+  implemented, recorded in [1.0.0](releases/1.0.0.md), with the build-time
+  install and the `~/.claude.json` handoff reorder synced into
   [Catalog lifecycle](spec/catalog-lifecycle.md);
   [its plan](plans/20260817-catalog-install-in-image.md) is done.
 - **Creation**:
   [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
-  implemented, recorded in [unreleased](releases/unreleased.md), and specified
-  by [Agent file discovery](spec/agent-file-discovery.md);
+  implemented, recorded in [1.0.0](releases/1.0.0.md), and specified by
+  [Agent file discovery](spec/agent-file-discovery.md);
   [its plan](plans/20260901-gitignore-aware-discovery.md) is done.
 - **Creation**:
   [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
-  implemented, recorded in [unreleased](releases/unreleased.md), and reflected
-  in [Template consumption](spec/template-consumption.md);
+  implemented, recorded in [1.0.0](releases/1.0.0.md), and reflected in
+  [Template consumption](spec/template-consumption.md);
   [its plan](plans/20260816-move-iwe-skills-to-agentdev.md) is done.
 - **Update**:
   [Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
@@ -187,7 +190,7 @@ to the current day's group.
   location and startup latency only, so no spec changed.
 - **Creation**:
   [Persist the pre-commit hook cache](features/persist-pre-commit-cache.md)
-  implemented, recorded in [unreleased](releases/unreleased.md).
+  implemented, recorded in [1.0.0](releases/1.0.0.md).
 
 ## 2026-09-01
 
@@ -206,11 +209,11 @@ to the current day's group.
   run.
 - **Creation**:
   [Split PR How to Test into Verification and Reviewer Handoff](features/pr-verification-sections.md)
-  implemented, recorded in [unreleased](releases/unreleased.md);
+  implemented, recorded in [1.0.0](releases/1.0.0.md);
   [its plan](plans/20260815-pr-verification-sections.md) is done.
 - **Creation**:
   [Critical docs and durable-knowledge review in pr-review](features/pr-review-docs-durable-knowledge.md)
-  implemented, recorded in [unreleased](releases/unreleased.md);
+  implemented, recorded in [1.0.0](releases/1.0.0.md);
   [its plan](plans/20260831-pr-review-docs-durable-knowledge.md) is done.
   `pr-review` now reviews docs and skills critically by invoking `iwe-audit` in
   a report-only diff mode, with a conditional file-following durable-knowledge
@@ -228,7 +231,7 @@ to the current day's group.
   is retired into the `AGENTS.md` Python section.
 - **Creation**:
   [Let pre-commit own formatting](features/pre-commit-owns-formatting.md)
-  implemented, recorded in [unreleased](releases/unreleased.md).
+  implemented, recorded in [1.0.0](releases/1.0.0.md).
 - **Update**: [Template consumption](spec/template-consumption.md) §5 item 5 now
   keeps the consuming project's `zizmor` hook as `language: system` resolved
   from `PATH`, dropping the bare-host `zizmorcore/zizmor-pre-commit`
@@ -319,8 +322,8 @@ to the current day's group.
   sized so a tick can be honest, and what the gate does and cannot do. It reads
   shape only; whether a claim is *true* stays Verify's judgment and a human's.
 - **Update**: [Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
-  fixed and recorded in [unreleased](releases/unreleased.md). `48d0f79` had
-  fixed the instance and left both root causes standing; this closes them.
+  fixed and recorded in [1.0.0](releases/1.0.0.md). `48d0f79` had fixed the
+  instance and left both root causes standing; this closes them.
 - **Update**:
   [Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
   done — Explore's `## Capturing` now routes an established defect to
@@ -344,7 +347,7 @@ to the current day's group.
   requirements and scenarios.
 - **Update**:
   [Verification in the main loop](features/verification-in-the-main-loop.md)
-  implemented and recorded in [unreleased](releases/unreleased.md).
+  implemented and recorded in [1.0.0](releases/1.0.0.md).
 
 ## 2026-08-15
 
@@ -364,7 +367,7 @@ to the current day's group.
   — the in-tree symlink is gone and every consumer reaches the environment
   through `uv run` or the fixed `/uv/venvs/ws-project` path.
 - **Creation**: [uv-run-only environment](features/uv-run-only-environment.md)
-  implemented, recorded in [unreleased](releases/unreleased.md).
+  implemented, recorded in [1.0.0](releases/1.0.0.md).
 - **Creation**: Proposed
   [Verification in the main loop](features/verification-in-the-main-loop.md) —
   ship's step 1 names the verify skill without invoking it, so verification at
