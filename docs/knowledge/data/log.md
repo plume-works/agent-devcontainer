@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-08
+
+- **Map**: refreshed
+  [the validator package](codebase/py_packages/validate_agent_files.md),
+  [its tests](codebase/py_packages/validate_agent_files/tests.md),
+  [its validators](codebase/py_packages/validate_agent_files/validators.md),
+  [the agentdev catalog](codebase/agents/plugins/agentdev.md), and
+  [its skills](codebase/agents/plugins/agentdev/skills.md) against their current
+  sources; all 27 map docs match their tracked-source digests.
+
 ## 2026-09-06
 
 - **Update**:
