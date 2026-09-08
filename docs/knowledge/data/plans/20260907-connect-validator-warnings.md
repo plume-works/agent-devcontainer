@@ -7,6 +7,8 @@ generated:
   at: 2026-09-07T00:00:00Z
 sources:
 - resource: py_packages/validate_agent_files/
+stage: done
+completed: 2026-09-08
 ---
 
 # Connect validator warnings

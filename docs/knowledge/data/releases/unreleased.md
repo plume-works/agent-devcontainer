@@ -51,6 +51,8 @@ renames this file to the version number and starts a fresh one.*
 
 ## Fixed
 
+[Validator warning visibility](../bugs/validator-warning-visibility.md)
+
 [Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md)
 
 [Missing map skill](../bugs/missing-map-skill.md)

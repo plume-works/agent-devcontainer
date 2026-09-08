@@ -17,9 +17,9 @@ moves them.*
 
 ## Active
 
-[Connect validator warnings](plans/20260907-connect-validator-warnings.md)
-
 ## Done
+
+[Connect validator warnings](plans/20260907-connect-validator-warnings.md)
 
 [Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
 

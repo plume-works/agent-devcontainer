@@ -7,6 +7,7 @@ generated:
 sources:
 - resource: docs/agents/specs/validator-warning-visibility/ (folded and removed)
 - resource: py_packages/validate_agent_files/
+stage: done
 ---
 
 # Validator warning visibility
@@ -74,7 +75,15 @@ is no prior decision to reverse: this is a first wiring, not a restoration.
 
 ## Fix
 
-Not started. Wire `SkillFrontmatterValidator` and `SkillStructureValidator` into
+Fixed by
+[Connect validator warnings](../plans/20260907-connect-validator-warnings.md).
+`SkillFrontmatterValidator` and `SkillStructureValidator` are constructed in
+`ValidationEngine.validate` and receive `show_warnings`; `main.py` reads the
+real argparse destinations; `--no-warnings` is removed in favour of
+`--errors-only`; and `CrossReferenceValidator` no longer accepts the field it
+never read. The original analysis follows.
+
+Wire `SkillFrontmatterValidator` and `SkillStructureValidator` into
 `CustomizationsValidationEngine`, treating their existing checks as the intended
 recommendation set — `tests/test_skill_validation.py` already describes the
 behavior. Redesigning the recommendation set from scratch was considered and

@@ -6,6 +6,17 @@ to the current day's group.
 
 ## 2026-09-08
 
+- **Update**:
+  [Connect validator warnings](plans/20260907-connect-validator-warnings.md)
+  done — `--recommend` now produces skill frontmatter and structure
+  recommendations, `--errors-only` is the single suppression flag, and warnings
+  still never move the exit code.
+- **Update**:
+  [Validator warning visibility](bugs/validator-warning-visibility.md) fixed and
+  recorded in [unreleased](releases/unreleased.md). The two skill validators are
+  wired into the engine, `main.py` reads the real argparse destinations,
+  `--no-warnings` is gone, and the CLI contract is stated in
+  [the validator CLI interface](codebase/api-validate-agent-files-cli.md).
 - **Map**: refreshed
   [the validator package](codebase/py_packages/validate_agent_files.md),
   [its tests](codebase/py_packages/validate_agent_files/tests.md),
