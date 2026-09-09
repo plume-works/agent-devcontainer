@@ -17,9 +17,9 @@ moves them.*
 
 ## Active
 
-[Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
-
 ## Done
+
+[Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
 
 [Self-improve MVP](plans/20260909-self-improve-mvp.md)
 

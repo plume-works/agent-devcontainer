@@ -4,6 +4,19 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-09
+
+- **Update**:
+  [Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
+  done — the plugin tree, its tests, and its Makefile moved into this
+  repository, the Claude marketplace publishes it as a second plugin, and its
+  live tests are guarded at collection behind `SELF_IMPROVE_RUN_LIVE`.
+- **Creation**:
+  [Self-improve plugin in the catalog](features/self-improve-plugin-in-catalog.md)
+  implemented and recorded in [unreleased](releases/unreleased.md). It is
+  published from the Claude marketplace and not enabled by anything the
+  repository ships.
+
 ## 2026-09-08
 
 - **Release**: cut [1.0.0](releases/1.0.0.md) from the unreleased accumulator —

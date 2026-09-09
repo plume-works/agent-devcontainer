@@ -17,4 +17,6 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
+[Self-improve plugin in the catalog](../features/self-improve-plugin-in-catalog.md)
+
 ## Fixed

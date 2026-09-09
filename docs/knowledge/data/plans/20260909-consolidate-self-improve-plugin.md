@@ -8,6 +8,8 @@ generated:
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement at e94031a, the merge source
+stage: done
+completed: 2026-09-09
 ---
 
 # Consolidate the self-improve plugin into this repository
