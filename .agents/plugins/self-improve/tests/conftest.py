@@ -38,7 +38,11 @@ def pytest_collection_modifyitems(items):
     if os.environ.get(LIVE_OPT_IN_ENV):
         return
     for item in items:
-        marked = [marker for marker in LIVE_MARKERS if marker in item.keywords]
+        # iter_markers, not keywords: keywords also carries path components, so
+        # every test under tests/smoke/ would match 'smoke' whatever it is
+        # marked — including the harness self-checks that drive no session.
+        applied = {marker.name for marker in item.iter_markers()}
+        marked = [marker for marker in LIVE_MARKERS if marker in applied]
         if marked:
             item.add_marker(
                 pytest.mark.skip(

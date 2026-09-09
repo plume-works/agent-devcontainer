@@ -7,6 +7,7 @@ generated:
 sources:
 - resource: .agents/plugins/self-improve/tests/integration/test_dispatcher.py
 - resource: .agents/plugins/self-improve/selfimprove/commands.py
+stage: done
 ---
 
 # Self-test unwritable-root check assumes a non-root user
@@ -48,22 +49,26 @@ the directory at the expected mode before either runs.
 
 ## Fix
 
-Not fixed; filed by
-[Consolidate the self-improve plugin into this repository](../plans/20260909-consolidate-self-improve-plugin.md),
-whose scope is the move and which changes no behavior of the code it moves.
+The test is skipped when `os.getuid() == 0`, with that reason attached. The
+behavior it covers is verified correct for the unprivileged user it targets: as
+`nobody`, `si self-test` against a mode-500 parent exits 1 and reports
+`cannot create state root ... (Permission denied)`.
 
-The behavior under test is correct for the unprivileged user it targets. The
-options are to skip the test when `os.getuid() == 0`, or to drive the refusal
-through something privilege does not bypass — a read-only mount, or an
-unwritable path on a filesystem mounted `ro`. Skipping states the limit
-honestly; the second actually restores coverage for the root case.
+Skipping states the limit honestly but leaves the root case uncovered. Driving
+the refusal through something privilege does not bypass — a read-only mount, or
+an unwritable path on a filesystem mounted `ro` — would restore it, and is the
+better fix whenever the coverage is wanted back.
+
+No plugin behavior changed:
+[Consolidate the self-improve plugin into this repository](../plans/20260909-consolidate-self-improve-plugin.md)
+moves the code and does not modify it.
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-09-09):
 
-- `.agents/plugins/self-improve/tests/integration/test_dispatcher.py:40-48` —
-  the test, and the `mode=0o500` directory it relies on
+- `.agents/plugins/self-improve/tests/integration/test_dispatcher.py:42-52` —
+  the root skip and the `mode=0o500` directory the test relies on
 - `.agents/plugins/self-improve/selfimprove/commands.py:396-414` — the state
   root checks that cannot fail for UID 0
 - `.agents/plugins/self-improve/selfimprove/paths.py:13` — `DIR_MODE`, the mode

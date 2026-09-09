@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 
+import pytest
 from selfimprove import paths, store
 
 from tests.conftest import PLUGIN_ROOT, SI
@@ -37,6 +38,10 @@ def test_self_test_reports_ok(run_si):
     assert 'ok' in result.stdout
 
 
+@pytest.mark.skipif(
+    os.getuid() == 0,
+    reason='root bypasses the permission bits, so the write this test blocks succeeds',
+)
 def test_self_test_fails_when_state_root_is_unwritable(run_si, tmp_path):
     blocked = tmp_path / 'blocked'
     blocked.mkdir(mode=0o500)

@@ -107,9 +107,11 @@ moved file); Modify: `pyproject.toml`
   - **Evidence:** commit `c4bdc2e`; the hook in
     `.agents/plugins/self-improve/tests/conftest.py` skips on `smoke` or `pty`
     unless `SELF_IMPROVE_RUN_LIVE` is set, naming every matching marker in the
-    reason. With the variable set, `--collect-only -m "smoke or pty"` collects
-    all 13 live tests, so the guard skips rather than deselects. The 8 `harness`
-    tests run unguarded in the ordinary suite.
+    reason. It reads `iter_markers`, not `keywords`, which also carries path
+    components and would have caught every test under `tests/smoke/` whatever
+    its markers. With the variable set, `--collect-only -m "smoke or pty"`
+    collects all 13 live tests, so the guard skips rather than deselects.
+    `make test-harness` runs its 10 tests unguarded and passes.
 - [x] Add the plugin's `tests` directory to `testpaths` in the root
   `pyproject.toml`, and carry over the `smoke`, `interactive`, `pty`, `harness`,
   and `auto_memory` marker declarations.
@@ -176,25 +178,48 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 
 **Files:** Create: `Makefile`
 
-- [ ] Copy the source Makefile to the repository root with every explanatory
+- [x] Copy the source Makefile to the repository root with every explanatory
   comment intact, and the `smoke`, `smoke-auto`, `wake`, `wake-memory`,
   `wake-repeat`, and `test-harness` targets, the help text, the `SMOKE_MODEL` /
   `SMOKE_EFFORT` / `SMOKE_AUTO_MEMORY` dials, `TEST_RUN_LABEL`, and
   `unexport VIRTUAL_ENV` unchanged.
-- [ ] Set the live targets' opt-in environment variable from Task 3, and drop
+  - **Evidence:** commit `TASK5SHA`; all six targets resolve under `make -n`,
+    the three dials and both exports carry over verbatim, and every explanatory
+    comment is preserved.
+- [x] Set the live targets' opt-in environment variable from Task 3, and drop
   `-m "not smoke and not pty"` from `test`, which the collection hook now covers
   at every entry point.
-- [ ] Remove the `lint` and `fmt` targets, reduce `check` to `test validate`,
+  - **Evidence:** commit `TASK5SHA`; `make -n` shows `SELF_IMPROVE_RUN_LIVE=1`
+    on each of `smoke`, `smoke-auto`, `wake`, `wake-memory`, and `wake-repeat`,
+    and on neither `test` nor `test-harness`. `make test` is a bare `pytest -q`
+    and runs 825 passed, 14 skipped, spending no model usage.
+- [x] Remove the `lint` and `fmt` targets, reduce `check` to `test validate`,
   and drop their help lines. Formatting is pre-commit's, per
   [Let pre-commit own formatting](20260831-pre-commit-owns-formatting.md);
   `ruff` stays in the dev group because the pre-commit hook needs it.
-- [ ] Retarget `validate` at `.agents/plugins/self-improve`, keeping its second
+  - **Evidence:** commit `TASK5SHA`; `make -n lint` and `make -n fmt` both fail
+    with no such target, `check` is `test validate`, and the help text points at
+    `pre-commit run --all-files` instead.
+- [x] Retarget `validate` at `.agents/plugins/self-improve`, keeping its second
   invocation, which now validates a two-plugin marketplace.
-- [ ] Scope `clean` to the plugin subtree rather than the repository root, and
+  - **Evidence:** commit `TASK5SHA`; `make validate` passes both — the plugin
+    manifest at `.agents/plugins/self-improve/.claude-plugin/plugin.json` and
+    the marketplace manifest now publishing two plugins.
+- [x] Scope `clean` to the plugin subtree rather than the repository root, and
   fix `clean-claude`'s module path, which assumes a top-level `tests` package
   and would now collide with the agentdev suite.
-- [ ] Replace the missing-`uv` hint with this repository's escalation ladder
+  - **Evidence:** commit `TASK5SHA`; `clean` removes only caches under
+    `.agents/plugins/self-improve` plus `test-runs/`, leaving the other suites'
+    caches alone. `clean-claude` runs `python -m tests.smoke.workspaces` from
+    the plugin directory, where `tests` is its own package — from the repository
+    root the name does not resolve at all. `make clean-claude` reports
+    `removed 0 test-run project directories`.
+- [x] Replace the missing-`uv` hint with this repository's escalation ladder
   (`AGENTS.md` Best Practice 3) instead of a `brew install` suggestion.
+  - **Evidence:** commit `TASK5SHA`; the no-`uv` branch names the ladder —
+    devcontainer via `/agentdev:microvm-sandbox` with a Docker daemon, a
+    Codespace via `/agentdev:remote-codespace-session` without one — and no
+    longer suggests `brew install`.
 
 ### Task 6: Land the research material
 
