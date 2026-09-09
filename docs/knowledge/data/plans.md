@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
+
 ## Done
 
 [Connect validator warnings](plans/20260907-connect-validator-warnings.md)

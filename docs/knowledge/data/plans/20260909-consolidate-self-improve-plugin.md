@@ -1,0 +1,290 @@
+---
+type: plan
+created: 2026-09-09
+description: Merge the agent-self-improvement repository into this one as a second catalog plugin, published but not enabled.
+generated:
+  by: claude-code/opus-5
+  at: 2026-09-09T00:00:00Z
+sources:
+- resource: https://github.com/plume-works/agent-self-improvement
+  title: agent-self-improvement at e94031a, the merge source
+---
+
+# Consolidate the self-improve plugin into this repository
+
+## Context
+
+`self-improve` — a hook-driven experiential-learning engine for Claude Code — is
+developed in its own repository and consumes this one's catalog. The
+consolidation decision, its rationale, and its rejected alternatives are
+recorded in
+[Self-improve consolidation](../architecture/self-improve-consolidation.md);
+this plan executes it and does not restate it.
+
+The merge source is `plume-works/agent-self-improvement` at `e94031a`: roughly
+3.5k lines of standard-library-only Python under `plugin/selfimprove/`, a
+shell-plus-Python dispatcher, seven hook events, four skills, a reviewer prompt
+and schema, 7.6k lines of tests, and 8.4k lines of documentation.
+
+## Approach
+
+The plugin tree moves to `.agents/plugins/self-improve/` and is published from
+the Claude marketplace only. Its Python is aligned to this repository's
+interpreter floor while its standard-library-only runtime rule is preserved
+intact — the two are independent, and only the second is load-bearing.
+
+Installation comes first: the catalog publishes one plugin today, and until a
+second one installs, nothing else in this plan can be verified. Documentation
+conversion comes last, when the code it describes is in place.
+
+The rejected alternative was to align the interpreter floor by keeping the
+plugin's own `pyproject.toml` and test suite fully separate, as
+`py_packages/validate_agent_files/` does. That isolation exists because the
+validator is released independently; `self-improve` is not, so a second Python
+project would add packaging surface for no reciprocal guarantee.
+
+## Implementation Steps
+
+### Task 1: Publish a second plugin from the Claude marketplace
+
+**Files:** Modify: `.claude-plugin/marketplace.json`,
+`.devcontainer/scripts/reinstall-agentdev-claude.sh`
+
+- [ ] Add a `self-improve` entry to `.claude-plugin/marketplace.json` pointing
+  at `./.agents/plugins/self-improve`, leaving
+  `.agents/plugins/marketplace.json` untouched.
+- [ ] Replace the single `jq -er '.plugins[0].name'` read in
+  `reinstall-agentdev-claude.sh` with an iteration over `.plugins[]`, so every
+  published plugin is uninstalled across the `user`, `project`, and `local`
+  scopes and reinstalled at the requested scope.
+- [ ] Record in `reinstall-agentdev-codex.sh` why its `.plugins[0]` read stays:
+  the Codex manifest publishes one plugin by design, and a comment is cheaper
+  than speculative generality that no caller exercises.
+
+### Task 2: Move the plugin tree
+
+**Files:** Create: `.agents/plugins/self-improve/**`
+
+- [ ] Copy `plugin/` from the merge source to `.agents/plugins/self-improve/`,
+  preserving `selfimprove/`, `scripts/`, `hooks/`, `reviewer/`, `skills/`, and
+  `.claude-plugin/plugin.json`.
+- [ ] Move the source's `tests/` to `.agents/plugins/self-improve/tests/`,
+  matching the convention `.agents/plugins/agentdev/tests/` sets.
+- [ ] Merge the runtime-state entries from the source's `.gitignore` into the
+  root `.gitignore`: `.self-improvement/`, `candidates/`, `proposals/`,
+  `authorizations/`, `backups/`, `archive/`, `locks/`, `*.sqlite*`, and
+  `/test-runs/`, which is where live runs land.
+
+### Task 3: Guard the live tests at collection
+
+**Files:** Create: `.agents/plugins/self-improve/tests/conftest.py` (modify the
+moved file); Modify: `pyproject.toml`
+
+- [ ] Add a `pytest_collection_modifyitems` hook that skips items marked `smoke`
+  or `pty` unless an opt-in environment variable is set, attaching a reason to
+  each skip. Leave `harness` unguarded — it is the model-free self-check that
+  runs in the ordinary suite.
+- [ ] Add the plugin's `tests` directory to `testpaths` in the root
+  `pyproject.toml`, and carry over the `smoke`, `interactive`, `pty`, `harness`,
+  and `auto_memory` marker declarations.
+- [ ] Prove the guard holds for the three bypasses a marker filter does not
+  cover: selecting a live test by path, by `-m`, and by node id.
+
+### Task 4: Align the interpreter floor
+
+**Files:** Modify: `.agents/plugins/self-improve/scripts/si`,
+`.agents/plugins/self-improve/tests/unit/test_no_runtime_deps.py`; Delete: the
+merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
+
+- [ ] Raise the dispatcher's `min_check` from `(3, 9)` to `(3, 12)`, keeping the
+  interpreter probe loop. Hooks inherit the user's shell environment, where
+  `python3` may resolve to an interpreter older than the runtime needs; the
+  probe is what finds a usable one.
+- [ ] Delete `POST_39_STDLIB` and both `skipif sys.version_info < (3, 10)`
+  guards from `test_no_runtime_deps.py`, so the standard-library-only assertions
+  run unconditionally.
+- [ ] Drop the source's `pyproject.toml`, its `[tool.ruff]` block with the
+  `UP006`/`UP007`/`UP035` ignores, and its `.ruff.toml`; the root `.ruff.toml`
+  governs the whole tree, so the plugin needs no ruff config of its own.
+- [ ] Decide the fate of `test_project_declares_no_runtime_dependencies`, which
+  asserts the literal string `dependencies = []` in `pyproject.toml`. The root
+  file has a populated dev group, so the assertion cannot hold in its current
+  form, and the AST walk beside it already enforces the real property. Either
+  restate it against the plugin or remove it; record which and why.
+
+### Task 5: Bring the Makefile
+
+**Files:** Create: `Makefile`
+
+- [ ] Copy the source Makefile to the repository root with every explanatory
+  comment intact, and the `smoke`, `smoke-auto`, `wake`, `wake-memory`,
+  `wake-repeat`, and `test-harness` targets, the help text, the `SMOKE_MODEL` /
+  `SMOKE_EFFORT` / `SMOKE_AUTO_MEMORY` dials, `TEST_RUN_LABEL`, and
+  `unexport VIRTUAL_ENV` unchanged.
+- [ ] Set the live targets' opt-in environment variable from Task 3, and drop
+  `-m "not smoke and not pty"` from `test`, which the collection hook now covers
+  at every entry point.
+- [ ] Remove the `lint` and `fmt` targets, reduce `check` to `test validate`,
+  and drop their help lines. Formatting is pre-commit's, per
+  [Let pre-commit own formatting](20260831-pre-commit-owns-formatting.md);
+  `ruff` stays in the dev group because the pre-commit hook needs it.
+- [ ] Retarget `validate` at `.agents/plugins/self-improve`, keeping its second
+  invocation, which now validates a two-plugin marketplace.
+- [ ] Scope `clean` to the plugin subtree rather than the repository root, and
+  fix `clean-claude`'s module path, which assumes a top-level `tests` package
+  and would now collide with the agentdev suite.
+- [ ] Replace the missing-`uv` hint with this repository's escalation ladder
+  (`AGENTS.md` Best Practice 3) instead of a `brew install` suggestion.
+
+### Task 6: Land the research material
+
+**Files:** Create: `docs/research/**`
+
+- [ ] Move the source's `docs/case-study/` and `docs/hypothetical-extensions/`
+  under `docs/research/` as a plain folder. It analyses other projects' learning
+  systems and asserts nothing about this one, so it is not graph material.
+
+### Task 7: Extract the implemented specification into the graph
+
+**Files:** Create: `docs/knowledge/data/plans/20260909-self-improve-mvp.md`,
+`docs/knowledge/data/spec/self-improve-learning-loop.md`,
+`docs/knowledge/data/architecture/self-improve-runtime.md`; Modify:
+`docs/knowledge/data/plans.md`, `docs/knowledge/data/spec.md`,
+`docs/knowledge/data/architecture.md`
+
+- [ ] File the MVP as a plan at `stage: done`, absorbing the pty wake harness
+  specification, whose acceptance criterion 6.1 is **outstanding**: nine of ten
+  runs reached the assertion, and five of twenty checks skipped for want of a
+  staged candidate. Per
+  [Evidence and outstanding work](../concept/evidence-and-outstanding-work.md),
+  that belongs under its own heading and never beside the evidence.
+- [ ] Write the durable behavior into `data/spec/`: hook design, the
+  meaningful-event gate, reviewer isolation and output, routing and the path
+  allowlist, the mutation protocol, state and privacy, and failure behavior.
+- [ ] Write the runtime decisions and their rejected alternatives into
+  `data/architecture/`, including the standard-library-only rule and the
+  state-root resolution order.
+
+### Task 8: File the unimplemented proposals and the measured defects
+
+**Files:** Create: `docs/knowledge/data/someday/*.md`,
+`docs/knowledge/data/bugs/*.md`; Modify: `docs/knowledge/data/someday.md`,
+`docs/knowledge/data/bugs.md`
+
+- [ ] File Codex integration, plugin execution tracing, and the Hermes-derived
+  prompt stack under `data/someday/`, each keeping the analysis that makes it
+  decidable later.
+- [ ] File the reviewer decline asymmetry as a bug with its root cause openly
+  unresolved: the reviewer declined seven times on the negative control against
+  once on the wake check, on an identically scripted exchange; offline replay
+  does not reproduce it; two hypotheses are eliminated.
+- [ ] File the `improve` skill's unstageable routing option as a bug. Its
+  routing step 3 offers to add or patch a linked reference, and
+  `candidate_paths` resolves only `CLAUDE.md`, `rules/<name>.md`, and
+  `skills/<name>/SKILL.md`, so such a target is rejected as `bad_kind`.
+
+### Task 9: Merge the operating rules
+
+**Files:** Modify:
+`docs/knowledge/data/concept/evidence-and-outstanding-work.md`, `AGENTS.md`
+
+- [ ] Fold the source's evidence rule into the existing concept document as one
+  idea rather than two: this repository's rule governs documents that conflate
+  tenses, and the source's governs a session claiming what it did not watch
+  happen — a specification whose checks have never passed is implemented but
+  unverified.
+- [ ] Decide whether "new findings get their own specification" and "do not
+  build instrumentation for a question nobody has framed" belong in `AGENTS.md`
+  or in the plugin's own instructions, and place them once.
+
+### Task 10: Retire the merged repository's own scaffolding
+
+**Files:** Delete: the merge source's duplicated configuration; Modify:
+`uv.lock`
+
+- [ ] Drop the source's `.editorconfig`, `.hadolint.yaml`, `.markdownlint.yml`,
+  `.prettierrc.yml`, `.shellcheckrc`, and `zizmor.yaml`; this repository's
+  copies govern, and each source copy must be confirmed equivalent before it is
+  dropped.
+- [ ] Reconcile the two `LICENSE` files, which differ, rather than deleting
+  either unread.
+- [ ] Drop the source's `.claude/settings.json`, which declares this repository
+  as a remote marketplace — the relationship this merge inverts.
+- [ ] Decide whether the source's offline CI job needs an equivalent here, or
+  whether the existing workflows already cover the new suite, and record which.
+- [ ] Regenerate `uv.lock` through `.devcontainer/scripts/uv-sync.sh`.
+
+## Spec changes
+
+This plan moves a working plugin between repositories and converts its
+documentation; it changes no behavior of the code being moved.
+
+Task 7 creates `data/spec/self-improve-learning-loop`, but as a *transcription*
+of behavior that already shipped in the merge source, not as a change to it. The
+requirements it will carry — hook design, the meaningful-event gate, reviewer
+isolation and output, routing and the path allowlist, the mutation protocol,
+state and privacy, and failure behavior — describe the plugin exactly as it
+arrives. No requirement is added, modified, or removed by this plan.
+
+The two defects filed in Task 8 are recorded, not fixed; the behavior they
+describe is the behavior that ships.
+
+## Verification
+
+- `uv run pytest .agents/plugins/self-improve/tests` passes, and the run
+  collects no live test.
+- The live guard holds under each bypass a marker filter misses:
+  `uv run pytest <path to a smoke test>`, `uv run pytest -m smoke`, and a
+  node-id selection all skip rather than execute, each naming its reason.
+- `uv run pytest` at the repository root passes across all four suites and
+  spends no model usage.
+- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  exits 0 with the two-plugin Claude marketplace.
+- `.devcontainer/scripts/reinstall-agentdev-claude.sh` installs both plugins;
+  `claude plugin list` shows `agentdev` and `self-improve`, and a second run is
+  idempotent.
+- `claude plugin marketplace list` shows no stale entry after the reinstall.
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh` still installs `agentdev`
+  alone and reports nothing about `self-improve`.
+- `make test` and `make validate` pass; `make help` describes only targets that
+  exist.
+- `pre-commit run --all-files` passes.
+- `iwe normalize` and `iwe schema validate` both exit 0.
+- The plugin is published but not enabled: a session that has not opted in
+  registers none of its hooks.
+
+## Out of scope
+
+- **Enabling the plugin.** It is published from the marketplace and nothing
+  more. Staging it into `agent-desktop`, installing it at user scope, or
+  enabling it by default is a separate decision with its own evidence bar.
+- **Ansible staging changes.** The role selects its plugin by name and asserts
+  exactly one match, so a second entry is invisible to it — which is what
+  publishing-without-enabling requires.
+- **Fixing either defect filed in Task 8.**
+- **Codex support for `self-improve`**, which is unimplemented upstream and
+  filed under `data/someday/` by Task 8.
+- **Any behavioral change to the plugin**, including the reviewer prompt.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-09-09):
+
+- `.devcontainer/scripts/reinstall-agentdev-claude.sh:27` — `plugin_name` read,
+  the single-plugin assumption Task 1 removes
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh:26` — the same read, which
+  stays
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:20` — `selectattr` name
+  filter; selects rather than indexes, so a second plugin is invisible
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:28` — the assertion that
+  exactly one entry matches that name
+- `ansible/roles/agentic_tools/defaults/main.yml:41` —
+  `agentic_tools_plugin_name`, the selector that filter uses
+- `py_packages/validate_agent_files/validate_agent_files/paths.py:54` —
+  `find_plugin_roots`, which already enumerates every published plugin
+- `py_packages/validate_agent_files/validate_agent_files/validators/marketplace.py:73`
+  — `_validate_ecosystem`, which validates each entry and skips an ecosystem a
+  plugin does not ship for
+- `.github/workflows/validate-agent-files.yml:85` — the CI invocation whose
+  `--require-marketplace claude codex` the asymmetric manifests must satisfy
+- `pyproject.toml:29` — `testpaths`, which Task 3 extends
