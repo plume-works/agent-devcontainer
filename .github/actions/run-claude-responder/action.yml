@@ -127,7 +127,7 @@ runs:
         prompt: ${{ inputs.prompt }}
 
     - name: Attach responder output file
-      if: steps.claude_responder.outputs.execution_file != ''
+      if: always() && steps.claude_responder.outputs.execution_file != ''
       uses: actions/upload-artifact@v7.0.1
       with:
         name: ${{ inputs.artifact-name }}
@@ -135,7 +135,7 @@ runs:
         retention-days: 7
 
     - name: Fail on Claude usage limit
-      if: steps.claude_responder.outputs.execution_file != ''
+      if: always() && steps.claude_responder.outputs.execution_file != ''
       shell: bash
       env:
         EXECUTION_FILE: ${{ steps.claude_responder.outputs.execution_file }}
