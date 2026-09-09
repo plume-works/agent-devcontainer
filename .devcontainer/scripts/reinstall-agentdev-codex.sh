@@ -23,6 +23,9 @@ if [[ ! -f "$marketplace_json" ]]; then
 fi
 
 marketplace_name="$(jq -er '.name' "$marketplace_json")"
+# The Codex manifest publishes one plugin by design: self-improve ships no Codex
+# manifest, so the two ecosystems publish different sets. Indexing is accurate
+# here; generality no caller exercises is not.
 plugin_name="$(jq -er '.plugins[0].name' "$marketplace_json")"
 
 # Remove the marketplace declared by this root plus any marketplace still

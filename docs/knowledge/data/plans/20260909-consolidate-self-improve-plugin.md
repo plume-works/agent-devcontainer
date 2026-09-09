@@ -50,16 +50,26 @@ project would add packaging surface for no reciprocal guarantee.
 **Files:** Modify: `.claude-plugin/marketplace.json`,
 `.devcontainer/scripts/reinstall-agentdev-claude.sh`
 
-- [ ] Add a `self-improve` entry to `.claude-plugin/marketplace.json` pointing
+- [x] Add a `self-improve` entry to `.claude-plugin/marketplace.json` pointing
   at `./.agents/plugins/self-improve`, leaving
   `.agents/plugins/marketplace.json` untouched.
-- [ ] Replace the single `jq -er '.plugins[0].name'` read in
+  - **Evidence:** commit `26da473`; `jq -er '.plugins[].name'` on the Claude
+    manifest yields `agentdev` and `self-improve`, on the Codex manifest
+    `agentdev` alone.
+- [x] Replace the single `jq -er '.plugins[0].name'` read in
   `reinstall-agentdev-claude.sh` with an iteration over `.plugins[]`, so every
   published plugin is uninstalled across the `user`, `project`, and `local`
   scopes and reinstalled at the requested scope.
-- [ ] Record in `reinstall-agentdev-codex.sh` why its `.plugins[0]` read stays:
+  - **Evidence:** commit `26da473`; driven against a stub `claude` on `PATH`,
+    the script issued six uninstalls — `agentdev` and `self-improve` across
+    `user`, `project`, and `local` — then one `marketplace add` and one install
+    per plugin at the requested scope. `shellcheck` clean.
+- [x] Record in `reinstall-agentdev-codex.sh` why its `.plugins[0]` read stays:
   the Codex manifest publishes one plugin by design, and a comment is cheaper
   than speculative generality that no caller exercises.
+  - **Evidence:** commit `26da473`; the three-line comment sits above the
+    `.plugins[0].name` read at `reinstall-agentdev-codex.sh:26`. `shellcheck`
+    clean.
 
 ### Task 2: Move the plugin tree
 
@@ -274,9 +284,9 @@ Verified anchor points (line numbers as of 2026-09-09):
   the single-plugin assumption Task 1 removes
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:26` — the same read, which
   stays
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:20` — `selectattr` name
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:22` — `selectattr` name
   filter; selects rather than indexes, so a second plugin is invisible
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:28` — the assertion that
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:31` — the assertion that
   exactly one entry matches that name
 - `ansible/roles/agentic_tools/defaults/main.yml:41` —
   `agentic_tools_plugin_name`, the selector that filter uses
