@@ -21,6 +21,8 @@ moves them.*
 
 ## Done
 
+[Self-improve MVP](plans/20260909-self-improve-mvp.md)
+
 [Connect validator warnings](plans/20260907-connect-validator-warnings.md)
 
 [Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)

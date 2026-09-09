@@ -1,6 +1,10 @@
 line-length = 99
 indent-width = 4
 
+# A source-faithful copy of a third-party prompt corpus, pinned to an upstream
+# commit. Reformatting it would destroy the fidelity that makes it evidence.
+exclude = ["docs/research/case-study/hermes/prompts/python"]
+
 # Assume Python 3.12
 target-version = "py312"
 
