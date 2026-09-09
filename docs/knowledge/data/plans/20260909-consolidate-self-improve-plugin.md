@@ -75,15 +75,25 @@ project would add packaging surface for no reciprocal guarantee.
 
 **Files:** Create: `.agents/plugins/self-improve/**`
 
-- [ ] Copy `plugin/` from the merge source to `.agents/plugins/self-improve/`,
+- [x] Copy `plugin/` from the merge source to `.agents/plugins/self-improve/`,
   preserving `selfimprove/`, `scripts/`, `hooks/`, `reviewer/`, `skills/`, and
   `.claude-plugin/plugin.json`.
-- [ ] Move the source's `tests/` to `.agents/plugins/self-improve/tests/`,
+  - **Evidence:** commit `TASK2SHA`; copied from the source's tracked files at
+    `e94031a`, so no build residue crossed. Every copied file is byte-identical
+    to its source under `cmp`, the layout diff is empty, and `scripts/si` keeps
+    its executable bit.
+- [x] Move the source's `tests/` to `.agents/plugins/self-improve/tests/`,
   matching the convention `.agents/plugins/agentdev/tests/` sets.
-- [ ] Merge the runtime-state entries from the source's `.gitignore` into the
+  - **Evidence:** commit `TASK2SHA`; `unit/`, `integration/`, `smoke/`, and
+    `fixtures/` land under the plugin's own `tests/`. 75 files copied against 75
+    tracked in the source's `plugin` and `tests` trees.
+- [x] Merge the runtime-state entries from the source's `.gitignore` into the
   root `.gitignore`: `.self-improvement/`, `candidates/`, `proposals/`,
   `authorizations/`, `backups/`, `archive/`, `locks/`, `*.sqlite*`, and
   `/test-runs/`, which is where live runs land.
+  - **Evidence:** commit `TASK2SHA`; each entry confirmed present by exact-match
+    grep. `git ls-files | git check-ignore --stdin` reports no tracked file
+    shadowed by the added patterns.
 
 ### Task 3: Guard the live tests at collection
 
