@@ -135,7 +135,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   interpreter probe loop. Hooks inherit the user's shell environment, where
   `python3` may resolve to an interpreter older than the runtime needs; the
   probe is what finds a usable one.
-  - **Evidence:** commit `TASK4SHA`; the probe loop stays, with `python3.11`,
+  - **Evidence:** commit `ffe833d`; the probe loop stays, with `python3.11`,
     `python3.10`, and `python3.9` dropped from the candidate list — below the
     new floor they could only ever fail `min_check`. `self_test`'s own floor
     moved with it, since it guards the path that bypasses the shim.
@@ -143,7 +143,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 - [x] Delete `POST_39_STDLIB` and both `skipif sys.version_info < (3, 10)`
   guards from `test_no_runtime_deps.py`, so the standard-library-only assertions
   run unconditionally.
-  - **Evidence:** commit `TASK4SHA`; the set, both `skipif` guards, and the
+  - **Evidence:** commit `ffe833d`; the set, both `skipif` guards, and the
     `test_runtime_avoids_post_39_stdlib` test they guarded are gone — the floor
     is 3.12, so no standard-library module is out of reach. The remaining AST
     assertion runs unconditionally over all 22 runtime modules and passes. The
@@ -152,8 +152,8 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 - [x] Drop the source's `pyproject.toml`, its `[tool.ruff]` block with the
   `UP006`/`UP007`/`UP035` ignores, and its `.ruff.toml`; the root `.ruff.toml`
   governs the whole tree, so the plugin needs no ruff config of its own.
-  - **Evidence:** commit `TASK4SHA`; none of the three crossed in the first
-    place — Task 2 copied only `plugin/` and `tests/` — and none exists under
+  - **Evidence:** commit `ffe833d`; none of the three crossed in the first place
+    — Task 2 copied only `plugin/` and `tests/` — and none exists under
     `.agents/plugins/self-improve/`. The root config governs: `ruff check` and
     `ruff format --check` pass over all 63 files of the tree. A `# noqa: UP036`
     left over from the source's ignore list went with them, the root config
@@ -163,7 +163,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   file has a populated dev group, so the assertion cannot hold in its current
   form, and the AST walk beside it already enforces the real property. Either
   restate it against the plugin or remove it; record which and why.
-  - **Evidence:** commit `TASK4SHA`; **removed**. The assertion was a proxy for
+  - **Evidence:** commit `ffe833d`; **removed**. The assertion was a proxy for
     the real rule, and the plugin it now guards declares no `pyproject.toml` of
     its own to restate it against — the plugin ships as a directory in the
     catalog, not as a Python distribution. Restating it against the root file
