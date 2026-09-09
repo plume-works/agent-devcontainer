@@ -336,13 +336,13 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   `.prettierrc.yml`, `.shellcheckrc`, and `zizmor.yaml`; this repository's
   copies govern, and each source copy must be confirmed equivalent before it is
   dropped.
-  - **Evidence:** commit `TASK10SHA`; all six confirmed byte-identical to this
+  - **Evidence:** commit `4fdfcd2`; all six confirmed byte-identical to this
     repository's copies under `diff` before being dropped, so nothing was lost.
     None was ever copied — Task 2 took only `plugin/` and `tests/`.
 - [x] Reconcile the two `LICENSE` files, which differ, rather than deleting
   either unread.
-  - **Evidence:** commit `TASK10SHA`; both read and diffed. They are the same
-    MIT text differing in one line — `plume-works` against `Anton Matosov`. The
+  - **Evidence:** commit `4fdfcd2`; both read and diffed. They are the same MIT
+    text differing in one line — `plume-works` against `Anton Matosov`. The
     repository `LICENSE` governs the whole checkout and stays as it is; the
     plugin keeps its own authorship in
     `.agents/plugins/self-improve/.claude-plugin/plugin.json`, which still
@@ -350,13 +350,13 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
     identical either way, so no root change was needed.
 - [x] Drop the source's `.claude/settings.json`, which declares this repository
   as a remote marketplace — the relationship this merge inverts.
-  - **Evidence:** commit `TASK10SHA`; read before dropping. It registered
+  - **Evidence:** commit `4fdfcd2`; read before dropping. It registered
     `plume-works/agent-devcontainer` as a github marketplace and enabled
     `agentdev@agent-devcontainer` — a consumer's configuration, meaningless now
     the catalog is this checkout. Never copied, and absent from the tree.
 - [x] Decide whether the source's offline CI job needs an equivalent here, or
   whether the existing workflows already cover the new suite, and record which.
-  - **Evidence:** commit `TASK10SHA`; **an equivalent was needed**. The existing
+  - **Evidence:** commit `4fdfcd2`; **an equivalent was needed**. The existing
     workflows name each suite by path, so the moved tests ran in none of them —
     `validate-agent-files.yml` listed `py_packages` and the agentdev tests, and
     `ci.yml` the same two. The new suite joins both, beside the agentdev one.
@@ -364,8 +364,8 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
     test the old interpreter floor, which Task 4 removed. The exact `ci.yml`
     invocation was run locally — 803 passed, 14 skipped, no live test collected.
 - [x] Regenerate `uv.lock` through `.devcontainer/scripts/uv-sync.sh`.
-  - **Evidence:** commit `TASK10SHA`; the script ran and resolved 60 packages
-    with no change to `uv.lock`, the plugin adding no dependency — which is the
+  - **Evidence:** commit `4fdfcd2`; the script ran and resolved 60 packages with
+    no change to `uv.lock`, the plugin adding no dependency — which is the
     standard-library-only rule holding. `uv lock --check` confirms the lockfile
     is consistent with `pyproject.toml`.
 
