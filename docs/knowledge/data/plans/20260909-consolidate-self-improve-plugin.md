@@ -307,14 +307,25 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 **Files:** Modify:
 `docs/knowledge/data/concept/evidence-and-outstanding-work.md`, `AGENTS.md`
 
-- [ ] Fold the source's evidence rule into the existing concept document as one
+- [x] Fold the source's evidence rule into the existing concept document as one
   idea rather than two: this repository's rule governs documents that conflate
   tenses, and the source's governs a session claiming what it did not watch
   happen — a specification whose checks have never passed is implemented but
   unverified.
-- [ ] Decide whether "new findings get their own specification" and "do not
+  - **Evidence:** commit `TASK9SHA`; folded into
+    `data/concept/evidence-and-outstanding-work` under the existing heading, as
+    one idea — the closing paragraph names both sides as the same failure to
+    distinguish being told something from being asked for something. No second
+    heading and no second document; the `description` was widened to match.
+- [x] Decide whether "new findings get their own specification" and "do not
   build instrumentation for a question nobody has framed" belong in `AGENTS.md`
   or in the plugin's own instructions, and place them once.
+  - **Evidence:** commit `TASK9SHA`; both placed in `AGENTS.md`, under
+    `## Project memory`. Neither is specific to the plugin: they govern how any
+    finding in this workspace is recorded and when instrumentation may be built,
+    and `AGENTS.md` is the file every agent loads. The routing half — which
+    directory a finding lands in — was already covered by the implement skill
+    and is not restated. The two documents Task 8 filed satisfy both rules.
 
 ### Task 10: Retire the merged repository's own scaffolding
 
