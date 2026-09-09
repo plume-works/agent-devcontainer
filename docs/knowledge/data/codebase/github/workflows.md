@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:970b313470311f05f49324897ede68ecfd03b9252b6bac8901eeee3018dee53f
+source_digest: sha256:71347d9667881a6d3e39bc3bfafe6e8296788d38ec8c28e3b1e2ae75474e8480
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
-stale_after: 2026-12-05
+  by: claude-code/opus-5
+  at: 2026-09-09T20:43:33Z
+stale_after: 2026-12-08
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
+  by: claude-code/opus-5
+  at: 2026-09-09T20:43:33Z
 sources:
 - id: code
   resource: .github/workflows
@@ -22,15 +22,15 @@ one manual job.
 
 ## Public surface
 
-| Workflow                      | Trigger                                         | Jobs                                                                                                      |
-| ----------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `primary-checks.yml`          | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                            |
-| `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                              |
-| `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`  |
-| `validate-agent-files.yml`    | PR, push, merge group                           | both pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
-| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                      |
-| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                           |
-| `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                                |
+| Workflow                      | Trigger                                         | Jobs                                                                                                       |
+| ----------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `primary-checks.yml`          | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                             |
+| `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                               |
+| `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`   |
+| `validate-agent-files.yml`    | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
+| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
+| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
+| `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                                 |
 
 ## How it works
 

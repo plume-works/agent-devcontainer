@@ -3,7 +3,11 @@ indent-width = 4
 
 # A source-faithful copy of a third-party prompt corpus, pinned to an upstream
 # commit. Reformatting it would destroy the fidelity that makes it evidence.
-exclude = ["docs/research/case-study/hermes/prompts/python"]
+# `extend-exclude` keeps ruff's default excludes; `force-exclude` makes the
+# exclusion hold when a caller passes the file paths explicitly, as Super-Linter
+# and pre-commit both do.
+extend-exclude = ["docs/research/case-study/hermes/prompts/python/**"]
+force-exclude = true
 
 # Assume Python 3.12
 target-version = "py312"

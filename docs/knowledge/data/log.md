@@ -16,6 +16,9 @@ to the current day's group.
   implemented and recorded in [unreleased](releases/unreleased.md). It is
   published from the Claude marketplace and not enabled by anything the
   repository ships.
+- **Update**: Refreshed the eight codebase-map docs whose tracked sources the
+  consolidation changed — the reinstall scripts now install every published
+  plugin, and the agent-files workflow runs a third pytest suite.
 
 ## 2026-09-08
 
