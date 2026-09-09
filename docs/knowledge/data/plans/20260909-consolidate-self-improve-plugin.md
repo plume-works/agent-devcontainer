@@ -183,32 +183,32 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   `wake-repeat`, and `test-harness` targets, the help text, the `SMOKE_MODEL` /
   `SMOKE_EFFORT` / `SMOKE_AUTO_MEMORY` dials, `TEST_RUN_LABEL`, and
   `unexport VIRTUAL_ENV` unchanged.
-  - **Evidence:** commit `TASK5SHA`; all six targets resolve under `make -n`,
-    the three dials and both exports carry over verbatim, and every explanatory
+  - **Evidence:** commit `4e3b16a`; all six targets resolve under `make -n`, the
+    three dials and both exports carry over verbatim, and every explanatory
     comment is preserved.
 - [x] Set the live targets' opt-in environment variable from Task 3, and drop
   `-m "not smoke and not pty"` from `test`, which the collection hook now covers
   at every entry point.
-  - **Evidence:** commit `TASK5SHA`; `make -n` shows `SELF_IMPROVE_RUN_LIVE=1`
-    on each of `smoke`, `smoke-auto`, `wake`, `wake-memory`, and `wake-repeat`,
-    and on neither `test` nor `test-harness`. `make test` is a bare `pytest -q`
-    and runs 825 passed, 14 skipped, spending no model usage.
+  - **Evidence:** commit `4e3b16a`; `make -n` shows `SELF_IMPROVE_RUN_LIVE=1` on
+    each of `smoke`, `smoke-auto`, `wake`, `wake-memory`, and `wake-repeat`, and
+    on neither `test` nor `test-harness`. `make test` is a bare `pytest -q` and
+    runs 825 passed, 14 skipped, spending no model usage.
 - [x] Remove the `lint` and `fmt` targets, reduce `check` to `test validate`,
   and drop their help lines. Formatting is pre-commit's, per
   [Let pre-commit own formatting](20260831-pre-commit-owns-formatting.md);
   `ruff` stays in the dev group because the pre-commit hook needs it.
-  - **Evidence:** commit `TASK5SHA`; `make -n lint` and `make -n fmt` both fail
+  - **Evidence:** commit `4e3b16a`; `make -n lint` and `make -n fmt` both fail
     with no such target, `check` is `test validate`, and the help text points at
     `pre-commit run --all-files` instead.
 - [x] Retarget `validate` at `.agents/plugins/self-improve`, keeping its second
   invocation, which now validates a two-plugin marketplace.
-  - **Evidence:** commit `TASK5SHA`; `make validate` passes both — the plugin
+  - **Evidence:** commit `4e3b16a`; `make validate` passes both — the plugin
     manifest at `.agents/plugins/self-improve/.claude-plugin/plugin.json` and
     the marketplace manifest now publishing two plugins.
 - [x] Scope `clean` to the plugin subtree rather than the repository root, and
   fix `clean-claude`'s module path, which assumes a top-level `tests` package
   and would now collide with the agentdev suite.
-  - **Evidence:** commit `TASK5SHA`; `clean` removes only caches under
+  - **Evidence:** commit `4e3b16a`; `clean` removes only caches under
     `.agents/plugins/self-improve` plus `test-runs/`, leaving the other suites'
     caches alone. `clean-claude` runs `python -m tests.smoke.workspaces` from
     the plugin directory, where `tests` is its own package — from the repository
@@ -216,7 +216,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
     `removed 0 test-run project directories`.
 - [x] Replace the missing-`uv` hint with this repository's escalation ladder
   (`AGENTS.md` Best Practice 3) instead of a `brew install` suggestion.
-  - **Evidence:** commit `TASK5SHA`; the no-`uv` branch names the ladder —
+  - **Evidence:** commit `4e3b16a`; the no-`uv` branch names the ladder —
     devcontainer via `/agentdev:microvm-sandbox` with a Docker daemon, a
     Codespace via `/agentdev:remote-codespace-session` without one — and no
     longer suggests `brew install`.
