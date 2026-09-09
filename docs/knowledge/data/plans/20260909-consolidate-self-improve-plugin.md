@@ -228,8 +228,8 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 - [x] Move the source's `docs/case-study/` and `docs/hypothetical-extensions/`
   under `docs/research/` as a plain folder. It analyses other projects' learning
   systems and asserts nothing about this one, so it is not graph material.
-  - **Evidence:** commit `TASK78SHA`; all 33 tracked files copied. It stays out
-    of the graph — the iwe library path is `docs/knowledge`, and
+  - **Evidence:** commit `5a48d8c`; all 33 tracked files copied. It stays out of
+    the graph — the iwe library path is `docs/knowledge`, and
     `iwe schema validate` passes without claiming any of it. Seven links that
     pointed at the source's `docs/specs/` now resolve to the graph documents
     that replaced it; a link check over the tree reports none broken.
@@ -248,21 +248,21 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   staged candidate. Per
   [Evidence and outstanding work](../concept/evidence-and-outstanding-work.md),
   that belongs under its own heading and never beside the evidence.
-  - **Evidence:** commit `TASK78SHA`; `data/plans/20260909-self-improve-mvp` is
+  - **Evidence:** commit `5a48d8c`; `data/plans/20260909-self-improve-mvp` is
     filed `stage: done` with `completed: 2026-08-02` and listed under `## Done`.
     Criterion 6.1 sits under its own `## Outstanding work` heading, naming what
     closing it costs, with no ticked task's evidence line claiming it.
 - [x] Write the durable behavior into `data/spec/`: hook design, the
   meaningful-event gate, reviewer isolation and output, routing and the path
   allowlist, the mutation protocol, state and privacy, and failure behavior.
-  - **Evidence:** commit `TASK78SHA`; `data/spec/self-improve-learning-loop`
+  - **Evidence:** commit `5a48d8c`; `data/spec/self-improve-learning-loop`
     carries all nine areas as Requirement/Scenario pairs and is linked from
     `data/spec.md`. Transcription only — no requirement added, modified, or
     removed against the behavior as it arrived.
 - [x] Write the runtime decisions and their rejected alternatives into
   `data/architecture/`, including the standard-library-only rule and the
   state-root resolution order.
-  - **Evidence:** commit `TASK78SHA`; `data/architecture/self-improve-runtime`
+  - **Evidence:** commit `5a48d8c`; `data/architecture/self-improve-runtime`
     records the stdlib-only rule against the `security-guidance` alternative,
     the state-root order and why the override precedes `CLAUDE_PLUGIN_DATA`, the
     single dispatcher, isolation by tool removal rather than an allowlist, the
@@ -277,7 +277,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 - [x] File Codex integration, plugin execution tracing, and the Hermes-derived
   prompt stack under `data/someday/`, each keeping the analysis that makes it
   decidable later.
-  - **Evidence:** commit `TASK78SHA`; three documents linked from
+  - **Evidence:** commit `5a48d8c`; three documents linked from
     `data/someday.md`. Codex keeps the six named parity gaps and the every-layer
     dependency inventory; tracing keeps the shape-without-content design, the
     keyed-digest rule, the slice order, and why T4 onward stays behind a named
@@ -287,7 +287,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   unresolved: the reviewer declined seven times on the negative control against
   once on the wake check, on an identically scripted exchange; offline replay
   does not reproduce it; two hypotheses are eliminated.
-  - **Evidence:** commit `TASK78SHA`;
+  - **Evidence:** commit `5a48d8c`;
     `data/bugs/self-improve-reviewer-decline-asymmetry` carries the
     twenty-review table, the 3-in-101 replay result against 5-in-20 live, both
     eliminated hypotheses, the three that remain, and the three ways of closing
@@ -296,7 +296,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   routing step 3 offers to add or patch a linked reference, and
   `candidate_paths` resolves only `CLAUDE.md`, `rules/<name>.md`, and
   `skills/<name>/SKILL.md`, so such a target is rejected as `bad_kind`.
-  - **Evidence:** commit `TASK78SHA`;
+  - **Evidence:** commit `5a48d8c`;
     `data/bugs/self-improve-unstageable-routing-option` records it against the
     code as it stands — `SKILL.md:60` offers the option, `allowlist.py:47`
     resolves three kinds, and `allowlist.py:76` raises `bad_kind` for everything
