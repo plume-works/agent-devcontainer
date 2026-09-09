@@ -82,11 +82,10 @@ def fsync_dir(path):
     """Flush a directory entry so a rename survives power loss."""
     fd = os.open(path, os.O_RDONLY)
     try:
-        os.fsync(fd)
-    except OSError:
         # Some filesystems reject fsync on a directory handle. The rename is
         # still atomic; only the durability guarantee is weaker.
-        pass
+        with contextlib.suppress(OSError):
+            os.fsync(fd)
     finally:
         os.close(fd)
 

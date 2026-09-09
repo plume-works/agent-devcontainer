@@ -1,17 +1,8 @@
-#!/bin/sh
-# Single entry point for every hook and skill invocation.
-#
-# Hooks inherit the user's shell environment, where `python3` is frequently a
-# stale virtualenv: on the development machine for this plugin it resolves to a
-# 2019 environment running 3.6.5. Versioned interpreter names are checked first
-# for that reason, matching how the official security-guidance plugin resolves
-# its own interpreter. /usr/bin/python3 is checked before bare python3 because
-# on macOS it is always a real system interpreter, never a shim.
-#
-# Failing to find an interpreter exits 0. Capture hooks must fail open, and a
-# machine without a usable python3 is not a reason to disturb a completed task.
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -u
+# Prefer versioned and system interpreters over environment shims.
+# Hooks fail open when no supported Python interpreter is available.
 
 here=$(dirname "$0")
 entry="$here/si.py"
