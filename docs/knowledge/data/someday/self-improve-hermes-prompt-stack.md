@@ -30,9 +30,9 @@ this repo, not pytest directly". This proposal does not claim the prompt causes
 that — offline replay does not reproduce the live rate — only that the current
 reasoning policy has insufficient observed recall on the clearest positive case.
 
-The research it draws on is
-[the Hermes case study](../../research/case-study/hermes/README.md), which is
-evidence, not a drop-in runtime dependency.
+The research it draws on is the Hermes case study under
+`docs/research/case-study/hermes/`, which is evidence, not a drop-in runtime
+dependency.
 
 ## What to adopt, adapt, and refuse
 
