@@ -270,7 +270,8 @@ jobs:
 
             # The repo's own checks
             uv sync --locked --all-groups --all-extras
-            uv run pytest py_packages .agents/plugins/agentdev/tests
+            uv run pytest py_packages .agents/plugins/agentdev/tests \
+              .agents/plugins/self-improve/tests
 
       - name: Log debug stats
         if: ${{ always() }}

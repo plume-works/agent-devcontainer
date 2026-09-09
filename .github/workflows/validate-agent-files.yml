@@ -81,6 +81,11 @@ jobs:
       - name: Test agentdev plugin scripts
         run: uv run pytest .agents/plugins/agentdev/tests
 
+      # The live tests skip at collection unless SELF_IMPROVE_RUN_LIVE is set,
+      # so this spends no model usage.
+      - name: Test self-improve plugin
+        run: uv run pytest .agents/plugins/self-improve/tests
+
       - name: Validate Agent Files
         run: uv run validate_agent_files --recommend . --require-marketplace claude codex
 
