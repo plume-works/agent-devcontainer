@@ -28,6 +28,14 @@ validate_agent_files = { path = "py_packages/validate_agent_files", editable = t
 [tool.pytest.ini_options]
 testpaths = [
   ".agents/plugins/agentdev/tests",
+  ".agents/plugins/self-improve/tests",
   "docs/knowledge/tests",
   "py_packages",
+]
+markers = [
+  "smoke: drives a real Claude Code session and spends model usage; skipped unless SELF_IMPROVE_RUN_LIVE is set, and run by `make smoke`",
+  "interactive: needs a person at the terminal; skipped with SMOKE_SKIP_INTERACTIVE=1",
+  "pty: drives a real session on a pseudo-terminal to observe the asynchronous wake; spends model usage and is skipped unless SELF_IMPROVE_RUN_LIVE is set (see `make wake`)",
+  "harness: self-checks the pty harness against a fake terminal, not the plugin; no model, no cost, and it runs in the ordinary suite (see `make test-harness`)",
+  "auto_memory: drives a session with Claude Code's own auto memory left on, to observe how the two learning systems interact; a third live session, run by `make wake-memory`",
 ]

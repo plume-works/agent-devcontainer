@@ -100,15 +100,30 @@ project would add packaging surface for no reciprocal guarantee.
 **Files:** Create: `.agents/plugins/self-improve/tests/conftest.py` (modify the
 moved file); Modify: `pyproject.toml`
 
-- [ ] Add a `pytest_collection_modifyitems` hook that skips items marked `smoke`
+- [x] Add a `pytest_collection_modifyitems` hook that skips items marked `smoke`
   or `pty` unless an opt-in environment variable is set, attaching a reason to
   each skip. Leave `harness` unguarded — it is the model-free self-check that
   runs in the ordinary suite.
-- [ ] Add the plugin's `tests` directory to `testpaths` in the root
+  - **Evidence:** commit `TASK3SHA`; the hook in
+    `.agents/plugins/self-improve/tests/conftest.py` skips on `smoke` or `pty`
+    unless `SELF_IMPROVE_RUN_LIVE` is set, naming every matching marker in the
+    reason. With the variable set, `--collect-only -m "smoke or pty"` collects
+    all 13 live tests, so the guard skips rather than deselects. The 8 `harness`
+    tests run unguarded in the ordinary suite.
+- [x] Add the plugin's `tests` directory to `testpaths` in the root
   `pyproject.toml`, and carry over the `smoke`, `interactive`, `pty`, `harness`,
   and `auto_memory` marker declarations.
-- [ ] Prove the guard holds for the three bypasses a marker filter does not
+  - **Evidence:** commit `TASK3SHA`; `.agents/plugins/self-improve/tests` joins
+    `testpaths`, and all five markers are declared, their descriptions restated
+    against the new opt-in variable rather than the source's `make` targets. The
+    suite collects 566 tests from the new path.
+- [x] Prove the guard holds for the three bypasses a marker filter does not
   cover: selecting a live test by path, by `-m`, and by node id.
+  - **Evidence:** commit `TASK3SHA`; each selection skipped rather than ran, and
+    reported its reason under `-rs`. By path, `tests/smoke/test_smoke.py` — 10
+    skipped. By marker, `-m smoke` — 10 skipped; `-m pty` — 3 skipped. By node
+    id, `test_wake_pty.py::test_the_async_wake_arrives_at_an_idle_session` — 1
+    skipped, reason `live test marked smoke, pty spends model usage`.
 
 ### Task 4: Align the interpreter floor
 

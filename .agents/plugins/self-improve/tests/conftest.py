@@ -1,5 +1,5 @@
 """
-Shared fixtures.
+Shared fixtures and the live-test collection guard.
 
 Every test runs against a throwaway state root and a throwaway Claude home. No
 test may read or write the developer's real ``~/.claude``.
@@ -12,11 +12,42 @@ import sys
 
 import pytest
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PLUGIN_ROOT = os.path.join(REPO_ROOT, 'plugin')
+# Resolved from this file so the suite runs from the plugin cache, where the
+# repository that develops the plugin is not present.
+PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SI = os.path.join(PLUGIN_ROOT, 'scripts', 'si')
 
 sys.path.insert(0, PLUGIN_ROOT)
+
+# Markers whose tests drive a real Claude session and spend model usage.
+# `harness` is deliberately absent: it self-checks the pty harness against a
+# fake terminal, costs nothing, and runs in the ordinary suite.
+LIVE_MARKERS = ('smoke', 'pty')
+LIVE_OPT_IN_ENV = 'SELF_IMPROVE_RUN_LIVE'
+
+
+def pytest_collection_modifyitems(items):
+    """
+    Skip live tests unless the opt-in variable is set.
+
+    The guard is at collection because deselecting by marker in ``addopts`` is
+    bypassed by every natural way to iterate on a test — naming its path,
+    passing ``-m``, or selecting a node id — each of which replaces the filter
+    and fires a paid session.
+    """
+    if os.environ.get(LIVE_OPT_IN_ENV):
+        return
+    for item in items:
+        marked = [marker for marker in LIVE_MARKERS if marker in item.keywords]
+        if marked:
+            item.add_marker(
+                pytest.mark.skip(
+                    reason=(
+                        f'live test marked {", ".join(marked)} spends model usage; '
+                        f'set {LIVE_OPT_IN_ENV}=1 to run it'
+                    )
+                )
+            )
 
 
 @pytest.fixture
