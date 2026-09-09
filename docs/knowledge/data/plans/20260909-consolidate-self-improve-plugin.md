@@ -408,6 +408,41 @@ describe is the behavior that ships.
 - The plugin is published but not enabled: a session that has not opted in
   registers none of its hooks.
 
+## Verification results
+
+Run on 2026-09-09 at `ba78df0`. Every check passed except the last, which does
+not hold as written.
+
+- `uv run pytest .agents/plugins/self-improve/tests` — 574 passed, 14 skipped,
+  no live test collected.
+- The three bypasses all skip: by path, 10 skipped; `-m smoke`, 10 skipped;
+  `-m pty`, 3 skipped; by node id, 1 skipped. Each names its reason.
+- `uv run pytest` at the root — 825 passed, 14 skipped across all four suites,
+  no model usage.
+- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  — exit 0, 54/54 skills valid, both plugins seen.
+- `reinstall-agentdev-claude.sh` installs both; `claude plugin list` shows
+  `agentdev` and `self-improve`. A second run uninstalls both and reinstalls
+  both.
+- `claude plugin marketplace list` shows one `agent-devcontainer` entry, no
+  stale name.
+- `reinstall-agentdev-codex.sh` installs `agentdev` alone and mentions
+  `self-improve` zero times.
+- `make test` — 825 passed, 14 skipped. `make validate` passes both manifests.
+  Every target `make help` names resolves.
+- `pre-commit run --all-files` — every hook passed.
+- `iwe normalize` and `iwe schema validate` both exit 0, with no broken links.
+
+**The published-but-not-enabled check does not hold as stated.**
+`claude plugin install` writes `enabledPlugins` for whatever it installs, so
+after the reinstall script runs, a session in this checkout *does* register the
+plugin's hooks. That enablement lives in the gitignored
+`.claude/settings.local.json` — local working state, not a published default.
+Nothing the repository ships enables it: the tracked `.claude/settings.json`
+names it nowhere, and the Ansible role still stages `agentdev` alone, its
+`selectattr` matching exactly one entry. The distinction is recorded in
+[Self-improve consolidation](../architecture/self-improve-consolidation.md).
+
 ## Out of scope
 
 - **Enabling the plugin.** It is published from the marketplace and nothing
