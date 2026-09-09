@@ -388,10 +388,10 @@ def self_test(argv):
     failures = []
 
     # Reachable only when scripts/si.py is run directly, bypassing the shell
-    # shim that guarantees a 3.9+ interpreter. Worth reporting rather than
+    # shim that guarantees a 3.12+ interpreter. Worth reporting rather than
     # failing with an obscure syntax or attribute error further along.
-    if sys.version_info < (3, 9):  # noqa: UP036
-        failures.append('interpreter is %s; 3.9 or later is required' % platform.python_version())
+    if sys.version_info < (3, 12):
+        failures.append('interpreter is %s; 3.12 or later is required' % platform.python_version())
 
     root = paths.state_root()
     try:

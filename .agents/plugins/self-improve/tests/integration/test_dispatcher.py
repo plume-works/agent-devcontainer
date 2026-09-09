@@ -113,10 +113,11 @@ def test_plugin_manifest_declares_the_expected_name():
 
 def test_runtime_imports_under_the_oldest_supported_interpreter():
     """
-    Import the package under 3.9 when that interpreter is available.
+    Import the package under the system interpreter when one is available.
 
     The AST guard proves nothing outside the standard library is imported; this
-    proves the code actually parses and loads on the version being targeted.
+    proves the code actually parses and loads on the interpreter a hook would
+    reach for, which is not the one running the suite.
     """
     system_python = '/usr/bin/python3'
     if not os.path.exists(system_python):
