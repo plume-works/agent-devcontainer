@@ -48,6 +48,15 @@ an asynchronous rewake — a behavioral change to every session, not a packaging
 change. Staging it into `agent-desktop` is a later decision that carries its own
 evidence bar. A marketplace can publish a plugin that nothing enables.
 
+What the repository ships is the boundary that matters. Nothing tracked enables
+it: the committed `.claude/settings.json` names it nowhere, and the Ansible role
+still stages `agentdev` alone. `claude plugin install` does write
+`enabledPlugins` for what it installs, into the gitignored
+`.claude/settings.local.json` — so a developer who runs the reinstall script
+enables it in their own checkout. That is a local working state, not a published
+default, and it is the reason enablement is judged on what the repository
+carries rather than on what one machine's settings say.
+
 ## Constraints this placement creates
 
 ### The catalog is no longer single-plugin
