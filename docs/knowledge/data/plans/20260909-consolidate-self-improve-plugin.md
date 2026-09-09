@@ -312,7 +312,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
   tenses, and the source's governs a session claiming what it did not watch
   happen — a specification whose checks have never passed is implemented but
   unverified.
-  - **Evidence:** commit `TASK9SHA`; folded into
+  - **Evidence:** commit `798f944`; folded into
     `data/concept/evidence-and-outstanding-work` under the existing heading, as
     one idea — the closing paragraph names both sides as the same failure to
     distinguish being told something from being asked for something. No second
@@ -320,7 +320,7 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 - [x] Decide whether "new findings get their own specification" and "do not
   build instrumentation for a question nobody has framed" belong in `AGENTS.md`
   or in the plugin's own instructions, and place them once.
-  - **Evidence:** commit `TASK9SHA`; both placed in `AGENTS.md`, under
+  - **Evidence:** commit `798f944`; both placed in `AGENTS.md`, under
     `## Project memory`. Neither is specific to the plugin: they govern how any
     finding in this workspace is recorded and when instrumentation may be built,
     and `AGENTS.md` is the file every agent loads. The routing half — which
