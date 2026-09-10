@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:219dcfdccf388398958f9aa5eeba750f5ababee3ebe279803ac647e1925916e2
+source_digest: sha256:ba162daa94561ba9c7dfcd8d30f9e1e50cc26776abd825097edadf92ea541e34
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-10T01:40:00Z
+stale_after: 2026-12-09
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-10T01:40:00Z
 sources:
 - id: code
   resource: .github/actions
@@ -41,8 +41,9 @@ Local `using: composite` actions, referenced as `./.github/actions/<name>`.
 `dorny/paths-filter` against the PR or a base branch. The Docker trio wraps
 `docker/build-push-action`, `docker/metadata-action`, and a manifest merge so
 `ci.yml` stays declarative. `run-claude-responder` holds the Claude Code
-invocation and artifact upload. `ai-review-status` evaluates the acceptance
-policy in [AI review gate](../../spec/ai-review-gate.md) once, without waiting.
+invocation, artifact upload, and the usage-limit check. `ai-review-status`
+evaluates the acceptance policy in
+[AI review gate](../../spec/ai-review-gate.md) once, without waiting.
 
 ## Depends on
 
@@ -54,13 +55,18 @@ policy in [AI review gate](../../spec/ai-review-gate.md) once, without waiting.
   image stale"; the digest pin file is deliberately not in it.
 - Callers invoke Python tools through `uv run`; `setup-python-venv` never
   activates the environment.
+- `run-claude-responder` uploads the execution file and checks it for a usage
+  limit under `always()`, so a failed Claude step still leaves its output
+  inspectable and a quota failure is still reported as one.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-10):
 
 - `.github/actions/paths-filter/action.yml:30-43` — the `image` filter list
 - `.github/actions/paths-filter/action.yml:58-71` — PR vs base-branch modes
 - `.github/actions/ai-review-status/action.yml:1-27` — inputs and outputs
 - `.github/actions/run-claude-responder/action.yml:5-33` — inputs
+- `.github/actions/run-claude-responder/action.yml:130,138` — `always()` on the
+  artifact upload and the usage-limit check
 - `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs

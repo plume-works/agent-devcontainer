@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-10
+
+- **Update**: Refreshed the three codebase-map docs whose tracked sources the
+  responder and CI changes moved — `run-claude-responder` now uploads its
+  execution file and checks it for a usage limit under `always()`, so a failed
+  Claude step still leaves inspectable output.
+
 ## 2026-09-09
 
 - **Update**:
