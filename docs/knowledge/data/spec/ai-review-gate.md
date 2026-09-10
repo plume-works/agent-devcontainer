@@ -119,6 +119,13 @@ free-form responder tasks.
 - **WHEN** a pull request body contains `[ci:no-review]`
 - **THEN** no review responder runs and `ai-review-present` is skipped.
 
+### Scenario: a marked pull request receives a review or comment event
+
+- **WHEN** an event other than `pull_request` fires on a pull request whose body
+  contains `[ci:no-review]`, so the preflight job does not run
+- **THEN** `ai-review-present` is still skipped, because the marker is read from
+  the pull request body rather than from a preflight output.
+
 ### Scenario: a marked pull request requests a free-form task
 
 - **WHEN** a writer requests a free-form `@claude` task on a pull request whose
