@@ -12,10 +12,9 @@ SELF_IMPROVE := .agents/plugins/self-improve
 # below are the ones that mean to.
 LIVE := SELF_IMPROVE_RUN_LIVE=1
 
-# The model the smoke and wake *driving* sessions run on. The reviewer under
-# test is a separate dial and stays on SELF_IMPROVE_REVIEW_MODEL. `?=` leaves an
-# exported shell value in charge, and `make wake SMOKE_MODEL=` restores the
-# CLI's own default.
+# The model the *driving* sessions run on; the reviewer under test stays on
+# SELF_IMPROVE_REVIEW_MODEL. `?=` leaves an exported shell value in charge, and
+# `make wake SMOKE_MODEL=` restores the CLI's own default.
 SMOKE_MODEL ?= sonnet
 SMOKE_EFFORT ?= low
 export SMOKE_MODEL SMOKE_EFFORT
@@ -28,11 +27,9 @@ export SMOKE_AUTO_MEMORY
 # environment; unset it so uv manages .venv without warning on every run.
 unexport VIRTUAL_ENV
 
-# Which target a run's output belongs to. Every live run gets its own directory
-# under test-runs/, named `<label>_<timestamp to the nanosecond>`, so no two runs
-# can write to the same place — `make wake` cannot land in a `make smoke`
-# directory, and the ten runs of `make wake-repeat` are ten readable results
-# rather than one. Set per target below; a bare `pytest` run labels itself.
+# Every live run gets its own test-runs/<label>_<nanosecond timestamp>/, so no
+# two runs share a directory. Set per target below; a bare `pytest` run labels
+# itself.
 export TEST_RUN_LABEL
 
 help:
@@ -89,11 +86,8 @@ test:
 	uv run --group dev pytest -q
 
 # Spends real model usage, so it is never part of `make test` or `make check`.
-# -s keeps stdin and stdout attached for the one interactive check. -rs lists why
-# anything skipped: a check that could not reach the model observed nothing, and
-# that has to be readable at the end of the run rather than inferred. The scratch
-# workspace is left under test-runs/smoke_<timestamp>/ afterwards so a failure
-# can be inspected — and is still there after the next run, of any target.
+# -rs matters: a check that could not reach the model observed nothing, and that
+# must be readable rather than inferred. The scratch workspace is kept for triage.
 smoke: TEST_RUN_LABEL := smoke
 smoke:
 	$(LIVE) uv run --group dev pytest $(SELF_IMPROVE)/tests -m smoke -s -v -rs
@@ -103,45 +97,31 @@ smoke-auto:
 	SMOKE_SKIP_INTERACTIVE=1 $(LIVE) \
 	  uv run --group dev pytest $(SELF_IMPROVE)/tests -m smoke -s -v -rs
 
-# Spec-0002. Automates the one smoke check a person otherwise confirms, by
-# driving a real interactive session on a pseudo-terminal. Opt-in on purpose:
-# it spends model usage on two real reviews, and it is the component here most
-# exposed to changes in the terminal interface, so it never gates anything.
+# Spec-0002. Drives a real interactive session on a pseudo-terminal. Opt-in on
+# purpose: it spends model usage on two real reviews and is the most exposed to
+# terminal-interface changes, so it never gates anything.
 wake: TEST_RUN_LABEL := wake
 wake:
 	$(LIVE) uv run --group dev pytest $(SELF_IMPROVE)/tests \
 	  -m "pty and not auto_memory" -s -v -rs
 
-# The same exchange with Claude Code's own auto memory left on, which the wake
-# check deliberately disables. Auto memory records the lesson during the turn
-# that teaches it, so this plugin's reviewer finds it already owned and declines
-# — correct behavior that would nonetheless read as a broken wake. Separate
-# target because it is a third live session, and because what it observes is the
-# interaction rather than the wake.
+# The same exchange with auto memory left on. Auto memory records the lesson
+# during the turn that teaches it, so the reviewer finds it already owned and
+# declines — correct, but it would read as a broken wake.
 wake-memory: TEST_RUN_LABEL := wake-memory
 wake-memory:
 	$(LIVE) uv run --group dev pytest $(SELF_IMPROVE)/tests \
 	  -m "pty and auto_memory" -s -v -rs
 
-# A self-check of the harness, not of the plugin — which is why it is named for
-# the harness and not for the wake. It drives the same PtySession against a fake
-# terminal that only echoes what it captured, so a stalled live run can be
-# attributed: if this passes, input is being delivered and turn boundaries are
-# being detected, and the stall is in the session under test.
-#
-# No model and no cost, so these are ordinary tests and run inside `make test`
-# like everything else. This target only reruns them alone with the trace on,
-# which is what you want mid-debugging.
+# A self-check of the harness, not the plugin: it drives PtySession against a
+# fake terminal, so if it passes, a stall belongs to the session under test. No
+# model and no cost; this target only reruns them alone with the trace on.
 test-harness:
 	uv run --group dev pytest $(SELF_IMPROVE)/tests -m harness -s -v -rs
 
-# Acceptance criterion 1: reliable across ten consecutive runs. Stops at the
-# first failure, since that is the answer.
-#
-# Each iteration is its own pytest process and so claims its own directory under
-# test-runs/. Numbering the label as well as stamping the time is what makes the
-# ten sort in the order they ran, so the third of ten can be found without
-# reading timestamps — which is the run you want when the loop stops at it.
+# Acceptance criterion 1: reliable across ten consecutive runs, stopping at the
+# first failure. Numbering the label as well as stamping the time is what makes
+# the ten sort in the order they ran.
 wake-repeat:
 	@for run in 1 2 3 4 5 6 7 8 9 10; do \
 	  echo "=== wake run $$run/10 ==="; \
@@ -156,18 +136,9 @@ clean:
 	find $(SELF_IMPROVE) -name __pycache__ -type d -prune -exec rm -rf {} +
 	@$(MAKE) --no-print-directory clean-claude
 
-# Claude Code keeps its own transcripts and memories for a working directory in
-# ~/.claude/projects/<mangled-path>/, and every live run works in a directory
-# nothing has used before — which is what stops a run inheriting the previous
-# one's memory of the lesson under test, and what leaves one small directory
-# behind per run. They are outside the repository, so `clean` cannot reach them
-# by removing files; this is how they go.
-#
-# It prints every path before deleting it. Deleting outside the repository has
-# to be readable afterwards rather than taken on trust in a matching rule.
-#
-# Run from the plugin, where `tests` is its own package: from the repository
-# root the name would be ambiguous with the other suites.
+# Live runs leave Claude project directories under ~/.claude, outside the
+# repository, so `clean` cannot reach them; this prints each path before
+# deleting it. Run from the plugin, where `tests` is unambiguous.
 clean-claude:
 	cd $(SELF_IMPROVE) && uv run python -m tests.smoke.workspaces
 endif

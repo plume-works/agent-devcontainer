@@ -43,12 +43,12 @@ free-text string is not a redaction, because the candidate space in a scripted
 harness run is small enough to enumerate and anyone holding the trace could
 confirm a guess.
 
-`candidate_owners` earns a per-entry descriptor rather than a bare count, and
-the reason generalizes: **the field most likely to carry a systematic difference
-was the one the first draft flattened hardest.** A shape that cannot represent a
-difference cannot be used to look for one. `scope`, `kind`, and `exists` are
-closed vocabularies and `bytes` and `headings_n` are counts; the paths
-themselves stay out at every level.
+`candidate_owners` earns a per-entry descriptor rather than a bare count: **a
+shape that cannot represent a difference cannot be used to look for one**, so
+the fields most likely to carry a systematic difference are the ones that must
+not be flattened. `scope`, `kind`, and `exists` are closed vocabularies and
+`bytes` and `headings_n` are counts; the paths themselves stay out at every
+level.
 
 ## Slices
 
@@ -58,8 +58,8 @@ investigation:
 - **T1, the writer** — levels, identifiers, record schema, size cap, the
   swallow-everything contract, rotation, instrumenting hook invocation only.
 - **T2, decisions** — capture, gate, orchestration, and the wake signal.
-  Justified independently: a `Stop`-hook diagnosis that cost a run and a pty
-  transcript would have been one line here.
+  Justified independently: it reduces a `Stop`-hook diagnosis from a live run
+  and a pty transcript to a single trace line.
 - **T3, the reviewer** — invocation timing, envelope usage metadata, and
   decision records, which adds cost reporting no target has today.
 - **T4, shape** — the descriptor, the per-entry form, the keyed digest.

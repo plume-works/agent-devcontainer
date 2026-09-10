@@ -1,11 +1,9 @@
 line-length = 99
 indent-width = 4
 
-# A source-faithful copy of a third-party prompt corpus, pinned to an upstream
-# commit. Reformatting it would destroy the fidelity that makes it evidence.
-# `extend-exclude` keeps ruff's default excludes; `force-exclude` makes the
-# exclusion hold when a caller passes the file paths explicitly, as Super-Linter
-# and pre-commit both do.
+# A pinned third-party prompt corpus kept source-faithful: reformatting destroys
+# the fidelity that makes it evidence. `force-exclude` holds the exclusion when
+# callers pass explicit paths, as Super-Linter and pre-commit both do.
 extend-exclude = ["docs/research/case-study/hermes/prompts/python/**"]
 force-exclude = true
 
