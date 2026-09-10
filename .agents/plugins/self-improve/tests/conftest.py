@@ -24,6 +24,15 @@ sys.path.insert(0, PLUGIN_ROOT)
 # fake terminal, costs nothing, and runs in the ordinary suite.
 LIVE_MARKERS = ('smoke', 'pty')
 LIVE_OPT_IN_ENV = 'SELF_IMPROVE_RUN_LIVE'
+# Values that read as "off". Without these, `SELF_IMPROVE_RUN_LIVE=0` would be
+# truthy and spend model usage exactly like `=1`.
+LIVE_OPT_OUT_VALUES = ('', '0', 'false', 'no', 'off')
+
+
+def live_opt_in():
+    """Whether the caller asked for the model-consuming tests to run."""
+    value = os.environ.get(LIVE_OPT_IN_ENV, '').strip()
+    return value.lower() not in LIVE_OPT_OUT_VALUES
 
 
 def pytest_collection_modifyitems(items):
@@ -35,7 +44,7 @@ def pytest_collection_modifyitems(items):
     passing ``-m``, or selecting a node id — each of which replaces the filter
     and fires a paid session.
     """
-    if os.environ.get(LIVE_OPT_IN_ENV):
+    if live_opt_in():
         return
     for item in items:
         # iter_markers, not keywords: keywords also carries path components, so

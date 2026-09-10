@@ -20,7 +20,7 @@ from tests.conftest import PLUGIN_ROOT
 
 # Directories under the plugin root that ship no runtime code. `tests` is the
 # suite itself, which imports pytest and is never loaded by a hook.
-NON_RUNTIME_DIRS = {'__pycache__', 'tests', '.tmp'}
+NON_RUNTIME_DIRS = {'__pycache__', 'tests', '.tmp', 'test-runs'}
 
 
 def runtime_modules():

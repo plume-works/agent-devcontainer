@@ -34,11 +34,8 @@ import time
 
 import pytest
 
+from tests.conftest import PLUGIN_ROOT, SI
 from tests.smoke import workspaces
-
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-PLUGIN_ROOT = os.path.join(REPO_ROOT, 'plugin')
-SI = os.path.join(PLUGIN_ROOT, 'scripts', 'si')
 
 SEED_CLAUDE_MD = """# Scratch project
 

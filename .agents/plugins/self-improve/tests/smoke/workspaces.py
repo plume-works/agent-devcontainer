@@ -22,7 +22,10 @@ import shutil
 import sys
 import time
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# The suite also runs from the plugin cache, where no repository encloses it, so
+# the runs root is taken from the environment and falls back to the working
+# directory the runner was invoked from rather than a path derived from here.
+REPO_ROOT = os.environ.get('SELF_IMPROVE_RUNS_ROOT') or os.getcwd()
 
 RUNS_ROOT = os.path.join(REPO_ROOT, 'test-runs')
 
