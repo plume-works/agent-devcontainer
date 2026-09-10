@@ -45,3 +45,5 @@ flat. Group with `##` headings once it outgrows a single list.*
 [Consumer IWE seed](features/consumer-iwe-seed.md)
 
 [Resumable template consumption](features/resumable-template-consumption.md)
+
+[Self-improve plugin in the catalog](features/self-improve-plugin-in-catalog.md)

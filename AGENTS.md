@@ -119,6 +119,22 @@ For substantial feature, bug, architecture, or behavior work:
 
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.
 
+**A finding gets its own document, and the document it came from is not
+edited.** A question that the original work did not scope goes in a new
+document; the original keeps no summary, no section, and no forward link, its
+status line being the only exception, and only when its own acceptance is
+affected. References point newer to older.
+
+A finding document is not a design. It states the measurement, each hypothesis
+already eliminated and what eliminated it, what would settle it, and what
+closing it looks like — including "not worth the cost", recorded as a decision
+rather than left to lapse.
+
+**Do not build instrumentation for a question nobody has framed.** Work proposed
+to answer an open finding stays behind a named hypothesis its output could
+confirm or kill. A facility built because its design is finished, rather than
+because a question needs it, becomes a second product.
+
 **Always run `iwe` from the repo root.** `.iwe/` lives at the repo root — not next to the
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
 the whole repo is opened as the workspace. `iwe` does not search upward for `.iwe/` and has no

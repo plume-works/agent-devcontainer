@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:d38e7cfbe72476f77da0d16c53ad1b1cccf683106961f59595f1067dec07d0b2
+source_digest: sha256:ae0d38efd3ff65396ac845e5761eda015108a08e697fa401be2c175a5c1b5231
 verified:
   by: claude-code/opus-5
-  at: 2026-09-08T01:07:21Z
-stale_after: 2026-12-07
+  at: 2026-09-09T20:43:33Z
+stale_after: 2026-12-08
 generated:
   by: claude-code/opus-5
-  at: 2026-09-08T01:07:21Z
+  at: 2026-09-09T20:43:33Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -23,8 +23,10 @@ sources:
 One plugin tree consumed two ways. Claude Code reaches it through the
 marketplace at `.claude-plugin/marketplace.json` and the plugin manifest at
 `.agents/plugins/agentdev/.claude-plugin/plugin.json`; Codex through
-`.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json`. Skills are
-invoked as `/agentdev:<name>`. The design decisions behind the layout are in
+`.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json`. The Claude
+marketplace also publishes `self-improve`, which ships no Codex manifest, so the
+two ecosystems publish different plugin sets. Skills are invoked as
+`/agentdev:<name>`. The design decisions behind the layout are in
 [Module layout](../../../architecture/module-layout.md) and
 [Template boundary](../../../architecture/template-boundary.md).
 

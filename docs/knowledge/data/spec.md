@@ -33,3 +33,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Agent file discovery](spec/agent-file-discovery.md)
 
 [Xpra port forwarding](spec/xpra-port-forwarding.md)
+
+[Self-improve learning loop](spec/self-improve-learning-loop.md)

@@ -17,7 +17,13 @@ moves them.*
 
 ## Active
 
+[Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
+
 ## Done
+
+[Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
+
+[Self-improve MVP](plans/20260909-self-improve-mvp.md)
 
 [Connect validator warnings](plans/20260907-connect-validator-warnings.md)
 

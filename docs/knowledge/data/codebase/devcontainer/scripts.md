@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth symlinks.'
 source: .devcontainer/scripts
-source_digest: sha256:c5aef005b3b4fb6acf771d906e3488e077ae2b5d72da1e5e04e2d5ac215c31bb
+source_digest: sha256:e1bc093aee6c49199aa62cb116cd819e421fce1908aa507e18a94bec1ccd01be
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-09T20:43:33Z
+stale_after: 2026-12-08
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-09T20:43:33Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -29,8 +29,8 @@ also runs outside the devcontainer.
 | `postCreateCommand.sh`                               | create (once)         | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, uv sync, staged-catalog install |
 | `postStartCommand.sh`                                | every start           | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, firewall gate, Xpra             |
 | `postAttachCommand.sh`                               | every editor attach   | CBM index, uv sync, reinstall the catalog from this checkout                                       |
-| `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach        | remove stale marketplaces for `root`, add it, install the plugin at `scope`                        |
-| `reinstall-agentdev-codex.sh [root]`                 | create, attach        | the Codex equivalent; Codex has no scopes                                                          |
+| `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach        | remove stale marketplaces for `root`, add it, install every published plugin at `scope`            |
+| `reinstall-agentdev-codex.sh [root]`                 | create, attach        | the Codex equivalent, single-plugin; Codex has no scopes                                           |
 | `codebase-memory-mcp-{install,start,index}.sh`       | create, start, attach | agent-config wiring, daemon start, repository index                                                |
 | `uv-sync.sh`                                         | create, attach        | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                        |
 | `link-codex-auth.sh`                                 | create, start         | symlink `~/.codex/auth.json` into the shared auth volume                                           |
@@ -47,9 +47,12 @@ workspace with no argument, which defaults the root to this checkout and the
 scope to `local`, so this repository develops the catalog in place while any
 other project's attach finds no marketplace manifest and exits quietly. The
 reinstall scripts list existing marketplaces whose path is the root, remove each
-(uninstalling the plugin at every scope, tolerating "not found"), then add and
-install. CBM wiring temporarily materializes the `~/.claude.json` symlink
-because the installer rewrites the file.
+(uninstalling at every scope, tolerating "not found"), then add and install. The
+Claude script reads every name from `.plugins[]` and loops, so the Claude
+marketplace's two plugins both install; the Codex script reads `.plugins[0]`,
+which is accurate because its manifest publishes one. CBM wiring temporarily
+materializes the `~/.claude.json` symlink because the installer rewrites the
+file.
 
 ## Depends on
 

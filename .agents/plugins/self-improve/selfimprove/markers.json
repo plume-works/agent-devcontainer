@@ -1,0 +1,36 @@
+{
+  "$comment": "Phrase patterns for the deterministic gate (spec section 6). Kept as data so they can be tuned and tested without touching code. Patterns are case-insensitive Python regexes matched against the user's prompt. A match is permission to reflect, never proof that a lesson exists.",
+  "retention": [
+    "\\bremember (?:this|that|it)\\b",
+    "\\b(?:please )?(?:don't|do not) forget\\b",
+    "\\bfrom now on\\b",
+    "\\bgoing forward\\b",
+    "\\bin (?:the )?future\\b",
+    "(?:^|[.,;:!?)\\]]\\s*|\\b(?:and|but|so|please|then|to|must|should|shall)\\s+|\\b(?:can|could|would)\\s+you\\s+|\\byou\\s+will\\s+)(?:always|never)\\s+(?!be\\b|been\\b|being\\b|is\\b|are\\b|was\\b|were\\b|has\\b|have\\b|had\\b|the\\b|a\\b|an\\b|this\\b|that\\b|these\\b|those\\b|it\\b|i\\b|you\\b|we\\b|they\\b|seems?\\b|seemed\\b|works?\\b|worked\\b|fails?\\b|failed\\b|happens?\\b|happened\\b)[a-z]",
+    "\\badd (?:this|that|it) to (?:your |the )?(?:claude\\.md|memory|instructions|rules)\\b",
+    "\\bmake (?:a |an )?(?:note|rule|skill) (?:of|about|for)\\b",
+    "\\bkeep (?:this|that) in mind\\b",
+    "\\bwrite (?:this|that) down\\b"
+  ],
+  "correction": [
+    "\\bno,",
+    "^no\\b",
+    "\\bactually,",
+    "\\bthat's (?:wrong|not right|incorrect|not what)\\b",
+    "\\bthat is (?:wrong|not right|incorrect)\\b",
+    "\\binstead of\\b",
+    "\\bshould (?:be|have been|use)\\b",
+    "\\b(?:don't|do not|stop) (?:use|using|do|doing|run|running)\\b",
+    "\\bnot .{1,40}, (?:use|do|run)\\b",
+    "\\bwrong (?:command|file|approach|way|directory|branch)\\b",
+    "\\bthat (?:didn't|did not) work\\b",
+    "\\btry (?:again|instead)\\b",
+    "\\bundo (?:that|this)\\b"
+  ],
+  "confirmation": [
+    "\\bthat (?:worked|did it|fixed it)\\b",
+    "\\bthat's (?:it|the one)\\b",
+    "\\bthanks?,? that (?:worked|did it|fixed)\\b",
+    "\\byes,? that (?:worked|did it|was it)\\b"
+  ]
+}

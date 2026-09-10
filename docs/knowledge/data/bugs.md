@@ -21,3 +21,9 @@ tells them apart.*
 [Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
 
 [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md)
+
+[Self-test unwritable-root check assumes a non-root user](bugs/self-test-unwritable-root-check.md)
+
+[Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
+
+[Unstageable routing option in the improve skill](bugs/self-improve-unstageable-routing-option.md)

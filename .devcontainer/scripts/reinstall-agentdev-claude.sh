@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Register a catalog root as a Claude Code marketplace and install the plugin it
-# publishes.
+# Register a catalog root as a Claude Code marketplace and install every plugin
+# it publishes.
 #
 # Called twice with different roots. postCreate passes the catalog staged in the
 # image, at user scope, so any workspace gets the catalog. postStart passes
@@ -24,7 +24,7 @@ if [[ ! -f "$marketplace_json" ]]; then
 fi
 
 marketplace_name="$(jq -er '.name' "$marketplace_json")"
-plugin_name="$(jq -er '.plugins[0].name' "$marketplace_json")"
+mapfile -t plugin_names < <(jq -er '.plugins[].name' "$marketplace_json")
 
 # `claude plugin marketplace remove` only accepts a marketplace name, never a
 # path. Collect the name this root currently declares plus any registered under
@@ -63,11 +63,15 @@ try_remove() {
 # omitted; `uninstall` needs each scope named.
 while read -r name; do
   [[ -n "$name" ]] || continue
-  for uninstall_scope in user project local; do
-    try_remove claude plugin uninstall "$plugin_name@$name" --scope "$uninstall_scope"
+  for plugin_name in "${plugin_names[@]}"; do
+    for uninstall_scope in user project local; do
+      try_remove claude plugin uninstall "$plugin_name@$name" --scope "$uninstall_scope"
+    done
   done
   try_remove claude plugin marketplace remove "$name"
 done < <(printf '%s\n' "$marketplace_name" "${stale_names[@]}" | sort -u)
 
 claude plugin marketplace add "$catalog_root" --scope "$scope"
-claude plugin install "$plugin_name@$marketplace_name" --scope "$scope"
+for plugin_name in "${plugin_names[@]}"; do
+  claude plugin install "$plugin_name@$marketplace_name" --scope "$scope"
+done

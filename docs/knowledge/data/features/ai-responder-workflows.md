@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: codex/gpt-5
-  at: 2026-09-03T19:24:53Z
+  at: 2026-09-10T01:57:27Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -78,3 +78,7 @@ The gate's full contract lives in the
 lifecycle scripts and the workflow that supplies their devcontainer contract is
 recorded in
 [CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+
+**Pull requests can opt out of review.** A `[ci:no-review]` marker anywhere in
+the pull request body skips the review responder and `ai-review-present` gate.
+The marker does not disable free-form `@claude` tasks.

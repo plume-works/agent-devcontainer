@@ -121,6 +121,7 @@ jobs:
       is_fork: ${{ steps.checkout_ref.outputs.isFork }}
       is_pull_request: ${{ steps.checkout_ref.outputs.isPullRequest }}
       is_draft: ${{ steps.checkout_ref.outputs.isDraft }}
+      skip_review: ${{ steps.checkout_ref.outputs.skipReview }}
       pr_number: ${{ steps.checkout_ref.outputs.prNumber }}
       review_exists: ${{ steps.review_status.outputs.found }}
       wants_review: ${{ steps.agent_prompts.outputs.wantsReview }}
@@ -179,6 +180,7 @@ jobs:
             core.setOutput('isFork', isFork);
             core.setOutput('isPullRequest', Boolean(pullRequest));
             core.setOutput('isDraft', Boolean(pullRequest?.draft));
+            core.setOutput('skipReview', pullRequest?.body?.includes('[ci:no-review]') ?? false);
 
       - name: Checkout composite actions
         if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
@@ -234,6 +236,7 @@ jobs:
           PR_NUMBER: ${{ steps.checkout_ref.outputs.prNumber }}
           IS_PULL_REQUEST: ${{ steps.checkout_ref.outputs.isPullRequest }}
           IS_DRAFT: ${{ steps.checkout_ref.outputs.isDraft }}
+          SKIP_REVIEW: ${{ steps.checkout_ref.outputs.skipReview }}
           REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
           DISPATCH_TASK: ${{ inputs.task }}
         with:
@@ -244,6 +247,9 @@ jobs:
             // When the review job runs: see spec/ai-review-gate, "a review
             // runs on first push and on explicit request".
             const wantsReview = (() => {
+              if (process.env.SKIP_REVIEW === 'true') {
+                return false;
+              }
               if (eventName === 'workflow_dispatch') {
                 return dispatchTask === '';
               }
@@ -466,6 +472,8 @@ jobs:
       - claude-respond
     if: |
       always() &&
+      needs.preflight.outputs.skip_review != 'true' &&
+      !contains(github.event.pull_request.body, '[ci:no-review]') &&
       (contains(fromJSON('["pull_request", "pull_request_review", "merge_group"]'), github.event_name) ||
        (github.event_name == 'workflow_dispatch' && inputs.task == ''))
     runs-on: ubuntu-24.04

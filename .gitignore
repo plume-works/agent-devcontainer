@@ -83,3 +83,19 @@ node_modules/
 openspec/
 **/skills/openspec-*/
 .openspec-target
+
+# self-improve runtime state, which must never enter the repository
+.self-improvement/
+candidates/
+proposals/
+authorizations/
+backups/
+archive/
+locks/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Every live self-improve run gets its own directory here and is left to be read
+# afterwards.
+/test-runs/

@@ -42,3 +42,7 @@ rejected are as valuable as the one you picked.*
 [gh authentication shim](architecture/gh-authentication-shim.md)
 
 [Formatter ownership](architecture/formatter-ownership.md)
+
+[Self-improve consolidation](architecture/self-improve-consolidation.md)
+
+[Self-improve runtime](architecture/self-improve-runtime.md)

@@ -1,6 +1,6 @@
 ---
 type: concept
-description: Evidence and outstanding work never share a heading, and an artifact never restates what an automated check or another document already asserts.
+description: Evidence and outstanding work never share a heading, a status claims only what a command in this session proved, and an artifact never restates what an automated check or another document already asserts.
 generated:
   by: claude-code/opus-5
   at: 2026-08-15T00:00:00Z
@@ -28,6 +28,20 @@ the reader to re-derive the distinction line by line, from tense and mood alone.
 They will get it wrong, and the failure is asymmetric: outstanding work read as
 evidence is silently dropped, which is exactly the shape of
 [plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md).
+
+The same rule constrains the status a document may claim for itself. Evidence
+means a command that ran and a result that was read in this session: code being
+written is not evidence, tests existing is not evidence, and a run that was
+started, skipped, timed out, or interrupted is not evidence. Where evidence is
+partial, the status line says which part is covered and which is not — work
+whose checks have never passed is *implemented but unverified*, never
+*implemented* — and a status is downgraded the moment its evidence is
+invalidated.
+
+The two sides meet here: a document that conflates the tenses misleads its
+reader line by line, and a session claiming what it did not watch happen
+misleads every reader afterwards. Both are the same failure to distinguish being
+told something from being asked for something.
 
 The section boundary should carry the meaning, so that nothing which has not
 happened can be written under the heading that means "done".

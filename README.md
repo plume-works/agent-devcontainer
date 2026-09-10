@@ -3,8 +3,8 @@
 A reproducible, multi-architecture development environment built for agent-driven
 software development.
 
-`agent-devcontainer` combines a ready-to-use container image, a shared Claude Code
-and Codex plugin, project-memory workflows, automated pull-request review,
+`agent-devcontainer` combines a ready-to-use container image, a plugin catalog for
+Claude Code and Codex, project-memory workflows, automated pull-request review,
 validation tooling, and reusable scaffolding for adopting the environment in other
 repositories.
 
@@ -14,6 +14,8 @@ repositories.
 - Python development through `uv`, plus Bun and Node.js 24.
 - Docker-in-Docker, Buildx, Compose, CMake, Ninja, Git LFS, and GitHub CLI.
 - Claude Code and Codex preinstalled with the shared `agentdev` catalog.
+- An optional `self-improve` plugin that turns verified corrections into reviewable
+  instructions, published but not enabled by default.
 - A browser-accessible Xpra desktop with VirtualGL support.
 - An optional default-deny egress firewall with repository-controlled allowlisting.
 - IWE knowledge-graph workflows from project setup through verified shipment.
@@ -86,7 +88,13 @@ Memory data, and pre-commit environments persist across container rebuilds and r
 isolated per worktree. Authentication is shared so opening another worktree does not
 require signing in again.
 
-## The `agentdev` catalog
+## The plugin catalog
+
+The repository is its own plugin marketplace. Claude Code sees two plugins,
+`agentdev` and `self-improve`; Codex sees `agentdev` alone, because `self-improve`
+ships no Codex manifest.
+
+### `agentdev`
 
 The image carries `agentdev` 3.3.0, a cross-agent plugin with 36 skills and five
 agent definitions for Claude Code and Codex. It covers:
@@ -108,6 +116,28 @@ Skills use the `/agentdev:<name>` namespace, including `/agentdev:pr-open`,
 `/agentdev:pr-review`, and `/agentdev:pr-merge`. See the
 [catalog README](.agents/plugins/agentdev/README.md) for the complete skill list,
 standalone installation instructions, and contributor guidance.
+
+### `self-improve`
+
+`self-improve` 0.1.0 is a hook-driven experiential-learning engine for Claude Code.
+It captures turns, applies a deterministic gate to decide when a lesson is worth a
+review, runs an isolated reviewer that holds no tools, and proposes edits to
+`CLAUDE.md`, rules, and skills. Every mutation is authorized by the user against
+exact bytes, targets a normative path allowlist, and is reversible. Its four skills
+are `/self-improve:improve`, `apply`, `reject`, and `rollback`.
+
+The plugin is published from the Claude marketplace and **not enabled** by anything
+this repository ships: the tracked agent settings name it nowhere, and the Ansible
+catalog role stages `agentdev` alone. Enable it deliberately, per session or per
+project.
+
+Its runtime is standard-library-only — a rule enforced by a test that walks every
+runtime import — so the plugin adds no dependency to a consuming project. Tests
+that drive a real Claude session and spend model usage are skipped at collection
+unless `SELF_IMPROVE_RUN_LIVE` is set; the root `Makefile` carries those live
+targets. Behavior is specified in
+[the learning-loop spec](docs/knowledge/data/spec/self-improve-learning-loop.md),
+and the comparative analysis behind it is in [`docs/research/`](docs/research/).
 
 ## IWE project memory
 
@@ -216,9 +246,10 @@ cd py_packages/validate_agent_files
 uv run --isolated --extra dev pytest
 ```
 
-The canonical catalog source is
-[`.agents/plugins/agentdev/`](.agents/plugins/agentdev/). Repository conventions live
-in [AGENTS.md](AGENTS.md), while the
+The canonical plugin sources are
+[`.agents/plugins/agentdev/`](.agents/plugins/agentdev/) and
+[`.agents/plugins/self-improve/`](.agents/plugins/self-improve/). Repository
+conventions live in [AGENTS.md](AGENTS.md), while the
 [template boundary](docs/knowledge/data/architecture/template-boundary.md) classifies
 the reusable, customizable, and publisher-only parts of the tree.
 
