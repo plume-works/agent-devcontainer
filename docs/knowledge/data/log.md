@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-11
+
+- **Update**: Refreshed the five codebase-map docs whose tracked sources the
+  consumer-facing fixes moved — the responder merges the gitignored local
+  settings layer only where it exists, and the consumption guide requires an
+  adopter to exclude `docs/knowledge/**` from Prettier.
+
 ## 2026-09-10
 
 - **Update**: Refreshed the three codebase-map docs whose tracked sources the
