@@ -774,6 +774,27 @@ Alongside them, retain the validation the scaffold depends on:
   the `iwe` binary on PATH — the devcontainer image provides it;
 - `docs/knowledge/tests` in `pyproject.toml`'s `testpaths`.
 
+#### Requirement: only one formatter owns `docs/knowledge/`
+
+`iwe normalize` formats the knowledge graph and the knowledge-base workflow
+enforces that it is a no-op. Prettier also formats markdown, and the two
+disagree on emphasis style, so leaving both pointed at these files makes every
+commit re-flip the formatting.
+
+**Scenario: prettier and `iwe normalize` fight over the seeded graph**
+
+- **WHEN** a repository adopts the knowledge scaffold and the template's
+  prettier hook without excluding `docs/knowledge/` from prettier
+- **THEN** the first hook run rewrites the seeded documents, and
+  `iwe normalize` reverts them on the next run, indefinitely.
+
+Add `docs/knowledge/**` to `.prettierignore` as part of the scaffold copy. This
+repository's own `.prettierignore` carries the entry and the rationale; a
+consumer assembling the scaffold from the path list above does not get it
+implicitly. This is the same class of problem as [formatter adoption never
+rewrites verbatim third-party
+captures](#requirement-formatter-adoption-never-rewrites-verbatim-third-party-captures).
+
 `docs/knowledge/tests/test_iwe_seed.py` is **not** in that list. It validates
 the publisher's seed source under `templates/iwe/`, which a consumer does not
 keep; copying it leaves a test that fails on a missing directory. Delete it if

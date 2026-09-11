@@ -100,12 +100,23 @@ runs:
         .devcontainer/scripts/postStartCommand.sh
         .devcontainer/scripts/postAttachCommand.sh
 
+    # settings.local.json is gitignored, so it only exists once something has
+    # written it. In this repository the lifecycle step above always does: the
+    # local-scope install in reinstall-agentdev-claude.sh records the plugin
+    # there. A consumer that publishes no marketplace of its own takes that
+    # script's early return instead, so the file is never created and a bare
+    # `jq -cs` over both paths exits 2 and fails the responder job. Treat the
+    # local layer as optional.
     - name: Merge Claude settings
       id: claude_settings
       shell: bash
       run: |
-        merged=$(jq -cs '.[0] * .[1]' \
-          .claude/settings.json .claude/settings.local.json)
+        if [[ -f .claude/settings.local.json ]]; then
+          merged=$(jq -cs '.[0] * .[1]' \
+            .claude/settings.json .claude/settings.local.json)
+        else
+          merged=$(jq -c '.' .claude/settings.json)
+        fi
         {
           echo 'json<<CLAUDE_SETTINGS_EOF'
           echo "$merged"
