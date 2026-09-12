@@ -61,9 +61,9 @@ The contract is in [AI review gate](../spec/ai-review-gate.md).
 
 Verified anchor points (line numbers as of 2026-09-12):
 
-- `.github/workflows/ai-responder.yml:182` — the marker read, now output as
+- `.github/workflows/ai-responder.yml:184-185` — the marker read, now output as
   `skipAiReview`
-- `.github/workflows/ai-responder.yml:248-250` — the only consumer: the review
+- `.github/workflows/ai-responder.yml:251-259` — the only consumer: the review
   responder's `wantsReview`
-- `.github/workflows/ai-responder.yml:472-475` — the gate's `if:`, with no
+- `.github/workflows/ai-responder.yml:477-480` — the gate's `if:`, with no
   marker term
