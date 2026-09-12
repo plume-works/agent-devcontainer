@@ -2,14 +2,14 @@
 type: codebase
 description: Installs the apt development toolchain and a list of pinned, checksum-verified single-binary tools (zizmor, the iwe trio, codebase-memory-mcp).
 source: ansible/roles/dev_tools
-source_digest: sha256:bf4d9add86cc2b21f54fd9407025cc7ecf450abff863a4cee1cb0453e312221a
+source_digest: sha256:88d5f9abceb0d4e981c50637ebee41612a808bc6eaee82350abbe515c96760b1
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-12T00:00:00Z
+stale_after: 2026-12-11
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-12T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/dev_tools
@@ -18,8 +18,8 @@ sources:
 # dev_tools role
 
 The general toolchain role: build tooling, git from the git-core PPA,
-`pre-commit`, `shellcheck`, `jq`, `ffmpeg`, `btop`, and the pinned release
-binaries every other part of the workspace assumes are on `PATH`.
+`pre-commit`, `shellcheck`, `jq`, `ffmpeg`, `btop`, `tmux`, and the pinned
+release binaries every other part of the workspace assumes are on `PATH`.
 
 ## Public surface
 
