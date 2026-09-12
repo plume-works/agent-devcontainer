@@ -25,6 +25,7 @@
       - python3-setuptools
       - python3-venv
       - shellcheck
+      - tmux
       - ffmpeg # for rendering animations and screen captures
       - btop # for monitoring resource usage in development
     state: present
