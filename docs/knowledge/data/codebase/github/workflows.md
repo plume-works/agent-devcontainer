@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:0c8129a4a935ff54bb67bb8c6eccbc454d693563cc15969ec4f02d273830bb78
+source_digest: sha256:81dd0d9f7e558269089477038cdd91da03ce64452e0bd11b02688d1cd47f8d7c
 verified:
   by: claude-code/opus-5
-  at: 2026-09-10T02:25:00Z
-stale_after: 2026-12-09
+  at: 2026-09-12T04:50:44Z
+stale_after: 2026-12-11
 generated:
   by: claude-code/opus-5
-  at: 2026-09-10T02:25:00Z
+  at: 2026-09-12T04:50:44Z
 sources:
 - id: code
   resource: .github/workflows
@@ -65,12 +65,14 @@ then its final step verifies every recorded digest. The full traces are
   what it uses.
 - Runners are chosen by the `AMD_ONLY`/`ARM_ONLY` repository variables so a fork
   without ARM runners can still build.
-- A `[ci:no-review]` marker in the PR body suppresses the review job; the gate
-  policy is in [AI review gate](../../spec/ai-review-gate.md).
+- A `[ci:skip-ai-review]` marker in the PR body suppresses the review job only;
+  `ai-review-present` never reads it, so the gate cannot be waived from an
+  author-controlled body. The policy is in
+  [AI review gate](../../spec/ai-review-gate.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-10):
+Verified anchor points (line numbers as of 2026-09-12):
 
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
@@ -82,4 +84,4 @@ Verified anchor points (line numbers as of 2026-09-10):
   four check steps
 - `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
-- `.github/workflows/ai-responder.yml:82,331,383,427,468` — the five jobs
+- `.github/workflows/ai-responder.yml:82,330,382,426,467` — the five jobs

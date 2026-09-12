@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:75abb0a58d13c16af5e1b14b3338a9876119975b27333cf4c8238a791fc9459f
+source_digest: sha256:9ce516bacc8cd90a94ac89da5346a41b347bbee144d73da8b4a70c8f95865f3c
 verified:
   by: claude-code/opus-5
-  at: 2026-09-11T16:01:00Z
-stale_after: 2026-12-10
+  at: 2026-09-12T04:50:44Z
+stale_after: 2026-12-11
 generated:
   by: claude-code/opus-5
-  at: 2026-09-11T16:01:00Z
+  at: 2026-09-12T04:50:44Z
 sources:
 - id: code
   resource: .github
