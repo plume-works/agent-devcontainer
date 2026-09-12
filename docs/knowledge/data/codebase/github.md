@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:9ce516bacc8cd90a94ac89da5346a41b347bbee144d73da8b4a70c8f95865f3c
+source_digest: sha256:e8b6646559ba181c98c2d6f3b97d82bedefc1af429aec0ea5f6d9147d21eef8f
 verified:
   by: claude-code/opus-5
-  at: 2026-09-12T04:50:44Z
+  at: 2026-09-12T05:31:43Z
 stale_after: 2026-12-11
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T04:50:44Z
+  at: 2026-09-12T05:31:43Z
 sources:
 - id: code
   resource: .github
@@ -61,7 +61,7 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
+Verified anchor points (line numbers as of 2026-09-12):
 
 - `.github/renovate.json:9-15` — Actions automerge
 - `.github/renovate.json:16-23` — `agent-desktop` digest automerge

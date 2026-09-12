@@ -110,9 +110,19 @@ free-form task dispatches.
 
 ## Requirement: a pull request can opt out of the AI review run
 
-A pull request whose body contains `[ci:skip-ai-review]` SHALL skip the review
-responder. The marker SHALL NOT waive the `ai-review-present` gate, and SHALL
-NOT disable free-form responder tasks.
+A pull request whose body carries `[ci:skip-ai-review]` alone on a line SHALL
+skip the review responder. The marker SHALL NOT waive the `ai-review-present`
+gate, and SHALL NOT disable free-form responder tasks.
+
+The marker SHALL be recognized only as a whole line, so that a body discussing
+it — documentation, a migration note, a review comment quoted into the
+description — reads as prose rather than as a directive. A substring match makes
+every pull request that explains the feature disable review on itself.
+
+An explicit review request SHALL outrank the marker: a `@claude review` mention
+reaches the responder as an empty-task dispatch, and that dispatch SHALL run a
+review whatever the body says. The marker expresses a default for the pull
+request, not a veto over a maintainer asking.
 
 The gate SHALL NOT read the marker, because a pull request body is
 author-controlled and a job skipped by its own `if:` satisfies a required status
@@ -123,21 +133,33 @@ can merge it.
 
 ### Scenario: a marked pull request triggers the workflow
 
-- **WHEN** a pull request body contains `[ci:skip-ai-review]` and no accepted
-  review exists
+- **WHEN** a pull request body carries `[ci:skip-ai-review]` on its own line and
+  no accepted review exists
 - **THEN** no review responder runs, and `ai-review-present` runs and fails.
 
 ### Scenario: a marked pull request already has an accepted review
 
-- **WHEN** a pull request body contains `[ci:skip-ai-review]` and an accepted
-  review exists on it
+- **WHEN** a pull request body carries `[ci:skip-ai-review]` on its own line and
+  an accepted review exists on it
 - **THEN** no review responder runs, and `ai-review-present` passes on the
   existing review.
+
+### Scenario: a body mentions the marker inline
+
+- **WHEN** a pull request body names `[ci:skip-ai-review]` inside a sentence or
+  a code span rather than alone on a line
+- **THEN** the marker does not apply and the review responder runs normally.
+
+### Scenario: a maintainer requests a review on a marked pull request
+
+- **WHEN** a writer comments `@claude review` on a pull request whose body
+  carries the marker on its own line
+- **THEN** the review runs, because the explicit request outranks the marker.
 
 ### Scenario: a marked pull request requests a free-form task
 
 - **WHEN** a writer requests a free-form `@claude` task on a pull request whose
-  body contains `[ci:skip-ai-review]`
+  body carries `[ci:skip-ai-review]`
 - **THEN** the task responder runs.
 
 ## Requirement: comment mentions run the pull request branch's workflow

@@ -80,9 +80,11 @@ recorded in
 [CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
 
 **Pull requests can opt out of the review run, not out of the gate.** A
-`[ci:skip-ai-review]` marker anywhere in the pull request body skips the review
-responder. `ai-review-present` never reads the marker: a PR body is
-author-controlled and a skipped job satisfies a required check, so a marker the
-gate honored would be a self-service waiver of the mandatory review. A marked PR
-without an accepted review keeps a red gate, mergeable only by ruleset bypass.
-The marker does not disable free-form `@claude` tasks.
+`[ci:skip-ai-review]` marker alone on a line of the pull request body skips the
+review responder — matched as a whole line, so a body that merely discusses the
+marker stays prose. An explicit `@claude review` outranks it.
+`ai-review-present` never reads the marker: a PR body is author-controlled and a
+skipped job satisfies a required check, so a marker the gate honored would be a
+self-service waiver of the mandatory review. A marked PR without an accepted
+review keeps a red gate, mergeable only by ruleset bypass. The marker does not
+disable free-form `@claude` tasks.

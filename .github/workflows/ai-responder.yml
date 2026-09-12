@@ -179,7 +179,10 @@ jobs:
             core.setOutput('isFork', isFork);
             core.setOutput('isPullRequest', Boolean(pullRequest));
             core.setOutput('isDraft', Boolean(pullRequest?.draft));
-            core.setOutput('skipAiReview', pullRequest?.body?.includes('[ci:skip-ai-review]') ?? false);
+            // Own-line match: a body that discusses the marker inline is prose,
+            // not a directive. See spec/ai-review-gate.
+            const skipAiReview = /^[^\S\r\n]*\[ci:skip-ai-review\][^\S\r\n]*\r?$/m;
+            core.setOutput('skipAiReview', skipAiReview.test(pullRequest?.body ?? ''));
 
       - name: Checkout composite actions
         if: steps.checkout_ref.outputs.isFork != 'true' && steps.checkout_ref.outputs.isPullRequest == 'true'
@@ -246,11 +249,13 @@ jobs:
             // When the review job runs: see spec/ai-review-gate, "a review
             // runs on first push and on explicit request".
             const wantsReview = (() => {
-              if (process.env.SKIP_AI_REVIEW === 'true') {
-                return false;
-              }
+              // An explicit request outranks the marker; a bridged `@claude
+              // review` arrives here as an empty-task dispatch.
               if (eventName === 'workflow_dispatch') {
                 return dispatchTask === '';
+              }
+              if (process.env.SKIP_AI_REVIEW === 'true') {
+                return false;
               }
               if (eventName !== 'pull_request' || process.env.IS_DRAFT === 'true') {
                 return false;

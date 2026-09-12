@@ -13,6 +13,10 @@ to the current day's group.
   pull request keeps a red required check.
 - **Update**: Refreshed the three codebase-map docs whose tracked sources the
   gate fix moved.
+- **Creation**:
+  [The review opt-out marker fired too broadly](bugs/skip-ai-review-marker-overreach.md)
+  fixed — the marker is matched only as a whole line, so a body that discusses
+  it stays prose, and an explicit `@claude review` now outranks it.
 
 ## 2026-09-11
 
