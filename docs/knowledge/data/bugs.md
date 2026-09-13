@@ -27,3 +27,7 @@ tells them apart.*
 [Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
 
 [Unstageable routing option in the improve skill](bugs/self-improve-unstageable-routing-option.md)
+
+[AI review gate was self-waivable from the PR body](bugs/ai-review-gate-self-waivable.md)
+
+[The review opt-out marker fired too broadly](bugs/skip-ai-review-marker-overreach.md)

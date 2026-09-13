@@ -4,6 +4,20 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-12
+
+- **Creation**:
+  [AI review gate was self-waivable from the PR body](bugs/ai-review-gate-self-waivable.md)
+  fixed — the opt-out marker, renamed `[ci:skip-ai-review]`, now suppresses only
+  the review responder, and `ai-review-present` no longer reads it, so a marked
+  pull request keeps a red required check.
+- **Update**: Refreshed the three codebase-map docs whose tracked sources the
+  gate fix moved.
+- **Creation**:
+  [The review opt-out marker fired too broadly](bugs/skip-ai-review-marker-overreach.md)
+  fixed — the marker is matched only as a whole line, so a body that discusses
+  it stays prose, and an explicit `@claude review` now outranks it.
+
 ## 2026-09-11
 
 - **Update**: Refreshed the five codebase-map docs whose tracked sources the
