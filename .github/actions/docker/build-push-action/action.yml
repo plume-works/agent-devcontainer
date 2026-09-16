@@ -97,7 +97,7 @@ runs:
         retention-days: 1
 
     - name: Cleanup digests
-      if: ${{ inputs.export-digest == 'true' }}
+      if: ${{ always() && inputs.export-digest == 'true' }}
       shell: bash -xeuo pipefail {0}
       env:
         DIGESTS_DIR: ${{ steps.digests.outputs.digests_dir }}

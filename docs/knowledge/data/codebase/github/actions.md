@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:33ba4807aa8db4cede79eed696ac1ce9cd630ed8a97bfd879a9aeee58a493121
+source_digest: sha256:93eefc7492060b36918b6fa948f68c8af149e9e8228843315a22a0f99d99931d
 verified:
   by: claude-code/opus-5
-  at: 2026-09-16T16:30:13Z
+  at: 2026-09-16T19:28:42Z
 stale_after: 2026-12-15
 generated:
   by: claude-code/opus-5
-  at: 2026-09-16T16:30:13Z
+  at: 2026-09-16T19:28:42Z
 sources:
 - id: code
   resource: .github/actions
@@ -53,8 +53,9 @@ evaluates the acceptance policy in
 
 - The `image` filter list is the definition of "changes that make the published
   image stale"; the digest pin file is deliberately not in it.
-- Both Docker build actions remove their digest temp directory under `always()`,
-  so a failed build leaves nothing behind for the next job on a reused runner.
+- Both Docker build actions remove their `mktemp -d` digest directory under
+  `always()`, so a step failing after the export does not leave it on a reused
+  runner; the `$RUNNER_TEMP/digests/<image>` parent they create stays.
 - Callers invoke Python tools through `uv run`; `setup-python-venv` never
   activates the environment.
 - `run-claude-responder` uploads the execution file and checks it for a usage
