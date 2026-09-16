@@ -29,10 +29,6 @@ inputs:
   build-args:
     description: Build arguments for Dockerfile
     required: false
-  push:
-    description: Push the built image to the registry
-    required: false
-    default: 'true'
   export-digest:
     description: Export digest as artifacts
     required: false
@@ -71,7 +67,7 @@ runs:
         cache-from: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }}
         cache-to: ${{ env.ACT != '' && env.REGISTRY_CACHE || env.GHA_CACHE }},mode=max
         build-args: ${{ inputs.build-args }}
-        outputs: type=image,"name=${{ inputs.image }}",push-by-digest=true,name-canonical=true,push=${{ inputs.push }}
+        outputs: type=image,"name=${{ inputs.image }}",push-by-digest=true,name-canonical=true,push=true
 
     - name: Export digest
       if: ${{ inputs.export-digest == 'true' }}
@@ -106,6 +102,4 @@ runs:
       env:
         DIGESTS_DIR: ${{ steps.digests.outputs.digests_dir }}
       run: |
-        if [ -n "${DIGESTS_DIR}" ]; then
-          rm -rf "${DIGESTS_DIR}"
-        fi
+        rm -rf "${DIGESTS_DIR}/*"

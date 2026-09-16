@@ -1,70 +1,73 @@
 ---
 type: architecture
-description: Why a pull request from a fork builds both images but publishes nothing, why the desktop image then builds on the published base, and why chaining the two builds through a local registry was rejected.
+description: Why the image build is not made fork-compatible by publishing nothing — it is the first stage of CI, not a leaf, and every stage after it consumes the image it published.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-16T07:19:49Z
+  at: 2026-09-16T16:25:13Z
 sources:
 - resource: .github/workflows/ci.yml
-- resource: .github/actions/docker/build-push-action/action.yml
+- resource: https://github.com/plume-works/coder-ide-baseline/pull/3
 ---
 
 # Fork pull request builds
 
 ## Decision
 
-A pull request from a fork **builds both images and publishes neither**. One
-verdict, `publish`, is computed once in `ci.yml`'s `paths-filter` job and gates
-every registry write: the per-architecture pushes, the digest artifacts, the
-manifest merge, and the digest-pin patch in the devcontainer smoke test. The run
-says so in a warning and its job summary rather than failing.
+A pull request from a fork **is not made to pass** by building the images
+without publishing them. `ci.yml` pushes unconditionally; a fork run fails at
+that push, and that is accepted.
 
-Because a fork run pushes nothing, the desktop image cannot be built `FROM` the
-base the same run produced. It is built on the published `ubuntu-ansible:edge`
-instead. The devcontainer smoke test keeps the committed pin for the same
-reason.
+## Why publishing is not optional here
 
-## Problem this solved
+The image build is the **first** stage of CI, not a leaf. Everything after it
+consumes what it published: in this repository the devcontainer smoke test, and
+in a consumer that inherits the workflow —
+[Dr-QP/Dr.QP](https://github.com/Dr-QP/Dr.QP) — the application's own suites,
+which run inside that image.
 
-A fork's `GITHUB_TOKEN` is read-only whatever the workflow's `permissions` block
-declares, and `ghcr.io` rejects the push rather than the login. An unconditional
-push therefore turns every fork pull request red only after a full
-multi-architecture image build — the most expensive way to discover that the
-token was never going to work.
+So a build that publishes nothing hands every later stage nothing to pull. The
+fork run would go green having proved that two Dockerfiles compile, while the
+work the pipeline exists to do never ran. Making that honest means gating the
+whole downstream pipeline on the same verdict, here and in every consumer.
 
-## What a fork run does and does not verify
+## Rejected: gate every registry write on a publish verdict
 
-Both Dockerfiles build, so a fork pull request proves the image sources are
-buildable on both architectures. It does **not** verify the two images composed:
-the desktop build consumes the last published base, not the one the run just
-built, so a change under `docker/ansible/` is built but never exercised by the
-desktop build or the smoke test. A same-repository run covers that composition,
-which is what makes this acceptable.
+The shape considered: one `publish` verdict, false when the head repository
+differs from the base, gating both per-architecture pushes, the digest
+artifacts, the manifest merge, and the digest-pin patch;
+`docker/build-push-action` gaining a `push` input; jobs downstream of the
+now-skippable merge carrying explicit `always()` conditions.
 
-## Alternatives considered
+It fails on what the surviving green check would mean:
 
-**Chain the two builds through a registry the fork can write.** A `registry:2`
-service container on the runner, or buildx's local image store, would let the
-desktop image build on the base the same run produced and restore full
-verification. Rejected as disproportionate: it adds a second, fork-only build
-topology to maintain beside the one that publishes, and the composition it would
-verify is verified on every same-repository run and again in the merge queue.
+- The desktop image is built `FROM` the base the same run pushed. A fork run
+  cannot push it, so the desktop image would build on the last **published**
+  base — a change under `docker/ansible/` gets built and never composed.
+- The devcontainer smoke test would run against the committed digest pin, which
+  is an image the pull request did not produce.
+- Every stage after the build, in this repository and in each consumer, needs
+  its own skip. The gate is not a change to the build; it is a second CI
+  topology maintained beside the one that publishes.
 
-**Skip the image jobs entirely for a fork.** Cheapest, and it was rejected
-because it makes the check meaningless exactly where review is least privileged:
-a fork contributor would get a green run that compiled nothing.
+The pattern fits a repository whose image build **is** a leaf — the published
+image is the product and nothing downstream consumes it in the same run.
+`plume-works/coder-ide-baseline` is that shape and keeps it.
 
-**Grant the push another way** — a PAT, or `pull_request_target`. Rejected: a
-write credential reachable from unreviewed pull request code is the one thing
-the read-only fork token is protecting.
+## What would have to change first
+
+Fork builds become worth supporting when a later stage can consume an image the
+run itself produced without a registry write — a runner-local registry service
+or a shared image store the whole pipeline resolves through. That condition has
+to hold for consumers too, since they inherit the workflow along with the
+constraint.
 
 ## Consequences
 
-- Every new registry write in `ci.yml` has to hang off `publish`; adding one
-  that does not reintroduces the red fork check.
-- `docker/build-push-action`'s `push` and `export-digest` inputs travel together
-  — a build that pushes nothing produces no digest for the merge to assemble,
-  which is why the merge job is skipped rather than fed an empty set.
-- Jobs downstream of a skipped merge need an explicit `always()` condition, and
-  the `finished` aggregate treats a skipped job as a pass.
-- A fork run depends on `ubuntu-ansible:edge` being published and public.
+- An external contribution is reviewed on a branch in this repository rather
+  than from the fork; a maintainer pushes the branch to run CI on it.
+- The read-only fork token stays the boundary: no PAT and no
+  `pull_request_target` reaches the registry from unreviewed code.
+
+## Status
+
+Rejected 2026-09-16, before implementation.
