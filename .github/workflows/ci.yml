@@ -38,6 +38,7 @@ jobs:
     timeout-minutes: 10
     outputs:
       pass: ${{ steps.filter.outputs.pass }}
+      publish: ${{ steps.publish.outputs.publish }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
@@ -52,6 +53,33 @@ jobs:
           extra-filter: |
             - .github/workflows/ci.yml
             - .github/actions/log-debug-stats/**
+
+      # A fork's GITHUB_TOKEN is read-only whatever `permissions` declares, so a
+      # fork run builds both images as a check and publishes nothing.
+      - name: Decide whether this run publishes
+        id: publish
+        env:
+          IS_FORK: >-
+            ${{ github.event_name == 'pull_request'
+            && github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          if [[ $IS_FORK != true ]]; then
+            echo 'publish=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo 'publish=false' >> "$GITHUB_OUTPUT"
+          echo '::warning::Pull request from a fork: the images are built as a check, but nothing is published.'
+          cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+          ### Images not published
+
+          This pull request comes from a fork, whose token is read-only, so
+          nothing was pushed to the registry.
+
+          Both images still build. The desktop image builds on the published
+          `ubuntu-ansible:edge` rather than on the base built in this run, which
+          was never pushed, and the devcontainer smoke test uses the committed pin.
+          SUMMARY
 
       - name: Log debug stats
         if: ${{ always() }}
@@ -136,8 +164,24 @@ jobs:
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
+          push: ${{ needs.paths-filter.outputs.publish }}
+          export-digest: ${{ needs.paths-filter.outputs.publish }}
           build-args: |
             BASE_IMAGE=${{ steps.base_refs.outputs.ansible_base }}
+
+      - name: Resolve the desktop image's base
+        id: desktop_base
+        env:
+          PUBLISH: ${{ needs.paths-filter.outputs.publish }}
+          ANSIBLE_IMAGE: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
+          ANSIBLE_DIGEST: ${{ steps.build_ubuntu_ansible.outputs.digest }}
+        run: |
+          if [[ $PUBLISH = true ]]; then
+            echo "image=${ANSIBLE_IMAGE}@${ANSIBLE_DIGEST}" >> "$GITHUB_OUTPUT"
+          else
+            echo "A run that publishes nothing cannot pull the base it just built."
+            echo "image=${ANSIBLE_IMAGE}:edge" >> "$GITHUB_OUTPUT"
+          fi
 
       # The desktop image's build context is the repository root: the dockerfile
       # bind-mounts the whole context at /provision so Ansible can read both
@@ -153,8 +197,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           registry-username: ${{ env.REGISTRY_USERNAME }}
           registry-token: ${{ secrets.GITHUB_TOKEN }}
+          push: ${{ needs.paths-filter.outputs.publish }}
+          export-digest: ${{ needs.paths-filter.outputs.publish }}
           build-args: |
-            FROM_IMAGE=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}@${{ steps.build_ubuntu_ansible.outputs.digest }}
+            FROM_IMAGE=${{ steps.desktop_base.outputs.image }}
 
       - name: Log debug stats
         if: ${{ always() }}
@@ -168,7 +214,9 @@ jobs:
     permissions:
       packages: write
     needs:
+      - paths-filter
       - build-dev-image
+    if: needs.paths-filter.outputs.publish == 'true'
     timeout-minutes: 15
     outputs:
       image: ${{ steps.merge.outputs.image }}
@@ -203,7 +251,10 @@ jobs:
 
   dev-container-ci:
     name: Devcontainer image
-    needs: [merge-dev-image]
+    needs: [paths-filter, build-dev-image, merge-dev-image]
+    if: >-
+      always() && needs.build-dev-image.result == 'success'
+      && contains(fromJSON('["success", "skipped"]'), needs.merge-dev-image.result)
     timeout-minutes: 35
     strategy:
       fail-fast: false
@@ -231,6 +282,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Patch image pin to use the image built in this workflow
+        if: needs.paths-filter.outputs.publish == 'true'
         env:
           MERGED_IMAGE: ${{ needs.merge-dev-image.outputs.image_pinned }}
         run: |
