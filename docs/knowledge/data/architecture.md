@@ -39,6 +39,8 @@ rejected are as valuable as the one you picked.*
 
 [MCP gateway transport](architecture/mcp-gateway-transport.md)
 
+[Fork pull request builds](architecture/fork-pull-request-builds.md)
+
 [gh authentication shim](architecture/gh-authentication-shim.md)
 
 [Formatter ownership](architecture/formatter-ownership.md)

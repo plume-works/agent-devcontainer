@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:143a4998aca87818eb150068a1f9ff7eb076851b1a837fb0146daf955df54cbb
+source_digest: sha256:8e3cc182f7360249c452908787a8d1e04120eff5aab48e8c3a1eac92945eaf01
 verified:
   by: claude-code/opus-5
-  at: 2026-09-11T16:01:00Z
-stale_after: 2026-12-10
+  at: 2026-09-16T07:19:34Z
+stale_after: 2026-12-15
 generated:
   by: claude-code/opus-5
-  at: 2026-09-11T16:01:00Z
+  at: 2026-09-16T07:19:34Z
 sources:
 - id: code
   resource: .github/actions
@@ -21,16 +21,16 @@ Local `using: composite` actions, referenced as `./.github/actions/<name>`.
 
 ## Public surface
 
-| Action                     | Inputs                                                                  | Outputs / effect                                                    |
-| -------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `paths-filter`             | `event-name`, `base-branch`, `extra-filter`                             | `pass` — whether the `image` filter or an extra filter matched      |
-| `docker/build-push-action` | context, file, image, arch, registry creds, build args, `export-digest` | builds and pushes one arch; emits `digest`                          |
-| `docker/metadata-action`   | images, arch, prefix                                                    | tags, labels, version JSON                                          |
-| `docker/multiarch-merge`   | image, future tag, registry creds                                       | merges per-arch digests; emits `image`, `digest`, `image_pinned`    |
-| `setup-python-venv`        | `python-version`                                                        | installs uv and syncs the project; the environment is not activated |
-| `log-debug-stats`          | `github-token`                                                          | prints API rate/debug statistics for the job                        |
-| `ai-review-status`         | `pr-number`, `github-token`, `trusted-bot-actors`                       | `found`, `reason` — whether an accepted AI review is present        |
-| `run-claude-responder`     | tokens, prompt, comment metadata, PR number, artifact name              | runs Claude Code and uploads the responder artifact                 |
+| Action                     | Inputs                                                                          | Outputs / effect                                                    |
+| -------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `paths-filter`             | `event-name`, `base-branch`, `extra-filter`                                     | `pass` — whether the `image` filter or an extra filter matched      |
+| `docker/build-push-action` | context, file, image, arch, registry creds, build args, `push`, `export-digest` | builds one arch and pushes it by digest when `push`; emits `digest` |
+| `docker/metadata-action`   | images, arch, prefix                                                            | tags, labels, version JSON                                          |
+| `docker/multiarch-merge`   | image, future tag, registry creds                                               | merges per-arch digests; emits `image`, `digest`, `image_pinned`    |
+| `setup-python-venv`        | `python-version`                                                                | installs uv and syncs the project; the environment is not activated |
+| `log-debug-stats`          | `github-token`                                                                  | prints API rate/debug statistics for the job                        |
+| `ai-review-status`         | `pr-number`, `github-token`, `trusted-bot-actors`                               | `found`, `reason` — whether an accepted AI review is present        |
+| `run-claude-responder`     | tokens, prompt, comment metadata, PR number, artifact name                      | runs Claude Code and uploads the responder artifact                 |
 
 ## How it works
 
@@ -53,6 +53,9 @@ evaluates the acceptance policy in
 
 - The `image` filter list is the definition of "changes that make the published
   image stale"; the digest pin file is deliberately not in it.
+- `docker/build-push-action`'s `push` and `export-digest` travel together: a
+  build that pushes nothing has no digest for `docker/multiarch-merge` to
+  assemble, and the merge has to be skipped rather than fed an empty set.
 - Callers invoke Python tools through `uv run`; `setup-python-venv` never
   activates the environment.
 - `run-claude-responder` uploads the execution file and checks it for a usage
@@ -74,4 +77,5 @@ Verified anchor points (line numbers as of 2026-09-11):
   settings layer
 - `.github/actions/run-claude-responder/action.yml:137,145` — `always()` on the
   artifact upload and the usage-limit check
+- `.github/actions/docker/build-push-action/action.yml:32` — the `push` input
 - `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs

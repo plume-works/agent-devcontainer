@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:d80eac0bd3d78e501981e55877b7e44dd12bfa300e3c1e4e8d1338237f80c8fd
+source_digest: sha256:b08d488fb956e38615af0863080e3da55acabf4627fd84ef930976ff8601fb71
 verified:
   by: claude-code/opus-5
-  at: 2026-09-12T05:31:43Z
-stale_after: 2026-12-11
+  at: 2026-09-16T07:19:34Z
+stale_after: 2026-12-15
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T05:31:43Z
+  at: 2026-09-16T07:19:34Z
 sources:
 - id: code
   resource: .github
@@ -35,7 +35,8 @@ before the push.
    `.github/workflows/reformat.yml:180,274,409`, in
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched:
-   [the image build](flow-image-build.md)
+   [the image build](flow-image-build.md), which publishes only when the token
+   can push — `.github/workflows/ci.yml:59`
 4. `validate-agent-files.yml`, when any source declared by the codebase map or
    the map itself changed: the validator, agentdev, and self-improve pytest
    suites,
@@ -59,7 +60,8 @@ before the push.
 
 - A formatting commit in step 2 means this run's downstream jobs are skipped;
   the pushed commit's run is the one that counts.
-- A fork PR never gets step 6; the review gate is then a human's.
+- A fork PR never gets step 6; the review gate is then a human's. Its step 3
+  builds both images and publishes neither.
 - Step 1 and step 2 must agree on tool versions; `renovate.json` disables
   Renovate for the Super-Linter family so
   `/agentdev:sync-super-linter-tool-versions` moves them together.

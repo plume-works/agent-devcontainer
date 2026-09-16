@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:e4c300615768bac941171c509efbbfab14abe52f16774d479b30d1fee4bd8f30
+source_digest: sha256:75efd8db09f168b55f738c344f32827e2823be7703a82c0f211ed71a6a28c9a2
 verified:
   by: claude-code/opus-5
-  at: 2026-09-12T05:31:43Z
-stale_after: 2026-12-11
+  at: 2026-09-16T07:19:34Z
+stale_after: 2026-12-15
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T05:31:43Z
+  at: 2026-09-16T07:19:34Z
 sources:
 - id: code
   resource: .github/workflows
@@ -22,15 +22,15 @@ one manual job.
 
 ## Public surface
 
-| Workflow                      | Trigger                                         | Jobs                                                                                                       |
-| ----------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `primary-checks.yml`          | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                             |
-| `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                               |
-| `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`   |
-| `validate-agent-files.yml`    | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
-| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
-| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
-| `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                                 |
+| Workflow                      | Trigger                                         | Jobs                                                                                                                                 |
+| ----------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `primary-checks.yml`          | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                                                       |
+| `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                                                         |
+| `ci.yml`                      | `workflow_call`                                 | `paths-filter` (paths and publish verdict) → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished` |
+| `validate-agent-files.yml`    | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check                           |
+| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                                                 |
+| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                      |
+| `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                                                           |
 
 ## How it works
 
@@ -42,14 +42,16 @@ the next run. `ci` builds `ubuntu-ansible` then `agent-desktop` per
 architecture, reusing the published `edge` image as a base unless the run is on
 `main`, a tag, a merge group, or the commit says `[ci:clean_build]`; merges the
 per-arch digests into one manifest; then patches the digest pin and smoke-tests
-the devcontainer with `devcontainers/ci`. The responder only runs for
-`plume-works` and never for a fork PR; its preflight decides between a review
-and a task, and `ai-review-present` reports whether an accepted review exists.
-Knowledge validation always checks this graph when its outer filter passes and
-runs the standalone consumer-seed suite only when its inner seed filter passes.
-Agent-file validation's filter covers the union of codebase map `source` paths,
-then its final step verifies every recorded digest. The full traces are
-[the image build flow](../flow-image-build.md) and
+the devcontainer with `devcontainers/ci`. Its `paths-filter` also publishes a
+`publish` verdict, false for a pull request from a fork, which turns the pushes
+off, skips the merge, and leaves the smoke test on the committed pin. The
+responder only runs for `plume-works` and never for a fork PR; its preflight
+decides between a review and a task, and `ai-review-present` reports whether an
+accepted review exists. Knowledge validation always checks this graph when its
+outer filter passes and runs the standalone consumer-seed suite only when its
+inner seed filter passes. Agent-file validation's filter covers the union of
+codebase map `source` paths, then its final step verifies every recorded digest.
+The full traces are [the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
 ## Depends on
@@ -65,6 +67,9 @@ then its final step verifies every recorded digest. The full traces are
   what it uses.
 - Runners are chosen by the `AMD_ONLY`/`ARM_ONLY` repository variables so a fork
   without ARM runners can still build.
+- A fork's `GITHUB_TOKEN` is read-only whatever `permissions` declares, so every
+  registry write in `ci.yml` hangs off the `publish` verdict; a job that pushes
+  unconditionally turns every fork pull request red.
 - A `[ci:skip-ai-review]` marker alone on a line of the PR body suppresses the
   review job only; `ai-review-present` never reads it, so the gate cannot be
   waived from an author-controlled body, and an explicit `@claude review`
@@ -77,9 +82,10 @@ Verified anchor points (line numbers as of 2026-09-12):
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
   `commit-format-changes`, `gate`
-- `.github/workflows/ci.yml:62,97,165,204` — build matrix, base-image selection,
-  merge, devcontainer smoke
-- `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
+- `.github/workflows/ci.yml:59` — the `publish` verdict
+- `.github/workflows/ci.yml:90,125,211,252` — build matrix, base-image
+  selection, merge, devcontainer smoke
+- `.github/workflows/ci.yml:284` — patch the digest pin for the smoke test
 - `.github/workflows/validate-agent-files.yml:38-88` — map-source filter and the
   four check steps
 - `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
