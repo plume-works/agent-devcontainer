@@ -3,7 +3,7 @@ type: architecture
 description: Why the image build is not made fork-compatible by publishing nothing — it is the first stage of CI, not a leaf, and every stage after it consumes the image it published.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-16T16:25:13Z
+  at: 2026-09-17T00:00:00Z
 sources:
 - resource: .github/workflows/ci.yml
 - resource: https://github.com/plume-works/coder-ide-baseline/pull/3
@@ -30,13 +30,14 @@ fork run would go green having proved that two Dockerfiles compile, while the
 work the pipeline exists to do never ran. Making that honest means gating the
 whole downstream pipeline on the same verdict, here and in every consumer.
 
-## Rejected: gate every registry write on a publish verdict
+## Rejected: gate the pushes and everything downstream on a publish verdict
 
 The shape considered: one `publish` verdict, false when the head repository
-differs from the base, gating both per-architecture pushes, the digest
-artifacts, the manifest merge, and the digest-pin patch;
-`docker/build-push-action` gaining a `push` input; jobs downstream of the
-now-skippable merge carrying explicit `always()` conditions.
+differs from the base, gating the registry writes — the per-architecture pushes
+and the manifest merge — plus the digest artifacts they feed and the digest-pin
+patch in the devcontainer smoke test; `docker/build-push-action` gaining a
+`push` input; jobs downstream of the now-skippable merge carrying explicit
+`always()` conditions.
 
 It fails on what the surviving green check would mean:
 
