@@ -215,7 +215,7 @@ latest release.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] Record this model mapping, unversioned so each resolves to the latest
+- [x] Record this model mapping, unversioned so each resolves to the latest
   release:
 
   ``` markdown
@@ -225,7 +225,14 @@ latest release.
   | `light` | `claude-sonnet-5` | `gpt-5.6-terra` |
   ```
 
-- [ ] Record this effort matrix, and state its one-line rule — at full effort
+  - **Evidence:** commit "Define the review effort tiers in the skill"; the
+    table sits under a new `## Effort Tiers` section at
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:95`, introduced as
+    unversioned names that each resolve to that model's latest release. The
+    `light` Claude name matches the identifier the workflow passes for the light
+    tier.
+
+- [x] Record this effort matrix, and state its one-line rule — at full effort
   everything is `large` except compliance; at light effort everything is
   `light`:
 
@@ -240,17 +247,48 @@ latest release.
   | validation    | one batch, light | per-candidate, large |
   ```
 
-- [ ] Replace the prose model advice at Step 4 with a model argument on every
+  - **Evidence:** commit "Define the review effort tiers in the skill"; the
+    matrix is at `.agents/plugins/agentdev/skills/pr-review/SKILL.md:102` and
+    the one-line rule directly under it at `:111`, which also records that the
+    orchestrator row is set by the workflow's `--model` rather than from the
+    skill. Step 4's pass list now derives its counts from the matrix instead of
+    a fixed `2x`/`2x`.
+
+- [x] Replace the prose model advice at Step 4 with a model argument on every
   dispatch at Steps 4 and 6, so the size named in the matrix is the size that
   runs.
 
-- [ ] Define what the skill does with a tier it was handed versus none: obey an
+  - **Evidence:** commit "Define the review effort tiers in the skill"; Step 4's
+    Claude Code and Codex dispatch bullets now carry the slot's model instead of
+    "use a fast model ... and the strongest available model", with the reason
+    stated at `.agents/plugins/agentdev/skills/pr-review/SKILL.md:131` — a
+    dispatch without the argument runs at the session model whatever the matrix
+    says. Step 6 names the validation slot's model at `:136`. The two Review
+    Focus lines that carried the same unenforced advice, `:39` and `:46`, now
+    defer to the matrix, so no prose model advice competes with it.
+
+- [x] Define what the skill does with a tier it was handed versus none: obey an
   explicit tier exactly, and otherwise judge pass count, per-slot model, and the
   durable-knowledge pass's model and depth from the diff.
 
-- [ ] Keep the metadata gate and the durable-knowledge pass running at both
+  - **Evidence:** commit "Define the review effort tiers in the skill";
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:89` states that a
+    requested tier is absolute — no escalation, no refusal, no failing the
+    review over the tier's fit for the diff — and `:91` gives the no-tier path
+    the three judgments by name. The section also names the prompt line the
+    workflow sends, `REQUESTED REVIEW EFFORT`, so the skill reads the tier from
+    the channel preflight writes.
+
+- [x] Keep the metadata gate and the durable-knowledge pass running at both
   tiers, and keep the Step 1 mechanical fast-approve and its docs-only exclusion
   as they are.
+
+  - **Evidence:** commit "Define the review effort tiers in the skill";
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:113` states that both
+    checks run at `light` exactly as at `full` and that the tier does not touch
+    the Step 1 fast-approve or its docs-only exclusion. Step 3's text is
+    unchanged, Step 1's is unchanged, and the durable-knowledge bullet in Step 4
+    keeps its `1x` at both tiers — the matrix varies only its model.
 
 A per-dispatch model argument is the highest-priority term in Claude Code's
 [subagent model order](https://code.claude.com/docs/en/sub-agents), above a
