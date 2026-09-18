@@ -30,6 +30,12 @@ inputs:
     description: Pull request number for review update calls.
     required: false
     default: ''
+  model:
+    description: >-
+      Model for the responder session; empty keeps the model the merged
+      settings pin.
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -119,6 +125,21 @@ runs:
           echo 'CLAUDE_SETTINGS_EOF'
         } >>"$GITHUB_OUTPUT"
 
+    # claude_args is one string that several inputs contribute to; each flag
+    # appends to it so another can be added without re-deriving the rest.
+    - name: Compose Claude arguments
+      id: claude_args
+      shell: bash
+      env:
+        ALLOWED_TOOLS: ${{ env.CLAUDE_PR_REVIEW_ARGS }}
+        MODEL: ${{ inputs.model }}
+      run: |
+        args="--allowedTools '${ALLOWED_TOOLS}'"
+        if [[ -n "${MODEL}" ]]; then
+          args="${args} --model '${MODEL}'"
+        fi
+        printf 'args=%s\n' "${args}" >>"${GITHUB_OUTPUT}"
+
     # For dispatched reviews the requester was authorized by preflight.
     - name: Claude Responder
       id: claude_responder
@@ -128,7 +149,7 @@ runs:
         claude_code_oauth_token: ${{ inputs.claude-code-oauth-token }}
         github_token: ${{ inputs.github_token }}
         settings: ${{ steps.claude_settings.outputs.json }}
-        claude_args: --allowedTools '${{ env.CLAUDE_PR_REVIEW_ARGS }}'
+        claude_args: ${{ steps.claude_args.outputs.args }}
         assignee_trigger: 'claude-bot'
         show_full_output: true
         prompt: ${{ inputs.prompt }}

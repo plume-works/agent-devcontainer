@@ -172,19 +172,44 @@ latest release.
 **Files:** Modify: `.github/actions/run-claude-responder/action.yml`,
 `.github/workflows/ai-responder.yml`
 
-- [ ] Add an optional model input to the composite action and append `--model`
+- [x] Add an optional model input to the composite action and append `--model`
   to `claude_args` only when it is non-empty, so a run with no override keeps
   the `settings.json` pin.
 
-- [ ] Compose `claude_args` so further flags can be appended independently; it
+  - **Evidence:** commit "Pass an optional responder model through
+    `claude_args`"; the `model` input at
+    `.github/actions/run-claude-responder/action.yml:33` defaults to empty, and
+    the composing step appends `--model` only under `[[ -n "${MODEL}" ]]`. Both
+    branches run against the real `CLAUDE_PR_REVIEW_ARGS` value: with no model
+    the composed string is byte-identical to the literal the action passed
+    before this change, and with `claude-sonnet-5` it gains exactly
+    `--model 'claude-sonnet-5'`.
+
+- [x] Compose `claude_args` so further flags can be appended independently; it
   is a single string that more than one change adds to.
 
-- [ ] Supply this value for the `light` tier, and nothing for `full` or for an
+  - **Evidence:** commit "Pass an optional responder model through
+    `claude_args`"; the value moved out of the `with:` literal into a
+    `Compose Claude arguments` step at
+    `.github/actions/run-claude-responder/action.yml:130`, which builds the
+    string by appending one flag at a time and publishes it as a step output the
+    responder step reads. A further flag is one more append, with no other line
+    to re-derive.
+
+- [x] Supply this value for the `light` tier, and nothing for `full` or for an
   unresolved tier:
 
   ``` text
   claude-sonnet-5
   ```
+
+  - **Evidence:** commit "Pass an optional responder model through
+    `claude_args`"; the review job supplies `model:` from
+    `review_effort == 'light' && 'claude-sonnet-5' || ''` at
+    `.github/workflows/ai-responder.yml:458`, so only the light tier resolves an
+    identifier — `full` and an unresolved tier both yield the empty string and
+    pass no `--model`. The free-form task job supplies no `model:` at all and
+    keeps the input default.
 
 ### Task 3: Define the two tiers and harden model selection in the skill
 
