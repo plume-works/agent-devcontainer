@@ -88,3 +88,16 @@ skipped job satisfies a required check, so a marker the gate honored would be a
 self-service waiver of the mandatory review. A marked PR without an accepted
 review keeps a red gate, mergeable only by ruleset bypass. The marker does not
 disable free-form `@claude` tasks.
+
+**A review can be asked to run cheaply.** An `@claude review light` or
+`@claude review full` comment, or a `[ci:review-effort=light]` /
+`[ci:review-effort=full]` marker alone on a line of the pull request body,
+requests one of two effort tiers; the comment outranks the marker, and the
+marker is matched as a whole line for the same reason the skip marker is.
+Preflight resolves the tier and the responder sizes the review session from it.
+A requested tier is obeyed exactly — the review never escalates it, refuses, or
+fails over the diff it finds — and with no request the review sizes itself and
+keeps the session's configured model. An effort tier changes what a review
+costs, never whether one is required: both tiers run the metadata check and the
+durable-knowledge pass, and neither waives `ai-review-present`. The reasoning is
+recorded in [PR review effort tiers](../architecture/pr-review-effort-tiers.md).

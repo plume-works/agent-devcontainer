@@ -333,14 +333,43 @@ one.
 Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] Record the tier boundary: what each tier fixes, why an explicit override
+- [x] Record the tier boundary: what each tier fixes, why an explicit override
   is absolute, why the no-override path is judgment rather than configuration,
   and why preflight rather than the skill resolves the tier.
-- [ ] Carry every alternative under `## Approach` above into the architecture
+  - **Evidence:** commit "Record the PR review effort tier decision";
+    `docs/knowledge/data/architecture/pr-review-effort-tiers.md` gives each one
+    its own section — what the two tiers fix at `:18`, why a requested tier is
+    absolute at `:35`, why the no-request path is judgment rather than a
+    configured default at `:46`, and why preflight owns resolution at `:58`.
+    `:74` records the subagent model order that makes a per-dispatch argument
+    the term in force. The document is linked from the hub at
+    `docs/knowledge/data/architecture.md:52`, and
+    `iwe find --included-by data/architecture` lists it.
+- [x] Carry every alternative under `## Approach` above into the architecture
   document with its reason intact, so the reasoning outlives this plan.
-- [ ] Record that compliance runs on the light model at both tiers.
-- [ ] Extend the feature description with the effort markers and their
+  - **Evidence:** commit "Record the PR review effort tier decision";
+    `docs/knowledge/data/architecture/pr-review-effort-tiers.md:93` carries all
+    five — whole-tier auto-escalation, the documentation-line threshold,
+    dropping the metadata gate and durable-knowledge pass at light effort,
+    batching full-effort validation, and the model alias — each with the reason
+    this plan recorded for rejecting it. The sixth, resolving the tier inside
+    the skill, is listed there and its reason stated in full under "Why
+    preflight resolves the tier" rather than duplicated.
+- [x] Record that compliance runs on the light model at both tiers.
+  - **Evidence:** commit "Record the PR review effort tier decision";
+    `docs/knowledge/data/architecture/pr-review-effort-tiers.md:85` records
+    compliance as the one slot that does not move between tiers, and why —
+    quoting a rule and checking a diff against it is instruction-following, and
+    the review's own high-signal bar already requires the exact rule text.
+- [x] Extend the feature description with the effort markers and their
   precedence, beside the existing skip-marker paragraph.
+  - **Evidence:** commit "Record the PR review effort tier decision";
+    `docs/knowledge/data/features/ai-responder-workflows.md:92` adds the effort
+    paragraph directly after the skip-marker one, naming both channels, the
+    comment-outranks-marker precedence, the own-line matching, that a requested
+    tier is obeyed exactly, and that neither tier waives `ai-review-present` or
+    drops the metadata check or durable-knowledge pass. It links the
+    architecture document for the reasoning.
 
 ### Task 6: Prove the tiers on real pull requests
 
