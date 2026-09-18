@@ -302,13 +302,30 @@ one.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] At light effort, validate all surviving candidates in one batched dispatch
+- [x] At light effort, validate all surviving candidates in one batched dispatch
   instead of one per candidate, keeping the existing rule that a validator is
   never told which pass raised a finding.
-- [ ] Leave full-effort validation one dispatch per candidate, unchanged.
-- [ ] Reconcile the "Waiting on parallel passes" budget with a batched
+  - **Evidence:** commit "Batch light-effort validation into one dispatch";
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` sends every
+    surviving candidate in one dispatch returning a confirm-or-drop verdict per
+    candidate. The "never told which pass raised a finding" rule moved up to
+    Step 6's lead sentence at `:136`, stated for both tiers, so batching cannot
+    drop it along with the per-candidate isolation.
+- [x] Leave full-effort validation one dispatch per candidate, unchanged.
+  - **Evidence:** commit "Batch light-effort validation into one dispatch";
+    `.agents/plugins/agentdev/skills/pr-review/SKILL.md:137` keeps one dispatch
+    per candidate at full effort, each seeing only its own candidate, and says
+    why the isolation is not traded away at that tier. Its 5-minute ceiling and
+    drop-on-timeout behavior are the same ones the step carried before.
+- [x] Reconcile the "Waiting on parallel passes" budget with a batched
   validation call, whose ceiling cannot be the current per-candidate five
   minutes.
+  - **Evidence:** commit "Batch light-effort validation into one dispatch"; the
+    budget at `.agents/plugins/agentdev/skills/pr-review/SKILL.md:168` now gives
+    the light-effort batch the 16-minute Step-4 ceiling and keeps 5 minutes for
+    a full-effort per-candidate validation. Step 6 no longer restates a cap of
+    its own — it defers to that one budget line, and names the timeout
+    consequence for a batch: every candidate in it is dropped.
 
 ### Task 5: Record the decision and its rejected alternatives
 
