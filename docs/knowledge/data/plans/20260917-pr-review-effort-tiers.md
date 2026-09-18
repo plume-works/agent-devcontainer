@@ -106,7 +106,7 @@ latest release.
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] Recognize this marker in the pull request body, matched only as a whole
+- [x] Recognize this marker in the pull request body, matched only as a whole
   line, using the same own-line anchoring as the existing `[ci:skip-ai-review]`
   read so that a body discussing the marker stays prose:
 
@@ -115,7 +115,15 @@ latest release.
   [ci:review-effort=full]
   ```
 
-- [ ] Recognize this comment trigger, and keep it classified as a review request
+  - **Evidence:** commit "Resolve the review effort tier in preflight"; the
+    marker regex at `.github/workflows/ai-responder.yml:194` carries the same
+    `^[^\S\r\n]*...[^\S\r\n]*\r?$/m` anchoring as the skip-marker read two lines
+    above it. Eight body cases checked under `node`: a bare marker, one between
+    other lines, one padded with spaces, and a CRLF body all resolve a tier; a
+    marker in a code span, one mid-sentence, an unknown label (`=huge`), and a
+    body without one all resolve empty.
+
+- [x] Recognize this comment trigger, and keep it classified as a review request
   rather than a free-form task where the bridge decides between them:
 
   ``` text
@@ -123,16 +131,41 @@ latest release.
   @claude review full
   ```
 
-- [ ] Resolve one tier by this precedence, emitting an empty value when no
+  - **Evidence:** commit "Resolve the review effort tier in preflight"; the
+    label is extracted at `.github/workflows/ai-responder.yml:403`, beside the
+    `task:` line that empties a `@claude review` body — so a labelled mention
+    still dispatches as a review, not a free-form task. Six comment cases
+    checked under `node`: `@claude review light` and `@claude review full` with
+    trailing prose resolve their label; a bare `@claude review`,
+    `@claude review lightly`, a free-form `@claude review the auth changes`, and
+    `@claude fix the tests` all resolve empty.
+
+- [x] Resolve one tier by this precedence, emitting an empty value when no
   override is present:
 
   ``` text
   @claude review <label>  >  [ci:review-effort=<label>]  >  orchestrator judgment
   ```
 
-- [ ] Expose the resolved tier as a preflight output and carry it in the review
+  - **Evidence:** commit "Resolve the review effort tier in preflight";
+    `.github/workflows/ai-responder.yml:285-291` validates each channel through
+    `asEffort`, which admits only `light` and `full`, then ORs the dispatch
+    input — the channel a bridged `@claude review <label>` arrives on — ahead of
+    the body marker. An unrecognized label on either channel falls through to
+    the empty value rather than resolving a tier.
+
+- [x] Expose the resolved tier as a preflight output and carry it in the review
   prompt, leaving `wantsReview`, the skip marker, fork, authorization, and gate
   logic unchanged.
+
+  - **Evidence:** commit "Resolve the review effort tier in preflight"; the
+    `review_effort` preflight output is declared at
+    `.github/workflows/ai-responder.yml:134`, and the review branch of
+    `promptFor` appends a `REQUESTED REVIEW EFFORT:` line at `:346` only when a
+    tier resolved, so the no-override prompt is byte-identical to today's. The
+    diff adds to `wantsReview`, the skip-marker read, the fork and authorization
+    steps, and `ai-review-present` not at all — every existing line in them is
+    untouched. `actionlint` and `zizmor` pass on the file.
 
 ### Task 2: Pass the orchestrator model through the responder action
 
