@@ -381,9 +381,21 @@ Modify: `docs/knowledge/data/architecture.md`,
 - [ ] Confirm an explicit override is obeyed where the orchestrator would have
   chosen the other tier, and that an unresolved tier passes no `--model` and
   leaves the session on the `settings.json` pin.
-- [ ] Confirm from run evidence that a passed `--model` actually overrides the
+- [x] Confirm from run evidence that a passed `--model` actually overrides the
   merged `settings` model, since the tier resolving in preflight rather than in
   the skill depends on it.
+  - **Evidence:** commit "Confirm the model precedence the effort tiers rest
+    on"; measured against the merged settings the action builds —
+    `jq -cs '.[0] * .[1]' .claude/settings.json .claude/settings.local.json`,
+    whose `.model` is `opus` — on Claude Code 2.1.272, the version the responder
+    image carries. `claude --settings <merged> -p … --output-format json`
+    reports `modelUsage` keys `claude-opus-5` and `claude-haiku-4-5`; adding
+    `--model claude-sonnet-5` to the same command reports `claude-sonnet-5` in
+    place of `claude-opus-5`. The flag wins, and with no flag the session holds
+    the pin. The composed `claude_args` string was also shell-parsed to confirm
+    it yields `--allowedTools <list> --model claude-sonnet-5` as four discrete
+    argv entries. Measured against the CLI directly rather than through
+    `anthropics/claude-code-action@v1`, which supplies the same two inputs.
 - [ ] Confirm `ai-review-present` behaves identically at both tiers.
 
 ## Spec changes
