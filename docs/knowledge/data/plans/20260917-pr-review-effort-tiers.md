@@ -194,6 +194,14 @@ latest release.
   tiers, and keep the Step 1 mechanical fast-approve and its docs-only exclusion
   as they are.
 
+A per-dispatch model argument is the highest-priority term in Claude Code's
+[subagent model order](https://code.claude.com/docs/en/sub-agents), above a
+definition's frontmatter, the `CLAUDE_CODE_SUBAGENT_MODEL` environment variable,
+and the main conversation's model — which is why a pass with no such argument
+runs at the session model today. The environment variable is available as a
+per-tier floor for dispatches that carry no argument; this plan does not set
+one.
+
 ### Task 4: Batch validation at the light tier
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
@@ -315,10 +323,11 @@ check or the durable-knowledge pass, which run at both tiers.
 ## Out of scope
 
 - Letting a pull request merge without an AI review when out of quota. The
-  `ai-review-present` gate stays as it is, and an author-controlled waiver was
-  already rejected in
-  [AI review gate was self-waivable from the PR body](../bugs/ai-review-gate-self-waivable.md);
-  reopening it needs its own issue.
+  `ai-review-present` gate stays as it is: merging an unreviewed pull request is
+  an administrator override through ruleset bypass, which is a permission GitHub
+  audits. An author-controlled waiver was rejected in
+  [AI review gate was self-waivable from the PR body](../bugs/ai-review-gate-self-waivable.md)
+  and is not reopened here.
 - Changing `[ci:skip-ai-review]`, the Step 1 mechanical fast-approve, or the
   docs-only exclusion from it.
 - Batching or otherwise reducing full-effort validation.
