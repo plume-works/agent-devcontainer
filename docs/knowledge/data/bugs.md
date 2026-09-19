@@ -14,6 +14,8 @@ Fix. No `status` means open; `status: done` means fixed, `status: cancelled`
 means closed without a fix. Bugs stay listed here either way — the status chip
 tells them apart.*
 
+[The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
+
 [Validator warning visibility](bugs/validator-warning-visibility.md)
 
 [Missing map skill](bugs/missing-map-skill.md)
