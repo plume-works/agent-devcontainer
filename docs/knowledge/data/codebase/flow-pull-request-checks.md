@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:b077bd68117099324a9d6d504275c9062dc74bfe881b87f14a02461993b79ee4
+source_digest: sha256:6388cdd2bcec7908c3c1e2d11b9d7a3f8443b69e6c6dc6c0cc179f1ad6a734b5
 verified:
   by: claude-code/opus-5
-  at: 2026-09-16T19:28:42Z
-stale_after: 2026-12-15
+  at: 2026-09-19T20:15:21Z
+stale_after: 2026-12-18
 generated:
   by: claude-code/opus-5
-  at: 2026-09-16T19:28:42Z
+  at: 2026-09-19T20:15:21Z
 sources:
 - id: code
   resource: .github
@@ -49,10 +49,11 @@ before the push.
    `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in
    [the knowledge workspace](docs/knowledge.md)
 6. `ai-responder.yml`: `preflight` admits only `plume-works` events from
-   non-fork, non-bot PRs or `@claude` mentions; `claude-respond` runs the review
-   or task through `anthropics/claude-code-action`; `ai-review-present` reports
-   whether an accepted review exists —
-   `.github/workflows/ai-responder.yml:82,387,472`
+   non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort
+   tier; `claude-respond` runs the review or task through
+   `anthropics/claude-code-action`, sizing the session from that tier;
+   `ai-review-present` reports whether an accepted review exists —
+   `.github/workflows/ai-responder.yml:89,416,504`
 7. Merge: `merge_group` runs steps 2–6 again with a clean image build.
 
 ## Failure modes
@@ -60,6 +61,9 @@ before the push.
 - A formatting commit in step 2 means this run's downstream jobs are skipped;
   the pushed commit's run is the one that counts.
 - A fork PR never gets step 6; the review gate is then a human's.
+- Step 6's effort tier changes what the review costs, never whether it runs:
+  `ai-review-present` does not read it, and both tiers keep the metadata check
+  and the durable-knowledge pass.
 - Step 1 and step 2 must agree on tool versions; `renovate.json` disables
   Renovate for the Super-Linter family so
   `/agentdev:sync-super-linter-tool-versions` moves them together.

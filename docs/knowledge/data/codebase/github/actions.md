@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:93eefc7492060b36918b6fa948f68c8af149e9e8228843315a22a0f99d99931d
+source_digest: sha256:8e024cf6c8662679edbbaa7e914aef25a5be92f37cb76f142099f5f9aaeaf4e3
 verified:
   by: claude-code/opus-5
-  at: 2026-09-16T19:28:42Z
-stale_after: 2026-12-15
+  at: 2026-09-19T20:15:21Z
+stale_after: 2026-12-18
 generated:
   by: claude-code/opus-5
-  at: 2026-09-16T19:28:42Z
+  at: 2026-09-19T20:15:21Z
 sources:
 - id: code
   resource: .github/actions
@@ -30,7 +30,7 @@ Local `using: composite` actions, referenced as `./.github/actions/<name>`.
 | `setup-python-venv`        | `python-version`                                                        | installs uv and syncs the project; the environment is not activated |
 | `log-debug-stats`          | `github-token`                                                          | prints API rate/debug statistics for the job                        |
 | `ai-review-status`         | `pr-number`, `github-token`, `trusted-bot-actors`                       | `found`, `reason` — whether an accepted AI review is present        |
-| `run-claude-responder`     | tokens, prompt, comment metadata, PR number, artifact name              | runs Claude Code and uploads the responder artifact                 |
+| `run-claude-responder`     | tokens, prompt, comment metadata, PR number, artifact name, `model`     | runs Claude Code and uploads the responder artifact                 |
 
 ## How it works
 
@@ -41,8 +41,11 @@ Local `using: composite` actions, referenced as `./.github/actions/<name>`.
 `dorny/paths-filter` against the PR or a base branch. The Docker trio wraps
 `docker/build-push-action`, `docker/metadata-action`, and a manifest merge so
 `ci.yml` stays declarative. `run-claude-responder` holds the Claude Code
-invocation, artifact upload, and the usage-limit check. `ai-review-status`
-evaluates the acceptance policy in
+invocation, artifact upload, and the usage-limit check. It composes
+`claude_args` in its own step rather than in the `with:` block, appending
+`--model` only when the optional `model` input is non-empty, so a caller that
+supplies none leaves the session on the model the merged settings pin.
+`ai-review-status` evaluates the acceptance policy in
 [AI review gate](../../spec/ai-review-gate.md) once, without waiting.
 
 ## Depends on
@@ -64,17 +67,21 @@ evaluates the acceptance policy in
 - The settings it hands Claude Code are the tracked `.claude/settings.json`
   merged with `.claude/settings.local.json` only where that gitignored layer
   exists; a repository publishing no marketplace of its own never has one.
+- A `--model` in `claude_args` outranks the model those merged settings pin,
+  which is what lets a caller size the session it is starting.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-11):
+Verified anchor points (line numbers as of 2026-09-19):
 
 - `.github/actions/paths-filter/action.yml:30-43` — the `image` filter list
 - `.github/actions/paths-filter/action.yml:58-71` — PR vs base-branch modes
 - `.github/actions/ai-review-status/action.yml:1-27` — inputs and outputs
-- `.github/actions/run-claude-responder/action.yml:5-33` — inputs
-- `.github/actions/run-claude-responder/action.yml:106-115` — the optional local
+- `.github/actions/run-claude-responder/action.yml:5-38` — inputs
+- `.github/actions/run-claude-responder/action.yml:112-120` — the optional local
   settings layer
-- `.github/actions/run-claude-responder/action.yml:137,145` — `always()` on the
+- `.github/actions/run-claude-responder/action.yml:130` —
+  `Compose Claude arguments`, where `--model` is appended
+- `.github/actions/run-claude-responder/action.yml:158,166` — `always()` on the
   artifact upload and the usage-limit check
 - `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs
