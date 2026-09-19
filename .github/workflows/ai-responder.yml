@@ -278,10 +278,9 @@ jobs:
               return payload.action === 'synchronize' && process.env.REVIEW_EXISTS !== 'true';
             })();
             core.setOutput('wantsReview', wantsReview);
-            // Tier precedence: an `@claude review <label>` comment, which
-            // reaches a dispatched run as the review_effort input, outranks the
-            // body marker. Empty means the orchestrator sizes the review.
-            // See spec/ai-review-gate.
+            // Tier precedence (see spec/ai-review-gate): an `@claude review
+            // <label>` comment reaches a dispatched run as review_effort and
+            // outranks the body marker. Empty means the orchestrator sizes it.
             const asEffort = (value) =>
               ['light', 'full'].includes((value ?? '').trim().toLowerCase())
                 ? value.trim().toLowerCase()

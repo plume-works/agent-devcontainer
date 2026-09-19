@@ -24,6 +24,8 @@ write a plan and link the plan instead.*
 
 [Simplify the pr-* skills for the single review workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
+[Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
+
 ## Low
 
 [Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
