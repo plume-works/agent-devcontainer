@@ -130,8 +130,8 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **The lens follows the file.** The correctness passes scan code files, the durable-knowledge pass scans docs/skills files, and each ignores files outside its lens. On a mixed docs+code diff both lenses run against their own file subsets in the same review; on a code-only diff the durable-knowledge pass does not run, leaving four passes at full effort and two at light.
    - **Pass each dispatch the model its slot gets in the effort matrix.** A dispatch that carries no model argument runs at the session's own model, whatever the matrix says — the argument is what puts the matrix in force.
    - Codex: use available multi-agent/sub-agent tools when present, giving each the Codex model for its slot; otherwise perform the passes sequentially in this session, restarting the review lens from the diff for each pass.
-   - Claude Code: issue the `Agent` tool calls in a single message (`subagent_type: general-purpose`), each with the `model` for its slot.
-   - **Block until every pass reports back or hard-times-out — see "Waiting on parallel passes" below.** Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
+   - Claude Code: issue the `Agent` tool calls in a single message (`subagent_type: general-purpose`), each with the `model` for its slot. The `Agent` tool says subagents run in the background and notify you on completion. **That is true only where there is a next turn to be notified in.** This skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting — no notification ever arrives, and the review is lost with the session.
+   - **Block until every pass reports back or hard-times-out — see "Waiting on parallel passes" below.** Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below). This is the single most common way this skill fails: three consecutive responder runs ended on "waiting for the background passes" and published nothing, each reporting success. Writing that sentence _is_ the failure, not a status update before the real work.
 5. **Merge and deduplicate.** Collect the candidate findings from all passes that completed (see fallback below if any didn't). Collapse candidates that name the same file/line and describe the same underlying issue into one, keeping the **blocking** tier if either collapsed candidate was blocking.
 6. **Validate the surviving candidates, at the model the effort matrix gives the validation slot.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Preserve each surviving candidate's severity tier from Step 5 unchanged — validation confirms or drops a finding, it never changes its tier. At either tier, a validator sees the diff and the PR description and is never told which pass raised a finding.
    - **Full effort: one dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones, so it is not traded away at this tier.
@@ -159,6 +159,13 @@ passes sequentially.
 
 **Self-check gate:** before emitting text or ending a turn, make a blocking call
 for every dispatched task ID that has not returned.
+
+Text announcing that you are waiting is not waiting. If the next thing you were
+about to produce is a sentence about outstanding passes, replace it with the
+blocking call itself — under the responder action the run ends with your turn,
+and `bugs/review-orchestrator-ends-turn-while-passes-run` records what that
+costs. The responder now fails a review job that publishes nothing, so ending
+early turns a silent miss into a red required check rather than a green one.
 
 Concretely:
 

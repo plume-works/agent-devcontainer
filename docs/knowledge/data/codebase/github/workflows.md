@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:0667fdefe10b00184656adad8c03654fff30469f2db102d9cfe3c901204a7b37
+source_digest: sha256:5544c9a788f276bad82738e9a0d385a40514b26c05e6ee3adb70c2f0ba11fe98
 verified:
   by: claude-code/opus-5
-  at: 2026-09-19T20:15:21Z
+  at: 2026-09-19T21:11:40Z
 stale_after: 2026-12-18
 generated:
   by: claude-code/opus-5
-  at: 2026-09-19T20:15:21Z
+  at: 2026-09-19T21:11:40Z
 sources:
 - id: code
   resource: .github/workflows

@@ -30,6 +30,12 @@ inputs:
     description: Pull request number for review update calls.
     required: false
     default: ''
+  require-review:
+    description: >-
+      Fail the job unless the responder publishes a review on the pull
+      request; set only by the review responder.
+    required: false
+    default: 'false'
   model:
     description: >-
       Model for the responder session; empty keeps the model the merged
@@ -140,6 +146,12 @@ runs:
         fi
         printf 'args=%s\n' "${args}" >>"${GITHUB_OUTPUT}"
 
+    - name: Record the review window start
+      if: inputs.require-review == 'true'
+      id: review_window
+      shell: bash
+      run: printf 'since=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >>"${GITHUB_OUTPUT}"
+
     # For dispatched reviews the requester was authorized by preflight.
     - name: Claude Responder
       id: claude_responder
@@ -161,6 +173,51 @@ runs:
         name: ${{ inputs.artifact-name }}
         path: ${{ steps.claude_responder.outputs.execution_file }}
         retention-days: 7
+
+    # A review job that publishes nothing must not report success: the gate
+    # accepts any earlier review, so the miss is otherwise silent. See
+    # bugs/review-orchestrator-ends-turn-while-passes-run.
+    - name: Verify the responder published a review
+      if: inputs.require-review == 'true'
+      uses: actions/github-script@v9.0.0
+      env:
+        PR_NUMBER: ${{ inputs.pr-number }}
+        SINCE: ${{ steps.review_window.outputs.since }}
+      with:
+        github-token: ${{ inputs.github_token }}
+        script: |
+          const pull_number = Number(process.env.PR_NUMBER);
+          const since = process.env.SINCE;
+          const { data: pr } = await github.rest.pulls.get({
+            ...context.repo,
+            pull_number,
+          });
+          // The skill declines a draft or closed pull request by design.
+          if (pr.state !== 'open' || pr.draft) {
+            core.info(
+              `#${pull_number} is ${pr.draft ? 'a draft' : pr.state}; not requiring a review.`
+            );
+            return;
+          }
+          const reviews = await github.paginate(github.rest.pulls.listReviews, {
+            ...context.repo,
+            pull_number,
+          });
+          const authors = new Set(['claude[bot]', 'github-actions[bot]']);
+          const published = reviews.filter(
+            (review) =>
+              authors.has(review.user?.login) &&
+              review.submitted_at &&
+              review.submitted_at >= since
+          );
+          if (published.length === 0) {
+            core.setFailed(
+              `The responder published no review on #${pull_number} after ${since}. ` +
+              'A review run that publishes nothing is a failed review, not a passed one.'
+            );
+            return;
+          }
+          core.info(`Published ${published.length} review(s) after ${since}.`);
 
     - name: Fail on Claude usage limit
       if: always() && steps.claude_responder.outputs.execution_file != ''
