@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-19
+
+- **Update**: Refreshed the six codebase-map docs whose tracked sources the
+  review effort-tier work moved — the responder workflow, the responder
+  composite action, and the catalog skill tree.
+- **Creation**:
+  [Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
+  filed — no harness in this repository reaches the `github-script` blocks that
+  decide review tier, model, and prompt.
+
 ## 2026-09-12
 
 - **Creation**:
