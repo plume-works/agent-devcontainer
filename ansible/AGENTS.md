@@ -20,7 +20,12 @@ working directory. Running from here silently loses the inventory and roles path
   facts `workspace_folder`, `user_home`, and `dev_user` are the documented exceptions.
 - Roles must be independently runnable. Do not rely on a `register:` from another role
   without tolerating it being undefined.
-- Pin every external download with a version and a per-architecture checksum, as
-  `dev_tools` does for `zizmor`.
+- Pin every external download. A binary or archive fetched directly needs a version
+  and a per-architecture checksum, as `dev_tools` does for `zizmor`. A tool installed
+  through an upstream installer or package registry is pinned by version alone, in the
+  role's `defaults/`, under a `# renovate:` comment naming its datasource — Renovate
+  cannot update a checksum, so a checksum on those pins would leave every automerged
+  bump with a stale one. Track a commit instead of a version only where the upstream's
+  tags are unusable, as `fish_setup` does for `bass`.
 - Read paths that vary per consuming project from `DEV_WORKSPACE_FOLDER` at runtime, with
   `workspace_folder` as the fallback. Never hardcode a workspace path.
