@@ -43,6 +43,43 @@
       "matchManagers": ["pre-commit"],
       "matchDepNames": ["prettier"],
       "enabled": false
+    },
+    {
+      "description": "The provisioning tools the Ansible roles pin (Bun, uv, Yarn, the agent CLIs, fisher, bass). They install into the image from an upstream that verifies its own downloads, so a bump is a version string and nothing else has to move with it \u2014 which is what makes batching and automerge safe here.",
+      "matchManagers": ["custom.regex"],
+      "matchFileNames": ["ansible/roles/**"],
+      "groupName": "ansible role dependency pins",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "uv is pinned twice: the setup-python-venv action input CI runs on, and the uv_setup role the image ships. Grouping them keeps both in one PR so CI never validates against a different uv than the image carries.",
+      "matchDepNames": ["astral-sh/uv"],
+      "groupName": "uv",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^ansible/roles/[^/]+/defaults/main\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\"",
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "description": "Commit pins in the Ansible roles' defaults, for upstreams whose tags are unusable. The comment carries the branch the commit is tracked on.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^ansible/roles/[^/]+/defaults/main\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=git-refs depName=(?<depName>\\S+) currentValue=(?<currentValue>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentDigest>[0-9a-f]{40})\""
+      ],
+      "datasourceTemplate": "git-refs"
     }
   ]
 }

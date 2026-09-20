@@ -1,0 +1,4 @@
+---
+# Yarn is installed as a Bun global, pinned so the image ships a known version.
+# renovate: datasource=npm depName=yarn
+nodejs_yarn_version: "1.22.22"

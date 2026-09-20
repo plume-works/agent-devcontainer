@@ -1,4 +1,21 @@
 ---
+# Agent CLIs installed as Bun globals. Each is pinned so the image ships a known
+# version; `agentic_tools_bun_packages` is what the role installs.
+# renovate: datasource=npm depName=@anthropic-ai/claude-code
+agentic_tools_claude_code_version: "2.1.277"
+# renovate: datasource=npm depName=@openai/codex
+agentic_tools_codex_version: "0.155.1"
+# renovate: datasource=npm depName=@modelcontextprotocol/inspector
+agentic_tools_inspector_version: "2.7.0"
+
+agentic_tools_bun_packages:
+  - package: "@modelcontextprotocol/inspector"
+    version: "{{ agentic_tools_inspector_version }}"
+  - package: "@anthropic-ai/claude-code"
+    version: "{{ agentic_tools_claude_code_version }}"
+  - package: "@openai/codex"
+    version: "{{ agentic_tools_codex_version }}"
+
 # cc-filter: security layer in front of Claude Code hooks.
 # https://github.com/wissem/cc-filter
 agentic_tools_cc_filter_install: false

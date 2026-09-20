@@ -1,0 +1,6 @@
+---
+# uv release to install. astral.sh serves a per-version copy of the installer at
+# /uv/<version>/install.sh, so pinning this pins the installer along with the
+# binary it fetches.
+# renovate: datasource=github-releases depName=astral-sh/uv
+uv_setup_version: "0.12.17"
