@@ -58,11 +58,14 @@ is allowed to contribute to the commit.
 new version beside an unverified or unchanged hash is worse than no pull
 request, because the build failure it causes surfaces far from its cause.
 
-**Digest masks cover the newly automated pins.** Automerged bumps under
-`ansible/roles/` would otherwise mark every map doc sourcing `ansible` stale
-while its prose stays accurate — the defect recorded in
-[Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md). The
-masks are `iwe-map.digest_ignore` entries, resolved as described in
+**Digest masks extend to the checksum pins.** Automerged bumps would otherwise
+mark every map doc sourcing `ansible` stale while its prose stays accurate — the
+defect recorded in
+[Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md).
+`ansible/roles/.agent.metadata.json` already masks the version-only pins under
+`*/defaults/main.yml`; the checksum values need the same treatment, and
+VirtualGL's pin needs a glob that reaches it in `xpra_setup/tasks/main.yml`. The
+format and its resolution are
 [Agent metadata files](../architecture/agent-metadata-files.md).
 
 ## Scope

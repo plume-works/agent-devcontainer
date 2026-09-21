@@ -1,0 +1,13 @@
+{
+  "iwe-map": {
+    "digest_ignore": {
+      "*/defaults/main.yml": [
+        {
+          "pattern": "(# renovate:[^\\n]*\\n[a-z_]+: \")[^\"]*(\")",
+          "replace": "\\1<PIN>\\2",
+          "reason": "Renovate automerges the role dependency pins (.github/renovate.json); the `# renovate:` comment stays unmasked so a datasource change still counts."
+        }
+      ]
+    }
+  }
+}
