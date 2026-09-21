@@ -1,7 +1,35 @@
 {
   "iwe-map": {
     "digest_ignore": {
-      "*/defaults/main.yml": [
+      "agentic_tools/defaults/main.yml": [
+        {
+          "pattern": "(# renovate:[^\\n]*\\n[a-z_]+: \")[^\"]*(\")",
+          "replace": "\\1<PIN>\\2",
+          "reason": "Renovate automerges the role dependency pins (.github/renovate.json); the `# renovate:` comment stays unmasked so a datasource change still counts."
+        }
+      ],
+      "bun_setup/defaults/main.yml": [
+        {
+          "pattern": "(# renovate:[^\\n]*\\n[a-z_]+: \")[^\"]*(\")",
+          "replace": "\\1<PIN>\\2",
+          "reason": "Renovate automerges the role dependency pins (.github/renovate.json); the `# renovate:` comment stays unmasked so a datasource change still counts."
+        }
+      ],
+      "fish_setup/defaults/main.yml": [
+        {
+          "pattern": "(# renovate:[^\\n]*\\n[a-z_]+: \")[^\"]*(\")",
+          "replace": "\\1<PIN>\\2",
+          "reason": "Renovate automerges the role dependency pins (.github/renovate.json); the `# renovate:` comment stays unmasked so a datasource change still counts."
+        }
+      ],
+      "nodejs/defaults/main.yml": [
+        {
+          "pattern": "(# renovate:[^\\n]*\\n[a-z_]+: \")[^\"]*(\")",
+          "replace": "\\1<PIN>\\2",
+          "reason": "Renovate automerges the role dependency pins (.github/renovate.json); the `# renovate:` comment stays unmasked so a datasource change still counts."
+        }
+      ],
+      "uv_setup/defaults/main.yml": [
         {
           "pattern": "(# renovate:[^\\n]*\\n[a-z_]+: \")[^\"]*(\")",
           "replace": "\\1<PIN>\\2",

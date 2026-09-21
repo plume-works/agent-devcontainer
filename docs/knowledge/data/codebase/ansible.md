@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:46edb6ed5b7dd5f40fd97aee383850ca816c18d701882cf3a34ce18a3ddc21ad
+source_digest: sha256:2269cc1950ed46b00cfa79e6fb4cbc926cf110698976c5c9d4fd50dc9ff63b0a
 verified:
   by: claude-code/opus-5
-  at: 2026-09-12T00:00:00Z
-stale_after: 2026-12-11
+  at: 2026-09-21T00:00:00Z
+stale_after: 2026-12-20
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T00:00:00Z
+  at: 2026-09-21T00:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -85,10 +85,15 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
 - The `final` perm probe is a build guard, not diagnostics: an ownership drift
   baked into the published image is inherited by every warm build layered on it,
   which is why it fails the play.
+- Every installer- or registry-sourced dependency is pinned in its role's
+  `defaults/main.yml` under a `# renovate:` comment. Each role guards on the
+  pinned version rather than on the binary's existence, so a bump reinstalls
+  instead of being skipped; `ansible/roles/.agent.metadata.json` keeps those
+  automerged values out of this doc's `source_digest`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-21):
 
 - `ansible/playbooks/setup-dev.yml:18` — `perm_probe` pre-check guard
 - `ansible/playbooks/setup-dev.yml:28` — `dev_tools`

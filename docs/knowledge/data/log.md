@@ -4,6 +4,20 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-21
+
+- **Update**: The installer- and registry-sourced dependencies in the Ansible
+  roles (Bun, uv, Yarn, the agent CLIs, fisher, bass) are pinned in each role's
+  `defaults/`, and Renovate's two new custom regex managers keep them current as
+  one automerged group.
+- **Creation**:
+  [Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
+  proposed — the pins carrying a per-architecture checksum need
+  `postUpgradeTasks`, whose command gate only a self-hosted Renovate can open.
+- **Update**: Refreshed the six codebase-map docs whose tracked sources the
+  pinning moved, and masked the automerged pin values out of the Ansible map
+  digests.
+
 ## 2026-09-12
 
 - **Creation**:

@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:dfbb117ffde87fd9489b416d2b4cf76fd14f764cc202e9e0cda7d760cbc8447f
+source_digest: sha256:6b4f405aea660c43c6ade4df286211a67d681185cb1ca1af938ec6ba55681d3b
 verified:
   by: claude-code/opus-5
-  at: 2026-09-16T19:28:42Z
-stale_after: 2026-12-15
+  at: 2026-09-21T00:00:00Z
+stale_after: 2026-12-20
 generated:
   by: claude-code/opus-5
-  at: 2026-09-16T19:28:42Z
+  at: 2026-09-21T00:00:00Z
 sources:
 - id: code
   resource: .github
@@ -29,8 +29,10 @@ the composite actions they share, `renovate.json`, and
 
 ## Public surface
 
-- `renovate.json` — automerges GitHub Actions updates and the `agent-desktop`
-  digest pin; disables Renovate for the Super-Linter family, which
+- `renovate.json` — automerges GitHub Actions updates, the `agent-desktop`
+  digest pin, and the Ansible role dependency pins its two custom regex managers
+  extract from `# renovate:` comments under `ansible/roles/*/defaults/`;
+  disables Renovate for the Super-Linter family, which
   `/agentdev:sync-super-linter-tool-versions` moves by hand
 - `pull_request_template.md` — the verification sections
   [PR verification sections](../architecture/pr-verification-sections.md)
@@ -61,10 +63,14 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-12):
+Verified anchor points (line numbers as of 2026-09-21):
 
 - `.github/renovate.json:9-15` — Actions automerge
 - `.github/renovate.json:16-23` — `agent-desktop` digest automerge
 - `.github/renovate.json:24-40` — Super-Linter family disabled
+- `.github/renovate.json:47-63` — role dependency pins grouped and automerged,
+  with `astral-sh/uv` grouped across both places it is pinned
+- `.github/renovate.json:65-84` — the two custom regex managers, one for version
+  pins and one for commit pins
 - `.github/workflows/validate-knowledge-base.yml:69-109` — seed filter and
   standalone seed validation
