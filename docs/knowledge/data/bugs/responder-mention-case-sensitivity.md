@@ -1,15 +1,16 @@
 ---
 type: bug
-description: The workflow gate that admits an `@claude` mention is case-insensitive while the JavaScript that classifies it is not, so `@Claude review` starts the free-form task responder instead of a review and resolves no effort tier.
+description: The workflow gate that admits an `@claude` mention folds case while the JavaScript that classified it did not, so `@Claude review` started the free-form task responder instead of a review and resolved no effort tier.
 generated:
   by: claude-code/opus-5
   at: 2026-09-21T07:45:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/163
+stage: done
 ---
 
-# A capitalized `@Claude` mention is admitted, then misrouted
+# A capitalized `@Claude` mention was admitted, then misrouted
 
 ## Symptom
 
@@ -57,21 +58,26 @@ inherited its case sensitivity rather than introducing the defect.
 
 ## Fix
 
-Open. The narrow change is to fold case in the JavaScript tests so they admit
-exactly what the gate admits — one `toLowerCase()` before the `startsWith` pair
-and an `i` flag on the label regex. That leaves one case rule for the whole
-path, chosen by the gate that runs first.
+Every mention test folds case, so the whole path admits exactly what the gate
+admits. `opensWith` lowercases before comparing and `mentions()` calls it for
+each field; the bridge lowercases before its review-versus-task `startsWith`,
+and the label regex carries `i` and lowercases what it captures, so a dispatched
+`review_effort` is always canonical.
 
-The wider question the defect raises is whether the gate and the classifier
-should share a single mention test rather than two written in different
-languages, which is what let them drift apart.
+The gate that runs first sets the rule. It cannot narrow to match the
+JavaScript: `if:` has no case-sensitive string test, and a mention the gate
+rejects never reaches a job at all.
+
+The spec needs nothing: `A @claude mention opening a comment` in
+[AI review gate](../spec/ai-review-gate.md) never named a case, so the code was
+narrower than the behavior the spec already described.
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-09-21):
 
 - `.github/workflows/ai-responder.yml:107-118` — the case-insensitive `if:` gate
-- `.github/workflows/ai-responder.yml:300-307` — `mentions()`, case-sensitive
-- `.github/workflows/ai-responder.yml:401` — the bridge's review-versus-task
-  split
-- `.github/workflows/ai-responder.yml:402` — the effort label extraction
+  that sets the rule
+- `.github/workflows/ai-responder.yml:298-306` — `opensWith` and `mentions()`
+- `.github/workflows/ai-responder.yml:401-403` — the bridge's review-versus-task
+  split and the effort label

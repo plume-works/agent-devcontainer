@@ -292,18 +292,18 @@ jobs:
             const comment = payload.comment?.body ?? '';
             const review = payload.review?.body ?? '';
             const issueText = `${payload.issue?.title ?? ''}\n${payload.issue?.body ?? ''}`;
-            // Mirrors the preflight `startsWith` gate: the mention opens the
-            // body, so discussing "@claude" never counts as invoking it.
-            // Checked per field -- issueText joins title and body with a
-            // newline, so a single startsWith over it would only ever see the
-            // title.
+            // Mirrors the preflight `startsWith` gate, which opens the body
+            // and folds case, so discussing "@claude" never invokes it.
+            // Per field: issueText joins the two, so one test sees the title.
+            const opensWith = (text, prefix) =>
+              (text ?? '').toLowerCase().startsWith(prefix);
             const mentions = (responder) => {
               const mention = `@${responder}`;
               if (eventName === 'issues') {
-                return (payload.issue?.title ?? '').startsWith(mention) ||
-                  (payload.issue?.body ?? '').startsWith(mention);
+                return opensWith(payload.issue?.title, mention) ||
+                  opensWith(payload.issue?.body, mention);
               }
-              return comment.startsWith(mention) || review.startsWith(mention);
+              return opensWith(comment, mention) || opensWith(review, mention);
             };
             // A free-form task: a dispatch carrying a task, or a mention on an
             // issue. A mention on a pull request is bridged into a dispatch
@@ -398,8 +398,9 @@ jobs:
 
             const inputs = {
               pr_number: String(process.env.PR_NUMBER),
-              task: body.startsWith('@claude review') ? '' : body,
-              review_effort: /^@claude review (light|full)\b/.exec(body)?.[1] ?? '',
+              task: body.toLowerCase().startsWith('@claude review') ? '' : body,
+              review_effort:
+                /^@claude review (light|full)\b/i.exec(body)?.[1].toLowerCase() ?? '',
               comment_id: String(requester?.id ?? ''),
               comment_kind: context.eventName,
               requester: context.actor,
