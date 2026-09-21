@@ -375,9 +375,18 @@ Modify: `docs/knowledge/data/architecture.md`,
 
 **Files:** GitHub Actions evidence only
 
-- [ ] Run a `light` review and a `full` review on comparable pull requests and
+- [x] Run a `light` review and a `full` review on comparable pull requests and
   compare their token usage, confirming the light tier is materially cheaper
   rather than only differently configured.
+  - **Evidence:** both tiers run against this pull request, read from each run's
+    `claude-review-responder-output` artifact rather than its job log, which
+    GitHub truncates. Light run `35526047450` reports `total_cost_usd` 3.29 over
+    28 turns, all of it `claude-sonnet-5`; full run `35605616067` reports 15.86
+    over 49 turns, `claude-opus-5` 13.77 and `claude-sonnet-5` 2.09. Full costs
+    4.8x light, and the light run carries no `claude-opus-5` usage at all, while
+    the full run's only sonnet spend is the compliance slot the matrix keeps
+    light at both tiers. The saving is not wall clock: the light session ran
+    15m23s against the full session's 13m54s.
 - [ ] Confirm an explicit override is obeyed where the orchestrator would have
   chosen the other tier, and that an unresolved tier passes no `--model` and
   leaves the session on the `settings.json` pin.
@@ -396,7 +405,11 @@ Modify: `docs/knowledge/data/architecture.md`,
     it yields `--allowedTools <list> --model claude-sonnet-5` as four discrete
     argv entries. Measured against the CLI directly rather than through
     `anthropics/claude-code-action@v1`, which supplies the same two inputs.
-- [ ] Confirm `ai-review-present` behaves identically at both tiers.
+- [x] Confirm `ai-review-present` behaves identically at both tiers.
+  - **Evidence:** the gate job succeeded in light run `35526047450` and in full
+    run `35605616067`, accepting the review each run published. It failed in
+    full run `35581654957`, whose review job failed on a usage limit before any
+    pass ran — so the gate follows the review job's outcome and reads no tier.
 
 ## Spec changes
 
