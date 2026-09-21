@@ -387,9 +387,19 @@ Modify: `docs/knowledge/data/architecture.md`,
     the full run's only sonnet spend is the compliance slot the matrix keeps
     light at both tiers. The saving is not wall clock: the light session ran
     15m23s against the full session's 13m54s.
-- [ ] Confirm an explicit override is obeyed where the orchestrator would have
+- [x] Confirm an explicit override is obeyed where the orchestrator would have
   chosen the other tier, and that an unresolved tier passes no `--model` and
   leaves the session on the `settings.json` pin.
+  - **Evidence:** untiered run `35654201811` on this pull request resolved no
+    tier on either channel, so the review sized itself: four parallel passes
+    with both correctness passes on Opus and one isolated validation dispatch
+    per candidate. Light run `35526047450`, on the same pull request, ran every
+    pass on Sonnet with batched validation and neither escalated nor failed — an
+    explicit tier obeyed against the sizing the orchestrator reaches on its own.
+    The untiered run composed `claude_args` as `--allowedTools '<list>'` with no
+    `--model`, its prompt carried no `REQUESTED REVIEW EFFORT` line, and its
+    responder-output artifact records 6.15 of `claude-opus-5` spend — the
+    `settings.json` pin, undisturbed.
 - [x] Confirm from run evidence that a passed `--model` actually overrides the
   merged `settings` model, since the tier resolving in preflight rather than in
   the skill depends on it.
