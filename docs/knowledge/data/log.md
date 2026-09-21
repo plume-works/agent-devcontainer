@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-21
+
+- **Creation**:
+  [A capitalized @Claude mention was admitted, then misrouted](bugs/responder-mention-case-sensitivity.md)
+  fixed — the preflight `if:` gate folds case and every mention test behind it
+  now does too, so `@Claude review` reaches the review job and its effort label
+  instead of dispatching as a free-form task.
+- **Update**: Refreshed the three codebase-map docs whose tracked sources the
+  case fix moved.
+
 ## 2026-09-19
 
 - **Update**: Refreshed the six codebase-map docs whose tracked sources the

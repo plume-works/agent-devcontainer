@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:5544c9a788f276bad82738e9a0d385a40514b26c05e6ee3adb70c2f0ba11fe98
+source_digest: sha256:8a4e826bc1b4d5c8aa1a47069292fb335cbb488d71e60c25e7290222224f0d17
 verified:
   by: claude-code/opus-5
-  at: 2026-09-19T21:11:40Z
-stale_after: 2026-12-18
+  at: 2026-09-21T08:35:03Z
+stale_after: 2026-12-20
 generated:
   by: claude-code/opus-5
-  at: 2026-09-19T21:11:40Z
+  at: 2026-09-21T08:35:03Z
 sources:
 - id: code
   resource: .github/workflows
@@ -75,10 +75,14 @@ recorded digest. The full traces are
   effort tier; preflight resolves it because only a workflow-level `--model` can
   size the session. The reasoning is in
   [PR review effort tiers](../../architecture/pr-review-effort-tiers.md).
+- The `if:` gate admitting an `@claude` mention folds case, because the workflow
+  expression language's `startsWith` does. Every mention test in the workflow's
+  JavaScript folds it too, so the two agree on what a mention is — see
+  [the capitalized-mention misroute](../../bugs/responder-mention-case-sensitivity.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-19):
+Verified anchor points (line numbers as of 2026-09-21):
 
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
@@ -90,6 +94,8 @@ Verified anchor points (line numbers as of 2026-09-19):
   four check steps
 - `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
-- `.github/workflows/ai-responder.yml:89,363,416,463,504` — the five jobs
-- `.github/workflows/ai-responder.yml:192,195` — the skip and effort body
+- `.github/workflows/ai-responder.yml:89,363,417,465,506` — the five jobs
+- `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
   markers, both anchored to their own line
+- `.github/workflows/ai-responder.yml:298,401-403` — `opensWith`, and the
+  bridge's review-versus-task split and effort label
