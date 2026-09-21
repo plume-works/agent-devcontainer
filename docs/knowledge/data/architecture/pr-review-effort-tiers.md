@@ -32,6 +32,13 @@ Neither tier changes whether a review is required. `ai-review-present` is
 untouched by the tier: this is a lever over what a review costs, never over
 whether one happened.
 
+The tiers are about five times apart in cost on the same diff, and moving every
+slot but compliance off the large model is what produces the gap: a light review
+spends nothing on the large model, while a full review spends the bulk of its
+budget there. Wall clock does not show the difference, because both tiers are
+dominated by passes running in parallel — a light review can take longer than a
+full one and still cost a fifth as much.
+
 ## An explicitly requested tier is absolute
 
 A requested tier is obeyed exactly — no escalation to the other tier, no
