@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:58453555339cc1767189c14854a81c99bc6409558bf74d17f6d40fe567dcb247
+source_digest: sha256:e1cbcfa57984b5f696da9d5d8932dab8d11ed549370650e768689c935000f5d1
 verified:
   by: claude-code/opus-5
-  at: 2026-09-21T08:35:03Z
-stale_after: 2026-12-20
+  at: 2026-09-22T09:27:00Z
+stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-21T08:35:03Z
+  at: 2026-09-22T09:27:00Z
 sources:
 - id: code
   resource: .github
@@ -64,9 +64,6 @@ before the push.
 - Step 6's effort tier changes what the review costs, never whether it runs:
   `ai-review-present` does not read it, and both tiers keep the metadata check
   and the durable-knowledge pass.
-- A step 6 review that ends without publishing fails the review job, which fails
-  the gate — otherwise the gate passes on whatever review the pull request
-  already carried.
 - Step 1 and step 2 must agree on tool versions; `renovate.json` disables
   Renovate for the Super-Linter family so
   `/agentdev:sync-super-linter-tool-versions` moves them together.

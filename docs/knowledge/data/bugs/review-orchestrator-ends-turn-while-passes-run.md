@@ -90,14 +90,56 @@ correlation is strong and the mechanism is not proven — an instruction that is
 present but out-competed for attention cannot be distinguished, from run logs
 alone, from one the model simply did not follow.
 
+### Hypothesis: the passes die on exhausted quota
+
+A subagent that is refused mid-flight never reports back, and a parent holding
+no completion has nothing to block on. That would make the abandonment a symptom
+of quota rather than of instruction adherence, and it fails silently in exactly
+the shape this document records.
+
+The three runs' own telemetry does not confirm it. Each carries
+`rate_limit_event` records reading `status: allowed` throughout, with five-hour
+window utilization climbing 21% to 50% across them and never exhausting; the
+limit is a rolling `five_hour` window, and `overageStatus: rejected`
+(org-disabled) never engages because the window never runs out. All three report
+`is_error: false`.
+
+Nor does it eliminate the hypothesis. The telemetry belongs to the orchestrator
+session, and a refusal inside a subagent need not surface there. What the
+artifacts do show is that all three runs dispatched passes — four, three, and
+five — and received zero completions between them, which the headless-turn
+mechanism and a silent subagent death produce alike.
+
+What would settle it: per-subagent outcome in the execution artifact, so a pass
+that was refused is distinguishable from one whose result was never collected.
+
 ## Fix
 
-Open. The candidates, in the order they were considered:
+Open.
 
-- Make the run fail loudly instead of silently. The responder action already
-  inspects the execution file for a usage-limit message; a second check for a
-  run that published no review would turn a silent miss into a red job.
-  Narrowest change, and it fixes the detection half rather than the cause.
+**Failing a run that published nothing was tried and removed.** The responder
+action took a `require-review` input: it stamped a timestamp before the Claude
+step and afterwards required a review by `claude[bot]` or `github-actions[bot]`
+with `submitted_at` at or after the stamp. It is not sound. The predicate
+matches any qualifying review in the window with nothing tying it to the run
+that is being checked — no `commit_id`, no review id, no run id, no marker in
+the review body — so an abandoned run passes on a concurrent run's review, which
+is the very miss it exists to catch.
+
+Concurrent responder runs on one pull request are ordinary, not exotic. A
+dispatched run's concurrency group is keyed `dispatch-<comment_id>`, so two
+`@claude review` comments occupy different groups; a dispatched run and a
+`pull_request`-triggered run (`pr-<n>`) are likewise distinct.
+`cancel-in-progress` is set only for `pull_request` + `synchronize`, so nothing
+cancels an in-flight dispatched run. Two reviews requested minutes apart overlap
+for their whole duration, and the second one's stamp sits before the first one's
+publication.
+
+Closing that gap needs an identity, not a window: the run URL stamped into the
+published review body, or the submitted review's id captured from the session.
+
+The remaining candidates:
+
 - Have the gate distinguish "reviewed" from "reviewed in this run". That is a
   deliberate property of `ai-review-present` — see
   [AI review gate](../spec/ai-review-gate.md) — and reopening it costs the
@@ -106,7 +148,10 @@ Open. The candidates, in the order they were considered:
   reach Step 5. The rule already exists; restating it more loudly is the weakest
   of the three unless the restatement changes what the orchestrator reads at the
   moment it decides to stop.
+- Settle the quota hypothesis above first. A detection check and an
+  instruction-adherence fix address different causes, and the evidence does not
+  yet say which one this is.
 
 A fix should not be chosen from this document alone: the failure is
-intermittent, and two of three observed runs is too small a sample to tell an
+intermittent, and three observed runs are too small a sample to tell an
 instruction-adherence problem from a runner-behavior one.

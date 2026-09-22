@@ -456,7 +456,6 @@ jobs:
           # Only the light tier downgrades; full and an unresolved tier pass
           # nothing and keep the settings pin. See spec/ai-review-gate.
           model: ${{ needs.preflight.outputs.review_effort == 'light' && 'claude-sonnet-5' || '' }}
-          require-review: 'true'
           append-run-link: ${{ github.event_name == 'workflow_dispatch' && inputs.comment_id != '' }}
           comment-id: ${{ inputs.comment_id }}
           comment-kind: ${{ inputs.comment_kind }}

@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-22
+
+- **Update**: Removed the `require-review` publish-or-fail check from the
+  responder action. A timestamp window cannot tell this run's review from a
+  concurrent run's, so an abandoned run passed on another run's review —
+  [the orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
+  stays open and records the attempt, the concurrency reason, and the quota
+  hypothesis with the telemetry for and against.
+
 ## 2026-09-21
 
 - **Creation**:
