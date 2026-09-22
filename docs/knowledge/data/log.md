@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-09-22
 
+- **Update**: Release pages carry a `## Changed` section. A feature already
+  released in an earlier version, but which gained behavior in this one, belongs
+  there rather than under `## Added` — `AI responder workflows` is the first,
+  for the effort tiers. `SCHEMA.md` had reserved the name and nothing used it;
+  the accumulator template and the ship skill now do.
 - **Update**: The AI pull request review now runs at two named effort tiers —
   [AI responder workflows](features/ai-responder-workflows.md) implemented.
   `@claude review light`/`full` or a `[ci:review-effort=…]` body marker picks

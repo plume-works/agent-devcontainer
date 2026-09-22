@@ -6,19 +6,23 @@ stage: unreleased
 status: draft
 generated:
   by: claude-code/opus-5
-  at: 2026-09-08T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 ---
 
 # Unreleased
 
 *Work that has shipped to main but not yet to users. The ship skill adds an
-inclusion link here for every feature or fix as it lands; cutting a release
-renames this file to the version number and starts a fresh one.*
+inclusion link here for every feature or fix as it lands — a new feature under
+`## Added`, a released feature that gained behavior under `## Changed`, a bug
+under `## Fixed`; cutting a release renames this file to the version number and
+starts a fresh one.*
 
 ## Added
 
-[AI responder workflows](../features/ai-responder-workflows.md)
-
 [Self-improve plugin in the catalog](../features/self-improve-plugin-in-catalog.md)
+
+## Changed
+
+[AI responder workflows](../features/ai-responder-workflows.md)
 
 ## Fixed
