@@ -17,6 +17,8 @@ renames this file to the version number and starts a fresh one.*
 
 ## Added
 
+[AI responder workflows](../features/ai-responder-workflows.md)
+
 [Self-improve plugin in the catalog](../features/self-improve-plugin-in-catalog.md)
 
 ## Fixed

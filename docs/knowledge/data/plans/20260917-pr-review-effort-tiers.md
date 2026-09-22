@@ -16,6 +16,8 @@ sources:
   title: GPT-5.6 Sol model identifier
 - resource: https://developers.openai.com/api/docs/models/gpt-5.6-terra
   title: GPT-5.6 Terra model identifier
+stage: done
+completed: 2026-09-22
 ---
 
 # Effort tiers for the AI pull request review

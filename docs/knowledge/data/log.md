@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-09-22
 
+- **Update**: The AI pull request review now runs at two named effort tiers —
+  [AI responder workflows](features/ai-responder-workflows.md) implemented.
+  `@claude review light`/`full` or a `[ci:review-effort=…]` body marker picks
+  the tier, the comment outranking the marker, and a requested tier is obeyed
+  exactly; with none the review sizes itself and keeps the session model.
+  Neither tier waives `ai-review-present`, the metadata check, or the
+  durable-knowledge pass.
 - **Update**: Findings validation now runs on the light model at both effort
   tiers, under one validator prompt shared by the tiers —
   [PR review effort tiers](architecture/pr-review-effort-tiers.md) records why
