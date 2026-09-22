@@ -4,7 +4,7 @@ created: 2026-09-17
 description: Give the AI pull request review two effort tiers with explicit hard overrides, harden per-pass model selection, and cut the light tier's fan-out.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-17T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/issues/129
   title: PR effort
