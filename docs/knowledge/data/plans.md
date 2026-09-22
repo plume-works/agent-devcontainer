@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[Effort tiers for the AI pull request review](plans/20260917-pr-review-effort-tiers.md)
-
 [Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
