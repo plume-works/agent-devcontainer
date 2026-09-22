@@ -24,9 +24,18 @@
   become: true
   become_user: "{{ dev_user }}"
 
-# fisher records each plugin in fish_plugins as the exact "owner/repo@ref" it was
-# asked for, so that file is what the guards below compare against: a version
-# bump reinstalls, where a guard on the function file alone would skip.
+# fish_plugins is fisher's declaration of what should be installed, and
+# `fisher update` reconciles the tree to it -- installing what is listed,
+# updating what moved, and removing what is not. Writing the pinned specs into
+# that file and updating is therefore the whole install: it converges from an
+# empty system and from one carrying plugins installed under a different spec,
+# which `fisher install` refuses to overwrite.
+- name: Collect the pinned fish plugin specs
+  ansible.builtin.set_fact:
+    fish_setup_wanted_plugins:
+      - "jorgebucaran/fisher@{{ fish_setup_fisher_version }}"
+      - "edc/bass@{{ fish_setup_bass_ref }}"
+
 - name: Read the installed fish plugin list
   ansible.builtin.slurp:
     src: "{{ user_home }}/.config/fish/fish_plugins"
@@ -40,6 +49,8 @@
     fish_setup_plugin_specs: >-
       {{ (fish_setup_plugins.content | default('') | b64decode).split() }}
 
+# fisher is bootstrapped from the downloaded copy rather than from the
+# installed one, so the same tasks work before it exists.
 - name: Download fisher (fish package manager)
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/jorgebucaran/fisher/{{ fish_setup_fisher_version }}/functions/fisher.fish"
@@ -47,29 +58,28 @@
     mode: "0755"
   become: true
   become_user: "{{ dev_user }}"
-  when: ('jorgebucaran/fisher@' ~ fish_setup_fisher_version) not in fish_setup_plugin_specs
+  when: fish_setup_plugin_specs != fish_setup_wanted_plugins
 
-- name: Install fisher
+- name: Record the pinned fish plugin list
+  ansible.builtin.copy:
+    content: "{{ fish_setup_wanted_plugins | join('\n') }}\n"
+    dest: "{{ user_home }}/.config/fish/fish_plugins"
+    mode: "0644"
+  become: true
+  become_user: "{{ dev_user }}"
+  when: fish_setup_plugin_specs != fish_setup_wanted_plugins
+
+- name: Reconcile the installed fish plugins with the pinned list
   ansible.builtin.shell:
     cmd: >-
       source {{ fish_setup_temp_dir.path }}/fisher.fish
-      && fisher install jorgebucaran/fisher@{{ fish_setup_fisher_version }}
+      && fisher update
     chdir: "{{ fish_setup_temp_dir.path }}"
     executable: fish
   become: true
   become_user: "{{ dev_user }}"
   changed_when: true
-  when: ('jorgebucaran/fisher@' ~ fish_setup_fisher_version) not in fish_setup_plugin_specs
-
-- name: Install bass (for sourcing bash scripts in fish)
-  ansible.builtin.shell:
-    cmd: fisher install edc/bass@{{ fish_setup_bass_ref }}
-    chdir: "{{ fish_setup_temp_dir.path }}"
-    executable: fish
-  become: true
-  become_user: "{{ dev_user }}"
-  changed_when: true
-  when: ('edc/bass@' ~ fish_setup_bass_ref) not in fish_setup_plugin_specs
+  when: fish_setup_plugin_specs != fish_setup_wanted_plugins
 
 - name: Copy development fish configuration
   ansible.builtin.template:

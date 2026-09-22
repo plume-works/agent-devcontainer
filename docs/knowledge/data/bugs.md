@@ -31,3 +31,5 @@ tells them apart.*
 [AI review gate was self-waivable from the PR body](bugs/ai-review-gate-self-waivable.md)
 
 [The review opt-out marker fired too broadly](bugs/skip-ai-review-marker-overreach.md)
+
+[Fisher install over untracked plugins](bugs/fisher-install-over-untracked-plugins.md)
