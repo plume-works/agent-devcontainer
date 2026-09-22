@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-09-22
 
+- **Update**: Findings validation now runs on the light model at both effort
+  tiers, under one validator prompt shared by the tiers —
+  [PR review effort tiers](architecture/pr-review-effort-tiers.md) records why
+  the gate's strictness belongs in the prompt rather than in the model size, and
+  why the slot that scales with finding count is the one to bound.
 - **Update**: Removed the `require-review` publish-or-fail check from the
   responder action. A timestamp window cannot tell this run's review from a
   concurrent run's, so an abandoned run passed on another run's review —

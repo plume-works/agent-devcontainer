@@ -233,8 +233,8 @@ latest release.
     tier.
 
 - [x] Record this effort matrix, and state its one-line rule — at full effort
-  everything is `large` except compliance; at light effort everything is
-  `light`:
+  everything is `large` except compliance and validation, which stay `light` at
+  both tiers; at light effort everything is `light`:
 
   ``` markdown
   | Slot          | light effort     | full effort          |
@@ -244,7 +244,7 @@ latest release.
   | compliance    | 1x light         | 2x light             |
   | correctness   | 1x light         | 2x large             |
   | iwe-audit     | light            | large                |
-  | validation    | one batch, light | per-candidate, large |
+  | validation    | one batch, light | per-candidate, light |
   ```
 
   - **Evidence:** commit "Define the review effort tiers in the skill"; the
@@ -252,7 +252,10 @@ latest release.
     the one-line rule directly under it at `:111`, which also records that the
     orchestrator row is set by the workflow's `--model` rather than from the
     skill. Step 4's pass list now derives its counts from the matrix instead of
-    a fixed `2x`/`2x`.
+    a fixed `2x`/`2x`. Commit "Hold findings validation at the light model"
+    moved the validation slot to `light` at both tiers and rewrote the one-line
+    rule to match; the rationale is in
+    [PR review effort tiers](../architecture/pr-review-effort-tiers.md).
 
 - [x] Replace the prose model advice at Step 4 with a model argument on every
   dispatch at Steps 4 and 6, so the size named in the matrix is the size that
@@ -386,7 +389,10 @@ Modify: `docs/knowledge/data/architecture.md`,
     4.8x light, and the light run carries no `claude-opus-5` usage at all, while
     the full run's only sonnet spend is the compliance slot the matrix keeps
     light at both tiers. The saving is not wall clock: the light session ran
-    15m23s against the full session's 13m54s.
+    15m23s against the full session's 13m54s. Both runs predate commit "Hold
+    findings validation at the light model"; the full figure covers eight
+    validation dispatches on `claude-opus-5`, a slot the matrix now holds at
+    `light`.
 - [x] Confirm an explicit override is obeyed where the orchestrator would have
   chosen the other tier, and that an unresolved tier passes no `--model` and
   leaves the session on the `settings.json` pin.

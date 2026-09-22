@@ -23,21 +23,21 @@ fan out, and how many validation dispatches the surviving findings cost.
 
 `full` is the review at full strength — two compliance passes, two correctness
 passes, the durable-knowledge pass, and one isolated validation dispatch per
-surviving candidate, everything on the large model except compliance. `light`
-runs one compliance pass, one correctness pass, and the durable-knowledge pass,
-all on the light model, and validates every surviving candidate in a single
-batched dispatch.
+surviving candidate, everything on the large model except compliance and
+validation. `light` runs one compliance pass, one correctness pass, and the
+durable-knowledge pass, all on the light model, and validates every surviving
+candidate in a single batched dispatch.
 
 Neither tier changes whether a review is required. `ai-review-present` is
 untouched by the tier: this is a lever over what a review costs, never over
 whether one happened.
 
-The tiers are about five times apart in cost on the same diff, and moving every
-slot but compliance off the large model is what produces the gap: a light review
-spends nothing on the large model, while a full review spends the bulk of its
-budget there. Wall clock does not show the difference, because both tiers are
-dominated by passes running in parallel — a light review can take longer than a
-full one and still cost a fifth as much.
+The tiers are several times apart in cost on the same diff, and the model matrix
+is what produces the gap: a light review spends nothing on the large model,
+while a full review spends the bulk of its budget on its two correctness passes
+and the durable-knowledge pass. Wall clock does not show the difference, because
+both tiers are dominated by passes running in parallel — a light review can take
+longer than a full one and still cost a fraction as much.
 
 ## An explicitly requested tier is absolute
 
@@ -96,6 +96,24 @@ light model at `full` as well as at `light`. Compliance work is quoting a rule
 and checking a diff against it — instruction-following, not reasoning — and the
 review's high-signal bar already requires a compliance finding to quote the
 exact rule text it breaks. The large model buys nothing against that bar.
+
+## Validation runs light at both tiers
+
+Validation is the last gate before publication, and what makes it work is the
+bar it applies — confirm only what the validator re-derives from the files
+itself — not the size of the model applying it. That bar lives in the prompt,
+which is why the validator prompt is identical at both tiers and the model is
+not among the things a tier changes.
+
+Raising the model here cuts against the gate. A stronger reasoner asked to
+confirm only at high confidence is also the better advocate for dropping, so
+size buys more persuasive refusals rather than more accurate verdicts. Depth
+belongs in the passes that find candidates; the gate that judges them wants a
+constant bar.
+
+Validation is also the only slot whose dispatch count scales with the number of
+findings, so at full effort it is the one term with no ceiling. Holding it at
+the light model bounds what an unusually productive review can cost.
 
 ## Rejected alternatives
 
