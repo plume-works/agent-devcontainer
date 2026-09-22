@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-09-22
 
+- **Update**: Refreshed the four codebase-map docs whose tracked sources the
+  release-page `## Changed` work moved.
 - **Update**: Release pages carry a `## Changed` section. A feature already
   released in an earlier version, but which gained behavior in this one, belongs
   there rather than under `## Added` — `AI responder workflows` is the first,
