@@ -84,10 +84,8 @@ A per-dispatch model argument is the highest-priority term in Claude Code's
 [subagent model order](https://code.claude.com/docs/en/sub-agents), above a
 definition's frontmatter, the `CLAUDE_CODE_SUBAGENT_MODEL` environment variable,
 and the main conversation's model. A dispatch that passes no model argument
-therefore runs at the session model, which is why prose advice about which
-reviewer a pass "should" use had no effect on what ran. The environment variable
-remains available as a per-tier floor for dispatches carrying no argument; none
-is set.
+therefore runs at the session model, so the per-dispatch argument is what puts
+the effort matrix in force.
 
 ## Compliance runs light at both tiers
 

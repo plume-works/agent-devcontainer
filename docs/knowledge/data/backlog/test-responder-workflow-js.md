@@ -43,17 +43,17 @@ a refactor:
   change, but the harness owns a copy of the action's contract and drifts when
   that contract moves.
 
-Whichever is chosen, the cases worth covering are the ones a reviewer asked
-about on [PR 163](https://github.com/plume-works/agent-devcontainer/pull/163): a
-comment tier outranking a body marker, a body marker with no comment, an
-unresolved tier emitting the empty value, an unrecognized label falling through,
-and the responder model each tier produces.
+Whichever is chosen, the cases worth covering are: a comment tier outranking a
+body marker, a body marker with no comment, an unresolved tier emitting the
+empty value, an unrecognized label falling through, and the responder model each
+tier produces.
 
 ## Why it is not urgent
 
-The logic is small, and its current behavior was checked case by case before
-merge — the marker and comment regexes against 14 inputs, the composed
-`claude_args` against both branches. What is missing is the *regression* half:
-nothing re-runs those checks when someone edits the workflow next. The risk is
-therefore drift over time rather than a defect now, and it grows with each
-further change to the responder rather than sitting still.
+The logic is small, and its current behavior was already verified — see
+[PR review effort tiers](../plans/20260917-pr-review-effort-tiers.md)'s Task 1
+and 2 evidence for the marker/comment-regex and `claude_args`-branch checks.
+What is missing is the *regression* half: nothing re-runs those checks when
+someone edits the workflow next. The risk is therefore drift over time rather
+than a defect now, and it grows with each further change to the responder rather
+than sitting still.

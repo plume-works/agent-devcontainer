@@ -30,6 +30,14 @@ to the current day's group.
 
 ## 2026-09-19
 
+- **Creation**:
+  [The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
+  filed — a headless responder run ends when the orchestrator's turn ends, so a
+  turn that stops on a status update publishes no review and still goes green.
+- **Creation**: [PR review effort tiers](architecture/pr-review-effort-tiers.md)
+  records why the review has two named tiers, why an explicitly requested tier
+  is absolute, and why the responder's preflight rather than the skill resolves
+  it.
 - **Update**: Refreshed the six codebase-map docs whose tracked sources the
   review effort-tier work moved — the responder workflow, the responder
   composite action, and the catalog skill tree.

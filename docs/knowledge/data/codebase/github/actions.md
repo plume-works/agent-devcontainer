@@ -77,13 +77,11 @@ Verified anchor points (line numbers as of 2026-09-19):
 - `.github/actions/paths-filter/action.yml:30-43` — the `image` filter list
 - `.github/actions/paths-filter/action.yml:58-71` — PR vs base-branch modes
 - `.github/actions/ai-review-status/action.yml:1-27` — inputs and outputs
-- `.github/actions/run-claude-responder/action.yml:5-44` — inputs
-- `.github/actions/run-claude-responder/action.yml:118-126` — the optional local
+- `.github/actions/run-claude-responder/action.yml:5-38` — inputs
+- `.github/actions/run-claude-responder/action.yml:116-121` — the optional local
   settings layer
-- `.github/actions/run-claude-responder/action.yml:136` —
+- `.github/actions/run-claude-responder/action.yml:139` —
   `Compose Claude arguments`, where `--model` is appended
-- `.github/actions/run-claude-responder/action.yml:180` — the published-review
-  check
-- `.github/actions/run-claude-responder/action.yml:170,223` — `always()` on the
+- `.github/actions/run-claude-responder/action.yml:158,166` — `always()` on the
   artifact upload and the usage-limit check
 - `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs

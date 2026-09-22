@@ -2,14 +2,14 @@
 type: codebase
 description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:364f2026a6130ffc787309b16f02c9b100780d7fc059e2387fd5737606fc08bd
+source_digest: sha256:0917f9a982319da4c0564f0b6009f5933b842768dc1542889902af2a2924aa0d
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T09:27:00Z
+  at: 2026-09-22T12:00:00Z
 stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T09:27:00Z
+  at: 2026-09-22T12:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -82,7 +82,7 @@ recorded digest. The full traces are
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-21):
+Verified anchor points (line numbers as of 2026-09-22):
 
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
@@ -94,8 +94,8 @@ Verified anchor points (line numbers as of 2026-09-21):
   four check steps
 - `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
-- `.github/workflows/ai-responder.yml:89,363,417,465,506` — the five jobs
+- `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
 - `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
   markers, both anchored to their own line
-- `.github/workflows/ai-responder.yml:298,401-403` — `opensWith`, and the
+- `.github/workflows/ai-responder.yml:298,402-407` — `opensWith`, and the
   bridge's review-versus-task split and effort label

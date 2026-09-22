@@ -177,7 +177,17 @@ starts.
 - **THEN** a run of this workflow starts on the head branch, reviews the pull
   request, and appends its run link to the comment.
 
+A dispatch SHALL carry only the inputs the request actually supplies. A head
+branch's workflow file declares its own inputs, and a dispatch naming one the
+branch does not declare is rejected on the key alone, whatever its value.
+
 ### Scenario: the head branch has no workflow file
 
 - **WHEN** the pull request's head branch does not carry `ai-responder.yml`
 - **THEN** the bridge fails naming the branch, and no review runs.
+
+### Scenario: the head branch predates an input the bridge can send
+
+- **WHEN** a `@claude review` mention carries no effort label and the head
+  branch's workflow file does not declare `review_effort`
+- **THEN** the dispatch omits the key, and the review runs on that branch.

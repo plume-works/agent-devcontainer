@@ -396,11 +396,15 @@ jobs:
               throw error;
             }
 
+            // A head branch whose workflow predates an input rejects the
+            // dispatch on the key alone, so a tier is sent only when requested.
+            // See spec/ai-review-gate.
+            const reviewEffort =
+              /^@claude review (light|full)\b/i.exec(body)?.[1].toLowerCase() ?? '';
             const inputs = {
               pr_number: String(process.env.PR_NUMBER),
               task: body.toLowerCase().startsWith('@claude review') ? '' : body,
-              review_effort:
-                /^@claude review (light|full)\b/i.exec(body)?.[1].toLowerCase() ?? '',
+              ...(reviewEffort ? { review_effort: reviewEffort } : {}),
               comment_id: String(requester?.id ?? ''),
               comment_kind: context.eventName,
               requester: context.actor,

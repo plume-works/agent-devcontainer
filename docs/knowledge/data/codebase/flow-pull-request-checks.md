@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:e1cbcfa57984b5f696da9d5d8932dab8d11ed549370650e768689c935000f5d1
+source_digest: sha256:5cf69d854bc169fbec774f08c044da3997350dee021dca84ca7d94f12fad8d0b
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T09:27:00Z
+  at: 2026-09-22T12:00:00Z
 stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T09:27:00Z
+  at: 2026-09-22T12:00:00Z
 sources:
 - id: code
   resource: .github
@@ -53,7 +53,7 @@ before the push.
    tier; `claude-respond` runs the review or task through
    `anthropics/claude-code-action`, sizing the session from that tier;
    `ai-review-present` reports whether an accepted review exists —
-   `.github/workflows/ai-responder.yml:89,417,506`
+   `.github/workflows/ai-responder.yml:89,421,509`
 7. Merge: `merge_group` runs steps 2–6 again with a clean image build.
 
 ## Failure modes

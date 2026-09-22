@@ -167,8 +167,8 @@ for every dispatched task ID that has not returned.
 Text announcing that you are waiting is not waiting. If the next thing you were
 about to produce is a sentence about outstanding passes, replace it with the
 blocking call itself — under the responder action the run ends with your turn,
-and `bugs/review-orchestrator-ends-turn-while-passes-run` records what that
-costs.
+so every pass that has not reported back is a finding that never reaches the
+review.
 
 Concretely:
 
