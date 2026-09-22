@@ -3,7 +3,7 @@ type: spec
 description: How the required AI review gate accepts a review and when the responder is allowed to act on a pull request.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T04:50:06Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -161,6 +161,64 @@ can merge it.
 - **WHEN** a writer requests a free-form `@claude` task on a pull request whose
   body carries `[ci:skip-ai-review]`
 - **THEN** the task responder runs.
+
+## Requirement: a pull request review runs at a requested effort tier
+
+The review responder SHALL support two effort tiers, `light` and `full`, which
+select how many review passes run and which model size each pass uses. A tier
+SHALL be requested by an authorized writer's `@claude review light` or
+`@claude review full` comment, or by a `[ci:review-effort=light]` or
+`[ci:review-effort=full]` marker alone on a line of the pull request body. A
+comment request SHALL outrank a body marker, and the marker SHALL be recognized
+only as a whole line.
+
+A requested tier SHALL be obeyed exactly. The review SHALL NOT escalate to a
+higher tier, refuse, or fail on account of the diff it finds, whatever the
+tier's fit for that diff.
+
+When no tier is requested, the review SHALL size itself from the diff, and the
+responder SHALL NOT override the model configured for the session.
+
+An effort tier SHALL NOT change whether a review is required, SHALL NOT waive
+the `ai-review-present` gate, and SHALL NOT suppress the pull request metadata
+check or the durable-knowledge pass, which run at both tiers.
+
+### Scenario: a writer requests a light review
+
+- **WHEN** an authorized writer comments `@claude review light` on a pull
+  request
+- **THEN** the review runs at the light tier and `ai-review-present` accepts the
+  review it submits.
+
+### Scenario: a body marker requests a tier
+
+- **WHEN** a pull request body carries `[ci:review-effort=light]` on its own
+  line and no comment requests a tier
+- **THEN** the review runs at the light tier.
+
+### Scenario: a comment outranks the body marker
+
+- **WHEN** a pull request body carries `[ci:review-effort=light]` on its own
+  line and a writer comments `@claude review full`
+- **THEN** the review runs at the full tier.
+
+### Scenario: a body mentions the effort marker inline
+
+- **WHEN** a pull request body names `[ci:review-effort=light]` inside a
+  sentence or a code span rather than alone on a line
+- **THEN** the marker does not apply.
+
+### Scenario: a light tier is requested for a large documentation change
+
+- **WHEN** a writer requests the light tier on a pull request whose diff is a
+  large documentation rewrite
+- **THEN** the review runs at the light tier, neither escalating nor failing.
+
+### Scenario: no tier is requested
+
+- **WHEN** no comment or body marker requests a tier
+- **THEN** the review sizes itself from the diff and runs with the session's
+  configured model.
 
 ## Requirement: comment mentions run the pull request branch's workflow
 
