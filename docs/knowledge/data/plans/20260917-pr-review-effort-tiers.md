@@ -515,7 +515,9 @@ check or the durable-knowledge pass, which run at both tiers.
   and is not reopened here.
 - Changing `[ci:skip-ai-review]`, the Step 1 mechanical fast-approve, or the
   docs-only exclusion from it.
-- Batching or otherwise reducing full-effort validation.
+- Batching full-effort validation, which keeps one dispatch per candidate. The
+  model that validation runs on is set by the effort matrix, which holds it at
+  `light` for both tiers.
 - A tier for the free-form `@claude` task responder.
 - Refreshing `data/codebase/` map documents, which `/agentdev:iwe-map`
   regenerates from tracked-source digests.
