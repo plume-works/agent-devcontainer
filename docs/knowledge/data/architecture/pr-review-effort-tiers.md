@@ -97,13 +97,14 @@ and checking a diff against it — instruction-following, not reasoning — and 
 review's high-signal bar already requires a compliance finding to quote the
 exact rule text it breaks. The large model buys nothing against that bar.
 
-## Validation runs light at both tiers
+## Validation runs light at every effort level
 
 Validation is the last gate before publication, and what makes it work is the
 bar it applies — confirm only what the validator re-derives from the files
 itself — not the size of the model applying it. That bar lives in the prompt,
-which is why the validator prompt is identical at both tiers and the model is
-not among the things a tier changes.
+which is why the validator prompt is the same everywhere and the model is not
+among the things a tier changes. It is fixed at the light model even where no
+tier was requested and the review sizes the rest of itself.
 
 Raising the model here cuts against the gate. A stronger reasoner asked to
 confirm only at high confidence is also the better advocate for dropping, so
@@ -114,6 +115,10 @@ constant bar.
 Validation is also the only slot whose dispatch count scales with the number of
 findings, so at full effort it is the one term with no ceiling. Holding it at
 the light model bounds what an unusually productive review can cost.
+
+Batching is the separate axis, and it is the light tier's trade alone. A review
+that was handed no tier keeps per-candidate isolation: judgment sizes how much
+work the review does, never whether a finding is judged on its own.
 
 ## Rejected alternatives
 
