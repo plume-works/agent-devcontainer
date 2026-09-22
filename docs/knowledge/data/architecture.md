@@ -48,3 +48,5 @@ rejected are as valuable as the one you picked.*
 [Self-improve consolidation](architecture/self-improve-consolidation.md)
 
 [Self-improve runtime](architecture/self-improve-runtime.md)
+
+[Ansible apt pins](architecture/ansible-apt-pins.md)

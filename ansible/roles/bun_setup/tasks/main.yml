@@ -1,5 +1,9 @@
 ---
 # Install Bun JavaScript runtime from the official installer
+- name: Load pinned apt versions
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
 - name: Read the installed Bun version
   ansible.builtin.command:
     argv:
@@ -24,8 +28,7 @@
 
 - name: Install Bun installer prerequisites
   ansible.builtin.apt:
-    name:
-      - unzip
+    name: "{{ bun_setup_apt_pins.items() | map('join', '=') | list }}"
     state: present
     install_recommends: false
   when: bun_setup_install_needed | bool

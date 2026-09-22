@@ -1,5 +1,9 @@
 ---
 # Install GitHub CLI from the official repository
+- name: Load pinned apt versions
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
 - name: Ensure apt keyrings directory exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
@@ -8,7 +12,7 @@
 
 - name: Install GitHub CLI prerequisites
   ansible.builtin.apt:
-    name: wget
+    name: "{{ github_cli_prereqs_apt_pins.items() | map('join', '=') | list }}"
     state: present
     update_cache: true
     install_recommends: false
@@ -31,7 +35,7 @@
 
 - name: Install GitHub CLI
   ansible.builtin.apt:
-    name: gh
+    name: "{{ github_cli_apt_pins.items() | map('join', '=') | list }}"
     state: present
     install_recommends: false
 

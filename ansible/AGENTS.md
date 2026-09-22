@@ -27,5 +27,13 @@ working directory. Running from here silently loses the inventory and roles path
   cannot update a checksum, so a checksum on those pins would leave every automerged
   bump with a stale one. Track a commit instead of a version only where the upstream's
   tags are unusable, as `fish_setup` does for `bass`.
+- Apt packages are pinned per Ubuntu release and architecture in the generated
+  `roles/<role>/vars/apt_pins_<suite>_<arch>.yml`. The role loads the file matching
+  `system_dist` and `system_arch` and hands apt the `name=version` list it holds. Add or
+  remove a package name by editing the file, then run `scripts/apt-pins-refresh.py` to
+  resolve the versions. A role that enables an apt repository of its own resolves against
+  a wider set than the Ubuntu archive: record it in that script's `ROLE_REPOS` and in the
+  matching `registryUrls` rule in `.github/renovate.json`, which must agree or the two
+  will revert each other.
 - Read paths that vary per consuming project from `DEV_WORKSPACE_FOLDER` at runtime, with
   `workspace_folder` as the fallback. Never hardcode a workspace path.

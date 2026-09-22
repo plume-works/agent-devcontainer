@@ -4,6 +4,22 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-22
+
+- **Update**: Every apt package the Ansible roles install is pinned per Ubuntu
+  release and architecture in a generated `vars/apt_pins_<suite>_<arch>.yml`,
+  refreshed by `scripts/apt-pins-refresh.py` and kept current by two `deb`
+  custom managers batched into one automerged Renovate PR.
+- **Creation**: [Ansible apt pins](architecture/ansible-apt-pins.md) records the
+  decision, the per-role repository sets, and the pin-rot and rebuild costs it
+  buys.
+- **Creation**:
+  [Fisher install over untracked plugins](bugs/fisher-install-over-untracked-plugins.md)
+  fixed — `fish_setup` now reconciles `fish_plugins` with `fisher update`
+  instead of installing each pinned plugin.
+- **Update**: `.github/renovate.json` is validated by a pre-commit hook and a
+  workflow, both running `renovate-config-validator --no-global --strict`.
+
 ## 2026-09-21
 
 - **Update**: The installer- and registry-sourced dependencies in the Ansible

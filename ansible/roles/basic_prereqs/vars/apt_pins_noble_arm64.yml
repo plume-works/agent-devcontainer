@@ -1,0 +1,23 @@
+---
+# Pinned apt package versions - GENERATED FILE
+#
+# Target: Ubuntu noble / arm64
+#
+# Regenerate with scripts/apt-pins-refresh.py. Renovate keeps the versions
+# current through the `deb` custom managers in .github/renovate.json, so a
+# manual edit is only needed to add or remove a package name.
+
+basic_prereqs_apt_pins:
+  apt-utils: "2.8.3"
+  ca-certificates: "20260601~24.04.1"
+  curl: "8.5.0-2ubuntu10.13"
+  dbus-x11: "1.14.10-4ubuntu4.1"
+  fish: "3.7.0-1"
+  gnome-keyring: "46.1-2ubuntu0.2"
+  gnupg2: "2.4.4-2ubuntu17.6"
+  libsecret-1-0: "0.21.4-1build3"
+  lsb-release: "12.0-2"
+  openssh-server: "1:9.6p1-3ubuntu13.19"
+  rsync: "3.2.7-1ubuntu1.5"
+  software-properties-common: "0.99.49.4"
+  wget: "1.21.4-1ubuntu4.5"

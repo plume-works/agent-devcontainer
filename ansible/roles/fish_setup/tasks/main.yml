@@ -1,8 +1,12 @@
 ---
 # Fish shell setup
+- name: Load pinned apt versions
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
 - name: Install fish
   ansible.builtin.apt:
-    name: fish
+    name: "{{ fish_setup_apt_pins.items() | map('join', '=') | list }}"
     state: present
     update_cache: true
     install_recommends: false
