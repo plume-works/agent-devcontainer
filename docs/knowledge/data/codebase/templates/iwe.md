@@ -2,14 +2,14 @@
 type: codebase
 description: The licensed starter IWE data tree copied into consumers that adopt project memory, with placeholders and examples for the onboarding skills to replace.
 source: templates/iwe
-source_digest: sha256:04f90a04e72831949f088835c16d4478adf0206a9afb07330f9190525fa80400
+source_digest: sha256:bb3a77c758a8b3a61b9d2b6e17d2f170d7fb3608936cbf74b131506b22b529c3
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
-stale_after: 2026-12-05
+  by: claude-code/opus-5
+  at: 2026-09-22T21:30:00Z
+stale_after: 2026-12-21
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
+  by: claude-code/opus-5
+  at: 2026-09-22T21:30:00Z
 sources:
 - id: code
   resource: templates/iwe
@@ -58,7 +58,7 @@ placeholder replacement and example removal, and `iwe-map` fills the empty map.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
+Verified anchor points (line numbers as of 2026-09-22):
 
 - `templates/iwe/README.md:3` — seed role and destination
 - `templates/iwe/README.md:21-27` — placeholders, tasks, and examples

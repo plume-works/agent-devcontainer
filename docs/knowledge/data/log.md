@@ -6,6 +6,31 @@ to the current day's group.
 
 ## 2026-09-22
 
+- **Update**: Refreshed the four codebase-map docs whose tracked sources the
+  release-page `## Changed` work moved.
+- **Update**: Release pages carry a `## Changed` section. A feature already
+  released in an earlier version, but which gained behavior in this one, belongs
+  there rather than under `## Added` — `AI responder workflows` is the first,
+  for the effort tiers. `SCHEMA.md` had reserved the name and nothing used it;
+  the accumulator template and the ship skill now do.
+- **Update**: The AI pull request review now runs at two named effort tiers —
+  [AI responder workflows](features/ai-responder-workflows.md) implemented.
+  `@claude review light`/`full` or a `[ci:review-effort=…]` body marker picks
+  the tier, the comment outranking the marker, and a requested tier is obeyed
+  exactly; with none the review sizes itself and keeps the session model.
+  Neither tier waives `ai-review-present`, the metadata check, or the
+  durable-knowledge pass.
+- **Update**: Findings validation now runs on the light model at both effort
+  tiers, under one validator prompt shared by the tiers —
+  [PR review effort tiers](architecture/pr-review-effort-tiers.md) records why
+  the gate's strictness belongs in the prompt rather than in the model size, and
+  why the slot that scales with finding count is the one to bound.
+- **Update**: Removed the `require-review` publish-or-fail check from the
+  responder action. A timestamp window cannot tell this run's review from a
+  concurrent run's, so an abandoned run passed on another run's review —
+  [the orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
+  stays open and records the attempt, the concurrency reason, and the quota
+  hypothesis with the telemetry for and against.
 - **Update**: Every apt package the Ansible roles install is pinned per Ubuntu
   release and architecture in a generated `vars/apt_pins_<suite>_<arch>.yml`,
   refreshed by `scripts/apt-pins-refresh.py` and kept current by two `deb`
@@ -25,6 +50,13 @@ to the current day's group.
 
 ## 2026-09-21
 
+- **Creation**:
+  [A capitalized @Claude mention was admitted, then misrouted](bugs/responder-mention-case-sensitivity.md)
+  fixed — the preflight `if:` gate folds case and every mention test behind it
+  now does too, so `@Claude review` reaches the review job and its effort label
+  instead of dispatching as a free-form task.
+- **Update**: Refreshed the three codebase-map docs whose tracked sources the
+  case fix moved.
 - **Update**: The installer- and registry-sourced dependencies in the Ansible
   roles (Bun, uv, Yarn, the agent CLIs, fisher, bass) are pinned in each role's
   `defaults/`, and Renovate's two new custom regex managers keep them current as
@@ -36,6 +68,24 @@ to the current day's group.
 - **Update**: Refreshed the six codebase-map docs whose tracked sources the
   pinning moved, and masked the automerged pin values out of the Ansible map
   digests.
+
+## 2026-09-19
+
+- **Creation**:
+  [The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
+  filed — a headless responder run ends when the orchestrator's turn ends, so a
+  turn that stops on a status update publishes no review and still goes green.
+- **Creation**: [PR review effort tiers](architecture/pr-review-effort-tiers.md)
+  records why the review has two named tiers, why an explicitly requested tier
+  is absolute, and why the responder's preflight rather than the skill resolves
+  it.
+- **Update**: Refreshed the six codebase-map docs whose tracked sources the
+  review effort-tier work moved — the responder workflow, the responder
+  composite action, and the catalog skill tree.
+- **Creation**:
+  [Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
+  filed — no harness in this repository reaches the `github-script` blocks that
+  decide review tier, model, and prompt.
 
 ## 2026-09-12
 

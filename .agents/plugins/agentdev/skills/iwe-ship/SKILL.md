@@ -87,8 +87,11 @@ and continue from the first incomplete operation.
      exists, create it from the verified outcome and plan Context, and add one
      inclusion link to `data/features.md`.
    - Ensure `data/releases/unreleased.md` contains exactly one inclusion link
-     to the feature under `## Added`, or to the bug under `## Fixed`; release
-     pages link feature and bug docs, never plans.
+     for the work: a feature this plan introduced goes under `## Added`, a
+     feature released in an earlier version that gained behavior here goes
+     under `## Changed`, and a bug goes under `## Fixed`. Release pages link
+     feature and bug docs, never plans, so a feature that keeps earning entries
+     across versions is linked once per version that changed it.
    - Ensure today's `data/log.md` group contains exactly one state-change
      bullet for each transition. Create the group only if absent and never
      duplicate a matching prior bullet. For example:
@@ -109,7 +112,7 @@ and continue from the first incomplete operation.
    - `iwe rename data/releases/unreleased data/releases/<X.Y.Z>`
    - `iwe update -k data/releases/<X.Y.Z> --set version=<X.Y.Z> --set date=<today> --set stage=released`
    - Recreate `data/releases/unreleased.md` with version/stage `unreleased` and
-     empty `## Added` / `## Fixed` sections.
+     empty `## Added` / `## Changed` / `## Fixed` sections.
    - Keep one `Unreleased` link on top of `data/releases.md` and one new-version
      link immediately below it, newest first.
    - Add one linked release-cut bullet to today's log group.

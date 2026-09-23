@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:516a62e287674c7db90d6b0c58b612cb14c342f2e37c840d2f7366729514fa6d
+source_digest: sha256:PENDING
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
-stale_after: 2026-12-21
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: .github
@@ -51,12 +51,13 @@ before the push.
 6. `validate-renovate-config.yml`, when `.github/renovate.json` changed:
    `renovate-config-validator --no-global --strict` against it, from the current
    unpinned Renovate rather than the version the hook pins —
-   `.github/workflows/validate-renovate-config.yml:45-48`
+   `.github/workflows/validate-renovate-config.yml:48-51`
 7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
-   non-fork, non-bot PRs or `@claude` mentions; `claude-respond` runs the review
-   or task through `anthropics/claude-code-action`; `ai-review-present` reports
-   whether an accepted review exists —
-   `.github/workflows/ai-responder.yml:82,387,472`
+   non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort
+   tier; `claude-respond` runs the review or task through
+   `anthropics/claude-code-action`, sizing the session from that tier;
+   `ai-review-present` reports whether an accepted review exists —
+   `.github/workflows/ai-responder.yml:89,421,509`
 8. Merge: `merge_group` runs steps 2–7 again with a clean image build.
 
 ## Failure modes
@@ -64,6 +65,9 @@ before the push.
 - A formatting commit in step 2 means this run's downstream jobs are skipped;
   the pushed commit's run is the one that counts.
 - A fork PR never gets step 7; the review gate is then a human's.
+- Step 7's effort tier changes what the review costs, never whether it runs:
+  `ai-review-present` does not read it, and both tiers keep the metadata check
+  and the durable-knowledge pass.
 - Step 1 and step 6 run the same validator against the same file on purpose, the
   hook at a pinned Renovate and the workflow at whatever the hosted app
   currently runs; a break in the workflow alone is the warning that the live bot

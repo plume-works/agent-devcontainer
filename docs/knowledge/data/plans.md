@@ -21,6 +21,8 @@ moves them.*
 
 ## Done
 
+[Effort tiers for the AI pull request review](plans/20260917-pr-review-effort-tiers.md)
+
 [Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
 
 [Self-improve MVP](plans/20260909-self-improve-mvp.md)

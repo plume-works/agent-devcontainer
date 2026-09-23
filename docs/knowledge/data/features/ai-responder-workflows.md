@@ -4,13 +4,14 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T04:50:14Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: data/plans/20260816-ai-responder-workflows.md
 - resource: data/plans/20260903-single-ai-review-workflow.md
+- resource: data/architecture/pr-review-effort-tiers.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
 - resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
@@ -88,3 +89,16 @@ skipped job satisfies a required check, so a marker the gate honored would be a
 self-service waiver of the mandatory review. A marked PR without an accepted
 review keeps a red gate, mergeable only by ruleset bypass. The marker does not
 disable free-form `@claude` tasks.
+
+**A review can be asked to run cheaply.** An `@claude review light` or
+`@claude review full` comment, or a `[ci:review-effort=light]` /
+`[ci:review-effort=full]` marker alone on a line of the pull request body,
+requests one of two effort tiers; the comment outranks the marker, and the
+marker is matched as a whole line for the same reason the skip marker is.
+Preflight resolves the tier and the responder sizes the review session from it.
+A requested tier is obeyed exactly — the review never escalates it, refuses, or
+fails over the diff it finds — and with no request the review sizes itself and
+keeps the session's configured model. An effort tier changes what a review
+costs, never whether one is required: both tiers run the metadata check and the
+durable-knowledge pass, and neither waives `ai-review-present`. The reasoning is
+recorded in [PR review effort tiers](../architecture/pr-review-effort-tiers.md).

@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:31d4585a19bc8d80f7049770ed59854e995df84d712c6016d1bae7c667f73986
+source_digest: sha256:PENDING
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
-stale_after: 2026-12-21
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -45,11 +45,12 @@ architecture, reusing the published `edge` image as a base unless the run is on
 per-arch digests into one manifest; then patches the digest pin and smoke-tests
 the devcontainer with `devcontainers/ci`. The responder only runs for
 `plume-works` and never for a fork PR; its preflight decides between a review
-and a task, and `ai-review-present` reports whether an accepted review exists.
-Knowledge validation always checks this graph when its outer filter passes and
-runs the standalone consumer-seed suite only when its inner seed filter passes.
-Agent-file validation's filter covers the union of codebase map `source` paths,
-then its final step verifies every recorded digest. The full traces are
+and a task, resolves the review's effort tier, and `ai-review-present` reports
+whether an accepted review exists. Knowledge validation always checks this graph
+when its outer filter passes and runs the standalone consumer-seed suite only
+when its inner seed filter passes. Agent-file validation's filter covers the
+union of codebase map `source` paths, then its final step verifies every
+recorded digest. The full traces are
 [the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
@@ -73,6 +74,15 @@ then its final step verifies every recorded digest. The full traces are
   review job only; `ai-review-present` never reads it, so the gate cannot be
   waived from an author-controlled body, and an explicit `@claude review`
   outranks it. The policy is in [AI review gate](../../spec/ai-review-gate.md).
+- A `[ci:review-effort=light|full]` marker on its own line, or an
+  `@claude review light|full` comment that outranks it, selects the review's
+  effort tier; preflight resolves it because only a workflow-level `--model` can
+  size the session. The reasoning is in
+  [PR review effort tiers](../../architecture/pr-review-effort-tiers.md).
+- The `if:` gate admitting an `@claude` mention folds case, because the workflow
+  expression language's `startsWith` does. Every mention test in the workflow's
+  JavaScript folds it too, so the two agree on what a mention is — see
+  [the capitalized-mention misroute](../../bugs/responder-mention-case-sensitivity.md).
 
 ## Key references
 
@@ -88,5 +98,9 @@ Verified anchor points (line numbers as of 2026-09-22):
   four check steps
 - `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
-- `.github/workflows/ai-responder.yml:82,335,387,431,472` — the five jobs
-- `.github/workflows/validate-renovate-config.yml:45-48` — the validator run
+- `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
+- `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
+  markers, both anchored to their own line
+- `.github/workflows/ai-responder.yml:298,402-407` — `opensWith`, and the
+  bridge's review-versus-task split and effort label
+- `.github/workflows/validate-renovate-config.yml:48-51` — the validator run
