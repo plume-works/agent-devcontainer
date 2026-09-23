@@ -27,8 +27,9 @@
     - { role: cmake_kitware, tags: ["cmake"] }
     - { role: dev_tools, tags: ["dev_tools"] }
     - { role: github_cli, tags: ["github_cli"] }
-    # bun_setup must precede nodejs and agentic_tools: both install global
-    # packages through `bun add --global`.
+    # dev_tools installs the bun binary, so it must precede nodejs and
+    # agentic_tools, which install global packages through `bun add --global`;
+    # bun_setup adds the bunx alias and the PATH wiring around it.
     - { role: bun_setup, tags: ["bun_setup", "nodejs", "agentic_tools"] }
     - { role: nodejs, tags: ["nodejs"] }
     - { role: uv_setup, tags: ["uv_setup"] }

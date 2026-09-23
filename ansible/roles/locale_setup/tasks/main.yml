@@ -1,5 +1,9 @@
 ---
 # UTF-8 locale setup
+- name: Load pinned apt versions
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
 - name: Check if locale is UTF-8
   ansible.builtin.command: locale
   register: locale_setup_locale_output
@@ -14,7 +18,8 @@
 
 - name: Install locales package
   ansible.builtin.apt:
-    name: locales
+    name: "{{ locale_setup_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     install_recommends: false
   when: not locale_setup_is_utf8

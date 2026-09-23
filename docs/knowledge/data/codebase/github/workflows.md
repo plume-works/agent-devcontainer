@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: 'The seven workflows: primary-checks orchestrating reformat and ci, the agent-files and knowledge-base validators, the AI responder, and the manual container cleanup.'
+description: 'The eight workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:0917f9a982319da4c0564f0b6009f5933b842768dc1542889902af2a2924aa0d
+source_digest: sha256:769d15c28e10688eb2354c608b0919a11bd6280763645c1b3e3ff4f919fcd8b8
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T12:00:00Z
-stale_after: 2026-12-21
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T12:00:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -17,20 +17,21 @@ sources:
 
 # Workflows
 
-Two reusable workflows behind one entry point, three path-filtered checks, and
+Two reusable workflows behind one entry point, four path-filtered checks, and
 one manual job.
 
 ## Public surface
 
-| Workflow                      | Trigger                                         | Jobs                                                                                                       |
-| ----------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `primary-checks.yml`          | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                             |
-| `reformat.yml`                | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                               |
-| `ci.yml`                      | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`   |
-| `validate-agent-files.yml`    | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
-| `validate-knowledge-base.yml` | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
-| `ai-responder.yml`            | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
-| `delete-old-containers.yml`   | dispatch                                        | prune old package versions                                                                                 |
+| Workflow                       | Trigger                                         | Jobs                                                                                                       |
+| ------------------------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                             |
+| `reformat.yml`                 | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                               |
+| `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`   |
+| `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
+| `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
+| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `renovate-config-validator --no-global --strict` against `.github/renovate.json`                           |
+| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
+| `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                 |
 
 ## How it works
 
@@ -64,6 +65,9 @@ recorded digest. The full traces are
   [dev_tools](../ansible/roles/dev_tools.md).
 - `permissions: {}` at the top of `primary-checks.yml`; each job grants only
   what it uses.
+- `validate-renovate-config.yml` deliberately leaves Renovate unpinned, unlike
+  every other dependency here: the hosted bot always runs the current release,
+  so the pinned pre-commit hook and this job are meant to diverge.
 - Runners are chosen by the `AMD_ONLY`/`ARM_ONLY` repository variables so a fork
   without ARM runners can still build.
 - A `[ci:skip-ai-review]` marker alone on a line of the PR body suppresses the
@@ -99,3 +103,4 @@ Verified anchor points (line numbers as of 2026-09-22):
   markers, both anchored to their own line
 - `.github/workflows/ai-responder.yml:298,402-407` — `opensWith`, and the
   bridge's review-versus-task split and effort label
+- `.github/workflows/validate-renovate-config.yml:48-51` — the validator run

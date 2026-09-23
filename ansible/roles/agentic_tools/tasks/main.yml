@@ -1,23 +1,40 @@
 ---
+# `bun pm ls --global` prints one "<package>@<version>" per line under a tree
+# prefix. Comparing against the pinned spec makes a version bump reinstall,
+# which a guard on the binary's existence alone would skip.
+- name: Read the globally installed Bun packages
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/bun
+      - pm
+      - ls
+      - --global
+  environment:
+    BUN_INSTALL: /usr/local
+  register: agentic_tools_bun_global
+  changed_when: false
+  failed_when: false
+
+- name: Collect the installed Bun package specs
+  ansible.builtin.set_fact:
+    agentic_tools_bun_global_specs: >-
+      {{ agentic_tools_bun_global.stdout_lines | map('regex_replace', '^[^@A-Za-z]+', '') | map('trim') | list }}
+
 - name: Install agentic tools globally with Bun
   ansible.builtin.command:
     argv:
       - /usr/local/bin/bun
       - add
       - --global
-      - "{{ item.package }}"
-    creates: "/usr/local/bin/{{ item.bin }}"
+      - --exact
+      - "{{ item.package }}@{{ item.version }}"
   environment:
     BUN_INSTALL: /usr/local
-  loop:
-    - package: "@modelcontextprotocol/inspector"
-      bin: mcp-inspector
-    - package: "@anthropic-ai/claude-code"
-      bin: claude
-    - package: "@openai/codex"
-      bin: codex
+  loop: "{{ agentic_tools_bun_packages }}"
   loop_control:
-    label: "{{ item.package }}"
+    label: "{{ item.package }}@{{ item.version }}"
+  changed_when: true
+  when: (item.package ~ '@' ~ item.version) not in agentic_tools_bun_global_specs
 
 - name: Install cc-filter security layer for Claude Code
   ansible.builtin.import_tasks: cc_filter.yml

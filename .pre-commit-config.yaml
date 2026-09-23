@@ -65,6 +65,17 @@ repos:
     hooks:
       - id: actionlint
 
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 44.106.0
+    hooks:
+      - id: renovate-config-validator
+        # Both flags, and why the rev pins Renovate here while the workflow
+        # leaves it unpinned: see architecture/renovate-config-validation.
+        args: [--no-global, --strict]
+        # The hook ships language_version: lts, which the devcontainer's nodeenv
+        # parses as a version number and rejects; the image provides Node 24.
+        language_version: system
+
   - repo: local
     hooks:
       - id: zizmor

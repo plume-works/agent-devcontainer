@@ -1,5 +1,9 @@
 ---
 # Node.js installation
+- name: Load pinned apt versions
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
 - name: Remove old Node.js and NPM
   ansible.builtin.apt:
     name:
@@ -29,9 +33,31 @@
 
 - name: Install Node.js
   ansible.builtin.apt:
-    name: nodejs
+    name: "{{ nodejs_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     install_recommends: false
+
+# `bun pm ls --global` prints one "<package>@<version>" per line under a tree
+# prefix. Comparing against the pinned spec makes a version bump reinstall,
+# which a guard on the binary's existence alone would skip.
+- name: Read the globally installed Bun packages
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/bun
+      - pm
+      - ls
+      - --global
+  environment:
+    BUN_INSTALL: /usr/local
+  register: nodejs_bun_global
+  changed_when: false
+  failed_when: false
+
+- name: Collect the installed Bun package specs
+  ansible.builtin.set_fact:
+    nodejs_bun_global_specs: >-
+      {{ nodejs_bun_global.stdout_lines | map('regex_replace', '^[^@A-Za-z]+', '') | map('trim') | list }}
 
 - name: Install Yarn globally with Bun
   ansible.builtin.command:
@@ -39,10 +65,12 @@
       - /usr/local/bin/bun
       - add
       - --global
-      - yarn
-    creates: /usr/local/bin/yarn
+      - --exact
+      - "yarn@{{ nodejs_yarn_version }}"
   environment:
     BUN_INSTALL: /usr/local
+  changed_when: true
+  when: ('yarn@' ~ nodejs_yarn_version) not in nodejs_bun_global_specs
 
 - name: Clean up temporary directory
   ansible.builtin.file:
