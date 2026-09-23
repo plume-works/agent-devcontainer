@@ -1,6 +1,10 @@
 ---
 - name: Install Xpra and related packages
   block:
+    - name: Load pinned apt versions
+      ansible.builtin.include_vars:
+        file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
     - name: Clone Xpra repository (pinned to v6.4.3 tag)
       ansible.builtin.git:
         repo: https://github.com/Xpra-org/xpra.git
@@ -20,8 +24,8 @@
 
     - name: Install Xpra server package
       ansible.builtin.apt:
-        name:
-          - xpra
+        name: "{{ xpra_setup_apt_pins.items() | map('join', '=') | list }}"
+        allow_downgrade: true
         state: present
         install_recommends: true
 
@@ -73,21 +77,14 @@
 
     - name: Install Mesa and OpenGL support packages
       ansible.builtin.apt:
-        name:
-          - mesa-utils
-          - menu-xdg
-          - python3-opengl
-          - python3-pyinotify
-          - python3-xdg
-          - libgl1
-          - libglvnd0
-          - xvfb
+        name: "{{ xpra_setup_mesa_apt_pins.items() | map('join', '=') | list }}"
+        allow_downgrade: true
         state: present
         install_recommends: false
 
     - name: Install software rendering support (Mesa DRI with llvmpipe)
       ansible.builtin.apt:
-        name:
-          - libgl1-mesa-dri
+        name: "{{ xpra_setup_dri_apt_pins.items() | map('join', '=') | list }}"
+        allow_downgrade: true
         state: present
         install_recommends: false
