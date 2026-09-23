@@ -1,0 +1,7 @@
+---
+# GENERATED - Ubuntu noble / arm64. Regenerate with scripts/apt-pins-refresh.py;
+# Renovate keeps the values current through the `deb` custom managers in
+# .github/renovate.json, so edit this by hand only to add or remove a name.
+
+utc_timezone_apt_pins:
+  tzdata: "2026c-0ubuntu0.24.04.1"

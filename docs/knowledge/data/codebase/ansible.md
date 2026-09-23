@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:46edb6ed5b7dd5f40fd97aee383850ca816c18d701882cf3a34ce18a3ddc21ad
+source_digest: sha256:268a35c0fbe30979950afe8153199ab6b2cd0ac98c51c72e0445099755d984ba
 verified:
   by: claude-code/opus-5
-  at: 2026-09-12T00:00:00Z
-stale_after: 2026-12-11
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T00:00:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -44,8 +44,9 @@ from there.
 Roles that are one task file plus a README, *not mapped*: `basic_prereqs` (apt
 essentials, GNOME Keyring, sshd, universe repo), `extra_facts` (`system_arch`,
 `user_home`), `locale_setup`, `utc_timezone`, `fish_setup` (fisher, bass,
-`conf.d/dev.fish`), `bash_setup`, `cmake_kitware`, `github_cli`, `bun_setup`,
-`nodejs` (NodeSource 24), `uv_setup`, `install_docker`,
+`conf.d/dev.fish`), `bash_setup`, `cmake_kitware`, `github_cli`, `bun_setup`
+(the bunx alias and Bun's PATH wiring; the binary itself comes from
+`dev_tools`), `nodejs` (NodeSource 24), `uv_setup`, `install_docker`,
 `install_docker_service`.
 
 ## Public surface
@@ -57,17 +58,19 @@ essentials, GNOME Keyring, sshd, universe repo), `extra_facts` (`system_arch`,
   `workspace_folder` — `ansible/playbooks/group_vars/all.yml:5-24`
 - Per-role `agentic_tools_*` and `validate_agent_files_*` variables, passed by
   the Dockerfile as `-e` extra vars
+- `roles/<role>/vars/apt_pins_<suite>_<arch>.yml` — the generated apt pin files,
+  refreshed by `scripts/apt-pins-refresh.py`
 - Role tags matching role names, plus `always` on the guards
 
 ## How it works
 
 The play runs the roles in a fixed order with three ordering constraints:
-`bun_setup` precedes `nodejs` and `agentic_tools` because both install global
-packages through `bun add --global`; `validate_agent_files` follows `uv_setup`
-because the validator is installed as a uv tool; and `perm_probe` runs first
-(`pre-check`) and last (`final`) with `perm_probe_fail_on_drift: true`, so a
-role that hands `/usr/local` to a non-root owner fails the build instead of
-shipping.
+`dev_tools` precedes `nodejs` and `agentic_tools` because it installs the bun
+binary both of them use through `bun add --global`; `validate_agent_files`
+follows `uv_setup` because the validator is installed as a uv tool; and
+`perm_probe` runs first (`pre-check`) and last (`final`) with
+`perm_probe_fail_on_drift: true`, so a role that hands `/usr/local` to a
+non-root owner fails the build instead of shipping.
 
 ## Depends on
 
@@ -85,10 +88,22 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
 - The `final` perm probe is a build guard, not diagnostics: an ownership drift
   baked into the published image is inherited by every warm build layered on it,
   which is why it fails the play.
+- Every installer- or registry-sourced dependency is pinned in its role's
+  `defaults/main.yml` under a `# renovate:` comment. Each role guards on the
+  pinned version rather than on the binary's existence, so a bump reinstalls
+  instead of being skipped; `ansible/roles/.agent.metadata.json` keeps those
+  automerged values out of this doc's `source_digest`.
+- Every apt package is pinned too, in a generated
+  `vars/apt_pins_<suite>_<arch>.yml` the role opens by loading with
+  `include_vars`. Each pinned install sets `allow_downgrade: true`, so the pin
+  is what ends up installed even when the running image carries a newer version.
+  A release or architecture with no pin file fails the role on the missing path
+  rather than installing something unpinned. The decision and its costs are
+  [Ansible apt pins](../architecture/ansible-apt-pins.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-21):
 
 - `ansible/playbooks/setup-dev.yml:18` — `perm_probe` pre-check guard
 - `ansible/playbooks/setup-dev.yml:28` — `dev_tools`

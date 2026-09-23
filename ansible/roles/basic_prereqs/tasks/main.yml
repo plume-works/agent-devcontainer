@@ -1,28 +1,15 @@
 ---
+- name: Load pinned apt versions
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
+# Package set: vars/apt_pins_<suite>_<arch>.yml. openssh-server and rsync serve
+# the remote-codespace-session skill's `gh codespace ssh` and dirty-tree sync;
+# dbus-x11, gnome-keyring and libsecret-1-0 are the Secret Service `gh` uses.
 - name: Install basic prerequisites
   ansible.builtin.apt:
-    name:
-      - software-properties-common
-      - wget
-      - fish
-      - curl
-      - gnupg2
-      - lsb-release
-      - ca-certificates
-      - apt-utils
-      # Pre-installed so GitHub Codespaces (and the remote-codespace-session
-      # skill's `gh codespace ssh`) can start an SSH server in the container.
-      # The devcontainers/features/sshd feature handles configuration.
-      - openssh-server
-      # Required on the remote end for the remote-codespace-session skill's
-      # dirty-tree sync path (`rsync -e ssh ...`); rsync must exist on both ends.
-      - rsync
-      # GNOME Keyring Secret Service stack. .devcontainer/scripts/setup-keyring.sh
-      # brings up a headless org.freedesktop.secrets so `gh auth login` has
-      # somewhere to persist its token; it skips silently when these are absent.
-      - dbus-x11
-      - gnome-keyring
-      - libsecret-1-0
+    name: "{{ basic_prereqs_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false

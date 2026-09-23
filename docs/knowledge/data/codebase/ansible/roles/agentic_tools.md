@@ -2,14 +2,14 @@
 type: codebase
 description: Installs Claude Code, Codex, and the MCP inspector, optionally cc-filter, and stages and installs the agentdev catalog into the image.
 source: ansible/roles/agentic_tools
-source_digest: sha256:21c366be6379dedb0b62857b2b24368fbb1deb3a5cb964d843c64b97a2e2332f
+source_digest: sha256:e55a85e048cb7419df3da4fc2de45615e8dcc71a73ca4ad020545b5b0998ab8c
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-21T00:00:00Z
+stale_after: 2026-12-20
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-21T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/agentic_tools
@@ -23,26 +23,32 @@ install `agentdev` with no clone and no network.
 
 ## Public surface
 
+- `agentic_tools_claude_code_version`, `agentic_tools_codex_version`,
+  `agentic_tools_inspector_version`, and the `agentic_tools_bun_packages` list
+  they feed — `ansible/roles/agentic_tools/defaults/main.yml:5-17`
 - `agentic_tools_stage_catalog`, `agentic_tools_install_catalog`,
   `agentic_tools_catalog_source_dir`, `agentic_tools_plugin_version`,
   `agentic_tools_catalog_root` —
-  `ansible/roles/agentic_tools/defaults/main.yml:25-58`
-- `agentic_tools_cc_filter_*` — `defaults/main.yml:4-24`, off by default
+  `ansible/roles/agentic_tools/defaults/main.yml:42-70`
+- `agentic_tools_cc_filter_*` — `defaults/main.yml:21-37`, off by default
 - The staged tree at `agentic_tools_catalog_root` (`/opt/agentdev`), holding
-  `.claude-plugin/` and `.agents/` copied whole (`defaults/main.yml:58-63`)
+  `.claude-plugin/` and `.agents/` copied whole (`defaults/main.yml:75-77`)
 
 ## How it works
 
-`tasks/main.yml` installs the Bun globals, then includes `cc_filter.yml`,
-`stage_catalog.yml`, and `install_catalog.yml` behind their booleans. Staging
-reads the Claude marketplace manifest, fails unless it publishes exactly one
-`agentdev` plugin, fails when the Claude and Codex plugin manifests disagree on
-`version`, fails when a non-empty `agentic_tools_plugin_version` differs from
-the staged version, copies the two trees, prunes `__pycache__`, `.pytest_cache`,
-`.ruff_cache`, and `.tmp`, and makes the result root-owned and read-only.
-Installing registers the staged root as a marketplace for Claude (user scope)
-and Codex and installs the plugin for both, so a raw-image consumer resolves
-`agentdev:*` skills without lifecycle hooks.
+`tasks/main.yml` reads the installed global package set from
+`bun pm ls --global` and installs each pinned `package@version` that is missing,
+so a version bump reinstalls where a guard on the binary's existence would skip.
+It then includes `cc_filter.yml`, `stage_catalog.yml`, and `install_catalog.yml`
+behind their booleans. Staging reads the Claude marketplace manifest, fails
+unless it publishes exactly one `agentdev` plugin, fails when the Claude and
+Codex plugin manifests disagree on `version`, fails when a non-empty
+`agentic_tools_plugin_version` differs from the staged version, copies the two
+trees, prunes `__pycache__`, `.pytest_cache`, `.ruff_cache`, and `.tmp`, and
+makes the result root-owned and read-only. Installing registers the staged root
+as a marketplace for Claude (user scope) and Codex and installs the plugin for
+both, so a raw-image consumer resolves `agentdev:*` skills without lifecycle
+hooks.
 
 ## Depends on
 
@@ -64,9 +70,10 @@ through `agentic_tools_catalog_source_dir` (`/provision` in the image build).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-21):
 
-- `ansible/roles/agentic_tools/tasks/main.yml:2` — Bun global installs
+- `ansible/roles/agentic_tools/tasks/main.yml:5` — installed-globals probe
+- `ansible/roles/agentic_tools/tasks/main.yml:23` — pinned Bun global installs
 - `ansible/roles/agentic_tools/tasks/stage_catalog.yml:28` — exactly one plugin
 - `ansible/roles/agentic_tools/tasks/stage_catalog.yml:55` — Claude/Codex
   version agreement

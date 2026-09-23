@@ -4,6 +4,29 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-23
+
+- **Update**: Bun is installed by `dev_tools` from its pinned, checksum-verified
+  release zip instead of by `bun_setup` from the unversioned
+  `https://bun.com/install` script. `install_pinned_tool.yml` gained `extension`
+  and `binaries_in_asset_dir` to handle that archive shape; `bun_setup` keeps
+  the bunx alias and the PATH wiring, and Bun leaves the automerged role-pin
+  group for the hand-maintained `dev_tools` pattern.
+- **Update**: The five identical `<role>/defaults/main.yml` digest masks
+  collapsed into one `*/defaults/main.yml` glob, so a role that gains a pin
+  needs no new entry.
+- **Update**: Every pinned apt install sets `allow_downgrade: true`, so a role
+  converges to its pin from a newer version instead of failing — the state a
+  warm image is in after a reverted bump.
+- **Update**: `apt-pins-refresh.py` treats only a 404 as an empty component and
+  makes every other download failure fatal, rather than caching it as an empty
+  index and silently resolving pins from a partial view; cached indices now
+  expire after six hours.
+- **Creation**:
+  [Renovate config validation](architecture/renovate-config-validation.md)
+  records why the config is validated twice, once at a pinned Renovate and once
+  at the current one, and why both pass `--no-global`.
+
 ## 2026-09-22
 
 - **Update**: Refreshed the four codebase-map docs whose tracked sources the
@@ -31,6 +54,22 @@ to the current day's group.
   [the orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
   stays open and records the attempt, the concurrency reason, and the quota
   hypothesis with the telemetry for and against.
+- **Update**: Every apt package the Ansible roles install is pinned per Ubuntu
+  release and architecture in a generated `vars/apt_pins_<suite>_<arch>.yml`,
+  refreshed by `scripts/apt-pins-refresh.py` and kept current by two `deb`
+  custom managers batched into one automerged Renovate PR.
+- **Creation**: [Ansible apt pins](architecture/ansible-apt-pins.md) records the
+  decision, the per-role repository sets, and the pin-rot and rebuild costs it
+  buys.
+- **Creation**:
+  [Fisher install over untracked plugins](bugs/fisher-install-over-untracked-plugins.md)
+  fixed — `fish_setup` now reconciles `fish_plugins` with `fisher update`
+  instead of installing each pinned plugin.
+- **Update**: `.github/renovate.json` is validated by a pre-commit hook and a
+  workflow, both running `renovate-config-validator --no-global --strict`.
+- **Update**: Refreshed the nine codebase-map docs whose tracked sources the apt
+  pinning and the validator gate moved, and masked the automerged apt pin values
+  out of the Ansible map digests.
 
 ## 2026-09-21
 
@@ -41,6 +80,17 @@ to the current day's group.
   instead of dispatching as a free-form task.
 - **Update**: Refreshed the three codebase-map docs whose tracked sources the
   case fix moved.
+- **Update**: The installer- and registry-sourced dependencies in the Ansible
+  roles (Bun, uv, Yarn, the agent CLIs, fisher, bass) are pinned in each role's
+  `defaults/`, and Renovate's two new custom regex managers keep them current as
+  one automerged group.
+- **Creation**:
+  [Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
+  proposed — the pins carrying a per-architecture checksum need
+  `postUpgradeTasks`, whose command gate only a self-hosted Renovate can open.
+- **Update**: Refreshed the six codebase-map docs whose tracked sources the
+  pinning moved, and masked the automerged pin values out of the Ansible map
+  digests.
 
 ## 2026-09-19
 

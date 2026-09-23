@@ -1,0 +1,7 @@
+---
+# GENERATED - Ubuntu noble / amd64. Regenerate with scripts/apt-pins-refresh.py;
+# Renovate keeps the values current through the `deb` custom managers in
+# .github/renovate.json, so edit this by hand only to add or remove a name.
+
+nodejs_apt_pins:
+  nodejs: "24.21.0-1nodesource1"
