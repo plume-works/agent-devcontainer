@@ -3,4 +3,4 @@
 # /uv/<version>/install.sh, so pinning this pins the installer along with the
 # binary it fetches.
 # renovate: datasource=github-releases depName=astral-sh/uv
-uv_setup_version: "0.12.17"
+uv_setup_version: "0.12.18"
