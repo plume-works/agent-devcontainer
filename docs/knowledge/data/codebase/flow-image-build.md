@@ -6,14 +6,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:0f84b4e6d2c3eea103d9860267a0cb53cd1876b22fb12742db277cf91ebe6a47
+source_digest: sha256:6b95c886d06496627ee2ae0d1790d0e555a53754151f1a7dd9608119caec71ac
 verified:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
-stale_after: 2026-12-20
+  at: 2026-09-22T00:00:00Z
+stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -59,6 +59,8 @@ running the image it produced.
   (`stage_catalog.yml:68`, `validate_agent_files/tasks/main.yml:81`) rather than
   publishing a mislabeled image.
 - Non-root ownership of `/usr/local` fails step 5 at the `final` probe.
+- An apt pin Ubuntu has since superseded is no longer fetchable, and fails step
+  5 at the role that names it, until the next Renovate batch merges.
 - Missing `edge` image in step 3 falls back to a scratch build; slower, not
   wrong.
 - The digest pin sits outside the `image` filter; moving it under

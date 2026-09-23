@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:f97e7aa6f9dbd4cf5804d55907e6d0b07665d9a0a3539bc275ca606929ab1cd6
+source_digest: sha256:516a62e287674c7db90d6b0c58b612cb14c342f2e37c840d2f7366729514fa6d
 verified:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
-stale_after: 2026-12-20
+  at: 2026-09-22T00:00:00Z
+stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - id: code
   resource: .github
@@ -26,9 +26,9 @@ before the push.
 ## Trace
 
 1. `pre-commit` (local, on every commit): Prettier, clang-format, ansible-lint,
-   hadolint, ruff format and lint, shellcheck, gitleaks, actionlint, zizmor, the
-   agent-files validator, plan-checkbox and IWE validation and normalization —
-   `.pre-commit-config.yaml:2-111`
+   hadolint, ruff format and lint, shellcheck, gitleaks, actionlint,
+   `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
+   and IWE validation and normalization — `.pre-commit-config.yaml:2-137`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit —
@@ -48,18 +48,26 @@ before the push.
    validates the consumer seed —
    `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in
    [the knowledge workspace](docs/knowledge.md)
-6. `ai-responder.yml`: `preflight` admits only `plume-works` events from
+6. `validate-renovate-config.yml`, when `.github/renovate.json` changed:
+   `renovate-config-validator --no-global --strict` against it, from the current
+   unpinned Renovate rather than the version the hook pins —
+   `.github/workflows/validate-renovate-config.yml:45-48`
+7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions; `claude-respond` runs the review
    or task through `anthropics/claude-code-action`; `ai-review-present` reports
    whether an accepted review exists —
    `.github/workflows/ai-responder.yml:82,387,472`
-7. Merge: `merge_group` runs steps 2–6 again with a clean image build.
+8. Merge: `merge_group` runs steps 2–7 again with a clean image build.
 
 ## Failure modes
 
 - A formatting commit in step 2 means this run's downstream jobs are skipped;
   the pushed commit's run is the one that counts.
-- A fork PR never gets step 6; the review gate is then a human's.
+- A fork PR never gets step 7; the review gate is then a human's.
+- Step 1 and step 6 run the same validator against the same file on purpose, the
+  hook at a pinned Renovate and the workflow at whatever the hosted app
+  currently runs; a break in the workflow alone is the warning that the live bot
+  is about to break too.
 - Step 1 and step 2 must agree on tool versions; `renovate.json` disables
   Renovate for the Super-Linter family so
   `/agentdev:sync-super-linter-tool-versions` moves them together.

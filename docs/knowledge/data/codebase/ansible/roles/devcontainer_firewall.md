@@ -2,14 +2,14 @@
 type: codebase
 description: Installs the egress firewall script and its sudoers entry into the image; the script stays inert until a container start enables it.
 source: ansible/roles/devcontainer_firewall
-source_digest: sha256:88cdce56ff1dd2b99e57258b8a43ee2fbbef082efa5de0850d11190337b5896a
+source_digest: sha256:af9517b455b1732d95b1e6202b3fcd64ce9351309f61eca03addb61f50328820
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5
+  at: 2026-09-22T00:00:00Z
+stale_after: 2026-12-21
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5
+  at: 2026-09-22T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/devcontainer_firewall
@@ -50,13 +50,17 @@ is [firewall.sh](../../devcontainer/scripts.md) reading `ENABLE_FIREWALL`.
   `data/product.md`.
 - The script is adapted from the Claude Code reference devcontainer firewall;
   the allowlist indirection is the local addition.
+- The iptables/ipset packages install at pinned versions from
+  `vars/apt_pins_<suite>_<arch>.yml`, like every other apt install in the play.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-22):
 
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:16` — install the script
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:24` — sudoers entry
+- `ansible/roles/devcontainer_firewall/tasks/main.yml:6-11` — the pinned apt
+  install
+- `ansible/roles/devcontainer_firewall/tasks/main.yml:13` — install the script
+- `ansible/roles/devcontainer_firewall/tasks/main.yml:21` — sudoers entry
 - `ansible/roles/devcontainer_firewall/files/init-firewall.sh:14` — allowlist
   path resolution
 - `ansible/roles/devcontainer_firewall/files/init-firewall.sh:76` —

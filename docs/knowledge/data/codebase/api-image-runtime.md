@@ -5,14 +5,14 @@ source:
 - docker
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
-source_digest: sha256:0cc364c050d7889652e3f373138238dc9f1664556d0153379ee7665628bc07dd
+source_digest: sha256:97941de10d01002a746b26f0784095250e0ff290dbc55dc51b288398c88573c0
 verified:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
-stale_after: 2026-12-20
+  at: 2026-09-22T00:00:00Z
+stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - id: code
   resource: docker
@@ -63,9 +63,9 @@ is the surface those consumers touch; the build that produces it is
 
 ## Guarantees
 
-- Everything installed is pinned: apt from fixed repositories, release binaries
-  by version and checksum, Xpra by tag, the catalog and validator by verified
-  version args.
+- Everything installed is pinned: apt packages to an exact version per Ubuntu
+  release and architecture, release binaries by version and checksum, the
+  catalog and validator by verified version args.
 - The firewall is installed but inert; enabling it default-DROPs IPv4 egress
   outside the allowlist and blocks IPv6 entirely.
 - The catalog staged in the image changes only with a new image.

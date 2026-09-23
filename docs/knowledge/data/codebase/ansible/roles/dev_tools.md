@@ -2,14 +2,14 @@
 type: codebase
 description: Installs the apt development toolchain and a list of pinned, checksum-verified single-binary tools (zizmor, the iwe trio, codebase-memory-mcp).
 source: ansible/roles/dev_tools
-source_digest: sha256:88d5f9abceb0d4e981c50637ebee41612a808bc6eaee82350abbe515c96760b1
+source_digest: sha256:27f0dc80b62446598cff1b92ac493f77addb6744271b1a8da4cf5a14a1528288
 verified:
   by: claude-code/opus-5
-  at: 2026-09-12T00:00:00Z
-stale_after: 2026-12-11
+  at: 2026-09-22T00:00:00Z
+stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-12T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/dev_tools
@@ -23,6 +23,9 @@ release binaries every other part of the workspace assumes are on `PATH`.
 
 ## Public surface
 
+- `dev_tools_apt_pins` —
+  `ansible/roles/dev_tools/vars/apt_pins_<suite>_<arch>.yml`; the apt package
+  set with its pinned versions
 - `dev_tools_pinned_tools` — `ansible/roles/dev_tools/defaults/main.yml:14`;
   each entry names a version, a download URL prefix, an asset prefix, an
   optional `binaries` list, and a per-architecture `target` + `checksum`
@@ -31,7 +34,8 @@ release binaries every other part of the workspace assumes are on `PATH`.
 
 ## How it works
 
-`tasks/main.yml` adds the PPA, installs the apt list, then loops
+`tasks/main.yml` loads the pin file for the running release and architecture,
+adds the PPA, installs the apt list as `name=version` specs, then loops
 `install_pinned_tool.yml` over `dev_tools_pinned_tools`: check the architecture
 is listed, download the archive with its checksum, extract into a temporary
 directory, copy only the named binaries to `/usr/local/bin` as `root:root`, and
@@ -46,6 +50,10 @@ clean up. The archive is never unpacked into `/usr/local/bin` itself.
 - Extract-then-copy is the whole defense against a release archive whose `./`
   entry carries its build runner's uid: unpacking directly would re-own
   `/usr/local/bin`, which [perm_probe](perm_probe.md) then catches.
+- `cmake` in the apt list resolves from the Kitware repository that
+  [cmake_kitware](../../ansible.md) adds before this role runs, and `git` and
+  `git-lfs` from the git-core PPA this role adds; both are recorded in
+  `ROLE_REPOS` in `scripts/apt-pins-refresh.py`.
 - The `iwe` version here must match `IWE_VERSION` in
   `.github/workflows/validate-knowledge-base.yml:18`, which installs the same
   release on the runner.
@@ -56,9 +64,11 @@ clean up. The archive is never unpacked into `/usr/local/bin` itself.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-09-22):
 
-- `ansible/roles/dev_tools/tasks/main.yml:34` — the pinned-tools loop
+- `ansible/roles/dev_tools/tasks/main.yml:3-5` — the pin file include
+- `ansible/roles/dev_tools/tasks/main.yml:17-22` — the pinned apt install
+- `ansible/roles/dev_tools/tasks/main.yml:24` — the pinned-tools loop
 - `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:16` — download with
   checksum
 - `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:25` — extract to a

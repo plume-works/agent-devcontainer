@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:6b4f405aea660c43c6ade4df286211a67d681185cb1ca1af938ec6ba55681d3b
+source_digest: sha256:044171b316f34fd36f5abddeee97e527acf70b2eeae738b21e2f8e0314c4c41d
 verified:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
-stale_after: 2026-12-20
+  at: 2026-09-22T00:00:00Z
+stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - id: code
   resource: .github
@@ -30,9 +30,10 @@ the composite actions they share, `renovate.json`, and
 ## Public surface
 
 - `renovate.json` — automerges GitHub Actions updates, the `agent-desktop`
-  digest pin, and the Ansible role dependency pins its two custom regex managers
-  extract from `# renovate:` comments under `ansible/roles/*/defaults/`;
-  disables Renovate for the Super-Linter family, which
+  digest pin, the Ansible role dependency pins its two custom regex managers
+  extract from `# renovate:` comments under `ansible/roles/*/defaults/`, and the
+  apt pins two more managers extract from `ansible/roles/*/vars/apt_pins_*.yml`
+  as `deb` dependencies; disables Renovate for the Super-Linter family, which
   `/agentdev:sync-super-linter-tool-versions` moves by hand
 - `pull_request_template.md` — the verification sections
   [PR verification sections](../architecture/pr-verification-sections.md)
@@ -60,17 +61,26 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 - Actions are pinned to exact versions and audited by `zizmor` in pre-commit.
 - The agent-file workflow's source filter stays aligned with codebase map
   frontmatter.
+- Each apt pin file's `registryUrls` must list exactly the repositories its role
+  enables, and agree with `ROLE_REPOS` in `scripts/apt-pins-refresh.py`;
+  disagreement makes the bot and the script revert each other.
+- `renovate.json` is itself validated, by a pre-commit hook and by
+  `validate-renovate-config.yml`, both running the validator with `--no-global`
+  so it applies the repository schema rather than the self-hosted one.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-21):
+Verified anchor points (line numbers as of 2026-09-22):
 
 - `.github/renovate.json:9-15` — Actions automerge
 - `.github/renovate.json:16-23` — `agent-desktop` digest automerge
-- `.github/renovate.json:24-40` — Super-Linter family disabled
+- `.github/renovate.json:24-46` — Super-Linter family disabled
 - `.github/renovate.json:47-63` — role dependency pins grouped and automerged,
   with `astral-sh/uv` grouped across both places it is pinned
-- `.github/renovate.json:65-84` — the two custom regex managers, one for version
-  pins and one for commit pins
+- `.github/renovate.json:64-221` — the per-role apt `registryUrls` rules and the
+  batched, scheduled `ansible apt pins` group
+- `.github/renovate.json:222-267` — the four custom managers: version pins,
+  commit pins, and one `deb` manager per architecture
+- `.github/renovate.json:268-271` — `vulnerabilityAlerts` resetting the schedule
 - `.github/workflows/validate-knowledge-base.yml:69-109` — seed filter and
   standalone seed validation

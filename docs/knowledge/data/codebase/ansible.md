@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:2269cc1950ed46b00cfa79e6fb4cbc926cf110698976c5c9d4fd50dc9ff63b0a
+source_digest: sha256:a34fd6e7b9291c13a36b0712fbfcff2c6d176d0df81697731d247b6119535a42
 verified:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
-stale_after: 2026-12-20
+  at: 2026-09-22T00:00:00Z
+stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -57,6 +57,8 @@ essentials, GNOME Keyring, sshd, universe repo), `extra_facts` (`system_arch`,
   `workspace_folder` — `ansible/playbooks/group_vars/all.yml:5-24`
 - Per-role `agentic_tools_*` and `validate_agent_files_*` variables, passed by
   the Dockerfile as `-e` extra vars
+- `roles/<role>/vars/apt_pins_<suite>_<arch>.yml` — the generated apt pin files,
+  refreshed by `scripts/apt-pins-refresh.py`
 - Role tags matching role names, plus `always` on the guards
 
 ## How it works
@@ -90,6 +92,11 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   pinned version rather than on the binary's existence, so a bump reinstalls
   instead of being skipped; `ansible/roles/.agent.metadata.json` keeps those
   automerged values out of this doc's `source_digest`.
+- Every apt package is pinned too, in a generated
+  `vars/apt_pins_<suite>_<arch>.yml` the role opens by loading with
+  `include_vars`. A release or architecture with no pin file fails the role on
+  the missing path rather than installing something unpinned. The decision and
+  its costs are [Ansible apt pins](../architecture/ansible-apt-pins.md).
 
 ## Key references
 

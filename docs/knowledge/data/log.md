@@ -19,6 +19,9 @@ to the current day's group.
   instead of installing each pinned plugin.
 - **Update**: `.github/renovate.json` is validated by a pre-commit hook and a
   workflow, both running `renovate-config-validator --no-global --strict`.
+- **Update**: Refreshed the nine codebase-map docs whose tracked sources the apt
+  pinning and the validator gate moved, and masked the automerged apt pin values
+  out of the Ansible map digests.
 
 ## 2026-09-21
 
