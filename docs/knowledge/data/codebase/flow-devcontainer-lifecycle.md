@@ -49,9 +49,9 @@ state.
    `.devcontainer/scripts/postAttachCommand.sh:8-15`
 6. In the Claude Code web environment only, the plugin's `SessionStart` hook
    runs `devcontainer up`, which replays steps 1–5 —
-   `.agents/plugins/agentdev/hooks/session-start.sh:5,29`
-   Codex declares an explicit empty hook set for this plugin, so it does not
-   run the Claude-specific devcontainer startup hook.
+   `.agents/plugins/agentdev/hooks/session-start.sh:5,29` Codex declares an
+   explicit empty hook set for this plugin, so it does not run the
+   Claude-specific devcontainer startup hook.
 
 ## Failure modes
 

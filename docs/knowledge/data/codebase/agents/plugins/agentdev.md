@@ -96,7 +96,8 @@ Verified anchor points (line numbers as of 2026-09-23):
 - `.agents/plugins/agentdev/.codex-plugin/plugin.json:23` — Codex-specific hook
   configuration
 - `.agents/plugins/agentdev/hooks/codex-hooks.json:2` — empty Codex hook set
-- `.agents/plugins/agentdev/hooks/session-start.sh:5` — the Claude remote-only gate
+- `.agents/plugins/agentdev/hooks/session-start.sh:5` — the Claude remote-only
+  gate
 - `.agents/plugins/agentdev/hooks/session-start.sh:29` — `devcontainer up`
 - `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`, the
   fourth pin

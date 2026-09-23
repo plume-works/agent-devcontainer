@@ -29,10 +29,9 @@ sources:
   removed after each test
 - Modules: `test_close_issue.py`, `test_codex_hooks.py`,
   `test_discover_ai_responder.py`, `test_fetch_issue.py`,
-  `test_remote_codespace_session.py`,
-  `test_result_codes.py`, `test_stale_map_docs.py`,
-  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
-  `test_update_branch.py`
+  `test_remote_codespace_session.py`, `test_result_codes.py`,
+  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
+  `test_template_consume_check_updates.py`, `test_update_branch.py`
 
 ## How it works
 
