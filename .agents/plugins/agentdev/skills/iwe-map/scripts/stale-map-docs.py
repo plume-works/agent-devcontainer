@@ -53,7 +53,9 @@ Output:
 
 Content designated machine-managed by an `iwe-map.digest_ignore` rule in a
 `.agent.metadata.json` is replaced with a fixed placeholder before the source
-fingerprint is computed, so an automerged pin bump does not mark a doc stale.
+fingerprint is computed, so an automerged pin bump does not mark a doc stale. The
+`.agent.metadata.json` files themselves are excluded from the fingerprint; a
+rule enters a doc's digest only where it applies.
 
 Results (RESULT / exit code):
   SUCCESS          0  Every map doc is fresh
@@ -298,6 +300,10 @@ def source_digest_for_paths(
     declaring no masks produces exactly the digests the unmasked script did.
     A masked file contributes the sha256 of its masked content instead, and the
     masks that applied are folded in by the caller.
+
+    A `.agent.metadata.json` contributes nothing. It describes how this digest
+    is computed rather than the code a map doc claims, and the rules that reach
+    a doc already enter its digest through `fold_in_masks`.
     """
     if not sources:
         return f'sha256:{hashlib.sha256(b"").hexdigest()}'
@@ -310,6 +316,8 @@ def source_digest_for_paths(
     digest = hashlib.sha256()
     for raw_path in sorted({path for path in listed.split(b'\0') if path}):
         relative = raw_path.decode()
+        if Path(relative).name == METADATA_FILENAME:
+            continue
         if not Path(relative).exists():
             digest.update(raw_path + b'\0' + b'MISSING' + b'\0')
             continue

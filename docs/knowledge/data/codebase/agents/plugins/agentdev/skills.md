@@ -2,14 +2,14 @@
 type: codebase
 description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:dc19ba9b20a99e131b51526e8face49e19efd6f57da5ff97c3bb69e019fa0e4f
+source_digest: sha256:227e163aa13b4c278ceb79760cdf3fa6bdfe1193665d344550224de5ac0416d9
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T21:30:00Z
-stale_after: 2026-12-21
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T21:30:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -48,17 +48,19 @@ in the matching [result-code helpers](bin.md), and end every path with
 `iwe-map`'s `stale-map-docs.py` is the Python case: it fingerprints the tracked
 source behind every `data/codebase/` doc, normalizing content that an
 `iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
-machine-managed so an automerged pin bump does not register as a change. Its
-`--explain` flag prints one `MASK` line per applied rule, and it adds
-`BROKEN_METADATA` (exit 5) to the shared result vocabulary for metadata it
-cannot read, compile, or apply to a masked text file. The IWE family runs
-against the [knowledge workspace](../../../docs/knowledge.md).
-`template-consume` optionally copies the repository's IWE seed into a consumer,
-then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
-reusable knowledge scaffold and never replaces consumer-owned project memory.
-Its state is split three ways: the `template-consume` section of the consumer
-root's `.agent.metadata.json` is the only machine-parsed record of the adopted
-ref and the tracked paths — `check-updates.sh` reads nothing else, and a legacy
+machine-managed so an automerged pin bump does not register as a change. The
+metadata files themselves stay out of that fingerprint; a rule reaches a digest
+only as the pattern and replacement that applied. Its `--explain` flag prints
+one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
+shared result vocabulary for metadata it cannot read, compile, or apply to a
+masked text file. The IWE family runs against the
+[knowledge workspace](../../../docs/knowledge.md). `template-consume` optionally
+copies the repository's IWE seed into a consumer, then hands onboarding to
+`iwe-setup` and `iwe-map`; update mode tracks only the reusable knowledge
+scaffold and never replaces consumer-owned project memory. Its state is split
+three ways: the `template-consume` section of the consumer root's
+`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
+the tracked paths — `check-updates.sh` reads nothing else, and a legacy
 `.agentdev-template.json` is consolidated into it on the next update;
 `.agentdev-template-progress.md` is the consumer-owned task and choice ledger
 that survives an interrupted setup; and `data/template-adoption` summarizes the

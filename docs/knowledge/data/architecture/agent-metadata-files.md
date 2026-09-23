@@ -59,6 +59,14 @@ resolving .github/workflows/ci.yml
   `.github/` is copied into another repository, which is what makes colocation
   worth its cost. `**` crosses directory separators; a single `*` does not.
 
+A `.agent.metadata.json` is never itself tracked content. It describes how a
+consumer reaches its answer rather than the sources that answer is about, so a
+consumer fingerprinting a directory excludes these files from the fingerprint.
+What a rule *does* still reaches the result wherever it applies — `iwe-map`
+folds each applied rule's pattern and replacement into the doc digest — so a
+rule change that alters masking stays visible, while a file's prose, its
+formatting, and its mere presence do not move a digest.
+
 Accumulation has no removal operation. If a subtree ever needs to escape an
 inherited rule, that is a new key with its own semantics, not a reinterpretation
 of this one.
@@ -139,11 +147,11 @@ removes the portability that motivates colocation.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
+Verified anchor points (line numbers as of 2026-09-23):
 
 - `docs/knowledge/data/architecture/template-boundary.md:19-25` — the
   classification a colocated file inherits from its directory
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:123-138` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:291-333` —
   `source_digest_for_paths`, the fingerprint the first consumer filters
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:175-215` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:388-421` —
   `classify`, the per-document verdict function a broken subtree reports through

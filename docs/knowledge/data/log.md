@@ -4,6 +4,17 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-23
+
+- **Update**: `.agent.metadata.json` files no longer contribute to a
+  codebase-map source digest — [metadata](architecture/agent-metadata-files.md)
+  records the rule. A metadata file describes how the digest is computed, not
+  the code a map doc claims, and an applied rule already enters the digest as
+  its pattern and replacement, so editing a reason or adding a rule that reaches
+  nothing leaves every doc fresh.
+- **Update**: Refreshed the five codebase-map docs whose tracked sources the
+  exclusion moved.
+
 ## 2026-09-22
 
 - **Update**: Refreshed the four codebase-map docs whose tracked sources the

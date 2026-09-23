@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:5cf69d854bc169fbec774f08c044da3997350dee021dca84ca7d94f12fad8d0b
+source_digest: sha256:19db408eb0a4b8e4a4d0662d0f1e44c6b5f9067f517079ec96441fb698bf79fc
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T12:00:00Z
-stale_after: 2026-12-21
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T12:00:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: .github

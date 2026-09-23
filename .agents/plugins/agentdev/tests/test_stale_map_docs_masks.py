@@ -401,3 +401,59 @@ def test_explain_names_the_mask_its_source_and_its_reason(
         f'@sha256:[0-9a-f]{{64}} {MASK_REASON}'
     ]
     assert lines[-1] == 'RESULT=SUCCESS'
+
+
+def test_a_metadata_file_is_not_itself_tracked_content(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Adding an .agent.metadata.json inside a claimed directory leaves the doc fresh."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    commit_file(repository, 'deploy/compose.yml', compose_text(PIN), 'add compose')
+    write_map_doc(repository, 'data/codebase/deploy', 'type: codebase\nsource: deploy\n')
+    digest = current_digest(repository, 'deploy')
+    write_map_doc(
+        repository,
+        'data/codebase/deploy',
+        f"type: codebase\nsource: deploy\nsource_digest: '{digest}'\n",
+    )
+
+    # Act: declare a rule that reaches nothing under deploy/
+    write_metadata(repository / 'deploy', {'*.json': digest_mask()})
+    git(repository, 'add', '-A')
+    git(repository, 'commit', '-m', 'add masks')
+    completed = run_script(plugin_root, repository)
+
+    # Assert
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert 'FRESH data/codebase/deploy' in completed.stdout.splitlines()
+
+
+def test_editing_only_a_rules_reason_leaves_the_doc_fresh(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A rule enters a digest as pattern and replacement, so its prose is free to change."""
+    # Arrange
+    repository, _ = pin_workspace(plugin_tmp_path)
+    assert verdict(run_script(plugin_root, repository)) == (0, 'RESULT=SUCCESS')
+
+    # Act: reword the reason, leaving pattern and replacement alone
+    write_metadata(
+        repository / 'deploy',
+        {
+            'compose.yml': [
+                {
+                    'pattern': '@sha256:[0-9a-f]{64}',
+                    'replace': '@sha256:<PIN>',
+                    'reason': 'Reworded: the bot advances this pin unattended.',
+                }
+            ]
+        },
+    )
+    git(repository, 'add', '-A')
+    git(repository, 'commit', '-m', 'reword the reason')
+    completed = run_script(plugin_root, repository)
+
+    # Assert
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert 'FRESH data/codebase/deploy' in completed.stdout.splitlines()
