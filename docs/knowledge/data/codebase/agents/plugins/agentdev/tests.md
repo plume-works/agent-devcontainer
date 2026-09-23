@@ -2,10 +2,10 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:fe103cf2a57dad22a0c1133719f3b02f73d4871c586eae6593e3522368f21a6b
+source_digest: sha256:f0e9c0a899ecdcfc38979dedab76fff2eab07ea90ec2f6db080f9de61e49c009
 verified:
   by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
+  at: 2026-09-23T22:25:36Z
 stale_after: 2026-12-05
 generated:
   by: codex/gpt-5
@@ -17,7 +17,7 @@ sources:
 
 # Plugin tests
 
-9 test modules plus `conftest.py`, run with
+10 test modules plus `conftest.py`, run with
 `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`.
 
@@ -27,8 +27,9 @@ sources:
   test is resolved
 - `plugin_tmp_path` fixture — a scratch directory under the plugin's `.tmp/`,
   removed after each test
-- Modules: `test_close_issue.py`, `test_discover_ai_responder.py`,
-  `test_fetch_issue.py`, `test_remote_codespace_session.py`,
+- Modules: `test_close_issue.py`, `test_codex_hooks.py`,
+  `test_discover_ai_responder.py`, `test_fetch_issue.py`,
+  `test_remote_codespace_session.py`,
   `test_result_codes.py`, `test_stale_map_docs.py`,
   `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
   `test_update_branch.py`
@@ -51,7 +52,9 @@ confined to its own subtree, including invalid replacements and masked binary
 files. `test_template_consume_check_updates.py` builds the same metadata file to
 hold the marker section, and pins `NO_MARKER` for an absent file and for an
 absent section, and `INVALID_MARKER` for malformed metadata or a section missing
-`consumed_ref` or `tracked_paths`.
+`consumed_ref` or `tracked_paths`. `test_codex_hooks.py` pins the Codex manifest
+hook path and the empty Codex hook set that keeps the Claude SessionStart hook
+out of Codex startup.
 
 ## Depends on
 
@@ -67,10 +70,14 @@ absent section, and `INVALID_MARKER` for malformed metadata or a section missing
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
+Verified anchor points (line numbers as of 2026-09-23):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
+- `.agents/plugins/agentdev/tests/test_codex_hooks.py:16` — Codex hook-file
+  resolution
+- `.agents/plugins/agentdev/tests/test_codex_hooks.py:28` — Codex empty-hook
+  contract
 - `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:18` —
