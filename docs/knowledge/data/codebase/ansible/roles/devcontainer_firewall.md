@@ -2,7 +2,7 @@
 type: codebase
 description: Installs the egress firewall script and its sudoers entry into the image; the script stays inert until a container start enables it.
 source: ansible/roles/devcontainer_firewall
-source_digest: sha256:af9517b455b1732d95b1e6202b3fcd64ce9351309f61eca03addb61f50328820
+source_digest: sha256:5828c4fb30e6ccbc68e746253f9b509bb8b52dc5e1aade2dbc49200c85fe107c
 verified:
   by: claude-code/opus-5
   at: 2026-09-22T00:00:00Z

@@ -13,6 +13,7 @@
 - name: Install GitHub CLI prerequisites
   ansible.builtin.apt:
     name: "{{ github_cli_prereqs_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false
@@ -36,6 +37,7 @@
 - name: Install GitHub CLI
   ansible.builtin.apt:
     name: "{{ github_cli_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     install_recommends: false
 

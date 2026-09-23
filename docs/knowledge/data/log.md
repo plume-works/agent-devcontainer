@@ -15,6 +15,17 @@ to the current day's group.
 - **Update**: The five identical `<role>/defaults/main.yml` digest masks
   collapsed into one `*/defaults/main.yml` glob, so a role that gains a pin
   needs no new entry.
+- **Update**: Every pinned apt install sets `allow_downgrade: true`, so a role
+  converges to its pin from a newer version instead of failing — the state a
+  warm image is in after a reverted bump.
+- **Update**: `apt-pins-refresh.py` treats only a 404 as an empty component and
+  makes every other download failure fatal, rather than caching it as an empty
+  index and silently resolving pins from a partial view; cached indices now
+  expire after six hours.
+- **Creation**:
+  [Renovate config validation](architecture/renovate-config-validation.md)
+  records why the config is validated twice, once at a pinned Renovate and once
+  at the current one, and why both pass `--no-global`.
 
 ## 2026-09-22
 

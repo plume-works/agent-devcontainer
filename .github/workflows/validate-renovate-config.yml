@@ -34,17 +34,9 @@ jobs:
         with:
           persist-credentials: false
 
-      # Renovate is deliberately not pinned here, unlike every other dependency
-      # in this repository. The Mend-hosted app always runs the current
-      # Renovate, so validating against an older pinned version could pass
-      # while the bot itself fails; a break in this job is the signal that the
-      # live bot is about to break too. The pre-commit hook pins it instead.
-      #
-      # --no-global validates the file as a repository config. Without it the
-      # validator applies the self-hosted global schema instead, which accepts
-      # and rejects a different set of options, so the check would not be
-      # testing what Renovate actually reads. --strict additionally fails on
-      # warnings and on a config that needs migration.
+      # Renovate is deliberately unpinned here while the pre-commit hook pins
+      # it, and --no-global is load-bearing: see
+      # architecture/renovate-config-validation.
       - name: Validate .github/renovate.json
         run: |
           npx --yes --package renovate renovate-config-validator \

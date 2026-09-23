@@ -2,7 +2,7 @@
 type: codebase
 description: Installs the apt development toolchain and a list of pinned, checksum-verified single-binary tools (zizmor, the iwe trio, codebase-memory-mcp, bun).
 source: ansible/roles/dev_tools
-source_digest: sha256:7bd541e1cd9697bd3df6d8d7f9386b30db3251aa78ccc8238bcec863f2e61d2a
+source_digest: sha256:994e42ee873dfde6efc08f364731f9a9daf7e256c0ab3d1b2214f520c96b77d9
 verified:
   by: claude-code/opus-5
   at: 2026-09-23T00:00:00Z

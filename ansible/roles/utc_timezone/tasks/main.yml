@@ -33,6 +33,7 @@
 - name: Install tzdata package
   ansible.builtin.apt:
     name: "{{ utc_timezone_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false

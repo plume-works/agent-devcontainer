@@ -34,6 +34,7 @@
 - name: Install Node.js
   ansible.builtin.apt:
     name: "{{ nodejs_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     install_recommends: false
 

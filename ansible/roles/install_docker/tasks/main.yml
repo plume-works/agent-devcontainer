@@ -12,6 +12,7 @@
 - name: Install Docker dependencies
   ansible.builtin.apt:
     name: "{{ install_docker_prereqs_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
 
@@ -34,6 +35,7 @@
 - name: Install Docker Engine
   ansible.builtin.apt:
     name: "{{ install_docker_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
 

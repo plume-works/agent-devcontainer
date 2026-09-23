@@ -2,7 +2,7 @@
 type: codebase
 description: Builds Xpra and its HTML5 client from pinned tags, installs VirtualGL from GitHub releases, and adds Mesa software rendering.
 source: ansible/roles/xpra_setup
-source_digest: sha256:e84d0f5c0241389234588b4065184c49515c5a218b0d33f95ef7d6a9a1f3b7fc
+source_digest: sha256:d15d7b9dac09a38e26d2d77bb2f578c907279db999eb3bb7099cbbe45dd73b33
 verified:
   by: claude-code/opus-5
   at: 2026-09-22T00:00:00Z

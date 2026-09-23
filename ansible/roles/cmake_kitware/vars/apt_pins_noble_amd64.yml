@@ -1,11 +1,7 @@
 ---
-# Pinned apt package versions - GENERATED FILE
-#
-# Target: Ubuntu noble / amd64
-#
-# Regenerate with scripts/apt-pins-refresh.py. Renovate keeps the versions
-# current through the `deb` custom managers in .github/renovate.json, so a
-# manual edit is only needed to add or remove a package name.
+# GENERATED - Ubuntu noble / amd64. Regenerate with scripts/apt-pins-refresh.py;
+# Renovate keeps the values current through the `deb` custom managers in
+# .github/renovate.json, so edit this by hand only to add or remove a name.
 
 cmake_kitware_keyring_apt_pins:
   kitware-archive-keyring: "2026.06.22"

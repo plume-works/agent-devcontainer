@@ -1,8 +1,7 @@
 ---
-# Bun's binary is installed by dev_tools, which pins it by version and
-# per-architecture checksum like every other release artifact it fetches. This
-# role owns the user-facing setup around it: the bunx alias, the global bin
-# directory, and the shell PATH wiring.
+# dev_tools installs the bun binary, pinned by version and per-architecture
+# checksum. This role owns the user-facing setup around it: the bunx alias, the
+# global bin directory, and the shell PATH wiring.
 - name: Check if bunx is already installed
   ansible.builtin.stat:
     path: /usr/local/bin/bunx

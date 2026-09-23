@@ -1,8 +1,7 @@
 ---
-# Install a single entry from dev_tools_pinned_tools. Included once per tool by
-# main.yml via `loop`; `dev_tools_tool` is the current loop item. Installs every
-# name in `dev_tools_tool.binaries` when the archive ships more than one binary
-# (see iwe), otherwise just `dev_tools_tool.name`.
+# Install one entry from dev_tools_pinned_tools; `dev_tools_tool` is the loop
+# item main.yml passes. Installs every name in `dev_tools_tool.binaries` when
+# the archive ships more than one (see iwe), otherwise just its `name`.
 - name: "Ensure the current architecture is supported: {{ dev_tools_tool.name }}"
   ansible.builtin.assert:
     that: system_arch in dev_tools_tool.archives

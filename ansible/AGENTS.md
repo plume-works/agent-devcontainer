@@ -31,7 +31,9 @@ working directory. Running from here silently loses the inventory and roles path
   `roles/<role>/vars/apt_pins_<suite>_<arch>.yml`. The role loads the file matching
   `system_dist` and `system_arch` and hands apt the `name=version` list it holds. Add or
   remove a package name by editing the file, then run `scripts/apt-pins-refresh.py` to
-  resolve the versions. A role that enables an apt repository of its own resolves against
+  resolve the versions. Every pinned install sets `allow_downgrade: true`: the pin is
+  the version that must end up installed, including when the running image carries a
+  newer one, as it does after a reverted bump. A role that enables an apt repository of its own resolves against
   a wider set than the Ubuntu archive: record it in that script's `ROLE_REPOS` and in the
   matching `registryUrls` rule in `.github/renovate.json`, which must agree or the two
   will revert each other.

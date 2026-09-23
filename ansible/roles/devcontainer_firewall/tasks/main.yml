@@ -6,6 +6,7 @@
 - name: Install firewall tools
   ansible.builtin.apt:
     name: "{{ devcontainer_firewall_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false

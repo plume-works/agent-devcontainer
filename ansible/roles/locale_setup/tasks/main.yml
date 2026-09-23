@@ -19,6 +19,7 @@
 - name: Install locales package
   ansible.builtin.apt:
     name: "{{ locale_setup_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     install_recommends: false
   when: not locale_setup_is_utf8

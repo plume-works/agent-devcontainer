@@ -3,18 +3,13 @@
   ansible.builtin.include_vars:
     file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
 
-# The package set is in vars/apt_pins_<suite>_<arch>.yml. The three entries that
-# are not self-explanatory: openssh-server lets GitHub Codespaces (and the
-# remote-codespace-session skill's `gh codespace ssh`) start an SSH server in
-# the container, with the devcontainers/features/sshd feature configuring it;
-# rsync is needed on the remote end for that skill's dirty-tree sync path
-# (`rsync -e ssh ...`), which requires it on both ends; and dbus-x11,
-# gnome-keyring and libsecret-1-0 are the GNOME Keyring Secret Service stack
-# that .devcontainer/scripts/setup-keyring.sh brings up as a headless
-# org.freedesktop.secrets so `gh auth login` has somewhere to persist its token.
+# Package set: vars/apt_pins_<suite>_<arch>.yml. openssh-server and rsync serve
+# the remote-codespace-session skill's `gh codespace ssh` and dirty-tree sync;
+# dbus-x11, gnome-keyring and libsecret-1-0 are the Secret Service `gh` uses.
 - name: Install basic prerequisites
   ansible.builtin.apt:
     name: "{{ basic_prereqs_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false

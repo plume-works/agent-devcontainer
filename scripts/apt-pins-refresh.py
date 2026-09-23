@@ -25,6 +25,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from typing import Iterable
 import urllib.error
 import urllib.request
@@ -32,6 +33,7 @@ import urllib.request
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ROLES_DIR = ROOT / 'ansible' / 'roles'
 CACHE_DIR = ROOT / '.tmp' / 'apt-pins-cache'
+CACHE_TTL_SECONDS = 6 * 60 * 60
 
 PIN_FILE_RE = re.compile(r'^apt_pins_(?P<suite>[a-z]+)_(?P<arch>[a-z0-9]+)\.yml$')
 PIN_LINE_RE = re.compile(
@@ -55,17 +57,15 @@ THIRD_PARTY = {
     'docker': ('https://download.docker.com/linux/ubuntu', ('stable',), None),
     'git-core': ('https://ppa.launchpadcontent.net/git-core/ppa/ubuntu', ('main',), None),
     'github-cli': ('https://cli.github.com/packages', ('main',), 'stable'),
-    # The Node major lives in the repository URL, so it is pinned by the
-    # NodeSource setup script the nodejs role runs, not by a version here.
-    # Keep this in step with that script's URL in
+    # The Node major lives in the repository URL, not in a version here. Keep
+    # it in step with the NodeSource setup script's URL in
     # ansible/roles/nodejs/tasks/main.yml.
     'nodesource': ('https://deb.nodesource.com/node_24.x', ('main',), 'nodistro'),
 }
 
-# The apt sources a role resolves against unless ROLE_REPOS narrows or widens
-# it. Must stay in step with the registryUrls the `deb` custom managers use in
-# .github/renovate.json, otherwise Renovate would propose a version this script
-# would revert.
+# The apt sources a role resolves against unless ROLE_REPOS widens it. Must
+# agree with the registryUrls in .github/renovate.json, or Renovate and this
+# script revert each other: see architecture/ansible-apt-pins.
 DEFAULT_REPOS = {'ubuntu'}
 
 # Roles whose apt sources are wider than DEFAULT_REPOS, because the role adds a
@@ -104,18 +104,27 @@ def fetch_index(component_url: str) -> dict[str, list[str]]:
     """Download and parse one ``Packages.gz`` index into ``{package: [versions]}``."""
     cache_name = re.sub(r'[^a-zA-Z0-9]+', '_', component_url).strip('_') + '.gz'
     cached = CACHE_DIR / cache_name
+    if cached.exists():
+        cache_age = time.time() - cached.stat().st_mtime
+        if cache_age < 0 or cache_age >= CACHE_TTL_SECONDS:
+            cached.unlink()
     if not cached.exists():
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
         url = f'{component_url}/Packages.gz'
         try:
             with urllib.request.urlopen(url, timeout=120) as response:
                 payload = response.read()
-        except (urllib.error.URLError, urllib.error.HTTPError) as error:
-            # A missing component (for example a pocket with no packages for an
-            # architecture) is normal; record it as empty rather than failing.
-            print(f'  warning: {url}: {error}', file=sys.stderr)
+        except urllib.error.HTTPError as error:
+            if error.code != 404:
+                raise SystemExit(f'{url}: {error}') from error
+            # Only a 404 means the component genuinely has nothing for this
+            # architecture. Any other failure would silently resolve pins from
+            # a partial view, so it is fatal above.
+            print(f'  note: {url}: no such component', file=sys.stderr)
             cached.write_bytes(gzip.compress(b''))
             return {}
+        except (urllib.error.URLError, TimeoutError) as error:
+            raise SystemExit(f'{url}: {error}') from error
         cached.write_bytes(payload)
 
     index: dict[str, list[str]] = {}

@@ -35,6 +35,19 @@ the other; CI builds both natively. A consuming project on a different Ubuntu
 release adds its own `apt_pins_<suite>_<arch>.yml` — without one, the role fails
 on the missing file rather than installing something unpinned.
 
+## The pin wins in both directions
+
+Every pinned install sets `allow_downgrade: true`. `ansible.builtin.apt` refuses
+a downgrade by default, so without it a role could not converge to its own pin
+on a host carrying a newer version — which is the state every warm build is in
+after a reverted bump, and the state CI's own base image is in whenever a batch
+is reverted. A pin that only ever moves forward is not a pin; it is a floor.
+
+The cost is that reverting a pin to a version with a known defect downgrades
+silently rather than failing loudly. That is accepted: the revert is explicit in
+the diff, and the alternative makes reverts impossible rather than merely
+visible.
+
 ## Repository sets
 
 A pin is only installable from a repository the role actually enables, so each

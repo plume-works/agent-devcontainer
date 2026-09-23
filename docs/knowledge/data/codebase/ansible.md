@@ -4,7 +4,7 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:f0d8cf08218be7ad319692fe0088efe9e2c536539974f1f90ce2dad5c0c33be9
+source_digest: sha256:268a35c0fbe30979950afe8153199ab6b2cd0ac98c51c72e0445099755d984ba
 verified:
   by: claude-code/opus-5
   at: 2026-09-23T00:00:00Z
@@ -95,9 +95,11 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   automerged values out of this doc's `source_digest`.
 - Every apt package is pinned too, in a generated
   `vars/apt_pins_<suite>_<arch>.yml` the role opens by loading with
-  `include_vars`. A release or architecture with no pin file fails the role on
-  the missing path rather than installing something unpinned. The decision and
-  its costs are [Ansible apt pins](../architecture/ansible-apt-pins.md).
+  `include_vars`. Each pinned install sets `allow_downgrade: true`, so the pin
+  is what ends up installed even when the running image carries a newer version.
+  A release or architecture with no pin file fails the role on the missing path
+  rather than installing something unpinned. The decision and its costs are
+  [Ansible apt pins](../architecture/ansible-apt-pins.md).
 
 ## Key references
 

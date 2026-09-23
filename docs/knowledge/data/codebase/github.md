@@ -2,7 +2,7 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:154d947739c7cef7e2d37a1800f3c58eefe0935154cd7d1dd2f58f85fd8e0c99
+source_digest: sha256:b89a397534cba2157eab56b3b4679d6911df07b1e1399443970832a69500dae5
 verified:
   by: claude-code/opus-5
   at: 2026-09-23T00:00:00Z
@@ -66,7 +66,9 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
   disagreement makes the bot and the script revert each other.
 - `renovate.json` is itself validated, by a pre-commit hook and by
   `validate-renovate-config.yml`, both running the validator with `--no-global`
-  so it applies the repository schema rather than the self-hosted one.
+  so it applies the repository schema rather than the self-hosted one — the
+  split, and why only one side pins Renovate, is
+  [Renovate config validation](../architecture/renovate-config-validation.md).
 
 ## Key references
 

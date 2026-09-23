@@ -7,6 +7,7 @@
 - name: Install fish
   ansible.builtin.apt:
     name: "{{ fish_setup_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false
@@ -28,12 +29,9 @@
   become: true
   become_user: "{{ dev_user }}"
 
-# fish_plugins is fisher's declaration of what should be installed, and
-# `fisher update` reconciles the tree to it -- installing what is listed,
-# updating what moved, and removing what is not. Writing the pinned specs into
-# that file and updating is therefore the whole install: it converges from an
-# empty system and from one carrying plugins installed under a different spec,
-# which `fisher install` refuses to overwrite.
+# fish_plugins declares what should be installed and `fisher update` reconciles
+# the tree to it, so writing the pinned specs and updating converges from an
+# empty system and from one whose plugins carry a different spec.
 - name: Collect the pinned fish plugin specs
   ansible.builtin.set_fact:
     fish_setup_wanted_plugins:

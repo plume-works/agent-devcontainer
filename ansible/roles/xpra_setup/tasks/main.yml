@@ -25,6 +25,7 @@
     - name: Install Xpra server package
       ansible.builtin.apt:
         name: "{{ xpra_setup_apt_pins.items() | map('join', '=') | list }}"
+        allow_downgrade: true
         state: present
         install_recommends: true
 
@@ -77,11 +78,13 @@
     - name: Install Mesa and OpenGL support packages
       ansible.builtin.apt:
         name: "{{ xpra_setup_mesa_apt_pins.items() | map('join', '=') | list }}"
+        allow_downgrade: true
         state: present
         install_recommends: false
 
     - name: Install software rendering support (Mesa DRI with llvmpipe)
       ansible.builtin.apt:
         name: "{{ xpra_setup_dri_apt_pins.items() | map('join', '=') | list }}"
+        allow_downgrade: true
         state: present
         install_recommends: false

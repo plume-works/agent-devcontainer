@@ -10,13 +10,13 @@
     state: present
     filename: git-core-ppa
 
-# The package set is in vars/apt_pins_<suite>_<arch>.yml; ffmpeg is there for
-# rendering animations and screen captures, btop for monitoring resource usage.
-# cmake resolves from the Kitware repository that cmake_kitware adds before this
-# role runs, and git and git-lfs from the git-core PPA added above.
+# Package set: vars/apt_pins_<suite>_<arch>.yml (ffmpeg renders animations and
+# screen captures, btop monitors resource usage). cmake resolves from the
+# Kitware repository cmake_kitware adds, git and git-lfs from the PPA above.
 - name: Install development tools
   ansible.builtin.apt:
     name: "{{ dev_tools_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     install_recommends: false
     update_cache: true

@@ -63,12 +63,9 @@ dev_tools_pinned_tools:
         target: linux-arm64-portable
         checksum: b4ee6aafcc2f3a12e537709e16e42dc49e98ad5c1d620eba1fbad5d83825dac5
 
-  # Bun ships a per-arch .zip whose single binary sits in a directory named
-  # after the asset, so this entry sets both `extension` and
-  # `binaries_in_asset_dir`. The amd64 asset is the `-baseline` build, which
-  # runs without AVX2; switch to plain `x64` only once every host this image
-  # targets is known to provide it. bun_setup keeps the bunx symlink, the
-  # global bin directory, and the shell PATH wiring.
+  # Bun's .zip holds its binary under a directory named after the asset, hence
+  # `extension` and `binaries_in_asset_dir`. The amd64 asset is `-baseline`,
+  # which runs without AVX2; plain `x64` faults on a host that lacks it.
   - name: bun
     version: bun-v1.4.2
     url_prefix: https://github.com/oven-sh/bun/releases/download

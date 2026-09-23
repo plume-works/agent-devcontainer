@@ -51,6 +51,7 @@
 - name: Install Kitware archive keyring
   ansible.builtin.apt:
     name: "{{ cmake_kitware_keyring_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false
@@ -81,6 +82,7 @@
 - name: Install pinned Kitware CMake
   ansible.builtin.apt:
     name: "{{ cmake_kitware_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false
