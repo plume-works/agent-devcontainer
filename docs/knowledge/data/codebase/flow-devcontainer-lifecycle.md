@@ -5,7 +5,7 @@ source:
 - .devcontainer
 - docker/desktop
 - .agents/plugins/agentdev/hooks
-source_digest: sha256:5ba68dba9f810d93b4b1d26d8023816d4f5e339897d289fff6e803a1ec5dc89c
+source_digest: sha256:ad74746f5704a44cfedb7c243bbec37de1ca2b385ebc723524b1ab336b71f733
 verified:
   by: codex/gpt-5
   at: 2026-09-23T22:35:09Z

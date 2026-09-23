@@ -76,8 +76,8 @@ Verified anchor points (line numbers as of 2026-09-23):
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
 - `.agents/plugins/agentdev/tests/test_codex_hooks.py:33` — Codex manifest
   validation
-- `.agents/plugins/agentdev/tests/test_codex_hooks.py:40` — absent default
-  Codex hook manifest
+- `.agents/plugins/agentdev/tests/test_codex_hooks.py:40` — absent default Codex
+  hook manifest
 - `.agents/plugins/agentdev/tests/test_codex_hooks.py:49` — Claude hook-file
   resolution
 - `.agents/plugins/agentdev/tests/test_update_branch.py:11` —

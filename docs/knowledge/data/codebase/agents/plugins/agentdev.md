@@ -5,7 +5,7 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:c0b3f761e89d7d381621f71f1c5868361a64112ad1ee691a2c5f0342372148cb
+source_digest: sha256:3a3f2b30fcb3c4d2a07a6a9d94cc29aab569a72e79c4924a9fd3c12aac7ccda3
 verified:
   by: codex/gpt-5
   at: 2026-09-23T22:35:09Z
@@ -92,8 +92,8 @@ Verified anchor points (line numbers as of 2026-09-23):
   version
 - `.agents/plugins/agentdev/.codex-plugin/plugin.json:3` — Codex manifest
   version
-- `.agents/plugins/agentdev/.claude-plugin/plugin.json:9` — Claude-specific
-  hook configuration
+- `.agents/plugins/agentdev/.claude-plugin/plugin.json:9` — Claude-specific hook
+  configuration
 - `.agents/plugins/agentdev/hooks/claude-hooks.json:8` — Claude hook command
 - `.agents/plugins/agentdev/hooks/session-start.sh:5` — the Claude remote-only
   gate
