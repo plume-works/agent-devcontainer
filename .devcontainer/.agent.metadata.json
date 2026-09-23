@@ -1,0 +1,13 @@
+{
+  "iwe-map": {
+    "digest_ignore": {
+      "devcontainer.json": [
+        {
+          "pattern": "(\"[a-z0-9.-]+\\.[a-z]{2,}/[^\"]+):[0-9]+(\\.[0-9]+)*(\": \\{)",
+          "replace": "\\1:<PIN>\\3",
+          "reason": "Renovate bumps Dev Container feature version pins; the feature set itself stays tracked."
+        }
+      ]
+    }
+  }
+}

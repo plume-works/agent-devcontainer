@@ -12,8 +12,12 @@ to the current day's group.
   the code a map doc claims, and an applied rule already enters the digest as
   its pattern and replacement, so editing a reason or adding a rule that reaches
   nothing leaves every doc fresh.
-- **Update**: Refreshed the five codebase-map docs whose tracked sources the
-  exclusion moved.
+- **Update**: Dev Container feature version pins in
+  `.devcontainer/devcontainer.json` are masked out of the codebase-map source
+  digest by a rule colocated in `.devcontainer/`, so a Renovate feature bump no
+  longer marks a map doc stale while the feature set itself stays tracked.
+- **Update**: Refreshed the seven codebase-map docs whose tracked sources the
+  two rules above moved.
 
 ## 2026-09-22
 

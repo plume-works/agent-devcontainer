@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/desktop
 - .agents/plugins/agentdev/hooks
-source_digest: sha256:d4e4dfcbe3642fd11a29ca9022ce34472303b49b2e9d20ea0dd993c011767d4e
+source_digest: sha256:ec1fcd9125a2a2ec290a5912511fabc67bc30ab4196dc546e7c0500c540b367f
 verified:
   by: claude-code/opus-5
-  at: 2026-09-09T20:43:33Z
-stale_after: 2026-12-08
+  at: 2026-09-20T17:53:05Z
+stale_after: 2026-12-19
 generated:
   by: claude-code/opus-5
-  at: 2026-09-09T20:43:33Z
+  at: 2026-09-20T17:53:05Z
 sources:
 - id: code
   resource: .devcontainer
