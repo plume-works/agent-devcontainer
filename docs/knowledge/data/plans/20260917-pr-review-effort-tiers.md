@@ -4,7 +4,7 @@ created: 2026-09-17
 description: Give the AI pull request review two effort tiers with explicit hard overrides, harden per-pass model selection, and cut the light tier's fan-out.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-17T00:00:00Z
+  at: 2026-09-22T00:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/issues/129
   title: PR effort
@@ -16,6 +16,8 @@ sources:
   title: GPT-5.6 Sol model identifier
 - resource: https://developers.openai.com/api/docs/models/gpt-5.6-terra
   title: GPT-5.6 Terra model identifier
+stage: done
+completed: 2026-09-22
 ---
 
 # Effort tiers for the AI pull request review
@@ -513,7 +515,9 @@ check or the durable-knowledge pass, which run at both tiers.
   and is not reopened here.
 - Changing `[ci:skip-ai-review]`, the Step 1 mechanical fast-approve, or the
   docs-only exclusion from it.
-- Batching or otherwise reducing full-effort validation.
+- Batching full-effort validation, which keeps one dispatch per candidate. The
+  model that validation runs on is set by the effort matrix, which holds it at
+  `light` for both tiers.
 - A tier for the free-form `@claude` task responder.
 - Refreshing `data/codebase/` map documents, which `/agentdev:iwe-map`
   regenerates from tracked-source digests.
