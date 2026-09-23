@@ -5,10 +5,10 @@ source:
 - .devcontainer
 - docker/desktop
 - .agents/plugins/agentdev/hooks
-source_digest: sha256:d4e4dfcbe3642fd11a29ca9022ce34472303b49b2e9d20ea0dd993c011767d4e
+source_digest: sha256:538335128d4b0e358906fc974e935df09f8dc7b5544d2a63ea9e09041b380e53
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-09T20:43:33Z
+  by: codex/gpt-5
+  at: 2026-09-23T22:25:36Z
 stale_after: 2026-12-08
 generated:
   by: claude-code/opus-5
@@ -50,6 +50,8 @@ state.
 6. In the Claude Code web environment only, the plugin's `SessionStart` hook
    runs `devcontainer up`, which replays steps 1–5 —
    `.agents/plugins/agentdev/hooks/session-start.sh:5,29`
+   Codex declares an explicit empty hook set for this plugin, so it does not
+   run the Claude-specific devcontainer startup hook.
 
 ## Failure modes
 

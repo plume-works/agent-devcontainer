@@ -5,10 +5,10 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:8287249ff9b30c56c4a63f75e157d79d84a3ad065161aa4228913749c98140b2
+source_digest: sha256:5424a4c3a5e3b8daf0e18475dd94354cd593f43c8b9d0dd6e714b3c93667ae81
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-22T21:30:00Z
+  by: codex/gpt-5
+  at: 2026-09-23T22:25:36Z
 stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
@@ -40,7 +40,8 @@ two ecosystems publish different plugin sets. Skills are invoked as
 
 *Not mapped*: `agents/` — five agent definitions (`Principal Engineer`,
 `TDD Red`, `TDD Green`, `TDD Refactor`, `Durable Knowledge Auditor`), one file
-each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
+each; `hooks/` — Claude's `hooks.json` wires a single `SessionStart` command,
+while Codex's `codex-hooks.json` declares no hooks.
 
 ## Public surface
 
@@ -50,8 +51,10 @@ each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
   `tdd-refactor`, `durable-knowledge-auditor`
 - `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
   `result_codes.py`, which a Python skill script imports from there
-- `hooks/session-start.sh` — brings up the project devcontainer, only when
-  `CLAUDE_CODE_REMOTE=true`
+- `hooks/session-start.sh` — brings up the project devcontainer for Claude Code
+  web sessions, only when `CLAUDE_CODE_REMOTE=true`
+- `hooks/codex-hooks.json` — explicitly disables Codex hook discovery for this
+  Claude-specific startup hook
 - `version` — `3.3.0`, declared identically in both plugin manifests, the
   marketplace entry, and the Dockerfile pin
 
@@ -90,7 +93,10 @@ Verified anchor points (line numbers as of 2026-09-22):
   version
 - `.agents/plugins/agentdev/.codex-plugin/plugin.json:3` — Codex manifest
   version
-- `.agents/plugins/agentdev/hooks/session-start.sh:5` — the remote-only gate
+- `.agents/plugins/agentdev/.codex-plugin/plugin.json:23` — Codex-specific hook
+  configuration
+- `.agents/plugins/agentdev/hooks/codex-hooks.json:2` — empty Codex hook set
+- `.agents/plugins/agentdev/hooks/session-start.sh:5` — the Claude remote-only gate
 - `.agents/plugins/agentdev/hooks/session-start.sh:29` — `devcontainer up`
 - `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`, the
   fourth pin

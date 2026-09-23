@@ -130,6 +130,8 @@ and codebase-map documents. They are the project's memory across sessions.
 
 A `SessionStart` hook brings up the project devcontainer, but **only** in the
 Claude Code web environment (`CLAUDE_CODE_REMOTE=true`). It is a no-op locally.
+Codex declares an explicit empty hook file so it does not discover the
+Claude-specific startup hook.
 
 ## What it expects
 
