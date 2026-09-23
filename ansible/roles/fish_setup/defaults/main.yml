@@ -1,0 +1,10 @@
+---
+# fisher, the fish package manager. The same version bootstraps the installer
+# function and is recorded in fish_plugins.
+# renovate: datasource=github-releases depName=jorgebucaran/fisher
+fish_setup_fisher_version: "4.4.8"
+
+# bass, which sources bash scripts from fish. Its only tag (v1.0) predates the
+# tree everything else here is built against, so it is pinned by commit.
+# renovate: datasource=git-refs depName=https://github.com/edc/bass currentValue=master
+fish_setup_bass_ref: "79b62958ecf4e87334f24d6743e5766475bcf4d0"

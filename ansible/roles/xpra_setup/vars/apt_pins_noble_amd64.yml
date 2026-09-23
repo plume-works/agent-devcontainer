@@ -1,0 +1,20 @@
+---
+# GENERATED - Ubuntu noble / amd64. Regenerate with scripts/apt-pins-refresh.py;
+# Renovate keeps the values current through the `deb` custom managers in
+# .github/renovate.json, so edit this by hand only to add or remove a name.
+
+xpra_setup_apt_pins:
+  xpra: "3.1.5+dfsg1-0.2ubuntu1"
+
+xpra_setup_mesa_apt_pins:
+  libgl1: "1.7.0-1build1"
+  libglvnd0: "1.7.0-1build1"
+  menu-xdg: "0.7"
+  mesa-utils: "9.0.0-2"
+  python3-opengl: "3.1.7+dfsg-1"
+  python3-pyinotify: "0.9.6-2ubuntu1"
+  python3-xdg: "0.28-2"
+  xvfb: "2:21.1.12-1ubuntu1.6"
+
+xpra_setup_dri_apt_pins:
+  libgl1-mesa-dri: "25.2.8-0ubuntu0.24.04.2"

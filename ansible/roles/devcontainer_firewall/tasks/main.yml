@@ -1,14 +1,12 @@
 ---
+- name: Load pinned apt versions
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
+
 - name: Install firewall tools
   ansible.builtin.apt:
-    name:
-      - iptables
-      - ipset
-      - dnsutils
-      - iproute2
-      - jq
-      - curl
-      - aggregate
+    name: "{{ devcontainer_firewall_apt_pins.items() | map('join', '=') | list }}"
+    allow_downgrade: true
     state: present
     update_cache: true
     install_recommends: false

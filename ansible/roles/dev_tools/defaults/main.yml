@@ -62,3 +62,20 @@ dev_tools_pinned_tools:
       arm64:
         target: linux-arm64-portable
         checksum: b4ee6aafcc2f3a12e537709e16e42dc49e98ad5c1d620eba1fbad5d83825dac5
+
+  # Bun's .zip holds its binary under a directory named after the asset, hence
+  # `extension` and `binaries_in_asset_dir`. The amd64 asset is `-baseline`,
+  # which runs without AVX2; plain `x64` faults on a host that lacks it.
+  - name: bun
+    version: bun-v1.4.2
+    url_prefix: https://github.com/oven-sh/bun/releases/download
+    asset_prefix: bun-linux-
+    extension: zip
+    binaries_in_asset_dir: true
+    archives:
+      amd64:
+        target: x64-baseline
+        checksum: c678040f14fe0440eb839d37cbd0ce4c051a32da72806ac97de6a6aab6bf728f
+      arm64:
+        target: aarch64
+        checksum: 54328bbc2d9c8e0c9f892c544d66c57a83b84139e34909e5ee81758f1ac8fda7

@@ -50,3 +50,7 @@ rejected are as valuable as the one you picked.*
 [Self-improve runtime](architecture/self-improve-runtime.md)
 
 [PR review effort tiers](architecture/pr-review-effort-tiers.md)
+
+[Ansible apt pins](architecture/ansible-apt-pins.md)
+
+[Renovate config validation](architecture/renovate-config-validation.md)
