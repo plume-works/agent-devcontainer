@@ -20,6 +20,11 @@
     "iwe"
   ],
   "skills": "./skills/",
+  "extensions": {
+    "com.openai": {
+      "hooks": "./hooks/codex-hooks.json"
+    }
+  },
   "interface": {
     "displayName": "Agent Dev",
     "shortDescription": "Shared agents and development workflows",
