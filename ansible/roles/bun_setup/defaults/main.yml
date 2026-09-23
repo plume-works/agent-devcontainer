@@ -1,6 +1,0 @@
----
-# Bun release to install. The upstream tag carries a `bun-v` prefix that the
-# installer expects but `bun --version` does not report, so this holds the bare
-# version and the tag is reassembled where it is needed.
-# renovate: datasource=github-releases depName=oven-sh/bun extractVersion=^bun-v(?<version>.+)$
-bun_setup_version: "1.4.2"

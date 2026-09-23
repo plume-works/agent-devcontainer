@@ -19,7 +19,7 @@ sources:
 ## Purpose
 
 Three groups of pins carry a per-architecture SHA-256 beside their version:
-`dev_tools_pinned_tools` (zizmor, iwe, codebase-memory-mcp), cc-filter, and
+`dev_tools_pinned_tools` (zizmor, iwe, codebase-memory-mcp, bun), cc-filter, and
 VirtualGL. Renovate can move the version but not the hash next to it, so an
 automated bump would leave a stale checksum and fail the image build at download
 time. They are maintained by hand, and go stale because nothing prompts a bump.

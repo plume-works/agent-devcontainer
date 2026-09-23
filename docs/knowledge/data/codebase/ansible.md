@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:ad27d331f4da4f87cd15be19bc360882ec983f1d4910b542423b5f737a6d149b
+source_digest: sha256:f0d8cf08218be7ad319692fe0088efe9e2c536539974f1f90ce2dad5c0c33be9
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
-stale_after: 2026-12-21
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -44,8 +44,9 @@ from there.
 Roles that are one task file plus a README, *not mapped*: `basic_prereqs` (apt
 essentials, GNOME Keyring, sshd, universe repo), `extra_facts` (`system_arch`,
 `user_home`), `locale_setup`, `utc_timezone`, `fish_setup` (fisher, bass,
-`conf.d/dev.fish`), `bash_setup`, `cmake_kitware`, `github_cli`, `bun_setup`,
-`nodejs` (NodeSource 24), `uv_setup`, `install_docker`,
+`conf.d/dev.fish`), `bash_setup`, `cmake_kitware`, `github_cli`, `bun_setup`
+(the bunx alias and Bun's PATH wiring; the binary itself comes from
+`dev_tools`), `nodejs` (NodeSource 24), `uv_setup`, `install_docker`,
 `install_docker_service`.
 
 ## Public surface
@@ -64,12 +65,12 @@ essentials, GNOME Keyring, sshd, universe repo), `extra_facts` (`system_arch`,
 ## How it works
 
 The play runs the roles in a fixed order with three ordering constraints:
-`bun_setup` precedes `nodejs` and `agentic_tools` because both install global
-packages through `bun add --global`; `validate_agent_files` follows `uv_setup`
-because the validator is installed as a uv tool; and `perm_probe` runs first
-(`pre-check`) and last (`final`) with `perm_probe_fail_on_drift: true`, so a
-role that hands `/usr/local` to a non-root owner fails the build instead of
-shipping.
+`dev_tools` precedes `nodejs` and `agentic_tools` because it installs the bun
+binary both of them use through `bun add --global`; `validate_agent_files`
+follows `uv_setup` because the validator is installed as a uv tool; and
+`perm_probe` runs first (`pre-check`) and last (`final`) with
+`perm_probe_fail_on_drift: true`, so a role that hands `/usr/local` to a
+non-root owner fails the build instead of shipping.
 
 ## Depends on
 

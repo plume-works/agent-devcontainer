@@ -4,6 +4,18 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-23
+
+- **Update**: Bun is installed by `dev_tools` from its pinned, checksum-verified
+  release zip instead of by `bun_setup` from the unversioned
+  `https://bun.com/install` script. `install_pinned_tool.yml` gained `extension`
+  and `binaries_in_asset_dir` to handle that archive shape; `bun_setup` keeps
+  the bunx alias and the PATH wiring, and Bun leaves the automerged role-pin
+  group for the hand-maintained `dev_tools` pattern.
+- **Update**: The five identical `<role>/defaults/main.yml` digest masks
+  collapsed into one `*/defaults/main.yml` glob, so a role that gains a pin
+  needs no new entry.
+
 ## 2026-09-22
 
 - **Update**: Refreshed the four codebase-map docs whose tracked sources the

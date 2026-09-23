@@ -45,7 +45,7 @@
       "enabled": false
     },
     {
-      "description": "The provisioning tools the Ansible roles pin (Bun, uv, Yarn, the agent CLIs, fisher, bass). Each pin is a bare version string with nothing that has to move with it, so a bump cannot leave the role half-updated the way the checksum-carrying pins in dev_tools would. That is what makes batching and automerge safe here.",
+      "description": "The provisioning tools the Ansible roles pin (uv, Yarn, the agent CLIs, fisher, bass). Each pin is a bare version string with nothing that has to move with it, so a bump cannot leave the role half-updated the way the checksum-carrying pins in dev_tools would. That is what makes batching and automerge safe here.",
       "matchManagers": ["custom.regex"],
       "matchFileNames": ["ansible/roles/*/defaults/main.yml"],
       "groupName": "ansible role dependency pins",

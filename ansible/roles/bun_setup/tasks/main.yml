@@ -1,59 +1,12 @@
 ---
-# Install Bun JavaScript runtime from the official installer
-- name: Load pinned apt versions
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
-
-- name: Read the installed Bun version
-  ansible.builtin.command:
-    argv:
-      - /usr/local/bin/bun
-      - --version
-  register: bun_setup_installed_version
-  changed_when: false
-  failed_when: false
-
-# Guards on the pinned version rather than on the binary's existence, so that
-# bumping bun_setup_version reinstalls instead of silently keeping the old Bun.
-- name: Decide whether Bun needs installing
-  ansible.builtin.set_fact:
-    bun_setup_install_needed: >-
-      {{ bun_setup_installed_version.rc != 0
-         or (bun_setup_installed_version.stdout | trim) != bun_setup_version }}
-
+# Bun's binary is installed by dev_tools, which pins it by version and
+# per-architecture checksum like every other release artifact it fetches. This
+# role owns the user-facing setup around it: the bunx alias, the global bin
+# directory, and the shell PATH wiring.
 - name: Check if bunx is already installed
   ansible.builtin.stat:
     path: /usr/local/bin/bunx
   register: bun_setup_bunx_binary
-
-- name: Install Bun installer prerequisites
-  ansible.builtin.apt:
-    name: "{{ bun_setup_apt_pins.items() | map('join', '=') | list }}"
-    state: present
-    install_recommends: false
-  when: bun_setup_install_needed | bool
-
-- name: Create temporary directory for Bun installer
-  ansible.builtin.tempfile:
-    state: directory
-  register: bun_setup_temp_dir
-  when: bun_setup_install_needed | bool
-
-- name: Download Bun install script
-  ansible.builtin.get_url:
-    url: https://bun.com/install
-    dest: "{{ bun_setup_temp_dir.path }}/bun-install.sh"
-    mode: "0755"
-  when: bun_setup_install_needed | bool
-
-- name: Install Bun to /usr/local/bin
-  ansible.builtin.shell:
-    cmd: "{{ bun_setup_temp_dir.path }}/bun-install.sh 'bun-v{{ bun_setup_version }}'"
-    executable: /bin/bash
-  environment:
-    BUN_INSTALL: /usr/local
-  changed_when: true
-  when: bun_setup_install_needed | bool
 
 - name: Ensure bunx is available alongside Bun
   ansible.builtin.file:
@@ -61,12 +14,6 @@
     dest: /usr/local/bin/bunx
     state: link
   when: not bun_setup_bunx_binary.stat.exists
-
-- name: Clean up temporary directory
-  ansible.builtin.file:
-    path: "{{ bun_setup_temp_dir.path }}"
-    state: absent
-  when: bun_setup_install_needed | bool and bun_setup_temp_dir.path is defined
 
 # `bun install -g` creates this directory lazily on the first global install, so the
 # existence guards in the PATH blocks below only hold once something has been installed
