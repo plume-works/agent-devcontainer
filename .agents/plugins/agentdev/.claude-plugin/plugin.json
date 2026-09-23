@@ -6,5 +6,6 @@
     "name": "PlumeWorks"
   },
   "homepage": "https://github.com/plume-works/agent-devcontainer",
+  "hooks": "./hooks/claude-hooks.json",
   "license": "MIT"
 }

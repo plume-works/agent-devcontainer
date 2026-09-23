@@ -2,10 +2,10 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:f0e9c0a899ecdcfc38979dedab76fff2eab07ea90ec2f6db080f9de61e49c009
+source_digest: sha256:83a6ea5d0a9a519f0749ac97b6b9c4af89744ce0c23cec93ada8152d38b2a509
 verified:
   by: codex/gpt-5
-  at: 2026-09-23T22:25:36Z
+  at: 2026-09-23T22:35:09Z
 stale_after: 2026-12-05
 generated:
   by: codex/gpt-5
@@ -52,8 +52,9 @@ files. `test_template_consume_check_updates.py` builds the same metadata file to
 hold the marker section, and pins `NO_MARKER` for an absent file and for an
 absent section, and `INVALID_MARKER` for malformed metadata or a section missing
 `consumed_ref` or `tracked_paths`. `test_codex_hooks.py` pins the Codex manifest
-hook path and the empty Codex hook set that keeps the Claude SessionStart hook
-out of Codex startup.
+against the current validator and the absence of a default Codex-discoverable
+hook manifest, while checking Claude's explicit hook file still registers the
+SessionStart command.
 
 ## Depends on
 
@@ -73,10 +74,12 @@ Verified anchor points (line numbers as of 2026-09-23):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
-- `.agents/plugins/agentdev/tests/test_codex_hooks.py:16` — Codex hook-file
+- `.agents/plugins/agentdev/tests/test_codex_hooks.py:33` — Codex manifest
+  validation
+- `.agents/plugins/agentdev/tests/test_codex_hooks.py:40` — absent default
+  Codex hook manifest
+- `.agents/plugins/agentdev/tests/test_codex_hooks.py:49` — Claude hook-file
   resolution
-- `.agents/plugins/agentdev/tests/test_codex_hooks.py:28` — Codex empty-hook
-  contract
 - `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:18` —

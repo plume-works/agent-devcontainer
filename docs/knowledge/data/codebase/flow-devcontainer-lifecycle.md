@@ -5,10 +5,10 @@ source:
 - .devcontainer
 - docker/desktop
 - .agents/plugins/agentdev/hooks
-source_digest: sha256:538335128d4b0e358906fc974e935df09f8dc7b5544d2a63ea9e09041b380e53
+source_digest: sha256:5ba68dba9f810d93b4b1d26d8023816d4f5e339897d289fff6e803a1ec5dc89c
 verified:
   by: codex/gpt-5
-  at: 2026-09-23T22:25:36Z
+  at: 2026-09-23T22:35:09Z
 stale_after: 2026-12-08
 generated:
   by: claude-code/opus-5
@@ -49,9 +49,9 @@ state.
    `.devcontainer/scripts/postAttachCommand.sh:8-15`
 6. In the Claude Code web environment only, the plugin's `SessionStart` hook
    runs `devcontainer up`, which replays steps 1–5 —
-   `.agents/plugins/agentdev/hooks/session-start.sh:5,29` Codex declares an
-   explicit empty hook set for this plugin, so it does not run the
-   Claude-specific devcontainer startup hook.
+   `.agents/plugins/agentdev/hooks/session-start.sh:5,29` The Claude manifest
+   points at `hooks/claude-hooks.json`; Codex has no default hook manifest to
+   discover, so it does not run the Claude-specific devcontainer startup hook.
 
 ## Failure modes
 
