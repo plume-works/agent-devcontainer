@@ -2,8 +2,8 @@
 type: architecture
 description: A colocated per-directory file carrying agent tooling metadata, resolved root-to-leaf with accumulating namespaced sections.
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T00:00:00Z
+  by: claude-code/opus-5
+  at: 2026-09-23T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: docs/knowledge/data/architecture/template-boundary.md

@@ -8,11 +8,11 @@ source:
 source_digest: sha256:ec1fcd9125a2a2ec290a5912511fabc67bc30ab4196dc546e7c0500c540b367f
 verified:
   by: claude-code/opus-5
-  at: 2026-09-20T17:53:05Z
-stale_after: 2026-12-19
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-20T17:53:05Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: .devcontainer
