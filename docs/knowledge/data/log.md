@@ -16,7 +16,7 @@ to the current day's group.
   `.devcontainer/devcontainer.json` are masked out of the codebase-map source
   digest by a rule colocated in `.devcontainer/`, so a Renovate feature bump no
   longer marks a map doc stale while the feature set itself stays tracked.
-- **Update**: Refreshed the seven codebase-map docs whose tracked sources the
+- **Update**: Refreshed the eight codebase-map docs whose tracked sources the
   two rules above moved.
 
 ## 2026-09-22
