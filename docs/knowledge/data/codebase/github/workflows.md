@@ -2,7 +2,7 @@
 type: codebase
 description: 'The eight workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:PENDING
+source_digest: sha256:7cfe5bfeb45340fcf693a2d241b88e9a0c769ef13b892abbef4336480288d6c3
 verified:
   by: claude-code/opus-5
   at: 2026-09-23T00:00:00Z
