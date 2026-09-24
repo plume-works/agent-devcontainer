@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/desktop
 - .agents/plugins/agentdev/hooks
-source_digest: sha256:ad74746f5704a44cfedb7c243bbec37de1ca2b385ebc723524b1ab336b71f733
+source_digest: sha256:efb09e9bb1ba5ade5b2d834c254d3b727dbabad9745274b955af94f33769eab8
 verified:
   by: codex/gpt-5
-  at: 2026-09-23T22:35:09Z
-stale_after: 2026-12-08
+  at: 2026-09-24T07:53:26Z
+stale_after: 2026-12-23
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T20:43:33Z
+  by: codex/gpt-5
+  at: 2026-09-24T07:53:26Z
 sources:
 - id: code
   resource: .devcontainer
@@ -27,13 +27,14 @@ state.
 ## Trace
 
 1. `initializeCommand` runs `devcontainer-init.sh` on the host: writes
-   `.devcontainer/.env`, creates the shared `agentdev-agents-auth` volume —
+   `.devcontainer/.env`, creates the shared `agentdev-agents-auth` volume, and
+   writes `MCP_GATEWAY_AUTH_TOKEN` when the MCP profile is active —
    `.devcontainer/devcontainer.json:3`,
-   `.devcontainer/devcontainer-init.sh:21-27`
+   `.devcontainer/devcontainer-init.sh:21-48`
 2. Compose starts the `devcontainer` service from the digest-pinned image,
    layering `devcontainer-compose-pins.yml` over `docker-compose.yml`, and the
    `mcp-gateway` sidecar when the `mcp` profile was written to `.env` —
-   `.devcontainer/devcontainer.json:7`, `.devcontainer/docker-compose.yml:2,53`
+   `.devcontainer/devcontainer.json:7`, `.devcontainer/docker-compose.yml:2,48`
 3. `postCreateCommand` (once per instance): ownership fixes, the
    `~/.claude.json` symlink into the `agentdev-claude` volume,
    `codebase-memory-mcp install`, auth directories and the Codex auth link,

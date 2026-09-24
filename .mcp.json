@@ -2,7 +2,10 @@
   "mcpServers": {
     "gateway": {
       "type": "sse",
-      "url": "http://mcp-gateway:8811/sse"
+      "url": "http://mcp-gateway:8811/sse",
+      "headers": {
+        "Authorization": "Bearer ${MCP_GATEWAY_AUTH_TOKEN}"
+      }
     },
     "iwe": {
       "type": "stdio",

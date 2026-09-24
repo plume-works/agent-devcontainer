@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:07f52811a3c1061c94c61bdce6670f1935e8e144a7e48391551dfeeb7fe2c2d1
+source_digest: sha256:66fcb237b7136f55f815f311d02649b59af6c9a5781b4fe73aa1fd2989fa4038
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-09T20:43:33Z
-stale_after: 2026-12-08
+  by: codex/gpt-5
+  at: 2026-09-24T07:53:26Z
+stale_after: 2026-12-23
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T20:43:33Z
+  by: codex/gpt-5
+  at: 2026-09-24T07:53:26Z
 sources:
 - id: code
   resource: .devcontainer
@@ -70,16 +70,19 @@ moves the digest pin.
 - `~/.claude.json` is a file; Docker volumes are directories, so the file is
   persisted inside the `agentdev-claude` volume and symlinked by
   `postCreateCommand`.
-- The MCP gateway publishes no host port and runs `--allow-unauthenticated` on
-  the private Compose network; both are what let several worktrees run at once.
+- The MCP gateway publishes no host port and requires bearer-token auth from
+  `MCP_GATEWAY_AUTH_TOKEN`; the ignored Compose `.env` gives each worktree its
+  own token.
 - `initializeCommand` runs under `/bin/sh -c` with no `HOME` in Codespaces; the
   script defaults `HOME` to empty so the host probes fall through.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-05):
+Verified anchor points (line numbers as of 2026-09-24):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
+- `.devcontainer/devcontainer-init.sh:37-48` — MCP profile and gateway token
+- `.devcontainer/docker-compose.yml:8-10,62-64` — gateway auth token wiring
 - `.devcontainer/devcontainer.json:51-57` — Xpra port forwarding
 - `.devcontainer/devcontainer.json:58-102` — the four volume mounts
 - `.devcontainer/devcontainer.json:253-256` — lifecycle commands

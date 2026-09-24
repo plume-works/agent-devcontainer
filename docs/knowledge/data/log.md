@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-24
+
+- **Update**: The Docker MCP gateway now uses bearer-token API key auth from
+  `MCP_GATEWAY_AUTH_TOKEN`; devcontainer initialization writes a per-worktree
+  token into the ignored Compose `.env`, and `.mcp.json` sends it on SSE
+  requests.
+
 ## 2026-09-23
 
 - **Update**: Bun is installed by `dev_tools` from its pinned, checksum-verified

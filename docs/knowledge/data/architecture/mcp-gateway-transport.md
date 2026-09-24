@@ -2,8 +2,8 @@
 type: architecture
 description: The Docker MCP gateway runs as a profile-gated Compose sidecar reached over SSE on the private network, rather than as a stdio bridge, and host secrets arrive by mounting the host's secrets-engine socket instead of copying secrets into the container.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-04T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-09-24T07:53:26Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer-init.sh
@@ -34,10 +34,11 @@ and that startup races Docker Desktop's per-container DNS proxy attaching. As a
 service, the gateway's entrypoint polls DNS before exec'ing, so it cannot lose
 that race.
 
-`--allow-unauthenticated` is safe **because** of the transport choice: the
-gateway is published only on the private Compose network under its service name
-and is not exposed publicly. The flag would not be defensible on a bridge that
-listened more broadly.
+The gateway requires bearer-token authentication with
+`MCP_GATEWAY_AUTH_TOKEN`, even though it is published only on the private
+Compose network under its service name. `devcontainer-init.sh` writes the token
+to the ignored Compose `.env`, and `.mcp.json` sends it as the SSE
+`Authorization` header.
 
 ## Why the socket is mounted rather than the secrets copied
 

@@ -7,6 +7,7 @@ services:
     profiles: ['mcp']
     environment:
       DOCKER_SECRETS_ENGINE_SOCKET: ${DOCKER_SECRETS_ENGINE_SOCKET:-/root/.cache/docker-secrets-engine/engine.sock}
+      MCP_GATEWAY_AUTH_TOKEN: ${MCP_GATEWAY_AUTH_TOKEN:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${HOST_MCP_DIR:-/tmp/stub-mcp}:${CONTAINER_MCP_DIR:-/tmp/stub-mcp}:ro
@@ -40,15 +41,9 @@ services:
       - --watch=true
       - --transport=sse
       - --port=8811
-      # The gateway's bearer-token auth guards against DNS-rebinding attacks from
-      # browser clients hitting a localhost-bound port. The devcontainer instead reaches
-      # this service over the private compose network by service name (mcp-gateway:8811).
       # It intentionally has no host-published port: every worktree has its own sidecar,
       # and publishing a fixed host port would make a clean startup fail whenever another
-      # worktree's gateway is already running. The token is also regenerated per container
-      # start, so it can't be pinned in the git-tracked .mcp.json without breaking on
-      # every restart.
-      - --allow-unauthenticated
+      # worktree's gateway is already running.
 
   devcontainer:
     # Tag-only fallback for standalone `docker compose -f .devcontainer/docker-compose.yml`
@@ -66,6 +61,7 @@ services:
 
     environment:
       DOCKER_SECRETS_ENGINE_SOCKET: ${DOCKER_SECRETS_ENGINE_SOCKET:-/root/.cache/docker-secrets-engine/engine.sock}
+      MCP_GATEWAY_AUTH_TOKEN: ${MCP_GATEWAY_AUTH_TOKEN:-}
 
     extra_hosts:
       - host.docker.internal:host-gateway

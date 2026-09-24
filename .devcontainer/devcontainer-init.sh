@@ -37,6 +37,10 @@ echo "WORKSPACE_BASENAME=$(basename "$LOCAL_WORKSPACE_FOLDER")" >> "$script_dir/
 HOST_MCP_DIR="$HOME/.docker/mcp"
 CONTAINER_MCP_DIR="/root/.docker/mcp"
 if [[ -d "$HOST_MCP_DIR" ]]; then
+    if ! grep -q '^MCP_GATEWAY_AUTH_TOKEN=' "$script_dir/.env"; then
+        token=$(openssl rand -hex 32)
+        echo "MCP_GATEWAY_AUTH_TOKEN=$token" >> "$script_dir/.env"
+    fi
     {
         echo "HOST_MCP_DIR=$HOST_MCP_DIR"
         echo "CONTAINER_MCP_DIR=$CONTAINER_MCP_DIR"
