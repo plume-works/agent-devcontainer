@@ -4,7 +4,7 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:7fd5ff9ad1f2d8e86bb4f9c2d7a5f88357410744d6b0b001cb0c62924d9ecfaa
+source_digest: sha256:b5a2883e1b540b9411851c8686a579030a6658a8f9aba7f019be4444d7defb87
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-25T00:00:00Z

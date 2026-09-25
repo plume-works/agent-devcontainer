@@ -7,6 +7,7 @@ generated:
 sources:
 - resource: ansible/roles
 - resource: .github/renovate.json
+- resource: docker/ansible/Dockerfile
 ---
 
 # Ansible apt pins
@@ -22,6 +23,12 @@ Version pinning stays in force for everything else the roles fetch — the
 directly downloaded binaries in `dev_tools`, and the installer- and
 registry-sourced tools pinned in each role's `defaults/` and kept current by
 Renovate's regex managers (`ansible/AGENTS.md`).
+
+Each image is tied to one Ubuntu release by its base: the base stays at 24.04
+because downstream consumers depend on it, Renovate does not bump it, and
+another release is to ship as a separately named image tag with an explicit
+base. Within one release apt keeps its own packages mutually compatible, so a
+fixed base already bounds what an unpinned install can change.
 
 The consequence is accepted: two builds of the same commit can ship different
 apt package versions, and a regression caused by an upstream package update

@@ -22,6 +22,13 @@
       "platformAutomerge": true
     },
     {
+      "description": "The image's Ubuntu base release is not bumped by Renovate: it stays at 24.04 because downstream consumers depend on that release. Another Ubuntu release ships as a separately named image tag with an explicit base, never as a bump of this one.",
+      "matchManagers": ["dockerfile"],
+      "matchFileNames": ["docker/ansible/Dockerfile"],
+      "matchDepNames": ["ubuntu"],
+      "enabled": false
+    },
+    {
       "description": "Super-Linter and the pre-commit/local tools it pins (Prettier, clang-format, Ansible Lint, Hadolint, Ruff, ShellCheck, Gitleaks, Actionlint, Zizmor) must stay in sync with the pinned Super-Linter image. Update them manually with the sync-super-linter-tool-versions skill instead.",
       "matchManagers": ["github-actions", "pre-commit"],
       "matchPackageNames": [

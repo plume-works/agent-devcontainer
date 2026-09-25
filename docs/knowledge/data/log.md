@@ -12,7 +12,9 @@ to the current day's group.
   automerged group, and the apt digest mask are removed; the role version pins
   in `defaults/` and their Renovate regex managers stay.
 - **Update**: [Ansible apt pins](architecture/ansible-apt-pins.md) now records
-  the unpinned decision, with the pin files as the rejected alternative.
+  the unpinned decision, with the pin files as the rejected alternative. The
+  Renovate rule that holds the `ubuntu` base stays, now because the base stays
+  at 24.04 for downstream consumers.
 - **Update**: Refreshed the eight codebase-map docs whose tracked sources the
   revert moved.
 
