@@ -11,6 +11,11 @@
           "pattern": "version: '[0-9]+\\.[0-9]+\\.[0-9]+'",
           "replace": "version: '<PIN>'",
           "reason": "Tool versions pinned to actions, bumped by the same automerge."
+        },
+        {
+          "pattern": "ubuntu-[0-9]+\\.[0-9]+",
+          "replace": "ubuntu-<PIN>",
+          "reason": "Renovate bumps the GitHub-hosted runner labels (github-runner datasource, .github/renovate.json); the -arm suffix stays unmasked so an architecture change still counts."
         }
       ]
     }

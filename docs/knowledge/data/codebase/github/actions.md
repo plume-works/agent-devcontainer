@@ -2,10 +2,10 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:8e024cf6c8662679edbbaa7e914aef25a5be92f37cb76f142099f5f9aaeaf4e3
+source_digest: sha256:ecd06a14ddb80e3dfedf5839be345cd9ace72763d3bc30c95b61607c4129de77
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-22T09:27:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-25T00:00:00Z
 stale_after: 2026-12-21
 generated:
   by: claude-code/opus-5
