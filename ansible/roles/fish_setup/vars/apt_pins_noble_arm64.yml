@@ -1,7 +1,0 @@
----
-# GENERATED - Ubuntu noble / arm64. Regenerate with scripts/apt-pins-refresh.py;
-# Renovate keeps the values current through the `deb` custom managers in
-# .github/renovate.json, so edit this by hand only to add or remove a name.
-
-fish_setup_apt_pins:
-  fish: "3.7.0-1"

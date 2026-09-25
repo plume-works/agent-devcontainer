@@ -1,9 +1,5 @@
 ---
 # Install CMake from Kitware repository
-- name: Load pinned apt versions
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
-
 - name: Check if Kitware archive keyring is installed
   ansible.builtin.stat:
     path: /usr/share/doc/kitware-archive-keyring/copyright
@@ -50,8 +46,8 @@
 
 - name: Install Kitware archive keyring
   ansible.builtin.apt:
-    name: "{{ cmake_kitware_keyring_apt_pins.items() | map('join', '=') | list }}"
-    allow_downgrade: true
+    name:
+      - kitware-archive-keyring
     state: present
     update_cache: true
     install_recommends: false
@@ -76,14 +72,22 @@
       - cmake-data
     state: absent
 
-# One task for both paths: a non-Kitware cmake has just been removed above, and
-# a Kitware one is moved to the pinned version. The pin is resolved against the
-# Ubuntu archive plus the Kitware repository added above, so it is Kitware's.
-- name: Install pinned Kitware CMake
+- name: Install latest Kitware CMake
+  when: not cmake_kitware_is_kitware_cmake
   ansible.builtin.apt:
-    name: "{{ cmake_kitware_apt_pins.items() | map('join', '=') | list }}"
-    allow_downgrade: true
+    name:
+      - cmake
     state: present
+    update_cache: true
+    install_recommends: false
+
+- name: Upgrade if Kitware CMake
+  when: cmake_kitware_is_kitware_cmake
+  ansible.builtin.apt:
+    name:
+      - cmake
+    state: latest
+    only_upgrade: true
     update_cache: true
     install_recommends: false
 

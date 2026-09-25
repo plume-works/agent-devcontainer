@@ -1,9 +1,5 @@
 ---
 # Node.js installation
-- name: Load pinned apt versions
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/vars/apt_pins_{{ system_dist }}_{{ system_arch }}.yml"
-
 - name: Remove old Node.js and NPM
   ansible.builtin.apt:
     name:
@@ -33,8 +29,7 @@
 
 - name: Install Node.js
   ansible.builtin.apt:
-    name: "{{ nodejs_apt_pins.items() | map('join', '=') | list }}"
-    allow_downgrade: true
+    name: nodejs
     state: present
     install_recommends: false
 
