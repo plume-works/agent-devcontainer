@@ -2,14 +2,14 @@
 type: codebase
 description: Builds Xpra and its HTML5 client from pinned tags, installs VirtualGL from GitHub releases, and adds Mesa software rendering.
 source: ansible/roles/xpra_setup
-source_digest: sha256:d15d7b9dac09a38e26d2d77bb2f578c907279db999eb3bb7099cbbe45dd73b33
+source_digest: sha256:9470828b4489b4bdee4f40dbd1694839ced71189da6ea175e33319633787f198
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
-stale_after: 2026-12-21
+  by: claude-code/opus-5.5
+  at: 2026-09-25T00:00:00Z
+stale_after: 2026-12-24
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-25T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/xpra_setup
@@ -30,10 +30,9 @@ desktop reachable through a browser.
 
 Clones the Xpra repository at tag `v6.4.3` and runs its
 `setup.py install-lts-repo`, then does the same for `xpra-html5` at `v19`;
-installs the `xpra` package from apt at its pinned version; downloads the
-VirtualGL `.deb` for the detected architecture from GitHub releases and installs
-it; installs the Mesa, OpenGL, and Xvfb packages, including the software
-renderer.
+installs the `xpra` package from apt; downloads the VirtualGL `.deb` for the
+detected architecture from GitHub releases and installs it; installs the Mesa,
+OpenGL, and Xvfb packages, including the software renderer.
 
 ## Depends on
 
@@ -43,21 +42,17 @@ The port and display conventions are owned by the start script, not this role.
 ## Invariants & gotchas
 
 - The clones supply the upstream repository definitions, not the binaries: what
-  lands on the image is the apt `xpra` at the version in
-  `vars/apt_pins_<suite>_<arch>.yml`, resolved against the Ubuntu archive.
-  Moving to the LTS stream means adding that repository to `ROLE_REPOS` in
-  `scripts/apt-pins-refresh.py` and to the `registryUrls` rules in
-  `.github/renovate.json`, not editing the clone tags alone.
-- VirtualGL is the one package here that is not apt-pinned: it is a `.deb`
-  downloaded by URL and verified by a per-architecture checksum.
+  lands on the image is the unpinned apt `xpra`, so editing the clone tags alone
+  does not change its version.
+- VirtualGL is a `.deb` downloaded by URL and verified by a per-architecture
+  checksum, not an apt install.
 - Source clones are removed after installation so they never reach a layer.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-22):
+Verified anchor points (line numbers as of 2026-09-25):
 
-- `ansible/roles/xpra_setup/tasks/main.yml:4-6` — the pin file include
-- `ansible/roles/xpra_setup/tasks/main.yml:8` — Xpra `v6.4.3` clone
-- `ansible/roles/xpra_setup/tasks/main.yml:25` — the pinned `xpra` install
-- `ansible/roles/xpra_setup/tasks/main.yml:31` — xpra-html5 `v19` clone
-- `ansible/roles/xpra_setup/tasks/main.yml:58` — VirtualGL from releases
+- `ansible/roles/xpra_setup/tasks/main.yml:4` — Xpra `v6.4.3` clone
+- `ansible/roles/xpra_setup/tasks/main.yml:21` — the `xpra` apt install
+- `ansible/roles/xpra_setup/tasks/main.yml:28` — xpra-html5 `v19` clone
+- `ansible/roles/xpra_setup/tasks/main.yml:45` — VirtualGL from releases

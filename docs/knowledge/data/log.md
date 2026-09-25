@@ -4,6 +4,18 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-25
+
+- **Update**: The Ansible roles install apt packages unpinned again. The
+  per-release, per-architecture pin files, `scripts/apt-pins-refresh.py`, the
+  Renovate `deb` managers with their per-role `registryUrls` and daily
+  automerged group, and the apt digest mask are removed; the role version pins
+  in `defaults/` and their Renovate regex managers stay.
+- **Update**: [Ansible apt pins](architecture/ansible-apt-pins.md) now records
+  the unpinned decision, with the pin files as the rejected alternative.
+- **Update**: Refreshed the eight codebase-map docs whose tracked sources the
+  revert moved.
+
 ## 2026-09-23
 
 - **Update**: Bun is installed by `dev_tools` from its pinned, checksum-verified
