@@ -6,7 +6,7 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:2798caf1ced744ee4cbee175edfb9373b5733605d662fd509b2e5891fcc0a5db
+source_digest: sha256:3d303b5526427aee73cf970fcbcd2ffa144ee5dbdc08c8d7a9b68198bd016399
 verified:
   by: claude-code/opus-5
   at: 2026-09-22T00:00:00Z

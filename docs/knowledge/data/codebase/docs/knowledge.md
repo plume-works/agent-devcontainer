@@ -1,20 +1,20 @@
 ---
 type: codebase
-description: The IWE configuration, frontmatter schemas, operating manual, and checkbox test that make docs/knowledge/data/ a validated OKF bundle; the data itself is the graph, not this doc.
+description: The IWE configuration, frontmatter schemas, operating manual, and repository tests that make docs/knowledge/data/ a validated OKF bundle; the data itself is the graph, not this doc.
 source:
 - .iwe
 - docs/knowledge/tests
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:c54965cd26bd4dd81c0a9b9c8c27ce962eaf68d3a3c05828779b01ecdf3632f6
+source_digest: sha256:18131da71bdd6920b43725c5ba3686818d8e8c7fa2e9c08eca191e35198720a5
 verified:
   by: claude-code/opus-5
-  at: 2026-09-22T21:30:00Z
-stale_after: 2026-12-21
+  at: 2026-09-23T00:00:00Z
+stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T21:30:00Z
+  at: 2026-09-23T00:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -26,9 +26,10 @@ The scaffolding around the project's memory. `.iwe/config.toml` at the
 repository root points the library at `docs/knowledge`, binds a schema to every
 `data/` path, and configures normalization; the three Markdown files beside
 `data/` explain the manual, the frontmatter shapes, and the design rationale;
-two pytest modules gate plan checkboxes and the consumer seed. This doc
-deliberately excludes `docs/knowledge/data/` from its `source`: the map commit
-would otherwise make itself stale.
+three pytest modules gate plan checkboxes, the consumer seed, and the production
+Dev Container metadata mask. This doc deliberately excludes
+`docs/knowledge/data/` from its `source`: the map commit would otherwise make
+itself stale.
 
 ## Public surface
 
@@ -46,6 +47,10 @@ would otherwise make itself stale.
 - `docs/knowledge/tests/test_iwe_seed.py` — assembles
   [the consumer seed](../templates/iwe.md) as a standalone workspace and checks
   its schema, normalization, onboarding tasks, links, license, and boundaries
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py` — exercises the
+  checked-in Dev Container feature-pin mask against the full production
+  configuration, keeping version-only changes fresh while feature identity
+  changes remain stale
 - `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works
@@ -61,8 +66,8 @@ member of this repository's graph.
 ## Depends on
 
 `iwe` `0.19.0` from [dev_tools](../ansible/roles/dev_tools.md) in the image and
-from `cargo install` in CI; `python-frontmatter` and `pytest` for the checkbox
-test.
+from `cargo install` in CI; `python-frontmatter` and `pytest` for the
+repository-level tests.
 
 ## Invariants & gotchas
 
@@ -75,7 +80,7 @@ test.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-22):
+Verified anchor points (line numbers as of 2026-09-23):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings
@@ -84,6 +89,8 @@ Verified anchor points (line numbers as of 2026-09-22):
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:67` — production mask
+  workspace fixture
 - `.pre-commit-config.yaml:91-111` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
 - `.github/workflows/validate-knowledge-base.yml:91-109` — graph and seed checks
