@@ -22,7 +22,7 @@
       "platformAutomerge": true
     },
     {
-      "description": "The image's Ubuntu base release is not bumped by Renovate. The Ansible roles pin apt packages per release (apt_pins_noble_*.yml) and the apt registryUrls below name noble, so moving the base to a new release is a manual migration of both.",
+      "description": "The image's Ubuntu base release is not bumped by Renovate: it stays at 24.04 because downstream consumers depend on that release. Another Ubuntu release ships as a separately named image tag with an explicit base, never as a bump of this one.",
       "matchManagers": ["dockerfile"],
       "matchFileNames": ["docker/ansible/Dockerfile"],
       "matchDepNames": ["ubuntu"],
@@ -67,163 +67,6 @@
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true
-    },
-    {
-      "description": "The apt sources a role has by default: the four Ubuntu noble pockets. Renovate merges the results from every registryUrl and keeps the highest version, which is what apt itself would install. Kept in step with DEFAULT_REPOS in scripts/apt-pins-refresh.py.",
-      "matchDepTypes": ["apt-noble-amd64"],
-      "registryUrls": [
-        "http://archive.ubuntu.com/ubuntu?suite=noble&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=amd64"
-      ]
-    },
-    {
-      "description": "The arm64 counterpart of the rule above. Ubuntu serves arm64 from the ports mirror rather than the main archive.",
-      "matchDepTypes": ["apt-noble-arm64"],
-      "registryUrls": [
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=arm64"
-      ]
-    },
-    {
-      "description": "cmake_kitware adds the Kitware repository and installs the cmake it publishes, so a pin resolved against Ubuntu alone would be a downgrade apt refuses. Overrides the default registryUrls above, which is why it comes after them.",
-      "matchFileNames": [
-        "ansible/roles/cmake_kitware/vars/apt_pins_noble_amd64.yml"
-      ],
-      "registryUrls": [
-        "http://archive.ubuntu.com/ubuntu?suite=noble&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "https://apt.kitware.com/ubuntu?suite=noble&components=main&binaryArch=amd64"
-      ]
-    },
-    {
-      "description": "The arm64 counterpart of the cmake_kitware rule above.",
-      "matchFileNames": [
-        "ansible/roles/cmake_kitware/vars/apt_pins_noble_arm64.yml"
-      ],
-      "registryUrls": [
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "https://apt.kitware.com/ubuntu?suite=noble&components=main&binaryArch=arm64"
-      ]
-    },
-    {
-      "description": "dev_tools installs cmake too, after cmake_kitware has added the Kitware repository, and adds the git-core PPA that its git and git-lfs come from. Overrides the default registryUrls above, which is why it comes after them.",
-      "matchFileNames": [
-        "ansible/roles/dev_tools/vars/apt_pins_noble_amd64.yml"
-      ],
-      "registryUrls": [
-        "http://archive.ubuntu.com/ubuntu?suite=noble&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "https://apt.kitware.com/ubuntu?suite=noble&components=main&binaryArch=amd64",
-        "https://ppa.launchpadcontent.net/git-core/ppa/ubuntu?suite=noble&components=main&binaryArch=amd64"
-      ]
-    },
-    {
-      "description": "The arm64 counterpart of the dev_tools rule above.",
-      "matchFileNames": [
-        "ansible/roles/dev_tools/vars/apt_pins_noble_arm64.yml"
-      ],
-      "registryUrls": [
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "https://apt.kitware.com/ubuntu?suite=noble&components=main&binaryArch=arm64",
-        "https://ppa.launchpadcontent.net/git-core/ppa/ubuntu?suite=noble&components=main&binaryArch=arm64"
-      ]
-    },
-    {
-      "description": "github_cli adds the GitHub CLI repository, whose suite is `stable` rather than an Ubuntu release. Its wget prerequisite still resolves from Ubuntu. Overrides the default registryUrls above, which is why it comes after them.",
-      "matchFileNames": [
-        "ansible/roles/github_cli/vars/apt_pins_noble_amd64.yml"
-      ],
-      "registryUrls": [
-        "http://archive.ubuntu.com/ubuntu?suite=noble&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "https://cli.github.com/packages?suite=stable&components=main&binaryArch=amd64"
-      ]
-    },
-    {
-      "description": "The arm64 counterpart of the github_cli rule above.",
-      "matchFileNames": [
-        "ansible/roles/github_cli/vars/apt_pins_noble_arm64.yml"
-      ],
-      "registryUrls": [
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "https://cli.github.com/packages?suite=stable&components=main&binaryArch=arm64"
-      ]
-    },
-    {
-      "description": "install_docker adds Docker's own repository, which keeps every published version in its index rather than only the current one. Overrides the default registryUrls above, which is why it comes after them.",
-      "matchFileNames": [
-        "ansible/roles/install_docker/vars/apt_pins_noble_amd64.yml"
-      ],
-      "registryUrls": [
-        "http://archive.ubuntu.com/ubuntu?suite=noble&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "https://download.docker.com/linux/ubuntu?suite=noble&components=stable&binaryArch=amd64"
-      ]
-    },
-    {
-      "description": "The arm64 counterpart of the install_docker rule above.",
-      "matchFileNames": [
-        "ansible/roles/install_docker/vars/apt_pins_noble_arm64.yml"
-      ],
-      "registryUrls": [
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "https://download.docker.com/linux/ubuntu?suite=noble&components=stable&binaryArch=arm64"
-      ]
-    },
-    {
-      "description": "nodejs adds the NodeSource repository. The Node major is part of that repository URL, so the pin only ever moves within the 24 line; both sides of that URL are kept in step with the setup script the role runs. Overrides the default registryUrls above, which is why it comes after them.",
-      "matchFileNames": ["ansible/roles/nodejs/vars/apt_pins_noble_amd64.yml"],
-      "registryUrls": [
-        "http://archive.ubuntu.com/ubuntu?suite=noble&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "http://archive.ubuntu.com/ubuntu?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=amd64",
-        "https://deb.nodesource.com/node_24.x?suite=nodistro&components=main&binaryArch=amd64"
-      ]
-    },
-    {
-      "description": "The arm64 counterpart of the nodejs rule above.",
-      "matchFileNames": ["ansible/roles/nodejs/vars/apt_pins_noble_arm64.yml"],
-      "registryUrls": [
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-updates&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-security&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "http://ports.ubuntu.com/ubuntu-ports?suite=noble-backports&components=main,universe,restricted,multiverse&binaryArch=arm64",
-        "https://deb.nodesource.com/node_24.x?suite=nodistro&components=main&binaryArch=arm64"
-      ]
-    },
-    {
-      "description": "Every apt pin in every role and on both architectures lands in one batched PR, automerged after green CI. Batching is what makes this workable: the pin files live under ansible/**, inside the CI image path filter, so every merge rebuilds and tests the multi-arch image the pins describe. One batch a day is therefore one rebuild a day. It is also the window in which a pin can go unfetchable: Ubuntu drops a version from -updates or -security once it is superseded, and the image build fails until the next batch merges. Tighten the schedule to shorten that window at the cost of more rebuilds.",
-      "matchDepTypes": ["apt-noble-amd64", "apt-noble-arm64"],
-      "groupName": "ansible apt pins",
-      "schedule": ["after 2am and before 6am"],
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
     }
   ],
   "customManagers": [
@@ -244,36 +87,6 @@
         "# renovate: datasource=git-refs depName=(?<depName>\\S+) currentValue=(?<currentValue>\\S+)\\s*\\n\\s*[a-zA-Z0-9_]+: \"(?<currentDigest>[0-9a-f]{40})\""
       ],
       "datasourceTemplate": "git-refs"
-    },
-    {
-      "description": "Pinned apt versions for the amd64 build of the image. Each entry in a roles/*/vars/apt_pins_noble_amd64.yml file is `<package>: \"<version>\"`; the registryUrls that resolve them are attached by depType below.",
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^ansible/roles/[^/]+/vars/apt_pins_noble_amd64\\.yml$/"
-      ],
-      "matchStrings": [
-        "\\n\\s+(?<depName>[a-z0-9][a-z0-9+.\\-]*): \"(?<currentValue>[^\"]+)\""
-      ],
-      "datasourceTemplate": "deb",
-      "versioningTemplate": "deb",
-      "depTypeTemplate": "apt-noble-amd64"
-    },
-    {
-      "description": "The arm64 counterpart of the manager above. The two architectures are tracked as separate dependencies because a package can be published for one before the other, and Ubuntu serves arm64 from a different mirror.",
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^ansible/roles/[^/]+/vars/apt_pins_noble_arm64\\.yml$/"
-      ],
-      "matchStrings": [
-        "\\n\\s+(?<depName>[a-z0-9][a-z0-9+.\\-]*): \"(?<currentValue>[^\"]+)\""
-      ],
-      "datasourceTemplate": "deb",
-      "versioningTemplate": "deb",
-      "depTypeTemplate": "apt-noble-arm64"
     }
-  ],
-  "vulnerabilityAlerts": {
-    "description": "A security fix is never held by the daily window on the apt-pin group. Renovate applies this block on top of the packageRules above for vulnerability updates.",
-    "schedule": ["at any time"]
-  }
+  ]
 }

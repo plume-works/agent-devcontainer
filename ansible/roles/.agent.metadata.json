@@ -7,13 +7,6 @@
           "replace": "\\1<PIN>\\2",
           "reason": "Renovate automerges the role dependency pins (.github/renovate.json); the `# renovate:` comment stays unmasked so a datasource change still counts. Covers every role: one that gains a pin is masked without a new entry."
         }
-      ],
-      "*/vars/apt_pins_*.yml": [
-        {
-          "pattern": "(\\n\\s+[a-z0-9][a-z0-9+.\\-]*: \")[^\"]*(\")",
-          "replace": "\\1<PIN>\\2",
-          "reason": "Renovate automerges the apt pins (.github/renovate.json); the package name stays unmasked so adding or removing one still counts."
-        }
       ]
     }
   }
