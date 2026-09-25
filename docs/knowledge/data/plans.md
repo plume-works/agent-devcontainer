@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
+
 [Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
