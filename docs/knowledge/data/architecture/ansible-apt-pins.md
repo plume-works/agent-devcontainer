@@ -3,11 +3,12 @@ type: architecture
 description: Why the Ansible roles install apt packages at an exact version from a generated per-release, per-architecture pin file, and what that costs.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
+  at: 2026-09-25T00:00:00Z
 sources:
 - resource: ansible/roles
 - resource: scripts/apt-pins-refresh.py
 - resource: .github/renovate.json
+- resource: docker/ansible/Dockerfile
 - resource: https://github.com/Dr-QP/Dr.QP/pull/494
 ---
 
@@ -34,6 +35,11 @@ to both. Ubuntu serves `amd64` from `archive.ubuntu.com` and `arm64` from
 the other; CI builds both natively. A consuming project on a different Ubuntu
 release adds its own `apt_pins_<suite>_<arch>.yml` — without one, the role fails
 on the missing file rather than installing something unpinned.
+
+The pin files therefore tie this repository's image to one release, and Renovate
+is disabled for the `ubuntu` base in `docker/ansible/Dockerfile`. A release bump
+is a manual migration: new pin files, new `registryUrls` suites, and the base
+tag, landed together.
 
 ## The pin wins in both directions
 

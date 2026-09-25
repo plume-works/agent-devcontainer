@@ -2,10 +2,10 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:453a14ae77d75b15c5c4dadc4cdf9296ebaba05b1fc56ed7a9cbcec124b53478
+source_digest: sha256:d9cee25674b31fd69c3b44e5f898f72d9567a58c9d06efda89dbd811b1169163
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-25T00:00:00Z
 stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
@@ -34,7 +34,9 @@ the composite actions they share, `renovate.json`, and
   extract from `# renovate:` comments under `ansible/roles/*/defaults/`, and the
   apt pins two more managers extract from `ansible/roles/*/vars/apt_pins_*.yml`
   as `deb` dependencies; disables Renovate for the Super-Linter family, which
-  `/agentdev:sync-super-linter-tool-versions` moves by hand
+  `/agentdev:sync-super-linter-tool-versions` moves by hand, and for the
+  `ubuntu` base of `docker/ansible/Dockerfile`, whose release the noble apt pins
+  are tied to
 - `pull_request_template.md` — the verification sections
   [PR verification sections](../architecture/pr-verification-sections.md)
   describes
@@ -72,17 +74,18 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-22):
+Verified anchor points (line numbers as of 2026-09-25):
 
 - `.github/renovate.json:9-15` — Actions automerge
 - `.github/renovate.json:16-23` — `agent-desktop` digest automerge
-- `.github/renovate.json:24-46` — Super-Linter family disabled
-- `.github/renovate.json:47-63` — role dependency pins grouped and automerged,
+- `.github/renovate.json:24-30` — Dockerfile `ubuntu` base disabled
+- `.github/renovate.json:31-53` — Super-Linter family disabled
+- `.github/renovate.json:54-70` — role dependency pins grouped and automerged,
   with `astral-sh/uv` grouped across both places it is pinned
-- `.github/renovate.json:64-221` — the per-role apt `registryUrls` rules and the
+- `.github/renovate.json:71-228` — the per-role apt `registryUrls` rules and the
   batched, scheduled `ansible apt pins` group
-- `.github/renovate.json:222-267` — the four custom managers: version pins,
+- `.github/renovate.json:229-274` — the four custom managers: version pins,
   commit pins, and one `deb` manager per architecture
-- `.github/renovate.json:268-271` — `vulnerabilityAlerts` resetting the schedule
+- `.github/renovate.json:275-278` — `vulnerabilityAlerts` resetting the schedule
 - `.github/workflows/validate-knowledge-base.yml:69-109` — seed filter and
   standalone seed validation

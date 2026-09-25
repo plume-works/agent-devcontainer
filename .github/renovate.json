@@ -22,6 +22,13 @@
       "platformAutomerge": true
     },
     {
+      "description": "The image's Ubuntu base release is not bumped by Renovate. The Ansible roles pin apt packages per release (apt_pins_noble_*.yml) and the apt registryUrls below name noble, so moving the base to a new release is a manual migration of both.",
+      "matchManagers": ["dockerfile"],
+      "matchFileNames": ["docker/ansible/Dockerfile"],
+      "matchDepNames": ["ubuntu"],
+      "enabled": false
+    },
+    {
       "description": "Super-Linter and the pre-commit/local tools it pins (Prettier, clang-format, Ansible Lint, Hadolint, Ruff, ShellCheck, Gitleaks, Actionlint, Zizmor) must stay in sync with the pinned Super-Linter image. Update them manually with the sync-super-linter-tool-versions skill instead.",
       "matchManagers": ["github-actions", "pre-commit"],
       "matchPackageNames": [
