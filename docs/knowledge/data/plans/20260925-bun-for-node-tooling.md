@@ -1,15 +1,16 @@
 ---
 created: 2026-09-25
 type: plan
-description: Run the npm-backed pre-commit hooks, the Renovate-config CI check, and the Claude Code upgrade hint through bun, the repository's JavaScript toolchain.
+description: Run the npm-backed pre-commit hooks, the Renovate-config CI check, and the Claude Code upgrade hint through bun, and record bun/bunx as the only JavaScript runner in AGENTS.md.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-25T22:34:45Z
+  at: 2026-09-26T08:04:24Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/renovate.json
 - resource: .github/workflows/validate-renovate-config.yml
 - resource: Makefile
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/pre-commit/extract.ts
 ---
 
 # Run Node tooling through bun instead of npm
@@ -28,6 +29,9 @@ through npm:
 - The `validate` target in `Makefile` tells users to upgrade Claude Code with
   `npm install -g`, which is not how the image installs it.
 
+`AGENTS.md` says which toolchain to use but does not rule out the npm-family
+commands by name.
+
 Related:
 [Renovate config validation](../architecture/renovate-config-validation.md),
 [Formatter ownership](../architecture/formatter-ownership.md).
@@ -40,14 +44,20 @@ package version is pinned in `entry`. The Prettier version still follows the
 Super-Linter image: `scripts/validate-super-linter-tool-versions.sh` reads it
 with `prettier@v?([0-9.]+)`, and the new entry still matches that pattern.
 
-Renovate's `pre-commit` manager does not extract local hooks. The Renovate pin
-therefore moves to a `custom.regex` manager over `.pre-commit-config.yaml`, and
-the rules that only existed for the `mirrors-prettier` hook are removed. CI
-installs bun with `oven-sh/setup-bun` and calls `bunx` instead of `npx`.
+Renovate's `pre-commit` manager reads a remote repo's `rev` and the
+`additional_dependencies` of `node`, `python`, and `golang` hooks; it never
+parses a `language: system` hook's `entry`. The Renovate pin therefore moves to
+a `custom.regex` manager over `.pre-commit-config.yaml`, and the rules that only
+existed for the `mirrors-prettier` hook are removed. CI installs bun with
+`oven-sh/setup-bun` and calls `bunx` instead of `npx`.
 
 Rejected: keeping `language: node` and pointing pre-commit's nodeenv at bun.
 pre-commit has no bun backend, so the hook environments would still be built by
 npm.
+
+The standing rule is recorded where agents read it: `AGENTS.md` Best Practice 1
+names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
+`yarn`, and `pnpm`, with the `product.md` authoring-rules mirror kept in step.
 
 ## Implementation Steps
 
@@ -167,7 +177,25 @@ The divergence is the point, not an oversight.
   `run` step as it stands after Task 3 (lines 43-46 if Task 3 is applied as
   written).
 
-### Task 6: CI green on the pull request
+### Task 6: Record the bun-only rule for future work
+
+**Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
+
+- [ ] In `AGENTS.md`, Best Practice 1 becomes:
+
+``` markdown
+1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
+```
+
+- [ ] In `data/product.md` `## Authoring rules`, the matching bullet becomes:
+
+``` markdown
+- Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
+  install globally. JavaScript runs through `bun`/`bunx` everywhere — never
+  `npm`, `npx`, `yarn`, or `pnpm`.
+```
+
+### Task 7: CI green on the pull request
 
 - [ ] `Validate Renovate config` and the reformat workflow's
   `Validate pre-commit and local tool versions` step pass on the PR.
@@ -186,6 +214,9 @@ describes these hooks.
   prints nothing.
 - `sed -nE 's/.*prettier@v?([0-9.]+).*/\1/p' .pre-commit-config.yaml | head -n 1`
   prints `3.8.1`.
+- `grep -rnwE 'npm|npx|yarn|pnpm' .pre-commit-config.yaml .github Makefile scripts .devcontainer/scripts`
+  shows no invocation of those commands; remaining hits are names in Renovate
+  datasources, firewall allowlist entries, or prose.
 - `iwe normalize && iwe schema validate` from the repo root.
 
 ## Out of scope
@@ -193,13 +224,16 @@ describes these hooks.
 - The Ansible roles: they already install every global package with bun.
 - Removing Node.js or its bundled `npm` from the image. The NodeSource install
   in the `nodejs` role stays.
+- Removing Yarn from the image. The `nodejs` role installs it with bun as a tool
+  for the image's users; the rule governs how this repository runs JavaScript,
+  not what the image ships.
 - Pinning the bun version CI installs to the image's `dev_tools` pin.
 - Refreshing `source_digest` on the codebase map docs whose sources change. That
   belongs to the `/agentdev:iwe-map` refresh.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-25):
+Verified anchor points (line numbers as of 2026-09-26):
 
 - `.pre-commit-config.yaml:11` — `mirrors-prettier` repo block
 - `.pre-commit-config.yaml:68` — `renovatebot/pre-commit-hooks` repo block
@@ -213,6 +247,9 @@ Verified anchor points (line numbers as of 2026-09-25):
   step
 - `.github/workflows/validate-renovate-config.yml:42` — `npx` validator call
 - `Makefile:157` — `npm install -g` upgrade hint
+- `AGENTS.md:11` — Best Practice 1, `uv` and `bun` toolchain rule
+- `docs/knowledge/data/product.md:125` — authoring-rules mirror of Best Practice
+  1
 - `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md:29`
   — Prettier `additional_dependencies` wording
 - `docs/knowledge/data/architecture/renovate-config-validation.md:20` —
