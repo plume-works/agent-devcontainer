@@ -277,12 +277,18 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`, `.github/renovate.json`
 
-- [ ] Both responder jobs pin `container.image` to the digest in
+- [x] Both responder jobs pin `container.image` to the digest in
   `devcontainer-compose-pins.yml`, written as a literal string — the
   `github-actions` manager cannot read an expression.
-- [ ] A group rule keeps every `ghcr.io/plume-works/agent-desktop` dependency,
+  - **Evidence:** the commit carrying this tick pins
+    `.github/workflows/ai-responder.yml:430` and `:477`; a
+    `renovate@44.106.0 --platform=local --dry-run=lookup` run extracts both with
+    the compose pin's digest.
+- [x] A group rule keeps every `ghcr.io/plume-works/agent-desktop` dependency,
   across the `docker-compose` and `github-actions` managers, in one pull
   request. The existing automerge rule already matches both.
+  - **Evidence:** the same lookup run proposes one digest for the compose pin
+    and both responder images on the single `renovate/agent-desktop` branch.
 
 ### Task 10: Renovate workflow
 
