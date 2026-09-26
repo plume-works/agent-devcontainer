@@ -294,17 +294,29 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Create: `.github/workflows/renovate.yml`
 
-- [ ] Triggers: push to `main`, a daily `schedule`, and `workflow_dispatch`. A
+- [x] Triggers: push to `main`, a daily `schedule`, and `workflow_dispatch`. A
   concurrency group queues runs rather than cancelling one mid-run.
-- [ ] The job runs in the agent-desktop digest pin, reads the Renovate version
+  - **Evidence:** `.github/workflows/renovate.yml` in the commit carrying this
+    tick (`cancel-in-progress: false`); the actionlint hook and `zizmor` pass.
+- [x] The job runs in the agent-desktop digest pin, reads the Renovate version
   from the `renovate-config-validator` hook's `rev` in
   `.pre-commit-config.yaml`, and runs `bunx --package renovate@<rev> renovate`
   against this repository only.
-- [ ] Authentication mints a token from the GitHub App through
+  - **Evidence:** in the commit carrying this tick, the version step yields
+    `rev=44.106.0` from the current config, `RENOVATE_REPOSITORIES` is
+    `github.repository`, and the pinned image provides every tool the job and
+    post-upgrade script call.
+- [x] Authentication mints a token from the GitHub App through
   `actions/create-github-app-token`; `GITHUB_TOKEN` is never Renovate's token.
-- [ ] Global options — `allowedCommands` naming exactly the post-upgrade script,
+  - **Evidence:** the commit carrying this tick passes the App token as
+    `RENOVATE_TOKEN` and commits as the App's bot identity, from the secrets
+    `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY`.
+- [x] Global options — `allowedCommands` naming exactly the post-upgrade script,
   `onboarding: false`, `requireConfig`, the repository — come from `RENOVATE_*`
   environment variables.
+  - **Evidence:** in the commit carrying this tick, `RENOVATE_ALLOWED_COMMANDS`
+    is the anchored `^scripts/renovate-post-upgrade\.sh$`, which matches the
+    configured command and rejects an appended one.
 
 ### Task 11: Validate the config in the pinned image at the pinned version
 
