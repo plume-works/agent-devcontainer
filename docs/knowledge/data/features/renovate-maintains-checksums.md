@@ -47,11 +47,11 @@ post-upgrade commands have the contributor toolchain. `.github/renovate.json`
 keeps its present meaning — repository policy — and the workflow supplies the
 self-hosted global configuration alongside it, including `allowedCommands`.
 
-**One Renovate version.** The workflow installs Renovate per run at the version
-the `renovate-config-validator` pre-commit hook pins; the hook's `rev` is the
-Renovate release. Hook, validation workflow, and bot therefore never disagree,
-and Renovate is not provisioned into the image. Renovate's `pre-commit` manager
-is enabled so that pin, like the other hook revisions, updates and automerges.
+**One Renovate version.** The workflow runs Renovate per run through `bunx`, at
+the version the `renovate-config-validator` pre-commit hook pins in its
+`bunx --package renovate@<version>` entry. Hook, validation workflow, and bot
+therefore never disagree, Renovate is not provisioned into the image, and a bump
+of that pin automerges once the validation check passes at the new version.
 
 **The hosted app is disconnected in the same change.** Two Renovates against one
 repository each treat the other's branches as foreign and contend over them.
