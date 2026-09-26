@@ -2,6 +2,29 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":enablePreCommit"],
   "rebaseWhen": "auto",
+  "postUpgradeTasks": {
+    "commands": ["scripts/renovate-post-upgrade.sh"],
+    "executionMode": "branch",
+    "fileFilters": [
+      "ansible/**",
+      ".devcontainer/**",
+      "devcontainer-compose-pins.yml",
+      "docker/**",
+      ".github/actions/**",
+      ".github/workflows/**",
+      ".pre-commit-config.yaml",
+      "pyproject.toml",
+      "py_packages/*/pyproject.toml",
+      "uv.lock",
+      "scripts/renovate-post-upgrade.sh"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "automergeType": "pr",
+    "platformAutomerge": true
+  },
   "docker-compose": {
     "managerFilePatterns": ["/(^|/)devcontainer-compose-pins\\.ya?ml$/"]
   },
@@ -77,6 +100,14 @@
     }
   ],
   "customManagers": [
+    {
+      "description": "The devcontainer CLI version the post-upgrade script regenerates the devcontainer lock with.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^scripts/renovate-post-upgrade\\.sh$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n[A-Z0-9_]+=\"(?<currentValue>[^\"]+)\""
+      ]
+    },
     {
       "description": "Versions of the checksum-carrying tools in dev_tools_pinned_tools: an entry's unquoted `version:` field, under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
       "customType": "regex",

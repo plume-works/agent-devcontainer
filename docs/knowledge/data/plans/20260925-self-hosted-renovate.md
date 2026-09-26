@@ -19,6 +19,10 @@ sources:
 - resource: https://docs.renovatebot.com/configuration-options/#postupgradetasks
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/pre-commit/index.ts
   title: Renovate pre-commit manager is disabled by default
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/execute-post-upgrade-commands.ts
+  title: Post-upgrade output is kept only where its path matches fileFilters
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/commit.ts
+  title: A branch commit is Renovate's package files followed by post-upgrade artifacts
 ---
 
 # Self-hosted Renovate in the agent-desktop image
@@ -208,21 +212,42 @@ options as `RENOVATE_*` environment variables instead.
 **Files:** Create: `scripts/renovate-post-upgrade.sh`; Modify:
 `.github/renovate.json`
 
-- [ ] Changed files come from `git diff --name-only HEAD` in Renovate's clone,
+- [x] Changed files come from `git diff --name-only HEAD` in Renovate's clone,
   not from template variables.
-- [ ] Changed pin files go through `refresh-pin-checksums.py`; a changed
+  - **Evidence:** `test_changed_files_reach_the_refresh_and_pre_commit` and
+    `test_nothing_changed_runs_nothing` in
+    `scripts/tests/test_renovate_post_upgrade.py` pass in the commit carrying
+    this tick.
+- [x] Changed pin files go through `refresh-pin-checksums.py`; a changed
   `.devcontainer/devcontainer.json` regenerates
   `.devcontainer/devcontainer-lock.json` with the devcontainer CLI, run through
   `bunx`.
-- [ ] pre-commit then runs on every changed file. A hook that only rewrites
+  - **Evidence:**
+    `test_devcontainer_bump_regenerates_the_lock_before_pre_commit` and
+    `test_no_devcontainer_change_leaves_the_lock_alone` pass in the commit
+    carrying this tick; the CLI version is a Renovate-tracked pin in the script.
+- [x] pre-commit then runs on every changed file. A hook that only rewrites
   files does not fail the task; a hook still failing on a second pass does.
-- [ ] Any failure exits non-zero, so Renovate fails the branch instead of
+  - **Evidence:** `test_a_hook_rewrite_passes_on_the_second_pass` and
+    `test_a_hook_still_failing_on_the_second_pass_fails` pass in the commit
+    carrying this tick; pre-commit runs through `uv run` per Task 1.
+- [x] Any failure exits non-zero, so Renovate fails the branch instead of
   committing a version beside a stale checksum.
-- [ ] `.github/renovate.json` sets one top-level `postUpgradeTasks` running the
-  script in `branch` mode, with `fileFilters` covering what it may add beyond
-  Renovate's own edits: `ansible/roles/**` and
-  `.devcontainer/devcontainer-lock.json`. It also enables `lockFileMaintenance`
-  with automerge.
+  - **Evidence:** `test_a_failed_refresh_fails_before_pre_commit` passes in the
+    commit carrying this tick; the script runs under `set -euo pipefail`.
+- [x] `.github/renovate.json` sets one top-level `postUpgradeTasks` running the
+  script in `branch` mode. Renovate commits a post-upgrade rewrite only where
+  its path matches `fileFilters`, including a file Renovate itself edited, so
+  the filters enumerate every path a Renovate manager here edits — `ansible/**`,
+  `.devcontainer/**`, `devcontainer-compose-pins.yml`, `docker/**`,
+  `.github/actions/**`, `.github/workflows/**`, `.pre-commit-config.yaml`,
+  `pyproject.toml`, `py_packages/*/pyproject.toml`, `uv.lock`, and the script
+  itself — and a new manager extends the list. It also enables
+  `lockFileMaintenance` with automerge.
+  - **Evidence:** the commit carrying this tick adds both to
+    `.github/renovate.json`, and the `renovate-config-validator` hook passes. A
+    `renovate@44.106.0 --platform=local --dry-run=lookup` run lists every
+    package file under one of the filters.
 
 ### Task 8: Digest masks for the new pins
 
@@ -428,10 +453,11 @@ imply, produced by the same toolchain contributors use.
 
 Verified anchor points (line numbers as of 2026-09-26):
 
-- `.github/renovate.json:3` — `extends`; no `:enablePreCommit`
-- `.github/renovate.json:16-23` — agent-desktop automerge rule
-- `.github/renovate.json:54-62` — provisioning-tools automerge group
-- `.github/renovate.json:72` — `customManagers`
+- `.github/renovate.json:3` — `extends`
+- `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
+- `.github/renovate.json:39-46` — agent-desktop automerge rule
+- `.github/renovate.json:84-92` — provisioning-tools automerge group
+- `.github/renovate.json:102` — `customManagers`
 - `.pre-commit-config.yaml:68-77` — `renovate-config-validator` hook; `rev` is
   the Renovate version
 - `.github/workflows/validate-renovate-config.yml:3-26` — triggers and path
@@ -444,14 +470,16 @@ Verified anchor points (line numbers as of 2026-09-26):
   container images
 - `.github/actions/paths-filter/action.yml:35-44` — `image` filter; excludes
   `.github/workflows/`
-- `ansible/roles/dev_tools/defaults/main.yml:14` — `dev_tools_pinned_tools`;
-  zizmor at `:15`, iwe at `:29` with its version-bearing `asset_prefix` at `:32`
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:13-35` — URL assembly
+- `ansible/roles/dev_tools/defaults/main.yml:18` — `dev_tools_pinned_tools`;
+  zizmor at `:19`, iwe at `:33` with its `asset_prefix` at `:37`
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:13-36` — URL assembly
   and checksum use
-- `ansible/roles/agentic_tools/defaults/main.yml:22-33` — cc-filter version,
+- `ansible/roles/agentic_tools/defaults/main.yml:22-34` — cc-filter version,
   URL, and checksums
-- `ansible/roles/xpra_setup/tasks/main.yml:45-65` — VirtualGL version and
-  checksums in `set_fact`
+- `ansible/roles/xpra_setup/defaults/main.yml:4-11` — VirtualGL version,
+  checksums, and download URL
+- `scripts/refresh-pin-checksums.py` — `PIN_FILES`, the pin files it refreshes
+- `scripts/renovate-post-upgrade.sh` — the post-upgrade task
 - `ansible/roles/.agent.metadata.json` — role pin digest mask
 - `.github/.agent.metadata.json` — workflow pin masks; no `@sha256:` mask yet
 - `pyproject.toml:29` — pytest `testpaths`
