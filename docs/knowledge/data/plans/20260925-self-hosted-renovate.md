@@ -188,12 +188,20 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Modify: `.github/renovate.json`
 
-- [ ] `extends` gains `:enablePreCommit`, so the hook revisions — the Renovate
+- [x] `extends` gains `:enablePreCommit`, so the hook revisions — the Renovate
   version among them — are proposed like any other pin; the Super-Linter parity
   rule already keeps its hooks disabled.
-- [ ] `pre-commit` manager updates automerge: a hook `rev` bump edits
+  - **Evidence:** in the commit carrying this tick, a
+    `renovate@44.106.0 --platform=local --dry-run=lookup` run proposes
+    `renovatebot/pre-commit-hooks` 44.115.10 and `pre-commit/pre-commit-hooks`
+    updates, and reports every parity-contract hook `disabled`.
+- [x] `pre-commit` manager updates automerge: a hook `rev` bump edits
   `.pre-commit-config.yaml`, which runs the required validation check at the new
   Renovate version before it can merge.
+  - **Evidence:** the commit carrying this tick adds a
+    `matchManagers: ["pre-commit"]` automerge rule; the
+    `renovate-config-validator` hook passes. The validation check that gates it
+    is Task 11's.
 
 ### Task 7: Post-upgrade script
 
