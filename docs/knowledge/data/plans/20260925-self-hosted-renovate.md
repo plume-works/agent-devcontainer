@@ -42,15 +42,12 @@ provisioning path.
 
 `renovate.yml` runs on push to `main`, daily, and on manual dispatch, inside
 `agent-desktop:edge@sha256:…`. It runs Renovate per run with `bunx`, at the
-version the local `renovate-config-validator` pre-commit hook pins in its
-`bunx --package renovate@<version>` entry, so one pin serves hook, validation
-workflow, and bot. That hook form and the custom manager that bumps its pin come
-from
-[Run Node tooling through bun instead of npm](20260925-bun-for-node-tooling.md),
-whose scope here is only that JavaScript runs through `bun`/`bunx`. This plan
-makes that pin automerge and enables Renovate's `pre-commit` manager, which is
-off by default, for the remaining remote hooks. It authenticates as a GitHub App
-so its pull requests start CI, and the hosted app is disconnected when it lands.
+version the `renovate-config-validator` pre-commit hook pins: the hook's `rev`
+in `.pre-commit-config.yaml` is the Renovate release, so one pin serves hook,
+validation workflow, and bot. Renovate's `pre-commit` manager is off by default;
+this plan enables it, with automerge, so it bumps that pin. It authenticates as
+a GitHub App so its pull requests start CI, and the hosted app is disconnected
+when it lands.
 
 One repository-level post-upgrade task runs one script. The script derives what
 changed from the working tree, refreshes checksums for the pin files that
@@ -162,13 +159,12 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Modify: `.github/renovate.json`
 
-- [ ] `extends` gains `:enablePreCommit`, so the remote hook revisions are
-  proposed like any other pin; the Super-Linter parity rule already keeps its
-  hooks disabled. `pre-commit` manager updates automerge.
-- [ ] A package rule automerges the `renovate` dependency the `bunx --package`
-  custom manager extracts from `.pre-commit-config.yaml`. A bump edits that
-  file, which runs the required validation check at the new Renovate version
-  before it can merge.
+- [ ] `extends` gains `:enablePreCommit`, so the hook revisions — the Renovate
+  version among them — are proposed like any other pin; the Super-Linter parity
+  rule already keeps its hooks disabled.
+- [ ] `pre-commit` manager updates automerge: a hook `rev` bump edits
+  `.pre-commit-config.yaml`, which runs the required validation check at the new
+  Renovate version before it can merge.
 
 ### Task 7: Post-upgrade script
 
@@ -220,9 +216,9 @@ options as `RENOVATE_*` environment variables instead.
 - [ ] Triggers: push to `main`, a daily `schedule`, and `workflow_dispatch`. A
   concurrency group queues runs rather than cancelling one mid-run.
 - [ ] The job runs in the agent-desktop digest pin, reads the Renovate version
-  from the hook's `bunx --package renovate@<version>` entry in
-  `.pre-commit-config.yaml`, and runs
-  `bunx --package renovate@<version> renovate` against this repository only.
+  from the `renovate-config-validator` hook's `rev` in
+  `.pre-commit-config.yaml`, and runs `bunx --package renovate@<rev> renovate`
+  against this repository only.
 - [ ] Authentication mints a token from the GitHub App through
   `actions/create-github-app-token`; `GITHUB_TOKEN` is never Renovate's token.
 - [ ] Global options — `allowedCommands` naming exactly the post-upgrade script,
@@ -234,9 +230,8 @@ options as `RENOVATE_*` environment variables instead.
 **Files:** Modify: `.github/workflows/validate-renovate-config.yml`
 
 - [ ] The validation job runs in the agent-desktop digest pin and calls
-  `bunx --package renovate@<version>` with the hook's version, not an unpinned
-  resolution. The image provides bun, so the `oven-sh/setup-bun` step the bun
-  plan adds is removed.
+  `bunx --package renovate@<rev>` with the hook's version, not an unpinned `npx`
+  resolution. The image provides bun, so no setup step is needed.
 - [ ] A paths-filter job and an always-reporting
   `Renovate config validation finished` job follow the pattern in
   `validate-agent-files.yml`, so the check can be required without blocking pull
@@ -251,9 +246,9 @@ options as `RENOVATE_*` environment variables instead.
 `docs/knowledge/data/architecture/template-boundary.md`
 
 - [ ] `renovate-config-validation` replaces its
-  pinned-hook-versus-latest-workflow decision, as worded after the bun plan: the
-  bot now runs the hook's version, so hook, workflow, and bot share one pin, and
-  the workflow doubles as the image canary.
+  pinned-hook-versus-latest-workflow decision: the bot now runs the hook's
+  version, so hook, workflow, and bot share one pin, and the workflow doubles as
+  the image canary.
 - [ ] `template-boundary` lists `renovate.yml` and
   `validate-renovate-config.yml` as Customize: both name this image, and
   `renovate.yml` needs a GitHub App and its secrets.
@@ -368,21 +363,15 @@ imply, produced by the same toolchain contributors use.
 - **THEN** the rewrite is part of Renovate's commit, not a follow-up push.
 ```
 
-## Depends on
-
-[Run Node tooling through bun instead of npm](20260925-bun-for-node-tooling.md)
-ships first: it gives the Renovate pin its `bunx` hook form and the custom
-manager that bumps it.
-
 ## Verification
 
 - `uv run pytest scripts/tests` passes.
 - `renovate-config-validator --no-global --strict .github/renovate.json` passes
   at the hook's version; `pre-commit run --all-files` passes.
 - `actionlint` and `zizmor` pass on `renovate.yml` and the modified workflows.
-- `LOG_LEVEL=debug bunx --package renovate@<version> renovate --platform=local`,
-  run inside the image from the checkout, extracts every checksum-carrying pin
-  (not zizmor), both responder `container` images, and the compose pin, with the
+- `LOG_LEVEL=debug bunx --package renovate@<rev> renovate --platform=local`, run
+  inside the image from the checkout, extracts every checksum-carrying pin (not
+  zizmor), both responder `container` images, and the compose pin, with the
   group rule applied.
 - The image builds in CI with Tasks 2 and 3 applied.
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh` reports no
@@ -406,16 +395,15 @@ Verified anchor points (line numbers as of 2026-09-26):
 - `.github/renovate.json:16-23` — agent-desktop automerge rule
 - `.github/renovate.json:54-62` — provisioning-tools automerge group
 - `.github/renovate.json:72` — `customManagers`
-- `.pre-commit-config.yaml:68-77` — `renovate-config-validator` hook; the bun
-  plan moves it into the `repo: local` block as a `bunx --package renovate@…`
-  entry
+- `.pre-commit-config.yaml:68-77` — `renovate-config-validator` hook; `rev` is
+  the Renovate version
 - `.github/workflows/validate-renovate-config.yml:3-26` — triggers and path
   filters
-- `.github/workflows/validate-renovate-config.yml:37-43` — unpinned validation
-  step; `npx` until the bun plan makes it `bunx`
+- `.github/workflows/validate-renovate-config.yml:37-43` — unpinned `npx`
+  validation step
 - `.github/workflows/validate-agent-files.yml:101-108` — always-reporting
   `finished` job pattern
-- `.github/workflows/ai-responder.yml:429-430` and `:475-476` — bare `:edge`
+- `.github/workflows/ai-responder.yml:429-430` and `:476-477` — bare `:edge`
   container images
 - `.github/actions/paths-filter/action.yml:35-44` — `image` filter; excludes
   `.github/workflows/`
@@ -428,6 +416,6 @@ Verified anchor points (line numbers as of 2026-09-26):
 - `ansible/roles/xpra_setup/tasks/main.yml:45-65` — VirtualGL version and
   checksums in `set_fact`
 - `ansible/roles/.agent.metadata.json` — role pin digest mask
-- `.github/.agent.metadata.json` — workflow pin digest masks
+- `.github/.agent.metadata.json` — workflow pin masks; no `@sha256:` mask yet
 - `pyproject.toml:29` — pytest `testpaths`
 - `.devcontainer/devcontainer.json:15-17` — feature references the lock follows

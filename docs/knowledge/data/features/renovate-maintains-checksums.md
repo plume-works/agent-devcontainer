@@ -48,13 +48,11 @@ keeps its present meaning — repository policy — and the workflow supplies th
 self-hosted global configuration alongside it, including `allowedCommands`.
 
 **One Renovate version.** The workflow runs Renovate per run through `bunx`, at
-the version the `renovate-config-validator` pre-commit hook pins in its
-`bunx --package renovate@<version>` entry. Hook, validation workflow, and bot
-therefore never disagree, Renovate is not provisioned into the image, and a bump
-of that pin automerges once the validation check passes at the new version.
-
-Renovate's `pre-commit` manager is enabled, so the remote hook revisions update
-and automerge too.
+the version the `renovate-config-validator` pre-commit hook pins. Hook,
+validation workflow, and bot therefore never disagree, and Renovate is not
+provisioned into the image. Renovate's `pre-commit` manager is enabled, so that
+pin and the other remote hook revisions update and automerge; a Renovate bump
+merges only once the validation check passes at the new version.
 
 **The hosted app is disconnected in the same change.** Two Renovates against one
 repository each treat the other's branches as foreign and contend over them.
