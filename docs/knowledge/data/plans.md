@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
+
 [Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
