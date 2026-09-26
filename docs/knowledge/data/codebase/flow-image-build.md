@@ -6,14 +6,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:eebf7ba6cc3d3ef7273dbdf7055601ba755d0a4c3393370d33c3b4a3be1ee63f
+source_digest: sha256:b17f925b8d1b9800cddea47c665d8882781d5ee5661bce522f790f8268424b06
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
-stale_after: 2026-12-24
+  at: 2026-09-26T00:00:00Z
+stale_after: 2026-12-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
+  at: 2026-09-26T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -50,8 +50,11 @@ running the image it produced.
 7. `dev-container-ci` rewrites `devcontainer-compose-pins.yml` to that digest
    and builds and smoke-tests the [devcontainer](devcontainer.md) with
    `devcontainers/ci` — `.github/workflows/ci.yml:233-262`
-8. After the merge to `main`, Renovate opens and automerges a PR bumping the
-   digest in `devcontainer-compose-pins.yml` — `.github/renovate.json:16-23`
+8. After the merge to `main`, the self-hosted Renovate bot
+   (`.github/workflows/renovate.yml`) opens and automerges one PR bumping the
+   digest in `devcontainer-compose-pins.yml` and in every workflow container job
+   that pins it; that PR runs the Renovate-config validation inside the new
+   image — `.github/renovate.json:39-47`
 
 ## Failure modes
 

@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: 'The eight workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the AI responder, and the manual container cleanup.'
+description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:3f60ed893ad1dba59cfd1c2cd7b8d59447f59d6cba4e09ce160d3581c929bde8
+source_digest: sha256:ff0a39af6de65896e7498806cce65e94162061635c9cfdb24af8557b7999f970
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
-stale_after: 2026-12-22
+  at: 2026-09-26T00:00:00Z
+stale_after: 2026-12-25
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-26T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -17,8 +17,8 @@ sources:
 
 # Workflows
 
-Two reusable workflows behind one entry point, four path-filtered checks, and
-one manual job.
+Two reusable workflows behind one entry point, four path-filtered checks, the
+scheduled Renovate bot, and one manual job.
 
 ## Public surface
 
@@ -29,7 +29,8 @@ one manual job.
 | `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`   |
 | `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
 | `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
-| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `renovate-config-validator --no-global --strict` against `.github/renovate.json`                           |
+| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate rev) → `finished`                  |
+| `renovate.yml`                 | push to `main`, daily schedule, dispatch        | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App             |
 | `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
 | `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                 |
 
@@ -46,12 +47,16 @@ per-arch digests into one manifest; then patches the digest pin and smoke-tests
 the devcontainer with `devcontainers/ci`. The responder only runs for
 `plume-works` and never for a fork PR; its preflight decides between a review
 and a task, resolves the review's effort tier, and `ai-review-present` reports
-whether an accepted review exists. Knowledge validation always checks this graph
-when its outer filter passes and runs the standalone consumer-seed suite only
-when its inner seed filter passes. Agent-file validation's filter covers the
-union of codebase map `source` paths, then its final step verifies every
-recorded digest. The full traces are
-[the image build flow](../flow-image-build.md) and
+whether an accepted review exists. `renovate.yml` and the Renovate-config
+`validate` job run in `agent-desktop` at the digest
+`devcontainer-compose-pins.yml` pins, and both read the Renovate version from
+the `renovate-config-validator` hook's `rev` in `.pre-commit-config.yaml`; the
+bot authenticates with a GitHub App token and takes its global options from
+`RENOVATE_*` variables. Knowledge validation always checks this graph when its
+outer filter passes and runs the standalone consumer-seed suite only when its
+inner seed filter passes. Agent-file validation's filter covers the union of
+codebase map `source` paths, then its final step verifies every recorded digest.
+The full traces are [the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
 ## Depends on
@@ -65,9 +70,16 @@ recorded digest. The full traces are
   [dev_tools](../ansible/roles/dev_tools.md).
 - `permissions: {}` at the top of `primary-checks.yml`; each job grants only
   what it uses.
-- `validate-renovate-config.yml` deliberately leaves Renovate unpinned, unlike
-  every other dependency here: the hosted bot always runs the current release,
-  so the pinned pre-commit hook and this job are meant to diverge.
+- The `agent-desktop` digest in `renovate.yml`, `validate-renovate-config.yml`,
+  and the responder's two container jobs must equal
+  `devcontainer-compose-pins.yml`'s; see
+  [image pinning](../../spec/image-pinning.md).
+- `RENOVATE_ALLOWED_COMMANDS` admits only `scripts/renovate-post-upgrade.sh`,
+  the one `postUpgradeTasks` command `renovate.json` runs.
+- `Renovate config validation finished` reports on every PR, so it can be a
+  required check while `validate` is path-filtered; the version and flag choices
+  are
+  [Renovate config validation](../../architecture/renovate-config-validation.md).
 - Runners are chosen by the `AMD_ONLY`/`ARM_ONLY` repository variables so a fork
   without ARM runners can still build.
 - A `[ci:skip-ai-review]` marker alone on a line of the PR body suppresses the
@@ -86,7 +98,7 @@ recorded digest. The full traces are
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-22):
+Verified anchor points (line numbers as of 2026-09-26):
 
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
@@ -96,11 +108,16 @@ Verified anchor points (line numbers as of 2026-09-22):
 - `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
 - `.github/workflows/validate-agent-files.yml:38-88` — map-source filter and the
   four check steps
-- `.github/workflows/validate-knowledge-base.yml:18,69-109` — `IWE_VERSION`,
+- `.github/workflows/validate-knowledge-base.yml:19,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
 - `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
   markers, both anchored to their own line
 - `.github/workflows/ai-responder.yml:298,402-407` — `opensWith`, and the
   bridge's review-versus-task split and effort label
-- `.github/workflows/validate-renovate-config.yml:48-51` — the validator run
+- `.github/workflows/validate-renovate-config.yml:26,51,77` — `paths-filter`,
+  `validate`, `finished`
+- `.github/workflows/validate-renovate-config.yml:58-59,69-75` — pinned
+  container, rev read and validator run
+- `.github/workflows/renovate.yml:30-31,41-46` — pinned container, rev read
+- `.github/workflows/renovate.yml:51-81` — App token, commit identity, bot run
