@@ -13,7 +13,8 @@
 - name: "Resolve the archive layout: {{ dev_tools_tool.name }}"
   ansible.builtin.set_fact:
     dev_tools_tool_asset: >-
-      {{ dev_tools_tool.asset_prefix }}{{ dev_tools_tool.archives[system_arch].target }}
+      {{ dev_tools_tool.asset_prefix | replace('{version}', dev_tools_tool.version)
+      }}{{ dev_tools_tool.archives[system_arch].target }}
     dev_tools_tool_extension: "{{ dev_tools_tool.extension | default('tar.gz') }}"
 
 - name: "Resolve the binary location: {{ dev_tools_tool.name }}"
