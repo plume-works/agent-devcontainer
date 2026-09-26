@@ -17,6 +17,8 @@ sources:
   title: Renovate github-actions manager extracts job container images
 - resource: https://docs.renovatebot.com/self-hosted-configuration/
 - resource: https://docs.renovatebot.com/configuration-options/#postupgradetasks
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/pre-commit/index.ts
+  title: Renovate pre-commit manager is disabled by default
 ---
 
 # Self-hosted Renovate in the agent-desktop image
@@ -44,9 +46,11 @@ version the local `renovate-config-validator` pre-commit hook pins in its
 `bunx --package renovate@<version>` entry, so one pin serves hook, validation
 workflow, and bot. That hook form and the custom manager that bumps its pin come
 from
-[Run Node tooling through bun instead of npm](20260925-bun-for-node-tooling.md);
-this plan makes the pin automerge. It authenticates as a GitHub App so its pull
-requests start CI, and the hosted app is disconnected when it lands.
+[Run Node tooling through bun instead of npm](20260925-bun-for-node-tooling.md),
+whose scope here is only that JavaScript runs through `bun`/`bunx`. This plan
+makes that pin automerge and enables Renovate's `pre-commit` manager, which is
+off by default, for the remaining remote hooks. It authenticates as a GitHub App
+so its pull requests start CI, and the hosted app is disconnected when it lands.
 
 One repository-level post-upgrade task runs one script. The script derives what
 changed from the working tree, refreshes checksums for the pin files that
@@ -154,10 +158,13 @@ options as `RENOVATE_*` environment variables instead.
   as unsafe to batch: they join the automerged group now that the checksum moves
   in the same commit.
 
-### Task 6: Automerge the Renovate version pin
+### Task 6: Renovate bumps and automerges the hook pins
 
 **Files:** Modify: `.github/renovate.json`
 
+- [ ] `extends` gains `:enablePreCommit`, so the remote hook revisions are
+  proposed like any other pin; the Super-Linter parity rule already keeps its
+  hooks disabled. `pre-commit` manager updates automerge.
 - [ ] A package rule automerges the `renovate` dependency the `bunx --package`
   custom manager extracts from `.pre-commit-config.yaml`. A bump edits that
   file, which runs the required validation check at the new Renovate version
@@ -395,6 +402,7 @@ manager that bumps it.
 
 Verified anchor points (line numbers as of 2026-09-26):
 
+- `.github/renovate.json:3` — `extends`; no `:enablePreCommit`
 - `.github/renovate.json:16-23` — agent-desktop automerge rule
 - `.github/renovate.json:54-62` — provisioning-tools automerge group
 - `.github/renovate.json:72` — `customManagers`

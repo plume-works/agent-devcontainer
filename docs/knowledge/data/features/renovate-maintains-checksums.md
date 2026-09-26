@@ -53,6 +53,9 @@ the version the `renovate-config-validator` pre-commit hook pins in its
 therefore never disagree, Renovate is not provisioned into the image, and a bump
 of that pin automerges once the validation check passes at the new version.
 
+Renovate's `pre-commit` manager is enabled, so the remote hook revisions update
+and automerge too.
+
 **The hosted app is disconnected in the same change.** Two Renovates against one
 repository each treat the other's branches as foreign and contend over them.
 
