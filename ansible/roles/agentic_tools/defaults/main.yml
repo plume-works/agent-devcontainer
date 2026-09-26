@@ -2,9 +2,9 @@
 # Agent CLIs installed as Bun globals. Each is pinned so the image ships a known
 # version; `agentic_tools_bun_packages` is what the role installs.
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-agentic_tools_claude_code_version: "2.1.282"
+agentic_tools_claude_code_version: "2.1.283"
 # renovate: datasource=npm depName=@openai/codex
-agentic_tools_codex_version: "0.157.0"
+agentic_tools_codex_version: "0.157.1"
 # renovate: datasource=npm depName=@modelcontextprotocol/inspector
 agentic_tools_inspector_version: "2.8.0"
 
