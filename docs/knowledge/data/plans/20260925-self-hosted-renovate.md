@@ -116,20 +116,26 @@ options as `RENOVATE_*` environment variables instead.
 **Files:** Create: `ansible/roles/xpra_setup/defaults/main.yml`; Modify:
 `ansible/roles/xpra_setup/tasks/main.yml`
 
-- [ ] `xpra_setup_virtualgl_version` and `xpra_setup_virtualgl_checksums` move
+- [x] `xpra_setup_virtualgl_version` and `xpra_setup_virtualgl_checksums` move
   out of the `set_fact` into the new defaults file, so the existing
   `defaults/main.yml` manager pattern and digest mask reach them. The
   architecture fact stays in the task.
+  - **Evidence:** commit 7edfb51; GitHub Actions run 36238376880 (Primary
+    checks, dispatched on 6a04cd4) built both architectures, the VirtualGL
+    download passing its checksum.
 
 ### Task 3: Stop iwe's asset prefix repeating its version
 
 **Files:** Modify: `ansible/roles/dev_tools/defaults/main.yml`,
 `ansible/roles/dev_tools/tasks/install_pinned_tool.yml`
 
-- [ ] A version bump must be a one-field edit. `asset_prefix: iwe-v0.19.0-`
+- [x] A version bump must be a one-field edit. `asset_prefix: iwe-v0.19.0-`
   repeats `version`, so a Renovate bump would leave the download URL pointing at
   the old asset. Derive the prefix from the version instead; the image build
   proves the assembled URL is unchanged.
+  - **Evidence:** commit 6a04cd4 (`asset_prefix: "{version}-"`); GitHub Actions
+    run 36238376880 built it on both architectures, the iwe archive passing its
+    checksum.
 
 ### Task 4: Checksum refresh script
 
