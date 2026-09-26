@@ -329,12 +329,16 @@ options as `RENOVATE_*` environment variables instead.
     inside the pinned image reports `Config validated successfully`, and a
     `--dry-run=lookup` run puts the job's image in the `renovate/agent-desktop`
     group branch.
-- [ ] A paths-filter job and an always-reporting
+- [x] A paths-filter job and an always-reporting
   `Renovate config validation finished` job follow the pattern in
   `validate-agent-files.yml`, so the check can be required without blocking pull
   requests it does not apply to. The filter covers `.github/renovate.json`,
   `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`, and the workflow
   itself.
+  - **Evidence:** commit 557c56f; GitHub Actions run 36240036607
+    (`workflow_dispatch` on this branch) passed `Need to run?`,
+    `Validate Renovate config` inside the pinned image, and
+    `Renovate config validation finished`.
 
 ### Task 12: Record the decisions
 
