@@ -28,6 +28,8 @@ tells them apart.*
 
 [Self-test unwritable-root check assumes a non-root user](bugs/self-test-unwritable-root-check.md)
 
+[Fixture git inherits the outer commit's index](bugs/fixture-git-inherits-commit-index.md)
+
 [Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
 
 [Unstageable routing option in the improve skill](bugs/self-improve-unstageable-routing-option.md)
