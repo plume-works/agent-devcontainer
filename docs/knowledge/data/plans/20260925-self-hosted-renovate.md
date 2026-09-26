@@ -322,9 +322,13 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Modify: `.github/workflows/validate-renovate-config.yml`
 
-- [ ] The validation job runs in the agent-desktop digest pin and calls
+- [x] The validation job runs in the agent-desktop digest pin and calls
   `bunx --package renovate@<rev>` with the hook's version, not an unpinned `npx`
   resolution. The image provides bun, so no setup step is needed.
+  - **Evidence:** in the commit carrying this tick, the validation step run
+    inside the pinned image reports `Config validated successfully`, and a
+    `--dry-run=lookup` run puts the job's image in the `renovate/agent-desktop`
+    group branch.
 - [ ] A paths-filter job and an always-reporting
   `Renovate config validation finished` job follow the pattern in
   `validate-agent-files.yml`, so the check can be required without blocking pull
