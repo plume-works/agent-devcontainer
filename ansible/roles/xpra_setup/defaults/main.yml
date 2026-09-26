@@ -1,6 +1,7 @@
 ---
 # VirtualGL release installed from GitHub, with the SHA-256 of each
-# architecture's .deb. Bump the version and every checksum together.
+# architecture's .deb. Renovate's post-upgrade script recomputes them on a bump.
+# renovate: datasource=github-releases depName=VirtualGL/virtualgl
 xpra_setup_virtualgl_version: "3.1.4"
 xpra_setup_virtualgl_checksums:
   amd64: "sha256:02edc6b599571c385389af1a006f07a70c298e1d97c580a9bfd4b39d835c51e6"

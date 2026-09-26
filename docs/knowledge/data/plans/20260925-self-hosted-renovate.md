@@ -160,17 +160,29 @@ options as `RENOVATE_*` environment variables instead.
 `ansible/roles/agentic_tools/defaults/main.yml`,
 `ansible/roles/xpra_setup/defaults/main.yml`
 
-- [ ] Each pin gains a `# renovate:` comment naming its datasource. The
+- [x] Each pin gains a `# renovate:` comment naming its datasource. The
   `version` field is the release tag used in the URL, so the comment keeps
   Renovate proposing tags — a `versioning=` override where the tag carries a
   prefix (`bun-v…`, `iwe-v…`).
-- [ ] zizmor gets no comment: its version participates in the Super-Linter
+  - **Evidence:** in the commit carrying this tick,
+    `bunx --package renovate@44.106.0 renovate --platform=local --dry-run=extract`
+    extracts iwe and bun with their `regex:` versioning, codebase-memory-mcp,
+    cc-filter, and VirtualGL as `github-releases` dependencies.
+- [x] zizmor gets no comment: its version participates in the Super-Linter
   parity contract and moves only with `sync-super-linter-tool-versions`.
-- [ ] A custom manager matches the indented, unquoted `version:` field of a
+  - **Evidence:** the same extract run lists no zizmor dependency from
+    `ansible/roles/dev_tools/defaults/main.yml`.
+- [x] A custom manager matches the indented, unquoted `version:` field of a
   `dev_tools_pinned_tools` entry.
-- [ ] The provisioning-tools rule's description stops presenting checksum pins
+  - **Evidence:** the extract run attributes the three `dev_tools` dependencies
+    to the new `version:` manager in `.github/renovate.json`; the
+    `renovate-config-validator` hook passes.
+- [x] The provisioning-tools rule's description stops presenting checksum pins
   as unsafe to batch: they join the automerged group now that the checksum moves
   in the same commit.
+  - **Evidence:** the commit carrying this tick rewrites the rule's description;
+    its `matchManagers`/`matchFileNames` already cover every extracted checksum
+    pin.
 
 ### Task 6: Renovate bumps and automerges the hook pins
 

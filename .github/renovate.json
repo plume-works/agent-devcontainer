@@ -52,7 +52,7 @@
       "enabled": false
     },
     {
-      "description": "The provisioning tools the Ansible roles pin (uv, Yarn, the agent CLIs, fisher, bass). Each pin is a bare version string with nothing that has to move with it, so a bump cannot leave the role half-updated the way the checksum-carrying pins in dev_tools would. That is what makes batching and automerge safe here.",
+      "description": "The provisioning tools the Ansible roles pin, including the checksum-carrying downloads. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a role half-updated. That is what makes batching and automerge safe here.",
       "matchManagers": ["custom.regex"],
       "matchFileNames": ["ansible/roles/*/defaults/main.yml"],
       "groupName": "ansible role dependency pins",
@@ -70,6 +70,16 @@
     }
   ],
   "customManagers": [
+    {
+      "description": "Versions of the checksum-carrying tools in dev_tools_pinned_tools: an entry's unquoted `version:` field, under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^ansible/roles/dev_tools/defaults/main\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\n\\s*version: (?<currentValue>\\S+)"
+      ]
+    },
     {
       "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it.",
       "customType": "regex",
