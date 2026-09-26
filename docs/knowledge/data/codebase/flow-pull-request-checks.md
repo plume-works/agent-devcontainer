@@ -1,17 +1,17 @@
 ---
 type: codebase
-description: 'Every gate a pull request passes: formatting, the image build, agent-file and knowledge-base validation, and the AI review, with the local pre-commit mirror.'
+description: 'Every gate a pull request passes: formatting, the image build, agent-file, knowledge-base and Renovate-config validation, and the AI review, with the local pre-commit mirror.'
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:b5a2883e1b540b9411851c8686a579030a6658a8f9aba7f019be4444d7defb87
+source_digest: sha256:e4af43b8f14b8123a7e4c25db98ae142376177fee12ab72edd9b8de69c9ad44a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
-stale_after: 2026-12-24
+  at: 2026-09-26T00:00:00Z
+stale_after: 2026-12-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
+  at: 2026-09-26T00:00:00Z
 sources:
 - id: code
   resource: .github
@@ -19,7 +19,7 @@ sources:
 
 # Flow: pull request checks
 
-Four workflows fire on a pull request; three are path-filtered, one is
+Five workflows fire on a pull request; four are path-filtered, one is
 policy-filtered. Locally, pre-commit runs the same formatters and validators
 before the push.
 
@@ -28,7 +28,7 @@ before the push.
 1. `pre-commit` (local, on every commit): Prettier, clang-format, ansible-lint,
    hadolint, ruff format and lint, shellcheck, gitleaks, actionlint,
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
-   and IWE validation and normalization — `.pre-commit-config.yaml:2-137`
+   and IWE validation and normalization — `.pre-commit-config.yaml:2-127`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit —
@@ -48,10 +48,13 @@ before the push.
    validates the consumer seed —
    `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in
    [the knowledge workspace](docs/knowledge.md)
-6. `validate-renovate-config.yml`, when `.github/renovate.json` changed:
-   `renovate-config-validator --no-global --strict` against it, from the current
-   unpinned Renovate rather than the version the hook pins —
-   `.github/workflows/validate-renovate-config.yml:48-51`
+6. `validate-renovate-config.yml`: its `paths-filter` passes when
+   `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
+   the workflow, or the image sources changed; `validate` then runs
+   `renovate-config-validator --no-global --strict` inside the pinned
+   `agent-desktop` image at the Renovate release the hook's `rev` names, and
+   `finished` reports the required result either way —
+   `.github/workflows/validate-renovate-config.yml:26,51,69-75,77`
 7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort
    tier; `claude-respond` runs the review or task through
@@ -68,10 +71,9 @@ before the push.
 - Step 7's effort tier changes what the review costs, never whether it runs:
   `ai-review-present` does not read it, and both tiers keep the metadata check
   and the durable-knowledge pass.
-- Step 1 and step 6 run the same validator against the same file on purpose, the
-  hook at a pinned Renovate and the workflow at whatever the hosted app
-  currently runs; a break in the workflow alone is the warning that the live bot
-  is about to break too.
+- Step 1 and step 6 run the same validator against the same file at the one
+  Renovate version the bot runs; an `agent-desktop` digest bump reaches step 6
+  through the pin file, so an image that cannot run the bot fails here first.
 - Step 1 and step 2 must agree on tool versions; `renovate.json` disables
   Renovate for the Super-Linter family so
   `/agentdev:sync-super-linter-tool-versions` moves them together.

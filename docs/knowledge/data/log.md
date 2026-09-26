@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-26
+
+- **Update**: Refreshed the thirteen codebase-map docs whose tracked sources
+  moved with the self-hosted Renovate workflow, the pinned-image Renovate config
+  validation, and Renovate-managed checksum pins.
+
 ## 2026-09-25
 
 - **Update**: The Ansible roles install apt packages unpinned again. The

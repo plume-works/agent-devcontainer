@@ -7,10 +7,14 @@
 # a shared system directory.
 #
 # The download URL is assembled as
-# "{{ url_prefix }}/{{ version }}/{{ asset_prefix }}{{ archives[system_arch].target }}.tar.gz".
+# "{{ url_prefix }}/{{ version }}/{{ asset_prefix }}{{ archives[system_arch].target }}.tar.gz",
+# with any `{version}` in `asset_prefix` replaced by `version`, so a bump edits one field.
 # Add an entry here (plus a checksum pair per architecture) to pin a new tool.
 # Set `binaries` when a tarball ships more than one binary to install (see iwe);
 # it defaults to a single-element list containing `name`.
+# A `# renovate:` comment above an entry's `version` lets Renovate bump it; the
+# post-upgrade script then recomputes its checksums. zizmor has none: it moves
+# only with the Super-Linter tool-version sync.
 dev_tools_pinned_tools:
   - name: zizmor
     version: v1.22.0
@@ -27,9 +31,10 @@ dev_tools_pinned_tools:
   # iwe ships iwe (CLI), iwes (LSP server), and iwec (MCP server) together in one
   # per-arch tarball; `binaries` installs all three to /usr/local/bin.
   - name: iwe
+    # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
     version: iwe-v0.19.0
     url_prefix: https://github.com/iwe-org/iwe/releases/download
-    asset_prefix: iwe-v0.19.0-
+    asset_prefix: "{version}-"
     binaries: [iwe, iwes, iwec]
     archives:
       amd64:
@@ -52,6 +57,7 @@ dev_tools_pinned_tools:
   # mount over anything written at image-build time — the same reason
   # agentic_tools only stages its catalog at build time instead of installing it.
   - name: codebase-memory-mcp
+    # renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp
     version: v0.10.3
     url_prefix: https://github.com/DeusData/codebase-memory-mcp/releases/download
     asset_prefix: codebase-memory-mcp-
@@ -67,6 +73,7 @@ dev_tools_pinned_tools:
   # `extension` and `binaries_in_asset_dir`. The amd64 asset is `-baseline`,
   # which runs without AVX2; plain `x64` faults on a host that lacks it.
   - name: bun
+    # renovate: datasource=github-releases depName=oven-sh/bun versioning=regex:^bun-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
     version: bun-v1.4.2
     url_prefix: https://github.com/oven-sh/bun/releases/download
     asset_prefix: bun-linux-

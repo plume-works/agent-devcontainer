@@ -31,6 +31,7 @@ testpaths = [
   ".agents/plugins/self-improve/tests",
   "docs/knowledge/tests",
   "py_packages",
+  "scripts/tests",
 ]
 markers = [
   "smoke: drives a real Claude Code session and spends model usage; skipped unless SELF_IMPROVE_RUN_LIVE is set, and run by `make smoke`",

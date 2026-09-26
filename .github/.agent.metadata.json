@@ -16,6 +16,11 @@
           "pattern": "ubuntu-[0-9]+\\.[0-9]+",
           "replace": "ubuntu-<PIN>",
           "reason": "Renovate bumps the GitHub-hosted runner labels (github-runner datasource, .github/renovate.json); the -arm suffix stays unmasked so an architecture change still counts."
+        },
+        {
+          "pattern": "@sha256:[0-9a-f]{64}",
+          "replace": "@sha256:<DIGEST>",
+          "reason": "Renovate automerges agent-desktop digest bumps, which move every workflow container image with devcontainer-compose-pins.yml (.github/renovate.json); the image name and tag stay unmasked."
         }
       ]
     }

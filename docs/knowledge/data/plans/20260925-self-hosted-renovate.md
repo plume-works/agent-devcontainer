@@ -1,0 +1,537 @@
+---
+type: plan
+created: 2026-09-25
+description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks can refresh checksum pins, lock files, and pre-commit output in the same commit as the bump.
+generated:
+  by: claude-code/opus-5
+  at: 2026-09-25T00:00:00Z
+sources:
+- resource: .github/renovate.json
+- resource: .github/workflows/validate-renovate-config.yml
+- resource: .github/workflows/ai-responder.yml
+- resource: .pre-commit-config.yaml
+- resource: ansible/roles/dev_tools/defaults/main.yml
+- resource: ansible/roles/agentic_tools/defaults/main.yml
+- resource: ansible/roles/xpra_setup/tasks/main.yml
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/github-actions/extract.ts
+  title: Renovate github-actions manager extracts job container images
+- resource: https://docs.renovatebot.com/self-hosted-configuration/
+- resource: https://docs.renovatebot.com/configuration-options/#postupgradetasks
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/pre-commit/index.ts
+  title: Renovate pre-commit manager is disabled by default
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/execute-post-upgrade-commands.ts
+  title: Post-upgrade output is kept only where its path matches fileFilters
+- resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/commit.ts
+  title: A branch commit is Renovate's package files followed by post-upgrade artifacts
+---
+
+# Self-hosted Renovate in the agent-desktop image
+
+## Context
+
+[Renovate maintains checksum-carrying pins](../features/renovate-maintains-checksums.md)
+motivates this plan. The hosted Renovate app cannot run commands after a bump,
+because `allowedCommands` is a global-only option. Three kinds of update
+therefore stay manual or go stale: the per-architecture SHA-256 beside a pinned
+download, lock files whose owning tool Renovate does not run
+(`.devcontainer/devcontainer-lock.json`), and pre-commit output for the files a
+bump touches.
+
+Running Renovate from a workflow in this repository moves the command gate here.
+Running it inside `ghcr.io/plume-works/agent-desktop` gives those commands the
+same toolchain contributors use — uv, bun, pre-commit, iwe — without a second
+provisioning path.
+
+## Approach
+
+`renovate.yml` runs on push to `main`, daily, and on manual dispatch, inside
+`agent-desktop:edge@sha256:…`. It runs Renovate per run with `bunx`, at the
+version the `renovate-config-validator` pre-commit hook pins: the hook's `rev`
+in `.pre-commit-config.yaml` is the Renovate release, so one pin serves hook,
+validation workflow, and bot. Renovate's `pre-commit` manager is off by default;
+this plan enables it, with automerge, so it bumps that pin. It authenticates as
+a GitHub App so its pull requests start CI, and the hosted app is disconnected
+when it lands.
+
+One repository-level post-upgrade task runs one script. The script derives what
+changed from the working tree, refreshes checksums for the pin files that
+changed, regenerates the devcontainer lock when `devcontainer.json` changed, and
+finishes with pre-commit on the changed files. `uv.lock` needs no script: the
+`pep621` manager relocks with the image's uv, and lock file maintenance
+refreshes it on Renovate's default schedule.
+
+Every job that runs in agent-desktop pins the same digest as
+`devcontainer-compose-pins.yml`. Renovate's `github-actions` manager extracts
+job `container` images, so one group rule moves every copy in one pull request.
+`validate-renovate-config.yml` runs in that image, and a digest bump edits it,
+so every bump runs a required check inside the new image before it can
+automerge.
+
+### Rejected alternatives
+
+**Renovate provisioned into the image.** One fewer download per run, but every
+Renovate upgrade would take two pull requests — role bump, then digest bump —
+and the image would carry a large package only CI uses.
+
+**A per-rule `postUpgradeTasks` for each pin kind.** `postUpgradeTasks` is an
+object that a later matching `packageRule` replaces rather than extends, so a
+checksum rule would silently drop the pre-commit step. One script behind one
+task avoids the override ordering entirely.
+
+**A separate check that all agent-desktop pins agree.** Declined: the group rule
+moves them together, and a hand edit that splits them is reviewed like any
+other.
+
+**Renovate's global configuration in a checked-in file.** The
+`renovate-config-validator` hook matches Renovate config filenames and runs with
+`--no-global`, which rejects global-only options. The workflow passes global
+options as `RENOVATE_*` environment variables instead.
+
+### Assumptions
+
+- Lock file maintenance automerges, like the other lock-free bumps; it only
+  moves transitive versions within the ranges `pyproject.toml` already allows.
+- The devcontainer CLI is invoked with a pinned version that Renovate tracks.
+
+## Implementation Steps
+
+### Task 1: Settle hadolint inside a container job
+
+**Files:** Modify: none (throwaway branch)
+
+- [x] Run `pre-commit run hadolint-docker --all-files` in a job with
+  `container: ghcr.io/plume-works/agent-desktop:edge@sha256:…` and record
+  whether it lints `docker/**/Dockerfile*` successfully. The outcome decides
+  Task 7: success keeps the hook; failure (bind paths from `/__w` not resolving
+  on the host daemon) makes the script set `SKIP=hadolint-docker`, and
+  Super-Linter's hadolint in `reformat.yml` remains the gate.
+  - **Evidence:** GitHub Actions run 36238145203: `uv run pre-commit` (4.6.1)
+    passed `hadolint-docker` on `docker/ansible/Dockerfile` and reported
+    DL3006/DL3015 on a known-bad one, so the hook stays. Run 36237884922 shows
+    the image's apt pre-commit 3.6.2 cannot remap `/__w` on cgroup v2, so Task 7
+    runs pre-commit through `uv run`.
+
+### Task 2: Move the VirtualGL pin into role defaults
+
+**Files:** Create: `ansible/roles/xpra_setup/defaults/main.yml`; Modify:
+`ansible/roles/xpra_setup/tasks/main.yml`
+
+- [x] `xpra_setup_virtualgl_version` and `xpra_setup_virtualgl_checksums` move
+  out of the `set_fact` into the new defaults file, so the existing
+  `defaults/main.yml` manager pattern and digest mask reach them. The
+  architecture fact stays in the task.
+  - **Evidence:** commit 7edfb51; GitHub Actions run 36238376880 (Primary
+    checks, dispatched on 6a04cd4) built both architectures, the VirtualGL
+    download passing its checksum.
+
+### Task 3: Stop iwe's asset prefix repeating its version
+
+**Files:** Modify: `ansible/roles/dev_tools/defaults/main.yml`,
+`ansible/roles/dev_tools/tasks/install_pinned_tool.yml`
+
+- [x] A version bump must be a one-field edit. `asset_prefix: iwe-v0.19.0-`
+  repeats `version`, so a Renovate bump would leave the download URL pointing at
+  the old asset. Derive the prefix from the version instead; the image build
+  proves the assembled URL is unchanged.
+  - **Evidence:** commit 6a04cd4 (`asset_prefix: "{version}-"`); GitHub Actions
+    run 36238376880 built it on both architectures, the iwe archive passing its
+    checksum.
+
+### Task 4: Checksum refresh script
+
+**Files:** Create: `scripts/refresh-pin-checksums.py`,
+`scripts/tests/test_refresh_pin_checksums.py`; Modify: `pyproject.toml`
+
+- [x] Given pin files, the script assembles each architecture's download URL
+  exactly as the consuming role does, downloads it, and rewrites the SHA-256 in
+  place. It covers `dev_tools_pinned_tools`, cc-filter, and VirtualGL.
+  - **Evidence:** the commit carrying this tick renders URLs from the roles' own
+    templates (VirtualGL's moved to `xpra_setup_virtualgl_download_url`);
+    `uv run scripts/refresh-pin-checksums.py` over the three defaults files
+    matched every recorded checksum, and
+    `test_bumped_pin_gets_every_architecture_rehashed` and
+    `test_tool_list_urls_follow_the_install_task` pass.
+- [x] It exits non-zero, leaving the file untouched, when a download fails, or
+  when a pin whose version did not change against `HEAD` hashes differently — a
+  tag that moved under an unchanged version.
+  - **Evidence:** `test_failed_download_fails_and_leaves_the_file`,
+    `test_moved_tag_under_unchanged_version_fails`, and
+    `test_failure_in_one_file_writes_no_file` pass in the commit carrying this
+    tick.
+- [x] Tests serve fixture assets locally and cover a bumped pin, an unchanged
+  pin, a failed download, and a moved tag. `scripts/tests` joins `testpaths`.
+  - **Evidence:** `uv run pytest scripts/tests` — 7 passed, in the commit
+    carrying this tick, which adds `scripts/tests` to `testpaths`.
+
+### Task 5: Bring checksum-carrying pins under Renovate
+
+**Files:** Modify: `.github/renovate.json`,
+`ansible/roles/dev_tools/defaults/main.yml`,
+`ansible/roles/agentic_tools/defaults/main.yml`,
+`ansible/roles/xpra_setup/defaults/main.yml`
+
+- [x] Each pin gains a `# renovate:` comment naming its datasource. The
+  `version` field is the release tag used in the URL, so the comment keeps
+  Renovate proposing tags — a `versioning=` override where the tag carries a
+  prefix (`bun-v…`, `iwe-v…`).
+  - **Evidence:** in the commit carrying this tick,
+    `bunx --package renovate@44.106.0 renovate --platform=local --dry-run=extract`
+    extracts iwe and bun with their `regex:` versioning, codebase-memory-mcp,
+    cc-filter, and VirtualGL as `github-releases` dependencies.
+- [x] zizmor gets no comment: its version participates in the Super-Linter
+  parity contract and moves only with `sync-super-linter-tool-versions`.
+  - **Evidence:** the same extract run lists no zizmor dependency from
+    `ansible/roles/dev_tools/defaults/main.yml`.
+- [x] A custom manager matches the indented, unquoted `version:` field of a
+  `dev_tools_pinned_tools` entry.
+  - **Evidence:** the extract run attributes the three `dev_tools` dependencies
+    to the new `version:` manager in `.github/renovate.json`; the
+    `renovate-config-validator` hook passes.
+- [x] The provisioning-tools rule's description stops presenting checksum pins
+  as unsafe to batch: they join the automerged group now that the checksum moves
+  in the same commit.
+  - **Evidence:** the commit carrying this tick rewrites the rule's description;
+    its `matchManagers`/`matchFileNames` already cover every extracted checksum
+    pin.
+
+### Task 6: Renovate bumps and automerges the hook pins
+
+**Files:** Modify: `.github/renovate.json`
+
+- [x] `extends` gains `:enablePreCommit`, so the hook revisions — the Renovate
+  version among them — are proposed like any other pin; the Super-Linter parity
+  rule already keeps its hooks disabled.
+  - **Evidence:** in the commit carrying this tick, a
+    `renovate@44.106.0 --platform=local --dry-run=lookup` run proposes
+    `renovatebot/pre-commit-hooks` 44.115.10 and `pre-commit/pre-commit-hooks`
+    updates, and reports every parity-contract hook `disabled`.
+- [x] `pre-commit` manager updates automerge: a hook `rev` bump edits
+  `.pre-commit-config.yaml`, which runs the required validation check at the new
+  Renovate version before it can merge.
+  - **Evidence:** the commit carrying this tick adds a
+    `matchManagers: ["pre-commit"]` automerge rule; the
+    `renovate-config-validator` hook passes. The validation check that gates it
+    is Task 11's.
+
+### Task 7: Post-upgrade script
+
+**Files:** Create: `scripts/renovate-post-upgrade.sh`; Modify:
+`.github/renovate.json`
+
+- [x] Changed files come from `git diff --name-only HEAD` in Renovate's clone,
+  not from template variables.
+  - **Evidence:** `test_changed_files_reach_the_refresh_and_pre_commit` and
+    `test_nothing_changed_runs_nothing` in
+    `scripts/tests/test_renovate_post_upgrade.py` pass in the commit carrying
+    this tick.
+- [x] Changed pin files go through `refresh-pin-checksums.py`; a changed
+  `.devcontainer/devcontainer.json` regenerates
+  `.devcontainer/devcontainer-lock.json` with the devcontainer CLI, run through
+  `bunx`.
+  - **Evidence:**
+    `test_devcontainer_bump_regenerates_the_lock_before_pre_commit` and
+    `test_no_devcontainer_change_leaves_the_lock_alone` pass in the commit
+    carrying this tick; the CLI version is a Renovate-tracked pin in the script.
+- [x] pre-commit then runs on every changed file. A hook that only rewrites
+  files does not fail the task; a hook still failing on a second pass does.
+  - **Evidence:** `test_a_hook_rewrite_passes_on_the_second_pass` and
+    `test_a_hook_still_failing_on_the_second_pass_fails` pass in the commit
+    carrying this tick; pre-commit runs through `uv run` per Task 1.
+- [x] Any failure exits non-zero, so Renovate fails the branch instead of
+  committing a version beside a stale checksum.
+  - **Evidence:** `test_a_failed_refresh_fails_before_pre_commit` passes in the
+    commit carrying this tick; the script runs under `set -euo pipefail`.
+- [x] `.github/renovate.json` sets one top-level `postUpgradeTasks` running the
+  script in `branch` mode. Renovate commits a post-upgrade rewrite only where
+  its path matches `fileFilters`, including a file Renovate itself edited, so
+  the filters enumerate every path a Renovate manager here edits — `ansible/**`,
+  `.devcontainer/**`, `devcontainer-compose-pins.yml`, `docker/**`,
+  `.github/actions/**`, `.github/workflows/**`, `.pre-commit-config.yaml`,
+  `pyproject.toml`, `py_packages/*/pyproject.toml`, `uv.lock`, and the script
+  itself — and a new manager extends the list. It also enables
+  `lockFileMaintenance` with automerge.
+  - **Evidence:** the commit carrying this tick adds both to
+    `.github/renovate.json`, and the `renovate-config-validator` hook passes. A
+    `renovate@44.106.0 --platform=local --dry-run=lookup` run lists every
+    package file under one of the filters.
+
+### Task 8: Digest masks for the new pins
+
+**Files:** Modify: `ansible/roles/.agent.metadata.json`,
+`.github/.agent.metadata.json`
+
+- [x] Mask the checksum values and the `dev_tools_pinned_tools` version fields
+  the way the version-only pins already are, keeping each `# renovate:` comment
+  unmasked.
+  - **Evidence:** `test_pin_and_checksum_bumps_keep_the_role_map_fresh` and
+    `test_role_changes_beyond_pins_stay_watched` in
+    `docs/knowledge/tests/test_pin_metadata_masks.py` pass in the commit
+    carrying this tick; the first fails against the previous masks.
+- [x] Mask `@sha256:` digests in `.github/**/*.yml`, so a digest bump across
+  workflows does not mark the `github` map docs stale.
+  - **Evidence:** `test_container_digest_bump_keeps_the_workflow_map_fresh` and
+    `test_container_image_change_stays_watched` pass in the commit carrying this
+    tick; the first fails against the previous mask.
+
+### Task 9: One agent-desktop pin across the devcontainer and workflows
+
+**Files:** Modify: `.github/workflows/ai-responder.yml`, `.github/renovate.json`
+
+- [x] Both responder jobs pin `container.image` to the digest in
+  `devcontainer-compose-pins.yml`, written as a literal string — the
+  `github-actions` manager cannot read an expression.
+  - **Evidence:** the commit carrying this tick pins
+    `.github/workflows/ai-responder.yml:430` and `:477`; a
+    `renovate@44.106.0 --platform=local --dry-run=lookup` run extracts both with
+    the compose pin's digest.
+- [x] A group rule keeps every `ghcr.io/plume-works/agent-desktop` dependency,
+  across the `docker-compose` and `github-actions` managers, in one pull
+  request. The existing automerge rule already matches both.
+  - **Evidence:** the same lookup run proposes one digest for the compose pin
+    and both responder images on the single `renovate/agent-desktop` branch.
+
+### Task 10: Renovate workflow
+
+**Files:** Create: `.github/workflows/renovate.yml`
+
+- [x] Triggers: push to `main`, a daily `schedule`, and `workflow_dispatch`. A
+  concurrency group queues runs rather than cancelling one mid-run.
+  - **Evidence:** `.github/workflows/renovate.yml` in the commit carrying this
+    tick (`cancel-in-progress: false`); the actionlint hook and `zizmor` pass.
+- [x] The job runs in the agent-desktop digest pin, reads the Renovate version
+  from the `renovate-config-validator` hook's `rev` in
+  `.pre-commit-config.yaml`, and runs `bunx --package renovate@<rev> renovate`
+  against this repository only.
+  - **Evidence:** in the commit carrying this tick, the version step yields
+    `rev=44.106.0` from the current config, `RENOVATE_REPOSITORIES` is
+    `github.repository`, and the pinned image provides every tool the job and
+    post-upgrade script call.
+- [x] Authentication mints a token from the GitHub App through
+  `actions/create-github-app-token`; `GITHUB_TOKEN` is never Renovate's token.
+  - **Evidence:** the commit carrying this tick passes the App token as
+    `RENOVATE_TOKEN` and commits as the App's bot identity, from the secrets
+    `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY`.
+- [x] Global options — `allowedCommands` naming exactly the post-upgrade script,
+  `onboarding: false`, `requireConfig`, the repository — come from `RENOVATE_*`
+  environment variables.
+  - **Evidence:** in the commit carrying this tick, `RENOVATE_ALLOWED_COMMANDS`
+    is the anchored `^scripts/renovate-post-upgrade\.sh$`, which matches the
+    configured command and rejects an appended one.
+
+### Task 11: Validate the config in the pinned image at the pinned version
+
+**Files:** Modify: `.github/workflows/validate-renovate-config.yml`
+
+- [x] The validation job runs in the agent-desktop digest pin and calls
+  `bunx --package renovate@<rev>` with the hook's version, not an unpinned `npx`
+  resolution. The image provides bun, so no setup step is needed.
+  - **Evidence:** in the commit carrying this tick, the validation step run
+    inside the pinned image reports `Config validated successfully`, and a
+    `--dry-run=lookup` run puts the job's image in the `renovate/agent-desktop`
+    group branch.
+- [x] A paths-filter job and an always-reporting
+  `Renovate config validation finished` job follow the pattern in
+  `validate-agent-files.yml`, so the check can be required without blocking pull
+  requests it does not apply to. The filter covers `.github/renovate.json`,
+  `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`, and the workflow
+  itself.
+  - **Evidence:** commit 557c56f; GitHub Actions run 36240036607
+    (`workflow_dispatch` on this branch) passed `Need to run?`,
+    `Validate Renovate config` inside the pinned image, and
+    `Renovate config validation finished`.
+
+### Task 12: Record the decisions
+
+**Files:** Modify:
+`docs/knowledge/data/architecture/renovate-config-validation.md`,
+`docs/knowledge/data/architecture/template-boundary.md`
+
+- [x] `renovate-config-validation` replaces its
+  pinned-hook-versus-latest-workflow decision: the bot now runs the hook's
+  version, so hook, workflow, and bot share one pin, and the workflow doubles as
+  the image canary.
+  - **Evidence:** the commit carrying this tick rewrites the doc's Decision and
+    adds its image-canary section; `.pre-commit-config.yaml`'s hook comment
+    points at the new decision, and `architecture/renovate-post-upgrade` records
+    the post-upgrade constraints.
+- [x] `template-boundary` lists `renovate.yml` and
+  `validate-renovate-config.yml` as Customize: both name this image, and
+  `renovate.yml` needs a GitHub App and its secrets.
+  - **Evidence:** the commit carrying this tick adds both rows to the doc's
+    GitHub surface table; `iwe schema validate` passes.
+
+### Task 13: Create and install the Renovate GitHub App
+
+**Files:** none (repository settings)
+
+- [x] The App is installed on this repository with the permissions Renovate
+  documents for self-hosting, and its ID and private key are stored as
+  repository secrets named in `renovate.yml`.
+  - **Evidence:** App `plume-works-renovate` (installation 165135166) is
+    installed on `plume-works/agent-devcontainer`. A token minted from the
+    client ID and the stored key's PEM carries checks, statuses, contents,
+    issues, pull_requests and workflows write, plus administration, members and
+    vulnerability_alerts read. `RENOVATE_APP_CLIENT_ID` and
+    `RENOVATE_APP_PRIVATE_KEY` were set 2026-09-26.
+
+### Task 14: Require the validation check
+
+**Files:** none (ruleset `main`)
+
+- [ ] `Renovate config validation finished` joins the required status checks in
+  the `main` ruleset.
+
+### Task 15: Disconnect the hosted Renovate app
+
+**Files:** none (organization settings)
+
+- [ ] The hosted app loses access to this repository immediately before Tasks
+  9–11 merge, so the first push-triggered run has no competing bot.
+
+### Task 16: First self-hosted run
+
+**Files:** none (CI)
+
+- [ ] A `renovate.yml` run completes and any pull request it opens carries
+  refreshed checksums or lock files and passes CI.
+
+### Task 17: A digest bump runs the check in the new image
+
+**Files:** none (CI)
+
+- [ ] The first agent-desktop digest pull request after merge changes
+  `devcontainer-compose-pins.yml` and every workflow pin together, and
+  `Renovate config validation finished` reports from a job running in the new
+  digest.
+
+## Spec changes
+
+[Image pinning](../spec/image-pinning.md) gains a requirement for workflow
+container images:
+
+``` markdown
+## ADDED Requirements
+
+### Requirement: workflow container images share the devcontainer pin
+
+Every workflow job that runs in `ghcr.io/plume-works/agent-desktop` SHALL
+reference it by the same tag and digest as `devcontainer-compose-pins.yml`, and
+a digest update SHALL move every reference in one change.
+
+#### Scenario: Renovate bumps the agent-desktop digest
+
+- **WHEN** Renovate proposes a new agent-desktop digest
+- **THEN** one pull request changes `devcontainer-compose-pins.yml` and every
+  workflow `container.image` to that digest.
+
+#### Scenario: a bumped digest is exercised before merge
+
+- **WHEN** a pull request changes the agent-desktop digest
+- **THEN** a required check runs inside the new image, and the pull request
+  cannot merge while it fails.
+```
+
+`spec/dependency-updates` is created:
+
+``` markdown
+## ADDED Requirements
+
+### Requirement: checksums move with their version
+
+A bump of a pinned download that carries a per-architecture SHA-256 SHALL
+recompute every architecture's checksum from the released asset and commit it
+in the same change as the version.
+
+#### Scenario: a checksum-carrying pin is bumped
+
+- **WHEN** Renovate raises a pinned version whose asset carries checksums
+- **THEN** the pull request carries the new version and a checksum for every
+  architecture computed from the new asset.
+
+#### Scenario: an asset cannot be fetched
+
+- **WHEN** any architecture's asset fails to download during the refresh
+- **THEN** Renovate fails the branch and commits no version change.
+
+#### Scenario: a tag moves under an unchanged version
+
+- **WHEN** a pin whose version did not change hashes differently than its
+  recorded checksum
+- **THEN** the refresh fails and the recorded checksum is kept.
+
+### Requirement: derived files are regenerated with the bump
+
+A Renovate change SHALL carry the lock files and pre-commit output its edits
+imply, produced by the same toolchain contributors use.
+
+#### Scenario: a dev container feature is bumped
+
+- **WHEN** Renovate changes a feature reference in `.devcontainer/devcontainer.json`
+- **THEN** the same pull request carries the regenerated
+  `.devcontainer/devcontainer-lock.json`.
+
+#### Scenario: a bumped file needs formatting
+
+- **WHEN** a pre-commit hook rewrites a file Renovate changed
+- **THEN** the rewrite is part of Renovate's commit, not a follow-up push.
+```
+
+## Verification
+
+- `uv run pytest scripts/tests` passes.
+- `renovate-config-validator --no-global --strict .github/renovate.json` passes
+  at the hook's version; `pre-commit run --all-files` passes.
+- `actionlint` and `zizmor` pass on `renovate.yml` and the modified workflows.
+- `LOG_LEVEL=debug bunx --package renovate@<rev> renovate --platform=local`, run
+  inside the image from the checkout, extracts every checksum-carrying pin (not
+  zizmor), both responder `container` images, and the compose pin, with the
+  group rule applied.
+- The image builds in CI with Tasks 2 and 3 applied.
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh` reports no
+  doc stale from a digest-only or checksum-only change.
+- Tasks 16 and 17 close on their CI runs.
+
+## Out of scope
+
+- apt packages, which stay unpinned.
+- The Ubuntu base release, which Renovate stays disabled for.
+- Super-Linter and the tools in its parity contract, zizmor included.
+- Verifying publisher signatures such as codebase-memory-mcp's sigstore bundle;
+  a recomputed checksum is trust-on-first-use.
+- A check that all agent-desktop pins agree.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-09-26):
+
+- `.github/renovate.json:3` — `extends`
+- `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
+- `.github/renovate.json:39-46` — agent-desktop automerge rule
+- `.github/renovate.json:84-92` — provisioning-tools automerge group
+- `.github/renovate.json:102` — `customManagers`
+- `.pre-commit-config.yaml:68-77` — `renovate-config-validator` hook; `rev` is
+  the Renovate version
+- `.github/workflows/validate-renovate-config.yml:3-26` — triggers and path
+  filters
+- `.github/workflows/validate-renovate-config.yml:37-43` — unpinned `npx`
+  validation step
+- `.github/workflows/validate-agent-files.yml:101-108` — always-reporting
+  `finished` job pattern
+- `.github/workflows/ai-responder.yml:429-430` and `:476-477` — bare `:edge`
+  container images
+- `.github/actions/paths-filter/action.yml:35-44` — `image` filter; excludes
+  `.github/workflows/`
+- `ansible/roles/dev_tools/defaults/main.yml:18` — `dev_tools_pinned_tools`;
+  zizmor at `:19`, iwe at `:33` with its `asset_prefix` at `:37`
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:13-36` — URL assembly
+  and checksum use
+- `ansible/roles/agentic_tools/defaults/main.yml:22-34` — cc-filter version,
+  URL, and checksums
+- `ansible/roles/xpra_setup/defaults/main.yml:4-11` — VirtualGL version,
+  checksums, and download URL
+- `scripts/refresh-pin-checksums.py` — `PIN_FILES`, the pin files it refreshes
+- `scripts/renovate-post-upgrade.sh` — the post-upgrade task
+- `ansible/roles/.agent.metadata.json` — role pin digest mask
+- `.github/.agent.metadata.json` — workflow pin masks; no `@sha256:` mask yet
+- `pyproject.toml:29` — pytest `testpaths`
+- `.devcontainer/devcontainer.json:15-17` — feature references the lock follows

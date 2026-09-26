@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:052e626e2f7580d5570090216165e3fbfa4a6154e6615f6ffb2e4c2b8b75db59
+source_digest: sha256:228fdb09a7ebad72d918f8d87f04fb0a0b9c841cd9cbc3710ff2aa6b25c74da0
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
-stale_after: 2026-12-24
+  at: 2026-09-26T00:00:00Z
+stale_after: 2026-12-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
+  at: 2026-09-26T00:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -89,15 +89,19 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
 - Every installer- or registry-sourced dependency is pinned in its role's
   `defaults/main.yml` under a `# renovate:` comment. Each role guards on the
   pinned version rather than on the binary's existence, so a bump reinstalls
-  instead of being skipped; `ansible/roles/.agent.metadata.json` keeps those
-  automerged values out of this doc's `source_digest`.
+  instead of being skipped. A directly downloaded binary also carries
+  per-architecture checksums, registered in `PIN_FILES` of
+  `scripts/refresh-pin-checksums.py` so Renovate's post-upgrade task recomputes
+  them; `zizmor` alone moves with the Super-Linter sync instead.
+  `ansible/roles/.agent.metadata.json` keeps the automerged versions and
+  checksums out of this doc's `source_digest`.
 - Apt packages are not pinned: each role lists them by name inline, and apt
   installs whatever the enabled repositories serve —
   [Ansible apt pins](../architecture/ansible-apt-pins.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-21):
+Verified anchor points (line numbers as of 2026-09-26):
 
 - `ansible/playbooks/setup-dev.yml:18` — `perm_probe` pre-check guard
 - `ansible/playbooks/setup-dev.yml:28` — `dev_tools`

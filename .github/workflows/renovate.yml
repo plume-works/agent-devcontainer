@@ -1,0 +1,81 @@
+name: Renovate
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+# Queue rather than cancel: a run cut short mid-branch leaves half-pushed updates.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+# A container job defaults to `sh -e`; the steps below need bash.
+defaults:
+  run:
+    shell: bash --noprofile --norc -euo pipefail {0}
+
+jobs:
+  renovate:
+    name: Renovate
+    runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+    # The same digest as devcontainer-compose-pins.yml; Renovate's agent-desktop
+    # group moves every copy together. See spec/image-pinning.
+    container:
+      image: ghcr.io/plume-works/agent-desktop:edge@sha256:4ba579ef149db987737ecfacd3a437f9fa2e35c94e0b68bbd23b19ede73a29fb
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      # The renovate-config-validator hook's rev is the Renovate release, so hook,
+      # validation workflow, and bot share one pin.
+      - name: Read the Renovate version
+        id: version
+        run: |
+          rev=$(grep -A1 -F 'repo: https://github.com/renovatebot/pre-commit-hooks' \
+            .pre-commit-config.yaml | sed -n 's/^ *rev: *//p')
+          [[ "$rev" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "unexpected rev: '$rev'" >&2; exit 1; }
+          echo "rev=$rev" >> "$GITHUB_OUTPUT"
+
+      # A pull request opened with GITHUB_TOKEN starts no workflows, so Renovate
+      # authenticates as its GitHub App.
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3.2.0
+        with:
+          client-id: ${{ secrets.RENOVATE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RENOVATE_APP_PRIVATE_KEY }}
+
+      - name: Resolve the App's commit identity
+        id: author
+        env:
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          id=$(gh api "/users/${APP_SLUG}%5Bbot%5D" --jq .id)
+          echo "git-author=${APP_SLUG}[bot] <${id}+${APP_SLUG}[bot]@users.noreply.github.com>" \
+            >> "$GITHUB_OUTPUT"
+
+      # Global-only options come from the environment: the checked-in config is
+      # validated with --no-global. See architecture/renovate-config-validation.
+      - name: Run Renovate
+        env:
+          RENOVATE_VERSION: ${{ steps.version.outputs.rev }}
+          RENOVATE_TOKEN: ${{ steps.app-token.outputs.token }}
+          RENOVATE_PLATFORM: github
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_ONBOARDING: 'false'
+          RENOVATE_REQUIRE_CONFIG: required
+          RENOVATE_ALLOWED_COMMANDS: '["^scripts/renovate-post-upgrade\\.sh$"]'
+          RENOVATE_GIT_AUTHOR: ${{ steps.author.outputs.git-author }}
+          LOG_LEVEL: info
+        run: bunx --package "renovate@${RENOVATE_VERSION}" renovate

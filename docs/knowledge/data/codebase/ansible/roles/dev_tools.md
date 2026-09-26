@@ -2,14 +2,14 @@
 type: codebase
 description: Installs the apt development toolchain and a list of pinned, checksum-verified single-binary tools (zizmor, the iwe trio, codebase-memory-mcp, bun).
 source: ansible/roles/dev_tools
-source_digest: sha256:e881308e6eb39af5e9dfc16c582a1ae78c86cd0bf5a2447dc716e05b5035231f
+source_digest: sha256:fb0ff02587785027670733929e88ce516ab205bea0e98fee0fe3dfb33a76ac01
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
-stale_after: 2026-12-24
+  at: 2026-09-26T00:00:00Z
+stale_after: 2026-12-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
+  at: 2026-09-26T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/dev_tools
@@ -23,9 +23,10 @@ release binaries every other part of the workspace assumes are on `PATH`.
 
 ## Public surface
 
-- `dev_tools_pinned_tools` — `ansible/roles/dev_tools/defaults/main.yml:14`;
-  each entry names a version, a download URL prefix, an asset prefix, an
-  optional `binaries` list, and a per-architecture `target` + `checksum`
+- `dev_tools_pinned_tools` — `ansible/roles/dev_tools/defaults/main.yml:18`;
+  each entry names a version, a download URL prefix, an asset prefix (where
+  `{version}` expands to the version), an optional `binaries` list, and a
+  per-architecture `target` + `checksum`
 - Installed binaries under `/usr/local/bin`: `zizmor`, `iwe`, `iwes`, `iwec`,
   `codebase-memory-mcp`, `bun`
 
@@ -54,14 +55,15 @@ the apt list is what extracts it.
   [cmake_kitware](../../ansible.md) adds before this role runs, and `git` and
   `git-lfs` from the git-core PPA this role adds.
 - The `iwe` version here must match `IWE_VERSION` in
-  `.github/workflows/validate-knowledge-base.yml:18`, which installs the same
+  `.github/workflows/validate-knowledge-base.yml:19`, which installs the same
   release on the runner.
 - `bun` takes the amd64 `-baseline` asset, which runs without AVX2. The plain
   `x64` build is faster but faults on a host that lacks it, and the image
   targets unknown hardware.
-- These pins carry a checksum, so Renovate cannot move them: it would advance
-  the version and leave the hash behind. They stay hand-maintained, unlike the
-  version-only pins in the other roles' `defaults/`.
+- Every entry except `zizmor` carries a `# renovate:` comment above its
+  `version`, so Renovate bumps it and `scripts/refresh-pin-checksums.py`, which
+  registers this file in `PIN_FILES`, recomputes its checksums in the same
+  commit. `zizmor` has no comment: it moves with the Super-Linter tool sync.
 - `codebase-memory-mcp` uses the `-portable` (static) Linux build; the plain
   build links a newer glibc than some target bases carry. Its agent-config
   wiring is deferred to container create for the same volume-shadowing reason
@@ -69,16 +71,16 @@ the apt list is what extracts it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-25):
+Verified anchor points (line numbers as of 2026-09-26):
 
 - `ansible/roles/dev_tools/tasks/main.yml:9` — the apt install
 - `ansible/roles/dev_tools/tasks/main.yml:36` — the pinned-tools loop
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:14-24` — the archive
-  layout facts
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:31` — download with
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:13-24` — the archive
+  layout facts, `{version}` expanded in `asset_prefix`
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:30` — download with
   checksum
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:40` — extract to a
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:39` — extract to a
   tempdir
-- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:46` — copy named
+- `ansible/roles/dev_tools/tasks/install_pinned_tool.yml:45` — copy named
   binaries only
-- `ansible/roles/dev_tools/defaults/main.yml:14-84` — the pin table
+- `ansible/roles/dev_tools/defaults/main.yml:18-88` — the pin table

@@ -1,7 +1,30 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", ":enablePreCommit"],
   "rebaseWhen": "auto",
+  "postUpgradeTasks": {
+    "commands": ["scripts/renovate-post-upgrade.sh"],
+    "executionMode": "branch",
+    "fileFilters": [
+      "ansible/**",
+      ".devcontainer/**",
+      "devcontainer-compose-pins.yml",
+      "docker/**",
+      ".github/actions/**",
+      ".github/workflows/**",
+      ".pre-commit-config.yaml",
+      "pyproject.toml",
+      "py_packages/*/pyproject.toml",
+      "uv.lock",
+      "scripts/renovate-post-upgrade.sh"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "automergeType": "pr",
+    "platformAutomerge": true
+  },
   "docker-compose": {
     "managerFilePatterns": ["/(^|/)devcontainer-compose-pins\\.ya?ml$/"]
   },
@@ -14,9 +37,10 @@
       "platformAutomerge": true
     },
     {
-      "description": "agent-desktop is built by this repository's own pipeline. Its pin lives in devcontainer-compose-pins.yml, outside the CI image path filter, so merging a bump cannot retrigger the build that produced the digest and bump itself again. That is what makes automerge safe here.",
+      "description": "agent-desktop is built by this repository's own pipeline. Its pin lives in devcontainer-compose-pins.yml, outside the CI image path filter, so merging a bump cannot retrigger the build that produced the digest and bump itself again. That is what makes automerge safe here. Workflow jobs that run in the image pin the same digest, and the group moves every reference in one pull request.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/plume-works/agent-desktop"],
+      "groupName": "agent-desktop",
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true
@@ -27,6 +51,13 @@
       "matchFileNames": ["docker/ansible/Dockerfile"],
       "matchDepNames": ["ubuntu"],
       "enabled": false
+    },
+    {
+      "description": "pre-commit hook revisions, the renovate-config-validator hook's among them: its rev is the Renovate version the bot and the validation workflow run. A rev bump edits .pre-commit-config.yaml, which runs the required validation check at the new version before it can merge.",
+      "matchManagers": ["pre-commit"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     },
     {
       "description": "Super-Linter and the pre-commit/local tools it pins (Prettier, clang-format, Ansible Lint, Hadolint, Ruff, ShellCheck, Gitleaks, Actionlint, Zizmor) must stay in sync with the pinned Super-Linter image. Update them manually with the sync-super-linter-tool-versions skill instead.",
@@ -52,7 +83,7 @@
       "enabled": false
     },
     {
-      "description": "The provisioning tools the Ansible roles pin (uv, Yarn, the agent CLIs, fisher, bass). Each pin is a bare version string with nothing that has to move with it, so a bump cannot leave the role half-updated the way the checksum-carrying pins in dev_tools would. That is what makes batching and automerge safe here.",
+      "description": "The provisioning tools the Ansible roles pin, including the checksum-carrying downloads. The post-upgrade script recomputes every checksum in the same commit as the version and fails the branch when it cannot, so no bump leaves a role half-updated. That is what makes batching and automerge safe here.",
       "matchManagers": ["custom.regex"],
       "matchFileNames": ["ansible/roles/*/defaults/main.yml"],
       "groupName": "ansible role dependency pins",
@@ -70,6 +101,24 @@
     }
   ],
   "customManagers": [
+    {
+      "description": "The devcontainer CLI version the post-upgrade script regenerates the devcontainer lock with.",
+      "customType": "regex",
+      "managerFilePatterns": ["/^scripts/renovate-post-upgrade\\.sh$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n[A-Z0-9_]+=\"(?<currentValue>[^\"]+)\""
+      ]
+    },
+    {
+      "description": "Versions of the checksum-carrying tools in dev_tools_pinned_tools: an entry's unquoted `version:` field, under a `# renovate:` comment that may name a versioning scheme for prefixed tags.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^ansible/roles/dev_tools/defaults/main\\.yml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\s*\\n\\s*version: (?<currentValue>\\S+)"
+      ]
+    },
     {
       "description": "Version pins in the Ansible roles' defaults, each tagged by a `# renovate:` comment on the line above it.",
       "customType": "regex",

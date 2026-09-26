@@ -74,7 +74,7 @@ packages via APT:
 
 ### From GitHub Releases
 
-- `virtualgl` - Version 3.1.4 (pinned, sha256 verified for amd64/arm64)
+- `virtualgl` - pinned with per-architecture SHA-256 in `defaults/main.yml`
 
 ### From Ubuntu Repositories
 
