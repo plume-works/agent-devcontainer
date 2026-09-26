@@ -346,13 +346,19 @@ options as `RENOVATE_*` environment variables instead.
 `docs/knowledge/data/architecture/renovate-config-validation.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] `renovate-config-validation` replaces its
+- [x] `renovate-config-validation` replaces its
   pinned-hook-versus-latest-workflow decision: the bot now runs the hook's
   version, so hook, workflow, and bot share one pin, and the workflow doubles as
   the image canary.
-- [ ] `template-boundary` lists `renovate.yml` and
+  - **Evidence:** the commit carrying this tick rewrites the doc's Decision and
+    adds its image-canary section; `.pre-commit-config.yaml`'s hook comment
+    points at the new decision, and `architecture/renovate-post-upgrade` records
+    the post-upgrade constraints.
+- [x] `template-boundary` lists `renovate.yml` and
   `validate-renovate-config.yml` as Customize: both name this image, and
   `renovate.yml` needs a GitHub App and its secrets.
+  - **Evidence:** the commit carrying this tick adds both rows to the doc's
+    GitHub surface table; `iwe schema validate` passes.
 
 ### Task 13: Create and install the Renovate GitHub App
 

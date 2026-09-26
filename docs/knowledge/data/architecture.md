@@ -54,3 +54,5 @@ rejected are as valuable as the one you picked.*
 [Ansible apt pins](architecture/ansible-apt-pins.md)
 
 [Renovate config validation](architecture/renovate-config-validation.md)
+
+[Renovate post-upgrade task](architecture/renovate-post-upgrade.md)
