@@ -132,14 +132,26 @@ options as `RENOVATE_*` environment variables instead.
 **Files:** Create: `scripts/refresh-pin-checksums.py`,
 `scripts/tests/test_refresh_pin_checksums.py`; Modify: `pyproject.toml`
 
-- [ ] Given pin files, the script assembles each architecture's download URL
+- [x] Given pin files, the script assembles each architecture's download URL
   exactly as the consuming role does, downloads it, and rewrites the SHA-256 in
   place. It covers `dev_tools_pinned_tools`, cc-filter, and VirtualGL.
-- [ ] It exits non-zero, leaving the file untouched, when a download fails, or
+  - **Evidence:** the commit carrying this tick renders URLs from the roles' own
+    templates (VirtualGL's moved to `xpra_setup_virtualgl_download_url`);
+    `uv run scripts/refresh-pin-checksums.py` over the three defaults files
+    matched every recorded checksum, and
+    `test_bumped_pin_gets_every_architecture_rehashed` and
+    `test_tool_list_urls_follow_the_install_task` pass.
+- [x] It exits non-zero, leaving the file untouched, when a download fails, or
   when a pin whose version did not change against `HEAD` hashes differently — a
   tag that moved under an unchanged version.
-- [ ] Tests serve fixture assets locally and cover a bumped pin, an unchanged
+  - **Evidence:** `test_failed_download_fails_and_leaves_the_file`,
+    `test_moved_tag_under_unchanged_version_fails`, and
+    `test_failure_in_one_file_writes_no_file` pass in the commit carrying this
+    tick.
+- [x] Tests serve fixture assets locally and cover a bumped pin, an unchanged
   pin, a failed download, and a moved tag. `scripts/tests` joins `testpaths`.
+  - **Evidence:** `uv run pytest scripts/tests` — 7 passed, in the commit
+    carrying this tick, which adds `scripts/tests` to `testpaths`.
 
 ### Task 5: Bring checksum-carrying pins under Renovate
 

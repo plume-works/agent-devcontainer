@@ -5,3 +5,6 @@ xpra_setup_virtualgl_version: "3.1.4"
 xpra_setup_virtualgl_checksums:
   amd64: "sha256:02edc6b599571c385389af1a006f07a70c298e1d97c580a9bfd4b39d835c51e6"
   arm64: "sha256:5583e08ee5694d14c6ea0f25d2cfd73fa6d5077869c6645c334a948265a777bb"
+xpra_setup_virtualgl_download_url: >-
+  https://github.com/VirtualGL/virtualgl/releases/download/{{ xpra_setup_virtualgl_version }}/virtualgl_{{
+  xpra_setup_virtualgl_version }}_{{ xpra_setup_virtualgl_arch }}.deb
