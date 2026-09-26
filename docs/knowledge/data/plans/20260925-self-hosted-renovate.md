@@ -364,9 +364,15 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** none (repository settings)
 
-- [ ] The App is installed on this repository with the permissions Renovate
+- [x] The App is installed on this repository with the permissions Renovate
   documents for self-hosting, and its ID and private key are stored as
   repository secrets named in `renovate.yml`.
+  - **Evidence:** App `plume-works-renovate` (installation 165135166) is
+    installed on `plume-works/agent-devcontainer`. A token minted from the
+    client ID and the stored key's PEM carries checks, statuses, contents,
+    issues, pull_requests and workflows write, plus administration, members and
+    vulnerability_alerts read. `RENOVATE_APP_CLIENT_ID` and
+    `RENOVATE_APP_PRIVATE_KEY` were set 2026-09-26.
 
 ### Task 14: Require the validation check
 
