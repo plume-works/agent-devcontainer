@@ -95,12 +95,17 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Modify: none (throwaway branch)
 
-- [ ] Run `pre-commit run hadolint-docker --all-files` in a job with
+- [x] Run `pre-commit run hadolint-docker --all-files` in a job with
   `container: ghcr.io/plume-works/agent-desktop:edge@sha256:…` and record
   whether it lints `docker/**/Dockerfile*` successfully. The outcome decides
   Task 7: success keeps the hook; failure (bind paths from `/__w` not resolving
   on the host daemon) makes the script set `SKIP=hadolint-docker`, and
   Super-Linter's hadolint in `reformat.yml` remains the gate.
+  - **Evidence:** GitHub Actions run 36238145203: `uv run pre-commit` (4.6.1)
+    passed `hadolint-docker` on `docker/ansible/Dockerfile` and reported
+    DL3006/DL3015 on a known-bad one, so the hook stays. Run 36237884922 shows
+    the image's apt pre-commit 3.6.2 cannot remap `/__w` on cgroup v2, so Task 7
+    runs pre-commit through `uv run`.
 
 ### Task 2: Move the VirtualGL pin into role defaults
 
