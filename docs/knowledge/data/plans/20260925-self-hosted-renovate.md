@@ -260,11 +260,18 @@ options as `RENOVATE_*` environment variables instead.
 **Files:** Modify: `ansible/roles/.agent.metadata.json`,
 `.github/.agent.metadata.json`
 
-- [ ] Mask the checksum values and the `dev_tools_pinned_tools` version fields
+- [x] Mask the checksum values and the `dev_tools_pinned_tools` version fields
   the way the version-only pins already are, keeping each `# renovate:` comment
   unmasked.
-- [ ] Mask `@sha256:` digests in `.github/**/*.yml`, so a digest bump across
+  - **Evidence:** `test_pin_and_checksum_bumps_keep_the_role_map_fresh` and
+    `test_role_changes_beyond_pins_stay_watched` in
+    `docs/knowledge/tests/test_pin_metadata_masks.py` pass in the commit
+    carrying this tick; the first fails against the previous masks.
+- [x] Mask `@sha256:` digests in `.github/**/*.yml`, so a digest bump across
   workflows does not mark the `github` map docs stale.
+  - **Evidence:** `test_container_digest_bump_keeps_the_workflow_map_fresh` and
+    `test_container_image_change_stays_watched` pass in the commit carrying this
+    tick; the first fails against the previous mask.
 
 ### Task 9: One agent-desktop pin across the devcontainer and workflows
 

@@ -6,6 +6,16 @@
           "pattern": "(# renovate:[^\\n]*\\n[a-z_]+: \")[^\"]*(\")",
           "replace": "\\1<PIN>\\2",
           "reason": "Renovate automerges the role dependency pins (.github/renovate.json); the `# renovate:` comment stays unmasked so a datasource change still counts. Covers every role: one that gains a pin is masked without a new entry."
+        },
+        {
+          "pattern": "(# renovate:[^\\n]*\\n\\s*version: )\\S+",
+          "replace": "\\1<PIN>",
+          "reason": "The unquoted `version:` of a Renovate-managed list entry such as dev_tools_pinned_tools, automerged like the quoted pins; the comment stays unmasked, and an entry without one (zizmor) stays watched."
+        },
+        {
+          "pattern": "\\b[0-9a-f]{64}\\b",
+          "replace": "<SHA256>",
+          "reason": "Per-architecture SHA-256 checksums, which Renovate's post-upgrade task recomputes in every automerged pin bump (scripts/refresh-pin-checksums.py)."
         }
       ]
     }
