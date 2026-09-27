@@ -405,8 +405,11 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** none (ruleset `main`)
 
-- [ ] `Renovate config validation finished` joins the required status checks in
+- [x] `Renovate config validation finished` joins the required status checks in
   the `main` ruleset.
+  - **Evidence:** ruleset `main` (id 20021618) lists
+    `Renovate config validation finished` (GitHub Actions) among its required
+    status checks as of 2026-09-27.
 
 ### Task 17: Disconnect the hosted Renovate app
 
