@@ -415,8 +415,11 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** none (organization settings)
 
-- [ ] The hosted app loses access to this repository, so self-hosted runs have
+- [x] The hosted app loses access to this repository, so self-hosted runs have
   no competing bot opening pull requests that cannot refresh checksums.
+  - **Evidence:** `plume-works/agent-devcontainer` was removed from the hosted
+    `renovate` installation (150260656) on 2026-09-27; that installation's
+    repository list no longer includes it.
 
 ### Task 18: First self-hosted run
 
