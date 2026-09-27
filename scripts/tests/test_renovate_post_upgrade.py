@@ -18,6 +18,7 @@ LOCK = '.devcontainer/devcontainer-lock.json'
 
 # Each stub logs its arguments; STUB_* variables choose its outcome per call.
 UV_STUB = """#!/usr/bin/env bash
+set -euo pipefail
 printf 'uv %s\\n' "$*" >> "$STUB_LOG"
 if [[ "$*" == *refresh-pin-checksums.py* ]]; then
   exit "${STUB_REFRESH_EXIT:-0}"
@@ -32,6 +33,7 @@ fi
 exit "${STUB_PRECOMMIT_EXIT:-0}"
 """
 BUNX_STUB = """#!/usr/bin/env bash
+set -euo pipefail
 printf 'bunx %s\\n' "$*" >> "$STUB_LOG"
 echo '{"regenerated": true}' > .devcontainer/devcontainer-lock.json
 """
