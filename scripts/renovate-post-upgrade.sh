@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Renovate's one post-upgrade task: produce every file a bump implies, in the bump's
-# commit. Any failure exits non-zero, so Renovate fails the branch instead of
-# committing a version beside a stale checksum or lock.
+# Renovate's one post-upgrade task: see architecture/renovate-post-upgrade.
 
 set -euo pipefail
 
@@ -29,8 +27,7 @@ if printf '%s\n' "${changed[@]}" | grep -qx '.devcontainer/devcontainer.json'; t
     devcontainer upgrade --workspace-folder .
 fi
 
-# pre-commit through uv, not the image's apt copy: only pre-commit 4 remaps
-# docker hook paths inside a CI container job on cgroup v2 hosts.
+# pre-commit through uv, not the image's apt copy: see architecture/renovate-post-upgrade.
 mapfile -t changed < <(changed_files)
 if ! uv run --frozen pre-commit run --files "${changed[@]}"; then
   mapfile -t changed < <(changed_files)

@@ -124,7 +124,7 @@ def xpra_defaults(url: str, version: str, amd64: str, arm64: str) -> str:
 def serve_virtualgl(server: AssetServer, version: str, tag: bytes) -> dict[str, str]:
     """Serve both VirtualGL architectures for a version and return their checksums."""
     checksums = {}
-    for arch in ('amd64', 'arm64'):
+    for arch in refresh.ARCHITECTURES:
         body = tag + arch.encode()
         server.assets[f'/{version}/virtualgl_{version}_{arch}.deb'] = body
         checksums[arch] = sha(body)
@@ -256,7 +256,7 @@ def test_files_without_pins_are_ignored(repo: Path) -> None:
 
 def serve_shared_virtualgl(server: AssetServer, version: str, body: bytes) -> str:
     """Serve one architecture-independent VirtualGL asset at both URLs; return its checksum."""
-    for arch in ('amd64', 'arm64'):
+    for arch in refresh.ARCHITECTURES:
         server.assets[f'/{version}/virtualgl_{version}_{arch}.deb'] = body
     return sha(body)
 
