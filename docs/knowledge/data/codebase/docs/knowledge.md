@@ -7,7 +7,7 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:6bd07f1522eb246fc085271f58732722cb3592f7716dd2acbe55fcfa175a935c
+source_digest: sha256:0ed79f968a041ce2c43b5580308372319a1638799c1b2cea6455fbc518c87fe6
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-27T21:00:00Z
@@ -26,10 +26,11 @@ The scaffolding around the project's memory. `.iwe/config.toml` at the
 repository root points the library at `docs/knowledge`, binds a schema to every
 `data/` path, and configures normalization; the three Markdown files beside
 `data/` explain the manual, the frontmatter shapes, and the design rationale;
-four pytest modules gate plan checkboxes, the consumer seed, and the production
-digest masks for Dev Container feature pins, role pins, and workflow image
-digests. This doc deliberately excludes `docs/knowledge/data/` from its
-`source`: the map commit would otherwise make itself stale.
+five pytest modules gate plan checkboxes, the bug and feature body shape, the
+consumer seed, and the production digest masks for Dev Container feature pins,
+role pins, and workflow image digests. This doc deliberately excludes
+`docs/knowledge/data/` from its `source`: the map commit would otherwise make
+itself stale.
 
 ## Public surface
 
@@ -46,6 +47,9 @@ digests. This doc deliberately excludes `docs/knowledge/data/` from its
 - `docs/knowledge/tests/test_plan_checkboxes.py` — every ticked task in an
   active plan carries an `- **Evidence:**` child; a done plan has no unticked
   task
+- `docs/knowledge/tests/test_body_shape_schemas.py` — breaks one bug and one
+  feature document in a copy of the graph by dropping, reordering, or misnaming
+  a required section, and checks that `iwe schema validate` rejects each
 - `docs/knowledge/tests/test_iwe_seed.py` — assembles
   [the consumer seed](../templates/iwe.md) as a standalone workspace and checks
   its schema, normalization, onboarding tasks, links, license, and boundaries
@@ -96,6 +100,8 @@ Verified anchor points (line numbers as of 2026-09-27):
 - `.iwe/schemas/bug.yaml:6`, `.iwe/schemas/feature.yaml:6` — the required body
   sections
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
+- `docs/knowledge/tests/test_body_shape_schemas.py:124` —
+  `test_malformed_body_is_rejected`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture
 - `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` — production mask
