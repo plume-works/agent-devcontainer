@@ -2,14 +2,14 @@
 type: codebase
 description: The two Dockerfiles that produce ubuntu-ansible and agent-desktop, plus the entrypoint, the Xpra start script, and the gh auth wrapper baked into the image.
 source: docker
-source_digest: sha256:63d6f89884736fb750f7c38df228eecccd13c37c38ec891e577d25f2fddae63f
+source_digest: sha256:520c9f427cdeffaff318885c0b100d4227409320717b95355c1c622c120c850e
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-05T17:42:03Z
-stale_after: 2026-12-04
+  by: claude-code/opus-5.5
+  at: 2026-09-27T21:00:00Z
+stale_after: 2026-12-26
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-05T17:42:03Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T21:00:00Z
 sources:
 - id: code
   resource: docker

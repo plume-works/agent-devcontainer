@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:9d9ed049a1172f199c8a223c2aed6b1f9abccadc46f1c2bf5e8144cef9dad69c
+source_digest: sha256:6bd07f1522eb246fc085271f58732722cb3592f7716dd2acbe55fcfa175a935c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-27T21:00:00Z
 stale_after: 2026-12-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-27T21:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -38,7 +38,9 @@ digests. This doc deliberately excludes `docs/knowledge/data/` from its
   binds `data/template-adoption`, a document only a consumer workspace holds
 - `.iwe/schemas/*.yaml` — 15 schemas: `architecture`, `bug`, `codebase`,
   `concept`, `feature`, `hub`, `okf`, `okf-index`, `okf-log`, `plan`, `release`,
-  `someday`, `spec`, `task`, `tracker`
+  `someday`, `spec`, `task`, `tracker`; `bug` and `feature` also fix the body
+  shape, requiring their sections in order under one H1 (`bug` also requires a
+  `Bug: ` title prefix) while allowing extra sections
 - `iwe schema validate`, `iwe normalize` — the commit gate, run by pre-commit
   and by `validate-knowledge-base.yml`
 - `docs/knowledge/tests/test_plan_checkboxes.py` — every ticked task in an
@@ -91,6 +93,8 @@ Verified anchor points (line numbers as of 2026-09-27):
 - `.iwe/config.toml:63-124` — schema bindings
 - `.iwe/config.toml:111` — the tracker binding, including the consumer-only
   `data/template-adoption`
+- `.iwe/schemas/bug.yaml:6`, `.iwe/schemas/feature.yaml:6` — the required body
+  sections
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture

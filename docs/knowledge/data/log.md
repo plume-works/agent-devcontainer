@@ -15,6 +15,9 @@ to the current day's group.
 - **Update**:
   [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
   changed — it now includes Capture.
+- **Update**: Refreshed the nine codebase-map docs the iwe-capture skill, the
+  shared issue-closing helper, the body-shape schemas, and the agentdev 3.4.0
+  pins moved.
 - **Update**: Refreshed the nine codebase-map docs the narrowed role checksum
   mask and the Git-isolated mask test fixture moved.
 - **Update**: Refreshed the three codebase-map docs over `.github` for the

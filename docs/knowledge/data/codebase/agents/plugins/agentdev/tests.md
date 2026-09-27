@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:0e7af4513a572e5e129429c71f64734454a90e1d8bc0cace9b6bf8ddec8a0475
+source_digest: sha256:aaec9d3ddd36bdd97263e87bd2ebc4a870eedfa109ae7c6eb9c18e4e765434d3
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
-stale_after: 2026-12-22
+  by: claude-code/opus-5.5
+  at: 2026-09-27T21:00:00Z
+stale_after: 2026-12-26
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T21:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -17,7 +17,7 @@ sources:
 
 # Plugin tests
 
-9 test modules plus `conftest.py`, run with
+10 test modules plus `conftest.py`, run with
 `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`.
 
@@ -27,11 +27,11 @@ sources:
   test is resolved
 - `plugin_tmp_path` fixture — a scratch directory under the plugin's `.tmp/`,
   removed after each test
-- Modules: `test_close_issue.py`, `test_discover_ai_responder.py`,
-  `test_fetch_issue.py`, `test_remote_codespace_session.py`,
-  `test_result_codes.py`, `test_stale_map_docs.py`,
-  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
-  `test_update_branch.py`
+- Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
+  `test_discover_ai_responder.py`, `test_fetch_issue.py`,
+  `test_remote_codespace_session.py`, `test_result_codes.py`,
+  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
+  `test_template_consume_check_updates.py`, `test_update_branch.py`
 
 ## How it works
 
@@ -49,6 +49,9 @@ moves the digest, that a rule reaches a subdirectory and a child adds to it,
 that a metadata file is not itself tracked content, and that unreadable,
 uncompilable, or inapplicable metadata is `BROKEN_METADATA` confined to its own
 subtree, including invalid replacements and masked binary files.
+`test_capture_close_issue.py` reuses `initialize_repository` from
+`test_update_branch.py` and a stub `gh` that logs closes, and pins each
+`close-issue.sh` result, including an already-closed issue left alone.
 `test_template_consume_check_updates.py` builds the same metadata file to hold
 the marker section, and pins `NO_MARKER` for an absent file and for an absent
 section, and `INVALID_MARKER` for malformed metadata or a section missing
@@ -68,7 +71,7 @@ section, and `INVALID_MARKER` for malformed metadata or a section missing
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
+Verified anchor points (line numbers as of 2026-09-27):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -76,6 +79,8 @@ Verified anchor points (line numbers as of 2026-09-06):
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:18` —
   `_load_script_module`, the by-path import the digest fixtures share
+- `.agents/plugins/agentdev/tests/test_capture_close_issue.py:19` —
+  `install_gh_stub`
 - `.agents/plugins/agentdev/tests/test_result_codes.py:49` — `run_python_helper`
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:33` —
   `write_metadata`, the masking-rule fixture builder
