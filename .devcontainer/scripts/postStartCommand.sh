@@ -20,6 +20,8 @@ else
   /start-xpra.sh --background
 fi
 
+"$script_dir/claude-remote-control-start.sh"
+
 # Repairs the shared auth.json symlink if a `codex logout` during this container's
 # previous run destroyed it; see link-codex-auth.sh for why that can happen.
 "$script_dir/link-codex-auth.sh"
