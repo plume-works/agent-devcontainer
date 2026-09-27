@@ -118,6 +118,7 @@ and codebase-map documents. They are the project's memory across sessions.
 | `/agentdev:iwe-map`           | Codebase archaeology: writes and refreshes the `data/codebase/` map. |
 | `/agentdev:iwe-explore`       | Thinking partner from an idea or a GitHub issue; never writes code.  |
 | `/agentdev:iwe-plan`          | Files a plan with verified anchors and its spec impact.              |
+| `/agentdev:iwe-capture`       | Files a complete bug, proposed feature, or task, deduplicated.       |
 | `/agentdev:iwe-implement`     | Executes a plan task-by-task, ticking boxes with evidence.           |
 | `/agentdev:iwe-implement-all` | Implements every active plan in turn.                                |
 | `/agentdev:iwe-verify`        | Pre-ship gate and drift audit: graph claims checked against code.    |

@@ -181,11 +181,14 @@ deferred task or a defect mid-run without stopping for the user.
 `docs/knowledge/data/features/agentdev-iwe-workflow-skills.md`,
 `docs/knowledge/data/someday.md`
 
-- [ ] Route the Record step's actionable-item, bug-found, and idea-promotion
+- [x] Route the Record step's actionable-item, bug-found, and idea-promotion
   bullets to `/agentdev:iwe-capture`, and add a proposed-feature bullet; add the
   skill to the workspace skills table, STRUCTURE's skill list, and the plugin
   README's knowledge-graph workflow table; name the skill in the IWE workflow
   skills feature doc; point the someday hub's promotion note at `--from`.
+  - **Evidence:** commit "Document iwe-capture in the workspace and catalog
+    references"; `iwe schema validate` exit 0; `validate_agent_files` 55/55
+    valid.
 
 ### Task 9: Release the catalog version
 

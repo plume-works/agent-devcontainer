@@ -4,13 +4,14 @@ stage: implemented
 description: The IWE workflow skills are part of the agentdev catalog as iwe-prefixed, plugin-portable skills rather than repository-local Claude skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
+  at: 2026-09-27T09:53:38Z
 sources:
 - resource: docs/knowledge/data/plans/20260816-move-iwe-skills-to-agentdev.md
 - resource: docs/knowledge/data/spec/template-consumption.md
 - resource: docs/knowledge/data/spec/iwe-workflow-skills.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
@@ -29,13 +30,18 @@ repository-local Claude skills from `.claude/`.
 
 ## Behaviour
 
-**The eight workflow skills live in the plugin.** Setup, Map, Explore, Plan,
-Implement, Verify, Ship, and Weekly are shipped from
+**The nine workflow skills live in the plugin.** Setup, Map, Explore, Plan,
+Capture, Implement, Verify, Ship, and Weekly are shipped from
 `.agents/plugins/agentdev/skills/iwe-*/` and invoked as `/agentdev:iwe-*`.
 
 **Map owns the `data/codebase/` lane.** Setup defers the per-module map to Map's
 initial mode, and Verify's audit hands stale map docs to Map's refresh mode, so
 every `data/` lane has exactly one writer.
+
+**Capture owns the inbox lanes.** Explore and Implement hand settled bugs,
+proposed features, and backlog tasks to Capture rather than writing them, so
+`data/bugs/`, `data/features/` at `proposed`, and `data/backlog/` have one
+writer and one enforced shape.
 
 **Skill-to-skill references are plugin-portable.** The workflow instructions use
 namespaced `/agentdev:iwe-*` invocations for sibling handoffs, so the catalog
