@@ -9,11 +9,9 @@ generated:
 
 # 🐛 Bugs
 
-*One document per bug in `bugs/<slug>.md`, titled `Bug: <summary>`, with
-Symptom, Reproduction, Root cause, Fix, and Key references in that order. No
-`status` means open; `status: done` means fixed, `status: cancelled` means
-closed without a fix. Bugs stay listed here either way — the status chip tells
-them apart.*
+*One document per bug in `bugs/<slug>.md`, listed here whether open or closed.
+Its title, body sections, and stages are defined under Bugs in `SCHEMA.md` and
+enforced by `.iwe/schemas/bug.yaml`.*
 
 [A capitalized @Claude mention was admitted, then misrouted](bugs/responder-mention-case-sensitivity.md)
 
