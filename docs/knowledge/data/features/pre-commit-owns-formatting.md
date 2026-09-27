@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: The pre-commit git hooks are the single local formatting path, extended to merge commits, with the skill- and agent-level formatting mandates removed and the redundant python-format-lint skill retired into AGENTS.md.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-31T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .devcontainer/scripts/setup-pre-commit.sh
 - resource: .pre-commit-config.yaml
@@ -62,6 +62,22 @@ CI is unchanged: `reformat.yml` still runs Super-Linter, and
 stay. Existing devcontainers created before this change need one manual
 `pre-commit install --hook-type pre-merge-commit`; the change is not
 retroactively automated.
+
+## Edge cases
+
+- **A conflicted merge.** `pre-merge-commit` runs only for a merge that commits
+  on its own; a conflicted merge is concluded with `git commit`, which runs the
+  `pre-commit` hook.
+- **A hook rewrites a staged file.** The commit stops; the rewritten file is
+  re-staged and the commit retried.
+- **The hooks are bypassed.** A commit made with `--no-verify` is not checked
+  locally, and Super-Linter in CI still is.
+- **A devcontainer created before the change.** It lacks the `pre-merge-commit`
+  hook until `pre-commit install --hook-type pre-merge-commit` is run once.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## References
 

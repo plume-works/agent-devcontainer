@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Consumers can adopt a repository-owned IWE seed and initialize project memory without overwriting consumer-authored knowledge.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-06T05:39:02Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: docs/knowledge/data/plans/20260905-consumer-iwe-seed.md
 - resource: docs/knowledge/data/spec/template-consumption.md
@@ -38,6 +38,26 @@ and confirmation gates, and mapping is deferred explicitly when no code exists.
 knowledge is preserved and collisions are resolved with the user. Update mode
 tracks only reusable support files, never publisher memory or initialization
 seed content, and narrows legacy broad tracking before it computes changes.
+
+## Edge cases
+
+- **The initial import repository is gone.** Every seed file comes from
+  agent-devcontainer at the adopted ref, so adoption makes no request to it.
+- **A greenfield consumer.** Setup establishes product memory and the report
+  defers mapping explicitly, since there is no code to map.
+- **Onboarding input is still pending.** Adoption reports the pending work,
+  keeps the current data, and does not declare onboarding complete or reset it
+  on resumption.
+- **Knowledge already exists.** A modified publisher copy or partial onboarding
+  is preserved and collisions are resolved with the user, without reseeding.
+- **The seed changes upstream.** An update never applies seed or publisher
+  memory changes to consumer memory and never reruns onboarding.
+- **IWE is declined.** Seeding and onboarding are skipped and copied IWE-only
+  artifacts are removed.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## References
 

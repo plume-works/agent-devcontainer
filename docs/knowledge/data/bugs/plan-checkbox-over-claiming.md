@@ -2,8 +2,8 @@
 type: bug
 description: Plan checkboxes can be ticked in bulk with no evidence and no gate, so a plan can assert work that never happened; verify audits unchecked boxes but takes ticked ones on faith.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
@@ -11,7 +11,7 @@ sources:
 stage: done
 ---
 
-# Plan checkbox over-claiming
+# Bug: Plan checkbox over-claiming
 
 ## Symptom
 
@@ -92,3 +92,21 @@ root causes in place. The next occurrence has nothing new standing in its way.
 
 Planned in
 [Make plan checkboxes carry their evidence](../plans/20260815-honest-plan-checkboxes.md).
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-09-27):
+
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:37` — Step 5, a tick
+  and its `- **Evidence:**` child written in one edit
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:123` — the
+  one-checkbox-per-edit rule
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:62` — the evidence child in
+  the plan format
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:197` — one task is one
+  outcome
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:33` — a ticked task
+  without traceable evidence is a CRITICAL
+- `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`, the shape
+  gate for evidence and completeness
+- `.pre-commit-config.yaml:102` — the `plan-checkboxes` hook that runs the gate

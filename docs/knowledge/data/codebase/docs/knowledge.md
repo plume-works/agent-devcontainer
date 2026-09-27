@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:9ad6707f1728d7c85a213e0d0c38bf32a28976c1da3f5b88d65ae50c4805ffdd
+source_digest: sha256:89816a71a55fd7ad5365a93eaed84244576bbc51c7bc5c9d0f2dff0da8211429
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-27T21:00:00Z
 stale_after: 2026-12-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-27T21:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -26,10 +26,11 @@ The scaffolding around the project's memory. `.iwe/config.toml` at the
 repository root points the library at `docs/knowledge`, binds a schema to every
 `data/` path, and configures normalization; the three Markdown files beside
 `data/` explain the manual, the frontmatter shapes, and the design rationale;
-four pytest modules gate plan checkboxes, the consumer seed, and the production
-digest masks for Dev Container feature pins, role pins, and workflow image
-digests. This doc deliberately excludes `docs/knowledge/data/` from its
-`source`: the map commit would otherwise make itself stale.
+five pytest modules gate plan checkboxes, the bug and feature body shape, the
+consumer seed, and the production digest masks for Dev Container feature pins,
+role pins, and workflow image digests. This doc deliberately excludes
+`docs/knowledge/data/` from its `source`: the map commit would otherwise make
+itself stale.
 
 ## Public surface
 
@@ -38,12 +39,17 @@ digests. This doc deliberately excludes `docs/knowledge/data/` from its
   binds `data/template-adoption`, a document only a consumer workspace holds
 - `.iwe/schemas/*.yaml` — 15 schemas: `architecture`, `bug`, `codebase`,
   `concept`, `feature`, `hub`, `okf`, `okf-index`, `okf-log`, `plan`, `release`,
-  `someday`, `spec`, `task`, `tracker`
+  `someday`, `spec`, `task`, `tracker`; `bug` and `feature` also fix the body
+  shape, requiring their sections in order under one H1 (`bug` also requires a
+  `Bug: ` title prefix) while allowing extra sections
 - `iwe schema validate`, `iwe normalize` — the commit gate, run by pre-commit
   and by `validate-knowledge-base.yml`
 - `docs/knowledge/tests/test_plan_checkboxes.py` — every ticked task in an
   active plan carries an `- **Evidence:**` child; a done plan has no unticked
   task
+- `docs/knowledge/tests/test_body_shape_schemas.py` — breaks one bug and one
+  feature document in a copy of the graph by dropping, reordering, or misnaming
+  a required section, and checks that `iwe schema validate` rejects each
 - `docs/knowledge/tests/test_iwe_seed.py` — assembles
   [the consumer seed](../templates/iwe.md) as a standalone workspace and checks
   its schema, normalization, onboarding tasks, links, license, and boundaries
@@ -94,7 +100,11 @@ Verified anchor points (line numbers as of 2026-09-27):
 - `.iwe/config.toml:63-124` — schema bindings
 - `.iwe/config.toml:111` — the tracker binding, including the consumer-only
   `data/template-adoption`
+- `.iwe/schemas/bug.yaml:6`, `.iwe/schemas/feature.yaml:6` — the required body
+  sections
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
+- `docs/knowledge/tests/test_body_shape_schemas.py:124` —
+  `test_malformed_body_is_rejected`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture
 - `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` — production mask

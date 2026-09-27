@@ -25,6 +25,8 @@ moves them.*
 
 ## Done
 
+[Add the iwe-capture skill](plans/20260927-iwe-capture-skill.md)
+
 [Effort tiers for the AI pull request review](plans/20260917-pr-review-effort-tiers.md)
 
 [Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)

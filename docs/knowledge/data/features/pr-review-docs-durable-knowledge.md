@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: pr-review reviews docs and skills critically for durable-knowledge adherence by invoking iwe-audit in a report-only diff mode, running a conditional file-following durable-knowledge pass, while only version-only and generated-file-only diffs stay fast-approved.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-01T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-audit/SKILL.md
@@ -57,6 +57,21 @@ durable-knowledge pass.
 Durable-knowledge findings sit in the Blocking (critical/P1) tier so they win
 dedup collisions, and iwe-audit stays ignorant of GitHub — the row→comment
 translation lives in pr-review.
+
+## Edge cases
+
+- **A mixed docs and code diff.** Code files get the correctness lens and
+  docs/skills files the durable-knowledge lens in one review.
+- **A docs-only diff.** It is not fast-approved; it runs the durable-knowledge
+  pass.
+- **A light effort tier.** The durable-knowledge pass still runs; the tier
+  changes the review's cost, not which checks it runs.
+- **A code-only diff.** The durable-knowledge pass does not run, leaving the
+  compliance and correctness passes unchanged.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## References
 

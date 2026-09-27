@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Plans state spec impact in one of three risk-scaled forms, so a behavior-changing plan carries a reviewable contract before implementation without importing OpenSpec's change bundles or a delta application engine.
 generated:
-  by: codex
-  at: 2026-08-31T17:36:33Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
@@ -72,6 +72,10 @@ zero-CRITICAL report both support.
 - **`REMOVED` is specified but still tracked for an end-to-end worked
   instance.** No plan has retired a requirement yet. Tracked as
   [Exercise REMOVED delta blocks end to end](../backlog/exercise-removed-delta-blocks.md).
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## Resolved decisions
 

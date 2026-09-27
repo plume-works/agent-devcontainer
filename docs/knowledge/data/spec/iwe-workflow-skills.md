@@ -1,11 +1,15 @@
 ---
 type: spec
-description: Behavioral contracts and handoffs for IWE's Explore, Plan, Map, Implement, Verify, and Ship skills.
+description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-05T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-capture/scripts/close-issue.sh
+- resource: .iwe/schemas/bug.yaml
+- resource: .iwe/schemas/feature.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-explore/scripts/fetch-issue.sh
 - resource: .agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh
@@ -388,6 +392,65 @@ placeholder before the source fingerprint is computed.
   as broken, naming it, rather than computing a fingerprint from unmasked
   content
 - **AND** documents whose sources do not reach it keep their normal verdicts
+
+### Requirement: Capture files complete inbox documents
+
+The Capture skill SHALL be the only writer of new bug, proposed-feature, and
+backlog-task documents, SHALL refuse a document missing any frontmatter field or
+body section `SCHEMA.md` requires for its type, SHALL check the graph for a
+likely duplicate before filing, SHALL file a feature at `stage: proposed` and
+never promote it, and SHALL link every filed document from its hub and end with
+`iwe normalize` and `iwe schema validate` passing.
+
+#### Scenario: A complete item is captured
+
+- **WHEN** Capture is invoked for a bug, feature, or task whose required
+  sections and fields are all supplied, and no likely duplicate exists
+- **THEN** Capture writes the document at its lane's key with the `stage` and
+  `status` `SCHEMA.md` derives for it, stamps `generated` and `sources`, links
+  it from its hub — a task under its priority section — and validates the graph
+
+#### Scenario: A required section is missing
+
+- **WHEN** the supplied content lacks any section or field required for its type
+- **THEN** Capture writes nothing and lists every missing section and field
+
+#### Scenario: A likely duplicate exists
+
+- **WHEN** a fuzzy or lexical search finds an existing document that matches the
+  item
+- **THEN** Capture writes nothing and shows the match
+
+#### Scenario: A someday idea is promoted
+
+- **WHEN** Capture is invoked for a task with `--from someday/<slug>`
+- **THEN** Capture files the backlog task from the idea and moves the idea's
+  link out of `data/someday.md`
+
+#### Scenario: The item grew from a GitHub issue
+
+- **WHEN** the exploration behind the item started from a GitHub issue
+- **THEN** Capture records the issue under `sources:`, and after validation
+  closes it with a comment naming the captured document
+
+#### Scenario: Explore or Implement finds an inbox item
+
+- **WHEN** Explore settles a defect, feature, or task, or Implement finds a
+  defect or work its plan should not absorb
+- **THEN** it hands the item to Capture rather than writing the document itself
+
+### Requirement: Bug and feature documents keep the SCHEMA.md shape
+
+The bug and feature schemas SHALL require the body shape `SCHEMA.md` prescribes
+— a bug's `Bug:` H1 and its Symptom, Reproduction, Root cause, Fix, and Key
+references sections; a feature's Purpose, Behaviour, Edge cases, and Open
+questions sections — in that order, while allowing additional sections.
+
+#### Scenario: A document is written without Capture
+
+- **WHEN** a bug or feature document lacks a required section, has them out of
+  order, or a bug's H1 lacks the `Bug:` prefix
+- **THEN** `iwe schema validate` fails and names the document
 
 ### Requirement: Workflow improvements preserve the IWE and OKF model
 
