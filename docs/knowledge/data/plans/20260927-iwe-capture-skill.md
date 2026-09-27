@@ -165,11 +165,14 @@ deferred task or a defect mid-run without stopping for the user.
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-explore/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
 
-- [ ] Replace Explore's inline bug recipe in `## Capturing` with a handoff to
+- [x] Replace Explore's inline bug recipe in `## Capturing` with a handoff to
   `/agentdev:iwe-capture` for bugs, features, and tasks, carrying `ISSUE_URL`
   when the exploration started from an issue. Replace Implement's inline bug and
   backlog recipes in `## Capturing what implementation turns up` with the same
   handoff; a defect that cannot meet the bug bar stays in the handoff report.
+  - **Evidence:** commit "Route Explore and Implement captures through
+    iwe-capture"; `grep -n 'data/bugs/<slug>\|data/backlog/<slug>'` over both
+    skills finds nothing; `validate_agent_files` 55/55 valid.
 
 ### Task 8: Document the skill in the workspace and catalog references
 

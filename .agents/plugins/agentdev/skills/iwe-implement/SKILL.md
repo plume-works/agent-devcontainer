@@ -96,11 +96,13 @@ Implementation findings do not belong in the plan. Route each finding by type:
 - A durable design fact — a constraint, a boundary, why the obvious approach
   fails → `data/architecture/<slug>.md`, linked from `data/architecture.md`.
   Add to the existing doc that owns the area before creating a new one.
-- A defect in shipped behavior, not caused by this work →
-  `data/bugs/<slug>.md` (Symptom / Reproduction / Root cause / Fix, with
-  `path:line` anchors), linked from `data/bugs.md`.
-- Work this plan should not absorb → `data/backlog/<slug>.md`, and say so in
-  the handoff report rather than growing `## Out of scope` silently.
+- A defect in shipped behavior, not caused by this work → hand it to the
+  `/agentdev:iwe-capture` skill as a `bug`. A defect that cannot yet meet the
+  bug bar — no reproduction, no root cause — stays in the handoff report
+  instead.
+- Work this plan should not absorb → hand it to the `/agentdev:iwe-capture`
+  skill as a `task`, and say so in the handoff report rather than growing
+  `## Out of scope` silently.
 - A finding that changes a material boundary → stop and take it back through
   the `/agentdev:iwe-plan` skill (Step 6), which is the only route that may edit
   intent.
