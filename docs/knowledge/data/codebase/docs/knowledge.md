@@ -7,7 +7,7 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:fb607a6c02000870b5921a78568f776fc11bf78e01f4ca10dc731a01e4005ea4
+source_digest: sha256:9ad6707f1728d7c85a213e0d0c38bf32a28976c1da3f5b88d65ae50c4805ffdd
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-27T00:00:00Z
@@ -101,7 +101,7 @@ Verified anchor points (line numbers as of 2026-09-27):
   workspace fixture, run with the caller's `GIT_*` variables removed
 - `docs/knowledge/tests/test_pin_metadata_masks.py:86,128,153,163` — mask
   workspace fixture, role-pin, non-checksum-hex, and container-digest tests
-- `docs/knowledge/tests/test_pre_commit_rev_mask.py:59` — hook-config mask
+- `docs/knowledge/tests/test_pre_commit_rev_mask.py:60` — hook-config mask
   workspace fixture
 - `.pre-commit-config.yaml:102-122` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
