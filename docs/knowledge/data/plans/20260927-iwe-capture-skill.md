@@ -117,11 +117,14 @@ deferred task or a defect mid-run without stopping for the user.
 **Files:** Modify: `.agents/plugins/agentdev/bin/github-issue.sh`,
 `.agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh`
 
-- [ ] Move the view-state, already-closed, and close-with-comment steps out of
+- [x] Move the view-state, already-closed, and close-with-comment steps out of
   `close-issue.sh` into a function in `bin/github-issue.sh`, keeping the
   script's output lines and result codes unchanged.
   `uv run pytest .agents/plugins/agentdev/tests/test_close_issue.py` passes
   unmodified.
+  - **Evidence:** commit "Share the issue-closing steps in github-issue.sh";
+    `test_close_issue.py` 3 passed unmodified; `shellcheck -x` clean on both
+    files.
 
 ### Task 5: Write the iwe-capture skill
 
