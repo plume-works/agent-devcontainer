@@ -1,7 +1,7 @@
 ---
 type: task
 description: Write a capture skill that creates the three inbox lanes — backlog tasks, bugs, and proposed features — which AGENTS.md step 4 specifies but no skill writes.
-stage: planned
+stage: done
 priority: medium
 created: 2026-08-15
 generated:
@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: docs/knowledge/AGENTS.md
 - resource: docs/knowledge/SCHEMA.md
+completed: 2026-09-27
 ---
 
 # Write a capture skill

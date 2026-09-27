@@ -20,8 +20,6 @@ write a plan and link the plan instead.*
 
 [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
 
-[Write a capture skill](backlog/capture-skill.md)
-
 [Simplify the pr-* skills for the single review workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
 [Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
@@ -31,5 +29,7 @@ write a plan and link the plan instead.*
 [Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
 
 ## Done
+
+[Write a capture skill](backlog/capture-skill.md)
 
 [Capture the current architecture](backlog/capture-current-architecture.md)
