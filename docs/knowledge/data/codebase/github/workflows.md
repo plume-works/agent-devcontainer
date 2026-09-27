@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:ff0a39af6de65896e7498806cce65e94162061635c9cfdb24af8557b7999f970
+source_digest: sha256:5f371a1372906aa03f0ca673ce65392c37aad5c1b0a22a2e049e87e7cab18ab5
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
-stale_after: 2026-12-25
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -76,6 +76,9 @@ The full traces are [the image build flow](../flow-image-build.md) and
   [image pinning](../../spec/image-pinning.md).
 - `RENOVATE_ALLOWED_COMMANDS` admits only `scripts/renovate-post-upgrade.sh`,
   the one `postUpgradeTasks` command `renovate.json` runs.
+- The Renovate App token names its permissions; one Renovate newly needs is
+  added to the token step as well as to the App. See
+  [Renovate post-upgrade](../../architecture/renovate-post-upgrade.md).
 - `Renovate config validation finished` reports on every PR, so it can be a
   required check while `validate` is path-filtered; the version and flag choices
   are
@@ -98,7 +101,7 @@ The full traces are [the image build flow](../flow-image-build.md) and
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-26):
+Verified anchor points (line numbers as of 2026-09-27):
 
 - `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
@@ -120,4 +123,5 @@ Verified anchor points (line numbers as of 2026-09-26):
 - `.github/workflows/validate-renovate-config.yml:58-59,69-75` — pinned
   container, rev read and validator run
 - `.github/workflows/renovate.yml:30-31,41-46` — pinned container, rev read
-- `.github/workflows/renovate.yml:51-81` — App token, commit identity, bot run
+- `.github/workflows/renovate.yml:52-65` — App token and its named permissions
+- `.github/workflows/renovate.yml:67-90` — commit identity, bot run

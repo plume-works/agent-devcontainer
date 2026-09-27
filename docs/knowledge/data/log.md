@@ -8,6 +8,8 @@ to the current day's group.
 
 - **Update**: Refreshed the nine codebase-map docs the narrowed role checksum
   mask and the Git-isolated mask test fixture moved.
+- **Update**: Refreshed the three codebase-map docs over `.github` for the
+  Renovate App token's named permissions.
 
 ## 2026-09-26
 
