@@ -432,10 +432,15 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** none (CI)
 
-- [ ] The first agent-desktop digest pull request after merge changes
+- [x] The first agent-desktop digest pull request after merge changes
   `devcontainer-compose-pins.yml` and every workflow pin together, and
   `Renovate config validation finished` reports from a job running in the new
   digest.
+  - **Evidence:** #191 (merged as 808b1ac) moved the digest to `afc53ca` in
+    `devcontainer-compose-pins.yml`, both `ai-responder.yml` jobs,
+    `renovate.yml`, and `validate-renovate-config.yml`; GitHub Actions run
+    36348362781 ran `Validate Renovate config` in that digest and passed
+    `Renovate config validation finished`.
 
 ## Spec changes
 
