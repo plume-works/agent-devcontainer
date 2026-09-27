@@ -4,7 +4,7 @@ type: plan
 description: Run the npm-backed pre-commit hooks and the Claude Code upgrade hint through bun, move the Renovate pin to the bunx hook entry, and record bun/bunx as the only JavaScript runner in AGENTS.md.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-26T08:04:24Z
+  at: 2026-09-27T00:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/renovate.json
@@ -229,29 +229,29 @@ relocates the Renovate pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-26):
+Verified anchor points (line numbers as of 2026-09-27):
 
 - `.pre-commit-config.yaml:11` — `mirrors-prettier` repo block
 - `.pre-commit-config.yaml:68` — `renovatebot/pre-commit-hooks` repo block
 - `.pre-commit-config.yaml:79` — existing `repo: local` block
-- `.github/renovate.json:36` — `pre-commit/mirrors-prettier` in the Super-Linter
+- `.github/renovate.json:67` — `pre-commit/mirrors-prettier` in the Super-Linter
   rule
-- `.github/renovate.json:49` — Prettier `additional_dependencies` rule
-- `.github/renovate.json:83` — "Commit pins in the Ansible roles' defaults"
+- `.github/renovate.json:80` — Prettier `additional_dependencies` rule
+- `.github/renovate.json:132` — "Commit pins in the Ansible roles' defaults"
   custom manager
-- `.github/workflows/validate-renovate-config.yml:42` — validator call; the
-  self-hosted Renovate plan rewrites it to read the hook `rev`
+- `.github/workflows/validate-renovate-config.yml:67-75` — validator call; reads
+  the hook `rev` and runs `bunx --package "renovate@${rev}"`
 - `Makefile:157` — `npm install -g` upgrade hint
 - `AGENTS.md:11` — Best Practice 1, `uv` and `bun` toolchain rule
 - `docs/knowledge/data/product.md:125` — authoring-rules mirror of Best Practice
   1
 - `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md:29`
   — Prettier `additional_dependencies` wording
-- `docs/knowledge/data/architecture/renovate-config-validation.md:20` — pin
-  wording; the self-hosted Renovate plan rewrites this decision
+- `docs/knowledge/data/architecture/renovate-config-validation.md:20` — the
+  one-pin decision: the hook `rev` is the Renovate version everywhere
 - `scripts/validate-super-linter-tool-versions.sh:158` — Prettier version
   extraction regex
-- `docs/knowledge/data/codebase/flow-pull-request-checks.md:54` — validator line
-  citation
-- `docs/knowledge/data/codebase/github/workflows.md:106` — validator line
-  citation
+- `docs/knowledge/data/codebase/flow-pull-request-checks.md:54-57` — validator
+  step and its line citation
+- `docs/knowledge/data/codebase/github/workflows.md:118-121` — validator line
+  citations

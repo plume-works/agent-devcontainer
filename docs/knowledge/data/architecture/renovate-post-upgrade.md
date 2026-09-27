@@ -3,7 +3,7 @@ type: architecture
 description: How the self-hosted Renovate's one post-upgrade task produces the checksums, lock file, and pre-commit output a bump implies, and the constraints that keep its output in Renovate's commit.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-26T12:00:00Z
+  at: 2026-09-27T00:00:00Z
 sources:
 - resource: .github/renovate.json
 - resource: scripts/renovate-post-upgrade.sh
@@ -56,9 +56,10 @@ The script calls `uv run --frozen pre-commit`, never the image's apt
 `pre-commit`. Inside a CI container job, a `docker_image` hook such as
 `hadolint-docker` bind-mounts paths the host daemon must resolve; pre-commit 4
 maps them back to host paths by finding its own container through
-`/proc/1/mountinfo`, while the 3.x the image's apt ships looks in
-`/proc/1/cgroup`, which carries no container ID on cgroup v2 hosts. The
-project's `pre-commit>=4.2.0` dependency is what makes the hook work there.
+`/proc/1/mountinfo`, which works on cgroup v2 hosts; earlier releases read
+`/proc/1/cgroup`, which carries no container ID there. The image's apt
+`pre-commit` is unpinned, so the project's `pre-commit>=4.2.0` dependency is
+what makes the hook work.
 
 ## Rejected alternatives
 

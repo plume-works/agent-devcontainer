@@ -4,7 +4,7 @@ created: 2026-09-25
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks can refresh checksum pins, lock files, and pre-commit output in the same commit as the bump.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-25T00:00:00Z
+  at: 2026-09-27T00:00:00Z
 sources:
 - resource: .github/renovate.json
 - resource: .github/workflows/validate-renovate-config.yml
@@ -502,23 +502,28 @@ imply, produced by the same toolchain contributors use.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-26):
+Verified anchor points (line numbers as of 2026-09-27):
 
 - `.github/renovate.json:3` — `extends`
 - `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
-- `.github/renovate.json:39-46` — agent-desktop automerge rule
-- `.github/renovate.json:84-92` — provisioning-tools automerge group
-- `.github/renovate.json:102` — `customManagers`
+- `.github/renovate.json:22-27` — `lockFileMaintenance`
+- `.github/renovate.json:39-47` — agent-desktop automerge group
+- `.github/renovate.json:85-93` — provisioning-tools automerge group
+- `.github/renovate.json:103` — `customManagers`
 - `.pre-commit-config.yaml:68-77` — `renovate-config-validator` hook; `rev` is
   the Renovate version
-- `.github/workflows/validate-renovate-config.yml:3-26` — triggers and path
-  filters
-- `.github/workflows/validate-renovate-config.yml:37-43` — unpinned `npx`
-  validation step
+- `.github/workflows/validate-renovate-config.yml:3-12` — triggers
+- `.github/workflows/validate-renovate-config.yml:26-49` — `paths-filter` job
+- `.github/workflows/validate-renovate-config.yml:58-59` — digest-pinned
+  container image
+- `.github/workflows/validate-renovate-config.yml:67-75` — hook-rev read and
+  `bunx` validator run
+- `.github/workflows/validate-renovate-config.yml:77-101` — always-reporting
+  `finished` job
 - `.github/workflows/validate-agent-files.yml:101-108` — always-reporting
   `finished` job pattern
-- `.github/workflows/ai-responder.yml:429-430` and `:476-477` — bare `:edge`
-  container images
+- `.github/workflows/ai-responder.yml:430`, `:477` — digest-pinned container
+  images
 - `.github/actions/paths-filter/action.yml:35-44` — `image` filter; excludes
   `.github/workflows/`
 - `ansible/roles/dev_tools/defaults/main.yml:18` — `dev_tools_pinned_tools`;
@@ -531,7 +536,8 @@ Verified anchor points (line numbers as of 2026-09-26):
   checksums, and download URL
 - `scripts/refresh-pin-checksums.py` — `PIN_FILES`, the pin files it refreshes
 - `scripts/renovate-post-upgrade.sh` — the post-upgrade task
+- `.github/workflows/renovate.yml` — the self-hosted Renovate job
 - `ansible/roles/.agent.metadata.json` — role pin digest mask
-- `.github/.agent.metadata.json` — workflow pin masks; no `@sha256:` mask yet
+- `.github/.agent.metadata.json` — runner-label and `@sha256:` digest masks
 - `pyproject.toml:29` — pytest `testpaths`
 - `.devcontainer/devcontainer.json:15-17` — feature references the lock follows
