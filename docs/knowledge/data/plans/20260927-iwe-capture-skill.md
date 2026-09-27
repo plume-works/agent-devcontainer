@@ -151,11 +151,14 @@ deferred task or a defect mid-run without stopping for the user.
 `.agents/plugins/agentdev/skills/iwe-capture/scripts/__common.sh`,
 `.agents/plugins/agentdev/tests/test_capture_close_issue.py`
 
-- [ ] Add `close-issue.sh --issue <ref> --doc <path> [--comment <text>]` built
+- [x] Add `close-issue.sh --issue <ref> --doc <path> [--comment <text>]` built
   on the Task 4 function, following `/agentdev:skill-scripts`, whose default
   comment names the captured document. Tests cover `SUCCESS`, `ALREADY_CLOSED`,
   `ISSUE_NOT_FOUND`, `GH_UNAVAILABLE`, a missing document (`PREFLIGHT_ERROR`),
   and `--help`. `shellcheck -x` is clean.
+  - **Evidence:** commit "Bundle the iwe-capture issue-closing script";
+    `uv run pytest .agents/plugins/agentdev/tests` 70 passed, including 6 in
+    `test_capture_close_issue.py`; `shellcheck -x` clean.
 
 ### Task 7: Route Explore and Implement through iwe-capture
 
