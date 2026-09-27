@@ -77,7 +77,7 @@ identity (`claude[bot]` under OIDC App auth, or `github-actions[bot]` under
 cross-identity review, and the bot may submit `APPROVE` or `REQUEST_CHANGES`
 without rejection. This repository already keeps bot-authored PRs out of the
 responder path (`ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and
-its `ai-review-present` job trust-lists `renovate[bot]`/`dependabot[bot]`), so
+its `ai-review-present` job trust-lists the Renovate and Dependabot bots), so
 the collision case does not arise for the AI reviewer here in normal operation.
 
 This is why `REQUEST_CHANGES` carries a retry-to-`COMMENT` fallback in the
@@ -86,7 +86,7 @@ skill: on a bot- or self-authored PR the verdict event is rejected, and a
 human-authored PR the bot is a distinct identity and `REQUEST_CHANGES` succeeds.
 This repository already keeps bot-authored PRs out of the responder path anyway
 (`ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and its
-`ai-review-present` job trust-lists `renovate[bot]`/`dependabot[bot]`), so the
+`ai-review-present` job trust-lists the Renovate and Dependabot bots), so the
 collision rarely arises for the AI reviewer here.
 
 ### Consequence for a verdict gate

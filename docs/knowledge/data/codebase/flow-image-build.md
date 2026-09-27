@@ -28,7 +28,7 @@ running the image it produced.
 
 1. A push or pull request enters `primary-checks.yml`; the `reformat` job runs
    first and `ci` follows only when its gate says `run_downstream` —
-   `.github/workflows/primary-checks.yml:51`, in
+   `.github/workflows/primary-checks.yml:52`, in
    [workflows](github/workflows.md)
 2. `ci.yml`'s `paths-filter` job applies the `image` filter from
    [the paths-filter action](github/actions.md); nothing matched means every

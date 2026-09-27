@@ -537,7 +537,7 @@ jobs:
           pr-number: ${{ github.event.pull_request.number || inputs.pr_number }}
           github-token: ${{ github.token }}
           # Bots whose pull requests do not need an AI review to merge.
-          trusted-bot-actors: 'renovate[bot],dependabot[bot]'
+          trusted-bot-actors: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
 
       - name: Verify AI reviewed PR
         env:
