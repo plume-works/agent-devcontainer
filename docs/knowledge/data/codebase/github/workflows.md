@@ -2,7 +2,7 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:5f371a1372906aa03f0ca673ce65392c37aad5c1b0a22a2e049e87e7cab18ab5
+source_digest: sha256:1870c86218c50cdc3719a1f35917810e7e952550801a5cef51d3cf768af7dbda
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-27T00:00:00Z

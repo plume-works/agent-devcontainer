@@ -7,7 +7,7 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:9d9ed049a1172f199c8a223c2aed6b1f9abccadc46f1c2bf5e8144cef9dad69c
+source_digest: sha256:fb607a6c02000870b5921a78568f776fc11bf78e01f4ca10dc731a01e4005ea4
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-27T00:00:00Z
@@ -56,6 +56,9 @@ digests. This doc deliberately excludes `docs/knowledge/data/` from its
   and `agent-desktop` digest bumps keep a map doc fresh, while `zizmor`'s
   version, a download URL, a `# renovate:` comment, a 64-hex value outside a
   checksum field, or a different image still make it stale
+- `docs/knowledge/tests/test_pre_commit_rev_mask.py` — runs `stale-map-docs.py`
+  over the production root mask and hook config: hook `rev` bumps keep a map doc
+  fresh, while a changed hook id or repository still makes it stale
 - `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works
@@ -98,6 +101,8 @@ Verified anchor points (line numbers as of 2026-09-27):
   workspace fixture, run with the caller's `GIT_*` variables removed
 - `docs/knowledge/tests/test_pin_metadata_masks.py:86,128,153,163` — mask
   workspace fixture, role-pin, non-checksum-hex, and container-digest tests
+- `docs/knowledge/tests/test_pre_commit_rev_mask.py:59` — hook-config mask
+  workspace fixture
 - `.pre-commit-config.yaml:102-122` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
 - `.github/workflows/validate-knowledge-base.yml:91-109` — graph and seed checks

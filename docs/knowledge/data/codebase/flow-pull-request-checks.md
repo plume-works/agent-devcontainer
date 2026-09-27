@@ -4,7 +4,7 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:0e9865eaaed69c727185bbbeb126e557423f87c5b370532c2c7c6e614bf57b85
+source_digest: sha256:81542a135c671aa52de33d28809ccad834fbd8a16e609ec49515579331caa8b9
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-27T00:00:00Z
@@ -59,7 +59,8 @@ before the push.
    non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort
    tier; `claude-respond` runs the review or task through
    `anthropics/claude-code-action`, sizing the session from that tier;
-   `ai-review-present` reports whether an accepted review exists —
+   `ai-review-present` reports whether an accepted review exists, waived for the
+   Renovate and Dependabot bots —
    `.github/workflows/ai-responder.yml:89,421,509`
 8. Merge: `merge_group` runs steps 2–7 again with a clean image build.
 

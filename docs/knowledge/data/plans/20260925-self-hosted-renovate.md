@@ -379,10 +379,14 @@ options as `RENOVATE_*` environment variables instead.
 **Files:** Modify: `.github/workflows/ai-responder.yml`,
 `docs/knowledge/data/architecture/ai-review-event-selection.md`
 
-- [ ] `ai-review-present`'s `trusted-bot-actors` adds
+- [x] `ai-review-present`'s `trusted-bot-actors` adds
   `plume-works-renovate[bot]`, the identity the self-hosted run commits and
   opens pull requests as, so its pull requests automerge on the same terms the
   hosted app's did.
+  - **Evidence:** the commit carrying this tick lists the login at
+    `.github/workflows/ai-responder.yml:540`; the REST author of the App's pull
+    request #189 is `plume-works-renovate[bot]` with type `Bot`, the exact pair
+    the waiver matches. Task 18 closes on the gate passing.
 
 ### Task 15: Mask pre-commit hook revisions
 
