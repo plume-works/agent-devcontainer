@@ -252,3 +252,49 @@ def test_files_without_pins_are_ignored(repo: Path) -> None:
     commit(repo)
 
     assert run(repo, 'README.md', '.devcontainer/devcontainer.json') == 0
+
+
+def serve_shared_virtualgl(server: AssetServer, version: str, body: bytes) -> str:
+    """Serve one architecture-independent VirtualGL asset at both URLs; return its checksum."""
+    for arch in ('amd64', 'arm64'):
+        server.assets[f'/{version}/virtualgl_{version}_{arch}.deb'] = body
+    return sha(body)
+
+
+def test_bumped_pin_sharing_one_checksum_is_rehashed(repo: Path, server: AssetServer) -> None:
+    """Architectures that record one shared checksum get it rewritten together."""
+    old = serve_shared_virtualgl(server, '1.0', b'old')
+    write(repo, XPRA, xpra_defaults(server.url, '1.0', old, old))
+    commit(repo)
+    new = serve_shared_virtualgl(server, '2.0', b'new')
+    write(repo, XPRA, xpra_defaults(server.url, '2.0', old, old))
+
+    assert run(repo, XPRA) == 0
+    assert (repo / XPRA).read_text() == xpra_defaults(server.url, '2.0', new, new)
+
+
+def test_shared_checksum_that_now_diverges_fails(repo: Path, server: AssetServer) -> None:
+    """A shared recorded checksum whose architectures now hash apart cannot be replaced."""
+    old = serve_shared_virtualgl(server, '1.0', b'old')
+    write(repo, XPRA, xpra_defaults(server.url, '1.0', old, old))
+    commit(repo)
+    serve_virtualgl(server, '2.0', b'new')
+    bumped = xpra_defaults(server.url, '2.0', old, old)
+    write(repo, XPRA, bumped)
+
+    assert run(repo, XPRA) == 1
+    assert (repo / XPRA).read_text() == bumped
+
+
+def test_checksum_recorded_elsewhere_in_the_file_fails(repo: Path, server: AssetServer) -> None:
+    """A stale checksum that also appears outside the bumped pin is not replaced."""
+    old = serve_shared_virtualgl(server, '1.0', b'old')
+    text = xpra_defaults(server.url, '1.0', old, old) + f'other_checksum: "sha256:{old}"\n'
+    write(repo, XPRA, text)
+    commit(repo)
+    serve_shared_virtualgl(server, '2.0', b'new')
+    bumped = text.replace('"1.0"', '"2.0"')
+    write(repo, XPRA, bumped)
+
+    assert run(repo, XPRA) == 1
+    assert (repo / XPRA).read_text() == bumped

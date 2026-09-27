@@ -173,6 +173,7 @@ def refreshed_text(path: str, repo_root: Path) -> str | None:
     head_versions = _head_versions(path, spec, repo_root)
     for pin in spec.pins(yaml.safe_load(text), repo_root):
         bumped = head_versions.get(pin.key) != pin.version
+        stale: dict[str, dict[str, str]] = {}
         for arch in ARCHITECTURES:
             recorded = _digest_of(pin.checksums[arch])
             actual = _sha256_of_url(pin.urls[arch])
@@ -183,10 +184,18 @@ def refreshed_text(path: str, repo_root: Path) -> str | None:
                     f'{path}: {pin.key} {pin.version} ({arch}) hashes to {actual}, '
                     f'but its version is unchanged and records {recorded}: the tag moved'
                 )
-            if text.count(recorded) != 1:
-                raise RefreshError(f'{path}: checksum {recorded} is not unique in the file')
+            stale.setdefault(recorded, {})[arch] = actual
+        for recorded, actuals in stale.items():
+            if len(set(actuals.values())) != 1:
+                raise RefreshError(
+                    f'{path}: {pin.key} {pin.version} shares checksum {recorded} across '
+                    f'{", ".join(actuals)}, which now hash differently'
+                )
+            if text.count(recorded) != len(actuals):
+                raise RefreshError(f'{path}: checksum {recorded} is not unique to its pin')
+            actual = next(iter(actuals.values()))
             text = text.replace(recorded, actual)
-            print(f'{path}: {pin.key} {pin.version} ({arch}) -> {actual}')
+            print(f'{path}: {pin.key} {pin.version} ({", ".join(actuals)}) -> {actual}')
     return text
 
 
