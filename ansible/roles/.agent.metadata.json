@@ -13,9 +13,9 @@
           "reason": "The unquoted `version:` of a Renovate-managed list entry such as dev_tools_pinned_tools, automerged like the quoted pins; the comment stays unmasked, and an entry without one (zizmor) stays watched."
         },
         {
-          "pattern": "\\b[0-9a-f]{64}\\b",
-          "replace": "<SHA256>",
-          "reason": "Per-architecture SHA-256 checksums, which Renovate's post-upgrade task recomputes in every automerged pin bump (scripts/refresh-pin-checksums.py)."
+          "pattern": "(checksum: \"?|sha256:)[0-9a-f]{64}\\b",
+          "replace": "\\1<SHA256>",
+          "reason": "Per-architecture SHA-256 checksums in a `checksum:` field or behind a `sha256:` prefix, which Renovate's post-upgrade task recomputes in every automerged pin bump (scripts/refresh-pin-checksums.py); other 64-hex values stay watched."
         }
       ]
     }

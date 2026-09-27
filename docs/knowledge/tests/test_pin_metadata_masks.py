@@ -69,6 +69,19 @@ def _workflow(digest: str, image: str = IMAGE) -> str:
     return f'jobs:\n  job:\n    container:\n      image: {image}@sha256:{digest}\n'
 
 
+def _commit_and_map(repository: Path) -> None:
+    """Commit the fixture and write map docs whose digests match it."""
+    _git(repository, 'add', '-A')
+    _git(repository, 'commit', '--quiet', '-m', 'fixture')
+    for name, source in (('ansible', 'ansible'), ('github', '.github')):
+        doc = repository / f'docs/knowledge/data/codebase/{name}.md'
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        doc.write_text(
+            f'---\ntype: codebase\nsource: {source}\n'
+            f"source_digest: '{_digest(repository, source)}'\n---\n\n# {name}\n"
+        )
+
+
 @pytest.fixture
 def workspace() -> Iterator[Path]:
     """Build a repository from the checked-in masks and pin files, with fresh map docs."""
@@ -85,15 +98,7 @@ def workspace() -> Iterator[Path]:
             'version = 3\n\n[library]\npath = "docs/knowledge"\n'
         )
         _git(repository, 'init', '--quiet', '--initial-branch=main')
-        _git(repository, 'add', '-A')
-        _git(repository, 'commit', '--quiet', '-m', 'fixture')
-        for name, source in (('ansible', 'ansible'), ('github', '.github')):
-            doc = repository / f'docs/knowledge/data/codebase/{name}.md'
-            doc.parent.mkdir(parents=True, exist_ok=True)
-            doc.write_text(
-                f'---\ntype: codebase\nsource: {source}\n'
-                f"source_digest: '{_digest(repository, source)}'\n---\n\n# {name}\n"
-            )
+        _commit_and_map(repository)
         yield repository
     finally:
         shutil.rmtree(repository, ignore_errors=True)
@@ -141,6 +146,16 @@ def test_role_changes_beyond_pins_stay_watched(
 ) -> None:
     """Zizmor's version, a download URL, and a Renovate comment still invalidate the map."""
     _edit_roles(workspace, edit)
+
+    assert any(line.startswith('STALE data/codebase/ansible ') for line in _verdicts(workspace))
+
+
+def test_non_checksum_hex_value_stays_watched(workspace: Path) -> None:
+    """A 64-hex value outside a checksum field, such as a commit pin, is not masked."""
+    defaults = workspace / ROLE_FILES[1]
+    defaults.write_text(defaults.read_text() + f'dev_tools_commit: "{"a" * 64}"\n')
+    _commit_and_map(workspace)
+    defaults.write_text(defaults.read_text().replace('a' * 64, 'b' * 64))
 
     assert any(line.startswith('STALE data/codebase/ansible ') for line in _verdicts(workspace))
 
