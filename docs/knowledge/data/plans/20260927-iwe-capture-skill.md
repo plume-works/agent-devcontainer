@@ -196,8 +196,10 @@ deferred task or a defect mid-run without stopping for the user.
 `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
 `.claude-plugin/marketplace.json`, `docker/desktop/agent-desktop.Dockerfile`
 
-- [ ] Bump the four aligned pins from `3.3.0` to `3.4.0` — a new skill is a
+- [x] Bump the four aligned pins from `3.3.0` to `3.4.0` — a new skill is a
   minor release.
+  - **Evidence:** commit "Release agentdev 3.4.0"; no `3.3.0` pin remains in the
+    four files; `validate_agent_files` 55/55 valid.
 
 ## Spec changes
 
