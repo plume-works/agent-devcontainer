@@ -3,8 +3,8 @@ type: feature
 stage: proposed
 description: Run Renovate from a workflow in this repository so post-upgrade tasks can refresh the per-architecture checksums that sit beside pinned versions.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-20T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - id: roles
   resource: ansible/roles
@@ -82,6 +82,18 @@ Out of scope: the version-only pins, which already update unattended and are
 unchanged in shape; `updatecli` and a repository-local refresh script, both
 considered and set aside because Renovate already owns dependency updates here;
 and apt packages, which stay unpinned.
+
+## Edge cases
+
+- **One pin, several architectures.** Every pin carries an amd64 and an arm64
+  hash, and a bump refreshes both; a refresh that can fetch only one
+  architecture's asset fails the branch rather than committing half the pair.
+- **One file, several pins.** `dev_tools_pinned_tools` holds four tools in one
+  list, so the refresh must rewrite only the entry whose version moved and leave
+  its neighbours' hashes byte-identical.
+- **A pin inside a task file.** VirtualGL's version and checksums sit in
+  `xpra_setup/tasks/main.yml` rather than a role's `defaults/main.yml`, so both
+  the Renovate match and the digest mask have to reach a tasks file.
 
 ## Open questions
 

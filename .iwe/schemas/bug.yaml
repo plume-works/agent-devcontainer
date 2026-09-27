@@ -3,6 +3,24 @@ description: >-
   Bug reports, investigations, and repro notes (data/bugs/<slug>.md). Stage is
   optional; an absent stage means open/under investigation.
 maxDepth: 4
+sections:
+  - header: { pattern: '^Bug: ' }
+    description: 'the title — every bug H1 starts with "Bug: "'
+    minContains: 1
+    maxContains: 1
+    sections:
+      - header: { const: Symptom }
+        minContains: 1
+      - header: { const: Reproduction }
+        minContains: 1
+      - header: { const: Root cause }
+        minContains: 1
+      - header: { const: Fix }
+        minContains: 1
+      - header: { const: Key references }
+        minContains: 1
+    additionalSections: true
+additionalSections: false
 frontmatter:
   type: object
   required: [type]

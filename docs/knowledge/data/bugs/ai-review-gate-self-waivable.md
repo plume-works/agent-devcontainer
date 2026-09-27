@@ -2,15 +2,15 @@
 type: bug
 description: A marker in the author-controlled PR body skipped the required ai-review-present job, and a skipped job satisfies a required status check, so any PR author could waive the mandatory AI review.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-12T04:50:59Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/Dr-QP/Dr.QP/pull/454#discussion_r3991170588
 stage: done
 ---
 
-# AI review gate was self-waivable from the PR body
+# Bug: AI review gate was self-waivable from the PR body
 
 ## Symptom
 

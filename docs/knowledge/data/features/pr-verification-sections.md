@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: 'A pull request body splits work into a ## Verification section for closed items and a ## Reviewer Handoff section for open items, with the pr-gen-description skill owning the structure.'
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-01T17:47:39Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/code-review-standards/SKILL.md
@@ -64,6 +64,23 @@ so no mechanical gate is possible and each site states the rule itself.
 `.github/pull_request_template.md` still holds the old structural version and
 its updated `agentdev` skills now report it as not consulted; adopting means
 replacing the copied file with the pointer stub or deleting it.
+
+## Edge cases
+
+- **Green CI and nothing else to show.** An empty `## Verification` is the
+  expected outcome, not a gap.
+- **A consuming repository with its own template.** The skill's structure is
+  used and the caller is told the template was not consulted; the two are never
+  merged.
+- **A consumer that copied the old structural template.** Its updated skills
+  report the copy as not consulted until it is replaced with the pointer stub or
+  deleted.
+- **Work closed after the description was written.** It moves from
+  `## Reviewer Handoff` to `## Verification` with its evidence, never back.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## References
 

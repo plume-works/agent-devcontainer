@@ -2,15 +2,15 @@
 type: bug
 description: The review opt-out marker matched anywhere in a PR body, so prose about it disabled review, and it outranked an explicit @claude review request, leaving a marked PR with no way to get one.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-12T05:31:29Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/141
 stage: done
 ---
 
-# The review opt-out marker fired too broadly
+# Bug: The review opt-out marker fired too broadly
 
 ## Symptom
 

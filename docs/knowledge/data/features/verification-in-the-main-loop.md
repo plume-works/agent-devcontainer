@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Ship invokes report-only Verify for every normal plan shipment and refuses all CRITICAL findings, while cancellation remains exempt.
 generated:
-  by: codex
-  at: 2026-08-31T17:36:33Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
@@ -70,6 +70,10 @@ transmission, not a detector.
 - **A plan with a thin `## Verification` section.** Ship would still pay the
   requirement-tracing and coherence passes for a plan whose verification is
   three green commands. Acceptable, but it is the main cost of the change.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## Resolved decisions
 

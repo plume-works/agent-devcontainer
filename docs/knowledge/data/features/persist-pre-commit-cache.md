@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: The pre-commit hook cache lives on the per-worktree agentdev-cache volume via PRE_COMMIT_HOME, so only the first devcontainer create per worktree pays the cold hook-install cost and every rebuild after starts warm.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-02T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/setup-pre-commit.sh
@@ -59,6 +59,19 @@ A global shared volume (warm across all worktrees after the first-ever create)
 and a dedicated `agentdev-precommit` volume were both rejected in favour of
 reusing the existing per-worktree volume; the shared variant can be revisited if
 first-create-per-worktree cost becomes a pain.
+
+## Edge cases
+
+- **The first create of a worktree.** The volume is empty, so that create pays
+  the full cold install; only later rebuilds start warm.
+- **One hook's `rev` is bumped.** Only that hook's environment is reinstalled;
+  the rest stay cache hits.
+- **`PRE_COMMIT_HOME` is unset.** Outside the devcontainer the install and the
+  failure log both fall back to `$HOME/.cache/pre-commit`.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## References
 

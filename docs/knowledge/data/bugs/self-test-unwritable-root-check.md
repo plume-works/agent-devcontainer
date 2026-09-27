@@ -2,15 +2,15 @@
 type: bug
 description: The self-test unwritable-state-root test asserts an OSError the kernel never raises for UID 0, so it fails wherever the suite runs as root.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .agents/plugins/self-improve/tests/integration/test_dispatcher.py
 - resource: .agents/plugins/self-improve/selfimprove/commands.py
 stage: done
 ---
 
-# Self-test unwritable-root check assumes a non-root user
+# Bug: Self-test unwritable-root check assumes a non-root user
 
 ## Symptom
 

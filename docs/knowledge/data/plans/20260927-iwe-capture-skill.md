@@ -70,7 +70,7 @@ deferred task or a defect mid-run without stopping for the user.
 
 **Files:** Modify: `.iwe/schemas/bug.yaml`, `.iwe/schemas/feature.yaml`
 
-- [ ] Add body rules: a bug's H1 matches `^Bug: ` and its top section contains
+- [x] Add body rules: a bug's H1 matches `^Bug: ` and its top section contains
   `## Symptom`, `## Reproduction`, `## Root cause`, `## Fix`, and
   `## Key references` in that order; a feature's top section contains
   `## Purpose`, `## Behaviour`, `## Edge cases`, and `## Open questions` in that
@@ -80,30 +80,37 @@ deferred task or a defect mid-run without stopping for the user.
   (`uv run pytest docs/knowledge/tests/test_iwe_seed.py`). Tasks 1–3 land in one
   commit: the pre-commit `iwe-schema-validate` hook fails on any tree between
   them.
+  - **Evidence:** commit "Enforce the SCHEMA.md body shape for bugs and
+    features"; before Tasks 2–3, `iwe schema validate` flagged all 12 bug H1s
+    and all 18 feature docs and nothing else; `test_iwe_seed.py` 8 passed.
 
 ### Task 2: Bring the bug documents into conformance
 
 **Files:** Modify: `docs/knowledge/data/bugs/*.md`
 
-- [ ] Prefix every bug H1 with `Bug: `, and add `## Key references` with
+- [x] Prefix every bug H1 with `Bug: `, and add `## Key references` with
   `path:line — symbol` anchors to `fisher-install-over-untracked-plugins`,
   `plan-checkbox-over-claiming`,
   `review-orchestrator-ends-turn-while-passes-run`, and
   `validator-warning-visibility`. Anchors come from the current checkout (for a
   fixed bug, the code the fix landed in), stamped with the date. Update each
   touched document's `generated`.
+  - **Evidence:** commit "Enforce the SCHEMA.md body shape for bugs and
+    features"; `iwe schema validate` reports no `data/bugs/` finding.
 
 ### Task 3: Bring the feature documents into conformance
 
 **Files:** Modify: `docs/knowledge/data/features/*.md`
 
-- [ ] Add the missing `## Edge cases` and `## Open questions` sections to every
+- [x] Add the missing `## Edge cases` and `## Open questions` sections to every
   feature document, placed in `SCHEMA.md` order. Edge cases are derived from the
   feature's linked spec scenarios and the code it describes; an Open questions
   section with nothing open says so in one line. Existing extra sections
   (`## Scope`, `## References`, `## Resolved decisions`) stay. Update each
   touched document's `generated`. `iwe schema validate` is clean after this
   task.
+  - **Evidence:** commit "Enforce the SCHEMA.md body shape for bugs and
+    features"; `iwe normalize && iwe schema validate` exit 0.
 
 ### Task 4: Share the issue-closing logic
 
