@@ -386,7 +386,7 @@ options as `RENOVATE_*` environment variables instead.
   - **Evidence:** the commit carrying this tick lists the login at
     `.github/workflows/ai-responder.yml:540`; the REST author of the App's pull
     request #189 is `plume-works-renovate[bot]` with type `Bot`, the exact pair
-    the waiver matches. Task 18 closes on the gate passing.
+    the waiver matches. Task 19 closes on the gate passing.
 
 ### Task 15: Mask pre-commit hook revisions
 
@@ -401,7 +401,18 @@ options as `RENOVATE_*` environment variables instead.
     `docs/knowledge/tests/test_pre_commit_rev_mask.py` pass in the commit
     carrying this tick; the first fails against the previous masks.
 
-### Task 16: Require the validation check
+### Task 16: Keep CI's formatter off Renovate branches
+
+**Files:** Modify: `.github/workflows/reformat.yml`,
+`.github/workflows/primary-checks.yml`,
+`docs/knowledge/data/architecture/renovate-post-upgrade.md`
+
+- [ ] `primary-checks.yml` passes the pull request author to `reformat.yml`, and
+  `commit-format-changes` skips the push when the author is a Renovate bot, so
+  the reformat gate fails instead of putting a foreign commit on a branch
+  Renovate would stop updating. Super-Linter still lints those pull requests.
+
+### Task 17: Require the validation check
 
 **Files:** none (ruleset `main`)
 
@@ -411,7 +422,7 @@ options as `RENOVATE_*` environment variables instead.
     `Renovate config validation finished` (GitHub Actions) among its required
     status checks as of 2026-09-27.
 
-### Task 17: Disconnect the hosted Renovate app
+### Task 18: Disconnect the hosted Renovate app
 
 **Files:** none (organization settings)
 
@@ -421,14 +432,14 @@ options as `RENOVATE_*` environment variables instead.
     `renovate` installation (150260656) on 2026-09-27; that installation's
     repository list no longer includes it.
 
-### Task 18: First self-hosted run
+### Task 19: First self-hosted run
 
 **Files:** none (CI)
 
 - [ ] A `renovate.yml` run completes and any pull request it opens carries
   refreshed checksums or lock files and passes CI.
 
-### Task 19: A digest bump runs the check in the new image
+### Task 20: A digest bump runs the check in the new image
 
 **Files:** none (CI)
 
@@ -527,7 +538,7 @@ imply, produced by the same toolchain contributors use.
 - The image builds in CI with Tasks 2 and 3 applied.
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh` reports no
   doc stale from a digest-only or checksum-only change.
-- Tasks 18 and 19 close on their CI runs.
+- Tasks 19 and 20 close on their CI runs.
 
 ## Out of scope
 
@@ -579,5 +590,8 @@ Verified anchor points (line numbers as of 2026-09-27):
 - `.github/.agent.metadata.json` — runner-label and `@sha256:` digest masks
 - `.agent.metadata.json` — compose-pin digest and hook `rev:` masks
 - `.github/workflows/ai-responder.yml:540` — `trusted-bot-actors`
+- `.github/workflows/reformat.yml:321-325` — Renovate commit skip in
+  `commit-format-changes`; `RENOVATE_BOT_ACTORS` at `:343`
+- `.github/workflows/primary-checks.yml:46` — `caller_pr_author`
 - `pyproject.toml:29` — pytest `testpaths`
 - `.devcontainer/devcontainer.json:15-17` — feature references the lock follows

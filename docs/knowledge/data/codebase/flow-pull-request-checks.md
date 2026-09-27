@@ -4,7 +4,7 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:81542a135c671aa52de33d28809ccad834fbd8a16e609ec49515579331caa8b9
+source_digest: sha256:5eea8da9a340c15472828ef996c1660cfb7b30d14adeb5ec64acba743a51c22a
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-27T00:00:00Z
@@ -31,8 +31,9 @@ before the push.
    and IWE validation and normalization — `.pre-commit-config.yaml:2-127`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
-   `gate` withholds `run_downstream` so the next run checks the pushed commit —
-   `.github/workflows/reformat.yml:180,274,409`, in
+   `gate` withholds `run_downstream` so the next run checks the pushed commit;
+   on a Renovate bot's PR nothing is pushed and the `gate` fails —
+   `.github/workflows/reformat.yml:185,279,421`, in
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched:
    [the image build](flow-image-build.md)
@@ -68,6 +69,10 @@ before the push.
 
 - A formatting commit in step 2 means this run's downstream jobs are skipped;
   the pushed commit's run is the one that counts.
+- Step 2 never pushes to a Renovate branch, since Renovate abandons a branch
+  carrying a foreign commit; formatting a Renovate PR needs is the post-upgrade
+  task's job —
+  [Renovate post-upgrade](../architecture/renovate-post-upgrade.md).
 - A fork PR never gets step 7; the review gate is then a human's.
 - Step 7's effort tier changes what the review costs, never whether it runs:
   `ai-review-present` does not read it, and both tiers keep the metadata check
