@@ -2,14 +2,14 @@
 type: codebase
 description: Stats the shared /usr/local paths and fails the play when any is owned by a non-root account; run first and last in the playbook as a build guard.
 source: ansible/roles/perm_probe
-source_digest: sha256:a4576e96916ba8f985416ce65e0e3d07cd345164febf467ef296d3a351ee1d4f
+source_digest: sha256:e6252247a3e7dbb740028db4657d69b07c91e659714bf2664ccf3b03e07ce1da
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/perm_probe

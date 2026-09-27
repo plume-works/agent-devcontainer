@@ -2,14 +2,14 @@
 type: codebase
 description: Installs Claude Code, Codex, and the MCP inspector, optionally cc-filter, and stages and installs the agentdev catalog into the image.
 source: ansible/roles/agentic_tools
-source_digest: sha256:e55a85e048cb7419df3da4fc2de45615e8dcc71a73ca4ad020545b5b0998ab8c
+source_digest: sha256:34569d4b2b83618fd97251621e05d1979e26513d5bb247ce1e41724e6204a515
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
-stale_after: 2026-12-20
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-21T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/agentic_tools
@@ -29,10 +29,12 @@ install `agentdev` with no clone and no network.
 - `agentic_tools_stage_catalog`, `agentic_tools_install_catalog`,
   `agentic_tools_catalog_source_dir`, `agentic_tools_plugin_version`,
   `agentic_tools_catalog_root` —
-  `ansible/roles/agentic_tools/defaults/main.yml:42-70`
-- `agentic_tools_cc_filter_*` — `defaults/main.yml:21-37`, off by default
+  `ansible/roles/agentic_tools/defaults/main.yml:43-71`
+- `agentic_tools_cc_filter_*` — `defaults/main.yml:21-38`, off by default; the
+  version is a `# renovate:` pin whose checksums
+  `scripts/refresh-pin-checksums.py` recomputes
 - The staged tree at `agentic_tools_catalog_root` (`/opt/agentdev`), holding
-  `.claude-plugin/` and `.agents/` copied whole (`defaults/main.yml:75-77`)
+  `.claude-plugin/` and `.agents/` copied whole (`defaults/main.yml:76-78`)
 
 ## How it works
 

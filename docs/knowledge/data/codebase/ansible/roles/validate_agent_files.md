@@ -2,14 +2,14 @@
 type: codebase
 description: Builds the validate_agent_files package from the provisioning sources and installs it as an isolated uv tool, verifying the installed version against a pin.
 source: ansible/roles/validate_agent_files
-source_digest: sha256:b537bd73037d225095100b49278aa1676224376e278df465b65465ee0321956f
+source_digest: sha256:04c1dcba404fced15b9c8928fd53f8c8ebad5a33f55bb021f241983480ffb324
 verified:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
-stale_after: 2026-12-03
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
-  by: codex/gpt-5
-  at: 2026-09-04T20:20:44Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/validate_agent_files
