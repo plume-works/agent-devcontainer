@@ -2,14 +2,14 @@
 type: codebase
 description: Builds Xpra and its HTML5 client from pinned tags, installs VirtualGL from GitHub releases, and adds Mesa software rendering.
 source: ansible/roles/xpra_setup
-source_digest: sha256:9470828b4489b4bdee4f40dbd1694839ced71189da6ea175e33319633787f198
+source_digest: sha256:b5f83f2654cf184f0cfbd4e10cd2b4dd94aa7c2d9e5af109759c50afc080f423
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
-stale_after: 2026-12-24
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/xpra_setup
@@ -45,14 +45,18 @@ The port and display conventions are owned by the start script, not this role.
   lands on the image is the unpinned apt `xpra`, so editing the clone tags alone
   does not change its version.
 - VirtualGL is a `.deb` downloaded by URL and verified by a per-architecture
-  checksum, not an apt install.
+  checksum, not an apt install. Its version, checksums, and URL live in
+  `defaults/main.yml` under a `# renovate:` comment; Renovate bumps the version
+  and `scripts/refresh-pin-checksums.py` recomputes the checksums.
 - Source clones are removed after installation so they never reach a layer.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-25):
+Verified anchor points (line numbers as of 2026-09-26):
 
 - `ansible/roles/xpra_setup/tasks/main.yml:4` — Xpra `v6.4.3` clone
 - `ansible/roles/xpra_setup/tasks/main.yml:21` — the `xpra` apt install
 - `ansible/roles/xpra_setup/tasks/main.yml:28` — xpra-html5 `v19` clone
 - `ansible/roles/xpra_setup/tasks/main.yml:45` — VirtualGL from releases
+- `ansible/roles/xpra_setup/defaults/main.yml:4-11` — VirtualGL version,
+  checksums, and download URL

@@ -15,6 +15,16 @@ to the current day's group.
 - **Update**:
   [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
   changed — it now includes Capture.
+- **Update**: Refreshed the nine codebase-map docs the narrowed role checksum
+  mask and the Git-isolated mask test fixture moved.
+- **Update**: Refreshed the three codebase-map docs over `.github` for the
+  Renovate App token's named permissions.
+
+## 2026-09-26
+
+- **Update**: Refreshed the thirteen codebase-map docs whose tracked sources
+  moved with the self-hosted Renovate workflow, the pinned-image Renovate config
+  validation, and Renovate-managed checksum pins.
 
 ## 2026-09-25
 

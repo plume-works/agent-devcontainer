@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:18131da71bdd6920b43725c5ba3686818d8e8c7fa2e9c08eca191e35198720a5
+source_digest: sha256:9d9ed049a1172f199c8a223c2aed6b1f9abccadc46f1c2bf5e8144cef9dad69c
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
-stale_after: 2026-12-22
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -26,10 +26,10 @@ The scaffolding around the project's memory. `.iwe/config.toml` at the
 repository root points the library at `docs/knowledge`, binds a schema to every
 `data/` path, and configures normalization; the three Markdown files beside
 `data/` explain the manual, the frontmatter shapes, and the design rationale;
-three pytest modules gate plan checkboxes, the consumer seed, and the production
-Dev Container metadata mask. This doc deliberately excludes
-`docs/knowledge/data/` from its `source`: the map commit would otherwise make
-itself stale.
+four pytest modules gate plan checkboxes, the consumer seed, and the production
+digest masks for Dev Container feature pins, role pins, and workflow image
+digests. This doc deliberately excludes `docs/knowledge/data/` from its
+`source`: the map commit would otherwise make itself stale.
 
 ## Public surface
 
@@ -51,6 +51,11 @@ itself stale.
   checked-in Dev Container feature-pin mask against the full production
   configuration, keeping version-only changes fresh while feature identity
   changes remain stale
+- `docs/knowledge/tests/test_pin_metadata_masks.py` — runs `stale-map-docs.py`
+  over a copy of the production role and workflow masks: Renovate pin, checksum,
+  and `agent-desktop` digest bumps keep a map doc fresh, while `zizmor`'s
+  version, a download URL, a `# renovate:` comment, a 64-hex value outside a
+  checksum field, or a different image still make it stale
 - `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works
@@ -80,7 +85,7 @@ repository-level tests.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-23):
+Verified anchor points (line numbers as of 2026-09-27):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings
@@ -89,8 +94,10 @@ Verified anchor points (line numbers as of 2026-09-23):
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture
-- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:67` — production mask
-  workspace fixture
-- `.pre-commit-config.yaml:91-111` — `plan-checkboxes`, `iwe-schema-validate`,
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` — production mask
+  workspace fixture, run with the caller's `GIT_*` variables removed
+- `docs/knowledge/tests/test_pin_metadata_masks.py:86,128,153,163` — mask
+  workspace fixture, role-pin, non-checksum-hex, and container-digest tests
+- `.pre-commit-config.yaml:102-122` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
 - `.github/workflows/validate-knowledge-base.yml:91-109` — graph and seed checks

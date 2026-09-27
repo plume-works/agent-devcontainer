@@ -69,8 +69,8 @@ repos:
     rev: 44.106.0
     hooks:
       - id: renovate-config-validator
-        # Both flags, and why the rev pins Renovate here while the workflow
-        # leaves it unpinned: see architecture/renovate-config-validation.
+        # Both flags, and why this rev is also the Renovate version the bot and
+        # the validation workflow run: see architecture/renovate-config-validation.
         args: [--no-global, --strict]
         # The hook ships language_version: lts, which the devcontainer's nodeenv
         # parses as a version number and rejects; the image provides Node 24.

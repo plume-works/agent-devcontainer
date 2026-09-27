@@ -65,8 +65,12 @@ def _digest(repository: Path) -> str:
 
 
 @pytest.fixture
-def production_mask_workspace() -> Path:
+def production_mask_workspace(monkeypatch: pytest.MonkeyPatch) -> Path:
     """Build a repository using the checked-in mask and Dev Container file."""
+    # A hook under `git commit -a` exports an absolute GIT_INDEX_FILE.
+    # See bugs/fixture-git-inherits-commit-index.
+    for name in [name for name in os.environ if name.startswith('GIT_')]:
+        monkeypatch.delenv(name)
     TMP_ROOT.mkdir(exist_ok=True)
     repository = TMP_ROOT / f'devcontainer-mask-{uuid4().hex}'
     try:

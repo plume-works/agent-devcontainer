@@ -28,3 +28,5 @@ starts a fresh one.*
 [AI responder workflows](../features/ai-responder-workflows.md)
 
 ## Fixed
+
+[Fixture git inherits the outer commit's index](../bugs/fixture-git-inherits-commit-index.md)
