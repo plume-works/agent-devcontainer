@@ -374,28 +374,51 @@ options as `RENOVATE_*` environment variables instead.
     vulnerability_alerts read. `RENOVATE_APP_CLIENT_ID` and
     `RENOVATE_APP_PRIVATE_KEY` were set 2026-09-26.
 
-### Task 14: Require the validation check
+### Task 14: Waive the AI review for the App's bot
+
+**Files:** Modify: `.github/workflows/ai-responder.yml`,
+`docs/knowledge/data/architecture/ai-review-event-selection.md`
+
+- [ ] `ai-review-present`'s `trusted-bot-actors` adds
+  `plume-works-renovate[bot]`, the identity the self-hosted run commits and
+  opens pull requests as, so its pull requests automerge on the same terms the
+  hosted app's did.
+
+### Task 15: Mask pre-commit hook revisions
+
+**Files:** Modify: `.agent.metadata.json`; Create:
+`docs/knowledge/tests/test_pre_commit_rev_mask.py`
+
+- [x] Mask each hook's `rev:` value in `.pre-commit-config.yaml`, so an
+  automerged hook bump does not mark the pull-request-checks map doc stale; the
+  hook repository and ids stay watched.
+  - **Evidence:** `test_hook_rev_bumps_keep_the_map_fresh` and
+    `test_hook_changes_beyond_rev_stay_watched` in
+    `docs/knowledge/tests/test_pre_commit_rev_mask.py` pass in the commit
+    carrying this tick; the first fails against the previous masks.
+
+### Task 16: Require the validation check
 
 **Files:** none (ruleset `main`)
 
 - [ ] `Renovate config validation finished` joins the required status checks in
   the `main` ruleset.
 
-### Task 15: Disconnect the hosted Renovate app
+### Task 17: Disconnect the hosted Renovate app
 
 **Files:** none (organization settings)
 
-- [ ] The hosted app loses access to this repository immediately before Tasks
-  9–11 merge, so the first push-triggered run has no competing bot.
+- [ ] The hosted app loses access to this repository, so self-hosted runs have
+  no competing bot opening pull requests that cannot refresh checksums.
 
-### Task 16: First self-hosted run
+### Task 18: First self-hosted run
 
 **Files:** none (CI)
 
 - [ ] A `renovate.yml` run completes and any pull request it opens carries
   refreshed checksums or lock files and passes CI.
 
-### Task 17: A digest bump runs the check in the new image
+### Task 19: A digest bump runs the check in the new image
 
 **Files:** none (CI)
 
@@ -489,7 +512,7 @@ imply, produced by the same toolchain contributors use.
 - The image builds in CI with Tasks 2 and 3 applied.
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh` reports no
   doc stale from a digest-only or checksum-only change.
-- Tasks 16 and 17 close on their CI runs.
+- Tasks 18 and 19 close on their CI runs.
 
 ## Out of scope
 
@@ -539,5 +562,7 @@ Verified anchor points (line numbers as of 2026-09-27):
 - `.github/workflows/renovate.yml` — the self-hosted Renovate job
 - `ansible/roles/.agent.metadata.json` — role pin digest mask
 - `.github/.agent.metadata.json` — runner-label and `@sha256:` digest masks
+- `.agent.metadata.json` — compose-pin digest and hook `rev:` masks
+- `.github/workflows/ai-responder.yml:540` — `trusted-bot-actors`
 - `pyproject.toml:29` — pytest `testpaths`
 - `.devcontainer/devcontainer.json:15-17` — feature references the lock follows

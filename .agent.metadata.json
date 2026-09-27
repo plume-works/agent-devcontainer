@@ -7,6 +7,13 @@
           "replace": "@sha256:<PIN>",
           "reason": "Renovate automerges agent-desktop digest bumps (.github/renovate.json)."
         }
+      ],
+      ".pre-commit-config.yaml": [
+        {
+          "pattern": "(?m)^(\\s+rev: )\\S+$",
+          "replace": "\\1<PIN>",
+          "reason": "Hook revisions move in automerged Renovate bumps (.github/renovate.json) and with sync-super-linter-tool-versions; the hook repository and ids stay watched."
+        }
       ]
     }
   }
