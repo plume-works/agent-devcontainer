@@ -10,9 +10,10 @@ generated:
 # ✨ Features
 
 *One document per feature in `features/<slug>.md`, from first proposal to
-deprecation — the `status` frontmatter (`proposed` → `accepted` → `implemented`,
-terminal `deprecated`/`cancelled`) carries the lifecycle, so the list stays
-flat. Group with `##` headings once it outgrows a single list.*
+deprecation. The lifecycle stage lives in each document's frontmatter, so the
+list stays flat; group with `##` headings once it outgrows a single list. Stages
+and body sections are defined under Features in `SCHEMA.md` and enforced by
+`.iwe/schemas/feature.yaml`.*
 
 [Install the agentdev catalog into the image](features/catalog-installed-in-image.md)
 
