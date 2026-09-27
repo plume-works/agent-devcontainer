@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import sys
+from types import ModuleType
 from uuid import uuid4
 
 import pytest
@@ -22,7 +23,7 @@ CONFIG = '.pre-commit-config.yaml'
 REV = re.compile(r'(?m)^(\s+rev: )(\S+)$')
 
 
-def _load_stale_map_docs():
+def _load_stale_map_docs() -> ModuleType:
     """Load the production script so fixture digests use its implementation."""
     sys.path.insert(0, str(PLUGIN_BIN))
     spec = importlib.util.spec_from_file_location('rev_mask_stale_map_docs', SCRIPT)
