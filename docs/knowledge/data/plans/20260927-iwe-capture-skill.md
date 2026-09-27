@@ -130,7 +130,7 @@ deferred task or a defect mid-run without stopping for the user.
 
 **Files:** Create: `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md`
 
-- [ ] Write the skill per `/agentdev:create-skill`: the three types and the
+- [x] Write the skill per `/agentdev:create-skill`: the three types and the
   `--from someday/<slug>` promotion; the duplicate check with `iwe find --fuzzy`
   and `--lexical`; the completeness gate reading each type's required
   frontmatter and sections from `SCHEMA.md`; writing at `data/<lane>/<slug>`
@@ -140,6 +140,9 @@ deferred task or a defect mid-run without stopping for the user.
   `data/features.md`); `iwe normalize` and `iwe schema validate`; and issue
   closing through the Task 6 script with a RESULT table mirroring `iwe-plan`'s
   `## Closing the issue`.
+  - **Evidence:** commit "Add the iwe-capture skill";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 55/55 skills valid, 0 errors, 0 warnings.
 
 ### Task 6: Bundle the capture issue-closing script with its test
 
