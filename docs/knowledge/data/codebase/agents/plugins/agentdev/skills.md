@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 36 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 37 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:227e163aa13b4c278ceb79760cdf3fa6bdfe1193665d344550224de5ac0416d9
+source_digest: sha256:d30feed492d986e099793f3e7136871690256e9d2a759f04bd15b225025b8a59
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
-stale_after: 2026-12-22
+  by: claude-code/opus-5.5
+  at: 2026-09-27T21:00:00Z
+stale_after: 2026-12-26
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T21:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -29,10 +29,10 @@ specification plus Claude Code's `disable-model-invocation` — and optionally
 | Git and pull requests             | 13    | `git-commit`, `git-merge-resolve`, `update-branch`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-chain` |
 | Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                        |
 | Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                               |
-| IWE knowledge-graph workflow      | 11    | `iwe-audit`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                     |
+| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                      |
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-merge-resolve`,
-`iwe-explore`, `iwe-map`, `iwe-plan`, `pr-discover-ai-responder`,
+`iwe-capture`, `iwe-explore`, `iwe-map`, `iwe-plan`, `pr-discover-ai-responder`,
 `pr-gen-description`, `pr-open`, `pr-review`, `remote-codespace-session`,
 `template-consume`, `update-branch`. Skills with `references/` pages:
 `semantic-refactor-audit`, `template-consume`.
@@ -45,8 +45,11 @@ its description matches the request; five IWE workflow skills use
 remains model-invocable for workflow handoffs. Scripts are bash or Python, pull
 in the matching [result-code helpers](bin.md), and end every path with
 `RESULT=<NAME>` on stdout; the `SKILL.md` carries a table keyed on those names.
-`iwe-map`'s `stale-map-docs.py` is the Python case: it fingerprints the tracked
-source behind every `data/codebase/` doc, normalizing content that an
+`iwe-capture` and `iwe-plan` each bundle a `close-issue.sh` that parses its
+arguments and delegates the view-then-close step to the shared
+`close_issue_with_comment` helper, so both report the same results. `iwe-map`'s
+`stale-map-docs.py` is the Python case: it fingerprints the tracked source
+behind every `data/codebase/` doc, normalizing content that an
 `iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
 machine-managed so an automerged pin bump does not register as a change. The
 metadata files themselves stay out of that fingerprint; a rule reaches a digest
@@ -81,7 +84,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-22):
+Verified anchor points (line numbers as of 2026-09-27):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -93,6 +96,8 @@ Verified anchor points (line numbers as of 2026-09-22):
   document
 - `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:124`
   — the only read of the marker section
+- `.agents/plugins/agentdev/skills/iwe-capture/scripts/close-issue.sh:109` — the
+  shared issue-closing call, identical in `iwe-plan`
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:62` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:228` —

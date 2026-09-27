@@ -2,15 +2,15 @@
 type: bug
 description: The devcontainer metadata-mask tests run git in a nested fixture repository without clearing GIT_INDEX_FILE, so under `git commit -a` the plan-checkboxes hook fails and can leave a stray index.lock in the outer repository.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-27T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T21:00:00Z
 sources:
 - resource: docs/knowledge/tests/test_devcontainer_metadata_mask.py
 - resource: .pre-commit-config.yaml
 stage: done
 ---
 
-# Fixture git inherits the outer commit's index
+# Bug: Fixture git inherits the outer commit's index
 
 ## Symptom
 
@@ -45,3 +45,16 @@ resolves inside the fixture's working directory, so it goes unnoticed.
 The `production_mask_workspace` fixture removes every `GIT_*` variable from the
 test's environment, so `_git`, the in-process digest, and the staleness-check
 subprocess all resolve the fixture repository regardless of the caller.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-09-27):
+
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:43` — `_git`, the
+  fixture's git runner
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` —
+  `production_mask_workspace`
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:72` — the loop that
+  removes every `GIT_*` variable
+- `.pre-commit-config.yaml:102` — `plan-checkboxes`, the hook that runs the
+  suite under `git commit`

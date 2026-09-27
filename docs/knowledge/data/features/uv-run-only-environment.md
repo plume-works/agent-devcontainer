@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: Reach the Python environment exclusively through `uv run` — in the devcontainer, with no in-tree .venv symlink and a fixed out-of-tree path, and in CI, which provisions without activating.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/uv-sync.sh
@@ -93,3 +93,7 @@ ephemeral runner in Actions — but neither activates anything:
   gone, since `find_up .venv` can no longer succeed, but `find_up` itself stays:
   the fish README advertises it as a standalone interactive helper, so grep
   cannot see its real usage.
+
+## Open questions
+
+None — every design question this feature raised is settled.

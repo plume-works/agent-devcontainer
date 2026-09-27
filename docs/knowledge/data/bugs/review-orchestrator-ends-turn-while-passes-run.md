@@ -2,15 +2,15 @@
 type: bug
 description: The review orchestrator can end its turn while its dispatched passes are still running, so the responder job finishes green having published no review, and the gate accepts an older review instead of catching the miss.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-19T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:46:38Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/163
 ---
 
-# The review orchestrator ends its turn while its passes are still running
+# Bug: The review orchestrator ends its turn while its passes are still running
 
 ## Symptom
 
@@ -155,3 +155,18 @@ The remaining candidates:
 A fix should not be chosen from this document alone: the failure is
 intermittent, and three observed runs are too small a sample to tell an
 instruction-adherence problem from a runner-behavior one.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-09-27):
+
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:126` — Step 4, the
+  parallel pass dispatch
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:134` — the rule that the
+  dispatching turn must not be the last
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:156` —
+  `Waiting on Parallel Passes`, with the self-check gate at line 164
+- `.github/workflows/ai-responder.yml:74` — `concurrency`, the per-comment and
+  per-PR groups, with `cancel-in-progress` at line 82
+- `.github/workflows/ai-responder.yml:509` — `ai-review-present`, the gate that
+  accepts an earlier review

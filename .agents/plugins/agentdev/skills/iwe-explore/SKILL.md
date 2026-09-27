@@ -96,12 +96,15 @@ unprompted):
 - A principle that should outlive this conversation →
   `data/concept/<slug>.md`, linked from `data/concept.md`.
 - A defect the exploration established — code that contradicts a `data/spec/`
-  doc, or any reproducible wrong behavior → `data/bugs/<slug>.md` in the
-  Symptom / Reproduction / Root cause / Fix shape with `path:line` anchors,
-  linked from `data/bugs.md`. A finding that belongs to a plan already in
-  flight is not this one: hand it back per `## During implementation` so it
-  reaches the plan that owns it, rather than becoming a bug doc standing
-  beside it.
+  doc, or any reproducible wrong behavior — a feature worth proposing, or an
+  actionable task → hand off to the `/agentdev:iwe-capture` skill with the
+  type (`bug`, `feature`, or `task`) and the settled content; it owns the
+  document's shape, its hub link, and the duplicate check. When the exploration
+  started from a GitHub issue, name its `ISSUE_URL` in the handoff — the
+  captured document links it and closes it. A finding that belongs to a plan
+  already in flight is not this one: hand it back per
+  `## During implementation` so it reaches the plan that owns it, rather than
+  becoming a document standing beside it.
 - Ready to build → hand off to the `/agentdev:iwe-plan` skill; the exploration
   becomes the plan's `## Context` and `## Approach`. When the exploration
   started from a GitHub issue, name its `ISSUE_URL` in the handoff — the plan
