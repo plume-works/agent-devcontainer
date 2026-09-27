@@ -2,14 +2,14 @@
 type: codebase
 description: Installs Claude Code, Codex, and the MCP inspector, optionally cc-filter, and stages and installs the agentdev catalog into the image.
 source: ansible/roles/agentic_tools
-source_digest: sha256:11d32a9ac0500f6cef83fca14f5752d10dbef8594658b73c15d68b3f47ced7dc
+source_digest: sha256:34569d4b2b83618fd97251621e05d1979e26513d5bb247ce1e41724e6204a515
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
-stale_after: 2026-12-25
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/agentic_tools

@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:842b7ac1ced4f5683194e21e25b719721c0e8273abfde51144c3a2a274bd668c
+source_digest: sha256:9d9ed049a1172f199c8a223c2aed6b1f9abccadc46f1c2bf5e8144cef9dad69c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
-stale_after: 2026-12-25
+  at: 2026-09-27T00:00:00Z
+stale_after: 2026-12-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
+  at: 2026-09-27T00:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -54,8 +54,8 @@ digests. This doc deliberately excludes `docs/knowledge/data/` from its
 - `docs/knowledge/tests/test_pin_metadata_masks.py` — runs `stale-map-docs.py`
   over a copy of the production role and workflow masks: Renovate pin, checksum,
   and `agent-desktop` digest bumps keep a map doc fresh, while `zizmor`'s
-  version, a download URL, a `# renovate:` comment, or a different image still
-  make it stale
+  version, a download URL, a `# renovate:` comment, a 64-hex value outside a
+  checksum field, or a different image still make it stale
 - `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works
@@ -85,7 +85,7 @@ repository-level tests.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-26):
+Verified anchor points (line numbers as of 2026-09-27):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings
@@ -94,10 +94,10 @@ Verified anchor points (line numbers as of 2026-09-26):
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture
-- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:67` — production mask
-  workspace fixture
-- `docs/knowledge/tests/test_pin_metadata_masks.py:73,123,148` — mask workspace
-  fixture, role-pin and container-digest freshness tests
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` — production mask
+  workspace fixture, run with the caller's `GIT_*` variables removed
+- `docs/knowledge/tests/test_pin_metadata_masks.py:86,128,153,163` — mask
+  workspace fixture, role-pin, non-checksum-hex, and container-digest tests
 - `.pre-commit-config.yaml:102-122` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
 - `.github/workflows/validate-knowledge-base.yml:91-109` — graph and seed checks
