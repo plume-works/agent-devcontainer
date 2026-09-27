@@ -61,6 +61,16 @@ maps them back to host paths by finding its own container through
 `pre-commit` is unpinned, so the project's `pre-commit>=4.2.0` dependency is
 what makes the hook work.
 
+## The App token carries only Renovate's permissions
+
+The post-upgrade task runs code at versions Renovate has just bumped — new
+pre-commit hook revs, a new devcontainer CLI — as the same user as Renovate, so
+that code can reach Renovate's token. `renovate.yml` therefore names the token's
+permissions explicitly rather than inheriting everything the App installation
+holds: write on contents, pull requests, issues, workflows, checks and statuses,
+and read on administration and vulnerability alerts. A permission later granted
+to the App does not widen this token until the workflow asks for it.
+
 ## Rejected alternatives
 
 **A `postUpgradeTasks` per pin kind.** `postUpgradeTasks` is an object that a
