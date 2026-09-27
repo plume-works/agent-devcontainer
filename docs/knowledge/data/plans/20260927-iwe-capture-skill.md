@@ -14,6 +14,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh
+stage: done
+completed: 2026-09-27
 ---
 
 # Add the iwe-capture skill

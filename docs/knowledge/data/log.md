@@ -4,6 +4,18 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-27
+
+- **Update**: [Add the iwe-capture skill](plans/20260927-iwe-capture-skill.md)
+  done. `/agentdev:iwe-capture` is the single writer of bug, proposed-feature,
+  and backlog-task documents, and the bug and feature schemas now enforce the
+  `SCHEMA.md` body shape.
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained the
+  Capture and document-shape requirements.
+- **Update**:
+  [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
+  changed — it now includes Capture.
+
 ## 2026-09-25
 
 - **Update**: The Ansible roles install apt packages unpinned again. The
