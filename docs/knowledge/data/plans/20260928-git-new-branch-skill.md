@@ -267,9 +267,11 @@ changes are never stashed without user approval (`update-branch`'s
 `.agents/plugins/agentdev/skills/git-new-branch/scripts/__common.sh`,
 `.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`
 
-- [ ] `is_default_branch` and `remote_default_branch <remote>` (symref first,
+- [x] `is_default_branch` and `remote_default_branch <remote>` (symref first,
   `gh repo view` on the remote URL second) live in the shared helper, and
   git-new-branch sources it with its tests still passing
+  - **Evidence:** commit "refactor(agentdev): share the default-branch lookup";
+    `test_git_new_branch.py` 17 passed unmodified; `shellcheck -x` clean.
 
 ### Task 14: git-commit commits through a guarded script
 

@@ -11,6 +11,8 @@ print_error() {
 
 # shellcheck source=/dev/null
 source "${skill_script_dir}/../../../bin/result-codes.sh"
+# shellcheck source=/dev/null
+source "${skill_script_dir}/../../../bin/git-default-branch.sh"
 
 require_git_repo() {
   if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
@@ -24,21 +26,6 @@ main_checkout_dir() {
   local common_dir
   common_dir="$(git rev-parse --path-format=absolute --git-common-dir)" || return 1
   dirname -- "${common_dir}"
-}
-
-is_default_branch() {
-  local branch_name="$1"
-  [[ "${branch_name}" == "main" || "${branch_name}" == "master" ]]
-}
-
-github_default_branch() {
-  local remote_url name
-  command -v gh >/dev/null 2>&1 || return 1
-  remote_url="$(git remote get-url "$1")" || return 1
-  name="$(gh repo view "${remote_url}" --json defaultBranchRef --jq '.defaultBranchRef.name')" \
-    || return 1
-  [[ -n "${name}" ]] || return 1
-  printf '%s\n' "${name}"
 }
 
 show_help_header() {

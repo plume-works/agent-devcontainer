@@ -148,17 +148,15 @@ fi
 
 base_ref="${remote_name}/${base_branch}"
 if ! git rev-parse --verify --quiet "refs/remotes/${base_ref}^{commit}" >/dev/null; then
-  if ! default_ref="$(git symbolic-ref --quiet --short "refs/remotes/${remote_name}/HEAD")"; then
-    if ! default_branch="$(github_default_branch "${remote_name}")"; then
-      print_error "'${base_ref}' does not exist, refs/remotes/${remote_name}/HEAD is not set, and gh could not report the default branch."
-      print_error "Pass --base <branch>, or run: git remote set-head ${remote_name} --auto"
-      quit_by_code 2
-    fi
-    default_ref="${remote_name}/${default_branch}"
-    if ! git rev-parse --verify --quiet "refs/remotes/${default_ref}^{commit}" >/dev/null; then
-      print_error "gh reports default branch '${default_branch}', but '${default_ref}' was not fetched."
-      quit_by_code 2
-    fi
+  if ! default_branch="$(remote_default_branch "${remote_name}")"; then
+    print_error "'${base_ref}' does not exist, refs/remotes/${remote_name}/HEAD is not set, and gh could not report the default branch."
+    print_error "Pass --base <branch>, or run: git remote set-head ${remote_name} --auto"
+    quit_by_code 2
+  fi
+  default_ref="${remote_name}/${default_branch}"
+  if ! git rev-parse --verify --quiet "refs/remotes/${default_ref}^{commit}" >/dev/null; then
+    print_error "The remote default branch '${default_branch}' was not fetched as '${default_ref}'."
+    quit_by_code 2
   fi
   printf "'%s' does not exist; using the remote default branch '%s'.\n" \
     "${base_ref}" "${default_ref}" >&2
