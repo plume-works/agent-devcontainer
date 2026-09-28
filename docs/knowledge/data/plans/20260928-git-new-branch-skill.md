@@ -110,13 +110,17 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Create: `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`
 
-- [ ] SKILL.md with discovery description, name suggestion rules, the
+- [x] SKILL.md with discovery description, name suggestion rules, the
   `RESULT`-keyed decision table, the `CARRY_CONFLICT` question (stash and retry
   with `--stash`, or cancel), the `STASH_CONFLICTS` route through
   `git-merge-resolve`'s "Resolve Conflicts" workflow followed by
   `git stash drop <STASH_REF>` instead of a merge commit, and the safety rules
   (never reset an existing branch, never force-push, never update refs through
   an API)
+  - **Evidence:** commit "feat(git-new-branch): add the skill definition";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors, 0 warnings; stash-pop stage meanings (`:2` base, `:3` stash) match
+    a `STASH_CONFLICTS` run.
 
 ### Task 3: Catalog listing and ignore rule
 
