@@ -20,8 +20,8 @@ remote_default_branch() {
 
   command -v gh >/dev/null 2>&1 || return 1
   remote_url="$(git remote get-url "${remote_name}" 2>/dev/null)" || return 1
-  name="$(gh repo view "${remote_url}" --json defaultBranchRef --jq '.defaultBranchRef.name')" \
-    || return 1
+  name="$(gh repo view "${remote_url}" --json defaultBranchRef --jq '.defaultBranchRef.name' \
+    2>/dev/null)" || return 1
   [[ -n "${name}" ]] || return 1
   printf '%s\n' "${name}"
 }

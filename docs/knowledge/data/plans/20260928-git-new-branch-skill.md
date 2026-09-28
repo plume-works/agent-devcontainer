@@ -280,14 +280,22 @@ changes are never stashed without user approval (`update-branch`'s
 `.agents/plugins/agentdev/tests/test_git_commit.py`; Modify:
 `.agents/plugins/agentdev/skills/git-commit/SKILL.md`
 
-- [ ] `git-commit.sh [--remote <name>] -- <git commit args>` follows the
+- [x] `git-commit.sh [--remote <name>] -- <git commit args>` follows the
   `skill-scripts` contract with `SUCCESS 0`, `PROTECTED_BRANCH 3`,
   `COMMIT_FAILED 4` (git's status as `GIT_EXIT_CODE`), `PREFLIGHT_ERROR 2` for a
   detached `HEAD`; it never runs `git commit` on a protected branch
-- [ ] Tests cover `main`, `master`, a remote HEAD branch with another name, a
+  - **Evidence:** commit "feat(git-commit): commit through a script guarding the
+    default branch"; `--help` prints the paired results table; `shellcheck -x`
+    clean.
+- [x] Tests cover `main`, `master`, a remote HEAD branch with another name, a
   feature branch commit, a failing commit, and a detached `HEAD`
-- [ ] SKILL.md creates every commit through the script, never `git commit`
+  - **Evidence:** commit "feat(git-commit): commit through a script guarding the
+    default branch"; `uv run pytest .agents/plugins/agentdev/tests` 93 passed, 6
+    of them in `test_git_commit.py`.
+- [x] SKILL.md creates every commit through the script, never `git commit`
   directly, and routes `PROTECTED_BRANCH` to `/agentdev:git-new-branch`
+  - **Evidence:** commit "feat(git-commit): commit through a script guarding the
+    default branch"; `validate_agent_files` 0 errors.
 
 ## Spec changes
 

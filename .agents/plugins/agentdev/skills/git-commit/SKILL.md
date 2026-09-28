@@ -1,6 +1,7 @@
 ---
 name: git-commit
 description: Generate conventional commit messages automatically. Use when user runs git commit, stages changes, or asks for commit message help. Analyzes git diff to create clear, descriptive conventional commit messages. Triggers on git commit, staged changes, commit message requests.
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
 ---
 
 # Git Commit Skill
@@ -20,18 +21,32 @@ Generate conventional commit messages from the relevant git diff.
 - A git repository with staged or unstaged changes to summarize
 - Access to the relevant diff, status, or commit context
 
-## Never Commit on the Default Branch
+## Create the Commit Through the Script
 
-Before creating any commit, check the current branch:
+Create every commit with [git-commit.sh](scripts/git-commit.sh); never run
+`git commit` directly. It refuses — before `git commit` runs — on `main`,
+`master`, the remote's default branch, and a detached `HEAD`. Pass the
+`git commit` arguments after `--`:
 
 ```bash
-git symbolic-ref --quiet --short HEAD
+${CLAUDE_SKILL_DIR}/scripts/git-commit.sh -- -m "<subject>" -m "<body>"
+${CLAUDE_SKILL_DIR}/scripts/git-commit.sh -- -F .tmp/commit-message.txt
 ```
 
-If it prints `main` or `master`, **STOP** — create no commit. Tell the user
-that work must go on a feature branch and offer `/agentdev:git-new-branch`,
-which carries the uncommitted changes onto a new branch. Commit there once the
-user has approved the branch.
+`--remote <name>` selects the remote whose default branch is protected
+(default: `origin`). The last line of stdout is always `RESULT=<NAME>`; match
+on that name, not on a bare number.
+
+| RESULT             | Exit                | Meaning                                                    | Action                                                                                                                                |
+| ------------------ | ------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`          | `0`                 | The commit was created                                     | Report the commit.                                                                                                                    |
+| `PROTECTED_BRANCH` | `3`                 | The current branch is a default branch; nothing ran        | **STOP.** Tell the user work must go on a feature branch and offer `/agentdev:git-new-branch`, which carries the uncommitted changes. |
+| `COMMIT_FAILED`    | `4`                 | `git commit` ran and failed; its status is `GIT_EXIT_CODE` | Read `git commit`'s output: stage changes if nothing was staged, or fix what a hook reported, then rerun.                             |
+| `PREFLIGHT_ERROR`  | `2`                 | Bad usage, not a repository, or a detached `HEAD`          | **STOP.** Report the error verbatim.                                                                                                  |
+| `SCRIPT_FAILURE`   | `1`                 | The script broke                                           | **STOP.** Report the blocker verbatim; do not fall back to `git commit`.                                                              |
+| `SIGNAL_*`         | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                           | **STOP.** Check `git status` before rerunning.                                                                                        |
+
+Never bypass a `PROTECTED_BRANCH` refusal by running `git commit` yourself.
 
 ## What I Generate
 
