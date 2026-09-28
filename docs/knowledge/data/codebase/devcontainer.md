@@ -4,10 +4,10 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:1607e3bd2a9642f6f9778f2c0607fc5ba48e20f5cd2c8b5b6207e2ddb7cf0040
+source_digest: sha256:cfbc72af2c89718772c0e553f15ff39fae98ab66445b2562e3315ca10f1d6e9d
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-28T21:30:00Z
 stale_after: 2026-12-22
 generated:
   by: claude-code/opus-5
@@ -42,8 +42,9 @@ pulled.
   `agentdev-agents-auth` volume (`:99-103`)
 - `devcontainer-compose-pins.yml` — the digest pin Renovate advances
 - `.devcontainer/firewall-allowlist.txt` — read by the firewall at start
-- `.devcontainer/.agent.metadata.json` — masks the feature version pins out of
-  this directory's map digest; see architecture/agent-metadata-files
+- `.devcontainer/.agent.metadata.json` — masks the feature version pins, and the
+  versions and digests `devcontainer-lock.json` records for them, out of this
+  directory's map digest; see architecture/agent-metadata-files
 
 ## How it works
 

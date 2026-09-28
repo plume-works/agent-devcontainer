@@ -464,10 +464,15 @@ options as `RENOVATE_*` environment variables instead.
 **Files:** Modify: `.devcontainer/.agent.metadata.json`,
 `docs/knowledge/tests/test_devcontainer_metadata_mask.py`
 
-- [ ] Mask the feature version key, the `version` field, and the `sha256:`
+- [x] Mask the feature version key, the `version` field, and the `sha256:`
   digests in `.devcontainer/devcontainer-lock.json`, so a feature bump with its
   regenerated lock does not mark the `devcontainer` map docs stale and fail
   `Validate agent files`; the feature set and registry stay watched.
+  - **Evidence:** in the commit carrying this tick,
+    `test_production_mask_keeps_a_feature_bump_with_its_lock_fresh` and
+    `test_production_mask_keeps_the_lock_identity_under_surveillance` pass, the
+    first failing against the previous mask; `stale-map-docs.py` reports every
+    map doc fresh with #155's lock change merged onto main.
 
 ## Spec changes
 

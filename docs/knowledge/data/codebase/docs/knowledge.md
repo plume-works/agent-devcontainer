@@ -7,10 +7,10 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:d8b38f8b8c2aa5a9bcb6df144a97ef4b51934f54d50def052ca810d60f16b65c
+source_digest: sha256:088cbfd09d95c835b52fa39ca0c546a3266db2408f4a716383a5f12d2d0ccfbf
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
+  at: 2026-09-28T21:30:00Z
 stale_after: 2026-12-27
 generated:
   by: claude-code/opus-5.5
@@ -26,11 +26,11 @@ The scaffolding around the project's memory. `.iwe/config.toml` at the
 repository root points the library at `docs/knowledge`, binds a schema to every
 `data/` path, and configures normalization; the three Markdown files beside
 `data/` explain the manual, the frontmatter shapes, and the design rationale;
-five pytest modules gate plan checkboxes, the bug and feature body shape, the
-consumer seed, and the production digest masks for Dev Container feature pins,
-role pins, and workflow image digests. This doc deliberately excludes
-`docs/knowledge/data/` from its `source`: the map commit would otherwise make
-itself stale.
+six pytest modules gate plan checkboxes, the bug and feature body shape, the
+consumer seed, and the production digest masks for Dev Container feature pins
+and their lock, role pins, workflow image digests, and hook revisions. This doc
+deliberately excludes `docs/knowledge/data/` from its `source`: the map commit
+would otherwise make itself stale.
 
 ## Public surface
 
@@ -54,9 +54,9 @@ itself stale.
   [the consumer seed](../templates/iwe.md) as a standalone workspace and checks
   its schema, normalization, onboarding tasks, links, license, and boundaries
 - `docs/knowledge/tests/test_devcontainer_metadata_mask.py` — exercises the
-  checked-in Dev Container feature-pin mask against the full production
-  configuration, keeping version-only changes fresh while feature identity
-  changes remain stale
+  checked-in Dev Container feature-pin and lock masks against the full
+  production configuration, keeping a version bump and its regenerated lock
+  fresh while feature identity or the locked registry changes remain stale
 - `docs/knowledge/tests/test_pin_metadata_masks.py` — runs `stale-map-docs.py`
   over a copy of the production role and workflow masks: Renovate pin, checksum,
   and `agent-desktop` digest bumps keep a map doc fresh, while `zizmor`'s
@@ -107,12 +107,13 @@ Verified anchor points (line numbers as of 2026-09-28):
   `test_malformed_body_is_rejected`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture
-- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` — production mask
-  workspace fixture, run with the caller's `GIT_*` variables removed
-- `docs/knowledge/tests/test_pin_metadata_masks.py:87,129,154,164` — mask
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:72,208` — production
+  mask workspace fixture and the feature-bump-with-lock test
+- `docs/knowledge/tests/test_pin_metadata_masks.py:87,133,158,168` — mask
   workspace fixture, role-pin, non-checksum-hex, and container-digest tests
 - `docs/knowledge/tests/test_pre_commit_rev_mask.py:60` — hook-config mask
-  workspace fixture
+  workspace fixture; all three mask fixtures run with the caller's `GIT_*`
+  variables removed
 - `.pre-commit-config.yaml:102-122` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
 - `.github/workflows/validate-knowledge-base.yml:91-109` — graph and seed checks
