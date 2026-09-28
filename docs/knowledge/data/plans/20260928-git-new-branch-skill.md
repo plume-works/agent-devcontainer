@@ -220,10 +220,14 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`
 
-- [ ] When `LOCAL_COMMITS` is present, the SKILL.md runs
+- [x] When `LOCAL_COMMITS` is present, the SKILL.md runs
   `/agentdev:update-branch` on the new branch (in `WORKTREE` when set), asking
   the user to commit or approve a stash first when the tree is dirty, and states
   that local `main` keeps those commits until the user resets it
+  - **Evidence:** commit "docs(git-new-branch): merge the base after moving
+    default-branch commits"; `validate_agent_files` 0 errors; in a scratch
+    clone, `git-new-branch.sh` then `update-branch.sh` yielded the moved commit
+    merged with `origin/main`.
 
 ### Task 11: git-commit never commits on the default branch
 

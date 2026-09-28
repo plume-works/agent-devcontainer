@@ -58,6 +58,8 @@ branch commands manually. It:
 - creates the branch with `--no-track` at the fetched base, carrying
   uncommitted and untracked changes when no changed path differs between HEAD
   and the base
+- on `main` or `master` with commits the base lacks, starts the branch at
+  `HEAD` instead, so those commits move onto it, and reports `LOCAL_COMMITS`
 - pushes with `--set-upstream` so the branch tracks `<remote>/<name>`
 
 Options:
@@ -86,17 +88,17 @@ ${CLAUDE_SKILL_DIR}/scripts/git-new-branch.sh <name>
 
 ## Workflow 2: Handle the Result
 
-| RESULT            | Exit                | Meaning                                                              | Action                                                                                                                                             |
-| ----------------- | ------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUCCESS`         | `0`                 | Branch created at `BASE_SHA`, pushed, tracking `<remote>/<name>`     | Report `BRANCH`, `BASE`, and `WORKTREE` when present. In worktree mode, continue the work inside `WORKTREE`.                                       |
-| `BRANCH_EXISTS`   | `3`                 | The name exists locally or on the remote; nothing was created        | **STOP.** Ask the user for another name, or whether to continue on the existing branch with `git switch <name>`. Never reset it.                   |
-| `CARRY_CONFLICT`  | `4`                 | Local changes touch paths that differ between HEAD and the base      | Show the paths from stderr and ask the user (Workflow 3). Nothing was changed.                                                                     |
-| `PUSH_FAILED`     | `5`                 | The branch exists locally but the push failed                        | **STOP.** Report the Git error. The local branch is kept; retry `git push --set-upstream <remote> <name>` once access is restored — never via API. |
-| `FETCH_FAILED`    | `6`                 | The remote could not be fetched                                      | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                                       |
-| `STASH_CONFLICTS` | `7`                 | The branch was created but popping the stash conflicted              | Resolve through Workflow 4. The stash entry `STASH_REF` is kept until then.                                                                        |
-| `PREFLIGHT_ERROR` | `2`                 | Bad usage, not a repository, invalid name, or no base ref to resolve | **STOP.** Report the error verbatim and fix the input before retrying.                                                                             |
-| `SCRIPT_FAILURE`  | `1`                 | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                             |
-| `SIGNAL_*`        | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                     | **STOP.** Inspect `git status` and `git stash list` before rerunning.                                                                              |
+| RESULT            | Exit                | Meaning                                                              | Action                                                                                                                                                                  |
+| ----------------- | ------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`         | `0`                 | Branch created at `BASE_SHA`, pushed, tracking `<remote>/<name>`     | Report `BRANCH`, `BASE`, and `WORKTREE` when present. In worktree mode, continue the work inside `WORKTREE`. When `LOCAL_COMMITS` is printed, continue with Workflow 5. |
+| `BRANCH_EXISTS`   | `3`                 | The name exists locally or on the remote; nothing was created        | **STOP.** Ask the user for another name, or whether to continue on the existing branch with `git switch <name>`. Never reset it.                                        |
+| `CARRY_CONFLICT`  | `4`                 | Local changes touch paths that differ between HEAD and the base      | Show the paths from stderr and ask the user (Workflow 3). Nothing was changed.                                                                                          |
+| `PUSH_FAILED`     | `5`                 | The branch exists locally but the push failed                        | **STOP.** Report the Git error. The local branch is kept; retry `git push --set-upstream <remote> <name>` once access is restored — never via API.                      |
+| `FETCH_FAILED`    | `6`                 | The remote could not be fetched                                      | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                                                            |
+| `STASH_CONFLICTS` | `7`                 | The branch was created but popping the stash conflicted              | Resolve through Workflow 4. The stash entry `STASH_REF` is kept until then.                                                                                             |
+| `PREFLIGHT_ERROR` | `2`                 | Bad usage, not a repository, invalid name, or no base ref to resolve | **STOP.** Report the error verbatim and fix the input before retrying.                                                                                                  |
+| `SCRIPT_FAILURE`  | `1`                 | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                  |
+| `SIGNAL_*`        | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                     | **STOP.** Inspect `git status` and `git stash list` before rerunning.                                                                                                   |
 
 ## Workflow 3: Uncommitted Changes Git Cannot Carry
 
@@ -129,9 +131,23 @@ conflict with the base. The stash entry at `STASH_REF` still holds them.
 
 If stderr also reported a failed push, handle it as `PUSH_FAILED` afterwards.
 
+## Workflow 5: Merge the Base After Moving Commits
+
+When `SUCCESS` also printed `LOCAL_COMMITS=<n>`, the branch starts at the
+default branch's local `HEAD` and does not yet contain `BASE`.
+
+1. Work on the new branch — inside `WORKTREE` when it was printed.
+2. If `git status --porcelain` is not empty, ask the user to commit the changes
+   or approve a stash first; never stash without approval.
+3. Run `/agentdev:update-branch` to merge `BASE` into the branch, and follow its
+   result table, including conflict resolution and the push.
+4. Tell the user that local `main` (or `master`) still holds those `<n>`
+   commits. Resetting it to `BASE` is their call; never do it on your own.
+
 ## Completion Criteria
 
-- The branch points at the freshly fetched base commit `BASE_SHA`
+- The branch points at the freshly fetched base commit `BASE_SHA`, or, after
+  `LOCAL_COMMITS`, contains both the moved commits and `BASE`
 - `git rev-parse --abbrev-ref @{u}` on the branch prints `<remote>/<name>`
 - The user's uncommitted changes are present on the branch, and any stash this
   skill created has been dropped only after its conflicts were resolved
