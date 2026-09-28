@@ -13,6 +13,8 @@ generated:
 Its title, body sections, and stages are defined under Bugs in `SCHEMA.md` and
 enforced by `.iwe/schemas/bug.yaml`.*
 
+[~/.claude.json stops being the volume symlink](bugs/claude-json-symlink-replaced.md)
+
 [A capitalized @Claude mention was admitted, then misrouted](bugs/responder-mention-case-sensitivity.md)
 
 [The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
