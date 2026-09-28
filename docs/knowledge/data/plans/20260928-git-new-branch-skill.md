@@ -126,8 +126,12 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.agents/plugins/agentdev/README.md`, `.gitignore`
 
-- [ ] `/agentdev:git-new-branch` row in the "Pull requests and git" table
-- [ ] `.worktrees/` in `.gitignore` next to the `.tmp/` scratch entry
+- [x] `/agentdev:git-new-branch` row in the "Pull requests and git" table
+  - **Evidence:** commit "docs(agentdev): list git-new-branch and ignore
+    .worktrees/"; `validate_agent_files` 0 errors.
+- [x] `.worktrees/` in `.gitignore` next to the `.tmp/` scratch entry
+  - **Evidence:** commit "docs(agentdev): list git-new-branch and ignore
+    .worktrees/"; `git check-ignore -v .worktrees/x` matches `.gitignore:12`.
 
 ### Task 4: Route pr-open through git-new-branch
 

@@ -9,6 +9,7 @@
 
 # Agent + tooling scratch space (see AGENTS.md: always use ./.tmp)
 .tmp/
+.worktrees/
 .copilot-tracking/
 .superpowers/
 
