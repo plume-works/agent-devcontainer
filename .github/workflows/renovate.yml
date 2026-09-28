@@ -43,13 +43,9 @@ jobs:
         )
       )
     # Queue rather than cancel: a run cut short mid-branch leaves half-pushed updates.
-    # Checkbox runs queue apart from push and schedule; job level so a filtered edit
-    # never enters a group and displaces a pending run.
+    # Job level, so a filtered-out edit never enters the group and displaces a pending run.
     concurrency:
-      group: >-
-        ${{ github.workflow }}-${{
-          (github.event_name == 'issues' || github.event_name == 'pull_request_target')
-          && 'checkbox' || 'main' }}
+      group: ${{ github.workflow }}
       cancel-in-progress: false
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     # The same digest as devcontainer-compose-pins.yml; Renovate's agent-desktop
