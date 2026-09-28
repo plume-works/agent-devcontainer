@@ -82,6 +82,10 @@ unset), and a detached `HEAD`, and redirects the user to
 `/agentdev:git-new-branch`. The default-branch lookup lives in one shared plugin
 `bin/` helper that both scripts source.
 
+This repository's pre-commit configuration also rejects any commit on `main` or
+`master` through the `pre-commit-hooks` `no-commit-to-branch` hook, so the guard
+holds for a direct `git commit` too.
+
 The SKILL.md suggests a name from context when the user gives none: a plan key
 `data/plans/<date>-<slug>` → `<slug>`; a GitHub issue → `<number>-<slug>`.
 
@@ -297,6 +301,14 @@ changes are never stashed without user approval (`update-branch`'s
   - **Evidence:** commit "feat(git-commit): commit through a script guarding the
     default branch"; `validate_agent_files` 0 errors.
 
+### Task 15: pre-commit rejects commits on the default branch
+
+**Files:** Modify: `.pre-commit-config.yaml`
+
+- [ ] `no-commit-to-branch` from the existing `pre-commit-hooks` entry, with
+  `--branch main --branch master`, fails a commit on either branch and passes on
+  a feature branch
+
 ## Spec changes
 
 `spec/git-new-branch` (new):
@@ -414,6 +426,12 @@ skill instead.
 - **WHEN** the user asks for a commit and the current branch is `main`
 - **THEN** the script reports `PROTECTED_BRANCH`, no commit is created, and the
   user is pointed at git-new-branch
+
+#### Scenario: A direct git commit on main in this repository
+
+- **WHEN** someone runs `git commit` on `main` with the pre-commit hooks
+  installed
+- **THEN** the `no-commit-to-branch` hook fails and no commit is created
 
 #### Scenario: The remote default branch has another name
 
