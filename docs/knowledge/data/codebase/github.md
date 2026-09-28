@@ -2,7 +2,7 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:14a369c78ca81106fa2270094b407af7c78a52dc61305cbbdf7830c088b814d3
+source_digest: sha256:443b01a283314dff7ca35ce7084a5cd84e37c0864bb87d3e614c2350a5b5855f
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-28T00:00:00Z
@@ -49,11 +49,11 @@ the composite actions they share, `renovate.json`, and
 `primary-checks.yml` is the entry workflow; it calls the reusable `reformat.yml`
 and `ci.yml`. Three more workflows trigger independently on their own path
 filters, `renovate.yml` runs the bot on a schedule, on every push to `main`, and
-when a person edits its Dependency Dashboard, and one is manual. Knowledge
-validation has its own inner filter so the consumer IWE seed tests run only when
-the seed, schemas, or seed test moved. Agent-file validation includes every
-source path declared by a codebase map doc, so source drift cannot skip the
-staleness gate.
+when a person edits its Dependency Dashboard or one of its PRs, and one is
+manual. Knowledge validation has its own inner filter so the consumer IWE seed
+tests run only when the seed, schemas, or seed test moved. Agent-file validation
+includes every source path declared by a codebase map doc, so source drift
+cannot skip the staleness gate.
 
 ## Depends on
 
