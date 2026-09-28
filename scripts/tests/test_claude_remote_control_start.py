@@ -77,10 +77,10 @@ def test_skips_when_disabled_or_unauthenticated(autostart, token):
     assert calls == ""
 
 
-def test_compose_passes_required_environment():
+def test_compose_passes_only_nonsecret_autostart_environment():
     compose = COMPOSE.read_text()
     assert "AGENTDEV_CLAUDE_AUTOSTART: ${AGENTDEV_CLAUDE_AUTOSTART:-}" in compose
-    assert "CLAUDE_CODE_OAUTH_TOKEN: ${CLAUDE_CODE_OAUTH_TOKEN:-}" in compose
+    assert "CLAUDE_CODE_OAUTH_TOKEN" not in compose
 
 
 def test_reuses_existing_session():
