@@ -20,6 +20,19 @@ Generate conventional commit messages from the relevant git diff.
 - A git repository with staged or unstaged changes to summarize
 - Access to the relevant diff, status, or commit context
 
+## Never Commit on the Default Branch
+
+Before creating any commit, check the current branch:
+
+```bash
+git symbolic-ref --quiet --short HEAD
+```
+
+If it prints `main` or `master`, **STOP** — create no commit. Tell the user
+that work must go on a feature branch and offer `/agentdev:git-new-branch`,
+which carries the uncommitted changes onto a new branch. Commit there once the
+user has approved the branch.
+
 ## What I Generate
 
 ### Conventional Commit Format

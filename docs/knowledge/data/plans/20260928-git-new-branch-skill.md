@@ -233,8 +233,10 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/git-commit/SKILL.md`
 
-- [ ] A guard before any commit: on `main` or `master`, stop and redirect the
+- [x] A guard before any commit: on `main` or `master`, stop and redirect the
   user to `/agentdev:git-new-branch`
+  - **Evidence:** commit "docs(git-commit): never commit on the default branch";
+    `validate_agent_files` 0 errors.
 
 ## Spec changes
 
