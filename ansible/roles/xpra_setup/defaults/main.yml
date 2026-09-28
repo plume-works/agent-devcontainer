@@ -2,10 +2,10 @@
 # VirtualGL release installed from GitHub, with the SHA-256 of each
 # architecture's .deb. Renovate's post-upgrade script recomputes them on a bump.
 # renovate: datasource=github-releases depName=VirtualGL/virtualgl
-xpra_setup_virtualgl_version: "3.1.4"
+xpra_setup_virtualgl_version: "3.1.5"
 xpra_setup_virtualgl_checksums:
-  amd64: "sha256:02edc6b599571c385389af1a006f07a70c298e1d97c580a9bfd4b39d835c51e6"
-  arm64: "sha256:5583e08ee5694d14c6ea0f25d2cfd73fa6d5077869c6645c334a948265a777bb"
+  amd64: "sha256:df3f7788ce41b182a47c0d298e5cd6d2d63579522cb41825970b7726e825485e"
+  arm64: "sha256:9ac238e8a18c06d84ef65444a591a7a5bb4c4ce9e8cfdd92f8a2aea35edbb5d7"
 xpra_setup_virtualgl_download_url: >-
   https://github.com/VirtualGL/virtualgl/releases/download/{{ xpra_setup_virtualgl_version }}/virtualgl_{{
   xpra_setup_virtualgl_version }}_{{ xpra_setup_virtualgl_arch }}.deb

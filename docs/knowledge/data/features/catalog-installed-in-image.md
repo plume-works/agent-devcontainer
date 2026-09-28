@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: The agent-desktop image installs the agentdev catalog into each agent's plugin state at build time, so a consumer running the raw image with no devcontainer lifecycle hooks still resolves agentdev:* skills; postCreate installs again because mounted volumes shadow the build-time install.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-02T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -65,6 +65,24 @@ lifecycle-script logic and leaves the image carrying a catalog that looks
 installed but is not); an unconditional `rm` of the image's `/root/.claude.json`
 before cbm-install (clobbers an existing volume by severing cbm-install's only
 path back to the volume's content).
+
+## Edge cases
+
+- **A container with no volumes and no lifecycle hooks.** The build-time install
+  is what it sees, and `agentdev:*` skills resolve.
+- **A fresh devcontainer volume.** `postCreateCommand` discards the image's
+  `/root/.claude.json`, seeds the volume's `claude.json` with `{}`, and installs
+  the catalog into the empty volumes.
+- **A volume with a prior install.** The volume shadows the build-time install;
+  `postCreateCommand` reinstalls, and the volume's existing `claude.json`
+  content is preserved rather than replaced.
+- **A consuming project attaches.** The attach-time reinstall finds no
+  marketplace manifest in the consumer's checkout and leaves the image-staged
+  catalog in place.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## References
 

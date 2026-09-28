@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: validate_agent_files skips gitignored files during repository-wide discovery while preserving explicit-file validation and plain-directory fallbacks.
 generated:
-  by: codex/gpt-5
-  at: 2026-09-02T05:46:35Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: docs/knowledge/data/plans/20260901-gitignore-aware-discovery.md
 - resource: docs/knowledge/data/spec/agent-file-discovery.md
@@ -41,6 +41,23 @@ directory walks.
 work tree, discovery uses the plain-directory fallback. If git cannot classify
 candidates inside a work tree, discovery keeps walking and treats those
 candidates as not ignored.
+
+## Edge cases
+
+- **A matching file under an ignored directory.** The directory is pruned, so
+  the file is never validated.
+- **An ignored match beside an unignored one.** Only the unignored file is
+  returned.
+- **A match under `.git/`.** Git internals are never discovered, in a work tree
+  or outside one.
+- **Git cannot identify a work tree.** Discovery falls back to the
+  plain-directory walk with its excluded-directory set.
+- **Git cannot classify candidates.** Discovery keeps walking and treats them as
+  not ignored, so validation still runs.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## References
 

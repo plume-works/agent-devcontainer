@@ -2,14 +2,14 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared result-code libraries for bash and Python, the GitHub-issue library, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:5f573f18c15fe0b4309d0b0f90b92c0a4dda98851d022217a3ef1a5a21eb2d9f
+source_digest: sha256:b986196e0cf6434071e86c7aabb3491c8506b4c2410a51081efff9dccbc12a2d
 verified:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
-stale_after: 2026-12-05
+  by: claude-code/opus-5.5
+  at: 2026-09-28T00:00:00Z
+stale_after: 2026-12-27
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T19:05:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-28T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
@@ -30,7 +30,8 @@ runs directly.
   entry point that runs a script body and names the status it produced),
   `quit_by_code`, and `emit_result`
 - `github-issue.sh` — `parse_issue_ref`, `require_gh`, `resolve_current_repo`,
-  `gh_output_says_not_found`
+  `gh_output_says_not_found`, and `close_issue_with_comment`, which views an
+  issue and closes it with a comment unless it is already closed
 - `super-linter-local.sh [--all] [--image] [--log-level]` — one local
   Super-Linter pass with autofixes; `super-linter-env.sh` emits the
   `VALIDATE_*`/`FIX_*` environment; `super-linter-defaults.sh` pins the image
@@ -62,6 +63,9 @@ environment of its own.
 
 - The target repository is resolved from the working directory, never from
   `BASH_SOURCE`: these scripts run from a plugin cache.
+- `close_issue_with_comment` returns `3` (gh failed), `4` (no such issue), or
+  `5` (already closed) — the result codes both closing scripts declare, so a
+  caller passes its status straight to `quit_by_code`.
 - `1` is never a workflow outcome; script-specific codes start at `3`, and both
   result libraries carry the same reserved names for `0`, `1`, `2`, `129`,
   `130`, and `143`.
@@ -71,7 +75,7 @@ environment of its own.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-06):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `.agents/plugins/agentdev/bin/result-codes.sh:15-22` — the reserved codes
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
@@ -79,6 +83,8 @@ Verified anchor points (line numbers as of 2026-09-06):
 - `.agents/plugins/agentdev/bin/result_codes.py:24-31` — the same reserved codes
 - `.agents/plugins/agentdev/bin/result_codes.py:89` — `run`
 - `.agents/plugins/agentdev/bin/result_codes.py:106` — `install`
-- `.agents/plugins/agentdev/bin/github-issue.sh:10,29,41,46` — the four helpers
+- `.agents/plugins/agentdev/bin/github-issue.sh:10,29,41,46` — the four parsing
+  and lookup helpers
+- `.agents/plugins/agentdev/bin/github-issue.sh:54` — `close_issue_with_comment`
 - `.agents/plugins/agentdev/bin/__utils.sh:6` — `root_dir`
 - `.agents/plugins/agentdev/bin/super-linter-defaults.sh:6` — image pin

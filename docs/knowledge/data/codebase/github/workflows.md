@@ -2,7 +2,7 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:5f371a1372906aa03f0ca673ce65392c37aad5c1b0a22a2e049e87e7cab18ab5
+source_digest: sha256:efc038e14bf711d3f7d6cd3ac5b552bbd6fd4cbb2eff184ee87b1a131b959230
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-27T00:00:00Z
@@ -83,6 +83,9 @@ The full traces are [the image build flow](../flow-image-build.md) and
   required check while `validate` is path-filtered; the version and flag choices
   are
   [Renovate config validation](../../architecture/renovate-config-validation.md).
+- `commit-format-changes` skips the push on a PR authored by a login in its
+  `RENOVATE_BOT_ACTORS`, so the `gate` fails rather than put a foreign commit on
+  a branch Renovate would then stop updating.
 - Runners are chosen by the `AMD_ONLY`/`ARM_ONLY` repository variables so a fork
   without ARM runners can still build.
 - A `[ci:skip-ai-review]` marker alone on a line of the PR body suppresses the
@@ -103,8 +106,8 @@ The full traces are [the image build flow](../flow-image-build.md) and
 
 Verified anchor points (line numbers as of 2026-09-27):
 
-- `.github/workflows/primary-checks.yml:31,51` — `reformat`, `ci`
-- `.github/workflows/reformat.yml:180,274,409` — `super-linter`,
+- `.github/workflows/primary-checks.yml:31,52` — `reformat`, `ci`
+- `.github/workflows/reformat.yml:185,279,421` — `super-linter`,
   `commit-format-changes`, `gate`
 - `.github/workflows/ci.yml:62,97,165,204` — build matrix, base-image selection,
   merge, devcontainer smoke

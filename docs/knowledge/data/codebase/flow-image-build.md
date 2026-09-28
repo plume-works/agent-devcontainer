@@ -6,14 +6,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:f3f83fa6414d80c9dcbc37de6ff3a950e805c1ba444a17b562dac7c7b3895e26
+source_digest: sha256:f271e9ce81eb75099829d105cb035661646cc674d7ffa982e2969f164a37e36f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
-stale_after: 2026-12-26
+  at: 2026-09-28T00:00:00Z
+stale_after: 2026-12-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-28T00:00:00Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -28,7 +28,7 @@ running the image it produced.
 
 1. A push or pull request enters `primary-checks.yml`; the `reformat` job runs
    first and `ci` follows only when its gate says `run_downstream` —
-   `.github/workflows/primary-checks.yml:51`, in
+   `.github/workflows/primary-checks.yml:52`, in
    [workflows](github/workflows.md)
 2. `ci.yml`'s `paths-filter` job applies the `image` filter from
    [the paths-filter action](github/actions.md); nothing matched means every

@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: A consuming repository captures its extra pull request template sections as instructions in a consumer-owned .github/pr-description-guidance.md, which pr-gen-description reads with precedence over its own section generation.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-05T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -58,6 +58,22 @@ real headings is still real structure and is reported.
 publisher repository and is not a `tracked_paths` diff input; update mode's
 PR-template evaluation preserves an existing one unless the user explicitly
 replaces or removes it.
+
+## Edge cases
+
+- **Guidance that would merge or rename Verification and Reviewer Handoff.** The
+  skill keeps both sections and their `- [x]` / `- [ ]` split regardless.
+- **A stub marker beside real headings.** A template carrying
+  `<!-- pr-gen-description: no-template -->` and Markdown section headings is
+  still real structure and is reported as not consulted.
+- **The user keeps the template as-is.** Nothing is captured, and the skill
+  reports the template as not consulted on every generation.
+- **The PR template changes upstream after capture.** Update mode preserves the
+  existing guidance file unless the user explicitly replaces or removes it.
+
+## Open questions
+
+None — every design question this feature raised is settled.
 
 ## Specified by
 

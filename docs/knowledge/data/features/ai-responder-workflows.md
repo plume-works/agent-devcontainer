@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:48:53Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -102,3 +102,24 @@ keeps the session's configured model. An effort tier changes what a review
 costs, never whether one is required: both tiers run the metadata check and the
 durable-knowledge pass, and neither waives `ai-review-present`. The reasoning is
 recorded in [PR review effort tiers](../architecture/pr-review-effort-tiers.md).
+
+## Edge cases
+
+- **A draft pull request.** No review runs until the pull request is marked
+  ready for review.
+- **A push to a pull request that already has an accepted review.** The review
+  job is skipped and `ai-review-present` passes on the existing review.
+- **The review job fails or is cancelled.** `ai-review-present` in that run
+  fails.
+- **A fork pull request.** Preflight records the fork, issues no dispatch, and
+  skips every responder job before any checkout.
+- **A head branch without `ai-responder.yml`.** The `@claude` bridge fails
+  naming the branch, and no review runs.
+- **A head branch whose workflow predates a dispatch input.** The dispatch
+  carries only the inputs the request supplies, so an older branch still runs.
+
+## Open questions
+
+- Whether a run that published no review should fail on its own, rather than
+  pass on an earlier review — open in
+  [The review orchestrator ends its turn while its passes are still running](../bugs/review-orchestrator-ends-turn-while-passes-run.md).

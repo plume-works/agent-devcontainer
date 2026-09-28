@@ -3,11 +3,12 @@ type: architecture
 description: How the self-hosted Renovate's one post-upgrade task produces the checksums, lock file, and pre-commit output a bump implies, and the constraints that keep its output in Renovate's commit.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-27T21:30:00Z
 sources:
 - resource: .github/renovate.json
 - resource: scripts/renovate-post-upgrade.sh
 - resource: scripts/refresh-pin-checksums.py
+- resource: .github/workflows/reformat.yml
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/execute-post-upgrade-commands.ts
   title: Post-upgrade output is kept only where its path matches fileFilters
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/commit.ts
@@ -61,6 +62,15 @@ maps them back to host paths by finding its own container through
 `pre-commit` is unpinned, so the project's `pre-commit>=4.2.0` dependency is
 what makes the hook work.
 
+## CI never commits to a Renovate branch
+
+Renovate stops updating a branch that carries a commit it did not author, so the
+formatting a bump implies must arrive in Renovate's own commit, through step 3
+above. `reformat.yml` still runs Super-Linter on a pull request opened by a
+Renovate bot, but its commit job does not push the fixes; the reformat gate
+fails instead, exposing whatever the post-upgrade pre-commit pass missed. The
+Renovate bot logins are listed in the commit job's `RENOVATE_BOT_ACTORS`.
+
 ## The App token carries only Renovate's permissions
 
 The post-upgrade task runs code at versions Renovate has just bumped — new
@@ -77,3 +87,7 @@ to the App does not widen this token until the workflow asks for it.
 later matching `packageRule` replaces rather than extends, so a checksum rule
 would silently drop the pre-commit step. One script behind one task has no
 override ordering to get wrong.
+
+**Skipping Super-Linter on Renovate pull requests.** It keeps Renovate's
+branches free of foreign commits just as well, but leaves those pull requests
+with no lint gate, so a gap in the post-upgrade pass would merge unnoticed.

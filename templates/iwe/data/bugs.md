@@ -9,9 +9,8 @@ generated:
 
 # 🐛 Bugs
 
-*One document per bug in `bugs/<slug>.md`: Symptom, Reproduction, Root cause,
-Fix. No `stage` means open; `stage: done` means fixed, `stage: cancelled` means
-closed without a fix. Bugs stay listed here either way — the status chip tells
-them apart.*
+*One document per bug in `bugs/<slug>.md`, listed here whether open or closed.
+Its title, body sections, and stages are defined under Bugs in `SCHEMA.md` and
+enforced by `.iwe/schemas/bug.yaml`.*
 
 [Bug: Timer drifts after laptop sleep](bugs/timer-drift-after-sleep.example)

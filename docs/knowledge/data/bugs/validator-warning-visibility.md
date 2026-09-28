@@ -2,15 +2,15 @@
 type: bug
 description: validate_agent_files' --recommend, --no-warnings, and --errors-only flags have no effect on any run — the warning/recommendation path is entirely disconnected from the validation engine.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-08T01:12:06Z
+  by: claude-code/opus-5.5
+  at: 2026-09-27T09:46:38Z
 sources:
 - resource: docs/agents/specs/validator-warning-visibility/ (folded and removed)
 - resource: py_packages/validate_agent_files/
 stage: done
 ---
 
-# Validator warning visibility
+# Bug: Validator warning visibility
 
 ## Symptom
 
@@ -83,3 +83,18 @@ real argparse destinations; `--no-warnings` is removed in favour of
 `--errors-only`; and `CrossReferenceValidator` no longer accepts the field it
 never read. The engine exposes only the validators' warning-level issues, so
 their stricter error checks do not expand the default validation contract.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-09-27), under
+`py_packages/validate_agent_files/validate_agent_files/`:
+
+- `core.py:121` — `ValidationEngine.validate` runs `SkillFrontmatterValidator`
+  and `SkillStructureValidator` when `show_warnings` is set, keeping only their
+  warning-level issues
+- `main.py:22` — `show_warnings` derived from `--recommend` and `--errors-only`
+- `cli.py:54` — `--recommend`, with `--errors-only` at line 66
+- `validators/skill.py:91` — the vague-description warning; the section-content
+  warning is at line 150
+- `validators/cross_reference.py:37` — `CrossReferenceValidator.__init__`, which
+  no longer takes `show_warnings`

@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:0a045a1633f6a1f6044b02938f285c11900321e7fd1e2dcea8a387961a7f184a
+source_digest: sha256:15de63d803ff89d251db62db97c8bc18e9f19d1b5144edd6309fc91e70f71e24
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
-stale_after: 2026-12-22
+  by: claude-code/opus-5.5
+  at: 2026-09-28T00:00:00Z
+stale_after: 2026-12-27
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-23T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-28T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -44,7 +44,7 @@ each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
 
 ## Public surface
 
-- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (36
+- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (37
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`
@@ -52,7 +52,7 @@ each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
   `result_codes.py`, which a Python skill script imports from there
 - `hooks/session-start.sh` — brings up the project devcontainer, only when
   `CLAUDE_CODE_REMOTE=true`
-- `version` — `3.3.0`, declared identically in both plugin manifests, the
+- `version` — `3.4.0`, declared identically in both plugin manifests, the
   marketplace entry, and the Dockerfile pin
 
 ## How it works
@@ -83,7 +83,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-22):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

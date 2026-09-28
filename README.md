@@ -96,7 +96,7 @@ ships no Codex manifest.
 
 ### `agentdev`
 
-The image carries `agentdev` 3.3.0, a cross-agent plugin with 36 skills and five
+The image carries `agentdev` 3.4.0, a cross-agent plugin with 37 skills and five
 agent definitions for Claude Code and Codex. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
@@ -151,6 +151,7 @@ complete workflow:
 | `iwe-map`                          | Create and refresh the codebase map.                                  |
 | `iwe-explore`                      | Investigate ideas or GitHub issues without changing code.             |
 | `iwe-plan`                         | Plan work with verified anchors and risk-scaled specification impact. |
+| `iwe-capture`                      | File complete, deduplicated bugs, proposed features, and tasks.       |
 | `iwe-implement`                    | Execute plans task by task and record evidence.                       |
 | `iwe-verify`                       | Check implementation claims against code and specifications.          |
 | `iwe-ship`                         | Block CRITICAL findings and record released behavior.                 |

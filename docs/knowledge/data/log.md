@@ -4,8 +4,28 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-28
+
+- **Update**: Refreshed the eight codebase-map docs the Super-Linter v8.7.0
+  tool-version sync, the zizmor 1.25.2 pin, the Renovate role and pre-commit pin
+  bumps, and the version-agnostic zizmor mask test moved.
+
 ## 2026-09-27
 
+- **Update**: Refreshed the codebase-map doc for the consumer seed after its
+  bugs and features hubs deferred the document shape to `SCHEMA.md`.
+- **Update**: [Add the iwe-capture skill](plans/20260927-iwe-capture-skill.md)
+  done. `/agentdev:iwe-capture` is the single writer of bug, proposed-feature,
+  and backlog-task documents, and the bug and feature schemas now enforce the
+  `SCHEMA.md` body shape.
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained the
+  Capture and document-shape requirements.
+- **Update**:
+  [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
+  changed — it now includes Capture.
+- **Update**: Refreshed the nine codebase-map docs the iwe-capture skill, the
+  shared issue-closing helper, the body-shape schemas, and the agentdev 3.4.0
+  pins moved.
 - **Update**: Refreshed the nine codebase-map docs the narrowed role checksum
   mask and the Git-isolated mask test fixture moved.
 - **Update**: Refreshed the three codebase-map docs over `.github` for the

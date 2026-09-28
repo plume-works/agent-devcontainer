@@ -33,6 +33,11 @@ on:
         required: false
         default: false
         type: boolean
+      caller_pr_author:
+        description: Login of the pull request author from the calling workflow.
+        required: false
+        default: ''
+        type: string
       force_run:
         description: Run reformat even when the path filter does not match.
         required: false
@@ -205,7 +210,7 @@ jobs:
 
       - name: Run Super-Linter autofixes
         continue-on-error: true
-        uses: super-linter/super-linter/slim@v8.5.0
+        uses: super-linter/super-linter/slim@v8.7.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: ${{ inputs.validate_all_codebase }}
@@ -244,7 +249,7 @@ jobs:
 
       - name: Run Super-Linter checks
         if: steps.patch.outputs.changed != 'true'
-        uses: super-linter/super-linter/slim@v8.5.0
+        uses: super-linter/super-linter/slim@v8.7.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: ${{ inputs.validate_all_codebase }}
@@ -313,6 +318,11 @@ jobs:
           elif [[ "${GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FULL_NAME}" != "${GITHUB_REPOSITORY}" ]]; then
             echo "Pull request is from a fork. Skipping commit."
             skip_commit=true
+          elif [[ ",${RENOVATE_BOT_ACTORS}," == *",${INPUTS_CALLER_PR_AUTHOR},"* ]]; then
+            # Renovate stops updating a branch that carries a foreign commit; its
+            # post-upgrade task formats instead. See architecture/renovate-post-upgrade.
+            echo "Renovate pull request. Skipping commit; the gate fails instead."
+            skip_commit=true
           else
             head_commit_subject="$(git show -s --format=%s "${GITHUB_EVENT_PULL_REQUEST_HEAD_SHA}")"
             case "$head_commit_subject" in
@@ -328,7 +338,9 @@ jobs:
           GITHUB_EVENT_PULL_REQUEST_HEAD_REPO_FULL_NAME: ${{ inputs.caller_pr_head_repo_full_name }}
           GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ inputs.caller_pr_head_sha }}
           INPUTS_CALLER_EVENT_NAME: ${{ inputs.caller_event_name }}
+          INPUTS_CALLER_PR_AUTHOR: ${{ inputs.caller_pr_author }}
           INPUTS_SUPER_LINTER_COMMIT_MESSAGE: ${{ env.SUPER_LINTER_COMMIT_MESSAGE }}
+          RENOVATE_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot]'
 
       - name: Apply Super-Linter patch
         if: steps.verify.outputs.skip_commit != 'true'
@@ -452,10 +464,10 @@ jobs:
           NEEDS_SUPER_LINTER_OUTPUT_CHANGED: ${{ needs.super-linter.outputs.changed }}
           NEEDS_COMMIT_FORMAT_CHANGES_RESULT: ${{ needs.commit-format-changes.result }}
 
-      - name: Fail if changes were made and committed
+      - name: Fail if formatting changed files
         if: ${{ steps.compute.outputs.changed == 'true' && steps.compute.outputs.run_downstream != 'true' }}
         run: |
-          echo "Changes were made and committed, fail the job to avoid confusing green check-marks on commits"
+          echo "Formatting changed files (committed unless skipped above); fail the job to avoid confusing green check-marks on commits"
           exit 1
 
       - name: Log debug stats
