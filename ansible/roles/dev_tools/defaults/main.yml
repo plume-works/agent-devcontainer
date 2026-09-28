@@ -17,16 +17,16 @@
 # only with the Super-Linter tool-version sync.
 dev_tools_pinned_tools:
   - name: zizmor
-    version: v1.22.0
+    version: v1.25.2
     url_prefix: https://github.com/zizmorcore/zizmor/releases/download
     asset_prefix: zizmor-
     archives:
       amd64:
         target: x86_64-unknown-linux-gnu
-        checksum: f7633bbf155cddebd3fdfdcbfaa777a4e89e4da1bc719b08dfa9ae50e5daae46
+        checksum: aa1facd105f0d83fe5c55b1adcd9d7417de5d83aa27471f91dc0b66cf3803577
       arm64:
         target: aarch64-unknown-linux-gnu
-        checksum: afa6ea4ad183582adaf1610399ed9e697322a2374d377ccdb149216840f5171d
+        checksum: 4b4b9491112c2a09b318101c0d3349b73af1c4f532e097dd6d0164f2abda760d
 
   # iwe ships iwe (CLI), iwes (LSP server), and iwec (MCP server) together in one
   # per-arch tarball; `binaries` installs all three to /usr/local/bin.

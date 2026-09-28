@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:d66cc82c10129b140ae46ba83e4b925edf205da4589f90107843dc3c735ee77b
+source_digest: sha256:7a303e5d3bdb6e28f563d774ced954e92e9e1c5f1f4f91eeaa859de3305254e3
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
-stale_after: 2026-12-26
+  at: 2026-09-28T00:00:00Z
+stale_after: 2026-12-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-28T00:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -101,7 +101,7 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-26):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `ansible/playbooks/setup-dev.yml:18` — `perm_probe` pre-check guard
 - `ansible/playbooks/setup-dev.yml:28` — `dev_tools`

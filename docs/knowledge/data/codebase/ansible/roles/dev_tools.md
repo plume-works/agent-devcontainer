@@ -2,14 +2,14 @@
 type: codebase
 description: Installs the apt development toolchain and a list of pinned, checksum-verified single-binary tools (zizmor, the iwe trio, codebase-memory-mcp, bun).
 source: ansible/roles/dev_tools
-source_digest: sha256:2ea80ba7218460a1331baa2831c22a44f0c0a515d56e1e45ea6bb31026c1ab01
+source_digest: sha256:8e2a7fce0e1a9d8b90c3385b6c263ccdee2fabe41b345b99f57a221a6be55d25
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
-stale_after: 2026-12-26
+  at: 2026-09-28T00:00:00Z
+stale_after: 2026-12-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-28T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/dev_tools
@@ -71,7 +71,7 @@ the apt list is what extracts it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-26):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `ansible/roles/dev_tools/tasks/main.yml:9` — the apt install
 - `ansible/roles/dev_tools/tasks/main.yml:36` — the pinned-tools loop
