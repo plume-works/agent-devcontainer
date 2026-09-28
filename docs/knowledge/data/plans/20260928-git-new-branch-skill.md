@@ -305,9 +305,13 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] `no-commit-to-branch` from the existing `pre-commit-hooks` entry, with
+- [x] `no-commit-to-branch` from the existing `pre-commit-hooks` entry, with
   `--branch main --branch master`, fails a commit on either branch and passes on
   a feature branch
+  - **Evidence:** commit `f5c84fb` "build(pre-commit): reject commits on main
+    and master"; with the hook installed in a scratch repository, `git commit`
+    was refused by `no-commit-to-branch` on `main` and `master` and succeeded on
+    a feature branch.
 
 ## Spec changes
 
