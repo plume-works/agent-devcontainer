@@ -168,10 +168,13 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
 
-- [ ] A step after "Check `## Depends on`": when the current branch is `main` or
+- [x] A step after "Check `## Depends on`": when the current branch is `main` or
   `master`, create the work branch through `/agentdev:git-new-branch`, named
   from the plan key's slug, before executing any task; on any other branch,
   continue where it is
+  - **Evidence:** commit "docs(iwe-implement): start work on a git-new-branch
+    branch"; new step 4 with later steps and their cross-references renumbered;
+    `validate_agent_files` 0 errors.
 
 ## Spec changes
 
