@@ -2,7 +2,7 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:e9b52bebc2dffb43daaafcf3f51c1405d7cce621a6e1781cd52032d9c8403b1c
+source_digest: sha256:12456c7b47f390ebae233cf58d7a7852f760ba006c9722dd85280a6d3dca0f59
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-28T00:00:00Z
@@ -55,11 +55,13 @@ bot authenticates with a GitHub App token and takes its global options from
 `RENOVATE_*` variables. A person's edit of the Dependency Dashboard issue or of
 a Renovate PR's body starts a run; the bot's own edits never do. PR edits arrive
 through `pull_request_target`, which still fires on a conflicted PR and never
-checks out PR code. Knowledge validation always checks this graph when its outer
-filter passes and runs the standalone consumer-seed suite only when its inner
-seed filter passes. Agent-file validation's filter covers the union of codebase
-map `source` paths, then its final step verifies every recorded digest. The full
-traces are [the image build flow](../flow-image-build.md) and
+checks out PR code. Checkbox runs queue in their own job-level concurrency
+group, apart from push and schedule runs, so the two can run at once. Knowledge
+validation always checks this graph when its outer filter passes and runs the
+standalone consumer-seed suite only when its inner seed filter passes.
+Agent-file validation's filter covers the union of codebase map `source` paths,
+then its final step verifies every recorded digest. The full traces are
+[the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
 ## Depends on
