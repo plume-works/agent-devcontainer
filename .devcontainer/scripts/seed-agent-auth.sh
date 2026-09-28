@@ -16,7 +16,10 @@ seed_credential() {
     exec {lock_fd}>"${target}.seed.lock"
     chmod 600 "${target}.seed.lock"
     flock "$lock_fd"
-    [[ ! -s "$target" ]] || return 0
+    if [[ -s "$target" ]]; then
+        chmod 600 "$target"
+        return 0
+    fi
 
     temp="$(mktemp "${target}.seed.XXXXXX")"
     chmod 600 "$temp"

@@ -45,6 +45,7 @@ def test_preserves_existing_nonempty_credentials(tmp_path):
     for path in (claude_path, codex_path):
         path.parent.mkdir(parents=True)
         path.write_text('{"existing": true}')
+        path.chmod(0o644)
 
     result, _, _ = run_seeder(
         tmp_path,
@@ -55,6 +56,8 @@ def test_preserves_existing_nonempty_credentials(tmp_path):
     assert result.returncode == 0, result.stderr
     assert json.loads(claude_path.read_text()) == {"existing": True}
     assert json.loads(codex_path.read_text()) == {"existing": True}
+    assert stat.S_IMODE(claude_path.stat().st_mode) == 0o600
+    assert stat.S_IMODE(codex_path.stat().st_mode) == 0o600
 
 
 def test_rejects_invalid_json_without_creating_credential(tmp_path):
