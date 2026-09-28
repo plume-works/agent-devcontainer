@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import re
 import subprocess
 
 import pytest
@@ -21,6 +22,11 @@ def _step(job: str, step_id: str) -> dict:
 
 VERIFY = _step('commit-format-changes', 'verify')
 GATE = _step('gate', 'compute')
+GATE_FAIL = next(
+    step
+    for step in WORKFLOW['jobs']['gate']['steps']
+    if 'steps.compute.outputs' in str(step.get('if', ''))
+)
 RENOVATE_BOTS = VERIFY['env']['RENOVATE_BOT_ACTORS'].split(',')
 
 
@@ -83,17 +89,35 @@ def test_other_authors_still_get_the_commit(tmp_path: Path, head: str, author: s
     assert _verify(tmp_path, head, author) == 'false'
 
 
-def test_skipped_commit_with_formatting_changes_fails_the_gate(tmp_path: Path) -> None:
-    """With the push skipped, changed files hold back downstream checks, so the gate fails."""
+def _gate_fails(outputs: dict[str, str]) -> bool:
+    """Evaluate the gate's failing step's `if` against `compute` outputs; run it if it fires."""
+    expression = re.fullmatch(r'\$\{\{(.*)\}\}', GATE_FAIL['if'].strip())[1]
+    expression = re.sub(
+        r'steps\.compute\.outputs\.(\w+)', lambda m: repr(outputs[m[1]]), expression
+    )
+    expression = expression.replace('&&', ' and ').replace('||', ' or ')
+    assert re.fullmatch(r"[\s'a-z_=!()]+", expression), expression
+    if not eval(expression, {'__builtins__': {}}):
+        return False
+    completed = subprocess.run(['bash', '-c', GATE_FAIL['run']], check=False, capture_output=True)
+    return completed.returncode != 0
+
+
+@pytest.mark.parametrize(
+    ('changed', 'fails'), [('true', True), ('false', False)], ids=['formatting', 'clean']
+)
+def test_skipped_commit_fails_the_gate_only_on_formatting_changes(
+    tmp_path: Path, changed: str, fails: bool
+) -> None:
+    """With the push skipped, changed files make the gate's failing step fire and exit non-zero."""
     outputs = _run(
         GATE,
         tmp_path,
         {
             'NEEDS_SUPER_LINTER_RESULT': 'success',
-            'NEEDS_SUPER_LINTER_OUTPUT_CHANGED': 'true',
+            'NEEDS_SUPER_LINTER_OUTPUT_CHANGED': changed,
             'NEEDS_COMMIT_FORMAT_CHANGES_RESULT': 'success',
         },
     )
 
-    assert outputs['changed'] == 'true'
-    assert outputs['run_downstream'] == 'false'
+    assert _gate_fails(outputs) is fails

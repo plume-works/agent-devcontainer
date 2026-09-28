@@ -414,9 +414,10 @@ options as `RENOVATE_*` environment variables instead.
   Renovate would stop updating. Super-Linter still lints those pull requests.
   - **Evidence:** commit 1f70336; in the commit carrying this tick,
     `scripts/tests/test_reformat_renovate_skip.py` runs the workflow's own
-    `verify` and gate `compute` scripts: both Renovate bots skip the commit, a
-    person does not, and changed files hold back downstream checks — 6 passed,
-    and the bot cases fail with the Renovate branch removed.
+    `verify` and gate scripts: both Renovate bots skip the commit, a person does
+    not, and changed files make the gate's failing step fire — 7 passed; the bot
+    cases fail with the Renovate branch removed, and the gate case with the
+    failing step's condition inverted.
 
 ### Task 17: Require the validation check
 

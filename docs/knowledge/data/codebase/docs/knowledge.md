@@ -107,7 +107,7 @@ Verified anchor points (line numbers as of 2026-09-28):
   `test_malformed_body_is_rejected`
 - `docs/knowledge/tests/test_iwe_seed.py:57` — standalone consumer-workspace
   fixture
-- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:72,208` — production
+- `docs/knowledge/tests/test_devcontainer_metadata_mask.py:72,210` — production
   mask workspace fixture and the feature-bump-with-lock test
 - `docs/knowledge/tests/test_pin_metadata_masks.py:87,133,158,168` — mask
   workspace fixture, role-pin, non-checksum-hex, and container-digest tests
