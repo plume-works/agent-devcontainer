@@ -26,6 +26,16 @@ main_checkout_dir() {
   dirname -- "${common_dir}"
 }
 
+github_default_branch() {
+  local remote_url name
+  command -v gh >/dev/null 2>&1 || return 1
+  remote_url="$(git remote get-url "$1")" || return 1
+  name="$(gh repo view "${remote_url}" --json defaultBranchRef --jq '.defaultBranchRef.name')" \
+    || return 1
+  [[ -n "${name}" ]] || return 1
+  printf '%s\n' "${name}"
+}
+
 show_help_header() {
   local description="$1"
 

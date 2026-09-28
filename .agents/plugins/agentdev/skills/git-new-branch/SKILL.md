@@ -50,8 +50,10 @@ Use [git-new-branch.sh](scripts/git-new-branch.sh) instead of running the
 branch commands manually. It:
 
 - validates the name with `git check-ref-format --branch`
-- fetches the remote and resolves `<remote>/<base>`, falling back to the branch
-  `refs/remotes/<remote>/HEAD` names when `<base>` does not exist
+- fetches the remote and resolves `<remote>/<base>`; when `<base>` does not
+  exist, it falls back to the branch `refs/remotes/<remote>/HEAD` names, or,
+  when that symref is unset, to the default branch `gh repo view` reports for
+  the remote's URL
 - refuses a name that exists locally or on the remote
 - creates the branch with `--no-track` at the fetched base, carrying
   uncommitted and untracked changes when no changed path differs between HEAD

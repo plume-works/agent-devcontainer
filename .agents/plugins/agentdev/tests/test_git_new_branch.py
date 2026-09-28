@@ -67,16 +67,20 @@ def run_script(
     plugin_root: Path,
     cwd: Path,
     *args: str,
+    path_prefix: Path | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
     """Run git-new-branch.sh and parse its key=value stdout."""
     script = plugin_root / 'skills/git-new-branch/scripts/git-new-branch.sh'
+    env = {**os.environ, **FIXTURE_ENV}
+    if path_prefix is not None:
+        env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
     completed = subprocess.run(
         [str(script), *args],
         cwd=cwd,
         check=False,
         capture_output=True,
         text=True,
-        env={**os.environ, **FIXTURE_ENV},
+        env=env,
     )
     keys = dict(line.split('=', 1) for line in completed.stdout.splitlines() if '=' in line)
     return completed, keys
@@ -133,6 +137,54 @@ def test_missing_base_falls_back_to_remote_head(
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert (keys['BASE'], keys['BASE_SHA']) == ('origin/fixture-trunk', fetched_sha)
     assert git(fixture.work, 'rev-parse', 'HEAD') == fetched_sha
+
+
+def stub_gh(directory: Path, script_body: str) -> Path:
+    """Install a fake `gh` whose arguments are recorded next to it."""
+    directory.mkdir()
+    gh = directory / 'gh'
+    gh.write_text(f'#!/bin/sh\nprintf "%s\\n" "$@" > "{directory}/gh-args"\n{script_body}\n')
+    gh.chmod(0o755)
+    return directory
+
+
+def test_unset_remote_head_asks_gh_for_the_default_branch(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """Without origin/main or origin/HEAD, gh names the default branch for the remote URL."""
+    # Arrange
+    fixture = Fixture(plugin_tmp_path, default_branch='fixture-trunk')
+    git(fixture.work, 'remote', 'set-head', 'origin', '--delete')
+    fetched_sha = fixture.advance_remote('late.txt', 'late\n')
+    stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'echo fixture-trunk')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic', path_prefix=stub_dir)
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert (keys['BASE'], keys['BASE_SHA']) == ('origin/fixture-trunk', fetched_sha)
+    assert str(fixture.remote) in (stub_dir / 'gh-args').read_text().splitlines()
+
+
+def test_unset_remote_head_without_gh_answer_is_a_preflight_error(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """When gh cannot report the default branch, nothing is created."""
+    # Arrange
+    fixture = Fixture(plugin_tmp_path, default_branch='fixture-trunk')
+    git(fixture.work, 'remote', 'set-head', 'origin', '--delete')
+    stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'exit 1')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic', path_prefix=stub_dir)
+
+    # Assert
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+    assert 'gh could not report the default branch' in completed.stderr
+    assert git(fixture.work, 'branch', '--list', 'fixture-topic') == ''
 
 
 def test_existing_local_branch_is_refused(plugin_root: Path, fixture: Fixture) -> None:

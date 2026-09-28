@@ -184,10 +184,14 @@ changes are never stashed without user approval (`update-branch`'s
 `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
 `.agents/plugins/agentdev/tests/test_git_new_branch.py`
 
-- [ ] When `<remote>/<base>` is absent and `refs/remotes/<remote>/HEAD` is
+- [x] When `<remote>/<base>` is absent and `refs/remotes/<remote>/HEAD` is
   unset, the script resolves the default branch with `gh repo view` on the
   remote's URL, and reports `PREFLIGHT_ERROR` when `gh` cannot answer or the
   named branch was not fetched; tests stub `gh` for both paths
+  - **Evidence:** commit "feat(git-new-branch): ask gh for the default branch
+    when the remote HEAD is unset"; `test_git_new_branch.py` 15 passed;
+    `shellcheck -x` clean; `gh repo view` accepts both HTTPS and SSH remote
+    URLs.
 
 ## Spec changes
 
