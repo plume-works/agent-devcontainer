@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-09-27
 
+- **Update**: Refreshed the codebase-map doc for the consumer seed after its
+  bugs and features hubs deferred the document shape to `SCHEMA.md`.
 - **Update**: [Add the iwe-capture skill](plans/20260927-iwe-capture-skill.md)
   done. `/agentdev:iwe-capture` is the single writer of bug, proposed-feature,
   and backlog-task documents, and the bug and feature schemas now enforce the
