@@ -3,8 +3,8 @@ type: hub
 description: Behavioral specifications — the durable truth about how the product must work.
 stage: living
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T04:26:49Z
+  by: hermes-agent/gpt-5.6
+  at: 2026-09-28T19:26:07+00:00
 ---
 
 # 📐 Spec
@@ -33,5 +33,7 @@ whenever a plan ships, so this section never drifts from the code.*
 [Agent file discovery](spec/agent-file-discovery.md)
 
 [Xpra port forwarding](spec/xpra-port-forwarding.md)
+
+[Devcontainer agent authentication and Claude Remote Control](spec/devcontainer-agent-auth.md)
 
 [Self-improve learning loop](spec/self-improve-learning-loop.md)
