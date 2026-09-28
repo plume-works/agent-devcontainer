@@ -29,6 +29,7 @@ WORKFLOW = '.github/workflows/job.yml'
 IMAGE = 'ghcr.io/plume-works/agent-desktop:edge'
 RENOVATE_PIN = re.compile(r'(# renovate:[^\n]*\n\s*[a-z_]+: "?)([^"\s]+)')
 SHA256 = re.compile(r'\b[0-9a-f]{64}\b')
+ZIZMOR_VERSION = re.compile(r'(- name: zizmor\n\s+version: \S+)')
 
 
 def _load_stale_map_docs():
@@ -135,7 +136,7 @@ def test_pin_and_checksum_bumps_keep_the_role_map_fresh(workspace: Path) -> None
 @pytest.mark.parametrize(
     'edit',
     [
-        lambda text: text.replace('version: v1.22.0', 'version: v1.23.0'),
+        lambda text: ZIZMOR_VERSION.sub(r'\g<1>9', text),
         lambda text: text.replace('url_prefix: https://github.com/iwe-org/', 'url_prefix: x/'),
         lambda text: text.replace('depName=oven-sh/bun', 'depName=oven-sh/bunx'),
     ],
