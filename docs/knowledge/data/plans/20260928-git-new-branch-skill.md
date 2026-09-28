@@ -65,6 +65,15 @@ overrides both. Task 3 adds `.worktrees/` to this repository's `.gitignore`, and
 the script adds it to `.git/info/exclude` when a consuming repository does not
 already ignore it.
 
+When the checkout is on `main` or `master` and `HEAD` holds commits the fetched
+base lacks, the branch starts at `HEAD` instead of the base, so those commits
+move onto it, and the script reports `LOCAL_COMMITS=<n>`. The SKILL.md then
+brings the base in through `/agentdev:update-branch`. The local default branch
+is left as it is — the skill never resets it.
+
+The `git-commit` skill refuses to commit on `main` or `master` and redirects the
+user to `/agentdev:git-new-branch`.
+
 The SKILL.md suggests a name from context when the user gives none: a plan key
 `data/plans/<date>-<slug>` → `<slug>`; a GitHub issue → `<number>-<slug>`.
 
@@ -193,6 +202,33 @@ changes are never stashed without user approval (`update-branch`'s
     `shellcheck -x` clean; `gh repo view` accepts both HTTPS and SSH remote
     URLs.
 
+### Task 9: Move default-branch commits onto the new branch
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [ ] On `main` or `master` with commits not in the fetched base, the branch —
+  in either mode — starts at `HEAD`, the output adds `LOCAL_COMMITS=<n>`, and
+  local `main` is not moved; tests cover the plain and the worktree case and a
+  default branch with no local commits
+
+### Task 10: Merge the base after moving commits
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`
+
+- [ ] When `LOCAL_COMMITS` is present, the SKILL.md runs
+  `/agentdev:update-branch` on the new branch (in `WORKTREE` when set), asking
+  the user to commit or approve a stash first when the tree is dirty, and states
+  that local `main` keeps those commits until the user resets it
+
+### Task 11: git-commit never commits on the default branch
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/git-commit/SKILL.md`
+
+- [ ] A guard before any commit: on `main` or `master`, stop and redirect the
+  user to `/agentdev:git-new-branch`
+
 ## Spec changes
 
 `spec/git-new-branch` (new):
@@ -275,6 +311,30 @@ and SHALL NOT change the current checkout.
 - **WHEN** the main checkout is not directly under `/workspaces`
 - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
   directory is ignored by Git
+
+### Requirement: Commits on the default branch move to the new branch
+
+When the checkout is on `main` or `master` and holds commits the fetched base
+lacks, the git-new-branch skill SHALL start the branch at `HEAD`, SHALL merge
+the base into it through the update-branch skill, and SHALL NOT reset the local
+default branch.
+
+#### Scenario: Local commits on main
+
+- **WHEN** local `main` is two commits ahead of the fetched `origin/main`
+- **THEN** the new branch starts at local `main`, the script reports
+  `LOCAL_COMMITS=2`, and `origin/main` is then merged in through update-branch
+- **AND** local `main` still points where it did
+
+### Requirement: The git-commit skill never commits on the default branch
+
+The git-commit skill SHALL NOT create a commit while the checkout is on `main`
+or `master`, and SHALL direct the user to the git-new-branch skill instead.
+
+#### Scenario: Commit requested on main
+
+- **WHEN** the user asks for a commit and the current branch is `main`
+- **THEN** no commit is created and the user is pointed at git-new-branch
 ```
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — Implement SHALL create
