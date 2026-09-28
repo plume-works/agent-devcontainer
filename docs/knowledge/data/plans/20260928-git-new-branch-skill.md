@@ -68,11 +68,19 @@ already ignore it.
 When the checkout is on `main` or `master` and `HEAD` holds commits the fetched
 base lacks, the branch starts at `HEAD` instead of the base, so those commits
 move onto it, and the script reports `LOCAL_COMMITS=<n>`. The SKILL.md then
-brings the base in through `/agentdev:update-branch`. The local default branch
-is left as it is — the skill never resets it.
+brings the base in through `/agentdev:update-branch`. Once the new branch holds
+those commits, the script resets the local default branch to the fetched base
+with `git branch --force` — possible only because the checkout has already
+switched away from it. Worktree mode leaves the default branch checked out in
+the current checkout, which it never changes, so there the reset stays with the
+user.
 
-The `git-commit` skill refuses to commit on `main` or `master` and redirects the
-user to `/agentdev:git-new-branch`.
+The `git-commit` skill commits only through a bundled `git-commit.sh`, which
+refuses — before running `git commit` — on `main`, `master`, the branch
+`refs/remotes/<remote>/HEAD` names (or `gh repo view` reports when that is
+unset), and a detached `HEAD`, and redirects the user to
+`/agentdev:git-new-branch`. The default-branch lookup lives in one shared plugin
+`bin/` helper that both scripts source.
 
 The SKILL.md suggests a name from context when the user gives none: a plan key
 `data/plans/<date>-<slug>` → `<slug>`; a GitHub issue → `<number>-<slug>`.
@@ -238,6 +246,44 @@ changes are never stashed without user approval (`update-branch`'s
   - **Evidence:** commit "docs(git-commit): never commit on the default branch";
     `validate_agent_files` 0 errors.
 
+### Task 12: Reset the default branch after moving its commits
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [ ] Outside worktree mode, after the branch is created at `HEAD`, local
+  `main`/`master` is moved to `BASE_SHA` only once the new branch contains its
+  old tip; worktree mode leaves it unmoved; SKILL.md Workflow 5 says which case
+  applies; tests cover both modes
+
+### Task 13: Shared default-branch lookup
+
+**Files:** Create: `.agents/plugins/agentdev/bin/git-default-branch.sh`; Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/__common.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`
+
+- [ ] `is_default_branch` and `remote_default_branch <remote>` (symref first,
+  `gh repo view` on the remote URL second) live in the shared helper, and
+  git-new-branch sources it with its tests still passing
+
+### Task 14: git-commit commits through a guarded script
+
+**Files:** Create:
+`.agents/plugins/agentdev/skills/git-commit/scripts/git-commit.sh`,
+`.agents/plugins/agentdev/tests/test_git_commit.py`; Modify:
+`.agents/plugins/agentdev/skills/git-commit/SKILL.md`
+
+- [ ] `git-commit.sh [--remote <name>] -- <git commit args>` follows the
+  `skill-scripts` contract with `SUCCESS 0`, `PROTECTED_BRANCH 3`,
+  `COMMIT_FAILED 4` (git's status as `GIT_EXIT_CODE`), `PREFLIGHT_ERROR 2` for a
+  detached `HEAD`; it never runs `git commit` on a protected branch
+- [ ] Tests cover `main`, `master`, a remote HEAD branch with another name, a
+  feature branch commit, a failing commit, and a detached `HEAD`
+- [ ] SKILL.md creates every commit through the script, never `git commit`
+  directly, and routes `PROTECTED_BRANCH` to `/agentdev:git-new-branch`
+
 ## Spec changes
 
 `spec/git-new-branch` (new):
@@ -325,25 +371,42 @@ and SHALL NOT change the current checkout.
 
 When the checkout is on `main` or `master` and holds commits the fetched base
 lacks, the git-new-branch skill SHALL start the branch at `HEAD`, SHALL merge
-the base into it through the update-branch skill, and SHALL NOT reset the local
-default branch.
+the base into it through the update-branch skill. Outside worktree mode it
+SHALL then reset the local default branch to the fetched base, and only after
+the new branch contains the default branch's previous tip; in worktree mode it
+SHALL leave the default branch unmoved.
 
 #### Scenario: Local commits on main
 
 - **WHEN** local `main` is two commits ahead of the fetched `origin/main`
 - **THEN** the new branch starts at local `main`, the script reports
   `LOCAL_COMMITS=2`, and `origin/main` is then merged in through update-branch
-- **AND** local `main` still points where it did
+- **AND** local `main` now points at the fetched `origin/main`
+
+#### Scenario: Local commits on main in worktree mode
+
+- **WHEN** local `main` is ahead of `origin/main` and worktree mode is used
+- **THEN** the worktree branch starts at local `main` and local `main` is not
+  moved
 
 ### Requirement: The git-commit skill never commits on the default branch
 
-The git-commit skill SHALL NOT create a commit while the checkout is on `main`
-or `master`, and SHALL direct the user to the git-new-branch skill instead.
+The git-commit skill SHALL create commits only through its bundled script,
+which SHALL refuse to run `git commit` on `main`, `master`, the remote's default
+branch, or a detached `HEAD`, and SHALL direct the user to the git-new-branch
+skill instead.
 
 #### Scenario: Commit requested on main
 
 - **WHEN** the user asks for a commit and the current branch is `main`
-- **THEN** no commit is created and the user is pointed at git-new-branch
+- **THEN** the script reports `PROTECTED_BRANCH`, no commit is created, and the
+  user is pointed at git-new-branch
+
+#### Scenario: The remote default branch has another name
+
+- **WHEN** `refs/remotes/origin/HEAD` names `trunk` and the current branch is
+  `trunk`
+- **THEN** the script reports `PROTECTED_BRANCH` and no commit is created
 ```
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — Implement SHALL create
