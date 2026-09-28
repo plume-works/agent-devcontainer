@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[git-new-branch skill](plans/20260928-git-new-branch-skill.md)
+
 [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
