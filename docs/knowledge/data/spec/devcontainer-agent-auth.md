@@ -12,6 +12,7 @@ sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
+- resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 ---
 
 # Devcontainer agent authentication and Claude Remote Control
@@ -98,6 +99,12 @@ them into the nested container:
 - `GIT_AUTHOR_EMAIL`
 - `GIT_COMMITTER_NAME`
 - `GIT_COMMITTER_EMAIL`
+
+### Requirement: HTTPS git uses the gh login
+
+When `gh` is authenticated to github.com and no git credential helper matches
+`https://github.com`, post-start SHALL configure `gh` as the helper so git never
+waits at an interactive credential prompt. An existing helper SHALL be kept.
 
 ## Setup procedure
 
