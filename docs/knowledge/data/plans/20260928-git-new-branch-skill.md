@@ -148,9 +148,11 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`
 
-- [ ] The `PROTECTED_BRANCH` row and the "Current branch is default"
+- [x] The `PROTECTED_BRANCH` row and the "Current branch is default"
   troubleshooting row direct the agent to `/agentdev:git-new-branch`, only with
   user authorization
+  - **Evidence:** commit "docs(update-branch): route the default-branch stop
+    through git-new-branch"; `validate_agent_files` 0 errors.
 
 ### Task 6: Point git-merge-resolve at its new caller
 
