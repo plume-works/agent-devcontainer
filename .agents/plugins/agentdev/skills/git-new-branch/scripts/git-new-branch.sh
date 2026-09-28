@@ -47,7 +47,8 @@ Output (key=value lines):
   RESULT, BRANCH, BASE, BASE_SHA
   In worktree mode also: WORKTREE
   When main/master holds commits the base lacks also: LOCAL_COMMITS; the
-  branch then starts at HEAD instead of the base
+  branch then starts at HEAD instead of the base, and outside worktree mode
+  main/master is reset to the base afterwards
   On STASH_CONFLICTS also: STASH_REF
 
 Results (RESULT / exit code):
@@ -180,11 +181,13 @@ fi
 # Commits made on the default branch move to the new branch instead of being
 # left behind; the caller merges the base in afterwards.
 start_sha="${base_sha}"
+moved_commits=0
 current_branch="$(git symbolic-ref --quiet --short HEAD || true)"
 if is_default_branch "${current_branch}"; then
   local_commits="$(git rev-list --count "${base_sha}..HEAD")"
   if [[ "${local_commits}" -gt 0 ]]; then
     start_sha="$(git rev-parse HEAD)"
+    moved_commits=1
     printf 'LOCAL_COMMITS=%s\n' "${local_commits}"
     printf "'%s' holds %s commit(s) not in %s; the branch starts at HEAD.\n" \
       "${current_branch}" "${local_commits}" "${base_ref}" >&2
@@ -257,6 +260,14 @@ if [[ "${dirty}" -eq 1 && "${stash_mode}" -eq 1 ]]; then
 fi
 
 git switch --no-track --create "${branch_name}" "${start_sha}" >&2
+
+# The default branch is reset only once its old tip is safe on the new branch.
+if [[ "${moved_commits}" -eq 1 ]] \
+  && git merge-base --is-ancestor "${start_sha}" "refs/heads/${branch_name}"; then
+  git branch --force "${current_branch}" "${base_sha}"
+  printf "Reset '%s' to %s; its commits now live on '%s'.\n" \
+    "${current_branch}" "${base_ref}" "${branch_name}" >&2
+fi
 
 push_status=0
 push_branch || push_status=$?

@@ -24,7 +24,9 @@ To bring an existing branch up to date with its base, use
 
 ## Safety Rules
 
-1. NEVER reset, reuse, or overwrite an existing branch, local or remote.
+1. NEVER reset, reuse, or overwrite an existing branch, local or remote. The
+   one exception is the script's own reset of local `main`/`master` once its
+   commits are on the new branch (Workflow 5); never reset it by hand.
 2. NEVER force-push.
 3. NEVER stash, discard, or move user changes without explicit approval.
 4. NEVER change Git configuration or switch remotes.
@@ -59,7 +61,8 @@ branch commands manually. It:
   uncommitted and untracked changes when no changed path differs between HEAD
   and the base
 - on `main` or `master` with commits the base lacks, starts the branch at
-  `HEAD` instead, so those commits move onto it, and reports `LOCAL_COMMITS`
+  `HEAD` instead, so those commits move onto it, reports `LOCAL_COMMITS`, and —
+  outside worktree mode — resets the default branch to the base
 - pushes with `--set-upstream` so the branch tracks `<remote>/<name>`
 
 Options:
@@ -134,15 +137,18 @@ If stderr also reported a failed push, handle it as `PUSH_FAILED` afterwards.
 ## Workflow 5: Merge the Base After Moving Commits
 
 When `SUCCESS` also printed `LOCAL_COMMITS=<n>`, the branch starts at the
-default branch's local `HEAD` and does not yet contain `BASE`.
+default branch's local `HEAD` and does not yet contain `BASE`. Outside worktree
+mode the script has already reset local `main` (or `master`) to `BASE`, since
+the commits now live on the new branch.
 
 1. Work on the new branch — inside `WORKTREE` when it was printed.
 2. If `git status --porcelain` is not empty, ask the user to commit the changes
    or approve a stash first; never stash without approval.
 3. Run `/agentdev:update-branch` to merge `BASE` into the branch, and follow its
    result table, including conflict resolution and the push.
-4. Tell the user that local `main` (or `master`) still holds those `<n>`
-   commits. Resetting it to `BASE` is their call; never do it on your own.
+4. In worktree mode, local `main` is still checked out in the original checkout
+   and still holds the `<n>` commits. Tell the user; resetting it there is
+   their call, never yours.
 
 ## Completion Criteria
 

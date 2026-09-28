@@ -253,10 +253,13 @@ changes are never stashed without user approval (`update-branch`'s
 `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
 `.agents/plugins/agentdev/tests/test_git_new_branch.py`
 
-- [ ] Outside worktree mode, after the branch is created at `HEAD`, local
+- [x] Outside worktree mode, after the branch is created at `HEAD`, local
   `main`/`master` is moved to `BASE_SHA` only once the new branch contains its
   old tip; worktree mode leaves it unmoved; SKILL.md Workflow 5 says which case
   applies; tests cover both modes
+  - **Evidence:** commit "feat(git-new-branch): reset the default branch after
+    moving its commits"; `test_git_new_branch.py` 17 passed; `shellcheck -x`
+    clean.
 
 ### Task 13: Shared default-branch lookup
 
