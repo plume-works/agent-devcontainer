@@ -155,7 +155,7 @@ Use these troubleshooting options only when necessary:
 
 ```bash
 super-linter-local.sh --log-level DEBUG
-super-linter-local.sh --image ghcr.io/super-linter/super-linter:v8.5.0
+super-linter-local.sh --image ghcr.io/super-linter/super-linter:v8.7.0
 ```
 
 Do not substitute a newer image merely to make a local result pass: keep the

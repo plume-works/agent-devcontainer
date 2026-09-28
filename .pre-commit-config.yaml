@@ -15,7 +15,7 @@ repos:
         # Aligned with what super-linter handles with prettier in this repo
         # .prettierignore still applies
         files: '\.(md|markdown|ya?ml|json|jsonc)$'
-        additional_dependencies: [prettier@3.8.1]
+        additional_dependencies: [prettier@3.8.4]
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v21.1.2
@@ -24,7 +24,7 @@ repos:
         files: '\.(c|cc|cpp|cxx|h|hh|hpp|hxx)$'
 
   - repo: https://github.com/ansible/ansible-lint
-    rev: v26.1.1
+    rev: v26.4.0
     hooks:
       - id: ansible-lint
         files: '^ansible/.*\.ya?ml$'
@@ -42,7 +42,7 @@ repos:
         entry: ghcr.io/hadolint/hadolint:v2.14.0 hadolint
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.0
+    rev: v0.15.17
     hooks:
       - id: ruff-format
       # `I` (isort) is in .ruff.toml's select list, so this single pass also
@@ -56,12 +56,12 @@ repos:
       - id: shellcheck
 
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.0
+    rev: v8.30.1
     hooks:
       - id: gitleaks
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.10
+    rev: v1.7.12
     hooks:
       - id: actionlint
 
