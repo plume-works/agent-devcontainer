@@ -1,0 +1,337 @@
+#!/usr/bin/env python3
+
+"""Behavior tests for the git-new-branch skill script."""
+
+from __future__ import annotations
+
+import os
+from pathlib import Path
+import subprocess
+
+import pytest
+
+FIXTURE_ENV = {
+    'GIT_AUTHOR_NAME': 'Fixture Author',
+    'GIT_AUTHOR_EMAIL': 'fixture@example.invalid',
+    'GIT_COMMITTER_NAME': 'Fixture Author',
+    'GIT_COMMITTER_EMAIL': 'fixture@example.invalid',
+}
+
+
+def git(cwd: Path, *args: str) -> str:
+    """Run a fixture git command and return its stripped stdout."""
+    completed = subprocess.run(
+        ['git', *args],
+        cwd=cwd,
+        check=True,
+        capture_output=True,
+        text=True,
+        env={**os.environ, **FIXTURE_ENV},
+    )
+    return completed.stdout.strip()
+
+
+def commit_file(repository: Path, name: str, content: str) -> None:
+    """Write `name` in `repository` and commit it."""
+    (repository / name).write_text(content)
+    git(repository, 'add', name)
+    git(repository, 'commit', '-m', f'write {name}')
+
+
+class Fixture:
+    """A bare remote, a publisher clone that advances it, and a working clone."""
+
+    def __init__(self, root: Path, default_branch: str = 'main') -> None:
+        self.root = root
+        self.default_branch = default_branch
+        seed = root / 'seed'
+        seed.mkdir()
+        git(seed, 'init', f'--initial-branch={default_branch}')
+        commit_file(seed, 'fixture.txt', 'one\ntwo\nthree\nfour\nfive\n')
+        commit_file(seed, 'other.txt', 'other\n')
+        self.remote = root / 'remote.git'
+        git(root, 'clone', '--bare', str(seed), str(self.remote))
+        self.work = root / 'work'
+        git(root, 'clone', str(self.remote), str(self.work))
+        self.publisher = root / 'publisher'
+        git(root, 'clone', str(self.remote), str(self.publisher))
+
+    def advance_remote(self, name: str, content: str) -> str:
+        """Commit on the remote default branch behind the working clone's back."""
+        commit_file(self.publisher, name, content)
+        git(self.publisher, 'push', 'origin', self.default_branch)
+        return git(self.publisher, 'rev-parse', 'HEAD')
+
+
+def run_script(
+    plugin_root: Path,
+    cwd: Path,
+    *args: str,
+) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
+    """Run git-new-branch.sh and parse its key=value stdout."""
+    script = plugin_root / 'skills/git-new-branch/scripts/git-new-branch.sh'
+    completed = subprocess.run(
+        [str(script), *args],
+        cwd=cwd,
+        check=False,
+        capture_output=True,
+        text=True,
+        env={**os.environ, **FIXTURE_ENV},
+    )
+    keys = dict(line.split('=', 1) for line in completed.stdout.splitlines() if '=' in line)
+    return completed, keys
+
+
+def outcome(completed: subprocess.CompletedProcess[str]) -> tuple[int, str]:
+    """Return the (exit code, last stdout line) contract pair."""
+    return completed.returncode, completed.stdout.splitlines()[-1]
+
+
+@pytest.fixture
+def fixture(plugin_tmp_path: Path) -> Fixture:
+    """Provide a remote whose main has moved ahead of the working clone."""
+    return Fixture(plugin_tmp_path)
+
+
+def test_branch_starts_at_fetched_base_and_tracks_its_own_upstream(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """The branch sits at the just-fetched base and is pushed with its own upstream."""
+    # Arrange
+    fetched_sha = fixture.advance_remote('late.txt', 'late\n')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert (keys['BRANCH'], keys['BASE'], keys['BASE_SHA']) == (
+        'fixture-topic',
+        'origin/main',
+        fetched_sha,
+    )
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture-topic'
+    assert git(fixture.work, 'rev-parse', 'HEAD') == fetched_sha
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', '@{u}') == 'origin/fixture-topic'
+    assert git(fixture.remote, 'rev-parse', 'refs/heads/fixture-topic') == fetched_sha
+
+
+def test_missing_base_falls_back_to_remote_head(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """Without origin/main the branch starts where refs/remotes/origin/HEAD points."""
+    # Arrange
+    fixture = Fixture(plugin_tmp_path, default_branch='fixture-trunk')
+    fetched_sha = fixture.advance_remote('late.txt', 'late\n')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert (keys['BASE'], keys['BASE_SHA']) == ('origin/fixture-trunk', fetched_sha)
+    assert git(fixture.work, 'rev-parse', 'HEAD') == fetched_sha
+
+
+def test_existing_local_branch_is_refused(plugin_root: Path, fixture: Fixture) -> None:
+    """A local branch with the requested name is never reset or reused."""
+    # Arrange
+    git(fixture.work, 'branch', 'fixture-topic', 'HEAD~1')
+    before = git(fixture.work, 'rev-parse', 'fixture-topic')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (3, 'RESULT=BRANCH_EXISTS')
+    assert git(fixture.work, 'rev-parse', 'fixture-topic') == before
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
+
+
+def test_existing_remote_only_branch_is_refused(plugin_root: Path, fixture: Fixture) -> None:
+    """A name that exists only on the remote creates nothing locally."""
+    # Arrange
+    git(fixture.publisher, 'push', 'origin', 'HEAD:refs/heads/fixture-topic')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (3, 'RESULT=BRANCH_EXISTS')
+    assert git(fixture.work, 'branch', '--list', 'fixture-topic') == ''
+
+
+def test_uncommitted_and_untracked_changes_carry_over(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """Changes to paths the base did not touch arrive on the new branch intact."""
+    # Arrange
+    fixture.advance_remote('late.txt', 'late\n')
+    (fixture.work / 'fixture.txt').write_text('edited\n')
+    (fixture.work / 'untracked.txt').write_text('new\n')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture-topic'
+    assert (fixture.work / 'fixture.txt').read_text() == 'edited\n'
+    assert (fixture.work / 'untracked.txt').read_text() == 'new\n'
+    assert (fixture.work / 'late.txt').read_text() == 'late\n'
+
+
+def test_changes_to_paths_the_base_moved_are_left_untouched(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """CARRY_CONFLICT changes nothing: same branch, same HEAD, same edits, no new branch."""
+    # Arrange
+    fixture.advance_remote('fixture.txt', 'ONE\ntwo\nthree\nfour\nfive\n')
+    head_before = git(fixture.work, 'rev-parse', 'HEAD')
+    (fixture.work / 'fixture.txt').write_text('one\ntwo\nthree\nfour\nFIVE\n')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (4, 'RESULT=CARRY_CONFLICT')
+    assert 'fixture.txt' in completed.stderr
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
+    assert git(fixture.work, 'rev-parse', 'HEAD') == head_before
+    assert (fixture.work / 'fixture.txt').read_text() == 'one\ntwo\nthree\nfour\nFIVE\n'
+    assert git(fixture.work, 'branch', '--list', 'fixture-topic') == ''
+    assert git(fixture.work, 'stash', 'list') == ''
+
+
+def test_stash_mode_carries_changes_the_base_moved(plugin_root: Path, fixture: Fixture) -> None:
+    """--stash stashes, branches, pushes, and pops cleanly, leaving no stash entry."""
+    # Arrange
+    fetched_sha = fixture.advance_remote('fixture.txt', 'ONE\ntwo\nthree\nfour\nfive\n')
+    (fixture.work / 'fixture.txt').write_text('one\ntwo\nthree\nfour\nFIVE\n')
+    (fixture.work / 'untracked.txt').write_text('new\n')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic', '--stash')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert 'STASH_REF' not in keys
+    assert git(fixture.work, 'rev-parse', 'HEAD') == fetched_sha
+    assert (fixture.work / 'fixture.txt').read_text() == 'ONE\ntwo\nthree\nfour\nFIVE\n'
+    assert (fixture.work / 'untracked.txt').read_text() == 'new\n'
+    assert git(fixture.work, 'stash', 'list') == ''
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', '@{u}') == 'origin/fixture-topic'
+
+
+def test_stash_mode_keeps_stash_entry_when_pop_conflicts(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """A conflicted pop reports STASH_CONFLICTS and keeps the stash entry to drop later."""
+    # Arrange
+    fixture.advance_remote('fixture.txt', 'base edit\ntwo\nthree\nfour\nfive\n')
+    (fixture.work / 'fixture.txt').write_text('local edit\ntwo\nthree\nfour\nfive\n')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic', '--stash')
+
+    # Assert
+    assert outcome(completed) == (7, 'RESULT=STASH_CONFLICTS')
+    assert keys['STASH_REF'] == 'stash@{0}'
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture-topic'
+    assert len(git(fixture.work, 'stash', 'list').splitlines()) == 1
+    assert git(fixture.work, 'diff', '--name-only', '--diff-filter=U') == 'fixture.txt'
+
+
+def test_worktree_mode_uses_the_given_root_and_leaves_checkout_alone(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """--worktree-root places <repo>-<branch> there; the current checkout stays on main."""
+    # Arrange
+    fetched_sha = fixture.advance_remote('late.txt', 'late\n')
+    worktree_root = fixture.root / 'trees'
+
+    # Act
+    completed, keys = run_script(
+        plugin_root, fixture.work, 'fixture/topic', '--worktree-root', str(worktree_root)
+    )
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    worktree = worktree_root / 'work-fixture-topic'
+    assert keys['WORKTREE'] == str(worktree)
+    assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
+    assert git(worktree, 'rev-parse', 'HEAD') == fetched_sha
+    assert git(worktree, 'rev-parse', '--abbrev-ref', '@{u}') == 'origin/fixture/topic'
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
+
+
+def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """Outside /workspaces the worktree lands in .worktrees/, which Git then ignores."""
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture/topic', '--worktree')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    worktree = fixture.work / '.worktrees' / 'work-fixture-topic'
+    assert keys['WORKTREE'] == str(worktree)
+    assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
+    exclude = (fixture.work / '.git' / 'info' / 'exclude').read_text()
+    assert '.worktrees/' in exclude.splitlines()
+    assert git(fixture.work, 'status', '--porcelain') == ''
+
+
+def test_unreachable_remote_reports_fetch_failed(plugin_root: Path, fixture: Fixture) -> None:
+    """A remote that cannot be fetched produces FETCH_FAILED and no branch."""
+    # Arrange
+    git(fixture.work, 'remote', 'add', 'fixture-missing', str(fixture.root / 'absent.git'))
+
+    # Act
+    completed, _ = run_script(
+        plugin_root, fixture.work, 'fixture-topic', '--remote', 'fixture-missing'
+    )
+
+    # Assert
+    assert outcome(completed) == (6, 'RESULT=FETCH_FAILED')
+    assert git(fixture.work, 'branch', '--list', 'fixture-topic') == ''
+
+
+def test_rejected_push_keeps_the_local_branch(plugin_root: Path, fixture: Fixture) -> None:
+    """PUSH_FAILED leaves the new local branch at the base, without an upstream."""
+    # Arrange
+    hook = fixture.remote / 'hooks' / 'pre-receive'
+    hook.write_text('#!/bin/sh\nexit 1\n')
+    hook.chmod(0o755)
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (5, 'RESULT=PUSH_FAILED')
+    assert git(fixture.work, 'rev-parse', 'fixture-topic') == keys['BASE_SHA']
+    upstream = subprocess.run(
+        ['git', 'rev-parse', '--abbrev-ref', 'fixture-topic@{u}'],
+        cwd=fixture.work,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert upstream.returncode != 0
+
+
+def test_invalid_branch_name_is_a_preflight_error(plugin_root: Path, fixture: Fixture) -> None:
+    """A name Git rejects stops before fetching."""
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture..topic')
+
+    # Assert
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+    assert "'fixture..topic' is not a valid branch name" in completed.stderr

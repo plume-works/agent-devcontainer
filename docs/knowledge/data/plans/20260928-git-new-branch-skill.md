@@ -83,13 +83,16 @@ changes are never stashed without user approval (`update-branch`'s
 `.agents/plugins/agentdev/skills/git-new-branch/scripts/__common.sh`,
 `.agents/plugins/agentdev/tests/test_git_new_branch.py`
 
-- [ ] Script follows the `skill-scripts` contract (shared `bin/result-codes.sh`,
+- [x] Script follows the `skill-scripts` contract (shared `bin/result-codes.sh`,
   `RESULT=` last on stdout, paired `--help` table) with results `SUCCESS 0`,
   `BRANCH_EXISTS 3`, `CARRY_CONFLICT 4`, `PUSH_FAILED 5`, `FETCH_FAILED 6`,
   `STASH_CONFLICTS 7`, `PREFLIGHT_ERROR 2`, `SCRIPT_FAILURE 1`, and output keys
   `BRANCH`, `BASE`, `BASE_SHA`, plus `WORKTREE` in worktree mode and `STASH_REF`
   when a stash is left to resolve
-- [ ] Tests against a local bare-repository remote cover: the created branch
+  - **Evidence:** commit "feat(git-new-branch): add the branch-creation script
+    and its tests"; `git-new-branch.sh --help` prints the paired results table;
+    `shellcheck -x` clean on both scripts.
+- [x] Tests against a local bare-repository remote cover: the created branch
   sits at the fetched base SHA and tracks `<remote>/<name>`; fallback to
   `<remote>/HEAD` when `<base>` is absent; `BRANCH_EXISTS` for a local and for a
   remote-only name; non-conflicting uncommitted and untracked changes carried
@@ -98,6 +101,10 @@ changes are never stashed without user approval (`update-branch`'s
   under `--worktree-root` and under `.worktrees/` with the exclude entry;
   `FETCH_FAILED`; `PUSH_FAILED` from a rejecting remote hook with the local
   branch kept; `PREFLIGHT_ERROR` for an invalid name
+  - **Evidence:** commit "feat(git-new-branch): add the branch-creation script
+    and its tests";
+    `uv run pytest .agents/plugins/agentdev/tests/test_git_new_branch.py` 13
+    passed.
 
 ### Task 2: Skill definition
 
@@ -273,12 +280,12 @@ Verified anchor points (line numbers as of 2026-09-28):
   the "Not on a feature branch" message
 - `.agents/plugins/agentdev/skills/pr-open/scripts/find-branch-pr.sh:106` —
   rejects a branch tracking `main`
-- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md:16` — "When to Use
+- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md:13` — "When to Use
   This Skill" list
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:30` — step 3, "Check
   `## Depends on`"
 - `.agents/plugins/agentdev/bin/result-codes.sh:15` — `RESULT_CODES` base table
 - `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
   `initialize_repository` fixture pattern
-- `.agents/plugins/agentdev/README.md:75` — "Pull requests and git" table
+- `.agents/plugins/agentdev/README.md:69` — "Pull requests and git" table
 - `.gitignore:11` — `.tmp/` scratch entry
