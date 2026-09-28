@@ -40,7 +40,8 @@ following the `skill-scripts` result contract:
 2. `git fetch <remote>`.
 3. Resolve the base: `<remote>/<base>` (default `main`); when that ref does not
    exist, fall back to the remote's default branch through
-   `refs/remotes/<remote>/HEAD`.
+   `refs/remotes/<remote>/HEAD`, or, when that symref is unset, through
+   `gh repo view <remote URL>`.
 4. Refuse when local `<name>` or `<remote>/<name>` already exists — an existing
    branch is never reset or reused.
 5. Create the branch with `--no-track` at the resolved base, switching the
@@ -176,6 +177,18 @@ changes are never stashed without user approval (`update-branch`'s
     branch"; new step 4 with later steps and their cross-references renumbered;
     `validate_agent_files` 0 errors.
 
+### Task 8: Ask GitHub for the default branch when the remote HEAD is unset
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [ ] When `<remote>/<base>` is absent and `refs/remotes/<remote>/HEAD` is
+  unset, the script resolves the default branch with `gh repo view` on the
+  remote's URL, and reports `PREFLIGHT_ERROR` when `gh` cannot answer or the
+  named branch was not fetched; tests stub `gh` for both paths
+
 ## Spec changes
 
 `spec/git-new-branch` (new):
@@ -200,6 +213,12 @@ the branch immediately so it tracks `<remote>/<name>`.
 
 - **WHEN** `origin/main` does not exist after fetching
 - **THEN** the branch starts at the commit `refs/remotes/origin/HEAD` names
+
+#### Scenario: The remote HEAD symref is unset
+
+- **WHEN** `origin/main` does not exist and `refs/remotes/origin/HEAD` is unset
+- **THEN** the branch starts at the default branch `gh repo view` reports for
+  the remote's URL
 
 #### Scenario: The push fails
 
