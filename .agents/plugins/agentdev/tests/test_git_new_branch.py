@@ -119,6 +119,49 @@ def test_branch_starts_at_fetched_base_and_tracks_its_own_upstream(
     assert git(fixture.work, 'rev-parse', 'HEAD') == fetched_sha
     assert git(fixture.work, 'rev-parse', '--abbrev-ref', '@{u}') == 'origin/fixture-topic'
     assert git(fixture.remote, 'rev-parse', 'refs/heads/fixture-topic') == fetched_sha
+    assert 'LOCAL_COMMITS' not in keys
+
+
+def test_local_main_commits_move_to_the_new_branch(plugin_root: Path, fixture: Fixture) -> None:
+    """Commits on main the base lacks start the branch at HEAD; main itself is not moved."""
+    # Arrange
+    fetched_sha = fixture.advance_remote('late.txt', 'late\n')
+    commit_file(fixture.work, 'local-one.txt', 'one\n')
+    commit_file(fixture.work, 'local-two.txt', 'two\n')
+    main_sha = git(fixture.work, 'rev-parse', 'main')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert (keys['LOCAL_COMMITS'], keys['BASE_SHA']) == ('2', fetched_sha)
+    assert git(fixture.work, 'rev-parse', 'fixture-topic') == main_sha
+    assert git(fixture.work, 'rev-parse', 'main') == main_sha
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', '@{u}') == 'origin/fixture-topic'
+    assert git(fixture.remote, 'rev-parse', 'refs/heads/fixture-topic') == main_sha
+
+
+def test_local_main_commits_move_to_the_new_worktree_branch(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """Worktree mode also starts the branch at a main that is ahead of the base."""
+    # Arrange
+    fixture.advance_remote('late.txt', 'late\n')
+    commit_file(fixture.work, 'local-one.txt', 'one\n')
+    main_sha = git(fixture.work, 'rev-parse', 'main')
+
+    # Act
+    completed, keys = run_script(
+        plugin_root, fixture.work, 'fixture-topic', '--worktree-root', str(fixture.root / 'trees')
+    )
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert keys['LOCAL_COMMITS'] == '1'
+    assert git(Path(keys['WORKTREE']), 'rev-parse', 'HEAD') == main_sha
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
 
 
 def test_missing_base_falls_back_to_remote_head(

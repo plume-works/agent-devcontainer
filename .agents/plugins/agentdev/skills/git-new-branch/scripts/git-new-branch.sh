@@ -46,10 +46,12 @@ Options:
 Output (key=value lines):
   RESULT, BRANCH, BASE, BASE_SHA
   In worktree mode also: WORKTREE
+  When main/master holds commits the base lacks also: LOCAL_COMMITS; the
+  branch then starts at HEAD instead of the base
   On STASH_CONFLICTS also: STASH_REF
 
 Results (RESULT / exit code):
-  SUCCESS          0  Branch created at the base, pushed, and tracking <remote>/<name>
+  SUCCESS          0  Branch created, pushed, and tracking <remote>/<name>
   BRANCH_EXISTS    3  <name> exists locally or on the remote; nothing was created
   CARRY_CONFLICT   4  Uncommitted changes touch paths that differ between HEAD
                       and the base; nothing was changed
@@ -175,6 +177,20 @@ if git show-ref --verify --quiet "refs/remotes/${remote_name}/${branch_name}"; t
   quit_by_code 3
 fi
 
+# Commits made on the default branch move to the new branch instead of being
+# left behind; the caller merges the base in afterwards.
+start_sha="${base_sha}"
+current_branch="$(git symbolic-ref --quiet --short HEAD || true)"
+if is_default_branch "${current_branch}"; then
+  local_commits="$(git rev-list --count "${base_sha}..HEAD")"
+  if [[ "${local_commits}" -gt 0 ]]; then
+    start_sha="$(git rev-parse HEAD)"
+    printf 'LOCAL_COMMITS=%s\n' "${local_commits}"
+    printf "'%s' holds %s commit(s) not in %s; the branch starts at HEAD.\n" \
+      "${current_branch}" "${local_commits}" "${base_ref}" >&2
+  fi
+fi
+
 push_branch() {
   printf 'Pushing %s to %s...\n' "${branch_name}" "${remote_name}" >&2
   git push --set-upstream "${remote_name}" "${branch_name}" >&2
@@ -202,7 +218,7 @@ if [[ "${worktree_mode}" -eq 1 ]]; then
     quit_by_code 2
   fi
   mkdir -p -- "${parent_dir}"
-  git worktree add --no-track -b "${branch_name}" "${worktree_dir}" "${base_sha}" >&2
+  git worktree add --no-track -b "${branch_name}" "${worktree_dir}" "${start_sha}" >&2
   printf 'WORKTREE=%s\n' "${worktree_dir}"
   push_branch || { print_error "Push failed; the local branch and worktree are kept."; quit_by_code 5; }
   quit_by_code 0
@@ -217,7 +233,7 @@ if [[ "${dirty}" -eq 1 && "${stash_mode}" -eq 0 ]]; then
   declare -A changed_between=()
   while IFS= read -r -d '' path; do
     changed_between["${path}"]=1
-  done < <(git diff --no-renames --name-only -z HEAD "${base_sha}")
+  done < <(git diff --no-renames --name-only -z HEAD "${start_sha}")
 
   blocked=()
   while IFS= read -r -d '' path; do
@@ -240,7 +256,7 @@ if [[ "${dirty}" -eq 1 && "${stash_mode}" -eq 1 ]]; then
   stashed=1
 fi
 
-git switch --no-track --create "${branch_name}" "${base_sha}" >&2
+git switch --no-track --create "${branch_name}" "${start_sha}" >&2
 
 push_status=0
 push_branch || push_status=$?

@@ -208,10 +208,13 @@ changes are never stashed without user approval (`update-branch`'s
 `.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
 `.agents/plugins/agentdev/tests/test_git_new_branch.py`
 
-- [ ] On `main` or `master` with commits not in the fetched base, the branch —
+- [x] On `main` or `master` with commits not in the fetched base, the branch —
   in either mode — starts at `HEAD`, the output adds `LOCAL_COMMITS=<n>`, and
   local `main` is not moved; tests cover the plain and the worktree case and a
   default branch with no local commits
+  - **Evidence:** commit "feat(git-new-branch): move default-branch commits onto
+    the new branch"; `uv run pytest .agents/plugins/agentdev/tests` 87 passed;
+    `shellcheck -x` clean.
 
 ### Task 10: Merge the base after moving commits
 

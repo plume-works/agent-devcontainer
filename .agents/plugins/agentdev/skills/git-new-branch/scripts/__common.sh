@@ -26,6 +26,11 @@ main_checkout_dir() {
   dirname -- "${common_dir}"
 }
 
+is_default_branch() {
+  local branch_name="$1"
+  [[ "${branch_name}" == "main" || "${branch_name}" == "master" ]]
+}
+
 github_default_branch() {
   local remote_url name
   command -v gh >/dev/null 2>&1 || return 1
