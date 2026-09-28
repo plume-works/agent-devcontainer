@@ -2,8 +2,8 @@
 type: spec
 description: Securely seed native Claude and Codex credentials, propagate Git identity, and start Claude Remote Control in a Coder-backed devcontainer.
 generated:
-  by: hermes-agent/gpt-5.6
-  at: 2026-09-28T19:26:07+00:00
+  by: claude-code/opus-5
+  at: 2026-09-28T21:05:00+00:00
 sources:
 - resource: .devcontainer/devcontainer-init.sh
 - resource: .devcontainer/docker-compose.yml
@@ -13,6 +13,7 @@ sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
+- resource: .devcontainer/scripts/preapprove-claude-workspace.sh
 ---
 
 # Devcontainer agent authentication and Claude Remote Control
@@ -106,6 +107,22 @@ When `gh` is authenticated to github.com and no git credential helper matches
 `https://github.com`, post-start SHALL configure `gh` as the helper so git never
 waits at an interactive credential prompt. An existing helper SHALL be kept.
 
+### Requirement: autostart pre-approves first-run Claude state
+
+When `AGENTDEV_CLAUDE_AUTOSTART=1`, post-create SHALL record in Claude's state
+file (`~/.claude.json`, written through its symlink into the persistent volume)
+that onboarding is complete, the Remote Control confirmation was seen, and the
+workspace is trusted. It SHALL set `enableAllProjectMcpServers` and clear
+`disabledMcpjsonServers` in the workspace's `.claude/settings.local.json`.
+Existing keys in both files SHALL be preserved.
+
+#### Scenario: a new workspace autostarts Remote Control
+
+- **WHEN** a workspace is created with autostart enabled and valid Claude
+  credentials
+- **THEN** `claude-remote` reaches `/rc active` with no terminal interaction and
+  every project `.mcp.json` server enabled.
+
 ## Setup procedure
 
 ### 1. Produce native credential files
@@ -166,13 +183,16 @@ During startup:
 1. `devcontainer-init.sh` prepares private transfer files.
 2. Compose bind-mounts the transfer directory at `/run/agentdev-auth-seed` and
    mounts `agentdev-agents-auth` at `/root/.agents-auth`.
-3. `postCreateCommand.sh` seeds the live files and removes the transfer files.
+3. `postCreateCommand.sh` seeds the live files, removes the transfer files, and
+   pre-approves first-run Claude state when autostart is enabled.
 4. `postStartCommand.sh` starts `claude /remote-control` when autostart is
    enabled.
 
 ### 4. Approve first-run Claude state
 
-Attach to the named tmux session when Claude requires first-run interaction:
+With autostart enabled, post-create has already answered these prompts. Attach
+to the named tmux session only if Claude still shows one, for example after a
+Claude Code release adds a new first-run prompt:
 
 ``` bash
 tmux attach -t claude-remote
@@ -186,9 +206,10 @@ Complete only the prompts that are actually shown:
 4. **Enable Remote Control** when `/remote-control` asks for approval.
 
 Authentication, onboarding, workspace trust, MCP selection, and Remote Control
-authorization are separate states. Do not automate them with blind keystrokes. A
-ready session displays `/rc active` and directs the operator to `claude.ai/code`
-or the Code tab in the Claude mobile app.
+authorization are separate states. Record them in Claude's state files, never
+with blind keystrokes into the session. A ready session displays `/rc active`
+and directs the operator to `claude.ai/code` or the Code tab in the Claude
+mobile app.
 
 ### 5. Verify without exposing credentials
 
