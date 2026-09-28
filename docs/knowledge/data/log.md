@@ -6,9 +6,9 @@ to the current day's group.
 
 ## 2026-09-28
 
-- **Update**: Refreshed the seven codebase-map docs the Super-Linter v8.7.0
-  tool-version sync, the zizmor 1.25.2 pin, and the Renovate role and pre-commit
-  pin bumps moved.
+- **Update**: Refreshed the eight codebase-map docs the Super-Linter v8.7.0
+  tool-version sync, the zizmor 1.25.2 pin, the Renovate role and pre-commit pin
+  bumps, and the version-agnostic zizmor mask test moved.
 
 ## 2026-09-27
 
