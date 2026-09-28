@@ -137,9 +137,12 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] The `PROTECTED_BRANCH` row and the "Not on a feature branch" message
+- [x] The `PROTECTED_BRANCH` row and the "Not on a feature branch" message
   direct the agent to `/agentdev:git-new-branch` instead of
   `git checkout -b feature/your-feature-name`
+  - **Evidence:** commit "docs(pr-open): route PROTECTED_BRANCH through
+    git-new-branch"; `grep -n "checkout -b"` on `pr-open/SKILL.md` finds
+    nothing; `validate_agent_files` 0 errors.
 
 ### Task 5: Route update-branch through git-new-branch
 
