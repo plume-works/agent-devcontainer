@@ -6,6 +6,9 @@ on:
       - main
   schedule:
     - cron: '17 3 * * *'
+  # Ticking a Dependency Dashboard checkbox edits the issue; the bot reads it on its next run.
+  issues:
+    types: [edited]
   workflow_dispatch:
 
 # Queue rather than cancel: a run cut short mid-branch leaves half-pushed updates.
@@ -24,6 +27,15 @@ defaults:
 jobs:
   renovate:
     name: Renovate
+    # Only a person's body edit of the dashboard: the bot rewrites it with an App token,
+    # whose events trigger workflows, so its own edits would loop.
+    if: >-
+      github.event_name != 'issues' || (
+        github.event.issue.title == 'Dependency Dashboard' &&
+        github.event.issue.user.type == 'Bot' &&
+        github.event.sender.type != 'Bot' &&
+        github.event.changes.body
+      )
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     # The same digest as devcontainer-compose-pins.yml; Renovate's agent-desktop
     # group moves every copy together. See spec/image-pinning.

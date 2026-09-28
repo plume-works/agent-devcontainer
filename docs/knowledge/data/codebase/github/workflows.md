@@ -2,10 +2,10 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:efc038e14bf711d3f7d6cd3ac5b552bbd6fd4cbb2eff184ee87b1a131b959230
+source_digest: sha256:62a844cec44d34ce44212bb0e101c43f112500b4595816564cd37d37e9a5ac70
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-28T00:00:00Z
 stale_after: 2026-12-26
 generated:
   by: claude-code/opus-5.5
@@ -30,7 +30,7 @@ scheduled Renovate bot, and one manual job.
 | `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
 | `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
 | `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate rev) → `finished`                  |
-| `renovate.yml`                 | push to `main`, daily schedule, dispatch        | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App             |
+| `renovate.yml`                 | push to `main`, schedule, dashboard, dispatch   | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App             |
 | `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
 | `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                 |
 
@@ -52,11 +52,13 @@ whether an accepted review exists. `renovate.yml` and the Renovate-config
 `devcontainer-compose-pins.yml` pins, and both read the Renovate version from
 the `renovate-config-validator` hook's `rev` in `.pre-commit-config.yaml`; the
 bot authenticates with a GitHub App token and takes its global options from
-`RENOVATE_*` variables. Knowledge validation always checks this graph when its
-outer filter passes and runs the standalone consumer-seed suite only when its
-inner seed filter passes. Agent-file validation's filter covers the union of
-codebase map `source` paths, then its final step verifies every recorded digest.
-The full traces are [the image build flow](../flow-image-build.md) and
+`RENOVATE_*` variables. A person's edit of the Dependency Dashboard issue starts
+a run; the bot's own edits of it never do. Knowledge validation always checks
+this graph when its outer filter passes and runs the standalone consumer-seed
+suite only when its inner seed filter passes. Agent-file validation's filter
+covers the union of codebase map `source` paths, then its final step verifies
+every recorded digest. The full traces are
+[the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
 ## Depends on
