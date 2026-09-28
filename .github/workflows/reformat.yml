@@ -210,7 +210,7 @@ jobs:
 
       - name: Run Super-Linter autofixes
         continue-on-error: true
-        uses: super-linter/super-linter/slim@v8.5.0
+        uses: super-linter/super-linter/slim@v8.7.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: ${{ inputs.validate_all_codebase }}
@@ -249,7 +249,7 @@ jobs:
 
       - name: Run Super-Linter checks
         if: steps.patch.outputs.changed != 'true'
-        uses: super-linter/super-linter/slim@v8.5.0
+        uses: super-linter/super-linter/slim@v8.7.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: ${{ inputs.validate_all_codebase }}

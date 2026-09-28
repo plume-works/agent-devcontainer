@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:89816a71a55fd7ad5365a93eaed84244576bbc51c7bc5c9d0f2dff0da8211429
+source_digest: sha256:d8b38f8b8c2aa5a9bcb6df144a97ef4b51934f54d50def052ca810d60f16b65c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
-stale_after: 2026-12-26
+  at: 2026-09-28T00:00:00Z
+stale_after: 2026-12-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
+  at: 2026-09-28T00:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -94,7 +94,7 @@ repository-level tests.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings
@@ -109,7 +109,7 @@ Verified anchor points (line numbers as of 2026-09-27):
   fixture
 - `docs/knowledge/tests/test_devcontainer_metadata_mask.py:68` — production mask
   workspace fixture, run with the caller's `GIT_*` variables removed
-- `docs/knowledge/tests/test_pin_metadata_masks.py:86,128,153,163` — mask
+- `docs/knowledge/tests/test_pin_metadata_masks.py:87,129,154,164` — mask
   workspace fixture, role-pin, non-checksum-hex, and container-digest tests
 - `docs/knowledge/tests/test_pre_commit_rev_mask.py:60` — hook-config mask
   workspace fixture

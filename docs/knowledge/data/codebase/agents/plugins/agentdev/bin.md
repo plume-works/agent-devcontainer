@@ -2,14 +2,14 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared result-code libraries for bash and Python, the GitHub-issue library, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:2cfe6fba6d2edf439b8feddaca27e2bb14c2c96b81f34d474c4a33d9bade0be9
+source_digest: sha256:b986196e0cf6434071e86c7aabb3491c8506b4c2410a51081efff9dccbc12a2d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
-stale_after: 2026-12-26
+  at: 2026-09-28T00:00:00Z
+stale_after: 2026-12-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
+  at: 2026-09-28T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
@@ -75,7 +75,7 @@ environment of its own.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `.agents/plugins/agentdev/bin/result-codes.sh:15-22` — the reserved codes
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
