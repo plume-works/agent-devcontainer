@@ -158,9 +158,11 @@ changes are never stashed without user approval (`update-branch`'s
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md`
 
-- [ ] "When to Use This Skill" names resolving the conflicts a
+- [x] "When to Use This Skill" names resolving the conflicts a
   `git-new-branch --stash` pop leaves, completed by dropping the stash rather
   than committing a merge
+  - **Evidence:** commit "docs(git-merge-resolve): name the git-new-branch stash
+    pop caller"; `validate_agent_files` 0 errors.
 
 ### Task 7: Implement starts work on its own branch
 
