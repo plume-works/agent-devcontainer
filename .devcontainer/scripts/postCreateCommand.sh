@@ -69,6 +69,7 @@ ln -sf /root/.claude/claude.json /root/.claude.json
 # agentdev-agents-auth volume to exist first.
 mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex
 chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex
+"$script_dir/seed-agent-auth.sh"
 
 # See link-codex-auth.sh for why Codex's auth.json needs the same file-in-a-shared-
 # volume-plus-symlink treatment, and why this also has to run again from

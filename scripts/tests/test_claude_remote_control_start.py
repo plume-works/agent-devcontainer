@@ -1,12 +1,11 @@
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import time
 import uuid
-from pathlib import Path
 
 import pytest
-
 
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / ".devcontainer/scripts/claude-remote-control-start.sh"
@@ -19,9 +18,15 @@ def make_test_dir() -> Path:
     return path
 
 
-def run_with_fake_tmux(*, autostart="1", token="test-secret", session_exists=False):
+def run_with_fake_tmux(
+    *, autostart="1", token="test-secret", session_exists=False, credential_file=False
+):
     test_dir = make_test_dir()
     log = test_dir / "tmux.log"
+    auth_file = test_dir / "claude" / ".credentials.json"
+    if credential_file:
+        auth_file.parent.mkdir()
+        auth_file.write_text('{"claudeAiOauth": {"accessToken": "file-secret"}}')
     fake_bin = test_dir / "bin"
     fake_bin.mkdir()
     (fake_bin / "claude").write_text("#!/bin/sh\nexit 0\n")
@@ -36,6 +41,7 @@ def run_with_fake_tmux(*, autostart="1", token="test-secret", session_exists=Fal
         "PATH": f"{fake_bin}:{os.environ['PATH']}",
         "AGENTDEV_CLAUDE_AUTOSTART": autostart,
         "CLAUDE_CODE_OAUTH_TOKEN": token,
+        "AGENTDEV_CLAUDE_AUTH_PATH": str(auth_file),
         "DEV_WORKSPACE_FOLDER": "/workspaces/example",
         "TMUX_HAS_SESSION": "1" if session_exists else "0",
         "TMUX_TEST_LOG": str(log),
@@ -53,6 +59,15 @@ def test_starts_claude_remote_control_without_exposing_token():
     assert "new-session -d -s claude-remote" in calls
     assert "-c /workspaces/example exec claude /remote-control" in calls
     assert "test-secret" not in calls
+
+
+def test_prefers_credential_file_and_removes_setup_token_from_claude():
+    result, calls = run_with_fake_tmux(credential_file=True)
+    assert result.returncode == 0, result.stderr
+    assert "exec env -u CLAUDE_CODE_OAUTH_TOKEN claude /remote-control" in calls
+    assert "update-environment" not in calls
+    assert "test-secret" not in calls
+    assert "file-secret" not in result.stdout + result.stderr + calls
 
 
 @pytest.mark.parametrize(("autostart", "token"), [("0", "test-secret"), ("1", "")])
