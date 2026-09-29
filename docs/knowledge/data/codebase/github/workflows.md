@@ -2,7 +2,7 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:55270c287c2dc00c56f50aea71b85c0d1e6a033888508fb24240cfec6ea689cb
+source_digest: sha256:917d826571e7c867f7ea6829ec83755a9f1cc8a2c685b1949954f88646bf899e
 verified:
   by: claude-code/opus-5
   at: 2026-09-29T12:30:00Z
@@ -30,7 +30,7 @@ scheduled Renovate bot, and one manual job.
 | `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
 | `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
 | `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate rev) → `finished`                  |
-| `renovate.yml`                 | push to `main`, daily schedule, dispatch        | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App             |
+| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App             |
 | `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
 | `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                 |
 
@@ -52,11 +52,16 @@ whether an accepted review exists. `renovate.yml` and the Renovate-config
 `devcontainer-compose-pins.yml` pins, and both read the Renovate version from
 the `renovate-config-validator` hook's `rev` in `.pre-commit-config.yaml`; the
 bot authenticates with a GitHub App token and takes its global options from
-`RENOVATE_*` variables. Knowledge validation always checks this graph when its
-outer filter passes and runs the standalone consumer-seed suite only when its
-inner seed filter passes. Agent-file validation's filter covers the union of
-codebase map `source` paths, then its final step verifies every recorded digest.
-The full traces are [the image build flow](../flow-image-build.md) and
+`RENOVATE_*` variables. A person's edit of the Dependency Dashboard issue or of
+a Renovate PR's body starts a run; the bot's own edits never do. PR edits arrive
+through `pull_request_target`, which still fires on a conflicted PR and never
+checks out PR code. Every run queues in one job-level concurrency group, so two
+never write the same branch at once and a skipped bot edit never enters it.
+Knowledge validation always checks this graph when its outer filter passes and
+runs the standalone consumer-seed suite only when its inner seed filter passes.
+Agent-file validation's filter covers the union of codebase map `source` paths,
+then its final step verifies every recorded digest. The full traces are
+[the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
 ## Depends on
@@ -104,7 +109,7 @@ The full traces are [the image build flow](../flow-image-build.md) and
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `.github/workflows/primary-checks.yml:31,52` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:185,279,421` — `super-linter`,
@@ -125,6 +130,9 @@ Verified anchor points (line numbers as of 2026-09-27):
   `validate`, `finished`
 - `.github/workflows/validate-renovate-config.yml:58-59,69-75` — pinned
   container, rev read and validator run
-- `.github/workflows/renovate.yml:30-31,41-46` — pinned container, rev read
-- `.github/workflows/renovate.yml:52-65` — App token and its named permissions
-- `.github/workflows/renovate.yml:67-90` — commit identity, bot run
+- `.github/workflows/renovate.yml:9-15,31-44` — checkbox triggers and the job
+  `if:` admitting only a person's dashboard or Renovate PR body edit
+- `.github/workflows/renovate.yml:47-49` — job-level concurrency group
+- `.github/workflows/renovate.yml:53-54,64-70` — pinned container, rev read
+- `.github/workflows/renovate.yml:75-88` — App token and its named permissions
+- `.github/workflows/renovate.yml:90-113` — commit identity, bot run

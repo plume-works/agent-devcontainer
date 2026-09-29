@@ -84,8 +84,12 @@ def _commit_and_map(repository: Path) -> None:
 
 
 @pytest.fixture
-def workspace() -> Iterator[Path]:
+def workspace(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     """Build a repository from the checked-in masks and pin files, with fresh map docs."""
+    # A hook under `git commit -a` exports an absolute GIT_INDEX_FILE.
+    # See bugs/fixture-git-inherits-commit-index.
+    for name in [name for name in os.environ if name.startswith('GIT_')]:
+        monkeypatch.delenv(name)
     TMP_ROOT.mkdir(exist_ok=True)
     repository = TMP_ROOT / f'pin-masks-{uuid4().hex}'
     try:

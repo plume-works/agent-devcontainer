@@ -57,8 +57,12 @@ def _digest(repository: Path) -> str:
 
 
 @pytest.fixture
-def workspace() -> Iterator[Path]:
+def workspace(monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     """Build a repository from the checked-in mask and hook config, with a fresh map doc."""
+    # A hook under `git commit -a` exports an absolute GIT_INDEX_FILE.
+    # See bugs/fixture-git-inherits-commit-index.
+    for name in [name for name in os.environ if name.startswith('GIT_')]:
+        monkeypatch.delenv(name)
     TMP_ROOT.mkdir(exist_ok=True)
     repository = TMP_ROOT / f'rev-mask-{uuid4().hex}'
     try:
