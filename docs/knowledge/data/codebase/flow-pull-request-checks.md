@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:a9f3ca3e540403d3fd0bffda09d8ea6c0567bb4c2267958ab668d5833e89f506
+source_digest: sha256:9482d7f3ca93826e98483e089afa97ee6a6790dc434e017dc5a146cc28f33158
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-09-29T12:00:00Z
 stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-09-29T12:00:00Z
 sources:
 - id: code
   resource: .github
@@ -26,7 +26,8 @@ before the push.
 ## Trace
 
 1. `pre-commit` (local, on every commit): Prettier, clang-format, ansible-lint,
-   hadolint, ruff format and lint, shellcheck, gitleaks, actionlint,
+   hadolint, ruff format and lint, shellcheck, gitleaks, actionlint (with
+   `.github/actionlint.yml`, which Super-Linter reads too),
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
    and IWE validation and normalization — `.pre-commit-config.yaml:2-127`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
