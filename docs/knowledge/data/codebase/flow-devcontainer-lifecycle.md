@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/desktop
 - .agents/plugins/agentdev/hooks
-source_digest: sha256:7bc3b65ac9a614f9d577a4f7d563462ec98b435a6d9a1e3a3f891e41991d4b8a
+source_digest: sha256:94e143984c786381dbe767c2ef3231002b69ab879148c5a9e55d5df9b975ef09
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-09-28T21:30:00Z
-stale_after: 2026-12-26
+  by: claude-code/opus-5
+  at: 2026-09-29T23:30:00Z
+stale_after: 2026-12-28
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
+  by: claude-code/opus-5
+  at: 2026-09-29T23:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -27,22 +27,27 @@ state.
 ## Trace
 
 1. `initializeCommand` runs `devcontainer-init.sh` on the host: writes
-   `.devcontainer/.env`, creates the shared `agentdev-agents-auth` volume —
+   `.devcontainer/.env`, creates the shared `agentdev-agents-auth` volume, and
+   writes any injected agent credential JSON to a private transfer directory —
    `.devcontainer/devcontainer.json:3`,
-   `.devcontainer/devcontainer-init.sh:21-27`
+   `.devcontainer/devcontainer-init.sh:13-24,33-37`
 2. Compose starts the `devcontainer` service from the digest-pinned image,
    layering `devcontainer-compose-pins.yml` over `docker-compose.yml`, and the
    `mcp-gateway` sidecar when the `mcp` profile was written to `.env` —
    `.devcontainer/devcontainer.json:7`, `.devcontainer/docker-compose.yml:2,53`
 3. `postCreateCommand` (once per instance): ownership fixes, the
    `~/.claude.json` symlink into the `agentdev-claude` volume,
-   `codebase-memory-mcp install`, auth directories and the Codex auth link,
-   `uv sync`, then the image-staged catalog installed for Codex and for Claude
-   at user scope — `.devcontainer/scripts/postCreateCommand.sh:56-91`, in
+   `codebase-memory-mcp install`, auth directories, credential seeding from the
+   transfer directory, Claude first-run pre-approval under autostart, the Codex
+   auth link, `uv sync`, then the image-staged catalog installed for Codex and
+   for Claude at user scope —
+   `.devcontainer/scripts/postCreateCommand.sh:56-94`, in
    [lifecycle scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
-   pre-commit hooks, keyring, the firewall gate, Xpra in the background —
-   `.devcontainer/scripts/postStartCommand.sh:9-25`
+   credential seeding (consuming the transfer files step 1 rewrote), pre-commit
+   hooks, keyring, the gh git credential helper, the firewall gate, Xpra in the
+   background, Claude Remote Control under autostart, the Codex auth link —
+   `.devcontainer/scripts/postStartCommand.sh:9-31`
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
    catalog reinstalled from this checkout at local scope, which is how the
    catalog is developed in place —
@@ -64,3 +69,7 @@ state.
   `ci-hooks-repro.sh` reproduces that environment locally.
 - `AGENTDEV_SKIP_PRE_COMMIT` and `AGENTDEV_SKIP_XPRA` are the documented
   opt-outs for callers that never commit or never attach a desktop.
+- Invalid credential JSON fails step 1 in `prepare-agent-auth-seed.sh`, or step
+  3 or 4 in `seed-agent-auth.sh`, without printing the value.
+- Remote Control stays down under autostart when no Claude login file exists; a
+  setup token alone does not start it.

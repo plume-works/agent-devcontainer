@@ -9,8 +9,12 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 "$script_dir/codebase-memory-mcp-start.sh"
 
 "$script_dir/setup-git-safe-directory.sh"
+# initializeCommand rewrites the transfer files on every start, not only at create.
+"$script_dir/seed-agent-auth.sh"
 "$script_dir/setup-pre-commit.sh"
 "$script_dir/setup-keyring.sh"
+# After the keyring: gh may keep its login there.
+"$script_dir/setup-gh-credential-helper.sh"
 "$script_dir/firewall.sh"
 # Headless callers — the CI responder job — opt out of the remote desktop
 # nothing will connect to. Unset (the devcontainer default) starts it as before.
@@ -19,6 +23,8 @@ if [[ -n "${AGENTDEV_SKIP_XPRA:-}" ]]; then
 else
   /start-xpra.sh --background
 fi
+
+"$script_dir/claude-remote-control-start.sh"
 
 # Repairs the shared auth.json symlink if a `codex logout` during this container's
 # previous run destroyed it; see link-codex-auth.sh for why that can happen.

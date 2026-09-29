@@ -31,6 +31,9 @@ to the current day's group.
 - **Update**: Refreshed the five codebase-map docs the foreground review-pass
   dispatch in `pr-review` and the user-layer settings merge in
   `run-claude-responder` moved.
+- **Update**: Refreshed the seven codebase-map docs that Coder agent-auth
+  seeding, the gh credential helper, Remote Control autostart, and the
+  `scripts/tests` CI suite moved.
 
 ## 2026-09-28
 
