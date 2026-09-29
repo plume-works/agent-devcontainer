@@ -6,14 +6,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:f271e9ce81eb75099829d105cb035661646cc674d7ffa982e2969f164a37e36f
+source_digest: sha256:58f35b2dbc8de2cb4be8a28f8741e27ac0d84bf125c46a02f194a29b0584e27f
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
-stale_after: 2026-12-27
+  by: claude-code/opus-5
+  at: 2026-09-29T12:30:00Z
+stale_after: 2026-12-28
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
+  by: claude-code/opus-5
+  at: 2026-09-29T12:30:00Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -49,7 +49,8 @@ running the image it produced.
    emits `image_pinned` — `.github/workflows/ci.yml:165`
 7. `dev-container-ci` rewrites `devcontainer-compose-pins.yml` to that digest
    and builds and smoke-tests the [devcontainer](devcontainer.md) with
-   `devcontainers/ci` — `.github/workflows/ci.yml:233-262`
+   `devcontainers/ci`, then runs the repository's pytest suites inside it —
+   `.github/workflows/ci.yml:233-274`
 8. After the merge to `main`, the self-hosted Renovate bot
    (`.github/workflows/renovate.yml`) opens and automerges one PR bumping the
    digest in `devcontainer-compose-pins.yml` and in every workflow container job
