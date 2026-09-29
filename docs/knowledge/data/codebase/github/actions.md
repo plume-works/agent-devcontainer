@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:126ce15a7b7e26b39f33c94047e46352733fd6708ac2fba9261ae832e7c16120
+source_digest: sha256:a61d552d1f8bf4b29985c656c818eeca86474d6d43d78d63bed4d09c02516d70
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
-stale_after: 2026-12-25
+  at: 2026-09-29T00:00:00Z
+stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-26T00:00:00Z
+  at: 2026-09-29T00:00:00Z
 sources:
 - id: code
   resource: .github/actions
@@ -64,24 +64,27 @@ supplies none leaves the session on the model the merged settings pin.
 - `run-claude-responder` uploads the execution file and checks it for a usage
   limit under `always()`, so a failed Claude step still leaves its output
   inspectable and a quota failure is still reported as one.
-- The settings it hands Claude Code are the tracked `.claude/settings.json`
-  merged with `.claude/settings.local.json` only where that gitignored layer
-  exists; a repository publishing no marketplace of its own never has one.
+- The settings it hands Claude Code deep-merge, in order, the runner's
+  `~/.claude/settings.json` where it exists, the tracked
+  `.claude/settings.json`, and `.claude/settings.local.json` where that
+  gitignored layer exists. The user layer is included because
+  `claude-code-action` replaces its top-level keys, such as `enabledPlugins`,
+  with the input's.
 - A `--model` in `claude_args` outranks the model those merged settings pin,
   which is what lets a caller size the session it is starting.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-19):
+Verified anchor points (line numbers as of 2026-09-29):
 
 - `.github/actions/paths-filter/action.yml:30-43` — the `image` filter list
 - `.github/actions/paths-filter/action.yml:58-71` — PR vs base-branch modes
 - `.github/actions/ai-review-status/action.yml:1-27` — inputs and outputs
 - `.github/actions/run-claude-responder/action.yml:5-38` — inputs
-- `.github/actions/run-claude-responder/action.yml:116-121` — the optional local
-  settings layer
-- `.github/actions/run-claude-responder/action.yml:139` —
+- `.github/actions/run-claude-responder/action.yml:112-128` —
+  `Merge Claude settings`, the user, tracked, and optional local layers
+- `.github/actions/run-claude-responder/action.yml:133` —
   `Compose Claude arguments`, where `--model` is appended
-- `.github/actions/run-claude-responder/action.yml:158,166` — `always()` on the
+- `.github/actions/run-claude-responder/action.yml:161,169` — `always()` on the
   artifact upload and the usage-limit check
 - `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs

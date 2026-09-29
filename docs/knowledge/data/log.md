@@ -6,6 +6,18 @@ to the current day's group.
 
 ## 2026-09-29
 
+- **Update**: [git-new-branch skill](plans/20260928-git-new-branch-skill.md)
+  done. `/agentdev:git-new-branch` starts work branches at the fetched remote
+  base with their own upstream, and git-commit refuses the default branch.
+- **Update**: [git-new-branch](spec/git-new-branch.md) spec created, and
+  [IWE workflow skills](spec/iwe-workflow-skills.md) gained Implement starting
+  on its own branch.
+- **Update**: [git-new-branch](features/git-new-branch.md) implemented.
+- **Update**: Refreshed the five codebase-map docs the git-new-branch and
+  git-commit scripts, the default-branch helper, and their tests moved.
+- **Update**: Refreshed the five codebase-map docs the foreground review-pass
+  dispatch in `pr-review` and the user-layer settings merge in
+  `run-claude-responder` moved.
 - **Update**: Refreshed the seven codebase-map docs that Coder agent-auth
   seeding, the gh credential helper, Remote Control autostart, and the
   `scripts/tests` CI suite moved.

@@ -32,7 +32,9 @@ derives the bump from `git diff HEAD` in Renovate's clone and, in order:
 2. regenerates `.devcontainer/devcontainer-lock.json` with the devcontainer CLI
    when `devcontainer.json` changed;
 3. runs pre-commit on every changed file, accepting a first pass that only
-   rewrites files and failing on a hook that still fails on the second.
+   rewrites files and failing on a hook that still fails on the second. The runs
+   skip `no-commit-to-branch`, because Renovate's clone is still on the base
+   branch and that guard is for commits (see spec/git-new-branch).
 
 Any failure fails the branch, so no pull request carries a version beside a
 stale checksum or lock.

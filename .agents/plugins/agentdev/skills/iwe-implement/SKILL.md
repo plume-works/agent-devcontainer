@@ -30,11 +30,18 @@ is not proof that behavior exists; current code and passing task evidence are.
 3. **Check `## Depends on`.** Every prerequisite plan must carry
    `stage: done`; if one doesn't, say so and stop — building on an unshipped
    dependency is how two plans end up half-true.
-4. **Re-verify the anchors.** The plan's `## Key references` line numbers were
+4. **Start on a work branch.** When the checkout is on the repository's
+   default branch — `main`, `master`, the branch
+   `git symbolic-ref --short refs/remotes/origin/HEAD` names, or, when that is
+   unset, the one `gh repo view --json defaultBranchRef` reports — create the
+   work branch through the `/agentdev:git-new-branch` skill, named
+   from the plan key's slug (`data/plans/<date>-<slug>` → `<slug>`), before
+   executing any task. On any other branch, continue where it is.
+5. **Re-verify the anchors.** The plan's `## Key references` line numbers were
    true when written; re-locate each symbol in the current checkout before
    relying on it. If lines moved, update the anchor list and its
    "verified as of" date — that edit is part of this session's work.
-5. **Execute the next unchecked task.** Follow its `**Files:**` list; write
+6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
    the code; run every test and check required for that task. Closing it is a
    single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's indented
    `- **Evidence:**` child naming what closed it — the commit, the test run and
@@ -48,7 +55,7 @@ is not proof that behavior exists; current code and passing task evidence are.
    Partial work, deferred behavior, or a failing required test or check stays
    unchecked, with no evidence line. If you cannot name the evidence, the box is
    not closable: that is the check working, not a formatting obstacle.
-6. **Classify deviations before coding past them.** A change is material when
+7. **Classify deviations before coding past them.** A change is material when
    it affects scope, externally observable behavior, compatibility, acceptance
    criteria, dependencies, or an explicit out-of-scope boundary.
    - **Tactical correction:** if a stale anchor, task breakdown, or other plan
@@ -67,15 +74,15 @@ is not proof that behavior exists; current code and passing task evidence are.
      through the `/agentdev:iwe-plan` skill's revise mode, with the user's
      direction, before
      coding continues.
-7. **Run to completion.** Execute tasks continuously until the plan's last box
+8. **Run to completion.** Execute tasks continuously until the plan's last box
    ticks, without pausing for approval between them — each task still closes
-   under Step 5 and commits with its own evidence line and code. Stop only when
-   an interlock fires: a material deviation (Step 6), or a task that is blocked
+   under Step 6 and commits with its own evidence line and code. Stop only when
+   an interlock fires: a material deviation (Step 7), or a task that is blocked
    or incomplete mid-task — leave that box unchecked, describe the remaining
    work or failing evidence, and stop there. If the user asks to review each
    task, stop after each instead and report progress: "3/5 tasks, next: <task
    name>".
-8. **Finish.** Report a rollup of the tasks executed this session — the first
+9. **Finish.** Report a rollup of the tasks executed this session — the first
    and only report of a continuous run — then run the plan's `## Verification`
    commands, report the results, and suggest the `/agentdev:iwe-verify` skill
    for the full pre-ship check, then the `/agentdev:iwe-ship` skill. Lead with
@@ -104,11 +111,11 @@ Implementation findings do not belong in the plan. Route each finding by type:
   skill as a `task`, and say so in the handoff report rather than growing
   `## Out of scope` silently.
 - A finding that changes a material boundary → stop and take it back through
-  the `/agentdev:iwe-plan` skill (Step 6), which is the only route that may edit
+  the `/agentdev:iwe-plan` skill (Step 7), which is the only route that may edit
   intent.
 
 `## Context` and `## Approach` state intent and stay stable while you build.
-The `/agentdev:iwe-plan` skill owns them; implement edits them only via Step 6's
+The `/agentdev:iwe-plan` skill owns them; implement edits them only via Step 7's
 material
 deviation route. Do not write findings into these sections; a future implementer
 must be able to distinguish planned intent from implementation findings.

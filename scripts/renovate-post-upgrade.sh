@@ -28,6 +28,8 @@ if printf '%s\n' "${changed[@]}" | grep -qx '.devcontainer/devcontainer.json'; t
 fi
 
 # pre-commit through uv, not the image's apt copy: see architecture/renovate-post-upgrade.
+# Post-upgrade runs on the base branch; the guard is for commits: see spec/git-new-branch.
+export SKIP="${SKIP:+${SKIP},}no-commit-to-branch"
 mapfile -t changed < <(changed_files)
 if ! uv run --frozen pre-commit run --files "${changed[@]}"; then
   mapfile -t changed < <(changed_files)

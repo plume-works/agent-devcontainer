@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:51279656cc4a4e080343b0029e1e8b28f933f2ecfa2e37533ed5fe432d09a6b2
+source_digest: sha256:17c213a39f0c1082c0756386f3f6f956582ef0879d5b10b980843459b5a20549
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-29T12:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-29T14:00:00Z
 stale_after: 2026-12-28
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-29T12:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-29T14:00:00Z
 sources:
 - id: code
   resource: .github
@@ -26,9 +26,12 @@ before the push.
 ## Trace
 
 1. `pre-commit` (local, on every commit): Prettier, clang-format, ansible-lint,
-   hadolint, ruff format and lint, shellcheck, gitleaks, actionlint,
+   hadolint, ruff format and lint, shellcheck, gitleaks, actionlint (with
+   `.github/actionlint.yml`, which Super-Linter reads too),
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
-   and IWE validation and normalization — `.pre-commit-config.yaml:2-127`
+   and IWE validation and normalization — `.pre-commit-config.yaml:2-130`;
+   `no-commit-to-branch` refuses a commit on `main` or `master` —
+   `.pre-commit-config.yaml:11`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit;

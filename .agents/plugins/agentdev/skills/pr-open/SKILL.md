@@ -102,7 +102,7 @@ The last stdout line is `RESULT=<NAME>`; it decides the rest of the run:
 | `SUCCESS`          | `0`  | Exactly one open PR has this head branch                 | **Update mode.** Keep `PR_NUMBER`, `PR_BASE`, and `PR_TITLE`; the PR will be edited in place, never recreated.                                                                                                                        |
 | `NO_PR_FOUND`      | `3`  | No open PR for this branch                               | **Create mode.** Continue and create the PR at the end. Use `main` as the base unless the user says otherwise.                                                                                                                        |
 | `MULTIPLE_PRS`     | `4`  | Several PRs share this head branch                       | **STOP.** Show the candidates and ask which PR to update.                                                                                                                                                                             |
-| `PROTECTED_BRANCH` | `5`  | Branch, or the upstream it tracks, is `main` or `master` | **STOP.** A PR head must be a feature branch — see the error handling section below.                                                                                                                                                  |
+| `PROTECTED_BRANCH` | `5`  | Branch, or the upstream it tracks, is `main` or `master` | **STOP.** A PR head must be a feature branch. With user authorization, create one through `/agentdev:git-new-branch`, then rerun — see the error handling section below.                                                              |
 | `GH_UNAVAILABLE`   | `6`  | `gh` is missing, unauthenticated, or its API call failed | **Fallback.** Detect the PR through the GitHub MCP server as described under GitHub Access, using the printed `HEAD_BRANCH`; the result selects update or create mode exactly as above. **STOP** only if no such server is connected. |
 | `PREFLIGHT_ERROR`  | `2`  | Not a repo, detached HEAD, or a bad argument             | **STOP.** Report the blocker verbatim.                                                                                                                                                                                                |
 | `SCRIPT_FAILURE`   | `1`  | The script broke                                         | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                                                                |
@@ -311,8 +311,8 @@ token scopes instead.
 Cannot continue: you're on the main/master branch.
 A pull request head must be a feature branch.
 
-Create one with:
-  git checkout -b feature/your-feature-name
+Create one with the /agentdev:git-new-branch skill, which starts it at the
+freshly fetched remote base and pushes it with its own upstream.
 
 Then rerun this skill.
 ```
