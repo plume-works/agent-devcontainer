@@ -19,8 +19,12 @@ def make_test_dir() -> Path:
 
 
 def run_with_fake_tmux(
-    *, autostart='1', token='test-secret', session_exists=False, credential_file=True
-):
+    *,
+    autostart: str = '1',
+    token: str = 'test-secret',
+    session_exists: bool = False,
+    credential_file: bool = True,
+) -> tuple[subprocess.CompletedProcess[str], str]:
     test_dir = make_test_dir()
     log = test_dir / 'tmux.log'
     auth_file = test_dir / 'claude' / '.credentials.json'

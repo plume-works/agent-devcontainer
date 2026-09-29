@@ -9,7 +9,9 @@ SCRIPT = REPO_ROOT / '.devcontainer/scripts/preapprove-claude-workspace.sh'
 POST_CREATE = REPO_ROOT / '.devcontainer/scripts/postCreateCommand.sh'
 
 
-def run_preapprove(tmp_path: Path, *, autostart='1'):
+def run_preapprove(
+    tmp_path: Path, *, autostart: str = '1'
+) -> tuple[subprocess.CompletedProcess[str], Path]:
     workspace = tmp_path / 'workspace'
     workspace.mkdir(exist_ok=True)
     env = os.environ | {

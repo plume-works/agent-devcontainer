@@ -13,7 +13,9 @@ POST_START = REPO_ROOT / '.devcontainer/scripts/postStartCommand.sh'
 COMPOSE = REPO_ROOT / '.devcontainer/docker-compose.yml'
 
 
-def run_prepare(tmp_path: Path, *, claude: str = '', codex: str = ''):
+def run_prepare(
+    tmp_path: Path, *, claude: str = '', codex: str = ''
+) -> tuple[subprocess.CompletedProcess[str], Path]:
     seed_dir = tmp_path / 'seed'
     env = os.environ | {
         'AGENTDEV_CLAUDE_JSON': claude,
@@ -24,7 +26,9 @@ def run_prepare(tmp_path: Path, *, claude: str = '', codex: str = ''):
     return result, seed_dir
 
 
-def run_seeder(tmp_path: Path, *, claude: str = '', codex: str = ''):
+def run_seeder(
+    tmp_path: Path, *, claude: str = '', codex: str = ''
+) -> tuple[subprocess.CompletedProcess[str], Path, Path, Path]:
     seed_dir = tmp_path / 'seed'
     seed_dir.mkdir(mode=0o700)
     if claude:

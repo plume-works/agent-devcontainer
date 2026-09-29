@@ -11,8 +11,13 @@ GH_HELPER = '!gh auth git-credential'
 
 
 def run_setup(
-    tmp_path: Path, *, gh_installed=True, authenticated=True, helper=None, keyring_env=None
-):
+    tmp_path: Path,
+    *,
+    gh_installed: bool = True,
+    authenticated: bool = True,
+    helper: str | None = None,
+    keyring_env: str | None = None,
+) -> tuple[subprocess.CompletedProcess[str], str]:
     script = tmp_path / 'workspace/.devcontainer/scripts' / SCRIPT.name
     script.parent.mkdir(parents=True)
     shutil.copy2(SCRIPT, script)

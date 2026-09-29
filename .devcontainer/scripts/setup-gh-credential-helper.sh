@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Lets HTTPS git push/fetch reuse gh's login. Without a helper, git waits at a
-# credential prompt that headless agents cannot answer. A helper already
-# configured for github.com wins and is left untouched.
+# HTTPS git reuses gh's login; see spec/devcontainer-agent-auth.
 
 set -euo pipefail
 
