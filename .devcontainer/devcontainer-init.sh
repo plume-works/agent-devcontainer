@@ -30,7 +30,7 @@ LOCAL_WORKSPACE_FOLDER=$(realpath "$script_dir/..")
 echo "LOCAL_WORKSPACE_FOLDER=$LOCAL_WORKSPACE_FOLDER" >> "$script_dir/.env"
 
 # Coder injects auth JSON only into initializeCommand; see spec/devcontainer-agent-auth.
-seed_key="$(printf '%s' "$LOCAL_WORKSPACE_FOLDER" | sha256sum | cut -c1-16)"
+seed_key="$("$script_dir/scripts/workspace-seed-key.sh" "$LOCAL_WORKSPACE_FOLDER")"
 AGENTDEV_AUTH_SEED_DIR="/tmp/agentdev-auth-seed-$seed_key"
 export AGENTDEV_AUTH_SEED_DIR
 "$script_dir/scripts/prepare-agent-auth-seed.sh"
