@@ -2,14 +2,14 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared result-code libraries for bash and Python, the GitHub-issue library, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:b986196e0cf6434071e86c7aabb3491c8506b4c2410a51081efff9dccbc12a2d
+source_digest: sha256:f1e7ed9b568fe15940160f4f702d9cb07028a717602aef83d5576101a5af0d9b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
-stale_after: 2026-12-27
+  at: 2026-09-29T13:00:00Z
+stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
+  at: 2026-09-29T13:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
@@ -17,7 +17,7 @@ sources:
 
 # Catalog bin helpers
 
-Nine files. Three are libraries a skill script pulls in — two of them the same
+Ten files. Four are libraries a skill script pulls in — two of them the same
 result contract in bash and in Python; the rest are commands a user or skill
 runs directly.
 
@@ -32,6 +32,10 @@ runs directly.
 - `github-issue.sh` — `parse_issue_ref`, `require_gh`, `resolve_current_repo`,
   `gh_output_says_not_found`, and `close_issue_with_comment`, which views an
   issue and closes it with a comment unless it is already closed
+- `git-default-branch.sh` — `is_default_branch` (`main` or `master`) and
+  `remote_default_branch <remote>`, which prints the branch
+  `refs/remotes/<remote>/HEAD` names, else the default `gh repo view` reports
+  for the remote's URL, and returns 1 when neither knows; sourced, not run
 - `super-linter-local.sh [--all] [--image] [--log-level]` — one local
   Super-Linter pass with autofixes; `super-linter-env.sh` emits the
   `VALIDATE_*`/`FIX_*` environment; `super-linter-defaults.sh` pins the image
@@ -75,7 +79,7 @@ environment of its own.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-09-29):
 
 - `.agents/plugins/agentdev/bin/result-codes.sh:15-22` — the reserved codes
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
@@ -86,5 +90,8 @@ Verified anchor points (line numbers as of 2026-09-28):
 - `.agents/plugins/agentdev/bin/github-issue.sh:10,29,41,46` — the four parsing
   and lookup helpers
 - `.agents/plugins/agentdev/bin/github-issue.sh:54` — `close_issue_with_comment`
+- `.agents/plugins/agentdev/bin/git-default-branch.sh:5` — `is_default_branch`
+- `.agents/plugins/agentdev/bin/git-default-branch.sh:12` —
+  `remote_default_branch`
 - `.agents/plugins/agentdev/bin/__utils.sh:6` — `root_dir`
 - `.agents/plugins/agentdev/bin/super-linter-defaults.sh:6` — image pin

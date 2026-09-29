@@ -13,6 +13,8 @@ to the current day's group.
   [IWE workflow skills](spec/iwe-workflow-skills.md) gained Implement starting
   on its own branch.
 - **Update**: [git-new-branch](features/git-new-branch.md) implemented.
+- **Update**: Refreshed the five codebase-map docs the git-new-branch and
+  git-commit scripts, the default-branch helper, and their tests moved.
 - **Update**: Refreshed the five codebase-map docs the foreground review-pass
   dispatch in `pr-review` and the user-layer settings merge in
   `run-claude-responder` moved.

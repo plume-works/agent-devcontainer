@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:aaec9d3ddd36bdd97263e87bd2ebc4a870eedfa109ae7c6eb9c18e4e765434d3
+source_digest: sha256:af11b9a9c127b46123d7f35a643d095c8c6b4e83c88eefbbf97f6abad811e31f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
-stale_after: 2026-12-26
+  at: 2026-09-29T13:00:00Z
+stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
+  at: 2026-09-29T13:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -17,8 +17,8 @@ sources:
 
 # Plugin tests
 
-10 test modules plus `conftest.py`, run with
-`uv run pytest .agents/plugins/agentdev/tests` and in CI by
+12 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
+with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`.
 
 ## Public surface
@@ -27,11 +27,14 @@ sources:
   test is resolved
 - `plugin_tmp_path` fixture — a scratch directory under the plugin's `.tmp/`,
   removed after each test
+- `git_fixtures.py` — `FIXTURE_ENV`, `git()`, `outcome()`, and `stub_gh()`,
+  shared by the two git-skill modules
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
-  `test_discover_ai_responder.py`, `test_fetch_issue.py`,
-  `test_remote_codespace_session.py`, `test_result_codes.py`,
-  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
-  `test_template_consume_check_updates.py`, `test_update_branch.py`
+  `test_discover_ai_responder.py`, `test_fetch_issue.py`, `test_git_commit.py`,
+  `test_git_new_branch.py`, `test_remote_codespace_session.py`,
+  `test_result_codes.py`, `test_stale_map_docs.py`,
+  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
+  `test_update_branch.py`
 
 ## How it works
 
@@ -57,6 +60,12 @@ the marker section, and pins `NO_MARKER` for an absent file and for an absent
 section, and `INVALID_MARKER` for malformed metadata or a section missing
 `consumed_ref` or `tracked_paths`.
 
+`test_git_new_branch.py` builds a bare remote, a working clone, and a publisher
+clone that advances the remote behind the working clone's back; the
+`gh`-fallback cases set `remote.origin.followRemoteHEAD=never` so a fetch does
+not recreate `origin/HEAD`. `test_git_commit.py` commits in a throwaway
+repository with and without a configured remote.
+
 ## Depends on
 
 `pytest`, `git`, `bash`; nothing from the rest of the repository.
@@ -71,12 +80,15 @@ section, and `INVALID_MARKER` for malformed metadata or a section missing
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
+Verified anchor points (line numbers as of 2026-09-29):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
 - `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
   `initialize_repository`, the shared mock-repository builder
+- `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
+- `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the
+  remote/work/publisher triple
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:18` —
   `_load_script_module`, the by-path import the digest fixtures share
 - `.agents/plugins/agentdev/tests/test_capture_close_issue.py:19` —
