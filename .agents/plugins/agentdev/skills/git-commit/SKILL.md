@@ -25,7 +25,8 @@ Generate conventional commit messages from the relevant git diff.
 
 Create every commit with [git-commit.sh](scripts/git-commit.sh); never run
 `git commit` directly. It refuses — before `git commit` runs — on `main`,
-`master`, the remote's default branch, and a detached `HEAD`. Pass the
+`master`, the remote's default branch, a detached `HEAD`, and — when the
+remote exists — a remote whose default branch cannot be determined. Pass the
 `git commit` arguments after `--`:
 
 ```bash
@@ -42,6 +43,7 @@ on that name, not on a bare number.
 | `SUCCESS`          | `0`                 | The commit was created                                     | Report the commit.                                                                                                                    |
 | `PROTECTED_BRANCH` | `3`                 | The current branch is a default branch; nothing ran        | **STOP.** Tell the user work must go on a feature branch and offer `/agentdev:git-new-branch`, which carries the uncommitted changes. |
 | `COMMIT_FAILED`    | `4`                 | `git commit` ran and failed; its status is `GIT_EXIT_CODE` | Read `git commit`'s output: stage changes if nothing was staged, or fix what a hook reported, then rerun.                             |
+| `DEFAULT_UNKNOWN`  | `5`                 | The remote exists but its default branch is unknown        | **STOP.** Report the error. Ask the user to run `git remote set-head <remote> --auto` or authenticate `gh`, then rerun.               |
 | `PREFLIGHT_ERROR`  | `2`                 | Bad usage, not a repository, or a detached `HEAD`          | **STOP.** Report the error verbatim.                                                                                                  |
 | `SCRIPT_FAILURE`   | `1`                 | The script broke                                           | **STOP.** Report the blocker verbatim; do not fall back to `git commit`.                                                              |
 | `SIGNAL_*`         | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                           | **STOP.** Check `git status` before rerunning.                                                                                        |

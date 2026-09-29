@@ -71,8 +71,9 @@ Options:
 - `--base <branch>` selects the base branch; default: `main`.
 - `--stash` stashes local changes (untracked included), creates and pushes the
   branch, then pops them onto it. Pass it only after the user approves.
-- `--worktree` creates the branch in a new worktree `<repo>-<branch>` (`/` in
-  the branch becomes `-`) and leaves the current checkout alone. Its parent is
+- `--worktree` creates the branch in a new worktree `<repo>-<branch>` (a `/`
+  in the branch stays a directory separator) and leaves the current checkout
+  alone. Its parent is
   `/workspaces` when the main checkout lives directly under `/workspaces`,
   otherwise `<main checkout>/.worktrees/`, which the script adds to
   `.git/info/exclude` unless Git already ignores it.
@@ -99,8 +100,9 @@ ${CLAUDE_SKILL_DIR}/scripts/git-new-branch.sh <name>
 | `PUSH_FAILED`     | `5`                 | The branch exists locally but the push failed                        | **STOP.** Report the Git error. The local branch is kept; retry `git push --set-upstream <remote> <name>` once access is restored — never via API.                      |
 | `FETCH_FAILED`    | `6`                 | The remote could not be fetched                                      | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                                                            |
 | `STASH_CONFLICTS` | `7`                 | The branch was created but popping the stash conflicted              | Resolve through Workflow 4. The stash entry `STASH_REF` is kept until then.                                                                                             |
+| `CREATE_FAILED`   | `8`                 | The branch could not be created; the checkout is unchanged           | **STOP.** Report the Git error. Any stash was restored; when `STASH_REF` is printed, tell the user that stash entry holds their changes.                                |
 | `PREFLIGHT_ERROR` | `2`                 | Bad usage, not a repository, invalid name, or no base ref to resolve | **STOP.** Report the error verbatim and fix the input before retrying.                                                                                                  |
-| `SCRIPT_FAILURE`  | `1`                 | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it. When `STASH_REF` is printed, tell the user that stash entry holds their changes.                 |
+| `SCRIPT_FAILURE`  | `1`                 | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                  |
 | `SIGNAL_*`        | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                     | **STOP.** Inspect `git status` and `git stash list` before rerunning.                                                                                                   |
 
 ## Workflow 3: Uncommitted Changes Git Cannot Carry
@@ -116,7 +118,10 @@ when the user offers them.
 ## Workflow 4: Resolve a Conflicted Stash Pop
 
 On `STASH_CONFLICTS`, the new branch is checked out and the popped changes
-conflict with the base. The stash entry at `STASH_REF` still holds them.
+conflict with the base. The stash entry `STASH_SHA`, listed as `STASH_REF` when
+the script finished, still holds them. Other sessions share the stash stack, so
+re-find its current `stash@{n}` with `git stash list --format='%gd %H'` before
+each command that names it.
 
 1. Resolve every conflicted path with the
    [git-merge-resolve](../git-merge-resolve/SKILL.md) "Resolve Conflicts"
@@ -124,12 +129,29 @@ conflict with the base. The stash entry at `STASH_REF` still holds them.
 2. Stage the resolutions with `git add <path>`, then unstage them with
    `git restore --staged <path>` so they remain ordinary uncommitted changes.
    Do not commit: there is no merge to complete.
-3. Confirm that no unresolved path or conflict marker remains, then drop the
-   stash:
+3. Confirm that no unresolved path or conflict marker remains:
 
    ```bash
    git diff --name-only --diff-filter=U
-   git stash drop <STASH_REF>
+   ```
+
+4. Confirm that every stashed change was recovered. A failed pop can skip a
+   stashed untracked file without leaving an unmerged path, for example when
+   the base now tracks the same path. List what the entry holds:
+
+   ```bash
+   git stash show --include-untracked --name-only <STASH_SHA>
+   ```
+
+   Every listed path must hold the stashed change or its resolution. For a
+   skipped untracked file, show the user `git show <STASH_SHA>^3:<path>` and
+   ask how to combine it with the base's version. Do not continue until each
+   path is accounted for.
+
+5. Drop the entry only after steps 3 and 4 pass:
+
+   ```bash
+   git stash drop <current stash@{n} of STASH_SHA>
    ```
 
 If stderr also reported a failed push, handle it as `PUSH_FAILED` afterwards.

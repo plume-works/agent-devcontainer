@@ -30,8 +30,11 @@ is not proof that behavior exists; current code and passing task evidence are.
 3. **Check `## Depends on`.** Every prerequisite plan must carry
    `stage: done`; if one doesn't, say so and stop — building on an unshipped
    dependency is how two plans end up half-true.
-4. **Start on a work branch.** When the checkout is on `main` or `master`,
-   create the work branch through the `/agentdev:git-new-branch` skill, named
+4. **Start on a work branch.** When the checkout is on the repository's
+   default branch — `main`, `master`, the branch
+   `git symbolic-ref --short refs/remotes/origin/HEAD` names, or, when that is
+   unset, the one `gh repo view --json defaultBranchRef` reports — create the
+   work branch through the `/agentdev:git-new-branch` skill, named
    from the plan key's slug (`data/plans/<date>-<slug>` → `<slug>`), before
    executing any task. On any other branch, continue where it is.
 5. **Re-verify the anchors.** The plan's `## Key references` line numbers were

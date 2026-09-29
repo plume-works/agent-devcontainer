@@ -85,20 +85,34 @@ entry until any conflicts it produces are resolved.
 
 - **WHEN** the user approved stashing and the pop conflicts
 - **THEN** the conflicts are resolved through the git-merge-resolve conflict
-  workflow and the stash entry is dropped only afterwards
+  workflow, every stashed path is confirmed recovered, and the stash entry is
+  dropped only afterwards
+
+#### Scenario: Nothing was stashed
+
+- **WHEN** the user approved stashing and `git stash push` created no entry
+- **THEN** no stash entry is popped, and a stash entry that existed before the
+  run is left untouched
 
 ### Requirement: Worktree mode leaves the current checkout alone
 
 In worktree mode the git-new-branch skill SHALL create the branch in a new
-worktree named `<repo>-<branch>` under `/workspaces` when the main checkout
-lives there, otherwise under the checkout's ignored `.worktrees/` directory, and
-SHALL NOT change the current checkout.
+worktree named `<repo>-<branch>`, with any `/` in the branch kept as a directory
+separator, under `/workspaces` when the main checkout lives there, otherwise
+under the checkout's ignored `.worktrees/` directory, and SHALL NOT change the
+current checkout.
 
 #### Scenario: Repository outside /workspaces
 
 - **WHEN** the main checkout is not directly under `/workspaces`
 - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
   directory is ignored by Git
+
+#### Scenario: Branch names that differ only by `/` and `-`
+
+- **WHEN** worktrees for `feature/foo` and `feature-foo` are created under the
+  same parent
+- **THEN** each gets its own directory
 
 ### Requirement: Commits on the default branch move to the new branch
 
@@ -127,7 +141,8 @@ branch unmoved.
 The git-commit skill SHALL create commits only through its bundled script, which
 SHALL refuse to run `git commit` on `main`, `master`, the remote's default
 branch, or a detached `HEAD`, and SHALL direct the user to the git-new-branch
-skill instead.
+skill instead. When the remote exists but its default branch cannot be
+determined, it SHALL refuse as well.
 
 #### Scenario: Commit requested on main
 
@@ -146,3 +161,9 @@ skill instead.
 - **WHEN** `refs/remotes/origin/HEAD` names `trunk` and the current branch is
   `trunk`
 - **THEN** the script reports `PROTECTED_BRANCH` and no commit is created
+
+#### Scenario: The remote default branch is unknown
+
+- **WHEN** `origin` exists, `refs/remotes/origin/HEAD` is unset, `gh` cannot
+  report the default branch, and the current branch is not `main` or `master`
+- **THEN** the script reports `DEFAULT_UNKNOWN` and no commit is created
