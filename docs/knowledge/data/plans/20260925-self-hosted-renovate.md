@@ -508,7 +508,7 @@ a digest update SHALL move every reference in one change.
   cannot merge while it fails.
 ```
 
-`spec/dependency-updates` is created:
+[Dependency updates](../spec/dependency-updates.md) is created:
 
 ``` markdown
 ## ADDED Requirements
