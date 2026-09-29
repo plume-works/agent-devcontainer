@@ -130,8 +130,8 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **The lens follows the file.** The correctness passes scan code files, the durable-knowledge pass scans docs/skills files, and each ignores files outside its lens. On a mixed docs+code diff both lenses run against their own file subsets in the same review; on a code-only diff the durable-knowledge pass does not run, leaving four passes at full effort and two at light.
    - **Pass each dispatch the model its slot gets in the effort matrix.** A dispatch that carries no model argument runs at the session's own model, whatever the matrix says — the argument is what puts the matrix in force.
    - Codex: use available multi-agent/sub-agent tools when present, giving each the Codex model for its slot; otherwise perform the passes sequentially in this session, restarting the review lens from the diff for each pass.
-   - Claude Code: issue the `Agent` tool calls in a single message (`subagent_type: general-purpose`), each with the `model` for its slot. The `Agent` tool says subagents run in the background and notify you on completion. **That is true only where there is a next turn to be notified in.** This skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting — no notification ever arrives, and the review is lost with the session.
-   - **Block until every pass reports back or hard-times-out — see "Waiting on parallel passes" below.** Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
+   - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
+   - **Collect every pass before Step 5 — see "Waiting on parallel passes" below.** On Claude Code the foreground dispatch returns with every result; on Codex, block until every pass reports back or hard-times-out. Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
 5. **Merge and deduplicate.** Collect the candidate findings from all passes that completed (see fallback below if any didn't). Collapse candidates that name the same file/line and describe the same underlying issue into one, keeping the **blocking** tier if either collapsed candidate was blocking.
 6. **Validate the surviving candidates, on the `light` model at every effort level.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Preserve each surviving candidate's severity tier from Step 5 unchanged — validation confirms or drops a finding, it never changes its tier.
    - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the claim made against it, the full text of any rule that claim invokes, where to read the diff, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
@@ -140,7 +140,7 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - **Full effort: one dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones, so it is not traded away at this tier.
    - **Light effort: one batched dispatch** carrying every surviving candidate at once and returning a confirm-or-drop verdict for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
    - **Batching is the light tier's trade and nothing else's.** A review that was handed no tier validates one dispatch per candidate, like full effort — sizing the review yourself does not extend to giving up isolation.
-   - Use the same runner-specific parallel-vs-sequential approach as Step 4, and the same blocking policy and ceilings in "Waiting on parallel passes" below. A validator that does not return inside its ceiling counts as "cannot confirm" — drop the candidate, or at light effort every candidate in the batch.
+   - Use the same runner-specific parallel-vs-sequential approach as Step 4 — foreground `Agent` calls on Claude Code — and the same blocking policy in "Waiting on parallel passes" below. On Codex, a validator that does not return inside its ceiling counts as "cannot confirm" — drop the candidate, or at light effort every candidate in the batch.
 7. Create a pending review with `create_pending_pull_request_review`.
 8. For every validated finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes; never describe a finding's location in prose. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) stating the file/line in prose and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
 9. Submit the review with `submit_pending_pull_request_review`, choosing `event` from the validated findings that survived Step 6:
@@ -156,13 +156,12 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
 ### Waiting on Parallel Passes
 
 Every parallel pass from Steps 4 and 6 must complete or be cancelled before
-Steps 5–9. Block on outstanding tasks with the runner's wait primitive. Never
-end a turn with an outstanding task, substitute a text status update, or poll
-with a no-op shell command. If the runner has no blocking primitive, run the
-passes sequentially.
+Steps 5–9. Never end a turn with an outstanding task, substitute a text status
+update, or poll with a no-op shell command. If the runner can neither run passes
+in the foreground nor block on them, run the passes sequentially.
 
 **Self-check gate:** before emitting text or ending a turn, make a blocking call
-for every dispatched task ID that has not returned.
+for every background task ID that has not returned.
 
 Text announcing that you are waiting is not waiting. If the next thing you were
 about to produce is a sentence about outstanding passes, replace it with the
@@ -172,11 +171,10 @@ review.
 
 Concretely:
 
-- After dispatching a batch of workers, use the runner's blocking wait primitive for each task ID that has not reported back yet:
-  - Codex: use the multi-agent tool's blocking output/wait facility if available; if no blocking worker primitive exists, do not launch background work — run the passes sequentially.
-  - Claude Code: call `TaskOutput` with `block: true` and an explicit `timeout` (ms) for each outstanding task ID before ending the turn.
-- **Budget, so Steps 5–9 still have room inside the action timeout:** per Step-4 pass, allow up to 16 minutes total — the durable-knowledge pass gets the same ceiling as the others. For Step 6, allow up to 5 minutes per candidate validation at full effort; a light-effort batch judges every candidate in a single call, so it gets the same 16-minute ceiling as a Step-4 pass rather than one candidate's 5 minutes.
-- **Hard fallback:** if a pass still has not completed when its ceiling is reached, stop/cancel it if the runner supports cancellation, drop that pass, and continue with only the passes/validations that did complete — do not block indefinitely on a single hung pass, and do not let one hang stall the whole review. Note in the final review summary body how many of the initial passes completed if any were dropped (a completion-count status line, not a per-finding location reference, so it does not conflict with the "never write location references" constraint below).
+- **Claude Code: dispatch in the foreground.** Issue each batch's `Agent` calls in a single message with `run_in_background: false`; the message returns with every pass's result, so nothing is left to wait on. This path has no per-pass ceiling and never drops a hung pass: the responder job's `timeout-minutes` bounds the whole review, and a review that exceeds it fails the job.
+- **Codex: block on each outstanding task.** Use the multi-agent tool's blocking output/wait facility if available; if no blocking worker primitive exists, do not launch background work — run the passes sequentially.
+- **Codex budget, so Steps 5–9 still have room inside the action timeout:** per Step-4 pass, allow up to 16 minutes total — the durable-knowledge pass gets the same ceiling as the others. For Step 6, allow up to 5 minutes per candidate validation at full effort; a light-effort batch judges every candidate in a single call, so it gets the same 16-minute ceiling as a Step-4 pass rather than one candidate's 5 minutes.
+- **Codex hard fallback:** if a pass still has not completed when its ceiling is reached, stop/cancel it if the runner supports cancellation, drop that pass, and continue with only the passes/validations that did complete — do not block indefinitely on a single hung pass, and do not let one hang stall the whole review. Note in the final review summary body how many of the initial passes completed if any were dropped (a completion-count status line, not a per-finding location reference, so it does not conflict with the "never write location references" constraint below).
 
 ## Fallback: single-call script
 

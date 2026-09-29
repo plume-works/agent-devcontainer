@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
+
 [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
