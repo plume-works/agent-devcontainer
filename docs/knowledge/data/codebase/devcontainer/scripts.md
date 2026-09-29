@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth seeding and symlinks, gh credential helper, Claude Remote Control.'
 source: .devcontainer/scripts
-source_digest: sha256:a86af05afb08ad20755d579441bf10b235709e3fbc63fb88ffe3f00b0191695d
+source_digest: sha256:98adb941c99469a59ae58e332a9bb77b6709534d9f8dc106f7eb410148c86895
 verified:
   by: claude-code/opus-5
-  at: 2026-09-29T23:00:00Z
+  at: 2026-09-29T23:30:00Z
 stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5
-  at: 2026-09-29T23:00:00Z
+  at: 2026-09-29T23:30:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -35,6 +35,7 @@ runs outside the devcontainer.
 | `uv-sync.sh`                                         | create, attach        | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                                                       |
 | `link-codex-auth.sh`                                 | create, start         | symlink `~/.codex/auth.json` into the shared auth volume                                                                          |
 | `prepare-agent-auth-seed.sh`                         | `initializeCommand`   | write `AGENTDEV_CLAUDE_JSON`/`AGENTDEV_CODEX_JSON` as `0600` files in `AGENTDEV_AUTH_SEED_DIR`                                    |
+| `workspace-seed-key.sh <path>`                       | `initializeCommand`   | print the per-workspace seed key, a 16-hex sha256 prefix, via `sha256sum` or `shasum`                                             |
 | `seed-agent-auth.sh`                                 | create, start         | install each transfer file into an empty live credential, fix modes, delete the transfer file                                     |
 | `preapprove-claude-workspace.sh`                     | create                | with `AGENTDEV_CLAUDE_AUTOSTART=1`, record onboarding, Remote Control, trust, and MCP approval                                    |
 | `claude-remote-control-start.sh`                     | start                 | with `AGENTDEV_CLAUDE_AUTOSTART=1` and a login file, run `claude /remote-control` in tmux `claude-remote`                         |
@@ -109,5 +110,5 @@ Verified anchor points (line numbers as of 2026-09-29):
   per-target lock, the atomic install
 - `.devcontainer/scripts/claude-remote-control-start.sh:9,31` — login-file gate,
   token-free launch
-- `.devcontainer/scripts/setup-gh-credential-helper.sh:13,32` — keyring session
+- `.devcontainer/scripts/setup-gh-credential-helper.sh:11,30` — keyring session
   load, `gh auth setup-git`
