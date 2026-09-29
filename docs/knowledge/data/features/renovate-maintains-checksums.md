@@ -4,7 +4,7 @@ stage: implemented
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks refresh checksum pins, lock files, and pre-commit output in the same commit as a bump.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T12:00:00Z
+  at: 2026-09-29T20:30:00Z
 sources:
 - id: roles
   resource: ansible/roles
@@ -113,9 +113,6 @@ packages, which stay unpinned; and the Ubuntu base release.
 - **One file, several pins.** `dev_tools_pinned_tools` holds four tools in one
   list, so the refresh must rewrite only the entry whose version moved and leave
   its neighbours' hashes byte-identical.
-- **A pin inside a task file.** VirtualGL's version and checksums sit in
-  `xpra_setup/tasks/main.yml` rather than a role's `defaults/main.yml`, so both
-  the Renovate match and the digest mask have to reach a tasks file.
 
 ## Open questions
 
@@ -126,4 +123,4 @@ None — automerge and the run schedule are settled under Behaviour.
 - Repository policy: `.github/renovate.json`
 - Pins concerned: `ansible/roles/dev_tools/defaults/main.yml`,
   `ansible/roles/agentic_tools/defaults/main.yml`,
-  `ansible/roles/xpra_setup/tasks/main.yml`
+  `ansible/roles/xpra_setup/defaults/main.yml`
