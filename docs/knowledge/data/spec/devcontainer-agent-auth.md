@@ -2,8 +2,8 @@
 type: spec
 description: Securely seed native Claude and Codex credentials, propagate Git identity, and start Claude Remote Control in a Coder-backed devcontainer.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-28T21:05:00+00:00
+  by: hermes-agent/gpt-5.6
+  at: 2026-09-29T07:48:22+00:00
 sources:
 - resource: .devcontainer/devcontainer-init.sh
 - resource: .devcontainer/docker-compose.yml
@@ -14,6 +14,10 @@ sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: .devcontainer/scripts/preapprove-claude-workspace.sh
+- resource: https://code.claude.com/docs/en/errors#login-expired
+- resource: https://code.claude.com/docs/en/authentication
+- resource: https://github.com/anthropics/claude-code/issues/21765
+- resource: https://github.com/anthropics/claude-code/issues/88583
 ---
 
 # Devcontainer agent authentication and Claude Remote Control
@@ -23,6 +27,9 @@ to the outer workspace. The devcontainer lifecycle moves the authentication
 state through private files rather than putting credential JSON in the resolved
 Compose environment. Claude and Codex then use writable files in the shared
 `agentdev-agents-auth` volume, allowing the CLIs to refresh their own tokens.
+For Claude.ai OAuth, that writable state belongs to one refresh owner; copying
+one snapshot into independently active workspaces does not create independent
+logins.
 
 ## Requirements
 
@@ -73,6 +80,34 @@ The live targets are:
   older static seed
 - **THEN** the live credential content is preserved and its mode is corrected to
   `0600`.
+
+### Requirement: a Claude OAuth snapshot has one refresh owner
+
+An operator SHALL NOT use one native Claude.ai OAuth credential snapshot as
+durable authentication for multiple independently active workspaces. Claude.ai
+rotates refresh tokens: after one consumer renews the login, another consumer
+holding the previous snapshot can no longer rely on that refresh token.
+
+Each independently refreshing workspace SHALL instead have an independent native
+login, or all consumers SHALL use a single coordinated credential owner that
+serializes refresh and atomically publishes the latest credential. A static
+Coder secret is bootstrap material, not a credential broker or canonical
+write-back store.
+
+#### Scenario: two workspaces start from one snapshot
+
+- **WHEN** two independently active Claude processes start with copies of the
+  same access and refresh tokens
+- **THEN** the setup treats expiry after either process refreshes as an expected
+  credential-divergence risk, not as durable shared authentication.
+
+#### Scenario: the source login rotates after the seed is captured
+
+- **WHEN** the workspace that supplied a Coder seed refreshes its native login
+  after the snapshot was captured
+- **THEN** the static seed is considered potentially stale even if its JSON is
+  structurally valid and its recorded refresh-token expiry remains in the
+  future.
 
 ### Requirement: Remote Control is opt-in and idempotent
 
@@ -249,16 +284,57 @@ environment variable names of the Claude process and assert that
 `CLAUDE_CODE_OAUTH_TOKEN` is absent. Never dump the complete process
 environment.
 
+## Diagnose `Login expired`
+
+Anthropic defines `Login expired · Please run /login` as a local terminal state:
+Claude Code tried to renew the saved login, the OAuth service rejected the
+stored refresh token, and Claude Code cleared the saved credentials. Later
+requests stop locally rather than reaching the API. This differs from an API
+response that reports a revoked or expired access token.
+
+The cleared Linux credential retains its non-secret account metadata but has
+this diagnostic shape:
+
+``` text
+claudeAiOauth.accessToken:           empty
+claudeAiOauth.refreshToken:          empty
+claudeAiOauth.expiresAt:             0
+claudeAiOauth.refreshTokenExpiresAt: may remain in the future
+claude auth status:                  loggedIn=false
+```
+
+Inspect only field presence, emptiness, expiry metadata, file timestamps, and
+`claude auth status --json`; never print token values. A future
+`refreshTokenExpiresAt` does not make an empty or rejected refresh token usable.
+
+Correlate the credential file modification time with other refresh owners. A
+source credential rotating immediately before another copy is cleared is
+evidence of refresh-token divergence. The same signature is reported upstream
+when concurrent Claude clients race a single-use refresh token: the losing
+client persists empty token fields and `expiresAt: 0`.
+
+The seed-once lifecycle does not repair this state automatically. The cleared
+credential document is still a non-empty file, so preserving it is consistent
+with the rule that lifecycle startup never overwrites mutable live state. A
+healthy JSON parse and mode `0600` therefore prove storage integrity, not
+authentication health.
+
 ## Rotation and recovery
 
 - Let Claude and Codex update their writable live files during normal token
   refresh. Do not repeatedly overwrite them from static Coder seeds.
-- Update the Coder seed after an intentional login rotation when newly created
-  workspaces must inherit the new native state.
+- Capture a Claude Coder seed only for a bounded bootstrap into one refresh
+  owner. Treat it as stale after that owner rotates the login; do not distribute
+  the same snapshot to another independently active workspace.
+- Updating a Coder secret does not update the environment of an already running
+  outer workspace. Restarting only the nested container continues to expose the
+  old seed environment.
 - If a seed changes but an existing live file must be replaced, first establish
   that the live state is obsolete. Back it up only through an approved encrypted
   credential channel; plaintext credential backups are prohibited.
-- A copied refresh-token snapshot is unsuitable as a canonical credential for
-  multiple concurrently active disposable workspaces. Use a centralized,
-  versioned write-back mechanism when concurrent consumers must share rotating
-  authentication state.
+- A copied refresh-token snapshot is unsuitable as canonical authentication for
+  multiple concurrently active disposable workspaces. Give each workspace an
+  independent native login, or use a centralized single-owner refresh mechanism
+  with atomic, versioned write-back when consumers must share rotating state.
+- `CLAUDE_CODE_OAUTH_TOKEN` can authenticate model requests but cannot replace
+  native login state for Remote Control, so it does not remove this constraint.
