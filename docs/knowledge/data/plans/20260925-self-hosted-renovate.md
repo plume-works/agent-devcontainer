@@ -4,7 +4,7 @@ created: 2026-09-25
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks can refresh checksum pins, lock files, and pre-commit output in the same commit as the bump.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-09-28T21:30:00Z
 sources:
 - resource: .github/renovate.json
 - resource: .github/workflows/validate-renovate-config.yml
@@ -405,12 +405,19 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** Modify: `.github/workflows/reformat.yml`,
 `.github/workflows/primary-checks.yml`,
-`docs/knowledge/data/architecture/renovate-post-upgrade.md`
+`docs/knowledge/data/architecture/renovate-post-upgrade.md`; Create:
+`scripts/tests/test_reformat_renovate_skip.py`
 
-- [ ] `primary-checks.yml` passes the pull request author to `reformat.yml`, and
+- [x] `primary-checks.yml` passes the pull request author to `reformat.yml`, and
   `commit-format-changes` skips the push when the author is a Renovate bot, so
   the reformat gate fails instead of putting a foreign commit on a branch
   Renovate would stop updating. Super-Linter still lints those pull requests.
+  - **Evidence:** commit 1f70336; in the commit carrying this tick,
+    `scripts/tests/test_reformat_renovate_skip.py` runs the workflow's own
+    `verify` and gate scripts: both Renovate bots skip the commit, a person does
+    not, and changed files make the gate's failing step fire — 7 passed; the bot
+    cases fail with the Renovate branch removed, and the gate case with the
+    failing step's condition inverted.
 
 ### Task 17: Require the validation check
 
@@ -452,6 +459,21 @@ options as `RENOVATE_*` environment variables instead.
     `renovate.yml`, and `validate-renovate-config.yml`; GitHub Actions run
     36348362781 ran `Validate Renovate config` in that digest and passed
     `Renovate config validation finished`.
+
+### Task 21: Mask the Dev Container feature lock
+
+**Files:** Modify: `.devcontainer/.agent.metadata.json`,
+`docs/knowledge/tests/test_devcontainer_metadata_mask.py`
+
+- [x] Mask the feature version key, the `version` field, and the `sha256:`
+  digests in `.devcontainer/devcontainer-lock.json`, so a feature bump with its
+  regenerated lock does not mark the `devcontainer` map docs stale and fail
+  `Validate agent files`; the feature set and registry stay watched.
+  - **Evidence:** in the commit carrying this tick,
+    `test_production_mask_keeps_a_feature_bump_with_its_lock_fresh` and
+    `test_production_mask_keeps_the_lock_identity_under_surveillance` pass, the
+    first failing against the previous mask; `stale-map-docs.py` reports every
+    map doc fresh with #155's lock change merged onto main.
 
 ## Spec changes
 
@@ -551,7 +573,7 @@ imply, produced by the same toolchain contributors use.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
+Verified anchor points (line numbers as of 2026-09-28):
 
 - `.github/renovate.json:3` — `extends`
 - `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
@@ -594,4 +616,7 @@ Verified anchor points (line numbers as of 2026-09-27):
   `commit-format-changes`; `RENOVATE_BOT_ACTORS` at `:343`
 - `.github/workflows/primary-checks.yml:46` — `caller_pr_author`
 - `pyproject.toml:29` — pytest `testpaths`
-- `.devcontainer/devcontainer.json:15-17` — feature references the lock follows
+- `.devcontainer/devcontainer.json:16-17` — feature references the lock follows
+- `.devcontainer/.agent.metadata.json` — feature pin and lock masks
+- `scripts/tests/test_reformat_renovate_skip.py` — runs `reformat.yml`'s
+  `verify` and gate `compute` scripts
