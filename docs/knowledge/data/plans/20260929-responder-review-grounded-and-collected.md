@@ -109,11 +109,11 @@ keeps its ceilings and hard fallback unchanged.
   one-level merge of its output onto `$HOME/.claude/settings.json`;
   `claude plugin list` reports `agentdev@agent-devcontainer` enabled. The same
   procedure with the current merge reports it disabled.
-  - **Evidence:** this procedure run against commit `72341eb` in
-    `agent-desktop@sha256:eefd3d46…`, the digest `ai-responder.yml` pins, with
-    the working directory at the checkout: the Task 1 merge yields `✔ enabled`
-    for `agentdev@agent-devcontainer`; the merge from `72341eb~1` yields
-    `✘ disabled`, its `enabledPlugins` holding only the project's five
+  - **Evidence:** this procedure run against commit `cfe75d6` in
+    `agent-desktop@sha256:afa9344d…`, the digest `ai-responder.yml` pins at that
+    commit, with the working directory at the checkout: the Task 1 merge yields
+    `✔ enabled` for `agentdev@agent-devcontainer`; the merge from `72341eb~1`
+    yields `✘ disabled`, its `enabledPlugins` holding only the project's five
     `claude-plugins-official` entries.
 
 ### Task 3: Dispatch Claude Code passes as foreground Agent calls
@@ -160,9 +160,14 @@ keeps its ceilings and hard fallback unchanged.
 
 **Files:** none (CI evidence)
 
-- [ ] The responder review of the pull request carrying Tasks 1–4 publishes an
+- [x] The responder review of the pull request carrying Tasks 1–4 publishes an
   `agentdev:pr-review` review, and its execution artifact shows every `Agent`
   call with `run_in_background: false`.
+  - **Evidence:** AI Responder run 36563088998 on PR #214 (head `cfe75d6`)
+    published an `APPROVE` review from `github-actions`; its
+    `claude-review-responder-output` artifact shows `Skill agentdev:pr-review`
+    and three `Agent` calls (compliance, correctness, durable-knowledge), each
+    with `run_in_background: false`.
 
 ### Task 6: A consumer repository's responder resolves agentdev:pr-review
 
@@ -209,19 +214,19 @@ Verified anchor points (line numbers as of 2026-09-29):
 - `.github/actions/run-claude-responder/action.yml:95` —
   `Run devcontainer lifecycle scripts`, which writes the user-scope settings
 - `.github/actions/run-claude-responder/action.yml:112` —
-  `Merge Claude settings`, the two-layer merge at line 117
-- `.github/actions/run-claude-responder/action.yml:144` — `Claude Responder`,
-  with the `settings:` input at line 151
+  `Merge Claude settings`, the three-layer merge at line 124
+- `.github/actions/run-claude-responder/action.yml:147` — `Claude Responder`,
+  with the `settings:` input at line 154
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:15` — local scope by
-  default; the marketplace guard at line 20
+  default; the marketplace guard at line 21
 - `.devcontainer/scripts/postCreateCommand.sh:91` — the user-scope install
 - `.claude/settings.json:49` — the project `enabledPlugins` block
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:133` — Step 4's Claude
-  Code dispatch bullet; blocking bullet at line 134
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:143` — Step 6's runner and
-  ceiling reference
+  Code foreground dispatch bullet; collect bullet at line 134
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:143` — Step 6's runner
+  reference, with the validator ceiling scoped to Codex
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:156` —
-  `Waiting on Parallel Passes`; `TaskOutput` at line 177, budget at 178, hard
-  fallback at 179
+  `Waiting on Parallel Passes`; foreground dispatch at line 174, Codex budget at
+  176, Codex hard fallback at 177
 - `.github/workflows/ai-responder.yml:437` — `claude-respond`
   `timeout-minutes: 30`
