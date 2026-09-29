@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import os
 from pathlib import Path
@@ -19,11 +20,14 @@ SCRIPT = REPO_ROOT / '.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-
 PLUGIN_BIN = REPO_ROOT / '.agents/plugins/agentdev/bin'
 METADATA = REPO_ROOT / '.devcontainer/.agent.metadata.json'
 DEVCONTAINER = REPO_ROOT / '.devcontainer/devcontainer.json'
+LOCK = REPO_ROOT / '.devcontainer/devcontainer-lock.json'
 TMP_ROOT = REPO_ROOT / '.tmp'
 FEATURE = 'ghcr.io/devcontainers/features/docker-in-docker'
 FEATURE_ENTRY = re.compile(
     rf'(?m)^\s*"(?P<feature>{re.escape(FEATURE)}):(?P<version>\d+(?:\.\d+)*)": \{{\}},?$'
 )
+LOCK_VERSION = re.compile(r'("version": ")([^"]+)(")')
+SHA256 = re.compile(r'(sha256:)([0-9a-f]{64})')
 GIT_IDENTITY = ['-c', 'user.name=Fixture Author', '-c', 'user.email=fixture@example.invalid']
 
 
@@ -66,7 +70,7 @@ def _digest(repository: Path) -> str:
 
 @pytest.fixture
 def production_mask_workspace(monkeypatch: pytest.MonkeyPatch) -> Path:
-    """Build a repository using the checked-in mask and Dev Container file."""
+    """Build a repository using the checked-in mask, Dev Container file, and feature lock."""
     # A hook under `git commit -a` exports an absolute GIT_INDEX_FILE.
     # See bugs/fixture-git-inherits-commit-index.
     for name in [name for name in os.environ if name.startswith('GIT_')]:
@@ -78,6 +82,7 @@ def production_mask_workspace(monkeypatch: pytest.MonkeyPatch) -> Path:
         (repository / '.iwe').mkdir()
         (repository / '.devcontainer/.agent.metadata.json').write_text(METADATA.read_text())
         (repository / '.devcontainer/devcontainer.json').write_text(DEVCONTAINER.read_text())
+        (repository / '.devcontainer/devcontainer-lock.json').write_text(LOCK.read_text())
         (repository / '.iwe/config.toml').write_text(
             'version = 3\n\n[library]\npath = "docs/knowledge"\n'
         )
@@ -132,6 +137,23 @@ def _rename_feature(content: str) -> str:
     return content[: match.start('feature')] + renamed + content[match.end('feature') :]
 
 
+def _bump_lock(content: str) -> str:
+    """Rewrite the lock as the devcontainer CLI does after the feature bump."""
+    old = _feature_match(DEVCONTAINER.read_text()).group('version')
+    new = _feature_match(_bump_feature_version(DEVCONTAINER.read_text())).group('version')
+    content = content.replace(f'{FEATURE}:{old}', f'{FEATURE}:{new}')
+    content = LOCK_VERSION.sub(r'\g<1>\g<2>.1\g<3>', content)
+    return SHA256.sub(
+        lambda match: match[1] + hashlib.sha256(match[2].encode()).hexdigest(), content
+    )
+
+
+def _edit_lock(repository: Path, edit: Callable[[str], str]) -> None:
+    """Apply one text edit to the fixture's feature lock."""
+    lock = repository / '.devcontainer/devcontainer-lock.json'
+    lock.write_text(edit(lock.read_text()))
+
+
 def _write_devcontainer(repository: Path, content: str) -> None:
     """Replace the fixture's Dev Container definition."""
     (repository / '.devcontainer/devcontainer.json').write_text(content)
@@ -182,4 +204,38 @@ def test_production_mask_keeps_feature_identity_under_surveillance(
         line.startswith('STALE data/codebase/devcontainer source_digest ')
         for line in completed.stdout.splitlines()
     )
+    assert completed.stdout.splitlines()[-1] == 'RESULT=STALE_FOUND'
+
+
+def test_production_mask_keeps_a_feature_bump_with_its_lock_fresh(
+    production_mask_workspace: Path,
+) -> None:
+    """The feature bump plus the lock the post-upgrade task regenerates stay masked."""
+    _write_devcontainer(production_mask_workspace, _bump_feature_version(DEVCONTAINER.read_text()))
+    _edit_lock(production_mask_workspace, _bump_lock)
+
+    completed = _run_staleness_check(production_mask_workspace)
+
+    assert completed.returncode == 0, completed.stderr
+    assert 'FRESH data/codebase/devcontainer' in completed.stdout.splitlines()
+
+
+@pytest.mark.parametrize(
+    'edit',
+    [
+        lambda text: text.replace(f'"{FEATURE}:', f'"{FEATURE}-renamed:'),
+        lambda text: text.replace('"resolved": "ghcr.io/', '"resolved": "docker.io/', 1),
+    ],
+    ids=['locked-feature-renamed', 'resolved-registry-changed'],
+)
+def test_production_mask_keeps_the_lock_identity_under_surveillance(
+    production_mask_workspace: Path,
+    edit: Callable[[str], str],
+) -> None:
+    """Changing which feature is locked, or where it resolves from, invalidates the map."""
+    _edit_lock(production_mask_workspace, edit)
+
+    completed = _run_staleness_check(production_mask_workspace)
+
+    assert completed.returncode == 3, completed.stderr
     assert completed.stdout.splitlines()[-1] == 'RESULT=STALE_FOUND'
