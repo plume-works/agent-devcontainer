@@ -13,7 +13,7 @@ source "${script_dir}/../../../bin/result-codes.sh"
 # shellcheck source=/dev/null
 source "${script_dir}/../../../bin/git-default-branch.sh"
 
-RESULT_CODES+=("3=PROTECTED_BRANCH" "4=COMMIT_FAILED")
+RESULT_CODES+=("3=PROTECTED_BRANCH" "4=COMMIT_FAILED" "5=DEFAULT_UNKNOWN")
 
 remote_name="origin"
 
@@ -29,7 +29,9 @@ Options:
   -h, --help       Show this help text.
 
 Protected: main, master, and the branch refs/remotes/<remote>/HEAD names (or,
-when that is unset, the default branch gh reports for the remote's URL).
+when that is unset, the default branch gh reports for the remote's URL). When
+the remote exists but neither source names its default branch, the commit is
+refused; when the remote is not configured, only main and master are protected.
 
 Output:
   The output of git commit, then key=value lines:
@@ -40,6 +42,8 @@ Results (RESULT / exit code):
   SUCCESS           0  The commit was created
   PROTECTED_BRANCH  3  The current branch is a default branch; git commit did not run
   COMMIT_FAILED     4  git commit ran and failed (nothing staged, hook failure)
+  DEFAULT_UNKNOWN   5  The remote exists but its default branch could not be
+                       determined; git commit did not run
   PREFLIGHT_ERROR   2  Bad usage, not a repository, or a detached HEAD
   SCRIPT_FAILURE    1  Unhandled error
   SIGNAL_HUP      129  Interrupted by HUP
@@ -89,9 +93,12 @@ printf 'BRANCH=%s\n' "${branch_name}"
 protected=0
 if is_default_branch "${branch_name}"; then
   protected=1
-elif default_branch="$(remote_default_branch "${remote_name}")" \
-  && [[ "${branch_name}" == "${default_branch}" ]]; then
-  protected=1
+elif default_branch="$(remote_default_branch "${remote_name}")"; then
+  [[ "${branch_name}" != "${default_branch}" ]] || protected=1
+elif git remote get-url "${remote_name}" >/dev/null 2>&1; then
+  print_error "Cannot tell whether '${branch_name}' is the default branch of '${remote_name}'."
+  print_error "Run: git remote set-head ${remote_name} --auto, or authenticate gh (gh auth login)."
+  quit_by_code 5
 fi
 if [[ "${protected}" -eq 1 ]]; then
   print_error "Refusing to commit on the default branch '${branch_name}'."

@@ -231,6 +231,7 @@ def test_unset_remote_head_asks_gh_for_the_default_branch(
     """Without origin/main or origin/HEAD, gh names the default branch for the remote URL."""
     # Arrange
     fixture = Fixture(plugin_tmp_path, default_branch='fixture-trunk')
+    git(fixture.work, 'config', 'fetch.followRemoteHEAD', 'never')
     git(fixture.work, 'remote', 'set-head', 'origin', '--delete')
     fetched_sha = fixture.advance_remote('late.txt', 'late\n')
     stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'echo fixture-trunk')
@@ -251,6 +252,7 @@ def test_unset_remote_head_without_gh_answer_is_a_preflight_error(
     """When gh cannot report the default branch, nothing is created."""
     # Arrange
     fixture = Fixture(plugin_tmp_path, default_branch='fixture-trunk')
+    git(fixture.work, 'config', 'fetch.followRemoteHEAD', 'never')
     git(fixture.work, 'remote', 'set-head', 'origin', '--delete')
     stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'exit 1')
 
@@ -370,6 +372,7 @@ def test_stash_mode_keeps_stash_entry_when_pop_conflicts(
     # Assert
     assert outcome(completed) == (7, 'RESULT=STASH_CONFLICTS')
     assert keys['STASH_REF'] == 'stash@{0}'
+    assert keys['STASH_SHA'] == git(fixture.work, 'rev-parse', 'stash@{0}')
     assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture-topic'
     assert len(git(fixture.work, 'stash', 'list').splitlines()) == 1
     assert git(fixture.work, 'diff', '--name-only', '--diff-filter=U') == 'fixture.txt'
@@ -389,12 +392,70 @@ def test_stash_mode_restores_changes_when_the_branch_cannot_be_created(
     completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic', '--stash')
 
     # Assert
-    assert outcome(completed) == (1, 'RESULT=SCRIPT_FAILURE')
+    assert outcome(completed) == (8, 'RESULT=CREATE_FAILED')
     assert 'STASH_REF' not in keys
     assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
     assert git(fixture.work, 'stash', 'list') == ''
     assert (fixture.work / 'fixture.txt').read_text() == 'local edit\ntwo\nthree\nfour\nfive\n'
     assert (fixture.work / 'untracked.txt').read_text() == 'new\n'
+
+
+def test_stash_mode_never_pops_an_unrelated_stash_entry(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """When stash saves nothing, an older unrelated stash entry stays in the list untouched."""
+    # Arrange
+    (fixture.work / 'other.txt').write_text('unrelated\n')
+    git(fixture.work, 'stash', 'push', '--message', 'fixture-unrelated')
+    unrelated_sha = git(fixture.work, 'rev-parse', 'stash@{0}')
+    git(
+        fixture.work,
+        '-c',
+        'protocol.file.allow=always',
+        'submodule',
+        'add',
+        str(fixture.remote),
+        'fixture-sub',
+    )
+    git(fixture.work, 'commit', '-m', 'add fixture-sub')
+    (fixture.work / 'fixture-sub' / 'fixture.txt').write_text('submodule edit\n')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic', '--stash')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert 'STASH_REF' not in keys
+    assert git(fixture.work, 'stash', 'list', '--format=%H') == unrelated_sha
+    assert (fixture.work / 'other.txt').read_text() == 'other\n'
+
+
+def test_staged_only_changes_to_paths_the_base_moved_are_a_carry_conflict(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """A change held only in the index still blocks carrying it across a moved path."""
+    # Arrange
+    fixture.advance_remote('fixture.txt', 'ONE\ntwo\nthree\nfour\nfive\n')
+    head_before = git(fixture.work, 'rev-parse', 'HEAD')
+    (fixture.work / 'fixture.txt').write_text('one\ntwo\nthree\nfour\nFIVE\n')
+    git(fixture.work, 'add', 'fixture.txt')
+    git(fixture.work, 'restore', '--source=HEAD', '--worktree', 'fixture.txt')
+    staged_before = git(fixture.work, 'diff', '--cached')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (4, 'RESULT=CARRY_CONFLICT')
+    assert 'fixture.txt' in completed.stderr
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
+    assert git(fixture.work, 'rev-parse', 'HEAD') == head_before
+    assert git(fixture.work, 'diff', '--cached') == staged_before
+    assert git(fixture.work, 'diff', 'HEAD', '--name-only') == ''
+    assert git(fixture.work, 'branch', '--list', 'fixture-topic') == ''
+    assert git(fixture.work, 'stash', 'list') == ''
 
 
 def test_conflicted_stash_resolution_ends_with_the_stash_dropped(
@@ -439,12 +500,37 @@ def test_worktree_mode_uses_the_given_root_and_leaves_checkout_alone(
 
     # Assert
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    worktree = worktree_root / 'work-fixture-topic'
+    worktree = worktree_root / 'work-fixture' / 'topic'
     assert keys['WORKTREE'] == str(worktree)
     assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
     assert git(worktree, 'rev-parse', 'HEAD') == fetched_sha
     assert git(worktree, 'rev-parse', '--abbrev-ref', '@{u}') == 'origin/fixture/topic'
     assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
+
+
+def test_worktree_paths_of_slashed_and_dashed_names_do_not_collide(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """fixture/topic and fixture-topic get distinct worktrees under the same root."""
+    # Arrange
+    worktree_root = str(fixture.root / 'trees')
+    slashed, slashed_keys = run_script(
+        plugin_root, fixture.work, 'fixture/topic', '--worktree-root', worktree_root
+    )
+
+    # Act
+    dashed, dashed_keys = run_script(
+        plugin_root, fixture.work, 'fixture-topic', '--worktree-root', worktree_root
+    )
+
+    # Assert
+    assert outcome(slashed) == (0, 'RESULT=SUCCESS')
+    assert outcome(dashed) == (0, 'RESULT=SUCCESS')
+    assert slashed_keys['WORKTREE'] != dashed_keys['WORKTREE']
+    assert git(Path(dashed_keys['WORKTREE']), 'rev-parse', '--abbrev-ref', 'HEAD') == (
+        'fixture-topic'
+    )
 
 
 def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(
@@ -457,7 +543,7 @@ def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(
 
     # Assert
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    worktree = fixture.work / '.worktrees' / 'work-fixture-topic'
+    worktree = fixture.work / '.worktrees' / 'work-fixture' / 'topic'
     assert keys['WORKTREE'] == str(worktree)
     assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
     exclude = (fixture.work / '.git' / 'info' / 'exclude').read_text()
@@ -480,7 +566,8 @@ def test_worktree_mode_under_workspaces_defaults_to_a_sibling(
     # Arrange
     name = f'fixture-{uuid4().hex}'
     checkout = WORKSPACES / name
-    worktree = WORKSPACES / f'{name}-fixture-topic'
+    worktree_parent = WORKSPACES / f'{name}-fixture'
+    worktree = worktree_parent / 'topic'
     git(fixture.root, 'clone', str(fixture.remote), str(checkout))
     try:
         # Act
@@ -492,7 +579,7 @@ def test_worktree_mode_under_workspaces_defaults_to_a_sibling(
         assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
         assert not (checkout / '.worktrees').exists()
     finally:
-        shutil.rmtree(worktree, ignore_errors=True)
+        shutil.rmtree(worktree_parent, ignore_errors=True)
         shutil.rmtree(checkout)
 
 

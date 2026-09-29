@@ -41,16 +41,33 @@ def initialize_repository(path: Path, branch: str) -> Path:
     return path
 
 
-def run_commit(plugin_root: Path, cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
-    """Run git-commit.sh with `args`."""
+def run_commit(
+    plugin_root: Path,
+    cwd: Path,
+    *args: str,
+    path_prefix: Path | None = None,
+) -> subprocess.CompletedProcess[str]:
+    """Run git-commit.sh with `args`, optionally with `path_prefix` first on PATH."""
+    env = {**os.environ, **FIXTURE_ENV}
+    if path_prefix is not None:
+        env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
     return subprocess.run(
         [str(plugin_root / 'skills/git-commit/scripts/git-commit.sh'), *args],
         cwd=cwd,
         check=False,
         capture_output=True,
         text=True,
-        env={**os.environ, **FIXTURE_ENV},
+        env=env,
     )
+
+
+def stub_gh(directory: Path, script_body: str) -> Path:
+    """Install a fake `gh` running `script_body` and return its directory."""
+    directory.mkdir()
+    gh = directory / 'gh'
+    gh.write_text(f'#!/bin/sh\n{script_body}\n')
+    gh.chmod(0o755)
+    return directory
 
 
 def outcome(completed: subprocess.CompletedProcess[str]) -> tuple[int, str]:
@@ -156,3 +173,46 @@ def test_detached_head_is_a_preflight_error(plugin_root: Path, plugin_tmp_path: 
     # Assert
     assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
     assert commit_count(repository) == 1
+
+
+def test_unknown_default_branch_of_a_configured_remote_is_refused(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """A remote whose default branch nobody can name blocks the commit instead of guessing."""
+    # Arrange
+    repository = initialize_repository(plugin_tmp_path / 'repo', 'main')
+    git(repository, 'switch', '-c', 'fixture-topic')
+    git(repository, 'remote', 'add', 'origin', str(plugin_tmp_path / 'remote.git'))
+    stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'exit 1')
+
+    # Act
+    completed = run_commit(
+        plugin_root, repository, '--', '-m', 'fixture change', path_prefix=stub_dir
+    )
+
+    # Assert
+    assert outcome(completed) == (5, 'RESULT=DEFAULT_UNKNOWN')
+    assert 'GIT_EXIT_CODE' not in completed.stdout
+    assert 'git remote set-head origin --auto' in completed.stderr
+    assert commit_count(repository) == 1
+
+
+def test_missing_remote_protects_only_main_and_master(
+    plugin_root: Path,
+    plugin_tmp_path: Path,
+) -> None:
+    """Without the remote configured at all, a feature branch commits even when gh knows nothing."""
+    # Arrange
+    repository = initialize_repository(plugin_tmp_path / 'repo', 'main')
+    git(repository, 'switch', '-c', 'fixture-topic')
+    stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'exit 1')
+
+    # Act
+    completed = run_commit(
+        plugin_root, repository, '--', '-m', 'fixture change', path_prefix=stub_dir
+    )
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert commit_count(repository) == 2

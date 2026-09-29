@@ -12,6 +12,7 @@ RESULT_CODES+=(
   "5=PUSH_FAILED"
   "6=FETCH_FAILED"
   "7=STASH_CONFLICTS"
+  "8=CREATE_FAILED"
 )
 
 remote_name="origin"
@@ -40,7 +41,9 @@ Options:
                          checkout alone
   --worktree-root <dir>  Parent directory for the worktree (implies --worktree).
                          Default: /workspaces when the main checkout lives
-                         directly under it, otherwise <main checkout>/.worktrees
+                         directly under it, otherwise <main checkout>/.worktrees.
+                         The worktree is <parent>/<repo>-<name>; a '/' in <name>
+                         stays a directory separator
   -h, --help             Show this help text.
 
 Output (key=value lines):
@@ -49,7 +52,8 @@ Output (key=value lines):
   When main/master holds commits the base lacks also: LOCAL_COMMITS; the
   branch then starts at HEAD instead of the base, and outside worktree mode
   main/master is reset to the base afterwards
-  On STASH_CONFLICTS, or SCRIPT_FAILURE with changes left stashed, also: STASH_REF
+  When changes are left stashed also: STASH_SHA (the entry's commit) and
+  STASH_REF (its current stash@{n}; absent if the entry left the list)
 
 Results (RESULT / exit code):
   SUCCESS          0  Branch created, pushed, and tracking <remote>/<name>
@@ -60,6 +64,8 @@ Results (RESULT / exit code):
   FETCH_FAILED     6  The remote could not be fetched
   STASH_CONFLICTS  7  The branch was created but popping the stash conflicted;
                       the stash entry STASH_REF is kept
+  CREATE_FAILED    8  The branch could not be created; the checkout is unchanged
+                      and any stash was restored (STASH_REF when restoring failed)
   PREFLIGHT_ERROR  2  Bad usage, not a repo, invalid name, or no base ref
   SCRIPT_FAILURE   1  Unhandled error
   SIGNAL_HUP     129  Interrupted by HUP
@@ -213,12 +219,12 @@ if [[ "${worktree_mode}" -eq 1 ]]; then
       fi
     fi
   fi
-  worktree_dir="${parent_dir}/$(basename -- "${main_dir}")-${branch_name//\//-}"
+  worktree_dir="${parent_dir}/$(basename -- "${main_dir}")-${branch_name}"
   if [[ -e "${worktree_dir}" ]]; then
     print_error "Worktree path '${worktree_dir}' already exists."
     quit_by_code 2
   fi
-  mkdir -p -- "${parent_dir}"
+  mkdir -p -- "$(dirname -- "${worktree_dir}")"
   git worktree add --no-track -b "${branch_name}" "${worktree_dir}" "${start_sha}" >&2
   printf 'WORKTREE=%s\n' "${worktree_dir}"
   push_branch || { print_error "Push failed; the local branch and worktree are kept."; quit_by_code 5; }
@@ -241,7 +247,11 @@ if [[ "${dirty}" -eq 1 && "${stash_mode}" -eq 0 ]]; then
     if [[ -n "${changed_between["${path}"]+set}" ]]; then
       blocked+=("${path}")
     fi
-  done < <(git diff --no-renames --name-only -z HEAD; git ls-files --others --exclude-standard -z)
+  done < <(
+    git diff --no-renames --name-only -z HEAD
+    git diff --cached --no-renames --name-only -z
+    git ls-files --others --exclude-standard -z
+  )
 
   if [[ "${#blocked[@]}" -gt 0 ]]; then
     print_error "Uncommitted changes touch paths that differ between HEAD and ${base_ref}:"
@@ -251,19 +261,59 @@ if [[ "${dirty}" -eq 1 && "${stash_mode}" -eq 0 ]]; then
   fi
 fi
 
+# The stash stack is shared, so only the entry this run created is ever
+# popped, located by its commit rather than by position.
 stashed=0
+stash_sha=""
 if [[ "${dirty}" -eq 1 && "${stash_mode}" -eq 1 ]]; then
+  stash_before="$(git rev-parse -q --verify refs/stash || true)"
   git stash push --include-untracked --message "git-new-branch: ${branch_name}" >&2
-  stashed=1
+  stash_after="$(git rev-parse -q --verify refs/stash || true)"
+  if [[ -n "${stash_after}" && "${stash_after}" != "${stash_before}" ]]; then
+    stashed=1
+    stash_sha="${stash_after}"
+  else
+    printf 'git stash saved nothing; no stash entry will be popped.\n' >&2
+  fi
 fi
+
+stash_ref() {
+  local ref sha
+  while read -r ref sha; do
+    if [[ "${sha}" == "${stash_sha}" ]]; then
+      printf '%s\n' "${ref}"
+      return 0
+    fi
+  done < <(git stash list --format='%gd %H')
+  return 1
+}
+
+pop_own_stash() {
+  local ref
+  if ! ref="$(stash_ref)"; then
+    print_error "Stash entry ${stash_sha} is no longer in the stash list."
+    return 1
+  fi
+  git stash pop "${ref}" >&2
+}
+
+# Sets kept_ref for the caller's message.
+report_stash() {
+  if kept_ref="$(stash_ref)"; then
+    printf 'STASH_REF=%s\n' "${kept_ref}"
+  else
+    kept_ref="${stash_sha}"
+  fi
+  printf 'STASH_SHA=%s\n' "${stash_sha}"
+}
 
 if ! git switch --no-track --create "${branch_name}" "${start_sha}" >&2; then
   print_error "Could not create '${branch_name}'; the checkout was not changed."
-  if [[ "${stashed}" -eq 1 ]] && ! git stash pop >&2; then
-    printf 'STASH_REF=stash@{0}\n'
-    print_error "Restoring the stash failed; the stash entry stash@{0} holds the changes."
+  if [[ "${stashed}" -eq 1 ]] && ! pop_own_stash; then
+    report_stash
+    print_error "Restoring the stash failed; the stash entry ${kept_ref} holds the changes."
   fi
-  quit_by_code 1
+  quit_by_code 8
 fi
 
 # The default branch is reset only once its old tip is safe on the new branch.
@@ -277,9 +327,9 @@ fi
 push_status=0
 push_branch || push_status=$?
 
-if [[ "${stashed}" -eq 1 ]] && ! git stash pop >&2; then
-  printf 'STASH_REF=stash@{0}\n'
-  print_error "Popping the stash conflicted; the stash entry stash@{0} is kept."
+if [[ "${stashed}" -eq 1 ]] && ! pop_own_stash; then
+  report_stash
+  print_error "Popping the stash conflicted; the stash entry ${kept_ref} is kept."
   if [[ "${push_status}" -ne 0 ]]; then
     print_error "The push also failed; the branch has no upstream yet."
   fi
