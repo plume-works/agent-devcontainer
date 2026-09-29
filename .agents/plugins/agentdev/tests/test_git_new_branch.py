@@ -10,27 +10,8 @@ import shutil
 import subprocess
 from uuid import uuid4
 
+from git_fixtures import FIXTURE_ENV, git, outcome, stub_gh
 import pytest
-
-FIXTURE_ENV = {
-    'GIT_AUTHOR_NAME': 'Fixture Author',
-    'GIT_AUTHOR_EMAIL': 'fixture@example.invalid',
-    'GIT_COMMITTER_NAME': 'Fixture Author',
-    'GIT_COMMITTER_EMAIL': 'fixture@example.invalid',
-}
-
-
-def git(cwd: Path, *args: str) -> str:
-    """Run a fixture git command and return its stripped stdout."""
-    completed = subprocess.run(
-        ['git', *args],
-        cwd=cwd,
-        check=True,
-        capture_output=True,
-        text=True,
-        env={**os.environ, **FIXTURE_ENV},
-    )
-    return completed.stdout.strip()
 
 
 def commit_file(repository: Path, name: str, content: str) -> None:
@@ -88,11 +69,6 @@ def run_script(
     return completed, keys
 
 
-def outcome(completed: subprocess.CompletedProcess[str]) -> tuple[int, str]:
-    """Return the (exit code, last stdout line) contract pair."""
-    return completed.returncode, completed.stdout.splitlines()[-1]
-
-
 @pytest.fixture
 def fixture(plugin_tmp_path: Path) -> Fixture:
     """Provide a remote whose main has moved ahead of the working clone."""
@@ -141,6 +117,41 @@ def test_local_main_commits_move_to_the_new_branch(plugin_root: Path, fixture: F
     assert git(fixture.work, 'rev-parse', 'fixture-topic') == main_sha
     assert git(fixture.work, 'rev-parse', 'main') == fetched_sha
     assert git(fixture.work, 'rev-parse', '--abbrev-ref', '@{u}') == 'origin/fixture-topic'
+    assert git(fixture.remote, 'rev-parse', 'refs/heads/fixture-topic') == main_sha
+
+
+def stub_git_failing_branch_force(directory: Path) -> Path:
+    """Install a `git` wrapper that fails `git branch --force` and runs git for the rest."""
+    directory.mkdir()
+    wrapper = directory / 'git'
+    wrapper.write_text(
+        '#!/bin/sh\n'
+        'if [ "$1" = branch ] && [ "$2" = --force ]; then exit 1; fi\n'
+        f'exec {shutil.which("git")} "$@"\n'
+    )
+    wrapper.chmod(0o755)
+    return directory
+
+
+def test_failed_default_branch_reset_still_pushes_the_moved_commits(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """When main cannot be reset, the branch is still pushed and DEFAULT_RESET reports it."""
+    # Arrange
+    fixture.advance_remote('late.txt', 'late\n')
+    commit_file(fixture.work, 'local-one.txt', 'one\n')
+    main_sha = git(fixture.work, 'rev-parse', 'main')
+    stub_dir = stub_git_failing_branch_force(fixture.root / 'stub-bin')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic', path_prefix=stub_dir)
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert keys['DEFAULT_RESET'] == 'failed'
+    assert "reset 'main' to origin/main; it still holds the moved commits" in completed.stderr
+    assert git(fixture.work, 'rev-parse', 'main') == main_sha
     assert git(fixture.remote, 'rev-parse', 'refs/heads/fixture-topic') == main_sha
 
 
@@ -215,15 +226,6 @@ def test_missing_base_falls_back_to_remote_head(
     assert git(fixture.work, 'rev-parse', 'HEAD') == fetched_sha
 
 
-def stub_gh(directory: Path, script_body: str) -> Path:
-    """Install a fake `gh` whose arguments are recorded next to it."""
-    directory.mkdir()
-    gh = directory / 'gh'
-    gh.write_text(f'#!/bin/sh\nprintf "%s\\n" "$@" > "{directory}/gh-args"\n{script_body}\n')
-    gh.chmod(0o755)
-    return directory
-
-
 def test_unset_remote_head_asks_gh_for_the_default_branch(
     plugin_root: Path,
     plugin_tmp_path: Path,
@@ -231,7 +233,7 @@ def test_unset_remote_head_asks_gh_for_the_default_branch(
     """Without origin/main or origin/HEAD, gh names the default branch for the remote URL."""
     # Arrange
     fixture = Fixture(plugin_tmp_path, default_branch='fixture-trunk')
-    git(fixture.work, 'config', 'fetch.followRemoteHEAD', 'never')
+    git(fixture.work, 'config', 'remote.origin.followRemoteHEAD', 'never')
     git(fixture.work, 'remote', 'set-head', 'origin', '--delete')
     fetched_sha = fixture.advance_remote('late.txt', 'late\n')
     stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'echo fixture-trunk')
@@ -252,7 +254,7 @@ def test_unset_remote_head_without_gh_answer_is_a_preflight_error(
     """When gh cannot report the default branch, nothing is created."""
     # Arrange
     fixture = Fixture(plugin_tmp_path, default_branch='fixture-trunk')
-    git(fixture.work, 'config', 'fetch.followRemoteHEAD', 'never')
+    git(fixture.work, 'config', 'remote.origin.followRemoteHEAD', 'never')
     git(fixture.work, 'remote', 'set-head', 'origin', '--delete')
     stub_dir = stub_gh(plugin_tmp_path / 'stub-bin', 'exit 1')
 
@@ -531,6 +533,28 @@ def test_worktree_paths_of_slashed_and_dashed_names_do_not_collide(
     assert git(Path(dashed_keys['WORKTREE']), 'rev-parse', '--abbrev-ref', 'HEAD') == (
         'fixture-topic'
     )
+
+
+def test_worktree_that_cannot_be_added_is_create_failed(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """A file where the worktree's parent directory must go leaves no branch behind."""
+    # Arrange
+    worktree_root = fixture.root / 'trees'
+    worktree_root.mkdir()
+    (worktree_root / 'work-fixture').write_text('obstacle\n')
+
+    # Act
+    completed, keys = run_script(
+        plugin_root, fixture.work, 'fixture/topic', '--worktree-root', str(worktree_root)
+    )
+
+    # Assert
+    assert outcome(completed) == (8, 'RESULT=CREATE_FAILED')
+    assert 'WORKTREE' not in keys
+    assert git(fixture.work, 'branch', '--list', 'fixture/topic') == ''
+    assert git(fixture.remote, 'branch', '--list', 'fixture/topic') == ''
 
 
 def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(

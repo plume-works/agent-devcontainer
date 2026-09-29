@@ -100,7 +100,7 @@ ${CLAUDE_SKILL_DIR}/scripts/git-new-branch.sh <name>
 | `PUSH_FAILED`     | `5`                 | The branch exists locally but the push failed                        | **STOP.** Report the Git error. The local branch is kept; retry `git push --set-upstream <remote> <name>` once access is restored — never via API.                      |
 | `FETCH_FAILED`    | `6`                 | The remote could not be fetched                                      | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                                                            |
 | `STASH_CONFLICTS` | `7`                 | The branch was created but popping the stash conflicted              | Resolve through Workflow 4. The stash entry `STASH_REF` is kept until then.                                                                                             |
-| `CREATE_FAILED`   | `8`                 | The branch could not be created; the checkout is unchanged           | **STOP.** Report the Git error. Any stash was restored; when `STASH_REF` is printed, tell the user that stash entry holds their changes.                                |
+| `CREATE_FAILED`   | `8`                 | The branch or its worktree could not be created; nothing changed     | **STOP.** Report the Git error. Any stash was restored; when `STASH_REF` is printed, tell the user that stash entry holds their changes.                                |
 | `PREFLIGHT_ERROR` | `2`                 | Bad usage, not a repository, invalid name, or no base ref to resolve | **STOP.** Report the error verbatim and fix the input before retrying.                                                                                                  |
 | `SCRIPT_FAILURE`  | `1`                 | The script broke                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                  |
 | `SIGNAL_*`        | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                     | **STOP.** Inspect `git status` and `git stash list` before rerunning.                                                                                                   |
@@ -161,7 +161,9 @@ If stderr also reported a failed push, handle it as `PUSH_FAILED` afterwards.
 When `SUCCESS` also printed `LOCAL_COMMITS=<n>`, the branch starts at the
 default branch's local `HEAD` and does not yet contain `BASE`. Outside worktree
 mode the script has already reset local `main` (or `master`) to `BASE`, since
-the commits now live on the new branch.
+the commits now live on the new branch. When it also printed
+`DEFAULT_RESET=failed`, that reset did not happen: tell the user local `main`
+still holds the commits, and leave resetting it to them.
 
 1. Work on the new branch — inside `WORKTREE` when it was printed.
 2. If `git status --porcelain` is not empty, ask the user to commit the changes

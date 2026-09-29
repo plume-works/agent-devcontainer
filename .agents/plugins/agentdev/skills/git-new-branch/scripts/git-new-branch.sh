@@ -51,7 +51,8 @@ Output (key=value lines):
   In worktree mode also: WORKTREE
   When main/master holds commits the base lacks also: LOCAL_COMMITS; the
   branch then starts at HEAD instead of the base, and outside worktree mode
-  main/master is reset to the base afterwards
+  main/master is reset to the base afterwards; DEFAULT_RESET=failed when
+  that reset failed and main/master still holds the moved commits
   When changes are left stashed also: STASH_SHA (the entry's commit) and
   STASH_REF (its current stash@{n}; absent if the entry left the list)
 
@@ -224,8 +225,14 @@ if [[ "${worktree_mode}" -eq 1 ]]; then
     print_error "Worktree path '${worktree_dir}' already exists."
     quit_by_code 2
   fi
-  mkdir -p -- "$(dirname -- "${worktree_dir}")"
-  git worktree add --no-track -b "${branch_name}" "${worktree_dir}" "${start_sha}" >&2
+  # A failed add can still leave the new branch behind; it did not exist before.
+  if ! git worktree add --no-track -b "${branch_name}" "${worktree_dir}" "${start_sha}" >&2; then
+    if git show-ref --verify --quiet "refs/heads/${branch_name}"; then
+      git branch -D "${branch_name}" >&2 || true
+    fi
+    print_error "Could not add the worktree '${worktree_dir}'; nothing was created."
+    quit_by_code 8
+  fi
   printf 'WORKTREE=%s\n' "${worktree_dir}"
   push_branch || { print_error "Push failed; the local branch and worktree are kept."; quit_by_code 5; }
   quit_by_code 0
@@ -319,9 +326,13 @@ fi
 # The default branch is reset only once its old tip is safe on the new branch.
 if [[ "${moved_commits}" -eq 1 ]] \
   && git merge-base --is-ancestor "${start_sha}" "refs/heads/${branch_name}"; then
-  git branch --force "${current_branch}" "${base_sha}"
-  printf "Reset '%s' to %s; its commits now live on '%s'.\n" \
-    "${current_branch}" "${base_ref}" "${branch_name}" >&2
+  if git branch --force "${current_branch}" "${base_sha}" >&2; then
+    printf "Reset '%s' to %s; its commits now live on '%s'.\n" \
+      "${current_branch}" "${base_ref}" "${branch_name}" >&2
+  else
+    printf 'DEFAULT_RESET=failed\n'
+    print_error "Could not reset '${current_branch}' to ${base_ref}; it still holds the moved commits."
+  fi
 fi
 
 push_status=0
