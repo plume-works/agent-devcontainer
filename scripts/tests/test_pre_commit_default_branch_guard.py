@@ -97,3 +97,23 @@ def test_commit_on_feature_branch_succeeds(repo: Path) -> None:
     # Assert
     assert completed.returncode == 0, completed.stdout + completed.stderr
     assert git(repo, 'rev-parse', 'HEAD').stdout != head
+
+
+def test_pre_commit_run_on_default_branch_passes_when_the_guard_is_skipped(repo: Path) -> None:
+    """Tooling that runs hooks on main, not commits, can skip the guard by id."""
+    # Arrange
+    (repo / 'fixture.txt').write_text('change\n')
+    env = {**os.environ, **FIXTURE_ENV, 'SKIP': HOOK_ID}
+
+    # Act
+    completed = subprocess.run(
+        ['pre-commit', 'run', '--files', 'fixture.txt'],
+        cwd=repo,
+        check=False,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+    # Assert
+    assert completed.returncode == 0, completed.stdout + completed.stderr

@@ -23,6 +23,7 @@ printf 'uv %s\\n' "$*" >> "$STUB_LOG"
 if [[ "$*" == *refresh-pin-checksums.py* ]]; then
   exit "${STUB_REFRESH_EXIT:-0}"
 fi
+printf '%s\n' "${SKIP-<unset>}" >> "$STUB_LOG.skip"
 count_file="$STUB_LOG.precommit"
 count=$(( $(cat "$count_file" 2>/dev/null || echo 0) + 1 ))
 echo "$count" > "$count_file"
@@ -158,3 +159,28 @@ def test_nothing_changed_runs_nothing(repo: Path) -> None:
 
     assert code == 0
     assert calls == []
+
+
+def pre_commit_skips(root: Path) -> list[str]:
+    """Return the SKIP value each pre-commit invocation saw."""
+    return (root / 'stub.log.skip').read_text().splitlines()
+
+
+def test_pre_commit_skips_the_default_branch_guard_on_every_pass(repo: Path) -> None:
+    """Both passes run on the base branch, so both skip no-commit-to-branch."""
+    (repo / 'pins.yml').write_text('bumped\n')
+
+    code, _ = run(repo, STUB_PRECOMMIT_REWRITE=str(repo / 'pins.yml'))
+
+    assert code == 0
+    assert pre_commit_skips(repo) == ['no-commit-to-branch', 'no-commit-to-branch']
+
+
+def test_pre_commit_skip_keeps_the_callers_value(repo: Path) -> None:
+    """A SKIP set by the caller is extended, not replaced."""
+    (repo / 'pins.yml').write_text('bumped\n')
+
+    code, _ = run(repo, SKIP='fixture-hook')
+
+    assert code == 0
+    assert pre_commit_skips(repo) == ['fixture-hook,no-commit-to-branch']
