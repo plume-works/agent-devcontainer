@@ -9,6 +9,7 @@ PREPARE_SCRIPT = REPO_ROOT / '.devcontainer/scripts/prepare-agent-auth-seed.sh'
 SEED_SCRIPT = REPO_ROOT / '.devcontainer/scripts/seed-agent-auth.sh'
 INIT_SCRIPT = REPO_ROOT / '.devcontainer/devcontainer-init.sh'
 POST_CREATE = REPO_ROOT / '.devcontainer/scripts/postCreateCommand.sh'
+POST_START = REPO_ROOT / '.devcontainer/scripts/postStartCommand.sh'
 COMPOSE = REPO_ROOT / '.devcontainer/docker-compose.yml'
 
 
@@ -142,3 +143,5 @@ def test_lifecycle_calls_prepare_then_consume():
 
     assert '"$script_dir/scripts/prepare-agent-auth-seed.sh"' in init
     assert '"$script_dir/seed-agent-auth.sh"' in post_create
+    # Init rewrites transfer files on every start, so start must consume them too.
+    assert '"$script_dir/seed-agent-auth.sh"' in POST_START.read_text()

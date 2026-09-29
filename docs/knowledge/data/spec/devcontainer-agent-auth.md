@@ -3,7 +3,7 @@ type: spec
 description: Securely seed native Claude and Codex credentials, propagate Git identity, and start Claude Remote Control in a Coder-backed devcontainer.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-28T21:05:00+00:00
+  at: 2026-09-29T12:00:00+00:00
 sources:
 - resource: .devcontainer/devcontainer-init.sh
 - resource: .devcontainer/docker-compose.yml
@@ -56,11 +56,12 @@ not credential values.
 
 ### Requirement: live credentials are seeded once
 
-The post-create lifecycle SHALL install a seed only when its live target is
-absent or empty. An existing non-empty target SHALL win because it may contain
-newer state written by the CLI. Credential directories SHALL be mode `0700`,
-credential files SHALL be mode `0600`, and consumed transfer files SHALL be
-removed.
+The post-create and post-start lifecycle hooks SHALL each install a seed only
+when its live target is absent or empty. An existing non-empty target SHALL win
+because it may contain newer state written by the CLI. Credential directories
+SHALL be mode `0700`, credential files SHALL be mode `0600`, and consumed
+transfer files SHALL be removed. Initialization prepares transfer files on every
+start, so post-start consumes them as well.
 
 The live targets are:
 
@@ -79,11 +80,9 @@ The live targets are:
 `AGENTDEV_CLAUDE_AUTOSTART=1` SHALL start `claude /remote-control` in exactly
 one detached tmux session named `claude-remote`. Repeated or concurrent
 lifecycle hooks SHALL reuse the live session rather than creating duplicates.
-The launcher SHALL skip startup when authentication, `claude`, or `tmux` is
-unavailable.
-
-When native file authentication is available, the Claude process SHALL NOT
-receive `CLAUDE_CODE_OAUTH_TOKEN`.
+The launcher SHALL skip startup when the native Claude login file, `claude`, or
+`tmux` is unavailable. The Claude process SHALL NOT receive
+`CLAUDE_CODE_OAUTH_TOKEN`.
 
 #### Scenario: the container restarts
 
@@ -93,8 +92,9 @@ receive `CLAUDE_CODE_OAUTH_TOKEN`.
 
 ### Requirement: Git identity reaches the nested container
 
-The outer workspace SHALL provide all four variables and Compose SHALL propagate
-them into the nested container:
+Compose SHALL propagate each of these variables that the outer workspace sets,
+and SHALL leave an unset one unset in the nested container, because Git treats
+an empty value as an override of `user.name` or `user.email`:
 
 - `GIT_AUTHOR_NAME`
 - `GIT_AUTHOR_EMAIL`
@@ -104,8 +104,9 @@ them into the nested container:
 ### Requirement: HTTPS git uses the gh login
 
 When `gh` is authenticated to github.com and no git credential helper matches
-`https://github.com`, post-start SHALL configure `gh` as the helper so git never
-waits at an interactive credential prompt. An existing helper SHALL be kept.
+`https://github.com`, post-start SHALL configure `gh` as the helper, checking
+authentication only after the keyring session is available, so git never waits
+at an interactive credential prompt. An existing helper SHALL be kept.
 
 ### Requirement: autostart pre-approves first-run Claude state
 
@@ -185,8 +186,8 @@ During startup:
    mounts `agentdev-agents-auth` at `/root/.agents-auth`.
 3. `postCreateCommand.sh` seeds the live files, removes the transfer files, and
    pre-approves first-run Claude state when autostart is enabled.
-4. `postStartCommand.sh` starts `claude /remote-control` when autostart is
-   enabled.
+4. `postStartCommand.sh` consumes any transfer files a restart prepared, and
+   starts `claude /remote-control` when autostart is enabled.
 
 ### 4. Approve first-run Claude state
 

@@ -10,10 +10,18 @@ POST_START = REPO_ROOT / '.devcontainer/scripts/postStartCommand.sh'
 GH_HELPER = '!gh auth git-credential'
 
 
-def run_setup(tmp_path: Path, *, gh_installed=True, authenticated=True, helper=None):
+def run_setup(
+    tmp_path: Path, *, gh_installed=True, authenticated=True, helper=None, keyring_env=None
+):
+    script = tmp_path / 'workspace/.devcontainer/scripts' / SCRIPT.name
+    script.parent.mkdir(parents=True)
+    shutil.copy2(SCRIPT, script)
+    if keyring_env is not None:
+        (tmp_path / 'workspace/.tmp').mkdir()
+        (tmp_path / 'workspace/.tmp/keyring-session.env').write_text(keyring_env)
     fake_bin = tmp_path / 'bin'
     fake_bin.mkdir()
-    for tool in ('git', 'bash', 'env'):
+    for tool in ('git', 'bash', 'env', 'dirname'):
         (fake_bin / tool).symlink_to(shutil.which(tool))
     if gh_installed:
         (fake_bin / 'gh').write_text(
@@ -37,7 +45,7 @@ def run_setup(tmp_path: Path, *, gh_installed=True, authenticated=True, helper=N
         subprocess.run(
             ['git', 'config', '--global', 'credential.helper', helper], env=env, check=True
         )
-    result = subprocess.run([SCRIPT], env=env, text=True, capture_output=True)
+    result = subprocess.run([script], env=env, text=True, capture_output=True)
     configured = subprocess.run(
         ['git', 'config', '--get-urlmatch', 'credential.helper', 'https://github.com'],
         env=env,
@@ -68,5 +76,15 @@ def test_keeps_existing_helper(tmp_path):
     assert configured == 'store'
 
 
-def test_post_start_runs_setup():
-    assert '"$script_dir/setup-gh-credential-helper.sh"' in POST_START.read_text()
+def test_reads_gh_login_through_saved_keyring_session(tmp_path):
+    result, configured = run_setup(
+        tmp_path, authenticated=False, keyring_env='export GH_TEST_AUTHENTICATED=1\n'
+    )
+    assert result.returncode == 0, result.stderr
+    assert configured == GH_HELPER
+
+
+def test_post_start_runs_setup_after_keyring():
+    post_start = POST_START.read_text()
+    helper = post_start.index('"$script_dir/setup-gh-credential-helper.sh"')
+    assert post_start.index('"$script_dir/setup-keyring.sh"') < helper

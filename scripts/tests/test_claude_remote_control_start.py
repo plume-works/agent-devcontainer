@@ -19,7 +19,7 @@ def make_test_dir() -> Path:
 
 
 def run_with_fake_tmux(
-    *, autostart='1', token='test-secret', session_exists=False, credential_file=False
+    *, autostart='1', token='test-secret', session_exists=False, credential_file=True
 ):
     test_dir = make_test_dir()
     log = test_dir / 'tmux.log'
@@ -53,26 +53,19 @@ def run_with_fake_tmux(
         shutil.rmtree(test_dir)
 
 
-def test_starts_claude_remote_control_without_exposing_token():
+def test_starts_with_credential_file_and_removes_setup_token_from_claude():
     result, calls = run_with_fake_tmux()
     assert result.returncode == 0, result.stderr
-    assert 'new-session -d -s claude-remote' in calls
-    assert '-c /workspaces/example exec claude /remote-control' in calls
-    assert 'test-secret' not in calls
-
-
-def test_prefers_credential_file_and_removes_setup_token_from_claude():
-    result, calls = run_with_fake_tmux(credential_file=True)
-    assert result.returncode == 0, result.stderr
+    assert 'new-session -d -s claude-remote -c /workspaces/example' in calls
     assert 'exec env -u CLAUDE_CODE_OAUTH_TOKEN claude /remote-control' in calls
     assert 'update-environment' not in calls
     assert 'test-secret' not in calls
     assert 'file-secret' not in result.stdout + result.stderr + calls
 
 
-@pytest.mark.parametrize(('autostart', 'token'), [('0', 'test-secret'), ('1', '')])
-def test_skips_when_disabled_or_unauthenticated(autostart, token):
-    result, calls = run_with_fake_tmux(autostart=autostart, token=token)
+@pytest.mark.parametrize(('autostart', 'credential_file'), [('0', True), ('1', False)])
+def test_skips_when_disabled_or_without_credential_file(autostart, credential_file):
+    result, calls = run_with_fake_tmux(autostart=autostart, credential_file=credential_file)
     assert result.returncode == 0, result.stderr
     assert calls == ''
 
@@ -92,17 +85,19 @@ def test_reuses_existing_session():
 
 @pytest.mark.skipif(shutil.which('tmux') is None, reason='tmux is not installed')
 @pytest.mark.parametrize('existing_server', [False, True])
-def test_real_tmux_passes_auth_to_claude(existing_server):
+def test_real_tmux_starts_claude_without_setup_token(existing_server):
     test_dir = make_test_dir()
     fake_bin = test_dir / 'bin'
     tmux_dir = REPO_ROOT / '.tmp'
     result_file = test_dir / 'result'
+    auth_file = test_dir / '.credentials.json'
+    auth_file.write_text('{"claudeAiOauth": {}}')
     fake_bin.mkdir()
     tmux_dir.mkdir(exist_ok=True)
     (fake_bin / 'claude').write_text(
         '#!/bin/sh\n'
         'test "${1:-}" = /remote-control\n'
-        'test "${CLAUDE_CODE_OAUTH_TOKEN:-}" = tmux-test-secret\n'
+        'test -z "${CLAUDE_CODE_OAUTH_TOKEN:-}"\n'
         'printf passed >"$CLAUDE_TMUX_TEST_RESULT"\n'
         'sleep 10\n'
     )
@@ -112,6 +107,7 @@ def test_real_tmux_passes_auth_to_claude(existing_server):
         'TMUX_TMPDIR': str(tmux_dir),
         'AGENTDEV_CLAUDE_AUTOSTART': '1',
         'CLAUDE_CODE_OAUTH_TOKEN': 'tmux-test-secret',
+        'AGENTDEV_CLAUDE_AUTH_PATH': str(auth_file),
         'CLAUDE_TMUX_TEST_RESULT': str(result_file),
         'DEV_WORKSPACE_FOLDER': str(REPO_ROOT),
     }

@@ -5,6 +5,14 @@
 
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Written by setup-keyring.sh; lets gh reach a login stored in the keyring.
+keyring_env="$script_dir/../../.tmp/keyring-session.env"
+if [[ -f "$keyring_env" ]]; then
+  # shellcheck disable=SC1090
+  source "$keyring_env"
+fi
+
 if ! command -v gh >/dev/null 2>&1; then
   echo "gh is not installed; skipping git credential helper setup."
   exit 0
