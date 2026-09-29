@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth seeding and symlinks, gh credential helper, Claude Remote Control.'
 source: .devcontainer/scripts
-source_digest: sha256:f0a9c7ecedaa74bcc42d50cbdedf8d02da0a0a8775483029561689e08b61d495
+source_digest: sha256:a86af05afb08ad20755d579441bf10b235709e3fbc63fb88ffe3f00b0191695d
 verified:
   by: claude-code/opus-5
-  at: 2026-09-29T12:30:00Z
+  at: 2026-09-29T23:00:00Z
 stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5
-  at: 2026-09-29T12:30:00Z
+  at: 2026-09-29T23:00:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -105,7 +105,7 @@ Verified anchor points (line numbers as of 2026-09-29):
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:55-75` — symlink
   materialization and restore
 - `.devcontainer/scripts/uv-sync.sh:23-32` — managed-link removal and sync
-- `.devcontainer/scripts/seed-agent-auth.sh:6,22,47` — `seed_credential`, the
+- `.devcontainer/scripts/seed-agent-auth.sh:6,25,50` — `seed_credential`, the
   per-target lock, the atomic install
 - `.devcontainer/scripts/claude-remote-control-start.sh:9,31` — login-file gate,
   token-free launch
