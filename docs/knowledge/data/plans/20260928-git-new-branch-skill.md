@@ -56,18 +56,20 @@ the base) yield `CARRY_CONFLICT` without touching anything. The SKILL.md then
 asks the user; on approval it reruns with `--stash`, which stashes (including
 untracked files), creates and pushes the branch, and pops the stash onto it. A
 conflicted pop is resolved with `git-merge-resolve`'s conflict workflow; the
-stash entry is dropped only after resolution. When the branch cannot be created
-after stashing, the script pops the changes back onto the unchanged checkout,
-and names the stash entry as `STASH_REF` if that pop fails.
+stash entry is dropped only after resolution. The script pops only the stash
+entry it created, located by its commit (`STASH_SHA`), never whatever sits at
+`stash@{0}`. When the branch or its worktree cannot be created, the script
+reports `CREATE_FAILED`, pops the changes back onto the unchanged checkout, and
+names the stash entry as `STASH_REF` if that pop fails.
 
 `--worktree` leaves the current checkout alone and adds a worktree for the new
-branch instead. The worktree directory name is `<repo>-<branch>` with `/` in the
-branch replaced by `-`, where `<repo>` is the main checkout's directory name.
-Its parent is `/workspaces` when the main checkout lives directly under
-`/workspaces`, otherwise `<main checkout>/.worktrees`; `--worktree-root`
-overrides both. Task 3 adds `.worktrees/` to this repository's `.gitignore`, and
-the script adds it to `.git/info/exclude` when a consuming repository does not
-already ignore it.
+branch instead. The worktree directory name is `<repo>-<branch>`, with any `/`
+in the branch kept as a directory separator, where `<repo>` is the main
+checkout's directory name. Its parent is `/workspaces` when the main checkout
+lives directly under `/workspaces`, otherwise `<main checkout>/.worktrees`;
+`--worktree-root` overrides both. Task 3 adds `.worktrees/` to this repository's
+`.gitignore`, and the script adds it to `.git/info/exclude` when a consuming
+repository does not already ignore it.
 
 When the checkout is on `main` or `master` and `HEAD` holds commits the fetched
 base lacks, the branch starts at `HEAD` instead of the base, so those commits
@@ -350,6 +352,32 @@ Modify: `.agents/plugins/agentdev/tests/test_git_new_branch.py`
   - **Evidence:** commit "fix(git-new-branch): restore stashed changes when the
     branch cannot be created"; `test_git_new_branch.py` 21 passed;
     `shellcheck -x` clean; `validate_agent_files` 0 errors.
+
+### Task 18: Declare every expected failure and pop only the script's own stash
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/skills/git-commit/scripts/git-commit.sh`,
+`.agents/plugins/agentdev/skills/git-commit/SKILL.md`,
+`.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`,
+`scripts/renovate-post-upgrade.sh`,
+`docs/knowledge/data/spec/git-new-branch.md`; Create:
+`.agents/plugins/agentdev/tests/git_fixtures.py`
+
+- [x] `--stash` pops only the entry it created and reports `STASH_SHA`; a failed
+  branch or worktree creation reports `CREATE_FAILED 8`; staged-only changes
+  count toward `CARRY_CONFLICT`; worktree paths keep `/` as a directory
+  separator; a failed reset of the default branch reports `DEFAULT_RESET=failed`
+  and still pushes; git-commit refuses with `DEFAULT_UNKNOWN 5` when the remote
+  exists but its default branch is unknown; Implement branches off the
+  configured default branch; the Renovate post-upgrade `pre-commit run` skips
+  `no-commit-to-branch`
+  - **Evidence:** commits "fix(git-new-branch): pop only own stash, declare
+    create and default-unknown results", "fix(git-new-branch): guard worktree
+    add and default reset; share test fixtures", and "fix(renovate): skip the
+    default-branch guard in post-upgrade pre-commit"; agentdev plugin tests 104
+    passed.
 
 ## Spec changes
 
