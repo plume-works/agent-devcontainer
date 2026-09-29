@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:fbc2bd64f0c892c4f1ff50a841d39039b6386b26c0ca4e243cb57268bfb88b0e
+source_digest: sha256:ba9d21e847500702e11b7197c68f8db44a4de83fc93e39f76b68c2acf88a4a3c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-09-29T12:00:00Z
 stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-09-29T12:00:00Z
 sources:
 - id: code
   resource: .github
@@ -38,6 +38,8 @@ the composite actions they share, `renovate.json`, and
   that touches the listed paths; disables Renovate for the Super-Linter family,
   which `/agentdev:sync-super-linter-tool-versions` moves by hand, and for the
   `ubuntu` base of `docker/ansible/Dockerfile`, which stays at 24.04
+- `actionlint.yml` — runner labels newer than the pinned actionlint knows, read
+  by the pre-commit hook and, through `super-linter-env.sh`, Super-Linter
 - `.agent.metadata.json` — `iwe-map.digest_ignore` masks for runner labels and
   `agent-desktop` digests, so automerged bumps leave map digests unchanged
 - `pull_request_template.md` — the verification sections

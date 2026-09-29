@@ -2,7 +2,7 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared result-code libraries for bash and Python, the GitHub-issue library, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:f1e7ed9b568fe15940160f4f702d9cb07028a717602aef83d5576101a5af0d9b
+source_digest: sha256:f4e2e5e0e9eb501d9bb6e8b68bb4e1a9399c306c12c1340382783eea2c1b4bce
 verified:
   by: claude-code/opus-5.5
   at: 2026-09-29T13:00:00Z
@@ -38,7 +38,8 @@ runs directly.
   for the remote's URL, and returns 1 when neither knows; sourced, not run
 - `super-linter-local.sh [--all] [--image] [--log-level]` — one local
   Super-Linter pass with autofixes; `super-linter-env.sh` emits the
-  `VALIDATE_*`/`FIX_*` environment; `super-linter-defaults.sh` pins the image
+  `VALIDATE_*`/`FIX_*` environment and points actionlint at
+  `.github/actionlint.yml`; `super-linter-defaults.sh` pins the image
 - `python-lint-check.sh` — non-mutating ruff check, resolved through
   `uv run --no-sync` in a uv project
 - `shellcheck-fix.sh` — applies `shellcheck -f diff` to the tracked scripts
