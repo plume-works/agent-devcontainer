@@ -148,10 +148,13 @@ keeps its ceilings and hard fallback unchanged.
 **Files:** Modify:
 `docs/knowledge/data/architecture/ci-agent-plugin-availability.md`
 
-- [ ] Under `## What a container: job must supply itself`, add that the settings
+- [x] Under `## What a container: job must supply itself`, add that the settings
   handed to `claude-code-action` must include the hook-written user layer,
   because the action's one-level merge otherwise replaces the `enabledPlugins`
   the hooks wrote.
+  - **Evidence:** the Task 4 commit; the paragraph opening
+    `The settings handed to claude-code-action must include the hook-written user layer`
+    in `ci-agent-plugin-availability.md`; `iwe schema validate` passes.
 
 ### Task 5: A responder review on this repository collects its passes in the foreground
 

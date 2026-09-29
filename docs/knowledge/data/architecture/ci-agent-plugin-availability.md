@@ -2,8 +2,8 @@
 type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
 generated:
-  by: codex
-  at: 2026-08-31T17:36:33Z
+  by: claude-code/opus-5.5
+  at: 2026-09-29T08:30:00Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
@@ -11,6 +11,7 @@ sources:
 - resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
 - resource: .devcontainer/devcontainer.json
 - resource: ansible/roles/agentic_tools/README.md
+- resource: .github/actions/run-claude-responder/action.yml
 ---
 
 # CI agent plugin availability
@@ -95,6 +96,16 @@ side effect explicitly.
 Mounts have the same shape: `postCreateCommand.sh` chowns `$workspace/.cache`
 and `/uv`, which exist only because `devcontainer.json` mounts them, so that
 chown skips targets that are absent rather than aborting the script.
+
+**The settings handed to `claude-code-action` must include the hook-written user
+layer.** The hooks enable `agentdev@agent-devcontainer` in
+`$HOME/.claude/settings.json`, and the action merges its `settings:` input into
+that file one level deep, so an `enabledPlugins` in the input replaces the
+hook-written object wholesale and leaves the plugin installed but disabled. The
+responder's `Merge Claude settings` step therefore deep-merges the user layer,
+`.claude/settings.json`, and `.claude/settings.local.json`, in that order. This
+repository cannot observe the omission: its local-scope install also writes the
+plugin into `settings.local.json`, which a consumer repository never has.
 
 ## What a review job should skip
 
