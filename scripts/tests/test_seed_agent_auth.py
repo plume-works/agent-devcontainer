@@ -119,6 +119,19 @@ def test_preserves_existing_credentials_but_fixes_mode_and_consumes_seed(tmp_pat
     assert not (seed_dir / 'codex.json').exists()
 
 
+def test_fixes_existing_credential_mode_without_seed(tmp_path):
+    claude_path = tmp_path / 'auth' / 'claude' / '.credentials.json'
+    claude_path.parent.mkdir(parents=True)
+    claude_path.write_text('{"existing": true}')
+    claude_path.chmod(0o644)
+
+    result, _, _, _ = run_seeder(tmp_path)
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(claude_path.read_text()) == {'existing': True}
+    assert stat.S_IMODE(claude_path.stat().st_mode) == 0o600
+
+
 def test_seeder_rejects_invalid_transfer_file(tmp_path):
     result, seed_dir, claude_path, _ = run_seeder(tmp_path, claude='not-json')
 

@@ -21,7 +21,7 @@ def run_preapprove(tmp_path: Path, *, autostart='1'):
     return result, workspace
 
 
-def test_approves_state_and_mcp_preserving_existing_keys(tmp_path):
+def test_approves_state_and_mcp_preserving_existing_keys_and_denials(tmp_path):
     workspace = tmp_path / 'workspace'
     (workspace / '.claude').mkdir(parents=True)
     local_settings = workspace / '.claude' / 'settings.local.json'
@@ -38,6 +38,7 @@ def test_approves_state_and_mcp_preserving_existing_keys(tmp_path):
     assert state['projects'][str(workspace)]['hasTrustDialogAccepted'] is True
     assert stat.S_IMODE((tmp_path / '.claude.json').stat().st_mode) == 0o600
     assert json.loads(local_settings.read_text()) == {
+        'disabledMcpjsonServers': ['iwe'],
         'keep': 1,
         'enableAllProjectMcpServers': True,
     }

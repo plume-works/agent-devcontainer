@@ -148,8 +148,9 @@ at an interactive credential prompt. An existing helper SHALL be kept.
 When `AGENTDEV_CLAUDE_AUTOSTART=1`, post-create SHALL record in Claude's state
 file (`~/.claude.json`, written through its symlink into the persistent volume)
 that onboarding is complete, the Remote Control confirmation was seen, and the
-workspace is trusted. It SHALL set `enableAllProjectMcpServers` and clear
-`disabledMcpjsonServers` in the workspace's `.claude/settings.local.json`.
+workspace is trusted. It SHALL set `enableAllProjectMcpServers` in the
+workspace's `.claude/settings.local.json` and SHALL keep any existing
+`disabledMcpjsonServers` list, so an operator's denials survive autostart.
 Existing keys in both files SHALL be preserved.
 
 #### Scenario: a new workspace autostarts Remote Control
@@ -157,7 +158,8 @@ Existing keys in both files SHALL be preserved.
 - **WHEN** a workspace is created with autostart enabled and valid Claude
   credentials
 - **THEN** `claude-remote` reaches `/rc active` with no terminal interaction and
-  every project `.mcp.json` server enabled.
+  every project `.mcp.json` server enabled except those listed in
+  `disabledMcpjsonServers`.
 
 ## Setup procedure
 

@@ -11,6 +11,9 @@ seed_credential() {
     local temp
 
     [[ -s "$source" ]] || {
+        if [[ -s "$target" ]]; then
+            chmod 600 "$target"
+        fi
         rm -f "$source"
         return 0
     }

@@ -47,8 +47,8 @@ def approve_state(state):
 
 
 def approve_mcp(settings):
+    # Keeps disabledMcpjsonServers; see spec/devcontainer-agent-auth.
     settings["enableAllProjectMcpServers"] = True
-    settings.pop("disabledMcpjsonServers", None)
 
 
 update_json(state_path, approve_state)
