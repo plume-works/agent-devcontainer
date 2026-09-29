@@ -6,7 +6,9 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import shutil
 import subprocess
+from uuid import uuid4
 
 import pytest
 
@@ -163,6 +165,36 @@ def test_local_main_commits_move_to_the_new_worktree_branch(
     assert git(Path(keys['WORKTREE']), 'rev-parse', 'HEAD') == main_sha
     assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
     assert git(fixture.work, 'rev-parse', 'main') == main_sha
+
+
+def test_update_branch_merges_the_base_into_moved_commits(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """After LOCAL_COMMITS, update-branch brings the base into the branch holding them."""
+    # Arrange
+    fetched_sha = fixture.advance_remote('late.txt', 'late\n')
+    commit_file(fixture.work, 'local-one.txt', 'one\n')
+    main_sha = git(fixture.work, 'rev-parse', 'main')
+    _, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
+    assert keys['LOCAL_COMMITS'] == '1'
+    update_branch = plugin_root / 'skills/update-branch/scripts/update-branch.sh'
+
+    # Act
+    merged = subprocess.run(
+        [str(update_branch)],
+        cwd=fixture.work,
+        check=False,
+        capture_output=True,
+        text=True,
+        env={**os.environ, **FIXTURE_ENV},
+    )
+
+    # Assert
+    assert outcome(merged) == (0, 'RESULT=SUCCESS')
+    for ancestor in (main_sha, fetched_sha):
+        git(fixture.work, 'merge-base', '--is-ancestor', ancestor, 'fixture-topic')
+    assert git(fixture.work, 'rev-parse', 'main') == fetched_sha
 
 
 def test_missing_base_falls_back_to_remote_head(
@@ -343,6 +375,32 @@ def test_stash_mode_keeps_stash_entry_when_pop_conflicts(
     assert git(fixture.work, 'diff', '--name-only', '--diff-filter=U') == 'fixture.txt'
 
 
+def test_conflicted_stash_resolution_ends_with_the_stash_dropped(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """The SKILL.md Workflow 4 steps leave the resolution uncommitted and drop the stash."""
+    # Arrange
+    fixture.advance_remote('fixture.txt', 'base edit\ntwo\nthree\nfour\nfive\n')
+    (fixture.work / 'fixture.txt').write_text('local edit\ntwo\nthree\nfour\nfive\n')
+    _, keys = run_script(plugin_root, fixture.work, 'fixture-topic', '--stash')
+    head = git(fixture.work, 'rev-parse', 'HEAD')
+
+    # Act
+    git(fixture.work, 'checkout', '--theirs', '--', 'fixture.txt')
+    git(fixture.work, 'add', 'fixture.txt')
+    git(fixture.work, 'restore', '--staged', 'fixture.txt')
+    unresolved = git(fixture.work, 'diff', '--name-only', '--diff-filter=U')
+    git(fixture.work, 'stash', 'drop', keys['STASH_REF'])
+
+    # Assert
+    assert unresolved == ''
+    assert git(fixture.work, 'stash', 'list') == ''
+    assert git(fixture.work, 'rev-parse', 'HEAD') == head
+    assert git(fixture.work, 'status', '--porcelain') == 'M fixture.txt'
+    assert (fixture.work / 'fixture.txt').read_text() == 'local edit\ntwo\nthree\nfour\nfive\n'
+
+
 def test_worktree_mode_uses_the_given_root_and_leaves_checkout_alone(
     plugin_root: Path,
     fixture: Fixture,
@@ -383,6 +441,37 @@ def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(
     exclude = (fixture.work / '.git' / 'info' / 'exclude').read_text()
     assert '.worktrees/' in exclude.splitlines()
     assert git(fixture.work, 'status', '--porcelain') == ''
+
+
+WORKSPACES = Path('/workspaces')
+
+
+@pytest.mark.skipif(
+    not (WORKSPACES.is_dir() and os.access(WORKSPACES, os.W_OK)),
+    reason='needs a writable /workspaces',
+)
+def test_worktree_mode_under_workspaces_defaults_to_a_sibling(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """A main checkout directly under /workspaces gets its worktree beside it there."""
+    # Arrange
+    name = f'fixture-{uuid4().hex}'
+    checkout = WORKSPACES / name
+    worktree = WORKSPACES / f'{name}-fixture-topic'
+    git(fixture.root, 'clone', str(fixture.remote), str(checkout))
+    try:
+        # Act
+        completed, keys = run_script(plugin_root, checkout, 'fixture/topic', '--worktree')
+
+        # Assert
+        assert outcome(completed) == (0, 'RESULT=SUCCESS')
+        assert keys['WORKTREE'] == str(worktree)
+        assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
+        assert not (checkout / '.worktrees').exists()
+    finally:
+        shutil.rmtree(worktree, ignore_errors=True)
+        shutil.rmtree(checkout)
 
 
 def test_unreachable_remote_reports_fetch_failed(plugin_root: Path, fixture: Fixture) -> None:
