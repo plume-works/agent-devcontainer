@@ -587,8 +587,8 @@ Verified anchor points (line numbers as of 2026-09-29):
 - `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
 - `.github/renovate.json:22-27` — `lockFileMaintenance`
 - `.github/renovate.json:39-47` — agent-desktop automerge group
-- `.github/renovate.json:85-93` — provisioning-tools automerge group
-- `.github/renovate.json:103` — `customManagers`
+- `.github/renovate.json:93-101` — provisioning-tools automerge group
+- `.github/renovate.json:111` — `customManagers`
 - `.pre-commit-config.yaml:71-80` — `renovate-config-validator` hook; `rev` is
   the Renovate version
 - `.github/workflows/validate-renovate-config.yml:3-12` — triggers
