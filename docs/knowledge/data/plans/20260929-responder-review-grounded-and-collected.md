@@ -103,12 +103,18 @@ keeps its ceilings and hard fallback unchanged.
 
 **Files:** none (local check in the job image)
 
-- [ ] In the `agent-desktop` image with `HOME=/github/home`, run the three
+- [x] In the `agent-desktop` image with `HOME=/github/home`, run the three
   lifecycle hooks against a checkout with no `.claude-plugin/marketplace.json`
   and no `.claude/settings.local.json`, apply the new merge, then apply a
   one-level merge of its output onto `$HOME/.claude/settings.json`;
   `claude plugin list` reports `agentdev@agent-devcontainer` enabled. The same
   procedure with the current merge reports it disabled.
+  - **Evidence:** this procedure run against commit `72341eb` in
+    `agent-desktop@sha256:eefd3d46…`, the digest `ai-responder.yml` pins, with
+    the working directory at the checkout: the Task 1 merge yields `✔ enabled`
+    for `agentdev@agent-devcontainer`; the merge from `72341eb~1` yields
+    `✘ disabled`, its `enabledPlugins` holding only the project's five
+    `claude-plugins-official` entries.
 
 ### Task 3: Dispatch Claude Code passes as foreground Agent calls
 
