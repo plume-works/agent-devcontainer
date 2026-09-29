@@ -19,6 +19,8 @@ starts a fresh one.*
 
 ## Added
 
+[Renovate maintains checksum-carrying pins](../features/renovate-maintains-checksums.md)
+
 [git-new-branch](../features/git-new-branch.md)
 
 [Self-improve plugin in the catalog](../features/self-improve-plugin-in-catalog.md)

@@ -23,6 +23,8 @@ sources:
   title: Post-upgrade output is kept only where its path matches fileFilters
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/commit.ts
   title: A branch commit is Renovate's package files followed by post-upgrade artifacts
+stage: done
+completed: 2026-09-29
 ---
 
 # Self-hosted Renovate in the agent-desktop image
@@ -443,8 +445,14 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** none (CI)
 
-- [ ] A `renovate.yml` run completes and any pull request it opens carries
+- [x] A `renovate.yml` run completes and any pull request it opens carries
   refreshed checksums or lock files and passes CI.
+  - **Evidence:** GitHub Actions run 36563830318 completed and pushed 6d5b899 to
+    #207, which bumps `docker-in-docker` to 4.1.2 in
+    `.devcontainer/devcontainer.json` with the regenerated
+    `.devcontainer/devcontainer-lock.json` in the same commit; every check on
+    #207 passes. #209 (lock file maintenance, `uv.lock`) merged green as
+    aeea987.
 
 ### Task 20: A digest bump runs the check in the new image
 
@@ -502,7 +510,7 @@ a digest update SHALL move every reference in one change.
   cannot merge while it fails.
 ```
 
-`spec/dependency-updates` is created:
+[Dependency updates](../spec/dependency-updates.md) is created:
 
 ``` markdown
 ## ADDED Requirements
@@ -558,7 +566,7 @@ imply, produced by the same toolchain contributors use.
   zizmor), both responder `container` images, and the compose pin, with the
   group rule applied.
 - The image builds in CI with Tasks 2 and 3 applied.
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh` reports no
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py` reports no
   doc stale from a digest-only or checksum-only change.
 - Tasks 19 and 20 close on their CI runs.
 
@@ -573,15 +581,15 @@ imply, produced by the same toolchain contributors use.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-09-29):
 
 - `.github/renovate.json:3` — `extends`
 - `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
 - `.github/renovate.json:22-27` — `lockFileMaintenance`
 - `.github/renovate.json:39-47` — agent-desktop automerge group
-- `.github/renovate.json:85-93` — provisioning-tools automerge group
-- `.github/renovate.json:103` — `customManagers`
-- `.pre-commit-config.yaml:68-77` — `renovate-config-validator` hook; `rev` is
+- `.github/renovate.json:93-101` — provisioning-tools automerge group
+- `.github/renovate.json:111` — `customManagers`
+- `.pre-commit-config.yaml:71-80` — `renovate-config-validator` hook; `rev` is
   the Renovate version
 - `.github/workflows/validate-renovate-config.yml:3-12` — triggers
 - `.github/workflows/validate-renovate-config.yml:26-49` — `paths-filter` job

@@ -19,13 +19,13 @@ moves them.*
 
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
 
-[Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
-
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
 
 [Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
 
 [git-new-branch skill](plans/20260928-git-new-branch-skill.md)
 

@@ -46,6 +46,14 @@
       "platformAutomerge": true
     },
     {
+      "description": "Dev Container features in .devcontainer/devcontainer.json. The post-upgrade script regenerates devcontainer-lock.json in the same commit, and a change under .devcontainer/ runs the devcontainer image build on both architectures before it can merge. That is what makes automerge safe here.",
+      "matchManagers": ["devcontainer"],
+      "matchPackageNames": ["ghcr.io/devcontainers/features/**"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
       "description": "The image's Ubuntu base release is not bumped by Renovate: it stays at 24.04 because downstream consumers depend on that release. Another Ubuntu release ships as a separately named image tag with an explicit base, never as a bump of this one.",
       "matchManagers": ["dockerfile"],
       "matchFileNames": ["docker/ansible/Dockerfile"],
