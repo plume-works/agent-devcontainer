@@ -10,6 +10,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/skill-scripts/SKILL.md
+stage: done
+completed: 2026-09-29
 ---
 
 # git-new-branch skill
@@ -351,7 +353,7 @@ Modify: `.agents/plugins/agentdev/tests/test_git_new_branch.py`
 
 ## Spec changes
 
-`spec/git-new-branch` (new):
+[git-new-branch](../spec/git-new-branch.md) (new):
 
 ``` markdown
 ## ADDED Requirements

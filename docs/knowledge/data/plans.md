@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[git-new-branch skill](plans/20260928-git-new-branch-skill.md)
-
 [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
@@ -26,6 +24,8 @@ moves them.*
 [Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[git-new-branch skill](plans/20260928-git-new-branch-skill.md)
 
 [Add the iwe-capture skill](plans/20260927-iwe-capture-skill.md)
 

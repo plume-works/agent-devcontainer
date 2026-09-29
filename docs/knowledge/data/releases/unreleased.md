@@ -19,6 +19,8 @@ starts a fresh one.*
 
 ## Added
 
+[git-new-branch](../features/git-new-branch.md)
+
 [Self-improve plugin in the catalog](../features/self-improve-plugin-in-catalog.md)
 
 ## Changed

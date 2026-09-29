@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-09-29
+
+- **Update**: [git-new-branch skill](plans/20260928-git-new-branch-skill.md)
+  done. `/agentdev:git-new-branch` starts work branches at the fetched remote
+  base with their own upstream, and git-commit refuses the default branch.
+- **Update**: [git-new-branch](spec/git-new-branch.md) spec created, and
+  [IWE workflow skills](spec/iwe-workflow-skills.md) gained Implement starting
+  on its own branch.
+- **Update**: [git-new-branch](features/git-new-branch.md) implemented.
+
 ## 2026-09-28
 
 - **Update**: Refreshed the eight codebase-map docs the Super-Linter v8.7.0

@@ -35,3 +35,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Xpra port forwarding](spec/xpra-port-forwarding.md)
 
 [Self-improve learning loop](spec/self-improve-learning-loop.md)
+
+[git-new-branch](spec/git-new-branch.md)
