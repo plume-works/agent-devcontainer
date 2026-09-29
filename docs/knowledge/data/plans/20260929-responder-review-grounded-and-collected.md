@@ -83,14 +83,21 @@ keeps its ceilings and hard fallback unchanged.
 
 **Files:** Modify: `.github/actions/run-claude-responder/action.yml`
 
-- [ ] Rewrite the `Merge Claude settings` step to deep-merge
+- [x] Rewrite the `Merge Claude settings` step to deep-merge
   `$HOME/.claude/settings.json` (when present), `.claude/settings.json`, and
   `.claude/settings.local.json` (when present), in that order, with
   `jq -cs 'reduce .[] as $layer ({}; . * $layer)'`, and write the result to
   `$GITHUB_OUTPUT` as today.
-- [ ] Replace the step's comment so it states why the user layer is included —
+  - **Evidence:** the Task 1 commit; the step's extracted script passes
+    `shellcheck`, and run against a user layer enabling
+    `agentdev@agent-devcontainer` plus a project layer enabling another plugin
+    it emits both under `enabledPlugins`; pre-commit (prettier, zizmor) passes.
+- [x] Replace the step's comment so it states why the user layer is included —
   the action merges its `settings:` input one level deep — in no more than three
   lines.
+  - **Evidence:** the Task 1 commit; the three-line comment above
+    `Merge Claude settings` in
+    `.github/actions/run-claude-responder/action.yml`.
 
 ### Task 2: Prove the merge keeps agentdev enabled without a local layer
 
