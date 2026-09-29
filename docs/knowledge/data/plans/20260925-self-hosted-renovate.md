@@ -564,7 +564,7 @@ imply, produced by the same toolchain contributors use.
   zizmor), both responder `container` images, and the compose pin, with the
   group rule applied.
 - The image builds in CI with Tasks 2 and 3 applied.
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.sh` reports no
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py` reports no
   doc stale from a digest-only or checksum-only change.
 - Tasks 19 and 20 close on their CI runs.
 
