@@ -4,7 +4,7 @@ created: 2026-09-28
 description: Add the git-new-branch skill, which creates a work branch at the freshly fetched remote base with its real upstream, and route every "get onto a feature branch" instruction in the catalog through it.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-28T19:23:21Z
+  at: 2026-09-29T06:57:57Z
 sources:
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
@@ -67,13 +67,13 @@ already ignore it.
 
 When the checkout is on `main` or `master` and `HEAD` holds commits the fetched
 base lacks, the branch starts at `HEAD` instead of the base, so those commits
-move onto it, and the script reports `LOCAL_COMMITS=<n>`. The SKILL.md then
-brings the base in through `/agentdev:update-branch`. Once the new branch holds
-those commits, the script resets the local default branch to the fetched base
-with `git branch --force` — possible only because the checkout has already
+move onto it, and the script reports `LOCAL_COMMITS=<n>`. Once the new branch
+holds those commits, the script resets the local default branch to the fetched
+base with `git branch --force` — possible only because the checkout has already
 switched away from it. Worktree mode leaves the default branch checked out in
 the current checkout, which it never changes, so there the reset stays with the
-user.
+user. The SKILL.md then brings the base into the new branch through
+`/agentdev:update-branch`.
 
 The `git-commit` skill commits only through a bundled `git-commit.sh`, which
 refuses — before running `git commit` — on `main`, `master`, the branch
@@ -235,7 +235,7 @@ changes are never stashed without user approval (`update-branch`'s
 - [x] When `LOCAL_COMMITS` is present, the SKILL.md runs
   `/agentdev:update-branch` on the new branch (in `WORKTREE` when set), asking
   the user to commit or approve a stash first when the tree is dirty, and states
-  that local `main` keeps those commits until the user resets it
+  whether local `main` still holds those commits (Task 12)
   - **Evidence:** commit "docs(git-new-branch): merge the base after moving
     default-branch commits"; `validate_agent_files` 0 errors; in a scratch
     clone, `git-new-branch.sh` then `update-branch.sh` yielded the moved commit
@@ -312,6 +312,26 @@ changes are never stashed without user approval (`update-branch`'s
     and master"; with the hook installed in a scratch repository, `git commit`
     was refused by `no-commit-to-branch` on `main` and `master` and succeeded on
     a feature branch.
+
+### Task 16: Test the skill-level scenarios and the pre-commit guard
+
+**Files:** Create: `scripts/tests/test_pre_commit_default_branch_guard.py`;
+Modify: `.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] A repository test runs this repository's `no-commit-to-branch` hook
+  configuration in a scratch repository: a commit on `main` or `master` fails
+  and creates nothing; a commit on a feature branch succeeds
+  - **Evidence:** commit "test(git-new-branch): cover the skill-level scenarios
+    and the pre-commit guard";
+    `uv run pytest scripts/tests/test_pre_commit_default_branch_guard.py` 3
+    passed.
+- [x] Plugin tests cover `update-branch.sh` merging the base into a branch that
+  received moved commits, the SKILL.md Workflow 4 steps leaving the resolution
+  uncommitted and the stash dropped, and a worktree placed beside a checkout
+  that lives directly under `/workspaces` (skipped when `/workspaces` is not
+  writable)
+  - **Evidence:** commit "test(git-new-branch): cover the skill-level scenarios
+    and the pre-commit guard"; `test_git_new_branch.py` 20 passed, none skipped.
 
 ## Spec changes
 
@@ -399,18 +419,19 @@ and SHALL NOT change the current checkout.
 ### Requirement: Commits on the default branch move to the new branch
 
 When the checkout is on `main` or `master` and holds commits the fetched base
-lacks, the git-new-branch skill SHALL start the branch at `HEAD`, SHALL merge
-the base into it through the update-branch skill. Outside worktree mode it
-SHALL then reset the local default branch to the fetched base, and only after
-the new branch contains the default branch's previous tip; in worktree mode it
-SHALL leave the default branch unmoved.
+lacks, the git-new-branch skill SHALL start the branch at `HEAD` and SHALL merge
+the base into it through the update-branch skill. Outside worktree mode it SHALL
+reset the local default branch to the fetched base once the new branch contains
+the default branch's previous tip; in worktree mode it SHALL leave the default
+branch unmoved.
 
 #### Scenario: Local commits on main
 
 - **WHEN** local `main` is two commits ahead of the fetched `origin/main`
 - **THEN** the new branch starts at local `main`, the script reports
-  `LOCAL_COMMITS=2`, and `origin/main` is then merged in through update-branch
-- **AND** local `main` now points at the fetched `origin/main`
+  `LOCAL_COMMITS=2`, and local `main` points at the fetched `origin/main`
+- **AND** `origin/main` is then merged into the new branch through
+  update-branch
 
 #### Scenario: Local commits on main in worktree mode
 
@@ -452,6 +473,8 @@ continue on the current branch otherwise.
 ## Verification
 
 - `uv run pytest .agents/plugins/agentdev/tests/test_git_new_branch.py`
+- `uv run pytest .agents/plugins/agentdev/tests/test_git_commit.py`
+- `uv run pytest scripts/tests/test_pre_commit_default_branch_guard.py`
 - `uv run pytest .agents/plugins/agentdev/tests/test_result_codes.py`
 - `shellcheck` on both new scripts (also enforced by pre-commit)
 - `uv run validate_agent_files` on every changed `SKILL.md`
