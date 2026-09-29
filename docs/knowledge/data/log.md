@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-09-29
 
+- **Update**: Refreshed the two codebase-map docs the Dev Container feature
+  automerge rule in `renovate.json` moved.
 - **Update**:
   [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
   done. Renovate runs from `renovate.yml` inside the pinned agent-desktop image
