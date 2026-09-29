@@ -1,0 +1,568 @@
+---
+type: plan
+created: 2026-09-28
+description: Add the git-new-branch skill, which creates a work branch at the freshly fetched remote base with its real upstream, and route every "get onto a feature branch" instruction in the catalog through it.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-09-29T07:13:00Z
+sources:
+- resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
+- resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/skill-scripts/SKILL.md
+stage: done
+completed: 2026-09-29
+---
+
+# git-new-branch skill
+
+## Context
+
+No catalog skill creates a branch. The skills that need one only tell the agent
+to make it: `pr-open`'s `PROTECTED_BRANCH` handling prints
+`git checkout -b feature/your-feature-name`, which branches from the checked-out
+HEAD, not from the freshly fetched remote base, and `update-branch`'s
+`PROTECTED_BRANCH` row says "switch to a feature branch" without saying how.
+`iwe-implement` starts executing a plan on whatever branch is current.
+
+A branch created with `git switch -c X origin/main` also tracks `origin/main`,
+which `pr-open`'s `find-branch-pr.sh` rejects as `PROTECTED_BRANCH` ("the
+upstream it tracks is `main`"), so the ad-hoc instruction produces a branch the
+next skill refuses.
+
+## Approach
+
+A new `git-new-branch` skill — the start-of-work sibling of `update-branch` —
+owns branch creation through one bundled script,
+`git-new-branch.sh <name> [--remote origin] [--base main] [--worktree] [--worktree-root <dir>] [--stash]`,
+following the `skill-scripts` result contract:
+
+1. Preflight: inside a repository, and `git check-ref-format --branch <name>`
+   accepts the name.
+2. `git fetch <remote>`.
+3. Resolve the base: `<remote>/<base>` (default `main`); when that ref does not
+   exist, fall back to the remote's default branch through
+   `refs/remotes/<remote>/HEAD`, or, when that symref is unset, through
+   `gh repo view <remote URL>`.
+4. Refuse when local `<name>` or `<remote>/<name>` already exists — an existing
+   branch is never reset or reused.
+5. Create the branch with `--no-track` at the resolved base, switching the
+   current checkout. Uncommitted changes carry over when Git can carry them.
+6. `git push -u <remote> <name>` immediately, so the branch tracks
+   `<remote>/<name>` from the start and never the base.
+
+Uncommitted changes that Git refuses to carry (the paths differ between HEAD and
+the base) yield `CARRY_CONFLICT` without touching anything. The SKILL.md then
+asks the user; on approval it reruns with `--stash`, which stashes (including
+untracked files), creates and pushes the branch, and pops the stash onto it. A
+conflicted pop is resolved with `git-merge-resolve`'s conflict workflow; the
+stash entry is dropped only after resolution. The script pops only the stash
+entry it created, located by its commit (`STASH_SHA`), never whatever sits at
+`stash@{0}`. When the branch or its worktree cannot be created, the script
+reports `CREATE_FAILED`, pops the changes back onto the unchanged checkout, and
+names the stash entry as `STASH_REF` if that pop fails.
+
+`--worktree` leaves the current checkout alone and adds a worktree for the new
+branch instead. The worktree directory name is `<repo>-<branch>`, with any `/`
+in the branch kept as a directory separator, where `<repo>` is the main
+checkout's directory name. Its parent is `/workspaces` when the main checkout
+lives directly under `/workspaces`, otherwise `<main checkout>/.worktrees`;
+`--worktree-root` overrides both. Task 3 adds `.worktrees/` to this repository's
+`.gitignore`, and the script adds it to `.git/info/exclude` when a consuming
+repository does not already ignore it.
+
+When the checkout is on `main` or `master` and `HEAD` holds commits the fetched
+base lacks, the branch starts at `HEAD` instead of the base, so those commits
+move onto it, and the script reports `LOCAL_COMMITS=<n>`. Once the new branch
+holds those commits, the script resets the local default branch to the fetched
+base with `git branch --force` — possible only because the checkout has already
+switched away from it. Worktree mode leaves the default branch checked out in
+the current checkout, which it never changes, so there the reset stays with the
+user. The SKILL.md then brings the base into the new branch through
+`/agentdev:update-branch`.
+
+The `git-commit` skill commits only through a bundled `git-commit.sh`, which
+refuses — before running `git commit` — on `main`, `master`, the branch
+`refs/remotes/<remote>/HEAD` names (or `gh repo view` reports when that is
+unset), and a detached `HEAD`, and redirects the user to
+`/agentdev:git-new-branch`. The default-branch lookup lives in one shared plugin
+`bin/` helper that both scripts source.
+
+This repository's pre-commit configuration also rejects any commit on `main` or
+`master` through the `pre-commit-hooks` `no-commit-to-branch` hook, so the guard
+holds for a direct `git commit` too.
+
+The SKILL.md suggests a name from context when the user gives none: a plan key
+`data/plans/<date>-<slug>` → `<slug>`; a GitHub issue → `<number>-<slug>`.
+
+Rejected: tracking the base (`git switch -c X origin/main`) — it makes
+`git pull` pull the base and trips `pr-open`'s tracked-upstream check; deferring
+the push to the first commit — the upstream would stay unset in between and
+`pr-open` would have to finish the setup; silently stashing on conflict —
+changes are never stashed without user approval (`update-branch`'s
+`PREFLIGHT_ERROR` rule).
+
+## Implementation Steps
+
+### Task 1: Bundled script and its tests
+
+**Files:** Create:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/__common.sh`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] Script follows the `skill-scripts` contract (shared `bin/result-codes.sh`,
+  `RESULT=` last on stdout, paired `--help` table) with results `SUCCESS 0`,
+  `BRANCH_EXISTS 3`, `CARRY_CONFLICT 4`, `PUSH_FAILED 5`, `FETCH_FAILED 6`,
+  `STASH_CONFLICTS 7`, `PREFLIGHT_ERROR 2`, `SCRIPT_FAILURE 1`, and output keys
+  `BRANCH`, `BASE`, `BASE_SHA`, plus `WORKTREE` in worktree mode and `STASH_REF`
+  when a stash is left to resolve
+  - **Evidence:** commit "feat(git-new-branch): add the branch-creation script
+    and its tests"; `git-new-branch.sh --help` prints the paired results table;
+    `shellcheck -x` clean on both scripts.
+- [x] Tests against a local bare-repository remote cover: the created branch
+  sits at the fetched base SHA and tracks `<remote>/<name>`; fallback to
+  `<remote>/HEAD` when `<base>` is absent; `BRANCH_EXISTS` for a local and for a
+  remote-only name; non-conflicting uncommitted and untracked changes carried
+  over; `CARRY_CONFLICT` leaving the checkout and changes untouched; `--stash`
+  success and `STASH_CONFLICTS` with the stash entry kept; worktree placement
+  under `--worktree-root` and under `.worktrees/` with the exclude entry;
+  `FETCH_FAILED`; `PUSH_FAILED` from a rejecting remote hook with the local
+  branch kept; `PREFLIGHT_ERROR` for an invalid name
+  - **Evidence:** commit "feat(git-new-branch): add the branch-creation script
+    and its tests";
+    `uv run pytest .agents/plugins/agentdev/tests/test_git_new_branch.py` 13
+    passed.
+
+### Task 2: Skill definition
+
+**Files:** Create: `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`
+
+- [x] SKILL.md with discovery description, name suggestion rules, the
+  `RESULT`-keyed decision table, the `CARRY_CONFLICT` question (stash and retry
+  with `--stash`, or cancel), the `STASH_CONFLICTS` route through
+  `git-merge-resolve`'s "Resolve Conflicts" workflow followed by
+  `git stash drop <STASH_REF>` instead of a merge commit, and the safety rules
+  (never reset an existing branch, never force-push, never update refs through
+  an API)
+  - **Evidence:** commit "feat(git-new-branch): add the skill definition";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors, 0 warnings; stash-pop stage meanings (`:2` base, `:3` stash) match
+    a `STASH_CONFLICTS` run.
+
+### Task 3: Catalog listing and ignore rule
+
+**Files:** Modify: `.agents/plugins/agentdev/README.md`, `.gitignore`
+
+- [x] `/agentdev:git-new-branch` row in the "Pull requests and git" table
+  - **Evidence:** commit "docs(agentdev): list git-new-branch and ignore
+    .worktrees/"; `validate_agent_files` 0 errors.
+- [x] `.worktrees/` in `.gitignore` next to the `.tmp/` scratch entry
+  - **Evidence:** commit "docs(agentdev): list git-new-branch and ignore
+    .worktrees/"; `git check-ignore -v .worktrees/x` matches `.gitignore:12`.
+
+### Task 4: Route pr-open through git-new-branch
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
+
+- [x] The `PROTECTED_BRANCH` row and the "Not on a feature branch" message
+  direct the agent to `/agentdev:git-new-branch` instead of
+  `git checkout -b feature/your-feature-name`
+  - **Evidence:** commit "docs(pr-open): route PROTECTED_BRANCH through
+    git-new-branch"; `grep -n "checkout -b"` on `pr-open/SKILL.md` finds
+    nothing; `validate_agent_files` 0 errors.
+
+### Task 5: Route update-branch through git-new-branch
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`
+
+- [x] The `PROTECTED_BRANCH` row and the "Current branch is default"
+  troubleshooting row direct the agent to `/agentdev:git-new-branch`, only with
+  user authorization
+  - **Evidence:** commit "docs(update-branch): route the default-branch stop
+    through git-new-branch"; `validate_agent_files` 0 errors.
+
+### Task 6: Point git-merge-resolve at its new caller
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md`
+
+- [x] "When to Use This Skill" names resolving the conflicts a
+  `git-new-branch --stash` pop leaves, completed by dropping the stash rather
+  than committing a merge
+  - **Evidence:** commit "docs(git-merge-resolve): name the git-new-branch stash
+    pop caller"; `validate_agent_files` 0 errors.
+
+### Task 7: Implement starts work on its own branch
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
+
+- [x] A step after "Check `## Depends on`": when the current branch is `main` or
+  `master`, create the work branch through `/agentdev:git-new-branch`, named
+  from the plan key's slug, before executing any task; on any other branch,
+  continue where it is
+  - **Evidence:** commit "docs(iwe-implement): start work on a git-new-branch
+    branch"; new step 4 with later steps and their cross-references renumbered;
+    `validate_agent_files` 0 errors.
+
+### Task 8: Ask GitHub for the default branch when the remote HEAD is unset
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] When `<remote>/<base>` is absent and `refs/remotes/<remote>/HEAD` is
+  unset, the script resolves the default branch with `gh repo view` on the
+  remote's URL, and reports `PREFLIGHT_ERROR` when `gh` cannot answer or the
+  named branch was not fetched; tests stub `gh` for both paths
+  - **Evidence:** commit "feat(git-new-branch): ask gh for the default branch
+    when the remote HEAD is unset"; `test_git_new_branch.py` 15 passed;
+    `shellcheck -x` clean; `gh repo view` accepts both HTTPS and SSH remote
+    URLs.
+
+### Task 9: Move default-branch commits onto the new branch
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] On `main` or `master` with commits not in the fetched base, the branch —
+  in either mode — starts at `HEAD`, the output adds `LOCAL_COMMITS=<n>`, and
+  local `main` is not moved; tests cover the plain and the worktree case and a
+  default branch with no local commits
+  - **Evidence:** commit "feat(git-new-branch): move default-branch commits onto
+    the new branch"; `uv run pytest .agents/plugins/agentdev/tests` 87 passed;
+    `shellcheck -x` clean.
+
+### Task 10: Merge the base after moving commits
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`
+
+- [x] When `LOCAL_COMMITS` is present, the SKILL.md runs
+  `/agentdev:update-branch` on the new branch (in `WORKTREE` when set), asking
+  the user to commit or approve a stash first when the tree is dirty, and states
+  whether local `main` still holds those commits (Task 12)
+  - **Evidence:** commit "docs(git-new-branch): merge the base after moving
+    default-branch commits"; `validate_agent_files` 0 errors; in a scratch
+    clone, `git-new-branch.sh` then `update-branch.sh` yielded the moved commit
+    merged with `origin/main`.
+
+### Task 11: git-commit never commits on the default branch
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/git-commit/SKILL.md`
+
+- [x] A guard before any commit: on `main` or `master`, stop and redirect the
+  user to `/agentdev:git-new-branch`
+  - **Evidence:** commit "docs(git-commit): never commit on the default branch";
+    `validate_agent_files` 0 errors.
+
+### Task 12: Reset the default branch after moving its commits
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] Outside worktree mode, after the branch is created at `HEAD`, local
+  `main`/`master` is moved to `BASE_SHA` only once the new branch contains its
+  old tip; worktree mode leaves it unmoved; SKILL.md Workflow 5 says which case
+  applies; tests cover both modes
+  - **Evidence:** commit "feat(git-new-branch): reset the default branch after
+    moving its commits"; `test_git_new_branch.py` 17 passed; `shellcheck -x`
+    clean.
+
+### Task 13: Shared default-branch lookup
+
+**Files:** Create: `.agents/plugins/agentdev/bin/git-default-branch.sh`; Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/__common.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`
+
+- [x] `is_default_branch` and `remote_default_branch <remote>` (symref first,
+  `gh repo view` on the remote URL second) live in the shared helper, and
+  git-new-branch sources it with its tests still passing
+  - **Evidence:** commit "refactor(agentdev): share the default-branch lookup";
+    `test_git_new_branch.py` 17 passed unmodified; `shellcheck -x` clean.
+
+### Task 14: git-commit commits through a guarded script
+
+**Files:** Create:
+`.agents/plugins/agentdev/skills/git-commit/scripts/git-commit.sh`,
+`.agents/plugins/agentdev/tests/test_git_commit.py`; Modify:
+`.agents/plugins/agentdev/skills/git-commit/SKILL.md`
+
+- [x] `git-commit.sh [--remote <name>] -- <git commit args>` follows the
+  `skill-scripts` contract with `SUCCESS 0`, `PROTECTED_BRANCH 3`,
+  `COMMIT_FAILED 4` (git's status as `GIT_EXIT_CODE`), `PREFLIGHT_ERROR 2` for a
+  detached `HEAD`; it never runs `git commit` on a protected branch
+  - **Evidence:** commit "feat(git-commit): commit through a script guarding the
+    default branch"; `--help` prints the paired results table; `shellcheck -x`
+    clean.
+- [x] Tests cover `main`, `master`, a remote HEAD branch with another name, a
+  feature branch commit, a failing commit, and a detached `HEAD`
+  - **Evidence:** commit "feat(git-commit): commit through a script guarding the
+    default branch"; `uv run pytest .agents/plugins/agentdev/tests` 93 passed, 6
+    of them in `test_git_commit.py`.
+- [x] SKILL.md creates every commit through the script, never `git commit`
+  directly, and routes `PROTECTED_BRANCH` to `/agentdev:git-new-branch`
+  - **Evidence:** commit "feat(git-commit): commit through a script guarding the
+    default branch"; `validate_agent_files` 0 errors.
+
+### Task 15: pre-commit rejects commits on the default branch
+
+**Files:** Modify: `.pre-commit-config.yaml`
+
+- [x] `no-commit-to-branch` from the existing `pre-commit-hooks` entry, with
+  `--branch main --branch master`, fails a commit on either branch and passes on
+  a feature branch
+  - **Evidence:** commit `f5c84fb` "build(pre-commit): reject commits on main
+    and master"; with the hook installed in a scratch repository, `git commit`
+    was refused by `no-commit-to-branch` on `main` and `master` and succeeded on
+    a feature branch.
+
+### Task 16: Test the skill-level scenarios and the pre-commit guard
+
+**Files:** Create: `scripts/tests/test_pre_commit_default_branch_guard.py`;
+Modify: `.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] A repository test runs this repository's `no-commit-to-branch` hook
+  configuration in a scratch repository: a commit on `main` or `master` fails
+  and creates nothing; a commit on a feature branch succeeds
+  - **Evidence:** commit "test(git-new-branch): cover the skill-level scenarios
+    and the pre-commit guard";
+    `uv run pytest scripts/tests/test_pre_commit_default_branch_guard.py` 3
+    passed.
+- [x] Plugin tests cover `update-branch.sh` merging the base into a branch that
+  received moved commits, the SKILL.md Workflow 4 steps leaving the resolution
+  uncommitted and the stash dropped, and a worktree placed beside a checkout
+  that lives directly under `/workspaces` (skipped when `/workspaces` is not
+  writable)
+  - **Evidence:** commit "test(git-new-branch): cover the skill-level scenarios
+    and the pre-commit guard"; `test_git_new_branch.py` 20 passed, none skipped.
+
+### Task 17: Restore stashed changes when branch creation fails
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] With `--stash`, a failed `git switch --create` pops the stash back onto
+  the unchanged checkout and reports `SCRIPT_FAILURE`; a failed pop there adds
+  `STASH_REF`, which the SKILL.md `SCRIPT_FAILURE` row reports to the user
+  - **Evidence:** commit "fix(git-new-branch): restore stashed changes when the
+    branch cannot be created"; `test_git_new_branch.py` 21 passed;
+    `shellcheck -x` clean; `validate_agent_files` 0 errors.
+
+### Task 18: Declare every expected failure and pop only the script's own stash
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/skills/git-commit/scripts/git-commit.sh`,
+`.agents/plugins/agentdev/skills/git-commit/SKILL.md`,
+`.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`,
+`scripts/renovate-post-upgrade.sh`,
+`docs/knowledge/data/spec/git-new-branch.md`; Create:
+`.agents/plugins/agentdev/tests/git_fixtures.py`
+
+- [x] `--stash` pops only the entry it created and reports `STASH_SHA`; a failed
+  branch or worktree creation reports `CREATE_FAILED 8`; staged-only changes
+  count toward `CARRY_CONFLICT`; worktree paths keep `/` as a directory
+  separator; a failed reset of the default branch reports `DEFAULT_RESET=failed`
+  and still pushes; git-commit refuses with `DEFAULT_UNKNOWN 5` when the remote
+  exists but its default branch is unknown; Implement branches off the
+  configured default branch; the Renovate post-upgrade `pre-commit run` skips
+  `no-commit-to-branch`
+  - **Evidence:** commits "fix(git-new-branch): pop only own stash, declare
+    create and default-unknown results", "fix(git-new-branch): guard worktree
+    add and default reset; share test fixtures", and "fix(renovate): skip the
+    default-branch guard in post-upgrade pre-commit"; agentdev plugin tests 104
+    passed.
+
+## Spec changes
+
+[git-new-branch](../spec/git-new-branch.md) (new):
+
+``` markdown
+## ADDED Requirements
+
+### Requirement: A new branch starts at the fetched remote base with its own upstream
+
+The git-new-branch skill SHALL fetch the remote, create the branch at
+`<remote>/<base>` (falling back to the remote's default branch when `<base>`
+does not exist), SHALL NOT set the base as the branch's upstream, and SHALL push
+the branch immediately so it tracks `<remote>/<name>`.
+
+#### Scenario: Branch created from main
+
+- **WHEN** the user asks for branch `X` and `origin/main` exists
+- **THEN** `X` points at the just-fetched `origin/main` commit
+- **AND** `X` is pushed and tracks `origin/X`
+
+#### Scenario: The remote has no main
+
+- **WHEN** `origin/main` does not exist after fetching
+- **THEN** the branch starts at the commit `refs/remotes/origin/HEAD` names
+
+#### Scenario: The remote HEAD symref is unset
+
+- **WHEN** `origin/main` does not exist and `refs/remotes/origin/HEAD` is unset
+- **THEN** the branch starts at the default branch `gh repo view` reports for
+  the remote's URL
+
+#### Scenario: The push fails
+
+- **WHEN** the push is rejected or authentication is unavailable
+- **THEN** the local branch is kept, the skill reports `PUSH_FAILED`, and no
+  API-based ref update is attempted
+
+### Requirement: Existing branches are never reused
+
+The git-new-branch skill SHALL refuse a name that exists as a local branch or
+on the remote, and SHALL leave both untouched.
+
+#### Scenario: The name exists only on the remote
+
+- **WHEN** `origin/X` exists and local `X` does not
+- **THEN** the skill reports `BRANCH_EXISTS` and creates nothing
+
+### Requirement: Uncommitted changes survive branch creation
+
+The git-new-branch skill SHALL carry uncommitted and untracked changes onto the
+new branch, SHALL stash only after the user approves, and SHALL keep the stash
+entry until any conflicts it produces are resolved.
+
+#### Scenario: Changes carry over cleanly
+
+- **WHEN** the working tree has changes to paths identical in HEAD and the base
+- **THEN** the new branch is checked out with those changes intact
+
+#### Scenario: Changes cannot be carried
+
+- **WHEN** Git refuses to switch because local changes would be overwritten
+- **THEN** the skill reports `CARRY_CONFLICT`, changes nothing, and asks the
+  user before stashing
+
+#### Scenario: The stash pops with conflicts
+
+- **WHEN** the user approved stashing and the pop conflicts
+- **THEN** the conflicts are resolved through the git-merge-resolve conflict
+  workflow and the stash entry is dropped only afterwards
+
+### Requirement: Worktree mode leaves the current checkout alone
+
+In worktree mode the git-new-branch skill SHALL create the branch in a new
+worktree named `<repo>-<branch>` under `/workspaces` when the main checkout
+lives there, otherwise under the checkout's ignored `.worktrees/` directory,
+and SHALL NOT change the current checkout.
+
+#### Scenario: Repository outside /workspaces
+
+- **WHEN** the main checkout is not directly under `/workspaces`
+- **THEN** the worktree is created under `<checkout>/.worktrees/` and that
+  directory is ignored by Git
+
+### Requirement: Commits on the default branch move to the new branch
+
+When the checkout is on `main` or `master` and holds commits the fetched base
+lacks, the git-new-branch skill SHALL start the branch at `HEAD` and SHALL merge
+the base into it through the update-branch skill. Outside worktree mode it SHALL
+reset the local default branch to the fetched base once the new branch contains
+the default branch's previous tip; in worktree mode it SHALL leave the default
+branch unmoved.
+
+#### Scenario: Local commits on main
+
+- **WHEN** local `main` is two commits ahead of the fetched `origin/main`
+- **THEN** the new branch starts at local `main`, the script reports
+  `LOCAL_COMMITS=2`, and local `main` points at the fetched `origin/main`
+- **AND** `origin/main` is then merged into the new branch through
+  update-branch
+
+#### Scenario: Local commits on main in worktree mode
+
+- **WHEN** local `main` is ahead of `origin/main` and worktree mode is used
+- **THEN** the worktree branch starts at local `main` and local `main` is not
+  moved
+
+### Requirement: The git-commit skill never commits on the default branch
+
+The git-commit skill SHALL create commits only through its bundled script,
+which SHALL refuse to run `git commit` on `main`, `master`, the remote's default
+branch, or a detached `HEAD`, and SHALL direct the user to the git-new-branch
+skill instead.
+
+#### Scenario: Commit requested on main
+
+- **WHEN** the user asks for a commit and the current branch is `main`
+- **THEN** the script reports `PROTECTED_BRANCH`, no commit is created, and the
+  user is pointed at git-new-branch
+
+#### Scenario: A direct git commit on main in this repository
+
+- **WHEN** someone runs `git commit` on `main` with the pre-commit hooks
+  installed
+- **THEN** the `no-commit-to-branch` hook fails and no commit is created
+
+#### Scenario: The remote default branch has another name
+
+- **WHEN** `refs/remotes/origin/HEAD` names `trunk` and the current branch is
+  `trunk`
+- **THEN** the script reports `PROTECTED_BRANCH` and no commit is created
+```
+
+[IWE workflow skills](../spec/iwe-workflow-skills.md) — Implement SHALL create
+the work branch through git-new-branch, named from the plan slug, before
+executing the first task when the checkout is on `main` or `master`, and SHALL
+continue on the current branch otherwise.
+
+## Verification
+
+- `uv run pytest .agents/plugins/agentdev/tests/test_git_new_branch.py`
+- `uv run pytest .agents/plugins/agentdev/tests/test_git_commit.py`
+- `uv run pytest scripts/tests/test_pre_commit_default_branch_guard.py`
+- `uv run pytest .agents/plugins/agentdev/tests/test_result_codes.py`
+- `shellcheck` on both new scripts (also enforced by pre-commit)
+- `uv run validate_agent_files` on every changed `SKILL.md`
+- `grep -rn "checkout -b" .agents/plugins/agentdev/skills` finds no
+  branch-creation instruction outside `git-new-branch`
+- Manual: from `main` with an uncommitted edit, invoke
+  `/agentdev:git-new-branch` in a scratch clone and confirm the branch, its
+  upstream, and the carried edit
+
+## Out of scope
+
+- Rebase-based workflows; branch creation never rebases local commits
+- Deleting or pruning branches and worktrees
+- Refreshing `data/codebase/` map docs for the new skill — `/agentdev:iwe-map`
+  refresh mode owns that
+- Changing `pr-merge` and `pr-merge-chain` coordinator branches, which are
+  private disposable refs, not work branches
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-09-28):
+
+- `.agents/plugins/agentdev/skills/update-branch/scripts/update-branch.sh:1` —
+  sibling script whose preflight and fetch handling the new script mirrors
+- `.agents/plugins/agentdev/skills/update-branch/scripts/__common.sh:15` —
+  `require_git_repo`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:72` —
+  `PROTECTED_BRANCH` row
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:112` — "Current branch
+  is default" troubleshooting row
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:105` — `PROTECTED_BRANCH`
+  row
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:315` — `git checkout -b` in
+  the "Not on a feature branch" message
+- `.agents/plugins/agentdev/skills/pr-open/scripts/find-branch-pr.sh:106` —
+  rejects a branch tracking `main`
+- `.agents/plugins/agentdev/skills/git-merge-resolve/SKILL.md:13` — "When to Use
+  This Skill" list
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:30` — step 3, "Check
+  `## Depends on`"
+- `.agents/plugins/agentdev/bin/result-codes.sh:15` — `RESULT_CODES` base table
+- `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
+  `initialize_repository` fixture pattern
+- `.agents/plugins/agentdev/README.md:69` — "Pull requests and git" table
+- `.gitignore:11` — `.tmp/` scratch entry

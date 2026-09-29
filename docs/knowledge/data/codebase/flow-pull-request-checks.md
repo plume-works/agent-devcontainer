@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:9482d7f3ca93826e98483e089afa97ee6a6790dc434e017dc5a146cc28f33158
+source_digest: sha256:e6549228b654e746d37295cc49aa5c8ee3c6db06b6f540bb8c0e19188f790707
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T12:00:00Z
+  at: 2026-09-29T13:00:00Z
 stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T12:00:00Z
+  at: 2026-09-29T13:00:00Z
 sources:
 - id: code
   resource: .github
@@ -29,7 +29,9 @@ before the push.
    hadolint, ruff format and lint, shellcheck, gitleaks, actionlint (with
    `.github/actionlint.yml`, which Super-Linter reads too),
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
-   and IWE validation and normalization — `.pre-commit-config.yaml:2-127`
+   and IWE validation and normalization — `.pre-commit-config.yaml:2-130`;
+   `no-commit-to-branch` refuses a commit on `main` or `master` —
+   `.pre-commit-config.yaml:11`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit;

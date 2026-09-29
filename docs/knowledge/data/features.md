@@ -50,3 +50,5 @@ and body sections are defined under Features in `SCHEMA.md` and enforced by
 [Self-improve plugin in the catalog](features/self-improve-plugin-in-catalog.md)
 
 [Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
+
+[git-new-branch](features/git-new-branch.md)

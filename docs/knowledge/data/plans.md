@@ -27,6 +27,8 @@ moves them.*
 
 ## Done
 
+[git-new-branch skill](plans/20260928-git-new-branch-skill.md)
+
 [Add the iwe-capture skill](plans/20260927-iwe-capture-skill.md)
 
 [Effort tiers for the AI pull request review](plans/20260917-pr-review-effort-tiers.md)

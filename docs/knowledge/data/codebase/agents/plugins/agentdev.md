@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:2580f3cf6e212398825f1c9200ac8b76648c87543e118d249addf1a0f8de6690
+source_digest: sha256:716695a12b8285cd193c5458cf834bfc68e99a79e14d97ac9982bc6f71742a34
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T12:00:00Z
+  at: 2026-09-29T13:00:00Z
 stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T12:00:00Z
+  at: 2026-09-29T13:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -44,7 +44,7 @@ each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
 
 ## Public surface
 
-- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (37
+- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (38
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`

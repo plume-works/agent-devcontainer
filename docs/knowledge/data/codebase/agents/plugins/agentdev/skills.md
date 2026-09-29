@@ -2,14 +2,14 @@
 type: codebase
 description: The 37 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:71d0fdd88f4334af3db09d0008cf27917460b6b58bf18ee11962e95276acfb55
+source_digest: sha256:8eedaa51d88bb9df639c0cbc026d981ef83e9b38ea03d910d3eb84a824538626
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-09-29T13:00:00Z
 stale_after: 2026-12-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-09-29T13:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -24,18 +24,18 @@ specification plus Claude Code's `disable-model-invocation` — and optionally
 
 ## Public surface
 
-| Family                            | Count | Skills                                                                                                                                                                                                                                           |
-| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Git and pull requests             | 13    | `git-commit`, `git-merge-resolve`, `update-branch`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-chain` |
-| Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                        |
-| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                               |
-| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                      |
+| Family                            | Count | Skills                                                                                                                                                                                                                                                             |
+| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Git and pull requests             | 14    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-chain` |
+| Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                          |
+| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                 |
+| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                        |
 
-Skills with bundled scripts: `extract-github-actions-logs`, `git-merge-resolve`,
-`iwe-capture`, `iwe-explore`, `iwe-map`, `iwe-plan`, `pr-discover-ai-responder`,
-`pr-gen-description`, `pr-open`, `pr-review`, `remote-codespace-session`,
-`template-consume`, `update-branch`. Skills with `references/` pages:
-`semantic-refactor-audit`, `template-consume`.
+Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
+`git-new-branch`, `git-merge-resolve`, `iwe-capture`, `iwe-explore`, `iwe-map`,
+`iwe-plan`, `pr-discover-ai-responder`, `pr-gen-description`, `pr-open`,
+`pr-review`, `remote-codespace-session`, `template-consume`, `update-branch`.
+Skills with `references/` pages: `semantic-refactor-audit`, `template-consume`.
 
 ## How it works
 
@@ -69,6 +69,13 @@ the tracked paths — `check-updates.sh` reads nothing else, and a legacy
 that survives an interrupted setup; and `data/template-adoption` summarizes the
 episode for a consumer that kept the knowledge base.
 
+`git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
+`bin/git-default-branch.sh`: the first falls back to it when `--base` does not
+exist on the remote, the second refuses to commit on the branch it names and,
+when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
+`git-new-branch.sh` stashes only with `--stash` and pops only the entry it
+created, located by its commit.
+
 ## Depends on
 
 The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
@@ -84,7 +91,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-09-29):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows

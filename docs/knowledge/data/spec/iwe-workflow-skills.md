@@ -16,6 +16,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 ---
@@ -167,6 +168,26 @@ keep that contract coherent when material decisions change.
   spec still describes current released behavior
 - **THEN** Verify evaluates the implementation against the effective contract
   formed by the durable spec and the plan's risk-appropriate spec changes
+
+### Requirement: Implement starts work on its own branch
+
+The Implement skill SHALL, when the checkout is on `main` or `master`, create
+the work branch through the git-new-branch skill, named from the plan key's
+slug, before executing the first task, and SHALL continue on the current branch
+otherwise.
+
+#### Scenario: Implementation starts on main
+
+- **WHEN** Implement begins plan `data/plans/<date>-<slug>` with `main` checked
+  out
+- **THEN** it creates branch `<slug>` through git-new-branch before executing
+  any task
+
+#### Scenario: Implementation starts on a feature branch
+
+- **WHEN** Implement begins with a branch other than `main` or `master` checked
+  out
+- **THEN** it executes the plan on that branch without creating another
 
 ### Requirement: Implement never hides a material deviation
 

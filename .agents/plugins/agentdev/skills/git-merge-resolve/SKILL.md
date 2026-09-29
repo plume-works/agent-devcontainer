@@ -16,6 +16,8 @@ ambiguous.
 - Resolve an existing conflicted merge
 - Reconcile divergent code while preserving the intent of both branches
 - Provide the merge-and-resolution phase of another Git workflow
+- Resolve the conflicts a `git-new-branch --stash` pop leaves; that caller
+  completes by dropping the stash, not by committing a merge
 
 For fetching and merging the latest remote base branch into a feature branch,
 use [update-branch](../update-branch/SKILL.md), which delegates its merge phase
