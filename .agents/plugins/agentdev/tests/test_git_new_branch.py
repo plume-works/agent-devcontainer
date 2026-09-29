@@ -375,6 +375,28 @@ def test_stash_mode_keeps_stash_entry_when_pop_conflicts(
     assert git(fixture.work, 'diff', '--name-only', '--diff-filter=U') == 'fixture.txt'
 
 
+def test_stash_mode_restores_changes_when_the_branch_cannot_be_created(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """A failed switch after stashing pops the changes back onto the untouched checkout."""
+    # Arrange
+    git(fixture.work, 'branch', 'fixture-topic/blocker')
+    (fixture.work / 'fixture.txt').write_text('local edit\ntwo\nthree\nfour\nfive\n')
+    (fixture.work / 'untracked.txt').write_text('new\n')
+
+    # Act
+    completed, keys = run_script(plugin_root, fixture.work, 'fixture-topic', '--stash')
+
+    # Assert
+    assert outcome(completed) == (1, 'RESULT=SCRIPT_FAILURE')
+    assert 'STASH_REF' not in keys
+    assert git(fixture.work, 'rev-parse', '--abbrev-ref', 'HEAD') == 'main'
+    assert git(fixture.work, 'stash', 'list') == ''
+    assert (fixture.work / 'fixture.txt').read_text() == 'local edit\ntwo\nthree\nfour\nfive\n'
+    assert (fixture.work / 'untracked.txt').read_text() == 'new\n'
+
+
 def test_conflicted_stash_resolution_ends_with_the_stash_dropped(
     plugin_root: Path,
     fixture: Fixture,

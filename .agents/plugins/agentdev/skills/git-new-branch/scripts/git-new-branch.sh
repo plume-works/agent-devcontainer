@@ -49,7 +49,7 @@ Output (key=value lines):
   When main/master holds commits the base lacks also: LOCAL_COMMITS; the
   branch then starts at HEAD instead of the base, and outside worktree mode
   main/master is reset to the base afterwards
-  On STASH_CONFLICTS also: STASH_REF
+  On STASH_CONFLICTS, or SCRIPT_FAILURE with changes left stashed, also: STASH_REF
 
 Results (RESULT / exit code):
   SUCCESS          0  Branch created, pushed, and tracking <remote>/<name>
@@ -257,7 +257,14 @@ if [[ "${dirty}" -eq 1 && "${stash_mode}" -eq 1 ]]; then
   stashed=1
 fi
 
-git switch --no-track --create "${branch_name}" "${start_sha}" >&2
+if ! git switch --no-track --create "${branch_name}" "${start_sha}" >&2; then
+  print_error "Could not create '${branch_name}'; the checkout was not changed."
+  if [[ "${stashed}" -eq 1 ]] && ! git stash pop >&2; then
+    printf 'STASH_REF=stash@{0}\n'
+    print_error "Restoring the stash failed; the stash entry stash@{0} holds the changes."
+  fi
+  quit_by_code 1
+fi
 
 # The default branch is reset only once its old tip is safe on the new branch.
 if [[ "${moved_commits}" -eq 1 ]] \

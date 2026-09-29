@@ -4,7 +4,7 @@ created: 2026-09-28
 description: Add the git-new-branch skill, which creates a work branch at the freshly fetched remote base with its real upstream, and route every "get onto a feature branch" instruction in the catalog through it.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T06:57:57Z
+  at: 2026-09-29T07:13:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
@@ -54,7 +54,9 @@ the base) yield `CARRY_CONFLICT` without touching anything. The SKILL.md then
 asks the user; on approval it reruns with `--stash`, which stashes (including
 untracked files), creates and pushes the branch, and pops the stash onto it. A
 conflicted pop is resolved with `git-merge-resolve`'s conflict workflow; the
-stash entry is dropped only after resolution.
+stash entry is dropped only after resolution. When the branch cannot be created
+after stashing, the script pops the changes back onto the unchanged checkout,
+and names the stash entry as `STASH_REF` if that pop fails.
 
 `--worktree` leaves the current checkout alone and adds a worktree for the new
 branch instead. The worktree directory name is `<repo>-<branch>` with `/` in the
@@ -332,6 +334,20 @@ Modify: `.agents/plugins/agentdev/tests/test_git_new_branch.py`
   writable)
   - **Evidence:** commit "test(git-new-branch): cover the skill-level scenarios
     and the pre-commit guard"; `test_git_new_branch.py` 20 passed, none skipped.
+
+### Task 17: Restore stashed changes when branch creation fails
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`
+
+- [x] With `--stash`, a failed `git switch --create` pops the stash back onto
+  the unchanged checkout and reports `SCRIPT_FAILURE`; a failed pop there adds
+  `STASH_REF`, which the SKILL.md `SCRIPT_FAILURE` row reports to the user
+  - **Evidence:** commit "fix(git-new-branch): restore stashed changes when the
+    branch cannot be created"; `test_git_new_branch.py` 21 passed;
+    `shellcheck -x` clean; `validate_agent_files` 0 errors.
 
 ## Spec changes
 
