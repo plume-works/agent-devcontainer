@@ -120,18 +120,28 @@ keeps its ceilings and hard fallback unchanged.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] Rewrite Step 4's Claude Code bullet: issue every pass's `Agent` call in a
+- [x] Rewrite Step 4's Claude Code bullet: issue every pass's `Agent` call in a
   single message with `run_in_background: false`
   (`subagent_type: general-purpose`, the slot's `model`); if the `Agent` tool
   has no foreground option, run the passes sequentially in the session.
-- [ ] Update Step 4's blocking bullet and Step 6's runner reference so both
+  - **Evidence:** the Task 3 commit; Step 4's `Claude Code:` bullet in
+    `pr-review/SKILL.md`; `pre-commit run validate-agent-files` passes.
+- [x] Update Step 4's blocking bullet and Step 6's runner reference so both
   point at the foreground dispatch for Claude Code, and drop the Claude Code
   "hard-times-out" and per-validator ceiling wording.
-- [ ] In `Waiting on Parallel Passes`, replace the `TaskOutput` bullet with the
+  - **Evidence:** the Task 3 commit; Step 4's `Collect every pass before Step 5`
+    bullet and Step 6's runner bullet scope "hard-times-out" and the validator
+    ceiling to Codex.
+- [x] In `Waiting on Parallel Passes`, replace the `TaskOutput` bullet with the
   foreground dispatch rule, and scope the budget and hard-fallback bullets to
   Codex. State that on Claude Code the job timeout bounds the review.
-- [ ] No reference to `TaskOutput` remains in the catalog:
+  - **Evidence:** the Task 3 commit; the section's
+    `Claude Code: dispatch in the foreground`, `Codex budget`, and
+    `Codex hard fallback` bullets.
+- [x] No reference to `TaskOutput` remains in the catalog:
   `grep -rn TaskOutput .agents/` prints nothing.
+  - **Evidence:** at the Task 3 commit, `grep -rn TaskOutput .agents/` prints
+    nothing and exits 1.
 
 ### Task 4: Record the settings layering as a CI constraint
 
