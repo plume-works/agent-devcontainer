@@ -3,7 +3,7 @@ type: bug
 description: Renovate proposes the ubuntu-26.04 GitHub-hosted runner label before any actionlint release knows it, so the post-upgrade script and Super-Linter both fail the runner bump.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T10:30:00Z
+  at: 2026-09-29T12:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/208
 - resource: .github/renovate.json
@@ -11,6 +11,9 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/workflows/reformat.yml
 - resource: scripts/renovate-post-upgrade.sh
+- resource: .github/actionlint.yml
+- resource: .agents/plugins/agentdev/bin/super-linter-env.sh
+stage: done
 ---
 
 # Bug: Runner label bump ahead of actionlint
@@ -53,16 +56,14 @@ bump would also leave the workflows on mixed runner releases.
 
 ## Fix
 
-Unfixed. Options:
+`.github/actionlint.yml` declares `ubuntu-26.04` under
+`self-hosted-runner.labels`. The pre-commit hook finds it by actionlint's own
+discovery, and `super-linter-env.sh` sets `GITHUB_ACTIONS_CONFIG_FILE` to it, so
+both lint passes accept the label; any other unknown label, a typo included,
+still fails. A label leaves the file once an actionlint release knows it.
 
-- Hold `github-runner` major updates in `.github/renovate.json` until an
-  actionlint release inside the Super-Linter parity contract knows the label.
-- Declare the label in an actionlint config (`.github/actionlint.yaml`,
-  `self-hosted-runner.labels`), which both the hook and Super-Linter read — at
-  the cost of silencing the label check for a typo of that label.
-
-Either choice also decides whether the expression-form labels move with the
-literal ones.
+The expression-form labels are not extracted by Renovate and are outside this
+fix.
 
 ## Key references
 
@@ -75,5 +76,8 @@ Verified anchor points (line numbers as of 2026-09-29):
 - `.github/workflows/reformat.yml:192` — literal `runs-on: 'ubuntu-24.04'`
 - `.github/workflows/reformat.yml:213` — Super-Linter `slim@v8.7.0`
 - `.pre-commit-config.yaml:63-66` — actionlint hook at `v1.7.12`
+- `.github/actionlint.yml:4-6` — `self-hosted-runner.labels`
+- `.agents/plugins/agentdev/bin/super-linter-env.sh:44` —
+  `GITHUB_ACTIONS_CONFIG_FILE`
 - `.github/renovate.json:48-54` — the Ubuntu rule, which disables only the
   `dockerfile` base image, not runner labels
