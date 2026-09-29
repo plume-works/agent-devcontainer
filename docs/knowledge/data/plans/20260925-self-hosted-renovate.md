@@ -23,6 +23,8 @@ sources:
   title: Post-upgrade output is kept only where its path matches fileFilters
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/commit.ts
   title: A branch commit is Renovate's package files followed by post-upgrade artifacts
+stage: done
+completed: 2026-09-29
 ---
 
 # Self-hosted Renovate in the agent-desktop image

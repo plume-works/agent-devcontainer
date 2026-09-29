@@ -6,6 +6,17 @@ to the current day's group.
 
 ## 2026-09-29
 
+- **Update**:
+  [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
+  done. Renovate runs from `renovate.yml` inside the pinned agent-desktop image
+  as a GitHub App, and one post-upgrade script refreshes checksums, the
+  devcontainer lock, and pre-commit output in the bump's own commit.
+- **Update**: [Dependency updates](spec/dependency-updates.md) spec created, and
+  [Image pinning](spec/image-pinning.md) gained the shared workflow container
+  pin requirement.
+- **Update**:
+  [Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
+  implemented.
 - **Update**: [git-new-branch skill](plans/20260928-git-new-branch-skill.md)
   done. `/agentdev:git-new-branch` starts work branches at the fetched remote
   base with their own upstream, and git-commit refuses the default branch.

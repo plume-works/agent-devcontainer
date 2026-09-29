@@ -1,6 +1,6 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: Run Renovate from a workflow inside the pinned agent-desktop image so post-upgrade tasks refresh checksum pins, lock files, and pre-commit output in the same commit as a bump.
 generated:
   by: claude-code/opus-5.5
