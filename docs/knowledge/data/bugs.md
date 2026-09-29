@@ -38,3 +38,5 @@ enforced by `.iwe/schemas/bug.yaml`.*
 [The review opt-out marker fired too broadly](bugs/skip-ai-review-marker-overreach.md)
 
 [Fisher install over untracked plugins](bugs/fisher-install-over-untracked-plugins.md)
+
+[Runner label bump ahead of actionlint](bugs/runner-label-ahead-of-actionlint.md)
