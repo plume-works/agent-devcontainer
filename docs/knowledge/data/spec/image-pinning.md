@@ -2,11 +2,13 @@
 type: spec
 description: How the published agent-desktop and ubuntu-ansible images are pinned and updated by consumers.
 generated:
-  by: claude-sonnet-5
-  at: 2026-08-12T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-09-29T20:00:00Z
 sources:
 - resource: devcontainer-compose-pins.yml
 - resource: README.md
+- resource: .github/renovate.json
+- resource: .github/workflows/validate-renovate-config.yml
 ---
 
 # Image pinning
@@ -43,6 +45,24 @@ upstream never silently changes what a running container uses.
 `.devcontainer/docker-compose.yml` SHALL reference the image by tag only;
 `devcontainer-compose-pins.yml` overrides it with the digest-qualified reference
 via `dockerComposeFile` in `devcontainer.json`.
+
+## Requirement: workflow container images share the devcontainer pin
+
+Every workflow job that runs in `ghcr.io/plume-works/agent-desktop` SHALL
+reference it by the same tag and digest as `devcontainer-compose-pins.yml`, and
+a digest update SHALL move every reference in one change.
+
+### Scenario: Renovate bumps the agent-desktop digest
+
+- **WHEN** Renovate proposes a new agent-desktop digest
+- **THEN** one pull request changes `devcontainer-compose-pins.yml` and every
+  workflow `container.image` to that digest.
+
+### Scenario: a bumped digest is exercised before merge
+
+- **WHEN** a pull request changes the agent-desktop digest
+- **THEN** a required check runs inside the new image, and the pull request
+  cannot merge while it fails.
 
 ## Unknowns
 
