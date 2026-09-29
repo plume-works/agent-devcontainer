@@ -443,8 +443,14 @@ options as `RENOVATE_*` environment variables instead.
 
 **Files:** none (CI)
 
-- [ ] A `renovate.yml` run completes and any pull request it opens carries
+- [x] A `renovate.yml` run completes and any pull request it opens carries
   refreshed checksums or lock files and passes CI.
+  - **Evidence:** GitHub Actions run 36563830318 completed and pushed 6d5b899 to
+    #207, which bumps `docker-in-docker` to 4.1.2 in
+    `.devcontainer/devcontainer.json` with the regenerated
+    `.devcontainer/devcontainer-lock.json` in the same commit; every check on
+    #207 passes. #209 (lock file maintenance, `uv.lock`) merged green as
+    aeea987.
 
 ### Task 20: A digest bump runs the check in the new image
 
@@ -573,7 +579,7 @@ imply, produced by the same toolchain contributors use.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-09-29):
 
 - `.github/renovate.json:3` — `extends`
 - `.github/renovate.json:5-21` — `postUpgradeTasks` and its `fileFilters`
@@ -581,7 +587,7 @@ Verified anchor points (line numbers as of 2026-09-28):
 - `.github/renovate.json:39-47` — agent-desktop automerge group
 - `.github/renovate.json:85-93` — provisioning-tools automerge group
 - `.github/renovate.json:103` — `customManagers`
-- `.pre-commit-config.yaml:68-77` — `renovate-config-validator` hook; `rev` is
+- `.pre-commit-config.yaml:71-80` — `renovate-config-validator` hook; `rev` is
   the Renovate version
 - `.github/workflows/validate-renovate-config.yml:3-12` — triggers
 - `.github/workflows/validate-renovate-config.yml:26-49` — `paths-filter` job
