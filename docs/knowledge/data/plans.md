@@ -17,6 +17,10 @@ moves them.*
 
 ## Active
 
+[Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
+
+[Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
+
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
