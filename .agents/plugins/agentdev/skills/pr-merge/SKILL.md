@@ -44,11 +44,13 @@ asks to change that state.
   git fetch origin <head-branch>
   git worktree add --detach ./.tmp/pr-merge-<pr> origin/<head-branch>
   git -C ./.tmp/pr-merge-<pr> switch -c pr-merge-worktree/<pr>
+  git -C ./.tmp/pr-merge-<pr> branch --set-upstream-to=origin/<head-branch>
   ```
 
   Run all local inspection, tests, commits, and pushes from that worktree.
   Push its `HEAD` only to the resolved PR head branch; never push its private
-  `pr-merge-worktree/<pr>` name. Preserve the caller's worktree and unrelated
+  `pr-merge-worktree/<pr>` name. The upstream set above is what makes the push
+  helper target the head branch. Preserve the caller's worktree and unrelated
   local branches. After a confirmed merge, remove only the clean worktree and
   private branch that this skill created; otherwise leave them in place and
   report their path and state.
@@ -160,7 +162,8 @@ to check later.
      [extract-github-actions-logs](../extract-github-actions-logs/SKILL.md)
      to collect the failing job log and artifacts, then use
      [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) to diagnose,
-     implement, test, commit, and push the focused repair.
+     implement, test, commit, and push the focused repair through the
+     [pr-open](../pr-open/SKILL.md) push helper, `scripts/push-branch.sh`.
    - A CodeQL or Codecov failure: use the same feedback-resolution skill and
      its linked security or coverage workflow.
    - An external check: record its URL and report it as an external blocker;
@@ -173,7 +176,9 @@ to check later.
 
 4. After a code change, run the narrowest relevant local verification —
    `uv run pytest <path>` or `bun test <path>` for the affected area.
-   Commit and push through normal local Git workflow, then restart the loop
+   Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
+   `scripts/push-branch.sh`, handling its result as that skill's step 8 does.
+   Restart the loop
    from step 1 because the head SHA and checks have changed.
 
 5. Once CI is successful, inspect reviews and unresolved review threads. Wait

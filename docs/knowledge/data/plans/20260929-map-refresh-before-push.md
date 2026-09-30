@@ -126,13 +126,20 @@ leaves the machine.
 Modify: `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] `update-branch` replaces `git push origin HEAD` with `pr-open`'s
+- [x] `update-branch` replaces `git push origin HEAD` with `pr-open`'s
   `push-branch.sh` and its `MAP_STALE` handling.
-- [ ] `pr-feedback-resolution`'s "Push to PR branch" and `pr-merge`'s two
+  - **Evidence:** commit "docs(agentdev): push through push-branch.sh from
+    update-branch, pr-feedback-resolution, and pr-merge";
+    `validate_agent_files`: 56/56 skills valid.
+- [x] `pr-feedback-resolution`'s "Push to PR branch" and `pr-merge`'s two
   commit-and-push instructions name `push-branch.sh` as the push.
+  - **Evidence:** same commit; `grep -n "git push"` over the three `SKILL.md`
+    files returns nothing.
 - [ ] `pr-merge`'s private `pr-merge-worktree/<pr>` branch gets
   `origin/<head-branch>` as its upstream when it is created, so `push-branch.sh`
   pushes to the pull request head and never under the private name.
+  - **Evidence:** same commit; `branch --set-upstream-to=origin/<head-branch>`
+    follows the worktree's `switch -c`.
 
 ### Task 4: Exclude map staleness from the AI review
 
@@ -245,16 +252,16 @@ Verified anchor points (line numbers as of 2026-09-30):
   `### 8. Push the Branch`
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:244` — non-`SUCCESS`
   handling of `push-branch.sh`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:92` —
-  `git push origin HEAD`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:89` — Workflow 3 push
+  through the `pr-open` push helper
 - `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:225` — "Push
-  to PR branch"
+  to PR branch" through the push helper
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:46` —
-  `switch -c pr-merge-worktree/<pr>`, created without an upstream
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:163` — "commit, and push
-  the focused repair"
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:176` — "Commit and push
-  through normal local Git workflow"
+  `switch -c pr-merge-worktree/<pr>`, followed by its upstream at `:47`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:165` — "commit, and push
+  the focused repair" through the push helper
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:179` — "Commit, then push
+  with" the push helper
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:43` — "IGNORE import
   ordering" bullet
 - `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:122` — refresh mode
