@@ -110,12 +110,15 @@ leaves the machine.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] Step 8 lists `MAP_STALE` and `MAP_CHECK_FAILED` with their actions:
+- [x] Step 8 lists `MAP_STALE` and `MAP_CHECK_FAILED` with their actions:
   `MAP_STALE` → run `/agentdev:iwe-map` refresh mode, commit through
   `/agentdev:git-commit`, rerun `push-branch.sh`; `MAP_CHECK_FAILED` → stop and
   report the check's output verbatim.
-- [ ] State that `--skip-map-check` is passed only when the user explicitly asks
+  - **Evidence:** commit "docs(pr-open): refresh the map on MAP_STALE before
+    pushing"; `validate_agent_files`: 56/56 skills valid.
+- [x] State that `--skip-map-check` is passed only when the user explicitly asks
   to push with a stale map.
+  - **Evidence:** same commit; step 8 states the override rule.
 
 ### Task 3: Route the other pushing skills through `push-branch.sh`
 
@@ -240,7 +243,7 @@ Verified anchor points (line numbers as of 2026-09-30):
   `ACTION=push-with-upstream` path
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:207` —
   `### 8. Push the Branch`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:231` — non-`SUCCESS`
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:244` — non-`SUCCESS`
   handling of `push-branch.sh`
 - `.agents/plugins/agentdev/skills/update-branch/SKILL.md:92` —
   `git push origin HEAD`
