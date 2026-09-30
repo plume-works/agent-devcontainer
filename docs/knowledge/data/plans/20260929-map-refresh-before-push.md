@@ -73,24 +73,38 @@ leaves the machine.
 `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh` Create:
 `.agents/plugins/agentdev/tests/test_push_branch_map_check.py`
 
-- [ ] Before each of the two push commands, run the sibling
+- [x] Before each of the two push commands, run the sibling
   `../../iwe-map/scripts/stale-map-docs.py` inside a temporary detached worktree
   at the commit being pushed, remove the worktree afterwards, and print a
   `MAP_CHECK=<fresh|skipped|stale|failed|overridden>` line.
-- [ ] Declare `6=MAP_STALE` (the check ended `STALE_FOUND`; its per-doc lines go
+  - **Evidence:** commit "feat(pr-open): gate push-branch.sh on a fresh codebase
+    map" (`check_map_freshness`);
+    `test_uncommitted_edit_does_not_change_the_verdict` and
+    `test_check_worktree_is_removed` pass.
+- [x] Declare `6=MAP_STALE` (the check ended `STALE_FOUND`; its per-doc lines go
   to stderr) and `7=MAP_CHECK_FAILED` (`BROKEN_METADATA`, `PREFLIGHT_ERROR` with
   a config present, `SCRIPT_FAILURE`, or a signal); neither pushes.
-- [ ] Skip the check (`MAP_CHECK=skipped`) when `.iwe/config.toml` is absent
+  - **Evidence:** same commit; `RESULT_CODES` and `--help` list both;
+    `test_stale_map_is_not_pushed_to_existing_upstream` and
+    `test_stale_map_is_not_pushed_with_upstream` pass.
+- [x] Skip the check (`MAP_CHECK=skipped`) when `.iwe/config.toml` is absent
   from the repository root, when the check script is absent, or when it reports
   `NO_MAP_DOCS`.
-- [ ] Add `--skip-map-check`, which pushes without running the check and prints
+  - **Evidence:** same commit; the config is looked up in the commit being
+    pushed, the root the check runs against;
+    `test_repository_without_iwe_config_is_not_gated` passes.
+- [x] Add `--skip-map-check`, which pushes without running the check and prints
   `MAP_CHECK=overridden`; document it and both new results in `usage()`.
-- [ ] Tests with a fixture repository that has an IWE library and one map doc:
+  - **Evidence:** same commit; `test_skip_map_check_pushes_a_stale_map` passes.
+- [x] Tests with a fixture repository that has an IWE library and one map doc:
   fresh map pushes; stale map returns `MAP_STALE` and the remote ref is
   unchanged; `--skip-map-check` pushes a stale map; a repository with no
   `.iwe/config.toml` pushes; `ACTION=none` does not run the check; both push
   paths (existing upstream and `push-with-upstream`) are gated; an uncommitted
   edit under a mapped source does not change the verdict for the pushed commit.
+  - **Evidence:** same commit adds `tests/test_push_branch_map_check.py`;
+    `uv run pytest .agents/plugins/agentdev/tests`: 112 passed, and 7 of the 8
+    new tests fail against the ungated script.
 
 ### Task 2: Teach `pr-open` to refresh on `MAP_STALE`
 
@@ -212,15 +226,17 @@ staleness check owns.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-09-30):
 
 - `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:9` —
   `RESULT_CODES+=` declared results
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:15` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:17` —
   `usage()`
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:133` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:86` —
+  `check_map_freshness`, the map gate
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:200` —
   `ACTION=push`, existing-upstream push path
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:150` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:218` —
   `ACTION=push-with-upstream` path
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:207` —
   `### 8. Push the Branch`

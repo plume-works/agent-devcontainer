@@ -6,27 +6,36 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "${script_dir}/__common.sh"
 
-RESULT_CODES+=("3=NOT_FAST_FORWARD" "4=PUSH_REJECTED" "5=PROTECTED_BRANCH")
+RESULT_CODES+=("3=NOT_FAST_FORWARD" "4=PUSH_REJECTED" "5=PROTECTED_BRANCH" "6=MAP_STALE" "7=MAP_CHECK_FAILED")
 
 remote_name="origin"
 branch_name=""
 remote_was_explicit=0
+skip_map_check=0
+map_check_script="${script_dir}/../../iwe-map/scripts/stale-map-docs.py"
 
 usage() {
   show_help_header "Push a branch to its pull request head ref without rewriting history."
   cat <<'EOF'
 
 Usage:
-  push-branch.sh [--remote <name>] [--branch <name>]
+  push-branch.sh [--remote <name>] [--branch <name>] [--skip-map-check]
 
 Options:
   --remote <name>    Remote to push to when no upstream is configured. Default: origin
   --branch <name>    Branch to push. Default: current branch
+  --skip-map-check   Push without the codebase-map staleness check. Pass it only
+                     when the user explicitly asks to push a stale map.
   -h, --help         Show this help text.
 
 Output (key=value lines):
   RESULT, BRANCH, UPSTREAM, ACTION
   When the branch has an upstream also: AHEAD, BEHIND
+  Before a push also: MAP_CHECK=<fresh|skipped|stale|failed|overridden>
+
+Before pushing, the iwe-map stale-map-docs.py check runs in a temporary detached
+worktree at the commit being pushed. It is skipped when that commit has no
+.iwe/config.toml, the check script is absent, or the check finds no map docs.
 
 ACTION says what was done: 'none' when the upstream already matched, 'push'
 when an existing upstream was updated, and 'push-with-upstream' when the remote
@@ -37,6 +46,8 @@ Results (RESULT / exit code):
   NOT_FAST_FORWARD  3  Branch is behind or diverged from its upstream
   PUSH_REJECTED     4  Push failed
   PROTECTED_BRANCH  5  Branch is a protected default branch
+  MAP_STALE         6  The codebase map is stale at the commit being pushed; nothing pushed
+  MAP_CHECK_FAILED  7  The map check could not run to a verdict; nothing pushed
   PREFLIGHT_ERROR   2  Usage or preflight error
   SCRIPT_FAILURE    1  Unhandled error
 EOF
@@ -55,6 +66,10 @@ while [[ $# -gt 0 ]]; do
       branch_name="$2"
       shift 2
       ;;
+    --skip-map-check)
+      skip_map_check=1
+      shift
+      ;;
     -h|--help)
       usage
       quit_by_code 0
@@ -66,6 +81,57 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+# Map freshness gate: see spec/iwe-workflow-skills.
+check_map_freshness() {
+  local commit="$1"
+  local repo_root
+  local check_dir
+  local check_output
+  local check_status=0
+
+  if [[ "${skip_map_check}" -eq 1 ]]; then
+    printf 'MAP_CHECK=overridden\n'
+    return 0
+  fi
+  if [[ ! -f "${map_check_script}" ]] || ! git cat-file -e "${commit}:.iwe/config.toml" 2>/dev/null; then
+    printf 'MAP_CHECK=skipped\n'
+    return 0
+  fi
+
+  repo_root="$(git rev-parse --show-toplevel)"
+  mkdir -p "${repo_root}/.tmp"
+  check_dir="$(mktemp -d "${repo_root}/.tmp/push-map-check.XXXXXX")"
+  if ! git worktree add --quiet --detach "${check_dir}" "${commit}" >&2; then
+    rmdir "${check_dir}" 2>/dev/null || print_error "Could not remove ${check_dir}."
+    print_error "Could not create a worktree at ${commit} for the map check."
+    printf 'MAP_CHECK=failed\n'
+    quit_by_code 7
+  fi
+  check_output="$(cd "${check_dir}" && "${map_check_script}" 2>&1)" || check_status=$?
+  git worktree remove --force "${check_dir}" >&2 || print_error "Could not remove worktree ${check_dir}."
+
+  case "${check_status}" in
+    0)
+      printf 'MAP_CHECK=fresh\n'
+      ;;
+    4)
+      printf 'MAP_CHECK=skipped\n'
+      ;;
+    3)
+      printf '%s\n' "${check_output}" >&2
+      print_error "The codebase map is stale at ${commit}. Refresh it with /agentdev:iwe-map, commit, and rerun."
+      printf 'MAP_CHECK=stale\n'
+      quit_by_code 6
+      ;;
+    *)
+      printf '%s\n' "${check_output}" >&2
+      print_error "The codebase map check exited ${check_status} without a verdict."
+      printf 'MAP_CHECK=failed\n'
+      quit_by_code 7
+      ;;
+  esac
+}
 
 require_git_repo
 
@@ -130,6 +196,7 @@ if upstream_ref="$(git rev-parse --abbrev-ref --symbolic-full-name "${branch_nam
     quit_by_code 0
   fi
 
+  check_map_freshness "$(git rev-parse "refs/heads/${branch_name}")"
   printf 'ACTION=push\n'
   if push_output="$(git push "${upstream_remote}" "refs/heads/${branch_name}:refs/heads/${upstream_branch}" 2>&1)"; then
     printf '%s\n' "${push_output}"
@@ -147,6 +214,7 @@ if ! git remote get-url "${remote_name}" >/dev/null 2>&1; then
 fi
 
 printf 'UPSTREAM=%s/%s\n' "${remote_name}" "${branch_name}"
+check_map_freshness "$(git rev-parse "refs/heads/${branch_name}")"
 printf 'ACTION=push-with-upstream\n'
 
 if [[ "${branch_name}" == "$(current_branch)" ]]; then
