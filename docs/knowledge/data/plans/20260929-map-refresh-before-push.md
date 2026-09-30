@@ -160,8 +160,10 @@ Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 **Files:** Modify: `docs/knowledge/data/codebase/` docs that `stale-map-docs.py`
 reports stale after Tasks 1–4
 
-- [ ] Run the `/agentdev:iwe-map` refresh over the docs this change makes stale;
+- [x] Run the `/agentdev:iwe-map` refresh over the docs this change makes stale;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
+  - **Evidence:** commit "map: refresh the agentdev plugin, skills, and tests
+    docs for the push-branch map gate"; `stale-map-docs.py`: `RESULT=SUCCESS`.
 
 ### Task 6: CI passes on the pull request
 
