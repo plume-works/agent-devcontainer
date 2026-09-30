@@ -145,8 +145,11 @@ Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] Insert this approved line verbatim right after the "IGNORE import
+- [x] Insert this approved line verbatim right after the "IGNORE import
   ordering…" bullet in the Compliance focus list:
+  - **Evidence:** commit "docs(pr-review): leave stale codebase-map docs to the
+    CI check"; `pr-review/SKILL.md:44` matches the fenced line below byte for
+    byte.
 
 ``` markdown
 - IGNORE stale codebase-map docs (`data/codebase/` docs whose `source_digest` no longer matches their sources) — the `Check codebase map docs against their sources` CI step owns that check

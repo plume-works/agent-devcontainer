@@ -175,19 +175,19 @@ table covers six runs; the architecture doc is linked from
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-09-30):
 
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:48` — "Scan only the diff
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — "Scan only the diff
   itself" correctness rule
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:56` — "definitely produce
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:57` — "definitely produce
   wrong results regardless of inputs"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:62` — "Potential issues
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:63` — "Potential issues
   that depend on specific inputs or state"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:128` — correctness pass
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:129` — correctness pass
   dispatch
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:137` — the single
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` — the single
   validator prompt
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` — the validator
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:139` — the validator
   re-derives the claim
 - `7e0413d:.github/workflows/renovate.yml:48` — `concurrency:` split by event
   (K1)
