@@ -1,18 +1,17 @@
 ---
 type: codebase
-description: 'From opening the folder to a working session: host init, Compose, the three lifecycle hooks, and the web-only session hook.'
+description: 'From opening the folder to a working session: host init, Compose, and the three lifecycle hooks.'
 source:
 - .devcontainer
 - docker/desktop
-- .agents/plugins/agentdev/hooks
-source_digest: sha256:94e143984c786381dbe767c2ef3231002b69ab879148c5a9e55d5df9b975ef09
+source_digest: sha256:7f8fbb15afcbb488d6af86306a1e8f2c8a8a9b8c8fbe97a707d44d46849372d3
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-29T23:30:00Z
-stale_after: 2026-12-28
+  by: claude-code/opus-5.5
+  at: 2026-10-01T00:00:00Z
+stale_after: 2026-12-30
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-29T23:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-01T00:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -52,9 +51,6 @@ state.
    catalog reinstalled from this checkout at local scope, which is how the
    catalog is developed in place —
    `.devcontainer/scripts/postAttachCommand.sh:8-15`
-6. In the Claude Code web environment only, the plugin's `SessionStart` hook
-   runs `devcontainer up`, which replays steps 1–5 —
-   `.agents/plugins/agentdev/hooks/session-start.sh:5,29`
 
 ## Failure modes
 

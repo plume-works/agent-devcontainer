@@ -1,7 +1,8 @@
 ---
 type: task
 created: 2026-10-01
-stage: planned
+stage: done
+completed: 2026-10-01
 priority: medium
 description: Remove the agentdev plugin's SessionStart hook, which never brought up a working devcontainer, and release the catalog as 4.0.0.
 generated:

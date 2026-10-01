@@ -1,18 +1,18 @@
 ---
 type: codebase
-description: 'The canonical Claude Code and Codex plugin: agents, skills, hooks, bin helpers, and its own test suite, published from this repository and staged into the image.'
+description: 'The canonical Claude Code and Codex plugin: agents, skills, bin helpers, and its own test suite, published from this repository and staged into the image.'
 source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:716695a12b8285cd193c5458cf834bfc68e99a79e14d97ac9982bc6f71742a34
+source_digest: sha256:1283f14235399094a99eb88eb02b9e5a419ec836992cd992cbce0ca61204acb9
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
-stale_after: 2026-12-28
+  at: 2026-10-01T00:00:00Z
+stale_after: 2026-12-30
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
+  at: 2026-10-01T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -40,7 +40,7 @@ two ecosystems publish different plugin sets. Skills are invoked as
 
 *Not mapped*: `agents/` — five agent definitions (`Principal Engineer`,
 `TDD Red`, `TDD Green`, `TDD Refactor`, `Durable Knowledge Auditor`), one file
-each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
+each.
 
 ## Public surface
 
@@ -50,9 +50,7 @@ each; `hooks/` — `hooks.json` wiring a single `SessionStart` command.
   `tdd-refactor`, `durable-knowledge-auditor`
 - `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
   `result_codes.py`, which a Python skill script imports from there
-- `hooks/session-start.sh` — brings up the project devcontainer, only when
-  `CLAUDE_CODE_REMOTE=true`
-- `version` — `3.4.0`, declared identically in both plugin manifests, the
+- `version` — `4.0.0`, declared identically in both plugin manifests, the
   marketplace entry, and the Dockerfile pin
 
 ## How it works
@@ -83,14 +81,12 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-10-01):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
   version
 - `.agents/plugins/agentdev/.codex-plugin/plugin.json:3` — Codex manifest
   version
-- `.agents/plugins/agentdev/hooks/session-start.sh:5` — the remote-only gate
-- `.agents/plugins/agentdev/hooks/session-start.sh:29` — `devcontainer up`
 - `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`, the
   fourth pin

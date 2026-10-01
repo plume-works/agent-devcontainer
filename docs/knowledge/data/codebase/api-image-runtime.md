@@ -5,14 +5,14 @@ source:
 - docker
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
-source_digest: sha256:43aac030183e7c36d96e43bf0159c8d66bfd99e1c42dcd955357576dedb95f1f
+source_digest: sha256:3dbbf2045a671dc8a92cbb7027d33e73d6ebf1a49404e55372df896cb925dac8
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
-stale_after: 2026-12-26
+  at: 2026-10-01T00:00:00Z
+stale_after: 2026-12-30
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T21:00:00Z
+  at: 2026-10-01T00:00:00Z
 sources:
 - id: code
   resource: docker
