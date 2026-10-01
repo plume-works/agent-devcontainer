@@ -31,10 +31,11 @@ Options:
 Output (key=value lines):
   RESULT, BRANCH, UPSTREAM, ACTION
   When the branch has an upstream also: AHEAD, BEHIND
-  Before a push also: MAP_CHECK=<fresh|skipped|stale|failed|overridden>
+  Unless blocked first also: MAP_CHECK=<fresh|skipped|stale|failed|overridden>
 
-Before pushing, the iwe-map stale-map-docs.py check runs in a temporary detached
-worktree at the commit being pushed. It is skipped when that commit has no
+The iwe-map stale-map-docs.py check runs in a temporary detached worktree at the
+branch head, including a head the upstream already has, since it may have been
+pushed outside this script. It is skipped when that commit has no
 .iwe/config.toml, the check script is absent, or the check finds no map docs.
 
 ACTION says what was done: 'none' when the upstream already matched, 'push'
@@ -46,7 +47,7 @@ Results (RESULT / exit code):
   NOT_FAST_FORWARD  3  Branch is behind or diverged from its upstream
   PUSH_REJECTED     4  Push failed
   PROTECTED_BRANCH  5  Branch is a protected default branch
-  MAP_STALE         6  The codebase map is stale at the commit being pushed; nothing pushed
+  MAP_STALE         6  The codebase map is stale at the branch head; nothing pushed
   MAP_CHECK_FAILED  7  The map check could not run to a verdict; nothing pushed
   PREFLIGHT_ERROR   2  Usage or preflight error
   SCRIPT_FAILURE    1  Unhandled error
@@ -191,12 +192,12 @@ if upstream_ref="$(git rev-parse --abbrev-ref --symbolic-full-name "${branch_nam
     quit_by_code 3
   fi
 
+  check_map_freshness "$(git rev-parse "refs/heads/${branch_name}")"
   if [[ "${ahead_count}" -eq 0 ]]; then
     printf 'ACTION=none\n'
     quit_by_code 0
   fi
 
-  check_map_freshness "$(git rev-parse "refs/heads/${branch_name}")"
   printf 'ACTION=push\n'
   if push_output="$(git push "${upstream_remote}" "refs/heads/${branch_name}:refs/heads/${upstream_branch}" 2>&1)"; then
     printf '%s\n' "${push_output}"

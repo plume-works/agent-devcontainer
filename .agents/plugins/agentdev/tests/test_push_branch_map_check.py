@@ -173,8 +173,8 @@ def test_repository_without_iwe_config_is_not_gated(
     assert map_check(completed) == ['MAP_CHECK=skipped']
 
 
-def test_nothing_to_push_runs_no_check(plugin_root: Path, plugin_tmp_path: Path) -> None:
-    """ACTION=none pushes nothing, so a stale working tree is not checked."""
+def test_up_to_date_fresh_head_is_checked(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """ACTION=none still reports the verdict for the head already on the remote."""
     # Arrange
     repository = build_repository(plugin_tmp_path)
     assert outcome(push(plugin_root, repository)) == (0, 'RESULT=SUCCESS')
@@ -185,7 +185,26 @@ def test_nothing_to_push_runs_no_check(plugin_root: Path, plugin_tmp_path: Path)
     # Assert
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert 'ACTION=none' in completed.stdout.splitlines()
-    assert map_check(completed) == []
+    assert map_check(completed) == ['MAP_CHECK=fresh']
+
+
+def test_stale_head_pushed_outside_the_helper_is_caught(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A stale head that reached the remote through a bare push stops at MAP_STALE."""
+    # Arrange
+    repository = build_repository(plugin_tmp_path)
+    assert outcome(push(plugin_root, repository)) == (0, 'RESULT=SUCCESS')
+    commit_file(repository, 'src/timer/engine.txt', 'tock\n')
+    git(repository, 'push', '--quiet')
+
+    # Act
+    completed = push(plugin_root, repository)
+
+    # Assert
+    assert outcome(completed) == (6, 'RESULT=MAP_STALE')
+    assert map_check(completed) == ['MAP_CHECK=stale']
+    assert 'ACTION=none' not in completed.stdout.splitlines()
 
 
 def test_uncommitted_edit_does_not_change_the_verdict(

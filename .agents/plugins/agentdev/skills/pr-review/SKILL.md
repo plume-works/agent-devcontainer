@@ -41,7 +41,7 @@ Two independent concerns feed two different pass types (see Steps below) so they
 - Python and JavaScript/TypeScript style and idioms
 - Any rule in the Coding Conventions section of the repository `AGENTS.md`, any skill applicable to the changed files (see Step 2), and any repo `CLAUDE.md`/`AGENTS.md` file that shares a path with the changed file or its parents
 - IGNORE import ordering, that is handled by `ruff` and `clang-format` in CI
-- IGNORE stale codebase-map docs (`data/codebase/` docs whose `source_digest` no longer matches their sources) — the `Check codebase map docs against their sources` CI step owns that check
+- IGNORE stale codebase-map docs (`data/codebase/` docs whose `source_digest` no longer matches their sources) when the repository's CI runs the codebase-map staleness check (`stale-map-docs.py`), which then owns that check
 - Only flag a violation if you can quote the exact rule text being broken
 
 **Correctness focus** (bug-hunting) — runs on the model the effort matrix gives it:

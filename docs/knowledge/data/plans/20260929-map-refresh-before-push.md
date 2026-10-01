@@ -4,7 +4,7 @@ created: 2026-09-29
 description: Make every agent push run the codebase-map staleness check first and refresh a stale map before the branch leaves the machine, and tell the AI review not to report map staleness, which the CI step already owns.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-10-01T08:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
@@ -47,11 +47,14 @@ explicitly, and CI still fails the stale map.
 `push-branch.sh` instead of a bare `git push`, so the gate covers every agent
 push rather than only `pr-open`'s.
 
-The check runs only on the two paths that push (`ACTION=push` and
-`ACTION=push-with-upstream`); `ACTION=none` pushes nothing and is not gated.
+The check also runs on `ACTION=none`, when the upstream already holds the head:
+`git-new-branch.sh` and `codespace-sync.sh` push with a bare `git push`, so a
+head that reached the remote that way is still checked before `pr-open` opens or
+updates the pull request.
 
 `pr-review` gains one explicit exclusion beside the existing import-ordering
-one, naming the CI step that owns map staleness.
+one, conditioned on the repository's CI running the staleness check: a consumer
+whose CI omits that step still gets staleness findings from the review.
 
 Rejected: a CI job that runs the refresh and pushes a commit onto the pull
 request branch. It needs a model call on every pull request and a write-capable
@@ -61,9 +64,9 @@ model.
 
 `stale-map-docs.py` fingerprints working-tree contents, and a pushing skill can
 hold uncommitted changes outside what it pushes. The gate therefore runs the
-check inside a temporary detached worktree at the commit being pushed, under
-`./.tmp/`, and removes it afterwards, so the verdict describes exactly what
-leaves the machine.
+check inside a temporary detached worktree at the branch head, under `./.tmp/`,
+and removes it afterwards, so the verdict describes exactly what leaves the
+machine.
 
 ## Implementation Steps
 
@@ -73,10 +76,10 @@ leaves the machine.
 `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh` Create:
 `.agents/plugins/agentdev/tests/test_push_branch_map_check.py`
 
-- [x] Before each of the two push commands, run the sibling
-  `../../iwe-map/scripts/stale-map-docs.py` inside a temporary detached worktree
-  at the commit being pushed, remove the worktree afterwards, and print a
-  `MAP_CHECK=<fresh|skipped|stale|failed|overridden>` line.
+- [x] Before each of the two push commands and before reporting `ACTION=none`,
+  run the sibling `../../iwe-map/scripts/stale-map-docs.py` inside a temporary
+  detached worktree at the branch head, remove the worktree afterwards, and
+  print a `MAP_CHECK=<fresh|skipped|stale|failed|overridden>` line.
   - **Evidence:** commit "feat(pr-open): gate push-branch.sh on a fresh codebase
     map" (`check_map_freshness`);
     `test_uncommitted_edit_does_not_change_the_verdict` and
@@ -99,12 +102,17 @@ leaves the machine.
 - [x] Tests with a fixture repository that has an IWE library and one map doc:
   fresh map pushes; stale map returns `MAP_STALE` and the remote ref is
   unchanged; `--skip-map-check` pushes a stale map; a repository with no
-  `.iwe/config.toml` pushes; `ACTION=none` does not run the check; both push
-  paths (existing upstream and `push-with-upstream`) are gated; an uncommitted
-  edit under a mapped source does not change the verdict for the pushed commit.
+  `.iwe/config.toml` pushes; `ACTION=none` reports the verdict for a head the
+  upstream already has; both push paths (existing upstream and
+  `push-with-upstream`) are gated; an uncommitted edit under a mapped source
+  does not change the verdict for the pushed commit.
   - **Evidence:** same commit adds `tests/test_push_branch_map_check.py`;
     `uv run pytest .agents/plugins/agentdev/tests`: 112 passed, and 7 of the 8
-    new tests fail against the ungated script.
+    new tests fail against the ungated script. Commit "fix(pr-open): check the
+    map on a head the upstream already has" replaces the `ACTION=none` test with
+    `test_up_to_date_fresh_head_is_checked` and
+    `test_stale_head_pushed_outside_the_helper_is_caught`, both failing before
+    the change; 113 passed after it.
 
 ### Task 2: Teach `pr-open` to refresh on `MAP_STALE`
 
@@ -135,7 +143,7 @@ Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
   commit-and-push instructions name `push-branch.sh` as the push.
   - **Evidence:** same commit; `grep -n "git push"` over the three `SKILL.md`
     files returns nothing.
-- [ ] `pr-merge`'s private `pr-merge-worktree/<pr>` branch gets
+- [x] `pr-merge`'s private `pr-merge-worktree/<pr>` branch gets
   `origin/<head-branch>` as its upstream when it is created, so `push-branch.sh`
   pushes to the pull request head and never under the private name.
   - **Evidence:** same commit; `branch --set-upstream-to=origin/<head-branch>`
@@ -147,12 +155,12 @@ Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
 - [x] Insert this approved line verbatim right after the "IGNORE import
   ordering…" bullet in the Compliance focus list:
-  - **Evidence:** commit "docs(pr-review): leave stale codebase-map docs to the
-    CI check"; `pr-review/SKILL.md:44` matches the fenced line below byte for
-    byte.
+  - **Evidence:** commit "fix(pr-open): check the map on a head the upstream
+    already has" carries the conditional wording; `pr-review/SKILL.md:44`
+    matches the fenced line below byte for byte.
 
 ``` markdown
-- IGNORE stale codebase-map docs (`data/codebase/` docs whose `source_digest` no longer matches their sources) — the `Check codebase map docs against their sources` CI step owns that check
+- IGNORE stale codebase-map docs (`data/codebase/` docs whose `source_digest` no longer matches their sources) when the repository's CI runs the codebase-map staleness check (`stale-map-docs.py`), which then owns that check
 ```
 
 ### Task 5: Refresh project memory
@@ -181,11 +189,12 @@ reports stale after Tasks 1–4
 ### Requirement: An agent push carries a fresh codebase map
 
 The branch push helper shared by the pull request skills SHALL run the
-codebase-map staleness check against the commit it pushes, SHALL refuse to push when the
+codebase-map staleness check against the branch head, including a head the
+upstream already holds, SHALL refuse to push when the
 check reports a stale map, and SHALL push without the check only when the
 repository has no IWE map or the caller passes an explicit override. The AI
-pull request review SHALL NOT report codebase-map staleness, which the CI
-staleness check owns.
+pull request review SHALL NOT report codebase-map staleness when the
+repository's CI runs the staleness check, which then owns it.
 
 #### Scenario: A push would carry a stale map
 
@@ -206,9 +215,17 @@ staleness check owns.
 - **THEN** the skill passes the override, the helper pushes and reports the
   check as overridden, and CI still reports the stale map
 
+#### Scenario: A stale head reached the remote outside the helper
+
+- **WHEN** the branch head is already on its upstream, pushed by a path that
+  does not run the check, and its map docs are stale
+- **THEN** the push helper reports `MAP_STALE`, and the skill refreshes the map,
+  commits it, and pushes again
+
 #### Scenario: A review sees a stale map
 
-- **WHEN** an AI review runs on a pull request whose map docs are stale
+- **WHEN** an AI review runs on a pull request whose map docs are stale, in a
+  repository whose CI runs the staleness check
 - **THEN** the review raises no finding about map staleness
 ```
 
