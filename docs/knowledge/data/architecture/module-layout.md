@@ -3,7 +3,7 @@ type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
   by: claude-code/opus-5
-  at: 2026-09-05T17:41:16Z
+  at: 2026-10-01T00:00:00Z
 ---
 
 # Module layout
@@ -18,11 +18,11 @@ documented as the authoritative inventory in
    `ghcr.io/plume-works/agent-desktop` and its `ubuntu-ansible` base,
    multi-arch, pinned by tag and digest.
 2. **Agent catalog** (`.agents/plugins/agentdev/`) — the canonical Claude Code /
-   Codex plugin: agents, skills, hooks, `bin/` scripts, and the plugin's own
-   test suite (`.agents/plugins/agentdev/tests/`). Everything else that
-   references the catalog (`.claude-plugin/`,
-   `.agents/plugins/marketplace.json`, the `reinstall-agentdev-*.sh` scripts) is
-   derived from this tree, never edited directly.
+   Codex plugin: agents, skills, `bin/` scripts, and the plugin's own test suite
+   (`.agents/plugins/agentdev/tests/`). Everything else that references the
+   catalog (`.claude-plugin/`, `.agents/plugins/marketplace.json`, the
+   `reinstall-agentdev-*.sh` scripts) is derived from this tree, never edited
+   directly.
 3. **Devcontainer scaffolding** (`.devcontainer/`) — the template surface a
    consuming project copies in: lifecycle scripts, MCP configuration, firewall
    allowlist, digest pin (`devcontainer-compose-pins.yml`).
