@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5
-  at: 2026-08-31T00:00:00Z
+  at: 2026-10-01T00:00:00Z
 ---
 
 # Product
@@ -68,8 +68,8 @@ the driver of design decisions — internal needs come first.
     package (its own `pyproject.toml`, isolated test suite) that validates
     agent/skill definitions.
   - `.agents/plugins/agentdev/` — the canonical source for the `agentdev` Claude
-    Code / Codex plugin (agents, skills, hooks, `bin/` scripts); this directory
-    is the source of truth, everything else under `.claude-plugin/`,
+    Code / Codex plugin (agents, skills, `bin/` scripts); this directory is the
+    source of truth, everything else under `.claude-plugin/`,
     `.agents/plugins/marketplace.json`, and the reinstall scripts is derived.
   - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
   - `docker/desktop/agent-desktop.Dockerfile`, `docker/ansible/` — image build.

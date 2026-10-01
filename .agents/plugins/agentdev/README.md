@@ -1,6 +1,6 @@
 # `agentdev` — a shared agent catalog for Claude Code and Codex
 
-A Claude Code and Codex plugin with the agents, skills, hooks, and helper scripts for
+A Claude Code and Codex plugin with the agents, skills, and helper scripts for
 everyday development work: git and pull requests, code review, CI log triage,
 formatting and linting, and escalating a command to a container or Codespace when
 the host lacks the toolchain.
@@ -39,8 +39,7 @@ The same `.agents/plugins/agentdev/` directory is packaged for Codex by
 `.codex-plugin/plugin.json`; its agents and skills remain the same canonical
 files. This repository's devcontainer installs the staged plugin during
 `postCreateCommand` and refreshes the workspace copy on every editor attachment;
-start a new Codex session after attaching or reloading the window. The
-session-start hook is Claude Code-only.
+start a new Codex session after attaching or reloading the window.
 
 ## Using it
 
@@ -127,11 +126,6 @@ and codebase-map documents. They are the project's memory across sessions.
 | `/agentdev:iwe-ship-all`      | Ships every implemented plan in turn.                                |
 | `/agentdev:iwe-weekly`        | Read-only digest: shipped, in flight, bugs, backlog, graph health.   |
 | `/agentdev:iwe-audit`         | Prunes session residue from documents and comments.                  |
-
-### Hooks
-
-A `SessionStart` hook brings up the project devcontainer, but **only** in the
-Claude Code web environment (`CLAUDE_CODE_REMOTE=true`). It is a no-op locally.
 
 ## What it expects
 
