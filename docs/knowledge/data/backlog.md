@@ -24,6 +24,8 @@ write a plan and link the plan instead.*
 
 [Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
 
+[Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
+
 ## Low
 
 [Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
