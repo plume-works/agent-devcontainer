@@ -258,21 +258,21 @@ repository's CI runs the staleness check, which then owns it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-30):
+Verified anchor points (line numbers as of 2026-10-01):
 
 - `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:9` —
   `RESULT_CODES+=` declared results
 - `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:17` —
   `usage()`
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:86` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:87` —
   `check_map_freshness`, the map gate
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:200` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:201` —
   `ACTION=push`, existing-upstream push path
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:218` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:219` —
   `ACTION=push-with-upstream` path
 - `.agents/plugins/agentdev/skills/pr-open/SKILL.md:207` —
   `### 8. Push the Branch`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:244` — non-`SUCCESS`
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:245` — non-`SUCCESS`
   handling of `push-branch.sh`
 - `.agents/plugins/agentdev/skills/update-branch/SKILL.md:89` — Workflow 3 push
   through the `pr-open` push helper

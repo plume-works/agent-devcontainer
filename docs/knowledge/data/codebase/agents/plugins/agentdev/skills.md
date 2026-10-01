@@ -2,14 +2,14 @@
 type: codebase
 description: The 38 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:aeab81e6f37b95cc426a91cb3cba98090327a5e7e751f1c0c9d84bdc19f84274
+source_digest: sha256:1c16f970b7689c984dcfb5b3b06f3c943d327376f8db254e66b0d9084c370ae0
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-30T10:00:00Z
-stale_after: 2026-12-29
+  at: 2026-10-01T08:30:00Z
+stale_after: 2026-12-30
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-30T10:00:00Z
+  at: 2026-10-01T08:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -77,12 +77,12 @@ when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
 created, located by its commit.
 
 `pr-open`'s `push-branch.sh` is the push path for `pr-open`, `pr-sync`,
-`update-branch`, `pr-feedback-resolution`, and `pr-merge`. Before it pushes, it
-runs `iwe-map`'s `stale-map-docs.py` in a temporary detached worktree at the
-commit being pushed and prints
-`MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map exits
-`MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7), neither
-pushing. A commit without `.iwe/config.toml` is not checked, and
+`update-branch`, `pr-feedback-resolution`, and `pr-merge`. Before it pushes, and
+before it reports `ACTION=none` for a head the upstream already has, it runs
+`iwe-map`'s `stale-map-docs.py` in a temporary detached worktree at the branch
+head and prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map
+exits `MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7),
+neither pushing. A commit without `.iwe/config.toml` is not checked, and
 `--skip-map-check` bypasses the check.
 
 ## Depends on
@@ -114,7 +114,7 @@ Verified anchor points (line numbers as of 2026-09-30):
   — the only read of the marker section
 - `.agents/plugins/agentdev/skills/iwe-capture/scripts/close-issue.sh:109` — the
   shared issue-closing call, identical in `iwe-plan`
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:86` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:64` —
   `BROKEN_METADATA`

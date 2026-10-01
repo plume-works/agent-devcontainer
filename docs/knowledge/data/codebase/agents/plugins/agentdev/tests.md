@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:5f24c4cb3ae0bed38328a0381e84b6061190f523c6f218989f7154934cef18c7
+source_digest: sha256:232a2623d8f2c9561dc00325e70d5af70ffd15ccbec7b60fca7c7bfc9cff408d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-30T10:00:00Z
-stale_after: 2026-12-29
+  at: 2026-10-01T08:30:00Z
+stale_after: 2026-12-30
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-30T10:00:00Z
+  at: 2026-10-01T08:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -69,8 +69,10 @@ pushes to a bare remote from a repository that carries an IWE config and one map
 doc, computes that doc's digest through the by-path import of
 `stale-map-docs.py`, and pins `pr-open`'s `push-branch.sh` map gate: `MAP_STALE`
 leaves the remote ref untouched on both push paths, `--skip-map-check` pushes
-anyway, a repository without an IWE config is not gated, an uncommitted edit
-does not change the verdict, and the temporary check worktree is removed.
+anyway, a repository without an IWE config is not gated, an up-to-date head is
+still checked and a stale one pushed outside the helper stops at `MAP_STALE`, an
+uncommitted edit does not change the verdict, and the temporary check worktree
+is removed.
 
 ## Depends on
 
