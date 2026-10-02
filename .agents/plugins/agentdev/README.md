@@ -139,7 +139,7 @@ tools a given skill needs.
 ## Tests
 
 The plugin carries its own suite in `tests/`, covering the observable behavior of the
-scripts it ships — the `bin/` helpers and the `scripts/` bundled with individual skills,
+scripts it ships — the `bin/` helpers and the `agent-code/` bundled with individual skills,
 including their exit codes and `RESULT=` lines. Run it with `pytest tests` from this
 directory; it needs `pytest`, `git`, and `bash`.
 

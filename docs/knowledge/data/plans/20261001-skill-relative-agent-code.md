@@ -159,16 +159,25 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `.agents/plugins/agentdev/skills/create-skill/SKILL.md`,
 `.agents/plugins/agentdev/README.md`
 
-- [ ] `.agents/AGENTS.md`: a skill references its own bundled code as
+- [x] `.agents/AGENTS.md`: a skill references its own bundled code as
   `agent-code/<file>` relative to the skill directory. `${CLAUDE_SKILL_DIR}`
   appears only in `allowed-tools`. A sibling skill is still reached by its
   namespaced invocation.
-- [ ] `skill-scripts`: the description and body name `agent-code/` as the
+  - **Evidence:** commit "Document the agent-code/ path convention": the
+    catalog-locations rule now names `agent-code/<file>`, the namespaced sibling
+    invocation, and `${CLAUDE_SKILL_DIR}` only in `allowed-tools`
+- [x] `skill-scripts`: the description and body name `agent-code/` as the
   bundled-code directory, and the test-path guidance becomes
   `plugin_root / 'skills/<name>/agent-code/<script>.sh'`
-- [ ] `create-skill`: the `allowed-tools` example and the path rule match
+  - **Evidence:** commit "Document the agent-code/ path convention";
+    validate_agent_files: 56/56 skills valid, 0 errors
+- [x] `create-skill`: the `allowed-tools` example and the path rule match
   `.agents/AGENTS.md`
-- [ ] Plugin README: the test-suite paragraph names `agent-code/`
+  - **Evidence:** commit "Document the agent-code/ path convention" (path rule)
+    and commit "Move agentdev skill scripts to agent-code/" (example
+    `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`)
+- [x] Plugin README: the test-suite paragraph names `agent-code/`
+  - **Evidence:** commit "Document the agent-code/ path convention"
 
 ### Task 4: Point the validator's remediation at skill-relative paths
 

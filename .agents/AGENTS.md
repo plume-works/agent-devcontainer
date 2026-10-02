@@ -30,9 +30,10 @@ repository can delete the publisher source without inheriting its maintenance ru
 - Codex consumes the same tree through
   `.agents/plugins/agentdev/.codex-plugin/plugin.json`; never create a separate Codex copy.
 - Update `.agents/plugins/agentdev/` sources directly.
-- Never write a repository-relative catalog path inside the plugin. Use
-  `${CLAUDE_SKILL_DIR}/...` within one skill and a namespaced invocation for a sibling
-  skill.
+- Never write a repository-relative catalog path inside the plugin. A skill references its
+  own bundled code as `agent-code/<file>`, relative to the skill directory, and reaches a
+  sibling skill by its namespaced invocation. `${CLAUDE_SKILL_DIR}` appears only in
+  `allowed-tools`: `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`.
 - No link inside the plugin may resolve outside the plugin root. Describe per-repository
   files such as `AGENTS.md`, lint configuration, and pull request templates in prose so
   they resolve in the repository using the installed plugin.

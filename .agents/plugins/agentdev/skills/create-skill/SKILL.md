@@ -60,9 +60,10 @@ work belongs to a sibling, name the boundary in prose the way
 A skill runs from the plugin cache of whatever repository enables it, so a link that climbs
 out of the plugin root resolves against the wrong tree. Name per-repository files —
 `AGENTS.md`, lint configuration, the pull request template — in prose instead, and name the
-host guides by path in prose rather than linking them. Use `${CLAUDE_SKILL_DIR}/...` within
-one skill and a namespaced invocation for a sibling. The validator enforces this across
-`SKILL.md`, `references/` pages, and the plugin README.
+host guides by path in prose rather than linking them. Reference a skill's own bundled code
+as `agent-code/<file>`, relative to the skill directory, and a sibling skill by its
+namespaced invocation; `${CLAUDE_SKILL_DIR}` belongs only in `allowed-tools`. The validator
+enforces this across `SKILL.md`, `references/` pages, and the plugin README.
 
 Put general repository rules in `AGENTS.md`, not in a skill that repeats them on every
 invocation. Add no README, changelog, or quick-reference file to a skill directory.
