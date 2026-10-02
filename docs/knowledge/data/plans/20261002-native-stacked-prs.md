@@ -40,8 +40,9 @@ Decisions:
 - `AGENTS.md` gains a repository-wide never-force-push rule with one narrow
   exception: `--force-with-lease` is allowed only through `gh stack push`,
   `gh stack rebase`, and `gh stack sync`, only on branches of a GitHub stack;
-  the repository-local `rerere.enabled` that `gh stack` writes is allowed. No
-  other git config change is.
+  the repository-local `rerere.enabled` and `remote.pushDefault` that `gh stack`
+  and the vendored skill's setup write are allowed. No other git config change
+  is.
 - GitHub's `gh-stack` skill is vendored unchanged, pinned to the same release as
   the `gh-stack` extension installed in the image, and a thin `pr-merge-stack`
   skill replaces `pr-merge-chain`.
@@ -76,9 +77,6 @@ branch would resurrect pre-rebase commits. Writing our own `gh stack` driver
 skill instead of vendoring was also rejected: the upstream skill already encodes
 the non-interactive flags and exit-code recovery that an agent needs, and is
 versioned with the extension.
-
-Assumption: `remote.pushDefault` stays unset; skills pass `--remote origin` to
-the `gh stack` commands that accept it.
 
 ## Implementation Steps
 
@@ -149,10 +147,10 @@ vendored files
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
 - [ ] Amend the git config rule to allow the repository-local `rerere.enabled`
-  that `gh stack` writes, add a repository-wide rule — never force-push, except
-  `gh stack push`, `rebase`, and `sync` with `--force-with-lease` on branches of
-  a GitHub stack — to `AGENTS.md`, and mirror both in `product.md`'s
-  `## Authoring rules`
+  and `remote.pushDefault` that `gh stack` and the vendored skill's setup write,
+  add a repository-wide rule — never force-push, except `gh stack push`,
+  `rebase`, and `sync` with `--force-with-lease` on branches of a GitHub stack —
+  to `AGENTS.md`, and mirror both in `product.md`'s `## Authoring rules`
 
 ### Task 8: Make update-branch and pr-open stack-aware
 
@@ -267,8 +265,9 @@ every unmerged layer through CI and review bottom-up and land them with one
 
 Agent skills SHALL NOT force-push, except that `gh stack push`,
 `gh stack rebase`, and `gh stack sync` MAY update branches of a GitHub stack
-with `--force-with-lease`. The repository-local `rerere.enabled` written by
-`gh stack` is the only permitted git config change.
+with `--force-with-lease`. The repository-local `rerere.enabled` and
+`remote.pushDefault` written by `gh stack` or the vendored gh-stack skill's
+setup are the only permitted git config changes.
 
 #### Scenario: Branch outside a stack
 
@@ -361,7 +360,7 @@ updated.
 - Reducing duplicate CI runs across layers with
   `github.event.pull_request.stack` conditions.
 - Cross-fork stacks, which GitHub does not support.
-- Setting `remote.pushDefault` or any git config other than `rerere.enabled`.
+- Any git config change other than `rerere.enabled` and `remote.pushDefault`.
 - Using the server-side **Rebase stack** button from an agent: it updates refs
   through GitHub, which `AGENTS.md` forbids.
 
