@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-02
 
+- **Update**: Re-stamped the agentdev, agentdev skills, and agentdev tests
+  codebase maps after merging the push-time map gate with the move to
+  `agent-code/`.
 - **Update**:
   [Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
   done. Bundled skill code lives in `agent-code/` and skill bodies reference it
