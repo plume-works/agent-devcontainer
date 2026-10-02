@@ -286,7 +286,10 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 
 ### Task 9: CI passes on the branch
 
-- [ ] The `validate-agent-files` workflow passes on the pull request
+- [x] The `validate-agent-files` workflow passes on the pull request
+  - **Evidence:** Agent files validation run 36999212113 on PR #245 at
+    `cfe2939`: success, with every step run, including the plugin, self-improve,
+    and validator test suites and the `agent-code/stale-map-docs.py` map check
 
 ## Spec changes
 
