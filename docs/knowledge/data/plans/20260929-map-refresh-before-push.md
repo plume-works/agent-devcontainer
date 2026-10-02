@@ -4,7 +4,7 @@ created: 2026-09-29
 description: Make every agent push run the codebase-map staleness check first and refresh a stale map before the branch leaves the machine, and tell the AI review not to report map staleness, which the CI step already owns.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-01T08:00:00Z
+  at: 2026-10-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
@@ -175,8 +175,12 @@ reports stale after Tasks 1–4
 
 ### Task 6: CI passes on the pull request
 
-- [ ] Every check on the pull request's head is green, including
-  `Validate agent files`. Closed by: the CI run on the current head.
+- [x] Every check on the pull request's head is green, including
+  `Validate agent files`.
+  - **Evidence:** PR #234 at head `70aa430`: 30 checks passed, 4 skipped, none
+    failed — `Agent files validation` run 36997167743,
+    `Knowledge base validation` run 36997167856, and `Primary checks` run
+    36997167915.
 
 ## Spec changes
 
