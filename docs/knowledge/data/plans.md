@@ -21,6 +21,8 @@ moves them.*
 
 [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
 
+[Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
+
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
@@ -30,6 +32,8 @@ moves them.*
 ## Done
 
 [Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+
+[Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
 
 [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
 

@@ -25,6 +25,8 @@ starts a fresh one.*
 
 [Self-improve plugin in the catalog](../features/self-improve-plugin-in-catalog.md)
 
+[Fresh codebase map on push](../features/fresh-map-on-push.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

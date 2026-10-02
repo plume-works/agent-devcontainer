@@ -219,16 +219,30 @@ The script handles these cases:
 
 - no upstream branch: pushes with `-u <remote> <branch>` using the configured `--remote` value or the default remote — `SUCCESS`, `ACTION=push-with-upstream`
 - local branch ahead of upstream: pushes changes to the configured upstream — `SUCCESS`, `ACTION=push`
-- branch up to date: `SUCCESS` with `ACTION=none`, without pushing
+- branch up to date: `SUCCESS` with `ACTION=none` after a passing map check, without pushing
 - branch behind its upstream: `NOT_FAST_FORWARD` (`3`) with fast-forward recovery instructions
 - branch diverged from upstream: `NOT_FAST_FORWARD` (`3`) with merge-based recovery instructions
 - push rejected by the remote: `PUSH_REJECTED` (`4`)
 - `--remote` conflicts with the configured upstream remote: `PREFLIGHT_ERROR` (`2`) so the user can reconcile the remote selection
 - current branch is `main` or `master`: `PROTECTED_BRANCH` (`5`) without pushing
+- the codebase map is stale at the branch head: `MAP_STALE` (`6`) without pushing
+- the map check ran without a verdict: `MAP_CHECK_FAILED` (`7`) without pushing
+
+The script checks the codebase map at the branch head — even a head the
+upstream already has, which another path may have pushed — and prints
+`MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a repository without an
+IWE map is skipped.
 
 Use `--remote <name>` or `--branch <name>` when the default remote or branch should be overridden.
+Pass `--skip-map-check` only when the user explicitly asks to push while the map
+is stale; CI still reports the stale map.
 
-On any `RESULT` other than `SUCCESS`, display the script's actionable error
+On `MAP_STALE`, run `/agentdev:iwe-map` in refresh mode over the docs the
+script's stderr lists, commit the refresh through `/agentdev:git-commit`, and
+rerun this step. On `MAP_CHECK_FAILED`, stop and report the check's output
+verbatim.
+
+On any other `RESULT` than `SUCCESS`, display the script's actionable error
 output and abort.
 Never force-push, and never update the branch ref through a GitHub API or MCP
 tool — reconcile locally with `/agentdev:update-branch` and rerun this step.
