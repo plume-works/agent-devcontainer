@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
+
 [Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
 
 [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
