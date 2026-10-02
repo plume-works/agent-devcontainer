@@ -12,6 +12,8 @@ to the current day's group.
   update-branch before collecting feedback, pr-merge routes conflicted PRs to
   it, and update-branch accepts a calling skill's `--base`.
 - **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec created.
+- **Update**: Refreshed the agentdev and agentdev skills codebase maps after the
+  pr-merge, pr-feedback-resolution, and update-branch skill edits.
 
 ## 2026-10-01
 

@@ -7,7 +7,7 @@ created: 2026-10-02
 completed: 2026-10-02
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-02T00:00:00Z
+  at: 2026-10-02T14:10:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
@@ -45,11 +45,3 @@ conflict resolution does).
 
 This edits skill instructions only — a non-executable artifact — so validate
 with the skill validation, not TDD.
-
-## Open at planning time
-
-- Whether `pr-merge`'s monitoring loop should route `mergeStateStatus: DIRTY` to
-  this workflow; today it routes only check failures there.
-- Fork PRs whose base branch lives on a remote other than `origin`.
-- Whether to push the merge immediately, so CI starts, or with the feedback
-  fixes.
