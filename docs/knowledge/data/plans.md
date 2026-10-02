@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)

@@ -1,9 +1,10 @@
 ---
 type: task
 description: Make pr-feedback-resolution detect a pull request's merge conflicts before any other work and resolve them through update-branch against the PR's own base branch.
-stage: planned
+stage: done
 priority: medium
 created: 2026-10-02
+completed: 2026-10-02
 generated:
   by: claude-code/opus-5-5
   at: 2026-10-02T00:00:00Z
