@@ -123,8 +123,19 @@ this plan fixes.
 
 ## Spec changes
 
-None — no `data/spec/` document covers the pr-* skills; the behavior this plan
-changes is defined by the skill instructions it edits.
+`data/spec/pr-merge-conflicts` (new) — normative outcome:
+
+- `pr-feedback-resolution` SHALL read the PR's merge state before any feedback
+  edit; when `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY` it
+  SHALL merge the PR's `baseRefName` through `update-branch`, resolve the
+  conflicts, and push the merge before collecting feedback, and when `mergeable`
+  is `UNKNOWN` it SHALL re-poll before deciding. A PR that is only `BEHIND` its
+  base SHALL NOT be updated.
+- `pr-merge`'s monitoring loop SHALL route a `CONFLICTING` or `DIRTY` PR to that
+  step and SHALL re-poll an `UNKNOWN` mergeability, both before waiting on
+  checks.
+- `update-branch` SHALL accept `--remote` and `--base` from the user or a
+  calling skill.
 
 ## Verification
 
