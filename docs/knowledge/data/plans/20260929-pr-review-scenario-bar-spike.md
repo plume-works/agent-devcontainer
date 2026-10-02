@@ -95,18 +95,25 @@ reviewed, so every #203 bug is present at it.
 **Files:** Create: `.tmp/spike/variant/SKILL.md` (a copy of the current
 `pr-review/SKILL.md`)
 
-- [ ] Replace the "Scan only the diff itself" bullet: the correctness passes may
+- [x] Replace the "Scan only the diff itself" bullet: the correctness passes may
   read, at the head commit, the code the changed lines call, are called by, and
   run beside in the same lifecycle or workflow.
-- [ ] Replace "definitely produce wrong results regardless of inputs" with a
+  - **Evidence:** the `@@ -49` and `@@ -127` hunks of the variant diff under
+    `## Verification results`.
+- [x] Replace "definitely produce wrong results regardless of inputs" with a
   reachable-scenario condition: a concrete input or state the code can actually
   receive, and the wrong outcome it produces. Drop "Potential issues that depend
   on specific inputs or state" from the do-not-flag list.
-- [ ] Each correctness candidate carries its scenario, and the validator
+  - **Evidence:** the `@@ -57` and `@@ -63` hunks of the variant diff under
+    `## Verification results`.
+- [x] Each correctness candidate carries its scenario, and the validator
   confirms the scenario is reachable at the head commit before it confirms the
   finding.
-- [ ] Record the variant's diff against the current skill under
+  - **Evidence:** the `@@ -66` and `@@ -138` hunks of the variant diff under
+    `## Verification results`.
+- [x] Record the variant's diff against the current skill under
   `## Verification results`.
+  - **Evidence:** the `### Variant skill` diff under `## Verification results`.
 
 ### Task 3: Run the baseline arm
 
@@ -168,6 +175,38 @@ strictness the next question, and the shipped skill stays unchanged.
 Mechanical checks: all six result files exist and parse as JSON; the scoring
 table covers six runs; the architecture doc is linked from
 `data/architecture.md`; `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+### Variant skill
+
+The variant rewrites three rules the plan names, plus two sentences that restate
+the first: the closing "do not flag issues that you cannot validate without
+looking at context outside of the git diff" and Step 4's "each pass sees only
+the diff". Left in, they would contradict the replacement rule. Diff against
+`pr-review/SKILL.md` at `1220f5c`:
+
+``` diff
+@@ -49 +49 @@
+-- Scan only the diff itself, without pulling in extra context beyond the diff and the PR title/description — do not flag anything you cannot validate from the diff alone
++- Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
+@@ -57 +57 @@
+-- The code will definitely produce wrong results regardless of inputs (clear, unambiguous logic errors)
++- A reachable scenario produces a wrong outcome: you can name a concrete input or state the code can actually receive at the head commit (an event, an environment value, a run order, a prior state, a concurrent run) and the wrong result, failure, or security exposure it produces
+@@ -63 +62,0 @@
+-- Potential issues that depend on specific inputs or state
+@@ -66 +65 @@
+-Flag only significant bugs; ignore nitpicks and likely false positives. Do not flag issues that you cannot validate without looking at context outside of the git diff.
++Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate carries its scenario: the input or state, how the code reaches it, and the wrong outcome. A candidate without a concrete scenario is speculation — do not flag it.
+@@ -127 +126 @@
+-4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
++4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
+@@ -138,2 +137,2 @@
+-   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the claim made against it, the full text of any rule that claim invokes, where to read the diff, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
+-   - **Make the validator re-derive the claim** from the files rather than trust the candidate's assertion of it, and tell it to drop anything ambiguous, trivial, or not clearly a violation. Ask for `CONFIRM` or `DROP` per candidate with a one-sentence justification.
++   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the claim made against it, the scenario a correctness candidate names, the full text of any rule that claim invokes, where to read the diff, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
++   - **Make the validator re-derive the claim** from the files rather than trust the candidate's assertion of it, and tell it to drop anything ambiguous, trivial, or not clearly a violation. For a correctness candidate, the validator confirms that its scenario is reachable at the head commit — the input or state can actually occur and the code path actually leads to the wrong outcome — before it confirms the finding; an unreachable scenario is a `DROP`. Ask for `CONFIRM` or `DROP` per candidate with a one-sentence justification.
+```
 
 ## Out of scope
 
