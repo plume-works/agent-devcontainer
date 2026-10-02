@@ -4,13 +4,33 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-02
+
+- **Update**:
+  [Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
+  done. `push-branch.sh` refuses to push a stale codebase map, the pull request
+  skills push through it, and the AI review leaves map staleness to CI.
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained an agent
+  push carrying a fresh codebase map.
+- **Update**: [Fresh codebase map on push](features/fresh-map-on-push.md)
+  implemented.
+- **Update**: Refreshed the two codebase-map docs the push-branch map-check test
+  loader annotation moved.
+
 ## 2026-10-01
 
+- **Update**: Refreshed the three codebase-map docs the push-branch map check on
+  an up-to-date head moved.
 - **Update**:
   [Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
   done. The agentdev plugin declares no hooks and is released as 4.0.0; the
   agentdev, devcontainer-lifecycle, and three image codebase maps were
   refreshed.
+
+## 2026-09-30
+
+- **Update**: Refreshed the three codebase-map docs the push-branch map gate and
+  its tests moved.
 
 ## 2026-09-29
 

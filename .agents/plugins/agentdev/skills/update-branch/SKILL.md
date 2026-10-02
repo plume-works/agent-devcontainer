@@ -86,15 +86,12 @@ reformat and targeted validation:
    git log --oneline --decorate -n 5
    ```
 
-2. Push through the configured Git remote using local Git:
-
-   ```bash
-   git push origin HEAD
-   ```
-
-   Replace `origin` with the explicitly selected remote. If push authentication
-   is unavailable, stop and report the blocker. Do not fall back to an API-based
-   ref update.
+2. Push with the [pr-open](../pr-open/SKILL.md) push helper,
+   `scripts/push-branch.sh`, and handle its result exactly as that skill's
+   step 8 describes — including `MAP_STALE`, which refreshes the codebase map
+   and pushes again. Pass `--remote` only for an explicitly selected remote. If
+   push authentication is unavailable, stop and report the blocker. Do not fall
+   back to an API-based ref update.
 
 ## Completion Criteria
 

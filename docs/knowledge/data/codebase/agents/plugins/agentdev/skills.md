@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 37 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 38 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:8eedaa51d88bb9df639c0cbc026d981ef83e9b38ea03d910d3eb84a824538626
+source_digest: sha256:1c16f970b7689c984dcfb5b3b06f3c943d327376f8db254e66b0d9084c370ae0
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
-stale_after: 2026-12-28
+  at: 2026-10-01T08:30:00Z
+stale_after: 2026-12-30
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
+  at: 2026-10-01T08:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -76,6 +76,15 @@ when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
 `git-new-branch.sh` stashes only with `--stash` and pops only the entry it
 created, located by its commit.
 
+`pr-open`'s `push-branch.sh` is the push path for `pr-open`, `pr-sync`,
+`update-branch`, `pr-feedback-resolution`, and `pr-merge`. Before it pushes, and
+before it reports `ACTION=none` for a head the upstream already has, it runs
+`iwe-map`'s `stale-map-docs.py` in a temporary detached worktree at the branch
+head and prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map
+exits `MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7),
+neither pushing. A commit without `.iwe/config.toml` is not checked, and
+`--skip-map-check` bypasses the check.
+
 ## Depends on
 
 The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
@@ -91,7 +100,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-09-30):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -105,9 +114,11 @@ Verified anchor points (line numbers as of 2026-09-29):
   — the only read of the marker section
 - `.agents/plugins/agentdev/skills/iwe-capture/scripts/close-issue.sh:109` — the
   shared issue-closing call, identical in `iwe-plan`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:62` —
+- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:87` —
+  `check_map_freshness`, the push-time map gate
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:64` —
   `BROKEN_METADATA`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:228` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:230` —
   `MetadataResolver`, which walks a source's ancestors for masking rules
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:289` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:291` —
   `source_digest_for_paths`
