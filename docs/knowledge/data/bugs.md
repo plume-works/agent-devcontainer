@@ -42,3 +42,5 @@ enforced by `.iwe/schemas/bug.yaml`.*
 [Fisher install over untracked plugins](bugs/fisher-install-over-untracked-plugins.md)
 
 [Runner label bump ahead of actionlint](bugs/runner-label-ahead-of-actionlint.md)
+
+[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](bugs/codex-skill-dir-unresolved.md)

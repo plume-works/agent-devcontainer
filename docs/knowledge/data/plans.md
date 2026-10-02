@@ -17,6 +17,10 @@ moves them.*
 
 ## Active
 
+[Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
+
+[Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
+
 [Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
 
 [Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
