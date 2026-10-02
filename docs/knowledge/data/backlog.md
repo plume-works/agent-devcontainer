@@ -24,6 +24,8 @@ write a plan and link the plan instead.*
 
 [Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
 
+[Resolve merge conflicts in pr-feedback-resolution](backlog/pr-feedback-resolve-merge-conflicts.md)
+
 ## Low
 
 [Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
