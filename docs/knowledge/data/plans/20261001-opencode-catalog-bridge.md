@@ -93,8 +93,6 @@ Rejected alternatives:
   - It is licensed under the Sustainable Use License, not an open-source
     licence, and sends telemetry by default.
   - It discovers plugins through Claude Code's `installed_plugins.json`.
-  - It does not substitute `${CLAUDE_SKILL_DIR}`, and it never runs the
-    `SessionStart` hook or hook `args`.
 - **OCX registry distribution.** It copies files into `.opencode/` without
   conversion, so it provides neither namespaced commands nor agent mapping, and
   its OpenCode 2 line is a pre-release (`3.0.0-alpha.1`).
@@ -429,8 +427,8 @@ that the user's OpenCode configuration already defines under the same key.
   (`reviewer.py:60-85`), and its seven hook events need OpenCode equivalents,
   including one for the typed-command authorization that `UserPromptExpansion`
   provides. Both are their own design question.
-- **agentdev's `SessionStart` hook.** It exits unless `CLAUDE_CODE_REMOTE=true`
-  (`session-start.sh:5`), so OpenCode needs no equivalent.
+- **Hook mapping for agentdev.** agentdev ships no hooks, so the bridge maps
+  none.
 - **Sharing OpenCode credentials** across worktrees through the
   `agentdev-agents-auth` volume, and persisting OpenCode state in a volume.
 - **OpenCode v2 plugin API** registration, including skills registered under
@@ -440,7 +438,7 @@ that the user's OpenCode configuration already defines under the same key.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-01):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `ansible/roles/agentic_tools/defaults/main.yml:1-18` — pinned agent CLIs and
   `agentic_tools_bun_packages`
@@ -458,7 +456,6 @@ Verified anchor points (line numbers as of 2026-10-01):
   job steps
 - `.agents/plugins/agentdev/agents/tdd-red.agent.md:1-5` — agent frontmatter
   shape (`name`, `description`, `tools`)
-- `.agents/plugins/agentdev/hooks/session-start.sh:4-7` — remote-only guard
 - `.agents/plugins/self-improve/selfimprove/reviewer.py:60-85` — Claude-only
   reviewer argv
 - `docs/knowledge/data/spec/catalog-lifecycle.md:17-83` — the two requirements

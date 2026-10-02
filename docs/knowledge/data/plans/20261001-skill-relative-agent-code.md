@@ -174,7 +174,7 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `.agents/plugins/self-improve/.claude-plugin/plugin.json`,
 `.claude-plugin/marketplace.json`
 
-- [ ] agentdev 3.4.0 → 3.5.0 in both manifests and the Claude marketplace entry
+- [ ] agentdev 4.0.0 → 4.1.0 in both manifests and the Claude marketplace entry
 - [ ] self-improve 0.1.0 → 0.1.1 in its manifest and marketplace entry
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes
@@ -228,7 +228,7 @@ this plan. The specs it touches change only their `sources:` paths.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-01):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/AGENTS.md:16-17` — plugin tests resolve scripts through `plugin_root`
 - `.agents/AGENTS.md:33-35` — rule requiring `${CLAUDE_SKILL_DIR}/...` inside a
@@ -237,7 +237,7 @@ Verified anchor points (line numbers as of 2026-10-01):
   `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)`
 - `.agents/plugins/agentdev/skills/git-commit/SKILL.md:33-34` — representative
   body steps using the variable
-- `.agents/plugins/agentdev/skills/remote-codespace-session/SKILL.md:40-89` —
+- `.agents/plugins/agentdev/skills/remote-codespace-session/SKILL.md:40-123` —
   the skill with the most body uses (7)
 - `.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh:77-79`
   — representative usage text printing `${CLAUDE_SKILL_DIR}/scripts/...`
@@ -245,7 +245,7 @@ Verified anchor points (line numbers as of 2026-10-01):
   `scripts/` convention and test-path guidance
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:42,63` —
   `allowed-tools` example and path rule
-- `.agents/plugins/agentdev/README.md:148` — test-suite paragraph naming
+- `.agents/plugins/agentdev/README.md:142` — test-suite paragraph naming
   `scripts/`
 - `.agents/plugins/agentdev/tests/conftest.py:22-24` — `plugin_root` fixture
 - `.agents/plugins/agentdev/tests/test_close_issue.py:15` — representative
