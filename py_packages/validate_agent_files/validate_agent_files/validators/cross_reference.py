@@ -22,7 +22,7 @@ from ..types import ValidationIssue, ValidationLevel
 
 ESCAPE_REMEDIATION = (
     'describe a per-repository file in prose so it is resolved at runtime, or '
-    'use ${CLAUDE_SKILL_DIR}/... for a path inside this skill'
+    'write a path inside this skill relative to the skill directory'
 )
 
 

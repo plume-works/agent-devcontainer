@@ -1139,7 +1139,7 @@ wheels = [
 
 [[package]]
 name = "validate-agent-files"
-version = "1.0.0"
+version = "1.0.1"
 source = { editable = "py_packages/validate_agent_files" }
 dependencies = [
     { name = "pyyaml" },

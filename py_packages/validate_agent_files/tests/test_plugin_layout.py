@@ -18,6 +18,7 @@ from mock_catalog import (
     write_skill,
 )
 from validate_agent_files.main import main
+from validate_agent_files.validators.catalog_paths import REMEDIATION
 
 # This fixture publishes its plugin from directly under the repository root,
 # which is a layout the tool must accept as readily as a nested one.
@@ -141,13 +142,13 @@ def test_literal_catalog_path_in_skill_body_fails(tmp_path: Path, capsys) -> Non
 
     assert exit_code == 1
     assert '.claude/skills/' in captured.out
-    assert 'CLAUDE_SKILL_DIR' in captured.out
+    assert REMEDIATION in captured.out
 
 
-def test_skill_dir_substitution_is_accepted(tmp_path: Path, capsys) -> None:
-    """The `${CLAUDE_SKILL_DIR}` replacement is not flagged."""
+def test_skill_relative_path_is_accepted(tmp_path: Path, capsys) -> None:
+    """A path relative to the skill directory, the recommended replacement, is not flagged."""
     plugin_root = _write_plugin(tmp_path, plugin_version='1.0.0', marketplace_version='1.0.0')
-    write_skill(plugin_root, body='Run `${CLAUDE_SKILL_DIR}/scripts/demo.sh` to start.')
+    write_skill(plugin_root, body='Run `scripts/demo.sh` to start.')
 
     exit_code = main([str(plugin_root), '--kind', 'skills'])
     captured = capsys.readouterr()

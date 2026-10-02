@@ -6,8 +6,8 @@ Guard against literal catalog paths in skill bodies.
 Skills ship inside the ``agentdev`` plugin, where the catalog lives in the
 plugin cache rather than in a repository's ``.claude/``. A literal
 ``.claude/skills/<name>/...`` reference therefore resolves nowhere at runtime
-and must be written as ``${CLAUDE_SKILL_DIR}/...`` (self-reference) or as a
-namespaced skill invocation (cross-reference).
+and must be written as a path relative to the skill directory (self-reference)
+or as a namespaced skill invocation (cross-reference).
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ from ..types import ValidationIssue, ValidationLevel
 LITERAL_CATALOG_PATH = re.compile(r'(?<!~)(?<!~/)\.claude/(?:skills|agents)/')
 
 REMEDIATION = (
-    'use ${CLAUDE_SKILL_DIR}/... for a path inside this skill, or invoke a '
-    'sibling skill by its namespaced name (for example /agentdev:update-branch)'
+    'write a path inside this skill relative to the skill directory, or invoke '
+    'a sibling skill by its namespaced name (for example /agentdev:update-branch)'
 )
 
 

@@ -185,16 +185,30 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `py_packages/validate_agent_files/validate_agent_files/validators/catalog_paths.py`,
 `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py`,
 `py_packages/validate_agent_files/tests/test_plugin_layout.py`,
-`py_packages/validate_agent_files/pyproject.toml`
+`py_packages/validate_agent_files/pyproject.toml`,
+`docker/desktop/agent-desktop.Dockerfile`, `.codex/setup-codex-cloud.sh`
 
-- [ ] Both remediation messages and the `catalog_paths` module docstring
+- [x] Both remediation messages and the `catalog_paths` module docstring
   recommend a path relative to the skill directory instead of
   `${CLAUDE_SKILL_DIR}/...`. The wording stays repository-neutral: it does not
   name `agent-code/`, because the package is released independently.
-- [ ] `test_plugin_layout.py`: the literal-path test asserts the new
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation": `REMEDIATION`, `ESCAPE_REMEDIATION`, and the docstring say
+    "relative to the skill directory" and name no directory
+- [x] `test_plugin_layout.py`: the literal-path test asserts the new
   remediation, and the accepted-path test uses a skill-relative path
-- [ ] Bump the package version 1.0.0 → 1.0.1
-- [ ] `uv run pytest py_packages/validate_agent_files/tests` passes
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation": `test_literal_catalog_path_in_skill_body_fails` asserts the
+    imported `REMEDIATION`; `test_skill_relative_path_is_accepted` passes
+- [x] Bump the package version 1.0.0 → 1.0.1, with the
+  `VALIDATE_AGENT_FILES_VERSION` pins in the Dockerfile and the Codex Cloud
+  setup script that provisioning verifies against it
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation"; `importlib.metadata.version('validate_agent_files')` reports
+    1.0.1 after `uv sync`
+- [x] `uv run pytest py_packages/validate_agent_files/tests` passes
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation": 167 passed
 
 ### Task 5: Repoint knowledge-graph documents at the moved paths
 
