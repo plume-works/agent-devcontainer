@@ -51,8 +51,8 @@ Results (RESULT / exit code):
   SIGNAL_TERM     143  Interrupted by TERM
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/git-commit.sh -- -m "fix(serial): handle reconnect timeout"
-  ${CLAUDE_SKILL_DIR}/scripts/git-commit.sh -- -F .tmp/commit-message.txt
+  agent-code/git-commit.sh -- -m "fix(serial): handle reconnect timeout"
+  agent-code/git-commit.sh -- -F .tmp/commit-message.txt
 HELP
 }
 

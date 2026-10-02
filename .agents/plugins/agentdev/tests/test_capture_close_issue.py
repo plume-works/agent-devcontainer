@@ -12,7 +12,7 @@ import sys
 
 from test_update_branch import initialize_repository
 
-SCRIPT_PATH = 'skills/iwe-capture/scripts/close-issue.sh'
+SCRIPT_PATH = 'skills/iwe-capture/agent-code/close-issue.sh'
 DOC_PATH = 'docs/knowledge/data/bugs/fixture-bug.md'
 
 

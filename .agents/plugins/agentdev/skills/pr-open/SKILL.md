@@ -1,7 +1,7 @@
 ---
 name: pr-open
 description: 'Create a GitHub pull request from conversation context — or refresh the branch existing PR in place — with accurate title/body generation, branch sync, and remote push. Use when asked to open/create/submit a PR, draft a pull request, sync or update a PR description, or finalize changes after implementation. Keywords: open pr, create pr, submit pr, update pr, sync pr description, pull request, github pr, draft pr, ready for review.'
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Open PR
@@ -58,8 +58,8 @@ The pr-open skill is responsible for:
 
 Use these exact helper scripts instead of retyping inline shell commands:
 
-- [find-branch-pr.sh](scripts/find-branch-pr.sh) resolves the single pull request whose head is the current branch, and fails loudly when more than one matches.
-- [push-branch.sh](scripts/push-branch.sh) verifies upstream tracking, pushes the branch when needed, and blocks on divergence without ever rewriting history.
+- [find-branch-pr.sh](agent-code/find-branch-pr.sh) resolves the single pull request whose head is the current branch, and fails loudly when more than one matches.
+- [push-branch.sh](agent-code/push-branch.sh) verifies upstream tracking, pushes the branch when needed, and blocks on divergence without ever rewriting history.
 
 The detailed PR description structure, section requirements, and quality checks
 are defined in the [pr-gen-description](../pr-gen-description/) skill
@@ -92,7 +92,7 @@ Context signals for PR type:
 Before doing any work, resolve whether this branch already has a pull request:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/find-branch-pr.sh
+agent-code/find-branch-pr.sh
 ```
 
 The last stdout line is `RESULT=<NAME>`; it decides the rest of the run:
@@ -212,7 +212,7 @@ head ref contains every commit the body describes.
 Run the bundled helper:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/push-branch.sh
+agent-code/push-branch.sh
 ```
 
 The script handles these cases:

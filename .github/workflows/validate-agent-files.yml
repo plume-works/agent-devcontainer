@@ -90,7 +90,7 @@ jobs:
         run: uv run validate_agent_files --recommend . --require-marketplace claude codex
 
       - name: Check codebase map docs against their sources
-        run: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
+        run: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
 
       - name: Log debug stats
         if: ${{ always() }}

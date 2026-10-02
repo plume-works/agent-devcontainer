@@ -92,7 +92,7 @@ def test_check_updates_reports_changes_found_for_a_changed_tracked_path(
 ) -> None:
     """A tracked path modified upstream since consumed_ref must be reported."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir, first_sha, second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['tracked-dir'])
     consumer_tracked_dir = consumer_dir / 'tracked-dir'
@@ -121,7 +121,7 @@ def test_check_updates_reports_files_inside_a_tracked_github_directory(
 ) -> None:
     """A tracked .github/ directory must expose the changed PR-template file."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir = plugin_tmp_path / 'fixture-template-github'
     template_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], template_dir)
@@ -167,7 +167,7 @@ def test_check_updates_filters_consumer_deleted_descendants_but_keeps_new_upstre
 ) -> None:
     """A tracked directory must not resurrect descendants deleted by the consumer."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir = plugin_tmp_path / 'fixture-template-github-new-file'
     template_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], template_dir)
@@ -214,7 +214,7 @@ def test_check_updates_reports_up_to_date_when_consumed_ref_matches_head(
 ) -> None:
     """A consumed_ref already at the template's HEAD must report UP_TO_DATE."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir, _first_sha, second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = build_consumer_repository(plugin_tmp_path, second_sha, ['tracked-dir'])
 
@@ -239,7 +239,7 @@ def test_check_updates_reports_up_to_date_when_no_tracked_path_changed(
 ) -> None:
     """Only file-a.txt is tracked, and it never changes between the two commits."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['file-a.txt'])
 
@@ -264,7 +264,7 @@ def test_check_updates_reports_no_marker_when_marker_file_is_absent(
 ) -> None:
     """A consumer repository with no marker file must fail with NO_MARKER."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     consumer_dir = plugin_tmp_path / 'fixture-consumer-no-marker'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
@@ -293,7 +293,7 @@ def test_check_updates_reports_invalid_marker_when_consumed_ref_is_missing(
 ) -> None:
     """A marker file missing consumed_ref must fail with INVALID_MARKER."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     consumer_dir = plugin_tmp_path / 'fixture-consumer-bad-marker'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
@@ -323,7 +323,7 @@ def test_check_updates_reports_no_marker_when_section_is_absent(
     plugin_tmp_path: Path,
 ) -> None:
     """Metadata without template-consume must select setup mode."""
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     consumer_dir = plugin_tmp_path / 'fixture-consumer-no-section'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
@@ -349,7 +349,7 @@ def test_check_updates_reports_invalid_marker_for_malformed_metadata(
     plugin_tmp_path: Path,
 ) -> None:
     """Malformed root metadata must fail with INVALID_MARKER."""
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     consumer_dir = plugin_tmp_path / 'fixture-consumer-malformed-metadata'
     consumer_dir.mkdir()
     _run_git(['init', '--initial-branch=main'], consumer_dir)
@@ -376,7 +376,7 @@ def test_check_updates_honors_root_from_a_non_git_cwd(
 ) -> None:
     """--root must be validated as the repo, not the process CWD."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['tracked-dir'])
     consumer_tracked_dir = consumer_dir / 'tracked-dir'
@@ -406,7 +406,7 @@ def test_check_updates_reports_invalid_marker_when_tracked_paths_is_empty(
 ) -> None:
     """A marker with an empty tracked_paths array must fail INVALID_MARKER."""
     # Arrange: a reachable consumed_ref so the gap under test is tracked_paths, not the ref.
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = plugin_tmp_path / 'fixture-consumer-empty-tracked'
     consumer_dir.mkdir()
@@ -438,7 +438,7 @@ def test_check_updates_reports_invalid_marker_when_tracked_paths_is_absent(
 ) -> None:
     """A marker with no tracked_paths key must fail INVALID_MARKER."""
     # Arrange: a reachable consumed_ref so the gap under test is tracked_paths, not the ref.
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = plugin_tmp_path / 'fixture-consumer-no-tracked'
     consumer_dir.mkdir()
@@ -470,7 +470,7 @@ def test_check_updates_emits_result_on_unhandled_abort_after_trap(
 ) -> None:
     """An unhandled set -e abort after the trap must still emit RESULT."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     template_dir, first_sha, _second_sha = build_template_repository(plugin_tmp_path)
     consumer_dir = build_consumer_repository(plugin_tmp_path, first_sha, ['tracked-dir'])
     # A regular file at .tmp makes `mkdir -p "${consumer_root}/.tmp"` abort under set -e.
@@ -497,7 +497,7 @@ def test_check_updates_reports_clone_failed_for_an_unreachable_repo_url(
 ) -> None:
     """An unreachable --repo-url must fail with CLONE_FAILED."""
     # Arrange
-    script = plugin_root / 'skills/template-consume/scripts/check-updates.sh'
+    script = plugin_root / 'skills/template-consume/agent-code/check-updates.sh'
     consumer_dir = build_consumer_repository(plugin_tmp_path, 'deadbeef', ['tracked-dir'])
     unreachable_url = str(plugin_tmp_path / 'does-not-exist')
 

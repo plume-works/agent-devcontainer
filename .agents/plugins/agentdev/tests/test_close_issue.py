@@ -12,7 +12,7 @@ import sys
 
 from test_update_branch import initialize_repository
 
-SCRIPT_PATH = 'skills/iwe-plan/scripts/close-issue.sh'
+SCRIPT_PATH = 'skills/iwe-plan/agent-code/close-issue.sh'
 PLAN_PATH = 'docs/knowledge/data/plans/20260903-fixture.md'
 
 

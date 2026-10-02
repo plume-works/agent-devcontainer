@@ -39,7 +39,7 @@ Skills Specification defines — `license`, `compatibility`, `allowed-tools`, an
 `metadata` — plus the Claude Code vendor key `disable-model-invocation`; the
 validator accepts exactly this set. Ship a key only when the skill needs it:
 `allowed-tools` when a skill runs bundled scripts
-(`Bash(${CLAUDE_SKILL_DIR}/scripts/*)`), `disable-model-invocation` to suppress
+(`Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`), `disable-model-invocation` to suppress
 implicit invocation. Do not invent keys outside this set.
 
 Do not add the `agents/openai.yaml` that Codex's guide recommends and its `init_skill.py`

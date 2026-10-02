@@ -1,7 +1,7 @@
 ---
 name: update-branch
 description: 'Update the current Git feature branch from a remote base branch by fetching and merging its remote-tracking ref. Use when asked to sync a feature branch, bring a branch up to date with `origin/main`, refresh a stale PR branch, or unblock CI after base-branch drift. Keywords: update branch, sync with origin/main, fetch and merge main, refresh feature branch.'
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Update Branch from origin/main
@@ -37,7 +37,7 @@ For a merge that does not require fetching or base-branch synchronization, use
 
 ## Bundled Script
 
-Use [update-branch.sh](scripts/update-branch.sh) instead of running the fetch and
+Use [update-branch.sh](agent-code/update-branch.sh) instead of running the fetch and
 merge commands manually. It:
 
 - checks repository, branch, and working-tree preconditions
@@ -56,7 +56,7 @@ bare number.
 ## Workflow 1: Run the Update Script
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/update-branch.sh
+agent-code/update-branch.sh
 ```
 
 The script defaults to `origin/main`. Supply `--remote` or `--base` only when

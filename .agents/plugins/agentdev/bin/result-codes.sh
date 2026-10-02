@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Shared result-code helpers for agentdev skill scripts. This file is sourced
-# by scripts under skills/*/scripts; result names from 3 through 125 are added
+# by scripts under skills/*/agent-code; result names from 3 through 125 are added
 # by each consuming script after it loads these defaults.
 
 # Codes 0, 1, 2, 129, 130, and 143 mean the same thing in every skill script. A

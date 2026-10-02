@@ -56,9 +56,9 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE           1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/codespace-teardown.sh
-  ${CLAUDE_SKILL_DIR}/scripts/codespace-teardown.sh --delete
-  ${CLAUDE_SKILL_DIR}/scripts/codespace-teardown.sh --poll-timeout 600
+  agent-code/codespace-teardown.sh
+  agent-code/codespace-teardown.sh --delete
+  agent-code/codespace-teardown.sh --poll-timeout 600
 EOF
 }
 

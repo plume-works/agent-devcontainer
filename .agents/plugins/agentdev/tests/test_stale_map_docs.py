@@ -10,7 +10,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-SCRIPT_PATH = 'skills/iwe-map/scripts/stale-map-docs.py'
+SCRIPT_PATH = 'skills/iwe-map/agent-code/stale-map-docs.py'
 LIBRARY = 'docs/knowledge'
 GIT_IDENTITY = ['-c', 'user.name=Fixture Author', '-c', 'user.email=fixture@example.invalid']
 

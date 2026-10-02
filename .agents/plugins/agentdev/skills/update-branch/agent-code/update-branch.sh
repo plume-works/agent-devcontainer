@@ -3,7 +3,7 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-merge_script="${script_dir}/../../git-merge-resolve/scripts/git-merge-resolve.sh"
+merge_script="${script_dir}/../../git-merge-resolve/agent-code/git-merge-resolve.sh"
 # shellcheck source=/dev/null
 source "${script_dir}/__common.sh"
 
@@ -38,8 +38,8 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE     1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/update-branch.sh
-  ${CLAUDE_SKILL_DIR}/scripts/update-branch.sh --remote upstream --base main
+  agent-code/update-branch.sh
+  agent-code/update-branch.sh --remote upstream --base main
 EOF
 }
 

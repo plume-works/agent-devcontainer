@@ -83,21 +83,46 @@ skill directory depth does not change, so no script's sourcing logic moves.
 **Files:** Modify: the 15 `.agents/plugins/agentdev/skills/*/scripts/`
 directories (moved to `agent-code/` with `git mv`), their `SKILL.md` files, the
 usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
-`docs/knowledge/tests/test_*_mask.py`,
-`.github/workflows/validate-agent-files.yml`
+`docs/knowledge/tests/test_*_mask*.py`,
+`.github/workflows/validate-agent-files.yml`, `.claude/settings.json`,
+`.agents/plugins/agentdev/bin/result-codes.sh`,
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] `git mv` every `skills/<name>/scripts` to `skills/<name>/agent-code`
-- [ ] In every `SKILL.md` body, replace `${CLAUDE_SKILL_DIR}/scripts/<x>` with
+- [x] `git mv` every `skills/<name>/scripts` to `skills/<name>/agent-code`
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/": 15
+    renames; `ls -d .agents/plugins/agentdev/skills/*/scripts` finds none
+- [x] In every `SKILL.md` body, replace `${CLAUDE_SKILL_DIR}/scripts/<x>` with
   `agent-code/<x>` (30 lines across 16 files, including `create-skill`'s
   `allowed-tools` example; its path rule changes in Task 3)
-- [ ] Change every agentdev `allowed-tools` line to
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/";
+    `grep -rn 'CLAUDE_SKILL_DIR' .agents/plugins/agentdev --include=SKILL.md`
+    matches only `allowed-tools` lines, the `create-skill` example of one, and
+    the `create-skill` path rule left for Task 3
+- [x] Change every agentdev `allowed-tools` line to
   `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)` (14 skills)
-- [ ] Update usage and help text inside the moved scripts that prints
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/": all 14
+    lines read `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`
+- [x] Repoint the `SKILL.md` links to bundled scripts (`](scripts/<x>)`), the
+  workspace permission `Bash(.agents/plugins/agentdev/skills/*/scripts/*)` in
+  `.claude/settings.json` and the consumption guide's mention of it, the
+  `result-codes.sh` header comment, and `update-branch.sh`'s path to the sibling
+  `git-merge-resolve` script
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`:
+    56/56 skills valid, 0 errors
+- [x] Update usage and help text inside the moved scripts that prints
   `${CLAUDE_SKILL_DIR}/scripts/...` to print `agent-code/...`
-- [ ] Repoint the plugin tests' `skills/<name>/scripts/` paths and the three
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/"; no
+    `${CLAUDE_SKILL_DIR}/scripts` remains under `skills/*/agent-code`
+- [x] Repoint the plugin tests' `skills/<name>/scripts/` paths and the three
   `docs/knowledge/tests` `SCRIPT` constants to `agent-code/`
-- [ ] Repoint the `stale-map-docs.py` step in `validate-agent-files.yml`
-- [ ] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests` passes
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/"; the full
+    run below exercises every repointed path
+- [x] Repoint the `stale-map-docs.py` step in `validate-agent-files.yml`
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/"
+- [x] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests` passes
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/": 148
+    passed
 
 ### Task 2: Move the self-improve dispatcher to `agent-code/`
 

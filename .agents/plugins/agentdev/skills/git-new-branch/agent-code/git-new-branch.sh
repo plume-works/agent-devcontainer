@@ -74,9 +74,9 @@ Results (RESULT / exit code):
   SIGNAL_TERM    143  Interrupted by TERM
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/git-new-branch.sh my-feature
-  ${CLAUDE_SKILL_DIR}/scripts/git-new-branch.sh my-feature --stash
-  ${CLAUDE_SKILL_DIR}/scripts/git-new-branch.sh my-feature --worktree
+  agent-code/git-new-branch.sh my-feature
+  agent-code/git-new-branch.sh my-feature --stash
+  agent-code/git-new-branch.sh my-feature --worktree
 EOF
 }
 

@@ -1,7 +1,7 @@
 ---
 name: template-consume
 description: 'Adopt or update the agent-devcontainer template in a consuming repository — a first-time setup walkthrough (full-copy or existing-repo merge) and an update mode that diffs the tracked template paths since the last-consumed commit. Use when asked to adopt this devcontainer/catalog in another project, bootstrap a new repo from this template, or check/pull in upstream template changes. Keywords: use as template, adopt devcontainer, sync template, pull template updates, agentdev template.'
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Template Consume
@@ -51,7 +51,7 @@ git at the consumer repository root:
 | `tracked_paths`    | The template-owned paths this consumer still wants compared on update — start from [Default Template Surface](#default-template-surface) and prune what setup mode deleted.                                                           |
 | `last_synced_at`   | When `consumed_ref` was last advanced.                                                                                                                                                                                                |
 
-`consumed_ref` is what [check-updates.sh](scripts/check-updates.sh) diffs
+`consumed_ref` is what [check-updates.sh](agent-code/check-updates.sh) diffs
 from; `tracked_paths` is what it diffs. Both must stay accurate — a stale
 `tracked_paths` after setup mode deletes a bundle produces false positives
 forever after. This section is read only from the repository-root metadata
@@ -162,7 +162,7 @@ A marker section or legacy marker file exists.
 
    A marker that never tracked knowledge needs none of this; skip to step 4.
 
-4. Run [check-updates.sh](scripts/check-updates.sh) from the consumer
+4. Run [check-updates.sh](agent-code/check-updates.sh) from the consumer
    repository. It clones the template repository into a scratch directory
    under `./.tmp/`, diffs every path in `tracked_paths` between `consumed_ref`
    and the clone's current default-branch HEAD, and cleans up the clone on

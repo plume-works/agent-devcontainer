@@ -51,9 +51,9 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE  1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/check-updates.sh
-  ${CLAUDE_SKILL_DIR}/scripts/check-updates.sh --repo plume-works/agent-devcontainer
-  ${CLAUDE_SKILL_DIR}/scripts/check-updates.sh --repo-url git@github.com:my-org/agent-devcontainer.git
+  agent-code/check-updates.sh
+  agent-code/check-updates.sh --repo plume-works/agent-devcontainer
+  agent-code/check-updates.sh --repo-url git@github.com:my-org/agent-devcontainer.git
 EOF
 }
 

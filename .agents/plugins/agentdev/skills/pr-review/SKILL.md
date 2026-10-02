@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: 'Perform a thorough automated code review of a GitHub pull request, publishing feedback as a single GitHub pull request review with inline comments (a standalone comment only as fallback when inline posting fails). Use when asked to review a pull request, or when a PR is opened/reopened and an automated review is required. Keywords: PR review, code review, pull request review, automated review.'
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Review PR
@@ -185,7 +185,7 @@ Write two plain files under `./.tmp` (never assemble this JSON live in a shell c
 - a summary file containing only the short overall review body (no per-finding detail)
 - a comments file containing a JSON array of every validated finding: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if no findings survived Step 6)
 
-Then run `${CLAUDE_SKILL_DIR}/scripts/post-review.sh --pr <PR_NUMBER> --event <COMMENT|APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule. Do not fall further back to typing `gh api` calls by hand.
+Then run `agent-code/post-review.sh --pr <PR_NUMBER> --event <COMMENT|APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule. Do not fall further back to typing `gh api` calls by hand.
 
 The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a bare number:
 

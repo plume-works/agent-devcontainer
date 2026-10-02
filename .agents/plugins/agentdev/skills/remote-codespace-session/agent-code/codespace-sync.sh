@@ -52,7 +52,7 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE           1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/codespace-sync.sh
+  agent-code/codespace-sync.sh
 EOF
 }
 
