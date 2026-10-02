@@ -15,6 +15,8 @@ sources:
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/tool/skill.ts
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/fragments.rs
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/host_outcome.rs
+stage: done
+completed: 2026-10-02
 ---
 
 # Reference bundled skill code by skill-relative agent-code paths
