@@ -30,6 +30,8 @@ write a plan and link the plan instead.*
 
 ## Done
 
+[Resolve merge conflicts in pr-feedback-resolution](backlog/pr-feedback-resolve-merge-conflicts.md)
+
 [Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
 
 [Write a capture skill](backlog/capture-skill.md)

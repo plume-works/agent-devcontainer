@@ -2,14 +2,14 @@
 type: codebase
 description: The 38 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:1c16f970b7689c984dcfb5b3b06f3c943d327376f8db254e66b0d9084c370ae0
+source_digest: sha256:07fe84b03c9e825f1875c956d0b8880acaa9ded6e2600a270f9d348117c77351
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-01T08:30:00Z
-stale_after: 2026-12-30
+  at: 2026-10-02T14:10:00Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-01T08:30:00Z
+  at: 2026-10-02T14:10:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -100,7 +100,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-30):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -116,7 +116,7 @@ Verified anchor points (line numbers as of 2026-09-30):
   shared issue-closing call, identical in `iwe-plan`
 - `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:64` —
+- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:74` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:230` —
   `MetadataResolver`, which walks a source's ancestors for masking rules

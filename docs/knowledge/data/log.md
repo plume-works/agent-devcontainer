@@ -7,6 +7,14 @@ to the current day's group.
 ## 2026-10-02
 
 - **Update**:
+  [Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+  done. pr-feedback-resolution merges a conflicted PR's base through
+  update-branch before collecting feedback, pr-merge routes conflicted PRs to
+  it, and update-branch accepts a calling skill's `--base`.
+- **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec created.
+- **Update**: Refreshed the agentdev and agentdev skills codebase maps after the
+  pr-merge, pr-feedback-resolution, and update-branch skill edits.
+- **Update**:
   [Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
   done. `push-branch.sh` refuses to push a stale codebase map, the pull request
   skills push through it, and the AI review leaves map staleness to CI.

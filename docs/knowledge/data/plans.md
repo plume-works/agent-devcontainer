@@ -31,6 +31,8 @@ moves them.*
 
 ## Done
 
+[Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+
 [Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
 
 [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
