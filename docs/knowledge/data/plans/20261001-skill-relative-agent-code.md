@@ -265,10 +265,17 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 
 ### Task 7: Confirm Claude Code resolves `agent-code/` against the skill directory
 
-- [ ] After `reinstall-agentdev-claude.sh`, invoke
+- [x] After `reinstall-agentdev-claude.sh`, invoke
   `/agentdev:pr-gen-description` in a Claude Code session in this repository,
   whose working directory has its own `scripts/`. Its script runs from the
   skill's `agent-code/`, with no "not found" retry.
+  - **Evidence:** Claude Code 2.1.280, agentdev 4.1.0 reinstalled at local scope
+    from this checkout, `claude -p /agentdev:pr-gen-description` on 2026-10-02:
+    the skill's base directory was
+    `<repo>/.agents/plugins/agentdev/skills/pr-gen-description`; the first Bash
+    call ran `<base>/agent-code/review-git-changes.sh` (exit 0) with no retry;
+    ticked in commit "Confirm Claude Code resolves agent-code/ against the skill
+    directory"
 
 ### Task 8: Confirm Codex runs a bundled script from a live session
 
