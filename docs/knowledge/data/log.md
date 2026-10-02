@@ -13,6 +13,11 @@ to the current day's group.
 
 - **Update**: Refreshed the three codebase-map docs the push-branch map check on
   an up-to-date head moved.
+- **Update**:
+  [Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
+  done. The agentdev plugin declares no hooks and is released as 4.0.0; the
+  agentdev, devcontainer-lifecycle, and three image codebase maps were
+  refreshed.
 
 ## 2026-09-30
 

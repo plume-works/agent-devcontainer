@@ -30,6 +30,8 @@ write a plan and link the plan instead.*
 
 ## Done
 
+[Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
+
 [Write a capture skill](backlog/capture-skill.md)
 
 [Capture the current architecture](backlog/capture-current-architecture.md)
