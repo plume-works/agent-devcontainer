@@ -56,16 +56,19 @@
   loop_control:
     label: "{{ item.path }}"
 
+# No `creates:` guard: a warm-start build runs on top of the previous image,
+# whose validator came from an older commit, so the install must always replace it.
 - name: Install the validator as a uv tool
   ansible.builtin.command:
     argv:
       - "{{ validate_agent_files_uv }}"
       - tool
       - install
+      - --reinstall
       - --python
       - "{{ validate_agent_files_python }}"
       - "{{ validate_agent_files_build_dir.path }}"
-    creates: "{{ validate_agent_files_bin_dir }}/validate_agent_files"
+  changed_when: true
   environment:
     UV_TOOL_BIN_DIR: "{{ validate_agent_files_bin_dir }}"
     UV_TOOL_DIR: "{{ validate_agent_files_tool_dir }}"
