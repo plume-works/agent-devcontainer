@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:232a2623d8f2c9561dc00325e70d5af70ffd15ccbec7b60fca7c7bfc9cff408d
+source_digest: sha256:d9a9ed7ec09749c11bf0e8e2f5774768d11bfeef48c71330c62003316f1cf795
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-01T08:30:00Z
-stale_after: 2026-12-30
+  at: 2026-10-02T09:00:00Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-01T08:30:00Z
+  at: 2026-10-02T09:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -88,7 +88,7 @@ is removed.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-30):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -106,7 +106,7 @@ Verified anchor points (line numbers as of 2026-09-30):
   `write_metadata`, the masking-rule fixture builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:286` — invalid
   replacement and masked binary regressions
-- `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:53` —
+- `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:54` —
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
   an absent marker section is `NO_MARKER`

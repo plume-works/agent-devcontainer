@@ -4,6 +4,11 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-02
+
+- **Update**: Refreshed the two codebase-map docs the push-branch map-check test
+  loader annotation moved.
+
 ## 2026-10-01
 
 - **Update**: Refreshed the three codebase-map docs the push-branch map check on
