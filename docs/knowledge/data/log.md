@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-01
+
+- **Update**:
+  [Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
+  done. The agentdev plugin declares no hooks and is released as 4.0.0; the
+  agentdev, devcontainer-lifecycle, and three image codebase maps were
+  refreshed.
+
 ## 2026-09-29
 
 - **Update**: Refreshed the two codebase-map docs the Dev Container feature

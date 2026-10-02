@@ -96,7 +96,7 @@ ships no Codex manifest.
 
 ### `agentdev`
 
-The image carries `agentdev` 3.4.0, a cross-agent plugin with 37 skills and five
+The image carries `agentdev` 4.0.0, a cross-agent plugin with 37 skills and five
 agent definitions for Claude Code and Codex. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
