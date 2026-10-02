@@ -1,6 +1,6 @@
 ---
 type: codebase
-description: The 37 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 38 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
 source_digest: sha256:d5283066a21335a6b28fcc6262919bba32fc610c296b420960953182f9445066
 verified:
@@ -78,6 +78,15 @@ when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
 `git-new-branch.sh` stashes only with `--stash` and pops only the entry it
 created, located by its commit.
 
+`pr-open`'s `push-branch.sh` is the push path for `pr-open`, `pr-sync`,
+`update-branch`, `pr-feedback-resolution`, and `pr-merge`. Before it pushes, and
+before it reports `ACTION=none` for a head the upstream already has, it runs
+`iwe-map`'s `stale-map-docs.py` in a temporary detached worktree at the branch
+head and prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map
+exits `MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7),
+neither pushing. A commit without `.iwe/config.toml` is not checked, and
+`--skip-map-check` bypasses the check.
+
 ## Depends on
 
 The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
@@ -107,6 +116,8 @@ Verified anchor points (line numbers as of 2026-10-02):
   — the only read of the marker section
 - `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh:109` —
   the shared issue-closing call, identical in `iwe-plan`
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
+  `check_map_freshness`, the push-time map gate
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:74` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:230` —

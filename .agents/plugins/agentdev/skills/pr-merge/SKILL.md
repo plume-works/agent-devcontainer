@@ -44,11 +44,13 @@ asks to change that state.
   git fetch origin <head-branch>
   git worktree add --detach ./.tmp/pr-merge-<pr> origin/<head-branch>
   git -C ./.tmp/pr-merge-<pr> switch -c pr-merge-worktree/<pr>
+  git -C ./.tmp/pr-merge-<pr> branch --set-upstream-to=origin/<head-branch>
   ```
 
   Run all local inspection, tests, commits, and pushes from that worktree.
   Push its `HEAD` only to the resolved PR head branch; never push its private
-  `pr-merge-worktree/<pr>` name. Preserve the caller's worktree and unrelated
+  `pr-merge-worktree/<pr>` name. The upstream set above is what makes the push
+  helper target the head branch. Preserve the caller's worktree and unrelated
   local branches. After a confirmed merge, remove only the clean worktree and
   private branch that this skill created; otherwise leave them in place and
   report their path and state.
@@ -136,11 +138,18 @@ to check later.
 1. Refresh the PR and capture its head SHA and merge state:
 
    ```bash
-   gh pr view <pr> --json number,url,state,isDraft,headRefName,headRefOid,mergeStateStatus,reviewDecision,reviews
+   gh pr view <pr> --json number,url,state,isDraft,headRefName,headRefOid,mergeable,mergeStateStatus,reviewDecision,reviews
    gh pr checks <pr> --json name,state,bucket,link,workflow,startedAt,completedAt
    ```
 
-2. If checks are pending or queued, wait for GitHub to finish them, then
+2. If `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, the PR
+   conflicts with its base and its checks will not run. Follow the
+   merge-conflict step at the start of
+   [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md)'s Workflow 1,
+   then restart at step 1. If `mergeable` is `UNKNOWN`, GitHub has not computed
+   it yet: restart at step 1 after a bounded wait instead of waiting on checks.
+
+3. If checks are pending or queued, wait for GitHub to finish them, then
    refresh both commands above. Prefer:
 
    ```bash
@@ -155,12 +164,13 @@ to check later.
    it pushed a formatter commit, restart at step 1 and do not act on the stale
    checks or reviews.
 
-3. Classify every completed non-success check before changing code:
+4. Classify every completed non-success check before changing code:
    - A GitHub Actions failure: use
      [extract-github-actions-logs](../extract-github-actions-logs/SKILL.md)
      to collect the failing job log and artifacts, then use
      [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) to diagnose,
-     implement, test, commit, and push the focused repair.
+     implement, test, commit, and push the focused repair through the
+     [pr-open](../pr-open/SKILL.md) push helper, `agent-code/push-branch.sh`.
    - A CodeQL or Codecov failure: use the same feedback-resolution skill and
      its linked security or coverage workflow.
    - An external check: record its URL and report it as an external blocker;
@@ -171,18 +181,20 @@ to check later.
      repository permits it and the failure is demonstrably transient;
      otherwise report it as a blocker with its evidence.
 
-4. After a code change, run the narrowest relevant local verification —
+5. After a code change, run the narrowest relevant local verification —
    `uv run pytest <path>` or `bun test <path>` for the affected area.
-   Commit and push through normal local Git workflow, then restart the loop
+   Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
+   `agent-code/push-branch.sh`, handling its result as that skill's step 8 does.
+   Restart the loop
    from step 1 because the head SHA and checks have changed.
 
-5. Once CI is successful, inspect reviews and unresolved review threads. Wait
+6. Once CI is successful, inspect reviews and unresolved review threads. Wait
    for an in-progress review agent before declaring success. Apply
    [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) once to gather
    and address all actionable feedback together, rather than handling comments
    piecemeal. Its resolved-thread filtering and confidence rules are mandatory.
 
-6. If feedback leads to a push, restart at step 1. If no actionable feedback
+7. If feedback leads to a push, restart at step 1. If no actionable feedback
    remains, refresh checks and merge state once more. Perform **Reformat
    Workflow Synchronization** after that final refresh as well. If it changes
    the head SHA, restart at step 1. Otherwise, if auto-merge was set, wait for

@@ -41,3 +41,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [git-new-branch](spec/git-new-branch.md)
 
 [Dependency updates](spec/dependency-updates.md)
+
+[PR merge conflicts](spec/pr-merge-conflicts.md)

@@ -52,3 +52,5 @@ and body sections are defined under Features in `SCHEMA.md` and enforced by
 [Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
 
 [git-new-branch](features/git-new-branch.md)
+
+[Fresh codebase map on push](features/fresh-map-on-push.md)

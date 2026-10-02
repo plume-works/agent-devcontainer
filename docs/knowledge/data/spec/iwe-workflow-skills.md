@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T12:00:00Z
+  at: 2026-10-02T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
@@ -15,6 +15,9 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/agent-code/close-issue.sh
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
+- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh
+- resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
+- resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
@@ -413,6 +416,48 @@ placeholder before the source fingerprint is computed.
   as broken, naming it, rather than computing a fingerprint from unmasked
   content
 - **AND** documents whose sources do not reach it keep their normal verdicts
+
+### Requirement: An agent push carries a fresh codebase map
+
+The branch push helper shared by the pull request skills SHALL run the
+codebase-map staleness check against the branch head, including a head the
+upstream already holds, SHALL refuse to push when the check reports a stale map,
+and SHALL push without the check only when the repository has no IWE map or the
+caller passes an explicit override. The AI pull request review SHALL NOT report
+codebase-map staleness when the repository's CI runs the staleness check, which
+then owns it.
+
+#### Scenario: A push would carry a stale map
+
+- **WHEN** a pull request skill pushes a branch whose map docs the staleness
+  check reports stale
+- **THEN** the push helper pushes nothing and reports `MAP_STALE`, and the skill
+  runs the Map refresh, commits it, and pushes again
+
+#### Scenario: The repository has no map
+
+- **WHEN** the repository root has no `.iwe/config.toml`, or the check reports
+  no map docs
+- **THEN** the push helper pushes without gating
+
+#### Scenario: The user pushes a stale map on purpose
+
+- **WHEN** the user explicitly asks to push while the map is stale
+- **THEN** the skill passes the override, the helper pushes and reports the
+  check as overridden, and CI still reports the stale map
+
+#### Scenario: A stale head reached the remote outside the helper
+
+- **WHEN** the branch head is already on its upstream, pushed by a path that
+  does not run the check, and its map docs are stale
+- **THEN** the push helper reports `MAP_STALE`, and the skill refreshes the map,
+  commits it, and pushes again
+
+#### Scenario: A review sees a stale map
+
+- **WHEN** an AI review runs on a pull request whose map docs are stale, in a
+  repository whose CI runs the staleness check
+- **THEN** the review raises no finding about map staleness
 
 ### Requirement: Capture files complete inbox documents
 

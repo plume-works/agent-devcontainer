@@ -17,7 +17,7 @@ sources:
 
 # Plugin tests
 
-12 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
+13 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
 with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`.
 
@@ -28,13 +28,13 @@ with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 - `plugin_tmp_path` fixture — a scratch directory under the plugin's `.tmp/`,
   removed after each test
 - `git_fixtures.py` — `FIXTURE_ENV`, `git()`, `outcome()`, and `stub_gh()`,
-  shared by the two git-skill modules
+  shared by the git-skill modules and the push-branch module
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
   `test_discover_ai_responder.py`, `test_fetch_issue.py`, `test_git_commit.py`,
-  `test_git_new_branch.py`, `test_remote_codespace_session.py`,
-  `test_result_codes.py`, `test_stale_map_docs.py`,
-  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
-  `test_update_branch.py`
+  `test_git_new_branch.py`, `test_push_branch_map_check.py`,
+  `test_remote_codespace_session.py`, `test_result_codes.py`,
+  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
+  `test_template_consume_check_updates.py`, `test_update_branch.py`
 
 ## How it works
 
@@ -64,7 +64,15 @@ section, and `INVALID_MARKER` for malformed metadata or a section missing
 clone that advances the remote behind the working clone's back; the
 `gh`-fallback cases set `remote.origin.followRemoteHEAD=never` so a fetch does
 not recreate `origin/HEAD`. `test_git_commit.py` commits in a throwaway
-repository with and without a configured remote.
+repository with and without a configured remote. `test_push_branch_map_check.py`
+pushes to a bare remote from a repository that carries an IWE config and one map
+doc, computes that doc's digest through the by-path import of
+`stale-map-docs.py`, and pins `pr-open`'s `push-branch.sh` map gate: `MAP_STALE`
+leaves the remote ref untouched on both push paths, `--skip-map-check` pushes
+anyway, a repository without an IWE config is not gated, an up-to-date head is
+still checked and a stale one pushed outside the helper stops at `MAP_STALE`, an
+uncommitted edit does not change the verdict, and the temporary check worktree
+is removed.
 
 ## Depends on
 
@@ -98,5 +106,7 @@ Verified anchor points (line numbers as of 2026-10-02):
   `write_metadata`, the masking-rule fixture builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:286` — invalid
   replacement and masked binary regressions
+- `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:54` —
+  `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
   an absent marker section is `NO_MARKER`
