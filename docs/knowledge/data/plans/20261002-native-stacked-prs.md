@@ -28,19 +28,20 @@ successors stay drafts behind a `## Dependencies` section, and a coordinator
 worktree reconnects squashed history and pushes each successor between merges.
 The native feature makes that procedure redundant.
 
-Two repository rules stand in the way. `gh stack push`, `rebase`, and `sync`
-update branches with `--force-with-lease`, and `gh stack init` enables `rerere`
-in the repository's git config; `AGENTS.md` forbids both force-pushes and git
-config changes.
+`gh stack push`, `rebase`, and `sync` update branches with `--force-with-lease`,
+and `gh stack init` enables `rerere` in the repository's git config. `AGENTS.md`
+forbids git config changes, and the `pr-merge`, `update-branch`, and `pr-open`
+skills forbid force-pushes; `AGENTS.md` itself has no force-push rule.
 
 Decisions:
 
 - `pr-merge` merges explicitly — never through auto-merge — once conflicts,
   checks, feedback, and reviews are resolved, for every PR.
-- Narrow policy exception: `--force-with-lease` is allowed only through
-  `gh stack push`, `gh stack rebase`, and `gh stack sync`, only on branches of a
-  GitHub stack; the repository-local `rerere.enabled` that `gh stack` writes is
-  allowed. No other git config change is.
+- `AGENTS.md` gains a repository-wide never-force-push rule with one narrow
+  exception: `--force-with-lease` is allowed only through `gh stack push`,
+  `gh stack rebase`, and `gh stack sync`, only on branches of a GitHub stack;
+  the repository-local `rerere.enabled` that `gh stack` writes is allowed. No
+  other git config change is.
 - GitHub's `gh-stack` skill is vendored unchanged, pinned to the same release as
   the `gh-stack` extension installed in the image, and a thin `pr-merge-stack`
   skill replaces `pr-merge-chain`.
@@ -147,8 +148,10 @@ vendored files
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] Amend the git config rule and add the force-push exception in `AGENTS.md`
-  as decided in `## Context`, and mirror both in `product.md`'s
+- [ ] Amend the git config rule to allow the repository-local `rerere.enabled`
+  that `gh stack` writes, add a repository-wide rule — never force-push, except
+  `gh stack push`, `rebase`, and `sync` with `--force-with-lease` on branches of
+  a GitHub stack — to `AGENTS.md`, and mirror both in `product.md`'s
   `## Authoring rules`
 
 ### Task 8: Make update-branch and pr-open stack-aware
