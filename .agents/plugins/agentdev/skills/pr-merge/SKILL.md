@@ -136,14 +136,16 @@ to check later.
 1. Refresh the PR and capture its head SHA and merge state:
 
    ```bash
-   gh pr view <pr> --json number,url,state,isDraft,headRefName,headRefOid,mergeStateStatus,reviewDecision,reviews
+   gh pr view <pr> --json number,url,state,isDraft,headRefName,headRefOid,mergeable,mergeStateStatus,reviewDecision,reviews
    gh pr checks <pr> --json name,state,bucket,link,workflow,startedAt,completedAt
    ```
 
-2. If `mergeStateStatus` is `DIRTY`, the PR conflicts with its base and its
-   checks will not run. Follow the merge-conflict step at the start of
+2. If `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, the PR
+   conflicts with its base and its checks will not run. Follow the
+   merge-conflict step at the start of
    [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md)'s Workflow 1,
-   then restart at step 1.
+   then restart at step 1. If `mergeable` is `UNKNOWN`, GitHub has not computed
+   it yet: restart at step 1 after a bounded wait instead of waiting on checks.
 
 3. If checks are pending or queued, wait for GitHub to finish them, then
    refresh both commands above. Prefer:

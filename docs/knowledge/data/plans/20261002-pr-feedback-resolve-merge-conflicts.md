@@ -111,11 +111,15 @@ this plan fixes.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] The Monitoring Loop's refresh reads `mergeable`; step 2 routes
+- [x] The Monitoring Loop's refresh reads `mergeable`; step 2 routes
   `mergeable: CONFLICTING` as well as `mergeStateStatus: DIRTY` to the conflict
   step, and on `mergeable: UNKNOWN` restarts at step 1 after a bounded wait
   instead of waiting on checks.
-- [ ] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** commit "feat(pr-merge): re-poll an uncomputed merge state" —
+    refresh field list and step 2 of the Monitoring Loop.
+- [x] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** same commit; its pre-commit `validate-agent-files` hook
+    passed.
 
 ## Spec changes
 
@@ -161,8 +165,9 @@ Verified anchor points (line numbers as of 2026-10-02):
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:129` — Monitoring Loop
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:139` — refresh step reading
   `mergeStateStatus`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:143` — DIRTY routing step
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:163` — check classification
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:143` — conflict and UNKNOWN
+  routing step
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:165` — check classification
   routing to pr-feedback-resolution
 - `.agents/plugins/agentdev/skills/update-branch/SKILL.md:56` — Workflow 1: Run
   the Update Script
