@@ -52,6 +52,27 @@ Classify the requested change by artifact before delegating:
 
 Gather complete context before making changes.
 
+**Resolve merge conflicts first.** Before any feedback edit, read the PR's merge
+state:
+
+```bash
+gh pr view <pr-number> --json mergeable,mergeStateStatus,baseRefName
+```
+
+- `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY`: invoke
+  `/agentdev:update-branch --base <baseRefName>`, follow its
+  [git-merge-resolve](../git-merge-resolve/SKILL.md) handoff for the conflicts,
+  and push through its Workflow 3 right away. Pass the PR's `baseRefName`, not
+  the `main` default, so a stacked PR merges its real base.
+- `mergeable` is `UNKNOWN`: GitHub has not computed mergeability yet. Re-poll
+  in bounded waits before deciding.
+- Otherwise: continue with step 1.
+
+A conflicted PR gets no `pull_request` workflow runs, so CI evidence is missing
+or stale until the merge is pushed. Resolving first also keeps the working tree
+clean, which `update-branch` requires. A branch that is only `BEHIND` its base
+is not updated here.
+
 1. **Fetch PR review comments**:
 
 ```bash
@@ -297,6 +318,7 @@ Add tests for uncovered code.
 Ensure all feedback is addressed before requesting re-review.
 
 1. **Checklist for completion**:
+   - [ ] No merge conflicts with the PR's base branch
    - [ ] All review comments addressed or replied
    - [ ] Resolved comments marked as resolved
    - [ ] All CI checks passing (green)
@@ -498,6 +520,7 @@ Maintain an internal execution log documenting:
 
 ## Success Criteria
 
+- [ ] No merge conflicts with the PR's base branch
 - [ ] All review comments resolved or replied
 - [ ] All CI checks passing
 - [ ] No security findings unresolved
@@ -510,6 +533,7 @@ Maintain an internal execution log documenting:
 
 ## Related Resources
 
+- [Update Branch](../update-branch/SKILL.md) - Merge the PR's base branch and resolve conflicts
 - [Evaluate Whether a Re-Review Is Needed](../pr-eval-review-needed/SKILL.md) - decide if work went beyond what was reviewed
 - [Code Review Standards](../code-review-standards/) - PR description and review practices
 - [Extract GitHub Actions Logs](../extract-github-actions-logs/) - Fetch CI job logs and download test-report artifacts

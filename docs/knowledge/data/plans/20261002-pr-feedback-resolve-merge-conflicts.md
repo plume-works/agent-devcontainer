@@ -61,14 +61,23 @@ this plan fixes.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 
-- [ ] Workflow 1 opens with the merge-state step described in `## Approach`: the
+- [x] Workflow 1 opens with the merge-state step described in `## Approach`: the
   `gh pr view` fields, the `CONFLICTING`/`DIRTY` route to
   `/agentdev:update-branch --base <baseRefName>` with its push, the `UNKNOWN`
   re-poll, and the instruction that it runs before any feedback edit.
-- [ ] Workflow 7's completion checklist and `## Success Criteria` each gain an
+  - **Evidence:** commit "feat(pr-feedback-resolution): resolve merge conflicts
+    before collecting feedback" — "Resolve merge conflicts first" block in
+    Workflow 1.
+- [x] Workflow 7's completion checklist and `## Success Criteria` each gain an
   item that the PR has no merge conflicts with its base.
-- [ ] `## Related Resources` links [update-branch](../update-branch/SKILL.md).
-- [ ] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** same commit — "No merge conflicts with the PR's base branch"
+    heads both lists.
+- [x] `## Related Resources` links `update-branch`'s `SKILL.md`.
+  - **Evidence:** same commit — "Update Branch" entry in Related Resources.
+- [x] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** same commit; `uv run validate_agent_files` on the file
+    reported 5/5 valid, 0 errors, and the commit's pre-commit
+    `validate-agent-files` hook passed.
 
 ### Task 2: Route a conflicted PR in pr-merge's monitoring loop
 
