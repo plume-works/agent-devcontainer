@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-02
 
+- **Update**:
+  [Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
+  done. `push-branch.sh` refuses to push a stale codebase map, the pull request
+  skills push through it, and the AI review leaves map staleness to CI.
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained an agent
+  push carrying a fresh codebase map.
 - **Update**: Refreshed the two codebase-map docs the push-branch map-check test
   loader annotation moved.
 

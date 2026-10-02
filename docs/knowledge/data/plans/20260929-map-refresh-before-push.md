@@ -14,6 +14,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
 - resource: .github/workflows/validate-agent-files.yml
+stage: done
+completed: 2026-10-02
 ---
 
 # Refresh the codebase map before pushing and keep its staleness out of AI reviews
