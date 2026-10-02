@@ -99,9 +99,13 @@ this plan fixes.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`
 
-- [ ] Workflow 1 says to supply `--remote` or `--base` only when the user or the
+- [x] Workflow 1 says to supply `--remote` or `--base` only when the user or the
   calling skill supplies different values.
-- [ ] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** commit "docs(update-branch): accept a calling skill's --remote
+    and --base".
+- [x] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** same commit; its pre-commit `validate-agent-files` hook
+    passed.
 
 ### Task 4: Handle an uncomputed merge state in pr-merge
 

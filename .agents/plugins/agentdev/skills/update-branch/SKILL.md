@@ -60,7 +60,7 @@ ${CLAUDE_SKILL_DIR}/scripts/update-branch.sh
 ```
 
 The script defaults to `origin/main`. Supply `--remote` or `--base` only when
-the user requested different values.
+the user or the calling skill supplies different values.
 
 ## Workflow 2: Handle the Result
 
