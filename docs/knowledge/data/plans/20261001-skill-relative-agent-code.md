@@ -279,10 +279,19 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 
 ### Task 8: Confirm Codex runs a bundled script from a live session
 
-- [ ] With Codex logged in and agentdev installed through
+- [x] With Codex logged in and agentdev installed through
   `reinstall-agentdev-codex.sh`, invoke `$agentdev:pr-gen-description`. The
-  first shell command runs the skill's `agent-code/review-git-changes.sh` by a
-  path that exists. Then set the bug document to `stage: done`.
+  first shell command that runs a bundled script runs the skill's
+  `agent-code/review-git-changes.sh` by a path that exists. Then set the bug
+  document to `stage: done`.
+  - **Evidence:** codex-cli 0.156.1, agentdev 4.1.0 installed by
+    `reinstall-agentdev-codex.sh` into
+    `~/.codex/plugins/cache/agent-devcontainer/agentdev/4.1.0`,
+    `codex exec '$agentdev:pr-gen-description'` on 2026-10-02: the first shell
+    command read the sibling `code-review-standards/SKILL.md`, and the first
+    script command ran
+    `<plugin cache>/skills/pr-gen-description/agent-code/review-git-changes.sh --stat-only`
+    (exit 0) with no failed attempt; the bug document is at `stage: done`
 
 ### Task 9: CI passes on the branch
 
