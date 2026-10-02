@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-02
+stage: done
+completed: 2026-10-02
 description: Make pr-feedback-resolution resolve a pull request's merge conflicts through update-branch before collecting feedback, and route a conflicted PR in pr-merge's monitoring loop to it.
 generated:
   by: claude-code/opus-5-5
@@ -123,7 +125,7 @@ this plan fixes.
 
 ## Spec changes
 
-`data/spec/pr-merge-conflicts` (new) — normative outcome:
+[PR merge conflicts](../spec/pr-merge-conflicts.md) — normative outcome:
 
 - `pr-feedback-resolution` SHALL read the PR's merge state before any feedback
   edit; when `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY` it

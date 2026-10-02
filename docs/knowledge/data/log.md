@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-02
+
+- **Update**:
+  [Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+  done. pr-feedback-resolution merges a conflicted PR's base through
+  update-branch before collecting feedback, pr-merge routes conflicted PRs to
+  it, and update-branch accepts a calling skill's `--base`.
+- **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec created.
+
 ## 2026-10-01
 
 - **Update**:
