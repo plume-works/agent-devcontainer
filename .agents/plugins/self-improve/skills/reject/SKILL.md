@@ -1,7 +1,7 @@
 ---
 name: reject
 description: Reject a self-improve proposal the user has declined. Leaves the target file unchanged and remembers the fingerprint so the same lesson is not proposed again.
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/si:*)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/agent-code/si:*)
 ---
 
 # Reject a proposal
@@ -11,7 +11,7 @@ Usage: `/self-improve:reject <proposal-id>`
 Run exactly:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" reject-proposal --id <proposal-id>
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" reject-proposal --id <proposal-id>
 ```
 
 The target file is not touched. The staged bytes are discarded; only the
@@ -24,7 +24,7 @@ variation of it in the same session.
 If the user gave a reason worth categorizing, pass it:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" reject-proposal --id <proposal-id> --reason-category wrong_scope
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" reject-proposal --id <proposal-id> --reason-category wrong_scope
 ```
 
 Useful categories: `wrong_scope`, `wrong_owner`, `too_generic`, `already_known`,

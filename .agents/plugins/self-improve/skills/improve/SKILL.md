@@ -1,7 +1,7 @@
 ---
 name: improve
 description: Review the current session for a reusable lesson and propose one exact durable change to a CLAUDE.md file, rule, or skill. Use when the user asks to remember an approach, when a correction should be retained, or when a self-improve candidate is available.
-allowed-tools: Read, Grep, Glob, Bash(${CLAUDE_PLUGIN_ROOT}/scripts/si:*)
+allowed-tools: Read, Grep, Glob, Bash(${CLAUDE_PLUGIN_ROOT}/agent-code/si:*)
 ---
 
 # Propose one durable lesson
@@ -18,13 +18,13 @@ bypasses backup, verification, and rollback.
 If a candidate ID was supplied:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" show-candidate --id <candidate-id>
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" show-candidate --id <candidate-id>
 ```
 
 Otherwise list what is waiting:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" show-candidate
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" show-candidate
 ```
 
 If nothing is waiting and the user invoked this directly, force a review of the
@@ -32,7 +32,7 @@ current turn:
 
 ```bash
 echo '{"session_id":"<session id>","cwd":"<cwd>"}' \
-  | "${CLAUDE_PLUGIN_ROOT}/scripts/si" improve --focus "<what the user asked about>"
+  | "${CLAUDE_PLUGIN_ROOT}/agent-code/si" improve --focus "<what the user asked about>"
 ```
 
 That runs the same isolated reviewer the automatic path uses. If it returns
@@ -47,7 +47,7 @@ in three months, and you can name the specific evidence for it.
 ## 2. Find the owner
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" find-owners --query "<owner_query from the candidate>"
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" find-owners --query "<owner_query from the candidate>"
 ```
 
 This returns only paths the mutator will accept. Read the most promising ones
@@ -81,7 +81,7 @@ Pass the complete new contents on standard input. Do not write them to a file
 first — you have no tool that can write files, and that is deliberate.
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" stage-proposal \
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" stage-proposal \
   --target "<absolute path>" \
   --candidate "<candidate-id>" \
   --reason "<one sentence on why this artifact owns the lesson>" <<'SELF_IMPROVE_EOF'

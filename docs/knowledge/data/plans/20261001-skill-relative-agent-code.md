@@ -132,13 +132,25 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `.agents/plugins/self-improve/selfimprove/commands.py`,
 `.agents/plugins/self-improve/tests/**`
 
-- [ ] `git mv .agents/plugins/self-improve/scripts .agents/plugins/self-improve/agent-code`
-- [ ] Replace `${CLAUDE_PLUGIN_ROOT}/scripts/si` with
+- [x] `git mv .agents/plugins/self-improve/scripts .agents/plugins/self-improve/agent-code`
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/":
+    `scripts/si` and `scripts/si.py` renamed
+- [x] Replace `${CLAUDE_PLUGIN_ROOT}/scripts/si` with
   `${CLAUDE_PLUGIN_ROOT}/agent-code/si` in all 7 hook commands, the four skills
   (bodies and `allowed-tools`), and the authorization message in `commands.py`
-- [ ] Repoint `SI` in `tests/conftest.py` and every other test that names
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/";
+    `grep -rn 'scripts/si' .agents/plugins/self-improve` prints nothing
+- [x] Repoint the self-test's required-file entry `scripts/si` in `commands.py`
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/";
+    `test_dispatcher.py::test_self_test_reports_ok` passes
+- [x] Repoint `SI` in `tests/conftest.py` and every other test that names
   `scripts/si`
-- [ ] `uv run pytest .agents/plugins/self-improve/tests` passes
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/";
+    every integration test runs the dispatcher through `SI`
+- [x] `uv run pytest .agents/plugins/self-improve/tests` passes
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/": 574
+    passed, 14 skipped (13 live tests gated on `SELF_IMPROVE_RUN_LIVE`, one
+    unwritable-root test that root bypasses)
 
 ### Task 3: Update the catalog's path convention
 

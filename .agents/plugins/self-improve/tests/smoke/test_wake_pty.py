@@ -311,7 +311,7 @@ def no_wake_plugin(workspace):
         shutil.rmtree(str(root))
     shutil.copytree(PLUGIN_ROOT, str(root), ignore=shutil.ignore_patterns('__pycache__'))
 
-    silent = root / 'scripts' / 'si-silent'
+    silent = root / 'agent-code' / 'si-silent'
     silent.write_text(
         '#!/bin/sh\n'
         '# Negative control (Spec-0002 section 6.2): run review exactly as the\n'
@@ -326,7 +326,7 @@ def no_wake_plugin(workspace):
     hooks = json.loads(hooks_path.read_text())
     for entry in hooks['hooks']['Stop']:
         for hook in entry['hooks']:
-            hook['command'] = hook['command'].replace('/scripts/si', '/scripts/si-silent')
+            hook['command'] = hook['command'].replace('/agent-code/si', '/agent-code/si-silent')
     hooks_path.write_text(json.dumps(hooks, indent=2) + '\n')
     return root
 

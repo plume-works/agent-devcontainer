@@ -2,7 +2,7 @@
 Slice 1 end to end, through the same entry point a hook and skill use.
 
 Stage, present, authorize, apply, discover in a fresh process, roll back. Each
-step goes through ``scripts/si`` so the test exercises the real boundary rather
+step goes through ``agent-code/si`` so the test exercises the real boundary rather
 than importing past it.
 """
 

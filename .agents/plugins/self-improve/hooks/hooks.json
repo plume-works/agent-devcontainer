@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/si",
+            "command": "${CLAUDE_PLUGIN_ROOT}/agent-code/si",
             "args": ["capture-prompt"],
             "timeout": 5
           }
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/si",
+            "command": "${CLAUDE_PLUGIN_ROOT}/agent-code/si",
             "args": ["capture-tool-failure"],
             "timeout": 5
           }
@@ -32,7 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/si",
+            "command": "${CLAUDE_PLUGIN_ROOT}/agent-code/si",
             "args": ["capture-tool-success"],
             "timeout": 5
           }
@@ -45,7 +45,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/si",
+            "command": "${CLAUDE_PLUGIN_ROOT}/agent-code/si",
             "args": ["capture-expansion"],
             "timeout": 5
           }
@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/si",
+            "command": "${CLAUDE_PLUGIN_ROOT}/agent-code/si",
             "args": ["review-turn"],
             "asyncRewake": true,
             "timeout": 300
@@ -70,7 +70,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/si",
+            "command": "${CLAUDE_PLUGIN_ROOT}/agent-code/si",
             "args": ["session-start"],
             "timeout": 5
           }
@@ -82,7 +82,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/si",
+            "command": "${CLAUDE_PLUGIN_ROOT}/agent-code/si",
             "args": ["session-end"],
             "timeout": 5
           }
