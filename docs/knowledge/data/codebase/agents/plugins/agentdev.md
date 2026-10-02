@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:da1707553cc0320ad2521aa1f19680a5946e442a5e00d42773a741ae2fcd044a
+source_digest: sha256:aa1b8cd1491ca2a5ee0e854cde752e4a96a06a22fcc0e33b6d5381834513080a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-02T12:30:00Z
 stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-02T12:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -50,7 +50,7 @@ each.
   `tdd-refactor`, `durable-knowledge-auditor`
 - `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
   `result_codes.py`, which a Python skill script imports from there
-- `version` — `4.0.0`, declared identically in both plugin manifests, the
+- `version` — `4.1.0`, declared identically in both plugin manifests, the
   marketplace entry, and the Dockerfile pin
 
 ## How it works

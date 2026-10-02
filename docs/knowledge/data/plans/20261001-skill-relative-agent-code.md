@@ -240,12 +240,28 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 **Files:** Modify: `.agents/plugins/agentdev/.claude-plugin/plugin.json`,
 `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
 `.agents/plugins/self-improve/.claude-plugin/plugin.json`,
-`.claude-plugin/marketplace.json`
+`.claude-plugin/marketplace.json`, `docker/desktop/agent-desktop.Dockerfile`,
+`.agents/plugins/self-improve/selfimprove/__init__.py`, `README.md`, and the
+`docs/knowledge/data/codebase/` documents `stale-map-docs.py` reports
 
-- [ ] agentdev 4.0.0 → 4.1.0 in both manifests and the Claude marketplace entry
-- [ ] self-improve 0.1.0 → 0.1.1 in its manifest and marketplace entry
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [x] agentdev 4.0.0 → 4.1.0 in both manifests, the Claude marketplace entry,
+  the Dockerfile's `AGENTDEV_PLUGIN_VERSION` pin that provisioning verifies
+  against the marketplace, and the root README
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1": both
+    manifests, marketplace entry, `AGENTDEV_PLUGIN_VERSION`, and README read
+    4.1.0
+- [x] self-improve 0.1.0 → 0.1.1 in its manifest, marketplace entry, package
+  `__version__`, and the root README
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1":
+    manifest, marketplace entry, `__version__`, and README read 0.1.1
+- [x] Refresh the codebase-map documents the version bumps make stale, through
+  `/agentdev:iwe-map`; `stale-map-docs.py` ends at `RESULT=SUCCESS`
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1": five
+    docs re-stamped; `stale-map-docs.py` 27/27 FRESH, `RESULT=SUCCESS`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1": 56/56
+    skills valid, 0 errors, 0 warnings
 
 ### Task 7: Confirm Claude Code resolves `agent-code/` against the skill directory
 

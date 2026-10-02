@@ -7,4 +7,4 @@ fail open, so there is no import here that could require a bootstrap step. See
 spec section 4.1.
 """
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
