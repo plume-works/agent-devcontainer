@@ -83,10 +83,16 @@ this plan fixes.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] The `## Monitoring Loop` gains a step between the refresh (step 1) and the
+- [x] The `## Monitoring Loop` gains a step between the refresh (step 1) and the
   pending-check wait (step 2): when `mergeStateStatus` is `DIRTY`, follow
   `pr-feedback-resolution`'s merge-conflict step, then restart at step 1.
-- [ ] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** commit "feat(pr-merge): route a conflicted PR to the
+    merge-conflict step" — new step 2 of the Monitoring Loop; later steps
+    renumbered 3–7.
+- [x] `uv run validate_agent_files` passes on the edited `SKILL.md`.
+  - **Evidence:** same commit; `uv run validate_agent_files` on the file
+    reported 5/5 valid, 0 errors, and the commit's pre-commit
+    `validate-agent-files` hook passed.
 
 ## Spec changes
 
@@ -116,18 +122,21 @@ Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:51` —
   Workflow 1: Collect All Feedback Sources
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:55` — step 1,
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:55` — Resolve
+  merge conflicts first
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:76` — step 1,
   Fetch PR review comments
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:299` —
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:320` —
   Workflow 7 completion checklist
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:499` —
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:521` —
   Success Criteria
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:511` —
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:534` —
   Related Resources
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:129` — Monitoring Loop
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:139` — refresh step reading
   `mergeStateStatus`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:158` — check classification
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:143` — DIRTY routing step
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:163` — check classification
   routing to pr-feedback-resolution
 - `.agents/plugins/agentdev/skills/update-branch/SKILL.md:56` — Workflow 1: Run
   the Update Script

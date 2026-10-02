@@ -140,7 +140,12 @@ to check later.
    gh pr checks <pr> --json name,state,bucket,link,workflow,startedAt,completedAt
    ```
 
-2. If checks are pending or queued, wait for GitHub to finish them, then
+2. If `mergeStateStatus` is `DIRTY`, the PR conflicts with its base and its
+   checks will not run. Follow the merge-conflict step at the start of
+   [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md)'s Workflow 1,
+   then restart at step 1.
+
+3. If checks are pending or queued, wait for GitHub to finish them, then
    refresh both commands above. Prefer:
 
    ```bash
@@ -155,7 +160,7 @@ to check later.
    it pushed a formatter commit, restart at step 1 and do not act on the stale
    checks or reviews.
 
-3. Classify every completed non-success check before changing code:
+4. Classify every completed non-success check before changing code:
    - A GitHub Actions failure: use
      [extract-github-actions-logs](../extract-github-actions-logs/SKILL.md)
      to collect the failing job log and artifacts, then use
@@ -171,18 +176,18 @@ to check later.
      repository permits it and the failure is demonstrably transient;
      otherwise report it as a blocker with its evidence.
 
-4. After a code change, run the narrowest relevant local verification —
+5. After a code change, run the narrowest relevant local verification —
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit and push through normal local Git workflow, then restart the loop
    from step 1 because the head SHA and checks have changed.
 
-5. Once CI is successful, inspect reviews and unresolved review threads. Wait
+6. Once CI is successful, inspect reviews and unresolved review threads. Wait
    for an in-progress review agent before declaring success. Apply
    [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) once to gather
    and address all actionable feedback together, rather than handling comments
    piecemeal. Its resolved-thread filtering and confidence rules are mandatory.
 
-6. If feedback leads to a push, restart at step 1. If no actionable feedback
+7. If feedback leads to a push, restart at step 1. If no actionable feedback
    remains, refresh checks and merge state once more. Perform **Reformat
    Workflow Synchronization** after that final refresh as well. If it changes
    the head SHA, restart at step 1. Otherwise, if auto-merge was set, wait for
