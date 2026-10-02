@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from types import ModuleType
 
 from git_fixtures import FIXTURE_ENV, git, outcome
 
@@ -18,7 +19,7 @@ LIBRARY = 'docs/knowledge'
 BRANCH = 'fixture-feature'
 
 
-def _load_map_script():
+def _load_map_script() -> ModuleType:
     """Import the staleness script by path, so the digest has one definition."""
     plugin_root = Path(__file__).resolve().parents[1]
     sys.path.insert(0, str(plugin_root / 'bin'))
