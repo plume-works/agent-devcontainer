@@ -12,6 +12,8 @@ to the current day's group.
   skills push through it, and the AI review leaves map staleness to CI.
 - **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained an agent
   push carrying a fresh codebase map.
+- **Update**: [Fresh codebase map on push](features/fresh-map-on-push.md)
+  implemented.
 - **Update**: Refreshed the two codebase-map docs the push-branch map-check test
   loader annotation moved.
 
