@@ -17,6 +17,10 @@ moves them.*
 
 ## Active
 
+[Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
+
+[Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
+
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
