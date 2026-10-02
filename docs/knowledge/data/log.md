@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-02
 
+- **Update**: Refreshed the ansible, validate_agent_files role, and image-build
+  flow codebase maps after the validator role began reinstalling on every run.
 - **Update**: Re-stamped the agentdev, agentdev skills, and agentdev tests
   codebase maps after merging the push-time map gate with the move to
   `agent-code/`.
