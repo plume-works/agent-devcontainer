@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
+
 [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
 
 [Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
