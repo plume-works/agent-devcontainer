@@ -82,9 +82,13 @@ reviewed, so every #203 bug is present at it.
 **Files:** Create: `.tmp/spike/pr199/`, `.tmp/spike/pr203/` (worktrees),
 `.tmp/spike/pr199.diff`, `.tmp/spike/pr203.diff`
 
-- [ ] Add detached worktrees at `7e0413d` and `84d4584`.
-- [ ] Write each diff from the merge-base with `origin/main`: `77ec374..7e0413d`
+- [x] Add detached worktrees at `7e0413d` and `84d4584`.
+  - **Evidence:** `git worktree add --detach` at both heads succeeded; the heads
+    are reachable commits in this repository.
+- [x] Write each diff from the merge-base with `origin/main`: `77ec374..7e0413d`
   and `3a3201e..84d4584`.
+  - **Evidence:** `git merge-base` with `origin/main` returns `77ec374` and
+    `3a3201e`; the diffs cover 4 files (+55/−22) and 14 files (+801/−3).
 
 ### Task 2: Write the variant skill
 
@@ -175,7 +179,7 @@ table covers six runs; the architecture doc is linked from
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-30):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — "Scan only the diff
   itself" correctness rule
