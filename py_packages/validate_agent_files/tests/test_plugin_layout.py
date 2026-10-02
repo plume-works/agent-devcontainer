@@ -135,7 +135,7 @@ def test_unparsable_plugin_manifest_fails(tmp_path: Path, capsys) -> None:
 def test_literal_catalog_path_in_skill_body_fails(tmp_path: Path, capsys) -> None:
     """A reintroduced literal `.claude/skills/` path fails validation (F6 guard)."""
     plugin_root = _write_plugin(tmp_path, plugin_version='1.0.0', marketplace_version='1.0.0')
-    write_skill(plugin_root, body='Run `.claude/skills/demo/scripts/demo.sh` to start.')
+    write_skill(plugin_root, body='Run `.claude/skills/demo/run.sh` to start.')
 
     exit_code = main([str(plugin_root), '--kind', 'skills'])
     captured = capsys.readouterr()

@@ -2,14 +2,14 @@
 type: codebase
 description: The independently released Python package that validates skills, agents, prompts, and plugin packaging; its CLI is the repository gate and ships in the image as a uv tool.
 source: py_packages/validate_agent_files
-source_digest: sha256:ac800efcb2d4e961c6fe76dce2cb8a92ec3278b4a9feeac1b7640a9fc1d5a94d
+source_digest: sha256:ee7130c31259ef90e42c8c6cbe09136eca354a1fbc8fa5b2159eefa5ee405f3f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-02T13:00:00Z
 stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-02T13:00:00Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files

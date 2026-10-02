@@ -2,14 +2,14 @@
 type: codebase
 description: The self-contained pytest suite for the validator package, built on an invented mock catalog so it passes from an extracted package.
 source: py_packages/validate_agent_files/tests
-source_digest: sha256:1ab124b45f1bf31a24788b5b7f50a14306b52af0ac7e7f0ed30a11c941e7af48
+source_digest: sha256:08c60cf0d484425f3d94e74e3f133d4bb21076a4a8e966527d25e825e39efb0d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-02T13:00:00Z
 stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-02T13:00:00Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/tests
