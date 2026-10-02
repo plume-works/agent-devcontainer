@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:088cbfd09d95c835b52fa39ca0c546a3266db2408f4a716383a5f12d2d0ccfbf
+source_digest: sha256:da0ea85424728509f4cda86ba1a91e827f0acd753ccce2bcac4550ae7ee0061b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-28T21:30:00Z
-stale_after: 2026-12-27
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -94,7 +94,7 @@ repository-level tests.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings

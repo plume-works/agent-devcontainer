@@ -2,14 +2,14 @@
 type: codebase
 description: The independently released Python package that validates skills, agents, prompts, and plugin packaging; its CLI is the repository gate and ships in the image as a uv tool.
 source: py_packages/validate_agent_files
-source_digest: sha256:1afa700dd6ae03ed1ea32a57efcaeaa80a3c3b79ad1cd2eda79e2b59f6adf9a6
+source_digest: sha256:ac800efcb2d4e961c6fe76dce2cb8a92ec3278b4a9feeac1b7640a9fc1d5a94d
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-08T01:12:06Z
-stale_after: 2026-12-07
+  by: claude-code/opus-5.5
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-08T01:12:06Z
+  by: claude-code/opus-5.5
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files
@@ -17,7 +17,7 @@ sources:
 
 # validate_agent_files package
 
-A setuptools package (`version = "1.0.0"`, Python 3.11+, depending on `PyYAML`
+A setuptools package (`version = "1.0.1"`, Python 3.11+, depending on `PyYAML`
 and `skills-ref`) exposing the `validate_agent_files` console script. It must
 build and test with no knowledge of this repository, because the image installs
 it from its own directory alone.
@@ -70,7 +70,7 @@ nothing in this repository.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-08):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `py_packages/validate_agent_files/validate_agent_files/main.py:15` — `main`
 - `py_packages/validate_agent_files/validate_agent_files/cli.py:13` —

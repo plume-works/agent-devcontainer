@@ -2,14 +2,14 @@
 type: codebase
 description: The two Dockerfiles that produce ubuntu-ansible and agent-desktop, plus the entrypoint, the Xpra start script, and the gh auth wrapper baked into the image.
 source: docker
-source_digest: sha256:450a1c53d5ed03b93d49ea9dd3db71f0734326a206ac186e121bd32343335982
+source_digest: sha256:553c42d12c4613e1392f101414c1201c18a0e6cfedbe73ef5fe0b1d2dd3e62a9
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-01T00:00:00Z
-stale_after: 2026-12-30
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-01T00:00:00Z
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: docker
@@ -70,7 +70,7 @@ copies out of `/provision`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-05):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `docker/desktop/agent-desktop.Dockerfile:41` — the provisioning `RUN`
 - `docker/desktop/agent-desktop.Dockerfile:68-71` — `ENV` and version labels
@@ -78,5 +78,5 @@ Verified anchor points (line numbers as of 2026-09-05):
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
 - `docker/desktop/start-xpra.sh:7` — default HTML5 container port
 - `docker/desktop/start-xpra.sh:152-158` — `--port` override
-- `docker/bin/gh:58-59` — `GH_TOKEN` from `git credential fill`
+- `docker/bin/gh:58-62` — `GH_TOKEN` from `git credential fill`
 - `docker/bin/gh:51` — re-entrancy `exec`

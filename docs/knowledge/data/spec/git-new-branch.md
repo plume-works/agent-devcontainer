@@ -6,10 +6,10 @@ generated:
   at: 2026-09-29T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
-- resource: .agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh
+- resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh
 - resource: .agents/plugins/agentdev/bin/git-default-branch.sh
 - resource: .agents/plugins/agentdev/skills/git-commit/SKILL.md
-- resource: .agents/plugins/agentdev/skills/git-commit/scripts/git-commit.sh
+- resource: .agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.sh
 - resource: .pre-commit-config.yaml
 ---
 

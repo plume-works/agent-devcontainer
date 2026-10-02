@@ -2,14 +2,14 @@
 type: codebase
 description: 'The rule modules the engine composes: skill frontmatter and structure, agent handoffs, prompts, name uniqueness, cross-references, plugin manifests, marketplaces, bundled Markdown containment, and literal catalog paths.'
 source: py_packages/validate_agent_files/validate_agent_files/validators
-source_digest: sha256:9a31665397b3bbec2070759e40d38ff06fb5907aa3f33cb11751fa7251bbdc0a
+source_digest: sha256:f913a9ce98239c94c2d11bfa31669e7bb7ec377044a17c64e4a40e07557c102e
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-08T01:12:06Z
-stale_after: 2026-12-07
+  by: claude-code/opus-5.5
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-08T01:12:06Z
+  by: claude-code/opus-5.5
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/validate_agent_files/validators
@@ -58,7 +58,7 @@ because a repository-relative path resolves nowhere from a plugin cache.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-08):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.../validators/skill.py:11,123` — the two skill validators
 - `.../validators/agents.py:12,67` — frontmatter and handoff

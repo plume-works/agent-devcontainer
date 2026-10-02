@@ -2,14 +2,14 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared result-code libraries for bash and Python, the GitHub-issue library, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:f4e2e5e0e9eb501d9bb6e8b68bb4e1a9399c306c12c1340382783eea2c1b4bce
+source_digest: sha256:59e41a538a8db22452891f5f3b1e3bacda688804d589677ddd36a602ba25d3d2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
-stale_after: 2026-12-28
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
@@ -80,7 +80,7 @@ environment of its own.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/plugins/agentdev/bin/result-codes.sh:15-22` — the reserved codes
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
@@ -94,5 +94,5 @@ Verified anchor points (line numbers as of 2026-09-29):
 - `.agents/plugins/agentdev/bin/git-default-branch.sh:5` — `is_default_branch`
 - `.agents/plugins/agentdev/bin/git-default-branch.sh:12` —
   `remote_default_branch`
-- `.agents/plugins/agentdev/bin/__utils.sh:6` — `root_dir`
+- `.agents/plugins/agentdev/bin/__utils.sh:7` — `root_dir`
 - `.agents/plugins/agentdev/bin/super-linter-defaults.sh:6` — image pin

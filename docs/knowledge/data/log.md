@@ -4,6 +4,11 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-02
+
+- **Update**: Refreshed the fifteen codebase-map docs that the move of bundled
+  skill code to `agent-code/` and the validator 1.0.1 remediation changed.
+
 ## 2026-10-01
 
 - **Update**:

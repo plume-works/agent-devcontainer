@@ -219,13 +219,21 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md`, and whichever
 `docs/knowledge/data/codebase/` documents `stale-map-docs.py` reports
 
-- [ ] Update `sources:` resources and body anchors in the two specs and two
+- [x] Update `sources:` resources and body anchors in the two specs and two
   architecture documents. For the closed bug, update only its `sources:`
   resource; its body records past evidence.
-- [ ] Refresh every codebase-map document that
+  - **Evidence:** commit "Repoint knowledge-graph documents at agent-code/
+    paths": the two specs, two architecture documents, and the closed bug's
+    `sources:` name `agent-code/` paths
+- [x] Refresh every codebase-map document that
   `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py` reports
   stale, through `/agentdev:iwe-map`
-- [ ] `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit "Repoint knowledge-graph documents at agent-code/
+    paths": 15 docs refreshed through `/agentdev:iwe-map`; `stale-map-docs.py`
+    reports 27/27 FRESH, `RESULT=SUCCESS`
+- [x] `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit "Repoint knowledge-graph documents at agent-code/
+    paths": both exit 0
 
 ### Task 6: Release the catalogs
 

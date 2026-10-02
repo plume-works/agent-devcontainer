@@ -5,7 +5,7 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-09-27T09:46:38Z
 sources:
-- resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
+- resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
 - resource: .github/renovate.json
 - resource: docs/knowledge/data/codebase/devcontainer.md
 stage: done

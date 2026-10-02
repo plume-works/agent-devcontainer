@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:af11b9a9c127b46123d7f35a643d095c8c6b4e83c88eefbbf97f6abad811e31f
+source_digest: sha256:b9569969f2f2979097967430bf4bfcd7d5a8e9b354bcc43205470f5449245014
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
-stale_after: 2026-12-28
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -73,14 +73,14 @@ repository with and without a configured remote.
 ## Invariants & gotchas
 
 - A path that climbs out of the plugin resolves nowhere once installed, so tests
-  never use one; `plugin_root / 'skills/<name>/scripts/<script>.sh'` is the only
-  way to reach a script.
+  never use one; `plugin_root / 'skills/<name>/agent-code/<script>.sh'` is the
+  only way to reach a script.
 - Fixtures use invented identities, never this repository's published names.
 - Tests for the validator package live with that package, not here.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -93,7 +93,7 @@ Verified anchor points (line numbers as of 2026-09-29):
   `_load_script_module`, the by-path import the digest fixtures share
 - `.agents/plugins/agentdev/tests/test_capture_close_issue.py:19` —
   `install_gh_stub`
-- `.agents/plugins/agentdev/tests/test_result_codes.py:49` — `run_python_helper`
+- `.agents/plugins/agentdev/tests/test_result_codes.py:50` — `run_python_helper`
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:33` —
   `write_metadata`, the masking-rule fixture builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:286` — invalid

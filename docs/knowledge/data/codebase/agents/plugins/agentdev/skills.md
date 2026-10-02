@@ -2,14 +2,14 @@
 type: codebase
 description: The 37 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:8eedaa51d88bb9df639c0cbc026d981ef83e9b38ea03d910d3eb84a824538626
+source_digest: sha256:d5283066a21335a6b28fcc6262919bba32fc610c296b420960953182f9445066
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
-stale_after: 2026-12-28
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T13:00:00Z
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -19,8 +19,10 @@ sources:
 
 Each skill is a directory holding `SKILL.md` — frontmatter per the Agent Skills
 specification plus Claude Code's `disable-model-invocation` — and optionally
-`scripts/` and `references/`. A skill reaches its own files through
-`${CLAUDE_SKILL_DIR}` and a sibling through its namespaced name.
+`agent-code/` (bundled scripts) and `references/`. A skill reaches its own files
+by a path relative to its directory (`agent-code/<file>`), uses
+`${CLAUDE_SKILL_DIR}` only in `allowed-tools`, and reaches a sibling through its
+namespaced name.
 
 ## Public surface
 
@@ -91,7 +93,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -101,13 +103,13 @@ Verified anchor points (line numbers as of 2026-09-29):
   section that selects setup or update mode
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:61` — the progress
   document
-- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:124`
+- `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:124`
   — the only read of the marker section
-- `.agents/plugins/agentdev/skills/iwe-capture/scripts/close-issue.sh:109` — the
-  shared issue-closing call, identical in `iwe-plan`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:62` —
+- `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh:109` —
+  the shared issue-closing call, identical in `iwe-plan`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:74` —
   `BROKEN_METADATA`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:228` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:230` —
   `MetadataResolver`, which walks a source's ancestors for masking rules
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:289` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:291` —
   `source_digest_for_paths`
