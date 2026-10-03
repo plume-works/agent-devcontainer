@@ -1,7 +1,7 @@
 ---
 name: rollback
 description: Undo a previously applied self-improve mutation, restoring the verified backup. Refuses if the file changed since.
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/si:*)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/agent-code/si:*)
 ---
 
 # Roll back a mutation
@@ -11,7 +11,7 @@ Usage: `/self-improve:rollback <mutation-id>`
 Run exactly:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" rollback-mutation --id <mutation-id>
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" rollback-mutation --id <mutation-id>
 ```
 
 The backup is restored only if the file still hashes to exactly what the
@@ -28,5 +28,5 @@ To find a mutation ID, the apply command printed one, and the redacted journal
 lists them:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" status
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" status
 ```

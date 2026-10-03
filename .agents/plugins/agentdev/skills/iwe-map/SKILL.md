@@ -1,7 +1,7 @@
 ---
 name: iwe-map
 description: Map a codebase into data/codebase/ — an archaeology pass that reads the code and writes one derived doc per component at its canonical key, plus flow- and api- docs, each pinned to a tracked-source digest — and refresh that map by re-reading only what moved.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Map the codebase
@@ -111,7 +111,7 @@ that one subtree and wires it into the existing map.
    ```bash
    iwe normalize && iwe schema validate
    iwe tree -k data/codebase -d 3                         # renders the containment tree
-   ${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py          # RESULT=SUCCESS: every doc matches source_digest
+   agent-code/stale-map-docs.py          # RESULT=SUCCESS: every doc matches source_digest
    ```
 
    Add one bullet to today's group in `data/log.md` naming the map and its
@@ -119,7 +119,7 @@ that one subtree and wires it into the existing map.
    `map: <n> components, <m> flows, <k> interfaces` and report the tree, the
    candidate architecture docs, and what stayed unmapped.
 
-8. **Refresh mode.** Run `${CLAUDE_SKILL_DIR}/scripts/stale-map-docs.py` and
+8. **Refresh mode.** Run `agent-code/stale-map-docs.py` and
    branch on its last line (table below). Verify's audit produces the same
    list; take its report as the worklist when it hands off. For each doc:
    - `STALE` — re-read the changed files and any test that changed with them,

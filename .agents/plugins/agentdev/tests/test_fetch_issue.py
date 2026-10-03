@@ -12,7 +12,7 @@ import sys
 
 from test_update_branch import initialize_repository
 
-SCRIPT_PATH = 'skills/iwe-explore/scripts/fetch-issue.sh'
+SCRIPT_PATH = 'skills/iwe-explore/agent-code/fetch-issue.sh'
 
 ISSUE_VIEW_OUTPUT = """ISSUE_NUMBER=42
 ISSUE_URL=https://github.com/octo/repo/issues/42

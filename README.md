@@ -96,7 +96,7 @@ ships no Codex manifest.
 
 ### `agentdev`
 
-The image carries `agentdev` 4.0.0, a cross-agent plugin with 37 skills and five
+The image carries `agentdev` 4.1.0, a cross-agent plugin with 37 skills and five
 agent definitions for Claude Code and Codex. It covers:
 
 - Git commits, branch updates, merges, and conflict resolution.
@@ -119,7 +119,7 @@ standalone installation instructions, and contributor guidance.
 
 ### `self-improve`
 
-`self-improve` 0.1.0 is a hook-driven experiential-learning engine for Claude Code.
+`self-improve` 0.1.1 is a hook-driven experiential-learning engine for Claude Code.
 It captures turns, applies a deterministic gate to decide when a lesson is worth a
 review, runs an isolated reviewer that holds no tools, and proposes edits to
 `CLAUDE.md`, rules, and skills. Every mutation is authorized by the user against

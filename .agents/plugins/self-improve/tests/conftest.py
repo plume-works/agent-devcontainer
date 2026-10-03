@@ -15,7 +15,7 @@ import pytest
 # Resolved from this file so the suite runs from the plugin cache, where the
 # repository that develops the plugin is not present.
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SI = os.path.join(PLUGIN_ROOT, 'scripts', 'si')
+SI = os.path.join(PLUGIN_ROOT, 'agent-code', 'si')
 
 sys.path.insert(0, PLUGIN_ROOT)
 
@@ -140,7 +140,7 @@ def run_si(state_root, claude_home):
     """
     Invoke the shell entry point exactly as a hook would.
 
-    Going through ``scripts/si`` rather than importing the module is deliberate:
+    Going through ``agent-code/si`` rather than importing the module is deliberate:
     it exercises interpreter discovery, which is the part most likely to break on
     a machine whose ``python3`` points at a stale virtualenv.
     """

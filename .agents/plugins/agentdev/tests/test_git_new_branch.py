@@ -53,7 +53,7 @@ def run_script(
     path_prefix: Path | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
     """Run git-new-branch.sh and parse its key=value stdout."""
-    script = plugin_root / 'skills/git-new-branch/scripts/git-new-branch.sh'
+    script = plugin_root / 'skills/git-new-branch/agent-code/git-new-branch.sh'
     env = {**os.environ, **FIXTURE_ENV}
     if path_prefix is not None:
         env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
@@ -189,7 +189,7 @@ def test_update_branch_merges_the_base_into_moved_commits(
     main_sha = git(fixture.work, 'rev-parse', 'main')
     _, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
     assert keys['LOCAL_COMMITS'] == '1'
-    update_branch = plugin_root / 'skills/update-branch/scripts/update-branch.sh'
+    update_branch = plugin_root / 'skills/update-branch/agent-code/update-branch.sh'
 
     # Act
     merged = subprocess.run(

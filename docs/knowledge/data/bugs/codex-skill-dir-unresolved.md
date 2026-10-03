@@ -3,13 +3,14 @@ type: bug
 description: Codex shows agentdev skill bodies verbatim and never defines CLAUDE_SKILL_DIR, so every bundled-script step written as ${CLAUDE_SKILL_DIR}/scripts/... resolves to /scripts/... unless the model repairs the path itself.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-01T12:00:00Z
+  at: 2026-10-02T18:00:00Z
 sources:
 - resource: .agents/AGENTS.md
 - resource: .agents/plugins/agentdev/skills
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/fragments.rs
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/catalog_prompt.rs
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/hooks/src/engine/discovery.rs
+stage: done
 ---
 
 # Bug: Codex leaves `${CLAUDE_SKILL_DIR}` unresolved in agentdev skills
@@ -58,10 +59,14 @@ from `<path>`.
 
 ## Fix
 
-Open. The fix direction is to reference bundled scripts by a path relative to
-the skill directory, which Claude Code, Codex, and OpenCode all tell the model
-to resolve against that directory, and keep `${CLAUDE_SKILL_DIR}` only in the
-Claude-only `allowed-tools` field.
+A skill references its own bundled code as `agent-code/<file>`, relative to the
+skill directory, which Claude Code, Codex, and OpenCode all tell the model to
+resolve against that directory. `${CLAUDE_SKILL_DIR}` survives only in the
+Claude-only `allowed-tools` field. The directory is named `agent-code/` rather
+than `scripts/` so that a path misresolved against the working directory cannot
+run a consuming repository's own `scripts/`. The rule is in `.agents/AGENTS.md`;
+the change shipped through
+[Reference bundled skill code by skill-relative agent-code paths](../plans/20261001-skill-relative-agent-code.md).
 
 ## Key references
 

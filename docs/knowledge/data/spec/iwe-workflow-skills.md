@@ -7,15 +7,15 @@ generated:
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-capture/scripts/close-issue.sh
+- resource: .agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh
 - resource: .iwe/schemas/bug.yaml
 - resource: .iwe/schemas/feature.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-explore/scripts/fetch-issue.sh
-- resource: .agents/plugins/agentdev/skills/iwe-plan/scripts/close-issue.sh
+- resource: .agents/plugins/agentdev/skills/iwe-explore/agent-code/fetch-issue.sh
+- resource: .agents/plugins/agentdev/skills/iwe-plan/agent-code/close-issue.sh
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py
-- resource: .agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh
+- resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
+- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md

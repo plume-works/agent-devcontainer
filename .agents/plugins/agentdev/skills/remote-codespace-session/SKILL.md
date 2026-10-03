@@ -1,7 +1,7 @@
 ---
 name: remote-codespace-session
 description: Create, safely sync, use, and stop a GitHub Codespace as this repository's remote build and test machine. Use when the project toolchain is absent locally and Docker is unavailable, or when asked to run work through GitHub Codespaces.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Remote Codespace Session
@@ -37,7 +37,7 @@ The per-script tables below list only what each script adds.
 1. Preview the first possible Codespace creation:
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/codespace-ensure.sh --dry-run
+   agent-code/codespace-ensure.sh --dry-run
    ```
 
    If it reports `ACTION=create`, show the user the proposed machine,
@@ -47,7 +47,7 @@ The per-script tables below list only what each script adds.
 2. Create or reuse the approved Codespace:
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/codespace-ensure.sh
+   agent-code/codespace-ensure.sh
    ```
 
    | RESULT               | Exit | Meaning                                           | Action                                                                                                                          |
@@ -60,7 +60,7 @@ The per-script tables below list only what each script adds.
 3. Sync local work:
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/codespace-sync.sh
+   agent-code/codespace-sync.sh
    ```
 
    A clean local tree is pushed and synced with git. A dirty local tree is
@@ -81,12 +81,12 @@ The per-script tables below list only what each script adds.
    itself, so pass the command exactly as you would run it locally:
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/codespace-exec.sh \
+   agent-code/codespace-exec.sh \
      uv run pytest py_packages/validate_agent_files
    ```
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/codespace-exec.sh bun test
+   agent-code/codespace-exec.sh bun test
    ```
 
    Run `uv sync` remotely first if a dependency changed. Re-sync after each
@@ -119,8 +119,8 @@ The per-script tables below list only what each script adds.
    direction:
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/codespace-teardown.sh
-   ${CLAUDE_SKILL_DIR}/scripts/codespace-teardown.sh --delete
+   agent-code/codespace-teardown.sh
+   agent-code/codespace-teardown.sh --delete
    ```
 
    | RESULT               | Exit | Meaning                                               | Action                                                                                                                             |
@@ -132,17 +132,17 @@ The per-script tables below list only what each script adds.
 
 ## Bundled scripts
 
-- [codespace-ensure.sh](scripts/codespace-ensure.sh) creates or reuses a
+- [codespace-ensure.sh](agent-code/codespace-ensure.sh) creates or reuses a
   Codespace. Its help describes machine and polling options.
-- [codespace-sync.sh](scripts/codespace-sync.sh) uses the non-destructive sync
+- [codespace-sync.sh](agent-code/codespace-sync.sh) uses the non-destructive sync
   policy above. Both paths exclude `.git` and locally ignored files, and each
   refuses to touch a remote checkout that holds work of its own.
-- [codespace-exec.sh](scripts/codespace-exec.sh) runs one command remotely in
+- [codespace-exec.sh](agent-code/codespace-exec.sh) runs one command remotely in
   the workspace directory and reports that command's exit code as
   `REMOTE_EXIT_CODE`. Everything after the script name is forwarded verbatim,
   including `-h`/`--help`, so the script's own help appears only when it is
   called with no arguments at all.
-- [codespace-teardown.sh](scripts/codespace-teardown.sh) stops or deletes the
+- [codespace-teardown.sh](agent-code/codespace-teardown.sh) stops or deletes the
   recorded Codespace.
 
 Each script's `--help` carries the same result table as the sections above.

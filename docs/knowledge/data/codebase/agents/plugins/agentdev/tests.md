@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:d9a9ed7ec09749c11bf0e8e2f5774768d11bfeef48c71330c62003316f1cf795
+source_digest: sha256:501dc649152a9f06368155472f94bbae9b8a2876ce7b018c6577e6caa2f8649b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T09:00:00Z
+  at: 2026-10-02T16:10:23Z
 stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T09:00:00Z
+  at: 2026-10-02T16:10:23Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -81,8 +81,8 @@ is removed.
 ## Invariants & gotchas
 
 - A path that climbs out of the plugin resolves nowhere once installed, so tests
-  never use one; `plugin_root / 'skills/<name>/scripts/<script>.sh'` is the only
-  way to reach a script.
+  never use one; `plugin_root / 'skills/<name>/agent-code/<script>.sh'` is the
+  only way to reach a script.
 - Fixtures use invented identities, never this repository's published names.
 - Tests for the validator package live with that package, not here.
 

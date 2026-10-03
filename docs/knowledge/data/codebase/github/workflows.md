@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:917d826571e7c867f7ea6829ec83755a9f1cc8a2c685b1949954f88646bf899e
+source_digest: sha256:c9b32b532adb8967f3bff9a368b9338164fe67b77a243e2f757dd88008473374
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-29T12:30:00Z
-stale_after: 2026-12-28
+  by: claude-code/opus-5.5
+  at: 2026-10-02T12:00:00Z
+stale_after: 2026-12-31
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-29T12:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-02T12:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -109,7 +109,7 @@ then its final step verifies every recorded digest. The full traces are
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `.github/workflows/primary-checks.yml:31,52` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:185,279,421` — `super-linter`,

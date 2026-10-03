@@ -13,7 +13,7 @@ import sys
 
 import pytest
 
-SCRIPT_PATH = 'skills/pr-discover-ai-responder/scripts/discover-ai-responder.sh'
+SCRIPT_PATH = 'skills/pr-discover-ai-responder/agent-code/discover-ai-responder.sh'
 
 
 def install_runtime_commands(path: Path) -> Path:

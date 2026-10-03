@@ -42,8 +42,8 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE     1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/git-merge-resolve.sh topic
-  ${CLAUDE_SKILL_DIR}/scripts/git-merge-resolve.sh \
+  agent-code/git-merge-resolve.sh topic
+  agent-code/git-merge-resolve.sh \
     --message "Merge origin/main into feature" origin/main
 EOF
 }

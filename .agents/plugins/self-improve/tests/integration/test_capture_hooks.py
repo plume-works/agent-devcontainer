@@ -1,5 +1,5 @@
 """
-Capture driven by real hook payloads through ``scripts/si``.
+Capture driven by real hook payloads through ``agent-code/si``.
 
 Spec section 14 requires a JSON fixture per supported event. The fixtures use
 the field names and shapes from the hooks reference, so a change in the hook

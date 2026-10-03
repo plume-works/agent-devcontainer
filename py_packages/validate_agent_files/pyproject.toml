@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "validate_agent_files"
 # Pinned by VALIDATE_AGENT_FILES_VERSION in docker/desktop/agent-desktop.Dockerfile, which
 # the image build verifies against the version it actually installs. Bump both together.
-version = "1.0.0"
+version = "1.0.1"
 description = "CLI tools for validating agents and their skills."
 readme = "README.md"
 license = "MIT"

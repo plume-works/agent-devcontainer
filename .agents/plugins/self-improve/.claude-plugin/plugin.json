@@ -1,6 +1,6 @@
 {
   "name": "self-improve",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Turns verified corrections and hard-won workflows into durable, reviewable Claude instructions and skills, applied only with explicit user authorization.",
   "author": {
     "name": "Anton Matosov"

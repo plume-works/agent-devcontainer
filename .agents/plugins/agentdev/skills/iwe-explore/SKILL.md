@@ -1,7 +1,7 @@
 ---
 name: iwe-explore
 description: Enter explore mode — a thinking partner for investigating problems, comparing approaches, and clarifying ideas before they become plans. Reads code and the graph freely, never writes code. Use when the user says "let's think about ...", "explore <idea>", "what are our options for ...", or wants to talk something through before committing. Also the entry point for a GitHub issue — pass an issue URL, `OWNER/REPO#N`, or `#N` to explore it and turn it into a plan.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Explore mode
@@ -21,7 +21,7 @@ bare number, which resolves against the current repository. Read it with the
 bundled script before forming any view of the problem:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/fetch-issue.sh 123
+agent-code/fetch-issue.sh 123
 ```
 
 It prints `ISSUE_REPO`, `ISSUE_NUMBER`, `ISSUE_URL`, `ISSUE_STATE`,

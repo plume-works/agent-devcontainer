@@ -15,6 +15,8 @@ sources:
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/tool/skill.ts
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/fragments.rs
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/host_outcome.rs
+stage: done
+completed: 2026-10-02
 ---
 
 # Reference bundled skill code by skill-relative agent-code paths
@@ -46,7 +48,8 @@ agentdev skills and `self-improve/scripts`. In skill bodies, reference a bundled
 script as `agent-code/<script>`, relative to the skill directory. Keep
 `${CLAUDE_SKILL_DIR}` only in `allowed-tools`, which only Claude Code reads and
 whose permission patterns need an absolute path:
-`Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`.
+`Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`. The one other place the variable
+appears is `create-skill`'s documentation of that field.
 
 self-improve keeps `${CLAUDE_PLUGIN_ROOT}/agent-code/si`. Its executable sits at
 the plugin root, not in a skill, so no skill-relative form exists for it.
@@ -83,21 +86,47 @@ skill directory depth does not change, so no script's sourcing logic moves.
 **Files:** Modify: the 15 `.agents/plugins/agentdev/skills/*/scripts/`
 directories (moved to `agent-code/` with `git mv`), their `SKILL.md` files, the
 usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
-`docs/knowledge/tests/test_*_mask.py`,
-`.github/workflows/validate-agent-files.yml`
+`docs/knowledge/tests/test_*_mask*.py`,
+`.github/workflows/validate-agent-files.yml`, `.claude/settings.json`,
+`.agents/plugins/agentdev/bin/result-codes.sh`,
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] `git mv` every `skills/<name>/scripts` to `skills/<name>/agent-code`
-- [ ] In every `SKILL.md` body, replace `${CLAUDE_SKILL_DIR}/scripts/<x>` with
-  `agent-code/<x>` (30 lines across 16 files, including `create-skill`'s
-  `allowed-tools` example; its path rule changes in Task 3)
-- [ ] Change every agentdev `allowed-tools` line to
+- [x] `git mv` every `skills/<name>/scripts` to `skills/<name>/agent-code`
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/": 15
+    renames; `ls -d .agents/plugins/agentdev/skills/*/scripts` finds none
+- [x] In every `SKILL.md` body, replace `${CLAUDE_SKILL_DIR}/scripts/<x>` with
+  `agent-code/<x>` (30 lines across 16 files). `create-skill`'s `allowed-tools`
+  example becomes `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`; its path rule
+  changes in Task 3
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/";
+    `grep -rn 'CLAUDE_SKILL_DIR' .agents/plugins/agentdev --include=SKILL.md`
+    matches only `allowed-tools` lines, the `create-skill` example of one, and
+    the `create-skill` path rule left for Task 3
+- [x] Change every agentdev `allowed-tools` line to
   `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)` (14 skills)
-- [ ] Update usage and help text inside the moved scripts that prints
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/": all 14
+    lines read `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`
+- [x] Repoint the `SKILL.md` links to bundled scripts (`](scripts/<x>)`), the
+  workspace permission `Bash(.agents/plugins/agentdev/skills/*/scripts/*)` in
+  `.claude/settings.json` and the consumption guide's mention of it, the
+  `result-codes.sh` header comment, and `update-branch.sh`'s path to the sibling
+  `git-merge-resolve` script
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`:
+    56/56 skills valid, 0 errors
+- [x] Update usage and help text inside the moved scripts that prints
   `${CLAUDE_SKILL_DIR}/scripts/...` to print `agent-code/...`
-- [ ] Repoint the plugin tests' `skills/<name>/scripts/` paths and the three
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/"; no
+    `${CLAUDE_SKILL_DIR}/scripts` remains under `skills/*/agent-code`
+- [x] Repoint the plugin tests' `skills/<name>/scripts/` paths and the three
   `docs/knowledge/tests` `SCRIPT` constants to `agent-code/`
-- [ ] Repoint the `stale-map-docs.py` step in `validate-agent-files.yml`
-- [ ] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests` passes
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/"; the full
+    run below exercises every repointed path
+- [x] Repoint the `stale-map-docs.py` step in `validate-agent-files.yml`
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/"
+- [x] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests` passes
+  - **Evidence:** commit "Move agentdev skill scripts to agent-code/": 148
+    passed
 
 ### Task 2: Move the self-improve dispatcher to `agent-code/`
 
@@ -107,13 +136,25 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `.agents/plugins/self-improve/selfimprove/commands.py`,
 `.agents/plugins/self-improve/tests/**`
 
-- [ ] `git mv .agents/plugins/self-improve/scripts .agents/plugins/self-improve/agent-code`
-- [ ] Replace `${CLAUDE_PLUGIN_ROOT}/scripts/si` with
+- [x] `git mv .agents/plugins/self-improve/scripts .agents/plugins/self-improve/agent-code`
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/":
+    `scripts/si` and `scripts/si.py` renamed
+- [x] Replace `${CLAUDE_PLUGIN_ROOT}/scripts/si` with
   `${CLAUDE_PLUGIN_ROOT}/agent-code/si` in all 7 hook commands, the four skills
   (bodies and `allowed-tools`), and the authorization message in `commands.py`
-- [ ] Repoint `SI` in `tests/conftest.py` and every other test that names
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/";
+    `grep -rn 'scripts/si' .agents/plugins/self-improve` prints nothing
+- [x] Repoint the self-test's required-file entry `scripts/si` in `commands.py`
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/";
+    `test_dispatcher.py::test_self_test_reports_ok` passes
+- [x] Repoint `SI` in `tests/conftest.py` and every other test that names
   `scripts/si`
-- [ ] `uv run pytest .agents/plugins/self-improve/tests` passes
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/";
+    every integration test runs the dispatcher through `SI`
+- [x] `uv run pytest .agents/plugins/self-improve/tests` passes
+  - **Evidence:** commit "Move the self-improve dispatcher to agent-code/": 574
+    passed, 14 skipped (13 live tests gated on `SELF_IMPROVE_RUN_LIVE`, one
+    unwritable-root test that root bypasses)
 
 ### Task 3: Update the catalog's path convention
 
@@ -122,16 +163,25 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `.agents/plugins/agentdev/skills/create-skill/SKILL.md`,
 `.agents/plugins/agentdev/README.md`
 
-- [ ] `.agents/AGENTS.md`: a skill references its own bundled code as
+- [x] `.agents/AGENTS.md`: a skill references its own bundled code as
   `agent-code/<file>` relative to the skill directory. `${CLAUDE_SKILL_DIR}`
   appears only in `allowed-tools`. A sibling skill is still reached by its
   namespaced invocation.
-- [ ] `skill-scripts`: the description and body name `agent-code/` as the
+  - **Evidence:** commit "Document the agent-code/ path convention": the
+    catalog-locations rule now names `agent-code/<file>`, the namespaced sibling
+    invocation, and `${CLAUDE_SKILL_DIR}` only in `allowed-tools`
+- [x] `skill-scripts`: the description and body name `agent-code/` as the
   bundled-code directory, and the test-path guidance becomes
   `plugin_root / 'skills/<name>/agent-code/<script>.sh'`
-- [ ] `create-skill`: the `allowed-tools` example and the path rule match
+  - **Evidence:** commit "Document the agent-code/ path convention";
+    validate_agent_files: 56/56 skills valid, 0 errors
+- [x] `create-skill`: the `allowed-tools` example and the path rule match
   `.agents/AGENTS.md`
-- [ ] Plugin README: the test-suite paragraph names `agent-code/`
+  - **Evidence:** commit "Document the agent-code/ path convention" (path rule)
+    and commit "Move agentdev skill scripts to agent-code/" (example
+    `Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`)
+- [x] Plugin README: the test-suite paragraph names `agent-code/`
+  - **Evidence:** commit "Document the agent-code/ path convention"
 
 ### Task 4: Point the validator's remediation at skill-relative paths
 
@@ -139,16 +189,30 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `py_packages/validate_agent_files/validate_agent_files/validators/catalog_paths.py`,
 `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py`,
 `py_packages/validate_agent_files/tests/test_plugin_layout.py`,
-`py_packages/validate_agent_files/pyproject.toml`
+`py_packages/validate_agent_files/pyproject.toml`,
+`docker/desktop/agent-desktop.Dockerfile`, `.codex/setup-codex-cloud.sh`
 
-- [ ] Both remediation messages and the `catalog_paths` module docstring
+- [x] Both remediation messages and the `catalog_paths` module docstring
   recommend a path relative to the skill directory instead of
   `${CLAUDE_SKILL_DIR}/...`. The wording stays repository-neutral: it does not
   name `agent-code/`, because the package is released independently.
-- [ ] `test_plugin_layout.py`: the literal-path test asserts the new
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation": `REMEDIATION`, `ESCAPE_REMEDIATION`, and the docstring say
+    "relative to the skill directory" and name no directory
+- [x] `test_plugin_layout.py`: the literal-path test asserts the new
   remediation, and the accepted-path test uses a skill-relative path
-- [ ] Bump the package version 1.0.0 → 1.0.1
-- [ ] `uv run pytest py_packages/validate_agent_files/tests` passes
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation": `test_literal_catalog_path_in_skill_body_fails` asserts the
+    imported `REMEDIATION`; `test_skill_relative_path_is_accepted` passes
+- [x] Bump the package version 1.0.0 → 1.0.1, with the
+  `VALIDATE_AGENT_FILES_VERSION` pins in the Dockerfile and the Codex Cloud
+  setup script that provisioning verifies against it
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation"; `importlib.metadata.version('validate_agent_files')` reports
+    1.0.1 after `uv sync`
+- [x] `uv run pytest py_packages/validate_agent_files/tests` passes
+  - **Evidence:** commit "Recommend skill-relative paths in validator
+    remediation": 167 passed
 
 ### Task 5: Repoint knowledge-graph documents at the moved paths
 
@@ -159,43 +223,88 @@ usage text inside the moved scripts, `.agents/plugins/agentdev/tests/test_*.py`,
 `docs/knowledge/data/bugs/pin-bumps-invalidate-map-docs.md`, and whichever
 `docs/knowledge/data/codebase/` documents `stale-map-docs.py` reports
 
-- [ ] Update `sources:` resources and body anchors in the two specs and two
-  architecture documents. For the closed bug, update only its `sources:`
-  resource; its body records past evidence.
-- [ ] Refresh every codebase-map document that
+- [x] Update the `sources:` resources in the two specs, and the `sources:`
+  resources and body anchors in the two architecture documents. For the closed
+  bug, update only its `sources:` resource; its body records past evidence.
+  - **Evidence:** commit "Repoint knowledge-graph documents at agent-code/
+    paths": the two specs, two architecture documents, and the closed bug's
+    `sources:` name `agent-code/` paths
+- [x] Refresh every codebase-map document that
   `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py` reports
   stale, through `/agentdev:iwe-map`
-- [ ] `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit "Repoint knowledge-graph documents at agent-code/
+    paths": 15 docs refreshed through `/agentdev:iwe-map`; `stale-map-docs.py`
+    reports 27/27 FRESH, `RESULT=SUCCESS`
+- [x] `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit "Repoint knowledge-graph documents at agent-code/
+    paths": both exit 0
 
 ### Task 6: Release the catalogs
 
 **Files:** Modify: `.agents/plugins/agentdev/.claude-plugin/plugin.json`,
 `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
 `.agents/plugins/self-improve/.claude-plugin/plugin.json`,
-`.claude-plugin/marketplace.json`
+`.claude-plugin/marketplace.json`, `docker/desktop/agent-desktop.Dockerfile`,
+`.agents/plugins/self-improve/selfimprove/__init__.py`, `README.md`, and the
+`docs/knowledge/data/codebase/` documents `stale-map-docs.py` reports
 
-- [ ] agentdev 4.0.0 → 4.1.0 in both manifests and the Claude marketplace entry
-- [ ] self-improve 0.1.0 → 0.1.1 in its manifest and marketplace entry
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [x] agentdev 4.0.0 → 4.1.0 in both manifests, the Claude marketplace entry,
+  the Dockerfile's `AGENTDEV_PLUGIN_VERSION` pin that provisioning verifies
+  against the marketplace, and the root README
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1": both
+    manifests, marketplace entry, `AGENTDEV_PLUGIN_VERSION`, and README read
+    4.1.0
+- [x] self-improve 0.1.0 → 0.1.1 in its manifest, marketplace entry, package
+  `__version__`, and the root README
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1":
+    manifest, marketplace entry, `__version__`, and README read 0.1.1
+- [x] Refresh the codebase-map documents the version bumps make stale, through
+  `/agentdev:iwe-map`; `stale-map-docs.py` ends at `RESULT=SUCCESS`
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1": five
+    docs re-stamped; `stale-map-docs.py` 27/27 FRESH, `RESULT=SUCCESS`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes
+  - **Evidence:** commit "Release agentdev 4.1.0 and self-improve 0.1.1": 56/56
+    skills valid, 0 errors, 0 warnings
 
 ### Task 7: Confirm Claude Code resolves `agent-code/` against the skill directory
 
-- [ ] After `reinstall-agentdev-claude.sh`, invoke
+- [x] After `reinstall-agentdev-claude.sh`, invoke
   `/agentdev:pr-gen-description` in a Claude Code session in this repository,
   whose working directory has its own `scripts/`. Its script runs from the
   skill's `agent-code/`, with no "not found" retry.
+  - **Evidence:** Claude Code 2.1.280, agentdev 4.1.0 reinstalled at local scope
+    from this checkout, `claude -p /agentdev:pr-gen-description` on 2026-10-02:
+    the skill's base directory was
+    `<repo>/.agents/plugins/agentdev/skills/pr-gen-description`; the first Bash
+    call ran `<base>/agent-code/review-git-changes.sh` (exit 0) with no retry;
+    ticked in commit "Confirm Claude Code resolves agent-code/ against the skill
+    directory"
 
 ### Task 8: Confirm Codex runs a bundled script from a live session
 
-- [ ] With Codex logged in and agentdev installed through
+- [x] With Codex logged in and agentdev installed through
   `reinstall-agentdev-codex.sh`, invoke `$agentdev:pr-gen-description`. The
-  first shell command runs the skill's `agent-code/review-git-changes.sh` by a
-  path that exists. Then set the bug document to `stage: done`.
+  first shell command that runs a bundled script runs the skill's
+  `agent-code/review-git-changes.sh` by a path that exists. Then set the bug
+  document to `stage: done`.
+  - **Evidence:** codex-cli 0.156.1, agentdev 4.1.0 installed by
+    `reinstall-agentdev-codex.sh` into
+    `~/.codex/plugins/cache/agent-devcontainer/agentdev/4.1.0`,
+    `codex exec '$agentdev:pr-gen-description'` on 2026-10-02: the first shell
+    command read the sibling `code-review-standards/SKILL.md`, and the first
+    script command ran
+    `<plugin cache>/skills/pr-gen-description/agent-code/review-git-changes.sh --stat-only`
+    (exit 0) with no failed attempt; the bug document is at `stage: done`;
+    ticked in commit "Confirm Codex runs agent-code/ scripts and close the Codex
+    bug"
 
 ### Task 9: CI passes on the branch
 
-- [ ] The `validate-agent-files` workflow passes on the pull request
+- [x] The `validate-agent-files` workflow passes on the pull request
+  - **Evidence:** Agent files validation run 36999212113 on PR #245 at
+    `cfe2939`: success, with every step run, including the plugin, self-improve,
+    and validator test suites and the `agent-code/stale-map-docs.py` map check
 
 ## Spec changes
 
@@ -212,7 +321,8 @@ this plan. The specs it touches change only their `sources:` paths.
 - `grep -rnE '\$\{CLAUDE_SKILL_DIR\}/scripts|/scripts/si|skills/[a-z-]+/scripts' .agents docs/knowledge/data/spec docs/knowledge/data/architecture py_packages .github`
   prints nothing
 - `grep -rn 'CLAUDE_SKILL_DIR' .agents/plugins --include=SKILL.md` matches only
-  `allowed-tools` lines
+  `allowed-tools` lines and `create-skill`'s documentation of the
+  `allowed-tools` field (its example and its path rule)
 - Tasks 7–9: the live Claude Code and Codex checks and the CI run
 
 ## Out of scope
@@ -231,38 +341,43 @@ this plan. The specs it touches change only their `sources:` paths.
 Verified anchor points (line numbers as of 2026-10-02):
 
 - `.agents/AGENTS.md:16-17` — plugin tests resolve scripts through `plugin_root`
-- `.agents/AGENTS.md:33-35` — rule requiring `${CLAUDE_SKILL_DIR}/...` inside a
-  skill
+- `.agents/AGENTS.md:33-36` — rule: own bundled code as `agent-code/<file>`,
+  `${CLAUDE_SKILL_DIR}` only in `allowed-tools`
 - `.agents/plugins/agentdev/skills/git-commit/SKILL.md:4` — representative
-  `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)`
+  `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`
 - `.agents/plugins/agentdev/skills/git-commit/SKILL.md:33-34` — representative
-  body steps using the variable
+  skill-relative body steps
 - `.agents/plugins/agentdev/skills/remote-codespace-session/SKILL.md:40-123` —
   the skill with the most body uses (7)
-- `.agents/plugins/agentdev/skills/git-new-branch/scripts/git-new-branch.sh:77-79`
-  — representative usage text printing `${CLAUDE_SKILL_DIR}/scripts/...`
-- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:3,13,96,104,325` —
-  `scripts/` convention and test-path guidance
-- `.agents/plugins/agentdev/skills/create-skill/SKILL.md:42,63` —
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh:77-79`
+  — representative usage text printing `agent-code/...`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:6`
+  — path to the sibling `git-merge-resolve` script
+- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:3,13,97,105,326` —
+  `agent-code/` convention and test-path guidance
+- `.agents/plugins/agentdev/skills/create-skill/SKILL.md:42,63-66` —
   `allowed-tools` example and path rule
 - `.agents/plugins/agentdev/README.md:142` — test-suite paragraph naming
-  `scripts/`
+  `agent-code/`
 - `.agents/plugins/agentdev/tests/conftest.py:22-24` — `plugin_root` fixture
 - `.agents/plugins/agentdev/tests/test_close_issue.py:15` — representative
-  `SCRIPT_PATH = 'skills/.../scripts/...'`
+  `SCRIPT_PATH = 'skills/.../agent-code/...'`
+- `.claude/settings.json:21` — workspace Bash permission for bundled skill code
 - `.agents/plugins/self-improve/hooks/hooks.json:9,22,35,48,60,73,85` —
-  `${CLAUDE_PLUGIN_ROOT}/scripts/si` hook commands
+  `${CLAUDE_PLUGIN_ROOT}/agent-code/si` hook commands
 - `.agents/plugins/self-improve/skills/improve/SKILL.md:4,21,27,35,50,84` — `si`
   invocations; also `apply/SKILL.md:4,19`, `reject/SKILL.md:4,14,27`,
   `rollback/SKILL.md:4,14,31`
 - `.agents/plugins/self-improve/selfimprove/commands.py:159` — authorization
-  message naming `${CLAUDE_PLUGIN_ROOT}/scripts/si`
+  message naming `${CLAUDE_PLUGIN_ROOT}/agent-code/si`
+- `.agents/plugins/self-improve/selfimprove/commands.py:419` — self-test
+  required-file list
 - `.agents/plugins/self-improve/tests/conftest.py:18` — `SI` path constant
 - `py_packages/validate_agent_files/validate_agent_files/validators/catalog_paths.py:9,24-27`
   — docstring and `REMEDIATION`
 - `py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py:23-26`
   — `ESCAPE_REMEDIATION`
-- `py_packages/validate_agent_files/tests/test_plugin_layout.py:134-155` —
+- `py_packages/validate_agent_files/tests/test_plugin_layout.py:135-156` —
   remediation and accepted-path tests
 - `py_packages/validate_agent_files/pyproject.toml:9` — package version
 - `.github/workflows/validate-agent-files.yml:93` — `stale-map-docs.py` CI step
@@ -279,3 +394,6 @@ Verified anchor points (line numbers as of 2026-10-02):
   `.agents/plugins/agentdev/.claude-plugin/plugin.json:3`,
   `.agents/plugins/agentdev/.codex-plugin/plugin.json:3`,
   `.agents/plugins/self-improve/.claude-plugin/plugin.json:3` — versions
+- `docker/desktop/agent-desktop.Dockerfile:18,29` — `AGENTDEV_PLUGIN_VERSION`
+  and `VALIDATE_AGENT_FILES_VERSION` pins
+- `.codex/setup-codex-cloud.sh:12,14` — the same two pins for Codex Cloud

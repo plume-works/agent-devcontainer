@@ -34,7 +34,7 @@ def run_commit(
     if path_prefix is not None:
         env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
     return subprocess.run(
-        [str(plugin_root / 'skills/git-commit/scripts/git-commit.sh'), *args],
+        [str(plugin_root / 'skills/git-commit/agent-code/git-commit.sh'), *args],
         cwd=cwd,
         check=False,
         capture_output=True,

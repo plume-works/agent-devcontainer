@@ -1,7 +1,7 @@
 ---
 name: iwe-capture
 description: File a finished inbox item in the IWE graph — a bug, a proposed feature, or a backlog task — after checking for a duplicate and refusing any document that misses a section or field SCHEMA.md requires. Use when Explore settles a defect, feature, or task, when Implement finds a defect or work its plan should not absorb, or to promote a someday idea with `task --from someday/<slug>`. Plans belong to /agentdev:iwe-plan; ideas, architecture, and concept notes stay with /agentdev:iwe-explore.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Capture an inbox item
@@ -77,7 +77,7 @@ Run every `iwe` command from the repository root; keys are relative to
    the issue:
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/close-issue.sh \
+   agent-code/close-issue.sh \
      --issue <url-or-ref> --doc docs/knowledge/data/<lane>/<slug>.md
    ```
 

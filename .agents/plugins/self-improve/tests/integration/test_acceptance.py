@@ -2,7 +2,7 @@
 The ten MVP acceptance conditions of spec section 15.
 
 One test per numbered condition, named after it, so the gate is checkable
-rather than implied. Each drives the packaged plugin through ``scripts/si``
+rather than implied. Each drives the packaged plugin through ``agent-code/si``
 exactly as a hook or skill would.
 """
 

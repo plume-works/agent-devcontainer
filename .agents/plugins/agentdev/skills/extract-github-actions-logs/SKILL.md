@@ -1,7 +1,7 @@
 ---
 name: extract-github-actions-logs
 description: 'Extract logs from a GitHub Actions run or job with the GitHub CLI. Use when asked to fetch failing CI logs, inspect a GitHub Actions run, or pull logs from a run or job URL. Keywords: github actions logs, failing ci logs, workflow run logs, job logs, gh run view.'
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Extract GitHub Actions Logs
@@ -21,7 +21,7 @@ Use this skill to pull GitHub Actions logs with `gh`.
 
 Use the bundled helper script to parse GitHub Actions URLs:
 
-- [parse-actions-url.sh](./scripts/parse-actions-url.sh)
+- [parse-actions-url.sh](agent-code/parse-actions-url.sh)
 
 The last line of its stdout is always `RESULT=<NAME>`; match on that name, not on
 a bare number.
@@ -59,8 +59,8 @@ gh run view <run-id> --repo <owner>/<repo> --job <job-id> --log
 Use the helper script when the input is a GitHub Actions URL:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/parse-actions-url.sh --url '<github-actions-url>'
-${CLAUDE_SKILL_DIR}/scripts/parse-actions-url.sh --url '<github-actions-url>' --format command --log
+agent-code/parse-actions-url.sh --url '<github-actions-url>'
+agent-code/parse-actions-url.sh --url '<github-actions-url>' --format command --log
 ```
 
 Handle its result:
@@ -85,7 +85,7 @@ gh run view <run-id> --repo <owner>/<repo> --job <job-id> --log | grep -nE "FAIL
 Or generate that command from the helper script:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/parse-actions-url.sh --url '<github-actions-job-url>' --format command --log --grep-failures
+agent-code/parse-actions-url.sh --url '<github-actions-job-url>' --format command --log --grep-failures
 ```
 
 If the user needs artifacts the run uploaded (test reports, coverage, build logs), download them with `gh run download`.
@@ -115,7 +115,7 @@ Run:
 
 ```bash
 gh auth status
-${CLAUDE_SKILL_DIR}/scripts/parse-actions-url.sh --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901' --format command --log
+agent-code/parse-actions-url.sh --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901' --format command --log
 ```
 
 Then run the emitted `gh run view ... --log` command to fetch the whole run log.
@@ -156,5 +156,5 @@ gh run view 12345678901 --repo <owner>/<repo> --job 23456789012 --log | grep -nE
 The same job URL can be parsed with:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/parse-actions-url.sh --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901/job/23456789012?pr=42'
+agent-code/parse-actions-url.sh --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901/job/23456789012?pr=42'
 ```

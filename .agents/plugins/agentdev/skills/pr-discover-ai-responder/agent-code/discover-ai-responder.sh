@@ -45,9 +45,9 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE        1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/discover-ai-responder.sh
-  ${CLAUDE_SKILL_DIR}/scripts/discover-ai-responder.sh --pattern 'ai-responder'
-  ${CLAUDE_SKILL_DIR}/scripts/discover-ai-responder.sh --workflow ai-responder.yml
+  agent-code/discover-ai-responder.sh
+  agent-code/discover-ai-responder.sh --pattern 'ai-responder'
+  agent-code/discover-ai-responder.sh --workflow ai-responder.yml
 EOF
 }
 

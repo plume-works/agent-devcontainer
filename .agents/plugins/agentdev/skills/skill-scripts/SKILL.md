@@ -1,6 +1,6 @@
 ---
 name: skill-scripts
-description: "Write and document a skill's bundled scripts so their outcome is readable by both a shell caller and an agent — a shared exit-code vocabulary, a RESULT= enum line on stdout, and the shared result-codes.sh helpers. Use when adding or editing a script under a skill's scripts/ directory, choosing or renumbering its exit codes, deciding what it prints, or wiring a SKILL.md step to branch on a script's outcome. Keywords: exit code, RESULT, quit_by_code, result-codes.sh, script output contract."
+description: "Write and document a skill's bundled scripts so their outcome is readable by both a shell caller and an agent — a shared exit-code vocabulary, a RESULT= enum line on stdout, and the shared result-codes.sh helpers. Use when adding or editing a script under a skill's agent-code/ directory, choosing or renumbering its exit codes, deciding what it prints, or wiring a SKILL.md step to branch on a script's outcome. Keywords: exit code, RESULT, quit_by_code, result-codes.sh, script output contract."
 ---
 
 # Skill Script Result Contract
@@ -10,7 +10,8 @@ branches on `$?` and needs numeric codes. An agent reads the tool result and
 needs a self-describing outcome. Serve both: **keep the exit code, and name it
 on stdout.**
 
-Apply this to every script under a skill's `scripts/` directory.
+Apply this to every script under a skill's `agent-code/` directory, the directory that
+holds a skill's bundled code.
 
 ## The Contract
 
@@ -93,7 +94,7 @@ Source [result-codes.sh](../../bin/result-codes.sh) from the plugin's shared
 it works from both a repository checkout and an installed plugin cache. Never
 copy or inline the helpers into a skill.
 
-A skill with a `scripts/__common.sh` loads the shared helpers there:
+A skill with an `agent-code/__common.sh` loads the shared helpers there:
 
 ```bash
 skill_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -101,7 +102,7 @@ skill_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${skill_script_dir}/../../../bin/result-codes.sh"
 ```
 
-A skill whose `scripts/` holds a single standalone script resolves its own
+A skill whose `agent-code/` holds a single standalone script resolves its own
 directory and sources the same file directly. Define alongside it the
 `print_error` every converted script uses:
 
@@ -322,7 +323,7 @@ script directly. Pin the outcomes an agent acts on with a test in the plugin's
 `tests/` directory.
 
 Resolve the script from the `plugin_root` fixture — `plugin_root / 'bin/...'` or
-`plugin_root / 'skills/<name>/scripts/<script>.sh'` — never through a path that
+`plugin_root / 'skills/<name>/agent-code/<script>.sh'` — never through a path that
 climbs out of the plugin, which resolves nowhere once the plugin is installed
 into a cache. Use `plugin_tmp_path` for scratch fixtures, and assert on the pair
 that forms the contract:

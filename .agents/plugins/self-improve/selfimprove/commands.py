@@ -156,7 +156,7 @@ def capture_expansion(argv):
     hookio.additional_context(
         'UserPromptExpansion',
         'self-improve: the user authorized %s for %s by typing the command. '
-        'Run `${CLAUDE_PLUGIN_ROOT}/scripts/si %s-%s %s` and report its result '
+        'Run `${CLAUDE_PLUGIN_ROOT}/agent-code/si %s-%s %s` and report its result '
         'verbatim. Do not edit the target file yourself.'
         % (
             operation,
@@ -387,7 +387,7 @@ def self_test(argv):
     """
     failures = []
 
-    # Reachable only when scripts/si.py is run directly, bypassing the shell
+    # Reachable only when agent-code/si.py is run directly, bypassing the shell
     # shim that guarantees a 3.12+ interpreter. Worth reporting rather than
     # failing with an obscure syntax or attribute error further along.
     if sys.version_info < (3, 12):
@@ -416,7 +416,7 @@ def self_test(argv):
                 os.unlink(probe)
 
     plugin = paths.plugin_root()
-    for relative in ('hooks/hooks.json', '.claude-plugin/plugin.json', 'scripts/si'):
+    for relative in ('hooks/hooks.json', '.claude-plugin/plugin.json', 'agent-code/si'):
         candidate = os.path.join(plugin, relative)
         if not os.path.exists(candidate):
             failures.append('missing plugin file %s' % relative)

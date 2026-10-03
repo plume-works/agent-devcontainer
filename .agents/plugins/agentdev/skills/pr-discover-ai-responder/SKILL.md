@@ -13,7 +13,7 @@ before querying, and never assume it.
 ## Resolve the workflow
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/discover-ai-responder.sh
+agent-code/discover-ai-responder.sh
 ```
 
 On success it prints `RESPONDER_WORKFLOW=<filename>`. Capture the script output
@@ -21,7 +21,7 @@ first so a non-success result keeps its exit status; only extract the filename
 after the script succeeds:
 
 ```bash
-responder_output="$(${CLAUDE_SKILL_DIR}/scripts/discover-ai-responder.sh)" || {
+responder_output="$(agent-code/discover-ai-responder.sh)" || {
   responder_status=$?
   printf '%s\n' "${responder_output}" >&2
   exit "${responder_status}"

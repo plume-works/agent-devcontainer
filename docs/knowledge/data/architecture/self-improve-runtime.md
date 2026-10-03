@@ -5,7 +5,7 @@ generated:
   by: claude-code/opus-5
   at: 2026-09-09T00:00:00Z
 sources:
-- resource: .agents/plugins/self-improve/scripts/si
+- resource: .agents/plugins/self-improve/agent-code/si
 - resource: .agents/plugins/self-improve/selfimprove/paths.py
 - resource: .agents/plugins/self-improve/selfimprove/reviewer.py
 - resource: .agents/plugins/self-improve/tests/unit/test_no_runtime_deps.py
@@ -50,9 +50,9 @@ user's shell environment where `python3` is frequently a stale virtualenv.
 
 ## One dispatcher, not one executable per operation
 
-`scripts/si <subcommand>` is the only executable. Hooks and skills both invoke
-it, so there is one place that parses hook JSON from standard input and one
-place that fails open. The normative separation of capture, review,
+`agent-code/si <subcommand>` is the only executable. Hooks and skills both
+invoke it, so there is one place that parses hook JSON from standard input and
+one place that fails open. The normative separation of capture, review,
 authorization, mutation, and rollback is realized as modules rather than as
 separate executables — the separation is a property of the code, and duplicating
 the fail-open entry logic across five scripts would put the most reliability-

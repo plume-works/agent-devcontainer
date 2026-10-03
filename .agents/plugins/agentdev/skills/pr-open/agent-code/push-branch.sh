@@ -12,7 +12,7 @@ remote_name="origin"
 branch_name=""
 remote_was_explicit=0
 skip_map_check=0
-map_check_script="${script_dir}/../../iwe-map/scripts/stale-map-docs.py"
+map_check_script="${script_dir}/../../iwe-map/agent-code/stale-map-docs.py"
 
 usage() {
   show_help_header "Push a branch to its pull request head ref without rewriting history."
