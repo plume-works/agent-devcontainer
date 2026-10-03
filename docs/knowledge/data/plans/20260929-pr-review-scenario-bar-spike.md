@@ -1,10 +1,10 @@
 ---
 type: plan
 created: 2026-09-29
-description: A two-PR spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures makes it find the bugs Greptile found and it missed, without adding noise.
+description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  by: codex/gpt-6
+  at: 2026-10-03T08:51:41Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199
@@ -30,18 +30,20 @@ itself", flags code that is wrong "regardless of inputs", and does not flag
 and called the concurrency change safe while Greptile reported the overlap as
 P1.
 
-**Hypothesis:** those three rules, not model capability, are why the responder
-misses Greptile-class bugs. Replacing them with a reachable-scenario bar and
-letting the correctness passes read the code around the diff finds those bugs
-without losing the responder's own findings or adding noise.
+**Hypothesis:** those three rules suppress Greptile-class bugs when Codex
+follows the skill. Replacing them with a reachable-scenario bar and letting the
+correctness passes read the code around the diff finds those bugs without losing
+the baseline arm's findings or adding noise.
 
 ## Approach
 
 Replay two pull requests at the head each bot first reviewed, once with the
 current skill and twice with a variant, and score the validated findings against
-a key of known bugs. The spike ships nothing: runs happen in throwaway worktrees
-under `.tmp/spike/`, the variant is an edited copy of `SKILL.md`, and the result
-is a recorded decision.
+a key of known bugs. Every measured run uses `codex exec` with `gpt-5.6-sol`,
+medium model reasoning, and `REQUESTED REVIEW EFFORT: full`; the skill's Codex
+effort matrix still assigns each review pass its specified model. The spike
+ships nothing: runs happen in throwaway worktrees under `.tmp/spike/`, the
+variant is an edited copy of `SKILL.md`, and the result is a recorded decision.
 
 Both arms get their instructions the same way — a prompt naming a `SKILL.md`
 path to follow — so plugin loading cannot differ between them. The prompt
@@ -50,16 +52,12 @@ Step 1's open-PR gate and Step 3's metadata gate are skipped, the diff comes
 from a file, and Steps 7–9 write the validated findings to a JSON file instead
 of publishing a review.
 
-The pull requests are #199 (one changed workflow file; one known P1 the
+The pull requests are #199 (one changed workflow file; one known P1 a previous
 responder approved past) and #203 (twelve changed code files; exercises both the
-scenario bar and reading beyond the diff, and holds four findings the responder
-already made, so it also detects regressions). #210 is excluded: its diff, more
-than twice the size of #203's, costs the most per run and its many findings
-dilute the signal.
-
-Rejected: replaying all twelve pull requests. It costs about 48 full-effort
-reviews before anything is known; two pull requests answer whether the direction
-works at all.
+scenario bar and reading beyond the diff, and contains five other known
+findings, so the baseline arm establishes which of them this Codex runner
+finds). #210 is excluded: its diff, more than twice the size of #203's, costs
+the most per run and its many findings dilute the signal.
 
 ### Known-bug key
 
@@ -120,15 +118,18 @@ reviewed, so every #203 bug is present at it.
 **Files:** Create: `.tmp/spike/results/pr199-baseline-1.json`,
 `.tmp/spike/results/pr203-baseline-1.json`
 
-- [ ] One full-effort run per pull request, following the current
-  `pr-review/SKILL.md`, from inside that pull request's worktree.
+- [ ] Overwrite any result produced by a different runner, then run one review
+  per pull request from inside that pull request's worktree with `codex exec`,
+  `gpt-5.6-sol`, medium model reasoning, `REQUESTED REVIEW EFFORT: full`, and
+  the current `pr-review/SKILL.md`.
 
 ### Task 4: Run the variant arm
 
 **Files:** Create: `.tmp/spike/results/pr199-variant-{1,2}.json`,
 `.tmp/spike/results/pr203-variant-{1,2}.json`
 
-- [ ] Two full-effort runs per pull request, following
+- [ ] Run two reviews per pull request with `codex exec`, `gpt-5.6-sol`, medium
+  model reasoning, `REQUESTED REVIEW EFFORT: full`, and
   `.tmp/spike/variant/SKILL.md`, with the same prompt as the baseline arm apart
   from the skill path.
 
@@ -173,8 +174,9 @@ found, but with more noise or lost baseline findings — makes validator
 strictness the next question, and the shipped skill stays unchanged.
 
 Mechanical checks: all six result files exist and parse as JSON; the scoring
-table covers six runs; the architecture doc is linked from
-`data/architecture.md`; `iwe normalize` and `iwe schema validate` pass.
+table covers six Codex runs and records `gpt-5.6-sol` with medium model
+reasoning for each; the architecture doc is linked from `data/architecture.md`;
+`iwe normalize` and `iwe schema validate` pass.
 
 ## Verification results
 
@@ -215,10 +217,12 @@ the diff". Left in, they would contradict the replacement rule. Diff against
 - Light-effort runs.
 - A permanent replay mode in `pr-review`.
 - Configuring Greptile.
+- Comparing Claude and Codex, or using a Claude-generated result in the scoring
+  table.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-03):
 
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — "Scan only the diff
   itself" correctness rule
@@ -232,6 +236,12 @@ Verified anchor points (line numbers as of 2026-10-02):
   validator prompt
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:139` — the validator
   re-derives the claim
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:96` — Codex model mapping
+  for large and light review slots
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:103` — full-effort slot
+  matrix
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:133` — Codex pass dispatch
+  behavior
 - `7e0413d:.github/workflows/renovate.yml:48` — `concurrency:` split by event
   (K1)
 - `84d4584:.devcontainer/docker-compose.yml:70` —
