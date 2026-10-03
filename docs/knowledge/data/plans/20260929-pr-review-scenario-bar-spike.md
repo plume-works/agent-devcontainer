@@ -4,7 +4,7 @@ created: 2026-09-29
 description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
   by: codex/gpt-6
-  at: 2026-10-03T08:51:41Z
+  at: 2026-10-03T18:07:42Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199
@@ -118,10 +118,12 @@ reviewed, so every #203 bug is present at it.
 **Files:** Create: `.tmp/spike/results/pr199-baseline-1.json`,
 `.tmp/spike/results/pr203-baseline-1.json`
 
-- [ ] Overwrite any result produced by a different runner, then run one review
+- [x] Overwrite any result produced by a different runner, then run one review
   per pull request from inside that pull request's worktree with `codex exec`,
   `gpt-5.6-sol`, medium model reasoning, `REQUESTED REVIEW EFFORT: full`, and
   the current `pr-review/SKILL.md`.
+  - **Evidence:** both baseline outputs passed the runner's JSON shape and
+    pinned Codex metadata gate after their serial full-effort runs.
 
 ### Task 4: Run the variant arm
 
