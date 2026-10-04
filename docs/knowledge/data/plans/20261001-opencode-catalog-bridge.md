@@ -252,9 +252,14 @@ Rejected alternatives:
 and whichever `docs/knowledge/data/codebase/` documents `stale-map-docs.py`
 reports
 
-- [ ] `.agents/AGENTS.md`: OpenCode consumes the same tree through
+- [x] `.agents/AGENTS.md`: OpenCode consumes the same tree through
   `.opencode-plugin/`. The bridge takes no runtime dependencies.
-- [ ] The plugin README names OpenCode and how a project enables the bridge
+  - **Evidence:** commit "Document OpenCode as a catalog host": a bullet under
+    "Catalog locations and portability"
+- [x] The plugin README names OpenCode and how a project enables the bridge
+  - **Evidence:** commit "Document OpenCode as a catalog host": title, an
+    "Installing in OpenCode" section with the `plugin` config entry, OpenCode
+    usage, and the bun suite; `validate_agent_files` reports 0 errors
 - [ ] Refresh the stale codebase-map documents through `/agentdev:iwe-map`
 
 ### Task 8: Release the catalog
