@@ -187,10 +187,16 @@ Rejected alternatives:
 **Files:** Modify: `ansible/roles/agentic_tools/defaults/main.yml`,
 `ansible/roles/agentic_tools/README.md`
 
-- [ ] Add `agentic_tools_opencode_version: "1.18.34"` under a
+- [x] Add `agentic_tools_opencode_version: "1.18.34"` under a
   `# renovate: datasource=npm depName=opencode-ai` comment, and an `opencode-ai`
   entry in `agentic_tools_bun_packages`
-- [ ] Document the new variable in the role README
+  - **Evidence:** commit "Install the OpenCode CLI in the image"; ansible-lint
+    passes, and the role's `bun add --global --exact opencode-ai@1.18.34` form
+    installs a working `opencode` 1.18.34 that `bun pm ls --global` reports as
+    `opencode-ai@1.18.34`
+- [x] Document the new variable in the role README
+  - **Evidence:** commit "Install the OpenCode CLI in the image": an "Agent
+    CLIs" variable table and the Bun-globals list name `opencode-ai`
 
 ### Task 5: Register the bridge in a user's OpenCode config
 
