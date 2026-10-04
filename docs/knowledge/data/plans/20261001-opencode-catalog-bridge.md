@@ -144,7 +144,7 @@ Rejected alternatives:
 `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
 `.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 
-- [ ] `bun test` cases, written first, run against the real plugin root:
+- [x] `bun test` cases, written first, run against the real plugin root:
   - every skill directory yields an `agentdev:<name>` command whose template
     ends with the base-directory footer;
   - `<root>/skills` is added to `skills.paths`;
@@ -156,18 +156,28 @@ Rejected alternatives:
   - user-defined keys are preserved;
   - the `skill` tool's `agentdev:` prefix is stripped, and other tools' calls
     are untouched.
-- [ ] Implement the plugin with type-only imports and no `dependencies` in
+  - **Evidence:** commit "Add the OpenCode bridge plugin for the agentdev
+    catalog": `tests/opencode/bridge.test.ts` covers each case above and failed
+    on the missing module before the plugin existed
+- [x] Implement the plugin with type-only imports and no `dependencies` in
   `package.json`. Tool mapping: Bash→`bash`, Read→`read`, Edit and Write→`edit`,
   Grep→`grep`, Glob→`glob`, WebSearch→`websearch`, WebFetch→`webfetch`,
   Agent→`task`, TodoWrite→`todowrite`, Skill→`skill`.
-- [ ] `bun test .agents/plugins/agentdev/tests/opencode` passes
+  - **Evidence:** commit "Add the OpenCode bridge plugin for the agentdev
+    catalog": `.opencode-plugin/package.json` has no `dependencies` and
+    `index.ts` imports only types plus `node:fs` and `node:path`; registered in
+    `opencode-ai@1.18.34`, `opencode debug skill` lists all 38 catalog skills
+    and `opencode debug agent tdd-red` shows the deny entries
+- [x] `bun test ./.agents/plugins/agentdev/tests/opencode` passes
+  - **Evidence:** commit "Add the OpenCode bridge plugin for the agentdev
+    catalog": 12 pass, 0 fail
 
 ### Task 3: Run the bridge tests in CI
 
 **Files:** Modify: `.github/workflows/validate-agent-files.yml`
 
 - [ ] Add a pinned `oven-sh/setup-bun` step and a
-  `bun test .agents/plugins/agentdev/tests/opencode` step to the
+  `bun test ./.agents/plugins/agentdev/tests/opencode` step to the
   `validate-agent-files` job
 
 ### Task 4: Install the OpenCode CLI in the image
@@ -418,7 +428,7 @@ that the user's OpenCode configuration already defines under the same key.
 
 ## Verification
 
-- `bun test .agents/plugins/agentdev/tests/opencode`
+- `bun test ./.agents/plugins/agentdev/tests/opencode`
 - `shellcheck .devcontainer/scripts/reinstall-agentdev-opencode.sh`, plus the
   two-run check in Task 5
 - `bunx opencode-ai@1.18.34 debug skill`, with the bridge registered against

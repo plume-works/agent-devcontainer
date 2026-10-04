@@ -97,6 +97,10 @@ point at which to recheck them.
 | `TodoWrite`     | `todowrite`         |
 | `Skill`         | `skill`             |
 
+A catalog subagent is denied every permission in this table that its `tools:`
+list does not map to, plus `lsp` and `question`, OpenCode tools no Claude tool
+maps to.
+
 A Claude `tools:` list restricts which tools exist for an agent; it does not
 pre-approve them. Mapped tools therefore stay unset rather than `allow`, so the
 user's approval settings apply.
