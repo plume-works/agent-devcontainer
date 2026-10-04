@@ -268,9 +268,12 @@ reports
 `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
 `.claude-plugin/marketplace.json`
 
-- [ ] agentdev minor version bump in both manifests and the marketplace entry
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [x] agentdev minor version bump in both manifests and the marketplace entry
+  - **Evidence:** commit "Release agentdev 4.2.0": 4.1.0 → 4.2.0 in all three
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes
+  - **Evidence:** commit "Release agentdev 4.2.0": 56/56 skills valid, 0 errors,
+    0 warnings
 
 ### Task 9: Confirm the catalog in a rebuilt devcontainer
 
