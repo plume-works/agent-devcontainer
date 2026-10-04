@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:501dc649152a9f06368155472f94bbae9b8a2876ce7b018c6577e6caa2f8649b
+source_digest: sha256:32e14aa6d53f9b20e645506ea823e1c465b30e2d9e960e591a9be7a182199293
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T16:10:23Z
-stale_after: 2026-12-31
+  at: 2026-10-04T12:00:00Z
+stale_after: 2027-01-02
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T16:10:23Z
+  at: 2026-10-04T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -19,7 +19,9 @@ sources:
 
 13 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
 with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
-`validate-agent-files.yml`.
+`validate-agent-files.yml`. `opencode/bridge.test.ts` is a separate `bun test`
+suite for the [OpenCode bridge](opencode-plugin.md), run with
+`bun test ./.agents/plugins/agentdev/tests/opencode` in the same job.
 
 ## Public surface
 
@@ -76,7 +78,8 @@ is removed.
 
 ## Depends on
 
-`pytest`, `git`, `bash`; nothing from the rest of the repository.
+`pytest`, `git`, `bash`, and `bun` for the OpenCode suite; nothing from the rest
+of the repository.
 
 ## Invariants & gotchas
 
@@ -88,7 +91,7 @@ is removed.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-04):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -110,3 +113,5 @@ Verified anchor points (line numbers as of 2026-10-02):
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
   an absent marker section is `NO_MARKER`
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:38` — `configured`,
+  the hook driver every config case shares

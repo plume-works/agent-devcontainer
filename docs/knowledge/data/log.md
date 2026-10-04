@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-04
+
+- **Update**: Mapped the OpenCode bridge plugin and refreshed the thirteen
+  codebase-map docs that the OpenCode catalog host and the agentdev 4.2.0 pins
+  moved.
+
 ## 2026-10-02
 
 - **Update**: Refreshed the ansible, validate_agent_files role, and image-build

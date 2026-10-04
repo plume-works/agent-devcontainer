@@ -2,14 +2,14 @@
 type: codebase
 description: Installs Claude Code, Codex, and the MCP inspector, optionally cc-filter, and stages and installs the agentdev catalog into the image.
 source: ansible/roles/agentic_tools
-source_digest: sha256:34569d4b2b83618fd97251621e05d1979e26513d5bb247ce1e41724e6204a515
+source_digest: sha256:84cc362aa8d5fae740f0d317c996e181028d02935ab7c136bab0e5b26b0442dd
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
-stale_after: 2026-12-26
+  at: 2026-10-04T12:00:00Z
+stale_after: 2027-01-02
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-10-04T12:00:00Z
 sources:
 - id: code
   resource: ansible/roles/agentic_tools
@@ -24,17 +24,20 @@ install `agentdev` with no clone and no network.
 ## Public surface
 
 - `agentic_tools_claude_code_version`, `agentic_tools_codex_version`,
-  `agentic_tools_inspector_version`, and the `agentic_tools_bun_packages` list
-  they feed — `ansible/roles/agentic_tools/defaults/main.yml:5-17`
+  `agentic_tools_opencode_version`, `agentic_tools_inspector_version`, and the
+  `agentic_tools_bun_packages` list they feed —
+  `ansible/roles/agentic_tools/defaults/main.yml:5-21`
 - `agentic_tools_stage_catalog`, `agentic_tools_install_catalog`,
   `agentic_tools_catalog_source_dir`, `agentic_tools_plugin_version`,
   `agentic_tools_catalog_root` —
-  `ansible/roles/agentic_tools/defaults/main.yml:43-71`
-- `agentic_tools_cc_filter_*` — `defaults/main.yml:21-38`, off by default; the
+  `ansible/roles/agentic_tools/defaults/main.yml:47-75`
+- `agentic_tools_cc_filter_*` — `defaults/main.yml:25-42`, off by default; the
   version is a `# renovate:` pin whose checksums
   `scripts/refresh-pin-checksums.py` recomputes
 - The staged tree at `agentic_tools_catalog_root` (`/opt/agentdev`), holding
-  `.claude-plugin/` and `.agents/` copied whole (`defaults/main.yml:76-78`)
+  `.claude-plugin/` and `.agents/` copied whole (`defaults/main.yml:80-82`)
+- `{{ user_home }}/.config/opencode/opencode.json` — gains the staged OpenCode
+  bridge in its `plugin` list
 
 ## How it works
 
@@ -49,8 +52,10 @@ Codex plugin manifests disagree on `version`, fails when a non-empty
 trees, prunes `__pycache__`, `.pytest_cache`, `.ruff_cache`, and `.tmp`, and
 makes the result root-owned and read-only. Installing registers the staged root
 as a marketplace for Claude (user scope) and Codex and installs the plugin for
-both, so a raw-image consumer resolves `agentdev:*` skills without lifecycle
-hooks.
+both. When the staged catalog has an `.opencode-plugin/` directory, it also
+merges the bridge's path into the user's OpenCode config, keeping every other
+key and plugin entry. A raw-image consumer therefore resolves `agentdev:*`
+skills in all three agents without lifecycle hooks.
 
 ## Depends on
 
@@ -72,7 +77,7 @@ through `agentic_tools_catalog_source_dir` (`/provision` in the image build).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-21):
+Verified anchor points (line numbers as of 2026-10-04):
 
 - `ansible/roles/agentic_tools/tasks/main.yml:5` — installed-globals probe
 - `ansible/roles/agentic_tools/tasks/main.yml:23` — pinned Bun global installs
@@ -85,3 +90,5 @@ Verified anchor points (line numbers as of 2026-09-21):
   read-only
 - `ansible/roles/agentic_tools/tasks/install_catalog.yml:27-81` — marketplace
   registration and plugin install for both agents
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml:83` — OpenCode bridge
+  registration

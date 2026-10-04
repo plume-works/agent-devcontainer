@@ -260,7 +260,11 @@ reports
   - **Evidence:** commit "Document OpenCode as a catalog host": title, an
     "Installing in OpenCode" section with the `plugin` config entry, OpenCode
     usage, and the bun suite; `validate_agent_files` reports 0 errors
-- [ ] Refresh the stale codebase-map documents through `/agentdev:iwe-map`
+- [x] Refresh the stale codebase-map documents through `/agentdev:iwe-map`
+  - **Evidence:** commit "map: refresh 13 docs and map the OpenCode bridge": run
+    after Task 8 so the release pins are covered; adds
+    `codebase/agents/plugins/agentdev/opencode-plugin`, and `stale-map-docs.py`
+    ends `RESULT=SUCCESS` with 28 of 28 fresh
 
 ### Task 8: Release the catalog
 
