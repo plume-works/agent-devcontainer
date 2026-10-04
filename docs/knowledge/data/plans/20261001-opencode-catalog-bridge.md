@@ -229,13 +229,22 @@ Rejected alternatives:
 `.devcontainer/scripts/postAttachCommand.sh`,
 `ansible/roles/agentic_tools/tasks/install_catalog.yml`
 
-- [ ] postCreate calls `reinstall-agentdev-opencode.sh "$AGENTDEV_CATALOG_DIR"`
+- [x] postCreate calls `reinstall-agentdev-opencode.sh "$AGENTDEV_CATALOG_DIR"`
   inside the existing staged-catalog branch
-- [ ] postAttach calls `reinstall-agentdev-opencode.sh` with no argument,
+  - **Evidence:** commit "Install the OpenCode bridge through the catalog
+    lifecycle"; `shellcheck` passes
+- [x] postAttach calls `reinstall-agentdev-opencode.sh` with no argument,
   alongside the Codex and Claude reinstalls
-- [ ] The build-time install writes the staged bridge path into
+  - **Evidence:** commit "Install the OpenCode bridge through the catalog
+    lifecycle"; `shellcheck` passes
+- [x] The build-time install writes the staged bridge path into
   `{{ user_home }}/.config/opencode/opencode.json`, merging with any existing
   content
+  - **Evidence:** commit "Install the OpenCode bridge through the catalog
+    lifecycle"; ansible-lint and the `setup-dev.yml` syntax check pass, and the
+    block run against localhost keeps existing keys and plugin entries, is
+    unchanged on a second run, creates the file when absent, and skips when the
+    staged catalog has no bridge
 
 ### Task 7: Document OpenCode as a catalog host
 
