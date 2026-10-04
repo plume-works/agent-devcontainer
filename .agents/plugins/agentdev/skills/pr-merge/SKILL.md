@@ -170,7 +170,7 @@ to check later.
      to collect the failing job log and artifacts, then use
      [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) to diagnose,
      implement, test, commit, and push the focused repair through the
-     [pr-open](../pr-open/SKILL.md) push helper, `scripts/push-branch.sh`.
+     [pr-open](../pr-open/SKILL.md) push helper, `agent-code/push-branch.sh`.
    - A CodeQL or Codecov failure: use the same feedback-resolution skill and
      its linked security or coverage workflow.
    - An external check: record its URL and report it as an external blocker;
@@ -184,7 +184,7 @@ to check later.
 5. After a code change, run the narrowest relevant local verification —
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
-   `scripts/push-branch.sh`, handling its result as that skill's step 8 does.
+   `agent-code/push-branch.sh`, handling its result as that skill's step 8 does.
    Restart the loop
    from step 1 because the head SHA and checks have changed.
 

@@ -1,7 +1,7 @@
 ---
 name: git-merge-resolve
 description: 'Merge a Git ref into the current branch and resolve merge conflicts with confidence-based escalation. Use when asked to merge branches or refs, finish a conflicted merge, resolve Git conflicts, or preserve both sides of divergent changes. Keywords: git merge, merge branch, merge conflict, resolve conflicts, conflicted files.'
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Merge a Git Ref and Resolve Conflicts
@@ -45,10 +45,10 @@ to this skill.
 
 ## Bundled Script
 
-Use [git-merge-resolve.sh](scripts/git-merge-resolve.sh) to start a new merge:
+Use [git-merge-resolve.sh](agent-code/git-merge-resolve.sh) to start a new merge:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/git-merge-resolve.sh <source-ref>
+agent-code/git-merge-resolve.sh <source-ref>
 ```
 
 Options:
@@ -80,7 +80,7 @@ git diff --name-only --diff-filter=U
 Run the bundled script with the source ref:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/git-merge-resolve.sh <source-ref>
+agent-code/git-merge-resolve.sh <source-ref>
 ```
 
 Handle its result:

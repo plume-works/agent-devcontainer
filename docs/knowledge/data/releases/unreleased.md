@@ -35,4 +35,6 @@ starts a fresh one.*
 
 ## Fixed
 
+[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](../bugs/codex-skill-dir-unresolved.md)
+
 [Fixture git inherits the outer commit's index](../bugs/fixture-git-inherits-commit-index.md)

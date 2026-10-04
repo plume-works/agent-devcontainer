@@ -1,7 +1,7 @@
 ---
 name: git-commit
 description: Generate conventional commit messages automatically. Use when user runs git commit, stages changes, or asks for commit message help. Analyzes git diff to create clear, descriptive conventional commit messages. Triggers on git commit, staged changes, commit message requests.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Git Commit Skill
@@ -23,15 +23,15 @@ Generate conventional commit messages from the relevant git diff.
 
 ## Create the Commit Through the Script
 
-Create every commit with [git-commit.sh](scripts/git-commit.sh); never run
+Create every commit with [git-commit.sh](agent-code/git-commit.sh); never run
 `git commit` directly. It refuses — before `git commit` runs — on `main`,
 `master`, the remote's default branch, a detached `HEAD`, and — when the
 remote exists — a remote whose default branch cannot be determined. Pass the
 `git commit` arguments after `--`:
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/git-commit.sh -- -m "<subject>" -m "<body>"
-${CLAUDE_SKILL_DIR}/scripts/git-commit.sh -- -F .tmp/commit-message.txt
+agent-code/git-commit.sh -- -m "<subject>" -m "<body>"
+agent-code/git-commit.sh -- -F .tmp/commit-message.txt
 ```
 
 `--remote <name>` selects the remote whose default branch is protected

@@ -1,7 +1,7 @@
 ---
 name: pr-gen-description
 description: Generate comprehensive pull request description following /agentdev:code-review-standards with change analysis, testing strategy, and migration notes. Use when creating a PR, writing PR description, preparing for code review, or documenting technical decisions.
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Generate Pull Request Description
@@ -36,7 +36,7 @@ Generate a comprehensive PR description by analyzing the change set and writing 
 
 Use this helper instead of retyping inline git commands:
 
-- [review-git-changes.sh](scripts/review-git-changes.sh) prints the branch,
+- [review-git-changes.sh](agent-code/review-git-changes.sh) prints the branch,
   working tree status, diff stat, patch, and commit log for the change set.
 
 The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a
@@ -47,7 +47,7 @@ bare number.
 ### Step 1: Analyze Git Changes
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/review-git-changes.sh
+agent-code/review-git-changes.sh
 ```
 
 Pass `--base-ref <ref>` when the caller supplies a base other than

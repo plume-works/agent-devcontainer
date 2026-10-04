@@ -6,7 +6,7 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-10-02T12:00:00Z
 sources:
-- resource: .agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh
+- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md

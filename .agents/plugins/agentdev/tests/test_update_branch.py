@@ -50,7 +50,7 @@ def test_update_branch_reports_declared_result_when_fetch_fails(
 ) -> None:
     """A missing selected remote must produce the stable fetch-failure result."""
     # Arrange
-    script = plugin_root / 'skills/update-branch/scripts/update-branch.sh'
+    script = plugin_root / 'skills/update-branch/agent-code/update-branch.sh'
     mock_repository = plugin_tmp_path / 'fixture-repository'
     initialize_repository(mock_repository)
 
@@ -76,7 +76,7 @@ def test_update_branch_reports_preflight_error_when_base_branch_is_missing(
 ) -> None:
     """A fetched remote without the selected base branch must fail preflight."""
     # Arrange
-    script = plugin_root / 'skills/update-branch/scripts/update-branch.sh'
+    script = plugin_root / 'skills/update-branch/agent-code/update-branch.sh'
     mock_repository = plugin_tmp_path / 'fixture-repository'
     remote_repository = plugin_tmp_path / 'fixture-remote'
     initialize_repository(mock_repository)

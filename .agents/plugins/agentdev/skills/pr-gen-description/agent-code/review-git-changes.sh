@@ -42,9 +42,9 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE   1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/review-git-changes.sh
-  ${CLAUDE_SKILL_DIR}/scripts/review-git-changes.sh --base-ref upstream/main
-  ${CLAUDE_SKILL_DIR}/scripts/review-git-changes.sh --range origin/main..HEAD --stat-only
+  agent-code/review-git-changes.sh
+  agent-code/review-git-changes.sh --base-ref upstream/main
+  agent-code/review-git-changes.sh --range origin/main..HEAD --stat-only
 EOF
 }
 

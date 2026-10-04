@@ -6,6 +6,22 @@ to the current day's group.
 
 ## 2026-10-02
 
+- **Update**: Refreshed the ansible, validate_agent_files role, and image-build
+  flow codebase maps after the validator role began reinstalling on every run.
+- **Update**: Re-stamped the agentdev, agentdev skills, and agentdev tests
+  codebase maps after merging the push-time map gate with the move to
+  `agent-code/`.
+- **Update**:
+  [Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
+  done. Bundled skill code lives in `agent-code/` and skill bodies reference it
+  relative to the skill directory; agentdev 4.1.0 and self-improve 0.1.1 ship
+  it.
+- **Update**:
+  [Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](bugs/codex-skill-dir-unresolved.md)
+  fixed.
+- **Update**: Refreshed the fifteen codebase-map docs that the move of bundled
+  skill code to `agent-code/` and the validator 1.0.1 remediation changed, and
+  re-stamped five of them for the agentdev 4.1.0 version pins.
 - **Update**:
   [Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
   done. pr-feedback-resolution merges a conflicted PR's base through

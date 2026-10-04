@@ -2,14 +2,14 @@
 type: codebase
 description: Builds the validate_agent_files package from the provisioning sources and installs it as an isolated uv tool, verifying the installed version against a pin.
 source: ansible/roles/validate_agent_files
-source_digest: sha256:04c1dcba404fced15b9c8928fd53f8c8ebad5a33f55bb021f241983480ffb324
+source_digest: sha256:8ec4e975761536e5c3f14d70e3bd16a603c3ba173160269a8cc5c2e715896ea5
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
-stale_after: 2026-12-26
+  at: 2026-10-02T23:17:07Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T00:00:00Z
+  at: 2026-10-02T23:17:07Z
 sources:
 - id: code
   resource: ansible/roles/validate_agent_files
@@ -31,8 +31,8 @@ no `uv run` prefix.
 
 Stats the package source and fails if it is missing, copies it into a temporary
 build directory, prunes build scratch directories, installs it with
-`uv tool install`, reads back the installed version, and fails unless it equals
-the pin.
+`uv tool install --reinstall` on every run, reads back the installed version,
+and fails unless it equals the pin.
 
 ## Depends on
 
@@ -47,13 +47,18 @@ the pin.
   or the build fails.
 - The package must build with zero knowledge of this repository, since the role
   copies only `py_packages/validate_agent_files/`.
+- The install has no existence guard: a warm-start build provisions on top of
+  the previous image, whose validator came from an older commit, so every run
+  replaces it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-04):
+Verified anchor points (line numbers as of 2026-10-02):
 
 - `ansible/roles/validate_agent_files/tasks/main.yml:12` — fail when the source
   is missing
-- `ansible/roles/validate_agent_files/tasks/main.yml:59` — `uv tool install`
-- `ansible/roles/validate_agent_files/tasks/main.yml:81` — installed-version
+- `ansible/roles/validate_agent_files/tasks/main.yml:61` —
+  `uv tool install --reinstall`
+- `ansible/roles/validate_agent_files/tasks/main.yml:84` — installed-version
   read-back
+- `ansible/roles/validate_agent_files/tasks/main.yml:93` — pin assertion

@@ -13,8 +13,8 @@ from types import ModuleType
 
 from git_fixtures import FIXTURE_ENV, git, outcome
 
-PUSH_SCRIPT = 'skills/pr-open/scripts/push-branch.sh'
-MAP_SCRIPT = 'skills/iwe-map/scripts/stale-map-docs.py'
+PUSH_SCRIPT = 'skills/pr-open/agent-code/push-branch.sh'
+MAP_SCRIPT = 'skills/iwe-map/agent-code/stale-map-docs.py'
 LIBRARY = 'docs/knowledge'
 BRANCH = 'fixture-feature'
 

@@ -56,9 +56,9 @@ Results (RESULT / exit code):
   SCRIPT_FAILURE           1  Unhandled error
 
 Examples:
-  ${CLAUDE_SKILL_DIR}/scripts/codespace-ensure.sh
-  ${CLAUDE_SKILL_DIR}/scripts/codespace-ensure.sh --dry-run
-  ${CLAUDE_SKILL_DIR}/scripts/codespace-ensure.sh --branch feature/my-change --machine premiumLinux
+  agent-code/codespace-ensure.sh
+  agent-code/codespace-ensure.sh --dry-run
+  agent-code/codespace-ensure.sh --branch feature/my-change --machine premiumLinux
 EOF
 }
 

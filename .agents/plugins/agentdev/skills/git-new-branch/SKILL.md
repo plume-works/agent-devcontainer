@@ -1,7 +1,7 @@
 ---
 name: git-new-branch
 description: 'Create a new Git work branch at the freshly fetched remote base, push it at once so it tracks its own upstream, and carry uncommitted changes onto it — optionally in a separate worktree. Use when asked to start a feature branch, create or cut a branch, get off main before working, or when another skill says to switch to a feature branch. Keywords: new branch, create branch, feature branch, start work, git switch -c, git worktree, branch from origin/main.'
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Create a Work Branch
@@ -48,7 +48,7 @@ confirm it before running the script:
 
 ## Bundled Script
 
-Use [git-new-branch.sh](scripts/git-new-branch.sh) instead of running the
+Use [git-new-branch.sh](agent-code/git-new-branch.sh) instead of running the
 branch commands manually. It:
 
 - validates the name with `git check-ref-format --branch`
@@ -87,7 +87,7 @@ on a bare number.
 ## Workflow 1: Create the Branch
 
 ```bash
-${CLAUDE_SKILL_DIR}/scripts/git-new-branch.sh <name>
+agent-code/git-new-branch.sh <name>
 ```
 
 ## Workflow 2: Handle the Result

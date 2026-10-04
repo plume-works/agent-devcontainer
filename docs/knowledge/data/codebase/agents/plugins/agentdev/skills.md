@@ -2,14 +2,14 @@
 type: codebase
 description: The 38 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:07fe84b03c9e825f1875c956d0b8880acaa9ded6e2600a270f9d348117c77351
+source_digest: sha256:7e67b3cebb560e2e95926be8ddb8c245f5822449a64cf2c387ea8e9b250cfa81
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T14:10:00Z
+  at: 2026-10-02T16:10:23Z
 stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T14:10:00Z
+  at: 2026-10-02T16:10:23Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -19,8 +19,10 @@ sources:
 
 Each skill is a directory holding `SKILL.md` — frontmatter per the Agent Skills
 specification plus Claude Code's `disable-model-invocation` — and optionally
-`scripts/` and `references/`. A skill reaches its own files through
-`${CLAUDE_SKILL_DIR}` and a sibling through its namespaced name.
+`agent-code/` (bundled scripts) and `references/`. A skill reaches its own files
+by a path relative to its directory (`agent-code/<file>`), uses
+`${CLAUDE_SKILL_DIR}` only in `allowed-tools`, and reaches a sibling through its
+namespaced name.
 
 ## Public surface
 
@@ -110,15 +112,15 @@ Verified anchor points (line numbers as of 2026-10-02):
   section that selects setup or update mode
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:61` — the progress
   document
-- `.agents/plugins/agentdev/skills/template-consume/scripts/check-updates.sh:124`
+- `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:124`
   — the only read of the marker section
-- `.agents/plugins/agentdev/skills/iwe-capture/scripts/close-issue.sh:109` — the
-  shared issue-closing call, identical in `iwe-plan`
-- `.agents/plugins/agentdev/skills/pr-open/scripts/push-branch.sh:87` —
+- `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh:109` —
+  the shared issue-closing call, identical in `iwe-plan`
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:74` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:74` —
   `BROKEN_METADATA`
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:230` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:230` —
   `MetadataResolver`, which walks a source's ancestors for masking rules
-- `.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py:291` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:291` —
   `source_digest_for_paths`

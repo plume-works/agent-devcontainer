@@ -1,7 +1,7 @@
 ---
 name: apply
 description: Apply a self-improve proposal the user has explicitly authorized by typing its ID and hash prefix. Only meaningful when the user types /self-improve:apply themselves.
-allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/scripts/si:*)
+allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/agent-code/si:*)
 ---
 
 # Apply an authorized proposal
@@ -16,7 +16,7 @@ authorization record and the command below will correctly refuse.
 Run exactly:
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}/scripts/si" apply-proposal --id <proposal-id> --hash-prefix <hash-prefix>
+"${CLAUDE_PLUGIN_ROOT}/agent-code/si" apply-proposal --id <proposal-id> --hash-prefix <hash-prefix>
 ```
 
 Report the output verbatim.

@@ -6,14 +6,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:1a2bc9789d704f6bae95771758c23eb0f5fb95c9a7f67d549c5a62fb1555dc36
+source_digest: sha256:86af06d4cd4438457125683c34a4df38fdff1be19e4fa006c9ca38f068845a9e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-01T00:00:00Z
-stale_after: 2026-12-30
+  at: 2026-10-02T23:17:07Z
+stale_after: 2026-12-31
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-01T00:00:00Z
+  at: 2026-10-02T23:17:07Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -60,7 +60,7 @@ running the image it produced.
 ## Failure modes
 
 - A catalog or validator version that disagrees with its pin fails step 5
-  (`stage_catalog.yml:68`, `validate_agent_files/tasks/main.yml:81`) rather than
+  (`stage_catalog.yml:68`, `validate_agent_files/tasks/main.yml:93`) rather than
   publishing a mislabeled image.
 - Non-root ownership of `/usr/local` fails step 5 at the `final` probe.
 - Missing `edge` image in step 3 falls back to a scratch build; slower, not

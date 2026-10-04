@@ -1,4 +1,4 @@
-"""The dispatcher as a hook actually invokes it: through ``scripts/si``."""
+"""The dispatcher as a hook actually invokes it: through ``agent-code/si``."""
 
 import json
 import os
@@ -11,7 +11,7 @@ from tests.conftest import PLUGIN_ROOT, SI
 
 
 def test_entry_point_is_executable():
-    assert os.access(SI, os.X_OK), 'scripts/si must be executable to run as a hook'
+    assert os.access(SI, os.X_OK), 'agent-code/si must be executable to run as a hook'
 
 
 def test_shim_ignores_a_stale_python3_on_path(run_si, tmp_path):

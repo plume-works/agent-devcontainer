@@ -10,13 +10,13 @@
       "name": "agentdev",
       "source": "./.agents/plugins/agentdev",
       "description": "General-purpose agent catalog: git, pull requests, review, CI, formatting, container and Codespace escalation, and an IWE knowledge-graph planning workflow.",
-      "version": "4.0.0"
+      "version": "4.1.0"
     },
     {
       "name": "self-improve",
       "source": "./.agents/plugins/self-improve",
       "description": "Turns verified corrections and hard-won workflows into durable, reviewable Claude instructions and skills, applied only with explicit user authorization.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }

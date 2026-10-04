@@ -16,7 +16,7 @@ from uuid import uuid4
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SCRIPT = REPO_ROOT / '.agents/plugins/agentdev/skills/iwe-map/scripts/stale-map-docs.py'
+SCRIPT = REPO_ROOT / '.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py'
 PLUGIN_BIN = REPO_ROOT / '.agents/plugins/agentdev/bin'
 TMP_ROOT = REPO_ROOT / '.tmp'
 CONFIG = '.pre-commit-config.yaml'

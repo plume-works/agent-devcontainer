@@ -245,7 +245,7 @@ Retain `.claude/` and `.codex/`, then review them as project policy:
 
 - `.claude/settings.json` is strict JSON. Review allowed paths, Bash commands,
   web domains, MCP tools, and enabled official plugins. Remove the
-  workspace-source permission for `.agents/plugins/agentdev/skills/*/scripts/*`
+  workspace-source permission for `.agents/plugins/agentdev/skills/*/agent-code/*`
   after deleting `.agents/`; keep the installed-plugin cache permission when
   those scripts should remain callable.
 - `.claude/settings.local.json` remains ignored for machine-specific

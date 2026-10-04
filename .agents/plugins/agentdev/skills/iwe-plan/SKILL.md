@@ -2,7 +2,7 @@
 name: iwe-plan
 description: Create or revise implementation planning state — discovery in the real codebase first, then a coherent plan with verified code anchors, spec impact, and dependencies. Never edits implementation code.
 disable-model-invocation: true
-allowed-tools: Bash(${CLAUDE_SKILL_DIR}/scripts/*)
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Create or revise a plan
@@ -124,7 +124,7 @@ editing implementation code.
    comment naming the plan and then closes it:
 
    ```bash
-   ${CLAUDE_SKILL_DIR}/scripts/close-issue.sh \
+   agent-code/close-issue.sh \
      --issue <url-or-ref> --plan docs/knowledge/data/plans/<YYYYMMDD>-<slug>.md
    ```
 

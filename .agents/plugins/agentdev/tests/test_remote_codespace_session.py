@@ -15,7 +15,7 @@ def test_codespace_exec_separates_metadata_from_unterminated_remote_stdout(
 ) -> None:
     """Remote output without a newline must not absorb the exit-code key."""
     # Arrange
-    script = plugin_root / 'skills/remote-codespace-session/scripts/codespace-exec.sh'
+    script = plugin_root / 'skills/remote-codespace-session/agent-code/codespace-exec.sh'
     mock_bin = plugin_tmp_path / 'bin'
     mock_bin.mkdir()
     mock_repository = plugin_tmp_path / 'repository'
