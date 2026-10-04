@@ -4,7 +4,7 @@ created: 2026-09-29
 description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
   by: codex/gpt-6
-  at: 2026-10-04T06:49:00Z
+  at: 2026-10-04T21:57:21Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199
@@ -147,8 +147,11 @@ reviewed, so every #203 bug is present at it.
 
 ### Task 6: Judge the unmatched findings
 
-- [ ] Each unmatched finding is marked real or noise. Closed by: the maintainer,
+- [x] Each unmatched finding is marked real or noise. Closed by: the maintainer,
   who reviews the unmatched-findings table.
+  - **Evidence:** the maintainer verdicts and per-run tally under
+    `## Verification results` classify U1–U26 against the reviewed heads,
+    repository rules, and merged behavior.
 
 ### Task 7: Record the decision
 
@@ -263,6 +266,69 @@ the specification.
 | U24 | #203 variant 1  | `test_seed_agent_auth.py:15`             | Added helpers and tests lack type hints.                                       |
 | U25 | #203 variant 1  | `test_setup_gh_credential_helper.py:13`  | Added helpers and tests lack type hints.                                       |
 | U26 | #203 variant 2  | `devcontainer-init.sh:35`                | Host-side `sha256sum` is unavailable on stock macOS.                           |
+
+### Maintainer judgments
+
+Each verdict was checked against the code at the reviewed head (#199 `7e0413d`,
+#203 `84d4584`), the repository rules in force at that head, and what the
+maintainer merged to `main`. U1–U8 also carry the maintainer's direct ruling.
+
+| IDs      | Verdict                 | Basis                                                                                                                                                |
+| -------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| U1, U2   | Noise                   | Reviewers should not check codebase-map metadata. The current `pr-review` ignore rule covers stale `source_digest` values, but not generated stamps. |
+| U3–U5    | Noise                   | Each comment gives a short reason the code cannot express. They merged unchanged, and no spec or architecture document duplicates the rationale.     |
+| U6–U8    | Noise                   | These are the same comments as U3–U5.                                                                                                                |
+| U9       | Noise                   | The `./.tmp` rule governs agent scratch files, not product runtime paths. The host-side `/tmp/agentdev-auth-seed-*` path is intentional.             |
+| U10–U12  | Real, type hints only   | `main` later annotated all three helpers. The docstring portion was not adopted.                                                                     |
+| U13      | Real                    | `main` replaced the comment with `see spec/devcontainer-agent-auth`.                                                                                 |
+| U14      | Noise                   | The maintainer kept the Compose comment and only reworded it.                                                                                        |
+| U15      | Real, minor and moot    | The comment restates `update-environment`; the K3/K6 fix later removed the whole token branch.                                                       |
+| U16      | Real                    | `main` replaced the comment with a spec reference.                                                                                                   |
+| U17–U19  | Noise                   | Repository practice leaves test functions unannotated; these remain unannotated on `main`.                                                           |
+| U20      | Real, significant       | Stock macOS lacks `sha256sum`, so `set -euo pipefail` aborts startup. `main` added `workspace-seed-key.sh` with a `shasum` fallback.                 |
+| U21, U22 | Noise                   | The generated-by example names the document author; `hermes-agent/gpt-5.6` is valid.                                                                 |
+| U23–U25  | Real, helper hints only | These repeat U10–U12. The claim about test hints is noise.                                                                                           |
+| U26      | Real, significant       | This is the same macOS startup bug as U20.                                                                                                           |
+
+| Run             | Known-key matches                               | Real | Noise |
+| --------------- | ----------------------------------------------- | ---- | ----- |
+| #199 baseline 1 | K1                                              | 0    | 5     |
+| #199 variant 1  | None; K1 was raised, then dropped by validation | 0    | 0     |
+| #199 variant 2  | K1                                              | 0    | 3     |
+| #203 baseline 1 | None                                            | 6    | 5     |
+| #203 variant 1  | K2–K6                                           | 4    | 2     |
+| #203 variant 2  | K2–K6                                           | 1    | 0     |
+
+All noise came from compliance and durable-knowledge passes, which the variant
+did not change. The variant correctness passes produced no noise. Their only
+finding outside the key, the macOS `sha256sum` bug, is real.
+
+### Result against the criteria
+
+The result is **mixed**. The holding criterion fails because #199 variant 1
+dropped K1 and because noise exceeded one finding in #199 variant 2 and #203
+variant 1. It is not a failed hypothesis: both #203 variants found K4, #199
+variant 2 found K1, and variant noise did not rise above baseline noise. Under
+the plan's mixed-result rule, validator strictness is the next question and the
+shipped correctness bar stays unchanged.
+
+### Noise root causes
+
+1. The durable-knowledge pass audited code comments despite `pr-review`'s
+   file-lens boundary. It applied `iwe-audit` smell patterns without preserving
+   the audit's load-bearing-comment guard, and its findings defaulted to
+   blocking.
+2. The compliance pass read the former comment rule literally and treated
+   rationale as misplaced even when no knowledge document duplicated it. Commit
+   `2ef1717` corrected that rule.
+3. The map-document ignore rule covers stale `source_digest` values but not
+   other map metadata (`verified`, `generated`, and `stale_after`).
+4. Review passes treated example values or agent-only rules as universal:
+   generated-by authorship, the agent scratch-directory rule, and type hints on
+   test functions.
+5. The ephemeral replay retained final candidates and findings but not subagent
+   reasoning. Future replays should preserve sessions when pass-level reasoning
+   is part of the evidence.
 
 ## Out of scope
 
