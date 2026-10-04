@@ -266,10 +266,15 @@ reports
 
 **Files:** Modify: `.agents/plugins/agentdev/.claude-plugin/plugin.json`,
 `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
-`.claude-plugin/marketplace.json`
+`.claude-plugin/marketplace.json`, `docker/desktop/agent-desktop.Dockerfile`,
+`.codex/setup-codex-cloud.sh`, `README.md`
 
 - [x] agentdev minor version bump in both manifests and the marketplace entry
   - **Evidence:** commit "Release agentdev 4.2.0": 4.1.0 → 4.2.0 in all three
+- [x] Move the image's `AGENTDEV_PLUGIN_VERSION` pin, the Codex cloud setup pin,
+  and the root README's version with them
+  - **Evidence:** commit "Move the remaining agentdev 4.2.0 pins": `git grep`
+    finds no agentdev `4.1.0` outside the knowledge graph's history
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes
   - **Evidence:** commit "Release agentdev 4.2.0": 56/56 skills valid, 0 errors,
