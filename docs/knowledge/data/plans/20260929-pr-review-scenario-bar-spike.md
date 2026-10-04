@@ -4,7 +4,7 @@ created: 2026-09-29
 description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
   by: codex/gpt-6
-  at: 2026-10-04T21:58:34Z
+  at: 2026-10-04T22:06:48Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199
@@ -81,12 +81,12 @@ reviewed, so every #203 bug is present at it.
 `.tmp/spike/pr199.diff`, `.tmp/spike/pr203.diff`
 
 - [x] Add detached worktrees at `7e0413d` and `84d4584`.
-  - **Evidence:** `git worktree add --detach` at both heads succeeded; the heads
-    are reachable commits in this repository.
+  - **Evidence:** commit `df57ca2` records the successful detached-worktree
+    setup at both reachable heads.
 - [x] Write each diff from the merge-base with `origin/main`: `77ec374..7e0413d`
   and `3a3201e..84d4584`.
-  - **Evidence:** `git merge-base` with `origin/main` returns `77ec374` and
-    `3a3201e`; the diffs cover 4 files (+55/−22) and 14 files (+801/−3).
+  - **Evidence:** commit `df57ca2` records the verified merge bases and diff
+    sizes: 4 files (+55/−22) and 14 files (+801/−3).
 
 ### Task 2: Write the variant skill
 
@@ -96,22 +96,23 @@ reviewed, so every #203 bug is present at it.
 - [x] Replace the "Scan only the diff itself" bullet: the correctness passes may
   read, at the head commit, the code the changed lines call, are called by, and
   run beside in the same lifecycle or workflow.
-  - **Evidence:** the `@@ -49` and `@@ -127` hunks of the variant diff under
-    `## Verification results`.
+  - **Evidence:** commit `30d4e85` records the `@@ -49` and `@@ -127` variant
+    hunks under `## Verification results`.
 - [x] Replace "definitely produce wrong results regardless of inputs" with a
   reachable-scenario condition: a concrete input or state the code can actually
   receive, and the wrong outcome it produces. Drop "Potential issues that depend
   on specific inputs or state" from the do-not-flag list.
-  - **Evidence:** the `@@ -57` and `@@ -63` hunks of the variant diff under
-    `## Verification results`.
+  - **Evidence:** commit `30d4e85` records the `@@ -57` and `@@ -63` variant
+    hunks under `## Verification results`.
 - [x] Each correctness candidate carries its scenario, and the validator
   confirms the scenario is reachable at the head commit before it confirms the
   finding.
-  - **Evidence:** the `@@ -66` and `@@ -138` hunks of the variant diff under
-    `## Verification results`.
+  - **Evidence:** commit `30d4e85` records the `@@ -66` and `@@ -138` variant
+    hunks under `## Verification results`.
 - [x] Record the variant's diff against the current skill under
   `## Verification results`.
-  - **Evidence:** the `### Variant skill` diff under `## Verification results`.
+  - **Evidence:** commit `30d4e85` records the complete variant diff under
+    `### Variant skill`.
 
 ### Task 3: Run the baseline arm
 
@@ -122,8 +123,8 @@ reviewed, so every #203 bug is present at it.
   per pull request from inside that pull request's worktree with `codex exec`,
   `gpt-5.6-sol`, medium model reasoning, `REQUESTED REVIEW EFFORT: full`, and
   the current `pr-review/SKILL.md`.
-  - **Evidence:** both baseline outputs passed the runner's JSON shape and
-    pinned Codex metadata gate after their serial full-effort runs.
+  - **Evidence:** commit `d10c87f` records that both baseline outputs passed the
+    JSON shape and pinned Codex metadata gate after serial full-effort runs.
 
 ### Task 4: Run the variant arm
 
@@ -134,24 +135,24 @@ reviewed, so every #203 bug is present at it.
   model reasoning, `REQUESTED REVIEW EFFORT: full`, and
   `.tmp/spike/variant/SKILL.md`, with the same prompt as the baseline arm apart
   from the skill path.
-  - **Evidence:** all four variant outputs passed the runner's JSON shape and
-    pinned Codex metadata gate after their serial full-effort runs.
+  - **Evidence:** commit `80e0fe1` records that all four variant outputs passed
+    the JSON shape and pinned Codex metadata gate after serial full-effort runs.
 
 ### Task 5: Score the runs against the key
 
 - [x] For each run, record which of K1–K6 its validated findings match, and list
   every finding that matches no key entry, in a table under
   `## Verification results`.
-  - **Evidence:** the six-run score and complete U1–U26 unmatched-finding table
-    under `## Verification results` account for every validated finding.
+  - **Evidence:** commit `50e021d` records the six-run score and complete U1–U26
+    table accounting for every validated finding.
 
 ### Task 6: Judge the unmatched findings
 
 - [x] Each unmatched finding is marked real or noise. Closed by: the maintainer,
   who reviews the unmatched-findings table.
-  - **Evidence:** the maintainer verdicts and per-run tally under
-    `## Verification results` classify U1–U26 against the reviewed heads,
-    repository rules, and merged behavior.
+  - **Evidence:** commit `cf857ae` records the maintainer verdicts and per-run
+    tally classifying U1–U26 against the reviewed heads, repository rules, and
+    merged behavior.
 
 ### Task 7: Record the decision
 
@@ -163,9 +164,8 @@ reviewed, so every #203 bug is present at it.
   the bar changes (and a follow-up plan changes the shipped skill), the bar
   stays (the rules are not the cause), or validator strictness is the open
   question. Link it from `data/architecture.md`.
-  - **Evidence:** `data/architecture/pr-review-correctness-bar` records the
-    mixed decision, validator question, and independent noise owners, and the
-    architecture hub includes it.
+  - **Evidence:** commit `e6f0bf3` records the mixed decision, validator
+    question, independent noise owners, and architecture-hub link.
 
 ## Spec changes
 
