@@ -202,17 +202,26 @@ Rejected alternatives:
 
 **Files:** Create: `.devcontainer/scripts/reinstall-agentdev-opencode.sh`
 
-- [ ] The script takes an optional catalog root, defaulting to this checkout,
+- [x] The script takes an optional catalog root, defaulting to this checkout,
   like `reinstall-agentdev-codex.sh`. When
   `<root>/.agents/plugins/agentdev/.opencode-plugin` is absent, it reports that
   and exits 0.
-- [ ] Otherwise it writes the bridge's absolute path into the `plugin` array of
+  - **Evidence:** commit "Register the OpenCode bridge in the user's config":
+    run with `/nonexistent` prints "ships no OpenCode bridge plugin" and exits 0
+- [x] Otherwise it writes the bridge's absolute path into the `plugin` array of
   `${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/opencode.json`.
   It creates the file when missing, replaces any earlier entry ending in
   `/.agents/plugins/agentdev/.opencode-plugin`, and preserves every other key.
-- [ ] Run it twice against `HOME=./.tmp/opencode-home`, once with the staged
+  - **Evidence:** commit "Register the OpenCode bridge in the user's config":
+    from a config holding `model`, `other-plugin`, and an old-root
+    `[spec, options]` bridge entry, the run keeps `model` and `other-plugin` and
+    replaces the old entry; with no config it creates `{"plugin": [<bridge>]}`
+- [x] Run it twice against `HOME=./.tmp/opencode-home`, once with the staged
   root and once with no argument. The config then lists exactly one bridge
   entry, pointing at the last root. `shellcheck` passes.
+  - **Evidence:** commit "Register the OpenCode bridge in the user's config":
+    after the staged-root run and the no-argument run, `plugin` holds one bridge
+    entry, the checkout's; `shellcheck` and the pre-commit shellcheck hook pass
 
 ### Task 6: Install the bridge through the catalog lifecycle
 
