@@ -4,7 +4,7 @@ created: 2026-09-29
 description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
   by: codex/gpt-6
-  at: 2026-10-04T21:57:21Z
+  at: 2026-10-04T21:58:34Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199
@@ -159,10 +159,13 @@ reviewed, so every #203 bug is present at it.
 `docs/knowledge/data/architecture/pr-review-correctness-bar.md` Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] File the outcome against the criteria in `## Verification` as a decision:
+- [x] File the outcome against the criteria in `## Verification` as a decision:
   the bar changes (and a follow-up plan changes the shipped skill), the bar
   stays (the rules are not the cause), or validator strictness is the open
   question. Link it from `data/architecture.md`.
+  - **Evidence:** `data/architecture/pr-review-correctness-bar` records the
+    mixed decision, validator question, and independent noise owners, and the
+    architecture hub includes it.
 
 ## Spec changes
 

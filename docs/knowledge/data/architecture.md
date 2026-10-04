@@ -3,8 +3,8 @@ type: hub
 description: System design notes and the reasoning behind them, rejected alternatives included.
 stage: living
 generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
+  by: codex/gpt-6
+  at: 2026-10-04T21:58:34Z
 ---
 
 # 🏛️ Architecture
@@ -50,6 +50,8 @@ rejected are as valuable as the one you picked.*
 [Self-improve runtime](architecture/self-improve-runtime.md)
 
 [PR review effort tiers](architecture/pr-review-effort-tiers.md)
+
+[PR review correctness bar](architecture/pr-review-correctness-bar.md)
 
 [Ansible apt pins](architecture/ansible-apt-pins.md)
 
