@@ -4,7 +4,7 @@ created: 2026-09-29
 description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
   by: codex/gpt-6
-  at: 2026-10-04T06:46:17Z
+  at: 2026-10-04T06:49:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199
@@ -139,9 +139,11 @@ reviewed, so every #203 bug is present at it.
 
 ### Task 5: Score the runs against the key
 
-- [ ] For each run, record which of K1–K6 its validated findings match, and list
+- [x] For each run, record which of K1–K6 its validated findings match, and list
   every finding that matches no key entry, in a table under
   `## Verification results`.
+  - **Evidence:** the six-run score and complete U1–U26 unmatched-finding table
+    under `## Verification results` account for every validated finding.
 
 ### Task 6: Judge the unmatched findings
 
@@ -213,6 +215,54 @@ the diff". Left in, they would contradict the replacement rule. Diff against
 +   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the claim made against it, the scenario a correctness candidate names, the full text of any rule that claim invokes, where to read the diff, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
 +   - **Make the validator re-derive the claim** from the files rather than trust the candidate's assertion of it, and tell it to drop anything ambiguous, trivial, or not clearly a violation. For a correctness candidate, the validator confirms that its scenario is reachable at the head commit — the input or state can actually occur and the code path actually leads to the wrong outcome — before it confirms the finding; an unreachable scenario is a `DROP`. Ask for `CONFIRM` or `DROP` per candidate with a one-sentence justification.
 ```
+
+### Codex replay scores
+
+All six runs used `gpt-5.6-sol` with medium model reasoning and
+`REQUESTED REVIEW EFFORT: full`.
+
+| Run             | Candidates | Validated | Known-key matches  | Unmatched |
+| --------------- | ---------- | --------- | ------------------ | --------- |
+| #199 baseline 1 | 6          | 6         | K1                 | U1–U5     |
+| #203 baseline 1 | 13         | 11        | None               | U9–U19    |
+| #199 variant 1  | 1          | 0         | None               | None      |
+| #203 variant 1  | 11         | 10        | K2, K3, K4, K5, K6 | U20–U25   |
+| #199 variant 2  | 4          | 4         | K1                 | U6–U8     |
+| #203 variant 2  | 7          | 5         | K2, K3, K4, K5, K6 | U26       |
+
+#199 variant 1 raised K1 as its only candidate, then dropped it during
+validation. The K3 finding in each #203 variant also covers K6: it identifies
+both the residual plaintext seed and the missing per-start consumer promised by
+the specification.
+
+| ID  | Run             | Location                                 | Unmatched finding                                                              |
+| --- | --------------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
+| U1  | #199 baseline 1 | `data/codebase/github.md:51`             | The generated timestamp was not refreshed.                                     |
+| U2  | #199 baseline 1 | `data/codebase/github/workflows.md:55`   | The generated timestamp was not refreshed.                                     |
+| U3  | #199 baseline 1 | `renovate.yml:12`                        | The trigger comment records rationale and an invariant in code.                |
+| U4  | #199 baseline 1 | `renovate.yml:29`                        | The sender-filter comment restates code and records loop-prevention rationale. |
+| U5  | #199 baseline 1 | `renovate.yml:45`                        | The concurrency comment restates settings and records queueing rationale.      |
+| U6  | #199 variant 2  | `renovate.yml:12`                        | The trigger comment duplicates durable rationale and an invariant.             |
+| U7  | #199 variant 2  | `renovate.yml:29`                        | The sender-filter comment duplicates App-token loop-prevention rationale.      |
+| U8  | #199 variant 2  | `renovate.yml:45`                        | The concurrency comment duplicates queueing rationale and invariants.          |
+| U9  | #203 baseline 1 | `devcontainer-init.sh:36`                | The credential-transfer directory violates the repository's `./.tmp` rule.     |
+| U10 | #203 baseline 1 | `test_claude_remote_control_start.py:21` | A helper lacks type hints and a docstring.                                     |
+| U11 | #203 baseline 1 | `test_seed_agent_auth.py:15`             | A helper lacks a return annotation and docstring.                              |
+| U12 | #203 baseline 1 | `test_setup_gh_credential_helper.py:13`  | A helper lacks parameter/return annotations and a docstring.                   |
+| U13 | #203 baseline 1 | `devcontainer-init.sh:32`                | A comment duplicates transfer lifecycle rationale from the auth spec.          |
+| U14 | #203 baseline 1 | `docker-compose.yml:106`                 | A comment duplicates transfer-directory invariants from the auth spec.         |
+| U15 | #203 baseline 1 | `claude-remote-control-start.sh:38`      | A comment paraphrases the adjacent command.                                    |
+| U16 | #203 baseline 1 | `setup-gh-credential-helper.sh:2`        | A comment duplicates helper-selection rationale from the auth spec.            |
+| U17 | #203 baseline 1 | `test_claude_remote_control_start.py:56` | A test lacks a return annotation and docstring.                                |
+| U18 | #203 baseline 1 | `test_seed_agent_auth.py:44`             | A test lacks parameter/return annotations and a docstring.                     |
+| U19 | #203 baseline 1 | `test_setup_gh_credential_helper.py:50`  | A test lacks parameter/return annotations and a docstring.                     |
+| U20 | #203 variant 1  | `devcontainer-init.sh:35`                | Host-side `sha256sum` is unavailable on stock macOS.                           |
+| U21 | #203 variant 1  | `data/spec.md:6`                         | The spec hub has the wrong generated-by value.                                 |
+| U22 | #203 variant 1  | `spec/devcontainer-agent-auth.md:5`      | The new spec has the wrong generated-by value.                                 |
+| U23 | #203 variant 1  | `test_claude_remote_control_start.py:21` | Added helpers and tests lack type hints.                                       |
+| U24 | #203 variant 1  | `test_seed_agent_auth.py:15`             | Added helpers and tests lack type hints.                                       |
+| U25 | #203 variant 1  | `test_setup_gh_credential_helper.py:13`  | Added helpers and tests lack type hints.                                       |
+| U26 | #203 variant 2  | `devcontainer-init.sh:35`                | Host-side `sha256sum` is unavailable on stock macOS.                           |
 
 ## Out of scope
 
