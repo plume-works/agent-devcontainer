@@ -176,9 +176,11 @@ Rejected alternatives:
 
 **Files:** Modify: `.github/workflows/validate-agent-files.yml`
 
-- [ ] Add a pinned `oven-sh/setup-bun` step and a
+- [x] Add a pinned `oven-sh/setup-bun` step and a
   `bun test ./.agents/plugins/agentdev/tests/opencode` step to the
   `validate-agent-files` job
+  - **Evidence:** commit "Run the OpenCode bridge tests in CI": steps pinned to
+    `oven-sh/setup-bun@v2.2.0`; the actionlint and zizmor pre-commit hooks pass
 
 ### Task 4: Install the OpenCode CLI in the image
 
