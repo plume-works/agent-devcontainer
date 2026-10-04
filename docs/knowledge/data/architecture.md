@@ -56,3 +56,5 @@ rejected are as valuable as the one you picked.*
 [Renovate config validation](architecture/renovate-config-validation.md)
 
 [Renovate post-upgrade task](architecture/renovate-post-upgrade.md)
+
+[OpenCode catalog bridge](architecture/opencode-catalog-bridge.md)

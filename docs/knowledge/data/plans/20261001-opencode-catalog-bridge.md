@@ -113,7 +113,7 @@ Rejected alternatives:
 
 **Files:** Create: `docs/knowledge/data/architecture/opencode-catalog-bridge.md`
 
-- [ ] With a throwaway prototype under `./.tmp/` and `bunx opencode-ai@1.18.34`,
+- [x] With a throwaway prototype under `./.tmp/` and `bunx opencode-ai@1.18.34`,
   establish each point below. A result that contradicts this plan's Approach
   goes back to `/agentdev:iwe-plan` before Task 2 starts.
   1. A `skills.paths` entry added in the `config` hook reaches
@@ -127,9 +127,16 @@ Rejected alternatives:
   6. `Bun.YAML.parse` is available to plugins.
   7. A `plugin` config entry holding the bridge directory's absolute path loads
      it.
-- [ ] Record the decision, the facts it rests on, and the rejected alternatives
+  - **Evidence:** commit "Settle the OpenCode host behavior the bridge relies
+    on": all seven hold against `opencode-ai@1.18.34`, recorded under "Host
+    behavior the design rests on" in `architecture/opencode-catalog-bridge`;
+    `/pr` shows 8 of the 10 `agentdev:pr-*` commands and `/pr-` all 10, so the
+    Approach stands
+- [x] Record the decision, the facts it rests on, and the rejected alternatives
   from `## Approach` in `data/architecture/opencode-catalog-bridge.md`, linked
   from `data/architecture.md`
+  - **Evidence:** commit "Settle the OpenCode host behavior the bridge relies
+    on" adds the document and its inclusion link
 
 ### Task 2: Build the bridge plugin
 
@@ -424,7 +431,7 @@ that the user's OpenCode configuration already defines under the same key.
 ## Out of scope
 
 - **self-improve on OpenCode.** Its reviewer builds a Claude-only command line
-  (`reviewer.py:60-85`), and its seven hook events need OpenCode equivalents,
+  (`reviewer.py:62-89`), and its seven hook events need OpenCode equivalents,
   including one for the typed-command authorization that `UserPromptExpansion`
   provides. Both are their own design question.
 - **Hook mapping for agentdev.** agentdev ships no hooks, so the bridge maps
@@ -438,7 +445,7 @@ that the user's OpenCode configuration already defines under the same key.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-04):
 
 - `ansible/roles/agentic_tools/defaults/main.yml:1-18` — pinned agent CLIs and
   `agentic_tools_bun_packages`
@@ -456,7 +463,7 @@ Verified anchor points (line numbers as of 2026-10-02):
   job steps
 - `.agents/plugins/agentdev/agents/tdd-red.agent.md:1-5` — agent frontmatter
   shape (`name`, `description`, `tools`)
-- `.agents/plugins/self-improve/selfimprove/reviewer.py:60-85` — Claude-only
+- `.agents/plugins/self-improve/selfimprove/reviewer.py:62-89` — Claude-only
   reviewer argv
 - `docs/knowledge/data/spec/catalog-lifecycle.md:17-83` — the two requirements
   this plan modifies
