@@ -62,7 +62,9 @@ Three hard rules, in every language:
 3. **Never duplicate the knowledge base.** Rationale, alternatives, and
    invariants live in the matching `docs/knowledge/data/spec/` or
    `data/architecture/` document. Reference it by key instead of copying it:
-   `// Trust-list policy: see spec/template-consumption.`
+   `// Trust-list policy: see spec/template-consumption.` A short reason the code
+   cannot express belongs in the comment itself. When a spec or architecture
+   document already records it, reference that key instead of repeating it.
 
 A pointer to where a decision is recorded usually earns its line; a paraphrase of
 the mechanism never does. Only durable rationale is worth forwarding — see Best
