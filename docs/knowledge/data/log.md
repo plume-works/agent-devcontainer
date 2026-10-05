@@ -19,6 +19,8 @@ to the current day's group.
   and image-build flow codebase maps for the vendored gh-stack skill, the new
   pr-merge-stack skill and the chain-merge skill it replaced, and the pinned
   gh-stack extension.
+- **Update**: Re-verified the agentdev, agentdev tests, Ansible, and image-build
+  flow codebase maps after merging the stacked-PR work with the OpenCode bridge.
 
 ## 2026-10-04
 
