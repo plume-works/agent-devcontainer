@@ -81,21 +81,54 @@ part the claim does not state stays empty.
 | F2  | #199 variant 2  | `.github/workflows/renovate.yml:51`            | Splitting checkbox edits into Renovate-checkbox while schedule, push, and manual runs use Renovate-main removes serialization of the same write-capable Renovate job, allowing concurrent runs to race on Renovate branches, PR bodies, and the dashboard.                             | `CONFIRM`                             |
 | F3  | #203 variant 1  | `.devcontainer/scripts/postStartCommand.sh:12` | The gh authentication check runs before the GNOME Keyring session is established or loaded, so keyring-backed authentication is missed and the Git credential helper remains unconfigured.                                                                                             | `CONFIRM`                             |
 | F4  | #203 variant 1  | `.devcontainer/devcontainer-init.sh:35`        | The host-side initializeCommand unconditionally invokes sha256sum, so devcontainer startup fails on stock macOS hosts where only shasum is available.                                                                                                                                  | `CONFIRM`                             |
-| F5  | #203 variant 2  | `.devcontainer/scripts/seed-agent-auth.sh:13`  | When no seed is supplied, the early return skips repairing permissions on an existing credential.                                                                                                                                                                                      | Set by the Task 1 judgment            |
+| F5  | #203 variant 2  | `.devcontainer/scripts/seed-agent-auth.sh:13`  | When no seed is supplied, the early return skips repairing permissions on an existing credential.                                                                                                                                                                                      | Discarded at Step 5: no Outcome       |
 | F6  | #203 baseline 1 | `.devcontainer/devcontainer-init.sh:36`        | Uses `/tmp` for the credential-transfer directory despite the repository rule requiring `./.tmp`.                                                                                                                                                                                      | No more confirms than the current arm |
 
 F1–F5 are correctness candidates and F6 is a compliance candidate. F6 was
 confirmed in the #203 baseline but judged noise by the maintainer. The
 compliance bar does not change here, so F6 checks only that the stated-intent
-rule does not make compliance confirms more likely. F1 runs in the current arm
-alone, where it measures how often today's bar drops K1.
+rule does not make compliance confirms more likely. F1 and F5 run in the current
+arm alone, where they measure how often today's bar drops a real finding.
+
+F1 and F5 name a fault but not the harm it causes, so A discards them. Their
+counterparts with every part stated run in the new arm: F2 for F1, and F5′ for
+F5:
+
+- **Trigger:** `postCreateCommand.sh` runs `seed-agent-auth.sh` with no seed
+  file while an agent credential already exists at the target path with a mode
+  looser than `0600`.
+- **Path:** `.devcontainer/scripts/seed-agent-auth.sh:13-16` returns before the
+  `chmod 600 "$target"` at `:25`.
+- **Outcome:** the existing credential stays readable beyond its owner.
+
+A finding is **real** when the pull request as merged contains a fix that
+matches it; a finding with no matching merged fix is judged by the maintainer.
+
+### Correctness negative controls
+
+The spike produced no correctness candidate judged noise, so the new arm's
+negative controls are real findings with exactly one part broken. Each must be
+dropped, and the drop must name the broken part:
+
+| ID  | Built from | Broken part | Replaced with                                                                                                   |
+| --- | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------- |
+| M1  | F4         | Trigger     | `initializeCommand` runs on a Linux host with GNU coreutils installed.                                          |
+| M2  | F3         | Path        | `postStartCommand.sh:14` runs `setup-gh-credential-helper.sh` after `setup-keyring.sh` has started the keyring. |
+| M3  | F2         | Outcome     | The checkbox and main runs appear under separate concurrency-group names in the Actions run list.               |
+
+At `84d4584`, GNU `sha256sum` is present on such a host, the helper runs at
+`postStartCommand.sh:12` and the keyring at `:14`, and separate group names are
+harmless, so each mutant fails only in its broken part.
 
 ## Implementation Steps
 
-### Task 1: Judge the F5 negative control
+### Task 1: Judge F5
 
-- [ ] The maintainer marks F5 real or noise against `84d4584`, setting its
+- [x] The maintainer marks F5 real or noise against `84d4584`, setting its
   expected verdict in the frozen-candidate table. Closed by: the maintainer.
+  - **Evidence:** F5 is real under the merged-fix rule in `## Approach`: the
+    #203 squash merge `a5bf422` adds the `chmod 600` repair to the early return
+    at `.devcontainer/scripts/seed-agent-auth.sh:13`.
 
 ### Task 2: Ship the reachable-scenario correctness bar
 
@@ -133,12 +166,12 @@ alone, where it measures how often today's bar drops K1.
 
 **Files:** Create: `.tmp/replay/` (harness, inputs, and outputs; not committed)
 
-- [ ] Run Step 6 alone on the frozen candidate set five times per arm with the
-  matrix's `light` Codex model and per-candidate dispatch: the **current arm**
-  uses `pr-review/SKILL.md` at `main`, and the **new arm** uses the Task 2–4
-  edit. Keep every validator's verdict and justification. Record per-candidate
-  verdict counts for each arm, plus every new-arm `DROP` with the part it names,
-  under `## Verification results`.
+- [ ] Run Step 6 alone on the frozen candidate set, F5′, and M1–M3 five times
+  per arm with the matrix's `light` Codex model and per-candidate dispatch: the
+  **current arm** uses `pr-review/SKILL.md` at `main`, and the **new arm** uses
+  the Task 2–4 edit. Keep every validator's verdict and justification. Record
+  per-candidate verdict counts for each arm, plus every new-arm `DROP` with the
+  part it names, under `## Verification results`.
 
 ### Task 6: Run the full replays
 
@@ -149,8 +182,9 @@ alone, where it measures how often today's bar drops K1.
   the Task 2–4 skill. The sessions are not ephemeral, so every pass and
   validator record survives. Score each run against the spike's known-bug key
   K1–K6 and record the table under `## Verification results`.
-- [ ] Each unmatched correctness finding is marked real or noise. Closed by: the
-  maintainer.
+- [ ] Each unmatched correctness finding is marked real or noise by the
+  merged-fix rule in `## Approach`, and by the maintainer where no merged fix
+  matches. Closed by: the maintainer.
 
 ### Task 7: Record the decision
 
@@ -176,10 +210,10 @@ validation policy, which no `data/spec/` document specifies.
 
 The change ships when all of the following hold:
 
-- **Validator-only replay, new arm:** F2, F3, and F4 are confirmed in 5/5 runs;
-  F5, if Task 1 judges it noise, is dropped in 5/5, and joins the 5/5-confirm
-  set if judged real; F6 is confirmed in no more runs than under the current
-  arm; and F1's three-part split has an empty Outcome.
+- **Validator-only replay, new arm:** F2, F3, F4, and F5′ are confirmed in 5/5
+  runs; M1, M2, and M3 are dropped in 5/5 runs, each naming its broken part; F6
+  is confirmed in no more runs than under the current arm; and the three-part
+  splits of F1 and F5 each have an empty Outcome.
 - **Full replays:** both #199 runs validate K1; both #203 runs validate K4 and
   every one of K2, K3, K5, and K6; and each run has at most one unmatched
   correctness finding the maintainer judges noise. Compliance and
