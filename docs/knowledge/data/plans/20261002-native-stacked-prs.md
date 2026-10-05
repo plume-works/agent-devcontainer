@@ -241,8 +241,10 @@ Modify: `.agents/plugins/agentdev/README.md`
 **Files:** Modify:
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md`
 
-- [ ] Run `/agentdev:iwe-map` in refresh mode so the skills map lists `gh-stack`
+- [x] Run `/agentdev:iwe-map` in refresh mode so the skills map lists `gh-stack`
   and `pr-merge-stack` instead of `pr-merge-chain`
+  - **Evidence:** committed with this tick; `stale-map-docs.py` ends
+    `RESULT=SUCCESS` over 27 docs and `iwe schema validate` passes
 
 ### Task 14: Merge a real stack with pr-merge-stack
 

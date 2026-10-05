@@ -2,7 +2,7 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:3acafd4ddcd2237d3a096c02b6df9cd884d63f5df332c97602f51ba6e1416a5f
+source_digest: sha256:66e15800ee229bde599beeed5945205d1b75b693e6523421ec247acad4ee291f
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-05T12:00:00Z
@@ -28,7 +28,7 @@ namespaced name.
 
 | Family                            | Count | Skills                                                                                                                                                                                                                                                                         |
 | --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Git and pull requests             | 15    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-chain` |
+| Git and pull requests             | 15    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-stack` |
 | Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                                      |
 | Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                             |
 | IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                                    |
@@ -87,7 +87,10 @@ before it reports `ACTION=none` for a head the upstream already has, it runs
 head and prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map
 exits `MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7),
 neither pushing. A commit without `.iwe/config.toml` is not checked, and
-`--skip-map-check` bypasses the check.
+`--skip-map-check` bypasses the check. A branch of a GitHub stack is pushed with
+`gh stack push` instead, which runs no map check; `update-branch` refuses such a
+branch, and `pr-merge` hands a stacked PR with unmerged layers below it to
+`pr-merge-stack`, which lands the stack with one `gh stack merge`.
 
 ## Depends on
 
