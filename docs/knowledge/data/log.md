@@ -6,6 +6,17 @@ to the current day's group.
 
 ## 2026-10-05
 
+- **Update**: [Native stacked pull requests](features/native-stacked-prs.md)
+  implemented.
+- **Update**:
+  [Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
+  done. The PR skills merge every PR explicitly, merge a GitHub native stack
+  through `gh stack merge` with the new pr-merge-stack skill, and route stack
+  branches through `gh stack`; force-pushes are limited to `gh stack` on stack
+  branches.
+- **Update**: [Stacked PRs](spec/stacked-prs.md) spec created.
+- **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec resolves a
+  conflicted stacked PR with `gh stack rebase`.
 - **Update**:
   [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
   done.
