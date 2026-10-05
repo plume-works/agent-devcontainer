@@ -109,9 +109,11 @@ versioned with the extension.
 **Files:** Create: `docs/knowledge/data/architecture/stacked-prs.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] Write the stacked-PR architecture doc: the stack-detection field, the
+- [x] Write the stacked-PR architecture doc: the stack-detection field, the
   merge command, the post-merge CI and review behavior, and the policy decision
   with its rejected alternatives
+  - **Evidence:** `data/architecture/stacked-prs` linked from
+    `data/architecture`, committed with this tick; `iwe schema validate` passes
 
 ### Task 4: Install the pinned gh-stack extension in the image
 
