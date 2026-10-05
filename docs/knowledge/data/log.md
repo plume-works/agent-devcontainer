@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-05
+
+- **Update**:
+  [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
+  done.
+- **Update**: [OpenCode as a catalog host](features/opencode-catalog-host.md)
+  implemented.
+- **Update**: [OpenCode catalog bridge](spec/opencode-catalog-bridge.md) spec
+  created.
+
 ## 2026-10-04
 
 - **Update**: Mapped the OpenCode bridge plugin and refreshed the thirteen

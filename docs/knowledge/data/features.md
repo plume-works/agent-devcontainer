@@ -54,3 +54,5 @@ and body sections are defined under Features in `SCHEMA.md` and enforced by
 [git-new-branch](features/git-new-branch.md)
 
 [Fresh codebase map on push](features/fresh-map-on-push.md)
+
+[OpenCode as a catalog host](features/opencode-catalog-host.md)

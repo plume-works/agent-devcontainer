@@ -16,6 +16,8 @@ sources:
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/command/index.ts
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/tui/src/component/prompt/autocomplete.tsx
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/core/src/v1/config/agent.ts
+stage: done
+completed: 2026-10-05
 ---
 
 # Load the agentdev catalog into OpenCode through a bridge plugin
