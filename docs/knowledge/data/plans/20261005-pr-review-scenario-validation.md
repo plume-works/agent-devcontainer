@@ -245,11 +245,14 @@ harmless, so each mutant fails only in its broken part.
 
 **Files:** Create: `.tmp/replay/` (harness, inputs, and outputs; not committed)
 
-- [ ] Rerun Task 5's new arm on F2, F3, F4, F5′, F6, and M1–M3 five times with
+- [x] Rerun Task 5's new arm on F2, F3, F4, F5′, F6, and M1–M3 five times with
   the Task 2–4 and Task 6 edit, the same model, and per-candidate dispatch; Task
   5's current-arm runs stand. Keep every validator's verdict and justification,
   and record per-candidate verdict counts plus every `DROP` with the part it
   names under `## Verification results`.
+  - **Evidence:** the `docs(plan): record the parts-as-written replay` commit
+    records all 40 runs under `### Validator-only replay, parts as written`; the
+    gate fails on F5′, M1, M2, and M3.
 
 ### Task 8: Run the full replays
 
@@ -343,6 +346,31 @@ today's bar does not drop a real finding for lack of an outcome, so this replay
 does not support the hypothesis in `## Context`. Every M2 and M3 justification
 re-derives the candidate's unchanged claim and never tests the broken part: the
 validator judges the claim, not the scenario it is handed.
+
+### Validator-only replay, parts as written
+
+Task 7 reran the new arm under the Task 6 bar with the same model, reasoning,
+sandbox, and dispatch; a scenario candidate's prompt carries its three parts and
+no claim. F6's prompt is unchanged from Task 5.
+
+| ID  | `CONFIRM` | `DROP`                                 | Expected                 | Gate                    |
+| --- | --------- | -------------------------------------- | ------------------------ | ----------------------- |
+| F2  | 5/5       | 0                                      | `CONFIRM` 5/5            | Holds                   |
+| F3  | 5/5       | 0                                      | `CONFIRM` 5/5            | Holds                   |
+| F4  | 5/5       | 0                                      | `CONFIRM` 5/5            | Holds                   |
+| F5′ | 3/5       | 2 (`outcome`)                          | `DROP: outcome` 5/5      | Fails                   |
+| F6  | 5/5       | 0                                      | No more than current 5/5 | Holds                   |
+| M1  | 0/5       | 5 (3 `path`, 1 `trigger`, 1 `outcome`) | `DROP: trigger` 5/5      | Fails: wrong part named |
+| M2  | 1/5       | 4 (`path`)                             | `DROP: path` 5/5         | Fails                   |
+| M3  | 5/5       | 0                                      | `DROP: outcome` 5/5      | Fails                   |
+
+Every drop names a part. Without the claim, M2 drops on its path in four of five
+runs. The confirms that remain re-derive the fault from the other parts: each M3
+confirm reads the race and the PR description's broken serialization promise
+from the Trigger and Path and never tests the stated Outcome, and the M2 and F5′
+confirms reach the fault through the actual line order and file mode. M1's drops
+agree that `sha256sum` exists on the stated host but split on which part that
+falsifies.
 
 ## Out of scope
 
