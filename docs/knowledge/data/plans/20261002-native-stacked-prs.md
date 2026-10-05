@@ -10,6 +10,8 @@ sources:
 - resource: https://github.com/github/gh-stack/tree/main/skills/gh-stack
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-chain/SKILL.md
+stage: done
+completed: 2026-10-05
 ---
 
 # Adopt GitHub native stacked pull requests
@@ -263,7 +265,7 @@ Modify: `.agents/plugins/agentdev/README.md`
 
 ## Spec changes
 
-New spec `spec/stacked-prs`, linked from `data/spec.md`:
+New spec [Stacked PRs](../spec/stacked-prs.md), linked from `data/spec.md`:
 
 ``` markdown
 ## ADDED Requirements
