@@ -1,15 +1,14 @@
 ---
 name: pr-merge
-description: 'Merge an open GitHub pull request: leave existing auto-merge unchanged, otherwise enable automatic squash merge early, monitor CI and AI review, remediate failures and feedback, then squash merge explicitly if auto-merge is unavailable. Use when a PR needs to be merged or shepherded through CI and review to merge. Keywords: merge PR, auto-merge, squash merge, monitor PR, merge-ready, wait for CI, CI failures, AI review, Claude Responder.'
+description: 'Merge an open GitHub pull request: monitor CI and AI review, resolve conflicts and remediate failures and feedback, then squash merge it explicitly once every requirement passes. Use when a PR needs to be merged or shepherded through CI and review to merge. Keywords: merge PR, squash merge, monitor PR, merge-ready, wait for CI, CI failures, AI review, Claude Responder.'
 ---
 
 # Merge PR
 
 Drive one open pull request through the complete CI-and-review cycle and merge
-it. At the start, leave any existing auto-merge unchanged; otherwise enable
-automatic squash merge. If auto-merge is unavailable, merge explicitly after
-all requirements pass. This is a persistent workflow: wait for the relevant
-GitHub state to change, then act on the new state.
+it explicitly with a squash merge once conflicts, checks, feedback, and reviews
+are all resolved. Never enable auto-merge. This is a persistent workflow: wait
+for the relevant GitHub state to change, then act on the new state.
 
 ## When to Use This Skill
 
@@ -60,8 +59,8 @@ asks to change that state.
   progress comments to the PR.
 - Work only on the PR head branch. Preserve unrelated local changes, never
   force-push, and never update its base branch unless the user explicitly
-  requests it. This skill's merge workflow authorizes enabling auto-merge and,
-  when needed, performing the final squash merge.
+  requests it. This skill's merge workflow authorizes disabling auto-merge and
+  performing the final squash merge.
 - A remediation requested by this skill is authorized by the user request to
   make the PR mergeable. Still stop for a genuinely ambiguous review request
   and ask for clarification in that review thread.
@@ -91,7 +90,7 @@ be re-evaluated for that new head. If the fast-forward fails, do not create an
 automatic merge; report the local divergence and resolve it only through the
 normal focused-remediation workflow.
 
-## Configure Merge Once
+## Disable Auto-Merge Once
 
 Immediately after resolving the PR and confirming it is open and not a draft,
 inspect its automatic merge request:
@@ -100,16 +99,13 @@ inspect its automatic merge request:
 gh pr view <pr> --json autoMergeRequest
 ```
 
-If `autoMergeRequest` is non-null, leave it unchanged and continue monitoring.
-Otherwise, enable automatic squash merge before waiting for CI or review:
+If `autoMergeRequest` is non-null, disable it, so GitHub cannot merge the PR
+before its feedback and reviews are resolved, and record that in the final
+report:
 
 ```bash
-gh pr merge <pr> --auto --squash
+gh pr merge <pr> --disable-auto
 ```
-
-If GitHub reports auto-merge is unavailable or disabled for the repository,
-continue the monitoring loop and use the explicit final squash merge below.
-Treat any other error as a concrete blocker to investigate or report.
 
 ## Completion Criteria
 
@@ -197,15 +193,12 @@ to check later.
 7. If feedback leads to a push, restart at step 1. If no actionable feedback
    remains, refresh checks and merge state once more. Perform **Reformat
    Workflow Synchronization** after that final refresh as well. If it changes
-   the head SHA, restart at step 1. Otherwise, if auto-merge was set, wait for
-   GitHub to merge the PR; if it was not, perform the explicit final squash
-   merge.
+   the head SHA, restart at step 1. Otherwise, perform the final squash merge.
 
-## Explicit Final Squash Merge
+## Final Squash Merge
 
-Use this section only when the initial auto-merge check was empty and the early
-`--auto --squash` request was unavailable. After every pre-merge completion
-criterion has been evidenced for the current head SHA, merge the PR explicitly:
+After every pre-merge completion criterion has been evidenced for the current
+head SHA, merge the PR explicitly:
 
 ```bash
 gh pr merge <pr> --squash
@@ -280,8 +273,8 @@ when an issue comment opens with `@claude review`.
 
 ## Final Report
 
-Report the PR URL, merged SHA, merge method, final check status, AI-review
-outcome, feedback resolved, local verification run, and any remaining external
+Report the PR URL, merged SHA, merge method, any auto-merge request disabled,
+final check status, AI-review outcome, feedback resolved, local verification run, and any remaining external
 or policy blocker. Say the PR was merged only after its merged state is
 evidenced.
 
