@@ -98,6 +98,11 @@ versioned with the extension.
   the bottom PR; whether `gh stack merge <bottom> --yes --squash` passes the
   `main` ruleset; and whether the next layer's post-merge rebase re-runs
   `primary-checks.yml` and `ai-review-present`
+  - **Evidence:** stack #259 (PRs #256, #257, #258): `gh pr merge 256 --squash`
+    refused by GraphQL; `gh stack merge 256 --yes --squash` merged #256 as
+    240ef41; #257's rebased head daacc26 re-ran Primary checks run 37291285494
+    and AI Responder run 37291285250, whose `ai-review-present` passed on the
+    pre-rebase review
 
 ### Task 3: Record the spike's results
 
