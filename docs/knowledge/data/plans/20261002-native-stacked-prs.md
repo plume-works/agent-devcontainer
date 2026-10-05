@@ -4,7 +4,7 @@ created: 2026-10-02
 description: Replace the manual main-targeted PR chain with GitHub native stacked pull requests — pin the gh-stack extension, vendor GitHub's gh-stack skill, allow lease-guarded force-pushes on stack branches only, merge every PR explicitly, and land stacks with gh stack merge.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T13:40:00Z
+  at: 2026-10-05T14:00:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://github.com/github/gh-stack/tree/main/skills/gh-stack
@@ -16,22 +16,22 @@ sources:
 
 ## Context
 
-GitHub stacked pull requests (public preview) make a chain of dependent PRs a
-first-class object: each PR targets the branch below it, every layer is held to
-the rules and CI of the stack's base, `gh stack merge` lands any bottom-up
-prefix as one all-or-nothing operation, and GitHub rebases the remaining layers
-after each merge. Stacks reject auto-merge, and the synchronous merge endpoint
-behind `gh pr merge` cannot merge a stacked PR.
+GitHub stacked pull requests make a chain of dependent PRs a first-class object:
+each PR targets the branch below it, every layer is held to the rules and CI of
+the stack's base, `gh stack merge` lands any bottom-up prefix as one
+all-or-nothing operation, and GitHub rebases the remaining layers after each
+merge. Stacks reject auto-merge, and the synchronous merge endpoint behind
+`gh pr merge` cannot merge a stacked PR.
 
-`pr-merge-chain` emulates all of that by hand: every member targets `main`,
-successors stay drafts behind a `## Dependencies` section, and a coordinator
-worktree reconnects squashed history and pushes each successor between merges.
-The native feature makes that procedure redundant.
+`pr-merge-chain` emulated stacking by hand (every member targeting `main`,
+successors held as drafts behind `## Dependencies`, a coordinator worktree
+reconnecting squashed history); the native feature replaces it.
 
 `gh stack push`, `rebase`, and `sync` update branches with `--force-with-lease`,
-and `gh stack init` enables `rerere` in the repository's git config. `AGENTS.md`
-forbids git config changes, and the `pr-merge`, `update-branch`, and `pr-open`
-skills forbid force-pushes; `AGENTS.md` itself has no force-push rule.
+and the vendored gh-stack skill's setup writes the repository-local
+`rerere.enabled` and `remote.pushDefault`. `AGENTS.md` forbids git config
+changes and force-pushes, and the `pr-merge`, `update-branch`, and `pr-open`
+skills forbid force-pushes; stack branches need a narrow exception to both.
 
 Decisions:
 
@@ -65,10 +65,11 @@ followed by `gh stack rebase --upstack` and `gh stack push`, because every layer
 above it no longer contains its tip; `reformat.yml` commits on a lower layer are
 handled the same way.
 
-A spike on a scratch stack settles the facts the skills depend on before they
-are written: the field that marks a PR as stacked, whether GitHub's post-merge
-rebase re-triggers CI and the AI-review gate, and that the repository's
-`required_linear_history` and squash-only settings accept a stack merge.
+The facts the skills depend on are recorded in
+[Stacked pull requests](../architecture/stacked-prs.md): the `stack` field that
+marks a PR as stacked, that the post-merge rebase re-runs CI but not the AI
+review, and that a stack merge passes the squash-only, linear-history `main`
+ruleset.
 
 Rejected: keeping merge-only updates for stack branches. GitHub's own post-merge
 rebase rewrites every remaining layer regardless, so a local merge-based copy
@@ -147,8 +148,7 @@ versioned with the extension.
 `.agents/plugins/agentdev/skills/gh-stack/references/stack-design.md`,
 `.agents/plugins/agentdev/skills/gh-stack/references/troubleshooting.md`,
 `.agents/plugins/agentdev/skills/gh-stack/LICENSE`; Modify:
-`.agents/plugins/agentdev/README.md`, `.prettierignore` if Prettier rewrites the
-vendored files
+`.agents/plugins/agentdev/README.md`, `.prettierignore`
 
 - [x] Copy `skills/gh-stack` and the upstream `LICENSE` from the
   `github/gh-stack` tag pinned in Task 4, byte for byte; `validate_agent_files`
@@ -358,7 +358,7 @@ updated.
 #### Scenario: Conflicted PR
 
 - **WHEN** the PR's `mergeable` is `CONFLICTING` or `mergeStateStatus` is
-  `DIRTY`
+  `DIRTY`, and the PR belongs to no GitHub stack
 - **THEN** `update-branch` runs with `--base <baseRefName>` before any feedback
   edit
 - **AND** the resolved merge is pushed before feedback is collected
@@ -414,33 +414,49 @@ updated.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-05):
 
 - `AGENTS.md:5` — no GitHub API ref updates
-- `AGENTS.md:10` — Best Practice 0, no git config changes
+- `AGENTS.md:6` — never force-push, except `gh stack` on stack branches
+- `AGENTS.md:11` — Best Practice 0, no git config changes except the `gh stack`
+  pair
 - `docs/knowledge/data/product.md:119` — authoring rule, no API ref updates
-- `docs/knowledge/data/product.md:123` — authoring rule, no git config changes
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:61` — never force-push
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:93` — Disable Auto-Merge
+- `docs/knowledge/data/product.md:123` — authoring rule, force-push exception
+- `docs/knowledge/data/product.md:125` — authoring rule, git config exception
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:42` — stack detection and
+  the lowest-unmerged-layer test
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:78` — never force-push
+  outside `gh stack push`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:111` — Disable Auto-Merge
   Once
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:198` — Final Squash Merge
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:204` —
-  `gh pr merge <pr> --squash`
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:66` — stacked
-  PR merges its real base
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:28` — merge-based
-  update precondition
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:32` — never force-push
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:247` — never force-push in
-  the push step
-- `.agents/plugins/agentdev/skills/pr-merge-chain/SKILL.md:1` — skill to delete
-- `.agents/plugins/agentdev/README.md:84` — pr-merge row
-- `.agents/plugins/agentdev/README.md:85` — pr-merge-chain row
-- `ansible/roles/github_cli/tasks/main.yml:32` — Install GitHub CLI
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:217` — Final Squash Merge
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:230` —
+  `gh stack merge <pr> --yes --squash`
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:72` — the single
+  stack merge
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:63` —
+  conflicted stacked PR resolved with `gh stack rebase`
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:68` —
+  conflicted PR outside a stack merges its `baseRefName`
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:33` — never force-push
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:57` — Workflow 0,
+  refuse a stack branch
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:220` — stack branch pushed
+  with `gh stack push`
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:260` — never force-push
+  outside `gh stack push`
+- `.agents/plugins/agentdev/README.md:76` — gh-stack row
+- `.agents/plugins/agentdev/README.md:85` — pr-merge row
+- `.agents/plugins/agentdev/README.md:86` — pr-merge-stack row
+- `.agents/plugins/agentdev/tests/test_gh_stack_vendored_version.py:22` —
+  vendored-version test
+- `ansible/roles/github_cli/defaults/main.yml:5` — `github_cli_gh_stack_version`
+- `ansible/roles/github_cli/tasks/main.yml:93` — Install the pinned gh-stack
+  extension
 - `.github/workflows/reformat.yml:367` — git-auto-commit push to the PR head
 - `.github/workflows/ai-responder.yml:19` — `pull_request` triggers, including
   `synchronize`
 - `.github/workflows/ai-responder.yml:509` — `ai-review-present` gate job
 - `docs/knowledge/data/spec/pr-merge-conflicts.md:40` — Scenario: Stacked PR
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:29` — skills
-  map row naming pr-merge-chain
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:31` — skills
+  map row for pull-request skills
