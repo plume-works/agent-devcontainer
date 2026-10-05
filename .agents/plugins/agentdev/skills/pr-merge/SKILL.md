@@ -1,15 +1,14 @@
 ---
 name: pr-merge
-description: 'Merge an open GitHub pull request: leave existing auto-merge unchanged, otherwise enable automatic squash merge early, monitor CI and AI review, remediate failures and feedback, then squash merge explicitly if auto-merge is unavailable. Use when a PR needs to be merged or shepherded through CI and review to merge. Keywords: merge PR, auto-merge, squash merge, monitor PR, merge-ready, wait for CI, CI failures, AI review, Claude Responder.'
+description: 'Merge an open GitHub pull request: monitor CI and AI review, resolve conflicts and remediate failures and feedback, then squash merge it explicitly once every requirement passes. Use when a PR needs to be merged or shepherded through CI and review to merge. Keywords: merge PR, squash merge, monitor PR, merge-ready, wait for CI, CI failures, AI review, Claude Responder.'
 ---
 
 # Merge PR
 
 Drive one open pull request through the complete CI-and-review cycle and merge
-it. At the start, leave any existing auto-merge unchanged; otherwise enable
-automatic squash merge. If auto-merge is unavailable, merge explicitly after
-all requirements pass. This is a persistent workflow: wait for the relevant
-GitHub state to change, then act on the new state.
+it explicitly with a squash merge once conflicts, checks, feedback, and reviews
+are all resolved. Never enable auto-merge. This is a persistent workflow: wait
+for the relevant GitHub state to change, then act on the new state.
 
 ## When to Use This Skill
 
@@ -35,6 +34,19 @@ asks to change that state.
   gh auth status
   ```
 
+- Check whether the PR belongs to a GitHub stack and, if so, whether it is the
+  lowest unmerged layer:
+
+  ```bash
+  gh api "repos/{owner}/{repo}/pulls/<pr>" \
+    --jq '{stack: .stack.number, trunk: .stack.base.ref, base: .base.ref}'
+  ```
+
+  A null `stack` is an ordinary PR. A stacked PR whose `base` equals `trunk` is
+  the lowest unmerged layer: GitHub retargets the next layer to the trunk when
+  the layer below merges. A stacked PR whose `base` differs from `trunk` has
+  unmerged layers below it; hand it to `/agentdev:pr-merge-stack` and stop.
+
 - Work from an isolated worktree. If the caller did not provide one, create
   one under `./.tmp/` after resolving the PR number and head branch.
   If current branch matches the PR head branch, use it directly.
@@ -46,6 +58,10 @@ asks to change that state.
   git -C ./.tmp/pr-merge-<pr> switch -c pr-merge-worktree/<pr>
   git -C ./.tmp/pr-merge-<pr> branch --set-upstream-to=origin/<head-branch>
   ```
+
+  For a stacked PR, create the worktree detached and run
+  `gh stack checkout <pr>` inside it instead of the private branch, so
+  `gh stack` tracks the layers under their own names.
 
   Run all local inspection, tests, commits, and pushes from that worktree.
   Push its `HEAD` only to the resolved PR head branch; never push its private
@@ -59,9 +75,9 @@ asks to change that state.
   unresolved review threads. Keep this state in the conversation; do not post
   progress comments to the PR.
 - Work only on the PR head branch. Preserve unrelated local changes, never
-  force-push, and never update its base branch unless the user explicitly
-  requests it. This skill's merge workflow authorizes enabling auto-merge and,
-  when needed, performing the final squash merge.
+  force-push outside `gh stack push`, and never update its base branch unless
+  the user explicitly requests it. This skill's merge workflow authorizes disabling auto-merge and
+  performing the final squash merge.
 - A remediation requested by this skill is authorized by the user request to
   make the PR mergeable. Still stop for a genuinely ambiguous review request
   and ask for clarification in that review thread.
@@ -85,13 +101,14 @@ git -C <worktree> merge --ff-only origin/<head-branch>
 ```
 
 The fetch plus fast-forward merge is the required local pull of any formatter
-commit. If the PR head SHA changed, record the new SHA and restart the
+commit. On a stacked PR, follow it with `gh stack rebase --upstack` and
+`gh stack push`: the layers above no longer contain the new tip. If the PR head SHA changed, record the new SHA and restart the
 monitoring loop from step 1: CI, AI review, feedback, and merge state must all
 be re-evaluated for that new head. If the fast-forward fails, do not create an
 automatic merge; report the local divergence and resolve it only through the
 normal focused-remediation workflow.
 
-## Configure Merge Once
+## Disable Auto-Merge Once
 
 Immediately after resolving the PR and confirming it is open and not a draft,
 inspect its automatic merge request:
@@ -100,16 +117,13 @@ inspect its automatic merge request:
 gh pr view <pr> --json autoMergeRequest
 ```
 
-If `autoMergeRequest` is non-null, leave it unchanged and continue monitoring.
-Otherwise, enable automatic squash merge before waiting for CI or review:
+If `autoMergeRequest` is non-null, disable it, so GitHub cannot merge the PR
+before its feedback and reviews are resolved, and record that in the final
+report:
 
 ```bash
-gh pr merge <pr> --auto --squash
+gh pr merge <pr> --disable-auto
 ```
-
-If GitHub reports auto-merge is unavailable or disabled for the repository,
-continue the monitoring loop and use the explicit final squash merge below.
-Treat any other error as a concrete blocker to investigate or report.
 
 ## Completion Criteria
 
@@ -169,8 +183,7 @@ to check later.
      [extract-github-actions-logs](../extract-github-actions-logs/SKILL.md)
      to collect the failing job log and artifacts, then use
      [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) to diagnose,
-     implement, test, commit, and push the focused repair through the
-     [pr-open](../pr-open/SKILL.md) push helper, `agent-code/push-branch.sh`.
+     implement, test, commit, and push the focused repair as step 5 does.
    - A CodeQL or Codecov failure: use the same feedback-resolution skill and
      its linked security or coverage workflow.
    - An external check: record its URL and report it as an external blocker;
@@ -185,7 +198,9 @@ to check later.
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
    `agent-code/push-branch.sh`, handling its result as that skill's step 8 does.
-   Restart the loop
+   On a stacked PR, run `gh stack rebase --upstack` and `gh stack push`
+   through [gh-stack](../gh-stack/SKILL.md) instead, so every layer above
+   carries the fix. Restart the loop
    from step 1 because the head SHA and checks have changed.
 
 6. Once CI is successful, inspect reviews and unresolved review threads. Wait
@@ -197,18 +212,22 @@ to check later.
 7. If feedback leads to a push, restart at step 1. If no actionable feedback
    remains, refresh checks and merge state once more. Perform **Reformat
    Workflow Synchronization** after that final refresh as well. If it changes
-   the head SHA, restart at step 1. Otherwise, if auto-merge was set, wait for
-   GitHub to merge the PR; if it was not, perform the explicit final squash
-   merge.
+   the head SHA, restart at step 1. Otherwise, perform the final squash merge.
 
-## Explicit Final Squash Merge
+## Final Squash Merge
 
-Use this section only when the initial auto-merge check was empty and the early
-`--auto --squash` request was unavailable. After every pre-merge completion
-criterion has been evidenced for the current head SHA, merge the PR explicitly:
+After every pre-merge completion criterion has been evidenced for the current
+head SHA, merge the PR explicitly:
 
 ```bash
 gh pr merge <pr> --squash
+```
+
+A stacked PR cannot be merged with `gh pr merge`; merge the lowest unmerged
+layer with:
+
+```bash
+gh stack merge <pr> --yes --squash
 ```
 
 Refresh the PR afterwards and confirm that its state is `MERGED`. If GitHub
@@ -280,8 +299,8 @@ when an issue comment opens with `@claude review`.
 
 ## Final Report
 
-Report the PR URL, merged SHA, merge method, final check status, AI-review
-outcome, feedback resolved, local verification run, and any remaining external
+Report the PR URL, merged SHA, merge method, any auto-merge request disabled,
+final check status, AI-review outcome, feedback resolved, local verification run, and any remaining external
 or policy blocker. Say the PR was merged only after its merged state is
 evidenced.
 

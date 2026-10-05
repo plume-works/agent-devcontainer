@@ -10,3 +10,6 @@ docs/knowledge/**
 # templates/iwe holds the IWE seed a consumer receives; `iwe normalize` owns its
 # markdown formatting, the same way it owns docs/knowledge above.
 templates/iwe/**
+
+# Vendored byte for byte from github/gh-stack; a pytest pins it to the extension version.
+.agents/plugins/agentdev/skills/gh-stack/**

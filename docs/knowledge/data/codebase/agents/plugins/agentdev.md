@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:44825a3d82558f88122193151d61872a74bc91e0e6af315e5e36c5f4b31e74d5
+source_digest: sha256:a667978c842ae20947b73d8a0e1d3fcfb780c9516eb001d3bf02fe12aebc8650
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-05T12:00:00Z
+stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-05T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -47,7 +47,7 @@ each.
 
 ## Public surface
 
-- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (38
+- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (39
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`
@@ -86,7 +86,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-04):
+Verified anchor points (line numbers as of 2026-10-05):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

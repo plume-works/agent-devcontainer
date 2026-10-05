@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:32e14aa6d53f9b20e645506ea823e1c465b30e2d9e960e591a9be7a182199293
+source_digest: sha256:233caa5f0d29f95ac4b4d91b54e82c36c43a1318b8371898408bb7b1b77f7db7
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-05T12:00:00Z
+stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-05T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -32,7 +32,8 @@ suite for the [OpenCode bridge](opencode-plugin.md), run with
 - `git_fixtures.py` — `FIXTURE_ENV`, `git()`, `outcome()`, and `stub_gh()`,
   shared by the git-skill modules and the push-branch module
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
-  `test_discover_ai_responder.py`, `test_fetch_issue.py`, `test_git_commit.py`,
+  `test_discover_ai_responder.py`, `test_fetch_issue.py`,
+  `test_gh_stack_vendored_version.py`, `test_git_commit.py`,
   `test_git_new_branch.py`, `test_push_branch_map_check.py`,
   `test_remote_codespace_session.py`, `test_result_codes.py`,
   `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
@@ -76,22 +77,28 @@ still checked and a stale one pushed outside the helper stops at `MAP_STALE`, an
 uncommitted edit does not change the verdict, and the temporary check worktree
 is removed.
 
+`test_gh_stack_vendored_version.py` compares the vendored `gh-stack` skill's
+`metadata.version` with `github_cli_gh_stack_version` in the image's
+`github_cli` role defaults, and skips where those defaults are absent.
+
 ## Depends on
 
-`pytest`, `git`, `bash`, and `bun` for the OpenCode suite; nothing from the rest
-of the repository.
+`pytest`, `git`, `bash`, PyYAML, and `bun` for the OpenCode suite. Only
+`test_gh_stack_vendored_version.py` reads outside the plugin: the `github_cli`
+role defaults in [Ansible](../../../ansible.md).
 
 ## Invariants & gotchas
 
-- A path that climbs out of the plugin resolves nowhere once installed, so tests
-  never use one; `plugin_root / 'skills/<name>/agent-code/<script>.sh'` is the
-  only way to reach a script.
+- A path that climbs out of the plugin resolves nowhere once installed, so a
+  script is reached only as
+  `plugin_root / 'skills/<name>/agent-code/<script>.sh'`; the one test that
+  reads a repository file skips when it is absent.
 - Fixtures use invented identities, never this repository's published names.
 - Tests for the validator package live with that package, not here.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-04):
+Verified anchor points (line numbers as of 2026-10-05):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`

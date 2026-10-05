@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 38 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:7e67b3cebb560e2e95926be8ddb8c245f5822449a64cf2c387ea8e9b250cfa81
+source_digest: sha256:66e15800ee229bde599beeed5945205d1b75b693e6523421ec247acad4ee291f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T16:10:23Z
-stale_after: 2026-12-31
+  at: 2026-10-05T12:00:00Z
+stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T16:10:23Z
+  at: 2026-10-05T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -26,18 +26,20 @@ namespaced name.
 
 ## Public surface
 
-| Family                            | Count | Skills                                                                                                                                                                                                                                                             |
-| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Git and pull requests             | 14    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-chain` |
-| Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                          |
-| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                 |
-| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                        |
+| Family                            | Count | Skills                                                                                                                                                                                                                                                                         |
+| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Git and pull requests             | 15    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-stack` |
+| Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                                      |
+| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                             |
+| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                                    |
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
 `git-new-branch`, `git-merge-resolve`, `iwe-capture`, `iwe-explore`, `iwe-map`,
 `iwe-plan`, `pr-discover-ai-responder`, `pr-gen-description`, `pr-open`,
 `pr-review`, `remote-codespace-session`, `template-consume`, `update-branch`.
-Skills with `references/` pages: `semantic-refactor-audit`, `template-consume`.
+Skills with `references/` pages: `gh-stack`, `semantic-refactor-audit`,
+`template-consume`. `gh-stack` is vendored unchanged from `github/gh-stack` with
+its upstream `LICENSE`, at the release the image's `github_cli` role installs.
 
 ## How it works
 
@@ -85,7 +87,10 @@ before it reports `ACTION=none` for a head the upstream already has, it runs
 head and prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map
 exits `MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7),
 neither pushing. A commit without `.iwe/config.toml` is not checked, and
-`--skip-map-check` bypasses the check.
+`--skip-map-check` bypasses the check. A branch of a GitHub stack is pushed with
+`gh stack push` instead, which runs no map check; `update-branch` refuses such a
+branch, and `pr-merge` hands a stacked PR with unmerged layers below it to
+`pr-merge-stack`, which lands the stack with one `gh stack merge`.
 
 ## Depends on
 
@@ -102,7 +107,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-05):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows

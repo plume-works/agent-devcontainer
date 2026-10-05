@@ -13,6 +13,12 @@ to the current day's group.
   implemented.
 - **Update**: [OpenCode catalog bridge](spec/opencode-catalog-bridge.md) spec
   created.
+- **Update**: [Stacked pull requests](architecture/stacked-prs.md) architecture
+  doc created from the stacked-PR spike.
+- **Update**: Refreshed the agentdev, agentdev skills, agentdev tests, Ansible,
+  and image-build flow codebase maps for the vendored gh-stack skill, the new
+  pr-merge-stack skill and the chain-merge skill it replaced, and the pinned
+  gh-stack extension.
 
 ## 2026-10-04
 
