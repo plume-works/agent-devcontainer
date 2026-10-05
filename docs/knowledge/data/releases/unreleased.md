@@ -27,6 +27,8 @@ starts a fresh one.*
 
 [Fresh codebase map on push](../features/fresh-map-on-push.md)
 
+[Native stacked pull requests](../features/native-stacked-prs.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

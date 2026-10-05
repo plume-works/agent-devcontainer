@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-05
 
+- **Update**: [Native stacked pull requests](features/native-stacked-prs.md)
+  implemented.
 - **Update**:
   [Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
   done. The PR skills merge every PR explicitly, merge a GitHub native stack
