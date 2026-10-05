@@ -3,8 +3,8 @@ type: tracker
 description: What the product is, who it is for, and the decisions every plan and spec derives from.
 stage: living
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-01T00:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-05T10:30:00Z
 ---
 
 # Product
@@ -120,8 +120,12 @@ it):
   content — local git workflows only; stop and report if push auth is
   unavailable.
 - Commit at meaningful checkpoints during a task, not only at the end.
+- Never force-push, except `gh stack push`, `rebase`, and `sync` with
+  `--force-with-lease` on branches of a GitHub stack.
 - Never change git config (local or global) or switch/change the remote unless
-  explicitly instructed.
+  explicitly instructed; the repository-local `rerere.enabled` and
+  `remote.pushDefault` that `gh stack` and the vendored `gh-stack` skill's setup
+  write are the only exception.
 - Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
   install globally.
 - Scope test runs narrowly while iterating (`uv run pytest <path>::<test>`);
@@ -171,3 +175,5 @@ it):
   the standalone Python format/lint skill (its policy folded into `AGENTS.md`),
   extended the hooks to merge commits, and kept `agentdev:local-reformat` for
   manual runs.
+- 2026-10-05 — added the never-force-push rule with its GitHub stack exception,
+  and allowed the repository-local git config that `gh stack` writes.
