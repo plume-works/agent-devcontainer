@@ -188,12 +188,15 @@ harmless, so each mutant fails only in its broken part.
 
 **Files:** Create: `.tmp/replay/` (harness, inputs, and outputs; not committed)
 
-- [ ] Run Step 6 alone on the frozen candidate set, F5′, and M1–M3 five times
+- [x] Run Step 6 alone on the frozen candidate set, F5′, and M1–M3 five times
   per arm with the matrix's `light` Codex model and per-candidate dispatch: the
   **current arm** uses `pr-review/SKILL.md` at `main`, and the **new arm** uses
   the Task 2–4 edit. Keep every validator's verdict and justification. Record
   per-candidate verdict counts for each arm, plus every new-arm `DROP` with the
   part it names, under `## Verification results`.
+  - **Evidence:** the `docs(plan): record the validator-only replay` commit
+    records all 70 runs under `### Validator-only replay`; the new arm fails the
+    gate on F5′, M1, M2, and M3.
 
 ### Task 6: Run the full replays
 
@@ -247,6 +250,43 @@ Mechanical checks:
 `pre-commit run validate-agent-files --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
 passes; the architecture doc is linked from `data/architecture.md`;
 `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+### Validator-only replay
+
+Each validator ran as one `codex exec` with `gpt-5.6-terra`, medium model
+reasoning, and a read-only sandbox, at the candidate's head commit. Its prompt
+carries exactly the fields and bar the arm's Step 6 lists; the new arm's prompt
+also says where to read the PR title and description, as the `eb3bc12` Step 6
+edit requires. The three-part splits of F1 and F5 each have an empty Outcome, so
+both are discarded at Step 5 and do not run in the new arm.
+
+| ID  | Current arm `CONFIRM` | New arm `CONFIRM` | New arm `DROP`            | Gate                    |
+| --- | --------------------- | ----------------- | ------------------------- | ----------------------- |
+| F1  | 5/5                   | —                 | —                         | Discarded at Step 5     |
+| F2  | 5/5                   | 5/5               | 0                         | Holds                   |
+| F3  | 5/5                   | 5/5               | 0                         | Holds                   |
+| F4  | 5/5                   | 5/5               | 0                         | Holds                   |
+| F5  | 5/5                   | —                 | —                         | Discarded at Step 5     |
+| F5′ | —                     | 3/5               | 2 (`outcome`)             | Fails                   |
+| F6  | 5/5                   | 5/5               | 0                         | Holds                   |
+| M1  | —                     | 0/5               | 5 (4 `path`, 1 `trigger`) | Fails: wrong part named |
+| M2  | —                     | 5/5               | 0                         | Fails                   |
+| M3  | —                     | 5/5               | 0                         | Fails                   |
+
+New-arm drops:
+
+- **F5′ (2):** `outcome` — `postCreateCommand.sh` sets the credential parent
+  directories to `0700` before seeding, so a loose-mode credential is not
+  readable beyond its owner.
+- **M1 (5):** four name `path` and one names `trigger`, all on the ground that
+  `sha256sum` exists on a GNU coreutils host.
+
+The current arm confirms F1 and F5 in every run, so in isolation today's bar
+does not drop a real finding for lack of an outcome. Every M2 and M3
+justification re-derives the candidate's unchanged claim and never tests the
+broken part: the validator judges the claim, not the scenario it is handed.
 
 ## Out of scope
 
