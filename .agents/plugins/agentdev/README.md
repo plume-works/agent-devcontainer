@@ -73,6 +73,7 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:git-new-branch`           | Start a work branch at the fetched remote base, with its own upstream.  |
 | `/agentdev:git-merge-resolve`        | Merge a ref and resolve conflicts, escalating when unsure.              |
 | `/agentdev:update-branch`            | Update the current feature branch from its remote base.                 |
+| `/agentdev:gh-stack`                 | Drive `gh stack` non-interactively; vendored from `github/gh-stack`.    |
 | `/agentdev:pr-open`                  | Open a PR from conversation context, or refresh the branch existing PR. |
 | `/agentdev:pr-sync`                  | Resync the branch PR title and body, delegating to `pr-open`.           |
 | `/agentdev:pr-gen-description`       | Write a PR description from the change analysis.                        |
