@@ -4,7 +4,7 @@ created: 2026-10-02
 description: Replace the manual main-targeted PR chain with GitHub native stacked pull requests — pin the gh-stack extension, vendor GitHub's gh-stack skill, allow lease-guarded force-pushes on stack branches only, merge every PR explicitly, and land stacks with gh stack merge.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-02T23:17:48Z
+  at: 2026-10-05T13:00:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://github.com/github/gh-stack/tree/main/skills/gh-stack
@@ -93,7 +93,7 @@ versioned with the extension.
 
 **Files:** none (scratch branches and PRs in this repository, closed afterwards)
 
-- [ ] Record, from one scratch three-layer stack, all four answers: the REST
+- [x] Record, from one scratch three-layer stack, all four answers: the REST
   `stack` object of a mid-stack PR; whether `gh pr merge --squash` is refused on
   the bottom PR; whether `gh stack merge <bottom> --yes --squash` passes the
   `main` ruleset; and whether the next layer's post-merge rebase re-runs
