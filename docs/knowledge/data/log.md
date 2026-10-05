@@ -17,12 +17,27 @@ to the current day's group.
 - **Update**: [Stacked PRs](spec/stacked-prs.md) spec created.
 - **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec resolves a
   conflicted stacked PR with `gh stack rebase`.
+- **Update**:
+  [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
+  done.
+- **Update**: [OpenCode as a catalog host](features/opencode-catalog-host.md)
+  implemented.
+- **Update**: [OpenCode catalog bridge](spec/opencode-catalog-bridge.md) spec
+  created.
 - **Update**: [Stacked pull requests](architecture/stacked-prs.md) architecture
   doc created from the stacked-PR spike.
 - **Update**: Refreshed the agentdev, agentdev skills, agentdev tests, Ansible,
   and image-build flow codebase maps for the vendored gh-stack skill, the new
   pr-merge-stack skill and the chain-merge skill it replaced, and the pinned
   gh-stack extension.
+- **Update**: Re-verified the agentdev, agentdev tests, Ansible, and image-build
+  flow codebase maps after merging the stacked-PR work with the OpenCode bridge.
+
+## 2026-10-04
+
+- **Update**: Mapped the OpenCode bridge plugin and refreshed the thirteen
+  codebase-map docs that the OpenCode catalog host and the agentdev 4.2.0 pins
+  moved.
 
 ## 2026-10-02
 

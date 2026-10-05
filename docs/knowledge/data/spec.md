@@ -45,3 +45,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [PR merge conflicts](spec/pr-merge-conflicts.md)
 
 [Stacked PRs](spec/stacked-prs.md)
+
+[OpenCode catalog bridge](spec/opencode-catalog-bridge.md)

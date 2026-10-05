@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:c9b32b532adb8967f3bff9a368b9338164fe67b77a243e2f757dd88008473374
+source_digest: sha256:81ea45be06fee37f060f494be41d20e0ebabc60dd4644b83af103185cbf9b665
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
-stale_after: 2026-12-31
+  at: 2026-10-04T12:00:00Z
+stale_after: 2027-01-02
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-04T12:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -22,17 +22,17 @@ scheduled Renovate bot, and one manual job.
 
 ## Public surface
 
-| Workflow                       | Trigger                                         | Jobs                                                                                                       |
-| ------------------------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                             |
-| `reformat.yml`                 | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                               |
-| `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`   |
-| `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites, the validator with `--require-marketplace claude codex`, then the map-staleness check |
-| `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                       |
-| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate rev) → `finished`                  |
-| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App             |
-| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                            |
-| `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                 |
+| Workflow                       | Trigger                                         | Jobs                                                                                                                                         |
+| ------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`)                                                                                               |
+| `reformat.yml`                 | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                                                                 |
+| `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`                                     |
+| `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites and the OpenCode bridge bun suite, the validator with `--require-marketplace claude codex`, then the map-staleness check |
+| `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                                                         |
+| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate rev) → `finished`                                                    |
+| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App                                               |
+| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                              |
+| `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                                                   |
 
 ## How it works
 
@@ -109,7 +109,7 @@ then its final step verifies every recorded digest. The full traces are
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-04):
 
 - `.github/workflows/primary-checks.yml:31,52` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:185,279,421` — `super-linter`,
@@ -117,8 +117,8 @@ Verified anchor points (line numbers as of 2026-10-02):
 - `.github/workflows/ci.yml:62,97,165,204` — build matrix, base-image selection,
   merge, devcontainer smoke
 - `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
-- `.github/workflows/validate-agent-files.yml:38-88` — map-source filter and the
-  four check steps
+- `.github/workflows/validate-agent-files.yml:38-99` — map-source filter and the
+  check steps
 - `.github/workflows/validate-knowledge-base.yml:19,69-109` — `IWE_VERSION`,
   graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs

@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
-
 [Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
 
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
@@ -30,6 +28,8 @@ moves them.*
 ## Done
 
 [Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
+
+[Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
 
 [Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
 

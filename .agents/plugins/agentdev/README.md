@@ -1,6 +1,6 @@
-# `agentdev` — a shared agent catalog for Claude Code and Codex
+# `agentdev` — a shared agent catalog for Claude Code, Codex, and OpenCode
 
-A Claude Code and Codex plugin with the agents, skills, and helper scripts for
+A Claude Code, Codex, and OpenCode plugin with the agents, skills, and helper scripts for
 everyday development work: git and pull requests, code review, CI log triage,
 formatting and linting, and escalating a command to a container or Codespace when
 the host lacks the toolchain.
@@ -41,6 +41,28 @@ files. This repository's devcontainer installs the staged plugin during
 `postCreateCommand` and refreshes the workspace copy on every editor attachment;
 start a new Codex session after attaching or reloading the window.
 
+## Installing in OpenCode
+
+OpenCode reads the same directory through the bridge plugin in
+`.opencode-plugin/`. The `agent-desktop` image registers the staged bridge in
+`~/.config/opencode/opencode.json`, and this repository's devcontainer points it
+at the workspace copy on every editor attachment.
+
+Everywhere else, check out this repository and list the bridge directory's
+absolute path in the `plugin` array of your OpenCode config — the project's
+`opencode.json`, or `~/.config/opencode/opencode.json` for every project:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "/path/to/agent-devcontainer/.agents/plugins/agentdev/.opencode-plugin"
+  ]
+}
+```
+
+The bridge has no dependencies to install. Restart OpenCode to load it.
+
 ## Using it
 
 Skills are namespaced by the plugin name — `/agentdev:pr-open`,
@@ -50,6 +72,11 @@ matches a skill's description, so most of the time you just ask for the work.
 
 Agents are addressed by name (`principal-engineer`, `tdd-red`, `tdd-green`,
 `tdd-refactor`).
+
+In OpenCode the same `/agentdev:<name>` commands appear in the `/` menu, the
+model loads skills by either spelling, and each agent is a subagent limited to
+the tools its definition lists. A skill that opts out of model invocation stays
+available as its command only.
 
 Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 `super-linter-local.sh` or `python-lint-check.sh` directly in a terminal.
@@ -142,7 +169,8 @@ tools a given skill needs.
 The plugin carries its own suite in `tests/`, covering the observable behavior of the
 scripts it ships — the `bin/` helpers and the `agent-code/` bundled with individual skills,
 including their exit codes and `RESULT=` lines. Run it with `pytest tests` from this
-directory; it needs `pytest`, `git`, and `bash`.
+directory; it needs `pytest`, `git`, and `bash`. The OpenCode bridge has its own
+suite, run with `bun test ./tests/opencode`.
 
 The tests resolve everything they exercise through a `plugin_root` fixture, so they pass
 from an installed copy of the plugin as readily as from the repository that develops it.

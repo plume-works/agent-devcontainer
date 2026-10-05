@@ -5,14 +5,14 @@ source:
 - docker
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
-source_digest: sha256:5908a4befb6183b873efd7e30efb74da52c9a6e35265fe8b9d6b1c711f01f6a1
+source_digest: sha256:78226366419bdce16543a129257e079a9b2b5c1e207bfb341fae352bf5e4893e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:30:00Z
-stale_after: 2026-12-31
+  at: 2026-10-04T12:00:00Z
+stale_after: 2027-01-02
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:30:00Z
+  at: 2026-10-04T12:00:00Z
 sources:
 - id: code
   resource: docker
@@ -53,11 +53,12 @@ is the surface those consumers touch; the build that produces it is
   `/usr/local/bin/init-firewall.sh` with a NOPASSWD sudoers entry, the `gh`
   wrapper ahead of the real `gh`
 - `/opt/agentdev` — the staged catalog, root-owned and read-only, with the
-  plugin already installed for both agents at build time
-- On `PATH`: `uv`, `bun`, `node`, `claude`, `codex`, `gh`, `cmake`, `ninja`,
-  `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`/`iwec`, `codebase-memory-mcp`,
-  `validate_agent_files`, `pre-commit`, `xpra`, `gnome-keyring-daemon`, Docker
-  CE with buildx and compose
+  plugin already installed for Claude Code and Codex at build time and its
+  OpenCode bridge listed in `~/.config/opencode/opencode.json`
+- On `PATH`: `uv`, `bun`, `node`, `claude`, `codex`, `opencode`, `gh`, `cmake`,
+  `ninja`, `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`/`iwec`,
+  `codebase-memory-mcp`, `validate_agent_files`, `pre-commit`, `xpra`,
+  `gnome-keyring-daemon`, Docker CE with buildx and compose
 - `EXPOSE 14500` — the Xpra HTML5 container port, fixed by default and
   overridable with `/start-xpra.sh --port`; the devcontainer forwards `14500`
 

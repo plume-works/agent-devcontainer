@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth seeding and symlinks, gh credential helper, Claude Remote Control.'
 source: .devcontainer/scripts
-source_digest: sha256:98adb941c99469a59ae58e332a9bb77b6709534d9f8dc106f7eb410148c86895
+source_digest: sha256:5207c74405594feea2485b1741cace1f14d915c7f14e91c721eeff9b1ce51bce
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-29T23:30:00Z
-stale_after: 2026-12-28
+  by: claude-code/opus-5.5
+  at: 2026-10-05T20:00:00Z
+stale_after: 2027-01-02
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-29T23:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-04T12:00:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -31,6 +31,7 @@ runs outside the devcontainer.
 | `postAttachCommand.sh`                               | every editor attach   | CBM index, uv sync, reinstall the catalog from this checkout                                                                      |
 | `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach        | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                           |
 | `reinstall-agentdev-codex.sh [root]`                 | create, attach        | the Codex equivalent, single-plugin; Codex has no scopes                                                                          |
+| `reinstall-agentdev-opencode.sh [root]`              | create, attach        | point the `plugin` list of the user's `opencode.json` at `root`'s OpenCode bridge, replacing any earlier bridge entry             |
 | `codebase-memory-mcp-{install,start,index}.sh`       | create, start, attach | agent-config wiring, daemon start, repository index                                                                               |
 | `uv-sync.sh`                                         | create, attach        | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                                                       |
 | `link-codex-auth.sh`                                 | create, start         | symlink `~/.codex/auth.json` into the shared auth volume                                                                          |
@@ -47,7 +48,7 @@ runs outside the devcontainer.
 
 ## How it works
 
-Create installs the image-staged catalog for both agents
+Create installs the image-staged catalog for all three agents
 (`AGENTDEV_CATALOG_DIR`, user scope for Claude); attach reinstalls from the
 workspace with no argument, which defaults the root to this checkout and the
 scope to `local`, so this repository develops the catalog in place while any
@@ -56,9 +57,12 @@ reinstall scripts list existing marketplaces whose path is the root, remove each
 (uninstalling at every scope, tolerating "not found"), then add and install. The
 Claude script reads every name from `.plugins[]` and loops, so the Claude
 marketplace's two plugins both install; the Codex script reads `.plugins[0]`,
-which is accurate because its manifest publishes one. CBM wiring temporarily
-materializes the `~/.claude.json` symlink because the installer rewrites the
-file.
+which is accurate because its manifest publishes one. The OpenCode script
+rewrites only the `plugin` array of
+`${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/opencode.json`,
+creating the file when absent, and exits quietly when `root` ships no
+`.opencode-plugin/`. CBM wiring temporarily materializes the `~/.claude.json`
+symlink because the installer rewrites the file.
 
 Agent auth arrives as transfer files that `prepare-agent-auth-seed.sh` writes
 from `initializeCommand`; `seed-agent-auth.sh` runs at create and at every
@@ -92,17 +96,19 @@ The image's tools (`claude`, `codex`, `codebase-memory-mcp`, `uv`, `jq`,
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-10-04):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56-62` — `~/.claude.json` symlink
   into the volume
 - `.devcontainer/scripts/postCreateCommand.sh:72-73` — auth seeding and Claude
   pre-approval
-- `.devcontainer/scripts/postCreateCommand.sh:91-94` — staged-catalog install
+- `.devcontainer/scripts/postCreateCommand.sh:91-95` — staged-catalog install
 - `.devcontainer/scripts/postStartCommand.sh:9-31` — the start sequence
-- `.devcontainer/scripts/postAttachCommand.sh:14-15` — workspace reinstall
+- `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:64-65` — add + install
+- `.devcontainer/scripts/reinstall-agentdev-opencode.sh:32-38` — bridge entry
+  rewrite
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:55-75` — symlink
   materialization and restore
 - `.devcontainer/scripts/uv-sync.sh:23-32` — managed-link removal and sync
