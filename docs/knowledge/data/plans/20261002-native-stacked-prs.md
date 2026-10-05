@@ -215,10 +215,13 @@ vendored files
 **Files:** Create: `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`;
 Modify: `.agents/plugins/agentdev/README.md`
 
-- [ ] Accept a PR or stack number, read the stack with `gh stack view --json`,
+- [x] Accept a PR or stack number, read the stack with `gh stack view --json`,
   run `pr-merge`'s loop on each unmerged layer bottom-up without merging,
   re-sync after any lower-layer change, then land the stack with one
   `gh stack merge <top> --yes --squash` and handle a merge that stops partway
+  - **Evidence:** committed with this tick;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors; the skill runs end to end in Task 14
 
 ### Task 12: Remove pr-merge-chain
 
