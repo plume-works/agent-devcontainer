@@ -151,9 +151,12 @@ vendored files
   - **Evidence:** committed with this tick; `diff -r` against tag v0.2.0
     (d4ab7ab) differs only by `LICENSE`; `uv run validate_agent_files` 0 errors;
     pre-commit leaves the files unchanged under the `.prettierignore` entry
-- [ ] Add a pytest that fails when the vendored skill's `metadata.version`
+- [x] Add a pytest that fails when the vendored skill's `metadata.version`
   differs from the pinned extension version, so a Renovate bump cannot leave the
   skill behind
+  - **Evidence:** `test_gh_stack_vendored_version.py`, committed with this tick,
+    passes; it fails with `'0.2.0' == '0.1.1'` when the pin is set to v0.1.1,
+    and skips in a plugin cache that has no `ansible/` tree
 
 ### Task 7: State the stack-branch policy exception
 
