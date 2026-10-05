@@ -233,8 +233,12 @@ Modify: `.agents/plugins/agentdev/README.md`
 **Files:** Delete: `.agents/plugins/agentdev/skills/pr-merge-chain/SKILL.md`;
 Modify: `.agents/plugins/agentdev/README.md`
 
-- [ ] Delete the skill and its README row; no file outside
+- [x] Delete the skill and its README row; no file outside
   `docs/knowledge/data/plans/` still names it
+  - **Evidence:** commit 9ecc887 deleted the skill and row; after the Task 13
+    map refresh,
+    `grep -rn "pr-merge-chain" --exclude-dir=plans .agents docs AGENTS.md README.md`
+    prints nothing
 
 ### Task 13: Refresh the codebase map
 
