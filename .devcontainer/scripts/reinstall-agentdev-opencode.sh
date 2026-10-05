@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Register a catalog root's OpenCode bridge plugin in the user's OpenCode config.
-#
-# Called with the same roots as reinstall-agentdev-codex.sh: postCreate passes the
-# catalog staged in the image, postAttach passes nothing, which defaults to this
-# checkout. Each run leaves exactly one bridge entry, pointing at the last root.
+# Point the user's OpenCode config at a catalog root's bridge plugin (default: this
+# checkout), as reinstall-agentdev-codex.sh does for Codex. Each run leaves exactly
+# one bridge entry, pointing at the last root.
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

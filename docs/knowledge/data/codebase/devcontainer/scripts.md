@@ -2,10 +2,10 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth seeding and symlinks, gh credential helper, Claude Remote Control.'
 source: .devcontainer/scripts
-source_digest: sha256:2129b56d82417140b99eb2be0f3a0ee63b4f0065da970748a4480706cb901558
+source_digest: sha256:5207c74405594feea2485b1741cace1f14d915c7f14e91c721eeff9b1ce51bce
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-05T20:00:00Z
 stale_after: 2027-01-02
 generated:
   by: claude-code/opus-5.5
@@ -107,7 +107,7 @@ Verified anchor points (line numbers as of 2026-10-04):
 - `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:64-65` — add + install
-- `.devcontainer/scripts/reinstall-agentdev-opencode.sh:34-40` — bridge entry
+- `.devcontainer/scripts/reinstall-agentdev-opencode.sh:32-38` — bridge entry
   rewrite
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:55-75` — symlink
   materialization and restore
