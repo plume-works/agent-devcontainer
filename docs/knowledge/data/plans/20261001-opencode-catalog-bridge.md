@@ -388,8 +388,8 @@ image's staged copy.
   image-staged catalog in place.
 ```
 
-`spec/opencode-catalog-bridge` (new) — the bridge's contract, including the
-permission mapping that limits subagents:
+[OpenCode catalog bridge](../spec/opencode-catalog-bridge.md) (new) — the
+bridge's contract, including the permission mapping that limits subagents:
 
 ``` markdown
 ## ADDED Requirements
