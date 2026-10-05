@@ -6,14 +6,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:df41b41755e9bb2acebe0a4874675e69817df25e3d408c605cd1f1ed25ae9d13
+source_digest: sha256:7d818a0de7cb419d3fe4ccf5d3d469365e15feac72c48168ef5f490a434fd773
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-05T19:11:30Z
+  at: 2026-10-05T19:14:45Z
 stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-05T19:11:30Z
+  at: 2026-10-05T19:14:45Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
