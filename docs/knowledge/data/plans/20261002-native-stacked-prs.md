@@ -162,11 +162,14 @@ vendored files
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] Amend the git config rule to allow the repository-local `rerere.enabled`
+- [x] Amend the git config rule to allow the repository-local `rerere.enabled`
   and `remote.pushDefault` that `gh stack` and the vendored skill's setup write,
   add a repository-wide rule — never force-push, except `gh stack push`,
   `rebase`, and `sync` with `--force-with-lease` on branches of a GitHub stack —
   to `AGENTS.md`, and mirror both in `product.md`'s `## Authoring rules`
+  - **Evidence:** committed with this tick: the `AGENTS.md` force-push rule and
+    Best Practice 0 exception, mirrored in `data/product` `## Authoring rules`;
+    `iwe schema validate` passes
 
 ### Task 8: Make update-branch and pr-open stack-aware
 
