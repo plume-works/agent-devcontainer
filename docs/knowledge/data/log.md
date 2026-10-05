@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-05
+
+- **Update**:
+  [Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
+  done. The Codex replay was mixed, so the shipped correctness bar stays
+  unchanged and validator strictness is the open question; see
+  [PR review correctness bar](architecture/pr-review-correctness-bar.md).
+
 ## 2026-10-02
 
 - **Update**: Refreshed the ansible, validate_agent_files role, and image-build

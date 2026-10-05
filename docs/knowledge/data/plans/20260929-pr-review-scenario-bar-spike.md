@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-09-29
+stage: done
+completed: 2026-10-05
 description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
   by: codex/gpt-6
