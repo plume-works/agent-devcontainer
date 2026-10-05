@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-05
+
+- **Update**: [Stacked pull requests](architecture/stacked-prs.md) architecture
+  doc created from the stacked-PR spike.
+- **Update**: Refreshed the agentdev, agentdev skills, agentdev tests, Ansible,
+  and image-build flow codebase maps for the vendored gh-stack skill, the new
+  pr-merge-stack skill and the chain-merge skill it replaced, and the pinned
+  gh-stack extension.
+
 ## 2026-10-02
 
 - **Update**: Refreshed the ansible, validate_agent_files role, and image-build

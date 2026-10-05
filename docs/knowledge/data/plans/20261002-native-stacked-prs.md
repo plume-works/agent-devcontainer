@@ -4,7 +4,7 @@ created: 2026-10-02
 description: Replace the manual main-targeted PR chain with GitHub native stacked pull requests — pin the gh-stack extension, vendor GitHub's gh-stack skill, allow lease-guarded force-pushes on stack branches only, merge every PR explicitly, and land stacks with gh stack merge.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T13:00:00Z
+  at: 2026-10-05T13:05:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://github.com/github/gh-stack/tree/main/skills/gh-stack
@@ -133,7 +133,12 @@ versioned with the extension.
 
 **Files:** none
 
-- [ ] A local image build succeeds and `gh stack --help` runs inside it
+- [x] A local image build succeeds and `gh stack --help` runs inside it
+  - **Evidence:** local
+    `docker build -f docker/desktop/agent-desktop.Dockerfile .` at becc7b7
+    exited 0, its `Install the pinned gh-stack extension` task reported
+    `changed`, and `gh stack --help` ran in the image as root, the devcontainer
+    user
 
 ### Task 6: Vendor the gh-stack skill
 
@@ -176,53 +181,74 @@ vendored files
 **Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`,
 `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] `update-branch` refuses a branch that belongs to a GitHub stack and points
+- [x] `update-branch` refuses a branch that belongs to a GitHub stack and points
   to `gh stack sync`; `pr-open`'s push step routes a stack branch to
   `gh stack push` instead of `push-branch.sh`
+  - **Evidence:** committed with this tick; the detection commands print stack
+    259 for #256 and nothing for #260;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors
 
 ### Task 9: Route a conflicted stacked PR to a cascading rebase
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 
-- [ ] The merge-conflict step resolves a conflicted stacked PR with
+- [x] The merge-conflict step resolves a conflicted stacked PR with
   `gh stack rebase` and `gh stack push` instead of `update-branch`; a
   non-stacked PR keeps merging its `baseRefName`
+  - **Evidence:** committed with this tick;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors
 
 ### Task 10: Merge a stacked PR with gh stack merge in pr-merge
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] For a stacked PR, `pr-merge` merges only the lowest unmerged layer, with
+- [x] For a stacked PR, `pr-merge` merges only the lowest unmerged layer, with
   `gh stack merge <pr> --yes --squash`, and pushes remediations through
   `gh stack rebase --upstack` and `gh stack push`; a higher layer is handed to
   `pr-merge-stack`
+  - **Evidence:** committed with this tick; the lowest-layer test (`base` equals
+    `stack.base.ref`) matches stack #259, where #256 and the rebased #257
+    targeted `main` and the unrebased #257 targeted `spike/stack-a`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors
 
 ### Task 11: Create pr-merge-stack
 
 **Files:** Create: `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`;
 Modify: `.agents/plugins/agentdev/README.md`
 
-- [ ] Accept a PR or stack number, read the stack with `gh stack view --json`,
+- [x] Accept a PR or stack number, read the stack with `gh stack view --json`,
   run `pr-merge`'s loop on each unmerged layer bottom-up without merging,
   re-sync after any lower-layer change, then land the stack with one
   `gh stack merge <top> --yes --squash` and handle a merge that stops partway
+  - **Evidence:** committed with this tick;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors; the skill runs end to end in Task 14
 
 ### Task 12: Remove pr-merge-chain
 
 **Files:** Delete: `.agents/plugins/agentdev/skills/pr-merge-chain/SKILL.md`;
 Modify: `.agents/plugins/agentdev/README.md`
 
-- [ ] Delete the skill and its README row; no file outside
+- [x] Delete the skill and its README row; no file outside
   `docs/knowledge/data/plans/` still names it
+  - **Evidence:** commit 9ecc887 deleted the skill and row; after the Task 13
+    map refresh,
+    `grep -rn "pr-merge-chain" --exclude-dir=plans .agents docs AGENTS.md README.md`
+    prints nothing
 
 ### Task 13: Refresh the codebase map
 
 **Files:** Modify:
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md`
 
-- [ ] Run `/agentdev:iwe-map` in refresh mode so the skills map lists `gh-stack`
+- [x] Run `/agentdev:iwe-map` in refresh mode so the skills map lists `gh-stack`
   and `pr-merge-stack` instead of `pr-merge-chain`
+  - **Evidence:** committed with this tick; `stale-map-docs.py` ends
+    `RESULT=SUCCESS` over 27 docs and `iwe schema validate` passes
 
 ### Task 14: Merge a real stack with pr-merge-stack
 
