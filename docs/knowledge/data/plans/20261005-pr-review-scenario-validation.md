@@ -166,14 +166,23 @@ harmless, so each mutant fails only in its broken part.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] Step 6's single validator prompt carries a candidate's scenario parts when
+- [x] Step 6's single validator prompt carries a candidate's scenario parts when
   present. For such a candidate, the validator checks each part against the head
   commit and returns `CONFIRM` or `DROP: trigger|path|outcome — <reason>` (B).
   Candidates without a scenario keep the current bar and verdict form.
-- [ ] Step 6's bar states the stated-intent rule (C) in a form that applies to
+  - **Evidence:** the
+    `feat(pr-review): validate correctness scenarios part by part` commit adds
+    the scenario parts to Step 6's prompt and splits the re-derive bullet by
+    candidate shape, keeping the original bar and verdict for candidates without
+    a scenario.
+- [x] Step 6's bar states the stated-intent rule (C) in a form that applies to
   both outcomes and names no candidate.
-- [ ] `pre-commit run validate-agent-files --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
+  - **Evidence:** the same commit adds Step 6's "Stated intent is evidence, not
+    a verdict" bullet, which names no candidate or pass.
+- [x] `pre-commit run validate-agent-files --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
   passes.
+  - **Evidence:** the hook passes on the same commit's `SKILL.md`, as does
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`.
 
 ### Task 5: Run the validator-only replay
 
