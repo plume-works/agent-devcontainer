@@ -145,9 +145,12 @@ versioned with the extension.
 `.agents/plugins/agentdev/README.md`, `.prettierignore` if Prettier rewrites the
 vendored files
 
-- [ ] Copy `skills/gh-stack` and the upstream `LICENSE` from the
+- [x] Copy `skills/gh-stack` and the upstream `LICENSE` from the
   `github/gh-stack` tag pinned in Task 4, byte for byte; `validate_agent_files`
   passes and no formatter rewrites them
+  - **Evidence:** committed with this tick; `diff -r` against tag v0.2.0
+    (d4ab7ab) differs only by `LICENSE`; `uv run validate_agent_files` 0 errors;
+    pre-commit leaves the files unchanged under the `.prettierignore` entry
 - [ ] Add a pytest that fails when the vendored skill's `metadata.version`
   differs from the pinned extension version, so a Renovate bump cannot leave the
   skill behind
