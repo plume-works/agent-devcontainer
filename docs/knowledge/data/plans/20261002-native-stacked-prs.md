@@ -176,9 +176,13 @@ vendored files
 **Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`,
 `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] `update-branch` refuses a branch that belongs to a GitHub stack and points
+- [x] `update-branch` refuses a branch that belongs to a GitHub stack and points
   to `gh stack sync`; `pr-open`'s push step routes a stack branch to
   `gh stack push` instead of `push-branch.sh`
+  - **Evidence:** committed with this tick; the detection commands print stack
+    259 for #256 and nothing for #260;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors
 
 ### Task 9: Route a conflicted stacked PR to a cascading rebase
 

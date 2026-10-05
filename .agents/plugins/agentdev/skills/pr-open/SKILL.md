@@ -209,7 +209,20 @@ through `pr-gen-description` first.
 **CRITICAL:** Before creating or updating the PR, push the branch so the remote
 head ref contains every commit the body describes.
 
-Run the bundled helper:
+First check whether the branch belongs to a GitHub stack:
+
+```bash
+pr=$(gh pr view --json number --jq .number 2>/dev/null) &&
+  gh api "repos/{owner}/{repo}/pulls/$pr" --jq '.stack.number // empty'
+gh stack view --json >/dev/null 2>&1 && echo "tracked in a local stack"
+```
+
+If either prints anything, push the stack with `gh stack push` through
+[gh-stack](../gh-stack/SKILL.md) instead of the helper below, then continue at
+step 9. `gh stack push` updates stack branches with `--force-with-lease` and
+runs no codebase-map check; CI still reports a stale map.
+
+Otherwise, run the bundled helper:
 
 ```bash
 ${CLAUDE_SKILL_DIR}/scripts/push-branch.sh
@@ -244,8 +257,9 @@ verbatim.
 
 On any other `RESULT` than `SUCCESS`, display the script's actionable error
 output and abort.
-Never force-push, and never update the branch ref through a GitHub API or MCP
-tool — reconcile locally with `/agentdev:update-branch` and rerun this step.
+Never force-push outside `gh stack push`, and never update the branch ref
+through a GitHub API or MCP tool — reconcile locally with
+`/agentdev:update-branch` and rerun this step.
 
 ### 9. Create or Update the Pull Request
 
