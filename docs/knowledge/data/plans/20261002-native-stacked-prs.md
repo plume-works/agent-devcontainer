@@ -93,7 +93,7 @@ versioned with the extension.
 
 **Files:** none (scratch branches and PRs in this repository, closed afterwards)
 
-- [ ] Record, from one scratch three-layer stack, all four answers: the REST
+- [x] Record, from one scratch three-layer stack, all four answers: the REST
   `stack` object of a mid-stack PR; whether `gh pr merge --squash` is refused on
   the bottom PR; whether `gh stack merge <bottom> --yes --squash` passes the
   `main` ruleset; and whether the next layer's post-merge rebase re-runs
