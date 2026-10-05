@@ -46,7 +46,7 @@ Two independent concerns feed two different pass types (see Steps below) so they
 
 **Correctness focus** (bug-hunting) — runs on the model the effort matrix gives it:
 
-- Scan only the diff itself, without pulling in extra context beyond the diff and the PR title/description — do not flag anything you cannot validate from the diff alone
+- Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
 - Potential bugs, incorrect logic, and security implications introduced by the changed code
 - Test coverage and quality
 - Flag only significant, high-confidence issues; ignore nitpicks and likely false positives
@@ -54,16 +54,15 @@ Two independent concerns feed two different pass types (see Steps below) so they
 **CRITICAL: we only want HIGH SIGNAL issues.** Flag an issue only when at least one of these holds:
 
 - The code will fail to compile or parse (syntax errors, type errors, missing imports, unresolved references)
-- The code will definitely produce wrong results regardless of inputs (clear, unambiguous logic errors)
+- A reachable scenario produces a wrong outcome: you can name a concrete input or state the code can actually receive at the head commit (an event, an environment value, a run order, a prior state, a concurrent run) and the wrong result, failure, or security exposure it produces
 - It's a clear, unambiguous compliance violation where you can quote the exact rule being broken
 
 Do NOT flag:
 
 - Code style or quality concerns
-- Potential issues that depend on specific inputs or state
 - Subjective suggestions or improvements
 
-Flag only significant bugs; ignore nitpicks and likely false positives. Do not flag issues that you cannot validate without looking at context outside of the git diff.
+Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate carries its scenario: the input or state, how the code reaches it, and the wrong outcome. A candidate without a concrete scenario is speculation — do not flag it.
 
 **Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent definitions (`SKILL.md`, `*.agent.md`), and docstrings:
 
@@ -124,7 +123,7 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    fast-approved: it still runs the durable-knowledge pass (Step 4).
 2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR title and description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
 3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. If the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, submit a `REQUEST_CHANGES` pull request review with a short blocking summary of the metadata problem and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
-4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
+4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
    - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
    - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
    - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list. It runs at both tiers.

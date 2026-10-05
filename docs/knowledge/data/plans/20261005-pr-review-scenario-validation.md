@@ -134,10 +134,16 @@ harmless, so each mutant fails only in its broken part.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] Apply the spike's correctness-bar hunks (`@@ -49`, `@@ -57`, `@@ -63`,
+- [x] Apply the spike's correctness-bar hunks (`@@ -49`, `@@ -57`, `@@ -63`,
   `@@ -66`, `@@ -127`) from the
   [scenario-bar spike's ### Variant skill diff](20260929-pr-review-scenario-bar-spike.md),
   re-anchored to the current file.
+  - **Evidence:** the
+    `feat(pr-review): ship the reachable-scenario correctness bar` commit
+    applies the five hunks verbatim at unchanged line numbers;
+    `pre-commit run validate-agent-files` and
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    pass.
 
 ### Task 3: Require a three-part scenario on correctness candidates
 
