@@ -4,7 +4,7 @@ created: 2026-10-02
 description: Replace the manual main-targeted PR chain with GitHub native stacked pull requests — pin the gh-stack extension, vendor GitHub's gh-stack skill, allow lease-guarded force-pushes on stack branches only, merge every PR explicitly, and land stacks with gh stack merge.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T13:05:00Z
+  at: 2026-10-05T13:40:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://github.com/github/gh-stack/tree/main/skills/gh-stack
@@ -254,9 +254,12 @@ Modify: `.agents/plugins/agentdev/README.md`
 
 **Files:** none
 
-- [ ] Land a stack of at least two PRs in this repository through
+- [x] Land a stack of at least two PRs in this repository through
   `/agentdev:pr-merge-stack`, with every layer's CI and AI review green before
   the single stack merge
+  - **Evidence:** stack #265 (#263, #264): both layers `CLEAN` with required
+    checks and AI review green at heads 2d9d312 and d9f473b; one
+    `gh stack merge 264 --yes --squash` merged them as fda0d8e and dcc7f93
 
 ## Spec changes
 
