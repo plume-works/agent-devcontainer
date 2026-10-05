@@ -149,11 +149,18 @@ harmless, so each mutant fails only in its broken part.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] The Correctness focus requires every candidate to carry Trigger, Path, and
+- [x] The Correctness focus requires every candidate to carry Trigger, Path, and
   Outcome as defined in `## Approach` (A), and Step 4's pass output carries the
   three parts alongside the description and reason.
-- [ ] Step 5 discards a correctness candidate with an empty part before
+  - **Evidence:** the
+    `feat(pr-review): require a three-part correctness scenario` commit defines
+    the three parts in the Correctness focus's closing paragraph and adds them
+    to Step 4's issue shape; `pre-commit run validate-agent-files` passes.
+- [x] Step 5 discards a correctness candidate with an empty part before
   validation, and deduplication keeps the scenario of the candidate it retains.
+  - **Evidence:** the same commit's Step 5 discards a correctness candidate with
+    an empty Trigger, Path, or Outcome before collapsing, and a collapse retains
+    one candidate whole, scenario included.
 
 ### Task 4: Validate scenarios part by part
 
