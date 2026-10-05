@@ -4,7 +4,7 @@ created: 2026-10-02
 description: Replace the manual main-targeted PR chain with GitHub native stacked pull requests — pin the gh-stack extension, vendor GitHub's gh-stack skill, allow lease-guarded force-pushes on stack branches only, merge every PR explicitly, and land stacks with gh stack merge.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T14:00:00Z
+  at: 2026-10-05T21:30:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://github.com/github/gh-stack/tree/main/skills/gh-stack
@@ -402,6 +402,25 @@ updated.
   added `LICENSE`.
 - Tasks 5 and 14 are closed by their external evidence: the image build log and
   the merged stack's PR URLs.
+
+## Verification results
+
+Scratch stack #269 (#267, #268) and scratch PR #270, all closed unmerged,
+exercised the spec scenarios that the stack merges did not:
+
+- **Auto-merge already enabled:** with auto-merge enabled on #270, pr-merge's
+  disable step (`gh pr merge 270 --disable-auto`) cleared `autoMergeRequest` and
+  left the PR open.
+- **Stack branch (update-branch):** Workflow 0's commands printed stack 269 on
+  `spike2/stack-b` and nothing on the non-stacked `spike2/solo` branch.
+- **Stacked PR (pr-merge-conflicts):** a lower-layer change made #268
+  `CONFLICTING`/`DIRTY`; `gh stack rebase` stopped with exit 3, the resolution
+  finished with `gh stack rebase --continue`, and `gh stack push` returned #268
+  to `MERGEABLE`.
+
+The plan's context claims hold: GitHub refused `gh pr merge --auto` on #267 and
+#268 ("Auto-merge is not supported for stacked pull requests"), and its stacked
+PR documentation states that cross-fork stacks are not supported.
 
 ## Out of scope
 

@@ -4,7 +4,7 @@ stage: implemented
 description: The PR skills merge a GitHub native stack of pull requests as one all-or-nothing operation through gh stack, route every stack branch update through gh stack, and merge every pull request explicitly instead of through auto-merge.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T15:00:00Z
+  at: 2026-10-05T21:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
@@ -62,9 +62,9 @@ rest on is [Stacked pull requests](../architecture/stacked-prs.md).
 
 ## Open questions
 
-- Whether GitHub refuses auto-merge on a stacked PR, as the plan's context
-  states.
-- Whether GitHub refuses a stack whose layers come from a fork.
+None — GitHub refuses auto-merge on a stacked PR and does not support cross-fork
+stacks, both recorded in
+[Stacked pull requests](../architecture/stacked-prs.md).
 
 ## References
 

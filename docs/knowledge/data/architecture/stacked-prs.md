@@ -3,12 +3,14 @@ type: architecture
 description: How a GitHub native stacked pull request is detected, merged, and re-checked after a lower layer lands in this repository, and why stack branches alone may be force-pushed.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T10:00:00Z
+  at: 2026-10-05T21:30:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
+- resource: https://docs.github.com/en/pull-requests/get-started/about-stacked-prs
 - resource: https://github.com/github/gh-stack/releases/tag/v0.2.0
 - resource: https://github.com/plume-works/agent-devcontainer/pull/256
 - resource: https://github.com/plume-works/agent-devcontainer/pull/257
+- resource: https://github.com/plume-works/agent-devcontainer/pull/268
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 ---
@@ -49,6 +51,23 @@ asynchronous merge REST API".
 `<pr>` in one all-or-nothing operation. It passes the `main` ruleset like any
 squash merge: each merged layer still needs its required checks green and no
 blocking review state. Bypassing merge requirements is not supported for stacks.
+
+Auto-merge cannot be enabled on any layer: GraphQL `enablePullRequestAutoMerge`
+refuses it with "Auto-merge is not supported for stacked pull requests", even
+where the repository allows auto-merge. Stacks are merge-queue aware.
+
+Every branch of a stack must live in the same repository; GitHub does not
+support cross-fork stacks.
+
+## Conflicts between layers
+
+A layer's mergeability is computed against the layer below it. When the lower
+layer changes a line the layer above also changes, the upper PR reports
+`mergeable: CONFLICTING` and `mergeStateStatus: DIRTY` once GitHub recomputes
+it; the REST `base.sha` can lag behind the lower layer's new tip meanwhile.
+`gh stack rebase` stops on the conflict with exit 3; resolving the files,
+`git add`, and `gh stack rebase --continue` finish the cascade, and
+`gh stack push` clears the conflict on GitHub.
 
 ## After a lower layer merges
 
