@@ -286,17 +286,26 @@ reports
 
 ### Task 9: Confirm the catalog in a rebuilt devcontainer
 
-- [ ] In a container built from this branch, with no manual setup:
+- [x] In a container built from this branch, with no manual setup:
   - `opencode debug skill` lists the agentdev skills;
   - `/pr` in the TUI offers `/agentdev:pr-*` commands;
   - `/agentdev:pr-gen-description` runs its script from the skill's
     `agent-code/`;
   - asking for a TDD Red subagent dispatches `tdd-red` without web tools.
+  - **Evidence:** the pull request's `agent-desktop` image, run with no
+    lifecycle scripts: the build-time `opencode.json` lists the staged bridge;
+    `opencode debug skill` lists all 38 catalog skills from `/opt/agentdev`;
+    `/pr` shows 8 `agentdev:pr-*` commands and `/pr-` all 10; with
+    `opencode/big-pickle`, the command ran `review-git-changes.sh` from the
+    staged `agent-code/` to `RESULT=SUCCESS`, and a TDD Red request dispatched a
+    `tdd-red` session that called only `bash` and `write`
 
 ### Task 10: CI passes on the branch
 
-- [ ] The `validate-agent-files` workflow passes on the pull request, including
+- [x] The `validate-agent-files` workflow passes on the pull request, including
   the bun step
+  - **Evidence:** pull request #255: `validate-agent-files` passes, the bun step
+    reporting 12 pass, 0 fail
 
 ## Spec changes
 
