@@ -125,8 +125,9 @@ reviewed, so every #203 bug is present at it.
   per pull request from inside that pull request's worktree with `codex exec`,
   `gpt-5.6-sol`, medium model reasoning, `REQUESTED REVIEW EFFORT: full`, and
   the current `pr-review/SKILL.md`.
-  - **Evidence:** commit `d10c87f` records that both baseline outputs passed the
-    JSON shape and pinned Codex metadata gate after serial full-effort runs.
+  - **Evidence:** the `### Codex replay scores` table (commit `50e021d`) records
+    both baseline runs at `gpt-5.6-sol`, medium model reasoning, and full
+    effort, with their candidate and validated counts.
 
 ### Task 4: Run the variant arm
 
@@ -137,8 +138,9 @@ reviewed, so every #203 bug is present at it.
   model reasoning, `REQUESTED REVIEW EFFORT: full`, and
   `.tmp/spike/variant/SKILL.md`, with the same prompt as the baseline arm apart
   from the skill path.
-  - **Evidence:** commit `80e0fe1` records that all four variant outputs passed
-    the JSON shape and pinned Codex metadata gate after serial full-effort runs.
+  - **Evidence:** the `### Codex replay scores` table (commit `50e021d`) records
+    all four variant runs at `gpt-5.6-sol`, medium model reasoning, and full
+    effort, with their candidate and validated counts.
 
 ### Task 5: Score the runs against the key
 
