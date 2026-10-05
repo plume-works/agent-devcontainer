@@ -4,7 +4,7 @@
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
 agentic_tools_claude_code_version: "2.1.289"
 # renovate: datasource=npm depName=@openai/codex
-agentic_tools_codex_version: "0.160.0"
+agentic_tools_codex_version: "0.160.1"
 # renovate: datasource=npm depName=opencode-ai
 agentic_tools_opencode_version: "1.18.34"
 # renovate: datasource=npm depName=@modelcontextprotocol/inspector
