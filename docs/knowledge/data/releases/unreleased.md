@@ -27,6 +27,8 @@ starts a fresh one.*
 
 [Fresh codebase map on push](../features/fresh-map-on-push.md)
 
+[OpenCode as a catalog host](../features/opencode-catalog-host.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

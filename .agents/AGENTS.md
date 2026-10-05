@@ -29,6 +29,9 @@ repository can delete the publisher source without inheriting its maintenance ru
   `/agentdev:<skill-name>`.
 - Codex consumes the same tree through
   `.agents/plugins/agentdev/.codex-plugin/plugin.json`; never create a separate Codex copy.
+- OpenCode consumes the same tree through the bridge plugin in
+  `.agents/plugins/agentdev/.opencode-plugin/`. The bridge takes no runtime dependencies:
+  type-only imports and Bun built-ins, nothing to install.
 - Update `.agents/plugins/agentdev/` sources directly.
 - Never write a repository-relative catalog path inside the plugin. A skill references its
   own bundled code as `agent-code/<file>`, relative to the skill directory, and reaches a

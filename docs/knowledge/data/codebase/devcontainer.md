@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:fa5287b93d84c1d9f7a928a3e19205ee556652e129ef9f8e07ed9329d2c4b948
+source_digest: sha256:5bdb1cb171f9cd09cbbe7ce58bca213439cb522cced474e7118bfeaee5ccfee7
 verified:
-  by: claude-code/opus-5
-  at: 2026-09-29T23:30:00Z
-stale_after: 2026-12-28
+  by: claude-code/opus-5.5
+  at: 2026-10-05T20:00:00Z
+stale_after: 2027-01-02
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-29T23:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-04T12:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -90,7 +90,7 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-10-04):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:51-57` — Xpra port forwarding

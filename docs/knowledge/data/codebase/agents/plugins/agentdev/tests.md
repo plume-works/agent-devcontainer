@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:233caa5f0d29f95ac4b4d91b54e82c36c43a1318b8371898408bb7b1b77f7db7
+source_digest: sha256:8398a4bf9c67035a297ca0ab38eacc2d9981bddd6ff1bbdd1c0b525ac36d2182
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-05T12:00:00Z
+  at: 2026-10-05T19:11:30Z
 stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-05T12:00:00Z
+  at: 2026-10-05T19:11:30Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -19,7 +19,9 @@ sources:
 
 13 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
 with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
-`validate-agent-files.yml`.
+`validate-agent-files.yml`. `opencode/bridge.test.ts` is a separate `bun test`
+suite for the [OpenCode bridge](opencode-plugin.md), run with
+`bun test ./.agents/plugins/agentdev/tests/opencode` in the same job.
 
 ## Public surface
 
@@ -81,9 +83,9 @@ is removed.
 
 ## Depends on
 
-`pytest`, `git`, `bash`, PyYAML. Only `test_gh_stack_vendored_version.py` reads
-outside the plugin: the `github_cli` role defaults in
-[Ansible](../../../ansible.md).
+`pytest`, `git`, `bash`, PyYAML, and `bun` for the OpenCode suite. Only
+`test_gh_stack_vendored_version.py` reads outside the plugin: the `github_cli`
+role defaults in [Ansible](../../../ansible.md).
 
 ## Invariants & gotchas
 
@@ -118,3 +120,5 @@ Verified anchor points (line numbers as of 2026-10-05):
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
   an absent marker section is `NO_MARKER`
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:38` — `configured`,
+  the hook driver every config case shares

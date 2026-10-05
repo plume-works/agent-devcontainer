@@ -43,3 +43,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Dependency updates](spec/dependency-updates.md)
 
 [PR merge conflicts](spec/pr-merge-conflicts.md)
+
+[OpenCode catalog bridge](spec/opencode-catalog-bridge.md)
