@@ -4,7 +4,7 @@ created: 2026-10-02
 description: Replace the manual main-targeted PR chain with GitHub native stacked pull requests — pin the gh-stack extension, vendor GitHub's gh-stack skill, allow lease-guarded force-pushes on stack branches only, merge every PR explicitly, and land stacks with gh stack merge.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T21:30:00Z
+  at: 2026-10-05T22:00:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://github.com/github/gh-stack/tree/main/skills/gh-stack
@@ -478,6 +478,6 @@ Verified anchor points (line numbers as of 2026-10-05):
 - `.github/workflows/ai-responder.yml:19` — `pull_request` triggers, including
   `synchronize`
 - `.github/workflows/ai-responder.yml:509` — `ai-review-present` gate job
-- `docs/knowledge/data/spec/pr-merge-conflicts.md:40` — Scenario: Stacked PR
+- `docs/knowledge/data/spec/pr-merge-conflicts.md:50` — Scenario: Stacked PR
 - `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:31` — skills
   map row for pull-request skills
