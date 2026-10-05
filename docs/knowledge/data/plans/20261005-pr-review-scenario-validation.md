@@ -34,6 +34,10 @@ context or run variance. The code at `7e0413d` also carries a comment presenting
 the split as deliberate, while the #199 description promises "a checkbox run
 never races a push or scheduled run".
 
+The validator-only replay does not support that hypothesis, but it shows that a
+validator handed both a claim and its scenario judges the claim and confirms a
+candidate whose stated part is false. Approach B and Task 6 act on that.
+
 ## Approach
 
 Ship the spike's reachable-scenario correctness bar and three validator changes
@@ -45,12 +49,17 @@ in one edit to `pr-review/SKILL.md`, merged only if the replays in
   `file:line` chain from the trigger to the fault), and **Outcome** (the
   concrete wrong result, failure, or security exposure). A candidate missing a
   part is discarded at Step 5 and never reaches validation.
-- **B — part-by-part verdict.** A candidate carrying a scenario is validated
-  part by part, returning `CONFIRM` or `DROP: trigger|path|outcome — <reason>`.
-  The validator branches on the candidate's shape (a scenario is present), never
-  on which pass raised it, so the existing rule that the prompt never names a
-  pass still holds. Candidates without a scenario keep today's "clearly a
-  violation" bar unchanged.
+- **B — scenario judged as written.** For a candidate carrying a scenario, the
+  validator prompt carries its Trigger, Path, and Outcome in place of the
+  free-text claim. The validator judges the parts in order — trigger, then path,
+  then outcome — each as written against the head commit, stops at the first
+  that does not hold, and returns `CONFIRM` or
+  `DROP: trigger|path|outcome — <reason>`. A part false as written is a drop
+  naming that part, even when another scenario would reach the same fault. The
+  validator branches on the candidate's shape (a scenario is present), never on
+  which pass raised it, so the existing rule that the prompt never names a pass
+  still holds. Candidates without a scenario keep their claim and the existing
+  "clearly a violation" bar unchanged.
 - **C — stated intent is evidence, not a verdict.** A comment or PR description
   presenting a behavior as deliberate does not refute a reachable wrong outcome.
   A PR description promising a guarantee that the code breaks counts toward the
@@ -68,12 +77,17 @@ bar, the #199 baseline validated K1. The drop occurred only under the
 reachable-scenario bar, and A and B act on scenario-carrying candidates that
 only that bar produces.
 
+**Rejected: carry the claim alongside the scenario parts.** Given both, the
+validator re-derives the claim and confirms a candidate whose stated part is
+false; see `### Validator-only replay` under `## Verification results`.
+
 ### Frozen candidate set
 
 The validator-only replay feeds these candidates to Step 6 exactly as written,
 so validation is isolated from candidate generation. Under the new arm, each
 claim is split into the three parts using only what the claim itself states; a
-part the claim does not state stays empty.
+part the claim does not state stays empty, and the prompt carries the parts in
+place of the claim.
 
 | ID  | Source run      | Location                                       | Claim (verbatim)                                                                                                                                                                                                                                                                       | Expected under A+B+C                  |
 | --- | --------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
@@ -88,7 +102,8 @@ F1–F5 are correctness candidates and F6 is a compliance candidate. F6 was
 confirmed in the #203 baseline but judged noise by the maintainer. The
 compliance bar does not change here, so F6 checks only that the stated-intent
 rule does not make compliance confirms more likely. F1 and F5 run in the current
-arm alone, where they measure how often today's bar drops a real finding.
+arm alone, where they measure how often the current arm's bar drops a real
+finding.
 
 F1 and F5 name a fault but not the harm it causes, so A discards them. Their
 counterparts with every part stated run in the new arm: F2 for F1, and F5′ for
@@ -100,6 +115,12 @@ F5:
 - **Path:** `.devcontainer/scripts/seed-agent-auth.sh:13-16` returns before the
   `chmod 600 "$target"` at `:25`.
 - **Outcome:** the existing credential stays readable beyond its owner.
+
+F5′'s Outcome is false as written, so it is expected to drop naming `outcome`:
+at `84d4584`, `postCreateCommand.sh:71` sets both credential parent directories
+to `0700` before `:72` runs `seed-agent-auth.sh`, so a loose-mode credential is
+not readable beyond its owner. F5′ is therefore a natural negative control, and
+F2 is the only confirmed counterpart of a discarded candidate.
 
 A finding is **real** when the pull request as merged contains a fix that
 matches it; a finding with no matching merged fix is judged by the maintainer.
@@ -198,20 +219,44 @@ harmless, so each mutant fails only in its broken part.
     records all 70 runs under `### Validator-only replay`; the new arm fails the
     gate on F5′, M1, M2, and M3.
 
-### Task 6: Run the full replays
+### Task 6: Judge scenario parts as written
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
+
+- [ ] Step 6's validator prompt carries a scenario candidate's Trigger, Path,
+  and Outcome in place of its claim; a candidate without a scenario still
+  carries its claim.
+- [ ] Step 6's scenario bar judges the parts as written in trigger → path →
+  outcome order, stops at the first that does not hold, and drops a candidate
+  whose stated part is false even when another scenario would reach the same
+  fault (B).
+- [ ] `pre-commit run validate-agent-files --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
+  passes.
+
+### Task 7: Rerun the validator-only replay
+
+**Files:** Create: `.tmp/replay/` (harness, inputs, and outputs; not committed)
+
+- [ ] Rerun Task 5's new arm on F2, F3, F4, F5′, F6, and M1–M3 five times with
+  the Task 2–4 and Task 6 edit, the same model, and per-candidate dispatch; Task
+  5's current-arm runs stand. Keep every validator's verdict and justification,
+  and record per-candidate verdict counts plus every `DROP` with the part it
+  names under `## Verification results`.
+
+### Task 8: Run the full replays
 
 **Files:** Create: `.tmp/replay/` (worktrees at `7e0413d` and `84d4584`)
 
 - [ ] Run the spike's #199 and #203 replays twice each with `codex exec`,
   `gpt-5.6-sol`, medium model reasoning, `REQUESTED REVIEW EFFORT: full`, and
-  the Task 2–4 skill. The sessions are not ephemeral, so every pass and
-  validator record survives. Score each run against the spike's known-bug key
-  K1–K6 and record the table under `## Verification results`.
+  the Task 2–4 and Task 6 skill. The sessions are not ephemeral, so every pass
+  and validator record survives. Score each run against the spike's known-bug
+  key K1–K6 and record the table under `## Verification results`.
 - [ ] Each unmatched correctness finding is marked real or noise by the
   merged-fix rule in `## Approach`, and by the maintainer where no merged fix
   matches. Closed by: the maintainer.
 
-### Task 7: Record the decision
+### Task 9: Record the decision
 
 **Files:** Create:
 `docs/knowledge/data/architecture/pr-review-scenario-validation.md` Modify:
@@ -221,8 +266,9 @@ harmless, so each mutant fails only in its broken part.
   [PR review correctness bar](../architecture/pr-review-correctness-bar.md).
   When the gate holds, it records the shipped bar, A, B, and C with the rejected
   alternatives. When it fails, it records the failing part from the preserved
-  verdicts, and Task 2–4's edit is not merged. Link it from
-  `data/architecture.md`.
+  verdicts, and the Task 2–4 and Task 6 edit is not merged. Either way it
+  records that the current arm's bar (`pr-review/SKILL.md` at `main`) confirmed
+  F1 and F5 in every validator-only run. Link it from `data/architecture.md`.
 
 ## Spec changes
 
@@ -235,10 +281,11 @@ validation policy, which no `data/spec/` document specifies.
 
 The change ships when all of the following hold:
 
-- **Validator-only replay, new arm:** F2, F3, F4, and F5′ are confirmed in 5/5
-  runs; M1, M2, and M3 are dropped in 5/5 runs, each naming its broken part; F6
-  is confirmed in no more runs than under the current arm; and the three-part
-  splits of F1 and F5 each have an empty Outcome.
+- **Validator-only replay, new arm (Task 7):** F2, F3, and F4 are confirmed in
+  5/5 runs; F5′ is dropped in 5/5 runs naming `outcome`; M1, M2, and M3 are
+  dropped in 5/5 runs, each naming its broken part; F6 is confirmed in no more
+  runs than under the current arm; and the three-part splits of F1 and F5 each
+  have an empty Outcome.
 - **Full replays:** both #199 runs validate K1; both #203 runs validate K4 and
   every one of K2, K3, K5, and K6; and each run has at most one unmatched
   correctness finding the maintainer judges noise. Compliance and
@@ -283,10 +330,11 @@ New-arm drops:
 - **M1 (5):** four name `path` and one names `trigger`, all on the ground that
   `sha256sum` exists on a GNU coreutils host.
 
-The current arm confirms F1 and F5 in every run, so in isolation today's bar
-does not drop a real finding for lack of an outcome. Every M2 and M3
-justification re-derives the candidate's unchanged claim and never tests the
-broken part: the validator judges the claim, not the scenario it is handed.
+The current arm confirms F1 and F5 in 5/5 runs each. Validated in isolation,
+today's bar does not drop a real finding for lack of an outcome, so this replay
+does not support the hypothesis in `## Context`. Every M2 and M3 justification
+re-derives the candidate's unchanged claim and never tests the broken part: the
+validator judges the claim, not the scenario it is handed.
 
 ## Out of scope
 
@@ -304,27 +352,33 @@ broken part: the validator judges the claim, not the scenario it is handed.
 Verified anchor points (line numbers as of 2026-10-05):
 
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:47` — Correctness focus
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — "Scan only the diff
-  itself"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:57` — "definitely produce
-  wrong results regardless of inputs"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:63` — "Potential issues
-  that depend on specific inputs or state"
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:66` — closing do-not-flag
-  sentence
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:110` — validation row of
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — read beyond the diff
+  at the head commit
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:57` — reachable-scenario
+  condition
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:65` — three-part scenario:
+  Trigger, Path, Outcome
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:109` — validation row of
   the slot matrix
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:127` — Step 4 pass
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:126` — Step 4 pass
   dispatch and output shape
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:136` — Step 5 merge and
-  deduplicate
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` — the single
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:135` — Step 5 discard of
+  incomplete scenarios, merge, and deduplicate
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:137` — the single
   validator prompt
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:139` — the validator
-  re-derives the claim; `CONFIRM`/`DROP`
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:140` — "Never argue the
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:138` — the validator
+  re-derives the claim; bar by candidate shape
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:139` — part-by-part
+  scenario bar
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:141` — stated intent is
+  evidence, not a verdict
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:142` — "Never argue the
   verdict in the prompt"
 - `docs/knowledge/data/architecture/pr-review-effort-tiers.md:98` — "Validation
   runs light at every effort level"
 - `7e0413d:.github/workflows/renovate.yml:46` — comment presenting the
   concurrency split as deliberate (K1)
+- `84d4584:.devcontainer/scripts/postCreateCommand.sh:71` — `chmod 700` on both
+  credential parent directories, before `:72` runs `seed-agent-auth.sh` (F5′)
+- `84d4584:.devcontainer/scripts/seed-agent-auth.sh:13` — early return with no
+  seed, before the `chmod 600 "$target"` at `:25` (F5, F5′)
