@@ -133,7 +133,12 @@ versioned with the extension.
 
 **Files:** none
 
-- [ ] A local image build succeeds and `gh stack --help` runs inside it
+- [x] A local image build succeeds and `gh stack --help` runs inside it
+  - **Evidence:** local
+    `docker build -f docker/desktop/agent-desktop.Dockerfile .` at becc7b7
+    exited 0, its `Install the pinned gh-stack extension` task reported
+    `changed`, and `gh stack --help` ran in the image as root, the devcontainer
+    user
 
 ### Task 6: Vendor the gh-stack skill
 
