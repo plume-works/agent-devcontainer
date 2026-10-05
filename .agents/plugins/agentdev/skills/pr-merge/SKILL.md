@@ -34,6 +34,19 @@ asks to change that state.
   gh auth status
   ```
 
+- Check whether the PR belongs to a GitHub stack and, if so, whether it is the
+  lowest unmerged layer:
+
+  ```bash
+  gh api "repos/{owner}/{repo}/pulls/<pr>" \
+    --jq '{stack: .stack.number, trunk: .stack.base.ref, base: .base.ref}'
+  ```
+
+  A null `stack` is an ordinary PR. A stacked PR whose `base` equals `trunk` is
+  the lowest unmerged layer: GitHub retargets the next layer to the trunk when
+  the layer below merges. A stacked PR whose `base` differs from `trunk` has
+  unmerged layers below it; hand it to `/agentdev:pr-merge-stack` and stop.
+
 - Work from an isolated worktree. If the caller did not provide one, create
   one under `./.tmp/` after resolving the PR number and head branch.
   If current branch matches the PR head branch, use it directly.
@@ -45,6 +58,10 @@ asks to change that state.
   git -C ./.tmp/pr-merge-<pr> switch -c pr-merge-worktree/<pr>
   git -C ./.tmp/pr-merge-<pr> branch --set-upstream-to=origin/<head-branch>
   ```
+
+  For a stacked PR, create the worktree detached and run
+  `gh stack checkout <pr>` inside it instead of the private branch, so
+  `gh stack` tracks the layers under their own names.
 
   Run all local inspection, tests, commits, and pushes from that worktree.
   Push its `HEAD` only to the resolved PR head branch; never push its private
@@ -58,8 +75,8 @@ asks to change that state.
   unresolved review threads. Keep this state in the conversation; do not post
   progress comments to the PR.
 - Work only on the PR head branch. Preserve unrelated local changes, never
-  force-push, and never update its base branch unless the user explicitly
-  requests it. This skill's merge workflow authorizes disabling auto-merge and
+  force-push outside `gh stack push`, and never update its base branch unless
+  the user explicitly requests it. This skill's merge workflow authorizes disabling auto-merge and
   performing the final squash merge.
 - A remediation requested by this skill is authorized by the user request to
   make the PR mergeable. Still stop for a genuinely ambiguous review request
@@ -84,7 +101,8 @@ git -C <worktree> merge --ff-only origin/<head-branch>
 ```
 
 The fetch plus fast-forward merge is the required local pull of any formatter
-commit. If the PR head SHA changed, record the new SHA and restart the
+commit. On a stacked PR, follow it with `gh stack rebase --upstack` and
+`gh stack push`: the layers above no longer contain the new tip. If the PR head SHA changed, record the new SHA and restart the
 monitoring loop from step 1: CI, AI review, feedback, and merge state must all
 be re-evaluated for that new head. If the fast-forward fails, do not create an
 automatic merge; report the local divergence and resolve it only through the
@@ -165,8 +183,7 @@ to check later.
      [extract-github-actions-logs](../extract-github-actions-logs/SKILL.md)
      to collect the failing job log and artifacts, then use
      [pr-feedback-resolution](../pr-feedback-resolution/SKILL.md) to diagnose,
-     implement, test, commit, and push the focused repair through the
-     [pr-open](../pr-open/SKILL.md) push helper, `scripts/push-branch.sh`.
+     implement, test, commit, and push the focused repair as step 5 does.
    - A CodeQL or Codecov failure: use the same feedback-resolution skill and
      its linked security or coverage workflow.
    - An external check: record its URL and report it as an external blocker;
@@ -181,7 +198,9 @@ to check later.
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
    `scripts/push-branch.sh`, handling its result as that skill's step 8 does.
-   Restart the loop
+   On a stacked PR, run `gh stack rebase --upstack` and `gh stack push`
+   through [gh-stack](../gh-stack/SKILL.md) instead, so every layer above
+   carries the fix. Restart the loop
    from step 1 because the head SHA and checks have changed.
 
 6. Once CI is successful, inspect reviews and unresolved review threads. Wait
@@ -202,6 +221,13 @@ head SHA, merge the PR explicitly:
 
 ```bash
 gh pr merge <pr> --squash
+```
+
+A stacked PR cannot be merged with `gh pr merge`; merge the lowest unmerged
+layer with:
+
+```bash
+gh stack merge <pr> --yes --squash
 ```
 
 Refresh the PR afterwards and confirm that its state is `MERGED`. If GitHub
