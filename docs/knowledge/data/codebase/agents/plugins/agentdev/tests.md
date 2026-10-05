@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:d9a9ed7ec09749c11bf0e8e2f5774768d11bfeef48c71330c62003316f1cf795
+source_digest: sha256:75fb511075c7c99cb403ec9b6d2c524c0fdcbb90c6242ea05b76b8654843fb2c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T09:00:00Z
-stale_after: 2026-12-31
+  at: 2026-10-05T11:00:00Z
+stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T09:00:00Z
+  at: 2026-10-05T11:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -30,7 +30,8 @@ with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 - `git_fixtures.py` — `FIXTURE_ENV`, `git()`, `outcome()`, and `stub_gh()`,
   shared by the git-skill modules and the push-branch module
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
-  `test_discover_ai_responder.py`, `test_fetch_issue.py`, `test_git_commit.py`,
+  `test_discover_ai_responder.py`, `test_fetch_issue.py`,
+  `test_gh_stack_vendored_version.py`, `test_git_commit.py`,
   `test_git_new_branch.py`, `test_push_branch_map_check.py`,
   `test_remote_codespace_session.py`, `test_result_codes.py`,
   `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
@@ -74,15 +75,21 @@ still checked and a stale one pushed outside the helper stops at `MAP_STALE`, an
 uncommitted edit does not change the verdict, and the temporary check worktree
 is removed.
 
+`test_gh_stack_vendored_version.py` compares the vendored `gh-stack` skill's
+`metadata.version` with `github_cli_gh_stack_version` in the image's
+`github_cli` role defaults, and skips where those defaults are absent.
+
 ## Depends on
 
-`pytest`, `git`, `bash`; nothing from the rest of the repository.
+`pytest`, `git`, `bash`, PyYAML. Only `test_gh_stack_vendored_version.py` reads
+outside the plugin: the `github_cli` role defaults in
+[Ansible](../../../ansible.md).
 
 ## Invariants & gotchas
 
-- A path that climbs out of the plugin resolves nowhere once installed, so tests
-  never use one; `plugin_root / 'skills/<name>/scripts/<script>.sh'` is the only
-  way to reach a script.
+- A path that climbs out of the plugin resolves nowhere once installed, so a
+  script is reached only as `plugin_root / 'skills/<name>/scripts/<script>.sh'`;
+  the one test that reads a repository file skips when it is absent.
 - Fixtures use invented identities, never this repository's published names.
 - Tests for the validator package live with that package, not here.
 

@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:7a303e5d3bdb6e28f563d774ced954e92e9e1c5f1f4f91eeaa859de3305254e3
+source_digest: sha256:597e9575827443d647534154e5f6563b3270c8c9030c53078900e34d21fa89a8
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
-stale_after: 2026-12-27
+  at: 2026-10-05T11:00:00Z
+stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
+  at: 2026-10-05T11:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -44,10 +44,10 @@ from there.
 Roles that are one task file plus a README, *not mapped*: `basic_prereqs` (apt
 essentials, GNOME Keyring, sshd, universe repo), `extra_facts` (`system_arch`,
 `user_home`), `locale_setup`, `utc_timezone`, `fish_setup` (fisher, bass,
-`conf.d/dev.fish`), `bash_setup`, `cmake_kitware`, `github_cli`, `bun_setup`
-(the bunx alias and Bun's PATH wiring; the binary itself comes from
-`dev_tools`), `nodejs` (NodeSource 24), `uv_setup`, `install_docker`,
-`install_docker_service`.
+`conf.d/dev.fish`), `bash_setup`, `cmake_kitware`, `github_cli` (`gh` from apt,
+the auth shim, and the pinned `gh-stack` extension), `bun_setup` (the bunx alias
+and Bun's PATH wiring; the binary itself comes from `dev_tools`), `nodejs`
+(NodeSource 24), `uv_setup`, `install_docker`, `install_docker_service`.
 
 ## Public surface
 
@@ -92,7 +92,9 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   instead of being skipped. A directly downloaded binary also carries
   per-architecture checksums, registered in `PIN_FILES` of
   `scripts/refresh-pin-checksums.py` so Renovate's post-upgrade task recomputes
-  them; `zizmor` alone moves with the Super-Linter sync instead.
+  them; `zizmor` alone moves with the Super-Linter sync instead. The `gh-stack`
+  extension is installed by `gh extension install --pin` and carries no
+  checksum; a test keeps the vendored `gh-stack` skill on the same release.
   `ansible/roles/.agent.metadata.json` keeps the automerged versions and
   checksums out of this doc's `source_digest`.
 - Apt packages are not pinned: each role lists them by name inline, and apt
@@ -101,7 +103,7 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-28):
+Verified anchor points (line numbers as of 2026-10-05):
 
 - `ansible/playbooks/setup-dev.yml:18` — `perm_probe` pre-check guard
 - `ansible/playbooks/setup-dev.yml:28` — `dev_tools`
