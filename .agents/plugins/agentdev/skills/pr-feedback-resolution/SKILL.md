@@ -57,19 +57,25 @@ state:
 
 ```bash
 gh pr view <pr-number> --json mergeable,mergeStateStatus,baseRefName
+gh api "repos/{owner}/{repo}/pulls/<pr-number>" --jq '.stack.number // empty'
 ```
 
-- `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY`: invoke
-  `/agentdev:update-branch --base <baseRefName>`, follow its
+- `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, and the second
+  command prints a stack number: the PR belongs to a GitHub stack. Check out
+  its branch and run `gh stack rebase`, then `gh stack push`, through
+  [gh-stack](../gh-stack/SKILL.md); resolve a rebase conflict with that skill's
+  exit-3 recovery. Do not run `update-branch`.
+- `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY` outside a stack:
+  invoke `/agentdev:update-branch --base <baseRefName>`, follow its
   [git-merge-resolve](../git-merge-resolve/SKILL.md) handoff for the conflicts,
   and push through its Workflow 3 right away. Pass the PR's `baseRefName`, not
-  the `main` default, so a stacked PR merges its real base.
+  the `main` default, so a PR on another branch merges its real base.
 - `mergeable` is `UNKNOWN`: GitHub has not computed mergeability yet. Re-poll
   in bounded waits before deciding.
 - Otherwise: continue with step 1.
 
 A conflicted PR gets no `pull_request` workflow runs, so CI evidence is missing
-or stale until the merge is pushed. Resolving first also keeps the working tree
+or stale until the resolution is pushed. Resolving first also keeps the working tree
 clean, which `update-branch` requires. A branch that is only `BEHIND` its base
 is not updated here.
 
