@@ -88,3 +88,25 @@
               set -gx PATH "$ws/docker/bin" $PATH
           end
       end
+
+# /usr/bin/gh bypasses the auth shim; installing a public extension needs no token.
+- name: Install the pinned gh-stack extension
+  ansible.builtin.shell: |
+    set -euo pipefail
+    manifest="{{ user_home }}/.local/share/gh/extensions/gh-stack/manifest.yml"
+    if grep -qxF 'tag: {{ github_cli_gh_stack_version }}' "$manifest" 2>/dev/null; then
+      echo unchanged
+      exit 0
+    fi
+    if [ -e "$manifest" ]; then
+      /usr/bin/gh extension remove gh-stack
+    fi
+    /usr/bin/gh extension install github/gh-stack --pin {{ github_cli_gh_stack_version | quote }}
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "{{ user_home }}"
+  register: github_cli_gh_stack_install
+  changed_when: "'unchanged' not in github_cli_gh_stack_install.stdout"
+  become: true
+  become_user: "{{ dev_user }}"

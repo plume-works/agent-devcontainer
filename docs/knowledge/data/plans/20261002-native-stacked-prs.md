@@ -120,11 +120,14 @@ versioned with the extension.
 **Files:** Create: `ansible/roles/github_cli/defaults/main.yml`; Modify:
 `ansible/roles/github_cli/tasks/main.yml`
 
-- [ ] Pin `github_cli_gh_stack_version` under a
+- [x] Pin `github_cli_gh_stack_version` under a
   `# renovate: datasource=github-releases depName=github/gh-stack` comment and
   install it for `dev_user` with
   `gh extension install github/gh-stack --pin <version>`;
   `uv run ansible-lint ansible` and the playbook syntax check pass
+  - **Evidence:** committed with this tick; `uv run ansible-lint ansible` and
+    `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml`
+    exit 0; the install needs no token
 
 ### Task 5: Verify the extension in a built image
 
