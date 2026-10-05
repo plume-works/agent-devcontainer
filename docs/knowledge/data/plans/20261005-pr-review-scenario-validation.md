@@ -223,15 +223,23 @@ harmless, so each mutant fails only in its broken part.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] Step 6's validator prompt carries a scenario candidate's Trigger, Path,
+- [x] Step 6's validator prompt carries a scenario candidate's Trigger, Path,
   and Outcome in place of its claim; a candidate without a scenario still
   carries its claim.
-- [ ] Step 6's scenario bar judges the parts as written in trigger → path →
+  - **Evidence:** the `feat(pr-review): judge scenario parts as written` commit
+    rewrites Step 6's "One validator prompt" bullet to carry the parts in place
+    of the claim and the claim only for any other candidate.
+- [x] Step 6's scenario bar judges the parts as written in trigger → path →
   outcome order, stops at the first that does not hold, and drops a candidate
   whose stated part is false even when another scenario would reach the same
   fault (B).
-- [ ] `pre-commit run validate-agent-files --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
+  - **Evidence:** the same commit's scenario bullet judges the parts as written
+    in that order, stops at the first failing part, and confirms only when every
+    part holds as written.
+- [x] `pre-commit run validate-agent-files --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
   passes.
+  - **Evidence:** the hook passes on the same commit's `SKILL.md`, as does
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`.
 
 ### Task 7: Rerun the validator-only replay
 
