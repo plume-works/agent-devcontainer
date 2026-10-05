@@ -189,9 +189,12 @@ vendored files
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md`
 
-- [ ] The merge-conflict step resolves a conflicted stacked PR with
+- [x] The merge-conflict step resolves a conflicted stacked PR with
   `gh stack rebase` and `gh stack push` instead of `update-branch`; a
   non-stacked PR keeps merging its `baseRefName`
+  - **Evidence:** committed with this tick;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors
 
 ### Task 10: Merge a stacked PR with gh stack merge in pr-merge
 
