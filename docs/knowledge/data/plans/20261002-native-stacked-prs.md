@@ -200,10 +200,15 @@ vendored files
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] For a stacked PR, `pr-merge` merges only the lowest unmerged layer, with
+- [x] For a stacked PR, `pr-merge` merges only the lowest unmerged layer, with
   `gh stack merge <pr> --yes --squash`, and pushes remediations through
   `gh stack rebase --upstack` and `gh stack push`; a higher layer is handed to
   `pr-merge-stack`
+  - **Evidence:** committed with this tick; the lowest-layer test (`base` equals
+    `stack.base.ref`) matches stack #259, where #256 and the rebased #257
+    targeted `main` and the unrebased #257 targeted `spike/stack-a`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    0 errors
 
 ### Task 11: Create pr-merge-stack
 
