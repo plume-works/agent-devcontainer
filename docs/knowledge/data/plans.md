@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Ship the reachable-scenario bar with part-by-part validation in pr-review](plans/20261005-pr-review-scenario-validation.md)
+
 [Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
 
 [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
