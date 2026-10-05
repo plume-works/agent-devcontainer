@@ -84,7 +84,6 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | `/agentdev:pr-discover-ai-responder` | Resolve the AI responder workflow and find its runs.                    |
 | `/agentdev:pr-merge`                 | Merge a PR with an explicit squash once CI and reviews are resolved.    |
 | `/agentdev:pr-merge-stack`           | Bring every layer of a GitHub stack to green, then merge it at once.    |
-| `/agentdev:pr-merge-chain`           | Merge a linear chain of stacked PRs in dependency order.                |
 
 #### Review, CI, and formatting
 
