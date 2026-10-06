@@ -34,10 +34,6 @@ context or run variance. The code at `7e0413d` also carries a comment presenting
 the split as deliberate, while the #199 description promises "a checkbox run
 never races a push or scheduled run".
 
-The validator-only replay does not support that hypothesis, but it shows that a
-validator handed both a claim and its scenario judges the claim and confirms a
-candidate whose stated part is false. Approach B and Task 6 act on that.
-
 ## Approach
 
 Ship the spike's reachable-scenario correctness bar and three validator changes
@@ -120,7 +116,8 @@ F5′'s Outcome is false as written, so it is expected to drop naming `outcome`:
 at `84d4584`, `postCreateCommand.sh:71` sets both credential parent directories
 to `0700` before `:72` runs `seed-agent-auth.sh`, so a loose-mode credential is
 not readable beyond its owner. F5′ is therefore a natural negative control, and
-F2 is the only confirmed counterpart of a discarded candidate.
+F2 is the only confirmed counterpart of a discarded candidate. The maintainer
+excludes F5′ from evaluation; see `## Verification`.
 
 A finding is **real** when the pull request as merged contains a fix that
 matches it; a finding with no matching merged fix is judged by the maintainer.
@@ -258,11 +255,12 @@ harmless, so each mutant fails only in its broken part.
 
 **Files:** Create: `.tmp/replay/` (worktrees at `7e0413d` and `84d4584`)
 
-- [ ] Run the spike's #199 and #203 replays twice each with `codex exec`,
-  `gpt-5.6-sol`, medium model reasoning, `REQUESTED REVIEW EFFORT: full`, and
-  the Task 2–4 and Task 6 skill. The sessions are not ephemeral, so every pass
-  and validator record survives. Score each run against the spike's known-bug
-  key K1–K6 and record the table under `## Verification results`.
+- [x] \\1 with `codex exec`, `gpt-5.6-sol`, medium model reasoning,
+  `REQUESTED REVIEW EFFORT: full`, and the Task 2–4 and Task 6 skill. Keep
+  sessions (omit `--ephemeral`) so every pass and validator record survives; see
+  [Headless Codex runs](../architecture/codex-headless-runs.md). Score each run
+  against the spike's known-bug key K1–K6 and record the table under
+  `## Verification results`.
   - **Evidence:** the `docs(plan): record the full replays` commit scores all
     four runs under `### Full replays`: both #199 runs validate K1 and both #203
     runs validate K2–K6.
@@ -281,12 +279,13 @@ harmless, so each mutant fails only in its broken part.
 `docs/knowledge/data/architecture.md`
 
 - [ ] File the outcome against `## Verification` as a decision linking
-  [PR review correctness bar](../architecture/pr-review-correctness-bar.md).
-  When the gate holds, it records the shipped bar, A, B, and C with the rejected
-  alternatives. When it fails, it records the failing part from the preserved
-  verdicts, and the Task 2–4 and Task 6 edit is not merged. Either way it
-  records that the current arm's bar (`pr-review/SKILL.md` at `main`) confirmed
-  F1 and F5 in every validator-only run. Link it from `data/architecture.md`.
+  [PR review correctness bar](../architecture/pr-review-correctness-bar.md). It
+  records the shipped bar, A, B, and C with the rejected alternatives; the
+  maintainer's decision to ship with the M1–M3 controls failing, because the
+  validator judges the fault rather than each stated part; the exclusion of
+  permission findings from evaluation; and that the current arm's bar
+  (`pr-review/SKILL.md` at `main`) confirmed F1 and F5 in every validator-only
+  run. Link it from `data/architecture.md`.
 
 ## Spec changes
 
@@ -300,16 +299,24 @@ validation policy, which no `data/spec/` document specifies.
 The change ships when all of the following hold:
 
 - **Validator-only replay, new arm (Task 7):** F2, F3, and F4 are confirmed in
-  5/5 runs; F5′ is dropped in 5/5 runs naming `outcome`; M1, M2, and M3 are
-  dropped in 5/5 runs, each naming its broken part; F6 is confirmed in no more
-  runs than under the current arm; and the three-part splits of F1 and F5 each
-  have an empty Outcome.
+  5/5 runs; F6 is confirmed in no more runs than under the current arm; and the
+  three-part splits of F1 and F5 each have an empty Outcome.
 - **Full replays:** both #199 runs validate K1; both #203 runs validate K4 and
   every one of K2, K3, K5, and K6; and each run has at most one unmatched
   correctness finding the maintainer judges noise. Compliance and
   durable-knowledge noise is excluded, as it has independent owners (see
   [PR review correctness bar](../architecture/pr-review-correctness-bar.md)).
 - Every new-arm and full-replay `DROP` of a correctness candidate names a part.
+
+By the maintainer's decision, two checks do not gate shipping:
+
+- **Permission findings are excluded from evaluation:** F5′ and the
+  `seed-agent-auth.sh:13` full-replay finding. Whether a loose-mode credential
+  is exposed depends on directory modes set by another script, and validators do
+  not resolve that consistently.
+- **The M1–M3 negative controls are recorded, not gating:** validators judge
+  whether the fault is real rather than whether each stated part holds (see
+  `### Validator-only replay, parts as written`).
 
 Mechanical checks:
 `pre-commit run validate-agent-files --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
