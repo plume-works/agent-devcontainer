@@ -263,6 +263,9 @@ harmless, so each mutant fails only in its broken part.
   the Task 2–4 and Task 6 skill. The sessions are not ephemeral, so every pass
   and validator record survives. Score each run against the spike's known-bug
   key K1–K6 and record the table under `## Verification results`.
+  - **Evidence:** the `docs(plan): record the full replays` commit scores all
+    four runs under `### Full replays`: both #199 runs validate K1 and both #203
+    runs validate K2–K6.
 - [ ] Each unmatched correctness finding is marked real or noise by the
   merged-fix rule in `## Approach`, and by the maintainer where no merged fix
   matches. Closed by: the maintainer.
@@ -371,6 +374,28 @@ from the Trigger and Path and never tests the stated Outcome, and the M2 and F5�
 confirms reach the fault through the actual line order and file mode. M1's drops
 agree that `sha256sum` exists on the stated host but split on which part that
 falsifies.
+
+### Full replays
+
+Each run used `codex exec` with `gpt-5.6-sol`, medium model reasoning,
+`REQUESTED REVIEW EFFORT: full`, full Codex access, and the Task 2–4 and Task 6
+skill; a run interrupted by a usage limit resumed in its own session. Session
+records keep every pass and validator, with validators on `gpt-5.6-terra`.
+
+| Run    | Candidates | Validated | Known-key matches  | Unmatched correctness                              |
+| ------ | ---------- | --------- | ------------------ | -------------------------------------------------- |
+| #199 1 | 19         | 9         | K1                 | None                                               |
+| #199 2 | 8          | 5         | K1                 | None                                               |
+| #203 1 | 23         | 11        | K2, K3, K4, K5, K6 | `devcontainer-init.sh:35`; `seed-agent-auth.sh:13` |
+| #203 2 | 42         | 34        | K2, K3, K4, K5, K6 | `devcontainer-init.sh:35`                          |
+
+As in the spike's scoring, a K3 finding naming the missing per-start consumer
+also covers K6, and K5 is matched by its launcher fallback at
+`claude-remote-control-start.sh:12`. No correctness candidate was dropped. All
+three unmatched correctness findings are real under the merged-fix rule:
+`a5bf422` adds the `shasum` fallback in `workspace-seed-key.sh:5-8` and the
+no-seed permission repair in `seed-agent-auth.sh`. The full-replay criteria in
+`## Verification` hold.
 
 ## Out of scope
 
