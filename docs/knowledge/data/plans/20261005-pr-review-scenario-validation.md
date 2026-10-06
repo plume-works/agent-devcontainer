@@ -278,7 +278,7 @@ harmless, so each mutant fails only in its broken part.
 `docs/knowledge/data/architecture/pr-review-scenario-validation.md` Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] File the outcome against `## Verification` as a decision linking
+- [x] File the outcome against `## Verification` as a decision linking
   [PR review correctness bar](../architecture/pr-review-correctness-bar.md). It
   records the shipped bar, A, B, and C with the rejected alternatives; the
   maintainer's decision to ship with the M1–M3 controls failing, because the
@@ -286,6 +286,10 @@ harmless, so each mutant fails only in its broken part.
   permission findings from evaluation; and that the current arm's bar
   (`pr-review/SKILL.md` at `main`) confirmed F1 and F5 in every validator-only
   run. Link it from `data/architecture.md`.
+  - **Evidence:** the
+    `docs(architecture): record the scenario validation decision` commit adds
+    [PR review scenario validation](../architecture/pr-review-scenario-validation.md)
+    and its `data/architecture.md` link; `iwe schema validate` passes.
 
 ## Spec changes
 

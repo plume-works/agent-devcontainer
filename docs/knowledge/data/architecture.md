@@ -53,6 +53,8 @@ rejected are as valuable as the one you picked.*
 
 [PR review correctness bar](architecture/pr-review-correctness-bar.md)
 
+[PR review scenario validation](architecture/pr-review-scenario-validation.md)
+
 [Headless Codex runs](architecture/codex-headless-runs.md)
 
 [Ansible apt pins](architecture/ansible-apt-pins.md)
