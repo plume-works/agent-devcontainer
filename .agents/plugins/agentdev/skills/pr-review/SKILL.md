@@ -78,7 +78,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, definite-wrong-result logic bugs, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority, inline emphasis, and the submit event per Step 9.
+- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, wrong outcomes of a reachable scenario, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority, inline emphasis, and the submit event per Step 9.
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed.
 
