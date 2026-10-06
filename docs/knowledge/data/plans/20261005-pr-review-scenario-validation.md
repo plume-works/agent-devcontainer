@@ -266,9 +266,13 @@ harmless, so each mutant fails only in its broken part.
   - **Evidence:** the `docs(plan): record the full replays` commit scores all
     four runs under `### Full replays`: both #199 runs validate K1 and both #203
     runs validate K2–K6.
-- [ ] Each unmatched correctness finding is marked real or noise by the
+- [x] Each unmatched correctness finding is marked real or noise by the
   merged-fix rule in `## Approach`, and by the maintainer where no merged fix
   matches. Closed by: the maintainer.
+  - **Evidence:** the maintainer judged both `devcontainer-init.sh:35` findings
+    real and the `seed-agent-auth.sh:13` finding the F5 fault with an overstated
+    outcome, recorded under `### Full replays` in the
+    `docs(plan): record the maintainer's full-replay judgments` commit.
 
 ### Task 9: Record the decision
 
@@ -391,11 +395,17 @@ records keep every pass and validator, with validators on `gpt-5.6-terra`.
 
 As in the spike's scoring, a K3 finding naming the missing per-start consumer
 also covers K6, and K5 is matched by its launcher fallback at
-`claude-remote-control-start.sh:12`. No correctness candidate was dropped. All
-three unmatched correctness findings are real under the merged-fix rule:
-`a5bf422` adds the `shasum` fallback in `workspace-seed-key.sh:5-8` and the
-no-seed permission repair in `seed-agent-auth.sh`. The full-replay criteria in
-`## Verification` hold.
+`claude-remote-control-start.sh:12`. No correctness candidate was dropped. The
+maintainer judged the unmatched findings:
+
+- **`devcontainer-init.sh:35` (#203 1 and 2): real.** `a5bf422` adds the
+  `shasum` fallback in `workspace-seed-key.sh:5-8`.
+- **`seed-agent-auth.sh:13` (#203 1): real, with an overstated outcome.** It is
+  the F5 fault, which `a5bf422` repairs, but its stated outcome — the credential
+  readable by other users — is F5′'s, and `postCreateCommand.sh:71` prevents it.
+  The validator confirmed an Outcome that is false as written.
+
+None is noise, so the full-replay criteria in `## Verification` hold.
 
 ## Out of scope
 
