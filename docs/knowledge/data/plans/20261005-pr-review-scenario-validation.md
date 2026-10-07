@@ -7,6 +7,8 @@ generated:
   at: 2026-10-05T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
+stage: done
+completed: 2026-10-07
 ---
 
 # Ship the reachable-scenario bar with part-by-part validation in pr-review

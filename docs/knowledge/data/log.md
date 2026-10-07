@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-07
+
+- **Update**:
+  [Ship the reachable-scenario bar with part-by-part validation in pr-review](plans/20261005-pr-review-scenario-validation.md)
+  done. `pr-review` ships the reachable-scenario correctness bar with three-part
+  scenarios validated as written; see
+  [PR review scenario validation](architecture/pr-review-scenario-validation.md).
+
 ## 2026-10-05
 
 - **Update**:

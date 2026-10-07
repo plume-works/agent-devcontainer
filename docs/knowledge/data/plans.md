@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[Ship the reachable-scenario bar with part-by-part validation in pr-review](plans/20261005-pr-review-scenario-validation.md)
-
 [Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
 
 [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
@@ -30,6 +28,8 @@ moves them.*
 [Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Ship the reachable-scenario bar with part-by-part validation in pr-review](plans/20261005-pr-review-scenario-validation.md)
 
 [Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
 
