@@ -1,10 +1,10 @@
 ---
 type: plan
 created: 2026-10-07
-description: Move the Ship and Implement workflows into catalog agents that coordinators dispatch by name, keep their user entry skills and the coordinators explicit-only on Claude, Codex, and OpenCode, and let a plan revision that answers a Ship blocker re-dispatch the Shipper.
+description: Move the Ship and Implement workflows into catalog agents that coordinators dispatch by name, run Ship always as a subagent with a conversation-free prompt, keep their user entry skills and the coordinators explicit-only on Claude, Codex, and OpenCode, and let a plan revision that answers a Ship blocker re-dispatch the Shipper.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-07T12:30:00Z
+  at: 2026-10-07T15:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
@@ -41,18 +41,30 @@ Each workflow's rulebook moves into a catalog agent — `iwe-shipper` and
 `iwe-implementer` — and each caller reaches it by an explicit act:
 
 ```
-you ──/agentdev:iwe-ship──► iwe-ship (explicit-only)
-                              └─ this session follows agents/iwe-shipper.agent.md
+you ──/agentdev:iwe-ship──► iwe-ship (explicit-only) ──dispatch──► iwe-shipper subagent
+you ──/agentdev:iwe-implement──► iwe-implement (explicit-only)
+                              └─ this session follows agents/iwe-implementer.agent.md
 iwe-ship-all (explicit-only) ──dispatch──► iwe-shipper subagent
 iwe-plan revise, answering a Ship blocker ──dispatch──► iwe-shipper subagent
 iwe-explore ──✘── nothing to match: the skills are explicit-only, the agent is
                   dispatched by name, and its description names its dispatchers
 ```
 
-- **The agent file is the single rulebook.** A user-run entry skill tells the
-  session to follow it in place, so the workflow can still ask the user for a
-  decision or an approval. A dispatched agent cannot reach the user: at any
-  point the rulebook would ask, it stops and reports the decision needed.
+- **The agent file is the single rulebook.** A dispatched agent cannot reach the
+  user: at any point the rulebook would ask, it stops and reports the decision
+  needed.
+- **Ship always runs as a subagent.** Its verification must rest only on what
+  the code and the graph record, never on what a conversation asserted, so every
+  caller — the user's own `/agentdev:iwe-ship` included — dispatches
+  `iwe-shipper` with a fresh context.
+- **A Shipper dispatch prompt carries nothing from the conversation:** the plan
+  key, the operation (ship, cancel, or release `<X.Y.Z>`), and any approval the
+  user gave, quoted verbatim. An approval the Shipper needs comes back in its
+  report; the user re-runs `/agentdev:iwe-ship` with that approval.
+- **Implement keeps the user's session for direct runs.** The
+  `/agentdev:iwe-implement` entry skill tells the session to follow the
+  `iwe-implementer` rulebook in place, so it can ask about plan ambiguity and a
+  material deviation; only `iwe-implement-all` dispatches it.
 - **Explicit-only on all three harnesses.** `disable-model-invocation: true` for
   Claude Code and for the OpenCode bridge's `deny`, plus `agents/openai.yaml`
   with `policy.allow_implicit_invocation: false` for Codex — the case
@@ -87,31 +99,34 @@ Rejected:
 `docs/knowledge/data/architecture.md`
 
 - [ ] Write the decision: agent-owned rulebooks, the three-harness explicit-only
-  gate, the callers allowed to dispatch, and each rejected alternative with the
-  harness behavior that rules it out. Link it from `data/architecture.md`.
+  gate, the callers allowed to dispatch, Ship always dispatched with a prompt
+  that carries nothing from the conversation, and each rejected alternative with
+  the harness behavior that rules it out. Link it from `data/architecture.md`.
 
 ### Task 2: Make the Ship rulebook an agent
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Move the body of `iwe-ship/SKILL.md` into the agent, rewritten to run both
-  in the user's session and as a dispatched subagent. Dispatched, it stops at
-  each point the workflow asks the user — the approval before commands with
-  effects beyond the working tree, a cancellation, a release cut — and reports
-  what it needs. A CRITICAL stop reports a Ship blocker report naming the plan
-  and the revise route. Its `description` names its only dispatchers: the
-  `iwe-ship` skill, the `iwe-ship-all` coordinator, and `iwe-plan` revise
-  answering a Ship blocker report. Tools:
+- [ ] Move the body of `iwe-ship/SKILL.md` into the agent, rewritten to run only
+  as a dispatched subagent whose inputs are the plan key, the operation, and
+  quoted user approvals. It stops at each point the workflow would ask the user
+  — the approval before commands with effects beyond the working tree, an
+  operation its prompt does not name — and reports what it needs, unless its
+  prompt already carries that approval or operation. A CRITICAL stop reports a
+  Ship blocker report naming the plan and the revise route. Its `description`
+  names its only dispatchers: the `iwe-ship` skill, the `iwe-ship-all`
+  coordinator, and `iwe-plan` revise answering a Ship blocker report. Tools:
   `Bash, Read, Edit, Write, Grep, Glob, Skill`.
 
 ### Task 3: Make the Implement rulebook an agent
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Move the body of `iwe-implement/SKILL.md` into the agent the same way.
-  Dispatched, it stops on plan ambiguity and on a material deviation and reports
-  them instead of waiting. Its `description` names its only dispatchers: the
-  `iwe-implement` skill and the `iwe-implement-all` coordinator.
+- [ ] Move the body of `iwe-implement/SKILL.md` into the agent, rewritten to run
+  both in the user's session and as a dispatched subagent. Dispatched, it stops
+  on plan ambiguity and on a material deviation and reports them instead of
+  waiting. Its `description` names its only dispatchers: the `iwe-implement`
+  skill and the `iwe-implement-all` coordinator.
 
 ### Task 4: Reduce the user entry skills to the agents
 
@@ -120,9 +135,12 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-ship/agents/openai.yaml`,
 `.agents/plugins/agentdev/skills/iwe-implement/agents/openai.yaml`
 
-- [ ] Each skill keeps its frontmatter and `disable-model-invocation: true`,
-  gains the Codex policy file, and its body directs the session to follow its
-  agent's rulebook, located relative to the skill directory.
+- [ ] Each skill keeps its frontmatter and `disable-model-invocation: true` and
+  gains the Codex policy file. `iwe-ship` dispatches `iwe-shipper` with the plan
+  key, the operation, and the user's approvals quoted verbatim — no summary of
+  the conversation — and re-posts its report. `iwe-implement` directs the
+  session to follow the `iwe-implementer` rulebook, located relative to the
+  skill directory.
 
 ### Task 5: Dispatch the agents from the coordinators
 
@@ -155,9 +173,12 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 ### Task 8: Claude Code runs the design end to end
 
 - [ ] On Claude Code: `/agentdev:iwe-ship-all` dispatches `iwe-shipper` and
-  reports its outcome; `/agentdev:iwe-ship` run directly asks for approval in
-  the session; and `/agentdev:iwe-explore`, given a partial answer that closes a
-  plan's open question, neither dispatches the Shipper nor loads a coordinator.
+  reports its outcome; `/agentdev:iwe-ship` run directly dispatches
+  `iwe-shipper` with only the plan key, operation, and quoted approvals, and an
+  approval it needs comes back in its report; `/agentdev:iwe-implement` run
+  directly asks about a material deviation in the session; and
+  `/agentdev:iwe-explore`, given a partial answer that closes a plan's open
+  question, neither dispatches the Shipper nor loads a coordinator.
 
 ### Task 9: Codex runs the design end to end
 
@@ -183,16 +204,35 @@ The Ship and Implement workflows SHALL each be defined once, as the catalog
 agents `iwe-shipper` and `iwe-implementer`. Their user entry skills and the
 `iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
 Claude Code, Codex, and OpenCode. Only those skills, those coordinators, and
-Plan revise mode answering a Ship blocker report SHALL start the workflows. A
-workflow started by the user's own invocation SHALL run in the user's session;
-a dispatched workflow SHALL stop and report at any point that needs a user
-decision.
+Plan revise mode answering a Ship blocker report SHALL start the workflows.
+Ship SHALL always run as a dispatched `iwe-shipper` whose prompt carries only
+the plan key, the operation, and the user's approvals quoted verbatim, so its
+verification rests on the code and the graph alone. Implement started by the
+user's own invocation SHALL run in the user's session. A dispatched workflow
+SHALL stop and report at any point that needs a user decision it was not
+given.
 
 #### Scenario: The user ships a plan directly
 
-- **WHEN** the user runs `/agentdev:iwe-ship <plan>`
-- **THEN** the session follows the `iwe-shipper` rulebook and asks the user for
-  approval before a command with effects beyond the working tree.
+- **WHEN** the user runs `/agentdev:iwe-ship <plan>` with no approval
+- **THEN** the skill dispatches `iwe-shipper` with the plan key and the ship
+  operation and nothing else from the conversation, and the Shipper stops
+  before a command with effects beyond the working tree and reports the
+  approval it needs.
+
+#### Scenario: The user ships a plan with an approval
+
+- **WHEN** the user re-runs `/agentdev:iwe-ship <plan>` granting the approval
+  the Shipper reported
+- **THEN** the dispatch prompt quotes that approval verbatim, and the Shipper
+  runs the approved command.
+
+#### Scenario: The user implements a plan directly
+
+- **WHEN** the user runs `/agentdev:iwe-implement <plan>` and a task needs a
+  material deviation
+- **THEN** the session follows the `iwe-implementer` rulebook and waits for the
+  user's direction.
 
 #### Scenario: A coordinator ships every implemented plan
 
