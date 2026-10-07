@@ -11,6 +11,8 @@ to the current day's group.
   done. `pr-review` ships the reachable-scenario correctness bar with three-part
   scenarios validated as written; see
   [PR review scenario validation](architecture/pr-review-scenario-validation.md).
+- **Update**: Re-verified the agentdev and agentdev skills codebase maps after
+  the pr-review correctness-bar change.
 
 ## 2026-10-05
 
