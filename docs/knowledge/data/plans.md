@@ -17,6 +17,10 @@ moves them.*
 
 ## Active
 
+[Agent-owned Ship and Implement workflows](plans/20261007-agent-owned-ship-implement.md)
+
+[Install the catalog agents into Codex](plans/20261007-codex-catalog-agents.md)
+
 [Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
 
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
