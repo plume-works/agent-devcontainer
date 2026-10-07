@@ -101,7 +101,8 @@ Rejected:
 - [ ] Write the decision: agent-owned rulebooks, the three-harness explicit-only
   gate, the callers allowed to dispatch, Ship always dispatched with a prompt
   that carries nothing from the conversation, and each rejected alternative with
-  the harness behavior that rules it out. Link it from `data/architecture.md`.
+  the harness behavior that rules it out, each behavior with the minimal fixture
+  and command that reproduces it. Link it from `data/architecture.md`.
 
 ### Task 2: Make the Ship rulebook an agent
 
