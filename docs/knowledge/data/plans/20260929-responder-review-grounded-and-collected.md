@@ -4,7 +4,7 @@ created: 2026-09-29
 description: Keep the agentdev plugin enabled when the Claude responder hands its settings to claude-code-action, and make pr-review collect its parallel passes with foreground Agent calls, leaving the job timeout as the only ceiling.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-10-07T06:30:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/issues/198
   title: Claude responder reviews fail silently
@@ -173,9 +173,14 @@ keeps its ceilings and hard fallback unchanged.
 
 **Files:** none (CI evidence)
 
-- [ ] A responder review in a consumer repository running the updated action
+- [x] A responder review in a consumer repository running the updated action
   (for example Dr-QP/Dr.QP) invokes `Skill agentdev:pr-review` without
   `Unknown skill` and publishes a review.
+  - **Evidence:** Dr-QP/Dr.QP AI Responder run 36993479147 on PR #532 (head
+    `add8a04`, whose `run-claude-responder` carries the Task 1 layered merge):
+    its `claude-review-responder-output` artifact shows
+    `Skill agentdev:pr-review` with no `Unknown skill` result, and the run
+    published review 5390622531, `APPROVED` by `github-actions[bot]`.
 
 ## Spec changes
 
@@ -209,7 +214,7 @@ the architecture document by Task 4.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-10-07):
 
 - `.github/actions/run-claude-responder/action.yml:95` —
   `Run devcontainer lifecycle scripts`, which writes the user-scope settings
@@ -221,12 +226,12 @@ Verified anchor points (line numbers as of 2026-09-29):
   default; the marketplace guard at line 21
 - `.devcontainer/scripts/postCreateCommand.sh:91` — the user-scope install
 - `.claude/settings.json:49` — the project `enabledPlugins` block
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:133` — Step 4's Claude
-  Code foreground dispatch bullet; collect bullet at line 134
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:143` — Step 6's runner
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:134` — Step 4's Claude
+  Code foreground dispatch bullet; collect bullet at line 135
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:144` — Step 6's runner
   reference, with the validator ceiling scoped to Codex
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:156` —
-  `Waiting on Parallel Passes`; foreground dispatch at line 174, Codex budget at
-  176, Codex hard fallback at 177
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:157` —
+  `Waiting on Parallel Passes`; foreground dispatch at line 175, Codex budget at
+  177, Codex hard fallback at 178
 - `.github/workflows/ai-responder.yml:437` — `claude-respond`
   `timeout-minutes: 30`
