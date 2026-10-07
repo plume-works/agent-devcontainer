@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:14e0c681f010bd297b8912c2bc1440dccdb79702e46252467792a76d239f1a4d
+source_digest: sha256:29a22191429112d0f5c0507a6a48c3cbfa311721027e91ec3fe9c167c21a2ca7
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:30:00Z
-stale_after: 2026-12-31
+  at: 2026-10-05T20:00:00Z
+stale_after: 2027-01-02
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:30:00Z
+  at: 2026-10-04T12:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -38,9 +38,9 @@ state.
    `~/.claude.json` symlink into the `agentdev-claude` volume,
    `codebase-memory-mcp install`, auth directories, credential seeding from the
    transfer directory, Claude first-run pre-approval under autostart, the Codex
-   auth link, `uv sync`, then the image-staged catalog installed for Codex and
-   for Claude at user scope —
-   `.devcontainer/scripts/postCreateCommand.sh:56-94`, in
+   auth link, `uv sync`, then the image-staged catalog installed for Codex, for
+   Claude at user scope, and as OpenCode's bridge plugin —
+   `.devcontainer/scripts/postCreateCommand.sh:56-95`, in
    [lifecycle scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    credential seeding (consuming the transfer files step 1 rewrote), pre-commit
@@ -48,9 +48,9 @@ state.
    background, Claude Remote Control under autostart, the Codex auth link —
    `.devcontainer/scripts/postStartCommand.sh:9-31`
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
-   catalog reinstalled from this checkout at local scope, which is how the
-   catalog is developed in place —
-   `.devcontainer/scripts/postAttachCommand.sh:8-15`
+   catalog reinstalled from this checkout at local scope, with OpenCode's bridge
+   entry repointed at it, which is how the catalog is developed in place —
+   `.devcontainer/scripts/postAttachCommand.sh:8-16`
 
 ## Failure modes
 

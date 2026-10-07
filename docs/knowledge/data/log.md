@@ -19,6 +19,38 @@ to the current day's group.
   done. The Codex replay was mixed, so the shipped correctness bar stays
   unchanged and validator strictness is the open question; see
   [PR review correctness bar](architecture/pr-review-correctness-bar.md).
+- **Update**: [Native stacked pull requests](features/native-stacked-prs.md)
+  implemented.
+- **Update**:
+  [Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
+  done. The PR skills merge every PR explicitly, merge a GitHub native stack
+  through `gh stack merge` with the new pr-merge-stack skill, and route stack
+  branches through `gh stack`; force-pushes are limited to `gh stack` on stack
+  branches.
+- **Update**: [Stacked PRs](spec/stacked-prs.md) spec created.
+- **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec resolves a
+  conflicted stacked PR with `gh stack rebase`.
+- **Update**:
+  [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
+  done.
+- **Update**: [OpenCode as a catalog host](features/opencode-catalog-host.md)
+  implemented.
+- **Update**: [OpenCode catalog bridge](spec/opencode-catalog-bridge.md) spec
+  created.
+- **Update**: [Stacked pull requests](architecture/stacked-prs.md) architecture
+  doc created from the stacked-PR spike.
+- **Update**: Refreshed the agentdev, agentdev skills, agentdev tests, Ansible,
+  and image-build flow codebase maps for the vendored gh-stack skill, the new
+  pr-merge-stack skill and the chain-merge skill it replaced, and the pinned
+  gh-stack extension.
+- **Update**: Re-verified the agentdev, agentdev tests, Ansible, and image-build
+  flow codebase maps after merging the stacked-PR work with the OpenCode bridge.
+
+## 2026-10-04
+
+- **Update**: Mapped the OpenCode bridge plugin and refreshed the thirteen
+  codebase-map docs that the OpenCode catalog host and the agentdev 4.2.0 pins
+  moved.
 
 ## 2026-10-02
 

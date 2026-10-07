@@ -1,13 +1,14 @@
 ---
 type: spec
-description: How pr-feedback-resolution and pr-merge detect a pull request's merge conflicts and resolve them through update-branch against the PR's own base branch.
+description: How pr-feedback-resolution and pr-merge detect a pull request's merge conflicts and resolve them — through update-branch against the PR's own base branch, or through gh stack for a stacked PR.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-02T00:00:00Z
+  at: 2026-10-05T14:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
+- resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 ---
 
 # PR merge conflicts
@@ -15,8 +16,9 @@ sources:
 ## Purpose
 
 Defines how the PR skills handle a pull request that conflicts with its base:
-detected from GitHub's merge state, resolved by merging the PR's own base branch
-before any feedback work, and pushed at once so CI runs on the merged head.
+detected from GitHub's merge state, resolved before any feedback work — by
+merging the PR's own base branch, or by a cascading `gh stack rebase` for a PR
+in a GitHub stack — and pushed at once so CI runs on the resolved head.
 
 ## Requirements
 
@@ -24,23 +26,33 @@ before any feedback work, and pushed at once so CI runs on the merged head.
 
 The pr-feedback-resolution skill SHALL read the PR's `mergeable`,
 `mergeStateStatus`, and `baseRefName` before any feedback edit. When `mergeable`
-is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, it SHALL merge the PR's
-`baseRefName` through `update-branch`, resolve the conflicts, and push the merge
-before collecting feedback. When `mergeable` is `UNKNOWN`, it SHALL re-poll
-before deciding. A PR that is only `BEHIND` its base SHALL NOT be updated.
+is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, it SHALL resolve the conflict
+before collecting feedback: a PR in a GitHub stack through `gh stack rebase` and
+`gh stack push`, any other PR by merging its `baseRefName` through
+`update-branch` and pushing the merge. When `mergeable` is `UNKNOWN`, it SHALL
+re-poll before deciding. A PR that is only `BEHIND` its base SHALL NOT be
+updated.
 
 #### Scenario: Conflicted PR
 
 - **WHEN** the PR's `mergeable` is `CONFLICTING` or `mergeStateStatus` is
-  `DIRTY`
+  `DIRTY`, and the PR belongs to no GitHub stack
 - **THEN** `update-branch` runs with `--base <baseRefName>` before any feedback
   edit
 - **AND** the resolved merge is pushed before feedback is collected
 
+#### Scenario: PR on another branch outside a stack
+
+- **WHEN** a conflicted PR targets a branch other than `main` and belongs to no
+  GitHub stack
+- **THEN** that branch, not `main`, is merged into the PR branch
+
 #### Scenario: Stacked PR
 
-- **WHEN** a conflicted PR targets a branch other than `main`
-- **THEN** that branch, not `main`, is merged into the PR branch
+- **WHEN** a conflicted PR belongs to a GitHub stack
+- **THEN** the conflict is resolved with `gh stack rebase` and the stack is
+  pushed with `gh stack push`
+- **AND** `update-branch` is not run
 
 #### Scenario: Mergeability not yet computed
 

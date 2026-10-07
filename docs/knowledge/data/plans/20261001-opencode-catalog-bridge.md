@@ -16,6 +16,8 @@ sources:
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/command/index.ts
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/tui/src/component/prompt/autocomplete.tsx
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/core/src/v1/config/agent.ts
+stage: done
+completed: 2026-10-05
 ---
 
 # Load the agentdev catalog into OpenCode through a bridge plugin
@@ -113,7 +115,7 @@ Rejected alternatives:
 
 **Files:** Create: `docs/knowledge/data/architecture/opencode-catalog-bridge.md`
 
-- [ ] With a throwaway prototype under `./.tmp/` and `bunx opencode-ai@1.18.34`,
+- [x] With a throwaway prototype under `./.tmp/` and `bunx opencode-ai@1.18.34`,
   establish each point below. A result that contradicts this plan's Approach
   goes back to `/agentdev:iwe-plan` before Task 2 starts.
   1. A `skills.paths` entry added in the `config` hook reaches
@@ -127,9 +129,16 @@ Rejected alternatives:
   6. `Bun.YAML.parse` is available to plugins.
   7. A `plugin` config entry holding the bridge directory's absolute path loads
      it.
-- [ ] Record the decision, the facts it rests on, and the rejected alternatives
+  - **Evidence:** commit "Settle the OpenCode host behavior the bridge relies
+    on": all seven hold against `opencode-ai@1.18.34`, recorded under "Host
+    behavior the design rests on" in `architecture/opencode-catalog-bridge`;
+    `/pr` shows 8 of the 10 `agentdev:pr-*` commands and `/pr-` all 10, so the
+    Approach stands
+- [x] Record the decision, the facts it rests on, and the rejected alternatives
   from `## Approach` in `data/architecture/opencode-catalog-bridge.md`, linked
   from `data/architecture.md`
+  - **Evidence:** commit "Settle the OpenCode host behavior the bridge relies
+    on" adds the document and its inclusion link
 
 ### Task 2: Build the bridge plugin
 
@@ -137,7 +146,7 @@ Rejected alternatives:
 `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
 `.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 
-- [ ] `bun test` cases, written first, run against the real plugin root:
+- [x] `bun test` cases, written first, run against the real plugin root:
   - every skill directory yields an `agentdev:<name>` command whose template
     ends with the base-directory footer;
   - `<root>/skills` is added to `skills.paths`;
@@ -149,45 +158,72 @@ Rejected alternatives:
   - user-defined keys are preserved;
   - the `skill` tool's `agentdev:` prefix is stripped, and other tools' calls
     are untouched.
-- [ ] Implement the plugin with type-only imports and no `dependencies` in
+  - **Evidence:** commit "Add the OpenCode bridge plugin for the agentdev
+    catalog": `tests/opencode/bridge.test.ts` covers each case above and failed
+    on the missing module before the plugin existed
+- [x] Implement the plugin with type-only imports and no `dependencies` in
   `package.json`. Tool mapping: Bash→`bash`, Read→`read`, Edit and Write→`edit`,
   Grep→`grep`, Glob→`glob`, WebSearch→`websearch`, WebFetch→`webfetch`,
   Agent→`task`, TodoWrite→`todowrite`, Skill→`skill`.
-- [ ] `bun test .agents/plugins/agentdev/tests/opencode` passes
+  - **Evidence:** commit "Add the OpenCode bridge plugin for the agentdev
+    catalog": `.opencode-plugin/package.json` has no `dependencies` and
+    `index.ts` imports only types plus `node:fs` and `node:path`; registered in
+    `opencode-ai@1.18.34`, `opencode debug skill` lists all 38 catalog skills
+    and `opencode debug agent tdd-red` shows the deny entries
+- [x] `bun test ./.agents/plugins/agentdev/tests/opencode` passes
+  - **Evidence:** commit "Add the OpenCode bridge plugin for the agentdev
+    catalog": 12 pass, 0 fail
 
 ### Task 3: Run the bridge tests in CI
 
 **Files:** Modify: `.github/workflows/validate-agent-files.yml`
 
-- [ ] Add a pinned `oven-sh/setup-bun` step and a
-  `bun test .agents/plugins/agentdev/tests/opencode` step to the
+- [x] Add a pinned `oven-sh/setup-bun` step and a
+  `bun test ./.agents/plugins/agentdev/tests/opencode` step to the
   `validate-agent-files` job
+  - **Evidence:** commit "Run the OpenCode bridge tests in CI": steps pinned to
+    `oven-sh/setup-bun@v2.2.0`; the actionlint and zizmor pre-commit hooks pass
 
 ### Task 4: Install the OpenCode CLI in the image
 
 **Files:** Modify: `ansible/roles/agentic_tools/defaults/main.yml`,
 `ansible/roles/agentic_tools/README.md`
 
-- [ ] Add `agentic_tools_opencode_version: "1.18.34"` under a
+- [x] Add `agentic_tools_opencode_version: "1.18.34"` under a
   `# renovate: datasource=npm depName=opencode-ai` comment, and an `opencode-ai`
   entry in `agentic_tools_bun_packages`
-- [ ] Document the new variable in the role README
+  - **Evidence:** commit "Install the OpenCode CLI in the image"; ansible-lint
+    passes, and the role's `bun add --global --exact opencode-ai@1.18.34` form
+    installs a working `opencode` 1.18.34 that `bun pm ls --global` reports as
+    `opencode-ai@1.18.34`
+- [x] Document the new variable in the role README
+  - **Evidence:** commit "Install the OpenCode CLI in the image": an "Agent
+    CLIs" variable table and the Bun-globals list name `opencode-ai`
 
 ### Task 5: Register the bridge in a user's OpenCode config
 
 **Files:** Create: `.devcontainer/scripts/reinstall-agentdev-opencode.sh`
 
-- [ ] The script takes an optional catalog root, defaulting to this checkout,
+- [x] The script takes an optional catalog root, defaulting to this checkout,
   like `reinstall-agentdev-codex.sh`. When
   `<root>/.agents/plugins/agentdev/.opencode-plugin` is absent, it reports that
   and exits 0.
-- [ ] Otherwise it writes the bridge's absolute path into the `plugin` array of
+  - **Evidence:** commit "Register the OpenCode bridge in the user's config":
+    run with `/nonexistent` prints "ships no OpenCode bridge plugin" and exits 0
+- [x] Otherwise it writes the bridge's absolute path into the `plugin` array of
   `${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/opencode.json`.
   It creates the file when missing, replaces any earlier entry ending in
   `/.agents/plugins/agentdev/.opencode-plugin`, and preserves every other key.
-- [ ] Run it twice against `HOME=./.tmp/opencode-home`, once with the staged
+  - **Evidence:** commit "Register the OpenCode bridge in the user's config":
+    from a config holding `model`, `other-plugin`, and an old-root
+    `[spec, options]` bridge entry, the run keeps `model` and `other-plugin` and
+    replaces the old entry; with no config it creates `{"plugin": [<bridge>]}`
+- [x] Run it twice against `HOME=./.tmp/opencode-home`, once with the staged
   root and once with no argument. The config then lists exactly one bridge
   entry, pointing at the last root. `shellcheck` passes.
+  - **Evidence:** commit "Register the OpenCode bridge in the user's config":
+    after the staged-root run and the no-argument run, `plugin` holds one bridge
+    entry, the checkout's; `shellcheck` and the pre-commit shellcheck hook pass
 
 ### Task 6: Install the bridge through the catalog lifecycle
 
@@ -195,13 +231,22 @@ Rejected alternatives:
 `.devcontainer/scripts/postAttachCommand.sh`,
 `ansible/roles/agentic_tools/tasks/install_catalog.yml`
 
-- [ ] postCreate calls `reinstall-agentdev-opencode.sh "$AGENTDEV_CATALOG_DIR"`
+- [x] postCreate calls `reinstall-agentdev-opencode.sh "$AGENTDEV_CATALOG_DIR"`
   inside the existing staged-catalog branch
-- [ ] postAttach calls `reinstall-agentdev-opencode.sh` with no argument,
+  - **Evidence:** commit "Install the OpenCode bridge through the catalog
+    lifecycle"; `shellcheck` passes
+- [x] postAttach calls `reinstall-agentdev-opencode.sh` with no argument,
   alongside the Codex and Claude reinstalls
-- [ ] The build-time install writes the staged bridge path into
+  - **Evidence:** commit "Install the OpenCode bridge through the catalog
+    lifecycle"; `shellcheck` passes
+- [x] The build-time install writes the staged bridge path into
   `{{ user_home }}/.config/opencode/opencode.json`, merging with any existing
   content
+  - **Evidence:** commit "Install the OpenCode bridge through the catalog
+    lifecycle"; ansible-lint and the `setup-dev.yml` syntax check pass, and the
+    block run against localhost keeps existing keys and plugin entries, is
+    unchanged on a second run, creates the file when absent, and skips when the
+    staged catalog has no bridge
 
 ### Task 7: Document OpenCode as a catalog host
 
@@ -209,34 +254,60 @@ Rejected alternatives:
 and whichever `docs/knowledge/data/codebase/` documents `stale-map-docs.py`
 reports
 
-- [ ] `.agents/AGENTS.md`: OpenCode consumes the same tree through
+- [x] `.agents/AGENTS.md`: OpenCode consumes the same tree through
   `.opencode-plugin/`. The bridge takes no runtime dependencies.
-- [ ] The plugin README names OpenCode and how a project enables the bridge
-- [ ] Refresh the stale codebase-map documents through `/agentdev:iwe-map`
+  - **Evidence:** commit "Document OpenCode as a catalog host": a bullet under
+    "Catalog locations and portability"
+- [x] The plugin README names OpenCode and how a project enables the bridge
+  - **Evidence:** commit "Document OpenCode as a catalog host": title, an
+    "Installing in OpenCode" section with the `plugin` config entry, OpenCode
+    usage, and the bun suite; `validate_agent_files` reports 0 errors
+- [x] Refresh the stale codebase-map documents through `/agentdev:iwe-map`
+  - **Evidence:** commit "map: refresh 13 docs and map the OpenCode bridge": run
+    after Task 8 so the release pins are covered; adds
+    `codebase/agents/plugins/agentdev/opencode-plugin`, and `stale-map-docs.py`
+    ends `RESULT=SUCCESS` with 28 of 28 fresh
 
 ### Task 8: Release the catalog
 
 **Files:** Modify: `.agents/plugins/agentdev/.claude-plugin/plugin.json`,
 `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
-`.claude-plugin/marketplace.json`
+`.claude-plugin/marketplace.json`, `docker/desktop/agent-desktop.Dockerfile`,
+`.codex/setup-codex-cloud.sh`, `README.md`
 
-- [ ] agentdev minor version bump in both manifests and the marketplace entry
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [x] agentdev minor version bump in both manifests and the marketplace entry
+  - **Evidence:** commit "Release agentdev 4.2.0": 4.1.0 → 4.2.0 in all three
+- [x] Move the image's `AGENTDEV_PLUGIN_VERSION` pin, the Codex cloud setup pin,
+  and the root README's version with them
+  - **Evidence:** commit "Move the remaining agentdev 4.2.0 pins": `git grep`
+    finds no agentdev `4.1.0` outside the knowledge graph's history
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes
+  - **Evidence:** commit "Release agentdev 4.2.0": 56/56 skills valid, 0 errors,
+    0 warnings
 
 ### Task 9: Confirm the catalog in a rebuilt devcontainer
 
-- [ ] In a container built from this branch, with no manual setup:
+- [x] In a container built from this branch, with no manual setup:
   - `opencode debug skill` lists the agentdev skills;
   - `/pr` in the TUI offers `/agentdev:pr-*` commands;
   - `/agentdev:pr-gen-description` runs its script from the skill's
     `agent-code/`;
   - asking for a TDD Red subagent dispatches `tdd-red` without web tools.
+  - **Evidence:** the pull request's `agent-desktop` image, run with no
+    lifecycle scripts: the build-time `opencode.json` lists the staged bridge;
+    `opencode debug skill` lists all 38 catalog skills from `/opt/agentdev`;
+    `/pr` shows 8 `agentdev:pr-*` commands and `/pr-` all 10; with
+    `opencode/big-pickle`, the command ran `review-git-changes.sh` from the
+    staged `agent-code/` to `RESULT=SUCCESS`, and a TDD Red request dispatched a
+    `tdd-red` session that called only `bash` and `write`
 
 ### Task 10: CI passes on the branch
 
-- [ ] The `validate-agent-files` workflow passes on the pull request, including
+- [x] The `validate-agent-files` workflow passes on the pull request, including
   the bun step
+  - **Evidence:** pull request #255: `validate-agent-files` passes, the bun step
+    reporting 12 pass, 0 fail
 
 ## Spec changes
 
@@ -319,8 +390,8 @@ image's staged copy.
   image-staged catalog in place.
 ```
 
-`spec/opencode-catalog-bridge` (new) — the bridge's contract, including the
-permission mapping that limits subagents:
+[OpenCode catalog bridge](../spec/opencode-catalog-bridge.md) (new) — the
+bridge's contract, including the permission mapping that limits subagents:
 
 ``` markdown
 ## ADDED Requirements
@@ -411,7 +482,7 @@ that the user's OpenCode configuration already defines under the same key.
 
 ## Verification
 
-- `bun test .agents/plugins/agentdev/tests/opencode`
+- `bun test ./.agents/plugins/agentdev/tests/opencode`
 - `shellcheck .devcontainer/scripts/reinstall-agentdev-opencode.sh`, plus the
   two-run check in Task 5
 - `bunx opencode-ai@1.18.34 debug skill`, with the bridge registered against
@@ -424,7 +495,7 @@ that the user's OpenCode configuration already defines under the same key.
 ## Out of scope
 
 - **self-improve on OpenCode.** Its reviewer builds a Claude-only command line
-  (`reviewer.py:60-85`), and its seven hook events need OpenCode equivalents,
+  (`reviewer.py:62-89`), and its seven hook events need OpenCode equivalents,
   including one for the typed-command authorization that `UserPromptExpansion`
   provides. Both are their own design question.
 - **Hook mapping for agentdev.** agentdev ships no hooks, so the bridge maps
@@ -438,7 +509,7 @@ that the user's OpenCode configuration already defines under the same key.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-04):
 
 - `ansible/roles/agentic_tools/defaults/main.yml:1-18` — pinned agent CLIs and
   `agentic_tools_bun_packages`
@@ -456,7 +527,7 @@ Verified anchor points (line numbers as of 2026-10-02):
   job steps
 - `.agents/plugins/agentdev/agents/tdd-red.agent.md:1-5` — agent frontmatter
   shape (`name`, `description`, `tools`)
-- `.agents/plugins/self-improve/selfimprove/reviewer.py:60-85` — Claude-only
+- `.agents/plugins/self-improve/selfimprove/reviewer.py:62-89` — Claude-only
   reviewer argv
 - `docs/knowledge/data/spec/catalog-lifecycle.md:17-83` — the two requirements
   this plan modifies

@@ -1,18 +1,18 @@
 ---
 type: codebase
-description: 'The canonical Claude Code and Codex plugin: agents, skills, bin helpers, and its own test suite, published from this repository and staged into the image.'
+description: 'The canonical Claude Code, Codex, and OpenCode plugin: agents, skills, bin helpers, the OpenCode bridge, and its own test suite, published from this repository and staged into the image.'
 source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:8baa90901ca6cf488edf9d64c3ed8ce6266ffaa5c51db95ffef77a2764b3576b
+source_digest: sha256:8759a77a224a56422b4dab8a13512bb0aa0f860f58e25efb0e8682408f7e65af
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T16:10:23Z
-stale_after: 2026-12-31
+  at: 2026-10-05T19:11:30Z
+stale_after: 2027-01-03
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T16:10:23Z
+  at: 2026-10-05T19:11:30Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -20,19 +20,22 @@ sources:
 
 # The agentdev catalog
 
-One plugin tree consumed two ways. Claude Code reaches it through the
+One plugin tree consumed three ways. Claude Code reaches it through the
 marketplace at `.claude-plugin/marketplace.json` and the plugin manifest at
 `.agents/plugins/agentdev/.claude-plugin/plugin.json`; Codex through
-`.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json`. The Claude
-marketplace also publishes `self-improve`, which ships no Codex manifest, so the
-two ecosystems publish different plugin sets. Skills are invoked as
-`/agentdev:<name>`. The design decisions behind the layout are in
-[Module layout](../../../architecture/module-layout.md) and
+`.agents/plugins/marketplace.json` and `.codex-plugin/plugin.json`; OpenCode
+through the bridge plugin in `.opencode-plugin/`, which a user's OpenCode config
+lists by absolute path. The Claude marketplace also publishes `self-improve`,
+which ships no Codex manifest, so the two ecosystems publish different plugin
+sets. Skills are invoked as `/agentdev:<name>`. The design decisions behind the
+layout are in [Module layout](../../../architecture/module-layout.md) and
 [Template boundary](../../../architecture/template-boundary.md).
 
 ## Contains
 
 [Skills](agentdev/skills.md)
+
+[OpenCode bridge](agentdev/opencode-plugin.md)
 
 [bin helpers](agentdev/bin.md)
 
@@ -44,13 +47,14 @@ each.
 
 ## Public surface
 
-- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (38
+- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (39
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`
 - `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
   `result_codes.py`, which a Python skill script imports from there
-- `version` — `4.1.0`, declared identically in both plugin manifests, the
+- `.opencode-plugin/` — the directory an OpenCode `plugin` entry names
+- `version` — `4.2.0`, declared identically in both plugin manifests, the
   marketplace entry, and the Dockerfile pin
 
 ## How it works
@@ -62,7 +66,8 @@ source. The image build copies `.claude-plugin/` and `.agents/` whole into
 lifecycle installs again over the mounted volumes and, for this repository only,
 re-registers the workspace copy on attach
 ([lifecycle scripts](../../devcontainer/scripts.md)). Codex reads the same
-files; there is no generated mirror.
+files; there is no generated mirror. OpenCode reads them too, translated at
+startup by the bridge rather than copied.
 
 ## Depends on
 
@@ -81,7 +86,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-05):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

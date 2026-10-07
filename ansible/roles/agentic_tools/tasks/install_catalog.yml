@@ -79,3 +79,57 @@
       - add
       - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_codex_marketplace_name }}"
   changed_when: true
+
+- name: Register the staged OpenCode bridge plugin in the user's OpenCode config
+  vars:
+    agentic_tools_opencode_bridge: >-
+      {{ agentic_tools_catalog_root }}/.agents/plugins/{{ agentic_tools_plugin_name }}/.opencode-plugin
+    agentic_tools_opencode_config: "{{ user_home }}/.config/opencode/opencode.json"
+  block:
+    - name: Stat the staged OpenCode bridge plugin
+      ansible.builtin.stat:
+        path: "{{ agentic_tools_opencode_bridge }}"
+      register: agentic_tools_opencode_bridge_stat
+
+    - name: Ensure the OpenCode config directory exists
+      ansible.builtin.file:
+        path: "{{ agentic_tools_opencode_config | dirname }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      when: agentic_tools_opencode_bridge_stat.stat.isdir | default(false)
+
+    - name: Stat the existing OpenCode config
+      ansible.builtin.stat:
+        path: "{{ agentic_tools_opencode_config }}"
+      register: agentic_tools_opencode_config_stat
+
+    - name: Read the existing OpenCode config
+      ansible.builtin.slurp:
+        src: "{{ agentic_tools_opencode_config }}"
+      register: agentic_tools_opencode_existing_config
+      when: agentic_tools_opencode_config_stat.stat.exists
+
+    - name: Add the staged bridge to the OpenCode plugin list
+      vars:
+        agentic_tools_opencode_current: >-
+          {{
+            agentic_tools_opencode_existing_config.content | b64decode | trim | default('{}', true) | from_json
+            if agentic_tools_opencode_existing_config.content is defined
+            else {}
+          }}
+      ansible.builtin.copy:
+        content: >-
+          {{
+            agentic_tools_opencode_current
+            | combine({'plugin': (agentic_tools_opencode_current.plugin | default([])
+                                  | reject('equalto', agentic_tools_opencode_bridge) | list)
+                                 + [agentic_tools_opencode_bridge]})
+            | to_nice_json
+          }}
+        dest: "{{ agentic_tools_opencode_config }}"
+        owner: root
+        group: root
+        mode: "0644"
+      when: agentic_tools_opencode_bridge_stat.stat.isdir | default(false)

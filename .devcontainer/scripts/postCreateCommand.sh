@@ -91,6 +91,7 @@ chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex
 if [[ -n "${AGENTDEV_CATALOG_DIR:-}" && -d "$AGENTDEV_CATALOG_DIR" ]]; then
     "$script_dir/reinstall-agentdev-codex.sh" "$AGENTDEV_CATALOG_DIR"
     "$script_dir/reinstall-agentdev-claude.sh" "$AGENTDEV_CATALOG_DIR" user
+    "$script_dir/reinstall-agentdev-opencode.sh" "$AGENTDEV_CATALOG_DIR"
 else
     echo "No catalog staged in the image; skipping the image-scoped plugin install."
 fi

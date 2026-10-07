@@ -11,7 +11,7 @@ install_docker: false
 # Xpra remote desktop with the HTML5 client.
 install_xpra: false
 
-# Claude Code, Codex, and the MCP inspector.
+# Agent CLIs and their tooling; the agentic_tools role README lists them.
 install_agentic_tools: false
 
 # The validate_agent_files CLI, built from py_packages/validate_agent_files/ in the

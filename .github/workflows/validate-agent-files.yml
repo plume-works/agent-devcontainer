@@ -81,6 +81,12 @@ jobs:
       - name: Test agentdev plugin scripts
         run: uv run pytest .agents/plugins/agentdev/tests
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2.2.0
+
+      - name: Test agentdev OpenCode bridge
+        run: bun test ./.agents/plugins/agentdev/tests/opencode
+
       # The live tests skip at collection unless SELF_IMPROVE_RUN_LIVE is set,
       # so this spends no model usage.
       - name: Test self-improve plugin
