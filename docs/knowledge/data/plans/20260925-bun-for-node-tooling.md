@@ -67,10 +67,15 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 
 **Files:** Modify: `.pre-commit-config.yaml`
 
-- [ ] Delete the `https://github.com/pre-commit/mirrors-prettier` repo block and
+- [x] Delete the `https://github.com/pre-commit/mirrors-prettier` repo block and
   the `https://github.com/renovatebot/pre-commit-hooks` repo block.
-- [ ] Put the two hooks at the head of the existing `repo: local` block, above
+  - **Evidence:** the Task 1 commit; neither repo URL remains in
+    `.pre-commit-config.yaml`, and `pre-commit validate-config` passes.
+- [x] Put the two hooks at the head of the existing `repo: local` block, above
   `zizmor`, exactly as follows:
+  - **Evidence:** the Task 1 commit; `pre-commit run prettier` and
+    `pre-commit run renovate-config-validator --files .github/renovate.json`
+    both report Passed through `bunx`.
 
 ``` yaml
   - repo: local
@@ -79,7 +84,7 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
       # Prettier's file set matches Super-Linter's; .prettierignore still applies.
       - id: prettier
         name: prettier
-        entry: bunx prettier@3.8.1 --write --ignore-unknown
+        entry: bunx prettier@3.8.4 --write --ignore-unknown
         language: system
         files: '\.(md|markdown|ya?ml|json|jsonc)$'
 
@@ -87,7 +92,7 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
       # Renovate version: see architecture/renovate-config-validation.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.106.0 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.138.1 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 
@@ -210,7 +215,7 @@ relocates the Renovate pin.
 - `grep -rnE 'npx|npm install|mirrors-prettier|additional_dependencies' .pre-commit-config.yaml .github Makefile`
   prints nothing.
 - `sed -nE 's/.*prettier@v?([0-9.]+).*/\1/p' .pre-commit-config.yaml | head -n 1`
-  prints `3.8.1`.
+  prints `3.8.4`.
 - `grep -rnwE 'npm|npx|yarn|pnpm' .pre-commit-config.yaml .github Makefile scripts .devcontainer/scripts`
   shows no invocation of those commands; remaining hits are names in Renovate
   datasources, firewall allowlist entries, or prose.
@@ -229,29 +234,31 @@ relocates the Renovate pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
+Verified anchor points (line numbers as of 2026-10-08, at `5ce848b`):
 
-- `.pre-commit-config.yaml:11` — `mirrors-prettier` repo block
-- `.pre-commit-config.yaml:68` — `renovatebot/pre-commit-hooks` repo block
-- `.pre-commit-config.yaml:79` — existing `repo: local` block
-- `.github/renovate.json:67` — `pre-commit/mirrors-prettier` in the Super-Linter
+- `.pre-commit-config.yaml:14` — `mirrors-prettier` repo block
+- `.pre-commit-config.yaml:71` — `renovatebot/pre-commit-hooks` repo block
+- `.pre-commit-config.yaml:82` — existing `repo: local` block
+- `.github/renovate.json:75` — `pre-commit/mirrors-prettier` in the Super-Linter
   rule
-- `.github/renovate.json:80` — Prettier `additional_dependencies` rule
-- `.github/renovate.json:132` — "Commit pins in the Ansible roles' defaults"
+- `.github/renovate.json:88` — Prettier `additional_dependencies` rule
+- `.github/renovate.json:140` — "Commit pins in the Ansible roles' defaults"
   custom manager
 - `.github/workflows/validate-renovate-config.yml:67-75` — validator call; reads
   the hook `rev` and runs `bunx --package "renovate@${rev}"`
+- `.github/workflows/renovate.yml:62-70` — `Read the Renovate version` step;
+  reads the hook `rev`
 - `Makefile:157` — `npm install -g` upgrade hint
-- `AGENTS.md:11` — Best Practice 1, `uv` and `bun` toolchain rule
-- `docs/knowledge/data/product.md:125` — authoring-rules mirror of Best Practice
+- `AGENTS.md:12` — Best Practice 1, `uv` and `bun` toolchain rule
+- `docs/knowledge/data/product.md:129` — authoring-rules mirror of Best Practice
   1
 - `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md:29`
   — Prettier `additional_dependencies` wording
-- `docs/knowledge/data/architecture/renovate-config-validation.md:20` — the
+- `docs/knowledge/data/architecture/renovate-config-validation.md:21` — the
   one-pin decision: the hook `rev` is the Renovate version everywhere
-- `scripts/validate-super-linter-tool-versions.sh:158` — Prettier version
+- `scripts/validate-super-linter-tool-versions.sh:157-158` — Prettier version
   extraction regex
-- `docs/knowledge/data/codebase/flow-pull-request-checks.md:54-57` — validator
+- `docs/knowledge/data/codebase/flow-pull-request-checks.md:55-61` — validator
   step and its line citation
-- `docs/knowledge/data/codebase/github/workflows.md:118-121` — validator line
+- `docs/knowledge/data/codebase/github/workflows.md:129-131` — validator line
   citations
