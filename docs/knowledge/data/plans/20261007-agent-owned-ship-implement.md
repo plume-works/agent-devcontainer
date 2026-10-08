@@ -153,6 +153,9 @@ Rejected:
   the conversation — and re-posts its report. `iwe-implement` directs the
   session to follow the `iwe-implementer` rulebook, located relative to the
   skill directory.
+  - **Evidence:** committed with this tick;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 62/62 skills valid with 0 errors and 0 warnings.
 
 ### Task 5: Dispatch the agents from the coordinators
 
