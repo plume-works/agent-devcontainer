@@ -56,8 +56,8 @@ before the push.
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
    `renovate-config-validator --no-global --strict` inside the pinned
-   `agent-desktop` image at the Renovate release the hook's `rev` names, and
-   `finished` reports the required result either way —
+   `agent-desktop` image at the Renovate release the hook's `bunx` pin names,
+   and `finished` reports the required result either way —
    `.github/workflows/validate-renovate-config.yml:26,51,69-75,77`
 7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort

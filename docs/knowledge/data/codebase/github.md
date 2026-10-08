@@ -75,7 +75,7 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 - `renovate.json` is itself validated, by a pre-commit hook and by
   `validate-renovate-config.yml`, both running the validator with `--no-global`
   so it applies the repository schema rather than the self-hosted one, at the
-  hook's Renovate rev the bot also runs — see
+  hook's Renovate pin the bot also runs — see
   [Renovate config validation](../architecture/renovate-config-validation.md).
 - The post-upgrade script's behavior and failure policy are
   [Renovate post-upgrade](../architecture/renovate-post-upgrade.md).

@@ -169,7 +169,11 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 `docs/knowledge/data/codebase/flow-pull-request-checks.md`,
 `docs/knowledge/data/codebase/github/workflows.md`
 
-- [ ] In the sync skill, step 3 becomes:
+- [x] In the sync skill, step 3 becomes:
+  - **Evidence:** the Task 5 commit; step 3 of
+    `sync-super-linter-tool-versions/SKILL.md` names the
+    `bunx prettier@<version>` entry; `pre-commit run validate-agent-files`
+    passes.
 
 ``` markdown
 3. Update the matching values in the repository's `.pre-commit-config.yaml`:
@@ -180,13 +184,19 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 
 The rest of the step is unchanged.
 
-- [ ] In `architecture/renovate-config-validation`, the one Renovate pin is
+- [x] In `architecture/renovate-config-validation`, the one Renovate pin is
   described as the hook's `bunx --package renovate@<version>` entry, tracked by
   a custom manager, instead of the hook's `rev`. The decision itself is
   unchanged.
-- [ ] In both codebase map docs, point the
+  - **Evidence:** the Task 5 commit; `## Decision` in
+    `architecture/renovate-config-validation` names the `bunx` entry and the
+    `custom.regex` manager; `iwe schema validate` passes.
+- [x] In both codebase map docs, point the
   `.github/workflows/validate-renovate-config.yml` citation at the validator's
   `run` step as it stands after Task 3.
+  - **Evidence:** the Task 5 commit; the step still spans lines 69-75 after Task
+    3, so both citations stand, and the prose beside them now names the hook's
+    `bunx` pin instead of its `rev`, as does `codebase/github.md`.
 
 ### Task 6: Record the bun-only rule for future work
 

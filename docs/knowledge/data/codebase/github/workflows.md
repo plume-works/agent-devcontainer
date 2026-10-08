@@ -29,8 +29,8 @@ scheduled Renovate bot, and one manual job.
 | `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` → `finished`                                     |
 | `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites and the OpenCode bridge bun suite, the validator with `--require-marketplace claude codex`, then the map-staleness check |
 | `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                                                         |
-| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate rev) → `finished`                                                    |
-| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate rev, in `agent-desktop`, as the Renovate GitHub App                                               |
+| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate pin) → `finished`                                                    |
+| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate pin, in `agent-desktop`, as the Renovate GitHub App                                               |
 | `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                              |
 | `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                                                   |
 
@@ -129,10 +129,10 @@ Verified anchor points (line numbers as of 2026-10-04):
 - `.github/workflows/validate-renovate-config.yml:26,51,77` — `paths-filter`,
   `validate`, `finished`
 - `.github/workflows/validate-renovate-config.yml:58-59,69-75` — pinned
-  container, rev read and validator run
+  container, pin read and validator run
 - `.github/workflows/renovate.yml:9-15,31-44` — checkbox triggers and the job
   `if:` admitting only a person's dashboard or Renovate PR body edit
 - `.github/workflows/renovate.yml:47-49` — job-level concurrency group
-- `.github/workflows/renovate.yml:53-54,64-70` — pinned container, rev read
+- `.github/workflows/renovate.yml:53-54,64-70` — pinned container, pin read
 - `.github/workflows/renovate.yml:75-88` — App token and its named permissions
 - `.github/workflows/renovate.yml:90-113` — commit identity, bot run
