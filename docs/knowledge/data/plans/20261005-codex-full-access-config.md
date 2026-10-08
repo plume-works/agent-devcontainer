@@ -85,8 +85,10 @@ corrupt config is better surfaced than replaced).
 
 **Files:** Modify: `.devcontainer/scripts/postStartCommand.sh`
 
-- [ ] Call `"$script_dir/configure-codex.py"` as the last step, after
+- [x] Call `"$script_dir/configure-codex.py"` as the last step, after
   `link-codex-auth.sh`.
+  - **Evidence:** Commit on branch `codex-full-access-config` appending the call
+    to `postStartCommand.sh`; `shellcheck` and pre-commit passed.
 
 ### Task 3: Tests
 
