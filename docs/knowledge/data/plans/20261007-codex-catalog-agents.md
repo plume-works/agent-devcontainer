@@ -123,9 +123,15 @@ a user-authored file with that prefix would be removed on reinstall.
 
 ### Task 6: The built image carries the agents without lifecycle hooks
 
-- [ ] A container started from a freshly built `agent-desktop` image, with no
+- [x] A container started from a freshly built `agent-desktop` image, with no
   lifecycle hook run, has `~/.codex/agents/agentdev-<stem>.toml` for every
   catalog agent.
+  - **Evidence:** committed with this tick; a local
+    `docker buildx build -f docker/desktop/agent-desktop.Dockerfile` of commit
+    a9924a5 ran "Install the staged catalog agents for Codex", and
+    `docker run --entrypoint /bin/bash` on the image, with no lifecycle hook,
+    listed one `agentdev-<stem>.toml` per catalog agent: `read-only` for
+    `durable-knowledge-auditor`, `workspace-write` for the other four.
 
 ## Spec changes
 
