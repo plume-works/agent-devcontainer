@@ -103,12 +103,19 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 
 **Files:** Modify: `.github/renovate.json`
 
-- [ ] Remove `"pre-commit/mirrors-prettier",` from the Super-Linter
+- [x] Remove `"pre-commit/mirrors-prettier",` from the Super-Linter
   `matchPackageNames` list.
-- [ ] Remove the package rule whose description begins "Prettier's
+  - **Evidence:** the Task 2 commit; the Super-Linter rule in
+    `.github/renovate.json` no longer lists it.
+- [x] Remove the package rule whose description begins "Prettier's
   additional_dependencies pin in the mirrors-prettier hook".
-- [ ] Add this custom manager to `customManagers`, before the "Commit pins in
+  - **Evidence:** the Task 2 commit; no `additional_dependencies` rule remains
+    in `.github/renovate.json`.
+- [x] Add this custom manager to `customManagers`, before the "Commit pins in
   the Ansible roles' defaults" manager:
+  - **Evidence:** the Task 2 commit; the manager's `matchStrings` regex, run
+    with `bun` over `.pre-commit-config.yaml`, yields `depName: renovate`,
+    `currentValue: 44.138.1`; `renovate-config-validator --strict` passes.
 
 ``` json
     {
@@ -122,9 +129,13 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
     },
 ```
 
-- [ ] Add a package rule that automerges the `renovate` dependency this manager
+- [x] Add a package rule that automerges the `renovate` dependency this manager
   extracts: a bump edits `.pre-commit-config.yaml`, which runs the required
   validation check at the new version.
+  - **Evidence:** the Task 2 commit; the `custom.regex` rule matching
+    `.pre-commit-config.yaml` and `renovate` in `.github/renovate.json`, whose
+    description now carries the validator-pin rationale the `pre-commit` rule's
+    description dropped.
 
 ### Task 3: Renovate workflows read the bunx pin
 
