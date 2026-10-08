@@ -10,6 +10,8 @@ sources:
 - resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docs/knowledge/data/architecture/module-layout.md
+stage: done
+completed: 2026-10-08
 ---
 
 # Install the catalog agents into Codex

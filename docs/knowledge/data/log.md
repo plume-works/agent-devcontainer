@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-08
 
+- **Update**:
+  [Install the catalog agents into Codex](plans/20261007-codex-catalog-agents.md)
+  done. Every Codex install now writes the catalog agents as generated TOML
+  agents; see [Catalog lifecycle](spec/catalog-lifecycle.md).
+- **Update**:
+  [Codex never loads the agentdev catalog agents](bugs/codex-catalog-agents-not-loaded.md)
+  fixed.
 - **Update**: Refreshed ten codebase map documents for the Codex catalog agent
   install: the `bin` installer, its tests, the Codex reinstall script, and the
   `agentic_tools` image-build step.

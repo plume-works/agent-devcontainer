@@ -2,12 +2,14 @@
 type: spec
 description: When and how the agentdev catalog gets installed into the persistent Claude/Codex plugin state and the OpenCode user config — at image build time and again by postCreateCommand.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-05T00:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
+- resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
+- resource: .agents/plugins/agentdev/bin/install-codex-agents.py
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: README.md
@@ -87,6 +89,35 @@ image's staged copy.
   that has no `.agents/plugins/agentdev/` marketplace manifest or bridge plugin
 - **THEN** the scripts find nothing to register and exit quietly, leaving the
   image-staged catalog in place.
+
+## Requirement: Codex receives the catalog agents as generated TOML agents
+
+Every Codex install of the catalog — at image build, by postCreateCommand, and
+on attach — SHALL write one `agentdev-<stem>.toml` agent per
+`agents/<stem>.agent.md` into `${CODEX_HOME:-~/.codex}/agents/`, named `<stem>`,
+carrying the file's description and body, with `sandbox_mode` `workspace-write`
+when the agent's tools include `Edit` or `Write` and `read-only` otherwise. It
+SHALL remove every `agentdev-*.toml` there that the current catalog does not
+produce, and SHALL NOT modify any other file in that directory.
+
+### Scenario: the catalog is installed into Codex
+
+- **WHEN** `reinstall-agentdev-codex.sh` or the image build installs a catalog
+  whose `agents/` holds `durable-knowledge-auditor.agent.md`
+- **THEN** Codex lists `durable-knowledge-auditor` as a spawnable agent type,
+  and dispatching it runs the agent file's body with a read-only sandbox.
+
+### Scenario: an agent is removed from the catalog
+
+- **WHEN** a catalog without `tdd-red.agent.md` is installed over one that had
+  it
+- **THEN** `agentdev-tdd-red.toml` no longer exists and every other catalog
+  agent's file is current.
+
+### Scenario: the user has their own Codex agents
+
+- **WHEN** `~/.codex/agents/` holds `codebase-memory.toml` before an install
+- **THEN** the file is unchanged after the install.
 
 ## Requirement: only agent credentials are shared across worktrees
 

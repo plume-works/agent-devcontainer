@@ -3,13 +3,14 @@ type: bug
 description: Codex never loads the agentdev catalog's agents/*.agent.md files, so every skill step that dispatches a catalog agent — iwe-plan's Durable Knowledge Auditor gate, pr-feedback-resolution's Principal Engineer delegation — cannot run as written on Codex.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-07T12:00:00Z
+  at: 2026-10-08T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: .agents/plugins/agentdev/.codex-plugin/plugin.json
 - resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
+stage: done
 ---
 
 # Bug: Codex never loads the agentdev catalog agents
@@ -52,13 +53,13 @@ and dispatch.
 
 ## Fix
 
-Open. Installing the catalog into Codex needs to also produce one TOML agent per
-`agents/<stem>.agent.md` — body as `developer_instructions`, a sandbox mode
-derived from the agent's tools — in `~/.codex/agents/`, and remove the ones it
-produced earlier when an agent is dropped or renamed. That revisits the "no
-`.codex/agents` trampoline" decision in
-[Module layout](../architecture/module-layout.md), which forbade a parallel copy
-in the source tree, not a derived install-time artifact.
+Every Codex install of the catalog runs its `bin/install-codex-agents.py`, which
+writes one `~/.codex/agents/agentdev-<stem>.toml` per catalog agent, with the
+body as `developer_instructions` and a sandbox mode derived from the agent's
+tools, and removes the `agentdev-*.toml` files the catalog no longer produces.
+The contract is in [Catalog lifecycle](../spec/catalog-lifecycle.md); the change
+shipped through
+[Install the catalog agents into Codex](../plans/20261007-codex-catalog-agents.md).
 
 ## Key references
 
