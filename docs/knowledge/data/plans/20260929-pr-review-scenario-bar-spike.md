@@ -1,10 +1,12 @@
 ---
 type: plan
 created: 2026-09-29
-description: A two-PR spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures makes it find the bugs Greptile found and it missed, without adding noise.
+stage: done
+completed: 2026-10-05
+description: A two-PR Codex spike that tests whether letting pr-review's correctness passes read beyond the diff and flag reachable input- or state-dependent failures finds known bugs without adding noise.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  by: codex/gpt-6
+  at: 2026-10-04T22:06:48Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/199
@@ -30,18 +32,20 @@ itself", flags code that is wrong "regardless of inputs", and does not flag
 and called the concurrency change safe while Greptile reported the overlap as
 P1.
 
-**Hypothesis:** those three rules, not model capability, are why the responder
-misses Greptile-class bugs. Replacing them with a reachable-scenario bar and
-letting the correctness passes read the code around the diff finds those bugs
-without losing the responder's own findings or adding noise.
+**Hypothesis:** those three rules suppress Greptile-class bugs when Codex
+follows the skill. Replacing them with a reachable-scenario bar and letting the
+correctness passes read the code around the diff finds those bugs without losing
+the baseline arm's findings or adding noise.
 
 ## Approach
 
 Replay two pull requests at the head each bot first reviewed, once with the
 current skill and twice with a variant, and score the validated findings against
-a key of known bugs. The spike ships nothing: runs happen in throwaway worktrees
-under `.tmp/spike/`, the variant is an edited copy of `SKILL.md`, and the result
-is a recorded decision.
+a key of known bugs. Every measured run uses `codex exec` with `gpt-5.6-sol`,
+medium model reasoning, and `REQUESTED REVIEW EFFORT: full`; the skill's Codex
+effort matrix still assigns each review pass its specified model. The spike
+ships nothing: runs happen in throwaway worktrees under `.tmp/spike/`, the
+variant is an edited copy of `SKILL.md`, and the result is a recorded decision.
 
 Both arms get their instructions the same way — a prompt naming a `SKILL.md`
 path to follow — so plugin loading cannot differ between them. The prompt
@@ -50,16 +54,12 @@ Step 1's open-PR gate and Step 3's metadata gate are skipped, the diff comes
 from a file, and Steps 7–9 write the validated findings to a JSON file instead
 of publishing a review.
 
-The pull requests are #199 (one changed workflow file; one known P1 the
+The pull requests are #199 (one changed workflow file; one known P1 a previous
 responder approved past) and #203 (twelve changed code files; exercises both the
-scenario bar and reading beyond the diff, and holds four findings the responder
-already made, so it also detects regressions). #210 is excluded: its diff, more
-than twice the size of #203's, costs the most per run and its many findings
-dilute the signal.
-
-Rejected: replaying all twelve pull requests. It costs about 48 full-effort
-reviews before anything is known; two pull requests answer whether the direction
-works at all.
+scenario bar and reading beyond the diff, and contains five other known
+findings, so the baseline arm establishes which of them this Codex runner
+finds). #210 is excluded: its diff, more than twice the size of #203's, costs
+the most per run and its many findings dilute the signal.
 
 ### Known-bug key
 
@@ -82,55 +82,81 @@ reviewed, so every #203 bug is present at it.
 **Files:** Create: `.tmp/spike/pr199/`, `.tmp/spike/pr203/` (worktrees),
 `.tmp/spike/pr199.diff`, `.tmp/spike/pr203.diff`
 
-- [ ] Add detached worktrees at `7e0413d` and `84d4584`.
-- [ ] Write each diff from the merge-base with `origin/main`: `77ec374..7e0413d`
+- [x] Add detached worktrees at `7e0413d` and `84d4584`.
+  - **Evidence:** commit `df57ca2` records the successful detached-worktree
+    setup at both reachable heads.
+- [x] Write each diff from the merge-base with `origin/main`: `77ec374..7e0413d`
   and `3a3201e..84d4584`.
+  - **Evidence:** commit `df57ca2` records the verified merge bases and diff
+    sizes: 4 files (+55/−22) and 14 files (+801/−3).
 
 ### Task 2: Write the variant skill
 
 **Files:** Create: `.tmp/spike/variant/SKILL.md` (a copy of the current
 `pr-review/SKILL.md`)
 
-- [ ] Replace the "Scan only the diff itself" bullet: the correctness passes may
+- [x] Replace the "Scan only the diff itself" bullet: the correctness passes may
   read, at the head commit, the code the changed lines call, are called by, and
   run beside in the same lifecycle or workflow.
-- [ ] Replace "definitely produce wrong results regardless of inputs" with a
+  - **Evidence:** commit `30d4e85` records the `@@ -49` and `@@ -127` variant
+    hunks under `## Verification results`.
+- [x] Replace "definitely produce wrong results regardless of inputs" with a
   reachable-scenario condition: a concrete input or state the code can actually
   receive, and the wrong outcome it produces. Drop "Potential issues that depend
   on specific inputs or state" from the do-not-flag list.
-- [ ] Each correctness candidate carries its scenario, and the validator
+  - **Evidence:** commit `30d4e85` records the `@@ -57` and `@@ -63` variant
+    hunks under `## Verification results`.
+- [x] Each correctness candidate carries its scenario, and the validator
   confirms the scenario is reachable at the head commit before it confirms the
   finding.
-- [ ] Record the variant's diff against the current skill under
+  - **Evidence:** commit `30d4e85` records the `@@ -66` and `@@ -138` variant
+    hunks under `## Verification results`.
+- [x] Record the variant's diff against the current skill under
   `## Verification results`.
+  - **Evidence:** commit `30d4e85` records the complete variant diff under
+    `### Variant skill`.
 
 ### Task 3: Run the baseline arm
 
 **Files:** Create: `.tmp/spike/results/pr199-baseline-1.json`,
 `.tmp/spike/results/pr203-baseline-1.json`
 
-- [ ] One full-effort run per pull request, following the current
-  `pr-review/SKILL.md`, from inside that pull request's worktree.
+- [x] Overwrite any result produced by a different runner, then run one review
+  per pull request from inside that pull request's worktree with `codex exec`,
+  `gpt-5.6-sol`, medium model reasoning, `REQUESTED REVIEW EFFORT: full`, and
+  the current `pr-review/SKILL.md`.
+  - **Evidence:** the `### Codex replay scores` table (commit `50e021d`) records
+    both baseline runs at `gpt-5.6-sol`, medium model reasoning, and full
+    effort, with their candidate and validated counts.
 
 ### Task 4: Run the variant arm
 
 **Files:** Create: `.tmp/spike/results/pr199-variant-{1,2}.json`,
 `.tmp/spike/results/pr203-variant-{1,2}.json`
 
-- [ ] Two full-effort runs per pull request, following
+- [x] Run two reviews per pull request with `codex exec`, `gpt-5.6-sol`, medium
+  model reasoning, `REQUESTED REVIEW EFFORT: full`, and
   `.tmp/spike/variant/SKILL.md`, with the same prompt as the baseline arm apart
   from the skill path.
+  - **Evidence:** the `### Codex replay scores` table (commit `50e021d`) records
+    all four variant runs at `gpt-5.6-sol`, medium model reasoning, and full
+    effort, with their candidate and validated counts.
 
 ### Task 5: Score the runs against the key
 
-- [ ] For each run, record which of K1–K6 its validated findings match, and list
+- [x] For each run, record which of K1–K6 its validated findings match, and list
   every finding that matches no key entry, in a table under
   `## Verification results`.
+  - **Evidence:** commit `50e021d` records the six-run score and complete U1–U26
+    table accounting for every validated finding.
 
 ### Task 6: Judge the unmatched findings
 
-- [ ] Each unmatched finding is marked real or noise. Closed by: the maintainer,
+- [x] Each unmatched finding is marked real or noise. Closed by: the maintainer,
   who reviews the unmatched-findings table.
+  - **Evidence:** commit `cf857ae` records the maintainer verdicts and per-run
+    tally classifying U1–U26 against the reviewed heads, repository rules, and
+    merged behavior.
 
 ### Task 7: Record the decision
 
@@ -138,10 +164,12 @@ reviewed, so every #203 bug is present at it.
 `docs/knowledge/data/architecture/pr-review-correctness-bar.md` Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] File the outcome against the criteria in `## Verification` as a decision:
+- [x] File the outcome against the criteria in `## Verification` as a decision:
   the bar changes (and a follow-up plan changes the shipped skill), the bar
   stays (the rules are not the cause), or validator strictness is the open
   question. Link it from `data/architecture.md`.
+  - **Evidence:** commit `e6f0bf3` records the mixed decision, validator
+    question, independent noise owners, and architecture-hub link.
 
 ## Spec changes
 
@@ -162,8 +190,152 @@ found, but with more noise or lost baseline findings — makes validator
 strictness the next question, and the shipped skill stays unchanged.
 
 Mechanical checks: all six result files exist and parse as JSON; the scoring
-table covers six runs; the architecture doc is linked from
-`data/architecture.md`; `iwe normalize` and `iwe schema validate` pass.
+table covers six Codex runs and records `gpt-5.6-sol` with medium model
+reasoning for each; the architecture doc is linked from `data/architecture.md`;
+`iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+### Variant skill
+
+The variant rewrites three rules the plan names, plus two sentences that restate
+the first: the closing "do not flag issues that you cannot validate without
+looking at context outside of the git diff" and Step 4's "each pass sees only
+the diff". Left in, they would contradict the replacement rule. Diff against
+`pr-review/SKILL.md` at `1220f5c`:
+
+``` diff
+@@ -49 +49 @@
+-- Scan only the diff itself, without pulling in extra context beyond the diff and the PR title/description — do not flag anything you cannot validate from the diff alone
++- Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
+@@ -57 +57 @@
+-- The code will definitely produce wrong results regardless of inputs (clear, unambiguous logic errors)
++- A reachable scenario produces a wrong outcome: you can name a concrete input or state the code can actually receive at the head commit (an event, an environment value, a run order, a prior state, a concurrent run) and the wrong result, failure, or security exposure it produces
+@@ -63 +62,0 @@
+-- Potential issues that depend on specific inputs or state
+@@ -66 +65 @@
+-Flag only significant bugs; ignore nitpicks and likely false positives. Do not flag issues that you cannot validate without looking at context outside of the git diff.
++Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate carries its scenario: the input or state, how the code reaches it, and the wrong outcome. A candidate without a concrete scenario is speculation — do not flag it.
+@@ -127 +126 @@
+-4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
++4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
+@@ -138,2 +137,2 @@
+-   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the claim made against it, the full text of any rule that claim invokes, where to read the diff, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
+-   - **Make the validator re-derive the claim** from the files rather than trust the candidate's assertion of it, and tell it to drop anything ambiguous, trivial, or not clearly a violation. Ask for `CONFIRM` or `DROP` per candidate with a one-sentence justification.
++   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the claim made against it, the scenario a correctness candidate names, the full text of any rule that claim invokes, where to read the diff, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
++   - **Make the validator re-derive the claim** from the files rather than trust the candidate's assertion of it, and tell it to drop anything ambiguous, trivial, or not clearly a violation. For a correctness candidate, the validator confirms that its scenario is reachable at the head commit — the input or state can actually occur and the code path actually leads to the wrong outcome — before it confirms the finding; an unreachable scenario is a `DROP`. Ask for `CONFIRM` or `DROP` per candidate with a one-sentence justification.
+```
+
+### Codex replay scores
+
+All six runs used `gpt-5.6-sol` with medium model reasoning and
+`REQUESTED REVIEW EFFORT: full`.
+
+| Run             | Candidates | Validated | Known-key matches  | Unmatched |
+| --------------- | ---------- | --------- | ------------------ | --------- |
+| #199 baseline 1 | 6          | 6         | K1                 | U1–U5     |
+| #203 baseline 1 | 13         | 11        | None               | U9–U19    |
+| #199 variant 1  | 1          | 0         | None               | None      |
+| #203 variant 1  | 11         | 10        | K2, K3, K4, K5, K6 | U20–U25   |
+| #199 variant 2  | 4          | 4         | K1                 | U6–U8     |
+| #203 variant 2  | 7          | 5         | K2, K3, K4, K5, K6 | U26       |
+
+#199 variant 1 raised K1 as its only candidate, then dropped it during
+validation. The K3 finding in each #203 variant also covers K6: it identifies
+both the residual plaintext seed and the missing per-start consumer promised by
+the specification.
+
+| ID  | Run             | Location                                 | Unmatched finding                                                              |
+| --- | --------------- | ---------------------------------------- | ------------------------------------------------------------------------------ |
+| U1  | #199 baseline 1 | `data/codebase/github.md:51`             | The generated timestamp was not refreshed.                                     |
+| U2  | #199 baseline 1 | `data/codebase/github/workflows.md:55`   | The generated timestamp was not refreshed.                                     |
+| U3  | #199 baseline 1 | `renovate.yml:12`                        | The trigger comment records rationale and an invariant in code.                |
+| U4  | #199 baseline 1 | `renovate.yml:29`                        | The sender-filter comment restates code and records loop-prevention rationale. |
+| U5  | #199 baseline 1 | `renovate.yml:45`                        | The concurrency comment restates settings and records queueing rationale.      |
+| U6  | #199 variant 2  | `renovate.yml:12`                        | The trigger comment duplicates durable rationale and an invariant.             |
+| U7  | #199 variant 2  | `renovate.yml:29`                        | The sender-filter comment duplicates App-token loop-prevention rationale.      |
+| U8  | #199 variant 2  | `renovate.yml:45`                        | The concurrency comment duplicates queueing rationale and invariants.          |
+| U9  | #203 baseline 1 | `devcontainer-init.sh:36`                | The credential-transfer directory violates the repository's `./.tmp` rule.     |
+| U10 | #203 baseline 1 | `test_claude_remote_control_start.py:21` | A helper lacks type hints and a docstring.                                     |
+| U11 | #203 baseline 1 | `test_seed_agent_auth.py:15`             | A helper lacks a return annotation and docstring.                              |
+| U12 | #203 baseline 1 | `test_setup_gh_credential_helper.py:13`  | A helper lacks parameter/return annotations and a docstring.                   |
+| U13 | #203 baseline 1 | `devcontainer-init.sh:32`                | A comment duplicates transfer lifecycle rationale from the auth spec.          |
+| U14 | #203 baseline 1 | `docker-compose.yml:106`                 | A comment duplicates transfer-directory invariants from the auth spec.         |
+| U15 | #203 baseline 1 | `claude-remote-control-start.sh:38`      | A comment paraphrases the adjacent command.                                    |
+| U16 | #203 baseline 1 | `setup-gh-credential-helper.sh:2`        | A comment duplicates helper-selection rationale from the auth spec.            |
+| U17 | #203 baseline 1 | `test_claude_remote_control_start.py:56` | A test lacks a return annotation and docstring.                                |
+| U18 | #203 baseline 1 | `test_seed_agent_auth.py:44`             | A test lacks parameter/return annotations and a docstring.                     |
+| U19 | #203 baseline 1 | `test_setup_gh_credential_helper.py:50`  | A test lacks parameter/return annotations and a docstring.                     |
+| U20 | #203 variant 1  | `devcontainer-init.sh:35`                | Host-side `sha256sum` is unavailable on stock macOS.                           |
+| U21 | #203 variant 1  | `data/spec.md:6`                         | The spec hub has the wrong generated-by value.                                 |
+| U22 | #203 variant 1  | `spec/devcontainer-agent-auth.md:5`      | The new spec has the wrong generated-by value.                                 |
+| U23 | #203 variant 1  | `test_claude_remote_control_start.py:21` | Added helpers and tests lack type hints.                                       |
+| U24 | #203 variant 1  | `test_seed_agent_auth.py:15`             | Added helpers and tests lack type hints.                                       |
+| U25 | #203 variant 1  | `test_setup_gh_credential_helper.py:13`  | Added helpers and tests lack type hints.                                       |
+| U26 | #203 variant 2  | `devcontainer-init.sh:35`                | Host-side `sha256sum` is unavailable on stock macOS.                           |
+
+### Maintainer judgments
+
+Each verdict was checked against the code at the reviewed head (#199 `7e0413d`,
+#203 `84d4584`), the repository rules in force at that head, and what the
+maintainer merged to `main`. U1–U8 also carry the maintainer's direct ruling.
+
+| IDs      | Verdict                 | Basis                                                                                                                                                |
+| -------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| U1, U2   | Noise                   | Reviewers should not check codebase-map metadata. The current `pr-review` ignore rule covers stale `source_digest` values, but not generated stamps. |
+| U3–U5    | Noise                   | Each comment gives a short reason the code cannot express. They merged unchanged, and no spec or architecture document duplicates the rationale.     |
+| U6–U8    | Noise                   | These are the same comments as U3–U5.                                                                                                                |
+| U9       | Noise                   | The `./.tmp` rule governs agent scratch files, not product runtime paths. The host-side `/tmp/agentdev-auth-seed-*` path is intentional.             |
+| U10–U12  | Real, type hints only   | `main` later annotated all three helpers. The docstring portion was not adopted.                                                                     |
+| U13      | Real                    | `main` replaced the comment with `see spec/devcontainer-agent-auth`.                                                                                 |
+| U14      | Noise                   | The maintainer kept the Compose comment and only reworded it.                                                                                        |
+| U15      | Real, minor and moot    | The comment restates `update-environment`; the K3/K6 fix later removed the whole token branch.                                                       |
+| U16      | Real                    | `main` replaced the comment with a spec reference.                                                                                                   |
+| U17–U19  | Noise                   | Repository practice leaves test functions unannotated; these remain unannotated on `main`.                                                           |
+| U20      | Real, significant       | Stock macOS lacks `sha256sum`, so `set -euo pipefail` aborts startup. `main` added `workspace-seed-key.sh` with a `shasum` fallback.                 |
+| U21, U22 | Noise                   | The generated-by example names the document author; `hermes-agent/gpt-5.6` is valid.                                                                 |
+| U23–U25  | Real, helper hints only | These repeat U10–U12. The claim about test hints is noise.                                                                                           |
+| U26      | Real, significant       | This is the same macOS startup bug as U20.                                                                                                           |
+
+| Run             | Known-key matches                               | Real | Noise |
+| --------------- | ----------------------------------------------- | ---- | ----- |
+| #199 baseline 1 | K1                                              | 0    | 5     |
+| #199 variant 1  | None; K1 was raised, then dropped by validation | 0    | 0     |
+| #199 variant 2  | K1                                              | 0    | 3     |
+| #203 baseline 1 | None                                            | 6    | 5     |
+| #203 variant 1  | K2–K6                                           | 4    | 2     |
+| #203 variant 2  | K2–K6                                           | 1    | 0     |
+
+All noise came from compliance and durable-knowledge passes, which the variant
+did not change. The variant correctness passes produced no noise. Their only
+finding outside the key, the macOS `sha256sum` bug, is real.
+
+### Result against the criteria
+
+The result is **mixed**. The holding criterion fails because #199 variant 1
+dropped K1 and because noise exceeded one finding in #199 variant 2 and #203
+variant 1. It is not a failed hypothesis: both #203 variants found K4, #199
+variant 2 found K1, and variant noise did not rise above baseline noise. Under
+the plan's mixed-result rule, validator strictness is the next question and the
+shipped correctness bar stays unchanged.
+
+### Noise root causes
+
+1. The durable-knowledge pass audited code comments despite `pr-review`'s
+   file-lens boundary. It applied `iwe-audit` smell patterns without preserving
+   the audit's load-bearing-comment guard, and its findings defaulted to
+   blocking.
+2. The compliance pass read the former comment rule literally and treated
+   rationale as misplaced even when no knowledge document duplicated it. Commit
+   `2ef1717` corrected that rule.
+3. The map-document ignore rule covers stale `source_digest` values but not
+   other map metadata (`verified`, `generated`, and `stale_after`).
+4. Review passes treated example values or agent-only rules as universal:
+   generated-by authorship, the agent scratch-directory rule, and type hints on
+   test functions.
+5. The ephemeral replay retained final candidates and findings but not subagent
+   reasoning. Future replays should preserve sessions when pass-level reasoning
+   is part of the evidence.
 
 ## Out of scope
 
@@ -172,10 +344,12 @@ table covers six runs; the architecture doc is linked from
 - Light-effort runs.
 - A permanent replay mode in `pr-review`.
 - Configuring Greptile.
+- Comparing Claude and Codex, or using a Claude-generated result in the scoring
+  table.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-30):
+Verified anchor points (line numbers as of 2026-10-03):
 
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:49` — "Scan only the diff
   itself" correctness rule
@@ -189,6 +363,12 @@ Verified anchor points (line numbers as of 2026-09-30):
   validator prompt
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:139` — the validator
   re-derives the claim
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:96` — Codex model mapping
+  for large and light review slots
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:103` — full-effort slot
+  matrix
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:133` — Codex pass dispatch
+  behavior
 - `7e0413d:.github/workflows/renovate.yml:48` — `concurrency:` split by event
   (K1)
 - `84d4584:.devcontainer/docker-compose.yml:70` —

@@ -46,7 +46,7 @@ Two independent concerns feed two different pass types (see Steps below) so they
 
 **Correctness focus** (bug-hunting) — runs on the model the effort matrix gives it:
 
-- Scan only the diff itself, without pulling in extra context beyond the diff and the PR title/description — do not flag anything you cannot validate from the diff alone
+- Start from the diff, then read at the head commit the code the changed lines call, the code that calls them, and the code that runs beside them in the same lifecycle or workflow (sibling steps, hooks, jobs, and scripts run in the same sequence) — a bug may live in how the changed lines meet that code
 - Potential bugs, incorrect logic, and security implications introduced by the changed code
 - Test coverage and quality
 - Flag only significant, high-confidence issues; ignore nitpicks and likely false positives
@@ -54,16 +54,15 @@ Two independent concerns feed two different pass types (see Steps below) so they
 **CRITICAL: we only want HIGH SIGNAL issues.** Flag an issue only when at least one of these holds:
 
 - The code will fail to compile or parse (syntax errors, type errors, missing imports, unresolved references)
-- The code will definitely produce wrong results regardless of inputs (clear, unambiguous logic errors)
+- A reachable scenario produces a wrong outcome: you can name a concrete input or state the code can actually receive at the head commit (an event, an environment value, a run order, a prior state, a concurrent run) and the wrong result, failure, or security exposure it produces
 - It's a clear, unambiguous compliance violation where you can quote the exact rule being broken
 
 Do NOT flag:
 
 - Code style or quality concerns
-- Potential issues that depend on specific inputs or state
 - Subjective suggestions or improvements
 
-Flag only significant bugs; ignore nitpicks and likely false positives. Do not flag issues that you cannot validate without looking at context outside of the git diff.
+Flag only significant bugs; ignore nitpicks and likely false positives. Every correctness candidate states its scenario in three parts: **Trigger** — an input or state the code can actually receive at the head commit; **Path** — the `file:line` chain from the trigger to the fault; **Outcome** — the concrete wrong result, failure, or security exposure. A candidate missing any part is speculation — do not flag it.
 
 **Documentation focus** (durable-knowledge adherence) — applies to docs under `data/`, `README.md`, `AGENTS.md`, skill and agent definitions (`SKILL.md`, `*.agent.md`), and docstrings:
 
@@ -79,7 +78,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Do not f
 
 **Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, definite-wrong-result logic bugs, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority, inline emphasis, and the submit event per Step 9.
+- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, wrong outcomes of a reachable scenario, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority, inline emphasis, and the submit event per Step 9.
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
 - **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed.
 
@@ -124,7 +123,7 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    fast-approved: it still runs the durable-knowledge pass (Step 4).
 2. **Gather context.** Fetch the diff (`gh pr diff <PR_NUMBER>`) and reuse the PR title and description from Step 1. From the changed-file list, determine which convention sources apply: the Coding Conventions section of `AGENTS.md` always applies; add `/agentdev:create-agent` for `*.agent.md` changes, and `/agentdev:create-skill` for `SKILL.md` changes.
 3. **PR metadata gate.** Use `/agentdev:pr-gen-description` as a relevance and completeness check against the current PR title, PR description, diff, base branch, and repository pull request template. When reviewing a PR that is not checked out locally, apply that skill's analysis and validation criteria to the fetched PR diff instead of mutating the branch or PR. If the current title or description is materially stale, misleading, irrelevant, or incomplete for the actual change set, submit a `REQUEST_CHANGES` pull request review with a short blocking summary of the metadata problem and **stop before launching the in-depth review passes**. Do not update the title or description from this skill. If the metadata is acceptable, continue.
-4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees only the diff, the PR title, the PR description, and its own focus list; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"):
+4. **Run the independent initial-review passes the effort matrix names, in parallel when the environment supports it** — each pass sees the diff, the PR title, the PR description, and its own focus list, and the correctness passes may also read the head commit as their focus list allows; none sees another pass's output. Each pass returns a list of issues, where each issue has a description and the reason it was flagged (for example, "AGENTS.md adherence", "bug", or "security"); a correctness issue also carries its scenario's Trigger, Path, and Outcome:
    - **compliance pass** — audit the diff against the Compliance focus list and the convention sources found in Step 2. 2x at full effort, 1x at light.
    - **correctness pass** — audit the diff against the Correctness focus list. 2x at full effort, one pass scanning for obvious bugs and the other for security/logic issues introduced by the changed code; 1x at light, covering both.
    - 1x **durable-knowledge pass**, only when the diff contains docs/skills files — audit the changed docs/skills files against the Documentation focus list. It runs at both tiers.
@@ -133,10 +132,13 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - Codex: use available multi-agent/sub-agent tools when present, giving each the Codex model for its slot; otherwise perform the passes sequentially in this session, restarting the review lens from the diff for each pass.
    - Claude Code: issue every pass's `Agent` call in a single message with `run_in_background: false` (`subagent_type: general-purpose`), each with the `model` for its slot. Foreground calls issued together run in parallel, and the message returns only once every one has finished. If the `Agent` tool offers no foreground option, run the passes sequentially in this session, restarting the review lens from the diff for each pass. **Never dispatch a pass in the background:** this skill's main caller is the responder action, a headless `claude -p` run that ends the moment you stop emitting, so a background pass is lost with the session.
    - **Collect every pass before Step 5 — see "Waiting on parallel passes" below.** On Claude Code the foreground dispatch returns with every result; on Codex, block until every pass reports back or hard-times-out. Do not proceed to Step 5 with a pass still outstanding. **The turn in which you dispatch these workers must not be your last turn** — a dispatch-then-stop turn abandons the review with nothing published (see below).
-5. **Merge and deduplicate.** Collect the candidate findings from all passes that completed (see fallback below if any didn't). Collapse candidates that name the same file/line and describe the same underlying issue into one, keeping the **blocking** tier if either collapsed candidate was blocking.
+5. **Merge and deduplicate.** Collect the candidate findings from all passes that completed (see fallback below if any didn't). Discard every correctness candidate with an empty Trigger, Path, or Outcome; it never reaches validation. Collapse candidates that name the same file/line and describe the same underlying issue into one, retaining one of them whole — its description and, for a correctness candidate, its scenario — and keeping the **blocking** tier if either collapsed candidate was blocking.
 6. **Validate the surviving candidates, on the `light` model at every effort level.** A validator must confirm with high confidence that a candidate is a real, worth-flagging issue; drop any candidate it cannot confirm. Preserve each surviving candidate's severity tier from Step 5 unchanged — validation confirms or drops a finding, it never changes its tier.
-   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the claim made against it, the full text of any rule that claim invokes, where to read the diff, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
-   - **Make the validator re-derive the claim** from the files rather than trust the candidate's assertion of it, and tell it to drop anything ambiguous, trivial, or not clearly a violation. Ask for `CONFIRM` or `DROP` per candidate with a one-sentence justification.
+   - **One validator prompt, the same at every effort level.** It carries the candidate's file and line, the added text quoted, the Trigger, Path, and Outcome of a candidate that carries a scenario in place of its claim, the claim made against any other candidate, the full text of any rule that claim invokes, where to read the diff and the PR title and description, and that the working tree is already at the head commit so files can be read for ground truth. It never names which pass raised a candidate.
+   - **Make the validator re-derive what the candidate asserts** from the files rather than trust it. The bar follows the candidate's shape:
+     - **A candidate carrying a scenario is judged part by part, as written,** against the head commit, in order: the Trigger can actually occur, the Path leads from it to the fault, and the Outcome follows from that path. The validator stops at the first part that does not hold and returns `DROP: trigger|path|outcome — <reason>` naming it; a part false as written is a drop even when another scenario would reach the same fault. The verdict is `CONFIRM` only when every part holds as written.
+     - **Any other candidate** is dropped when ambiguous, trivial, or not clearly a violation; ask for `CONFIRM` or `DROP` with a one-sentence justification.
+   - **Stated intent is evidence, not a verdict.** A code comment or PR description presenting a behavior as deliberate does not refute a reachable wrong outcome, and a guarantee the PR description promises that the code breaks counts toward the outcome. The validator weighs either against the files like any other evidence.
    - **Never argue the verdict in the prompt.** Supplying reasons a candidate might not hold, or casting the validator as an adversary out to defeat it, settles the verdict before a file is read. Strictness belongs in the bar the validator applies, never in a case the orchestrator makes for one side.
    - **Full effort: one dispatch per candidate**, in parallel when supported, each seeing only that single candidate. Per-candidate isolation is what stops a weak finding reading as strong beside three strong ones, so it is not traded away at this tier.
    - **Light effort: one batched dispatch** carrying every surviving candidate at once and returning a confirm-or-drop verdict for each. This gives up the isolation the full tier keeps, in exchange for one call instead of one per finding.
