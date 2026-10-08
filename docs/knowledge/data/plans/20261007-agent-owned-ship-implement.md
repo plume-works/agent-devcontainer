@@ -204,6 +204,18 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
   directly asks about a material deviation in the session; and
   `/agentdev:iwe-explore`, given a partial answer that closes a plan's open
   question, neither dispatches the Shipper nor loads a coordinator.
+  - **Evidence:** Claude Code 2.1.280 headless (`claude -p --plugin-dir`) on a
+    clone of 5c18829 with fixture plans. `/agentdev:iwe-ship` dispatched
+    `agentdev:iwe-shipper` with only the plan key, `ship`, and
+    `Approvals: none`; the Shipper stopped before the plan's publish command and
+    reported the approval, with no mutation. Re-run with the approval quoted, it
+    ran the command and shipped. `/agentdev:iwe-ship-all` dispatched the Shipper
+    on the one implemented plan and re-posted its Verify verdict and outcome.
+    `/agentdev:iwe-implement` read `agents/iwe-implementer.agent.md` in the
+    session, dispatched nothing, and asked about a task contradicting its spec
+    outcome with the box left unticked. `/agentdev:iwe-explore`, told a fully
+    ticked plan's open question was answered, made no Agent or Skill call and
+    pointed at `/agentdev:iwe-plan`.
 
 ### Task 9: Codex runs the design end to end
 
