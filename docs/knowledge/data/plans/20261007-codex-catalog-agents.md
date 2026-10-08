@@ -92,8 +92,11 @@ a user-authored file with that prefix would be removed on reinstall.
 
 **Files:** Modify: `ansible/roles/agentic_tools/tasks/install_catalog.yml`
 
-- [ ] After "Install the plugin for Codex", run the generator against the staged
+- [x] After "Install the plugin for Codex", run the generator against the staged
   catalog root, so an image started without lifecycle hooks has the agents.
+  - **Evidence:** committed with this tick; `uv run ansible-lint ansible` and
+    `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml`
+    exit 0. The built image is Task 6.
 
 ### Task 4: Record the install-time agents in the module layout
 
