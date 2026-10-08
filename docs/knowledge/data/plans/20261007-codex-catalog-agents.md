@@ -80,9 +80,13 @@ a user-authored file with that prefix would be removed on reinstall.
 
 **Files:** Modify: `.devcontainer/scripts/reinstall-agentdev-codex.sh`
 
-- [ ] After `codex plugin add`, run the generator against `$catalog_root`, so
+- [x] After `codex plugin add`, run the generator against `$catalog_root`, so
   postCreate installs the staged catalog's agents and postAttach installs the
   workspace's.
+  - **Evidence:** committed with this tick; `shellcheck` clean; the script run
+    against this checkout installed all five `agentdev-*.toml` agents, and run
+    against an `/opt/agentdev` catalog that predates the generator it skipped
+    the install and exited 0.
 
 ### Task 3: Install the agents at image build
 
