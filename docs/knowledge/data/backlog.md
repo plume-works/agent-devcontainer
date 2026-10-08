@@ -20,6 +20,8 @@ write a plan and link the plan instead.*
 
 [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
 
+[Fail a review run that published no review](backlog/fail-review-run-without-review.md)
+
 [Simplify the pr-* skills for the single review workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
 [Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)

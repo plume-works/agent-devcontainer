@@ -42,3 +42,5 @@ starts a fresh one.*
 [Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](../bugs/codex-skill-dir-unresolved.md)
 
 [Fixture git inherits the outer commit's index](../bugs/fixture-git-inherits-commit-index.md)
+
+[The review orchestrator ends its turn while its passes are still running](../bugs/review-orchestrator-ends-turn-while-passes-run.md)
