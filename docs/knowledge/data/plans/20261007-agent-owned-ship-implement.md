@@ -189,6 +189,11 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 - [ ] Add the Codex policy file to each, and a test that fails when a skill sets
   `disable-model-invocation: true` without
   `policy.allow_implicit_invocation: false`, or the reverse.
+  - **Evidence:** committed with this tick;
+    `uv run pytest .agents/plugins/agentdev/tests/test_explicit_only_parity.py`
+    failed on `iwe-plan`, `iwe-setup`, and `iwe-weekly` before their policy
+    files and passes 6 after; the plugin suite 130 passed and
+    `python-lint-check.sh` is clean.
 
 ### Task 8: Claude Code runs the design end to end
 
