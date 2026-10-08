@@ -112,7 +112,7 @@ Rejected:
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Move the body of `iwe-ship/SKILL.md` into the agent, rewritten to run only
+- [x] Move the body of `iwe-ship/SKILL.md` into the agent, rewritten to run only
   as a dispatched subagent whose inputs are the plan key, the operation, and
   quoted user approvals. It stops at each point the workflow would ask the user
   — the approval before commands with effects beyond the working tree, an
@@ -122,7 +122,7 @@ Rejected:
   names its only dispatchers: the `iwe-ship` skill, the `iwe-ship-all`
   coordinator, and `iwe-plan` revise answering a Ship blocker report. Tools:
   `Bash, Read, Edit, Write, Grep, Glob, Skill`.
-  - **Evidence:** committed with this tick;
+  - **Evidence:** implemented in 8841951;
     `uv run validate_agent_files .agents/plugins/agentdev/agents --kind agents --ci`
     exit 0, `test_install_codex_agents.py` 10 passed, and the bridge's
     `bun test` 12 passed.
@@ -131,12 +131,12 @@ Rejected:
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Move the body of `iwe-implement/SKILL.md` into the agent, rewritten to run
+- [x] Move the body of `iwe-implement/SKILL.md` into the agent, rewritten to run
   both in the user's session and as a dispatched subagent. Dispatched, it stops
   on plan ambiguity and on a material deviation and reports them instead of
   waiting. Its `description` names its only dispatchers: the `iwe-implement`
   skill and the `iwe-implement-all` coordinator.
-  - **Evidence:** committed with this tick;
+  - **Evidence:** implemented in bc07ccc;
     `uv run validate_agent_files .agents/plugins/agentdev/agents --kind agents --ci`
     exit 0 and the bridge's `bun test` 12 passed.
 
@@ -147,13 +147,13 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-ship/agents/openai.yaml`,
 `.agents/plugins/agentdev/skills/iwe-implement/agents/openai.yaml`
 
-- [ ] Each skill keeps its frontmatter and `disable-model-invocation: true` and
+- [x] Each skill keeps its frontmatter and `disable-model-invocation: true` and
   gains the Codex policy file. `iwe-ship` dispatches `iwe-shipper` with the plan
   key, the operation, and the user's approvals quoted verbatim — no summary of
   the conversation — and re-posts its report. `iwe-implement` directs the
   session to follow the `iwe-implementer` rulebook, located relative to the
   skill directory.
-  - **Evidence:** committed with this tick;
+  - **Evidence:** implemented in 9add615;
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
     reports 62/62 skills valid with 0 errors and 0 warnings.
 
@@ -163,10 +163,10 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md`; Create: their
 `agents/openai.yaml`
 
-- [ ] Each coordinator becomes explicit-only on all three harnesses and
+- [x] Each coordinator becomes explicit-only on all three harnesses and
   dispatches `iwe-shipper` or `iwe-implementer` by name per plan, in dependency
   order. Ship-all re-posts each Shipper's Verify verdict with its outcome.
-  - **Evidence:** committed with this tick; `validate_agent_files --recommend`
+  - **Evidence:** implemented in 5ea1f8a; `validate_agent_files --recommend`
     reports 62/62 skills valid with 0 warnings, and the bridge's `bun test` 12
     passed, its deny and subagent assertions derived from the catalog.
 
@@ -174,10 +174,10 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 
-- [ ] In revise mode, when the revision answers a Ship blocker report for the
+- [x] In revise mode, when the revision answers a Ship blocker report for the
   plan, step 8 dispatches `iwe-shipper` on that plan once validation passes and
   reports its outcome; every other revision stops as it does now.
-  - **Evidence:** committed with this tick; `validate_agent_files --recommend`
+  - **Evidence:** implemented in 2115bbf; `validate_agent_files --recommend`
     reports 62/62 skills valid with 0 warnings.
 
 ### Task 7: Gate every explicit-only skill on Codex
@@ -186,10 +186,10 @@ Rejected:
 `disable-model-invocation: true` (`iwe-plan`, `iwe-setup`, `iwe-weekly`);
 Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 
-- [ ] Add the Codex policy file to each, and a test that fails when a skill sets
+- [x] Add the Codex policy file to each, and a test that fails when a skill sets
   `disable-model-invocation: true` without
   `policy.allow_implicit_invocation: false`, or the reverse.
-  - **Evidence:** committed with this tick;
+  - **Evidence:** implemented in 5c18829;
     `uv run pytest .agents/plugins/agentdev/tests/test_explicit_only_parity.py`
     failed on `iwe-plan`, `iwe-setup`, and `iwe-weekly` before their policy
     files and passes 6 after; the plugin suite 130 passed and
@@ -197,7 +197,7 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 
 ### Task 8: Claude Code runs the design end to end
 
-- [ ] On Claude Code: `/agentdev:iwe-ship-all` dispatches `iwe-shipper` and
+- [x] On Claude Code: `/agentdev:iwe-ship-all` dispatches `iwe-shipper` and
   reports its outcome; `/agentdev:iwe-ship` run directly dispatches
   `iwe-shipper` with only the plan key, operation, and quoted approvals, and an
   approval it needs comes back in its report; `/agentdev:iwe-implement` run
