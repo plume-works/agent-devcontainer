@@ -136,6 +136,9 @@ Rejected:
   on plan ambiguity and on a material deviation and reports them instead of
   waiting. Its `description` names its only dispatchers: the `iwe-implement`
   skill and the `iwe-implement-all` coordinator.
+  - **Evidence:** committed with this tick;
+    `uv run validate_agent_files .agents/plugins/agentdev/agents --kind agents --ci`
+    exit 0 and the bridge's `bun test` 12 passed.
 
 ### Task 4: Reduce the user entry skills to the agents
 
