@@ -95,11 +95,14 @@ corrupt config is better surfaced than replaced).
 **Files:** Create: `scripts/tests/test_configure_codex.py` (beside the other
 devcontainer script tests)
 
-- [ ] pytest cases, each with `CODEX_HOME` pointed at a `tmp_path`: absent
+- [x] pytest cases, each with `CODEX_HOME` pointed at a `tmp_path`: absent
   config is created with both keys and modes `0700`/`0600`; existing other keys,
   tables, and marker comments survive byte-for-byte apart from the two managed
   keys; pre-existing different values are overwritten; a second run is a no-op
   on content.
+  - **Evidence:** Commit on branch `codex-full-access-config` adding
+    `scripts/tests/test_configure_codex.py`;
+    `uv run pytest scripts/tests/test_configure_codex.py` — 4 passed.
 
 ### Task 4: Record the decision
 
