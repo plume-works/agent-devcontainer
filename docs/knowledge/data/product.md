@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T10:30:00Z
+  at: 2026-10-08T00:00:00Z
 ---
 
 # Product
@@ -127,7 +127,8 @@ it):
   `remote.pushDefault` that `gh stack` and the vendored `gh-stack` skill's setup
   write are the only exception.
 - Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
-  install globally.
+  install globally. JavaScript runs through `bun`/`bunx` everywhere — never
+  `npm`, `npx`, `yarn`, or `pnpm`.
 - Scope test runs narrowly while iterating (`uv run pytest <path>::<test>`);
   full suite only when asked.
 - If the local toolchain is missing, escalate — don't give up: Docker available
@@ -177,3 +178,5 @@ it):
   manual runs.
 - 2026-10-05 — added the never-force-push rule with its GitHub stack exception,
   and allowed the repository-local git config that `gh stack` writes.
+- 2026-10-08 — named `bun`/`bunx` as the only JavaScript runners, ruling out
+  `npm`, `npx`, `yarn`, and `pnpm`.

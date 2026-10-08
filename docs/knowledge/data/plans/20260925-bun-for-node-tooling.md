@@ -202,13 +202,18 @@ The rest of the step is unchanged.
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] In `AGENTS.md`, Best Practice 1 becomes:
+- [x] In `AGENTS.md`, Best Practice 1 becomes:
+  - **Evidence:** the Task 6 commit; `AGENTS.md:12` carries the text below
+    verbatim.
 
 ``` markdown
 1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
 ```
 
-- [ ] In `data/product.md` `## Authoring rules`, the matching bullet becomes:
+- [x] In `data/product.md` `## Authoring rules`, the matching bullet becomes:
+  - **Evidence:** the Task 6 commit; the `## Authoring rules` bullet carries the
+    text below, with a matching `## Changelog` entry; `iwe schema validate`
+    passes.
 
 ``` markdown
 - Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
