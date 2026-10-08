@@ -153,7 +153,9 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 
 **Files:** Modify: `Makefile`
 
-- [ ] Replace the upgrade hint in the `validate` target with:
+- [x] Replace the upgrade hint in the `validate` target with:
+  - **Evidence:** the Task 4 commit; `Makefile:157` prints the `bun add` hint,
+    and `make -n validate` parses.
 
 ``` make
 	  echo "Upgrade with: bun add --global @anthropic-ai/claude-code"; \
