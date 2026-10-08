@@ -29,8 +29,9 @@ all three harnesses.
 ## Approach
 
 A stdlib-only Python script owned by the catalog,
-`.agents/plugins/agentdev/bin/install-codex-agents.py`, takes a catalog root and
-writes one TOML agent per `agents/<stem>.agent.md` into
+`.agents/plugins/agentdev/bin/install-codex-agents.py`, installs the agents of
+the plugin that ships it (`--plugin-root` overrides it) and writes one TOML
+agent per `agents/<stem>.agent.md` into
 `${CODEX_HOME:-$HOME/.codex}/agents/agentdev-<stem>.toml`:
 
 - `name` — `<stem>`, the same name the OpenCode bridge gives the subagent.
@@ -64,12 +65,16 @@ a user-authored file with that prefix would be removed on reinstall.
 **Files:** Create: `.agents/plugins/agentdev/bin/install-codex-agents.py`,
 `.agents/plugins/agentdev/tests/test_install_codex_agents.py`
 
-- [ ] Write the generator with the field mapping and stale-file removal in
+- [x] Write the generator with the field mapping and stale-file removal in
   `## Approach`, reporting its outcome through `bin/result_codes.py`. Tests
   cover: one TOML per agent that `tomllib` parses back to the source description
   and body; both sandbox modes; removal of a stale `agentdev-*.toml`; a
   non-prefixed file left untouched; a second run producing identical files;
   `CODEX_HOME` honored.
+  - **Evidence:** committed with this tick;
+    `uv run pytest .agents/plugins/agentdev/tests/test_install_codex_agents.py`
+    10 passed, the full plugin suite 124 passed, and `python-lint-check.sh`
+    clean on both files.
 
 ### Task 2: Install the agents on every Codex reinstall
 
