@@ -311,7 +311,7 @@ given.
 ## Verification
 
 - `uv run pytest .agents/plugins/agentdev/tests/test_explicit_only_parity.py`
-- `bun test .agents/plugins/agentdev/tests/opencode/` — the bridge registers
+- `bun test ./.agents/plugins/agentdev/tests/opencode/` — the bridge registers
   both new agents and denies every gated skill.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
 - `iwe normalize` and `iwe schema validate` after the architecture document.
