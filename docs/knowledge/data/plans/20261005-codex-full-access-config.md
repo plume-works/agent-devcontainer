@@ -111,12 +111,17 @@ devcontainer script tests)
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] Architecture doc stating the decision (container is the sandbox; Codex CLI
+- [x] Architecture doc stating the decision (container is the sandbox; Codex CLI
   sessions take the policy from `config.toml` unless a flag overrides it), the
   comment-preservation constraint, the consumer-independence constraint, and the
   rejected alternatives from `## Approach`; linked from `data/architecture.md`.
-- [ ] Add a `configure-codex.py` row to the `.devcontainer/scripts/` inventory
+  - **Evidence:** Commit on branch `codex-full-access-config` adding
+    `architecture/codex-full-access-in-devcontainer.md` and its hub link;
+    `iwe schema validate` and pre-commit passed.
+- [x] Add a `configure-codex.py` row to the `.devcontainer/scripts/` inventory
   table in `data/architecture/template-boundary`.
+  - **Evidence:** Same commit adds the row after `link-codex-auth.sh` in the
+    `template-boundary` inventory; `iwe schema validate` and prettier passed.
 
 ### Task 5: Refresh the codebase map
 
