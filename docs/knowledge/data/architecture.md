@@ -66,3 +66,5 @@ rejected are as valuable as the one you picked.*
 [OpenCode catalog bridge](architecture/opencode-catalog-bridge.md)
 
 [Stacked pull requests](architecture/stacked-prs.md)
+
+[Explicit-only workflow agents](architecture/explicit-only-workflow-agents.md)

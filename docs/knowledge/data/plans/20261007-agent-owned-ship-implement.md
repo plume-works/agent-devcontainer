@@ -98,11 +98,15 @@ Rejected:
 `docs/knowledge/data/architecture/explicit-only-workflow-agents.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] Write the decision: agent-owned rulebooks, the three-harness explicit-only
+- [x] Write the decision: agent-owned rulebooks, the three-harness explicit-only
   gate, the callers allowed to dispatch, Ship always dispatched with a prompt
   that carries nothing from the conversation, and each rejected alternative with
   the harness behavior that rules it out, each behavior with the minimal fixture
   and command that reproduces it. Link it from `data/architecture.md`.
+  - **Evidence:** committed with this tick; each Claude Code and Codex behavior
+    in `data/architecture/explicit-only-workflow-agents` was reproduced with its
+    recorded fixture and command on Claude Code 2.1.280 and Codex 0.156.1, and
+    `iwe schema validate` passes.
 
 ### Task 2: Make the Ship rulebook an agent
 
