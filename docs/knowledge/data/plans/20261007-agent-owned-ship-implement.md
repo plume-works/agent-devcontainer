@@ -177,6 +177,8 @@ Rejected:
 - [ ] In revise mode, when the revision answers a Ship blocker report for the
   plan, step 8 dispatches `iwe-shipper` on that plan once validation passes and
   reports its outcome; every other revision stops as it does now.
+  - **Evidence:** committed with this tick; `validate_agent_files --recommend`
+    reports 62/62 skills valid with 0 warnings.
 
 ### Task 7: Gate every explicit-only skill on Codex
 

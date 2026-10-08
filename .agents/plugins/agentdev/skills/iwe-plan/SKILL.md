@@ -10,7 +10,9 @@ allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 A plan is a promise a future session can execute without re-deriving context.
 Discovery happens in the codebase before a word is written; every anchor is
 verified, every touched spec is named. Invoking this skill authorizes planning
-state changes only. Even when the same request also asks to build the change,
+state changes only, plus re-dispatching Ship on a plan whose Ship blocker
+report the revision answers (step 8). Even when the same request also asks to
+build the change,
 create or revise and validate the plan, report readiness, and stop before
 editing implementation code.
 
@@ -118,7 +120,7 @@ editing implementation code.
    report-only verdicts to the draft (DROP/REWRITE/MOVE as recommended), then
    continue. This gate runs on every plan-intent edit: create, revise, and each
    route Implement, Verify, and Ship take back to revise mode all funnel here.
-8. **Validate, close the issue, and stop.** Run `iwe normalize`, then
+8. **Validate, close the issue, re-ship a blocked plan, and stop.** Run `iwe normalize`, then
    `iwe schema validate` — both must pass. When a created plan grew from a
    GitHub issue, close that issue now with the bundled script, which posts a
    comment naming the plan and then closes it:
@@ -129,9 +131,17 @@ editing implementation code.
    ```
 
    The last stdout line is `RESULT=<NAME>`; see `## Closing the issue` for
-   what each result means. Report whether the plan was created or revised,
-   any assumptions, collisions, implementation that may now be stale, and
-   the issue outcome. Stop before implementation code changes.
+   what each result means.
+
+   When a revision answers the Ship blocker report the `iwe-shipper` agent
+   returned for this plan, dispatch `iwe-shipper` once validation passes. Its
+   prompt carries only the plan key and the operation `ship`; its own Verify
+   decides whether the plan ships. Re-post its report.
+
+   Report whether the plan was created or revised, any assumptions,
+   collisions, implementation that may now be stale, the issue outcome, and
+   any Shipper outcome. Every other revision stops here, before
+   implementation code changes.
 
 ## Closing the issue
 
