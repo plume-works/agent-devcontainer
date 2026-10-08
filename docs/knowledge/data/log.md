@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-08
+
+- **Update**: Refreshed ten codebase map documents for the Codex catalog agent
+  install: the `bin` installer, its tests, the Codex reinstall script, and the
+  `agentic_tools` image-build step.
+
 ## 2026-10-07
 
 - **Update**:

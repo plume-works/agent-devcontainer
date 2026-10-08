@@ -5,14 +5,14 @@ source:
 - docker
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
-source_digest: sha256:78226366419bdce16543a129257e079a9b2b5c1e207bfb341fae352bf5e4893e
+source_digest: sha256:28021adad1f440205dff800fec58e3d794ecfa192951913b5927233abc584950
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
+stale_after: 2027-01-06
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
 sources:
 - id: code
   resource: docker
@@ -53,8 +53,9 @@ is the surface those consumers touch; the build that produces it is
   `/usr/local/bin/init-firewall.sh` with a NOPASSWD sudoers entry, the `gh`
   wrapper ahead of the real `gh`
 - `/opt/agentdev` — the staged catalog, root-owned and read-only, with the
-  plugin already installed for Claude Code and Codex at build time and its
-  OpenCode bridge listed in `~/.config/opencode/opencode.json`
+  plugin already installed for Claude Code and Codex at build time, its agents
+  in `~/.codex/agents/agentdev-<stem>.toml`, and its OpenCode bridge listed in
+  `~/.config/opencode/opencode.json`
 - On `PATH`: `uv`, `bun`, `node`, `claude`, `codex`, `opencode`, `gh`, `cmake`,
   `ninja`, `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`/`iwec`,
   `codebase-memory-mcp`, `validate_agent_files`, `pre-commit`, `xpra`,

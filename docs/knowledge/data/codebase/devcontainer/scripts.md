@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth seeding and symlinks, gh credential helper, Claude Remote Control.'
 source: .devcontainer/scripts
-source_digest: sha256:5207c74405594feea2485b1741cace1f14d915c7f14e91c721eeff9b1ce51bce
+source_digest: sha256:0ba58cfa377ccb03bb2b8ad0e6142af84805f59204abdca26c1624bc270f5f63
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-05T20:00:00Z
-stale_after: 2027-01-02
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
+stale_after: 2027-01-06
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -57,8 +57,9 @@ reinstall scripts list existing marketplaces whose path is the root, remove each
 (uninstalling at every scope, tolerating "not found"), then add and install. The
 Claude script reads every name from `.plugins[]` and loops, so the Claude
 marketplace's two plugins both install; the Codex script reads `.plugins[0]`,
-which is accurate because its manifest publishes one. The OpenCode script
-rewrites only the `plugin` array of
+which is accurate because its manifest publishes one, then runs that plugin's
+`bin/install-codex-agents.py`, skipping a catalog that does not ship it. The
+OpenCode script rewrites only the `plugin` array of
 `${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/opencode.json`,
 creating the file when absent, and exits quietly when `root` ships no
 `.opencode-plugin/`. CBM wiring temporarily materializes the `~/.claude.json`
@@ -96,7 +97,7 @@ The image's tools (`claude`, `codex`, `codebase-memory-mcp`, `uv`, `jq`,
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-04):
+Verified anchor points (line numbers as of 2026-10-08):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56-62` — `~/.claude.json` symlink
   into the volume
@@ -107,6 +108,8 @@ Verified anchor points (line numbers as of 2026-10-04):
 - `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:64-65` — add + install
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh:69-75` — Codex agent
+  install, skipped for a catalog without the installer
 - `.devcontainer/scripts/reinstall-agentdev-opencode.sh:32-38` — bridge entry
   rewrite
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:55-75` — symlink

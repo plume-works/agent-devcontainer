@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:8398a4bf9c67035a297ca0ab38eacc2d9981bddd6ff1bbdd1c0b525ac36d2182
+source_digest: sha256:4421a87aa9d46d5f749f8840666d9ef80127712d41ec1da6b8e5bf97b41ad0d8
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-05T19:11:30Z
-stale_after: 2027-01-03
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
+stale_after: 2027-01-06
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-05T19:11:30Z
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -34,10 +34,11 @@ suite for the [OpenCode bridge](opencode-plugin.md), run with
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
   `test_discover_ai_responder.py`, `test_fetch_issue.py`,
   `test_gh_stack_vendored_version.py`, `test_git_commit.py`,
-  `test_git_new_branch.py`, `test_push_branch_map_check.py`,
-  `test_remote_codespace_session.py`, `test_result_codes.py`,
-  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
-  `test_template_consume_check_updates.py`, `test_update_branch.py`
+  `test_install_codex_agents.py`, `test_git_new_branch.py`,
+  `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
+  `test_result_codes.py`, `test_stale_map_docs.py`,
+  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
+  `test_update_branch.py`
 
 ## How it works
 
@@ -98,7 +99,7 @@ role defaults in [Ansible](../../../ansible.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-05):
+Verified anchor points (line numbers as of 2026-10-08):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`

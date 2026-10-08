@@ -2,14 +2,14 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared result-code libraries for bash and Python, the GitHub-issue library, the Super-Linter wrappers, and the ruff and shellcheck checks.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:59e41a538a8db22452891f5f3b1e3bacda688804d589677ddd36a602ba25d3d2
+source_digest: sha256:80b897fd3c37a77cc2d2fc8f4e2b34a7bc2cc1349b8a66de93c0fb0717dbfac3
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
-stale_after: 2026-12-31
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
+stale_after: 2027-01-06
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
@@ -17,7 +17,7 @@ sources:
 
 # Catalog bin helpers
 
-Ten files. Four are libraries a skill script pulls in — two of them the same
+Eleven files. Four are libraries a skill script pulls in — two of them the same
 result contract in bash and in Python; the rest are commands a user or skill
 runs directly.
 
@@ -43,6 +43,11 @@ runs directly.
 - `python-lint-check.sh` — non-mutating ruff check, resolved through
   `uv run --no-sync` in a uv project
 - `shellcheck-fix.sh` — applies `shellcheck -f diff` to the tracked scripts
+- `install-codex-agents.py [--plugin-root <dir>]` — writes
+  `${CODEX_HOME:-~/.codex}/agents/agentdev-<stem>.toml` for each
+  `agents/<stem>.agent.md` of the plugin shipping it, then deletes every other
+  `agentdev-*.toml` there; `INVALID_AGENT` (3) when an agent lacks a
+  description, before anything is written
 - `__utils.sh` — sets `root_dir` from `git rev-parse --show-toplevel`
 
 ## How it works
@@ -80,7 +85,7 @@ environment of its own.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-08):
 
 - `.agents/plugins/agentdev/bin/result-codes.sh:15-22` — the reserved codes
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
@@ -88,6 +93,10 @@ Verified anchor points (line numbers as of 2026-10-02):
 - `.agents/plugins/agentdev/bin/result_codes.py:24-31` — the same reserved codes
 - `.agents/plugins/agentdev/bin/result_codes.py:89` — `run`
 - `.agents/plugins/agentdev/bin/result_codes.py:106` — `install`
+- `.agents/plugins/agentdev/bin/install-codex-agents.py:73` — `render_agent`,
+  the field and `sandbox_mode` mapping
+- `.agents/plugins/agentdev/bin/install-codex-agents.py:100` — `main`, write
+  then prune by the `agentdev-` prefix
 - `.agents/plugins/agentdev/bin/github-issue.sh:10,29,41,46` — the four parsing
   and lookup helpers
 - `.agents/plugins/agentdev/bin/github-issue.sh:54` — `close_issue_with_comment`

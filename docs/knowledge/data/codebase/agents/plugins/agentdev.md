@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:d715f466ddca57f97c665b2cffb727d73fb4edf1b8871ff590f7e0786930f859
+source_digest: sha256:9b5017c72bc7882a3712241b6217903569a151074e8ebb979afc641b271887ab
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-07T12:00:00Z
-stale_after: 2027-01-05
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
+stale_after: 2027-01-06
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-07T12:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-08T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -66,8 +66,9 @@ source. The image build copies `.claude-plugin/` and `.agents/` whole into
 lifecycle installs again over the mounted volumes and, for this repository only,
 re-registers the workspace copy on attach
 ([lifecycle scripts](../../devcontainer/scripts.md)). Codex reads the same
-files; there is no generated mirror. OpenCode reads them too, translated at
-startup by the bridge rather than copied.
+skills; its agents are the one generated copy, written into `~/.codex/agents/`
+at install by `bin/install-codex-agents.py`. OpenCode reads them too, translated
+at startup by the bridge rather than copied.
 
 ## Depends on
 
@@ -86,7 +87,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-05):
+Verified anchor points (line numbers as of 2026-10-08):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
