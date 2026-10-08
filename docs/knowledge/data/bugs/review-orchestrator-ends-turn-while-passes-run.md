@@ -132,9 +132,9 @@ net:
 
 Verified anchor points (line numbers as of 2026-10-08):
 
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:127` — Step 4, the
-  parallel pass dispatch, with the Claude Code foreground rule at line 134
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:157` —
-  `Waiting on Parallel Passes`, with the foreground dispatch rule at line 175
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:126` — Step 4, the
+  parallel pass dispatch, with the Claude Code foreground rule at line 133
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:159` —
+  `Waiting on Parallel Passes`, with the foreground dispatch rule at line 177
 - `.github/workflows/ai-responder.yml:509` — `ai-review-present`, the gate that
   accepts an earlier review
