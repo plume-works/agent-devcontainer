@@ -223,8 +223,11 @@ The rest of the step is unchanged.
 
 ### Task 7: CI green on the pull request
 
-- [ ] `Validate Renovate config` and the reformat workflow's
+- [x] `Validate Renovate config` and the reformat workflow's
   `Validate pre-commit and local tool versions` step pass on the PR.
+  - **Evidence:** PR #289 at `07e33c6`: `Validate Renovate config` passed in
+    Actions run 37851407591, and `Validate pre-commit and local tool versions`
+    succeeded in the Super-Linter job of run 37851407789.
 
 ## Spec changes
 
