@@ -2,8 +2,8 @@
 type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-01T00:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-08T00:00:00Z
 ---
 
 # Module layout
@@ -71,10 +71,14 @@ in [Template consumption](../spec/template-consumption.md).
   so a rebuild upstream never silently changes what a consumer runs; Renovate
   advances the pin deliberately.
 - **`.agents/plugins/agentdev/` is the single source of truth for the catalog.**
-  Codex consumes it directly (no `.codex/agents` trampoline, no symlink);
-  scripts under `bin/` resolve the target repository from the working directory
-  rather than assuming they run inside this checkout, since the same scripts run
-  inside a consumer's plugin cache.
+  Codex consumes its skills directly, with no `.codex/agents` trampoline and no
+  symlink in this repository. Codex reads agents only from its home directory,
+  so every Codex install derives `~/.codex/agents/agentdev-<stem>.toml` from the
+  catalog's `agents/` through `bin/install-codex-agents.py`; those files are
+  install-time artifacts, never edited or committed. Scripts under `bin/`
+  resolve the target repository from the working directory rather than assuming
+  they run inside this checkout, since the same scripts run inside a consumer's
+  plugin cache.
 - **`validate_agent_files`'s test suite is deliberately kept separate** from the
   plugin's own test suite (`.agents/plugins/agentdev/tests/`) so the package
   continues to pass with no repository-specific fixtures, since it is released

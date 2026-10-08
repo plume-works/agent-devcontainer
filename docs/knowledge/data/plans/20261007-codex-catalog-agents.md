@@ -102,10 +102,12 @@ a user-authored file with that prefix would be removed on reinstall.
 
 **Files:** Modify: `docs/knowledge/data/architecture/module-layout.md`
 
-- [ ] Restate the `.agents/plugins/agentdev/` single-source decision so it
+- [x] Restate the `.agents/plugins/agentdev/` single-source decision so it
   covers the generated Codex agents: the catalog stays the only source, and
   `~/.codex/agents/agentdev-*.toml` is an install-time artifact derived from it,
   never edited or committed.
+  - **Evidence:** committed with this tick; `iwe schema validate` passes on the
+    edited `data/architecture/module-layout`.
 
 ### Task 5: Codex dispatches a catalog agent in the devcontainer
 
