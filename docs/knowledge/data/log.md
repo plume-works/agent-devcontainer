@@ -16,6 +16,10 @@ to the current day's group.
 - **Update**:
   [Fail a review run that published no review](backlog/fail-review-run-without-review.md)
   task filed.
+- **Update**:
+  [Codex full access in the devcontainer](architecture/codex-full-access-in-devcontainer.md)
+  recorded; refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow
+  codebase maps for the `configure-codex.py` postStart step.
 
 ## 2026-10-07
 

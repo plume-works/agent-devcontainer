@@ -128,8 +128,11 @@ devcontainer script tests)
 **Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`,
 `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md`
 
-- [ ] Run `/agentdev:iwe-map` refresh so the script inventory and the postStart
+- [x] Run `/agentdev:iwe-map` refresh so the script inventory and the postStart
   sequence list `configure-codex.py`.
+  - **Evidence:** Commit on branch `codex-full-access-config` refreshing
+    `codebase/devcontainer/scripts`, `codebase/flow-devcontainer-lifecycle`, and
+    `codebase/devcontainer`; `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ## Spec changes
 

@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:29a22191429112d0f5c0507a6a48c3cbfa311721027e91ec3fe9c167c21a2ca7
+source_digest: sha256:3d005bfb85414dd2d3829df3e80e19fd3db39ed4d50acdeb49eece8b20808a54
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-05T20:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-08T00:00:00Z
+stale_after: 2027-01-06
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-08T00:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -45,8 +45,9 @@ state.
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    credential seeding (consuming the transfer files step 1 rewrote), pre-commit
    hooks, keyring, the gh git credential helper, the firewall gate, Xpra in the
-   background, Claude Remote Control under autostart, the Codex auth link —
-   `.devcontainer/scripts/postStartCommand.sh:9-31`
+   background, Claude Remote Control under autostart, the Codex auth link, then
+   Codex's full-access policy in `config.toml` —
+   `.devcontainer/scripts/postStartCommand.sh:9-34`
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
    catalog reinstalled from this checkout at local scope, with OpenCode's bridge
    entry repointed at it, which is how the catalog is developed in place —
