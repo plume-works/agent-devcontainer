@@ -166,6 +166,9 @@ Rejected:
 - [ ] Each coordinator becomes explicit-only on all three harnesses and
   dispatches `iwe-shipper` or `iwe-implementer` by name per plan, in dependency
   order. Ship-all re-posts each Shipper's Verify verdict with its outcome.
+  - **Evidence:** committed with this tick; `validate_agent_files --recommend`
+    reports 62/62 skills valid with 0 warnings, and the bridge's `bun test` 12
+    passed, its deny and subagent assertions derived from the catalog.
 
 ### Task 6: Re-dispatch the Shipper after a revision
 
