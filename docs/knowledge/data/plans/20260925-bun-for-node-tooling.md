@@ -142,9 +142,12 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
 **Files:** Modify: `.github/workflows/renovate.yml`,
 `.github/workflows/validate-renovate-config.yml`
 
-- [ ] Both workflows read the Renovate version from the
+- [x] Both workflows read the Renovate version from the
   `bunx --package renovate@<version>` entry of the local
   `renovate-config-validator` hook instead of the removed hook's `rev`.
+  - **Evidence:** the Task 3 commit; each workflow's extraction, run locally
+    against `.pre-commit-config.yaml`, yields `44.138.1` and passes its semver
+    guard; actionlint and zizmor pass on both files.
 
 ### Task 4: bun upgrade hint in the Makefile
 
