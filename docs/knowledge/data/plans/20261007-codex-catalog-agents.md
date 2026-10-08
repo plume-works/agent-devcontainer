@@ -111,10 +111,15 @@ a user-authored file with that prefix would be removed on reinstall.
 
 ### Task 5: Codex dispatches a catalog agent in the devcontainer
 
-- [ ] With the catalog reinstalled through `reinstall-agentdev-codex.sh`,
+- [x] With the catalog reinstalled through `reinstall-agentdev-codex.sh`,
   `codex exec` lists `durable-knowledge-auditor`, `principal-engineer`, and the
   `tdd-*` agents as spawnable, and a dispatch of `durable-knowledge-auditor` on
   a plan file returns its audit report.
+  - **Evidence:** committed with this tick; Codex 0.156.1 after the reinstall
+    listed all five catalog agents beside `default`, `explorer`, and `worker`,
+    and `codex exec` dispatched `durable-knowledge-auditor` on this plan through
+    `spawn_agent`: the child ran the agent file's body under a `read-only`
+    sandbox and returned its audit table.
 
 ### Task 6: The built image carries the agents without lifecycle hooks
 
