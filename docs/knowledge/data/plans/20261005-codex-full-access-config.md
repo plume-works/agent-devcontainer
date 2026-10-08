@@ -66,14 +66,20 @@ corrupt config is better surfaced than replaced).
 
 **Files:** Create: `.devcontainer/scripts/configure-codex.py`
 
-- [ ] Script with `#!/usr/bin/env -S uv run --script`, a PEP 723 block declaring
+- [x] Script with `#!/usr/bin/env -S uv run --script`, a PEP 723 block declaring
   `requires-python = ">=3.12"` and `dependencies = ["tomlkit"]`, type hints and
   PEP 257 docstrings, executable bit set. It honors `CODEX_HOME`, creates the
   home at `0700`, loads `config.toml` with `tomlkit.parse` (an empty document
   when absent), sets `sandbox_mode` and `approval_policy` at top level, and
   replaces the file atomically through a `0600` temporary file in the same
   directory.
-- [ ] `ruff` clean under the repo's `.ruff.toml` (pre-commit hook).
+  - **Evidence:** Commit on branch `codex-full-access-config` adding
+    `configure-codex.py` (mode 100755); 2026-10-08 run against a copy of this
+    container's `config.toml` added only the two keys above the
+    codebase-memory-mcp marker, a second run was byte-identical, modes 700/600.
+- [x] `ruff` clean under the repo's `.ruff.toml` (pre-commit hook).
+  - **Evidence:** `uv run ruff check` and `ruff format --check` passed on the
+    script; pre-commit hooks passed on the Task 1 commit.
 
 ### Task 2: Run it on every start
 
