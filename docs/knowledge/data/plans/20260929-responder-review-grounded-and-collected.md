@@ -11,6 +11,8 @@ sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
+stage: done
+completed: 2026-10-08
 ---
 
 # Keep agentdev enabled in the responder and collect review passes in the foreground

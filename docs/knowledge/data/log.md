@@ -4,6 +4,19 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-08
+
+- **Update**:
+  [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
+  done. The responder layers the hook-written user settings under the project
+  settings, and `pr-review` collects its passes with foreground `Agent` calls.
+- **Update**:
+  [The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
+  fixed.
+- **Update**:
+  [Fail a review run that published no review](backlog/fail-review-run-without-review.md)
+  task filed.
+
 ## 2026-10-05
 
 - **Update**: [Native stacked pull requests](features/native-stacked-prs.md)

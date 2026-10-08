@@ -1,9 +1,10 @@
 ---
 type: bug
+stage: done
 description: The review orchestrator can end its turn while its dispatched passes are still running, so the responder job finishes green having published no review, and the gate accepts an older review instead of catching the miss.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:46:38Z
+  at: 2026-10-08T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml
@@ -115,58 +116,25 @@ that was refused is distinguishable from one whose result was never collected.
 
 ## Fix
 
-Open.
+`pr-review` dispatches every Claude Code pass and validator as foreground
+`Agent` calls (`run_in_background: false`) in a single message, which run in
+parallel and return only once all have finished, so the dispatching turn always
+holds every result. Nothing in the Claude Code path waits through a separate
+tool, and the responder job's `timeout-minutes` bounds the whole review. The
+change shipped through
+[Keep agentdev enabled in the responder and collect review passes in the foreground](../plans/20260929-responder-review-grounded-and-collected.md).
 
-**Failing a run that published nothing was tried and removed.** The responder
-action took a `require-review` input: it stamped a timestamp before the Claude
-step and afterwards required a review by `claude[bot]` or `github-actions[bot]`
-with `submitted_at` at or after the stamp. It is not sound. The predicate
-matches any qualifying review in the window with nothing tying it to the run
-that is being checked — no `commit_id`, no review id, no run id, no marker in
-the review body — so an abandoned run passes on a concurrent run's review, which
-is the very miss it exists to catch.
-
-Concurrent responder runs on one pull request are ordinary, not exotic. A
-dispatched run's concurrency group is keyed `dispatch-<comment_id>`, so two
-`@claude review` comments occupy different groups; a dispatched run and a
-`pull_request`-triggered run (`pr-<n>`) are likewise distinct.
-`cancel-in-progress` is set only for `pull_request` + `synchronize`, so nothing
-cancels an in-flight dispatched run. Two reviews requested minutes apart overlap
-for their whole duration, and the second one's stamp sits before the first one's
-publication.
-
-Closing that gap needs an identity, not a window: the run URL stamped into the
-published review body, or the submitted review's id captured from the session.
-
-The remaining candidates:
-
-- Have the gate distinguish "reviewed" from "reviewed in this run". That is a
-  deliberate property of `ai-review-present` — see
-  [AI review gate](../spec/ai-review-gate.md) — and reopening it costs the
-  re-review ergonomics the spec chose on purpose.
-- Strengthen the skill's self-check so the blocking call is the only way to
-  reach Step 5. The rule already exists; restating it more loudly is the weakest
-  of the three unless the restatement changes what the orchestrator reads at the
-  moment it decides to stop.
-- Settle the quota hypothesis above first. A detection check and an
-  instruction-adherence fix address different causes, and the evidence does not
-  yet say which one this is.
-
-A fix should not be chosen from this document alone: the failure is
-intermittent, and three observed runs are too small a sample to tell an
-instruction-adherence problem from a runner-behavior one.
+Failing a run that published no review, whatever its cause, is a separate safety
+net:
+[Fail a review run that published no review](../backlog/fail-review-run-without-review.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-27):
+Verified anchor points (line numbers as of 2026-10-08):
 
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:126` — Step 4, the
-  parallel pass dispatch
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:134` — the rule that the
-  dispatching turn must not be the last
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:156` —
-  `Waiting on Parallel Passes`, with the self-check gate at line 164
-- `.github/workflows/ai-responder.yml:74` — `concurrency`, the per-comment and
-  per-PR groups, with `cancel-in-progress` at line 82
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:127` — Step 4, the
+  parallel pass dispatch, with the Claude Code foreground rule at line 134
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:157` —
+  `Waiting on Parallel Passes`, with the foreground dispatch rule at line 175
 - `.github/workflows/ai-responder.yml:509` — `ai-review-present`, the gate that
   accepts an earlier review

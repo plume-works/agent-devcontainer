@@ -122,4 +122,4 @@ recorded in [PR review effort tiers](../architecture/pr-review-effort-tiers.md).
 
 - Whether a run that published no review should fail on its own, rather than
   pass on an earlier review — open in
-  [The review orchestrator ends its turn while its passes are still running](../bugs/review-orchestrator-ends-turn-while-passes-run.md).
+  [Fail a review run that published no review](../backlog/fail-review-run-without-review.md).
