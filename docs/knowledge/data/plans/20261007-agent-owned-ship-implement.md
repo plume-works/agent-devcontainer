@@ -219,8 +219,18 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 
 ### Task 9: Codex runs the design end to end
 
-- [ ] The Task 8 checks pass on Codex, and Codex no longer lists `iwe-ship`,
+- [x] The Task 8 checks pass on Codex, and Codex no longer lists `iwe-ship`,
   `iwe-implement`, `iwe-plan`, or either coordinator as implicitly invocable.
+  - **Evidence:** Codex 0.156.1 `codex exec -s workspace-write` after
+    `reinstall-agentdev-codex.sh` from 1213210, on the Task 8 fixtures. Its
+    skill list holds no gated skill. `$agentdev:iwe-ship` and
+    `$agentdev:iwe-ship-all` spawned `iwe-shipper` with `fork_turns: "none"`
+    (the message itself is stored encrypted); without approval it reported the
+    publish command it needed, and with the approval quoted it ran the command,
+    which the sandbox's read-only filesystem failed, returning a Ship blocker
+    report with no mutation. `$agentdev:iwe-implement` read the rulebook in
+    place, spawned nothing, and asked about the deviation.
+    `$agentdev:iwe-explore` spawned nothing and ran no Ship or Implement skill.
 
 ### Task 10: OpenCode runs the design end to end
 
