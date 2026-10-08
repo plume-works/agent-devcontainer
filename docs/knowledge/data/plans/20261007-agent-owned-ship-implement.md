@@ -122,6 +122,10 @@ Rejected:
   names its only dispatchers: the `iwe-ship` skill, the `iwe-ship-all`
   coordinator, and `iwe-plan` revise answering a Ship blocker report. Tools:
   `Bash, Read, Edit, Write, Grep, Glob, Skill`.
+  - **Evidence:** committed with this tick;
+    `uv run validate_agent_files .agents/plugins/agentdev/agents --kind agents --ci`
+    exit 0, `test_install_codex_agents.py` 10 passed, and the bridge's
+    `bun test` 12 passed.
 
 ### Task 3: Make the Implement rulebook an agent
 
