@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:81ea45be06fee37f060f494be41d20e0ebabc60dd4644b83af103185cbf9b665
+source_digest: sha256:8e5fd9df88996e627537c95772c5e1d3363eeabcca5a9661b1b8531e84fd3580
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-08T12:00:00Z
+stale_after: 2027-01-06
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-08T12:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -50,17 +50,18 @@ and a task, resolves the review's effort tier, and `ai-review-present` reports
 whether an accepted review exists. `renovate.yml` and the Renovate-config
 `validate` job run in `agent-desktop` at the digest
 `devcontainer-compose-pins.yml` pins, and both read the Renovate version from
-the `renovate-config-validator` hook's `rev` in `.pre-commit-config.yaml`; the
-bot authenticates with a GitHub App token and takes its global options from
-`RENOVATE_*` variables. A person's edit of the Dependency Dashboard issue or of
-a Renovate PR's body starts a run; the bot's own edits never do. PR edits arrive
-through `pull_request_target`, which still fires on a conflicted PR and never
-checks out PR code. Every run queues in one job-level concurrency group, so two
-never write the same branch at once and a skipped bot edit never enters it.
-Knowledge validation always checks this graph when its outer filter passes and
-runs the standalone consumer-seed suite only when its inner seed filter passes.
-Agent-file validation's filter covers the union of codebase map `source` paths,
-then its final step verifies every recorded digest. The full traces are
+the `renovate-config-validator` hook's `bunx --package renovate@<version>` entry
+in `.pre-commit-config.yaml`; the bot authenticates with a GitHub App token and
+takes its global options from `RENOVATE_*` variables. A person's edit of the
+Dependency Dashboard issue or of a Renovate PR's body starts a run; the bot's
+own edits never do. PR edits arrive through `pull_request_target`, which still
+fires on a conflicted PR and never checks out PR code. Every run queues in one
+job-level concurrency group, so two never write the same branch at once and a
+skipped bot edit never enters it. Knowledge validation always checks this graph
+when its outer filter passes and runs the standalone consumer-seed suite only
+when its inner seed filter passes. Agent-file validation's filter covers the
+union of codebase map `source` paths, then its final step verifies every
+recorded digest. The full traces are
 [the image build flow](../flow-image-build.md) and
 [the pull request checks flow](../flow-pull-request-checks.md).
 
@@ -109,7 +110,7 @@ then its final step verifies every recorded digest. The full traces are
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-04):
+Verified anchor points (line numbers as of 2026-10-08):
 
 - `.github/workflows/primary-checks.yml:31,52` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:185,279,421` — `super-linter`,

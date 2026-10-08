@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:d2844648e0a1273bdc3860d3b9f0c7b7a9f6a7790e2506f7a47feefdb8ea83f5
+source_digest: sha256:d7fce6575b3efd7cdac138c53c2183d5f92a01dd09ff7c3c0ccd3d96c58702e1
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-08T12:00:00Z
+stale_after: 2027-01-06
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-08T12:00:00Z
 sources:
 - id: code
   resource: .github
@@ -29,9 +29,9 @@ before the push.
    hadolint, ruff format and lint, shellcheck, gitleaks, actionlint (with
    `.github/actionlint.yml`, which Super-Linter reads too),
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
-   and IWE validation and normalization — `.pre-commit-config.yaml:2-130`;
-   `no-commit-to-branch` refuses a commit on `main` or `master` —
-   `.pre-commit-config.yaml:11`
+   and IWE validation and normalization, Prettier and the Renovate validator
+   through `bunx` — `.pre-commit-config.yaml:2-126`; `no-commit-to-branch`
+   refuses a commit on `main` or `master` — `.pre-commit-config.yaml:11`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit;

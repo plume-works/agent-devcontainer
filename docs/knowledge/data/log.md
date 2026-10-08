@@ -16,6 +16,9 @@ to the current day's group.
 - **Update**:
   [Fail a review run that published no review](backlog/fail-review-run-without-review.md)
   task filed.
+- **Update**: Refreshed the agentdev, agentdev skills, GitHub, workflows, and
+  pull-request-checks codebase maps for the `bunx` Prettier and Renovate
+  validator hooks and the Renovate pin they now carry.
 
 ## 2026-10-07
 
