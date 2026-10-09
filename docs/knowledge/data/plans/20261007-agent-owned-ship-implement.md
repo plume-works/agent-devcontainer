@@ -262,7 +262,7 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 `scripts/e2e/20261007-agent-owned-ship-implement/fixtures/` (the two fixture
 plans, the publish script, and the OpenCode project config)
 
-- [ ] Commit the fixtures and a runner. The fixtures are an implemented plan
+- [x] Commit the fixtures and a runner. The fixtures are an implemented plan
   whose `## Verification` runs a publish script whose only effect is a marker
   file outside the clone, and a plan whose one unticked task contradicts its
   recorded spec outcome; the implemented plan also gets a variant that adds an
@@ -290,6 +290,13 @@ plans, the publish script, and the OpenCode project config)
 
   Where a harness does not expose a fact, the runner asserts what it does expose
   and says so. `shellcheck` passes.
+
+  - **Evidence:** committed with this tick;
+    `shellcheck scripts/e2e/20261007-agent-owned-ship-implement/run.sh` and the
+    fixture publish script are clean, and the runner's clone setup, run alone,
+    built the two fixture commits in a remote-less clone under `./.tmp/e2e/`,
+    passed `iwe schema validate` there, and found all seven gated skills. The
+    live checks are Tasks 12–14.
 
 ### Task 12: The harness passes on Claude Code
 
