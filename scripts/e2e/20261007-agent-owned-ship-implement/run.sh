@@ -165,7 +165,7 @@ claude_run() {
   # --allowedTools takes many values, so a single-value flag must end the list.
   (cd "$clone" && timeout 1200 claude -p --plugin-dir "$catalog" \
     --allowedTools "Bash(iwe *)" "Bash(git *)" "Bash(grep *)" "Bash(test *)" \
-    "Bash(bin/publish-e2e.sh*)" "Bash(./bin/publish-e2e.sh*)" \
+    "Bash(bin/publish-e2e.sh*)" "Bash(./bin/publish-e2e.sh*)" "Bash($clone/bin/publish-e2e.sh*)" \
     Read Edit Write Grep Glob Skill Agent \
     --permission-mode acceptEdits --output-format stream-json --verbose \
     "$prompt" </dev/null >"$log.jsonl" 2>"$log.err") || note "claude exited $? ($log)"
