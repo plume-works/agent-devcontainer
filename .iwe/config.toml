@@ -55,7 +55,7 @@ reverse = false
 
 # Document-schema bindings. Each entry names a schema file in .iwe/schemas/<name>.yaml
 # and a key-glob that binds it. Bindings are BY PATH, not by frontmatter fields,
-# and are relative to [library].path above (docs/knowledge), not to the repo
+# and are relative to [workspace].path above (docs/knowledge), not to the repo
 # root or to .iwe/ itself. The extension-less hub keys (docs/knowledge/data/plans, docs/knowledge/data/bugs,
 # ...) match none of these globs, so hub documents stay unvalidated by design.
 # Run: iwe schema validate  (--explain shows the binding trace).
