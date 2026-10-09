@@ -2,8 +2,8 @@
 type: architecture
 description: Why .github/renovate.json is validated by a pre-commit hook and a workflow at the one Renovate version the self-hosted bot runs, why both pass --no-global, and why the workflow runs in the pinned agent-desktop image.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-26T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-08T00:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/workflows/validate-renovate-config.yml
@@ -18,10 +18,11 @@ sources:
 `.github/renovate.json` is validated by
 `renovate-config-validator --no-global --strict`, from a pre-commit hook and
 from `validate-renovate-config.yml`. Both run the Renovate release that the
-`renovate-config-validator` hook's `rev` in `.pre-commit-config.yaml` names, and
-`renovate.yml` runs the bot at that same release. One pin serves hook, workflow,
-and bot, so the version that validates the config is the version that reads it.
-Renovate bumps that `rev` like any other hook, and the bump merges only once the
+local `renovate-config-validator` hook's `bunx --package renovate@<version>`
+entry in `.pre-commit-config.yaml` names, and `renovate.yml` runs the bot at
+that same release. One pin serves hook, workflow, and bot, so the version that
+validates the config is the version that reads it. A `custom.regex` manager in
+`.github/renovate.json` tracks that pin, and its bump merges only once the
 workflow passes at the new version.
 
 Nothing else checks the config before it reaches the bot. A mistyped option or
@@ -35,9 +36,9 @@ Without it the validator applies the self-hosted **global** schema, which
 accepts and rejects a different set of options than the repository schema
 Renovate actually reads for this file. A repository config carrying a
 global-only option such as `allowedCommands` passes the default invocation and
-fails under `--no-global`. The upstream pre-commit hook's default invocation has
-exactly that problem, so the flag is passed explicitly in both places.
-`--strict` additionally fails on warnings and on a config needing migration.
+fails under `--no-global`. The validator's default invocation has exactly that
+problem, so the flag is passed explicitly in both places. `--strict`
+additionally fails on warnings and on a config needing migration.
 
 The self-hosted bot's global options therefore never live in a checked-in
 Renovate config file: `renovate.yml` passes them as `RENOVATE_*` environment
