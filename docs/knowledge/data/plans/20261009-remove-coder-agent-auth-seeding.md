@@ -160,8 +160,11 @@ Rejected:
 
 **Files:** Modify: `.devcontainer/scripts/setup-gh-credential-helper.sh`
 
-- [ ] Its comment points at `spec/devcontainer-git-credentials`;
+- [x] Its comment points at `spec/devcontainer-git-credentials`;
   `grep -rn 'devcontainer-agent-auth' .devcontainer scripts` prints nothing.
+  - **Evidence:** commit "Point the gh credential helper at its new spec"
+    (`setup-gh-credential-helper.sh:2`); the `grep` prints nothing;
+    `uv run pytest scripts/tests/test_setup_gh_credential_helper.py` 6 passed.
 
 ### Task 5: Record the shared-volume refresh race
 
