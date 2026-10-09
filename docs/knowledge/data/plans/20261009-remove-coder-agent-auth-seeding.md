@@ -135,16 +135,26 @@ Rejected:
 `.github/actions/run-claude-responder/action.yml`,
 `scripts/tests/test_preapprove_claude_workspace.py`
 
-- [ ] Replace the `AGENTDEV_CLAUDE_AUTOSTART` gate with a skip when
+- [x] Replace the `AGENTDEV_CLAUDE_AUTOSTART` gate with a skip when
   `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is non-empty; update its spec-key comments
   to `spec/claude-remote-control`.
-- [ ] Set `AGENTDEV_SKIP_CLAUDE_PREAPPROVE: '1'` in the responder's "Run
+  - **Evidence:** commit "Pre-approve Claude workspace state in every container"
+    (`preapprove-claude-workspace.sh:3,6,50`); `shellcheck` clean.
+- [x] Set `AGENTDEV_SKIP_CLAUDE_PREAPPROVE: '1'` in the responder's "Run
   devcontainer lifecycle scripts" step.
-- [ ] Tests: pre-approval runs with autostart unset; skips when the opt-out is
+  - **Evidence:** commit "Pre-approve Claude workspace state in every container"
+    (`run-claude-responder/action.yml:101`), asserted by
+    `test_ci_responder_opts_out`.
+- [x] Tests: pre-approval runs with autostart unset; skips when the opt-out is
   set; the post-create ordering test asserts the call follows the
   `~/.claude.json` symlink instead of the deleted seeding call; a test asserts
   the responder action sets the opt-out.
   `uv run pytest scripts/tests/test_preapprove_claude_workspace.py` passes.
+  - **Evidence:** the ordering test landed with commit "Delete Coder agent auth
+    seeding", the rest with "Pre-approve Claude workspace state in every
+    container";
+    `uv run pytest scripts/tests/test_preapprove_claude_workspace.py` 6 passed,
+    4 of which fail against the previous script and action.
 
 ### Task 4: Repoint remaining spec references
 
@@ -323,13 +333,14 @@ Verified anchor points (line numbers as of 2026-10-09):
 - `.devcontainer/scripts/claude-remote-control-start.sh:16-32` — login gate
 - `.devcontainer/scripts/claude-remote-control-start.sh:43-44` — tmux start
   without `CLAUDE_CODE_OAUTH_TOKEN`
-- `.devcontainer/scripts/preapprove-claude-workspace.sh:4,7,50` — spec comment,
-  autostart gate, MCP comment
+- `.devcontainer/scripts/preapprove-claude-workspace.sh:3,6,50` — spec comment,
+  opt-out gate, MCP comment
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:2` — spec comment
-- `.github/actions/run-claude-responder/action.yml:95-106` — lifecycle step env
+- `.github/actions/run-claude-responder/action.yml:95-107` — lifecycle step env
 - `scripts/tests/test_claude_remote_control_start.py:32,69,88` —
   `run_with_fake_tmux`, start and skip tests
-- `scripts/tests/test_preapprove_claude_workspace.py:62,70` —
-  `test_skips_without_autostart`, `test_post_create_runs_after_state_symlink`
+- `scripts/tests/test_preapprove_claude_workspace.py:67,75,83,89` —
+  `test_runs_without_autostart`, `test_skips_when_opted_out`,
+  `test_post_create_runs_after_state_symlink`, `test_ci_responder_opts_out`
 - `docs/knowledge/data/spec/devcontainer-agent-auth.md:36-155` — requirements
   being retired or moved
