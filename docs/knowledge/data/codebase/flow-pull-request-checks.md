@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:64b7cad8f5260795549dbcb4ace32db0ad4849873a38540e1e5a54e7529410f2
+source_digest: sha256:cb82d0406a152435971fd19c5abc0614e735baf072bc54f3673e4a3f736490bf
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T14:30:00Z
+  at: 2026-10-09T12:00:00Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T14:30:00Z
+  at: 2026-10-09T12:00:00Z
 sources:
 - id: code
   resource: .github
@@ -29,9 +29,9 @@ before the push.
    hadolint, ruff format and lint, shellcheck, gitleaks, actionlint (with
    `.github/actionlint.yml`, which Super-Linter reads too),
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
-   and IWE validation and normalization — `.pre-commit-config.yaml:2-130`;
-   `no-commit-to-branch` refuses a commit on `main` or `master` —
-   `.pre-commit-config.yaml:11`
+   and IWE validation and normalization, Prettier and the Renovate validator
+   through `bunx` — `.pre-commit-config.yaml:2-126`; `no-commit-to-branch`
+   refuses a commit on `main` or `master` — `.pre-commit-config.yaml:11`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit;
@@ -56,8 +56,8 @@ before the push.
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
    `renovate-config-validator --no-global --strict` inside the pinned
-   `agent-desktop` image at the Renovate release the hook's `rev` names, and
-   `finished` reports the required result either way —
+   `agent-desktop` image at the Renovate release the hook's `bunx` pin names,
+   and `finished` reports the required result either way —
    `.github/workflows/validate-renovate-config.yml:26,51,69-75,77`
 7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort

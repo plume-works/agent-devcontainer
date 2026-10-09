@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:b556726af5c3a73da800731ecad01d00cd861c88475eb0c55822b91b93856c2d
+source_digest: sha256:443fe5966223e664fd287bcdc663d5ea0e5afad3d31f715e0ddb11ef046ccb0c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T14:30:00Z
+  at: 2026-10-09T12:00:00Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T14:30:00Z
+  at: 2026-10-09T12:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -63,8 +63,9 @@ would otherwise make itself stale.
   version, a download URL, a `# renovate:` comment, a 64-hex value outside a
   checksum field, or a different image still make it stale
 - `docs/knowledge/tests/test_pre_commit_rev_mask.py` — runs `stale-map-docs.py`
-  over the production root mask and hook config: hook `rev` bumps keep a map doc
-  fresh, while a changed hook id or repository still makes it stale
+  over the production root mask and hook config: hook `rev` and local hooks'
+  `bunx` version bumps keep a map doc fresh, while a changed hook id,
+  repository, or `bunx` package still makes it stale
 - `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works

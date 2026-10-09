@@ -154,7 +154,7 @@ validate:
 	  echo "Installed Claude Code: $$(claude --version)"; \
 	  echo "This plugin targets 2.1.196 or later. If the failure names a hook"; \
 	  echo "event as an invalid key, the CLI predates that event."; \
-	  echo "Upgrade with: npm install -g @anthropic-ai/claude-code"; \
+	  echo "Upgrade with: bun add --global @anthropic-ai/claude-code"; \
 	  exit 1; }
 	@claude plugin validate .
 

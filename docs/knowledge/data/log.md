@@ -8,6 +8,11 @@ to the current day's group.
 
 - **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in
   CI and Renovate post-upgrade: eight docs re-verified.
+- **Update**: [Run Node tooling through bun instead of
+  npm](plans/20260925-bun-for-node-tooling.md) done. Prettier and the Renovate
+  config validator run as local `bunx` hooks, the Renovate version lives in the
+  validator's `bunx` pin under a regex manager, and `AGENTS.md` names
+  `bun`/`bunx` as the only JavaScript runners.
 - **Update**: [Configure devcontainer Codex for full
   access](plans/20261005-codex-full-access-config.md) done. Devcontainer Codex
   runs with full access and no approval prompts, per the new [Devcontainer Codex
@@ -23,6 +28,9 @@ to the current day's group.
   running](bugs/review-orchestrator-ends-turn-while-passes-run.md) fixed.
 - **Update**: [Fail a review run that published no
   review](backlog/fail-review-run-without-review.md) task filed.
+- **Update**: Refreshed the agentdev, agentdev skills, GitHub, workflows, and
+  pull-request-checks codebase maps for the `bunx` Prettier and Renovate
+  validator hooks and the Renovate pin they now carry.
 - **Update**: [Codex full access in the
   devcontainer](architecture/codex-full-access-in-devcontainer.md) recorded;
   refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow codebase

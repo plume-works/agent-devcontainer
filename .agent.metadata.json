@@ -13,6 +13,11 @@
           "pattern": "(?m)^(\\s+rev: )\\S+$",
           "replace": "\\1<PIN>",
           "reason": "Hook revisions move in automerged Renovate bumps (.github/renovate.json) and with sync-super-linter-tool-versions; the hook repository and ids stay watched."
+        },
+        {
+          "pattern": "(bunx (?:--package )?\\S+@)\\d\\S*",
+          "replace": "\\1<PIN>",
+          "reason": "Local hooks pin their bunx packages in entry; Renovate automerges the renovate pin (.github/renovate.json) and sync-super-linter-tool-versions moves Prettier's. The package names stay watched."
         }
       ]
     }
