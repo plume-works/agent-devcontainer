@@ -284,9 +284,10 @@ codex_fresh_spawns() {
 }
 codex_ran_publish() {
   local child
-  # Only a command that starts by executing the script counts; reads of it do not.
+  # Only a command, alone or chained, that executes the script counts; reads of it do not.
   for child in $(codex_children "$1"); do
-    grep -qE 'cmd[\\"]*:[\\"]*((ba)?sh )?(\./|[^ "\\]*/)?bin/publish-e2e\.sh' "$child" && return 0
+    grep -qE 'cmd[\\"]*:[\\"]*([^"]*(&&|\|\||;|\|) *)?((ba)?sh )?(\./|[^ "\\]*/)?bin/publish-e2e\.sh' \
+      "$child" && return 0
   done
   return 1
 }
