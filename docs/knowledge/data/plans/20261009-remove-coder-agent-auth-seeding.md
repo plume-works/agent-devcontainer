@@ -109,16 +109,24 @@ Rejected:
 **Files:** Modify: `.devcontainer/scripts/claude-remote-control-start.sh`,
 `scripts/tests/test_claude_remote_control_start.py`
 
-- [ ] Replace the credential-file check with `claude auth status --json`; start
+- [x] Replace the credential-file check with `claude auth status --json`; start
   only when it exits 0 with `loggedIn: true` and `authMethod: "claude.ai"`,
   otherwise print the reason and exit 0. Check that `claude` and `tmux` exist
   before calling `claude`. Drop the `AGENTDEV_CLAUDE_AUTH_PATH` /
   `CLAUDE_SECURESTORAGE_CONFIG_DIR` path logic.
-- [ ] Tests drive a fake `claude` that prints a chosen status document: starts
+  - **Evidence:** commit "Gate Remote Control autostart on a live claude.ai
+    login" (`claude-remote-control-start.sh:16-32`); `shellcheck` clean; with
+    `CLAUDE_CONFIG_DIR` and `CLAUDE_SECURESTORAGE_CONFIG_DIR` on an empty
+    directory the script prints the not-logged-in skip and exits 0.
+- [x] Tests drive a fake `claude` that prints a chosen status document: starts
   on a claude.ai login; skips when autostart is unset, when `loggedIn` is false,
   when `authMethod` is not `claude.ai`, and when `claude auth status` fails;
   existing session reuse and `CLAUDE_CODE_OAUTH_TOKEN` removal still hold.
   `uv run pytest scripts/tests/test_claude_remote_control_start.py` passes.
+  - **Evidence:** commit "Gate Remote Control autostart on a live claude.ai
+    login": `uv run pytest scripts/tests/test_claude_remote_control_start.py` 10
+    passed, real-tmux cases included; 4 of them fail against the previous
+    credential-file gate.
 
 ### Task 3: Run pre-approval in every container, with an opt-out
 
@@ -312,15 +320,14 @@ Verified anchor points (line numbers as of 2026-10-09):
   `preapprove-claude-workspace.sh` call
 - `.devcontainer/scripts/postStartCommand.sh:25` —
   `claude-remote-control-start.sh` call
-- `.devcontainer/scripts/claude-remote-control-start.sh:8-12` — credential-file
-  gate
-- `.devcontainer/scripts/claude-remote-control-start.sh:30-31` — tmux start
+- `.devcontainer/scripts/claude-remote-control-start.sh:16-32` — login gate
+- `.devcontainer/scripts/claude-remote-control-start.sh:43-44` — tmux start
   without `CLAUDE_CODE_OAUTH_TOKEN`
 - `.devcontainer/scripts/preapprove-claude-workspace.sh:4,7,50` — spec comment,
   autostart gate, MCP comment
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:2` — spec comment
 - `.github/actions/run-claude-responder/action.yml:95-106` — lifecycle step env
-- `scripts/tests/test_claude_remote_control_start.py:21,60,71` —
+- `scripts/tests/test_claude_remote_control_start.py:32,69,88` —
   `run_with_fake_tmux`, start and skip tests
 - `scripts/tests/test_preapprove_claude_workspace.py:62,70` —
   `test_skips_without_autostart`, `test_post_create_runs_after_state_symlink`

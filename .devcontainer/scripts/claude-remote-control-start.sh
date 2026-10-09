@@ -5,18 +5,31 @@ if [[ "${AGENTDEV_CLAUDE_AUTOSTART:-}" != "1" ]]; then
   exit 0
 fi
 
-credential_file="${AGENTDEV_CLAUDE_AUTH_PATH:-${CLAUDE_SECURESTORAGE_CONFIG_DIR:-$HOME/.claude}/.credentials.json}"
-if [[ ! -s "$credential_file" ]]; then
-  echo "AGENTDEV_CLAUDE_AUTOSTART=1 but no Claude login file exists; skipping Remote Control."
-  exit 0
-fi
-
 for command in claude tmux; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "$command is not installed; skipping Claude Remote Control startup." >&2
     exit 0
   fi
 done
+
+# A setup token would mask the saved login and cannot run Remote Control.
+if ! auth_status="$(env -u CLAUDE_CODE_OAUTH_TOKEN claude auth status --json 2>/dev/null)"; then
+  echo "AGENTDEV_CLAUDE_AUTOSTART=1 but Claude is not logged in; skipping Remote Control."
+  exit 0
+fi
+if ! auth_method="$(python3 -c '
+import json, sys
+status = json.load(sys.stdin)
+print(status.get("authMethod") if status.get("loggedIn") is True else "none")
+' <<<"$auth_status" 2>/dev/null)"; then
+  echo "Could not parse 'claude auth status --json'; skipping Remote Control." >&2
+  exit 0
+fi
+if [[ "$auth_method" != "claude.ai" ]]; then
+  echo "AGENTDEV_CLAUDE_AUTOSTART=1 but no claude.ai login (auth method: $auth_method);" \
+    "skipping Remote Control."
+  exit 0
+fi
 
 session="claude-remote"
 workspace="${DEV_WORKSPACE_FOLDER:-$PWD}"
