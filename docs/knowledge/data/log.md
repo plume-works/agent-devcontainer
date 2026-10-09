@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-09
+
+- **Update**:
+  [Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
+  done. Devcontainer Codex runs with full access and no approval prompts, per
+  the new [Devcontainer Codex policy](spec/devcontainer-codex-policy.md) spec.
+
 ## 2026-10-08
 
 - **Update**:
@@ -16,6 +23,10 @@ to the current day's group.
 - **Update**:
   [Fail a review run that published no review](backlog/fail-review-run-without-review.md)
   task filed.
+- **Update**:
+  [Codex full access in the devcontainer](architecture/codex-full-access-in-devcontainer.md)
+  recorded; refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow
+  codebase maps for the `configure-codex.py` postStart step.
 
 ## 2026-10-07
 

@@ -2,8 +2,8 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-26T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-08T00:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -92,25 +92,26 @@ directory plus two root companions — one runtime unit; copying only
 `devcontainer.json` and `docker-compose.yml` leaves direct references
 unresolved:
 
-| Path                                                 | Responsibility                                                                                                   |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `.devcontainer/devcontainer.json`                    | Dev Container entry point, features, mounts, ports, editor configuration, and lifecycle commands.                |
-| `.devcontainer/docker-compose.yml`                   | Devcontainer service, MCP gateway, worktree mounts, and persistent Claude/Codex volumes.                         |
-| `.devcontainer/devcontainer-init.sh`                 | Generates host-specific Compose state and creates shared agent volumes before startup.                           |
-| `.devcontainer/devcontainer-lock.json`               | Locks the Docker-in-Docker and SSH feature digests.                                                              |
-| `.devcontainer/firewall-allowlist.txt`               | Project-owned allowlist read when the opt-in firewall starts.                                                    |
-| `.devcontainer/scripts/postCreateCommand.sh`         | Sets up persistent Claude and Codex auth state, syncs the uv environment, and installs the image-staged catalog. |
-| `.devcontainer/scripts/postStartCommand.sh`          | Starts the CBM daemon, sets git safe.directory, and starts pre-commit hooks, keyring, firewall, and Xpra.        |
-| `.devcontainer/scripts/postAttachCommand.sh`         | Configures git SSH signing, indexes CBM, syncs uv, and reinstalls the workspace catalog on each editor attach.   |
-| `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` into the out-of-tree environment on the `/uv` volume ([why](uv-environment-location.md)).         |
-| `.devcontainer/scripts/setup-pre-commit.sh`          | Trusts the checkout and installs pre-commit and pre-push hooks.                                                  |
-| `.devcontainer/scripts/setup-keyring.sh`             | Starts and persists the headless keyring used by authenticated tooling.                                          |
-| `.devcontainer/scripts/firewall.sh`                  | Activates the image-provided egress firewall when enabled.                                                       |
-| `.devcontainer/scripts/link-codex-auth.sh`           | Persists Codex's `auth.json` in the shared `agentdev-agents-auth` volume and symlinks it into place.             |
-| `.devcontainer/scripts/reinstall-agentdev-claude.sh` | Installs the staged Claude plugin and overrides it with a workspace marketplace when present.                    |
-| `.devcontainer/scripts/reinstall-agentdev-codex.sh`  | Performs the equivalent Codex marketplace/plugin installation.                                                   |
-| `devcontainer-compose-pins.yml`                      | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                  |
-| `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                                             |
+| Path                                                 | Responsibility                                                                                                                           |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `.devcontainer/devcontainer.json`                    | Dev Container entry point, features, mounts, ports, editor configuration, and lifecycle commands.                                        |
+| `.devcontainer/docker-compose.yml`                   | Devcontainer service, MCP gateway, worktree mounts, and persistent Claude/Codex volumes.                                                 |
+| `.devcontainer/devcontainer-init.sh`                 | Generates host-specific Compose state and creates shared agent volumes before startup.                                                   |
+| `.devcontainer/devcontainer-lock.json`               | Locks the Docker-in-Docker and SSH feature digests.                                                                                      |
+| `.devcontainer/firewall-allowlist.txt`               | Project-owned allowlist read when the opt-in firewall starts.                                                                            |
+| `.devcontainer/scripts/postCreateCommand.sh`         | Sets up persistent Claude and Codex auth state, syncs the uv environment, and installs the image-staged catalog.                         |
+| `.devcontainer/scripts/postStartCommand.sh`          | Starts the CBM daemon, sets git safe.directory, starts pre-commit hooks, keyring, firewall, and Xpra, and configures Codex.              |
+| `.devcontainer/scripts/postAttachCommand.sh`         | Configures git SSH signing, indexes CBM, syncs uv, and reinstalls the workspace catalog on each editor attach.                           |
+| `.devcontainer/scripts/uv-sync.sh`                   | Runs `uv sync` into the out-of-tree environment on the `/uv` volume ([why](uv-environment-location.md)).                                 |
+| `.devcontainer/scripts/setup-pre-commit.sh`          | Trusts the checkout and installs pre-commit and pre-push hooks.                                                                          |
+| `.devcontainer/scripts/setup-keyring.sh`             | Starts and persists the headless keyring used by authenticated tooling.                                                                  |
+| `.devcontainer/scripts/firewall.sh`                  | Activates the image-provided egress firewall when enabled.                                                                               |
+| `.devcontainer/scripts/link-codex-auth.sh`           | Persists Codex's `auth.json` in the shared `agentdev-agents-auth` volume and symlinks it into place.                                     |
+| `.devcontainer/scripts/configure-codex.py`           | Sets Codex's full-access sandbox and never-approve policy in `config.toml` on every start ([why](codex-full-access-in-devcontainer.md)). |
+| `.devcontainer/scripts/reinstall-agentdev-claude.sh` | Installs the staged Claude plugin and overrides it with a workspace marketplace when present.                                            |
+| `.devcontainer/scripts/reinstall-agentdev-codex.sh`  | Performs the equivalent Codex marketplace/plugin installation.                                                                           |
+| `devcontainer-compose-pins.yml`                      | Supplies the Renovate-managed tag-plus-digest image override referenced by `devcontainer.json`.                                          |
+| `.mcp.json`                                          | Points repository agents at the MCP gateway sidecar.                                                                                     |
 
 The default runtime intentionally retains all capabilities currently supplied
 here: Docker-in-Docker; Xpra and VirtualGL desktop access; the Docker Desktop
