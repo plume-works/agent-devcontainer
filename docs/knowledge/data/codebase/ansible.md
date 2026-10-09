@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:14997305e747c1d43e3d2a800307e2973e05a40a4c36fa1b07019efd115d1240
+source_digest: sha256:6b3f656e27b6283eca3ac77c5d2a533873ee72cdf45c738be75bec1bde9d1906
 verified:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
-stale_after: 2027-01-06
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
+stale_after: 2027-01-07
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
 sources:
 - id: code
   resource: ansible

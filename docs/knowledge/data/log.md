@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-09
 
+- **Update**: Refreshed nine codebase map documents for the merge of `main` into
+  the Codex catalog agent install and its `python3 -B` installer runs.
 - **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in
   CI and Renovate post-upgrade: eight docs re-verified.
 - **Update**: [Run Node tooling through bun instead of
