@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth seeding and symlinks, gh credential helper, Claude Remote Control, Codex policy.'
 source: .devcontainer/scripts
-source_digest: sha256:8d23e4bc1560e744354b2cbd695ea2c82f95f1c835aae2d6af20c6c6f7aea2a4
+source_digest: sha256:ce908dd34cb703808c443ef4e2d9c2b87cd4555b2a7f6cba5dc1bfe6684ee79d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
-stale_after: 2027-01-06
+  at: 2026-10-09T23:40:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
+  at: 2026-10-09T23:40:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -17,8 +17,8 @@ sources:
 
 # Devcontainer lifecycle scripts
 
-Twenty-two shell scripts, all `set -euo pipefail`, and one `uv run --script`
-Python script that the three lifecycle commands in
+Twenty-two shell scripts, all `set -euo pipefail`, and two `uv run --script`
+Python scripts that the three lifecycle commands in
 [devcontainer.json](../devcontainer.md) fan out to. Each resolves the workspace
 from `DEV_WORKSPACE_FOLDER` with a `BASH_SOURCE` fallback so it also runs
 outside the devcontainer.
@@ -34,6 +34,7 @@ outside the devcontainer.
 | `reinstall-agentdev-codex.sh [root]`                 | create, attach        | the Codex equivalent, single-plugin; Codex has no scopes                                                                                                    |
 | `reinstall-agentdev-opencode.sh [root]`              | create, attach        | point the `plugin` list of the user's `opencode.json` at `root`'s OpenCode bridge, replacing any earlier bridge entry                                       |
 | `codebase-memory-mcp-{install,start,index}.sh`       | create, start, attach | agent-config wiring, daemon start, repository index                                                                                                         |
+| `repair-codex-cbm-hooks-block.py`                    | CBM install           | move tables other than cbm's own hooks out of its `SessionStart` block in `${CODEX_HOME:-~/.codex}/config.toml`; no-op when nothing needs moving            |
 | `uv-sync.sh`                                         | create, attach        | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                                                                                 |
 | `link-codex-auth.sh`                                 | create, start         | symlink `~/.codex/auth.json` into the shared auth volume                                                                                                    |
 | `configure-codex.py`                                 | start (last)          | set top-level `sandbox_mode` and `approval_policy` in `${CODEX_HOME:-~/.codex}/config.toml`, atomically at `0600`                                           |
@@ -64,7 +65,8 @@ rewrites only the `plugin` array of
 `${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/opencode.json`,
 creating the file when absent, and exits quietly when `root` ships no
 `.opencode-plugin/`. CBM wiring temporarily materializes the `~/.claude.json`
-symlink because the installer rewrites the file.
+symlink because the installer rewrites the file, and first repairs Codex's
+`config.toml` so the installer's hooks preflight accepts it.
 
 Agent auth arrives as transfer files that `prepare-agent-auth-seed.sh` writes
 from `initializeCommand`; `seed-agent-auth.sh` runs at create and at every
@@ -82,7 +84,9 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 ## Invariants & gotchas
 
 - `CBM_CACHE_DIR` unset is a hard failure in every CBM script; a missing binary
-  is a soft skip.
+  is a soft skip. postCreate treats a failed CBM install as a warning and
+  continues. Bug:
+  [cbm-codex-hooks-block-foreign-tables](../../bugs/cbm-codex-hooks-block-foreign-tables.md).
 - `ENABLE_FIREWALL=true` with no `init-firewall.sh` in the image exits 1.
 - A CI `container:` job supplies none of `devcontainer.json`'s env or mounts;
   `ci-hooks-repro.sh` exists because that difference is invisible from inside a
@@ -101,13 +105,14 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
+Verified anchor points (line numbers as of 2026-10-09):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56-62` — `~/.claude.json` symlink
   into the volume
-- `.devcontainer/scripts/postCreateCommand.sh:72-73` — auth seeding and Claude
+- `.devcontainer/scripts/postCreateCommand.sh:67-68` — non-fatal CBM install
+- `.devcontainer/scripts/postCreateCommand.sh:74-75` — auth seeding and Claude
   pre-approval
-- `.devcontainer/scripts/postCreateCommand.sh:91-95` — staged-catalog install
+- `.devcontainer/scripts/postCreateCommand.sh:93-97` — staged-catalog install
 - `.devcontainer/scripts/postStartCommand.sh:9-34` — the start sequence
 - `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
@@ -116,6 +121,9 @@ Verified anchor points (line numbers as of 2026-10-08):
   rewrite
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:55-75` — symlink
   materialization and restore
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh:79` — hooks-block repair
+  ahead of the installer
+- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:47` — `repair`
 - `.devcontainer/scripts/uv-sync.sh:23-32` — managed-link removal and sync
 - `.devcontainer/scripts/seed-agent-auth.sh:6,25,50` — `seed_credential`, the
   per-target lock, the atomic install

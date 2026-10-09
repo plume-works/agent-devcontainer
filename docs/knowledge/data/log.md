@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-09
 
+- **Update**: [Codebase map](codebase.md) refreshed for the Codex hooks-block
+  repair ahead of the CBM install and the non-fatal CBM install in postCreate:
+  three docs re-verified. Bug: [Codex tables inside cbm hooks block break cbm
+  install](bugs/cbm-codex-hooks-block-foreign-tables.md).
 - **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in
   CI and Renovate post-upgrade: eight docs re-verified.
 - **Update**: [Run Node tooling through bun instead of
