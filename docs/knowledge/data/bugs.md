@@ -46,3 +46,5 @@ enforced by `.iwe/schemas/bug.yaml`.*
 [Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](bugs/codex-skill-dir-unresolved.md)
 
 [Codex never loads the agentdev catalog agents](bugs/codex-catalog-agents-not-loaded.md)
+
+[Bug: Ship's release-link rule is undefined for a plan with no feature or bug](bugs/ship-release-link-without-feature.md)
