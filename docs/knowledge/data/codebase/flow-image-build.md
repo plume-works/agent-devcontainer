@@ -55,7 +55,7 @@ running the image it produced.
    (`.github/workflows/renovate.yml`) opens and automerges one PR bumping the
    digest in `devcontainer-compose-pins.yml` and in every workflow container job
    that pins it; that PR runs the Renovate-config validation inside the new
-   image — `.github/renovate.json:39-47`
+   image — `.github/renovate.json:41-49`
 
 ## Failure modes
 
