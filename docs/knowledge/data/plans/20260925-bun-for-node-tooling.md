@@ -94,7 +94,7 @@ names `bun`/`bunx` as the only JavaScript runners and rules out `npm`, `npx`,
       # Renovate version: see architecture/renovate-config-validation.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.138.1 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.148.4 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 
