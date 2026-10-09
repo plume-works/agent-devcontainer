@@ -17,10 +17,15 @@ moves them.*
 
 ## Active
 
+[Agent-owned Ship and Implement
+workflows](plans/20261007-agent-owned-ship-implement.md)
+
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Install the catalog agents into Codex](plans/20261007-codex-catalog-agents.md)
 
 [Run Node tooling through bun instead of
 npm](plans/20260925-bun-for-node-tooling.md)

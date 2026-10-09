@@ -80,6 +80,16 @@
       - "{{ agentic_tools_plugin_name }}@{{ agentic_tools_install_codex_marketplace_name }}"
   changed_when: true
 
+# Codex reads agents only from its own agents/ directory, never from a plugin.
+# -B keeps __pycache__ out of the staged catalog the image ships.
+- name: Install the staged catalog agents for Codex
+  ansible.builtin.command:
+    argv:
+      - python3
+      - -B
+      - "{{ agentic_tools_catalog_root }}/.agents/plugins/{{ agentic_tools_plugin_name }}/bin/install-codex-agents.py"
+  changed_when: true
+
 - name: Register the staged OpenCode bridge plugin in the user's OpenCode config
   vars:
     agentic_tools_opencode_bridge: >-

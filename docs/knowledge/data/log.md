@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-09
 
+- **Update**: Refreshed nine codebase map documents for the merge of `main` into
+  the Codex catalog agent install and its `python3 -B` installer runs.
 - **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in
   CI and Renovate post-upgrade: eight docs re-verified.
 - **Update**: [Run Node tooling through bun instead of
@@ -35,6 +37,15 @@ to the current day's group.
   devcontainer](architecture/codex-full-access-in-devcontainer.md) recorded;
   refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow codebase
   maps for the `configure-codex.py` postStart step.
+- **Update**: [Install the catalog agents into
+  Codex](plans/20261007-codex-catalog-agents.md) done. Every Codex install now
+  writes the catalog agents as generated TOML agents; see [Catalog
+  lifecycle](spec/catalog-lifecycle.md).
+- **Update**: [Codex never loads the agentdev catalog
+  agents](bugs/codex-catalog-agents-not-loaded.md) fixed.
+- **Update**: Refreshed ten codebase map documents for the Codex catalog agent
+  install: the `bin` installer, its tests, the Codex reinstall script, and the
+  `agentic_tools` image-build step.
 
 ## 2026-10-07
 
