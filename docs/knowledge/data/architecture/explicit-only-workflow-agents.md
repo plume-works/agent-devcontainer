@@ -137,9 +137,7 @@ Report the marker your preloaded skill gives, or NONE if no skill content was pr
 ### Codex
 
 - **`disable-model-invocation` is ignored.** Asked to list its available skills,
-  Codex lists `gated`, and every gated catalog skill: `agentdev:iwe-ship`,
-  `agentdev:iwe-implement`, `agentdev:iwe-plan`, `agentdev:iwe-setup`, and
-  `agentdev:iwe-weekly`.
+  Codex lists `gated`, which carries only that key.
 
 - **`policy.allow_implicit_invocation: false` removes the skill from that list**
   while `$policy` still runs it explicitly and returns POLICY-MARKER-5530.

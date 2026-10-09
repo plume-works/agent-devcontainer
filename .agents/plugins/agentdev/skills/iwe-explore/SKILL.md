@@ -79,9 +79,9 @@ unknown. Use whichever moves help; this is a menu, not a checklist.
 If exploration starts because implementation exposed a complication, read the
 active plan and current task before investigating. Keep the same no-code
 boundary. Summarize any resulting decision, scope change, or newly discovered
-work and hand it back to the `/agentdev:iwe-implement` or `/agentdev:iwe-plan`
-skill that owns the written plan
-and its execution; do not silently change either from Explore.
+work, and point the user at the `/agentdev:iwe-implement` or
+`/agentdev:iwe-plan` skill that owns the written plan and its execution; never
+start either from Explore or silently change the plan.
 
 ## Capturing
 
