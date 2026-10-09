@@ -106,6 +106,8 @@ build_clone() {
   in_clone remote remove origin
   in_clone checkout -q -b e2e-fixture
 
+  cancel_active_plans
+
   local f="$here/fixtures"
   mkdir -p "$clone/bin" "$clone/e2e"
   cp "$f/bin/publish-e2e.sh" "$clone/bin/"
@@ -125,6 +127,25 @@ build_clone() {
   (cd "$clone" && iwe normalize && iwe schema validate)
   commit_fixture "e2e: open question"
   open_question="$(in_clone rev-parse HEAD)"
+}
+
+# Leaves the fixtures the clone's only active plans, whatever HEAD has in flight.
+cancel_active_plans() {
+  local data="$clone/docs/knowledge/data" key
+  awk '/^## /{ sect = $0 } sect == "## Active" && /^\[.*\]\(plans\/.*\.md\)$/ {
+      match($0, /\(plans\/[^)]*\)/); print substr($0, RSTART + 1, RLENGTH - 2) }' \
+    "$data/plans.md" >"$work/active.txt"
+  while IFS= read -r key; do
+    awk '!done && /^type: plan$/ { print; print "stage: cancelled"; print "status: deprecated"
+      done = 1; next } { print }' "$data/$key" >"$work/plan.md"
+    mv "$work/plan.md" "$data/$key"
+  done <"$work/active.txt"
+  awk '/^## /{ sect = $0 } sect == "## Active" && /^\[.*\]\(plans\/.*\.md\)$/ {
+      moved[++n] = $0; skip = 1; next }
+    skip && /^$/ { skip = 0; next } { skip = 0; print }
+    /^## Cancelled$/ { for (i = 1; i <= n; i++) print "\n" moved[i] }' \
+    "$data/plans.md" >"$work/plans.md"
+  mv "$work/plans.md" "$data/plans.md"
 }
 
 commit_fixture() {

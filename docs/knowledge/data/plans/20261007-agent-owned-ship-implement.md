@@ -329,11 +329,16 @@ plans, the publish script, and the OpenCode project config)
 
 **Files:** Modify: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`
 
-- [ ] Before `build_clone` adds the fixture plans, every plan linked under
+- [x] Before `build_clone` adds the fixture plans, every plan linked under
   `## Active` in the clone's `docs/knowledge/data/plans.md` gets
   `stage: cancelled` and its link moves to `## Cancelled`, so ship-all sees only
   the fixtures whatever `HEAD` has in flight. `iwe normalize` and
   `iwe schema validate` pass in the clone, and `shellcheck` passes.
+  - **Evidence:** committed with this tick; `cancel_active_plans` also sets
+    `status: deprecated`, which `SCHEMA.md` pairs with a cancelled plan.
+    `shellcheck` on `run.sh` is clean, and `build_clone` run alone from 5e9c119
+    left only the two fixtures under `## Active`, moved the five in-flight plans
+    to `## Cancelled`, and passed `iwe normalize` and `iwe schema validate`.
 
 ### Task 16: The isolated harness passes on Claude Code
 
