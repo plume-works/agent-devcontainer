@@ -11,6 +11,8 @@ sources:
 - resource: .github/workflows/validate-renovate-config.yml
 - resource: Makefile
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/modules/manager/pre-commit/extract.ts
+stage: done
+completed: 2026-10-09
 ---
 
 # Run Node tooling through bun instead of npm

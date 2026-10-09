@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-09
+
+- **Update**:
+  [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
+  done. Prettier and the Renovate config validator run as local `bunx` hooks,
+  the Renovate version lives in the validator's `bunx` pin under a regex
+  manager, and `AGENTS.md` names `bun`/`bunx` as the only JavaScript runners.
+
 ## 2026-10-08
 
 - **Update**:
