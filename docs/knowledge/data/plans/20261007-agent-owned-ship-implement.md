@@ -316,8 +316,12 @@ plans, the publish script, and the OpenCode project config)
 
 ### Task 14: The harness passes on OpenCode
 
-- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
   OpenCode check with a model the maintainer uses.
+  - **Evidence:**
+    `run.sh --harness opencode --opencode-model openai/gpt-6-astra` at fce66a6
+    on OpenCode 1.18.34, with the maintainer's Codex login: all 22 checks
+    passed.
 
 ## Spec changes
 
