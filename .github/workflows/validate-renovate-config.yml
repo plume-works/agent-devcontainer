@@ -56,7 +56,7 @@ jobs:
     # The same digest as devcontainer-compose-pins.yml, so a digest bump runs this
     # required check inside the new image. See spec/image-pinning.
     container:
-      image: ghcr.io/plume-works/agent-desktop:edge@sha256:3925687c9fd9255411e16736557900184ea4e7cf03e3f93c871d07c261c6947e
+      image: ghcr.io/plume-works/agent-desktop:edge@sha256:bbbbcff7f97413727fc52447e6d5662eabd2391f511169750c4b5a071dfc4a65
     timeout-minutes: 15
     steps:
       - name: Checkout repository
@@ -64,12 +64,12 @@ jobs:
         with:
           persist-credentials: false
 
-      # The hook's rev is the Renovate release the bot runs, and --no-global is
+      # The hook's bunx pin is the Renovate release the bot runs, and --no-global is
       # load-bearing: see architecture/renovate-config-validation.
       - name: Validate .github/renovate.json
         run: |
-          rev=$(grep -A1 -F 'repo: https://github.com/renovatebot/pre-commit-hooks' \
-            .pre-commit-config.yaml | sed -n 's/^ *rev: *//p')
+          rev=$(sed -nE 's/.*bunx --package renovate@([0-9][^ ]*) .*/\1/p' \
+            .pre-commit-config.yaml | head -n 1)
           [[ "$rev" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "unexpected rev: '$rev'" >&2; exit 1; }
           bunx --package "renovate@${rev}" renovate-config-validator \
             --no-global --strict .github/renovate.json

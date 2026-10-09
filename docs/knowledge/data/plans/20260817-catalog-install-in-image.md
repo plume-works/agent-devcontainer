@@ -27,9 +27,9 @@ improvises instead of failing.
 This was first raised as a prerequisite for the AI responder workflow and then
 withdrawn from it. That plan's responder checks out the branch and runs the
 lifecycle hooks, which is both sufficient and better for its purpose — it gets
-the branch's own catalog. See
-[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md)
-for that reasoning.
+the branch's own catalog. See [CI agent plugin
+availability](../architecture/ci-agent-plugin-availability.md) for that
+reasoning.
 
 So this work is no longer on any consumer's critical path. It closes a real gap
 for raw-image consumers, but nothing currently blocked depends on it.
@@ -330,10 +330,9 @@ the credentials-only sharing — are unaffected and unchanged.
 
 ## Depends on
 
-None. Deliberately independent of
-[AI responder workflows](20260816-ai-responder-workflows.md): that plan was
-revised to use the checkout instead, so neither blocks the other and they touch
-no common files.
+None. Deliberately independent of [AI responder
+workflows](20260816-ai-responder-workflows.md): that plan was revised to use the
+checkout instead, so neither blocks the other and they touch no common files.
 
 ## Verification
 

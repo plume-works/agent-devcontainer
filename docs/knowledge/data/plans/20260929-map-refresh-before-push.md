@@ -182,7 +182,7 @@ reports stale after Tasks 1–4
   - **Evidence:** PR #234 at head `70aa430`: 30 checks passed, 4 skipped, none
     failed — `Agent files validation` run 36997167743,
     `Knowledge base validation` run 36997167856, and `Primary checks` run
-    36997167915.
+    36997167915\.
 
 ## Spec changes
 

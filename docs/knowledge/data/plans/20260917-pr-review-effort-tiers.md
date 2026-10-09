@@ -256,8 +256,8 @@ latest release.
     skill. Step 4's pass list now derives its counts from the matrix instead of
     a fixed `2x`/`2x`. Commit "Hold findings validation at the light model"
     moved the validation slot to `light` at both tiers and rewrote the one-line
-    rule to match; the rationale is in
-    [PR review effort tiers](../architecture/pr-review-effort-tiers.md).
+    rule to match; the rationale is in [PR review effort
+    tiers](../architecture/pr-review-effort-tiers.md).
 
 - [x] Replace the prose model advice at Step 4 with a model argument on every
   dispatch at Steps 4 and 6, so the size named in the matrix is the size that
@@ -510,9 +510,9 @@ check or the durable-knowledge pass, which run at both tiers.
 - Letting a pull request merge without an AI review when out of quota. The
   `ai-review-present` gate stays as it is: merging an unreviewed pull request is
   an administrator override through ruleset bypass, which is a permission GitHub
-  audits. An author-controlled waiver was rejected in
-  [AI review gate was self-waivable from the PR body](../bugs/ai-review-gate-self-waivable.md)
-  and is not reopened here.
+  audits. An author-controlled waiver was rejected in [AI review gate was
+  self-waivable from the PR body](../bugs/ai-review-gate-self-waivable.md) and
+  is not reopened here.
 - Changing `[ci:skip-ai-review]`, the Step 1 mechanical fast-approve, or the
   docs-only exclusion from it.
 - Batching full-effort validation, which keeps one dispatch per candidate. The

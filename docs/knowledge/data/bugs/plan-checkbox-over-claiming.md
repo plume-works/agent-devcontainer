@@ -79,10 +79,10 @@ calls the unchecked-but-done box "a nuisance" and the checked-but-not-done box
 gate before ship, the most dangerous claim in the document is the one nothing
 tests.
 
-The consequence reaches further than this incident: the proposed
-[Verification in the main loop](../features/verification-in-the-main-loop.md)
-would make ship invoke verify and refuse on CRITICAL — and would still not have
-caught this, because verify has no CRITICAL to raise about a ticked box.
+The consequence reaches further than this incident: the proposed [Verification
+in the main loop](../features/verification-in-the-main-loop.md) would make ship
+invoke verify and refuse on CRITICAL — and would still not have caught this,
+because verify has no CRITICAL to raise about a ticked box.
 
 ## Fix
 
@@ -90,8 +90,8 @@ Not yet fixed. `48d0f79` corrected the instance — Task 8 split into a local
 check and a CI run, the CI half unticked, the log entry restated — but left both
 root causes in place. The next occurrence has nothing new standing in its way.
 
-Planned in
-[Make plan checkboxes carry their evidence](../plans/20260815-honest-plan-checkboxes.md).
+Planned in [Make plan checkboxes carry their
+evidence](../plans/20260815-honest-plan-checkboxes.md).
 
 ## Key references
 

@@ -21,9 +21,9 @@ completed: 2026-09-03
 
 [Issue #95](https://github.com/plume-works/agent-devcontainer/issues/95) asks
 for a review flow without race conditions, ready for an autonomous merge path.
-The shipped flow
-([AI responder workflows](../features/ai-responder-workflows.md)) is two
-workflows coupled only by polling, and the coupling fails in both directions:
+The shipped flow ([AI responder
+workflows](../features/ai-responder-workflows.md)) is two workflows coupled only
+by polling, and the coupling fails in both directions:
 
 - **The gate cannot observe the review it waits for.** The responder posts its
   review with `GITHUB_TOKEN`, and GitHub creates no workflow run for events that
@@ -38,8 +38,8 @@ workflows coupled only by polling, and the coupling fails in both directions:
   the PR head, so a PR that changes the responder is reviewed by the old
   plumbing.
 
-The gate's acceptance policy is kept: any prior accepted review is enough
-([AI review gate](../spec/ai-review-gate.md)), and Codex web reviews must keep
+The gate's acceptance policy is kept: any prior accepted review is enough ([AI
+review gate](../spec/ai-review-gate.md)), and Codex web reviews must keep
 satisfying it.
 
 ## Approach
@@ -471,8 +471,8 @@ requirement for comment mentions.
   `needs:` coupling.
 - **Reviewing every commit.** The acceptance policy stays as specified.
 - **Simplifying the `pr-*` skills** that compensate for comment runs being
-  invisible on the head SHA. Filed as
-  [Simplify the pr-* skills for the single review workflow](../backlog/simplify-pr-skills-single-review-workflow.md).
+  invisible on the head SHA. Filed as [Simplify the pr-* skills for the single
+  review workflow](../backlog/simplify-pr-skills-single-review-workflow.md).
 - **Posting reviews under the Claude App identity.** Attribution is unchanged.
 - **Loosening or tightening the acceptance rule** (the `+1` reaction and
   `commented` state stay accepted).

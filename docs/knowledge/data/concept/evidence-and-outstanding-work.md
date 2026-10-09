@@ -26,8 +26,8 @@ falsifiable later or never, and transfers work to whoever is reading.
 Putting both under one heading — `## How to Test`, `## Verification` — forces
 the reader to re-derive the distinction line by line, from tense and mood alone.
 They will get it wrong, and the failure is asymmetric: outstanding work read as
-evidence is silently dropped, which is exactly the shape of
-[plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md).
+evidence is silently dropped, which is exactly the shape of [plan checkbox
+over-claiming](../bugs/plan-checkbox-over-claiming.md).
 
 The same rule constrains the status a document may claim for itself. Evidence
 means a command that ran and a result that was read in this session: code being
@@ -86,5 +86,5 @@ a reader's attention.
   document written without that knowledge will either duplicate or omit wrongly,
   and omitting wrongly is the more dangerous error.
 
-Applied to pull request bodies by
-[PR verification sections](../architecture/pr-verification-sections.md).
+Applied to pull request bodies by [PR verification
+sections](../architecture/pr-verification-sections.md).

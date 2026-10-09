@@ -17,8 +17,8 @@ semantics. Analysed, never implemented: no Codex package, hook adapter, reviewer
 invocation, authorization flow, mutation, or smoke check exists.
 
 This is why `self-improve` ships no Codex manifest, and why the two marketplaces
-publish different plugin sets — recorded in
-[Self-improve consolidation](../architecture/self-improve-consolidation.md).
+publish different plugin sets — recorded in [Self-improve
+consolidation](../architecture/self-improve-consolidation.md).
 
 ## Why it is not just a second manifest
 

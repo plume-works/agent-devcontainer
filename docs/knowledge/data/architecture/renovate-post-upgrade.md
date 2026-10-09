@@ -2,12 +2,13 @@
 type: architecture
 description: How the self-hosted Renovate's one post-upgrade task produces the checksums, lock file, and pre-commit output a bump implies, and the constraints that keep its output in Renovate's commit.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-27T21:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-09T14:00:00Z
 sources:
 - resource: .github/renovate.json
 - resource: scripts/renovate-post-upgrade.sh
 - resource: scripts/refresh-pin-checksums.py
+- resource: scripts/fetch-pinned-tool.py
 - resource: .github/workflows/reformat.yml
 - resource: https://github.com/renovatebot/renovate/blob/main/lib/workers/repository/update/branch/execute-post-upgrade-commands.ts
   title: Post-upgrade output is kept only where its path matches fileFilters
@@ -31,7 +32,13 @@ derives the bump from `git diff HEAD` in Renovate's clone and, in order:
    or a pin whose version is unchanged hashes differently;
 2. regenerates `.devcontainer/devcontainer-lock.json` with the devcontainer CLI
    when `devcontainer.json` changed;
-3. runs pre-commit on every changed file, accepting a first pass that only
+3. when the `dev_tools` pins changed, fetches the pinned `iwe` with
+   `scripts/fetch-pinned-tool.py`, which verifies the archive against its
+   recorded checksum, puts it first on `PATH`, and runs `iwe normalize`. The
+   image the task runs in still carries the previous `iwe`, so a release that
+   migrates `.iwe/config.toml` or reformats the graph is applied by the version
+   being pinned, and the pre-commit `iwe` hooks after it run at that version;
+4. runs pre-commit on every changed file, accepting a first pass that only
    rewrites files and failing on a hook that still fails on the second. The runs
    skip `no-commit-to-branch`, because Renovate's clone is still on the base
    branch and that guard is for commits (see spec/git-new-branch).
@@ -67,9 +74,9 @@ what makes the hook work.
 ## CI never commits to a Renovate branch
 
 Renovate stops updating a branch that carries a commit it did not author, so the
-formatting a bump implies must arrive in Renovate's own commit, through step 3
-above. `reformat.yml` still runs Super-Linter on a pull request opened by a
-Renovate bot, but its commit job does not push the fixes; the reformat gate
+formatting a bump implies must arrive in Renovate's own commit, through steps 3
+and 4 above. `reformat.yml` still runs Super-Linter on a pull request opened by
+a Renovate bot, but its commit job does not push the fixes; the reformat gate
 fails instead, exposing whatever the post-upgrade pre-commit pass missed. The
 Renovate bot logins are listed in the commit job's `RENOVATE_BOT_ACTORS`.
 

@@ -70,8 +70,8 @@ zero-CRITICAL report both support.
   at their canonical levels rather than being absorbed into the plan's own
   hierarchy.
 - **`REMOVED` is specified but still tracked for an end-to-end worked
-  instance.** No plan has retired a requirement yet. Tracked as
-  [Exercise REMOVED delta blocks end to end](../backlog/exercise-removed-delta-blocks.md).
+  instance.** No plan has retired a requirement yet. Tracked as [Exercise
+  REMOVED delta blocks end to end](../backlog/exercise-removed-delta-blocks.md).
 
 ## Open questions
 
@@ -84,9 +84,9 @@ None — every design question this feature raised is settled.
 - No separate change bundle, store, delta-spec document, or archive move. The
   delta lives inside the one plan document; a second lifecycle would duplicate
   the plan's own.
-- Determinism is not claimed. Earlier work
-  ([Strengthen the workflow skill contracts](../plans/20260815-strengthen-workflow-skill-contracts.md))
-  rejected OpenSpec's delta machinery wholesale; this separates the two ideas it
-  had grouped — the notation is adopted, the application engine is not.
+- Determinism is not claimed. Earlier work ([Strengthen the workflow skill
+  contracts](../plans/20260815-strengthen-workflow-skill-contracts.md)) rejected
+  OpenSpec's delta machinery wholesale; this separates the two ideas it had
+  grouped — the notation is adopted, the application engine is not.
 - A stale delta is never silently reconciled from the implementation. That would
   erase the reviewed contract, so a material mismatch returns to Plan revision.

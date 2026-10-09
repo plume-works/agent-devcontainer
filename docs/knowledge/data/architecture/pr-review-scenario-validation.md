@@ -14,8 +14,8 @@ sources:
 ## Decision
 
 The maintainer ships the reachable-scenario correctness bar in `pr-review`,
-settling the open validator question in
-[PR review correctness bar](pr-review-correctness-bar.md):
+settling the open validator question in [PR review correctness
+bar](pr-review-correctness-bar.md):
 
 - **Reach beyond the diff.** Correctness passes read, at the head commit, the
   code the changed lines call, the code that calls them, and the code that runs
@@ -35,8 +35,8 @@ settling the open validator question in
   and a guarantee the PR description promises that the code breaks counts toward
   the outcome. The validator prompt says where to read the description.
 
-The validator stays on the `light` model, per
-[PR review effort tiers](pr-review-effort-tiers.md).
+The validator stays on the `light` model, per [PR review effort
+tiers](pr-review-effort-tiers.md).
 
 ## What holds
 
@@ -74,5 +74,5 @@ the scenario candidates that bar produces.
 **Hold the change until the negative controls pass.** The light validator does
 not test each part as written under either prompt form, with or without the
 claim. The maintainer ships on the full replays' recall and noise result;
-validating correctness candidates on the `large` model stays
-[a someday idea](../someday/pr-review-large-validator.md).
+validating correctness candidates on the `large` model stays [a someday
+idea](../someday/pr-review-large-validator.md).

@@ -31,12 +31,12 @@ unchecked boxes while taking ticked ones on faith, inverting the severity
 both have since moved, and Task 1 closes the first of them. `## Key references`
 carries the current lines.)
 
-This also unblocks
-[Verification in the main loop](../features/verification-in-the-main-loop.md):
-making ship invoke verify only helps if verify has something to say about a
-ticked box. That feature reached `stage: implemented` on 2026-08-15, before this
-plan started, so what it inherits is no longer hypothetical: until Task 1 lands,
-the mandatory pre-ship gate is silent about the claim it most depends on.
+This also unblocks [Verification in the main
+loop](../features/verification-in-the-main-loop.md): making ship invoke verify
+only helps if verify has something to say about a ticked box. That feature
+reached `stage: implemented` on 2026-08-15, before this plan started, so what it
+inherits is no longer hypothetical: until Task 1 lands, the mandatory pre-ship
+gate is silent about the claim it most depends on.
 
 ## Approach
 
@@ -295,16 +295,16 @@ Recorded 2026-08-16 while implementing, at `017876a` plus the working tree.
 
 ## Out of scope
 
-- Making ship invoke verify — that is
-  [Verification in the main loop](../features/verification-in-the-main-loop.md),
-  which reached `stage: implemented` on 2026-08-15, after this plan was written.
-  This plan only removes the reason it would have been toothless; Task 9 records
-  that limit in the feature doc without touching its lifecycle.
+- Making ship invoke verify — that is [Verification in the main
+  loop](../features/verification-in-the-main-loop.md), which reached
+  `stage: implemented` on 2026-08-15, after this plan was written. This plan
+  only removes the reason it would have been toothless; Task 9 records that
+  limit in the feature doc without touching its lifecycle.
 - Backfilling evidence lines into `stage: done` plans. The four closed plans
-  stay as written. The two other live plans
-  ([PR verification sections](20260815-pr-verification-sections.md),
-  [structured spec deltas](20260816-structured-plan-spec-deltas.md)) have no
-  ticked task, so nothing needs migrating — checked 2026-08-16.
+  stay as written. The two other live plans ([PR verification
+  sections](20260815-pr-verification-sections.md), [structured spec
+  deltas](20260816-structured-plan-spec-deltas.md)) have no ticked task, so
+  nothing needs migrating — checked 2026-08-16.
 - Checking whether an evidence claim is *true*. The gate reads shape. Judging
   the claim is verify's job, and a human's.
 - The `agentdev` catalog skills under `.agents/plugins/agentdev/skills/` — they
@@ -313,10 +313,10 @@ Recorded 2026-08-16 while implementing, at `017876a` plus the working tree.
 ## Key references
 
 Verified anchor points (line numbers as of 2026-08-16, at `1d3021f`; the
-2026-08-15 numbers were taken at `8ca1eff`, before the
-[workflow skill contracts](20260815-strengthen-workflow-skill-contracts.md) and
-[handoff routes](20260816-skill-handoff-routes.md) plans shipped into the same
-four files):
+2026-08-15 numbers were taken at `8ca1eff`, before the [workflow skill
+contracts](20260815-strengthen-workflow-skill-contracts.md) and [handoff
+routes](20260816-skill-handoff-routes.md) plans shipped into the same four
+files):
 
 - `.claude/skills/verify/SKILL.md:25-31` — the unchecked-box CRITICAL and its
   three routes, with no ticked-box counterpart

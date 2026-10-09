@@ -60,9 +60,10 @@ dependency.
   since a self-improvement plugin does not own Claude's behavior on unrelated
   turns.
 - **Defer** support-file mutation. Current staging permits `SKILL.md` but not
-  package subfiles or atomic two-file link updates, which is the same gap
-  [the unstageable routing option](../bugs/self-improve-unstageable-routing-option.md)
-  records; the false capability should leave shipped guidance either way.
+  package subfiles or atomic two-file link updates, which is the same gap [the
+  unstageable routing
+  option](../bugs/self-improve-unstageable-routing-option.md) records; the false
+  capability should leave shipped guidance either way.
 
 ## What acceptance would require
 

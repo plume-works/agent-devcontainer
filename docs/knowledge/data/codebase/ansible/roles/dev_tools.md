@@ -54,9 +54,9 @@ the apt list is what extracts it.
 - `cmake` in the apt list resolves from the Kitware repository that
   [cmake_kitware](../../ansible.md) adds before this role runs, and `git` and
   `git-lfs` from the git-core PPA this role adds.
-- The `iwe` version here must match `IWE_VERSION` in
-  `.github/workflows/validate-knowledge-base.yml:19`, which installs the same
-  release on the runner.
+- The `iwe` entry is also the knowledge-base CI's and Renovate post-upgrade
+  task's `iwe`: both install it from this pin through
+  `scripts/fetch-pinned-tool.py`.
 - `bun` takes the amd64 `-baseline` asset, which runs without AVX2. The plain
   `x64` build is faster but faults on a host that lacks it, and the image
   targets unknown hardware.

@@ -19,11 +19,13 @@ starts a fresh one.*
 
 ## Added
 
-[Renovate maintains checksum-carrying pins](../features/renovate-maintains-checksums.md)
+[Renovate maintains checksum-carrying
+pins](../features/renovate-maintains-checksums.md)
 
 [git-new-branch](../features/git-new-branch.md)
 
-[Self-improve plugin in the catalog](../features/self-improve-plugin-in-catalog.md)
+[Self-improve plugin in the
+catalog](../features/self-improve-plugin-in-catalog.md)
 
 [Fresh codebase map on push](../features/fresh-map-on-push.md)
 
@@ -39,8 +41,14 @@ starts a fresh one.*
 
 ## Fixed
 
-[Codex never loads the agentdev catalog agents](../bugs/codex-catalog-agents-not-loaded.md)
+[Codex never loads the agentdev catalog
+agents](../bugs/codex-catalog-agents-not-loaded.md)
 
-[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](../bugs/codex-skill-dir-unresolved.md)
+[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev
+skills](../bugs/codex-skill-dir-unresolved.md)
 
-[Fixture git inherits the outer commit's index](../bugs/fixture-git-inherits-commit-index.md)
+[Fixture git inherits the outer commit's
+index](../bugs/fixture-git-inherits-commit-index.md)
+
+[The review orchestrator ends its turn while its passes are still
+running](../bugs/review-orchestrator-ends-turn-while-passes-run.md)

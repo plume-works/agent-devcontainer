@@ -29,3 +29,6 @@ fi
 # Repairs the shared auth.json symlink if a `codex logout` during this container's
 # previous run destroyed it; see link-codex-auth.sh for why that can happen.
 "$script_dir/link-codex-auth.sh"
+
+# Last, so a failure here cannot keep the firewall, keyring, or Xpra from starting.
+"$script_dir/configure-codex.py"

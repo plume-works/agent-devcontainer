@@ -19,14 +19,14 @@ completed: 2026-10-08
 ## Context
 
 Codex never loads the catalog's `agents/<stem>.agent.md` files, so no skill step
-that dispatches a catalog agent can run there — see
-[Codex never loads the agentdev catalog agents](../bugs/codex-catalog-agents-not-loaded.md).
-Codex reads custom agents only as TOML from `.codex/agents/` or
-`~/.codex/agents/`, and its plugin manifest has no field that carries them.
+that dispatches a catalog agent can run there — see [Codex never loads the
+agentdev catalog agents](../bugs/codex-catalog-agents-not-loaded.md). Codex
+reads custom agents only as TOML from `.codex/agents/` or `~/.codex/agents/`,
+and its plugin manifest has no field that carries them.
 
-[Agent-owned Ship and Implement workflows](20261007-agent-owned-ship-implement.md)
-depend on this: their coordinators dispatch catalog agents, which must exist on
-all three harnesses.
+[Agent-owned Ship and Implement
+workflows](20261007-agent-owned-ship-implement.md) depend on this: their
+coordinators dispatch catalog agents, which must exist on all three harnesses.
 
 ## Approach
 

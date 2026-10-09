@@ -30,9 +30,9 @@ running the image it produced.
    first and `ci` follows only when its gate says `run_downstream` —
    `.github/workflows/primary-checks.yml:52`, in
    [workflows](github/workflows.md)
-2. `ci.yml`'s `paths-filter` job applies the `image` filter from
-   [the paths-filter action](github/actions.md); nothing matched means every
-   later job is skipped — `.github/workflows/ci.yml:34`
+2. `ci.yml`'s `paths-filter` job applies the `image` filter from [the
+   paths-filter action](github/actions.md); nothing matched means every later
+   job is skipped — `.github/workflows/ci.yml:34`
 3. `build-dev-image` runs once per architecture; `Set base image refs` reuses
    the published `edge` image as the Ansible base unless the run is on `main`, a
    tag, a merge group, or a `[ci:clean_build]` commit —
@@ -55,7 +55,7 @@ running the image it produced.
    (`.github/workflows/renovate.yml`) opens and automerges one PR bumping the
    digest in `devcontainer-compose-pins.yml` and in every workflow container job
    that pins it; that PR runs the Renovate-config validation inside the new
-   image — `.github/renovate.json:39-47`
+   image — `.github/renovate.json:41-49`
 
 ## Failure modes
 

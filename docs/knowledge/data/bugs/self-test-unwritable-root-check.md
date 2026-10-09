@@ -59,9 +59,9 @@ the refusal through something privilege does not bypass — a read-only mount, o
 an unwritable path on a filesystem mounted `ro` — would restore it, and is the
 better fix whenever the coverage is wanted back.
 
-No plugin behavior changed:
-[Consolidate the self-improve plugin into this repository](../plans/20260909-consolidate-self-improve-plugin.md)
-moves the code and does not modify it.
+No plugin behavior changed: [Consolidate the self-improve plugin into this
+repository](../plans/20260909-consolidate-self-improve-plugin.md) moves the code
+and does not modify it.
 
 ## Key references
 

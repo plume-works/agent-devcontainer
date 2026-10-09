@@ -31,8 +31,8 @@ it from its own directory alone.
 ## Public surface
 
 - `validate_agent_files` console script → `__main__:main` → `main.main()`; the
-  CLI contract is
-  [the validator CLI interface](../api-validate-agent-files-cli.md)
+  CLI contract is [the validator CLI
+  interface](../api-validate-agent-files-cli.md)
 - `validate_agent_files.__init__` exports `CustomizationsValidationEngine`,
   `ValidationEngine`, `ValidationIssue`, `ValidationLevel`, `ValidationResult`,
   `skills_ref_validate`

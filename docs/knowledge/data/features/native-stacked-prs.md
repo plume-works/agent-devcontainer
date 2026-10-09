@@ -43,9 +43,9 @@ with `gh stack push`, `pr-feedback-resolution` resolves a conflicted stacked PR
 with `gh stack rebase`, and `update-branch` refuses them. `AGENTS.md` allows a
 force-push only as `gh stack`'s `--force-with-lease` update of a stack branch.
 
-The contracts are [Stacked PRs](../spec/stacked-prs.md) and
-[PR merge conflicts](../spec/pr-merge-conflicts.md); the GitHub behavior they
-rest on is [Stacked pull requests](../architecture/stacked-prs.md).
+The contracts are [Stacked PRs](../spec/stacked-prs.md) and [PR merge
+conflicts](../spec/pr-merge-conflicts.md); the GitHub behavior they rest on is
+[Stacked pull requests](../architecture/stacked-prs.md).
 
 ## Edge cases
 
@@ -63,10 +63,10 @@ rest on is [Stacked pull requests](../architecture/stacked-prs.md).
 ## Open questions
 
 None — GitHub refuses auto-merge on a stacked PR and does not support cross-fork
-stacks, both recorded in
-[Stacked pull requests](../architecture/stacked-prs.md).
+stacks, both recorded in [Stacked pull
+requests](../architecture/stacked-prs.md).
 
 ## References
 
-- Plan:
-  [Adopt GitHub native stacked pull requests](../plans/20261002-native-stacked-prs.md)
+- Plan: [Adopt GitHub native stacked pull
+  requests](../plans/20261002-native-stacked-prs.md)

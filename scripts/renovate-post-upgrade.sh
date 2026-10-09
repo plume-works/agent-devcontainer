@@ -27,6 +27,17 @@ if printf '%s\n' "${changed[@]}" | grep -qx '.devcontainer/devcontainer.json'; t
     devcontainer upgrade --workspace-folder .
 fi
 
+# The image carries the old iwe; the pinned one migrates .iwe/ and serves the hooks below.
+if printf '%s\n' "${changed[@]}" | grep -qx 'ansible/roles/dev_tools/defaults/main.yml'; then
+  mkdir -p ./.tmp
+  iwe_dir="$(mktemp -d ./.tmp/renovate-iwe.XXXXXX)"
+  trap 'rm -rf "${iwe_dir}"' EXIT
+  uv run --frozen scripts/fetch-pinned-tool.py iwe "${iwe_dir}" > /dev/null
+  PATH="$(realpath "${iwe_dir}"):${PATH}"
+  export PATH
+  iwe normalize
+fi
+
 # pre-commit through uv, not the image's apt copy: see architecture/renovate-post-upgrade.
 # Post-upgrade runs on the base branch; the guard is for commits: see spec/git-new-branch.
 export SKIP="${SKIP:+${SKIP},}no-commit-to-branch"

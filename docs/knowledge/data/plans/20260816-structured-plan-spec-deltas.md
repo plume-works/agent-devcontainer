@@ -30,14 +30,14 @@ after Verify passes. A new spec represented by a back-ticked future key is
 therefore described as valid planning state by Plan and as a pre-ship CRITICAL
 by Verify.
 
-The earlier
-[Strengthen the workflow skill contracts](20260815-strengthen-workflow-skill-contracts.md)
-plan deliberately rejected OpenSpec delta machinery to preserve IWE's graph,
-single-plan-document workflow, and agent-driven spec merge. The subsequent
-exploration separated two ideas that decision had grouped together: OpenSpec's
-change bundles and programmatic patch engine remain unnecessary, but a
-risk-scaled behavioral delta inside the existing plan can make intent reviewable
-before implementation and give Verify a coherent pre-ship contract.
+The earlier [Strengthen the workflow skill
+contracts](20260815-strengthen-workflow-skill-contracts.md) plan deliberately
+rejected OpenSpec delta machinery to preserve IWE's graph, single-plan-document
+workflow, and agent-driven spec merge. The subsequent exploration separated two
+ideas that decision had grouped together: OpenSpec's change bundles and
+programmatic patch engine remain unnecessary, but a risk-scaled behavioral delta
+inside the existing plan can make intent reviewable before implementation and
+give Verify a coherent pre-ship contract.
 
 This plan adopts only that representation. It does not make spec application
 deterministic: Ship still performs an intelligent merge from a zero-CRITICAL
@@ -418,9 +418,10 @@ application engine.
 — it changes Plan, Implement, Verify, and the operating manual, so this plan
 must re-anchor and preserve its evidence contract rather than editing across it.
 
-[Name the missing handoff routes in explore and verify](20260816-skill-handoff-routes.md)
-— it changes Verify's unchecked-task routing and must land before this plan
-rewrites the surrounding pre-ship contract.
+[Name the missing handoff routes in explore and
+verify](20260816-skill-handoff-routes.md) — it changes Verify's unchecked-task
+routing and must land before this plan rewrites the surrounding pre-ship
+contract.
 
 ## Verification
 
@@ -494,10 +495,9 @@ rather than restating it:
 - Editing or deleting the untracked `.agents/skills/` runtime copies currently
   present in this working tree. While this plan was active the tracked workspace
   source was `.claude/skills/`; that boundary held only for this plan's
-  lifetime, and
-  [Move the IWE workflow skills into the agentdev plugin](20260816-move-iwe-skills-to-agentdev.md)
-  superseded it by relocating the seven skills to
-  `.agents/plugins/agentdev/skills/iwe-*/`.
+  lifetime, and [Move the IWE workflow skills into the agentdev
+  plugin](20260816-move-iwe-skills-to-agentdev.md) superseded it by relocating
+  the seven skills to `.agents/plugins/agentdev/skills/iwe-*/`.
 
 ## Key references
 

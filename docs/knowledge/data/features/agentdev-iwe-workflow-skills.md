@@ -68,7 +68,7 @@ None — every design question this feature raised is settled.
 
 ## References
 
-- Plan:
-  [Move the IWE workflow skills into the agentdev plugin](../plans/20260816-move-iwe-skills-to-agentdev.md)
-- Specs: [Template consumption](../spec/template-consumption.md) and
-  [IWE workflow skills](../spec/iwe-workflow-skills.md)
+- Plan: [Move the IWE workflow skills into the agentdev
+  plugin](../plans/20260816-move-iwe-skills-to-agentdev.md)
+- Specs: [Template consumption](../spec/template-consumption.md) and [IWE
+  workflow skills](../spec/iwe-workflow-skills.md)

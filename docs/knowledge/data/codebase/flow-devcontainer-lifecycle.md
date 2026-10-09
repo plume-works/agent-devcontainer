@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:629fc19ec63e95b64f01202802cec51d7dec6de66bffce2ebdf87dab52ba000d
+source_digest: sha256:3d005bfb85414dd2d3829df3e80e19fd3db39ed4d50acdeb49eece8b20808a54
 verified:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-08T00:00:00Z
 stale_after: 2027-01-06
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-08T00:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -40,13 +40,14 @@ state.
    transfer directory, Claude first-run pre-approval under autostart, the Codex
    auth link, `uv sync`, then the image-staged catalog installed for Codex (with
    its agents), for Claude at user scope, and as OpenCode's bridge plugin —
-   `.devcontainer/scripts/postCreateCommand.sh:56-95`, in
-   [lifecycle scripts](devcontainer/scripts.md)
+   `.devcontainer/scripts/postCreateCommand.sh:56-95`, in [lifecycle
+   scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    credential seeding (consuming the transfer files step 1 rewrote), pre-commit
    hooks, keyring, the gh git credential helper, the firewall gate, Xpra in the
-   background, Claude Remote Control under autostart, the Codex auth link —
-   `.devcontainer/scripts/postStartCommand.sh:9-31`
+   background, Claude Remote Control under autostart, the Codex auth link, then
+   Codex's full-access policy in `config.toml` —
+   `.devcontainer/scripts/postStartCommand.sh:9-34`
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
    catalog reinstalled from this checkout at local scope, with OpenCode's bridge
    entry repointed at it, which is how the catalog is developed in place —
@@ -60,7 +61,7 @@ state.
 - `CBM_CACHE_DIR` unset aborts steps 3–5 at the first CBM script; a missing
   `codebase-memory-mcp` binary is skipped instead.
 - `ENABLE_FIREWALL=true` in an image built without the firewall role fails step
-  4.
+  4\.
 - A CI `container:` job supplies none of `containerEnv` or the mounts;
   `ci-hooks-repro.sh` reproduces that environment locally.
 - `AGENTDEV_SKIP_PRE_COMMIT` and `AGENTDEV_SKIP_XPRA` are the documented

@@ -82,11 +82,11 @@ provenance, fill the `## Getting around` placeholder) and **refresh** (consume
 `verified`).
 
 The IWE skills ship from this repository's `agentdev` catalog rather than by
-template sync, so the fix is local:
-[Add the iwe-map skill](../plans/20260903-iwe-map-skill.md) adds
-`/agentdev:iwe-map` with the two modes the issue proposes, a bundled
-`stale-map-docs.sh` that classifies every map doc as fresh, stale, gone, or
-expired, and repoints Setup, Verify, and the operating loop at it.
+template sync, so the fix is local: [Add the iwe-map
+skill](../plans/20260903-iwe-map-skill.md) adds `/agentdev:iwe-map` with the two
+modes the issue proposes, a bundled `stale-map-docs.sh` that classifies every
+map doc as fresh, stale, gone, or expired, and repoints Setup, Verify, and the
+operating loop at it.
 
 ## Key references
 

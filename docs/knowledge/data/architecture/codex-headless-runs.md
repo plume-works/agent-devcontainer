@@ -11,7 +11,8 @@ generated:
 This covers runs where one agent launches `codex exec` non-interactively and
 needs the result: replays, batch reviews, and any multi-agent Codex job that
 outlives a single turn. Codex's own configuration for interactive sessions is
-[Configure devcontainer Codex for full access](../plans/20261005-codex-full-access-config.md).
+[Configure devcontainer Codex for full
+access](../plans/20261005-codex-full-access-config.md).
 
 ## Access
 
@@ -52,7 +53,7 @@ commands, so a prompt never relies on the run deleting its own scratch files.
 One account's quota is shared by every concurrent `codex exec` and every
 subagent each one spawns. Hitting it ends the turn with an `error` event, then
 `turn.failed`, whose message reads "You've hit your usage limit … try again at
-<time>".
+\<time>".
 
 - **Run one at a time.** Parallel multi-agent runs draw on the quota together
   and fail together, keeping nothing. Sequential runs bank each finished result
