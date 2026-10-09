@@ -3,8 +3,8 @@ type: hub
 description: System design notes and the reasoning behind them, rejected alternatives included.
 stage: living
 generated:
-  by: codex/gpt-6
-  at: 2026-10-04T21:58:34Z
+  by: claude-code/opus-5.5
+  at: 2026-10-08T00:00:00Z
 ---
 
 # 🏛️ Architecture
@@ -56,6 +56,8 @@ rejected are as valuable as the one you picked.*
 [PR review scenario validation](architecture/pr-review-scenario-validation.md)
 
 [Headless Codex runs](architecture/codex-headless-runs.md)
+
+[Codex full access in the devcontainer](architecture/codex-full-access-in-devcontainer.md)
 
 [Ansible apt pins](architecture/ansible-apt-pins.md)
 

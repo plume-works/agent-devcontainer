@@ -17,13 +17,13 @@ moves them.*
 
 ## Active
 
-[Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
-
 [Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
 [Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
+
+[Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
 
 [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
 

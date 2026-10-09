@@ -11,6 +11,10 @@ to the current day's group.
   done. Prettier and the Renovate config validator run as local `bunx` hooks,
   the Renovate version lives in the validator's `bunx` pin under a regex
   manager, and `AGENTS.md` names `bun`/`bunx` as the only JavaScript runners.
+- **Update**:
+  [Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
+  done. Devcontainer Codex runs with full access and no approval prompts, per
+  the new [Devcontainer Codex policy](spec/devcontainer-codex-policy.md) spec.
 
 ## 2026-10-08
 
@@ -27,6 +31,10 @@ to the current day's group.
 - **Update**: Refreshed the agentdev, agentdev skills, GitHub, workflows, and
   pull-request-checks codebase maps for the `bunx` Prettier and Renovate
   validator hooks and the Renovate pin they now carry.
+- **Update**:
+  [Codex full access in the devcontainer](architecture/codex-full-access-in-devcontainer.md)
+  recorded; refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow
+  codebase maps for the `configure-codex.py` postStart step.
 
 ## 2026-10-07
 
