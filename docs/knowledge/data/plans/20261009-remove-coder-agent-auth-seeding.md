@@ -170,11 +170,14 @@ Rejected:
 
 **Files:** Modify: `docs/knowledge/data/architecture/agent-auth-persistence.md`
 
-- [ ] Add a consequence: worktrees on one host share a single credential file,
+- [x] Add a consequence: worktrees on one host share a single credential file,
   so each sees the others' refreshes, but two Claude processes refreshing at the
   same moment can race on the single-use refresh token
   (anthropics/claude-code#21765); a known limitation. Add the issue URL to
   `sources`; `iwe schema validate` passes.
+  - **Evidence:** commit "Record the shared credential refresh race"
+    (`architecture/agent-auth-persistence.md` `## Consequences` and `sources`);
+    `iwe schema validate` exits 0.
 
 ### Task 6: Refresh the codebase map
 

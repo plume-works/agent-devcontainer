@@ -2,8 +2,8 @@
 type: architecture
 description: Agent credentials live on one Docker volume pinned to a literal name and shared by every devcontainer instance, while the rest of each agent's state is mounted per instance; a directory-backed volume cannot mount at ~/.claude.json, so that file is a symlink into the volume.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-04T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-09T00:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer.json
@@ -13,6 +13,7 @@ sources:
 - resource: https://github.com/Dr-QP/Dr.QP/pull/417
 - resource: https://github.com/Dr-QP/Dr.QP/pull/436
 - resource: https://github.com/Dr-QP/Dr.QP/pull/438
+- resource: https://github.com/anthropics/claude-code/issues/21765
 ---
 
 # Agent auth persistence
@@ -72,3 +73,9 @@ migrated, because its content predates the volume and would otherwise mask it.
   to; credentials go in the shared volume, path-bearing state does not.
 - The volume is declared `external: true`, so it must exist before Compose
   starts; `devcontainer-init.sh` creates it on the host.
+- Worktrees on one host share a single Claude credential file, so each sees the
+  others' token refreshes. Claude.ai refresh tokens are single-use
+  ([anthropics/claude-code#21765](https://github.com/anthropics/claude-code/issues/21765)),
+  so two Claude processes refreshing at the same moment can race, and the loser
+  reaches `Login expired`. This is a known limitation; a fresh `/login` in any
+  container recovers every instance.
