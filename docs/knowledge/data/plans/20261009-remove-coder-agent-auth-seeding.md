@@ -85,7 +85,7 @@ Rejected:
 `.devcontainer/scripts/postCreateCommand.sh`,
 `.devcontainer/scripts/postStartCommand.sh`
 
-- [ ] Remove the seed block from `devcontainer-init.sh` (the comment, the
+- [x] Remove the seed block from `devcontainer-init.sh` (the comment, the
   `seed_key` and `AGENTDEV_AUTH_SEED_DIR` lines, the
   `prepare-agent-auth-seed.sh` call, and the `.env` echo), the
   `/run/agentdev-auth-seed` bind mount from `docker-compose.yml`, and the
@@ -93,8 +93,16 @@ Rejected:
   lifecycle scripts; delete the three scripts and their two test files.
   `AGENTDEV_CLAUDE_AUTOSTART` and the four `GIT_*` passthroughs in
   `docker-compose.yml` stay.
-- [ ] `grep -rn 'AGENTDEV_CLAUDE_JSON\|AGENTDEV_CODEX_JSON\|AUTH_SEED\|seed-agent-auth\|workspace-seed-key\|prepare-agent-auth-seed' .devcontainer scripts .github`
+  - **Evidence:** commit "Delete Coder agent auth seeding" on `ai-autostart`;
+    `docker-compose.yml:69-73` keeps the autostart and `GIT_*` entries.
+- [x] `grep -rn 'AGENTDEV_CLAUDE_JSON\|AGENTDEV_CODEX_JSON\|AUTH_SEED\|seed-agent-auth\|workspace-seed-key\|prepare-agent-auth-seed' .devcontainer scripts .github`
   prints nothing; `shellcheck` passes on the edited scripts.
+  - **Evidence:** commit "Delete Coder agent auth seeding": `git grep` of the
+    pattern over the three trees finds nothing (the only filesystem hit is the
+    ignored, regenerated `.devcontainer/.env`); `shellcheck` clean on
+    `devcontainer-init.sh`, `postCreateCommand.sh`, `postStartCommand.sh`;
+    `uv run pytest scripts/tests/test_preapprove_claude_workspace.py scripts/tests/test_claude_remote_control_start.py`
+    11 passed.
 
 ### Task 2: Gate autostart on a live claude.ai login
 
@@ -298,14 +306,11 @@ supplying the `GIT_*` values through Coder.
 
 Verified anchor points (line numbers as of 2026-10-09):
 
-- `.devcontainer/devcontainer-init.sh:32-37` — seed block
 - `.devcontainer/docker-compose.yml:69-73` — `AGENTDEV_CLAUDE_AUTOSTART` and
   `GIT_*` passthroughs (kept)
-- `.devcontainer/docker-compose.yml:108` — `/run/agentdev-auth-seed` bind mount
-- `.devcontainer/scripts/postCreateCommand.sh:72-73` — `seed-agent-auth.sh`,
-  `preapprove-claude-workspace.sh` calls
-- `.devcontainer/scripts/postStartCommand.sh:12-13` — `seed-agent-auth.sh` call
-- `.devcontainer/scripts/postStartCommand.sh:27` —
+- `.devcontainer/scripts/postCreateCommand.sh:72` —
+  `preapprove-claude-workspace.sh` call
+- `.devcontainer/scripts/postStartCommand.sh:25` —
   `claude-remote-control-start.sh` call
 - `.devcontainer/scripts/claude-remote-control-start.sh:8-12` — credential-file
   gate
@@ -318,6 +323,6 @@ Verified anchor points (line numbers as of 2026-10-09):
 - `scripts/tests/test_claude_remote_control_start.py:21,60,71` —
   `run_with_fake_tmux`, start and skip tests
 - `scripts/tests/test_preapprove_claude_workspace.py:62,70` —
-  `test_skips_without_autostart`, `test_post_create_runs_after_seeding`
+  `test_skips_without_autostart`, `test_post_create_runs_after_state_symlink`
 - `docs/knowledge/data/spec/devcontainer-agent-auth.md:36-155` — requirements
   being retired or moved

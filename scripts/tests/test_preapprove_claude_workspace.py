@@ -67,7 +67,7 @@ def test_skips_without_autostart(tmp_path):
     assert not (workspace / '.claude').exists()
 
 
-def test_post_create_runs_after_seeding():
+def test_post_create_runs_after_state_symlink():
     post_create = POST_CREATE.read_text()
-    seed = post_create.index('"$script_dir/seed-agent-auth.sh"')
-    assert post_create.index('"$script_dir/preapprove-claude-workspace.sh"') > seed
+    symlink = post_create.index('ln -sf /root/.claude/claude.json /root/.claude.json')
+    assert post_create.index('"$script_dir/preapprove-claude-workspace.sh"') > symlink
