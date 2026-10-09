@@ -307,8 +307,12 @@ plans, the publish script, and the OpenCode project config)
 
 ### Task 13: The harness passes on Codex
 
-- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
   Codex check.
+  - **Evidence:** `run.sh --harness codex` at 857e2a4 on Codex 0.156.1, after
+    `reinstall-agentdev-codex.sh`: all checks passed. aa67dec then tightened the
+    publish matcher to executions only; re-evaluated on that run's rollouts it
+    still finds no publish without approval and one with it.
 
 ### Task 14: The harness passes on OpenCode
 
