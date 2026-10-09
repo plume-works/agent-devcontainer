@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:10df475317c2ce7392f7d2e04e8302ef5d4db8b6cace30df7253e9d948fcbf00
+source_digest: sha256:9c566c9f1abc3d6ded8af5199e3557f21405b3d109985d52ee1d4f7cbbbdf8fc
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:30:00Z
+  at: 2026-10-09T23:17:04Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:30:00Z
+  at: 2026-10-09T23:17:04Z
 sources:
 - id: code
   resource: .devcontainer
@@ -37,8 +37,8 @@ state.
    `~/.claude.json` symlink into the `agentdev-claude` volume,
    `codebase-memory-mcp install`, auth directories, Claude first-run
    pre-approval unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is set, the Codex auth
-   link, `uv sync`, then the image-staged catalog installed for Codex, for
-   Claude at user scope, and as OpenCode's bridge plugin —
+   link, `uv sync`, then the image-staged catalog installed for Codex (with its
+   agents), for Claude at user scope, and as OpenCode's bridge plugin —
    `.devcontainer/scripts/postCreateCommand.sh:56-96`, in [lifecycle
    scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
