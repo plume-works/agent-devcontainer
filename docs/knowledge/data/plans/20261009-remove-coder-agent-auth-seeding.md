@@ -355,5 +355,7 @@ Verified anchor points (line numbers as of 2026-10-09):
 - `scripts/tests/test_preapprove_claude_workspace.py:67,75,83,89` —
   `test_runs_without_autostart`, `test_skips_when_opted_out`,
   `test_post_create_runs_after_state_symlink`, `test_ci_responder_opts_out`
-- `docs/knowledge/data/spec/devcontainer-agent-auth.md:36-155` — requirements
-  being retired or moved
+- `docs/knowledge/data/spec/claude-remote-control.md:32-95` — successor
+  requirements for the login gate and pre-approval
+- `docs/knowledge/data/spec/devcontainer-git-credentials.md:18-34` — successor
+  requirements for git identity and HTTPS credentials
