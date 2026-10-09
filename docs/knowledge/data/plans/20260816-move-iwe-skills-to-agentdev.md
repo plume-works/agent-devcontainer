@@ -26,11 +26,10 @@ sources:
 The seven IWE workflow skills — setup, explore, plan, implement, verify, ship,
 weekly — are tracked under `.claude/skills/`, which is the one place this
 repository says the catalog does not live. `.claude/README.md` documents
-`settings.json` as the sole remaining occupant of that directory, and
-[Template boundary](../architecture/template-boundary.md) classifies `.claude/`
-as "Shared Claude permissions, official plugins, local ignore rules, and
-explanatory README" with no mention of skills. Both descriptions have drifted
-from the tree.
+`settings.json` as the sole remaining occupant of that directory, and [Template
+boundary](../architecture/template-boundary.md) classifies `.claude/` as "Shared
+Claude permissions, official plugins, local ignore rules, and explanatory
+README" with no mention of skills. Both descriptions have drifted from the tree.
 
 The consequence is not cosmetic. `.claude/skills/` is retained by every project
 that copies the template surface, so a consuming project silently inherits seven
@@ -79,10 +78,10 @@ necessity.
 **Files:** Modify:
 `docs/knowledge/data/plans/20260816-move-iwe-skills-to-agentdev.md`
 
-This plan is written to run after
-[Embed structured spec deltas in IWE plans](20260816-structured-plan-spec-deltas.md)
-ships, and that plan rewrites Plan, Implement, Verify, and Ship. Every line
-number in `## Key references` predates those edits.
+This plan is written to run after [Embed structured spec deltas in IWE
+plans](20260816-structured-plan-spec-deltas.md) ships, and that plan rewrites
+Plan, Implement, Verify, and Ship. Every line number in `## Key references`
+predates those edits.
 
 - [x] Re-locate each anchor in `## Key references`, correct the line numbers,
   and restamp the section date. Confirm the nine bare-name sibling references
@@ -309,16 +308,17 @@ catalog contains, not how it travels.
 
 ## Depends on
 
-[Embed structured spec deltas in IWE plans](20260816-structured-plan-spec-deltas.md)
-— it is the last planned change to the IWE skills, it rewrites Plan, Implement,
-Verify, and Ship, and it declares this move out of scope while it runs. Moving
-first would invalidate its verified anchors mid-execution, so this plan waits
-and Task 1 re-anchors against the checkout it leaves behind.
+[Embed structured spec deltas in IWE
+plans](20260816-structured-plan-spec-deltas.md) — it is the last planned change
+to the IWE skills, it rewrites Plan, Implement, Verify, and Ship, and it
+declares this move out of scope while it runs. Moving first would invalidate its
+verified anchors mid-execution, so this plan waits and Task 1 re-anchors against
+the checkout it leaves behind.
 
-[Split PR How to Test into Verification and Reviewer Handoff](20260815-pr-verification-sections.md)
-is active and edits `agentdev` skills, but only the `pr-*` ones, and it does not
-touch the plugin manifests. It shares no file with this plan and does not block
-it.
+[Split PR How to Test into Verification and Reviewer
+Handoff](20260815-pr-verification-sections.md) is active and edits `agentdev`
+skills, but only the `pr-*` ones, and it does not touch the plugin manifests. It
+shares no file with this plan and does not block it.
 
 ## Verification
 

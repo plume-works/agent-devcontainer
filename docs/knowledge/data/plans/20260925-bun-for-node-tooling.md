@@ -21,10 +21,10 @@ completed: 2026-10-09
 
 `AGENTS.md` makes `bun` the JavaScript toolchain. The Ansible roles already
 follow it: `agentic_tools` and `nodejs` install every global package with
-`bun add --global --exact` into `BUN_INSTALL=/usr/local`. Once
-[Self-hosted Renovate in the agent-desktop image](20260925-self-hosted-renovate.md)
-has shipped, both Renovate workflows already run `bunx` in the agent-desktop
-image. Two places still go through npm:
+`bun add --global --exact` into `BUN_INSTALL=/usr/local`. Once [Self-hosted
+Renovate in the agent-desktop image](20260925-self-hosted-renovate.md) has
+shipped, both Renovate workflows already run `bunx` in the agent-desktop image.
+Two places still go through npm:
 
 - The `mirrors-prettier` and `renovatebot/pre-commit-hooks` pre-commit hooks use
   pre-commit's `language: node`, which builds a nodeenv and runs `npm install`
@@ -35,9 +35,9 @@ image. Two places still go through npm:
 `AGENTS.md` says which toolchain to use but does not rule out the npm-family
 commands by name.
 
-Related:
-[Renovate config validation](../architecture/renovate-config-validation.md),
-[Formatter ownership](../architecture/formatter-ownership.md).
+Related: [Renovate config
+validation](../architecture/renovate-config-validation.md), [Formatter
+ownership](../architecture/formatter-ownership.md).
 
 ## Approach
 
@@ -239,10 +239,11 @@ describes these hooks.
 
 ## Depends on
 
-[Self-hosted Renovate in the agent-desktop image](20260925-self-hosted-renovate.md)
-ships first: it moves both Renovate workflows onto `bunx` in the agent-desktop
-image and rewrites `architecture/renovate-config-validation`, so this plan only
-relocates the Renovate pin.
+[Self-hosted Renovate in the agent-desktop
+image](20260925-self-hosted-renovate.md) ships first: it moves both Renovate
+workflows onto `bunx` in the agent-desktop image and rewrites
+`architecture/renovate-config-validation`, so this plan only relocates the
+Renovate pin.
 
 ## Verification
 

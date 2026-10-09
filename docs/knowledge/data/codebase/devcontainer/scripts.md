@@ -75,8 +75,8 @@ absent or empty live credential before deleting it. Behavior is specified in
 ## Depends on
 
 The image's tools (`claude`, `codex`, `codebase-memory-mcp`, `uv`, `jq`,
-`gnome-keyring-daemon`) and the env variables the
-[runtime contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
+`gnome-keyring-daemon`) and the env variables the [runtime
+contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 `.devcontainer/scripts/uv-sync.sh` in the repository's own instructions.
 
 ## Invariants & gotchas

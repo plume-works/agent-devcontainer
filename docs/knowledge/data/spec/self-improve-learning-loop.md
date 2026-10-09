@@ -27,8 +27,8 @@ propose retaining its lesson safely. It does not claim that a retained lesson
 improves future behavior.
 
 The runtime decisions behind this behavior — the standard-library-only rule, the
-state-root resolution order, the single dispatcher — are
-[Self-improve runtime](../architecture/self-improve-runtime.md).
+state-root resolution order, the single dispatcher — are [Self-improve
+runtime](../architecture/self-improve-runtime.md).
 
 ## Requirements
 

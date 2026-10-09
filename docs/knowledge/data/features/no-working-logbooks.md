@@ -115,8 +115,8 @@ None — every design question this feature raised is settled.
 - Rejected for now: extending the plan-shape gate to detect narration
   automatically. The gate reads shape, and narration has none — a line-count or
   prose-to-task ratio heuristic would fire on legitimately long plans and miss a
-  short dense logbook. Tracked as
-  [Detect plan narration growth mechanically](../backlog/detect-plan-narration-growth.md).
+  short dense logbook. Tracked as [Detect plan narration growth
+  mechanically](../backlog/detect-plan-narration-growth.md).
 - No new spec document. The general rule is an authoring convention, not a
   workflow-skill contract; the workflow-skill half is recorded as a requirement
   in [IWE workflow skills](../spec/iwe-workflow-skills.md).

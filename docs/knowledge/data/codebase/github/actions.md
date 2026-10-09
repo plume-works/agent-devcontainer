@@ -45,8 +45,8 @@ invocation, artifact upload, and the usage-limit check. It composes
 `claude_args` in its own step rather than in the `with:` block, appending
 `--model` only when the optional `model` input is non-empty, so a caller that
 supplies none leaves the session on the model the merged settings pin.
-`ai-review-status` evaluates the acceptance policy in
-[AI review gate](../../spec/ai-review-gate.md) once, without waiting.
+`ai-review-status` evaluates the acceptance policy in [AI review
+gate](../../spec/ai-review-gate.md) once, without waiting.
 
 ## Depends on
 

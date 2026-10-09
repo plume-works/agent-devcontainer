@@ -61,7 +61,7 @@ None — every design question this feature raised is settled.
 
 ## References
 
-- Plan:
-  [Repository-owned IWE seed for consumers](../plans/20260905-consumer-iwe-seed.md)
+- Plan: [Repository-owned IWE seed for
+  consumers](../plans/20260905-consumer-iwe-seed.md)
 - Spec: [Template consumption](../spec/template-consumption.md)
 - Architecture: [Template boundary](../architecture/template-boundary.md)

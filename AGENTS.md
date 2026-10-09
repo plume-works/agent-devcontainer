@@ -142,7 +142,7 @@ because a question needs it, becomes a second product.
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
 the whole repo is opened as the workspace. `iwe` does not search upward for `.iwe/` and has no
 `--root` flag, so invoking it from any subdirectory fails or reads the wrong config. Document
-keys are therefore relative to `docs/knowledge/` (`[library].path`): `data/plans/<slug>`, not
+keys are therefore relative to `docs/knowledge/` (`[workspace].path`): `data/plans/<slug>`, not
 `docs/knowledge/data/plans/<slug>`.
 
 When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/AGENTS.md`.

@@ -50,10 +50,10 @@ tier produces.
 
 ## Why it is not urgent
 
-The logic is small, and its current behavior was already verified — see
-[PR review effort tiers](../plans/20260917-pr-review-effort-tiers.md)'s Task 1
-and 2 evidence for the marker/comment-regex and `claude_args`-branch checks.
-What is missing is the *regression* half: nothing re-runs those checks when
-someone edits the workflow next. The risk is therefore drift over time rather
-than a defect now, and it grows with each further change to the responder rather
-than sitting still.
+The logic is small, and its current behavior was already verified — see [PR
+review effort tiers](../plans/20260917-pr-review-effort-tiers.md)'s Task 1 and 2
+evidence for the marker/comment-regex and `claude_args`-branch checks. What is
+missing is the *regression* half: nothing re-runs those checks when someone
+edits the workflow next. The risk is therefore drift over time rather than a
+defect now, and it grows with each further change to the responder rather than
+sitting still.

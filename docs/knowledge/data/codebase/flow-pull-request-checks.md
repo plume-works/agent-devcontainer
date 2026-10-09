@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:cb82d0406a152435971fd19c5abc0614e735baf072bc54f3673e4a3f736490bf
+source_digest: sha256:7c870311b637ce974cbfc5a8158720b0a015e1ed25ce0cce72e720b6edd3fa23
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T12:00:00Z
+  at: 2026-10-09T16:00:00Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T12:00:00Z
+  at: 2026-10-09T16:00:00Z
 sources:
 - id: code
   resource: .github
@@ -38,20 +38,20 @@ before the push.
    on a Renovate bot's PR nothing is pushed and the `gate` fails —
    `.github/workflows/reformat.yml:185,279,421`, in
    [workflows](github/workflows.md)
-3. `primary-checks.yml` → `ci.yml`, when the image filter matched:
-   [the image build](flow-image-build.md)
+3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
+   build](flow-image-build.md)
 4. `validate-agent-files.yml`, when any source declared by the codebase map or
    the map itself changed: the validator, agentdev, and self-improve pytest
    suites, the OpenCode bridge `bun test` suite,
    `validate_agent_files --recommend . --require-marketplace claude codex`, then
    `stale-map-docs.py`, which fails the job when a map doc no longer matches the
    code it describes — `.github/workflows/validate-agent-files.yml:38-99`
-5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, or the IWE
-   seed changed: `iwe schema validate`, `iwe normalize` must be a no-op, and the
-   plan-checkbox tests; a second, path-filtered pytest pass assembles and
-   validates the consumer seed —
-   `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in
-   [the knowledge workspace](docs/knowledge.md)
+5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, the IWE seed,
+   or the `dev_tools` pins changed, with the pinned `iwe`:
+   `iwe schema validate`, `iwe normalize` must be a no-op, and the plan-checkbox
+   tests; a second, path-filtered pytest pass assembles and validates the
+   consumer seed — `.github/workflows/validate-knowledge-base.yml:38-47,69-104`,
+   in [the knowledge workspace](docs/knowledge.md)
 6. `validate-renovate-config.yml`: its `paths-filter` passes when
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
@@ -74,8 +74,8 @@ before the push.
   the pushed commit's run is the one that counts.
 - Step 2 never pushes to a Renovate branch, since Renovate abandons a branch
   carrying a foreign commit; formatting a Renovate PR needs is the post-upgrade
-  task's job —
-  [Renovate post-upgrade](../architecture/renovate-post-upgrade.md).
+  task's job — [Renovate
+  post-upgrade](../architecture/renovate-post-upgrade.md).
 - A fork PR never gets step 7; the review gate is then a human's.
 - Step 7's effort tier changes what the review costs, never whether it runs:
   `ai-review-present` does not read it, and both tiers keep the metadata check

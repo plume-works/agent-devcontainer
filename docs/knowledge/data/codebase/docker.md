@@ -28,8 +28,8 @@ into `ubuntu-ansible` (Ansible and its collections, locale), and
   `WORKSPACE_FOLDER:12`, `AGENTDEV_PLUGIN_VERSION:18`,
   `AGENTDEV_CATALOG_DIR:22`, `VALIDATE_AGENT_FILES_VERSION:29`
 - `/entrypoint.sh`, `/start-xpra.sh`, the `gh` wrapper — the files a running
-  container exposes; their contract is in
-  [the image runtime interface](api-image-runtime.md)
+  container exposes; their contract is in [the image runtime
+  interface](api-image-runtime.md)
 - `docker/ansible/setup-ansible.sh` — pins Ansible `13.4.0` and installs the two
   collections
 
@@ -52,8 +52,8 @@ copies that can share a `PATH`.
 
 ## Depends on
 
-[ansible/](ansible.md) for everything installed;
-[the docker composite actions](github/actions.md) for the CI build; the
+[ansible/](ansible.md) for everything installed; [the docker composite
+actions](github/actions.md) for the CI build; the
 [catalog](agents/plugins/agentdev.md) and
 [validator](py_packages/validate_agent_files.md) sources, which the playbook
 copies out of `/provision`.

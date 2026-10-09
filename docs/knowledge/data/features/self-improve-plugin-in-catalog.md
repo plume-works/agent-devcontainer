@@ -61,20 +61,19 @@ the second is load-bearing.
 **One Makefile at the repository root** carries the live-session targets
 (`smoke`, `smoke-auto`, `wake`, `wake-memory`, `wake-repeat`), `test-harness`,
 `validate`, and `check`. Formatting and linting targets are absent by design —
-those belong to pre-commit, per
-[Let pre-commit own formatting](pre-commit-owns-formatting.md).
+those belong to pre-commit, per [Let pre-commit own
+formatting](pre-commit-owns-formatting.md).
 
 ## Scope
 
 The plugin's behavior is unchanged by the move; it ships exactly as it arrived,
-and its durable behavior is specified in
-[Self-improve learning loop](../spec/self-improve-learning-loop.md). Enabling
-the plugin, staging it into `agent-desktop`, and Codex support for it are each
-separate decisions. Two measured defects ship with it, recorded rather than
-fixed:
-[Reviewer decline asymmetry](../bugs/self-improve-reviewer-decline-asymmetry.md)
-and
-[Unstageable routing option in the improve skill](../bugs/self-improve-unstageable-routing-option.md).
+and its durable behavior is specified in [Self-improve learning
+loop](../spec/self-improve-learning-loop.md). Enabling the plugin, staging it
+into `agent-desktop`, and Codex support for it are each separate decisions. Two
+measured defects ship with it, recorded rather than fixed: [Reviewer decline
+asymmetry](../bugs/self-improve-reviewer-decline-asymmetry.md) and [Unstageable
+routing option in the improve
+skill](../bugs/self-improve-unstageable-routing-option.md).
 
 ## Edge cases
 
@@ -93,10 +92,10 @@ and
 
 ## References
 
-- Plan:
-  [Consolidate the self-improve plugin into this repository](../plans/20260909-consolidate-self-improve-plugin.md)
-- Decision:
-  [Self-improve consolidation](../architecture/self-improve-consolidation.md)
-- Runtime design:
-  [Self-improve runtime](../architecture/self-improve-runtime.md)
+- Plan: [Consolidate the self-improve plugin into this
+  repository](../plans/20260909-consolidate-self-improve-plugin.md)
+- Decision: [Self-improve
+  consolidation](../architecture/self-improve-consolidation.md)
+- Runtime design: [Self-improve
+  runtime](../architecture/self-improve-runtime.md)
 - Spec: [Self-improve learning loop](../spec/self-improve-learning-loop.md)

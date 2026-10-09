@@ -67,11 +67,10 @@ followed by `gh stack rebase --upstack` and `gh stack push`, because every layer
 above it no longer contains its tip; `reformat.yml` commits on a lower layer are
 handled the same way.
 
-The facts the skills depend on are recorded in
-[Stacked pull requests](../architecture/stacked-prs.md): the `stack` field that
-marks a PR as stacked, that the post-merge rebase re-runs CI but not the AI
-review, and that a stack merge passes the squash-only, linear-history `main`
-ruleset.
+The facts the skills depend on are recorded in [Stacked pull
+requests](../architecture/stacked-prs.md): the `stack` field that marks a PR as
+stacked, that the post-merge rebase re-runs CI but not the AI review, and that a
+stack merge passes the squash-only, linear-history `main` ruleset.
 
 Rejected: keeping merge-only updates for stack branches. GitHub's own post-merge
 rebase rewrites every remaining layer regardless, so a local merge-based copy

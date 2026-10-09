@@ -17,8 +17,8 @@ sandbox of its own and no approval prompts:
 Interactive Codex CLI sessions take these from
 `${CODEX_HOME:-~/.codex}/config.toml` unless a command-line flag overrides them,
 and Codex does not set them itself, so the container writes them there.
-`codex exec` runs pass the equivalent flag explicitly; see
-[Headless Codex runs](codex-headless-runs.md).
+`codex exec` runs pass the equivalent flag explicitly; see [Headless Codex
+runs](codex-headless-runs.md).
 
 `.devcontainer/scripts/configure-codex.py` sets both keys on every container
 start, called last from `postStartCommand.sh` so that a failure cannot keep the

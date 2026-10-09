@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:8e5fd9df88996e627537c95772c5e1d3363eeabcca5a9661b1b8531e84fd3580
+source_digest: sha256:24a5536568cf19f678a39856a64e5413b44d84a5fc6aeef413081944ec691bc9
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-08T12:00:00Z
-stale_after: 2027-01-06
+  at: 2026-10-09T16:00:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-08T12:00:00Z
+  at: 2026-10-09T16:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -61,9 +61,9 @@ skipped bot edit never enters it. Knowledge validation always checks this graph
 when its outer filter passes and runs the standalone consumer-seed suite only
 when its inner seed filter passes. Agent-file validation's filter covers the
 union of codebase map `source` paths, then its final step verifies every
-recorded digest. The full traces are
-[the image build flow](../flow-image-build.md) and
-[the pull request checks flow](../flow-pull-request-checks.md).
+recorded digest. The full traces are [the image build
+flow](../flow-image-build.md) and [the pull request checks
+flow](../flow-pull-request-checks.md).
 
 ## Depends on
 
@@ -72,23 +72,24 @@ recorded digest. The full traces are
 
 ## Invariants & gotchas
 
-- `IWE_VERSION` in `validate-knowledge-base.yml` must match the `iwe` pin in
-  [dev_tools](../ansible/roles/dev_tools.md).
+- `validate-knowledge-base.yml` installs `iwe` from the
+  [dev_tools](../ansible/roles/dev_tools.md) pin, so its paths filter includes
+  that pin file.
 - `permissions: {}` at the top of `primary-checks.yml`; each job grants only
   what it uses.
 - The `agent-desktop` digest in `renovate.yml`, `validate-renovate-config.yml`,
   and the responder's two container jobs must equal
-  `devcontainer-compose-pins.yml`'s; see
-  [image pinning](../../spec/image-pinning.md).
+  `devcontainer-compose-pins.yml`'s; see [image
+  pinning](../../spec/image-pinning.md).
 - `RENOVATE_ALLOWED_COMMANDS` admits only `scripts/renovate-post-upgrade.sh`,
   the one `postUpgradeTasks` command `renovate.json` runs.
 - The Renovate App token names its permissions; one Renovate newly needs is
-  added to the token step as well as to the App. See
-  [Renovate post-upgrade](../../architecture/renovate-post-upgrade.md).
+  added to the token step as well as to the App. See [Renovate
+  post-upgrade](../../architecture/renovate-post-upgrade.md).
 - `Renovate config validation finished` reports on every PR, so it can be a
   required check while `validate` is path-filtered; the version and flag choices
-  are
-  [Renovate config validation](../../architecture/renovate-config-validation.md).
+  are [Renovate config
+  validation](../../architecture/renovate-config-validation.md).
 - `commit-format-changes` skips the push on a PR authored by a login in its
   `RENOVATE_BOT_ACTORS`, so the `gate` fails rather than put a foreign commit on
   a branch Renovate would then stop updating.
@@ -101,12 +102,13 @@ recorded digest. The full traces are
 - A `[ci:review-effort=light|full]` marker on its own line, or an
   `@claude review light|full` comment that outranks it, selects the review's
   effort tier; preflight resolves it because only a workflow-level `--model` can
-  size the session. The reasoning is in
-  [PR review effort tiers](../../architecture/pr-review-effort-tiers.md).
+  size the session. The reasoning is in [PR review effort
+  tiers](../../architecture/pr-review-effort-tiers.md).
 - The `if:` gate admitting an `@claude` mention folds case, because the workflow
   expression language's `startsWith` does. Every mention test in the workflow's
-  JavaScript folds it too, so the two agree on what a mention is — see
-  [the capitalized-mention misroute](../../bugs/responder-mention-case-sensitivity.md).
+  JavaScript folds it too, so the two agree on what a mention is — see [the
+  capitalized-mention
+  misroute](../../bugs/responder-mention-case-sensitivity.md).
 
 ## Key references
 
@@ -120,8 +122,8 @@ Verified anchor points (line numbers as of 2026-10-08):
 - `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
 - `.github/workflows/validate-agent-files.yml:38-99` — map-source filter and the
   check steps
-- `.github/workflows/validate-knowledge-base.yml:19,69-109` — `IWE_VERSION`,
-  graph validation, and the path-filtered seed suite
+- `.github/workflows/validate-knowledge-base.yml:38-47,84-104` — paths filter,
+  pinned iwe, graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
 - `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
   markers, both anchored to their own line

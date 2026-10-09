@@ -42,8 +42,8 @@ layer, and loses the plugin.
 Step 6 validators as background `Agent` subagents and tells Claude Code to block
 on them with `TaskOutput`, which the responder's Claude Code does not provide. A
 headless `claude -p` run ends with its turn, so the review is abandoned — the
-failure recorded in
-[The review orchestrator ends its turn while its passes are still running](../bugs/review-orchestrator-ends-turn-while-passes-run.md).
+failure recorded in [The review orchestrator ends its turn while its passes are
+still running](../bugs/review-orchestrator-ends-turn-while-passes-run.md).
 
 ## Approach
 
@@ -187,10 +187,10 @@ keeps its ceilings and hard fallback unchanged.
 ## Spec changes
 
 None — no behavioral change to a spec. No `data/spec/` document governs the
-responder's settings merge or how `pr-review` waits on its passes;
-[AI review gate](../spec/ai-review-gate.md) is unchanged, including its
-acceptance of an earlier review. The settings-layering constraint is recorded in
-the architecture document by Task 4.
+responder's settings merge or how `pr-review` waits on its passes; [AI review
+gate](../spec/ai-review-gate.md) is unchanged, including its acceptance of an
+earlier review. The settings-layering constraint is recorded in the architecture
+document by Task 4.
 
 ## Verification
 
@@ -208,8 +208,8 @@ the architecture document by Task 4.
 
 - Failing a responder run that published no review. The bug document records why
   the time-window check was removed and what an identity-based check would need;
-  that stays with
-  [the bug](../bugs/review-orchestrator-ends-turn-while-passes-run.md).
+  that stays with [the
+  bug](../bugs/review-orchestrator-ends-turn-while-passes-run.md).
 - Changing `ai-review-present`'s acceptance of an earlier review.
 - Per-pass timeouts on the Claude Code path; the job timeout is the ceiling.
 - The Codex dispatch, budget, and hard fallback wording.

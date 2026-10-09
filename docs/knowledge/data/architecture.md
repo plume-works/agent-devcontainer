@@ -57,7 +57,8 @@ rejected are as valuable as the one you picked.*
 
 [Headless Codex runs](architecture/codex-headless-runs.md)
 
-[Codex full access in the devcontainer](architecture/codex-full-access-in-devcontainer.md)
+[Codex full access in the
+devcontainer](architecture/codex-full-access-in-devcontainer.md)
 
 [Ansible apt pins](architecture/ansible-apt-pins.md)
 
