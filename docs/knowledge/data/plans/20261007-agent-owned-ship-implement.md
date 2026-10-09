@@ -78,10 +78,12 @@ iwe-explore ──✘── nothing to match: the skills are explicit-only, the 
   isolated clone of the repository with fixture plans and drives each harness
   headless, asserting the facts a scenario's THEN clause names — who was
   dispatched, what its prompt carried, and what changed in and outside the
-  clone. It lives under `scripts/e2e/<plan key>/`, named after the plan it
-  verifies so each harness links back to its plan, and not in the plugin's
-  tests: it clones this repository and spends model usage, so it neither runs
-  from a consumer's plugin cache nor belongs in a default test run.
+  clone. The clone's only active plans are the fixtures, so no assertion depends
+  on what else the repository has in flight. It lives under
+  `scripts/e2e/<plan key>/`, named after the plan it verifies so each harness
+  links back to its plan, and not in the plugin's tests: it clones this
+  repository and spends model usage, so it neither runs from a consumer's plugin
+  cache nor belongs in a default test run.
 
 Rejected:
 
@@ -323,6 +325,31 @@ plans, the publish script, and the OpenCode project config)
     on OpenCode 1.18.34, with the maintainer's Codex login: all 22 checks
     passed.
 
+### Task 15: Leave only the fixtures active in the clone
+
+**Files:** Modify: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`
+
+- [ ] Before `build_clone` adds the fixture plans, every plan linked under
+  `## Active` in the clone's `docs/knowledge/data/plans.md` gets
+  `stage: cancelled` and its link moves to `## Cancelled`, so ship-all sees only
+  the fixtures whatever `HEAD` has in flight. `iwe normalize` and
+  `iwe schema validate` pass in the clone, and `shellcheck` passes.
+
+### Task 16: The isolated harness passes on Claude Code
+
+- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness claude`
+  passes every check at or after Task 15.
+
+### Task 17: The isolated harness passes on Codex
+
+- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness codex`
+  passes every check at or after Task 15, after `reinstall-agentdev-codex.sh`.
+
+### Task 18: The isolated harness passes on OpenCode
+
+- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode --opencode-model openai/gpt-6-sol`
+  passes every check at or after Task 15.
+
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md) — who may start Ship and
@@ -414,8 +441,8 @@ given.
 - Tasks 8–10 are the end-to-end checks on each harness.
 - `shellcheck scripts/e2e/20261007-agent-owned-ship-implement/run.sh`
 - `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` on all three
-  harnesses (Tasks 12–14); it needs each CLI authenticated and spends model
-  usage.
+  harnesses, OpenCode with `--opencode-model openai/gpt-6-sol` (Tasks 16–18); it
+  needs each CLI authenticated and spends model usage.
 
 ## Out of scope
 
@@ -466,3 +493,11 @@ Verified anchor points (line numbers as of 2026-10-09):
   OpenCode `external_directory` grant for the catalog
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:264` — normal shipping
   requirement
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:101` — `build_clone`,
+  which lists the fixtures under `## Active`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:214` — Claude ship-all
+  dispatch count
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:331` — Codex ship-all
+  spawn count
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:411` — OpenCode
+  ship-all dispatch count
