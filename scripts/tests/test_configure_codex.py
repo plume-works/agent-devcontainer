@@ -77,3 +77,15 @@ def test_second_run_leaves_content_unchanged(codex_home: Path):
     run_script(codex_home)
 
     assert config.read_bytes() == first
+
+
+def test_unparseable_config_fails_and_is_left_in_place(codex_home: Path):
+    codex_home.mkdir()
+    config = codex_home / 'config.toml'
+    config.write_text('model = \n')
+
+    with pytest.raises(subprocess.CalledProcessError):
+        run_script(codex_home)
+
+    assert config.read_text() == 'model = \n'
+    assert [path.name for path in codex_home.iterdir()] == ['config.toml']

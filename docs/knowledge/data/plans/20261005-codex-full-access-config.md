@@ -102,7 +102,8 @@ devcontainer script tests)
   on content.
   - **Evidence:** Commit on branch `codex-full-access-config` adding
     `scripts/tests/test_configure_codex.py`;
-    `uv run pytest scripts/tests/test_configure_codex.py` — 4 passed.
+    `uv run pytest scripts/tests/test_configure_codex.py` — 5 passed, including
+    the unparseable-config case.
 
 ### Task 4: Record the decision
 
