@@ -25,6 +25,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Remove Coder agent auth seeding; keep Claude Remote Control
+autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
+
 [Install the catalog agents into Codex](plans/20261007-codex-catalog-agents.md)
 
 [Run Node tooling through bun instead of

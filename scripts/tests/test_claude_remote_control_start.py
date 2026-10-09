@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 import shutil
@@ -10,6 +11,16 @@ import pytest
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/claude-remote-control-start.sh'
 COMPOSE = REPO_ROOT / '.devcontainer/docker-compose.yml'
+CLAUDE_AI_LOGIN = {'loggedIn': True, 'authMethod': 'claude.ai'}
+# Prints $CLAUDE_TEST_STATUS for `claude auth status`, refusing a leaked setup token.
+FAKE_CLAUDE_AUTH = (
+    '#!/bin/sh\n'
+    'if [ "${1:-}" = auth ]; then\n'
+    '  test -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" || exit 3\n'
+    '  printf "%s\\n" "$CLAUDE_TEST_STATUS"\n'
+    '  exit "${CLAUDE_TEST_STATUS_EXIT:-0}"\n'
+    'fi\n'
+)
 
 
 def make_test_dir() -> Path:
@@ -23,17 +34,14 @@ def run_with_fake_tmux(
     autostart: str = '1',
     token: str = 'test-secret',
     session_exists: bool = False,
-    credential_file: bool = True,
+    status: dict[str, object] | None = None,
+    status_exit: int = 0,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
     test_dir = make_test_dir()
     log = test_dir / 'tmux.log'
-    auth_file = test_dir / 'claude' / '.credentials.json'
-    if credential_file:
-        auth_file.parent.mkdir()
-        auth_file.write_text('{"claudeAiOauth": {"accessToken": "file-secret"}}')
     fake_bin = test_dir / 'bin'
     fake_bin.mkdir()
-    (fake_bin / 'claude').write_text('#!/bin/sh\nexit 0\n')
+    (fake_bin / 'claude').write_text(FAKE_CLAUDE_AUTH + 'exit 0\n')
     (fake_bin / 'claude').chmod(0o755)
     (fake_bin / 'tmux').write_text(
         '#!/bin/sh\n'
@@ -45,7 +53,8 @@ def run_with_fake_tmux(
         'PATH': f'{fake_bin}:{os.environ["PATH"]}',
         'AGENTDEV_CLAUDE_AUTOSTART': autostart,
         'CLAUDE_CODE_OAUTH_TOKEN': token,
-        'AGENTDEV_CLAUDE_AUTH_PATH': str(auth_file),
+        'CLAUDE_TEST_STATUS': json.dumps(CLAUDE_AI_LOGIN if status is None else status),
+        'CLAUDE_TEST_STATUS_EXIT': str(status_exit),
         'DEV_WORKSPACE_FOLDER': '/workspaces/example',
         'TMUX_HAS_SESSION': '1' if session_exists else '0',
         'TMUX_TEST_LOG': str(log),
@@ -57,19 +66,27 @@ def run_with_fake_tmux(
         shutil.rmtree(test_dir)
 
 
-def test_starts_with_credential_file_and_removes_setup_token_from_claude():
+def test_starts_on_claude_ai_login_and_removes_setup_token_from_claude():
     result, calls = run_with_fake_tmux()
     assert result.returncode == 0, result.stderr
     assert 'new-session -d -s claude-remote -c /workspaces/example' in calls
     assert 'exec env -u CLAUDE_CODE_OAUTH_TOKEN claude /remote-control' in calls
     assert 'update-environment' not in calls
     assert 'test-secret' not in calls
-    assert 'file-secret' not in result.stdout + result.stderr + calls
 
 
-@pytest.mark.parametrize(('autostart', 'credential_file'), [('0', True), ('1', False)])
-def test_skips_when_disabled_or_without_credential_file(autostart, credential_file):
-    result, calls = run_with_fake_tmux(autostart=autostart, credential_file=credential_file)
+@pytest.mark.parametrize(
+    ('autostart', 'status', 'status_exit'),
+    [
+        pytest.param('0', CLAUDE_AI_LOGIN, 0, id='autostart-unset'),
+        pytest.param('1', {'loggedIn': False, 'authMethod': 'none'}, 1, id='logged-out'),
+        pytest.param('1', {'loggedIn': False, 'authMethod': 'claude.ai'}, 0, id='expired'),
+        pytest.param('1', {'loggedIn': True, 'authMethod': 'oauth_token'}, 0, id='setup-token'),
+        pytest.param('1', CLAUDE_AI_LOGIN, 2, id='status-fails'),
+    ],
+)
+def test_skips_without_live_claude_ai_login(autostart, status, status_exit):
+    result, calls = run_with_fake_tmux(autostart=autostart, status=status, status_exit=status_exit)
     assert result.returncode == 0, result.stderr
     assert calls == ''
 
@@ -94,13 +111,10 @@ def test_real_tmux_starts_claude_without_setup_token(existing_server):
     fake_bin = test_dir / 'bin'
     tmux_dir = REPO_ROOT / '.tmp'
     result_file = test_dir / 'result'
-    auth_file = test_dir / '.credentials.json'
-    auth_file.write_text('{"claudeAiOauth": {}}')
     fake_bin.mkdir()
     tmux_dir.mkdir(exist_ok=True)
     (fake_bin / 'claude').write_text(
-        '#!/bin/sh\n'
-        'test "${1:-}" = /remote-control\n'
+        FAKE_CLAUDE_AUTH + 'test "${1:-}" = /remote-control\n'
         'test -z "${CLAUDE_CODE_OAUTH_TOKEN:-}"\n'
         'printf passed >"$CLAUDE_TMUX_TEST_RESULT"\n'
         'sleep 10\n'
@@ -111,7 +125,7 @@ def test_real_tmux_starts_claude_without_setup_token(existing_server):
         'TMUX_TMPDIR': str(tmux_dir),
         'AGENTDEV_CLAUDE_AUTOSTART': '1',
         'CLAUDE_CODE_OAUTH_TOKEN': 'tmux-test-secret',
-        'AGENTDEV_CLAUDE_AUTH_PATH': str(auth_file),
+        'CLAUDE_TEST_STATUS': json.dumps(CLAUDE_AI_LOGIN),
         'CLAUDE_TMUX_TEST_RESULT': str(result_file),
         'DEV_WORKSPACE_FOLDER': str(REPO_ROOT),
     }

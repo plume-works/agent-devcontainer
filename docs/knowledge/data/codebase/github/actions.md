@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:a61d552d1f8bf4b29985c656c818eeca86474d6d43d78d63bed4d09c02516d70
+source_digest: sha256:e6277a9327579f602938c877e1512092e37c39ae2881732e924ffb34c3480b11
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
-stale_after: 2026-12-28
+  at: 2026-10-09T23:30:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T00:00:00Z
+  at: 2026-10-09T23:30:00Z
 sources:
 - id: code
   resource: .github/actions
@@ -61,6 +61,10 @@ gate](../../spec/ai-review-gate.md) once, without waiting.
   runner; the `$RUNNER_TEMP/digests/<image>` parent they create stays.
 - Callers invoke Python tools through `uv run`; `setup-python-venv` never
   activates the environment.
+- `run-claude-responder` runs the three devcontainer lifecycle hooks with
+  `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`, and
+  `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` set, so the headless runner installs no
+  hooks, starts no desktop, and enables no project MCP server.
 - `run-claude-responder` uploads the execution file and checks it for a usage
   limit under `always()`, so a failed Claude step still leaves its output
   inspectable and a quota failure is still reported as one.
@@ -75,16 +79,18 @@ gate](../../spec/ai-review-gate.md) once, without waiting.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-29):
+Verified anchor points (line numbers as of 2026-10-09):
 
-- `.github/actions/paths-filter/action.yml:30-43` — the `image` filter list
+- `.github/actions/paths-filter/action.yml:35-48` — the `image` filter list
 - `.github/actions/paths-filter/action.yml:58-71` — PR vs base-branch modes
-- `.github/actions/ai-review-status/action.yml:1-27` — inputs and outputs
-- `.github/actions/run-claude-responder/action.yml:5-38` — inputs
-- `.github/actions/run-claude-responder/action.yml:112-128` —
+- `.github/actions/ai-review-status/action.yml:6-27` — inputs and outputs
+- `.github/actions/run-claude-responder/action.yml:4-40` — inputs
+- `.github/actions/run-claude-responder/action.yml:95-108` — lifecycle hooks and
+  their opt-outs
+- `.github/actions/run-claude-responder/action.yml:113-129` —
   `Merge Claude settings`, the user, tracked, and optional local layers
-- `.github/actions/run-claude-responder/action.yml:133` —
+- `.github/actions/run-claude-responder/action.yml:134` —
   `Compose Claude arguments`, where `--model` is appended
-- `.github/actions/run-claude-responder/action.yml:161,169` — `always()` on the
+- `.github/actions/run-claude-responder/action.yml:162,170` — `always()` on the
   artifact upload and the usage-limit check
 - `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs
