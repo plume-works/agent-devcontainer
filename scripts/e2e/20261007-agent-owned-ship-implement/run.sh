@@ -150,6 +150,7 @@ greet_untouched() {
 }
 contains() { [[ "$1" == *"$2"* ]]; }
 lacks() { [[ "$1" != *"$2"* ]]; }
+log_has() { jq -e -s "$2" "$1.jsonl" >/dev/null 2>&1; }
 no_workflow_skill() { ! grep -qE 'iwe-(ship|implement)' <<<"$1"; }
 
 gated_skills() {
@@ -161,12 +162,15 @@ gated_skills() {
 
 claude_run() {
   local log="$1" prompt="$2"
+  # --allowedTools takes many values, so a single-value flag must end the list.
   (cd "$clone" && timeout 1200 claude -p --plugin-dir "$catalog" \
-    --permission-mode acceptEdits --output-format stream-json --verbose \
     --allowedTools "Bash(iwe *)" "Bash(git *)" "Bash(grep *)" "Bash(test *)" \
     "Bash(bin/publish-e2e.sh*)" "Bash(./bin/publish-e2e.sh*)" \
     Read Edit Write Grep Glob Skill Agent \
+    --permission-mode acceptEdits --output-format stream-json --verbose \
     "$prompt" </dev/null >"$log.jsonl" 2>"$log.err") || note "claude exited $? ($log)"
+  check "claude run completed: $(basename "$log")" \
+    log_has "$log" 'any(.[]; .type == "result")'
 }
 claude_calls() {
   jq -c --arg n "$2" 'select(.type == "assistant") | .message.content[]?
@@ -277,6 +281,8 @@ codex_run() {
   local log="$1" prompt="$2"
   (cd "$clone" && timeout 1200 codex exec -s workspace-write --json "$prompt" \
     </dev/null >"$log.jsonl" 2>"$log.err") || note "codex exited $? ($log)"
+  check "codex run completed: $(basename "$log")" \
+    log_has "$log" 'any(.[]; .type == "turn.completed")'
 }
 codex_catalog() {
   find "$HOME/.codex/plugins/cache" -mindepth 3 -maxdepth 3 -type d -path '*/agentdev/*' \
@@ -353,6 +359,8 @@ opencode_run() {
   shift
   (cd "$clone" && timeout 1200 opencode run -m "$opencode_model" --format json "$@" \
     </dev/null >"$log.jsonl" 2>"$log.err") || note "opencode exited $? ($log)"
+  check "opencode run completed: $(basename "$log")" \
+    log_has "$log" 'any(.[]; .type == "text")'
 }
 opencode_calls() {
   jq -c --arg t "$2" 'select(.type == "tool_use") | .part | select(.tool == $t) | .state.input' \
