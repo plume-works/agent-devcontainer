@@ -234,8 +234,20 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 
 ### Task 10: OpenCode runs the design end to end
 
-- [ ] The Task 8 checks pass on OpenCode through the bridge, with a model the
+- [x] The Task 8 checks pass on OpenCode through the bridge, with a model the
   maintainer uses.
+  - **Evidence:** OpenCode 1.18.34 `opencode run -m openai/gpt-6-astra` (the
+    maintainer's Codex model and login) through the bridge at b941b6f, on the
+    Task 8 fixtures, with `external_directory` granted for the fixture's scratch
+    directory and the catalog's `agents/`. `agentdev:iwe-ship` dispatched
+    `iwe-shipper` with only the plan key and `ship`, and it stopped for the
+    publish approval with no mutation; re-run with the approval quoted verbatim,
+    it ran the command. `agentdev:iwe-ship-all` dispatched the Shipper and
+    re-posted its Verify verdict and outcome. `agentdev:iwe-implement` read the
+    rulebook in place, dispatched nothing, and asked about the deviation.
+    `agentdev:iwe-explore` made no task or skill call. Both ships then stopped
+    on the plan's missing feature or bug, captured as
+    `data/bugs/ship-release-link-without-feature`.
 
 ## Spec changes
 

@@ -153,6 +153,16 @@ The bridge's `permission.skill.<name> = "deny"` removes a gated skill from the
 model's list and makes the skill tool refuse it, while its `agentdev:<name>`
 command still runs; see [OpenCode catalog bridge](opencode-catalog-bridge.md).
 
+The user's config loads the bridge by absolute path, so the catalog sits outside
+any project. Reading `agents/iwe-implementer.agent.md` from
+`/agentdev:iwe-implement` therefore needs OpenCode's `external_directory`
+permission: interactive OpenCode asks, and `opencode run` auto-rejects it. A
+headless run grants it in the project's `opencode.json`:
+
+``` json
+{"permission": {"external_directory": {"<catalog root>/agents/*": "allow"}}}
+```
+
 ## Rejected alternatives
 
 - **Drop the gate and rely on descriptions.** An ungated skill is listed to the
