@@ -63,7 +63,9 @@ ln -sf /root/.claude/claude.json /root/.claude.json
 
 # Wire the codebase-memory-mcp binary staged by dev_tools into this user's
 # agent config now that the real ~/.claude and ~/.codex volumes are mounted.
-"$script_dir/codebase-memory-mcp-install.sh"
+# Non-fatal: a failure here would also skip postStart (firewall, keyring, Xpra).
+"$script_dir/codebase-memory-mcp-install.sh" ||
+    echo "WARNING: codebase-memory-mcp install failed (exit $?); continuing without it." >&2
 
 # Both agents' credential setup below needs their subdirectory of the shared
 # agentdev-agents-auth volume to exist first.
