@@ -13,22 +13,23 @@ sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .github/actions/run-claude-responder/action.yml
+stage: done
+completed: 2026-10-09
 ---
 
 # Remove Coder agent auth seeding; keep Claude Remote Control autostart
 
 ## Context
 
-[Devcontainer agent authentication and Claude Remote
-Control](../spec/devcontainer-agent-auth.md) seeds native Claude and Codex
-credential documents from the Coder user secrets `AGENTDEV_CLAUDE_JSON` and
-`AGENTDEV_CODEX_JSON` into each nested devcontainer. Claude.ai rotates its
-refresh token on refresh, so one snapshot copied into several workspaces stays
-valid only in the first workspace that refreshes; the others reach
-`Login expired`. Codex seeding shares the same mechanism and goes with it. The
-spec's own "one refresh owner" requirement already rules out the use the feature
-was built for. The maintainer decided to delete the seeding outright; no
-consumer uses it, so there is no deprecation period.
+Devcontainer agent authentication and Claude Remote Control seeds native Claude
+and Codex credential documents from the Coder user secrets
+`AGENTDEV_CLAUDE_JSON` and `AGENTDEV_CODEX_JSON` into each nested devcontainer.
+Claude.ai rotates its refresh token on refresh, so one snapshot copied into
+several workspaces stays valid only in the first workspace that refreshes; the
+others reach `Login expired`. Codex seeding shares the same mechanism and goes
+with it. The spec's own "one refresh owner" requirement already rules out the
+use the feature was built for. The maintainer decided to delete the seeding
+outright; no consumer uses it, so there is no deprecation period.
 
 Claude Remote Control autostart stays. Its current gate treats a non-empty
 `.credentials.json` as a login, but a rejected refresh leaves a non-empty file
@@ -58,10 +59,11 @@ container from `postCreateCommand.sh`, skipped only when
 that `enableAllProjectMcpServers` does not reach the headless responder, whose
 `.mcp.json` names an `mcp-gateway` server that CI does not run.
 
-The spec is retired and split: `spec/claude-remote-control` (autostart and
-pre-approval) and `spec/devcontainer-git-credentials` (Git identity passthrough
-and the `gh` credential helper), since neither half is about agent auth once
-seeding is gone.
+The spec is retired and split: [Claude Remote
+Control](../spec/claude-remote-control.md) (autostart and pre-approval) and
+[Devcontainer Git credentials](../spec/devcontainer-git-credentials.md) (Git
+identity passthrough and the `gh` credential helper), since neither half is
+about agent auth once seeding is gone.
 
 Rejected:
 
@@ -197,11 +199,11 @@ Rejected:
 
 ## Spec changes
 
-Retire [Devcontainer agent authentication and Claude Remote
-Control](../spec/devcontainer-agent-auth.md) (`iwe delete` at Ship, replaced in
-`data/spec.md` by the two new specs). Its `## Setup procedure` steps 1–3 and
-`## Rotation and recovery` go with it; the `## Diagnose Login expired` section
-moves to `spec/claude-remote-control` with its seed references removed.
+Retire Devcontainer agent authentication and Claude Remote Control (`iwe delete`
+at Ship, replaced in `data/spec.md` by the two new specs). Its
+`## Setup procedure` steps 1–3 and `## Rotation and recovery` go with it; the
+`## Diagnose Login expired` section moves to [Claude Remote
+Control](../spec/claude-remote-control.md) with its seed references removed.
 
 ``` markdown
 ## REMOVED Requirements
@@ -232,7 +234,7 @@ Moved unchanged to `spec/devcontainer-git-credentials`.
 Moved unchanged to `spec/devcontainer-git-credentials`.
 ```
 
-New `spec/claude-remote-control`:
+New [Claude Remote Control](../spec/claude-remote-control.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -303,10 +305,10 @@ both files SHALL be preserved. The CI responder SHALL set the opt-out.
   modified.
 ```
 
-New `spec/devcontainer-git-credentials`: the two requirements
-`Git identity reaches the nested container` and `HTTPS git uses the gh login`
-carried over verbatim from the retired spec, plus its step-2 paragraph on
-supplying the `GIT_*` values through Coder.
+New [Devcontainer Git credentials](../spec/devcontainer-git-credentials.md): the
+two requirements `Git identity reaches the nested container` and
+`HTTPS git uses the gh login` carried over verbatim from the retired spec, plus
+its step-2 paragraph on supplying the `GIT_*` values through Coder.
 
 ## Verification
 

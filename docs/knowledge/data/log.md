@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-09
 
+- **Update**: [Remove Coder agent auth seeding; keep Claude Remote Control
+  autostart](plans/20261009-remove-coder-agent-auth-seeding.md) done. Coder
+  credential seeding is gone; Remote Control autostarts only on a live claude.ai
+  login, and every container pre-approves first-run Claude state unless it opts
+  out. The devcontainer agent authentication spec is retired, split into [Claude
+  Remote Control](spec/claude-remote-control.md) and [Devcontainer Git
+  credentials](spec/devcontainer-git-credentials.md).
 - **Update**: [Codebase map](codebase.md) refreshed for the removal of Coder
   agent auth seeding and the Claude login gate: six docs re-verified.
 - **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in

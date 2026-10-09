@@ -17,13 +17,13 @@ moves them.*
 
 ## Active
 
-[Remove Coder agent auth seeding; keep Claude Remote Control
-autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
-
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Remove Coder agent auth seeding; keep Claude Remote Control
+autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Run Node tooling through bun instead of
 npm](plans/20260925-bun-for-node-tooling.md)
