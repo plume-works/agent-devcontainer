@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:104db5c2bf2459c60b6313e6cf1439048dc4a47ce335073821d8c46ae730449c
+source_digest: sha256:db75319462dbba8c6105c519ef8b100ce6c3209aaa16271ec52a1b3c90539351
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:40:00Z
+  at: 2026-10-09T23:55:00Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:40:00Z
+  at: 2026-10-09T23:55:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -39,9 +39,10 @@ state.
    `codebase-memory-mcp install` (a failure only warns), auth directories,
    credential seeding from the transfer directory, Claude first-run pre-approval
    under autostart, the Codex auth link, `uv sync`, then the image-staged
-   catalog installed for Codex, for Claude at user scope, and as OpenCode's
-   bridge plugin — `.devcontainer/scripts/postCreateCommand.sh:56-97`, in
-   [lifecycle scripts](devcontainer/scripts.md)
+   catalog installed for Codex (with its agents), for Claude at user scope, and
+   as OpenCode's bridge plugin —
+   `.devcontainer/scripts/postCreateCommand.sh:56-97`, in [lifecycle
+   scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    credential seeding (consuming the transfer files step 1 rewrote), pre-commit
    hooks, keyring, the gh git credential helper, the firewall gate, Xpra in the

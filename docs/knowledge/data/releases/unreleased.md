@@ -41,6 +41,9 @@ catalog](../features/self-improve-plugin-in-catalog.md)
 
 ## Fixed
 
+[Codex never loads the agentdev catalog
+agents](../bugs/codex-catalog-agents-not-loaded.md)
+
 [Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev
 skills](../bugs/codex-skill-dir-unresolved.md)
 

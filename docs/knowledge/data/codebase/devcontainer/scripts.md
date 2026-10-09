@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth seeding and symlinks, gh credential helper, Claude Remote Control, Codex policy.'
 source: .devcontainer/scripts
-source_digest: sha256:ce908dd34cb703808c443ef4e2d9c2b87cd4555b2a7f6cba5dc1bfe6684ee79d
+source_digest: sha256:0b8e02104c262aa9cc2d412573fc8bc46025c0d43355afd5ac6760e73aadfd09
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:40:00Z
+  at: 2026-10-09T23:55:00Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:40:00Z
+  at: 2026-10-09T23:55:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -60,8 +60,9 @@ reinstall scripts list existing marketplaces whose path is the root, remove each
 (uninstalling at every scope, tolerating "not found"), then add and install. The
 Claude script reads every name from `.plugins[]` and loops, so the Claude
 marketplace's two plugins both install; the Codex script reads `.plugins[0]`,
-which is accurate because its manifest publishes one. The OpenCode script
-rewrites only the `plugin` array of
+which is accurate because its manifest publishes one, then runs that plugin's
+`bin/install-codex-agents.py` under `python3 -B`, skipping a catalog that does
+not ship it. The OpenCode script rewrites only the `plugin` array of
 `${OPENCODE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode}/opencode.json`,
 creating the file when absent, and exits quietly when `root` ships no
 `.opencode-plugin/`. CBM wiring temporarily materializes the `~/.claude.json`
@@ -117,6 +118,8 @@ Verified anchor points (line numbers as of 2026-10-09):
 - `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:64-65` — add + install
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh:69-76` — Codex agent
+  install, skipped for a catalog without the installer
 - `.devcontainer/scripts/reinstall-agentdev-opencode.sh:32-38` — bridge entry
   rewrite
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:55-75` — symlink

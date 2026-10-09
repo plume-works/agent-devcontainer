@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:4dadf95967001fab88a7f826a5b1f5166c28089dc5211cd8e8050f6145c16bcb
+source_digest: sha256:c02df84424f6c4eb3d604982bc89fd1a8afc78d56b3da9d80717041b0988c111
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
+  at: 2026-10-09T18:00:00Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
+  at: 2026-10-09T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -65,9 +65,10 @@ source. The image build copies `.claude-plugin/` and `.agents/` whole into
 ([agentic_tools](../../ansible/roles/agentic_tools.md)); the devcontainer
 lifecycle installs again over the mounted volumes and, for this repository only,
 re-registers the workspace copy on attach ([lifecycle
-scripts](../../devcontainer/scripts.md)). Codex reads the same files; there is
-no generated mirror. OpenCode reads them too, translated at startup by the
-bridge rather than copied.
+scripts](../../devcontainer/scripts.md)). Codex reads the same skills; its
+agents are the one generated copy, written into `~/.codex/agents/` at install by
+`bin/install-codex-agents.py`. OpenCode reads them too, translated at startup by
+the bridge rather than copied.
 
 ## Depends on
 
@@ -86,7 +87,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-05):
+Verified anchor points (line numbers as of 2026-10-08):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
