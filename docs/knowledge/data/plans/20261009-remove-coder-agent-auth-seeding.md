@@ -186,9 +186,14 @@ Rejected:
 `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md`, and any other doc
 `stale-map-docs.py` reports
 
-- [ ] Run `/agentdev:iwe-map` refresh so the map no longer lists the seed
+- [x] Run `/agentdev:iwe-map` refresh so the map no longer lists the seed
   scripts, the transfer directory, or `spec/devcontainer-agent-auth`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
+  - **Evidence:** commit "map: refresh six docs for agent auth seeding removal"
+    (the three named docs plus `github/actions`, `github`, and
+    `flow-pull-request-checks`); `stale-map-docs.py` ends `RESULT=SUCCESS`, and
+    a `grep` of `data/codebase` for the seed scripts, the transfer directory,
+    and `devcontainer-agent-auth` finds nothing.
 
 ## Spec changes
 

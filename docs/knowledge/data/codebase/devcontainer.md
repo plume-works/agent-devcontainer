@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:b60998a9488170e9455bc622ce2007895057e08ceeb7eeb7db426032e14f022c
+source_digest: sha256:641079e6de79bae0bc245e154faaa38ba3ce555f0c5c289ae89853794b5b4bd9
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
-stale_after: 2027-01-06
+  at: 2026-10-09T23:30:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
+  at: 2026-10-09T23:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -39,9 +39,8 @@ pulled.
   (`:253-256`)
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the pass-through
-  `GIT_*` identity variables (`:70-73`), the shared `agentdev-agents-auth`
-  volume (`:104`), and the auth transfer directory at `/run/agentdev-auth-seed`
-  (`:108`)
+  `GIT_*` identity variables (`:70-73`) and the shared `agentdev-agents-auth`
+  volume (`:104`)
 - `devcontainer-compose-pins.yml` — the digest pin Renovate advances
 - `.devcontainer/firewall-allowlist.txt` — read by the firewall at start
 - `.devcontainer/.agent.metadata.json` — masks the feature version pins, and the
@@ -54,16 +53,12 @@ pulled.
 `.devcontainer/.env` with the git common dir, the workspace path and basename,
 and the host MCP directory and secrets socket when Docker Desktop provides them
 (stubs otherwise), and creates the `agentdev-agents-auth` volume Compose
-declares as external. It also runs `prepare-agent-auth-seed.sh`, which writes
-any Coder-injected agent credential JSON into a per-workspace
-`/tmp/agentdev-auth-seed-<hash>` directory whose path goes into `.env`; the
-[lifecycle scripts](devcontainer/scripts.md) consume it. Compose then layers the
-tag-only `docker-compose.yml` under the digest pin, mounts the workspace at
-`/workspaces/<basename>` and the git common dir at its host path so worktrees
-resolve, and starts the MCP gateway only when the `mcp` profile was activated.
-Per-instance state (`~/.claude`, `~/.codex`, `/uv`, `.cache`) is on
-Compose-scoped volumes; only credentials share the literal
-`agentdev-agents-auth` volume across instances.
+declares as external. Compose then layers the tag-only `docker-compose.yml`
+under the digest pin, mounts the workspace at `/workspaces/<basename>` and the
+git common dir at its host path so worktrees resolve, and starts the MCP gateway
+only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
+`~/.codex`, `/uv`, `.cache`) is on Compose-scoped volumes; only credentials
+share the literal `agentdev-agents-auth` volume across instances.
 
 ## Depends on
 
@@ -85,20 +80,20 @@ moves the digest pin.
   script defaults `HOME` to empty so the host probes fall through.
 - The `GIT_*` identity entries carry no value, so an unset host variable stays
   unset in the container; an empty value would override `user.name`.
-- Credential JSON never enters the Compose environment; only the transfer
-  directory path does. See spec/devcontainer-agent-auth.
+- No credential enters through Compose; a login is made inside a container and
+  persists in the shared volume.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-04):
+Verified anchor points (line numbers as of 2026-10-09):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:51-57` — Xpra port forwarding
 - `.devcontainer/devcontainer.json:58-102` — the four volume mounts
 - `.devcontainer/devcontainer.json:253-256` — lifecycle commands
-- `.devcontainer/docker-compose.yml:2,53,112` — sidecar, service, volumes
-- `.devcontainer/docker-compose.yml:70-73,108` — identity pass-through, auth
-  transfer mount
+- `.devcontainer/docker-compose.yml:2,53,108` — sidecar, service, volumes
+- `.devcontainer/docker-compose.yml:70-73,104` — identity pass-through, shared
+  auth volume
 - `.devcontainer/devcontainer-init.sh:11` — `HOME` default for Codespaces
-- `.devcontainer/devcontainer-init.sh:33-37` — auth transfer directory
+- `.devcontainer/devcontainer-init.sh:24` — shared auth volume creation
 - `devcontainer-compose-pins.yml:14` — the digest pin

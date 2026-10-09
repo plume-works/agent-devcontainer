@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-09
 
+- **Update**: [Codebase map](codebase.md) refreshed for the removal of Coder
+  agent auth seeding and the Claude login gate: six docs re-verified.
 - **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in
   CI and Renovate post-upgrade: eight docs re-verified.
 - **Update**: [Run Node tooling through bun instead of
