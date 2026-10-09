@@ -1,9 +1,10 @@
 ---
 type: bug
+stage: done
 description: Tables Codex writes into config.toml land inside codebase-memory-mcp's trailing SessionStart block, so every later cbm install refuses with ambiguous_hook_ownership, and the failed install used to abort postCreate and skip all of postStart.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:20:00Z
+  at: 2026-10-10T00:05:00Z
 sources:
 - resource: https://github.com/DeusData/codebase-memory-mcp/issues/2435
   title: 'install: tables Codex Desktop appends above the trailing SessionStart closing marker make the Codex hook preflight refuse (`ambiguous_hook_ownership`)'
