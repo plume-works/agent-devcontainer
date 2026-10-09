@@ -55,3 +55,6 @@ actionlint](bugs/runner-label-ahead-of-actionlint.md)
 
 [Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev
 skills](bugs/codex-skill-dir-unresolved.md)
+
+[Codex tables inside cbm hooks block break cbm
+install](bugs/cbm-codex-hooks-block-foreign-tables.md)
