@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:81ea45be06fee37f060f494be41d20e0ebabc60dd4644b83af103185cbf9b665
+source_digest: sha256:3dc0a86ae64a56667289d90a924b4d4c94e984204ac72e50e103996e0272d27e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-09T14:30:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-09T14:30:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -71,8 +71,9 @@ flow](../flow-pull-request-checks.md).
 
 ## Invariants & gotchas
 
-- `IWE_VERSION` in `validate-knowledge-base.yml` must match the `iwe` pin in
-  [dev_tools](../ansible/roles/dev_tools.md).
+- `validate-knowledge-base.yml` installs `iwe` from the
+  [dev_tools](../ansible/roles/dev_tools.md) pin, so its paths filter includes
+  that pin file.
 - `permissions: {}` at the top of `primary-checks.yml`; each job grants only
   what it uses.
 - The `agent-desktop` digest in `renovate.yml`, `validate-renovate-config.yml`,
@@ -120,8 +121,8 @@ Verified anchor points (line numbers as of 2026-10-04):
 - `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
 - `.github/workflows/validate-agent-files.yml:38-99` — map-source filter and the
   check steps
-- `.github/workflows/validate-knowledge-base.yml:19,69-109` — `IWE_VERSION`,
-  graph validation, and the path-filtered seed suite
+- `.github/workflows/validate-knowledge-base.yml:38-47,84-104` — paths filter,
+  pinned iwe, graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
 - `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
   markers, both anchored to their own line

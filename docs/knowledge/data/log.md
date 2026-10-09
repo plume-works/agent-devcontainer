@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-09
 
+- **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in
+  CI and Renovate post-upgrade: eight docs re-verified.
 - **Update**: [Configure devcontainer Codex for full
   access](plans/20261005-codex-full-access-config.md) done. Devcontainer Codex
   runs with full access and no approval prompts, per the new [Devcontainer Codex

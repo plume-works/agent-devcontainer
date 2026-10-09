@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:a33dcc0099b6bc9bd705d56775f57f02d72b48fc01acb228066c96786248ceeb
+source_digest: sha256:d29ec11dec4534ad5804324d89772874d98e029aa717aad242408d1b0d2cb223
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-09T14:30:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-09T14:30:00Z
 sources:
 - id: code
   resource: .github
@@ -83,18 +83,18 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 Verified anchor points (line numbers as of 2026-10-04):
 
-- `.github/renovate.json:5-21` — `postUpgradeTasks`
-- `.github/renovate.json:22-27` — lock-file maintenance automerge
-- `.github/renovate.json:32-38` — Actions automerge
-- `.github/renovate.json:39-47` — `agent-desktop` digest group and automerge
-- `.github/renovate.json:48-55` — Dev Container features automerged
-- `.github/renovate.json:56-62` — Dockerfile `ubuntu` base disabled
-- `.github/renovate.json:63-69` — pre-commit hook revisions automerged
-- `.github/renovate.json:70-92` — Super-Linter family disabled
-- `.github/renovate.json:93-109` — role dependency pins grouped and automerged,
+- `.github/renovate.json:5-23` — `postUpgradeTasks`
+- `.github/renovate.json:24-29` — lock-file maintenance automerge
+- `.github/renovate.json:34-40` — Actions automerge
+- `.github/renovate.json:41-49` — `agent-desktop` digest group and automerge
+- `.github/renovate.json:50-57` — Dev Container features automerged
+- `.github/renovate.json:58-64` — Dockerfile `ubuntu` base disabled
+- `.github/renovate.json:65-71` — pre-commit hook revisions automerged
+- `.github/renovate.json:72-94` — Super-Linter family disabled
+- `.github/renovate.json:95-111` — role dependency pins grouped and automerged,
   with `astral-sh/uv` grouped across both places it is pinned
-- `.github/renovate.json:111-148` — the custom managers: post-upgrade script's
+- `.github/renovate.json:113-150` — the custom managers: post-upgrade script's
   devcontainer CLI, `dev_tools` versions, role version pins, commit pins
 - `.github/.agent.metadata.json` — runner-label and image-digest masks
-- `.github/workflows/validate-knowledge-base.yml:69-109` — seed filter and
+- `.github/workflows/validate-knowledge-base.yml:69-104` — seed filter and
   standalone seed validation

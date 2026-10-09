@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:d2844648e0a1273bdc3860d3b9f0c7b7a9f6a7790e2506f7a47feefdb8ea83f5
+source_digest: sha256:64b7cad8f5260795549dbcb4ace32db0ad4849873a38540e1e5a54e7529410f2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
-stale_after: 2027-01-02
+  at: 2026-10-09T14:30:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  at: 2026-10-09T14:30:00Z
 sources:
 - id: code
   resource: .github
@@ -46,12 +46,12 @@ before the push.
    `validate_agent_files --recommend . --require-marketplace claude codex`, then
    `stale-map-docs.py`, which fails the job when a map doc no longer matches the
    code it describes — `.github/workflows/validate-agent-files.yml:38-99`
-5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, or the IWE
-   seed changed: `iwe schema validate`, `iwe normalize` must be a no-op, and the
-   plan-checkbox tests; a second, path-filtered pytest pass assembles and
-   validates the consumer seed —
-   `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in [the
-   knowledge workspace](docs/knowledge.md)
+5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, the IWE seed,
+   or the `dev_tools` pins changed, with the pinned `iwe`:
+   `iwe schema validate`, `iwe normalize` must be a no-op, and the plan-checkbox
+   tests; a second, path-filtered pytest pass assembles and validates the
+   consumer seed — `.github/workflows/validate-knowledge-base.yml:38-47,69-104`,
+   in [the knowledge workspace](docs/knowledge.md)
 6. `validate-renovate-config.yml`: its `paths-filter` passes when
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
