@@ -16,13 +16,12 @@ completed: 2026-10-07
 ## Context
 
 [PR review correctness bar](../architecture/pr-review-correctness-bar.md)
-records the mixed result of the
-[scenario-bar spike](20260929-pr-review-scenario-bar-spike.md). The
-reachable-scenario correctness passes found the out-of-diff K4 bug in both #203
-runs and added no correctness noise. In one of two #199 runs, however, the
-validator dropped K1. That decision leaves validator strictness as the open
-question and keeps the shipped bar unchanged until a correction is shown to
-hold.
+records the mixed result of the [scenario-bar
+spike](20260929-pr-review-scenario-bar-spike.md). The reachable-scenario
+correctness passes found the out-of-diff K4 bug in both #203 runs and added no
+correctness noise. In one of two #199 runs, however, the validator dropped K1.
+That decision leaves validator strictness as the open question and keeps the
+shipped bar unchanged until a correction is shown to hold.
 
 The two K1 candidates differ in whether they name an outcome. The dropped one
 names a trigger and a path but no wrong outcome ("operate on the same repository
@@ -66,8 +65,8 @@ in one edit to `pr-review/SKILL.md`, merged only if the replays in
 
 The validator stays on the `light` model at every effort level, as recorded in
 [PR review effort tiers](../architecture/pr-review-effort-tiers.md). Validating
-correctness candidates on the `large` model is parked as
-[a someday idea](../someday/pr-review-large-validator.md) pending a cost/benefit
+correctness candidates on the `large` model is parked as [a someday
+idea](../someday/pr-review-large-validator.md) pending a cost/benefit
 evaluation.
 
 **Rejected: change the validator but keep the diff-only bar.** Under the shipped
@@ -155,9 +154,9 @@ harmless, so each mutant fails only in its broken part.
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
 - [x] Apply the spike's correctness-bar hunks (`@@ -49`, `@@ -57`, `@@ -63`,
-  `@@ -66`, `@@ -127`) from the
-  [scenario-bar spike's ### Variant skill diff](20260929-pr-review-scenario-bar-spike.md),
-  re-anchored to the current file.
+  `@@ -66`, `@@ -127`) from the [scenario-bar spike's ### Variant skill
+  diff](20260929-pr-review-scenario-bar-spike.md), re-anchored to the current
+  file.
   - **Evidence:** the
     `feat(pr-review): ship the reachable-scenario correctness bar` commit
     applies the five hunks verbatim at unchanged line numbers;
@@ -280,8 +279,8 @@ harmless, so each mutant fails only in its broken part.
 `docs/knowledge/data/architecture/pr-review-scenario-validation.md` Modify:
 `docs/knowledge/data/architecture.md`
 
-- [x] File the outcome against `## Verification` as a decision linking
-  [PR review correctness bar](../architecture/pr-review-correctness-bar.md). It
+- [x] File the outcome against `## Verification` as a decision linking [PR
+  review correctness bar](../architecture/pr-review-correctness-bar.md). It
   records the shipped bar, A, B, and C with the rejected alternatives; the
   maintainer's decision to ship with the M1–M3 controls failing, because the
   validator judges the fault rather than each stated part; the exclusion of
@@ -290,8 +289,9 @@ harmless, so each mutant fails only in its broken part.
   run. Link it from `data/architecture.md`.
   - **Evidence:** the
     `docs(architecture): record the scenario validation decision` commit adds
-    [PR review scenario validation](../architecture/pr-review-scenario-validation.md)
-    and its `data/architecture.md` link; `iwe schema validate` passes.
+    [PR review scenario
+    validation](../architecture/pr-review-scenario-validation.md) and its
+    `data/architecture.md` link; `iwe schema validate` passes.
 
 ## Spec changes
 
@@ -310,8 +310,8 @@ The change ships when all of the following hold:
 - **Full replays:** both #199 runs validate K1; both #203 runs validate K4 and
   every one of K2, K3, K5, and K6; and each run has at most one unmatched
   correctness finding the maintainer judges noise. Compliance and
-  durable-knowledge noise is excluded, as it has independent owners (see
-  [PR review correctness bar](../architecture/pr-review-correctness-bar.md)).
+  durable-knowledge noise is excluded, as it has independent owners (see [PR
+  review correctness bar](../architecture/pr-review-correctness-bar.md)).
 - Every new-arm and full-replay `DROP` of a correctness candidate names a part.
 
 By the maintainer's decision, two checks do not gate shipping:
@@ -422,10 +422,10 @@ None is noise, so the full-replay criteria in `## Verification` hold.
 
 ## Out of scope
 
-- Changing the validator's model; see
-  [Validate correctness candidates on the large model](../someday/pr-review-large-validator.md).
-- The compliance, durable-knowledge, and map-metadata noise owners named in
-  [PR review correctness bar](../architecture/pr-review-correctness-bar.md).
+- Changing the validator's model; see [Validate correctness candidates on the
+  large model](../someday/pr-review-large-validator.md).
+- The compliance, durable-knowledge, and map-metadata noise owners named in [PR
+  review correctness bar](../architecture/pr-review-correctness-bar.md).
 - Changing the compliance or durable-knowledge validation bar.
 - Light-effort replays, Claude replays, and a permanent replay mode in
   `pr-review`.

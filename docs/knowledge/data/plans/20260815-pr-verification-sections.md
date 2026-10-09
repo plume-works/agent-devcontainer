@@ -43,14 +43,12 @@ already run, and instructions for the reader — under one heading, four of them
 restating work CI already performs. Applying the two filters collapses that
 section to two items, both manual-only.
 
-The underlying principle is
-[evidence and outstanding work](../concept/evidence-and-outstanding-work.md).
-The plan-document instance of the same defect is
-[plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md), whose
-plan —
-[Make plan checkboxes carry their evidence](20260815-honest-plan-checkboxes.md)
-— establishes the `**Evidence:**` child-line vocabulary this reuses
-deliberately.
+The underlying principle is [evidence and outstanding
+work](../concept/evidence-and-outstanding-work.md). The plan-document instance
+of the same defect is [plan checkbox
+over-claiming](../bugs/plan-checkbox-over-claiming.md), whose plan — [Make plan
+checkboxes carry their evidence](20260815-honest-plan-checkboxes.md) —
+establishes the `**Evidence:**` child-line vocabulary this reuses deliberately.
 
 ## Approach
 
@@ -169,8 +167,8 @@ has nothing in-repo pointing anywhere), and symlinking it to the skill (nothing
 reads the template — `pr-open` always passes `gh pr create --body-file` — so the
 link would preserve an unread file, the skill's structure is a section list
 inside `SKILL.md` rather than a standalone file to point at, and this repository
-tracks no symlinks, having just removed its only one for the reasons in
-[uv environment location](../architecture/uv-environment-location.md)).
+tracks no symlinks, having just removed its only one for the reasons in [uv
+environment location](../architecture/uv-environment-location.md)).
 
 ### Task 3: Review standards skill
 
@@ -232,9 +230,9 @@ tracks no symlinks, having just removed its only one for the reasons in
 None. No `data/spec/` document covers pull request body structure:
 `template-consumption.md` governs what a consuming repository copies and adapts,
 not the shape of a PR description. The contract here is prose in the plugin's
-skills, and the decision it derives from is
-[PR verification sections](../architecture/pr-verification-sections.md) — a
-`data/architecture/` document, which is where this belongs.
+skills, and the decision it derives from is [PR verification
+sections](../architecture/pr-verification-sections.md) — a `data/architecture/`
+document, which is where this belongs.
 
 If a spec is ever wanted for this, it would be a new `data/spec/` document about
 the plugin's authored-artifact formats, covering the plan-checkbox format
@@ -243,12 +241,11 @@ such format appears.
 
 ## Depends on
 
-None.
-[Make plan checkboxes carry their evidence](20260815-honest-plan-checkboxes.md)
-shares this plan's vocabulary but not its files: that plan changes
-`.claude/skills/` and adds a pytest over `data/plans/`; this one changes
-`.github/` and `.agents/plugins/agentdev/skills/`. They can ship in either
-order.
+None. [Make plan checkboxes carry their
+evidence](20260815-honest-plan-checkboxes.md) shares this plan's vocabulary but
+not its files: that plan changes `.claude/skills/` and adds a pytest over
+`data/plans/`; this one changes `.github/` and
+`.agents/plugins/agentdev/skills/`. They can ship in either order.
 
 ## Verification
 

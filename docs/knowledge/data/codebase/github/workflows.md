@@ -60,9 +60,9 @@ never write the same branch at once and a skipped bot edit never enters it.
 Knowledge validation always checks this graph when its outer filter passes and
 runs the standalone consumer-seed suite only when its inner seed filter passes.
 Agent-file validation's filter covers the union of codebase map `source` paths,
-then its final step verifies every recorded digest. The full traces are
-[the image build flow](../flow-image-build.md) and
-[the pull request checks flow](../flow-pull-request-checks.md).
+then its final step verifies every recorded digest. The full traces are [the
+image build flow](../flow-image-build.md) and [the pull request checks
+flow](../flow-pull-request-checks.md).
 
 ## Depends on
 
@@ -77,17 +77,17 @@ then its final step verifies every recorded digest. The full traces are
   what it uses.
 - The `agent-desktop` digest in `renovate.yml`, `validate-renovate-config.yml`,
   and the responder's two container jobs must equal
-  `devcontainer-compose-pins.yml`'s; see
-  [image pinning](../../spec/image-pinning.md).
+  `devcontainer-compose-pins.yml`'s; see [image
+  pinning](../../spec/image-pinning.md).
 - `RENOVATE_ALLOWED_COMMANDS` admits only `scripts/renovate-post-upgrade.sh`,
   the one `postUpgradeTasks` command `renovate.json` runs.
 - The Renovate App token names its permissions; one Renovate newly needs is
-  added to the token step as well as to the App. See
-  [Renovate post-upgrade](../../architecture/renovate-post-upgrade.md).
+  added to the token step as well as to the App. See [Renovate
+  post-upgrade](../../architecture/renovate-post-upgrade.md).
 - `Renovate config validation finished` reports on every PR, so it can be a
   required check while `validate` is path-filtered; the version and flag choices
-  are
-  [Renovate config validation](../../architecture/renovate-config-validation.md).
+  are [Renovate config
+  validation](../../architecture/renovate-config-validation.md).
 - `commit-format-changes` skips the push on a PR authored by a login in its
   `RENOVATE_BOT_ACTORS`, so the `gate` fails rather than put a foreign commit on
   a branch Renovate would then stop updating.
@@ -100,12 +100,13 @@ then its final step verifies every recorded digest. The full traces are
 - A `[ci:review-effort=light|full]` marker on its own line, or an
   `@claude review light|full` comment that outranks it, selects the review's
   effort tier; preflight resolves it because only a workflow-level `--model` can
-  size the session. The reasoning is in
-  [PR review effort tiers](../../architecture/pr-review-effort-tiers.md).
+  size the session. The reasoning is in [PR review effort
+  tiers](../../architecture/pr-review-effort-tiers.md).
 - The `if:` gate admitting an `@claude` mention folds case, because the workflow
   expression language's `startsWith` does. Every mention test in the workflow's
-  JavaScript folds it too, so the two agree on what a mention is — see
-  [the capitalized-mention misroute](../../bugs/responder-mention-case-sensitivity.md).
+  JavaScript folds it too, so the two agree on what a mention is — see [the
+  capitalized-mention
+  misroute](../../bugs/responder-mention-case-sensitivity.md).
 
 ## Key references
 

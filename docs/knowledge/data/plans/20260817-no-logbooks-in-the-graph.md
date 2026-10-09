@@ -23,14 +23,14 @@ completed: 2026-08-24
 
 ## Context
 
-An implementation session grew
-[AI responder workflows](20260816-ai-responder-workflows.md) from 299 to 558
-lines, and almost none of the growth was plan content. It was narration of the
-work in progress: six references to CI run IDs, an eleven-variable table, an
-ablation matrix, a two-failed-runs story, phrases like "died one script later".
-The maintainer caught it and the plan was cut back to 471 lines with its
-evidence intact, but the same failure has occurred on other tasks, so the
-wording — not that one session — is what needs to change.
+An implementation session grew [AI responder
+workflows](20260816-ai-responder-workflows.md) from 299 to 558 lines, and almost
+none of the growth was plan content. It was narration of the work in progress:
+six references to CI run IDs, an eleven-variable table, an ablation matrix, a
+two-failed-runs story, phrases like "died one script later". The maintainer
+caught it and the plan was cut back to 471 lines with its evidence intact, but
+the same failure has occurred on other tasks, so the wording — not that one
+session — is what needs to change.
 
 The checkbox discipline held perfectly. All 27 ticks carried evidence lines,
 one-to-one, and survived the cleanup untouched. Every rule
@@ -40,8 +40,8 @@ commits, and deviations; the damage landed entirely in `## Context`,
 
 One clause actively invites it. `.claude/skills/plan/SKILL.md:69-71` defines
 `## Verification results` as "narrative evidence for the plan as a whole,
-written as the work happens rather than reconstructed at the end", and
-[Plan checkbox evidence](../spec/plan-checkbox-evidence.md) reinforces it with a
+written as the work happens rather than reconstructed at the end", and [Plan
+checkbox evidence](../spec/plan-checkbox-evidence.md) reinforces it with a
 scenario covering results "or discovers something that changes what the plan
 claims". Both are correct and deliberately scoped. But read mid-implementation
 they land as a general licence to write narrative into the plan as things
@@ -59,12 +59,12 @@ exactly the shape per-edit rules cannot catch.
 A routing rule already exists in [Product](../product.md) `## Authoring rules` —
 spike findings go to `data/bugs/`, design decisions to `data/architecture/` —
 and it is why the cleanup went smoothly once triggered: the minimal-contract
-table moved to
-[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md)
-and fit as though written for it. But `implement` never cites that rule, and
-`explore` has a whole `## Capturing` section
-(`.claude/skills/explore/SKILL.md:47`) that `implement` lacks. The skill that
-generates the most findings has the least guidance on where they belong.
+table moved to [CI agent plugin
+availability](../architecture/ci-agent-plugin-availability.md) and fit as though
+written for it. But `implement` never cites that rule, and `explore` has a whole
+`## Capturing` section (`.claude/skills/explore/SKILL.md:47`) that `implement`
+lacks. The skill that generates the most findings has the least guidance on
+where they belong.
 
 The behavior is not specific to plans or to this repository's graph. The
 maintainer reports the same residue in READMEs, code comments, skill files, and
@@ -469,10 +469,9 @@ remain the Plan skill's to own.
   `.agents/plugins/agentdev/skills/iwe-audit/SKILL.md:14-20`
 - Confirm no pointer to the extracted block dangles:
   `grep -n "see Project memory" AGENTS.md` returns nothing
-- Re-read the cleaned
-  [AI responder workflows](20260816-ai-responder-workflows.md) against the new
-  wording and confirm the rules would have caught what the maintainer caught by
-  hand
+- Re-read the cleaned [AI responder
+  workflows](20260816-ai-responder-workflows.md) against the new wording and
+  confirm the rules would have caught what the maintainer caught by hand
 
 ## Out of scope
 
@@ -486,10 +485,11 @@ remain the Plan skill's to own.
   historical records; retroactively cutting narration from them would destroy
   evidence to satisfy a rule written afterwards
 - Automating detection of narration growth — deferred to backlog in Task 8
-- Moving the skills into the agentdev plugin. Tracked independently by
-  [Move the IWE workflow skills into the agentdev plugin](20260816-move-iwe-skills-to-agentdev.md);
-  the two plans touch the same files but not the same concerns, and whichever
-  lands second re-locates its anchors
+- Moving the skills into the agentdev plugin. Tracked independently by [Move the
+  IWE workflow skills into the agentdev
+  plugin](20260816-move-iwe-skills-to-agentdev.md); the two plans touch the same
+  files but not the same concerns, and whichever lands second re-locates its
+  anchors
 - Changing `data/log.md`'s chronological form, or `data/bugs/`'s Symptom /
   Reproduction / Root cause / Fix shape. Both are deliberate and the prohibition
   carves them out explicitly

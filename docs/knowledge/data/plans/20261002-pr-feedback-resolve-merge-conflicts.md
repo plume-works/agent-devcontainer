@@ -18,7 +18,8 @@ sources:
 
 ## Context
 
-[Resolve merge conflicts in pr-feedback-resolution](../backlog/pr-feedback-resolve-merge-conflicts.md)
+[Resolve merge conflicts in
+pr-feedback-resolution](../backlog/pr-feedback-resolve-merge-conflicts.md)
 records the gap: `pr-feedback-resolution` collects review threads, review
 bodies, CI, CodeQL, and Codecov, but never reads the pull request's merge state.
 A PR that conflicts with its base gets no `pull_request` workflow runs, so the

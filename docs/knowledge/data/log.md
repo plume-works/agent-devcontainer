@@ -6,59 +6,55 @@ to the current day's group.
 
 ## 2026-10-09
 
-- **Update**:
-  [Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
-  done. Devcontainer Codex runs with full access and no approval prompts, per
-  the new [Devcontainer Codex policy](spec/devcontainer-codex-policy.md) spec.
+- **Update**: [Configure devcontainer Codex for full
+  access](plans/20261005-codex-full-access-config.md) done. Devcontainer Codex
+  runs with full access and no approval prompts, per the new [Devcontainer Codex
+  policy](spec/devcontainer-codex-policy.md) spec.
 
 ## 2026-10-08
 
-- **Update**:
-  [Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
+- **Update**: [Keep agentdev enabled in the responder and collect review passes
+  in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
   done. The responder layers the hook-written user settings under the project
   settings, and `pr-review` collects its passes with foreground `Agent` calls.
-- **Update**:
-  [The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
-  fixed.
-- **Update**:
-  [Fail a review run that published no review](backlog/fail-review-run-without-review.md)
-  task filed.
-- **Update**:
-  [Codex full access in the devcontainer](architecture/codex-full-access-in-devcontainer.md)
-  recorded; refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow
-  codebase maps for the `configure-codex.py` postStart step.
+- **Update**: [The review orchestrator ends its turn while its passes are still
+  running](bugs/review-orchestrator-ends-turn-while-passes-run.md) fixed.
+- **Update**: [Fail a review run that published no
+  review](backlog/fail-review-run-without-review.md) task filed.
+- **Update**: [Codex full access in the
+  devcontainer](architecture/codex-full-access-in-devcontainer.md) recorded;
+  refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow codebase
+  maps for the `configure-codex.py` postStart step.
 
 ## 2026-10-07
 
-- **Update**:
-  [Ship the reachable-scenario bar with part-by-part validation in pr-review](plans/20261005-pr-review-scenario-validation.md)
-  done. `pr-review` ships the reachable-scenario correctness bar with three-part
-  scenarios validated as written; see
-  [PR review scenario validation](architecture/pr-review-scenario-validation.md).
+- **Update**: [Ship the reachable-scenario bar with part-by-part validation in
+  pr-review](plans/20261005-pr-review-scenario-validation.md) done. `pr-review`
+  ships the reachable-scenario correctness bar with three-part scenarios
+  validated as written; see [PR review scenario
+  validation](architecture/pr-review-scenario-validation.md).
 - **Update**: Re-verified the agentdev and agentdev skills codebase maps after
   the pr-review correctness-bar change.
 
 ## 2026-10-05
 
-- **Update**:
-  [Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
-  done. The Codex replay was mixed, so the shipped correctness bar stays
-  unchanged and validator strictness is the open question; see
-  [PR review correctness bar](architecture/pr-review-correctness-bar.md).
+- **Update**: [Spike: does a reachable-scenario bar let pr-review find
+  Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md) done. The
+  Codex replay was mixed, so the shipped correctness bar stays unchanged and
+  validator strictness is the open question; see [PR review correctness
+  bar](architecture/pr-review-correctness-bar.md).
 - **Update**: [Native stacked pull requests](features/native-stacked-prs.md)
   implemented.
-- **Update**:
-  [Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
-  done. The PR skills merge every PR explicitly, merge a GitHub native stack
-  through `gh stack merge` with the new pr-merge-stack skill, and route stack
-  branches through `gh stack`; force-pushes are limited to `gh stack` on stack
-  branches.
+- **Update**: [Adopt GitHub native stacked pull
+  requests](plans/20261002-native-stacked-prs.md) done. The PR skills merge
+  every PR explicitly, merge a GitHub native stack through `gh stack merge` with
+  the new pr-merge-stack skill, and route stack branches through `gh stack`;
+  force-pushes are limited to `gh stack` on stack branches.
 - **Update**: [Stacked PRs](spec/stacked-prs.md) spec created.
 - **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec resolves a
   conflicted stacked PR with `gh stack rebase`.
-- **Update**:
-  [Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
-  done.
+- **Update**: [Load the agentdev catalog into OpenCode through a bridge
+  plugin](plans/20261001-opencode-catalog-bridge.md) done.
 - **Update**: [OpenCode as a catalog host](features/opencode-catalog-host.md)
   implemented.
 - **Update**: [OpenCode catalog bridge](spec/opencode-catalog-bridge.md) spec
@@ -85,29 +81,27 @@ to the current day's group.
 - **Update**: Re-stamped the agentdev, agentdev skills, and agentdev tests
   codebase maps after merging the push-time map gate with the move to
   `agent-code/`.
-- **Update**:
-  [Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
-  done. Bundled skill code lives in `agent-code/` and skill bodies reference it
-  relative to the skill directory; agentdev 4.1.0 and self-improve 0.1.1 ship
-  it.
-- **Update**:
-  [Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](bugs/codex-skill-dir-unresolved.md)
-  fixed.
+- **Update**: [Reference bundled skill code by skill-relative agent-code
+  paths](plans/20261001-skill-relative-agent-code.md) done. Bundled skill code
+  lives in `agent-code/` and skill bodies reference it relative to the skill
+  directory; agentdev 4.1.0 and self-improve 0.1.1 ship it.
+- **Update**: [Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev
+  skills](bugs/codex-skill-dir-unresolved.md) fixed.
 - **Update**: Refreshed the fifteen codebase-map docs that the move of bundled
   skill code to `agent-code/` and the validator 1.0.1 remediation changed, and
   re-stamped five of them for the agentdev 4.1.0 version pins.
-- **Update**:
-  [Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+- **Update**: [Resolve merge conflicts in
+  pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
   done. pr-feedback-resolution merges a conflicted PR's base through
   update-branch before collecting feedback, pr-merge routes conflicted PRs to
   it, and update-branch accepts a calling skill's `--base`.
 - **Update**: [PR merge conflicts](spec/pr-merge-conflicts.md) spec created.
 - **Update**: Refreshed the agentdev and agentdev skills codebase maps after the
   pr-merge, pr-feedback-resolution, and update-branch skill edits.
-- **Update**:
-  [Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
-  done. `push-branch.sh` refuses to push a stale codebase map, the pull request
-  skills push through it, and the AI review leaves map staleness to CI.
+- **Update**: [Refresh the codebase map before pushing and keep its staleness
+  out of AI reviews](plans/20260929-map-refresh-before-push.md) done.
+  `push-branch.sh` refuses to push a stale codebase map, the pull request skills
+  push through it, and the AI review leaves map staleness to CI.
 - **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained an agent
   push carrying a fresh codebase map.
 - **Update**: [Fresh codebase map on push](features/fresh-map-on-push.md)
@@ -119,11 +113,10 @@ to the current day's group.
 
 - **Update**: Refreshed the three codebase-map docs the push-branch map check on
   an up-to-date head moved.
-- **Update**:
-  [Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
-  done. The agentdev plugin declares no hooks and is released as 4.0.0; the
-  agentdev, devcontainer-lifecycle, and three image codebase maps were
-  refreshed.
+- **Update**: [Remove the agentdev SessionStart
+  hook](backlog/remove-agentdev-session-start-hook.md) done. The agentdev plugin
+  declares no hooks and is released as 4.0.0; the agentdev,
+  devcontainer-lifecycle, and three image codebase maps were refreshed.
 
 ## 2026-09-30
 
@@ -134,23 +127,22 @@ to the current day's group.
 
 - **Update**: Refreshed the two codebase-map docs the Dev Container feature
   automerge rule in `renovate.json` moved.
-- **Update**:
-  [Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
-  done. Renovate runs from `renovate.yml` inside the pinned agent-desktop image
-  as a GitHub App, and one post-upgrade script refreshes checksums, the
-  devcontainer lock, and pre-commit output in the bump's own commit.
+- **Update**: [Self-hosted Renovate in the agent-desktop
+  image](plans/20260925-self-hosted-renovate.md) done. Renovate runs from
+  `renovate.yml` inside the pinned agent-desktop image as a GitHub App, and one
+  post-upgrade script refreshes checksums, the devcontainer lock, and pre-commit
+  output in the bump's own commit.
 - **Update**: [Dependency updates](spec/dependency-updates.md) spec created, and
   [Image pinning](spec/image-pinning.md) gained the shared workflow container
   pin requirement.
-- **Update**:
-  [Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
-  implemented.
+- **Update**: [Renovate maintains checksum-carrying
+  pins](features/renovate-maintains-checksums.md) implemented.
 - **Update**: [git-new-branch skill](plans/20260928-git-new-branch-skill.md)
   done. `/agentdev:git-new-branch` starts work branches at the fetched remote
   base with their own upstream, and git-commit refuses the default branch.
-- **Update**: [git-new-branch](spec/git-new-branch.md) spec created, and
-  [IWE workflow skills](spec/iwe-workflow-skills.md) gained Implement starting
-  on its own branch.
+- **Update**: [git-new-branch](spec/git-new-branch.md) spec created, and [IWE
+  workflow skills](spec/iwe-workflow-skills.md) gained Implement starting on its
+  own branch.
 - **Update**: [git-new-branch](features/git-new-branch.md) implemented.
 - **Update**: Refreshed the five codebase-map docs the git-new-branch and
   git-commit scripts, the default-branch helper, and their tests moved.
@@ -177,9 +169,9 @@ to the current day's group.
   `SCHEMA.md` body shape.
 - **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) gained the
   Capture and document-shape requirements.
-- **Update**:
-  [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
-  changed — it now includes Capture.
+- **Update**: [Agentdev IWE workflow
+  skills](features/agentdev-iwe-workflow-skills.md) changed — it now includes
+  Capture.
 - **Update**: Refreshed the nine codebase-map docs the iwe-capture skill, the
   shared issue-closing helper, the body-shape schemas, and the agentdev 3.4.0
   pins moved.
@@ -226,10 +218,10 @@ to the current day's group.
   makes every other download failure fatal, rather than caching it as an empty
   index and silently resolving pins from a partial view; cached indices now
   expire after six hours.
-- **Creation**:
-  [Renovate config validation](architecture/renovate-config-validation.md)
-  records why the config is validated twice, once at a pinned Renovate and once
-  at the current one, and why both pass `--no-global`.
+- **Creation**: [Renovate config
+  validation](architecture/renovate-config-validation.md) records why the config
+  is validated twice, once at a pinned Renovate and once at the current one, and
+  why both pass `--no-global`.
 - **Update**: `.agent.metadata.json` files no longer contribute to a
   codebase-map source digest — [metadata](architecture/agent-metadata-files.md)
   records the rule. A metadata file describes how the digest is computed, not
@@ -260,16 +252,17 @@ to the current day's group.
   Neither tier waives `ai-review-present`, the metadata check, or the
   durable-knowledge pass.
 - **Update**: Findings validation now runs on the light model at both effort
-  tiers, under one validator prompt shared by the tiers —
-  [PR review effort tiers](architecture/pr-review-effort-tiers.md) records why
-  the gate's strictness belongs in the prompt rather than in the model size, and
-  why the slot that scales with finding count is the one to bound.
+  tiers, under one validator prompt shared by the tiers — [PR review effort
+  tiers](architecture/pr-review-effort-tiers.md) records why the gate's
+  strictness belongs in the prompt rather than in the model size, and why the
+  slot that scales with finding count is the one to bound.
 - **Update**: Removed the `require-review` publish-or-fail check from the
   responder action. A timestamp window cannot tell this run's review from a
-  concurrent run's, so an abandoned run passed on another run's review —
-  [the orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
-  stays open and records the attempt, the concurrency reason, and the quota
-  hypothesis with the telemetry for and against.
+  concurrent run's, so an abandoned run passed on another run's review — [the
+  orchestrator ends its turn while its passes are still
+  running](bugs/review-orchestrator-ends-turn-while-passes-run.md) stays open
+  and records the attempt, the concurrency reason, and the quota hypothesis with
+  the telemetry for and against.
 - **Update**: Every apt package the Ansible roles install is pinned per Ubuntu
   release and architecture in a generated `vars/apt_pins_<suite>_<arch>.yml`,
   refreshed by `scripts/apt-pins-refresh.py` and kept current by two `deb`
@@ -277,10 +270,10 @@ to the current day's group.
 - **Creation**: [Ansible apt pins](architecture/ansible-apt-pins.md) records the
   decision, the per-role repository sets, and the pin-rot and rebuild costs it
   buys.
-- **Creation**:
-  [Fisher install over untracked plugins](bugs/fisher-install-over-untracked-plugins.md)
-  fixed — `fish_setup` now reconciles `fish_plugins` with `fisher update`
-  instead of installing each pinned plugin.
+- **Creation**: [Fisher install over untracked
+  plugins](bugs/fisher-install-over-untracked-plugins.md) fixed — `fish_setup`
+  now reconciles `fish_plugins` with `fisher update` instead of installing each
+  pinned plugin.
 - **Update**: `.github/renovate.json` is validated by a pre-commit hook and a
   workflow, both running `renovate-config-validator --no-global --strict`.
 - **Update**: Refreshed the nine codebase-map docs whose tracked sources the apt
@@ -289,31 +282,31 @@ to the current day's group.
 
 ## 2026-09-21
 
-- **Creation**:
-  [A capitalized @Claude mention was admitted, then misrouted](bugs/responder-mention-case-sensitivity.md)
-  fixed — the preflight `if:` gate folds case and every mention test behind it
-  now does too, so `@Claude review` reaches the review job and its effort label
-  instead of dispatching as a free-form task.
+- **Creation**: [A capitalized @Claude mention was admitted, then
+  misrouted](bugs/responder-mention-case-sensitivity.md) fixed — the preflight
+  `if:` gate folds case and every mention test behind it now does too, so
+  `@Claude review` reaches the review job and its effort label instead of
+  dispatching as a free-form task.
 - **Update**: Refreshed the three codebase-map docs whose tracked sources the
   case fix moved.
 - **Update**: The installer- and registry-sourced dependencies in the Ansible
   roles (Bun, uv, Yarn, the agent CLIs, fisher, bass) are pinned in each role's
   `defaults/`, and Renovate's two new custom regex managers keep them current as
   one automerged group.
-- **Creation**:
-  [Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
-  proposed — the pins carrying a per-architecture checksum need
-  `postUpgradeTasks`, whose command gate only a self-hosted Renovate can open.
+- **Creation**: [Renovate maintains checksum-carrying
+  pins](features/renovate-maintains-checksums.md) proposed — the pins carrying a
+  per-architecture checksum need `postUpgradeTasks`, whose command gate only a
+  self-hosted Renovate can open.
 - **Update**: Refreshed the six codebase-map docs whose tracked sources the
   pinning moved, and masked the automerged pin values out of the Ansible map
   digests.
 
 ## 2026-09-19
 
-- **Creation**:
-  [The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
-  filed — a headless responder run ends when the orchestrator's turn ends, so a
-  turn that stops on a status update publishes no review and still goes green.
+- **Creation**: [The review orchestrator ends its turn while its passes are
+  still running](bugs/review-orchestrator-ends-turn-while-passes-run.md) filed —
+  a headless responder run ends when the orchestrator's turn ends, so a turn
+  that stops on a status update publishes no review and still goes green.
 - **Creation**: [PR review effort tiers](architecture/pr-review-effort-tiers.md)
   records why the review has two named tiers, why an explicitly requested tier
   is absolute, and why the responder's preflight rather than the skill resolves
@@ -321,24 +314,24 @@ to the current day's group.
 - **Update**: Refreshed the six codebase-map docs whose tracked sources the
   review effort-tier work moved — the responder workflow, the responder
   composite action, and the catalog skill tree.
-- **Creation**:
-  [Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
-  filed — no harness in this repository reaches the `github-script` blocks that
-  decide review tier, model, and prompt.
+- **Creation**: [Test the responder workflow's inline
+  JavaScript](backlog/test-responder-workflow-js.md) filed — no harness in this
+  repository reaches the `github-script` blocks that decide review tier, model,
+  and prompt.
 
 ## 2026-09-12
 
-- **Creation**:
-  [AI review gate was self-waivable from the PR body](bugs/ai-review-gate-self-waivable.md)
-  fixed — the opt-out marker, renamed `[ci:skip-ai-review]`, now suppresses only
-  the review responder, and `ai-review-present` no longer reads it, so a marked
-  pull request keeps a red required check.
+- **Creation**: [AI review gate was self-waivable from the PR
+  body](bugs/ai-review-gate-self-waivable.md) fixed — the opt-out marker,
+  renamed `[ci:skip-ai-review]`, now suppresses only the review responder, and
+  `ai-review-present` no longer reads it, so a marked pull request keeps a red
+  required check.
 - **Update**: Refreshed the three codebase-map docs whose tracked sources the
   gate fix moved.
-- **Creation**:
-  [The review opt-out marker fired too broadly](bugs/skip-ai-review-marker-overreach.md)
-  fixed — the marker is matched only as a whole line, so a body that discusses
-  it stays prose, and an explicit `@claude review` now outranks it.
+- **Creation**: [The review opt-out marker fired too
+  broadly](bugs/skip-ai-review-marker-overreach.md) fixed — the marker is
+  matched only as a whole line, so a body that discusses it stays prose, and an
+  explicit `@claude review` now outranks it.
 
 ## 2026-09-11
 
@@ -356,16 +349,15 @@ to the current day's group.
 
 ## 2026-09-09
 
-- **Update**:
-  [Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
-  done — the plugin tree, its tests, and its Makefile moved into this
-  repository, the Claude marketplace publishes it as a second plugin, and its
-  live tests are guarded at collection behind `SELF_IMPROVE_RUN_LIVE`.
-- **Creation**:
-  [Self-improve plugin in the catalog](features/self-improve-plugin-in-catalog.md)
-  implemented and recorded in [unreleased](releases/unreleased.md). It is
-  published from the Claude marketplace and not enabled by anything the
-  repository ships.
+- **Update**: [Consolidate the self-improve plugin into this
+  repository](plans/20260909-consolidate-self-improve-plugin.md) done — the
+  plugin tree, its tests, and its Makefile moved into this repository, the
+  Claude marketplace publishes it as a second plugin, and its live tests are
+  guarded at collection behind `SELF_IMPROVE_RUN_LIVE`.
+- **Creation**: [Self-improve plugin in the
+  catalog](features/self-improve-plugin-in-catalog.md) implemented and recorded
+  in [unreleased](releases/unreleased.md). It is published from the Claude
+  marketplace and not enabled by anything the repository ships.
 - **Update**: Refreshed the eight codebase-map docs whose tracked sources the
   consolidation changed — the reinstall scripts now install every published
   plugin, and the agent-files workflow runs a third pytest suite.
@@ -375,36 +367,35 @@ to the current day's group.
 - **Release**: cut [1.0.0](releases/1.0.0.md) from the unreleased accumulator —
   16 features and 4 fixes — and started a fresh
   [unreleased](releases/unreleased.md) page.
-- **Update**:
-  [Connect validator warnings](plans/20260907-connect-validator-warnings.md)
-  done — `--recommend` now produces skill frontmatter and structure
-  recommendations, `--errors-only` is the single suppression flag, and warnings
-  still never move the exit code.
-- **Update**:
-  [Validator warning visibility](bugs/validator-warning-visibility.md) fixed and
-  recorded in [1.0.0](releases/1.0.0.md). The two skill validators are wired
-  into the engine, `main.py` reads the real argparse destinations,
-  `--no-warnings` is gone, and the CLI contract is stated in
-  [the validator CLI interface](codebase/api-validate-agent-files-cli.md).
-- **Map**: refreshed
-  [the validator package](codebase/py_packages/validate_agent_files.md),
-  [its tests](codebase/py_packages/validate_agent_files/tests.md),
-  [its validators](codebase/py_packages/validate_agent_files/validators.md),
-  [the agentdev catalog](codebase/agents/plugins/agentdev.md), and
-  [its skills](codebase/agents/plugins/agentdev/skills.md) against their current
+- **Update**: [Connect validator
+  warnings](plans/20260907-connect-validator-warnings.md) done — `--recommend`
+  now produces skill frontmatter and structure recommendations, `--errors-only`
+  is the single suppression flag, and warnings still never move the exit code.
+- **Update**: [Validator warning
+  visibility](bugs/validator-warning-visibility.md) fixed and recorded in
+  [1.0.0](releases/1.0.0.md). The two skill validators are wired into the
+  engine, `main.py` reads the real argparse destinations, `--no-warnings` is
+  gone, and the CLI contract is stated in [the validator CLI
+  interface](codebase/api-validate-agent-files-cli.md).
+- **Map**: refreshed [the validator
+  package](codebase/py_packages/validate_agent_files.md), [its
+  tests](codebase/py_packages/validate_agent_files/tests.md), [its
+  validators](codebase/py_packages/validate_agent_files/validators.md), [the
+  agentdev catalog](codebase/agents/plugins/agentdev.md), and [its
+  skills](codebase/agents/plugins/agentdev/skills.md) against their current
   sources; all 27 map docs match their tracked-source digests.
 
 ## 2026-09-06
 
-- **Update**:
-  [Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
-  done — setup now persists a resumable task and choice record before executing
-  the consumption guide, and update mode retains those choices across episodes.
-- **Creation**:
-  [Resumable template consumption](features/resumable-template-consumption.md)
-  implemented and recorded in [1.0.0](releases/1.0.0.md), with the two-record
-  ownership, migration, resume, and IWE-summary contract synced into
-  [Template consumption](spec/template-consumption.md).
+- **Update**: [Track template consumption progress and
+  choices](plans/20260906-template-consumption-progress.md) done — setup now
+  persists a resumable task and choice record before executing the consumption
+  guide, and update mode retains those choices across episodes.
+- **Creation**: [Resumable template
+  consumption](features/resumable-template-consumption.md) implemented and
+  recorded in [1.0.0](releases/1.0.0.md), with the two-record ownership,
+  migration, resume, and IWE-summary contract synced into [Template
+  consumption](spec/template-consumption.md).
 - **Map**: refreshed the agentdev catalog, bin, skills, tests, pull-request
   checks, GitHub automation, workflows, and consumer seed against their current
   sources; all codebase-map digests match the checkout.
@@ -413,17 +404,17 @@ to the current day's group.
   `codebase` schema's `commit` field are gone; a doc without a digest is
   `NO_DIGEST`. `stale-map-docs.py` now runs in the agent-files CI job, so a map
   doc that drifts from its sources fails the build.
-- **Map**: refreshed
-  [the agentdev catalog](codebase/agents/plugins/agentdev.md),
-  [its skills](codebase/agents/plugins/agentdev/skills.md),
-  [its tests](codebase/agents/plugins/agentdev/tests.md), and
-  [the knowledge workspace](codebase/docs/knowledge.md) against their current
-  sources (`b928025`); all 27 map docs match their tracked-source digests.
-- **Update**:
-  [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
-  done — both adoption workflows can seed and onboard fresh IWE project memory
-  without replacing existing consumer knowledge, and update mode excludes both
-  publisher memory and initialization-only seed content.
+- **Map**: refreshed [the agentdev
+  catalog](codebase/agents/plugins/agentdev.md), [its
+  skills](codebase/agents/plugins/agentdev/skills.md), [its
+  tests](codebase/agents/plugins/agentdev/tests.md), and [the knowledge
+  workspace](codebase/docs/knowledge.md) against their current sources
+  (`b928025`); all 27 map docs match their tracked-source digests.
+- **Update**: [Repository-owned IWE seed for
+  consumers](plans/20260905-consumer-iwe-seed.md) done — both adoption workflows
+  can seed and onboard fresh IWE project memory without replacing existing
+  consumer knowledge, and update mode excludes both publisher memory and
+  initialization-only seed content.
 - **Creation**: [Consumer IWE seed](features/consumer-iwe-seed.md) implemented
   and recorded in [1.0.0](releases/1.0.0.md). The reusable seed is maintained in
   this repository, validated in an isolated consumer layout, and specified in
@@ -439,35 +430,35 @@ to the current day's group.
   machine-managed pins are normalized before codebase-map source fingerprints
   are computed, while surrounding structural changes still mark affected
   documents stale.
-- **Update**:
-  [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md) fixed
-  and recorded in [1.0.0](releases/1.0.0.md).
+- **Update**: [Pin bumps invalidate map
+  docs](bugs/pin-bumps-invalidate-map-docs.md) fixed and recorded in
+  [1.0.0](releases/1.0.0.md).
 - **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
-  re-read, all source digests were verified, and the tested
-  [consumer IWE seed](codebase/templates/iwe.md) was added as the twenty-seventh
-  mapped document.
-- **Update**: Refreshed the [codebase map](codebase.md) — the catalog,
-  [bin helpers](codebase/agents/plugins/agentdev/bin.md),
-  [skills](codebase/agents/plugins/agentdev/skills.md),
-  [plugin tests](codebase/agents/plugins/agentdev/tests.md),
-  [knowledge machinery](codebase/docs/knowledge.md), and the
-  [devcontainer lifecycle flow](codebase/flow-devcontainer-lifecycle.md) re-read
-  against the checkout, anchors re-verified, and source digests bumped.
+  re-read, all source digests were verified, and the tested [consumer IWE
+  seed](codebase/templates/iwe.md) was added as the twenty-seventh mapped
+  document.
+- **Update**: Refreshed the [codebase map](codebase.md) — the catalog, [bin
+  helpers](codebase/agents/plugins/agentdev/bin.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md), [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md), [knowledge
+  machinery](codebase/docs/knowledge.md), and the [devcontainer lifecycle
+  flow](codebase/flow-devcontainer-lifecycle.md) re-read against the checkout,
+  anchors re-verified, and source digests bumped.
 - **Creation**: [Xpra port forwarding](spec/xpra-port-forwarding.md) specifies
   the fixed container-port and VS Code local-remapping contracts.
-- **Update**:
-  [Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
-  done — Xpra uses container port 14500 independently of `DEVCONTAINER_ID`,
-  explicit `--port` overrides remain supported, and concurrent devcontainers are
-  reachable through distinct VS Code-forwarded local addresses.
+- **Update**: [Use VS Code port forwarding for
+  Xpra](plans/20260905-xpra-vscode-port-forwarding.md) done — Xpra uses
+  container port 14500 independently of `DEVCONTAINER_ID`, explicit `--port`
+  overrides remain supported, and concurrent devcontainers are reachable through
+  distinct VS Code-forwarded local addresses.
 
 ## 2026-09-05
 
-- **Creation**:
-  [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md) —
-  `source_digest` fingerprints whole tracked files, so an automerged Renovate
-  pin bump marks a map doc stale even when the doc never mentions the pinned
-  value. Five of twenty-six docs went amber on three one-line bumps.
+- **Creation**: [Pin bumps invalidate map
+  docs](bugs/pin-bumps-invalidate-map-docs.md) — `source_digest` fingerprints
+  whole tracked files, so an automerged Renovate pin bump marks a map doc stale
+  even when the doc never mentions the pinned value. Five of twenty-six docs
+  went amber on three one-line bumps.
 - **Update**: [Missing map skill](bugs/missing-map-skill.md) fixed —
   `/agentdev:iwe-map` now owns the `data/codebase/` lane that Setup, Verify, and
   the operating loop all handed to a skill that did not exist. Initial mode
@@ -476,128 +467,126 @@ to the current day's group.
   mode re-reads only the docs whose tracked source contents no longer match
   their `source_digest`, classified by the bundled `stale-map-docs.sh`. This
   repository is mapped: 26 docs under [Codebase](codebase.md). Recorded in
-  [1.0.0](releases/1.0.0.md) and specified in
-  [IWE workflow skills](spec/iwe-workflow-skills.md);
-  [its plan](plans/20260903-iwe-map-skill.md) is done.
-- **Creation**:
-  [Consumer PR description guidance](features/pr-description-guidance.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md) — a consuming repository
-  may now capture its extra PR-template sections as instructions in a
-  consumer-owned `.github/pr-description-guidance.md`, which
-  `pr-gen-description` reads with precedence over its own section generation
-  while preserving the Verification / Reviewer Handoff tense split, and template
-  setup and update evaluate an existing template into covered/extras buckets
-  before anything is written. Specified in
-  [Template consumption](spec/template-consumption.md) and classified in
-  [Template boundary](architecture/template-boundary.md);
-  [its plan](plans/20260903-pr-description-guidance.md) is done.
+  [1.0.0](releases/1.0.0.md) and specified in [IWE workflow
+  skills](spec/iwe-workflow-skills.md); [its
+  plan](plans/20260903-iwe-map-skill.md) is done.
+- **Creation**: [Consumer PR description
+  guidance](features/pr-description-guidance.md) implemented, recorded in
+  [1.0.0](releases/1.0.0.md) — a consuming repository may now capture its extra
+  PR-template sections as instructions in a consumer-owned
+  `.github/pr-description-guidance.md`, which `pr-gen-description` reads with
+  precedence over its own section generation while preserving the Verification /
+  Reviewer Handoff tense split, and template setup and update evaluate an
+  existing template into covered/extras buckets before anything is written.
+  Specified in [Template consumption](spec/template-consumption.md) and
+  classified in [Template boundary](architecture/template-boundary.md); [its
+  plan](plans/20260903-pr-description-guidance.md) is done.
 
 ## 2026-09-04
 
 - **Creation**: five decision records recovered from the Dr.QP history the
-  template was extracted from —
-  [Agent auth persistence](architecture/agent-auth-persistence.md),
-  [Nested Docker provisioning](architecture/nested-docker-provisioning.md),
-  [MCP gateway transport](architecture/mcp-gateway-transport.md),
-  [gh authentication shim](architecture/gh-authentication-shim.md), and
-  [Formatter ownership](architecture/formatter-ownership.md). Each records a
-  rejected alternative that the code alone cannot show; every decision was
-  re-verified against this repository before being written.
+  template was extracted from — [Agent auth
+  persistence](architecture/agent-auth-persistence.md), [Nested Docker
+  provisioning](architecture/nested-docker-provisioning.md), [MCP gateway
+  transport](architecture/mcp-gateway-transport.md), [gh authentication
+  shim](architecture/gh-authentication-shim.md), and [Formatter
+  ownership](architecture/formatter-ownership.md). Each records a rejected
+  alternative that the code alone cannot show; every decision was re-verified
+  against this repository before being written.
 
 ## 2026-09-03
 
 - **Creation**: the codebase map — 26 documents under [Codebase](codebase.md)
   (19 components, 3 flows, 2 interfaces), written by `/agentdev:iwe-map` in
-  initial mode from the tree at `eb60f60`, per
-  [Add the iwe-map skill](plans/20260903-iwe-map-skill.md).
-- **Update**:
-  [One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
-  done — the responder and the merge gate are now one workflow whose
-  `ai-review-present` job `needs` the review job, so the check stays pending
-  while a review runs and evaluates without polling; PR comment mentions bridge
-  into a `workflow_dispatch` on the head branch so the review runs the branch's
-  own file. `require-ai-review.yml` is deleted and the acceptance test moved to
-  the `ai-review-status` composite action. Recorded under
-  [AI responder workflows](features/ai-responder-workflows.md) and synced into
-  [AI review gate](spec/ai-review-gate.md) and
-  [Template consumption](spec/template-consumption.md).
+  initial mode from the tree at `eb60f60`, per [Add the iwe-map
+  skill](plans/20260903-iwe-map-skill.md).
+- **Update**: [One AI review workflow with a needs-coupled
+  gate](plans/20260903-single-ai-review-workflow.md) done — the responder and
+  the merge gate are now one workflow whose `ai-review-present` job `needs` the
+  review job, so the check stays pending while a review runs and evaluates
+  without polling; PR comment mentions bridge into a `workflow_dispatch` on the
+  head branch so the review runs the branch's own file. `require-ai-review.yml`
+  is deleted and the acceptance test moved to the `ai-review-status` composite
+  action. Recorded under [AI responder
+  workflows](features/ai-responder-workflows.md) and synced into [AI review
+  gate](spec/ai-review-gate.md) and [Template
+  consumption](spec/template-consumption.md).
 
 ## 2026-09-02
 
-- **Update**:
-  [Audit every plan edit in a fresh context](plans/20260902-audit-plan-edits-in-fresh-context.md)
-  done — a fresh-context `Durable Knowledge Auditor` agent now gates every
-  plan-intent edit in the Plan skill, and Implement and Verify share its
-  Evidence-residue vocabulary. Recorded under
-  [Never write a working logbook](features/no-working-logbooks.md) and specified
-  in [IWE workflow skills](spec/iwe-workflow-skills.md).
-- **Creation**:
-  [Install the agentdev catalog into the image](features/catalog-installed-in-image.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md), with the build-time
-  install and the `~/.claude.json` handoff reorder synced into
-  [Catalog lifecycle](spec/catalog-lifecycle.md);
-  [its plan](plans/20260817-catalog-install-in-image.md) is done.
-- **Creation**:
-  [Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md), and specified by
-  [Agent file discovery](spec/agent-file-discovery.md);
-  [its plan](plans/20260901-gitignore-aware-discovery.md) is done.
-- **Creation**:
-  [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md), and reflected in
-  [Template consumption](spec/template-consumption.md);
-  [its plan](plans/20260816-move-iwe-skills-to-agentdev.md) is done.
-- **Update**:
-  [Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
-  done — `PRE_COMMIT_HOME` now points at the per-worktree `agentdev-cache`
-  volume, so the ~33s cold hook install is paid only on the first create per
-  worktree and every rebuild starts warm. The failure-log tail in
-  `setup-pre-commit.sh` follows `PRE_COMMIT_HOME`. No behavioral change — cache
-  location and startup latency only, so no spec changed.
-- **Creation**:
-  [Persist the pre-commit hook cache](features/persist-pre-commit-cache.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md).
+- **Update**: [Audit every plan edit in a fresh
+  context](plans/20260902-audit-plan-edits-in-fresh-context.md) done — a
+  fresh-context `Durable Knowledge Auditor` agent now gates every plan-intent
+  edit in the Plan skill, and Implement and Verify share its Evidence-residue
+  vocabulary. Recorded under [Never write a working
+  logbook](features/no-working-logbooks.md) and specified in [IWE workflow
+  skills](spec/iwe-workflow-skills.md).
+- **Creation**: [Install the agentdev catalog into the
+  image](features/catalog-installed-in-image.md) implemented, recorded in
+  [1.0.0](releases/1.0.0.md), with the build-time install and the
+  `~/.claude.json` handoff reorder synced into [Catalog
+  lifecycle](spec/catalog-lifecycle.md); [its
+  plan](plans/20260817-catalog-install-in-image.md) is done.
+- **Creation**: [Gitignore-aware agent file
+  discovery](features/gitignore-aware-agent-file-discovery.md) implemented,
+  recorded in [1.0.0](releases/1.0.0.md), and specified by [Agent file
+  discovery](spec/agent-file-discovery.md); [its
+  plan](plans/20260901-gitignore-aware-discovery.md) is done.
+- **Creation**: [Agentdev IWE workflow
+  skills](features/agentdev-iwe-workflow-skills.md) implemented, recorded in
+  [1.0.0](releases/1.0.0.md), and reflected in [Template
+  consumption](spec/template-consumption.md); [its
+  plan](plans/20260816-move-iwe-skills-to-agentdev.md) is done.
+- **Update**: [Persist the pre-commit hook cache on the agentdev-cache
+  volume](plans/20260902-persist-pre-commit-cache.md) done — `PRE_COMMIT_HOME`
+  now points at the per-worktree `agentdev-cache` volume, so the ~33s cold hook
+  install is paid only on the first create per worktree and every rebuild starts
+  warm. The failure-log tail in `setup-pre-commit.sh` follows `PRE_COMMIT_HOME`.
+  No behavioral change — cache location and startup latency only, so no spec
+  changed.
+- **Creation**: [Persist the pre-commit hook
+  cache](features/persist-pre-commit-cache.md) implemented, recorded in
+  [1.0.0](releases/1.0.0.md).
 
 ## 2026-09-01
 
 - **Update**: PR body structure moved into the `agentdev` catalog, replacing
   `## How to Test` with `## Verification` (closed items, `- [x]` +
   `**Evidence:**`) and `## Reviewer Handoff` (open items, `- [ ]` +
-  `**Closed by:**`), per
-  [PR verification sections](architecture/pr-verification-sections.md).
-  **Downstream break**, in the same register as the `setup-python-venv`
-  activation change: a consuming repository that copied
-  `.github/pull_request_template.md` still holds the old structural version, and
-  its updated `agentdev` skills now ignore it — `pr-gen-description` states the
-  structure itself and reports that the copied template was not consulted rather
-  than reading one out of it. Adopting means replacing the copied file with the
-  pointer stub or deleting it; keeping it costs nothing but a report on every
-  run.
-- **Creation**:
-  [Split PR How to Test into Verification and Reviewer Handoff](features/pr-verification-sections.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md);
-  [its plan](plans/20260815-pr-verification-sections.md) is done.
-- **Creation**:
-  [Critical docs and durable-knowledge review in pr-review](features/pr-review-docs-durable-knowledge.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md);
-  [its plan](plans/20260831-pr-review-docs-durable-knowledge.md) is done.
-  `pr-review` now reviews docs and skills critically by invoking `iwe-audit` in
-  a report-only diff mode, with a conditional file-following durable-knowledge
+  `**Closed by:**`), per [PR verification
+  sections](architecture/pr-verification-sections.md). **Downstream break**, in
+  the same register as the `setup-python-venv` activation change: a consuming
+  repository that copied `.github/pull_request_template.md` still holds the old
+  structural version, and its updated `agentdev` skills now ignore it —
+  `pr-gen-description` states the structure itself and reports that the copied
+  template was not consulted rather than reading one out of it. Adopting means
+  replacing the copied file with the pointer stub or deleting it; keeping it
+  costs nothing but a report on every run.
+- **Creation**: [Split PR How to Test into Verification and Reviewer
+  Handoff](features/pr-verification-sections.md) implemented, recorded in
+  [1.0.0](releases/1.0.0.md); [its
+  plan](plans/20260815-pr-verification-sections.md) is done.
+- **Creation**: [Critical docs and durable-knowledge review in
+  pr-review](features/pr-review-docs-durable-knowledge.md) implemented, recorded
+  in [1.0.0](releases/1.0.0.md); [its
+  plan](plans/20260831-pr-review-docs-durable-knowledge.md) is done. `pr-review`
+  now reviews docs and skills critically by invoking `iwe-audit` in a
+  report-only diff mode, with a conditional file-following durable-knowledge
   pass; only version-only and generated-file-only diffs stay fast-approved.
 
 ## 2026-08-31
 
-- **Update**:
-  [Let pre-commit own formatting](plans/20260831-pre-commit-owns-formatting.md)
-  done — the pre-commit hooks are the single local formatting path, now extended
-  to merge commits via the `pre-merge-commit` hook type. The `local-reformat`
-  mandates in `pr-open` and `git-merge-resolve` and the formatting routes in the
+- **Update**: [Let pre-commit own
+  formatting](plans/20260831-pre-commit-owns-formatting.md) done — the
+  pre-commit hooks are the single local formatting path, now extended to merge
+  commits via the `pre-merge-commit` hook type. The `local-reformat` mandates in
+  `pr-open` and `git-merge-resolve` and the formatting routes in the
   `principal-engineer` and `tdd-refactor` agents are removed, `local-reformat`'s
   obligation language is softened, and the redundant `python-format-lint` skill
   is retired into the `AGENTS.md` Python section.
-- **Creation**:
-  [Let pre-commit own formatting](features/pre-commit-owns-formatting.md)
-  implemented, recorded in [1.0.0](releases/1.0.0.md).
+- **Creation**: [Let pre-commit own
+  formatting](features/pre-commit-owns-formatting.md) implemented, recorded in
+  [1.0.0](releases/1.0.0.md).
 - **Update**: [Template consumption](spec/template-consumption.md) §5 item 5 now
   keeps the consuming project's `zizmor` hook as `language: system` resolved
   from `PATH`, dropping the bare-host `zizmorcore/zizmor-pre-commit`
@@ -614,26 +603,26 @@ to the current day's group.
 
 ## 2026-08-24
 
-- **Update**:
-  [Preserve approved wording across the explore handoff](plans/20260817-preserve-approved-wording.md)
-  done — Explore now writes approved text to `.tmp/approved-wording-<slug>.md`
-  before the conversation continues and names that file in the handoff, and
-  Plan's task format distinguishes describing an action from paraphrasing
-  approved content. Both skills carry the same falsifiable test: whether a
-  session starting cold from the written plan could reproduce the agreed bytes.
-- **Creation**:
-  [Preserved approved wording](features/preserved-approved-wording.md) records
-  the split obligation — Explore writes, Plan inlines — and why neither half
-  binds alone, plus the rejection of a `data/drafts/` hub in favour of `.tmp/`.
+- **Update**: [Preserve approved wording across the explore
+  handoff](plans/20260817-preserve-approved-wording.md) done — Explore now
+  writes approved text to `.tmp/approved-wording-<slug>.md` before the
+  conversation continues and names that file in the handoff, and Plan's task
+  format distinguishes describing an action from paraphrasing approved content.
+  Both skills carry the same falsifiable test: whether a session starting cold
+  from the written plan could reproduce the agreed bytes.
+- **Creation**: [Preserved approved
+  wording](features/preserved-approved-wording.md) records the split obligation
+  — Explore writes, Plan inlines — and why neither half binds alone, plus the
+  rejection of a `data/drafts/` hub in favour of `.tmp/`.
 - **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) extends the
   Explore and Plan requirements with the verbatim-preservation obligation, one
   new scenario on each side.
-- **Update**:
-  [Never write a working logbook](plans/20260817-no-logbooks-in-the-graph.md)
-  done — the rule against working-logbook prose now binds every file in the
-  repository from `AGENTS.md` Best Practice 8, with the durable-knowledge
-  vocabulary extracted there from `## Project memory` so the graph manual and
-  the `iwe-audit` skill point at one definition instead of three.
+- **Update**: [Never write a working
+  logbook](plans/20260817-no-logbooks-in-the-graph.md) done — the rule against
+  working-logbook prose now binds every file in the repository from `AGENTS.md`
+  Best Practice 8, with the durable-knowledge vocabulary extracted there from
+  `## Project memory` so the graph manual and the `iwe-audit` skill point at one
+  definition instead of three.
 - **Creation**: [Never write a working logbook](features/no-working-logbooks.md)
   records the two coexisting tests, the graph's three narrative exceptions, the
   plan's single narrative section, Implement's capture-and-route contract, and
@@ -643,46 +632,45 @@ to the current day's group.
   `Requirement: Plans record intent, not the path taken to it` — the
   workflow-skill half of the rule. The general authoring convention gets no spec
   document, since `AGENTS.md` is its only statement.
-- **Creation**:
-  [Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
-  files the deferred automation. The plan-shape gate reads structure, and
-  narration has none — every proxy considered fires on legitimately long plans
-  or misses a short dense one.
+- **Creation**: [Detect plan narration growth
+  mechanically](backlog/detect-plan-narration-growth.md) files the deferred
+  automation. The plan-shape gate reads structure, and narration has none —
+  every proxy considered fires on legitimately long plans or misses a short
+  dense one.
 
 ## 2026-08-16
 
-- **Update**:
-  [Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
-  done — `## Spec changes` now has three risk-scaled forms: an explicit `None`,
-  a linked spec plus a concise normative outcome, or a fenced
-  `ADDED`/`MODIFIED`/`REMOVED` delta carrying complete post-change requirements.
-  The change that mattered was naming the delta *intent* rather than truth,
-  which dissolved a structural disagreement: Verify had demanded that durable
-  specs already reflect an unshipped change while Ship was the skill that
-  updates them afterwards. Verify now judges code against the durable spec plus
-  the plan's intent, and a not-yet-created spec is valid when the plan supplies
-  its contract.
+- **Update**: [Embed structured spec deltas in IWE
+  plans](plans/20260816-structured-plan-spec-deltas.md) done — `## Spec changes`
+  now has three risk-scaled forms: an explicit `None`, a linked spec plus a
+  concise normative outcome, or a fenced `ADDED`/`MODIFIED`/`REMOVED` delta
+  carrying complete post-change requirements. The change that mattered was
+  naming the delta *intent* rather than truth, which dissolved a structural
+  disagreement: Verify had demanded that durable specs already reflect an
+  unshipped change while Ship was the skill that updates them afterwards. Verify
+  now judges code against the durable spec plus the plan's intent, and a
+  not-yet-created spec is valid when the plan supplies its contract.
 - **Creation**: [Risk-scaled spec deltas](features/risk-scaled-spec-deltas.md)
   records the three forms, the intent-versus-truth boundary, and the four
   exclusions — no change bundle, store, separate delta file, or application
   engine. OpenSpec's notation is adopted; its parser is not.
-- **Creation**:
-  [Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
-  files the gap this shipment left open. `ADDED` and `MODIFIED` were worked end
-  to end by the plan's own delta; `REMOVED` was specified in the same pass and
-  never run, so the plan's fixture bullet asking for all three is unmet. Verify
-  flagged it as a WARNING, not a CRITICAL — no ticked task claimed otherwise.
-- **Update**:
-  [Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
-  done — a ticked `- [x]` now requires an indented `- **Evidence:**` child
-  naming the commit, test run, or CI run that closed it. A find-and-replace can
-  flip eight boxes; it cannot write eight evidence lines. Plan specifies the
-  format and gains a task-atomicity rule, Implement writes the evidence in the
-  same edit and never changes two boxes at once, and Verify's unchecked-box
-  CRITICAL finally has a ticked-box counterpart recommending "untick it". A
-  pytest over `data/plans/` enforces the shape from the suite, a pre-commit
-  hook, and the knowledge-base CI job — the first gate here that reads plan
-  documents rather than agent files.
+- **Creation**: [Exercise REMOVED delta blocks end to
+  end](backlog/exercise-removed-delta-blocks.md) files the gap this shipment
+  left open. `ADDED` and `MODIFIED` were worked end to end by the plan's own
+  delta; `REMOVED` was specified in the same pass and never run, so the plan's
+  fixture bullet asking for all three is unmet. Verify flagged it as a WARNING,
+  not a CRITICAL — no ticked task claimed otherwise.
+- **Update**: [Make plan checkboxes carry their
+  evidence](plans/20260815-honest-plan-checkboxes.md) done — a ticked `- [x]`
+  now requires an indented `- **Evidence:**` child naming the commit, test run,
+  or CI run that closed it. A find-and-replace can flip eight boxes; it cannot
+  write eight evidence lines. Plan specifies the format and gains a
+  task-atomicity rule, Implement writes the evidence in the same edit and never
+  changes two boxes at once, and Verify's unchecked-box CRITICAL finally has a
+  ticked-box counterpart recommending "untick it". A pytest over `data/plans/`
+  enforces the shape from the suite, a pre-commit hook, and the knowledge-base
+  CI job — the first gate here that reads plan documents rather than agent
+  files.
 - **Creation**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) records
   the contract as durable requirements: what a tick must carry, how tasks are
   sized so a tick can be honest, and what the gate does and cannot do. It reads
@@ -690,19 +678,18 @@ to the current day's group.
 - **Update**: [Plan checkbox over-claiming](bugs/plan-checkbox-over-claiming.md)
   fixed and recorded in [1.0.0](releases/1.0.0.md). `48d0f79` had fixed the
   instance and left both root causes standing; this closes them.
-- **Update**:
-  [Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
-  done — Explore's `## Capturing` now routes an established defect to
-  `data/bugs/<slug>.md`, and Verify's unchecked-box CRITICAL offers a third way
-  out (revise the plan to drop the task) alongside completing and ticking, which
-  Ship's no-override rule had left unstated.
-  [Verification in the main loop](features/verification-in-the-main-loop.md)
-  records the same three routes. No spec changed: the plan's rationale for that
-  was corrected at ship time, since
-  [IWE workflow skills](spec/iwe-workflow-skills.md) now covers these skills and
-  was re-checked against both edits.
-- **Creation**:
-  [Strengthen the workflow skill contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
+- **Update**: [Name the missing handoff routes in explore and
+  verify](plans/20260816-skill-handoff-routes.md) done — Explore's
+  `## Capturing` now routes an established defect to `data/bugs/<slug>.md`, and
+  Verify's unchecked-box CRITICAL offers a third way out (revise the plan to
+  drop the task) alongside completing and ticking, which Ship's no-override rule
+  had left unstated. [Verification in the main
+  loop](features/verification-in-the-main-loop.md) records the same three
+  routes. No spec changed: the plan's rationale for that was corrected at ship
+  time, since [IWE workflow skills](spec/iwe-workflow-skills.md) now covers
+  these skills and was re-checked against both edits.
+- **Creation**: [Strengthen the workflow skill
+  contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
   reconstructed post-hoc from the OpenSpec change bundle's proposal, design, and
   tasks artifacts, which `.gitignore` keeps out of the repository. Records the
   eight design decisions and their rejected alternatives behind the Explore-to-
@@ -711,9 +698,9 @@ to the current day's group.
 - **Creation**: [IWE workflow skills](spec/iwe-workflow-skills.md) records the
   verified Explore, Plan, Implement, Verify, and Ship behavior as durable
   requirements and scenarios.
-- **Update**:
-  [Verification in the main loop](features/verification-in-the-main-loop.md)
-  implemented and recorded in [1.0.0](releases/1.0.0.md).
+- **Update**: [Verification in the main
+  loop](features/verification-in-the-main-loop.md) implemented and recorded in
+  [1.0.0](releases/1.0.0.md).
 
 ## 2026-08-15
 
@@ -734,10 +721,10 @@ to the current day's group.
   through `uv run` or the fixed `/uv/venvs/ws-project` path.
 - **Creation**: [uv-run-only environment](features/uv-run-only-environment.md)
   implemented, recorded in [1.0.0](releases/1.0.0.md).
-- **Creation**: Proposed
-  [Verification in the main loop](features/verification-in-the-main-loop.md) —
-  ship's step 1 names the verify skill without invoking it, so verification at
-  ship time is discretionary rather than compelled.
+- **Creation**: Proposed [Verification in the main
+  loop](features/verification-in-the-main-loop.md) — ship's step 1 names the
+  verify skill without invoking it, so verification at ship time is
+  discretionary rather than compelled.
 
 ## 2026-08-01
 

@@ -18,12 +18,12 @@ is the reasoning the correctness passes get the large model for. Validating
 scenario-carrying candidates on `large` at full effort could make their verdicts
 more reliable.
 
-It contradicts a recorded decision:
-[PR review effort tiers](../architecture/pr-review-effort-tiers.md) fixes
-validation at `light` because the gate's strength is its bar rather than its
-model, because a stronger model asked to confirm only at high confidence also
-argues more persuasively for dropping, and because validation is the only slot
-whose cost grows with the number of findings.
+It contradicts a recorded decision: [PR review effort
+tiers](../architecture/pr-review-effort-tiers.md) fixes validation at `light`
+because the gate's strength is its bar rather than its model, because a stronger
+model asked to confirm only at high confidence also argues more persuasively for
+dropping, and because validation is the only slot whose cost grows with the
+number of findings.
 
 ## Promotion criteria
 
@@ -36,6 +36,7 @@ A cost/benefit evaluation would settle it:
 - **Cost:** the added per-candidate validation cost at full effort, given the
   number of correctness candidates a typical full review produces.
 
-The part-by-part verdicts from
-[Ship the reachable-scenario bar with part-by-part validation in pr-review](../plans/20261005-pr-review-scenario-validation.md)
-show which part a `light` validator drops, which would aim the evaluation.
+The part-by-part verdicts from [Ship the reachable-scenario bar with
+part-by-part validation in
+pr-review](../plans/20261005-pr-review-scenario-validation.md) show which part a
+`light` validator drops, which would aim the evaluation.

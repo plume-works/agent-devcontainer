@@ -13,16 +13,16 @@ sources:
 
 An opt-in facility inside the plugin recording what each hook decided and why,
 so a live run can be analysed afterwards. Off by default; its acceptance gate is
-that the default path stores nothing the
-[privacy rules](../spec/self-improve-learning-loop.md) forbid.
+that the default path stores nothing the [privacy
+rules](../spec/self-improve-learning-loop.md) forbid.
 
 The plugin currently keeps almost nothing about a review that worked as
 designed. After a decline the state directory holds a counter and a journalled
 outcome class — enough to know a decline happened, not enough to ask why. That
 is a diagnosis problem for anything that behaves differently live than offline,
-and it is the reason
-[Reviewer decline asymmetry](../bugs/self-improve-reviewer-decline-asymmetry.md)
-cannot currently be explained.
+and it is the reason [Reviewer decline
+asymmetry](../bugs/self-improve-reviewer-decline-asymmetry.md) cannot currently
+be explained.
 
 ## Shape without content
 

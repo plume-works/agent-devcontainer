@@ -34,7 +34,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Xpra port forwarding](spec/xpra-port-forwarding.md)
 
-[Devcontainer agent authentication and Claude Remote Control](spec/devcontainer-agent-auth.md)
+[Devcontainer agent authentication and Claude Remote
+Control](spec/devcontainer-agent-auth.md)
 
 [Self-improve learning loop](spec/self-improve-learning-loop.md)
 

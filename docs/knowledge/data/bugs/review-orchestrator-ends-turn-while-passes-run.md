@@ -121,12 +121,13 @@ that was refused is distinguishable from one whose result was never collected.
 parallel and return only once all have finished, so the dispatching turn always
 holds every result. Nothing in the Claude Code path waits through a separate
 tool, and the responder job's `timeout-minutes` bounds the whole review. The
-change shipped through
-[Keep agentdev enabled in the responder and collect review passes in the foreground](../plans/20260929-responder-review-grounded-and-collected.md).
+change shipped through [Keep agentdev enabled in the responder and collect
+review passes in the
+foreground](../plans/20260929-responder-review-grounded-and-collected.md).
 
 Failing a run that published no review, whatever its cause, is a separate safety
-net:
-[Fail a review run that published no review](../backlog/fail-review-run-without-review.md).
+net: [Fail a review run that published no
+review](../backlog/fail-review-run-without-review.md).
 
 ## Key references
 

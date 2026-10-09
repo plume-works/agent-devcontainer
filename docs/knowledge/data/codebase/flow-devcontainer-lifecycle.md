@@ -40,8 +40,8 @@ state.
    transfer directory, Claude first-run pre-approval under autostart, the Codex
    auth link, `uv sync`, then the image-staged catalog installed for Codex, for
    Claude at user scope, and as OpenCode's bridge plugin —
-   `.devcontainer/scripts/postCreateCommand.sh:56-95`, in
-   [lifecycle scripts](devcontainer/scripts.md)
+   `.devcontainer/scripts/postCreateCommand.sh:56-95`, in [lifecycle
+   scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    credential seeding (consuming the transfer files step 1 rewrote), pre-commit
    hooks, keyring, the gh git credential helper, the firewall gate, Xpra in the
@@ -61,7 +61,7 @@ state.
 - `CBM_CACHE_DIR` unset aborts steps 3–5 at the first CBM script; a missing
   `codebase-memory-mcp` binary is skipped instead.
 - `ENABLE_FIREWALL=true` in an image built without the firewall role fails step
-  4.
+  4\.
 - A CI `container:` job supplies none of `containerEnv` or the mounts;
   `ci-hooks-repro.sh` reproduces that environment locally.
 - `AGENTDEV_SKIP_PRE_COMMIT` and `AGENTDEV_SKIP_XPRA` are the documented

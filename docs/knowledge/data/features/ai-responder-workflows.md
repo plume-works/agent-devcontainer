@@ -74,11 +74,11 @@ name the current head commit. Refreshing a review is the author's call via an
 `@claude review` comment. Codex reviews arrive through Codex web, entirely
 outside GitHub Actions.
 
-The gate's full contract lives in the
-[AI review gate](../spec/ai-review-gate.md) spec. The boundary between the
-lifecycle scripts and the workflow that supplies their devcontainer contract is
-recorded in
-[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+The gate's full contract lives in the [AI review
+gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle
+scripts and the workflow that supplies their devcontainer contract is recorded
+in [CI agent plugin
+availability](../architecture/ci-agent-plugin-availability.md).
 
 **Pull requests can opt out of the review run, not out of the gate.** A
 `[ci:skip-ai-review]` marker alone on a line of the pull request body skips the
@@ -121,5 +121,5 @@ recorded in [PR review effort tiers](../architecture/pr-review-effort-tiers.md).
 ## Open questions
 
 - Whether a run that published no review should fail on its own, rather than
-  pass on an earlier review — open in
-  [Fail a review run that published no review](../backlog/fail-review-run-without-review.md).
+  pass on an earlier review — open in [Fail a review run that published no
+  review](../backlog/fail-review-run-without-review.md).

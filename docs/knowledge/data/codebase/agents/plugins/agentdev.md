@@ -64,10 +64,10 @@ source. The image build copies `.claude-plugin/` and `.agents/` whole into
 `/opt/agentdev` and installs from there
 ([agentic_tools](../../ansible/roles/agentic_tools.md)); the devcontainer
 lifecycle installs again over the mounted volumes and, for this repository only,
-re-registers the workspace copy on attach
-([lifecycle scripts](../../devcontainer/scripts.md)). Codex reads the same
-files; there is no generated mirror. OpenCode reads them too, translated at
-startup by the bridge rather than copied.
+re-registers the workspace copy on attach ([lifecycle
+scripts](../../devcontainer/scripts.md)). Codex reads the same files; there is
+no generated mirror. OpenCode reads them too, translated at startup by the
+bridge rather than copied.
 
 ## Depends on
 

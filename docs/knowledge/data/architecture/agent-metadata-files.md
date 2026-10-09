@@ -140,8 +140,8 @@ removes the portability that motivates colocation.
 ## Consumers
 
 - `iwe-map` / `digest_ignore` — masks machine-managed content out of the
-  codebase-map source fingerprint. Implemented by
-  [Digest masks for map docs](../plans/20260905-digest-masks.md).
+  codebase-map source fingerprint. Implemented by [Digest masks for map
+  docs](../plans/20260905-digest-masks.md).
 - `template-consume` — root-only adoption state. A repository has exactly one
   adopted ref, so walking and accumulating nested declarations is invalid.
 

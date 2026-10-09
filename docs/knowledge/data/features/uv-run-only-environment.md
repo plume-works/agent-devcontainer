@@ -48,10 +48,10 @@ only through `uv run`. Consumers split in two:
 The path is a constant rather than a template because the `agentdev-uv` volume
 is declared in `devcontainer.json` `mounts` rather than pinned to a literal name
 in Compose, making it Compose-project-scoped: one `/uv` per devcontainer
-instance, with nothing to disambiguate. See
-[uv environment location](../architecture/uv-environment-location.md) for why
-the environment stays out of tree at all — cache and environment must share a
-filesystem for uv to hardlink instead of copy.
+instance, with nothing to disambiguate. See [uv environment
+location](../architecture/uv-environment-location.md) for why the environment
+stays out of tree at all — cache and environment must share a filesystem for uv
+to hardlink instead of copy.
 
 `uv-sync.sh` keeps a narrow migration cleanup: it removes `$workspace/.venv`
 only when it is a symlink *and* its target matches the prefix earlier revisions

@@ -21,11 +21,10 @@ sources:
 
 `ansible/playbooks/setup-dev.yml` provisions an Ubuntu 24.04 base into the
 published `agent-desktop` image. Every capability role is a boolean in
-`ansible/playbooks/group_vars/all.yml`, `false` by default, and
-[the desktop Dockerfile](docker.md) passes them all as `true`. `ansible.cfg`
-sits at the repository root so `ansible-playbook`, `ansible-lint`, and the
-Dockerfile's `cd /provision` all resolve the inventory, roles path, and log path
-from there.
+`ansible/playbooks/group_vars/all.yml`, `false` by default, and [the desktop
+Dockerfile](docker.md) passes them all as `true`. `ansible.cfg` sits at the
+repository root so `ansible-playbook`, `ansible-lint`, and the Dockerfile's
+`cd /provision` all resolve the inventory, roles path, and log path from there.
 
 ## Contains
 
@@ -98,8 +97,8 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   `ansible/roles/.agent.metadata.json` keeps the automerged versions and
   checksums out of this doc's `source_digest`.
 - Apt packages are not pinned: each role lists them by name inline, and apt
-  installs whatever the enabled repositories serve —
-  [Ansible apt pins](../architecture/ansible-apt-pins.md).
+  installs whatever the enabled repositories serve — [Ansible apt
+  pins](../architecture/ansible-apt-pins.md).
 
 ## Key references
 

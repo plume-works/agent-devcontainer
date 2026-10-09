@@ -57,8 +57,8 @@ the marker. The marker sets a default for the pull request; it is not a veto
 over a maintainer asking for a review.
 
 Both are narrowings — a body that carried a deliberate own-line marker behaves
-as it did before. The contract is in
-[AI review gate](../spec/ai-review-gate.md).
+as it did before. The contract is in [AI review
+gate](../spec/ai-review-gate.md).
 
 ## Key references
 

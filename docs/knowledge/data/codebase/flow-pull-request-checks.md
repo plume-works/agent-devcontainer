@@ -38,8 +38,8 @@ before the push.
    on a Renovate bot's PR nothing is pushed and the `gate` fails —
    `.github/workflows/reformat.yml:185,279,421`, in
    [workflows](github/workflows.md)
-3. `primary-checks.yml` → `ci.yml`, when the image filter matched:
-   [the image build](flow-image-build.md)
+3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
+   build](flow-image-build.md)
 4. `validate-agent-files.yml`, when any source declared by the codebase map or
    the map itself changed: the validator, agentdev, and self-improve pytest
    suites, the OpenCode bridge `bun test` suite,
@@ -50,8 +50,8 @@ before the push.
    seed changed: `iwe schema validate`, `iwe normalize` must be a no-op, and the
    plan-checkbox tests; a second, path-filtered pytest pass assembles and
    validates the consumer seed —
-   `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in
-   [the knowledge workspace](docs/knowledge.md)
+   `.github/workflows/validate-knowledge-base.yml:40-45,69-109`, in [the
+   knowledge workspace](docs/knowledge.md)
 6. `validate-renovate-config.yml`: its `paths-filter` passes when
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
@@ -74,8 +74,8 @@ before the push.
   the pushed commit's run is the one that counts.
 - Step 2 never pushes to a Renovate branch, since Renovate abandons a branch
   carrying a foreign commit; formatting a Renovate PR needs is the post-upgrade
-  task's job —
-  [Renovate post-upgrade](../architecture/renovate-post-upgrade.md).
+  task's job — [Renovate
+  post-upgrade](../architecture/renovate-post-upgrade.md).
 - A fork PR never gets step 7; the review gate is then a human's.
 - Step 7's effort tier changes what the review costs, never whether it runs:
   `ai-review-present` does not read it, and both tiers keep the metadata check

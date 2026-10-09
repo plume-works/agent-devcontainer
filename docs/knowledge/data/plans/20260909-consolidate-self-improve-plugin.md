@@ -19,9 +19,9 @@ completed: 2026-09-09
 `self-improve` — a hook-driven experiential-learning engine for Claude Code — is
 developed in its own repository and consumes this one's catalog. The
 consolidation decision, its rationale, and its rejected alternatives are
-recorded in
-[Self-improve consolidation](../architecture/self-improve-consolidation.md);
-this plan executes it and does not restate it.
+recorded in [Self-improve
+consolidation](../architecture/self-improve-consolidation.md); this plan
+executes it and does not restate it.
 
 The merge source is `plume-works/agent-self-improvement` at `e94031a`: roughly
 3.5k lines of standard-library-only Python under `plugin/selfimprove/`, a
@@ -196,9 +196,9 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
     on neither `test` nor `test-harness`. `make test` is a bare `pytest -q` and
     runs 825 passed, 14 skipped, spending no model usage.
 - [x] Remove the `lint` and `fmt` targets, reduce `check` to `test validate`,
-  and drop their help lines. Formatting is pre-commit's, per
-  [Let pre-commit own formatting](20260831-pre-commit-owns-formatting.md);
-  `ruff` stays in the dev group because the pre-commit hook needs it.
+  and drop their help lines. Formatting is pre-commit's, per [Let pre-commit own
+  formatting](20260831-pre-commit-owns-formatting.md); `ruff` stays in the dev
+  group because the pre-commit hook needs it.
   - **Evidence:** commit `4e3b16a`; `make -n lint` and `make -n fmt` both fail
     with no such target, `check` is `test validate`, and the help text points at
     `pre-commit run --all-files` instead.
@@ -247,9 +247,9 @@ merge source's `pyproject.toml`, `.ruff.toml`, `uv.lock`
 - [x] File the MVP as a plan at `stage: done`, absorbing the pty wake harness
   specification, whose acceptance criterion 6.1 is **outstanding**: nine of ten
   runs reached the assertion, and five of twenty checks skipped for want of a
-  staged candidate. Per
-  [Evidence and outstanding work](../concept/evidence-and-outstanding-work.md),
-  that belongs under its own heading and never beside the evidence.
+  staged candidate. Per [Evidence and outstanding
+  work](../concept/evidence-and-outstanding-work.md), that belongs under its own
+  heading and never beside the evidence.
   - **Evidence:** commit `5a48d8c`; `data/plans/20260909-self-improve-mvp` is
     filed `stage: done` with `completed: 2026-08-02` and listed under `## Done`.
     Criterion 6.1 sits under its own `## Outstanding work` heading, naming what

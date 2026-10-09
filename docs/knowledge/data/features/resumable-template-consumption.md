@@ -53,8 +53,8 @@ None — every design question this feature raised is settled.
 
 ## References
 
-- Plan:
-  [Track template consumption progress and choices](../plans/20260906-template-consumption-progress.md)
+- Plan: [Track template consumption progress and
+  choices](../plans/20260906-template-consumption-progress.md)
 - Spec: [Template consumption](../spec/template-consumption.md)
 - Architecture: [Template boundary](../architecture/template-boundary.md) and
   [Agent metadata files](../architecture/agent-metadata-files.md)

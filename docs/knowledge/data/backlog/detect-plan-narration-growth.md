@@ -33,9 +33,9 @@ The measurable proxies do not survive contact:
 
 - **Line count or growth ratio.** A large plan is not a narrated one. This fires
   on legitimately long plans and misses a short, dense logbook.
-- **Prose-to-task ratio.** Plans that carry approved wording verbatim, as
-  [Never write a working logbook](../plans/20260817-no-logbooks-in-the-graph.md)
-  does, are mostly prose by design.
+- **Prose-to-task ratio.** Plans that carry approved wording verbatim, as [Never
+  write a working logbook](../plans/20260817-no-logbooks-in-the-graph.md) does,
+  are mostly prose by design.
 - **Keyword matching** (run identifiers, "attempt", "failed"). A plan may
   legitimately quote a failure it is fixing, and a narrator need not use the
   vocabulary.

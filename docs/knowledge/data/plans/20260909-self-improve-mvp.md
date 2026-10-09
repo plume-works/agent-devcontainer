@@ -17,16 +17,16 @@ completed: 2026-08-02
 ## Context
 
 The plugin was designed and built in `plume-works/agent-self-improvement` and
-arrived here complete, as
-[Consolidate the self-improve plugin into this repository](20260909-consolidate-self-improve-plugin.md)
-records. This plan is the transcription of that work: it is filed `done` because
-the behavior shipped before the move, and it exists so the graph carries the
-acceptance record rather than only the code.
+arrived here complete, as [Consolidate the self-improve plugin into this
+repository](20260909-consolidate-self-improve-plugin.md) records. This plan is
+the transcription of that work: it is filed `done` because the behavior shipped
+before the move, and it exists so the graph carries the acceptance record rather
+than only the code.
 
-The durable behavior is
-[Self-improve learning loop](../spec/self-improve-learning-loop.md); the runtime
-decisions are [Self-improve runtime](../architecture/self-improve-runtime.md).
-This plan records what was accepted and on what evidence.
+The durable behavior is [Self-improve learning
+loop](../spec/self-improve-learning-loop.md); the runtime decisions are
+[Self-improve runtime](../architecture/self-improve-runtime.md). This plan
+records what was accepted and on what evidence.
 
 It absorbs two specifications from the merge source: the MVP itself, and the
 pseudo-terminal harness that verifies the one behavior the headless suite cannot
@@ -115,8 +115,8 @@ wake *detected* in ten consecutive runs. `make wake-repeat` completed ten runs
 with no failure, but nine of the ten reached the assertion: one wake check
 skipped on a review that stored no candidate to watch for. Five of the twenty
 checks across those runs skipped for that reason; the other four were the
-negative control, carried as
-[Reviewer decline asymmetry](../bugs/self-improve-reviewer-decline-asymmetry.md).
+negative control, carried as [Reviewer decline
+asymmetry](../bugs/self-improve-reviewer-decline-asymmetry.md).
 
 Closing it requires ten runs in which every wake check reaches its assertion,
 which costs real model usage. Only someone willing to spend that can close it.

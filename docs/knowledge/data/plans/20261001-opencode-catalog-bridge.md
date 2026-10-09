@@ -45,10 +45,10 @@ Facts this design rests on, from OpenCode 1.18.34 source:
 - **Agents.** The per-agent `tools` map is deprecated in favor of `permission`.
 - **Plugin specs.** A plugin may be referenced by an absolute path.
 
-It depends on
-[Reference bundled skill code by skill-relative agent-code paths](20261001-skill-relative-agent-code.md):
-once skill bodies reference `agent-code/<script>` relative to the skill
-directory, OpenCode needs no text substitution at all.
+It depends on [Reference bundled skill code by skill-relative agent-code
+paths](20261001-skill-relative-agent-code.md): once skill bodies reference
+`agent-code/<script>` relative to the skill directory, OpenCode needs no text
+substitution at all.
 
 ## Approach
 
@@ -478,7 +478,8 @@ that the user's OpenCode configuration already defines under the same key.
 
 ## Depends on
 
-- [Reference bundled skill code by skill-relative agent-code paths](20261001-skill-relative-agent-code.md)
+- [Reference bundled skill code by skill-relative agent-code
+  paths](20261001-skill-relative-agent-code.md)
 
 ## Verification
 

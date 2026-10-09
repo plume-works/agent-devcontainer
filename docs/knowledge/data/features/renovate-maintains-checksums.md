@@ -86,10 +86,9 @@ a required check runs inside the new digest before a bump can merge.
 
 **Digest masks extend to the new pins.** Automerged bumps would otherwise mark
 every map doc sourcing `ansible` or `.github` stale while its prose stays
-accurate — the defect recorded in
-[Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md). The
-format and its resolution are
-[Agent metadata files](../architecture/agent-metadata-files.md).
+accurate — the defect recorded in [Pin bumps invalidate map
+docs](../bugs/pin-bumps-invalidate-map-docs.md). The format and its resolution
+are [Agent metadata files](../architecture/agent-metadata-files.md).
 
 ## Scope
 

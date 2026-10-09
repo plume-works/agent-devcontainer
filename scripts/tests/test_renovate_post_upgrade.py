@@ -229,7 +229,7 @@ def test_the_fetched_iwe_is_removed_afterwards(repo: Path) -> None:
 
 
 def test_no_dev_tools_change_runs_no_iwe(repo: Path) -> None:
-    """Iwe is fetched and run only when the dev_tools pins changed."""
+    """The pinned iwe is fetched and run only when the dev_tools pins changed."""
     (repo / 'pins.yml').write_text('bumped\n')
 
     _, calls = run(repo)

@@ -37,12 +37,12 @@ behavioral guardrails were implicit or unevenly expressed across the skills:
 planning boundaries, ambiguity handling, implementation deviations,
 verification, and spec synchronization.
 
-The sharpest instance was already recorded in project memory.
-[Verification in the main loop](../features/verification-in-the-main-loop.md)
-noted that `docs/knowledge/AGENTS.md` describes shipping as following a green
-Verify result, while Ship treated Verify as the optional thorough form of a
-looser confirmation step. Normal shipping could therefore proceed without
-requirement tracing, scenario coverage, or coherence checks.
+The sharpest instance was already recorded in project memory. [Verification in
+the main loop](../features/verification-in-the-main-loop.md) noted that
+`docs/knowledge/AGENTS.md` describes shipping as following a green Verify
+result, while Ship treated Verify as the optional thorough form of a looser
+confirmation step. Normal shipping could therefore proceed without requirement
+tracing, scenario coverage, or coherence checks.
 
 OpenSpec's explore → propose → apply → archive prompts encode much of this
 judgment explicitly. The opportunity was to adopt the language that changes
@@ -319,10 +319,11 @@ Recorded as explicit non-goals during design:
 Discovered after this work and owned elsewhere:
 
 - **The two remaining handoff routes** — Explore's missing defect destination
-  and Verify's third unchecked-box route — owned by
-  [Name the missing handoff routes in explore and verify](20260816-skill-handoff-routes.md).
+  and Verify's third unchecked-box route — owned by [Name the missing handoff
+  routes in explore and verify](20260816-skill-handoff-routes.md).
 - **The ticked-box asymmetry**, where Verify takes a `- [x]` on faith, owned by
-  [Make plan checkboxes carry their evidence](20260815-honest-plan-checkboxes.md).
+  [Make plan checkboxes carry their
+  evidence](20260815-honest-plan-checkboxes.md).
 
 ## Key references
 

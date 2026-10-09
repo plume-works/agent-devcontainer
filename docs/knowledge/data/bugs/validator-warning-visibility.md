@@ -75,8 +75,8 @@ is no prior decision to reverse: this is a first wiring, not a restoration.
 
 ## Fix
 
-Fixed by
-[Connect validator warnings](../plans/20260907-connect-validator-warnings.md).
+Fixed by [Connect validator
+warnings](../plans/20260907-connect-validator-warnings.md).
 `SkillFrontmatterValidator` and `SkillStructureValidator` are constructed in
 `ValidationEngine.validate` and receive `show_warnings`; `main.py` reads the
 real argparse destinations; `--no-warnings` is removed in favour of

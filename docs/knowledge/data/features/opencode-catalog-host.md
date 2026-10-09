@@ -59,9 +59,9 @@ out of scope for this feature.
 
 ## References
 
-- Spec: [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md),
-  [Catalog lifecycle](../spec/catalog-lifecycle.md)
-- Architecture:
-  [OpenCode catalog bridge](../architecture/opencode-catalog-bridge.md)
-- Plan:
-  [Load the agentdev catalog into OpenCode through a bridge plugin](../plans/20261001-opencode-catalog-bridge.md)
+- Spec: [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md), [Catalog
+  lifecycle](../spec/catalog-lifecycle.md)
+- Architecture: [OpenCode catalog
+  bridge](../architecture/opencode-catalog-bridge.md)
+- Plan: [Load the agentdev catalog into OpenCode through a bridge
+  plugin](../plans/20261001-opencode-catalog-bridge.md)

@@ -36,8 +36,8 @@ and fails unless it equals the pin.
 
 ## Depends on
 
-`uv_setup` (must run first), and the
-[validator package](../../py_packages/validate_agent_files.md) sources at
+`uv_setup` (must run first), and the [validator
+package](../../py_packages/validate_agent_files.md) sources at
 `validate_agent_files_source_dir`.
 
 ## Invariants & gotchas

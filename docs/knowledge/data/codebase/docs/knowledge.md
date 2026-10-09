@@ -50,9 +50,9 @@ would otherwise make itself stale.
 - `docs/knowledge/tests/test_body_shape_schemas.py` — breaks one bug and one
   feature document in a copy of the graph by dropping, reordering, or misnaming
   a required section, and checks that `iwe schema validate` rejects each
-- `docs/knowledge/tests/test_iwe_seed.py` — assembles
-  [the consumer seed](../templates/iwe.md) as a standalone workspace and checks
-  its schema, normalization, onboarding tasks, links, license, and boundaries
+- `docs/knowledge/tests/test_iwe_seed.py` — assembles [the consumer
+  seed](../templates/iwe.md) as a standalone workspace and checks its schema,
+  normalization, onboarding tasks, links, license, and boundaries
 - `docs/knowledge/tests/test_devcontainer_metadata_mask.py` — exercises the
   checked-in Dev Container feature-pin and lock masks against the full
   production configuration, keeping a version bump and its regenerated lock

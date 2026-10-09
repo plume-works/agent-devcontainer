@@ -29,9 +29,9 @@ created, and had spelled out the bug-document shape. The specifics were gone,
 and the drafts existed nowhere but the conversation.
 
 Recovery worked only by grepping the session transcript on disk, after two
-context compactions had already passed. That is luck, not a mechanism.
-[Never write a working logbook](20260817-no-logbooks-in-the-graph.md) was
-corrected by inlining the recovered text, but nothing prevents a repeat.
+context compactions had already passed. That is luck, not a mechanism. [Never
+write a working logbook](20260817-no-logbooks-in-the-graph.md) was corrected by
+inlining the recovered text, but nothing prevents a repeat.
 
 Two distinct failures sit behind that outcome. The plan reshaped approved text
 to fit a checkbox template, and the approved text was never persisted at all.
@@ -77,9 +77,8 @@ and once the plan exists a separate copy of the same bytes would drift from it.
 
 Rejected: extending the rule to plan→implement and implement→ship. Those
 handoffs carry no context by construction, so there is nothing for a carrier to
-preserve; the written plan already is the channel, and
-[Never write a working logbook](20260817-no-logbooks-in-the-graph.md) governs
-what it may contain.
+preserve; the written plan already is the channel, and [Never write a working
+logbook](20260817-no-logbooks-in-the-graph.md) governs what it may contain.
 
 ## Implementation Steps
 
@@ -185,9 +184,8 @@ rather than described. Apply the blocks exactly as given.
   - **Evidence:** commit 1456034; `AGENTS.md:14` carries the extended item 4 and
     `AGENTS.md:15` the new item 5. The insertion renumbers the two items below
     it (old 5 → 6, old 6 → 7), which is what makes `AGENTS.md:21` the end of
-    item 7 that
-    [Never write a working logbook](20260817-no-logbooks-in-the-graph.md) Task 1
-    anchors on
+    item 7 that [Never write a working
+    logbook](20260817-no-logbooks-in-the-graph.md) Task 1 anchors on
 
 ## Spec changes
 
@@ -304,8 +302,8 @@ that text verbatim in the task that applies it and SHALL never paraphrase it.
 
 - Rules for the plan→implement and implement→ship handoffs. Written plan is
   already the sole channel and there is nothing for a carrier to preserve across
-  them. What the plan may contain is governed by
-  [Never write a working logbook](20260817-no-logbooks-in-the-graph.md)
+  them. What the plan may contain is governed by [Never write a working
+  logbook](20260817-no-logbooks-in-the-graph.md)
 - Any edit to `.claude/skills/implement/SKILL.md`. Implement applies what the
   plan carries; this work is about getting the text into the plan intact
 - A durable graph home for drafts. Rejected in `## Approach`; `.tmp/` spans the

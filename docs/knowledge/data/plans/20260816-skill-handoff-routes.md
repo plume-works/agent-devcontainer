@@ -34,13 +34,13 @@ covers the case where a plan is already in flight; outside that, the finding
 dies with the conversation.
 
 **Verify's unchecked-box recommendation is no longer exhaustive.** It reads
-"complete it, or tick it if already done". Since
-[Verification in the main loop](../features/verification-in-the-main-loop.md)
-made a zero-CRITICAL Verify report a hard precondition of normal Ship —
-`.claude/skills/ship/SKILL.md:40`, "there is no CRITICAL override" — a task the
-user has decided not to do now blocks shipping outright. Ticking it is forbidden
-by `.claude/skills/implement/SKILL.md:57-60`, and completing it is exactly what
-the user declined. That feature's resolved decisions name two ways out, fix or
+"complete it, or tick it if already done". Since [Verification in the main
+loop](../features/verification-in-the-main-loop.md) made a zero-CRITICAL Verify
+report a hard precondition of normal Ship — `.claude/skills/ship/SKILL.md:40`,
+"there is no CRITICAL override" — a task the user has decided not to do now
+blocks shipping outright. Ticking it is forbidden by
+`.claude/skills/implement/SKILL.md:57-60`, and completing it is exactly what the
+user declined. That feature's resolved decisions name two ways out, fix or
 cancel the whole plan; revising the plan to drop the task is the proportionate
 third, and no skill mentions it.
 
@@ -52,10 +52,10 @@ verify still reports rather than revises.
 
 Explore gains one `## Capturing` bullet routing an established defect to
 `data/bugs/<slug>.md` — the lane the Record step of `docs/knowledge/AGENTS.md`
-already specifies for a found defect, and the lane
-[Missing map skill](../bugs/missing-map-skill.md) itself used for a doc-level
-one. Ship was the other candidate, since it owns spec merges after `fcdd45a`,
-and it was rejected: ship acts only on a selected plan's `## Spec changes`, so a
+already specifies for a found defect, and the lane [Missing map
+skill](../bugs/missing-map-skill.md) itself used for a doc-level one. Ship was
+the other candidate, since it owns spec merges after `fcdd45a`, and it was
+rejected: ship acts only on a selected plan's `## Spec changes`, so a
 spec-versus-code contradiction found with no plan in flight has nothing for ship
 to attach to. [Write a capture skill](../backlog/capture-skill.md) may later own
 this lane properly; the bullet is worded so that task can absorb it rather than
@@ -121,16 +121,16 @@ None — no behavioral change to the published product.
 
 *Corrected at ship time, 2026-08-16.* This section originally reasoned that the
 workspace skills under `.claude/skills/` have no `data/spec/` doc. That stopped
-being true in `b0bc56a`, which created
-[IWE workflow skills](../spec/iwe-workflow-skills.md) listing all five skill
-files as its `sources`. The conclusion survives the correction: every
-requirement in that spec was re-read against both edits and none is contradicted
-or left incomplete. It states that Explore "SHALL offer capture or a phase
-handoff" and that Verify "produces its evidence-backed report and stops" —
-neither enumerates Capturing's destinations nor the routes out of an unchecked
-box, so both edits sit below its altitude and refine behavior it already
-permits. The ship↔verify coupling's own detail stays where it already lives, in
-[Verification in the main loop](../features/verification-in-the-main-loop.md).
+being true in `b0bc56a`, which created [IWE workflow
+skills](../spec/iwe-workflow-skills.md) listing all five skill files as its
+`sources`. The conclusion survives the correction: every requirement in that
+spec was re-read against both edits and none is contradicted or left incomplete.
+It states that Explore "SHALL offer capture or a phase handoff" and that Verify
+"produces its evidence-backed report and stops" — neither enumerates Capturing's
+destinations nor the routes out of an unchecked box, so both edits sit below its
+altitude and refine behavior it already permits. The ship↔verify coupling's own
+detail stays where it already lives, in [Verification in the main
+loop](../features/verification-in-the-main-loop.md).
 
 ## Verification
 
@@ -155,10 +155,9 @@ permits. The ship↔verify coupling's own detail stays where it already lives, i
 ## Out of scope
 
 - **The ticked-box asymmetry.** Verify still takes a `- [x]` on faith, which is
-  the defect in
-  [Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md) and is
-  owned by
-  [Make plan checkboxes carry their evidence](20260815-honest-plan-checkboxes.md).
+  the defect in [Plan checkbox
+  over-claiming](../bugs/plan-checkbox-over-claiming.md) and is owned by [Make
+  plan checkboxes carry their evidence](20260815-honest-plan-checkboxes.md).
   That plan is unstarted and its anchors are stale after `0d4d37b`, `61cce13`,
   and `fcdd45a`; it needs a revise pass before implementation. Its Task 1
   appends to verify's Completeness dimension immediately after the lines Task 2

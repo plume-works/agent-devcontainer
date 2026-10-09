@@ -43,9 +43,8 @@ the composite actions they share, `renovate.json`, and
   by the pre-commit hook and, through `super-linter-env.sh`, Super-Linter
 - `.agent.metadata.json` — `iwe-map.digest_ignore` masks for runner labels and
   `agent-desktop` digests, so automerged bumps leave map digests unchanged
-- `pull_request_template.md` — the verification sections
-  [PR verification sections](../architecture/pr-verification-sections.md)
-  describes
+- `pull_request_template.md` — the verification sections [PR verification
+  sections](../architecture/pr-verification-sections.md) describes
 
 ## How it works
 
@@ -75,10 +74,10 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 - `renovate.json` is itself validated, by a pre-commit hook and by
   `validate-renovate-config.yml`, both running the validator with `--no-global`
   so it applies the repository schema rather than the self-hosted one, at the
-  hook's Renovate rev the bot also runs — see
-  [Renovate config validation](../architecture/renovate-config-validation.md).
-- The post-upgrade script's behavior and failure policy are
-  [Renovate post-upgrade](../architecture/renovate-post-upgrade.md).
+  hook's Renovate rev the bot also runs — see [Renovate config
+  validation](../architecture/renovate-config-validation.md).
+- The post-upgrade script's behavior and failure policy are [Renovate
+  post-upgrade](../architecture/renovate-post-upgrade.md).
 
 ## Key references
 
