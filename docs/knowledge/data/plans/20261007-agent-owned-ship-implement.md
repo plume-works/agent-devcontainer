@@ -300,8 +300,10 @@ plans, the publish script, and the OpenCode project config)
 
 ### Task 12: The harness passes on Claude Code
 
-- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
   Claude Code check.
+  - **Evidence:** `run.sh --harness claude` at af30a56 on Claude Code 2.1.280:
+    all 23 checks passed.
 
 ### Task 13: The harness passes on Codex
 
