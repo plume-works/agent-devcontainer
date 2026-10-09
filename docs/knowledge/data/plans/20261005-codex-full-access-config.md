@@ -4,10 +4,12 @@ created: 2026-10-05
 description: Add a postStart script that writes Codex's full-access sandbox and never-approve policy into config.toml, using tomlkit with PEP 723 inline dependencies so it keeps other tools' comment markers and needs nothing from a consumer's pyproject.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-05T12:00:00Z
+  at: 2026-10-09T00:00:00Z
 sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/firewall-allowlist.txt
+stage: done
+completed: 2026-10-09
 ---
 
 # Configure devcontainer Codex for full access
@@ -137,8 +139,8 @@ devcontainer script tests)
 
 ## Spec changes
 
-New spec `data/spec/devcontainer-codex-policy` — this change disables Codex's
-sandbox, so the contract is stated in full:
+New spec [Devcontainer Codex policy](../spec/devcontainer-codex-policy.md) —
+this change disables Codex's sandbox, so the contract is stated in full:
 
 ``` markdown
 ## ADDED Requirements
