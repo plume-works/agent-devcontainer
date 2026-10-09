@@ -78,9 +78,10 @@ iwe-explore ──✘── nothing to match: the skills are explicit-only, the 
   isolated clone of the repository with fixture plans and drives each harness
   headless, asserting the facts a scenario's THEN clause names — who was
   dispatched, what its prompt carried, and what changed in and outside the
-  clone. It lives under `scripts/`, not the plugin's tests: it clones this
-  repository and spends model usage, so it neither runs from a consumer's plugin
-  cache nor belongs in a default test run.
+  clone. It lives under `scripts/e2e/<plan key>/`, named after the plan it
+  verifies so each harness links back to its plan, and not in the plugin's
+  tests: it clones this repository and spends model usage, so it neither runs
+  from a consumer's plugin cache nor belongs in a default test run.
 
 Rejected:
 
@@ -257,9 +258,9 @@ Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 
 ### Task 11: Commit the end-to-end harness
 
-**Files:** Create: `scripts/explicit-only-e2e/run.sh`,
-`scripts/explicit-only-e2e/fixtures/` (the two fixture plans, the publish
-script, and the OpenCode project config)
+**Files:** Create: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`,
+`scripts/e2e/20261007-agent-owned-ship-implement/fixtures/` (the two fixture
+plans, the publish script, and the OpenCode project config)
 
 - [ ] Commit the fixtures and a runner. The fixtures are an implemented plan
   whose `## Verification` runs a publish script whose only effect is a marker
@@ -292,16 +293,18 @@ script, and the OpenCode project config)
 
 ### Task 12: The harness passes on Claude Code
 
-- [ ] `scripts/explicit-only-e2e/run.sh` passes every Claude Code check.
+- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+  Claude Code check.
 
 ### Task 13: The harness passes on Codex
 
-- [ ] `scripts/explicit-only-e2e/run.sh` passes every Codex check.
+- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+  Codex check.
 
 ### Task 14: The harness passes on OpenCode
 
-- [ ] `scripts/explicit-only-e2e/run.sh` passes every OpenCode check with a
-  model the maintainer uses.
+- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+  OpenCode check with a model the maintainer uses.
 
 ## Spec changes
 
@@ -392,9 +395,10 @@ given.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
 - `iwe normalize` and `iwe schema validate` after the architecture document.
 - Tasks 8–10 are the end-to-end checks on each harness.
-- `shellcheck scripts/explicit-only-e2e/run.sh`
-- `scripts/explicit-only-e2e/run.sh` on all three harnesses (Tasks 12–14); it
-  needs each CLI authenticated and spends model usage.
+- `shellcheck scripts/e2e/20261007-agent-owned-ship-implement/run.sh`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` on all three
+  harnesses (Tasks 12–14); it needs each CLI authenticated and spends model
+  usage.
 
 ## Out of scope
 
