@@ -89,24 +89,35 @@
           end
       end
 
-# /usr/bin/gh bypasses the auth shim; installing a public extension needs no token.
-- name: Install the pinned gh-stack extension
-  ansible.builtin.shell: |
-    set -euo pipefail
-    manifest="{{ user_home }}/.local/share/gh/extensions/gh-stack/manifest.yml"
-    if grep -qxF 'tag: {{ github_cli_gh_stack_version }}' "$manifest" 2>/dev/null; then
-      echo unchanged
-      exit 0
-    fi
-    if [ -e "$manifest" ]; then
-      /usr/bin/gh extension remove gh-stack
-    fi
-    /usr/bin/gh extension install github/gh-stack --pin {{ github_cli_gh_stack_version | quote }}
-  args:
-    executable: /bin/bash
-  environment:
-    HOME: "{{ user_home }}"
-  register: github_cli_gh_stack_install
-  changed_when: "'unchanged' not in github_cli_gh_stack_install.stdout"
+# The release binary is fetched directly: `gh extension install` needs a token
+# even for a public extension, and an image build has none.
+- name: Ensure the gh-stack extension directory exists
+  ansible.builtin.file:
+    path: "{{ github_cli_gh_stack_dir }}"
+    state: directory
+    mode: "0755"
+  become: true
+  become_user: "{{ dev_user }}"
+
+- name: Download the pinned gh-stack extension binary
+  ansible.builtin.get_url:
+    url: "{{ github_cli_gh_stack_download_url }}"
+    dest: "{{ github_cli_gh_stack_dir }}/gh-stack"
+    checksum: "{{ github_cli_gh_stack_checksum }}"
+    mode: "0755"
+  become: true
+  become_user: "{{ dev_user }}"
+
+- name: Register gh-stack as a pinned binary extension
+  ansible.builtin.copy:
+    dest: "{{ github_cli_gh_stack_dir }}/manifest.yml"
+    content: |
+      owner: github
+      name: gh-stack
+      host: github.com
+      tag: {{ github_cli_gh_stack_version }}
+      ispinned: true
+      path: {{ github_cli_gh_stack_dir }}/gh-stack
+    mode: "0600"
   become: true
   become_user: "{{ dev_user }}"
