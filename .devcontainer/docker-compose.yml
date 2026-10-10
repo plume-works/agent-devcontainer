@@ -103,10 +103,6 @@ services:
       # devcontainer.json.
       - agentdev-agents-auth:/root/.agents-auth
 
-      # initializeCommand materializes Coder's JSON secrets into this private,
-      # short-lived host directory. postCreate and postStart consume and remove the files.
-      - ${AGENTDEV_AUTH_SEED_DIR:-/tmp/stub-agentdev-auth-seed}:/run/agentdev-auth-seed:rw
-
     command: ['sleep', 'infinity']
 
 volumes:

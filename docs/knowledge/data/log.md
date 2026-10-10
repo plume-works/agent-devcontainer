@@ -10,6 +10,15 @@ to the current day's group.
   repair ahead of the CBM install and the non-fatal CBM install in postCreate:
   three docs re-verified. Bug: [Codex tables inside cbm hooks block break cbm
   install](bugs/cbm-codex-hooks-block-foreign-tables.md).
+- **Update**: [Remove Coder agent auth seeding; keep Claude Remote Control
+  autostart](plans/20261009-remove-coder-agent-auth-seeding.md) done. Coder
+  credential seeding is gone; Remote Control autostarts only on a live claude.ai
+  login, and every container pre-approves first-run Claude state unless it opts
+  out. The devcontainer agent authentication spec is retired, split into [Claude
+  Remote Control](spec/claude-remote-control.md) and [Devcontainer Git
+  credentials](spec/devcontainer-git-credentials.md).
+- **Update**: [Codebase map](codebase.md) refreshed for the removal of Coder
+  agent auth seeding and the Claude login gate: six docs re-verified.
 - **Update**: Refreshed nine codebase map documents for the merge of `main` into
   the Codex catalog agent install and its `python3 -B` installer runs.
 - **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in

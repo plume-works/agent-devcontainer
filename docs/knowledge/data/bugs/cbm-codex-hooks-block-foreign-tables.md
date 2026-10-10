@@ -4,7 +4,7 @@ stage: done
 description: Tables Codex writes into config.toml land inside codebase-memory-mcp's trailing SessionStart block, so every later cbm install refuses with ambiguous_hook_ownership, and the failed install used to abort postCreate and skip all of postStart.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-10T00:05:00Z
+  at: 2026-10-10T01:20:00Z
 sources:
 - resource: https://github.com/DeusData/codebase-memory-mcp/issues/2435
   title: 'install: tables Codex Desktop appends above the trailing SessionStart closing marker make the Codex hook preflight refuse (`ambiguous_hook_ownership`)'
@@ -90,7 +90,7 @@ does not help, because the installer then refuses with `op=mcp_install`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-09):
+Verified anchor points (line numbers as of 2026-10-10):
 
 - `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:47` — `repair`
 - `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:18` — `OWNED_HEADER`,
@@ -100,7 +100,7 @@ Verified anchor points (line numbers as of 2026-10-09):
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:82` —
   `codebase-memory-mcp install -y --force`
 - `.devcontainer/scripts/postCreateCommand.sh:67` — non-fatal cbm install call
-- `.devcontainer/scripts/postCreateCommand.sh:94` —
+- `.devcontainer/scripts/postCreateCommand.sh:93` —
   `reinstall-agentdev-codex.sh`, a Codex config write after the install
 - `.devcontainer/scripts/postAttachCommand.sh:14` —
   `reinstall-agentdev-codex.sh` again
