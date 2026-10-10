@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-09
 
+- **Update**: [Codebase map](codebase.md) refreshed for the Codex hooks-block
+  repair ahead of the CBM install and the non-fatal CBM install in postCreate:
+  three docs re-verified. Bug: [Codex tables inside cbm hooks block break cbm
+  install](bugs/cbm-codex-hooks-block-foreign-tables.md).
 - **Update**: [Remove Coder agent auth seeding; keep Claude Remote Control
   autostart](plans/20261009-remove-coder-agent-auth-seeding.md) done. Coder
   credential seeding is gone; Remote Control autostarts only on a live claude.ai

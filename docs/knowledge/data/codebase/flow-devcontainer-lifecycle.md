@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:9c566c9f1abc3d6ded8af5199e3557f21405b3d109985d52ee1d4f7cbbbdf8fc
+source_digest: sha256:1f1b9bf34b0d1037924134f0c88e8a0874e1db0591affe8bdbee83b6eaa6dd5c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:17:04Z
+  at: 2026-10-10T01:20:00Z
 stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:17:04Z
+  at: 2026-10-10T01:20:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -35,12 +35,12 @@ state.
    `.devcontainer/devcontainer.json:7`, `.devcontainer/docker-compose.yml:2,53`
 3. `postCreateCommand` (once per instance): ownership fixes, the
    `~/.claude.json` symlink into the `agentdev-claude` volume,
-   `codebase-memory-mcp install`, auth directories, Claude first-run
-   pre-approval unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is set, the Codex auth
-   link, `uv sync`, then the image-staged catalog installed for Codex (with its
-   agents), for Claude at user scope, and as OpenCode's bridge plugin —
-   `.devcontainer/scripts/postCreateCommand.sh:56-96`, in [lifecycle
-   scripts](devcontainer/scripts.md)
+   `codebase-memory-mcp install` (a failure only warns), auth directories,
+   Claude first-run pre-approval unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is
+   set, the Codex auth link, `uv sync`, then the image-staged catalog installed
+   for Codex (with its agents), for Claude at user scope, and as OpenCode's
+   bridge plugin — `.devcontainer/scripts/postCreateCommand.sh:56-98`, in
+   [lifecycle scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
    Xpra in the background, Claude Remote Control under autostart with a
@@ -56,8 +56,9 @@ state.
 - Step 3 is shadowed by design: the build-time catalog install under `~/.claude`
   is hidden by the volume mount, so a container that skips the hooks resolves
   the image's copy and a devcontainer resolves the hook's.
-- `CBM_CACHE_DIR` unset aborts steps 3–5 at the first CBM script; a missing
-  `codebase-memory-mcp` binary is skipped instead.
+- `CBM_CACHE_DIR` unset aborts steps 4–5 at the first CBM script; a missing
+  `codebase-memory-mcp` binary is skipped instead. Any other step 3 failure ends
+  the lifecycle, so step 4 never runs; a failed CBM install only warns.
 - `ENABLE_FIREWALL=true` in an image built without the firewall role fails step
   4\.
 - A CI `container:` job supplies none of `containerEnv` or the mounts;
