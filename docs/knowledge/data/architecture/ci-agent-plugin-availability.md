@@ -142,9 +142,9 @@ provides.
 
 Rejected *for CI*, not discarded: it still closes a real gap for consumers that
 never run the lifecycle hooks — a plain `docker run`, a Codespace. That is
-planned separately in
-[Install the agentdev catalog into the image](../plans/20260817-catalog-install-in-image.md),
-which owns the `~/.claude.json` risk.
+planned separately in [Install the agentdev catalog into the
+image](../plans/20260817-catalog-install-in-image.md), which owns the
+`~/.claude.json` risk.
 
 **Install from an explicit workflow step rather than the lifecycle hooks.**
 Rejected: it duplicates logic the hooks already own and drifts from them. The
@@ -186,5 +186,5 @@ exists and why upstream's 30-minute job timeout carries over unchanged.
 
 Decided during exploration of the AI responder workflow import, and revised once
 when the checkout made the image change unnecessary. Not yet implemented.
-Planned in
-[AI responder workflows](../plans/20260816-ai-responder-workflows.md).
+Planned in [AI responder
+workflows](../plans/20260816-ai-responder-workflows.md).

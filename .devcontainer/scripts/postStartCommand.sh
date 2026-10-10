@@ -9,8 +9,6 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 "$script_dir/codebase-memory-mcp-start.sh"
 
 "$script_dir/setup-git-safe-directory.sh"
-# initializeCommand rewrites the transfer files on every start, not only at create.
-"$script_dir/seed-agent-auth.sh"
 "$script_dir/setup-pre-commit.sh"
 "$script_dir/setup-keyring.sh"
 # After the keyring: gh may keep its login there.
@@ -29,3 +27,6 @@ fi
 # Repairs the shared auth.json symlink if a `codex logout` during this container's
 # previous run destroyed it; see link-codex-auth.sh for why that can happen.
 "$script_dir/link-codex-auth.sh"
+
+# Last, so a failure here cannot keep the firewall, keyring, or Xpra from starting.
+"$script_dir/configure-codex.py"

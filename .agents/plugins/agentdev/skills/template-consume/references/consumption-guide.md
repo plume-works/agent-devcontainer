@@ -746,7 +746,7 @@ is called out below.
 
 The consumer's knowledge lives at `docs/knowledge/data/`, validated by schemas
 at the consumer's repository **root** `.iwe/`. `.iwe/config.toml` sets
-`[library].path = "docs/knowledge"`, and `iwe` neither searches upward for
+`[workspace].path = "docs/knowledge"`, and `iwe` neither searches upward for
 `.iwe/` nor takes a `--root` flag — so the config stays at the root and every
 `iwe` command runs with the consumer root as the working directory.
 
@@ -820,7 +820,7 @@ nothing is fetched from anywhere else.
 2. **When knowledge already exists, do not seed.** Never delete, overwrite, or
    reset a consumer's data directory. Present what is there and what the seed
    would add, and ask how to reconcile it — the same question applies to an
-   existing root `.iwe/` whose schemas or `[library].path` differ from the
+   existing root `.iwe/` whose schemas or `[workspace].path` differ from the
    template's. Proceed only on the user's answer; leaving both in place
    unmerged is a valid answer.
 3. **Copy the seed** into `docs/knowledge/data/`, and copy

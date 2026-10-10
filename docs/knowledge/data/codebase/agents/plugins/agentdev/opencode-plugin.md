@@ -20,8 +20,8 @@ sources:
 A one-module OpenCode v1 plugin: `package.json` names `index.ts` as its entry
 point, and `index.ts` default-exports `{ id, server }`. It reads the catalog
 from the directory above its own and has no runtime dependencies. The design and
-the OpenCode behavior it rests on are in
-[OpenCode catalog bridge](../../../../architecture/opencode-catalog-bridge.md).
+the OpenCode behavior it rests on are in [OpenCode catalog
+bridge](../../../../architecture/opencode-catalog-bridge.md).
 
 ## Public surface
 

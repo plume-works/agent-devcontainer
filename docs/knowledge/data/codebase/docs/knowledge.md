@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:da0ea85424728509f4cda86ba1a91e827f0acd753ccce2bcac4550ae7ee0061b
+source_digest: sha256:93517ef3d28d98329c181b873a1eb165d54e92081940287aa06f9f86a9ee6730
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
-stale_after: 2026-12-31
+  at: 2026-10-09T16:00:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-09T16:00:00Z
 sources:
 - id: code
   resource: .iwe
@@ -34,7 +34,7 @@ would otherwise make itself stale.
 
 ## Public surface
 
-- `.iwe/config.toml` — `[library] path`, `refs_extension = ".md"`,
+- `.iwe/config.toml` — `[workspace] path`, `refs_extension = ".md"`,
   `wrap_column = 80`, and the `[schemas.*]` bindings; `[schemas.tracker]` also
   binds `data/template-adoption`, a document only a consumer workspace holds
 - `.iwe/schemas/*.yaml` — 15 schemas: `architecture`, `bug`, `codebase`,
@@ -50,9 +50,9 @@ would otherwise make itself stale.
 - `docs/knowledge/tests/test_body_shape_schemas.py` — breaks one bug and one
   feature document in a copy of the graph by dropping, reordering, or misnaming
   a required section, and checks that `iwe schema validate` rejects each
-- `docs/knowledge/tests/test_iwe_seed.py` — assembles
-  [the consumer seed](../templates/iwe.md) as a standalone workspace and checks
-  its schema, normalization, onboarding tasks, links, license, and boundaries
+- `docs/knowledge/tests/test_iwe_seed.py` — assembles [the consumer
+  seed](../templates/iwe.md) as a standalone workspace and checks its schema,
+  normalization, onboarding tasks, links, license, and boundaries
 - `docs/knowledge/tests/test_devcontainer_metadata_mask.py` — exercises the
   checked-in Dev Container feature-pin and lock masks against the full
   production configuration, keeping a version bump and its regenerated lock
@@ -63,8 +63,9 @@ would otherwise make itself stale.
   version, a download URL, a `# renovate:` comment, a 64-hex value outside a
   checksum field, or a different image still make it stale
 - `docs/knowledge/tests/test_pre_commit_rev_mask.py` — runs `stale-map-docs.py`
-  over the production root mask and hook config: hook `rev` bumps keep a map doc
-  fresh, while a changed hook id or repository still makes it stale
+  over the production root mask and hook config: hook `rev` and local hooks'
+  `bunx` version bumps keep a map doc fresh, while a changed hook id,
+  repository, or `bunx` package still makes it stale
 - `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works
@@ -79,9 +80,9 @@ member of this repository's graph.
 
 ## Depends on
 
-`iwe` `0.19.0` from [dev_tools](../ansible/roles/dev_tools.md) in the image and
-from `cargo install` in CI; `python-frontmatter` and `pytest` for the
-repository-level tests.
+The pinned `iwe` from [dev_tools](../ansible/roles/dev_tools.md), installed in
+the image and fetched by `scripts/fetch-pinned-tool.py` in CI;
+`python-frontmatter` and `pytest` for the repository-level tests.
 
 ## Invariants & gotchas
 
@@ -116,4 +117,5 @@ Verified anchor points (line numbers as of 2026-10-02):
   variables removed
 - `.pre-commit-config.yaml:102-122` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
-- `.github/workflows/validate-knowledge-base.yml:91-109` — graph and seed checks
+- `.github/workflows/validate-knowledge-base.yml:84-104` — pinned iwe, graph and
+  seed checks

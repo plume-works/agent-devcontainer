@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:9b5017c72bc7882a3712241b6217903569a151074e8ebb979afc641b271887ab
+source_digest: sha256:c02df84424f6c4eb3d604982bc89fd1a8afc78d56b3da9d80717041b0988c111
 verified:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
-stale_after: 2027-01-06
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
+stale_after: 2027-01-07
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -64,11 +64,11 @@ source. The image build copies `.claude-plugin/` and `.agents/` whole into
 `/opt/agentdev` and installs from there
 ([agentic_tools](../../ansible/roles/agentic_tools.md)); the devcontainer
 lifecycle installs again over the mounted volumes and, for this repository only,
-re-registers the workspace copy on attach
-([lifecycle scripts](../../devcontainer/scripts.md)). Codex reads the same
-skills; its agents are the one generated copy, written into `~/.codex/agents/`
-at install by `bin/install-codex-agents.py`. OpenCode reads them too, translated
-at startup by the bridge rather than copied.
+re-registers the workspace copy on attach ([lifecycle
+scripts](../../devcontainer/scripts.md)). Codex reads the same skills; its
+agents are the one generated copy, written into `~/.codex/agents/` at install by
+`bin/install-codex-agents.py`. OpenCode reads them too, translated at startup by
+the bridge rather than copied.
 
 ## Depends on
 

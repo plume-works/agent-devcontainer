@@ -15,8 +15,6 @@ concurrency:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  # Keep in sync with the iwe entry's version in ansible/roles/dev_tools/defaults/main.yml.
-  IWE_VERSION: 0.19.0
 
 jobs:
   paths-filter:
@@ -41,6 +39,8 @@ jobs:
             - docs/knowledge/**
             - .iwe/**
             - templates/iwe/**
+            - ansible/roles/dev_tools/defaults/main.yml
+            - scripts/fetch-pinned-tool.py
             - .github/workflows/validate-knowledge-base.yml
             - .github/actions/log-debug-stats/**
 
@@ -77,16 +77,14 @@ jobs:
               - .iwe/**
               - docs/knowledge/tests/test_iwe_seed.py
 
-      - name: Cache the iwe binary
-        id: cache-iwe
-        uses: actions/cache@v6
-        with:
-          path: ~/.cargo/bin/iwe
-          key: iwe-${{ runner.os }}-${{ env.IWE_VERSION }}
+      - name: Set up the Python environment
+        uses: ./.github/actions/setup-python-venv
 
-      - name: Install iwe
-        if: steps.cache-iwe.outputs.cache-hit != 'true'
-        run: cargo install iwe --locked --version "$IWE_VERSION"
+      # The image's pin, so CI validates with the iwe that writes .iwe/config.toml.
+      - name: Install the pinned iwe
+        run: |
+          uv run --frozen scripts/fetch-pinned-tool.py iwe "$RUNNER_TEMP/iwe"
+          echo "$RUNNER_TEMP/iwe" >> "$GITHUB_PATH"
 
       - name: Validate every document against its schemas
         run: iwe schema validate
@@ -95,9 +93,6 @@ jobs:
         run: |
           iwe normalize
           git diff --exit-code
-
-      - name: Set up the Python environment
-        uses: ./.github/actions/setup-python-venv
 
       - name: Check that ticked plan checkboxes carry evidence
         run: uv run pytest docs/knowledge/tests --ignore=docs/knowledge/tests/test_iwe_seed.py

@@ -56,7 +56,7 @@ changes, or manual clock adjustments never corrupt a session.
 *Convention notes: specs carry `type: spec` and no stage — they are reference,
 not work items. The requirement headers are stable names other documents cite:
 the [timer drift bug](../bugs/timer-drift-after-sleep.example) reports a
-violation of "Wall-clock independence", and the
-[focus sessions plan](../plans/20260701-focus-sessions.example) lists this spec
-under its `## Spec changes`. Scale rigor with risk — a two-line requirement is
-fine for low-risk behavior.*
+violation of "Wall-clock independence", and the [focus sessions
+plan](../plans/20260701-focus-sessions.example) lists this spec under its
+`## Spec changes`. Scale rigor with risk — a two-line requirement is fine for
+low-risk behavior.*

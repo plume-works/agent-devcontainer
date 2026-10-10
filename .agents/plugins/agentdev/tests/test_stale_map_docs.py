@@ -62,14 +62,14 @@ def source_digest(repository: Path, *sources: str) -> str:
         os.chdir(previous)
 
 
-def build_workspace(path: Path) -> Path:
+def build_workspace(path: Path, table: str = 'workspace', version: int = 4) -> Path:
     """Create a repository with an IWE config whose library is a subdirectory."""
     repository = path / 'repo'
     repository.mkdir()
     git(repository, 'init', '--initial-branch=main')
     (repository / '.iwe').mkdir()
     (repository / '.iwe' / 'config.toml').write_text(
-        'version = 3\n\n[library]\npath = "docs/knowledge"\n'
+        f'version = {version}\n\n[{table}]\npath = "docs/knowledge"\n'
     )
     commit_file(repository, 'src/timer/engine.txt', 'tick\n', 'add timer')
     commit_file(repository, 'src/store/log.txt', 'append\n', 'add store')
@@ -121,6 +121,25 @@ def test_every_doc_fresh_reports_success(plugin_root: Path, plugin_tmp_path: Pat
     assert 'MAP_DIR=docs/knowledge/data/codebase' in lines
     assert 'FRESH data/codebase/timer' in lines
     assert 'DOC_COUNT=1' in lines
+
+
+def test_a_pre_v4_library_table_locates_the_map(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """A config older than version 4 names the library path under [library]."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path, table='library', version=3)
+    digest = source_digest(repository, 'src/timer')
+    write_map_doc(
+        repository,
+        'data/codebase/timer',
+        f"type: codebase\nsource: src/timer\nsource_digest: '{digest}'\n",
+    )
+
+    # Act
+    completed = run_script(plugin_root, repository)
+
+    # Assert
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert 'MAP_DIR=docs/knowledge/data/codebase' in completed.stdout.splitlines()
 
 
 def test_a_change_marks_only_the_docs_that_source_it(

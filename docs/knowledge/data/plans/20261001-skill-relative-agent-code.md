@@ -23,11 +23,11 @@ completed: 2026-10-02
 
 ## Context
 
-[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](../bugs/codex-skill-dir-unresolved.md):
-the catalog tells the agent to run bundled scripts as
-`${CLAUDE_SKILL_DIR}/scripts/<script>`, a text substitution only Claude Code
-performs. OpenCode, the next host for these skill bodies, does not substitute it
-either.
+[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev
+skills](../bugs/codex-skill-dir-unresolved.md): the catalog tells the agent to
+run bundled scripts as `${CLAUDE_SKILL_DIR}/scripts/<script>`, a text
+substitution only Claude Code performs. OpenCode, the next host for these skill
+bodies, does not substitute it either.
 
 All three hosts already tell the model that a relative path in a `SKILL.md`
 resolves against the skill's directory: Claude Code prints
@@ -327,9 +327,8 @@ this plan. The specs it touches change only their `sources:` paths.
 
 ## Out of scope
 
-- OpenCode support:
-  [Load the agentdev catalog into OpenCode through a bridge plugin](20261001-opencode-catalog-bridge.md)
-  builds on this plan.
+- OpenCode support: [Load the agentdev catalog into OpenCode through a bridge
+  plugin](20261001-opencode-catalog-bridge.md) builds on this plan.
 - Publishing self-improve to Codex.
 - `references/` and `assets/` directories: no plugin ships an `assets/`, and
   `references/` pages are read rather than executed, so the name collision does

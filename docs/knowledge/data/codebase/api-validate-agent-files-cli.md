@@ -17,11 +17,10 @@ sources:
 
 # Interface: validate_agent_files CLI
 
-The one entry point of the
-[validator package](py_packages/validate_agent_files.md). Three callers depend
-on it: the `validate-agent-files` pre-commit hook, the
-`validate-agent-files.yml` workflow, and consumers of the image, where it is
-installed as a uv tool.
+The one entry point of the [validator
+package](py_packages/validate_agent_files.md). Three callers depend on it: the
+`validate-agent-files` pre-commit hook, the `validate-agent-files.yml` workflow,
+and consumers of the image, where it is installed as a uv tool.
 
 ## Invocation
 

@@ -51,8 +51,8 @@ also pin that local warning checks do not reject inputs accepted by
 
 - No test may reference a path outside the package root, and none may encode
   this repository's published identity.
-- Tests for plugin-shipped scripts belong to the
-  [plugin suite](../../agents/plugins/agentdev/tests.md), never here.
+- Tests for plugin-shipped scripts belong to the [plugin
+  suite](../../agents/plugins/agentdev/tests.md), never here.
 
 ## Key references
 

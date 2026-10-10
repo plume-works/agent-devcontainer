@@ -34,8 +34,8 @@ own* catalog — a PR that changes a skill is reviewed by the skill as changed �
 plus an indexed codebase-memory-mcp, which is what makes the review grounded.
 
 The reasoning, including the image-build-time install that was considered and
-rejected once the checkout was recognized as always present, is recorded in
-[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+rejected once the checkout was recognized as always present, is recorded in [CI
+agent plugin availability](../architecture/ci-agent-plugin-availability.md).
 
 ## Approach
 
@@ -72,8 +72,8 @@ upstream's 30-minute job timeout carries over unchanged.
 The guards are not the whole story: the hooks also depend on
 `devcontainer.json`'s `containerEnv` and mounts, which a `container:` job does
 not apply. Tasks 7 and 8 supply what they need. The boundary and its minimal
-contract are recorded in
-[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+contract are recorded in [CI agent plugin
+availability](../architecture/ci-agent-plugin-availability.md).
 
 `ai-responder.yml` is imported Claude-only: the `codex-respond` job, the codex
 preflight conditions, the `AI_RESPONDERS` variable with its validation step and
@@ -281,8 +281,8 @@ proceed. Task 6 is blocked until this lands.
 
 The job supplies only `DEV_WORKSPACE_FOLDER`; the hooks also need
 `CBM_CACHE_DIR` and `UV_PROJECT_ENVIRONMENT`, and two directories a volume
-normally provides. The minimal contract and how it was derived are in
-[CI agent plugin availability](../architecture/ci-agent-plugin-availability.md).
+normally provides. The minimal contract and how it was derived are in [CI agent
+plugin availability](../architecture/ci-agent-plugin-availability.md).
 
 This changes the *workflow*, not the lifecycle scripts, so it stays inside the
 Out of scope boundary. Whether the scripts should default these values
@@ -367,8 +367,8 @@ The lifecycle scripts do gain skip guards, but they default to today's behavior
 and change nothing observable in a devcontainer — no requirement in that spec
 describes them.
 
-New behavior for the workflows themselves goes in a new spec,
-[AI review gate](../spec/ai-review-gate.md), created at ship time:
+New behavior for the workflows themselves goes in a new spec, [AI review
+gate](../spec/ai-review-gate.md), created at ship time:
 
 ``` markdown
 ## ADDED Requirements

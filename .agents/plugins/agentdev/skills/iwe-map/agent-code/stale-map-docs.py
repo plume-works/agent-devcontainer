@@ -31,7 +31,8 @@ Usage:
 
 Options:
   --library <path>  IWE library directory, relative to the repository root.
-                    Default: [library].path from .iwe/config.toml, or "." when
+                    Default: [workspace].path (config version 4) or
+                    [library].path (earlier) from .iwe/config.toml, or "." when
                     the key is absent.
   --explain         After the verdicts, print one MASK line per applied digest
                     mask, naming the doc, the source file, the metadata file
@@ -348,11 +349,11 @@ def fold_in_masks(digest: str, applied: list[tuple[str, Mask]]) -> str:
 
 
 def library_from_config(config_file: Path) -> str:
-    """Read [library].path from an IWE config; '' when the key is absent."""
+    """Read [workspace].path, or pre-v4 [library].path, from an IWE config; '' when absent."""
     in_library = False
     for line in config_file.read_text().splitlines():
         if line.startswith('['):
-            in_library = line.strip() == '[library]'
+            in_library = line.strip() in ('[workspace]', '[library]')
             continue
         if in_library and line.split('=', 1)[0].strip() == 'path' and '=' in line:
             return line.split('=', 1)[1].strip().replace('"', '').replace("'", '')

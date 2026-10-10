@@ -19,6 +19,8 @@ straight to a plan.*
 
 [Self-improve execution tracing](someday/self-improve-execution-tracing.md)
 
-[Hermes-derived prompt stack for self-improve](someday/self-improve-hermes-prompt-stack.md)
+[Hermes-derived prompt stack for
+self-improve](someday/self-improve-hermes-prompt-stack.md)
 
-[Validate correctness candidates on the large model](someday/pr-review-large-validator.md)
+[Validate correctness candidates on the large
+model](someday/pr-review-large-validator.md)

@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:14997305e747c1d43e3d2a800307e2973e05a40a4c36fa1b07019efd115d1240
+source_digest: sha256:6b3f656e27b6283eca3ac77c5d2a533873ee72cdf45c738be75bec1bde9d1906
 verified:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
-stale_after: 2027-01-06
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
+stale_after: 2027-01-07
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
 sources:
 - id: code
   resource: ansible
@@ -21,11 +21,10 @@ sources:
 
 `ansible/playbooks/setup-dev.yml` provisions an Ubuntu 24.04 base into the
 published `agent-desktop` image. Every capability role is a boolean in
-`ansible/playbooks/group_vars/all.yml`, `false` by default, and
-[the desktop Dockerfile](docker.md) passes them all as `true`. `ansible.cfg`
-sits at the repository root so `ansible-playbook`, `ansible-lint`, and the
-Dockerfile's `cd /provision` all resolve the inventory, roles path, and log path
-from there.
+`ansible/playbooks/group_vars/all.yml`, `false` by default, and [the desktop
+Dockerfile](docker.md) passes them all as `true`. `ansible.cfg` sits at the
+repository root so `ansible-playbook`, `ansible-lint`, and the Dockerfile's
+`cd /provision` all resolve the inventory, roles path, and log path from there.
 
 ## Contains
 
@@ -98,8 +97,8 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   `ansible/roles/.agent.metadata.json` keeps the automerged versions and
   checksums out of this doc's `source_digest`.
 - Apt packages are not pinned: each role lists them by name inline, and apt
-  installs whatever the enabled repositories serve —
-  [Ansible apt pins](../architecture/ansible-apt-pins.md).
+  installs whatever the enabled repositories serve — [Ansible apt
+  pins](../architecture/ansible-apt-pins.md).
 
 ## Key references
 

@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:12ac89884b7a97cb86beaf126ea3a4c8ced55c4bad2b6bfa748dd16a27977fdc
+source_digest: sha256:f4fed8ec65d4959884fb477af348bc6a107726c2558e703121ebb85e855d04ac
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-07T12:00:00Z
-stale_after: 2027-01-05
+  at: 2026-10-09T16:00:00Z
+stale_after: 2027-01-07
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-07T12:00:00Z
+  at: 2026-10-09T16:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -60,18 +60,18 @@ metadata files themselves stay out of that fingerprint; a rule reaches a digest
 only as the pattern and replacement that applied. Its `--explain` flag prints
 one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
 shared result vocabulary for metadata it cannot read, compile, or apply to a
-masked text file. The IWE family runs against the
-[knowledge workspace](../../../docs/knowledge.md). `template-consume` optionally
-copies the repository's IWE seed into a consumer, then hands onboarding to
-`iwe-setup` and `iwe-map`; update mode tracks only the reusable knowledge
-scaffold and never replaces consumer-owned project memory. Its state is split
-three ways: the `template-consume` section of the consumer root's
-`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
-the tracked paths — `check-updates.sh` reads nothing else, and a legacy
-`.agentdev-template.json` is consolidated into it on the next update;
-`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
-that survives an interrupted setup; and `data/template-adoption` summarizes the
-episode for a consumer that kept the knowledge base.
+masked text file. The IWE family runs against the [knowledge
+workspace](../../../docs/knowledge.md). `template-consume` optionally copies the
+repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
+`iwe-map`; update mode tracks only the reusable knowledge scaffold and never
+replaces consumer-owned project memory. Its state is split three ways: the
+`template-consume` section of the consumer root's `.agent.metadata.json` is the
+only machine-parsed record of the adopted ref and the tracked paths —
+`check-updates.sh` reads nothing else, and a legacy `.agentdev-template.json` is
+consolidated into it on the next update; `.agentdev-template-progress.md` is the
+consumer-owned task and choice ledger that survives an interrupted setup; and
+`data/template-adoption` summarizes the episode for a consumer that kept the
+knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not
@@ -123,9 +123,9 @@ Verified anchor points (line numbers as of 2026-10-05):
   the shared issue-closing call, identical in `iwe-plan`
 - `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:74` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:75` —
   `BROKEN_METADATA`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:230` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:231` —
   `MetadataResolver`, which walks a source's ancestors for masking rules
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:291` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:292` —
   `source_digest_for_paths`

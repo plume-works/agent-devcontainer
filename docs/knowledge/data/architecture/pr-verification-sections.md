@@ -15,8 +15,8 @@ sources:
 ## Decision
 
 Replace the pull request template's single `## How to Test` with two sections
-distinguished by tense, applying
-[evidence and outstanding work](../concept/evidence-and-outstanding-work.md):
+distinguished by tense, applying [evidence and outstanding
+work](../concept/evidence-and-outstanding-work.md):
 
 ``` markdown
 ## Verification
@@ -63,13 +63,12 @@ commands already run in the past tense, and instructions addressed to the reader
 — under one heading and one continuous numbering, as though they were one kind
 of thing. Four of the six restated work CI already performs.
 
-This is the pull-request-shaped instance of
-[plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md), whose
-plan states the governing rule for plan tasks: *a task whose evidence is
-external — a CI run, a deploy, a review — always stands alone, because the
-session writing the code cannot close it.* Item 1 of that PR was exactly such a
-claim. The rule was already written; it had simply never been applied outside
-`data/plans/`.
+This is the pull-request-shaped instance of [plan checkbox
+over-claiming](../bugs/plan-checkbox-over-claiming.md), whose plan states the
+governing rule for plan tasks: *a task whose evidence is external — a CI run, a
+deploy, a review — always stands alone, because the session writing the code
+cannot close it.* Item 1 of that PR was exactly such a claim. The rule was
+already written; it had simply never been applied outside `data/plans/`.
 
 Automated review makes the split load-bearing rather than stylistic. Every PR in
 this project is reviewed by an agent, and an agent will not rebuild a

@@ -21,6 +21,7 @@ PLUGIN_BIN = REPO_ROOT / '.agents/plugins/agentdev/bin'
 TMP_ROOT = REPO_ROOT / '.tmp'
 CONFIG = '.pre-commit-config.yaml'
 REV = re.compile(r'(?m)^(\s+rev: )(\S+)$')
+BUNX_PIN = re.compile(r'(bunx (?:--package )?\S+@)(\d\S*)')
 
 
 def _load_stale_map_docs() -> ModuleType:
@@ -104,13 +105,23 @@ def test_hook_rev_bumps_keep_the_map_fresh(workspace: Path) -> None:
     assert 'FRESH data/codebase/checks' in verdicts
 
 
+def test_bunx_pin_bumps_keep_the_map_fresh(workspace: Path) -> None:
+    """Local hooks' `bunx <package>@<version>` pins move like hook revisions and are masked."""
+    original = (workspace / CONFIG).read_text()
+    verdicts = _verdicts(workspace, lambda text: BUNX_PIN.sub(r'\g<1>\g<2>.9', text))
+
+    assert BUNX_PIN.search(original)
+    assert 'FRESH data/codebase/checks' in verdicts
+
+
 @pytest.mark.parametrize(
     'edit',
     [
         lambda text: text.replace('id: end-of-file-fixer', 'id: trailing-whitespace', 1),
         lambda text: text.replace('https://github.com/', 'https://gitlab.com/', 1),
+        lambda text: text.replace('bunx prettier@', 'bunx prettier-fork@', 1),
     ],
-    ids=['hook-id', 'hook-repository'],
+    ids=['hook-id', 'hook-repository', 'bunx-package'],
 )
 def test_hook_changes_beyond_rev_stay_watched(workspace: Path, edit: Callable[[str], str]) -> None:
     """Changing which hook runs, or where it comes from, still invalidates the map."""

@@ -35,8 +35,8 @@ Removing plugin surface is a breaking change, so the catalog version goes from
 - Remove the `### Hooks` section from `.agents/plugins/agentdev/README.md`.
 - Refresh [agentdev](../codebase/agents/plugins/agentdev.md) with
   `/agentdev:iwe-map` so it no longer lists `hooks/`.
-- Drop step 6 and the `.agents/plugins/agentdev/hooks` source from
-  [devcontainer lifecycle](../codebase/flow-devcontainer-lifecycle.md).
+- Drop step 6 and the `.agents/plugins/agentdev/hooks` source from [devcontainer
+  lifecycle](../codebase/flow-devcontainer-lifecycle.md).
 - Bump the aligned version pins to `4.0.0`: both plugin manifests
   (`.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`),
   `.claude-plugin/marketplace.json`, and

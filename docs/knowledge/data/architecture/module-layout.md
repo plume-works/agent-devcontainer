@@ -11,8 +11,8 @@ generated:
 ## The three responsibilities
 
 The repository carries three distinct build/publish surfaces from one checkout,
-documented as the authoritative inventory in
-[Template boundary](template-boundary.md):
+documented as the authoritative inventory in [Template
+boundary](template-boundary.md):
 
 1. **Image build** (`ansible/` + `docker/`) — provisions and publishes
    `ghcr.io/plume-works/agent-desktop` and its `ubuntu-ansible` base,

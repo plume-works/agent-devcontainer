@@ -4,10 +4,12 @@ created: 2026-10-05
 description: Add a postStart script that writes Codex's full-access sandbox and never-approve policy into config.toml, using tomlkit with PEP 723 inline dependencies so it keeps other tools' comment markers and needs nothing from a consumer's pyproject.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-05T12:00:00Z
+  at: 2026-10-09T00:00:00Z
 sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/firewall-allowlist.txt
+stage: done
+completed: 2026-10-09
 ---
 
 # Configure devcontainer Codex for full access
@@ -66,32 +68,44 @@ corrupt config is better surfaced than replaced).
 
 **Files:** Create: `.devcontainer/scripts/configure-codex.py`
 
-- [ ] Script with `#!/usr/bin/env -S uv run --script`, a PEP 723 block declaring
+- [x] Script with `#!/usr/bin/env -S uv run --script`, a PEP 723 block declaring
   `requires-python = ">=3.12"` and `dependencies = ["tomlkit"]`, type hints and
   PEP 257 docstrings, executable bit set. It honors `CODEX_HOME`, creates the
   home at `0700`, loads `config.toml` with `tomlkit.parse` (an empty document
   when absent), sets `sandbox_mode` and `approval_policy` at top level, and
   replaces the file atomically through a `0600` temporary file in the same
   directory.
-- [ ] `ruff` clean under the repo's `.ruff.toml` (pre-commit hook).
+  - **Evidence:** Commit on branch `codex-full-access-config` adding
+    `configure-codex.py` (mode 100755); 2026-10-08 run against a copy of this
+    container's `config.toml` added only the two keys above the
+    codebase-memory-mcp marker, a second run was byte-identical, modes 700/600.
+- [x] `ruff` clean under the repo's `.ruff.toml` (pre-commit hook).
+  - **Evidence:** `uv run ruff check` and `ruff format --check` passed on the
+    script; pre-commit hooks passed on the Task 1 commit.
 
 ### Task 2: Run it on every start
 
 **Files:** Modify: `.devcontainer/scripts/postStartCommand.sh`
 
-- [ ] Call `"$script_dir/configure-codex.py"` as the last step, after
+- [x] Call `"$script_dir/configure-codex.py"` as the last step, after
   `link-codex-auth.sh`.
+  - **Evidence:** Commit on branch `codex-full-access-config` appending the call
+    to `postStartCommand.sh`; `shellcheck` and pre-commit passed.
 
 ### Task 3: Tests
 
 **Files:** Create: `scripts/tests/test_configure_codex.py` (beside the other
 devcontainer script tests)
 
-- [ ] pytest cases, each with `CODEX_HOME` pointed at a `tmp_path`: absent
+- [x] pytest cases, each with `CODEX_HOME` pointed at a `tmp_path`: absent
   config is created with both keys and modes `0700`/`0600`; existing other keys,
   tables, and marker comments survive byte-for-byte apart from the two managed
   keys; pre-existing different values are overwritten; a second run is a no-op
   on content.
+  - **Evidence:** Commit on branch `codex-full-access-config` adding
+    `scripts/tests/test_configure_codex.py`;
+    `uv run pytest scripts/tests/test_configure_codex.py` — 5 passed, including
+    the unparseable-config case.
 
 ### Task 4: Record the decision
 
@@ -100,25 +114,33 @@ devcontainer script tests)
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] Architecture doc stating the decision (container is the sandbox; Codex CLI
+- [x] Architecture doc stating the decision (container is the sandbox; Codex CLI
   sessions take the policy from `config.toml` unless a flag overrides it), the
   comment-preservation constraint, the consumer-independence constraint, and the
   rejected alternatives from `## Approach`; linked from `data/architecture.md`.
-- [ ] Add a `configure-codex.py` row to the `.devcontainer/scripts/` inventory
+  - **Evidence:** Commit on branch `codex-full-access-config` adding
+    `architecture/codex-full-access-in-devcontainer.md` and its hub link;
+    `iwe schema validate` and pre-commit passed.
+- [x] Add a `configure-codex.py` row to the `.devcontainer/scripts/` inventory
   table in `data/architecture/template-boundary`.
+  - **Evidence:** Same commit adds the row after `link-codex-auth.sh` in the
+    `template-boundary` inventory; `iwe schema validate` and prettier passed.
 
 ### Task 5: Refresh the codebase map
 
 **Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`,
 `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md`
 
-- [ ] Run `/agentdev:iwe-map` refresh so the script inventory and the postStart
+- [x] Run `/agentdev:iwe-map` refresh so the script inventory and the postStart
   sequence list `configure-codex.py`.
+  - **Evidence:** Commit on branch `codex-full-access-config` refreshing
+    `codebase/devcontainer/scripts`, `codebase/flow-devcontainer-lifecycle`, and
+    `codebase/devcontainer`; `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ## Spec changes
 
-New spec `data/spec/devcontainer-codex-policy` — this change disables Codex's
-sandbox, so the contract is stated in full:
+New spec [Devcontainer Codex policy](../spec/devcontainer-codex-policy.md) —
+this change disables Codex's sandbox, so the contract is stated in full:
 
 ``` markdown
 ## ADDED Requirements

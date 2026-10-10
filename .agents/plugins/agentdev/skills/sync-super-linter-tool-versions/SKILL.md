@@ -26,9 +26,9 @@ maintained version table.
    ```
 
 3. Update the matching values in the repository's `.pre-commit-config.yaml`:
-   the explicit Prettier `additional_dependencies` version, plus the Clang
-   Format, Ansible Lint, Hadolint, Ruff, ShellCheck, Gitleaks, and Actionlint
-   repository revisions. Preserve the `shellcheck-py` wrapper's fourth version
+   the Prettier version in the local hook's `bunx prettier@<version>` entry,
+   plus the Clang Format, Ansible Lint, Hadolint, Ruff, ShellCheck, Gitleaks,
+   and Actionlint repository revisions. Preserve the `shellcheck-py` wrapper's fourth version
    component; its first three components must match Super-Linter's ShellCheck
    binary.
 

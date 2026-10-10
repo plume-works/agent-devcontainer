@@ -78,9 +78,9 @@ compose pin, one under `.github/` covering every workflow and action below it,
 so a single entry serves `github`, `github/actions`, and
 `flow-pull-request-checks`. A directory copied into another repository carries
 its own rules, and a metadata file that cannot be read breaks only the subtree
-holding it. The format is
-[Agent metadata files](../architecture/agent-metadata-files.md); a single
-repository-level map was considered and rejected there.
+holding it. The format is [Agent metadata
+files](../architecture/agent-metadata-files.md); a single repository-level map
+was considered and rejected there.
 
 Planned in [Digest masks for map docs](../plans/20260905-digest-masks.md), which
 depends on [Python skill scripts](../plans/20260905-python-skill-scripts.md) —

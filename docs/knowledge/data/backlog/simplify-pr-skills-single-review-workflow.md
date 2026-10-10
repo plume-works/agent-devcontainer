@@ -15,10 +15,11 @@ sources:
 
 # Simplify the pr-* skills for the single review workflow
 
-[One AI review workflow with a needs-coupled gate](../plans/20260903-single-ai-review-workflow.md)
-makes a comment-requested review a `workflow_dispatch` run on the pull request's
-head branch. Its check then appears in `gh pr checks` on the head SHA, and the
-gate is pending for the whole review.
+[One AI review workflow with a needs-coupled
+gate](../plans/20260903-single-ai-review-workflow.md) makes a comment-requested
+review a `workflow_dispatch` run on the pull request's head branch. Its check
+then appears in `gh pr checks` on the head SHA, and the gate is pending for the
+whole review.
 
 Three skills carry logic that exists only because that was not true:
 

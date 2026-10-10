@@ -31,13 +31,13 @@ completed: 2026-09-29
 
 ## Context
 
-[Renovate maintains checksum-carrying pins](../features/renovate-maintains-checksums.md)
-motivates this plan. The hosted Renovate app cannot run commands after a bump,
-because `allowedCommands` is a global-only option. Three kinds of update
-therefore stay manual or go stale: the per-architecture SHA-256 beside a pinned
-download, lock files whose owning tool Renovate does not run
-(`.devcontainer/devcontainer-lock.json`), and pre-commit output for the files a
-bump touches.
+[Renovate maintains checksum-carrying
+pins](../features/renovate-maintains-checksums.md) motivates this plan. The
+hosted Renovate app cannot run commands after a bump, because `allowedCommands`
+is a global-only option. Three kinds of update therefore stay manual or go
+stale: the per-architecture SHA-256 beside a pinned download, lock files whose
+owning tool Renovate does not run (`.devcontainer/devcontainer-lock.json`), and
+pre-commit output for the files a bump touches.
 
 Running Renovate from a workflow in this repository moves the command gate here.
 Running it inside `ghcr.io/plume-works/agent-desktop` gives those commands the

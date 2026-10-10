@@ -75,5 +75,5 @@ None — every design question this feature raised is settled.
 
 ## References
 
-- Plan:
-  [Critical docs and durable-knowledge review in pr-review](../plans/20260831-pr-review-docs-durable-knowledge.md)
+- Plan: [Critical docs and durable-knowledge review in
+  pr-review](../plans/20260831-pr-review-docs-durable-knowledge.md)

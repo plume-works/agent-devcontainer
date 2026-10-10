@@ -285,8 +285,8 @@ the audit scope and the plan file, before the edit is validated.
 
 - A mechanical (non-agent) check for plan residue. The gate is a fresh-context
   reviewer, not a linter; a grep-based gate is the subject of the separate
-  backlog task
-  [Detect plan narration growth mechanically](../backlog/detect-plan-narration-growth.md).
+  backlog task [Detect plan narration growth
+  mechanically](../backlog/detect-plan-narration-growth.md).
 - Auditing spec, architecture, feature, and comment targets. iwe-audit already
   covers those; this plan only adds the plan-mode scope and the two gates.
 - Rewriting the residue already in shipped plans. This changes the workflow so

@@ -15,14 +15,14 @@ sources:
 
 # Exercise REMOVED delta blocks end to end
 
-[Embed structured spec deltas in IWE plans](../plans/20260816-structured-plan-spec-deltas.md)
-specified three delta operations and worked two of them. `ADDED` and `MODIFIED`
-were written, verified, and merged into
-[IWE workflow skills](../spec/iwe-workflow-skills.md) by that plan's own
-`## Spec changes`, which is why the contract for those two is backed by a real
-merge. `REMOVED` was specified in the same pass and never run: no plan in this
-workspace has retired a requirement, so no `## REMOVED Requirements` block has
-ever been authored, verified, or merged.
+[Embed structured spec deltas in IWE
+plans](../plans/20260816-structured-plan-spec-deltas.md) specified three delta
+operations and worked two of them. `ADDED` and `MODIFIED` were written,
+verified, and merged into [IWE workflow skills](../spec/iwe-workflow-skills.md)
+by that plan's own `## Spec changes`, which is why the contract for those two is
+backed by a real merge. `REMOVED` was specified in the same pass and never run:
+no plan in this workspace has retired a requirement, so no
+`## REMOVED Requirements` block has ever been authored, verified, or merged.
 
 The plan's `## Verification` asked for more than was delivered — it names a
 contract-heavy fixture carrying complete `ADDED`, `MODIFIED`, **and** `REMOVED`

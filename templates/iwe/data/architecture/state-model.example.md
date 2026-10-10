@@ -38,6 +38,6 @@ Rejected alternatives:
   not just the last entry.
 
 *Convention notes: architecture notes carry `type: architecture` and no stage.
-Record the decision when it's made, with the rejected options — the
-[streak widget plan](../plans/20260720-streak-widget.example) builds directly on
-the derived-aggregates rule stated here.*
+Record the decision when it's made, with the rejected options — the [streak
+widget plan](../plans/20260720-streak-widget.example) builds directly on the
+derived-aggregates rule stated here.*

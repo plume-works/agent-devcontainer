@@ -9,7 +9,7 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
 ## Best Practices for Agents
 
 0. NEVER change git config on local or global level unless explicitly instructed. The one exception: the repository-local `rerere.enabled` and `remote.pushDefault` that `gh stack` and the vendored `gh-stack` skill's setup write. NEVER switch/change remote.
-1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally.
+1. **Use `uv` for Python and `bun` for JavaScript.** Run project commands through `uv run`; sync with `.devcontainer/scripts/uv-sync.sh` (or `uv sync`) after changing dependencies. Never install packages globally. Every JavaScript invocation — scripts, pre-commit hooks, CI workflows, Ansible roles, Makefile targets, and hints printed to users — goes through `bun` or `bunx`, never `npm`, `npx`, `yarn`, or `pnpm`.
 2. **Scope test runs narrowly** while iterating: `uv run pytest <path>::<test_name>`, `bun test <path>`. Run the full suite only when asked.
 3. **Escalate to a container when the host lacks the toolchain — never give up after a local failure.** If `uv` or `bun` is missing, or a command needs the provisioned image, escalate in this order: (a) Docker daemon available → use the `/agentdev:microvm-sandbox` skill to run the command through `devcontainer exec`; (b) no Docker daemon → use the `/agentdev:remote-codespace-session` skill to run it on a GitHub Codespace over SSH. Only report a blocker if both escalation paths are unavailable (e.g. no `gh` auth).
 4. **For yes/no and multiple-choice questions, prefer the assistant's structured-question tool** over free-text (VS Code Copilot: `vscode/askQuestions`; Claude Code: `AskUserQuestion`). Where it is unavailable, ask in prose and stop — a question costs one turn. Neither a missing tool nor a plausible default is authorization to decide alone.
@@ -142,7 +142,7 @@ because a question needs it, becomes a second product.
 documents in `docs/knowledge/` — so that the IWE VS Code extension and MCP server find it when
 the whole repo is opened as the workspace. `iwe` does not search upward for `.iwe/` and has no
 `--root` flag, so invoking it from any subdirectory fails or reads the wrong config. Document
-keys are therefore relative to `docs/knowledge/` (`[library].path`): `data/plans/<slug>`, not
+keys are therefore relative to `docs/knowledge/` (`[workspace].path`): `data/plans/<slug>`, not
 `docs/knowledge/data/plans/<slug>`.
 
 When modifying files under `docs/knowledge/data/`, follow `docs/knowledge/AGENTS.md`.

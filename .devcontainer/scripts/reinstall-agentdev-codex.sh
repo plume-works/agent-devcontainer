@@ -69,7 +69,8 @@ codex plugin add "$plugin_name@$marketplace_name"
 plugin_path="$(jq -er '.plugins[0].source.path' "$marketplace_json")"
 agent_installer="$catalog_root/$plugin_path/bin/install-codex-agents.py"
 if [[ -f "$agent_installer" ]]; then
-  python3 "$agent_installer"
+  # -B keeps __pycache__ out of a read-only staged catalog.
+  python3 -B "$agent_installer"
 else
   echo "$catalog_root predates Codex agent install; no agents to install."
 fi

@@ -15,7 +15,8 @@ list stays flat; group with `##` headings once it outgrows a single list. Stages
 and body sections are defined under Features in `SCHEMA.md` and enforced by
 `.iwe/schemas/feature.yaml`.*
 
-[Install the agentdev catalog into the image](features/catalog-installed-in-image.md)
+[Install the agentdev catalog into the
+image](features/catalog-installed-in-image.md)
 
 [Persist the pre-commit hook cache](features/persist-pre-commit-cache.md)
 
@@ -33,11 +34,14 @@ and body sections are defined under Features in `SCHEMA.md` and enforced by
 
 [AI responder workflows](features/ai-responder-workflows.md)
 
-[Split PR How to Test into Verification and Reviewer Handoff](features/pr-verification-sections.md)
+[Split PR How to Test into Verification and Reviewer
+Handoff](features/pr-verification-sections.md)
 
-[Critical docs and durable-knowledge review in pr-review](features/pr-review-docs-durable-knowledge.md)
+[Critical docs and durable-knowledge review in
+pr-review](features/pr-review-docs-durable-knowledge.md)
 
-[Gitignore-aware agent file discovery](features/gitignore-aware-agent-file-discovery.md)
+[Gitignore-aware agent file
+discovery](features/gitignore-aware-agent-file-discovery.md)
 
 [Agentdev IWE workflow skills](features/agentdev-iwe-workflow-skills.md)
 
@@ -49,7 +53,8 @@ and body sections are defined under Features in `SCHEMA.md` and enforced by
 
 [Self-improve plugin in the catalog](features/self-improve-plugin-in-catalog.md)
 
-[Renovate maintains checksum-carrying pins](features/renovate-maintains-checksums.md)
+[Renovate maintains checksum-carrying
+pins](features/renovate-maintains-checksums.md)
 
 [git-new-branch](features/git-new-branch.md)
 

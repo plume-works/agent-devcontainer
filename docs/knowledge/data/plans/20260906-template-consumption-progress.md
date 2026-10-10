@@ -36,9 +36,9 @@ customized needs a manual merge rather than a blind overwrite, but nothing
 records *which* paths were customized or *why*, so every update re-derives
 consumer intent from the diff alone.
 
-This extends the
-[template consumption contract](../spec/template-consumption.md) and classifies
-new consumer state in [Template boundary](../architecture/template-boundary.md).
+This extends the [template consumption
+contract](../spec/template-consumption.md) and classifies new consumer state in
+[Template boundary](../architecture/template-boundary.md).
 
 ## Approach
 
@@ -57,9 +57,9 @@ rather than two.
 
 Every `- [x]` carries an indented `- **Evidence:**` child. Nothing mechanically
 gates this file — the check in `docs/knowledge/tests/test_plan_checkboxes.py` is
-scoped to `docs/knowledge/data/plans/` — so the convention in
-[Plan checkbox evidence](../spec/plan-checkbox-evidence.md) is the only thing
-distinguishing a real tick from an optimistic one.
+scoped to `docs/knowledge/data/plans/` — so the convention in [Plan checkbox
+evidence](../spec/plan-checkbox-evidence.md) is the only thing distinguishing a
+real tick from an optimistic one.
 
 `consumed_ref` stays in JSON and is parsed only there. `check-updates.sh`
 returns `INVALID_MARKER` on a malformed marker, giving the SHA one parse with
@@ -111,8 +111,8 @@ this way; the root file stays the live record.
   - **Evidence:** `iwe schema validate` passed with setup ordered to persist the
     progress document before guide execution.
 - [x] Add a requirement that a ticked task in the progress document carries an
-  `- **Evidence:**` child, matching
-  [Plan checkbox evidence](../spec/plan-checkbox-evidence.md).
+  `- **Evidence:**` child, matching [Plan checkbox
+  evidence](../spec/plan-checkbox-evidence.md).
   - **Evidence:** `iwe schema validate` passed with the checkbox-evidence
     scenario in the durable specification.
 - [x] Add a requirement that the progress document is never a `tracked_paths`
@@ -204,7 +204,7 @@ this way; the root file stays the live record.
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`.
 
 - [x] Add a `## The Progress Document` section beside `## The Marker File` (line
-  21) giving the file's shape: a `## Tasks` section of `- [ ]` items with
+  21\) giving the file's shape: a `## Tasks` section of `- [ ]` items with
   evidence children, a `## Choices` section, and the adopted SHA recorded as
   context with an explicit note that the marker owns the authoritative ref.
   - **Evidence:** `validate_agent_files` passed with the progress document's

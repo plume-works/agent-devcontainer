@@ -17,49 +17,68 @@ moves them.*
 
 ## Active
 
-[Configure devcontainer Codex for full access](plans/20261005-codex-full-access-config.md)
-
-[Keep agentdev enabled in the responder and collect review passes in the foreground](plans/20260929-responder-review-grounded-and-collected.md)
-
-[Run Node tooling through bun instead of npm](plans/20260925-bun-for-node-tooling.md)
-
-[Resume interrupted Claude PR reviews on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
+[Resume interrupted Claude PR reviews on a persistent
+runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
-[Agent-owned Ship and Implement workflows](plans/20261007-agent-owned-ship-implement.md)
+[Agent-owned Ship and Implement
+workflows](plans/20261007-agent-owned-ship-implement.md)
+
+[Remove Coder agent auth seeding; keep Claude Remote Control
+autostart](plans/20261009-remove-coder-agent-auth-seeding.md)
 
 [Install the catalog agents into Codex](plans/20261007-codex-catalog-agents.md)
 
-[Ship the reachable-scenario bar with part-by-part validation in pr-review](plans/20261005-pr-review-scenario-validation.md)
+[Run Node tooling through bun instead of
+npm](plans/20260925-bun-for-node-tooling.md)
 
-[Adopt GitHub native stacked pull requests](plans/20261002-native-stacked-prs.md)
+[Configure devcontainer Codex for full
+access](plans/20261005-codex-full-access-config.md)
 
-[Spike: does a reachable-scenario bar let pr-review find Greptile-class bugs](plans/20260929-pr-review-scenario-bar-spike.md)
+[Keep agentdev enabled in the responder and collect review passes in the
+foreground](plans/20260929-responder-review-grounded-and-collected.md)
 
-[Load the agentdev catalog into OpenCode through a bridge plugin](plans/20261001-opencode-catalog-bridge.md)
+[Ship the reachable-scenario bar with part-by-part validation in
+pr-review](plans/20261005-pr-review-scenario-validation.md)
 
-[Reference bundled skill code by skill-relative agent-code paths](plans/20261001-skill-relative-agent-code.md)
+[Adopt GitHub native stacked pull
+requests](plans/20261002-native-stacked-prs.md)
 
-[Resolve merge conflicts in pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+[Spike: does a reachable-scenario bar let pr-review find Greptile-class
+bugs](plans/20260929-pr-review-scenario-bar-spike.md)
 
-[Refresh the codebase map before pushing and keep its staleness out of AI reviews](plans/20260929-map-refresh-before-push.md)
+[Load the agentdev catalog into OpenCode through a bridge
+plugin](plans/20261001-opencode-catalog-bridge.md)
 
-[Self-hosted Renovate in the agent-desktop image](plans/20260925-self-hosted-renovate.md)
+[Reference bundled skill code by skill-relative agent-code
+paths](plans/20261001-skill-relative-agent-code.md)
+
+[Resolve merge conflicts in
+pr-feedback-resolution](plans/20261002-pr-feedback-resolve-merge-conflicts.md)
+
+[Refresh the codebase map before pushing and keep its staleness out of AI
+reviews](plans/20260929-map-refresh-before-push.md)
+
+[Self-hosted Renovate in the agent-desktop
+image](plans/20260925-self-hosted-renovate.md)
 
 [git-new-branch skill](plans/20260928-git-new-branch-skill.md)
 
 [Add the iwe-capture skill](plans/20260927-iwe-capture-skill.md)
 
-[Effort tiers for the AI pull request review](plans/20260917-pr-review-effort-tiers.md)
+[Effort tiers for the AI pull request
+review](plans/20260917-pr-review-effort-tiers.md)
 
-[Consolidate the self-improve plugin into this repository](plans/20260909-consolidate-self-improve-plugin.md)
+[Consolidate the self-improve plugin into this
+repository](plans/20260909-consolidate-self-improve-plugin.md)
 
 [Self-improve MVP](plans/20260909-self-improve-mvp.md)
 
 [Connect validator warnings](plans/20260907-connect-validator-warnings.md)
 
-[Track template consumption progress and choices](plans/20260906-template-consumption-progress.md)
+[Track template consumption progress and
+choices](plans/20260906-template-consumption-progress.md)
 
 [Repository-owned IWE seed for consumers](plans/20260905-consumer-iwe-seed.md)
 
@@ -67,43 +86,57 @@ moves them.*
 
 [Digest masks for map docs](plans/20260905-digest-masks.md)
 
-[Use VS Code port forwarding for Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
+[Use VS Code port forwarding for
+Xpra](plans/20260905-xpra-vscode-port-forwarding.md)
 
 [Add the iwe-map skill](plans/20260903-iwe-map-skill.md)
 
 [Consumer PR description guidance](plans/20260903-pr-description-guidance.md)
 
-[One AI review workflow with a needs-coupled gate](plans/20260903-single-ai-review-workflow.md)
+[One AI review workflow with a needs-coupled
+gate](plans/20260903-single-ai-review-workflow.md)
 
-[Audit every plan edit in a fresh context](plans/20260902-audit-plan-edits-in-fresh-context.md)
+[Audit every plan edit in a fresh
+context](plans/20260902-audit-plan-edits-in-fresh-context.md)
 
-[Install the agentdev catalog into the image](plans/20260817-catalog-install-in-image.md)
+[Install the agentdev catalog into the
+image](plans/20260817-catalog-install-in-image.md)
 
-[Move the IWE workflow skills into the agentdev plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
+[Move the IWE workflow skills into the agentdev
+plugin](plans/20260816-move-iwe-skills-to-agentdev.md)
 
-[Gitignore-aware file discovery in validate_agent_files](plans/20260901-gitignore-aware-discovery.md)
+[Gitignore-aware file discovery in
+validate_agent_files](plans/20260901-gitignore-aware-discovery.md)
 
-[Persist the pre-commit hook cache on the agentdev-cache volume](plans/20260902-persist-pre-commit-cache.md)
+[Persist the pre-commit hook cache on the agentdev-cache
+volume](plans/20260902-persist-pre-commit-cache.md)
 
-[Critical docs and durable-knowledge review in pr-review](plans/20260831-pr-review-docs-durable-knowledge.md)
+[Critical docs and durable-knowledge review in
+pr-review](plans/20260831-pr-review-docs-durable-knowledge.md)
 
-[Split PR How to Test into Verification and Reviewer Handoff](plans/20260815-pr-verification-sections.md)
+[Split PR How to Test into Verification and Reviewer
+Handoff](plans/20260815-pr-verification-sections.md)
 
 [Let pre-commit own formatting](plans/20260831-pre-commit-owns-formatting.md)
 
 [AI responder workflows](plans/20260816-ai-responder-workflows.md)
 
-[Preserve approved wording across the explore handoff](plans/20260817-preserve-approved-wording.md)
+[Preserve approved wording across the explore
+handoff](plans/20260817-preserve-approved-wording.md)
 
 [Never write a working logbook](plans/20260817-no-logbooks-in-the-graph.md)
 
-[Embed structured spec deltas in IWE plans](plans/20260816-structured-plan-spec-deltas.md)
+[Embed structured spec deltas in IWE
+plans](plans/20260816-structured-plan-spec-deltas.md)
 
-[Make plan checkboxes carry their evidence](plans/20260815-honest-plan-checkboxes.md)
+[Make plan checkboxes carry their
+evidence](plans/20260815-honest-plan-checkboxes.md)
 
-[Name the missing handoff routes in explore and verify](plans/20260816-skill-handoff-routes.md)
+[Name the missing handoff routes in explore and
+verify](plans/20260816-skill-handoff-routes.md)
 
-[Strengthen the workflow skill contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
+[Strengthen the workflow skill
+contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
 
 [Finish uv-run-only in CI](plans/20260815-uv-run-in-ci.md)
 

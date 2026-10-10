@@ -22,10 +22,9 @@ must be sized so a tick can be honest, and the gate that enforces the shape.
 
 The gate reads shape only — that a tick is accompanied by a claim. Whether the
 claim is *true* is Verify's judgment and a human's; no mechanical check can
-supply it. Shape is what failed in
-[Plan checkbox over-claiming](../bugs/plan-checkbox-over-claiming.md), where a
-blanket substitution and a set of careful verifications produced identical
-bytes.
+supply it. Shape is what failed in [Plan checkbox
+over-claiming](../bugs/plan-checkbox-over-claiming.md), where a blanket
+substitution and a set of careful verifications produced identical bytes.
 
 ## Requirements
 

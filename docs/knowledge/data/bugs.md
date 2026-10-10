@@ -13,11 +13,14 @@ generated:
 Its title, body sections, and stages are defined under Bugs in `SCHEMA.md` and
 enforced by `.iwe/schemas/bug.yaml`.*
 
-[~/.claude.json stops being the volume symlink](bugs/claude-json-symlink-replaced.md)
+[~/.claude.json stops being the volume
+symlink](bugs/claude-json-symlink-replaced.md)
 
-[A capitalized @Claude mention was admitted, then misrouted](bugs/responder-mention-case-sensitivity.md)
+[A capitalized @Claude mention was admitted, then
+misrouted](bugs/responder-mention-case-sensitivity.md)
 
-[The review orchestrator ends its turn while its passes are still running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
+[The review orchestrator ends its turn while its passes are still
+running](bugs/review-orchestrator-ends-turn-while-passes-run.md)
 
 [Validator warning visibility](bugs/validator-warning-visibility.md)
 
@@ -27,24 +30,37 @@ enforced by `.iwe/schemas/bug.yaml`.*
 
 [Pin bumps invalidate map docs](bugs/pin-bumps-invalidate-map-docs.md)
 
-[Self-test unwritable-root check assumes a non-root user](bugs/self-test-unwritable-root-check.md)
+[Self-test unwritable-root check assumes a non-root
+user](bugs/self-test-unwritable-root-check.md)
 
-[Fixture git inherits the outer commit's index](bugs/fixture-git-inherits-commit-index.md)
+[Fixture git inherits the outer commit's
+index](bugs/fixture-git-inherits-commit-index.md)
 
 [Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
 
-[Unstageable routing option in the improve skill](bugs/self-improve-unstageable-routing-option.md)
+[Unstageable routing option in the improve
+skill](bugs/self-improve-unstageable-routing-option.md)
 
-[AI review gate was self-waivable from the PR body](bugs/ai-review-gate-self-waivable.md)
+[AI review gate was self-waivable from the PR
+body](bugs/ai-review-gate-self-waivable.md)
 
-[The review opt-out marker fired too broadly](bugs/skip-ai-review-marker-overreach.md)
+[The review opt-out marker fired too
+broadly](bugs/skip-ai-review-marker-overreach.md)
 
-[Fisher install over untracked plugins](bugs/fisher-install-over-untracked-plugins.md)
+[Fisher install over untracked
+plugins](bugs/fisher-install-over-untracked-plugins.md)
 
-[Runner label bump ahead of actionlint](bugs/runner-label-ahead-of-actionlint.md)
+[Runner label bump ahead of
+actionlint](bugs/runner-label-ahead-of-actionlint.md)
 
-[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev skills](bugs/codex-skill-dir-unresolved.md)
+[Codex leaves ${CLAUDE_SKILL_DIR} unresolved in agentdev
+skills](bugs/codex-skill-dir-unresolved.md)
 
-[Codex never loads the agentdev catalog agents](bugs/codex-catalog-agents-not-loaded.md)
+[Codex never loads the agentdev catalog
+agents](bugs/codex-catalog-agents-not-loaded.md)
 
-[Bug: Ship's release-link rule is undefined for a plan with no feature or bug](bugs/ship-release-link-without-feature.md)
+[Codex tables inside cbm hooks block break cbm
+install](bugs/cbm-codex-hooks-block-foreign-tables.md)
+
+[Bug: Ship's release-link rule is undefined for a plan with no feature or
+bug](bugs/ship-release-link-without-feature.md)

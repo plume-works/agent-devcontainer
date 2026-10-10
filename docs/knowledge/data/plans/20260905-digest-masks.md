@@ -22,9 +22,9 @@ stale whose prose is entirely accurate.
 
 Filter what the digest covers before hashing. The masks live in
 `.agent.metadata.json` files colocated with the sources they describe, under an
-`iwe-map.digest_ignore` key — the format and its resolution rules are
-[Agent metadata files](../architecture/agent-metadata-files.md), of which this
-is the first consumer.
+`iwe-map.digest_ignore` key — the format and its resolution rules are [Agent
+metadata files](../architecture/agent-metadata-files.md), of which this is the
+first consumer.
 
 Resolving a source file walks from the repository root down to that file's own
 directory, accumulating every `.agent.metadata.json` on the way, shallowest
@@ -51,9 +51,8 @@ re-verify prose would send it to fix the wrong thing.
 
 Rejected alternatives to the metadata-file format — a single repository-level
 map, replace-instead-of-accumulate precedence, and repository-root-relative
-globs — are recorded in
-[Agent metadata files](../architecture/agent-metadata-files.md). Alternatives to
-masking itself:
+globs — are recorded in [Agent metadata
+files](../architecture/agent-metadata-files.md). Alternatives to masking itself:
 
 - **Per-doc `digest_ignore` frontmatter.** The rule "a compose pin's digest is
   machine-managed" is a property of the file, not of a doc. Per-doc, it is
@@ -301,10 +300,10 @@ moves)
 `docs/knowledge/data/spec/iwe-workflow-skills.md`
 
 - [x] Extend the `source_digest` paragraph at `iwe-map/SKILL.md:203` to state
-  that machine-managed content is masked before hashing, and point at
-  [Agent metadata files](../architecture/agent-metadata-files.md) for where the
-  masks live and how they resolve. Add `--explain` and the `BROKEN` verdict to
-  the script's documented interface.
+  that machine-managed content is masked before hashing, and point at [Agent
+  metadata files](../architecture/agent-metadata-files.md) for where the masks
+  live and how they resolve. Add `--explain` and the `BROKEN` verdict to the
+  script's documented interface.
   - **Evidence:** the `source_digest` paragraph now states the placeholder
     normalization and names the `iwe-map.digest_ignore` key and the
     agent-metadata-files document in prose — a plugin file cannot link outside
@@ -390,17 +389,17 @@ moves in Task 6 is attributable to a mask and nothing else.
   passes unchanged — masking is additive, and a repository with no
   `.agent.metadata.json` behaves exactly as before.
 - The bug's reproduction is replayed: with the masks in place, the three commits
-  named in
-  [Pin bumps invalidate map docs](../bugs/pin-bumps-invalidate-map-docs.md) no
-  longer mark `devcontainer`, `flow-image-build`, `github`, `github/actions`, or
-  `flow-pull-request-checks` stale.
+  named in [Pin bumps invalidate map
+  docs](../bugs/pin-bumps-invalidate-map-docs.md) no longer mark `devcontainer`,
+  `flow-image-build`, `github`, `github/actions`, or `flow-pull-request-checks`
+  stale.
 - `stale-map-docs.py --explain` names a mask, its declaring metadata file, and
   its `reason` for each doc whose `FRESH` verdict depends on one.
 - Corrupting `.github/.agent.metadata.json` reports the docs claiming `.github`
   as `BROKEN` with exit `5`, and leaves `ansible` and `py_packages/*` reporting
   their normal verdicts; restoring it returns the run to `RESULT=SUCCESS`.
 - `stale-map-docs.py` ends `RESULT=SUCCESS` on the current checkout after Task
-  6.
+  6\.
 - `uv run ruff check` and `uv run ruff format --check` pass; Prettier accepts
   both `.agent.metadata.json` files.
 
@@ -409,9 +408,9 @@ moves in Task 6 is attributable to a mask and nothing else.
 - Consumers of `.agent.metadata.json` other than `iwe-map.digest_ignore`. The
   format is general by design, but this plan adds exactly one key and no
   registry, discovery command, or schema for the rest.
-- An unignore or negation operation.
-  [Agent metadata files](../architecture/agent-metadata-files.md) records that
-  accumulation has no removal step; adding one is a new decision.
+- An unignore or negation operation. [Agent metadata
+  files](../architecture/agent-metadata-files.md) records that accumulation has
+  no removal step; adding one is a new decision.
 - Masking anything outside `data/codebase/` digests. `verified`, `stale_after`,
   and the legacy `commit` fallback are untouched.
 - Renovate configuration. `.github/renovate.json` keeps automerging both

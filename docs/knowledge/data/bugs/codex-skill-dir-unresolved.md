@@ -65,8 +65,8 @@ resolve against that directory. `${CLAUDE_SKILL_DIR}` survives only in the
 Claude-only `allowed-tools` field. The directory is named `agent-code/` rather
 than `scripts/` so that a path misresolved against the working directory cannot
 run a consuming repository's own `scripts/`. The rule is in `.agents/AGENTS.md`;
-the change shipped through
-[Reference bundled skill code by skill-relative agent-code paths](../plans/20261001-skill-relative-agent-code.md).
+the change shipped through [Reference bundled skill code by skill-relative
+agent-code paths](../plans/20261001-skill-relative-agent-code.md).
 
 ## Key references
 

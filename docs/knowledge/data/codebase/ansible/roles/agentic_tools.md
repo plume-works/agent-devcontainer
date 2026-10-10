@@ -2,14 +2,14 @@
 type: codebase
 description: Installs Claude Code, Codex, and the MCP inspector, optionally cc-filter, and stages and installs the agentdev catalog into the image.
 source: ansible/roles/agentic_tools
-source_digest: sha256:ada820bd7a4531bd47b56f356a08b575d006cfa128e3e09c84dad830e71324d7
+source_digest: sha256:d40aadbf37dd2f6f47962c854ec42bb724f9c725485cfac066ae6427681d04ee
 verified:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
-stale_after: 2027-01-06
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
+stale_after: 2027-01-07
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-09T18:00:00Z
 sources:
 - id: code
   resource: ansible/roles/agentic_tools
@@ -52,11 +52,12 @@ Codex plugin manifests disagree on `version`, fails when a non-empty
 trees, prunes `__pycache__`, `.pytest_cache`, `.ruff_cache`, and `.tmp`, and
 makes the result root-owned and read-only. Installing registers the staged root
 as a marketplace for Claude (user scope) and Codex, installs the plugin for
-both, and runs the staged `bin/install-codex-agents.py` so Codex gets the
-catalog's agents. When the staged catalog has an `.opencode-plugin/` directory,
-it also merges the bridge's path into the user's OpenCode config, keeping every
-other key and plugin entry. A raw-image consumer therefore resolves `agentdev:*`
-skills in all three agents without lifecycle hooks.
+both, and runs the staged `bin/install-codex-agents.py` under `python3 -B`, so
+Codex gets the catalog's agents and no bytecode cache lands in the staged tree.
+When the staged catalog has an `.opencode-plugin/` directory, it also merges the
+bridge's path into the user's OpenCode config, keeping every other key and
+plugin entry. A raw-image consumer therefore resolves `agentdev:*` skills in all
+three agents without lifecycle hooks.
 
 ## Depends on
 
@@ -78,7 +79,7 @@ through `agentic_tools_catalog_source_dir` (`/provision` in the image build).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
+Verified anchor points (line numbers as of 2026-10-09):
 
 - `ansible/roles/agentic_tools/tasks/main.yml:5` — installed-globals probe
 - `ansible/roles/agentic_tools/tasks/main.yml:23` — pinned Bun global installs
@@ -91,7 +92,7 @@ Verified anchor points (line numbers as of 2026-10-08):
   read-only
 - `ansible/roles/agentic_tools/tasks/install_catalog.yml:27-81` — marketplace
   registration and plugin install for both agents
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:84` — Codex agent
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml:85` — Codex agent
   install
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:91` — OpenCode bridge
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml:93` — OpenCode bridge
   registration

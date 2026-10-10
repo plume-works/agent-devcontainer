@@ -18,21 +18,30 @@ write a plan and link the plan instead.*
 
 ## Medium
 
-[Exercise REMOVED delta blocks end to end](backlog/exercise-removed-delta-blocks.md)
+[Exercise REMOVED delta blocks end to
+end](backlog/exercise-removed-delta-blocks.md)
 
-[Simplify the pr-* skills for the single review workflow](backlog/simplify-pr-skills-single-review-workflow.md)
+[Fail a review run that published no
+review](backlog/fail-review-run-without-review.md)
 
-[Test the responder workflow's inline JavaScript](backlog/test-responder-workflow-js.md)
+[Simplify the pr-* skills for the single review
+workflow](backlog/simplify-pr-skills-single-review-workflow.md)
+
+[Test the responder workflow's inline
+JavaScript](backlog/test-responder-workflow-js.md)
 
 ## Low
 
-[Detect plan narration growth mechanically](backlog/detect-plan-narration-growth.md)
+[Detect plan narration growth
+mechanically](backlog/detect-plan-narration-growth.md)
 
 ## Done
 
-[Resolve merge conflicts in pr-feedback-resolution](backlog/pr-feedback-resolve-merge-conflicts.md)
+[Resolve merge conflicts in
+pr-feedback-resolution](backlog/pr-feedback-resolve-merge-conflicts.md)
 
-[Remove the agentdev SessionStart hook](backlog/remove-agentdev-session-start-hook.md)
+[Remove the agentdev SessionStart
+hook](backlog/remove-agentdev-session-start-hook.md)
 
 [Write a capture skill](backlog/capture-skill.md)
 
