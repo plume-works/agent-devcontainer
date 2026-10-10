@@ -4,6 +4,17 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-10
+
+- **Update**:
+  [Agent-owned Ship and Implement workflows](plans/20261007-agent-owned-ship-implement.md)
+  done. Ship and Implement now run as the `iwe-shipper` and `iwe-implementer`
+  catalog agents, started only by their explicit-only entry skills,
+  coordinators, or Plan revise answering a Ship blocker; see
+  [IWE workflow skills](spec/iwe-workflow-skills.md).
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) spec gains the
+  explicit-only Ship and Implement dispatch requirement.
+
 ## 2026-10-08
 
 - **Update**:

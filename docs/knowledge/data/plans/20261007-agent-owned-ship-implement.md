@@ -12,6 +12,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
+stage: done
+completed: 2026-10-10
 ---
 
 # Agent-owned Ship and Implement workflows
