@@ -3,7 +3,7 @@ type: architecture
 description: How a GitHub native stacked pull request is detected, merged, and re-checked after a lower layer lands in this repository, and why stack branches alone may be force-pushed.
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-05T21:30:00Z
+  at: 2026-10-10T08:10:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://docs.github.com/en/pull-requests/get-started/about-stacked-prs
@@ -11,6 +11,8 @@ sources:
 - resource: https://github.com/plume-works/agent-devcontainer/pull/256
 - resource: https://github.com/plume-works/agent-devcontainer/pull/257
 - resource: https://github.com/plume-works/agent-devcontainer/pull/268
+- resource: https://github.com/github/gh-stack/releases/tag/v0.2.1
+- resource: ansible/roles/github_cli/tasks/main.yml
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
 ---
@@ -95,6 +97,19 @@ Run without a TTY, as an agent runs it, the v0.2.0 `init`, `submit`, `rebase`,
 before enabling `rerere`. The vendored skill's setup writes the repository-local
 `rerere.enabled` and `remote.pushDefault` explicitly.
 
+## Tooling
+
+The image installs `gh-stack` as a precompiled `gh` extension: the `github_cli`
+role downloads the release binary for the architecture, checks it against a
+pinned SHA-256, and writes the extension manifest itself. `gh extension install`
+is not used because it requires an authenticated `gh` even for a public
+extension, and an image build has no token.
+
+The vendored skill's `metadata.version` is upstream's skill version, not the
+extension's release tag: a release that leaves the skill alone ships it
+unchanged. Re-vendor the skill from the pinned tag when upstream changes it.
+Nothing ties the copy to the pin automatically.
+
 ## Policy
 
 Only `gh stack push`, `gh stack rebase`, and `gh stack sync` may force-push,
@@ -109,7 +124,7 @@ Rejected alternatives:
   first merge, and merging the rewritten remote branch would resurrect the
   pre-rebase commits.
 - **Our own `gh stack` driver skill.** The upstream `gh-stack` skill already
-  encodes the non-interactive flags and exit-code recovery an agent needs, and
-  it is versioned with the extension; it is vendored unchanged instead.
+  encodes the non-interactive flags and exit-code recovery an agent needs, so it
+  is vendored unchanged instead.
 - **The server-side Rebase stack button.** It updates refs through GitHub, which
   `AGENTS.md` forbids.
