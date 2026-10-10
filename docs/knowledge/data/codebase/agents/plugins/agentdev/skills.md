@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:f4fed8ec65d4959884fb477af348bc6a107726c2558e703121ebb85e855d04ac
+source_digest: sha256:a97ce148acfdf9364c5f3b74dae9eeb02369fb7aa540e47195718c8f1958fe16
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
-stale_after: 2027-01-07
+  by: claude-code/opus-5-5
+  at: 2026-10-10T12:00:00Z
+stale_after: 2027-01-08
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-10T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -44,13 +44,21 @@ its upstream `LICENSE`, at the release the image's `github_cli` role installs.
 ## How it works
 
 A `SKILL.md` is loaded into the conversation when the user invokes it or when
-its description matches the request; five IWE workflow skills use
-`disable-model-invocation: true` to require explicit invocation, while `iwe-map`
-remains model-invocable for workflow handoffs. Scripts are bash or Python, pull
-in the matching [result-code helpers](bin.md), and end every path with
-`RESULT=<NAME>` on stdout; the `SKILL.md` carries a table keyed on those names.
-`iwe-capture` and `iwe-plan` each bundle a `close-issue.sh` that parses its
-arguments and delegates the view-then-close step to the shared
+its description matches the request; seven IWE workflow skills (`iwe-plan`,
+`iwe-implement`, `iwe-implement-all`, `iwe-ship`, `iwe-ship-all`, `iwe-setup`,
+`iwe-weekly`) use `disable-model-invocation: true` to require explicit
+invocation, and each pairs it with an `agents/openai.yaml` setting
+`allow_implicit_invocation: false`, the gate Codex reads; `iwe-map` remains
+model-invocable for workflow handoffs. Ship and Implement keep their rulebooks
+in the `iwe-shipper` and `iwe-implementer` catalog agents: `iwe-ship` only
+builds a conversation-free prompt and dispatches `iwe-shipper`, `iwe-implement`
+follows `iwe-implementer` in place, the two `-all` coordinators dispatch one
+agent per plan in dependency order, and `iwe-plan` revise re-dispatches
+`iwe-shipper` when a revision answers its blocker report. Scripts are bash or
+Python, pull in the matching [result-code helpers](bin.md), and end every path
+with `RESULT=<NAME>` on stdout; the `SKILL.md` carries a table keyed on those
+names. `iwe-capture` and `iwe-plan` each bundle a `close-issue.sh` that parses
+its arguments and delegates the view-then-close step to the shared
 `close_issue_with_comment` helper, so both report the same results. `iwe-map`'s
 `stale-map-docs.py` is the Python case: it fingerprints the tracked source
 behind every `data/codebase/` doc, normalizing content that an
@@ -107,7 +115,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-05):
+Verified anchor points (line numbers as of 2026-10-10):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -123,6 +131,14 @@ Verified anchor points (line numbers as of 2026-10-05):
   the shared issue-closing call, identical in `iwe-plan`
 - `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — the `iwe-shipper`
+  dispatch
+- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — one Shipper per
+  plan
+- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — one
+  Implementer per plan
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:136` — the Shipper
+  re-dispatch after a revision
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:75` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:231` —

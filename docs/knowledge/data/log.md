@@ -14,6 +14,9 @@ to the current day's group.
   skills](spec/iwe-workflow-skills.md).
 - **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) spec gains the
   explicit-only Ship and Implement dispatch requirement.
+- **Update**: [Codebase map](codebase.md) refreshed for the `iwe-shipper` and
+  `iwe-implementer` agents and the Codex explicit-only gates: three agentdev
+  docs re-verified.
 
 ## 2026-10-09
 
