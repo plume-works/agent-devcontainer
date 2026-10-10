@@ -357,8 +357,11 @@ plans, the publish script, and the OpenCode project config)
 
 ### Task 18: The isolated harness passes on OpenCode
 
-- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode --opencode-model openai/gpt-6-sol`
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode --opencode-model openai/gpt-6-sol`
   passes every check at or after Task 15.
+  - **Evidence:** `run.sh --harness opencode --opencode-model openai/gpt-6-sol`
+    at 31d61a9 on OpenCode 1.18.34, with the maintainer's Codex login: all 22
+    checks passed.
 
 ## Spec changes
 
