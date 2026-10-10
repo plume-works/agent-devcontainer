@@ -17,6 +17,8 @@ to the current day's group.
 - **Update**: [Codebase map](codebase.md) refreshed for the `iwe-shipper` and
   `iwe-implementer` agents and the Codex explicit-only gates: three agentdev
   docs re-verified.
+- **Update**: [Codebase map](codebase.md) re-verified for the Ship blocker
+  routing: two agentdev docs.
 
 ## 2026-10-09
 
