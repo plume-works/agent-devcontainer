@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:c02df84424f6c4eb3d604982bc89fd1a8afc78d56b3da9d80717041b0988c111
+source_digest: sha256:ea18eff8521750fc6ed25116d9f7728ec91d8149d2871afe52518a78fc56fa75
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-09T18:00:00Z
-stale_after: 2027-01-07
+  by: claude-code/opus-5-5
+  at: 2026-10-10T14:00:00Z
+stale_after: 2027-01-08
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-09T18:00:00Z
+  by: claude-code/opus-5-5
+  at: 2026-10-10T14:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -41,16 +41,19 @@ layout are in [Module layout](../../../architecture/module-layout.md) and
 
 [Plugin tests](agentdev/tests.md)
 
-*Not mapped*: `agents/` — five agent definitions (`Principal Engineer`,
-`TDD Red`, `TDD Green`, `TDD Refactor`, `Durable Knowledge Auditor`), one file
-each.
+*Not mapped*: `agents/` — seven agent definitions (`Principal Engineer`,
+`TDD Red`, `TDD Green`, `TDD Refactor`, `Durable Knowledge Auditor`,
+`iwe-shipper`, `iwe-implementer`), one file each.
 
 ## Public surface
 
 - `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (39
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
-  `tdd-refactor`, `durable-knowledge-auditor`
+  `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`
+  — the last two hold the Ship and Implement rulebooks and are started only by
+  their explicit-only skills ([Explicit-only workflow
+  agents](../../../architecture/explicit-only-workflow-agents.md))
 - `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
   `result_codes.py`, which a Python skill script imports from there
 - `.opencode-plugin/` — the directory an OpenCode `plugin` entry names
@@ -87,7 +90,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
+Verified anchor points (line numbers as of 2026-10-10):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
@@ -96,3 +99,6 @@ Verified anchor points (line numbers as of 2026-10-08):
   version
 - `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`, the
   fourth pin
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:2` — the Ship agent
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:2` — the Implement
+  agent
