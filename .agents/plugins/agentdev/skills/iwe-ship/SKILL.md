@@ -28,9 +28,9 @@ only builds its prompt and relays its report.
 2. **Dispatch `iwe-shipper`** with that prompt and wait for its report.
 3. **Re-post its report verbatim.** When it reports `Needs decision`, name the
    approval it needs and tell the user to re-run `/agentdev:iwe-ship <plan>`
-   granting it. When it returns a Ship blocker report, point at
-   `/agentdev:iwe-plan` revise mode on that plan, which re-dispatches the
-   Shipper once the revision validates.
+   granting it. When it returns a Ship blocker report, point at the route it
+   names for each blocker: `/agentdev:iwe-implement` for a code or verification
+   failure, `/agentdev:iwe-plan` revise mode for intent the plan got wrong.
 
 ## Rules
 

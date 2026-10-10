@@ -165,9 +165,15 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 
 A **Ship blocker report** leads with `Blocked` and lists every blocker — each
 CRITICAL, or each intent-versus-implementation mismatch — with its `path:line`
-evidence. It names the plan and the route that answers it:
-`/agentdev:iwe-plan` revise mode on that plan, which re-dispatches this agent
-once the revision validates.
+evidence. It names the plan and, for each blocker, the route that answers it:
+
+- **Code or verification failure** — a failing `## Verification` command, a
+  requirement or task with no implementation, missing evidence:
+  `/agentdev:iwe-implement` on that plan, then `/agentdev:iwe-ship` again.
+- **Intent the plan got wrong** — a recorded spec change the verified behavior
+  rightly departs from, or a plan that no longer states what should ship:
+  `/agentdev:iwe-plan` revise mode on that plan, which re-dispatches this agent
+  once the revision validates.
 
 ## Rules
 
