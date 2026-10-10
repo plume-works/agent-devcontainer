@@ -64,3 +64,6 @@ install](bugs/cbm-codex-hooks-block-foreign-tables.md)
 
 [Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session
 token](bugs/coder-askpass-push-hang.md)
+
+[Bug: Ship's release-link rule is undefined for a plan with no feature or
+bug](bugs/ship-release-link-without-feature.md)

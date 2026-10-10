@@ -12,6 +12,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
+stage: done
+completed: 2026-10-10
 ---
 
 # Agent-owned Ship and Implement workflows
@@ -29,8 +31,7 @@ The gate keeps Ship from starting on a description match — for example from
 Explore, after a partial answer closes a plan's open question. Codex ignores
 `disable-model-invocation`: only `agents/openai.yaml` with
 `policy.allow_implicit_invocation: false` suppresses implicit invocation there,
-and no gated skill ships one, so Codex lists `iwe-ship`, `iwe-implement`, and
-`iwe-plan` as implicitly invocable.
+so each gated skill needs that file as well.
 
 A plan revision that answers a Ship blocker should be followed by a fresh Ship
 without the user re-invoking it.
@@ -75,6 +76,16 @@ iwe-explore ──✘── nothing to match: the skills are explicit-only, the 
   blocker report naming the plan. When `/agentdev:iwe-plan` revise mode answers
   such a report, it dispatches `iwe-shipper` on the plan after validation, and
   Ship's own Verify decides again.
+- **The end-to-end checks are rerunnable.** A committed harness builds an
+  isolated clone of the repository with fixture plans and drives each harness
+  headless, asserting the facts a scenario's THEN clause names — who was
+  dispatched, what its prompt carried, and what changed in and outside the
+  clone. The clone's only active plans are the fixtures, so no assertion depends
+  on what else the repository has in flight. It lives under
+  `scripts/e2e/<plan key>/`, named after the plan it verifies so each harness
+  links back to its plan, and not in the plugin's tests: it clones this
+  repository and spends model usage, so it neither runs from a consumer's plugin
+  cache nor belongs in a default test run.
 
 Rejected:
 
@@ -98,17 +109,21 @@ Rejected:
 `docs/knowledge/data/architecture/explicit-only-workflow-agents.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] Write the decision: agent-owned rulebooks, the three-harness explicit-only
+- [x] Write the decision: agent-owned rulebooks, the three-harness explicit-only
   gate, the callers allowed to dispatch, Ship always dispatched with a prompt
   that carries nothing from the conversation, and each rejected alternative with
   the harness behavior that rules it out, each behavior with the minimal fixture
   and command that reproduces it. Link it from `data/architecture.md`.
+  - **Evidence:** committed with this tick; each Claude Code and Codex behavior
+    in `data/architecture/explicit-only-workflow-agents` was reproduced with its
+    recorded fixture and command on Claude Code 2.1.280 and Codex 0.156.1, and
+    `iwe schema validate` passes.
 
 ### Task 2: Make the Ship rulebook an agent
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Move the body of `iwe-ship/SKILL.md` into the agent, rewritten to run only
+- [x] Move the body of `iwe-ship/SKILL.md` into the agent, rewritten to run only
   as a dispatched subagent whose inputs are the plan key, the operation, and
   quoted user approvals. It stops at each point the workflow would ask the user
   — the approval before commands with effects beyond the working tree, an
@@ -118,16 +133,23 @@ Rejected:
   names its only dispatchers: the `iwe-ship` skill, the `iwe-ship-all`
   coordinator, and `iwe-plan` revise answering a Ship blocker report. Tools:
   `Bash, Read, Edit, Write, Grep, Glob, Skill`.
+  - **Evidence:** implemented in 8841951;
+    `uv run validate_agent_files .agents/plugins/agentdev/agents --kind agents --ci`
+    exit 0, `test_install_codex_agents.py` 10 passed, and the bridge's
+    `bun test` 12 passed.
 
 ### Task 3: Make the Implement rulebook an agent
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Move the body of `iwe-implement/SKILL.md` into the agent, rewritten to run
+- [x] Move the body of `iwe-implement/SKILL.md` into the agent, rewritten to run
   both in the user's session and as a dispatched subagent. Dispatched, it stops
   on plan ambiguity and on a material deviation and reports them instead of
   waiting. Its `description` names its only dispatchers: the `iwe-implement`
   skill and the `iwe-implement-all` coordinator.
+  - **Evidence:** implemented in bc07ccc;
+    `uv run validate_agent_files .agents/plugins/agentdev/agents --kind agents --ci`
+    exit 0 and the bridge's `bun test` 12 passed.
 
 ### Task 4: Reduce the user entry skills to the agents
 
@@ -136,12 +158,15 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-ship/agents/openai.yaml`,
 `.agents/plugins/agentdev/skills/iwe-implement/agents/openai.yaml`
 
-- [ ] Each skill keeps its frontmatter and `disable-model-invocation: true` and
+- [x] Each skill keeps its frontmatter and `disable-model-invocation: true` and
   gains the Codex policy file. `iwe-ship` dispatches `iwe-shipper` with the plan
   key, the operation, and the user's approvals quoted verbatim — no summary of
   the conversation — and re-posts its report. `iwe-implement` directs the
   session to follow the `iwe-implementer` rulebook, located relative to the
   skill directory.
+  - **Evidence:** implemented in 9add615;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 62/62 skills valid with 0 errors and 0 warnings.
 
 ### Task 5: Dispatch the agents from the coordinators
 
@@ -149,17 +174,22 @@ Rejected:
 `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md`; Create: their
 `agents/openai.yaml`
 
-- [ ] Each coordinator becomes explicit-only on all three harnesses and
+- [x] Each coordinator becomes explicit-only on all three harnesses and
   dispatches `iwe-shipper` or `iwe-implementer` by name per plan, in dependency
   order. Ship-all re-posts each Shipper's Verify verdict with its outcome.
+  - **Evidence:** implemented in 5ea1f8a; `validate_agent_files --recommend`
+    reports 62/62 skills valid with 0 warnings, and the bridge's `bun test` 12
+    passed, its deny and subagent assertions derived from the catalog.
 
 ### Task 6: Re-dispatch the Shipper after a revision
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 
-- [ ] In revise mode, when the revision answers a Ship blocker report for the
+- [x] In revise mode, when the revision answers a Ship blocker report for the
   plan, step 8 dispatches `iwe-shipper` on that plan once validation passes and
-  reports its outcome; every other revision stops as it does now.
+  reports its outcome; every other revision stops after validation.
+  - **Evidence:** implemented in 2115bbf; `validate_agent_files --recommend`
+    reports 62/62 skills valid with 0 warnings.
 
 ### Task 7: Gate every explicit-only skill on Codex
 
@@ -167,29 +197,173 @@ Rejected:
 `disable-model-invocation: true` (`iwe-plan`, `iwe-setup`, `iwe-weekly`);
 Create: `.agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 
-- [ ] Add the Codex policy file to each, and a test that fails when a skill sets
+- [x] Add the Codex policy file to each, and a test that fails when a skill sets
   `disable-model-invocation: true` without
   `policy.allow_implicit_invocation: false`, or the reverse.
+  - **Evidence:** implemented in 5c18829;
+    `uv run pytest .agents/plugins/agentdev/tests/test_explicit_only_parity.py`
+    failed on `iwe-plan`, `iwe-setup`, and `iwe-weekly` before their policy
+    files and passes 6 after; the plugin suite 130 passed and
+    `python-lint-check.sh` is clean.
 
 ### Task 8: Claude Code runs the design end to end
 
-- [ ] On Claude Code: `/agentdev:iwe-ship-all` dispatches `iwe-shipper` and
+- [x] On Claude Code: `/agentdev:iwe-ship-all` dispatches `iwe-shipper` and
   reports its outcome; `/agentdev:iwe-ship` run directly dispatches
   `iwe-shipper` with only the plan key, operation, and quoted approvals, and an
   approval it needs comes back in its report; `/agentdev:iwe-implement` run
   directly asks about a material deviation in the session; and
   `/agentdev:iwe-explore`, given a partial answer that closes a plan's open
   question, neither dispatches the Shipper nor loads a coordinator.
+  - **Evidence:** Claude Code 2.1.280 headless (`claude -p --plugin-dir`) on a
+    clone of 5c18829 with fixture plans. `/agentdev:iwe-ship` dispatched
+    `agentdev:iwe-shipper` with only the plan key, `ship`, and
+    `Approvals: none`; the Shipper stopped before the plan's publish command and
+    reported the approval, with no mutation. Re-run with the approval quoted, it
+    ran the command and shipped. `/agentdev:iwe-ship-all` dispatched the Shipper
+    on the one implemented plan and re-posted its Verify verdict and outcome.
+    `/agentdev:iwe-implement` read `agents/iwe-implementer.agent.md` in the
+    session, dispatched nothing, and asked about a task contradicting its spec
+    outcome with the box left unticked. `/agentdev:iwe-explore`, told a fully
+    ticked plan's open question was answered, made no Agent or Skill call and
+    pointed at `/agentdev:iwe-plan`.
 
 ### Task 9: Codex runs the design end to end
 
-- [ ] The Task 8 checks pass on Codex, and Codex no longer lists `iwe-ship`,
+- [x] The Task 8 checks pass on Codex, and Codex lists none of `iwe-ship`,
   `iwe-implement`, `iwe-plan`, or either coordinator as implicitly invocable.
+  - **Evidence:** Codex 0.156.1 `codex exec -s workspace-write` after
+    `reinstall-agentdev-codex.sh` from 1213210, on the Task 8 fixtures. Its
+    skill list holds no gated skill. `$agentdev:iwe-ship` and
+    `$agentdev:iwe-ship-all` spawned `iwe-shipper` with `fork_turns: "none"`
+    (the message itself is stored encrypted); without approval it reported the
+    publish command it needed, and with the approval quoted it ran the command,
+    which the sandbox's read-only filesystem failed, returning a Ship blocker
+    report with no mutation. `$agentdev:iwe-implement` read the rulebook in
+    place, spawned nothing, and asked about the deviation.
+    `$agentdev:iwe-explore` spawned nothing and ran no Ship or Implement skill.
 
 ### Task 10: OpenCode runs the design end to end
 
-- [ ] The Task 8 checks pass on OpenCode through the bridge, with a model the
+- [x] The Task 8 checks pass on OpenCode through the bridge, with a model the
   maintainer uses.
+  - **Evidence:** OpenCode 1.18.34 `opencode run -m openai/gpt-6-astra` (the
+    maintainer's Codex model and login) through the bridge at b941b6f, on the
+    Task 8 fixtures, with `external_directory` granted for the fixture's scratch
+    directory and the catalog's `agents/`. `agentdev:iwe-ship` dispatched
+    `iwe-shipper` with only the plan key and `ship`, and it stopped for the
+    publish approval with no mutation; re-run with the approval quoted verbatim,
+    it ran the command. `agentdev:iwe-ship-all` dispatched the Shipper and
+    re-posted its Verify verdict and outcome. `agentdev:iwe-implement` read the
+    rulebook in place, dispatched nothing, and asked about the deviation.
+    `agentdev:iwe-explore` made no task or skill call. Both ships then stopped
+    on the plan's missing feature or bug, captured as
+    `data/bugs/ship-release-link-without-feature`.
+
+### Task 11: Commit the end-to-end harness
+
+**Files:** Create: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`,
+`scripts/e2e/20261007-agent-owned-ship-implement/fixtures/` (the two fixture
+plans, the publish script, and the OpenCode project config)
+
+- [x] Commit the fixtures and a runner. The fixtures are an implemented plan
+  whose `## Verification` runs a publish script whose only effect is a marker
+  file outside the clone, and a plan whose one unticked task contradicts its
+  recorded spec outcome; the implemented plan also gets a variant that adds an
+  answered open question. The runner bundles `HEAD` into a clone under `./.tmp`
+  with no remote, commits the fixtures there, and resets the clone between
+  checks. It takes the harnesses to run and an OpenCode model as arguments, with
+  no model default, and writes each run's raw log under `./.tmp`. It grants
+  exactly what each harness needs and nothing wider: Claude Code `--plugin-dir`
+  and an `--allowedTools` list naming the fixture commands; Codex
+  `-s workspace-write`; OpenCode an `external_directory` allow for the scratch
+  directory and the catalog's `agents/`. Each check prints PASS or FAIL per
+  assertion, and the runner exits non-zero on any FAIL:
+
+  - ship without approval — one dispatch of `iwe-shipper` carrying the plan key;
+    no marker, no commit, plan still active;
+  - ship with approval — the dispatch carries the approval sentence verbatim and
+    omits a non-approval sentence planted in the same request; the publish
+    command ran;
+  - ship-all — one dispatch of `iwe-shipper`;
+  - implement — the rulebook file was read, nothing was dispatched, the task
+    stays unticked and its file absent;
+  - explore — no dispatch and no Ship or Implement skill load; no marker, no
+    commit;
+  - Codex only — no gated catalog skill in its implicit-invocation list.
+
+  Where a harness does not expose a fact, the runner asserts what it does expose
+  and says so. `shellcheck` passes.
+
+  - **Evidence:** committed with this tick;
+    `shellcheck scripts/e2e/20261007-agent-owned-ship-implement/run.sh` and the
+    fixture publish script are clean, and the runner's clone setup, run alone,
+    built the two fixture commits in a remote-less clone under `./.tmp/e2e/`,
+    passed `iwe schema validate` there, and found all seven gated skills. The
+    live checks are Tasks 12–14.
+
+### Task 12: The harness passes on Claude Code
+
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+  Claude Code check.
+  - **Evidence:** `run.sh --harness claude` at af30a56 on Claude Code 2.1.280:
+    all 23 checks passed.
+
+### Task 13: The harness passes on Codex
+
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+  Codex check.
+  - **Evidence:** `run.sh --harness codex` at 857e2a4 on Codex 0.156.1, after
+    `reinstall-agentdev-codex.sh`: all checks passed. aa67dec then tightened the
+    publish matcher to executions only; re-evaluated on that run's rollouts it
+    still finds no publish without approval and one with it.
+
+### Task 14: The harness passes on OpenCode
+
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` passes every
+  OpenCode check with a model the maintainer uses.
+  - **Evidence:**
+    `run.sh --harness opencode --opencode-model openai/gpt-6-astra` at fce66a6
+    on OpenCode 1.18.34, with the maintainer's Codex login: all 22 checks
+    passed.
+
+### Task 15: Leave only the fixtures active in the clone
+
+**Files:** Modify: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`
+
+- [x] Before `build_clone` adds the fixture plans, every plan linked under
+  `## Active` in the clone's `docs/knowledge/data/plans.md` gets
+  `stage: cancelled` and its link moves to `## Cancelled`, so ship-all sees only
+  the fixtures whatever `HEAD` has in flight. `iwe normalize` and
+  `iwe schema validate` pass in the clone, and `shellcheck` passes.
+  - **Evidence:** committed with this tick; `cancel_active_plans` also sets
+    `status: deprecated`, which `SCHEMA.md` pairs with a cancelled plan.
+    `shellcheck` on `run.sh` is clean, and `build_clone` run alone from 5e9c119
+    left only the two fixtures under `## Active`, moved the five in-flight plans
+    to `## Cancelled`, and passed `iwe normalize` and `iwe schema validate`.
+
+### Task 16: The isolated harness passes on Claude Code
+
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness claude`
+  passes every check at or after Task 15.
+  - **Evidence:** `run.sh --harness claude` at c5417b4 on Claude Code 2.1.280:
+    all 23 checks passed.
+
+### Task 17: The isolated harness passes on Codex
+
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness codex`
+  passes every check at or after Task 15, after `reinstall-agentdev-codex.sh`.
+  - **Evidence:** `run.sh --harness codex` at e9ecce7 on Codex 0.156.1, after
+    `reinstall-agentdev-codex.sh`: all 28 checks passed. e9ecce7 counts a
+    publish execution chained after another command, as the Shipper ran it.
+
+### Task 18: The isolated harness passes on OpenCode
+
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode --opencode-model openai/gpt-6-sol`
+  passes every check at or after Task 15.
+  - **Evidence:** `run.sh --harness opencode --opencode-model openai/gpt-6-sol`
+    at 31d61a9 on OpenCode 1.18.34, with the maintainer's Codex login: all 22
+    checks passed.
 
 ## Spec changes
 
@@ -275,11 +449,15 @@ given.
 ## Verification
 
 - `uv run pytest .agents/plugins/agentdev/tests/test_explicit_only_parity.py`
-- `bun test .agents/plugins/agentdev/tests/opencode/` — the bridge registers
+- `bun test ./.agents/plugins/agentdev/tests/opencode/` — the bridge registers
   both new agents and denies every gated skill.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
 - `iwe normalize` and `iwe schema validate` after the architecture document.
 - Tasks 8–10 are the end-to-end checks on each harness.
+- `shellcheck scripts/e2e/20261007-agent-owned-ship-implement/run.sh`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh` on all three
+  harnesses, OpenCode with `--opencode-model openai/gpt-6-sol` (Tasks 16–18); it
+  needs each CLI authenticated and spends model usage.
 
 ## Out of scope
 
@@ -288,28 +466,32 @@ given.
 - Changing what Ship or Implement does beyond where it runs and how it stops.
 - A `validate_agent_files` rule for the Codex policy file — the package ships
   independently of this catalog.
+- Running the end-to-end harness in CI — it needs each harness's model login.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-07):
+Verified anchor points (line numbers as of 2026-10-09):
 
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:4` —
   `disable-model-invocation: true`
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:39` — approval before
-  commands beyond the working tree
-- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:41` — CRITICAL stop, no
-  override
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:4` —
-  `disable-model-invocation: true`
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:17` — plan selection,
-  asks when ambiguous
-- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:68` — material
-  deviation waits for the user
-- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:8` — coordinator prompt
-- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:8` — coordinator
-  prompt
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:121` — step 8, validate and
-  stop
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:24` — dispatch prompt
+  carries nothing else
+- `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — dispatch
+  `iwe-shipper`
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:13` — follow the
+  `iwe-implementer` rulebook in place
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:34` — stopping for a
+  decision
+- `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:166` — Ship blocker
+  report
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:15` — session and
+  dispatched modes
+- `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — dispatch
+  `iwe-shipper` per plan
+- `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — dispatch
+  `iwe-implementer` per plan
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:136` — revise answering a
+  Ship blocker re-dispatches the Shipper
 - `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:71` — Verify never
   invokes Ship
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:48` —
@@ -318,5 +500,19 @@ Verified anchor points (line numbers as of 2026-10-07):
   collected for `deny`
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:92` — catalog agents
   registered as subagents
+- `.agents/plugins/agentdev/tests/test_explicit_only_parity.py:33` — Claude and
+  Codex gate parity
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:58` — gate
+  fixture
+- `docs/knowledge/data/architecture/explicit-only-workflow-agents.md:158` —
+  OpenCode `external_directory` grant for the catalog
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:264` — normal shipping
   requirement
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:101` — `build_clone`,
+  which lists the fixtures under `## Active`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:214` — Claude ship-all
+  dispatch count
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:331` — Codex ship-all
+  spawn count
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:411` — OpenCode
+  ship-all dispatch count

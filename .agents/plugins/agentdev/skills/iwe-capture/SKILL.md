@@ -121,8 +121,8 @@ leaves the issue open.
 
 - Someday ideas, architecture notes, and concept documents are written by
   `/agentdev:iwe-explore`; plans by `/agentdev:iwe-plan`.
-- Capture is model-invocable so `/agentdev:iwe-implement` can file a defect or
-  deferred task mid-run without stopping for the user. A refusal returns to
+- Capture is model-invocable so the `iwe-implementer` rulebook can file a
+  defect or deferred task mid-run without stopping for the user. A refusal returns to
   that caller, which keeps the item in its handoff report.
 - Capture edits only the new document and its hub links, plus the someday hub
   when promoting.
