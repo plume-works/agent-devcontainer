@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:6b3f656e27b6283eca3ac77c5d2a533873ee72cdf45c738be75bec1bde9d1906
+source_digest: sha256:bed89c5240b51620846ba954837efacfc4a092a51ea423087d8a75e8f2cb41c5
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T18:00:00Z
-stale_after: 2027-01-07
+  at: 2026-10-10T08:30:00Z
+stale_after: 2027-01-08
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T18:00:00Z
+  at: 2026-10-10T08:30:00Z
 sources:
 - id: code
   resource: ansible
@@ -92,8 +92,8 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   per-architecture checksums, registered in `PIN_FILES` of
   `scripts/refresh-pin-checksums.py` so Renovate's post-upgrade task recomputes
   them; `zizmor` alone moves with the Super-Linter sync instead. The `gh-stack`
-  extension is installed by `gh extension install --pin` and carries no
-  checksum; a test keeps the vendored `gh-stack` skill on the same release.
+  extension is one of these: its release binary and extension manifest are
+  written directly, never through `gh extension install`.
   `ansible/roles/.agent.metadata.json` keeps the automerged versions and
   checksums out of this doc's `source_digest`.
 - Apt packages are not pinned: each role lists them by name inline, and apt
