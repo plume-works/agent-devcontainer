@@ -349,8 +349,11 @@ plans, the publish script, and the OpenCode project config)
 
 ### Task 17: The isolated harness passes on Codex
 
-- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness codex`
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness codex`
   passes every check at or after Task 15, after `reinstall-agentdev-codex.sh`.
+  - **Evidence:** `run.sh --harness codex` at e9ecce7 on Codex 0.156.1, after
+    `reinstall-agentdev-codex.sh`: all 28 checks passed. e9ecce7 counts a
+    publish execution chained after another command, as the Shipper ran it.
 
 ### Task 18: The isolated harness passes on OpenCode
 
