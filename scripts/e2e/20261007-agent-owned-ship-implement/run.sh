@@ -132,20 +132,22 @@ build_clone() {
 # Leaves the fixtures the clone's only active plans, whatever HEAD has in flight.
 cancel_active_plans() {
   local data="$clone/docs/knowledge/data" key
-  awk '/^## /{ sect = $0 } sect == "## Active" && /^\[.*\]\(plans\/.*\.md\)$/ {
-      match($0, /\(plans\/[^)]*\)/); print substr($0, RSTART + 1, RLENGTH - 2) }' \
-    "$data/plans.md" >"$work/active.txt"
+  : >"$work/active.txt"
+  # Paragraph mode: iwe normalize wraps long link titles over several lines.
+  awk -v RS= -v ORS='\n\n' -v keys="$work/active.txt" '/^## /{ sect = $0 }
+    { flat = $0; gsub(/\n/, " ", flat) }
+    sect == "## Active" && flat ~ /^\[.*\]\(plans\/[^)]*\.md\)$/ {
+      match(flat, /\(plans\/[^)]*\)/)
+      printf "%s\n", substr(flat, RSTART + 1, RLENGTH - 2) >keys
+      moved[++n] = flat; next }
+    { print } $0 == "## Cancelled" { for (i = 1; i <= n; i++) print moved[i] }' \
+    "$data/plans.md" >"$work/plans.md"
+  mv "$work/plans.md" "$data/plans.md"
   while IFS= read -r key; do
     awk '!done && /^type: plan$/ { print; print "stage: cancelled"; print "status: deprecated"
       done = 1; next } { print }' "$data/$key" >"$work/plan.md"
     mv "$work/plan.md" "$data/$key"
   done <"$work/active.txt"
-  awk '/^## /{ sect = $0 } sect == "## Active" && /^\[.*\]\(plans\/.*\.md\)$/ {
-      moved[++n] = $0; skip = 1; next }
-    skip && /^$/ { skip = 0; next } { skip = 0; print }
-    /^## Cancelled$/ { for (i = 1; i <= n; i++) print "\n" moved[i] }' \
-    "$data/plans.md" >"$work/plans.md"
-  mv "$work/plans.md" "$data/plans.md"
 }
 
 commit_fixture() {
@@ -198,11 +200,12 @@ claude_calls() {
     | select(.type == "tool_use" and .name == $n) | .input' "$1.jsonl" 2>/dev/null || true
 }
 claude_shipper_prompts() {
-  claude_calls "$1" Agent | jq -r 'select(.subagent_type | test("iwe-shipper$")) | .prompt'
+  claude_calls "$1" Agent | jq -r 'select((.subagent_type // "") | test("iwe-shipper$")) | .prompt'
 }
 claude_dispatches() { claude_calls "$1" Agent | jq -s 'length'; }
 claude_shipper_dispatches() {
-  claude_calls "$1" Agent | jq -s '[.[] | select(.subagent_type | test("iwe-shipper$"))] | length'
+  claude_calls "$1" Agent |
+    jq -s '[.[] | select((.subagent_type // "") | test("iwe-shipper$"))] | length'
 }
 
 run_claude() {
@@ -307,6 +310,7 @@ codex_run() {
     log_has "$log" 'any(.[]; .type == "turn.completed")'
 }
 codex_catalog() {
+  [[ -d "$HOME/.codex/plugins/cache" ]] || return 0
   find "$HOME/.codex/plugins/cache" -mindepth 3 -maxdepth 3 -type d -path '*/agentdev/*' \
     2>/dev/null | sort -V | tail -1
 }
@@ -373,6 +377,7 @@ run_codex() {
 # which must match the clone's; the project config grants only what runs need.
 
 opencode_catalog() {
+  [[ -f "$HOME/.config/opencode/opencode.json" ]] || return 0
   jq -r '.plugin[]? | select(endswith("/.opencode-plugin"))' \
     "$HOME/.config/opencode/opencode.json" 2>/dev/null | head -1 | xargs -r dirname
 }
