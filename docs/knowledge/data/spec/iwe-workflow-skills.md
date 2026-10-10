@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-10T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
@@ -22,6 +22,11 @@ sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
+- resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 ---
 
 # IWE workflow skills
@@ -342,6 +347,73 @@ to resume after a partial prior attempt.
   behavior represented by a durable spec
 - **THEN** Ship uses IWE's graph-aware deletion operation, repairs references,
   and does not leave an empty or orphaned spec document
+
+### Requirement: Ship and Implement start only from an explicit request or a named dispatcher
+
+The Ship and Implement workflows SHALL each be defined once, as the catalog
+agents `iwe-shipper` and `iwe-implementer`. Their user entry skills and the
+`iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
+Claude Code, Codex, and OpenCode. Only those skills, those coordinators, and
+Plan revise mode answering a Ship blocker report SHALL start the workflows. Ship
+SHALL always run as a dispatched `iwe-shipper` whose prompt carries only the
+plan key, the operation, and the user's approvals quoted verbatim, so its
+verification rests on the code and the graph alone. Implement started by the
+user's own invocation SHALL run in the user's session. A dispatched workflow
+SHALL stop and report at any point that needs a user decision it was not given.
+
+#### Scenario: The user ships a plan directly
+
+- **WHEN** the user runs `/agentdev:iwe-ship <plan>` with no approval
+- **THEN** the skill dispatches `iwe-shipper` with the plan key and the ship
+  operation and nothing else from the conversation, and the Shipper stops before
+  a command with effects beyond the working tree and reports the approval it
+  needs.
+
+#### Scenario: The user ships a plan with an approval
+
+- **WHEN** the user re-runs `/agentdev:iwe-ship <plan>` granting the approval
+  the Shipper reported
+- **THEN** the dispatch prompt quotes that approval verbatim, and the Shipper
+  runs the approved command.
+
+#### Scenario: The user implements a plan directly
+
+- **WHEN** the user runs `/agentdev:iwe-implement <plan>` and a task needs a
+  material deviation
+- **THEN** the session follows the `iwe-implementer` rulebook and waits for the
+  user's direction.
+
+#### Scenario: A coordinator ships every implemented plan
+
+- **WHEN** the user runs `/agentdev:iwe-ship-all`
+- **THEN** it dispatches one `iwe-shipper` agent per implemented plan in
+  dependency order and re-posts each one's Verify verdict and outcome.
+
+#### Scenario: A dispatched workflow reaches a user decision
+
+- **WHEN** a dispatched `iwe-shipper` or `iwe-implementer` reaches a point that
+  needs the user
+- **THEN** it stops without taking that step and reports what it needs.
+
+#### Scenario: Explore hears a partial answer to an open question
+
+- **WHEN** during `/agentdev:iwe-explore` the user answers an open question in a
+  way that leaves a plan apparently complete
+- **THEN** Explore neither dispatches `iwe-shipper` nor loads a Ship or
+  Implement skill or coordinator, and names the next step for the user.
+
+#### Scenario: A revision answers a Ship blocker
+
+- **WHEN** `/agentdev:iwe-plan` revise mode changes a plan to answer the Ship
+  blocker report Ship returned for it, and validation passes
+- **THEN** Plan dispatches `iwe-shipper` on that plan, whose Verify decides
+  whether it ships.
+
+#### Scenario: The model tries to start a gated skill
+
+- **WHEN** a model on Claude Code, Codex, or OpenCode tries to load `iwe-ship`,
+  `iwe-implement`, or either coordinator without a user request
+- **THEN** the harness withholds it.
 
 ### Requirement: Map derives the codebase lane from the code and refreshes it incrementally
 
