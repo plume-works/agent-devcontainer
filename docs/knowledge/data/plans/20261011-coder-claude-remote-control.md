@@ -169,10 +169,15 @@ resource "coder_script" "claude_remote_control" {
 }
 ```
 
-- [ ] Raise the template's version constraints to their latest releases: the
+- [x] Raise the template's version constraints to their latest releases: the
   `coder/coder` and `kreuzwerker/docker` providers and the `code-server` module.
   The maintainer approved moving to latest; `coder/coder` must expose
   `coder_devcontainer.subagent_id`.
+  - **Evidence:** coder-ide-baseline commit 4e28f6f (draft PR
+    plume-works/coder-ide-baseline#15): `coder/coder` `~> 2.19`,
+    `kreuzwerker/docker` `~> 4.6`, `code-server` `~> 1.6`; `terraform init` with
+    Terraform 1.16.5 resolves 2.19.0, 4.6.0, and 1.6.0, and 2.19.0 documents
+    `coder_devcontainer.subagent_id`.
 - [ ] Add the resource; `terraform validate` passes and the template pushes.
 
 ### Task 5: Verify in a live Coder workspace
