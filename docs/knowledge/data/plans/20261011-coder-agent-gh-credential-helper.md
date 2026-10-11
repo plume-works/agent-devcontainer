@@ -63,18 +63,26 @@ Rejected:
 **Files:** Create: `.devcontainer/scripts/coder-agent-start.sh`,
 `scripts/tests/test_coder_agent_start.py`
 
-- [ ] Tests first (pytest, fake `setup-gh-credential-helper.sh` and
+- [x] Tests first (pytest, fake `setup-gh-credential-helper.sh` and
   `claude-remote-control-start.sh` placed beside a copy of the script). Cover:
   - the helper setup runs before Remote Control;
   - Remote Control still starts, and the script exits 0, when the helper setup
     exits non-zero;
   - the helper setup sees the caller's environment (a `GITHUB_TOKEN` set by the
     caller reaches it).
-- [ ] Script: `#!/usr/bin/env bash`, `set -euo pipefail`. Run
+  - **Evidence:** `scripts/tests/test_coder_agent_start.py` (three tests, one
+    per case) in the commit that adds `coder-agent-start.sh`; replacing the
+    helper call with `false` fails two of them.
+- [x] Script: `#!/usr/bin/env bash`, `set -euo pipefail`. Run
   `"$script_dir/setup-gh-credential-helper.sh"`. On failure, print a one-line
   warning to stderr and continue. Then
   `exec "$script_dir/claude-remote-control-start.sh"`. Executable bit set;
   `shellcheck` clean; the tests pass.
+  - **Evidence:** `.devcontainer/scripts/coder-agent-start.sh` (mode 100755) in
+    the commit `feat(devcontainer): add the Coder agent-start script`;
+    `shellcheck` clean;
+    `uv run pytest scripts/tests/test_coder_agent_start.py scripts/tests/test_setup_gh_credential_helper.py`
+    9 passed.
 
 ### Task 2: Refresh the codebase map
 
