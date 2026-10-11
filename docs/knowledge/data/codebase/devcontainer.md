@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:1ea23014c603bbe967bcdd861cd6501b022961fdfc556da26e29b44d5de74e94
+source_digest: sha256:a335e04a062660f7fe9c0b1f3f1e057debf53bc587821e57e95970b715a2960e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-11T08:27:37Z
+  at: 2026-10-11T09:52:18Z
 stale_after: 2027-01-09
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T08:27:37Z
+  at: 2026-10-11T12:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -39,8 +39,8 @@ pulled.
   (`:253-256`)
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the pass-through
-  `GIT_*` identity variables (`:70-73`) and the shared `agentdev-agents-auth`
-  volume (`:104`)
+  `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
+  volume (`:103`)
 - `devcontainer-compose-pins.yml` — the digest pin Renovate advances
 - `.devcontainer/firewall-allowlist.txt` — read by the firewall at start
 - `.devcontainer/.agent.metadata.json` — masks the feature version pins, and the
@@ -85,14 +85,14 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-09):
+Verified anchor points (line numbers as of 2026-10-11):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:51-57` — Xpra port forwarding
 - `.devcontainer/devcontainer.json:58-102` — the four volume mounts
 - `.devcontainer/devcontainer.json:253-256` — lifecycle commands
-- `.devcontainer/docker-compose.yml:2,53,108` — sidecar, service, volumes
-- `.devcontainer/docker-compose.yml:70-73,104` — identity pass-through, shared
+- `.devcontainer/docker-compose.yml:2,53,107` — sidecar, service, volumes
+- `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
   auth volume
 - `.devcontainer/devcontainer-init.sh:11` — `HOME` default for Codespaces
 - `.devcontainer/devcontainer-init.sh:24` — shared auth volume creation

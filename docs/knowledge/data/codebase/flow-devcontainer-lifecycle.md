@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:9735623fc31c0ac04755110a49e1246d3c2fef1e4c7df6d7a09361fa0a2d6a5e
+source_digest: sha256:c80745b14f2a3e706c446757fa0a685346e729589f9d94e70e6338523f761f46
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-11T08:27:37Z
+  at: 2026-10-11T09:52:18Z
 stale_after: 2027-01-09
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T08:27:37Z
+  at: 2026-10-11T12:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -43,9 +43,11 @@ state.
    [lifecycle scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
-   Xpra in the background, Claude Remote Control under autostart with a
-   claude.ai login, the Codex auth link, then Codex's full-access policy in
-   `config.toml` — `.devcontainer/scripts/postStartCommand.sh:9-32`
+   Xpra in the background, the Codex auth link, then Codex's full-access policy
+   in `config.toml` — `.devcontainer/scripts/postStartCommand.sh:9-30`. Claude
+   Remote Control is not part of it: in Coder, the template's `coder_script` on
+   the dev container's sub-agent runs `claude-remote-control-start.sh` after the
+   agent starts
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
    catalog reinstalled from this checkout at local scope, with OpenCode's bridge
    entry repointed at it, which is how the catalog is developed in place —
@@ -66,6 +68,8 @@ state.
 - `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`, and
   `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` are the documented opt-outs for callers that
   never commit, never attach a desktop, or must not enable project MCP servers.
-- Remote Control stays down under autostart when `claude auth status` reports no
-  live claude.ai login; a setup token alone does not start it. Running
-  `claude-remote-control-start.sh` by hand after `/login` starts it.
+- Remote Control stays down when `claude auth status` reports no live claude.ai
+  login; a setup token alone does not start it. Running
+  `claude-remote-control-start.sh` by hand from a Coder terminal after `/login`
+  starts it on the `tmux -L claude-remote` server. Outside Coder nothing starts
+  it.

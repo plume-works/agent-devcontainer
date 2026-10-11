@@ -8,6 +8,9 @@ to the current day's group.
 
 - **Update**: [Codebase map](codebase.md) re-verified for the `CBM_CACHE_DIR`
   guard fix in the codebase-memory-mcp scripts: three devcontainer docs.
+- **Update**: [Codebase map](codebase.md) refreshed for Claude Remote Control
+  moving from postStart to the Coder template's `coder_script` on a dedicated
+  tmux server: three docs re-verified.
 
 ## 2026-10-10
 

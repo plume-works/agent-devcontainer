@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "${AGENTDEV_CLAUDE_AUTOSTART:-}" != "1" ]]; then
-  exit 0
-fi
-
 for command in claude tmux; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "$command is not installed; skipping Claude Remote Control startup." >&2
@@ -14,7 +10,7 @@ done
 
 # A setup token would mask the saved login and cannot run Remote Control.
 if ! auth_status="$(env -u CLAUDE_CODE_OAUTH_TOKEN claude auth status --json 2>/dev/null)"; then
-  echo "AGENTDEV_CLAUDE_AUTOSTART=1 but Claude is not logged in; skipping Remote Control."
+  echo "Claude is not logged in; skipping Remote Control."
   exit 0
 fi
 if ! auth_method="$(python3 -c '
@@ -26,25 +22,24 @@ print(status.get("authMethod") if status.get("loggedIn") is True else "none")
   exit 0
 fi
 if [[ "$auth_method" != "claude.ai" ]]; then
-  echo "AGENTDEV_CLAUDE_AUTOSTART=1 but no claude.ai login (auth method: $auth_method);" \
-    "skipping Remote Control."
+  echo "No claude.ai login (auth method: $auth_method); skipping Remote Control."
   exit 0
 fi
 
 session="claude-remote"
 workspace="${DEV_WORKSPACE_FOLDER:-$PWD}"
 
-if tmux has-session -t "=$session" 2>/dev/null; then
+if tmux -L "$session" has-session -t "=$session" 2>/dev/null; then
   echo "Claude Remote Control tmux session '$session' is already running."
   exit 0
 fi
 
 # Setup tokens cannot establish Remote Control; keep one out of that process.
-tmux_start=(tmux start-server \; new-session -d -s "$session" -c "$workspace" \
+tmux_start=(tmux -L "$session" start-server \; new-session -d -s "$session" -c "$workspace" \
   "exec env -u CLAUDE_CODE_OAUTH_TOKEN claude /remote-control")
 
 if ! tmux_error="$("${tmux_start[@]}" 2>&1)"; then
-  if tmux has-session -t "=$session" 2>/dev/null; then
+  if tmux -L "$session" has-session -t "=$session" 2>/dev/null; then
     echo "Claude Remote Control tmux session '$session' is already running."
     exit 0
   fi
