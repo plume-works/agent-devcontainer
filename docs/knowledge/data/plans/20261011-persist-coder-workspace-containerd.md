@@ -127,11 +127,11 @@ this repository's specs.
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-11), in
-`plume-works/coder-ide-baseline` at `349d8d6`:
+`plume-works/coder-ide-baseline` at `783e98a`:
 
 - `template/main.tf:193` — `coder_devcontainer.repo`
-- `template/main.tf:263` — `docker_volume.home_volume`
-- `template/main.tf:289` — `docker_volume.docker_lib`, the shape to copy
-- `template/main.tf:326` — `docker_container.workspace`
-- `template/main.tf:379` — `runtime = "sysbox-runc"`
-- `template/main.tf:392` — the `/var/lib/docker` volume mount
+- `template/main.tf:275` — `docker_volume.home_volume`
+- `template/main.tf:301` — `docker_volume.docker_lib`, the shape to copy
+- `template/main.tf:338` — `docker_container.workspace`
+- `template/main.tf:391` — `runtime = "sysbox-runc"`
+- `template/main.tf:406` — the `/var/lib/docker` volume mount
