@@ -14,6 +14,7 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/577b5fa/template/main.tf
 - resource: https://coder.com/docs/admin/integrations/devcontainers/integration
 - resource: https://coder.com/docs/v2.37/user-guides/user-secrets
+- resource: https://man7.org/linux/man-pages/man1/tmux.1.html
 ---
 
 # Start Claude Remote Control from the Coder agent
@@ -140,8 +141,10 @@ resource "coder_script" "claude_remote_control" {
 }
 ```
 
-- [ ] Confirm the pinned `coder/coder` provider (`~> 2.18`) exposes
-  `coder_devcontainer.subagent_id`; raise the constraint if it does not.
+- [ ] Raise the template's version constraints to their latest releases: the
+  `coder/coder` and `kreuzwerker/docker` providers and the `code-server` module.
+  The maintainer approved moving to latest; `coder/coder` must expose
+  `coder_devcontainer.subagent_id`.
 - [ ] Add the resource; `terraform validate` passes and the template pushes.
 
 ### Task 5: Verify in a live Coder workspace
@@ -313,6 +316,10 @@ Verified anchor points (line numbers as of 2026-10-11):
   Remote Control lifecycle notes
 - `coder-ide-baseline@577b5fa:template/main.tf:8` — `coder/coder` provider
   constraint
+- `coder-ide-baseline@577b5fa:template/main.tf:12` — `kreuzwerker/docker`
+  provider constraint
+- `coder-ide-baseline@577b5fa:template/main.tf:186` — `code-server` module
+  version
 - `coder-ide-baseline@577b5fa:template/main.tf:44` — `local.repo_dir`
 - `coder-ide-baseline@577b5fa:template/main.tf:193` — `coder_devcontainer.repo`
 - `coder-ide-baseline@577b5fa:template/main.tf:202` — `coder_script.second_repo`
