@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-11
 
+- **Update**: [Codebase map](codebase.md) refreshed for the Remote Control
+  session taking its name from `CODER_WORKSPACE_NAME`: three docs re-verified.
 - **Update**: [Codebase map](codebase.md) refreshed for Claude Remote Control
   moving from postStart to the Coder template's `coder_script` on a dedicated
   tmux server: three docs re-verified.
