@@ -139,7 +139,7 @@ Runtime behavior: implement through the Principal Engineer with TDD.
 `docs/knowledge/data/codebase/devcontainer.md` (compose anchors shifted by Task
 2), `docs/knowledge/data/log.md`
 
-- [ ] Run `/agentdev:iwe-map` in refresh mode over the touched docs: the scripts
+- [x] Run `/agentdev:iwe-map` in refresh mode over the touched docs: the scripts
   table row and the lifecycle flow's Remote Control note describe a
   `coder_script` trigger and the dedicated tmux server.
   - **Evidence:** commit "map: refresh devcontainer docs for coder_script Remote
