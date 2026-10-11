@@ -89,8 +89,11 @@ Rejected:
 **Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`, and
 any other `data/codebase/` doc that `stale-map-docs.py` reports
 
-- [ ] Run `/agentdev:iwe-map` in refresh mode over the touched docs. The scripts
+- [x] Run `/agentdev:iwe-map` in refresh mode over the touched docs. The scripts
   table lists `coder-agent-start.sh` as the Coder agent's entry point.
+  - **Evidence:** commit `map: refresh for coder-agent-start.sh` updates
+    `data/codebase/devcontainer/scripts`, `flow-devcontainer-lifecycle`, and
+    `devcontainer`; `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ### Task 3: Template runs the agent-start script
 

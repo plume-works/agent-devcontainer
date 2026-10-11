@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-11
 
+- **Update**: [Codebase map](codebase.md) refreshed for `coder-agent-start.sh`,
+  the Coder agent's entry point: three docs re-verified.
 - **Update**: [Codebase map](codebase.md) re-verified for the `CBM_CACHE_DIR`
   guard fix in the codebase-memory-mcp scripts: three devcontainer docs.
 - **Update**: [Codebase map](codebase.md) refreshed for Claude Remote Control
