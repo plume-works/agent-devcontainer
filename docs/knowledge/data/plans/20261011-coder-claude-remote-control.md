@@ -81,16 +81,26 @@ first and leave the `coder_script` reusing that session.
 
 Runtime behavior: implement through the Principal Engineer with TDD.
 
-- [ ] Tests: drop the `autostart-unset` case and the `AGENTDEV_CLAUDE_AUTOSTART`
+- [x] Tests: drop the `autostart-unset` case and the `AGENTDEV_CLAUDE_AUTOSTART`
   environment from the helpers; assert every tmux call carries
   `-L claude-remote`; in the real-tmux test with a live default-socket server,
   assert a marker variable from the caller's environment reaches the Claude
   process.
-- [ ] Script: remove the `AGENTDEV_CLAUDE_AUTOSTART` gate and its wording in the
+  - **Evidence:** commit "Start Remote Control ungated on a dedicated tmux
+    server": `assert_dedicated_socket` and the `CLAUDE_TMUX_TEST_MARKER` check
+    in `test_claude_remote_control_start.py`; against the previous script the
+    fake-tmux and real-tmux cases fail (no `-L claude-remote`, marker absent
+    with a live default server).
+- [x] Script: remove the `AGENTDEV_CLAUDE_AUTOSTART` gate and its wording in the
   skip messages; run `has-session`, `start-server`, and `new-session` against
   `tmux -L claude-remote`.
-- [ ] `shellcheck` clean;
+  - **Evidence:** commit "Start Remote Control ungated on a dedicated tmux
+    server" (`claude-remote-control-start.sh:13,25,32,38,42`).
+- [x] `shellcheck` clean;
   `uv run pytest scripts/tests/test_claude_remote_control_start.py` green.
+  - **Evidence:** commit "Start Remote Control ungated on a dedicated tmux
+    server": `shellcheck` clean; the test file 9 passed, both real-tmux cases
+    run under tmux 3.4.
 
 ### Task 2: Remove the postStart autostart path
 
@@ -291,23 +301,23 @@ verification commands attach and list with `tmux -L claude-remote`.
 
 Verified anchor points (line numbers as of 2026-10-11):
 
-- `.devcontainer/scripts/claude-remote-control-start.sh:4` —
-  `AGENTDEV_CLAUDE_AUTOSTART` gate
-- `.devcontainer/scripts/claude-remote-control-start.sh:17,29` — skip messages
-  naming the flag
-- `.devcontainer/scripts/claude-remote-control-start.sh:34-55` — session name,
-  `has-session` reuse, `tmux_start` launch
+- `.devcontainer/scripts/claude-remote-control-start.sh:13,25` — login-gate skip
+  messages
+- `.devcontainer/scripts/claude-remote-control-start.sh:29-50` — session name,
+  `tmux -L claude-remote` `has-session` reuse, `tmux_start` launch
 - `.devcontainer/scripts/postStartCommand.sh:25` — autostart call
 - `.devcontainer/docker-compose.yml:69` — `AGENTDEV_CLAUDE_AUTOSTART`
   passthrough
 - `.devcontainer/devcontainer.json:256` — `"waitFor": "postStartCommand"`
 - `scripts/tests/test_claude_remote_control_start.py:32-66` —
   `run_with_fake_tmux`
-- `scripts/tests/test_claude_remote_control_start.py:78-91` —
+- `scripts/tests/test_claude_remote_control_start.py:78-81` —
+  `assert_dedicated_socket`
+- `scripts/tests/test_claude_remote_control_start.py:84-96` —
   `test_skips_without_live_claude_ai_login`
-- `scripts/tests/test_claude_remote_control_start.py:94-97` —
+- `scripts/tests/test_claude_remote_control_start.py:99-102` —
   `test_compose_passes_only_nonsecret_autostart_environment`
-- `scripts/tests/test_claude_remote_control_start.py:107-150` —
+- `scripts/tests/test_claude_remote_control_start.py:113-162` —
   `test_real_tmux_starts_claude_without_setup_token`
 - `scripts/tests/test_preapprove_claude_workspace.py:21` — environment ignore
   set
