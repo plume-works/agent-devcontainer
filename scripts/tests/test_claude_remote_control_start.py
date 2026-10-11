@@ -57,7 +57,6 @@ def run_with_fake_tmux(
         'TMUX_HAS_SESSION': '1' if session_exists else '0',
         'TMUX_TEST_LOG': str(log),
     }
-    env.pop('AGENTDEV_CLAUDE_AUTOSTART', None)
     try:
         result = subprocess.run([SCRIPT], env=env, text=True, capture_output=True)
         return result, log.read_text() if log.exists() else ''
@@ -96,10 +95,8 @@ def test_skips_without_live_claude_ai_login(status, status_exit):
     assert calls == ''
 
 
-def test_compose_passes_only_nonsecret_autostart_environment():
-    compose = COMPOSE.read_text()
-    assert 'AGENTDEV_CLAUDE_AUTOSTART: ${AGENTDEV_CLAUDE_AUTOSTART:-}' in compose
-    assert 'CLAUDE_CODE_OAUTH_TOKEN' not in compose
+def test_compose_does_not_pass_setup_token():
+    assert 'CLAUDE_CODE_OAUTH_TOKEN' not in COMPOSE.read_text()
 
 
 def test_reuses_existing_session():
@@ -136,7 +133,6 @@ def test_real_tmux_starts_claude_without_setup_token(existing_server):
         'DEV_WORKSPACE_FOLDER': str(REPO_ROOT),
     }
     env.pop('TMUX', None)
-    env.pop('AGENTDEV_CLAUDE_AUTOSTART', None)
     try:
         if existing_server:
             # The keeper server's environment lacks the marker the caller sets below.

@@ -15,11 +15,7 @@ def run_preapprove(
 ) -> tuple[subprocess.CompletedProcess[str], Path]:
     workspace = tmp_path / 'workspace'
     workspace.mkdir(exist_ok=True)
-    env = {
-        k: v
-        for k, v in os.environ.items()
-        if k not in {'AGENTDEV_CLAUDE_AUTOSTART', 'AGENTDEV_SKIP_CLAUDE_PREAPPROVE'}
-    } | {
+    env = {k: v for k, v in os.environ.items() if k != 'AGENTDEV_SKIP_CLAUDE_PREAPPROVE'} | {
         'AGENTDEV_SKIP_CLAUDE_PREAPPROVE': skip,
         'AGENTDEV_CLAUDE_STATE_PATH': str(tmp_path / '.claude.json'),
         'DEV_WORKSPACE_FOLDER': str(workspace),

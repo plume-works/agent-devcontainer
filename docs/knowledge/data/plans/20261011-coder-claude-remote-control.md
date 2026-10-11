@@ -109,14 +109,23 @@ Runtime behavior: implement through the Principal Engineer with TDD.
 `scripts/tests/test_claude_remote_control_start.py`,
 `scripts/tests/test_preapprove_claude_workspace.py`
 
-- [ ] Delete the `claude-remote-control-start.sh` call from
+- [x] Delete the `claude-remote-control-start.sh` call from
   `postStartCommand.sh`.
-- [ ] Delete the `AGENTDEV_CLAUDE_AUTOSTART` passthrough from
+  - **Evidence:** commit "Remove the postStart Remote Control autostart":
+    `postStartCommand.sh` no longer names the script; `shellcheck` clean.
+- [x] Delete the `AGENTDEV_CLAUDE_AUTOSTART` passthrough from
   `docker-compose.yml`.
-- [ ] Reduce `test_compose_passes_only_nonsecret_autostart_environment` to its
+  - **Evidence:** commit "Remove the postStart Remote Control autostart":
+    `docker-compose.yml` `environment:` goes from the secrets socket straight to
+    the `GIT_*` entries.
+- [x] Reduce `test_compose_passes_only_nonsecret_autostart_environment` to its
   `CLAUDE_CODE_OAUTH_TOKEN` assertion, renamed for what it then checks; drop
   `AGENTDEV_CLAUDE_AUTOSTART` from the ignore set in
   `test_preapprove_claude_workspace.py`.
+  - **Evidence:** commit "Remove the postStart Remote Control autostart":
+    `test_compose_does_not_pass_setup_token`;
+    `uv run pytest scripts/tests/test_claude_remote_control_start.py scripts/tests/test_preapprove_claude_workspace.py`
+    15 passed.
 - [ ] `grep -rn AGENTDEV_CLAUDE_AUTOSTART` outside `docs/knowledge/data/plans/`
   finds only the spec text Ship replaces.
 
@@ -305,21 +314,18 @@ Verified anchor points (line numbers as of 2026-10-11):
   messages
 - `.devcontainer/scripts/claude-remote-control-start.sh:29-50` — session name,
   `tmux -L claude-remote` `has-session` reuse, `tmux_start` launch
-- `.devcontainer/scripts/postStartCommand.sh:25` — autostart call
-- `.devcontainer/docker-compose.yml:69` — `AGENTDEV_CLAUDE_AUTOSTART`
-  passthrough
 - `.devcontainer/devcontainer.json:256` — `"waitFor": "postStartCommand"`
-- `scripts/tests/test_claude_remote_control_start.py:32-66` —
+- `scripts/tests/test_claude_remote_control_start.py:32-64` —
   `run_with_fake_tmux`
-- `scripts/tests/test_claude_remote_control_start.py:78-81` —
+- `scripts/tests/test_claude_remote_control_start.py:77-80` —
   `assert_dedicated_socket`
-- `scripts/tests/test_claude_remote_control_start.py:84-96` —
+- `scripts/tests/test_claude_remote_control_start.py:83-95` —
   `test_skips_without_live_claude_ai_login`
-- `scripts/tests/test_claude_remote_control_start.py:99-102` —
-  `test_compose_passes_only_nonsecret_autostart_environment`
-- `scripts/tests/test_claude_remote_control_start.py:113-162` —
+- `scripts/tests/test_claude_remote_control_start.py:98-99` —
+  `test_compose_does_not_pass_setup_token`
+- `scripts/tests/test_claude_remote_control_start.py:110-158` —
   `test_real_tmux_starts_claude_without_setup_token`
-- `scripts/tests/test_preapprove_claude_workspace.py:21` — environment ignore
+- `scripts/tests/test_preapprove_claude_workspace.py:18` — environment ignore
   set
 - `docs/knowledge/data/codebase/devcontainer/scripts.md:42` — scripts table row
 - `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md:46,69-71` —
