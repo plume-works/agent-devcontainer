@@ -187,19 +187,36 @@ resource "coder_script" "claude_remote_control" {
 
 ### Task 5: Verify in a live Coder workspace
 
-- [ ] After a workspace restart on the new template:
+- [x] After a workspace restart on the new template:
   `tmux -L claude-remote list-sessions` shows one `claude-remote`; the Claude
   process's environment variable names include `GITHUB_TOKEN` and `GIT_ASKPASS`
   and exclude `CLAUDE_CODE_OAUTH_TOKEN`; `gh auth status` succeeds from the
   Remote Control session; no Claude process descends from the postStart tmux
   server.
-- [ ] Record the sub-agent's name; if it differs from the folder-derived
+  - **Evidence:** live check on 2026-10-11 in a workspace built from template
+    version `lemony_ray27` (coder-ide-baseline a2b1cff) with agent-devcontainer
+    97a59ea checked out, after a workspace restart and a Dev Container recreate:
+    the sub-agent's `coder_script` log reads "Started Claude Remote Control in
+    tmux session 'claude-remote'"; `tmux -L claude-remote list-sessions` lists
+    only `claude-remote`; the `claude /remote-control` process's parent is that
+    tmux server, and its environment names include `GITHUB_TOKEN`,
+    `GIT_ASKPASS`, `CODER_AGENT_URL`, `CODER_AGENT_TOKEN` but not
+    `CLAUDE_CODE_OAUTH_TOKEN`; `gh auth status` run in a window of that server
+    exits 0 via `GITHUB_TOKEN`; no default-socket tmux server exists; the pane
+    shows `/rc active`.
+- [x] Record the sub-agent's name; if it differs from the folder-derived
   `agent-devcontainer`, anything addressing the dev container by name is
   updated.
+  - **Evidence:** on template version `lemony_ray27` the sub-agent is named
+    `repo`, after `coder_devcontainer.repo` (`coder ssh <ws>.agent-devcontainer`
+    reports `available agents: [dev repo]`). The only reference by name, the
+    coder-ide-baseline README's `coder ssh <workspace>.<repo-name>`, became
+    `<workspace>.repo` in plume-works/coder-ide-baseline#16 (349d8d6); nothing
+    in this repository addresses the sub-agent by name.
 
 ### Task 6: Retire the Coder secret
 
-- [ ] The maintainer deletes the `agentdev-claude-autostart` Coder user secret.
+- [ ] The maintainer deletes the `AGENTDEV_CLAUDE_AUTOSTART` Coder user secret.
 
 ## Spec changes
 
