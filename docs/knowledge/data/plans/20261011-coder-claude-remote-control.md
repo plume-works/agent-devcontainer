@@ -216,7 +216,10 @@ resource "coder_script" "claude_remote_control" {
 
 ### Task 6: Retire the Coder secret
 
-- [ ] The maintainer deletes the `AGENTDEV_CLAUDE_AUTOSTART` Coder user secret.
+- [x] The maintainer deletes the `AGENTDEV_CLAUDE_AUTOSTART` Coder user secret.
+  - **Evidence:** on the maintainer's direction,
+    `coder secret delete AGENTDEV_CLAUDE_AUTOSTART` on 2026-10-11;
+    `coder secret list` no longer lists it.
 
 ## Spec changes
 
