@@ -126,17 +126,26 @@ Runtime behavior: implement through the Principal Engineer with TDD.
     `test_compose_does_not_pass_setup_token`;
     `uv run pytest scripts/tests/test_claude_remote_control_start.py scripts/tests/test_preapprove_claude_workspace.py`
     15 passed.
-- [ ] `grep -rn AGENTDEV_CLAUDE_AUTOSTART` outside `docs/knowledge/data/plans/`
+- [x] `grep -rn AGENTDEV_CLAUDE_AUTOSTART` outside `docs/knowledge/data/plans/`
   finds only the spec text Ship replaces.
+  - **Evidence:** at commit "map: refresh devcontainer docs for coder_script
+    Remote Control", the grep (excluding `.git` and `.tmp`) matches only
+    `data/spec/claude-remote-control.md:36,86,101,106`.
 
 ### Task 3: Refresh the codebase map
 
 **Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`,
-`docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md`
+`docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md`,
+`docs/knowledge/data/codebase/devcontainer.md` (compose anchors shifted by Task
+2), `docs/knowledge/data/log.md`
 
 - [ ] Run `/agentdev:iwe-map` in refresh mode over the touched docs: the scripts
   table row and the lifecycle flow's Remote Control note describe a
   `coder_script` trigger and the dedicated tmux server.
+  - **Evidence:** commit "map: refresh devcontainer docs for coder_script Remote
+    Control": `devcontainer/scripts.md` row and `## How it works`,
+    `flow-devcontainer-lifecycle.md` step 4 and failure mode;
+    `stale-map-docs.py` `RESULT=SUCCESS`; `iwe schema validate` clean.
 
 ### Task 4: Template `coder_script` in coder-ide-baseline
 
@@ -328,7 +337,7 @@ Verified anchor points (line numbers as of 2026-10-11):
 - `scripts/tests/test_preapprove_claude_workspace.py:18` — environment ignore
   set
 - `docs/knowledge/data/codebase/devcontainer/scripts.md:42` — scripts table row
-- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md:46,69-71` —
+- `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md:44-50,71-75` —
   Remote Control lifecycle notes
 - `coder-ide-baseline@577b5fa:template/main.tf:8` — `coder/coder` provider
   constraint

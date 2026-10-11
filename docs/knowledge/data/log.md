@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-11
+
+- **Update**: [Codebase map](codebase.md) refreshed for Claude Remote Control
+  moving from postStart to the Coder template's `coder_script` on a dedicated
+  tmux server: three docs re-verified.
+
 ## 2026-10-09
 
 - **Update**: [Codebase map](codebase.md) refreshed for the Codex hooks-block
