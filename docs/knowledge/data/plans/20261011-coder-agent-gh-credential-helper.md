@@ -4,7 +4,7 @@ created: 2026-10-11
 description: Run setup-gh-credential-helper.sh from a repo-owned Coder agent-start script that the template coder_script calls, so a Coder workspace whose gh login is only GITHUB_TOKEN gets gh as its github.com git credential helper; post-start keeps running it too.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T20:00:00Z
+  at: 2026-10-11T21:00:00Z
 sources:
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -37,9 +37,12 @@ Add a repo-owned `.devcontainer/scripts/coder-agent-start.sh`, the single entry
 point the Coder agent runs on every start. It runs
 `setup-gh-credential-helper.sh`, then execs `claude-remote-control-start.sh`. A
 failed helper setup is reported and does not stop Remote Control from starting.
-The template's `coder_script` runs `coder-agent-start.sh`, and falls back to
-`claude-remote-control-start.sh` for repositories that do not ship it. Later
-agent-start steps then land in this repository, not the template.
+The template names the agent-start script in a workspace parameter whose default
+is `.devcontainer/scripts/coder-agent-start.sh`, relative to the repository
+root, so another repository can point it at its own script. The `coder_script`
+runs that path, and falls back to
+`.devcontainer/scripts/claude-remote-control-start.sh` for checkouts that do not
+ship it. Later agent-start steps then land in this repository, not the template.
 
 Post-start keeps running `setup-gh-credential-helper.sh` (maintainer decision).
 That still covers containers where `gh` has a stored login: local Dev Containers
@@ -51,8 +54,7 @@ Rejected:
 - Calling the helper setup from `claude-remote-control-start.sh`. That ties git
   credentials to the Remote Control script and to its claude.ai login gate.
 - A second template `coder_script` that runs the helper directly. That splits
-  agent-start logic across two repositories, and Coder does not order two
-  scripts against each other.
+  agent-start logic across two repositories.
 
 ## Implementation Steps
 
@@ -86,15 +88,19 @@ any other `data/codebase/` doc that `stale-map-docs.py` reports
 
 **Files:** Modify (in `plume-works/coder-ide-baseline`): `template/main.tf`
 
-- [ ] After Tasks 1–2 merge: `coder_script.claude_remote_control` becomes
+- [ ] After Tasks 1–2 merge, add `data.coder_parameter.agent_start_script`,
+  shaped like `data.coder_parameter.second_repo`: `type = "string"`,
+  `mutable = true`, `default = ".devcontainer/scripts/coder-agent-start.sh"`,
+  and a description saying that the path is relative to the repository root and
+  that an empty value runs nothing. `coder_script.claude_remote_control` becomes
   `coder_script.agent_start` with `display_name = "Dev Container agent start"`.
-  Its script runs
-  `/workspaces/${local.repo_dir}/.devcontainer/scripts/coder-agent-start.sh`
-  when it is executable, else falls back to `claude-remote-control-start.sh`,
-  else prints that the repository ships neither. Update the comment above the
-  resource, which currently says Remote Control inherits the agent's git
-  credential helper. `terraform validate` passes and the template version is
-  pushed.
+  Its script runs `/workspaces/${local.repo_dir}/<parameter value>` when the
+  value is non-empty and the file is executable. Otherwise it falls back to
+  `.devcontainer/scripts/claude-remote-control-start.sh` when that is
+  executable, and otherwise prints that the repository ships no agent-start
+  script. Update the comment above the resource, which says Remote Control
+  inherits the agent's git credential helper. `terraform validate` passes and
+  the template version is pushed.
 
 ### Task 4: Verify in a live Coder workspace
 
@@ -183,5 +189,7 @@ Verified anchor points (line numbers as of 2026-10-11):
   `test_post_start_runs_setup_after_keyring`
 - `docs/knowledge/data/codebase/devcontainer/scripts.md:99` — the keyring
   ordering note for the helper script
+- `plume-works/coder-ide-baseline` `template/main.tf:95` (at `349d8d6`) —
+  `data.coder_parameter.second_repo`, the parameter shape to copy
 - `plume-works/coder-ide-baseline` `template/main.tf:201` (at `349d8d6`) —
   `coder_script.claude_remote_control`, the resource Task 3 replaces
