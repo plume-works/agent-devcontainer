@@ -3,7 +3,7 @@ type: bug
 description: In a Coder workspace whose only gh login is a session GITHUB_TOKEN, post-start installs no git credential helper, so HTTPS git push falls through to Coder's GIT_ASKPASS and hangs.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-10T17:30:00Z
+  at: 2026-10-11T20:30:00Z
 sources:
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -48,9 +48,12 @@ authenticated at that moment. When the only login is a `GITHUB_TOKEN` that the
 post-start environment lacks, the auth check fails, the script skips, and no
 helper is written. Git then has no github.com helper and falls back to
 `GIT_ASKPASS`. Coder sets that to its agent binary, which does not return when
-it has no GitHub credential to give. Whether post-start actually lacked
-`GITHUB_TOKEN` is inferred from the missing helper and step 3, not observed
-directly.
+it has no GitHub credential to give. Post-start runs inside `devcontainer up`,
+before the Coder agent is injected into the Dev Container, so it never has the
+agent's environment. A session started by the template's `coder_script` on the
+Dev Container's sub-agent has `GITHUB_TOKEN` set, yet
+`git config --get-urlmatch credential.helper https://github.com` finds no
+helper: the token exists only after post-start has already skipped.
 
 ## Fix
 
