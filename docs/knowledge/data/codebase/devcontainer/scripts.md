@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, Codex auth symlink, Claude pre-approval, gh credential helper, Claude Remote Control, Codex policy.'
 source: .devcontainer/scripts
-source_digest: sha256:fd5e553f353d8e2b9f5d57e31e3b6c032d3a575a13e75dc2cd3b64a931baf581
+source_digest: sha256:9efbfc04033e2e88477b42062f4de6e92b8a9afbb96cee6cae73203e46092e2a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-10T01:20:00Z
-stale_after: 2027-01-07
+  at: 2026-10-11T12:00:00Z
+stale_after: 2027-01-09
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-10T01:20:00Z
+  at: 2026-10-11T12:00:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -25,26 +25,26 @@ outside the devcontainer.
 
 ## Public surface
 
-| Script                                               | Called by             | Does                                                                                                                                             |
-| ---------------------------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `postCreateCommand.sh`                               | create (once)         | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, Claude pre-approval, Codex auth link, uv sync, staged-catalog install         |
-| `postStartCommand.sh`                                | every start           | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Remote Control, Codex auth link and policy    |
-| `postAttachCommand.sh`                               | every editor attach   | CBM index, uv sync, reinstall the catalog from this checkout                                                                                     |
-| `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach        | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                                          |
-| `reinstall-agentdev-codex.sh [root]`                 | create, attach        | the Codex equivalent, single-plugin; Codex has no scopes                                                                                         |
-| `reinstall-agentdev-opencode.sh [root]`              | create, attach        | point the `plugin` list of the user's `opencode.json` at `root`'s OpenCode bridge, replacing any earlier bridge entry                            |
-| `codebase-memory-mcp-{install,start,index}.sh`       | create, start, attach | agent-config wiring, daemon start, repository index                                                                                              |
-| `repair-codex-cbm-hooks-block.py`                    | CBM install           | move tables other than cbm's own hooks out of its `SessionStart` block in `${CODEX_HOME:-~/.codex}/config.toml`; no-op when nothing needs moving |
-| `uv-sync.sh`                                         | create, attach        | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                                                                      |
-| `link-codex-auth.sh`                                 | create, start         | symlink `~/.codex/auth.json` into the shared auth volume                                                                                         |
-| `configure-codex.py`                                 | start (last)          | set top-level `sandbox_mode` and `approval_policy` in `${CODEX_HOME:-~/.codex}/config.toml`, atomically at `0600`                                |
-| `preapprove-claude-workspace.sh`                     | create                | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                             |
-| `claude-remote-control-start.sh`                     | start, by hand        | with `AGENTDEV_CLAUDE_AUTOSTART=1` and a claude.ai login, run `claude /remote-control` in tmux `claude-remote`                                   |
-| `setup-gh-credential-helper.sh`                      | start                 | `gh auth setup-git` when gh is logged in and no github.com helper exists                                                                         |
-| `setup-keyring.sh`                                   | start                 | dbus + gnome-keyring session, persisted to `.tmp/keyring-session.env`                                                                            |
-| `firewall.sh`                                        | start                 | run `init-firewall.sh` only when `ENABLE_FIREWALL=true`                                                                                          |
-| `setup-git-safe-directory.sh`, `setup-pre-commit.sh` | start                 | `safe.directory`; hook install unless `AGENTDEV_SKIP_PRE_COMMIT`                                                                                 |
-| `ci-hooks-repro.sh`                                  | by hand               | run the hooks inside a bare `container:` job image to reproduce CI                                                                               |
+| Script                                               | Called by                     | Does                                                                                                                                             |
+| ---------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `postCreateCommand.sh`                               | create (once)                 | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, Claude pre-approval, Codex auth link, uv sync, staged-catalog install         |
+| `postStartCommand.sh`                                | every start                   | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Codex auth link and policy                    |
+| `postAttachCommand.sh`                               | every editor attach           | CBM index, uv sync, reinstall the catalog from this checkout                                                                                     |
+| `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach                | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                                          |
+| `reinstall-agentdev-codex.sh [root]`                 | create, attach                | the Codex equivalent, single-plugin; Codex has no scopes                                                                                         |
+| `reinstall-agentdev-opencode.sh [root]`              | create, attach                | point the `plugin` list of the user's `opencode.json` at `root`'s OpenCode bridge, replacing any earlier bridge entry                            |
+| `codebase-memory-mcp-{install,start,index}.sh`       | create, start, attach         | agent-config wiring, daemon start, repository index                                                                                              |
+| `repair-codex-cbm-hooks-block.py`                    | CBM install                   | move tables other than cbm's own hooks out of its `SessionStart` block in `${CODEX_HOME:-~/.codex}/config.toml`; no-op when nothing needs moving |
+| `uv-sync.sh`                                         | create, attach                | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                                                                      |
+| `link-codex-auth.sh`                                 | create, start                 | symlink `~/.codex/auth.json` into the shared auth volume                                                                                         |
+| `configure-codex.py`                                 | start (last)                  | set top-level `sandbox_mode` and `approval_policy` in `${CODEX_HOME:-~/.codex}/config.toml`, atomically at `0600`                                |
+| `preapprove-claude-workspace.sh`                     | create                        | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                             |
+| `claude-remote-control-start.sh`                     | Coder `coder_script`, by hand | with a claude.ai login, run `claude /remote-control` in session `claude-remote` on the dedicated `tmux -L claude-remote` server                  |
+| `setup-gh-credential-helper.sh`                      | start                         | `gh auth setup-git` when gh is logged in and no github.com helper exists                                                                         |
+| `setup-keyring.sh`                                   | start                         | dbus + gnome-keyring session, persisted to `.tmp/keyring-session.env`                                                                            |
+| `firewall.sh`                                        | start                         | run `init-firewall.sh` only when `ENABLE_FIREWALL=true`                                                                                          |
+| `setup-git-safe-directory.sh`, `setup-pre-commit.sh` | start                         | `safe.directory`; hook install unless `AGENTDEV_SKIP_PRE_COMMIT`                                                                                 |
+| `ci-hooks-repro.sh`                                  | by hand                       | run the hooks inside a bare `container:` job image to reproduce CI                                                                               |
 
 ## How it works
 
@@ -69,7 +69,10 @@ symlink because the installer rewrites the file, and first repairs Codex's
 Agent credentials come only from a login inside a container, kept in the shared
 auth volume. `claude-remote-control-start.sh` asks `claude auth status --json`
 and starts Remote Control only when it reports `loggedIn` with the `claude.ai`
-auth method.
+auth method. No lifecycle hook runs it; the Coder workspace template's
+`coder_script` on the dev container's sub-agent does, outside this repository.
+It runs the session on its own tmux server, so the Claude process inherits the
+caller's environment even when a default-socket server is already live.
 
 ## Depends on
 
@@ -101,14 +104,14 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-10):
+Verified anchor points (line numbers as of 2026-10-11):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56-62` — `~/.claude.json` symlink
   into the volume
 - `.devcontainer/scripts/postCreateCommand.sh:67-68` — non-fatal CBM install
 - `.devcontainer/scripts/postCreateCommand.sh:74` — Claude pre-approval
 - `.devcontainer/scripts/postCreateCommand.sh:92-98` — staged-catalog install
-- `.devcontainer/scripts/postStartCommand.sh:9-32` — the start sequence
+- `.devcontainer/scripts/postStartCommand.sh:9-30` — the start sequence
 - `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:64-65` — add + install
@@ -123,8 +126,8 @@ Verified anchor points (line numbers as of 2026-10-10):
 - `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:47` — `repair`
 - `.devcontainer/scripts/uv-sync.sh:23-32` — managed-link removal and sync
 - `.devcontainer/scripts/preapprove-claude-workspace.sh:6` — opt-out gate
-- `.devcontainer/scripts/claude-remote-control-start.sh:16-32,44` — login gate,
-  token-free launch
+- `.devcontainer/scripts/claude-remote-control-start.sh:12-27,38-39` — login
+  gate, token-free launch on `tmux -L claude-remote`
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:8,30` — keyring session
   load, `gh auth setup-git`
 - `.devcontainer/scripts/configure-codex.py:29,46` — `render_config`,

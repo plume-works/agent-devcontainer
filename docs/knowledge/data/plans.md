@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Start Claude Remote Control from the Coder
+agent](plans/20261011-coder-claude-remote-control.md)
+
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
