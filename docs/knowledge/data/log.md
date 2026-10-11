@@ -4,6 +4,11 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-11
+
+- **Update**: [Codebase map](codebase.md) re-verified for the `CBM_CACHE_DIR`
+  guard fix in the codebase-memory-mcp scripts: three devcontainer docs.
+
 ## 2026-10-10
 
 - **Bug**: [gh-stack extension install needs a token the image build
