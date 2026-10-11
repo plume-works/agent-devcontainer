@@ -20,13 +20,13 @@ moves them.*
 [Start Claude Remote Control from the Coder
 agent](plans/20261011-coder-claude-remote-control.md)
 
-[Agent-owned Ship and Implement
-workflows](plans/20261007-agent-owned-ship-implement.md)
-
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Agent-owned Ship and Implement
+workflows](plans/20261007-agent-owned-ship-implement.md)
 
 [Remove Coder agent auth seeding; keep Claude Remote Control
 autostart](plans/20261009-remove-coder-agent-auth-seeding.md)

@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:f1943f34f840a6cd17ae70bd27307f8bf99ac44060d84f1700f47d1cb35901c2
+source_digest: sha256:ffb935e4924f638e456c8457bd792d7b45383f67bfdf803b9fcef6b2d65bbc93
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T18:00:00Z
-stale_after: 2027-01-07
+  at: 2026-10-10T08:30:00Z
+stale_after: 2027-01-08
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T18:00:00Z
+  at: 2026-10-10T08:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -17,7 +17,7 @@ sources:
 
 # Plugin tests
 
-13 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
+16 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
 with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`. `opencode/bridge.test.ts` is a separate `bun test`
 suite for the [OpenCode bridge](opencode-plugin.md), run with
@@ -32,13 +32,12 @@ suite for the [OpenCode bridge](opencode-plugin.md), run with
 - `git_fixtures.py` — `FIXTURE_ENV`, `git()`, `outcome()`, and `stub_gh()`,
   shared by the git-skill modules and the push-branch module
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
-  `test_discover_ai_responder.py`, `test_fetch_issue.py`,
-  `test_gh_stack_vendored_version.py`, `test_git_commit.py`,
-  `test_install_codex_agents.py`, `test_git_new_branch.py`,
-  `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
-  `test_result_codes.py`, `test_stale_map_docs.py`,
-  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
-  `test_update_branch.py`
+  `test_discover_ai_responder.py`, `test_explicit_only_parity.py`,
+  `test_fetch_issue.py`, `test_git_commit.py`, `test_install_codex_agents.py`,
+  `test_git_new_branch.py`, `test_push_branch_map_check.py`,
+  `test_remote_codespace_session.py`, `test_result_codes.py`,
+  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
+  `test_template_consume_check_updates.py`, `test_update_branch.py`
 
 ## How it works
 
@@ -78,28 +77,26 @@ still checked and a stale one pushed outside the helper stops at `MAP_STALE`, an
 uncommitted edit does not change the verdict, and the temporary check worktree
 is removed.
 
-`test_gh_stack_vendored_version.py` compares the vendored `gh-stack` skill's
-`metadata.version` with `github_cli_gh_stack_version` in the image's
-`github_cli` role defaults, and skips where those defaults are absent.
+`test_explicit_only_parity.py` requires every skill that sets
+`disable-model-invocation: true` to carry an `agents/openai.yaml` with
+`allow_implicit_invocation: false`, and the reverse, and pins the mismatch check
+on fake skills in each direction.
 
 ## Depends on
 
-`pytest`, `git`, `bash`, PyYAML, and `bun` for the OpenCode suite. Only
-`test_gh_stack_vendored_version.py` reads outside the plugin: the `github_cli`
-role defaults in [Ansible](../../../ansible.md).
+`pytest`, `git`, `bash`, PyYAML, and `bun` for the OpenCode suite.
 
 ## Invariants & gotchas
 
 - A path that climbs out of the plugin resolves nowhere once installed, so a
   script is reached only as
-  `plugin_root / 'skills/<name>/agent-code/<script>.sh'`; the one test that
-  reads a repository file skips when it is absent.
+  `plugin_root / 'skills/<name>/agent-code/<script>.sh'`.
 - Fixtures use invented identities, never this repository's published names.
 - Tests for the validator package live with that package, not here.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
+Verified anchor points (line numbers as of 2026-10-10):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -121,5 +118,7 @@ Verified anchor points (line numbers as of 2026-10-08):
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
   an absent marker section is `NO_MARKER`
+- `.agents/plugins/agentdev/tests/test_explicit_only_parity.py:33` —
+  `parity_mismatches`
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:38` — `configured`,
   the hook driver every config case shares

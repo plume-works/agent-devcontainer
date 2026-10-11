@@ -10,6 +10,26 @@ to the current day's group.
   moving from postStart to the Coder template's `coder_script` on a dedicated
   tmux server: three docs re-verified.
 
+## 2026-10-10
+
+- **Bug**: [gh-stack extension install needs a token the image build
+  lacks](bugs/gh-stack-install-needs-token.md) fixed; the `github_cli` role now
+  installs the checksummed release binary, and [Codebase map](codebase.md)
+  refreshed: four docs re-verified.
+- **Update**: [Agent-owned Ship and Implement
+  workflows](plans/20261007-agent-owned-ship-implement.md) done. Ship and
+  Implement now run as the `iwe-shipper` and `iwe-implementer` catalog agents,
+  started only by their explicit-only entry skills, coordinators, or Plan revise
+  answering a Ship blocker; see [IWE workflow
+  skills](spec/iwe-workflow-skills.md).
+- **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) spec gains the
+  explicit-only Ship and Implement dispatch requirement.
+- **Update**: [Codebase map](codebase.md) refreshed for the `iwe-shipper` and
+  `iwe-implementer` agents and the Codex explicit-only gates: three agentdev
+  docs re-verified.
+- **Update**: [Codebase map](codebase.md) re-verified for the Ship blocker
+  routing: two agentdev docs.
+
 ## 2026-10-09
 
 - **Update**: [Codebase map](codebase.md) refreshed for the Codex hooks-block
