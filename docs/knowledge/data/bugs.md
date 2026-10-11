@@ -67,3 +67,6 @@ token](bugs/coder-askpass-push-hang.md)
 
 [Bug: Ship's release-link rule is undefined for a plan with no feature or
 bug](bugs/ship-release-link-without-feature.md)
+
+[Bug: gh-stack extension install needs a token the image build
+lacks](bugs/gh-stack-install-needs-token.md)

@@ -116,6 +116,12 @@ PIN_FILES: dict[str, ToolListPins | VariablePin] = {
         checksums_var='agentic_tools_cc_filter_checksums',
         arch_var='system_arch',
     ),
+    'ansible/roles/github_cli/defaults/main.yml': VariablePin(
+        version_var='github_cli_gh_stack_version',
+        url_var='github_cli_gh_stack_download_url',
+        checksums_var='github_cli_gh_stack_checksums',
+        arch_var='system_arch',
+    ),
     'ansible/roles/xpra_setup/defaults/main.yml': VariablePin(
         version_var='xpra_setup_virtualgl_version',
         url_var='xpra_setup_virtualgl_download_url',
