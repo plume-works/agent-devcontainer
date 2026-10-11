@@ -178,7 +178,12 @@ resource "coder_script" "claude_remote_control" {
     `kreuzwerker/docker` `~> 4.6`, `code-server` `~> 1.6`; `terraform init` with
     Terraform 1.16.5 resolves 2.19.0, 4.6.0, and 1.6.0, and 2.19.0 documents
     `coder_devcontainer.subagent_id`.
-- [ ] Add the resource; `terraform validate` passes and the template pushes.
+- [x] Add the resource; `terraform validate` passes and the template pushes.
+  - **Evidence:** plume-works/coder-ide-baseline#15 merged as a2b1cff after
+    plume-works/agent-devcontainer#311 (9da499d); `terraform validate` passes
+    with Terraform 1.16.5; `coder templates push coder-ide-baseline` from
+    a2b1cff produced the active version `lemony_ray27`, and a workspace built on
+    it creates `coder_script.claude_remote_control[0]`.
 
 ### Task 5: Verify in a live Coder workspace
 
