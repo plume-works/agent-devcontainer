@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Persist the Coder workspace containerd image
+store](plans/20261011-persist-coder-workspace-containerd.md)
+
 [Start Claude Remote Control from the Coder
 agent](plans/20261011-coder-claude-remote-control.md)
 
