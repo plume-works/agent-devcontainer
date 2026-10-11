@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Start Claude Remote Control from the Coder
+agent](plans/20261011-coder-claude-remote-control.md)
+
 [Agent-owned Ship and Implement
 workflows](plans/20261007-agent-owned-ship-implement.md)
 
