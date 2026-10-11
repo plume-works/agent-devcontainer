@@ -4,10 +4,10 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:21ab79a28b34b2093e7b31d71fff482bbf29b1a5da7d100261995b80df4ddf23
+source_digest: sha256:c80745b14f2a3e706c446757fa0a685346e729589f9d94e70e6338523f761f46
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-11T12:00:00Z
+  at: 2026-10-11T09:52:18Z
 stale_after: 2027-01-09
 generated:
   by: claude-code/opus-5.5
