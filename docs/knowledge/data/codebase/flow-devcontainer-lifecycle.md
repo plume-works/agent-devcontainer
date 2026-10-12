@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:85942526df94a16355226dcf6c694598996a7f3324e66e1b540d17813ecc6f97
+source_digest: sha256:1fef4e6ba03ed63cbef241d4f29ce17222e1331e28116a5faed6ecea58fafdee
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-12T10:55:21Z
+  at: 2026-10-12T17:32:18Z
 stale_after: 2027-01-09
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T14:00:00Z
+  at: 2026-10-12T17:32:18Z
 sources:
 - id: code
   resource: .devcontainer
@@ -44,10 +44,13 @@ state.
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
    Xpra in the background, the Codex auth link, then Codex's full-access policy
-   in `config.toml` — `.devcontainer/scripts/postStartCommand.sh:9-30`. Claude
+   in `config.toml` — `.devcontainer/scripts/postStartCommand.sh:9-30`. The gh
+   helper setup there sees only a login stored on disk or in the keyring. Claude
    Remote Control is not part of it: in Coder, the template's `coder_script` on
-   the dev container's sub-agent runs `claude-remote-control-start.sh` after the
-   agent starts
+   the dev container's sub-agent runs `coder-agent-start.sh` after the agent
+   starts, which repeats the gh helper setup with the agent's environment, then
+   execs `claude-remote-control-start.sh` —
+   `.devcontainer/scripts/coder-agent-start.sh:9-13`
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
    catalog reinstalled from this checkout at local scope, with OpenCode's bridge
    entry repointed at it, which is how the catalog is developed in place —

@@ -70,3 +70,6 @@ bug](bugs/ship-release-link-without-feature.md)
 
 [Bug: gh-stack extension install needs a token the image build
 lacks](bugs/gh-stack-install-needs-token.md)
+
+[Bug: Coder workspace Dev Container is lost on
+restart](bugs/coder-devcontainer-lost-on-restart.md)

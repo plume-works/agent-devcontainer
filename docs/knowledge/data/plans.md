@@ -17,6 +17,12 @@ moves them.*
 
 ## Active
 
+[Configure the gh credential helper from the Coder
+agent](plans/20261011-coder-agent-gh-credential-helper.md)
+
+[Persist the Coder workspace containerd image
+store](plans/20261011-persist-coder-workspace-containerd.md)
+
 [Start Claude Remote Control from the Coder
 agent](plans/20261011-coder-claude-remote-control.md)
 
