@@ -41,6 +41,9 @@ catalog](../features/self-improve-plugin-in-catalog.md)
 
 ## Fixed
 
+[HTTPS git push hangs on Coder's askpass when gh's login is only a session
+token](../bugs/coder-askpass-push-hang.md)
+
 [Codex never loads the agentdev catalog
 agents](../bugs/codex-catalog-agents-not-loaded.md)
 

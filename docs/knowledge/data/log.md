@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-12
+
+- **Update**: [Configure the gh credential helper from the Coder
+  agent](plans/20261011-coder-agent-gh-credential-helper.md) done; [Devcontainer
+  Git credentials](spec/devcontainer-git-credentials.md) gains the Coder agent
+  start as a second helper trigger.
+- **Bug**: [HTTPS git push hangs on Coder's askpass when gh's login is only a
+  session token](bugs/coder-askpass-push-hang.md) fixed.
+
 ## 2026-10-11
 
 - **Update**: [Codebase map](codebase.md) refreshed for `coder-agent-start.sh`,

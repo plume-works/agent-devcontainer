@@ -11,6 +11,8 @@ sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: scripts/tests/test_setup_gh_credential_helper.py
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/349d8d6/template/main.tf
+stage: done
+completed: 2026-10-12
 ---
 
 # Configure the gh credential helper from the Coder agent

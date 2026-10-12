@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Configure the gh credential helper from the Coder
-agent](plans/20261011-coder-agent-gh-credential-helper.md)
-
 [Persist the Coder workspace containerd image
 store](plans/20261011-persist-coder-workspace-containerd.md)
 
@@ -30,6 +27,9 @@ agent](plans/20261011-coder-claude-remote-control.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Configure the gh credential helper from the Coder
+agent](plans/20261011-coder-agent-gh-credential-helper.md)
 
 [Agent-owned Ship and Implement
 workflows](plans/20261007-agent-owned-ship-implement.md)
