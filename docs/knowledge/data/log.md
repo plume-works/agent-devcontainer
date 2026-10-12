@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-12
 
+- **Update**: [Persist the Coder workspace containerd image
+  store](plans/20261011-persist-coder-workspace-containerd.md) done; the
+  coder-ide-baseline template persists `/var/lib/containerd` and its overlayfs
+  snapshotter directory in per-workspace volumes.
+- **Bug**: [Coder workspace Dev Container is lost on
+  restart](bugs/coder-devcontainer-lost-on-restart.md) fixed.
 - **Update**: [Start Claude Remote Control from the Coder
   agent](plans/20261011-coder-claude-remote-control.md) done; [Claude Remote
   Control](spec/claude-remote-control.md) now starts from the Coder template's

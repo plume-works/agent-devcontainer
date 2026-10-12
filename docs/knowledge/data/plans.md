@@ -17,13 +17,13 @@ moves them.*
 
 ## Active
 
-[Persist the Coder workspace containerd image
-store](plans/20261011-persist-coder-workspace-containerd.md)
-
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Persist the Coder workspace containerd image
+store](plans/20261011-persist-coder-workspace-containerd.md)
 
 [Start Claude Remote Control from the Coder
 agent](plans/20261011-coder-claude-remote-control.md)

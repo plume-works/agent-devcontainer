@@ -55,3 +55,6 @@ index](../bugs/fixture-git-inherits-commit-index.md)
 
 [The review orchestrator ends its turn while its passes are still
 running](../bugs/review-orchestrator-ends-turn-while-passes-run.md)
+
+[Coder workspace Dev Container is lost on
+restart](../bugs/coder-devcontainer-lost-on-restart.md)

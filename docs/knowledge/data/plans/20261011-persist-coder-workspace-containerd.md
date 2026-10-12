@@ -1,6 +1,8 @@
 ---
 type: plan
+stage: done
 created: 2026-10-11
+completed: 2026-10-12
 description: Mount a persistent volume at /var/lib/containerd in the coder-ide-baseline workspace container so the nested Docker's containerd image store survives a workspace restart alongside /var/lib/docker.
 generated:
   by: claude-code/opus-5.5
