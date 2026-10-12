@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-12
+
+- **Idea**: [Resume the Remote Control conversation across
+  restarts](someday/claude-remote-control-resume.md) filed with measured resume
+  behavior; the downtime limit and lost-session detection stay open.
+
 ## 2026-10-11
 
 - **Update**: [Codebase map](codebase.md) refreshed for the Remote Control
