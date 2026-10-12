@@ -233,9 +233,10 @@ the flag is restated.
 
 ### Requirement: Remote Control autostarts only on a live claude.ai login
 
-`claude-remote-control-start.sh` SHALL start `claude /remote-control` in exactly
-one detached tmux session named `claude-remote`, on the dedicated tmux server
-`tmux -L claude-remote`, only when `claude auth status --json` reports
+`claude-remote-control-start.sh` SHALL start `claude --remote-control` in
+exactly one detached tmux session named `claude-remote`, on the dedicated tmux
+server `tmux -L claude-remote`, naming the Remote Control session after
+`CODER_WORKSPACE_NAME` when it is set, only when `claude auth status --json` reports
 `loggedIn: true` with `authMethod: "claude.ai"`. The Coder template's
 `coder_script` on the dev container's sub-agent runs it on every agent start;
 no devcontainer lifecycle hook runs it. Repeated or concurrent runs SHALL reuse
@@ -266,6 +267,12 @@ or `tmux` is unavailable. The Claude process SHALL NOT receive
 - **WHEN** an operator completes `/login` and runs the script from a Coder
   terminal
 - **THEN** `claude-remote` starts without a workspace restart.
+
+#### Scenario: the session starts in a Coder workspace
+
+- **WHEN** the script starts `claude-remote` with `CODER_WORKSPACE_NAME` set
+- **THEN** claude.ai/code lists the Remote Control session under that
+  workspace name.
 
 ### Requirement: every container pre-approves first-run Claude state
 
