@@ -184,6 +184,25 @@ had been built and the workspace restarted with `coder restart`:
 - `coder show` reports the `dev` agent and the `repo` sub-agent connected and
   healthy.
 
+### Existing-workspace reset (Task 4, partial)
+
+On active version `condemned_miles04` (2026-10-12):
+
+- `agent-dev1`, `agent-dev2` and `agent-dev3` failed their first start on the
+  new version as expected: the Dev Container's image was missing, and its stale
+  container had exited. On `agent-dev1`, `findmnt` showed both new volumes
+  mounted, with no Sysbox source.
+- On each of the three, the stale Dev Container container was removed, then
+  `docker builder prune -af` ran, then `coder restart`. The Dev Container
+  rebuilt, and the `repo` sub-agent came back healthy. `coder list` shows all
+  three on `condemned_miles04`, healthy and not outdated.
+- `tmux -L claude-remote ls` lists the `claude-remote` session on `agent-dev2`
+  and `agent-dev3`. `agent-dev1` is not logged in to claude.ai, so the check
+  does not apply there.
+- At the maintainer's direction, `agent-dev4` and `dr-qp-1` have not been reset
+  yet. Task 4 covers every pre-existing workspace, so it stays open until those
+  two are reset or the plan's scope is revised.
+
 ## Out of scope
 
 - Turning off the containerd image store (the rejected alternative).
