@@ -4,7 +4,7 @@ created: 2026-10-11
 description: Mount a persistent volume at /var/lib/containerd in the coder-ide-baseline workspace container so the nested Docker's containerd image store survives a workspace restart alongside /var/lib/docker.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T19:00:00Z
+  at: 2026-10-12T10:15:50Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/349d8d6/template/main.tf
 - resource: https://docs.docker.com/engine/storage/containerd/
@@ -188,20 +188,22 @@ had been built and the workspace restarted with `coder restart`:
 
 On active version `condemned_miles04` (2026-10-12):
 
-- `agent-dev1`, `agent-dev2` and `agent-dev3` failed their first start on the
-  new version as expected: the Dev Container's image was missing, and its stale
-  container had exited. On `agent-dev1`, `findmnt` showed both new volumes
-  mounted, with no Sysbox source.
-- On each of the three, the stale Dev Container container was removed, then
+- `agent-dev1`, `agent-dev2`, `agent-dev3` and `agent-dev4` failed their first
+  start on the new version as expected: the Dev Container's image was missing,
+  and its stale container had exited. On `agent-dev1` and `agent-dev4`,
+  `findmnt` showed the new volumes mounted, with no Sysbox source.
+- On each of the four, the stale Dev Container container was removed, then
   `docker builder prune -af` ran, then `coder restart`. The Dev Container
   rebuilt, and the `repo` sub-agent came back healthy. `coder list` shows all
-  three on `condemned_miles04`, healthy and not outdated.
-- `tmux -L claude-remote ls` lists the `claude-remote` session on `agent-dev2`
-  and `agent-dev3`. `agent-dev1` is not logged in to claude.ai, so the check
-  does not apply there.
-- At the maintainer's direction, `agent-dev4` and `dr-qp-1` have not been reset
-  yet. Task 4 covers every pre-existing workspace, so it stays open until those
-  two are reset or the plan's scope is revised.
+  four on `condemned_miles04`, healthy and not outdated.
+- `tmux -L claude-remote ls` lists the `claude-remote` session on `agent-dev2`,
+  `agent-dev3` and `agent-dev4`. `agent-dev1` is not logged in to claude.ai, so
+  the check does not apply there.
+- `dr-qp-1` has not been reset yet. It waits on its repository, Dr-QP/Dr.QP,
+  taking the current agent-devcontainer template
+  ([Dr-QP/Dr.QP#550](https://github.com/Dr-QP/Dr.QP/pull/550)). Task 4 covers
+  every pre-existing workspace, so it stays open until `dr-qp-1` is reset or the
+  plan's scope is revised.
 
 ## Out of scope
 
