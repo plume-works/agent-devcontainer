@@ -104,19 +104,25 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/update-branch/SKILL.md`
 
-- [ ] The frontmatter `description` becomes:
+- [x] The frontmatter `description` becomes:
 
   ``` text
   'Update the current Git feature branch: fetch, bring in the commits its own upstream gained on the remote, then merge the remote base branch. Use when asked to sync a feature branch, bring a branch up to date with `origin/main`, refresh a stale PR branch, or unblock CI after base-branch drift. Keywords: update branch, pull branch, sync with origin/main, fetch and merge main, refresh feature branch.'
   ```
 
-- [ ] `## Safety Rules` gains rule 5:
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill"; SKILL.md frontmatter carries the text verbatim.
+
+- [x] `## Safety Rules` gains rule 5:
 
   ``` markdown
   5. NEVER rebase or reset to bring in the upstream; diverged history is merged.
   ```
 
-- [ ] The `## Bundled Script` bullet list is replaced by the following, and the
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill"; rule 5 present in SKILL.md `## Safety Rules`.
+
+- [x] The `## Bundled Script` bullet list is replaced by the following, and the
   rest of the section (options, `RESULT=` line) stays:
 
   ``` markdown
@@ -143,7 +149,11 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
   recreates the remote branch.
   ```
 
-- [ ] In the `## Workflow 2: Handle the Result` table, these three rows replace
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill"; bullets, `UPSTREAM_ACTION` table, and `gone` note present in
+    SKILL.md `## Bundled Script`.
+
+- [x] In the `## Workflow 2: Handle the Result` table, these three rows replace
   their current versions; the other rows stay:
 
   ``` markdown
@@ -152,7 +162,11 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
   | `MERGE_CONFLICTS`    | `4`  | A merge stopped on conflicts; `SOURCE` names the ref being merged     | Invoke and complete the [git-merge-resolve](../git-merge-resolve/SKILL.md) conflict-resolution and completion workflows, then rerun Workflow 1.                |
   ```
 
-- [ ] A subsection follows the table:
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill"; the `SUCCESS`, `ALREADY_UP_TO_DATE`, and `MERGE_CONFLICTS` rows
+    replaced, other rows unchanged.
+
+- [x] A subsection follows the table:
 
   ``` markdown
   ### Rerun After a Conflict
@@ -165,7 +179,10 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
   commit on the branch — continue to Workflow 3.
   ```
 
-- [ ] `## Completion Criteria` replaces its first bullet with:
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill"; `### Rerun After a Conflict` precedes `## Workflow 3` in SKILL.md.
+
+- [x] `## Completion Criteria` replaces its first bullet with:
 
   ``` markdown
   - The configured remote, and the upstream's remote when it differs, were fetched
@@ -173,14 +190,25 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
     the base
   ```
 
-- [ ] `## Troubleshooting` gains the row:
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill"; both bullets replace the former first bullet.
+
+- [x] `## Troubleshooting` gains the row:
 
   ``` markdown
   | Upstream reported `gone`  | Remote branch deleted, often after its PR merged | Confirm the PR is still open before Workflow 3 recreates the branch |
   ```
 
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill"; the `gone` row ends the `## Troubleshooting` table.
+
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   reports no errors
+
+  - **Evidence:** commit "docs(update-branch): describe the upstream sync in the
+    skill";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    62/62 skills valid, 0 errors, 0 warnings.
 
 ## Spec changes
 
