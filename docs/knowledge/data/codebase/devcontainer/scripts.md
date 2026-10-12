@@ -2,10 +2,10 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, Codex auth symlink, Claude pre-approval, gh credential helper, Claude Remote Control, Codex policy.'
 source: .devcontainer/scripts
-source_digest: sha256:bf49361caa75885a7927ce5752ea957d48bd2405307da67373ce07638ed70f99
+source_digest: sha256:8222def6779c89750a592d48d7235cf0ffcc7c34cb5038766e93abdee1e9a124
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-11T14:00:00Z
+  at: 2026-10-12T10:55:21Z
 stale_after: 2027-01-09
 generated:
   by: claude-code/opus-5.5
