@@ -90,9 +90,8 @@ chose to stay on Docker's default store.
     `coder-ide-baseline` (pushed as a draft, not active) carries the change. It
     adds `containerd_lib` and `containerd_snapshots`, mounted at
     `/var/lib/containerd` and at the overlayfs snapshotter directory. The same
-    change is on local branch `persist-containerd-volume` (`7ad1788`, not yet
-    pushed). `terraform fmt -check` and `terraform validate` pass under
-    Terraform 1.13.5.
+    change merged as coder-ide-baseline `1e3ace5` (see the next task).
+    `terraform fmt -check` and `terraform validate` pass under Terraform 1.13.5.
 - [x] Push the template version to Coder.
   - **Evidence:**
     [plume-works/coder-ide-baseline#19](https://github.com/plume-works/coder-ide-baseline/pull/19)
