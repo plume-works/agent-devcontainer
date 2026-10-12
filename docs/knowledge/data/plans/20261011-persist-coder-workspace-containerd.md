@@ -4,7 +4,7 @@ created: 2026-10-11
 description: Mount a persistent volume at /var/lib/containerd in the coder-ide-baseline workspace container so the nested Docker's containerd image store survives a workspace restart alongside /var/lib/docker.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T10:15:50Z
+  at: 2026-10-12T13:10:38Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/349d8d6/template/main.tf
 - resource: https://docs.docker.com/engine/storage/containerd/
@@ -122,11 +122,16 @@ chose to stay on Docker's default store.
 
 **Files:** none (each existing workspace)
 
-- [ ] For each workspace that predates the template change, after its first
+- [x] For each workspace that predates the template change, after its first
   start on the new version: remove the stale Dev Container container and run
   `docker builder prune -af`, so `/var/lib/docker` no longer holds records that
   point at content the new, empty volume lacks. Restart, and confirm that the
   Dev Container builds and comes up healthy.
+  - **Evidence:** all five pre-existing workspaces (`agent-dev1` to
+    `agent-dev4`, `dr-qp-1`) were reset on `condemned_miles04` (2026-10-12);
+    each Dev Container rebuilt with a healthy `repo` sub-agent, and `coder list`
+    shows all five healthy and not outdated. Recorded under
+    `## Verification results`.
 
 ## Spec changes
 
@@ -184,26 +189,27 @@ had been built and the workspace restarted with `coder restart`:
 - `coder show` reports the `dev` agent and the `repo` sub-agent connected and
   healthy.
 
-### Existing-workspace reset (Task 4, partial)
+### Existing-workspace reset (Task 4)
 
-On active version `condemned_miles04` (2026-10-12):
+On active version `condemned_miles04` (2026-10-12), for the five workspaces that
+predate the volume — `agent-dev1` to `agent-dev4` and `dr-qp-1`, whose
+repository first took the current agent-devcontainer template
+([Dr-QP/Dr.QP#550](https://github.com/Dr-QP/Dr.QP/pull/550)):
 
-- `agent-dev1`, `agent-dev2`, `agent-dev3` and `agent-dev4` failed their first
-  start on the new version as expected: the Dev Container's image was missing,
-  and its stale container had exited. On `agent-dev1` and `agent-dev4`,
-  `findmnt` showed the new volumes mounted, with no Sysbox source.
-- On each of the four, the stale Dev Container container was removed, then
+- Each failed its first start on the new version as expected: the Dev
+  Container's image was missing, and its stale container had exited. On
+  `agent-dev1`, `agent-dev4` and `dr-qp-1`, `findmnt` showed the new volumes
+  mounted, with no Sysbox source.
+- On each, the stale Dev Container container was removed, then
   `docker builder prune -af` ran, then `coder restart`. The Dev Container
   rebuilt, and the `repo` sub-agent came back healthy. `coder list` shows all
-  four on `condemned_miles04`, healthy and not outdated.
+  five on `condemned_miles04`, healthy and not outdated.
 - `tmux -L claude-remote ls` lists the `claude-remote` session on `agent-dev2`,
   `agent-dev3` and `agent-dev4`. `agent-dev1` is not logged in to claude.ai, so
   the check does not apply there.
-- `dr-qp-1` has not been reset yet. It waits on its repository, Dr-QP/Dr.QP,
-  taking the current agent-devcontainer template
-  ([Dr-QP/Dr.QP#550](https://github.com/Dr-QP/Dr.QP/pull/550)). Task 4 covers
-  every pre-existing workspace, so it stays open until `dr-qp-1` is reset or the
-  plan's scope is revised.
+- The check does not apply to `dr-qp-1` either: the template's Remote Control
+  script expects the checkout at `/workspaces/<repo>` inside the Dev Container,
+  and Dr.QP's compose file does not mount it there.
 
 ## Out of scope
 
