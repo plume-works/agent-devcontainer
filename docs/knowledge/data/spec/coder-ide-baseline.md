@@ -3,7 +3,7 @@ type: spec
 description: How the plume-works/coder-ide-baseline Coder template runs this repository's Dev Container, and how to change, validate, and ship a template version.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T22:00:00Z
+  at: 2026-10-12T22:20:00Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/push.sh
@@ -103,20 +103,10 @@ live probe before merge SHALL be pushed as a named, inactive draft version.
 
 ## Working on the template
 
-### Checkout and GitHub CLI
+### Checkout
 
 In a Coder workspace, the template is cloned beside this repository at
 `/workspaces/coder-ide-baseline` through the `second_repo` workspace parameter.
-The GitHub repository is a fork of `LordChunk/coder-ide-baseline`. While it
-stays in that fork network, `gh` can resolve the parent as the default
-repository, and `gh pr create` then fails with `Head sha can't be blank`. Set
-the default once per clone:
-
-``` bash
-gh repo set-default plume-works/coder-ide-baseline
-```
-
-or pass `-R plume-works/coder-ide-baseline` to each `gh` command.
 
 ### Validate
 
