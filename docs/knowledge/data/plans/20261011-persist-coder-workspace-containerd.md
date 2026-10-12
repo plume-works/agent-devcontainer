@@ -65,12 +65,16 @@ chose to stay on Docker's default store.
 
 **Files:** none (live workspace, in `plume-works/coder-ide-baseline`)
 
-- [ ] In a workspace started from a draft template version (not promoted to
+- [x] In a workspace started from a draft template version (not promoted to
   active) that adds the `/var/lib/containerd` volume, record from `mount` inside
   the workspace container whether
   `/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs` is backed by the
   new volume or by a separate Sysbox mount. Record the result under
   `## Verification results`, along with the layout Task 2 adopts.
+  - **Evidence:** `findmnt` in `anton/containerd-probe`, created from draft
+    template version `containerd-probe-1` (2026-10-12): the snapshotter
+    directory is a separate Sysbox mount over the new volume. The layout is
+    recorded under `## Verification results`.
 
 ### Task 2: Add the containerd volume to the template
 
@@ -117,6 +121,34 @@ this repository's specs.
 - After a restart, the Dev Container's agent-start scripts run. One observable
   sign: `tmux -L claude-remote ls` lists the `claude-remote` session in a
   workspace logged in to claude.ai.
+
+## Verification results
+
+### Sysbox mount layout (Task 1)
+
+In a workspace on draft version `containerd-probe-1`, which mounts one volume at
+`/var/lib/containerd`, `findmnt` shows:
+
+- `/var/lib/containerd` is backed by the `coder-<workspace-id>-containerd`
+  volume.
+- `/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs` is a separate
+  Sysbox mount over that volume. Its host source is
+  `/var/lib/sysbox/containerd/<container-id>`, so the unpacked snapshots are
+  lost whenever the workspace container is recreated.
+- `/var/lib/docker` is backed only by its volume, with no Sysbox mount.
+- The engine reports `driver-type io.containerd.snapshotter.v1`.
+
+Sysbox treats `/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs` as a
+special directory, as it does the inner Docker data root. It skips its own mount
+there when the container spec already bind-mounts that exact destination
+(`getSpecialDirs` and `sysMgrSetupMounts` in `nestybox/sysbox-runc`
+`libsysbox/syscont/spec.go`). That is why `/var/lib/docker` carries no Sysbox
+mount.
+
+Layout Task 2 adopts: a third per-workspace volume,
+`coder-<workspace-id>-containerd-snapshots`, mounted directly at
+`/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs`, in addition to the
+`/var/lib/containerd` volume.
 
 ## Out of scope
 
