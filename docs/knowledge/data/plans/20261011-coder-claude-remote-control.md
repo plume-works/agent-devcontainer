@@ -15,6 +15,8 @@ sources:
 - resource: https://coder.com/docs/admin/integrations/devcontainers/integration
 - resource: https://coder.com/docs/v2.37/user-guides/user-secrets
 - resource: https://man7.org/linux/man-pages/man1/tmux.1.html
+stage: done
+completed: 2026-10-12
 ---
 
 # Start Claude Remote Control from the Coder agent

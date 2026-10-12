@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-12
 
+- **Update**: [Start Claude Remote Control from the Coder
+  agent](plans/20261011-coder-claude-remote-control.md) done; [Claude Remote
+  Control](spec/claude-remote-control.md) now starts from the Coder template's
+  `coder_script` on a dedicated tmux server and inherits the agent's
+  environment, with the postStart autostart and `AGENTDEV_CLAUDE_AUTOSTART`
+  removed.
 - **Update**: [Configure the gh credential helper from the Coder
   agent](plans/20261011-coder-agent-gh-credential-helper.md) done; [Devcontainer
   Git credentials](spec/devcontainer-git-credentials.md) gains the Coder agent
