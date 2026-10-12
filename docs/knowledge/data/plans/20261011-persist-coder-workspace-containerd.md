@@ -99,11 +99,16 @@ chose to stay on Docker's default store.
 
 **Files:** none (live workspace)
 
-- [ ] In a workspace on the new template version whose Dev Container has been
+- [x] In a workspace on the new template version whose Dev Container has been
   built, run `coder restart`. The Dev Container comes back up without a rebuild:
   the agent log shows no `Building` step, `docker images` inside the workspace
   still lists the `vsc-agent-devcontainer-*` image, and the `repo` sub-agent
   reports healthy.
+  - **Evidence:** run on draft version `containerd-probe-2` in
+    `anton/containerd-probe2` (2026-10-12), which the maintainer accepted as the
+    new template version. After `coder restart`, the Dev Container's original
+    container came back without a rebuild, and both agents were healthy.
+    Recorded under `## Verification results`.
 
 ### Task 4: Reset workspaces created before the volume
 
@@ -156,6 +161,20 @@ Layout Task 2 adopts: a third per-workspace volume,
 `coder-<workspace-id>-containerd-snapshots`, mounted directly at
 `/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs`, in addition to the
 `/var/lib/containerd` volume.
+
+### Restart survival (Task 3)
+
+In a workspace on draft version `containerd-probe-2`, after the Dev Container
+had been built and the workspace restarted with `coder restart`:
+
+- `findmnt -R /var/lib/containerd` shows `/var/lib/containerd` backed by the
+  `-containerd` volume and the overlayfs snapshotter directory backed by the
+  `-containerd-snapshots` volume, with no `/var/lib/sysbox/containerd` source.
+- `docker images` still lists the `vsc-agent-devcontainer-*` image, in use.
+- `docker ps -a` shows the Dev Container that was created before the restart
+  running again, so it was not rebuilt.
+- `coder show` reports the `dev` agent and the `repo` sub-agent connected and
+  healthy.
 
 ## Out of scope
 
