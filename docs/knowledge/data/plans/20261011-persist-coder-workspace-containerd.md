@@ -93,7 +93,15 @@ chose to stay on Docker's default store.
     change is on local branch `persist-containerd-volume` (`7ad1788`, not yet
     pushed). `terraform fmt -check` and `terraform validate` pass under
     Terraform 1.13.5.
-- [ ] Push the template version to Coder.
+- [x] Push the template version to Coder.
+  - **Evidence:**
+    [plume-works/coder-ide-baseline#19](https://github.com/plume-works/coder-ide-baseline/pull/19)
+    was squash-merged as `1e3ace5` after its required Docker Build and Push
+    check passed. `TEMPLATE_NAME=coder-ide-baseline template/push.sh` at
+    `1e3ace5` created `condemned_miles04`, now the only active version
+    (2026-10-12). Its plan lists `docker_volume.containerd_lib` and
+    `docker_volume.containerd_snapshots`. The version also ships #18's
+    `vscode-web` module, which the maintainer chose to include.
 
 ### Task 3: Prove images survive a restart
 
