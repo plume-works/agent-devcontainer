@@ -80,12 +80,19 @@ chose to stay on Docker's default store.
 
 **Files:** Modify (in `plume-works/coder-ide-baseline`): `template/main.tf`
 
-- [ ] Add `docker_volume.containerd_lib` named
+- [x] Add `docker_volume.containerd_lib` named
   `coder-${data.coder_workspace.me.id}-containerd`, with the same
   `lifecycle { ignore_changes = all }` and `coder.*` labels as
   `docker_volume.docker_lib`. Mount it in `docker_container.workspace` at
   `/var/lib/containerd`, next to the `/var/lib/docker` mount, plus any
   snapshotter mount that Task 1 requires. `terraform validate` passes.
+  - **Evidence:** Coder template version `containerd-probe-2` of
+    `coder-ide-baseline` (pushed as a draft, not active) carries the change. It
+    adds `containerd_lib` and `containerd_snapshots`, mounted at
+    `/var/lib/containerd` and at the overlayfs snapshotter directory. The same
+    change is on local branch `persist-containerd-volume` (`7ad1788`, not yet
+    pushed). `terraform fmt -check` and `terraform validate` pass under
+    Terraform 1.13.5.
 - [ ] Push the template version to Coder.
 
 ### Task 3: Prove images survive a restart
