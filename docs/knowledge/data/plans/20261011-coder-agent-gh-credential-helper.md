@@ -99,7 +99,7 @@ any other `data/codebase/` doc that `stale-map-docs.py` reports
 
 **Files:** Modify (in `plume-works/coder-ide-baseline`): `template/main.tf`
 
-- [ ] After Tasks 1–2 merge, add `data.coder_parameter.agent_start_script`,
+- [x] After Tasks 1–2 merge, add `data.coder_parameter.agent_start_script`,
   shaped like `data.coder_parameter.second_repo`: `type = "string"`,
   `mutable = true`, `default = ".devcontainer/scripts/coder-agent-start.sh"`,
   and a description saying that the path is relative to the repository root and
@@ -110,6 +110,12 @@ any other `data/codebase/` doc that `stale-map-docs.py` reports
   repository ships no agent-start script. Update the comment above the resource,
   which says Remote Control inherits the agent's git credential helper.
   `terraform validate` passes and the template version is pushed.
+  - **Evidence:**
+    [plume-works/coder-ide-baseline#20](https://github.com/plume-works/coder-ide-baseline/pull/20)
+    was squash-merged as `ab1c595` after its Docker Build and Push check passed;
+    `terraform fmt -check` and `terraform validate` pass under Terraform 1.13.5.
+    `TEMPLATE_NAME=coder-ide-baseline template/push.sh` at `ab1c595` created
+    `lingering_bell82`, the active version (2026-10-12).
 
 ### Task 4: Verify in a live Coder workspace
 
@@ -185,7 +191,7 @@ An existing helper SHALL be kept. A failed helper setup SHALL NOT stop
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-11):
+Verified anchor points (line numbers as of 2026-10-12):
 
 - `.devcontainer/scripts/postStartCommand.sh:15` — post-start runs
   `setup-gh-credential-helper.sh` after the keyring
@@ -196,9 +202,9 @@ Verified anchor points (line numbers as of 2026-10-11):
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:30` — `gh auth setup-git`
 - `scripts/tests/test_setup_gh_credential_helper.py:92` —
   `test_post_start_runs_setup_after_keyring`
-- `docs/knowledge/data/codebase/devcontainer/scripts.md:99` — the keyring
+- `docs/knowledge/data/codebase/devcontainer/scripts.md:103` — the keyring
   ordering note for the helper script
-- `plume-works/coder-ide-baseline` `template/main.tf:95` (at `349d8d6`) —
+- `plume-works/coder-ide-baseline` `template/main.tf:95` (at `1e3ace5`) —
   `data.coder_parameter.second_repo`, the parameter shape to copy
-- `plume-works/coder-ide-baseline` `template/main.tf:201` (at `349d8d6`) —
+- `plume-works/coder-ide-baseline` `template/main.tf:213` (at `1e3ace5`) —
   `coder_script.claude_remote_control`, the resource Task 3 replaces
