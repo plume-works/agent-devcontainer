@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:ffb935e4924f638e456c8457bd792d7b45383f67bfdf803b9fcef6b2d65bbc93
+source_digest: sha256:3a75f82e334d7100db925ef8a3c401b81f0810305a5dce289f97bd3e77fa5a85
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-10T08:30:00Z
-stale_after: 2027-01-08
+  at: 2026-10-12T22:00:00Z
+stale_after: 2027-01-10
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-10T08:30:00Z
+  at: 2026-10-12T22:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -63,6 +63,13 @@ the marker section, and pins `NO_MARKER` for an absent file and for an absent
 section, and `INVALID_MARKER` for malformed metadata or a section missing
 `consumed_ref` or `tracked_paths`.
 
+`test_update_branch.py` builds a bare remote, a working clone on a pushed
+feature branch, and a publisher clone, and pins `update-branch.sh`'s upstream
+sync: fast-forward and merge before the base, `ALREADY_UP_TO_DATE` after a
+fast-forward onto an upstream holding the base, a conflicted upstream merge
+followed by a rerun, a conflicted base merge, a gone upstream, an upstream that
+is the base ref, and an upstream on a second remote, reachable or not.
+
 `test_git_new_branch.py` builds a bare remote, a working clone, and a publisher
 clone that advances the remote behind the working clone's back; the
 `gh`-fallback cases set `remote.origin.followRemoteHEAD=never` so a fetch does
@@ -96,11 +103,13 @@ on fake skills in each direction.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-10):
+Verified anchor points (line numbers as of 2026-10-12):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
-- `.agents/plugins/agentdev/tests/test_update_branch.py:11` —
+- `.agents/plugins/agentdev/tests/test_update_branch.py:112` —
+  `UpstreamFixture`, the remote/work/publisher triple for upstream sync
+- `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the

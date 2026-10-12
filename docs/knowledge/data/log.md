@@ -4,6 +4,17 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-12
+
+- **Update**: [Update branch pulls its upstream before merging the
+  base](plans/20261012-update-branch-pulls-upstream.md) done. update-branch now
+  fast-forwards or merges the branch's own upstream before the base; see
+  [update-branch](spec/update-branch.md).
+- **Update**: [update-branch](spec/update-branch.md) spec created with the
+  upstream-sync and conflict-rerun requirements.
+- **Update**: [Codebase map](codebase.md) refreshed for `update-branch.sh`
+  bringing in the branch's upstream before the base: three docs re-verified.
+
 ## 2026-10-11
 
 - **Update**: [Codebase map](codebase.md) refreshed for `coder-agent-start.sh`,
