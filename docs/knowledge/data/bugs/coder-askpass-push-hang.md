@@ -3,10 +3,12 @@ type: bug
 description: In a Coder workspace whose only gh login is a session GITHUB_TOKEN, post-start installs no git credential helper, so HTTPS git push falls through to Coder's GIT_ASKPASS and hangs.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T20:30:00Z
+  at: 2026-10-12T23:30:00Z
 sources:
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
+- resource: .devcontainer/scripts/coder-agent-start.sh
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: docs/knowledge/data/spec/devcontainer-git-credentials.md
 - resource: docker/bin/gh
 stage: done
@@ -58,11 +60,13 @@ helper: the token exists only after post-start has already skipped.
 
 ## Fix
 
-Unfixed. One candidate is installing the `gh auth git-credential` helper
-regardless of auth state at post-start. That helper reads `gh`'s credentials on
-each call, so a token that appears later still works. It conflicts with the
-"when `gh` is authenticated" condition in spec `devcontainer-git-credentials`,
-so choosing it is a spec change.
+Fixed by [Start the gh credential helper from the Coder
+agent](../plans/20261011-coder-agent-gh-credential-helper.md).
+`.devcontainer/scripts/coder-agent-start.sh` runs
+`setup-gh-credential-helper.sh` with the agent's environment, where
+`GITHUB_TOKEN` is set, before it starts Remote Control. The coder-ide-baseline
+template's `coder_script` runs it on every agent start from `ab1c595`.
+Post-start still runs the setup for logins stored outside Coder.
 
 ## Key references
 
