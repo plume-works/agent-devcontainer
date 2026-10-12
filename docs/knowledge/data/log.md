@@ -4,6 +4,11 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-12
+
+- **Update**: [Codebase map](codebase.md) refreshed for `update-branch.sh`
+  bringing in the branch's upstream before the base: three docs re-verified.
+
 ## 2026-10-11
 
 - **Update**: [Codebase map](codebase.md) refreshed for `coder-agent-start.sh`,
