@@ -10,6 +10,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh
 - resource: .agents/plugins/agentdev/skills/git-merge-resolve/agent-code/git-merge-resolve.sh
 - resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh
+stage: done
+completed: 2026-10-12
 ---
 
 # Update branch pulls its upstream before merging the base
@@ -212,7 +214,7 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
 
 ## Spec changes
 
-Creates `spec/update-branch`:
+Creates [update-branch](../spec/update-branch.md):
 
 ``` markdown
 ## ADDED Requirements

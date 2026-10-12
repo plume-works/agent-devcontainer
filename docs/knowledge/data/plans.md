@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Update branch pulls its upstream before merging the
-base](plans/20261012-update-branch-pulls-upstream.md)
-
 [Configure the gh credential helper from the Coder
 agent](plans/20261011-coder-agent-gh-credential-helper.md)
 
@@ -33,6 +30,9 @@ agent](plans/20261011-coder-claude-remote-control.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Update branch pulls its upstream before merging the
+base](plans/20261012-update-branch-pulls-upstream.md)
 
 [Agent-owned Ship and Implement
 workflows](plans/20261007-agent-owned-ship-implement.md)

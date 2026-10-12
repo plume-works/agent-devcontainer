@@ -51,3 +51,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [OpenCode catalog bridge](spec/opencode-catalog-bridge.md)
 
 [Devcontainer Codex policy](spec/devcontainer-codex-policy.md)
+
+[update-branch](spec/update-branch.md)
