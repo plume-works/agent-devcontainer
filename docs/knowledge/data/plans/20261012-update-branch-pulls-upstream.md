@@ -77,7 +77,7 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
 `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh`,
 `.agents/plugins/agentdev/tests/test_update_branch.py`
 
-- [ ] Tests, written first against a local bare-repository remote with
+- [x] Tests, written first against a local bare-repository remote with
   `git_fixtures` helpers, fail before the script change and cover: behind only
   (branch fast-forwarded to its upstream, then the base merged); behind an
   upstream that already contains the base (fast-forward, `ALREADY_UP_TO_DATE`,
@@ -88,10 +88,17 @@ and it would always bounce back to the agent; keeping `exec` for the base merge
   `UPSTREAM_ACTION=gone`); upstream is the base ref (`UPSTREAM_ACTION=base`,
   base merged once); upstream on a second remote (that remote fetched, its
   commits brought in)
-- [ ] `update-branch.sh` implements the Approach table, the second-remote fetch,
+  - **Evidence:** commit "feat(update-branch): bring in the branch's upstream
+    before the base"; the nine new tests failed against the previous script, and
+    two more cover the base-merge conflict `SOURCE` and an unreachable upstream
+    remote (`FETCH_FAILED`) from the spec delta.
+- [x] `update-branch.sh` implements the Approach table, the second-remote fetch,
   the non-`exec` helper calls with result mapping, the moved up-to-date check,
   and the `UPSTREAM` / `UPSTREAM_ACTION` keys; `--help` lists the new keys and
   the rerun rule; `shellcheck -x` is clean; the two existing tests still pass
+  - **Evidence:** commit "feat(update-branch): bring in the branch's upstream
+    before the base"; `uv run pytest .agents/plugins/agentdev/tests` 139 passed
+    (`test_update_branch.py` 11); `shellcheck -x update-branch.sh` clean.
 
 ### Task 2: Skill definition
 
