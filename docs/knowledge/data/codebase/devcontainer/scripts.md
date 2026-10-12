@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, Codex auth symlink, Claude pre-approval, gh credential helper, the Coder agent-start entry point, Claude Remote Control, Codex policy.'
 source: .devcontainer/scripts
-source_digest: sha256:debc9cf94736e1efb5c480ae30883de12ce73a4d935eeb3b6e58a83d19d47640
+source_digest: sha256:d01275545b12dbda694e9f79cacf27ea025d6792dd8cbbdf8655f2c2aa7c5f1b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-11T19:11:56Z
+  at: 2026-10-12T17:32:18Z
 stale_after: 2027-01-09
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T19:11:56Z
+  at: 2026-10-12T17:32:18Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -40,7 +40,7 @@ outside the devcontainer.
 | `configure-codex.py`                                 | start (last)                    | set top-level `sandbox_mode` and `approval_policy` in `${CODEX_HOME:-~/.codex}/config.toml`, atomically at `0600`                                |
 | `preapprove-claude-workspace.sh`                     | create                          | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                             |
 | `coder-agent-start.sh`                               | Coder `coder_script`            | the Coder agent's entry point: run `setup-gh-credential-helper.sh` (a failure only warns), then exec `claude-remote-control-start.sh`            |
-| `claude-remote-control-start.sh`                     | `coder-agent-start.sh`, by hand | with a claude.ai login, run `claude /remote-control` in session `claude-remote` on the dedicated `tmux -L claude-remote` server                  |
+| `claude-remote-control-start.sh`                     | `coder-agent-start.sh`, by hand | with a claude.ai login, run `claude --remote-control` named after `CODER_WORKSPACE_NAME` in session `claude-remote` on `tmux -L claude-remote`   |
 | `setup-gh-credential-helper.sh`                      | start, `coder-agent-start.sh`   | `gh auth setup-git` when gh is logged in and no github.com helper exists                                                                         |
 | `setup-keyring.sh`                                   | start                           | dbus + gnome-keyring session, persisted to `.tmp/keyring-session.env`                                                                            |
 | `firewall.sh`                                        | start                           | run `init-firewall.sh` only when `ENABLE_FIREWALL=true`                                                                                          |
@@ -130,8 +130,9 @@ Verified anchor points (line numbers as of 2026-10-11):
 - `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:47` — `repair`
 - `.devcontainer/scripts/uv-sync.sh:23-32` — managed-link removal and sync
 - `.devcontainer/scripts/preapprove-claude-workspace.sh:6` — opt-out gate
-- `.devcontainer/scripts/claude-remote-control-start.sh:12-27,38-39` — login
-  gate, token-free launch on `tmux -L claude-remote`
+- `.devcontainer/scripts/claude-remote-control-start.sh:12-27,31-34,42-43` —
+  login gate, workspace-named session, token-free launch on
+  `tmux -L claude-remote`
 - `.devcontainer/scripts/coder-agent-start.sh:9-13` — warn-only helper setup,
   exec of the Remote Control launcher
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:8,30` — keyring session
