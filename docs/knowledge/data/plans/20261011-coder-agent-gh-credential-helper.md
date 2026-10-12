@@ -121,13 +121,23 @@ any other `data/codebase/` doc that `stale-map-docs.py` reports
 
 **Files:** none
 
-- [ ] In a Coder workspace on the new template version, after a restart, with
+- [x] In a Coder workspace on the new template version, after a restart, with
   `GITHUB_TOKEN` supplied only as a Coder user secret: the agent-start script's
   log shows `Configured gh as the git credential helper.`, and inside the Dev
   Container `git config --get-urlmatch credential.helper https://github.com`
   prints the gh helper. A plain `git push` of a scratch branch from a Coder
   terminal and from the Remote Control session completes without waiting. The
   scratch branch is then deleted with `git push --delete`.
+  - **Evidence:** `anton/agent-dev2` (2026-10-12), with its checkout at
+    agent-devcontainer `ce089de` and gh logged in only through the
+    `GITHUB_TOKEN` user secret, was restarted by `coder update` onto
+    `lingering_bell82` with the default `agent_start_script`. The agent-start
+    log printed `Configured gh as the git credential helper.` and started
+    `claude-remote`, and the urlmatch printed
+    `!/usr/bin/gh auth git-credential`. With `GIT_ASKPASS=/.coder-agent/coder`
+    still set, plain `git push` of a scratch branch exited 0 in seconds from
+    `coder ssh agent-dev2.repo` and from a `!git push` inside the Remote Control
+    session. Both branches were deleted with `git push --delete`.
 
 ## Spec changes
 
