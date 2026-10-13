@@ -163,8 +163,11 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 **Files:** none (live Coder deployment)
 
-- [ ] After the Task 4 pull request merges, push the activated version from the
+- [x] After the Task 4 pull request merges, push the activated version from the
   merge commit and `coder update` each workspace, one at a time.
+  - **Evidence:** active version `motionless_ortega54` from
+    plume-works/coder-ide-baseline@473d64a runs on every workspace; recorded
+    under `## Verification results`.
 
 ### Task 7: Confirm the Dev Container engine in a rebuilt image
 
@@ -281,10 +284,9 @@ prune's `Total reclaimed space: 0B`.
 
 Active version `motionless_ortega54`, pushed from
 plume-works/coder-ide-baseline@473d64a, runs on `agent-dev1`, `agent-dev2`,
-`agent-dev4`, and `dr-qp-1`. In each, `docker buildx inspect` reports the 10 GiB
-policy, the startup log shows the prune, and the stopped Dev Container's image
-survived it, so the Dev Container restarted without a rebuild. `agent-dev3` is
-updated last.
+`agent-dev4`, `dr-qp-1`, and `agent-dev3`. In each, `docker buildx inspect`
+reports the 10 GiB policy, the startup log shows the prune, and the stopped Dev
+Container's image survived it, so the Dev Container restarted without a rebuild.
 
 A workspace on that version whose Dev Container was built fresh from
 `agent-desktop:edge@sha256:12d03e855edeba479dc08a51456baa250c0aa39d1c7036186b0981585bc81609`
