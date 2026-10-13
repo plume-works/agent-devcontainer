@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-13
 
+- **Update**: [Devcontainer lifecycle scripts](codebase/devcontainer/scripts.md)
+  and [Flow: devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md)
+  map the agent-start image prune; the ansible, devcontainer, and image-build
+  map docs re-verified.
 - **Update**: [Resume the Remote Control conversation across
   restarts](features/claude-remote-control-resume.md) implemented.
 - **Update**: [Resume the autostarted Remote Control conversation by a pinned
