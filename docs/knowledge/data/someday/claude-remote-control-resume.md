@@ -1,9 +1,9 @@
 ---
 type: someday
-description: Resume the autostarted Remote Control conversation by a pinned session ID so a restart or rebuild reattaches the same claude.ai/code session; measured on Claude Code 2.1.296, with the downtime limit still open.
+description: Resume the autostarted Remote Control conversation by a pinned session ID so a restart or rebuild reattaches the same claude.ai/code session; measured on Claude Code 2.1.296, with lost-session detection still open.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T21:50:33Z
+  at: 2026-10-13T02:25:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/devcontainer.json
@@ -35,6 +35,10 @@ with its own conversation history:
 - **Either kind of stop resumes.** A graceful exit archives the remote session;
   the resume unarchives it. A `SIGKILL` leaves it unarchived, and the resume
   reattaches directly.
+- **Four and a half hours of downtime still resumes.** After a `SIGKILL`
+  followed by 4.5 hours with no process, the resume reattached the same session.
+  The documented four-hour server-mode window does not bound interactive
+  sessions at that length; the actual limit is unmeasured.
 - **`--session-id <uuid>` pins the conversation ID** at first start, so the ID
   to resume is known without searching.
 - **`--continue` is unusable for autostart.** With no prior conversation in the
@@ -56,10 +60,10 @@ session gone      → new uuid, fresh start (needs detection, below)
 
 ## Promotion criteria
 
-- **Downtime limit.** The documentation gives about four hours for resuming
-  server-mode (`claude remote-control`) sessions and no figure for interactive
-  ones. A resume after a known downtime longer than four hours settles whether
-  rebuilds that span a night still reattach.
+- **Downtime limit.** Resume holds past 4.5 hours; whether it holds across a
+  longer outage, such as a workspace stopped over a weekend, is unmeasured. The
+  fallback below covers any limit, so the figure matters only for how often the
+  fallback fires.
 - **Detecting a lost session.** When the server-side session is gone, the
   documentation says Claude Code shows `Previous session is unavailable` and
   keeps running with Remote Control off, instead of starting a new session. An
