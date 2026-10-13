@@ -173,11 +173,11 @@ garbage collection limiting the cache to 30 GB.
 
 Verified anchor points (line numbers as of 2026-10-13):
 
-- `.devcontainer/scripts/coder-agent-start.sh:9` — credential helper call; `:13`
-  — `exec` of `claude-remote-control-start.sh`
-- `scripts/tests/test_coder_agent_start.py:43` —
+- `.devcontainer/scripts/coder-agent-start.sh:13` — credential helper call;
+  `:17` — `exec` of `claude-remote-control-start.sh`
+- `scripts/tests/test_coder_agent_start.py:56` —
   `test_remote_control_starts_when_helper_setup_fails`
 - `.devcontainer/devcontainer.json:17` — docker-in-docker feature, the Dev
   Container engine whose builder changes
-- `coder-ide-baseline` `template/main.tf:113` — `coder_agent.dev`; `:398` —
+- `coder-ide-baseline` `template/main.tf:113` — `coder_agent.dev`; `:403` —
   `docker_container.workspace`
