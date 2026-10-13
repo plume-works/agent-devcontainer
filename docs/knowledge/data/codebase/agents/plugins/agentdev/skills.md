@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:586678397de1e45515b69fc301e87598bf8d1e35f8781fa8962711be96130d53
+source_digest: sha256:52e624e14c8f00fc827781f81eb07e7d8a514f3748dca0615e2e4247341d949f
 verified:
-  by: claude-code/opus-5-5
-  at: 2026-10-10T14:00:00Z
-stale_after: 2027-01-08
+  by: claude-code/opus-5.5
+  at: 2026-10-12T22:00:00Z
+stale_after: 2027-01-10
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-10T14:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-12T22:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -88,6 +88,12 @@ when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
 `git-new-branch.sh` stashes only with `--stash` and pops only the entry it
 created, located by its commit.
 
+`update-branch.sh` brings in the branch's configured upstream — a fast-forward
+when only behind, a merge when diverged — before it merges `<remote>/<base>`,
+and reports it as `UPSTREAM_ACTION`. Both merges run `git-merge-resolve.sh` as a
+child process; a run stops at the first conflicted merge, `SOURCE` naming it,
+and a rerun continues with the next.
+
 `pr-open`'s `push-branch.sh` is the push path for `pr-open`, `pr-sync`,
 `update-branch`, `pr-feedback-resolution`, and `pr-merge`. Before it pushes, and
 before it reports `ACTION=none` for a head the upstream already has, it runs
@@ -115,7 +121,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-10):
+Verified anchor points (line numbers as of 2026-10-12):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -129,6 +135,10 @@ Verified anchor points (line numbers as of 2026-10-10):
   — the only read of the marker section
 - `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh:109` —
   the shared issue-closing call, identical in `iwe-plan`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:141`
+  — `classify_upstream`, which picks the `UPSTREAM_ACTION`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:55`
+  — `merge_ref`, the child-process merge and its result mapping
 - `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — the `iwe-shipper`

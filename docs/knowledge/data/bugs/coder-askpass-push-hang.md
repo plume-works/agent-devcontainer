@@ -3,12 +3,15 @@ type: bug
 description: In a Coder workspace whose only gh login is a session GITHUB_TOKEN, post-start installs no git credential helper, so HTTPS git push falls through to Coder's GIT_ASKPASS and hangs.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-10T17:30:00Z
+  at: 2026-10-12T23:30:00Z
 sources:
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
+- resource: .devcontainer/scripts/coder-agent-start.sh
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: docs/knowledge/data/spec/devcontainer-git-credentials.md
 - resource: docker/bin/gh
+stage: done
 ---
 
 # Bug: HTTPS git push hangs on Coder's askpass when gh's login is only a session token
@@ -48,17 +51,22 @@ authenticated at that moment. When the only login is a `GITHUB_TOKEN` that the
 post-start environment lacks, the auth check fails, the script skips, and no
 helper is written. Git then has no github.com helper and falls back to
 `GIT_ASKPASS`. Coder sets that to its agent binary, which does not return when
-it has no GitHub credential to give. Whether post-start actually lacked
-`GITHUB_TOKEN` is inferred from the missing helper and step 3, not observed
-directly.
+it has no GitHub credential to give. Post-start runs inside `devcontainer up`,
+before the Coder agent is injected into the Dev Container, so it never has the
+agent's environment. A session started by the template's `coder_script` on the
+Dev Container's sub-agent has `GITHUB_TOKEN` set, yet
+`git config --get-urlmatch credential.helper https://github.com` finds no
+helper: the token exists only after post-start has already skipped.
 
 ## Fix
 
-Unfixed. One candidate is installing the `gh auth git-credential` helper
-regardless of auth state at post-start. That helper reads `gh`'s credentials on
-each call, so a token that appears later still works. It conflicts with the
-"when `gh` is authenticated" condition in spec `devcontainer-git-credentials`,
-so choosing it is a spec change.
+Fixed by [Start the gh credential helper from the Coder
+agent](../plans/20261011-coder-agent-gh-credential-helper.md).
+`.devcontainer/scripts/coder-agent-start.sh` runs
+`setup-gh-credential-helper.sh` with the agent's environment, where
+`GITHUB_TOKEN` is set, before it starts Remote Control. The coder-ide-baseline
+template's `coder_script` runs it on every agent start from `ab1c595`.
+Post-start still runs the setup for logins stored outside Coder.
 
 ## Key references
 

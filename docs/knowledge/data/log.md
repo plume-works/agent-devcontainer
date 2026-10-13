@@ -10,15 +10,6 @@ to the current day's group.
   map refreshed for `claude-remote-control-session.sh`, the pinned-conversation
   pane script, in commit "map: refresh devcontainer scripts for the Remote
   Control session script".
-- **Update**: [Start Claude Remote Control from the Coder
-  agent](plans/20261011-coder-claude-remote-control.md) done. Remote Control
-  starts from the Coder template's `coder_script` on a dedicated
-  `tmux -L claude-remote` server and inherits the agent's user secrets and git
-  credentials; the postStart autostart and `AGENTDEV_CLAUDE_AUTOSTART` are gone.
-- **Update**: [Claude Remote Control](spec/claude-remote-control.md) spec gains
-  the inherited-environment requirement; its autostart requirement names the
-  `coder_script` trigger, the dedicated tmux server, and the workspace-named
-  session.
 - **Plan**: [Resume the autostarted Remote Control conversation by a pinned
   ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
   in [Claude Remote Control
@@ -26,12 +17,43 @@ to the current day's group.
 
 ## 2026-10-12
 
+- **Update**: [Persist the Coder workspace containerd image
+  store](plans/20261011-persist-coder-workspace-containerd.md) done; the
+  coder-ide-baseline template persists `/var/lib/containerd` and its overlayfs
+  snapshotter directory in per-workspace volumes.
+- **Bug**: [Coder workspace Dev Container is lost on
+  restart](bugs/coder-devcontainer-lost-on-restart.md) fixed.
+- **Update**: [Start Claude Remote Control from the Coder
+  agent](plans/20261011-coder-claude-remote-control.md) done; [Claude Remote
+  Control](spec/claude-remote-control.md) now starts from the Coder template's
+  `coder_script` on a dedicated tmux server and inherits the agent's
+  environment, with the postStart autostart and `AGENTDEV_CLAUDE_AUTOSTART`
+  removed.
+- **Update**: [Configure the gh credential helper from the Coder
+  agent](plans/20261011-coder-agent-gh-credential-helper.md) done; [Devcontainer
+  Git credentials](spec/devcontainer-git-credentials.md) gains the Coder agent
+  start as a second helper trigger.
+- **Bug**: [HTTPS git push hangs on Coder's askpass when gh's login is only a
+  session token](bugs/coder-askpass-push-hang.md) fixed.
+- **Update**: [Coder IDE baseline template](spec/coder-ide-baseline.md) spec
+  created: the template's agent-start hook, per-workspace state volumes, and how
+  to validate and ship a template version.
+- **Update**: [Update branch pulls its upstream before merging the
+  base](plans/20261012-update-branch-pulls-upstream.md) done. update-branch now
+  fast-forwards or merges the branch's own upstream before the base; see
+  [update-branch](spec/update-branch.md).
+- **Update**: [update-branch](spec/update-branch.md) spec created with the
+  upstream-sync and conflict-rerun requirements.
+- **Update**: [Codebase map](codebase.md) refreshed for `update-branch.sh`
+  bringing in the branch's upstream before the base: three docs re-verified.
 - **Idea**: [Resume the Remote Control conversation across
   restarts](someday/claude-remote-control-resume.md) filed with measured resume
   behavior; the downtime limit and lost-session detection stay open.
 
 ## 2026-10-11
 
+- **Update**: [Codebase map](codebase.md) refreshed for `coder-agent-start.sh`,
+  the Coder agent's entry point: three docs re-verified.
 - **Update**: [Codebase map](codebase.md) refreshed for the Remote Control
   session taking its name from `CODER_WORKSPACE_NAME`: three docs re-verified.
 - **Update**: [Codebase map](codebase.md) re-verified for the `CBM_CACHE_DIR`

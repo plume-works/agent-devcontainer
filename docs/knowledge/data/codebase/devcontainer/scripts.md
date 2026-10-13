@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, Codex auth symlink, Claude pre-approval, gh credential helper, Claude Remote Control, Codex policy.'
+description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, Codex auth symlink, Claude pre-approval, gh credential helper, the Coder agent-start entry point, Claude Remote Control, Codex policy.'
 source: .devcontainer/scripts
-source_digest: sha256:c35a867265f6af900fcea6267a381196c5b16d4412158cc1fc1a89467552dc6e
+source_digest: sha256:d03b69fe644e53b87208aaedd6b639a353f639f972271c7a21a1e32e232fd56f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-13T07:38:43Z
+  at: 2026-10-13T08:42:33Z
 stale_after: 2027-01-11
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T07:38:43Z
+  at: 2026-10-13T08:42:33Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -17,35 +17,36 @@ sources:
 
 # Devcontainer lifecycle scripts
 
-Nineteen shell scripts, all `set -euo pipefail`, and two `uv run --script`
-Python scripts that the three lifecycle commands in
+Twenty shell scripts, all `set -euo pipefail`, and two `uv run --script` Python
+scripts that the three lifecycle commands in
 [devcontainer.json](../devcontainer.md) fan out to. Each resolves the workspace
 from `DEV_WORKSPACE_FOLDER` with a `BASH_SOURCE` fallback so it also runs
 outside the devcontainer.
 
 ## Public surface
 
-| Script                                               | Called by                     | Does                                                                                                                                                    |
-| ---------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `postCreateCommand.sh`                               | create (once)                 | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, Claude pre-approval, Codex auth link, uv sync, staged-catalog install                |
-| `postStartCommand.sh`                                | every start                   | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Codex auth link and policy                           |
-| `postAttachCommand.sh`                               | every editor attach           | CBM index, uv sync, reinstall the catalog from this checkout                                                                                            |
-| `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach                | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                                                 |
-| `reinstall-agentdev-codex.sh [root]`                 | create, attach                | the Codex equivalent, single-plugin; Codex has no scopes                                                                                                |
-| `reinstall-agentdev-opencode.sh [root]`              | create, attach                | point the `plugin` list of the user's `opencode.json` at `root`'s OpenCode bridge, replacing any earlier bridge entry                                   |
-| `codebase-memory-mcp-{install,start,index}.sh`       | create, start, attach         | agent-config wiring, daemon start, repository index                                                                                                     |
-| `repair-codex-cbm-hooks-block.py`                    | CBM install                   | move tables other than cbm's own hooks out of its `SessionStart` block in `${CODEX_HOME:-~/.codex}/config.toml`; no-op when nothing needs moving        |
-| `uv-sync.sh`                                         | create, attach                | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                                                                             |
-| `link-codex-auth.sh`                                 | create, start                 | symlink `~/.codex/auth.json` into the shared auth volume                                                                                                |
-| `configure-codex.py`                                 | start (last)                  | set top-level `sandbox_mode` and `approval_policy` in `${CODEX_HOME:-~/.codex}/config.toml`, atomically at `0600`                                       |
-| `preapprove-claude-workspace.sh`                     | create                        | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                                    |
-| `claude-remote-control-start.sh`                     | Coder `coder_script`, by hand | with a claude.ai login, run `claude-remote-control-session.sh` named after `CODER_WORKSPACE_NAME` in session `claude-remote` on `tmux -L claude-remote` |
-| `claude-remote-control-session.sh`                   | `claude-remote` pane          | resume the conversation pinned in `remote-control-session-id`; when none is stored or the resume fails, start and pin a new one                         |
-| `setup-gh-credential-helper.sh`                      | start                         | `gh auth setup-git` when gh is logged in and no github.com helper exists                                                                                |
-| `setup-keyring.sh`                                   | start                         | dbus + gnome-keyring session, persisted to `.tmp/keyring-session.env`                                                                                   |
-| `firewall.sh`                                        | start                         | run `init-firewall.sh` only when `ENABLE_FIREWALL=true`                                                                                                 |
-| `setup-git-safe-directory.sh`, `setup-pre-commit.sh` | start                         | `safe.directory`; hook install unless `AGENTDEV_SKIP_PRE_COMMIT`                                                                                        |
-| `ci-hooks-repro.sh`                                  | by hand                       | run the hooks inside a bare `container:` job image to reproduce CI                                                                                      |
+| Script                                               | Called by                       | Does                                                                                                                                                    |
+| ---------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `postCreateCommand.sh`                               | create (once)                   | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, Claude pre-approval, Codex auth link, uv sync, staged-catalog install                |
+| `postStartCommand.sh`                                | every start                     | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Codex auth link and policy                           |
+| `postAttachCommand.sh`                               | every editor attach             | CBM index, uv sync, reinstall the catalog from this checkout                                                                                            |
+| `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach                  | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                                                 |
+| `reinstall-agentdev-codex.sh [root]`                 | create, attach                  | the Codex equivalent, single-plugin; Codex has no scopes                                                                                                |
+| `reinstall-agentdev-opencode.sh [root]`              | create, attach                  | point the `plugin` list of the user's `opencode.json` at `root`'s OpenCode bridge, replacing any earlier bridge entry                                   |
+| `codebase-memory-mcp-{install,start,index}.sh`       | create, start, attach           | agent-config wiring, daemon start, repository index                                                                                                     |
+| `repair-codex-cbm-hooks-block.py`                    | CBM install                     | move tables other than cbm's own hooks out of its `SessionStart` block in `${CODEX_HOME:-~/.codex}/config.toml`; no-op when nothing needs moving        |
+| `uv-sync.sh`                                         | create, attach                  | drop a managed `.venv` link, `uv sync --all-groups --all-extras` into `/uv`                                                                             |
+| `link-codex-auth.sh`                                 | create, start                   | symlink `~/.codex/auth.json` into the shared auth volume                                                                                                |
+| `configure-codex.py`                                 | start (last)                    | set top-level `sandbox_mode` and `approval_policy` in `${CODEX_HOME:-~/.codex}/config.toml`, atomically at `0600`                                       |
+| `preapprove-claude-workspace.sh`                     | create                          | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                                    |
+| `coder-agent-start.sh`                               | Coder `coder_script`            | the Coder agent's entry point: run `setup-gh-credential-helper.sh` (a failure only warns), then exec `claude-remote-control-start.sh`                   |
+| `claude-remote-control-start.sh`                     | `coder-agent-start.sh`, by hand | with a claude.ai login, run `claude-remote-control-session.sh` named after `CODER_WORKSPACE_NAME` in session `claude-remote` on `tmux -L claude-remote` |
+| `claude-remote-control-session.sh`                   | `claude-remote` pane            | resume the conversation pinned in `remote-control-session-id`; when none is stored or the resume fails, start and pin a new one                         |
+| `setup-gh-credential-helper.sh`                      | start, `coder-agent-start.sh`   | `gh auth setup-git` when gh is logged in and no github.com helper exists                                                                                |
+| `setup-keyring.sh`                                   | start                           | dbus + gnome-keyring session, persisted to `.tmp/keyring-session.env`                                                                                   |
+| `firewall.sh`                                        | start                           | run `init-firewall.sh` only when `ENABLE_FIREWALL=true`                                                                                                 |
+| `setup-git-safe-directory.sh`, `setup-pre-commit.sh` | start                           | `safe.directory`; hook install unless `AGENTDEV_SKIP_PRE_COMMIT`                                                                                        |
+| `ci-hooks-repro.sh`                                  | by hand                         | run the hooks inside a bare `container:` job image to reproduce CI                                                                                      |
 
 ## How it works
 
@@ -70,11 +71,14 @@ symlink because the installer rewrites the file, and first repairs Codex's
 Agent credentials come only from a login inside a container, kept in the shared
 auth volume. `claude-remote-control-start.sh` asks `claude auth status --json`
 and starts Remote Control only when it reports `loggedIn` with the `claude.ai`
-auth method. No lifecycle hook runs it; the Coder workspace template's
-`coder_script` on the dev container's sub-agent does, outside this repository.
-It runs the session on its own tmux server, so the Claude process inherits the
-caller's environment even when a default-socket server is already live. The pane
-runs `claude-remote-control-session.sh`, which keeps one conversation ID in
+auth method. No lifecycle hook runs it. `coder-agent-start.sh` is the single
+script the Coder workspace template's `coder_script` on the dev container's
+sub-agent runs, outside this repository; it sets up the gh credential helper
+with the agent's environment, where `GITHUB_TOKEN` is set, then execs the Remote
+Control launcher. That launcher runs the session on its own tmux server, so the
+Claude process inherits the caller's environment even when a default-socket
+server is already live. The pane runs `claude-remote-control-session.sh`, which
+keeps one conversation ID in
 `${CLAUDE_CONFIG_DIR:-~/.claude}/remote-control-session-id` and passes it to
 `claude --remote-control --resume`; a missing ID or a non-zero resume exit
 starts `--session-id` with a fresh UUID written to that file.
@@ -136,6 +140,8 @@ Verified anchor points (line numbers as of 2026-10-13):
   `tmux -L claude-remote`
 - `.devcontainer/scripts/claude-remote-control-session.sh:5,15,19-22` — ID file,
   resume, fresh pinned conversation
+- `.devcontainer/scripts/coder-agent-start.sh:9-13` — warn-only helper setup,
+  exec of the Remote Control launcher
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:8,30` — keyring session
   load, `gh auth setup-git`
 - `.devcontainer/scripts/configure-codex.py:29,46` — `render_config`,

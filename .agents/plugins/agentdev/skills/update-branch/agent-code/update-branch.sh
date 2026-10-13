@@ -13,7 +13,7 @@ remote_name="origin"
 base_branch="main"
 
 usage() {
-  show_help_header "Merge origin/main into the current branch."
+  show_help_header "Bring in the branch's upstream, then merge origin/main into the current branch."
   cat <<'EOF'
 
 Usage:
@@ -25,15 +25,22 @@ Options:
   -h, --help         Show this help text.
 
 Output (key=value lines):
-  RESULT, BRANCH, REMOTE, BASE
-  The delegated merge also prints DESTINATION and SOURCE.
+  RESULT, BRANCH, REMOTE, BASE, UPSTREAM, UPSTREAM_ACTION
+  Each delegated merge also prints DESTINATION and SOURCE.
+
+UPSTREAM_ACTION says how the branch's upstream was brought in before the base:
+'none', 'fast-forward', 'merge', 'untracked' (no upstream), 'base' (the
+upstream is the base ref), or 'gone' (deleted on its remote; a warning).
+
+A run stops at the first conflicted merge, and SOURCE names it. Rerun after
+the resolution is committed; the rerun continues with the next merge.
 
 Results (RESULT / exit code):
-  SUCCESS            0  Merge succeeded
-  ALREADY_UP_TO_DATE 3  Branch already contains the base ref
+  SUCCESS            0  A merge commit was created
+  ALREADY_UP_TO_DATE 3  Branch already contains the base ref; no merge commit
   MERGE_CONFLICTS    4  Conflicts detected — use the git-merge-resolve workflow
   PROTECTED_BRANCH   5  Current branch is the default branch
-  FETCH_FAILED       6  The configured remote could not be fetched
+  FETCH_FAILED       6  The configured or upstream remote could not be fetched
   PREFLIGHT_ERROR    2  Usage or preflight error (not a repo, dirty tree)
   SCRIPT_FAILURE     1  Unhandled error
 
@@ -41,6 +48,25 @@ Examples:
   agent-code/update-branch.sh
   agent-code/update-branch.sh --remote upstream --base main
 EOF
+}
+
+# Merge `source` through git-merge-resolve.sh, forwarding all of its stdout but
+# its RESULT line; stops the run unless the merge succeeded.
+merge_ref() {
+  local source="$1"
+  local helper_status=0
+  local helper_output
+
+  helper_output="$("${merge_script}" --message "Merge ${source} into ${branch_name}" "${source}")" ||
+    helper_status=$?
+  printf '%s\n' "${helper_output}" | grep -v '^RESULT=' || true
+
+  case "${helper_status}" in
+    0) merged=1 ;;
+    4) quit_by_code 4 ;;
+    2) quit_by_code 2 ;;
+    *) quit_by_code 1 ;;
+  esac
 }
 
 while [[ $# -gt 0 ]]; do
@@ -101,26 +127,80 @@ if ! git rev-parse --verify --quiet "${base_ref}^{commit}" >/dev/null; then
   quit_by_code 2
 fi
 
-# Check if already up to date
-merge_base="$(git merge-base HEAD "${base_ref}")"
-base_sha="$(git rev-parse "${base_ref}")"
-
-if [[ "${merge_base}" == "${base_sha}" ]]; then
-  printf 'Already up to date with %s.\n' "${base_ref}" >&2
-  quit_by_code 3
-fi
-
-# Delegate merge execution and any conflict handling to the generic skill. Its
-# result table is aligned with this one (0/1/2 shared, 3=ALREADY_UP_TO_DATE,
-# 4=MERGE_CONFLICTS), so exec hands it the process and its RESULT line becomes
-# this run's one verdict — no translation layer, no filtered output. exec also
-# discards this script's EXIT trap, so guard the one case that would have
-# needed it.
 if [[ ! -x "${merge_script}" ]]; then
   print_error "Merge helper is missing or not executable: ${merge_script}"
   quit_by_code 1
 fi
 
-exec "${merge_script}" \
-  --message "Merge ${base_ref} into ${branch_name}" \
-  "${base_ref}"
+upstream_ref="$(git for-each-ref --format='%(upstream:short)' "refs/heads/${branch_name}")"
+upstream_remote="$(git config --get "branch.${branch_name}.remote" || true)"
+upstream_merge="$(git config --get "branch.${branch_name}.merge" || true)"
+
+# Print how the upstream relates to HEAD; fetches a second upstream remote and
+# stops the run when that remote cannot be reached.
+classify_upstream() {
+  local ls_remote_status=0
+
+  if [[ -z "${upstream_ref}" ]]; then
+    echo "untracked"
+    return
+  fi
+  if [[ "${upstream_ref}" == "${base_ref}" ]]; then
+    echo "base"
+    return
+  fi
+  if [[ "${upstream_remote}" != "." ]]; then
+    if [[ "${upstream_remote}" != "${remote_name}" ]]; then
+      printf 'Fetching %s...\n' "${upstream_remote}" >&2
+      if ! git fetch "${upstream_remote}" >&2; then
+        print_error "Failed to fetch upstream remote '${upstream_remote}'."
+        return 6
+      fi
+    fi
+    git ls-remote --exit-code --heads "${upstream_remote}" "${upstream_merge#refs/heads/}" \
+      >/dev/null || ls_remote_status=$?
+    if [[ "${ls_remote_status}" -eq 2 ]]; then
+      echo "gone"
+      return
+    elif [[ "${ls_remote_status}" -ne 0 ]]; then
+      print_error "Failed to query upstream remote '${upstream_remote}'."
+      return 6
+    fi
+  fi
+  if git merge-base --is-ancestor "${upstream_ref}" HEAD; then
+    echo "none"
+  elif git merge-base --is-ancestor HEAD "${upstream_ref}"; then
+    echo "fast-forward"
+  else
+    echo "merge"
+  fi
+}
+
+upstream_action="$(classify_upstream)" || quit_by_code "$?"
+printf 'UPSTREAM=%s\n' "${upstream_ref}"
+printf 'UPSTREAM_ACTION=%s\n' "${upstream_action}"
+
+merged=0
+case "${upstream_action}" in
+  gone)
+    printf "WARNING: Upstream '%s' no longer exists on '%s'; continuing without it.\n" \
+      "${upstream_ref}" "${upstream_remote}" >&2
+    ;;
+  fast-forward)
+    git merge --ff-only --quiet "${upstream_ref}" >&2
+    ;;
+  merge)
+    merge_ref "${upstream_ref}"
+    ;;
+esac
+
+if git merge-base --is-ancestor "${base_ref}" HEAD; then
+  printf 'Already contains %s.\n' "${base_ref}" >&2
+  if [[ "${merged}" -eq 1 ]]; then
+    quit_by_code 0
+  fi
+  quit_by_code 3
+fi
+
+merge_ref "${base_ref}"
+quit_by_code 0

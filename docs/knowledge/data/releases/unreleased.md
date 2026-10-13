@@ -41,6 +41,9 @@ catalog](../features/self-improve-plugin-in-catalog.md)
 
 ## Fixed
 
+[HTTPS git push hangs on Coder's askpass when gh's login is only a session
+token](../bugs/coder-askpass-push-hang.md)
+
 [Codex never loads the agentdev catalog
 agents](../bugs/codex-catalog-agents-not-loaded.md)
 
@@ -52,3 +55,6 @@ index](../bugs/fixture-git-inherits-commit-index.md)
 
 [The review orchestrator ends its turn while its passes are still
 running](../bugs/review-orchestrator-ends-turn-while-passes-run.md)
+
+[Coder workspace Dev Container is lost on
+restart](../bugs/coder-devcontainer-lost-on-restart.md)
