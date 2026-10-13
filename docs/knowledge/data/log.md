@@ -24,6 +24,9 @@ to the current day's group.
   start as a second helper trigger.
 - **Bug**: [HTTPS git push hangs on Coder's askpass when gh's login is only a
   session token](bugs/coder-askpass-push-hang.md) fixed.
+- **Update**: [Coder IDE baseline template](spec/coder-ide-baseline.md) spec
+  created: the template's agent-start hook, per-workspace state volumes, and how
+  to validate and ship a template version.
 - **Update**: [Update branch pulls its upstream before merging the
   base](plans/20261012-update-branch-pulls-upstream.md) done. update-branch now
   fast-forwards or merges the branch's own upstream before the base; see
