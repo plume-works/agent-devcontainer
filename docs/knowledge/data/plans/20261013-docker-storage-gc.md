@@ -105,10 +105,13 @@ daemon accepts, and Tasks 2 and 4 use them.
 `.devcontainer/scripts/coder-agent-start.sh`,
 `scripts/tests/test_coder_agent_start.py`
 
-- [ ] `docker-image-prune.sh` runs `docker image prune -af --filter until=72h`
+- [x] `docker-image-prune.sh` runs `docker image prune -af --filter until=72h`
   and prints the reclaimed total. It exits 0 without pruning when `docker` is
   missing or the daemon is unreachable, and exits 0 with a warning when the
   prune itself fails. Tests cover all three paths with a stub `docker`.
+  - **Evidence:** `uv run pytest scripts/tests/test_docker_image_prune.py` — 4
+    passed (prune and reclaimed total, docker missing, daemon unreachable, prune
+    failure); `shellcheck` clean.
 - [ ] `coder-agent-start.sh` runs it before the credential helper, and a prune
   failure does not stop Remote Control from starting. Tests cover the order and
   the failure path.
