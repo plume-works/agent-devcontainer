@@ -52,7 +52,7 @@ to the current day's group.
 - **Update**: [Codebase map](codebase.md) refreshed for `update-branch.sh`
   bringing in the branch's upstream before the base: three docs re-verified.
 - **Idea**: [Resume the Remote Control conversation across
-  restarts](someday/claude-remote-control-resume.md) filed with measured resume
+  restarts](features/claude-remote-control-resume.md) filed with measured resume
   behavior; the downtime limit and lost-session detection stay open.
 
 ## 2026-10-11

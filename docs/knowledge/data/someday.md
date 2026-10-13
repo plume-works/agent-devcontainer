@@ -24,6 +24,3 @@ self-improve](someday/self-improve-hermes-prompt-stack.md)
 
 [Validate correctness candidates on the large
 model](someday/pr-review-large-validator.md)
-
-[Resume the Remote Control conversation across
-restarts](someday/claude-remote-control-resume.md)
