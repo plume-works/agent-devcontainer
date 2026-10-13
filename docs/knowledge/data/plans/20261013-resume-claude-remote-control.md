@@ -48,7 +48,7 @@ stored ID".
 **Files:** Create: `.devcontainer/scripts/claude-remote-control-session.sh`,
 `scripts/tests/test_claude_remote_control_session.py`
 
-- [ ] Tests first, against a fake `claude` that appends its arguments to a log
+- [x] Tests first, against a fake `claude` that appends its arguments to a log
   and exits with a status the test sets; every test points `CLAUDE_CONFIG_DIR`
   at a temporary directory, never the real `~/.claude`:
   - no ID file: one call, `--remote-control <name> --session-id <uuid>`; the ID
@@ -59,10 +59,17 @@ stored ID".
     `--remote-control <name> --session-id <new>` with `<new>` different from the
     stored ID; the ID file holds `<new>`;
   - no name argument: the calls carry `--remote-control` with no name.
-- [ ] Script: `#!/usr/bin/env bash`, `set -euo pipefail`; an optional first
+  - **Evidence:** commit "Resume the Remote Control conversation by a pinned
+    ID": `test_claude_remote_control_session.py`, one test per case; all four
+    fail before the script exists.
+- [x] Script: `#!/usr/bin/env bash`, `set -euo pipefail`; an optional first
   argument is the Remote Control name; behavior as in `## Approach`.
-- [ ] `shellcheck` clean;
+  - **Evidence:** commit "Resume the Remote Control conversation by a pinned
+    ID": `claude-remote-control-session.sh`.
+- [x] `shellcheck` clean;
   `uv run pytest scripts/tests/test_claude_remote_control_session.py` green.
+  - **Evidence:** commit "Resume the Remote Control conversation by a pinned
+    ID": `shellcheck` clean; the test file 4 passed.
 
 ### Task 2: Start script runs the pane script
 
