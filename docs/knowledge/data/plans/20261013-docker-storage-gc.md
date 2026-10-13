@@ -112,9 +112,14 @@ daemon accepts, and Tasks 2 and 4 use them.
   - **Evidence:** `uv run pytest scripts/tests/test_docker_image_prune.py` — 4
     passed (prune and reclaimed total, docker missing, daemon unreachable, prune
     failure); `shellcheck` clean.
-- [ ] `coder-agent-start.sh` runs it before the credential helper, and a prune
+- [x] `coder-agent-start.sh` runs it before the credential helper, and a prune
   failure does not stop Remote Control from starting. Tests cover the order and
   the failure path.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_coder_agent_start.py scripts/tests/test_docker_image_prune.py`
+    — 8 passed, including
+    `test_prune_and_helper_setup_run_before_remote_control` and
+    `test_remote_control_starts_when_prune_fails`; `shellcheck` clean.
 
 ### Task 4: Bound the workspace engine in coder-ide-baseline
 
@@ -266,10 +271,12 @@ Verified anchor points (line numbers as of 2026-10-13):
 - `ansible/roles/install_docker/tasks/main.yml:46` — `Configure Docker daemon`
   writes `/etc/docker/daemon.json`
 - `.devcontainer/devcontainer.json:17` — docker-in-docker feature
-- `.devcontainer/scripts/coder-agent-start.sh:9` — credential helper call; `:13`
-  — `exec` of `claude-remote-control-start.sh`
-- `scripts/tests/test_coder_agent_start.py:37` —
-  `test_helper_setup_runs_before_remote_control`
+- `.devcontainer/scripts/coder-agent-start.sh:9` — `docker-image-prune.sh` call;
+  `:13` — credential helper call; `:17` — `exec` of
+  `claude-remote-control-start.sh`
+- `.devcontainer/scripts/docker-image-prune.sh` — the Dev Container engine prune
+- `scripts/tests/test_coder_agent_start.py:43` —
+  `test_prune_and_helper_setup_run_before_remote_control`
 - `coder-ide-baseline` `template/main.tf:113` — `coder_agent.dev`; `:136` —
   Docker readiness wait in `startup_script`
 - `coder-ide-baseline` `root-container/Dockerfile:47` —
