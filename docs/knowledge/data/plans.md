@@ -17,6 +17,12 @@ moves them.*
 
 ## Active
 
+[Cap Docker storage with automatic garbage
+collection](plans/20261013-docker-storage-gc.md)
+
+[Share one BuildKit builder across Coder
+workspaces](plans/20261013-shared-buildkit-workspace.md)
+
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 

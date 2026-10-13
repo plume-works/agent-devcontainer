@@ -24,3 +24,6 @@ self-improve](someday/self-improve-hermes-prompt-stack.md)
 
 [Validate correctness candidates on the large
 model](someday/pr-review-large-validator.md)
+
+[Deduplicate Docker storage at the host
+filesystem](someday/host-filesystem-dedup.md)

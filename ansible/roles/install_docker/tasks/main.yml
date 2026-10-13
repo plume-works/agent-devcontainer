@@ -53,6 +53,12 @@
         "log-opts": {
           "max-size": "10m",
           "max-file": "3"
+        },
+        "builder": {
+          "gc": {
+            "enabled": true,
+            "defaultMaxUsedSpace": "10GB"
+          }
         }
       }
   register: install_docker_docker_daemon_config
