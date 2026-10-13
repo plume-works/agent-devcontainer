@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-13
 
+- **Update**: [Resume the Remote Control conversation across
+  restarts](features/claude-remote-control-resume.md) implemented.
 - **Update**: [Resume the autostarted Remote Control conversation by a pinned
   ID](plans/20261013-resume-claude-remote-control.md) done; [Claude Remote
   Control](spec/claude-remote-control.md) now resumes its pinned conversation on

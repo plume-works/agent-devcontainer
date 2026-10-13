@@ -33,6 +33,9 @@ catalog](../features/self-improve-plugin-in-catalog.md)
 
 [OpenCode as a catalog host](../features/opencode-catalog-host.md)
 
+[Resume the Remote Control conversation across
+restarts](../features/claude-remote-control-resume.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

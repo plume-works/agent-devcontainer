@@ -1,16 +1,15 @@
 ---
 type: feature
-stage: proposed
-status: draft
-description: The autostarted Claude Remote Control resumes one pinned conversation per agentdev-claude volume, so a workspace restart or rebuild reattaches the same claude.ai/code session with its history.
-generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-13T09:00:00Z
+stage: implemented
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/devcontainer.json
 - resource: https://code.claude.com/docs/en/remote-control
+description: The autostarted Claude Remote Control resumes one pinned conversation per agentdev-claude volume, so a workspace restart or rebuild reattaches the same claude.ai/code session with its history.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-10-13T10:11:32Z
 ---
 
 # Resume the Remote Control conversation across restarts
