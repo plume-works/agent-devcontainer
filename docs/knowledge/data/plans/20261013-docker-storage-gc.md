@@ -183,8 +183,9 @@ daemon accepts, and Tasks 2 and 4 use them.
 ## Spec changes
 
 [Coder IDE baseline](../spec/coder-ide-baseline.md) gains a requirement for the
-workspace engine; the Dev Container engine gets a new spec,
-`spec/devcontainer-docker-storage`. Both delete data, so they carry full deltas.
+workspace engine; the Dev Container engine gets a new spec, [Devcontainer Docker
+storage](../spec/devcontainer-docker-storage.md). Both delete data, so they
+carry full deltas.
 
 ``` markdown
 ## ADDED Requirements (spec/coder-ide-baseline)
