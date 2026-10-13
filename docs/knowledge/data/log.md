@@ -6,6 +6,21 @@ to the current day's group.
 
 ## 2026-10-13
 
+- **Update**: [Resume the Remote Control conversation across
+  restarts](features/claude-remote-control-resume.md) implemented.
+- **Update**: [Resume the autostarted Remote Control conversation by a pinned
+  ID](plans/20261013-resume-claude-remote-control.md) done; [Claude Remote
+  Control](spec/claude-remote-control.md) now resumes its pinned conversation on
+  every start and falls back to a fresh pinned conversation when the resume
+  fails.
+- **Update**: [Devcontainer lifecycle scripts](codebase/devcontainer/scripts.md)
+  map refreshed for `claude-remote-control-session.sh`, the pinned-conversation
+  pane script, in commit "map: refresh devcontainer scripts for the Remote
+  Control session script".
+- **Plan**: [Resume the autostarted Remote Control conversation by a pinned
+  ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
+  in [Claude Remote Control
+  resume](architecture/claude-remote-control-resume.md).
 - **Update**: [Codebase map](codebase.md) refreshed for the template-consume
   guide stating the iwe version config version 4 needs: two docs re-verified.
 
@@ -40,6 +55,9 @@ to the current day's group.
   upstream-sync and conflict-rerun requirements.
 - **Update**: [Codebase map](codebase.md) refreshed for `update-branch.sh`
   bringing in the branch's upstream before the base: three docs re-verified.
+- **Idea**: [Resume the Remote Control conversation across
+  restarts](features/claude-remote-control-resume.md) filed with measured resume
+  behavior; the downtime limit and lost-session detection stay open.
 
 ## 2026-10-11
 

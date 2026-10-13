@@ -63,3 +63,6 @@ pins](features/renovate-maintains-checksums.md)
 [Native stacked pull requests](features/native-stacked-prs.md)
 
 [OpenCode as a catalog host](features/opencode-catalog-host.md)
+
+[Resume the Remote Control conversation across
+restarts](features/claude-remote-control-resume.md)

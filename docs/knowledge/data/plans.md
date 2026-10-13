@@ -22,6 +22,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Resume the Remote Control conversation across
+restarts](plans/20261013-resume-claude-remote-control.md)
+
 [Persist the Coder workspace containerd image
 store](plans/20261011-persist-coder-workspace-containerd.md)
 

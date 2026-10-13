@@ -1,17 +1,19 @@
 ---
 type: spec
-description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment, and every container pre-approves Claude's first-run state unless it opts out.
+description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment and resuming its pinned conversation, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T00:00:00Z
+  at: 2026-10-13T00:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
+- resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/preapprove-claude-workspace.sh
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .github/actions/run-claude-responder/action.yml
+- resource: scripts/tests/test_claude_remote_control_session.py
 - resource: scripts/tests/test_claude_remote_control_start.py
 - resource: scripts/tests/test_preapprove_claude_workspace.py
 - resource: https://code.claude.com/docs/en/errors#login-expired
@@ -34,9 +36,9 @@ and every devcontainer answers Claude's first-run prompts ahead of time.
 
 ### Requirement: Remote Control autostarts only on a live claude.ai login
 
-`claude-remote-control-start.sh` SHALL start `claude --remote-control` in
-exactly one detached tmux session named `claude-remote`, on the dedicated tmux
-server `tmux -L claude-remote`, naming the Remote Control session after
+`claude-remote-control-start.sh` SHALL start Remote Control in exactly one
+detached tmux session named `claude-remote`, on the dedicated tmux server
+`tmux -L claude-remote`, naming the Remote Control session after
 `CODER_WORKSPACE_NAME` when it is set, only when `claude auth status --json`
 reports `loggedIn: true` with `authMethod: "claude.ai"`. The Coder template's
 `coder_script` on the dev container's sub-agent runs it on every agent start; no
@@ -44,6 +46,13 @@ devcontainer lifecycle hook runs it. Repeated or concurrent runs SHALL reuse a
 live session rather than create another. It SHALL skip startup when `claude` or
 `tmux` is unavailable. The Claude process SHALL NOT receive
 `CLAUDE_CODE_OAUTH_TOKEN`.
+
+The session SHALL resume the conversation whose ID is stored in
+`remote-control-session-id` under Claude's configuration directory. When no ID
+is stored, or the resume exits non-zero, it SHALL start a new conversation under
+a newly generated ID and store that ID in place of the old one. A transient
+failure to reconnect a resumed conversation leaves Claude running with Remote
+Control off; running `/remote-control` in the session restores it.
 
 #### Scenario: the Coder agent restarts
 
@@ -74,6 +83,24 @@ live session rather than create another. It SHALL skip startup when `claude` or
 - **WHEN** the script starts `claude-remote` with `CODER_WORKSPACE_NAME` set
 - **THEN** claude.ai/code lists the Remote Control session under that workspace
   name.
+
+#### Scenario: the workspace restarts or is rebuilt
+
+- **WHEN** `claude-remote` starts with a stored conversation ID whose
+  conversation still exists
+- **THEN** it resumes that conversation, and claude.ai/code shows it under the
+  same session URL with its earlier turns.
+
+#### Scenario: the first start in a new volume
+
+- **WHEN** `claude-remote` starts with no stored conversation ID
+- **THEN** it starts a new conversation and stores its ID.
+
+#### Scenario: the stored conversation cannot be resumed
+
+- **WHEN** resuming the stored conversation exits non-zero
+- **THEN** a new conversation starts under a new ID, and that ID replaces the
+  stored one.
 
 ### Requirement: Remote Control inherits the Coder agent's environment
 
