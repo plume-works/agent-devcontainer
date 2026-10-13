@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-13
 
+- **Update**: [Resume the autostarted Remote Control conversation by a pinned
+  ID](plans/20261013-resume-claude-remote-control.md) done; [Claude Remote
+  Control](spec/claude-remote-control.md) now resumes its pinned conversation on
+  every start and falls back to a fresh pinned conversation when the resume
+  fails.
 - **Update**: [Devcontainer lifecycle scripts](codebase/devcontainer/scripts.md)
   map refreshed for `claude-remote-control-session.sh`, the pinned-conversation
   pane script, in commit "map: refresh devcontainer scripts for the Remote

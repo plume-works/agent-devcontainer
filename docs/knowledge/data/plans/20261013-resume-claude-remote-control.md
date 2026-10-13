@@ -10,6 +10,8 @@ sources:
 - resource: .devcontainer/devcontainer.json
 - resource: scripts/tests/test_claude_remote_control_start.py
 - resource: https://code.claude.com/docs/en/remote-control
+stage: done
+completed: 2026-10-13
 ---
 
 # Resume the autostarted Remote Control conversation by a pinned ID
