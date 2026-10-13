@@ -3,7 +3,7 @@ type: spec
 description: How the plume-works/coder-ide-baseline Coder template runs this repository's Dev Container, and how to change, validate, and ship a template version.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T22:20:00Z
+  at: 2026-10-13T20:08:59Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/push.sh
@@ -150,6 +150,11 @@ After a new version is activated, existing workspaces report as outdated until
 running inside that workspace, including an agent's own. An agent therefore
 verifies restart behavior in a different workspace, such as a probe, or hands
 the restart to the operator.
+
+Run `coder update <workspace>` from a different workspace or machine, never from
+inside the target. The CLI sends a stop build, then a start build, and the stop
+ends the CLI with the workspace, so a self-update leaves it stopped and still
+outdated. Recover with `coder update <workspace>` from elsewhere.
 
 A workspace that has not yet restarted on a version that runs
 `coder-agent-start.sh` has no github.com credential helper. There, `git push`
