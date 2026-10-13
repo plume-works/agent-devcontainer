@@ -150,10 +150,14 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 **Files:** none (live Coder deployment)
 
-- [ ] Push the Task 4 branch as a named draft template version
+- [x] Push the Task 4 branch as a named draft template version
   (`--activate=false`), create a probe workspace from it, and record under
   `## Verification results` that `docker buildx inspect` in the workspace engine
   reports the GC policy and that the startup log shows the prune.
+  - **Evidence:** draft version `docker-storage-gc-pr21` (inactive) and probe
+    workspace `probe-docker-gc` on image
+    `ghcr.io/plume-works/coder-ide-baseline:pr-21`; recorded under
+    `## Verification results`.
 
 ### Task 6: Activate the template and update the workspaces
 
@@ -264,6 +268,14 @@ each rule's Reserved Space instead, which is a floor and not a cap.
 `dockerd --validate` accepts unknown keys and malformed sizes under
 `builder.gc`, so the effective policy has to be read back with
 `docker buildx inspect`; `docker info` does not report it.
+
+On the draft template version `docker-storage-gc-pr21`, a workspace from image
+`pr-21` (index digest
+`sha256:37408335405cfdcbd5ab15dba8f2915bf09babff67ac28320b652998cce0d6e4`) has
+the template's `daemon.json` at `/etc/docker/daemon.json`. In that workspace
+engine, `docker buildx inspect` reports every default GC rule at
+`Max Used Space: 10GiB`, and the startup log follows `Docker is ready` with the
+prune's `Total reclaimed space: 0B`.
 
 ## Out of scope
 
