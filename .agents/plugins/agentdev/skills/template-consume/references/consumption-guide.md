@@ -750,6 +750,24 @@ at the consumer's repository **root** `.iwe/`. `.iwe/config.toml` sets
 `.iwe/` nor takes a `--root` flag — so the config stays at the root and every
 `iwe` command runs with the consumer root as the working directory.
 
+`[workspace]` is iwe config `version = 4`, which iwe `0.25.0` introduced: from
+that release on, any `iwe` command migrates a `[library]` config in place on its
+first run. The template's own iwe pin (`ansible/roles/dev_tools`) is whatever
+Renovate last moved it to, not the minimum this config needs; a consumer whose
+image or CI runs iwe `0.25.0` or later can take the version 4 config.
+
+**Scenario: an iwe older than `0.25.0` reads a version 4 config**
+
+- **WHEN** CI, a pre-commit hook, or the image runs an iwe older than `0.25.0`
+  against `[workspace].path = "docs/knowledge"`
+- **THEN** it does not fail: it ignores the `[workspace]` table and treats the
+  repository root as the workspace, so `iwe schema validate` passes without
+  checking `docs/knowledge/`, and `iwe normalize` reformats every Markdown file
+  in the repository.
+
+Move the config and every iwe the consumer runs — image, CI pin, pre-commit —
+to `0.25.0` or later in the same change.
+
 ### Reusable scaffold
 
 These paths are template-owned and copy across as-is:
