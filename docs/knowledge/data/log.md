@@ -21,6 +21,8 @@ to the current day's group.
   ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
   in [Claude Remote Control
   resume](architecture/claude-remote-control-resume.md).
+- **Update**: [Codebase map](codebase.md) refreshed for the template-consume
+  guide stating the iwe version config version 4 needs: two docs re-verified.
 
 ## 2026-10-12
 
