@@ -170,10 +170,12 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 **Files:** none (published image, live workspace)
 
-- [ ] Once the published `agent-desktop` image carries Task 2 and its pin in
+- [x] Once the published `agent-desktop` image carries Task 2 and its pin in
   `devcontainer-compose-pins.yml` is bumped, record under
   `## Verification results` that `docker buildx inspect` inside a rebuilt Dev
   Container reports the GC policy and that the agent-start log shows the prune.
+  - **Evidence:** `agent-desktop:edge@sha256:12d03e8…` (revision `72094a3`),
+    pinned by #331; recorded under `## Verification results`.
 
 ## Spec changes
 
@@ -283,6 +285,14 @@ plume-works/coder-ide-baseline@473d64a, runs on `agent-dev1`, `agent-dev2`,
 policy, the startup log shows the prune, and the stopped Dev Container's image
 survived it, so the Dev Container restarted without a rebuild. `agent-dev3` is
 updated last.
+
+A workspace on that version whose Dev Container was built fresh from
+`agent-desktop:edge@sha256:12d03e855edeba479dc08a51456baa250c0aa39d1c7036186b0981585bc81609`
+(revision `72094a3`, pinned by #331) carries the role's `builder.gc` block in
+`/etc/docker/daemon.json`. Its nested engine reports every default GC rule at
+`Max Used Space: 10GiB` in `docker buildx inspect`, and the agent-start log
+opens with the prune's `Total reclaimed space: 0B`, ahead of the credential
+helper.
 
 ## Out of scope
 
