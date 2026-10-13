@@ -277,6 +277,13 @@ engine, `docker buildx inspect` reports every default GC rule at
 `Max Used Space: 10GiB`, and the startup log follows `Docker is ready` with the
 prune's `Total reclaimed space: 0B`.
 
+Active version `motionless_ortega54`, pushed from
+plume-works/coder-ide-baseline@473d64a, runs on `agent-dev1`, `agent-dev2`, and
+`agent-dev4`. In each, `docker buildx inspect` reports the 10 GiB policy, the
+startup log shows the prune, and the stopped Dev Container's image survived it,
+so the Dev Container restarted without a rebuild. By the maintainer's direction,
+`dr-qp-1` stays on its current version, and `agent-dev3` is updated last.
+
 ## Out of scope
 
 - Pruning Docker volumes, containers, or networks.
