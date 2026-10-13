@@ -4,7 +4,7 @@ created: 2026-10-13
 description: Bound Docker storage in both engines of a Coder workspace — a 10 GB BuildKit cache limit in each daemon and a 72-hour unused-image prune on every agent start.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T00:00:00Z
+  at: 2026-10-13T14:35:00Z
 sources:
 - resource: ansible/roles/install_docker/tasks/main.yml
 - resource: .devcontainer/scripts/coder-agent-start.sh
@@ -77,11 +77,14 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 **Files:** none (probe in a running Dev Container and a workspace container)
 
-- [ ] Record under `## Verification results`, for both the Dev Container engine
+- [x] Record under `## Verification results`, for both the Dev Container engine
   and the workspace engine: the `dockerd` version, the `builder.gc` keys it
   accepts for a 10 GB limit (checked with `dockerd --validate --config-file`),
   and whether the docker-in-docker feature's `dockerd` reads
   `/etc/docker/daemon.json`.
+  - **Evidence:** `## Verification results` records both engines at `dockerd`
+    29.9.0 and `defaultMaxUsedSpace` as the key, read back through
+    `docker buildx inspect` from a daemon started with each candidate config.
 
 ### Task 2: Limit the Dev Container engine's build cache
 
@@ -126,8 +129,8 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 - [ ] Push the Task 4 branch as a named draft template version
   (`--activate=false`), create a probe workspace from it, and record under
-  `## Verification results` that `docker info` in the workspace engine reports
-  the GC policy and that the startup log shows the prune.
+  `## Verification results` that `docker buildx inspect` in the workspace engine
+  reports the GC policy and that the startup log shows the prune.
 
 ### Task 6: Activate the template and update the workspaces
 
@@ -142,8 +145,8 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 - [ ] Once the published `agent-desktop` image carries Task 2 and its pin in
   `devcontainer-compose-pins.yml` is bumped, record under
-  `## Verification results` that `docker info` inside a rebuilt Dev Container
-  reports the GC policy and that the agent-start log shows the prune.
+  `## Verification results` that `docker buildx inspect` inside a rebuilt Dev
+  Container reports the GC policy and that the agent-start log shows the prune.
 
 ## Spec changes
 
@@ -220,8 +223,24 @@ including Remote Control.
 - `shellcheck .devcontainer/scripts/docker-image-prune.sh`
 - `terraform fmt -check` and `terraform validate` in
   `coder-ide-baseline/template`.
-- Task 5 and Task 7 live checks: `docker info` reports the GC policy in each
-  engine, and the start logs show the prune.
+- Task 5 and Task 7 live checks: `docker buildx inspect` reports the GC policy
+  in each engine, and the start logs show the prune.
+
+## Verification results
+
+Both engines run `dockerd` 29.9.0 (build `a5b58c9`), and neither passes
+`--config-file`, so both read `/etc/docker/daemon.json`: the Dev Container
+engine as started by the docker-in-docker feature, and the workspace engine from
+its systemd unit. New containers in the Dev Container engine get the role's
+`log-opts`. The workspace engine has no `daemon.json` today.
+
+The 10 GB limit is
+`"builder": {"gc": {"enabled": true, "defaultMaxUsedSpace": "10GB"}}`, which
+caps every default GC rule at 10 GiB. The older `defaultKeepStorage` key sets
+each rule's Reserved Space instead, which is a floor and not a cap.
+`dockerd --validate` accepts unknown keys and malformed sizes under
+`builder.gc`, so the effective policy has to be read back with
+`docker buildx inspect`; `docker info` does not report it.
 
 ## Out of scope
 
