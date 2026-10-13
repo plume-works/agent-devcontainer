@@ -6,6 +6,27 @@ to the current day's group.
 
 ## 2026-10-12
 
+- **Update**: [Persist the Coder workspace containerd image
+  store](plans/20261011-persist-coder-workspace-containerd.md) done; the
+  coder-ide-baseline template persists `/var/lib/containerd` and its overlayfs
+  snapshotter directory in per-workspace volumes.
+- **Bug**: [Coder workspace Dev Container is lost on
+  restart](bugs/coder-devcontainer-lost-on-restart.md) fixed.
+- **Update**: [Start Claude Remote Control from the Coder
+  agent](plans/20261011-coder-claude-remote-control.md) done; [Claude Remote
+  Control](spec/claude-remote-control.md) now starts from the Coder template's
+  `coder_script` on a dedicated tmux server and inherits the agent's
+  environment, with the postStart autostart and `AGENTDEV_CLAUDE_AUTOSTART`
+  removed.
+- **Update**: [Configure the gh credential helper from the Coder
+  agent](plans/20261011-coder-agent-gh-credential-helper.md) done; [Devcontainer
+  Git credentials](spec/devcontainer-git-credentials.md) gains the Coder agent
+  start as a second helper trigger.
+- **Bug**: [HTTPS git push hangs on Coder's askpass when gh's login is only a
+  session token](bugs/coder-askpass-push-hang.md) fixed.
+- **Update**: [Coder IDE baseline template](spec/coder-ide-baseline.md) spec
+  created: the template's agent-start hook, per-workspace state volumes, and how
+  to validate and ship a template version.
 - **Update**: [Update branch pulls its upstream before merging the
   base](plans/20261012-update-branch-pulls-upstream.md) done. update-branch now
   fast-forwards or merges the branch's own upstream before the base; see

@@ -38,6 +38,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Devcontainer Git credentials](spec/devcontainer-git-credentials.md)
 
+[Coder IDE baseline template](spec/coder-ide-baseline.md)
+
 [Self-improve learning loop](spec/self-improve-learning-loop.md)
 
 [git-new-branch](spec/git-new-branch.md)

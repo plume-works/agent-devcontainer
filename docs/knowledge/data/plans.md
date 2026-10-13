@@ -17,8 +17,10 @@ moves them.*
 
 ## Active
 
-[Configure the gh credential helper from the Coder
-agent](plans/20261011-coder-agent-gh-credential-helper.md)
+[Resume interrupted Claude PR reviews on a persistent
+runner](plans/20260909-resumable-claude-review-sessions.md)
+
+## Done
 
 [Persist the Coder workspace containerd image
 store](plans/20261011-persist-coder-workspace-containerd.md)
@@ -26,10 +28,8 @@ store](plans/20261011-persist-coder-workspace-containerd.md)
 [Start Claude Remote Control from the Coder
 agent](plans/20261011-coder-claude-remote-control.md)
 
-[Resume interrupted Claude PR reviews on a persistent
-runner](plans/20260909-resumable-claude-review-sessions.md)
-
-## Done
+[Configure the gh credential helper from the Coder
+agent](plans/20261011-coder-agent-gh-credential-helper.md)
 
 [Update branch pulls its upstream before merging the
 base](plans/20261012-update-branch-pulls-upstream.md)

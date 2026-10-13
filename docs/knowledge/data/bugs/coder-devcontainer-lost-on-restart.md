@@ -3,10 +3,12 @@ type: bug
 description: Restarting a coder-ide-baseline workspace discards the nested Docker's containerd image store, so the Dev Container can neither restart nor rebuild from the records left in /var/lib/docker.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T19:30:00Z
+  at: 2026-10-12T23:00:00Z
 sources:
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/1e3ace5/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/349d8d6/template/main.tf
 - resource: https://docs.docker.com/engine/storage/containerd/
+stage: done
 ---
 
 # Bug: Coder workspace Dev Container is lost on restart
@@ -46,11 +48,14 @@ container, which every restart recreates. The surviving records in
 
 ## Fix
 
-Open. Planned in [Persist the Coder workspace containerd image
-store](../plans/20261011-persist-coder-workspace-containerd.md).
-
-Workaround, per restart: on the `dev` agent, remove the stale Dev Container
-container and run `docker builder prune -af`, then restart the workspace.
+Fixed in coder-ide-baseline `1e3ace5` by [Persist the Coder workspace containerd
+image store](../plans/20261011-persist-coder-workspace-containerd.md). The
+template mounts per-workspace volumes at `/var/lib/containerd` and at the
+containerd overlayfs snapshotter directory, next to `/var/lib/docker`, so a
+restart keeps the image content the surviving Docker records point at. Each
+workspace created before those volumes needs a one-time reset on the new
+version: remove the stale Dev Container container, run
+`docker builder prune -af`, then restart.
 
 ## Key references
 
