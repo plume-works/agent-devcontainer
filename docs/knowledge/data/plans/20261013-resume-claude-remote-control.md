@@ -101,8 +101,13 @@ stored ID".
 **Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`, and
 any other `data/codebase/` doc `stale-map-docs.py` reports
 
-- [ ] Run `/agentdev:iwe-map` in refresh mode over the docs that cover the two
+- [x] Run `/agentdev:iwe-map` in refresh mode over the docs that cover the two
   scripts, adding the pane script's row.
+  - **Evidence:** commit "map: refresh devcontainer scripts for the Remote
+    Control session script": `data/codebase/devcontainer/scripts.md` gains the
+    pane script's row and anchors; `devcontainer` and
+    `flow-devcontainer-lifecycle` re-digested; `stale-map-docs.py` ends
+    `RESULT=SUCCESS`.
 
 ### Task 4: Verify in a live Coder workspace
 

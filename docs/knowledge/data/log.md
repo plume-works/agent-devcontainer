@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-13
 
+- **Update**: [Devcontainer lifecycle scripts](codebase/devcontainer/scripts.md)
+  map refreshed for `claude-remote-control-session.sh`, the pinned-conversation
+  pane script, in commit "map: refresh devcontainer scripts for the Remote
+  Control session script".
 - **Update**: [Start Claude Remote Control from the Coder
   agent](plans/20261011-coder-claude-remote-control.md) done. Remote Control
   starts from the Coder template's `coder_script` on a dedicated
