@@ -1,9 +1,9 @@
 ---
 type: spec
-description: Claude Remote Control autostarts in a devcontainer only on a live claude.ai login, and every container pre-approves Claude's first-run state unless it opts out.
+description: Claude Remote Control autostarts from the Coder template's coder_script on a dedicated tmux server, only on a live claude.ai login and with the Coder agent's environment, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T00:00:00Z
+  at: 2026-10-13T00:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -17,6 +17,8 @@ sources:
 - resource: https://code.claude.com/docs/en/authentication
 - resource: https://github.com/anthropics/claude-code/issues/21765
 - resource: https://github.com/anthropics/claude-code/issues/88583
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/a2b1cff/template/main.tf
+- resource: https://coder.com/docs/v2.37/user-guides/user-secrets
 ---
 
 # Claude Remote Control
@@ -24,32 +26,34 @@ sources:
 Claude credentials come only from a `/login` inside a container, persisted in
 the shared `agentdev-agents-auth` volume ([Agent auth
 persistence](../architecture/agent-auth-persistence.md)). On top of that login,
-the devcontainer can start Claude Remote Control unattended and answers Claude's
-first-run prompts ahead of time.
+a Coder workspace starts Claude Remote Control unattended, and every
+devcontainer answers Claude's first-run prompts ahead of time.
 
 ## Requirements
 
 ### Requirement: Remote Control autostarts only on a live claude.ai login
 
-`claude-remote-control-start.sh` SHALL start `claude /remote-control` in exactly
-one detached tmux session named `claude-remote` only when
-`AGENTDEV_CLAUDE_AUTOSTART=1` and `claude auth status --json` reports
-`loggedIn: true` with `authMethod: "claude.ai"`. It runs from
-`postStartCommand.sh` and may be run by hand. Repeated or concurrent runs SHALL
-reuse a live session rather than create another. It SHALL skip startup when
-`claude` or `tmux` is unavailable. The Claude process SHALL NOT receive
+`claude-remote-control-start.sh` SHALL start `claude --remote-control` in
+exactly one detached tmux session named `claude-remote`, on the dedicated tmux
+server `tmux -L claude-remote`, naming the Remote Control session after
+`CODER_WORKSPACE_NAME` when it is set, only when `claude auth status --json`
+reports `loggedIn: true` with `authMethod: "claude.ai"`. The Coder template's
+`coder_script` on the dev container's sub-agent runs it on every agent start; no
+devcontainer lifecycle hook runs it. Repeated or concurrent runs SHALL reuse a
+live session rather than create another. It SHALL skip startup when `claude` or
+`tmux` is unavailable. The Claude process SHALL NOT receive
 `CLAUDE_CODE_OAUTH_TOKEN`.
 
-#### Scenario: the container restarts
+#### Scenario: the Coder agent restarts
 
-- **WHEN** post-start runs while `claude-remote` is already live
+- **WHEN** the `coder_script` runs while `claude-remote` is already live
 - **THEN** it leaves the existing session running and creates no additional
   Claude process.
 
 #### Scenario: the saved login has expired
 
-- **WHEN** autostart is enabled and the credential file exists but
-  `claude auth status --json` reports `loggedIn: false`
+- **WHEN** the credential file exists but `claude auth status --json` reports
+  `loggedIn: false`
 - **THEN** no session is started and the script exits successfully.
 
 #### Scenario: only a setup token is available
@@ -58,10 +62,36 @@ reuse a live session rather than create another. It SHALL skip startup when
   `authMethod` other than `claude.ai`
 - **THEN** no session is started.
 
-#### Scenario: the operator logs in after the container started
+#### Scenario: the operator logs in after the workspace started
 
-- **WHEN** an operator completes `/login` and runs the script by hand
-- **THEN** `claude-remote` starts without a container restart.
+- **WHEN** an operator completes `/login` and runs the script from a Coder
+  terminal
+- **THEN** `claude-remote` starts without a workspace restart.
+
+#### Scenario: the session starts in a Coder workspace
+
+- **WHEN** the script starts `claude-remote` with `CODER_WORKSPACE_NAME` set
+- **THEN** claude.ai/code lists the Remote Control session under that workspace
+  name.
+
+### Requirement: Remote Control inherits the Coder agent's environment
+
+The Claude process in `claude-remote` SHALL receive the environment of the
+process that ran `claude-remote-control-start.sh`, including when another tmux
+server is live on the default socket. Started by the `coder_script`, it SHALL
+carry the Coder user secrets and the agent's git credential helper.
+
+#### Scenario: a GitHub token is a Coder user secret
+
+- **WHEN** the workspace owner has a `GITHUB_TOKEN` env user secret and the
+  `coder_script` starts `claude-remote`
+- **THEN** `gh auth status` succeeds from the Remote Control session.
+
+#### Scenario: a default tmux server is already running
+
+- **WHEN** a tmux server is live on the default socket before the script runs
+- **THEN** `claude-remote` starts on its own server and its Claude process
+  receives the script's environment.
 
 ### Requirement: every container pre-approves first-run Claude state
 
@@ -75,15 +105,15 @@ files SHALL be preserved. The CI responder SHALL set the opt-out.
 
 #### Scenario: a new workspace autostarts Remote Control
 
-- **WHEN** a workspace is created with autostart enabled and a valid claude.ai
-  login in the shared volume
+- **WHEN** a Coder workspace is created on a template whose `coder_script`
+  starts Remote Control, with a valid claude.ai login in the shared volume
 - **THEN** `claude-remote` reaches `/rc active` with no terminal interaction and
   every project `.mcp.json` server enabled except those listed in
   `disabledMcpjsonServers`.
 
-#### Scenario: autostart is not enabled
+#### Scenario: Remote Control is not started
 
-- **WHEN** a workspace is created without `AGENTDEV_CLAUDE_AUTOSTART`
+- **WHEN** a container is created where nothing starts Remote Control
 - **THEN** the first interactive `claude` session shows no onboarding, trust, or
   project-MCP prompt.
 
@@ -96,25 +126,39 @@ files SHALL be preserved. The CI responder SHALL set the opt-out.
 
 ## Setup procedure
 
-### 1. Enable autostart
+### 1. Attach the start script to the Coder agent
 
-Compose passes `AGENTDEV_CLAUDE_AUTOSTART` from the outer workspace. In Coder,
-supply it as a user secret:
+The Coder workspace template runs the script from the cloned repository on every
+start of the dev container's sub-agent, through a `coder_script` on
+`coder_devcontainer.<name>.subagent_id`. It does nothing when the repository
+ships no start script:
 
-``` bash
-printf %s 1 | coder secret create agentdev-claude-autostart \
-  --env AGENTDEV_CLAUDE_AUTOSTART
+``` hcl
+resource "coder_script" "claude_remote_control" {
+  count              = data.coder_parameter.repo.value != "" ? data.coder_workspace.me.start_count : 0
+  agent_id           = coder_devcontainer.repo[0].subagent_id
+  display_name       = "Claude Remote Control"
+  run_on_start       = true
+  start_blocks_login = false
+  script             = <<-EOT
+    s=/workspaces/${local.repo_dir}/.devcontainer/scripts/claude-remote-control-start.sh
+    if [ -x "$s" ]; then exec "$s"; fi
+    echo "This repository ships no Remote Control start script."
+  EOT
+}
 ```
 
-Coder injects user secrets when it creates the outer workspace container, so
-restart or recreate the workspace after adding the mapping.
+The script runs under the agent, so the session inherits the Coder user secrets
+(such as `GITHUB_TOKEN`) and the agent's git credential helper. Outside Coder
+nothing starts it; it stays runnable by hand.
 
 ### 2. Log in
 
 Run `claude` inside the container and complete `/login` with a claude.ai
-account. The login persists in the shared volume, so later containers on the
-same host start Remote Control on their own. In the container where the login
-happened, start it by hand:
+account. The login persists in the shared volume, so later workspaces on the
+same host start Remote Control on their own. In the workspace where the login
+happened, start it by hand from a Coder terminal, which carries the same
+environment as the `coder_script`:
 
 ``` bash
 .devcontainer/scripts/claude-remote-control-start.sh
@@ -127,7 +171,7 @@ only if Claude still shows one, for example after a Claude Code release adds a
 new first-run prompt:
 
 ``` bash
-tmux attach -t claude-remote
+tmux -L claude-remote attach -t claude-remote
 ```
 
 Complete only the prompts that are actually shown:
@@ -155,14 +199,15 @@ stat -c '%U %a %n' \
 
 claude auth status --json
 
-tmux list-sessions -F '#{session_name}'
-tmux list-panes -t =claude-remote \
+tmux -L claude-remote list-sessions -F '#{session_name}'
+tmux -L claude-remote list-panes -t =claude-remote \
   -F 'session=#{session_name} dead=#{pane_dead} command=#{pane_current_command}'
 ```
 
 Expected filesystem metadata is root ownership, mode `0700` on the credential
 directory, and mode `0600` on the credential file. Exactly one tmux session
-named `claude-remote` should contain one live `claude` pane.
+named `claude-remote`, on the `claude-remote` tmux server, should contain one
+live `claude` pane.
 
 To verify that native file authentication took precedence, inspect only the
 environment variable names of the Claude process and assert that

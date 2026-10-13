@@ -4,7 +4,7 @@ created: 2026-10-11
 description: Start Claude Remote Control from a Coder template coder_script on the dev container's sub-agent, on a dedicated tmux server, so the session inherits Coder user secrets and git credentials; remove the postStart autostart and its AGENTDEV_CLAUDE_AUTOSTART flag.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-11T00:00:00Z
+  at: 2026-10-13T00:00:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -15,6 +15,8 @@ sources:
 - resource: https://coder.com/docs/admin/integrations/devcontainers/integration
 - resource: https://coder.com/docs/v2.37/user-guides/user-secrets
 - resource: https://man7.org/linux/man-pages/man1/tmux.1.html
+stage: done
+completed: 2026-10-13
 ---
 
 # Start Claude Remote Control from the Coder agent

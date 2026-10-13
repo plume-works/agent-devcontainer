@@ -6,6 +6,15 @@ to the current day's group.
 
 ## 2026-10-13
 
+- **Update**: [Start Claude Remote Control from the Coder
+  agent](plans/20261011-coder-claude-remote-control.md) done. Remote Control
+  starts from the Coder template's `coder_script` on a dedicated
+  `tmux -L claude-remote` server and inherits the agent's user secrets and git
+  credentials; the postStart autostart and `AGENTDEV_CLAUDE_AUTOSTART` are gone.
+- **Update**: [Claude Remote Control](spec/claude-remote-control.md) spec gains
+  the inherited-environment requirement; its autostart requirement names the
+  `coder_script` trigger, the dedicated tmux server, and the workspace-named
+  session.
 - **Plan**: [Resume the autostarted Remote Control conversation by a pinned
   ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
   in [Claude Remote Control

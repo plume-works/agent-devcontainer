@@ -20,13 +20,13 @@ moves them.*
 [Resume the Remote Control conversation across
 restarts](plans/20261013-resume-claude-remote-control.md)
 
-[Start Claude Remote Control from the Coder
-agent](plans/20261011-coder-claude-remote-control.md)
-
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Start Claude Remote Control from the Coder
+agent](plans/20261011-coder-claude-remote-control.md)
 
 [Agent-owned Ship and Implement
 workflows](plans/20261007-agent-owned-ship-implement.md)
