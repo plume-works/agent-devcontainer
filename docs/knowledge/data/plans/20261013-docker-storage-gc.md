@@ -127,14 +127,24 @@ daemon accepts, and Tasks 2 and 4 use them.
 `root-container/Dockerfile`, `template/main.tf` (in
 `plume-works/coder-ide-baseline`)
 
-- [ ] The base image installs `root-container/daemon.json` at
+- [x] The base image installs `root-container/daemon.json` at
   `/etc/docker/daemon.json` with the Task 1 `builder.gc` block (enabled, 10 GB).
-- [ ] The `coder_agent.dev` startup script runs
+  - **Evidence:** plume-works/coder-ide-baseline@fe8ec1a adds
+    `root-container/daemon.json` and its `COPY` to `/etc/docker/daemon.json`;
+    the file passes `dockerd --validate`, and the PR #21 image build passed on
+    amd64 and arm64 (Actions run 38414197899).
+- [x] The `coder_agent.dev` startup script runs
   `docker image prune -af --filter until=72h` after Docker is ready, and only
   warns when it fails.
-- [ ] Open the pull request in `plume-works/coder-ide-baseline`, with
+  - **Evidence:** plume-works/coder-ide-baseline@fe8ec1a runs the prune in the
+    `docker info` success branch of the readiness check, with `||` printing a
+    warning; `terraform validate` passes.
+- [x] Open the pull request in `plume-works/coder-ide-baseline`, with
   `terraform fmt -check` and `terraform validate` passing as [Coder IDE
   baseline](../spec/coder-ide-baseline.md) describes.
+  - **Evidence:** plume-works/coder-ide-baseline#21; `terraform fmt -check` and
+    `terraform validate` pass under Terraform 1.16.5, and the required
+    `Docker Build and Push` check passed.
 
 ### Task 5: Probe the template on a draft version
 
