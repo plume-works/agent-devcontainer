@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-13
+
+- **Plan**: [Resume the autostarted Remote Control conversation by a pinned
+  ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
+  in [Claude Remote Control
+  resume](architecture/claude-remote-control-resume.md).
+
 ## 2026-10-12
 
 - **Idea**: [Resume the Remote Control conversation across

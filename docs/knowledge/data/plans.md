@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Resume the Remote Control conversation across
+restarts](plans/20261013-resume-claude-remote-control.md)
+
 [Start Claude Remote Control from the Coder
 agent](plans/20261011-coder-claude-remote-control.md)
 
