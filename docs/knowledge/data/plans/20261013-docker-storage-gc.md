@@ -90,8 +90,13 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 **Files:** Modify: `ansible/roles/install_docker/tasks/main.yml`
 
-- [ ] Add the Task 1 `builder.gc` block (enabled, 10 GB) to the `daemon.json`
+- [x] Add the Task 1 `builder.gc` block (enabled, 10 GB) to the `daemon.json`
   the role writes, keeping the existing log options.
+  - **Evidence:** the role's `Configure Docker daemon` content carries
+    `builder.gc` with `defaultMaxUsedSpace: "10GB"` beside the log options;
+    `uv run ansible-lint ansible` and the `setup-dev.yml` syntax check pass, and
+    the rendered JSON passes `dockerd --validate`. Its effect in a built image
+    is Task 7.
 
 ### Task 3: Prune unused Dev Container images on agent start
 
