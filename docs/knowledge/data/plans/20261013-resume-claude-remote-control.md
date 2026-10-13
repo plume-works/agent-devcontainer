@@ -111,12 +111,18 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 
 ### Task 4: Verify in a live Coder workspace
 
-- [ ] With this change in a Coder workspace's checkout, record the
+- [x] With this change in a Coder workspace's checkout, record the
   claude.ai/code URL from
   `tmux -L claude-remote capture-pane -p -t claude-remote`, restart the
   workspace, and confirm that after restart the pane shows the same URL and the
   conversation's earlier turns, and that
   `cat ~/.claude/remote-control-session-id` is unchanged.
+  - **Evidence:** live check on Coder workspace `agent-dev2`, template version
+    `lingering_bell82`, Claude Code 2.1.296, 2026-10-13: with both scripts from
+    commit "Start the Remote Control pane through the session script", a
+    `coder restart` left the pane on the same claude.ai/code session URL,
+    showing the conversation's earlier turn, under the unchanged stored ID; the
+    `coder_script` started the pane through `claude-remote-control-session.sh`.
 
 ## Spec changes
 
