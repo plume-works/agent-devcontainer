@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Cap Docker storage with automatic garbage
-collection](plans/20261013-docker-storage-gc.md)
-
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
@@ -27,6 +24,9 @@ workspaces](plans/20261013-shared-buildkit-workspace.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Cap Docker storage with automatic garbage
+collection](plans/20261013-docker-storage-gc.md)
 
 [Resume the Remote Control conversation across
 restarts](plans/20261013-resume-claude-remote-control.md)
