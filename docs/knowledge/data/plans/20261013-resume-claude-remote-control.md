@@ -76,17 +76,25 @@ stored ID".
 **Files:** Modify: `.devcontainer/scripts/claude-remote-control-start.sh`,
 `scripts/tests/test_claude_remote_control_start.py`
 
-- [ ] Tests: the fake-tmux cases expect the pane command to run
+- [x] Tests: the fake-tmux cases expect the pane command to run
   `claude-remote-control-session.sh` from the script's own directory, with the
   `CODER_WORKSPACE_NAME` argument when set and `CLAUDE_CODE_OAUTH_TOKEN`
   removed; the real-tmux case sets `CLAUDE_CONFIG_DIR` to its test directory and
   still asserts the fake `claude` sees `--remote-control` first, no setup token,
   and the caller's environment marker.
-- [ ] Script: replace `claude_command` with the pane script, located relative to
+  - **Evidence:** commit "Start the Remote Control pane through the session
+    script": `PANE_SCRIPT` assertions in both fake-tmux cases fail against the
+    previous script; the real-tmux case sets `CLAUDE_CONFIG_DIR`.
+- [x] Script: replace `claude_command` with the pane script, located relative to
   `claude-remote-control-start.sh`.
-- [ ] `shellcheck` clean;
+  - **Evidence:** commit "Start the Remote Control pane through the session
+    script": `pane_command` at `claude-remote-control-start.sh:31-35`.
+- [x] `shellcheck` clean;
   `uv run pytest scripts/tests/test_claude_remote_control_start.py scripts/tests/test_claude_remote_control_session.py`
   green.
+  - **Evidence:** commit "Start the Remote Control pane through the session
+    script": `shellcheck` clean on both scripts; 14 passed, both real-tmux cases
+    run.
 
 ### Task 3: Refresh the codebase map
 
@@ -211,15 +219,18 @@ with Remote Control off; running `/remote-control` in the session restores it.
 
 Verified anchor points (line numbers as of 2026-10-13):
 
-- `.devcontainer/scripts/claude-remote-control-start.sh:29-34` — `session`,
-  `workspace`, `claude_command` with the optional `CODER_WORKSPACE_NAME` name
-- `.devcontainer/scripts/claude-remote-control-start.sh:41-43` — `tmux_start`,
+- `.devcontainer/scripts/claude-remote-control-start.sh:29-35` — `session`,
+  `workspace`, `pane_command` running `claude-remote-control-session.sh` with
+  the optional `CODER_WORKSPACE_NAME` name
+- `.devcontainer/scripts/claude-remote-control-start.sh:42-44` — `tmux_start`,
   the pane command with `env -u CLAUDE_CODE_OAUTH_TOKEN`
+- `.devcontainer/scripts/claude-remote-control-session.sh:5` — `id_file`, the
+  stored conversation ID
 - `.devcontainer/devcontainer.json:83-84` — the `agentdev-claude` volume mounted
   at `/root/.claude`
-- `scripts/tests/test_claude_remote_control_start.py:32` — `run_with_fake_tmux`
-- `scripts/tests/test_claude_remote_control_start.py:83` —
+- `scripts/tests/test_claude_remote_control_start.py:33` — `run_with_fake_tmux`
+- `scripts/tests/test_claude_remote_control_start.py:84` —
   `test_names_session_after_coder_workspace`
-- `scripts/tests/test_claude_remote_control_start.py:125` —
+- `scripts/tests/test_claude_remote_control_start.py:128` —
   `test_real_tmux_starts_claude_without_setup_token`, whose fake `claude`
   requires `--remote-control` as its first argument
