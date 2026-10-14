@@ -249,7 +249,7 @@ Verified anchor points (line numbers as of 2026-10-14):
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:925`
   — `## Optional custom-image setup`; `:970` `## Ongoing maintenance`
 - `.devcontainer/devcontainer.json:20` — `containerEnv` block
-- `.claude/settings.json` — `enabledPlugins`, already holding
+- `.claude/settings.json:48` — `enabledPlugins`, already holding
   `claude-plugins-official` entries
 - `docs/knowledge/data/spec/template-consumption.md:81` — Requirement: adoption
   is recorded for later updates
