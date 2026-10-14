@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Expo profile for template
+adoption](plans/20261014-expo-eas-template-profile.md)
+
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
