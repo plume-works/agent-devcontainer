@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Bootstrap agentdev natively on macOS with
+Homebrew](plans/20261013-macos-native-bootstrap.md)
+
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
