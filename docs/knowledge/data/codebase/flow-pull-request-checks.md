@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:0ab9a56eb7aa7e84fb51f4358903b67d15a0b64b7a0db3dec400b3894282c1b5
+source_digest: sha256:fa3dae5cebd66051bd518612e1faa7e2da2fdbb39f479a9e92eda1bb08a57057
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:30:00Z
-stale_after: 2027-01-07
+  at: 2026-10-14T09:00:00Z
+stale_after: 2027-01-12
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
+  at: 2026-10-14T09:00:00Z
 sources:
 - id: code
   resource: .github
@@ -36,7 +36,7 @@ before the push.
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit;
    on a Renovate bot's PR nothing is pushed and the `gate` fails —
-   `.github/workflows/reformat.yml:185,279,421`, in
+   `.github/workflows/reformat.yml:186,280,422`, in
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
    build](flow-image-build.md)
@@ -45,12 +45,12 @@ before the push.
    suites, the OpenCode bridge `bun test` suite,
    `validate_agent_files --recommend . --require-marketplace claude codex`, then
    `stale-map-docs.py`, which fails the job when a map doc no longer matches the
-   code it describes — `.github/workflows/validate-agent-files.yml:38-99`
+   code it describes — `.github/workflows/validate-agent-files.yml:39-100`
 5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, the IWE seed,
    or the `dev_tools` pins changed, with the pinned `iwe`:
    `iwe schema validate`, `iwe normalize` must be a no-op, and the plan-checkbox
    tests; a second, path-filtered pytest pass assembles and validates the
-   consumer seed — `.github/workflows/validate-knowledge-base.yml:38-47,69-104`,
+   consumer seed — `.github/workflows/validate-knowledge-base.yml:39-48,70-105`,
    in [the knowledge workspace](docs/knowledge.md)
 6. `validate-renovate-config.yml`: its `paths-filter` passes when
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
@@ -58,7 +58,7 @@ before the push.
    `renovate-config-validator --no-global --strict` inside the pinned
    `agent-desktop` image at the Renovate release the hook's `bunx` pin names,
    and `finished` reports the required result either way —
-   `.github/workflows/validate-renovate-config.yml:26,51,69-75,77`
+   `.github/workflows/validate-renovate-config.yml:26,52,70-76,78`
 7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort
    tier; `claude-respond` runs the review or task through

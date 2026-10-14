@@ -44,6 +44,9 @@ restarts](../features/claude-remote-control-resume.md)
 
 ## Fixed
 
+[Image rebuild lost when a later push to main cancels its
+run](../bugs/main-image-rebuild-lost-on-cancel.md)
+
 [HTTPS git push hangs on Coder's askpass when gh's login is only a session
 token](../bugs/coder-askpass-push-hang.md)
 

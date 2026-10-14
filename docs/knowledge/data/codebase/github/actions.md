@@ -2,14 +2,14 @@
 type: codebase
 description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:e6277a9327579f602938c877e1512092e37c39ae2881732e924ffb34c3480b11
+source_digest: sha256:249523edcccac27fc246e15cab3e6d02c58e450ddf3f10499752e288b1127a36
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:30:00Z
-stale_after: 2027-01-07
+  at: 2026-10-14T09:00:00Z
+stale_after: 2027-01-12
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:30:00Z
+  at: 2026-10-14T09:00:00Z
 sources:
 - id: code
   resource: .github/actions
@@ -38,15 +38,17 @@ Local `using: composite` actions, referenced as `./.github/actions/<name>`.
 (`.devcontainer/**`, `.github/actions/**`, `ansible/**`, `ansible.cfg`,
 `docker/**`, `scripts/**`, `.agents/plugins/**`, `.claude-plugin/**`,
 `py_packages/validate_agent_files/**`) plus caller-supplied extras, then runs
-`dorny/paths-filter` against the PR or a base branch. The Docker trio wraps
-`docker/build-push-action`, `docker/metadata-action`, and a manifest merge so
-`ci.yml` stays declarative. `run-claude-responder` holds the Claude Code
-invocation, artifact upload, and the usage-limit check. It composes
-`claude_args` in its own step rather than in the `with:` block, appending
-`--model` only when the optional `model` input is non-empty, so a caller that
-supplies none leaves the session on the model the merged settings pin.
-`ai-review-status` evaluates the acceptance policy in [AI review
-gate](../../spec/ai-review-gate.md) once, without waiting.
+`dorny/paths-filter` against the PR or a base branch. On a push to the base
+branch it filters from the head of the calling workflow's last successful push
+run there, found through the Actions API, and falls back to the previous push
+when there is none. The Docker trio wraps `docker/build-push-action`,
+`docker/metadata-action`, and a manifest merge so `ci.yml` stays declarative.
+`run-claude-responder` holds the Claude Code invocation, artifact upload, and
+the usage-limit check. It composes `claude_args` in its own step rather than in
+the `with:` block, appending `--model` only when the optional `model` input is
+non-empty, so a caller that supplies none leaves the session on the model the
+merged settings pin. `ai-review-status` evaluates the acceptance policy in [AI
+review gate](../../spec/ai-review-gate.md) once, without waiting.
 
 ## Depends on
 
@@ -79,10 +81,11 @@ gate](../../spec/ai-review-gate.md) once, without waiting.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-09):
+Verified anchor points (line numbers as of 2026-10-14):
 
 - `.github/actions/paths-filter/action.yml:35-48` — the `image` filter list
-- `.github/actions/paths-filter/action.yml:58-71` — PR vs base-branch modes
+- `.github/actions/paths-filter/action.yml:58-94` — PR vs base-branch modes, and
+  `last-pass`, the last passing push run's head
 - `.github/actions/ai-review-status/action.yml:6-27` — inputs and outputs
 - `.github/actions/run-claude-responder/action.yml:4-40` — inputs
 - `.github/actions/run-claude-responder/action.yml:95-108` — lifecycle hooks and

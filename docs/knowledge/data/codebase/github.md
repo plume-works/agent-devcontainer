@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:8a51f0dd88a284f3f407addd4dba3dc839a91bee7f0707044662c3b19e927061
+source_digest: sha256:83f81f70fb614c2dffd51e8e2bb77ec89ee81b30f2fc3a61af98ccca8f2fc1b9
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T23:30:00Z
-stale_after: 2027-01-07
+  at: 2026-10-14T09:00:00Z
+stale_after: 2027-01-12
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
+  at: 2026-10-14T09:00:00Z
 sources:
 - id: code
   resource: .github
@@ -83,7 +83,7 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-09):
+Verified anchor points (line numbers as of 2026-10-14):
 
 - `.github/renovate.json:5-23` — `postUpgradeTasks`
 - `.github/renovate.json:24-29` — lock-file maintenance automerge
@@ -100,5 +100,5 @@ Verified anchor points (line numbers as of 2026-10-09):
   devcontainer CLI, `dev_tools` versions, role version pins, the pre-commit
   `bunx` pin, commit pins
 - `.github/.agent.metadata.json` — runner-label and image-digest masks
-- `.github/workflows/validate-knowledge-base.yml:69-104` — seed filter and
+- `.github/workflows/validate-knowledge-base.yml:70-105` — seed filter and
   standalone seed validation

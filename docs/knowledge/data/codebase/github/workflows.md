@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:24a5536568cf19f678a39856a64e5413b44d84a5fc6aeef413081944ec691bc9
+source_digest: sha256:ba1eaf08f5501a2732510e42f09c21bdaffce3b5a78bac7e2519c619e2728369
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
-stale_after: 2027-01-07
+  at: 2026-10-14T09:00:00Z
+stale_after: 2027-01-12
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
+  at: 2026-10-14T09:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -112,26 +112,26 @@ flow](../flow-pull-request-checks.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
+Verified anchor points (line numbers as of 2026-10-14):
 
-- `.github/workflows/primary-checks.yml:31,52` — `reformat`, `ci`
-- `.github/workflows/reformat.yml:185,279,421` — `super-linter`,
+- `.github/workflows/primary-checks.yml:31,53` — `reformat`, `ci`
+- `.github/workflows/reformat.yml:186,280,422` — `super-linter`,
   `commit-format-changes`, `gate`
-- `.github/workflows/ci.yml:62,97,165,204` — build matrix, base-image selection,
+- `.github/workflows/ci.yml:63,98,166,205` — build matrix, base-image selection,
   merge, devcontainer smoke
-- `.github/workflows/ci.yml:233` — patch the digest pin for the smoke test
-- `.github/workflows/validate-agent-files.yml:38-99` — map-source filter and the
-  check steps
-- `.github/workflows/validate-knowledge-base.yml:38-47,84-104` — paths filter,
+- `.github/workflows/ci.yml:234` — patch the digest pin for the smoke test
+- `.github/workflows/validate-agent-files.yml:39-100` — map-source filter and
+  the check steps
+- `.github/workflows/validate-knowledge-base.yml:39-48,85-105` — paths filter,
   pinned iwe, graph validation, and the path-filtered seed suite
 - `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
 - `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
   markers, both anchored to their own line
 - `.github/workflows/ai-responder.yml:298,402-407` — `opensWith`, and the
   bridge's review-versus-task split and effort label
-- `.github/workflows/validate-renovate-config.yml:26,51,77` — `paths-filter`,
+- `.github/workflows/validate-renovate-config.yml:26,52,78` — `paths-filter`,
   `validate`, `finished`
-- `.github/workflows/validate-renovate-config.yml:58-59,69-75` — pinned
+- `.github/workflows/validate-renovate-config.yml:59-60,70-76` — pinned
   container, pin read and validator run
 - `.github/workflows/renovate.yml:9-15,31-44` — checkbox triggers and the job
   `if:` admitting only a person's dashboard or Renovate PR body edit
