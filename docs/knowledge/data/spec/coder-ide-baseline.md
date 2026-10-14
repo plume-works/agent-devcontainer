@@ -3,9 +3,11 @@ type: spec
 description: How the plume-works/coder-ide-baseline Coder template runs this repository's Dev Container, and how to change, validate, and ship a template version.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T22:20:00Z
+  at: 2026-10-13T21:30:00Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/template/main.tf
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/root-container/daemon.json
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/push.sh
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/README.md
 - resource: .devcontainer/scripts/coder-agent-start.sh
@@ -88,6 +90,27 @@ point at content the new, empty volume lacks.
 - **WHEN** a workspace whose Dev Container is built is restarted
 - **THEN** the Dev Container comes back without a rebuild.
 
+### Requirement: the workspace engine bounds its own storage
+
+The workspace engine SHALL run with BuildKit garbage collection enabled and a 10
+GB build-cache limit, from `/etc/docker/daemon.json` in the base image. The
+`coder_agent` startup script SHALL, once Docker is ready, remove images that no
+container references and that were created more than 72 hours ago. A failed
+prune SHALL NOT fail the startup script.
+
+#### Scenario: a stopped Dev Container's image survives the prune
+
+- **WHEN** the workspace restarts and the startup script prunes before the Dev
+  Container is started again
+- **THEN** the Dev Container's image is kept, because its stopped container
+  references it.
+
+#### Scenario: an old image is unreferenced
+
+- **WHEN** an image created more than 72 hours ago is referenced by no container
+  at agent start
+- **THEN** the startup script removes it.
+
 ### Requirement: an active template version comes from `main`
 
 Every template change SHALL merge to `main` by pull request; the ruleset
@@ -150,6 +173,11 @@ After a new version is activated, existing workspaces report as outdated until
 running inside that workspace, including an agent's own. An agent therefore
 verifies restart behavior in a different workspace, such as a probe, or hands
 the restart to the operator.
+
+Run `coder update <workspace>` from a different workspace or machine, never from
+inside the target. The CLI sends a stop build, then a start build, and the stop
+ends the CLI with the workspace, so a self-update leaves it stopped and still
+outdated. Recover with `coder update <workspace>` from elsewhere.
 
 A workspace that has not yet restarted on a version that runs
 `coder-agent-start.sh` has no github.com credential helper. There, `git push`

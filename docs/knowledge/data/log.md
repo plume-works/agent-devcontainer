@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-13
 
+- **Update**: [Cap Docker storage with automatic garbage
+  collection](plans/20261013-docker-storage-gc.md) done; [Coder IDE baseline
+  template](spec/coder-ide-baseline.md) now bounds the workspace engine's
+  storage, and the new [Devcontainer Docker
+  storage](spec/devcontainer-docker-storage.md) spec records the Dev Container
+  engine's 10 GB build-cache limit and agent-start image prune.
 - **Update**: [Devcontainer lifecycle scripts](codebase/devcontainer/scripts.md)
   and [Flow: devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md)
   map the agent-start image prune; the ansible, devcontainer, and image-build

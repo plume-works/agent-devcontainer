@@ -4,7 +4,7 @@ created: 2026-10-13
 description: Bound Docker storage in both engines of a Coder workspace — a 10 GB BuildKit cache limit in each daemon and a 72-hour unused-image prune on every agent start.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T14:35:00Z
+  at: 2026-10-13T21:35:00Z
 sources:
 - resource: ansible/roles/install_docker/tasks/main.yml
 - resource: .devcontainer/scripts/coder-agent-start.sh
@@ -13,6 +13,8 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/root-container/Dockerfile
 - resource: https://docs.docker.com/build/cache/garbage-collection/
 - resource: https://docs.docker.com/reference/cli/docker/image/prune/
+stage: done
+completed: 2026-10-13
 ---
 
 # Cap Docker storage with automatic garbage collection
@@ -163,23 +165,29 @@ daemon accepts, and Tasks 2 and 4 use them.
 
 **Files:** none (live Coder deployment)
 
-- [ ] After the Task 4 pull request merges, push the activated version from the
+- [x] After the Task 4 pull request merges, push the activated version from the
   merge commit and `coder update` each workspace, one at a time.
+  - **Evidence:** active version `motionless_ortega54` from
+    plume-works/coder-ide-baseline@473d64a runs on every workspace; recorded
+    under `## Verification results`.
 
 ### Task 7: Confirm the Dev Container engine in a rebuilt image
 
 **Files:** none (published image, live workspace)
 
-- [ ] Once the published `agent-desktop` image carries Task 2 and its pin in
+- [x] Once the published `agent-desktop` image carries Task 2 and its pin in
   `devcontainer-compose-pins.yml` is bumped, record under
   `## Verification results` that `docker buildx inspect` inside a rebuilt Dev
   Container reports the GC policy and that the agent-start log shows the prune.
+  - **Evidence:** `agent-desktop:edge@sha256:12d03e8…` (revision `72094a3`),
+    pinned by #331; recorded under `## Verification results`.
 
 ## Spec changes
 
 [Coder IDE baseline](../spec/coder-ide-baseline.md) gains a requirement for the
-workspace engine; the Dev Container engine gets a new spec,
-`spec/devcontainer-docker-storage`. Both delete data, so they carry full deltas.
+workspace engine; the Dev Container engine gets a new spec, [Devcontainer Docker
+storage](../spec/devcontainer-docker-storage.md). Both delete data, so they
+carry full deltas.
 
 ``` markdown
 ## ADDED Requirements (spec/coder-ide-baseline)
@@ -279,10 +287,17 @@ prune's `Total reclaimed space: 0B`.
 
 Active version `motionless_ortega54`, pushed from
 plume-works/coder-ide-baseline@473d64a, runs on `agent-dev1`, `agent-dev2`,
-`agent-dev4`, and `dr-qp-1`. In each, `docker buildx inspect` reports the 10 GiB
-policy, the startup log shows the prune, and the stopped Dev Container's image
-survived it, so the Dev Container restarted without a rebuild. `agent-dev3` is
-updated last.
+`agent-dev4`, `dr-qp-1`, and `agent-dev3`. In each, `docker buildx inspect`
+reports the 10 GiB policy, the startup log shows the prune, and the stopped Dev
+Container's image survived it, so the Dev Container restarted without a rebuild.
+
+A workspace on that version whose Dev Container was built fresh from
+`agent-desktop:edge@sha256:12d03e855edeba479dc08a51456baa250c0aa39d1c7036186b0981585bc81609`
+(revision `72094a3`, pinned by #331) carries the role's `builder.gc` block in
+`/etc/docker/daemon.json`. Its nested engine reports every default GC rule at
+`Max Used Space: 10GiB` in `docker buildx inspect`, and the agent-start log
+opens with the prune's `Total reclaimed space: 0B`, ahead of the credential
+helper.
 
 ## Out of scope
 
