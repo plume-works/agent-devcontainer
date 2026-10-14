@@ -6,14 +6,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:9f3c49a743901f397517563150164db46a453fe3db1008567f7218e7263774b6
+source_digest: sha256:c15d5f7dd41b5ccca9dd29e8ff94f415f700508586593c9967f023b8cd042e98
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-13T15:00:00Z
-stale_after: 2027-01-11
+  at: 2026-10-14T09:00:00Z
+stale_after: 2027-01-12
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T15:00:00Z
+  at: 2026-10-14T09:00:00Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -28,7 +28,7 @@ running the image it produced.
 
 1. A push or pull request enters `primary-checks.yml`; the `reformat` job runs
    first and `ci` follows only when its gate says `run_downstream` —
-   `.github/workflows/primary-checks.yml:52`, in
+   `.github/workflows/primary-checks.yml:53`, in
    [workflows](github/workflows.md)
 2. `ci.yml`'s `paths-filter` job applies the `image` filter from [the
    paths-filter action](github/actions.md); nothing matched means every later
@@ -36,21 +36,21 @@ running the image it produced.
 3. `build-dev-image` runs once per architecture; `Set base image refs` reuses
    the published `edge` image as the Ansible base unless the run is on `main`, a
    tag, a merge group, or a `[ci:clean_build]` commit —
-   `.github/workflows/ci.yml:97`
+   `.github/workflows/ci.yml:98`
 4. `docker/ansible/Dockerfile` builds `ubuntu-ansible`, then
    `agent-desktop.Dockerfile` is built `FROM` that digest with the catalog and
-   validator version pins as build args — `.github/workflows/ci.yml:128-158`, in
+   validator version pins as build args — `.github/workflows/ci.yml:129-159`, in
    [docker/](docker.md)
 5. The desktop Dockerfile's `RUN` mounts the checkout at `/provision` and runs
    the [playbook](ansible.md) with every capability on; the `perm_probe` guards
    bracket the roles and the catalog and validator roles verify their pins —
    `docker/desktop/agent-desktop.Dockerfile:41`
 6. `merge-dev-image` merges the per-arch digests into one `edge` manifest and
-   emits `image_pinned` — `.github/workflows/ci.yml:165`
+   emits `image_pinned` — `.github/workflows/ci.yml:166`
 7. `dev-container-ci` rewrites `devcontainer-compose-pins.yml` to that digest
    and builds and smoke-tests the [devcontainer](devcontainer.md) with
    `devcontainers/ci`, then runs the repository's pytest suites inside it —
-   `.github/workflows/ci.yml:233-274`
+   `.github/workflows/ci.yml:234-275`
 8. After the merge to `main`, the self-hosted Renovate bot
    (`.github/workflows/renovate.yml`) opens and automerges one PR bumping the
    digest in `devcontainer-compose-pins.yml` and in every workflow container job
