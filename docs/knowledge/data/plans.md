@@ -23,6 +23,9 @@ adoption](plans/20261014-expo-eas-template-profile.md)
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
+[Bootstrap agentdev natively on macOS with
+Homebrew](plans/20261013-macos-native-bootstrap.md)
+
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
