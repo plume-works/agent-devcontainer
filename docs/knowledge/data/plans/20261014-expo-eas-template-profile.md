@@ -148,8 +148,11 @@ Assumptions:
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] The guide's `## Expo` merge instruction carries this line verbatim, to be
+- [x] The guide's `## Expo` merge instruction carries this line verbatim, to be
   appended after the Expo template's body:
+  - **Evidence:** committed with this tick — `consumption-guide.md`
+    `## Optional Expo setup` edit 5 carries the line below in a fenced
+    `markdown` block, word for word.
 
 ``` markdown
 Expo's skills and documentation write `npx`; in this repository run the same

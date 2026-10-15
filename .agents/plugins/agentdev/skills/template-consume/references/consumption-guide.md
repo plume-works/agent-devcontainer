@@ -969,10 +969,17 @@ Apply these edits to the consumer's files:
    `--frozen-lockfile`.
 5. Merge the Expo template's `AGENTS.md` into the root `AGENTS.md`: keep the
    template's content and append an `## Expo` section holding the Expo
-   `AGENTS.md` body verbatim, followed by the command-translation line below.
+   `AGENTS.md` body verbatim, followed by the command-translation line.
    Then delete the Expo template's `AGENTS.md`, and record the root `AGENTS.md`
    as customized in the progress document's `## Choices`, so update mode merges
-   it manually.
+   it manually. The command-translation line, verbatim:
+
+   ```markdown
+   Expo's skills and documentation write `npx`; in this repository run the same
+   command with `bunx` (for example `bunx eas-cli@latest build`), as the bun rule
+   above requires.
+   ```
+
 6. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
    `enabledPlugins` alongside the template's entries.
 
