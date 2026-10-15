@@ -212,9 +212,13 @@ above requires.
 
 **Files:** Modify: `.devcontainer/devcontainer.json`
 
-- [ ] `containerEnv` carries `"EXPO_TOKEN": "${localEnv:EXPO_TOKEN}"` with a
+- [x] `containerEnv` carries `"EXPO_TOKEN": "${localEnv:EXPO_TOKEN}"` with a
   one-line comment that the value comes from the host environment or the hosting
   platform's secret store.
+  - **Evidence:** committed with this tick — `.devcontainer/devcontainer.json`
+    `containerEnv` adds `EXPO_TOKEN` after `DEV_WORKSPACE_FOLDER`; the file
+    parses as JSONC with `containerEnv.EXPO_TOKEN` equal to
+    `${localEnv:EXPO_TOKEN}`.
 
 ### Task 9: Drop the profile's own token edit
 

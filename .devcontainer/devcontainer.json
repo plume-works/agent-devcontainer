@@ -26,6 +26,8 @@
     "DOCKER_HOST": "unix:///var/run/docker.sock",
     "DEVCONTAINER_ID": "${devcontainerId}",
     "DEV_WORKSPACE_FOLDER": "/workspaces/${localWorkspaceFolderBasename}",
+    // From the host environment or the hosting platform's secret store; empty when unset.
+    "EXPO_TOKEN": "${localEnv:EXPO_TOKEN}",
 
     // Claude Code resolves .credentials.json from this directory, independently of
     // ~/.claude. It points at the shared agentdev-agents-auth volume (Claude's subdirectory of
