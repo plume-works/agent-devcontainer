@@ -174,10 +174,12 @@ above requires.
 
 ### Task 5: Validate the catalog change
 
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests/test_template_consume_check_updates.py`
+  - **Evidence:** run at 25057b7 — 62/62 skills valid, 0 errors, 0 warnings.
+- [x] `uv run pytest .agents/plugins/agentdev/tests/test_template_consume_check_updates.py`
   passes.
+  - **Evidence:** run at 25057b7 — 14 passed.
 
 ### Task 6: Adopt the profile end to end on a scratch Expo app
 
