@@ -57,16 +57,16 @@ dev_tools_pinned_tools:
   # agentic_tools only stages its catalog at build time instead of installing it.
   - name: codebase-memory-mcp
     # renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp
-    version: v0.11.0
+    version: v0.12.0
     url_prefix: https://github.com/DeusData/codebase-memory-mcp/releases/download
     asset_prefix: codebase-memory-mcp-
     archives:
       amd64:
         target: linux-amd64-portable
-        checksum: 1f9e8293eb2bc5c05cfa27a7e8fc033da6d729ffad525ccfcdaa3fd606306683
+        checksum: 7024e585132760f383e3e25237e2b2ac6f5185f7e466f8dc66a085bb25f8d0be
       arm64:
         target: linux-arm64-portable
-        checksum: d62eeb224d5ee3eba3070938ec62cf1033f10b041ec1c4b2fb67f7aef390cc7b
+        checksum: 8e603f32c9c84b5dc5a6b4a0d23516817d5de199e30f8dcc9bdb128c39386cd8
 
   # Bun's .zip holds its binary under a directory named after the asset, hence
   # `extension` and `binaries_in_asset_dir`. The amd64 asset is `-baseline`,
