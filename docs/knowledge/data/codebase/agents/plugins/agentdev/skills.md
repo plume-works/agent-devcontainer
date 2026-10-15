@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:0a9f3a6f60bb4ddba9b20ddf3fc8b7ed24200beedc7abb0d91314673a776c7fa
+source_digest: sha256:22b1baa2e05430fac153c3d6683a181653a57d13daba3233122523ccef38b421
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-13T08:30:00Z
-stale_after: 2027-01-11
+  at: 2026-10-15T00:00:00Z
+stale_after: 2027-01-13
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T08:30:00Z
+  at: 2026-10-15T00:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -72,14 +72,15 @@ masked text file. The IWE family runs against the [knowledge
 workspace](../../../docs/knowledge.md). `template-consume` optionally copies the
 repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
 `iwe-map`; update mode tracks only the reusable knowledge scaffold and never
-replaces consumer-owned project memory. Its state is split three ways: the
-`template-consume` section of the consumer root's `.agent.metadata.json` is the
-only machine-parsed record of the adopted ref and the tracked paths —
-`check-updates.sh` reads nothing else, and a legacy `.agentdev-template.json` is
-consolidated into it on the next update; `.agentdev-template-progress.md` is the
-consumer-owned task and choice ledger that survives an interrupted setup; and
-`data/template-adoption` summarizes the episode for a consumer that kept the
-knowledge base.
+replaces consumer-owned project memory. An optional Expo profile edits files the
+consumer already has for EAS cloud builds and adds no tracked paths. Its state
+is split three ways: the `template-consume` section of the consumer root's
+`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
+the tracked paths — `check-updates.sh` reads nothing else, and a legacy
+`.agentdev-template.json` is consolidated into it on the next update;
+`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
+that survives an interrupted setup; and `data/template-adoption` summarizes the
+episode for a consumer that kept the knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not
@@ -121,7 +122,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-12):
+Verified anchor points (line numbers as of 2026-10-15):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
