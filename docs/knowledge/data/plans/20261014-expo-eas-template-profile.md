@@ -1,10 +1,10 @@
 ---
 type: plan
 created: 2026-10-14
-description: An opt-in Expo profile in the template-consume skill that prepares an adopted devcontainer for Expo's official Claude plugin and EAS cloud iOS builds — token passthrough, Expo firewall hosts, a bun pin in eas.json, and an AGENTS.md merge rule.
+description: EXPO_TOKEN passthrough in the template devcontainer, plus an opt-in Expo profile in the template-consume skill that prepares an adopted devcontainer for Expo's official Claude plugin and EAS cloud iOS builds — Expo firewall hosts, a bun pin in eas.json, and an AGENTS.md merge rule.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-14T00:00:00Z
+  at: 2026-10-15T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -32,7 +32,9 @@ template must supply is an environment those skills can run in, under these
 constraints:
 
 - **Auth:** `EXPO_TOKEN` authenticates every non-interactive `eas` command; a
-  project is linked once with `eas init --non-interactive`.
+  project is linked once with `eas init --non-interactive`. An empty
+  `EXPO_TOKEN` is treated as no token, so passing an unset host variable through
+  is inert.
 - **bun version:** EAS macOS workers do not default to the image's bun, and the
   image's bun writes `bun.lock` `lockfileVersion: 2`, which an older bun cannot
   read under `--frozen-lockfile`; every build profile therefore pins `bun` to
@@ -55,26 +57,29 @@ constraints:
 
 ## Approach
 
-Add an opt-in **Expo profile** to `/agentdev:template-consume`. Setup mode asks
-whether the consumer is an Expo app; when it is, a new guide section, "Optional
-Expo setup", applies these edits to the consumer's copied files:
+The template's own `.devcontainer/devcontainer.json` passes the token for every
+consumer: `containerEnv` gains `"EXPO_TOKEN": "${localEnv:EXPO_TOKEN}"`. The
+token stays in the host environment or the hosting platform's secret store,
+never in a volume or the repository. A consumer that never sets it gets an
+empty, inert variable.
 
-1. `.devcontainer/devcontainer.json` `containerEnv` gains
-   `"EXPO_TOKEN": "${localEnv:EXPO_TOKEN}"`. The token stays in the host
-   environment or the hosting platform's secret store, never in a volume or the
-   repository.
-2. `.devcontainer/firewall-allowlist.txt` gains an Expo section listing the
+On top of that, add an opt-in **Expo profile** to `/agentdev:template-consume`.
+Setup mode asks whether the consumer is an Expo app; when it is, a new guide
+section, "Optional Expo setup", applies these edits to the consumer's copied
+files:
+
+1. `.devcontainer/firewall-allowlist.txt` gains an Expo section listing the
    hosts in `## Context`, with a comment that the two CDN hosts may need a
    container restart when their addresses rotate.
-3. `.gitignore` gains `.env.eas-simulator`.
-4. Every build profile in `eas.json` sets `"bun"` to the output of
+2. `.gitignore` gains `.env.eas-simulator`.
+3. Every build profile in `eas.json` sets `"bun"` to the output of
    `bun --version` inside the devcontainer.
-5. The root `AGENTS.md` keeps the template's content and gains an `## Expo`
+4. The root `AGENTS.md` keeps the template's content and gains an `## Expo`
    section holding the Expo template's `AGENTS.md` body verbatim, followed by
    the command-translation line in Task 3. The Expo template's `AGENTS.md` is
    then deleted, and the progress document records the root `AGENTS.md` as
    customized so update mode merges it manually.
-6. `.claude/settings.json` keeps `expo@claude-plugins-official` in
+5. `.claude/settings.json` keeps `expo@claude-plugins-official` in
    `enabledPlugins` alongside the template's entries.
 
 The marker records the choice as `"expo"` in `optional_bundles`. It adds no
@@ -84,11 +89,16 @@ consumer owns. Update mode, when it applies a change to
 container with `eas.json` and updates the pin.
 
 Rejected: an agentdev EAS skill — it would duplicate Expo's official plugin.
-Rejected: guidance alone with no profile — update mode would have no record that
-the consumer is an Expo app, so the bun pin and the `AGENTS.md` merge would be
-missed on update. Rejected: persisting the token on the `agentdev-agents-auth`
-volume — the token belongs to the hosting environment, where it can be scoped
-and revoked, not to agent state shared by every devcontainer instance.
+Rejected: passing the token only from the profile —
+`.devcontainer/devcontainer.json` is Template-class, so an Expo-only edit makes
+the consumer's copy diverge from upstream and turns every later devcontainer
+update into a manual merge, while the template-wide variable costs non-Expo
+consumers nothing. Rejected: guidance alone with no profile — update mode would
+have no record that the consumer is an Expo app, so the bun pin and the
+`AGENTS.md` merge would be missed on update. Rejected: persisting the token on
+the `agentdev-agents-auth` volume — the token belongs to the hosting
+environment, where it can be scoped and revoked, not to agent state shared by
+every devcontainer instance.
 
 Assumptions:
 
@@ -129,9 +139,10 @@ Assumptions:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
 - [x] A new `## Optional Expo setup` section, placed before
-  `## Optional custom-image setup`, with the six edits from `## Approach`, the
-  git-root requirement, the one-time `eas init --non-interactive`, and where to
-  set `EXPO_TOKEN` for a local Docker host and for Codespaces.
+  `## Optional custom-image setup`, with the numbered edits from `## Approach`
+  plus the `containerEnv` token edit that Task 9 removes, the git-root
+  requirement, the one-time `eas init --non-interactive`, and where to set
+  `EXPO_TOKEN` for a local Docker host and for Codespaces.
   - **Evidence:** committed with this tick — `consumption-guide.md`
     `## Optional Expo setup` sits directly before
     `## Optional custom-image setup` and carries the six numbered edits, the
@@ -197,6 +208,36 @@ above requires.
   `## Verification results` if `${localEnv:EXPO_TOKEN}` does not resolve there
   and the guide needs a different mechanism.
 
+### Task 8: Pass `EXPO_TOKEN` through the template devcontainer
+
+**Files:** Modify: `.devcontainer/devcontainer.json`
+
+- [ ] `containerEnv` carries `"EXPO_TOKEN": "${localEnv:EXPO_TOKEN}"` with a
+  one-line comment that the value comes from the host environment or the hosting
+  platform's secret store.
+
+### Task 9: Drop the profile's own token edit
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
+`docs/knowledge/data/architecture/template-boundary.md`
+
+- [ ] The guide's `## Optional Expo setup` no longer edits `containerEnv`; its
+  numbered edits are the five in `## Approach`, and its token paragraph states
+  that the template devcontainer already passes `EXPO_TOKEN`, keeping the local
+  Docker host and Codespaces instructions.
+- [ ] `template-boundary`'s `## Optional Expo profile` no longer lists
+  `.devcontainer/devcontainer.json` among the files the profile edits, and
+  states that the template devcontainer passes `EXPO_TOKEN` for every consumer.
+
+### Task 10: Token passthrough on a local Docker host
+
+- [ ] With `EXPO_TOKEN` exported on a local Docker host, rebuild this
+  repository's devcontainer; a shell opened with `docker exec` (not inherited
+  from an agent session) sees `EXPO_TOKEN`, and `bunx eas-cli@latest whoami`
+  reports the account. With the variable unset on the host, the rebuilt
+  container's `EXPO_TOKEN` is empty and `whoami` reports "Not logged in".
+
 ## Spec changes
 
 Modifies [Template consumption](../spec/template-consumption.md):
@@ -206,11 +247,14 @@ Modifies [Template consumption](../spec/template-consumption.md):
 
 ### Requirement: an Expo consumer is prepared for EAS cloud builds
 
+The template devcontainer SHALL pass `EXPO_TOKEN` from the host environment
+into the container through `containerEnv` for every consumer, and SHALL store it
+nowhere in the repository or a volume.
+
 When the consumer is an Expo app, setup SHALL record `"expo"` in
-`optional_bundles` without adding any `tracked_paths`, and SHALL leave the
-consumer with: `EXPO_TOKEN` passed from the host environment into the
-devcontainer through `containerEnv` and stored nowhere in the repository or a
-volume; the Expo hosts in the firewall allowlist; `.env.eas-simulator` ignored
+`optional_bundles` without adding any `tracked_paths`, SHALL NOT add a second
+`EXPO_TOKEN` definition, and SHALL leave the consumer with: the Expo hosts in the
+firewall allowlist; `.env.eas-simulator` ignored
 by git; every `eas.json` build profile pinning `bun` to the devcontainer's bun
 version; and one root `AGENTS.md` that keeps the template's content and holds
 the Expo template's `AGENTS.md` body under an `## Expo` section.
@@ -235,6 +279,8 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 - **WHEN** the user says the consumer is not an Expo app
 - **THEN** setup makes none of the Expo edits and `optional_bundles` omits
   `"expo"`
+- **AND** the devcontainer still passes `EXPO_TOKEN`, empty when the host does
+  not set it
 ```
 
 ## Verification
@@ -246,6 +292,8 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 - Task 6's EAS build reaches `FINISHED` from a devcontainer set up only by the
   guide.
 - Task 7's `whoami` succeeds inside a Codespace.
+- Task 10's `whoami` succeeds in a devcontainer rebuilt on a local Docker host
+  with `EXPO_TOKEN` exported, and reports "Not logged in" without it.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -258,28 +306,37 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 - Token passthrough on Coder workspaces, which is configured in the
   `coder-ide-baseline` template, not here.
 - Native macOS hosts.
-- Changes to this repository's own `.devcontainer/`.
+- Any change to this repository's own `.devcontainer/` beyond the `EXPO_TOKEN`
+  passthrough; the Expo firewall hosts stay in the profile, since only Expo
+  consumers need them.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-14):
+Verified anchor points (line numbers as of 2026-10-15):
 
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:50` —
   `optional_bundles` row of the marker table
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:96` — setup step 3,
   the scope questions
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:234` —
-  `## Default Template Surface`; `:264` the `custom-image` path addition
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:241` —
+  `## Default Template Surface`; `:271` the `custom-image` path addition
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:227`
   — Workflow A step 6 item 6, the firewall allowlist review
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:582`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:583`
   — Workflow B `### 2. Merge agent-facing configuration`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:925`
-  — `## Optional custom-image setup`; `:970` `## Ongoing maintenance`
-- `.devcontainer/devcontainer.json:20` — `containerEnv` block
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1004`
+  — `## Optional custom-image setup`; `:1049` `## Ongoing maintenance`
+- `.devcontainer/devcontainer.json:20` — `containerEnv` block; `:28`
+  `DEV_WORKSPACE_FOLDER`, the last entry before the Claude auth comment
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
+  — `## Optional Expo setup`; `:942` edit 1, the `containerEnv` token edit
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:199` — update-mode
+  bun-pin check for `"expo"` consumers
+- `docs/knowledge/data/architecture/template-boundary.md:254` —
+  `## Optional Expo profile`
 - `.claude/settings.json:48` — `enabledPlugins`, already holding
   `claude-plugins-official` entries
 - `docs/knowledge/data/spec/template-consumption.md:81` — Requirement: adoption
   is recorded for later updates
-- `docs/knowledge/data/architecture/template-boundary.md:195` —
-  `## Optional custom-image bundle`; `:221` `## Optional knowledge-base bundle`
+- `docs/knowledge/data/architecture/template-boundary.md:196` —
+  `## Optional custom-image bundle`; `:222` `## Optional knowledge-base bundle`
