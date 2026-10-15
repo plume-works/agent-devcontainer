@@ -4,13 +4,14 @@ stage: done
 description: A push to main that cancels an in-progress Primary checks run drops the cancelled commit's image rebuild, so agent-desktop:edge stays built from an older commit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-14T09:00:00Z
+  at: 2026-10-15T08:00:00Z
 sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/workflows/ci.yml
 - resource: .github/actions/paths-filter/action.yml
 - resource: https://github.com/plume-works/agent-devcontainer/pull/328
 - resource: scripts/tests/test_paths_filter_last_pass.py
+- resource: https://github.com/plume-works/agent-devcontainer/actions/runs/38624887579
 ---
 
 # Bug: Image rebuild lost when a later push to main cancels its run
@@ -73,3 +74,14 @@ Verified anchor points (line numbers as of 2026-10-14):
 - `.github/actions/paths-filter/action.yml:88-93` — `filter-base`, filtering
   from `last-pass` or the base branch
 - `.github/workflows/ci.yml:67` — image job gate on the filter or `force_run`
+
+## Verification
+
+The fix merged as #336 (`5b92e03`). Three pushes to `main` followed, each
+cancelling the run before it: `5b92e03`, Renovate's pin bump `c5fdeff`, and
+#337's plan-only `92a2614`. With no passing run among them, each run's
+`CI/CD / Need to run?` logged
+`Changes will be detected between 296ce39 and main` and raised no warning, so
+the image jobs ran for the pin-only and plan-only commits too. Primary checks
+run 38624887579 for `92a2614` passed and published `agent-desktop:edge` with
+revision `92a2614`, carrying the change `5b92e03` made under `.github/actions/`.
