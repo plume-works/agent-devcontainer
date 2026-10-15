@@ -128,12 +128,20 @@ Assumptions:
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] A new `## Optional Expo setup` section, placed before
+- [x] A new `## Optional Expo setup` section, placed before
   `## Optional custom-image setup`, with the six edits from `## Approach`, the
   git-root requirement, the one-time `eas init --non-interactive`, and where to
   set `EXPO_TOKEN` for a local Docker host and for Codespaces.
-- [ ] Workflow A step 6 and Workflow B step 2 point an Expo consumer at that
+  - **Evidence:** committed with this tick — `consumption-guide.md`
+    `## Optional Expo setup` sits directly before
+    `## Optional custom-image setup` and carries the six numbered edits, the
+    git-root paragraph, `bunx eas-cli@latest init --non-interactive`, and the
+    local Docker host and Codespaces token bullets.
+- [x] Workflow A step 6 and Workflow B step 2 point an Expo consumer at that
   section.
+  - **Evidence:** committed with this tick — Workflow A step 6 item 6 and
+    Workflow B `### 2. Merge agent-facing configuration` each link
+    `#optional-expo-setup`.
 
 ### Task 3: Write the command-translation line
 

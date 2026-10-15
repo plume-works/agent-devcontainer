@@ -226,7 +226,8 @@ Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
    project's trust model.
 6. Review `.devcontainer/firewall-allowlist.txt`. Leave `ENABLE_FIREWALL=false`
    until the allowlist contains every destination the project needs, then opt
-   in deliberately.
+   in deliberately. An Expo app also follows
+   [Optional Expo setup](#optional-expo-setup), which adds its hosts.
 7. Keep port `14500` in `forwardPorts` when retaining Xpra.
 8. Keep `devcontainer-compose-pins.yml` in the `dockerComposeFile` list; it is
    the actual digest pin.
@@ -593,7 +594,9 @@ CLAUDE.md
 When the existing repository already has agent instructions or settings,
 merge the rules semantically rather than overwriting them. Keep `CLAUDE.md`
 as an include of the resulting root `AGENTS.md` unless the project
-deliberately maintains separate Claude instructions.
+deliberately maintains separate Claude instructions. An Expo app merges its
+template's `AGENTS.md` as [Optional Expo setup](#optional-expo-setup)
+describes.
 
 ### 3. Merge the tooling baseline
 
@@ -921,6 +924,75 @@ means deleting the empty list. Leave `"knowledge-base"` out of
 Declining IWE never authorizes deleting knowledge the consumer already had. In
 Workflow B a pre-existing `docs/knowledge/` belongs to the consumer: leave it,
 and remove only what this adoption would have added.
+
+## Optional Expo setup
+
+Only follow this section when the consumer is an Expo app and the user
+confirmed it during setup. Native iOS builds need macOS; EAS Build runs them on
+Expo's cloud workers, driven from the Linux devcontainer. Expo's official
+`expo@claude-plugins-official` plugin supplies the agent workflow — build,
+submit, development clients, EAS Workflows — and this section prepares an
+environment it can run in.
+
+The app must be tracked in the consumer repository, never under an ignored
+path: EAS archives the project by cloning the enclosing git repository.
+
+Apply these edits to the consumer's files:
+
+1. In `.devcontainer/devcontainer.json`, add to `containerEnv`:
+
+   ```jsonc
+   "EXPO_TOKEN": "${localEnv:EXPO_TOKEN}",
+   ```
+
+   The token stays in the host environment or the hosting platform's secret
+   store, never in a volume or the repository.
+
+2. Add an Expo section to `.devcontainer/firewall-allowlist.txt`:
+
+   ```text
+   # Expo / EAS Build. storage.googleapis.com and wf-artifacts.eascdn.net are
+   # CDN hosts whose addresses rotate; restart the container if they fail.
+   api.expo.dev
+   cdp.expo.dev
+   expo.dev
+   mcp.expo.dev
+   storage.googleapis.com
+   wf-artifacts.eascdn.net
+   ```
+
+3. Add `.env.eas-simulator` to `.gitignore`. EAS Simulator writes a session
+   token there in the project root.
+4. In `eas.json`, set `"bun"` in every build profile to the output of
+   `bun --version` inside the devcontainer. EAS workers do not default to the
+   image's bun, and an older bun cannot read the image's `bun.lock` under
+   `--frozen-lockfile`.
+5. Merge the Expo template's `AGENTS.md` into the root `AGENTS.md`: keep the
+   template's content and append an `## Expo` section holding the Expo
+   `AGENTS.md` body verbatim, followed by the command-translation line below.
+   Then delete the Expo template's `AGENTS.md`, and record the root `AGENTS.md`
+   as customized in the progress document's `## Choices`, so update mode merges
+   it manually.
+6. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
+   `enabledPlugins` alongside the template's entries.
+
+Record `"expo"` in the marker's `optional_bundles`. It adds no `tracked_paths`:
+every edit lands in a file the template already tracks or the consumer owns.
+
+Create an access token in the Expo account settings and set `EXPO_TOKEN` where
+the devcontainer is created:
+
+- **Local Docker host:** export it in the environment that launches the editor
+  or the devcontainer CLI, then rebuild the container; `${localEnv:...}` is
+  read only when the container is created.
+- **GitHub Codespaces:** add a Codespaces secret named `EXPO_TOKEN`, scoped to
+  the consumer repository, then create or rebuild the codespace.
+
+Inside the rebuilt devcontainer, link the project once:
+
+```bash
+bunx eas-cli@latest init --non-interactive
+```
 
 ## Optional custom-image setup
 
