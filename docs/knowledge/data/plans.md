@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Build iOS on the Mac host through a VS Code
+bridge](plans/20261015-vscode-expo-bridge.md)
+
 [Expo profile for template
 adoption](plans/20261014-expo-eas-template-profile.md)
 
