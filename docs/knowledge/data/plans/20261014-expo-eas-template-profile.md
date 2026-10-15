@@ -104,13 +104,24 @@ Assumptions:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`
 
-- [ ] Setup step 3 asks whether the consumer is an Expo app and, when it is,
+- [x] Setup step 3 asks whether the consumer is an Expo app and, when it is,
   runs the guide's "Optional Expo setup".
-- [ ] The marker table's `optional_bundles` row names `"expo"` and states that
+  - **Evidence:** committed with this tick — `template-consume/SKILL.md` setup
+    step 3 adds "Is the consumer an Expo app?" and routes an Expo app to the
+    guide's Optional Expo setup; `validate_agent_files` reports 62/62 skills
+    valid, 0 errors.
+- [x] The marker table's `optional_bundles` row names `"expo"` and states that
   it adds no `tracked_paths`.
-- [ ] Update mode gains the bun-pin check after a
+  - **Evidence:** committed with this tick — the `optional_bundles` row of the
+    `template-consume/SKILL.md` marker table adds `"expo"` with "it adds no
+    `tracked_paths`".
+- [x] Update mode gains the bun-pin check after a
   `devcontainer-compose-pins.yml` change for consumers whose `optional_bundles`
   includes `"expo"`.
+  - **Evidence:** committed with this tick — `template-consume/SKILL.md` update
+    step 5 compares each `eas.json` build profile's `bun` with `bun --version`
+    in the rebuilt devcontainer when an applied change touches
+    `devcontainer-compose-pins.yml` and `optional_bundles` includes `"expo"`.
 
 ### Task 2: Write "Optional Expo setup" in the consumption guide
 
