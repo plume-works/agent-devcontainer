@@ -123,22 +123,46 @@ Assumptions:
   `vscode.commands.executeCommand`, and the `ui` side resolves the workspace's
   host path from the remote window.
 - [ ] The `ui` side runs `eas build --local -p ios --profile development` for an
-  `ios.simulator: true` profile on a blank `bun create expo` app, with
-  `EAS_LOCAL_BUILD_ARTIFACTS_DIR` under `.tmp/expo-bridge/`, and the artifact is
-  readable in the container.
+  `ios.simulator: true` profile on a blank `bun create expo` app, and the
+  artifact is readable in the container.
+
+### Task 2: Spike the `eas build --local` behavior the design relies on
+
+**Files:** none — run against the Task 1 scratch app on a Mac
+
+- [ ] The build runs outside the workspace: the workspace's `node_modules` is
+  unchanged and no `ios/` directory appears in it.
+- [ ] `EAS_LOCAL_BUILD_ARTIFACTS_DIR` set to `.tmp/expo-bridge/` places the
+  artifact there.
+- [ ] The build uses the host's bun regardless of the `bun` field in `eas.json`,
+  as the build log reports.
+- [ ] `EXPO_TOKEN` in the host environment authenticates the build with no
+  `eas login`.
+- [ ] An EAS environment variable with "Secret" visibility is absent from the
+  build, and the same variable set in the host environment is present.
 - [ ] The built app contains a change to a tracked file that was not committed
   and a new untracked file. When either is missing, find the eas-cli setting
-  that includes them; when none exists, record the finding and take the plan
-  back to revise before Task 4.
+  that includes them.
+- [ ] Any check that fails is recorded under `## Verification results` and the
+  plan goes back to revise before Task 6.
 
-### Task 2: Create the sibling repository
+### Task 3: Spike how Expo's plugin skills invoke `eas`
+
+**Files:** none — read `expo/skills`
+
+- [ ] Every build command in the skills of `expo@claude-plugins-official` is a
+  direct `eas` invocation with no configurable command or hook; when one exists,
+  record it under `## Verification results` and take the separate-command
+  decision back to revise before Task 6.
+
+### Task 4: Create the sibling repository
 
 **Files:** Create: `plume-works/vscode-expo-bridge` on GitHub
 
 - [ ] The repository exists with an MIT license, a bun-managed TypeScript
   extension skeleton, and `package.json` declaring `plume-works` as publisher.
 
-### Task 3: Specify the protocol in the sibling repository
+### Task 5: Specify the protocol in the sibling repository
 
 **Files:** Create: `docs/protocol.md` in `plume-works/vscode-expo-bridge`
 
@@ -147,7 +171,7 @@ Assumptions:
   boundary, the protocol version and how `status` reports a mismatch, and that
   fixes are never protocol actions.
 
-### Task 4: Workspace half and `eas-host`
+### Task 6: Workspace half and `eas-host`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -159,7 +183,7 @@ Assumptions:
 - [ ] `bun test` covers argument handling, the unavailable path, and log
   streaming.
 
-### Task 5: `ui` half — `status`
+### Task 7: `ui` half — `status`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -168,7 +192,7 @@ Assumptions:
 - [ ] `bun test` covers each check's pass and fail result with the system probes
   stubbed.
 
-### Task 6: `ui` half — `build`
+### Task 8: `ui` half — `build`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -179,7 +203,7 @@ Assumptions:
 - [ ] `bun test` covers profile validation and the command line built, with
   process spawning stubbed.
 
-### Task 7: `ui` half — `install`, `launch`, `screenshot`
+### Task 9: `ui` half — `install`, `launch`, `screenshot`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -189,7 +213,7 @@ Assumptions:
   `.tmp/expo-bridge/` and returns its workspace-relative path.
 - [ ] `bun test` covers path validation and the `xcrun simctl` invocations.
 
-### Task 8: One-click fix
+### Task 10: One-click fix
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -199,23 +223,23 @@ Assumptions:
   license acceptance, and `xcodebuild -downloadPlatform iOS`.
 - [ ] No protocol action can start a fix.
 
-### Task 9: Sibling repository CI
+### Task 11: Sibling repository CI
 
 **Files:** Create: `.github/workflows/` in `plume-works/vscode-expo-bridge`
 
 - [ ] A workflow runs lint, `bun test`, and a VSIX package build on every pull
   request, and passes on `main`.
 
-### Task 10: Publish to the Visual Studio Marketplace
+### Task 12: Publish to the Visual Studio Marketplace
 
 - [ ] `plume-works.vscode-expo-bridge` is installable from the Visual Studio
   Marketplace.
 
-### Task 11: Publish to Open VSX
+### Task 13: Publish to Open VSX
 
 - [ ] `plume-works.vscode-expo-bridge` is installable from Open VSX.
 
-### Task 12: Wire the bridge into the Expo profile
+### Task 14: Wire the bridge into the Expo profile
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
@@ -227,7 +251,7 @@ Assumptions:
   build, run `eas-host status`; when it succeeds use `eas-host`, otherwise use
   EAS cloud.
 
-### Task 13: Record the bridge in the template boundary and architecture
+### Task 15: Record the bridge in the template boundary and architecture
 
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`;
 Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
@@ -239,12 +263,12 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
   with its rejected alternatives and links the sibling repository's protocol
   document; `data/architecture.md` links it.
 
-### Task 14: Validate the catalog change
+### Task 16: Validate the catalog change
 
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
 
-### Task 15: End to end on a Mac
+### Task 17: End to end on a Mac
 
 - [ ] In an Expo consumer adopted with the Expo profile and opened by VS Code on
   a Mac, an agent runs `eas-host status`, `build` for a simulator profile,
@@ -253,7 +277,7 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 - [ ] With Metro running in the container, the launched development build loads
   the JavaScript bundle over forwarded port 8081.
 
-### Task 16: Fallback when the bridge is unavailable
+### Task 18: Fallback when the bridge is unavailable
 
 - [ ] In a Codespace of the same consumer opened by VS Code on a Mac,
   `eas-host status` reports unavailable and exits non-zero, and
@@ -303,18 +327,17 @@ The protocol contract is specified in `plume-works/vscode-expo-bridge`
 ## Depends on
 
 - [Expo profile for template adoption](20261014-expo-eas-template-profile.md) —
-  Task 12 extends its `## Optional Expo setup` section and its `## Expo`
+  Task 14 extends its `## Optional Expo setup` section and its `## Expo`
   `AGENTS.md` section.
 
 ## Verification
 
-- Task 1's spike builds an artifact visible in the container that contains an
-  uncommitted and an untracked change.
+- The Task 1–3 spikes pass, or their findings have been taken back to revise.
 - The sibling repository's CI passes on `main`.
 - The extension installs from both the Visual Studio Marketplace and Open VSX.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-- Task 15's end-to-end run and Task 16's fallback run behave as described.
+- Task 17's end-to-end run and Task 18's fallback run behave as described.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
