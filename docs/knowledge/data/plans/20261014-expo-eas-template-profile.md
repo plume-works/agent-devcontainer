@@ -251,6 +251,13 @@ above requires.
   from an agent session) sees `EXPO_TOKEN`, and `bunx eas-cli@latest whoami`
   reports the account. With the variable unset on the host, the rebuilt
   container's `EXPO_TOKEN` is empty and `whoami` reports "Not logged in".
+  - **Evidence:** at 3fddc4c, `devcontainer up` (`@devcontainers/cli`) against a
+    docker-in-docker daemon, from a scratch copy of this repository: with
+    `EXPO_TOKEN` exported, a `docker exec` shell sees a 40-character
+    `EXPO_TOKEN` and `bunx eas-cli@latest whoami` lists the account; after
+    `--remove-existing-container` with the variable unset, `EXPO_TOKEN` is
+    defined and empty and `whoami` reports "Not logged in". Not repeated through
+    VS Code on a macOS Docker host.
 
 ## Spec changes
 
