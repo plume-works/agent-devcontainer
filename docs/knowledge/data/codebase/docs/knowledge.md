@@ -66,7 +66,6 @@ would otherwise make itself stale.
   over the production root mask and hook config: hook `rev` and local hooks'
   `bunx` version bumps keep a map doc fresh, while a changed hook id,
   repository, or `bunx` package still makes it stale
-- `iwec --transport stdio` — the MCP server `.mcp.json` registers
 
 ## How it works
 

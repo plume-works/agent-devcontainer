@@ -57,9 +57,9 @@ is the surface those consumers touch; the build that produces it is
   in `~/.codex/agents/agentdev-<stem>.toml`, and its OpenCode bridge listed in
   `~/.config/opencode/opencode.json`
 - On `PATH`: `uv`, `bun`, `node`, `claude`, `codex`, `opencode`, `gh`, `cmake`,
-  `ninja`, `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`/`iwec`,
-  `codebase-memory-mcp`, `validate_agent_files`, `pre-commit`, `xpra`,
-  `gnome-keyring-daemon`, Docker CE with buildx and compose
+  `ninja`, `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`, `codebase-memory-mcp`,
+  `validate_agent_files`, `pre-commit`, `xpra`, `gnome-keyring-daemon`, Docker
+  CE with buildx and compose
 - `EXPOSE 14500` — the Xpra HTML5 container port, fixed by default and
   overridable with `/start-xpra.sh --port`; the devcontainer forwards `14500`
 

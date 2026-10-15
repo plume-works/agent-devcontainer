@@ -28,14 +28,13 @@ dev_tools_pinned_tools:
         target: aarch64-unknown-linux-gnu
         checksum: 4b4b9491112c2a09b318101c0d3349b73af1c4f532e097dd6d0164f2abda760d
 
-  # iwe ships iwe (CLI), iwes (LSP server), and iwec (MCP server) together in one
-  # per-arch tarball; `binaries` installs all three to /usr/local/bin.
+  # The tarball also ships iwec, the MCP server, which no agent config registers.
   - name: iwe
     # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
     version: iwe-v0.26.1
     url_prefix: https://github.com/iwe-org/iwe/releases/download
     asset_prefix: "{version}-"
-    binaries: [iwe, iwes, iwec]
+    binaries: [iwe, iwes]
     archives:
       amd64:
         target: x86_64-unknown-linux-gnu
