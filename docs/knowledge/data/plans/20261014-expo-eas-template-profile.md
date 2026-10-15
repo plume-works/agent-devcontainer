@@ -164,9 +164,13 @@ above requires.
 
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] A `## Optional Expo profile` section after the knowledge-base bundle
+- [x] A `## Optional Expo profile` section after the knowledge-base bundle
   states that the profile edits Template and Customize files without adding
   tracked paths, and that it leaves the root `AGENTS.md` customized.
+  - **Evidence:** committed with this tick — `template-boundary.md`
+    `## Optional Expo profile` follows `## Optional knowledge-base bundle`,
+    names the edited files with no added `tracked_paths`, and records the root
+    `AGENTS.md` as customized; `iwe schema validate` passes.
 
 ### Task 5: Validate the catalog change
 

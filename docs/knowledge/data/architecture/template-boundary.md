@@ -3,11 +3,12 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
+  at: 2026-10-15T00:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
+- resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 ---
 
 # Template boundary
@@ -249,6 +250,20 @@ agent-devcontainer checkout at the ref being adopted; `templates/iwe/` itself is
 publisher-only source that the consumer deletes afterward, so it never appears
 in `tracked_paths` and a later change to the seed never reaches an already-
 onboarded consumer.
+
+## Optional Expo profile
+
+An Expo consumer applies the template-consume guide's Optional Expo setup. The
+profile adds no paths and no `tracked_paths`: it edits Template and Customize
+files the consumer already has — `.devcontainer/devcontainer.json`,
+`.devcontainer/firewall-allowlist.txt`, `.gitignore`, `.claude/settings.json`,
+the root `AGENTS.md` — and the consumer-owned `eas.json`. The marker records it
+as `"expo"` in `optional_bundles`, which is how update mode knows to re-check
+the `eas.json` bun pin when the image changes.
+
+The profile merges the Expo template's `AGENTS.md` into the root `AGENTS.md`,
+which therefore stops matching upstream: the consumer's progress document
+records it as customized, and update mode merges it by hand.
 
 ## Publisher-only source
 
