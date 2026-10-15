@@ -255,11 +255,15 @@ onboarded consumer.
 
 An Expo consumer applies the template-consume guide's Optional Expo setup. The
 profile adds no paths and no `tracked_paths`: it edits Template and Customize
-files the consumer already has — `.devcontainer/devcontainer.json`,
-`.devcontainer/firewall-allowlist.txt`, `.gitignore`, `.claude/settings.json`,
-the root `AGENTS.md` — and the consumer-owned `eas.json`. The marker records it
-as `"expo"` in `optional_bundles`, which is how update mode knows to re-check
-the `eas.json` bun pin when the image changes.
+files the consumer already has — `.devcontainer/firewall-allowlist.txt`,
+`.gitignore`, `.claude/settings.json`, the root `AGENTS.md` — and the
+consumer-owned `eas.json`. The marker records it as `"expo"` in
+`optional_bundles`, which is how update mode knows to re-check the `eas.json`
+bun pin when the image changes.
+
+The profile leaves `.devcontainer/devcontainer.json` untouched: the template
+devcontainer passes `EXPO_TOKEN` from the host for every consumer, empty when
+the host does not set it.
 
 The profile merges the Expo template's `AGENTS.md` into the root `AGENTS.md`,
 which therefore stops matching upstream: the consumer's progress document

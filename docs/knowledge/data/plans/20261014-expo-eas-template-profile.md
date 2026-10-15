@@ -226,13 +226,23 @@ above requires.
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] The guide's `## Optional Expo setup` no longer edits `containerEnv`; its
+- [x] The guide's `## Optional Expo setup` no longer edits `containerEnv`; its
   numbered edits are the five in `## Approach`, and its token paragraph states
   that the template devcontainer already passes `EXPO_TOKEN`, keeping the local
   Docker host and Codespaces instructions.
-- [ ] `template-boundary`'s `## Optional Expo profile` no longer lists
+  - **Evidence:** committed with this tick — `consumption-guide.md`
+    `## Optional Expo setup` numbers edits 1–5 (allowlist, `.gitignore`,
+    `eas.json`, `AGENTS.md`, `.claude/settings.json`) with no `containerEnv`
+    edit; the token paragraph opens "The template devcontainer already passes
+    `EXPO_TOKEN`" and keeps both host bullets.
+- [x] `template-boundary`'s `## Optional Expo profile` no longer lists
   `.devcontainer/devcontainer.json` among the files the profile edits, and
   states that the template devcontainer passes `EXPO_TOKEN` for every consumer.
+  - **Evidence:** committed with this tick — `template-boundary.md`
+    `## Optional Expo profile` lists four tracked files plus `eas.json` and adds
+    a paragraph that the profile leaves `.devcontainer/devcontainer.json`
+    untouched because the template devcontainer passes `EXPO_TOKEN` for every
+    consumer; `iwe schema validate` passes.
 
 ### Task 10: Token passthrough on a local Docker host
 
@@ -328,12 +338,12 @@ Verified anchor points (line numbers as of 2026-10-15):
   — Workflow A step 6 item 6, the firewall allowlist review
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:583`
   — Workflow B `### 2. Merge agent-facing configuration`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1004`
-  — `## Optional custom-image setup`; `:1049` `## Ongoing maintenance`
-- `.devcontainer/devcontainer.json:20` — `containerEnv` block; `:28`
-  `DEV_WORKSPACE_FOLDER`, the last entry before the Claude auth comment
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:998`
+  — `## Optional custom-image setup`; `:1043` `## Ongoing maintenance`
+- `.devcontainer/devcontainer.json:20` — `containerEnv` block; `:30`
+  `EXPO_TOKEN`
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
-  — `## Optional Expo setup`; `:942` edit 1, the `containerEnv` token edit
+  — `## Optional Expo setup`; `:980` the token paragraph
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:199` — update-mode
   bun-pin check for `"expo"` consumers
 - `docs/knowledge/data/architecture/template-boundary.md:254` —

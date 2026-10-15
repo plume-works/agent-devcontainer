@@ -939,16 +939,7 @@ path: EAS archives the project by cloning the enclosing git repository.
 
 Apply these edits to the consumer's files:
 
-1. In `.devcontainer/devcontainer.json`, add to `containerEnv`:
-
-   ```jsonc
-   "EXPO_TOKEN": "${localEnv:EXPO_TOKEN}",
-   ```
-
-   The token stays in the host environment or the hosting platform's secret
-   store, never in a volume or the repository.
-
-2. Add an Expo section to `.devcontainer/firewall-allowlist.txt`:
+1. Add an Expo section to `.devcontainer/firewall-allowlist.txt`:
 
    ```text
    # Expo / EAS Build. storage.googleapis.com and wf-artifacts.eascdn.net are
@@ -961,13 +952,13 @@ Apply these edits to the consumer's files:
    wf-artifacts.eascdn.net
    ```
 
-3. Add `.env.eas-simulator` to `.gitignore`. EAS Simulator writes a session
+2. Add `.env.eas-simulator` to `.gitignore`. EAS Simulator writes a session
    token there in the project root.
-4. In `eas.json`, set `"bun"` in every build profile to the output of
+3. In `eas.json`, set `"bun"` in every build profile to the output of
    `bun --version` inside the devcontainer. EAS workers do not default to the
    image's bun, and an older bun cannot read the image's `bun.lock` under
    `--frozen-lockfile`.
-5. Merge the Expo template's `AGENTS.md` into the root `AGENTS.md`: keep the
+4. Merge the Expo template's `AGENTS.md` into the root `AGENTS.md`: keep the
    template's content and append an `## Expo` section holding the Expo
    `AGENTS.md` body verbatim, followed by the command-translation line.
    Then delete the Expo template's `AGENTS.md`, and record the root `AGENTS.md`
@@ -980,14 +971,17 @@ Apply these edits to the consumer's files:
    above requires.
    ```
 
-6. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
+5. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
    `enabledPlugins` alongside the template's entries.
 
 Record `"expo"` in the marker's `optional_bundles`. It adds no `tracked_paths`:
 every edit lands in a file the template already tracks or the consumer owns.
 
-Create an access token in the Expo account settings and set `EXPO_TOKEN` where
-the devcontainer is created:
+The template devcontainer already passes `EXPO_TOKEN` from the host through
+`containerEnv`, so the token stays in the host environment or the hosting
+platform's secret store, never in a volume or the repository. Create an access
+token in the Expo account settings and set `EXPO_TOKEN` where the devcontainer
+is created:
 
 - **Local Docker host:** export it in the environment that launches the editor
   or the devcontainer CLI, then rebuild the container; `${localEnv:...}` is
