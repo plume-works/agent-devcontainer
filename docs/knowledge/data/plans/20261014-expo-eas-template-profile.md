@@ -410,13 +410,13 @@ Verified anchor points (line numbers as of 2026-10-16):
   — Workflow A step 6 item 6, the firewall allowlist review
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:583`
   — Workflow B `### 2. Merge agent-facing configuration`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:998`
-  — `## Optional custom-image setup`; `:1043` `## Ongoing maintenance`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1000`
+  — `## Optional custom-image setup`; `:1045` `## Ongoing maintenance`
 - `.devcontainer/devcontainer.json:20` — `containerEnv` block; `:30`
   `EXPO_TOKEN`
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
-  — `## Optional Expo setup`; `:980` the token paragraph; `:989` the
-  `**GitHub Codespaces:**` bullet that Task 11 replaces
+  — `## Optional Expo setup`; `:980` the token paragraph; `:989` the Coder
+  (`coder-ide-baseline`) bullet that Task 11 wrote
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:199` — update-mode
   bun-pin check for `"expo"` consumers
 - `docs/knowledge/data/architecture/template-boundary.md:254` —
