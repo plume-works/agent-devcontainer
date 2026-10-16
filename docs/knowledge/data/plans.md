@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Declare release impact when a plan is
+written](plans/20261016-release-impact-at-plan-time.md)
+
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
 
