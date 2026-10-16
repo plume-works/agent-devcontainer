@@ -10,6 +10,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: docs/knowledge/data/spec/template-consumption.md
 - resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: .devcontainer/devcontainer.json
 - resource: https://github.com/expo/skills
 - resource: https://docs.expo.dev/accounts/programmatic-access/
@@ -35,6 +36,10 @@ constraints:
   project is linked once with `eas init --non-interactive`. An empty
   `EXPO_TOKEN` is treated as no token, so passing an unset host variable through
   is inert.
+- **Coder:** in a `coder-ide-baseline` workspace, a Coder user secret reaches
+  the processes the Dev Container's sub-agent starts — terminals, IDE sessions,
+  agents — and not the Dev Container's lifecycle hooks ([Coder IDE baseline
+  template](../spec/coder-ide-baseline.md)).
 - **bun version:** EAS macOS workers do not default to the image's bun, and the
   image's bun writes `bun.lock` `lockfileVersion: 2`, which an older bun cannot
   read under `--frozen-lockfile`; every build profile therefore pins `bun` to
@@ -61,7 +66,9 @@ The template's own `.devcontainer/devcontainer.json` passes the token for every
 consumer: `containerEnv` gains `"EXPO_TOKEN": "${localEnv:EXPO_TOKEN}"`. The
 token stays in the host environment or the hosting platform's secret store,
 never in a volume or the repository. A consumer that never sets it gets an
-empty, inert variable.
+empty, inert variable. On a local Docker host the token comes from the
+environment that runs `devcontainer up`; on Coder it is a Coder user secret,
+which the sub-agent supplies to the sessions it starts.
 
 On top of that, add an opt-in **Expo profile** to `/agentdev:template-consume`.
 Setup mode asks whether the consumer is an Expo app; when it is, a new guide
@@ -210,12 +217,15 @@ above requires.
     `0ba2cbd9-c0ec-4be4-a3ba-73e089a6f0f7` on project
     `@antonmatosov/expo-scratch` reached `FINISHED`.
 
-### Task 7: Token passthrough in a Codespace
+### Task 7: Token on a Coder workspace
 
-- [ ] In a Codespace of the Task 6 repository with an `EXPO_TOKEN` Codespaces
-  secret, `bunx eas-cli@latest whoami` reports the account. Record in
-  `## Verification results` if `${localEnv:EXPO_TOKEN}` does not resolve there
-  and the guide needs a different mechanism.
+- [ ] In a `coder-ide-baseline` workspace with an `EXPO_TOKEN` Coder user
+  secret, its Dev Container rebuilt from a branch carrying the Task 8
+  passthrough, a shell started by the Dev Container's sub-agent sees
+  `EXPO_TOKEN` and `bunx eas-cli@latest whoami` reports the account. Record in
+  `## Verification results` whether `${localEnv:EXPO_TOKEN}` resolves into the
+  container's own environment there (the environment of PID 1 or of a
+  `docker exec` shell).
 
 ### Task 8: Pass `EXPO_TOKEN` through the template devcontainer
 
@@ -268,6 +278,21 @@ above requires.
     defined and empty and `whoami` reports "Not logged in". Not repeated through
     VS Code on a macOS Docker host.
 
+### Task 11: Replace the Codespaces token bullet with Coder
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
+
+- [ ] In `## Optional Expo setup`, the `**GitHub Codespaces:**` token bullet is
+  replaced by this bullet, verbatim:
+
+``` markdown
+- **Coder (`coder-ide-baseline`):** add a Coder user secret named
+  `EXPO_TOKEN`, then restart the workspace. The secret reaches the processes
+  the Dev Container's sub-agent starts — terminals, IDE sessions, and agents —
+  but not lifecycle hooks.
+```
+
 ## Spec changes
 
 Modifies [Template consumption](../spec/template-consumption.md):
@@ -311,6 +336,13 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
   `"expo"`
 - **AND** the devcontainer still passes `EXPO_TOKEN`, empty when the host does
   not set it
+
+#### Scenario: a Coder workspace supplies the token
+
+- **WHEN** `EXPO_TOKEN` is a Coder user secret and the Dev Container is rebuilt
+  with the passthrough
+- **THEN** a shell started by the Dev Container's sub-agent sees `EXPO_TOKEN`
+  and `eas whoami` reports the account
 ```
 
 ## Verification
@@ -321,7 +353,7 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
   passes.
 - Task 6's EAS build reaches `FINISHED` from a devcontainer set up only by the
   guide, plus the app config that Expo's plugin owns.
-- Task 7's `whoami` succeeds inside a Codespace.
+- Task 7's `whoami` succeeds in a sub-agent shell of a rebuilt Coder workspace.
 - Task 10's `whoami` succeeds in a devcontainer rebuilt on a local Docker host
   with `EXPO_TOKEN` exported, and reports "Not logged in" without it.
 - `iwe normalize` and `iwe schema validate` pass.
@@ -335,8 +367,8 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 - Apple signing for device and store builds; the profile covers simulator
   builds, which need none, and `eas credentials` remains a one-time human step.
 - EAS Simulator and Maestro, which are account- and plan-gated.
-- Token passthrough on Coder workspaces, which is configured in the
-  `coder-ide-baseline` template, not here.
+- Token passthrough on GitHub Codespaces.
+- Changes to the `coder-ide-baseline` template.
 - Native macOS hosts.
 - Any change to this repository's own `.devcontainer/` beyond the `EXPO_TOKEN`
   passthrough; the Expo firewall hosts stay in the profile, since only Expo
@@ -344,7 +376,7 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-15):
+Verified anchor points (line numbers as of 2026-10-16):
 
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:50` —
   `optional_bundles` row of the marker table
@@ -361,7 +393,8 @@ Verified anchor points (line numbers as of 2026-10-15):
 - `.devcontainer/devcontainer.json:20` — `containerEnv` block; `:30`
   `EXPO_TOKEN`
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
-  — `## Optional Expo setup`; `:980` the token paragraph
+  — `## Optional Expo setup`; `:980` the token paragraph; `:989` the
+  `**GitHub Codespaces:**` bullet that Task 11 replaces
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:199` — update-mode
   bun-pin check for `"expo"` consumers
 - `docs/knowledge/data/architecture/template-boundary.md:254` —
@@ -372,3 +405,5 @@ Verified anchor points (line numbers as of 2026-10-15):
   is recorded for later updates
 - `docs/knowledge/data/architecture/template-boundary.md:196` —
   `## Optional custom-image bundle`; `:222` `## Optional knowledge-base bundle`
+- `docs/knowledge/data/spec/coder-ide-baseline.md:51` — Requirement: Coder user
+  secrets reach only agent-started processes
