@@ -194,12 +194,21 @@ above requires.
 
 ### Task 6: Adopt the profile end to end on a scratch Expo app
 
-- [ ] In a new repository holding a blank `bun create expo` app, run
+- [x] In a new repository holding a blank `bun create expo` app, run
   `/agentdev:template-consume` setup with the Expo profile, rebuild the
   devcontainer with `EXPO_TOKEN` set on the host, and submit
   `bunx eas-cli@latest build -p ios --profile development --non-interactive --no-wait --json`
   for an `ios.simulator: true` profile; the build reaches `FINISHED`. This
   spends one EAS iOS build.
+  - **Evidence:** at 3fddc4c, a local git repository holding a blank
+    `bun create expo` app adopted Workflow B steps 1–2 plus Optional Expo setup
+    edits 1–5, with `"expo"` in `optional_bundles`; the tooling-baseline,
+    GitHub, and project-memory steps were not applied. Its devcontainer, started
+    with `devcontainer up` on docker-in-docker with `EXPO_TOKEN` exported, ran
+    `eas init --non-interactive` and, with `expo.ios.bundleIdentifier` set in
+    `app.json`, the `development` simulator build. EAS build
+    `0ba2cbd9-c0ec-4be4-a3ba-73e089a6f0f7` on project
+    `@antonmatosov/expo-scratch` reached `FINISHED`.
 
 ### Task 7: Token passthrough in a Codespace
 
@@ -220,7 +229,7 @@ above requires.
     parses as JSONC with `containerEnv.EXPO_TOKEN` equal to
     `${localEnv:EXPO_TOKEN}`.
 
-### Task 9: Drop the profile's own token edit
+### Task 9: Point the profile's token guidance at the template devcontainer
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
@@ -246,7 +255,7 @@ above requires.
 
 ### Task 10: Token passthrough on a local Docker host
 
-- [ ] With `EXPO_TOKEN` exported on a local Docker host, rebuild this
+- [x] With `EXPO_TOKEN` exported on a local Docker host, rebuild this
   repository's devcontainer; a shell opened with `docker exec` (not inherited
   from an agent session) sees `EXPO_TOKEN`, and `bunx eas-cli@latest whoami`
   reports the account. With the variable unset on the host, the rebuilt
@@ -311,7 +320,7 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 - `uv run pytest .agents/plugins/agentdev/tests/test_template_consume_check_updates.py`
   passes.
 - Task 6's EAS build reaches `FINISHED` from a devcontainer set up only by the
-  guide.
+  guide, plus the app config that Expo's plugin owns.
 - Task 7's `whoami` succeeds inside a Codespace.
 - Task 10's `whoami` succeeds in a devcontainer rebuilt on a local Docker host
   with `EXPO_TOKEN` exported, and reports "Not logged in" without it.
@@ -321,6 +330,8 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 
 - An agentdev skill for EAS builds, a fingerprint gate, or build polling —
   Expo's official plugin owns the agent workflow.
+- App config such as `expo.ios.bundleIdentifier`, which a non-interactive
+  `eas build` requires; Expo's plugin owns the app's configuration.
 - Apple signing for device and store builds; the profile covers simulator
   builds, which need none, and `eas credentials` remains a one-time human step.
 - EAS Simulator and Maestro, which are account- and plan-gated.
