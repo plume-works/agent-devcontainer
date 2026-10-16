@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:711aa9d427faad636c92bb84c21954c32008c3b56e5308039303badb6a2893b8
+source_digest: sha256:0c120a0b1e50e9fbad042da7f60b774763ddd9c97a100ce7603cd1c15c79de94
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-16T03:51:25Z
+  at: 2026-10-16T15:03:42Z
 stale_after: 2027-01-14
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T03:51:25Z
+  at: 2026-10-16T15:03:42Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -148,7 +148,7 @@ Verified anchor points (line numbers as of 2026-10-15):
   plan
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — one
   Implementer per plan
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:136` — the Shipper
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:145` — the Shipper
   re-dispatch after a revision
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:75` —
   `BROKEN_METADATA`

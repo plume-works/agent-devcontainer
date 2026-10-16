@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-16
 
+- **Update**: [Agentdev plugin](codebase/agents/plugins/agentdev.md), [agentdev
+  skills](codebase/agents/plugins/agentdev/skills.md), [Knowledge
+  base](codebase/docs/knowledge.md), and [IWE seed](codebase/templates/iwe.md)
+  map docs refreshed for the plan `release` declaration.
 - **Update**: [Xpra port forwarding](features/xpra-port-forwarding.md)
   backfilled as implemented and listed under Added on the
   [1.0.0](releases/1.0.0.md) release, which shipped it.

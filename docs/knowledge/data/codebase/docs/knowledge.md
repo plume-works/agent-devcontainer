@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:93517ef3d28d98329c181b873a1eb165d54e92081940287aa06f9f86a9ee6730
+source_digest: sha256:fbd187e5568027aa89ae59034d725cfad590da8cf2c935a727dd9163bb589e1d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
-stale_after: 2027-01-07
+  at: 2026-10-16T15:03:42Z
+stale_after: 2027-01-14
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T16:00:00Z
+  at: 2026-10-16T15:03:42Z
 sources:
 - id: code
   resource: .iwe
@@ -26,11 +26,12 @@ The scaffolding around the project's memory. `.iwe/config.toml` at the
 repository root points the library at `docs/knowledge`, binds a schema to every
 `data/` path, and configures normalization; the three Markdown files beside
 `data/` explain the manual, the frontmatter shapes, and the design rationale;
-six pytest modules gate plan checkboxes, the bug and feature body shape, the
-consumer seed, and the production digest masks for Dev Container feature pins
-and their lock, role pins, workflow image digests, and hook revisions. This doc
-deliberately excludes `docs/knowledge/data/` from its `source`: the map commit
-would otherwise make itself stale.
+seven pytest modules gate plan checkboxes, the plan `release` declaration, the
+bug and feature body shape, the consumer seed, and the production digest masks
+for Dev Container feature pins and their lock, role pins, workflow image
+digests, and hook revisions. This doc deliberately excludes
+`docs/knowledge/data/` from its `source`: the map commit would otherwise make
+itself stale.
 
 ## Public surface
 
@@ -47,6 +48,10 @@ would otherwise make itself stale.
 - `docs/knowledge/tests/test_plan_checkboxes.py` — every ticked task in an
   active plan carries an `- **Evidence:**` child; a done plan has no unticked
   task
+- `docs/knowledge/tests/test_plan_release_schema.py` — rewrites one plan's
+  `release` in a copy of the graph and checks that `iwe schema validate`
+  requires `internal` or `features/` and `bugs/` keys on an active plan and
+  accepts a done plan without one
 - `docs/knowledge/tests/test_body_shape_schemas.py` — breaks one bug and one
   feature document in a copy of the graph by dropping, reordering, or misnaming
   a required section, and checks that `iwe schema validate` rejects each
