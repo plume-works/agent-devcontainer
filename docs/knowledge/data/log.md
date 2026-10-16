@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-16
+
+- **Update**: [Devcontainer template surface](codebase/devcontainer.md) maps the
+  `EXPO_TOKEN` passthrough in `containerEnv`; the devcontainer lifecycle flow,
+  agentdev catalog, and agentdev skills map docs re-verified.
+
 ## 2026-10-15
 
 - **Update**: [agentdev skills](codebase/agents/plugins/agentdev/skills.md) maps

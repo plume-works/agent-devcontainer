@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:4cf84e6d0cadb0e078f0a1fc8a61e80104eb444f6550ef291813478d95b3818b
+source_digest: sha256:f5e53eb305366b6acb0d05aac237a8fede977ee3fcc04008af8274bd79490947
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-13T15:00:00Z
-stale_after: 2027-01-11
+  at: 2026-10-16T03:51:25Z
+stale_after: 2027-01-14
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T15:00:00Z
+  at: 2026-10-16T03:51:25Z
 sources:
 - id: code
   resource: .devcontainer
@@ -32,11 +32,11 @@ pulled.
 
 - `.devcontainer/devcontainer.json` — `initializeCommand:3`, the layered
   `dockerComposeFile:7`, `containerEnv` (`ENABLE_FIREWALL`, `DISPLAY`,
-  `DEVCONTAINER_ID`, `DEV_WORKSPACE_FOLDER`, `CLAUDE_SECURESTORAGE_CONFIG_DIR`,
-  `CBM_CACHE_DIR`, `PRE_COMMIT_HOME`, `UV_*`), the Xpra `forwardPorts` and
-  `portsAttributes` block (`:51-57`), four named volume mounts (`:58-102`), the
-  VS Code extension and settings block, and the three lifecycle commands
-  (`:253-256`)
+  `DEVCONTAINER_ID`, `DEV_WORKSPACE_FOLDER`, `EXPO_TOKEN`,
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `CBM_CACHE_DIR`, `PRE_COMMIT_HOME`,
+  `UV_*`), the Xpra `forwardPorts` and `portsAttributes` block (`:53-59`), four
+  named volume mounts (`:60-104`), the VS Code extension and settings block, and
+  the three lifecycle commands (`:255-258`)
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the pass-through
   `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
@@ -85,12 +85,12 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-11):
+Verified anchor points (line numbers as of 2026-10-16):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
-- `.devcontainer/devcontainer.json:51-57` — Xpra port forwarding
-- `.devcontainer/devcontainer.json:58-102` — the four volume mounts
-- `.devcontainer/devcontainer.json:253-256` — lifecycle commands
+- `.devcontainer/devcontainer.json:53-59` — Xpra port forwarding
+- `.devcontainer/devcontainer.json:60-104` — the four volume mounts
+- `.devcontainer/devcontainer.json:255-258` — lifecycle commands
 - `.devcontainer/docker-compose.yml:2,53,107` — sidecar, service, volumes
 - `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
   auth volume
