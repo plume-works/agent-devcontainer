@@ -74,3 +74,20 @@ restarts](features/claude-remote-control-resume.md)
 [Shared BuildKit builder](features/shared-buildkit-builder.md)
 
 [VS Code Expo bridge](features/vscode-expo-bridge.md)
+
+[Docker storage limits](features/docker-storage-limits.md)
+
+[update-branch pulls the branch's
+upstream](features/update-branch-pulls-upstream.md)
+
+[Remote Control autostart on Coder](features/coder-remote-control-autostart.md)
+
+[Agent sign-in without credential
+seeding](features/agent-sign-in-without-seeding.md)
+
+[Codex full-access config](features/codex-full-access-config.md)
+
+[PR feedback resolution resolves merge
+conflicts](features/pr-feedback-resolves-merge-conflicts.md)
+
+[bun as the only JavaScript runner](features/bun-only-javascript-runner.md)

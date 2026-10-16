@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-09
+release:
+- features/agent-sign-in-without-seeding
 description: Delete the Coder-secret seeding of Claude and Codex credentials, gate Claude Remote Control autostart on a live claude.ai login, run Claude workspace pre-approval in every container with an opt-out, and split the agent-auth spec in two.
 generated:
   by: claude-code/opus-5.5

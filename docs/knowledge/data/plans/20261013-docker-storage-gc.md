@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-13
+release:
+- features/docker-storage-limits
 description: Bound Docker storage in both engines of a Coder workspace — a 10 GB BuildKit cache limit in each daemon and a 72-hour unused-image prune on every agent start.
 generated:
   by: claude-code/opus-5.5

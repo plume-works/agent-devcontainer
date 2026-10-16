@@ -194,19 +194,47 @@ plan's Context and its synced spec, set it to `stage: implemented`, link it
 under `## Added` in `releases/unreleased.md`, set the plan's `release` to the
 feature key, link the plan from the feature, and add one log bullet.
 
-- [ ] `plans/20261013-docker-storage-gc` → `features/docker-storage-limits`
-- [ ] `plans/20261012-update-branch-pulls-upstream` →
+- [x] `plans/20261013-docker-storage-gc` → `features/docker-storage-limits`
+  - **Evidence:** the Task 8 commit files `features/docker-storage-limits` at
+    `implemented`, links it under `## Added` in `releases/unreleased.md` and
+    from `data/features.md`, and sets the plan's `release`;
+    `iwe schema validate` passes.
+- [x] `plans/20261012-update-branch-pulls-upstream` →
   `features/update-branch-pulls-upstream`
-- [ ] `plans/20261011-coder-claude-remote-control` →
+  - **Evidence:** the Task 8 commit files
+    `features/update-branch-pulls-upstream` at `implemented`, links it under
+    `## Added` in `releases/unreleased.md` and from `data/features.md`, and sets
+    the plan's `release`; `iwe schema validate` passes.
+- [x] `plans/20261011-coder-claude-remote-control` →
   `features/coder-remote-control-autostart`
-- [ ] `plans/20261009-remove-coder-agent-auth-seeding` →
+  - **Evidence:** the Task 8 commit files
+    `features/coder-remote-control-autostart` at `implemented`, links it under
+    `## Added` in `releases/unreleased.md` and from `data/features.md`, and sets
+    the plan's `release`; `iwe schema validate` passes.
+- [x] `plans/20261009-remove-coder-agent-auth-seeding` →
   `features/agent-sign-in-without-seeding`
-- [ ] `plans/20261005-codex-full-access-config` →
+  - **Evidence:** the Task 8 commit files
+    `features/agent-sign-in-without-seeding` at `implemented`, links it under
+    `## Added` in `releases/unreleased.md` and from `data/features.md`, and sets
+    the plan's `release`; `iwe schema validate` passes.
+- [x] `plans/20261005-codex-full-access-config` →
   `features/codex-full-access-config`
-- [ ] `plans/20261002-pr-feedback-resolve-merge-conflicts` →
+  - **Evidence:** the Task 8 commit files `features/codex-full-access-config` at
+    `implemented`, links it under `## Added` in `releases/unreleased.md` and
+    from `data/features.md`, and sets the plan's `release`;
+    `iwe schema validate` passes.
+- [x] `plans/20261002-pr-feedback-resolve-merge-conflicts` →
   `features/pr-feedback-resolves-merge-conflicts`
-- [ ] `plans/20260925-bun-for-node-tooling` →
+  - **Evidence:** the Task 8 commit files
+    `features/pr-feedback-resolves-merge-conflicts` at `implemented`, links it
+    under `## Added` in `releases/unreleased.md` and from `data/features.md`,
+    and sets the plan's `release`; `iwe schema validate` passes.
+- [x] `plans/20260925-bun-for-node-tooling` →
   `features/bun-only-javascript-runner`
+  - **Evidence:** the Task 8 commit files `features/bun-only-javascript-runner`
+    at `implemented`, links it under `## Added` in `releases/unreleased.md` and
+    from `data/features.md`, and sets the plan's `release`;
+    `iwe schema validate` passes.
 
 ### Task 9: Backfill the pre-1.0.0 feature onto the 1.0.0 page
 
