@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-16
 
+- **Update**: [Expo profile for template
+  adoption](plans/20261014-expo-eas-template-profile.md) done; [Template
+  consumption](spec/template-consumption.md) now requires the template
+  devcontainer to pass `EXPO_TOKEN` and an Expo consumer to be prepared for EAS
+  cloud builds.
 - **Update**: [Devcontainer scaffolding](codebase/devcontainer.md) maps the
   `EXPO_TOKEN` passthrough in `containerEnv`; the devcontainer lifecycle flow,
   agentdev catalog, and agentdev skills map docs re-verified.

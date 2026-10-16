@@ -15,6 +15,8 @@ sources:
 - resource: https://github.com/expo/skills
 - resource: https://docs.expo.dev/accounts/programmatic-access/
 - resource: https://expo.dev/pricing
+stage: done
+completed: 2026-10-16
 ---
 
 # Expo profile for template adoption

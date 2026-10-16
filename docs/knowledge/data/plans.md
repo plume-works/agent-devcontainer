@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Expo profile for template
-adoption](plans/20261014-expo-eas-template-profile.md)
-
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
@@ -30,6 +27,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Expo profile for template
+adoption](plans/20261014-expo-eas-template-profile.md)
 
 [Cap Docker storage with automatic garbage
 collection](plans/20261013-docker-storage-gc.md)
