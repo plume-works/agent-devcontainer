@@ -11,4 +11,4 @@
 # this file overrides it through `dockerComposeFile` in devcontainer.json.
 services:
   devcontainer:
-    image: ghcr.io/plume-works/agent-desktop:edge@sha256:ee2c11052bf7a06a2a9164f7fff5b5f2cde78deebfa0ee78b28570cbc6c6e645
+    image: ghcr.io/plume-works/agent-desktop:edge@sha256:9d3e303b2f9b678bfe2932446bc042d8733cbb8b39d82604c5928cb47c9a02e9
