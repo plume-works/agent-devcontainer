@@ -4,7 +4,7 @@ created: 2026-10-13
 description: A Homebrew-based bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — bash 5 first on PATH, the catalog's CLI tools, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T00:00:00Z
+  at: 2026-10-15T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml
@@ -31,8 +31,8 @@ Two gaps block it on a stock macOS host:
   `#!/usr/bin/env bash` and three of them use bash 4 builtins (`mapfile`,
   `declare -A`), so they fail unless a newer bash precedes `/bin` on `PATH`.
 - The tools skills call — `gh`, `jq`, `shellcheck`, `uv`, `bun`, `pre-commit`,
-  `iwe`/`iwec`, `codebase-memory-mcp` — and the agent CLIs that install the
-  plugin are absent.
+  `iwe`, `codebase-memory-mcp` — and the agent CLIs that install the plugin are
+  absent.
 
 ## Approach
 
@@ -46,10 +46,12 @@ before the plugin exists, and once the plugin is enabled the same script is on
 2. `brew bundle --file=-` with an inline Brewfile: formulae `bash`, `jq`, `gh`,
    `shellcheck`, `uv`, `bun`, `pre-commit`, and cask `claude-code`. Versions
    float; only the release-only tools in step 3 are pinned.
-3. Install the tools Homebrew lacks — `iwe` (with `iwes`, `iwec`) and
+3. Install the tools Homebrew lacks — `iwe` with `iwes`, and
    `codebase-memory-mcp` — from their GitHub release darwin tarballs into
    `~/.local/bin`, at the same versions `ansible/roles/dev_tools` pins, each
-   verified against a SHA-256 recorded in the script per architecture.
+   verified against a SHA-256 recorded in the script per architecture. `iwec`
+   stays uninstalled even though the iwe tarball ships it, matching the image
+   ([IWE through the CLI, not MCP](../architecture/iwe-cli-over-mcp.md)).
 4. Write a marker-delimited block to `~/.zprofile` that evaluates
    `brew shellenv` and prepends `~/.local/bin`, so `env bash` resolves to
    Homebrew's bash 5 in every new login shell. Rewrite the block in place on
@@ -70,7 +72,7 @@ plugin user and keeps the bootstrap versioned with the scripts it makes
 runnable. Rejected: pinning brew formulae to the image versions — it would mean
 replacing Homebrew with release tarballs for every tool.
 
-Assumptions (minor details, recorded rather than asked):
+Assumptions:
 
 - The Brewfile is inline in the script rather than a sibling file, so one `curl`
   fetches everything.
@@ -79,9 +81,9 @@ Assumptions (minor details, recorded rather than asked):
 - The bootstrap is a user-run command, not a skill script, so it does not adopt
   the `RESULT=` contract or source `result-codes.sh` — it must run before the
   catalog is on disk.
-- Codex gets the same `agentdev` install when its CLI is present; the user chose
-  plugin installation offered as "Claude, and Codex if present", and limited it
-  to `agentdev` without naming an agent.
+- Codex gets the same `agentdev` install when its CLI is present. The user
+  decided the plugin step covers Claude Code, plus Codex when present, and
+  installs `agentdev` only.
 
 ## Implementation Steps
 
@@ -101,6 +103,8 @@ directory.
   on stdin.
 - [ ] A release tarball whose checksum does not match is rejected and nothing
   lands in `~/.local/bin`.
+- [ ] From an iwe archive that holds `iwe`, `iwes`, and `iwec`, only `iwe` and
+  `iwes` land in `~/.local/bin`.
 - [ ] Two runs leave exactly one marker block in `~/.zprofile`, and existing
   content outside it is preserved byte-for-byte.
 - [ ] The plugin step adds the marketplace and installs `agentdev` and never
@@ -186,16 +190,22 @@ NOT install Homebrew itself.
 
 ### Requirement: release-only tools are pinned and checksum-verified
 
-The script SHALL install `iwe`, `iwes`, `iwec`, and `codebase-memory-mcp` into
+The script SHALL install `iwe`, `iwes`, and `codebase-memory-mcp` into
 `~/.local/bin` from their GitHub release darwin archives, at the versions
 `ansible/roles/dev_tools` pins, and SHALL verify each archive's SHA-256 before
-installing anything from it.
+installing anything from it. It SHALL NOT install `iwec`.
 
 #### Scenario: Checksum mismatch
 
 - **WHEN** a downloaded archive's SHA-256 differs from the recorded value
 - **THEN** the script exits nonzero
 - **AND** no binary from that archive is installed
+
+#### Scenario: The iwe archive ships an MCP server
+
+- **WHEN** the iwe archive contains `iwe`, `iwes`, and `iwec`
+- **THEN** `iwe` and `iwes` are installed
+- **AND** `iwec` is not
 
 ### Requirement: bash 5 precedes /bin on PATH in login shells
 
@@ -252,13 +262,14 @@ exit nonzero naming each check that failed.
 - The MCP gateway sidecar, the egress firewall, git SSH signing, and the keyring
   the devcontainer lifecycle sets up.
 - Installing `self-improve`.
+- Installing `iwec` or registering an IWE MCP server in Claude Code or Codex.
 - Xcode, Expo, and iOS Simulator setup.
 - Renovate automation for the script's release pins; the Task 1 sync test turns
   an image-only bump into a failing test instead.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-13):
+Verified anchor points (line numbers as of 2026-10-15):
 
 - `.agents/plugins/agentdev/bin/shellcheck-fix.sh:9` — `mapfile -d ''`, a bash 4
   builtin
@@ -266,16 +277,16 @@ Verified anchor points (line numbers as of 2026-10-13):
   — `declare -A changed_between`
 - `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:178`
   — `mapfile -t tracked_paths`; `:180` `declare -A seen_changed_paths`
-- `ansible/roles/dev_tools/defaults/main.yml:33` — `iwe` entry (`iwe-v0.26.1`,
-  `binaries: [iwe, iwes, iwec]` at `:38`)
-- `ansible/roles/dev_tools/defaults/main.yml:59` — `codebase-memory-mcp` entry
+- `ansible/roles/dev_tools/defaults/main.yml:32` — `iwe` entry (`iwe-v0.26.1`,
+  `binaries: [iwe, iwes]` at `:37`)
+- `ansible/roles/dev_tools/defaults/main.yml:58` — `codebase-memory-mcp` entry
   (`v0.11.0`)
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74` —
   `claude plugin marketplace add`; `:76` `claude plugin install`
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:16` — Codex marketplace
   manifest path `.agents/plugins/marketplace.json`
-- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:61`
-  `validate-agent-files` job; `:81` agentdev plugin test step
+- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:62`
+  `validate-agent-files` job; `:83` agentdev plugin test step
 - `docs/knowledge/data/codebase/agents/plugins/agentdev.md:57` — `bin/` is on
   `PATH` while the plugin is enabled
 - `docs/knowledge/data/architecture/template-boundary.md:253` — Publisher-only

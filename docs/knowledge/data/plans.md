@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Build iOS on the Mac host through a VS Code
+bridge](plans/20261015-vscode-expo-bridge.md)
+
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 

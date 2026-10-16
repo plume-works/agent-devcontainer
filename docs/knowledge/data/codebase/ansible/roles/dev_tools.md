@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: Installs the apt development toolchain and a list of pinned, checksum-verified single-binary tools (zizmor, the iwe trio, codebase-memory-mcp, bun).
+description: Installs the apt development toolchain and a list of pinned, checksum-verified single-binary tools (zizmor, the iwe CLI and LSP server, codebase-memory-mcp, bun).
 source: ansible/roles/dev_tools
-source_digest: sha256:8e2a7fce0e1a9d8b90c3385b6c263ccdee2fabe41b345b99f57a221a6be55d25
+source_digest: sha256:47e82481c948180bec44012bd6a3764d2e704382cf46da46364b519d0ffa844d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
-stale_after: 2026-12-27
+  at: 2026-10-15T00:00:00Z
+stale_after: 2027-01-13
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-28T00:00:00Z
+  at: 2026-10-15T00:00:00Z
 sources:
 - id: code
   resource: ansible/roles/dev_tools
@@ -27,7 +27,7 @@ release binaries every other part of the workspace assumes are on `PATH`.
   each entry names a version, a download URL prefix, an asset prefix (where
   `{version}` expands to the version), an optional `binaries` list, and a
   per-architecture `target` + `checksum`
-- Installed binaries under `/usr/local/bin`: `zizmor`, `iwe`, `iwes`, `iwec`,
+- Installed binaries under `/usr/local/bin`: `zizmor`, `iwe`, `iwes`,
   `codebase-memory-mcp`, `bun`
 
 ## How it works

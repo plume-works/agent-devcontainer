@@ -21,7 +21,7 @@ downloads and checksum-verifies the archive, extracts it to a scratch
 tempdir, and copies out the files named in `binaries` (defaulting to a
 single-element list containing `name`) to `/usr/local/bin/<binary>` as
 `root:root` (mode `0755`). Set `binaries` explicitly when a tarball ships more
-than one binary to install, as `iwe` does for `iwe`, `iwes`, and `iwec`.
+than one binary to install, as `iwe` does for `iwe` and `iwes`.
 
 Archives are extracted to a tempdir, then selected binaries are copied into
 `/usr/local/bin` with explicit `owner`/`group`. Archive metadata must never

@@ -203,7 +203,6 @@
           "dotfiles",
           "fisher",
           "hadolint",
-          "iwec",
           "iwes",
           "noqa",
           "pytest",

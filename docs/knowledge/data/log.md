@@ -22,6 +22,9 @@ to the current day's group.
 - **Update**: [agentdev skills](codebase/agents/plugins/agentdev/skills.md) maps
   the template-consume Optional Expo profile; the agentdev catalog map doc
   re-verified.
+- **Update**: [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
+  recorded; `.mcp.json` drops the IWE MCP server and the image stops installing
+  `iwec`.
 
 ## 2026-10-14
 
