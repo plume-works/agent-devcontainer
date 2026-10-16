@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-16
 
+- **Update**: [Expo apps build for iOS through EAS](features/expo-eas-builds.md)
+  recorded as implemented and listed in the unreleased release.
 - **Update**: [Expo profile for template
   adoption](plans/20261014-expo-eas-template-profile.md) done; [Template
   consumption](spec/template-consumption.md) now requires the template
