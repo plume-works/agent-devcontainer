@@ -42,14 +42,14 @@ git at the consumer repository root:
 }
 ```
 
-| Field              | Meaning                                                                                                                                                                                                                               |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `source_repo`      | `owner/name` of the template repository this consumer was built from.                                                                                                                                                                 |
-| `consumed_ref`     | The full commit SHA whose template paths this consumer currently reflects. Always the 40-character form — never abbreviated.                                                                                                          |
-| `workflow`         | `"A"` (full-copy) or `"B"` (existing-repo merge), from [Setup Mode](#setup-mode) below.                                                                                                                                               |
-| `optional_bundles` | Which optional pieces this consumer kept: `"custom-image"` when the Ansible/Docker publishing bundle was retained, `"knowledge-base"` when IWE project memory under `docs/knowledge/` was adopted. Empty array when neither was kept. |
-| `tracked_paths`    | The template-owned paths this consumer still wants compared on update — start from [Default Template Surface](#default-template-surface) and prune what setup mode deleted.                                                           |
-| `last_synced_at`   | When `consumed_ref` was last advanced.                                                                                                                                                                                                |
+| Field              | Meaning                                                                                                                                                                                                                                                                                                                    |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `source_repo`      | `owner/name` of the template repository this consumer was built from.                                                                                                                                                                                                                                                      |
+| `consumed_ref`     | The full commit SHA whose template paths this consumer currently reflects. Always the 40-character form — never abbreviated.                                                                                                                                                                                               |
+| `workflow`         | `"A"` (full-copy) or `"B"` (existing-repo merge), from [Setup Mode](#setup-mode) below.                                                                                                                                                                                                                                    |
+| `optional_bundles` | Which optional pieces this consumer kept: `"custom-image"` when the Ansible/Docker publishing bundle was retained, `"knowledge-base"` when IWE project memory under `docs/knowledge/` was adopted, `"expo"` when the guide's Optional Expo setup was applied — it adds no `tracked_paths`. Empty array when none was kept. |
+| `tracked_paths`    | The template-owned paths this consumer still wants compared on update — start from [Default Template Surface](#default-template-surface) and prune what setup mode deleted.                                                                                                                                                |
+| `last_synced_at`   | When `consumed_ref` was last advanced.                                                                                                                                                                                                                                                                                     |
 
 `consumed_ref` is what [check-updates.sh](agent-code/check-updates.sh) diffs
 from; `tracked_paths` is what it diffs. Both must stay accurate — a stale
@@ -96,8 +96,9 @@ or scope interview.
 3. **Ask the scope questions** the guide's own steps depend on: keep custom-image
    publishing (§3 / Optional custom-image setup)? Keep IWE-based project memory
    under `docs/knowledge/`? Keep the shared `agentdev-agents-auth` credential
-   volume default? Keeping project memory pulls in the seed and the onboarding
-   run in step 4.
+   volume default? Is the consumer an Expo app? Keeping project memory pulls in
+   the seed and the onboarding run in step 4; an Expo app runs the guide's
+   Optional Expo setup after the workflow's steps.
 4. **Execute the guide's numbered steps** for the chosen workflow using your
    normal file tools — this is an agent-guided walkthrough, not a script. Merge
    rather than overwrite wherever the guide says to (Workflow B step 3
@@ -194,6 +195,12 @@ A marker section or legacy marker file exists.
    hook, edited a workflow's owner gate) needs a manual merge, not a blind
    overwrite — copying the upstream file verbatim would silently undo the
    consumer's own edits.
+
+   When `optional_bundles` includes `"expo"` and an applied change touches
+   `devcontainer-compose-pins.yml`, compare each `eas.json` build profile's
+   `bun` with `bun --version` in the rebuilt devcontainer and update the pins
+   that differ.
+
 6. **Re-run the two silent-drift requirements from the guide** if the changed
    paths touch lint configuration: confirm `.ruff.toml` and `pyproject.toml`
    never both configure ruff, and confirm no formatter change was just pointed

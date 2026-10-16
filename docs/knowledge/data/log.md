@@ -4,8 +4,24 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-16
+
+- **Update**: [Expo apps build for iOS through EAS](features/expo-eas-builds.md)
+  recorded as implemented and listed in the unreleased release.
+- **Update**: [Expo profile for template
+  adoption](plans/20261014-expo-eas-template-profile.md) done; [Template
+  consumption](spec/template-consumption.md) now requires the template
+  devcontainer to pass `EXPO_TOKEN` and an Expo consumer to be prepared for EAS
+  cloud builds.
+- **Update**: [Devcontainer scaffolding](codebase/devcontainer.md) maps the
+  `EXPO_TOKEN` passthrough in `containerEnv`; the devcontainer lifecycle flow,
+  agentdev catalog, and agentdev skills map docs re-verified.
+
 ## 2026-10-15
 
+- **Update**: [agentdev skills](codebase/agents/plugins/agentdev/skills.md) maps
+  the template-consume Optional Expo profile; the agentdev catalog map doc
+  re-verified.
 - **Update**: [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
   recorded; `.mcp.json` drops the IWE MCP server and the image stops installing
   `iwec`.
