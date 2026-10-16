@@ -45,6 +45,10 @@ Commit at checkpoints as meaningful progress is achieved, rather than accumulati
    If no, drop it. Record a decision as a decision — never as the obstacle that
    prompted it, which goes stale and reads as a workaround.
 
+9. **Default OpenCode test models.** When a test, e2e harness, or check runs
+   OpenCode, use `openai/gpt-6.1-sol` as the big model and `openai/gpt-6-luna`
+   as the small model. Use a costlier model only when the user names it.
+
 ### When in Doubt
 
 Consult the **Principal Engineer** agent supplied by the `agentdev` catalog for architecture,
