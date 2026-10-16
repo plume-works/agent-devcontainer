@@ -11,12 +11,13 @@ Usage: run.sh [--harness claude|codex|opencode]... [--opencode-model <provider/m
 Builds an isolated clone of HEAD under .tmp/e2e/, commits the fixture plans
 there, and runs the Ship, Ship-all, Implement, and Explore checks headless on
 each harness named (all three by default). Prints PASS/FAIL per assertion and
-exits 1 on any FAIL. --opencode-model is required when OpenCode runs.
+exits 1 on any FAIL. --opencode-model defaults to openai/gpt-6.1-sol; the
+OpenCode config sets the small model to openai/gpt-6-luna.
 EOF
 }
 
 harnesses=()
-opencode_model=""
+opencode_model="openai/gpt-6.1-sol"
 while (($#)); do
   case "$1" in
     --harness)
@@ -76,13 +77,7 @@ for tool in git jq iwe timeout; do need "$tool"; done
 for h in "${harnesses[@]}"; do
   case "$h" in
     claude | codex) need "$h" ;;
-    opencode)
-      need opencode
-      [[ -n "$opencode_model" ]] || {
-        echo "--opencode-model is required for OpenCode" >&2
-        exit 2
-      }
-      ;;
+    opencode) need opencode ;;
     *)
       echo "unknown harness: $h" >&2
       exit 2
