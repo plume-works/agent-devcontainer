@@ -128,16 +128,23 @@ Assumptions:
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-capture/SKILL.md`
 
-- [ ] Step 4's frontmatter block shows `release`, followed by the rule: list the
+- [x] Step 4's frontmatter block shows `release`, followed by the rule: list the
   feature and bug documents the work adds, changes, or fixes; `internal` only
   when no workspace user or template consumer sees a difference — refactors,
   tooling only this repository runs, project-memory-only edits, spikes, and
   milestone aggregators. `## Context` links each listed document.
-- [ ] Step 5: before filing, a public-facing plan with no feature hands the
+  - **Evidence:** `iwe-plan/SKILL.md` step 4 in the Task 4 commit;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    — 62/62 skills valid.
+- [x] Step 5: before filing, a public-facing plan with no feature hands the
   feature to `/agentdev:iwe-capture feature`, then records its key and sets it
   to `stage: accepted`. Revise mode keeps `release` in step with a change of
   intent.
-- [ ] Capture's description names Plan among the skills that hand it a feature.
+  - **Evidence:** `iwe-plan/SKILL.md` step 5 and the revise-mode paragraph of
+    step 4 in the Task 4 commit; the validator run above.
+- [x] Capture's description names Plan among the skills that hand it a feature.
+  - **Evidence:** `iwe-capture/SKILL.md` description in the Task 4 commit; the
+    validator run above.
 
 ### Task 5: Ship applies the declaration and never creates a feature
 
