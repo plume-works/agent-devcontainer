@@ -177,8 +177,11 @@ Assumptions:
 
 ### Task 7: Run the e2e harness
 
-- [ ] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness claude`
+- [x] `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness claude`
   prints no FAIL.
+  - **Evidence:** `run.sh --harness claude` on a clone of `b135aad` — every
+    check passed, including `claude ship approved: plan done` and
+    `claude ship approved: internal plan adds no release entry`.
 - [ ] The same run with `--harness opencode --opencode-model <maintainer model>`
   prints no FAIL — the harness whose model stops Ship on the undefined
   release-link rule.
