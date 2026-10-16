@@ -71,18 +71,23 @@ Assumptions:
 **Files:** Modify: `.iwe/schemas/plan.yaml`; Create:
 `docs/knowledge/tests/test_plan_release_schema.py`
 
-- [ ] Write a failing pytest, in the style of `test_body_shape_schemas.py`, that
+- [x] Write a failing pytest, in the style of `test_body_shape_schemas.py`, that
   copies the graph into `./.tmp/` and asserts `iwe schema validate`: rejects an
   active plan without `release` and names the field; rejects an active plan
   whose `release` is any other string or names a key outside `features/` or
   `bugs/`; accepts `release: internal`; accepts a non-empty list of
   `features/<slug>` and `bugs/<slug>` keys; accepts a `stage: done` plan without
   `release`.
-- [ ] Add the `release` property — `internal` or a non-empty list of keys
+  - **Evidence:** `docs/knowledge/tests/test_plan_release_schema.py` in the Task
+    1 commit; against the unchanged schema its five rejection cases failed.
+- [x] Add the `release` property — `internal` or a non-empty list of keys
   matching `^(features|bugs)/[a-z0-9][a-z0-9.-]*$`, which admits the seed's
   `.example` keys — with a description naming both forms, and require it when
   `stage` is absent, alongside the existing `stage: done` → `completed` rule.
   The new test passes.
+  - **Evidence:** `.iwe/schemas/plan.yaml` in the Task 1 commit;
+    `uv run pytest docs/knowledge/tests/test_plan_release_schema.py` — 9 passed;
+    `test_iwe_seed.py` and `test_body_shape_schemas.py` — 14 passed.
 
 ### Task 2: SCHEMA.md documents the field
 
