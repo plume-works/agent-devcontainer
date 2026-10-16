@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-08-14
+release:
+- features/uv-run-only-environment
 description: Remove the in-tree .venv symlink, pin the uv environment to a fixed /uv path, and route every remaining consumer through `uv run`.
 generated:
   by: claude-code/opus-5

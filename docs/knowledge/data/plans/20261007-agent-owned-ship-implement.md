@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-07
+release:
+- features/agentdev-iwe-workflow-skills
 description: Move the Ship and Implement workflows into catalog agents that coordinators dispatch by name, run Ship always as a subagent with a conversation-free prompt, keep their user entry skills and the coordinators explicit-only on Claude, Codex, and OpenCode, and let a plan revision that answers a Ship blocker re-dispatch the Shipper.
 generated:
   by: claude-code/opus-5-5

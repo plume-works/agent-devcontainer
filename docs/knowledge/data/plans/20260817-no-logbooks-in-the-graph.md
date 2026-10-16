@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-08-17
+release:
+- features/no-working-logbooks
 description: Bind every file in the repository against working-logbook prose by promoting the durable-knowledge rule into the repository operating manual as Best Practice 8, scoping the plan clause that invites narration, giving Implement a capture-and-route section, reducing the graph manual to its genuine narrative exceptions, and widening the iwe-audit scope to match.
 generated:
   by: claude-code/opus-5

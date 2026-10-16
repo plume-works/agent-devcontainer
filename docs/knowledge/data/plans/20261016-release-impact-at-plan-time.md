@@ -259,11 +259,14 @@ Modify: `docs/knowledge/data/features.md`,
 Each feature is already on its release page; only the plan's `release` and a
 plan link from the feature are missing.
 
-- [ ] `plans/20261005-pr-review-scenario-validation` and
+- [x] `plans/20261005-pr-review-scenario-validation` and
   `plans/20261007-agent-owned-ship-implement` declare
   `features/ai-responder-workflows` and `features/agentdev-iwe-workflow-skills`
   respectively, both already under `## Changed` in `releases/unreleased.md`.
-- [ ] `plans/20260902-audit-plan-edits-in-fresh-context` →
+  - **Evidence:** the Task 10 commit sets each plan's `release` and adds a
+    `Plan:` link to it under the feature's `## References`; the release pages
+    already listed every feature; `iwe schema validate` passes.
+- [x] `plans/20260902-audit-plan-edits-in-fresh-context` →
   `features/agentdev-iwe-workflow-skills`;
   `plans/20260903-pr-description-guidance` → `features/pr-description-guidance`;
   `plans/20260817-preserve-approved-wording` →
@@ -272,6 +275,9 @@ plan link from the feature are missing.
   `plans/20260816-structured-plan-spec-deltas` →
   `features/risk-scaled-spec-deltas`; `plans/20260814-drop-venv-symlink` →
   `features/uv-run-only-environment`.
+  - **Evidence:** the Task 10 commit sets each plan's `release` and adds a
+    `Plan:` link to it under the feature's `## References`; the release pages
+    already listed every feature; `iwe schema validate` passes.
 
 ## Spec changes
 
