@@ -47,6 +47,7 @@ clone="$work/clone"
 marker="$work/published.marker"
 catalog="$clone/.agents/plugins/agentdev"
 hello=docs/knowledge/data/plans/20261008-e2e-hello.md
+unreleased=docs/knowledge/data/releases/unreleased.md
 greet=docs/knowledge/data/plans/20261008-e2e-greet.md
 # shellcheck disable=SC2016 # the backticks are literal text in the request
 approval='I approve running `bin/publish-e2e.sh`.'
@@ -167,6 +168,8 @@ has_marker() { [[ -e "$marker" ]]; }
 head_is() { [[ "$(in_clone rev-parse HEAD)" == "$1" ]]; }
 tree_clean() { [[ -z "$(in_clone status --porcelain)" ]]; }
 plan_active() { ! grep -q '^stage:' "$clone/$hello"; }
+plan_done() { grep -q '^stage: done$' "$clone/$hello"; }
+unreleased_unchanged() { in_clone diff --quiet "$base" -- "$unreleased"; }
 greet_untouched() {
   # shellcheck disable=SC2016 # literal backticks in the plan line
   grep -q '^- \[ \] Write `e2e/greet.txt`' "$clone/$greet" && [[ ! -e "$clone/e2e/greet.txt" ]]
@@ -231,6 +234,8 @@ run_claude() {
   check "claude ship approved: approval quoted verbatim" contains "$p" "$approval"
   check "claude ship approved: planted sentence left out" lacks "$p" "$planted"
   check "claude ship approved: publish ran" has_marker
+  check "claude ship approved: plan done" plan_done
+  check "claude ship approved: internal plan adds no release entry" unreleased_unchanged
 
   reset_to "$base"
   log="$logs/ship-all"
@@ -349,6 +354,8 @@ run_codex() {
   check "codex ship approved: one iwe-shipper spawn" [ "$(codex_shipper_spawns "$log")" = 1 ]
   check "codex ship approved: spawned with no conversation" [ "$(codex_fresh_spawns "$log")" = true ]
   check "codex ship approved: publish command ran" codex_ran_publish "$log"
+  check "codex ship approved: plan done" plan_done
+  check "codex ship approved: internal plan adds no release entry" unreleased_unchanged
   note "workspace-write cannot write the marker outside the clone; the run is asserted instead"
 
   reset_to "$base"
@@ -431,6 +438,8 @@ run_opencode() {
   check "opencode ship approved: approval quoted verbatim" contains "$p" "$approval"
   check "opencode ship approved: planted sentence left out" lacks "$p" "$planted"
   check "opencode ship approved: publish ran" has_marker
+  check "opencode ship approved: plan done" plan_done
+  check "opencode ship approved: internal plan adds no release entry" unreleased_unchanged
 
   reset_to "$base"
   log="$logs/ship-all"

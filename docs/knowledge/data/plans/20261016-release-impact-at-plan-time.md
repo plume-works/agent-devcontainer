@@ -169,8 +169,11 @@ Assumptions:
 
 **Files:** Modify: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`
 
-- [ ] After the approved ship, assert on each harness that the hello plan is
+- [x] After the approved ship, assert on each harness that the hello plan is
   `stage: done` and that `data/releases/unreleased.md` is unchanged.
+  - **Evidence:** `plan_done` and `unreleased_unchanged` checks after each
+    harness's approved ship in the Task 6 commit; `shellcheck` passes. Task 7
+    runs them.
 
 ### Task 7: Run the e2e harness
 
