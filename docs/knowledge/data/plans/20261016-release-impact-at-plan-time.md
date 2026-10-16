@@ -93,9 +93,10 @@ Assumptions:
 
 **Files:** Modify: `docs/knowledge/SCHEMA.md`
 
-- [ ] Add `release` to the plan frontmatter example and state, in one or two
+- [x] Add `release` to the plan frontmatter example and state, in one or two
   sentences, its two forms, that it is required while the plan is active, and
   that Ship takes the plan's release entries from it.
+  - **Evidence:** `docs/knowledge/SCHEMA.md` `## Plans` in the Task 2 commit.
 
 ### Task 3: Every plan the schema validates declares `release`
 
