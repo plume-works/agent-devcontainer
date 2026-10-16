@@ -6,7 +6,7 @@ to the current day's group.
 
 ## 2026-10-16
 
-- **Update**: [Devcontainer template surface](codebase/devcontainer.md) maps the
+- **Update**: [Devcontainer scaffolding](codebase/devcontainer.md) maps the
   `EXPO_TOKEN` passthrough in `containerEnv`; the devcontainer lifecycle flow,
   agentdev catalog, and agentdev skills map docs re-verified.
 

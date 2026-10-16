@@ -219,13 +219,18 @@ above requires.
 
 ### Task 7: Token on a Coder workspace
 
-- [ ] In a `coder-ide-baseline` workspace with an `EXPO_TOKEN` Coder user
+- [x] In a `coder-ide-baseline` workspace with an `EXPO_TOKEN` Coder user
   secret, its Dev Container rebuilt from a branch carrying the Task 8
   passthrough, a shell started by the Dev Container's sub-agent sees
   `EXPO_TOKEN` and `bunx eas-cli@latest whoami` reports the account. Record in
   `## Verification results` whether `${localEnv:EXPO_TOKEN}` resolves into the
   container's own environment there (the environment of PID 1 or of a
   `docker exec` shell).
+  - **Evidence:** at 64186ad on Coder workspace `agent-dev2`, its Dev Container
+    recreated through the Coder devcontainer recreate API: a
+    `coder ssh agent-dev2.repo` shell sees a 40-character `EXPO_TOKEN` and
+    `bunx eas-cli@latest whoami` lists the account; PID 1's `EXPO_TOKEN` is
+    defined and empty. Recorded in `## Verification results`.
 
 ### Task 8: Pass `EXPO_TOKEN` through the template devcontainer
 
@@ -360,6 +365,17 @@ the Expo template's `AGENTS.md` body under an `## Expo` section.
 - Task 10's `whoami` succeeds in a devcontainer rebuilt on a local Docker host
   with `EXPO_TOKEN` exported, and reports "Not logged in" without it.
 - `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+On a `coder-ide-baseline` workspace, `${localEnv:EXPO_TOKEN}` does not resolve
+to the Coder user secret: the Dev Container's own environment carries
+`EXPO_TOKEN` empty. The token reaches only sessions the sub-agent starts, where
+the secret takes precedence over the empty `containerEnv` value, so the
+template-wide passthrough is harmless on Coder and the guide's Coder bullet, not
+`containerEnv`, is what delivers the token there. Recreating the Dev Container,
+without a full workspace restart, was enough for new sub-agent sessions to
+receive a secret added after the workspace started.
 
 ## Out of scope
 
