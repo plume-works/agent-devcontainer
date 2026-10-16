@@ -25,7 +25,8 @@ completed: 2026-10-16
 
 An Expo app needs native iOS builds, which need macOS and Xcode. The
 devcontainer is Linux. EAS Build runs the native build on Expo's cloud Macs and
-is driven entirely from the Linux devcontainer.
+is driven entirely from the Linux devcontainer. The feature is [Expo apps build
+for iOS through EAS](../features/expo-eas-builds.md).
 
 Expo already publishes the agent side. A new Expo app ships
 `.claude/settings.json` enabling `expo@claude-plugins-official`
