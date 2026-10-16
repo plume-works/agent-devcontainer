@@ -150,14 +150,20 @@ Assumptions:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Step 1 reads `release` and every document it lists. A missing field, or a
+- [x] Step 1 reads `release` and every document it lists. A missing field, or a
   listed document that does not exist, ends the run with a Ship blocker report
   routed to Plan revise mode, before Verify and with no mutation. Cancellation
   does not read the field.
-- [ ] Step 6 sets each listed feature to `implemented` and each listed bug to
+  - **Evidence:** `iwe-shipper.agent.md` step 1 and the blocker-report routes in
+    the Task 5 commit;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    — 0 errors.
+- [x] Step 6 sets each listed feature to `implemented` and each listed bug to
   `done`, and adds one unreleased link per listed document by the existing Added
   / Changed / Fixed rule. `internal` adds no release entry. The "if the plan
   requires a new feature … create it" clause is removed.
+  - **Evidence:** `iwe-shipper.agent.md` step 6 in the Task 5 commit; the
+    validator run above.
 
 ### Task 6: The e2e harness proves the `internal` path
 
