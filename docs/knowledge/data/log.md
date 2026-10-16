@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-16
 
+- **Update**: [Xpra port forwarding](features/xpra-port-forwarding.md)
+  backfilled as implemented and listed under Added on the
+  [1.0.0](releases/1.0.0.md) release, which shipped it.
 - **Update**: Features backfilled as implemented for shipped plans that had
   none, and listed under Added in the [unreleased
   release](releases/unreleased.md): [Docker storage

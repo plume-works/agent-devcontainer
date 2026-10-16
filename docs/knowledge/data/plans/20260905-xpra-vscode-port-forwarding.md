@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-09-05
+release:
+- features/xpra-port-forwarding
 description: Use a fixed Xpra container port and let VS Code resolve local forwarding conflicts.
 generated:
   by: codex/gpt-6

@@ -244,9 +244,13 @@ Modify: `docs/knowledge/data/features.md`,
 `docs/knowledge/data/plans/20260905-xpra-vscode-port-forwarding.md`,
 `docs/knowledge/data/log.md`
 
-- [ ] `plans/20260905-xpra-vscode-port-forwarding` →
+- [x] `plans/20260905-xpra-vscode-port-forwarding` →
   `features/xpra-port-forwarding`, filed and marked as in Task 8, linked under
   `## Added` on the 1.0.0 page rather than the unreleased one.
+  - **Evidence:** the Task 9 commit files `features/xpra-port-forwarding` at
+    `implemented`, links it under `## Added` in `releases/1.0.0.md` and from
+    `data/features.md`, and sets the plan's `release`; `iwe schema validate`
+    passes.
 
 ### Task 10: Declare existing features on shipped plans that never linked them
 
