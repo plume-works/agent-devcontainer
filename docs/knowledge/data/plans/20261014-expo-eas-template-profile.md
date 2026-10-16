@@ -283,8 +283,11 @@ above requires.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] In `## Optional Expo setup`, the `**GitHub Codespaces:**` token bullet is
+- [x] In `## Optional Expo setup`, the `**GitHub Codespaces:**` token bullet is
   replaced by this bullet, verbatim:
+  - **Evidence:** committed with this tick — `consumption-guide.md:989` holds
+    the Coder bullet below byte for byte in place of the Codespaces bullet;
+    `validate_agent_files` reports 62/62 skills valid, 0 errors.
 
 ``` markdown
 - **Coder (`coder-ide-baseline`):** add a Coder user secret named

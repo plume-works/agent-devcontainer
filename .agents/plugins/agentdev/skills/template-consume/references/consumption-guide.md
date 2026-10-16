@@ -986,8 +986,10 @@ is created:
 - **Local Docker host:** export it in the environment that launches the editor
   or the devcontainer CLI, then rebuild the container; `${localEnv:...}` is
   read only when the container is created.
-- **GitHub Codespaces:** add a Codespaces secret named `EXPO_TOKEN`, scoped to
-  the consumer repository, then create or rebuild the codespace.
+- **Coder (`coder-ide-baseline`):** add a Coder user secret named
+  `EXPO_TOKEN`, then restart the workspace. The secret reaches the processes
+  the Dev Container's sub-agent starts — terminals, IDE sessions, and agents —
+  but not lifecycle hooks.
 
 Inside the rebuilt devcontainer, link the project once:
 
