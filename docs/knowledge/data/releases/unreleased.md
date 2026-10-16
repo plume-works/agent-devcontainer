@@ -36,6 +36,8 @@ catalog](../features/self-improve-plugin-in-catalog.md)
 [Resume the Remote Control conversation across
 restarts](../features/claude-remote-control-resume.md)
 
+[Expo apps build for iOS through EAS](../features/expo-eas-builds.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

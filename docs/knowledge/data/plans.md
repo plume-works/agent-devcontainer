@@ -23,9 +23,6 @@ written](plans/20261016-release-impact-at-plan-time.md)
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
 
-[Expo profile for template
-adoption](plans/20261014-expo-eas-template-profile.md)
-
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
@@ -36,6 +33,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Expo profile for template
+adoption](plans/20261014-expo-eas-template-profile.md)
 
 [Cap Docker storage with automatic garbage
 collection](plans/20261013-docker-storage-gc.md)
