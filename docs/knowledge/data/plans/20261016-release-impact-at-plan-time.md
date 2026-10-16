@@ -182,9 +182,14 @@ Assumptions:
   - **Evidence:** `run.sh --harness claude` on a clone of `b135aad` — every
     check passed, including `claude ship approved: plan done` and
     `claude ship approved: internal plan adds no release entry`.
-- [ ] The same run with `--harness opencode --opencode-model <maintainer model>`
+- [x] The same run with `--harness opencode --opencode-model <maintainer model>`
   prints no FAIL — the harness whose model stops Ship on the undefined
   release-link rule.
+  - **Evidence:**
+    `run.sh --harness opencode --opencode-model openai/gpt-6-astra` on a clone
+    of `6677e44` — all checks passed, including
+    `opencode ship approved: plan done` and
+    `opencode ship approved: internal plan adds no release entry`.
 
 ### Task 8: Backfill features for public-facing work shipped since 1.0.0
 
