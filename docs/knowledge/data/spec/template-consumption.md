@@ -2,13 +2,14 @@
 type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T21:49:04Z
+  by: claude-code/opus-5.5
+  at: 2026-10-16T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
+- resource: .devcontainer/devcontainer.json
 ---
 
 # Template consumption
@@ -134,6 +135,50 @@ the adopted SHA, the workflow, and the settled choices, and pointing at
 `.agentdev-template-progress.md` as the live record. It SHALL NOT mirror the
 task list. A consumer without a knowledge base SHALL skip this step, and its
 absence SHALL NOT block consumption.
+
+## Requirement: an Expo consumer is prepared for EAS cloud builds
+
+The template devcontainer SHALL pass `EXPO_TOKEN` from the host environment into
+the container through `containerEnv` for every consumer, and SHALL store it
+nowhere in the repository or a volume.
+
+When the consumer is an Expo app, setup SHALL record `"expo"` in
+`optional_bundles` without adding any `tracked_paths`, SHALL NOT add a second
+`EXPO_TOKEN` definition, and SHALL leave the consumer with: the Expo hosts in
+the firewall allowlist; `.env.eas-simulator` ignored by git; every `eas.json`
+build profile pinning `bun` to the devcontainer's bun version; and one root
+`AGENTS.md` that keeps the template's content and holds the Expo template's
+`AGENTS.md` body under an `## Expo` section.
+
+### Scenario: an Expo app adopts the template
+
+- **WHEN** setup runs in a repository whose app was created by `create-expo-app`
+  and the user confirms it is an Expo app
+- **THEN** the marker's `optional_bundles` includes `"expo"`
+- **AND** the Expo template's separate `AGENTS.md` no longer exists
+- **AND** the progress document records the root `AGENTS.md` as customized
+
+### Scenario: the image's bun changes
+
+- **WHEN** update mode applies a change to `devcontainer-compose-pins.yml` for a
+  consumer whose `optional_bundles` includes `"expo"`
+- **THEN** each `eas.json` build profile's `bun` is compared with
+  `bun --version` in the rebuilt devcontainer and updated when they differ
+
+### Scenario: a non-Expo consumer
+
+- **WHEN** the user says the consumer is not an Expo app
+- **THEN** setup makes none of the Expo edits and `optional_bundles` omits
+  `"expo"`
+- **AND** the devcontainer still passes `EXPO_TOKEN`, empty when the host does
+  not set it
+
+### Scenario: a Coder workspace supplies the token
+
+- **WHEN** `EXPO_TOKEN` is a Coder user secret and the Dev Container is rebuilt
+  with the passthrough
+- **THEN** a shell started by the Dev Container's sub-agent sees `EXPO_TOKEN`
+  and `eas whoami` reports the account
 
 ## Pull request description guidance
 
