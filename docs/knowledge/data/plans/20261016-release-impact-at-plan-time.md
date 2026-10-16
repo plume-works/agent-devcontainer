@@ -79,9 +79,10 @@ Assumptions:
   `features/<slug>` and `bugs/<slug>` keys; accepts a `stage: done` plan without
   `release`.
 - [ ] Add the `release` property — `internal` or a non-empty list of keys
-  matching `^(features|bugs)/[a-z0-9-]+$` — with a description naming both
-  forms, and require it when `stage` is absent, alongside the existing
-  `stage: done` → `completed` rule. The new test passes.
+  matching `^(features|bugs)/[a-z0-9][a-z0-9.-]*$`, which admits the seed's
+  `.example` keys — with a description naming both forms, and require it when
+  `stage` is absent, alongside the existing `stage: done` → `completed` rule.
+  The new test passes.
 
 ### Task 2: SCHEMA.md documents the field
 
@@ -98,14 +99,23 @@ Assumptions:
 `templates/iwe/data/plans/mvp.example.md`, the active fixture plans under
 `scripts/e2e/20261007-agent-owned-ship-implement/fixtures/plans/`
 
-- [ ] Give every plan active at implementation time a `release` value by the
+- [x] Give every plan active at implementation time a `release` value by the
   rule Plan applies (Task 4). A public-facing plan with no feature gets one
   filed through `/agentdev:iwe-capture feature` and set to `stage: accepted`.
-- [ ] Give the two active seed example plans a `release` value; the streak
+  - **Evidence:** the Task 3 commit declares `features/ai-responder-workflows`
+    on `20260909-resumable-claude-review-sessions` and files
+    `features/macos-native-bootstrap`, `features/shared-buildkit-builder`, and
+    `features/vscode-expo-bridge` at `accepted` for the other three active
+    plans; `iwe schema validate` passes.
+- [x] Give the two active seed example plans a `release` value; the streak
   widget links the seed's matching feature when one exists, and the milestone
   declares `internal`. `uv run pytest docs/knowledge/tests/test_iwe_seed.py`
   passes.
-- [ ] Give the e2e fixture plans `release: internal`.
+  - **Evidence:** the Task 3 commit sets `features/streak-widget.example` and
+    `internal`; `uv run pytest docs/knowledge/tests/test_iwe_seed.py` — 8
+    passed.
+- [x] Give the e2e fixture plans `release: internal`.
+  - **Evidence:** the Task 3 commit sets it on all three fixture plans.
 
 ### Task 4: Plan declares the release impact when it files a plan
 

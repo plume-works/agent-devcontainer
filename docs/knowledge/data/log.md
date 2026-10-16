@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-16
 
+- **Feature**: [Native macOS bootstrap](features/macos-native-bootstrap.md),
+  [Shared BuildKit builder](features/shared-buildkit-builder.md), and [VS Code
+  Expo bridge](features/vscode-expo-bridge.md) filed and accepted for their
+  active plans.
 - **Plan**: [Declare release impact when a plan is
   written](plans/20261016-release-impact-at-plan-time.md) filed, to fix [Ship's
   release-link rule is undefined for a plan with no feature or

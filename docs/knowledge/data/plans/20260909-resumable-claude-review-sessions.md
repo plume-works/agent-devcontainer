@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-09-09
+release:
+- features/ai-responder-workflows
 description: Resume an interrupted Claude pull-request review from a persistent local session after an explicit review-resume comment.
 generated:
   by: codex/gpt-5

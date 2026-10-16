@@ -2,6 +2,8 @@
 type: plan
 description: 'Example active plan: building the streak widget.'
 created: 2026-07-20
+release:
+- features/streak-widget.example
 generated:
   by: human:author
   at: 2026-07-20T00:00:00Z

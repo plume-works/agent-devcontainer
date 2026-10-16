@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-15
+release:
+- features/vscode-expo-bridge
 description: A VS Code extension in the sibling repository plume-works/vscode-expo-bridge that lets agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set, with EAS cloud as the fallback; the template's Expo profile lists the extension.
 generated:
   by: claude-code/opus-5.5

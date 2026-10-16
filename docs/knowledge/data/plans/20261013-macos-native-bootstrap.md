@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-13
+release:
+- features/macos-native-bootstrap
 description: A Homebrew-based bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — bash 5 first on PATH, the catalog's CLI tools, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5

@@ -68,3 +68,9 @@ pins](features/renovate-maintains-checksums.md)
 restarts](features/claude-remote-control-resume.md)
 
 [Expo apps build for iOS through EAS](features/expo-eas-builds.md)
+
+[Native macOS bootstrap](features/macos-native-bootstrap.md)
+
+[Shared BuildKit builder](features/shared-buildkit-builder.md)
+
+[VS Code Expo bridge](features/vscode-expo-bridge.md)
