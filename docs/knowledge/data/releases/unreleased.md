@@ -84,3 +84,6 @@ running](../bugs/review-orchestrator-ends-turn-while-passes-run.md)
 
 [Coder workspace Dev Container is lost on
 restart](../bugs/coder-devcontainer-lost-on-restart.md)
+
+[Ship's release-link rule is undefined for a plan with no feature or
+bug](../bugs/ship-release-link-without-feature.md)

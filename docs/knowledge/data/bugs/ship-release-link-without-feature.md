@@ -1,10 +1,12 @@
 ---
 type: bug
+stage: done
 description: Ship's release-link rule assumes every plan links a feature or bug, so for a plan that links neither, one model ships without an unreleased entry and another stops for a decision.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T14:00:00Z
+  at: 2026-10-16T18:00:00Z
 sources:
+- resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 ---
 
@@ -40,9 +42,12 @@ or needs one created.
 
 ## Fix
 
-Unfixed. Step 6 should state what a plan linking neither a feature nor a bug
-does — for example, that it adds no unreleased entry — so every model takes the
-same path.
+Fixed by [Declare release impact when a plan is
+written](../plans/20261016-release-impact-at-plan-time.md). Every active plan
+declares a schema-required `release` value — `internal`, or the feature and bug
+keys it adds, changes, or fixes — and Ship applies it as written: one release
+link per listed document, none for `internal`, and a blocker report when the
+field is missing or names no document. Ship never creates a feature.
 
 ## Key references
 

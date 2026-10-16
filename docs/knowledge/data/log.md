@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-16
 
+- **Update**: [Declare release impact when a plan is
+  written](plans/20261016-release-impact-at-plan-time.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now requires every active plan to declare
+  its release impact and Ship to apply it; [Ship's release-link rule is
+  undefined for a plan with no feature or
+  bug](bugs/ship-release-link-without-feature.md) fixed.
 - **Update**: [Agentdev plugin](codebase/agents/plugins/agentdev.md), [agentdev
   skills](codebase/agents/plugins/agentdev/skills.md), [Knowledge
   base](codebase/docs/knowledge.md), and [IWE seed](codebase/templates/iwe.md)

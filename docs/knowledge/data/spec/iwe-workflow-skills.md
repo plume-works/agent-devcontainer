@@ -3,8 +3,9 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-10T12:00:00Z
+  at: 2026-10-16T18:00:00Z
 sources:
+- resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh
@@ -176,6 +177,54 @@ keep that contract coherent when material decisions change.
   spec still describes current released behavior
 - **THEN** Verify evaluates the implementation against the effective contract
   formed by the durable spec and the plan's risk-appropriate spec changes
+
+### Requirement: Plans declare their release impact
+
+The plan schema SHALL require every active plan to carry a `release` frontmatter
+value: `internal`, or a non-empty list of the `features/` and `bugs/` keys the
+work adds, changes, or fixes. The Plan skill SHALL set that value when it files
+a plan, SHALL declare `internal` only when no workspace user or template
+consumer sees a difference, and SHALL have Capture file a missing feature before
+it files the plan. Ship SHALL take a plan's release entries only from that value
+and SHALL never create a feature.
+
+#### Scenario: A plan introduces user-visible behavior with no feature
+
+- **WHEN** Plan files a plan whose work changes what a workspace user or
+  template consumer sees, and no feature describes it
+- **THEN** Plan hands the feature to Capture, lists its key in `release`, and
+  sets the feature to `stage: accepted`
+
+#### Scenario: A plan changes nothing users see
+
+- **WHEN** Ship ships a plan that declares `release: internal`
+- **THEN** Ship marks the plan done and adds no release entry
+
+#### Scenario: A plan declares features and bugs
+
+- **WHEN** Ship ships a plan whose `release` lists feature and bug keys
+- **THEN** Ship marks each feature implemented and each bug done, and adds one
+  unreleased inclusion link per listed document — a feature new in this version
+  under Added, a feature released in an earlier version under Changed, a bug
+  under Fixed
+
+#### Scenario: An active plan has no release declaration
+
+- **WHEN** an active plan lacks `release`, or its value is neither `internal`
+  nor a list of `features/` and `bugs/` keys
+- **THEN** `iwe schema validate` fails and names the plan, and Ship returns a
+  blocker report for Plan revise mode without a lifecycle transition
+
+#### Scenario: A declared document does not exist
+
+- **WHEN** a plan's `release` lists a key with no document behind it
+- **THEN** Ship returns a blocker report for Plan revise mode without a
+  lifecycle transition and creates no document
+
+#### Scenario: A shipped plan predates the field
+
+- **WHEN** a plan at `stage: done` or `stage: cancelled` has no `release`
+- **THEN** `iwe schema validate` accepts it
 
 ### Requirement: Implement starts work on its own branch
 

@@ -1,13 +1,15 @@
 ---
 type: plan
 created: 2026-10-16
+stage: done
+completed: 2026-10-16
 description: Every active plan declares its release impact in a schema-required release frontmatter field — internal, or the feature and bug keys it adds, changes, or fixes — so Ship applies the declaration instead of deciding, plus features and release links backfilled for shipped public-facing plans that have none.
 release:
 - bugs/ship-release-link-without-feature
 - features/agentdev-iwe-workflow-skills
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
+  at: 2026-10-16T18:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
