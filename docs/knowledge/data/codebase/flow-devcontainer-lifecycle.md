@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:bc34ef8d0d7564b41e6dd1a8415bbbbd4ab6c27525619808d484cb26fcabfaf4
+source_digest: sha256:7ad2e36bbae5aa6df8e215f05ba1dc932ab609dd7dca0325d5291c7328cf4553
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:55:53Z
-stale_after: 2027-01-14
+  at: 2026-10-17T05:20:00Z
+stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:55:53Z
+  at: 2026-10-17T05:20:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -37,21 +37,23 @@ state.
    `~/.claude.json` symlink into the `agentdev-claude` volume,
    `codebase-memory-mcp install` (a failure only warns), auth directories,
    Claude first-run pre-approval unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is
-   set, the Codex auth link, `uv sync`, then the image-staged catalog installed
-   for Codex (with its agents), for Claude at user scope, and as OpenCode's
-   bridge plugin — `.devcontainer/scripts/postCreateCommand.sh:56-98`, in
-   [lifecycle scripts](devcontainer/scripts.md)
+   set, the Codex and OpenCode auth links, `uv sync`, then the image-staged
+   catalog installed for Codex (with its agents), for Claude at user scope, and
+   as OpenCode's bridge plugin —
+   `.devcontainer/scripts/postCreateCommand.sh:56-99`, in [lifecycle
+   scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
-   Xpra in the background, the Codex auth link, then Codex's full-access policy
-   in `config.toml` — `.devcontainer/scripts/postStartCommand.sh:9-30`. The gh
-   helper setup there sees only a login stored on disk or in the keyring. Claude
-   Remote Control is not part of it: in Coder, the template's `coder_script` on
-   the dev container's sub-agent runs `coder-agent-start.sh` after the agent
-   starts, which prunes unused images in the nested Docker engine, repeats the
-   gh helper setup with the agent's environment, then execs
-   `claude-remote-control-start.sh` —
-   `.devcontainer/scripts/coder-agent-start.sh:9-17`
+   Xpra in the background, the Codex and OpenCode auth links, then Codex's
+   full-access policy in `config.toml` —
+   `.devcontainer/scripts/postStartCommand.sh:9-31`. The gh helper setup there
+   sees only a login stored on disk or in the keyring. Claude Remote Control is
+   not part of it: in Coder, the template's `coder_script` on the dev
+   container's sub-agent runs `coder-agent-start.sh` after the agent starts,
+   which prunes unused images in the nested Docker engine, repeats the gh helper
+   setup with the agent's environment, starts the OpenCode web UI on
+   `tmux -L opencode`, then execs `claude-remote-control-start.sh` —
+   `.devcontainer/scripts/coder-agent-start.sh:9-21`
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
    catalog reinstalled from this checkout at local scope, with OpenCode's bridge
    entry repointed at it, which is how the catalog is developed in place —

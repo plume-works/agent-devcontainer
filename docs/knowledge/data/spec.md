@@ -3,8 +3,8 @@ type: hub
 description: Behavioral specifications — the durable truth about how the product must work.
 stage: living
 generated:
-  by: hermes-agent/gpt-5.6
-  at: 2026-09-28T19:26:07+00:00
+  by: claude-code/opus-5.5
+  at: 2026-10-17T12:00:00Z
 ---
 
 # 📐 Spec
@@ -41,6 +41,8 @@ whenever a plan ships, so this section never drifts from the code.*
 [Devcontainer Docker storage](spec/devcontainer-docker-storage.md)
 
 [Coder IDE baseline template](spec/coder-ide-baseline.md)
+
+[OpenCode web](spec/opencode-web.md)
 
 [Self-improve learning loop](spec/self-improve-learning-loop.md)
 
