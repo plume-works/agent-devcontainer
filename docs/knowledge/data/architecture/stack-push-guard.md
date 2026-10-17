@@ -3,7 +3,7 @@ type: architecture
 description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.sh, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T18:00:00Z
+  at: 2026-10-17T21:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -28,13 +28,14 @@ two subcommands:
 
 - `begin` runs before anything rewrites the stack. It fast-forwards a layer
   whose local tip is an ancestor of its remote. It stops on a layer whose remote
-  holds a commit with no patch-equivalent locally, or a merge commit the local
-  branch lacks, with the trunk excluded so that GitHub's post-merge rebase is
-  not a loss. It records every layer's remote tip in
+  holds a commit with no identical patch locally, whitespace included, or a
+  merge commit the local branch lacks, with the trunk excluded so that GitHub's
+  post-merge rebase is not a loss. It records every layer's remote tip in
   `./.tmp/gh-stack-guard/tips`.
 - `publish` replaces `gh stack push` (and, with `--submit`,
-  `gh stack submit --auto`). It stops when a recorded tip moved, pushes, then
-  verifies that every remote tip equals its local tip.
+  `gh stack submit --auto`). It stops when a recorded tip moved, pushes the
+  changed layers itself, runs the gh-stack command, then verifies that every
+  remote tip equals its local tip.
 
 The recorded tip is the lease gh-stack fails to take. The check has to run
 before the rewrite. After a rebase whose conflict was resolved, a layer's patch
@@ -61,13 +62,26 @@ the patch test. Where Git does not already ignore `.tmp/`, the guard adds it to
 `.git/info/exclude`, since `gh stack rebase` refuses a worktree with untracked
 files.
 
-The time between `publish`'s check and gh-stack's own fetch cannot be closed, so
-`publish` detects a loss in it instead. gh-stack's fetch records every tip it
-sees in the layer's remote-tracking reflog. A tip that is neither the checked
-one nor the local one and holds remote-only work was overwritten, and `publish`
-names it as `REMOTE_OVERWRITTEN`. The guard forces `core.logAllRefUpdates` for
-its own run and the gh-stack it starts through `GIT_CONFIG_COUNT`, never through
-the repository's configuration.
+**The guard pushes with the lease gh-stack does not take.** `publish` pushes
+every layer whose remote differs from its local tip in one `git push --atomic`,
+each with `--force-with-lease` on the tip it checked (an empty lease for a layer
+absent on the remote). A push that landed after the check rejects the whole
+push, so nothing is overwritten and `publish` reports `REMOTE_MOVED`. Atomicity
+leaves no half-published stack to reason about; it needs a remote that supports
+atomic pushes, as GitHub does. The gh-stack command then has nothing left to
+push, and with `--submit` only creates or updates the pull requests.
+
+A push landing between the guard's push and gh-stack's own fetch is still
+overwritten by gh-stack, which leases on what it just fetched. `publish` detects
+that loss instead: gh-stack's fetch records every tip it sees in the layer's
+remote-tracking reflog, and a tip that is neither the checked one nor the local
+one and holds remote-only work is reported as `REMOTE_OVERWRITTEN`. The guard
+forces `core.logAllRefUpdates` for its own run and the gh-stack it starts
+through `GIT_CONFIG_COUNT`, never through the repository's configuration.
+
+The remote-only test compares patches with `git patch-id --verbatim`. The
+default patch-id and `--cherry-pick` ignore whitespace, so a whitespace-only fix
+on the remote would count as already present.
 
 ## Rejected alternatives
 
@@ -82,6 +96,10 @@ the repository's configuration.
   every pin bump.
 - **`gh stack sync` before every push.** `sync` loses remote-only commits itself
   whenever it rebases.
+- **Detecting the post-check race instead of leasing.** Detection names the lost
+  commits but leaves them to be recovered by hand.
+- **Pushing layer by layer.** A lease rejection part-way would leave lower
+  layers published and upper ones stale; one atomic push avoids that.
 - **A single check just before the push.** Once local history is rewritten, the
   patch test cannot tell a resolved conflict from lost work.
 - **Waiting for upstream #380.** Data loss stays possible until a fixed release

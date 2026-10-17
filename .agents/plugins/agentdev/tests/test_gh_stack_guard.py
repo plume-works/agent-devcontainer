@@ -7,6 +7,8 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import shlex
+import shutil
 import subprocess
 
 from git_fixtures import FIXTURE_ENV, git, outcome
@@ -21,11 +23,11 @@ stack="${stub_dir}/stack.json"
 if [[ "$1 $2" == "stack view" ]]; then cat "${stack}"; exit 0; fi
 if [[ "$1 $2" == "stack push" || "$1 $2" == "stack submit" ]]; then
   printf '%s\n' "$*" >> "${stub_dir}/pushes"
+  if [[ -f "${stub_dir}/before-fetch" ]]; then bash "${stub_dir}/before-fetch"; fi
   mode="$(cat "${stub_dir}/push-mode" 2>/dev/null || echo real)"
   [[ "${mode}" == fail ]] && exit 1
   [[ "${mode}" == noop ]] && exit 0
   mapfile -t layers < <(jq -r '.branches[] | select(.isMerged | not) | .name' "${stack}")
-  if [[ -f "${stub_dir}/before-fetch" ]]; then bash "${stub_dir}/before-fetch"; fi
   [[ "${mode}" == partial ]] && layers=("${layers[0]}")
   for b in "${layers[@]}"; do
     git fetch -q origin "+refs/heads/${b}:refs/remotes/origin/${b}" 2>/dev/null || true
@@ -42,6 +44,14 @@ if [[ "$1 $2" == "stack push" || "$1 $2" == "stack submit" ]]; then
 fi
 echo "unexpected gh call: $*" >&2
 exit 99
+"""
+
+# Runs the before-push hook once, on the first git push, then hands over to the real git.
+STUB_GIT = r"""#!/usr/bin/env bash
+set -euo pipefail
+hook="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/before-push"
+if [[ "${1:-}" == push && -f "${hook}" ]]; then mv "${hook}" "${hook}.ran"; bash "${hook}.ran"; fi
+exec REAL_GIT "$@"
 """
 
 
@@ -78,6 +88,10 @@ class Stack:
         self.stub.mkdir()
         (self.stub / 'gh').write_text(STUB_GH)
         (self.stub / 'gh').chmod(0o755)
+        real_git = shutil.which('git')
+        assert real_git
+        (self.stub / 'git').write_text(STUB_GIT.replace('REAL_GIT', real_git))
+        (self.stub / 'git').chmod(0o755)
         self.merged: set[str] = set()
         self.write_stack()
 
@@ -142,15 +156,19 @@ class Stack:
         git(self.peer, 'push', '-q', 'origin', branch)
         return git(self.peer, 'rev-parse', 'HEAD')
 
-    def race_peer_push(self, branch: str, name: str) -> str:
-        """Commit `name` on `branch` in the peer, pushed by the stub just before its fetch."""
-        git(self.peer, 'fetch', '-q', 'origin')
-        git(self.peer, 'switch', '-q', branch)
-        git(self.peer, 'reset', '-q', '--hard', f'origin/{branch}')
-        sha = commit_file(self.peer, name, f'{name}\n')
-        hook = f'git -C {self.peer} push -q origin {sha}:refs/heads/{branch}\n'
-        (self.stub / 'before-fetch').write_text(hook)
-        return sha
+    def race_peer_push(self, branch: str, name: str, hook: str) -> None:
+        """Make hook `hook` (before-fetch or before-push) push a peer commit `name`."""
+        peer = shlex.quote(str(self.peer))
+        script = (
+            f'git -C {peer} fetch -q origin\n'
+            f'git -C {peer} switch -q {branch}\n'
+            f'git -C {peer} reset -q --hard origin/{branch}\n'
+            f'echo {name} > {peer}/{name}\n'
+            f'git -C {peer} add {name}\n'
+            f'git -C {peer} commit -q -m {name}\n'
+            f'git -C {peer} push -q origin {branch}\n'
+        )
+        (self.stub / hook).write_text(script)
 
     def remote_tip(self, branch: str) -> str:
         """Read a branch tip from the bare remote."""
@@ -248,6 +266,21 @@ def test_publish_without_begin_stops_on_a_remote_only_merge_of_trunk(
     assert 'R-merge' in completed.stderr
     assert stack.pushes() == []
     assert stack.remote_tip('layer-b') == merge_sha
+
+
+def test_begin_stops_on_a_whitespace_only_remote_rewrite(plugin_root: Path, stack: Stack) -> None:
+    """A remote commit differing from the local one only in whitespace is remote work."""
+    git(stack.peer, 'switch', '-q', 'layer-b')
+    git(stack.peer, 'reset', '-q', '--hard', 'origin/layer-b~1')
+    Stack.edit_line(stack.peer, '25', '25-B ', 'B2')
+    git(stack.peer, 'push', '-q', '--force', 'origin', 'layer-b')
+    remote_sha = stack.remote_tip('layer-b')
+
+    completed, _ = guard(plugin_root, stack, 'begin')
+
+    assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
+    assert 'B2' in completed.stderr
+    assert stack.remote_tip('layer-b') == remote_sha
 
 
 def test_begin_accepts_the_rebase_github_makes_after_a_lower_layer_merges(
@@ -349,9 +382,10 @@ def test_publish_stops_when_a_remote_moved_after_begin(plugin_root: Path, stack:
 
 
 def test_publish_reports_a_push_that_left_a_layer_behind(plugin_root: Path, stack: Stack) -> None:
-    """A push that exits 0 without updating a layer is not reported as published."""
+    """A remote tip that differs from the local one after the push is not published."""
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
     commit_file(stack.work, 'l.txt', 'local\n')
+    stack.race_peer_push('layer-b', 'R-late', 'before-fetch')
     stack.set_push_mode('noop')
 
     completed, _ = guard(plugin_root, stack, 'publish')
@@ -396,14 +430,29 @@ def test_publish_reports_a_peer_push_the_push_overwrote(
     git(stack.work, 'config', 'core.logAllRefUpdates', log_ref_updates)
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
     commit_file(stack.work, 'l.txt', 'local\n')
-    lost_sha = stack.race_peer_push('layer-b', 'R-race')
+    stack.race_peer_push('layer-b', 'R-race', 'before-fetch')
 
     completed, _ = guard(plugin_root, stack, 'publish')
 
     assert outcome(completed) == (7, 'RESULT=REMOTE_OVERWRITTEN')
     assert 'layer-b' in completed.stderr
     assert 'R-race' in completed.stderr
-    assert lost_sha[:7] in completed.stderr
+    assert git(stack.peer, 'rev-parse', 'HEAD')[:7] in completed.stderr
+
+
+def test_publish_leases_on_the_tip_it_checked(plugin_root: Path, stack: Stack) -> None:
+    """A peer push landing after publish's check survives, and publish stops."""
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    commit_file(stack.work, 'l.txt', 'local\n')
+    stack.race_peer_push('layer-b', 'R-race', 'before-push')
+
+    completed, _ = guard(plugin_root, stack, 'publish')
+
+    assert outcome(completed) == (4, 'RESULT=REMOTE_MOVED')
+    assert 'layer-b' in completed.stderr
+    assert stack.remote_tip('layer-b') == git(stack.peer, 'rev-parse', 'HEAD')
+    assert 'R-race' in stack.remote_log('layer-b')
+    assert stack.pushes() == []
 
 
 def test_publish_submit_runs_gh_stack_submit(plugin_root: Path, stack: Stack) -> None:
@@ -439,6 +488,16 @@ def test_unguarded_stub_push_drops_the_remote_commit(stack: Stack) -> None:
     subprocess.run([str(stack.stub / 'gh'), 'stack', 'push'], cwd=stack.work, check=True, env=env)
 
     assert 'R-fix' not in stack.remote_log('layer-b')
+
+
+def test_begin_adds_the_exclude_on_its_own_line(plugin_root: Path, stack: Stack) -> None:
+    """An exclude file without a final newline keeps its last pattern intact."""
+    exclude = stack.work / git(stack.work, 'rev-parse', '--git-path', 'info/exclude')
+    exclude.write_text('*.log')
+
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    assert exclude.read_text().splitlines() == ['*.log', '.tmp/']
 
 
 def test_begin_keeps_the_worktree_clean_where_tmp_is_not_ignored(

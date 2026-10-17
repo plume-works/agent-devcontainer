@@ -29,12 +29,14 @@ Usage:
 Subcommands:
   begin     Run before anything rewrites the stack. Fetches every active layer,
             fast-forwards a layer its remote is ahead of, stops on a layer whose
-            remote holds a commit the local branch has no patch for or a merge
-            it lacks, and records every layer's remote tip.
+            remote holds a commit the local branch has no identical patch for or
+            a merge it lacks, and records every layer's remote tip.
   publish   Run in place of gh stack push (or, with --submit, of
             gh stack submit --auto). Stops when a layer's remote tip moved since
-            begin to anything but its local tip, pushes, reports remote work the
-            push overwrote, then verifies every remote tip equals its local tip.
+            begin to anything but its local tip, pushes every changed layer in
+            one atomic push leased on the tips it checked, runs the gh stack
+            command, reports remote work that command overwrote, then verifies
+            every remote tip equals its local tip.
             Without a begin record, applies begin's remote-only test instead.
 
 Options:
@@ -53,13 +55,13 @@ Results (RESULT / exit code):
   SUCCESS              0  Nothing on any remote would be or was lost
   REMOTE_ONLY_COMMITS  3  A layer's remote holds commits the local branch lacks;
                           nothing was changed
-  REMOTE_MOVED         4  publish: a layer's remote tip changed since begin;
-                          nothing was pushed
-  PUSH_FAILED          5  publish: the gh stack command failed
+  REMOTE_MOVED         4  publish: a layer's remote tip changed since begin or
+                          after the check; nothing was pushed
+  PUSH_FAILED          5  publish: the guard's push or the gh stack command failed
   PUSH_INCOMPLETE      6  publish: the push exited 0 but a remote tip still
                           differs from its local tip
-  REMOTE_OVERWRITTEN   7  publish: a push that landed after the check was
-                          overwritten; stderr names the lost commits
+  REMOTE_OVERWRITTEN   7  publish: a push that landed after the guard's push was
+                          overwritten by gh stack; stderr names the lost commits
   PREFLIGHT_ERROR      2  Bad usage, not a repo, not in a stack, detached HEAD,
                           fetch failure, or a layer that cannot be fast-forwarded
   SCRIPT_FAILURE       1  Unhandled error
@@ -191,14 +193,31 @@ fetch_layers() {
   fi
 }
 
+# "<patch-id> <commit>" for the non-merge commits of one side of a range.
+# --verbatim: the default patch-id ignores whitespace, so a whitespace-only fix would match.
+side_patch_ids() {
+  git log -p --no-merges --no-color --no-ext-diff --format='commit %H' "$@" |
+    git patch-id --verbatim
+}
+
 # Commits on the layer's remote (or on rev $2), outside the trunk, that the local branch
-# lacks: non-merges without a local patch-equivalent, and every remote-only merge.
+# lacks: non-merges with no byte-identical local patch, and every remote-only merge.
 remote_only_commits() {
   local layer="$1" remote_rev="${2:-refs/remotes/${remote_name}/$1}"
   local trunk_ref="refs/remotes/${remote_name}/${trunk}"
-  local exclude=() range="refs/heads/${layer}...${remote_rev}"
+  local exclude=() range="refs/heads/${layer}...${remote_rev}" id sha
+  declare -A local_ids=() remote_id=()
   git rev-parse -q --verify "${trunk_ref}" >/dev/null && exclude=("^${trunk_ref}")
-  git rev-list --right-only --cherry-pick --no-merges "${range}" "${exclude[@]}"
+  while read -r id sha; do
+    local_ids["${id}"]=1
+  done < <(side_patch_ids --left-only "${range}" "${exclude[@]}")
+  while read -r id sha; do
+    remote_id["${sha}"]="${id}"
+  done < <(side_patch_ids --right-only "${range}" "${exclude[@]}")
+  while read -r sha; do
+    id="${remote_id[${sha}]:-}"
+    [[ -n "${id}" && -n "${local_ids[${id}]:-}" ]] || printf '%s\n' "${sha}"
+  done < <(git rev-list --right-only --no-merges "${range}" "${exclude[@]}")
   git rev-list --right-only --merges "${range}" "${exclude[@]}"
 }
 
@@ -268,6 +287,9 @@ exclude_state_dir() {
   git check-ignore --quiet "${state_file}" && return 0
   exclude_file="$(git rev-parse --path-format=absolute --git-common-dir)/info/exclude"
   mkdir -p -- "$(dirname -- "${exclude_file}")"
+  if [[ -s "${exclude_file}" && -n "$(tail -c 1 -- "${exclude_file}")" ]]; then
+    printf '\n' >>"${exclude_file}"
+  fi
   printf '.tmp/\n' >>"${exclude_file}"
 }
 
@@ -310,6 +332,32 @@ log_ref_updates() {
   local index="${GIT_CONFIG_COUNT:-0}"
   export "GIT_CONFIG_KEY_${index}=core.logAllRefUpdates" "GIT_CONFIG_VALUE_${index}=true"
   export GIT_CONFIG_COUNT=$((index + 1))
+}
+
+# Pushes every changed layer in one atomic push leased on the tip publish checked, so a
+# push landing after the check is refused rather than overwritten (REMOTE_MOVED).
+push_layers() {
+  local layer local_sha flag ref summary output leases=() refspecs=() status=0 moved=0
+  for layer in "${layers[@]}"; do
+    local_sha="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
+    [[ -z "${local_sha}" || "${local_sha}" == "${remote_tip[${layer}]:-}" ]] && continue
+    leases+=("--force-with-lease=refs/heads/${layer}:${remote_tip[${layer}]:-}")
+    refspecs+=("refs/heads/${layer}:refs/heads/${layer}")
+  done
+  [[ ${#refspecs[@]} -gt 0 ]] || return 0
+  output="$(git push --atomic --porcelain "${leases[@]}" "${remote_name}" "${refspecs[@]}")" ||
+    status=$?
+  [[ "${status}" -eq 0 ]] && return 0
+  while IFS=$'\t' read -r flag ref summary; do
+    [[ "${flag}" == '!' && "${summary}" == *'(stale info)'* ]] || continue
+    ref="${ref%%:*}"
+    print_error "${ref#refs/heads/} on ${remote_name} moved after the check; nothing was pushed."
+    moved=1
+  done <<<"${output}"
+  [[ "${moved}" -eq 0 ]] || quit_by_code 4
+  printf '%s\n' "${output}" >&2
+  print_error "Pushing the stack to ${remote_name} failed."
+  quit_by_code 5
 }
 
 write_state() {
@@ -393,6 +441,7 @@ run_publish() {
   for layer in "${layers[@]}"; do
     checked_tip["${layer}"]="${remote_tip[${layer}]:-}"
   done
+  push_layers
   mark_reflogs
   "${push_cmd[@]}" >&2 || push_status=$?
   check_overwritten
