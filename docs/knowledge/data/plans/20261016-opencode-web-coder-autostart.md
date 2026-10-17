@@ -91,7 +91,7 @@ Rejected:
 `.devcontainer/scripts/postCreateCommand.sh`,
 `.devcontainer/scripts/postStartCommand.sh`
 
-- [ ] Tests first, with the auth directory and data directory overridable by
+- [x] Tests first, with the auth directory and data directory overridable by
   environment so no test touches `/root`:
   - no local file: the local path becomes a symlink to the shared target; the
     target is not created;
@@ -100,10 +100,20 @@ Rejected:
   - an existing symlink: a rerun leaves it pointing at the shared target and the
     target's content unchanged;
   - the shared directory ends at mode `0700`.
-- [ ] Script, shellcheck clean; the tests pass.
-- [ ] `postCreateCommand.sh` creates `/root/.agents-auth/opencode` beside the
+  - **Evidence:** commit "feat(devcontainer): share the OpenCode login through
+    the auth volume": `scripts/tests/test_link_opencode_auth.py`, one test per
+    case, overriding `HOME` and `AGENTDEV_AGENTS_AUTH_DIR`; all four fail before
+    the script exists.
+- [x] Script, shellcheck clean; the tests pass.
+  - **Evidence:** commit "feat(devcontainer): share the OpenCode login through
+    the auth volume": `link-opencode-auth.sh`; `shellcheck` clean;
+    `uv run pytest scripts/tests/test_link_opencode_auth.py` 4 passed.
+- [x] `postCreateCommand.sh` creates `/root/.agents-auth/opencode` beside the
   Claude and Codex directories and runs the script after `link-codex-auth.sh`;
   `postStartCommand.sh` runs it after `link-codex-auth.sh`.
+  - **Evidence:** commit "feat(devcontainer): share the OpenCode login through
+    the auth volume": both hooks call `link-opencode-auth.sh` right after
+    `link-codex-auth.sh`; `shellcheck` clean on both.
 
 ### Task 2: Keep OpenCode's data directory on a per-worktree volume
 
