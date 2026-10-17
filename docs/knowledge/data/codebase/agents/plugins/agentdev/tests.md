@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:226f8fcb087a7749b27a9837335eaf6e20579ac9b8740831c8b5bb705d4c2fdb
+source_digest: sha256:9a7496ff67a1686a4cc6f3c98f88c4ae3f190f1d50fc11d795f70dd7e02ca64d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T18:00:00Z
+  at: 2026-10-17T18:30:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T18:00:00Z
+  at: 2026-10-17T18:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -58,16 +58,17 @@ uncompilable, or inapplicable metadata is `BROKEN_METADATA` confined to its own
 subtree, including invalid replacements and masked binary files.
 `test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
 clone that pushes behind the working clone's back, and a stub `gh` whose
-`stack push`/`submit` fetch first and lease against the fresh tracking ref, as
-gh-stack does; it pins each `stack-guard.sh` result, including a squash-merged
-lower layer that GitHub-style rebasing leaves `SUCCESS` and a `publish` rerun
-after a push that landed only some layers. `test_capture_close_issue.py` reuses
-`initialize_repository` from `test_update_branch.py` and a stub `gh` that logs
-closes, and pins each `close-issue.sh` result, including an already-closed issue
-left alone. `test_template_consume_check_updates.py` builds the same metadata
-file to hold the marker section, and pins `NO_MARKER` for an absent file and for
-an absent section, and `INVALID_MARKER` for malformed metadata or a section
-missing `consumed_ref` or `tracked_paths`.
+`stack push`/`submit` run an optional before-fetch hook (a racing peer push),
+then fetch and lease against the fresh tracking ref, as gh-stack does; it pins
+each `stack-guard.sh` result, including a squash-merged lower layer that
+GitHub-style rebasing leaves `SUCCESS`, a peer merge of trunk, and a `publish`
+rerun after a push that landed only some layers. `test_capture_close_issue.py`
+reuses `initialize_repository` from `test_update_branch.py` and a stub `gh` that
+logs closes, and pins each `close-issue.sh` result, including an already-closed
+issue left alone. `test_template_consume_check_updates.py` builds the same
+metadata file to hold the marker section, and pins `NO_MARKER` for an absent
+file and for an absent section, and `INVALID_MARKER` for malformed metadata or a
+section missing `consumed_ref` or `tracked_paths`.
 
 `test_update_branch.py` builds a bare remote, a working clone on a pushed
 feature branch, and a publisher clone, and pins `update-branch.sh`'s upstream
@@ -118,7 +119,7 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
-- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:55` — `Stack`, the
+- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:56` — `Stack`, the
   two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the
   remote/work/publisher triple

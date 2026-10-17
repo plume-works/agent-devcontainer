@@ -9,7 +9,7 @@ to the current day's group.
 - **Map**: refreshed [agentdev](codebase/agents/plugins/agentdev.md), its
   [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for the stack guard's
-  partial-push rerun.
+  partial-push rerun, remote-only merges, and overwritten-push detection.
 - **Update**: [Autostart the OpenCode web UI on
   Coder](plans/20261016-opencode-web-coder-autostart.md) done; [OpenCode
   web](spec/opencode-web.md) spec added, [Catalog
