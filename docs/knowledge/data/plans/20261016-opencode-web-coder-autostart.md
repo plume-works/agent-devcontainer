@@ -3,10 +3,10 @@ type: plan
 created: 2026-10-16
 release:
 - features/opencode-web-coder-autostart
-description: Start the OpenCode web UI from the Coder agent-start script, bound to localhost unless a server password is set, with OpenCode logins on the shared auth volume and its data directory on a per-worktree volume.
+description: Start the OpenCode web UI from the Coder agent-start script, bound to localhost unless a server password is set, with OpenCode logins on the shared auth volume, its data directory on a per-worktree volume, and a link and a Coder dashboard app that open the workspace folder.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T18:30:00Z
+  at: 2026-10-17T02:00:00Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -15,6 +15,10 @@ sources:
 - resource: https://github.com/sst/opencode/blob/733b2c627e5aec39cb33cc22373bdce33053ef2c/packages/opencode/src/auth/index.ts
 - resource: https://github.com/sst/opencode/blob/733b2c627e5aec39cb33cc22373bdce33053ef2c/packages/opencode/src/cli/cmd/web.ts
 - resource: https://github.com/sst/opencode/blob/733b2c627e5aec39cb33cc22373bdce33053ef2c/packages/opencode/src/server/server.ts
+- resource: https://github.com/sst/opencode/blob/733b2c627e5aec39cb33cc22373bdce33053ef2c/packages/core/src/util/encode.ts
+- resource: https://github.com/sst/opencode/blob/733b2c627e5aec39cb33cc22373bdce33053ef2c/packages/opencode/src/server/shared/public-ui.ts
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/template/main.tf
+- resource: https://coder.com/docs/admin/integrations/devcontainers/integration
 ---
 
 # Autostart the OpenCode web UI on Coder
@@ -42,10 +46,21 @@ OpenCode v1.19.0 behavior this plan relies on:
   `OPENCODE_SERVER_PASSWORD` it serves unauthenticated and warns. It tries to
   open the UI in a browser and ignores a failure.
 - Port 0 means "4096 if free, otherwise any port".
+- The web UI opens a directory at `/<base64url(directory)>/session`, where the
+  encoding is base64url with `=` padding stripped. Its project sidebar is kept
+  in the browser's local storage; no server endpoint, configuration key, flag,
+  or environment variable adds an entry to it.
+- `GET /site.webmanifest` answers without the server password.
+
+Coder does not apply the `customizations.coder.apps` of `devcontainer.json` to a
+Dev Container the template declares with `coder_devcontainer`, so a dashboard
+app for the Dev Container's sub-agent is a `coder_app` in the
+[plume-works/coder-ide-baseline](https://github.com/plume-works/coder-ide-baseline)
+template.
 
 ## Approach
 
-Four pieces, each following an existing pattern:
+Six pieces, each following an existing pattern:
 
 - **Login symlink.** `link-opencode-auth.sh` mirrors `link-codex-auth.sh`: it
   moves a regular `~/.local/share/opencode/auth.json` into
@@ -63,6 +78,16 @@ Four pieces, each following an existing pattern:
   It skips when `opencode` or `tmux` is missing.
 - **Coder wiring.** `coder-agent-start.sh` runs it after the credential helper
   and before the final `exec`; a failure warns and Remote Control still starts.
+- **Direct link.** `opencode-web-start.sh` prints
+  `http://127.0.0.1:4096/<base64url(workspace folder)>/session`, both when it
+  starts the session and when it finds one live, so the agent-start log carries
+  a link that opens the workspace folder.
+- **Dashboard app.** The template gains a `coder_app` named `OpenCode` on
+  `coder_devcontainer.repo[0].subagent_id`, a subdomain app whose URL is
+  `http://localhost:4096/<base64url("/workspaces/${local.repo_dir}")>/session`,
+  with a healthcheck on `http://localhost:4096/site.webmanifest`. Every
+  workspace with a repository gets it; where no OpenCode server runs, the
+  healthcheck marks it unhealthy.
 
 Assumptions:
 
@@ -81,6 +106,15 @@ Rejected:
 - **Starting from `postStartCommand.sh`.** It runs before the Coder agent
   exists, so the server would miss Coder user secrets, including
   `OPENCODE_SERVER_PASSWORD`.
+- **Declaring the app in `devcontainer.json`.** Coder ignores those apps for a
+  template-declared Dev Container.
+- **Seeding the project sidebar.** It lives in browser storage, reachable only
+  by a page on the server's own origin, which would need a proxy in front of
+  `opencode web`.
+- **A template parameter gating the app.** Repositories without an OpenCode
+  server show an unhealthy app instead.
+- **`/global/health` as the healthcheck.** It requires the server password once
+  one is set.
 
 ## Implementation Steps
 
@@ -222,12 +256,50 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
   workspace restarted, the server listens on `0.0.0.0:4096` and an
   unauthenticated request gets `401`.
 
+### Task 9: Print the direct link to the workspace folder
+
+**Files:** Modify: `.devcontainer/scripts/opencode-web-start.sh`,
+`scripts/tests/test_opencode_web_start.py`
+
+- [ ] Tests: with `DEV_WORKSPACE_FOLDER=/workspaces/example`, both a fresh start
+  and a live-session reuse print
+  `http://127.0.0.1:4096/L3dvcmtzcGFjZXMvZXhhbXBsZQ/session`, whatever the bind
+  address; a skip for a missing `opencode` or `tmux` prints no link.
+- [ ] Script, shellcheck clean;
+  `uv run pytest scripts/tests/test_opencode_web_start.py` passes.
+
+### Task 10: Refresh the codebase map for the link
+
+**Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`, and
+any other `data/codebase/` doc `stale-map-docs.py` reports
+
+- [ ] Run `/agentdev:iwe-map` in refresh mode; `stale-map-docs.py` ends
+  `RESULT=SUCCESS`.
+
+### Task 11: Add the OpenCode app to the Coder template
+
+**Files:** Modify: `template/main.tf` in plume-works/coder-ide-baseline
+
+- [ ] A `coder_app` `opencode`, display name `OpenCode`, counted like
+  `module "vscode-web"`, on `coder_devcontainer.repo[0].subagent_id`, with
+  `subdomain = true`, `share = "owner"`, the URL and healthcheck from
+  `## Approach`, merged to that repository's `main` by pull request and
+  published as the active template version.
+
+### Task 12: Verify the OpenCode app in a live Coder workspace
+
+- [ ] On a workspace of this repository running the new template version, the
+  dashboard's `OpenCode` app is healthy and opens a session whose working
+  directory is `/workspaces/agent-devcontainer`; on a workspace of a repository
+  whose agent-start script starts no OpenCode server, the app shows unhealthy.
+
 ## Spec changes
 
 A new spec, `spec/opencode-web`, holds the server contract; it exposes a network
 service, so the full requirements are stated. [Catalog
 lifecycle](../spec/catalog-lifecycle.md) widens its credential-sharing
-requirement to OpenCode.
+requirement to OpenCode. [Coder IDE baseline
+template](../spec/coder-ide-baseline.md) gains the OpenCode app.
 
 ``` markdown
 ## ADDED Requirements
@@ -240,7 +312,9 @@ one detached tmux session named `opencode` on the dedicated tmux server
 `tmux -L opencode`, in the workspace folder, without checking for a provider
 login. Repeated runs SHALL reuse a live session. It SHALL skip startup when
 `opencode` or `tmux` is unavailable. A failure SHALL NOT stop Remote Control
-from starting.
+from starting. On a start or a reuse it SHALL print
+`http://127.0.0.1:4096/<base64url(workspace folder)>/session`, base64url without
+`=` padding.
 
 #### Scenario: a workspace starts
 
@@ -251,6 +325,12 @@ from starting.
 
 - **WHEN** the `opencode` session is already live
 - **THEN** no second session or server starts.
+
+#### Scenario: the start prints a link into the workspace folder
+
+- **WHEN** the script starts or reuses the `opencode` session
+- **THEN** its output carries the `/<base64url(workspace folder)>/session`
+  link, which opens a session in the workspace folder.
 
 #### Scenario: the OpenCode start fails
 
@@ -294,6 +374,25 @@ volume.
 - **THEN** it sees the same provider logins and none of the first worktree's
   sessions.
 
+### Requirement: the template offers an OpenCode app
+
+The `coder-ide-baseline` template SHALL attach a subdomain `coder_app` named
+`OpenCode` to the Dev Container's sub-agent of every workspace with a
+repository. Its URL SHALL be
+`http://localhost:4096/<base64url("/workspaces/<repository>")>/session`, and its
+healthcheck SHALL request `http://localhost:4096/site.webmanifest`.
+
+#### Scenario: the repository runs OpenCode
+
+- **WHEN** the repository's agent-start script started `opencode web`
+- **THEN** the dashboard shows a healthy `OpenCode` app that opens a session in
+  `/workspaces/<repository>`.
+
+#### Scenario: the repository runs no OpenCode server
+
+- **WHEN** nothing listens on port 4096 in the Dev Container
+- **THEN** the `OpenCode` app shows unhealthy.
+
 ## MODIFIED Requirements
 
 ### Requirement: only agent credentials are shared across worktrees
@@ -316,7 +415,7 @@ lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex` /
 - `uv run pytest scripts/tests/test_link_opencode_auth.py scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py`
   passes.
 - `shellcheck` is clean on the new and changed scripts.
-- Tasks 7 and 8 pass on a live Coder workspace.
+- Tasks 7, 8, and 12 pass on live Coder workspaces.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -329,13 +428,17 @@ lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex` /
 - **Autostart outside Coder.** Local Dev Containers and CI do not start the
   server.
 - **Firewall entries for OpenCode.** The firewall stays opt-in and untouched.
+- **Adding the workspace folder to the web UI's project sidebar.** It stays a
+  one-time "Add project" per browser; the feature records this as an edge case.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-16):
+Verified anchor points (line numbers as of 2026-10-17):
 
-- `.devcontainer/scripts/coder-agent-start.sh:9-17` — prune, credential helper,
-  `exec` of Remote Control
+- `.devcontainer/scripts/coder-agent-start.sh:9-21` — prune, credential helper,
+  OpenCode start, `exec` of Remote Control
+- `.devcontainer/scripts/opencode-web-start.sh:13` — `workspace`; `:21-24` —
+  live-session reuse; `:40` — start message
 - `.devcontainer/scripts/claude-remote-control-start.sh:29` — `session`; `:37` —
   live-session check; `:43` — `tmux_start`
 - `.devcontainer/scripts/link-codex-auth.sh:19-31` — move-then-symlink of a
@@ -345,8 +448,11 @@ Verified anchor points (line numbers as of 2026-10-16):
 - `.devcontainer/scripts/postStartCommand.sh:27` — `link-codex-auth.sh`
 - `.devcontainer/devcontainer.json:60` — `mounts`; `:97-99` — `agentdev-codex`
   mount
-- `scripts/tests/test_coder_agent_start.py:13` — `run_agent_start`; `:43` —
+- `scripts/tests/test_coder_agent_start.py:14` — `run_agent_start`; `:47` —
   call-order test
 - `scripts/tests/test_claude_remote_control_start.py:33` — `run_with_fake_tmux`
 - `docs/knowledge/data/spec/catalog-lifecycle.md:122` — credential-sharing
   requirement
+- plume-works/coder-ide-baseline `template/main.tf:207-211` (commit 473d64a) —
+  `coder_devcontainer.repo`; `:215-223` — `module "vscode-web"` on the
+  sub-agent; `:227-239` — `coder_script.agent_start`
