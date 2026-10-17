@@ -261,9 +261,15 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 
 ### Task 8: Verify the password-protected bind
 
-- [ ] With `OPENCODE_SERVER_PASSWORD` set as a Coder user secret and the
+- [x] With `OPENCODE_SERVER_PASSWORD` set as a Coder user secret and the
   workspace restarted, the server listens on `0.0.0.0:4096` and an
   unauthenticated request gets `401`.
+  - **Evidence:** live check on Coder workspace `agent-dev3`, 2026-10-17, with
+    the secret set and the workspace restarted: the agent-started server
+    listened on `0.0.0.0:4096`; `GET /global/health` returned `401` without
+    credentials on `127.0.0.1` and on the container's network address, and `200`
+    with the password; `GET /site.webmanifest` returned `200` without
+    credentials.
 
 ### Task 9: Print the direct link to the workspace folder
 
