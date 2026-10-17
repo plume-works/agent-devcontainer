@@ -262,16 +262,26 @@ Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/bugs/gh-stack-push-overwrites-remote-layer.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md`
 
-- [ ] `features/native-stacked-prs` describes the repository-owned gh-stack
+- [x] `features/native-stacked-prs` describes the repository-owned gh-stack
   skill and the guard, and states that stack branches are updated only through
   it. It no longer claims that a test keeps the skill on the pinned release. Its
   edge cases say a partial merge is refreshed with `begin` → `gh stack rebase` →
   `publish`.
-- [ ] The bug's Reproduction drops the manual `git fetch` step. Its Root cause
+  - **Evidence:** commit
+    `docs(kb): follow the stack push guard in feature, bug, and map docs`. §
+    Behaviour and § Edge cases are rewritten, and the "kept on the same release
+    by a test" claim is removed.
+- [x] The bug's Reproduction drops the manual `git fetch` step. Its Root cause
   states gh-stack's fetch-then-lease, the `sync` cases, and #489, and its Fix
   names this plan.
-- [ ] The codebase map is refreshed with `/agentdev:iwe-map` refresh mode for
+  - **Evidence:** same commit. The bug doc's Reproduction now has three steps,
+    and Root cause cites #380, #472, and #489. Fix links this plan, and Key
+    references were re-anchored to `stack-guard.sh`.
+- [x] The codebase map is refreshed with `/agentdev:iwe-map` refresh mode for
   the touched skills, and `stale-map-docs.py` reports none.
+  - **Evidence:** same commit. It refreshes `codebase/agents/plugins/agentdev`,
+    `.../skills`, and `.../tests` (digests, anchors, and the new test module),
+    and `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ### Task 7: Guard proven against a real GitHub stack
 

@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:3a75f82e334d7100db925ef8a3c401b81f0810305a5dce289f97bd3e77fa5a85
+source_digest: sha256:5f3507fe3a4b1100f7e6b3bc478c903818a1d4c1e8b53dc7719362bc8f2b252e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-12T22:00:00Z
-stale_after: 2027-01-10
+  at: 2026-10-17T09:45:00Z
+stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T22:00:00Z
+  at: 2026-10-17T09:45:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -33,11 +33,12 @@ suite for the [OpenCode bridge](opencode-plugin.md), run with
   shared by the git-skill modules and the push-branch module
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
   `test_discover_ai_responder.py`, `test_explicit_only_parity.py`,
-  `test_fetch_issue.py`, `test_git_commit.py`, `test_install_codex_agents.py`,
-  `test_git_new_branch.py`, `test_push_branch_map_check.py`,
-  `test_remote_codespace_session.py`, `test_result_codes.py`,
-  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
-  `test_template_consume_check_updates.py`, `test_update_branch.py`
+  `test_fetch_issue.py`, `test_gh_stack_guard.py`, `test_git_commit.py`,
+  `test_install_codex_agents.py`, `test_git_new_branch.py`,
+  `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
+  `test_result_codes.py`, `test_stale_map_docs.py`,
+  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
+  `test_update_branch.py`
 
 ## How it works
 
@@ -55,6 +56,11 @@ moves the digest, that a rule reaches a subdirectory and a child adds to it,
 that a metadata file is not itself tracked content, and that unreadable,
 uncompilable, or inapplicable metadata is `BROKEN_METADATA` confined to its own
 subtree, including invalid replacements and masked binary files.
+`test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
+clone that pushes behind the working clone's back, and a stub `gh` whose
+`stack push`/`submit` fetch first and lease against the fresh tracking ref, as
+gh-stack does; it pins each `stack-guard.sh` result, including a squash-merged
+lower layer that GitHub-style rebasing leaves `SUCCESS`.
 `test_capture_close_issue.py` reuses `initialize_repository` from
 `test_update_branch.py` and a stub `gh` that logs closes, and pins each
 `close-issue.sh` result, including an already-closed issue left alone.
@@ -103,7 +109,7 @@ on fake skills in each direction.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-12):
+Verified anchor points (line numbers as of 2026-10-17):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -112,6 +118,8 @@ Verified anchor points (line numbers as of 2026-10-12):
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
+- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:53` — `Stack`, the
+  two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the
   remote/work/publisher triple
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:18` —

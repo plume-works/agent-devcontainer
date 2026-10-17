@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-17
+
+- **Add**: [Stack push guard](architecture/stack-push-guard.md) records why
+  every stack push goes through the gh-stack skill's two-phase guard.
+- **Map**: refreshed the agentdev plugin, skills, and tests docs for
+  `stack-guard.sh` and the repository-owned gh-stack skill.
+
 ## 2026-10-16
 
 - **Update**: [Declare release impact when a plan is
