@@ -338,11 +338,15 @@ plume-works/coder-ide-baseline pushed without being made active
 
 **Files:** Modify: `template/main.tf` in plume-works/coder-ide-baseline
 
-- [ ] A `coder_app` `opencode`, display name `OpenCode`, counted like
+- [x] A `coder_app` `opencode`, display name `OpenCode`, counted like
   `module "vscode-web"`, on `coder_devcontainer.repo[0].subagent_id`, with
   `subdomain = true`, `share = "owner"`, `url = "http://localhost:4096"`, and
   the healthcheck from `## Approach`, merged to that repository's `main` by pull
   request and published as the active template version.
+  - **Evidence:** plume-works/coder-ide-baseline PR #22, squash-merged as commit
+    98f892b "feat(template): add an OpenCode app to the Dev Container sub-agent
+    (#22)", its CI image builds passing; published from that commit as template
+    version `opencode-app`, active since 2026-10-17.
 
 ### Task 13: Verify the OpenCode app in a live Coder workspace
 
