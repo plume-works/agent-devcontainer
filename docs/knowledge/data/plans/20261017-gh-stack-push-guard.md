@@ -167,22 +167,33 @@ overwrites it.
 `.agents/plugins/agentdev/skills/gh-stack/LICENSE` →
 `.agents/plugins/agentdev/skills/gh-stack/references/upstream/LICENSE`
 
-- [ ] The three upstream pages move byte-for-byte (`git mv`, no content change),
+- [x] The three upstream pages move byte-for-byte (`git mv`, no content change),
   next to the `LICENSE` they ship under.
-- [ ] `SKILL.md` keeps `name: gh-stack` and a discovery description that covers
+  - **Evidence:** commit
+    `feat(gh-stack): own the skill over upstream references`.
+    `git diff -M --summary` shows all four files as renames at 100% similarity.
+- [x] `SKILL.md` keeps `name: gh-stack` and a discovery description that covers
   the same triggers. It drops upstream's `metadata.author`/`version`, and it
   credits the adapted non-interactive guidance to `github/gh-stack` under
   `references/upstream/LICENSE`.
-- [ ] Every workflow in `SKILL.md` that updates a remote branch goes through the
+  - **Evidence:** same commit. The description keeps every upstream trigger, and
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 62/62 skills valid with 0 warnings.
+- [x] Every workflow in `SKILL.md` that updates a remote branch goes through the
   guard. That covers creating a stack (with `begin` before `gh stack init` of an
   existing branch), editing a layer, publishing, refreshing after a merge or
   trunk move (`begin` → `gh stack rebase` → `publish`), and rebase-conflict
   recovery. It includes a result table for every `stack-guard.sh` result. No
   step runs a bare `gh stack push`, `gh stack submit`, or `gh stack sync`, and
   the skill states that this overrides the upstream pages.
-- [ ] `REMOTE_ONLY_COMMITS` and `REMOTE_MOVED` stop the workflow and ask the
+  - **Evidence:** same commit. `SKILL.md` sections Creating a stack, Editing an
+    existing stack, Refreshing the stack, and Exit codes go through `begin` and
+    `publish`, and § The push guard carries the result table and the override.
+- [x] `REMOTE_ONLY_COMMITS` and `REMOTE_MOVED` stop the workflow and ask the
   user how to incorporate the listed commits. The skill never resolves
   divergence on its own.
+  - **Evidence:** same commit. The rows for both results in § The push guard's
+    result table say **STOP** and ask the user.
 
 ### Task 3: Re-point the stack callers
 
