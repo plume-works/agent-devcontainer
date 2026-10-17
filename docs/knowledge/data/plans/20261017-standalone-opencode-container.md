@@ -573,16 +573,34 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `.github/actions/docker/multiarch-merge/action.yml`,
 `.github/actions/docker/metadata-action/action.yml`
 
-- [ ] Build `agent-opencode` after each native desktop build using that build's
+- [x] Build `agent-opencode` after each native desktop build using that build's
   exact digest; publish per-arch artifacts and a distinct multi-arch manifest
   using existing tag conventions. Include amd64 and arm64 acceptance jobs,
   enforce their result in the CI completion gate, and retain existing desktop
   smoke/regression jobs.
-- [ ] Register the root Compose pin with Renovate and post-upgrade file filters.
+  - **Evidence:** commit "ci: build, publish, and accept agent-opencode":
+    `.github/workflows/ci.yml` builds `agent-opencode` in `build-dev-image` from
+    `DESKTOP_IMAGE_NAME@${{ steps.build.outputs.digest }}`, through the shared
+    build-push action (per-arch digest artifacts). `merge-dev-image` merges it
+    with `multiarch-merge` (shared metadata tags) and exports
+    `opencode_image_pinned`. `opencode-acceptance` runs `test-agent-runtime.sh`
+    on native amd64 and arm64, and `finished` needs it beside the unchanged
+    jobs. `scripts/tests/test_agent_runtime_ci.py` asserts that structure;
+    actionlint and zizmor pass.
+- [x] Register the root Compose pin with Renovate and post-upgrade file filters.
   A pin-only update runs acceptance against the proposed digest without
   rebuilding the image or creating a self-triggering publish/pin loop. Test
   path-filter and workflow behavior for runtime source changes versus pin-only
   changes.
+  - **Evidence:** commit "ci: build, publish, and accept agent-opencode":
+    `.github/renovate.json` adds `opencode-compose-pins.yml` to the
+    docker-compose manager and `postUpgradeTasks.fileFilters`, plus an
+    `agent-opencode` group. `.github/workflows/opencode-runtime-checks.yml` runs
+    on pin and compose changes with read-only permissions and no build or merge.
+    It skips when other files changed, requires `@sha256:`, and runs native
+    acceptance on the pinned image. `test_agent_runtime_ci.py` shows seven
+    runtime sources match the image filter and the three deployment files do
+    not. 14 passed.
 
 ### Task 14: Document the runtime and refresh its codebase map
 

@@ -1,0 +1,101 @@
+name: OpenCode runtime pin checks
+
+# Runs container acceptance against the agent-opencode digest that
+# opencode-compose-pins.yml proposes, on both native architectures, without
+# building or publishing anything. Runtime source changes are covered by CI/CD
+# instead. Spec: image-pinning.
+on:
+  pull_request:
+    paths:
+      - opencode-compose-pins.yml
+      - compose.opencode.yml
+      - compose.opencode.bind.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+jobs:
+  acceptance:
+    name: Pinned runtime acceptance
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: ${{ vars.AMD_ONLY == '1' && 'amd64' || 'arm64' }}
+          - arch: ${{ vars.ARM_ONLY == '1' && 'arm64' || 'amd64' }}
+    runs-on: ${{ matrix.arch == 'amd64' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # Only a deployment-only change is judged here; anything else also matches
+      # CI/CD's path filter, which builds and tests its own image.
+      - name: Check that only deployment files changed
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+        run: |
+          if [[ -z $BASE_SHA ]]; then
+            echo "deployment_only=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          others="$(git diff --name-only "$BASE_SHA" HEAD |
+            grep -vxE 'opencode-compose-pins\.yml|compose\.opencode(\.bind)?\.yml' || true)"
+          if [[ -n $others ]]; then
+            echo "Not a deployment-only change; CI/CD covers it:"
+            echo "$others"
+            echo "deployment_only=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "deployment_only=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Read the proposed image pin
+        id: pin
+        if: steps.scope.outputs.deployment_only == 'true'
+        run: |
+          image="$(sed -n 's/^ *image: *//p' opencode-compose-pins.yml)"
+          if [[ $image != *@sha256:* ]]; then
+            echo "::error::opencode-compose-pins.yml must pin a tag and digest, got '$image'"
+            exit 1
+          fi
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/login-action@v4.6.0
+        if: steps.scope.outputs.deployment_only == 'true'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: ./.github/actions/setup-python-venv
+        if: steps.scope.outputs.deployment_only == 'true'
+
+      - name: Render the deployment
+        if: steps.scope.outputs.deployment_only == 'true'
+        run: uv run pytest scripts/tests/test_agent_runtime_compose.py
+
+      # Root, because the fixtures hand checkouts to the runtime's UIDs.
+      - name: Run container acceptance on the native architecture
+        if: steps.scope.outputs.deployment_only == 'true'
+        env:
+          AGENTDEV_RUNTIME_TEST_IMAGE: ${{ steps.pin.outputs.image }}
+        run: |
+          sudo env "PATH=$PATH" "AGENTDEV_RUNTIME_TEST_IMAGE=$AGENTDEV_RUNTIME_TEST_IMAGE" \
+            .devcontainer/scripts/test-agent-runtime.sh
