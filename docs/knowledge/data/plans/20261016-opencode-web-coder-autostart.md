@@ -199,7 +199,7 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 
 ### Task 7: Verify in a live Coder workspace
 
-- [ ] On a Coder workspace whose checkout carries this change, after a rebuild:
+- [x] On a Coder workspace whose checkout carries this change, after a rebuild:
   `tmux -L opencode capture-pane -p -t opencode` shows the web interface on port
   4096; the UI opens through Coder port forwarding; a provider connected from
   Settings appears in `/root/.agents-auth/opencode/auth.json` with
