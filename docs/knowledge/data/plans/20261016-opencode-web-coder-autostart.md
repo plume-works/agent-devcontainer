@@ -496,6 +496,14 @@ lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex` /
 - Tasks 7, 8, 11, and 13 pass on live Coder workspaces.
 - `iwe normalize` and `iwe schema validate` pass.
 
+## Verification results
+
+- **A second worktree starts.** On 2026-10-17 the maintainer opened two local
+  Dev Containers of this repository on one host, `agent-devcontainer` and a
+  second worktree, OpenCode 1.19.2. Each ran `coder-agent-start.sh`. The second
+  worktree's web UI showed the OpenAI provider connected and answered a chat on
+  it, and it listed none of the first worktree's sessions.
+
 ## Out of scope
 
 - **Picking up catalog changes in a running server.** Coder-started servers keep
