@@ -11,6 +11,10 @@ REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/opencode-web-start.sh'
 LOCAL_COMMAND = 'exec env -u DISPLAY opencode web --port 4096 --hostname 127.0.0.1'
 EXPOSED_COMMAND = 'exec env -u DISPLAY opencode web --port 4096 --hostname 0.0.0.0'
+PROXY_URI = 'https://{{port}}--repo--ws--me.example.com'
+WORKSPACE_PATH = 'L3dvcmtzcGFjZXMvZXhhbXBsZQ/session'
+CODER_LINK = f'https://4096--repo--ws--me.example.com/{WORKSPACE_PATH}'
+LOCAL_LINK = f'http://127.0.0.1:4096/{WORKSPACE_PATH}'
 
 
 def make_test_dir() -> Path:
@@ -24,6 +28,7 @@ def run_with_fake_tmux(
     password: str | None = None,
     session_exists: bool = False,
     missing: str | None = None,
+    proxy_uri: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
     """Run the script beside a fake tmux that logs its arguments."""
     test_dir = make_test_dir()
@@ -44,7 +49,7 @@ def run_with_fake_tmux(
     # Only the fakes and the coreutils the script needs, so a real tmux cannot leak in.
     tools = test_dir / 'tools'
     tools.mkdir()
-    for tool in ('bash', 'env', 'printf'):
+    for tool in ('base64', 'bash', 'env', 'printf', 'tr'):
         (tools / tool).symlink_to(shutil.which(tool))
     env = {
         'PATH': f'{fake_bin}:{tools}',
@@ -52,6 +57,8 @@ def run_with_fake_tmux(
         'TMUX_HAS_SESSION': '1' if session_exists else '0',
         'TMUX_TEST_LOG': str(log),
     }
+    if proxy_uri is not None:
+        env['VSCODE_PROXY_URI'] = proxy_uri
     if password is not None:
         env['OPENCODE_SERVER_PASSWORD'] = password
     try:
@@ -103,6 +110,36 @@ def test_skips_when_a_command_is_missing(missing):
     assert result.returncode == 0, result.stderr
     assert calls == ''
     assert missing in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize('session_exists', [False, True])
+@pytest.mark.parametrize('password', [None, 's3cret'])
+def test_prints_the_coder_link_into_the_workspace(session_exists, password):
+    result, _ = run_with_fake_tmux(
+        proxy_uri=PROXY_URI, session_exists=session_exists, password=password
+    )
+    assert result.returncode == 0, result.stderr
+    assert CODER_LINK in result.stdout.split()
+
+
+def test_trailing_slash_in_the_port_url_adds_no_empty_segment():
+    result, _ = run_with_fake_tmux(proxy_uri=f'{PROXY_URI}/')
+    assert result.returncode == 0, result.stderr
+    assert CODER_LINK in result.stdout.split()
+
+
+@pytest.mark.parametrize('proxy_uri', [None, ''])
+def test_falls_back_to_localhost_outside_coder(proxy_uri):
+    result, _ = run_with_fake_tmux(proxy_uri=proxy_uri)
+    assert result.returncode == 0, result.stderr
+    assert LOCAL_LINK in result.stdout.split()
+
+
+@pytest.mark.parametrize('missing', ['opencode', 'tmux'])
+def test_skip_prints_no_link(missing):
+    result, _ = run_with_fake_tmux(missing=missing, proxy_uri=PROXY_URI)
+    assert result.returncode == 0, result.stderr
+    assert '/session' not in result.stdout + result.stderr
 
 
 @pytest.mark.skipif(shutil.which('tmux') is None, reason='tmux is not installed')

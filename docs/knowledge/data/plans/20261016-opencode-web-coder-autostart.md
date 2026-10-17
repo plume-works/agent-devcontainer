@@ -270,7 +270,7 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 **Files:** Modify: `.devcontainer/scripts/opencode-web-start.sh`,
 `scripts/tests/test_opencode_web_start.py`
 
-- [ ] Tests: with `DEV_WORKSPACE_FOLDER=/workspaces/example`, both a fresh start
+- [x] Tests: with `DEV_WORKSPACE_FOLDER=/workspaces/example`, both a fresh start
   and a live-session reuse print the link, whatever the bind address:
   - `VSCODE_PROXY_URI=https://{{port}}--repo--ws--me.example.com`:
     `https://4096--repo--ws--me.example.com/L3dvcmtzcGFjZXMvZXhhbXBsZQ/session`;
@@ -278,8 +278,17 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
   - `VSCODE_PROXY_URI` unset or empty:
     `http://127.0.0.1:4096/L3dvcmtzcGFjZXMvZXhhbXBsZQ/session`;
   - a skip for a missing `opencode` or `tmux` prints no link.
-- [ ] Script, shellcheck clean;
+  - **Evidence:** commit "feat(devcontainer): print a Coder link into the
+    OpenCode workspace": `test_opencode_web_start.py` gains the start-and-reuse,
+    trailing-slash, fallback, and skip cases; the seven link cases fail against
+    the previous script.
+- [x] Script, shellcheck clean;
   `uv run pytest scripts/tests/test_opencode_web_start.py` passes.
+  - **Evidence:** commit "feat(devcontainer): print a Coder link into the
+    OpenCode workspace": `opencode-web-start.sh` builds the link from
+    `VSCODE_PROXY_URI` with the `127.0.0.1` fallback and prints it on start and
+    reuse; `shellcheck` clean; 16 passed. With agent-dev3's `VSCODE_PROXY_URI`
+    it yields the port URL that opened the workspace folder in the browser.
 
 ### Task 10: Refresh the codebase map for the link
 
