@@ -694,7 +694,7 @@ Verified anchor points (line numbers as of 2026-10-17):
   checkout catalog registration.
 - `.devcontainer/scripts/link-codex-auth.sh:19-31` — hardcoded root credential
   paths and link repair.
-- `.devcontainer/scripts/link-opencode-auth.sh:9-22` — overridable auth/data
+- `.devcontainer/scripts/link-opencode-auth.sh:8-21` — overridable auth/data
   roots and migration.
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:22-28` — cache and
   install paths; `:54-82` — symlink restoration and native installation.

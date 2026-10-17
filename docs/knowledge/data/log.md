@@ -21,6 +21,10 @@ to the current day's group.
   refreshed for the OpenCode workspace link; [devcontainer
   scaffolding](codebase/devcontainer.md) and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
+- **Update**: [Lifecycle scripts](codebase/devcontainer/scripts.md) map doc
+  re-anchored for the shorter `link-opencode-auth.sh` header; [devcontainer
+  scaffolding](codebase/devcontainer.md) and [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
 
 ## 2026-10-16
 

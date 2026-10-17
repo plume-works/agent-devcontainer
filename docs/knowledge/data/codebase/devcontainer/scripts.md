@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, Codex and OpenCode auth symlinks, Claude pre-approval, gh credential helper, the Coder agent-start entry point, Claude Remote Control, the OpenCode web UI, Codex policy.'
 source: .devcontainer/scripts
-source_digest: sha256:9feb416e34188d2024eedd021c8dd78dd894860583a91cc309a3f1ae015c3453
+source_digest: sha256:652c8ac31492a03878558faf4908a66efb6d898c65f11744c5d1819e9e60c0d8
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T03:00:00Z
+  at: 2026-10-17T05:20:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T03:00:00Z
+  at: 2026-10-17T05:20:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -158,7 +158,7 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `.devcontainer/scripts/opencode-web-start.sh:17-21` — workspace link from
   `VSCODE_PROXY_URI`; `:24-27,29,35-36` — password-gated bind, live-session
   reuse, `DISPLAY`-free launch on `tmux -L opencode`
-- `.devcontainer/scripts/link-opencode-auth.sh:14,17,22` — private shared
+- `.devcontainer/scripts/link-opencode-auth.sh:13,16,21` — private shared
   directory, move of a regular file, symlink
 - `.devcontainer/scripts/docker-image-prune.sh:7-21` — docker and daemon gates,
   warn-only prune
