@@ -503,23 +503,45 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `opencode-compose-pins.yml`, `docker/opencode/runtime.env.example`,
 `scripts/tests/test_agent_runtime_compose.py`
 
-- [ ] Provide a clone-volume base and a bind-checkout override using the same
+- [x] Provide a clone-volume base and a bind-checkout override using the same
   fixed in-container workspace path. Compose creates project-scoped home, uv,
   workspace, Docker and any additional required Docker-store volumes, plus a
   named shared agent-auth volume whose name can be overridden per identity
   cohort. Verify the bind override replaces rather than duplicates the target
   workspace mount.
-- [ ] Require an existing operator-named proxy network and supplied OpenCode
+  - **Evidence:** commit "feat(runtime): add the standalone Compose deployment":
+    `compose.opencode.yml` declares project-scoped `home`, `uv`, `docker`, and
+    `workspace` volumes; Task 7 showed `/var/lib/docker` holds the whole engine.
+    It also declares `agents-auth`, named
+    `${AGENTDEV_AUTH_VOLUME:-agentdev-opencode-auth}`.
+    `scripts/tests/test_agent_runtime_compose.py` renders it with
+    `docker compose config`: `compose.opencode.bind.yml` leaves one bind mount
+    at `/workspaces/project` and drops the volume. 9 passed.
+- [x] Require an existing operator-named proxy network and supplied OpenCode
   password; publish no host ports, and include no MCP sidecar, Docker Desktop
   socket/secret mounts, or host Docker socket. Document privileged DinD, volume
   identity requirements, proxy routes to 4096/14500, Xpra authentication at the
   proxy, GitHub token injection, service opt-outs, and Git identity forwarding
   without empty `GIT_*` overrides.
-- [ ] Put the real tag-and-digest pin in root-level `opencode-compose-pins.yml`,
+  - **Evidence:** commit "feat(runtime): add the standalone Compose deployment":
+    the network is `external` and named by the required
+    `AGENTDEV_PROXY_NETWORK`, and the password is `:?`-required. Tests show
+    either missing setting fails rendering without echoing the secret. The
+    project has one service, no ports, no `docker.sock`, and no secrets.
+    `GH_TOKEN`/`GITHUB_TOKEN`/`GIT_*` render `null` (pass-through) unless set.
+    The compose comments and `docker/opencode/runtime.env.example` document each
+    item, and a test checks every interpolated variable is documented.
+- [x] Put the real tag-and-digest pin in root-level `opencode-compose-pins.yml`,
   outside image-build inputs, and require that override in every supported
   launch command. The final pin comes from a published image; never invent a
   digest. Validate Compose rendering for clone, bind, custom IDs, and disabled
   Xpra without printing secret values.
+  - **Evidence:** commit "feat(runtime): add the standalone Compose deployment":
+    the base file has no `image`, so `test_every_launch_needs_the_pin_override`
+    shows a launch without `opencode-compose-pins.yml` fails. The pin file holds
+    the tag only: no image is published yet, and Task 15 inserts the verified
+    digest. The tests render clone, bind, custom IDs with a cohort volume, and
+    disabled Xpra in a clean environment and never print the rendered config.
 
 ### Task 12: Add repeatable container acceptance tests
 

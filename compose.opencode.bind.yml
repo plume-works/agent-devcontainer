@@ -1,0 +1,9 @@
+# Replaces compose.opencode.yml's workspace volume with a host checkout at the same
+# in-container path. The checkout must be writable by AGENTDEV_UID/AGENTDEV_GID. A
+# worktree also needs its main repository's .git mounted at the path its .git file names.
+services:
+  opencode:
+    volumes:
+      - type: bind
+        source: ${AGENTDEV_CHECKOUT:?set AGENTDEV_CHECKOUT to the host checkout to mount}
+        target: /workspaces/project

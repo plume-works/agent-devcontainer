@@ -1,0 +1,54 @@
+# Standalone agent-opencode deployment for one project behind an existing reverse proxy.
+# Launch with the digest pin, which this file deliberately lacks:
+#   docker compose -p <project> -f compose.opencode.yml -f opencode-compose-pins.yml up -d
+# Add `-f compose.opencode.bind.yml` to mount a host checkout instead of cloning.
+# Settings: docker/opencode/runtime.env.example. Spec: standalone-opencode-runtime.
+services:
+  opencode:
+    # PID 1 is the image's supervisor, so no `init`. Nested Docker needs privileges.
+    privileged: true
+    restart: unless-stopped
+    # Long enough for every service's bounded stop, which runs one after another.
+    stop_grace_period: 4m
+    environment:
+      OPENCODE_SERVER_PASSWORD: ${OPENCODE_SERVER_PASSWORD:?set OPENCODE_SERVER_PASSWORD to a nonempty secret}
+      AGENTDEV_UID: ${AGENTDEV_UID:-1000}
+      AGENTDEV_GID: ${AGENTDEV_GID:-1000}
+      AGENTDEV_REPOSITORY_URL: ${AGENTDEV_REPOSITORY_URL:-}
+      AGENTDEV_REPOSITORY_REF: ${AGENTDEV_REPOSITORY_REF:-}
+      AGENTDEV_SKIP_XPRA: ${AGENTDEV_SKIP_XPRA:-}
+      AGENTDEV_PREPARE_TIMEOUT: ${AGENTDEV_PREPARE_TIMEOUT:-1800}
+      ENABLE_FIREWALL: ${ENABLE_FIREWALL:-false}
+      AGENTDEV_TRUSTED_PROXY_CIDRS: ${AGENTDEV_TRUSTED_PROXY_CIDRS:-}
+      # Passed through only when set: an empty GIT_* value would override user.name/email.
+      GH_TOKEN:
+      GITHUB_TOKEN:
+      GIT_AUTHOR_NAME:
+      GIT_AUTHOR_EMAIL:
+      GIT_COMMITTER_NAME:
+      GIT_COMMITTER_EMAIL:
+    volumes:
+      - home:/home/agent
+      - uv:/uv
+      - docker:/var/lib/docker
+      - workspace:/workspaces/project
+      - agents-auth:/var/lib/agentdev/auth
+    # The proxy routes to OpenCode on 4096 and Xpra on 14500 over this network, and
+    # must authenticate Xpra itself: Xpra has no password. No host ports are published.
+    networks:
+      - proxy
+
+volumes:
+  home:
+  uv:
+  docker:
+  workspace:
+  # Provider logins shared by every project container of one UID/GID cohort; give a
+  # cohort with other IDs its own name.
+  agents-auth:
+    name: ${AGENTDEV_AUTH_VOLUME:-agentdev-opencode-auth}
+
+networks:
+  proxy:
+    name: ${AGENTDEV_PROXY_NETWORK:?set AGENTDEV_PROXY_NETWORK to the existing reverse-proxy network}
+    external: true

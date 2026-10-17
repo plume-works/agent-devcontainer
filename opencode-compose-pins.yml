@@ -1,0 +1,8 @@
+# Tag-and-digest pin for compose.opencode.yml, passed as an extra `-f` in every
+# supported launch. Kept at the repository root, outside the image-build path filter,
+# for the same reason as devcontainer-compose-pins.yml: a digest-only bump must not
+# rebuild the image it names. Renovate advances the digest after CI publishes and
+# accepts an image; until the first verified publish it is tag-only.
+services:
+  opencode:
+    image: ghcr.io/plume-works/agent-opencode:edge
