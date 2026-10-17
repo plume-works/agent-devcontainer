@@ -647,16 +647,27 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `docs/knowledge/data/codebase/flow-image-build.md`, and other stale mapped
 sources
 
-- [ ] Document supported bind/clone launch commands, external proxy and password
+- [x] Document supported bind/clone launch commands, external proxy and password
   setup, first provider login, injected GitHub tokens, stable paths, UID
   cohorts, storage lifecycle/backup, service status/logs, upgrade and failure
   recovery. Record the supervised standalone DinD design as a new scoped
   architecture document referencing the existing feature-managed devcontainer
   decision; include rejected whole-hook reuse, shared-home/auth, and tmux
   lifetime options.
-- [ ] Update product distribution/runtime context and refresh maps through
+  - **Evidence:** commit "docs(runtime): document agent-opencode and refresh the
+    map": `README.md` `## Standalone OpenCode runtime` covers launch, proxy and
+    password, logins, tokens, identity, storage and backup, status and logs,
+    upgrade, and failure recovery.
+    `data/architecture/standalone-opencode-runtime.md` records the supervised
+    DinD design, links nested-docker-provisioning, and gives the rejected
+    hook-reuse, shared-home/auth, and tmux options.
+- [x] Update product distribution/runtime context and refresh maps through
   `/agentdev:iwe-map`; record only settled interfaces, not investigation
   history. Durable specs are merged from the deltas below during Ship.
+  - **Evidence:** commit "docs(runtime): document agent-opencode and refresh the
+    map": `data/product.md` `## Platforms` names the standalone runtime. The
+    nine stale map docs and the `data/codebase.md` hub are refreshed, and
+    `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ### Task 15: Verify published native images and usable deployment pins
 

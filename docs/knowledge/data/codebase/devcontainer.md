@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:957a65029f066109be04bde959469c066b9f3a9b8f448d6712efe1d5968ac956
+source_digest: sha256:1b12c48c0be391709a9bda38989f61c49601ecd54dbf7b78c28034db5c53c30c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  at: 2026-10-17T23:50:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  at: 2026-10-17T23:50:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -42,7 +42,8 @@ pulled.
   `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
   volume (`:103`)
 - `devcontainer-compose-pins.yml` — the digest pin Renovate advances
-- `.devcontainer/firewall-allowlist.txt` — read by the firewall at start
+- `.devcontainer/firewall-allowlist.txt` — read by the firewall at start, and
+  baked by `agent-opencode` as its default allowlist
 - `.devcontainer/.agent.metadata.json` — masks the feature version pins, and the
   versions and digests `devcontainer-lock.json` records for them, out of this
   directory's map digest; see architecture/agent-metadata-files
@@ -61,6 +62,10 @@ only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
 volumes; only credentials share the literal `agentdev-agents-auth` volume across
 instances.
 
+The `agent-opencode` image also bakes `scripts/` as its standalone runtime; none
+of this directory's Compose or `devcontainer.json` reaches it. Its own
+deployment is the root `compose.opencode.yml`.
+
 ## Depends on
 
 The [image runtime contract](api-image-runtime.md) — the env variables and
@@ -74,7 +79,7 @@ moves the digest pin.
   produced it.
 - `~/.claude.json` is a file; Docker volumes are directories, so the file is
   persisted inside the `agentdev-claude` volume and symlinked by
-  `postCreateCommand`.
+  `setup-agent-state.sh create`, which `postCreateCommand` runs.
 - The MCP gateway publishes no host port and runs `--allow-unauthenticated` on
   the private Compose network; both are what let several worktrees run at once.
 - `initializeCommand` runs under `/bin/sh -c` with no `HOME` in Codespaces; the

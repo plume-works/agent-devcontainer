@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:fa3dae5cebd66051bd518612e1faa7e2da2fdbb39f479a9e92eda1bb08a57057
+source_digest: sha256:d33839f31f361123bc6ecf9f52c1b5ae605a43dac79a507dd5f57ae1a6ccfe9d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-14T09:00:00Z
-stale_after: 2027-01-12
+  at: 2026-10-17T23:50:00Z
+stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-14T09:00:00Z
+  at: 2026-10-17T23:50:00Z
 sources:
 - id: code
   resource: .github
@@ -19,7 +19,7 @@ sources:
 
 # Flow: pull request checks
 
-Five workflows fire on a pull request; four are path-filtered, one is
+Six workflows fire on a pull request; five are path-filtered, one is
 policy-filtered. Locally, pre-commit runs the same formatters and validators
 before the push.
 
@@ -39,34 +39,41 @@ before the push.
    `.github/workflows/reformat.yml:186,280,422`, in
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
-   build](flow-image-build.md)
-4. `validate-agent-files.yml`, when any source declared by the codebase map or
+   build](flow-image-build.md), whose `finished` also waits on native
+   `agent-opencode` container acceptance
+4. `opencode-runtime-checks.yml`, when `opencode-compose-pins.yml` or a
+   `compose.opencode*.yml` file changed: if nothing else changed, it requires a
+   `@sha256:` pin, renders the Compose tests, and runs container acceptance on
+   that digest on amd64 and arm64, without building; otherwise it defers to step
+   3 — `.github/workflows/opencode-runtime-checks.yml:50,69-76`
+5. `validate-agent-files.yml`, when any source declared by the codebase map or
    the map itself changed: the validator, agentdev, and self-improve pytest
    suites, the OpenCode bridge `bun test` suite,
    `validate_agent_files --recommend . --require-marketplace claude codex`, then
    `stale-map-docs.py`, which fails the job when a map doc no longer matches the
    code it describes — `.github/workflows/validate-agent-files.yml:39-100`
-5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, the IWE seed,
+6. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, the IWE seed,
    or the `dev_tools` pins changed, with the pinned `iwe`:
    `iwe schema validate`, `iwe normalize` must be a no-op, and the plan-checkbox
    tests; a second, path-filtered pytest pass assembles and validates the
    consumer seed — `.github/workflows/validate-knowledge-base.yml:39-48,70-105`,
    in [the knowledge workspace](docs/knowledge.md)
-6. `validate-renovate-config.yml`: its `paths-filter` passes when
+7. `validate-renovate-config.yml`: its `paths-filter` passes when
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
    `renovate-config-validator --no-global --strict` inside the pinned
    `agent-desktop` image at the Renovate release the hook's `bunx` pin names,
    and `finished` reports the required result either way —
    `.github/workflows/validate-renovate-config.yml:26,52,70-76,78`
-7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
+8. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort
    tier; `claude-respond` runs the review or task through
    `anthropics/claude-code-action`, sizing the session from that tier;
    `ai-review-present` reports whether an accepted review exists, waived for the
    Renovate and Dependabot bots —
    `.github/workflows/ai-responder.yml:89,421,509`
-8. Merge: `merge_group` runs steps 2–7 again with a clean image build.
+9. Merge: `merge_group` runs steps 2, 3, and 5–8 again with a clean image build;
+   step 4 runs on pull requests only.
 
 ## Failure modes
 
@@ -76,12 +83,12 @@ before the push.
   carrying a foreign commit; formatting a Renovate PR needs is the post-upgrade
   task's job — [Renovate
   post-upgrade](../architecture/renovate-post-upgrade.md).
-- A fork PR never gets step 7; the review gate is then a human's.
-- Step 7's effort tier changes what the review costs, never whether it runs:
+- A fork PR never gets step 8; the review gate is then a human's.
+- Step 8's effort tier changes what the review costs, never whether it runs:
   `ai-review-present` does not read it, and both tiers keep the metadata check
   and the durable-knowledge pass.
-- Step 1 and step 6 run the same validator against the same file at the one
-  Renovate version the bot runs; an `agent-desktop` digest bump reaches step 6
+- Step 1 and step 7 run the same validator against the same file at the one
+  Renovate version the bot runs; an `agent-desktop` digest bump reaches step 7
   through the pin file, so an image that cannot run the bot fails here first.
 - Step 1 and step 2 must agree on tool versions; `renovate.json` disables
   Renovate for the Super-Linter family so

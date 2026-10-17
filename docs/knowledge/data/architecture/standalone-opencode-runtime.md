@@ -11,9 +11,59 @@ sources:
 - resource: scripts/tests/test_agent_runtime_supervision.py
 - resource: .devcontainer/scripts/runtime-docker.sh
 - resource: scripts/tests/test_agent_runtime_docker.py
+- resource: .devcontainer/scripts/runtime-bootstrap.sh
+- resource: .devcontainer/scripts/runtime-workspace.sh
+- resource: .devcontainer/scripts/setup-agent-state.sh
+- resource: .devcontainer/scripts/runtime-firewall.sh
+- resource: docker/opencode/agent-opencode.Dockerfile
+- resource: docker/desktop/start-xpra.sh
+- resource: compose.opencode.yml
+- resource: scripts/tests/test_agent_runtime_acceptance.py
 ---
 
 # Standalone OpenCode runtime
+
+`agent-opencode` is a separate image layered on `agent-desktop`. It is not a new
+default for the desktop image, whose entrypoint, Dev Containers hooks, and Coder
+start are unchanged.
+
+## Shared helpers, not shared hooks
+
+The image bakes `.devcontainer/scripts/` into `/opt/agentdev-runtime` and calls
+the same primitives the devcontainer hooks call: `setup-agent-state.sh`,
+`runtime-paths.sh`, the CBM, keyring, and Git helpers. Every path those
+primitives touch is overridable, and the defaults are the devcontainer's root
+layout. `AGENTDEV_RUNTIME_MODE=standalone` makes every step fatal where a hook
+logs and continues.
+
+Running the lifecycle hooks unchanged was rejected. They assume root, a checkout
+that contains this repository's scaffolding, and the Dev Containers client's
+call order. Copying the whole checkout into the image was rejected for the same
+reason. The catalog stays the immutable `/opt/agentdev` tree, and a checkout
+that ships complete manifests overrides it per start.
+
+## Identity and state
+
+`runtime-bootstrap.sh` creates `agent` from `AGENTDEV_UID`/`AGENTDEV_GID` at
+every container start, because a fresh container has no such account and the IDs
+are deployment settings. The image deletes the stock UID 1000 account and does
+not create `/home/agent`, so a fresh home volume starts empty, without Docker
+copying files into it, and is initialized after mounts.
+
+Only provider credentials are shared, through one auth volume per UID/GID
+cohort. Sharing a whole home or agent directory was rejected: sessions,
+configuration, keyrings, and caches record per-project state, and two containers
+writing them would corrupt each other. Sharing across cohorts was rejected
+because it would mean rewriting another running container's file ownership.
+
+## OpenCode lifetime
+
+Standalone runs `opencode serve` in the foreground under supervisord, keeping
+`DISPLAY` for the graphical tools it spawns; `serve` and `web` start the same
+server, but `serve` opens no browser. The Coder start keeps its tmux session,
+which exists to survive the Coder agent's own restarts. In a container whose PID
+1 already supervises, tmux would hide crashes from the controller and outlive a
+stop.
 
 ## Process model
 
@@ -32,6 +82,12 @@ thread and runs the controller on a worker thread, so a long recovery never
 stalls event delivery. Program output goes to supervisord's stdout and
 `docker logs`; the listener logs to stderr because its stdout carries the
 protocol.
+
+## Startup order
+
+Bootstrap and the opt-in firewall run as root before supervisord starts, so the
+firewall's rule flush can never erase rules `dockerd` installs later. The
+controller then starts the services in dependency order.
 
 ## Ordering and readiness
 
@@ -56,6 +112,11 @@ image healthcheck reads. It is removed for the length of any recovery.
   refreshes `keyring` and `xpra`. A replaced CBM daemon ends OpenCode's stdio
   MCP clients (see [CBM daemon lifecycle](cbm-daemon-lifecycle.md)), so `cbm`
   refreshes `opencode`.
+- Before restarting a service, the controller kills whatever is left of the
+  failed process's group: supervisord signals a group only on an orderly stop.
+  Xpra starts its X server in a separate session, beyond that group, so
+  `start-xpra.sh --supervised` also stops a leftover Xpra X server holding the
+  display when no live session owns it.
 - Exhaustion writes the reason to `/run/agentdev/failed` and asks supervisord to
   shut down; PID 1 then exits `1`.
 
