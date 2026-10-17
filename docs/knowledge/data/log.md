@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-17
 
+- **Update**: [Guard every gh stack push against overwriting a layer's remote
+  commits](plans/20261017-gh-stack-push-guard.md) done; [Stacked
+  PRs](spec/stacked-prs.md) and [PR merge conflicts](spec/pr-merge-conflicts.md)
+  now route every stack push through the gh-stack skill's guard; [Bug: gh stack
+  push overwrites a stack layer whose remote is
+  ahead](bugs/gh-stack-push-overwrites-remote-layer.md) fixed.
 - **Add**: [Stack push guard](architecture/stack-push-guard.md) records why
   every stack push goes through the gh-stack skill's two-phase guard.
 - **Map**: refreshed the agentdev plugin, skills, and tests docs for

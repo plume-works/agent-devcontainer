@@ -12,6 +12,7 @@ sources:
 - resource: https://github.com/github/gh-stack/issues/472
 - resource: https://github.com/github/gh-stack/issues/489
 - resource: https://github.com/plume-works/agent-devcontainer/pull/355
+stage: done
 ---
 
 # Bug: gh stack push overwrites a stack layer whose remote is ahead

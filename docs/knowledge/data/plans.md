@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Guard every gh stack push against overwriting a layer's remote
-commits](plans/20261017-gh-stack-push-guard.md)
-
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
 
@@ -33,6 +30,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Guard every gh stack push against overwriting a layer's remote
+commits](plans/20261017-gh-stack-push-guard.md)
 
 [Declare release impact when a plan is
 written](plans/20261016-release-impact-at-plan-time.md)

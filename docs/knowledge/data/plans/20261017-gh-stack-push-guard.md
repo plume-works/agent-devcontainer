@@ -20,6 +20,8 @@ sources:
 - resource: https://github.com/github/gh-stack/issues/380
 - resource: https://github.com/github/gh-stack/issues/489
 - resource: https://github.com/github/gh-stack/issues/472
+stage: done
+completed: 2026-10-17
 ---
 
 # Guard every gh stack push against overwriting a layer's remote commits
