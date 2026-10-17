@@ -359,12 +359,20 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `.devcontainer/scripts/docker-image-prune.sh`,
 `ansible/roles/install_docker/tasks/main.yml`
 
-- [ ] Start exactly one root `dockerd` using `/etc/docker/daemon.json`, private
+- [x] Start exactly one root `dockerd` using `/etc/docker/daemon.json`, private
   Unix socket and per-instance `/var/lib/docker` storage; make it accessible to
   the runtime user without mounting the host socket or exposing a TCP listener.
   Validate privileged mode, storage backing, readiness, and replacement after a
   daemon crash. Persist all Docker data used by the shipped engine, including
   any enabled containerd image store, rather than assuming one volume suffices.
+  - **Evidence:** commit "feat(runtime): run a dedicated nested Docker engine":
+    `.devcontainer/scripts/runtime-docker.sh` refuses missing `CAP_SYS_ADMIN`,
+    overlay-backed storage, a `hosts` key, and a live second `dockerd`.
+    `scripts/tests/test_agent_runtime_docker.py` runs it privileged in the
+    pinned `agent-desktop` image. A UID-2000 `docker`-group user builds, no TCP
+    port listens, the image survives a `SIGKILL` restart and a fresh container
+    on the same volume, and the containerd store sits under
+    `/var/lib/docker/containerd/daemon`. 6 passed.
 - [ ] Run the shared unused-image prune once the engine is ready and retain its
   nonfatal behavior and 72-hour policy; retain 10 GB BuildKit GC. Exercise
   nested `hello-world`, an actual build, engine restart, and persistent image

@@ -9,6 +9,8 @@ sources:
 - resource: .devcontainer/scripts/runtime-health.sh
 - resource: docker/opencode/supervisord.conf
 - resource: scripts/tests/test_agent_runtime_supervision.py
+- resource: .devcontainer/scripts/runtime-docker.sh
+- resource: scripts/tests/test_agent_runtime_docker.py
 ---
 
 # Standalone OpenCode runtime
@@ -65,3 +67,19 @@ waiting for each. Priorities put `opencode` first, then `cbm`, `xpra`,
 of all, so it is gone before any service stops and never mistakes shutdown for
 failure. `stopasgroup`/`killasgroup` with `AGENTDEV_STOP_TIMEOUT` bound each
 stop and take a program's whole process group with it.
+
+## Nested Docker
+
+The standalone image runs its own engine instead of the Dev Containers feature's
+(see [Nested Docker provisioning](nested-docker-provisioning.md) for the
+devcontainer's decision). `runtime-docker.sh run` execs one root `dockerd` on
+`/var/run/docker.sock` with `--group docker`; the runtime user reaches it
+through that group. A `hosts` key in `daemon.json` is refused: dockerd rejects
+it beside `--host`, and any extra listener would widen the engine's reach.
+
+With no system containerd socket present, dockerd supervises its own containerd
+and roots it at `/var/lib/docker/containerd/daemon`. The containerd image
+store's content and snapshots therefore live inside `/var/lib/docker`, and that
+one volume holds everything the engine persists. The engine is not reliable on
+the container's own overlay filesystem, so the script refuses to start unless
+`/var/lib/docker` is a separate mount.

@@ -105,6 +105,8 @@ cmd_catalog() {
 
 # The supervisor's one-shot preparation gate: checkout, agent state, catalog, project.
 cmd_prepare() {
+  # Nonfatal by design; see spec/devcontainer-docker-storage.
+  "$script_dir/docker-image-prune.sh"
   cmd_checkout
   "$script_dir/setup-agent-state.sh" create
   "$script_dir/setup-agent-state.sh" codex-policy
