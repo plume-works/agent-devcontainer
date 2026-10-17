@@ -123,3 +123,8 @@ recorded in [PR review effort tiers](../architecture/pr-review-effort-tiers.md).
 - Whether a run that published no review should fail on its own, rather than
   pass on an earlier review — open in [Fail a review run that published no
   review](../backlog/fail-review-run-without-review.md).
+
+## References
+
+- Plan: [Ship the reachable-scenario bar with part-by-part validation in
+  pr-review](../plans/20261005-pr-review-scenario-validation.md)

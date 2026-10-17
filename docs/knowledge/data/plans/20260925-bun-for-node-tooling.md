@@ -1,5 +1,7 @@
 ---
 created: 2026-09-25
+release:
+- features/bun-only-javascript-runner
 type: plan
 description: Run the npm-backed pre-commit hooks and the Claude Code upgrade hint through bun, move the Renovate pin to the bunx hook entry, and record bun/bunx as the only JavaScript runner in AGENTS.md.
 generated:

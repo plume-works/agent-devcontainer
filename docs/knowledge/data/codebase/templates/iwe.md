@@ -2,14 +2,14 @@
 type: codebase
 description: The licensed starter IWE data tree copied into consumers that adopt project memory, with placeholders and examples for the onboarding skills to replace.
 source: templates/iwe
-source_digest: sha256:24e71c5e300c59706587e6a16e0f8cd65a75cf4a13ca4eeecc571f5182fe688d
+source_digest: sha256:516f390edc8a9ec2bbbe8655af629e128149ad56c9df68cd0b97135be19cfc93
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-09T14:30:00Z
-stale_after: 2027-01-07
+  at: 2026-10-16T15:03:42Z
+stale_after: 2027-01-14
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T14:30:00Z
+  at: 2026-10-16T15:03:42Z
 sources:
 - id: code
   resource: templates/iwe

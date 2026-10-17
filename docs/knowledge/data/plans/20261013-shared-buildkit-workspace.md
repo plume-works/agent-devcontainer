@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-13
+release:
+- features/shared-buildkit-builder
 description: Run one BuildKit daemon in a dedicated Coder workspace and make it the default builder for docker build inside every Dev Container, falling back to the local builder when it is unreachable.
 generated:
   by: claude-code/opus-5.5

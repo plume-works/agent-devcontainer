@@ -90,3 +90,8 @@ None — every design question this feature raised is settled.
   grouped — the notation is adopted, the application engine is not.
 - A stale delta is never silently reconciled from the implementation. That would
   erase the reviewed contract, so a material mismatch returns to Plan revision.
+
+## References
+
+- Plan: [Embed structured spec deltas in IWE
+  plans](../plans/20260816-structured-plan-spec-deltas.md)

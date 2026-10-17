@@ -31,6 +31,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Declare release impact when a plan is
+written](plans/20261016-release-impact-at-plan-time.md)
+
 [Expo profile for template
 adoption](plans/20261014-expo-eas-template-profile.md)
 

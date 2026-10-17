@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5-5
-  at: 2026-10-08T00:00:00Z
+  at: 2026-10-16T16:30:00Z
 ---
 
 # Product
@@ -139,6 +139,9 @@ it):
   `vscode/askQuestions`) for yes/no and multiple-choice questions over free
   text.
 - Keep devcontainer-related scripts under `.devcontainer/scripts`.
+- OpenCode tests and e2e runs default to `openai/gpt-6.1-sol` (big model) and
+  `openai/gpt-6-luna` (small model); a costlier model only when the user names
+  it.
 - Edit `.agents/plugins/agentdev/` for catalog changes, never `.codex/`; Codex
   reads the canonical plugin tree directly.
 - Consult the **Principal Engineer** agent for
@@ -180,3 +183,5 @@ it):
   and allowed the repository-local git config that `gh stack` writes.
 - 2026-10-08 — named `bun`/`bunx` as the only JavaScript runners, ruling out
   `npm`, `npx`, `yarn`, and `pnpm`.
+- 2026-10-16 — set the default OpenCode test models: `openai/gpt-6.1-sol` (big)
+  and `openai/gpt-6-luna` (small).

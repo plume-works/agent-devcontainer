@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-10-12
+release:
+- features/update-branch-pulls-upstream
 description: Make update-branch bring in the commits the branch's own upstream gained on the remote — fast-forward or merge — before it merges the base, with each merge stopping on conflicts and a rerun continuing.
 generated:
   by: claude-code/opus-5.5

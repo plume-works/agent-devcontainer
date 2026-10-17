@@ -78,3 +78,8 @@ None — every design question this feature raised is settled.
 ## Specified by
 
 [Template consumption](../spec/template-consumption.md)
+
+## References
+
+- Plan: [Consumer PR description
+  guidance](../plans/20260903-pr-description-guidance.md)

@@ -75,3 +75,8 @@ None — every design question this feature raised is settled.
 - Rejected: extending the rule to the plan→implement and implement→ship
   handoffs. Those carry no context by construction, so the written plan is
   already the sole channel and there is nothing for a carrier to preserve.
+
+## References
+
+- Plan: [Preserve approved wording across the explore
+  handoff](../plans/20260817-preserve-approved-wording.md)

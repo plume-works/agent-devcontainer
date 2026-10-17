@@ -2,6 +2,7 @@
 type: plan
 description: 'Example milestone plan: the MVP, sequencing the child plans that must ship for it.'
 created: 2026-06-25
+release: internal
 generated:
   by: human:author
   at: 2026-06-25T00:00:00Z

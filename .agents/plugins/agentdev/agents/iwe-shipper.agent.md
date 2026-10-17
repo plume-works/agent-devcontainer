@@ -51,11 +51,16 @@ needed. In particular:
    - **Cancellation** only when the operation is `cancel`. Go to step 2.
    - **Normal shipping** records implemented work. Go to step 3.
 
-   Read the current plan frontmatter and its exact hub section, plus the linked
-   feature or bug, every entry in `## Spec changes`,
+   Read the current plan frontmatter and its exact hub section, plus every
+   feature and bug its `release` field lists, every entry in `## Spec changes`,
    `data/releases/unreleased.md`, and today's `data/log.md` group. Record which
    intended results already exist. Do not assume a prior Ship invocation
    finished or failed atomically.
+
+   For normal shipping, `release` must be `internal` or list only documents that
+   exist. A missing field, or a listed key with no document behind it, ends the
+   run here with a Ship blocker report for Plan revise mode — before Verify and
+   with no mutation. Ship never chooses the release impact itself.
 
 2. **Cancel without shipping.** Do not verify implementation, synchronize
    specs, mark a feature implemented or bug fixed, or add a release entry. If
@@ -112,14 +117,13 @@ needed. In particular:
    correct and never add a second copy.
    - Set the plan to `stage: done` with `completed: <today>`, then ensure its
      single inclusion link is under `## Done` rather than `## Active`.
-   - Set the linked feature to `stage: implemented`, or the linked bug to
-     `stage: done`. If the plan requires a new feature, first confirm none
-     exists, create it from the verified outcome and plan Context, and add one
-     inclusion link to `data/features.md`.
+   - Set each feature `release` lists to `stage: implemented` and each listed
+     bug to `stage: done`. Never create a feature or bug.
    - Ensure `data/releases/unreleased.md` contains exactly one inclusion link
-     for the work: a feature this plan introduced goes under `## Added`, a
-     feature released in an earlier version that gained behavior here goes
-     under `## Changed`, and a bug goes under `## Fixed`. Release pages link
+     per listed document: a feature not in any earlier release goes under
+     `## Added`, a feature released in an earlier version that gained behavior
+     here goes under `## Changed`, and a bug goes under `## Fixed`. A plan that
+     declares `release: internal` adds no release entry. Release pages link
      feature and bug docs, never plans, so a feature that keeps earning entries
      across versions is linked once per version that changed it.
    - Ensure today's `data/log.md` group contains exactly one state-change
@@ -171,7 +175,8 @@ evidence. It names the plan and, for each blocker, the route that answers it:
   requirement or task with no implementation, missing evidence:
   `/agentdev:iwe-implement` on that plan, then `/agentdev:iwe-ship` again.
 - **Intent the plan got wrong** — a recorded spec change the verified behavior
-  rightly departs from, or a plan that no longer states what should ship:
+  rightly departs from, a plan that no longer states what should ship, or a
+  missing or unresolvable `release` declaration:
   `/agentdev:iwe-plan` revise mode on that plan, which re-dispatches this agent
   once the revision validates.
 

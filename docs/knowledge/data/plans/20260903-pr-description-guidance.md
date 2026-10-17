@@ -1,6 +1,8 @@
 ---
 type: plan
 created: 2026-09-03
+release:
+- features/pr-description-guidance
 description: Let a consuming repository capture its extra PR-template sections as instructions in a consumer-owned guidance file that pr-gen-description reads with precedence, via a template-consume evaluate/map/capture step.
 generated:
   by: codex/gpt-5

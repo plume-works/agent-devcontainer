@@ -128,3 +128,8 @@ None — every design question this feature raised is settled.
   inlining the rule into a spawned subagent, which drifts at every call site.
   The named auditor keeps the rule in one rulebook (`iwe-audit`) and the
   isolation boundary in one agent.
+
+## References
+
+- Plan: [Never write a working
+  logbook](../plans/20260817-no-logbooks-in-the-graph.md)

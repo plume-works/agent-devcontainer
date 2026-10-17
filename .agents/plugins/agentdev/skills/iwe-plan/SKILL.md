@@ -50,8 +50,15 @@ editing implementation code.
    ```yaml
    ---
    created: <today>
+   release: internal # or a list: - features/<slug>, - bugs/<slug>
    ---
    ```
+
+   `release` is the plan's release impact, and Ship applies it as written. List
+   every feature and bug document the work adds, changes, or fixes, and link
+   each from `## Context`. Declare `internal` only when no workspace user or
+   template consumer sees a difference: refactors, tooling only this repository
+   runs, project-memory-only edits, spikes, and milestone aggregators.
 
    Body sections, in order (omit a section only when it's genuinely empty):
    - `## Context` — why now, linking the feature/bug/backlog doc that
@@ -97,14 +104,16 @@ editing implementation code.
    or left describing the old intent while the tasks around it change, is the
    split this pass exists to prevent. What you are updating is intent: the
    durable spec keeps describing current released behavior until Ship succeeds.
-   Re-locate every affected code anchor in the current checkout and refresh its
-   date. Identify checked tasks or existing implementation evidence made stale
+   A change of intent moves `release` with it. Re-locate every affected code
+   anchor in the current checkout and refresh its date. Identify checked tasks or existing implementation evidence made stale
    by the revision and report them; do not rewrite that implementation from
    this skill.
 
 5. **File a created plan.** In create mode, add an inclusion link under
-   `## Active` in `data/plans.md`. If the plan implements a proposed feature,
-   set the feature doc to `stage: accepted`. If it grew from a backlog task,
+   `## Active` in `data/plans.md`. A plan whose work users see but that no
+   feature describes first hands the feature to `/agentdev:iwe-capture feature`
+   and lists its key in `release`. Set every proposed feature the plan lists to
+   `stage: accepted`. If it grew from a backlog task,
    mark the task done and move its link. An issue it grew from is closed in
    step 8, after validation — never before the plan is known to be sound. In revise mode, preserve the plan's
    existing graph membership and lifecycle unless the requested planning
