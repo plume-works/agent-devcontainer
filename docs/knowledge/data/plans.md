@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Guard every gh stack push against overwriting a layer's remote
+commits](plans/20261017-gh-stack-push-guard.md)
+
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
 
