@@ -120,7 +120,7 @@ overwrites it.
 `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh`,
 `.agents/plugins/agentdev/tests/test_gh_stack_guard.py`
 
-- [ ] `stack-guard.sh begin [--remote <name>]` and
+- [x] `stack-guard.sh begin [--remote <name>]` and
   `stack-guard.sh publish [--submit] [--remote <name>]` follow the
   `/agentdev:skill-scripts` contract through `bin/result-codes.sh`. Layers and
   trunk are read from `gh stack view --json`, and merged or queued layers are
@@ -132,7 +132,11 @@ overwrites it.
   `begin` prints `FAST_FORWARDED=<layer>` for each layer it moved, so the caller
   knows to run `gh stack rebase --upstack`.
 
-- [ ] pytest covers, with a bare remote, a second publisher clone, and a stubbed
+  - **Evidence:** commit `feat(gh-stack): add stack-guard.sh begin and publish`;
+    `shellcheck` clean, and every named result is asserted in
+    `tests/test_gh_stack_guard.py`.
+
+- [x] pytest covers, with a bare remote, a second publisher clone, and a stubbed
   `gh` whose `stack push`/`stack submit` do what gh-stack does (fetch, then a
   lease taken from the fresh tracking ref):
 
@@ -148,6 +152,12 @@ overwrites it.
   | remote gained a commit between `begin` and `publish`         | `publish` `REMOTE_MOVED`, stub push never ran                                    |
   | stub push exits 0 but leaves a remote tip unchanged          | `publish` `PUSH_INCOMPLETE`                                                      |
   | layer exists only on the remote, local created at trunk      | `begin` fast-forwards it to the remote tip                                       |
+
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_gh_stack_guard.py` passed
+    14 tests in the same commit, and so did the full plugin suite (153 tests).
+    Removing the moved-tip check, the begin check, or the trunk exclusion each
+    fails at least one test.
 
 ### Task 2: Repository-owned gh-stack skill over upstream references
 
