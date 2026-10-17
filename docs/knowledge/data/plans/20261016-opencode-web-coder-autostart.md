@@ -6,7 +6,7 @@ release:
 description: Start the OpenCode web UI from the Coder agent-start script, bound to localhost unless a server password is set, with OpenCode logins on the shared auth volume, its data directory on a per-worktree volume, and a link and a Coder dashboard app that open the workspace folder.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T02:00:00Z
+  at: 2026-10-17T02:30:00Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -27,9 +27,9 @@ sources:
 
 [OpenCode web UI autostart on
 Coder](../features/opencode-web-coder-autostart.md) is the feature this plan
-builds. OpenCode is installed in the image, but nothing starts its server, and
-its data directory, `~/.local/share/opencode`, is on no volume, so a Dev
-Container rebuild loses provider logins and session chats.
+builds. Without a started server and a volume under its data directory,
+`~/.local/share/opencode`, a Dev Container rebuild would lose OpenCode provider
+logins and session chats.
 
 [Agent auth persistence](../architecture/agent-auth-persistence.md) is the split
 this plan extends to OpenCode: credentials on the shared `agentdev-agents-auth`
@@ -78,16 +78,25 @@ Six pieces, each following an existing pattern:
   It skips when `opencode` or `tmux` is missing.
 - **Coder wiring.** `coder-agent-start.sh` runs it after the credential helper
   and before the final `exec`; a failure warns and Remote Control still starts.
-- **Direct link.** `opencode-web-start.sh` prints
-  `http://127.0.0.1:4096/<base64url(workspace folder)>/session`, both when it
-  starts the session and when it finds one live, so the agent-start log carries
-  a link that opens the workspace folder.
+- **Direct link.** `opencode-web-start.sh` prints the server's base URL followed
+  by `/<base64url(workspace folder)>/session`, both when it starts the session
+  and when it finds one live, so the agent-start log carries a link that opens
+  the workspace folder. The base URL is Coder's port URL for 4096:
+  `VSCODE_PROXY_URI`, which the Coder agent sets to a template such as
+  `https://{{port}}--repo--<workspace>--<owner><wildcard domain>`, with
+  `{{port}}` replaced by `4096`. Where `VSCODE_PROXY_URI` is unset, the base URL
+  is `http://127.0.0.1:4096`.
 - **Dashboard app.** The template gains a `coder_app` named `OpenCode` on
   `coder_devcontainer.repo[0].subagent_id`, a subdomain app whose URL is
   `http://localhost:4096/<base64url("/workspaces/${local.repo_dir}")>/session`,
   with a healthcheck on `http://localhost:4096/site.webmanifest`. Every
   workspace with a repository gets it; where no OpenCode server runs, the
-  healthcheck marks it unhealthy.
+  healthcheck marks it unhealthy. Whether Coder's subdomain proxy honors a path
+  in an app's `url` — sending the first request to that path while serving the
+  page's own `/assets/…` requests from the server root — is established first,
+  on an inactive template version. If it does not, the app becomes an external
+  app linking to the port URL; how the template learns the deployment's wildcard
+  domain for that URL is then decided by revising this plan.
 
 Assumptions:
 
@@ -262,9 +271,13 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 `scripts/tests/test_opencode_web_start.py`
 
 - [ ] Tests: with `DEV_WORKSPACE_FOLDER=/workspaces/example`, both a fresh start
-  and a live-session reuse print
-  `http://127.0.0.1:4096/L3dvcmtzcGFjZXMvZXhhbXBsZQ/session`, whatever the bind
-  address; a skip for a missing `opencode` or `tmux` prints no link.
+  and a live-session reuse print the link, whatever the bind address:
+  - `VSCODE_PROXY_URI=https://{{port}}--repo--ws--me.example.com`:
+    `https://4096--repo--ws--me.example.com/L3dvcmtzcGFjZXMvZXhhbXBsZQ/session`;
+  - the same template with a trailing `/`: the same link, with no `//`;
+  - `VSCODE_PROXY_URI` unset or empty:
+    `http://127.0.0.1:4096/L3dvcmtzcGFjZXMvZXhhbXBsZQ/session`;
+  - a skip for a missing `opencode` or `tmux` prints no link.
 - [ ] Script, shellcheck clean;
   `uv run pytest scripts/tests/test_opencode_web_start.py` passes.
 
@@ -276,7 +289,19 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 - [ ] Run `/agentdev:iwe-map` in refresh mode; `stale-map-docs.py` ends
   `RESULT=SUCCESS`.
 
-### Task 11: Add the OpenCode app to the Coder template
+### Task 11: Establish whether a subdomain app keeps the path in its URL
+
+**Files:** none in this repository; a template version of
+plume-works/coder-ide-baseline pushed without being made active
+
+- [ ] A template version carrying the `coder_app` from `## Approach`, pushed
+  without promoting it, run on one workspace of this repository: opening the app
+  either loads the web UI in `/workspaces/agent-devcontainer` with its assets
+  served (subdomain form holds), or does not (the plan goes back to revise mode
+  for the external-app form before Task 12). The workspace returns to the active
+  version afterwards.
+
+### Task 12: Add the OpenCode app to the Coder template
 
 **Files:** Modify: `template/main.tf` in plume-works/coder-ide-baseline
 
@@ -286,7 +311,7 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
   `## Approach`, merged to that repository's `main` by pull request and
   published as the active template version.
 
-### Task 12: Verify the OpenCode app in a live Coder workspace
+### Task 13: Verify the OpenCode app in a live Coder workspace
 
 - [ ] On a workspace of this repository running the new template version, the
   dashboard's `OpenCode` app is healthy and opens a session whose working
@@ -313,8 +338,10 @@ one detached tmux session named `opencode` on the dedicated tmux server
 login. Repeated runs SHALL reuse a live session. It SHALL skip startup when
 `opencode` or `tmux` is unavailable. A failure SHALL NOT stop Remote Control
 from starting. On a start or a reuse it SHALL print
-`http://127.0.0.1:4096/<base64url(workspace folder)>/session`, base64url without
-`=` padding.
+`<base>/<base64url(workspace folder)>/session`, base64url without `=` padding,
+where `<base>` is `VSCODE_PROXY_URI` with `{{port}}` replaced by `4096` and any
+trailing `/` removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is
+unset or empty.
 
 #### Scenario: a workspace starts
 
@@ -329,8 +356,13 @@ from starting. On a start or a reuse it SHALL print
 #### Scenario: the start prints a link into the workspace folder
 
 - **WHEN** the script starts or reuses the `opencode` session
-- **THEN** its output carries the `/<base64url(workspace folder)>/session`
-  link, which opens a session in the workspace folder.
+- **THEN** its output carries the link built on Coder's port URL for 4096,
+  which opens a session in the workspace folder through Coder.
+
+#### Scenario: the start runs outside Coder
+
+- **WHEN** `VSCODE_PROXY_URI` is unset
+- **THEN** the printed link starts with `http://127.0.0.1:4096`.
 
 #### Scenario: the OpenCode start fails
 
@@ -415,14 +447,14 @@ lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex` /
 - `uv run pytest scripts/tests/test_link_opencode_auth.py scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py`
   passes.
 - `shellcheck` is clean on the new and changed scripts.
-- Tasks 7, 8, and 12 pass on live Coder workspaces.
+- Tasks 7, 8, 11, and 13 pass on live Coder workspaces.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
 
 - **Picking up catalog changes in a running server.** Coder-started servers keep
-  the catalog they read at start until restart; the feature records this as a
-  risk.
+  the catalog they read at start until restart; the feature records this as an
+  edge case.
 - **Locking concurrent `auth.json` writes.** OpenCode takes no lock; this plan
   accepts last-writer-wins.
 - **Autostart outside Coder.** Local Dev Containers and CI do not start the
