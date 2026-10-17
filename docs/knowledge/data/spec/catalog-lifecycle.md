@@ -2,8 +2,8 @@
 type: spec
 description: When and how the agentdev catalog gets installed into the persistent Claude/Codex plugin state and the OpenCode user config — at image build time and again by postCreateCommand.
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-17T12:00:00Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
@@ -123,12 +123,12 @@ produce, and SHALL NOT modify any other file in that directory.
 
 The `agentdev-agents-auth` volume SHALL hold only each agent's authentication
 state (mounted at `/root/.agents-auth/<agent>`); all other plugin/install state
-lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex`
-volumes.
+lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex` /
+`agentdev-opencode` volumes.
 
 ### Scenario: two worktrees of the same repository are opened as separate devcontainers
 
 - **WHEN** both attach
 - **THEN** each gets its own catalog install (scoped per instance) but shares
-  the same logged-in Claude/Codex credentials (scoped to the shared auth
-  volume).
+  the same logged-in Claude/Codex/OpenCode credentials (scoped to the shared
+  auth volume).

@@ -5,8 +5,8 @@ version: unreleased
 stage: unreleased
 status: draft
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-22T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-17T12:00:00Z
 ---
 
 # Unreleased
@@ -55,6 +55,9 @@ seeding](../features/agent-sign-in-without-seeding.md)
 conflicts](../features/pr-feedback-resolves-merge-conflicts.md)
 
 [bun as the only JavaScript runner](../features/bun-only-javascript-runner.md)
+
+[OpenCode web UI autostart on
+Coder](../features/opencode-web-coder-autostart.md)
 
 ## Changed
 

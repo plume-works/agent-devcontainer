@@ -67,16 +67,17 @@ ln -sf /root/.claude/claude.json /root/.claude.json
 "$script_dir/codebase-memory-mcp-install.sh" ||
     echo "WARNING: codebase-memory-mcp install failed (exit $?); continuing without it." >&2
 
-# Both agents' credential setup below needs their subdirectory of the shared
+# Every agent's credential setup below needs its subdirectory of the shared
 # agentdev-agents-auth volume to exist first.
-mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex
-chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex
+mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex /root/.agents-auth/opencode
+chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex /root/.agents-auth/opencode
 "$script_dir/preapprove-claude-workspace.sh"
 
 # See link-codex-auth.sh for why Codex's auth.json needs the same file-in-a-shared-
 # volume-plus-symlink treatment, and why this also has to run again from
 # postStartCommand.sh.
 "$script_dir/link-codex-auth.sh"
+"$script_dir/link-opencode-auth.sh"
 
 # Sync the project environment on the /uv volume so that extension settings are
 # valid when the container is rebuilt. This is a no-op if the environment is

@@ -3,12 +3,14 @@ type: architecture
 description: Agent credentials live on one Docker volume pinned to a literal name and shared by every devcontainer instance, while the rest of each agent's state is mounted per instance; a directory-backed volume cannot mount at ~/.claude.json, so that file is a symlink into the volume.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T00:00:00Z
+  at: 2026-10-17T00:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/link-codex-auth.sh
+- resource: .devcontainer/scripts/link-opencode-auth.sh
+- resource: https://github.com/sst/opencode/blob/733b2c627e5aec39cb33cc22373bdce33053ef2c/packages/opencode/src/auth/index.ts
 - resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
 - resource: https://github.com/Dr-QP/Dr.QP/pull/417
 - resource: https://github.com/Dr-QP/Dr.QP/pull/436
@@ -25,10 +27,12 @@ Agent state is split in two:
 - **Credentials are shared.** One volume, `agentdev-agents-auth`, is declared
   with an explicit top-level `name:` and mounted at `/root/.agents-auth`. Claude
   Code's credential store is pointed at `/root/.agents-auth/claude` through
-  `CLAUDE_SECURESTORAGE_CONFIG_DIR`, and Codex's `auth.json` is symlinked to
-  `/root/.agents-auth/codex/auth.json`.
-- **Everything else is per instance.** The `agentdev-claude` and
-  `agentdev-codex` mounts carry each agent's remaining state and are left
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR`, Codex's `auth.json` is symlinked to
+  `/root/.agents-auth/codex/auth.json`, and OpenCode's
+  `~/.local/share/opencode/auth.json` to
+  `/root/.agents-auth/opencode/auth.json`.
+- **Everything else is per instance.** The `agentdev-claude`, `agentdev-codex`,
+  and `agentdev-opencode` mounts carry each agent's remaining state and are left
   Compose-project-scoped, so a worktree, a clone, and a Codespace each get their
   own.
 
@@ -68,7 +72,7 @@ migrated, because its content predates the volume and would otherwise mask it.
 
 ## Consequences
 
-- A rebuild never requires re-authenticating either agent.
+- A rebuild never requires re-authenticating any agent.
 - Adding a new agent means deciding which half of the split its state belongs
   to; credentials go in the shared volume, path-bearing state does not.
 - The volume is declared `external: true`, so it must exist before Compose
@@ -79,3 +83,6 @@ migrated, because its content predates the volume and would otherwise mask it.
   so two Claude processes refreshing at the same moment can race, and the loser
   reaches `Login expired`. This is a known limitation; a fresh `/login` in any
   container recovers every instance.
+- OpenCode rewrites `auth.json` in place and takes no lock, so its symlink
+  survives login, logout, and token refresh, but two worktrees saving a login at
+  the same moment are last-writer-wins.

@@ -3,13 +3,14 @@ type: spec
 description: How the plume-works/coder-ide-baseline Coder template runs this repository's Dev Container, and how to change, validate, and ship a template version.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T21:30:00Z
+  at: 2026-10-17T12:00:00Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/root-container/daemon.json
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/push.sh
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/README.md
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/98f892b/template/main.tf
 - resource: .devcontainer/scripts/coder-agent-start.sh
 ---
 
@@ -110,6 +111,25 @@ prune SHALL NOT fail the startup script.
 - **WHEN** an image created more than 72 hours ago is referenced by no container
   at agent start
 - **THEN** the startup script removes it.
+
+### Requirement: the template offers an OpenCode app
+
+The `coder-ide-baseline` template SHALL attach a subdomain `coder_app` named
+`OpenCode` to the Dev Container's sub-agent of every workspace with a
+repository. Its URL SHALL be the server root, `http://localhost:4096`, and its
+healthcheck SHALL request `http://localhost:4096/site.webmanifest`. The server
+it opens is specified in [OpenCode web](opencode-web.md).
+
+#### Scenario: the repository runs OpenCode
+
+- **WHEN** the repository's agent-start script started `opencode web`
+- **THEN** the dashboard shows a healthy `OpenCode` app that loads the web UI,
+  from whose project picker `/workspaces/<repository>` opens.
+
+#### Scenario: the repository runs no OpenCode server
+
+- **WHEN** nothing listens on port 4096 in the Dev Container
+- **THEN** the `OpenCode` app shows unhealthy.
 
 ### Requirement: an active template version comes from `main`
 

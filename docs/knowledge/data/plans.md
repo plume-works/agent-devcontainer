@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T21:49:04Z
+  by: opencode/openai-gpt-6.1-sol
+  at: 2026-10-17T05:34:21Z
 ---
 
 # 🗺️ Plans
@@ -16,6 +16,9 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
+
+[Ship a standalone OpenCode
+container](plans/20261017-standalone-opencode-container.md)
 
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
@@ -30,6 +33,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Autostart the OpenCode web UI on
+Coder](plans/20261016-opencode-web-coder-autostart.md)
 
 [Guard every gh stack push against overwriting a layer's remote
 commits](plans/20261017-gh-stack-push-guard.md)

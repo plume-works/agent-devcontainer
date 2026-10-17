@@ -3,11 +3,13 @@ type: hub
 description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T21:49:04Z
+  by: opencode/openai-gpt-6.1-sol
+  at: 2026-10-17T05:34:21Z
 ---
 
 # ✨ Features
+
+[Standalone OpenCode container](features/standalone-opencode-container.md)
 
 *One document per feature in `features/<slug>.md`, from first proposal to
 deprecation. The lifecycle stage lives in each document's frontmatter, so the
@@ -93,3 +95,5 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 [bun as the only JavaScript runner](features/bun-only-javascript-runner.md)
 
 [Xpra port forwarding](features/xpra-port-forwarding.md)
+
+[OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)

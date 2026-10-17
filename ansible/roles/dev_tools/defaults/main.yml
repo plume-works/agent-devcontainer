@@ -31,17 +31,17 @@ dev_tools_pinned_tools:
   # The tarball also ships iwec, the MCP server, which no agent config registers.
   - name: iwe
     # renovate: datasource=github-releases depName=iwe-org/iwe versioning=regex:^iwe-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-    version: iwe-v0.26.1
+    version: iwe-v0.27.0
     url_prefix: https://github.com/iwe-org/iwe/releases/download
     asset_prefix: "{version}-"
     binaries: [iwe, iwes]
     archives:
       amd64:
         target: x86_64-unknown-linux-gnu
-        checksum: ef58f4ad6998a7cc2c7b38e88a86019c56280673367821bd5c96c30423c35081
+        checksum: f0496509db4c255c0f27c84aa54e30df308e5ff19cce5c9f7725e1a0484e98cc
       arm64:
         target: aarch64-unknown-linux-gnu
-        checksum: ba5c4294632ec473d9fc3a0981aad05804d0f494ec092a50f33e552435af39c2
+        checksum: e13b56faef526cbbb833151158364193613359fc92d5b6330441154dbbe6557f
 
   # codebase-memory-mcp ships a per-OS/arch archive containing the binary plus its
   # own install.sh. That installer re-downloads from GitHub's "latest" alias even
@@ -57,16 +57,16 @@ dev_tools_pinned_tools:
   # agentic_tools only stages its catalog at build time instead of installing it.
   - name: codebase-memory-mcp
     # renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp
-    version: v0.12.0
+    version: v0.12.1
     url_prefix: https://github.com/DeusData/codebase-memory-mcp/releases/download
     asset_prefix: codebase-memory-mcp-
     archives:
       amd64:
         target: linux-amd64-portable
-        checksum: 7024e585132760f383e3e25237e2b2ac6f5185f7e466f8dc66a085bb25f8d0be
+        checksum: 8c3d0341064301e78ecc84cf7348d4e2c6562a0f57448243ea560aaa34de36c1
       arm64:
         target: linux-arm64-portable
-        checksum: 8e603f32c9c84b5dc5a6b4a0d23516817d5de199e30f8dcc9bdb128c39386cd8
+        checksum: ed0f1f548cd79b121c401c2e9f7841c189a001af26d3768368088c24f6a53533
 
   # Bun's .zip holds its binary under a directory named after the asset, hence
   # `extension` and `binaries_in_asset_dir`. The amd64 asset is `-baseline`,
