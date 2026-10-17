@@ -177,9 +177,12 @@ Rejected:
 
 **Files:** Modify: `docs/knowledge/data/architecture/agent-auth-persistence.md`
 
-- [ ] The Decision section names OpenCode's shared `auth.json` symlink and its
+- [x] The Decision section names OpenCode's shared `auth.json` symlink and its
   `agentdev-opencode` volume beside Claude and Codex, and Consequences records
   that concurrent OpenCode login writes are last-writer-wins.
+  - **Evidence:** commit "docs(kb): record OpenCode in the agent auth
+    persistence decision": both Decision bullets name OpenCode, and a new
+    Consequences bullet records the in-place, lock-free `auth.json` write.
 
 ### Task 6: Refresh the codebase map
 
