@@ -314,21 +314,43 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `.devcontainer/scripts/runtime-health.sh`, `docker/opencode/supervisord.conf`,
 `scripts/tests/test_agent_runtime_supervision.py`
 
-- [ ] Test startup ordering, bounded deadlines, preparation failure blocking
+- [x] Test startup ordering, bounded deadlines, preparation failure blocking
   OpenCode, per-service recovery, dependency outages, readiness loss, and retry
   exhaustion after RUNNING as well as startup failures. Failed readiness counts
   against the same recovery budget; do not treat an endlessly hung process as
   healthy. Terminal failure must make PID 1 exit nonzero, not just stop
   children.
-- [ ] Manage root DinD and user D-Bus/keyring, CBM adapter, Xpra, and OpenCode;
+  - **Evidence:** commit "feat(runtime): supervise services with bounded
+    recovery": `scripts/tests/test_agent_runtime_supervision.py` drives real
+    supervisord 4.2.5 with the shipped config's programs swapped for scripted
+    fakes. It covers the start order, preparation exit and timeout leaving
+    OpenCode unstarted, a CBM crash, readiness loss, exhaustion after RUNNING
+    and at startup, a hung probe, a dbus outage, and the budget reset. Every
+    terminal case asserts `runtime-supervisor.py run` exits `1`. 15 passed.
+- [x] Manage root DinD and user D-Bus/keyring, CBM adapter, Xpra, and OpenCode;
   use controlled foreground processes or identity-aware adapters. Pipe service
   output to stdout/stderr. Track preparation as a one-shot gate; do not rerun
   uv/catalog mutation on an ordinary individual service restart.
-- [ ] Pause dependent readiness during recovery, refresh connection state for
+  - **Evidence:** commit "feat(runtime): supervise services with bounded
+    recovery": `docker/opencode/supervisord.conf` runs `dockerd` as root and the
+    other programs as `%(ENV_AGENTDEV_USER)s`, logging to `/dev/stdout`.
+    `runtime-workspace.sh prepare` is the one-shot gate.
+    `test_a_crashed_service_recovers_without_rerunning_preparation` shows one
+    `prepare` and one `index` run across a recovery, and the shipped-config test
+    checks each program's flags. The `dockerd` and `opencode` commands are
+    written in Tasks 7 and 8.
+- [x] Pause dependent readiness during recovery, refresh connection state for
   affected clients, and recover coherently after D-Bus or CBM changes without
   duplicating daemons. Publish aggregate readiness only after required probes
   pass. Handle SIGTERM with ordered shutdown: agent/client processes before CBM,
   desktop and keyring, then DinD; bound and reap entire managed process groups.
+  - **Evidence:** commit "feat(runtime): supervise services with bounded
+    recovery": `/run/agentdev/ready` is removed during every recovery.
+    `test_dependency_outage_recovers_clients_outside_their_budget` survives a
+    dbus crash that takes the keyring down even with a one-attempt budget, and a
+    CBM recovery restarts OpenCode once. The SIGTERM test sees stops in the
+    order `opencode, cbm, xpra, keyring, dbus, dockerd`, with exit `0`, and a
+    grandchild reaped. A service ignoring SIGTERM is killed within the bound.
 
 ### Task 7: Run and persist the dedicated nested Docker engine
 

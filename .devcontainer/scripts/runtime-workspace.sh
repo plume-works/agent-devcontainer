@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Standalone workspace preparation, run as the runtime user. A valid checkout is
 # reused without contacting a remote; only an empty destination is cloned into.
-# Usage: runtime-workspace.sh checkout|project|catalog. Spec: standalone-opencode-runtime.
+# Usage: runtime-workspace.sh checkout|project|catalog|prepare. Spec: standalone-opencode-runtime.
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 workspace="${DEV_WORKSPACE_FOLDER:-/workspaces/project}"
@@ -103,12 +103,22 @@ cmd_catalog() {
   "$script_dir/setup-agent-state.sh" catalog "$catalog" user
 }
 
+# The supervisor's one-shot preparation gate: checkout, agent state, catalog, project.
+cmd_prepare() {
+  cmd_checkout
+  "$script_dir/setup-agent-state.sh" create
+  "$script_dir/setup-agent-state.sh" codex-policy
+  cmd_catalog
+  cmd_project
+}
+
 case "${1:-}" in
   checkout) cmd_checkout ;;
   project) cmd_project ;;
   catalog) cmd_catalog ;;
+  prepare) cmd_prepare ;;
   *)
-    echo "usage: $(basename "$0") checkout|project|catalog" >&2
+    echo "usage: $(basename "$0") checkout|project|catalog|prepare" >&2
     exit 2
     ;;
 esac
