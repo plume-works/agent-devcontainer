@@ -386,17 +386,32 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `.devcontainer/scripts/opencode-web-start.sh`, `docker/desktop/start-xpra.sh`,
 `scripts/tests/test_opencode_web_start.py`
 
-- [ ] Extract command/link construction without changing the Coder tmux contract
+- [x] Extract command/link construction without changing the Coder tmux contract
   or its tests. Standalone runs OpenCode foreground in the workspace on
   `0.0.0.0:4096`, using `opencode serve` with mandatory nonempty
   `OPENCODE_SERVER_PASSWORD`. Preserve DISPLAY for agent child processes and
   test graphical tool access without opening a browser at server startup. Keep
   Coder's `opencode web` command and DISPLAY removal unchanged.
-- [ ] Run Xpra foreground on container port 14500, with no Xpra password and
+  - **Evidence:** commit "feat(runtime): serve OpenCode and Xpra for an external
+    proxy": `opencode-web-command.sh` builds the link and the Coder pane, which
+    `opencode-web-start.sh` now calls. The unchanged
+    `test_opencode_web_start.py` and `test_coder_agent_start.py` give 22 passed.
+    `scripts/tests/test_agent_runtime_ingress.py` rejects a missing or empty
+    password and shows `serve --port 4096 --hostname 0.0.0.0` in the workspace
+    with `DISPLAY` kept. Against a real `opencode serve`, a PTY child sees
+    `DISPLAY=:100` and no browser opener runs.
+- [x] Run Xpra foreground on container port 14500, with no Xpra password and
   external proxy authentication as the access boundary. Retain
   `AGENTDEV_SKIP_XPRA`; when enabled, Xpra is required for readiness and
   recovery. Add strict supervised execution without weakening existing lifecycle
   behavior.
+  - **Evidence:** commit "feat(runtime): serve OpenCode and Xpra for an external
+    proxy": `start-xpra.sh --supervised` fails when `xpra` is missing or a
+    session is already live, and otherwise execs a foreground Xpra (default port
+    14500). The `--background` and default branches are unchanged. A real Xpra
+    serves its HTML5 page and accepts a `binary` WebSocket at `/` with no
+    password, and a duplicate start exits `1`. Task 6's supervisor tests cover
+    `AGENTDEV_SKIP_XPRA` and Xpra recovery. 8 passed.
 - [ ] Use authenticated OpenCode API readiness in addition to web-asset checks;
   test HTTP/WebSocket routing at the server root, password rejection, and the
   absence of host-published ports. Do not bake a Coder-specific URL, password,

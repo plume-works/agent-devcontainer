@@ -7,6 +7,7 @@ HOST=${XPRA_HOST:-127.0.0.1}
 PORT=14500
 DISPLAY=:100
 BACKGROUND=false
+SUPERVISED=false
 VIDEO_ENCODERS=${XPRA_VIDEO_ENCODERS:-x264,vpx}
 XPRA_DAEMON_MODE=no
 XPRA_LOG_FILE="${XPRA_LOG_FILE:-$PWD/.tmp/xpra.log}"
@@ -14,7 +15,7 @@ XPRA_LOG_FILE="${XPRA_LOG_FILE:-$PWD/.tmp/xpra.log}"
 # Parse command-line arguments
 print_usage() {
   cat <<'USAGE'
-Usage: start-xpra.sh [--host HOST] [--port PORT] [--display DISPLAY] [--background] [--stop]
+Usage: start-xpra.sh [--host HOST] [--port PORT] [--display DISPLAY] [--background|--supervised] [--stop]
 
 Start an Xpra server with the HTML5 web client enabled.
 
@@ -23,6 +24,8 @@ Options:
   --host HOST       Host/IP to bind the Xpra server (default: XPRA_HOST or 127.0.0.1)
   --display DISPLAY X display (accepts :100 or 100; default: :100)
   --background      Start Xpra in the background and exit immediately
+  --supervised      Replace this shell with a foreground Xpra for a supervisor; a
+                    missing xpra or an already-live session is an error
   --stop            Stop the Xpra server and clean up resources
 
 Environment:
@@ -171,6 +174,10 @@ while [[ $# -gt 0 ]]; do
       BACKGROUND=true
       shift
       ;;
+    --supervised)
+      SUPERVISED=true
+      shift
+      ;;
     --stop)
       normalize_display
       cleanup
@@ -198,6 +205,17 @@ echo "Xpra Server Startup"
 echo "=========================================="
 echo "Port: $PORT"
 echo "Display: $DISPLAY"
+
+if [[ "$SUPERVISED" == "true" ]]; then
+  if ! command -v xpra &> /dev/null; then
+    echo "Error: xpra is not installed."
+    exit 1
+  fi
+  if xpra_session_running; then
+    echo "Error: an Xpra session is already live on $DISPLAY; refusing to start a duplicate."
+    exit 1
+  fi
+fi
 
 if ! command -v xpra &> /dev/null; then
   echo "Warning: xpra not found. Skipping startup."
@@ -270,6 +288,11 @@ if [[ "$BACKGROUND" == "true" ]]; then
   fi
 
   exit 0
+fi
+
+# The supervisor signals and reaps Xpra itself, so no shell stays in between.
+if [[ "$SUPERVISED" == "true" ]]; then
+  exec xpra start "${XPRA_ARGS[@]}"
 fi
 
 if ! xpra start "${XPRA_ARGS[@]}"; then
