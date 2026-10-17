@@ -165,3 +165,5 @@ validate_workspace
 prepare_shared_auth
 reset_runtime_dir
 log "identity $runtime_user ($runtime_uid:$runtime_gid) ready"
+# Last, and before supervisord starts dockerd: see runtime-firewall.sh.
+"$(dirname "${BASH_SOURCE[0]}")/runtime-firewall.sh"

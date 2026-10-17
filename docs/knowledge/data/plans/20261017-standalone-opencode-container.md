@@ -425,15 +425,30 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `ansible/roles/devcontainer_firewall/files/init-firewall.sh`,
 `.devcontainer/firewall-allowlist.txt`
 
-- [ ] Leave the firewall inert unless `ENABLE_FIREWALL=true`. In enabled mode,
+- [x] Leave the firewall inert unless `ENABLE_FIREWALL=true`. In enabled mode,
   use an explicit allowlist or a baked default without requiring project
   scaffolding; fail on invalid configuration. Apply base rules before DinD so
   subsequent daemon network setup is not erased by a rule flush.
-- [ ] Allow only configured trusted proxy source CIDRs to the required web ports
+  - **Evidence:** commit "feat(runtime): keep the opt-in firewall in standalone
+    networking": `runtime-firewall.sh` is inert for unset, `false`, and `yes`.
+    It reads `FIREWALL_ALLOWLIST` or `/etc/agentdev/firewall-allowlist.txt`, and
+    rejects a missing file, a non-domain entry, and missing or malformed proxy
+    CIDRs before any rule. `runtime-bootstrap.sh` calls it last, before
+    supervisord starts `dockerd`. `scripts/tests/test_agent_runtime_firewall.py`
+    11 passed.
+- [x] Allow only configured trusted proxy source CIDRs to the required web ports
   when the firewall is enabled; retain existing egress/IPv6 policy and
   self-checks. Test proxy access, forbidden egress, GitHub access, and nested
   Docker networking together. Keep the old devcontainer firewall contract
   intact.
+  - **Evidence:** commit "feat(runtime): keep the opt-in firewall in standalone
+    networking": the wrapper runs the unchanged `init-firewall.sh` with its
+    self-checks, then accepts `AGENTDEV_TRUSTED_PROXY_CIDRS` on ports 4096 and
+    14500 and applies the allowlist to forwarded traffic in `DOCKER-USER`. In a
+    privileged `agent-desktop` container on a test network, the trusted IP gets
+    200 on 4096 while port 5000 and an untrusted IP get nothing. Host egress to
+    example.com is blocked; nested `hello-world` and GitHub work, and nested
+    egress to example.com is rejected. `firewall.sh` is untouched.
 
 ### Task 10: Build the dedicated image with non-root-accessible tools
 

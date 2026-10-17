@@ -79,3 +79,6 @@ run](bugs/main-image-rebuild-lost-on-cancel.md)
 
 [Bug: gh stack push overwrites a stack layer whose remote is
 ahead](bugs/gh-stack-push-overwrites-remote-layer.md)
+
+[Bug: firewalled Docker Hub pulls fail at the CloudFront
+CDN](bugs/firewall-docker-hub-cloudfront.md)
