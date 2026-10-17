@@ -457,21 +457,45 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `ansible/roles/agentic_tools/tasks/install_catalog.yml`,
 `ansible/roles/github_cli/tasks/main.yml`
 
-- [ ] Derive from an explicit supplied `agent-desktop` digest. Install
+- [x] Derive from an explicit supplied `agent-desktop` digest. Install
   supervisor and its required utilities explicitly. Bake helpers/config/default
   allowlist, narrowly reopening `.devcontainer/scripts` and the allowlist in
   `.dockerignore` without including `.env`, generated metadata, auth, or
   workspace contents.
-- [ ] Audit the inherited tool inventory as the runtime user, relocating any
+  - **Evidence:** commit "feat(runtime): build the agent-opencode image":
+    `docker/opencode/agent-opencode.Dockerfile` takes `FROM_IMAGE` and records
+    it in `org.opencontainers.image.base.name`. It installs apt `supervisor` and
+    copies `.devcontainer/scripts/`, `start-xpra.sh`, `supervisord.conf`, and
+    the allowlist. `.dockerignore` reopens only `.devcontainer/scripts` and
+    `.devcontainer/firewall-allowlist.txt`, with `__pycache__` still excluded.
+    Built with `docker build --build-arg FROM_IMAGE=<agent-desktop pin>`;
+    hadolint passes.
+- [x] Audit the inherited tool inventory as the runtime user, relocating any
   root-home executables/support files to root-owned system paths and registering
   user-scoped tooling in the runtime home. Include `gh stack`, validator,
   uv/bun/node, agents, CBM, IWE, shell/lint/build tools, desktop, and Docker. Do
   not make `/root` traversable or put user-writable directories ahead of managed
   tools to hide missing installation work.
-- [ ] Set dedicated entrypoint/CMD, user/home/path defaults, container ports,
+  - **Evidence:** commit "feat(runtime): build the agent-opencode image": the
+    only root-home executable, the `gh-stack` extension, moves to
+    `/usr/local/lib/agentdev/gh-stack`, and standalone
+    `setup-agent-state.sh create` registers it in the runtime home.
+    `AGENTDEV_RUNTIME_TEST_IMAGE=agent-opencode:local uv run pytest scripts/tests/test_agent_runtime_acceptance.py`
+    passed: as `agent`, 17 tools resolve outside `/root` and run, as do
+    `validate_agent_files` and `gh stack`. `/root` is unreadable, `sudo -n`
+    works, and `~/.local/bin` is last on the image `PATH`.
+- [x] Set dedicated entrypoint/CMD, user/home/path defaults, container ports,
   healthcheck, and image labels. Keep `agent-desktop` ENTRYPOINT/CMD and the
   Coder agent start compatible. Fresh user state is initialized after mounts,
   not by relying on a copied root home or first-use volume copy-up.
+  - **Evidence:** commit "feat(runtime): build the agent-opencode image": the
+    image sets `ENTRYPOINT runtime-supervisor.py run`, the identity and path
+    `ENV`, `EXPOSE 4096 14500`, and a `HEALTHCHECK` on
+    `runtime-health.sh ready`. The base account is removed and `/home/agent` is
+    not created, so nothing copies up. A fresh-volume start of
+    `agent-opencode:local` went `healthy` in 14 s and answered 401 without auth
+    and 200 with it. `docker stop` exited `0` in 6 s, stopping `dockerd` last.
+    `agent-desktop.Dockerfile` and `coder-agent-start.sh` are unchanged.
 
 ### Task 11: Supply supported Compose deployment configurations
 

@@ -46,12 +46,26 @@ ensure_auth_dirs() {
   done
 }
 
+# The image republishes root-home user tooling from system paths; register it for
+# whichever account runs here, since a fresh home volume holds none of it.
+register_user_tools() {
+  local source="${AGENTDEV_GH_STACK_DIR:-/usr/local/lib/agentdev/gh-stack}"
+  local extension="${XDG_DATA_HOME:-$HOME/.local/share}/gh/extensions/gh-stack"
+  [[ -x $source/gh-stack && -f $source/manifest.yml ]] || return 0
+  mkdir -p "$extension"
+  ln -sfn "$source/gh-stack" "$extension/gh-stack"
+  sed "s#^path: .*#path: $extension/gh-stack#" "$source/manifest.yml" >"$extension/manifest.yml"
+}
+
 link_auth() {
   "$script_dir/link-codex-auth.sh"
   "$script_dir/link-opencode-auth.sh"
 }
 
 cmd_create() {
+  if agentdev_standalone; then
+    register_user_tools
+  fi
   link_claude_json
   install_cbm
   ensure_auth_dirs

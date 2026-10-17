@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Readiness probes for the standalone runtime's services, and the aggregate
 # readiness the image HEALTHCHECK reads. Exit 0 means ready.
-# Usage: runtime-health.sh docker|dbus|keyring|cbm|xpra|opencode|ready
+# Usage: runtime-health.sh dockerd|dbus|keyring|cbm|xpra|opencode|ready
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 service="${1:-}"
@@ -20,7 +20,7 @@ case "$service" in
 esac
 
 case "$service" in
-  docker) timeout 10 docker info >/dev/null 2>&1 ;;
+  dockerd) timeout 10 docker info >/dev/null 2>&1 ;;
   dbus)
     timeout 5 gdbus call --session --dest org.freedesktop.DBus \
       --object-path /org/freedesktop/DBus --method org.freedesktop.DBus.GetId >/dev/null 2>&1
@@ -33,7 +33,7 @@ case "$service" in
   opencode) "$script_dir/opencode-web-command.sh" probe ;;
   ready) [[ -f ${AGENTDEV_RUN_DIR:-/run/agentdev}/ready ]] ;;
   *)
-    echo "usage: $(basename "$0") docker|dbus|keyring|cbm|xpra|opencode|ready" >&2
+    echo "usage: $(basename "$0") dockerd|dbus|keyring|cbm|xpra|opencode|ready" >&2
     exit 2
     ;;
 esac

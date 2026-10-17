@@ -344,3 +344,10 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
     priorities = sorted(STOP_ORDER, key=lambda n: -int(programs[n]['priority']))
     assert priorities == STOP_ORDER
     assert parser['eventlistener:controller']['priority'] == '999'
+
+
+def test_every_supervised_service_has_a_real_probe():
+    health = (REPO_ROOT / '.devcontainer/scripts/runtime-health.sh').read_text()
+    probes = health.split('case "$service" in', 2)[2]
+    for name in STOP_ORDER:
+        assert f'\n  {name})' in probes or f'\n  {name} |' in probes, name
