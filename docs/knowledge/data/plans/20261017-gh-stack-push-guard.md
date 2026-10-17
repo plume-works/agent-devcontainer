@@ -203,13 +203,20 @@ overwrites it.
 `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`,
 `.agents/plugins/agentdev/skills/update-branch/SKILL.md`
 
-- [ ] Each caller names the gh-stack skill's publish workflow, or `begin` before
+- [x] Each caller names the gh-stack skill's publish workflow, or `begin` before
   its stack edit, where it now names `gh stack push` or `gh stack sync`.
   pr-merge-stack's partial-merge recovery uses the post-merge refresh.
   update-branch's Workflow 0 and its result table direct to that refresh.
-- [ ] `grep -rn "gh stack push\|gh stack sync\|gh stack submit" .agents/plugins/agentdev/skills --include=SKILL.md`
+  - **Evidence:** commit
+    `feat(skills): route stack callers through the gh-stack guard`. It touches
+    pr-open, pr-merge, pr-feedback-resolution, pr-merge-stack, and
+    update-branch. `validate_agent_files` reports 62/62 valid, and the plugin
+    suite passed 153 tests.
+- [x] `grep -rn "gh stack push\|gh stack sync\|gh stack submit" .agents/plugins/agentdev/skills --include=SKILL.md`
   matches only the gh-stack skill's own non-interactive guidance and its
   statements about what the guard runs.
+  - **Evidence:** same commit. The grep matches only lines in
+    `skills/gh-stack/SKILL.md`.
 
 ### Task 4: Force-push exception names the guard
 
