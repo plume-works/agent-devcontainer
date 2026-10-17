@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: On Coder workspaces, the agent-start script runs the OpenCode web UI in the background, reachable from a dashboard app and a printed link into the workspace folder, with provider logins shared across worktrees and session chats kept per worktree across rebuilds.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T03:00:00Z
+  at: 2026-10-17T12:00:00Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/link-codex-auth.sh

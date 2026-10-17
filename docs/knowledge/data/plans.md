@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T21:49:04Z
+  by: claude-code/opus-5.5
+  at: 2026-10-17T12:00:00Z
 ---
 
 # 🗺️ Plans
@@ -16,9 +16,6 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
-
-[Autostart the OpenCode web UI on
-Coder](plans/20261016-opencode-web-coder-autostart.md)
 
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
@@ -33,6 +30,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Autostart the OpenCode web UI on
+Coder](plans/20261016-opencode-web-coder-autostart.md)
 
 [Declare release impact when a plan is
 written](plans/20261016-release-impact-at-plan-time.md)

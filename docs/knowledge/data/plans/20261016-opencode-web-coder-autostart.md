@@ -1,12 +1,14 @@
 ---
 type: plan
 created: 2026-10-16
+stage: done
+completed: 2026-10-17
 release:
 - features/opencode-web-coder-autostart
 description: Start the OpenCode web UI from the Coder agent-start script, bound to localhost unless a server password is set, with OpenCode logins on the shared auth volume, its data directory on a per-worktree volume, a printed link that opens the workspace folder, and a Coder dashboard app that opens the web UI.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T03:00:00Z
+  at: 2026-10-17T12:00:00Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh

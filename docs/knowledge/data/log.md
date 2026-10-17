@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-17
 
+- **Update**: [Autostart the OpenCode web UI on
+  Coder](plans/20261016-opencode-web-coder-autostart.md) done; [OpenCode
+  web](spec/opencode-web.md) spec added, [Catalog
+  lifecycle](spec/catalog-lifecycle.md) shares OpenCode credentials, and [Coder
+  IDE baseline template](spec/coder-ide-baseline.md) offers the OpenCode app;
+  [OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)
+  implemented.
 - **Update**: [Devcontainer scaffolding](codebase/devcontainer.md), [lifecycle
   scripts](codebase/devcontainer/scripts.md), and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs refreshed for the
