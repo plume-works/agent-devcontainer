@@ -50,34 +50,10 @@ for mount_point in "$workspace/.cache" /uv; do
     fi
 done
 
-# Symlink ~/.claude.json into the volume BEFORE cbm-install so it folds its MCP
-# entry back in (only happens when the path is already a symlink). Discard the
-# image's real file; seed {} if fresh. Spec: catalog-lifecycle.
-if [[ -f /root/.claude.json && ! -L /root/.claude.json ]]; then
-    rm -f /root/.claude.json
-fi
-if [[ ! -e /root/.claude/claude.json ]]; then
-    echo '{}' >/root/.claude/claude.json
-fi
-ln -sf /root/.claude/claude.json /root/.claude.json
-
-# Wire the codebase-memory-mcp binary staged by dev_tools into this user's
-# agent config now that the real ~/.claude and ~/.codex volumes are mounted.
-# Non-fatal: a failure here would also skip postStart (firewall, keyring, Xpra).
-"$script_dir/codebase-memory-mcp-install.sh" ||
-    echo "WARNING: codebase-memory-mcp install failed (exit $?); continuing without it." >&2
-
-# Every agent's credential setup below needs its subdirectory of the shared
-# agentdev-agents-auth volume to exist first.
-mkdir -p /root/.agents-auth/claude /root/.agents-auth/codex /root/.agents-auth/opencode
-chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex /root/.agents-auth/opencode
-"$script_dir/preapprove-claude-workspace.sh"
-
-# See link-codex-auth.sh for why Codex's auth.json needs the same file-in-a-shared-
-# volume-plus-symlink treatment, and why this also has to run again from
-# postStartCommand.sh.
-"$script_dir/link-codex-auth.sh"
-"$script_dir/link-opencode-auth.sh"
+# Now that the real ~/.claude and ~/.codex volumes are mounted: link ~/.claude.json,
+# wire CBM into agent config, create the shared auth directories, pre-approve
+# Claude, and link the Codex and OpenCode credentials.
+"$script_dir/setup-agent-state.sh" create
 
 # Sync the project environment on the /uv volume so that extension settings are
 # valid when the container is rebuilt. This is a no-op if the environment is
@@ -91,9 +67,7 @@ chmod 700 /root/.agents-auth/claude /root/.agents-auth/codex /root/.agents-auth/
 # Claude, so it applies to every workspace opened in this container;
 # postAttachCommand re-registers this checkout on top when there is one.
 if [[ -n "${AGENTDEV_CATALOG_DIR:-}" && -d "$AGENTDEV_CATALOG_DIR" ]]; then
-    "$script_dir/reinstall-agentdev-codex.sh" "$AGENTDEV_CATALOG_DIR"
-    "$script_dir/reinstall-agentdev-claude.sh" "$AGENTDEV_CATALOG_DIR" user
-    "$script_dir/reinstall-agentdev-opencode.sh" "$AGENTDEV_CATALOG_DIR"
+    "$script_dir/setup-agent-state.sh" catalog "$AGENTDEV_CATALOG_DIR" user
 else
     echo "No catalog staged in the image; skipping the image-scoped plugin install."
 fi

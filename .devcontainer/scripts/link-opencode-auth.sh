@@ -5,9 +5,13 @@ set -euo pipefail
 # rewrites it in place, so the link survives login, logout, and refresh.
 # See architecture/agent-auth-persistence.
 
-opencode_auth_dir="${AGENTDEV_AGENTS_AUTH_DIR:-/root/.agents-auth}/opencode"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=runtime-paths.sh
+source "$script_dir/runtime-paths.sh"
+
+opencode_auth_dir="$agentdev_auth_dir/opencode"
 opencode_auth_target="$opencode_auth_dir/auth.json"
-opencode_auth_local="${XDG_DATA_HOME:-$HOME/.local/share}/opencode/auth.json"
+opencode_auth_local="$agentdev_opencode_data/auth.json"
 
 mkdir -p "$opencode_auth_dir" "$(dirname "$opencode_auth_local")"
 chmod 700 "$opencode_auth_dir"

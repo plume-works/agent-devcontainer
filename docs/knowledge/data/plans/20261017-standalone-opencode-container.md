@@ -148,18 +148,35 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `.devcontainer/scripts/codebase-memory-mcp-install.sh`,
 `.devcontainer/scripts/setup-gh-credential-helper.sh`
 
-- [ ] Test explicit runtime HOME/CODEX_HOME/XDG/auth roots alongside unchanged
+- [x] Test explicit runtime HOME/CODEX_HOME/XDG/auth roots alongside unchanged
   root devcontainer defaults, fresh/existing volumes, regular-file credential
   migration, symlink repair, and preservation of unrelated user configuration.
-- [ ] Extract agent-state initialization, including `.claude.json` linking
+  - **Evidence:** commit "feat(runtime): share identity-aware agent-state
+    primitives": `scripts/tests/test_agent_runtime_state.py` covers the `/root`
+    defaults, fresh and populated roots, `0600` migration, destroyed/wrong-link
+    repair, and untouched `config.toml`/session files; 11 passed.
+- [x] Extract agent-state initialization, including `.claude.json` linking
   before CBM config installation, auth directories, Codex policy, and catalog
   registration. Let both hooks and standalone preparation call the same
   primitives; keep devcontainer scope, call order, opt-outs, and nonfatal/fatal
   behavior compatible. Standalone required operations fail explicitly.
-- [ ] Parameterize GitHub helper setup's runtime environment-file location,
+  - **Evidence:** commit "feat(runtime): share identity-aware agent-state
+    primitives": `setup-agent-state.sh create|links|codex-policy|catalog` over
+    `runtime-paths.sh`; both hooks call it in their former order. Stub tests
+    show `.claude.json` is linked before the CBM install, the devcontainer
+    tolerates a failed CBM install while standalone stops, and only Claude gets
+    the scope. The plan regression list plus the new file gave 65 passed;
+    `shellcheck` clean.
+- [x] Parameterize GitHub helper setup's runtime environment-file location,
   preserve an existing matching helper, and configure injected-token HTTPS
   access for clone and later Git operations without persisting tokens or
   exposing them in logs. Include private-clone ordering in the tests.
+  - **Evidence:** commit "feat(runtime): share identity-aware agent-state
+    primitives": `AGENTDEV_KEYRING_ENV_FILE` selects the keyring file;
+    `test_injected_token_authenticates_https_before_any_checkout_exists`
+    configures the helper from an empty directory, `git credential fill` returns
+    the injected `GITHUB_TOKEN`, and no file or output contains it. The existing
+    `test_keeps_existing_helper` still passes.
 
 ### Task 3: Share keyring setup with supervised service execution
 
