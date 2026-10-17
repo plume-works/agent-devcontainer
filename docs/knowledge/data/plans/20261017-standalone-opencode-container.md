@@ -215,18 +215,38 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 **Files:** Create: `.devcontainer/scripts/runtime-bootstrap.sh`,
 `scripts/tests/test_agent_runtime_identity.py`
 
-- [ ] Test default and custom numeric IDs, invalid IDs, existing account/group
+- [x] Test default and custom numeric IDs, invalid IDs, existing account/group
   collisions, passwordless sudo, writable instance mounts, shared-auth ownership
   mismatch, and concurrent initialization of an empty auth volume.
-- [ ] Create or safely reuse the runtime account and supplementary Docker group;
+  - **Evidence:** commit "feat(runtime): bootstrap the runtime identity and
+    instance storage": `scripts/tests/test_agent_runtime_identity.py` runs the
+    bootstrap in throwaway containers on named volumes. It covers 1000:1000 and
+    2345:3456, five invalid IDs, the UID-collision rejection and group reuse,
+    `sudo -n`, a UID-1001 auth volume rejected by UID 1000, and three concurrent
+    starts with exactly one initializer. 15 passed.
+- [x] Create or safely reuse the runtime account and supplementary Docker group;
   set home/runtime directories and narrowly scoped passwordless sudo. Initialize
   ownership only on managed instance storage and an empty locked credential
   volume. Reject incompatible populated state instead of recursively rewriting
   ownership. Never alter bind-checkout ownership or its ancestors.
-- [ ] Keep PID/socket/runtime state ephemeral, secrets out of startup output,
+  - **Evidence:** commit "feat(runtime): bootstrap the runtime identity and
+    instance storage": `.devcontainer/scripts/runtime-bootstrap.sh` adds the
+    account to `docker` and validates a per-user `sudoers.d` entry with
+    `visudo`. It chowns only an empty mount root and initializes the auth volume
+    under `flock` on its directory.
+    `test_rejects_an_unwritable_checkout_without_changing_ownership` shows the
+    bind checkout, its parent, and its file keep their owner and mode.
+    `shellcheck` clean.
+- [x] Keep PID/socket/runtime state ephemeral, secrets out of startup output,
   and clear errors for missing/wrong mounts, unwritable checkout, and
   incompatible UID/GID. A container restart does not rerun account migration on
   another instance's shared state.
+  - **Evidence:** commit "feat(runtime): bootstrap the runtime identity and
+    instance storage": every case asserts the injected password and token never
+    appear in output. `test_requires_persistent_mounts` names the missing home
+    volume. `test_restart_rewrites_nothing_and_resets_runtime_state` shows a
+    second bootstrap reuses the account, leaves the auth and home ctime
+    unchanged, and clears a stale file from `/run/user/<uid>`.
 
 ### Task 5: Prepare exactly one workspace without destructive updates
 
