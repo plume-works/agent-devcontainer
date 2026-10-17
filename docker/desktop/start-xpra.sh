@@ -67,6 +67,24 @@ ensure_display_lock_is_clear() {
   fi
 }
 
+# Xpra starts its X server in a separate session, so killing a crashed Xpra leaves
+# that server holding the display. With no live session on the display, a lock
+# held by Xpra's own X server can only be such a leftover.
+reclaim_orphaned_display() {
+  local number lock_pid
+  number="$(display_number)"
+  lock_pid="$(tr -cd '0-9' < "/tmp/.X${number}-lock" 2>/dev/null || true)"
+  [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" 2>/dev/null || return 0
+  tr '\0' ' ' < "/proc/$lock_pid/cmdline" 2>/dev/null | grep -q -- "-for-Xpra-$DISPLAY " || return 0
+  echo "Stopping X server PID $lock_pid left on $DISPLAY by a previous Xpra."
+  kill -TERM "$lock_pid" 2>/dev/null || true
+  for _ in {1..50}; do
+    kill -0 "$lock_pid" 2>/dev/null || return 0
+    sleep 0.1
+  done
+  kill -KILL "$lock_pid" 2>/dev/null || true
+}
+
 xpra_session_running() {
   xpra list 2>/dev/null | grep -Fq "LIVE session at $DISPLAY"
 }
@@ -227,6 +245,9 @@ if xpra_session_running; then
   exit 0
 fi
 
+if [[ "$SUPERVISED" == "true" ]]; then
+  reclaim_orphaned_display
+fi
 ensure_display_lock_is_clear
 
 # Detect and setup rendering

@@ -351,3 +351,15 @@ def test_every_supervised_service_has_a_real_probe():
     probes = health.split('case "$service" in', 2)[2]
     for name in STOP_ORDER:
         assert f'\n  {name})' in probes or f'\n  {name} |' in probes, name
+
+
+def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
+    box = make()
+    box.set('xpra', 'mode', 'with-child')
+    box.start()
+    box.wait_for(box.ready)
+    orphan = int((box.state / 'xpra.child').read_text())
+    box.set('xpra', 'crash')
+    box.wait_for(lambda: started(box.events()).count('xpra') == 2 and box.ready())
+    with pytest.raises(ProcessLookupError):
+        os.kill(orphan, 0)

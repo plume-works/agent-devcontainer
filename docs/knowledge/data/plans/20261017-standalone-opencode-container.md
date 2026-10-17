@@ -373,11 +373,19 @@ cleanup. Tests may shorten these values. Expose configuration through documented
     port listens, the image survives a `SIGKILL` restart and a fresh container
     on the same volume, and the containerd store sits under
     `/var/lib/docker/containerd/daemon`. 6 passed.
-- [ ] Run the shared unused-image prune once the engine is ready and retain its
+- [x] Run the shared unused-image prune once the engine is ready and retain its
   nonfatal behavior and 72-hour policy; retain 10 GB BuildKit GC. Exercise
   nested `hello-world`, an actual build, engine restart, and persistent image
   reuse in the container acceptance harness. Do not also invoke a Dev Containers
   feature daemon initializer.
+  - **Evidence:** commit "test(runtime): add the container acceptance harness":
+    `runtime-workspace.sh prepare` runs the unchanged nonfatal
+    `docker-image-prune.sh` first, after the controller has gated on `dockerd`.
+    The image's `daemon.json` keeps `defaultMaxUsedSpace: 10GB`.
+    `AGENTDEV_RUNTIME_TEST_IMAGE=agent-opencode:local .devcontainer/scripts/test-agent-runtime.sh`
+    gave 13 passed, 1 skipped. In it, `agent` runs `hello-world`, builds an
+    image, and finds that image again after a container restart and a
+    replacement on the same volumes. Nothing calls a feature initializer.
 
 ### Task 8: Adapt OpenCode and Xpra for foreground proxy access
 
@@ -412,10 +420,19 @@ cleanup. Tests may shorten these values. Expose configuration through documented
     serves its HTML5 page and accepts a `binary` WebSocket at `/` with no
     password, and a duplicate start exits `1`. Task 6's supervisor tests cover
     `AGENTDEV_SKIP_XPRA` and Xpra recovery. 8 passed.
-- [ ] Use authenticated OpenCode API readiness in addition to web-asset checks;
+- [x] Use authenticated OpenCode API readiness in addition to web-asset checks;
   test HTTP/WebSocket routing at the server root, password rejection, and the
   absence of host-published ports. Do not bake a Coder-specific URL, password,
   or proxy configuration into the image.
+  - **Evidence:** commit "test(runtime): add the container acceptance harness":
+    the `opencode` probe is `opencode-web-command.sh probe`, the authenticated
+    `/global/health`. In
+    `test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports`, a
+    separate proxy container forwards to the runtime. `docker port` is empty;
+    health is 401 without the password and 200 with it, at the shipped version.
+    The root page and its JS asset return 200, a PTY WebSocket gets 101 (401
+    unauthenticated), and Xpra's page and `binary` WebSocket answer. The image
+    `ENV` sets no URL, password, or proxy.
 
 ### Task 9: Preserve the opt-in firewall in standalone networking
 
@@ -548,14 +565,32 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 **Files:** Create: `.devcontainer/scripts/test-agent-runtime.sh`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] Build a bounded acceptance harness against `AGENTDEV_RUNTIME_TEST_IMAGE`
+- [x] Build a bounded acceptance harness against `AGENTDEV_RUNTIME_TEST_IMAGE`
   using isolated Compose project names, volumes, proxy fixture, temporary
   repositories and cleanup traps. Keep artifacts under repo-root `.tmp/` and do
   not spend provider/model usage for ordinary acceptance tests.
-- [ ] Cover fresh bind and clone starts; non-Python and uv/pre-commit projects;
+  - **Evidence:** commit "test(runtime): add the container acceptance harness":
+    `.devcontainer/scripts/test-agent-runtime.sh` requires the image variable
+    and runs under `timeout`. Its `EXIT` trap removes every container, volume,
+    and network labelled `agentdev.test=acceptance`, and it fails a run where
+    every test skipped. `scripts/tests/test_agent_runtime_acceptance.py` gives
+    each container uniquely named labelled volumes and a test network. The
+    `tcp_proxy.py` fixture runs in its own container, repositories live under
+    `.tmp/`, and no test calls a model; without the variable the module skips.
+- [x] Cover fresh bind and clone starts; non-Python and uv/pre-commit projects;
   custom IDs and sudo; real CBM query; Secret Service child access; nested
   Docker build; authenticated OpenCode API/assets; Xpra HTTP/WebSocket; and
   preparation failure keeping OpenCode unavailable.
+  - **Evidence:** commit "test(runtime): add the container acceptance harness".
+    The local run (13 passed) covers:
+    - a bind start that skips uv and pre-commit, and a `file://` clone that
+      creates `/uv/venvs/project` and a pre-commit hook;
+    - `2345:3456` with `sudo -n` and owned files, and a CBM `search_graph` hit
+      for `answer`;
+    - a secret stored by an OpenCode PTY child and read by `docker exec`, and a
+      nested build;
+    - the proxy checks above;
+    - an unreachable clone URL exiting `1` before `opencode` starts.
 - [ ] Cover restart, replacement, an actual older/newer image upgrade with
   persistent user config, shared provider-auth files with isolated sessions, two
   concurrent containers, UID mismatch rejection, unavailable worktree metadata,

@@ -258,3 +258,35 @@ def test_supervised_xpra_refuses_to_duplicate_a_live_session(xpra):
     assert duplicate.returncode == 1
     assert 'already live' in duplicate.stdout
     assert request(port, '/', auth=None)[0] == 200
+
+
+def test_supervised_xpra_reclaims_the_display_after_a_crash(scratch: Path):
+    if shutil.which('xpra') is None:
+        pytest.skip('requires xpra')
+    port, display = free_port(), f':{700 + os.getpid() % 200}'
+    env = {
+        'PATH': os.environ['PATH'],
+        'HOME': str(scratch / 'home'),
+        'XPRA_HOST': '127.0.0.1',
+        'XDG_RUNTIME_DIR': str(scratch / 'run'),
+    }
+    (scratch / 'run').mkdir(mode=0o700)
+    command = [START_XPRA, '--supervised', '--port', str(port), '--display', display]
+    crashed = subprocess.Popen(
+        command, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
+    replacement = None
+    try:
+        assert wait_for(lambda: request(port, '/', auth=None)[0] == 200, 90)
+        crashed.kill()
+        crashed.wait(timeout=30)
+        replacement = subprocess.Popen(
+            command, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+        assert wait_for(lambda: request(port, '/', auth=None)[0] == 200, 90)
+        assert replacement.poll() is None
+    finally:
+        for process in (crashed, replacement):
+            if process is not None and process.poll() is None:
+                process.terminate()
+                process.wait(timeout=30)

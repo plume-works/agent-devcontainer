@@ -123,6 +123,8 @@ class Controller:
         self.services = [s for s in SERVICES if not (s.name == 'xpra' and settings.skip_xpra)]
         self.enabled = {s.name for s in self.services}
         self.health = {s.name: Health() for s in self.services}
+        # Each program leads its own process group, so its first pid is the group id.
+        self.groups: dict[str, int] = {}
 
     # --- supervisord access -------------------------------------------------------------
     def state(self, name: str) -> dict:
@@ -141,6 +143,20 @@ class Controller:
         except xmlrpc.client.Fault as fault:
             if fault.faultCode != SUPERVISOR_FAULT_NOT_RUNNING:
                 raise
+
+    def restart(self, name: str) -> None:
+        """Stop a service and anything left of its process group, then start it again."""
+        self.stop(name)
+        group = self.groups.pop(name, 0)
+        if group:
+            # supervisord signals a group only on an orderly stop; a crashed service
+            # can leave children, such as Xpra's X server, holding its resources.
+            try:
+                os.killpg(group, signal.SIGKILL)
+                log(f'{name}: killed processes left in group {group}')
+            except ProcessLookupError:
+                pass
+        self.start(name)
 
     def shutting_down(self) -> bool:
         return self.rpc.supervisor.getState()['statename'] in {'SHUTDOWN', 'RESTARTING'}
@@ -176,8 +192,10 @@ class Controller:
             if info['statename'] in DONE_STATES:
                 log(f'{name}: exited during startup ({info["statename"]})')
                 return False
-            if info['statename'] in RUNNING_STATES and self.probe(name):
-                return True
+            if info['statename'] in RUNNING_STATES:
+                self.groups[name] = info['pid']
+                if self.probe(name):
+                    return True
             self.pause(min(self.settings.interval, 0.5))
         log(f'{name}: not ready within {self.settings.start_timeout:g}s')
         return False
@@ -227,8 +245,7 @@ class Controller:
                 f'in {delay:g}s'
             )
             time.sleep(delay)
-            self.stop(name)
-            self.start(name)
+            self.restart(name)
             if self.wait_ready(name):
                 break
         health.probe_failures = 0
@@ -244,8 +261,7 @@ class Controller:
             if client not in self.enabled:
                 continue
             log(f'{client}: reconnecting after {name} recovered')
-            self.stop(client)
-            self.start(client)
+            self.restart(client)
             if not self.wait_ready(client):
                 self.restart_until_ready(client)
             self.health[client].healthy_since = time.monotonic()
