@@ -289,11 +289,20 @@ Modify: `docs/knowledge/data/architecture.md`,
 
 **Files:** none (evidence only)
 
-- [ ] On a scratch repository, a two-layer stack runs each case from Task 1's
+- [x] On a scratch repository, a two-layer stack runs each case from Task 1's
   table through the gh-stack skill's workflows with the real `gh stack`. No case
   loses a remote commit, and the run's PR timelines show no
   `head_ref_force_pushed` that drops a commit. Branches and PRs are cleaned up
   afterwards.
+  - **Evidence:** `plume-works/agent-scratch` stack PRs #11/#12 and #14/#15
+    (both squash-merged at the lower layer) and the adoption PR #17, run with
+    gh-stack v0.2.1 at commit `8526825`. Every table row behaved as specified on
+    real GitHub. The exception is `PUSH_INCOMPLETE`, which is stub-defined and
+    covered by pytest only; a real hung push gave `PUSH_FAILED`, and a rerun
+    recovered. The final `p2-b` still held all peer commits R1, R2, R8, and R4.
+    The force-pushes on #12 (3) and #15 (2) were rebases, and none dropped a
+    commit. All proof PRs are closed and branches deleted; `main` keeps the
+    merged layers.
 
 ## Spec changes
 

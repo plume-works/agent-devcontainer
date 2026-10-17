@@ -54,6 +54,12 @@ byte-for-byte under `references/upstream/` with their MIT `LICENSE`; `SKILL.md`
 overrides any push or sync they mention. A re-vendor replaces only
 `references/upstream/`.
 
+The record is one file per checkout, not per stack. A `begin` for one stack
+replaces another stack's record, so that stack's next `publish` falls back to
+the patch test. Where Git does not already ignore `.tmp/`, the guard adds it to
+`.git/info/exclude`, since `gh stack rebase` refuses a worktree with untracked
+files.
+
 The time between `publish`'s check and gh-stack's own fetch is not covered. The
 check after the push detects an overwrite in that window but cannot prevent it.
 
