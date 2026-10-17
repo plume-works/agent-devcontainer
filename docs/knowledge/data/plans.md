@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T12:00:00Z
+  by: opencode/openai-gpt-6.1-sol
+  at: 2026-10-17T05:34:21Z
 ---
 
 # 🗺️ Plans
@@ -16,6 +16,9 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
+
+[Ship a standalone OpenCode
+container](plans/20261017-standalone-opencode-container.md)
 
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
