@@ -15,9 +15,9 @@ sources:
 
 ## Purpose
 
-The image installs JavaScript tools with bun, but two pre-commit hooks still
-built npm environments, and the repository's instructions did not rule the
-npm-family commands out by name.
+The image installs JavaScript tools with bun only, so hooks, scripts, and
+instructions must run them through `bun`/`bunx`, never through an npm-family
+runner.
 
 ## Behaviour
 
