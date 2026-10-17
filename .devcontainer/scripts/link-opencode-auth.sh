@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Shares OpenCode's provider logins across worktrees: auth.json lives in the shared
-# agentdev-agents-auth volume and is symlinked into OpenCode's per-instance data directory.
-# OpenCode rewrites auth.json in place, so the link survives login, logout, and refresh.
+# Shares OpenCode's auth.json across worktrees via the agentdev-agents-auth volume; OpenCode
+# rewrites it in place, so the link survives login, logout, and refresh.
 # See architecture/agent-auth-persistence.
 
 opencode_auth_dir="${AGENTDEV_AGENTS_AUTH_DIR:-/root/.agents-auth}/opencode"
