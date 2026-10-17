@@ -314,12 +314,19 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 **Files:** none in this repository; a template version of
 plume-works/coder-ide-baseline pushed without being made active
 
-- [ ] A template version carrying the `coder_app` from `## Approach`, pushed
+- [x] A template version carrying the `coder_app` from `## Approach`, pushed
   without promoting it, run on one workspace of this repository: opening the app
   either loads the web UI in `/workspaces/agent-devcontainer` with its assets
   served (subdomain form holds), or does not (the plan goes back to revise mode
   for the external-app form before Task 12). The workspace returns to the active
   version afterwards.
+  - **Evidence:** live check on Coder workspace `agent-dev3`, 2026-10-17,
+    inactive template version `opencode-app-probe` (Coder v2.37.1): the app
+    registered on the `repo` sub-agent and was healthy, but the subdomain form
+    does not hold. Coder joins every request path onto the app URL's path, so
+    `/assets/index-*.js` and `/site.webmanifest` returned OpenCode's HTML page
+    rather than the asset. `agent-dev3` was then updated back to
+    `motionless_ortega54`.
 
 ### Task 12: Add the OpenCode app to the Coder template
 
