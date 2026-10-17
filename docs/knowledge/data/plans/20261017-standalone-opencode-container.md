@@ -185,15 +185,30 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `.devcontainer/scripts/setup-keyring.sh`,
 `.devcontainer/scripts/setup-gh-credential-helper.sh`
 
-- [ ] Separate reusable keyring initialization/readiness/environment logic from
+- [x] Separate reusable keyring initialization/readiness/environment logic from
   lifecycle background launching. Preserve existing saved secrets and the
   existing headless keyring storage policy; never share its database between
   instances or persist session PIDs/sockets as durable state.
-- [ ] Provide foreground D-Bus/keyring execution with a deterministic private
+  - **Evidence:** commit "feat(runtime): run D-Bus and the keyring as supervised
+    foreground services": `runtime-keyring.sh` holds the readiness,
+    non-destructive `login.keyring` creation, and wait primitives that
+    `setup-keyring.sh` now sources; the empty-password policy is unchanged.
+    `test_existing_keyring_is_never_overwritten` and
+    `test_no_session_state_is_persisted_in_home` pass.
+- [x] Provide foreground D-Bus/keyring execution with a deterministic private
   runtime socket and explicit `XDG_RUNTIME_DIR`; make the same environment
   available to OpenCode, Xpra, CLI tools, and documented `docker exec` usage.
   Verify Secret Service access from an OpenCode-style child process, recovery
   after keyring/D-Bus replacement, and old devcontainer background behavior.
+  - **Evidence:** commit "feat(runtime): run D-Bus and the keyring as supervised
+    foreground services": `runtime-keyring.sh dbus|keyring` run in the
+    foreground on `$XDG_RUNTIME_DIR/bus`, and `env` prints that fixed address
+    for the image `ENV` and `docker exec`.
+    `scripts/tests/test_agent_runtime_keyring.py` stores and reads a secret from
+    a child that has only the inherited environment. It shows the keyring exits
+    with its bus and the secret survives replacing both. The background
+    `setup-keyring.sh` still starts and reuses a session. 7 passed, plus 6 in
+    `test_setup_gh_credential_helper.py`.
 
 ### Task 4: Implement runtime identity and volume validation
 
