@@ -259,27 +259,54 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 `.devcontainer/scripts/reinstall-agentdev-codex.sh`,
 `.devcontainer/scripts/reinstall-agentdev-opencode.sh`
 
-- [ ] Support `DEV_WORKSPACE_FOLDER` default `/workspaces/project`,
+- [x] Support `DEV_WORKSPACE_FOLDER` default `/workspaces/project`,
   `AGENTDEV_REPOSITORY_URL` for first clone, and optional
   `AGENTDEV_REPOSITORY_REF` for an initial branch/tag. A valid existing checkout
   wins without network Git operations; an empty destination without a URL or a
   nonempty invalid destination fails. Validate external Git common-directory
   access for bind-mounted worktrees and document necessary extra mounts.
-- [ ] Test dirty checkout preservation, interrupted-clone retry refusal without
+  - **Evidence:** commit "feat(runtime): prepare one workspace without
+    destructive updates": `runtime-workspace.sh checkout` clones `file://` at
+    tag `v1` into the empty destination. It reuses a checkout whose remote was
+    deleted, and rejects an empty destination without a URL and a nonempty
+    non-checkout. A worktree whose main `.git` is gone fails naming the path to
+    mount. `scripts/tests/test_agent_runtime_workspace.py` 20 passed.
+- [x] Test dirty checkout preservation, interrupted-clone retry refusal without
   deletion, missing worktree metadata, GitHub token authentication, and clone
   errors without credentials in logs. Do not run `.venv` migration, Git reset,
   clean, fetch, pull, or branch switching against a reused workspace.
-- [ ] Reuse uv synchronization only for `pyproject.toml` projects, with the
+  - **Evidence:** commit "feat(runtime): prepare one workspace without
+    destructive updates": tests keep the branch, HEAD, and porcelain status of a
+    dirty checkout, with no `FETCH_HEAD`. A persistent clone marker refuses a
+    retry over partial contents without deleting them. The gh helper runs before
+    the clone, a `user:password@` URL is redacted from all output, `.venv` is
+    untouched in standalone mode, and a foreign-owned checkout is trusted once.
+- [x] Reuse uv synchronization only for `pyproject.toml` projects, with the
   existing all-groups/all-extras semantics and explicit `/uv` environment; run
   pre-commit setup only when its configuration exists. In strict standalone mode
   failures propagate instead of merely logging success. Respect an existing
   configured Git hook path and do not replace custom hooks silently; report
   conflicts. Test both present/absent configuration and failure paths.
-- [ ] Select a valid checkout agentdev catalog when its manifests/bridge exist,
+  - **Evidence:** commit "feat(runtime): prepare one workspace without
+    destructive updates": `runtime-workspace.sh project` gates `uv-sync.sh` and
+    `setup-pre-commit.sh` on their files; parametrized tests cover absent,
+    present, and failing `uv`/`pre-commit`. Standalone `setup-pre-commit.sh`
+    refuses `core.hooksPath` and a non-pre-commit `pre-push` hook, leaving it
+    intact. A pre-commit-generated hook is not a conflict, and the devcontainer
+    path still logs a failure and exits 0.
+- [x] Select a valid checkout agentdev catalog when its manifests/bridge exist,
   otherwise the image catalog. Reconcile all three clients at each container
   start, preserving unrelated config and removing stale managed registrations.
   Run configuration before CBM is started and OpenCode reads its plugins.
   Preserve default helper behavior for existing devcontainer callers.
+  - **Evidence:** commit "feat(runtime): prepare one workspace without
+    destructive updates": `runtime-workspace.sh catalog` picks the checkout only
+    when both manifests and the bridge exist.
+    `test_switching_catalogs_replaces_managed_registrations_only` runs the real
+    Claude and Codex CLIs: after a checkout-to-image switch each lists only the
+    image root, OpenCode keeps `other` and `theme` beside one bridge, and a user
+    Codex agent survives. Ordering before CBM and OpenCode is the supervisor's
+    in Task 6.
 
 ### Task 6: Supervise services and enforce readiness/recovery
 
