@@ -222,12 +222,15 @@ successful `publish` both rewrite it.
 
 **Files:** Modify: `AGENTS.md`, `docs/knowledge/data/product.md`
 
-- [ ] `AGENTS.md`'s force-push exception allows the `--force-with-lease` updates
+- [x] `AGENTS.md`'s force-push exception allows the `--force-with-lease` updates
   of GitHub stack branches made by `gh stack rebase` and by
   `stack-guard.sh publish`, only after `stack-guard.sh begin`, and points to
   `docs/knowledge/data/architecture/stacked-prs.md`. Its git-config exception
   names the gh-stack skill's setup without "vendored". `product.md`'s
   `## Authoring rules` mirror says the same.
+  - **Evidence:** commit
+    `docs: name the gh-stack guard in the force-push exception`, which changes
+    `AGENTS.md:6`, `AGENTS.md:11`, and `docs/knowledge/data/product.md:123-129`.
 
 ### Task 5: Record the decision and the gh-stack behavior
 

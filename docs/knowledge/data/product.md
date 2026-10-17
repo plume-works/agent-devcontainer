@@ -120,12 +120,13 @@ it):
   content — local git workflows only; stop and report if push auth is
   unavailable.
 - Commit at meaningful checkpoints during a task, not only at the end.
-- Never force-push, except `gh stack push`, `rebase`, and `sync` with
-  `--force-with-lease` on branches of a GitHub stack.
+- Never force-push, except `gh stack rebase` and the `gh-stack` skill's
+  `stack-guard.sh publish` (after its `begin`) with `--force-with-lease` on
+  branches of a GitHub stack; never a bare `gh stack push`, `submit`, or `sync`.
 - Never change git config (local or global) or switch/change the remote unless
   explicitly instructed; the repository-local `rerere.enabled` and
-  `remote.pushDefault` that `gh stack` and the vendored `gh-stack` skill's setup
-  write are the only exception.
+  `remote.pushDefault` that `gh stack` and the `gh-stack` skill's setup write
+  are the only exception.
 - Use `uv` for Python and `bun` for JavaScript; run through `uv run`; never
   install globally. JavaScript runs through `bun`/`bunx` everywhere — never
   `npm`, `npx`, `yarn`, or `pnpm`.
