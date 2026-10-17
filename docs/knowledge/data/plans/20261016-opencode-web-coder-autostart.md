@@ -132,7 +132,7 @@ Rejected:
 **Files:** Create: `.devcontainer/scripts/opencode-web-start.sh`,
 `scripts/tests/test_opencode_web_start.py`
 
-- [ ] Tests first, against a fake `tmux` and a fake `opencode` in the manner of
+- [x] Tests first, against a fake `tmux` and a fake `opencode` in the manner of
   `test_claude_remote_control_start.py`:
   - no password: the pane command runs
     `opencode web --port 4096 --hostname 127.0.0.1` in the workspace folder,
@@ -142,7 +142,16 @@ Rejected:
   - `OPENCODE_SERVER_PASSWORD` set but empty: `127.0.0.1`;
   - a live `opencode` session on `tmux -L opencode`: no new session, exit 0;
   - `opencode` or `tmux` missing: exit 0 with a skip message.
-- [ ] Script, shellcheck clean; the tests pass.
+  - **Evidence:** commit "feat(devcontainer): start the OpenCode web UI in a
+    reusable tmux session": `scripts/tests/test_opencode_web_start.py`; the
+    fake-tmux cases cover the bind, reuse, and skip cases, and a real-tmux case
+    shows the password reaching the pane without `DISPLAY`; all seven fail
+    before the script exists.
+- [x] Script, shellcheck clean; the tests pass.
+  - **Evidence:** commit "feat(devcontainer): start the OpenCode web UI in a
+    reusable tmux session": `opencode-web-start.sh`; `shellcheck` clean;
+    `uv run pytest scripts/tests/test_opencode_web_start.py` 7 passed, the
+    real-tmux case run.
 
 ### Task 4: Run the start script from the Coder agent start
 
