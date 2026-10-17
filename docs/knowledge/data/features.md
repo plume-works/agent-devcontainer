@@ -93,3 +93,5 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 [bun as the only JavaScript runner](features/bun-only-javascript-runner.md)
 
 [Xpra port forwarding](features/xpra-port-forwarding.md)
+
+[OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)
