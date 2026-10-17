@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:1215a6b67934a5c1c25b5421bb3ee53ed5d0733b2f0cb34550bc564b10fddc41
+source_digest: sha256:b1a385cd8a429c588ee0b46cd9a4631c113426566b12b2b985ef9df7d8ab4842
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:55:53Z
-stale_after: 2027-01-14
+  at: 2026-10-17T00:30:00Z
+stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:55:53Z
+  at: 2026-10-17T00:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -34,9 +34,9 @@ pulled.
   `dockerComposeFile:7`, `containerEnv` (`ENABLE_FIREWALL`, `DISPLAY`,
   `DEVCONTAINER_ID`, `DEV_WORKSPACE_FOLDER`, `EXPO_TOKEN`,
   `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `CBM_CACHE_DIR`, `PRE_COMMIT_HOME`,
-  `UV_*`), the Xpra `forwardPorts` and `portsAttributes` block (`:53-59`), four
-  named volume mounts (`:60-104`), the VS Code extension and settings block, and
-  the three lifecycle commands (`:255-258`)
+  `UV_*`), the Xpra `forwardPorts` and `portsAttributes` block (`:53-59`), five
+  named volume mounts (`:60-112`), the VS Code extension and settings block, and
+  the three lifecycle commands (`:262-265`)
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the pass-through
   `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
@@ -57,8 +57,9 @@ declares as external. Compose then layers the tag-only `docker-compose.yml`
 under the digest pin, mounts the workspace at `/workspaces/<basename>` and the
 git common dir at its host path so worktrees resolve, and starts the MCP gateway
 only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
-`~/.codex`, `/uv`, `.cache`) is on Compose-scoped volumes; only credentials
-share the literal `agentdev-agents-auth` volume across instances.
+`~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`) is on Compose-scoped
+volumes; only credentials share the literal `agentdev-agents-auth` volume across
+instances.
 
 ## Depends on
 
@@ -85,12 +86,12 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-16):
+Verified anchor points (line numbers as of 2026-10-17):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:53-59` — Xpra port forwarding
-- `.devcontainer/devcontainer.json:60-104` — the four volume mounts
-- `.devcontainer/devcontainer.json:254-257` — lifecycle commands
+- `.devcontainer/devcontainer.json:60-112` — the five volume mounts
+- `.devcontainer/devcontainer.json:262-265` — lifecycle commands
 - `.devcontainer/docker-compose.yml:2,53,107` — sidecar, service, volumes
 - `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
   auth volume

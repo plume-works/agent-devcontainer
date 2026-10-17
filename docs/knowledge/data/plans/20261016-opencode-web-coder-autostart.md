@@ -189,8 +189,13 @@ Rejected:
 **Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`, and
 any other `data/codebase/` doc `stale-map-docs.py` reports
 
-- [ ] Run `/agentdev:iwe-map` in refresh mode over the docs covering the changed
+- [x] Run `/agentdev:iwe-map` in refresh mode over the docs covering the changed
   scripts and `devcontainer.json`, adding rows for the two new scripts.
+  - **Evidence:** commit "map: refresh devcontainer docs for the OpenCode web UI
+    autostart": `data/codebase/devcontainer/scripts.md` gains rows for
+    `link-opencode-auth.sh` and `opencode-web-start.sh`; `devcontainer` and
+    `flow-devcontainer-lifecycle` re-digested; `stale-map-docs.py` ends
+    `RESULT=SUCCESS`.
 
 ### Task 7: Verify in a live Coder workspace
 

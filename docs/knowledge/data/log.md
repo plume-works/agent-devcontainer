@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-17
+
+- **Update**: [Devcontainer scaffolding](codebase/devcontainer.md), [lifecycle
+  scripts](codebase/devcontainer/scripts.md), and [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs refreshed for the
+  OpenCode web UI autostart on Coder.
+
 ## 2026-10-16
 
 - **Update**: [Declare release impact when a plan is
