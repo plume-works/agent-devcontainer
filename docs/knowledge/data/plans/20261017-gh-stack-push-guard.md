@@ -108,9 +108,9 @@ Rejected:
 The time between `publish`'s check and gh-stack's own fetch is not covered. The
 check after the push detects an overwrite in that window but cannot prevent it.
 
-Assumption: the state file is `./.tmp/gh-stack-guard/tips`, one per checkout, so
-each worktree that pr-merge-stack creates under `./.tmp/` has its own. A `begin`
-overwrites it.
+The state file is `./.tmp/gh-stack-guard/tips`, one per checkout, so each
+worktree that pr-merge-stack creates under `./.tmp/` has its own. `begin` and a
+successful `publish` both rewrite it.
 
 ## Implementation Steps
 
@@ -203,8 +203,8 @@ overwrites it.
 `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`,
 `.agents/plugins/agentdev/skills/update-branch/SKILL.md`
 
-- [x] Each caller names the gh-stack skill's publish workflow, or `begin` before
-  its stack edit, where it now names `gh stack push` or `gh stack sync`.
+- [x] Each caller that named `gh stack push` or `gh stack sync` names the
+  gh-stack skill's publish workflow instead, or `begin` before its stack edit.
   pr-merge-stack's partial-merge recovery uses the post-merge refresh.
   update-branch's Workflow 0 and its result table direct to that refresh.
   - **Evidence:** commit
@@ -353,6 +353,57 @@ after the push.
 - **THEN** `publish` reports the layer as not published
 ```
 
+[PR merge conflicts](../spec/pr-merge-conflicts.md). The stacked-PR route of
+conflict resolution moves to the guard. Every other scenario of the requirement
+is unchanged.
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: Feedback resolution resolves merge conflicts first
+
+The pr-feedback-resolution skill SHALL read the PR's `mergeable`,
+`mergeStateStatus`, and `baseRefName` before any feedback edit. When `mergeable`
+is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, it SHALL resolve the conflict
+before collecting feedback. A PR in a GitHub stack is resolved through the
+gh-stack skill's guarded refresh: `stack-guard.sh begin`, `gh stack rebase`,
+then `stack-guard.sh publish`. Any other PR is resolved by merging its
+`baseRefName` through `update-branch` and pushing the merge. When `mergeable` is
+`UNKNOWN`, it SHALL re-poll before deciding. A PR that is only `BEHIND` its base
+SHALL NOT be updated.
+
+#### Scenario: Conflicted PR
+
+- **WHEN** the PR's `mergeable` is `CONFLICTING` or `mergeStateStatus` is
+  `DIRTY`, and the PR belongs to no GitHub stack
+- **THEN** `update-branch` runs with `--base <baseRefName>` before any feedback
+  edit
+- **AND** the resolved merge is pushed before feedback is collected
+
+#### Scenario: PR on another branch outside a stack
+
+- **WHEN** a conflicted PR targets a branch other than `main` and belongs to no
+  GitHub stack
+- **THEN** that branch, not `main`, is merged into the PR branch
+
+#### Scenario: Stacked PR
+
+- **WHEN** a conflicted PR belongs to a GitHub stack
+- **THEN** `stack-guard.sh begin` runs, the conflict is resolved with
+  `gh stack rebase`, and the stack is published with `stack-guard.sh publish`
+- **AND** `update-branch` is not run
+
+#### Scenario: Mergeability not yet computed
+
+- **WHEN** `mergeable` is `UNKNOWN`
+- **THEN** the merge state is re-polled in bounded waits before deciding
+
+#### Scenario: Branch behind without conflicts
+
+- **WHEN** `mergeStateStatus` is `BEHIND` and the PR has no conflicts
+- **THEN** the branch is not updated and feedback collection proceeds
+```
+
 ## Verification
 
 - `uv run pytest .agents/plugins/agentdev/tests/test_gh_stack_guard.py`
@@ -371,7 +422,7 @@ after the push.
 ## Out of scope
 
 - Fixing gh-stack itself. Upstream #380, #489, and #472 stay upstream's to fix.
-  When #380 ships, this guard's `publish` check becomes redundant but harmless.
+  Once #380 ships, `publish`'s moved-tip check becomes redundant but harmless.
 - Merge commits inside a layer: `--no-merges` ignores them, and update-branch
   already keeps merges off stack branches.
 - Resolving divergence automatically. The guard stops, and the user decides.
@@ -381,40 +432,39 @@ after the push.
 
 Verified anchor points (line numbers as of 2026-10-17):
 
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:30-38` — Setup, which
-  writes the repository-local git config
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:73-83` — editing an
-  existing stack, ending in `gh stack push`
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:86-93` — core loop, ending
-  in `gh stack submit --auto`
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:100-109` — Staying in sync
-  with `gh stack sync`
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:163-166` — rebase and sync
-  conflict recovery
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:189-193` — links to
-  `references/`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:220-222` — stack branches
-  pushed with `gh stack push`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:260` — force-push rule
-  naming `gh stack push`
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:296` —
+  `run_begin`
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:307` —
+  `run_publish`
+- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-62` — § The push guard,
+  with the result table
+- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:103-159` — creating,
+  editing, and refreshing a stack through the guard
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:220-224` — stack branches
+  published with the guard's `publish`
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:262` — force-push rule
+  naming the guarded `publish`
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:78` — force-push rule
-  naming `gh stack push`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:104-105` — conflict commit
-  followed by `rebase --upstack` and `push`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:201-202` — stacked PR
-  remediation through `rebase --upstack` and `push`
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:65-66` —
-  stacked PR conflict through `rebase` and `push`
+  naming the guarded `publish`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:104-107` — formatter commit
+  followed by the guarded edit workflow
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:203-206` — stacked PR
+  remediation through `begin`, `rebase --upstack`, `publish`
+- `docs/knowledge/data/spec/pr-merge-conflicts.md:25-34` — requirement naming
+  `gh stack push` for a stacked PR
+- `docs/knowledge/data/spec/pr-merge-conflicts.md:50-55` — Stacked PR scenario
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:65-67` —
+  stacked PR conflict through the guarded refresh
 - `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:22-23` — stack
-  branches updated by rebase, sync, and push
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:57-58` — layers above
-  re-synced with `rebase --upstack` and `push`
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:84-89` — partial
-  merge recovery through `gh stack sync`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:87-88` — Workflow 0
-  directing to `gh stack sync`
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:159` — result table
-  row naming `gh stack sync`
+  branches updated by `rebase` and the guarded `publish`
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:53-62` — layers above
+  re-synced with `rebase --upstack` and `publish`
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:86-93` — partial
+  merge recovery through the guarded refresh
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:86-89` — Workflow 0
+  directing to the guarded refresh
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:160` — result table
+  row naming the guard
 - `.agents/plugins/agentdev/bin/result-codes.sh` — shared result helpers
 - `.agents/plugins/agentdev/tests/git_fixtures.py:19` — `git` fixture runner and
   `stub_gh`
