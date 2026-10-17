@@ -295,8 +295,13 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 **Files:** Modify: `docs/knowledge/data/codebase/devcontainer/scripts.md`, and
 any other `data/codebase/` doc `stale-map-docs.py` reports
 
-- [ ] Run `/agentdev:iwe-map` in refresh mode; `stale-map-docs.py` ends
+- [x] Run `/agentdev:iwe-map` in refresh mode; `stale-map-docs.py` ends
   `RESULT=SUCCESS`.
+  - **Evidence:** commit "map: refresh the lifecycle scripts doc for the
+    OpenCode workspace link": `data/codebase/devcontainer/scripts.md` describes
+    the printed link and re-anchors `opencode-web-start.sh`; `devcontainer` and
+    `flow-devcontainer-lifecycle` re-digested; `stale-map-docs.py` ends
+    `RESULT=SUCCESS`.
 
 ### Task 11: Establish whether a subdomain app keeps the path in its URL
 

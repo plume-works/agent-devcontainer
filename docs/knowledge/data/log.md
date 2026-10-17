@@ -10,6 +10,10 @@ to the current day's group.
   scripts](codebase/devcontainer/scripts.md), and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs refreshed for the
   OpenCode web UI autostart on Coder.
+- **Update**: [Lifecycle scripts](codebase/devcontainer/scripts.md) map doc
+  refreshed for the OpenCode workspace link; [devcontainer
+  scaffolding](codebase/devcontainer.md) and [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
 
 ## 2026-10-16
 
