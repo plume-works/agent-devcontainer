@@ -32,7 +32,8 @@ Subcommands:
             every layer's remote tip.
   publish   Run in place of gh stack push (or, with --submit, of
             gh stack submit --auto). Stops when a layer's remote tip moved since
-            begin, pushes, then verifies every remote tip equals its local tip.
+            begin to anything but its local tip, pushes, then verifies every
+            remote tip equals its local tip.
             Without a begin record, applies begin's remote-only test instead.
 
 Options:
@@ -203,7 +204,7 @@ report_remote_only() {
   git log --no-walk --format='  %h %s' "$@" >&2
 }
 
-# Classifies a layer as equal, absent, ahead, behind, or diverged (remote-only work).
+# rewritten: the histories split, but the remote holds no patch the local branch lacks.
 classify_layer() {
   local layer="$1" local_sha remote_sha
   remote_sha="${remote_tip[${layer}]:-}"
@@ -315,7 +316,7 @@ run_begin() {
 }
 
 run_publish() {
-  local layer recorded unrecorded=() moved=0
+  local layer recorded current unrecorded=() moved=0
   declare -A recorded_tip=()
   fetch_layers
   if [[ -f "${state_file}" ]]; then
@@ -325,9 +326,11 @@ run_publish() {
   fi
   for layer in "${layers[@]}"; do
     recorded="${recorded_tip[${layer}]:-}"
+    # A remote already at the local tip loses nothing, e.g. a layer a failed publish pushed.
+    current="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
     if [[ -z "${recorded}" ]]; then
       unrecorded+=("${layer}")
-    elif [[ "${recorded}" != "${remote_tip[${layer}]:--}" ]]; then
+    elif [[ "${recorded}" != "${remote_tip[${layer}]:--}" && "${current}" != "${remote_tip[${layer}]:-}" ]]; then
       print_error "${layer} on ${remote_name} moved since begin: ${recorded:0:7} -> ${remote_tip[${layer}]:-deleted}"
       moved=1
     fi

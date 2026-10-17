@@ -25,6 +25,7 @@ if [[ "$1 $2" == "stack push" || "$1 $2" == "stack submit" ]]; then
   [[ "${mode}" == fail ]] && exit 1
   [[ "${mode}" == noop ]] && exit 0
   mapfile -t layers < <(jq -r '.branches[] | select(.isMerged | not) | .name' "${stack}")
+  [[ "${mode}" == partial ]] && layers=("${layers[0]}")
   for b in "${layers[@]}"; do
     git fetch -q origin "+refs/heads/${b}:refs/remotes/origin/${b}" 2>/dev/null || true
   done
@@ -35,6 +36,7 @@ if [[ "$1 $2" == "stack push" || "$1 $2" == "stack submit" ]]; then
   done
   for b in "${layers[@]}"; do args+=("refs/heads/${b}:refs/heads/${b}"); done
   git push -q origin "${args[@]}"
+  [[ "${mode}" == partial ]] && exit 1
   exit 0
 fi
 echo "unexpected gh call: $*" >&2
@@ -135,7 +137,7 @@ class Stack:
         return git(self.remote, 'log', '--format=%s', f'refs/heads/{branch}').splitlines()
 
     def set_push_mode(self, mode: str) -> None:
-        """Make the stub push really push, fail, or exit 0 without pushing."""
+        """Set the stub push to real, fail, noop, or partial (push the lowest layer, then fail)."""
         (self.stub / 'push-mode').write_text(mode)
 
     def pushes(self) -> list[str]:
@@ -315,6 +317,24 @@ def test_publish_reports_a_failed_push(plugin_root: Path, stack: Stack) -> None:
     completed, _ = guard(plugin_root, stack, 'publish')
 
     assert outcome(completed) == (5, 'RESULT=PUSH_FAILED')
+
+
+def test_publish_rerun_after_a_partial_push_completes(plugin_root: Path, stack: Stack) -> None:
+    """A layer the failed publish already pushed is not mistaken for a foreign move."""
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    git(stack.work, 'switch', '-q', 'layer-a')
+    commit_file(stack.work, 'a2.txt', 'a2\n')
+    git(stack.work, 'rebase', '-q', 'layer-a', 'layer-b')
+    stack.set_push_mode('partial')
+    assert outcome(guard(plugin_root, stack, 'publish')[0]) == (5, 'RESULT=PUSH_FAILED')
+    assert stack.remote_tip('layer-a') == git(stack.work, 'rev-parse', 'layer-a')
+    stack.set_push_mode('real')
+
+    completed, _ = guard(plugin_root, stack, 'publish')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    for layer in ('layer-a', 'layer-b'):
+        assert stack.remote_tip(layer) == git(stack.work, 'rev-parse', layer)
 
 
 def test_publish_submit_runs_gh_stack_submit(plugin_root: Path, stack: Stack) -> None:
