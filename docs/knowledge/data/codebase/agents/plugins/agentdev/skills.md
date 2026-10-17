@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:4353cd5413d2f1d292491d0634320996e939934d0b88efea8e52621d7aae1293
+source_digest: sha256:11c765c331d19dc842c3ef2cd478f5d2ddffb3335b37c55534aa48066a5960d6
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T09:45:00Z
+  at: 2026-10-17T18:00:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T09:45:00Z
+  at: 2026-10-17T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -143,7 +143,7 @@ Verified anchor points (line numbers as of 2026-10-17):
   — `classify_upstream`, which picks the `UPSTREAM_ACTION`
 - `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:55`
   — `merge_ref`, the child-process merge and its result mapping
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:306` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:307` —
   `run_begin`, the guard every stack push starts from
 - `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
