@@ -25,6 +25,7 @@ if [[ "$1 $2" == "stack push" || "$1 $2" == "stack submit" ]]; then
   [[ "${mode}" == fail ]] && exit 1
   [[ "${mode}" == noop ]] && exit 0
   mapfile -t layers < <(jq -r '.branches[] | select(.isMerged | not) | .name' "${stack}")
+  if [[ -f "${stub_dir}/before-fetch" ]]; then bash "${stub_dir}/before-fetch"; fi
   [[ "${mode}" == partial ]] && layers=("${layers[0]}")
   for b in "${layers[@]}"; do
     git fetch -q origin "+refs/heads/${b}:refs/remotes/origin/${b}" 2>/dev/null || true
@@ -128,6 +129,29 @@ class Stack:
         self.merged.add('layer-a')
         self.write_stack()
 
+    def peer_merge_trunk(self, branch: str) -> str:
+        """Advance main, then push a merge of main into `branch` from the peer clone."""
+        git(self.peer, 'fetch', '-q', 'origin')
+        git(self.peer, 'switch', '-q', 'main')
+        git(self.peer, 'reset', '-q', '--hard', 'origin/main')
+        commit_file(self.peer, 'm.txt', 'trunk\n')
+        git(self.peer, 'push', '-q', 'origin', 'main')
+        git(self.peer, 'switch', '-q', branch)
+        git(self.peer, 'reset', '-q', '--hard', f'origin/{branch}')
+        git(self.peer, 'merge', '-q', '--no-ff', '-m', 'R-merge', 'main')
+        git(self.peer, 'push', '-q', 'origin', branch)
+        return git(self.peer, 'rev-parse', 'HEAD')
+
+    def race_peer_push(self, branch: str, name: str) -> str:
+        """Commit `name` on `branch` in the peer, pushed by the stub just before its fetch."""
+        git(self.peer, 'fetch', '-q', 'origin')
+        git(self.peer, 'switch', '-q', branch)
+        git(self.peer, 'reset', '-q', '--hard', f'origin/{branch}')
+        sha = commit_file(self.peer, name, f'{name}\n')
+        hook = f'git -C {self.peer} push -q origin {sha}:refs/heads/{branch}\n'
+        (self.stub / 'before-fetch').write_text(hook)
+        return sha
+
     def remote_tip(self, branch: str) -> str:
         """Read a branch tip from the bare remote."""
         return git(self.remote, 'rev-parse', f'refs/heads/{branch}')
@@ -197,6 +221,33 @@ def test_begin_stops_when_local_and_remote_each_gained_a_commit(
     assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
     assert 'R-fix' in completed.stderr
     assert git(stack.work, 'rev-parse', 'layer-b') == local_before
+
+
+def test_begin_stops_on_a_remote_only_merge_of_trunk(plugin_root: Path, stack: Stack) -> None:
+    """A merge of trunk on the remote, e.g. from GitHub's conflict editor, is remote work."""
+    merge_sha = stack.peer_merge_trunk('layer-b')
+    commit_file(stack.work, 'l.txt', 'local\n')
+
+    completed, _ = guard(plugin_root, stack, 'begin')
+
+    assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
+    assert 'R-merge' in completed.stderr
+    assert stack.remote_tip('layer-b') == merge_sha
+
+
+def test_publish_without_begin_stops_on_a_remote_only_merge_of_trunk(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """The no-record fallback refuses to overwrite a remote-only merge."""
+    merge_sha = stack.peer_merge_trunk('layer-b')
+    commit_file(stack.work, 'l.txt', 'local\n')
+
+    completed, _ = guard(plugin_root, stack, 'publish')
+
+    assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
+    assert 'R-merge' in completed.stderr
+    assert stack.pushes() == []
+    assert stack.remote_tip('layer-b') == merge_sha
 
 
 def test_begin_accepts_the_rebase_github_makes_after_a_lower_layer_merges(
@@ -335,6 +386,24 @@ def test_publish_rerun_after_a_partial_push_completes(plugin_root: Path, stack: 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     for layer in ('layer-a', 'layer-b'):
         assert stack.remote_tip(layer) == git(stack.work, 'rev-parse', layer)
+
+
+@pytest.mark.parametrize('log_ref_updates', ['true', 'false'])
+def test_publish_reports_a_peer_push_the_push_overwrote(
+    plugin_root: Path, stack: Stack, log_ref_updates: str
+) -> None:
+    """A peer push landing between publish's check and gh stack's lease is reported lost."""
+    git(stack.work, 'config', 'core.logAllRefUpdates', log_ref_updates)
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    commit_file(stack.work, 'l.txt', 'local\n')
+    lost_sha = stack.race_peer_push('layer-b', 'R-race')
+
+    completed, _ = guard(plugin_root, stack, 'publish')
+
+    assert outcome(completed) == (7, 'RESULT=REMOTE_OVERWRITTEN')
+    assert 'layer-b' in completed.stderr
+    assert 'R-race' in completed.stderr
+    assert lost_sha[:7] in completed.stderr
 
 
 def test_publish_submit_runs_gh_stack_submit(plugin_root: Path, stack: Stack) -> None:

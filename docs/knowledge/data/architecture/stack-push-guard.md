@@ -3,7 +3,7 @@ type: architecture
 description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.sh, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T09:00:00Z
+  at: 2026-10-17T18:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -28,9 +28,10 @@ two subcommands:
 
 - `begin` runs before anything rewrites the stack. It fast-forwards a layer
   whose local tip is an ancestor of its remote. It stops on a layer whose remote
-  holds a commit with no patch-equivalent locally, with the trunk excluded so
-  that GitHub's post-merge rebase is not a loss. It records every layer's remote
-  tip in `./.tmp/gh-stack-guard/tips`.
+  holds a commit with no patch-equivalent locally, or a merge commit the local
+  branch lacks, with the trunk excluded so that GitHub's post-merge rebase is
+  not a loss. It records every layer's remote tip in
+  `./.tmp/gh-stack-guard/tips`.
 - `publish` replaces `gh stack push` (and, with `--submit`,
   `gh stack submit --auto`). It stops when a recorded tip moved, pushes, then
   verifies that every remote tip equals its local tip.
@@ -60,8 +61,13 @@ the patch test. Where Git does not already ignore `.tmp/`, the guard adds it to
 `.git/info/exclude`, since `gh stack rebase` refuses a worktree with untracked
 files.
 
-The time between `publish`'s check and gh-stack's own fetch is not covered. The
-check after the push detects an overwrite in that window but cannot prevent it.
+The time between `publish`'s check and gh-stack's own fetch cannot be closed, so
+`publish` detects a loss in it instead. gh-stack's fetch records every tip it
+sees in the layer's remote-tracking reflog. A tip that is neither the checked
+one nor the local one and holds remote-only work was overwritten, and `publish`
+names it as `REMOTE_OVERWRITTEN`. The guard forces `core.logAllRefUpdates` for
+its own run and the gh-stack it starts through `GIT_CONFIG_COUNT`, never through
+the repository's configuration.
 
 ## Rejected alternatives
 

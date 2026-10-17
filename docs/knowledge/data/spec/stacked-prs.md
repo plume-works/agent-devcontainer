@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T15:00:00Z
+  at: 2026-10-17T18:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -103,9 +103,10 @@ Agent skills SHALL update the remote branches of a GitHub stack only through
 or `gh stack sync`. `stack-guard.sh begin` SHALL run before a skill rewrites a
 stack layer. It SHALL fast-forward a layer that its remote is ahead of, and it
 SHALL stop when a layer's remote holds a commit whose patch the local branch
-lacks, excluding the trunk. `publish` SHALL stop when a layer's remote tip moved
-since `begin`, and SHALL report a remote tip that differs from its local tip
-after the push.
+lacks, or a merge commit it lacks, excluding the trunk. `publish` SHALL stop
+when a layer's remote tip moved since `begin` to anything but its local tip,
+SHALL report remote commits its push overwrote, and SHALL report a remote tip
+that differs from its local tip after the push.
 
 #### Scenario: Remote ahead
 
@@ -129,6 +130,17 @@ after the push.
 
 - **WHEN** a layer's remote tip changed between `begin` and `publish`
 - **THEN** `publish` stops before pushing and names the layer
+
+#### Scenario: Remote-only merge of the trunk
+
+- **WHEN** a layer's remote holds a merge of the trunk the local branch lacks
+- **THEN** `begin` stops and names the merge
+
+#### Scenario: Push overwrote a concurrent push
+
+- **WHEN** a layer's remote gained a commit after `publish` checked it and
+  gh-stack's push replaced it
+- **THEN** `publish` reports `REMOTE_OVERWRITTEN` and names the lost commits
 
 #### Scenario: Push left a layer behind
 

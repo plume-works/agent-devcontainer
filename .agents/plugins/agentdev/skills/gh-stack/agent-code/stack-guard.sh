@@ -12,6 +12,7 @@ RESULT_CODES+=(
   "4=REMOTE_MOVED"
   "5=PUSH_FAILED"
   "6=PUSH_INCOMPLETE"
+  "7=REMOTE_OVERWRITTEN"
 )
 
 usage() {
@@ -28,12 +29,12 @@ Usage:
 Subcommands:
   begin     Run before anything rewrites the stack. Fetches every active layer,
             fast-forwards a layer its remote is ahead of, stops on a layer whose
-            remote holds a commit the local branch has no patch for, and records
-            every layer's remote tip.
+            remote holds a commit the local branch has no patch for or a merge
+            it lacks, and records every layer's remote tip.
   publish   Run in place of gh stack push (or, with --submit, of
             gh stack submit --auto). Stops when a layer's remote tip moved since
-            begin to anything but its local tip, pushes, then verifies every
-            remote tip equals its local tip.
+            begin to anything but its local tip, pushes, reports remote work the
+            push overwrote, then verifies every remote tip equals its local tip.
             Without a begin record, applies begin's remote-only test instead.
 
 Options:
@@ -45,7 +46,8 @@ Output (key=value lines):
   RESULT, STATE_FILE
   begin also: FAST_FORWARDED=<layer> for each layer it moved; run
   gh stack rebase --upstack from the lowest of them before editing further
-  On REMOTE_ONLY_COMMITS and REMOTE_MOVED, stderr names the layer and commits
+  On REMOTE_ONLY_COMMITS, REMOTE_MOVED, and REMOTE_OVERWRITTEN, stderr names
+  the layer and commits
 
 Results (RESULT / exit code):
   SUCCESS              0  Nothing on any remote would be or was lost
@@ -56,6 +58,8 @@ Results (RESULT / exit code):
   PUSH_FAILED          5  publish: the gh stack command failed
   PUSH_INCOMPLETE      6  publish: the push exited 0 but a remote tip still
                           differs from its local tip
+  REMOTE_OVERWRITTEN   7  publish: a push that landed after the check was
+                          overwritten; stderr names the lost commits
   PREFLIGHT_ERROR      2  Bad usage, not a repo, not in a stack, detached HEAD,
                           fetch failure, or a layer that cannot be fast-forwarded
   SCRIPT_FAILURE       1  Unhandled error
@@ -187,14 +191,15 @@ fetch_layers() {
   fi
 }
 
-# Commits on the layer's remote, outside the trunk, with no patch-equivalent locally.
+# Commits on the layer's remote (or on rev $2), outside the trunk, that the local branch
+# lacks: non-merges without a local patch-equivalent, and every remote-only merge.
 remote_only_commits() {
-  local layer="$1"
+  local layer="$1" remote_rev="${2:-refs/remotes/${remote_name}/$1}"
   local trunk_ref="refs/remotes/${remote_name}/${trunk}"
-  local exclude=()
+  local exclude=() range="refs/heads/${layer}...${remote_rev}"
   git rev-parse -q --verify "${trunk_ref}" >/dev/null && exclude=("^${trunk_ref}")
-  git rev-list --right-only --cherry-pick --no-merges \
-    "refs/heads/${layer}...refs/remotes/${remote_name}/${layer}" "${exclude[@]}"
+  git rev-list --right-only --cherry-pick --no-merges "${range}" "${exclude[@]}"
+  git rev-list --right-only --merges "${range}" "${exclude[@]}"
 }
 
 report_remote_only() {
@@ -266,6 +271,47 @@ exclude_state_dir() {
   printf '.tmp/\n' >>"${exclude_file}"
 }
 
+# Reflog depth of each layer's tracking ref; gh stack's own fetch adds entries above it.
+declare -A reflog_depth=()
+
+reflog_tips() {
+  git reflog show --format=%H "refs/remotes/${remote_name}/$1" -- 2>/dev/null || true
+}
+
+mark_reflogs() {
+  local layer
+  for layer in "${layers[@]}"; do
+    reflog_depth["${layer}"]="$(reflog_tips "${layer}" | wc -l)"
+  done
+}
+
+# Stops with REMOTE_OVERWRITTEN when a tip gh stack fetched after the check held remote work.
+check_overwritten() {
+  local layer local_sha seen new_count sha lost=0
+  for layer in "${layers[@]}"; do
+    local_sha="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
+    mapfile -t seen < <(reflog_tips "${layer}")
+    new_count=$((${#seen[@]} - ${reflog_depth[${layer}]:-0}))
+    for sha in "${seen[@]:0:$((new_count > 0 ? new_count : 0))}"; do
+      [[ "${sha}" == "${checked_tip[${layer}]:-}" || "${sha}" == "${local_sha}" ]] && continue
+      mapfile -t commits < <(remote_only_commits "${layer}" "${sha}")
+      if [[ ${#commits[@]} -gt 0 ]]; then
+        print_error "The push overwrote ${layer} at ${sha:0:7}, pushed after the check."
+        report_remote_only "${layer}" "${commits[@]}"
+        lost=1
+      fi
+    done
+  done
+  [[ "${lost}" -eq 0 ]] || quit_by_code 7
+}
+
+# Forces reflogs on remote-tracking refs for this run and the gh stack it starts.
+log_ref_updates() {
+  local index="${GIT_CONFIG_COUNT:-0}"
+  export "GIT_CONFIG_KEY_${index}=core.logAllRefUpdates" "GIT_CONFIG_VALUE_${index}=true"
+  export GIT_CONFIG_COUNT=$((index + 1))
+}
+
 write_state() {
   local layer
   exclude_state_dir
@@ -318,6 +364,7 @@ run_begin() {
 run_publish() {
   local layer recorded current unrecorded=() moved=0
   declare -A recorded_tip=()
+  log_ref_updates
   fetch_layers
   if [[ -f "${state_file}" ]]; then
     while read -r layer recorded; do
@@ -340,12 +387,19 @@ run_publish() {
     check_layers 0 "${unrecorded[@]}"
   fi
 
-  local push_cmd=(gh stack push --remote "${remote_name}")
+  local push_cmd=(gh stack push --remote "${remote_name}") push_status=0
   [[ "${submit_mode}" -eq 1 ]] && push_cmd=(gh stack submit --auto --remote "${remote_name}")
-  "${push_cmd[@]}" >&2 || {
+  declare -A checked_tip=()
+  for layer in "${layers[@]}"; do
+    checked_tip["${layer}"]="${remote_tip[${layer}]:-}"
+  done
+  mark_reflogs
+  "${push_cmd[@]}" >&2 || push_status=$?
+  check_overwritten
+  if [[ "${push_status}" -ne 0 ]]; then
     print_error "${push_cmd[*]} failed."
     quit_by_code 5
-  }
+  fi
 
   fetch_layers
   local incomplete=0 local_sha published_sha
