@@ -2,7 +2,7 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:5f3507fe3a4b1100f7e6b3bc478c903818a1d4c1e8b53dc7719362bc8f2b252e
+source_digest: sha256:25ba0648c33b6ab1bcaff09407a23c86491e81ad02ceaad5c03ea9c610f001d7
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-17T09:45:00Z

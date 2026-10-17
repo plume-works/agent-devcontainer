@@ -56,7 +56,8 @@ The last stdout line is `RESULT=<NAME>`:
 | `SCRIPT_FAILURE`      | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                       |
 | `SIGNAL_*`            | `129`+ | **STOP.** Inspect `git status` before rerunning.                                                                                                                                             |
 
-`begin` records each layer's remote tip in `./.tmp/gh-stack-guard/tips`; `publish` compares
+`begin` records each layer's remote tip in `./.tmp/gh-stack-guard/tips`, adding `.tmp/` to
+`.git/info/exclude` when Git does not already ignore it; `publish` compares
 against that record and refreshes it after a verified push. Without the record, `publish` refuses
 any layer whose remote holds a patch the local branch lacks — which also refuses a layer whose
 rebase conflict you resolved, so run `begin` first.

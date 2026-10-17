@@ -110,7 +110,9 @@ check after the push detects an overwrite in that window but cannot prevent it.
 
 The state file is `./.tmp/gh-stack-guard/tips`, one per checkout, so each
 worktree that pr-merge-stack creates under `./.tmp/` has its own. `begin` and a
-successful `publish` both rewrite it.
+successful `publish` both rewrite it. Where Git does not already ignore it, the
+guard adds `.tmp/` to `.git/info/exclude`, since `gh stack rebase` refuses a
+worktree with untracked files.
 
 ## Implementation Steps
 
@@ -452,9 +454,9 @@ SHALL NOT be updated.
 
 Verified anchor points (line numbers as of 2026-10-17):
 
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:296` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:306` —
   `run_begin`
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:307` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:317` —
   `run_publish`
 - `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-62` — § The push guard,
   with the result table

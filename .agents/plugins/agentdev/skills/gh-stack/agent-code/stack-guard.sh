@@ -256,8 +256,18 @@ fast_forward() {
   printf 'FAST_FORWARDED=%s\n' "${layer}"
 }
 
+# An untracked .tmp/ would make gh stack rebase refuse the worktree as dirty.
+exclude_state_dir() {
+  local exclude_file
+  git check-ignore --quiet "${state_file}" && return 0
+  exclude_file="$(git rev-parse --path-format=absolute --git-common-dir)/info/exclude"
+  mkdir -p -- "$(dirname -- "${exclude_file}")"
+  printf '.tmp/\n' >>"${exclude_file}"
+}
+
 write_state() {
   local layer
+  exclude_state_dir
   mkdir -p "$(dirname -- "${state_file}")"
   for layer in "${layers[@]}"; do
     printf '%s %s\n' "${layer}" "${remote_tip[${layer}]:--}"

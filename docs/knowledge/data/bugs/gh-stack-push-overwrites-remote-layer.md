@@ -60,9 +60,9 @@ run.
 
 Verified anchor points (line numbers as of 2026-10-17):
 
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:296` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:306` —
   `run_begin`
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:307` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:317` —
   `run_publish`
 - `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-62` — § The push guard
 - `AGENTS.md:6` — the force-push exception naming the guard

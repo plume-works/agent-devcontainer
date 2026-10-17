@@ -350,3 +350,15 @@ def test_unguarded_stub_push_drops_the_remote_commit(stack: Stack) -> None:
     subprocess.run([str(stack.stub / 'gh'), 'stack', 'push'], cwd=stack.work, check=True, env=env)
 
     assert 'R-fix' not in stack.remote_log('layer-b')
+
+
+def test_begin_keeps_the_worktree_clean_where_tmp_is_not_ignored(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """The state file is excluded once, so gh stack rebase never sees a dirty tree."""
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    assert git(stack.work, 'status', '--porcelain') == ''
+    exclude = Path(git(stack.work, 'rev-parse', '--git-path', 'info/exclude'))
+    assert (stack.work / exclude).read_text().splitlines().count('.tmp/') == 1
