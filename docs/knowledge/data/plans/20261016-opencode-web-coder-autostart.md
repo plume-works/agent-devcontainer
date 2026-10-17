@@ -205,6 +205,16 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
   Settings appears in `/root/.agents-auth/opencode/auth.json` with
   `~/.local/share/opencode/auth.json` still a symlink; after a second rebuild
   the provider is still connected and the earlier session is listed.
+  - **Evidence:** live check on Coder workspace `agent-dev3`, template version
+    `motionless_ortega54`, OpenCode 1.19.0, 2026-10-17, checkout at commit "map:
+    refresh devcontainer docs for the OpenCode web UI autostart". After the
+    first rebuild the pane showed `Web interface: http://127.0.0.1:4096/`, the
+    server listened on `127.0.0.1:4096` only, and the UI loaded through Coder's
+    port link. An `openai` login from Settings wrote
+    `/root/.agents-auth/opencode/auth.json` at mode `600` through the unchanged
+    symlink. After the second rebuild, the sessions created before it were still
+    in `opencode.db` on the `agentdev-opencode` volume, and new chats ran on the
+    same `openai` login.
 
 ### Task 8: Verify the password-protected bind
 
