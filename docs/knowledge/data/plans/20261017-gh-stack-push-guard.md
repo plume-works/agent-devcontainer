@@ -15,6 +15,8 @@ sources:
 - resource: https://github.com/github/gh-stack/blob/v0.2.1/internal/git/gitops.go
 - resource: https://github.com/github/gh-stack/blob/v0.2.1/cmd/push.go
 - resource: https://github.com/github/gh-stack/blob/v0.2.1/cmd/sync.go
+- resource: https://github.com/github/gh-stack/blob/v0.2.1/cmd/utils.go
+- resource: https://github.com/github/gh-stack/blob/v0.2.1/cmd/rebase.go
 - resource: https://github.com/github/gh-stack/issues/380
 - resource: https://github.com/github/gh-stack/issues/489
 - resource: https://github.com/github/gh-stack/issues/472
@@ -46,10 +48,9 @@ always passes, and a stale local layer replaces newer remote commits. No manual
 local branch at the trunk tip, and the next `submit` force-pushes it over the
 real branch and closes its pull request (github/gh-stack#489).
 
-All of these were reproduced against a real GitHub stack. Five repository skills
-call `gh stack push` or `gh stack sync` directly. The vendored skill's own core
-loop and editing recipe teach the same bare push, so a gate that lives beside
-the vendored skill can still be bypassed.
+Five repository skills call `gh stack push` or `gh stack sync` directly. The
+vendored skill's own core loop and editing recipe teach the same bare push, so a
+gate that lives beside the vendored skill can still be bypassed.
 
 ## Approach
 
@@ -101,7 +102,8 @@ Rejected:
 - **One check just before the push**: once local history is rewritten, the patch
   test either stops on a resolved conflict or, compared against the pre-rebase
   tip, misses a remote commit.
-- **Waiting for upstream #380**: an unbounded wait with no fix in sight.
+- **Waiting for upstream #380**: data loss stays possible until a fixed release
+  is pinned, and nothing here controls when that is.
 
 The time between `publish`'s check and gh-stack's own fetch is not covered. The
 check after the push detects an overwrite in that window but cannot prevent it.
