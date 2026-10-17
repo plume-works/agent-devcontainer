@@ -238,16 +238,23 @@ successful `publish` both rewrite it.
 Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/architecture/stacked-prs.md`
 
-- [ ] `architecture/stack-push-guard` records the two-phase guard, the
+- [x] `architecture/stack-push-guard` records the two-phase guard, the
   repository-owned skill over upstream references, the replacement of
   `gh stack sync`, the uncovered fetch window, and every rejected alternative in
   `## Approach`. It is linked from `data/architecture.md`.
-- [ ] `architecture/stacked-prs` states its facts for v0.2.1. It records the
+  - **Evidence:** commit `docs(kb): record the stack push guard decision`.
+    `## Decision` and `## Rejected alternatives` hold all six alternatives, and
+    `iwe schema validate` passes.
+- [x] `architecture/stacked-prs` states its facts for v0.2.1. It records the
   fetch-then-lease behavior of `push`/`submit`/`sync`, `sync`'s exit `0` after a
   failed push, and `init`'s trunk-based creation of a remote-only branch. Its
   Policy points to the guard. The "Our own `gh stack` driver skill" rejection is
   replaced by a link to `architecture/stack-push-guard`. Its Tooling section
   says that a re-vendor replaces only `references/upstream/`.
+  - **Evidence:** same commit. It adds a new `## Pushing` section (#380, #472)
+    and the #489 fact in § Creating a stack, and changes Policy and Tooling to
+    link `architecture/stack-push-guard`. The v0.2.0 config fact was re-checked
+    against the v0.2.1 `ensureRerere`.
 
 ### Task 6: Feature, bug, and codebase-map docs follow
 
