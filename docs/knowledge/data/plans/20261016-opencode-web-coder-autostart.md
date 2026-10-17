@@ -350,11 +350,18 @@ plume-works/coder-ide-baseline pushed without being made active
 
 ### Task 13: Verify the OpenCode app in a live Coder workspace
 
-- [ ] On a workspace of this repository running the new template version, the
+- [x] On a workspace of this repository running the new template version, the
   dashboard's `OpenCode` app is healthy and loads the web UI with its assets
   served, and `/workspaces/agent-devcontainer` opens from its project picker; on
   a workspace of a repository whose agent-start script starts no OpenCode
   server, the app shows unhealthy.
+  - **Evidence:** live check on 2026-10-17, template version `opencode-app`. On
+    `agent-dev3` the app was healthy; through its subdomain the page, its
+    `/assets/*.js` (`text/javascript`), and `/site.webmanifest` loaded with the
+    server password, and a request without it got `401`. The maintainer opened
+    the dashboard button and opened `/workspaces/agent-devcontainer` from the
+    project picker. On `dr-qp-1` (Dr-QP/Dr.QP, no OpenCode server) the app
+    reported `unhealthy`.
 
 ## Spec changes
 
