@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Autostart the OpenCode web UI on
+Coder](plans/20261016-opencode-web-coder-autostart.md)
+
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
 
