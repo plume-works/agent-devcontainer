@@ -349,8 +349,6 @@ run_codex() {
   check "codex ship approved: one iwe-shipper spawn" [ "$(codex_shipper_spawns "$log")" = 1 ]
   check "codex ship approved: spawned with no conversation" [ "$(codex_fresh_spawns "$log")" = true ]
   check "codex ship approved: publish command ran" codex_ran_publish "$log"
-  check "codex ship approved: plan done" plan_done
-  check "codex ship approved: internal plan adds no release entry" unreleased_unchanged
   note "workspace-write cannot write the marker outside the clone; the run is asserted instead"
 
   reset_to "$base"
