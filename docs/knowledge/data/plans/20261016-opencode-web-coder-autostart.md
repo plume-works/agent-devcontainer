@@ -3,10 +3,10 @@ type: plan
 created: 2026-10-16
 release:
 - features/opencode-web-coder-autostart
-description: Start the OpenCode web UI from the Coder agent-start script, bound to localhost unless a server password is set, with OpenCode logins on the shared auth volume, its data directory on a per-worktree volume, and a link and a Coder dashboard app that open the workspace folder.
+description: Start the OpenCode web UI from the Coder agent-start script, bound to localhost unless a server password is set, with OpenCode logins on the shared auth volume, its data directory on a per-worktree volume, a printed link that opens the workspace folder, and a Coder dashboard app that opens the web UI.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T02:30:00Z
+  at: 2026-10-17T03:00:00Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -52,11 +52,14 @@ OpenCode v1.19.0 behavior this plan relies on:
   or environment variable adds an entry to it.
 - `GET /site.webmanifest` answers without the server password.
 
-Coder does not apply the `customizations.coder.apps` of `devcontainer.json` to a
-Dev Container the template declares with `coder_devcontainer`, so a dashboard
-app for the Dev Container's sub-agent is a `coder_app` in the
+Coder v2.37.1 behavior this plan relies on: Coder does not apply the
+`customizations.coder.apps` of `devcontainer.json` to a Dev Container the
+template declares with `coder_devcontainer`, so a dashboard app for the Dev
+Container's sub-agent is a `coder_app` in the
 [plume-works/coder-ide-baseline](https://github.com/plume-works/coder-ide-baseline)
-template.
+template. A subdomain `coder_app` joins every request path onto its `url`'s
+path, so an app whose `url` carries a path proxies the page's root-relative
+`/assets/…` requests below that path too.
 
 ## Approach
 
@@ -87,16 +90,12 @@ Six pieces, each following an existing pattern:
   `{{port}}` replaced by `4096`. Where `VSCODE_PROXY_URI` is unset, the base URL
   is `http://127.0.0.1:4096`.
 - **Dashboard app.** The template gains a `coder_app` named `OpenCode` on
-  `coder_devcontainer.repo[0].subagent_id`, a subdomain app whose URL is
-  `http://localhost:4096/<base64url("/workspaces/${local.repo_dir}")>/session`,
-  with a healthcheck on `http://localhost:4096/site.webmanifest`. Every
-  workspace with a repository gets it; where no OpenCode server runs, the
-  healthcheck marks it unhealthy. Whether Coder's subdomain proxy honors a path
-  in an app's `url` — sending the first request to that path while serving the
-  page's own `/assets/…` requests from the server root — is established first,
-  on an inactive template version. If it does not, the app becomes an external
-  app linking to the port URL; how the template learns the deployment's wildcard
-  domain for that URL is then decided by revising this plan.
+  `coder_devcontainer.repo[0].subagent_id`, a subdomain app whose URL is the
+  server root, `http://localhost:4096`, with a healthcheck on
+  `http://localhost:4096/site.webmanifest`. It opens the web UI's project
+  picker; the workspace folder is added there once per browser, and the printed
+  link opens it directly. Every workspace with a repository gets it; where no
+  OpenCode server runs, the healthcheck marks it unhealthy.
 
 Assumptions:
 
@@ -122,6 +121,12 @@ Rejected:
   `opencode web`.
 - **A template parameter gating the app.** Repositories without an OpenCode
   server show an unhealthy app instead.
+- **The workspace folder's path in the app's `url`.** The subdomain proxy
+  prefixes every request with it, so the page's assets return the web UI's HTML
+  and the page never loads.
+- **An external app linking to the folder through the port URL.** The template
+  would need the deployment's wildcard domain as new configuration; the
+  maintainer chose the root app over it.
 - **`/global/health` as the healthcheck.** It requires the server password once
   one is set.
 
@@ -314,12 +319,13 @@ any other `data/codebase/` doc `stale-map-docs.py` reports
 **Files:** none in this repository; a template version of
 plume-works/coder-ide-baseline pushed without being made active
 
-- [x] A template version carrying the `coder_app` from `## Approach`, pushed
-  without promoting it, run on one workspace of this repository: opening the app
-  either loads the web UI in `/workspaces/agent-devcontainer` with its assets
-  served (subdomain form holds), or does not (the plan goes back to revise mode
-  for the external-app form before Task 12). The workspace returns to the active
-  version afterwards.
+- [x] A template version carrying a subdomain `coder_app` whose `url` is
+  `http://localhost:4096/<base64url("/workspaces/${local.repo_dir}")>/session`,
+  pushed without promoting it, run on one workspace of this repository: opening
+  the app either loads the web UI in `/workspaces/agent-devcontainer` with its
+  assets served (subdomain form holds), or does not (the plan goes back to
+  revise mode before Task 12). The workspace returns to the active version
+  afterwards.
   - **Evidence:** live check on Coder workspace `agent-dev3`, 2026-10-17,
     inactive template version `opencode-app-probe` (Coder v2.37.1): the app
     registered on the `repo` sub-agent and was healthy, but the subdomain form
@@ -334,16 +340,17 @@ plume-works/coder-ide-baseline pushed without being made active
 
 - [ ] A `coder_app` `opencode`, display name `OpenCode`, counted like
   `module "vscode-web"`, on `coder_devcontainer.repo[0].subagent_id`, with
-  `subdomain = true`, `share = "owner"`, the URL and healthcheck from
-  `## Approach`, merged to that repository's `main` by pull request and
-  published as the active template version.
+  `subdomain = true`, `share = "owner"`, `url = "http://localhost:4096"`, and
+  the healthcheck from `## Approach`, merged to that repository's `main` by pull
+  request and published as the active template version.
 
 ### Task 13: Verify the OpenCode app in a live Coder workspace
 
 - [ ] On a workspace of this repository running the new template version, the
-  dashboard's `OpenCode` app is healthy and opens a session whose working
-  directory is `/workspaces/agent-devcontainer`; on a workspace of a repository
-  whose agent-start script starts no OpenCode server, the app shows unhealthy.
+  dashboard's `OpenCode` app is healthy and loads the web UI with its assets
+  served, and `/workspaces/agent-devcontainer` opens from its project picker; on
+  a workspace of a repository whose agent-start script starts no OpenCode
+  server, the app shows unhealthy.
 
 ## Spec changes
 
@@ -437,15 +444,14 @@ volume.
 
 The `coder-ide-baseline` template SHALL attach a subdomain `coder_app` named
 `OpenCode` to the Dev Container's sub-agent of every workspace with a
-repository. Its URL SHALL be
-`http://localhost:4096/<base64url("/workspaces/<repository>")>/session`, and its
+repository. Its URL SHALL be the server root, `http://localhost:4096`, and its
 healthcheck SHALL request `http://localhost:4096/site.webmanifest`.
 
 #### Scenario: the repository runs OpenCode
 
 - **WHEN** the repository's agent-start script started `opencode web`
-- **THEN** the dashboard shows a healthy `OpenCode` app that opens a session in
-  `/workspaces/<repository>`.
+- **THEN** the dashboard shows a healthy `OpenCode` app that loads the web UI,
+  from whose project picker `/workspaces/<repository>` opens.
 
 #### Scenario: the repository runs no OpenCode server
 
@@ -496,8 +502,8 @@ Verified anchor points (line numbers as of 2026-10-17):
 
 - `.devcontainer/scripts/coder-agent-start.sh:9-21` — prune, credential helper,
   OpenCode start, `exec` of Remote Control
-- `.devcontainer/scripts/opencode-web-start.sh:13` — `workspace`; `:21-24` —
-  live-session reuse; `:40` — start message
+- `.devcontainer/scripts/opencode-web-start.sh:13` — `workspace`; `:29-32` —
+  live-session reuse; `:48` — start message
 - `.devcontainer/scripts/claude-remote-control-start.sh:29` — `session`; `:37` —
   live-session check; `:43` — `tmux_start`
 - `.devcontainer/scripts/link-codex-auth.sh:19-31` — move-then-symlink of a

@@ -4,7 +4,7 @@ stage: accepted
 description: On Coder workspaces, the agent-start script runs the OpenCode web UI in the background, reachable from a dashboard app and a printed link into the workspace folder, with provider logins shared across worktrees and session chats kept per worktree across rebuilds.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T02:00:00Z
+  at: 2026-10-17T03:00:00Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/link-codex-auth.sh
@@ -37,7 +37,7 @@ password.
 
 **One click into the workspace.** The start prints a link that opens a session
 in the workspace folder, and the Coder dashboard shows an `OpenCode` app that
-opens the same place.
+opens the web UI.
 
 **Logins are shared.** `~/.local/share/opencode/auth.json` is a symlink to
 `/root/.agents-auth/opencode/auth.json` on the shared `agentdev-agents-auth`
@@ -60,7 +60,7 @@ of OpenCode's data directory across rebuilds.
   the login symlink still apply.
 - **The project sidebar starts empty.** The web UI keeps its project list in the
   browser, so the workspace folder appears there only after one "Add project"
-  per browser; the link and the app open it directly regardless.
+  per browser; the printed link opens it directly regardless.
 - **A repository without OpenCode.** The template gives every workspace the
   `OpenCode` app; where no server runs, it shows unhealthy.
 - **No provider is logged in.** The server starts anyway; the web UI's Settings
