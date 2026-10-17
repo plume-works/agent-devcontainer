@@ -101,23 +101,40 @@ cleanup. Tests may shorten these values. Expose configuration through documented
 **Files:** Create: `scripts/tests/test_agent_runtime_cbm.py`,
 `.devcontainer/scripts/runtime-cbm.sh`
 
-- [ ] Write focused tests against the shipped CBM pin for non-root cache/home
+- [x] Write focused tests against the shipped CBM pin for non-root cache/home
   ownership, a mounted Git checkout, authenticated daemon status, death
   detection, restart, and graceful shutdown. Keep test repositories and caches
   below the repo-root `.tmp/`; use an isolated user/cache/endpoint so the tests
   cannot stop the developer's daemon.
-- [ ] Implement an adapter using the supported `daemon start/status/stop`
+  - **Evidence:** commit "feat(runtime): add the non-root CBM lifecycle
+    adapter": `scripts/tests/test_agent_runtime_cbm.py` runs the v0.12.1 pin as
+    UID 54321 with its own `HOME`, `CBM_CACHE_DIR`, and `CBM_RUNTIME_DIR` under
+    `.tmp/`; `uv run pytest scripts/tests/test_agent_runtime_cbm.py` 8 passed
+    and the developer's own daemon was still running afterwards.
+- [x] Implement an adapter using the supported `daemon start/status/stop`
   interface. Track actual daemon identity and readiness, not just the
   short-lived starter process; detect generation changes and never kill a reused
   PID. Account for MCP clients auto-starting a replacement daemon. On shutdown
   close managed clients first, then stop CBM and bound any remaining process
   cleanup.
-- [ ] Verify the native client-config installation under the runtime user
+  - **Evidence:** commit "feat(runtime): add the non-root CBM lifecycle
+    adapter": `.devcontainer/scripts/runtime-cbm.sh` records PID plus kernel
+    start time and kills only a matching generation; check exit `5` reports a
+    daemon it did not start; `run` exits nonzero on death and stops the daemon
+    on SIGTERM; `stop` bounds cleanup while a client still holds the daemon.
+    `shellcheck` clean. Covered by the 8-test run above.
+- [x] Verify the native client-config installation under the runtime user
   preserves the image's exact CBM version/build, user-owned installation path,
   and canonical cache root without fetching an unpinned replacement. If the pin
   cannot satisfy lifecycle, installation, or ownership requirements, stop and
   revise this plan before depending on an unsupported internal daemon command,
   changing ownership of the mounted checkout, or upgrading CBM.
+  - **Evidence:** commit "feat(runtime): add the non-root CBM lifecycle
+    adapter": `test_install_publishes_the_exact_pinned_binary_offline` runs
+    `runtime-cbm.sh install` with no network (`unshare -n`) as UID 54321; the
+    installed `~/.local/bin` binary is byte-identical to the pin, user-owned,
+    reports v0.12.1, is the `.claude.json` MCP command, and no default cache
+    root is created.
 
 ### Task 2: Make shared auth and configuration helpers identity-aware
 
