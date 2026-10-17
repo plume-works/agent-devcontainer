@@ -119,9 +119,13 @@ Rejected:
 
 **Files:** Modify: `.devcontainer/devcontainer.json`
 
-- [ ] Add a `mounts` entry `agentdev-opencode` → `/root/.local/share/opencode`,
+- [x] Add a `mounts` entry `agentdev-opencode` → `/root/.local/share/opencode`,
   `type: volume`, after `agentdev-codex`, with a comment pointing at
   `architecture/agent-auth-persistence` and `link-opencode-auth.sh`.
+  - **Evidence:** commit "feat(devcontainer): keep OpenCode's data directory on
+    a per-worktree volume": the `agentdev-opencode` mount follows
+    `agentdev-codex`;
+    `bunx --bun json5 --validate .devcontainer/devcontainer.json` passes.
 
 ### Task 3: Start `opencode web` in a reusable tmux session
 
