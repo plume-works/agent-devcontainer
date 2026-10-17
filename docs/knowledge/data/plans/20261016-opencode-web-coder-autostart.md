@@ -158,12 +158,20 @@ Rejected:
 **Files:** Modify: `.devcontainer/scripts/coder-agent-start.sh`,
 `scripts/tests/test_coder_agent_start.py`
 
-- [ ] Tests: the call order is prune, credential helper,
+- [x] Tests: the call order is prune, credential helper,
   `opencode-web-start.sh`, Remote Control; a failing `opencode-web-start.sh`
   warns on stderr and Remote Control still starts; the OpenCode start sees the
   caller's environment.
-- [ ] Script change; `uv run pytest scripts/tests/test_coder_agent_start.py`
+  - **Evidence:** commit "feat(devcontainer): start the OpenCode web UI from the
+    Coder agent start": `test_coder_agent_start.py` gains the
+    `opencode-web-start.sh` fake, the call-order assertion, and two new tests;
+    four fail against the previous script.
+- [x] Script change; `uv run pytest scripts/tests/test_coder_agent_start.py`
   passes.
+  - **Evidence:** commit "feat(devcontainer): start the OpenCode web UI from the
+    Coder agent start": `coder-agent-start.sh` runs `opencode-web-start.sh`
+    after the credential helper with a warn-and-continue guard; `shellcheck`
+    clean; 6 passed.
 
 ### Task 5: Record OpenCode in the auth-persistence architecture
 
