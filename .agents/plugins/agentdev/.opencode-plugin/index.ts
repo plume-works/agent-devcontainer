@@ -3,6 +3,8 @@
 import type { Hooks, PluginInput, PluginModule } from "@opencode-ai/plugin"
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import path from "node:path"
+import { registerWorkspace } from "./workspace-index.ts"
+import type { RegistrationAdapters, WorkspaceConfig } from "./workspace-index.ts"
 
 /** OpenCode permission each Claude tool name maps to. */
 export const TOOL_PERMISSIONS: Readonly<Record<string, string>> = {
@@ -32,7 +34,7 @@ type Rule = Action | Record<string, Action>
 
 // The SDK's Config type predates skills.paths and permission.skill, which the
 // 1.18 runtime accepts; this names only the keys the bridge touches.
-interface BridgeConfig {
+interface BridgeConfig extends WorkspaceConfig {
   skills?: { paths?: string[] }
   command?: Record<string, unknown>
   agent?: Record<string, unknown>
@@ -120,11 +122,21 @@ function applyCatalog(config: BridgeConfig, catalog: Catalog): void {
 }
 
 /** Build the bridge's hooks for the catalog plugin rooted at `root`. */
-export async function bridge(root: string): Promise<Hooks> {
+export async function bridge(
+  root: string,
+  input?: Pick<PluginInput, "directory" | "client">,
+  adapters: Partial<RegistrationAdapters> = {},
+): Promise<Hooks> {
   const catalog = readCatalog(root)
   const prefix = `${catalog.namespace}:`
   return {
-    config: async (config) => applyCatalog(config as BridgeConfig, catalog),
+    config: async (config) => {
+      applyCatalog(config as BridgeConfig, catalog)
+      if (input) void registerWorkspace(input.directory, config as BridgeConfig, {
+        log: message => input.client.app.log({ body: { service: "agentdev", level: "warn", message } }),
+        ...adapters,
+      })
+    },
     // Catalog text names sibling skills as /agentdev:<name>; the skill tool knows them bare.
     "tool.execute.before": async (input, output) => {
       const name = output.args?.name
@@ -137,5 +149,5 @@ export async function bridge(root: string): Promise<Hooks> {
 
 export default {
   id: "agentdev-opencode-bridge",
-  server: (_input: PluginInput) => bridge(path.resolve(import.meta.dir, "..")),
+  server: (input: PluginInput) => bridge(path.resolve(import.meta.dir, ".."), input),
 } satisfies PluginModule
