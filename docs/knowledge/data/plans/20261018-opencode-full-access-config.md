@@ -64,7 +64,7 @@ Rejected:
 **Files:** Create: `.devcontainer/scripts/configure-opencode.py`,
 `scripts/tests/test_configure_opencode.py`
 
-- [ ] Tests first, then implement an executable standard-library Python script
+- [x] Tests first, then implement an executable standard-library Python script
   that creates or patches `opencode.json`, preserves unrelated configuration,
   overwrites conflicting managed values, is byte-idempotent after the first run,
   honors `OPENCODE_CONFIG_DIR` and `XDG_CONFIG_HOME`, writes atomically at mode
@@ -82,6 +82,10 @@ Rejected:
     }
   }
   ```
+
+  - **Evidence:** 2026-10-18
+    `uv run pytest scripts/tests/test_configure_opencode.py` passed all 6 tests;
+    targeted Ruff check and format-check passed.
 
 ### Task 2: Restore the policy on every container start
 
