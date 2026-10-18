@@ -29,7 +29,8 @@ Subcommands:
   begin     Run before anything rewrites the stack. Fetches every unmerged layer,
             queued ones included, fast-forwards a layer its remote is ahead of,
             stops on a layer whose remote holds a commit the local branch has no
-            identical patch for or a merge it lacks, and records every layer's
+            identical patch for (each local commit matching one remote commit)
+            or a merge it lacks, and records every layer's
             remote tip.
   publish   Run in place of gh stack push (or, with --submit, of
             gh stack submit --auto). Stops when a layer's remote tip moved since
@@ -212,31 +213,39 @@ fetch_layers() {
   done
 }
 
-# "<patch-id> <commit>" for the non-merge commits of one side of a range.
-# --verbatim: the default patch-id ignores whitespace, so a whitespace-only fix would match.
-side_patch_ids() {
-  git log -p --no-merges --no-color --no-ext-diff --format='commit %H' "$@" |
-    git patch-id --verbatim
+# "<key> <commit>", oldest first, for the non-merge commits of one side of a range. The key
+# is the verbatim patch-id (the default ignores whitespace), or "empty" for an empty diff.
+side_patch_keys() {
+  local id sha
+  declare -A ids=()
+  while read -r id sha; do
+    ids["${sha}"]="${id}"
+  done < <(git log -p --no-merges --no-color --no-ext-diff --format='commit %H' "$@" |
+    git patch-id --verbatim)
+  while read -r sha; do
+    printf '%s %s\n' "${ids[${sha}]:-empty}" "${sha}"
+  done < <(git rev-list --reverse --no-merges "$@")
 }
 
 # Commits on the layer's remote (or on rev $2), outside the trunk, that the local branch
-# lacks: non-merges with no byte-identical local patch, and every remote-only merge.
+# lacks: each local commit matches one remote commit of the same key, oldest first, so the
+# surplus is reported; plus every remote-only merge.
 remote_only_commits() {
   local layer="$1" remote_rev="${2:-refs/remotes/${remote_name}/$1}"
   local trunk_ref="refs/remotes/${remote_name}/${trunk}"
-  local exclude=() range="refs/heads/${layer}...${remote_rev}" id sha
-  declare -A local_ids=() remote_id=()
+  local exclude=() range="refs/heads/${layer}...${remote_rev}" key sha
+  declare -A local_count=()
   git rev-parse -q --verify "${trunk_ref}" >/dev/null && exclude=("^${trunk_ref}")
-  while read -r id sha; do
-    local_ids["${id}"]=1
-  done < <(side_patch_ids --left-only "${range}" "${exclude[@]}")
-  while read -r id sha; do
-    remote_id["${sha}"]="${id}"
-  done < <(side_patch_ids --right-only "${range}" "${exclude[@]}")
-  while read -r sha; do
-    id="${remote_id[${sha}]:-}"
-    [[ -n "${id}" && -n "${local_ids[${id}]:-}" ]] || printf '%s\n' "${sha}"
-  done < <(git rev-list --right-only --no-merges "${range}" "${exclude[@]}")
+  while read -r key sha; do
+    local_count["${key}"]=$((${local_count[${key}]:-0} + 1))
+  done < <(side_patch_keys --left-only "${range}" "${exclude[@]}")
+  while read -r key sha; do
+    if [[ "${local_count[${key}]:-0}" -gt 0 ]]; then
+      local_count["${key}"]=$((local_count[${key}] - 1))
+    else
+      printf '%s\n' "${sha}"
+    fi
+  done < <(side_patch_keys --right-only "${range}" "${exclude[@]}")
   git rev-list --right-only --merges "${range}" "${exclude[@]}"
 }
 

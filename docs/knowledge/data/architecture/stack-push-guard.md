@@ -3,7 +3,7 @@ type: architecture
 description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.sh, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T22:00:00Z
+  at: 2026-10-19T09:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -100,7 +100,10 @@ accepts a queued layer that still sits at the tip publish checked.
 
 The remote-only test compares patches with `git patch-id --verbatim`. The
 default patch-id and `--cherry-pick` ignore whitespace, so a whitespace-only fix
-on the remote would count as already present.
+on the remote would count as already present. Patches are matched as multisets:
+each local commit accounts for one remote commit with the same patch-id, so a
+reapplied commit is not hidden by its original, and empty commits, which have no
+patch-id, match by count.
 
 ## Rejected alternatives
 

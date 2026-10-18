@@ -14,10 +14,9 @@ import subprocess
 from git_fixtures import FIXTURE_ENV, git, outcome
 import pytest
 
-# Links the way gh-stack v0.2.1 does: a non-force atomic push of every argument that is a
-# local branch; PR URLs and a leading stack number are not pushed. The PR API reports the
-# GitHub stack number recorded in stack-number, or null. Like the real link, it records no
-# local state: only stack checkout fills in the PRs of linked layers, and it moves HEAD.
+# Models gh-stack v0.2.1: link pushes its branch arguments without force and records no local
+# state; stack checkout records the linked PRs and moves HEAD; the PR API reports the
+# stack number in stack-number, or null.
 STUB_GH = r"""#!/usr/bin/env bash
 set -euo pipefail
 stub_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -348,6 +347,63 @@ def test_begin_stops_on_a_whitespace_only_remote_rewrite(plugin_root: Path, stac
     assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
     assert 'B2' in completed.stderr
     assert stack.remote_tip('layer-b') == remote_sha
+
+
+def github_rebase_layer_b(stack: Stack, *remote_only: list[str]) -> None:
+    """Advance main and rebase layer-b onto it from the peer, adding commits on top."""
+    git(stack.peer, 'fetch', '-q', 'origin')
+    git(stack.peer, 'switch', '-q', 'main')
+    git(stack.peer, 'reset', '-q', '--hard', 'origin/main')
+    commit_file(stack.peer, 'm.txt', 'trunk\n')
+    git(stack.peer, 'push', '-q', 'origin', 'main')
+    git(stack.peer, 'switch', '-q', 'layer-b')
+    git(stack.peer, 'reset', '-q', '--hard', 'origin/layer-b')
+    git(stack.peer, 'rebase', '-q', 'main')
+    for command in remote_only:
+        git(stack.peer, *command)
+    git(stack.peer, 'push', '-q', '--force', 'origin', 'layer-b')
+
+
+def test_begin_stops_on_a_reapplied_commit_on_a_rebased_layer(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """A reapply shares its original's patch-id; each local commit matches only once."""
+    commit_file(stack.work, 'x.txt', 'x\n')
+    git(stack.work, 'revert', '--no-edit', 'HEAD')
+    git(stack.work, 'push', '-q', 'origin', 'layer-b')
+    github_rebase_layer_b(
+        stack, ['revert', '--no-edit', 'HEAD'], ['commit', '-q', '--amend', '-m', 'Reapply X']
+    )
+
+    completed, _ = guard(plugin_root, stack, 'begin')
+
+    assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
+    assert 'Reapply X' in completed.stderr
+
+
+def test_begin_accepts_a_rebased_layer_with_an_empty_commit(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """An empty commit on both sides has no patch-id but still matches by count."""
+    git(stack.work, 'commit', '-q', '--allow-empty', '-m', 'retrigger CI')
+    git(stack.work, 'push', '-q', 'origin', 'layer-b')
+    github_rebase_layer_b(stack)
+
+    completed, _ = guard(plugin_root, stack, 'begin')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+
+
+def test_begin_stops_on_an_empty_commit_only_on_the_remote(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """An empty commit the local branch lacks is remote work like any other."""
+    github_rebase_layer_b(stack, ['commit', '-q', '--allow-empty', '-m', 'retrigger CI'])
+
+    completed, _ = guard(plugin_root, stack, 'begin')
+
+    assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
+    assert 'retrigger CI' in completed.stderr
 
 
 def test_begin_accepts_the_rebase_github_makes_after_a_lower_layer_merges(
