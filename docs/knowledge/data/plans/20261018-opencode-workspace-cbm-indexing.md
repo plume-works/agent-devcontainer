@@ -6,7 +6,7 @@ release:
 - features/opencode-workspace-cbm-indexing
 generated:
   by: opencode/gpt-6.1-sol
-  at: 2026-10-18T18:47:00Z
+  at: 2026-10-18T18:50:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -128,13 +128,18 @@ work.
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/opencode-catalog-bridge.md`,
-`docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md`;
-Create: codebase-map children only if required by the map skill.
+`docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md`, the
+catalog and test-suite map documents whose aggregate source digests include the
+changed bridge and tests; Create: codebase-map children only if required by the
+map skill.
 
-- [ ] Document workspace registration, its configuration gate, background
+- [x] Document workspace registration, its configuration gate, background
   readiness, failure diagnostics, and restart requirement in the bridge
   architecture document. Refresh the touched codebase map with current source
   digests using the map workflow. Keep the generated CBM plugin unmodified.
+  - **Evidence:** The bridge architecture and three affected map documents
+    describe the integration; `iwe schema validate` and `iwe normalize` pass;
+    `stale-map-docs.py` reports all 28 documents fresh with `RESULT=SUCCESS`.
 
 ## Spec changes
 

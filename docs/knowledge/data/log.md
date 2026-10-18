@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-18
+
+- **Update**: [OpenCode
+  bridge](codebase/agents/plugins/agentdev/opencode-plugin.md),
+  [catalog](codebase/agents/plugins/agentdev.md), and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) maps refreshed for workspace
+  registration and bounded daemon startup (`8f2c5ef`, `2aa4304`).
+
 ## 2026-10-17
 
 - **Update**: [Autostart the OpenCode web UI on

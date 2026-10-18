@@ -1,11 +1,12 @@
 ---
 type: architecture
-description: Why OpenCode loads the agentdev catalog through a dependency-free bridge plugin shipped inside the catalog, the OpenCode 1.18 host behavior that design rests on, and the alternatives rejected.
+description: The dependency-free OpenCode catalog bridge, its workspace registration boundary, host contracts, and rejected alternatives.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-04T12:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-18T18:50:00Z
 sources:
 - resource: .agents/plugins/agentdev
+- resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
 - resource: https://github.com/anomalyco/opencode/tree/0112a92/packages/plugin/src
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/skill/index.ts
 - resource: https://github.com/anomalyco/opencode/blob/0112a92/packages/opencode/src/command/index.ts
@@ -46,10 +47,41 @@ The bridge has **no runtime dependencies**. It uses type-only imports and Bun
 built-ins, because the staged catalog in the image is root-owned and read-only,
 so no `node_modules` can be installed next to it.
 
+## Workspace graph registration
+
+The bridge owns active-workspace registration with CBM alongside catalog
+loading. After applying the catalog, its config hook starts an unawaited
+best-effort attempt using OpenCode's active directory. Registration requires an
+enabled local `mcp["codebase-memory-mcp"]` entry with a nonempty command.
+Missing, disabled, or remote CBM and non-Git directories are quiet skips. The
+bridge appends arguments to the configured command and overlays its environment
+onto the inherited environment; it never rewrites MCP settings or broadens
+allowed roots. CBM's generated augmentation plugin remains separate.
+
+Git and realpath resolve the canonical worktree root. The helper follows
+project-list pagination and compares canonical exact roots; a parent repository
+does not cover another checkout, and linked worktrees remain distinct roots. An
+absent root starts or joins the daemon and submits asynchronous indexing with
+CBM's default mode and no repository snapshot persistence. Indexed projects are
+retained. In-process attempts share work per canonical root; cross-process
+requests rely on CBM's join semantics.
+
+Catalog availability does not imply graph readiness. Each subprocess is bounded
+to ten seconds and captured output to a combined 1 MiB. Daemon startup does not
+capture output because a detached daemon can retain startup pipes. Failures
+produce an `agentdev` warning through OpenCode's logging client and never reject
+config initialization. A later workspace initialization may retry; there is no
+completion polling or periodic retry in the bridge.
+
+Quit and restart OpenCode after installing a changed bridge or changing its
+configuration. Existing sessions retain the already-loaded plugin. A host must
+remain alive long enough to submit registration; short-lived debug commands can
+exit before background work runs.
+
 ## Host behavior the design rests on
 
-These hold for OpenCode 1.18.34, the version the image pins. The pin is the
-point at which to recheck them.
+These are the OpenCode v1 host contracts the bridge requires. Recheck them when
+changing the image's OpenCode pin.
 
 - **Plugin loading.** A `plugin` entry holding a directory's absolute path loads
   that directory as a plugin through its `package.json` `main`, including a
