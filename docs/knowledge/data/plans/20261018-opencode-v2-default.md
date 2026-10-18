@@ -262,7 +262,8 @@ Rejected:
 ### Task 1: Register the catalog through v2's plugin API
 
 **Files:** Modify: `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
-`.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+`.agents/plugins/agentdev/tests/opencode/bridge.test.ts`; Create:
+`.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
 
 - [x] Tests first, against a fake v2 `ctx` whose editors record calls:
   - every catalog skill is added under its bare name with its description,
@@ -291,12 +292,17 @@ Rejected:
     tests; `uv run pytest .agents/plugins/agentdev/tests` passes 175 tests;
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
     reports no errors. `index.ts` imports only types and Node built-ins.
-- [ ] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, the
+- [x] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, the
   full-access `permission` block, and a local mock model that streams tool
   calls: `tdd-red` is not offered `webfetch`, its streamed `webfetch` call is
   refused, and its `read` call runs without a prompt; with a user agent
   `tdd-red`, the user's agent gets `webfetch`; a user command `agentdev:pr-open`
   and a user skill `iwe-plan` win over the bridge's.
+  - **Evidence:**
+    `OPENCODE_BIN=<v2 opencode> bun ./.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
+    passes both scenarios against `@opencode/cli` 2.0.32: v2 answers tdd-red's
+    `webfetch` call with "Tool is not available for this request", its `read`
+    returns the file, and the user's `tdd-red` fetches the mock page.
 
 ### Task 2: Register the active workspace with CBM on v2
 
@@ -747,10 +753,11 @@ through the logging client on v1 and through the host's logger on v2.
   skill, every `agentdev:*` command, and the catalog subagents.
 - In the v2 TUI, `/agentdev:pr-gen-description for the current branch` shows
   only that text with a skill chip.
-- Task 1's mock-model host check: under the full-access policy, `tdd-red` on v2
-  is not offered `webfetch` and has a streamed `webfetch` call refused, and on
-  v1 `opencode debug agent tdd-red` lists `webfetch`, `websearch`, `task`,
-  `lsp`, and `question` as `deny` after the global `*` allow.
+- `bun ./.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
+  passes against the image's v2: under the full-access policy, `tdd-red` is not
+  offered `webfetch` and has a streamed `webfetch` call refused, and on v1
+  `opencode debug agent tdd-red` lists `webfetch`, `websearch`, `task`, `lsp`,
+  and `question` as `deny` after the global `*` allow.
 - `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
   passes against the image's v2.
 - With the patched `opencode.json`, v2 reads and writes a path outside the
