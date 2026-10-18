@@ -3,7 +3,7 @@ type: architecture
 description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.sh, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T21:00:00Z
+  at: 2026-10-18T09:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -78,6 +78,13 @@ remote-tracking reflog, and a tip that is neither the checked one nor the local
 one and holds remote-only work is reported as `REMOTE_OVERWRITTEN`. The guard
 forces `core.logAllRefUpdates` for its own run and the gh-stack it starts
 through `GIT_CONFIG_COUNT`, never through the repository's configuration.
+
+**Queued layers are guarded, never pushed.** gh-stack re-reads PR state when it
+pushes and skips only the layers still queued then. A push to a queued layer
+takes it out of the queue, so gh-stack pushes it after all. Every subcommand
+therefore covers every unmerged layer. The guard's own push leaves a layer that
+is still queued alone, since pushing would dequeue it, and the final check
+re-reads the queue so that a layer still queued is not reported unpublished.
 
 The remote-only test compares patches with `git patch-id --verbatim`. The
 default patch-id and `--cherry-pick` ignore whitespace, so a whitespace-only fix

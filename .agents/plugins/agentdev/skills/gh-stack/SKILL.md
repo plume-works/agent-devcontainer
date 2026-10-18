@@ -63,6 +63,10 @@ against that record and refreshes it after a verified push. Without the record, 
 any layer whose remote holds a patch the local branch lacks — which also refuses a layer whose
 rebase conflict you resolved, so run `begin` first.
 
+The guard covers queued layers too, because a push to a queued layer takes it out of the queue and
+`gh stack` then pushes it. A layer still queued is never pushed; stderr notes it with `NOTE:` and
+`publish` still succeeds.
+
 ## Setup
 
 The image ships the pinned `gh-stack` extension; elsewhere, install it with

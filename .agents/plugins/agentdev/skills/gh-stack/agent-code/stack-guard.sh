@@ -27,16 +27,18 @@ Usage:
   stack-guard.sh publish [--submit] [--remote <name>]
 
 Subcommands:
-  begin     Run before anything rewrites the stack. Fetches every active layer,
-            fast-forwards a layer its remote is ahead of, stops on a layer whose
-            remote holds a commit the local branch has no identical patch for or
-            a merge it lacks, and records every layer's remote tip.
+  begin     Run before anything rewrites the stack. Fetches every unmerged layer,
+            queued ones included, fast-forwards a layer its remote is ahead of,
+            stops on a layer whose remote holds a commit the local branch has no
+            identical patch for or a merge it lacks, and records every layer's
+            remote tip.
   publish   Run in place of gh stack push (or, with --submit, of
             gh stack submit --auto). Stops when a layer's remote tip moved since
             begin to anything but its local tip, pushes every changed layer in
             one atomic push leased on the tips it checked, runs the gh stack
             command, reports remote work that command overwrote, then verifies
-            every remote tip equals its local tip.
+            every remote tip equals its local tip. A layer still in the merge
+            queue is left unpushed, as gh stack leaves it, and noted on stderr.
             Without a begin record, applies begin's remote-only test instead.
 
 Options:
@@ -133,7 +135,17 @@ parse_args() {
 
 trunk=""
 layers=()
+declare -A queued=()
 state_file=""
+
+# Queued layers stay guarded: a push to one dequeues it, and gh stack then pushes it too.
+read_queued() {
+  local layer
+  queued=()
+  while read -r layer; do
+    [[ -n "${layer}" ]] && queued["${layer}"]=1
+  done < <(jq -r '.branches[] | select((.isMerged | not) and .isQueued) | .name' <<<"$1")
+}
 
 load_stack() {
   local repo_root stack_json
@@ -157,7 +169,8 @@ load_stack() {
     quit_by_code 2
   }
   trunk="$(jq -r '.trunk // empty' <<<"${stack_json}")"
-  mapfile -t layers < <(jq -r '.branches[] | select((.isMerged | not) and (.isQueued | not)) | .name' <<<"${stack_json}")
+  mapfile -t layers < <(jq -r '.branches[] | select(.isMerged | not) | .name' <<<"${stack_json}")
+  read_queued "${stack_json}"
   if [[ -z "${trunk}" ]]; then
     print_error "gh stack view --json reported no trunk."
     quit_by_code 2
@@ -341,6 +354,11 @@ push_layers() {
   for layer in "${layers[@]}"; do
     local_sha="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
     [[ -z "${local_sha}" || "${local_sha}" == "${remote_tip[${layer}]:-}" ]] && continue
+    # Pushing would take the layer out of the merge queue, which gh stack avoids too.
+    if [[ -n "${queued[${layer}]:-}" ]]; then
+      printf 'NOTE: %s is queued; leaving it unpushed.\n' "${layer}" >&2
+      continue
+    fi
     leases+=("--force-with-lease=refs/heads/${layer}:${remote_tip[${layer}]:-}")
     refspecs+=("refs/heads/${layer}:refs/heads/${layer}")
   done
@@ -451,11 +469,17 @@ run_publish() {
   fi
 
   fetch_layers
-  local incomplete=0 local_sha published_sha
+  # gh stack skips only layers still queued when it runs, so re-read the queue for the verify.
+  local incomplete=0 local_sha published_sha stack_json=""
+  stack_json="$(gh stack view --json 2>/dev/null)" || print_error "gh stack view --json failed."
+  queued=()
+  [[ -z "${stack_json}" ]] || read_queued "${stack_json}"
   for layer in "${layers[@]}"; do
     local_sha="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
     published_sha="${remote_tip[${layer}]:-}"
-    if [[ "${local_sha}" != "${published_sha}" ]]; then
+    if [[ "${local_sha}" != "${published_sha}" && -n "${queued[${layer}]:-}" ]]; then
+      printf 'NOTE: %s is queued and was not published.\n' "${layer}" >&2
+    elif [[ "${local_sha}" != "${published_sha}" ]]; then
       print_error "${layer} is not published: local ${local_sha:0:7}, ${remote_name} ${published_sha:0:7}"
       incomplete=1
     fi

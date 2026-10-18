@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T21:00:00Z
+  at: 2026-10-18T09:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -109,7 +109,8 @@ anything but its local tip. It SHALL push every changed layer itself, in one
 atomic push leased on the tips it checked, before the gh-stack command, and
 SHALL stop without pushing when that lease is rejected. It SHALL report remote
 commits the gh-stack command overwrote, and SHALL report a remote tip that
-differs from its local tip after the push.
+differs from its local tip after the push. Both subcommands SHALL cover queued
+layers, and `publish` SHALL leave a layer that is still queued unpushed.
 
 #### Scenario: Remote ahead
 
@@ -157,6 +158,17 @@ differs from its local tip after the push.
 - **WHEN** a layer's remote gained a commit after the guard's own push and
   gh-stack's push replaced it
 - **THEN** `publish` reports `REMOTE_OVERWRITTEN` and names the lost commits
+
+#### Scenario: Queued layer pushed by someone else
+
+- **WHEN** a layer was queued at `begin` and its remote moved before `publish`
+- **THEN** `publish` stops with `REMOTE_MOVED` and the remote commit stays
+
+#### Scenario: Layer still queued
+
+- **WHEN** a layer is still queued when `publish` runs
+- **THEN** `publish` leaves it unpushed, publishes the layers above it, and
+  succeeds
 
 #### Scenario: Push left a layer behind
 
