@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Make OpenCode v2 the devcontainer
+default](plans/20261018-opencode-v2-default.md)
+
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
