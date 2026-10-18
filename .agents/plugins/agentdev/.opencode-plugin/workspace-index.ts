@@ -12,7 +12,7 @@ export interface WorkspaceConfig {
 }
 
 export interface RegistrationAdapters {
-  run: (command: string[], env: NodeJS.ProcessEnv) => Promise<CommandResult>
+  run: (command: string[], env: NodeJS.ProcessEnv, options?: { captureOutput?: boolean }) => Promise<CommandResult>
   log: (message: string) => Promise<unknown>
 }
 
@@ -20,10 +20,10 @@ export interface RegistrationAdapters {
 export function runCommand(
   command: string[],
   env: NodeJS.ProcessEnv,
-  { timeoutMs = 10_000, maxBytes = 1024 * 1024 } = {},
+  { timeoutMs = 10_000, maxBytes = 1024 * 1024, captureOutput = true } = {},
 ): Promise<CommandResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command[0], command.slice(1), { env, stdio: ["ignore", "pipe", "pipe"] })
+    const child = spawn(command[0], command.slice(1), { env, stdio: ["ignore", captureOutput ? "pipe" : "ignore", captureOutput ? "pipe" : "ignore"] })
     const stdout: Buffer[] = []
     const stderr: Buffer[] = []
     let bytes = 0
@@ -31,6 +31,8 @@ export function runCommand(
     const stop = (error: Error) => {
       failure ??= error
       child.kill("SIGKILL")
+      child.stdout?.destroy()
+      child.stderr?.destroy()
     }
     const timer = setTimeout(() => stop(new Error("command timed out")), timeoutMs)
     const capture = (chunks: Buffer[]) => (chunk: Buffer) => {
@@ -38,8 +40,8 @@ export function runCommand(
       if (bytes > maxBytes) stop(new Error("command exceeded output limit"))
       else chunks.push(chunk)
     }
-    child.stdout.on("data", capture(stdout))
-    child.stderr.on("data", capture(stderr))
+    child.stdout?.on("data", capture(stdout))
+    child.stderr?.on("data", capture(stderr))
     child.on("error", error => { failure ??= error })
     child.on("close", code => {
       clearTimeout(timer)
@@ -104,7 +106,8 @@ export async function registerWorkspace(
         if (!Number.isSafeInteger(data.next_offset) || (data.next_offset as number) <= offset) throw new Error("CBM returned invalid pagination")
         offset = data.next_offset as number
       }
-      const daemon = await run([...command, "daemon", "start"], env)
+      // A detached daemon can inherit startup pipes and keep them open indefinitely.
+      const daemon = await run([...command, "daemon", "start"], env, { captureOutput: false })
       if (daemon.exitCode !== 0) throw new Error(`CBM daemon start failed: ${daemon.stderr.slice(0, 500)}`)
       response(await run([...command, "cli", "--json", "index_repository", "--repo-path", root, "--async", "true"], env))
     })()

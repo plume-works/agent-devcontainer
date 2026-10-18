@@ -6,7 +6,7 @@ release:
 - features/opencode-workspace-cbm-indexing
 generated:
   by: opencode/gpt-6.1-sol
-  at: 2026-10-18T02:00:00Z
+  at: 2026-10-18T18:47:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -104,17 +104,25 @@ work.
 
 **Files:** Create: none; Modify: this plan's `## Verification results`.
 
-- [ ] Run the installed OpenCode bridge against a small disposable Git
+- [x] Run the installed OpenCode bridge against a small disposable Git
   repository under `.tmp/`, using an isolated OpenCode config and CBM cache.
   Keep a daemon running for the test. Open a second disposable repository
   through the same host setup; poll CBM status explicitly for verification, and
   confirm both roots remain indexed. Repeat opening from a subdirectory and
   confirm no duplicate project or new indexing job. Record commands and results.
   Stop the test daemon and clean up its resources afterward.
-- [ ] Verify with the pinned OpenCode host that disabled CBM and an unavailable
+  - **Evidence:** Installed-host verification with OpenCode 1.19.3 and CBM
+    0.12.1 passed: two exact roots reached `succeeded`; reopening a subdirectory
+    preserved the original job and the two-project list. See Verification
+    results.
+- [x] Verify with the pinned OpenCode host that disabled CBM and an unavailable
   CBM executable leave skills and commands usable and produce the specified
   skip/diagnostic behavior. Record the observed config-hook timing and local MCP
   command compatibility, including the CBM JSON envelope used by the helper.
+  - **Evidence:** Pinned-host checks passed for both configurations:
+    `opencode debug skill` and `opencode debug config` retained the catalog;
+    disabled CBM emitted no registration warning, and an unavailable executable
+    emitted an `agentdev` warning. The combined Bun suite passes 40 tests.
 
 ### Task 3: Document and map the shipped integration
 
@@ -205,6 +213,35 @@ or timed-out commands with bounded resource use and OpenCode diagnostics.
   `cli --json index_repository --repo-path <root> --status true`, using the same
   isolated cache. No model invocation is needed.
 - `iwe normalize` and `iwe schema validate` pass after knowledge edits.
+
+## Verification results
+
+- **Automated checks:** The combined bridge/workspace Bun suite passes 40 tests,
+  the plugin pytest suite passes 139 tests, and catalog validation reports zero
+  errors or warnings. Regression coverage includes detached-daemon startup pipes
+  and timeout cleanup after the immediate child exits.
+- **Installed host:** OpenCode 1.19.3 (the Ansible pin) and CBM 0.12.1 passed
+  with isolated OpenCode config, HOME/XDG directories, and CBM cache under
+  repository `.tmp/`. A private mount namespace isolated CBM's account-wide
+  daemon endpoint. The installed plugin SDK was copied into the isolated config;
+  no model invocation was needed.
+- **Commands:** `opencode serve --hostname 127.0.0.1 --port <port>` kept the
+  host alive; `GET /config?directory=<root>` initialized each workspace.
+  `opencode debug skill` and `opencode debug config` verified the catalog in
+  each repository and the subdirectory. Verification explicitly polled
+  `codebase-memory-mcp cli --json index_repository --repo-path <root> --status true`
+  and checked `cli --json list_projects --format json` against both roots. Both
+  jobs reached `succeeded`; reopening preserved the original job and exactly two
+  registered projects. The test host and daemon were stopped.
+- **Timing and failures:** Workspace config responses completed in 125–199 ms
+  while registration continued in the background. Disabled CBM was a quiet skip;
+  an unavailable executable produced a registration warning through OpenCode's
+  logging client. Both retained skills and namespaced commands.
+- **CLI compatibility:** The local command array accepts appended CLI and daemon
+  arguments with the configured environment. CBM returns an MCP JSON envelope
+  with `structuredContent` and `isError`; text-content JSON is also covered by
+  tests. Detached daemon startup discards output so inherited pipes cannot keep
+  registration waiting after the startup command exits.
 
 ## Out of scope
 

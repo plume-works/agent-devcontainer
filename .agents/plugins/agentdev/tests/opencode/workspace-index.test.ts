@@ -189,6 +189,17 @@ describe("workspace registration", () => {
 })
 
 describe("bounded subprocess adapter", () => {
+  test("daemon startup does not wait for a detached daemon's inherited pipes", async () => {
+    const start = Date.now()
+    const result = await runCommand([process.execPath, "-e", 'const child = require("node:child_process").spawn(process.execPath, ["-e", "setTimeout(() => {}, 1000)"], { detached: true, stdio: "inherit" }); child.unref()'], process.env, { captureOutput: false })
+    expect(result.exitCode).toBe(0)
+    expect(Date.now() - start).toBeLessThan(800)
+  })
+
+  test("timeout also closes pipes inherited by a child of an exited process", async () => {
+    await expect(runCommand([process.execPath, "-e", 'const child = require("node:child_process").spawn(process.execPath, ["-e", "setTimeout(() => {}, 1000)"], { detached: true, stdio: "inherit" }); child.unref()'], process.env, { timeoutMs: 100 })).rejects.toThrow("timed out")
+  })
+
   test("reports an unavailable executable", async () => {
     await expect(runCommand(["/no/such/cbm"], process.env)).rejects.toThrow()
   })
