@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:52ac406cae5cbfbe83bdb78a106a859f7d3cb7d6d823a2bd3686d16f7f859cf2
+source_digest: sha256:e68ea07c893fb4e3b8e0755fc21f74e5a4847437cc377b2819a34c5f04ab3710
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T03:30:00Z
+  at: 2026-10-18T04:10:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T03:30:00Z
+  at: 2026-10-18T04:10:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -39,6 +39,39 @@ suite for the [OpenCode bridge](opencode-plugin.md), run with
   `test_result_codes.py`, `test_stale_map_docs.py`,
   `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
   `test_update_branch.py`
+
+## How it works
+
+Each module builds a throwaway world — a `git init` repository, stub `gh` or
+`git` executables placed first on `PATH` — runs the script with
+`subprocess.run`, and asserts on the pair `(returncode, last stdout line)`.
+Signal handling is exercised by sending the signal to the running process, for
+both result-code libraries: `test_result_codes.py` drives the bash one through a
+fixture script and the Python one by generating a `main()` around a body of
+source. The two `stale_map_docs` modules also import the script by path so a
+fixture computes the expected digest from the same code under test rather than
+restating it; the masks module builds `.agent.metadata.json` files and checks
+that a masked pin bump stays `FRESH`, that structure around a masked value still
+moves the digest, that a rule reaches a subdirectory and a child adds to it,
+that a metadata file is not itself tracked content, and that unreadable,
+uncompilable, or inapplicable metadata is `BROKEN_METADATA` confined to its own
+subtree, including invalid replacements and masked binary files.
+`test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
+clone that pushes behind the working clone's back, a stub `git` with
+after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
+`api` for the stack number, and `stack link` (a non-force atomic push of the
+named branches, in create or add mode); it pins each `stack-guard.sh` result,
+including a squash-merged lower layer that GitHub-style rebasing leaves
+`SUCCESS`, a peer merge of trunk, a whitespace-only remote rewrite, a push
+leased on the checked tip, queued layers, link create and add modes, and a
+`publish` rerun after a failed link. `test_capture_close_issue.py`,
+`test_close_issue.py`, `test_discover_ai_responder.py`,
+`test_explicit_only_parity.py`, `test_fetch_issue.py`, `test_gh_stack_guard.py`,
+`test_git_commit.py`, `test_install_codex_agents.py`, `test_git_new_branch.py`,
+`test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
+`test_result_codes.py`, `test_stale_map_docs.py`,
+`test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
+`test_update_branch.py`
 
 ## How it works
 
@@ -122,7 +155,7 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
-- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:66` — `Stack`, the
+- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:90` — `Stack`, the
   two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the
   remote/work/publisher triple

@@ -452,6 +452,23 @@ SHALL NOT be updated.
   reports no stale map doc.
 - Task 7's run on a real GitHub stack.
 
+## Deviations
+
+- `publish` no longer runs `gh stack push` or `gh stack submit`. The guard is
+  the only force-push: one atomic `git push` leased on the remote tips read from
+  the fetched tracking refs. `--submit` creates and links PRs with
+  `gh stack link`, whose push is non-force. That uses create mode for a new
+  stack and add mode (`gh stack link <stack#> <new layers>`) once the stack
+  exists on GitHub. See `architecture/stack-push-guard`.
+- Open: `gh stack link` writes no local stack state, so `gh stack view --json`
+  reports `pr: null` for linked layers. This breaks merged-layer and add-mode
+  detection on the next `publish --submit`. `gh stack checkout <stack#>` records
+  the PRs locally when local matches remote. `publish --submit` must run it
+  after every link call, and that must be verified live before this plan ships.
+- Verification includes a live end-to-end run against a scratch repository.
+  Create, no-op, behind, diverged, moved-after-`begin`, and add mode after a
+  merge behave as specified on gh-stack v0.2.1.
+
 ## Out of scope
 
 - Fixing gh-stack itself. Upstream #380, #489, and #472 stay upstream's to fix.
