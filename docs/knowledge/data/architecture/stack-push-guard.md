@@ -3,7 +3,7 @@ type: architecture
 description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.sh, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T18:00:00Z
+  at: 2026-10-18T22:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -89,7 +89,9 @@ a layer without a PR below one with a PR is refused, as is an all-digit layer
 name, which `link` reads as a PR number. With every layer holding a PR and one
 merged, no link runs: the push already updated the PRs. A queued layer is passed
 to create mode by its PR URL, which `link` neither pushes nor drops from the
-stack.
+stack. `link` writes no local stack state, so `publish` follows it with
+`gh stack checkout <stack-number>`: otherwise the next `view` reports the new
+PRs as missing and the next `--submit` misreads the stack.
 
 **Queued layers are guarded, never pushed.** A push to a queued layer would take
 its PR out of the merge queue. Every subcommand checks and records every

@@ -37,7 +37,8 @@ elsewhere. Every remote update of a stack therefore goes through
   layer, a `gh stack rebase`, or adopting an existing branch.
 - `agent-code/stack-guard.sh publish` — in place of `gh stack push`.
 - `agent-code/stack-guard.sh publish --submit` — in place of `gh stack submit --auto`. After its
-  push it runs `gh stack link`, which pushes without force and opens the missing draft PRs.
+  push it runs `gh stack link`, which pushes without force and opens the missing draft PRs, then
+  `gh stack checkout <stack#>` to record those PRs locally, since `link` writes no local state.
 
 Never run a bare `gh stack push`, `gh stack submit`, or `gh stack sync`. This overrides every
 mention of them in `references/upstream/`. `gh stack rebase` never pushes and stays allowed.
@@ -51,7 +52,7 @@ The last stdout line is `RESULT=<NAME>`:
 | `SUCCESS`             | `0`    | `begin`: when `FAST_FORWARDED=<layer>` names a layer below the top, run `gh stack rebase` before editing. `publish`: every layer is on the remote.                                           |
 | `REMOTE_ONLY_COMMITS` | `3`    | **STOP.** Show the commits from stderr and ask the user how to incorporate them. Nothing changed. Rerun `begin` once the local layer contains them.                                         |
 | `REMOTE_MOVED`        | `4`    | **STOP.** Someone pushed a layer during your edit or the publish; nothing was pushed. Show the layer and SHAs, and ask the user how to combine the new remote commits with yours before running `begin` again. |
-| `PUSH_FAILED`         | `5`    | Report the `git push` or `gh stack link` error from stderr. Fix its cause, then rerun `publish`; the `begin` record is kept.                                                                                   |
+| `PUSH_FAILED`         | `5`    | Report the `git push` or `gh stack link` error from stderr. When stderr says the PRs are linked but not recorded locally, run the `gh stack checkout <n>` it names or rerun `publish --submit`. Fix its cause, then rerun `publish`; the `begin` record is kept.                                                                                   |
 | `PUSH_INCOMPLETE`     | `6`    | Report the layers stderr names. Rerun `publish` once; if it repeats, **STOP** and report.                                                                                                  |
 | `PREFLIGHT_ERROR`     | `2`    | **STOP.** Report the error verbatim: not a repo, not in a stack, detached HEAD, fetch failure, a layer checked out with changes that block its fast-forward, or a `--submit` refusal: a layer without a PR below one with a PR, an all-digit layer name, or a failed lookup of the GitHub stack number.                             |
 | `SCRIPT_FAILURE`      | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                       |

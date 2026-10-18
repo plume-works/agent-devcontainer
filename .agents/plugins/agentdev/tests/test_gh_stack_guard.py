@@ -16,11 +16,36 @@ import pytest
 
 # Links the way gh-stack v0.2.1 does: a non-force atomic push of every argument that is a
 # local branch; PR URLs and a leading stack number are not pushed. The PR API reports the
-# GitHub stack number recorded in stack-number, or null.
+# GitHub stack number recorded in stack-number, or null. Like the real link, it records no
+# local state: only stack checkout fills in the PRs of linked layers, and it moves HEAD.
 STUB_GH = r"""#!/usr/bin/env bash
 set -euo pipefail
 stub_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "$1 $2" == "stack view" ]]; then cat "${stub_dir}/stack.json"; exit 0; fi
+if [[ "$1 $2" == "pr list" ]]; then
+  number="$(jq -r --arg b "$4" '.branches[] | select(.name == $b) | .pr.number // empty' \
+    "${stub_dir}/stack.json")"
+  if [[ -z "${number}" ]] && grep -qx -- "$4" "${stub_dir}/linked" 2>/dev/null; then
+    number="$(jq -r --arg b "$4" '.branches | map(.name) | index($b) + 1' "${stub_dir}/stack.json")"
+  fi
+  printf '%s\n' "${number}"
+  exit 0
+fi
+if [[ "$1 $2" == "stack checkout" ]]; then
+  printf '%s\n' "$*" >> "${stub_dir}/checkouts"
+  [[ "$(cat "${stub_dir}/checkout-mode" 2>/dev/null || echo real)" == fail ]] && exit 1
+  [[ "$3" == "$(cat "${stub_dir}/stack-number")" ]] || exit 1
+  touch "${stub_dir}/linked"
+  linked="$(jq -R . "${stub_dir}/linked" | jq -s .)"
+  jq --argjson linked "${linked}" '.branches |= [to_entries[] | .value + (
+    if .value.pr == null and (.value.name | IN($linked[])) then
+      {pr: {number: (.key + 1), state: "OPEN",
+            url: ("https://github.example/acme/widgets/pull/" + (.key + 1 | tostring))}}
+    else {} end)]' "${stub_dir}/stack.json" > "${stub_dir}/stack.json.new"
+  mv "${stub_dir}/stack.json.new" "${stub_dir}/stack.json"
+  if [[ -s "${stub_dir}/linked" ]]; then git switch -q "$(tail -n 1 "${stub_dir}/linked")"; fi
+  exit 0
+fi
 if [[ "$1" == api ]]; then
   [[ "$(cat "${stub_dir}/api-mode" 2>/dev/null || echo real)" == fail ]] && exit 1
   cat "${stub_dir}/stack-number" 2>/dev/null || echo null
@@ -49,6 +74,8 @@ if [[ "$1 $2" == "stack link" ]]; then
     esac
   done
   [[ ${#refspecs[@]} -eq 0 ]] || git push -q --atomic origin "${refspecs[@]}"
+  for ref in "${refspecs[@]}"; do ref="${ref%%:*}"; printf '%s\n' "${ref#refs/heads/}"; done >> "${stub_dir}/linked"
+  [[ -f "${stub_dir}/stack-number" ]] || echo 7 > "${stub_dir}/stack-number"
   exit 0
 fi
 echo "unexpected gh call: $*" >&2
@@ -164,7 +191,7 @@ class Stack:
         git(self.peer, 'push', '-q', 'origin', branch)
         return sha
 
-    def squash_merge_layer_a(self) -> None:
+    def squash_merge_layer_a(self, describe: bool = True) -> None:
         """Squash-merge layer-a into main and rebase layer-b onto it, as GitHub does."""
         git(self.peer, 'fetch', '-q', 'origin')
         git(self.peer, 'switch', '-q', 'main')
@@ -176,7 +203,12 @@ class Stack:
         git(self.peer, 'push', '-q', 'origin', 'main')
         git(self.peer, 'push', '-q', '--force', 'origin', 'layer-b')
         self.merged.add('layer-a')
-        self.write_stack()
+        if describe:
+            self.write_stack()
+
+    def view(self) -> dict:
+        """Return what gh stack view --json reports now."""
+        return json.loads((self.stub / 'stack.json').read_text())
 
     def peer_merge_trunk(self, branch: str) -> str:
         """Advance main, then push a merge of main into `branch` from the peer clone."""
@@ -423,6 +455,7 @@ def test_publish_reports_a_push_that_left_a_layer_behind(plugin_root: Path, stac
     commit_file(stack.work, 'l.txt', 'local\n')
     stack.race_peer_push('layer-b', 'R-late', 'before-link')
     stack.set_link_mode('noop')
+    (stack.stub / 'stack-number').write_text('7\n')
 
     completed, _ = guard(plugin_root, stack, 'publish', '--submit')
 
@@ -584,6 +617,53 @@ def test_publish_submit_appends_a_new_layer_to_the_github_stack(
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert stack.links() == ['stack link --remote origin 7 layer-c']
     assert stack.remote_tip('layer-c') == git(stack.work, 'rev-parse', 'layer-c')
+    assert stack.view()['branches'][2]['pr']['number'] == 3
+
+
+def test_publish_submit_records_new_prs_so_the_next_run_appends(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """Link records nothing locally; checkout does, so a later --submit sees the PRs."""
+    stack.without_pr.update(('layer-a', 'layer-b'))
+    stack.write_stack()
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert [b['pr']['number'] for b in stack.view()['branches']] == [1, 2]
+    assert git(stack.work, 'branch', '--show-current') == 'layer-b'
+    stack.squash_merge_layer_a(describe=False)
+    git(stack.work, 'fetch', '-q', 'origin')
+    git(stack.work, 'reset', '-q', '--hard', 'origin/layer-b')
+    git(stack.work, 'switch', '-q', '-c', 'layer-c')
+    commit_file(stack.work, 'c.txt', 'c\n')
+    view = stack.view()
+    view['branches'][0]['isMerged'] = True
+    view['branches'].append({'name': 'layer-c', 'isMerged': False, 'isQueued': False})
+    (stack.stub / 'stack.json').write_text(json.dumps(view))
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert stack.links()[-1] == 'stack link --remote origin 7 layer-c'
+    assert stack.view()['branches'][2]['pr']['number'] == 3
+    assert git(stack.work, 'branch', '--show-current') == 'layer-c'
+
+
+def test_publish_submit_reports_prs_it_could_not_record(plugin_root: Path, stack: Stack) -> None:
+    """A failed checkout after the link names the recovery instead of claiming success."""
+    stack.without_pr.update(('layer-a', 'layer-b'))
+    stack.write_stack()
+    (stack.stub / 'checkout-mode').write_text('fail')
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (5, 'RESULT=PUSH_FAILED')
+    assert 'gh stack checkout 7' in completed.stderr
+    assert git(stack.work, 'branch', '--show-current') == 'layer-b'
 
 
 def test_publish_submit_skips_link_when_every_layer_has_a_pr(

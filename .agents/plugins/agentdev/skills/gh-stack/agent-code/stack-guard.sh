@@ -39,7 +39,9 @@ Subcommands:
             force and opens the missing draft PRs: create mode for a stack with
             no merged layer, add mode (link <stack#> <new layers>) to append
             PR-less top layers once one has merged, and no link when every
-            layer has a PR and one has merged. Finally verifies every remote
+            layer has a PR and one has merged. After a link it runs
+            gh stack checkout <stack#> to record the PRs locally, keeping the
+            current branch. Finally verifies every remote
             tip equals its local tip. A layer still in the merge queue is never
             pushed and is noted on stderr.
             Without a begin record, applies begin's remote-only test instead.
@@ -63,7 +65,8 @@ Results (RESULT / exit code):
                           nothing was changed
   REMOTE_MOVED         4  publish: a layer's remote tip changed since begin or
                           after the check; nothing was pushed
-  PUSH_FAILED          5  publish: the guard's push or gh stack link failed
+  PUSH_FAILED          5  publish: the guard's push, gh stack link, or recording
+                          the linked PRs locally failed
   PUSH_INCOMPLETE      6  publish: the push exited 0 but a remote tip still
                           differs from its local tip
   PREFLIGHT_ERROR      2  Bad usage, not a repo, not in a stack, detached HEAD,
@@ -406,6 +409,32 @@ link_layers() {
     print_error "gh stack link failed."
     quit_by_code 5
   }
+  stack_number=""
+  record_stack || {
+    print_error "PRs are linked but not recorded locally;" \
+      "run gh stack checkout ${stack_number:-<stack#>} or rerun publish --submit."
+    quit_by_code 5
+  }
+}
+
+# gh stack link writes no local state, so the next view would report the new PRs as missing;
+# gh stack checkout of the GitHub stack records them. It may move HEAD, which is restored.
+record_stack() {
+  local layer number branch
+  branch="$(git symbolic-ref -q --short HEAD)" || return 1
+  if [[ "${link_args[0]}" == --base ]]; then
+    for layer in "${layers[@]}"; do
+      [[ -n "${queued[${layer}]:-}" ]] || break
+    done
+    number="$(gh pr list --head "${layer}" --json number --jq '.[0].number')" || return 1
+    [[ -n "${number}" ]] || return 1
+    stack_number="$(gh api "repos/{owner}/{repo}/pulls/${number}" --jq .stack.number)" || return 1
+    [[ -n "${stack_number}" && "${stack_number}" != null ]] || return 1
+  else
+    stack_number="${link_args[0]}"
+  fi
+  gh stack checkout "${stack_number}" </dev/null >&2 || return 1
+  [[ "$(git symbolic-ref -q --short HEAD)" == "${branch}" ]] || git switch -q "${branch}"
 }
 
 write_state() {

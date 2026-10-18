@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T18:00:00Z
+  at: 2026-10-18T22:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -112,9 +112,12 @@ SHALL NOT run `gh stack push` or `gh stack submit`; with `--submit` it SHALL
 open the PRs through `gh stack link`, which pushes without force: in create mode
 when no layer has merged, and in add mode, appending the layers without a PR to
 the GitHub stack, once one has. It SHALL refuse, before pushing, a layer without
-a PR below one with a PR and an all-digit layer name. It SHALL report a remote
-tip that differs from its local tip after the push. Both subcommands SHALL cover
-queued layers, and `publish` SHALL leave a layer that is still queued unpushed.
+a PR below one with a PR and an all-digit layer name. After a link it SHALL
+record the linked PRs locally with `gh stack checkout <stack-number>`, keeping
+the current branch, and SHALL report `PUSH_FAILED` when that fails. It SHALL
+report a remote tip that differs from its local tip after the push. Both
+subcommands SHALL cover queued layers, and `publish` SHALL leave a layer that is
+still queued unpushed.
 
 #### Scenario: Remote ahead
 
