@@ -39,14 +39,19 @@ def binary_version(path: Path) -> str:
 
 @pytest.fixture(scope='module')
 def cbm_binary() -> Path:
-    """Return the image's CBM binary when it matches the pin, else fetch the pin into .tmp."""
+    """
+    Stage the pinned CBM binary in .tmp, copying the image's when it matches the pin.
+
+    The isolated account cannot traverse the invoking user's home, where the image installs it.
+    """
     version = pinned_version()
-    installed = shutil.which('codebase-memory-mcp')
-    if installed and binary_version(Path(installed)) == version:
-        return Path(installed)
     destination = TMP_ROOT / f'cbm-pin-{version}'
     binary = destination / 'codebase-memory-mcp'
-    if not binary.exists() or binary_version(binary) != version:
+    installed = shutil.which('codebase-memory-mcp')
+    if installed and binary_version(Path(installed)) == version:
+        destination.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(installed, binary)
+    elif not binary.exists() or binary_version(binary) != version:
         subprocess.run(
             [
                 sys.executable,
