@@ -466,8 +466,11 @@ SHALL NOT be updated.
 - Verification includes a live end-to-end run on gh-stack v0.2.1 against a
   scratch repository. It covers create, no-op, behind, diverged,
   moved-after-`begin`, and add mode after a squash merge, with local PR state
-  recorded after each link. The refusal of a PR-less layer below a linked one,
-  and queued layers, are covered by the stub suite only.
+  recorded after each link. It also covers a GitHub-rebased layer, which
+  GitHub's rebase strips of empty commits and which `begin` accepts, and a
+  remote `Reapply` of a reverted commit, which `begin` names and stops on. The
+  refusal of a PR-less layer below a linked one, and queued layers, are covered
+  by the stub suite only.
 
 ## Out of scope
 
@@ -479,15 +482,15 @@ SHALL NOT be updated.
 
 Verified anchor points (line numbers as of 2026-10-18):
 
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:317` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:326` —
   `push_layers`, the only force-push
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:356` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:365` —
   `plan_link`, create vs add mode
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:422` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:431` —
   `record_stack`, the checkout after a link
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:478` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:487` —
   `run_begin`
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:489` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:498` —
   `run_publish`
 - `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-70` — § The push guard,
   with the result table

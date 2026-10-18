@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:51d79e2661e5c9b44c0147b75a1296aab3e4d90ea1a64028d57d7c886244710b
+source_digest: sha256:a949373f7be6d0a93c4f5b908a893d8f2d23c2a44fc595f957d7bb326e21783c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T08:30:00Z
+  at: 2026-10-18T09:20:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T08:30:00Z
+  at: 2026-10-18T09:20:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -121,7 +121,7 @@ Verified anchor points (line numbers as of 2026-10-18):
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
-- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:117` — `Stack`, the
+- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:116` — `Stack`, the
   two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the
   remote/work/publisher triple

@@ -62,9 +62,9 @@ after the push. `gh stack sync` is no longer run.
 
 Verified anchor points (line numbers as of 2026-10-18):
 
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:478` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:487` —
   `run_begin`
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:489` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:498` —
   `run_publish`
 - `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-70` — § The push guard
 - `AGENTS.md:6` — the force-push exception naming the guard
