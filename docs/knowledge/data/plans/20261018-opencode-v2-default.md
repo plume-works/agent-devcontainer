@@ -264,7 +264,7 @@ Rejected:
 **Files:** Modify: `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
 `.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 
-- [ ] Tests first, against a fake v2 `ctx` whose editors record calls:
+- [x] Tests first, against a fake v2 `ctx` whose editors record calls:
   - every catalog skill is added under its bare name with its description,
     `SKILL.md` path, and body; explicit-only skills carry `autoinvoke: false`;
   - every skill is added as command `agentdev:<name>`; its `execute` calls
@@ -282,8 +282,15 @@ Rejected:
   - `setup` resolves without waiting on any hook or transform registration;
   - the default export carries `id`, `server`, and `setup`, and `server` still
     returns the v1 hooks the existing tests cover.
-- [ ] Implement until the tests pass, keeping the module free of runtime
+  - **Evidence:** The `v2 setup` suite in `bridge.test.ts` covers each bullet
+    against a fake v2 ctx; it failed on the missing `V2_TOOL_ACTIONS` export
+    before the implementation landed in the same commit.
+- [x] Implement until the tests pass, keeping the module free of runtime
   dependencies.
+  - **Evidence:** `bun test ./.agents/plugins/agentdev/tests/opencode` passes 49
+    tests; `uv run pytest .agents/plugins/agentdev/tests` passes 175 tests;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports no errors. `index.ts` imports only types and Node built-ins.
 - [ ] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, the
   full-access `permission` block, and a local mock model that streams tool
   calls: `tdd-red` is not offered `webfetch`, its streamed `webfetch` call is

@@ -4,7 +4,10 @@ import path from "node:path"
 import plugin, {
   TOOL_PERMISSIONS,
   SUBAGENT_TOOL_PERMISSIONS,
+  V2_TOOL_ACTIONS,
+  V2_SUBAGENT_ACTIONS,
   bridge,
+  setupBridge,
 } from "../../.opencode-plugin/index.ts"
 
 const root = path.resolve(import.meta.dir, "../..")
@@ -138,9 +141,10 @@ describe("tool.execute.before hook", () => {
   })
 })
 
-test("default export is a v1 plugin module", () => {
+test("default export loads in OpenCode v1 and v2", () => {
   expect(typeof plugin.id).toBe("string")
   expect(typeof plugin.server).toBe("function")
+  expect(typeof plugin.setup).toBe("function")
 })
 
 test("pending workspace registration does not delay catalog or skill hooks", async () => {
@@ -184,4 +188,182 @@ test("registration failures reach the OpenCode logging client", async () => {
   expect(config.command[`${namespace}:pr-open`]).toBeDefined()
   expect(messages[0].body).toMatchObject({ service: "agentdev", level: "warn" })
   expect(messages[0].body.message).toContain("executable unavailable")
+})
+
+/** A fake OpenCode v2 plugin ctx whose editors and hooks record what the bridge registers. */
+function fakeV2(options: { registration?: Promise<unknown>; agentSystem?: Record<string, string> } = {}) {
+  const registration = options.registration ?? Promise.resolve({ dispose: async () => {} })
+  const transforms: Record<string, (editor: any) => void> = {}
+  const hooks: Record<string, (input: any) => unknown> = {}
+  const prompts: any[] = []
+  const skills = new Map<string, any>()
+  const commands = new Map<string, any>()
+  const agents = new Map<string, any>()
+  const transform = (domain: string) => (callback: (editor: any) => void) => {
+    transforms[domain] = callback
+    return registration
+  }
+  const hook = (domain: string) => (name: string, callback: (input: any) => unknown) => {
+    hooks[`${domain}.${name}`] = callback
+    return registration
+  }
+  const ctx = {
+    location: { directory: root, project: { directory: root } },
+    skill: { transform: transform("skill") },
+    command: { transform: transform("command") },
+    agent: {
+      transform: transform("agent"),
+      get: async ({ agentID }: { agentID: string }) => ({
+        data: { ...agents.get(agentID), system: options.agentSystem?.[agentID] ?? agents.get(agentID)?.system },
+      }),
+    },
+    tool: { hook: hook("tool") },
+    session: { hook: hook("session"), prompt: async (input: unknown) => { prompts.push(input) } },
+    permission: { hook: hook("permission") },
+  }
+  const apply = () => {
+    transforms.skill?.({ get: (id: string) => skills.get(id), add: (s: any) => skills.set(s.id, s) })
+    transforms.command?.({ add: (c: any) => commands.set(c.name, c) })
+    transforms.agent?.({
+      get: (id: string) => agents.get(id),
+      update: (id: string, fn: (a: any) => void) => {
+        const agent = agents.get(id) ?? { id, name: id, mode: "primary", permissions: [{ action: "*", resource: "*", effect: "allow" }] }
+        fn(agent)
+        agents.set(id, agent)
+      },
+    })
+  }
+  return { ctx, transforms, hooks, prompts, skills, commands, agents, apply }
+}
+
+function setUp(options?: Parameters<typeof fakeV2>[0]) {
+  const fake = fakeV2(options)
+  setupBridge(root, fake.ctx as any)
+  fake.apply()
+  return fake
+}
+
+function v2Denied(meta: Record<string, unknown>): string[] {
+  const granted = new Set(claudeTools(meta).flatMap((tool) => V2_TOOL_ACTIONS[tool]))
+  return V2_SUBAGENT_ACTIONS.filter((action) => !granted.has(action))
+}
+
+const v2Tools = ["shell", "read", "edit", "write", "patch", "grep", "glob", "websearch", "webfetch", "subagent", "skill", "question", "execute", "browser"]
+
+describe("v2 setup", () => {
+  test("adds every catalog skill under its bare name with its SKILL.md and body", () => {
+    const { skills: added } = setUp()
+    expect(added.size).toBe(skills.length)
+    for (const { dir, meta } of skills) {
+      const skill = added.get(String(meta.name))
+      expect(skill.name).toBe(meta.name)
+      expect(skill.description).toBe(meta.description)
+      expect(skill.path).toBe(path.join(dir, "SKILL.md"))
+      expect(skill.content.length).toBeGreaterThan(0)
+      expect(skill.content).not.toStartWith("---")
+      expect(skill.autoinvoke === false).toBe(meta["disable-model-invocation"] === true)
+    }
+  })
+
+  test("adds every skill as a namespaced command that re-prompts with the skill attached", async () => {
+    const { commands, prompts } = setUp()
+    for (const { meta } of skills) {
+      const command = commands.get(`${namespace}:${meta.name}`)
+      expect(command.description).toBe(meta.description)
+    }
+    const files = [{ uri: "file:///a" }]
+    const agentsRef = [{ name: "tdd-red" }]
+    await commands.get(`${namespace}:pr-gen-description`).execute({
+      sessionID: "ses_1",
+      prompt: { text: "for the current branch", files, agents: agentsRef, skills: [{ id: "iwe-plan" }] },
+      delivery: "steer",
+    })
+    expect(prompts).toEqual([{
+      sessionID: "ses_1",
+      text: "for the current branch",
+      files,
+      agents: agentsRef,
+      skills: [{ id: "iwe-plan" }, { id: "pr-gen-description" }],
+      delivery: "steer",
+    }])
+  })
+
+  test("maps every Claude tool a catalog agent uses", () => {
+    for (const { meta } of agents) {
+      for (const tool of claudeTools(meta)) expect(V2_TOOL_ACTIONS).toHaveProperty(tool)
+    }
+  })
+
+  test("updates every agent as a subagent with its prompt and adds no permission rule", () => {
+    const { agents: added } = setUp()
+    for (const { stem, meta } of agents) {
+      const agent = added.get(stem)
+      expect(agent.mode).toBe("subagent")
+      expect(agent.description).toBe(meta.description)
+      expect(agent.system.length).toBeGreaterThan(0)
+      expect(agent.permissions).toEqual([{ action: "*", resource: "*", effect: "allow" }])
+    }
+  })
+
+  test("withholds each catalog agent's undeclared tools from the model", async () => {
+    const { hooks } = setUp()
+    for (const { stem, meta } of agents) {
+      const context = { agent: stem, tools: Object.fromEntries(v2Tools.map((t) => [t, { description: t, input: {} }])) }
+      await hooks["session.context"](context)
+      const denied = v2Denied(meta)
+      expect(Object.keys(context.tools).sort()).toEqual(v2Tools.filter((t) => !denied.includes(t)).sort())
+    }
+  })
+
+  test("tdd-red is refused web, subagent, skill, and question calls and keeps shell's approval", async () => {
+    const { hooks } = setUp()
+    const evaluate = async (action: string, effect = "allow") => {
+      const input = { sessionID: "s", agent: "tdd-red", action, resources: ["*"], effect }
+      await hooks["permission.evaluate"](input)
+      return input.effect
+    }
+    for (const action of ["webfetch", "websearch", "subagent", "skill", "question"]) {
+      expect(await evaluate(action)).toBe("deny")
+    }
+    expect(await evaluate("shell", "ask")).toBe("ask")
+    expect(await evaluate("read")).toBe("allow")
+    expect(await evaluate("execute")).toBe("allow")
+    expect(await evaluate("browser", "deny")).toBe("deny")
+  })
+
+  test("leaves non-catalog agents and user-replaced catalog agents unlimited", async () => {
+    const { hooks } = setUp({ agentSystem: { "tdd-red": "the user's own prompt" } })
+    for (const agent of ["tdd-red", "build"]) {
+      const context = { agent, tools: Object.fromEntries(v2Tools.map((t) => [t, { description: t, input: {} }])) }
+      await hooks["session.context"](context)
+      expect(Object.keys(context.tools)).toEqual(v2Tools)
+      const input = { sessionID: "s", agent, action: "webfetch", resources: ["*"], effect: "allow" }
+      await hooks["permission.evaluate"](input)
+      expect(input.effect).toBe("allow")
+    }
+  })
+
+  test("the execute.before hook strips the namespace from a skill call only", async () => {
+    const { hooks } = setUp()
+    const call = async (tool: string, input: Record<string, unknown>) => {
+      const event = { tool, sessionID: "s", agent: "build", messageID: "m", id: "c", input: { ...input } }
+      await hooks["tool.execute.before"](event)
+      return event.input
+    }
+    expect(await call("skill", { id: `${namespace}:iwe-plan` })).toEqual({ id: "iwe-plan" })
+    expect(await call("skill", { id: "iwe-plan" })).toEqual({ id: "iwe-plan" })
+    const other = { id: `${namespace}:iwe-plan`, command: `${namespace}:iwe-plan` }
+    expect(await call("shell", other)).toEqual(other)
+  })
+
+  test("setup returns without waiting on any registration", async () => {
+    const fake = fakeV2({ registration: new Promise(() => {}) })
+    const result = await Promise.race([
+      Promise.resolve(setupBridge(root, fake.ctx as any)).then(() => "returned"),
+      Bun.sleep(500).then(() => "blocked"),
+    ])
+    expect(result).toBe("returned")
+    expect(Object.keys(fake.transforms).sort()).toEqual(["agent", "command", "skill"])
+    expect(Object.keys(fake.hooks).sort()).toEqual(["permission.evaluate", "session.context", "tool.execute.before"])
+  })
 })
