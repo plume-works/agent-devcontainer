@@ -195,8 +195,17 @@ def network() -> Iterator[str]:
 
 
 def git(repo: Path, *args: str) -> str:
+    # Detached auto-maintenance would race own() over the checkout's lock files.
+    config = [
+        '-c',
+        'user.name=t',
+        '-c',
+        'user.email=t@example.invalid',
+        '-c',
+        'maintenance.auto=false',
+    ]
     return subprocess.run(
-        ['git', '-C', str(repo), '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', *args],
+        ['git', '-C', str(repo), *config, *args],
         check=True,
         capture_output=True,
         text=True,
