@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T09:00:00Z
+  at: 2026-10-18T14:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -105,12 +105,15 @@ stack layer. It SHALL fast-forward a layer that its remote is ahead of, and it
 SHALL stop when a layer's remote holds a commit whose exact patch, whitespace
 included, the local branch lacks, or a merge commit it lacks, excluding the
 trunk. `publish` SHALL stop when a layer's remote tip moved since `begin` to
-anything but its local tip. It SHALL push every changed layer itself, in one
-atomic push leased on the tips it checked, before the gh-stack command, and
-SHALL stop without pushing when that lease is rejected. It SHALL report remote
-commits the gh-stack command overwrote, and SHALL report a remote tip that
-differs from its local tip after the push. Both subcommands SHALL cover queued
-layers, and `publish` SHALL leave a layer that is still queued unpushed.
+anything but its local tip, taking every tip from its own fetch. Its own push
+SHALL be the only force-push: every changed layer in one atomic push leased on
+the tips it checked, stopping without pushing when that lease is rejected. It
+SHALL NOT run `gh stack push` or `gh stack submit`; with `--submit` it SHALL
+open the PRs through `gh stack link`, which pushes without force, and SHALL
+refuse a stack with a merged layer or an all-digit layer name. It SHALL report a
+remote tip that differs from its local tip after the push. Both subcommands
+SHALL cover queued layers, and `publish` SHALL leave a layer that is still
+queued unpushed.
 
 #### Scenario: Remote ahead
 
@@ -137,7 +140,7 @@ layers, and `publish` SHALL leave a layer that is still queued unpushed.
 
 #### Scenario: Remote moved after the check
 
-- **WHEN** a layer's remote gained a commit after `publish` checked it and
+- **WHEN** a layer's remote gained a commit after `publish` fetched it and
   before its own push
 - **THEN** the lease rejects the push, the commit stays on the remote, and
   `publish` reports `REMOTE_MOVED`
@@ -153,11 +156,17 @@ layers, and `publish` SHALL leave a layer that is still queued unpushed.
 - **WHEN** a layer's remote holds a merge of the trunk the local branch lacks
 - **THEN** `begin` stops and names the merge
 
-#### Scenario: Push overwrote a concurrent push
+#### Scenario: Push lands before the link
 
-- **WHEN** a layer's remote gained a commit after the guard's own push and
-  gh-stack's push replaced it
-- **THEN** `publish` reports `REMOTE_OVERWRITTEN` and names the lost commits
+- **WHEN** `publish --submit` runs and a layer's remote gained a commit after
+  the guard's own push
+- **THEN** `gh stack link` is rejected, the commit stays on the remote, and
+  `publish` reports `PUSH_FAILED`
+
+#### Scenario: Submit on a stack with a merged layer
+
+- **WHEN** `publish --submit` runs and a layer of the stack has merged
+- **THEN** it stops with `PREFLIGHT_ERROR` before pushing anything
 
 #### Scenario: Queued layer pushed by someone else
 

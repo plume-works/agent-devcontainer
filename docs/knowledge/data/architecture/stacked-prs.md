@@ -3,7 +3,7 @@ type: architecture
 description: How a GitHub native stacked pull request is detected, merged, and re-checked after a lower layer lands in this repository, and why stack branches alone may be force-pushed.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T09:00:00Z
+  at: 2026-10-18T14:00:00Z
 sources:
 - resource: https://docs.github.com/en/pull-requests/how-tos/stacked-pull-requests
 - resource: https://docs.github.com/en/pull-requests/get-started/about-stacked-prs
@@ -95,9 +95,9 @@ so the next push replaces the real branch and closes its PR
 (github/gh-stack#489). `gh stack rebase` fetches the trunk and every layer,
 fast-forwards layers that are behind their remote, skips merged layers, and
 rebases the whole stack onto the trunk; it never pushes.
-`gh stack submit --auto` opens each PR with the repository's PR template as its
-body, which the AI review's metadata gate blocks — every layer needs a real
-description before review.
+`gh stack submit --auto` and `gh stack link` open each PR with the repository's
+PR template as its body, which the AI review's metadata gate blocks — every
+layer needs a real description before review.
 
 Run without a TTY, as an agent runs it, the `init`, `submit`, `rebase`, `merge`,
 and `unstack` subcommands write no git config; under a TTY, `init` asks before

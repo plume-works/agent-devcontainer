@@ -12,7 +12,6 @@ RESULT_CODES+=(
   "4=REMOTE_MOVED"
   "5=PUSH_FAILED"
   "6=PUSH_INCOMPLETE"
-  "7=REMOTE_OVERWRITTEN"
 )
 
 usage() {
@@ -34,24 +33,25 @@ Subcommands:
             remote tip.
   publish   Run in place of gh stack push (or, with --submit, of
             gh stack submit --auto). Stops when a layer's remote tip moved since
-            begin to anything but its local tip, pushes every changed layer in
-            one atomic push leased on the tips it checked, runs the gh stack
-            command, reports remote work that command overwrote, then verifies
-            every remote tip equals its local tip. A layer still in the merge
-            queue is left unpushed, as gh stack leaves it, and noted on stderr.
+            begin to anything but its local tip, then pushes every changed layer
+            in one atomic push leased on the tips it checked; this is the only
+            force-push. --submit then runs gh stack link, which pushes without
+            force and opens the missing draft PRs. Finally verifies every remote
+            tip equals its local tip. A layer still in the merge queue is never
+            pushed and is noted on stderr.
             Without a begin record, applies begin's remote-only test instead.
 
 Options:
   --remote <name>  Remote of the stack. Default: remote.pushDefault, else origin
-  --submit         publish only: run gh stack submit --auto instead of push
+  --submit         publish only: also open and link the PRs with gh stack link;
+                   refused when a layer is merged or has an all-digit name
   -h, --help       Show this help text.
 
 Output (key=value lines):
   RESULT, STATE_FILE
   begin also: FAST_FORWARDED=<layer> for each layer it moved; run
   gh stack rebase --upstack from the lowest of them before editing further
-  On REMOTE_ONLY_COMMITS, REMOTE_MOVED, and REMOTE_OVERWRITTEN, stderr names
-  the layer and commits
+  On REMOTE_ONLY_COMMITS and REMOTE_MOVED, stderr names the layer and commits
 
 Results (RESULT / exit code):
   SUCCESS              0  Nothing on any remote would be or was lost
@@ -59,13 +59,12 @@ Results (RESULT / exit code):
                           nothing was changed
   REMOTE_MOVED         4  publish: a layer's remote tip changed since begin or
                           after the check; nothing was pushed
-  PUSH_FAILED          5  publish: the guard's push or the gh stack command failed
+  PUSH_FAILED          5  publish: the guard's push or gh stack link failed
   PUSH_INCOMPLETE      6  publish: the push exited 0 but a remote tip still
                           differs from its local tip
-  REMOTE_OVERWRITTEN   7  publish: a push that landed after the guard's push was
-                          overwritten by gh stack; stderr names the lost commits
   PREFLIGHT_ERROR      2  Bad usage, not a repo, not in a stack, detached HEAD,
-                          fetch failure, or a layer that cannot be fast-forwarded
+                          fetch failure, a layer that cannot be fast-forwarded,
+                          or a stack --submit cannot link
   SCRIPT_FAILURE       1  Unhandled error
   SIGNAL_HUP         129  Interrupted by HUP
   SIGNAL_INT         130  Interrupted by INT
@@ -136,19 +135,11 @@ parse_args() {
 trunk=""
 layers=()
 declare -A queued=()
+stack_view=""
 state_file=""
 
-# Queued layers stay guarded: a push to one dequeues it, and gh stack then pushes it too.
-read_queued() {
-  local layer
-  queued=()
-  while read -r layer; do
-    [[ -n "${layer}" ]] && queued["${layer}"]=1
-  done < <(jq -r '.branches[] | select((.isMerged | not) and .isQueued) | .name' <<<"$1")
-}
-
 load_stack() {
-  local repo_root stack_json
+  local repo_root layer
   repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
     print_error "This script must be run inside a Git repository."
     quit_by_code 2
@@ -164,13 +155,16 @@ load_stack() {
     print_error "No remote named ${remote_name}."
     quit_by_code 2
   }
-  stack_json="$(gh stack view --json 2>/dev/null)" || {
+  stack_view="$(gh stack view --json 2>/dev/null)" || {
     print_error "The current branch is not in a gh stack (gh stack view --json failed)."
     quit_by_code 2
   }
-  trunk="$(jq -r '.trunk // empty' <<<"${stack_json}")"
-  mapfile -t layers < <(jq -r '.branches[] | select(.isMerged | not) | .name' <<<"${stack_json}")
-  read_queued "${stack_json}"
+  trunk="$(jq -r '.trunk // empty' <<<"${stack_view}")"
+  mapfile -t layers < <(jq -r '.branches[] | select(.isMerged | not) | .name' <<<"${stack_view}")
+  # Queued layers are checked and recorded like any other, but never pushed.
+  while read -r layer; do
+    [[ -n "${layer}" ]] && queued["${layer}"]=1
+  done < <(jq -r '.branches[] | select((.isMerged | not) and .isQueued) | .name' <<<"${stack_view}")
   if [[ -z "${trunk}" ]]; then
     print_error "gh stack view --json reported no trunk."
     quit_by_code 2
@@ -179,23 +173,24 @@ load_stack() {
   printf 'STATE_FILE=%s\n' "${state_file}"
 }
 
-# Remote tips as "<branch> <sha>" lines, read straight from the remote.
+# Tip of each branch on the remote, as fetched. ls-remote only says which branches exist, so
+# the checks, the record, and the lease all use the very SHA the checks examined.
 declare -A remote_tip=()
 
 fetch_layers() {
-  local line sha ref refspecs=()
-  local listing
+  local branch ref listing refspecs=() present=()
+  declare -A on_remote=()
   listing="$(git ls-remote --heads "${remote_name}")" || {
     print_error "Could not list branches on ${remote_name}."
     quit_by_code 2
   }
-  remote_tip=()
-  while read -r sha ref; do
-    [[ -n "${ref}" ]] && remote_tip["${ref#refs/heads/}"]="${sha}"
+  while read -r _ ref; do
+    [[ -n "${ref}" ]] && on_remote["${ref#refs/heads/}"]=1
   done <<<"${listing}"
-  for line in "${trunk}" "${layers[@]}"; do
-    if [[ -n "${remote_tip[${line}]:-}" ]]; then
-      refspecs+=("+refs/heads/${line}:refs/remotes/${remote_name}/${line}")
+  for branch in "${trunk}" "${layers[@]}"; do
+    if [[ -n "${on_remote[${branch}]:-}" ]]; then
+      refspecs+=("+refs/heads/${branch}:refs/remotes/${remote_name}/${branch}")
+      present+=("${branch}")
     fi
   done
   if [[ ${#refspecs[@]} -gt 0 ]]; then
@@ -204,6 +199,10 @@ fetch_layers() {
       quit_by_code 2
     }
   fi
+  remote_tip=()
+  for branch in "${present[@]}"; do
+    remote_tip["${branch}"]="$(git rev-parse --verify "refs/remotes/${remote_name}/${branch}")"
+  done
 }
 
 # "<patch-id> <commit>" for the non-merge commits of one side of a range.
@@ -306,55 +305,14 @@ exclude_state_dir() {
   printf '.tmp/\n' >>"${exclude_file}"
 }
 
-# Reflog depth of each layer's tracking ref; gh stack's own fetch adds entries above it.
-declare -A reflog_depth=()
-
-reflog_tips() {
-  git reflog show --format=%H "refs/remotes/${remote_name}/$1" -- 2>/dev/null || true
-}
-
-mark_reflogs() {
-  local layer
-  for layer in "${layers[@]}"; do
-    reflog_depth["${layer}"]="$(reflog_tips "${layer}" | wc -l)"
-  done
-}
-
-# Stops with REMOTE_OVERWRITTEN when a tip gh stack fetched after the check held remote work.
-check_overwritten() {
-  local layer local_sha seen new_count sha lost=0
-  for layer in "${layers[@]}"; do
-    local_sha="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
-    mapfile -t seen < <(reflog_tips "${layer}")
-    new_count=$((${#seen[@]} - ${reflog_depth[${layer}]:-0}))
-    for sha in "${seen[@]:0:$((new_count > 0 ? new_count : 0))}"; do
-      [[ "${sha}" == "${checked_tip[${layer}]:-}" || "${sha}" == "${local_sha}" ]] && continue
-      mapfile -t commits < <(remote_only_commits "${layer}" "${sha}")
-      if [[ ${#commits[@]} -gt 0 ]]; then
-        print_error "The push overwrote ${layer} at ${sha:0:7}, pushed after the check."
-        report_remote_only "${layer}" "${commits[@]}"
-        lost=1
-      fi
-    done
-  done
-  [[ "${lost}" -eq 0 ]] || quit_by_code 7
-}
-
-# Forces reflogs on remote-tracking refs for this run and the gh stack it starts.
-log_ref_updates() {
-  local index="${GIT_CONFIG_COUNT:-0}"
-  export "GIT_CONFIG_KEY_${index}=core.logAllRefUpdates" "GIT_CONFIG_VALUE_${index}=true"
-  export GIT_CONFIG_COUNT=$((index + 1))
-}
-
-# Pushes every changed layer in one atomic push leased on the tip publish checked, so a
-# push landing after the check is refused rather than overwritten (REMOTE_MOVED).
+# The only force-push: every changed layer in one atomic push leased on the tip publish
+# checked, so a push landing after the check is refused rather than overwritten.
 push_layers() {
   local layer local_sha flag ref summary output leases=() refspecs=() status=0 moved=0
   for layer in "${layers[@]}"; do
     local_sha="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
     [[ -z "${local_sha}" || "${local_sha}" == "${remote_tip[${layer}]:-}" ]] && continue
-    # Pushing would take the layer out of the merge queue, which gh stack avoids too.
+    # Pushing would take the layer out of the merge queue.
     if [[ -n "${queued[${layer}]:-}" ]]; then
       printf 'NOTE: %s is queued; leaving it unpushed.\n' "${layer}" >&2
       continue
@@ -376,6 +334,46 @@ push_layers() {
   printf '%s\n' "${output}" >&2
   print_error "Pushing the stack to ${remote_name} failed."
   quit_by_code 5
+}
+
+# gh stack link chains each PR onto the argument before it, merged or not, and reads an
+# all-digit argument as a PR number first; a queued layer goes in by PR URL, unpushed.
+check_linkable() {
+  local layer merged=() stop=0
+  mapfile -t merged < <(jq -r '.branches[] | select(.isMerged) | .name' <<<"${stack_view}")
+  if [[ ${#merged[@]} -gt 0 ]]; then
+    print_error "--submit cannot link a stack with merged layers (${merged[*]}); publish without it."
+    stop=1
+  fi
+  for layer in "${layers[@]}"; do
+    if [[ -n "${queued[${layer}]:-}" && -z "$(pr_url_of "${layer}")" ]]; then
+      print_error "Queued layer ${layer} has no PR to link."
+      stop=1
+    elif [[ -z "${queued[${layer}]:-}" && "${layer}" =~ ^[0-9]+$ ]]; then
+      print_error "gh stack link would read layer ${layer} as a PR number; rename the branch."
+      stop=1
+    fi
+  done
+  [[ "${stop}" -eq 0 ]] || quit_by_code 2
+}
+
+pr_url_of() {
+  jq -r --arg name "$1" '.branches[] | select(.name == $name) | .pr.url // empty' <<<"${stack_view}"
+}
+
+link_layers() {
+  local layer args=()
+  for layer in "${layers[@]}"; do
+    if [[ -n "${queued[${layer}]:-}" ]]; then
+      args+=("$(pr_url_of "${layer}")")
+    else
+      args+=("${layer}")
+    fi
+  done
+  gh stack link --remote "${remote_name}" --base "${trunk}" "${args[@]}" >&2 || {
+    print_error "gh stack link failed."
+    quit_by_code 5
+  }
 }
 
 write_state() {
@@ -429,8 +427,8 @@ run_begin() {
 
 run_publish() {
   local layer recorded current unrecorded=() moved=0
-  declare -A recorded_tip=()
-  log_ref_updates
+  declare -A recorded_tip=() checked_tip=()
+  [[ "${submit_mode}" -eq 0 ]] || check_linkable
   fetch_layers
   if [[ -f "${state_file}" ]]; then
     while read -r layer recorded; do
@@ -447,39 +445,25 @@ run_publish() {
       print_error "${layer} on ${remote_name} moved since begin: ${recorded:0:7} -> ${remote_tip[${layer}]:-deleted}"
       moved=1
     fi
+    checked_tip["${layer}"]="${remote_tip[${layer}]:-}"
   done
   [[ "${moved}" -eq 0 ]] || quit_by_code 4
   if [[ ${#unrecorded[@]} -gt 0 ]]; then
     check_layers 0 "${unrecorded[@]}"
   fi
 
-  local push_cmd=(gh stack push --remote "${remote_name}") push_status=0
-  [[ "${submit_mode}" -eq 1 ]] && push_cmd=(gh stack submit --auto --remote "${remote_name}")
-  declare -A checked_tip=()
-  for layer in "${layers[@]}"; do
-    checked_tip["${layer}"]="${remote_tip[${layer}]:-}"
-  done
   push_layers
-  mark_reflogs
-  "${push_cmd[@]}" >&2 || push_status=$?
-  check_overwritten
-  if [[ "${push_status}" -ne 0 ]]; then
-    print_error "${push_cmd[*]} failed."
-    quit_by_code 5
-  fi
+  [[ "${submit_mode}" -eq 0 ]] || link_layers
 
   fetch_layers
-  # gh stack skips only layers still queued when it runs, so re-read the queue for the verify.
-  local incomplete=0 local_sha published_sha stack_json=""
-  stack_json="$(gh stack view --json 2>/dev/null)" || print_error "gh stack view --json failed."
-  queued=()
-  [[ -z "${stack_json}" ]] || read_queued "${stack_json}"
+  local incomplete=0 local_sha published_sha
   for layer in "${layers[@]}"; do
     local_sha="$(git rev-parse -q --verify "refs/heads/${layer}" || true)"
     published_sha="${remote_tip[${layer}]:-}"
-    if [[ "${local_sha}" != "${published_sha}" && -n "${queued[${layer}]:-}" ]]; then
+    [[ "${local_sha}" == "${published_sha}" ]] && continue
+    if [[ -n "${queued[${layer}]:-}" && "${published_sha}" == "${checked_tip[${layer}]}" ]]; then
       printf 'NOTE: %s is queued and was not published.\n' "${layer}" >&2
-    elif [[ "${local_sha}" != "${published_sha}" ]]; then
+    else
       print_error "${layer} is not published: local ${local_sha:0:7}, ${remote_name} ${published_sha:0:7}"
       incomplete=1
     fi

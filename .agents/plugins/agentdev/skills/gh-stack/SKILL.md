@@ -31,12 +31,13 @@ layers, read `references/upstream/stack-design.md`.
 `gh stack push`, `submit`, and `sync` fetch each layer and then take their `--force-with-lease`
 from the ref they just fetched, so a stale local layer silently replaces commits pushed from
 elsewhere. Every remote update of a stack therefore goes through
-[stack-guard.sh](agent-code/stack-guard.sh):
+[stack-guard.sh](agent-code/stack-guard.sh), and its own leased push is the only force-push:
 
 - `agent-code/stack-guard.sh begin` — before anything rewrites the stack: the first commit on a
   layer, a `gh stack rebase`, or adopting an existing branch.
 - `agent-code/stack-guard.sh publish` — in place of `gh stack push`.
-- `agent-code/stack-guard.sh publish --submit` — in place of `gh stack submit --auto`.
+- `agent-code/stack-guard.sh publish --submit` — in place of `gh stack submit --auto`. After its
+  push it runs `gh stack link`, which pushes without force and opens the missing draft PRs.
 
 Never run a bare `gh stack push`, `gh stack submit`, or `gh stack sync`. This overrides every
 mention of them in `references/upstream/`. `gh stack rebase` never pushes and stays allowed.
@@ -50,10 +51,9 @@ The last stdout line is `RESULT=<NAME>`:
 | `SUCCESS`             | `0`    | `begin`: when `FAST_FORWARDED=<layer>` names a layer below the top, run `gh stack rebase` before editing. `publish`: every layer is on the remote.                                           |
 | `REMOTE_ONLY_COMMITS` | `3`    | **STOP.** Show the commits from stderr and ask the user how to incorporate them. Nothing changed. Rerun `begin` once the local layer contains them.                                         |
 | `REMOTE_MOVED`        | `4`    | **STOP.** Someone pushed a layer during your edit or the publish; nothing was pushed. Show the layer and SHAs, and ask the user how to combine the new remote commits with yours before running `begin` again. |
-| `PUSH_FAILED`         | `5`    | Report the `git push` or `gh stack` error from stderr. Fix its cause, then rerun `publish`; the `begin` record is kept.                                                                                   |
+| `PUSH_FAILED`         | `5`    | Report the `git push` or `gh stack link` error from stderr. Fix its cause, then rerun `publish`; the `begin` record is kept.                                                                                   |
 | `PUSH_INCOMPLETE`     | `6`    | Report the layers stderr names. Rerun `publish` once; if it repeats, **STOP** and report.                                                                                                  |
-| `REMOTE_OVERWRITTEN`  | `7`    | **STOP.** A push landed between the guard's push and `gh stack`'s own and was overwritten. Show the lost commits stderr names, cherry-pick them by SHA (still in the tracking ref's reflog) with the user's consent, then run `begin` again. |
-| `PREFLIGHT_ERROR`     | `2`    | **STOP.** Report the error verbatim: not a repo, not in a stack, detached HEAD, fetch failure, or a layer checked out with changes that block its fast-forward.                             |
+| `PREFLIGHT_ERROR`     | `2`    | **STOP.** Report the error verbatim: not a repo, not in a stack, detached HEAD, fetch failure, a layer checked out with changes that block its fast-forward, or `--submit` on a stack with a merged layer or an all-digit layer name.                             |
 | `SCRIPT_FAILURE`      | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                       |
 | `SIGNAL_*`            | `129`+ | **STOP.** Inspect `git status` before rerunning.                                                                                                                                             |
 
@@ -63,9 +63,9 @@ against that record and refreshes it after a verified push. Without the record, 
 any layer whose remote holds a patch the local branch lacks — which also refuses a layer whose
 rebase conflict you resolved, so run `begin` first.
 
-The guard covers queued layers too, because a push to a queued layer takes it out of the queue and
-`gh stack` then pushes it. A layer still queued is never pushed; stderr notes it with `NOTE:` and
-`publish` still succeeds.
+Queued layers are checked and recorded like any other, but never pushed: a push would take the PR
+out of the merge queue. stderr notes such a layer with `NOTE:` and `publish` still succeeds;
+`--submit` links it by its PR URL.
 
 ## Setup
 
@@ -122,8 +122,10 @@ agent-code/stack-guard.sh publish --submit   # push every branch and open draft 
 gh stack view --json                    # confirm
 ```
 
-`publish --submit` opens draft PRs whose body is the repository's PR template; give every layer a
-real description with `gh pr edit` before review.
+`publish --submit` opens draft PRs titled after the branch name, whose body is the repository's PR
+template; give every layer a real title and description with `gh pr edit` before review. Once a
+layer has merged, `--submit` stops before pushing, because `gh stack link` would chain the next PR
+onto the merged branch: run `publish` without it and report that the new PR still needs opening.
 
 **Adopting a branch that already exists on the remote:** `gh stack init` creates a missing local
 branch at the trunk tip, and the next push would replace the real branch and close its PR. Create

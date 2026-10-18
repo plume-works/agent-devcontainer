@@ -14,45 +14,58 @@ import subprocess
 from git_fixtures import FIXTURE_ENV, git, outcome
 import pytest
 
-# Pushes the way gh-stack v0.2.1 does: re-read which layers are still queued, fetch the rest,
-# then lease against the just-fetched tracking ref, so the lease never protects remote work.
+# Links the way gh-stack v0.2.1 does: a non-force atomic push of every argument that is a
+# local branch; PR URLs are linked without a push.
 STUB_GH = r"""#!/usr/bin/env bash
 set -euo pipefail
 stub_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-stack="${stub_dir}/stack.json"
-if [[ "$1 $2" == "stack view" ]]; then cat "${stack}"; exit 0; fi
-if [[ "$1 $2" == "stack push" || "$1 $2" == "stack submit" ]]; then
-  printf '%s\n' "$*" >> "${stub_dir}/pushes"
-  if [[ -f "${stub_dir}/before-fetch" ]]; then bash "${stub_dir}/before-fetch"; fi
-  mode="$(cat "${stub_dir}/push-mode" 2>/dev/null || echo real)"
+if [[ "$1 $2" == "stack view" ]]; then cat "${stub_dir}/stack.json"; exit 0; fi
+if [[ "$1 $2" == "stack link" ]]; then
+  printf '%s\n' "$*" >> "${stub_dir}/links"
+  if [[ -f "${stub_dir}/before-link" ]]; then bash "${stub_dir}/before-link"; fi
+  mode="$(cat "${stub_dir}/link-mode" 2>/dev/null || echo real)"
   [[ "${mode}" == fail ]] && exit 1
   [[ "${mode}" == noop ]] && exit 0
-  mapfile -t layers < <(jq -r '.branches[] | select((.isMerged or .isQueued) | not) | .name' "${stack}")
-  [[ "${mode}" == partial ]] && layers=("${layers[0]}")
-  for b in "${layers[@]}"; do
-    git fetch -q origin "+refs/heads/${b}:refs/remotes/origin/${b}" 2>/dev/null || true
+  shift 2
+  refspecs=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --remote | --base) shift 2 ;;
+      *)
+        if git show-ref -q --verify "refs/heads/$1"; then refspecs+=("refs/heads/$1:refs/heads/$1"); fi
+        shift
+        ;;
+    esac
   done
-  args=()
-  for b in "${layers[@]}"; do
-    sha="$(git rev-parse -q --verify "refs/remotes/origin/${b}" || true)"
-    args+=("--force-with-lease=refs/heads/${b}:${sha}")
-  done
-  for b in "${layers[@]}"; do args+=("refs/heads/${b}:refs/heads/${b}"); done
-  git push -q origin "${args[@]}"
-  [[ "${mode}" == partial ]] && exit 1
+  [[ ${#refspecs[@]} -eq 0 ]] || git push -q --atomic origin "${refspecs[@]}"
   exit 0
 fi
 echo "unexpected gh call: $*" >&2
 exit 99
 """
 
-# Runs the before-push hook once, on the first git push, then hands over to the real git.
+# Runs the before-push hook once, before the first git push, and the after-ls-remote hook
+# once, after the first git ls-remote; otherwise hands over to the real git.
 STUB_GIT = r"""#!/usr/bin/env bash
 set -euo pipefail
-hook="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/before-push"
+stub_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+hook="${stub_dir}/before-push"
 if [[ "${1:-}" == push && -f "${hook}" ]]; then mv "${hook}" "${hook}.ran"; bash "${hook}.ran"; fi
+hook="${stub_dir}/after-ls-remote"
+if [[ "${1:-}" == ls-remote && -f "${hook}" ]]; then
+  listing="$(REAL_GIT "$@")"
+  mv "${hook}" "${hook}.ran"
+  bash "${hook}.ran"
+  printf '%s\n' "${listing}"
+  exit 0
+fi
 exec REAL_GIT "$@"
 """
+
+
+def pr_url(number: int) -> str:
+    """Return the made-up URL of pull request `number`."""
+    return f'https://github.example/acme/widgets/pull/{number}'
 
 
 def commit_file(repository: Path, name: str, content: str) -> str:
@@ -113,23 +126,19 @@ class Stack:
         git(repository, 'commit', '-am', message)
         return git(repository, 'rev-parse', 'HEAD')
 
-    def write_stack(self, file_name: str = 'stack.json') -> None:
-        """Describe the stack the way gh stack view --json does."""
+    def write_stack(self, names: tuple[str, ...] = ('layer-a', 'layer-b')) -> None:
+        """Describe the stack the way gh stack view --json does; layer N has PR N."""
         branches = [
-            {'name': name, 'isMerged': name in self.merged, 'isQueued': name in self.queued}
-            for name in ('layer-a', 'layer-b')
+            {
+                'name': name,
+                'isMerged': name in self.merged,
+                'isQueued': name in self.queued,
+                'pr': {'number': number, 'url': pr_url(number), 'state': 'OPEN'},
+            }
+            for number, name in enumerate(names, start=1)
         ]
         stack = json.dumps({'trunk': 'main', 'branches': branches})
-        (self.stub / file_name).write_text(stack)
-
-    def dequeue_before_gh_pushes(self, layer: str) -> None:
-        """Make `layer` leave the merge queue just before gh stack push re-syncs PR state."""
-        self.queued.discard(layer)
-        self.write_stack('stack-dequeued.json')
-        self.queued.add(layer)
-        stub = shlex.quote(str(self.stub))
-        with (self.stub / 'before-fetch').open('a') as hook:
-            hook.write(f'cp {stub}/stack-dequeued.json {stub}/stack.json\n')
+        (self.stub / 'stack.json').write_text(stack)
 
     def peer_commit(self, branch: str, name: str) -> str:
         """Push a new commit to `branch` from the peer clone."""
@@ -168,7 +177,7 @@ class Stack:
         return git(self.peer, 'rev-parse', 'HEAD')
 
     def race_peer_push(self, branch: str, name: str, hook: str) -> None:
-        """Make hook `hook` (before-fetch or before-push) push a peer commit `name`."""
+        """Make hook `hook` (a STUB_GH or STUB_GIT hook file) push a peer commit `name`."""
         peer = shlex.quote(str(self.peer))
         script = (
             f'git -C {peer} fetch -q origin\n'
@@ -189,13 +198,13 @@ class Stack:
         """List the commit subjects on a remote branch, newest first."""
         return git(self.remote, 'log', '--format=%s', f'refs/heads/{branch}').splitlines()
 
-    def set_push_mode(self, mode: str) -> None:
-        """Set the stub push to real, fail, noop, or partial (push the lowest layer, then fail)."""
-        (self.stub / 'push-mode').write_text(mode)
+    def set_link_mode(self, mode: str) -> None:
+        """Make the stub's gh stack link really push (real), fail, or exit 0 untouched (noop)."""
+        (self.stub / 'link-mode').write_text(mode)
 
-    def pushes(self) -> list[str]:
-        """Return the gh stack push/submit invocations the stub recorded."""
-        path = self.stub / 'pushes'
+    def links(self) -> list[str]:
+        """Return the gh stack link invocations the stub recorded."""
+        path = self.stub / 'links'
         return path.read_text().splitlines() if path.exists() else []
 
 
@@ -275,7 +284,7 @@ def test_publish_without_begin_stops_on_a_remote_only_merge_of_trunk(
 
     assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
     assert 'R-merge' in completed.stderr
-    assert stack.pushes() == []
+    assert stack.links() == []
     assert stack.remote_tip('layer-b') == merge_sha
 
 
@@ -342,6 +351,7 @@ def test_publish_after_a_clean_restack_pushes_every_layer(plugin_root: Path, sta
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     for layer in ('layer-a', 'layer-b'):
         assert stack.remote_tip(layer) == git(stack.work, 'rev-parse', layer)
+    assert stack.links() == []
 
 
 def resolve_conflicting_restack(stack: Stack) -> None:
@@ -374,7 +384,7 @@ def test_publish_without_begin_stops_on_a_resolved_conflict(
     completed, _ = guard(plugin_root, stack, 'publish')
 
     assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
-    assert stack.pushes() == []
+    assert stack.links() == []
     assert stack.remote_tip('layer-b') == remote_before
 
 
@@ -388,7 +398,7 @@ def test_publish_stops_when_a_remote_moved_after_begin(plugin_root: Path, stack:
 
     assert outcome(completed) == (4, 'RESULT=REMOTE_MOVED')
     assert 'layer-b' in completed.stderr
-    assert stack.pushes() == []
+    assert stack.links() == []
     assert stack.remote_tip('layer-b') == remote_sha
 
 
@@ -396,59 +406,70 @@ def test_publish_reports_a_push_that_left_a_layer_behind(plugin_root: Path, stac
     """A remote tip that differs from the local one after the push is not published."""
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
     commit_file(stack.work, 'l.txt', 'local\n')
-    stack.race_peer_push('layer-b', 'R-late', 'before-fetch')
-    stack.set_push_mode('noop')
+    stack.race_peer_push('layer-b', 'R-late', 'before-link')
+    stack.set_link_mode('noop')
 
-    completed, _ = guard(plugin_root, stack, 'publish')
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
 
     assert outcome(completed) == (6, 'RESULT=PUSH_INCOMPLETE')
     assert 'layer-b' in completed.stderr
 
 
-def test_publish_reports_a_failed_push(plugin_root: Path, stack: Stack) -> None:
-    """A failing gh stack push surfaces as PUSH_FAILED."""
+def test_publish_reports_a_failed_link(plugin_root: Path, stack: Stack) -> None:
+    """A failing gh stack link surfaces as PUSH_FAILED."""
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
-    stack.set_push_mode('fail')
+    stack.set_link_mode('fail')
 
-    completed, _ = guard(plugin_root, stack, 'publish')
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
 
     assert outcome(completed) == (5, 'RESULT=PUSH_FAILED')
 
 
-def test_publish_rerun_after_a_partial_push_completes(plugin_root: Path, stack: Stack) -> None:
-    """A layer the failed publish already pushed is not mistaken for a foreign move."""
+def test_publish_rerun_after_a_failed_link_completes(plugin_root: Path, stack: Stack) -> None:
+    """Layers the failed publish already pushed are not mistaken for a foreign move."""
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
     git(stack.work, 'switch', '-q', 'layer-a')
     commit_file(stack.work, 'a2.txt', 'a2\n')
     git(stack.work, 'rebase', '-q', 'layer-a', 'layer-b')
-    stack.set_push_mode('partial')
-    assert outcome(guard(plugin_root, stack, 'publish')[0]) == (5, 'RESULT=PUSH_FAILED')
+    stack.set_link_mode('fail')
+    published = guard(plugin_root, stack, 'publish', '--submit')[0]
+    assert outcome(published) == (5, 'RESULT=PUSH_FAILED')
     assert stack.remote_tip('layer-a') == git(stack.work, 'rev-parse', 'layer-a')
-    stack.set_push_mode('real')
+    stack.set_link_mode('real')
 
-    completed, _ = guard(plugin_root, stack, 'publish')
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     for layer in ('layer-a', 'layer-b'):
         assert stack.remote_tip(layer) == git(stack.work, 'rev-parse', layer)
 
 
-@pytest.mark.parametrize('log_ref_updates', ['true', 'false'])
-def test_publish_reports_a_peer_push_the_push_overwrote(
-    plugin_root: Path, stack: Stack, log_ref_updates: str
+def test_publish_submit_keeps_a_push_that_lands_before_link(
+    plugin_root: Path, stack: Stack
 ) -> None:
-    """A peer push landing between publish's check and gh stack's lease is reported lost."""
-    git(stack.work, 'config', 'core.logAllRefUpdates', log_ref_updates)
+    """Link never force-pushes, so a push landing just before it survives."""
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
     commit_file(stack.work, 'l.txt', 'local\n')
-    stack.race_peer_push('layer-b', 'R-race', 'before-fetch')
+    stack.race_peer_push('layer-b', 'R-race', 'before-link')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (5, 'RESULT=PUSH_FAILED')
+    assert stack.remote_tip('layer-b') == git(stack.peer, 'rev-parse', 'HEAD')
+    assert 'R-race' in stack.remote_log('layer-b')
+
+
+def test_publish_stops_on_a_push_between_listing_and_fetching(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """The tip publish checks is the one it fetched, so a push right after ls-remote is seen."""
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    stack.race_peer_push('layer-b', 'R-race', 'after-ls-remote')
 
     completed, _ = guard(plugin_root, stack, 'publish')
 
-    assert outcome(completed) == (7, 'RESULT=REMOTE_OVERWRITTEN')
-    assert 'layer-b' in completed.stderr
-    assert 'R-race' in completed.stderr
-    assert git(stack.peer, 'rev-parse', 'HEAD')[:7] in completed.stderr
+    assert outcome(completed) == (4, 'RESULT=REMOTE_MOVED')
+    assert 'R-race' in stack.remote_log('layer-b')
 
 
 def test_publish_leases_on_the_tip_it_checked(plugin_root: Path, stack: Stack) -> None:
@@ -463,36 +484,21 @@ def test_publish_leases_on_the_tip_it_checked(plugin_root: Path, stack: Stack) -
     assert 'layer-b' in completed.stderr
     assert stack.remote_tip('layer-b') == git(stack.peer, 'rev-parse', 'HEAD')
     assert 'R-race' in stack.remote_log('layer-b')
-    assert stack.pushes() == []
+    assert stack.links() == []
 
 
 def test_publish_stops_on_a_push_to_a_queued_layer(plugin_root: Path, stack: Stack) -> None:
-    """A foreign push dequeues a layer; gh then pushes it, so the guard must cover it."""
+    """A queued layer is guarded like any other: a push to it during the edit stops publish."""
     stack.queued.add('layer-a')
     stack.write_stack()
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
     remote_sha = stack.peer_commit('layer-a', 'R-fix')
-    stack.dequeue_before_gh_pushes('layer-a')
 
     completed, _ = guard(plugin_root, stack, 'publish')
 
     assert outcome(completed) == (4, 'RESULT=REMOTE_MOVED')
     assert 'layer-a' in completed.stderr
     assert stack.remote_tip('layer-a') == remote_sha
-
-
-def test_publish_reports_a_queued_layer_gh_overwrote(plugin_root: Path, stack: Stack) -> None:
-    """A queued layer dequeued by a push after the check is covered by the backstop."""
-    stack.queued.add('layer-a')
-    stack.write_stack()
-    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
-    stack.race_peer_push('layer-a', 'R-race', 'before-fetch')
-    stack.dequeue_before_gh_pushes('layer-a')
-
-    completed, _ = guard(plugin_root, stack, 'publish')
-
-    assert outcome(completed) == (7, 'RESULT=REMOTE_OVERWRITTEN')
-    assert 'R-race' in completed.stderr
 
 
 def test_publish_leaves_a_still_queued_layer_alone(plugin_root: Path, stack: Stack) -> None:
@@ -514,15 +520,55 @@ def test_publish_leaves_a_still_queued_layer_alone(plugin_root: Path, stack: Sta
     assert outcome(guard(plugin_root, stack, 'publish')[0]) == (0, 'RESULT=SUCCESS')
 
 
-def test_publish_submit_runs_gh_stack_submit(plugin_root: Path, stack: Stack) -> None:
-    """--submit publishes through gh stack submit --auto."""
+def test_publish_submit_links_the_layers_bottom_to_top(plugin_root: Path, stack: Stack) -> None:
+    """--submit pushes through the guard, then links every layer with gh stack link."""
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
     commit_file(stack.work, 'l.txt', 'local\n')
 
     completed, _ = guard(plugin_root, stack, 'publish', '--submit')
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert stack.pushes() == ['stack submit --auto --remote origin']
+    assert stack.links() == ['stack link --remote origin --base main layer-a layer-b']
+    assert stack.remote_tip('layer-b') == git(stack.work, 'rev-parse', 'layer-b')
+
+
+def test_publish_submit_links_a_queued_layer_by_its_pr(plugin_root: Path, stack: Stack) -> None:
+    """A queued layer stays in the link by PR URL, so link neither pushes nor drops it."""
+    stack.queued.add('layer-a')
+    stack.write_stack()
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    commit_file(stack.work, 'l.txt', 'local\n')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert stack.links() == [f'stack link --remote origin --base main {pr_url(1)} layer-b']
+
+
+def test_publish_submit_stops_on_a_merged_layer(plugin_root: Path, stack: Stack) -> None:
+    """Link would chain the next PR onto a merged branch, so --submit stops first."""
+    stack.squash_merge_layer_a()
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    remote_before = stack.remote_tip('layer-b')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+    assert 'layer-a' in completed.stderr
+    assert stack.links() == []
+    assert stack.remote_tip('layer-b') == remote_before
+
+
+def test_publish_submit_refuses_a_numeric_layer_name(plugin_root: Path, stack: Stack) -> None:
+    """Link reads a numeric argument as a PR number first, so --submit refuses it."""
+    git(stack.work, 'branch', '123', 'layer-b')
+    stack.write_stack(('layer-a', '123'))
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+    assert '123' in completed.stderr
+    assert stack.links() == []
 
 
 def test_begin_moves_a_layer_created_at_trunk_onto_its_remote(
@@ -538,15 +584,6 @@ def test_begin_moves_a_layer_created_at_trunk_onto_its_remote(
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert keys['FAST_FORWARDED'] == ['layer-a']
     assert git(stack.work, 'rev-parse', 'layer-a') == remote_sha
-
-
-def test_unguarded_stub_push_drops_the_remote_commit(stack: Stack) -> None:
-    """The stub reproduces the defect the guard exists for."""
-    stack.peer_commit('layer-b', 'R-fix')
-    env = {**os.environ, **FIXTURE_ENV}
-    subprocess.run([str(stack.stub / 'gh'), 'stack', 'push'], cwd=stack.work, check=True, env=env)
-
-    assert 'R-fix' not in stack.remote_log('layer-b')
 
 
 def test_begin_adds_the_exclude_on_its_own_line(plugin_root: Path, stack: Stack) -> None:
