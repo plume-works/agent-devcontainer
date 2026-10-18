@@ -19,8 +19,8 @@ Accept one input: a PR number or URL from the stack, or a stack number.
 - Preserve the caller's working tree. Create a detached worktree under
   `./.tmp/` and run `gh stack checkout <input>` inside it; run every command
   from that worktree.
-- Branches of the stack are updated only by `gh stack rebase`, `gh stack sync`,
-  and `gh stack push`. Never force-push otherwise, and never update a ref
+- Branches of the stack are updated only by `gh stack rebase` and the
+  gh-stack skill's guarded `publish`, after its `begin`. Never force-push otherwise, and never update a ref
   through a GitHub API or MCP tool, including the server-side **Rebase stack**
   button.
 - Never enable auto-merge; GitHub rejects it for stacks anyway.
@@ -51,12 +51,15 @@ description before its review.
 
 Any new commit on a layer — a remediation, a conflict resolution, or a
 `reformat.yml` commit — leaves every layer above it without the new tip. From
-that layer's branch, bring them up to date and push the stack:
+that layer's branch, bring them up to date and publish the stack through the
+gh-stack skill's guard — `begin` ran before that commit:
 
 ```bash
 gh stack rebase --upstack
-gh stack push
 ```
+
+Then run the guard's `publish` and handle its result with the gh-stack skill's
+push-guard table.
 
 Every layer above now has a new head SHA, so its CI re-runs. The AI review does
 not: the gate keeps accepting the layer's earlier review, and a
@@ -81,12 +84,13 @@ and with `gh pr view <pr> --json state` that each PR is `MERGED`.
   reported for the PR that blocked it. Return to that layer's loop, fix the
   blocker, and merge again.
 - **Some layers merged.** A merge queue on the trunk lands queued PRs in
-  separate groups, and a layer can change after the merge started. Run
-  `gh stack sync` to rebase the remaining layers past the merged ones, re-read
+  separate groups, and a layer can change after the merge started. Refresh
+  the stack with the gh-stack skill's guard — `begin`, `gh stack rebase`, then
+  `publish` — to rebase the remaining layers past the merged ones, re-read
   the stack, and repeat **Bring Each Layer to Green** for the layers still
   unmerged before merging the new top.
-- **Rebase conflict** (exit 3) from `sync` or `rebase`: follow the gh-stack
-  skill's exit-3 recovery, then push and re-enter the loop for that layer.
+- **Rebase conflict** (exit 3) from `rebase`: follow the gh-stack skill's
+  exit-3 recovery, then `publish` and re-enter the loop for that layer.
 
 ## Final Report
 

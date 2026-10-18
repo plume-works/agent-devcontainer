@@ -72,6 +72,8 @@ devcontainer](architecture/codex-full-access-in-devcontainer.md)
 
 [Stacked pull requests](architecture/stacked-prs.md)
 
+[Stack push guard](architecture/stack-push-guard.md)
+
 [Explicit-only workflow agents](architecture/explicit-only-workflow-agents.md)
 
 [Claude Remote Control resume](architecture/claude-remote-control-resume.md)

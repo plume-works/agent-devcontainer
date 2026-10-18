@@ -217,10 +217,12 @@ pr=$(gh pr view --json number --jq .number 2>/dev/null) &&
 gh stack view --json >/dev/null 2>&1 && echo "tracked in a local stack"
 ```
 
-If either prints anything, push the stack with `gh stack push` through
-[gh-stack](../gh-stack/SKILL.md) instead of the helper below, then continue at
-step 9. `gh stack push` updates stack branches with `--force-with-lease` and
-runs no codebase-map check; CI still reports a stale map.
+If either prints anything, publish the stack with the guard's `publish`
+through [gh-stack](../gh-stack/SKILL.md) instead of the helper below, handling
+its result as that skill's push-guard table does, then continue at step 9. The
+guard updates stack branches with `--force-with-lease` only after checking that
+no remote commit would be lost, and runs no codebase-map check; CI still
+reports a stale map.
 
 Otherwise, run the bundled helper:
 
@@ -257,7 +259,7 @@ verbatim.
 
 On any other `RESULT` than `SUCCESS`, display the script's actionable error
 output and abort.
-Never force-push outside `gh stack push`, and never update the branch ref
+Never force-push outside the gh-stack skill's guarded `publish`, and never update the branch ref
 through a GitHub API or MCP tool — reconcile locally with
 `/agentdev:update-branch` and rerun this step.
 
