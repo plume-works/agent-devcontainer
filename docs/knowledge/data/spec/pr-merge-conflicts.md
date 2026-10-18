@@ -2,13 +2,14 @@
 type: spec
 description: How pr-feedback-resolution and pr-merge detect a pull request's merge conflicts and resolve them — through update-branch against the PR's own base branch, or through gh stack for a stacked PR.
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-05T14:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-17T15:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
+- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
 ---
 
 # PR merge conflicts
@@ -27,11 +28,12 @@ in a GitHub stack — and pushed at once so CI runs on the resolved head.
 The pr-feedback-resolution skill SHALL read the PR's `mergeable`,
 `mergeStateStatus`, and `baseRefName` before any feedback edit. When `mergeable`
 is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, it SHALL resolve the conflict
-before collecting feedback: a PR in a GitHub stack through `gh stack rebase` and
-`gh stack push`, any other PR by merging its `baseRefName` through
-`update-branch` and pushing the merge. When `mergeable` is `UNKNOWN`, it SHALL
-re-poll before deciding. A PR that is only `BEHIND` its base SHALL NOT be
-updated.
+before collecting feedback. A PR in a GitHub stack is resolved through the
+gh-stack skill's guarded refresh: `stack-guard.sh begin`, `gh stack rebase`,
+then `stack-guard.sh publish`. Any other PR is resolved by merging its
+`baseRefName` through `update-branch` and pushing the merge. When `mergeable` is
+`UNKNOWN`, it SHALL re-poll before deciding. A PR that is only `BEHIND` its base
+SHALL NOT be updated.
 
 #### Scenario: Conflicted PR
 
@@ -50,8 +52,8 @@ updated.
 #### Scenario: Stacked PR
 
 - **WHEN** a conflicted PR belongs to a GitHub stack
-- **THEN** the conflict is resolved with `gh stack rebase` and the stack is
-  pushed with `gh stack push`
+- **THEN** `stack-guard.sh begin` runs, the conflict is resolved with
+  `gh stack rebase`, and the stack is published with `stack-guard.sh publish`
 - **AND** `update-branch` is not run
 
 #### Scenario: Mergeability not yet computed

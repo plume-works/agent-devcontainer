@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-17
 
+- **Map**: refreshed [agentdev](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for the stack guard's
+  partial-push rerun, remote-only merges, overwritten-push detection, leased
+  push, verbatim patch matching, and queued-layer coverage.
 - **Update**: [Autostart the OpenCode web UI on
   Coder](plans/20261016-opencode-web-coder-autostart.md) done; [OpenCode
   web](spec/opencode-web.md) spec added, [Catalog
@@ -25,6 +30,16 @@ to the current day's group.
   re-anchored for the shorter `link-opencode-auth.sh` header; [devcontainer
   scaffolding](codebase/devcontainer.md) and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
+- **Update**: [Guard every gh stack push against overwriting a layer's remote
+  commits](plans/20261017-gh-stack-push-guard.md) done; [Stacked
+  PRs](spec/stacked-prs.md) and [PR merge conflicts](spec/pr-merge-conflicts.md)
+  now route every stack push through the gh-stack skill's guard; [Bug: gh stack
+  push overwrites a stack layer whose remote is
+  ahead](bugs/gh-stack-push-overwrites-remote-layer.md) fixed.
+- **Add**: [Stack push guard](architecture/stack-push-guard.md) records why
+  every stack push goes through the gh-stack skill's two-phase guard.
+- **Map**: refreshed the agentdev plugin, skills, and tests docs for
+  `stack-guard.sh` and the repository-owned gh-stack skill.
 
 ## 2026-10-16
 

@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Make OpenCode v2 the devcontainer
+default](plans/20261018-opencode-v2-default.md)
+
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
@@ -36,6 +39,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 [Autostart the OpenCode web UI on
 Coder](plans/20261016-opencode-web-coder-autostart.md)
+
+[Guard every gh stack push against overwriting a layer's remote
+commits](plans/20261017-gh-stack-push-guard.md)
 
 [Declare release impact when a plan is
 written](plans/20261016-release-impact-at-plan-time.md)

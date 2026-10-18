@@ -1,13 +1,12 @@
 ---
 name: gh-stack
 description: >
-  Manages stacked PRs and splits multi-part work into reviewable branches with gh-stack.
-  Use for stack creation, viewing, edits, push, submit, sync, rebase, merge, or checkout;
-  when asked to split or isolate work for review; whenever a user mentions a stack,
-  branch layers, dependent PRs, or gh stack; or when a stack is checked out.
-metadata:
-  author: github
-  version: "0.2.0"
+  Manages stacked PRs and splits multi-part work into reviewable branches with gh-stack, publishing
+  every stack branch through a guard that never drops commits pushed from elsewhere. Use for stack
+  creation, viewing, edits, push, submit, sync, rebase, merge, or checkout; when asked to split or
+  isolate work for review; whenever a user mentions a stack, branch layers, dependent PRs, or
+  gh stack; or when a stack is checked out.
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # gh-stack
@@ -25,14 +24,56 @@ based on the branch below it, so a reviewer sees only that layer's diff.
 Left is the **bottom**, right is the **top**. `auth` is based on `main` and merges first;
 `frontend` merges last. `up` moves toward the top, away from trunk; `down` moves toward it.
 Foundational work belongs at the bottom, code that depends on it above. For how to choose the
-layers, read `references/stack-design.md`.
+layers, read `references/upstream/stack-design.md`.
+
+## The push guard
+
+`gh stack push`, `submit`, and `sync` fetch each layer and then take their `--force-with-lease`
+from the ref they just fetched, so a stale local layer silently replaces commits pushed from
+elsewhere. Every remote update of a stack therefore goes through
+[stack-guard.sh](agent-code/stack-guard.sh), and its own leased push is the only force-push:
+
+- `agent-code/stack-guard.sh begin` — before anything rewrites the stack: the first commit on a
+  layer, a `gh stack rebase`, or adopting an existing branch.
+- `agent-code/stack-guard.sh publish` — in place of `gh stack push`.
+- `agent-code/stack-guard.sh publish --submit` — in place of `gh stack submit --auto`. After its
+  push it runs `gh stack link`, which pushes without force and opens the missing draft PRs, then
+  `gh stack checkout <stack#>` to record those PRs locally, since `link` writes no local state.
+
+Never run a bare `gh stack push`, `gh stack submit`, or `gh stack sync`. This overrides every
+mention of them in `references/upstream/`. `gh stack rebase` never pushes and stays allowed.
+Pass `--remote <name>` to the guard when the repository has more than one remote and
+`remote.pushDefault` is unset.
+
+The last stdout line is `RESULT=<NAME>`:
+
+| RESULT                | Exit   | Action                                                                                                                                                                                       |
+| --------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`             | `0`    | `begin`: when `FAST_FORWARDED=<layer>` names a layer below the top, run `gh stack rebase` before editing. `publish`: every layer is on the remote.                                           |
+| `REMOTE_ONLY_COMMITS` | `3`    | **STOP.** Show the commits from stderr and ask the user how to incorporate them. Nothing changed. Rerun `begin` once the local layer contains them.                                         |
+| `REMOTE_MOVED`        | `4`    | **STOP.** Someone pushed a layer during your edit or the publish; nothing was pushed. Show the layer and SHAs, and ask the user how to combine the new remote commits with yours before running `begin` again. |
+| `PUSH_FAILED`         | `5`    | Report the `git push` or `gh stack link` error from stderr. When stderr says the PRs are linked but not recorded locally, run the `gh stack checkout <n>` it names or rerun `publish --submit`. Fix its cause, then rerun `publish`; the `begin` record is kept.                                                                                   |
+| `PUSH_INCOMPLETE`     | `6`    | Report the layers stderr names. Rerun `publish` once; if it repeats, **STOP** and report.                                                                                                  |
+| `PREFLIGHT_ERROR`     | `2`    | **STOP.** Report the error verbatim: not a repo, not in a stack, detached HEAD, fetch failure, a layer checked out with changes that block its fast-forward, or a `--submit` refusal: a layer without a PR below one with a PR, an all-digit layer name, or a failed lookup of the GitHub stack number.                             |
+| `SCRIPT_FAILURE`      | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                       |
+| `SIGNAL_*`            | `129`+ | **STOP.** Inspect `git status` before rerunning.                                                                                                                                             |
+
+`begin` records each layer's remote tip in `./.tmp/gh-stack-guard/tips`, adding `.tmp/` to
+`.git/info/exclude` when Git does not already ignore it; `publish` compares
+against that record and refreshes it after a verified push. Without the record, `publish` refuses
+any layer whose remote holds a patch the local branch lacks — which also refuses a layer whose
+rebase conflict you resolved, so run `begin` first.
+
+Queued layers are checked and recorded like any other, but never pushed: a push would take the PR
+out of the merge queue. stderr notes such a layer with `NOTE:` and `publish` still succeeds;
+`--submit` links it by its PR URL.
 
 ## Setup
 
-Requires Git 2.36+ and an authenticated GitHub CLI.
+The image ships the pinned `gh-stack` extension; elsewhere, install it with
+`gh extension install github/gh-stack`. It requires Git 2.36+ and an authenticated GitHub CLI.
 
 ```bash
-gh extension install github/gh-stack
 git config rerere.enabled true         # remember conflict resolutions
 git config remote.pushDefault origin   # required if the repo has more than one remote
 ```
@@ -43,14 +84,14 @@ git config remote.pushDefault origin   # required if the repo has more than one 
 static text; under a PTY the same commands open a prompt or a full-screen TUI and block forever.
 Agent harnesses differ, so always pass the flags below instead of relying on that detection.
 
-**Multiple remotes:** never run `push`, `submit`, `sync`, `rebase`, or `link` without
-`--remote <name>` unless `remote.pushDefault` is configured. `checkout` and `trunk` have no
-`--remote` flag and require the config.
+**Multiple remotes:** never run `rebase` or `link` without `--remote <name>` unless
+`remote.pushDefault` is configured. `checkout` and `trunk` have no `--remote` flag and require the
+config.
 
 | Always run | Never run bare | Why |
 |---|---|---|
 | `gh stack view --json` | `gh stack view` | opens a TUI under a PTY |
-| `gh stack submit --auto` | `gh stack submit` | prompts for a title per new PR |
+| `stack-guard.sh publish --submit` | `gh stack submit` | prompts for a title per new PR; unguarded |
 | `gh stack merge <target> --yes` | `gh pr merge` | `gh pr merge` cannot merge a stack |
 | `gh stack init <branch>...` | `gh stack init` | prompts for branch names |
 | `gh stack add <branch>` | `gh stack add` | prompts for a name, and fails even when piped |
@@ -63,50 +104,68 @@ Agent harnesses differ, so always pass the flags below instead of relying on tha
   Run `gh stack unstack --local` first (this keeps the stack on GitHub), then retry.
 - **Worktrees:** local stacks share one common-directory catalog. Use `--print-path` with
   navigation or explicit-target `checkout` to locate a foreign-owned branch without stealing its
-  checkout. Unoccupied targets are checked out here first. Check the exit status before changing
-  directories; parse only successful path-mode stdout, never status messages.
+  checkout. Check the exit status before changing directories; parse only successful path-mode
+  stdout, never status messages.
 
-## Branch placement
+## Creating a stack
 
-- **Starting multi-part work:** create the stack before writing files. Do not implement every
-  concern on trunk and split it later. Put one dependent concern in each layer, bottom to top.
-- **Editing an existing stack:** check out the layer that owns the change before editing. Never
-  commit a lower layer's concern on the current top branch. Run `gh stack view --json`; if
-  ownership is unclear, inspect `git log --all -- <path>`. Then check out the owner, edit, commit,
-  rebase upstack, and return to top.
+Create the stack before writing files. Do not implement every concern on trunk and split it
+later. Put one dependent concern in each layer, bottom to top. Branch names are verbatim —
+`gh stack add refactor/foo` creates `refactor/foo`.
 
 ```bash
-gh stack down                   # or: gh stack checkout api
-git add ... && git commit -m "Add get-user endpoint"
-gh stack rebase --upstack       # replay every branch above onto the change
-gh stack top                    # return to where you were
-gh stack push
-```
-
-## Core loop
-
-```bash
-gh stack init auth              # create the stack and check out its branch
+gh stack init auth                      # create the stack and check out its branch
+agent-code/stack-guard.sh begin
 git add ... && git commit -m "Add auth middleware"
-gh stack add api                # next layer, branched from the current one
+gh stack add api                        # next layer, branched from the current one
 git add ... && git commit -m "Add API routes"
-gh stack submit --auto          # push every branch and open draft PRs
-gh stack view --json            # confirm
+agent-code/stack-guard.sh publish --submit   # push every branch and open draft PRs
+gh stack view --json                    # confirm
 ```
 
-Add `--open` to `submit` to create PRs ready for review instead of drafts. Branch names are
-verbatim — `gh stack add refactor/foo` creates `refactor/foo`.
+`publish --submit` opens draft PRs titled after the branch name, whose body is the repository's PR
+template; give every layer a real title and description with `gh pr edit` before review. After a
+layer has merged, it appends new top layers to the existing GitHub stack; a layer without a PR
+must sit above every layer that has one.
 
-## Staying in sync
+**Adopting a branch that already exists on the remote:** `gh stack init` creates a missing local
+branch at the trunk tip, and the next push would replace the real branch and close its PR. Create
+the local branch from the remote first, and run `begin` right after `init`:
 
 ```bash
-gh stack sync                   # fetch, reconcile with GitHub, rebase, push, refresh PR state
-gh stack sync --prune           # also delete local branches for merged PRs
+git switch <branch>                     # creates it from <remote>/<branch>
+gh stack init <branch>
+agent-code/stack-guard.sh begin
 ```
 
-Pruning never happens without `--prune` when non-interactive. If the local and remote stacks have
-diverged, `sync` prints both chains, makes no changes, and exits 0 with `Sync aborted` — see
-`references/troubleshooting.md`.
+## Editing an existing stack
+
+Check out the layer that owns the change before editing. Never commit a lower layer's concern on
+the current top branch. Run `gh stack view --json`; if ownership is unclear, inspect
+`git log --all -- <path>`.
+
+```bash
+agent-code/stack-guard.sh begin         # before the first commit
+gh stack down                           # or: gh stack checkout api
+git add ... && git commit -m "Add get-user endpoint"
+gh stack rebase --upstack               # replay every branch above onto the change
+gh stack top                            # return to where you were
+agent-code/stack-guard.sh publish
+```
+
+## Refreshing the stack
+
+After a layer merges, or when the trunk moved, rebase the remaining layers onto the trunk:
+
+```bash
+agent-code/stack-guard.sh begin
+gh stack rebase                         # fetch, fast-forward, skip merged layers, rebase; no push
+agent-code/stack-guard.sh publish
+```
+
+`begin` accepts a layer that GitHub rebased after a lower layer merged, because its remote holds
+no patch the local branch lacks. `gh stack rebase` replaces `gh stack sync` here: `sync` pushes
+by itself, unguarded, and exits 0 even when its push fails.
 
 ## Merging
 
@@ -120,7 +179,7 @@ gh stack merge 42 --yes --squash # or --merge, --rebase, --merge-method <method>
 
 Pass a PR number to merge that PR and every unmerged PR below it, or a stack number to merge every
 unmerged PR in that stack. The operation is all-or-nothing: if any PR in that set cannot merge,
-none do.
+none do. A draft cannot merge; mark it ready first.
 
 Without a method flag the last-used method is reused. If the base branch uses a merge queue, the
 stack is queued instead and the queue picks the method, ignoring any flag you passed with a
@@ -149,7 +208,7 @@ an ancestor of the branch.
 | 0 | Success | — |
 | 1 | Generic error | Read stderr |
 | 2 | Not in a stack | `gh stack init`, or `gh stack checkout <target>` |
-| 3 | Rebase conflict | Follow the Exit 3 recovery below |
+| 3 | Rebase conflict | Resolve the files, `git add`, then `gh stack rebase --continue`; `--abort` restores the stack |
 | 4 | GitHub API failure | Check `gh auth status`, retry |
 | 5 | Invalid arguments | Fix the invocation; see `<command> --help` |
 | 6 | Disambiguation required | Branch is in several stacks; check out a non-shared branch |
@@ -158,23 +217,15 @@ an ancestor of the branch.
 | 9 | Stacked PRs unavailable | Not enabled on the repository; tell the user |
 | 10 | Modify recovery required | `gh stack modify --abort` |
 
-**Exit 3 recovery:**
-
-- After `gh stack rebase`: resolve the files, run `git add`, then
-  `gh stack rebase --continue`; use `gh stack rebase --abort` to restore the stack.
-- After `gh stack sync`: the stack has already been restored. Run `gh stack rebase` to recreate the
-  conflict, then resolve and continue as above.
+After a resolved conflict, `publish` as usual: the `begin` record from before the rebase is still
+the lease.
 
 ## Constraints
 
 - Stacks are strictly linear: one parent, at most one child. Use separate stacks for parallel work.
-- `rebase` and `sync` automatically update affected clean worktrees; they never auto-stash or
-  create/remove worktrees. Mutations serialize across the clone, and paused operations require
-  recovery in their recorded owners.
-- `modify` supports distributed stack branches, but its editor remains TUI-only. Actions run in
-  affected clean owners; unoccupied branches use the origin. Drop/fold source branches and
-  worktrees are preserved. Recovery flags may run from any worktree and use recorded native
-  operation owners; never resolve/stage in the caller's tree unless the diagnostic names it.
+- `rebase` automatically updates affected clean worktrees; it never auto-stashes or creates or
+  removes worktrees. Mutations serialize across the clone, and paused operations require recovery
+  in their recorded owners.
 - There is no non-interactive reorder or removal. Errors may suggest `gh stack modify`, but it is
   TUI-only — restructure with `unstack` then `init` instead.
 - PR titles and bodies are auto-generated. Use `gh pr edit` afterwards to change them.
@@ -184,11 +235,15 @@ an ancestor of the branch.
 `gh stack <command> --help` is authoritative for flags and arguments. Note that
 `gh stack help <command>` does **not** work — it prints the top-level help.
 
-Open the reference whose trigger matches the task; no need to preload all three.
+`references/upstream/` holds GitHub's own reference pages for the pinned release, unchanged and
+under their MIT [LICENSE](references/upstream/LICENSE); the non-interactive guidance above is
+adapted from the same source. Open the page whose trigger matches the task, and apply the push
+guard wherever a page says to push or sync:
 
-- `references/stack-design.md` — read before creating a stack, when deciding how many layers to
-  use, what belongs in each one, or whether work belongs in a new stack.
-- `references/commands.md` — read when a command fails unexpectedly or you need its preconditions,
-  side effects, atomicity, or ordering guarantees.
-- `references/troubleshooting.md` — read on a rebase conflict, after a squash-merge, on local and
-  remote divergence, when restructuring a stack, or when driving stacks from another tool.
+- `references/upstream/stack-design.md` — read before creating a stack, when deciding how many
+  layers to use, what belongs in each one, or whether work belongs in a new stack.
+- `references/upstream/commands.md` — read when a command fails unexpectedly or you need its
+  preconditions, side effects, atomicity, or ordering guarantees.
+- `references/upstream/troubleshooting.md` — read on a rebase conflict, after a squash-merge, on
+  local and remote divergence, when restructuring a stack, or when driving stacks from another
+  tool.

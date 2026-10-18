@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:0c120a0b1e50e9fbad042da7f60b774763ddd9c97a100ce7603cd1c15c79de94
+source_digest: sha256:a928a2dabed9099853c520a5992b64650483ac924db7ed791f076b9497db0b7a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-16T15:03:42Z
-stale_after: 2027-01-14
+  at: 2026-10-18T09:20:00Z
+stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T15:03:42Z
+  at: 2026-10-18T09:20:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -34,12 +34,14 @@ namespaced name.
 | IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                                    |
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
-`git-new-branch`, `git-merge-resolve`, `iwe-capture`, `iwe-explore`, `iwe-map`,
-`iwe-plan`, `pr-discover-ai-responder`, `pr-gen-description`, `pr-open`,
-`pr-review`, `remote-codespace-session`, `template-consume`, `update-branch`.
-Skills with `references/` pages: `gh-stack`, `semantic-refactor-audit`,
-`template-consume`. `gh-stack` is vendored unchanged from `github/gh-stack` with
-its upstream `LICENSE`, at the release the image's `github_cli` role installs.
+`gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-capture`, `iwe-explore`,
+`iwe-map`, `iwe-plan`, `pr-discover-ai-responder`, `pr-gen-description`,
+`pr-open`, `pr-review`, `remote-codespace-session`, `template-consume`,
+`update-branch`. Skills with `references/` pages: `gh-stack`,
+`semantic-refactor-audit`, `template-consume`. `gh-stack`'s `SKILL.md` is the
+repository's own; its `references/upstream/` pages and `LICENSE` are copied
+unchanged from `github/gh-stack` at the release the image's `github_cli` role
+installs.
 
 ## How it works
 
@@ -103,9 +105,10 @@ head and prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map
 exits `MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7),
 neither pushing. A commit without `.iwe/config.toml` is not checked, and
 `--skip-map-check` bypasses the check. A branch of a GitHub stack is pushed with
-`gh stack push` instead, which runs no map check; `update-branch` refuses such a
-branch, and `pr-merge` hands a stacked PR with unmerged layers below it to
-`pr-merge-stack`, which lands the stack with one `gh stack merge`.
+the gh-stack skill's `stack-guard.sh publish` instead, which runs no map check;
+`update-branch` refuses such a branch, and `pr-merge` hands a stacked PR with
+unmerged layers below it to `pr-merge-stack`, which lands the stack with one
+`gh stack merge`.
 
 ## Depends on
 
@@ -122,7 +125,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-15):
+Verified anchor points (line numbers as of 2026-10-17):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -140,6 +143,8 @@ Verified anchor points (line numbers as of 2026-10-15):
   — `classify_upstream`, which picks the `UPSTREAM_ACTION`
 - `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:55`
   — `merge_ref`, the child-process merge and its result mapping
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:487` —
+  `run_begin`, the guard every stack push starts from
 - `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
   `check_map_freshness`, the push-time map gate
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — the `iwe-shipper`

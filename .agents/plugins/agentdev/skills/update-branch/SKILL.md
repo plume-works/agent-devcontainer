@@ -84,8 +84,9 @@ gh stack view --json >/dev/null 2>&1 && echo "tracked in a local stack"
 ```
 
 If either prints anything, **STOP** without merging: the branch belongs to a
-stack. Report that it is updated with `gh stack sync` through
-[gh-stack](../gh-stack/SKILL.md) instead. A branch with no open pull request and
+stack. Report that it is updated with the guarded refresh of
+[gh-stack](../gh-stack/SKILL.md) instead: `begin`, `gh stack rebase`, then
+`publish`. A branch with no open pull request and
 no local stack continues to Workflow 1.
 
 ## Workflow 1: Run the Update Script
@@ -156,5 +157,5 @@ reformat and targeted validation:
 | Conflicts reported        | Feature and base diverged                        | Follow `git-merge-resolve`; do not improvise a shortcut             |
 | Fetch fails               | Network, remote, or auth issue                   | Report the error without changing the configured remote             |
 | Push fails                | Authentication unavailable                       | Report the blocker; do not update refs through an API               |
-| Branch belongs to a stack | Stacked pull request                             | Stop; update it with `gh stack sync` instead                        |
+| Branch belongs to a stack | Stacked pull request                             | Stop; refresh it with the gh-stack skill's guard instead            |
 | Upstream reported `gone`  | Remote branch deleted, often after its PR merged | Confirm the PR is still open before Workflow 3 recreates the branch |
