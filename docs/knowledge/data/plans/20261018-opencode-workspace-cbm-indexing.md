@@ -6,7 +6,7 @@ release:
 - features/opencode-workspace-cbm-indexing
 generated:
   by: opencode/gpt-6.1-sol
-  at: 2026-10-18T01:27:30Z
+  at: 2026-10-18T02:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -72,22 +72,33 @@ work.
 `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
 `.agents/plugins/agentdev/tests/opencode/bridge.test.ts`.
 
-- [ ] First add failing Bun tests with injected subprocess/logging adapters and
+- [x] First add failing Bun tests with injected subprocess/logging adapters and
   isolated Git fixtures under repository `.tmp/`. Cover another repository than
   the catalog/container root, a subdirectory, symlink, linked worktree, non-Git
   directory, exact-root matching, a matching project on a later page, and an
   absent root. Verify the configured command/environment are used, registered
   roots are skipped, missing/disabled/remote MCP is skipped, duplicate attempts
   share work, and separate roots register independently.
-- [ ] Add failing bridge tests proving a pending indexing request does not delay
+  - **Evidence:** The focused Bun run first failed on the missing helper; the
+    combined bridge/workspace suite now passes 36 tests, including real Git,
+    symlink, linked-worktree, pagination, environment, and concurrency fixtures.
+- [x] Add failing bridge tests proving a pending indexing request does not delay
   config/catalog availability, and error-path tests for spawn failure, timeout,
   oversized output, malformed JSON, MCP `isError`, denied roots, and a failed
   attempt followed by a fresh initialization. Assert diagnostics and no index
   submission after an unsuccessful project lookup.
-- [ ] Implement the helper and bridge wiring to satisfy those tests, using
+  - **Evidence:**
+    `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts ./.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
+    passes 36 tests; logging initially failed before wiring. Subprocess tests
+    verify timeout termination and both output streams' bounds.
+- [x] Implement the helper and bridge wiring to satisfy those tests, using
   argument arrays rather than shell interpolation, preserving the existing
   catalog and skill-hook behavior and adding no runtime dependencies. Missing
   optional CBM configuration and non-Git directories are quiet skips.
+  - **Evidence:** The combined Bun suite passes 38 tests;
+    `uv run pytest .agents/plugins/agentdev/tests` passes 139 tests;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports zero errors and warnings.
 
 ### Task 2: Verify the installed-host and shared-daemon behavior
 
@@ -183,9 +194,9 @@ or timed-out commands with bounded resource use and OpenCode diagnostics.
 
 ## Verification
 
-- `bun test .agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
+- `bun test ./.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
   first demonstrates the new behavior failing, then passes.
-- `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts .agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
+- `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts ./.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
   verifies registration and existing bridge behavior together.
 - For Task 2, run `opencode debug skill` and `opencode debug config` with the
   isolated fixture as working directory and the bridge registered. Verify both
@@ -206,11 +217,11 @@ start/attach indexing.
 
 Verified anchor points (line numbers as of 2026-10-18):
 
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:35` — BridgeConfig.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:123` — bridge config and
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:37` — BridgeConfig.
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:125` — bridge config and
   tool hooks.
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:138` — plugin server
-  currently ignores PluginInput.
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:150` — plugin server
+  forwards PluginInput to the bridge.
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:38` — configured test
   helper.
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:119` — skill-hook
