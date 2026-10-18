@@ -90,6 +90,7 @@ def test_jsonc_config_is_patched_after_json_without_losing_settings(config_dir: 
         """{
   // This file overrides opencode.json in the same directory.
   "model": "openai/gpt-6.1-sol",
+  "instructions": ["https://example.com/rules.json"], /* keep URL punctuation */
   "permission": {
     "*": "ask",
     "external_directory": {
@@ -107,6 +108,7 @@ def test_jsonc_config_is_patched_after_json_without_losing_settings(config_dir: 
     assert json.loads(jsonc_config.read_text()) == {
         '$schema': SCHEMA,
         'model': 'openai/gpt-6.1-sol',
+        'instructions': ['https://example.com/rules.json'],
         'permission': {
             '*': 'allow',
             'external_directory': {'/**': 'allow', '/catalog/**': 'deny'},

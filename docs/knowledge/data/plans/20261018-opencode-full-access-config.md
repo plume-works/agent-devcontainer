@@ -33,8 +33,8 @@ plan.
 
 ## Approach
 
-Add `.devcontainer/scripts/configure-opencode.py`, a standard-library Python
-script that resolves the same config directory as
+Add `.devcontainer/scripts/configure-opencode.py`, a PEP 723 Python script that
+carries a pinned `json5` parser and resolves the same config directory as
 `reinstall-agentdev-opencode.sh`, selects `opencode.jsonc` when it exists and
 `opencode.json` otherwise, merges the managed schema and permission entries, and
 replaces the selected file atomically. JSONC comments and trailing commas are
@@ -66,12 +66,12 @@ Rejected:
 **Files:** Create: `.devcontainer/scripts/configure-opencode.py`,
 `scripts/tests/test_configure_opencode.py`
 
-- [x] Tests first, then implement an executable standard-library Python script
-  that creates or patches `opencode.json`, preserves unrelated configuration,
-  overwrites conflicting managed values, is byte-idempotent after the first run,
-  honors `OPENCODE_CONFIG_DIR` and `XDG_CONFIG_HOME`, writes atomically at mode
-  `0600` under a mode-`0700` directory, and leaves malformed JSON unchanged
-  while failing. The managed result is exactly:
+- [x] Tests first, then implement an executable, consumer-independent Python
+  script that creates or patches `opencode.json`, preserves unrelated
+  configuration, overwrites conflicting managed values, is byte-idempotent after
+  the first run, honors `OPENCODE_CONFIG_DIR` and `XDG_CONFIG_HOME`, writes
+  atomically at mode `0600` under a mode-`0700` directory, and leaves malformed
+  JSON unchanged while failing. The managed result is exactly:
 
   ``` json
   {
@@ -89,12 +89,13 @@ Rejected:
     `uv run pytest scripts/tests/test_configure_opencode.py` passed all 6 tests;
     targeted Ruff check and format-check passed.
 
-- [x] Accept `opencode.jsonc` comments and trailing commas, patch it instead of
-  `opencode.json` when both exist because JSONC loads later, preserve all
-  setting values, and leave the lower-precedence JSON file unchanged.
+- [x] Parse JSONC through pinned third-party library `json5`, accept comments
+  and trailing commas, patch `opencode.jsonc` instead of `opencode.json` when
+  both exist because JSONC loads later, preserve all setting values, and leave
+  the lower-precedence JSON file unchanged.
 
-  - **Evidence:** 2026-10-18 focused pytest passed all 7 JSON and JSONC cases;
-    targeted Ruff check and format-check passed.
+  - **Evidence:** 2026-10-18 focused pytest passed all 7 JSON and JSONC cases
+    using `json5==0.17.3`; targeted Ruff check and format-check passed.
 
 ### Task 2: Restore the policy on every container start
 
@@ -169,8 +170,9 @@ and the file SHALL have mode `0600`.
 
 ### Requirement: the OpenCode configure step is consumer-independent
 
-The configure script SHALL use only the Python standard library and SHALL NOT
-depend on the consumer workspace's Python project or installed packages.
+The configure script SHALL declare its pinned JSONC parser dependency inline
+with PEP 723 and run through `uv`, without depending on the consumer workspace's
+Python project or installed packages.
 
 #### Scenario: a consumer repository has no Python project
 
