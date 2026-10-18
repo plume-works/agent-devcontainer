@@ -3,13 +3,16 @@ type: hub
 description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
-  by: opencode/openai-gpt-6.1-sol
-  at: 2026-10-17T05:34:21Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-18T01:27:30Z
 ---
 
 # ✨ Features
 
 [Standalone OpenCode container](features/standalone-opencode-container.md)
+
+[Automatic CBM indexing for OpenCode
+workspaces](features/opencode-workspace-cbm-indexing.md)
 
 *One document per feature in `features/<slug>.md`, from first proposal to
 deprecation. The lifecycle stage lives in each document's frontmatter, so the
