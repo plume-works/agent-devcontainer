@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Configure devcontainer OpenCode for full
+access](plans/20261018-opencode-full-access-config.md)
+
 [Make OpenCode v2 the devcontainer
 default](plans/20261018-opencode-v2-default.md)
 
