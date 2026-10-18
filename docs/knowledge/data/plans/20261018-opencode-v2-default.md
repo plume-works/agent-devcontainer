@@ -8,7 +8,7 @@ release:
 description: Ship OpenCode v2 as the image's OpenCode, serve the agentdev catalog and workspace CBM registration to it through a bridge that loads in both v1 and v2, run the Coder web UI with v2's always-on server password, and keep OpenCode logins per worktree.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T22:24:15Z
+  at: 2026-10-18T23:18:43Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
@@ -60,8 +60,12 @@ revised for v2 before it is implemented.
 OpenCode v2.0.32 behavior this plan relies on:
 
 - **Plugin loading.** A plugin module is `{id, setup(ctx)}` or `{id, effect}`;
-  v1's `{id, server}` alone fails to load. v2 ignores `server` and v1 ignores
-  `setup`, so one default export carrying all three loads in both.
+  v1's `{id, server}` alone fails to load. v2 ignores `server`, and v1 ignores
+  `setup` and `effect`. A module carrying both `setup` and `effect` runs only
+  `effect` on v2. `fromPromise` from `@opencode/plugin/promise/adapter` turns a
+  `setup` plugin into an `effect` plugin, as the host does for `setup` plugins.
+  The host resolves a plugin's `require("effect")` and
+  `require("@opencode/plugin/promise/adapter")` to its own copies.
 - **Config.** v2 reads the v1 `plugin` key as its `plugins` list, and accepts an
   absolute directory path as an entry. It reads the v1 `permission` object as
   `permissions` rules (`"*": "allow"` becomes
@@ -75,8 +79,11 @@ OpenCode v2.0.32 behavior this plan relies on:
   the merged server config in v2's shape:
   `{type, command, environment, disabled}` for a local server.
 - **Diagnostics.** The plugin ctx has no logging client, and a plugin's
-  `console` output reaches neither `opencode.log` nor the CLI's stderr. The host
-  resolves a plugin's `effect` imports to its own runtime, logger included.
+  `console` output reaches neither `opencode.log` nor the CLI's stderr. An
+  `effect` plugin runs in the host's Effect context: a warning logged with
+  `Effect.runPromiseWith` on that context reaches `opencode.log` with its
+  annotations, while a plugin's own `Effect.runPromise` writes only to the
+  server's console.
 - **Skills.** `ctx.skill.transform` takes an editor whose
   `add({id, name, description, autoinvoke, path, content})` registers a skill;
   `autoinvoke: false` keeps it out of model invocation. The catalog's
@@ -125,9 +132,12 @@ OpenCode v2.0.32 behavior this plan relies on:
 ## Approach
 
 **One bridge module for both majors.** The default export becomes
-`{id, server, setup}`. `server` keeps the v1 `config` and `tool.execute.before`
-hooks unchanged. `setup` reads the same catalog and registers it through v2's
-editors: each skill under its bare name (`autoinvoke: false` for
+`{id, server, effect}`. `server` keeps the v1 `config` and `tool.execute.before`
+hooks unchanged. `effect` requires `effect` and the `fromPromise` adapter only
+when v2 calls it, so v1 never loads either; it captures the host's Effect
+context and runs the bridge's v2 setup through `fromPromise`, handing it a log
+adapter bound to that context. The v2 setup reads the same catalog and registers
+it through v2's editors: each skill under its bare name (`autoinvoke: false` for
 `disable-model-invocation`), each skill as a command `agentdev:<name>` whose
 `execute` re-prompts the session with the user's text and the skill appended to
 `skills`, and each agent through `update` as a subagent with its description and
@@ -152,15 +162,16 @@ check for one. v2 merges same-id agents and shows plugins no user config, so a
 field the user's agent leaves unset, such as `description` or `mode`, keeps the
 catalog agent's value.
 
-**Workspace CBM registration on v2.** `setup` registers an `ctx.mcp.transform`
-callback, without awaiting it, that reads `get("codebase-memory-mcp")` without
-changing it, and starts `registerWorkspace` for `ctx.location.directory` without
-awaiting it. The helper's config gate accepts both shapes: a local entry with a
-non-empty command is skipped when v1's `enabled` is `false` or v2's `disabled`
-is `true`. Root resolution, pagination, dedup, bounds, and retry stay as they
-are. On v2, diagnostics go through the host's Effect logger: the log adapter
-imports `effect` dynamically when a warning is logged, so v1 never loads it, and
-logs at warning level annotated `service: agentdev`. v1 keeps `client.app.log`.
+**Workspace CBM registration on v2.** The v2 setup registers an
+`ctx.mcp.transform` callback, without awaiting it, that reads
+`get("codebase-memory-mcp")` without changing it, and starts `registerWorkspace`
+for `ctx.location.directory` without awaiting it. The helper's config gate
+accepts both shapes: a local entry with a non-empty command is skipped when v1's
+`enabled` is `false` or v2's `disabled` is `true`. Root resolution, pagination,
+dedup, bounds, and retry stay as they are. On v2, diagnostics go through the
+host's Effect logger: the log adapter that `effect` hands to the setup logs at
+warning level, annotated `service: agentdev`, through the captured host context.
+v1 keeps `client.app.log`.
 
 The v2 tool mapping:
 
@@ -223,9 +234,6 @@ Assumptions:
   route or an authenticated manifest sends the plan back to revise mode.
 - An `auth.json` symlink left on an existing `agentdev-opencode` volume is
   harmless: v2 imports it once and never writes it.
-- A warning logged through the Effect logger from a plugin's dynamic
-  `import("effect")` reaches `opencode.log`. Task 2 checks it against the real
-  host; if the host drops it, the plan goes back to revise mode.
 - v2 never rewrites `opencode.json` into its own `permissions` form, so the
   policy's v1 block stays the only one there.
 
@@ -250,6 +258,10 @@ Rejected:
 - **Printing the generated password in the agent-start log.** Anyone who can
   read that log would have it.
 - **v2 diagnostics through `console`.** v2 discards a plugin's console output.
+- **v2 diagnostics through the plugin's own `Effect.runPromise`.** They reach
+  only the server's console, not `opencode.log`.
+- **A `setup` export next to `effect`.** v2 runs only `effect`, so the export
+  would never run.
 - **A bridge-owned log file for v2 diagnostics.** It would sit outside
   OpenCode's own log.
 - **Rewriting the full-access policy in v2's `permissions` form.** v1 ignores
@@ -312,7 +324,9 @@ Rejected:
 `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
 
 - [ ] Tests first, against the fake v2 `ctx`:
-  - `setup` registers an `mcp.transform` callback and resolves before that
+  - the default export carries `id`, `server`, and `effect` and no `setup`;
+    importing the module loads neither `effect` nor `@opencode/plugin`;
+  - the v2 setup registers an `mcp.transform` callback and resolves before that
     registration or any CBM command settles;
   - the callback passes `ctx.location.directory` and the editor's
     `codebase-memory-mcp` entry to `registerWorkspace`, and changes no MCP
@@ -322,10 +336,11 @@ Rejected:
   - a registration failure reaches the v2 log adapter as a warning, and the v1
     path still logs through `client.app.log`.
 - [ ] Implement until the tests pass; the module still imports nothing at
-  runtime outside Bun and Node built-ins, and the v2 log adapter's `effect`
-  import is dynamic.
+  runtime outside Bun and Node built-ins, and `effect` and the `fromPromise`
+  adapter are required only inside the `effect` export.
 - [ ] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, a forced CBM
-  failure leaves an `agentdev` warning in `opencode.log`.
+  failure leaves an `agentdev` warning in `opencode.log`, and
+  `verify-agent-limits-host.ts` still passes through the `effect` export.
 
 ### Task 3: Install OpenCode v2 in the image
 
@@ -431,8 +446,9 @@ map document whose source digest the changed files move
 ### Requirement: one bridge loads in OpenCode v1 and v2
 
 The bridge plugin's default export SHALL carry `id`, a v1 `server` function, and
-a v2 `setup` function, so the same `plugin` config entry loads it in either
-major version.
+a v2 `effect` function, so the same `plugin` config entry loads it in either
+major version. Only the `effect` function SHALL load OpenCode v2's `effect` and
+`@opencode/plugin` modules.
 
 #### Scenario: OpenCode v1 starts with the bridge registered
 
@@ -442,7 +458,8 @@ major version.
 #### Scenario: OpenCode v2 starts with the bridge registered
 
 - **WHEN** OpenCode v2 starts with the bridge in its `plugin` config
-- **THEN** it serves the catalog through `setup`.
+- **THEN** it serves the catalog through the `effect` export, and the bridge's
+  warnings reach OpenCode's log.
 
 ## MODIFIED Requirements
 
@@ -667,7 +684,7 @@ and the generated server password, SHALL live on the per-instance
 The bridge SHALL resolve OpenCode's active directory to its canonical Git
 worktree root and register an absent root with the shared CBM daemon only when
 the configured codebase-memory MCP is local and enabled. On OpenCode v1 it SHALL
-do this from the config hook; on OpenCode v2, from `setup` for each directory
+do this from the config hook; on OpenCode v2, from the bridge's v2 setup for each directory
 OpenCode opens. A local entry counts as enabled unless v1's `enabled` is `false`
 or v2's `disabled` is `true`. It SHALL use the configured command and
 environment without broadening allowed roots or changing MCP configuration, and
@@ -788,19 +805,23 @@ Verified anchor points (line numbers as of 2026-10-18):
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:10` — `TOOL_PERMISSIONS`
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:25` —
   `SUBAGENT_TOOL_PERMISSIONS`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:58` — `readCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:104` — `applyCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:125` — `bridge` (v1
-  `config` hook at 133 with the `registerWorkspace` call and `client.app.log`
-  adapter at 135-136, `tool.execute.before` at 141)
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:150` — default export
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:32,47` —
+  `V2_TOOL_ACTIONS`, `V2_SUBAGENT_ACTIONS`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:125` — `readCatalog`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:157` — `applyCatalog`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:200` — `bridge` (v1
+  `config` hook at 208 with the `registerWorkspace` call and `client.app.log`
+  adapter at 210-211, `tool.execute.before` at 216)
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:229` — `setupBridge`, the
+  v2 setup
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:307` — default export
 - `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:10` —
   `WorkspaceConfig`
 - `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:74` —
   `registerWorkspace` (v1-shaped config gate at 79-82)
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:141` — default-export
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:144` — default-export
   test
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:146,175` — pending
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:150,179` — pending
   registration and logging-client tests
 - `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts:56` —
   `workspace registration` suite
@@ -829,6 +850,8 @@ Verified anchor points (line numbers as of 2026-10-18):
   comment
 - `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:384-400` —
   `opencode_run`, `opencode_calls`, shipper dispatch readers
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:447,453` — `task`
+  dispatch checks
 - `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:418,428,439,444,452` —
   `--command` call sites
 - `docs/knowledge/data/codebase/devcontainer/scripts.md:40,47` —
