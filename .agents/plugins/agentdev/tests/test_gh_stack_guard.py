@@ -15,11 +15,17 @@ from git_fixtures import FIXTURE_ENV, git, outcome
 import pytest
 
 # Links the way gh-stack v0.2.1 does: a non-force atomic push of every argument that is a
-# local branch; PR URLs are linked without a push.
+# local branch; PR URLs and a leading stack number are not pushed. The PR API reports the
+# GitHub stack number recorded in stack-number, or null.
 STUB_GH = r"""#!/usr/bin/env bash
 set -euo pipefail
 stub_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 if [[ "$1 $2" == "stack view" ]]; then cat "${stub_dir}/stack.json"; exit 0; fi
+if [[ "$1" == api ]]; then
+  [[ "$(cat "${stub_dir}/api-mode" 2>/dev/null || echo real)" == fail ]] && exit 1
+  cat "${stub_dir}/stack-number" 2>/dev/null || echo null
+  exit 0
+fi
 if [[ "$1 $2" == "stack link" ]]; then
   printf '%s\n' "$*" >> "${stub_dir}/links"
   if [[ -f "${stub_dir}/before-link" ]]; then bash "${stub_dir}/before-link"; fi
@@ -28,6 +34,11 @@ if [[ "$1 $2" == "stack link" ]]; then
   [[ "${mode}" == noop ]] && exit 0
   shift 2
   refspecs=()
+  while [[ "${1:-}" == --* ]]; do shift 2; done
+  if [[ "${1:-}" =~ ^[0-9]+$ ]] && ! git show-ref -q --verify "refs/heads/$1"; then
+    [[ "$1" == "$(cat "${stub_dir}/stack-number" 2>/dev/null)" ]] || exit 1
+    shift
+  fi
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --remote | --base) shift 2 ;;
@@ -107,6 +118,7 @@ class Stack:
         (self.stub / 'git').chmod(0o755)
         self.merged: set[str] = set()
         self.queued: set[str] = set()
+        self.without_pr: set[str] = set()
         self.write_stack()
 
     def clone(self, name: str) -> Path:
@@ -137,6 +149,9 @@ class Stack:
             }
             for number, name in enumerate(names, start=1)
         ]
+        for branch in branches:
+            if branch['name'] in self.without_pr:
+                del branch['pr']
         stack = json.dumps({'trunk': 'main', 'branches': branches})
         (self.stub / 'stack.json').write_text(stack)
 
@@ -545,10 +560,57 @@ def test_publish_submit_links_a_queued_layer_by_its_pr(plugin_root: Path, stack:
     assert stack.links() == [f'stack link --remote origin --base main {pr_url(1)} layer-b']
 
 
-def test_publish_submit_stops_on_a_merged_layer(plugin_root: Path, stack: Stack) -> None:
-    """Link would chain the next PR onto a merged branch, so --submit stops first."""
+def merge_layer_a_and_add_layer_c(stack: Stack) -> None:
+    """Squash-merge layer-a, refresh layer-b locally, and add layer-c on top without a PR."""
     stack.squash_merge_layer_a()
+    git(stack.work, 'fetch', '-q', 'origin')
+    git(stack.work, 'reset', '-q', '--hard', 'origin/layer-b')
+    git(stack.work, 'switch', '-q', '-c', 'layer-c')
+    commit_file(stack.work, 'c.txt', 'c\n')
+    stack.without_pr.add('layer-c')
+    stack.write_stack(('layer-a', 'layer-b', 'layer-c'))
+    (stack.stub / 'stack-number').write_text('7\n')
+
+
+def test_publish_submit_appends_a_new_layer_to_the_github_stack(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """After a lower layer merged, a new top layer is appended in link's add mode."""
+    merge_layer_a_and_add_layer_c(stack)
     assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert stack.links() == ['stack link --remote origin 7 layer-c']
+    assert stack.remote_tip('layer-c') == git(stack.work, 'rev-parse', 'layer-c')
+
+
+def test_publish_submit_skips_link_when_every_layer_has_a_pr(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """With a merged layer and no new layer, the push already updated every PR."""
+    merge_layer_a_and_add_layer_c(stack)
+    stack.without_pr.clear()
+    stack.write_stack(('layer-a', 'layer-b', 'layer-c'))
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert stack.links() == []
+    assert stack.remote_tip('layer-c') == git(stack.work, 'rev-parse', 'layer-c')
+
+
+def test_publish_submit_refuses_a_new_layer_below_a_linked_one(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """Add mode only appends, so a PR-less layer under a layer with a PR stops --submit."""
+    stack.without_pr.add('layer-a')
+    stack.write_stack()
+    (stack.stub / 'stack-number').write_text('7\n')
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+    commit_file(stack.work, 'l.txt', 'local\n')
     remote_before = stack.remote_tip('layer-b')
 
     completed, _ = guard(plugin_root, stack, 'publish', '--submit')
@@ -557,6 +619,31 @@ def test_publish_submit_stops_on_a_merged_layer(plugin_root: Path, stack: Stack)
     assert 'layer-a' in completed.stderr
     assert stack.links() == []
     assert stack.remote_tip('layer-b') == remote_before
+
+
+def test_publish_submit_stops_when_the_stack_lookup_fails(plugin_root: Path, stack: Stack) -> None:
+    """A failed stack-number lookup stops --submit before anything is pushed."""
+    merge_layer_a_and_add_layer_c(stack)
+    (stack.stub / 'api-mode').write_text('fail')
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+    assert stack.links() == []
+    assert git(stack.remote, 'branch', '--list', 'layer-c') == ''
+
+
+def test_publish_submit_opens_a_new_github_stack(plugin_root: Path, stack: Stack) -> None:
+    """With no PR yet, link creates the PRs and the stack from every layer."""
+    stack.without_pr.update(('layer-a', 'layer-b'))
+    stack.write_stack()
+    assert outcome(guard(plugin_root, stack, 'begin')[0]) == (0, 'RESULT=SUCCESS')
+
+    completed, _ = guard(plugin_root, stack, 'publish', '--submit')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert stack.links() == ['stack link --remote origin --base main layer-a layer-b']
 
 
 def test_publish_submit_refuses_a_numeric_layer_name(plugin_root: Path, stack: Stack) -> None:

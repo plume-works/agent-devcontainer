@@ -3,7 +3,7 @@ type: architecture
 description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.sh, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T14:00:00Z
+  at: 2026-10-18T18:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
@@ -77,11 +77,19 @@ as GitHub does.
 pushes the named layers without force and atomically, so it is a no-op or a
 rejection, never an overwrite. It opens the missing PRs as drafts with the
 repository's PR template as body, titled after the branch name, and chains each
-PR onto the argument before it. That chaining is positional, so `--submit`
-refuses a stack with a merged layer instead of re-basing the next PR onto it. It
-also refuses an all-digit layer name, which `link` reads as a PR number. A
-queued layer is passed by its PR URL, which `link` neither pushes nor drops from
-the stack.
+PR onto the argument before it. That chaining is positional, so create mode
+(every unmerged layer, bottom to top, on `--base <trunk>`) runs only while no
+layer has merged; it also repairs bases and membership. Once a layer has merged,
+`--submit` uses add mode, `gh stack link <stack-number> <new layers>`, which
+appends the layers without a PR to the top of the GitHub stack and leaves its
+current PRs alone. The stack number comes from
+`gh api repos/{owner}/{repo}/pulls/<n> --jq .stack.number` on a layer's PR, read
+before the push, so a failed lookup changes nothing. Add mode cannot insert, so
+a layer without a PR below one with a PR is refused, as is an all-digit layer
+name, which `link` reads as a PR number. With every layer holding a PR and one
+merged, no link runs: the push already updated the PRs. A queued layer is passed
+to create mode by its PR URL, which `link` neither pushes nor drops from the
+stack.
 
 **Queued layers are guarded, never pushed.** A push to a queued layer would take
 its PR out of the merge queue. Every subcommand checks and records every

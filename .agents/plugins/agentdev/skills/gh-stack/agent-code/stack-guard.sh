@@ -36,7 +36,10 @@ Subcommands:
             begin to anything but its local tip, then pushes every changed layer
             in one atomic push leased on the tips it checked; this is the only
             force-push. --submit then runs gh stack link, which pushes without
-            force and opens the missing draft PRs. Finally verifies every remote
+            force and opens the missing draft PRs: create mode for a stack with
+            no merged layer, add mode (link <stack#> <new layers>) to append
+            PR-less top layers once one has merged, and no link when every
+            layer has a PR and one has merged. Finally verifies every remote
             tip equals its local tip. A layer still in the merge queue is never
             pushed and is noted on stderr.
             Without a begin record, applies begin's remote-only test instead.
@@ -44,7 +47,8 @@ Subcommands:
 Options:
   --remote <name>  Remote of the stack. Default: remote.pushDefault, else origin
   --submit         publish only: also open and link the PRs with gh stack link;
-                   refused when a layer is merged or has an all-digit name
+                   refused for a PR-less layer below one with a PR, an
+                   all-digit layer name, or a failed stack-number lookup
   -h, --help       Show this help text.
 
 Output (key=value lines):
@@ -336,41 +340,69 @@ push_layers() {
   quit_by_code 5
 }
 
-# gh stack link chains each PR onto the argument before it, merged or not, and reads an
-# all-digit argument as a PR number first; a queued layer goes in by PR URL, unpushed.
-check_linkable() {
-  local layer merged=() stop=0
-  mapfile -t merged < <(jq -r '.branches[] | select(.isMerged) | .name' <<<"${stack_view}")
-  if [[ ${#merged[@]} -gt 0 ]]; then
-    print_error "--submit cannot link a stack with merged layers (${merged[*]}); publish without it."
-    stop=1
-  fi
-  for layer in "${layers[@]}"; do
-    if [[ -n "${queued[${layer}]:-}" && -z "$(pr_url_of "${layer}")" ]]; then
-      print_error "Queued layer ${layer} has no PR to link."
-      stop=1
-    elif [[ -z "${queued[${layer}]:-}" && "${layer}" =~ ^[0-9]+$ ]]; then
-      print_error "gh stack link would read layer ${layer} as a PR number; rename the branch."
-      stop=1
-    fi
-  done
-  [[ "${stop}" -eq 0 ]] || quit_by_code 2
+pr_of() {
+  jq -r --arg name "$1" --arg field "$2" \
+    '.branches[] | select(.name == $name) | .pr[$field] // empty' <<<"${stack_view}"
 }
 
-pr_url_of() {
-  jq -r --arg name "$1" '.branches[] | select(.name == $name) | .pr.url // empty' <<<"${stack_view}"
+link_args=()
+
+# Chooses the gh stack link call before anything is pushed: none when every layer has a PR
+# and one has merged, add mode to append PR-less top layers to the GitHub stack, else create
+# mode. Policy: see architecture/stack-push-guard.
+plan_link() {
+  local layer number="" stack_number="" new=() names=() merged
+  merged="$(jq '[.branches[] | select(.isMerged)] | length' <<<"${stack_view}")"
+  number="$(jq -r '[.branches[].pr.number // empty] | last // empty' <<<"${stack_view}")"
+  for layer in "${layers[@]}"; do
+    if [[ -z "$(pr_of "${layer}" number)" ]]; then
+      [[ -z "${queued[${layer}]:-}" ]] || {
+        print_error "Queued layer ${layer} has no PR to link."
+        quit_by_code 2
+      }
+      new+=("${layer}")
+    elif [[ ${#new[@]} -gt 0 ]]; then
+      print_error "${new[0]} has no PR but ${layer} above it does; link can only append on top."
+      quit_by_code 2
+    fi
+  done
+  if [[ ${#new[@]} -gt 0 && -n "${number}" ]]; then
+    stack_number="$(gh api "repos/{owner}/{repo}/pulls/${number}" --jq .stack.number)" || {
+      print_error "Could not read the GitHub stack of PR #${number}; nothing was pushed."
+      quit_by_code 2
+    }
+    [[ "${stack_number}" != null ]] || stack_number=""
+  fi
+  if [[ -n "${stack_number}" ]]; then
+    names=("${new[@]}")
+    link_args=("${stack_number}" "${names[@]}")
+  elif [[ ${#new[@]} -eq 0 && "${merged}" -gt 0 ]]; then
+    link_args=()
+  elif [[ "${merged}" -gt 0 ]]; then
+    print_error "The stack has merged layers but no GitHub stack to append to."
+    quit_by_code 2
+  else
+    link_args=(--base "${trunk}")
+    for layer in "${layers[@]}"; do
+      if [[ -n "${queued[${layer}]:-}" ]]; then
+        link_args+=("$(pr_of "${layer}" url)")
+      else
+        names+=("${layer}")
+        link_args+=("${layer}")
+      fi
+    done
+  fi
+  for layer in "${names[@]}"; do
+    if [[ "${layer}" =~ ^[0-9]+$ ]]; then
+      print_error "gh stack link would read layer ${layer} as a PR number; rename the branch."
+      quit_by_code 2
+    fi
+  done
 }
 
 link_layers() {
-  local layer args=()
-  for layer in "${layers[@]}"; do
-    if [[ -n "${queued[${layer}]:-}" ]]; then
-      args+=("$(pr_url_of "${layer}")")
-    else
-      args+=("${layer}")
-    fi
-  done
-  gh stack link --remote "${remote_name}" --base "${trunk}" "${args[@]}" >&2 || {
+  [[ ${#link_args[@]} -gt 0 ]] || return 0
+  gh stack link --remote "${remote_name}" "${link_args[@]}" >&2 || {
     print_error "gh stack link failed."
     quit_by_code 5
   }
@@ -428,7 +460,7 @@ run_begin() {
 run_publish() {
   local layer recorded current unrecorded=() moved=0
   declare -A recorded_tip=() checked_tip=()
-  [[ "${submit_mode}" -eq 0 ]] || check_linkable
+  [[ "${submit_mode}" -eq 0 ]] || plan_link
   fetch_layers
   if [[ -f "${state_file}" ]]; then
     while read -r layer recorded; do

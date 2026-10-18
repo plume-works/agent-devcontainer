@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T14:00:00Z
+  at: 2026-10-18T18:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -109,11 +109,12 @@ anything but its local tip, taking every tip from its own fetch. Its own push
 SHALL be the only force-push: every changed layer in one atomic push leased on
 the tips it checked, stopping without pushing when that lease is rejected. It
 SHALL NOT run `gh stack push` or `gh stack submit`; with `--submit` it SHALL
-open the PRs through `gh stack link`, which pushes without force, and SHALL
-refuse a stack with a merged layer or an all-digit layer name. It SHALL report a
-remote tip that differs from its local tip after the push. Both subcommands
-SHALL cover queued layers, and `publish` SHALL leave a layer that is still
-queued unpushed.
+open the PRs through `gh stack link`, which pushes without force: in create mode
+when no layer has merged, and in add mode, appending the layers without a PR to
+the GitHub stack, once one has. It SHALL refuse, before pushing, a layer without
+a PR below one with a PR and an all-digit layer name. It SHALL report a remote
+tip that differs from its local tip after the push. Both subcommands SHALL cover
+queued layers, and `publish` SHALL leave a layer that is still queued unpushed.
 
 #### Scenario: Remote ahead
 
@@ -163,9 +164,17 @@ queued unpushed.
 - **THEN** `gh stack link` is rejected, the commit stays on the remote, and
   `publish` reports `PUSH_FAILED`
 
-#### Scenario: Submit on a stack with a merged layer
+#### Scenario: New layer after a lower layer merged
 
-- **WHEN** `publish --submit` runs and a layer of the stack has merged
+- **WHEN** `publish --submit` runs, a lower layer has merged, and a new top
+  layer has no PR
+- **THEN** it pushes the new layer and appends it to the GitHub stack with
+  `gh stack link <stack-number> <layer>`
+
+#### Scenario: New layer below a layer with a PR
+
+- **WHEN** `publish --submit` runs and a layer without a PR sits below one with
+  a PR
 - **THEN** it stops with `PREFLIGHT_ERROR` before pushing anything
 
 #### Scenario: Queued layer pushed by someone else

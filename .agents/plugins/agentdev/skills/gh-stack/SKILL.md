@@ -53,7 +53,7 @@ The last stdout line is `RESULT=<NAME>`:
 | `REMOTE_MOVED`        | `4`    | **STOP.** Someone pushed a layer during your edit or the publish; nothing was pushed. Show the layer and SHAs, and ask the user how to combine the new remote commits with yours before running `begin` again. |
 | `PUSH_FAILED`         | `5`    | Report the `git push` or `gh stack link` error from stderr. Fix its cause, then rerun `publish`; the `begin` record is kept.                                                                                   |
 | `PUSH_INCOMPLETE`     | `6`    | Report the layers stderr names. Rerun `publish` once; if it repeats, **STOP** and report.                                                                                                  |
-| `PREFLIGHT_ERROR`     | `2`    | **STOP.** Report the error verbatim: not a repo, not in a stack, detached HEAD, fetch failure, a layer checked out with changes that block its fast-forward, or `--submit` on a stack with a merged layer or an all-digit layer name.                             |
+| `PREFLIGHT_ERROR`     | `2`    | **STOP.** Report the error verbatim: not a repo, not in a stack, detached HEAD, fetch failure, a layer checked out with changes that block its fast-forward, or a `--submit` refusal: a layer without a PR below one with a PR, an all-digit layer name, or a failed lookup of the GitHub stack number.                             |
 | `SCRIPT_FAILURE`      | `1`    | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                                                                                       |
 | `SIGNAL_*`            | `129`+ | **STOP.** Inspect `git status` before rerunning.                                                                                                                                             |
 
@@ -123,9 +123,9 @@ gh stack view --json                    # confirm
 ```
 
 `publish --submit` opens draft PRs titled after the branch name, whose body is the repository's PR
-template; give every layer a real title and description with `gh pr edit` before review. Once a
-layer has merged, `--submit` stops before pushing, because `gh stack link` would chain the next PR
-onto the merged branch: run `publish` without it and report that the new PR still needs opening.
+template; give every layer a real title and description with `gh pr edit` before review. After a
+layer has merged, it appends new top layers to the existing GitHub stack; a layer without a PR
+must sit above every layer that has one.
 
 **Adopting a branch that already exists on the remote:** `gh stack init` creates a missing local
 branch at the trunk tip, and the next push would replace the real branch and close its PR. Create
