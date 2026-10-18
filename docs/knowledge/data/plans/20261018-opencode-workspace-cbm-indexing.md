@@ -6,7 +6,7 @@ release:
 - features/opencode-workspace-cbm-indexing
 generated:
   by: claude-code/opus-5
-  at: 2026-10-18T20:30:00Z
+  at: 2026-10-18T21:10:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -14,6 +14,8 @@ sources:
 - resource: .devcontainer/scripts/codebase-memory-mcp-start.sh
 - resource: .devcontainer/scripts/codebase-memory-mcp-index.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
+stage: done
+completed: 2026-10-18
 ---
 
 # Automatically index OpenCode workspaces in CBM

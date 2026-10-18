@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-18
 
+- **Update**: [Automatically index OpenCode workspaces in
+  CBM](plans/20261018-opencode-workspace-cbm-indexing.md) done; [OpenCode
+  workspace CBM indexing](spec/opencode-workspace-cbm-indexing.md) spec added;
+  [Automatic CBM indexing for OpenCode
+  workspaces](features/opencode-workspace-cbm-indexing.md) implemented.
 - **Update**: [OpenCode
   bridge](codebase/agents/plugins/agentdev/opencode-plugin.md),
   [catalog](codebase/agents/plugins/agentdev.md), and [plugin

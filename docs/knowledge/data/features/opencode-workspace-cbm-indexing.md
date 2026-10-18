@@ -1,10 +1,10 @@
 ---
 type: feature
 description: OpenCode automatically registers a newly opened Git workspace with the shared codebase-memory daemon.
-stage: accepted
+stage: implemented
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-18T01:27:30Z
+  by: claude-code/opus-5
+  at: 2026-10-18T21:10:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .devcontainer/scripts/codebase-memory-mcp-start.sh

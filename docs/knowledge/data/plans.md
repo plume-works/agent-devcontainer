@@ -20,9 +20,6 @@ moves them.*
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
-[Automatically index OpenCode workspaces in
-CBM](plans/20261018-opencode-workspace-cbm-indexing.md)
-
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)
 
@@ -36,6 +33,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Automatically index OpenCode workspaces in
+CBM](plans/20261018-opencode-workspace-cbm-indexing.md)
 
 [Autostart the OpenCode web UI on
 Coder](plans/20261016-opencode-web-coder-autostart.md)

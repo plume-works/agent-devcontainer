@@ -59,6 +59,9 @@ conflicts](../features/pr-feedback-resolves-merge-conflicts.md)
 [OpenCode web UI autostart on
 Coder](../features/opencode-web-coder-autostart.md)
 
+[Automatic CBM indexing for OpenCode
+workspaces](../features/opencode-workspace-cbm-indexing.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)
