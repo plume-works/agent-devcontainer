@@ -8,7 +8,7 @@ release:
 description: Ship OpenCode v2 as the image's OpenCode, serve the agentdev catalog and workspace CBM registration to it through a bridge that loads in both v1 and v2, run the Coder web UI with v2's always-on server password, and keep OpenCode logins per worktree.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T20:30:00Z
+  at: 2026-10-18T22:24:15Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
@@ -87,16 +87,26 @@ OpenCode v2.0.32 behavior this plan relies on:
   `ctx.session.prompt` with the skill appended to `skills`.
 - **Agents.** `ctx.agent.transform` has no `add`; `update(id, fn)` creates a
   missing agent from defaults whose permission ruleset starts with allow `*`.
-  `{action, resource: "*", effect: "deny"}` rules pushed after the defaults take
-  effect, and a denied tool is withheld from the model. Subagents appear in the
-  `subagent` tool's list next to `explore` and `general`.
+  Subagents appear in the `subagent` tool's list next to `explore` and
+  `general`. The host's config-agent transform runs after every plugin
+  transform, whenever the plugin registered it: it appends the global
+  `permission` rules to every agent, then merges each agent the user's config
+  defines into the entry with the same id. Rules match last-wins, so a global
+  `"*": "allow"` overrides any deny rule a plugin pushes.
+- **Precedence.** A skill or command the user's config defines wins over a
+  plugin's under the same name. A plugin's ctx exposes no user config.
 - **Tool permissions.** `shell`, `read`, `edit`, `write`, `patch`, `grep`,
   `glob`, `websearch`, `webfetch`, `subagent`, `skill`, `question`, and
   `browser` (denied by default). There is no to-do or LSP tool. Every agent is
   offered `execute`, v2's code-mode tool.
 - **Hooks.** `ctx.tool.hook("execute.before", fn)` sees `{tool, input}` and can
-  replace `input`. Awaiting a hook or transform registration inside `setup`
-  blocks plugin activation, and every request waits on activation.
+  replace `input`. `ctx.session.hook("context", fn)` sees `{agent, tools}`
+  before each model request; a tool deleted from `tools` is not offered to the
+  model. `ctx.permission.hook("evaluate", fn)` sees `{agent, action, effect}`
+  after the rules are evaluated; setting `effect` to `deny` refuses the call
+  with `Permission denied: <action>`. Awaiting a hook or transform registration
+  inside `setup` blocks plugin activation, and every request waits on
+  activation.
 - **Server.** `opencode serve --port --hostname` serves the API and the web UI;
   there is no `web` command. Other CLI commands use a background server that
   `opencode service` manages. The server always requires a password: it uses
@@ -120,10 +130,27 @@ hooks unchanged. `setup` reads the same catalog and registers it through v2's
 editors: each skill under its bare name (`autoinvoke: false` for
 `disable-model-invocation`), each skill as a command `agentdev:<name>` whose
 `execute` re-prompts the session with the user's text and the skill appended to
-`skills`, and each agent through `update` as a subagent with deny rules. The
-`agentdev:` prefix rewrite moves to `ctx.tool.hook("execute.before")`,
-registered without being awaited. Keys the user already defined are left alone,
-as in v1. The catalog parsing that both paths share is factored out once.
+`skills`, and each agent through `update` as a subagent with its description and
+body as `system`, adding no permission rules. The `agentdev:` prefix rewrite
+moves to `ctx.tool.hook("execute.before")`, registered without being awaited.
+The catalog parsing that both paths share is factored out once.
+
+**Tool limits on v2 are enforced by hooks.** A deny rule on the agent cannot
+hold, because the host appends the global rules after it, and the devcontainer's
+full-access policy is `"*": "allow"`. Two hooks, registered without being
+awaited, enforce the limits instead: `session.hook("context")` removes a catalog
+agent's denied tools from what the model is offered, and
+`permission.hook("evaluate")` sets `deny` for a denied action, which also
+catches a call made indirectly. Approval for an allowed tool is untouched.
+
+**A user's agent replaces the catalog agent.** Both hooks apply a catalog
+agent's limits only while that agent's `system` is still the catalog body. An
+agent the user defines under the same id carries the user's prompt, so only the
+user's permissions apply to it. A skill or command the user defines under the
+same name already wins through the host's own order, so the bridge does not
+check for one. v2 merges same-id agents and shows plugins no user config, so a
+field the user's agent leaves unset, such as `description` or `mode`, keeps the
+catalog agent's value.
 
 **Workspace CBM registration on v2.** `setup` registers an `ctx.mcp.transform`
 callback, without awaiting it, that reads `get("codebase-memory-mcp")` without
@@ -208,6 +235,12 @@ Rejected:
   v1, would lose the catalog entirely.
 - **Two plugin directories, one per major.** The config would have to know which
   major is installed, and the catalog parsing would be duplicated.
+- **Deny rules on the v2 agent.** The host appends the global rules after them,
+  so full access cancels every catalog agent's tool limits.
+- **Dropping tool limits on every harness.** Claude Code and Codex enforce a
+  catalog agent's declared tools under full access; OpenCode keeps that parity.
+- **Reading the user's config files to skip a replaced agent.** It would
+  duplicate v2's config discovery, which plugins cannot query.
 - **Registering skills as `agentdev:<name>` ids.** The model would then fail to
   load a skill under its bare frontmatter name, which the catalog also uses.
 - **Keeping `auth.json` as a shared login seed.** v2 never writes it, so the
@@ -237,17 +270,26 @@ Rejected:
   - every skill is added as command `agentdev:<name>`; its `execute` calls
     `session.prompt` with the invocation's text, files, agents, and delivery,
     and the invocation's skills plus `{id: <name>}`;
-  - every agent is updated as a `subagent` with its description, body as
-    `system`, and a deny rule for each action of the mapping table its `tools:`
-    list omits plus `question`; never `execute` or `browser`;
-  - a skill, command, or agent the user already defined is not touched;
+  - every agent is updated as a `subagent` with its description and body as
+    `system`, and no permission rule is added;
+  - for a catalog agent whose `system` is the catalog body, the `context` hook
+    removes every tool of the mapping table its `tools:` list omits plus
+    `question`, and the `evaluate` hook sets `deny` for those actions; neither
+    touches `execute`, `browser`, a mapped action's effect, a non-catalog agent,
+    or a catalog id whose `system` differs from the catalog body;
   - the `execute.before` tool hook rewrites a `skill` call's `agentdev:<name>`
     to `<name>` and leaves every other call unchanged;
-  - `setup` resolves without waiting on the hook registration;
+  - `setup` resolves without waiting on any hook or transform registration;
   - the default export carries `id`, `server`, and `setup`, and `server` still
     returns the v1 hooks the existing tests cover.
 - [ ] Implement until the tests pass, keeping the module free of runtime
   dependencies.
+- [ ] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, the
+  full-access `permission` block, and a local mock model that streams tool
+  calls: `tdd-red` is not offered `webfetch`, its streamed `webfetch` call is
+  refused, and its `read` call runs without a prompt; with a user agent
+  `tdd-red`, the user's agent gets `webfetch`; a user command `agentdev:pr-open`
+  and a user skill `iwe-plan` win over the bridge's.
 
 ### Task 2: Register the active workspace with CBM on v2
 
@@ -348,8 +390,9 @@ Rejected:
 map document whose source digest the changed files move
 
 - [ ] Record the dual-export decision, the v2 host behavior from `## Context`,
-  the v2 tool mapping, and the rejected alternatives in the bridge architecture;
-  drop "v2 embedded skills" from its rejected list.
+  the v2 tool mapping, the hook-enforced tool limits, the user-agent replacement
+  rule, and the rejected alternatives in the bridge architecture; drop "v2
+  embedded skills" from its rejected list.
 - [ ] Record v2 workspace registration in the bridge architecture's
   `## Workspace graph registration` (the `setup` trigger, the two config shapes,
   the Effect-logger diagnostics) and the v2 host in the CBM feature.
@@ -461,9 +504,11 @@ skill permission on v1, `autoinvoke: false` on v2 — while keeping its
 The bridge plugin SHALL register each `agents/<stem>.agent.md` as an OpenCode
 subagent named `<stem>`, with the file's description and body as its description
 and prompt. Every OpenCode tool permission that the file's `tools:` list does
-not map to SHALL be `deny`: on v1 the mapped set plus `lsp` and `question`; on
-v2 `shell`, `read`, `edit`, `write`, `patch`, `grep`, `glob`, `websearch`,
-`webfetch`, `subagent`, `skill`, and `question`. A mapped tool SHALL keep the
+not map to SHALL be `deny`, including when the user's global permission allows
+every tool: on v1 the mapped set plus `lsp` and `question`; on v2 `shell`,
+`read`, `edit`, `write`, `patch`, `grep`, `glob`, `websearch`, `webfetch`,
+`subagent`, `skill`, and `question`. On v2 a denied tool SHALL NOT be offered
+to the model, and a call to it SHALL be refused. A mapped tool SHALL keep the
 user's configured permission rather than being set to `allow`.
 
 #### Scenario: a subagent declares a restricted tool list on v1
@@ -479,16 +524,33 @@ user's configured permission rather than being set to `allow`.
 - **THEN** it is not offered `webfetch`, `websearch`, `subagent`, `skill`, or
   `question`, and `shell` follows the user's configured approval setting.
 
+#### Scenario: a subagent runs under full access on v2
+
+- **WHEN** the user's global permission is `"*": "allow"` and the `tdd-red`
+  subagent calls `webfetch`
+- **THEN** OpenCode refuses the call, and `tdd-red` still reads and edits
+  files without a prompt.
+
 ### Requirement: user configuration takes precedence
 
-The bridge plugin SHALL NOT overwrite a command, agent, or skill that the
-user's OpenCode configuration already defines under the same key, nor, on v1, a
-skill permission the user set.
+The bridge plugin SHALL NOT overwrite a command or skill that the user's
+OpenCode configuration already defines under the same key, nor, on v1, a skill
+permission the user set. An agent the user defines under a catalog agent's name
+SHALL replace the catalog agent: the user's prompt and permissions SHALL apply,
+and none of the catalog agent's tool limits. On v1 the bridge SHALL NOT
+register its agent under that name; on v2 a field the user's agent leaves unset
+keeps the catalog agent's value.
 
 #### Scenario: the user defines a command with the same name
 
 - **WHEN** the user's config defines a command `agentdev:pr-open`
 - **THEN** OpenCode runs the user's command, not the bridge's.
+
+#### Scenario: the user defines an agent with a catalog agent's name
+
+- **WHEN** the user's config defines an agent `tdd-red` with its own prompt
+- **THEN** OpenCode runs the user's prompt, and the agent may use every tool
+  the user's permissions allow, including `webfetch`.
 ```
 
 - [OpenCode web](../spec/opencode-web.md):
@@ -678,6 +740,10 @@ through the logging client on v1 and through the host's logger on v2.
   skill, every `agentdev:*` command, and the catalog subagents.
 - In the v2 TUI, `/agentdev:pr-gen-description for the current branch` shows
   only that text with a skill chip.
+- Task 1's mock-model host check: under the full-access policy, `tdd-red` on v2
+  is not offered `webfetch` and has a streamed `webfetch` call refused, and on
+  v1 `opencode debug agent tdd-red` lists `webfetch`, `websearch`, `task`,
+  `lsp`, and `question` as `deny` after the global `*` allow.
 - `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
   passes against the image's v2.
 - With the patched `opencode.json`, v2 reads and writes a path outside the
