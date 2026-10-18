@@ -5,11 +5,12 @@ created: 2026-10-18
 release:
 - features/opencode-workspace-cbm-indexing
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-18T18:50:00Z
+  by: claude-code/opus-5
+  at: 2026-10-18T20:30:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
+- resource: .agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts
 - resource: .devcontainer/scripts/codebase-memory-mcp-start.sh
 - resource: .devcontainer/scripts/codebase-memory-mcp-index.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
@@ -102,7 +103,9 @@ work.
 
 ### Task 2: Verify the installed-host and shared-daemon behavior
 
-**Files:** Create: none; Modify: this plan's `## Verification results`.
+**Files:** Create:
+`.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`; Modify: this
+plan's `## Verification results` and verification commands.
 
 - [x] Run the installed OpenCode bridge against a small disposable Git
   repository under `.tmp/`, using an isolated OpenCode config and CBM cache.
@@ -111,18 +114,20 @@ work.
   confirm both roots remain indexed. Repeat opening from a subdirectory and
   confirm no duplicate project or new indexing job. Record commands and results.
   Stop the test daemon and clean up its resources afterward.
-  - **Evidence:** Installed-host verification with OpenCode 1.19.3 and CBM
-    0.12.1 passed: two exact roots reached `succeeded`; reopening a subdirectory
-    preserved the original job and the two-project list. See Verification
-    results.
+  - **Evidence:**
+    `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
+    passes against OpenCode 1.19.3 and CBM 0.12.1: both exact roots reach
+    `succeeded`, reopening a subdirectory preserves the original job and the
+    two-project list, and cleanup removes the test host, daemon, and fixtures.
 - [x] Verify with the pinned OpenCode host that disabled CBM and an unavailable
   CBM executable leave skills and commands usable and produce the specified
   skip/diagnostic behavior. Record the observed config-hook timing and local MCP
   command compatibility, including the CBM JSON envelope used by the helper.
-  - **Evidence:** Pinned-host checks passed for both configurations:
-    `opencode debug skill` and `opencode debug config` retained the catalog;
-    disabled CBM emitted no registration warning, and an unavailable executable
-    emitted an `agentdev` warning. The combined Bun suite passes 40 tests.
+  - **Evidence:** The same verifier passes its disabled and unavailable checks:
+    `opencode debug skill` and `opencode debug config` retain the catalog,
+    disabled CBM is a quiet skip, an unavailable executable logs a registration
+    warning, and neither submits an index. The combined Bun suite passes 40
+    tests.
 
 ### Task 3: Document and map the shipped integration
 
@@ -211,11 +216,13 @@ or timed-out commands with bounded resource use and OpenCode diagnostics.
   first demonstrates the new behavior failing, then passes.
 - `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts ./.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
   verifies registration and existing bridge behavior together.
-- For Task 2, run `opencode debug skill` and `opencode debug config` with the
-  isolated fixture as working directory and the bridge registered. Verify both
-  roots with `codebase-memory-mcp cli --json list_projects --format json` and
-  completion with
-  `cli --json index_repository --repo-path <root> --status true`, using the same
+- For Task 2,
+  `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts` runs
+  the installed-host checks: it serves OpenCode with the bridge registered, runs
+  `opencode debug skill` and `opencode debug config` in each fixture, verifies
+  both roots with `codebase-memory-mcp cli --json list_projects --format json`
+  and completion with
+  `cli --json index_repository --repo-path <root> --status true`, all against an
   isolated cache. No model invocation is needed.
 - `iwe normalize` and `iwe schema validate` pass after knowledge edits.
 
@@ -227,9 +234,12 @@ or timed-out commands with bounded resource use and OpenCode diagnostics.
   and timeout cleanup after the immediate child exits.
 - **Installed host:** OpenCode 1.19.3 (the Ansible pin) and CBM 0.12.1 passed
   with isolated OpenCode config, HOME/XDG directories, and CBM cache under
-  repository `.tmp/`. A private mount namespace isolated CBM's account-wide
-  daemon endpoint. The installed plugin SDK was copied into the isolated config;
-  no model invocation was needed.
+  repository `.tmp/`. A private mount namespace with a private `/tmp` isolated
+  CBM's account-wide daemon endpoint. The verifier seeds the isolated config
+  with the installed plugin SDK and its lockfile, both checked against the host
+  version, so config loading never installs packages; without a seed, the host
+  stalls on SDK installation before the bridge runs. Set `OPENCODE_TEST_SDK_DIR`
+  to use a different provisioned OpenCode config directory.
 - **Commands:** `opencode serve --hostname 127.0.0.1 --port <port>` kept the
   host alive; `GET /config?directory=<root>` initialized each workspace.
   `opencode debug skill` and `opencode debug config` verified the catalog in
@@ -238,7 +248,7 @@ or timed-out commands with bounded resource use and OpenCode diagnostics.
   and checked `cli --json list_projects --format json` against both roots. Both
   jobs reached `succeeded`; reopening preserved the original job and exactly two
   registered projects. The test host and daemon were stopped.
-- **Timing and failures:** Workspace config responses completed in 125–199 ms
+- **Timing and failures:** Workspace config responses completed in under 250 ms
   while registration continued in the background. Disabled CBM was a quiet skip;
   an unavailable executable produced a registration warning through OpenCode's
   logging client. Both retained skills and namespaced commands.

@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:f4cd65121a1f2e4cbca2d16b04ab4b86acdafc8fdd88a78f038ac048b893d211
+source_digest: sha256:6e758e0123e9446ceb93034274537edfc35ede0a39b6bea8132ee58ab4ba510d
 verified:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-18T18:50:00Z
+  by: claude-code/opus-5
+  at: 2026-10-18T20:30:00Z
 stale_after: 2027-01-16
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-18T18:50:00Z
+  by: claude-code/opus-5
+  at: 2026-10-18T20:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -23,6 +23,9 @@ with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `opencode/workspace-index.test.ts` are separate Bun suites for the [OpenCode
 bridge](opencode-plugin.md), run with
 `bun test ./.agents/plugins/agentdev/tests/opencode` in the same job.
+`opencode/verify-workspace-host.ts` is not a Bun test file and stays out of CI:
+run directly with `bun`, it checks workspace registration against the installed
+OpenCode and CBM, isolated in a private mount namespace under `.tmp/`.
 
 ## Public surface
 
