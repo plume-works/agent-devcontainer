@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:957a65029f066109be04bde959469c066b9f3a9b8f448d6712efe1d5968ac956
+source_digest: sha256:1e6330d3130d4c54e056447416fa27c1bf5bb1b490ba7172e387f132a9be067c
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  by: codex/gpt-5
+  at: 2026-10-18T19:39:20Z
 stale_after: 2027-01-15
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  by: codex/gpt-5
+  at: 2026-10-18T19:39:20Z
 sources:
 - id: code
   resource: .devcontainer
@@ -59,7 +59,8 @@ git common dir at its host path so worktrees resolve, and starts the MCP gateway
 only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
 `~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`) is on Compose-scoped
 volumes; only credentials share the literal `agentdev-agents-auth` volume across
-instances.
+instances. The start lifecycle also restores Codex and OpenCode full-access
+policies in their user configuration files.
 
 ## Depends on
 

@@ -56,8 +56,9 @@ Rejected:
   policy is independent of whether a catalog is present.
 - Replacing the complete config with the approved object: that would delete the
   bridge plugin and user-defined OpenCode settings.
-- A textual shell edit: JSON has a standard-library parser, so string matching
-  need not define the configuration contract.
+- A textual shell edit or a local JSONC parser: a maintained third-party parser
+  handles comments, trailing commas, strings, and duplicate keys without making
+  string matching part of the configuration contract.
 
 ## Implementation Steps
 
@@ -117,10 +118,13 @@ Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`,
 `docs/knowledge/data/codebase/flow-devcontainer-lifecycle.md`
 
-- [ ] Record the devcontainer isolation boundary, managed config values,
+- [x] Record the devcontainer isolation boundary, managed config values,
   merge/atomicity constraints, config-directory resolution, and rejected
   alternatives; add the script to the template inventory and refresh the
   affected codebase-map documents.
+  - **Evidence:** 2026-10-18 `iwe normalize` and `iwe schema validate` passed;
+    the stale-map check reported all 28 codebase documents fresh; focused tests,
+    Ruff, shellcheck, and the two-run JSONC sandbox check passed.
 
 ## Spec changes
 
