@@ -27,5 +27,6 @@ fi
 "$script_dir/link-codex-auth.sh"
 "$script_dir/link-opencode-auth.sh"
 
-# Last, so a failure here cannot keep the firewall, keyring, or Xpra from starting.
+# Last, so a config failure cannot keep the firewall, keyring, or Xpra from starting.
 "$script_dir/configure-codex.py"
+"$script_dir/configure-opencode.py"

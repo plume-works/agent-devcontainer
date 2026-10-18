@@ -91,9 +91,12 @@ Rejected:
 
 **Files:** Modify: `.devcontainer/scripts/postStartCommand.sh`
 
-- [ ] Run `configure-opencode.py` with `configure-codex.py` at the end of every
+- [x] Run `configure-opencode.py` with `configure-codex.py` at the end of every
   start, after service and authentication setup, and keep the lifecycle script
   shellcheck-clean.
+  - **Evidence:** 2026-10-18 shellcheck passed; the focused pytest suite passed
+    all 6 tests; a two-run sandbox check was byte-identical with modes
+    `0700`/`0600` and the approved values.
 
 ### Task 3: Record the full-access design and refresh the codebase map
 
