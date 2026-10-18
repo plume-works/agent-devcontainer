@@ -148,8 +148,9 @@ map skill.
 
 ## Spec changes
 
-Create `data/spec/opencode-workspace-cbm-indexing` at Ship and link it from the
-spec hub. Existing catalog requirements remain applicable. Intended delta:
+Create [OpenCode workspace CBM
+indexing](../spec/opencode-workspace-cbm-indexing.md) at Ship and link it from
+the spec hub. Existing catalog requirements remain applicable. Intended delta:
 
 ``` markdown
 ## ADDED Requirements
