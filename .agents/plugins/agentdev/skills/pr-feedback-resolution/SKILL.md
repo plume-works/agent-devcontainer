@@ -62,9 +62,9 @@ gh api "repos/{owner}/{repo}/pulls/<pr-number>" --jq '.stack.number // empty'
 
 - `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, and the second
   command prints a stack number: the PR belongs to a GitHub stack. Check out
-  its branch and run `gh stack rebase`, then `gh stack push`, through
-  [gh-stack](../gh-stack/SKILL.md); resolve a rebase conflict with that skill's
-  exit-3 recovery. Do not run `update-branch`.
+  its branch and refresh the stack with the guard's `begin`, `gh stack rebase`,
+  then the guard's `publish`, through [gh-stack](../gh-stack/SKILL.md); resolve
+  a rebase conflict with that skill's exit-3 recovery. Do not run `update-branch`.
 - `mergeable` is `CONFLICTING` or `mergeStateStatus` is `DIRTY` outside a stack:
   invoke `/agentdev:update-branch --base <baseRefName>`, follow its
   [git-merge-resolve](../git-merge-resolve/SKILL.md) handoff for the conflicts,

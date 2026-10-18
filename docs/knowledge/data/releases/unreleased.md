@@ -70,6 +70,9 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 ## Fixed
 
+[Bug: gh stack push overwrites a stack layer whose remote is
+ahead](../bugs/gh-stack-push-overwrites-remote-layer.md)
+
 [Image rebuild lost when a later push to main cancels its
 run](../bugs/main-image-rebuild-lost-on-cancel.md)
 

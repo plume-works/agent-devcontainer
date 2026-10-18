@@ -75,7 +75,7 @@ asks to change that state.
   unresolved review threads. Keep this state in the conversation; do not post
   progress comments to the PR.
 - Work only on the PR head branch. Preserve unrelated local changes, never
-  force-push outside `gh stack push`, and never update its base branch unless
+  force-push outside the gh-stack skill's guarded `publish`, and never update its base branch unless
   the user explicitly requests it. This skill's merge workflow authorizes disabling auto-merge and
   performing the final squash merge.
 - A remediation requested by this skill is authorized by the user request to
@@ -101,8 +101,10 @@ git -C <worktree> merge --ff-only origin/<head-branch>
 ```
 
 The fetch plus fast-forward merge is the required local pull of any formatter
-commit. On a stacked PR, follow it with `gh stack rebase --upstack` and
-`gh stack push`: the layers above no longer contain the new tip. If the PR head SHA changed, record the new SHA and restart the
+commit. On a stacked PR, follow it with the guarded edit workflow of
+[gh-stack](../gh-stack/SKILL.md) — the guard's `begin`,
+`gh stack rebase --upstack`, then `publish`: the layers above no longer contain
+the new tip. If the PR head SHA changed, record the new SHA and restart the
 monitoring loop from step 1: CI, AI review, feedback, and merge state must all
 be re-evaluated for that new head. If the fast-forward fails, do not create an
 automatic merge; report the local divergence and resolve it only through the
@@ -198,9 +200,10 @@ to check later.
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
    `agent-code/push-branch.sh`, handling its result as that skill's step 8 does.
-   On a stacked PR, run `gh stack rebase --upstack` and `gh stack push`
-   through [gh-stack](../gh-stack/SKILL.md) instead, so every layer above
-   carries the fix. Restart the loop
+   On a stacked PR, run the guard's `begin` before the commit, then
+   `gh stack rebase --upstack` and the guard's `publish`, through
+   [gh-stack](../gh-stack/SKILL.md) instead, so every layer above carries the
+   fix. Restart the loop
    from step 1 because the head SHA and checks have changed.
 
 6. Once CI is successful, inspect reviews and unresolved review threads. Wait
