@@ -81,6 +81,39 @@ def test_existing_config_preserves_unmanaged_settings(config_dir: Path) -> None:
     }
 
 
+def test_jsonc_config_is_patched_after_json_without_losing_settings(config_dir: Path) -> None:
+    config_dir.mkdir()
+    json_config = config_dir / 'opencode.json'
+    json_config.write_text(json.dumps({'plugin': ['/catalog/bridge']}))
+    jsonc_config = config_dir / 'opencode.jsonc'
+    jsonc_config.write_text(
+        """{
+  // This file overrides opencode.json in the same directory.
+  "model": "openai/gpt-6.1-sol",
+  "permission": {
+    "*": "ask",
+    "external_directory": {
+      "/catalog/**": "deny",
+    },
+  },
+}
+"""
+    )
+    original_json = json_config.read_bytes()
+
+    run_script(config_dir)
+
+    assert json_config.read_bytes() == original_json
+    assert json.loads(jsonc_config.read_text()) == {
+        '$schema': SCHEMA,
+        'model': 'openai/gpt-6.1-sol',
+        'permission': {
+            '*': 'allow',
+            'external_directory': {'/**': 'allow', '/catalog/**': 'deny'},
+        },
+    }
+
+
 def test_opencode_config_dir_takes_precedence(tmp_path: Path) -> None:
     explicit = tmp_path / 'explicit'
     xdg = tmp_path / 'xdg'

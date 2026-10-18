@@ -11,6 +11,7 @@ sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
+- resource: https://opencode.ai/docs/config/
 ---
 
 # Configure devcontainer OpenCode for full access
@@ -34,13 +35,14 @@ plan.
 
 Add `.devcontainer/scripts/configure-opencode.py`, a standard-library Python
 script that resolves the same config directory as
-`reinstall-agentdev-opencode.sh`, parses `opencode.json`, merges the managed
-schema and permission entries, and replaces the file atomically. Existing
-top-level keys, permission rules, external-directory rules, and the catalog
-bridge plugin list survive; the three managed values are restored on every
-start. `postStartCommand.sh` runs the script after the other runtime setup so a
-configuration failure cannot prevent the firewall, keyring, or Xpra from
-starting.
+`reinstall-agentdev-opencode.sh`, selects `opencode.jsonc` when it exists and
+`opencode.json` otherwise, merges the managed schema and permission entries, and
+replaces the selected file atomically. JSONC comments and trailing commas are
+accepted and normalized to strict JSON, while existing setting values,
+permission rules, and the catalog bridge config survive. The three managed
+values are restored on every start. `postStartCommand.sh` runs the script after
+the other runtime setup so a configuration failure cannot prevent the firewall,
+keyring, or Xpra from starting.
 
 The config directory follows `OPENCODE_CONFIG_DIR`, then
 `XDG_CONFIG_HOME/opencode`, then `~/.config/opencode`, matching the existing
@@ -85,6 +87,13 @@ Rejected:
 
   - **Evidence:** 2026-10-18
     `uv run pytest scripts/tests/test_configure_opencode.py` passed all 6 tests;
+    targeted Ruff check and format-check passed.
+
+- [x] Accept `opencode.jsonc` comments and trailing commas, patch it instead of
+  `opencode.json` when both exist because JSONC loads later, preserve all
+  setting values, and leave the lower-precedence JSON file unchanged.
+
+  - **Evidence:** 2026-10-18 focused pytest passed all 7 JSON and JSONC cases;
     targeted Ruff check and format-check passed.
 
 ### Task 2: Restore the policy on every container start
@@ -140,6 +149,13 @@ and the file SHALL have mode `0600`.
 - **WHEN** `opencode.json` contains a plugin list, unrelated top-level keys, or
   additional permission rules
 - **THEN** those values survive and the three managed values are set.
+
+#### Scenario: the config directory contains JSON and JSONC
+
+- **WHEN** `opencode.jsonc` contains comments or trailing commas and exists
+  alongside `opencode.json`
+- **THEN** the configure step patches the higher-precedence JSONC config,
+  preserves its setting values, and leaves `opencode.json` unchanged.
 
 #### Scenario: a session changed the policy
 

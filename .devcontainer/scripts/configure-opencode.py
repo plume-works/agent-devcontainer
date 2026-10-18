@@ -24,11 +24,84 @@ def config_directory() -> Path:
     return Path.home() / '.config/opencode'
 
 
+def config_path(directory: Path) -> Path:
+    """Return the highest-precedence user config file in ``directory``."""
+    jsonc = directory / 'opencode.jsonc'
+    return jsonc if jsonc.exists() else directory / 'opencode.json'
+
+
+def jsonc_to_json(content: str) -> str:
+    """Remove JSONC comments and trailing commas without changing string values."""
+    characters = list(content)
+    index = 0
+    in_string = False
+    while index < len(characters):
+        character = characters[index]
+        if in_string:
+            if character == '\\':
+                index += 2
+                continue
+            if character == '"':
+                in_string = False
+            index += 1
+            continue
+        if character == '"':
+            in_string = True
+            index += 1
+            continue
+        if character == '/' and index + 1 < len(characters):
+            marker = characters[index + 1]
+            if marker == '/':
+                characters[index] = characters[index + 1] = ' '
+                index += 2
+                while index < len(characters) and characters[index] not in {'\n', '\r'}:
+                    characters[index] = ' '
+                    index += 1
+                continue
+            if marker == '*':
+                characters[index] = characters[index + 1] = ' '
+                index += 2
+                while index + 1 < len(characters):
+                    if characters[index] == '*' and characters[index + 1] == '/':
+                        characters[index] = characters[index + 1] = ' '
+                        index += 2
+                        break
+                    if characters[index] not in {'\n', '\r'}:
+                        characters[index] = ' '
+                    index += 1
+                continue
+        index += 1
+
+    index = 0
+    in_string = False
+    while index < len(characters):
+        character = characters[index]
+        if in_string:
+            if character == '\\':
+                index += 2
+                continue
+            if character == '"':
+                in_string = False
+        elif character == '"':
+            in_string = True
+        elif character == ',':
+            following = index + 1
+            while following < len(characters) and characters[following].isspace():
+                following += 1
+            if following < len(characters) and characters[following] in {'}', ']'}:
+                characters[index] = ' '
+        index += 1
+    return ''.join(characters)
+
+
 def load_config(path: Path) -> dict[str, Any]:
     """Load an OpenCode config, treating a missing or empty file as an object."""
-    if not path.exists() or not path.read_text(encoding='utf-8').strip():
+    if not path.exists():
         return {}
-    loaded = json.loads(path.read_text(encoding='utf-8'))
+    content = path.read_text(encoding='utf-8')
+    if not content.strip():
+        return {}
+    loaded = json.loads(jsonc_to_json(content))
     if not isinstance(loaded, dict):
         raise ValueError(f'{path} must contain a JSON object')
     return loaded
@@ -79,7 +152,7 @@ def main() -> None:
     directory = config_directory()
     directory.mkdir(parents=True, exist_ok=True)
     directory.chmod(0o700)
-    config = directory / 'opencode.json'
+    config = config_path(directory)
     updated = apply_policy(load_config(config))
     write_atomically(config, json.dumps(updated, indent=2, ensure_ascii=False) + '\n')
 
