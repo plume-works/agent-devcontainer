@@ -457,79 +457,53 @@ SHALL NOT be updated.
 - `publish` no longer runs `gh stack push` or `gh stack submit`. The guard is
   the only force-push: one atomic `git push` leased on the remote tips read from
   the fetched tracking refs. `--submit` creates and links PRs with
-  `gh stack link`, whose push is non-force. That uses create mode for a new
-  stack and add mode (`gh stack link <stack#> <new layers>`) once the stack
-  exists on GitHub. See `architecture/stack-push-guard`.
-- Open: `gh stack link` writes no local stack state, so `gh stack view --json`
-  reports `pr: null` for linked layers. This breaks merged-layer and add-mode
-  detection on the next `publish --submit`. `gh stack checkout <stack#>` records
-  the PRs locally when local matches remote. `publish --submit` must run it
-  after every link call, and that must be verified live before this plan ships.
-- Verification includes a live end-to-end run against a scratch repository.
-  Create, no-op, behind, diverged, moved-after-`begin`, and add mode after a
-  merge behave as specified on gh-stack v0.2.1.
+  `gh stack link`, whose push is non-force. It uses create mode for a new stack
+  and add mode (`gh stack link <stack#> <new layers>`) once the stack exists on
+  GitHub. See `architecture/stack-push-guard`.
+- `gh stack link` writes no local stack state, so after every link
+  `publish --submit` runs `gh stack checkout <stack#>` to record the PRs
+  locally, then restores the original branch.
+- Verification includes a live end-to-end run on gh-stack v0.2.1 against a
+  scratch repository. It covers create, no-op, behind, diverged,
+  moved-after-`begin`, and add mode after a squash merge, with local PR state
+  recorded after each link. The refusal of a PR-less layer below a linked one,
+  and queued layers, are covered by the stub suite only.
 
 ## Out of scope
 
 - Fixing gh-stack itself. Upstream #380, #489, and #472 stay upstream's to fix.
-  Once #380 ships, `publish`'s moved-tip check becomes redundant but harmless.
-- Merge commits inside a layer: `--no-merges` ignores them, and update-branch
-  already keeps merges off stack branches.
 - Resolving divergence automatically. The guard stops, and the user decides.
-- The time between `publish`'s check and gh-stack's own fetch.
+- Removing a GitHub stack that holds a merged PR: GitHub refuses to unstack it.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
+Verified anchor points (line numbers as of 2026-10-18):
 
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:306` —
-  `run_begin`
 - `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:317` —
+  `push_layers`, the only force-push
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:356` —
+  `plan_link`, create vs add mode
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:422` —
+  `record_stack`, the checkout after a link
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:478` —
+  `run_begin`
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:489` —
   `run_publish`
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-62` — § The push guard,
+- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-70` — § The push guard,
   with the result table
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:103-159` — creating,
-  editing, and refreshing a stack through the guard
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:220-224` — stack branches
+- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:220` — stack branches
   published with the guard's `publish`
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:262` — force-push rule
-  naming the guarded `publish`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:78` — force-push rule
-  naming the guarded `publish`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:104-107` — formatter commit
-  followed by the guarded edit workflow
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:203-206` — stacked PR
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:203-204` — stacked PR
   remediation through `begin`, `rebase --upstack`, `publish`
-- `docs/knowledge/data/spec/pr-merge-conflicts.md:25-34` — requirement naming
-  `gh stack push` for a stacked PR
-- `docs/knowledge/data/spec/pr-merge-conflicts.md:50-55` — Stacked PR scenario
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:65-67` —
+- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:23` — force-push rule
+  naming the guarded `publish`
+- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:65-66` —
   stacked PR conflict through the guarded refresh
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:22-23` — stack
-  branches updated by `rebase` and the guarded `publish`
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:53-62` — layers above
-  re-synced with `rebase --upstack` and `publish`
-- `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md:86-93` — partial
-  merge recovery through the guarded refresh
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:86-89` — Workflow 0
+- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:89` — Workflow 0
   directing to the guarded refresh
-- `.agents/plugins/agentdev/skills/update-branch/SKILL.md:160` — result table
-  row naming the guard
-- `.agents/plugins/agentdev/bin/result-codes.sh` — shared result helpers
-- `.agents/plugins/agentdev/tests/git_fixtures.py:19` — `git` fixture runner and
-  `stub_gh`
-- `AGENTS.md:6` — force-push exception
-- `AGENTS.md:11` — git-config exception naming the vendored skill
-- `docs/knowledge/data/product.md:123-127` — Authoring rules mirror of both
-  exceptions
-- `docs/knowledge/data/architecture/stacked-prs.md:22` — facts stated for v0.2.0
-- `docs/knowledge/data/architecture/stacked-prs.md:108-111` — re-vendor
-  procedure
-- `docs/knowledge/data/architecture/stacked-prs.md:126-128` — rejected "Our own
-  `gh stack` driver skill"
-- `docs/knowledge/data/features/native-stacked-prs.md:27-29` — vendored skill
-  "kept on the same release by a test"
-- `docs/knowledge/data/features/native-stacked-prs.md:56-58` — partial merge
-  re-synced with `gh stack sync`
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:41` —
-  "vendored unchanged from `github/gh-stack`"
+- `docs/knowledge/data/spec/pr-merge-conflicts.md:32-33` — requirement naming
+  `stack-guard.sh begin` and `publish`
+- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py` — the stub-backed
+  guard suite
+- `AGENTS.md:6` — force-push exception naming the guard
+- `docs/knowledge/data/product.md:124` — Authoring rules mirror of the exception

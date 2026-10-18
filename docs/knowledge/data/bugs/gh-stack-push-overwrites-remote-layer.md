@@ -53,17 +53,18 @@ Fixed by [Guard every gh stack push against overwriting a layer's remote
 commits](../plans/20261017-gh-stack-push-guard.md). The repository-owned
 gh-stack skill's `stack-guard.sh begin` runs before a stack is rewritten,
 fast-forwards layers that are behind, and stops on remote-only commits.
-`publish` replaces `gh stack push` and `submit`, stops when a remote moved since
-`begin`, and verifies every tip after the push. `gh stack sync` is no longer
-run.
+`publish` replaces `gh stack push` and `submit`: it stops when a remote moved
+since `begin`, makes the only force-push as one atomic push leased on the tips
+it checked, links PRs with the non-force `gh stack link`, and verifies every tip
+after the push. `gh stack sync` is no longer run.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
+Verified anchor points (line numbers as of 2026-10-18):
 
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:306` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:478` —
   `run_begin`
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:317` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:489` —
   `run_publish`
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-62` — § The push guard
+- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:29-70` — § The push guard
 - `AGENTS.md:6` — the force-push exception naming the guard

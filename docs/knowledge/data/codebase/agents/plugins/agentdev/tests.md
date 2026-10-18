@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:e68ea07c893fb4e3b8e0755fc21f74e5a4847437cc377b2819a34c5f04ab3710
+source_digest: sha256:51d79e2661e5c9b44c0147b75a1296aab3e4d90ea1a64028d57d7c886244710b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T04:10:00Z
+  at: 2026-10-18T08:30:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T04:10:00Z
+  at: 2026-10-18T08:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -60,11 +60,11 @@ subtree, including invalid replacements and masked binary files.
 clone that pushes behind the working clone's back, a stub `git` with
 after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
 `api` for the stack number, and `stack link` (a non-force atomic push of the
-named branches, in create or add mode); it pins each `stack-guard.sh` result,
-including a squash-merged lower layer that GitHub-style rebasing leaves
-`SUCCESS`, a peer merge of trunk, a whitespace-only remote rewrite, a push
-leased on the checked tip, queued layers, link create and add modes, and a
-`publish` rerun after a failed link. `test_capture_close_issue.py`,
+named branches, in create or add mode) and `stack checkout`; it pins each
+`stack-guard.sh` result, including a squash-merged lower layer that GitHub-style
+rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only remote
+rewrite, a push leased on the checked tip, queued layers, link create and add
+modes, and a `publish` rerun after a failed link. `test_capture_close_issue.py`,
 `test_close_issue.py`, `test_discover_ai_responder.py`,
 `test_explicit_only_parity.py`, `test_fetch_issue.py`, `test_gh_stack_guard.py`,
 `test_git_commit.py`, `test_install_codex_agents.py`, `test_git_new_branch.py`,
@@ -155,7 +155,7 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
-- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:90` — `Stack`, the
+- `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:117` — `Stack`, the
   two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the
   remote/work/publisher triple
