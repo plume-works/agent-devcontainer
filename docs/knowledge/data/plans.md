@@ -37,6 +37,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Configure devcontainer OpenCode for full
+access](plans/20261018-opencode-full-access-config.md)
+
 [Autostart the OpenCode web UI on
 Coder](plans/20261016-opencode-web-coder-autostart.md)
 

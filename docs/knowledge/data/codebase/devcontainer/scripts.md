@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, Codex and OpenCode auth symlinks, Claude pre-approval, gh credential helper, the Coder agent-start entry point, Claude Remote Control, the OpenCode web UI, Codex policy.'
+description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth symlinks and full-access policies, Claude pre-approval, gh credential helper, the Coder agent-start entry point, Claude Remote Control, and the OpenCode web UI.'
 source: .devcontainer/scripts
-source_digest: sha256:652c8ac31492a03878558faf4908a66efb6d898c65f11744c5d1819e9e60c0d8
+source_digest: sha256:61aafb02bac77aa5f67fc00971d6cb3358fbb771a442624c87b398e45b6a1c32
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  by: codex/gpt-5
+  at: 2026-10-18T19:39:20Z
 stale_after: 2027-01-15
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  by: codex/gpt-5
+  at: 2026-10-18T19:39:20Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -17,7 +17,7 @@ sources:
 
 # Devcontainer lifecycle scripts
 
-Twenty-four shell scripts, all `set -euo pipefail`, and two `uv run --script`
+Twenty-four shell scripts, all `set -euo pipefail`, and three `uv run --script`
 Python scripts that the three lifecycle commands in
 [devcontainer.json](../devcontainer.md) fan out to. Each resolves the workspace
 from `DEV_WORKSPACE_FOLDER` with a `BASH_SOURCE` fallback so it also runs
@@ -28,7 +28,7 @@ outside the devcontainer.
 | Script                                               | Called by                       | Does                                                                                                                                                                                                                             |
 | ---------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `postCreateCommand.sh`                               | create (once)                   | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, Claude pre-approval, Codex and OpenCode auth links, uv sync, staged-catalog install                                                                           |
-| `postStartCommand.sh`                                | every start                     | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Codex and OpenCode auth links, Codex policy                                                                                   |
+| `postStartCommand.sh`                                | every start                     | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Codex and OpenCode auth links and full-access policies                                                                        |
 | `postAttachCommand.sh`                               | every editor attach             | CBM index, uv sync, reinstall the catalog from this checkout                                                                                                                                                                     |
 | `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach                  | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                                                                                                                          |
 | `reinstall-agentdev-codex.sh [root]`                 | create, attach                  | the Codex equivalent, single-plugin; Codex has no scopes                                                                                                                                                                         |
@@ -39,6 +39,7 @@ outside the devcontainer.
 | `link-codex-auth.sh`                                 | create, start                   | symlink `~/.codex/auth.json` into the shared auth volume                                                                                                                                                                         |
 | `link-opencode-auth.sh`                              | create, start                   | move a regular `${XDG_DATA_HOME:-~/.local/share}/opencode/auth.json` into `${AGENTDEV_AGENTS_AUTH_DIR:-/root/.agents-auth}/opencode/` and symlink it back, without creating the target                                           |
 | `configure-codex.py`                                 | start (last)                    | set top-level `sandbox_mode` and `approval_policy` in `${CODEX_HOME:-~/.codex}/config.toml`, atomically at `0600`                                                                                                                |
+| `configure-opencode.py`                              | start (last)                    | merge the approved action and external-filesystem policy into the highest-precedence JSON or JSONC user config, atomically at `0600`                                                                                             |
 | `preapprove-claude-workspace.sh`                     | create                          | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                                                                                                             |
 | `coder-agent-start.sh`                               | Coder `coder_script`            | the Coder agent's entry point: run `docker-image-prune.sh`, then `setup-gh-credential-helper.sh`, then `opencode-web-start.sh` (each failure only warns), then exec `claude-remote-control-start.sh`                             |
 | `docker-image-prune.sh`                              | `coder-agent-start.sh`          | `docker image prune -af --filter until=72h` on the nested engine, printing the reclaimed total; exits 0 when docker or its daemon is unavailable, and only warns when the prune fails                                            |
@@ -121,6 +122,10 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 - `configure-codex.py` rewrites `config.toml` through `tomlkit`, keeping other
   tools' comments; keys it adds go above everything else in the file. Decision:
   [codex-full-access-in-devcontainer](../../architecture/codex-full-access-in-devcontainer.md).
+- `configure-opencode.py` parses JSON and JSONC through pinned `json5`,
+  preserves setting values, and normalizes the selected file to strict JSON.
+  Decision:
+  [opencode-full-access-in-devcontainer](../../architecture/opencode-full-access-in-devcontainer.md).
 
 ## Key references
 
@@ -133,7 +138,7 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `.devcontainer/scripts/postCreateCommand.sh:79-80` — Codex and OpenCode auth
   links
 - `.devcontainer/scripts/postCreateCommand.sh:93-99` — staged-catalog install
-- `.devcontainer/scripts/postStartCommand.sh:9-31` — the start sequence
+- `.devcontainer/scripts/postStartCommand.sh:9-32` — the start sequence
 - `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:64-65` — add + install
@@ -166,3 +171,5 @@ Verified anchor points (line numbers as of 2026-10-17):
   load, `gh auth setup-git`
 - `.devcontainer/scripts/configure-codex.py:29,46` — `render_config`,
   `write_atomically`
+- `.devcontainer/scripts/configure-opencode.py:19,30,36,49,75,89` — config
+  resolution, parsing, policy merge, atomic write, and entry point
