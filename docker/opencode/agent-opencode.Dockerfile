@@ -6,10 +6,8 @@ FROM $FROM_IMAGE
 
 ARG FROM_IMAGE
 
-# supervisord runs in-process as PID 1 (runtime-supervisor.py run); the apt
-# package's own service config is unused. The stock UID 1000 account would
-# collide with the default runtime identity. gh-stack moves out of root's home
-# so any runtime account can register it. Spec: standalone-opencode-runtime.
+# gh-stack moves out of root's home so any runtime account can register it.
+# Supervisor and UID rationale: see architecture/standalone-opencode-runtime.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \

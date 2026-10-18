@@ -6,14 +6,14 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:e8df497be667f22128394e4aa519498481468b9c0dd01c03470b61a723657a8d
+source_digest: sha256:6b6012f7ca4f5776d7af4861ad6337344b31e062d7da30703cdb87f5ff646ab8
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
-stale_after: 2027-01-15
+  at: 2026-10-18T18:45:54Z
+stale_after: 2027-01-16
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
+  at: 2026-10-18T18:45:54Z
 sources:
 - id: code
   resource: docker
@@ -74,7 +74,7 @@ is the surface those consumers touch; the build that produces it is
 The image runs itself:
 `ENTRYPOINT ["/opt/agentdev-runtime/runtime-supervisor.py", "run"]`,
 `EXPOSE 4096 14500`, and a `HEALTHCHECK` that passes once every required service
-is ready — `docker/opencode/agent-opencode.Dockerfile:61-67`. It must run
+is ready — `docker/opencode/agent-opencode.Dockerfile:59-65`. It must run
 privileged, with volumes at `/home/agent`, `/uv`, `/var/lib/docker`,
 `/workspaces/project` (or a bind checkout), and `/var/lib/agentdev/auth`; the
 supported deployment is the root `compose.opencode.yml`.

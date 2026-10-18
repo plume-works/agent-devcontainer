@@ -96,6 +96,15 @@ def test_pin_checks_accept_the_proposed_digest_without_building_anything():
     assert '@sha256:' in pin['run'] and PIN in pin['run']
 
 
+def test_pin_checks_skip_only_when_ci_cd_runs_its_own_acceptance():
+    scope = next(s for s in steps(CHECKS['jobs']['acceptance']) if s.get('id') == 'scope')
+    ci_filter = next(s for s in steps(CI['jobs']['paths-filter']) if s.get('id') == 'filter')
+    assert scope['uses'] == ci_filter['uses'] == './.github/actions/paths-filter'
+    assert scope['with']['extra-filter'] == ci_filter['with']['extra-filter']
+    gated = [s for s in steps(CHECKS['jobs']['acceptance']) if 'scope' in s.get('if', '')]
+    assert gated and all(s['if'] == "steps.scope.outputs.pass != 'true'" for s in gated)
+
+
 def test_renovate_tracks_the_pin_and_lets_its_tasks_edit_it():
     patterns = RENOVATE['docker-compose']['managerFilePatterns']
     assert any(re.search(p.strip('/'), PIN) for p in patterns)

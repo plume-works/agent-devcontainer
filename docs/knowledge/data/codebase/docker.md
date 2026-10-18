@@ -2,14 +2,14 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:6fb36703828aea10a5107256c6ecaa7e0ae5573edb835140269a251d748a2228
+source_digest: sha256:8be938a35d25c02b202f2cbe806c9872660fc29ebe8c45fa2a31682f4234a581
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
-stale_after: 2027-01-15
+  at: 2026-10-18T18:45:54Z
+stale_after: 2027-01-16
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
+  at: 2026-10-18T18:45:54Z
 sources:
 - id: code
   resource: docker
@@ -98,9 +98,9 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `docker/desktop/agent-desktop.Dockerfile:41` — the provisioning `RUN`
 - `docker/desktop/agent-desktop.Dockerfile:68-71` — `ENV` and version labels
 - `docker/desktop/agent-desktop.Dockerfile:76-86` — scripts, port, entrypoint
-- `docker/opencode/agent-opencode.Dockerfile:13` — supervisor, account removal,
-  `gh-stack` relocation; `:24-28` — baked runtime files; `:32` — runtime `ENV`;
-  `:61-67` — ports, healthcheck, entrypoint
+- `docker/opencode/agent-opencode.Dockerfile:11` — supervisor, account removal,
+  `gh-stack` relocation; `:22-26` — baked runtime files; `:30` — runtime `ENV`;
+  `:59-65` — ports, healthcheck, entrypoint
 - `docker/opencode/supervisord.conf:23` — the controller; `:36-146` — the eight
   programs
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`

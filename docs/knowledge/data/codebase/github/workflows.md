@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:c43fcd5407aed447f6fee5e4fa78905512a3c62c55a3cc4a05f3325f46a09f44
+source_digest: sha256:2baaa7c7d758d29b4553bbe1747fe8f317bd9e6d162a1a350a001da849ab3454
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
-stale_after: 2027-01-15
+  at: 2026-10-18T18:45:54Z
+stale_after: 2027-01-16
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
+  at: 2026-10-18T18:45:54Z
 sources:
 - id: code
   resource: .github/workflows
@@ -27,7 +27,7 @@ deployment-pin check, the scheduled Renovate bot, and one manual job.
 | `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch          | `reformat` → `ci` (only when `run_downstream`)                                                                                               |
 | `reformat.yml`                 | `workflow_call`                                         | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                                                                 |
 | `ci.yml`                       | `workflow_call`                                         | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` + `opencode-acceptance` → `finished`             |
-| `opencode-runtime-checks.yml`  | PR touching the OpenCode pin or Compose files, dispatch | `acceptance` (amd64 + arm64): native container acceptance of the pinned `agent-opencode` digest, skipped when other files changed too        |
+| `opencode-runtime-checks.yml`  | PR touching the OpenCode pin or Compose files, dispatch | `acceptance` (amd64 + arm64): native container acceptance of the pinned `agent-opencode` digest, skipped when CI/CD's path filter matched    |
 | `validate-agent-files.yml`     | PR, push, merge group                                   | three pytest suites and the OpenCode bridge bun suite, the validator with `--require-marketplace claude codex`, then the map-staleness check |
 | `validate-knowledge-base.yml`  | PR, push, merge group                                   | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                                                         |
 | `validate-renovate-config.yml` | PR, push, merge group, dispatch                         | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate pin) → `finished`                                                    |
@@ -131,7 +131,7 @@ Verified anchor points (line numbers as of 2026-10-17):
   digest and its merge
 - `.github/workflows/ci.yml:260` — patch the digest pin for the smoke test
 - `.github/workflows/ci.yml:309,347` — `opencode-acceptance`, `finished`
-- `.github/workflows/opencode-runtime-checks.yml:50,69-76` — deployment-only
+- `.github/workflows/opencode-runtime-checks.yml:47,57-65` — CI/CD path-filter
   scope check and the digest requirement
 - `.github/workflows/validate-agent-files.yml:39-100` — map-source filter and
   the check steps

@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:d33839f31f361123bc6ecf9f52c1b5ae605a43dac79a507dd5f57ae1a6ccfe9d
+source_digest: sha256:e8bf5910dc67a07c0d7398341944fb9b4ed83dae28b981ceedeb3e596e0135b3
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
-stale_after: 2027-01-15
+  at: 2026-10-18T18:45:54Z
+stale_after: 2027-01-16
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
+  at: 2026-10-18T18:45:54Z
 sources:
 - id: code
   resource: .github
@@ -42,10 +42,11 @@ before the push.
    build](flow-image-build.md), whose `finished` also waits on native
    `agent-opencode` container acceptance
 4. `opencode-runtime-checks.yml`, when `opencode-compose-pins.yml` or a
-   `compose.opencode*.yml` file changed: if nothing else changed, it requires a
-   `@sha256:` pin, renders the Compose tests, and runs container acceptance on
-   that digest on amd64 and arm64, without building; otherwise it defers to step
-   3 — `.github/workflows/opencode-runtime-checks.yml:50,69-76`
+   `compose.opencode*.yml` file changed: unless CI/CD's own path filter also
+   matched, it requires a `@sha256:` pin, renders the Compose tests, and runs
+   container acceptance on that digest on amd64 and arm64, without building;
+   otherwise it defers to step 3 —
+   `.github/workflows/opencode-runtime-checks.yml:47,57-65`
 5. `validate-agent-files.yml`, when any source declared by the codebase map or
    the map itself changed: the validator, agentdev, and self-improve pytest
    suites, the OpenCode bridge `bun test` suite,

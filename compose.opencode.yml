@@ -1,7 +1,5 @@
-# Standalone agent-opencode deployment for one project behind an existing reverse proxy.
-# Launch with the digest pin, which this file deliberately lacks:
-#   docker compose -p <project> -f compose.opencode.yml -f opencode-compose-pins.yml up -d
-# Add `-f compose.opencode.bind.yml` to mount a host checkout instead of cloning.
+# One-project agent-opencode deployment behind an existing reverse proxy; launch with
+# -f opencode-compose-pins.yml (and -f compose.opencode.bind.yml for a host checkout).
 # Settings: docker/opencode/runtime.env.example. Spec: standalone-opencode-runtime.
 services:
   opencode:

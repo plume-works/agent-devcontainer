@@ -1,14 +1,12 @@
-# The agent-desktop build context is the repository root; keep it small.
-# Only ansible/, docker/, the catalog the build seeds into the image
-# (.claude-plugin/ plus the plugin tree it publishes under .agents/), and
-# py_packages/validate_agent_files/ (built into the image as a uv tool) are
-# actually consumed by the build. agent-opencode also bakes the runtime helpers and
-# the default firewall allowlist from .devcontainer/, and nothing else under it.
+# The image build context is the repository root; keep it small. The build consumes only
+# ansible/, docker/, the seeded catalog (.claude-plugin/ and its .agents/ plugin tree),
+# and py_packages/validate_agent_files/.
 .git
 .github
 .claude
 .codex
 .devcontainer
+# agent-opencode bakes only .devcontainer/scripts and the firewall allowlist.
 !.devcontainer/scripts
 !.devcontainer/firewall-allowlist.txt
 .tmp
