@@ -10,6 +10,16 @@ to the current day's group.
   access](plans/20261018-opencode-full-access-config.md) done; [Devcontainer
   OpenCode policy](spec/devcontainer-opencode-policy.md) spec added; [OpenCode
   full-access config](features/opencode-full-access-config.md) implemented.
+- **Update**: [Automatically index OpenCode workspaces in
+  CBM](plans/20261018-opencode-workspace-cbm-indexing.md) done; [OpenCode
+  workspace CBM indexing](spec/opencode-workspace-cbm-indexing.md) spec added;
+  [Automatic CBM indexing for OpenCode
+  workspaces](features/opencode-workspace-cbm-indexing.md) implemented.
+- **Update**: [OpenCode
+  bridge](codebase/agents/plugins/agentdev/opencode-plugin.md),
+  [catalog](codebase/agents/plugins/agentdev.md), and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) maps refreshed for workspace
+  registration and bounded daemon startup (`8f2c5ef`, `2aa4304`).
 
 ## 2026-10-17
 

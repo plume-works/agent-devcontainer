@@ -3,8 +3,8 @@ type: hub
 description: System design notes and the reasoning behind them, rejected alternatives included.
 stage: living
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
+  by: opencode/openai-gpt-6.1-sol
+  at: 2026-10-18T19:34:45Z
 ---
 
 # 🏛️ Architecture
@@ -80,3 +80,8 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 [Explicit-only workflow agents](architecture/explicit-only-workflow-agents.md)
 
 [Claude Remote Control resume](architecture/claude-remote-control-resume.md)
+
+[Testing sibling workspaces in
+devcontainers](architecture/sibling-devcontainer-testing.md)
+
+[Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)

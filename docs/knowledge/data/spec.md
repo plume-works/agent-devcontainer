@@ -56,6 +56,8 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [OpenCode catalog bridge](spec/opencode-catalog-bridge.md)
 
+[OpenCode workspace CBM indexing](spec/opencode-workspace-cbm-indexing.md)
+
 [Devcontainer Codex policy](spec/devcontainer-codex-policy.md)
 
 [Devcontainer OpenCode policy](spec/devcontainer-opencode-policy.md)

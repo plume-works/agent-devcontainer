@@ -61,6 +61,9 @@ Coder](../features/opencode-web-coder-autostart.md)
 
 [OpenCode full-access config](../features/opencode-full-access-config.md)
 
+[Automatic CBM indexing for OpenCode
+workspaces](../features/opencode-workspace-cbm-indexing.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

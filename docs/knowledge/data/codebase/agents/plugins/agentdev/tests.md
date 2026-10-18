@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
+description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:a949373f7be6d0a93c4f5b908a893d8f2d23c2a44fc595f957d7bb326e21783c
+source_digest: sha256:87de4f0b21d952cb7f57768db0a9f3821b03c09fe999223be2bd15e898e4c4dd
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T09:20:00Z
-stale_after: 2027-01-15
+  at: 2026-10-18T20:30:00Z
+stale_after: 2027-01-16
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T09:20:00Z
+  at: 2026-10-18T20:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -19,9 +19,13 @@ sources:
 
 16 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
 with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
-`validate-agent-files.yml`. `opencode/bridge.test.ts` is a separate `bun test`
-suite for the [OpenCode bridge](opencode-plugin.md), run with
+`validate-agent-files.yml`. `opencode/bridge.test.ts` and
+`opencode/workspace-index.test.ts` are separate Bun suites for the [OpenCode
+bridge](opencode-plugin.md), run with
 `bun test ./.agents/plugins/agentdev/tests/opencode` in the same job.
+`opencode/verify-workspace-host.ts` is not a Bun test file and stays out of CI:
+run directly with `bun`, it checks workspace registration against the installed
+OpenCode and CBM, isolated in a private mount namespace under `.tmp/`.
 
 ## Public surface
 
@@ -98,6 +102,13 @@ is removed.
 `allow_implicit_invocation: false`, and the reverse, and pins the mismatch check
 on fake skills in each direction.
 
+The workspace suite creates Git repositories, symlinks, and linked worktrees
+under `.tmp/` and injects command/logging adapters. It covers registration
+gates, canonical exact-root matching, pagination, concurrency, retry after
+failure, MCP envelopes, and real subprocess timeout/output bounds. Bridge tests
+assert catalog availability while registration remains pending and client
+diagnostics.
+
 ## Depends on
 
 `pytest`, `git`, `bash`, PyYAML, and `bun` for the OpenCode suite.
@@ -142,3 +153,5 @@ Verified anchor points (line numbers as of 2026-10-18):
   `parity_mismatches`
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:38` — `configured`,
   the hook driver every config case shares
+- `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts:38` — command
+  and logging harness
