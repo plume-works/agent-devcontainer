@@ -60,4 +60,6 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Devcontainer Codex policy](spec/devcontainer-codex-policy.md)
 
+[Devcontainer OpenCode policy](spec/devcontainer-opencode-policy.md)
+
 [update-branch](spec/update-branch.md)

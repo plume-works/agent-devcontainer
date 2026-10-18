@@ -62,6 +62,9 @@ rejected are as valuable as the one you picked.*
 [Codex full access in the
 devcontainer](architecture/codex-full-access-in-devcontainer.md)
 
+[OpenCode full access in the
+devcontainer](architecture/opencode-full-access-in-devcontainer.md)
+
 [Ansible apt pins](architecture/ansible-apt-pins.md)
 
 [Renovate config validation](architecture/renovate-config-validation.md)

@@ -9,6 +9,8 @@ generated:
 
 # ✨ Features
 
+[OpenCode full-access config](features/opencode-full-access-config.md)
+
 [Standalone OpenCode container](features/standalone-opencode-container.md)
 
 [Automatic CBM indexing for OpenCode

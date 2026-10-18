@@ -16,6 +16,10 @@ to the current day's group.
   [catalog](codebase/agents/plugins/agentdev.md), and [plugin
   tests](codebase/agents/plugins/agentdev/tests.md) maps refreshed for workspace
   registration and bounded daemon startup (`8f2c5ef`, `2aa4304`).
+- **Update**: [Configure devcontainer OpenCode for full
+  access](plans/20261018-opencode-full-access-config.md) done; [Devcontainer
+  OpenCode policy](spec/devcontainer-opencode-policy.md) spec added; [OpenCode
+  full-access config](features/opencode-full-access-config.md) implemented.
 
 ## 2026-10-17
 

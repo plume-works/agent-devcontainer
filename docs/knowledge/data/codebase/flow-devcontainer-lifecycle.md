@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:7ad2e36bbae5aa6df8e215f05ba1dc932ab609dd7dca0325d5291c7328cf4553
+source_digest: sha256:dab59deb57be15638625a636bc9ca06cc710c5d9fe42ade636a3ca7f276d1320
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  by: codex/gpt-5
+  at: 2026-10-18T19:39:20Z
 stale_after: 2027-01-15
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T05:20:00Z
+  by: codex/gpt-5
+  at: 2026-10-18T19:39:20Z
 sources:
 - id: code
   resource: .devcontainer
@@ -44,9 +44,9 @@ state.
    scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
-   Xpra in the background, the Codex and OpenCode auth links, then Codex's
-   full-access policy in `config.toml` —
-   `.devcontainer/scripts/postStartCommand.sh:9-31`. The gh helper setup there
+   Xpra in the background, the Codex and OpenCode auth links, then both agents'
+   full-access policies in their user configuration files —
+   `.devcontainer/scripts/postStartCommand.sh:9-32`. The gh helper setup there
    sees only a login stored on disk or in the keyring. Claude Remote Control is
    not part of it: in Coder, the template's `coder_script` on the dev
    container's sub-agent runs `coder-agent-start.sh` after the agent starts,
