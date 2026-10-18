@@ -2,14 +2,14 @@
 type: codebase
 description: The pytest suite that pins the exit code and RESULT line of every script the plugin ships, resolved from the plugin root so it runs from a consumer cache.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:f56d98e1f09cdd4c854433fd86ea2d8ff9b6ededdc2049ba557cb881ffed4601
+source_digest: sha256:52ac406cae5cbfbe83bdb78a106a859f7d3cb7d6d823a2bd3686d16f7f859cf2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T18:45:00Z
+  at: 2026-10-18T03:30:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T18:45:00Z
+  at: 2026-10-18T03:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -63,14 +63,15 @@ before-push hook on the guard's own push, and a stub `gh` whose
 then fetch and lease against the fresh tracking ref, as gh-stack does; it pins
 each `stack-guard.sh` result, including a squash-merged lower layer that
 GitHub-style rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only
-remote rewrite, a push leased on the checked tip, and a `publish` rerun after a
-push that landed only some layers. `test_capture_close_issue.py` reuses
-`initialize_repository` from `test_update_branch.py` and a stub `gh` that logs
-closes, and pins each `close-issue.sh` result, including an already-closed issue
-left alone. `test_template_consume_check_updates.py` builds the same metadata
-file to hold the marker section, and pins `NO_MARKER` for an absent file and for
-an absent section, and `INVALID_MARKER` for malformed metadata or a section
-missing `consumed_ref` or `tracked_paths`.
+remote rewrite, a push leased on the checked tip, a queued layer dequeued by a
+peer push and one left queued, and a `publish` rerun after a push that landed
+only some layers. `test_capture_close_issue.py` reuses `initialize_repository`
+from `test_update_branch.py` and a stub `gh` that logs closes, and pins each
+`close-issue.sh` result, including an already-closed issue left alone.
+`test_template_consume_check_updates.py` builds the same metadata file to hold
+the marker section, and pins `NO_MARKER` for an absent file and for an absent
+section, and `INVALID_MARKER` for malformed metadata or a section missing
+`consumed_ref` or `tracked_paths`.
 
 `test_update_branch.py` builds a bare remote, a working clone on a pushed
 feature branch, and a publisher clone, and pins `update-branch.sh`'s upstream

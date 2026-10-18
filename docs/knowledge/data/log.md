@@ -10,7 +10,7 @@ to the current day's group.
   [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for the stack guard's
   partial-push rerun, remote-only merges, overwritten-push detection, leased
-  push, and verbatim patch matching.
+  push, verbatim patch matching, and queued-layer coverage.
 - **Update**: [Autostart the OpenCode web UI on
   Coder](plans/20261016-opencode-web-coder-autostart.md) done; [OpenCode
   web](spec/opencode-web.md) spec added, [Catalog
