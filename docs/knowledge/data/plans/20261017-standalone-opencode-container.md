@@ -928,6 +928,49 @@ Coder](20261016-opencode-web-coder-autostart.md) must land first.
 - Run `iwe normalize` and `iwe schema validate`; run `/agentdev:iwe-verify`
   against this plan and its full deltas before Ship merges durable specs.
 
+## Verification results
+
+Recorded 2026-10-18 at `afae3a2`.
+
+- **Unit and regression suites.** The `## Verification` regression list plus
+  `scripts/tests/test_agent_runtime_*.py` gave 181 passed, 14 skipped; the skips
+  are the acceptance module, which needs `AGENTDEV_RUNTIME_TEST_IMAGE`.
+
+- **Container acceptance.** `agent-opencode:local`, built from the pinned
+  `agent-desktop` digest, gave 13 passed, 1 skipped under
+  `.devcontainer/scripts/test-agent-runtime.sh`. The skip is the upgrade test,
+  which needs `AGENTDEV_RUNTIME_PREVIOUS_IMAGE` and so a published image. Only
+  amd64 ran locally; the native arm64 gate is CI's.
+
+- **Lint.** ShellCheck on every `.devcontainer/scripts/*.sh` and
+  `start-xpra.sh`, the repository Python lint, hadolint, actionlint, zizmor, and
+  Prettier pass. `iwe normalize` and `iwe schema validate` exit 0, and
+  `stale-map-docs.py` ends `RESULT=SUCCESS`.
+
+- **Open gates.** Task 12's third box stays open until an older published image
+  exists for the upgrade case. Task 15 needs the first CI publication and its
+  real digest in `opencode-compose-pins.yml`, which is tag-only until then. Task
+  16 is the maintainer's proxy and login check. `opencode-runtime-checks.yml` is
+  a required check only once branch protection lists it.
+
+- **Implementation choices within the Approach.** These shape later work:
+
+  - PID 1 runs `supervisor.supervisord.main()` in-process, because supervisord
+    itself always exits `0`.
+  - The one-shot preparation gate is `runtime-workspace.sh prepare`.
+  - The image bakes its own `start-xpra.sh`, because the desktop base can
+    predate `--supervised`.
+  - Recovery kills a crashed service's leftover process group, and supervised
+    Xpra reclaims an orphaned X server.
+
+  The settled design is in [Standalone OpenCode
+  runtime](../architecture/standalone-opencode-runtime.md) and [CBM daemon
+  lifecycle](../architecture/cbm-daemon-lifecycle.md).
+
+- **Defect found, not absorbed.** With the firewall enabled, Docker Hub pulls
+  fail on the CloudFront CDN host; filed as [Bug: firewalled Docker Hub pulls
+  fail at the CloudFront CDN](../bugs/firewall-docker-hub-cloudfront.md).
+
 ## Out of scope
 
 - Multiple projects per running container, automatic repository updates,
