@@ -7,7 +7,7 @@ release:
 - features/native-stacked-prs
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T12:00:00Z
+  at: 2026-10-18T17:45:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -61,18 +61,20 @@ two subcommands.**
 
 - `begin`: run before anything rewrites the stack (a commit on a layer,
   `gh stack rebase`, `gh stack init` of an existing branch). It fetches every
-  active layer. It fast-forwards a layer whose local tip is an ancestor of its
-  remote. It stops on a layer whose remote holds a commit with no
-  patch-equivalent in the local branch, excluding the trunk:
-  `git rev-list --right-only --cherry-pick --no-merges L...<remote>/L ^<remote>/<trunk>`.
-  Finally it records every layer's remote tip in a state file under `./.tmp/`.
+  unmerged layer. It fast-forwards a layer whose local tip is an ancestor of its
+  remote. It stops on a layer whose remote holds, outside the trunk, a merge the
+  local branch lacks or more commits of a verbatim patch-id than the local
+  branch has. Finally it records every layer's remote tip, read from the fetched
+  tracking ref, in a state file under `./.tmp/`.
 - `publish`: run in place of `gh stack push`, or with `--submit` in place of
   `gh stack submit --auto`. It fetches and stops if any layer's remote tip moved
-  since `begin`. It then runs the gh-stack command and verifies that every
-  layer's remote tip equals its local tip.
+  since `begin`. It then pushes every changed layer itself, in one atomic
+  `git push` leased on the tips it checked, links PRs with the non-force
+  `gh stack link` for `--submit`, and verifies that every layer's remote tip
+  equals its local tip.
 
-The recorded tip acts as the lease that gh-stack fails to take. Without a state
-file, `publish` runs `begin`'s patch test against the current local tips. That
+The recorded tip is the lease that gh-stack fails to take. Without a state file,
+`publish` runs `begin`'s patch test against the current local tips. That
 fallback never misses remote-only work, but it also stops after a
 conflict-resolved rebase, whose resolution changes a layer's patch.
 
@@ -107,8 +109,7 @@ Rejected:
 - **Waiting for upstream #380**: data loss stays possible until a fixed release
   is pinned, and nothing here controls when that is.
 
-The time between `publish`'s check and gh-stack's own fetch is not covered. The
-check after the push detects an overwrite in that window but cannot prevent it.
+A push that lands after `publish`'s fetch is refused by the guard's own lease.
 
 The state file is `./.tmp/gh-stack-guard/tips`, one per checkout, so each
 worktree that pr-merge-stack creates under `./.tmp/` has its own. `begin` and a
@@ -463,14 +464,16 @@ SHALL NOT be updated.
 - `gh stack link` writes no local stack state, so after every link
   `publish --submit` runs `gh stack checkout <stack#>` to record the PRs
   locally, then restores the original branch.
-- Verification includes a live end-to-end run on gh-stack v0.2.1 against a
-  scratch repository. It covers create, no-op, behind, diverged,
-  moved-after-`begin`, and add mode after a squash merge, with local PR state
-  recorded after each link. It also covers a GitHub-rebased layer, which
-  GitHub's rebase strips of empty commits and which `begin` accepts, and a
-  remote `Reapply` of a reverted commit, which `begin` names and stops on. The
-  refusal of a PR-less layer below a linked one, and queued layers, are covered
-  by the stub suite only.
+
+## Verification results
+
+- A live end-to-end run on gh-stack v0.2.1 against a scratch repository covers
+  create, no-op, behind, diverged, moved-after-`begin`, and add mode after a
+  squash merge, with local PR state recorded after each link. It also covers a
+  GitHub-rebased layer, which GitHub's rebase strips of empty commits and which
+  `begin` accepts, and a remote `Reapply` of a reverted commit, which `begin`
+  names and stops on. The refusal of a PR-less layer below a linked one, and
+  queued layers, are covered by the stub suite only.
 
 ## Out of scope
 
