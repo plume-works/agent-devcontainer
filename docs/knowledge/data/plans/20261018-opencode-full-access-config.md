@@ -5,13 +5,15 @@ release:
 - features/opencode-full-access-config
 description: Configure OpenCode for unrestricted filesystem access inside the devcontainer on every start while preserving unrelated user configuration.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-18T18:54:34Z
+  by: claude-code/opus-5.5
+  at: 2026-10-18T20:00:00Z
 sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
 - resource: docs/knowledge/data/architecture/explicit-only-workflow-agents.md
 - resource: https://opencode.ai/docs/config/
+stage: done
+completed: 2026-10-18
 ---
 
 # Configure devcontainer OpenCode for full access
@@ -128,8 +130,9 @@ Modify: `docs/knowledge/data/architecture.md`,
 
 ## Spec changes
 
-New spec `data/spec/devcontainer-opencode-policy` — unrestricted filesystem
-access is a security-sensitive behavior, so the contract is stated in full:
+New spec [Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md)
+— unrestricted filesystem access is a security-sensitive behavior, so the
+contract is stated in full:
 
 ``` markdown
 ## ADDED Requirements
@@ -197,6 +200,15 @@ Python project or installed packages.
 - Start OpenCode in the devcontainer and confirm reading and writing a path
   outside the workspace does not prompt.
 - `iwe normalize` and `iwe schema validate` pass after document edits.
+
+## Verification results
+
+2026-10-18, at ship: the focused pytest suite passed all 7 tests; Ruff check,
+Ruff format-check, and shellcheck passed; a two-run sandboxed patch was
+byte-identical, kept the bridge plugin entry, and left modes `0700`/`0600`.
+OpenCode 1.19.3 with `opencode/deepseek-v4.1-flash-free` read and wrote files
+outside the workspace without a prompt under the patched config, while the same
+run with no policy auto-rejected the `external_directory` permission request.
 
 ## Out of scope
 

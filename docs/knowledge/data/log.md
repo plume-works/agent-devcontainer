@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-18
+
+- **Update**: [Configure devcontainer OpenCode for full
+  access](plans/20261018-opencode-full-access-config.md) done; [Devcontainer
+  OpenCode policy](spec/devcontainer-opencode-policy.md) spec added; [OpenCode
+  full-access config](features/opencode-full-access-config.md) implemented.
+
 ## 2026-10-17
 
 - **Map**: refreshed [agentdev](codebase/agents/plugins/agentdev.md), its

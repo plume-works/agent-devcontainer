@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: OpenCode sessions in the devcontainer allow every action and every filesystem path, with the approved policy restored in JSON or JSONC on every container start.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-18T18:54:34Z
+  by: claude-code/opus-5.5
+  at: 2026-10-18T20:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261018-opencode-full-access-config.md
 - resource: .devcontainer/scripts/configure-opencode.py
