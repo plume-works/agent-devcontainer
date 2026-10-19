@@ -76,7 +76,8 @@ reclaim_orphaned_display() {
   number="$(display_number)"
   lock_pid="$(tr -cd '0-9' < "/tmp/.X${number}-lock" 2>/dev/null || true)"
   [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" 2>/dev/null || return 0
-  tr '\0' ' ' < "/proc/$lock_pid/cmdline" 2>/dev/null | grep -q -- "-for-Xpra-$DISPLAY " || return 0
+  # Xpra 3 names it Xvfb-for-Xpra-:N, Xpra 6 Xvfb-for-Xpra-N.
+  tr '\0' ' ' < "/proc/$lock_pid/cmdline" 2>/dev/null | grep -Eq -- "-for-Xpra-:?$number " || return 0
   echo "Stopping X server PID $lock_pid left on $DISPLAY by a previous Xpra."
   kill -TERM "$lock_pid" 2>/dev/null || true
   for _ in {1..50}; do
@@ -273,9 +274,7 @@ XPRA_ARGS=(
   "--daemon=$XPRA_DAEMON_MODE"           # Xpra daemon mode (yes for background lifecycle hooks)
   "--mdns=no"                            # Disable mDNS service advertisement
   "--notifications=no"                   # Disable desktop notification forwarding
-  "--global-menus=no"                    # Disable global menu integration
   "--start-new-commands=no"              # Prevent clients from launching new server-side commands
-  "--dbus-proxy=no"                      # Disable D-Bus proxying into sessions
   "--dbus-control=no"                    # Disable remote control over D-Bus
   "--dbus-launch="                       # Do not auto-launch a D-Bus session bus
   "--webcam=no"                          # Disable webcam forwarding
