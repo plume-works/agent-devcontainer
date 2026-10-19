@@ -489,8 +489,10 @@ map document whose source digest the changed files move
     the shared volume and records per-instance logins and the unimported v1
     OAuth login; both features record per-worktree logins, and the web feature
     the always-on password and the generated file.
-- [ ] Refresh the codebase map with `/agentdev:iwe-map` refresh mode until
+- [x] Refresh the codebase map with `/agentdev:iwe-map` refresh mode until
   `stale-map-docs.py` reports every document fresh.
+  - **Evidence:** Commit `970a3ae` refreshes the ten stale map documents;
+    `stale-map-docs.py` then reports `RESULT=SUCCESS` for all 28.
 
 ### Task 9: Verify the web UI on a Coder workspace
 

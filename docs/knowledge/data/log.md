@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-19
+
+- **Map**: refreshed the [OpenCode
+  bridge](codebase/agents/plugins/agentdev/opencode-plugin.md), its
+  [tests](codebase/agents/plugins/agentdev/tests.md), the
+  [agentic_tools](codebase/ansible/roles/agentic_tools.md) role, the [lifecycle
+  scripts](codebase/devcontainer/scripts.md), the
+  [devcontainer](codebase/devcontainer.md), and the [lifecycle
+  flow](codebase/flow-devcontainer-lifecycle.md) for OpenCode v2 (`970a3ae`).
+
 ## 2026-10-18
 
 - **Update**: [Configure devcontainer OpenCode for full
