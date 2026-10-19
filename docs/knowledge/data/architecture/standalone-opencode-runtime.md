@@ -3,7 +3,7 @@ type: architecture
 description: agent-opencode runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener sequences services on readiness, recovers each within a bounded budget, refreshes dependent clients, and exits the container nonzero when recovery is exhausted.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:30:00Z
+  at: 2026-10-19T16:00:00Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -50,11 +50,20 @@ are deployment settings. The image deletes the stock UID 1000 account and does
 not create `/home/agent`, so a fresh home volume starts empty, without Docker
 copying files into it, and is initialized after mounts.
 
-Only provider credentials are shared, through one auth volume per UID/GID
-cohort. Sharing a whole home or agent directory was rejected: sessions,
+Only Claude and Codex credentials are shared, through one auth volume per
+UID/GID cohort. Sharing a whole home or agent directory was rejected: sessions,
 configuration, keyrings, and caches record per-project state, and two containers
 writing them would corrupt each other. Sharing across cohorts was rejected
 because it would mean rewriting another running container's file ownership.
+
+OpenCode logins stay per project container. OpenCode v2 keeps them in
+`~/.local/share/opencode/opencode.db` on the instance home volume, so they
+survive replacement and upgrade, and each project container logs in once. The
+auth volume holds no OpenCode directory. Two ways to share them were rejected:
+
+- Sharing the database would share sessions too, since they live in it.
+- Sharing `auth.json` would carry only a stale first login: v2 imports it once
+  and never writes it.
 
 ## OpenCode lifetime
 

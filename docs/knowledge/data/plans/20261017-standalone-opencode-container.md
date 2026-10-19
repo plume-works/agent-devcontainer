@@ -854,11 +854,17 @@ digest
 `docs/knowledge/data/architecture/standalone-opencode-runtime.md`; Refresh:
 stale `docs/knowledge/data/codebase/` docs
 
-- [ ] `README.md` `## Standalone OpenCode runtime` says Claude and Codex logins
+- [x] `README.md` `## Standalone OpenCode runtime` says Claude and Codex logins
   reach every project container in the identity cohort and each project
   container logs in to OpenCode once. Its storage table lists the auth volume as
   Claude and Codex logins. The architecture document says the same and records
   the two rejected OpenCode sharing alternatives from `## Approach`.
+  - **Evidence:** commit "docs(runtime): record per-container OpenCode logins":
+    `README.md` `### Proxy, password, and logins` and the storage table now put
+    OpenCode logins on `home` and list the auth volume as Claude and Codex
+    logins. `data/architecture/standalone-opencode-runtime.md`
+    `## Identity and state` records the per-container decision and the rejected
+    database and `auth.json` sharing. Prettier passes.
 - [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
 

@@ -108,10 +108,11 @@ the path its `.git` file names.
   Both are served at the root path, WebSockets included.
 - **Xpra has no password.** The proxy must authenticate Xpra requests itself.
 - `AGENTDEV_PROXY_NETWORK` names the proxy's existing Docker network.
-- Log in to a provider once through OpenCode, Claude Code, or Codex. Logins live on
-  the shared `AGENTDEV_AUTH_VOLUME` and reach every project container in the same
-  identity cohort. Sessions, configuration, keyrings, caches, and Docker engines stay
-  per instance.
+- Claude Code and Codex logins live on the shared `AGENTDEV_AUTH_VOLUME` and reach
+  every project container in the same identity cohort. Each project container logs in
+  to OpenCode once: its logins share a database with its sessions in the instance
+  `home` volume, and survive replacement and upgrade there. Sessions, configuration,
+  keyrings, caches, and Docker engines stay per instance.
 - GitHub access uses an injected `GH_TOKEN` or `GITHUB_TOKEN`, which configures HTTPS
   Git through `gh` before a private clone. The token is never written to disk.
   `GIT_AUTHOR_*` and `GIT_COMMITTER_*` pass through only when set.
@@ -124,13 +125,13 @@ volume must use the same IDs; a container with other IDs refuses to start rather
 change the volume. A bind-mounted checkout must be writable by those IDs, and its
 ownership is never changed.
 
-| Path                     | Volume                   | Holds                                        |
-| ------------------------ | ------------------------ | -------------------------------------------- |
-| `/workspaces/project`    | `workspace` or the bind  | The checkout                                 |
-| `/home/agent`            | `home`                   | Client configuration, sessions, keyring, CBM |
-| `/uv`                    | `uv`                     | uv cache, Python installs, project venv      |
-| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store |
-| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude, Codex, and OpenCode logins    |
+| Path                     | Volume                   | Holds                                                  |
+| ------------------------ | ------------------------ | ------------------------------------------------------ |
+| `/workspaces/project`    | `workspace` or the bind  | The checkout                                           |
+| `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring, CBM |
+| `/uv`                    | `uv`                     | uv cache, Python installs, project venv                |
+| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store           |
+| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude and Codex logins                         |
 
 Back up `home`, `workspace`, and the auth volume to keep an instance's state; `uv` and
 `docker` can be rebuilt. Removing the container keeps every volume. `docker compose
