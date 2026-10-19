@@ -172,7 +172,7 @@ Assumptions:
     moves the directory with `git mv`; `run.sh --harness claude` with a stub
     `claude` on `PATH` builds `.tmp/e2e/iwe-workflows/clone` and prints its
     `base` and `open_question` commits.
-- [ ] A session fixture builds the fixture repository once per worker with only
+- [x] A session fixture builds the fixture repository once per worker with only
   the fixture plans active and the `base` and `open_question` commits, and a
   per-test fixture clones it under `.tmp/e2e/iwe-workflows/<test id>/clone` at a
   requested commit.
@@ -180,14 +180,14 @@ Assumptions:
     `clone_at` in the suite's `conftest.py`; `test_e2e_iwe_workflows_clone.py`
     covers the `base`/`open_question` commits and the per-test directory names
     (5 passed).
-- [ ] The clone facts `run.sh` checks — marker present or absent, `HEAD`, clean
+- [x] The clone facts `run.sh` checks — marker present or absent, `HEAD`, clean
   tree, plan active or done, release notes unchanged, greet task untouched — are
   helpers on the clone, and every git write refuses a clone that resolves to
   another repository.
   - **Evidence:** Same commit; `Clone` in `clone.py` carries `has_marker`,
     `head`, `status`, `plan_active`, `plan_done`, `unreleased_diff`, and
     `greet_untouched`, and `Repo.git` checks the toplevel before every command.
-- [ ] `scripts/tests/test_e2e_iwe_workflows_clone.py`, unmarked and model-free,
+- [x] `scripts/tests/test_e2e_iwe_workflows_clone.py`, unmarked and model-free,
   proves two clones share no commits or marker, the fixtures are the only active
   plans, and the refusal fires.
   - **Evidence:** Same commit;
@@ -210,14 +210,14 @@ Assumptions:
     password sources and rejects 1.x, a wrong password, and a closed port, each
     naming the start script (11 passed); `require_v2` returns `2.0.32` against
     the pinned binary.
-- [ ] Per test, the active `openai` credential is read from the source; when it
+- [x] Per test, the active `openai` credential is read from the source; when it
   expires within the test's budget, a one-token prompt in a throwaway session,
   deleted afterwards, makes the source refresh it first.
   - **Evidence:** Same commit; the `opencode_login` fixture calls
     `fresh_credential` with `OPENCODE_BUDGET`, and
     `test_expiring_token_is_refreshed_in_a_throwaway_session` asserts the
     create, prompt, wait, delete, re-read order against a fake source.
-- [ ] The seeded copy keeps `methodID` and `metadata` verbatim and carries
+- [x] The seeded copy keeps `methodID` and `metadata` verbatim and carries
   `refresh: "withheld"`; no credential value is written to a log, a transcript,
   or a failure message.
   - **Evidence:** Same commit; `test_seed_withholds_the_refresh_token`,
@@ -250,7 +250,7 @@ Assumptions:
   - **Evidence:** Same commit; `start_server` returns only after
     `wait_for_catalog` sees `agentdev:iwe-ship` for the clone, asserted by
     `test_server_is_isolated_and_serves_the_clone_catalog`.
-- [ ] A client runs one command in a fresh session located in the clone with the
+- [x] A client runs one command in a fresh session located in the clone with the
   question tool denied, waits under the suite's own deadline, interrupts a
   session that outlives it, pages every message by cursor, and saves the
   transcript beside the clone.
