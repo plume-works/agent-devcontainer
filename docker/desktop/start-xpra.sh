@@ -30,6 +30,7 @@ Options:
 
 Environment:
   XPRA_HOST         Override the default bind host without editing this script
+  XPRA_PASSWORD     When set, every TCP/WebSocket session must authenticate with it
 USAGE
 }
 
@@ -281,6 +282,10 @@ XPRA_ARGS=(
   "--opengl=yes"                         # Allow OpenGL acceleration when available
   "--video-encoders=$VIDEO_ENCODERS"     # Preferred video encoder list (env-overridable)
 )
+# Xpra reads the secret from its own environment, so it never reaches the command line.
+if [[ -n "${XPRA_PASSWORD:-}" ]]; then
+  XPRA_ARGS+=("--tcp-auth=env:name=XPRA_PASSWORD")
+fi
 
 # Start Xpra server
 # --bind-tcp: Listen on specified host and port

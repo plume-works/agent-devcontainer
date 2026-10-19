@@ -116,6 +116,14 @@ def test_custom_ids_cohort_volume_and_disabled_xpra_reach_the_container():
     assert project['volumes']['agents-auth']['name'] == 'agentdev-opencode-auth-2345'
 
 
+def test_xpra_password_reaches_the_container_and_is_checked_at_start_not_render():
+    unset, _ = service(BASE, PINS, **REQUIRED)
+    assert unset['environment']['XPRA_PASSWORD'] == ''
+    present, _ = service(BASE, PINS, XPRA_PASSWORD='xpra-secret', **REQUIRED)
+    assert present['environment']['XPRA_PASSWORD'] == 'xpra-secret'
+    assert present['environment']['OPENCODE_SERVER_PASSWORD'] == SECRET
+
+
 def test_tokens_and_git_identity_pass_through_only_when_set():
     unset, _ = service(BASE, PINS, **REQUIRED)
     # A null value is Compose's "pass through if set": nothing reaches the container.

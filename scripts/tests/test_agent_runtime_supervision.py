@@ -118,6 +118,7 @@ class Supervision:
             'AGENTDEV_PREPARE_TIMEOUT': '3',
             'AGENTDEV_STOP_TIMEOUT': '2',
             'DEV_WORKSPACE_FOLDER': str(root),
+            'XPRA_PASSWORD': 'supervision-test',
             **settings,
         }
         self.process: subprocess.Popen[str] | None = None
@@ -200,9 +201,23 @@ def test_starts_services_in_dependency_order_then_publishes_readiness(make):
 
 def test_disabled_xpra_is_neither_started_nor_required(make):
     box = make(AGENTDEV_SKIP_XPRA='1')
+    del box.env['XPRA_PASSWORD']
     box.start()
     box.wait_for(box.ready)
     assert 'xpra' not in started(box.events())
+
+
+@pytest.mark.parametrize('password', [None, ''])
+def test_enabled_xpra_without_a_password_fails_before_the_bootstrap(make, password):
+    box = make()
+    del box.env['XPRA_PASSWORD']
+    if password is not None:
+        box.env['XPRA_PASSWORD'] = password
+    box.start()
+    assert box.wait_exit() == 1
+    assert box.events() == []
+    output = box.output()
+    assert 'XPRA_PASSWORD must be set' in output and 'AGENTDEV_SKIP_XPRA=1' in output
 
 
 @pytest.mark.parametrize('failure', ['exit', 'timeout'])

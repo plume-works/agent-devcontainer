@@ -14,6 +14,8 @@ services:
       AGENTDEV_GID: ${AGENTDEV_GID:-1000}
       AGENTDEV_REPOSITORY_URL: ${AGENTDEV_REPOSITORY_URL:-}
       AGENTDEV_REPOSITORY_REF: ${AGENTDEV_REPOSITORY_REF:-}
+      # Required unless AGENTDEV_SKIP_XPRA is set: the container refuses to start without it.
+      XPRA_PASSWORD: ${XPRA_PASSWORD:-}
       AGENTDEV_SKIP_XPRA: ${AGENTDEV_SKIP_XPRA:-}
       AGENTDEV_PREPARE_TIMEOUT: ${AGENTDEV_PREPARE_TIMEOUT:-1800}
       ENABLE_FIREWALL: ${ENABLE_FIREWALL:-false}
@@ -31,8 +33,8 @@ services:
       - docker:/var/lib/docker
       - workspace:/workspaces/project
       - agents-auth:/var/lib/agentdev/auth
-    # The proxy routes to OpenCode on 4096 and Xpra on 14500 over this network, and
-    # must authenticate Xpra itself: Xpra has no password. No host ports are published.
+    # The proxy routes to OpenCode on 4096 and Xpra on 14500 over this network; each
+    # service checks its own password. No host ports are published.
     networks:
       - proxy
 

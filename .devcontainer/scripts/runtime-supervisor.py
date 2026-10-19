@@ -355,6 +355,13 @@ def run() -> int:
     settings.run_dir.mkdir(parents=True, exist_ok=True)
     settings.failure_file.unlink(missing_ok=True)
     settings.ready_file.unlink(missing_ok=True)
+    if not settings.skip_xpra and not os.environ.get('XPRA_PASSWORD'):
+        log(
+            'XPRA_PASSWORD must be set to a nonempty secret: Xpra listens on the proxy '
+            'network and authenticates every session with it. Set XPRA_PASSWORD, or set '
+            'AGENTDEV_SKIP_XPRA=1 to run without Xpra'
+        )
+        return 1
     bootstrap = os.environ.get(
         'AGENTDEV_BOOTSTRAP_COMMAND', str(SCRIPT_DIR / 'runtime-bootstrap.sh')
     )

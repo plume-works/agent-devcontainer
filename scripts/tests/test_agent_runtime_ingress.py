@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 from collections.abc import Iterator
+from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
@@ -22,6 +23,7 @@ COMMAND = REPO_ROOT / '.devcontainer/scripts/opencode-web-command.sh'
 START_XPRA = REPO_ROOT / 'docker/desktop/start-xpra.sh'
 TMP_ROOT = REPO_ROOT / '.tmp'
 PASSWORD = 'p@ss "quoted" \\ word'
+XPRA_SECRET = 'xpra-ingress-secret'
 
 
 def free_port() -> int:
@@ -214,18 +216,26 @@ def test_opencode_serves_its_web_ui_and_websockets_at_the_root(opencode_server):
     assert not (root / 'browser-opened').exists()
 
 
-@pytest.fixture
-def xpra(scratch: Path) -> Iterator[tuple[int, dict[str, str]]]:
-    if shutil.which('xpra') is None:
-        pytest.skip('requires xpra')
-    port, display = free_port(), f':{200 + os.getpid() % 500}'
+def xpra_env(scratch: Path, password: str | None) -> dict[str, str]:
     env = {
         'PATH': os.environ['PATH'],
         'HOME': str(scratch / 'home'),
         'XPRA_HOST': '127.0.0.1',
         'XDG_RUNTIME_DIR': str(scratch / 'run'),
     }
-    (scratch / 'run').mkdir(mode=0o700)
+    if password is not None:
+        env['XPRA_PASSWORD'] = password
+    (scratch / 'run').mkdir(mode=0o700, exist_ok=True)
+    return env
+
+
+@contextmanager
+def supervised_xpra(scratch: Path, password: str | None) -> Iterator[tuple[int, dict[str, str]]]:
+    if shutil.which('xpra') is None:
+        pytest.skip('requires xpra')
+    port = free_port()
+    display = f':{200 + (os.getpid() + port) % 500}'
+    env = xpra_env(scratch, password)
     server = subprocess.Popen(
         [START_XPRA, '--supervised', '--port', str(port), '--display', display],
         env=env,
@@ -234,7 +244,7 @@ def xpra(scratch: Path) -> Iterator[tuple[int, dict[str, str]]]:
     )
     try:
         assert wait_for(lambda: request(port, '/', auth=None)[0] == 200, 90)
-        yield port, {**env, 'XPRA_DISPLAY': display}
+        yield port, {**env, 'XPRA_DISPLAY': display, 'XPRA_PID': str(server.pid)}
     finally:
         server.terminate()
         try:
@@ -243,12 +253,41 @@ def xpra(scratch: Path) -> Iterator[tuple[int, dict[str, str]]]:
             server.kill()
 
 
-def test_supervised_xpra_serves_html_and_websockets_without_a_password(xpra):
-    port, _ = xpra
+@pytest.fixture
+def xpra(scratch: Path) -> Iterator[tuple[int, dict[str, str]]]:
+    with supervised_xpra(scratch, XPRA_SECRET) as server:
+        yield server
+
+
+def xpra_session(scratch: Path, port: int, password: str | None) -> int:
+    """Open an Xpra client session over TCP and return the client's exit status."""
+    args = ['xpra', 'info', f'tcp://127.0.0.1:{port}/']
+    if password is not None:
+        secret = scratch / f'client-{uuid4().hex[:8]}'
+        secret.write_text(password)
+        args.append(f'--password-file={secret}')
+    env = {'PATH': os.environ['PATH'], 'HOME': str(scratch / 'home')}
+    return subprocess.run(
+        args, env=env, stdin=subprocess.DEVNULL, capture_output=True, timeout=60
+    ).returncode
+
+
+def test_supervised_xpra_serves_its_client_but_sessions_need_the_password(xpra, scratch: Path):
+    port, env = xpra
     status, page = request(port, '/', auth=None)
     assert status == 200 and b'<html' in page.lower()
-    # The HTML5 client negotiates Xpra's binary subprotocol.
+    # The HTML5 client negotiates Xpra's binary subprotocol, then authenticates inside it.
     assert websocket_status(port, '/', protocol='binary').split()[1] == '101'
+    assert xpra_session(scratch, port, None) != 0
+    assert xpra_session(scratch, port, 'wrong') != 0
+    assert xpra_session(scratch, port, XPRA_SECRET) == 0
+    cmdline = Path(f'/proc/{env["XPRA_PID"]}/cmdline').read_bytes()
+    assert b'xpra' in cmdline and XPRA_SECRET.encode() not in cmdline
+
+
+def test_supervised_xpra_without_a_password_keeps_sessions_open(scratch: Path):
+    with supervised_xpra(scratch, None) as (port, _):
+        assert xpra_session(scratch, port, None) == 0
 
 
 def test_supervised_xpra_refuses_to_duplicate_a_live_session(xpra):
@@ -269,13 +308,7 @@ def test_supervised_xpra_reclaims_the_display_after_a_crash(scratch: Path):
     if shutil.which('xpra') is None:
         pytest.skip('requires xpra')
     port, display = free_port(), f':{700 + os.getpid() % 200}'
-    env = {
-        'PATH': os.environ['PATH'],
-        'HOME': str(scratch / 'home'),
-        'XPRA_HOST': '127.0.0.1',
-        'XDG_RUNTIME_DIR': str(scratch / 'run'),
-    }
-    (scratch / 'run').mkdir(mode=0o700)
+    env = xpra_env(scratch, XPRA_SECRET)
     command = [START_XPRA, '--supervised', '--port', str(port), '--display', display]
     crashed = subprocess.Popen(
         command, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
