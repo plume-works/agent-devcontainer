@@ -382,8 +382,10 @@ Assumptions:
 
 ### Task 15: The whole suite passes in parallel
 
-- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -n 3` passes every
+- [x] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -n 3` passes every
   test on all three harnesses with the tuned budgets.
+  - **Evidence:** Live run on 2026-10-19 at `5c0a5a2`: 16 passed in 422.43s; the
+    slowest test, Codex ship-approved at 255s, is within its 900s budget.
 
 ## Spec changes
 
@@ -442,6 +444,18 @@ A dash marks a gap that `run.sh` had too; none was added or dropped. One check
 is stronger: Codex's publish-command pattern also counts a chain whose prefix
 holds escaped quotes or whose commands are newline-separated, both of which
 `run.sh` misread as no publish.
+
+Verification checks, 2026-10-19 at `5c0a5a2`:
+
+- The four model-free suites (`test_e2e_live_gate.py`,
+  `test_e2e_iwe_workflows_clone.py`, `..._credential.py`,
+  `..._codex_publish.py`) pass: 52 passed.
+- `uv run pytest scripts/e2e` with `E2E_RUN_LIVE` unset: 16 skipped, no session
+  started.
+- `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -n 3` with OpenCode
+  2.0.32 sourced from a logged-in v2 web server: 16 passed in 422.43s.
+- A single scenario runs alone: `-k 'claude and implement'` passed.
+- `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
 
