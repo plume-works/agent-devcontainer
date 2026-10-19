@@ -365,11 +365,21 @@ Rejected:
 `ansible/roles/agentic_tools/tasks/main.yml`,
 `ansible/roles/agentic_tools/README.md`
 
-- [ ] Replace `opencode-ai` with `@opencode/cli` pinned at the current v2
+- [x] Replace `opencode-ai` with `@opencode/cli` pinned at the current v2
   release, with its `# renovate: datasource=npm` annotation, and trust its
   postinstall in the Bun global install.
-- [ ] A role run in a fresh container leaves `opencode --version` printing the
+  - **Evidence:** `agentic_tools_bun_packages` pins `@opencode/cli` at 2.0.32
+    under `# renovate: datasource=npm depName=@opencode/cli`, with `trust: true`
+    adding `--trust` to its `bun add --global --exact`;
+    `ansible-lint ansible/roles/agentic_tools` reports no violations.
+- [x] A role run in a fresh container leaves `opencode --version` printing the
   pinned 2.x version, and a rerun changes nothing.
+  - **Evidence:** In a fresh `ghcr.io/plume-works/ubuntu-ansible:edge` container
+    holding the repository,
+    `ansible-playbook ansible/playbooks/setup-dev.yml --tags basic_prereqs,dev_tools,bun_setup,agentic_tools -e install_agentic_tools=true`
+    installs `@opencode/cli`, and `/usr/local/bin/opencode --version` prints
+    `v2.0.32`. A second run skips all four Bun globals and changes no
+    `agentic_tools` task.
 
 ### Task 4: Run the web UI on v2 with a password
 
