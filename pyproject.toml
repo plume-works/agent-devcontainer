@@ -34,6 +34,7 @@ testpaths = [
   "scripts/tests",
 ]
 markers = [
+  "e2e: drives a real agent session from scripts/e2e and spends model usage; skipped unless E2E_RUN_LIVE is set",
   "smoke: drives a real Claude Code session and spends model usage; skipped unless SELF_IMPROVE_RUN_LIVE is set, and run by `make smoke`",
   "interactive: needs a person at the terminal; skipped with SMOKE_SKIP_INTERACTIVE=1",
   "pty: drives a real session on a pseudo-terminal to observe the asynchronous wake; spends model usage and is skipped unless SELF_IMPROVE_RUN_LIVE is set (see `make wake`)",

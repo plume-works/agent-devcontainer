@@ -144,13 +144,19 @@ Assumptions:
 **Files:** Create: `scripts/e2e/conftest.py`,
 `scripts/tests/test_e2e_live_gate.py`; Modify: `pyproject.toml`
 
-- [ ] `scripts/e2e/conftest.py` skips every test marked `e2e` at collection
+- [x] `scripts/e2e/conftest.py` skips every test marked `e2e` at collection
   unless `E2E_RUN_LIVE` is set to a value outside `''`, `0`, `false`, `no`,
   `off`, with a skip reason naming the variable; the `e2e` marker is registered
   in `pyproject.toml` `markers`.
-- [ ] `scripts/tests/test_e2e_live_gate.py` proves a marked test is skipped for
+  - **Evidence:** Commit "test(e2e): gate live e2e runs on E2E_RUN_LIVE";
+    `uv run pytest scripts/tests/test_e2e_live_gate.py` runs the copied gate and
+    asserts the skip reason names `E2E_RUN_LIVE` (24 passed).
+- [x] `scripts/tests/test_e2e_live_gate.py` proves a marked test is skipped for
   each off value, including when selected by node id or `-m e2e`, and runs when
   the variable is `1`.
+  - **Evidence:** Same commit; `test_skipped_unless_opted_in` covers unset and
+    every off value by path, node id, and `-m e2e`, and
+    `test_runs_when_opted_in` runs it at `1` (24 passed).
 
 ### Task 2: Build one clone per test
 
