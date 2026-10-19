@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:68953236b04254811963411ad3c3f690987ff8f91e6bd7302304533e949883c9
+source_digest: sha256:64263c8a0c7b86b72fdd2b00efb7e9a0f22a85b0e660e5a5562683fccc810bef
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:08:22Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:08:22Z
 sources:
 - id: code
   resource: .github
@@ -41,13 +41,14 @@ before the push.
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
    build](flow-image-build.md), whose `finished` also waits on native
    `agent-opencode` container acceptance
-4. `opencode-runtime-checks.yml`, when `opencode-compose-pins.yml` or a
-   `compose.opencode*.yml` file changed: unless CI/CD's own path filter also
-   matched and the pin is unchanged, it requires a `@sha256:` pin, renders the
-   Compose tests, and runs container acceptance on that digest on amd64 and
-   arm64, without building; otherwise it defers to step 3. A changed pin always
-   runs here, since step 3 accepts the image it builds, never the pin —
-   `.github/workflows/opencode-runtime-checks.yml:49,59,68,78-87`
+4. `opencode-runtime-checks.yml`, on every pull request, skipped inside the job
+   unless `opencode-compose-pins.yml` or a `compose.opencode*.yml` file changed,
+   so it can be a required check: unless CI/CD's own path filter also matched
+   and the pin is unchanged, it requires a `@sha256:` pin, renders the Compose
+   tests, and runs container acceptance on that digest on amd64 and arm64,
+   without building; otherwise it defers to step 3. A changed pin always runs
+   here, since step 3 accepts the image it builds, never the pin —
+   `.github/workflows/opencode-runtime-checks.yml:47,57,70,82-91`
 5. `validate-agent-files.yml`, when any source declared by the codebase map or
    the map itself changed: the validator, agentdev, and self-improve pytest
    suites, the OpenCode bridge `bun test` suite,

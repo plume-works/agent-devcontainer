@@ -85,7 +85,8 @@ def test_the_runtime_gets_its_own_manifest_and_native_acceptance():
 
 def test_pin_checks_accept_the_proposed_digest_without_building_anything():
     triggers = CHECKS.get('on', CHECKS.get(True))
-    assert set(DEPLOYMENT_ONLY) <= set(triggers['pull_request']['paths'])
+    # A path-filtered workflow never reports, so a required check would hang.
+    assert not (triggers['pull_request'] or {}).get('paths')
     job = CHECKS['jobs']['acceptance']
     assert job['permissions'] == {'actions': 'read', 'contents': 'read', 'packages': 'read'}
     text = CHECKS_PATH.read_text()
@@ -96,19 +97,25 @@ def test_pin_checks_accept_the_proposed_digest_without_building_anything():
     assert '@sha256:' in pin['run'] and PIN in pin['run']
 
 
-def test_pin_checks_skip_only_an_unchanged_pin_that_ci_cd_covers():
+def test_pin_checks_skip_untouched_deployments_and_unchanged_pins_ci_cd_covers():
     job = steps(CHECKS['jobs']['acceptance'])
     scope = next(s for s in job if s.get('id') == 'scope')
     ci_filter = next(s for s in steps(CI['jobs']['paths-filter']) if s.get('id') == 'filter')
     assert scope['uses'] == ci_filter['uses'] == './.github/actions/paths-filter'
     assert scope['with']['extra-filter'] == ci_filter['with']['extra-filter']
     pin_change = next(s for s in job if s.get('id') == 'pin-change')
-    assert yaml.safe_load(pin_change['with']['filters']) == {'pin': [PIN]}
+    assert yaml.safe_load(pin_change['with']['filters']) == {
+        'pin': [PIN],
+        'deployment': DEPLOYMENT_ONLY,
+    }
     gate = next(s for s in job if s.get('id') == 'gate')
     assert gate['env'] == {
+        'EVENT': '${{ github.event_name }}',
         'COVERED': '${{ steps.scope.outputs.pass }}',
         'PIN_CHANGED': '${{ steps.pin-change.outputs.pin }}',
+        'DEPLOYMENT_CHANGED': '${{ steps.pin-change.outputs.deployment }}',
     }
+    assert '$EVENT == pull_request && $DEPLOYMENT_CHANGED != true' in gate['run']
     assert '$COVERED == true && $PIN_CHANGED != true' in gate['run']
     later = job[job.index(gate) + 1 :]
     assert later and all(s['if'] == "steps.gate.outputs.skip != 'true'" for s in later)

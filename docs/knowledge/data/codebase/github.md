@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:9fcbc7438df85441f16bba9b59b82241bd2caeb040f261eadc16b3a8862396d0
+source_digest: sha256:a19c12019cce90e821c95c14195fe368a3946b54c0cf1c35e275715075d84a2a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:08:22Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:08:22Z
 sources:
 - id: code
   resource: .github
@@ -53,13 +53,14 @@ the composite actions they share, `renovate.json`, and
 
 `primary-checks.yml` is the entry workflow; it calls the reusable `reformat.yml`
 and `ci.yml`. Three more workflows trigger independently on their own path
-filters, `opencode-runtime-checks.yml` triggers on the OpenCode deployment pin
-and Compose files, `renovate.yml` runs the bot on a schedule, on every push to
-`main`, and when a person edits its Dependency Dashboard or one of its PRs, and
-one is manual. Knowledge validation has its own inner filter so the consumer IWE
-seed tests run only when the seed, schemas, or seed test moved. Agent-file
-validation includes every source path declared by a codebase map doc, so source
-drift cannot skip the staleness gate.
+filters, `opencode-runtime-checks.yml` triggers on every pull request and skips
+inside its job unless the OpenCode deployment pin or Compose files changed,
+`renovate.yml` runs the bot on a schedule, on every push to `main`, and when a
+person edits its Dependency Dashboard or one of its PRs, and one is manual.
+Knowledge validation has its own inner filter so the consumer IWE seed tests run
+only when the seed, schemas, or seed test moved. Agent-file validation includes
+every source path declared by a codebase map doc, so source drift cannot skip
+the staleness gate.
 
 ## Depends on
 

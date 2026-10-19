@@ -2,12 +2,9 @@ name: OpenCode runtime pin checks
 
 # Acceptance on both native arches for the digest opencode-compose-pins.yml proposes;
 # builds and publishes nothing (runtime sources go through CI/CD). Spec: image-pinning.
+# Runs on every PR and skips inside the job, so it can be a required check.
 on:
   pull_request:
-    paths:
-      - opencode-compose-pins.yml
-      - compose.opencode.yml
-      - compose.opencode.bind.yml
   workflow_dispatch:
 
 concurrency:
@@ -44,8 +41,8 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      # CI/CD accepts the image it builds, never the pinned digest; so a changed pin
-      # always runs here, and anything else is skipped when CI/CD's filter matched.
+      # Runs only when a deployment file changed. CI/CD accepts the image it builds,
+      # never the pinned digest, so a changed pin runs even when CI/CD's filter matched.
       - name: Check whether CI/CD covers this change
         id: scope
         if: github.event_name == 'pull_request'
@@ -56,7 +53,7 @@ jobs:
             - .github/workflows/ci.yml
             - .github/actions/log-debug-stats/**
 
-      - name: Check whether the pin changed
+      - name: Check whether the deployment or its pin changed
         id: pin-change
         if: github.event_name == 'pull_request'
         uses: dorny/paths-filter@v4.0.3
@@ -64,14 +61,21 @@ jobs:
           filters: |
             pin:
               - opencode-compose-pins.yml
+            deployment:
+              - opencode-compose-pins.yml
+              - compose.opencode.yml
+              - compose.opencode.bind.yml
 
       - name: Decide whether to run acceptance
         id: gate
         env:
+          EVENT: ${{ github.event_name }}
           COVERED: ${{ steps.scope.outputs.pass }}
           PIN_CHANGED: ${{ steps.pin-change.outputs.pin }}
+          DEPLOYMENT_CHANGED: ${{ steps.pin-change.outputs.deployment }}
         run: |
-          if [[ $COVERED == true && $PIN_CHANGED != true ]]; then
+          if [[ $EVENT == pull_request && $DEPLOYMENT_CHANGED != true ]] ||
+            [[ $COVERED == true && $PIN_CHANGED != true ]]; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
