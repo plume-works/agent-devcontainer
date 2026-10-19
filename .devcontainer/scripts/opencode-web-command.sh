@@ -3,10 +3,11 @@ set -euo pipefail
 
 # OpenCode server command and link construction shared by the Coder tmux launcher and
 # the standalone supervisor. Spec: opencode-web, standalone-opencode-runtime.
-# Usage: opencode-web-command.sh link|coder-hostname|coder-pane|serve|probe
+# Usage: opencode-web-command.sh link|coder-hostname|coder-pane|coder-note|serve|probe
 
 port="${AGENTDEV_OPENCODE_PORT:-4096}"
 workspace="${DEV_WORKSPACE_FOLDER:-$PWD}"
+password_file="$HOME/.local/share/opencode/agentdev-server-password"
 
 fail() {
   echo "opencode-web-command: $*" >&2
@@ -23,13 +24,33 @@ link() {
   printf '%s\n' "${base%/}/$encoded/session"
 }
 
-# Listening beyond localhost requires the server password OpenCode enforces.
+# The server always requires a password. A Coder-provided one may face every
+# interface; a generated one stays on localhost.
 coder_hostname() {
   if [[ -n ${OPENCODE_SERVER_PASSWORD:-} ]]; then
     echo 0.0.0.0
   else
     echo 127.0.0.1
   fi
+}
+
+# The pane reads the generated password from its file, so it never appears on a
+# command line. DISPLAY is dropped so no browser opens on the Xpra desktop.
+coder_pane() {
+  local serve="opencode serve --port $port --hostname"
+  if [[ -n ${OPENCODE_SERVER_PASSWORD:-} ]]; then
+    echo "exec env -u DISPLAY $serve 0.0.0.0"
+    return
+  fi
+  if [[ ! -s $password_file ]]; then
+    mkdir -p "${password_file%/*}"
+    (umask 077 && head -c 32 /dev/urandom | base64 | tr -d '\n/+=' >"$password_file")
+  fi
+  echo "exec bash -c 'OPENCODE_SERVER_PASSWORD=\"\$(cat \"\$1\")\" exec env -u DISPLAY $serve 127.0.0.1' opencode-web $(printf '%q' "$password_file")"
+}
+
+coder_note() {
+  [[ -n ${OPENCODE_SERVER_PASSWORD:-} ]] || echo " (password in $password_file)"
 }
 
 require_password() {
@@ -50,8 +71,8 @@ probe() {
 case "${1:-}" in
   link) link ;;
   coder-hostname) coder_hostname ;;
-  # Without DISPLAY, `opencode web` cannot open a browser on the Xpra desktop.
-  coder-pane) echo "exec env -u DISPLAY opencode web --port $port --hostname $(coder_hostname)" ;;
+  coder-pane) coder_pane ;;
+  coder-note) coder_note ;;
   serve)
     require_password
     command -v opencode >/dev/null || fail "opencode is not installed"
@@ -64,7 +85,7 @@ case "${1:-}" in
     probe
     ;;
   *)
-    echo "usage: $(basename "$0") link|coder-hostname|coder-pane|serve|probe" >&2
+    echo "usage: $(basename "$0") link|coder-hostname|coder-pane|coder-note|serve|probe" >&2
     exit 2
     ;;
 esac

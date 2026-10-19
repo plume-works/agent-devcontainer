@@ -3,8 +3,8 @@ type: feature
 description: OpenCode automatically registers a newly opened Git workspace with the shared codebase-memory daemon.
 stage: implemented
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-18T21:10:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-19T02:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .devcontainer/scripts/codebase-memory-mcp-start.sh
@@ -28,7 +28,9 @@ another conversation opens.
 
 The bridge uses the active workspace, including the distinct root of a linked
 Git worktree, rather than the catalog location or the container's original
-workspace. Startup and catalog loading do not wait for indexing to finish.
+workspace. Startup and catalog loading do not wait for indexing to finish. On
+OpenCode v2 this happens for each directory OpenCode opens, and a failure is a
+warning in `opencode.log`, as on v1.
 
 ## Edge cases
 

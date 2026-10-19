@@ -22,12 +22,10 @@
 
 - name: Install agentic tools globally with Bun
   ansible.builtin.command:
-    argv:
-      - /usr/local/bin/bun
-      - add
-      - --global
-      - --exact
-      - "{{ item.package }}@{{ item.version }}"
+    argv: >-
+      {{ ['/usr/local/bin/bun', 'add', '--global', '--exact']
+         + (['--trust'] if item.trust | default(false) else [])
+         + [item.package ~ '@' ~ item.version] }}
   environment:
     BUN_INSTALL: /usr/local
   loop: "{{ agentic_tools_bun_packages }}"

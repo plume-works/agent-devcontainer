@@ -18,7 +18,6 @@ REAL_SCRIPTS = (
     'setup-agent-state.sh',
     'runtime-paths.sh',
     'link-codex-auth.sh',
-    'link-opencode-auth.sh',
 )
 STUBBED_SCRIPTS = (
     'runtime-cbm.sh',
@@ -115,10 +114,9 @@ def test_links_explicit_roots_on_fresh_volumes(scripts: Path, tmp_path: Path):
 
     home, auth = tmp_path / 'home', tmp_path / 'auth'
     assert os.readlink(home / '.codex/auth.json') == str(auth / 'codex/auth.json')
-    assert os.readlink(home / '.local/share/opencode/auth.json') == str(
-        auth / 'opencode/auth.json'
-    )
-    assert mode(auth / 'codex') == mode(auth / 'opencode') == 0o700
+    assert mode(auth / 'codex') == 0o700
+    assert not (auth / 'opencode').exists()
+    assert not (home / '.local/share/opencode/auth.json').exists()
 
 
 def test_migrates_regular_credentials_and_preserves_other_config(scripts: Path, tmp_path: Path):
@@ -135,9 +133,9 @@ def test_migrates_regular_credentials_and_preserves_other_config(scripts: Path, 
 
     auth = tmp_path / 'auth'
     assert (auth / 'codex/auth.json').read_text() == '{"codex": 1}'
-    assert (auth / 'opencode/auth.json').read_text() == '{"opencode": 1}'
-    assert mode(auth / 'codex/auth.json') == mode(auth / 'opencode/auth.json') == 0o600
+    assert mode(auth / 'codex/auth.json') == 0o600
     assert (home / '.codex/auth.json').is_symlink()
+    assert (home / '.local/share/opencode/auth.json').read_text() == '{"opencode": 1}'
     assert (home / '.codex/config.toml').read_text() == 'model = "keep"\n'
     assert (home / '.local/share/opencode/storage.db').read_text() == 'sessions'
 
@@ -146,16 +144,11 @@ def test_repairs_destroyed_and_wrong_links(scripts: Path, tmp_path: Path):
     home, auth = tmp_path / 'home', tmp_path / 'auth'
     (auth / 'codex').mkdir(parents=True)
     (auth / 'codex/auth.json').write_text('shared')
-    (home / '.local/share/opencode').mkdir(parents=True)
-    (home / '.local/share/opencode/auth.json').symlink_to(tmp_path / 'elsewhere.json')
 
     result = run_state(scripts, tmp_path, 'links')
     assert result.returncode == 0, result.stderr
 
     assert (home / '.codex/auth.json').read_text() == 'shared'
-    assert os.readlink(home / '.local/share/opencode/auth.json') == str(
-        auth / 'opencode/auth.json'
-    )
 
 
 def test_standalone_create_order_migrates_the_users_claude_json(scripts: Path, tmp_path: Path):
@@ -174,7 +167,7 @@ def test_standalone_create_order_migrates_the_users_claude_json(scripts: Path, t
     ]
     assert calls(tmp_path)[0] == 'runtime-cbm.sh install claude.json=symlink'
     assert (home / '.codex/auth.json').is_symlink()
-    for agent in ('claude', 'codex', 'opencode'):
+    for agent in ('claude', 'codex'):
         assert mode(tmp_path / 'auth' / agent) == 0o700
 
 

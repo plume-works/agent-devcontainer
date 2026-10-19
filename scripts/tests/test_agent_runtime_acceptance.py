@@ -537,7 +537,7 @@ def test_upgrade_from_the_previous_image_keeps_user_state(make_runtime, scratch:
     assert session['id'] in {s['id'] for s in runtime.api('GET', '/session')}
 
 
-def test_concurrent_projects_share_provider_auth_but_not_sessions(make_runtime, scratch: Path):
+def test_concurrent_projects_share_codex_auth_but_not_sessions(make_runtime, scratch: Path):
     first = make_runtime(workspace=bind(make_checkout(scratch / 'a')))
     second = make_runtime(workspace=bind(make_checkout(scratch / 'b')), auth=first.auth)
     first.run()
@@ -546,10 +546,6 @@ def test_concurrent_projects_share_provider_auth_but_not_sessions(make_runtime, 
 
     first.sh('echo \'{"shared": true}\' > ~/.codex/auth.json')
     assert json.loads(second.sh('cat ~/.codex/auth.json').stdout) == {'shared': True}
-    first.sh('echo \'{"provider": {}}\' > ~/.local/share/opencode/auth.json')
-    assert json.loads(second.sh('cat ~/.local/share/opencode/auth.json').stdout) == {
-        'provider': {}
-    }
     session = first.api('POST', '/session', {'title': 'only-first'})
     assert session['id'] not in {s['id'] for s in second.api('GET', '/session')}
     engines = {runtime.sh('docker info -f {{.ID}}').stdout.strip() for runtime in (first, second)}

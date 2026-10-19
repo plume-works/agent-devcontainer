@@ -86,7 +86,7 @@ def test_serve_binds_the_proxy_network_and_keeps_display(scratch: Path):
     assert args == 'serve --port 4096 --hostname 0.0.0.0'
 
 
-def test_coder_pane_command_is_unchanged(scratch: Path):
+def test_coder_pane_serves_without_display(scratch: Path):
     for password, host in (('', '127.0.0.1'), ('x', '0.0.0.0')):
         printed = subprocess.run(
             [COMMAND, 'coder-pane'],
@@ -95,7 +95,7 @@ def test_coder_pane_command_is_unchanged(scratch: Path):
             check=True,
             env=command_env(scratch, OPENCODE_SERVER_PASSWORD=password),
         ).stdout.strip()
-        assert printed == f'exec env -u DISPLAY opencode web --port 4096 --hostname {host}'
+        assert f'exec env -u DISPLAY opencode serve --port 4096 --hostname {host}' in printed
 
 
 def request(

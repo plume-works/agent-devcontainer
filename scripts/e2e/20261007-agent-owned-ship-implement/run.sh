@@ -381,23 +381,44 @@ opencode_catalog() {
   jq -r '.plugin[]? | select(endswith("/.opencode-plugin"))' \
     "$HOME/.config/opencode/opencode.json" 2>/dev/null | head -1 | xargs -r dirname
 }
+# Prints every message of session $1, one JSON object per line, across pages.
+opencode_messages() {
+  local page cursor=() count
+  while :; do
+    page="$(opencode api session.message.list --param "sessionID=$1" --param limit=200 "${cursor[@]}")" || return
+    jq -c '.data[]' <<<"$page"
+    count="$(jq '.data | length' <<<"$page")"
+    ((count == 200)) || return 0
+    cursor=(--param "cursor=$(jq -r '.cursor.next' <<<"$page")")
+  done
+}
+# Runs one command in a fresh session on the server `opencode api` reaches from
+# the clone, then saves the session's messages, one JSON object per line.
 opencode_run() {
-  local log="$1"
-  shift
-  (cd "$clone" && timeout 1200 opencode run -m "$opencode_model" --format json "$@" \
-    </dev/null >"$log.jsonl" 2>"$log.err") || note "opencode exited $? ($log)"
+  local log="$1" command="$2" text="$3" model session
+  model="$(jq -nc --arg m "$opencode_model" '{model: {providerID: ($m | split("/")[0]), id: ($m | split("/")[1:] | join("/"))}}')"
+  : >"$log.jsonl"
+  # `||` below suspends errexit inside the subshell, so each step chains with `&&`.
+  (
+    cd "$clone" &&
+      session="$(opencode api session.create -d "$model" | jq -er .data.id)" &&
+      opencode api session.command --param "sessionID=$session" \
+        -d "$(jq -nc --arg n "$command" --arg t "$text" '{name: $n, text: $t}')" >/dev/null &&
+      timeout 1200 opencode api experimental.session.wait --param "sessionID=$session" >/dev/null &&
+      opencode_messages "$session" >"$log.jsonl"
+  ) </dev/null 2>"$log.err" || note "opencode exited $? ($log)"
   check "opencode run completed: $(basename "$log")" \
-    log_has "$log" 'any(.[]; .type == "text")'
+    log_has "$log" 'any(.[]; .type == "assistant" and any(.content[]?; .type == "text"))'
 }
 opencode_calls() {
-  jq -c --arg t "$2" 'select(.type == "tool_use") | .part | select(.tool == $t) | .state.input' \
+  jq -c --arg t "$2" 'select(.type == "assistant") | .content[]? | select(.type == "tool" and .name == $t) | .state.input' \
     "$1.jsonl" 2>/dev/null || true
 }
 opencode_shipper_prompts() {
-  opencode_calls "$1" task | jq -r 'select(.subagent_type == "iwe-shipper") | .prompt'
+  opencode_calls "$1" subagent | jq -r 'select(.agent == "iwe-shipper") | .prompt'
 }
 opencode_shipper_dispatches() {
-  opencode_calls "$1" task | jq -s '[.[] | select(.subagent_type == "iwe-shipper")] | length'
+  opencode_calls "$1" subagent | jq -s '[.[] | select(.agent == "iwe-shipper")] | length'
 }
 
 run_opencode() {
@@ -415,7 +436,7 @@ run_opencode() {
 
   reset_to "$base"
   log="$logs/ship"
-  opencode_run "$log" --command agentdev:iwe-ship "data/plans/20261008-e2e-hello"
+  opencode_run "$log" agentdev:iwe-ship "data/plans/20261008-e2e-hello"
   p="$(opencode_shipper_prompts "$log")"
   check "opencode ship: one iwe-shipper dispatch" [ "$(opencode_shipper_dispatches "$log")" = 1 ]
   check "opencode ship: prompt names the plan" contains "$p" "data/plans/20261008-e2e-hello"
@@ -425,7 +446,7 @@ run_opencode() {
 
   reset_to "$base"
   log="$logs/ship-approved"
-  opencode_run "$log" --command agentdev:iwe-ship "data/plans/20261008-e2e-hello — $approval $planted"
+  opencode_run "$log" agentdev:iwe-ship "data/plans/20261008-e2e-hello — $approval $planted"
   p="$(opencode_shipper_prompts "$log")"
   check "opencode ship approved: one iwe-shipper dispatch" [ "$(opencode_shipper_dispatches "$log")" = 1 ]
   check "opencode ship approved: approval quoted verbatim" contains "$p" "$approval"
@@ -436,21 +457,21 @@ run_opencode() {
 
   reset_to "$base"
   log="$logs/ship-all"
-  opencode_run "$log" --command agentdev:iwe-ship-all "— $approval"
+  opencode_run "$log" agentdev:iwe-ship-all "— $approval"
   check "opencode ship-all: one iwe-shipper dispatch" [ "$(opencode_shipper_dispatches "$log")" = 1 ]
 
   reset_to "$base"
   log="$logs/implement"
-  opencode_run "$log" --command agentdev:iwe-implement "data/plans/20261008-e2e-greet"
+  opencode_run "$log" agentdev:iwe-implement "data/plans/20261008-e2e-greet"
   check "opencode implement: rulebook read in session" \
     grep -q 'agents/iwe-implementer.agent.md' <(opencode_calls "$log" read)
-  check "opencode implement: nothing dispatched" [ "$(opencode_calls "$log" task | jq -s 'length')" = 0 ]
+  check "opencode implement: nothing dispatched" [ "$(opencode_calls "$log" subagent | jq -s 'length')" = 0 ]
   check "opencode implement: task unticked, file absent" greet_untouched
 
   reset_to "$open_question"
   log="$logs/explore"
-  opencode_run "$log" --command agentdev:iwe-explore "the E2E hello fixture plan. Its open question is answered: a trailing newline is fine. Everything else in it is done, so I think it is finished."
-  check "opencode explore: nothing dispatched" [ "$(opencode_calls "$log" task | jq -s 'length')" = 0 ]
+  opencode_run "$log" agentdev:iwe-explore "the E2E hello fixture plan. Its open question is answered: a trailing newline is fine. Everything else in it is done, so I think it is finished."
+  check "opencode explore: nothing dispatched" [ "$(opencode_calls "$log" subagent | jq -s 'length')" = 0 ]
   check "opencode explore: no Ship or Implement skill" \
     no_workflow_skill "$(opencode_calls "$log" skill)"
   check "opencode explore: publish did not run" no_marker

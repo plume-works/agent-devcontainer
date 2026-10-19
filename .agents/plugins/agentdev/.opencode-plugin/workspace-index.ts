@@ -56,7 +56,7 @@ function object(value: unknown): value is Record<string, unknown> {
 }
 
 function response(result: CommandResult): Record<string, unknown> {
-  if (result.exitCode !== 0) throw new Error(`CBM command exited ${result.exitCode}: ${result.stderr.slice(0, 500)}`)
+  if (result.exitCode !== 0) throw new Error(`CBM command exited ${result.exitCode}: ${(result.stderr || result.stdout).slice(0, 500)}`)
   const envelope: unknown = JSON.parse(result.stdout)
   if (!object(envelope) || envelope.isError === true) throw new Error("CBM returned an invalid response or MCP error")
   let data = envelope.structuredContent
@@ -77,7 +77,7 @@ export async function registerWorkspace(
   adapters: Partial<RegistrationAdapters> = {},
 ): Promise<void> {
   const entry = config.mcp?.["codebase-memory-mcp"]
-  if (!object(entry) || entry.type !== "local" || entry.enabled === false ||
+  if (!object(entry) || entry.type !== "local" || entry.enabled === false || entry.disabled === true ||
       !Array.isArray(entry.command) || entry.command.length === 0 ||
       !entry.command.every(arg => typeof arg === "string" && arg.length > 0)) return
   const command = [...entry.command] as string[]

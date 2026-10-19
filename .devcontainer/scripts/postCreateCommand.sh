@@ -52,7 +52,7 @@ done
 
 # Now that the real ~/.claude and ~/.codex volumes are mounted: link ~/.claude.json,
 # wire CBM into agent config, create the shared auth directories, pre-approve
-# Claude, and link the Codex and OpenCode credentials.
+# Claude, and link the Codex credentials.
 "$script_dir/setup-agent-state.sh" create
 
 # Sync the project environment on the /uv volume so that extension settings are

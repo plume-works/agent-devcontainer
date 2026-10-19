@@ -40,7 +40,7 @@ install_cbm() {
 
 ensure_auth_dirs() {
   local agent
-  for agent in claude codex opencode; do
+  for agent in claude codex; do
     mkdir -p "$agentdev_auth_dir/$agent"
     chmod 700 "$agentdev_auth_dir/$agent"
   done
@@ -64,7 +64,6 @@ apply_agent_policy() {
 
 link_auth() {
   "$script_dir/link-codex-auth.sh"
-  "$script_dir/link-opencode-auth.sh"
 }
 
 cmd_create() {
