@@ -261,11 +261,17 @@ Assumptions:
 
 ### Task 5: Port the OpenCode scenarios
 
-**Files:** Create: `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+**Files:** Create: `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`,
+`scripts/e2e/iwe-workflows/scenarios.py`
 
-- [ ] Ship, ship-approved, ship-all, implement, and explore are one `e2e` test
+- [x] Ship, ship-approved, ship-all, implement, and explore are one `e2e` test
   each, asserting every check `run_opencode` makes, one assertion per check,
   each failure showing the transcript excerpt it judged.
+  - **Evidence:** Commit "test(e2e): port the OpenCode IWE workflow scenarios";
+    the five tests are gated off by default, and with `E2E_RUN_LIVE=1` against a
+    scratch 2.0.32 source holding a made-up login, each runs clone, server,
+    seed, catalog, and command, then fails its first assertion with the
+    `provider.auth` budget reason and a transcript excerpt.
 
 ### Task 6: The OpenCode suite passes
 

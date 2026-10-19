@@ -10,6 +10,7 @@ from clone import build_fixture_repo, Clone, FixtureRepo, make_clone
 from harness_opencode import OpenCodeServer, start_server
 import opencode_credential
 import pytest
+from scenarios import OPENCODE_BUDGET
 
 SUITE = Path(__file__).parent
 REPO_ROOT = Path(
@@ -23,8 +24,6 @@ REPO_ROOT = Path(
 WORK = REPO_ROOT / '.tmp/e2e/iwe-workflows'
 # Every test shares the model provider's rate limits.
 MAX_WORKERS = 3
-# Per-test budgets in seconds; starting values, replaced by measured ones.
-OPENCODE_BUDGET = 1200
 
 
 def work_dir_name(nodeid: str) -> str:
