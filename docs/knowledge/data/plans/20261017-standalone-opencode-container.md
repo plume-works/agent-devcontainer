@@ -753,9 +753,16 @@ digest
     `test_migrates_regular_credentials_and_preserves_other_config` cover the
     devcontainer side. `uv run pytest scripts/tests/test_agent_runtime_state.py`
     gives 11 passed.
-- [ ] The two-container acceptance test shares the Codex `auth.json` and keeps
+- [x] The two-container acceptance test shares the Codex `auth.json` and keeps
   sessions apart through `/api/session`. It also shows the second container has
   no link into the auth volume under `~/.local/share/opencode`.
+  - **Evidence:** commit "test(runtime): show OpenCode logins stay per project
+    container": `test_concurrent_projects_share_codex_auth_but_not_sessions`
+    reads the first container's Codex `auth.json` from the second. A session
+    created through `/api/session` is listed by the first and absent from the
+    second. `find ~/.local/share/opencode -type l` in the second container finds
+    no target under the auth volume. It is in the 13 passed against
+    `agent-opencode:local` (OpenCode 2.0.32).
 
 ### Task 18: Serve the Coder pane and the standalone server on OpenCode v2
 

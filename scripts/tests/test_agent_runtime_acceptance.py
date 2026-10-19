@@ -548,7 +548,10 @@ def test_concurrent_projects_share_codex_auth_but_not_sessions(make_runtime, scr
     first.sh('echo \'{"shared": true}\' > ~/.codex/auth.json')
     assert json.loads(second.sh('cat ~/.codex/auth.json').stdout) == {'shared': True}
     session = first.api('POST', '/session', {'title': 'only-first'})
+    assert session['id'] in {s['id'] for s in first.api('GET', '/session')}
     assert session['id'] not in {s['id'] for s in second.api('GET', '/session')}
+    links = second.sh('find ~/.local/share/opencode -type l -printf "%l\\n"').stdout.split()
+    assert not [link for link in links if link.startswith(AUTH)], links
     engines = {runtime.sh('docker info -f {{.ID}}').stdout.strip() for runtime in (first, second)}
     assert len(engines) == 2
 
