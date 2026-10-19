@@ -28,6 +28,13 @@ The bash suite was introduced by
 the suite moves to `scripts/e2e/iwe-workflows/`, named for the workflows it
 exercises; the old plan keeps its references to the old path.
 
+[Ship a standalone OpenCode
+container](20261017-standalone-opencode-container.md) moves the web UI's port
+and password handling into `opencode-web-command.sh` and makes the port
+configurable through `AGENTDEV_OPENCODE_PORT`; the credential source below reads
+the same port, password, and readiness probe, so it works in the Dev Container
+and the standalone container alike.
+
 The bash run budgets (`timeout 1200` per run, the renewed `opencode_wait`) are
 not a measure of run time: they absorbed OpenCode sessions stalled on prompts
 the suite never answered. They are starting values only; the port sets each
@@ -78,22 +85,24 @@ clone, `POST /api/session/{id}/command`,
 paged by cursor, `POST /api/session/{id}/interrupt` — under its own deadline.
 
 **OpenCode credential.** Tests use the user's ChatGPT login
-(`chatgpt-token-sharing`), whose access token lives about an hour; this
-credential behavior is as measured on OpenCode 2.0.32. The source is the Coder
-web UI server that `opencode-web-start.sh` runs on `127.0.0.1:4096`,
-authenticated with `OPENCODE_SERVER_PASSWORD` or the
-`~/.local/share/opencode/agentdev-server-password` file. Before each test the
-fixture reads the active `openai` credential from the source with
-`GET /api/credential`. When it expires within the test's budget, the fixture
-sends the source a one-token prompt in a throwaway session (deleted afterwards)
-so the source refreshes it. It then seeds the test's server with
-`POST /api/credential`, copying `methodID` and `metadata` verbatim and replacing
-`refresh` with `"withheld"`. Only the source ever holds or rotates the real
-refresh token. An expired seeded token fails a session with
+(`chatgpt-token-sharing`), whose access token lives about an hour on OpenCode
+2.0.32, the pinned version. The source is the Coder web UI server that
+`opencode-web-start.sh` runs on `127.0.0.1` at `AGENTDEV_OPENCODE_PORT` (default
+`4096`), authenticated (user `opencode`) with `OPENCODE_SERVER_PASSWORD` or the
+`~/.local/share/opencode/agentdev-server-password` file. The source counts as up
+only when an authenticated `GET /api/info` returns a 2.x `version`; v2 serves
+its web UI page outside `/api/` with status 200 and no password, so no other
+path can show the API is up. Before each test the fixture reads the active
+`openai` credential from the source with `GET /api/credential`. When it expires
+within the test's budget, the fixture sends the source a one-token prompt in a
+throwaway session (deleted afterwards) so the source refreshes it. It then seeds
+the test's server with `POST /api/credential`, copying `methodID` and `metadata`
+verbatim and replacing `refresh` with `"withheld"`. Only the source ever holds
+or rotates the real refresh token. An expired seeded token fails a session with
 `{"type": "provider.auth"}`, which the suite reports as an exhausted budget.
-When the source is unreachable or answers without a credential API, the OpenCode
-tests skip with a reason naming `opencode-web-start.sh`; the suite never opens
-the user's OpenCode data directory itself.
+When the source is not up, the OpenCode tests skip with a reason naming
+`opencode-web-start.sh`; the suite never opens the user's OpenCode data
+directory itself.
 
 **Claude Code and Codex.** Same clone fixture; their drivers port
 `claude_run`/`codex_run` and the transcript readers as they are. Claude Code and
@@ -169,10 +178,11 @@ Assumptions:
 
 **Files:** Create: `scripts/e2e/iwe-workflows/opencode_credential.py`
 
-- [ ] The source is `127.0.0.1:4096` with `OPENCODE_SERVER_PASSWORD` or the
+- [ ] The source is `127.0.0.1` at `AGENTDEV_OPENCODE_PORT` (default `4096`)
+  with `OPENCODE_SERVER_PASSWORD` or the
   `~/.local/share/opencode/agentdev-server-password` file; OpenCode tests skip
-  with a reason naming `opencode-web-start.sh` when it is unreachable or has no
-  `/api/credential`.
+  with a reason naming `opencode-web-start.sh` unless an authenticated
+  `GET /api/info` returns a 2.x `version`.
 - [ ] Per test, the active `openai` credential is read from the source; when it
   expires within the test's budget, a one-token prompt in a throwaway session,
   deleted afterwards, makes the source refresh it first.
