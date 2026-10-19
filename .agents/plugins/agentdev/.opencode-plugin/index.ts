@@ -88,6 +88,8 @@ interface Catalog {
 // to a disposable the bridge never needs.
 type Registration = Promise<unknown>
 interface V2Context {
+  location: { directory: string }
+  mcp: { transform: (fn: (editor: { get: (name: string) => unknown }) => void) => Registration }
   skill: { transform: (fn: (editor: { add: (skill: Record<string, unknown>) => void }) => void) => Registration }
   command: {
     transform: (fn: (editor: { add: (command: V2Command) => void }) => void) => Registration
@@ -226,9 +228,14 @@ export async function bridge(
  * Register the catalog plugin rooted at `root` through OpenCode v2's plugin ctx.
  * Nothing is awaited: v2 holds every request until setup's registrations settle.
  */
-export function setupBridge(root: string, ctx: V2Context): void {
+export function setupBridge(root: string, ctx: V2Context, adapters: Partial<RegistrationAdapters> = {}): void {
   const catalog = readCatalog(root)
   const prefix = `${catalog.namespace}:`
+
+  void ctx.mcp.transform((editor) => {
+    const entry = editor.get("codebase-memory-mcp")
+    void registerWorkspace(ctx.location.directory, { mcp: { "codebase-memory-mcp": entry } }, adapters)
+  })
 
   void ctx.skill.transform((editor) => {
     for (const skill of catalog.skills) {
@@ -302,10 +309,33 @@ export function setupBridge(root: string, ctx: V2Context): void {
   })
 }
 
+const id = "agentdev-opencode-bridge"
+
+/**
+ * The v2 entry: run setupBridge through the host's own `fromPromise` adapter,
+ * logging through the host's Effect context so warnings reach opencode.log.
+ * `load` resolves the host's modules; v1 never calls this.
+ */
+export function v2Effect(
+  root: string,
+  ctx: unknown,
+  load: (name: string) => any,
+  adapters: Partial<RegistrationAdapters> = {},
+): unknown {
+  const { Effect } = load("effect")
+  const { fromPromise } = load("@opencode/plugin/promise/adapter")
+  return Effect.contextWith((context: unknown) => {
+    const log = (message: string) => Effect.runPromiseWith(context)(
+      Effect.logWarning(message).pipe(Effect.annotateLogs({ service: "agentdev" })),
+    )
+    return fromPromise({ id, setup: (v2: V2Context) => setupBridge(root, v2, { log, ...adapters }) }).effect(ctx)
+  })
+}
+
 const root = path.resolve(import.meta.dir, "..")
 
 export default {
-  id: "agentdev-opencode-bridge",
+  id,
   server: (input: PluginInput) => bridge(root, input),
-  setup: (ctx: V2Context) => setupBridge(root, ctx),
-} satisfies PluginModule & { setup: (ctx: V2Context) => void }
+  effect: (ctx: unknown) => v2Effect(root, ctx, require),
+} satisfies PluginModule & { effect: (ctx: unknown) => unknown }

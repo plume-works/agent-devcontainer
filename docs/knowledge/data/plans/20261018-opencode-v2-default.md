@@ -321,9 +321,10 @@ Rejected:
 **Files:** Modify: `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
 `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts`,
 `.agents/plugins/agentdev/tests/opencode/bridge.test.ts`,
-`.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`
+`.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`,
+`.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
 
-- [ ] Tests first, against the fake v2 `ctx`:
+- [x] Tests first, against the fake v2 `ctx`:
   - the default export carries `id`, `server`, and `effect` and no `setup`;
     importing the module loads neither `effect` nor `@opencode/plugin`;
   - the v2 setup registers an `mcp.transform` callback and resolves before that
@@ -335,12 +336,28 @@ Rejected:
     `enabled: false`, and a v2 local entry without `disabled` registers;
   - a registration failure reaches the v2 log adapter as a warning, and the v1
     path still logs through `client.app.log`.
-- [ ] Implement until the tests pass; the module still imports nothing at
+  - **Evidence:** The `v2 workspace registration` and `v2 effect export` suites
+    in `bridge.test.ts`, the reworked default-export test, and the two v1/v2
+    config-gate tests in `workspace-index.test.ts`; they failed on the missing
+    `v2Effect` export and the unhandled `disabled` key before the implementation
+    landed in the same commit.
+- [x] Implement until the tests pass; the module still imports nothing at
   runtime outside Bun and Node built-ins, and `effect` and the `fromPromise`
   adapter are required only inside the `effect` export.
-- [ ] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, a forced CBM
+  - **Evidence:** `bun test ./.agents/plugins/agentdev/tests/opencode` passes 57
+    tests; `uv run pytest .agents/plugins/agentdev/tests` passes 175 tests;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports no errors. `index.ts` imports only types and Node built-ins; the
+    default export's `effect` alone calls `require` for the two host modules.
+- [x] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, a forced CBM
   failure leaves an `agentdev` warning in `opencode.log`, and
   `verify-agent-limits-host.ts` still passes through the `effect` export.
+  - **Evidence:**
+    `OPENCODE_BIN=<v2 opencode> bun ./.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
+    passes all three scenarios against `@opencode/cli` 2.0.32 with the bridge
+    loaded only through `effect`; its CBM scenario finds
+    `level=WARN message="CBM workspace registration failed: ENOENT …" service=agentdev`
+    in `opencode.log` for a v1-shaped `mcp` entry naming a missing executable.
 
 ### Task 3: Install OpenCode v2 in the image
 

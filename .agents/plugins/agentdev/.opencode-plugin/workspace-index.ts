@@ -77,7 +77,7 @@ export async function registerWorkspace(
   adapters: Partial<RegistrationAdapters> = {},
 ): Promise<void> {
   const entry = config.mcp?.["codebase-memory-mcp"]
-  if (!object(entry) || entry.type !== "local" || entry.enabled === false ||
+  if (!object(entry) || entry.type !== "local" || entry.enabled === false || entry.disabled === true ||
       !Array.isArray(entry.command) || entry.command.length === 0 ||
       !entry.command.every(arg => typeof arg === "string" && arg.length > 0)) return
   const command = [...entry.command] as string[]

@@ -8,6 +8,7 @@ import plugin, {
   V2_SUBAGENT_ACTIONS,
   bridge,
   setupBridge,
+  v2Effect,
 } from "../../.opencode-plugin/index.ts"
 
 const root = path.resolve(import.meta.dir, "../..")
@@ -141,10 +142,15 @@ describe("tool.execute.before hook", () => {
   })
 })
 
-test("default export loads in OpenCode v1 and v2", () => {
+test("default export loads in OpenCode v1 and v2 without v2's modules", () => {
   expect(typeof plugin.id).toBe("string")
   expect(typeof plugin.server).toBe("function")
-  expect(typeof plugin.setup).toBe("function")
+  expect(typeof plugin.effect).toBe("function")
+  expect(plugin).not.toHaveProperty("setup")
+  // The module imported above although neither v2 module resolves from it.
+  for (const name of ["effect", "@opencode/plugin/promise/adapter"]) {
+    expect(() => Bun.resolveSync(name, path.join(root, ".opencode-plugin"))).toThrow()
+  }
 })
 
 test("pending workspace registration does not delay catalog or skill hooks", async () => {
@@ -191,7 +197,7 @@ test("registration failures reach the OpenCode logging client", async () => {
 })
 
 /** A fake OpenCode v2 plugin ctx whose editors and hooks record what the bridge registers. */
-function fakeV2(options: { registration?: Promise<unknown>; agentSystem?: Record<string, string> } = {}) {
+function fakeV2(options: { registration?: Promise<unknown>; agentSystem?: Record<string, string>; mcp?: Record<string, any> } = {}) {
   const registration = options.registration ?? Promise.resolve({ dispose: async () => {} })
   const transforms: Record<string, (editor: any) => void> = {}
   const hooks: Record<string, (input: any) => unknown> = {}
@@ -220,8 +226,11 @@ function fakeV2(options: { registration?: Promise<unknown>; agentSystem?: Record
     tool: { hook: hook("tool") },
     session: { hook: hook("session"), prompt: async (input: unknown) => { prompts.push(input) } },
     permission: { hook: hook("permission") },
+    mcp: { transform: transform("mcp") },
   }
+  const mcp = structuredClone(options.mcp ?? {})
   const apply = () => {
+    transforms.mcp?.({ get: (name: string) => mcp[name] })
     transforms.skill?.({ get: (id: string) => skills.get(id), add: (s: any) => skills.set(s.id, s) })
     transforms.command?.({ add: (c: any) => commands.set(c.name, c) })
     transforms.agent?.({
@@ -233,12 +242,12 @@ function fakeV2(options: { registration?: Promise<unknown>; agentSystem?: Record
       },
     })
   }
-  return { ctx, transforms, hooks, prompts, skills, commands, agents, apply }
+  return { ctx, transforms, hooks, prompts, skills, commands, agents, mcp, apply }
 }
 
-function setUp(options?: Parameters<typeof fakeV2>[0]) {
+function setUp(options?: Parameters<typeof fakeV2>[0], adapters?: Parameters<typeof setupBridge>[2]) {
   const fake = fakeV2(options)
-  setupBridge(root, fake.ctx as any)
+  setupBridge(root, fake.ctx as any, adapters)
   fake.apply()
   return fake
 }
@@ -363,7 +372,115 @@ describe("v2 setup", () => {
       Bun.sleep(500).then(() => "blocked"),
     ])
     expect(result).toBe("returned")
-    expect(Object.keys(fake.transforms).sort()).toEqual(["agent", "command", "skill"])
+    expect(Object.keys(fake.transforms).sort()).toEqual(["agent", "command", "mcp", "skill"])
     expect(Object.keys(fake.hooks).sort()).toEqual(["permission.evaluate", "session.context", "tool.execute.before"])
+  })
+})
+
+const cbmEntry = { type: "local", command: ["cbm"], environment: { CBM_CACHE_DIR: "/fixture" } }
+
+describe("v2 workspace registration", () => {
+  test("registers ctx.location.directory with the configured CBM entry and changes no MCP config", async () => {
+    const commands: string[][] = []
+    const fake = setUp({ mcp: { "codebase-memory-mcp": cbmEntry } }, {
+      run: async command => {
+        commands.push(command)
+        return command[0] === "git"
+          ? { exitCode: 0, stdout: root, stderr: "" }
+          : { exitCode: 0, stdout: JSON.stringify({ structuredContent: { projects: [{ root_path: root }], has_more: false } }), stderr: "" }
+      },
+    })
+    await Bun.sleep(20)
+    expect(commands[0]).toEqual(["git", "-C", root, "rev-parse", "--show-toplevel"])
+    expect(commands[1]).toEqual(["cbm", "cli", "--json", "list_projects", "--format", "json"])
+    expect(fake.mcp).toEqual({ "codebase-memory-mcp": cbmEntry })
+  })
+
+  test("a v2 entry with disabled: true is a quiet skip", async () => {
+    const commands: string[][] = []
+    const logs: string[] = []
+    setUp({ mcp: { "codebase-memory-mcp": { ...cbmEntry, disabled: true } } }, {
+      run: async command => { commands.push(command); return { exitCode: 0, stdout: "", stderr: "" } },
+      log: async message => { logs.push(message) },
+    })
+    await Bun.sleep(20)
+    expect(commands).toEqual([])
+    expect(logs).toEqual([])
+  })
+
+  test("setup returns while CBM registration is still pending", async () => {
+    let release!: () => void
+    const pending = new Promise<void>(resolve => { release = resolve })
+    let started = false
+    const fake = fakeV2({ mcp: { "codebase-memory-mcp": cbmEntry } })
+    try {
+      const result = await Promise.race([
+        Promise.resolve(setupBridge(root, fake.ctx as any, {
+          run: async () => { started = true; await pending; return { exitCode: 1, stdout: "", stderr: "" } },
+        })).then(() => { fake.apply(); return "returned" }),
+        Bun.sleep(500).then(() => "blocked"),
+      ])
+      expect(result).toBe("returned")
+      await Bun.sleep(20)
+      expect(started).toBe(true)
+      expect(fake.commands.get(`${namespace}:pr-open`)).toBeDefined()
+    } finally { release() }
+  })
+
+  test("a registration failure reaches the v2 log adapter", async () => {
+    const logs: string[] = []
+    setUp({ mcp: { "codebase-memory-mcp": cbmEntry } }, {
+      run: async () => { throw new Error("executable unavailable") },
+      log: async message => { logs.push(message) },
+    })
+    await Bun.sleep(20)
+    expect(logs).toHaveLength(1)
+    expect(logs[0]).toContain("executable unavailable")
+  })
+})
+
+describe("v2 effect export", () => {
+  /** Fakes of the two host modules the effect export requires. */
+  function hostModules() {
+    const ran: { context: unknown; effect: any }[] = []
+    const hostContext = { host: true }
+    const plugins: any[] = []
+    const Effect = {
+      contextWith: (fn: (context: unknown) => unknown) => fn(hostContext),
+      logWarning: (message: string) => ({ message, pipe(f: (e: any) => any) { return f(this) } }),
+      annotateLogs: (annotations: Record<string, unknown>) => (effect: any) => ({ ...effect, annotations }),
+      runPromiseWith: (context: unknown) => async (effect: any) => { ran.push({ context, effect }) },
+    }
+    const fromPromise = (plugin: any) => {
+      plugins.push(plugin)
+      return { effect: (ctx: unknown) => { plugin.setup(ctx); return "host effect" } }
+    }
+    const load = (name: string) => {
+      if (name === "effect") return { Effect }
+      if (name === "@opencode/plugin/promise/adapter") return { fromPromise }
+      throw new Error(`unexpected module ${name}`)
+    }
+    return { ran, hostContext, plugins, load }
+  }
+
+  test("runs the v2 setup through fromPromise inside the host's Effect context", () => {
+    const host = hostModules()
+    const fake = fakeV2()
+    expect(v2Effect(root, fake.ctx as any, host.load)).toBe("host effect")
+    fake.apply()
+    expect(host.plugins[0].id).toBe(plugin.id)
+    expect(fake.commands.get(`${namespace}:pr-open`)).toBeDefined()
+  })
+
+  test("logs CBM warnings at warning level, annotated service agentdev, in the host's context", async () => {
+    const host = hostModules()
+    const fake = fakeV2({ mcp: { "codebase-memory-mcp": cbmEntry } })
+    v2Effect(root, fake.ctx as any, host.load, { run: async () => { throw new Error("executable unavailable") } })
+    fake.apply()
+    await Bun.sleep(20)
+    expect(host.ran).toHaveLength(1)
+    expect(host.ran[0].context).toBe(host.hostContext)
+    expect(host.ran[0].effect.message).toContain("executable unavailable")
+    expect(host.ran[0].effect.annotations).toEqual({ service: "agentdev" })
   })
 })

@@ -1,8 +1,9 @@
-// Host check for catalog agent tool limits on OpenCode v2 under full access,
-// driven by a local mock model. OPENCODE_BIN selects the v2 executable.
+// Host checks for the bridge on OpenCode v2: catalog agent tool limits under
+// full access, driven by a local mock model, and CBM warnings in opencode.log.
+// OPENCODE_BIN selects the v2 executable.
 import assert from "node:assert/strict"
 import { spawn, spawnSync } from "node:child_process"
-import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from "node:fs"
+import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
 const pluginRoot = path.resolve(import.meta.dir, "../..")
@@ -171,6 +172,18 @@ try {
   assert(replaced.tools.includes("webfetch"), `the user's tdd-red is not offered webfetch: ${replaced.tools}`)
   assert.match(replaced.result, /mock page/, `the user's tdd-red could not fetch: ${replaced.result}`)
   console.log("ok - the user's agent, command, and skill replace the catalog's")
+  stopHost()
+
+  rmSync(userSkill, { recursive: true })
+  configure({ mcp: { "codebase-memory-mcp": { type: "local", command: [path.join(fixture, "missing-cbm")], enabled: true } } })
+  await startHost("cbm")
+  api("agent.list") // plugins activate for a directory on its first request
+  const opencodeLog = path.join(fixture, "home/.local/share/opencode/log/opencode.log")
+  const warning = await until(() => readFileSync(opencodeLog, "utf8").split("\n").find(line =>
+    line.includes("level=WARN") && line.includes("service=agentdev") && line.includes("CBM workspace registration failed")),
+  line => line !== undefined, "the bridge's CBM warning in opencode.log")
+  assert(warning)
+  console.log("ok - a CBM registration failure is logged to opencode.log")
 } finally {
   stopHost()
   model.stop(true)
