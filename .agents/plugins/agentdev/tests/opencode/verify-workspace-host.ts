@@ -1,30 +1,17 @@
 import assert from "node:assert/strict"
 import { spawn, spawnSync } from "node:child_process"
-import { cpSync, existsSync, mkdirSync, mkdtempSync, openSync, closeSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs"
-import os from "node:os"
+import { existsSync, mkdirSync, mkdtempSync, openSync, closeSync, readFileSync, readlinkSync, rmSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
 const pluginRoot = path.resolve(import.meta.dir, "../..")
-const opencode = Bun.which("opencode")
+// OPENCODE_BIN selects the v2 executable; the host resolves the bridge's imports itself.
+const opencode = process.env.OPENCODE_BIN ?? Bun.which("opencode")
 const cbm = Bun.which("codebase-memory-mcp")
 assert(opencode && cbm, "Installed opencode and codebase-memory-mcp executables are required")
-const sdkDir = process.env.OPENCODE_TEST_SDK_DIR ?? process.env.OPENCODE_CONFIG_DIR ?? path.join(process.env.XDG_CONFIG_HOME ?? path.join(os.homedir(), ".config"), "opencode")
 const version = spawnSync(opencode, ["--version"], { encoding: "utf8" })
 assert.equal(version.status, 0, "Cannot read installed OpenCode version")
 const hostVersion = version.stdout.trim()
-for (const file of ["package.json", "package-lock.json", "node_modules/@opencode-ai/plugin/package.json"]) {
-  assert(existsSync(path.join(sdkDir, file)), `SDK seed missing ${file}; set OPENCODE_TEST_SDK_DIR to a provisioned OpenCode config directory`)
-}
-const manifest = JSON.parse(readFileSync(path.join(sdkDir, "package.json"), "utf8"))
-const lock = JSON.parse(readFileSync(path.join(sdkDir, "package-lock.json"), "utf8"))
-const sdk = JSON.parse(readFileSync(path.join(sdkDir, "node_modules/@opencode-ai/plugin/package.json"), "utf8"))
-assert.equal(sdk.version, hostVersion, "SDK seed must match the installed OpenCode version")
-assert.equal(lock.packages?.[""]?.dependencies?.["@opencode-ai/plugin"], hostVersion, "SDK lockfile must match the host version")
-for (const section of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
-  for (const name of Object.keys(manifest[section] ?? {})) {
-    assert(lock.packages?.[""]?.[section]?.[name], `SDK lockfile does not cover ${name}`)
-  }
-}
+assert.match(hostVersion, /(^|[^\d.])2\.\d+\.\d+/, `OpenCode v2 is required, found: ${hostVersion}`)
 
 const parentFlag = process.argv.indexOf("--parent-mount")
 if (parentFlag === -1) {
@@ -51,10 +38,11 @@ const env: NodeJS.ProcessEnv = { ...process.env,
   OPENCODE_DISABLE_CLAUDE_CODE_SKILLS: "1", OPENCODE_DISABLE_MODELS_FETCH: "1",
   npm_config_offline: "true", npm_config_registry: "http://127.0.0.1:9",
   CBM_CACHE_DIR: path.join(fixture, "cbm"), CBM_ALLOWED_ROOT: fixture,
+  OPENCODE_SERVER_PASSWORD: "workspace-host",
 }
-for (const key of ["OPENCODE_CONFIG", "OPENCODE_CONFIG_CONTENT", "OPENCODE_SERVER_PASSWORD", "OPENCODE_SERVER_USERNAME", "OPENCODE_PURE", "OPENCODE_DISABLE_PROJECT_CONFIG"]) delete env[key]
+for (const key of ["OPENCODE_CONFIG", "OPENCODE_CONFIG_CONTENT", "OPENCODE_SERVER_USERNAME", "OPENCODE_PURE", "OPENCODE_DISABLE_PROJECT_CONFIG"]) delete env[key]
 for (const dir of [env.HOME!, env.XDG_DATA_HOME!, env.XDG_CACHE_HOME!, env.XDG_STATE_HOME!, env.CBM_CACHE_DIR!, configDir]) mkdirSync(dir, { recursive: true })
-for (const name of ["package.json", "package-lock.json", "node_modules"]) cpSync(path.join(sdkDir, name), path.join(configDir, name), { recursive: true, dereference: true })
+const authorization = `Basic ${Buffer.from(`opencode:${env.OPENCODE_SERVER_PASSWORD}`).toString("base64")}`
 
 let sequence = 0
 let daemonStarted = false
@@ -117,13 +105,13 @@ async function startHost(mode: "enabled" | "disabled" | "unavailable") {
   address = `http://127.0.0.1:${port}`
   hostLog = path.join(fixture, `host-${mode}.log`)
   const fd = openSync(hostLog, "w")
-  host = spawn(opencode!, ["--print-logs", "--log-level", "DEBUG", "serve", "--hostname", "127.0.0.1", "--port", String(port)], { cwd: fixture, env, detached: true, stdio: ["ignore", fd, fd] })
+  host = spawn(opencode!, ["--log-level", "debug", "serve", "--hostname", "127.0.0.1", "--port", String(port)], { cwd: fixture, env, detached: true, stdio: ["ignore", fd, fd] })
   closeSync(fd)
   const deadline = Date.now() + 20_000
   while (Date.now() < deadline) {
     assert(host.exitCode === null, `OpenCode exited: ${readFileSync(hostLog, "utf8")}`)
     try {
-      if ((await fetch(`${address}/global/health`, { signal: AbortSignal.timeout(500) })).ok) return
+      if ((await fetch(address, { headers: { authorization }, signal: AbortSignal.timeout(500) })).ok) return
     } catch (error) {
       if (host.exitCode !== null) throw error
     }
@@ -143,19 +131,33 @@ async function stopHost() {
   host = undefined
 }
 
+/** List the agents, commands, or skills OpenCode serves for the directory `root`. */
+async function list(kind: "agent" | "command" | "skill", root: string): Promise<any[]> {
+  const url = `${address}/api/${kind}?location[directory]=${encodeURIComponent(root)}`
+  const result = await fetch(url, { headers: { authorization }, signal: AbortSignal.timeout(20_000) })
+  assert.equal(result.status, 200, await result.clone().text())
+  return ((await result.json()) as { data: any[] }).data
+}
+
+/** Open `root` on the host and wait until the catalog is served there; return how long that took. */
 async function catalog(root: string) {
   const start = Date.now()
-  const result = await fetch(`${address}/config?directory=${encodeURIComponent(root)}`, { signal: AbortSignal.timeout(20_000) })
-  assert.equal(result.status, 200, await result.clone().text())
-  const config = await result.json() as any
+  // The bridge activates for a directory on its first request there.
+  while (!(await list("command", root)).some(command => command.name === "agentdev:pr-open")) {
+    assert(Date.now() - start < 20_000, "Host is missing catalog commands")
+    await Bun.sleep(100)
+  }
   const ms = Date.now() - start
-  assert(config.command?.["agentdev:pr-open"], "Host is missing catalog commands")
-  assert(config.agent?.["tdd-red"], "Host is missing catalog agents")
-  const skills = await run([opencode!, "debug", "skill"], root)
-  assert(skills.stdout.includes("iwe-plan"), "Host is missing catalog skills")
-  const debug = await run([opencode!, "debug", "config"], root)
-  assert(debug.stdout.includes("agentdev:pr-open"), "Debug config is missing catalog commands")
+  assert((await list("agent", root)).some(agent => agent.id === "tdd-red"), "Host is missing catalog agents")
+  assert((await list("skill", root)).some(skill => skill.id === "iwe-plan"), "Host is missing catalog skills")
   return ms
+}
+
+const opencodeLog = path.join(env.XDG_DATA_HOME!, "opencode/log/opencode.log")
+
+function warned() {
+  return existsSync(opencodeLog) && readFileSync(opencodeLog, "utf8").split("\n").some(line =>
+    line.includes("level=WARN") && line.includes("service=agentdev") && line.includes("CBM workspace registration failed"))
 }
 
 async function indexed(root: string) {
@@ -221,15 +223,16 @@ try {
     const root = await repository(mode)
     await catalog(root)
     const deadline = Date.now() + 5000
-    while (mode === "unavailable" && !readFileSync(hostLog, "utf8").includes("CBM workspace registration failed") && Date.now() < deadline) await Bun.sleep(100)
+    while (mode === "unavailable" && !warned() && Date.now() < deadline) await Bun.sleep(100)
     if (mode === "disabled") await Bun.sleep(300)
-    assert.equal(readFileSync(hostLog, "utf8").includes("CBM workspace registration failed"), mode === "unavailable")
+    assert.equal(warned(), mode === "unavailable", `${mode}: unexpected agentdev warning state in opencode.log`)
     assert.deepEqual(await roots(), [first, second].sort(), `${mode}: an unindexed root was registered`)
     console.log(`PASS ${mode}: catalog usable; ${mode === "disabled" ? "quiet skip" : "registration warning"}; no index submitted`)
     await stopHost()
   }
 } catch (error) {
   if (hostLog && existsSync(hostLog)) console.error(readFileSync(hostLog, "utf8").slice(-8000))
+  if (existsSync(opencodeLog)) console.error(readFileSync(opencodeLog, "utf8").slice(-8000))
   throw error
 } finally { await cleanup() }
 console.log(`PASS cleanup: test host, daemon, and fixture resources removed (OpenCode ${hostVersion})`)

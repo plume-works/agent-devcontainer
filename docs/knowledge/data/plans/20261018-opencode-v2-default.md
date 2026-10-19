@@ -432,16 +432,28 @@ Rejected:
 ### Task 7: Run the workspace host verifier on v2
 
 **Files:** Modify:
-`.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
+`.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`,
+`.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts`
 
-- [ ] Drop the v1 SDK seed and `OPENCODE_TEST_SDK_DIR`, open each fixture
+- [x] Drop the v1 SDK seed and `OPENCODE_TEST_SDK_DIR`, open each fixture
   through v2's `opencode serve`, and check the catalog through v2's API
   (`skill.list`, `command.list`) where it now runs `debug skill` and
   `debug config`. Keep the CBM project, job, subdirectory, disabled, and
   unavailable checks as they are.
-- [ ] `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
+  - **Evidence:** The verifier opens each fixture with the API's
+    `location[directory]` query on `/api/command`, `/api/agent`, and
+    `/api/skill`, authenticated with its own server password, and finds the
+    warning in `opencode.log`; its CBM checks are unchanged. A failing CBM
+    command now reports its stdout when stderr is empty, which is where CBM
+    writes its MCP error.
+- [x] `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
   passes against the image's v2 and CBM, including a v2 `agentdev` warning in
   `opencode.log` for the unavailable executable.
+  - **Evidence:**
+    `OPENCODE_BIN=<v2 opencode> bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
+    passes all six checks against `@opencode/cli` 2.0.32, the image's pin, and
+    the local CBM: both roots indexed, subdirectory retained, disabled a quiet
+    skip, unavailable a `service=agentdev` warning in `opencode.log`, cleanup.
 
 ### Task 8: Update the design documents and the codebase map
 

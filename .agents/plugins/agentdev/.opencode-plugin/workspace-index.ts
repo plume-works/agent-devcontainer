@@ -56,7 +56,7 @@ function object(value: unknown): value is Record<string, unknown> {
 }
 
 function response(result: CommandResult): Record<string, unknown> {
-  if (result.exitCode !== 0) throw new Error(`CBM command exited ${result.exitCode}: ${result.stderr.slice(0, 500)}`)
+  if (result.exitCode !== 0) throw new Error(`CBM command exited ${result.exitCode}: ${(result.stderr || result.stdout).slice(0, 500)}`)
   const envelope: unknown = JSON.parse(result.stdout)
   if (!object(envelope) || envelope.isError === true) throw new Error("CBM returned an invalid response or MCP error")
   let data = envelope.structuredContent
