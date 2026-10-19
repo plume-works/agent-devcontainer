@@ -15,10 +15,11 @@ EXPLORE = (
 SHIPPER = 'iwe-shipper'
 RULEBOOK = 'agents/iwe-implementer.agent.md'
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
-# Per-test budgets in seconds; starting values, replaced by measured ones.
-OPENCODE_BUDGET = 1200
-CLAUDE_BUDGET = 1200
-CODEX_BUDGET = 1200
+# Per-test budgets in seconds: about three times each harness's slowest scenario
+# measured at the worker cap. OPENCODE_BUDGET also sets the login's minimum life.
+OPENCODE_BUDGET = 300
+CLAUDE_BUDGET = 420
+CODEX_BUDGET = 900
 
 
 def mentions(calls: list[dict[str, Any]], pattern: str | re.Pattern) -> bool:

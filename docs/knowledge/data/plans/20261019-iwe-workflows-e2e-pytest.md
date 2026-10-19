@@ -366,13 +366,19 @@ Assumptions:
 
 ### Task 14: Eval and tune timeouts
 
-**Files:** Modify: `scripts/e2e/iwe-workflows/conftest.py`
+**Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`
 
-- [ ] Each scenario's wall time on each harness is measured from full live runs,
+- [x] Each scenario's wall time on each harness is measured from full live runs,
   and each test's budget is set from those measurements in place of the bash
   values; the credential fixture's minimum remaining token life follows the
   OpenCode budget, and the worker cap is confirmed or changed against the
   provider's rate limits.
+  - **Evidence:** Commit "test(e2e): set e2e budgets from measured wall times";
+    slowest scenario per harness at `-n 3` in the Task 6, 9, and 12 runs:
+    OpenCode ship-all 95s, Claude Code ship-all 138s, Codex explore 318s, giving
+    budgets of 300s, 420s, and 900s; `opencode_login` reads `OPENCODE_BUDGET`.
+    Cap of 3 confirmed: Claude Code's rate-limit events all report `allowed`,
+    and no run logged a 429.
 
 ### Task 15: The whole suite passes in parallel
 
