@@ -741,10 +741,18 @@ digest
 `scripts/tests/test_agent_runtime_state.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] `setup-agent-state.sh create|links` creates only the Claude and Codex auth
+- [x] `setup-agent-state.sh create|links` creates only the Claude and Codex auth
   directories and links only the Codex credential, in both runtime modes. The
   state tests show no `opencode` directory under the auth root, and an existing
   `~/.local/share/opencode/auth.json` left as a regular file with its content.
+  - **Evidence:** the v2 plan's `2f4a17f` removed `link-opencode-auth.sh`, and
+    merge `6e2c404` made `ensure_auth_dirs` create only `claude` and `codex`.
+    Commit "test(runtime): keep OpenCode logins out of the shared auth volume"
+    makes the standalone `create` test assert that the auth root holds only
+    those two directories. `test_links_explicit_roots_on_fresh_volumes` and
+    `test_migrates_regular_credentials_and_preserves_other_config` cover the
+    devcontainer side. `uv run pytest scripts/tests/test_agent_runtime_state.py`
+    gives 11 passed.
 - [ ] The two-container acceptance test shares the Codex `auth.json` and keeps
   sessions apart through `/api/session`. It also shows the second container has
   no link into the auth volume under `~/.local/share/opencode`.

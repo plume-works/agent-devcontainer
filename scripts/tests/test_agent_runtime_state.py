@@ -169,6 +169,8 @@ def test_standalone_create_order_migrates_the_users_claude_json(scripts: Path, t
     assert (home / '.codex/auth.json').is_symlink()
     for agent in ('claude', 'codex'):
         assert mode(tmp_path / 'auth' / agent) == 0o700
+    assert sorted(p.name for p in (tmp_path / 'auth').iterdir()) == ['claude', 'codex']
+    assert not (home / '.local/share/opencode/auth.json').exists()
 
 
 def test_devcontainer_create_discards_the_image_file_and_tolerates_cbm_failure(
