@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Agent-state primitives shared by the devcontainer hooks and standalone startup.
 # AGENTDEV_RUNTIME_MODE=standalone makes every step fatal; the hooks keep CBM nonfatal.
-# Usage: setup-agent-state.sh create|links|codex-policy|catalog <dir> [claude-scope]
+# Usage: setup-agent-state.sh create|links|agent-policy|catalog <dir> [claude-scope]
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=runtime-paths.sh
@@ -57,6 +57,11 @@ register_user_tools() {
   sed "s#^path: .*#path: $extension/gh-stack#" "$source/manifest.yml" >"$extension/manifest.yml"
 }
 
+apply_agent_policy() {
+  "$script_dir/configure-codex.py"
+  "$script_dir/configure-opencode.py"
+}
+
 link_auth() {
   "$script_dir/link-codex-auth.sh"
   "$script_dir/link-opencode-auth.sh"
@@ -83,13 +88,13 @@ cmd_catalog() {
 case "${1:-}" in
   create) cmd_create ;;
   links) link_auth ;;
-  codex-policy) "$script_dir/configure-codex.py" ;;
+  agent-policy) apply_agent_policy ;;
   catalog)
     [[ -n ${2:-} ]] || { echo "usage: $(basename "$0") catalog <dir> [claude-scope]" >&2 && exit 2; }
     cmd_catalog "$2" "${3:-}"
     ;;
   *)
-    echo "usage: $(basename "$0") create|links|codex-policy|catalog <dir> [claude-scope]" >&2
+    echo "usage: $(basename "$0") create|links|agent-policy|catalog <dir> [claude-scope]" >&2
     exit 2
     ;;
 esac

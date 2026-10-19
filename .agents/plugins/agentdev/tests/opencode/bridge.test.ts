@@ -142,3 +142,46 @@ test("default export is a v1 plugin module", () => {
   expect(typeof plugin.id).toBe("string")
   expect(typeof plugin.server).toBe("function")
 })
+
+test("pending workspace registration does not delay catalog or skill hooks", async () => {
+  let release!: () => void
+  const pending = new Promise<void>(resolve => { release = resolve })
+  let indexingPending = false
+  const hooks = await bridge(root, { directory: root } as any, {
+    run: async command => {
+      if (command[0] === "git") return { exitCode: 0, stdout: root, stderr: "" }
+      indexingPending = true
+      await pending
+      return { exitCode: 0, stdout: JSON.stringify({ structuredContent: { projects: [{ root_path: root }], has_more: false } }), stderr: "" }
+    },
+  })
+  const config: Record<string, any> = { mcp: { "codebase-memory-mcp": { type: "local", command: ["cbm"] } } }
+  try {
+    await Promise.race([
+      hooks.config!(config as any),
+      Bun.sleep(500).then(() => { throw new Error("config blocked on registration") }),
+    ])
+    await Bun.sleep(20)
+    expect(indexingPending).toBe(true)
+    expect(config.skills.paths).toContain(skillsDir)
+    expect(config.command[`${namespace}:pr-open`]).toBeDefined()
+    expect(config.agent["tdd-red"]).toBeDefined()
+    const output = { args: { name: `${namespace}:iwe-plan` } }
+    await hooks["tool.execute.before"]!({ tool: "skill", sessionID: "s", callID: "c" }, output)
+    expect(output.args.name).toBe("iwe-plan")
+  } finally { release() }
+})
+
+test("registration failures reach the OpenCode logging client", async () => {
+  const messages: any[] = []
+  const hooks = await bridge(root, {
+    directory: root,
+    client: { app: { log: async (entry: unknown) => { messages.push(entry) } } },
+  } as any, { run: async () => { throw new Error("executable unavailable") } })
+  const config: Record<string, any> = { mcp: { "codebase-memory-mcp": { type: "local", command: ["cbm"] } } }
+  await hooks.config!(config as any)
+  await Bun.sleep(20)
+  expect(config.command[`${namespace}:pr-open`]).toBeDefined()
+  expect(messages[0].body).toMatchObject({ service: "agentdev", level: "warn" })
+  expect(messages[0].body.message).toContain("executable unavailable")
+})

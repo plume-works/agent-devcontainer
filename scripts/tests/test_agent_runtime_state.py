@@ -25,6 +25,7 @@ STUBBED_SCRIPTS = (
     'codebase-memory-mcp-install.sh',
     'preapprove-claude-workspace.sh',
     'configure-codex.py',
+    'configure-opencode.py',
     'reinstall-agentdev-codex.sh',
     'reinstall-agentdev-claude.sh',
     'reinstall-agentdev-opencode.sh',
@@ -218,7 +219,7 @@ def test_catalog_passes_the_scope_only_to_claude(scripts: Path, tmp_path: Path):
 def test_hooks_keep_their_call_order():
     post_start = (SCRIPTS / 'postStartCommand.sh').read_text()
     assert post_start.index('start-xpra.sh') < post_start.index('setup-agent-state.sh" links')
-    assert post_start.rstrip().endswith('"$script_dir/setup-agent-state.sh" codex-policy')
+    assert post_start.rstrip().endswith('"$script_dir/setup-agent-state.sh" agent-policy')
     post_create = (SCRIPTS / 'postCreateCommand.sh').read_text()
     assert post_create.index('setup-agent-state.sh" create') < post_create.index('uv-sync.sh')
     assert post_create.index('uv-sync.sh') < post_create.index('setup-agent-state.sh" catalog')

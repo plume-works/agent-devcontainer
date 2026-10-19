@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: opencode/openai-gpt-6.1-sol
-  at: 2026-10-17T05:34:21Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-18T01:27:30Z
 ---
 
 # 🗺️ Plans
@@ -36,6 +36,12 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Automatically index OpenCode workspaces in
+CBM](plans/20261018-opencode-workspace-cbm-indexing.md)
+
+[Configure devcontainer OpenCode for full
+access](plans/20261018-opencode-full-access-config.md)
 
 [Autostart the OpenCode web UI on
 Coder](plans/20261016-opencode-web-coder-autostart.md)

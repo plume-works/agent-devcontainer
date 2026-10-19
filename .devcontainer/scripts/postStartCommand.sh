@@ -27,4 +27,4 @@ fi
 "$script_dir/setup-agent-state.sh" links
 
 # Last, so a failure here cannot keep the firewall, keyring, or Xpra from starting.
-"$script_dir/setup-agent-state.sh" codex-policy
+"$script_dir/setup-agent-state.sh" agent-policy

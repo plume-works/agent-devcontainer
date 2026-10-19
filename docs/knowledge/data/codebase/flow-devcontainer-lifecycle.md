@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:e7704a62c11723bcc04859884d035208fd82e405a3f0986ca0a1ee85800e6b96
+source_digest: sha256:cfebad5d8103265b854561025377aa9febf06a3dd2261153aa23a52d9ec2cb52
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
+  at: 2026-10-19T01:11:00Z
 stale_after: 2027-01-15
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:50:00Z
+  at: 2026-10-19T01:11:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -46,13 +46,14 @@ state.
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
    Xpra in the background, `setup-agent-state.sh links` for the Codex and
-   OpenCode auth links, then `codex-policy` for Codex's full-access policy in
-   `config.toml` — `.devcontainer/scripts/postStartCommand.sh:9-30`. The gh
-   helper setup there sees only a login stored on disk or in the keyring. Claude
-   Remote Control is not part of it: in Coder, the template's `coder_script` on
-   the dev container's sub-agent runs `coder-agent-start.sh` after the agent
-   starts, which prunes unused images in the nested Docker engine, repeats the
-   gh helper setup with the agent's environment, starts the OpenCode web UI on
+   OpenCode auth links, then `agent-policy` for both agents' full-access
+   policies in their user configuration files —
+   `.devcontainer/scripts/postStartCommand.sh:9-30`. The gh helper setup there
+   sees only a login stored on disk or in the keyring. Claude Remote Control is
+   not part of it: in Coder, the template's `coder_script` on the dev
+   container's sub-agent runs `coder-agent-start.sh` after the agent starts,
+   which prunes unused images in the nested Docker engine, repeats the gh helper
+   setup with the agent's environment, starts the OpenCode web UI on
    `tmux -L opencode`, then execs `claude-remote-control-start.sh` —
    `.devcontainer/scripts/coder-agent-start.sh:9-21`
 5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the

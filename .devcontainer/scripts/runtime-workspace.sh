@@ -109,7 +109,7 @@ cmd_prepare() {
   "$script_dir/docker-image-prune.sh"
   cmd_checkout
   "$script_dir/setup-agent-state.sh" create
-  "$script_dir/setup-agent-state.sh" codex-policy
+  "$script_dir/setup-agent-state.sh" agent-policy
   cmd_catalog
   cmd_project
 }

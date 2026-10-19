@@ -3,8 +3,8 @@ type: hub
 description: System design notes and the reasoning behind them, rejected alternatives included.
 stage: living
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
+  by: opencode/openai-gpt-6.1-sol
+  at: 2026-10-18T19:34:45Z
 ---
 
 # 🏛️ Architecture
@@ -62,6 +62,9 @@ rejected are as valuable as the one you picked.*
 [Codex full access in the
 devcontainer](architecture/codex-full-access-in-devcontainer.md)
 
+[OpenCode full access in the
+devcontainer](architecture/opencode-full-access-in-devcontainer.md)
+
 [Ansible apt pins](architecture/ansible-apt-pins.md)
 
 [Renovate config validation](architecture/renovate-config-validation.md)
@@ -81,3 +84,8 @@ devcontainer](architecture/codex-full-access-in-devcontainer.md)
 [CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
+
+[Testing sibling workspaces in
+devcontainers](architecture/sibling-devcontainer-testing.md)
+
+[Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
