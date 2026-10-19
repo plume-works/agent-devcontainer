@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:87de4f0b21d952cb7f57768db0a9f3821b03c09fe999223be2bd15e898e4c4dd
+source_digest: sha256:e00ec4e29e2f6beb163cd84c50d35c86808c3b622bb9b23998721fbb32813166
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T20:30:00Z
-stale_after: 2027-01-16
+  at: 2026-10-19T02:30:00Z
+stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T20:30:00Z
+  at: 2026-10-19T02:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -22,10 +22,15 @@ with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`. `opencode/bridge.test.ts` and
 `opencode/workspace-index.test.ts` are separate Bun suites for the [OpenCode
 bridge](opencode-plugin.md), run with
-`bun test ./.agents/plugins/agentdev/tests/opencode` in the same job.
-`opencode/verify-workspace-host.ts` is not a Bun test file and stays out of CI:
-run directly with `bun`, it checks workspace registration against the installed
-OpenCode and CBM, isolated in a private mount namespace under `.tmp/`.
+`bun test ./.agents/plugins/agentdev/tests/opencode` in the same job; the bridge
+suite drives the v1 hooks directly and the v2 setup against a fake plugin ctx.
+Two host checks are not Bun test files and stay out of CI; each runs directly
+with `bun` against an OpenCode v2 executable (`OPENCODE_BIN`, else `opencode`):
+`opencode/verify-workspace-host.ts` checks workspace registration with the
+installed CBM, isolated in a private mount namespace under `.tmp/`, and
+`opencode/verify-agent-limits-host.ts` drives a local mock model to check
+catalog agent tool limits under full access, user replacement of agents,
+commands, and skills, and the bridge's CBM warning in `opencode.log`.
 
 ## Public surface
 
@@ -151,7 +156,9 @@ Verified anchor points (line numbers as of 2026-10-18):
   an absent marker section is `NO_MARKER`
 - `.agents/plugins/agentdev/tests/test_explicit_only_parity.py:33` —
   `parity_mismatches`
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:38` — `configured`,
-  the hook driver every config case shares
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:42` — `configured`,
+  the v1 hook driver every config case shares
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:200` — `fakeV2`, the
+  recording v2 plugin ctx
 - `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts:38` — command
   and logging harness

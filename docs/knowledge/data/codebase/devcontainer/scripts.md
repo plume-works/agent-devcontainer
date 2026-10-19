@@ -2,14 +2,14 @@
 type: codebase
 description: 'The postCreate, postStart, and postAttach hooks and the helpers they call: catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, agent auth symlinks and full-access policies, Claude pre-approval, gh credential helper, the Coder agent-start entry point, Claude Remote Control, and the OpenCode web UI.'
 source: .devcontainer/scripts
-source_digest: sha256:61aafb02bac77aa5f67fc00971d6cb3358fbb771a442624c87b398e45b6a1c32
+source_digest: sha256:f89e8d86b47eb610b8e3961b86dfce24ecc994bad880dae14007acb4ada3c67e
 verified:
-  by: codex/gpt-5
-  at: 2026-10-18T19:39:20Z
-stale_after: 2027-01-15
+  by: claude-code/opus-5.5
+  at: 2026-10-19T02:30:00Z
+stale_after: 2027-01-17
 generated:
-  by: codex/gpt-5
-  at: 2026-10-18T19:39:20Z
+  by: claude-code/opus-5.5
+  at: 2026-10-19T02:30:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -27,8 +27,8 @@ outside the devcontainer.
 
 | Script                                               | Called by                       | Does                                                                                                                                                                                                                                                                                                                                                                                               |
 | ---------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `postCreateCommand.sh`                               | create (once)                   | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, Claude pre-approval, Codex and OpenCode auth links, uv sync, staged-catalog install                                                                                                                                                                                                                                             |
-| `postStartCommand.sh`                                | every start                     | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Codex and OpenCode auth links and full-access policies                                                                                                                                                                                                                                          |
+| `postCreateCommand.sh`                               | create (once)                   | ownership fixes, `~/.claude.json` symlink, CBM install, auth dirs, Claude pre-approval, Codex auth link, uv sync, staged-catalog install                                                                                                                                                                                                                                                           |
+| `postStartCommand.sh`                                | every start                     | CBM daemon + index, git safe.directory, pre-commit hooks, keyring, gh helper, firewall gate, Xpra, Codex auth link, Codex and OpenCode full-access policies                                                                                                                                                                                                                                        |
 | `postAttachCommand.sh`                               | every editor attach             | CBM index, uv sync, reinstall the catalog from this checkout                                                                                                                                                                                                                                                                                                                                       |
 | `reinstall-agentdev-claude.sh [root] [scope]`        | create, attach                  | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                                                                                                                                                                                                                                                                                            |
 | `reinstall-agentdev-codex.sh [root]`                 | create, attach                  | the Codex equivalent, single-plugin; Codex has no scopes                                                                                                                                                                                                                                                                                                                                           |
@@ -87,9 +87,13 @@ default-socket server is already live. The pane runs
 `claude --remote-control --resume`; a missing ID or a non-zero resume exit
 starts `--session-id` with a fresh UUID written to that file.
 `opencode-web-start.sh` uses the same dedicated-server pattern with no login
-gate, so `OPENCODE_SERVER_PASSWORD` from the agent's environment reaches the
-server. On a start or a reuse it prints `<base>/<base64url(workspace)>/session`,
-where `<base>` is `VSCODE_PROXY_URI` with `{{port}}` set to 4096, or
+gate, so `OPENCODE_SERVER_PASSWORD` from the agent's environment reaches
+`opencode serve`. Without it, the script writes a random password once to
+`~/.local/share/opencode/agentdev-server-password` under `umask 077`, and the
+pane runs `bash -c` with that path as an argument, reading the file into the
+variable before `exec`, so the password never appears on a command line. On a
+start or a reuse it prints `<base>/<base64url(workspace)>/session`, where
+`<base>` is `VSCODE_PROXY_URI` with `{{port}}` set to 4096, or
 `http://127.0.0.1:4096` when that variable is unset.
 
 ## Depends on
@@ -128,16 +132,15 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
+Verified anchor points (line numbers as of 2026-10-19):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56-62` — `~/.claude.json` symlink
   into the volume
 - `.devcontainer/scripts/postCreateCommand.sh:67-68` — non-fatal CBM install
 - `.devcontainer/scripts/postCreateCommand.sh:74` — Claude pre-approval
-- `.devcontainer/scripts/postCreateCommand.sh:79-80` — Codex and OpenCode auth
-  links
-- `.devcontainer/scripts/postCreateCommand.sh:93-99` — staged-catalog install
-- `.devcontainer/scripts/postStartCommand.sh:9-32` — the start sequence
+- `.devcontainer/scripts/postCreateCommand.sh:79` — Codex auth link
+- `.devcontainer/scripts/postCreateCommand.sh:92-98` — staged-catalog install
+- `.devcontainer/scripts/postStartCommand.sh:9-31` — the start sequence
 - `.devcontainer/scripts/postAttachCommand.sh:14-16` — workspace reinstall
 - `.devcontainer/scripts/reinstall-agentdev-claude.sh:74-76` — add + install
 - `.devcontainer/scripts/reinstall-agentdev-codex.sh:64-65` — add + install
@@ -160,8 +163,9 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `.devcontainer/scripts/coder-agent-start.sh:9-21` — warn-only image prune,
   helper setup, and OpenCode start, exec of the Remote Control launcher
 - `.devcontainer/scripts/opencode-web-start.sh:17-21` — workspace link from
-  `VSCODE_PROXY_URI`; `:24-27,29,35-36` — password-gated bind, live-session
-  reuse, `DISPLAY`-free launch on `tmux -L opencode`
+  `VSCODE_PROXY_URI`; `:28-38` — Coder password or generated password file and
+  the pane command; `:40,45-46` — live-session reuse and launch on
+  `tmux -L opencode`
 - `.devcontainer/scripts/docker-image-prune.sh:7-21` — docker and daemon gates,
   warn-only prune
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:8,30` — keyring session

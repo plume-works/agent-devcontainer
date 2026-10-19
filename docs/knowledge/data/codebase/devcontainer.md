@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:1e6330d3130d4c54e056447416fa27c1bf5bb1b490ba7172e387f132a9be067c
+source_digest: sha256:1f04883d9ba605d937bbc5b304ea4da84c625d7e5c90ca8efdb5ad2f76feda9a
 verified:
-  by: codex/gpt-5
-  at: 2026-10-18T19:39:20Z
-stale_after: 2027-01-15
+  by: claude-code/opus-5.5
+  at: 2026-10-19T02:30:00Z
+stale_after: 2027-01-17
 generated:
-  by: codex/gpt-5
-  at: 2026-10-18T19:39:20Z
+  by: claude-code/opus-5.5
+  at: 2026-10-19T02:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -58,9 +58,10 @@ under the digest pin, mounts the workspace at `/workspaces/<basename>` and the
 git common dir at its host path so worktrees resolve, and starts the MCP gateway
 only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
 `~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`) is on Compose-scoped
-volumes; only credentials share the literal `agentdev-agents-auth` volume across
-instances. The start lifecycle also restores Codex and OpenCode full-access
-policies in their user configuration files.
+volumes; only Claude Code and Codex credentials share the literal
+`agentdev-agents-auth` volume across instances, and OpenCode's logins stay in
+its per-instance data directory. The start lifecycle also restores Codex and
+OpenCode full-access policies in their user configuration files.
 
 ## Depends on
 
@@ -87,7 +88,7 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
+Verified anchor points (line numbers as of 2026-10-19):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:53-59` — Xpra port forwarding

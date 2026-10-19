@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:dab59deb57be15638625a636bc9ca06cc710c5d9fe42ade636a3ca7f276d1320
+source_digest: sha256:d9a28064b2d7b4d1212464459a7dd0a49ebdcb499421280019b29419fa963e39
 verified:
-  by: codex/gpt-5
-  at: 2026-10-18T19:39:20Z
-stale_after: 2027-01-15
+  by: claude-code/opus-5.5
+  at: 2026-10-19T02:30:00Z
+stale_after: 2027-01-17
 generated:
-  by: codex/gpt-5
-  at: 2026-10-18T19:39:20Z
+  by: claude-code/opus-5.5
+  at: 2026-10-19T02:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -37,16 +37,15 @@ state.
    `~/.claude.json` symlink into the `agentdev-claude` volume,
    `codebase-memory-mcp install` (a failure only warns), auth directories,
    Claude first-run pre-approval unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is
-   set, the Codex and OpenCode auth links, `uv sync`, then the image-staged
-   catalog installed for Codex (with its agents), for Claude at user scope, and
-   as OpenCode's bridge plugin —
-   `.devcontainer/scripts/postCreateCommand.sh:56-99`, in [lifecycle
-   scripts](devcontainer/scripts.md)
+   set, the Codex auth link, `uv sync`, then the image-staged catalog installed
+   for Codex (with its agents), for Claude at user scope, and as OpenCode's
+   bridge plugin — `.devcontainer/scripts/postCreateCommand.sh:56-98`, in
+   [lifecycle scripts](devcontainer/scripts.md)
 4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
    pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
-   Xpra in the background, the Codex and OpenCode auth links, then both agents'
-   full-access policies in their user configuration files —
-   `.devcontainer/scripts/postStartCommand.sh:9-32`. The gh helper setup there
+   Xpra in the background, the Codex auth link, then both agents' full-access
+   policies in their user configuration files —
+   `.devcontainer/scripts/postStartCommand.sh:9-31`. The gh helper setup there
    sees only a login stored on disk or in the keyring. Claude Remote Control is
    not part of it: in Coder, the template's `coder_script` on the dev
    container's sub-agent runs `coder-agent-start.sh` after the agent starts,
