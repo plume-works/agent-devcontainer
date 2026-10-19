@@ -4,7 +4,8 @@ Installs the agentic CLI tooling used in the workspace and the security layer
 that guards it:
 
 - **Bun-managed globals**: `@modelcontextprotocol/inspector`,
-  `@anthropic-ai/claude-code`, `@openai/codex`, and `opencode-ai`.
+  `@anthropic-ai/claude-code`, `@openai/codex`, and `@opencode/cli` (OpenCode
+  v2, trusted so its postinstall fetches the platform binary).
 - **[cc-filter](https://github.com/wissem/cc-filter)**: a hard security layer in
   front of Claude Code hooks. It blocks sensitive file access, blocks risky
   shell/search commands, and redacts secrets. The role downloads the
@@ -81,13 +82,13 @@ Two properties constrain changes:
 
 ### Agent CLIs
 
-| Variable                            | Default             | Description                                         |
-| ----------------------------------- | ------------------- | --------------------------------------------------- |
-| `agentic_tools_claude_code_version` | pinned              | `@anthropic-ai/claude-code` version.                |
-| `agentic_tools_codex_version`       | pinned              | `@openai/codex` version.                            |
-| `agentic_tools_opencode_version`    | pinned              | `opencode-ai` version; the OpenCode CLI.            |
-| `agentic_tools_inspector_version`   | pinned              | `@modelcontextprotocol/inspector` version.          |
-| `agentic_tools_bun_packages`        | the four CLIs above | Packages installed as Bun globals, each at its pin. |
+| Variable                            | Default             | Description                                                                                     |
+| ----------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------- |
+| `agentic_tools_claude_code_version` | pinned              | `@anthropic-ai/claude-code` version.                                                            |
+| `agentic_tools_codex_version`       | pinned              | `@openai/codex` version.                                                                        |
+| `agentic_tools_opencode_version`    | pinned              | `@opencode/cli` version; the OpenCode CLI.                                                      |
+| `agentic_tools_inspector_version`   | pinned              | `@modelcontextprotocol/inspector` version.                                                      |
+| `agentic_tools_bun_packages`        | the four CLIs above | Packages installed as Bun globals, each at its pin; `trust: true` runs a package's postinstall. |
 
 ### cc-filter
 

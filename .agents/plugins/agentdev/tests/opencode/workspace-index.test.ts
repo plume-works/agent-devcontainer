@@ -106,6 +106,22 @@ describe("workspace registration", () => {
     }
   })
 
+  test("quietly skips a local entry that v1 or v2 config disables", async () => {
+    const entry = config.mcp["codebase-memory-mcp"]
+    for (const disabled of [{ ...entry, enabled: false }, { ...entry, disabled: true }]) {
+      const h = harness()
+      await registerWorkspace(root, { mcp: { "codebase-memory-mcp": disabled } }, h.adapters)
+      expect(h.calls).toEqual([])
+      expect(h.logs).toEqual([])
+    }
+  })
+
+  test("registers a v2 local entry that is not disabled", async () => {
+    const h = harness()
+    await registerWorkspace(root, { mcp: { "codebase-memory-mcp": { ...config.mcp["codebase-memory-mcp"], disabled: false } } }, h.adapters)
+    expect(h.calls).toHaveLength(3)
+  })
+
   test("quietly skips a non-Git directory", async () => {
     const nonGit = path.join(fixture, "non-git")
     mkdirSync(nonGit)

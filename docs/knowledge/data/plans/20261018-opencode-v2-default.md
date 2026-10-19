@@ -4,12 +4,16 @@ created: 2026-10-18
 release:
 - features/opencode-catalog-host
 - features/opencode-web-coder-autostart
-description: Ship OpenCode v2 as the image's OpenCode, serve the agentdev catalog to it through a bridge that loads in both v1 and v2, run the Coder web UI with v2's always-on server password, and keep OpenCode logins per worktree.
+- features/opencode-workspace-cbm-indexing
+description: Ship OpenCode v2 as the image's OpenCode, serve the agentdev catalog and workspace CBM registration to it through a bridge that loads in both v1 and v2, run the Coder web UI with v2's always-on server password, and keep OpenCode logins per worktree.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T00:00:00Z
+  at: 2026-10-18T23:18:43Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
+- resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
+- resource: .agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts
+- resource: .devcontainer/scripts/configure-opencode.py
 - resource: .devcontainer/scripts/opencode-web-start.sh
 - resource: .devcontainer/scripts/link-opencode-auth.sh
 - resource: ansible/roles/agentic_tools/defaults/main.yml
@@ -21,21 +25,31 @@ sources:
 
 ## Context
 
-[OpenCode as a catalog host](../features/opencode-catalog-host.md) and [OpenCode
-web UI autostart on Coder](../features/opencode-web-coder-autostart.md) are the
-features this plan changes. Both are built on OpenCode v1 (`opencode-ai`, pinned
-at 1.19.3). In v1 a command's template is sent as the user's message, so every
-`/agentdev:<name>` command posts the whole skill body into the chat; OpenCode's
-own skill-derived commands do the same. OpenCode v2 (`@opencode/cli`) attaches a
-skill to a message as a structured skill reference instead, and the chat shows
-only the user's text and a skill chip.
+[OpenCode as a catalog host](../features/opencode-catalog-host.md), [OpenCode
+web UI autostart on Coder](../features/opencode-web-coder-autostart.md), and
+[Automatic CBM indexing for OpenCode
+workspaces](../features/opencode-workspace-cbm-indexing.md) are the features
+this plan changes. All three are built on OpenCode v1 (`opencode-ai`, pinned at
+1.19.3); the CBM registration runs from the bridge's v1 `config` hook, which v2
+does not call. In v1 a command's template is sent as the user's message, so
+every `/agentdev:<name>` command posts the whole skill body into the chat;
+OpenCode's own skill-derived commands do the same. OpenCode v2 (`@opencode/cli`)
+attaches a skill to a message as a structured skill reference instead, and the
+chat shows only the user's text and a skill chip.
 
 The current design is in [OpenCode catalog
 bridge](../architecture/opencode-catalog-bridge.md) and [Agent auth
 persistence](../architecture/agent-auth-persistence.md); the contracts are
 [OpenCode catalog bridge](../spec/opencode-catalog-bridge.md), [OpenCode
-web](../spec/opencode-web.md), and [Coder IDE baseline
+web](../spec/opencode-web.md), [OpenCode workspace CBM
+indexing](../spec/opencode-workspace-cbm-indexing.md), and [Coder IDE baseline
 template](../spec/coder-ide-baseline.md).
+
+[OpenCode full-access config](../features/opencode-full-access-config.md) writes
+a v1-shaped `permission` block into `opencode.json` on every start
+([Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md)). v2
+reads that block, so the policy needs no change; this plan only verifies it on
+v2.
 
 [Ship a standalone OpenCode
 container](20261017-standalone-opencode-container.md) builds on
@@ -46,10 +60,30 @@ revised for v2 before it is implemented.
 OpenCode v2.0.32 behavior this plan relies on:
 
 - **Plugin loading.** A plugin module is `{id, setup(ctx)}` or `{id, effect}`;
-  v1's `{id, server}` alone fails to load. v2 ignores `server` and v1 ignores
-  `setup`, so one default export carrying all three loads in both.
+  v1's `{id, server}` alone fails to load. v2 ignores `server`, and v1 ignores
+  `setup` and `effect`. A module carrying both `setup` and `effect` runs only
+  `effect` on v2. `fromPromise` from `@opencode/plugin/promise/adapter` turns a
+  `setup` plugin into an `effect` plugin, as the host does for `setup` plugins.
+  The host resolves a plugin's `require("effect")` and
+  `require("@opencode/plugin/promise/adapter")` to its own copies.
 - **Config.** v2 reads the v1 `plugin` key as its `plugins` list, and accepts an
-  absolute directory path as an entry.
+  absolute directory path as an entry. It reads the v1 `permission` object as
+  `permissions` rules (`"*": "allow"` becomes
+  `{action: "*", resource: "*", effect: "allow"}`, `external_directory`
+  included), and a v1 `mcp.<name>` entry as `mcp.servers.<name>`, with
+  `enabled: false` becoming `disabled: true`.
+- **Plugin instances.** `setup` runs once per directory OpenCode opens.
+  `ctx.location.directory` is that directory; `ctx.location.project.directory`
+  is OpenCode's own project root for it.
+- **MCP config.** `ctx.mcp.transform` takes an editor whose `get(name)` returns
+  the merged server config in v2's shape:
+  `{type, command, environment, disabled}` for a local server.
+- **Diagnostics.** The plugin ctx has no logging client, and a plugin's
+  `console` output reaches neither `opencode.log` nor the CLI's stderr. An
+  `effect` plugin runs in the host's Effect context: a warning logged with
+  `Effect.runPromiseWith` on that context reaches `opencode.log` with its
+  annotations, while a plugin's own `Effect.runPromise` writes only to the
+  server's console.
 - **Skills.** `ctx.skill.transform` takes an editor whose
   `add({id, name, description, autoinvoke, path, content})` registers a skill;
   `autoinvoke: false` keeps it out of model invocation. The catalog's
@@ -60,24 +94,37 @@ OpenCode v2.0.32 behavior this plan relies on:
   `ctx.session.prompt` with the skill appended to `skills`.
 - **Agents.** `ctx.agent.transform` has no `add`; `update(id, fn)` creates a
   missing agent from defaults whose permission ruleset starts with allow `*`.
-  `{action, resource: "*", effect: "deny"}` rules pushed after the defaults take
-  effect, and a denied tool is withheld from the model. Subagents appear in the
-  `subagent` tool's list next to `explore` and `general`.
+  Subagents appear in the `subagent` tool's list next to `explore` and
+  `general`. The host's config-agent transform runs after every plugin
+  transform, whenever the plugin registered it: it appends the global
+  `permission` rules to every agent, then merges each agent the user's config
+  defines into the entry with the same id. Rules match last-wins, so a global
+  `"*": "allow"` overrides any deny rule a plugin pushes.
+- **Precedence.** A skill or command the user's config defines wins over a
+  plugin's under the same name. A plugin's ctx exposes no user config.
 - **Tool permissions.** `shell`, `read`, `edit`, `write`, `patch`, `grep`,
   `glob`, `websearch`, `webfetch`, `subagent`, `skill`, `question`, and
   `browser` (denied by default). There is no to-do or LSP tool. Every agent is
   offered `execute`, v2's code-mode tool.
 - **Hooks.** `ctx.tool.hook("execute.before", fn)` sees `{tool, input}` and can
-  replace `input`. Awaiting a hook registration inside `setup` blocks plugin
-  activation, and every request waits on activation.
+  replace `input`. `ctx.session.hook("context", fn)` sees `{agent, tools}`
+  before each model request; a tool deleted from `tools` is not offered to the
+  model. `ctx.permission.hook("evaluate", fn)` sees `{agent, action, effect}`
+  after the rules are evaluated; setting `effect` to `deny` refuses the call
+  with `Permission denied: <action>`. Awaiting a hook or transform registration
+  inside `setup` blocks plugin activation, and every request waits on
+  activation.
 - **Server.** `opencode serve --port --hostname` serves the API and the web UI;
-  there is no `web` command. The server always requires a password: it uses
+  there is no `web` command. Other CLI commands use a background server that
+  `opencode service` manages. The server always requires a password: it uses
   `OPENCODE_SERVER_PASSWORD`, or a random one when that is unset. Basic auth
   uses the user `opencode`.
 - **Logins.** Provider logins live in the SQLite database in OpenCode's data
   directory; `auth.json` is read once, as an import.
 - **CLI.** `opencode run` sends plain text only, with no `--command`.
-  `opencode api session.command` runs a command against a session.
+  `opencode api session.command` runs a command against a session. There is no
+  `debug skill` or `debug config` resolved view: `debug config` lists the config
+  sources, and `debug agents` lists the agents.
 - **Install.** Bun blocks the package's postinstall, which fetches the platform
   binary, until the package is trusted. The package installs `opencode` and
   `opencode2`.
@@ -85,15 +132,46 @@ OpenCode v2.0.32 behavior this plan relies on:
 ## Approach
 
 **One bridge module for both majors.** The default export becomes
-`{id, server, setup}`. `server` keeps today's v1 hooks unchanged. `setup` reads
-the same catalog and registers it through v2's editors: each skill under its
-bare name (`autoinvoke: false` for `disable-model-invocation`), each skill as a
-command `agentdev:<name>` whose `execute` re-prompts the session with the user's
-text and the skill appended to `skills`, and each agent through `update` as a
-subagent with deny rules. The `agentdev:` prefix rewrite moves to
-`ctx.tool.hook("execute.before")`, registered without being awaited. Keys the
-user already defined are left alone, as in v1. The catalog parsing that both
-paths share is factored out once.
+`{id, server, effect}`. `server` keeps the v1 `config` and `tool.execute.before`
+hooks unchanged. `effect` requires `effect` and the `fromPromise` adapter only
+when v2 calls it, so v1 never loads either; it captures the host's Effect
+context and runs the bridge's v2 setup through `fromPromise`, handing it a log
+adapter bound to that context. The v2 setup reads the same catalog and registers
+it through v2's editors: each skill under its bare name (`autoinvoke: false` for
+`disable-model-invocation`), each skill as a command `agentdev:<name>` whose
+`execute` re-prompts the session with the user's text and the skill appended to
+`skills`, and each agent through `update` as a subagent with its description and
+body as `system`, adding no permission rules. The `agentdev:` prefix rewrite
+moves to `ctx.tool.hook("execute.before")`, registered without being awaited.
+The catalog parsing that both paths share is factored out once.
+
+**Tool limits on v2 are enforced by hooks.** A deny rule on the agent cannot
+hold, because the host appends the global rules after it, and the devcontainer's
+full-access policy is `"*": "allow"`. Two hooks, registered without being
+awaited, enforce the limits instead: `session.hook("context")` removes a catalog
+agent's denied tools from what the model is offered, and
+`permission.hook("evaluate")` sets `deny` for a denied action, which also
+catches a call made indirectly. Approval for an allowed tool is untouched.
+
+**A user's agent replaces the catalog agent.** Both hooks apply a catalog
+agent's limits only while that agent's `system` is still the catalog body. An
+agent the user defines under the same id carries the user's prompt, so only the
+user's permissions apply to it. A skill or command the user defines under the
+same name already wins through the host's own order, so the bridge does not
+check for one. v2 merges same-id agents and shows plugins no user config, so a
+field the user's agent leaves unset, such as `description` or `mode`, keeps the
+catalog agent's value.
+
+**Workspace CBM registration on v2.** The v2 setup registers an
+`ctx.mcp.transform` callback, without awaiting it, that reads
+`get("codebase-memory-mcp")` without changing it, and starts `registerWorkspace`
+for `ctx.location.directory` without awaiting it. The helper's config gate
+accepts both shapes: a local entry with a non-empty command is skipped when v1's
+`enabled` is `false` or v2's `disabled` is `true`. Root resolution, pagination,
+dedup, bounds, and retry stay as they are. On v2, diagnostics go through the
+host's Effect logger: the log adapter that `effect` hands to the setup logs at
+warning level, annotated `service: agentdev`, through the captured host context.
+v1 keeps `client.app.log`.
 
 The v2 tool mapping:
 
@@ -140,13 +218,24 @@ in once. The maintainer accepted losing cross-worktree login sharing.
 `opencode run --command`, and reads subagent dispatches from the `subagent` tool
 instead of `task`.
 
+**Host verifier on v2.** `verify-workspace-host.ts` runs against the image's v2.
+It seeds no plugin SDK, because the host resolves the bridge's imports itself.
+It opens each fixture through v2's server and checks the catalog through v2's
+API. Its CBM checks stay the same. v1 coverage comes from the bridge unit tests
+and the v1 load check under `## Verification`.
+
+**Full-access policy unchanged.** `configure-opencode.py` keeps writing v1's
+`permission` block, which both majors read.
+
 Assumptions:
 
 - The web UI keeps v1's `/<base64url(directory)>/session` route and serves
-  `/site.webmanifest` without the password. Task 7 checks both; a different
+  `/site.webmanifest` without the password. Task 9 checks both; a different
   route or an authenticated manifest sends the plan back to revise mode.
 - An `auth.json` symlink left on an existing `agentdev-opencode` volume is
   harmless: v2 imports it once and never writes it.
+- v2 never rewrites `opencode.json` into its own `permissions` form, so the
+  policy's v1 block stays the only one there.
 
 Rejected:
 
@@ -154,6 +243,12 @@ Rejected:
   v1, would lose the catalog entirely.
 - **Two plugin directories, one per major.** The config would have to know which
   major is installed, and the catalog parsing would be duplicated.
+- **Deny rules on the v2 agent.** The host appends the global rules after them,
+  so full access cancels every catalog agent's tool limits.
+- **Dropping tool limits on every harness.** Claude Code and Codex enforce a
+  catalog agent's declared tools under full access; OpenCode keeps that parity.
+- **Reading the user's config files to skip a replaced agent.** It would
+  duplicate v2's config discovery, which plugins cannot query.
 - **Registering skills as `agentdev:<name>` ids.** The model would then fail to
   load a skill under its bare frontmatter name, which the catalog also uses.
 - **Keeping `auth.json` as a shared login seed.** v2 never writes it, so the
@@ -162,59 +257,153 @@ Rejected:
   the Coder secret would lose the web UI.
 - **Printing the generated password in the agent-start log.** Anyone who can
   read that log would have it.
+- **v2 diagnostics through `console`.** v2 discards a plugin's console output.
+- **v2 diagnostics through the plugin's own `Effect.runPromise`.** They reach
+  only the server's console, not `opencode.log`.
+- **A `setup` export next to `effect`.** v2 runs only `effect`, so the export
+  would never run.
+- **A bridge-owned log file for v2 diagnostics.** It would sit outside
+  OpenCode's own log.
+- **Rewriting the full-access policy in v2's `permissions` form.** v1 ignores
+  that key, and v2 already reads the v1 block.
+- **Keeping the host verifier on v1 only.** Nothing would then prove v2
+  workspace registration end to end on the image's OpenCode.
 
 ## Implementation Steps
 
 ### Task 1: Register the catalog through v2's plugin API
 
 **Files:** Modify: `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
-`.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
+`.agents/plugins/agentdev/tests/opencode/bridge.test.ts`; Create:
+`.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
 
-- [ ] Tests first, against a fake v2 `ctx` whose editors record calls:
+- [x] Tests first, against a fake v2 `ctx` whose editors record calls:
   - every catalog skill is added under its bare name with its description,
     `SKILL.md` path, and body; explicit-only skills carry `autoinvoke: false`;
   - every skill is added as command `agentdev:<name>`; its `execute` calls
     `session.prompt` with the invocation's text, files, agents, and delivery,
     and the invocation's skills plus `{id: <name>}`;
-  - every agent is updated as a `subagent` with its description, body as
-    `system`, and a deny rule for each action of the mapping table its `tools:`
-    list omits plus `question`; never `execute` or `browser`;
-  - a skill, command, or agent the user already defined is not touched;
+  - every agent is updated as a `subagent` with its description and body as
+    `system`, and no permission rule is added;
+  - for a catalog agent whose `system` is the catalog body, the `context` hook
+    removes every tool of the mapping table its `tools:` list omits plus
+    `question`, and the `evaluate` hook sets `deny` for those actions; neither
+    touches `execute`, `browser`, a mapped action's effect, a non-catalog agent,
+    or a catalog id whose `system` differs from the catalog body;
   - the `execute.before` tool hook rewrites a `skill` call's `agentdev:<name>`
     to `<name>` and leaves every other call unchanged;
-  - `setup` resolves without waiting on the hook registration;
+  - `setup` resolves without waiting on any hook or transform registration;
   - the default export carries `id`, `server`, and `setup`, and `server` still
     returns the v1 hooks the existing tests cover.
-- [ ] Implement until the tests pass, keeping the module free of runtime
+  - **Evidence:** The `v2 setup` suite in `bridge.test.ts` covers each bullet
+    against a fake v2 ctx; it failed on the missing `V2_TOOL_ACTIONS` export
+    before the implementation landed in the same commit.
+- [x] Implement until the tests pass, keeping the module free of runtime
   dependencies.
+  - **Evidence:** `bun test ./.agents/plugins/agentdev/tests/opencode` passes 49
+    tests; `uv run pytest .agents/plugins/agentdev/tests` passes 175 tests;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports no errors. `index.ts` imports only types and Node built-ins.
+- [x] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, the
+  full-access `permission` block, and a local mock model that streams tool
+  calls: `tdd-red` is not offered `webfetch`, its streamed `webfetch` call is
+  refused, and its `read` call runs without a prompt; with a user agent
+  `tdd-red`, the user's agent gets `webfetch`; a user command `agentdev:pr-open`
+  and a user skill `iwe-plan` win over the bridge's.
+  - **Evidence:**
+    `OPENCODE_BIN=<v2 opencode> bun ./.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
+    passes both scenarios against `@opencode/cli` 2.0.32: v2 answers tdd-red's
+    `webfetch` call with "Tool is not available for this request", its `read`
+    returns the file, and the user's `tdd-red` fetches the mock page.
 
-### Task 2: Install OpenCode v2 in the image
+### Task 2: Register the active workspace with CBM on v2
+
+**Files:** Modify: `.agents/plugins/agentdev/.opencode-plugin/index.ts`,
+`.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts`,
+`.agents/plugins/agentdev/tests/opencode/bridge.test.ts`,
+`.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts`,
+`.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
+
+- [x] Tests first, against the fake v2 `ctx`:
+  - the default export carries `id`, `server`, and `effect` and no `setup`;
+    importing the module loads neither `effect` nor `@opencode/plugin`;
+  - the v2 setup registers an `mcp.transform` callback and resolves before that
+    registration or any CBM command settles;
+  - the callback passes `ctx.location.directory` and the editor's
+    `codebase-memory-mcp` entry to `registerWorkspace`, and changes no MCP
+    config;
+  - a v2 entry with `disabled: true` is a quiet skip, like a v1 entry with
+    `enabled: false`, and a v2 local entry without `disabled` registers;
+  - a registration failure reaches the v2 log adapter as a warning, and the v1
+    path still logs through `client.app.log`.
+  - **Evidence:** The `v2 workspace registration` and `v2 effect export` suites
+    in `bridge.test.ts`, the reworked default-export test, and the two v1/v2
+    config-gate tests in `workspace-index.test.ts`; they failed on the missing
+    `v2Effect` export and the unhandled `disabled` key before the implementation
+    landed in the same commit.
+- [x] Implement until the tests pass; the module still imports nothing at
+  runtime outside Bun and Node built-ins, and `effect` and the `fromPromise`
+  adapter are required only inside the `effect` export.
+  - **Evidence:** `bun test ./.agents/plugins/agentdev/tests/opencode` passes 57
+    tests; `uv run pytest .agents/plugins/agentdev/tests` passes 175 tests;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports no errors. `index.ts` imports only types and Node built-ins; the
+    default export's `effect` alone calls `require` for the two host modules.
+- [x] Against OpenCode v2 with a sandboxed `HOME` under `./.tmp`, a forced CBM
+  failure leaves an `agentdev` warning in `opencode.log`, and
+  `verify-agent-limits-host.ts` still passes through the `effect` export.
+  - **Evidence:**
+    `OPENCODE_BIN=<v2 opencode> bun ./.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
+    passes all three scenarios against `@opencode/cli` 2.0.32 with the bridge
+    loaded only through `effect`; its CBM scenario finds
+    `level=WARN message="CBM workspace registration failed: ENOENT …" service=agentdev`
+    in `opencode.log` for a v1-shaped `mcp` entry naming a missing executable.
+
+### Task 3: Install OpenCode v2 in the image
 
 **Files:** Modify: `ansible/roles/agentic_tools/defaults/main.yml`,
 `ansible/roles/agentic_tools/tasks/main.yml`,
 `ansible/roles/agentic_tools/README.md`
 
-- [ ] Replace `opencode-ai` with `@opencode/cli` pinned at the current v2
+- [x] Replace `opencode-ai` with `@opencode/cli` pinned at the current v2
   release, with its `# renovate: datasource=npm` annotation, and trust its
   postinstall in the Bun global install.
-- [ ] A role run in a fresh container leaves `opencode --version` printing the
+  - **Evidence:** `agentic_tools_bun_packages` pins `@opencode/cli` at 2.0.32
+    under `# renovate: datasource=npm depName=@opencode/cli`, with `trust: true`
+    adding `--trust` to its `bun add --global --exact`;
+    `ansible-lint ansible/roles/agentic_tools` reports no violations.
+- [x] A role run in a fresh container leaves `opencode --version` printing the
   pinned 2.x version, and a rerun changes nothing.
+  - **Evidence:** In a fresh `ghcr.io/plume-works/ubuntu-ansible:edge` container
+    holding the repository,
+    `ansible-playbook ansible/playbooks/setup-dev.yml --tags basic_prereqs,dev_tools,bun_setup,agentic_tools -e install_agentic_tools=true`
+    installs `@opencode/cli`, and `/usr/local/bin/opencode --version` prints
+    `v2.0.32`. A second run skips all four Bun globals and changes no
+    `agentic_tools` task.
 
-### Task 3: Run the web UI on v2 with a password
+### Task 4: Run the web UI on v2 with a password
 
 **Files:** Modify: `.devcontainer/scripts/opencode-web-start.sh`,
 `scripts/tests/test_opencode_web_start.py`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`
 
-- [ ] Tests first: the pane runs `opencode serve --port 4096`; with a password
+- [x] Tests first: the pane runs `opencode serve --port 4096`; with a password
   it binds `0.0.0.0`; without one it binds `127.0.0.1`, creates the password
   file once with mode `0600`, reuses it on a rerun, never puts the password in
   the pane's command line or the script's output, and prints the file's path
   with the link; the real-tmux test sees the generated password in the server's
   environment.
-- [ ] Implement until the tests pass.
+  - **Evidence:** `scripts/tests/test_opencode_web_start.py` covers each clause,
+    including `test_real_tmux_serves_with_the_generated_password`; 8 of its 20
+    tests failed against the `opencode web` script before the implementation
+    landed in the same commit.
+- [x] Implement until the tests pass.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py`
+    passes 26 tests, including both real-tmux tests; `shellcheck` reports
+    nothing on `opencode-web-start.sh`.
 
-### Task 4: Stop sharing the OpenCode login
+### Task 5: Stop sharing the OpenCode login
 
 **Files:** Delete: `.devcontainer/scripts/link-opencode-auth.sh`,
 `scripts/tests/test_link_opencode_auth.py`; Modify:
@@ -222,36 +411,99 @@ Rejected:
 `.devcontainer/scripts/postStartCommand.sh`, `.devcontainer/devcontainer.json`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`
 
-- [ ] Remove the script, its tests, both calls, the
+- [x] Remove the script, its tests, both calls, the
   `/root/.agents-auth/opencode` directory creation, and the auth-sharing wording
   of the `agentdev-opencode` mount comment.
+  - **Evidence:** No reference to `link-opencode-auth` or
+    `.agents-auth/opencode` remains under `.devcontainer/`, `scripts/`, or the
+    codebase map; `shellcheck` passes on both lifecycle scripts.
 
-### Task 5: Drive the E2E harness through v2
+### Task 6: Drive the E2E harness through v2
 
 **Files:** Modify: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`,
 `scripts/e2e/20261007-agent-owned-ship-implement/fixtures/opencode.json`
 
-- [ ] Start each OpenCode scenario with `opencode api session.command` running
+- [x] Start each OpenCode scenario with `opencode api session.command` running
   `agentdev:<name>` with the scenario's arguments, read dispatches from the
   `subagent` tool, and keep the fixture's permissions valid for v2.
-- [ ] `run.sh --harness opencode` passes every OpenCode check against the
+  - **Evidence:** Commit `c28e28f` drives each scenario through
+    `session.command` and reads dispatches from the `subagent` tool; commit
+    `376f133` creates each session in the clone, denies the question tool, and
+    renews the client's six-minute wait.
+- [x] `run.sh --harness opencode` passes every OpenCode check against the
   default test models.
+  - **Evidence:**
+    `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode`
+    at `376f133`, with OpenCode 2.0.32 and `openai/gpt-6.1-sol`, reports "all
+    checks passed" for all 24 OpenCode checks across ship, ship-approved,
+    ship-all, implement, and explore.
 
-### Task 6: Update the design documents
+### Task 7: Run the workspace host verifier on v2
+
+**Files:** Modify:
+`.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`,
+`.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts`
+
+- [x] Drop the v1 SDK seed and `OPENCODE_TEST_SDK_DIR`, open each fixture
+  through v2's `opencode serve`, and check the catalog through v2's API
+  (`skill.list`, `command.list`) where it now runs `debug skill` and
+  `debug config`. Keep the CBM project, job, subdirectory, disabled, and
+  unavailable checks as they are.
+  - **Evidence:** The verifier opens each fixture with the API's
+    `location[directory]` query on `/api/command`, `/api/agent`, and
+    `/api/skill`, authenticated with its own server password, and finds the
+    warning in `opencode.log`; its CBM checks are unchanged. A failing CBM
+    command now reports its stdout when stderr is empty, which is where CBM
+    writes its MCP error.
+- [x] `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
+  passes against the image's v2 and CBM, including a v2 `agentdev` warning in
+  `opencode.log` for the unavailable executable.
+  - **Evidence:**
+    `OPENCODE_BIN=<v2 opencode> bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
+    passes all six checks against `@opencode/cli` 2.0.32, the image's pin, and
+    the local CBM: both roots indexed, subdirectory retained, disabled a quiet
+    skip, unavailable a `service=agentdev` warning in `opencode.log`, cleanup.
+
+### Task 8: Update the design documents and the codebase map
 
 **Files:** Modify:
 `docs/knowledge/data/architecture/opencode-catalog-bridge.md`,
 `docs/knowledge/data/architecture/agent-auth-persistence.md`,
 `docs/knowledge/data/features/opencode-catalog-host.md`,
-`docs/knowledge/data/features/opencode-web-coder-autostart.md`
+`docs/knowledge/data/features/opencode-web-coder-autostart.md`,
+`docs/knowledge/data/features/opencode-workspace-cbm-indexing.md`,
+`docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md`,
+`docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md`, and every other
+map document whose source digest the changed files move
 
-- [ ] Record the dual-export decision, the v2 host behavior from `## Context`,
-  the v2 tool mapping, and the rejected alternatives in the bridge architecture;
-  drop "v2 embedded skills" from its rejected list.
-- [ ] Record per-worktree OpenCode logins in the auth architecture and both
-  features, and the generated password in the web feature.
+- [x] Record the dual-export decision, the v2 host behavior from `## Context`,
+  the v2 tool mapping, the hook-enforced tool limits, the user-agent replacement
+  rule, and the rejected alternatives in the bridge architecture; drop "v2
+  embedded skills" from its rejected list.
+  - **Evidence:** `architecture/opencode-catalog-bridge.md` gains
+    `### On OpenCode v2` under `## Decision`, an `### OpenCode v2 (2.0.32)`
+    host-contract list including the verified login and code-mode facts, the v2
+    mapping table, and the plan's rejected alternatives in place of "v2 embedded
+    skills".
+- [x] Record v2 workspace registration in the bridge architecture's
+  `## Workspace graph registration` (the `setup` trigger, the two config shapes,
+  the Effect-logger diagnostics) and the v2 host in the CBM feature.
+  - **Evidence:** That section now names the per-directory setup and its
+    `mcp.transform` callback, the `enabled`/`disabled` gate, and warnings
+    through the captured Effect context;
+    `features/opencode-workspace-cbm-indexing.md` records the v2 host.
+- [x] Record per-worktree OpenCode logins in the auth architecture and both web
+  and catalog features, and the generated password in the web feature.
+  - **Evidence:** `architecture/agent-auth-persistence.md` drops OpenCode from
+    the shared volume and records per-instance logins and the unimported v1
+    OAuth login; both features record per-worktree logins, and the web feature
+    the always-on password and the generated file.
+- [x] Refresh the codebase map with `/agentdev:iwe-map` refresh mode until
+  `stale-map-docs.py` reports every document fresh.
+  - **Evidence:** Commit `970a3ae` refreshes the ten stale map documents;
+    `stale-map-docs.py` then reports `RESULT=SUCCESS` for all 28.
 
-### Task 7: Verify the web UI on a Coder workspace
+### Task 9: Verify the web UI on a Coder workspace
 
 - [ ] On a Coder workspace built from this branch, with and without the
   `OPENCODE_SERVER_PASSWORD` secret: the printed link opens a session in the
@@ -268,8 +520,9 @@ Rejected:
 ### Requirement: one bridge loads in OpenCode v1 and v2
 
 The bridge plugin's default export SHALL carry `id`, a v1 `server` function, and
-a v2 `setup` function, so the same `plugin` config entry loads it in either
-major version.
+a v2 `effect` function, so the same `plugin` config entry loads it in either
+major version. Only the `effect` function SHALL load OpenCode v2's `effect` and
+`@opencode/plugin` modules.
 
 #### Scenario: OpenCode v1 starts with the bridge registered
 
@@ -279,7 +532,8 @@ major version.
 #### Scenario: OpenCode v2 starts with the bridge registered
 
 - **WHEN** OpenCode v2 starts with the bridge in its `plugin` config
-- **THEN** it serves the catalog through `setup`.
+- **THEN** it serves the catalog through the `effect` export, and the bridge's
+  warnings reach OpenCode's log.
 
 ## MODIFIED Requirements
 
@@ -354,9 +608,11 @@ skill permission on v1, `autoinvoke: false` on v2 — while keeping its
 The bridge plugin SHALL register each `agents/<stem>.agent.md` as an OpenCode
 subagent named `<stem>`, with the file's description and body as its description
 and prompt. Every OpenCode tool permission that the file's `tools:` list does
-not map to SHALL be `deny`: on v1 the mapped set plus `lsp` and `question`; on
-v2 `shell`, `read`, `edit`, `write`, `patch`, `grep`, `glob`, `websearch`,
-`webfetch`, `subagent`, `skill`, and `question`. A mapped tool SHALL keep the
+not map to SHALL be `deny`, including when the user's global permission allows
+every tool: on v1 the mapped set plus `lsp` and `question`; on v2 `shell`,
+`read`, `edit`, `write`, `patch`, `grep`, `glob`, `websearch`, `webfetch`,
+`subagent`, `skill`, and `question`. On v2 a denied tool SHALL NOT be offered
+to the model, and a call to it SHALL be refused. A mapped tool SHALL keep the
 user's configured permission rather than being set to `allow`.
 
 #### Scenario: a subagent declares a restricted tool list on v1
@@ -372,16 +628,33 @@ user's configured permission rather than being set to `allow`.
 - **THEN** it is not offered `webfetch`, `websearch`, `subagent`, `skill`, or
   `question`, and `shell` follows the user's configured approval setting.
 
+#### Scenario: a subagent runs under full access on v2
+
+- **WHEN** the user's global permission is `"*": "allow"` and the `tdd-red`
+  subagent calls `webfetch`
+- **THEN** OpenCode refuses the call, and `tdd-red` still reads and edits
+  files without a prompt.
+
 ### Requirement: user configuration takes precedence
 
-The bridge plugin SHALL NOT overwrite a command, agent, or skill that the
-user's OpenCode configuration already defines under the same key, nor, on v1, a
-skill permission the user set.
+The bridge plugin SHALL NOT overwrite a command or skill that the user's
+OpenCode configuration already defines under the same key, nor, on v1, a skill
+permission the user set. An agent the user defines under a catalog agent's name
+SHALL replace the catalog agent: the user's prompt and permissions SHALL apply,
+and none of the catalog agent's tool limits. On v1 the bridge SHALL NOT
+register its agent under that name; on v2 a field the user's agent leaves unset
+keeps the catalog agent's value.
 
 #### Scenario: the user defines a command with the same name
 
 - **WHEN** the user's config defines a command `agentdev:pr-open`
 - **THEN** OpenCode runs the user's command, not the bridge's.
+
+#### Scenario: the user defines an agent with a catalog agent's name
+
+- **WHEN** the user's config defines an agent `tdd-red` with its own prompt
+- **THEN** OpenCode runs the user's prompt, and the agent may use every tool
+  the user's permissions allow, including `webfetch`.
 ```
 
 - [OpenCode web](../spec/opencode-web.md):
@@ -475,6 +748,85 @@ and the generated server password, SHALL live on the per-instance
 - **THEN** it sees none of the first worktree's provider logins or sessions.
 ```
 
+- [OpenCode workspace CBM indexing](../spec/opencode-workspace-cbm-indexing.md):
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: register the active Git workspace
+
+The bridge SHALL resolve OpenCode's active directory to its canonical Git
+worktree root and register an absent root with the shared CBM daemon only when
+the configured codebase-memory MCP is local and enabled. On OpenCode v1 it SHALL
+do this from the config hook; on OpenCode v2, from the bridge's v2 setup for each directory
+OpenCode opens. A local entry counts as enabled unless v1's `enabled` is `false`
+or v2's `disabled` is `true`. It SHALL use the configured command and
+environment without broadening allowed roots or changing MCP configuration, and
+SHALL retain existing indexed projects.
+
+#### Scenario: a second repository opens in the container
+
+- **WHEN** OpenCode initializes in an unindexed Git repository with local CBM
+  enabled
+- **THEN** it submits background indexing for that repository, independently of
+  the catalog location and DEV_WORKSPACE_FOLDER, retaining other projects.
+
+#### Scenario: OpenCode v2 opens an unindexed repository
+
+- **WHEN** OpenCode v2 opens a directory in an unindexed Git repository with
+  local CBM enabled
+- **THEN** the bridge submits background indexing for that repository's
+  canonical root.
+
+#### Scenario: a registered root is found on a later project page
+
+- **WHEN** any page of the project list contains the canonical active root
+- **THEN** the bridge submits no indexing request for it.
+
+#### Scenario: a subdirectory or linked worktree opens
+
+- **WHEN** OpenCode initializes in a repository subdirectory, symlink, or linked
+  worktree
+- **THEN** the bridge uses the canonical worktree root and treats separate
+  worktree roots as distinct repositories.
+
+#### Scenario: automatic indexing does not apply
+
+- **WHEN** the directory is not a Git worktree or CBM config is absent,
+  disabled, or remote
+- **THEN** the bridge skips automatic registration without changing
+  configuration.
+
+### Requirement: registration does not block catalog use
+
+The bridge SHALL keep catalog initialization independent of indexing completion,
+deduplicate in-flight registration for a root, and handle failed or timed-out
+commands with bounded resource use and a warning in OpenCode's log, written
+through the logging client on v1 and through the host's logger on v2.
+
+#### Scenario: indexing is pending
+
+- **WHEN** a registration request or background index remains pending
+- **THEN** catalog skills, commands, agents, and skill-name rewriting remain
+  available.
+
+#### Scenario: CBM lookup or submission fails
+
+- **WHEN** a command cannot start, exceeds ten seconds or the output limit,
+  returns invalid data or an MCP error, or rejects the root
+- **THEN** the bridge logs a diagnostic without an unhandled rejection or config
+  failure, submits no index after a failed lookup, and permits another attempt
+  on a later workspace initialization.
+
+#### Scenario: multiple initializations target the same root
+
+- **WHEN** registration overlaps for one canonical root
+- **THEN** in-process requests share the attempt and daemon requests join
+  existing indexing instead of starting competing jobs.
+```
+
+- [Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md): None
+  — no behavioral change; v2 reads the same `opencode.json` `permission` block.
 - [Coder IDE baseline template](../spec/coder-ide-baseline.md): the `OpenCode`
   app requirement SHALL describe the repository's agent-start script as starting
   the OpenCode server (`opencode serve`) rather than `opencode web`; its
@@ -482,8 +834,9 @@ and the generated server password, SHALL live on the per-instance
 
 ## Verification
 
-- `bun test ./.agents/plugins/agentdev/tests/opencode`
-- `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py`
+- `bun test ./.agents/plugins/agentdev/tests/opencode` (bridge and
+  workspace-index suites)
+- `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py scripts/tests/test_configure_opencode.py`
 - Both majors load the checked-out bridge, from a sandboxed `HOME` under
   `./.tmp`: OpenCode v1.19 (`bunx opencode-ai@1.19.3 debug skill`,
   `debug agent tdd-red`) and the image's v2 (`opencode api command.list` and
@@ -491,17 +844,31 @@ and the generated server password, SHALL live on the per-instance
   skill, every `agentdev:*` command, and the catalog subagents.
 - In the v2 TUI, `/agentdev:pr-gen-description for the current branch` shows
   only that text with a skill chip.
+- `bun ./.agents/plugins/agentdev/tests/opencode/verify-agent-limits-host.ts`
+  passes against the image's v2: under the full-access policy, `tdd-red` is not
+  offered `webfetch` and has a streamed `webfetch` call refused, and on v1
+  `opencode debug agent tdd-red` lists `webfetch`, `websearch`, `task`, `lsp`,
+  and `question` as `deny` after the global `*` allow.
+- `bun ./.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts`
+  passes against the image's v2.
+- With the patched `opencode.json`, v2 reads and writes a path outside the
+  workspace without a prompt, and `opencode debug config` shows the
+  `{action: "*", resource: "*", effect: "allow"}` and `external_directory`
+  rules.
 - `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode`
   passes.
-- Task 7 on a Coder workspace.
+- Task 9 on a Coder workspace.
+- `stale-map-docs.py` reports every codebase-map document fresh.
 - `iwe normalize` and `iwe schema validate` pass after the document edits.
 
 ## Out of scope
 
 - Cross-worktree sharing of OpenCode logins.
 - Denying v2's `execute` tool to catalog subagents.
-- Changing the Coder template's `OpenCode` app or healthcheck, unless Task 7
+- Changing the Coder template's `OpenCode` app or healthcheck, unless Task 9
   shows v2 breaks it.
+- Changing `configure-opencode.py` or its managed values.
+- An end-to-end v1 run of the workspace host verifier.
 - Native skill discovery of the catalog through v2's `.agents/skills` roots.
 - Self-improve on OpenCode.
 
@@ -509,32 +876,61 @@ and the generated server password, SHALL live on the per-instance
 
 Verified anchor points (line numbers as of 2026-10-18):
 
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:8` — `TOOL_PERMISSIONS`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:23` —
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:10` — `TOOL_PERMISSIONS`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:25` —
   `SUBAGENT_TOOL_PERMISSIONS`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:56` — `readCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:102` — `applyCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:123` — `bridge` (v1 hooks,
-  `tool.execute.before` at 129)
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:138` — default export
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:141` — default-export
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:32,47` —
+  `V2_TOOL_ACTIONS`, `V2_SUBAGENT_ACTIONS`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:125` — `readCatalog`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:157` — `applyCatalog`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:200` — `bridge` (v1
+  `config` hook at 208 with the `registerWorkspace` call and `client.app.log`
+  adapter at 210-211, `tool.execute.before` at 216)
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:229` — `setupBridge`, the
+  v2 setup
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:307` — default export
+- `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:10` —
+  `WorkspaceConfig`
+- `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:74` —
+  `registerWorkspace` (v1-shaped config gate at 79-82)
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:144` — default-export
   test
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:150,179` — pending
+  registration and logging-client tests
+- `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts:56` —
+  `workspace registration` suite
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:11-22` — v1
+  plugin SDK seed and `OPENCODE_TEST_SDK_DIR`
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:120` —
+  `opencode serve` host
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:148` — v1
+  `GET /config?directory=` workspace open
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:154-157` —
+  `debug skill` and `debug config` catalog checks
 - `ansible/roles/agentic_tools/defaults/main.yml:8-9,20-21` — `opencode-ai` pin
   and package entry
 - `ansible/roles/agentic_tools/tasks/main.yml:24-37` — Bun global install loop
 - `ansible/roles/agentic_tools/README.md:7,88` — `opencode-ai` mentions
-- `.devcontainer/scripts/opencode-web-start.sh:23-35` — bind choice and pane
+- `.devcontainer/scripts/opencode-web-start.sh:24-26,35` — bind choice and pane
   command
 - `scripts/tests/test_opencode_web_start.py:12-13` — expected pane commands
 - `.devcontainer/scripts/link-opencode-auth.sh` — script to delete
 - `.devcontainer/scripts/postCreateCommand.sh:72-73,80` — auth directory and
   link call
 - `.devcontainer/scripts/postStartCommand.sh:28` — link call
+- `.devcontainer/scripts/postStartCommand.sh:32` — `configure-opencode.py`, the
+  full-access policy left unchanged
 - `.devcontainer/devcontainer.json:102-107` — `agentdev-opencode` mount and
   comment
 - `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:384-400` —
   `opencode_run`, `opencode_calls`, shipper dispatch readers
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:447,453` — `task`
+  dispatch checks
 - `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:418,428,439,444,452` —
   `--command` call sites
-- `docs/knowledge/data/codebase/devcontainer/scripts.md:40,46` —
+- `docs/knowledge/data/codebase/devcontainer/scripts.md:40,47` —
   `link-opencode-auth.sh` and `opencode-web-start.sh` rows
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md:20-21,52`
+  — v1-only module shape and config-hook registration
+- `docs/knowledge/data/spec/opencode-workspace-cbm-indexing.md:24,58` — the two
+  requirements this plan modifies

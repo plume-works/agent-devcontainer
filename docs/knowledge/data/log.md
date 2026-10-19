@@ -4,8 +4,22 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-19
+
+- **Map**: refreshed the [OpenCode
+  bridge](codebase/agents/plugins/agentdev/opencode-plugin.md), its
+  [tests](codebase/agents/plugins/agentdev/tests.md), the
+  [agentic_tools](codebase/ansible/roles/agentic_tools.md) role, the [lifecycle
+  scripts](codebase/devcontainer/scripts.md), the
+  [devcontainer](codebase/devcontainer.md), and the [lifecycle
+  flow](codebase/flow-devcontainer-lifecycle.md) for OpenCode v2 (`970a3ae`).
+
 ## 2026-10-18
 
+- **Update**: [Configure devcontainer OpenCode for full
+  access](plans/20261018-opencode-full-access-config.md) done; [Devcontainer
+  OpenCode policy](spec/devcontainer-opencode-policy.md) spec added; [OpenCode
+  full-access config](features/opencode-full-access-config.md) implemented.
 - **Update**: [Automatically index OpenCode workspaces in
   CBM](plans/20261018-opencode-workspace-cbm-indexing.md) done; [OpenCode
   workspace CBM indexing](spec/opencode-workspace-cbm-indexing.md) spec added;
@@ -16,10 +30,6 @@ to the current day's group.
   [catalog](codebase/agents/plugins/agentdev.md), and [plugin
   tests](codebase/agents/plugins/agentdev/tests.md) maps refreshed for workspace
   registration and bounded daemon startup (`8f2c5ef`, `2aa4304`).
-- **Update**: [Configure devcontainer OpenCode for full
-  access](plans/20261018-opencode-full-access-config.md) done; [Devcontainer
-  OpenCode policy](spec/devcontainer-opencode-policy.md) spec added; [OpenCode
-  full-access config](features/opencode-full-access-config.md) implemented.
 
 ## 2026-10-17
 
