@@ -172,14 +172,16 @@ def opencode_server(scratch: Path) -> Iterator[tuple[Path, int, dict[str, str]]]
         server.wait(timeout=30)
 
 
-def test_opencode_rejects_requests_without_its_password(opencode_server):
+def test_opencode_rejects_api_requests_without_its_password(opencode_server):
     _, port, env = opencode_server
-    auth = f'opencode:{PASSWORD}'
-    assert request(port, '/global/health', auth=None)[0] == 401
-    assert request(port, '/global/health', auth='opencode:wrong')[0] == 401
-    assert request(port, '/', auth=None)[0] == 401
-    status, body = request(port, '/global/health', auth=auth)
-    assert status == 200 and json.loads(body)['healthy'] is True
+    assert request(port, '/api/info', auth=None)[0] == 401
+    assert request(port, '/api/info', auth='opencode:wrong')[0] == 401
+    status, body = request(port, '/api/info', auth=f'opencode:{PASSWORD}')
+    shipped = subprocess.run(
+        ['opencode', '--version'], capture_output=True, text=True, check=True
+    ).stdout
+    assert status == 200 and json.loads(body)['version'] in shipped
+    assert subprocess.run([COMMAND, 'probe'], env=env).returncode == 0
     wrong = {**env, 'OPENCODE_SERVER_PASSWORD': 'wrong'}
     assert subprocess.run([COMMAND, 'probe'], env=wrong).returncode != 0
 

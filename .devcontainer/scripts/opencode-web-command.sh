@@ -58,14 +58,15 @@ require_password() {
     fail "OPENCODE_SERVER_PASSWORD must be set to a nonempty value; the server listens on the proxy network"
 }
 
-# Readiness is the authenticated health API, never an unauthenticated page.
+# Readiness is the authenticated /api/info; every path outside /api/ serves the
+# web UI page without a password. Spec: standalone-opencode-runtime.
 probe() {
   local user="${OPENCODE_SERVER_USERNAME:-opencode}" secret="${OPENCODE_SERVER_PASSWORD:-}"
   secret="${secret//\\/\\\\}"
   secret="${secret//\"/\\\"}"
   printf 'user = "%s:%s"\n' "$user" "$secret" |
-    curl -fsS --max-time 5 --config - "http://127.0.0.1:$port/global/health" |
-    jq -e '.healthy == true' >/dev/null
+    curl -fsS --max-time 5 --config - "http://127.0.0.1:$port/api/info" |
+    jq -e '.version | type == "string" and length > 0' >/dev/null
 }
 
 case "${1:-}" in

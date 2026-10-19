@@ -791,11 +791,18 @@ digest
 `scripts/tests/test_agent_runtime_ingress.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] `opencode-web-command.sh probe` succeeds only when an authenticated
+- [x] `opencode-web-command.sh probe` succeeds only when an authenticated
   `GET /api/info` returns a non-empty `version`. Against a real OpenCode 2.x
   server, `/api/info` returns 401 without the password and with a wrong one,
   `probe` passes with the right password and fails with a wrong one, and no test
   reads `/global/health`.
+  - **Evidence:** commit "feat(runtime): probe OpenCode readiness through
+    /api/info": `probe` requires a string `version` from the authenticated
+    `/api/info`. `test_opencode_rejects_api_requests_without_its_password` runs
+    against `opencode serve` 2.0.32 (the pin, from `./.tmp`): 401 without and
+    with a wrong password, the server's own version with the right one, and
+    `probe` passes and fails to match. `shellcheck` clean. The acceptance
+    module's `/global/health` reads go in this task's next box.
 - [ ] In container acceptance, the proxy test gets 401 from `/api/info` without
   the password and the image's OpenCode version with it, and the hung-service
   test ends with a passing `/api/info` read.
