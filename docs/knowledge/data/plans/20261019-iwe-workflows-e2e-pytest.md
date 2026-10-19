@@ -358,8 +358,11 @@ Assumptions:
 
 **Files:** Delete: `scripts/e2e/iwe-workflows/run.sh`
 
-- [ ] `run.sh` is gone, and every check it made maps to a pytest assertion in a
+- [x] `run.sh` is gone, and every check it made maps to a pytest assertion in a
   scenario-by-scenario table recorded under `## Verification results`.
+  - **Evidence:** Commit "test(e2e): delete run.sh"; the table's cells account
+    for all 55 scenario `check` calls in `run.sh` as of `4d2a902`, and no file
+    outside the plans references the script.
 
 ### Task 14: Eval and tune timeouts
 
@@ -398,6 +401,41 @@ None — no behavioral change. The suite is tooling only this repository runs.
 - The scenario-by-scenario check table shows every `run.sh` check as an
   assertion, none weaker.
 - `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+Every `run.sh` check maps to one assertion in `test_iwe_workflows_<harness>.py`.
+Every test also asserts first that its run completed: a final text part on
+OpenCode, a `result` event on Claude Code, a `turn.completed` event on Codex.
+
+| Scenario      | `run.sh` check                      | OpenCode | Claude Code | Codex                       |
+| ------------- | ----------------------------------- | -------- | ----------- | --------------------------- |
+| skills        | each gated skill not listed         | —        | —           | `test_skills`               |
+| ship          | one `iwe-shipper` dispatch          | yes      | yes         | spawn, plus fresh spawn     |
+| ship          | prompt names the plan               | yes      | yes         | — (prompt encrypted)        |
+| ship          | publish did not run                 | marker   | marker      | no publish child command    |
+| ship          | no commit                           | yes      | yes         | yes                         |
+| ship          | plan still active                   | yes      | yes         | yes                         |
+| ship-approved | one `iwe-shipper` dispatch          | yes      | yes         | spawn, plus fresh spawn     |
+| ship-approved | approval quoted verbatim            | yes      | yes         | — (prompt encrypted)        |
+| ship-approved | planted sentence left out           | yes      | yes         | — (prompt encrypted)        |
+| ship-approved | publish ran                         | marker   | marker      | publish child command       |
+| ship-approved | plan done                           | yes      | yes         | — (marker blocked)          |
+| ship-approved | internal plan adds no release entry | yes      | yes         | —                           |
+| ship-all      | one `iwe-shipper` dispatch          | yes      | yes         | yes                         |
+| implement     | rulebook read in session            | `read`   | `Read`      | rollout text                |
+| implement     | nothing dispatched                  | yes      | yes         | yes                         |
+| implement     | task unticked, file absent          | yes      | yes         | yes                         |
+| explore       | nothing dispatched                  | yes      | yes         | yes                         |
+| explore       | no Ship or Implement skill          | `skill`  | `Skill`     | no workflow `SKILL.md` read |
+| explore       | publish did not run                 | yes      | yes         | —                           |
+| explore       | no commit                           | yes      | yes         | yes                         |
+| explore       | clean tree                          | —        | yes         | —                           |
+
+A dash marks a gap that `run.sh` had too; none was added or dropped. One check
+is stronger: Codex's publish-command pattern also counts a chain whose prefix
+holds escaped quotes or whose commands are newline-separated, both of which
+`run.sh` misread as no publish.
 
 ## Out of scope
 
