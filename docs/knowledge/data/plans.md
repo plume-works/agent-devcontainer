@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Port the IWE workflow e2e suite to
+pytest](plans/20261019-iwe-workflows-e2e-pytest.md)
+
 [Make OpenCode v2 the devcontainer
 default](plans/20261018-opencode-v2-default.md)
 

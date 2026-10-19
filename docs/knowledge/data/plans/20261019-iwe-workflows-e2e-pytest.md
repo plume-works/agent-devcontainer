@@ -1,0 +1,350 @@
+---
+type: plan
+created: 2026-10-19
+release: internal
+description: Port the agent-owned Ship/Implement e2e suite from bash to a pytest suite at scripts/e2e/iwe-workflows/, with one clone and, on OpenCode, one isolated server per test, gated by E2E_RUN_LIVE, OpenCode first and then Claude Code and Codex.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-10-19T12:00:00Z
+sources:
+- resource: scripts/e2e/20261007-agent-owned-ship-implement/run.sh
+- resource: .agents/plugins/self-improve/tests/conftest.py
+- resource: .agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts
+- resource: .devcontainer/scripts/opencode-web-start.sh
+---
+
+# Port the IWE workflow e2e suite to pytest
+
+## Context
+
+[Port the agent-owned Ship/Implement e2e suite to
+pytest](../backlog/port-agent-owned-e2e-to-pytest.md) owns the requirements: one
+clone per test, one OpenCode server per test driven over HTTP, one pytest test
+per scenario and harness, parallel under pytest-xdist with a worker cap,
+OpenCode first, and no check weaker than in the bash suite.
+
+The bash suite was introduced by
+[20261007-agent-owned-ship-implement](20261007-agent-owned-ship-implement.md);
+the suite moves to `scripts/e2e/iwe-workflows/`, named for the workflows it
+exercises; the old plan keeps its references to the old path.
+
+The bash run budgets (`timeout 1200` per run, the renewed `opencode_wait`) are
+not a measure of run time: they absorbed OpenCode sessions stalled on prompts
+the suite never answered. They are starting values only; the port sets each
+test's budget from measured wall times.
+
+## Approach
+
+**Layout.** `scripts/e2e/` is the root for e2e suites; `scripts/e2e/conftest.py`
+holds the live gate every suite there shares. The suite is
+`scripts/e2e/iwe-workflows/`: its `fixtures/` (moved unchanged), a `conftest.py`
+with the clone and harness fixtures, one driver module per harness, and test
+modules per harness. `scripts/e2e` stays out of `pyproject` `testpaths`, and the
+suite runs through `uv run pytest scripts/e2e/iwe-workflows`.
+
+**Live gate.** The mechanism of `.agents/plugins/self-improve/tests/conftest.py`
+with its own names: tests marked `e2e` are skipped at collection unless
+`E2E_RUN_LIVE` is set to a value outside `''`, `0`, `false`, `no`, `off`. The
+skip happens at collection, so naming a node id or passing `-m` cannot start a
+paid session. Opting into one suite never runs the other.
+
+**Clone per test.** A session-scoped fixture bundles `HEAD`, builds the fixture
+repository once per xdist worker (active plans cancelled, fixture plans
+committed as `base`, the open-question edit committed as `open_question`), and
+each test clones it under `.tmp/e2e/iwe-workflows/<test id>/clone` at the commit
+its scenario needs. `publish-e2e.sh` writes `../published.marker`, so the
+per-test parent directory isolates the marker as well. Every git write targets
+the clone, and the fixture refuses a clone that resolves to another repository,
+as `in_clone` does today.
+
+**Checks.** Each bash check becomes one assertion, scenario by scenario, and a
+failed assertion shows the transcript excerpt it judged. The "run completed"
+check is each test's first assertion. Gaps that belong to a harness stay
+explicit: Codex has no dispatch prompt text and cannot write the marker, the
+skills scenario is Codex-only, and only Claude Code's explore asserts a clean
+tree.
+
+**OpenCode server per test.** Each test starts
+`opencode serve --hostname 127.0.0.1 --port <free port>` with its own `HOME`,
+`XDG_*`, `OPENCODE_CONFIG_DIR`, and `OPENCODE_SERVER_PASSWORD`, following
+`verify-workspace-host.ts`. Its config loads the bridge from the clone's own
+catalog, so the "installed catalog differs" precondition goes away for OpenCode
+(Codex keeps its own). The fixture polls until `agentdev:*` commands are served
+for the clone, as the bridge activates on a directory's first request, and kills
+the server's process group at teardown, failed test or not. The suite talks to
+the server over HTTP — `POST /api/session` with `location.directory` set to the
+clone, `POST /api/session/{id}/command`,
+`POST /api/experimental/session/{id}/wait`, `GET /api/session/{id}/message`
+paged by cursor, `POST /api/session/{id}/interrupt` — under its own deadline.
+
+**OpenCode credential.** Tests use the user's ChatGPT login
+(`chatgpt-token-sharing`), whose access token lives about an hour; this
+credential behavior is as measured on OpenCode 2.0.32. The source is the Coder
+web UI server that `opencode-web-start.sh` runs on `127.0.0.1:4096`,
+authenticated with `OPENCODE_SERVER_PASSWORD` or the
+`~/.local/share/opencode/agentdev-server-password` file. Before each test the
+fixture reads the active `openai` credential from the source with
+`GET /api/credential`. When it expires within the test's budget, the fixture
+sends the source a one-token prompt in a throwaway session (deleted afterwards)
+so the source refreshes it. It then seeds the test's server with
+`POST /api/credential`, copying `methodID` and `metadata` verbatim and replacing
+`refresh` with `"withheld"`. Only the source ever holds or rotates the real
+refresh token. An expired seeded token fails a session with
+`{"type": "provider.auth"}`, which the suite reports as an exhausted budget.
+When the source is unreachable or answers without a credential API, the OpenCode
+tests skip with a reason naming `opencode-web-start.sh`; the suite never opens
+the user's OpenCode data directory itself.
+
+**Claude Code and Codex.** Same clone fixture; their drivers port
+`claude_run`/`codex_run` and the transcript readers as they are. Claude Code and
+Codex keep the user's own configuration and login, as the self-improve smoke
+suite does for Claude Code. Codex rollouts are found by thread id, which stays
+unambiguous with tests running in parallel.
+
+**Order.** OpenCode first, then Claude Code, then Codex. `run.sh` moves with the
+suite and loses each harness's section once that harness passes in pytest; it is
+deleted with the last one.
+
+Rejected:
+
+- **API key through a custom provider in `opencode.json`** — the maintainer uses
+  the ChatGPT login, and a custom provider would have to reproduce the ChatGPT
+  integration's request wiring by hand.
+- **Copying the full credential, refresh token included, into each server** —
+  the refresh token rotates, so a test server refreshing it can sign the user
+  out.
+- **A fixture-started source server on `~/.local/share/opencode`** — a second
+  process on the web UI's SQLite database, both able to refresh the same
+  rotating token.
+- **One scenario × harness matrix** — it hides the harness-specific gaps,
+  weakening or silently adding checks.
+
+Assumptions:
+
+- The worker cap starts at 3, set in the suite's conftest, which refuses a
+  larger `-n`; the timeout task confirms or changes it against the provider's
+  rate limits.
+- Budgets start at the bash values and are replaced by measured ones.
+- Test module names carry the suite prefix (`test_iwe_workflows_<harness>.py`)
+  so they never collide with another directory's test basenames.
+
+## Implementation Steps
+
+### Task 1: Gate live e2e runs
+
+**Files:** Create: `scripts/e2e/conftest.py`,
+`scripts/tests/test_e2e_live_gate.py`; Modify: `pyproject.toml`
+
+- [ ] `scripts/e2e/conftest.py` skips every test marked `e2e` at collection
+  unless `E2E_RUN_LIVE` is set to a value outside `''`, `0`, `false`, `no`,
+  `off`, with a skip reason naming the variable; the `e2e` marker is registered
+  in `pyproject.toml` `markers`.
+- [ ] `scripts/tests/test_e2e_live_gate.py` proves a marked test is skipped for
+  each off value, including when selected by node id or `-m e2e`, and runs when
+  the variable is `1`.
+
+### Task 2: Build one clone per test
+
+**Files:** Create: `scripts/e2e/iwe-workflows/conftest.py`,
+`scripts/e2e/iwe-workflows/clone.py`,
+`scripts/tests/test_e2e_iwe_workflows_clone.py`; Modify: move
+`scripts/e2e/20261007-agent-owned-ship-implement/` (`run.sh`, `fixtures/`) to
+`scripts/e2e/iwe-workflows/`
+
+- [ ] The suite and its fixtures live at `scripts/e2e/iwe-workflows/`, and the
+  moved `run.sh` still builds its clone from there.
+- [ ] A session fixture builds the fixture repository once per worker with only
+  the fixture plans active and the `base` and `open_question` commits, and a
+  per-test fixture clones it under `.tmp/e2e/iwe-workflows/<test id>/clone` at a
+  requested commit.
+- [ ] The clone facts `run.sh` checks — marker present or absent, `HEAD`, clean
+  tree, plan active or done, release notes unchanged, greet task untouched — are
+  helpers on the clone, and every git write refuses a clone that resolves to
+  another repository.
+- [ ] `scripts/tests/test_e2e_iwe_workflows_clone.py`, unmarked and model-free,
+  proves two clones share no commits or marker, the fixtures are the only active
+  plans, and the refusal fires.
+
+### Task 3: Seed OpenCode servers from the web UI's credential
+
+**Files:** Create: `scripts/e2e/iwe-workflows/opencode_credential.py`
+
+- [ ] The source is `127.0.0.1:4096` with `OPENCODE_SERVER_PASSWORD` or the
+  `~/.local/share/opencode/agentdev-server-password` file; OpenCode tests skip
+  with a reason naming `opencode-web-start.sh` when it is unreachable or has no
+  `/api/credential`.
+- [ ] Per test, the active `openai` credential is read from the source; when it
+  expires within the test's budget, a one-token prompt in a throwaway session,
+  deleted afterwards, makes the source refresh it first.
+- [ ] The seeded copy keeps `methodID` and `metadata` verbatim and carries
+  `refresh: "withheld"`; no credential value is written to a log, a transcript,
+  or a failure message.
+
+### Task 4: Run an isolated OpenCode server per test
+
+**Files:** Create: `scripts/e2e/iwe-workflows/harness_opencode.py`; Modify:
+`scripts/e2e/iwe-workflows/conftest.py`,
+`scripts/e2e/iwe-workflows/fixtures/opencode.json`
+
+- [ ] A per-test fixture starts `opencode serve` (`OPENCODE_BIN` or `opencode`)
+  on a free port with its own `HOME`, `XDG_*`, `OPENCODE_CONFIG_DIR`, and
+  password; its config loads the bridge from the clone's catalog and keeps the
+  fixture's permissions and small model; the server is seeded per Task 3 and its
+  process group is killed at teardown, failed test or not.
+- [ ] The fixture waits until the server serves `agentdev:*` commands for the
+  clone.
+- [ ] A client runs one command in a fresh session located in the clone with the
+  question tool denied, waits under the suite's own deadline, interrupts a
+  session that outlives it, pages every message by cursor, and saves the
+  transcript beside the clone.
+
+### Task 5: Port the OpenCode scenarios
+
+**Files:** Create: `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+
+- [ ] Ship, ship-approved, ship-all, implement, and explore are one `e2e` test
+  each, asserting every check `run_opencode` makes, one assertion per check,
+  each failure showing the transcript excerpt it judged.
+
+### Task 6: The OpenCode suite passes
+
+- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k opencode -n 3`
+  passes every OpenCode test with the default test models.
+
+### Task 7: Retire run.sh's OpenCode section
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/run.sh`
+
+- [ ] `run.sh` no longer offers or runs the OpenCode harness.
+
+### Task 8: Port the Claude Code scenarios
+
+**Files:** Create: `scripts/e2e/iwe-workflows/harness_claude.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`
+
+- [ ] A driver runs `claude -p` in the clone with the clone's catalog, the
+  allowed tools, and stream-json output under the suite's deadline, and reads
+  tool calls, subagents' included, from the transcript.
+- [ ] Ship, ship-approved, ship-all, implement, and explore are one `e2e` test
+  each, asserting every check `run_claude` makes.
+
+### Task 9: The Claude Code suite passes
+
+- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k claude -n 3`
+  passes every Claude Code test.
+
+### Task 10: Retire run.sh's Claude Code section
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/run.sh`
+
+- [ ] `run.sh` no longer offers or runs the Claude Code harness.
+
+### Task 11: Port the Codex scenarios
+
+**Files:** Create: `scripts/e2e/iwe-workflows/harness_codex.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`
+
+- [ ] A driver runs `codex exec -s workspace-write --json` in the clone under
+  the suite's deadline and reads spawns and child commands from the session
+  rollouts by thread id; the Codex tests fail with the reinstall hint when the
+  installed catalog differs from the clone's.
+- [ ] Skills, ship, ship-approved, ship-all, implement, and explore are one
+  `e2e` test each, asserting every check `run_codex` makes.
+
+### Task 12: The Codex suite passes
+
+- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k codex -n 3`
+  passes every Codex test.
+
+### Task 13: Delete run.sh
+
+**Files:** Delete: `scripts/e2e/iwe-workflows/run.sh`
+
+- [ ] `run.sh` is gone, and every check it made maps to a pytest assertion in a
+  scenario-by-scenario table recorded under `## Verification results`.
+
+### Task 14: Eval and tune timeouts
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/conftest.py`
+
+- [ ] Each scenario's wall time on each harness is measured from full live runs,
+  and each test's budget is set from those measurements in place of the bash
+  values; the credential fixture's minimum remaining token life follows the
+  OpenCode budget, and the worker cap is confirmed or changed against the
+  provider's rate limits.
+
+### Task 15: The whole suite passes in parallel
+
+- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -n 3` passes every
+  test on all three harnesses with the tuned budgets.
+
+## Spec changes
+
+None — no behavioral change. The suite is tooling only this repository runs.
+
+## Depends on
+
+- [Make OpenCode v2 the devcontainer default](20261018-opencode-v2-default.md) —
+  the suite needs v2 in the image, and that plan's Verification runs the
+  `run.sh` OpenCode harness this plan retires.
+
+## Verification
+
+- `uv run pytest scripts/tests/test_e2e_live_gate.py scripts/tests/test_e2e_iwe_workflows_clone.py`
+- `uv run pytest scripts/e2e` with `E2E_RUN_LIVE` unset reports every test
+  skipped and starts no session.
+- `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -n 3` passes on a
+  devcontainer whose OpenCode is v2 (the image, or the `agentic_tools` role
+  applied) with the web UI server running and a ChatGPT login.
+- A single scenario runs alone with `-k`.
+- The scenario-by-scenario check table shows every `run.sh` check as an
+  assertion, none weaker.
+- `iwe normalize` and `iwe schema validate` pass.
+
+## Out of scope
+
+- New scenarios or checks beyond what `run.sh` asserts.
+- Running the suite in CI.
+- Isolating Claude Code or Codex configuration and logins.
+- Editing
+  [20261007-agent-owned-ship-implement](20261007-agent-owned-ship-implement.md)
+  or [20261018-opencode-v2-default](20261018-opencode-v2-default.md) to point at
+  the new path.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-10-19):
+
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:97` — `build_clone`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:129` —
+  `cancel_active_plans`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:154` — `reset_to`;
+  clone facts follow at 161–175
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:184` — `claude_run`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:209` — `run_claude`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:305` — `codex_run`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:312` — `codex_catalog`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:318` — `run_codex`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:385` —
+  `opencode_messages`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:397` — `opencode_wait`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:405` — `opencode_run`
+- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:445` — `run_opencode`
+- `scripts/e2e/20261007-agent-owned-ship-implement/fixtures/bin/publish-e2e.sh:5`
+  — marker written beside the clone
+- `.agents/plugins/self-improve/tests/conftest.py:25` — `LIVE_MARKERS`,
+  `LIVE_OPT_IN_ENV`, `LIVE_OPT_OUT_VALUES` (25–29)
+- `.agents/plugins/self-improve/tests/conftest.py:38` —
+  `pytest_collection_modifyitems`
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:33` —
+  isolated server environment
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:108` —
+  `opencode serve` spawn
+- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:143` —
+  `catalog`, polling for the bridge
+- `.devcontainer/scripts/opencode-web-start.sh:23` — web UI server port and
+  password source (23–38)
+- `ansible/roles/agentic_tools/defaults/main.yml:10` —
+  `agentic_tools_opencode_version`
+- `pyproject.toml:29` — `testpaths`
+- `pyproject.toml:36` — `markers`
