@@ -155,7 +155,7 @@ class Controller:
                 os.killpg(group, signal.SIGKILL)
                 log(f'{name}: killed processes left in group {group}')
             except ProcessLookupError:
-                pass
+                log(f'{name}: process group {group} already gone')
         self.start(name)
 
     def shutting_down(self) -> bool:

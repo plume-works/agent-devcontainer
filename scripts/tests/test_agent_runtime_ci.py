@@ -87,7 +87,7 @@ def test_pin_checks_accept_the_proposed_digest_without_building_anything():
     triggers = CHECKS.get('on', CHECKS.get(True))
     assert set(DEPLOYMENT_ONLY) <= set(triggers['pull_request']['paths'])
     job = CHECKS['jobs']['acceptance']
-    assert job['permissions'] == {'contents': 'read', 'packages': 'read'}
+    assert job['permissions'] == {'actions': 'read', 'contents': 'read', 'packages': 'read'}
     text = CHECKS_PATH.read_text()
     assert 'build-push-action' not in text and 'multiarch-merge' not in text
     run = next(s for s in steps(job) if 'test-agent-runtime.sh' in s.get('run', ''))
@@ -96,13 +96,22 @@ def test_pin_checks_accept_the_proposed_digest_without_building_anything():
     assert '@sha256:' in pin['run'] and PIN in pin['run']
 
 
-def test_pin_checks_skip_only_when_ci_cd_runs_its_own_acceptance():
-    scope = next(s for s in steps(CHECKS['jobs']['acceptance']) if s.get('id') == 'scope')
+def test_pin_checks_skip_only_an_unchanged_pin_that_ci_cd_covers():
+    job = steps(CHECKS['jobs']['acceptance'])
+    scope = next(s for s in job if s.get('id') == 'scope')
     ci_filter = next(s for s in steps(CI['jobs']['paths-filter']) if s.get('id') == 'filter')
     assert scope['uses'] == ci_filter['uses'] == './.github/actions/paths-filter'
     assert scope['with']['extra-filter'] == ci_filter['with']['extra-filter']
-    gated = [s for s in steps(CHECKS['jobs']['acceptance']) if 'scope' in s.get('if', '')]
-    assert gated and all(s['if'] == "steps.scope.outputs.pass != 'true'" for s in gated)
+    pin_change = next(s for s in job if s.get('id') == 'pin-change')
+    assert yaml.safe_load(pin_change['with']['filters']) == {'pin': [PIN]}
+    gate = next(s for s in job if s.get('id') == 'gate')
+    assert gate['env'] == {
+        'COVERED': '${{ steps.scope.outputs.pass }}',
+        'PIN_CHANGED': '${{ steps.pin-change.outputs.pin }}',
+    }
+    assert '$COVERED == true && $PIN_CHANGED != true' in gate['run']
+    later = job[job.index(gate) + 1 :]
+    assert later and all(s['if'] == "steps.gate.outputs.skip != 'true'" for s in later)
 
 
 def test_renovate_tracks_the_pin_and_lets_its_tasks_edit_it():
