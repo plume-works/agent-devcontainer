@@ -296,11 +296,18 @@ Assumptions:
 **Files:** Create: `scripts/e2e/iwe-workflows/harness_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`
 
-- [ ] A driver runs `claude -p` in the clone with the clone's catalog, the
+- [x] A driver runs `claude -p` in the clone with the clone's catalog, the
   allowed tools, and stream-json output under the suite's deadline, and reads
   tool calls, subagents' included, from the transcript.
-- [ ] Ship, ship-approved, ship-all, implement, and explore are one `e2e` test
+  - **Evidence:** Commit "test(e2e): port the Claude Code IWE workflow
+    scenarios"; `run_claude` in `harness_claude.py` kills the run's process
+    group at `CLAUDE_BUDGET` and `ClaudeTranscript.calls` reads every `tool_use`
+    block; the live run below found each Ship's one `Agent` call.
+- [x] Ship, ship-approved, ship-all, implement, and explore are one `e2e` test
   each, asserting every check `run_claude` makes.
+  - **Evidence:** Same commit; `test_iwe_workflows_claude.py` holds the five
+    tests, one assertion per `run_claude` check including explore's clean tree,
+    all gated off without `E2E_RUN_LIVE`.
 
 ### Task 9: The Claude Code suite passes
 
