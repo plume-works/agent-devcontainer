@@ -403,7 +403,7 @@ opencode_wait() {
 # Runs one command in a fresh session on the server `opencode api` reaches from
 # the clone, then saves the session's messages, one JSON object per line.
 opencode_run() {
-  local log="$1" command="$2" text="$3" model session
+  local log="$1" command="$2" text="$3" model session status=0
   # The client sends no working directory, so the session names the clone itself.
   # No one answers the question tool here; denying it makes questions plain text.
   model="$(jq -nc --arg m "$opencode_model" --arg d "$clone" \
@@ -416,9 +416,18 @@ opencode_run() {
       session="$(opencode api session.create -d "$model" | jq -er .data.id)" &&
       opencode api session.command --param "sessionID=$session" \
         -d "$(jq -nc --arg n "$command" --arg t "$text" '{name: $n, text: $t}')" >/dev/null &&
-      opencode_wait "$session" &&
+      { opencode_wait "$session" || {
+        opencode api session.interrupt --param "sessionID=$session" >/dev/null || exit 99
+        false
+      }; } &&
       opencode_messages "$session" >"$log.jsonl"
-  ) </dev/null 2>"$log.err" || note "opencode exited $? ($log)"
+  ) </dev/null 2>"$log.err" || status=$?
+  # A session left running keeps editing the shared clone under every later scenario.
+  if ((status == 99)); then
+    fail "opencode: could not interrupt an abandoned session; later scenarios are invalid ($log)"
+    exit 1
+  fi
+  ((status == 0)) || note "opencode exited $status ($log)"
   check "opencode run completed: $(basename "$log")" \
     log_has "$log" 'any(.[]; .type == "assistant" and any(.content[]?; .type == "text"))'
 }
