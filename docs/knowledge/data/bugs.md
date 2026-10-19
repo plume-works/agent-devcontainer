@@ -82,3 +82,6 @@ ahead](bugs/gh-stack-push-overwrites-remote-layer.md)
 
 [Bug: firewalled Docker Hub pulls fail at the CloudFront
 CDN](bugs/firewall-docker-hub-cloudfront.md)
+
+[Bug: xpra_setup installs Ubuntu's xpra
+3.1.5](bugs/xpra-setup-installs-ubuntu-xpra.md)

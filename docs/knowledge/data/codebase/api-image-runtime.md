@@ -6,14 +6,14 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:9c1777f704909ebd20e95194d7a5ef4dc527816c16d5e247e589bdf46315af7c
+source_digest: sha256:7ffd77d91411c6fc9f14c8ff9bad1cfb255906ab48249e6e3286853af92c396c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:04:34Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:04:34Z
 sources:
 - id: code
   resource: docker
@@ -48,7 +48,7 @@ is the surface those consumers touch; the build that produces it is
 | `ENABLE_FIREWALL`                                   | `.devcontainer/scripts/firewall.sh`                                   | `true` applies `init-firewall.sh`; anything else leaves it inert         |
 | `FIREWALL_ALLOWLIST`                                | `init-firewall.sh:14`                                                 | overrides the allowlist path                                             |
 | `XPRA_HOST`, `XPRA_VIDEO_ENCODERS`, `XPRA_LOG_FILE` | `/start-xpra.sh:6-14`                                                 | bind host, encoders, log path                                            |
-| `XPRA_PASSWORD`                                     | `/start-xpra.sh:286-288`                                              | nonempty: every TCP/WebSocket session must authenticate with it          |
+| `XPRA_PASSWORD`                                     | `/start-xpra.sh:285-287`                                              | nonempty: every TCP/WebSocket session must authenticate with it          |
 | `AGENTDEV_CATALOG_DIR`                              | set by the image (`Dockerfile:68`), read by `postCreateCommand.sh:69` | where the catalog is staged (`/opt/agentdev`)                            |
 | `CBM_CACHE_DIR`                                     | the `codebase-memory-mcp-*.sh` scripts                                | required; cache and logs location                                        |
 | `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`    | `postStartCommand.sh` and `setup-pre-commit.sh`                       | opt out of hook install and desktop start                                |

@@ -2,14 +2,14 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:09b763950429195900a326e76371d40014a49590629065e5913dd2defca06821
+source_digest: sha256:ea9f40bc989e832bc59c880ec1cd973c2a54fd09c0ec4061aa759d7ba44027e5
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:04:34Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:43:14Z
+  at: 2026-10-19T19:04:34Z
 sources:
 - id: code
   resource: docker
@@ -107,9 +107,9 @@ Verified anchor points (line numbers as of 2026-10-19):
   programs
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
 - `docker/desktop/start-xpra.sh:7` — default HTML5 container port
-- `docker/desktop/start-xpra.sh:174-182` — `--port` override
-- `docker/desktop/start-xpra.sh:286-288` — `XPRA_PASSWORD` session auth
-- `docker/desktop/start-xpra.sh:74` — `reclaim_orphaned_display`; `:321` — the
+- `docker/desktop/start-xpra.sh:175-183` — `--port` override
+- `docker/desktop/start-xpra.sh:285-287` — `XPRA_PASSWORD` session auth
+- `docker/desktop/start-xpra.sh:74` — `reclaim_orphaned_display`; `:320` — the
   supervised `exec`
 - `docker/bin/gh:58-62` — `GH_TOKEN` from `git credential fill`
 - `docker/bin/gh:51` — re-entrancy `exec`
