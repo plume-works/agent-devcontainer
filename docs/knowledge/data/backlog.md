@@ -16,6 +16,9 @@ write a plan and link the plan instead.*
 
 ## High
 
+[Port the agent-owned Ship/Implement e2e suite to
+pytest](backlog/port-agent-owned-e2e-to-pytest.md)
+
 ## Medium
 
 [Exercise REMOVED delta blocks end to

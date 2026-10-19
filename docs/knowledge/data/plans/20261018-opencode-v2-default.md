@@ -423,11 +423,20 @@ Rejected:
 **Files:** Modify: `scripts/e2e/20261007-agent-owned-ship-implement/run.sh`,
 `scripts/e2e/20261007-agent-owned-ship-implement/fixtures/opencode.json`
 
-- [ ] Start each OpenCode scenario with `opencode api session.command` running
+- [x] Start each OpenCode scenario with `opencode api session.command` running
   `agentdev:<name>` with the scenario's arguments, read dispatches from the
   `subagent` tool, and keep the fixture's permissions valid for v2.
-- [ ] `run.sh --harness opencode` passes every OpenCode check against the
+  - **Evidence:** Commit `c28e28f` drives each scenario through
+    `session.command` and reads dispatches from the `subagent` tool; commit
+    `376f133` creates each session in the clone, denies the question tool, and
+    renews the client's six-minute wait.
+- [x] `run.sh --harness opencode` passes every OpenCode check against the
   default test models.
+  - **Evidence:**
+    `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode`
+    at `376f133`, with OpenCode 2.0.32 and `openai/gpt-6.1-sol`, reports "all
+    checks passed" for all 24 OpenCode checks across ship, ship-approved,
+    ship-all, implement, and explore.
 
 ### Task 7: Run the workspace host verifier on v2
 

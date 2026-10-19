@@ -392,11 +392,23 @@ opencode_messages() {
     cursor=(--param "cursor=$(jq -r '.cursor.next' <<<"$page")")
   done
 }
+# The client abandons one wait after six minutes; a wait that ran that long is
+# renewed until the run's 20-minute budget, and a quick failure is final.
+opencode_wait() {
+  local deadline=$((SECONDS + 1200)) started
+  while started=$SECONDS; ! opencode api experimental.session.wait --param "sessionID=$1" >/dev/null; do
+    ((SECONDS - started >= 300 && SECONDS < deadline)) || return 1
+  done
+}
 # Runs one command in a fresh session on the server `opencode api` reaches from
 # the clone, then saves the session's messages, one JSON object per line.
 opencode_run() {
   local log="$1" command="$2" text="$3" model session
-  model="$(jq -nc --arg m "$opencode_model" '{model: {providerID: ($m | split("/")[0]), id: ($m | split("/")[1:] | join("/"))}}')"
+  # The client sends no working directory, so the session names the clone itself.
+  # No one answers the question tool here; denying it makes questions plain text.
+  model="$(jq -nc --arg m "$opencode_model" --arg d "$clone" \
+    '{model: {providerID: ($m | split("/")[0]), id: ($m | split("/")[1:] | join("/"))}, location: {directory: $d},
+      permissions: [{action: "question", resource: "*", effect: "deny"}]}')"
   : >"$log.jsonl"
   # `||` below suspends errexit inside the subshell, so each step chains with `&&`.
   (
@@ -404,7 +416,7 @@ opencode_run() {
       session="$(opencode api session.create -d "$model" | jq -er .data.id)" &&
       opencode api session.command --param "sessionID=$session" \
         -d "$(jq -nc --arg n "$command" --arg t "$text" '{name: $n, text: $t}')" >/dev/null &&
-      timeout 1200 opencode api experimental.session.wait --param "sessionID=$session" >/dev/null &&
+      opencode_wait "$session" &&
       opencode_messages "$session" >"$log.jsonl"
   ) </dev/null 2>"$log.err" || note "opencode exited $? ($log)"
   check "opencode run completed: $(basename "$log")" \
