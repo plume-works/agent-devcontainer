@@ -1167,6 +1167,20 @@ Recorded 2026-10-18 at `afae3a2`.
   container would never become ready. Tasks 17–21 adapt the runtime, and the
   acceptance results are retaken on a v2 image.
 
+- **On OpenCode v2, recorded 2026-10-19 at `f340d45`.**
+
+  - Container acceptance against `agent-opencode:local` gave 13 passed, 1
+    skipped (the upgrade test) on aarch64. That image is built on an
+    `agent-desktop` built from this branch, and both report OpenCode 2.0.32.
+  - The regression list plus `test_agent_runtime_*.py` gave 172 passed, 16
+    skipped, 8 failed, with 2.0.32 first on `PATH`. The failures are in
+    `test_agent_runtime_cbm.py` and one `test_agent_runtime_identity.py` case.
+    Their code and tests are unchanged since `48bd5e5`. The checkout ran on a
+    `fuse.grpcfuse` mount, which ignores ownership and mode and cannot host the
+    daemon socket for another UID. They need a rerun on a native filesystem,
+    such as CI.
+  - ShellCheck, `iwe schema validate`, and `stale-map-docs.py` pass.
+
 ## Out of scope
 
 - Multiple projects per running container, automatic repository updates,
