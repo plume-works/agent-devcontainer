@@ -780,10 +780,17 @@ digest
     `test_coder_agent_start.py` pass, as does
     `test_coder_pane_serves_without_display` for `''` → `127.0.0.1` and `x` →
     `0.0.0.0`.
-- [ ] Against a real OpenCode 2.x `opencode serve`, started with
+- [x] Against a real OpenCode 2.x `opencode serve`, started with
   `opencode-web-command.sh serve`, a PTY child sees `DISPLAY` and no browser
   opener runs. `/` and the web UI's JS asset return 200, and a PTY WebSocket
   gets 101 with the password and 401 without it.
+  - **Evidence:** commit "test(runtime): serve the web UI and PTYs from OpenCode
+    v2": `test_opencode_serves_its_web_ui_and_websockets_at_the_root` creates
+    the PTY through `/api/pty` and connects at `/api/pty/<id>/connect`. With
+    `opencode` 2.0.32 first on `PATH`,
+    `uv run pytest scripts/tests/test_agent_runtime_ingress.py` gives 9 passed:
+    `/` and its JS asset return 200, the WebSocket returns 101 and 401, the
+    child writes `DISPLAY=:100`, and no `xdg-open` runs.
 
 ### Task 19: Probe OpenCode readiness through v2's authenticated API
 

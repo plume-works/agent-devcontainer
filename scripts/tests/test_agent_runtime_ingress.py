@@ -189,12 +189,14 @@ def test_opencode_rejects_api_requests_without_its_password(opencode_server):
 def test_opencode_serves_its_web_ui_and_websockets_at_the_root(opencode_server):
     root, port, _ = opencode_server
     auth = f'opencode:{PASSWORD}'
-    status, page = request(port, '/', auth=auth)
+    status, page = request(port, '/', auth=None)
     assert status == 200 and b'<title>OpenCode</title>' in page
+    asset = page.split(b'src="', 1)[1].split(b'"', 1)[0].decode()
+    assert request(port, asset, auth=None)[0] == 200
     marker = root / 'display.txt'
     status, body = request(
         port,
-        '/pty',
+        '/api/pty',
         auth=auth,
         method='POST',
         body={
@@ -203,9 +205,10 @@ def test_opencode_serves_its_web_ui_and_websockets_at_the_root(opencode_server):
         },
     )
     assert status == 200, body
-    pty = json.loads(body)['id']
-    assert websocket_status(port, f'/pty/{pty}/connect', auth).startswith('HTTP/1.1 101')
-    assert websocket_status(port, f'/pty/{pty}/connect').split()[1] == '401'
+    pty = json.loads(body)['data']['id']
+    connect = f'/api/pty/{pty}/connect'
+    assert websocket_status(port, connect, auth).startswith('HTTP/1.1 101')
+    assert websocket_status(port, connect).split()[1] == '401'
     assert wait_for(marker.exists, 10)
     assert marker.read_text().strip() == ':100', 'agent child processes keep DISPLAY'
     assert not (root / 'browser-opened').exists()
