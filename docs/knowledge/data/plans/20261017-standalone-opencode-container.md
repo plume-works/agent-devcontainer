@@ -6,7 +6,7 @@ release:
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:38:38Z
+  at: 2026-10-19T19:07:30Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore
@@ -1319,7 +1319,8 @@ Verified anchor points (line numbers as of 2026-10-19):
   `link_auth`; `:69` — `cmd_create`.
 - `.devcontainer/scripts/opencode-web-command.sh:10` — generated password file;
   `:19` — `link`; `:29` — `coder_hostname`; `:39` — `coder_pane`; `:52` —
-  `coder_note`; `:62` — `probe`, reading `/global/health`; `:76` — `serve`.
+  `coder_note`; `:63` — `probe`, reading the authenticated `/api/info`; `:77` —
+  `serve`.
 - `.devcontainer/scripts/opencode-web-start.sh:14-37` — helper calls, session
   reuse, and the tmux launch.
 - `.devcontainer/scripts/runtime-health.sh:33` — the `opencode` probe.
@@ -1329,17 +1330,17 @@ Verified anchor points (line numbers as of 2026-10-19):
   `test_links_explicit_roots_on_fresh_volumes`; `:122` —
   `test_migrates_regular_credentials_and_preserves_other_config`; `:143` —
   `test_repairs_destroyed_and_wrong_links`.
-- `scripts/tests/test_agent_runtime_ingress.py:89` —
-  `test_coder_pane_serves_without_display`; `:151` — `opencode_server`; `:175` —
-  `test_opencode_rejects_requests_without_its_password`; `:187` —
+- `scripts/tests/test_agent_runtime_ingress.py:91` —
+  `test_coder_pane_serves_without_display`; `:153` — `opencode_server`; `:177` —
+  `test_opencode_rejects_api_requests_without_its_password`; `:191` —
   `test_opencode_serves_its_web_ui_and_websockets_at_the_root`.
-- `scripts/tests/test_agent_runtime_acceptance.py:166` — `Runtime.api`; `:380` —
-  `test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports`; `:489`
+- `scripts/tests/test_agent_runtime_acceptance.py:174` — `Runtime.api`; `:389` —
+  `test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports`; `:534`
   —
   `test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images`;
-  `:523` — `test_upgrade_from_the_previous_image_keeps_user_state`; `:540` —
-  `test_concurrent_projects_share_codex_auth_but_not_sessions`; `:578` —
+  `:568` — `test_upgrade_from_the_previous_image_keeps_user_state`; `:585` —
+  `test_concurrent_projects_share_codex_auth_but_not_sessions`; `:626` —
   `test_crashed_and_hung_services_recover`.
-- `README.md:111-114` — login sharing; `:133` — the auth volume's storage row.
+- `README.md:114-118` — login sharing; `:137` — the auth volume's storage row.
 - `docs/knowledge/data/architecture/standalone-opencode-runtime.md:53-58` — the
   shared-credential decision.
