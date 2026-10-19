@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 import json
 import os
 from pathlib import Path
+import shlex
 import shutil
 import socket
 import subprocess
@@ -31,6 +32,7 @@ IMAGE = os.environ.get('AGENTDEV_RUNTIME_TEST_IMAGE', '')
 PREVIOUS_IMAGE = os.environ.get('AGENTDEV_RUNTIME_PREVIOUS_IMAGE', '')
 LABEL = 'agentdev.test=acceptance'
 PASSWORD = 'acceptance-password'
+XPRA_PASSWORD = 'acceptance-xpra-password'
 AUTH_HEADER = 'Basic ' + base64.b64encode(f'opencode:{PASSWORD}'.encode()).decode()
 INSTANCE_VOLUMES = {'home': '/home/agent', 'uv': '/uv', 'docker': '/var/lib/docker'}
 AUTH = '/var/lib/agentdev/auth'
@@ -61,7 +63,8 @@ class Runtime:
     network: str
     auth: str
     workspace: list[str]
-    env: dict[str, str] = field(default_factory=dict)
+    # A None value leaves that variable out of the container entirely.
+    env: dict[str, str | None] = field(default_factory=dict)
 
     def volume(self, key: str) -> str:
         return f'{self.name}-{key}'
@@ -81,8 +84,13 @@ class Runtime:
             for key, target in self.volumes.items()
             for arg in ('-v', f'{self.volume(key)}:{target}')
         ]
-        env = {'OPENCODE_SERVER_PASSWORD': PASSWORD, **self.env}
-        env_args = [arg for key, value in env.items() for arg in ('-e', f'{key}={value}')]
+        env = {'OPENCODE_SERVER_PASSWORD': PASSWORD, 'XPRA_PASSWORD': XPRA_PASSWORD, **self.env}
+        env_args = [
+            arg
+            for key, value in env.items()
+            if value is not None
+            for arg in ('-e', f'{key}={value}')
+        ]
         docker(
             'run',
             '-d',
@@ -253,7 +261,7 @@ def make_runtime(network: str) -> Iterator[Callable[..., Runtime]]:
     created: list[Runtime] = []
     auth_volumes: set[str] = set()
 
-    def factory(*, workspace: list[str], auth: str | None = None, **env: str) -> Runtime:
+    def factory(*, workspace: list[str], auth: str | None = None, **env: str | None) -> Runtime:
         name = f'agentdev-accept-{uuid4().hex[:8]}'
         runtime = Runtime(name, network, auth or f'{name}-auth', workspace, env)
         auth_volumes.add(runtime.auth)
@@ -398,6 +406,42 @@ def test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports(
     status, page = http(f'http://{address}:8081/', auth=False)
     assert status == 200 and b'<html' in page.lower()
     assert websocket_status(address, 8081, '/', protocol='binary') == '101'
+
+
+def xpra_session(peer: str, target: str, password: str | None) -> int:
+    """Open an Xpra client session from container ``peer``; return the client's exit status."""
+    secret = ''
+    if password is not None:
+        docker('exec', peer, 'sh', '-c', f'printf %s {shlex.quote(password)} > /tmp/xpra-secret')
+        secret = '--password-file=/tmp/xpra-secret'
+    command = f'timeout 60 xpra info tcp://{target}/ {secret} </dev/null'
+    return docker('exec', peer, 'sh', '-c', command, check=False, timeout=120).returncode
+
+
+def test_peers_on_the_proxy_network_need_the_xpra_password(ready_runtime: Runtime, proxy):
+    proxy(ready_runtime)
+    peer, target = f'{ready_runtime.name}-proxy', f'{ready_runtime.name}:14500'
+    for password in (None, 'wrong'):
+        assert xpra_session(peer, target, password) not in (0, 124), password
+    assert 'authentication failed' in ready_runtime.logs()
+    assert xpra_session(peer, target, XPRA_PASSWORD) == 0
+    assert XPRA_PASSWORD not in ready_runtime.sh('ps -eo args', user='root').stdout
+
+
+def test_enabled_xpra_needs_its_password_to_start(make_runtime, scratch: Path):
+    runtime = make_runtime(workspace=bind(make_checkout(scratch / 'a')), XPRA_PASSWORD='')
+    runtime.run()
+    assert runtime.wait() == 'exited'
+    assert runtime.exit_code() == 1
+    logs = runtime.logs()
+    assert 'XPRA_PASSWORD must be set' in logs and 'AGENTDEV_SKIP_XPRA=1' in logs
+    assert 'runtime-bootstrap:' not in logs
+    skipped = make_runtime(
+        workspace=bind(make_checkout(scratch / 'b')), XPRA_PASSWORD=None, AGENTDEV_SKIP_XPRA='1'
+    )
+    skipped.run()
+    assert skipped.wait() == 'ready', skipped.logs()[-4000:]
+    assert skipped.sh('pgrep -f "xpra start"', check=False).returncode == 1
 
 
 def test_cbm_secret_service_and_nested_docker_serve_agent_processes(ready_runtime: Runtime):
