@@ -818,11 +818,19 @@ digest
 
 **Files:** Modify: `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] `Runtime.api` calls paths under `/api/` and returns the response's `data`.
+- [x] `Runtime.api` calls paths under `/api/` and returns the response's `data`.
   The restart, replacement, upgrade, and two-container tests create and list
   sessions through `/api/session`. The acceptance harness passes against a
   locally built `agent-opencode` whose `opencode --version` is the
   `agentic_tools_opencode_version` pin.
+  - **Evidence:** commit "test(runtime): call OpenCode v2's /api from container
+    acceptance": `Runtime.api` prefixes `/api` and unwraps `data`, so every
+    session and PTY call goes through `/api/session` and `/api/pty`, and the PTY
+    WebSocket is `/api/pty/<id>/connect`. `agent-desktop` built from this branch
+    and `agent-opencode:local` on it both report `opencode v2.0.32`.
+    `AGENTDEV_RUNTIME_TEST_IMAGE=agent-opencode:local .devcontainer/scripts/test-agent-runtime.sh`
+    gave 13 passed, 1 skipped (aarch64). The skip is the upgrade test, which
+    needs `AGENTDEV_RUNTIME_PREVIOUS_IMAGE` (Task 12).
 
 ### Task 21: Record per-container OpenCode logins in the runtime docs
 

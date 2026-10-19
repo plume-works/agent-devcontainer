@@ -164,13 +164,14 @@ class Runtime:
         return result
 
     def api(self, method: str, path: str, body: dict | None = None):
-        """Call OpenCode's API from inside the container as the runtime user."""
+        """Call OpenCode's /api{path} inside the container; return its `data` when wrapped."""
         data = f"-H 'content-type: application/json' -d '{json.dumps(body)}'" if body else ''
         out = self.sh(
             f'curl -fsS --max-time 60 -X {method} -H "Authorization: {AUTH_HEADER}" {data} '
-            f'http://127.0.0.1:4096{path}'
+            f'http://127.0.0.1:4096/api{path}'
         ).stdout
-        return json.loads(out)
+        payload = json.loads(out)
+        return payload['data'] if 'data' in payload else payload
 
     def logs(self) -> str:
         result = docker('logs', self.name, check=False)
@@ -391,7 +392,7 @@ def test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports(
     asset = page.split(b'src="', 1)[1].split(b'"', 1)[0].decode()
     assert http(f'http://{address}:8080{asset}', auth=True)[0] == 200
     pty = ready_runtime.api('POST', '/pty', {'command': 'bash', 'args': ['-c', 'sleep 60']})
-    connect = f'/pty/{pty["id"]}/connect'
+    connect = f'/api/pty/{pty["id"]}/connect'
     assert websocket_status(address, 8080, connect, auth=True) == '101'
     assert websocket_status(address, 8080, connect) == '401'
     status, page = http(f'http://{address}:8081/', auth=False)
