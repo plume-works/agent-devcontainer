@@ -166,19 +166,33 @@ Assumptions:
 `scripts/e2e/20261007-agent-owned-ship-implement/` (`run.sh`, `fixtures/`) to
 `scripts/e2e/iwe-workflows/`
 
-- [ ] The suite and its fixtures live at `scripts/e2e/iwe-workflows/`, and the
+- [x] The suite and its fixtures live at `scripts/e2e/iwe-workflows/`, and the
   moved `run.sh` still builds its clone from there.
+  - **Evidence:** Commit "test(e2e): build one clone per IWE workflow test"
+    moves the directory with `git mv`; `run.sh --harness claude` with a stub
+    `claude` on `PATH` builds `.tmp/e2e/iwe-workflows/clone` and prints its
+    `base` and `open_question` commits.
 - [ ] A session fixture builds the fixture repository once per worker with only
   the fixture plans active and the `base` and `open_question` commits, and a
   per-test fixture clones it under `.tmp/e2e/iwe-workflows/<test id>/clone` at a
   requested commit.
+  - **Evidence:** Same commit; `fixture_repo` (session, per `worker_id`) and
+    `clone_at` in the suite's `conftest.py`; `test_e2e_iwe_workflows_clone.py`
+    covers the `base`/`open_question` commits and the per-test directory names
+    (5 passed).
 - [ ] The clone facts `run.sh` checks — marker present or absent, `HEAD`, clean
   tree, plan active or done, release notes unchanged, greet task untouched — are
   helpers on the clone, and every git write refuses a clone that resolves to
   another repository.
+  - **Evidence:** Same commit; `Clone` in `clone.py` carries `has_marker`,
+    `head`, `status`, `plan_active`, `plan_done`, `unreleased_diff`, and
+    `greet_untouched`, and `Repo.git` checks the toplevel before every command.
 - [ ] `scripts/tests/test_e2e_iwe_workflows_clone.py`, unmarked and model-free,
   proves two clones share no commits or marker, the fixtures are the only active
   plans, and the refusal fires.
+  - **Evidence:** Same commit;
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` — 5 passed, no
+    marker, no model.
 
 ### Task 3: Seed OpenCode servers from the web UI's credential
 

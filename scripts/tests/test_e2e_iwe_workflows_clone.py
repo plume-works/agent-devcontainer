@@ -1,0 +1,122 @@
+"""The IWE workflow suite's per-test clones are isolated and refuse foreign repositories."""
+
+import importlib.util
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import uuid
+
+import pytest
+
+REPO_ROOT = Path(__file__).parents[2]
+_spec = importlib.util.spec_from_file_location(
+    'e2e_iwe_workflows_clone', REPO_ROOT / 'scripts/e2e/iwe-workflows/clone.py'
+)
+clone_module = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(clone_module)
+
+
+@pytest.fixture(scope='module')
+def work():
+    """Provide a scratch directory under ./.tmp for this module's repositories."""
+    path = REPO_ROOT / '.tmp' / f'e2e-iwe-workflows-clone-{uuid.uuid4().hex}'
+    path.mkdir(parents=True)
+    yield path
+    shutil.rmtree(path)
+
+
+@pytest.fixture(scope='module')
+def fixture(work):
+    """Build the fixture repository from this checkout's ``HEAD``."""
+    return clone_module.build_fixture_repo(REPO_ROOT, work / 'fixture')
+
+
+def active_links(hub: str) -> list[str]:
+    """Return the plan links listed under the ``## Active`` heading of a plans hub."""
+    active = re.search(r'^## Active$(.*?)(?=^## )', hub, re.MULTILINE | re.DOTALL)
+    return re.findall(r'\]\((plans/[^)]*\.md)\)', active.group(1))
+
+
+def test_fixtures_are_the_only_active_plans(fixture, work):
+    """Every other active plan is cancelled, in the hub and in its own frontmatter."""
+    clone = clone_module.make_clone(fixture, work / 'only-active', fixture.base)
+    hub = (clone.path / clone_module.DATA / 'plans.md').read_text()
+    assert active_links(hub) == list(clone_module.FIXTURE_PLANS)
+    head_hub = subprocess.run(
+        ['git', '-C', str(REPO_ROOT), 'show', 'HEAD:docs/knowledge/data/plans.md'],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    head_active = active_links(head_hub)
+    for key in head_active:
+        plan = (clone.path / clone_module.DATA / key).read_text()
+        assert '\nstage: cancelled\n' in plan, key
+    assert clone.plan_active()
+    assert clone.greet_untouched()
+    assert clone.status() == ''
+
+
+def test_base_and_open_question_commits(fixture, work):
+    """``open_question`` edits only the hello plan on top of ``base``."""
+    clone = clone_module.make_clone(fixture, work / 'commits', fixture.open_question)
+    assert clone.head() == fixture.open_question
+    changed = clone.git('diff', '--name-only', fixture.base, fixture.open_question).split()
+    assert changed == [clone_module.HELLO]
+    assert clone.unreleased_diff() == ''
+
+
+def test_clones_share_no_commits_or_marker(fixture, work):
+    """A commit or a publish in one clone never shows up in another."""
+    first = clone_module.make_clone(fixture, work / 'first', fixture.base)
+    second = clone_module.make_clone(fixture, work / 'second', fixture.base)
+    (first.path / 'e2e/extra.txt').write_text('extra\n')
+    commit = first.commit_all('only in first')
+    subprocess.run([str(first.path / 'bin/publish-e2e.sh')], cwd=first.path, check=True)
+
+    assert first.has_marker()
+    assert not second.has_marker()
+    assert second.head() == fixture.base
+    missing = subprocess.run(
+        ['git', '-C', str(second.path), 'cat-file', '-e', f'{commit}^{{commit}}'],
+        capture_output=True,
+        check=False,
+    )
+    assert missing.returncode != 0
+    assert second.git('remote') == ''
+
+
+def test_git_refuses_a_path_outside_its_own_repository(fixture, work):
+    """A clone whose path resolves into another repository refuses every git command."""
+    clone = clone_module.make_clone(fixture, work / 'refuse', fixture.base)
+    nested = clone_module.Clone(clone.path / 'e2e', start=fixture.base, base=fixture.base)
+    with pytest.raises(clone_module.CloneRefused):
+        nested.git('status')
+    with pytest.raises(clone_module.CloneRefused):
+        nested.commit_all('must not land')
+    assert clone.head() == fixture.base
+
+
+def test_each_test_gets_its_own_work_directory(monkeypatch):
+    """Same-named tests in different harness modules never share a clone directory."""
+    suite = REPO_ROOT / 'scripts/e2e/iwe-workflows'
+    monkeypatch.syspath_prepend(str(suite))
+    monkeypatch.setitem(sys.modules, 'clone', clone_module)
+    spec = importlib.util.spec_from_file_location(
+        'e2e_iwe_workflows_conftest', suite / 'conftest.py'
+    )
+    conftest = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(conftest)
+
+    prefix = 'scripts/e2e/iwe-workflows/test_iwe_workflows_'
+    names = {conftest.work_dir_name(f'{prefix}{h}.py::test_ship') for h in ('opencode', 'claude')}
+    assert names == {
+        'test_iwe_workflows_opencode-test_ship',
+        'test_iwe_workflows_claude-test_ship',
+    }
+    assert conftest.work_dir_name(f'{prefix}codex.py::test_x[a/b c]') == (
+        'test_iwe_workflows_codex-test_x_a_b_c_'
+    )
+    assert conftest.WORK == REPO_ROOT / '.tmp/e2e/iwe-workflows'
