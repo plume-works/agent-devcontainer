@@ -411,9 +411,12 @@ Rejected:
 `.devcontainer/scripts/postStartCommand.sh`, `.devcontainer/devcontainer.json`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`
 
-- [ ] Remove the script, its tests, both calls, the
+- [x] Remove the script, its tests, both calls, the
   `/root/.agents-auth/opencode` directory creation, and the auth-sharing wording
   of the `agentdev-opencode` mount comment.
+  - **Evidence:** No reference to `link-opencode-auth` or
+    `.agents-auth/opencode` remains under `.devcontainer/`, `scripts/`, or the
+    codebase map; `shellcheck` passes on both lifecycle scripts.
 
 ### Task 6: Drive the E2E harness through v2
 

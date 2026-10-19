@@ -99,9 +99,9 @@
       "type": "volume"
     },
     {
-      // OpenCode's session database and the rest of its data directory, per instance
-      // like agentdev-claude; only auth.json is shared, through
-      // .devcontainer/scripts/link-opencode-auth.sh. See architecture/agent-auth-persistence.
+      // OpenCode's data directory, per instance like agentdev-claude: its provider
+      // logins and sessions live in its database here, so each worktree logs in once.
+      // See architecture/agent-auth-persistence.
       "source": "agentdev-opencode",
       "target": "/root/.local/share/opencode",
       "type": "volume"
