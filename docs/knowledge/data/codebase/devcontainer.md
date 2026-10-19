@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:bb42e084acc98387d21aa952d16489cf224fb91c8c7a825c23267325c58a8b51
+source_digest: sha256:3df26c7156e52855b11e5553fc375adb79004872f2683861202d67f1a0a5fa45
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T01:11:00Z
-stale_after: 2027-01-15
+  at: 2026-10-19T16:30:00Z
+stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T01:11:00Z
+  at: 2026-10-19T16:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -59,9 +59,10 @@ under the digest pin, mounts the workspace at `/workspaces/<basename>` and the
 git common dir at its host path so worktrees resolve, and starts the MCP gateway
 only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
 `~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`) is on Compose-scoped
-volumes; only credentials share the literal `agentdev-agents-auth` volume across
-instances. The start lifecycle also restores Codex and OpenCode full-access
-policies in their user configuration files.
+volumes; only Claude and Codex credentials share the literal
+`agentdev-agents-auth` volume across instances. The start lifecycle also
+restores Codex and OpenCode full-access policies in their user configuration
+files.
 
 The `agent-opencode` image also bakes `scripts/` as its standalone runtime; none
 of this directory's Compose or `devcontainer.json` reaches it. Its own

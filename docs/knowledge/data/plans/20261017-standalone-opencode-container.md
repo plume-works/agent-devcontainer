@@ -865,8 +865,13 @@ stale `docs/knowledge/data/codebase/` docs
     logins. `data/architecture/standalone-opencode-runtime.md`
     `## Identity and state` records the per-container decision and the rejected
     database and `auth.json` sharing. Prettier passes.
-- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+- [x] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
+  - **Evidence:** commit "map: refresh the runtime docs for OpenCode v2"
+    refreshes the five stale docs. `devcontainer/scripts` now describes `probe`
+    on `/api/info` with re-verified anchors, and `devcontainer` shares only
+    Claude and Codex credentials. The digests are bumped, and
+    `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ## Spec changes
 

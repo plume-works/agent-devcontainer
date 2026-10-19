@@ -6,14 +6,14 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:6b6012f7ca4f5776d7af4861ad6337344b31e062d7da30703cdb87f5ff646ab8
+source_digest: sha256:7702daa00025dd8d04170434db59763c65d9414e36cb2f0011279b32943f9fac
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T18:45:54Z
-stale_after: 2027-01-16
+  at: 2026-10-19T16:30:00Z
+stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T18:45:54Z
+  at: 2026-10-19T16:30:00Z
 sources:
 - id: code
   resource: docker

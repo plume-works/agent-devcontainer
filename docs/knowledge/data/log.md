@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-19
 
+- **Map**: refreshed [image runtime](codebase/api-image-runtime.md), the
+  [devcontainer](codebase/devcontainer.md), its [lifecycle
+  scripts](codebase/devcontainer/scripts.md), the [lifecycle
+  flow](codebase/flow-devcontainer-lifecycle.md), and the [image
+  build](codebase/flow-image-build.md) for the standalone runtime on OpenCode
+  v2.
 - **Map**: refreshed the [OpenCode
   bridge](codebase/agents/plugins/agentdev/opencode-plugin.md), its
   [tests](codebase/agents/plugins/agentdev/tests.md), the
