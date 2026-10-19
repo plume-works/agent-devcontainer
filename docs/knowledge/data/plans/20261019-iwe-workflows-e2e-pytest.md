@@ -338,13 +338,14 @@ Assumptions:
   - **Evidence:** Commit "test(e2e): port the Codex IWE workflow scenarios";
     `catalog_mismatch` reported the stale 4.2.0 install with the
     `reinstall-agentdev-codex.sh` hint and cleared after the reinstall;
-    `test_e2e_iwe_workflows_codex_publish.py` (10 passed) pins which child
+    `test_e2e_iwe_workflows_codex_publish.py` (12 passed) pins which child
     commands count as a publish run.
 - [x] Skills, ship, ship-approved, ship-all, implement, and explore are one
   `e2e` test each, asserting every check `run_codex` makes.
   - **Evidence:** Same commit; `test_iwe_workflows_codex.py` holds the six
-    tests. The publish-run check matches a chain prefix holding escaped quotes,
-    which `run.sh`'s pattern missed; reads of the script still do not count.
+    tests. The publish-run check also counts a chain whose prefix holds escaped
+    quotes or whose commands are newline-separated, both of which `run.sh`'s
+    pattern missed; reads of the script still do not count.
 
 ### Task 12: The Codex suite passes
 

@@ -41,6 +41,7 @@ def rollout_line(cmd: str) -> str:
         'bash bin/publish-e2e.sh',
         '/w/clone/bin/publish-e2e.sh',
         'git status && bin/publish-e2e.sh',
+        'grep -qx hello e2e/hello.txt\nbin/publish-e2e.sh',
         CHAINED,
     ],
 )
@@ -57,6 +58,7 @@ def test_executing_the_script_counts(cmd):
         'cat bin/publish-e2e.sh',
         "sed -n '1,5p' bin/publish-e2e.sh",
         'printf "%s" "x"; grep -n publish bin/publish-e2e.sh',
+        "printf '%s\\n' x && nl -ba bin/publish-e2e.sh",
     ],
 )
 def test_reading_the_script_does_not_count(cmd):

@@ -20,9 +20,9 @@ from clone import Clone
 
 REINSTALL = '.devcontainer/scripts/reinstall-agentdev-codex.sh'
 # Only a command, alone or chained, that executes the script counts; reads of it do not.
-# The chain prefix may hold escaped quotes from the rollout's JSON-encoded command.
+# The chain prefix may hold escaped quotes, and an escaped newline separates commands.
 PUBLISH_COMMAND = re.compile(
-    r'cmd[\\"]*:[\\"]*((?:[^"\\]|\\.)*(&&|\|\||;|\|) *)?((ba)?sh )?(\./|[^ "\\]*/)?'
+    r'cmd[\\"]*:[\\"]*((?:[^"\\]|\\.)*(&&|\|\||;|\||\\+n) *)?((ba)?sh )?(\./|[^ "\\]*/)?'
     r'bin/publish-e2e\.sh'
 )
 WORKFLOW_SKILL_FILE = re.compile(r'skills/iwe-(ship|ship-all|implement|implement-all)/SKILL\.md')
