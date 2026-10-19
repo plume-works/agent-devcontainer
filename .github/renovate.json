@@ -11,6 +11,7 @@
       "docs/knowledge/**",
       ".devcontainer/**",
       "devcontainer-compose-pins.yml",
+      "opencode-compose-pins.yml",
       "docker/**",
       ".github/actions/**",
       ".github/workflows/**",
@@ -28,7 +29,10 @@
     "platformAutomerge": true
   },
   "docker-compose": {
-    "managerFilePatterns": ["/(^|/)devcontainer-compose-pins\\.ya?ml$/"]
+    "managerFilePatterns": [
+      "/(^|/)devcontainer-compose-pins\\.ya?ml$/",
+      "/(^|/)opencode-compose-pins\\.ya?ml$/"
+    ]
   },
   "packageRules": [
     {
@@ -43,6 +47,15 @@
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/plume-works/agent-desktop"],
       "groupName": "agent-desktop",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "agent-opencode is built by this repository's own pipeline from the same run's agent-desktop digest. Its deployment pin lives in opencode-compose-pins.yml at the repository root, outside the CI image path filter, so a bump cannot rebuild the image it names. The OpenCode runtime pin checks workflow runs native acceptance against the proposed digest before it can merge. That is what makes automerge safe here.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/plume-works/agent-opencode"],
+      "groupName": "agent-opencode",
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true

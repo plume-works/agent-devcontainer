@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:1f04883d9ba605d937bbc5b304ea4da84c625d7e5c90ca8efdb5ad2f76feda9a
+source_digest: sha256:1f34442080e8a0b9db6973de20b407c55f5078ddb30f2dbf48e6cf0a3f513198
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
+  at: 2026-10-19T14:43:14Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
+  at: 2026-10-19T14:43:14Z
 sources:
 - id: code
   resource: .devcontainer
@@ -42,7 +42,8 @@ pulled.
   `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
   volume (`:103`)
 - `devcontainer-compose-pins.yml` — the digest pin Renovate advances
-- `.devcontainer/firewall-allowlist.txt` — read by the firewall at start
+- `.devcontainer/firewall-allowlist.txt` — read by the firewall at start, and
+  baked by `agent-opencode` as its default allowlist
 - `.devcontainer/.agent.metadata.json` — masks the feature version pins, and the
   versions and digests `devcontainer-lock.json` records for them, out of this
   directory's map digest; see architecture/agent-metadata-files
@@ -58,10 +59,14 @@ under the digest pin, mounts the workspace at `/workspaces/<basename>` and the
 git common dir at its host path so worktrees resolve, and starts the MCP gateway
 only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
 `~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`) is on Compose-scoped
-volumes; only Claude Code and Codex credentials share the literal
-`agentdev-agents-auth` volume across instances, and OpenCode's logins stay in
-its per-instance data directory. The start lifecycle also restores Codex and
-OpenCode full-access policies in their user configuration files.
+volumes; only Claude and Codex credentials share the literal
+`agentdev-agents-auth` volume across instances. The start lifecycle also
+restores Codex and OpenCode full-access policies in their user configuration
+files.
+
+The `agent-opencode` image also bakes `scripts/` as its standalone runtime; none
+of this directory's Compose or `devcontainer.json` reaches it. Its own
+deployment is the root `compose.opencode.yml`.
 
 ## Depends on
 
@@ -76,7 +81,7 @@ moves the digest pin.
   produced it.
 - `~/.claude.json` is a file; Docker volumes are directories, so the file is
   persisted inside the `agentdev-claude` volume and symlinked by
-  `postCreateCommand`.
+  `setup-agent-state.sh create`, which `postCreateCommand` runs.
 - The MCP gateway publishes no host port and runs `--allow-unauthenticated` on
   the private Compose network; both are what let several worktrees run at once.
 - `initializeCommand` runs under `/bin/sh -c` with no `HOME` in Codespaces; the

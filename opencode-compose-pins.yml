@@ -1,0 +1,5 @@
+# Tag-and-digest pin for compose.opencode.yml; pass it as an extra -f on every launch.
+# Kept outside the image-build path filter; see spec/image-pinning.
+services:
+  opencode:
+    image: ghcr.io/plume-works/agent-opencode:edge

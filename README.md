@@ -22,12 +22,14 @@ repositories.
 - GitHub Actions for validation, formatting, image publishing, and AI review.
 - A resumable template workflow for adopting or updating the environment elsewhere.
 
-The repository publishes two images:
+The repository publishes three images:
 
 - `ghcr.io/plume-works/agent-desktop:edge` — the development environment.
-- `ghcr.io/plume-works/ubuntu-ansible:edge` — its Ansible-ready base image.
+- `ghcr.io/plume-works/agent-opencode:edge` — a self-starting single-project OpenCode
+  runtime built on `agent-desktop`; see [Standalone OpenCode runtime](#standalone-opencode-runtime).
+- `ghcr.io/plume-works/ubuntu-ansible:edge` — the Ansible-ready base image.
 
-Both are built on native runners and merged into multi-architecture manifests.
+All are built on native runners and merged into multi-architecture manifests.
 
 ## Quick start
 
@@ -67,6 +69,92 @@ Template adoption is resumable, preserves settled choices, and never overwrites
 consumer-authored IWE knowledge. See the
 [template consumption guide](.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md)
 for prerequisites and the full-copy and selective-copy workflows.
+
+## Standalone OpenCode runtime
+
+`agent-opencode` runs one project with no Dev Containers client, Coder, or project
+scaffolding. On start it creates its runtime account, prepares the workspace, and
+starts nested Docker, an instance-local keyring, Codebase Memory MCP, the Xpra
+desktop, and finally the OpenCode server. Each service is supervised and recovered
+within a bounded budget; the container exits nonzero when it cannot recover. Claude
+Code and Codex are installed and configured but not started.
+
+### Launch
+
+The supported deployment is [`compose.opencode.yml`](compose.opencode.yml) behind an
+existing reverse proxy. It publishes no host ports. Every launch adds the digest pin in
+[`opencode-compose-pins.yml`](opencode-compose-pins.yml), and settings come from a
+private copy of [`docker/opencode/runtime.env.example`](docker/opencode/runtime.env.example):
+
+```bash
+# First start clones AGENTDEV_REPOSITORY_URL into a persistent workspace volume.
+docker compose -p myproject --env-file ~/secrets/myproject.env \
+  -f compose.opencode.yml -f opencode-compose-pins.yml up -d
+
+# Or mount a host checkout (AGENTDEV_CHECKOUT) at the same in-container path.
+docker compose -p myproject --env-file ~/secrets/myproject.env \
+  -f compose.opencode.yml -f opencode-compose-pins.yml -f compose.opencode.bind.yml up -d
+```
+
+The project name (`-p`) scopes the instance's volumes. A clone-mode workspace is
+cloned once and then reused; the runtime never fetches, pulls, resets, or switches
+branches. A bind-mounted worktree also needs its main repository's `.git` mounted at
+the path its `.git` file names.
+
+### Proxy, password, and logins
+
+- `OPENCODE_SERVER_PASSWORD` is required. The proxy routes to the container on port
+  `4096` for OpenCode, which enforces the password itself, and on `14500` for Xpra.
+  Both are served at the root path, WebSockets included.
+- `XPRA_PASSWORD` is required unless `AGENTDEV_SKIP_XPRA` is set; without it the
+  container exits before starting anything. Xpra checks it on every session, so a
+  peer on the proxy network cannot bypass the proxy. The HTML5 page loads without
+  it and asks for it on connect.
+- `AGENTDEV_PROXY_NETWORK` names the proxy's existing Docker network.
+- Claude Code and Codex logins live on the shared `AGENTDEV_AUTH_VOLUME` and reach
+  every project container in the same identity cohort. Each project container logs in
+  to OpenCode once: its logins share a database with its sessions in the instance
+  `home` volume, and survive replacement and upgrade there. Sessions, configuration,
+  keyrings, caches, and Docker engines stay per instance.
+- GitHub access uses an injected `GH_TOKEN` or `GITHUB_TOKEN`, which configures HTTPS
+  Git through `gh` before a private clone. The token is never written to disk.
+  `GIT_AUTHOR_*` and `GIT_COMMITTER_*` pass through only when set.
+
+### Identity and storage
+
+Tools run as `agent` with passwordless `sudo`, using numeric IDs from
+`AGENTDEV_UID`/`AGENTDEV_GID` (default `1000:1000`). Every container sharing one auth
+volume must use the same IDs; a container with other IDs refuses to start rather than
+change the volume. A bind-mounted checkout must be writable by those IDs, and its
+ownership is never changed.
+
+| Path                     | Volume                   | Holds                                                  |
+| ------------------------ | ------------------------ | ------------------------------------------------------ |
+| `/workspaces/project`    | `workspace` or the bind  | The checkout                                           |
+| `/home/agent`            | `home`                   | Configuration, OpenCode logins, sessions, keyring, CBM |
+| `/uv`                    | `uv`                     | uv cache, Python installs, project venv                |
+| `/var/lib/docker`        | `docker`                 | The nested engine, including its image store           |
+| `/var/lib/agentdev/auth` | `agentdev-opencode-auth` | Shared Claude and Codex logins                         |
+
+Back up `home`, `workspace`, and the auth volume to keep an instance's state; `uv` and
+`docker` can be rebuilt. Removing the container keeps every volume. `docker compose
+down -v` also deletes the shared auth volume, so remove a single project's state by
+name instead, for example `docker volume rm myproject_home myproject_uv`.
+
+### Operating it
+
+- `docker logs` carries every service's output. The image healthcheck turns healthy
+  once every required service passes its readiness probe.
+- `docker exec <container> supervisorctl -c /etc/agentdev/supervisord.conf status`
+  lists the services. `docker exec -u agent -it <container> bash` gives a shell with
+  the same Docker, keyring, and display environment OpenCode's tools see.
+- To upgrade, advance the pin and run the same `up -d`. The new image reapplies its
+  managed client and catalog configuration and keeps user settings and sessions.
+- A failed start leaves its cause in `docker logs` and in `/run/agentdev/failed`.
+  The usual causes are an unwritable checkout, an auth volume from another identity,
+  a missing worktree `.git`, or a failed project setup. Fix the cause and start again.
+- `AGENTDEV_SKIP_XPRA=1` drops the desktop. `ENABLE_FIREWALL=true` applies the
+  default-deny egress firewall and then needs `AGENTDEV_TRUSTED_PROXY_CIDRS`.
 
 ## Development environment
 
