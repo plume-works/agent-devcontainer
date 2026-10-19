@@ -286,7 +286,10 @@ Assumptions:
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/run.sh`
 
-- [ ] `run.sh` no longer offers or runs the OpenCode harness.
+- [x] `run.sh` no longer offers or runs the OpenCode harness.
+  - **Evidence:** Commit "test(e2e): retire run.sh's OpenCode harness";
+    `run.sh --harness opencode` and `--opencode-model` exit 2, shellcheck
+    passes, and a stub-`claude` run still builds the clone and runs its checks.
 
 ### Task 8: Port the Claude Code scenarios
 
