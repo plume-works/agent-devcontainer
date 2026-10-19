@@ -764,7 +764,7 @@ digest
 `scripts/tests/test_agent_runtime_ingress.py`; Reuse:
 `scripts/tests/test_opencode_web_start.py`
 
-- [ ] `opencode-web-command.sh coder-pane` prints the v2 plan's pane command and
+- [x] `opencode-web-command.sh coder-pane` prints the v2 plan's pane command and
   creates the generated password file when no Coder password is set.
   `coder-note` names that file. `opencode-web-start.sh` builds the link, the
   pane, and the note through the helper. This replaces Task 8's constraint that
@@ -772,6 +772,14 @@ digest
   `test_opencode_web_start.py` passes unchanged, and the ingress test checks
   `opencode serve --port 4096 --hostname <host>` without `DISPLAY` for both
   password states.
+  - **Evidence:** merge `6e2c404` moved the v2 pane, the generated password
+    file, and the note into `opencode-web-command.sh`
+    (`coder-hostname|coder-pane|coder-note`), and `opencode-web-start.sh` calls
+    them. `test_opencode_web_start.py` is unchanged since the v2 plan's
+    `7d55cdc`; with `opencode` 2.0.32 first on `PATH`, it and
+    `test_coder_agent_start.py` pass, as does
+    `test_coder_pane_serves_without_display` for `''` → `127.0.0.1` and `x` →
+    `0.0.0.0`.
 - [ ] Against a real OpenCode 2.x `opencode serve`, started with
   `opencode-web-command.sh serve`, a PTY child sees `DISPLAY` and no browser
   opener runs. `/` and the web UI's JS asset return 200, and a PTY WebSocket
