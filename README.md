@@ -106,7 +106,10 @@ the path its `.git` file names.
 - `OPENCODE_SERVER_PASSWORD` is required. The proxy routes to the container on port
   `4096` for OpenCode, which enforces the password itself, and on `14500` for Xpra.
   Both are served at the root path, WebSockets included.
-- **Xpra has no password.** The proxy must authenticate Xpra requests itself.
+- `XPRA_PASSWORD` is required unless `AGENTDEV_SKIP_XPRA` is set; without it the
+  container exits before starting anything. Xpra checks it on every session, so a
+  peer on the proxy network cannot bypass the proxy. The HTML5 page loads without
+  it and asks for it on connect.
 - `AGENTDEV_PROXY_NETWORK` names the proxy's existing Docker network.
 - Claude Code and Codex logins live on the shared `AGENTDEV_AUTH_VOLUME` and reach
   every project container in the same identity cohort. Each project container logs in

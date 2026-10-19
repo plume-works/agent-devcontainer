@@ -6,7 +6,7 @@ release:
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T12:16:25Z
+  at: 2026-10-19T14:38:38Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore
@@ -873,6 +873,39 @@ stale `docs/knowledge/data/codebase/` docs
     Claude and Codex credentials. The digests are bumped, and
     `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
+### Task 22: Authenticate Xpra sessions with `XPRA_PASSWORD`
+
+Supersedes Task 8's proxy-only Xpra boundary: a peer on the shared proxy network
+reaches port 14500 without passing the proxy.
+
+**Files:** Modify: `docker/desktop/start-xpra.sh`,
+`.devcontainer/scripts/runtime-supervisor.py`, `compose.opencode.yml`,
+`docker/opencode/runtime.env.example`, `README.md`,
+`docs/knowledge/data/architecture/standalone-opencode-runtime.md`; Test:
+`scripts/tests/test_agent_runtime_ingress.py`,
+`scripts/tests/test_agent_runtime_supervision.py`,
+`scripts/tests/test_agent_runtime_compose.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
+
+- [x] When `XPRA_PASSWORD` is set, `start-xpra.sh` passes
+  `--tcp-auth=env:name=XPRA_PASSWORD`, which covers the HTML5 client's WebSocket
+  sessions and keeps the secret off the command line. Unset, devcontainer and
+  Coder starts are unchanged.
+  - **Evidence:** commit `2fe2a47` "fix(runtime): authenticate Xpra sessions
+    with XPRA_PASSWORD"; `test_agent_runtime_ingress.py` rejects a missing or
+    wrong password, accepts the right one, finds no secret in the Xpra
+    `cmdline`, and keeps sessions open when the variable is unset.
+- [x] The standalone runtime exits 1 before the bootstrap when Xpra is enabled
+  and `XPRA_PASSWORD` is empty, naming both remedies; Compose passes the
+  variable and `runtime.env.example` documents it.
+  - **Evidence:** commits `2fe2a47` and `5df3b26` "test(runtime): accept Xpra
+    only from peers holding XPRA_PASSWORD": supervision tests 19 passed, Compose
+    tests 10 passed, and local container acceptance on a built image 15 passed,
+    1 skipped, including a proxy-network peer refused without the password.
+- [x] `README.md` and the architecture document state the requirement.
+  - **Evidence:** commit "docs(runtime): require XPRA_PASSWORD for standalone
+    Xpra".
+
 ## Spec changes
 
 Create `spec/standalone-opencode-runtime` with the following full contract.
@@ -998,8 +1031,10 @@ Xpra SHALL start by default with an explicit disable option.
 Supported Compose deployments SHALL publish no host ports and SHALL connect to
 an operator-provided proxy network. OpenCode SHALL require a nonempty server
 password and bind container port 4096 on a network-reachable interface. Enabled
-Xpra SHALL serve port 14500 without its own password; deployment instructions
-SHALL require proxy authentication for it. OpenCode readiness SHALL be an
+Xpra SHALL serve port 14500 and SHALL require `XPRA_PASSWORD` for every session,
+read from its environment rather than its command line; the runtime SHALL refuse
+to start with Xpra enabled and no nonempty `XPRA_PASSWORD`. Devcontainer and
+Coder starts SHALL NOT require it. OpenCode readiness SHALL be an
 authenticated API response and SHALL NOT be inferred from a response that does
 not require the password.
 
@@ -1007,6 +1042,16 @@ not require the password.
 
 - **WHEN** the standalone runtime has no nonempty OpenCode server password
 - **THEN** configuration validation fails instead of exposing an unauthenticated service or a silently unreachable loopback listener.
+
+#### Scenario: Xpra is enabled without its password
+
+- **WHEN** the standalone runtime starts with `AGENTDEV_SKIP_XPRA` empty and no nonempty `XPRA_PASSWORD`
+- **THEN** it exits nonzero before the bootstrap, naming `XPRA_PASSWORD` and `AGENTDEV_SKIP_XPRA=1`.
+
+#### Scenario: a peer on the proxy network connects to Xpra directly
+
+- **WHEN** another container on the proxy network opens an Xpra session on port 14500
+- **THEN** the session is refused without the correct `XPRA_PASSWORD` and accepted with it.
 
 #### Scenario: proxy requests reach the runtime
 

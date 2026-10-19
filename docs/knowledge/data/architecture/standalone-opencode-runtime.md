@@ -3,7 +3,7 @@ type: architecture
 description: agent-opencode runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener sequences services on readiness, recovers each within a bounded budget, refreshes dependent clients, and exits the container nonzero when recovery is exhausted.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T16:00:00Z
+  at: 2026-10-19T14:38:38Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -17,6 +17,7 @@ sources:
 - resource: .devcontainer/scripts/runtime-firewall.sh
 - resource: docker/opencode/agent-opencode.Dockerfile
 - resource: docker/desktop/start-xpra.sh
+- resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: compose.opencode.yml
 - resource: scripts/tests/test_agent_runtime_acceptance.py
 ---
@@ -56,14 +57,30 @@ configuration, keyrings, and caches record per-project state, and two containers
 writing them would corrupt each other. Sharing across cohorts was rejected
 because it would mean rewriting another running container's file ownership.
 
-OpenCode logins stay per project container. OpenCode v2 keeps them in
+OpenCode logins stay per project container. OpenCode 2.0.32
+(`agentic_tools_opencode_version`) keeps them in
 `~/.local/share/opencode/opencode.db` on the instance home volume, so they
 survive replacement and upgrade, and each project container logs in once. The
 auth volume holds no OpenCode directory. Two ways to share them were rejected:
 
 - Sharing the database would share sessions too, since they live in it.
-- Sharing `auth.json` would carry only a stale first login: v2 imports it once
-  and never writes it.
+- Sharing `auth.json` would carry only a stale first login: OpenCode 2.0.32
+  imports it once and never writes it.
+
+## Ingress authentication
+
+The proxy network is shared, so the proxy cannot be the only access boundary:
+any peer on it reaches the container's ports directly. Each service therefore
+authenticates on its own. OpenCode requires `OPENCODE_SERVER_PASSWORD`, and Xpra
+requires `XPRA_PASSWORD` through its `env` auth module, which keeps the secret
+off the command line. PID 1 refuses to start with Xpra enabled and no password,
+before the bootstrap, rather than failing Xpra's recovery budget later.
+Devcontainer and Coder starts bind Xpra to loopback and need no password.
+
+Two alternatives were rejected. Requiring `ENABLE_FIREWALL` with trusted proxy
+CIDRs whenever Xpra runs would couple desktop access to the opt-in egress
+firewall. Documenting that the proxy network must have no other members leaves
+the default deployment open.
 
 ## OpenCode lifetime
 
