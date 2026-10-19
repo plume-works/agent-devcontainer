@@ -311,8 +311,10 @@ Assumptions:
 
 ### Task 9: The Claude Code suite passes
 
-- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k claude -n 3`
+- [x] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k claude -n 3`
   passes every Claude Code test.
+  - **Evidence:** Live run on 2026-10-19 with the Task 8 code (`ef279c7`): 5
+    passed in 156.71s.
 
 ### Task 10: Retire run.sh's Claude Code section
 
