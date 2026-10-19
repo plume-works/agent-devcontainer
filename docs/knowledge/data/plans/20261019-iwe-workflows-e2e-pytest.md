@@ -349,8 +349,10 @@ Assumptions:
 
 ### Task 12: The Codex suite passes
 
-- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k codex -n 3`
+- [x] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k codex -n 3`
   passes every Codex test.
+  - **Evidence:** Live run on 2026-10-19 at `c2ea0b5`, installed catalog
+    matching the clone: 6 passed in 542.79s.
 
 ### Task 13: Delete run.sh
 
