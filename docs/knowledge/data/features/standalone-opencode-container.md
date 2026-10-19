@@ -3,14 +3,13 @@ type: feature
 stage: accepted
 description: A dedicated agent-opencode image starts a persistent single-project agent environment with OpenCode, Docker-in-Docker, CBM, keyring, and Xpra without a Dev Containers client.
 generated:
-  by: opencode/openai-gpt-6.1-sol
-  at: 2026-10-17T05:34:21Z
+  by: claude-code/opus-5.5
+  at: 2026-10-19T12:16:25Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/opencode-web-start.sh
-- resource: .devcontainer/scripts/link-opencode-auth.sh
 - resource: .devcontainer/devcontainer.json
 - resource: .github/workflows/ci.yml
 ---
@@ -40,7 +39,7 @@ client, Coder, or this repository's scaffolding in the project checkout.
   agentdev catalog when present; otherwise use the image-bundled catalog.
 - Run agent tools as a configurable numeric UID/GID, default `1000:1000`, with
   passwordless sudo. Containers sharing agent credentials use the same UID/GID.
-- Share Claude/Codex/OpenCode credentials; keep sessions, configuration,
+- Share Claude/Codex credentials; keep OpenCode logins, sessions, configuration,
   keyrings, caches, and Docker storage per instance. Support injected GitHub
   tokens without adding an interactive GitHub-login persistence facility.
 - Connect to an existing external reverse proxy without publishing host ports.
@@ -62,8 +61,9 @@ client, Coder, or this repository's scaffolding in the project checkout.
   preparation, or missing required service must produce an actionable failure.
 - Restarting a dirty checkout must preserve its branch, tracked changes, and
   user files; project preparation is limited to its expressly supported changes.
-- Two project containers may share credentials but must not share session
-  databases, keyring databases, Docker engines, or instance caches.
+- Two project containers may share Claude/Codex credentials but must not share
+  OpenCode logins, session databases, keyring databases, Docker engines, or
+  instance caches.
 - Service crashes and container termination require bounded recovery and clean
   process shutdown, including daemonizing tools.
 

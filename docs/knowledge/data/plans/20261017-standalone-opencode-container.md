@@ -5,8 +5,8 @@ release:
 - features/standalone-opencode-container
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
 generated:
-  by: opencode/openai-gpt-6.1-sol
-  at: 2026-10-17T05:34:21Z
+  by: claude-code/opus-5.5
+  at: 2026-10-19T12:16:25Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore
@@ -15,13 +15,14 @@ sources:
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/setup-keyring.sh
 - resource: .devcontainer/scripts/link-codex-auth.sh
-- resource: .devcontainer/scripts/link-opencode-auth.sh
+- resource: .devcontainer/scripts/setup-agent-state.sh
+- resource: .devcontainer/scripts/opencode-web-command.sh
 - resource: .devcontainer/scripts/opencode-web-start.sh
+- resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: .github/workflows/ci.yml
 - resource: .github/renovate.json
 - resource: https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/v0.12.1/src/main.c
-- resource: https://github.com/sst/opencode/blob/v1.19.3/packages/opencode/src/cli/cmd/serve.ts
-- resource: https://github.com/sst/opencode/blob/v1.19.3/packages/opencode/src/cli/cmd/web.ts
+- resource: https://opencode.ai/v2/docs
 ---
 
 # Ship a standalone OpenCode container
@@ -45,6 +46,25 @@ supervised daemon; the existing devcontainer remains feature-managed. [Image
 pinning](../spec/image-pinning.md) applies to the new consumer examples and
 publishing flow as well.
 
+[Make OpenCode v2 the devcontainer default](20261018-opencode-v2-default.md)
+replaces the image's OpenCode with v2 (`@opencode/cli` 2.0.32), and
+`agent-opencode` inherits it from `agent-desktop`. That plan ships first; this
+plan adapts the runtime to it. The v2 facts this plan relies on, for
+`opencode serve` 2.0.32 (the `agentic_tools_opencode_version` pin):
+
+- **Logins.** Provider logins and sessions share one SQLite database,
+  `~/.local/share/opencode/opencode.db`. v2 imports an existing `auth.json` once
+  and never writes it.
+- **API.** The API is under `/api/`, requires the server password (basic auth,
+  user `opencode`), and wraps results in `{data: ...}`: `POST /api/session`
+  returns `{data: {id, ...}}`, `GET /api/session` returns `{data: [...]}`.
+  `GET /api/info` returns `{version, ...}` and needs no workspace.
+- **No health route.** v2 has no `/global/health`. Any path outside `/api/`,
+  including `/global/health`, `/session`, and `/`, returns the web UI page with
+  status 200 and no password.
+- **Browser and display.** `opencode serve` opens no browser when `DISPLAY` is
+  set, and a PTY child inherits `DISPLAY`.
+
 ## Approach
 
 Derive `ghcr.io/plume-works/agent-opencode` from the same-run digest of
@@ -60,21 +80,36 @@ An event listener owns dependency transitions, bounded restart budgets,
 readiness, and terminal failure. Do not rely on `startretries` alone to bound
 crashes after a service reaches RUNNING. OpenCode runs foreground; retain the
 existing Coder tmux launcher as an adapter over shared network/link
-construction. Standalone uses `opencode serve`, which invokes the same server
-without opening a browser, and retains DISPLAY for graphical tools spawned by
-OpenCode. Verify its web assets against the shipped version in container
-acceptance.
+construction. The Coder pane is the v2 plan's: `opencode serve` without
+`DISPLAY`, on `0.0.0.0` with `OPENCODE_SERVER_PASSWORD` and otherwise on
+`127.0.0.1` with a generated password file. Standalone runs `opencode serve`
+too, which opens no browser, and keeps DISPLAY for graphical tools spawned by
+OpenCode. OpenCode readiness is an authenticated `GET /api/info` that returns a
+non-empty `version`; v2 has no health route, and its public web UI page cannot
+show that the API is up. Verify the web assets against the shipped version in
+container acceptance.
 
 The runtime user is `agent`, home `/home/agent`, numeric IDs from
 `AGENTDEV_UID`/`AGENTDEV_GID` (both default `1000`), with passwordless sudo.
 System tools live outside `/root`; user configuration is reconciled into the
 runtime home after mounts. Use a per-project home volume, `/uv` volume,
-workspace volume or bind, and `/var/lib/docker` volume. Share only agent
-credentials at `/var/lib/agentdev/auth`, selected through
+workspace volume or bind, and `/var/lib/docker` volume. Share only Claude and
+Codex credentials at `/var/lib/agentdev/auth`, selected through
 `AGENTDEV_AGENTS_AUTH_DIR`. Require equal UID/GID within each sharing cohort;
 initialize an empty shared volume under a lock, reject a populated incompatible
 one, and never recursively chown the workspace, its ancestors, or another
 container's credential store.
+
+OpenCode logins are per project container. They live in v2's database in
+`~/.local/share/opencode` on the instance home volume, so they survive
+replacement and upgrade, and each project container logs in once. The shared
+auth volume holds no OpenCode directory, and startup creates no OpenCode
+credential link. Rejected:
+
+- **Sharing OpenCode's database.** It holds the sessions as well, so sharing it
+  would share sessions between project containers.
+- **Sharing `auth.json`.** v2 imports it once and never writes it, so the shared
+  file would carry only a stale first login.
 
 GitHub authentication uses injected `GH_TOKEN`/`GITHUB_TOKEN`. No shared gh
 configuration, interactive-login persistence facility, credential broker, or
@@ -364,7 +399,7 @@ cleanup. Tests may shorten these values. Expose configuration through documented
   the runtime user without mounting the host socket or exposing a TCP listener.
   Validate privileged mode, storage backing, readiness, and replacement after a
   daemon crash. Persist all Docker data used by the shipped engine, including
-  any enabled containerd image store, rather than assuming one volume suffices.
+  any enabled containerd image store.
   - **Evidence:** commit "feat(runtime): run a dedicated nested Docker engine":
     `.devcontainer/scripts/runtime-docker.sh` refuses missing `CAP_SYS_ADMIN`,
     overlay-backed storage, a `hosts` key, and a live second `dockerd`.
@@ -592,11 +627,12 @@ cleanup. Tests may shorten these values. Expose configuration through documented
     - the proxy checks above;
     - an unreachable clone URL exiting `1` before `opencode` starts.
 - [ ] Cover restart, replacement, an actual older/newer image upgrade with
-  persistent user config, shared provider-auth files with isolated sessions, two
-  concurrent containers, UID mismatch rejection, unavailable worktree metadata,
-  dirty-tree preservation, required-service crash/hang and exhausted recovery,
-  and bounded clean stop. Distinguish file-persistence tests from the live
-  provider-login check in Task 16.
+  persistent user config, shared Claude/Codex auth files with isolated sessions
+  and no shared OpenCode login state, two concurrent containers, UID mismatch
+  rejection, unavailable worktree metadata, dirty-tree preservation,
+  required-service crash/hang and exhausted recovery, and bounded clean stop.
+  Distinguish file-persistence tests from the live provider-login check in Task
+  16\.
 
 ### Task 13: Integrate native builds, manifests, pins, and CI gates
 
@@ -675,33 +711,113 @@ sources
 digest
 
 - [ ] **Closed by: CI and the implementing session after publication.** On the
-  final candidate, read the passing amd64/arm64 acceptance results, inspect the
-  published manifest and its same-run desktop ancestry, insert its real digest
-  into the deployment pin, and pass pin-only acceptance. This external gate is
-  separate from writing publishing code and cannot close on a local build.
+  final candidate, built from an `agent-desktop` that ships OpenCode v2 and
+  containing Tasks 17–21, read the passing amd64/arm64 acceptance results,
+  inspect the published manifest and its same-run desktop ancestry, insert its
+  real digest into the deployment pin, and pass pin-only acceptance. This
+  external gate is separate from writing publishing code and cannot close on a
+  local build.
 
 ### Task 16: Verify actual login/session continuity behind the operator proxy
 
 **Files:** none; operator deployment of the published candidate
 
 - [ ] **Closed by: maintainer with the external proxy and provider login.**
-  Launch the documented deployment, connect a provider and create a session,
+  Launch the documented deployment of the Task 15 candidate, connect a provider
+  in OpenCode, log in to Claude Code or Codex, and create an OpenCode session;
   replace the container and upgrade to a newer tested image with the same
   volumes; verify login, session, and user config continuity. Run a second
-  same-ID project container and verify shared login with isolated sessions,
-  healthy proxy access to OpenCode/Xpra, and proxy protection of the desktop.
-  Keep credentials out of evidence. Do not substitute synthetic auth JSON for
-  this gate.
+  same-ID project container and verify it shares the Claude/Codex login, needs
+  its own OpenCode provider login, and lists none of the first container's
+  sessions. Verify healthy proxy access to OpenCode/Xpra and proxy protection of
+  the desktop. Keep credentials out of evidence. Do not substitute synthetic
+  auth JSON for this gate.
+
+### Task 17: Keep OpenCode logins per project container
+
+**Files:** Delete: `.devcontainer/scripts/link-opencode-auth.sh`; Modify:
+`.devcontainer/scripts/setup-agent-state.sh`,
+`.devcontainer/scripts/postCreateCommand.sh`,
+`scripts/tests/test_agent_runtime_state.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
+
+- [ ] `setup-agent-state.sh create|links` creates only the Claude and Codex auth
+  directories and links only the Codex credential, in both runtime modes. The
+  state tests show no `opencode` directory under the auth root, and an existing
+  `~/.local/share/opencode/auth.json` left as a regular file with its content.
+- [ ] The two-container acceptance test shares the Codex `auth.json` and keeps
+  sessions apart through `/api/session`. It also shows the second container has
+  no link into the auth volume under `~/.local/share/opencode`.
+
+### Task 18: Serve the Coder pane and the standalone server on OpenCode v2
+
+**Files:** Modify: `.devcontainer/scripts/opencode-web-command.sh`,
+`.devcontainer/scripts/opencode-web-start.sh`,
+`scripts/tests/test_agent_runtime_ingress.py`; Reuse:
+`scripts/tests/test_opencode_web_start.py`
+
+- [ ] `opencode-web-command.sh coder-pane` prints the v2 plan's pane command and
+  creates the generated password file when no Coder password is set.
+  `coder-note` names that file. `opencode-web-start.sh` builds the link, the
+  pane, and the note through the helper. This replaces Task 8's constraint that
+  Coder's `opencode web` command stays unchanged. The v2 plan's
+  `test_opencode_web_start.py` passes unchanged, and the ingress test checks
+  `opencode serve --port 4096 --hostname <host>` without `DISPLAY` for both
+  password states.
+- [ ] Against a real OpenCode 2.x `opencode serve`, started with
+  `opencode-web-command.sh serve`, a PTY child sees `DISPLAY` and no browser
+  opener runs. `/` and the web UI's JS asset return 200, and a PTY WebSocket
+  gets 101 with the password and 401 without it.
+
+### Task 19: Probe OpenCode readiness through v2's authenticated API
+
+**Files:** Modify: `.devcontainer/scripts/opencode-web-command.sh`,
+`scripts/tests/test_agent_runtime_ingress.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
+
+- [ ] `opencode-web-command.sh probe` succeeds only when an authenticated
+  `GET /api/info` returns a non-empty `version`. Against a real OpenCode 2.x
+  server, `/api/info` returns 401 without the password and with a wrong one,
+  `probe` passes with the right password and fails with a wrong one, and no test
+  reads `/global/health`.
+- [ ] In container acceptance, the proxy test gets 401 from `/api/info` without
+  the password and the image's OpenCode version with it, and the hung-service
+  test ends with a passing `/api/info` read.
+
+### Task 20: Move container acceptance to v2's session API
+
+**Files:** Modify: `scripts/tests/test_agent_runtime_acceptance.py`
+
+- [ ] `Runtime.api` calls paths under `/api/` and returns the response's `data`.
+  The restart, replacement, upgrade, and two-container tests create and list
+  sessions through `/api/session`. The acceptance harness passes against a
+  locally built `agent-opencode` whose `opencode --version` is the
+  `agentic_tools_opencode_version` pin.
+
+### Task 21: Record per-container OpenCode logins in the runtime docs
+
+**Files:** Modify: `README.md`,
+`docs/knowledge/data/architecture/standalone-opencode-runtime.md`; Refresh:
+stale `docs/knowledge/data/codebase/` docs
+
+- [ ] `README.md` `## Standalone OpenCode runtime` says Claude and Codex logins
+  reach every project container in the identity cohort and each project
+  container logs in to OpenCode once. Its storage table lists the auth volume as
+  Claude and Codex logins. The architecture document says the same and records
+  the two rejected OpenCode sharing alternatives from `## Approach`.
+- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+  `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ## Spec changes
 
 Create `spec/standalone-opencode-runtime` with the following full contract.
-[OpenCode web](../spec/opencode-web.md), [Devcontainer Git
+[OpenCode web](../spec/opencode-web.md), as the [OpenCode v2
+plan](20261018-opencode-v2-default.md) amends it, [Devcontainer Git
 credentials](../spec/devcontainer-git-credentials.md), and [Devcontainer Docker
-storage](../spec/devcontainer-docker-storage.md) keep their existing
-integration-specific requirements; shared-helper extraction preserves them. The
-standalone requirements below define strict startup and injected-token behavior
-without changing Coder's tmux/failure semantics.
+storage](../spec/devcontainer-docker-storage.md) keep their integration-specific
+requirements; shared-helper extraction preserves them. The standalone
+requirements below define strict startup and injected-token behavior without
+changing Coder's tmux/failure semantics.
 
 ``` markdown
 ## ADDED Requirements
@@ -770,11 +886,13 @@ OpenCode becomes available; errors and timeouts SHALL fail startup.
 ### Requirement: state survives replacement without cross-project session sharing
 
 The runtime SHALL persist workspace, instance home/configuration, keyrings,
-caches/environments, and nested Docker storage. Only Claude/Codex/OpenCode
-provider credentials SHALL be shared across project containers. Startup SHALL
-repair their auth links and reconcile managed client/catalog configuration
-after mounts on every container start while preserving unrelated settings and
-session data. It SHALL NOT add shared interactive GitHub-login storage.
+caches/environments, OpenCode provider logins and sessions, and nested Docker
+storage. Only Claude and Codex provider credentials SHALL be shared across
+project containers; OpenCode provider logins SHALL stay with the instance.
+Startup SHALL repair the shared credential links and reconcile managed
+client/catalog configuration after mounts on every container start while
+preserving unrelated settings and session data. It SHALL NOT add shared
+interactive GitHub-login storage.
 
 #### Scenario: an image is upgraded with existing volumes
 
@@ -784,7 +902,7 @@ session data. It SHALL NOT add shared interactive GitHub-login storage.
 #### Scenario: two project containers run
 
 - **WHEN** same-ID containers mount the same agent-auth volume and different instance volumes
-- **THEN** they see shared provider credentials but have independent sessions, keyring databases, caches, and Docker engines.
+- **THEN** they see shared Claude and Codex credentials but have independent OpenCode logins, sessions, keyring databases, caches, and Docker engines.
 
 ### Requirement: required services have supervised bounded recovery
 
@@ -816,8 +934,9 @@ Supported Compose deployments SHALL publish no host ports and SHALL connect to
 an operator-provided proxy network. OpenCode SHALL require a nonempty server
 password and bind container port 4096 on a network-reachable interface. Enabled
 Xpra SHALL serve port 14500 without its own password; deployment instructions
-SHALL require proxy authentication for it. Authenticated API readiness SHALL
-not be inferred solely from a public static asset response.
+SHALL require proxy authentication for it. OpenCode readiness SHALL be an
+authenticated API response and SHALL NOT be inferred from a response that does
+not require the password.
 
 #### Scenario: a password is missing
 
@@ -902,18 +1021,24 @@ the image they consume.
 ## Depends on
 
 [Autostart the OpenCode web UI on
-Coder](20261016-opencode-web-coder-autostart.md) must land first.
+Coder](20261016-opencode-web-coder-autostart.md) and [Make OpenCode v2 the
+devcontainer default](20261018-opencode-v2-default.md) must ship first.
 
 ## Verification
 
 - Run focused pytest files from each task before its checkbox is ticked.
   Existing regression commands include
-  `uv run pytest scripts/tests/test_link_opencode_auth.py scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py scripts/tests/test_setup_gh_credential_helper.py scripts/tests/test_configure_codex.py scripts/tests/test_repair_codex_cbm_hooks_block.py scripts/tests/test_preapprove_claude_workspace.py scripts/tests/test_docker_image_prune.py`.
+  `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py scripts/tests/test_setup_gh_credential_helper.py scripts/tests/test_configure_codex.py scripts/tests/test_repair_codex_cbm_hooks_block.py scripts/tests/test_preapprove_claude_workspace.py scripts/tests/test_docker_image_prune.py`.
 - Run `uv run pytest scripts/tests/test_agent_runtime_*.py` for the runtime unit
   contracts; container acceptance is explicitly selected with
   `AGENTDEV_RUNTIME_TEST_IMAGE=<tested-tag-and-digest> uv run pytest scripts/tests/test_agent_runtime_acceptance.py`.
   Container tests without that input skip rather than accidentally using an
   unrelated local image; required CI supplies it and rejects an all-skipped run.
+- Tests that start a real `opencode serve` run where `opencode --version`
+  reports the `agentic_tools_opencode_version` pin; a devcontainer still on
+  OpenCode v1 does not close Tasks 18 and 19. Without the rebuilt image, install
+  the pin with `bun add --trust @opencode/cli@<pin>` under `./.tmp/` and put its
+  `node_modules/.bin` first on `PATH`.
 - Run ShellCheck on new/changed shell files, the repository Python lint check on
   new Python files, and workflow/Dockerfile/Compose lint via the existing
   pre-commit configuration. Validate actual Compose clone/bind renderings.
@@ -971,12 +1096,19 @@ Recorded 2026-10-18 at `afae3a2`.
   fail on the CloudFront CDN host; filed as [Bug: firewalled Docker Hub pulls
   fail at the CloudFront CDN](../bugs/firewall-docker-hub-cloudfront.md).
 
+- **The results above predate OpenCode v2.** They were taken on OpenCode 1.19.3.
+  Against `opencode serve` 2.0.32, `/global/health` returns the web UI page with
+  status 200 without a password, so the shipped `probe` would never pass and the
+  container would never become ready. Tasks 17–21 adapt the runtime, and the
+  acceptance results are retaken on a v2 image.
+
 ## Out of scope
 
 - Multiple projects per running container, automatic repository updates,
   destructive checkout repair, and ownership migration of existing user state.
 - Shared credentials across different numeric identity cohorts; shared session,
   home, keyring, or Docker databases between project containers.
+- Sharing OpenCode provider logins between project containers.
 - Interactive GitHub-login persistence/sharing, SSH-agent/key provisioning,
   bundled reverse proxy/TLS, Docker MCP gateway/Desktop secrets integration,
   host Docker sockets, and remote Docker engines.
@@ -995,16 +1127,10 @@ Verified anchor points (line numbers as of 2026-10-17):
   sources.
 - `.devcontainer/devcontainer.json:12-18` — feature-managed DinD/SSH; `:20-50` —
   runtime environment; `:60-108` — per-instance mounts including OpenCode.
-- `.devcontainer/scripts/postCreateCommand.sh:7-47` — ownership handling;
-  `:56-68` — Claude link/CBM ordering; `:72-97` — auth, uv, catalog setup.
-- `.devcontainer/scripts/postStartCommand.sh:9-31` — current service and
-  auth/client startup order.
 - `.devcontainer/scripts/postAttachCommand.sh:8-16` — indexing, uv sync,
   checkout catalog registration.
 - `.devcontainer/scripts/link-codex-auth.sh:19-31` — hardcoded root credential
   paths and link repair.
-- `.devcontainer/scripts/link-opencode-auth.sh:8-21` — overridable auth/data
-  roots and migration.
 - `.devcontainer/scripts/codebase-memory-mcp-install.sh:22-28` — cache and
   install paths; `:54-82` — symlink restoration and native installation.
 - `.devcontainer/scripts/codebase-memory-mcp-start.sh:9-19` — required
@@ -1018,8 +1144,6 @@ Verified anchor points (line numbers as of 2026-10-17):
   unconditional sync.
 - `.devcontainer/scripts/setup-pre-commit.sh:8-20` — skip and hook setup/error
   behavior.
-- `.devcontainer/scripts/opencode-web-start.sh:12-48` — workspace link,
-  password-gated binding and Coder tmux adapter.
 - `.devcontainer/scripts/coder-agent-start.sh:9-21` —
   prune/helper/OpenCode/Remote Control ordering.
 - `.devcontainer/scripts/docker-image-prune.sh:12-20` — nonfatal 72-hour image
@@ -1060,3 +1184,38 @@ Verified anchor points (line numbers as of 2026-10-17):
 - `docs/knowledge/data/architecture/nested-docker-provisioning.md:21-39` —
   feature-owned DinD decision.
 - `README.md:25-69` — current images, adoption, and digest policy.
+
+Verified anchor points (line numbers as of 2026-10-19):
+
+- `.devcontainer/scripts/postCreateCommand.sh:56` —
+  `setup-agent-state.sh create`; `:70` — staged-catalog install.
+- `.devcontainer/scripts/postStartCommand.sh:27` — `setup-agent-state.sh links`;
+  `:30` — `agent-policy`.
+- `.devcontainer/scripts/setup-agent-state.sh:41` — `ensure_auth_dirs`; `:65` —
+  `link_auth`; `:69` — `cmd_create`.
+- `.devcontainer/scripts/opencode-web-command.sh:10` — generated password file;
+  `:19` — `link`; `:29` — `coder_hostname`; `:39` — `coder_pane`; `:52` —
+  `coder_note`; `:62` — `probe`, reading `/global/health`; `:76` — `serve`.
+- `.devcontainer/scripts/opencode-web-start.sh:14-37` — helper calls, session
+  reuse, and the tmux launch.
+- `.devcontainer/scripts/runtime-health.sh:33` — the `opencode` probe.
+- `ansible/roles/agentic_tools/defaults/main.yml:10` —
+  `agentic_tools_opencode_version`.
+- `scripts/tests/test_agent_runtime_state.py:111` —
+  `test_links_explicit_roots_on_fresh_volumes`; `:122` —
+  `test_migrates_regular_credentials_and_preserves_other_config`; `:143` —
+  `test_repairs_destroyed_and_wrong_links`.
+- `scripts/tests/test_agent_runtime_ingress.py:89` —
+  `test_coder_pane_serves_without_display`; `:151` — `opencode_server`; `:175` —
+  `test_opencode_rejects_requests_without_its_password`; `:187` —
+  `test_opencode_serves_its_web_ui_and_websockets_at_the_root`.
+- `scripts/tests/test_agent_runtime_acceptance.py:166` — `Runtime.api`; `:380` —
+  `test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports`; `:489`
+  —
+  `test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images`;
+  `:523` — `test_upgrade_from_the_previous_image_keeps_user_state`; `:540` —
+  `test_concurrent_projects_share_codex_auth_but_not_sessions`; `:578` —
+  `test_crashed_and_hung_services_recover`.
+- `README.md:111-114` — login sharing; `:133` — the auth volume's storage row.
+- `docs/knowledge/data/architecture/standalone-opencode-runtime.md:53-58` — the
+  shared-credential decision.
