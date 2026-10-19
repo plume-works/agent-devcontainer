@@ -2,14 +2,14 @@
 type: codebase
 description: Installs Xpra from the Xpra stable apt repository and its HTML5 client from a pinned tag, installs VirtualGL from GitHub releases, and adds Mesa software rendering.
 source: ansible/roles/xpra_setup
-source_digest: sha256:65e18f6d1916581fce3e644976a5385785dcd20d7edd13320ed098edc32c58bb
+source_digest: sha256:f788a1cf9b53394b5295e5ecfac00c4d31a361e5d2a01ceb89530d124d7d0aea
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T18:45:02Z
+  at: 2026-10-19T23:09:19Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T18:45:02Z
+  at: 2026-10-19T23:09:19Z
 sources:
 - id: code
   resource: ansible/roles/xpra_setup
@@ -29,11 +29,12 @@ desktop reachable through a browser.
 ## How it works
 
 Adds the Xpra signing key and the stable repository (`https://xpra.org`) for the
-distribution codename and architecture, installs `xpra` from apt, and fails
-unless the installed version is at least 6; then clones `xpra-html5` at `v19`
-and runs its `setup.py install`; downloads the VirtualGL `.deb` for the detected
-architecture from GitHub releases and installs it; installs the Mesa, OpenGL,
-and Xvfb packages, including the software renderer.
+distribution codename and architecture, installs `xpra` from apt, upgrades a
+preinstalled one to the repository's release, and fails unless the installed
+version is at least 6; then clones `xpra-html5` at `v19` and runs its
+`setup.py install`; downloads the VirtualGL `.deb` for the detected architecture
+from GitHub releases and installs it; installs the Mesa, OpenGL, and Xvfb
+packages, including the software renderer.
 
 ## Depends on
 
@@ -59,8 +60,10 @@ Verified anchor points (line numbers as of 2026-10-19):
 
 - `ansible/roles/xpra_setup/tasks/main.yml:14` — Xpra stable repository
 - `ansible/roles/xpra_setup/tasks/main.yml:23` — the `xpra` apt install
-- `ansible/roles/xpra_setup/tasks/main.yml:37` — the Xpra 6 version assertion
-- `ansible/roles/xpra_setup/tasks/main.yml:42` — xpra-html5 `v19` clone
-- `ansible/roles/xpra_setup/tasks/main.yml:59` — VirtualGL from releases
+- `ansible/roles/xpra_setup/tasks/main.yml:31` — upgrade of a preinstalled
+  `xpra`
+- `ansible/roles/xpra_setup/tasks/main.yml:46` — the Xpra 6 version assertion
+- `ansible/roles/xpra_setup/tasks/main.yml:51` — xpra-html5 `v19` clone
+- `ansible/roles/xpra_setup/tasks/main.yml:68` — VirtualGL from releases
 - `ansible/roles/xpra_setup/defaults/main.yml:4-11` — VirtualGL version,
   checksums, and download URL

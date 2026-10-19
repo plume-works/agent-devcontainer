@@ -27,6 +27,15 @@
         state: present
         install_recommends: true
 
+    # A reused base image already holds Ubuntu's xpra 3.x, which present leaves alone.
+    - name: Upgrade Xpra to the repository's release
+      ansible.builtin.apt:
+        name:
+          - xpra
+        state: latest
+        only_upgrade: true
+        install_recommends: true
+
     # Ubuntu's archive also ships an xpra (3.x); fail if apt resolved that one.
     - name: Read the installed Xpra version
       ansible.builtin.command:

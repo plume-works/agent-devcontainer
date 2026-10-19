@@ -4,7 +4,7 @@ stage: done
 description: The xpra_setup role never enables an Xpra apt repository, so agent-desktop and agent-opencode ship Ubuntu's xpra 3.1.5 instead of an Xpra 6.x build.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T19:04:34Z
+  at: 2026-10-19T23:09:19Z
 sources:
 - resource: ansible/roles/xpra_setup/tasks/main.yml
 - resource: docker/desktop/start-xpra.sh
@@ -48,9 +48,11 @@ The pinned tag would not have been honored even with a working copy: for noble,
 The role installs Xpra from the stable repository (`https://xpra.org`) with no
 `setup.py` step. It downloads `xpra.asc` with `get_url`, writes the deb822
 source for the image's codename and architecture, refreshes the apt cache, and
-installs `xpra` by name, unpinned as `architecture/ansible-apt-pins` records. It
-then asserts that the installed `xpra` reports a major version of at least 6, so
-a fallback to Ubuntu's package fails the build.
+installs `xpra` by name, unpinned as `architecture/ansible-apt-pins` records. An
+upgrade-only step follows, because CI builds on the previous image, where
+`state: present` keeps the Ubuntu package already installed. The role then
+asserts that the installed `xpra` reports a major version of at least 6, so a
+fallback to Ubuntu's package fails the build.
 
 Xpra 6 needed two changes in `start-xpra.sh`. It rejects `--global-menus` and
 `--dbus-proxy`, whose features it no longer has, so both flags are gone. It
@@ -64,7 +66,9 @@ Verified anchor points (line numbers as of 2026-10-19):
 
 - `ansible/roles/xpra_setup/tasks/main.yml:14` — the Xpra stable repository
 - `ansible/roles/xpra_setup/tasks/main.yml:23` — `apt: xpra`
-- `ansible/roles/xpra_setup/tasks/main.yml:37` — the Xpra 6 version assertion
+- `ansible/roles/xpra_setup/tasks/main.yml:31` — upgrade of a preinstalled
+  `xpra`
+- `ansible/roles/xpra_setup/tasks/main.yml:46` — the Xpra 6 version assertion
 - `docker/desktop/start-xpra.sh:74` — `reclaim_orphaned_display`, matching both
   X server names at `:80`
 - `setup.py:744-806` (Xpra `831ccc2b`) — `install_repo`, relative `cp` and
