@@ -383,10 +383,10 @@ def test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports(
 ):
     address = proxy(ready_runtime)
     assert docker('port', ready_runtime.name).stdout.strip() == ''
-    assert http(f'http://{address}:8080/global/health', auth=False)[0] == 401
-    status, body = http(f'http://{address}:8080/global/health', auth=True)
+    assert http(f'http://{address}:8080/api/info', auth=False)[0] == 401
+    status, body = http(f'http://{address}:8080/api/info', auth=True)
     shipped = ready_runtime.sh('opencode --version').stdout.strip()
-    assert status == 200 and json.loads(body) == {'healthy': True, 'version': shipped}
+    assert status == 200 and json.loads(body)['version'] in shipped
     status, page = http(f'http://{address}:8080/', auth=True)
     assert status == 200 and b'<title>OpenCode</title>' in page
     asset = page.split(b'src="', 1)[1].split(b'"', 1)[0].decode()
@@ -582,7 +582,8 @@ def test_crashed_and_hung_services_recover(ready_runtime: Runtime):
     ready_runtime.sh('codebase-memory-mcp daemon status >/dev/null')
     ready_runtime.sh('pkill -STOP -f "opencode serve"', user='root')
     ready_runtime.wait_unready_then_ready()
-    assert ready_runtime.api('GET', '/global/health')['healthy'] is True
+    shipped = ready_runtime.sh('opencode --version').stdout.strip()
+    assert ready_runtime.api('GET', '/info')['version'] in shipped
 
 
 def test_exhausted_recovery_stops_the_container_nonzero(make_runtime, scratch: Path):

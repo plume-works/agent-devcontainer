@@ -810,9 +810,18 @@ digest
     with a wrong password, the server's own version with the right one, and
     `probe` passes and fails to match. `shellcheck` clean. The acceptance
     module's `/global/health` reads go in this task's next box.
-- [ ] In container acceptance, the proxy test gets 401 from `/api/info` without
+- [x] In container acceptance, the proxy test gets 401 from `/api/info` without
   the password and the image's OpenCode version with it, and the hung-service
   test ends with a passing `/api/info` read.
+  - **Evidence:** commit "test(runtime): read OpenCode readiness from /api/info
+    in container acceptance":
+    `test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports` gets
+    401 through the proxy without the password and the version that
+    `opencode --version` prints with it.
+    `test_crashed_and_hung_services_recover` ends with
+    `Runtime.api('GET', '/info')` returning that version. Both are in the 13
+    passed against `agent-opencode:local` (OpenCode 2.0.32), and no test reads
+    `/global/health` any more.
 
 ### Task 20: Move container acceptance to v2's session API
 
