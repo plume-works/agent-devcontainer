@@ -275,8 +275,12 @@ Assumptions:
 
 ### Task 6: The OpenCode suite passes
 
-- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k opencode -n 3`
+- [x] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k opencode -n 3`
   passes every OpenCode test with the default test models.
+  - **Evidence:** Live run on 2026-10-19 at `ec3c371` with OpenCode 2.0.32,
+    `openai/gpt-6.1-sol` and `gpt-6-luna`, sourced from a logged-in v2 server: 5
+    passed in 120.59s; each Ship transcript holds exactly one `subagent` call,
+    implement and explore none.
 
 ### Task 7: Retire run.sh's OpenCode section
 
