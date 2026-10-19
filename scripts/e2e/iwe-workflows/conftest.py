@@ -1,11 +1,13 @@
 """Fixtures for the IWE workflow e2e suite: the fixture repository and per-test clones."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+import os
 from pathlib import Path
 import re
 import subprocess
 
 from clone import build_fixture_repo, Clone, FixtureRepo, make_clone
+from harness_opencode import OpenCodeServer, start_server
 import opencode_credential
 import pytest
 
@@ -77,3 +79,18 @@ def opencode_source() -> opencode_credential.Server:
 def opencode_login(opencode_source: opencode_credential.Server) -> dict:
     """Return the source's ChatGPT login, valid for at least this test's budget."""
     return opencode_credential.fresh_credential(opencode_source, OPENCODE_BUDGET)
+
+
+@pytest.fixture
+def opencode(opencode_login: dict) -> Iterator[Callable[[Clone], OpenCodeServer]]:
+    """Start isolated OpenCode servers for this test's clone; kill each at teardown."""
+    started: list[OpenCodeServer] = []
+
+    def start(clone: Clone) -> OpenCodeServer:
+        server = start_server(clone, opencode_login, os.environ.get('OPENCODE_BIN') or 'opencode')
+        started.append(server)
+        return server
+
+    yield start
+    for server in started:
+        server.stop()

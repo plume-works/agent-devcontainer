@@ -228,21 +228,36 @@ Assumptions:
 
 ### Task 4: Run an isolated OpenCode server per test
 
-**Files:** Create: `scripts/e2e/iwe-workflows/harness_opencode.py`; Modify:
+**Files:** Create: `scripts/e2e/iwe-workflows/harness_opencode.py`,
+`scripts/tests/test_e2e_iwe_workflows_opencode_server.py`; Modify:
 `scripts/e2e/iwe-workflows/conftest.py`,
 `scripts/e2e/iwe-workflows/fixtures/opencode.json`
 
-- [ ] A per-test fixture starts `opencode serve` (`OPENCODE_BIN` or `opencode`)
+- [x] A per-test fixture starts `opencode serve` (`OPENCODE_BIN` or `opencode`)
   on a free port with its own `HOME`, `XDG_*`, `OPENCODE_CONFIG_DIR`, and
   password; its config loads the bridge from the clone's catalog and keeps the
   fixture's permissions and small model; the server is seeded per Task 3 and its
   process group is killed at teardown, failed test or not.
-- [ ] The fixture waits until the server serves `agentdev:*` commands for the
+  - **Evidence:** Commit "test(e2e): run an isolated OpenCode server per test";
+    the `opencode` fixture in the suite's `conftest.py` stops every server it
+    started after `yield`;
+    `OPENCODE_BIN=<v2.0.32> uv run pytest scripts/tests/test_e2e_iwe_workflows_opencode_server.py`
+    (4 passed) checks the isolated `HOME`, the clone's bridge and small model in
+    the config, the withheld refresh token, and an empty process group after
+    `stop`.
+- [x] The fixture waits until the server serves `agentdev:*` commands for the
   clone.
+  - **Evidence:** Same commit; `start_server` returns only after
+    `wait_for_catalog` sees `agentdev:iwe-ship` for the clone, asserted by
+    `test_server_is_isolated_and_serves_the_clone_catalog`.
 - [ ] A client runs one command in a fresh session located in the clone with the
   question tool denied, waits under the suite's own deadline, interrupts a
   session that outlives it, pages every message by cursor, and saves the
   transcript beside the clone.
+  - **Evidence:** Same commit; `test_run_saves_every_message_beside_the_clone`
+    checks the session's location, the saved `transcripts/<name>.jsonl`, and
+    one-message pages matching the full read;
+    `test_a_session_outliving_the_deadline_is_interrupted` covers the deadline.
 
 ### Task 5: Port the OpenCode scenarios
 
