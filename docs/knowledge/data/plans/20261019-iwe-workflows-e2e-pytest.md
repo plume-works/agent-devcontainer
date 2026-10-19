@@ -196,19 +196,35 @@ Assumptions:
 
 ### Task 3: Seed OpenCode servers from the web UI's credential
 
-**Files:** Create: `scripts/e2e/iwe-workflows/opencode_credential.py`
+**Files:** Create: `scripts/e2e/iwe-workflows/opencode_credential.py`,
+`scripts/tests/test_e2e_iwe_workflows_credential.py`; Modify:
+`scripts/e2e/iwe-workflows/conftest.py`
 
-- [ ] The source is `127.0.0.1` at `AGENTDEV_OPENCODE_PORT` (default `4096`)
+- [x] The source is `127.0.0.1` at `AGENTDEV_OPENCODE_PORT` (default `4096`)
   with `OPENCODE_SERVER_PASSWORD` or the
   `~/.local/share/opencode/agentdev-server-password` file; OpenCode tests skip
   with a reason naming `opencode-web-start.sh` unless an authenticated
   `GET /api/info` returns a 2.x `version`.
+  - **Evidence:** Commit "test(e2e): seed OpenCode test servers from the web
+    UI's login"; `test_e2e_iwe_workflows_credential.py` covers the port and
+    password sources and rejects 1.x, a wrong password, and a closed port, each
+    naming the start script (11 passed); `require_v2` returns `2.0.32` against
+    the pinned binary.
 - [ ] Per test, the active `openai` credential is read from the source; when it
   expires within the test's budget, a one-token prompt in a throwaway session,
   deleted afterwards, makes the source refresh it first.
+  - **Evidence:** Same commit; the `opencode_login` fixture calls
+    `fresh_credential` with `OPENCODE_BUDGET`, and
+    `test_expiring_token_is_refreshed_in_a_throwaway_session` asserts the
+    create, prompt, wait, delete, re-read order against a fake source.
 - [ ] The seeded copy keeps `methodID` and `metadata` verbatim and carries
   `refresh: "withheld"`; no credential value is written to a log, a transcript,
   or a failure message.
+  - **Evidence:** Same commit; `test_seed_withholds_the_refresh_token`,
+    `test_unrefreshed_token_fails_without_its_value`, and
+    `test_failed_credential_requests_never_echo_the_body`; an OpenCode 2.0.32
+    server accepts the seed payload and reports `refresh: withheld` with
+    `metadata` intact.
 
 ### Task 4: Run an isolated OpenCode server per test
 

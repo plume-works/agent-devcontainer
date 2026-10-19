@@ -6,6 +6,7 @@ import re
 import subprocess
 
 from clone import build_fixture_repo, Clone, FixtureRepo, make_clone
+import opencode_credential
 import pytest
 
 SUITE = Path(__file__).parent
@@ -20,6 +21,8 @@ REPO_ROOT = Path(
 WORK = REPO_ROOT / '.tmp/e2e/iwe-workflows'
 # Every test shares the model provider's rate limits.
 MAX_WORKERS = 3
+# Per-test budgets in seconds; starting values, replaced by measured ones.
+OPENCODE_BUDGET = 1200
 
 
 def work_dir_name(nodeid: str) -> str:
@@ -57,3 +60,20 @@ def base_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> C
 def open_question_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
     """Provide a clone at the ``open_question`` commit."""
     return clone_at(fixture_repo.open_question)
+
+
+@pytest.fixture(scope='session')
+def opencode_source() -> opencode_credential.Server:
+    """Locate the web UI's OpenCode 2.x server, or skip the OpenCode tests."""
+    try:
+        source = opencode_credential.source_from_environment()
+        opencode_credential.require_v2(source)
+    except opencode_credential.SourceUnavailable as error:
+        pytest.skip(str(error))
+    return source
+
+
+@pytest.fixture
+def opencode_login(opencode_source: opencode_credential.Server) -> dict:
+    """Return the source's ChatGPT login, valid for at least this test's budget."""
+    return opencode_credential.fresh_credential(opencode_source, OPENCODE_BUDGET)
