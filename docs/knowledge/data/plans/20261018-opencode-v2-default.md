@@ -387,13 +387,21 @@ Rejected:
 `scripts/tests/test_opencode_web_start.py`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`
 
-- [ ] Tests first: the pane runs `opencode serve --port 4096`; with a password
+- [x] Tests first: the pane runs `opencode serve --port 4096`; with a password
   it binds `0.0.0.0`; without one it binds `127.0.0.1`, creates the password
   file once with mode `0600`, reuses it on a rerun, never puts the password in
   the pane's command line or the script's output, and prints the file's path
   with the link; the real-tmux test sees the generated password in the server's
   environment.
-- [ ] Implement until the tests pass.
+  - **Evidence:** `scripts/tests/test_opencode_web_start.py` covers each clause,
+    including `test_real_tmux_serves_with_the_generated_password`; 8 of its 20
+    tests failed against the `opencode web` script before the implementation
+    landed in the same commit.
+- [x] Implement until the tests pass.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py`
+    passes 26 tests, including both real-tmux tests; `shellcheck` reports
+    nothing on `opencode-web-start.sh`.
 
 ### Task 5: Stop sharing the OpenCode login
 
