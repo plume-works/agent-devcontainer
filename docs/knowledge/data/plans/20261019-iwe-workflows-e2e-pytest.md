@@ -320,7 +320,10 @@ Assumptions:
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/run.sh`
 
-- [ ] `run.sh` no longer offers or runs the Claude Code harness.
+- [x] `run.sh` no longer offers or runs the Claude Code harness.
+  - **Evidence:** Commit "test(e2e): retire run.sh's Claude Code harness";
+    `run.sh --harness claude` exits 2, shellcheck passes, and a default run
+    builds the clone and goes straight to the Codex section.
 
 ### Task 11: Port the Codex scenarios
 

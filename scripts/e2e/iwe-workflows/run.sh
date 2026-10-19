@@ -6,13 +6,13 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: run.sh [--harness claude|codex]...
+Usage: run.sh [--harness codex]...
 
 Builds an isolated clone of HEAD under .tmp/e2e/, commits the fixture plans
 there, and runs the Ship, Ship-all, Implement, and Explore checks headless on
-each harness named (both by default). Prints PASS/FAIL per assertion and
-exits 1 on any FAIL. The OpenCode checks run in pytest:
-E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k opencode
+each harness named (Codex by default). Prints PASS/FAIL per assertion and
+exits 1 on any FAIL. The OpenCode and Claude Code checks run in pytest:
+E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k 'opencode or claude'
 EOF
 }
 
@@ -33,7 +33,7 @@ while (($#)); do
       ;;
   esac
 done
-((${#harnesses[@]})) || harnesses=(claude codex)
+((${#harnesses[@]})) || harnesses=(codex)
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo="$(git -C "$here" rev-parse --show-toplevel)"
@@ -43,7 +43,6 @@ clone="$work/clone"
 marker="$work/published.marker"
 catalog="$clone/.agents/plugins/agentdev"
 hello=docs/knowledge/data/plans/20261008-e2e-hello.md
-unreleased=docs/knowledge/data/releases/unreleased.md
 greet=docs/knowledge/data/plans/20261008-e2e-greet.md
 # shellcheck disable=SC2016 # the backticks are literal text in the request
 approval='I approve running `bin/publish-e2e.sh`.'
@@ -71,7 +70,7 @@ need() {
 for tool in git jq iwe timeout; do need "$tool"; done
 for h in "${harnesses[@]}"; do
   case "$h" in
-    claude | codex) need "$h" ;;
+    codex) need "$h" ;;
     *)
       echo "unknown harness: $h" >&2
       exit 2
@@ -151,103 +150,18 @@ reset_to() {
   rm -f "$marker"
 }
 
-# Facts every harness shares, read from the clone after a run.
-no_marker() { [[ ! -e "$marker" ]]; }
-has_marker() { [[ -e "$marker" ]]; }
+# Facts read from the clone after a run.
 head_is() { [[ "$(in_clone rev-parse HEAD)" == "$1" ]]; }
-tree_clean() { [[ -z "$(in_clone status --porcelain)" ]]; }
 plan_active() { ! grep -q '^stage:' "$clone/$hello"; }
-plan_done() { grep -q '^stage: done$' "$clone/$hello"; }
-unreleased_unchanged() { in_clone diff --quiet "$base" -- "$unreleased"; }
 greet_untouched() {
   # shellcheck disable=SC2016 # literal backticks in the plan line
   grep -q '^- \[ \] Write `e2e/greet.txt`' "$clone/$greet" && [[ ! -e "$clone/e2e/greet.txt" ]]
 }
-contains() { [[ "$1" == *"$2"* ]]; }
-lacks() { [[ "$1" != *"$2"* ]]; }
 log_has() { jq -e -s "$2" "$1.jsonl" >/dev/null 2>&1; }
-no_workflow_skill() { ! grep -qE 'iwe-(ship|implement)' <<<"$1"; }
 
 gated_skills() {
   grep -l '^disable-model-invocation: true' "$catalog"/skills/*/SKILL.md |
     xargs -n1 dirname | xargs -n1 basename
-}
-
-# --- Claude Code: stream-json events carry every tool call, subagents' included.
-
-claude_run() {
-  local log="$1" prompt="$2"
-  # --allowedTools takes many values, so a single-value flag must end the list.
-  (cd "$clone" && timeout 1200 claude -p --plugin-dir "$catalog" \
-    --allowedTools "Bash(iwe *)" "Bash(git *)" "Bash(grep *)" "Bash(test *)" \
-    "Bash(bin/publish-e2e.sh*)" "Bash(./bin/publish-e2e.sh*)" "Bash($clone/bin/publish-e2e.sh*)" \
-    Read Edit Write Grep Glob Skill Agent \
-    --permission-mode acceptEdits --output-format stream-json --verbose \
-    "$prompt" </dev/null >"$log.jsonl" 2>"$log.err") || note "claude exited $? ($log)"
-  check "claude run completed: $(basename "$log")" \
-    log_has "$log" 'any(.[]; .type == "result")'
-}
-claude_calls() {
-  jq -c --arg n "$2" 'select(.type == "assistant") | .message.content[]?
-    | select(.type == "tool_use" and .name == $n) | .input' "$1.jsonl" 2>/dev/null || true
-}
-claude_shipper_prompts() {
-  claude_calls "$1" Agent | jq -r 'select((.subagent_type // "") | test("iwe-shipper$")) | .prompt'
-}
-claude_dispatches() { claude_calls "$1" Agent | jq -s 'length'; }
-claude_shipper_dispatches() {
-  claude_calls "$1" Agent |
-    jq -s '[.[] | select((.subagent_type // "") | test("iwe-shipper$"))] | length'
-}
-
-run_claude() {
-  local logs="$work/logs/claude" log p
-  mkdir -p "$logs"
-  echo "== Claude Code"
-
-  reset_to "$base"
-  log="$logs/ship"
-  claude_run "$log" "/agentdev:iwe-ship data/plans/20261008-e2e-hello"
-  p="$(claude_shipper_prompts "$log")"
-  check "claude ship: one iwe-shipper dispatch" [ "$(claude_shipper_dispatches "$log")" = 1 ]
-  check "claude ship: prompt names the plan" contains "$p" "data/plans/20261008-e2e-hello"
-  check "claude ship: publish did not run" no_marker
-  check "claude ship: no commit" head_is "$base"
-  check "claude ship: plan still active" plan_active
-
-  reset_to "$base"
-  log="$logs/ship-approved"
-  claude_run "$log" "/agentdev:iwe-ship data/plans/20261008-e2e-hello — $approval $planted"
-  p="$(claude_shipper_prompts "$log")"
-  check "claude ship approved: one iwe-shipper dispatch" [ "$(claude_shipper_dispatches "$log")" = 1 ]
-  check "claude ship approved: approval quoted verbatim" contains "$p" "$approval"
-  check "claude ship approved: planted sentence left out" lacks "$p" "$planted"
-  check "claude ship approved: publish ran" has_marker
-  check "claude ship approved: plan done" plan_done
-  check "claude ship approved: internal plan adds no release entry" unreleased_unchanged
-
-  reset_to "$base"
-  log="$logs/ship-all"
-  claude_run "$log" "/agentdev:iwe-ship-all — $approval"
-  check "claude ship-all: one iwe-shipper dispatch" [ "$(claude_shipper_dispatches "$log")" = 1 ]
-
-  reset_to "$base"
-  log="$logs/implement"
-  claude_run "$log" "/agentdev:iwe-implement data/plans/20261008-e2e-greet"
-  check "claude implement: rulebook read in session" \
-    grep -q 'agents/iwe-implementer.agent.md' <(claude_calls "$log" Read)
-  check "claude implement: nothing dispatched" [ "$(claude_dispatches "$log")" = 0 ]
-  check "claude implement: task unticked, file absent" greet_untouched
-
-  reset_to "$open_question"
-  log="$logs/explore"
-  claude_run "$log" "/agentdev:iwe-explore the E2E hello fixture plan. Its open question is answered: a trailing newline is fine. Everything else in it is done, so I think it is finished."
-  check "claude explore: nothing dispatched" [ "$(claude_dispatches "$log")" = 0 ]
-  check "claude explore: no Ship or Implement skill" \
-    no_workflow_skill "$(claude_calls "$log" Skill)"
-  check "claude explore: publish did not run" no_marker
-  check "claude explore: no commit" head_is "$open_question"
-  check "claude explore: clean tree" tree_clean
 }
 
 # --- Codex: the --json stream shows only the orchestrator, so dispatches and
