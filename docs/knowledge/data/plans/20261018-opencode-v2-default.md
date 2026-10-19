@@ -467,15 +467,28 @@ Rejected:
 `docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md`, and every other
 map document whose source digest the changed files move
 
-- [ ] Record the dual-export decision, the v2 host behavior from `## Context`,
+- [x] Record the dual-export decision, the v2 host behavior from `## Context`,
   the v2 tool mapping, the hook-enforced tool limits, the user-agent replacement
   rule, and the rejected alternatives in the bridge architecture; drop "v2
   embedded skills" from its rejected list.
-- [ ] Record v2 workspace registration in the bridge architecture's
+  - **Evidence:** `architecture/opencode-catalog-bridge.md` gains
+    `### On OpenCode v2` under `## Decision`, an `### OpenCode v2 (2.0.32)`
+    host-contract list including the verified login and code-mode facts, the v2
+    mapping table, and the plan's rejected alternatives in place of "v2 embedded
+    skills".
+- [x] Record v2 workspace registration in the bridge architecture's
   `## Workspace graph registration` (the `setup` trigger, the two config shapes,
   the Effect-logger diagnostics) and the v2 host in the CBM feature.
-- [ ] Record per-worktree OpenCode logins in the auth architecture and both web
+  - **Evidence:** That section now names the per-directory setup and its
+    `mcp.transform` callback, the `enabled`/`disabled` gate, and warnings
+    through the captured Effect context;
+    `features/opencode-workspace-cbm-indexing.md` records the v2 host.
+- [x] Record per-worktree OpenCode logins in the auth architecture and both web
   and catalog features, and the generated password in the web feature.
+  - **Evidence:** `architecture/agent-auth-persistence.md` drops OpenCode from
+    the shared volume and records per-instance logins and the unimported v1
+    OAuth login; both features record per-worktree logins, and the web feature
+    the always-on password and the generated file.
 - [ ] Refresh the codebase map with `/agentdev:iwe-map` refresh mode until
   `stale-map-docs.py` reports every document fresh.
 
