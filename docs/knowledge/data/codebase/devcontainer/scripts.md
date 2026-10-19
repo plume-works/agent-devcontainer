@@ -2,14 +2,14 @@
 type: codebase
 description: The postCreate, postStart, and postAttach hooks and the helpers they call — agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth links and full-access policies, gh credential helper, the Coder agent-start entry point, Remote Control, the OpenCode web UI — plus the standalone agent-opencode runtime built from the same helpers.
 source: .devcontainer/scripts
-source_digest: sha256:01246f2038d73d9d006a83c828f007c880282e25d97aedc9f6106f5c00d8026c
+source_digest: sha256:bae2e2a3d80fa737b8453cb0d8d25b728af806a0323f92f8f7a3e6a7a40088f2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T16:30:00Z
+  at: 2026-10-19T14:43:14Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T16:30:00Z
+  at: 2026-10-19T14:43:14Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -59,17 +59,17 @@ Devcontainer lifecycle and shared helpers:
 
 The standalone runtime, run by `agent-opencode`:
 
-| Script                                                     | Run by                              | Does                                                                                                                                                                                                   |
-| ---------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `runtime-supervisor.py run\|control`                       | image `ENTRYPOINT`, supervisord     | `run`: bootstrap as root, then supervisord in-process, exit `1` after a terminal failure. `control`: the event listener that orders, probes, and recovers services                                     |
-| `runtime-bootstrap.sh`                                     | `run`, as root                      | create or reuse `agent` from `AGENTDEV_UID`/`AGENTDEV_GID`, `sudoers.d` entry, claim empty mount roots, lock-initialize or validate the shared auth volume, reset `XDG_RUNTIME_DIR`, then the firewall |
-| `runtime-firewall.sh`                                      | bootstrap                           | inert unless `ENABLE_FIREWALL=true`; validate the allowlist and `AGENTDEV_TRUSTED_PROXY_CIDRS`, run `init-firewall.sh`, admit the proxy to 4096/14500, filter nested egress in `DOCKER-USER`           |
-| `runtime-docker.sh run`                                    | `dockerd` program                   | refuse an unprivileged container, overlay storage, configured `hosts`, or a live second engine; exec one `dockerd` on `/var/run/docker.sock`                                                           |
-| `runtime-keyring.sh env\|dbus\|keyring\|check\|wait`       | `dbus`, `keyring` programs, sourced | foreground session bus on `$XDG_RUNTIME_DIR/bus` and gnome-keyring; readiness and non-destructive `login.keyring` primitives                                                                           |
-| `runtime-workspace.sh checkout\|project\|catalog\|prepare` | `prepare` program                   | reuse a valid checkout or clone into an empty one; uv and pre-commit for present configuration; register the checkout's or the image's catalog                                                         |
-| `runtime-cbm.sh install\|start\|check\|index\|run\|stop`   | `create`, `cbm`, `index` programs   | drive CBM through `daemon start/status/stop`, tracking PID plus start time; install from a user-owned copy of the pinned binary                                                                        |
-| `runtime-health.sh <service>\|ready`                       | controller, image `HEALTHCHECK`     | one probe per service, as the runtime user for user services; `ready` reads the aggregate marker                                                                                                       |
-| `test-agent-runtime.sh [pytest args]`                      | CI, by hand                         | container acceptance against `AGENTDEV_RUNTIME_TEST_IMAGE`, cleaning up labelled resources and failing an all-skipped run                                                                              |
+| Script                                                     | Run by                              | Does                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `runtime-supervisor.py run\|control`                       | image `ENTRYPOINT`, supervisord     | `run`: exit `1` at once when Xpra is enabled and `XPRA_PASSWORD` is empty; otherwise bootstrap as root, then supervisord in-process, exit `1` after a terminal failure. `control`: the event listener that orders, probes, and recovers services |
+| `runtime-bootstrap.sh`                                     | `run`, as root                      | create or reuse `agent` from `AGENTDEV_UID`/`AGENTDEV_GID`, `sudoers.d` entry, claim empty mount roots, lock-initialize or validate the shared auth volume, reset `XDG_RUNTIME_DIR`, then the firewall                                           |
+| `runtime-firewall.sh`                                      | bootstrap                           | inert unless `ENABLE_FIREWALL=true`; validate the allowlist and `AGENTDEV_TRUSTED_PROXY_CIDRS`, run `init-firewall.sh`, admit the proxy to 4096/14500, filter nested egress in `DOCKER-USER`                                                     |
+| `runtime-docker.sh run`                                    | `dockerd` program                   | refuse an unprivileged container, overlay storage, configured `hosts`, or a live second engine; exec one `dockerd` on `/var/run/docker.sock`                                                                                                     |
+| `runtime-keyring.sh env\|dbus\|keyring\|check\|wait`       | `dbus`, `keyring` programs, sourced | foreground session bus on `$XDG_RUNTIME_DIR/bus` and gnome-keyring; readiness and non-destructive `login.keyring` primitives                                                                                                                     |
+| `runtime-workspace.sh checkout\|project\|catalog\|prepare` | `prepare` program                   | reuse a valid checkout or clone into an empty one; uv and pre-commit for present configuration; register the checkout's or the image's catalog                                                                                                   |
+| `runtime-cbm.sh install\|start\|check\|index\|run\|stop`   | `create`, `cbm`, `index` programs   | drive CBM through `daemon start/status/stop`, tracking PID plus start time; install from a user-owned copy of the pinned binary                                                                                                                  |
+| `runtime-health.sh <service>\|ready`                       | controller, image `HEALTHCHECK`     | one probe per service, as the runtime user for user services; `ready` reads the aggregate marker                                                                                                                                                 |
+| `test-agent-runtime.sh [pytest args]`                      | CI, by hand                         | container acceptance against `AGENTDEV_RUNTIME_TEST_IMAGE`, cleaning up labelled resources and failing an all-skipped run                                                                                                                        |
 
 ## How it works
 
@@ -182,6 +182,8 @@ Verified anchor points (line numbers as of 2026-10-19):
   `coder_pane`; `:63` — `probe`; `:77` — `serve`
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:8` — keyring session file
 - `.devcontainer/scripts/setup-keyring.sh:32` — session file location
+- `.devcontainer/scripts/runtime-supervisor.py:352` — `run`; `:358-364` — the
+  `XPRA_PASSWORD` refusal
 - `.devcontainer/scripts/runtime-bootstrap.sh:93` — `claim_instance_dir`; `:123`
   — `prepare_shared_auth`; `:169` — firewall last
 - `.devcontainer/scripts/runtime-workspace.sh:26` — `validate_checkout`; `:40` —

@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-19
 
+- **Map**: refreshed [image runtime](codebase/api-image-runtime.md),
+  [docker](codebase/docker.md), the [lifecycle
+  scripts](codebase/devcontainer/scripts.md), the
+  [workflows](codebase/github/workflows.md), and the [pull request
+  checks](codebase/flow-pull-request-checks.md) for the required standalone
+  `XPRA_PASSWORD` and the pinned-acceptance gate that always runs on a changed
+  OpenCode pin.
 - **Map**: refreshed [image runtime](codebase/api-image-runtime.md), the
   [devcontainer](codebase/devcontainer.md), its [lifecycle
   scripts](codebase/devcontainer/scripts.md), the [lifecycle

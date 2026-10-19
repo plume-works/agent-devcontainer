@@ -6,14 +6,14 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:7702daa00025dd8d04170434db59763c65d9414e36cb2f0011279b32943f9fac
+source_digest: sha256:9c1777f704909ebd20e95194d7a5ef4dc527816c16d5e247e589bdf46315af7c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T16:30:00Z
+  at: 2026-10-19T14:43:14Z
 stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T16:30:00Z
+  at: 2026-10-19T14:43:14Z
 sources:
 - id: code
   resource: docker
@@ -48,6 +48,7 @@ is the surface those consumers touch; the build that produces it is
 | `ENABLE_FIREWALL`                                   | `.devcontainer/scripts/firewall.sh`                                   | `true` applies `init-firewall.sh`; anything else leaves it inert         |
 | `FIREWALL_ALLOWLIST`                                | `init-firewall.sh:14`                                                 | overrides the allowlist path                                             |
 | `XPRA_HOST`, `XPRA_VIDEO_ENCODERS`, `XPRA_LOG_FILE` | `/start-xpra.sh:6-14`                                                 | bind host, encoders, log path                                            |
+| `XPRA_PASSWORD`                                     | `/start-xpra.sh:286-288`                                              | nonempty: every TCP/WebSocket session must authenticate with it          |
 | `AGENTDEV_CATALOG_DIR`                              | set by the image (`Dockerfile:68`), read by `postCreateCommand.sh:69` | where the catalog is staged (`/opt/agentdev`)                            |
 | `CBM_CACHE_DIR`                                     | the `codebase-memory-mcp-*.sh` scripts                                | required; cache and logs location                                        |
 | `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`    | `postStartCommand.sh` and `setup-pre-commit.sh`                       | opt out of hook install and desktop start                                |
@@ -85,14 +86,17 @@ supported deployment is the root `compose.opencode.yml`.
 | `AGENTDEV_UID`, `AGENTDEV_GID`                                                                                                                                             | numeric runtime identity, default `1000`; must match within one auth-volume cohort                                        |
 | `AGENTDEV_REPOSITORY_URL`, `AGENTDEV_REPOSITORY_REF`                                                                                                                       | clone an empty workspace once, optionally at a branch or tag                                                              |
 | `GH_TOKEN`, `GITHUB_TOKEN`                                                                                                                                                 | HTTPS Git through `gh`, configured before a clone; never written to disk                                                  |
+| `XPRA_PASSWORD`                                                                                                                                                            | required, nonempty, unless `AGENTDEV_SKIP_XPRA` is set; Xpra's session password, separate from OpenCode's                 |
 | `AGENTDEV_SKIP_XPRA`                                                                                                                                                       | nonempty drops the desktop from startup and readiness                                                                     |
 | `ENABLE_FIREWALL`, `AGENTDEV_TRUSTED_PROXY_CIDRS`, `FIREWALL_ALLOWLIST`                                                                                                    | opt-in egress firewall; proxy sources allowed to 4096/14500; allowlist override of `/etc/agentdev/firewall-allowlist.txt` |
 | `AGENTDEV_RECOVERY_ATTEMPTS`, `AGENTDEV_RECOVERY_BACKOFF`, `AGENTDEV_HEALTHY_RESET`, `AGENTDEV_SERVICE_START_TIMEOUT`, `AGENTDEV_PREPARE_TIMEOUT`, `AGENTDEV_STOP_TIMEOUT` | recovery budget (3, doubling from 1 s, reset after 60 s healthy), deadlines (60 s, 1800 s, 30 s)                          |
 
-Xpra on `14500` has no password. `docker exec` sessions see the same `DISPLAY`,
-`DOCKER_HOST`, `XDG_RUNTIME_DIR`, and `DBUS_SESSION_BUS_ADDRESS` as OpenCode's
-tools. `/run/agentdev/failed` holds the reason after a terminal failure, and the
-container then exits `1`.
+Without `XPRA_PASSWORD`, and with Xpra enabled, `runtime-supervisor.py run`
+exits `1` before the bootstrap —
+`.devcontainer/scripts/runtime-supervisor.py:358-364`. `docker exec` sessions
+see the same `DISPLAY`, `DOCKER_HOST`, `XDG_RUNTIME_DIR`, and
+`DBUS_SESSION_BUS_ADDRESS` as OpenCode's tools. `/run/agentdev/failed` holds the
+reason after a terminal failure, and the container then exits `1`.
 
 ## Guarantees
 

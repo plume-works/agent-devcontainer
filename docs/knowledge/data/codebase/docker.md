@@ -2,14 +2,14 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:8be938a35d25c02b202f2cbe806c9872660fc29ebe8c45fa2a31682f4234a581
+source_digest: sha256:09b763950429195900a326e76371d40014a49590629065e5913dd2defca06821
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T18:45:54Z
-stale_after: 2027-01-16
+  at: 2026-10-19T14:43:14Z
+stale_after: 2027-01-17
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T18:45:54Z
+  at: 2026-10-19T14:43:14Z
 sources:
 - id: code
   resource: docker
@@ -62,12 +62,14 @@ reopens only `.devcontainer/scripts` and the allowlist for it.
 
 `start-xpra.sh` serves the HTML5 client on container port `14500` unless
 `--port` overrides it, clears a stale display lock, and supports `--background`,
-`--stop`, and `--supervised`. `--supervised` fails when `xpra` is missing or a
-session is already live, stops a previous Xpra's leftover X server, and execs a
-foreground `xpra start`. The `gh` wrapper finds the real `gh` by walking `PATH`
-and skipping every copy of itself, derives `GH_TOKEN` from the host's git
-credential helper when no token is set, and `exec`s, with a re-entrancy guard
-for the two copies that can share a `PATH`.
+`--stop`, and `--supervised`. A nonempty `XPRA_PASSWORD` adds
+`--tcp-auth=env:name=XPRA_PASSWORD`, so every TCP/WebSocket session must
+authenticate and the secret stays off the command line. `--supervised` fails
+when `xpra` is missing or a session is already live, stops a previous Xpra's
+leftover X server, and execs a foreground `xpra start`. The `gh` wrapper finds
+the real `gh` by walking `PATH` and skipping every copy of itself, derives
+`GH_TOKEN` from the host's git credential helper when no token is set, and
+`exec`s, with a re-entrancy guard for the two copies that can share a `PATH`.
 
 ## Depends on
 
@@ -93,7 +95,7 @@ which the OpenCode image bakes.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
+Verified anchor points (line numbers as of 2026-10-19):
 
 - `docker/desktop/agent-desktop.Dockerfile:41` — the provisioning `RUN`
 - `docker/desktop/agent-desktop.Dockerfile:68-71` — `ENV` and version labels
@@ -105,8 +107,9 @@ Verified anchor points (line numbers as of 2026-10-17):
   programs
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
 - `docker/desktop/start-xpra.sh:7` — default HTML5 container port
-- `docker/desktop/start-xpra.sh:173-181` — `--port` override
-- `docker/desktop/start-xpra.sh:73` — `reclaim_orphaned_display`; `:316` — the
+- `docker/desktop/start-xpra.sh:174-182` — `--port` override
+- `docker/desktop/start-xpra.sh:286-288` — `XPRA_PASSWORD` session auth
+- `docker/desktop/start-xpra.sh:74` — `reclaim_orphaned_display`; `:321` — the
   supervised `exec`
 - `docker/bin/gh:58-62` — `GH_TOKEN` from `git credential fill`
 - `docker/bin/gh:51` — re-entrancy `exec`
