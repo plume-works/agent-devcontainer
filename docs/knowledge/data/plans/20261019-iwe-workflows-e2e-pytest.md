@@ -328,14 +328,23 @@ Assumptions:
 ### Task 11: Port the Codex scenarios
 
 **Files:** Create: `scripts/e2e/iwe-workflows/harness_codex.py`,
-`scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`
+`scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`,
+`scripts/tests/test_e2e_iwe_workflows_codex_publish.py`
 
-- [ ] A driver runs `codex exec -s workspace-write --json` in the clone under
+- [x] A driver runs `codex exec -s workspace-write --json` in the clone under
   the suite's deadline and reads spawns and child commands from the session
   rollouts by thread id; the Codex tests fail with the reinstall hint when the
   installed catalog differs from the clone's.
-- [ ] Skills, ship, ship-approved, ship-all, implement, and explore are one
+  - **Evidence:** Commit "test(e2e): port the Codex IWE workflow scenarios";
+    `catalog_mismatch` reported the stale 4.2.0 install with the
+    `reinstall-agentdev-codex.sh` hint and cleared after the reinstall;
+    `test_e2e_iwe_workflows_codex_publish.py` (10 passed) pins which child
+    commands count as a publish run.
+- [x] Skills, ship, ship-approved, ship-all, implement, and explore are one
   `e2e` test each, asserting every check `run_codex` makes.
+  - **Evidence:** Same commit; `test_iwe_workflows_codex.py` holds the six
+    tests. The publish-run check matches a chain prefix holding escaped quotes,
+    which `run.sh`'s pattern missed; reads of the script still do not count.
 
 ### Task 12: The Codex suite passes
 
