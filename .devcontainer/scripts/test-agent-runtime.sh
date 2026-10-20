@@ -25,7 +25,7 @@ docker image inspect "$image" >/dev/null 2>&1 || docker pull "$image"
 mkdir -p "$(dirname "$report")"
 cd "$repo_root"
 status=0
-timeout "${AGENTDEV_RUNTIME_TEST_TIMEOUT:-5400}" uv run pytest \
+timeout "${AGENTDEV_RUNTIME_TEST_TIMEOUT:-1500}" uv run pytest \
   scripts/tests/test_agent_runtime_acceptance.py --junitxml="$report" -rs "$@" || status=$?
 ((status == 0)) || exit "$status"
 
