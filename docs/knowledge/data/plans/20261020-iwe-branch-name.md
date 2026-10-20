@@ -315,7 +315,7 @@ Verified anchor points (line numbers as of 2026-10-20):
   `plugin_tmp_path` at line 28
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
 - `.agents/plugins/agentdev/README.md:145` — IWE skills table
-- `README.md:246` — skill table, `iwe-weekly` row
+- `README.md:248` — skill table, `iwe-weekly` row
 - `docs/knowledge/AGENTS.md:229` — `## Workspace skills` table, `iwe-weekly` row
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:229` — "Implement starts work
   on its own branch"
