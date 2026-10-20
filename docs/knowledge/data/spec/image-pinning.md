@@ -1,14 +1,18 @@
 ---
 type: spec
-description: How the published agent-desktop and ubuntu-ansible images are pinned and updated by consumers.
+description: How the published agent-desktop, agent-opencode, and ubuntu-ansible images are tagged after acceptance, and pinned and updated by consumers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T20:00:00Z
+  at: 2026-10-20T12:00:00Z
 sources:
 - resource: devcontainer-compose-pins.yml
 - resource: README.md
 - resource: .github/renovate.json
 - resource: .github/workflows/validate-renovate-config.yml
+- resource: .github/workflows/ci.yml
+- resource: .github/workflows/primary-checks.yml
+- resource: .github/actions/docker/promote/action.yml
+- resource: .github/actions/docker/multiarch-merge/action.yml
 ---
 
 # Image pinning
@@ -63,6 +67,38 @@ a digest update SHALL move every reference in one change.
 - **WHEN** a pull request changes the agent-desktop digest
 - **THEN** a required check runs inside the new image, and the pull request
   cannot merge while it fails.
+
+## Requirement: published tags name only tested images
+
+CI SHALL push each built ubuntu-ansible, agent-desktop, and agent-opencode
+multi-arch image under an immutable `sha-<commit>` tag only. It SHALL point the
+event's moving tags (`edge`, `main`, `pr-<n>`, and release versions) at those
+digests only after the devcontainer checks and native runtime acceptance pass in
+the same run, without rebuilding, and SHALL NOT move a tag to an image built
+from an ancestor of the commit it names. Primary checks runs on `main` SHALL NOT
+cancel one another.
+
+### Scenario: the tests pass
+
+- **WHEN** a run's devcontainer checks and runtime acceptance pass
+- **THEN** the event's moving tags name the digests that run built and tested.
+
+### Scenario: a test fails or the run is cancelled
+
+- **WHEN** a test job fails, or the run is cancelled after the manifests merge
+- **THEN** every moving tag keeps its previous digest, and only the
+  `sha-<commit>` tag names the new build.
+
+### Scenario: an older run is re-run
+
+- **WHEN** a re-run of an older commit's run passes after a newer commit was
+  promoted
+- **THEN** `edge` and `main` keep the newer commit's images.
+
+### Scenario: pushes to main arrive during a run
+
+- **WHEN** commits land on `main` while its run is in progress
+- **THEN** that run completes, and the newest waiting run follows it.
 
 ## Unknowns
 
