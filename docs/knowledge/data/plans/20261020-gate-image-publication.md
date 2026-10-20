@@ -176,6 +176,19 @@ NOT cancel one another.
 - Run `iwe normalize` and `iwe schema validate`; run `/agentdev:iwe-verify`
   against this plan and its delta before Ship merges the spec.
 
+## Verification results
+
+- **Promotion on `main` after passing tests:** Primary checks run 39482903699 at
+  `441b869`, the squash merge of PR #389. Each image's `edge` stayed on its
+  previous digest, built from `c8d0aca`, until both native `Devcontainer image`
+  and `OpenCode runtime acceptance` jobs passed. Then
+  `Promote development image` moved `edge` and `main` to the run's `sha-441b869`
+  digest, with revision label `441b869`: `ubuntu-ansible` `a72511ed…`,
+  `agent-desktop` `c1719983…`, and `agent-opencode` `8521619e…`.
+- **Failed or cancelled run on `main`:** not observed yet. No `main` run has
+  failed or been cancelled after merging its manifests, so Task 5 stays open
+  until one leaves `edge` unchanged.
+
 ## Out of scope
 
 - Deleting old `sha-<commit>` tags.
