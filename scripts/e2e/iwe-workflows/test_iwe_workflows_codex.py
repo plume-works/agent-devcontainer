@@ -93,8 +93,9 @@ def test_ship_all(codex_clone: Clone) -> None:
 def test_implement(codex_clone: Clone) -> None:
     """Implement reads its rulebook in session and spawns nothing."""
     transcript = run(codex_clone, 'implement', f'$agentdev:iwe-implement {GREET_KEY}')
-    assert RULEBOOK in transcript.rollout_text(), (
-        f'rulebook read in session\n{transcript.excerpt()}'
+    commands = transcript.commands()
+    assert [cmd for cmd in commands if RULEBOOK in cmd] != [], (
+        f'rulebook read in session\n{commands}\n{transcript.excerpt()}'
     )
     assert transcript.spawns() == [], f'nothing spawned\n{transcript.spawns()}'
     assert codex_clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'

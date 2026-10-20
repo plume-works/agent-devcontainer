@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shlex
 import signal
 import subprocess
 from typing import Any
@@ -25,6 +26,7 @@ PUBLISH_COMMAND = re.compile(
     r'cmd[\\"]*:[\\"]*((?:[^"\\]|\\.)*(&&|\|\||;|\||\\+n) *)?((ba)?sh )?(\./|[^ "\\]*/)?'
     r'bin/publish-e2e\.sh'
 )
+EXEC_TOOLS = ('exec_command', 'shell')
 WORKFLOW_SKILL_FILE = re.compile(r'skills/iwe-(ship|ship-all|implement|implement-all)/SKILL\.md')
 GATED = re.compile(r'^disable-model-invocation: true$', re.MULTILINE)
 
@@ -129,16 +131,32 @@ class CodexTranscript:
         needle = f'"parent_thread_id":"{thread}"'
         return [p for p in sorted(self.sessions.rglob('*.jsonl')) if needle in p.read_text()]
 
-    def spawns(self) -> list[dict[str, Any]]:
-        """Return the arguments of every ``spawn_agent`` call."""
+    def _payloads(self) -> list[dict[str, Any]]:
         rollout = self.rollout()
         if rollout is None:
             return []
+        return [event.get('payload') or {} for event in _read_jsonl(rollout)]
+
+    def spawns(self) -> list[dict[str, Any]]:
+        """Return the arguments of every ``spawn_agent`` call."""
         return [
             json.loads(payload.get('arguments') or '{}')
-            for payload in (event.get('payload') or {} for event in _read_jsonl(rollout))
+            for payload in self._payloads()
             if payload.get('type') == 'function_call' and payload.get('name') == 'spawn_agent'
         ]
+
+    def commands(self) -> list[str]:
+        """Return every shell command the orchestrator ran, as a finished command or a call."""
+        found = []
+        for payload in self._payloads():
+            item = payload.get('item') or {}
+            if payload.get('type') == 'item_completed' and item.get('type') == 'CommandExecution':
+                found.append(shlex.join(item.get('command') or []))
+            elif payload.get('type') == 'function_call' and payload.get('name') in EXEC_TOOLS:
+                arguments = json.loads(payload.get('arguments') or '{}')
+                command = arguments.get('cmd') or arguments.get('command') or ''
+                found.append(command if isinstance(command, str) else shlex.join(command))
+        return found
 
     def shipper_spawns(self) -> int:
         """Return how many ``iwe-shipper`` agents were spawned."""
