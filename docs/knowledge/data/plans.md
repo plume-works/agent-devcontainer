@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[Gate image publication on acceptance](plans/20261020-gate-image-publication.md)
-
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
@@ -35,6 +33,8 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Gate image publication on acceptance](plans/20261020-gate-image-publication.md)
 
 [Make OpenCode v2 the devcontainer
 default](plans/20261018-opencode-v2-default.md)

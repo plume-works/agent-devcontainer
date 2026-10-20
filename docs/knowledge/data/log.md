@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-20
 
+- **Update**: [Gate image publication on
+  acceptance](plans/20261020-gate-image-publication.md) done; [image
+  pinning](spec/image-pinning.md) gains the requirement that published tags name
+  only tested images.
+- **Update**: [Bug: CI/CD publishes images before testing
+  them](bugs/ci-publishes-images-before-acceptance.md) fixed; listed under
+  Unreleased.
 - **Map**: refreshed the [image build](codebase/flow-image-build.md), [pull
   request checks](codebase/flow-pull-request-checks.md),
   [GitHub](codebase/github.md), [workflows](codebase/github/workflows.md), and
