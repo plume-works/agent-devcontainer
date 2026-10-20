@@ -3,10 +3,11 @@ type: plan
 created: 2026-10-17
 release:
 - features/standalone-opencode-container
+- bugs/ci-publishes-images-before-acceptance
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T19:07:30Z
+  at: 2026-10-20T03:30:00Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore
@@ -21,6 +22,7 @@ sources:
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: .github/workflows/ci.yml
 - resource: .github/renovate.json
+- resource: .github/workflows/primary-checks.yml
 - resource: https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/v0.12.1/src/main.c
 - resource: https://opencode.ai/v2/docs
 ---
@@ -64,6 +66,12 @@ plan adapts the runtime to it. The v2 facts this plan relies on, for
   status 200 and no password.
 - **Browser and display.** `opencode serve` opens no browser when `DISPLAY` is
   set, and a PTY child inherits `DISPLAY`.
+
+[Bug: CI/CD publishes images before testing
+them](../bugs/ci-publishes-images-before-acceptance.md) undermines the
+deployment pin: `edge` can name a build that never passed acceptance, and
+Renovate would pin it. This plan's deployment depends on publication being
+gated, so the fix lands here for every image the pipeline publishes.
 
 ## Approach
 
@@ -128,6 +136,18 @@ Implementation defaults: three recovery attempts per required service with
 defaulting to 1800 seconds, and a 30-second graceful-stop deadline before forced
 cleanup. Tests may shorten these values. Expose configuration through documented
 `AGENTDEV_*` variables, not command strings evaluated by a shell.
+
+Publication is build, test, promote. Each run pushes its `ubuntu-ansible`,
+`agent-desktop`, and `agent-opencode` manifests under an immutable
+`sha-<commit>` tag only. A promotion job that needs the devcontainer checks and
+native runtime acceptance then points the event's moving tags at those digests
+with `imagetools create`, rebuilding nothing, and never moves a tag to a commit
+older than the one it names. Runs on `main` queue rather than cancel, so `edge`
+keeps advancing. Because `edge` then only names accepted images, a pin change
+needs no acceptance run of its own, and the pinned-acceptance workflow is
+removed. Rejected: promoting the pull request's tested image on merge, because
+squash merges and Renovate commits make `main`'s tree differ from any tested
+pull request head.
 
 ## Implementation Steps
 
@@ -925,6 +945,61 @@ reaches port 14500 without passing the proxy.
   - **Evidence:** commit "docs(runtime): require XPRA_PASSWORD for standalone
     Xpra".
 
+### Task 23: Publish images only after their tests pass
+
+Supersedes Task 13's publication on merge: moving tags are applied by a
+promotion job after the test jobs, not by the manifest merge.
+
+**Files:** Modify: `.github/workflows/ci.yml`,
+`.github/workflows/primary-checks.yml`,
+`.github/actions/docker/multiarch-merge/action.yml`,
+`.github/actions/docker/metadata-action/action.yml`,
+`scripts/tests/test_agent_runtime_ci.py`; Create:
+`.github/actions/docker/promote/action.yml`
+
+- [ ] `merge-dev-image` pushes each multi-arch manifest under `sha-<commit>`
+  only. A `promote-dev-image` job needs `dev-container-ci` and
+  `opencode-acceptance`, applies the event's tags (`edge`, `main`, `pr-<n>`,
+  release versions) to the merged digests without rebuilding, and skips a tag
+  whose current image is built from a descendant of this commit. `CI finished`
+  needs the promotion. The image's `org.opencontainers.image.revision` label
+  names its commit; a tag whose label names no commit in this checkout's history
+  is promoted.
+- [ ] Primary checks cancels an in-progress run on every ref except `main`.
+
+### Task 24: Remove the pinned runtime acceptance workflow
+
+Supersedes Task 13's pin-only acceptance and Task 15's pin-check gate: `edge`
+names only promoted images, so a pin change has nothing left to accept.
+
+**Files:** Delete: `.github/workflows/opencode-runtime-checks.yml`; Modify:
+`scripts/tests/test_agent_runtime_ci.py`, `.github/renovate.json`, `README.md`;
+Refresh: `docs/knowledge/data/codebase/flow-pull-request-checks.md`,
+`docs/knowledge/data/codebase/github.md`,
+`docs/knowledge/data/codebase/github/workflows.md`, and other stale mapped
+sources
+
+- [ ] Delete the workflow, the tests that restate it, and its mention in the
+  `agent-opencode` Renovate rule; the README says the pin follows promoted
+  `edge` digests.
+- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+  `stale-map-docs.py` ends `RESULT=SUCCESS`.
+
+### Task 25: Stop requiring the pinned acceptance checks
+
+**Files:** none; the repository's `main` ruleset
+
+- [ ] **Closed by: maintainer.** The `main` ruleset no longer lists
+  `Pinned runtime acceptance (amd64)` or `(arm64)` as required checks.
+
+### Task 26: Observe gated promotion on main
+
+**Files:** none; CI after merge
+
+- [ ] **Closed by: CI after merge.** A `main` run promotes `edge` for all three
+  images only after both test jobs pass, its revision labels name that run's
+  commit, and a run whose tests fail or are cancelled leaves `edge` unchanged.
+
 ## Spec changes
 
 Create `spec/standalone-opencode-runtime` with the following full contract.
@@ -1128,13 +1203,12 @@ requirements and scenarios:
 ``` markdown
 ## ADDED Requirements
 
-### Requirement: standalone runtime deployment is digest-pinned and tested
+### Requirement: standalone runtime deployment is digest-pinned
 
 Supported agent-opencode Compose launch commands SHALL include a tag-and-digest
 pin in root-level opencode-compose-pins.yml. Runtime builds SHALL use the exact
-agent-desktop digest from their build run. Pin-only changes SHALL exercise the
-proposed runtime image on supported architectures without rebuilding/publishing
-the image they consume.
+agent-desktop digest from their build run. A pin change SHALL NOT rebuild or
+publish the image it names.
 
 #### Scenario: runtime sources change
 
@@ -1144,7 +1218,37 @@ the image they consume.
 #### Scenario: only a deployment digest changes
 
 - **WHEN** Renovate advances opencode-compose-pins.yml
-- **THEN** acceptance runs against that digest, the image-build path filter does not match, and the update does not create a publish/pin loop.
+- **THEN** the proposed digest is one CI promoted after acceptance, the image-build path filter does not match, and the update does not create a publish/pin loop.
+
+### Requirement: published tags name only tested images
+
+CI SHALL push each built ubuntu-ansible, agent-desktop, and agent-opencode
+multi-arch image under an immutable `sha-<commit>` tag only. It SHALL point the
+event's moving tags (`edge`, `main`, `pr-<n>`, and release versions) at those
+digests only after the devcontainer checks and native runtime acceptance pass
+in the same run, without rebuilding, and SHALL NOT move a tag to an image built
+from an ancestor of the commit it names. Primary checks runs on `main` SHALL
+NOT cancel one another.
+
+#### Scenario: the tests pass
+
+- **WHEN** a run's devcontainer checks and runtime acceptance pass
+- **THEN** the event's moving tags name the digests that run built and tested.
+
+#### Scenario: a test fails or the run is cancelled
+
+- **WHEN** a test job fails, or the run is cancelled after the manifests merge
+- **THEN** every moving tag keeps its previous digest, and only the `sha-<commit>` tag names the new build.
+
+#### Scenario: an older run is re-run
+
+- **WHEN** a re-run of an older commit's run passes after a newer commit was promoted
+- **THEN** `edge` and `main` keep the newer commit's images.
+
+#### Scenario: pushes to main arrive during a run
+
+- **WHEN** commits land on `main` while its run is in progress
+- **THEN** that run completes, and the newest waiting run follows it.
 ```
 
 ## Depends on
@@ -1175,7 +1279,12 @@ devcontainer default](20261018-opencode-v2-default.md) must ship first.
   `docker build --build-arg FROM_IMAGE=<desktop-tag-and-digest> -f docker/opencode/agent-opencode.Dockerfile -t agent-opencode:local .`;
   run the acceptance harness against that image. CI repeats real acceptance on
   native amd64 and arm64; QEMU-only checks do not close native gates.
-- Tasks 15 and 16 are separate external acceptance gates and must retain their
+- For Tasks 23 and 24, run
+  `uv run pytest scripts/tests/test_agent_runtime_ci.py` and actionlint and
+  zizmor through pre-commit on the changed workflows and actions. The PR's own
+  CI run must publish only `sha-<commit>` before its test jobs and add `pr-<n>`
+  in the promotion job.
+- Tasks 15, 16, 25, and 26 are separate external gates and must retain their
   named closer until actually observed. No provider/model usage is required for
   unit/ordinary container tests; any explicitly authorized model check uses
   `openai/gpt-6.1-sol` and `openai/gpt-6-luna`.
@@ -1267,6 +1376,8 @@ Recorded 2026-10-18 at `afae3a2`.
   defaults, catalog hot reload without restart, and a new bare-metal installer.
 - Upgrading CBM to bypass a failed feasibility gate, promising concurrent
   upstream credential-write safety, or redesigning the existing firewall policy.
+- Deleting old `sha-<commit>` tags, and pinning the apt packages a clean build
+  installs.
 
 ## Key references
 
@@ -1371,3 +1482,22 @@ Verified anchor points (line numbers as of 2026-10-19):
 - `README.md:114-118` — login sharing; `:137` — the auth volume's storage row.
 - `docs/knowledge/data/architecture/standalone-opencode-runtime.md:53-58` — the
   shared-credential decision.
+
+Verified anchor points (line numbers as of 2026-10-20):
+
+- `.github/workflows/ci.yml:182` — `merge-dev-image`; `:231` —
+  `dev-container-ci`; `:309` — `opencode-acceptance`; `:347` — `finished`.
+- `.github/workflows/primary-checks.yml:21-23` — `concurrency` with
+  `cancel-in-progress: true`.
+- `.github/actions/docker/multiarch-merge/action.yml:96` — `imagetools create`
+  with every derived tag.
+- `.github/actions/docker/metadata-action/action.yml:54-59` — the tag rules.
+- `.github/workflows/opencode-runtime-checks.yml` — the pinned-acceptance
+  workflow Task 24 removes.
+- `.github/renovate.json:55` — the `agent-opencode` rule's description, naming
+  that workflow.
+- `scripts/tests/test_agent_runtime_ci.py:14-15` — `CHECKS`; `:57` —
+  `test_the_runtime_builds_on_the_same_run_desktop_digest`; `:70` —
+  `test_the_runtime_gets_its_own_manifest_and_native_acceptance`; `:86` and
+  `:100` — the pin-check tests.
+- `README.md:86` — the pin's Renovate sentence.
