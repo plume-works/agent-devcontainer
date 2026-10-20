@@ -6,7 +6,7 @@ release:
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T19:07:30Z
+  at: 2026-10-20T03:30:00Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore
@@ -64,6 +64,10 @@ plan adapts the runtime to it. The v2 facts this plan relies on, for
   status 200 and no password.
 - **Browser and display.** `opencode serve` opens no browser when `DISPLAY` is
   set, and a PTY child inherits `DISPLAY`.
+
+[Gate image publication on acceptance](20261020-gate-image-publication.md) makes
+`edge` name only images that passed acceptance, which leaves the
+pinned-acceptance workflow with nothing to check.
 
 ## Approach
 
@@ -128,6 +132,10 @@ Implementation defaults: three recovery attempts per required service with
 defaulting to 1800 seconds, and a 30-second graceful-stop deadline before forced
 cleanup. Tests may shorten these values. Expose configuration through documented
 `AGENTDEV_*` variables, not command strings evaluated by a shell.
+
+A pin change gets no acceptance run of its own: once publication is gated, every
+`edge` digest Renovate proposes already passed native acceptance in the run that
+built it, so the pinned-acceptance workflow is removed.
 
 ## Implementation Steps
 
@@ -626,13 +634,22 @@ cleanup. Tests may shorten these values. Expose configuration through documented
       nested build;
     - the proxy checks above;
     - an unreachable clone URL exiting `1` before `opencode` starts.
-- [ ] Cover restart, replacement, an actual older/newer image upgrade with
+- [x] Cover restart, replacement, an actual older/newer image upgrade with
   persistent user config, shared Claude/Codex auth files with isolated sessions
   and no shared OpenCode login state, two concurrent containers, UID mismatch
   rejection, unavailable worktree metadata, dirty-tree preservation,
   required-service crash/hang and exhausted recovery, and bounded clean stop.
   Distinguish file-persistence tests from the live provider-login check in Task
   16\.
+  - **Evidence:** `scripts/tests/test_agent_runtime_acceptance.py` covers each
+    case, from
+    `test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images`
+    through `test_clean_stop_is_bounded`; none uses provider logins. On
+    2026-10-20, `test-agent-runtime.sh` against the published
+    `agent-opencode:edge@sha256:0a01a466…` (main `5a33bad4`), with
+    `AGENTDEV_RUNTIME_PREVIOUS_IMAGE` set to the earlier published
+    `agent-opencode:pr-370@sha256:9158c97b…` (`20bdcd3`), gave 16 passed, 0
+    skipped on arm64.
 
 ### Task 13: Integrate native builds, manifests, pins, and CI gates
 
@@ -710,13 +727,23 @@ sources
 **Files:** Modify: `opencode-compose-pins.yml` with the verified published
 digest
 
-- [ ] **Closed by: CI and the implementing session after publication.** On the
+- [x] **Closed by: CI and the implementing session after publication.** On the
   final candidate, built from an `agent-desktop` that ships OpenCode v2 and
   containing Tasks 17–21, read the passing amd64/arm64 acceptance results,
   inspect the published manifest and its same-run desktop ancestry, insert its
   real digest into the deployment pin, and pass pin-only acceptance. This
   external gate is separate from writing publishing code and cannot close on a
   local build.
+  - **Evidence:** main's CI/CD run 39348591683 at `5a33bad4` passed native amd64
+    and arm64 OpenCode runtime acceptance and published
+    `agent-opencode:edge@sha256:0a01a466…`. Its amd64 and arm64 images record
+    revision `5a33bad4` and base indexes `agent-desktop@sha256:328f2636…` and
+    `@sha256:afff4cf6…`, which wrap the `01ceb46d…` and `6c8bdabb…` images of
+    that run's `agent-desktop:edge`. Commit "deploy(opencode): pin the first
+    published agent-opencode digest" writes the digest into
+    `opencode-compose-pins.yml`. On PR #389, OpenCode runtime pin checks run
+    39355636206 passed acceptance on both native arches (15 passed, 1 skipped
+    each: the upgrade test), and CI/CD skipped the image build.
 
 ### Task 16: Verify actual login/session continuity behind the operator proxy
 
@@ -905,6 +932,33 @@ reaches port 14500 without passing the proxy.
 - [x] `README.md` and the architecture document state the requirement.
   - **Evidence:** commit "docs(runtime): require XPRA_PASSWORD for standalone
     Xpra".
+
+### Task 23: Remove the pinned runtime acceptance workflow
+
+Supersedes Task 13's pin-only acceptance and Task 15's pin-check gate: `edge`
+names only promoted images, so a pin change has nothing left to accept. Lands in
+the same change as, or after, Tasks 1 and 2 of [Gate image publication on
+acceptance](20261020-gate-image-publication.md).
+
+**Files:** Delete: `.github/workflows/opencode-runtime-checks.yml`; Modify:
+`scripts/tests/test_agent_runtime_ci.py`, `.github/renovate.json`, `README.md`;
+Refresh: `docs/knowledge/data/codebase/flow-pull-request-checks.md`,
+`docs/knowledge/data/codebase/github.md`,
+`docs/knowledge/data/codebase/github/workflows.md`, and other stale mapped
+sources
+
+- [ ] Delete the workflow, the tests that restate it, and its mention in the
+  `agent-opencode` Renovate rule; the README says the pin follows promoted
+  `edge` digests.
+- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+  `stale-map-docs.py` ends `RESULT=SUCCESS`.
+
+### Task 24: Stop requiring the pinned acceptance checks
+
+**Files:** none; the repository's `main` ruleset
+
+- [ ] **Closed by: maintainer.** The `main` ruleset no longer lists
+  `Pinned runtime acceptance (amd64)` or `(arm64)` as required checks.
 
 ## Spec changes
 
@@ -1109,13 +1163,12 @@ requirements and scenarios:
 ``` markdown
 ## ADDED Requirements
 
-### Requirement: standalone runtime deployment is digest-pinned and tested
+### Requirement: standalone runtime deployment is digest-pinned
 
 Supported agent-opencode Compose launch commands SHALL include a tag-and-digest
 pin in root-level opencode-compose-pins.yml. Runtime builds SHALL use the exact
-agent-desktop digest from their build run. Pin-only changes SHALL exercise the
-proposed runtime image on supported architectures without rebuilding/publishing
-the image they consume.
+agent-desktop digest from their build run. A pin change SHALL NOT rebuild or
+publish the image it names.
 
 #### Scenario: runtime sources change
 
@@ -1125,7 +1178,7 @@ the image they consume.
 #### Scenario: only a deployment digest changes
 
 - **WHEN** Renovate advances opencode-compose-pins.yml
-- **THEN** acceptance runs against that digest, the image-build path filter does not match, and the update does not create a publish/pin loop.
+- **THEN** the proposed digest is one CI promoted after acceptance, the image-build path filter does not match, and the update does not create a publish/pin loop.
 ```
 
 ## Depends on
@@ -1156,8 +1209,10 @@ devcontainer default](20261018-opencode-v2-default.md) must ship first.
   `docker build --build-arg FROM_IMAGE=<desktop-tag-and-digest> -f docker/opencode/agent-opencode.Dockerfile -t agent-opencode:local .`;
   run the acceptance harness against that image. CI repeats real acceptance on
   native amd64 and arm64; QEMU-only checks do not close native gates.
-- Tasks 15 and 16 are separate external acceptance gates and must retain their
-  named closer until actually observed. No provider/model usage is required for
+- For Task 23, run `uv run pytest scripts/tests/test_agent_runtime_ci.py` and
+  actionlint through pre-commit.
+- Tasks 15, 16, and 24 are separate external gates and must retain their named
+  closer until actually observed. No provider/model usage is required for
   unit/ordinary container tests; any explicitly authorized model check uses
   `openai/gpt-6.1-sol` and `openai/gpt-6-luna`.
 - Run `iwe normalize` and `iwe schema validate`; run `/agentdev:iwe-verify`
@@ -1225,6 +1280,14 @@ Recorded 2026-10-18 at `afae3a2`.
     daemon socket for another UID. They need a rerun on a native filesystem,
     such as CI.
   - ShellCheck, `iwe schema validate`, and `stale-map-docs.py` pass.
+
+- **On published images, recorded 2026-10-20.** Main's CI/CD at `5a33bad4`
+  passed native acceptance on both arches, and `opencode-compose-pins.yml` pins
+  its `agent-opencode:edge` digest, which closes Tasks 12 and 15 with the
+  evidence under each. The upgrade test runs only where
+  `AGENTDEV_RUNTIME_PREVIOUS_IMAGE` is supplied, which no CI workflow does. Task
+  16 remains the maintainer's gate. The `main` ruleset requires
+  `Pinned runtime acceptance (amd64)` and `(arm64)`.
 
 ## Out of scope
 
@@ -1344,3 +1407,15 @@ Verified anchor points (line numbers as of 2026-10-19):
 - `README.md:114-118` — login sharing; `:137` — the auth volume's storage row.
 - `docs/knowledge/data/architecture/standalone-opencode-runtime.md:53-58` — the
   shared-credential decision.
+
+Verified anchor points (line numbers as of 2026-10-20):
+
+- `.github/workflows/opencode-runtime-checks.yml` — the pinned-acceptance
+  workflow Task 23 removes.
+- `.github/renovate.json:55` — the `agent-opencode` rule's description, naming
+  that workflow.
+- `scripts/tests/test_agent_runtime_ci.py:14-15` — `CHECKS`; `:57` —
+  `test_the_runtime_builds_on_the_same_run_desktop_digest`; `:70` —
+  `test_the_runtime_gets_its_own_manifest_and_native_acceptance`; `:86` and
+  `:100` — the pin-check tests.
+- `README.md:86` — the pin's Renovate sentence.
