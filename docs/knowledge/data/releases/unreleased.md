@@ -72,6 +72,9 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 ## Fixed
 
+[Bug: xpra_setup installs Ubuntu's xpra
+3.1.5](../bugs/xpra-setup-installs-ubuntu-xpra.md)
+
 [Bug: gh stack push overwrites a stack layer whose remote is
 ahead](../bugs/gh-stack-push-overwrites-remote-layer.md)
 

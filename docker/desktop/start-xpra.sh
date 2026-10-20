@@ -7,6 +7,7 @@ HOST=${XPRA_HOST:-127.0.0.1}
 PORT=14500
 DISPLAY=:100
 BACKGROUND=false
+SUPERVISED=false
 VIDEO_ENCODERS=${XPRA_VIDEO_ENCODERS:-x264,vpx}
 XPRA_DAEMON_MODE=no
 XPRA_LOG_FILE="${XPRA_LOG_FILE:-$PWD/.tmp/xpra.log}"
@@ -14,7 +15,7 @@ XPRA_LOG_FILE="${XPRA_LOG_FILE:-$PWD/.tmp/xpra.log}"
 # Parse command-line arguments
 print_usage() {
   cat <<'USAGE'
-Usage: start-xpra.sh [--host HOST] [--port PORT] [--display DISPLAY] [--background] [--stop]
+Usage: start-xpra.sh [--host HOST] [--port PORT] [--display DISPLAY] [--background|--supervised] [--stop]
 
 Start an Xpra server with the HTML5 web client enabled.
 
@@ -23,10 +24,13 @@ Options:
   --host HOST       Host/IP to bind the Xpra server (default: XPRA_HOST or 127.0.0.1)
   --display DISPLAY X display (accepts :100 or 100; default: :100)
   --background      Start Xpra in the background and exit immediately
+  --supervised      Replace this shell with a foreground Xpra for a supervisor; a
+                    missing xpra or an already-live session is an error
   --stop            Stop the Xpra server and clean up resources
 
 Environment:
   XPRA_HOST         Override the default bind host without editing this script
+  XPRA_PASSWORD     When set, every TCP/WebSocket session must authenticate with it
 USAGE
 }
 
@@ -62,6 +66,25 @@ ensure_display_lock_is_clear() {
   if [[ -S "$socket_file" ]]; then
     rm -f "$socket_file"
   fi
+}
+
+# Xpra starts its X server in a separate session, so killing a crashed Xpra leaves
+# that server holding the display. With no live session on the display, a lock
+# held by Xpra's own X server can only be such a leftover.
+reclaim_orphaned_display() {
+  local number lock_pid
+  number="$(display_number)"
+  lock_pid="$(tr -cd '0-9' < "/tmp/.X${number}-lock" 2>/dev/null || true)"
+  [[ -n "$lock_pid" ]] && kill -0 "$lock_pid" 2>/dev/null || return 0
+  # Xpra 3 names it Xvfb-for-Xpra-:N, Xpra 6 Xvfb-for-Xpra-N.
+  tr '\0' ' ' < "/proc/$lock_pid/cmdline" 2>/dev/null | grep -Eq -- "-for-Xpra-:?$number " || return 0
+  echo "Stopping X server PID $lock_pid left on $DISPLAY by a previous Xpra."
+  kill -TERM "$lock_pid" 2>/dev/null || true
+  for _ in {1..50}; do
+    kill -0 "$lock_pid" 2>/dev/null || return 0
+    sleep 0.1
+  done
+  kill -KILL "$lock_pid" 2>/dev/null || true
 }
 
 xpra_session_running() {
@@ -171,6 +194,10 @@ while [[ $# -gt 0 ]]; do
       BACKGROUND=true
       shift
       ;;
+    --supervised)
+      SUPERVISED=true
+      shift
+      ;;
     --stop)
       normalize_display
       cleanup
@@ -199,6 +226,17 @@ echo "=========================================="
 echo "Port: $PORT"
 echo "Display: $DISPLAY"
 
+if [[ "$SUPERVISED" == "true" ]]; then
+  if ! command -v xpra &> /dev/null; then
+    echo "Error: xpra is not installed."
+    exit 1
+  fi
+  if xpra_session_running; then
+    echo "Error: an Xpra session is already live on $DISPLAY; refusing to start a duplicate."
+    exit 1
+  fi
+fi
+
 if ! command -v xpra &> /dev/null; then
   echo "Warning: xpra not found. Skipping startup."
   exit 0
@@ -209,6 +247,9 @@ if xpra_session_running; then
   exit 0
 fi
 
+if [[ "$SUPERVISED" == "true" ]]; then
+  reclaim_orphaned_display
+fi
 ensure_display_lock_is_clear
 
 # Detect and setup rendering
@@ -233,15 +274,17 @@ XPRA_ARGS=(
   "--daemon=$XPRA_DAEMON_MODE"           # Xpra daemon mode (yes for background lifecycle hooks)
   "--mdns=no"                            # Disable mDNS service advertisement
   "--notifications=no"                   # Disable desktop notification forwarding
-  "--global-menus=no"                    # Disable global menu integration
   "--start-new-commands=no"              # Prevent clients from launching new server-side commands
-  "--dbus-proxy=no"                      # Disable D-Bus proxying into sessions
   "--dbus-control=no"                    # Disable remote control over D-Bus
   "--dbus-launch="                       # Do not auto-launch a D-Bus session bus
   "--webcam=no"                          # Disable webcam forwarding
   "--opengl=yes"                         # Allow OpenGL acceleration when available
   "--video-encoders=$VIDEO_ENCODERS"     # Preferred video encoder list (env-overridable)
 )
+# Xpra reads the secret from its own environment, so it never reaches the command line.
+if [[ -n "${XPRA_PASSWORD:-}" ]]; then
+  XPRA_ARGS+=("--tcp-auth=env:name=XPRA_PASSWORD")
+fi
 
 # Start Xpra server
 # --bind-tcp: Listen on specified host and port
@@ -270,6 +313,11 @@ if [[ "$BACKGROUND" == "true" ]]; then
   fi
 
   exit 0
+fi
+
+# The supervisor signals and reaps Xpra itself, so no shell stays in between.
+if [[ "$SUPERVISED" == "true" ]]; then
+  exec xpra start "${XPRA_ARGS[@]}"
 fi
 
 if ! xpra start "${XPRA_ARGS[@]}"; then

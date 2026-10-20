@@ -21,7 +21,7 @@ cd "$workspace"
 # still carry the old per-workspace basename. Anything else is someone's
 # deliberate link and is left alone, as is a real .venv directory (-L).
 venv_link_prefix=/uv/venvs/
-if [ -L "$workspace/.venv" ]; then
+if [[ ${AGENTDEV_RUNTIME_MODE:-} != standalone && -L "$workspace/.venv" ]]; then
     venv_target=$(readlink "$workspace/.venv")
     case "$venv_target" in
         "$venv_link_prefix"*) rm "$workspace/.venv" ;;

@@ -3,8 +3,8 @@ type: tracker
 description: What the product is, who it is for, and the decisions every plan and spec derives from.
 stage: living
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-16T16:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-17T23:59:00Z
 ---
 
 # Product
@@ -47,6 +47,11 @@ the driver of design decisions — internal needs come first.
   (`devcontainer-compose-pins.yml`), kept current by Renovate.
   - Consumed via VS Code / any `devcontainer.json`-compatible tool (Dev
     Containers spec), or GitHub Codespaces.
+- **Standalone runtime**: `ghcr.io/plume-works/agent-opencode:edge`, built in
+  the same run on each `agent-desktop` digest, starts one project's OpenCode
+  server and its supporting services by itself. It is deployed with the root
+  `compose.opencode.yml` behind an operator's existing reverse proxy, with its
+  digest pinned in `opencode-compose-pins.yml`.
 - **Host requirement**: a Docker daemon (Docker-in-Docker is provisioned inside
   the container itself for nested builds).
 - **Base OS**: Ubuntu, provisioned with Ansible.
@@ -186,3 +191,5 @@ it):
   `npm`, `npx`, `yarn`, and `pnpm`.
 - 2026-10-16 — set the default OpenCode test models: `openai/gpt-6.1-sol` (big)
   and `openai/gpt-6-luna` (small).
+- 2026-10-17 — added the standalone `agent-opencode` image and its Compose
+  deployment to the distribution.
