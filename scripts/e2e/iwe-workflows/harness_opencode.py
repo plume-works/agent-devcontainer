@@ -28,6 +28,8 @@ PERMISSIONS = [{'action': 'question', 'resource': '*', 'effect': 'deny'}]
 READY_TIMEOUT = 30.0
 CATALOG_TIMEOUT = 60.0
 READY_COMMAND = 'agentdev:iwe-ship'
+# The suffix of the provider's refusal codes for a login over its usage limit.
+USAGE_LIMIT_CODE = 'usage_limit_exceeded'
 PAGE = 200
 # One wait request is renewed until the test's deadline; the server may end it early.
 WAIT_SLICE = 300.0
@@ -103,6 +105,20 @@ class Transcript:
     def auth_expired(self) -> bool:
         """Whether a model call failed on the seeded login."""
         return '"provider.auth"' in json.dumps(self.messages)
+
+    def usage_limited(self) -> bool:
+        """Whether the provider refused a model call because the login is over its usage limit."""
+        return USAGE_LIMIT_CODE in json.dumps(self.messages)
+
+    def failure_reason(self, budget: float) -> str:
+        """Explain why the run did not complete, for the run-completed assertion."""
+        if self.usage_limited():
+            return f'the seeded login is over its usage limit ({USAGE_LIMIT_CODE}); wait for it to reset'
+        if self.auth_expired():
+            return 'budget exhausted: the seeded login expired (provider.auth)'
+        if self.timed_out:
+            return f'budget exhausted: still running after {budget:.0f}s, interrupted'
+        return 'no assistant text'
 
     def calls(self, tool: str) -> list[dict[str, Any]]:
         """Return the input of every call to ``tool``."""

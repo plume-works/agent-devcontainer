@@ -35,10 +35,10 @@ JavaScript](backlog/test-responder-workflow-js.md)
 [Detect plan narration growth
 mechanically](backlog/detect-plan-narration-growth.md)
 
+## Done
+
 [Name the usage limit when an OpenCode e2e run is
 refused](backlog/e2e-opencode-usage-limit-reason.md)
-
-## Done
 
 [Port the agent-owned Ship/Implement e2e suite to
 pytest](backlog/port-agent-owned-e2e-to-pytest.md)

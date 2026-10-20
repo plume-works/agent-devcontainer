@@ -1,15 +1,16 @@
 ---
 type: task
 description: Make an OpenCode e2e test whose seeded ChatGPT login is over its usage limit fail naming the usage limit, not "no assistant text".
-stage: planned
+stage: done
 priority: low
 created: 2026-10-20
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T00:05:56Z
+  at: 2026-10-20T00:15:10Z
 sources:
 - resource: scripts/e2e/iwe-workflows/harness_opencode.py
 - resource: scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py
+completed: 2026-10-20
 ---
 
 # Name the usage limit when an OpenCode e2e run is refused
@@ -28,7 +29,9 @@ reset instead of debugging the suite.
 
 Verified anchor points (line numbers as of 2026-10-20):
 
-- `scripts/e2e/iwe-workflows/harness_opencode.py:103` —
-  `Transcript.auth_expired`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:26` — `run`, the
-  expired-login reason
+- `scripts/e2e/iwe-workflows/harness_opencode.py:109` —
+  `Transcript.usage_limited`
+- `scripts/e2e/iwe-workflows/harness_opencode.py:113` —
+  `Transcript.failure_reason`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:27` — `run`, the
+  run-completed assertion

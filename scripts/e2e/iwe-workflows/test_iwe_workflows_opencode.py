@@ -22,14 +22,9 @@ pytestmark = pytest.mark.e2e
 def run(server: OpenCodeServer, name: str, command: str, text: str) -> Transcript:
     """Run one command and assert, first, that the run completed."""
     transcript = server.run(name, command, text, OPENCODE_BUDGET)
-    if transcript.auth_expired():
-        reason = 'budget exhausted: the seeded login expired (provider.auth)'
-    elif transcript.timed_out:
-        reason = f'budget exhausted: still running after {OPENCODE_BUDGET}s, interrupted'
-    else:
-        reason = 'no assistant text'
     assert transcript.completed() and not transcript.timed_out, (
-        f'opencode run did not complete: {reason}\n{transcript.excerpt()}'
+        'opencode run did not complete: '
+        f'{transcript.failure_reason(OPENCODE_BUDGET)}\n{transcript.excerpt()}'
     )
     return transcript
 
