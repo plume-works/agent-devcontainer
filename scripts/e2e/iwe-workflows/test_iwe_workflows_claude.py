@@ -21,12 +21,9 @@ pytestmark = pytest.mark.e2e
 def run(clone: Clone, name: str, prompt: str) -> ClaudeTranscript:
     """Run one prompt and assert, first, that the run completed."""
     transcript = run_claude(clone, name, prompt, CLAUDE_BUDGET)
-    if transcript.timed_out:
-        reason = f'budget exhausted: still running after {CLAUDE_BUDGET}s, killed'
-    else:
-        reason = f'no result event (claude exited {transcript.returncode})'
     assert transcript.completed() and not transcript.timed_out, (
-        f'claude run did not complete: {reason}\n{transcript.excerpt()}'
+        'claude run did not complete: '
+        f'{transcript.failure_reason(CLAUDE_BUDGET)}\n{transcript.excerpt()}'
     )
     return transcript
 

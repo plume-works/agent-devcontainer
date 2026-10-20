@@ -47,9 +47,26 @@ class ClaudeTranscript:
     timed_out: bool
     returncode: int | None
 
+    def results(self) -> list[dict[str, Any]]:
+        """Return every final result event."""
+        return [event for event in self.events if event.get('type') == 'result']
+
     def completed(self) -> bool:
-        """Whether the run reached its final result event."""
-        return any(event.get('type') == 'result' for event in self.events)
+        """Whether the run reached a successful final result event."""
+        return any(
+            result.get('subtype') == 'success' and not result.get('is_error')
+            for result in self.results()
+        )
+
+    def failure_reason(self, budget: float) -> str:
+        """Explain why the run did not complete, for the run-completed assertion."""
+        if self.timed_out:
+            return f'budget exhausted: still running after {budget:.0f}s, killed'
+        for result in self.results():
+            if result.get('is_error') or result.get('subtype') != 'success':
+                detail = result.get('result') or '; '.join(map(str, result.get('errors') or []))
+                return f'result {result.get("subtype")}: {detail}'
+        return f'no result event (claude exited {self.returncode})'
 
     def calls(self, tool: str) -> list[dict[str, Any]]:
         """Return the input of every call to ``tool``, subagents' included."""
