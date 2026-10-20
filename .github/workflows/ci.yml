@@ -314,7 +314,7 @@ jobs:
   opencode-acceptance:
     name: OpenCode runtime acceptance
     needs: [merge-dev-image]
-    timeout-minutes: 120
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
