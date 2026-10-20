@@ -201,3 +201,44 @@ def test_failed_credential_requests_never_echo_the_body(source):
     assert source.posted[0]['value']['refresh'] == 'withheld'
     assert ACCESS not in str(raised.value)
     assert 'POST /api/credential -> 409' in str(raised.value)
+
+
+def rendered(raised: pytest.ExceptionInfo) -> str:
+    """Render a failure the way pytest reports it, with every frame's arguments and locals."""
+    return str(raised.getrepr(funcargs=True, showlocals=True))
+
+
+def test_server_repr_omits_the_password():
+    """A server printed in a traceback or an assertion never shows its password."""
+    assert PASSWORD not in repr(cred.Server('http://127.0.0.1:1', PASSWORD))
+
+
+def test_a_failed_seed_renders_no_secret(source):
+    """Seeding the source's own login and failing prints no token and no password."""
+    login = cred.active_credential(source.server())
+    with pytest.raises(cred.HttpError) as raised:
+        cred.seed(source.server(), login)
+    assert source.posted[0]['value']['access'] == ACCESS
+    text = rendered(raised) + repr(login)
+    assert [s for s in (ACCESS, REFRESH, PASSWORD) if s in text] == []
+
+
+def test_a_failed_refresh_renders_no_secret(source):
+    """A source that does not refresh fails with no token or password in the traceback."""
+    source.credentials = [entry(60)]
+    with pytest.raises(cred.CredentialError) as raised:
+        cred.fresh_credential(source.server(), budget=600)
+    text = rendered(raised)
+    assert [s for s in (ACCESS, REFRESH, PASSWORD) if s in text] == []
+
+
+def test_an_unreachable_target_renders_no_secret(source):
+    """A connection failure drops urllib's frames, whose arguments hold the header and body."""
+    login = cred.active_credential(source.server())
+    source.httpd.shutdown()
+    source.httpd.server_close()
+    with pytest.raises(OSError) as raised:
+        cred.seed(source.server(), login)
+    text = rendered(raised)
+    assert [s for s in (ACCESS, REFRESH, PASSWORD) if s in text] == []
+    assert 'Authorization' not in text

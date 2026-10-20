@@ -3,11 +3,11 @@ Seed per-test OpenCode servers from the web UI server's ChatGPT credential.
 
 Only the source server ever holds or rotates the real refresh token; each test
 server gets the access token with ``refresh`` withheld. No credential value is
-ever placed in an exception message, a log, or a transcript.
+ever placed in an exception message, a rendered traceback, a log, or a transcript.
 """
 
 import base64
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
 import os
 from pathlib import Path
@@ -48,12 +48,39 @@ class HttpError(RuntimeError):
         self.status = status
 
 
+class Secret(dict):
+    """A JSON object whose repr hides its values, so no traceback or assertion renders them."""
+
+    def __repr__(self) -> str:
+        """Name the type and withhold every value."""
+        return f'<{type(self).__name__} withheld>'
+
+
+def _decode(response: Any, secret: bool) -> Any:
+    raw = response.read()
+    if not raw:
+        return None
+    if not secret:
+        return json.loads(raw)
+    try:
+        return json.loads(raw, object_hook=Secret)
+    except ValueError:
+        raise ValueError('undecodable credential response') from None
+
+
 @dataclass(frozen=True)
 class Server:
     """An OpenCode server reached over HTTP with Basic auth."""
 
     url: str
-    password: str
+    password: str = field(repr=False)
+
+    def _headers(self, has_body: bool) -> dict[str, str]:
+        token = base64.b64encode(f'{USERNAME}:{self.password}'.encode()).decode()
+        headers = {'Authorization': f'Basic {token}', 'Accept': 'application/json'}
+        if has_body:
+            headers['Content-Type'] = 'application/json'
+        return headers
 
     def request(
         self,
@@ -65,21 +92,22 @@ class Server:
         secret: bool = False,
     ) -> Any:
         """Send one request and return its decoded JSON body, or ``None`` when empty."""
-        data = None if body is None else json.dumps(body).encode()
-        token = base64.b64encode(f'{USERNAME}:{self.password}'.encode()).decode()
-        headers = {'Authorization': f'Basic {token}', 'Accept': 'application/json'}
-        if data is not None:
-            headers['Content-Type'] = 'application/json'
-        req = urllib.request.Request(self.url + path, data=data, method=method, headers=headers)
+        # The auth header and encoded body stay unbound here, out of rendered frames.
+        req = urllib.request.Request(
+            self.url + path,
+            data=None if body is None else json.dumps(body).encode(),
+            method=method,
+            headers=self._headers(body is not None),
+        )
         try:
             with urllib.request.urlopen(req, timeout=timeout) as response:
-                raw = response.read()
+                return _decode(response, secret)
         except urllib.error.HTTPError as error:
             detail = '' if secret else error.read().decode(errors='replace')[:2000]
             raise HttpError(method, path, error.code, detail) from None
-        if not raw:
-            return None
-        return json.loads(raw)
+        except OSError as error:
+            # urllib's own frames take the auth header and body as arguments; drop them.
+            raise error.with_traceback(None) from None
 
 
 def source_from_environment(
@@ -180,21 +208,21 @@ def fresh_credential(server: Server, budget: float, refresh_timeout: float = 120
 def seed_value(entry: dict[str, Any]) -> dict[str, Any]:
     """Return the payload that seeds a test server, the refresh token withheld."""
     value = entry['value']
-    seeded = {
-        'type': 'oauth',
-        'methodID': value['methodID'],
-        'access': value['access'],
-        'expires': value['expires'],
-        'refresh': WITHHELD,
-    }
+    seeded = Secret(
+        type='oauth',
+        methodID=value['methodID'],
+        access=value['access'],
+        expires=value['expires'],
+        refresh=WITHHELD,
+    )
     if 'metadata' in value:
         seeded['metadata'] = value['metadata']
-    return {
-        'integrationID': entry['integrationID'],
-        'label': entry.get('label') or 'e2e',
-        'value': seeded,
-        'activate': True,
-    }
+    return Secret(
+        integrationID=entry['integrationID'],
+        label=entry.get('label') or 'e2e',
+        value=seeded,
+        activate=True,
+    )
 
 
 def seed(target: Server, entry: dict[str, Any]) -> None:
