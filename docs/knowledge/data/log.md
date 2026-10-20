@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-20
+
+- **Update**: [Port the IWE workflow e2e suite to
+  pytest](plans/20261019-iwe-workflows-e2e-pytest.md) done; internal, no release
+  entry.
+
 ## 2026-10-19
 
 - **Map**: refreshed the [OpenCode

@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Port the IWE workflow e2e suite to
-pytest](plans/20261019-iwe-workflows-e2e-pytest.md)
-
 [Make OpenCode v2 the devcontainer
 default](plans/20261018-opencode-v2-default.md)
 
@@ -39,6 +36,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Port the IWE workflow e2e suite to
+pytest](plans/20261019-iwe-workflows-e2e-pytest.md)
 
 [Automatically index OpenCode workspaces in
 CBM](plans/20261018-opencode-workspace-cbm-indexing.md)
