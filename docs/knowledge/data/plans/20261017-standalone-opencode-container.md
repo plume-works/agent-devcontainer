@@ -626,13 +626,22 @@ cleanup. Tests may shorten these values. Expose configuration through documented
       nested build;
     - the proxy checks above;
     - an unreachable clone URL exiting `1` before `opencode` starts.
-- [ ] Cover restart, replacement, an actual older/newer image upgrade with
+- [x] Cover restart, replacement, an actual older/newer image upgrade with
   persistent user config, shared Claude/Codex auth files with isolated sessions
   and no shared OpenCode login state, two concurrent containers, UID mismatch
   rejection, unavailable worktree metadata, dirty-tree preservation,
   required-service crash/hang and exhausted recovery, and bounded clean stop.
   Distinguish file-persistence tests from the live provider-login check in Task
   16\.
+  - **Evidence:** `scripts/tests/test_agent_runtime_acceptance.py` covers each
+    case, from
+    `test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images`
+    through `test_clean_stop_is_bounded`; none uses provider logins. On
+    2026-10-20, `test-agent-runtime.sh` against the published
+    `agent-opencode:edge@sha256:0a01a466…` (main `5a33bad4`), with
+    `AGENTDEV_RUNTIME_PREVIOUS_IMAGE` set to the earlier published
+    `agent-opencode:pr-370@sha256:9158c97b…` (`20bdcd3`), gave 16 passed, 0
+    skipped on arm64.
 
 ### Task 13: Integrate native builds, manifests, pins, and CI gates
 
