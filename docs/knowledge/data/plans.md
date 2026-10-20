@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Gate image publication on acceptance](plans/20261020-gate-image-publication.md)
+
 [Make OpenCode v2 the devcontainer
 default](plans/20261018-opencode-v2-default.md)
 
