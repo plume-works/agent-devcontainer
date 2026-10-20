@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-20
+
+- **Map**: refreshed the [image build](codebase/flow-image-build.md), [pull
+  request checks](codebase/flow-pull-request-checks.md),
+  [GitHub](codebase/github.md), [workflows](codebase/github/workflows.md), and
+  [composite actions](codebase/github/actions.md) for candidate-only
+  `sha-<commit>` tags, the `promote-dev-image` job, and queued `main` runs.
+
 ## 2026-10-19
 
 - **Map**: refreshed [image runtime](codebase/api-image-runtime.md),

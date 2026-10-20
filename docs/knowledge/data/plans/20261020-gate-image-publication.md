@@ -96,8 +96,12 @@ request head.
 `docs/knowledge/data/codebase/github/workflows.md`, and other stale mapped
 sources
 
-- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+- [x] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
+  - **Evidence:** `flow-image-build`, `flow-pull-request-checks`, `github`,
+    `github/workflows`, and `github/actions` refreshed with new digests and
+    anchors; `stale-map-docs.py` ends `RESULT=SUCCESS` and `iwe schema validate`
+    passes on the commit that ticks this box.
 
 ### Task 4: Observe gated promotion on the pull request
 
