@@ -9,6 +9,10 @@ to the current day's group.
 - **Update**: [Port the IWE workflow e2e suite to
   pytest](plans/20261019-iwe-workflows-e2e-pytest.md) done; internal, no release
   entry.
+- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
+  [lifecycle scripts](codebase/devcontainer/scripts.md), and the [lifecycle
+  flow](codebase/flow-devcontainer-lifecycle.md) for the OpenCode link that
+  prints the server's root URL.
 
 ## 2026-10-19
 

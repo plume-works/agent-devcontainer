@@ -529,11 +529,16 @@ map document whose source digest the changed files move
   - **Evidence:**
     `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py scripts/tests/test_agent_runtime_ingress.py`
     passes 36 tests; `shellcheck` reports nothing on `opencode-web-command.sh`.
-- [ ] The web feature says the printed link opens the web UI, where the
+- [x] The web feature says the printed link opens the web UI, where the
   workspace folder is added once per browser, and the codebase map's
   `opencode-web-command.sh` row says `link` prints the server URL; refresh the
   map with `/agentdev:iwe-map` refresh mode until `stale-map-docs.py` reports
   every document fresh.
+  - **Evidence:** `features/opencode-web-coder-autostart.md` says the link opens
+    the web UI's home, where the folder is added once per browser;
+    `codebase/devcontainer/scripts.md` describes `link` as printing the server's
+    root URL; `stale-map-docs.py` reports `RESULT=SUCCESS` for all 28 documents
+    after the three stale ones were refreshed in the same commit.
 
 ### Task 10: Verify the web UI on a Coder workspace
 
