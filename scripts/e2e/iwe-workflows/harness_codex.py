@@ -90,6 +90,12 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return events
 
 
+def _publishes(rollouts: list[Path]) -> bool:
+    return any(
+        PUBLISH_COMMAND.search(line) for path in rollouts for line in path.read_text().splitlines()
+    )
+
+
 @dataclass
 class CodexTranscript:
     """One run's ``--json`` stream and the rollouts its thread id leads to."""
@@ -167,12 +173,13 @@ class CodexTranscript:
         return all(spawn.get('fork_turns') == 'none' for spawn in self.spawns())
 
     def ran_publish(self) -> bool:
+        """Whether the orchestrator or any agent it spawned executed ``bin/publish-e2e.sh``."""
+        rollout = self.rollout()
+        return _publishes([rollout, *self.children()] if rollout else self.children())
+
+    def child_ran_publish(self) -> bool:
         """Whether a spawned agent executed ``bin/publish-e2e.sh``."""
-        return any(
-            PUBLISH_COMMAND.search(line)
-            for child in self.children()
-            for line in child.read_text().splitlines()
-        )
+        return _publishes(self.children())
 
     def agent_lines(self) -> list[str]:
         """Return every line of the orchestrator's messages."""

@@ -81,3 +81,34 @@ def test_a_command_reading_the_rulebook_counts(tmp_path, event):
     read = f"sed -n '1,260p' {CATALOG}/{scenarios.RULEBOOK}"
     write_rollout(tmp_path, THREAD, [skill_injection(), event(read)])
     assert [cmd for cmd in transcript(tmp_path).commands() if scenarios.RULEBOOK in cmd] != []
+
+
+def child_meta() -> dict:
+    """Return the first event of a rollout spawned by ``THREAD``."""
+    return {'type': 'session_meta', 'payload': {'id': CHILD, 'parent_thread_id': THREAD}}
+
+
+def test_the_orchestrator_publishing_itself_is_a_publish_run(tmp_path):
+    """A publish run by the orchestrator counts for the negative check, not for a shipper."""
+    write_rollout(tmp_path, THREAD, [exec_function_call('bin/publish-e2e.sh')])
+    run = transcript(tmp_path)
+    assert run.ran_publish()
+    assert not run.child_ran_publish()
+
+
+def test_a_spawned_shipper_publishing_counts_for_both(tmp_path):
+    """A child's publish run is what the approved Ship asserts."""
+    write_rollout(tmp_path, THREAD, [skill_injection()])
+    write_rollout(tmp_path, CHILD, [child_meta(), exec_function_call('bin/publish-e2e.sh')])
+    run = transcript(tmp_path)
+    assert run.ran_publish()
+    assert run.child_ran_publish()
+
+
+def test_no_publish_anywhere(tmp_path):
+    """Neither rollout running the script is no publish run."""
+    write_rollout(tmp_path, THREAD, [exec_function_call('cat bin/publish-e2e.sh')])
+    write_rollout(tmp_path, CHILD, [child_meta()])
+    run = transcript(tmp_path)
+    assert not run.ran_publish()
+    assert not run.child_ran_publish()

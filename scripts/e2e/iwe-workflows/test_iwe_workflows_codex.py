@@ -70,7 +70,9 @@ def test_ship(codex_clone: Clone) -> None:
     transcript = run(codex_clone, 'ship', f'$agentdev:iwe-ship {HELLO_KEY}')
     assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
-    assert not transcript.ran_publish(), f'publish did not run\n{transcript.children()}'
+    assert not transcript.ran_publish(), (
+        f'publish did not run\n{transcript.rollout()}\n{transcript.children()}'
+    )
     assert codex_clone.head() == codex_clone.start, f'no commit\n{transcript.excerpt()}'
     assert codex_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
 
@@ -81,7 +83,7 @@ def test_ship_approved(codex_clone: Clone) -> None:
     transcript = run(codex_clone, 'ship-approved', prompt)
     assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
-    assert transcript.ran_publish(), f'publish command ran\n{transcript.children()}'
+    assert transcript.child_ran_publish(), f'shipper ran publish\n{transcript.children()}'
 
 
 def test_ship_all(codex_clone: Clone) -> None:
