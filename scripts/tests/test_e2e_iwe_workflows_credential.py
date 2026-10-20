@@ -188,7 +188,7 @@ def test_seed_withholds_the_refresh_token(source):
     seeded = cred.seed_value(entry(3600))
     assert seeded['value']['methodID'] == 'chatgpt-token-sharing'
     assert seeded['value']['metadata'] == METADATA
-    assert seeded['value']['refresh'] == 'withheld'
+    assert seeded['value']['refresh'] == cred.WITHHELD
     assert seeded['value']['access'] == ACCESS
     assert seeded['activate'] is True
     assert REFRESH not in json.dumps(seeded)
@@ -198,7 +198,7 @@ def test_failed_credential_requests_never_echo_the_body(source):
     """A credential route's error leaves its response body, which may echo secrets, out."""
     with pytest.raises(cred.HttpError) as raised:
         cred.seed(source.server(), entry(3600))
-    assert source.posted[0]['value']['refresh'] == 'withheld'
+    assert source.posted[0]['value']['refresh'] == cred.WITHHELD
     assert ACCESS not in str(raised.value)
     assert 'POST /api/credential -> 409' in str(raised.value)
 

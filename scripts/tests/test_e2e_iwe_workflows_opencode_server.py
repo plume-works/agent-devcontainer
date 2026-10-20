@@ -41,8 +41,9 @@ def suite_modules():
     try:
         import clone
         import harness_opencode
+        import opencode_credential
 
-        yield clone, harness_opencode
+        yield clone, harness_opencode, opencode_credential
     finally:
         sys.path.remove(str(SUITE))
         for name in ('clone', 'harness_opencode', 'opencode_credential'):
@@ -51,7 +52,7 @@ def suite_modules():
 
 def start(suite_modules, work: Path):
     """Start one isolated server on a fresh clone under ``work`` with a made-up login."""
-    clone, harness = suite_modules
+    clone, harness, _ = suite_modules
     fixture = clone.build_fixture_repo(REPO_ROOT, work / 'fixture')
     repo = clone.make_clone(fixture, work / 'test', fixture.base)
     login = {
@@ -87,8 +88,9 @@ def server(suite_modules, work):
     started.stop()
 
 
-def test_server_is_isolated_and_serves_the_clone_catalog(server):
+def test_server_is_isolated_and_serves_the_clone_catalog(server, suite_modules):
     """State lives under the test directory, and the bridge loads from the clone."""
+    _, _, credential = suite_modules
     env = Path(f'/proc/{server.process.pid}/environ').read_bytes().split(b'\0')
     home = next(v for v in env if v.startswith(b'HOME=')).decode().removeprefix('HOME=')
     assert Path(home).is_relative_to(server.clone.path.parent)
@@ -99,12 +101,12 @@ def test_server_is_isolated_and_serves_the_clone_catalog(server):
     assert config['small_model'] == 'openai/gpt-6-luna'
     assert 'agentdev:iwe-ship' in server.commands()
     login = server.server.request('GET', '/api/credential')['data'][0]['value']
-    assert login['refresh'] == 'withheld'
+    assert login['refresh'] == credential.WITHHELD
 
 
 def test_run_saves_every_message_beside_the_clone(server, suite_modules):
     """A command runs in a session located in the clone and its paged transcript is saved."""
-    _, harness = suite_modules
+    _, harness, _ = suite_modules
     transcript = server.run('ship', 'agentdev:iwe-ship', 'data/plans/20261008-e2e-hello', 60)
     assert not transcript.timed_out
     assert transcript.path == server.clone.path.parent / 'transcripts/ship.jsonl'
