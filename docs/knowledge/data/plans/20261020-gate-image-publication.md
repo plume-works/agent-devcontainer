@@ -107,9 +107,17 @@ sources
 
 **Files:** none; the pull request's CI run
 
-- [ ] **Closed by: CI on the pull request.** The run pushes only `sha-<commit>`
+- [x] **Closed by: CI on the pull request.** The run pushes only `sha-<commit>`
   for all three images before its test jobs, and its promotion job adds `pr-<n>`
   after both pass.
+  - **Evidence:** PR #389's Primary checks run 39438241026 at `b8a451d` (merge
+    commit `a3a0ea4`). Its merge job ran `imagetools create` with only
+    `-t …:sha-a3a0ea4` for all three images, and `pr-389` did not exist for any
+    of them until `Promote development image` ran after both native
+    `Devcontainer image` and `OpenCode runtime acceptance` jobs passed. Each
+    image's `pr-389` then resolves to the same digest as its `sha-a3a0ea4`
+    (`ubuntu-ansible` `47a10507…`, `agent-desktop` `d31b8c1f…`, `agent-opencode`
+    `2bc61a68…`), with revision label `a3a0ea4`.
 
 ### Task 5: Observe gated promotion on main
 
