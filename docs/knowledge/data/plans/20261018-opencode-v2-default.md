@@ -542,10 +542,15 @@ map document whose source digest the changed files move
 
 ### Task 10: Verify the web UI on a Coder workspace
 
-- [ ] On a Coder workspace built from this branch, with and without the
+- [x] On a Coder workspace built from this branch, with and without the
   `OPENCODE_SERVER_PASSWORD` secret: the printed link opens the web UI after the
   browser's password prompt, the dashboard's `OpenCode` app is healthy, and a
   provider login survives a rebuild.
+  - **Evidence:** The maintainer's manual check on 2026-10-20, on a Coder
+    workspace with OpenCode v2.0.32: with and without the
+    `OPENCODE_SERVER_PASSWORD` secret, the server's root URL opens the web UI
+    after the browser's password prompt, the dashboard's `OpenCode` app is
+    healthy, and a provider login survives a rebuild.
 
 ## Spec changes
 
