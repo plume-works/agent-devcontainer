@@ -3,7 +3,7 @@ type: spec
 description: The contract of the OpenCode bridge plugin that serves the agentdev catalog's skills, namespaced commands, and agents to OpenCode v1 and v2.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T15:00:00Z
+  at: 2026-10-20T14:33:31Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -83,13 +83,15 @@ reference rather than pasted into the text.
 
 ### Requirement: the skill tool accepts the catalog's namespaced names
 
-The bridge plugin SHALL rewrite a `skill` tool call whose `name` starts with
-`agentdev:` to the name without that prefix, and SHALL leave every other tool
-call unchanged, on OpenCode v1 and v2.
+The bridge plugin SHALL rewrite a `skill` tool call whose skill argument starts
+with `agentdev:` to the name without that prefix, and SHALL leave every other
+tool call unchanged. The skill argument is `name` on OpenCode v1 and `id` on
+OpenCode v2.
 
 #### Scenario: a skill hands off to a sibling by its namespaced name
 
-- **WHEN** the model calls the skill tool with `name: "agentdev:iwe-plan"`
+- **WHEN** the model calls the skill tool with `agentdev:iwe-plan` as its skill
+  argument
 - **THEN** OpenCode loads the `iwe-plan` skill.
 
 ### Requirement: explicit-only skills stay out of model invocation

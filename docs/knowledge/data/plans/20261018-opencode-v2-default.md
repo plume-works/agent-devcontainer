@@ -901,6 +901,23 @@ through the logging client on v1 and through the host's logger on v2.
 - `stale-map-docs.py` reports every codebase-map document fresh.
 - `iwe normalize` and `iwe schema validate` pass after the document edits.
 
+## Verification results
+
+- **Paths outside the workspace (2026-10-20, OpenCode 2.0.32).**
+  `opencode debug config` shows the devcontainer's `opencode.json` as
+  `permissions` rules `{action: "*", resource: "*", effect: "allow"}` and
+  `{action: "external_directory", resource: "/**", effect: "allow"}`. An
+  `opencode run --standalone -m openai/gpt-6.1-sol` session without `--auto`,
+  started in a directory outside the repository, read a file in a sibling
+  directory and wrote its content to a new file there; both tool calls completed
+  with no permission prompt, and the run exited 0.
+- **Skill chip (2026-10-20, OpenCode 2.0.32).** A command started through
+  `session.command` as `agentdev:iwe-ship` with the text
+  `data/plans/20261008-e2e-hello` stores a user message whose `text` is that
+  text alone and whose `skills` holds one `iwe-ship` reference carrying the
+  skill body; the body is not in the text. This is the message the TUI renders
+  as text plus a chip; the TUI itself was not observed.
+
 ## Out of scope
 
 - Cross-worktree sharing of OpenCode logins.
