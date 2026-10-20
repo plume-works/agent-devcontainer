@@ -85,7 +85,10 @@ request head.
 
 **Files:** Modify: `.github/workflows/primary-checks.yml`
 
-- [ ] Primary checks cancels an in-progress run on every ref except `main`.
+- [x] Primary checks cancels an in-progress run on every ref except `main`.
+  - **Evidence:** `primary-checks.yml` sets
+    `cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}`; actionlint and
+    zizmor pass through pre-commit on the workflow.
 
 ### Task 3: Refresh the codebase map
 
