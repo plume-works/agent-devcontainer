@@ -234,8 +234,7 @@ and the v1 load check under `## Verification`.
 
 Assumptions:
 
-- The web UI serves `/site.webmanifest` without the password. Task 10 checks it;
-  an authenticated manifest sends the plan back to revise mode.
+- The web UI serves `/site.webmanifest` without the password.
 - An `auth.json` symlink left on an existing `agentdev-opencode` volume is
   harmless: v2 imports it once and never writes it.
 - v2 never rewrites `opencode.json` into its own `permissions` form, so the
@@ -895,8 +894,7 @@ through the logging client on v1 and through the host's logger on v2.
   workspace without a prompt, and `opencode debug config` shows the
   `{action: "*", resource: "*", effect: "allow"}` and `external_directory`
   rules.
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode`
-  passes.
+- `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k opencode` passes.
 - Task 10 on a Coder workspace.
 - `stale-map-docs.py` reports every codebase-map document fresh.
 - `iwe normalize` and `iwe schema validate` pass after the document edits.
@@ -916,16 +914,15 @@ through the logging client on v1 and through the host's logger on v2.
 
 Verified anchor points (line numbers as of 2026-10-20):
 
-- `.devcontainer/scripts/opencode-web-start.sh:15,20,30` — the link it reads and
-  prints on a start or a reuse
-- `.devcontainer/scripts/opencode-web-command.sh:19-25` — `link`, which builds
-  the `/<base64url(workspace)>/session` path; `:29,39` — bind choice and pane
-  command
-- `scripts/tests/test_opencode_web_start.py:12-13` — expected pane commands
-- `scripts/tests/test_opencode_web_start.py:17-19` — `WORKSPACE_PATH`,
-  `CODER_LINK`, `LOCAL_LINK`; `:161-186` — the link and skip tests
+- `.devcontainer/scripts/opencode-web-start.sh:15,20,30,37` — the link it reads
+  and prints on a reuse (`:20,30`) or a start (`:37`)
+- `.devcontainer/scripts/opencode-web-command.sh:19-24` — `link`, which prints
+  the server's root URL; `:28-34` — bind choice; `:38-49` — pane command
+- `scripts/tests/test_opencode_web_start.py:13-14` — expected pane commands
+- `scripts/tests/test_opencode_web_start.py:16-18` — `PROXY_URI`, `CODER_LINK`,
+  `LOCAL_LINK`; `:160-182` — the link and skip tests
 - `docs/knowledge/data/features/opencode-web-coder-autostart.md:4,42-44,59-62` —
-  the link into the workspace folder
+  the printed link to the web UI's home, and the once-per-browser project add
 - `docs/knowledge/data/codebase/devcontainer/scripts.md:52` —
   `opencode-web-command.sh` row
 - `docs/knowledge/data/spec/coder-ide-baseline.md:119` — the `OpenCode` app URL,
