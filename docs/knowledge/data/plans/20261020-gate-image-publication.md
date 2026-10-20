@@ -24,10 +24,9 @@ them](../bugs/ci-publishes-images-before-acceptance.md): every image CI/CD
 builds, `ubuntu-ansible`, `agent-desktop`, and `agent-opencode`, gets its moving
 tags before the devcontainer checks and runtime acceptance run. A failed or
 cancelled run leaves `edge` naming an untested build. Renovate then pins it, and
-pull request builds use it as their warm-start base. The pipeline assumed one
-run at a time and an upstream that does not change between a pull request's
-build and `main`'s rebuild. Renovate's automerges make runs overlap, and the OS
-packages a clean build installs change between runs.
+pull request builds use it as their warm-start base. Runs on `main` overlap,
+because Renovate automerges its pull requests, and a clean build installs
+unpinned OS packages that change between runs.
 
 [Image pinning](../spec/image-pinning.md) is the contract consumers rely on: a
 digest pin is only as good as the image the tag named when Renovate read it.
