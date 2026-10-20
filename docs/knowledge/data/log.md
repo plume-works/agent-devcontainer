@@ -4,6 +4,23 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-20
+
+- **Update**: [Make OpenCode v2 the devcontainer
+  default](plans/20261018-opencode-v2-default.md) done; specs synced for the
+  [catalog bridge](spec/opencode-catalog-bridge.md), [OpenCode
+  web](spec/opencode-web.md), [workspace CBM
+  indexing](spec/opencode-workspace-cbm-indexing.md), and the [Coder IDE
+  baseline](spec/coder-ide-baseline.md); its three features stay implemented and
+  listed under Unreleased.
+- **Update**: [Port the IWE workflow e2e suite to
+  pytest](plans/20261019-iwe-workflows-e2e-pytest.md) done; internal, no release
+  entry.
+- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
+  [lifecycle scripts](codebase/devcontainer/scripts.md), and the [lifecycle
+  flow](codebase/flow-devcontainer-lifecycle.md) for the OpenCode link that
+  prints the server's root URL.
+
 ## 2026-10-19
 
 - **Map**: refreshed [image runtime](codebase/api-image-runtime.md),

@@ -14,9 +14,8 @@ SERVE = 'opencode serve --port 4096 --hostname'
 EXPOSED_COMMAND = f'exec env -u DISPLAY {SERVE} 0.0.0.0'
 PASSWORD_FILE = '.local/share/opencode/agentdev-server-password'
 PROXY_URI = 'https://{{port}}--repo--ws--me.example.com'
-WORKSPACE_PATH = 'L3dvcmtzcGFjZXMvZXhhbXBsZQ/session'
-CODER_LINK = f'https://4096--repo--ws--me.example.com/{WORKSPACE_PATH}'
-LOCAL_LINK = f'http://127.0.0.1:4096/{WORKSPACE_PATH}'
+CODER_LINK = 'https://4096--repo--ws--me.example.com'
+LOCAL_LINK = 'http://127.0.0.1:4096'
 
 
 def make_test_dir() -> Path:
@@ -158,7 +157,7 @@ def test_skips_when_a_command_is_missing(home, missing):
 
 @pytest.mark.parametrize('session_exists', [False, True])
 @pytest.mark.parametrize('password', [None, 's3cret'])
-def test_prints_the_coder_link_into_the_workspace(home, session_exists, password):
+def test_prints_the_coder_server_url(home, session_exists, password):
     result, _ = run_with_fake_tmux(
         home=home, proxy_uri=PROXY_URI, session_exists=session_exists, password=password
     )
@@ -183,7 +182,7 @@ def test_falls_back_to_localhost_outside_coder(home, proxy_uri):
 def test_skip_prints_no_link(home, missing):
     result, _ = run_with_fake_tmux(home=home, missing=missing, proxy_uri=PROXY_URI)
     assert result.returncode == 0, result.stderr
-    assert '/session' not in result.stdout + result.stderr
+    assert CODER_LINK not in result.stdout + result.stderr
 
 
 def run_with_real_tmux(test_dir: Path, password: str | None) -> str:

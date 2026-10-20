@@ -3,7 +3,7 @@ type: spec
 description: The agentdev OpenCode bridge registers the active Git workspace with the shared codebase-memory daemon in the background, without blocking catalog use or changing MCP configuration.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T21:00:00Z
+  at: 2026-10-20T15:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
@@ -25,9 +25,12 @@ catalog bridge](../architecture/opencode-catalog-bridge.md).
 
 The bridge SHALL resolve OpenCode's active directory to its canonical Git
 worktree root and register an absent root with the shared CBM daemon only when
-the configured codebase-memory MCP is local and enabled. It SHALL use the
-configured command and environment without broadening allowed roots or changing
-MCP configuration, and SHALL retain existing indexed projects.
+the configured codebase-memory MCP is local and enabled. On OpenCode v1 it SHALL
+do this from the config hook; on OpenCode v2, from the bridge's v2 setup for
+each directory OpenCode opens. A local entry counts as enabled unless v1's
+`enabled` is `false` or v2's `disabled` is `true`. It SHALL use the configured
+command and environment without broadening allowed roots or changing MCP
+configuration, and SHALL retain existing indexed projects.
 
 #### Scenario: a second repository opens in the container
 
@@ -35,6 +38,13 @@ MCP configuration, and SHALL retain existing indexed projects.
   enabled
 - **THEN** it submits background indexing for that repository, independently of
   the catalog location and DEV_WORKSPACE_FOLDER, retaining other projects.
+
+#### Scenario: OpenCode v2 opens an unindexed repository
+
+- **WHEN** OpenCode v2 opens a directory in an unindexed Git repository with
+  local CBM enabled
+- **THEN** the bridge submits background indexing for that repository's
+  canonical root.
 
 #### Scenario: a registered root is found on a later project page
 
@@ -59,7 +69,8 @@ MCP configuration, and SHALL retain existing indexed projects.
 
 The bridge SHALL keep catalog initialization independent of indexing completion,
 deduplicate in-flight registration for a root, and handle failed or timed-out
-commands with bounded resource use and OpenCode diagnostics.
+commands with bounded resource use and a warning in OpenCode's log, written
+through the logging client on v1 and through the host's logger on v2.
 
 #### Scenario: indexing is pending
 

@@ -14,14 +14,13 @@ fail() {
   exit 1
 }
 
-# The web UI opens a directory at /<base64url, unpadded>/session; Coder's agent
-# sets VSCODE_PROXY_URI to its port-URL template.
+# The server's root URL: v2's web UI has no route that opens a directory. Coder's
+# agent sets VSCODE_PROXY_URI to its port-URL template.
 link() {
-  local local_url_template="http://127.0.0.1:{{port}}" base encoded
+  local local_url_template="http://127.0.0.1:{{port}}" base
   base="${VSCODE_PROXY_URI:-$local_url_template}"
   base="${base//\{\{port\}\}/$port}"
-  encoded="$(printf '%s' "$workspace" | base64 | tr -d '\n=' | tr '+/' '-_')"
-  printf '%s\n' "${base%/}/$encoded/session"
+  printf '%s\n' "${base%/}"
 }
 
 # The server always requires a password. A Coder-provided one may face every

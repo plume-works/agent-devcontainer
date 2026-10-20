@@ -3,7 +3,7 @@ type: spec
 description: How the plume-works/coder-ide-baseline Coder template runs this repository's Dev Container, and how to change, validate, and ship a template version.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T12:00:00Z
+  at: 2026-10-20T15:00:00Z
 sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/473d64a/template/main.tf
@@ -122,7 +122,8 @@ it opens is specified in [OpenCode web](opencode-web.md).
 
 #### Scenario: the repository runs OpenCode
 
-- **WHEN** the repository's agent-start script started `opencode web`
+- **WHEN** the repository's agent-start script started the OpenCode server
+  (`opencode serve`)
 - **THEN** the dashboard shows a healthy `OpenCode` app that loads the web UI,
   from whose project picker `/workspaces/<repository>` opens.
 
