@@ -187,15 +187,20 @@ NOT cancel one another.
 Verified anchor points (line numbers as of 2026-10-20):
 
 - `.github/workflows/ci.yml:64` — `build-dev-image`, pushing per-arch images by
-  digest; `:182` — `merge-dev-image`, with merge steps at `:199`, `:207`, and
-  `:216`; `:231` — `dev-container-ci`; `:309` — `opencode-acceptance`; `:347` —
-  `finished`.
-- `.github/workflows/primary-checks.yml:21-23` — `concurrency` with
-  `cancel-in-progress: true`.
-- `.github/actions/docker/multiarch-merge/action.yml:96` — `imagetools create`
-  with every derived tag.
-- `.github/actions/docker/metadata-action/action.yml:54-59` — the tag rules.
+  digest; `:182` — `merge-dev-image`, with merge steps `merge_ansible`, `merge`,
+  and `merge_opencode` at `:204`, `:213`, and `:222`; `:236` —
+  `dev-container-ci`; `:314` — `opencode-acceptance`; `:352` —
+  `promote-dev-image`; `:403` — `finished`.
+- `.github/workflows/primary-checks.yml:22-24` — `concurrency`, cancelling in
+  progress except on `main`.
+- `.github/actions/docker/multiarch-merge/action.yml:66` — `candidate: 'true'`;
+  `:97` — `imagetools create` with the `sha-<commit>` tag only.
+- `.github/actions/docker/metadata-action/action.yml:15` — `candidate` input;
+  `:59-64` — the tag rules, split by `candidate`.
+- `.github/actions/docker/promote/action.yml:55` — revision label read; `:61` —
+  descendant skip; `:73` — `imagetools create` with the moving tags.
 - `.github/actions/docker/build-push-action/action.yml:70` — `push-by-digest`
   per-arch output.
-- `scripts/tests/test_agent_runtime_ci.py:70` —
-  `test_the_runtime_gets_its_own_manifest_and_native_acceptance`.
+- `scripts/tests/test_agent_runtime_ci.py:74` —
+  `test_the_runtime_gets_its_own_manifest_and_native_acceptance`; `:90`, `:101`,
+  `:118` — the candidate-tag and promotion tests.
