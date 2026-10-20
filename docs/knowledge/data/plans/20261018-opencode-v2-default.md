@@ -517,11 +517,18 @@ map document whose source digest the changed files move
 `docs/knowledge/data/features/opencode-web-coder-autostart.md`,
 `docs/knowledge/data/codebase/devcontainer/scripts.md`
 
-- [ ] Tests first: on a start and on a reuse, with and without a password, the
+- [x] Tests first: on a start and on a reuse, with and without a password, the
   script prints `<base>` with no path, where `<base>` is Coder's port URL for
   4096 without a trailing `/`, or `http://127.0.0.1:4096` outside Coder; a
   skipped start prints no link.
-- [ ] Implement until the tests pass: `link` prints the base URL alone.
+  - **Evidence:** `scripts/tests/test_opencode_web_start.py` expects the bare
+    `CODER_LINK` and `LOCAL_LINK` as whole output tokens; 7 of its 20 tests
+    failed against the folder-link `link` before the implementation landed in
+    the same commit.
+- [x] Implement until the tests pass: `link` prints the base URL alone.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py scripts/tests/test_agent_runtime_ingress.py`
+    passes 36 tests; `shellcheck` reports nothing on `opencode-web-command.sh`.
 - [ ] The web feature says the printed link opens the web UI, where the
   workspace folder is added once per browser, and the codebase map's
   `opencode-web-command.sh` row says `link` prints the server URL; refresh the
