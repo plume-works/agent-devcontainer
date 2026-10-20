@@ -62,12 +62,24 @@ request head.
 `scripts/tests/test_agent_runtime_ci.py`; Create:
 `.github/actions/docker/promote/action.yml`
 
-- [ ] `merge-dev-image` pushes each of the three manifests under `sha-<commit>`
+- [x] `merge-dev-image` pushes each of the three manifests under `sha-<commit>`
   only and exports its digest.
-- [ ] A `promote-dev-image` job needs `dev-container-ci` and
+  - **Evidence:** `multiarch-merge` derives tags with `candidate: 'true'`, which
+    `metadata-action` limits to `type=sha`; `merge-dev-image` exports
+    `ansible_digest`, `desktop_digest`, `opencode_digest`.
+    `test_the_merge_pushes_only_the_candidate_tag` passes in
+    `uv run pytest scripts/tests/test_agent_runtime_ci.py` (18 passed);
+    actionlint and zizmor pass through pre-commit.
+- [x] A `promote-dev-image` job needs `dev-container-ci` and
   `opencode-acceptance`, applies the event's moving tags to the three merged
   digests without rebuilding, and skips a tag whose current image is built from
   a descendant of this commit. `CI finished` needs the promotion.
+  - **Evidence:** `.github/actions/docker/promote/action.yml` applies the moving
+    tags with `imagetools create` and skips a tag whose revision label descends
+    from `GITHUB_SHA`;
+    `test_promotion_waits_for_both_test_jobs_and_reuses_the_merged_digests` and
+    `test_promotion_never_moves_a_tag_back_or_rebuilds` pass in the same run;
+    the action's script passes shellcheck.
 
 ### Task 2: Queue Primary checks runs on main
 

@@ -191,12 +191,17 @@ jobs:
       image: ${{ steps.merge.outputs.image }}
       image_pinned: ${{ steps.merge.outputs.image_pinned }}
       opencode_image_pinned: ${{ steps.merge_opencode.outputs.image_pinned }}
+      ansible_digest: ${{ steps.merge_ansible.outputs.digest }}
+      desktop_digest: ${{ steps.merge.outputs.digest }}
+      opencode_digest: ${{ steps.merge_opencode.outputs.digest }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
+      # Candidate tags only; promote-dev-image moves the public tags after the tests.
       - name: Merge and push ubuntu ansible image
+        id: merge_ansible
         uses: ./.github/actions/docker/multiarch-merge
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
@@ -344,6 +349,57 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
+  promote-dev-image:
+    name: Promote development image
+    runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
+    permissions:
+      contents: read
+      packages: write
+    needs:
+      - merge-dev-image
+      - dev-container-ci
+      - opencode-acceptance
+    timeout-minutes: 15
+    steps:
+      # Full history, so the promote action can tell whether a tag names a newer commit.
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Promote ubuntu ansible image
+        uses: ./.github/actions/docker/promote
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.ANSIBLE_IMAGE_NAME }}
+          digest: ${{ needs.merge-dev-image.outputs.ansible_digest }}
+          registry: ${{ env.REGISTRY }}
+          registry-username: ${{ env.REGISTRY_USERNAME }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote agent desktop image
+        uses: ./.github/actions/docker/promote
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.DESKTOP_IMAGE_NAME }}
+          digest: ${{ needs.merge-dev-image.outputs.desktop_digest }}
+          registry: ${{ env.REGISTRY }}
+          registry-username: ${{ env.REGISTRY_USERNAME }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Promote agent opencode image
+        uses: ./.github/actions/docker/promote
+        with:
+          image: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.OPENCODE_IMAGE_NAME }}
+          digest: ${{ needs.merge-dev-image.outputs.opencode_digest }}
+          registry: ${{ env.REGISTRY }}
+          registry-username: ${{ env.REGISTRY_USERNAME }}
+          registry-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log debug stats
+        if: ${{ always() }}
+        uses: ./.github/actions/log-debug-stats
+        with:
+          github-token: ${{ github.token }}
+
   finished:
     name: CI finished
     needs:
@@ -353,6 +409,7 @@ jobs:
         merge-dev-image,
         dev-container-ci,
         opencode-acceptance,
+        promote-dev-image,
       ]
     runs-on: ubuntu-latest
     permissions: {}
