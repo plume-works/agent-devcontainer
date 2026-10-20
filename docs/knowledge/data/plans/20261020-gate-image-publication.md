@@ -123,9 +123,15 @@ sources
 
 **Files:** none; CI after merge
 
-- [ ] **Closed by: CI after merge.** A `main` run promotes `edge` for all three
+- [x] **Closed by: CI after merge.** A `main` run promotes `edge` for all three
   images only after both test jobs pass, its revision labels name that run's
   commit, and a run whose tests fail or are cancelled leaves `edge` unchanged.
+  - **Evidence:** Primary checks run 39482903699 at `441b869` promoted `edge`
+    and `main` only after both test jobs passed, with revision label `441b869`.
+    Dispatched run 39498618599 at `747e1f8` merged its manifests and was then
+    cancelled before its test jobs finished. `edge` and `main` kept the
+    `441b869` digests, and only `sha-747e1f8` names the new builds. Both runs
+    are detailed under `## Verification results`.
 
 ## Spec changes
 
@@ -185,9 +191,13 @@ NOT cancel one another.
   `Promote development image` moved `edge` and `main` to the run's `sha-441b869`
   digest, with revision label `441b869`: `ubuntu-ansible` `a72511ed…`,
   `agent-desktop` `c1719983…`, and `agent-opencode` `8521619e…`.
-- **Failed or cancelled run on `main`:** not observed yet. No `main` run has
-  failed or been cancelled after merging its manifests, so Task 5 stays open
-  until one leaves `edge` unchanged.
+- **Cancelled run on `main`:** Primary checks run 39498618599, dispatched on
+  `main` at `747e1f8` to force the image build, was cancelled once
+  `Merge development image` succeeded. Its test jobs and
+  `Promote development image` ended cancelled. Each image's `edge` and `main`
+  kept the `441b869` digest above, while `sha-747e1f8` names the new build:
+  `ubuntu-ansible` `45363a35…`, `agent-desktop` `5c34fab4…`, and
+  `agent-opencode` `40c35e47…`.
 
 ## Out of scope
 
