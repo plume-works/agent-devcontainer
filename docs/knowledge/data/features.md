@@ -9,6 +9,8 @@ generated:
 
 # ✨ Features
 
+[iwe-branch-name](features/iwe-branch-name.md)
+
 [OpenCode full-access config](features/opencode-full-access-config.md)
 
 [Standalone OpenCode container](features/standalone-opencode-container.md)
