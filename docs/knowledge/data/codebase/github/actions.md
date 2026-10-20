@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: 'The eight local composite actions the workflows share: the paths filter, the three Docker build helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
+description: 'The nine local composite actions the workflows share: the paths filter, the four Docker build and promotion helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:249523edcccac27fc246e15cab3e6d02c58e450ddf3f10499752e288b1127a36
+source_digest: sha256:7d455641360f32212d9f4b79b787b245590fbc9ffce438833e15025c174f0b4e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-14T09:00:00Z
-stale_after: 2027-01-12
+  at: 2026-10-20T05:06:00Z
+stale_after: 2027-01-18
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-14T09:00:00Z
+  at: 2026-10-20T05:06:00Z
 sources:
 - id: code
   resource: .github/actions
@@ -21,16 +21,17 @@ Local `using: composite` actions, referenced as `./.github/actions/<name>`.
 
 ## Public surface
 
-| Action                     | Inputs                                                                  | Outputs / effect                                                    |
-| -------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `paths-filter`             | `event-name`, `base-branch`, `extra-filter`                             | `pass` — whether the `image` filter or an extra filter matched      |
-| `docker/build-push-action` | context, file, image, arch, registry creds, build args, `export-digest` | builds and pushes one arch; emits `digest`                          |
-| `docker/metadata-action`   | images, arch, prefix                                                    | tags, labels, version JSON                                          |
-| `docker/multiarch-merge`   | image, future tag, registry creds                                       | merges per-arch digests; emits `image`, `digest`, `image_pinned`    |
-| `setup-python-venv`        | `python-version`                                                        | installs uv and syncs the project; the environment is not activated |
-| `log-debug-stats`          | `github-token`                                                          | prints API rate/debug statistics for the job                        |
-| `ai-review-status`         | `pr-number`, `github-token`, `trusted-bot-actors`                       | `found`, `reason` — whether an accepted AI review is present        |
-| `run-claude-responder`     | tokens, prompt, comment metadata, PR number, artifact name, `model`     | runs Claude Code and uploads the responder artifact                 |
+| Action                     | Inputs                                                                  | Outputs / effect                                                                      |
+| -------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `paths-filter`             | `event-name`, `base-branch`, `extra-filter`                             | `pass` — whether the `image` filter or an extra filter matched                        |
+| `docker/build-push-action` | context, file, image, arch, registry creds, build args, `export-digest` | builds and pushes one arch; emits `digest`                                            |
+| `docker/metadata-action`   | images, arch, prefix, `candidate`                                       | `sha-<commit>` tag when `candidate`, else the moving tags; labels                     |
+| `docker/multiarch-merge`   | image, future tag, registry creds                                       | merges per-arch digests under `sha-<commit>`; emits `image`, `digest`, `image_pinned` |
+| `docker/promote`           | image, digest, registry creds                                           | points the event's moving tags at that digest without rebuilding                      |
+| `setup-python-venv`        | `python-version`                                                        | installs uv and syncs the project; the environment is not activated                   |
+| `log-debug-stats`          | `github-token`                                                          | prints API rate/debug statistics for the job                                          |
+| `ai-review-status`         | `pr-number`, `github-token`, `trusted-bot-actors`                       | `found`, `reason` — whether an accepted AI review is present                          |
+| `run-claude-responder`     | tokens, prompt, comment metadata, PR number, artifact name, `model`     | runs Claude Code and uploads the responder artifact                                   |
 
 ## How it works
 
@@ -41,8 +42,11 @@ Local `using: composite` actions, referenced as `./.github/actions/<name>`.
 `dorny/paths-filter` against the PR or a base branch. On a push to the base
 branch it filters from the head of the calling workflow's last successful push
 run there, found through the Actions API, and falls back to the previous push
-when there is none. The Docker trio wraps `docker/build-push-action`,
-`docker/metadata-action`, and a manifest merge so `ci.yml` stays declarative.
+when there is none. The Docker helpers wrap `docker/build-push-action`,
+`docker/metadata-action`, a manifest merge, and a promotion so `ci.yml` stays
+declarative. `promote` reads each moving tag's
+`org.opencontainers.image.revision` label and leaves the tag alone when that
+commit, known to the checkout, descends from `GITHUB_SHA`.
 `run-claude-responder` holds the Claude Code invocation, artifact upload, and
 the usage-limit check. It composes `claude_args` in its own step rather than in
 the `with:` block, appending `--model` only when the optional `model` input is
@@ -61,6 +65,8 @@ review gate](../../spec/ai-review-gate.md) once, without waiting.
 - Both Docker build actions remove their `mktemp -d` digest directory under
   `always()`, so a step failing after the export does not leave it on a reused
   runner; the `$RUNNER_TEMP/digests/<image>` parent they create stays.
+- `multiarch-merge` never applies a moving tag; only `promote` does, and it
+  needs a full-history checkout for its ancestry check.
 - Callers invoke Python tools through `uv run`; `setup-python-venv` never
   activates the environment.
 - `run-claude-responder` runs the three devcontainer lifecycle hooks with
@@ -81,7 +87,7 @@ review gate](../../spec/ai-review-gate.md) once, without waiting.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-14):
+Verified anchor points (line numbers as of 2026-10-20):
 
 - `.github/actions/paths-filter/action.yml:35-48` — the `image` filter list
 - `.github/actions/paths-filter/action.yml:58-94` — PR vs base-branch modes, and
@@ -96,4 +102,9 @@ Verified anchor points (line numbers as of 2026-10-14):
   `Compose Claude arguments`, where `--model` is appended
 - `.github/actions/run-claude-responder/action.yml:162,170` — `always()` on the
   artifact upload and the usage-limit check
-- `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs
+- `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs; `:66` —
+  `candidate: 'true'`
+- `.github/actions/docker/metadata-action/action.yml:59-64` — tag rules split by
+  `candidate`
+- `.github/actions/docker/promote/action.yml:55-61,73` — revision label,
+  descendant skip, `imagetools create`

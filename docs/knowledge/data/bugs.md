@@ -85,3 +85,6 @@ CDN](bugs/firewall-docker-hub-cloudfront.md)
 
 [Bug: xpra_setup installs Ubuntu's xpra
 3.1.5](bugs/xpra-setup-installs-ubuntu-xpra.md)
+
+[Bug: CI/CD publishes images before testing
+them](bugs/ci-publishes-images-before-acceptance.md)

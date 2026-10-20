@@ -14,6 +14,10 @@ CI = yaml.safe_load((REPO_ROOT / '.github/workflows/ci.yml').read_text())
 CHECKS_PATH = REPO_ROOT / '.github/workflows/opencode-runtime-checks.yml'
 CHECKS = yaml.safe_load(CHECKS_PATH.read_text())
 FILTER_ACTION = (REPO_ROOT / '.github/actions/paths-filter/action.yml').read_text()
+ACTIONS = REPO_ROOT / '.github/actions/docker'
+MERGE_ACTION = yaml.safe_load((ACTIONS / 'multiarch-merge/action.yml').read_text())
+METADATA_ACTION = yaml.safe_load((ACTIONS / 'metadata-action/action.yml').read_text())
+PROMOTE_ACTION = yaml.safe_load((ACTIONS / 'promote/action.yml').read_text())
 RENOVATE = json.loads((REPO_ROOT / '.github/renovate.json').read_text())
 PIN = 'opencode-compose-pins.yml'
 RUNTIME_SOURCES = [
@@ -81,6 +85,43 @@ def test_the_runtime_gets_its_own_manifest_and_native_acceptance():
     assert 'opencode_image_pinned' in run['env']['AGENTDEV_RUNTIME_TEST_IMAGE']
     assert 'opencode-acceptance' in CI['jobs']['finished']['needs']
     assert {'build-dev-image', 'dev-container-ci'} <= set(CI['jobs']['finished']['needs'])
+
+
+def test_the_merge_pushes_only_the_candidate_tag():
+    meta = next(s for s in MERGE_ACTION['runs']['steps'] if s.get('id') == 'meta')
+    assert meta['with']['candidate'] == 'true'
+    tags = next(s for s in METADATA_ACTION['runs']['steps'] if s.get('id') == 'meta')
+    rules = tags['with']['tags'].splitlines()
+    assert [r for r in rules if "candidate == 'true'" in r] == [
+        r for r in rules if r.startswith('type=sha,')
+    ]
+    assert all("candidate != 'true'" in r for r in rules if not r.startswith('type=sha,'))
+
+
+def test_promotion_waits_for_both_test_jobs_and_reuses_the_merged_digests():
+    merge = CI['jobs']['merge-dev-image']
+    promote = CI['jobs']['promote-dev-image']
+    assert set(promote['needs']) == {'merge-dev-image', 'dev-container-ci', 'opencode-acceptance'}
+    assert 'if' not in promote
+    checkout = steps(promote)[0]
+    assert checkout['uses'].startswith('actions/checkout@')
+    assert checkout['with']['fetch-depth'] == 0
+    promoted = [s for s in steps(promote) if s.get('uses') == './.github/actions/docker/promote']
+    image_names = ['ANSIBLE_IMAGE_NAME', 'DESKTOP_IMAGE_NAME', 'OPENCODE_IMAGE_NAME']
+    assert [s['with']['image'].split('env.')[-1].rstrip(' }') for s in promoted] == image_names
+    for step, output in zip(promoted, ['ansible_digest', 'desktop_digest', 'opencode_digest']):
+        assert step['with']['digest'] == f'${{{{ needs.merge-dev-image.outputs.{output} }}}}'
+        assert merge['outputs'][output].endswith('.outputs.digest }}')
+    assert 'promote-dev-image' in CI['jobs']['finished']['needs']
+
+
+def test_promotion_never_moves_a_tag_back_or_rebuilds():
+    run = PROMOTE_ACTION['runs']['steps'][-1]['run']
+    assert 'org.opencontainers.image.revision' in run
+    assert 'git merge-base --is-ancestor "${GITHUB_SHA}" "${current}"' in run
+    assert 'imagetools create' in run
+    uses = [s.get('uses', '') for s in PROMOTE_ACTION['runs']['steps']]
+    assert not any('build-push-action' in u for u in uses)
 
 
 def test_pin_checks_accept_the_proposed_digest_without_building_anything():

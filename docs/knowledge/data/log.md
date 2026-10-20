@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-20
 
+- **Map**: refreshed the [image build](codebase/flow-image-build.md), [pull
+  request checks](codebase/flow-pull-request-checks.md),
+  [GitHub](codebase/github.md), [workflows](codebase/github/workflows.md), and
+  [composite actions](codebase/github/actions.md) for candidate-only
+  `sha-<commit>` tags, the `promote-dev-image` job, and queued `main` runs.
 - **Update**: [Make OpenCode v2 the devcontainer
   default](plans/20261018-opencode-v2-default.md) done; specs synced for the
   [catalog bridge](spec/opencode-catalog-bridge.md), [OpenCode

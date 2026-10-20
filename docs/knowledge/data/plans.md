@@ -19,6 +19,8 @@ moves them.*
 
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
+[Gate image publication on acceptance](plans/20261020-gate-image-publication.md)
+
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 

@@ -18,9 +18,10 @@ on:
         default: false
         type: boolean
 
+# main queues instead of cancelling, so edge keeps advancing; see spec/image-pinning.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
