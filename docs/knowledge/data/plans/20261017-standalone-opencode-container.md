@@ -719,13 +719,23 @@ sources
 **Files:** Modify: `opencode-compose-pins.yml` with the verified published
 digest
 
-- [ ] **Closed by: CI and the implementing session after publication.** On the
+- [x] **Closed by: CI and the implementing session after publication.** On the
   final candidate, built from an `agent-desktop` that ships OpenCode v2 and
   containing Tasks 17–21, read the passing amd64/arm64 acceptance results,
   inspect the published manifest and its same-run desktop ancestry, insert its
   real digest into the deployment pin, and pass pin-only acceptance. This
   external gate is separate from writing publishing code and cannot close on a
   local build.
+  - **Evidence:** main's CI/CD run 39348591683 at `5a33bad4` passed native amd64
+    and arm64 OpenCode runtime acceptance and published
+    `agent-opencode:edge@sha256:0a01a466…`. Its amd64 and arm64 images record
+    revision `5a33bad4` and base indexes `agent-desktop@sha256:328f2636…` and
+    `@sha256:afff4cf6…`, which wrap the `01ceb46d…` and `6c8bdabb…` images of
+    that run's `agent-desktop:edge`. Commit "deploy(opencode): pin the first
+    published agent-opencode digest" writes the digest into
+    `opencode-compose-pins.yml`. On PR #389, OpenCode runtime pin checks run
+    39355636206 passed acceptance on both native arches (15 passed, 1 skipped
+    each: the upgrade test), and CI/CD skipped the image build.
 
 ### Task 16: Verify actual login/session continuity behind the operator proxy
 
@@ -1234,6 +1244,14 @@ Recorded 2026-10-18 at `afae3a2`.
     daemon socket for another UID. They need a rerun on a native filesystem,
     such as CI.
   - ShellCheck, `iwe schema validate`, and `stale-map-docs.py` pass.
+
+- **On published images, recorded 2026-10-20.** Main's CI/CD at `5a33bad4`
+  passed native acceptance on both arches, and `opencode-compose-pins.yml` pins
+  its `agent-opencode:edge` digest, which closes Tasks 12 and 15 with the
+  evidence under each. The upgrade test runs only where
+  `AGENTDEV_RUNTIME_PREVIOUS_IMAGE` is supplied, which no CI workflow does. Task
+  16 remains the maintainer's gate, and branch protection does not yet require
+  the pinned-acceptance checks.
 
 ## Out of scope
 
