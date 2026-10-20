@@ -20,6 +20,8 @@ sources:
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: scripts/e2e/20261007-agent-owned-ship-implement/run.sh
 - resource: https://opencode.ai/v2/docs
+stage: done
+completed: 2026-10-20
 ---
 
 # Make OpenCode v2 the devcontainer default
