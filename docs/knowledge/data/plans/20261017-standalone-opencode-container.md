@@ -1250,8 +1250,8 @@ Recorded 2026-10-18 at `afae3a2`.
   its `agent-opencode:edge` digest, which closes Tasks 12 and 15 with the
   evidence under each. The upgrade test runs only where
   `AGENTDEV_RUNTIME_PREVIOUS_IMAGE` is supplied, which no CI workflow does. Task
-  16 remains the maintainer's gate, and branch protection does not yet require
-  the pinned-acceptance checks.
+  16 remains the maintainer's gate. The `main` ruleset requires
+  `Pinned runtime acceptance (amd64)` and `(arm64)`.
 
 ## Out of scope
 
