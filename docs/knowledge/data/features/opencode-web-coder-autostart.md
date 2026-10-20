@@ -1,10 +1,10 @@
 ---
 type: feature
 stage: implemented
-description: On Coder workspaces, the agent-start script runs the OpenCode v2 server and web UI in the background behind a password, reachable from a dashboard app and a printed link into the workspace folder, with provider logins and session chats kept per worktree across rebuilds.
+description: On Coder workspaces, the agent-start script runs the OpenCode v2 server and web UI in the background behind a password, reachable from a dashboard app and a printed link, with provider logins and session chats kept per worktree across rebuilds.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:00:00Z
+  at: 2026-10-20T04:30:00Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/link-codex-auth.sh
@@ -39,9 +39,9 @@ through Coder port forwarding, with a random password generated once into
 that file itself, so the password appears on no command line and in no log; the
 printed line names the file.
 
-**One click into the workspace.** The start prints a link that opens a session
-in the workspace folder, and the Coder dashboard shows an `OpenCode` app that
-opens the web UI.
+**One click into the web UI.** The start prints the server's URL, and the Coder
+dashboard shows an `OpenCode` app that opens the same address. OpenCode v2's web
+UI has no route that opens a folder, so the link opens its home.
 
 **Logins and chats are per worktree.** A Compose-prefixed `agentdev-opencode`
 volume mounted at `/root/.local/share/opencode` keeps OpenCode's database, which
@@ -59,7 +59,7 @@ rebuilds. Each worktree logs in once.
   from v1's `auth.json`, so the first v2 start logs in again.
 - **The project sidebar starts empty.** The web UI keeps its project list in the
   browser, so the workspace folder appears there only after one "Add project"
-  per browser; the printed link opens it directly regardless.
+  per browser.
 - **A repository without OpenCode.** The template gives every workspace the
   `OpenCode` app; where no server runs, it shows unhealthy.
 - **No provider is logged in.** The server starts anyway; the web UI's Settings

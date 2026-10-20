@@ -8,17 +8,20 @@ release:
 description: Ship OpenCode v2 as the image's OpenCode, serve the agentdev catalog and workspace CBM registration to it through a bridge that loads in both v1 and v2, run the Coder web UI with v2's always-on server password, and keep OpenCode logins per worktree.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T23:18:43Z
+  at: 2026-10-20T04:02:29Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts
 - resource: .devcontainer/scripts/configure-opencode.py
 - resource: .devcontainer/scripts/opencode-web-start.sh
+- resource: .devcontainer/scripts/opencode-web-command.sh
 - resource: .devcontainer/scripts/link-opencode-auth.sh
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: scripts/e2e/20261007-agent-owned-ship-implement/run.sh
 - resource: https://opencode.ai/v2/docs
+stage: done
+completed: 2026-10-20
 ---
 
 # Make OpenCode v2 the devcontainer default
@@ -119,6 +122,9 @@ OpenCode v2.0.32 behavior this plan relies on:
   `opencode service` manages. The server always requires a password: it uses
   `OPENCODE_SERVER_PASSWORD`, or a random one when that is unset. Basic auth
   uses the user `opencode`.
+- **Web UI routes.** The web UI routes `/`, `/settings`, `/connect`,
+  `/new-session`, and `/server/<server>/session/<id>`; any other path fails with
+  `Unrecognised route!`. No route or query parameter opens a directory.
 - **Logins.** Provider logins live in the SQLite database in OpenCode's data
   directory; `auth.json` is read once, as an import.
 - **CLI.** `opencode run` sends plain text only, with no `--command`.
@@ -200,13 +206,14 @@ its Renovate annotation moved to the new package. The bridge registration
 reads that key.
 
 **Web UI on v2.** `opencode-web-start.sh` runs `opencode serve` instead of
-`opencode web`. With a non-empty `OPENCODE_SERVER_PASSWORD` it binds `0.0.0.0`
-as today. Without one, the script generates a random password once into
+`opencode web`. With a non-empty `OPENCODE_SERVER_PASSWORD` it binds `0.0.0.0`.
+Without one, the script generates a random password once into
 `~/.local/share/opencode/agentdev-server-password` (mode `0600`, on the
 per-worktree `agentdev-opencode` volume), binds `127.0.0.1`, and the pane reads
 the file into `OPENCODE_SERVER_PASSWORD` itself, so the password never appears
 on a command line or in the log. The printed line names the file next to the
-link.
+link. The link is the server's root URL, the address the dashboard's `OpenCode`
+app opens, because v2's web UI has no route that opens a directory.
 
 **Per-worktree logins.** `link-opencode-auth.sh`, its tests, its calls, and the
 `/root/.agents-auth/opencode` directory go away. Logins live in v2's database on
@@ -229,9 +236,7 @@ and the v1 load check under `## Verification`.
 
 Assumptions:
 
-- The web UI keeps v1's `/<base64url(directory)>/session` route and serves
-  `/site.webmanifest` without the password. Task 9 checks both; a different
-  route or an authenticated manifest sends the plan back to revise mode.
+- The web UI serves `/site.webmanifest` without the password.
 - An `auth.json` symlink left on an existing `agentdev-opencode` volume is
   harmless: v2 imports it once and never writes it.
 - v2 never rewrites `opencode.json` into its own `permissions` form, so the
@@ -257,6 +262,9 @@ Rejected:
   the Coder secret would lose the web UI.
 - **Printing the generated password in the agent-start log.** Anyone who can
   read that log would have it.
+- **Linking to a session in the workspace folder.** The only session route,
+  `/server/<server>/session/<id>`, needs a session that the start would create
+  on every run.
 - **v2 diagnostics through `console`.** v2 discards a plugin's console output.
 - **v2 diagnostics through the plugin's own `Effect.runPromise`.** They reach
   only the server's console, not `opencode.log`.
@@ -446,8 +454,8 @@ Rejected:
 
 - [x] Drop the v1 SDK seed and `OPENCODE_TEST_SDK_DIR`, open each fixture
   through v2's `opencode serve`, and check the catalog through v2's API
-  (`skill.list`, `command.list`) where it now runs `debug skill` and
-  `debug config`. Keep the CBM project, job, subdirectory, disabled, and
+  (`skill.list`, `command.list`) in place of the v1 `debug skill` and
+  `debug config` checks. Keep the CBM project, job, subdirectory, disabled, and
   unavailable checks as they are.
   - **Evidence:** The verifier opens each fixture with the API's
     `location[directory]` query on `/api/command`, `/api/agent`, and
@@ -503,12 +511,47 @@ map document whose source digest the changed files move
   - **Evidence:** Commit `970a3ae` refreshes the ten stale map documents;
     `stale-map-docs.py` then reports `RESULT=SUCCESS` for all 28.
 
-### Task 9: Verify the web UI on a Coder workspace
+### Task 9: Print the server's root URL
 
-- [ ] On a Coder workspace built from this branch, with and without the
-  `OPENCODE_SERVER_PASSWORD` secret: the printed link opens a session in the
-  workspace folder after the browser's password prompt, the dashboard's
-  `OpenCode` app is healthy, and a provider login survives a rebuild.
+**Files:** Modify: `.devcontainer/scripts/opencode-web-command.sh`,
+`scripts/tests/test_opencode_web_start.py`,
+`docs/knowledge/data/features/opencode-web-coder-autostart.md`,
+`docs/knowledge/data/codebase/devcontainer/scripts.md`
+
+- [x] Tests first: on a start and on a reuse, with and without a password, the
+  script prints `<base>` with no path, where `<base>` is Coder's port URL for
+  4096 without a trailing `/`, or `http://127.0.0.1:4096` outside Coder; a
+  skipped start prints no link.
+  - **Evidence:** `scripts/tests/test_opencode_web_start.py` expects the bare
+    `CODER_LINK` and `LOCAL_LINK` as whole output tokens; 7 of its 20 tests
+    failed against the folder-link `link` before the implementation landed in
+    the same commit.
+- [x] Implement until the tests pass: `link` prints the base URL alone.
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_opencode_web_start.py scripts/tests/test_coder_agent_start.py scripts/tests/test_agent_runtime_ingress.py`
+    passes 36 tests; `shellcheck` reports nothing on `opencode-web-command.sh`.
+- [x] The web feature says the printed link opens the web UI, where the
+  workspace folder is added once per browser, and the codebase map's
+  `opencode-web-command.sh` row says `link` prints the server URL; refresh the
+  map with `/agentdev:iwe-map` refresh mode until `stale-map-docs.py` reports
+  every document fresh.
+  - **Evidence:** `features/opencode-web-coder-autostart.md` says the link opens
+    the web UI's home, where the folder is added once per browser;
+    `codebase/devcontainer/scripts.md` describes `link` as printing the server's
+    root URL; `stale-map-docs.py` reports `RESULT=SUCCESS` for all 28 documents
+    after the three stale ones were refreshed in the same commit.
+
+### Task 10: Verify the web UI on a Coder workspace
+
+- [x] On a Coder workspace built from this branch, with and without the
+  `OPENCODE_SERVER_PASSWORD` secret: the printed link opens the web UI after the
+  browser's password prompt, the dashboard's `OpenCode` app is healthy, and a
+  provider login survives a rebuild.
+  - **Evidence:** The maintainer's manual check on 2026-10-20, on a Coder
+    workspace with OpenCode v2.0.32: with and without the
+    `OPENCODE_SERVER_PASSWORD` secret, the server's root URL opens the web UI
+    after the browser's password prompt, the dashboard's `OpenCode` app is
+    healthy, and a provider login survives a rebuild.
 
 ## Spec changes
 
@@ -670,11 +713,9 @@ one detached tmux session named `opencode` on the dedicated tmux server
 `tmux -L opencode`, in the workspace folder, without checking for a provider
 login. Repeated runs SHALL reuse a live session. It SHALL skip startup when
 `opencode` or `tmux` is unavailable. A failure SHALL NOT stop Remote Control
-from starting. On a start or a reuse it SHALL print
-`<base>/<base64url(workspace folder)>/session`, base64url without `=` padding,
-where `<base>` is `VSCODE_PROXY_URI` with `{{port}}` replaced by `4096` and any
-trailing `/` removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is
-unset or empty.
+from starting. On a start or a reuse it SHALL print the server's root URL,
+`VSCODE_PROXY_URI` with `{{port}}` replaced by `4096` and any trailing `/`
+removed, or `http://127.0.0.1:4096` when `VSCODE_PROXY_URI` is unset or empty.
 
 #### Scenario: a workspace starts
 
@@ -686,16 +727,16 @@ unset or empty.
 - **WHEN** the `opencode` session is already live
 - **THEN** no second session or server starts.
 
-#### Scenario: the start prints a link into the workspace folder
+#### Scenario: the start prints the server's URL
 
 - **WHEN** the script starts or reuses the `opencode` session
-- **THEN** its output carries the link built on Coder's port URL for 4096, which
-  opens a session in the workspace folder through Coder.
+- **THEN** its output carries Coder's port URL for 4096, which opens the web UI
+  through Coder.
 
 #### Scenario: the start runs outside Coder
 
 - **WHEN** `VSCODE_PROXY_URI` is unset
-- **THEN** the printed link starts with `http://127.0.0.1:4096`.
+- **THEN** the printed link is `http://127.0.0.1:4096`.
 
 #### Scenario: the OpenCode start fails
 
@@ -855,17 +896,33 @@ through the logging client on v1 and through the host's logger on v2.
   workspace without a prompt, and `opencode debug config` shows the
   `{action: "*", resource: "*", effect: "allow"}` and `external_directory`
   rules.
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh --harness opencode`
-  passes.
-- Task 9 on a Coder workspace.
+- `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k opencode` passes.
+- Task 10 on a Coder workspace.
 - `stale-map-docs.py` reports every codebase-map document fresh.
 - `iwe normalize` and `iwe schema validate` pass after the document edits.
+
+## Verification results
+
+- **Paths outside the workspace (2026-10-20, OpenCode 2.0.32).**
+  `opencode debug config` shows the devcontainer's `opencode.json` as
+  `permissions` rules `{action: "*", resource: "*", effect: "allow"}` and
+  `{action: "external_directory", resource: "/**", effect: "allow"}`. An
+  `opencode run --standalone -m openai/gpt-6.1-sol` session without `--auto`,
+  started in a directory outside the repository, read a file in a sibling
+  directory and wrote its content to a new file there; both tool calls completed
+  with no permission prompt, and the run exited 0.
+- **Skill chip (2026-10-20, OpenCode 2.0.32).** A command started through
+  `session.command` as `agentdev:iwe-ship` with the text
+  `data/plans/20261008-e2e-hello` stores a user message whose `text` is that
+  text alone and whose `skills` holds one `iwe-ship` reference carrying the
+  skill body; the body is not in the text. This is the message the TUI renders
+  as text plus a chip; the TUI itself was not observed.
 
 ## Out of scope
 
 - Cross-worktree sharing of OpenCode logins.
 - Denying v2's `execute` tool to catalog subagents.
-- Changing the Coder template's `OpenCode` app or healthcheck, unless Task 9
+- Changing the Coder template's `OpenCode` app or healthcheck, unless Task 10
   shows v2 breaks it.
 - Changing `configure-opencode.py` or its managed values.
 - An end-to-end v1 run of the workspace host verifier.
@@ -874,63 +931,18 @@ through the logging client on v1 and through the host's logger on v2.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-18):
+Verified anchor points (line numbers as of 2026-10-20):
 
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:10` — `TOOL_PERMISSIONS`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:25` —
-  `SUBAGENT_TOOL_PERMISSIONS`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:32,47` —
-  `V2_TOOL_ACTIONS`, `V2_SUBAGENT_ACTIONS`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:125` — `readCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:157` — `applyCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:200` — `bridge` (v1
-  `config` hook at 208 with the `registerWorkspace` call and `client.app.log`
-  adapter at 210-211, `tool.execute.before` at 216)
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:229` — `setupBridge`, the
-  v2 setup
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:307` — default export
-- `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:10` —
-  `WorkspaceConfig`
-- `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:74` —
-  `registerWorkspace` (v1-shaped config gate at 79-82)
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:144` — default-export
-  test
-- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:150,179` — pending
-  registration and logging-client tests
-- `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts:56` —
-  `workspace registration` suite
-- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:11-22` — v1
-  plugin SDK seed and `OPENCODE_TEST_SDK_DIR`
-- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:120` —
-  `opencode serve` host
-- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:148` — v1
-  `GET /config?directory=` workspace open
-- `.agents/plugins/agentdev/tests/opencode/verify-workspace-host.ts:154-157` —
-  `debug skill` and `debug config` catalog checks
-- `ansible/roles/agentic_tools/defaults/main.yml:8-9,20-21` — `opencode-ai` pin
-  and package entry
-- `ansible/roles/agentic_tools/tasks/main.yml:24-37` — Bun global install loop
-- `ansible/roles/agentic_tools/README.md:7,88` — `opencode-ai` mentions
-- `.devcontainer/scripts/opencode-web-start.sh:24-26,35` — bind choice and pane
-  command
-- `scripts/tests/test_opencode_web_start.py:12-13` — expected pane commands
-- `.devcontainer/scripts/link-opencode-auth.sh` — script to delete
-- `.devcontainer/scripts/postCreateCommand.sh:72-73,80` — auth directory and
-  link call
-- `.devcontainer/scripts/postStartCommand.sh:28` — link call
-- `.devcontainer/scripts/postStartCommand.sh:32` — `configure-opencode.py`, the
-  full-access policy left unchanged
-- `.devcontainer/devcontainer.json:102-107` — `agentdev-opencode` mount and
-  comment
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:384-400` —
-  `opencode_run`, `opencode_calls`, shipper dispatch readers
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:447,453` — `task`
-  dispatch checks
-- `scripts/e2e/20261007-agent-owned-ship-implement/run.sh:418,428,439,444,452` —
-  `--command` call sites
-- `docs/knowledge/data/codebase/devcontainer/scripts.md:40,47` —
-  `link-opencode-auth.sh` and `opencode-web-start.sh` rows
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md:20-21,52`
-  — v1-only module shape and config-hook registration
-- `docs/knowledge/data/spec/opencode-workspace-cbm-indexing.md:24,58` — the two
-  requirements this plan modifies
+- `.devcontainer/scripts/opencode-web-start.sh:15,20,30,37` — the link it reads
+  and prints on a reuse (`:20,30`) or a start (`:37`)
+- `.devcontainer/scripts/opencode-web-command.sh:19-24` — `link`, which prints
+  the server's root URL; `:28-34` — bind choice; `:38-49` — pane command
+- `scripts/tests/test_opencode_web_start.py:13-14` — expected pane commands
+- `scripts/tests/test_opencode_web_start.py:16-18` — `PROXY_URI`, `CODER_LINK`,
+  `LOCAL_LINK`; `:160-182` — the link and skip tests
+- `docs/knowledge/data/features/opencode-web-coder-autostart.md:4,42-44,59-62` —
+  the printed link to the web UI's home, and the once-per-browser project add
+- `docs/knowledge/data/codebase/devcontainer/scripts.md:52` —
+  `opencode-web-command.sh` row
+- `docs/knowledge/data/spec/coder-ide-baseline.md:119` — the `OpenCode` app URL,
+  the server root

@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "plugin": ["@CATALOG@/.opencode-plugin"],
   "small_model": "openai/gpt-6-luna",
   "permission": {
     "external_directory": {
