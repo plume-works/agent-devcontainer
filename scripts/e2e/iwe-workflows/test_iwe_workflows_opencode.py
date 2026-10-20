@@ -20,12 +20,10 @@ pytestmark = pytest.mark.e2e
 
 
 def run(server: OpenCodeServer, name: str, command: str, text: str) -> Transcript:
-    """Run one command and assert, first, that the run completed."""
+    """Run one command and assert, first, that the run completed on a working login."""
     transcript = server.run(name, command, text, OPENCODE_BUDGET)
-    assert transcript.completed() and not transcript.timed_out, (
-        'opencode run did not complete: '
-        f'{transcript.failure_reason(OPENCODE_BUDGET)}\n{transcript.excerpt()}'
-    )
+    reason = transcript.failure_reason(OPENCODE_BUDGET)
+    assert reason is None, f'opencode run did not complete: {reason}\n{transcript.excerpt()}'
     return transcript
 
 

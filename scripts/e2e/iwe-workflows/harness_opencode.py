@@ -98,9 +98,19 @@ class Transcript:
             for part in message.get('content') or []
         ]
 
+    def errors(self) -> list[dict[str, Any]]:
+        """Return the error of every assistant message that failed."""
+        return [
+            message['error']
+            for message in self.messages
+            if message.get('type') == 'assistant' and message.get('error')
+        ]
+
     def completed(self) -> bool:
-        """Whether the agent answered with text at least once."""
-        return any(part.get('type') == 'text' for part in self.assistant_parts())
+        """Whether the agent answered with text and no assistant message failed."""
+        return not self.errors() and any(
+            part.get('type') == 'text' for part in self.assistant_parts()
+        )
 
     def auth_expired(self) -> bool:
         """Whether a model call failed on the seeded login."""
@@ -110,15 +120,20 @@ class Transcript:
         """Whether the provider refused a model call because the login is over its usage limit."""
         return USAGE_LIMIT_CODE in json.dumps(self.messages)
 
-    def failure_reason(self, budget: float) -> str:
-        """Explain why the run did not complete, for the run-completed assertion."""
+    def failure_reason(self, budget: float) -> str | None:
+        """Explain why the run failed, or return ``None`` for a clean, timely completion."""
         if self.usage_limited():
             return f'the seeded login is over its usage limit ({USAGE_LIMIT_CODE}); wait for it to reset'
         if self.auth_expired():
             return 'budget exhausted: the seeded login expired (provider.auth)'
         if self.timed_out:
             return f'budget exhausted: still running after {budget:.0f}s, interrupted'
-        return 'no assistant text'
+        if errors := self.errors():
+            error = errors[-1]
+            return f'assistant message failed: {error.get("type")}: {error.get("message", "")}'
+        if not self.completed():
+            return 'no assistant text'
+        return None
 
     def calls(self, tool: str) -> list[dict[str, Any]]:
         """Return the input of every call to ``tool``."""
