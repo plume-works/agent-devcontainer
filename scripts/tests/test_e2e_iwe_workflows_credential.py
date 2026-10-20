@@ -116,14 +116,14 @@ def source():
 def test_source_reads_port_and_password_like_the_web_ui(tmp_path):
     """Port from ``AGENTDEV_OPENCODE_PORT``, password from the variable, then the file."""
     server = cred.source_from_environment(
-        {'AGENTDEV_OPENCODE_PORT': '47021', 'OPENCODE_SERVER_PASSWORD': 'pw'}, tmp_path
+        {cred.PORT_ENV: '47021', cred.PASSWORD_ENV: 'pw'}, tmp_path
     )
     assert server == cred.Server('http://127.0.0.1:47021', 'pw')
 
     (tmp_path / cred.PASSWORD_FILE).parent.mkdir(parents=True)
     (tmp_path / cred.PASSWORD_FILE).write_text('from-file\n')
     assert cred.source_from_environment({}, tmp_path) == cred.Server(
-        'http://127.0.0.1:4096', 'from-file'
+        f'http://127.0.0.1:{cred.DEFAULT_PORT}', 'from-file'
     )
 
 

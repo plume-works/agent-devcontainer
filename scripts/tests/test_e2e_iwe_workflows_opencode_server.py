@@ -90,7 +90,7 @@ def server(suite_modules, work):
 
 def test_server_is_isolated_and_serves_the_clone_catalog(server, suite_modules):
     """State lives under the test directory, and the bridge loads from the clone."""
-    _, _, credential = suite_modules
+    _, harness, credential = suite_modules
     env = Path(f'/proc/{server.process.pid}/environ').read_bytes().split(b'\0')
     home = next(v for v in env if v.startswith(b'HOME=')).decode().removeprefix('HOME=')
     assert Path(home).is_relative_to(server.clone.path.parent)
@@ -99,7 +99,7 @@ def test_server_is_isolated_and_serves_the_clone_catalog(server, suite_modules):
         str(server.clone.path / '.agents/plugins/agentdev/.opencode-plugin')
     ]
     assert config['small_model'] == 'openai/gpt-6-luna'
-    assert 'agentdev:iwe-ship' in server.commands()
+    assert harness.READY_COMMAND in server.commands()
     login = server.server.request('GET', '/api/credential')['data'][0]['value']
     assert login['refresh'] == credential.WITHHELD
 
