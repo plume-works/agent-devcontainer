@@ -587,6 +587,23 @@ Two constraints on any sandboxed build follow:
 The revision of 2026-10-21 chose to disable the inner tool sandboxes for the
 build's process tree only, keeping `sandbox-exec` as the containment.
 
+### Task 5: the inner-sandbox override cannot be scoped to the build
+
+The failing nested build is started by `expo-modules-jsi`'s
+`build-xcframework.sh` as `env -i PATH HOME PODS_ROOT RN_ROOT … xcodebuild`.
+That rules out any override passed in the environment, such as
+`CFFIXED_USER_HOME`. An `xcodebuild` shim that adds
+`-IDEPackageSupportDisableManifestSandbox=YES` is accepted when called directly,
+but it never reaches the nested call. Xcode puts its own tool directories,
+including `Contents/Developer/usr/bin`, ahead of the script phase's `PATH`, even
+when an `XCODE_XCCONFIG_FILE` sets `PATH = <shim>:$(inherited)`. The user's
+`com.apple.dt.Xcode` defaults stayed unchanged throughout, and the `postinstall`
+probes stayed blocked.
+
+Turning off the inner sandboxes for one build would mean depending on Expo's
+script internals, Xcode's `PATH` assembly, and an undocumented Xcode default.
+The plan returns to revise toward the dedicated low-privilege macOS user.
+
 ## Out of scope
 
 - Android builds through the bridge; the container builds Android itself.
