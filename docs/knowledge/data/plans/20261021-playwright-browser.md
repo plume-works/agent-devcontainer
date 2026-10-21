@@ -6,7 +6,7 @@ release:
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:12:00Z
+  at: 2026-10-21T07:16:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -65,9 +65,12 @@ client/browser version contract.
 
 **Files:** Modify: `docker/desktop/agent-desktop.Dockerfile`
 
-- [ ] Enable the Playwright role for `agent-desktop`, pass its pin explicitly,
+- [x] Enable the Playwright role for `agent-desktop`, pass its pin explicitly,
   publish `PLAYWRIGHT_BROWSERS_PATH=/opt/playwright`, and label the installed
   Playwright version.
+  - **Evidence:**
+    `uv run pre-commit run hadolint-docker --files docker/desktop/agent-desktop.Dockerfile`
+    passed on 2026-10-21.
 
 ### Task 3: Cover provisioning and a real browser launch
 
