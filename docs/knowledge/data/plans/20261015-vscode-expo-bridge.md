@@ -3,10 +3,10 @@ type: plan
 created: 2026-10-15
 release:
 - features/vscode-expo-bridge
-description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built as a dedicated low-privilege macOS user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
+description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built unsandboxed as the Mac user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T00:00:00Z
+  at: 2026-10-21T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -64,7 +64,7 @@ bundled by the extension pack `plume-works.vscode-expo-bridge`:
 │   │ unix socket              │   routing   │  ├ trust + build confirmation     │
 │   ▼                          │ ──────────▶ │  ├ resolves the workspace's host  │
 │ workspace extension ─────────┤             │  │   path, validates arguments     │
-│                              │             │  ├ eas build --local as builder   │
+│                              │             │  ├ eas build --local              │
 │ tails the log file ◀─────────┼─workspace───┼──┤ xcrun simctl install/launch/   │
 │ reads the artifact           │  directory  │  │   screenshot                   │
 └──────────────────────────────┘             │  └ writes .tmp/expo-bridge/        │
@@ -89,37 +89,29 @@ host extension's own checks are the only boundary. They are these:
   are never read from workspace settings, `devcontainer.json`, or any other file
   the container can write.
 - **A confirmation before every `build`.** The prompt names the profile and
-  states that project code will run on the Mac. Its answers are "Allow once",
-  "Don't ask for an hour", and "Don't ask today"; a cooldown applies to that
-  workspace only and is stored in `globalState`. `status`, `install`, `launch`,
-  and `screenshot` never prompt beyond trust.
-- **Builds run as a dedicated user.** Every build runs as `expo-builder`, a
-  standard (non-admin) macOS user. The host extension runs
-  `sudo -n -u expo-builder <wrapper>`, and a sudoers drop-in allows only that
-  root-owned wrapper, installed under `/usr/local/libexec/vscode-expo-bridge/`.
-  The wrapper validates the workspace path and the profile, reads `EXPO_TOKEN`
-  from stdin (never through sudo's `env_keep`), and runs
-  `eas build --local -p ios --profile <name>`. The builder's own home holds its
-  caches and Xcode state. macOS file permissions keep it out of the user's
-  `~/.ssh`, keychains, and `~/Library`. It runs tools from system-wide locations
-  (`/usr/bin` and the Homebrew prefixes), never from the user's home, and
-  `status` checks the versions the builder sees.
-- **Builder access.** An ACL gives `expo-builder` traverse-only access on the
-  workspace's parent directories, read access on the workspace, and write access
-  on `.tmp/expo-bridge/` only.
+  states that project code will run on the Mac with the user's privileges. Its
+  answers are "Allow once", "Don't ask for an hour", and "Don't ask today"; a
+  cooldown applies to that workspace only and is stored in `globalState`.
+  `status`, `install`, `launch`, and `screenshot` never prompt beyond trust.
+- **No containment of the build.** `build` runs
+  `eas build --local -p ios --profile <name>` as the Mac user, unsandboxed, with
+  no privileged setup on the Mac. Project code in the build can do anything the
+  user can. Trust and the build confirmation are the only gate on it; every
+  other action runs no project code.
 - **No-VCS packing.** The build always sets `EAS_NO_VCS=1`. eas-cli's git
   packing writes the workspace's `.git/config`; in no-VCS mode it writes nothing
-  in `.git`, still honors `.gitignore`, and includes untracked files.
+  in `.git`, still honors `.gitignore`, and includes untracked files, so the
+  bridge itself writes nothing in the workspace outside `.tmp/expo-bridge/`.
 - **Safe paths and processes.** Every protocol path is resolved with `realpath`
   and rejected when any component is a symlink or the result leaves the
   workspace. The host extension starts every process with `execFile` and an
   argument array, never a shell string.
 - **`EXPO_TOKEN` in VS Code SecretStorage.** Commands set and clear the token on
-  the Mac; the host extension passes it to the wrapper on stdin, and the wrapper
-  puts it in the build's environment only. The build can still read it, so the
-  README recommends a robot-account token scoped to the project.
+  the Mac; the host extension puts it in the build's environment only. The build
+  can still read it, so the README recommends a robot-account token scoped to
+  the project.
 
-**Host environment.** The host extension's own processes (probes,
+**Host environment.** The host extension's processes (probes, the build,
 `xcrun simctl`) run with the user's login environment, captured with
 `$SHELL -l -c 'env -0'`, which fish and POSIX shells both accept, and starts its
 processes directly with that environment — never through the login shell. Tool
@@ -130,10 +122,9 @@ bridge.
 - **`status`** reports whether the bridge can serve a build: a Mac host, a
   workspace host path that exists locally, whether the workspace is trusted,
   Xcode, CocoaPods, fastlane, Node, a host bun at least as new as the
-  container's (the container sends its `bun --version`), the builder setup
-  (user, wrapper, sudoers drop-in, ACLs), `EXPO_TOKEN` stored in SecretStorage,
-  `extra.eas.projectId` in the app config, a booted simulator, whether port 8081
-  is forwarded, and the protocol version.
+  container's (the container sends its `bun --version`), `EXPO_TOKEN` stored in
+  SecretStorage, `extra.eas.projectId` in the app config, a booted simulator,
+  whether port 8081 is forwarded, and the protocol version.
 - **Nothing Mac-specific lands in the shared workspace.** The host extension
   never runs `eas init`, `expo run:ios`, `expo prebuild`, or a package install
   in the workspace; the only files it writes there are under `.tmp/expo-bridge/`
@@ -142,12 +133,8 @@ bridge.
 - **One-click fix.** When `status` finds a missing tool, the host extension
   offers a fix in the VS Code UI that runs Homebrew in a visible local terminal.
   Xcode is a guided step (it opens the App Store page), after which the fix runs
-  `xcode-select`, accepts the license, and downloads the iOS platform. The
-  builder setup is a one-time fix in a visible terminal with the user's admin
-  password: it creates the user, installs the wrapper and the sudoers drop-in,
-  sets the ACLs, and runs `xcodebuild -runFirstLaunch` as the builder. `build`
-  refuses while the setup is missing. A fix is only ever started by the user's
-  click, never by a protocol action.
+  `xcode-select`, accepts the license, and downloads the iOS platform. A fix is
+  only ever started by the user's click, never by a protocol action.
 - **`eas-host`** is the container-side command. The workspace extension installs
   it into `~/.local/bin` on activation and listens on a fixed socket; it streams
   the build log by tailing the log file the host extension writes. When the
@@ -176,19 +163,19 @@ command routing, so the firewall allowlist does not change. Rejected: a single
 extension whose host half registers a URI handler that `eas-host` reaches with
 `code --open-url` — the remote CLI needs `VSCODE_IPC_HOOK_CLI`, so a detached
 agent cannot reach it, and results would come back only by polling files.
-Rejected: relying on the fixed action set alone — `build` runs project code on
-the Mac, so the action set cannot contain a hostile workspace. Rejected:
-containing the build with `sandbox-exec` — macOS does not apply a sandbox inside
-another, and the build's tools (SwiftPM) sandbox themselves; turning their
-sandboxes off for one build depends on Expo's script internals, Xcode's
-script-phase `PATH`, and an undocumented Xcode default. Rejected: disabling
-SwiftPM's manifest sandbox through global Xcode defaults — it weakens every
-Xcode build on the Mac.
+Rejected: containing the build with `sandbox-exec` — macOS does not apply a
+sandbox inside another, and the build's tools (SwiftPM) sandbox themselves;
+turning their sandboxes off for one build depends on Expo's script internals,
+Xcode's script-phase `PATH`, and an undocumented Xcode default. Rejected:
+disabling SwiftPM's manifest sandbox through global Xcode defaults — it weakens
+every Xcode build on the Mac. Rejected: building as a dedicated low-privilege
+macOS user — it needs a second account, a sudoers rule, and a root-owned wrapper
+installed with the user's admin password, a standing privileged path on the Mac;
+and the account's home persists between builds, so one hostile build can poison
+the next.
 
 Assumptions:
 
-- The builder account is `expo-builder`, and the wrapper lives under
-  `/usr/local/libexec/vscode-expo-bridge/`.
 - The extension IDs are `plume-works.vscode-expo-bridge` (the pack),
   `plume-works.vscode-expo-bridge-host` (`ui`), and
   `plume-works.vscode-expo-bridge-workspace` (`workspace`).
@@ -306,9 +293,8 @@ Assumptions:
 
 ### Task 5: Spike a contained `eas build --local`
 
-**Files:** Create: the `expo-builder` user, the wrapper, the sudoers drop-in,
-and the ACLs, driven by the Task 1 scratch extension; the `sandbox-exec` profile
-its first checks used is recorded under `## Verification results`
+**Files:** none — a `sandbox-exec` profile driven by the Task 1 scratch
+extension; its findings are recorded under `## Verification results`
 
 - [x] A `postinstall` script added to the app that reads `~/.ssh` fails under
   the profile, and one that writes to `~/Library/LaunchAgents` fails.
@@ -325,17 +311,11 @@ its first checks used is recorded under `## Verification results`
     `## Verification results`. This revision chose to disable the inner tool
     sandboxes per build, and added the checks below.
 - [x] When the override cannot be scoped to the build, it is recorded under
-  `## Verification results` and the plan goes back to revise toward the
-  dedicated low-privilege macOS user before Task 12.
+  `## Verification results` and the plan goes back to revise its containment
+  before Task 12.
   - **Evidence:** The finding is recorded under `## Verification results`. This
     revision switched the containment to the `expo-builder` user and replaced
     the override checks with the checks below.
-- [ ] Run as `expo-builder` through the wrapper with `EAS_NO_VCS=1`, a simulator
-  build of the Task 1 app succeeds, with the artifact under `.tmp/expo-bridge/`.
-- [ ] In that build, the `postinstall` probes that read the user's `~/.ssh` and
-  write the user's `~/Library/LaunchAgents` fail.
-- [ ] In that build, a write to the workspace outside `.tmp/expo-bridge/` fails.
-- [ ] The sudoers rule refuses any command other than the wrapper.
 
 ### Task 6: Specify the protocol and security model in the sibling repository
 
@@ -346,9 +326,9 @@ its first checks used is recorded under `## Verification results`
   `.tmp/expo-bridge/` write boundary, the protocol version and how `status`
   reports a mismatch, and that fixes are never protocol actions.
 - [ ] It states the threat model and each control from `## Approach`: the
-  per-workspace trust prompt, the build confirmation and its cooldowns, the
-  `expo-builder` user with its wrapper, sudoers rule, and ACLs, `execFile`
-  without a shell, and `EXPO_TOKEN` in SecretStorage.
+  per-workspace trust prompt, the build confirmation and its cooldowns, that a
+  build runs uncontained with the user's privileges, `execFile` without a shell,
+  and `EXPO_TOKEN` in SecretStorage.
 
 ### Task 7: Split the repository into the two extensions and the pack
 
@@ -415,16 +395,13 @@ its first checks used is recorded under `## Verification results`
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
 - [ ] `build` rejects a profile absent from `eas.json`, requires trust and the
-  build confirmation and the builder setup, and runs the wrapper as
-  `expo-builder` through `sudo -n`, passing `EXPO_TOKEN` from SecretStorage on
-  stdin; the wrapper runs `eas build --local -p ios --profile <name>` with
-  `EAS_NO_VCS=1`, the artifact and log under `.tmp/expo-bridge/`. `build`
-  returns the artifact's workspace-relative path and the exit code, and never
-  runs `eas init`.
-- [ ] The wrapper rejects a workspace path or profile that fails validation, and
-  never reads `EXPO_TOKEN` from its environment.
-- [ ] `bun test` covers profile validation, the gating order, and the `sudo` and
-  wrapper arguments, with process spawning stubbed.
+  build confirmation, and runs `eas build --local -p ios --profile <name>` with
+  the login environment plus `EXPO_TOKEN` from SecretStorage, `EAS_NO_VCS=1`,
+  and the artifact and log under `.tmp/expo-bridge/`. `build` returns the
+  artifact's workspace-relative path and the exit code, and never runs
+  `eas init`.
+- [ ] `bun test` covers profile validation, the gating order, and the `eas`
+  arguments and environment, with process spawning stubbed.
 
 ### Task 13: Host extension — `install`, `launch`, `screenshot`
 
@@ -444,10 +421,6 @@ its first checks used is recorded under `## Verification results`
   UI offers a fix that runs the Homebrew command in a visible local terminal;
   for Xcode it opens the App Store page and then runs `xcode-select`, the
   license acceptance, and `xcodebuild -downloadPlatform iOS`.
-- [ ] When the builder setup is missing, the UI offers a fix that, in a visible
-  terminal with the user's admin password, creates `expo-builder`, installs the
-  wrapper and the sudoers drop-in, sets the ACLs, and runs
-  `xcodebuild -runFirstLaunch` as the builder.
 - [ ] No protocol action can start a fix.
 
 ### Task 15: Sibling repository CI
@@ -608,9 +581,6 @@ Two constraints on any sandboxed build follow:
 - The build's inner tools may sandbox themselves. A containment mechanism must
   allow that, or turn it off for the build's process tree only.
 
-The revision of 2026-10-21 chose to disable the inner tool sandboxes for the
-build's process tree only, keeping `sandbox-exec` as the containment.
-
 ### Task 5: the inner-sandbox override cannot be scoped to the build
 
 The failing nested build is started by `expo-modules-jsi`'s
@@ -626,8 +596,6 @@ probes stayed blocked.
 
 Turning off the inner sandboxes for one build would mean depending on Expo's
 script internals, Xcode's `PATH` assembly, and an undocumented Xcode default.
-The plan returns to revise toward the dedicated low-privilege macOS user. The
-revision of 2026-10-21 switched the containment to the `expo-builder` user.
 
 ## Out of scope
 
@@ -640,6 +608,8 @@ revision of 2026-10-21 switched the containment to the `expo-builder` user.
 - Changes to this repository's own `.devcontainer/`.
 - Installing Xcode itself unattended.
 - Linking the EAS project (`eas init`) through the bridge.
+- Containing a build on the Mac: a trusted, confirmed build runs with the Mac
+  user's privileges.
 
 ## Key references
 
