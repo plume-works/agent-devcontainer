@@ -2,8 +2,8 @@
 type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:18:06Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -569,6 +569,27 @@ document's prose.
   mask since it was verified
 - **THEN** replay reports the document `REFRESH`
 - **AND** its `source_digest` is left for the prose refresh to update
+
+#### Scenario: Replay evidence follows the recorded digest's ancestry
+
+- **WHEN** commit dates or `--since` exclude a source commit after the commit
+  that established a document's recorded digest
+- **THEN** replay still includes that source commit in the document's verdict
+  and evidence
+
+#### Scenario: Working-tree edits are reviewable evidence
+
+- **WHEN** a working-tree mask absorbs or fails to absorb an uncommitted source
+  edit
+- **THEN** replay reports that path as `ABSORBED WORKTREE` or `MOVED WORKTREE`
+- **AND** every value hidden by that comparison appears in `HIDDEN` evidence
+
+#### Scenario: Broken metadata has one replay result contract
+
+- **WHEN** a document depends on malformed metadata, including on an early
+  `REFRESH` path
+- **THEN** replay reports the document `BROKEN` and ends `BROKEN_METADATA`
+- **AND** it does not expose an exception traceback
 
 #### Scenario: A quoted value is not masked away
 

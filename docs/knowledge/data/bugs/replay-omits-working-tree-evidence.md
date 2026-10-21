@@ -1,5 +1,6 @@
 ---
 type: bug
+stage: done
 description: Replay could justify a re-stamp with masked working-tree changes while omitting those changes and their hidden values from its evidence.
 generated:
   by: codex/gpt-5

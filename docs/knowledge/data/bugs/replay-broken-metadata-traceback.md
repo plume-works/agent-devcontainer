@@ -1,5 +1,6 @@
 ---
 type: bug
+stage: done
 description: Replay could raise an uncaught metadata error while preparing an early refresh verdict or collecting evidence.
 generated:
   by: codex/gpt-5

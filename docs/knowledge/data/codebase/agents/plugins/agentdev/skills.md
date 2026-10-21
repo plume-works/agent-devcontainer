@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:cd307d76261e7604359c09f8326901096774856c95318c1ef51ca24f1bb28d40
+source_digest: sha256:488da694abee767ee89f845f367e7de94df3f34cd4eef48919a9a0dec3452c35
 verified:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:13:47Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 stale_after: 2027-01-19
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:13:47Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -70,14 +70,15 @@ metadata files themselves stay out of that fingerprint; a rule reaches a digest
 only as the pattern and replacement that applied. Its `--explain` flag prints
 one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
 shared result vocabulary for metadata it cannot read, compile, or apply to a
-masked text file. `--replay [--since <date>]` applies the working-tree rules to
-every first-parent change of the files they reach, printing `ABSORBED` or
-`MOVED` per commit and file and `HIDDEN` per masked value, then `RESTAMP` with a
-new digest for a non-fresh doc the rules explain and `REFRESH` for the rest;
-unreadable metadata in either the working tree or `HEAD` is `BROKEN_METADATA`,
-including for a doc whose working-tree digest is already fresh. Refresh mode in
-`iwe-map`'s `SKILL.md` runs it before committing a new mask. The IWE family runs
-against the [knowledge workspace](../../../docs/knowledge.md).
+masked text file. `--replay [--since <date>]` bounds each verdict by the
+first-parent commit that established the document's recorded digest; the date
+can add evidence but cannot exclude that ancestry. It prints `ABSORBED` or
+`MOVED` per commit or working-tree edit and file, plus `HIDDEN` per masked
+value, then `RESTAMP` with a new digest for a non-fresh doc the rules explain
+and `REFRESH` for the rest. Unreadable metadata in either the working tree or
+`HEAD` is `BROKEN_METADATA`, including before an early refresh verdict. Refresh
+mode in `iwe-map`'s `SKILL.md` runs it before committing a new mask. The IWE
+family runs against the [knowledge workspace](../../../docs/knowledge.md).
 `template-consume` optionally copies the repository's IWE seed into a consumer,
 then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
 reusable knowledge scaffold and never replaces consumer-owned project memory. An
@@ -168,7 +169,9 @@ Verified anchor points (line numbers as of 2026-10-21):
   working tree or a revision's tree
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:532` —
   `Replayer`, the masked before/after comparison `--replay` runs
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:617` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:619` —
+  `digest_commit`, the ancestry boundary for a replay verdict
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:638` —
   `replay_verdict`, the `RESTAMP`/`REFRESH` rule
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:364` —
   `source_digest_for_paths`

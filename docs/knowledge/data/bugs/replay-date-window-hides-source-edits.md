@@ -1,5 +1,6 @@
 ---
 type: bug
+stage: done
 description: Replay could re-stamp a stale map document after omitting source edits that fell outside a commit-date window.
 generated:
   by: codex/gpt-5

@@ -196,17 +196,17 @@ audit a `FRESH` verdict a mask is holding up:
 | `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; rerun it.                                              |
 
 `--replay [--since <YYYY-MM-DD>]` asks a different question: do the
-**working-tree** masks, committed or not, explain what history changed? It
-replays every first-parent commit since `--since` — by default the earliest
-`verified.at` across the map — over the files those masks reach, then judges
-each non-fresh doc:
+**working-tree** masks, committed or not, explain what history changed? For
+each non-fresh doc, it replays the first-parent ancestry after the commit that
+began the current `source_digest` run. `--since` additionally inspects masked
+files on or after that date; it never narrows the ancestry a verdict relies on.
 
 | Line                                       | Meaning                                                                                                |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `ABSORBED <commit> <path>`                 | The masks hide every byte this commit changed in this file.                                            |
-| `MOVED <commit> <path>`                    | The masked content still changed.                                                                      |
+| `ABSORBED <commit\|WORKTREE> <path>`       | The masks hide every byte this commit or working-tree edit changed in this file.                       |
+| `MOVED <commit\|WORKTREE> <path>`          | The masked content still changed in this commit or working-tree edit.                                  |
 | `HIDDEN <metadata-path> <pattern> <value>` | One distinct value the mask hid, as a JSON string — what the rule would silence.                       |
-| `RESTAMP <key> <digest>`                   | Fresh under HEAD's metadata, or every change since `verified.at` is absorbed: record `<digest>`.       |
+| `RESTAMP <key> <digest>`                   | Fresh under HEAD's metadata, or every change after its recorded digest commit is absorbed.             |
 | `REFRESH <key>`                            | The masks do not explain the change; refresh the doc. So is a doc whose own commit edited its sources. |
 | `BROKEN <key> <metadata-path>`             | A `.agent.metadata.json` the doc depends on cannot be read; the run ends `BROKEN_METADATA`.            |
 

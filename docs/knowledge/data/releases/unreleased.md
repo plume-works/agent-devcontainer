@@ -5,8 +5,8 @@ version: unreleased
 stage: unreleased
 status: draft
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:18:06Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 ---
 
 # Unreleased
@@ -73,6 +73,15 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 [AI responder workflows](../features/ai-responder-workflows.md)
 
 ## Fixed
+
+[Bug: Replay date window hides source
+edits](../bugs/replay-date-window-hides-source-edits.md)
+
+[Bug: Replay omits working-tree
+evidence](../bugs/replay-omits-working-tree-evidence.md)
+
+[Bug: Replay leaks broken metadata as a
+traceback](../bugs/replay-broken-metadata-traceback.md)
 
 [Bug: CI/CD publishes images before testing
 them](../bugs/ci-publishes-images-before-acceptance.md)

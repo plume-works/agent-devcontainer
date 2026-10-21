@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:19c07116fe70609b309965ffaf743d338440e9374ad1cc5fdd1cddfeeaf830ac
+source_digest: sha256:f2c6276f6519dc4a096de090cff0e7f96f7ee0ad3a29d3b1b4572cb5f245e069
 verified:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:13:47Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 stale_after: 2027-01-19
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:13:47Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -68,11 +68,11 @@ subtree, including invalid replacements and masked binary files. The replay
 module reuses both modules' helpers, commits fixtures at fixed future dates so
 `--since` and `verified.at` cut history predictably, and pins `--replay`: a pin
 bump a new uncommitted rule covers is `ABSORBED` and its doc `RESTAMP` with the
-digest a plain run then records, a doc fresh under `HEAD`'s metadata is
-`RESTAMP` without a verified date, a change outside the rule or an uncommitted
-unmasked edit is `REFRESH`, `HIDDEN` lists each value once, and `--since` alone
-or unreadable metadata in either view is refused. Malformed committed metadata
-is tested with otherwise fresh, restamp, and refresh verdicts.
+digest a plain run then records, working-tree absorption emits `WORKTREE` and
+`HIDDEN` evidence, and verdict ancestry cannot be narrowed by commit dates or
+`--since`. A change outside the rule or an uncommitted unmasked edit is
+`REFRESH`; malformed metadata is `BROKEN_METADATA` even on an early refresh path
+and is tested with otherwise fresh, restamp, and refresh verdicts.
 `test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
 clone that pushes behind the working clone's back, a stub `git` with
 after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
@@ -162,6 +162,10 @@ Verified anchor points (line numbers as of 2026-10-21):
   `commit_dated`, the fixed-date commit helper
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:67` —
   `bumped_workspace`, a mapped pin and its bump
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:151` —
+  working-tree evidence regression
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:197` —
+  digest-commit ancestry regression
 - `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:54` —
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —

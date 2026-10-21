@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:121b75a84781e9429ed49f3a01f10dae0dee86206c3df57e9d13773a92a78cc0
+source_digest: sha256:a4787abd132a0cebd5517c3c228cc88eb2479a8359573c6d9c2d24f7e3c84fb0
 verified:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:13:47Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 stale_after: 2027-01-19
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:13:47Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
