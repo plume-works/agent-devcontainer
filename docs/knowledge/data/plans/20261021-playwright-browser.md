@@ -6,7 +6,7 @@ release:
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:34:00Z
+  at: 2026-10-21T07:40:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -170,13 +170,16 @@ project's independently versioned Playwright dependency.
 
 Verified anchor points (line numbers as of 2026-10-21):
 
-- `ansible/playbooks/setup-dev.yml:30` — Bun and Node role ordering
-- `ansible/playbooks/setup-dev.yml:38` — opt-in image capability roles
-- `ansible/roles/agentic_tools/defaults/main.yml:5` — Renovate-managed npm pins
-- `ansible/roles/agentic_tools/tasks/main.yml:23` — exact Bun global package
+- `ansible/playbooks/setup-dev.yml:33` — Bun and Node role ordering
+- `ansible/playbooks/setup-dev.yml:35` — opt-in Playwright capability
+- `ansible/roles/playwright_browser/defaults/main.yml:2` — Renovate-managed
+  Playwright pin
+- `ansible/roles/playwright_browser/tasks/main.yml:15` — exact Bun package
   installation
-- `docker/desktop/agent-desktop.Dockerfile:41` — Ansible provisioning layer
-- `docker/desktop/agent-desktop.Dockerfile:48` — published-image role inputs
+- `ansible/roles/playwright_browser/tasks/main.yml:39` — Chromium and dependency
+  installation
+- `docker/desktop/agent-desktop.Dockerfile:45` — Ansible provisioning layer
+- `docker/desktop/agent-desktop.Dockerfile:52` — published-image role inputs
 - `.github/workflows/ci.yml:277` — native devcontainer image acceptance
-- `.github/workflows/ci.yml:286` — provisioned toolchain smoke checks
+- `.github/workflows/ci.yml:299` — Playwright CLI and Chromium smoke checks
 - `.devcontainer/docker-compose.yml:53` — published image runtime service
