@@ -256,6 +256,19 @@ document's prose.
 - A plain `stale-map-docs.py` run still ends `RESULT=SUCCESS`; its output is
   unchanged without `--replay`.
 
+## Verification results
+
+At `dc890e2`:
+
+- `test_stale_map_docs_replay.py`: 7 passed. `test_stale_map_docs_masks.py` with
+  `test_stale_map_docs.py`: 24 passed.
+- `stale-map-docs.py --replay` with the committed metadata reads from
+  `SINCE=2026-09-07T23:43:50Z`, reports 336 `ABSORBED` and 65 `MOVED` lines,
+  `RESTAMP_COUNT=0`, `REFRESH_COUNT=0`, `BROKEN_COUNT=0`, and ends
+  `RESULT=SUCCESS`; both files `c8d0aca` touched are `ABSORBED`.
+- A plain run ends `RESULT=SUCCESS`. Its stdout, with and without `--explain`,
+  is byte-identical to the script at `6b1ea4e` run over the same tree.
+
 ## Out of scope
 
 - A CI job or bot that masks or re-stamps on dependency-update pull requests.
