@@ -13,6 +13,10 @@ to the current day's group.
 - **Update**: [Bug: the Remote Control pin ignores
   `/clear`](bugs/remote-control-pin-ignores-clear.md) fixed; listed under
   Unreleased.
+- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
+  [scripts](codebase/devcontainer/scripts.md), and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) for the
+  `claude-remote-control-pin.sh` `SessionStart` hook.
 
 ## 2026-10-20
 
