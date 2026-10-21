@@ -109,20 +109,39 @@ missed.
 **Files:** Create:
 `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py`
 
-- [ ] Reuse `build_workspace`, `commit_file`, `write_map_doc`, and `run_script`
+- [x] Reuse `build_workspace`, `commit_file`, `write_map_doc`, and `run_script`
   from `test_stale_map_docs.py` and `write_metadata` from
   `test_stale_map_docs_masks.py`; fixtures use made-up paths and images.
-- [ ] A doc stale only from a pin bump, with a new uncommitted rule covering it,
+  - **Evidence:** same commit;
+    `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py` imports those
+    helpers and `BUMPED_PIN`/`PIN`/`compose_text`/`current_digest`/`digest_mask`
+    from the mask suite, with `deploy/` and `example.invalid` fixtures.
+- [x] A doc stale only from a pin bump, with a new uncommitted rule covering it,
   is `RESTAMP` with the digest a plain run computes afterwards, and the bump
   commit is `ABSORBED`.
-- [ ] A doc already fresh that the new rule reaches is `RESTAMP` (the
+  - **Evidence:** same commit;
+    `test_a_doc_stale_only_from_a_pin_bump_is_restamped` passes.
+- [x] A doc already fresh that the new rule reaches is `RESTAMP` (the
   committed-metadata branch of the rule).
-- [ ] A doc whose sources also changed outside the rule since `verified.at` is
+  - **Evidence:** same commit;
+    `test_a_fresh_doc_the_new_rule_reaches_is_restamped` passes with no
+    `verified` in the doc, so only the HEAD-metadata branch can restamp it.
+- [x] A doc whose sources also changed outside the rule since `verified.at` is
   `REFRESH`, and that commit is `MOVED`.
-- [ ] An uncommitted unmasked source edit makes the doc `REFRESH`.
-- [ ] `HIDDEN` lists every distinct matched value once.
-- [ ] `--since` without `--replay` ends `PREFLIGHT_ERROR`; replay over a
+  - **Evidence:** same commit;
+    `test_a_change_outside_the_rule_is_moved_and_refreshed` passes, and fails
+    when `Replayer.explains` is forced to return True.
+- [x] An uncommitted unmasked source edit makes the doc `REFRESH`.
+  - **Evidence:** same commit;
+    `test_an_uncommitted_unmasked_edit_forces_a_refresh` passes, and fails under
+    the same forced `explains`.
+- [x] `HIDDEN` lists every distinct matched value once.
+  - **Evidence:** same commit; `test_hidden_lists_each_distinct_value_once`
+    passes.
+- [x] `--since` without `--replay` ends `PREFLIGHT_ERROR`; replay over a
   malformed working-tree metadata file ends `BROKEN_METADATA`.
+  - **Evidence:** same commit; `test_since_without_replay_is_a_preflight_error`
+    and `test_malformed_working_tree_metadata_is_broken` pass.
 
 ### Task 3: Route version-only changes in SKILL.md
 

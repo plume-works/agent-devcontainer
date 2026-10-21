@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+
+"""Behavior tests for the --replay mode of the iwe-map stale-map-docs script."""
+
+from __future__ import annotations
+
+import os
+from pathlib import Path
+import subprocess
+
+from test_stale_map_docs import (
+    build_workspace,
+    GIT_IDENTITY,
+    run_script,
+    verdict,
+    write_map_doc,
+)
+from test_stale_map_docs_masks import (
+    BUMPED_PIN,
+    compose_text,
+    current_digest,
+    digest_mask,
+    PIN,
+    write_metadata,
+)
+
+# Fixture commits are dated after build_workspace's own, so history stays in date order.
+ADDED_AT = '2090-01-01T00:00:00Z'
+VERIFIED_AT = '2090-02-01T00:00:00Z'
+BUMPED_AT = '2090-03-01T00:00:00Z'
+COMPOSE = 'deploy/compose.yml'
+NOTES = 'deploy/notes.txt'
+KEY = 'data/codebase/deploy'
+
+
+def commit_dated(repository: Path, files: dict[str, str], date: str) -> str:
+    """Write and commit `files` with author and committer dated `date`; return the SHA."""
+    for relative, content in files.items():
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content)
+    environment = {**os.environ, 'GIT_AUTHOR_DATE': date, 'GIT_COMMITTER_DATE': date}
+    for arguments in (['add', *files], ['commit', '-m', f'change at {date}']):
+        subprocess.run(
+            ['git', *GIT_IDENTITY, *arguments],
+            cwd=repository,
+            check=True,
+            capture_output=True,
+            env=environment,
+        )
+    return subprocess.run(
+        ['git', 'rev-parse', 'HEAD'], cwd=repository, check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+
+def write_deploy_doc(repository: Path, digest: str, verified: bool = True) -> None:
+    """Map `deploy` at `digest`, verified at VERIFIED_AT unless `verified` is False."""
+    stamp = f'verified:\n  by: human:fixture\n  at: {VERIFIED_AT}\n' if verified else ''
+    write_map_doc(
+        repository,
+        KEY,
+        f"type: codebase\nsource: deploy\nsource_digest: '{digest}'\n{stamp}",
+    )
+
+
+def bumped_workspace(plugin_tmp_path: Path, extra: str = '') -> tuple[Path, str]:
+    """Map a pinned compose file, then bump its pin; return the repository and bump SHA."""
+    repository = build_workspace(plugin_tmp_path)
+    commit_dated(repository, {COMPOSE: compose_text(PIN), NOTES: 'notes\n'}, ADDED_AT)
+    write_deploy_doc(repository, current_digest(repository, 'deploy'))
+    bump = commit_dated(repository, {COMPOSE: compose_text(BUMPED_PIN, extra=extra)}, BUMPED_AT)
+    return repository, bump
+
+
+def test_a_doc_stale_only_from_a_pin_bump_is_restamped(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A new rule covering the bump makes the doc RESTAMP with the digest a plain run records."""
+    # Arrange
+    repository, bump = bumped_workspace(plugin_tmp_path)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    restamped = current_digest(repository, 'deploy')
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert f'ABSORBED {bump} {COMPOSE}' in lines
+    assert f'RESTAMP {KEY} {restamped}' in lines
+    write_deploy_doc(repository, restamped)
+    assert f'FRESH {KEY}' in run_script(plugin_root, repository).stdout.splitlines()
+
+
+def test_a_fresh_doc_the_new_rule_reaches_is_restamped(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A doc fresh under HEAD's metadata is RESTAMP even without a verified date."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    commit_dated(repository, {COMPOSE: compose_text(PIN)}, ADDED_AT)
+    write_deploy_doc(repository, current_digest(repository, 'deploy'), verified=False)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert f'RESTAMP {KEY} {current_digest(repository, "deploy")}' in completed.stdout.splitlines()
+
+
+def test_a_change_outside_the_rule_is_moved_and_refreshed(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A bump that also edits described content stays MOVED, so the doc is REFRESH."""
+    # Arrange
+    repository, bump = bumped_workspace(plugin_tmp_path, extra='    restart: always\n')
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert f'MOVED {bump} {COMPOSE}' in lines
+    assert f'REFRESH {KEY}' in lines
+    assert 'RESTAMP_COUNT=0' in lines
+
+
+def test_an_uncommitted_unmasked_edit_forces_a_refresh(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """An absorbed history does not cover a working-tree edit the masks do not hide."""
+    # Arrange
+    repository, _ = bumped_workspace(plugin_tmp_path)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+    (repository / NOTES).write_text('notes, edited\n')
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert f'REFRESH {KEY}' in completed.stdout.splitlines()
+
+
+def test_hidden_lists_each_distinct_value_once(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """The pin seen in two revisions is one HIDDEN line, beside the bumped pin's."""
+    # Arrange
+    repository, _ = bumped_workspace(plugin_tmp_path)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    hidden = [line for line in completed.stdout.splitlines() if line.startswith('HIDDEN ')]
+    prefix = 'HIDDEN deploy/.agent.metadata.json @sha256:[0-9a-f]{64}'
+    assert hidden == [f'{prefix} "@sha256:{PIN}"', f'{prefix} "@sha256:{BUMPED_PIN}"']
+
+
+def test_since_without_replay_is_a_preflight_error(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """--since only bounds a replay, so on its own it is a usage error."""
+    # Arrange
+    repository, _ = bumped_workspace(plugin_tmp_path)
+
+    # Act
+    completed = run_script(plugin_root, repository, '--since', '2090-01-01')
+
+    # Assert
+    assert verdict(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+
+
+def test_malformed_working_tree_metadata_is_broken(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A replay never proves anything with a rule file it cannot read."""
+    # Arrange
+    repository, _ = bumped_workspace(plugin_tmp_path)
+    (repository / 'deploy' / '.agent.metadata.json').write_text('{ not json')
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
+    assert f'BROKEN {KEY} deploy/.agent.metadata.json' in completed.stdout.splitlines()
