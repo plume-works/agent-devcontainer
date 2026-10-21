@@ -111,11 +111,13 @@ supplied arguments, not whitespace the host has already removed.
 
 **Files:** Modify: `docs/knowledge/data/plans/20261021-opencode-command-echo.md`
 
-- [ ] A user or browser-capable verifier runs the Web UI check from Verification
+- [x] A user or browser-capable verifier runs the Web UI check from Verification
   against the changed, reloaded bridge and records evidence that both bare and
   argument-bearing invocations have one persistent user bubble. This task stays
   unchecked until the UI result is observed; payload tests alone cannot close
   it.
+  - **Evidence:** The OpenCode v2.1.1 Web UI result is recorded under
+    Verification results.
 
 ## Spec changes
 
@@ -192,6 +194,14 @@ including when there are no arguments, and retain it after reload.
   evidence in Verification results; use the repository's default test models
   when model execution is required. Do not invoke shipping or implementation
   skills merely to test display behavior.
+
+## Verification results
+
+OpenCode v2.1.1 with Chromium 140 and `openai/gpt-6.1-sol` displayed exactly one
+persistent user bubble for `/agentdev:iwe-explore` and exactly one for
+`/agentdev:iwe-explore explain this repository; do not modify files`. Both
+bubbles retained the full invocation after a page reload, and neither displayed
+the skill body.
 
 ## Out of scope
 
