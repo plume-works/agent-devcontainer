@@ -6,7 +6,7 @@ release:
 description: A VS Code extension in the sibling repository plume-works/vscode-expo-bridge that lets agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set, with EAS cloud as the fallback; the template's Expo profile lists the extension.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-15T00:00:00Z
+  at: 2026-10-21T00:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -152,10 +152,18 @@ Assumptions:
 
 **Files:** none — read `expo/skills`
 
-- [ ] Every build command in the skills of `expo@claude-plugins-official` is a
+- [x] Every build command in the skills of `expo@claude-plugins-official` is a
   direct `eas` invocation with no configurable command or hook; when one exists,
   record it under `## Verification results` and take the separate-command
   decision back to revise before Task 6.
+  - **Evidence:** `anthropics/claude-plugins-official` pins `expo` to
+    `expo/skills@d4f484024fec15196bfd3c272e953e3f983972cf` (`plugins/expo`). At
+    that commit, the 29 build invocations across 12 files in
+    `plugins/expo/skills/` are literal `eas build …` or
+    `npx eas-cli@latest build …`. `hooks/hooks.json` holds only the
+    `skill-event.cjs` telemetry hooks (`PostToolUse` on `Skill`,
+    `UserPromptExpansion`), and `.mcp.json` only `mcp.expo.dev`. No configurable
+    command exists.
 
 ### Task 4: Create the sibling repository
 
@@ -355,21 +363,19 @@ The protocol contract is specified in `plume-works/vscode-expo-bridge`
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-15):
+Verified anchor points (line numbers as of 2026-10-20):
 
-- `.devcontainer/devcontainer.json:51` — `forwardPorts`
-- `.devcontainer/devcontainer.json:105` — `customizations.vscode.extensions`
+- `.devcontainer/devcontainer.json:53` — `forwardPorts`
+- `.devcontainer/devcontainer.json:115` — `customizations.vscode.extensions`
 - `.devcontainer/docker-compose.yml:84` — the workspace bind mount at
   `/workspaces/<basename>`
 - `.gitignore:11` — `.tmp/` ignored
 - `ansible/roles/bash_setup/tasks/main.yml:3` — `~/.local/bin` on `PATH`
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:50` —
   `optional_bundles` row of the marker table
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:925`
-  — `## Optional custom-image setup`; the Expo plan places
-  `## Optional Expo setup` before it
-- `docs/knowledge/data/architecture/template-boundary.md:221` —
-  `## Optional knowledge-base bundle`; the Expo plan adds
-  `## Optional Expo profile` after it
-- `docs/knowledge/data/spec/template-consumption.md:81` — Requirement: adoption
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
+  — `## Optional Expo setup`
+- `docs/knowledge/data/architecture/template-boundary.md:256` —
+  `## Optional Expo profile`
+- `docs/knowledge/data/spec/template-consumption.md:82` — Requirement: adoption
   is recorded for later updates
