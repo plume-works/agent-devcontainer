@@ -6,7 +6,7 @@ release:
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:02:02Z
+  at: 2026-10-21T07:12:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -49,12 +49,17 @@ client/browser version contract.
 `ansible/roles/playwright_browser/README.md`; Modify:
 `ansible/playbooks/setup-dev.yml`
 
-- [ ] Add an opt-in role, ordered after Bun and Node, that installs an exact
+- [x] Add an opt-in role, ordered after Bun and Node, that installs an exact
   Renovate-managed Playwright package and its matching Chromium plus Linux
   dependencies with Bun-based commands.
-- [ ] Put browser binaries in `/opt/playwright` and make repeated provisioning
+  - **Evidence:**
+    `uv run ansible-playbook ansible/playbooks/setup-dev.yml --syntax-check` and
+    targeted `uv run ansible-lint` passed on 2026-10-21.
+- [x] Put browser binaries in `/opt/playwright` and make repeated provisioning
   verify the pinned CLI/browser installation without relying on a user's home
   cache.
+  - **Evidence:** The 2026-10-21 targeted Ansible lint run passed with explicit
+    CLI-version and installed-browser verification tasks in the role.
 
 ### Task 2: Enable Playwright in the published image
 
