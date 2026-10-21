@@ -6,7 +6,7 @@ release:
 description: Preserve the namespaced slash-command name in OpenCode v2 user messages so bare commands and commands with arguments remain visible in chat.
 generated:
   by: opencode/gpt-6.1-sol
-  at: 2026-10-21T06:51:16Z
+  at: 2026-10-21T17:45:25Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -214,12 +214,11 @@ the skill body.
 
 Verified anchor points (line numbers as of 2026-10-21):
 
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:111` — `V2Command`
-  invocation shape
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:253` — v2 command
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:132` — `rebaseMentions`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:277` — v2 command
   registration
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:258` — executor forwarding
-  argument-only text
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:283` — executor building
+  the full invocation text
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:200` — `fakeV2`
   context
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:277` — v2 command
