@@ -132,11 +132,18 @@ operator's terminal session.
 
 **Files:** none
 
-- [ ] On a Coder workspace running the change: note the claude.ai session URL,
+- [x] On a Coder workspace running the change: note the claude.ai session URL,
   run `/clear` in `claude-remote` and send a prompt, confirm
   `remote-control-session-id` now holds the post-clear conversation's ID,
   restart the workspace, and confirm the pane resumes the post-clear
   conversation under the noted URL.
+  - **Evidence:** manual run on a Coder workspace at commit "Record the Remote
+    Control pin hook decision", Claude Code 2.1.304: after `/clear` and a
+    prompt, the stored ID was the post-clear conversation's, distinct from the
+    pre-clear conversation and the previous pin; after the restart the pane's
+    `claude` started with `--settings` carrying the pin hook and `--resume` of
+    that ID, the pre-restart check turn was in its history, and Copy link
+    returned the claude.ai session URL noted before `/clear`.
 
 ## Spec changes
 
