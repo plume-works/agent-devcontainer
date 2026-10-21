@@ -55,7 +55,7 @@ supplied arguments, not whitespace the host has already removed.
 
 **Files:** Modify: `.agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 
-- [ ] Update the v2 command test to require the slash-command name before its
+- [x] Update the v2 command test to require the slash-command name before its
   argument text. Add cases whose submitted text is exactly:
 
   ``` text
@@ -72,6 +72,9 @@ supplied arguments, not whitespace the host has already removed.
   attachments and skill references, multiline argument text, and attachment
   mentions remaining aligned with their intended text. Confirm the new text
   assertions fail against the arguments-only executor.
+
+  - **Evidence:** The targeted Bun test for `complete invocation` fails against
+    the argument-only executor on both command text and mention offsets.
 
 ### Task 2: Preserve the command in the submitted message
 

@@ -274,27 +274,70 @@ describe("v2 setup", () => {
     }
   })
 
-  test("adds every skill as a namespaced command that re-prompts with the skill attached", async () => {
+  test("adds every skill as a namespaced command that re-prompts with the complete invocation", async () => {
     const { commands, prompts } = setUp()
     for (const { meta } of skills) {
       const command = commands.get(`${namespace}:${meta.name}`)
       expect(command.description).toBe(meta.description)
     }
-    const files = [{ uri: "file:///a" }]
-    const agentsRef = [{ name: "tdd-red" }]
-    await commands.get(`${namespace}:pr-gen-description`).execute({
+    const files = [{
+      uri: "file:///critical.ts",
+      mention: { start: 13, end: 25, text: "@critical.ts" },
+    }]
+    const agentsRef = [{
+      name: "tdd-red",
+      mention: { start: 26, end: 34, text: "@tdd-red" },
+    }]
+    const skillsRef = [{
+      id: "iwe-plan",
+      name: "iwe-plan",
+      mention: { start: 35, end: 44, text: "/iwe-plan" },
+    }]
+    await commands.get(`${namespace}:iwe-implement`).execute({
       sessionID: "ses_1",
-      prompt: { text: "for the current branch", files, agents: agentsRef, skills: [{ id: "iwe-plan" }] },
+      prompt: {
+        text: "fix critical @critical.ts @tdd-red /iwe-plan\nwithout changing behavior",
+        files,
+        agents: agentsRef,
+        skills: skillsRef,
+      },
       delivery: "steer",
+    })
+    await commands.get(`${namespace}:iwe-ship`).execute({
+      sessionID: "ses_2",
+      prompt: { text: "" },
+      delivery: "queue",
     })
     expect(prompts).toEqual([{
       sessionID: "ses_1",
-      text: "for the current branch",
-      files,
-      agents: agentsRef,
-      skills: [{ id: "iwe-plan" }, { id: "pr-gen-description" }],
+      text: "/agentdev:iwe-implement fix critical @critical.ts @tdd-red /iwe-plan\nwithout changing behavior",
+      files: [{
+        uri: "file:///critical.ts",
+        mention: { start: 41, end: 53, text: "@critical.ts" },
+      }],
+      agents: [{
+        name: "tdd-red",
+        mention: { start: 54, end: 62, text: "@tdd-red" },
+      }],
+      skills: [{
+        id: "iwe-plan",
+        name: "iwe-plan",
+        mention: { start: 63, end: 72, text: "/iwe-plan" },
+      }, { id: "iwe-implement" }],
       delivery: "steer",
+    }, {
+      sessionID: "ses_2",
+      text: "/agentdev:iwe-ship",
+      files: undefined,
+      agents: undefined,
+      skills: [{ id: "iwe-ship" }],
+      delivery: "queue",
     }])
+    expect(prompts).toHaveLength(2)
+    expect(prompts[0].text).not.toContain("# Implement a plan")
+    expect(files[0].mention).toEqual({ start: 13, end: 25, text: "@critical.ts" })
+    expect(agentsRef[0].mention).toEqual({ start: 26, end: 34, text: "@tdd-red" })
+    expect(skillsRef[0].mention).toEqual({ start: 35, end: 44, text: "/iwe-plan" })
   })
 
   test("maps every Claude tool a catalog agent uses", () => {
