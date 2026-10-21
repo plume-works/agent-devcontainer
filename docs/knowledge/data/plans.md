@@ -4,7 +4,7 @@ description: Implementation plans, migrations, and design proposals, one documen
 stage: living
 generated:
   by: opencode/gpt-6.1-sol
-  at: 2026-10-18T01:27:30Z
+  at: 2026-10-21T05:18:06Z
 ---
 
 # 🗺️ Plans
@@ -16,9 +16,6 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
-
-[Mask version-only changes during a map
-refresh](plans/20261021-map-masks-version-bumps.md)
 
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
@@ -38,6 +35,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Mask version-only changes during a map
+refresh](plans/20261021-map-masks-version-bumps.md)
 
 [Keep the Remote Control pin on the pane's current
 conversation](plans/20261021-remote-control-pin-follows-clear.md)

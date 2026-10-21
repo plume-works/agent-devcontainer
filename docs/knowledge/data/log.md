@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-21
 
+- **Update**: [Mask version-only changes during a map
+  refresh](plans/20261021-map-masks-version-bumps.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now specifies replay-proven masks before
+  prose refreshes.
+- **Update**: [Map masks version-only
+  changes](features/map-masks-version-bumps.md) implemented; listed under
+  Unreleased Added.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
   its [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for

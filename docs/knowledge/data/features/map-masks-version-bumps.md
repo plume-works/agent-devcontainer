@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: An iwe-map refresh that finds a map doc stale only because a version, digest, or pin value moved masks that kind of value, proves the mask against history, and re-stamps the digests it explains in one commit before refreshing any prose.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T00:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-21T05:18:06Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py

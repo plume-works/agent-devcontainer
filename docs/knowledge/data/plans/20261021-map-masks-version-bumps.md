@@ -1,12 +1,14 @@
 ---
 type: plan
+stage: done
 created: 2026-10-21
+completed: 2026-10-21
 description: Teach the iwe-map refresh to mask a version-only change in the colocated .agent.metadata.json, prove the mask with a new stale-map-docs.py --replay mode, and commit the mask with the digest re-stamps it explains before refreshing any prose.
 release:
 - features/map-masks-version-bumps
 generated:
   by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:13:47Z
+  at: 2026-10-21T05:18:06Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
