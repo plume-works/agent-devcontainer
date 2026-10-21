@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-21
+
+- **Update**: [Keep the Remote Control pin on the pane's current
+  conversation](plans/20261021-remote-control-pin-follows-clear.md) done;
+  [Claude Remote Control](spec/claude-remote-control.md) now stores the pane's
+  new conversation ID on `/clear` and gains the clear-then-restart scenario.
+- **Update**: [Bug: the Remote Control pin ignores
+  `/clear`](bugs/remote-control-pin-ignores-clear.md) fixed; listed under
+  Unreleased.
+
 ## 2026-10-20
 
 - **Update**: [Gate image publication on

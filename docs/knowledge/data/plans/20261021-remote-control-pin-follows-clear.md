@@ -11,6 +11,8 @@ sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: scripts/tests/test_claude_remote_control_session.py
 - resource: https://code.claude.com/docs/en/hooks
+stage: done
+completed: 2026-10-21
 ---
 
 # Keep the Remote Control pin on the pane's current conversation

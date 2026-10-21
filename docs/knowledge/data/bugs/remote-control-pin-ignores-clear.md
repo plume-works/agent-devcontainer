@@ -3,12 +3,14 @@ type: bug
 description: The pinned Remote Control conversation ID is written only when the claude-remote pane starts, so after a /clear a workspace restart resumes the pre-clear conversation and Claude Code mints a new claude.ai session URL for it.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T01:40:00Z
+  at: 2026-10-21T03:00:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
+- resource: .devcontainer/scripts/claude-remote-control-pin.sh
 - resource: docs/knowledge/data/spec/claude-remote-control.md
 - resource: docs/knowledge/data/architecture/claude-remote-control-resume.md
 - resource: https://code.claude.com/docs/en/hooks
+stage: done
 ---
 
 # Bug: the Remote Control pin ignores `/clear`
@@ -58,8 +60,10 @@ pinned.
 
 ## Fix
 
-Open. The fix is a `SessionStart` hook that writes the event's `session_id` to
-`remote-control-session-id`, supplied only to the pane through
+Fixed by [Keep the Remote Control pin on the pane's current
+conversation](../plans/20261021-remote-control-pin-follows-clear.md): a
+`SessionStart` hook, `claude-remote-control-pin.sh`, writes the event's
+`session_id` to `remote-control-session-id`, supplied only to the pane through
 `claude --settings` in `claude-remote-control-session.sh` so operator sessions
 never overwrite the pin.
 

@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Keep the Remote Control pin on the pane's current
-conversation](plans/20261021-remote-control-pin-follows-clear.md)
-
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Ship a standalone OpenCode
@@ -38,6 +35,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Keep the Remote Control pin on the pane's current
+conversation](plans/20261021-remote-control-pin-follows-clear.md)
 
 [Gate image publication on acceptance](plans/20261020-gate-image-publication.md)
 

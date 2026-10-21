@@ -104,3 +104,6 @@ restart](../bugs/coder-devcontainer-lost-on-restart.md)
 
 [Ship's release-link rule is undefined for a plan with no feature or
 bug](../bugs/ship-release-link-without-feature.md)
+
+[Bug: the Remote Control pin ignores
+`/clear`](../bugs/remote-control-pin-ignores-clear.md)
