@@ -111,7 +111,7 @@ operator's terminal session.
 **Files:** Modify:
 `docs/knowledge/data/architecture/claude-remote-control-resume.md`
 
-- [ ] `## Decision` gains that the pane's `SessionStart` hook, supplied through
+- [x] `## Decision` gains that the pane's `SessionStart` hook, supplied through
   `--settings`, rewrites the stored ID whenever the pane's conversation changes.
   `## Claude Code behavior the decision relies on` gains, measured on Claude
   Code 2.1.304 in interactive `--remote-control` mode: a hook supplied through
@@ -122,7 +122,11 @@ operator's terminal session.
   rejected in `## Approach`. `sources` gains
   `https://code.claude.com/docs/en/hooks` and both scripts; `generated` is
   restamped.
-- [ ] `iwe normalize` and `iwe schema validate` pass.
+  - **Evidence:** commit "Record the Remote Control pin hook decision":
+    `architecture/claude-remote-control-resume`.
+- [x] `iwe normalize` and `iwe schema validate` pass.
+  - **Evidence:** commit "Record the Remote Control pin hook decision": its
+    `iwe-normalize` and `iwe-schema-validate` pre-commit hooks passed.
 
 ### Task 4: The pin follows `/clear` in a Coder workspace
 

@@ -1,13 +1,16 @@
 ---
 type: architecture
-description: The autostarted Remote Control resumes one pinned conversation per agentdev-claude volume and falls back to a fresh pinned conversation on a non-zero resume exit; Claude Code itself mints a fresh remote session when the recorded one is gone or belongs to another account.
+description: The autostarted Remote Control resumes one pinned conversation per agentdev-claude volume, keeps the pin on the pane's current conversation through a pane-only SessionStart hook, and falls back to a fresh pinned conversation on a non-zero resume exit; Claude Code itself mints a fresh remote session when the recorded one is gone or belongs to another account.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T07:26:35Z
+  at: 2026-10-21T02:10:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: .devcontainer/scripts/claude-remote-control-session.sh
+- resource: .devcontainer/scripts/claude-remote-control-pin.sh
 - resource: .devcontainer/devcontainer.json
 - resource: https://code.claude.com/docs/en/remote-control
+- resource: https://code.claude.com/docs/en/hooks
 ---
 
 # Claude Remote Control resume
@@ -17,8 +20,11 @@ sources:
 The maintainer decided that the `claude-remote` tmux pane resumes one pinned
 conversation per `agentdev-claude` volume. The conversation ID is stored on that
 volume; a start with no stored ID, or whose resume exits non-zero, begins a new
-conversation under a newly generated ID and stores it. A transient reconnect
-failure is a known limitation with no health check.
+conversation under a newly generated ID and stores it. A `SessionStart` hook,
+supplied only to the pane's Claude process through `claude --settings`, rewrites
+the stored ID whenever the pane's conversation changes, so `/clear` moves the
+pin to the new conversation. A transient reconnect failure is a known limitation
+with no health check.
 
 ## Claude Code behavior the decision relies on
 
@@ -45,6 +51,16 @@ Measured on Claude Code 2.1.296, in interactive `--remote-control` mode:
   without Remote Control, and running `/remote-control` in it retries the
   connection.
 
+Measured on Claude Code 2.1.304, in interactive `--remote-control` mode:
+
+- **A `--settings` hook runs in the pane.** A `SessionStart` hook supplied
+  through `--settings` fires with `source` `startup`, `clear`, and `resume`.
+- **`/clear` moves the binding to the new conversation.** On `clear` the hook's
+  `session_id` is the new conversation's ID, and the pre-clear transcript's
+  binding is emptied. Resuming the pre-clear ID therefore mints a fresh remote
+  session, while resuming the ID the hook recorded reattaches the original
+  claude.ai session URL.
+
 ## Rejected alternatives
 
 - **Checking for the transcript file before resuming.** It would distinguish a
@@ -58,6 +74,11 @@ Measured on Claude Code 2.1.296, in interactive `--remote-control` mode:
 - **A post-start health check.** No documented interface reports that a running
   session has Remote Control off; a check would read Claude Code's debug log or
   transcript, which can change without notice.
+- **A pin hook in the repository's `.claude/settings.json`, gated on an
+  environment variable the pane exports.** Every Claude session in the
+  repository would run it, where the `--settings` hook reaches only the pane.
+- **Pinning the newest transcript at boot.** It depends on Claude Code's
+  undocumented transcript layout and can select an operator's terminal session.
 
 ## Consequences
 
