@@ -451,82 +451,174 @@ Containers window on a Mac
 
 **Files:** Modify: the skeleton in `plume-works/vscode-expo-bridge`
 
-- [ ] The repository builds `plume-works.vscode-expo-bridge-host`
+- [x] The repository builds `plume-works.vscode-expo-bridge-host`
   (`extensionKind: ["ui"]`), `plume-works.vscode-expo-bridge-workspace`
   (`extensionKind: ["workspace"]`), and the pack
   `plume-works.vscode-expo-bridge` listing both, each packaged as a VSIX.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `8efc942` (monorepo +
+    protocol/host core) and `1a40f27` (host wiring, workspace extension, pack,
+    CI), branch `expo-bridge-extensions`. `bun run package` produced
+    `vscode-expo-bridge-host.vsix`, `vscode-expo-bridge-workspace.vsix`, and
+    `vscode-expo-bridge.vsix`, with the two extensions carrying `extensionKind`
+    `["ui"]` and `["workspace"]` and the pack's `extensionPack` listing both.
 
 ### Task 13: Workspace extension and `eas-host`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] The workspace extension activates on `workspaceContains:eas.json`,
+- [x] The workspace extension activates on `workspaceContains:eas.json`,
   installs `eas-host` into `~/.local/bin`, and serves
   `/tmp/vscode-expo-bridge.sock`.
-- [ ] `eas-host` maps each action to one socket request, streams the build log,
+  - **Evidence:** Commit `1a40f27`. `packages/workspace/package.json` sets
+    `activationEvents: ["workspaceContains:eas.json"]`;
+    `packages/workspace/src/extension.ts` writes an `eas-host` launcher into
+    `~/.local/bin` on activation and listens on `SOCKET_PATH`
+    (`/tmp/vscode-expo-bridge.sock`).
+- [x] `eas-host` maps each action to one socket request, streams the build log,
   prints the result as JSON, and exits non-zero when the bridge is unavailable
   or the action fails.
-- [ ] `bun test` covers argument handling, the unavailable path, and log
+  - **Evidence:** Commit `1a40f27`. `packages/workspace/bin/eas-host.ts` sends
+    one request per action over the socket, prints log frames to stderr and the
+    result JSON to stdout, and exits 0/1/2/3 (success / action failed / usage /
+    unavailable). The end-to-end CLI test in
+    `packages/workspace/test/eas-host.test.ts` drives a real local socket and
+    covers success, unavailable (exit 3), action failure (exit 1), and log
+    streaming.
+- [x] `bun test` covers argument handling, the unavailable path, and log
   streaming.
+  - **Evidence:** Commit `1a40f27`. `packages/workspace/test/cli-args.test.ts`
+    covers argument handling for every action, `test/wire.test.ts` covers the
+    newline-framed decoder and the log-then-response stream shape, and
+    `test/eas-host.test.ts` covers the no-socket unavailable path and build-log
+    streaming end to end. `bun test` reports 99 pass / 0 fail across 14 files.
 
 ### Task 14: Host extension — environment, processes, and paths
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] The host extension captures the login environment with
+- [x] The host extension captures the login environment with
   `$SHELL -l -c 'env -0'`, resolves tools through it plus `/opt/homebrew/bin`
   and `/usr/local/bin`, and starts every process with `execFile` and an argument
   array.
-- [ ] A protocol path is rejected when any component is a symlink or its
+  - **Evidence:** Commit `8efc942`. `packages/host/src/env.ts`
+    (`captureLoginEnv` runs `$SHELL -l -c 'env -0'`, `withHomebrewPath` prepends
+    the two prefixes, `lookupTool` resolves against PATH) and
+    `packages/host/src/exec.ts` (`run` uses `execFile` with an argument array,
+    never a shell string). `test/env.test.ts` covers fish and POSIX dumps, the
+    Homebrew prepend, and lookup. The real-shell `env -0` capture was confirmed
+    on the Mac in Task 2.
+- [x] A protocol path is rejected when any component is a symlink or its
   `realpath` leaves the workspace, and every write under `.tmp/expo-bridge/`
   uses a fresh name with `O_CREAT | O_EXCL | O_NOFOLLOW_ANY`.
-- [ ] `eas.json` and `app.json` are read as JSON only, refusing a symlink, a
+  - **Evidence:** Commit `8efc942`. `packages/host/src/paths.ts`:
+    `resolveWithin` walks every component with `lstat` and rejects a symlinked
+    component or a `realpath` that leaves the workspace; `openFreshWrite` opens
+    with `O_CREAT | O_EXCL | O_WRONLY | O_NOFOLLOW_ANY`. `test/paths.test.ts`
+    proves symlink-component rejection, the `..` escape, not-found, and that a
+    second create fails (O_EXCL), and asserts the flag bits. The macOS kernel
+    enforcement of `O_NOFOLLOW_ANY` itself is confirmed by plan Task 9.
+- [x] `eas.json` and `app.json` are read as JSON only, refusing a symlink, a
   non-regular file, or an oversized file, with errors that quote no file
   contents.
-- [ ] `bun test` covers environment parsing for fish and POSIX shells, tool
+  - **Evidence:** Commit `8efc942`. `packages/host/src/jsonfile.ts`
+    (`readJsonFile` lstat-rejects a symlink, opens `O_NOFOLLOW|O_NONBLOCK`,
+    fstat-rejects a non-regular file and an oversized one, and throws messages
+    with no file bytes). `test/jsonfile.test.ts` covers a symlink, a FIFO, an
+    oversized file, and a parse error whose message excludes a planted secret.
+- [x] `bun test` covers environment parsing for fish and POSIX shells, tool
   lookup, path rejection for symlinks and `..`, the write flags, and the file
   read refusals.
+  - **Evidence:** Commit `8efc942`. `test/env.test.ts`, `test/paths.test.ts`,
+    and `test/jsonfile.test.ts` cover every named area; `bun test` reports 99
+    pass / 0 fail across 14 files.
 
 ### Task 15: Host extension — trust, build confirmation, and the token
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] The first request from an untrusted workspace prompts for trust, recorded
+- [x] The first request from an untrusted workspace prompts for trust, recorded
   in `globalState` by host path; a declined workspace fails every request until
   a command revokes the decision; a command lists and revokes trusted
   workspaces.
-- [ ] Each `build` prompts with "Allow once", "Don't ask for an hour", and
+  - **Evidence:** Commits `8efc942`/`1a40f27`. `packages/host/src/trust.ts`
+    (`TrustStore.ensureTrusted` prompts once and records the decision in
+    `globalState` keyed by host path; a declined workspace stays declined until
+    `revoke`; `listTrusted`/`revoke` back the manage-trust command).
+    `test/trust.test.ts` covers prompt-once, remembered allow, sticky decline,
+    and revocation.
+- [x] Each `build` prompts with "Allow once", "Don't ask for an hour", and
   "Don't ask today", and a cooldown suppresses the prompt for that workspace
   only until it expires.
-- [ ] Commands set and clear `EXPO_TOKEN` in SecretStorage, and the README
+  - **Evidence:** Commits `8efc942`/`1a40f27`. `TrustStore.confirmBuild` and the
+    build prompt in `packages/host/src/extension.ts` offer the three answers;
+    "once" records no cooldown, "hour"/"today" record one scoped to the host
+    path. `test/trust.test.ts` covers the hour cooldown's expiry, that "once"
+    re-prompts, per-workspace scoping, and decline.
+- [x] Commands set and clear `EXPO_TOKEN` in SecretStorage, and the README
   recommends a robot-account token scoped to the project.
-- [ ] The trust, token, and fix commands take no arguments, return nothing, and
+  - **Evidence:** Commit `1a40f27`. `expoBridge.setToken`/`clearToken` in
+    `packages/host/src/extension.ts` store and delete the token through
+    `TrustStore` SecretStorage; `test/trust.test.ts` covers set/get/clear.
+    `packages/host/README.md` recommends a project-scoped robot-account token.
+- [x] The trust, token, and fix commands take no arguments, return nothing, and
   change nothing until the user answers a modal.
-- [ ] `bun test` covers trust grant, decline, and revocation, each cooldown's
+  - **Evidence:** Commit `1a40f27`. The four command handlers in
+    `packages/host/src/extension.ts` (`setToken`, `clearToken`, `manageTrust`,
+    `fix`) take no arguments and act only after `showWarningMessage`/
+    `showInputBox`/`showQuickPick` returns the user's choice.
+- [x] `bun test` covers trust grant, decline, and revocation, each cooldown's
   expiry, and per-workspace scoping, with the clock and prompts stubbed.
+  - **Evidence:** Commit `8efc942`. `test/trust.test.ts` stubs the clock and the
+    prompts and covers grant, decline, revocation, the hour cooldown expiry, the
+    end-of-day path, and per-workspace scoping.
 
 ### Task 16: Host extension — `status`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] `status` reports every check in `## Approach`, and reports unavailable on
+- [x] `status` reports every check in `## Approach`, and reports unavailable on
   a non-Mac host and when the workspace host path does not exist locally.
-- [ ] `bun test` covers each check's pass and fail result with the system probes
+  - **Evidence:** Commit `8efc942`. `packages/host/src/status.ts` reports all
+    twelve checks (Mac host, host path, trust, Xcode, CocoaPods, fastlane, Node,
+    bun vs. the container's, EXPO_TOKEN, `extra.eas.projectId`, booted
+    simulator, port 8081) plus the protocol version, and sets `available: false`
+    on a non-Mac host or a missing host path, skipping the tool probes.
+- [x] `bun test` covers each check's pass and fail result with the system probes
   stubbed.
+  - **Evidence:** Commit `8efc942`. `test/status.test.ts` stubs the runner and
+    `fileExists` and covers all-green, non-Mac, missing host path, each tool
+    absence, an older Mac bun, no booted simulator, missing projectId, missing
+    token, unforwarded port, and an untrusted workspace.
 
 ### Task 17: Host extension — `build`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] `build` rejects a profile absent from `eas.json`, requires trust and the
+- [x] `build` rejects a profile absent from `eas.json`, requires trust and the
   build confirmation, and runs `eas build --local -p ios --profile <name>` with
   the login environment plus `EXPO_TOKEN` from SecretStorage, `EAS_NO_VCS=1`,
   and the artifact built into the host extension's global storage, then copied
   with the log into `.tmp/expo-bridge/` under the write rule. `build` returns
   the artifact's workspace-relative path and the exit code, and never runs
   `eas init`.
-- [ ] `bun test` covers profile validation, the gating order, and the `eas`
+  - **Evidence:** Commits `8efc942`/`1a40f27`. `packages/host/src/build.ts`
+    validates the profile against `eas.json`, runs
+    `eas build --local --non-interactive -p ios --profile <name>` with the login
+    env plus `EXPO_TOKEN`, `EAS_NO_VCS=1`, and `EAS_LOCAL_BUILD_ARTIFACTS_DIR`
+    in private global storage, then copies the artifact and log into
+    `.tmp/expo-bridge/` through `openFreshWrite`, returns the workspace-relative
+    path and exit code, and never passes an `init` invocation; `src/dispatch.ts`
+    gates trust and the confirmation before it runs. The real
+    `eas build --local` behavior (env, no-VCS packing, artifact) was confirmed
+    on the Mac in plan Task 2.
+- [x] `bun test` covers profile validation, the gating order, and the `eas`
   arguments and environment, with process spawning stubbed.
+  - **Evidence:** Commit `8efc942`/`1a40f27`. `test/build.test.ts` stubs the
+    runner and covers unknown-profile rejection, invalid profile names,
+    unconfirmed builds, the exact `eas` argument array, env (`EAS_NO_VCS`,
+    `EXPO_TOKEN` present/absent, artifacts dir), absence of any `init`
+    invocation, the copied paths, and a non-zero exit; `test/dispatch.test.ts`
+    covers the trust/confirmation gating order.
 
 ### Task 18: Host extension — `install`, `launch`, `screenshot`
 
@@ -540,6 +632,14 @@ Containers window on a Mac
   path.
 - [ ] `bun test` covers path validation, archive entry rejection, and the
   `xcrun simctl` invocations.
+  - **Evidence:** Commit `8efc942`/`1a40f27`. `test/tar.test.ts` covers
+    absolute, `..`, symlink, and hard-link archive-entry rejection;
+    `test/install.test.ts` stubs the runner and covers the
+    path-outside-write-dir rejection, the post-unpack symlink rejection, the
+    `simctl install`/`launch`/ `io screenshot` invocation shapes, and the
+    bundle-id read. The box's first half (install/launch on a *booted
+    simulator*, a real `Info.plist`) stays unchecked: it needs the macOS
+    Simulator (plan Tasks 8 and 26).
 
 ### Task 19: One-click fix
 
@@ -549,7 +649,13 @@ Containers window on a Mac
   UI offers a fix that runs the Homebrew command in a visible local terminal;
   for Xcode it opens the App Store page and then runs `xcode-select`, the
   license acceptance, and `xcodebuild -downloadPlatform iOS`.
-- [ ] No protocol action can start a fix.
+- [x] No protocol action can start a fix.
+  - **Evidence:** Commit `1a40f27`. The fix lives only in the `expoBridge.fix`
+    VS Code command handler in `packages/host/src/extension.ts`, reached by a
+    user click. `packages/host/src/dispatch.ts` routes only the five protocol
+    actions (`status`, `build`, `install`, `launch`, `screenshot`) and has no
+    path to `planFixes` or a terminal; `test/dispatch.test.ts` confirms an
+    unknown action is rejected as `bad-request`.
 
 ### Task 20: Sibling repository CI
 
