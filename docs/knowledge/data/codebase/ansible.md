@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:33ac65c0895461eadd9b5059fe34f6b15bd272ce1fa804d16c92b28e34cf5447
+source_digest: sha256:92471a24d0a80156afa632fcb4cf4d1a516843ae8d2ce880525de80b9c0e1dde
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T23:09:19Z
-stale_after: 2027-01-17
+  by: codex/gpt-5
+  at: 2026-10-21T07:30:00Z
+stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T23:09:19Z
+  by: codex/gpt-5
+  at: 2026-10-21T07:30:00Z
 sources:
 - id: code
   resource: ansible
@@ -47,25 +47,28 @@ essentials, GNOME Keyring, sshd, universe repo), `extra_facts` (`system_arch`,
 the auth shim, and the pinned `gh-stack` extension), `bun_setup` (the bunx alias
 and Bun's PATH wiring; the binary itself comes from `dev_tools`), `nodejs`
 (NodeSource 24), `uv_setup`, `install_docker`, `install_docker_service`.
+`playwright_browser` installs the pinned Playwright CLI, its matching Chromium,
+and Linux browser dependencies into `/opt/playwright`.
 
 ## Public surface
 
 - `ansible/playbooks/setup-dev.yml` — the one playbook; `hosts: all` against the
   `localhost` inventory, `become: true`
 - `install_xpra`, `install_docker`, `install_agentic_tools`,
-  `install_validate_agent_files`, `install_devcontainer_firewall`,
-  `workspace_folder` — `ansible/playbooks/group_vars/all.yml:5-24`
-- Per-role `agentic_tools_*` and `validate_agent_files_*` variables, passed by
-  the Dockerfile as `-e` extra vars
+  `install_playwright_browser`, `install_validate_agent_files`,
+  `install_devcontainer_firewall`, `workspace_folder`
+- Per-role `agentic_tools_*`, `playwright_browser_*`, and
+  `validate_agent_files_*` variables, passed by the Dockerfile as `-e` extra
+  vars
 - Role tags matching role names, plus `always` on the guards
 
 ## How it works
 
 The play runs the roles in a fixed order with three ordering constraints:
-`dev_tools` precedes `nodejs` and `agentic_tools` because it installs the bun
-binary both of them use through `bun add --global`; `validate_agent_files`
-follows `uv_setup` because the validator is installed as a uv tool; and
-`perm_probe` runs first (`pre-check`) and last (`final`) with
+`dev_tools` precedes `nodejs`, `playwright_browser`, and `agentic_tools` because
+it installs the Bun binary they use; `playwright_browser` follows `nodejs`,
+`validate_agent_files` follows `uv_setup` because the validator is installed as
+a uv tool, and `perm_probe` runs first (`pre-check`) and last (`final`) with
 `perm_probe_fail_on_drift: true`, so a role that hands `/usr/local` to a
 non-root owner fails the build instead of shipping.
 
@@ -102,11 +105,11 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-08):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `ansible/playbooks/setup-dev.yml:18` — `perm_probe` pre-check guard
 - `ansible/playbooks/setup-dev.yml:28` — `dev_tools`
-- `ansible/playbooks/setup-dev.yml:37-41` — the opt-in capability roles and the
+- `ansible/playbooks/setup-dev.yml:35-42` — the opt-in capability roles and the
   final guard
 - `ansible.cfg:5-8` — inventory, log path, roles path
-- `ansible/playbooks/group_vars/all.yml:5-24` — the capability booleans
+- `ansible/playbooks/group_vars/all.yml:5-28` — the capability booleans

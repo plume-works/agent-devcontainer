@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-21
 
+- **Map**: refreshed [Ansible](codebase/ansible.md), [image
+  runtime](codebase/api-image-runtime.md), [Docker](codebase/docker.md), the
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md), [image
+  build](codebase/flow-image-build.md), [pull request
+  checks](codebase/flow-pull-request-checks.md), [GitHub](codebase/github.md),
+  and [workflows](codebase/github/workflows.md) for the bundled Playwright CLI
+  and Chromium browser.
 - **Update**: [Keep the Remote Control pin on the pane's current
   conversation](plans/20261021-remote-control-pin-follows-clear.md) done;
   [Claude Remote Control](spec/claude-remote-control.md) now stores the pane's

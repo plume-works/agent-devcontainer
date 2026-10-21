@@ -8,14 +8,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:669e75bf5615e34f493a4c8b2e44a2351d856e805c2039e56e37ad60e5226d65
+source_digest: sha256:c782799ee961224d39b3102006795ad0b21ff7e842d24d289902a15d00c21eac
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T14:18:08Z
-stale_after: 2027-01-18
+  by: codex/gpt-5
+  at: 2026-10-21T07:30:00Z
+stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T05:06:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T07:30:00Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -41,14 +41,14 @@ running the image it produced.
    tag, a merge group, or a `[ci:clean_build]` commit —
    `.github/workflows/ci.yml:99`
 4. `docker/ansible/Dockerfile` builds `ubuntu-ansible`, then
-   `agent-desktop.Dockerfile` is built `FROM` that digest with the catalog and
-   validator version pins as build args, and `agent-opencode.Dockerfile` `FROM`
-   the desktop digest just built — `.github/workflows/ci.yml:130-175`, in
+   `agent-desktop.Dockerfile` is built `FROM` that digest with the catalog,
+   validator, and Playwright version pins, and `agent-opencode.Dockerfile`
+   `FROM` the desktop digest just built — `.github/workflows/ci.yml:130-175`, in
    [docker/](docker.md)
 5. The desktop Dockerfile's `RUN` mounts the checkout at `/provision` and runs
    the [playbook](ansible.md) with every capability on; the `perm_probe` guards
-   bracket the roles and the catalog and validator roles verify their pins —
-   `docker/desktop/agent-desktop.Dockerfile:41`
+   bracket the roles while the catalog, validator, and Playwright roles verify
+   their pins — `docker/desktop/agent-desktop.Dockerfile:45`
 6. `merge-dev-image` merges each image's per-arch digests into its own manifest,
    tagged `sha-<commit>` only, and emits `image_pinned`,
    `opencode_image_pinned`, and the three digests —
@@ -56,8 +56,9 @@ running the image it produced.
    `.github/actions/docker/multiarch-merge/action.yml:66`
 7. `dev-container-ci` rewrites `devcontainer-compose-pins.yml` to that digest
    and builds and smoke-tests the [devcontainer](devcontainer.md) with
-   `devcontainers/ci`, then runs the repository's pytest suites inside it —
-   `.github/workflows/ci.yml:265-306`. Alongside it, `opencode-acceptance` runs
+   `devcontainers/ci`, launches the bundled Chromium against a data URL, then
+   runs the repository's pytest suites inside it —
+   `.github/workflows/ci.yml:265-315`. Alongside it, `opencode-acceptance` runs
    `test-agent-runtime.sh` on the merged `agent-opencode` digest on each native
    architecture — `.github/workflows/ci.yml:314`
 8. `promote-dev-image`, once both pass, points the event's moving tags (`edge`,
@@ -76,9 +77,9 @@ running the image it produced.
 
 ## Failure modes
 
-- A catalog or validator version that disagrees with its pin fails step 5
-  (`stage_catalog.yml:68`, `validate_agent_files/tasks/main.yml:93`) rather than
-  publishing a mislabeled image.
+- A catalog, validator, or Playwright version that disagrees with its pin fails
+  step 5 rather than publishing a mislabeled image; a missing Chromium fails the
+  native smoke launch in step 7.
 - Non-root ownership of `/usr/local` fails step 5 at the `final` probe.
 - Missing `edge` image in step 3 falls back to a scratch build; slower, not
   wrong.

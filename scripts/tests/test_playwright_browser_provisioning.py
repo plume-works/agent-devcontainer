@@ -8,6 +8,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PLAYBOOK_PATH = REPO_ROOT / 'ansible/playbooks/setup-dev.yml'
+GROUP_VARS = yaml.safe_load((REPO_ROOT / 'ansible/playbooks/group_vars/all.yml').read_text())
 ROLE_ROOT = REPO_ROOT / 'ansible/roles/playwright_browser'
 DEFAULTS = (ROLE_ROOT / 'defaults/main.yml').read_text()
 TASKS = (ROLE_ROOT / 'tasks/main.yml').read_text()
@@ -29,6 +30,7 @@ def test_playwright_role_is_opt_in_after_bun_and_node() -> None:
     assert names.index('bun_setup') < names.index('nodejs') < names.index('playwright_browser')
     assert playwright['when'] == 'install_playwright_browser | default(false) | bool'
     assert 'playwright_browser' in playwright['tags']
+    assert GROUP_VARS['install_playwright_browser'] is False
 
 
 def test_role_pins_the_cli_and_matching_chromium_in_an_image_owned_path() -> None:

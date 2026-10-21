@@ -6,7 +6,7 @@ release:
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:23:00Z
+  at: 2026-10-21T07:34:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -47,7 +47,7 @@ client/browser version contract.
 **Files:** Create: `ansible/roles/playwright_browser/defaults/main.yml`,
 `ansible/roles/playwright_browser/tasks/main.yml`,
 `ansible/roles/playwright_browser/README.md`; Modify:
-`ansible/playbooks/setup-dev.yml`
+`ansible/playbooks/setup-dev.yml`, `ansible/playbooks/group_vars/all.yml`
 
 - [x] Add an opt-in role, ordered after Bun and Node, that installs an exact
   Renovate-managed Playwright package and its matching Chromium plus Linux
@@ -94,8 +94,10 @@ Modify: `.github/workflows/ci.yml`
 `docs/knowledge/data/codebase/flow-image-build.md`, and any other map documents
 reported stale for the touched sources
 
-- [ ] Run the IWE map refresh for the implementation changes and validate the
+- [x] Run the IWE map refresh for the implementation changes and validate the
   refreshed graph documents.
+  - **Evidence:** `iwe normalize`, `iwe schema validate`, and
+    `stale-map-docs.py` (`28` fresh, `0` stale) passed on 2026-10-21.
 
 ### Task 5: Confirm native multi-architecture acceptance
 
