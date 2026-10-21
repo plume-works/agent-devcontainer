@@ -40,6 +40,8 @@ def test_role_pins_the_cli_and_matching_chromium_in_an_image_owned_path() -> Non
     assert "'--global'" not in TASKS
     assert '      - --global' in TASKS
     assert '      - --exact' in TASKS
+    assert "map('regex_replace', '^[^@A-Za-z]+', '')" in TASKS
+    assert 'not in playwright_browser_bun_global_specs' in TASKS
     assert '      - --with-deps' in TASKS
     assert '      - chromium' in TASKS
     assert 'PLAYWRIGHT_BROWSERS_PATH: "{{ playwright_browser_path }}"' in TASKS

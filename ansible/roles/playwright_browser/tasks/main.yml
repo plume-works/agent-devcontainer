@@ -12,6 +12,12 @@
   changed_when: false
   failed_when: false
 
+- name: Collect the installed Bun package specs
+  ansible.builtin.set_fact:
+    playwright_browser_bun_global_specs: >-
+      {{ playwright_browser_bun_global.stdout_lines
+         | map('regex_replace', '^[^@A-Za-z]+', '') | map('trim') | list }}
+
 - name: Install the pinned Playwright CLI with Bun
   ansible.builtin.command:
     argv:
@@ -26,7 +32,7 @@
   changed_when: true
   when: >-
     (playwright_browser_package ~ '@' ~ playwright_browser_version)
-    not in playwright_browser_bun_global.stdout_lines
+    not in playwright_browser_bun_global_specs
 
 - name: Create the image-owned Playwright browser directory
   ansible.builtin.file:

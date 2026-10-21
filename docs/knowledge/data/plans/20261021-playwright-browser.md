@@ -6,7 +6,7 @@ release:
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:40:00Z
+  at: 2026-10-21T07:45:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -174,7 +174,7 @@ Verified anchor points (line numbers as of 2026-10-21):
 - `ansible/playbooks/setup-dev.yml:35` — opt-in Playwright capability
 - `ansible/roles/playwright_browser/defaults/main.yml:2` — Renovate-managed
   Playwright pin
-- `ansible/roles/playwright_browser/tasks/main.yml:15` — exact Bun package
+- `ansible/roles/playwright_browser/tasks/main.yml:21` — exact Bun package
   installation
 - `ansible/roles/playwright_browser/tasks/main.yml:39` — Chromium and dependency
   installation
