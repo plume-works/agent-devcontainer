@@ -21,12 +21,9 @@ sources:
 ## Context
 
 [OpenCode as a catalog host](../features/opencode-catalog-host.md) registers
-`/agentdev:<skill>` commands. Its v2 executor sends only the argument text and a
-skill reference. The user reports that `/agentdev:iwe-implement fix critical`
-has a user bubble containing only `fix critical`, while `/agentdev:iwe-ship` has
-no visible bubble in the Web UI. OpenCode v2.1.1's `parseSlashCommand` and
-`sendCommand` supply the parsed argument text to the command executor, so the
-bridge omits the registered command name from both submitted messages.
+`/agentdev:<skill>` commands. This plan changes their v2 presentation contract
+so the submitted user message retains the full namespaced invocation, including
+bare commands.
 
 The user wants the submitted command and accompanying text visible together,
 without expanding the skill instructions into chat. The current [bridge
@@ -180,7 +177,7 @@ including when there are no arguments, and retain it after reload.
 ## Verification
 
 - Red/green payload tests, then the complete v1/v2 bridge suite:
-  `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts`.
+  `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts`.
 - Catalog:
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`.
 - Map: `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py`.
