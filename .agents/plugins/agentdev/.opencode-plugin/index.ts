@@ -113,9 +113,33 @@ interface V2Command {
   description?: string
   execute: (invocation: {
     sessionID: string
-    prompt: { text: string; files?: unknown[]; agents?: unknown[]; skills?: { id: string }[] }
+    prompt: {
+      text: string
+      files?: V2PromptReference[]
+      agents?: V2PromptReference[]
+      skills?: V2PromptReference[]
+    }
     delivery: unknown
   }) => Promise<void>
+}
+
+interface V2PromptReference {
+  id?: string
+  mention?: { start: number; end: number; text: string }
+  [key: string]: unknown
+}
+
+function rebaseMentions(references: V2PromptReference[] | undefined, offset: number): V2PromptReference[] | undefined {
+  return references?.map(reference => reference.mention === undefined
+    ? reference
+    : {
+        ...reference,
+        mention: {
+          ...reference.mention,
+          start: reference.mention.start + offset,
+          end: reference.mention.end + offset,
+        },
+      })
 }
 
 function readMarkdown(file: string): { meta: Frontmatter; body: string } {
@@ -252,16 +276,19 @@ export function setupBridge(root: string, ctx: V2Context, adapters: Partial<Regi
 
   void ctx.command.transform((editor) => {
     for (const skill of catalog.skills) {
+      const command = `${prefix}${skill.name}`
       editor.add({
-        name: `${prefix}${skill.name}`,
+        name: command,
         description: skill.description,
         execute: async ({ sessionID, prompt, delivery }) => {
+          const invocation = `/${command}${prompt.text === "" ? "" : ` ${prompt.text}`}`
+          const offset = invocation.length - prompt.text.length
           await ctx.session.prompt({
             sessionID,
-            text: prompt.text,
-            files: prompt.files,
-            agents: prompt.agents,
-            skills: [...(prompt.skills ?? []), { id: skill.name }],
+            text: invocation,
+            files: rebaseMentions(prompt.files, offset),
+            agents: rebaseMentions(prompt.agents, offset),
+            skills: [...(rebaseMentions(prompt.skills, offset) ?? []), { id: skill.name }],
             delivery,
           })
         },
