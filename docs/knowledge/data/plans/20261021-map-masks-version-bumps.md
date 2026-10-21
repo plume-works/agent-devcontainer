@@ -69,24 +69,40 @@ missed.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py`
 
-- [ ] `parse_arguments` accepts `--replay` and `--since <YYYY-MM-DD>`; `--since`
+- [x] `parse_arguments` accepts `--replay` and `--since <YYYY-MM-DD>`; `--since`
   without `--replay` is a `PREFLIGHT_ERROR`. `USAGE` documents both and the
   replay output lines below.
-- [ ] `MetadataResolver` can read metadata from the `HEAD` tree as well as the
+  - **Evidence:** same commit; `stale-map-docs.py --since 2026-01-01` and
+    `--replay --since yesterday` both end `RESULT=PREFLIGHT_ERROR`, and
+    `--replay --since 2026-10-15` reports `SINCE=2026-10-15`.
+- [x] `MetadataResolver` can read metadata from the `HEAD` tree as well as the
   working tree, so replay can compute a doc's digest under committed metadata. A
   metadata file unreadable in either view is `BROKEN_METADATA`, the existing
   code.
-- [ ] Replay walks `git log --first-parent --since=<since>` over the files the
+  - **Evidence:** same commit; `MetadataResolver('HEAD')` reads committed
+    metadata through `blob_bytes`, and the existing mask suites (42 tests in
+    `.agents/plugins/agentdev/tests/test_stale_map_docs*.py` and
+    `docs/knowledge/tests/test_*mask*.py`) pass against the default working-tree
+    view.
+- [x] Replay walks `git log --first-parent --since=<since>` over the files the
   working-tree masks reach under any map doc's `source`, and for each
   commit/file pair whose raw content changed prints `ABSORBED <commit> <path>`
   when the masked contents are equal, else `MOVED <commit> <path>`.
-- [ ] Replay prints one `HIDDEN <metadata-path> <pattern> <value>` line per
+  - **Evidence:** same commit; `--replay` over this repository marks `c8d0aca`
+    (uv `0.13.4`) `ABSORBED` in both files it touched, among 336 `ABSORBED` and
+    65 `MOVED` lines since the earliest `verified.at`.
+- [x] Replay prints one `HIDDEN <metadata-path> <pattern> <value>` line per
   distinct value each mask matched across the replayed contents.
-- [ ] Replay prints `RESTAMP <key> <digest>` or `REFRESH <key>` for every map
+  - **Evidence:** same commit; the same run prints 360 `HIDDEN` lines across the
+    four metadata files, each value once as a JSON string.
+- [x] Replay prints `RESTAMP <key> <digest>` or `REFRESH <key>` for every map
   doc that is not `FRESH` under the working-tree metadata, by the rule in
   `## Approach`, then `ABSORBED_COUNT`, `MOVED_COUNT`, `RESTAMP_COUNT`,
   `REFRESH_COUNT`, and `RESULT`. Replay uses the existing result codes:
   `SUCCESS` when it ran to completion, whatever it found.
+  - **Evidence:** same commit; the same run ends `RESULT=SUCCESS` with `REFRESH`
+    for the two `agents/plugins/agentdev` map docs whose source this commit
+    edits.
 
 ### Task 2: Test replay
 
