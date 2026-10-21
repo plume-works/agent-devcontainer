@@ -759,6 +759,19 @@ the bridge. A workspace extension holds no handle to another extension's
 `SecretStorage` or `globalState`. The modal-not-answerable and
 second-window-isolation checks were not exercised and stay open.
 
+### Tasks 12–20 code precedes the Mac-only spikes
+
+The extension code (Tasks 12–20) was written on a Linux devcontainer with no
+macOS host in reach, under user direction, ahead of the plan-ordered macOS
+spikes it depends on. Tasks 6 (remaining checks), 8, 9, and 10 require a Mac
+with Xcode, a booted Simulator, `O_NOFOLLOW_ANY`, and a live VS Code window, and
+stay unchecked with no evidence until run there. The code encodes the design
+those spikes are meant to confirm — Simulator containment, the `realpath`
+symlink rule, the `O_CREAT | O_EXCL | O_NOFOLLOW_ANY` write rule, archive-entry
+rejection — and must be reconciled with their findings before Task 11's protocol
+spec is written and before ship. Only the Linux-verifiable parts (`bun test`,
+TypeScript typecheck, VSIX packaging) carry evidence this session.
+
 ## Out of scope
 
 - Android builds through the bridge; the container builds Android itself.
