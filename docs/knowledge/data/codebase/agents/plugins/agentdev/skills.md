@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:dab535dae7a8ebaef36b1c9dc58b4b9cd01c8780795d48e5c31dc4ad479ae909
+source_digest: sha256:cd307d76261e7604359c09f8326901096774856c95318c1ef51ca24f1bb28d40
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T12:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-21T05:13:47Z
 stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T12:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-21T05:13:47Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -74,8 +74,10 @@ masked text file. `--replay [--since <date>]` applies the working-tree rules to
 every first-parent change of the files they reach, printing `ABSORBED` or
 `MOVED` per commit and file and `HIDDEN` per masked value, then `RESTAMP` with a
 new digest for a non-fresh doc the rules explain and `REFRESH` for the rest;
-refresh mode in `iwe-map`'s `SKILL.md` runs it before committing a new mask. The
-IWE family runs against the [knowledge workspace](../../../docs/knowledge.md).
+unreadable metadata in either the working tree or `HEAD` is `BROKEN_METADATA`,
+including for a doc whose working-tree digest is already fresh. Refresh mode in
+`iwe-map`'s `SKILL.md` runs it before committing a new mask. The IWE family runs
+against the [knowledge workspace](../../../docs/knowledge.md).
 `template-consume` optionally copies the repository's IWE seed into a consumer,
 then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
 reusable knowledge scaffold and never replaces consumer-owned project memory. An

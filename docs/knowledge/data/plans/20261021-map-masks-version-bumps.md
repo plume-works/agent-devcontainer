@@ -5,8 +5,8 @@ description: Teach the iwe-map refresh to mask a version-only change in the colo
 release:
 - features/map-masks-version-bumps
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T00:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-21T05:13:47Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
@@ -79,11 +79,10 @@ missed.
   working tree, so replay can compute a doc's digest under committed metadata. A
   metadata file unreadable in either view is `BROKEN_METADATA`, the existing
   code.
-  - **Evidence:** same commit; `MetadataResolver('HEAD')` reads committed
-    metadata through `blob_bytes`, and the existing mask suites (42 tests in
-    `.agents/plugins/agentdev/tests/test_stale_map_docs*.py` and
-    `docs/knowledge/tests/test_*mask*.py`) pass against the default working-tree
-    view.
+  - **Evidence:** this correction commit;
+    `test_malformed_committed_metadata_is_broken` passes for otherwise fresh,
+    restamp, and refresh verdicts; the working-tree regression also passes.
+    `replay_verdict` validates both metadata views before classifying a doc.
 - [x] Replay walks `git log --first-parent --since=<since>` over the files the
   working-tree masks reach under any map doc's `source`, and for each
   commit/file pair whose raw content changed prints `ABSORBED <commit> <path>`
@@ -258,6 +257,13 @@ document's prose.
 
 ## Verification results
 
+Correction verification (this commit): all 185 plugin tests pass, including 10
+replay tests and 24 existing staleness/mask tests. Catalog validation passes
+with zero errors or warnings. The plain check reports all 28 docs fresh; replay
+ends `RESULT=SUCCESS` with 336 absorbed changes and zero restamps, refreshes, or
+broken docs. Committed-metadata regressions require `BROKEN_METADATA` even when
+the working-tree metadata has been repaired.
+
 At `dc890e2`:
 
 - `test_stale_map_docs_replay.py`: 7 passed. `test_stale_map_docs_masks.py` with
@@ -281,25 +287,25 @@ At `dc890e2`:
 Verified anchor points (line numbers as of 2026-10-21):
 
 - `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:122` — step 8, refresh mode
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:142` — step 8's finish
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:144` — `## Script results`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:25` —
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:168` — step 8's finish
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:173` — `## Script results`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:26` —
   `USAGE`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:231` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —
   `MetadataResolver`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:237` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:299` —
   `MetadataResolver._for_directory`, the working-tree metadata read
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:278` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:355` —
   `masked_hash`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:292` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:364` —
   `source_digest_for_paths`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:336` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:408` —
   `fold_in_masks`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:363` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:444` —
   `parse_arguments`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:389` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:487` —
   `classify`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:424` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:688` —
   `main`
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:43` — `commit_file`
 - `.agents/plugins/agentdev/tests/test_stale_map_docs.py:65` — `build_workspace`

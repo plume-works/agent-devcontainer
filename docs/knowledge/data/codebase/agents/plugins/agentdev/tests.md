@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:f165f949e15ce284198af6b0da63b89ecbf99398f69572528c8016664968ab05
+source_digest: sha256:19c07116fe70609b309965ffaf743d338440e9374ad1cc5fdd1cddfeeaf830ac
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T12:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-21T05:13:47Z
 stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-21T12:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-21T05:13:47Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -71,22 +71,23 @@ bump a new uncommitted rule covers is `ABSORBED` and its doc `RESTAMP` with the
 digest a plain run then records, a doc fresh under `HEAD`'s metadata is
 `RESTAMP` without a verified date, a change outside the rule or an uncommitted
 unmasked edit is `REFRESH`, `HIDDEN` lists each value once, and `--since` alone
-or unreadable working-tree metadata is refused. `test_gh_stack_guard.py` builds
-a two-layer stack on a bare remote with a peer clone that pushes behind the
-working clone's back, a stub `git` with after-ls-remote and before-push hooks,
-and a stub `gh` that models `stack view`, `api` for the stack number,
-`stack link` (a non-force atomic push of the named branches, in create or add
-mode), and `stack checkout`; it pins each `stack-guard.sh` result, including a
-squash-merged lower layer that GitHub-style rebasing leaves `SUCCESS`, a peer
-merge of trunk, a whitespace-only remote rewrite, a push leased on the checked
-tip, queued layers, link create and add modes, and a `publish` rerun after a
-failed link. `test_capture_close_issue.py` reuses `initialize_repository` from
-`test_update_branch.py` and a stub `gh` that logs closes, and pins each
-`close-issue.sh` result, including an already-closed issue left alone.
-`test_template_consume_check_updates.py` builds the same metadata file to hold
-the marker section, and pins `NO_MARKER` for an absent file and for an absent
-section, and `INVALID_MARKER` for malformed metadata or a section missing
-`consumed_ref` or `tracked_paths`.
+or unreadable metadata in either view is refused. Malformed committed metadata
+is tested with otherwise fresh, restamp, and refresh verdicts.
+`test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
+clone that pushes behind the working clone's back, a stub `git` with
+after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
+`api` for the stack number, `stack link` (a non-force atomic push of the named
+branches, in create or add mode), and `stack checkout`; it pins each
+`stack-guard.sh` result, including a squash-merged lower layer that GitHub-style
+rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only remote
+rewrite, a push leased on the checked tip, queued layers, link create and add
+modes, and a `publish` rerun after a failed link. `test_capture_close_issue.py`
+reuses `initialize_repository` from `test_update_branch.py` and a stub `gh` that
+logs closes, and pins each `close-issue.sh` result, including an already-closed
+issue left alone. `test_template_consume_check_updates.py` builds the same
+metadata file to hold the marker section, and pins `NO_MARKER` for an absent
+file and for an absent section, and `INVALID_MARKER` for malformed metadata or a
+section missing `consumed_ref` or `tracked_paths`.
 
 `test_update_branch.py` builds a bare remote, a working clone on a pushed
 feature branch, and a publisher clone, and pins `update-branch.sh`'s upstream
@@ -157,9 +158,9 @@ Verified anchor points (line numbers as of 2026-10-21):
   `write_metadata`, the masking-rule fixture builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:286` — invalid
   replacement and masked binary regressions
-- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:36` —
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:37` —
   `commit_dated`, the fixed-date commit helper
-- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:66` —
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:67` —
   `bumped_workspace`, a mapped pin and its bump
 - `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:54` —
   `build_repository`, the remote-plus-map fixture

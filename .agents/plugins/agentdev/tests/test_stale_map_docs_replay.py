@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import subprocess
 
+import pytest
 from test_stale_map_docs import (
     build_workspace,
     GIT_IDENTITY,
@@ -190,3 +191,25 @@ def test_malformed_working_tree_metadata_is_broken(
     # Assert
     assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
     assert f'BROKEN {KEY} deploy/.agent.metadata.json' in completed.stdout.splitlines()
+
+
+@pytest.mark.parametrize('otherwise', ['restamp', 'refresh', 'fresh'])
+def test_malformed_committed_metadata_is_broken(
+    plugin_root: Path, plugin_tmp_path: Path, otherwise: str
+) -> None:
+    """Repaired working-tree metadata cannot hide a broken committed designation."""
+    extra = '    restart: always\n' if otherwise == 'refresh' else ''
+    repository, _ = bumped_workspace(plugin_tmp_path, extra=extra)
+    commit_dated(repository, {'deploy/.agent.metadata.json': '{ not json'}, BUMPED_AT)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+    if otherwise == 'fresh':
+        write_deploy_doc(repository, current_digest(repository, 'deploy'))
+
+    completed = run_script(plugin_root, repository, '--replay')
+
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
+    assert f'BROKEN {KEY} deploy/.agent.metadata.json' in lines
+    assert 'BROKEN_COUNT=1' in lines
+    assert 'RESTAMP_COUNT=0' in lines
+    assert 'REFRESH_COUNT=0' in lines

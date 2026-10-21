@@ -623,15 +623,11 @@ def replay_verdict(
     if not recorded or not all(Path(source).exists() for source in sources):
         return f'REFRESH {key}', 'refresh'
     replayer.resolver.verify(sources)
+    head_resolver.verify(sources)
     current = digest_under(sources, replayer.resolver)
+    at_head = digest_under(sources, head_resolver)
     if current == recorded:
         return None
-    try:
-        at_head = digest_under(sources, head_resolver)
-    except BrokenMetadata:
-        # Unreadable committed metadata only rules out the HEAD branch; the
-        # working tree, which is what gets committed, has already been read.
-        at_head = ''
     if at_head == recorded or replayer.explains(sources, verified_at(frontmatter)):
         return f'RESTAMP {key} {current}', 'restamp'
     return f'REFRESH {key}', 'refresh'
