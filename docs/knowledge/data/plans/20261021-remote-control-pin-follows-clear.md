@@ -88,16 +88,23 @@ operator's terminal session.
 **Files:** Modify: `.devcontainer/scripts/claude-remote-control-session.sh`,
 `scripts/tests/test_claude_remote_control_session.py`
 
-- [ ] Tests first: the four existing tests keep their call sequence and pin
+- [x] Tests first: the four existing tests keep their call sequence and pin
   assertions with `--settings <json>` added to every call; a new test parses
   that JSON and asserts one `SessionStart` command hook whose command runs
   `claude-remote-control-pin.sh` from the script's directory, identical on the
   resume and the fallback `--session-id` call.
-- [ ] Script: build the `--settings` value once and pass it on both `claude`
+  - **Evidence:** commit "Supply the pin hook to the Remote Control pane":
+    `test_claude_remote_control_session.py`; all five tests failed on the
+    missing `--settings` before the script change.
+- [x] Script: build the `--settings` value once and pass it on both `claude`
   invocations.
-- [ ] `shellcheck` clean;
+  - **Evidence:** commit "Supply the pin hook to the Remote Control pane":
+    `claude-remote-control-session.sh`.
+- [x] `shellcheck` clean;
   `uv run pytest scripts/tests/test_claude_remote_control_session.py scripts/tests/test_claude_remote_control_start.py`
   green.
+  - **Evidence:** commit "Supply the pin hook to the Remote Control pane":
+    `shellcheck` clean; both test files plus the pin tests, 20 passed.
 
 ### Task 3: Record the hook decision
 
