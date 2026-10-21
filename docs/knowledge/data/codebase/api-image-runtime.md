@@ -6,14 +6,14 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:7ffd77d91411c6fc9f14c8ff9bad1cfb255906ab48249e6e3286853af92c396c
+source_digest: sha256:4af205dd01ce4d551d34c01578073994f2f3ad9e40326f567fa13d87ae02a255
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T19:04:34Z
-stale_after: 2027-01-17
+  by: codex/gpt-5
+  at: 2026-10-21T11:30:00-07:00
+stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T19:04:34Z
+  by: codex/gpt-5
+  at: 2026-10-21T11:30:00-07:00
 sources:
 - id: code
   resource: docker
@@ -36,9 +36,10 @@ is the surface those consumers touch; the build that produces it is
   `opencode-compose-pins.yml`; multi-arch, labelled
   `org.opencontainers.image.base.name` with that digest —
   `docker/opencode/agent-opencode.Dockerfile:3-7`
-- Labels `org.opencontainers.image.version.agentdev` and
+- Labels `org.opencontainers.image.version.agentdev`,
+  `org.opencontainers.image.version.playwright`, and
   `org.opencontainers.image.version.validate-agent-files` —
-  `docker/desktop/agent-desktop.Dockerfile:70-71`
+  `docker/desktop/agent-desktop.Dockerfile:77-79`
 
 ## Environment the image reads
 
@@ -50,6 +51,7 @@ is the surface those consumers touch; the build that produces it is
 | `XPRA_HOST`, `XPRA_VIDEO_ENCODERS`, `XPRA_LOG_FILE` | `/start-xpra.sh:6-14`                                                 | bind host, encoders, log path                                            |
 | `XPRA_PASSWORD`                                     | `/start-xpra.sh:285-287`                                              | nonempty: every TCP/WebSocket session must authenticate with it          |
 | `AGENTDEV_CATALOG_DIR`                              | set by the image (`Dockerfile:68`), read by `postCreateCommand.sh:69` | where the catalog is staged (`/opt/agentdev`)                            |
+| `PLAYWRIGHT_BROWSERS_PATH`                          | set by the image                                                      | shared, runtime-writable browser binaries at `/opt/playwright`           |
 | `CBM_CACHE_DIR`                                     | the `codebase-memory-mcp-*.sh` scripts                                | required; cache and logs location                                        |
 | `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`    | `postStartCommand.sh` and `setup-pre-commit.sh`                       | opt out of hook install and desktop start                                |
 | `GH_TOKEN` / `GITHUB_TOKEN`, `VERBOSE_GH`           | the `gh` wrapper                                                      | an explicit token wins; otherwise derived from the git credential helper |
@@ -65,8 +67,8 @@ is the surface those consumers touch; the build that produces it is
   `~/.config/opencode/opencode.json`
 - On `PATH`: `uv`, `bun`, `node`, `claude`, `codex`, `opencode`, `gh`, `cmake`,
   `ninja`, `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`, `codebase-memory-mcp`,
-  `validate_agent_files`, `pre-commit`, `xpra`, `gnome-keyring-daemon`, Docker
-  CE with buildx and compose
+  `validate_agent_files`, `playwright` with matching Chromium, `pre-commit`,
+  `xpra`, `gnome-keyring-daemon`, Docker CE with buildx and compose
 - `EXPOSE 14500` — the Xpra HTML5 container port, fixed by default and
   overridable with `/start-xpra.sh --port`; the devcontainer forwards `14500`
 

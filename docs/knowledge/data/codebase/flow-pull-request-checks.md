@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:c860b9d1174188a4c83fb7208370b64dd8749cc0c9d3c404832203f5fa851433
+source_digest: sha256:7e0275cf38111918688ff2ea0021e9959f24d8a7e18e97208352176a52a5b8cf
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T14:19:28Z
-stale_after: 2027-01-18
+  by: codex/gpt-5
+  at: 2026-10-21T11:30:00-07:00
+stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T05:06:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T11:30:00-07:00
 sources:
 - id: code
   resource: .github
@@ -40,8 +40,8 @@ before the push.
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
    build](flow-image-build.md), whose `finished` also waits on native
-   `agent-opencode` container acceptance and on the promotion that moves
-   `pr-<n>` to the tested images only after both test jobs pass
+   `agent-opencode` container acceptance; the devcontainer smoke test launches
+   bundled Chromium before the promotion moves `pr-<n>` to the tested images
 4. `opencode-runtime-checks.yml`, on every pull request, skipped inside the job
    unless `opencode-compose-pins.yml` or a `compose.opencode*.yml` file changed,
    so it can be a required check: unless CI/CD's own path filter also matched

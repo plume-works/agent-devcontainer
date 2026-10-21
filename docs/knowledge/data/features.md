@@ -3,11 +3,13 @@ type: hub
 description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-18T01:27:30Z
+  by: codex/gpt-5
+  at: 2026-10-21T07:02:02Z
 ---
 
 # ✨ Features
+
+[Playwright browser in the development image](features/playwright-browser.md)
 
 [iwe-branch-name](features/iwe-branch-name.md)
 
