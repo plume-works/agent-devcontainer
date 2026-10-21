@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Keep the Remote Control pin on the pane's current
+conversation](plans/20261021-remote-control-pin-follows-clear.md)
+
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Ship a standalone OpenCode
