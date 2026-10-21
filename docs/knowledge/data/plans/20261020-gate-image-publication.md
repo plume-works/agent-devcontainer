@@ -1,12 +1,14 @@
 ---
 type: plan
+stage: done
 created: 2026-10-20
+completed: 2026-10-20
 release:
 - bugs/ci-publishes-images-before-acceptance
 description: Publish ubuntu-ansible, agent-desktop, and agent-opencode under their moving tags only after the same run's devcontainer checks and runtime acceptance pass.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T04:00:00Z
+  at: 2026-10-20T12:00:00Z
 sources:
 - resource: .github/workflows/ci.yml
 - resource: .github/workflows/primary-checks.yml
@@ -123,9 +125,15 @@ sources
 
 **Files:** none; CI after merge
 
-- [ ] **Closed by: CI after merge.** A `main` run promotes `edge` for all three
+- [x] **Closed by: CI after merge.** A `main` run promotes `edge` for all three
   images only after both test jobs pass, its revision labels name that run's
   commit, and a run whose tests fail or are cancelled leaves `edge` unchanged.
+  - **Evidence:** Primary checks run 39482903699 at `441b869` promoted `edge`
+    and `main` only after both test jobs passed, with revision label `441b869`.
+    Dispatched run 39498618599 at `747e1f8` merged its manifests and was then
+    cancelled before its test jobs finished. `edge` and `main` kept the
+    `441b869` digests, and only `sha-747e1f8` names the new builds. Both runs
+    are detailed under `## Verification results`.
 
 ## Spec changes
 
@@ -175,6 +183,23 @@ NOT cancel one another.
   `docker buildx imagetools inspect` before and after the promotion job.
 - Run `iwe normalize` and `iwe schema validate`; run `/agentdev:iwe-verify`
   against this plan and its delta before Ship merges the spec.
+
+## Verification results
+
+- **Promotion on `main` after passing tests:** Primary checks run 39482903699 at
+  `441b869`, the squash merge of PR #389. Each image's `edge` stayed on its
+  previous digest, built from `c8d0aca`, until both native `Devcontainer image`
+  and `OpenCode runtime acceptance` jobs passed. Then
+  `Promote development image` moved `edge` and `main` to the run's `sha-441b869`
+  digest, with revision label `441b869`: `ubuntu-ansible` `a72511ed…`,
+  `agent-desktop` `c1719983…`, and `agent-opencode` `8521619e…`.
+- **Cancelled run on `main`:** Primary checks run 39498618599, dispatched on
+  `main` at `747e1f8` to force the image build, was cancelled once
+  `Merge development image` succeeded. Its test jobs and
+  `Promote development image` ended cancelled. Each image's `edge` and `main`
+  kept the `441b869` digest above, while `sha-747e1f8` names the new build:
+  `ubuntu-ansible` `45363a35…`, `agent-desktop` `5c34fab4…`, and
+  `agent-opencode` `40c35e47…`.
 
 ## Out of scope
 
