@@ -79,12 +79,14 @@ onto the Mac that the bridge neither adds nor can take away: through VS Code's
 own commands a container-side extension opens a local terminal and runs a
 command on the Mac, and the SSH and GPG agents are forwarded into the container.
 The bridge therefore does not contain a hostile container — nothing a workspace
-extension can install does. Its guarantee is narrower: it adds no reach beyond
-what the window already grants, and its one privileged action, `build`, runs
-project code on the Mac only behind per-workspace trust and a per-build
-confirmation. The host extension treats every command invocation as possibly the
-container's, whichever extension sent it, so pairing the two extensions is not a
-boundary. The checks are these:
+extension can install does. It is a consent surface, not a security boundary: it
+adds no reach beyond what the window already grants, and its one privileged
+action, `build`, runs project code on the Mac only behind per-workspace trust
+and a per-build confirmation. The host extension treats every command invocation
+as possibly the container's, whichever extension sent it, so pairing the two
+extensions is not a boundary. The protocol document specified in Task 11 states
+the model this way — a consent surface for a cooperative container — and does
+not claim to defend against a hostile one. The checks are these:
 
 - **Fixed Expo-only protocol.** The host extension accepts exactly these
   actions: `status`, `build`, `install`, `launch`, `screenshot`. It never runs a
@@ -436,12 +438,14 @@ Containers window on a Mac
   and error shapes, workspace-relative paths and the symlink rule, the
   `.tmp/expo-bridge/` write boundary, the protocol version and how `status`
   reports a mismatch, and that fixes are never protocol actions.
-- [ ] It states the threat model and each control from `## Approach`: the
-  per-workspace trust prompt, the build confirmation and its cooldowns, that a
-  build runs uncontained with the user's privileges, no project code outside
-  `build`, management commands gated by a modal, the write rule for
-  `.tmp/expo-bridge/` and archive unpacking, `execFile` without a shell, and
-  `EXPO_TOKEN` in SecretStorage.
+- [ ] It states the threat model as a consent surface, not a security boundary —
+  the bridge adds no reach beyond what the devcontainer window already grants
+  and does not claim to contain a hostile container — and each control from
+  `## Approach`: the per-workspace trust prompt, the build confirmation and its
+  cooldowns, that a build runs uncontained with the user's privileges, no
+  project code outside `build`, management commands gated by a modal, the write
+  rule for `.tmp/expo-bridge/` and archive unpacking, `execFile` without a
+  shell, and `EXPO_TOKEN` in SecretStorage.
 
 ### Task 12: Split the repository into the two extensions and the pack
 
@@ -739,7 +743,10 @@ The bridge installs nothing that changes this. The plan's security model is
 therefore the narrower one in `## Approach`: the bridge adds no reach beyond
 what the window grants, and gates its own `build` behind trust and confirmation.
 The forwarded SSH and GPG agents are a devcontainer-wide exposure independent of
-this feature, filed as a separate bug.
+this feature, recorded as the someday idea [Narrow the devcontainer's forwarded
+agent exposure](../someday/devcontainer-forwarded-agent-exposure.md) for
+research into whether it can be narrowed without breaking the workflows that
+rely on it.
 
 ### Task 6: a command invocation carries no caller identity
 
@@ -767,6 +774,8 @@ second-window-isolation checks were not exercised and stay open.
   user's privileges.
 - Removing the host reach a devcontainer window already grants (local terminal,
   forwarded agents); the bridge adds none of it and cannot take it away.
+  Narrowing the forwarded SSH and GPG agent exposure is tracked separately as a
+  someday idea.
 
 ## Key references
 
