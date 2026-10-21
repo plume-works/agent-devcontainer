@@ -32,9 +32,9 @@ container, and writes into the workspace only under `.tmp/expo-bridge/`.
 
 **Trust lives on the Mac.** The container is treated as hostile. The first
 request from a workspace asks the user on the Mac to trust it; every build asks
-again, with "Don't ask for an hour" and "Don't ask today" answers, and runs in a
-sandbox that keeps project code away from the user's credentials. `EXPO_TOKEN`
-lives in VS Code's secret storage on the Mac.
+again, with "Don't ask for an hour" and "Don't ask today" answers, and runs as a
+separate low-privilege macOS user that cannot read the user's credentials.
+`EXPO_TOKEN` lives in VS Code's secret storage on the Mac.
 
 **Dev-client loop.** Metro runs in the container and VS Code forwards port 8081
 to the Mac, so the native build reruns only when native code changes.
