@@ -147,12 +147,16 @@ missed.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-map/SKILL.md`
 
-- [ ] Step 8 opens with a classification pass before the per-verdict list: for
+- [x] Step 8 opens with a classification pass before the per-verdict list: for
   each `STALE` doc, read `git log -p --first-parent --since=<verified.at>` over
   its `source` and sort the change as version-only (every changed span a
   version, digest, or pin value, nothing around it moved, and the doc does not
   quote the old value) or not.
-- [ ] For version-only changes: add or widen a `digest_ignore` rule in the
+  - **Evidence:** same commit; step 8 opens with **Mask version-only changes
+    first**, which reads `git log -p --first-parent --since=<verified.at>` and
+    `git diff HEAD` over the source and defines version-only, including the
+    quoted-value exclusion.
+- [x] For version-only changes: add or widen a `digest_ignore` rule in the
   nearest `.agent.metadata.json` whose directory covers every file holding that
   kind of value, with a `reason` naming what moves it; run
   `agent-code/stale-map-docs.py --replay`; keep the rule only if every
@@ -161,10 +165,19 @@ missed.
   metadata files and re-stamps alone, with a message like
   `map: mask <kind> in <dir>`; rerun the check and refresh only what is still
   stale.
-- [ ] The finish of step 8 reports each masked kind whose rule also hides
+  - **Evidence:** same commit; that pass's numbered steps 1-4 place the rule,
+    gate it on `--replay`'s `ABSORBED` and `HIDDEN` lines, apply `RESTAMP`
+    digests to `source_digest` only, and commit them alone as
+    `map: mask <kind> in <dir>` before rerunning the check.
+- [x] The finish of step 8 reports each masked kind whose rule also hides
   major-version changes.
-- [ ] `## Script results` documents `--replay`, its line types, and that its
+  - **Evidence:** same commit; step 8's finish names every added mask and each
+    masked kind that hides a major-version change.
+- [x] `## Script results` documents `--replay`, its line types, and that its
   `SUCCESS` means "ran", not "nothing to do".
+  - **Evidence:** same commit; `## Script results` gains the `--replay` line
+    table and states that its `SUCCESS` means "ran"; `validate_agent_files`
+    reports 62/62 skills valid.
 
 ### Task 4: Validate the catalog and suite
 
