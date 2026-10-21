@@ -2,8 +2,8 @@
 type: spec
 description: The contract of the OpenCode bridge plugin that serves the agentdev catalog's skills, namespaced commands, and agents to OpenCode v1 and v2.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-20T14:33:31Z
+  by: codex/gpt-6.1-sol
+  at: 2026-10-21T06:51:16Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -59,8 +59,12 @@ The bridge plugin SHALL register a command `agentdev:<name>` for each catalog
 skill, described by the skill's frontmatter description. On OpenCode v1 its
 template SHALL be the skill body followed by the skill's base directory and the
 statement that relative paths resolve against it. On OpenCode v2 running it
-SHALL send the user's text as the message, with the skill attached as a skill
-reference rather than pasted into the text.
+SHALL submit one user message whose text is `/agentdev:<name>` followed, when
+arguments are nonempty, by one space and the supplied argument text. The skill
+SHALL remain attached as a skill reference rather than pasted into the text.
+Existing attachments and their text references, session ID, and delivery mode
+SHALL be preserved. The Web UI SHALL show the invocation as a user message,
+including when there are no arguments, and retain it after reload.
 
 #### Scenario: the user types a namespaced command on v1
 
@@ -72,9 +76,25 @@ reference rather than pasted into the text.
 
 - **WHEN** the user types `/agentdev:pr-gen-description for the current branch`
   in OpenCode v2
-- **THEN** the chat shows the message `for the current branch` with the
+- **THEN** the chat shows the message
+  `/agentdev:pr-gen-description for the current branch` with the
   `pr-gen-description` skill attached, and the model receives the skill body
   with its base directory.
+
+#### Scenario: the user types a command without arguments on v2
+
+- **WHEN** the user types `/agentdev:iwe-ship` without arguments in OpenCode v2
+- **THEN** the chat shows one user message containing `/agentdev:iwe-ship`,
+  without a trailing space, with the `iwe-ship` skill attached
+- **AND** the message remains visible after reloading the Web UI.
+
+#### Scenario: an invocation carries attachments or queued delivery on v2
+
+- **WHEN** a namespaced command has existing file, agent, or skill attachments,
+  or requests queued delivery
+- **THEN** adding the command name preserves those attachments and the text
+  spans they refer to, the session ID, and the requested delivery mode
+- **AND** the bridge submits only one user prompt.
 
 #### Scenario: the user types a command prefix
 

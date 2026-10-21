@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:e00ec4e29e2f6beb163cd84c50d35c86808c3b622bb9b23998721fbb32813166
+source_digest: sha256:e0553921b884645755b2f282e989873b8153468bae1ed73839c4f98d2912a320
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
-stale_after: 2027-01-17
+  by: codex/gpt-5
+  at: 2026-10-21T06:31:53Z
+stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:31:53Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -111,8 +111,9 @@ The workspace suite creates Git repositories, symlinks, and linked worktrees
 under `.tmp/` and injects command/logging adapters. It covers registration
 gates, canonical exact-root matching, pagination, concurrency, retry after
 failure, MCP envelopes, and real subprocess timeout/output bounds. Bridge tests
-assert catalog availability while registration remains pending and client
-diagnostics.
+assert catalog availability while registration remains pending, client
+diagnostics, full v2 command text for bare and argument-bearing invocations, and
+rebased attachment mention spans without input mutation.
 
 ## Depends on
 
@@ -128,7 +129,7 @@ diagnostics.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-18):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -160,5 +161,7 @@ Verified anchor points (line numbers as of 2026-10-18):
   the v1 hook driver every config case shares
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:200` — `fakeV2`, the
   recording v2 plugin ctx
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:277` — full v2
+  invocation payload and attachment-span regression
 - `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts:38` — command
   and logging harness

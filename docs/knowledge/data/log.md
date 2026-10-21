@@ -13,6 +13,10 @@ to the current day's group.
   checks](codebase/flow-pull-request-checks.md), [GitHub](codebase/github.md),
   and [workflows](codebase/github/workflows.md) for the bundled Playwright CLI
   and Chromium browser.
+- **Update**: [Show the full OpenCode slash-command
+  invocation](plans/20261021-opencode-command-echo.md) done; [OpenCode catalog
+  bridge](spec/opencode-catalog-bridge.md) now preserves the full namespaced
+  invocation in OpenCode v2 user messages.
 - **Update**: [Keep the Remote Control pin on the pane's current
   conversation](plans/20261021-remote-control-pin-follows-clear.md) done;
   [Claude Remote Control](spec/claude-remote-control.md) now stores the pane's

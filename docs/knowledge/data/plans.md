@@ -39,6 +39,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Show the full OpenCode slash-command
+invocation](plans/20261021-opencode-command-echo.md)
+
 [Keep the Remote Control pin on the pane's current
 conversation](plans/20261021-remote-control-pin-follows-clear.md)
 
