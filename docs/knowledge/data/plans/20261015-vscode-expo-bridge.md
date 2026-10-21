@@ -285,8 +285,15 @@ Assumptions:
 
 - [ ] A simulator build of the Task 1 app succeeds under the profile, with the
   artifact under `.tmp/expo-bridge/`.
-- [ ] A `postinstall` script added to the app that reads `~/.ssh` fails under
+- [x] A `postinstall` script added to the app that reads `~/.ssh` fails under
   the profile, and one that writes to `~/Library/LaunchAgents` fails.
+  - **Evidence:** Spike builds on 2026-10-21 under a profile that allows by
+    default, denies `file-write*` except `/dev`, `/private/tmp`, the user's
+    `/private/var/folders/<id>`, the package and Xcode caches, and the output
+    directory, and denies `file-read*` of `~/.ssh`, `~/.gnupg`, `~/.aws`,
+    `~/.config/gh`, `~/Library/Keychains` and `~/.netrc`. In both
+    `INSTALL_DEPENDENCIES` and `PREBUILD`, `ls ~/.ssh` and
+    `touch ~/Library/LaunchAgents/<file>` failed with `Operation not permitted`.
 - [ ] When either check fails, it is recorded under `## Verification results`
   and the plan goes back to revise (the alternative is a dedicated low-privilege
   macOS user) before Task 13.
@@ -531,6 +538,30 @@ The protocol contract and security model are specified in
   passes.
 - Task 21's end-to-end run and Task 22's fallback run behave as described.
 - `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+### Task 5: a `sandbox-exec` build fails on nested sandboxing
+
+Under the Task 5 profile, the Expo SDK 58 simulator build fails in the
+`ExpoModulesJSI` pod's `[CP-User] Build ExpoModulesJSI xcframework` script
+phase. That phase runs `xcodebuild`, which resolves Swift packages, and SwiftPM
+sandboxes manifest evaluation with `sandbox-exec`. Inside the outer sandbox it
+fails with
+`Could not resolve package dependencies: sandbox-exec: sandbox_apply: Operation not permitted`.
+macOS does not apply a sandbox inside another, so no change to the profile's
+rules fixes it. The probe check passed under the same profile.
+
+Two constraints on any sandboxed build follow:
+
+- eas-cli's default git packing runs `git config core.ignorecase false` in the
+  project's repository, a write to the workspace's `.git/config`. With
+  `EAS_NO_VCS=1` it writes nothing in `.git`. Its archive still honors
+  `.gitignore` (no `node_modules`) and includes untracked files.
+- The build's inner tools may sandbox themselves. A containment mechanism must
+  allow that, or turn it off for the build's process tree only.
+
+The plan returns to revise to choose the containment.
 
 ## Out of scope
 
