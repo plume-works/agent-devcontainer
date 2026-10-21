@@ -165,13 +165,27 @@ Assumptions:
   - **Evidence:** In the same build, `EXPO_TOKEN` came only from the host login
     environment and no `eas login` was run. Both
     `eas init --non-interactive --force` and the build authenticated with it.
-- [ ] An EAS environment variable with "Secret" visibility is absent from the
+- [x] An EAS environment variable with "Secret" visibility is absent from the
   build, and the same variable set in the host environment is present.
-- [ ] The built app contains a change to a tracked file that was not committed
+  - **Evidence:** Spike build on 2026-10-21 for the `development` profile with
+    `environment: development`. eas-cli logged that it loaded only "Plain text"
+    and "Sensitive" variables, `SPIKE_PLAIN` alone. In the app config embedded
+    in `EXConstants.bundle`, `SPIKE_PLAIN` is the EAS value and the Secret-only
+    `SPIKE_SECRET_A` is unset. `SPIKE_SECRET_B`, a Secret on EAS that the `ui`
+    side also put in the build's environment, carries the host value.
+- [x] The built app contains a change to a tracked file that was not committed
   and a new untracked file. When either is missing, find the eas-cli setting
   that includes them.
-- [ ] Any check that fails is recorded under `## Verification results` and the
+  - **Evidence:** Spike builds on 2026-10-21 with default eas-cli VCS settings.
+    An uncommitted `ios.infoPlist` marker and display name in `app.json` appear
+    in the `.app`'s `Info.plist`. An untracked solid-red
+    `assets/untracked-icon.png`, set as the icon, produced red
+    `AppIcon60x60@2x.png` and `AppIcon76x76@2x~ipad.png`. An untracked
+    `app.config.js` set the embedded `extra` values. No setting was needed.
+- [x] Any check that fails is recorded under `## Verification results` and the
   plan goes back to revise before Task 6.
+  - **Evidence:** Every Task 2 check above passed, so there was nothing to
+    record.
 
 ### Task 3: Spike how Expo's plugin skills invoke `eas`
 
