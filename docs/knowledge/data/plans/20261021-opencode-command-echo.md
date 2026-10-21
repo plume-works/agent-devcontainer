@@ -6,7 +6,7 @@ release:
 description: Preserve the namespaced slash-command name in OpenCode v2 user messages so bare commands and commands with arguments remain visible in chat.
 generated:
   by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:30:03Z
+  at: 2026-10-21T06:51:16Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .agents/plugins/agentdev/tests/opencode/bridge.test.ts
@@ -14,6 +14,8 @@ sources:
 - resource: docs/knowledge/data/architecture/opencode-catalog-bridge.md
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/client-slash-command.ts
 - resource: https://github.com/anomalyco/opencode/blob/v2.1.1/packages/app/src/composer/submit.ts
+stage: done
+completed: 2026-10-21
 ---
 
 # Show the full OpenCode slash-command invocation
