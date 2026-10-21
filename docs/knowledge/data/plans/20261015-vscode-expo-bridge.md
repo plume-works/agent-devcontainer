@@ -358,12 +358,21 @@ extension; its findings are recorded under `## Verification results`
 **Files:** none — an attacker workspace extension added beside the Task 1
 scratch extension, in a Dev Containers window on a Mac
 
-- [ ] The attacker, a workspace extension other than the bridge's, invokes a
+- [x] The attacker, a workspace extension other than the bridge's, invokes a
   command the `ui` side registers, and the handler receives nothing that
   identifies the calling extension or host.
-- [ ] The attacker changes the workspace folders through
+  - **Evidence:** See `## Verification results` → "Task 6: a command invocation
+    carries no caller identity", recorded in commit `267ac35`. Run 2026-10-21 on
+    a macOS Dev Containers window. Spike: `callBridge` in
+    [`plume-works/agent-expo-bridge-spikes extensions/attacker/extension.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/attacker/extension.js).
+- [x] The attacker changes the workspace folders through
   `vscode.workspace.updateWorkspaceFolders`, and the `ui` side still resolves
   the window's original host path.
+  - **Evidence:** See `## Verification results` → "Task 6", recorded in commit
+    `267ac35`. Run 2026-10-21: after the injected folder the `ui` side resolved
+    the original `dev-container+…` authority and host path. Spike: `swapFolders`
+    in
+    [`plume-works/agent-expo-bridge-spikes extensions/attacker/extension.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/attacker/extension.js).
 - [ ] With a bridge modal actually on screen, the attacker runs the workbench
   commands that focus, accept, or dismiss dialogs and notifications, and the
   prompt stays unanswered.
@@ -378,10 +387,15 @@ scratch extension, in a Dev Containers window on a Mac
 **Files:** none — the Task 6 attacker extension and a container shell, in a Dev
 Containers window on a Mac
 
-- [ ] The attacker opens a local terminal and sends it text
+- [x] The attacker opens a local terminal and sends it text
   (`workbench.action.terminal.newLocal`,
   `workbench.action.terminal.sendSequence`); whether a command runs on the Mac
   is recorded.
+  - **Evidence:** See `## Verification results` → "Task 7: the window already
+    grants the container host reach", recorded in commit `267ac35`. Run
+    2026-10-21: the marker command ran on the Mac with no prompt. Spike:
+    `localTerminalExec` in
+    [`plume-works/agent-expo-bridge-spikes extensions/attacker/extension.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/attacker/extension.js).
 - [ ] Whether the attacker can open a URL or a `file:` URI on the Mac
   (`vscode.env.openExternal`, `vscode.open`) and read or write the Mac clipboard
   is recorded.
