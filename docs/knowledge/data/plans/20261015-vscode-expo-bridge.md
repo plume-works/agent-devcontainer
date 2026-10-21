@@ -96,7 +96,14 @@ host extension's own checks are the only boundary. They are these:
 - **Sandboxed builds.** `eas build --local` runs under a `sandbox-exec` profile
   that denies reads of `~/.ssh`, keychains, and other credential stores, and
   denies writes outside the build's `$TMPDIR` working directory, the package
-  caches, and the workspace's `.tmp/expo-bridge/`.
+  caches, and the workspace's `.tmp/expo-bridge/`. macOS does not apply a
+  sandbox inside another, so the build's inner tool sandboxes — SwiftPM's
+  manifest sandbox and any other the build needs — are disabled for the build's
+  process tree only, never through the user's global Xcode or SwiftPM defaults.
+  The outer profile is the boundary.
+- **No-VCS packing.** The build always sets `EAS_NO_VCS=1`. eas-cli's git
+  packing writes the workspace's `.git/config`; in no-VCS mode it writes nothing
+  in `.git`, still honors `.gitignore`, and includes untracked files.
 - **Safe paths and processes.** Every protocol path is resolved with `realpath`
   and rejected when any component is a symlink or the result leaves the
   workspace. The host extension starts every process with `execFile` and an
@@ -107,9 +114,9 @@ host extension's own checks are the only boundary. They are these:
   token scoped to the project.
 
 **Host environment.** The host extension captures the user's login environment
-with `$SHELL -l -c 'env -0'`, which every common shell accepts, and starts its
-processes directly with that environment — never through the login shell. Tool
-lookup also searches Homebrew's prefixes `/opt/homebrew/bin` and
+with `$SHELL -l -c 'env -0'`, which fish and POSIX shells both accept, and
+starts its processes directly with that environment — never through the login
+shell. Tool lookup also searches Homebrew's prefixes `/opt/homebrew/bin` and
 `/usr/local/bin`, so a shell configuration that omits them does not break the
 bridge.
 
@@ -158,9 +165,11 @@ extension whose host half registers a URI handler that `eas-host` reaches with
 `code --open-url` — the remote CLI needs `VSCODE_IPC_HOOK_CLI`, so a detached
 agent cannot reach it, and results would come back only by polling files.
 Rejected: relying on the fixed action set alone — `build` runs project code on
-the Mac, so the action set cannot contain a hostile workspace. Rejected, unless
-the sandbox spike fails: running builds as a dedicated low-privilege macOS user
-— heavier to set up than a `sandbox-exec` profile.
+the Mac, so the action set cannot contain a hostile workspace. Rejected:
+disabling SwiftPM's manifest sandbox through global Xcode defaults — it weakens
+every Xcode build on the Mac. Rejected, unless the per-build override cannot be
+scoped: running builds as a dedicated low-privilege macOS user — heavier to set
+up than a `sandbox-exec` profile.
 
 Assumptions:
 
@@ -283,8 +292,6 @@ Assumptions:
 
 **Files:** Create: a `sandbox-exec` profile in the Task 1 scratch extension
 
-- [ ] A simulator build of the Task 1 app succeeds under the profile, with the
-  artifact under `.tmp/expo-bridge/`.
 - [x] A `postinstall` script added to the app that reads `~/.ssh` fails under
   the profile, and one that writes to `~/Library/LaunchAgents` fails.
   - **Evidence:** Spike builds on 2026-10-21 under a profile that allows by
@@ -294,9 +301,23 @@ Assumptions:
     `~/.config/gh`, `~/Library/Keychains` and `~/.netrc`. In both
     `INSTALL_DEPENDENCIES` and `PREBUILD`, `ls ~/.ssh` and
     `touch ~/Library/LaunchAgents/<file>` failed with `Operation not permitted`.
-- [ ] When either check fails, it is recorded under `## Verification results`
+- [x] When either check fails, it is recorded under `## Verification results`
   and the plan goes back to revise (the alternative is a dedicated low-privilege
-  macOS user) before Task 13.
+  macOS user) before Task 12.
+  - **Evidence:** The nested-sandbox failure is recorded under
+    `## Verification results`. This revision chose to disable the inner tool
+    sandboxes per build, and added the checks below.
+- [ ] With the inner tool sandboxes disabled for the build's process tree only,
+  a simulator build of the Task 1 app with `EAS_NO_VCS=1` succeeds under the
+  profile, with the artifact under `.tmp/expo-bridge/`. Candidate mechanism: a
+  build-scoped preferences home (`CFFIXED_USER_HOME`) that sets
+  `IDEPackageSupportDisableManifestSandbox`; the spike decides.
+- [ ] In that configuration, the `postinstall` probes reading `~/.ssh` and
+  writing `~/Library/LaunchAgents` still fail.
+- [ ] `defaults read com.apple.dt.Xcode` for the user is unchanged by the build.
+- [ ] When the override cannot be scoped to the build, it is recorded under
+  `## Verification results` and the plan goes back to revise toward the
+  dedicated low-privilege macOS user before Task 12.
 
 ### Task 6: Specify the protocol and security model in the sibling repository
 
@@ -377,11 +398,13 @@ Assumptions:
 
 - [ ] `build` rejects a profile absent from `eas.json`, requires trust and the
   build confirmation, and runs `eas build --local -p ios --profile <name>` under
-  the Task 5 sandbox profile with `EXPO_TOKEN` from SecretStorage, the artifact
-  and log under `.tmp/expo-bridge/`; it returns the artifact's
-  workspace-relative path and the exit code, and never runs `eas init`.
+  the Task 5 sandbox profile with the Task 5 per-build inner-sandbox override,
+  `EAS_NO_VCS=1`, and `EXPO_TOKEN` from SecretStorage, the artifact and log
+  under `.tmp/expo-bridge/`; it returns the artifact's workspace-relative path
+  and the exit code, and never runs `eas init`.
 - [ ] `bun test` covers profile validation, the gating order, and the `execFile`
-  arguments and environment, with process spawning stubbed.
+  arguments and environment, including `EAS_NO_VCS=1` and the inner-sandbox
+  override, with process spawning stubbed.
 
 ### Task 13: Host extension — `install`, `launch`, `screenshot`
 
@@ -561,7 +584,8 @@ Two constraints on any sandboxed build follow:
 - The build's inner tools may sandbox themselves. A containment mechanism must
   allow that, or turn it off for the build's process tree only.
 
-The plan returns to revise to choose the containment.
+The revision of 2026-10-21 chose to disable the inner tool sandboxes for the
+build's process tree only, keeping `sandbox-exec` as the containment.
 
 ## Out of scope
 
