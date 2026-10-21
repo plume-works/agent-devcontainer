@@ -32,21 +32,23 @@ is the [VS Code Expo bridge](../features/vscode-expo-bridge.md) feature.
 
 The pieces that make this possible:
 
-- **`eas build --local`** (eas-cli 25.3.0, verified by Task 2) runs the EAS
-  build steps on the local machine. It builds in a working directory under
-  macOS's `$TMPDIR` with its own dependency install, reads the same `eas.json`
-  profiles, and authenticates with `EXPO_TOKEN`. It uses the host's bun whatever
-  the `bun` field of `eas.json` says, and does not resolve EAS "Secret"
-  environment variables. `EAS_LOCAL_BUILD_ARTIFACTS_DIR` sets where the artifact
-  lands. It packs uncommitted and untracked files with default settings. It runs
-  project code on the build machine: package lifecycle scripts, `eas-build-*`
-  hooks, `app.config.js`, config plugins, the `Podfile`, and Xcode build phases.
+- **`eas build --local`** (eas-cli 25.3.0) runs the EAS build steps on the local
+  machine. It builds in a working directory under macOS's `$TMPDIR` with its own
+  dependency install, reads the same `eas.json` profiles, and authenticates with
+  `EXPO_TOKEN`. It uses the host's bun whatever the `bun` field of `eas.json`
+  says, and does not resolve EAS "Secret" environment variables.
+  `EAS_LOCAL_BUILD_ARTIFACTS_DIR` sets where the artifact lands. It packs
+  uncommitted and untracked files with default settings. It runs project code on
+  the build machine: package lifecycle scripts, `eas-build-*` hooks,
+  `app.config.js`, config plugins, the `Podfile`, and Xcode build phases.
 - **`eas init` writes `extra.eas.projectId` into `app.json`**, a tracked project
   file.
 - **VS Code routes a command to whichever extension host registered it.** A `ui`
   extension runs in the Mac's local extension host with full Node; a `workspace`
   extension runs in the container. One extension runs in exactly one host.
-  Command arguments and results cross the boundary as JSON.
+  Command arguments and results cross the boundary as JSON. A container-side
+  extension reaches the Mac through VS Code's own commands — a local terminal,
+  the clipboard — regardless of any extension the bridge installs.
 - **The workspace is one directory on disk** seen by both sides, so a file the
   Mac writes under the workspace is visible in the container at once. The
   container can also place symlinks in it that resolve anywhere on the Mac.
@@ -72,11 +74,17 @@ bundled by the extension pack `plume-works.vscode-expo-bridge`:
                                              └───────────────────────────────────┘
 ```
 
-**Security model.** The container is treated as fully hostile. The host
-extension treats every command invocation as possibly the container's, whichever
-extension sent it, so pairing the two extensions is not a boundary: the host
-extension's own checks are the only boundary. Tasks 6 and 7 measure what the
-container can reach through VS Code itself. The checks are these:
+**Security model.** A devcontainer window already grants the container reach
+onto the Mac that the bridge neither adds nor can take away: through VS Code's
+own commands a container-side extension opens a local terminal and runs a
+command on the Mac, and the SSH and GPG agents are forwarded into the container.
+The bridge therefore does not contain a hostile container — nothing a workspace
+extension can install does. Its guarantee is narrower: it adds no reach beyond
+what the window already grants, and its one privileged action, `build`, runs
+project code on the Mac only behind per-workspace trust and a per-build
+confirmation. The host extension treats every command invocation as possibly the
+container's, whichever extension sent it, so pairing the two extensions is not a
+boundary. The checks are these:
 
 - **Fixed Expo-only protocol.** The host extension accepts exactly these
   actions: `status`, `build`, `install`, `launch`, `screenshot`. It never runs a
@@ -204,7 +212,7 @@ Assumptions:
 - CocoaPods and fastlane are owned by the one-click fix, not by the [macOS
   bootstrap](20261013-macos-native-bootstrap.md).
 - Listing the pack in `customizations.vscode.extensions` installs the host
-  extension in the Mac's local extension host; Task 26 checks it.
+  extension in the Mac's local extension host.
 
 ## Implementation Steps
 
@@ -336,23 +344,18 @@ extension; its findings are recorded under `## Verification results`
 **Files:** none — an attacker workspace extension added beside the Task 1
 scratch extension, in a Dev Containers window on a Mac
 
-- [ ] The attacker, a workspace extension other than the bridge's, invokes each
+- [ ] The attacker, a workspace extension other than the bridge's, invokes a
   command the `ui` side registers, and the handler receives nothing that
   identifies the calling extension or host.
-- [ ] With the trust prompt and the build confirmation each shown as a modal,
-  the attacker runs the workbench commands that focus, accept, or dismiss
-  dialogs and notifications, and the prompt stays unanswered.
 - [ ] The attacker changes the workspace folders through
   `vscode.workspace.updateWorkspaceFolders`, and the `ui` side still resolves
   the window's original host path.
-- [ ] The attacker invokes stand-ins for the trust, token, and fix commands that
-  open a modal before acting, and none takes effect without the user's click.
+- [ ] With a bridge modal actually on screen, the attacker runs the workbench
+  commands that focus, accept, or dismiss dialogs and notifications, and the
+  prompt stays unanswered.
 - [ ] A command sent from a second window's container does not reach this
   window's `ui` side.
 - [ ] The attacker cannot read the `ui` side's SecretStorage or `globalState`.
-- [ ] `code --open-url` run from a detached container process without
-  `VSCODE_IPC_HOOK_CLI` either reaches a `ui`-side URI handler or fails; the
-  result is recorded.
 - [ ] Every result is recorded under `## Verification results`; any check that
   fails takes the plan back to revise before Task 11.
 
@@ -365,23 +368,21 @@ Containers window on a Mac
   (`workbench.action.terminal.newLocal`,
   `workbench.action.terminal.sendSequence`); whether a command runs on the Mac
   is recorded.
-- [ ] The container writes `initializeCommand` into
-  `.devcontainer/devcontainer.json` and an extension setting into
-  `.vscode/settings.json`, the attacker triggers a reload or rebuild, and
-  whether either takes effect on the Mac is recorded.
-- [ ] Whether the attacker can install an extension into the Mac's local
-  extension host is recorded.
 - [ ] Whether the attacker can open a URL or a `file:` URI on the Mac
   (`vscode.env.openExternal`, `vscode.open`) and read or write the Mac clipboard
   is recorded.
 - [ ] Each Mac-side socket forwarded into the container (SSH agent, GPG agent,
   git credential helper) is recorded with what a container process can do
   through it.
-- [ ] Whether a port the container listens on is forwarded to the Mac's
-  `localhost` without a prompt is recorded.
-- [ ] The results are recorded under `## Verification results`; when any of them
-  reaches the Mac, the plan goes back to revise its security model before Task
-  11\.
+- [ ] Whether the container writing `initializeCommand` into
+  `.devcontainer/devcontainer.json` or a setting into `.vscode/settings.json`,
+  then triggering a reload, takes effect on the Mac is recorded.
+- [ ] Whether the attacker can install an extension into the Mac's local
+  extension host, and whether a port it listens on is forwarded to the Mac's
+  `localhost` without a prompt, is recorded.
+- [ ] The results are recorded under `## Verification results`. They inform the
+  security model rather than gate it: the model already assumes the window
+  grants host reach the bridge cannot remove.
 
 ### Task 8: Spike iOS Simulator containment
 
@@ -720,6 +721,37 @@ probes stayed blocked.
 Turning off the inner sandboxes for one build would mean depending on Expo's
 script internals, Xcode's `PATH` assembly, and an undocumented Xcode default.
 
+### Task 7: the window already grants the container host reach
+
+A workspace (container) extension that is not the bridge reaches the Mac through
+VS Code's own commands. On a macOS Dev Containers window it ran
+`workbench.action.terminal.newLocal` then
+`workbench.action.terminal.sendSequence` with no consent prompt, and a marker
+command executed on the Mac — a file with the attacker's nonce appeared under
+the Mac's `/tmp` and was absent in the container's. The same extension read and
+wrote the Mac clipboard. `VSCODE_IPC_HOOK_CLI` is present in the container and
+the remote `code` CLI answers, so a detached container process reaches it. The
+SSH agent (`SSH_AUTH_SOCK`) and the GPG agent are forwarded into the container;
+`ssh-add -l` from the container listed the user's private keys. `openExternal`
+to a URL was gated by a Mac consent prompt rather than opening silently.
+
+The bridge installs nothing that changes this. The plan's security model is
+therefore the narrower one in `## Approach`: the bridge adds no reach beyond
+what the window grants, and gates its own `build` behind trust and confirmation.
+The forwarded SSH and GPG agents are a devcontainer-wide exposure independent of
+this feature, filed as a separate bug.
+
+### Task 6: a command invocation carries no caller identity
+
+The non-bridge attacker extension invoked the `ui` side's command and received
+the full host path back; the handler saw only its own arguments, nothing naming
+the caller or its host. After the attacker injected a workspace folder with
+`updateWorkspaceFolders`, the `ui` side still resolved the window's original
+`dev-container+…` authority and host path, so folder injection does not redirect
+the bridge. A workspace extension holds no handle to another extension's
+`SecretStorage` or `globalState`. The modal-not-answerable and
+second-window-isolation checks were not exercised and stay open.
+
 ## Out of scope
 
 - Android builds through the bridge; the container builds Android itself.
@@ -733,6 +765,8 @@ script internals, Xcode's `PATH` assembly, and an undocumented Xcode default.
 - Linking the EAS project (`eas init`) through the bridge.
 - Containing a build on the Mac: a trusted, confirmed build runs with the Mac
   user's privileges.
+- Removing the host reach a devcontainer window already grants (local terminal,
+  forwarded agents); the bridge adds none of it and cannot take it away.
 
 ## Key references
 
