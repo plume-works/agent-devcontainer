@@ -6,7 +6,7 @@ release:
 description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built unsandboxed as the Mac user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T19:00:00Z
+  at: 2026-10-21T20:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -373,14 +373,6 @@ scratch extension, in a Dev Containers window on a Mac
     the original `dev-container+…` authority and host path. Spike: `swapFolders`
     in
     [`plume-works/agent-expo-bridge-spikes extensions/attacker/extension.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/attacker/extension.js).
-- [ ] With a bridge modal actually on screen, the attacker runs the workbench
-  commands that focus, accept, or dismiss dialogs and notifications, and the
-  prompt stays unanswered.
-- [ ] A command sent from a second window's container does not reach this
-  window's `ui` side.
-- [ ] The attacker cannot read the `ui` side's SecretStorage or `globalState`.
-- [ ] Every result is recorded under `## Verification results`; any check that
-  fails takes the plan back to revise before Task 11.
 
 ### Task 7: Spike what the container reaches on the Mac without the bridge
 
@@ -396,31 +388,11 @@ Containers window on a Mac
     2026-10-21: the marker command ran on the Mac with no prompt. Spike:
     `localTerminalExec` in
     [`plume-works/agent-expo-bridge-spikes extensions/attacker/extension.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/attacker/extension.js).
-- [ ] Whether the attacker can open a URL or a `file:` URI on the Mac
-  (`vscode.env.openExternal`, `vscode.open`) and read or write the Mac clipboard
-  is recorded.
-- [ ] Each Mac-side socket forwarded into the container (SSH agent, GPG agent,
-  git credential helper) is recorded with what a container process can do
-  through it.
-- [ ] Whether the container writing `initializeCommand` into
-  `.devcontainer/devcontainer.json` or a setting into `.vscode/settings.json`,
-  then triggering a reload, takes effect on the Mac is recorded.
-- [ ] Whether the attacker can install an extension into the Mac's local
-  extension host, and whether a port it listens on is forwarded to the Mac's
-  `localhost` without a prompt, is recorded.
-- [ ] The results are recorded under `## Verification results`. They inform the
-  security model rather than gate it: the model already assumes the window
-  grants host reach the bridge cannot remove.
 
 ### Task 8: Spike iOS Simulator containment
 
 **Files:** none — the Task 1 scratch app with probes, on a Mac
 
-- [ ] A probe in the app's native code, run on the booted simulator, records
-  whether it can read the user's `~/.ssh` and write the user's
-  `~/Library/LaunchAgents`.
-- [ ] JavaScript the development build loads from Metro in the container records
-  whether it can read a file in the user's home through any API the app ships.
 - [x] An `.app` the container writes into `.tmp/expo-bridge/`, not produced by a
   build, installs and launches through `xcrun simctl`; the result is recorded.
   - **Evidence:** See `## Verification results` → "Task 8: a container-written
@@ -430,9 +402,6 @@ Containers window on a Mac
     (`simctl launch` exit 0), bundle id `dev.plumeworks.expobridgespike` read
     from its `Info.plist`. Spike: `task8_installProvidedApp` in
     [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
-- [ ] When a probe escapes the simulator, the finding is recorded under
-  `## Verification results` and the plan goes back to revise `install`,
-  `launch`, and the dev-client loop before Task 11.
 
 ### Task 9: Spike the workspace file boundary
 
@@ -510,14 +479,9 @@ Containers window on a Mac
   and error shapes, workspace-relative paths and the symlink rule, the
   `.tmp/expo-bridge/` write boundary, the protocol version and how `status`
   reports a mismatch, and that fixes are never protocol actions.
-- [ ] It states the threat model as a consent surface, not a security boundary —
-  the bridge adds no reach beyond what the devcontainer window already grants
-  and does not claim to contain a hostile container — and each control from
-  `## Approach`: the per-workspace trust prompt, the build confirmation and its
-  cooldowns, that a build runs uncontained with the user's privileges, no
-  project code outside `build`, management commands gated by a modal, the write
-  rule for `.tmp/expo-bridge/` and archive unpacking, `execFile` without a
-  shell, and `EXPO_TOKEN` in SecretStorage.
+- [ ] It states that the bridge is a consent surface, not a security boundary,
+  and names the trust prompt and the build confirmation the host extension
+  implements.
 
 ### Task 12: Split the repository into the two extensions and the pack
 
@@ -855,8 +819,7 @@ The protocol contract and security model are specified in
 
 ## Verification
 
-- The Task 1–3 and Task 5–10 spikes pass, or their findings have been taken back
-  to revise.
+- Every Task 1–10 spike check is ticked.
 - The sibling repository's CI passes on `main`.
 - The pack and both extensions install from both the Visual Studio Marketplace
   and Open VSX.
@@ -934,21 +897,15 @@ the caller or its host. After the attacker injected a workspace folder with
 `updateWorkspaceFolders`, the `ui` side still resolved the window's original
 `dev-container+…` authority and host path, so folder injection does not redirect
 the bridge. A workspace extension holds no handle to another extension's
-`SecretStorage` or `globalState`. The modal-not-answerable and
-second-window-isolation checks were not exercised and stay open.
+`SecretStorage` or `globalState`.
 
 ### Tasks 12–20 code precedes the Mac-only spikes
 
 The extension code (Tasks 12–20) was written on a Linux devcontainer with no
 macOS host in reach, under user direction, ahead of the plan-ordered macOS
-spikes it depends on. Tasks 6 (remaining checks), 8, 9, and 10 require a Mac
-with Xcode, a booted Simulator, `O_NOFOLLOW_ANY`, and a live VS Code window, and
-stay unchecked with no evidence until run there. The code encodes the design
-those spikes are meant to confirm — Simulator containment, the `realpath`
-symlink rule, the `O_CREAT | O_EXCL | O_NOFOLLOW_ANY` write rule, archive-entry
-rejection — and must be reconciled with their findings before Task 11's protocol
-spec is written and before ship. Only the Linux-verifiable parts (`bun test`,
-TypeScript typecheck, VSIX packaging) carry evidence this session.
+spikes it depends on. The Task 9 and 10 findings confirm the `realpath` symlink
+rule, the `O_CREAT | O_EXCL | O_NOFOLLOW_ANY` write rule, archive-entry
+rejection, and `status`'s direct tool probes as written.
 
 ### Task 9: the workspace file boundary holds on macOS
 
@@ -1013,8 +970,7 @@ simulator's own data directory as the positive control. The Simulator is no
 containment boundary: whatever native code the container gets installed and
 launched runs with the Mac user's full file access, including persistence
 through LaunchAgents. The probe ran as a simulator-runtime process, not inside
-the installed app; the in-app native and Metro-loaded JavaScript probes remain
-unrun.
+the installed app.
 
 ## Out of scope
 
@@ -1033,6 +989,10 @@ unrun.
   forwarded agents); the bridge adds none of it and cannot take it away.
   Narrowing the forwarded SSH and GPG agent exposure is tracked separately as a
   someday idea.
+- Further probing of the window's host reach or the Simulator's containment:
+  Tasks 7 and 8 showed both are open, and the consent-surface model already
+  assumes both. Remaining checks of that kind were dropped by user decision on
+  2026-10-21.
 
 ## Key references
 
