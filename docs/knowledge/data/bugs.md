@@ -3,8 +3,8 @@ type: hub
 description: Bug reports, investigations, and repro notes.
 stage: living
 generated:
-  by: human:author
-  at: 2026-08-01T00:00:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 ---
 
 # 🐛 Bugs
@@ -94,3 +94,12 @@ observations](bugs/plan-tasks-bundle-independent-observations.md)
 
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
+
+[Bug: Replay date window hides source
+edits](bugs/replay-date-window-hides-source-edits.md)
+
+[Bug: Replay omits working-tree
+evidence](bugs/replay-omits-working-tree-evidence.md)
+
+[Bug: Replay leaks broken metadata as a
+traceback](bugs/replay-broken-metadata-traceback.md)
