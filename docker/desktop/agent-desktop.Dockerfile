@@ -28,9 +28,9 @@ ARG AGENTDEV_CATALOG_DIR=/opt/agentdev
 # py_packages/validate_agent_files/pyproject.toml.
 ARG VALIDATE_AGENT_FILES_VERSION=1.0.1
 
-# Playwright and its Chromium build are version-coupled. The role verifies this
-# pin against the installed CLI before the image can publish.
-ARG PLAYWRIGHT_VERSION=1.64.0
+# Supplied from the role default by the image workflow. Keeping the value in the
+# role lets Renovate update installation and image metadata together.
+ARG PLAYWRIGHT_VERSION
 
 # Provision the image with Ansible.
 #
@@ -46,6 +46,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,readonly,target=/provision \
     apt-get update \
+    && test -n "$PLAYWRIGHT_VERSION" \
     && cd /provision \
     && ansible-playbook ansible/playbooks/setup-dev.yml \
       -vvv \

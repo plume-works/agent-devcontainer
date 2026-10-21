@@ -56,6 +56,13 @@
     'Downloading' in playwright_browser_install.stdout
     or 'Downloading' in playwright_browser_install.stderr
 
+- name: Allow runtime users to install version-matched browser binaries
+  ansible.builtin.file:
+    path: "{{ playwright_browser_path }}"
+    state: directory
+    recurse: true
+    mode: a+rwX
+
 - name: Verify the pinned Playwright CLI version
   ansible.builtin.command:
     argv:

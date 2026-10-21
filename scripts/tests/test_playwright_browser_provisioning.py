@@ -11,6 +11,7 @@ PLAYBOOK_PATH = REPO_ROOT / 'ansible/playbooks/setup-dev.yml'
 GROUP_VARS = yaml.safe_load((REPO_ROOT / 'ansible/playbooks/group_vars/all.yml').read_text())
 ROLE_ROOT = REPO_ROOT / 'ansible/roles/playwright_browser'
 DEFAULTS = (ROLE_ROOT / 'defaults/main.yml').read_text()
+DEFAULT_VALUES = yaml.safe_load(DEFAULTS)
 TASKS = (ROLE_ROOT / 'tasks/main.yml').read_text()
 DOCKERFILE = (REPO_ROOT / 'docker/desktop/agent-desktop.Dockerfile').read_text()
 CI = yaml.safe_load((REPO_ROOT / '.github/workflows/ci.yml').read_text())
@@ -49,14 +50,35 @@ def test_role_pins_the_cli_and_matching_chromium_in_an_image_owned_path() -> Non
         "playwright_browser_cli_version.stdout != 'Version ' ~ playwright_browser_version" in TASKS
     )
     assert "or 'chromium-' not in playwright_browser_list.stdout" in TASKS
+    assert 'mode: a+rwX' in TASKS
+    assert 'recurse: true' in TASKS
 
 
 def test_desktop_image_enables_and_describes_the_pinned_browser() -> None:
-    assert 'ARG PLAYWRIGHT_VERSION=' in DOCKERFILE
+    version = DEFAULT_VALUES['playwright_browser_version']
+
+    assert 'ARG PLAYWRIGHT_VERSION\n' in DOCKERFILE
+    assert f'ARG PLAYWRIGHT_VERSION={version}' not in DOCKERFILE
+    assert 'test -n "$PLAYWRIGHT_VERSION"' in DOCKERFILE
     assert 'install_playwright_browser=true' in DOCKERFILE
     assert 'playwright_browser_version=$PLAYWRIGHT_VERSION' in DOCKERFILE
     assert 'ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright' in DOCKERFILE
     assert 'org.opencontainers.image.version.playwright="$PLAYWRIGHT_VERSION"' in DOCKERFILE
+
+
+def test_image_build_derives_the_playwright_version_from_the_role_default() -> None:
+    build_steps = CI['jobs']['build-dev-image']['steps']
+    version_step = next(step for step in build_steps if step.get('id') == 'playwright_version')
+    desktop_build = next(
+        step for step in build_steps if step.get('name') == 'Build agent desktop image'
+    )
+
+    assert 'ansible/roles/playwright_browser/defaults/main.yml' in version_step['run']
+    assert 'playwright_browser_version:' in version_step['run']
+    assert (
+        'PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}'
+        in (desktop_build['with']['build-args'])
+    )
 
 
 def test_native_image_acceptance_launches_bundled_chromium() -> None:
