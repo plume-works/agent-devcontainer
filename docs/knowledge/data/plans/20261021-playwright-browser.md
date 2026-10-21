@@ -6,7 +6,7 @@ release:
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:16:00Z
+  at: 2026-10-21T07:23:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
@@ -77,11 +77,16 @@ client/browser version contract.
 **Files:** Create: `scripts/tests/test_playwright_browser_provisioning.py`;
 Modify: `.github/workflows/ci.yml`
 
-- [ ] Add focused contract tests for the role ordering, opt-in image wiring,
+- [x] Add focused contract tests for the role ordering, opt-in image wiring,
   version pin, image-owned browser path, and Renovate annotation.
-- [ ] Extend devcontainer image acceptance to verify the CLI version and use
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_playwright_browser_provisioning.py` passed
+    all four tests on 2026-10-21; Ruff check also passed.
+- [x] Extend devcontainer image acceptance to verify the CLI version and use
   bundled Chromium to load a local or `data:` page headlessly without a runtime
   download.
+  - **Evidence:** The focused provisioning suite, Actionlint, and Zizmor passed
+    against the CI smoke command on 2026-10-21.
 
 ### Task 4: Refresh the affected codebase map
 
