@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: OpenCode loads the agentdev catalog from the same tree as Claude Code and Codex through a dependency-free bridge plugin, with namespaced slash commands and tool-limited subagents, installed by the image build, postCreate, and postAttach.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T02:00:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:31:53Z
 sources:
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 - resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
@@ -32,8 +32,9 @@ The same bridge loads in OpenCode v1 and v2.
 
 **OpenCode sees the catalog the way the other hosts do.** Every catalog skill is
 listed by OpenCode's skill tool and is a `/agentdev:<name>` slash command that
-appears in autocomplete. On v2, running one sends only the user's words, with
-the skill attached as a skill chip rather than pasted into the chat. The skill
+appears in autocomplete. On v2, running one sends the full command followed by
+its arguments, with the skill attached as a skill chip rather than pasted into
+the chat. Existing attachment mentions remain aligned with their text. The skill
 tool accepts the catalog's namespaced `agentdev:<name>` spelling. A
 `disable-model-invocation` skill is denied to the model but still runs as a
 command. Each catalog agent is a subagent denied the tools its `tools:` list

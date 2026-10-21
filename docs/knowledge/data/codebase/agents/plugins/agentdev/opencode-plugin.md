@@ -2,14 +2,14 @@
 type: codebase
 description: The OpenCode catalog bridge for OpenCode v1 and v2 and its non-blocking registration of the active Git worktree with configured local CBM.
 source: .agents/plugins/agentdev/.opencode-plugin
-source_digest: sha256:6ae03618b6be72baadebe3f8672758e65dcd511b5f36cd9a27fd9473b8176da4
+source_digest: sha256:87690b1493e7378a67f2faeb098e241805aec39b45efcd308bec305cba4e1e85
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
-stale_after: 2027-01-17
+  by: codex/gpt-5
+  at: 2026-10-21T06:31:53Z
+stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:31:53Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/.opencode-plugin
@@ -57,11 +57,12 @@ log adapter that writes a `service: agentdev` warning through that context.
 `setupBridge` registers, without awaiting any of it: an `mcp.transform` callback
 that hands the `codebase-memory-mcp` entry to `registerWorkspace`; skills under
 their bare names (`autoinvoke: false` when explicit-only); `<namespace>:<name>`
-commands whose `execute` re-prompts with the skill appended to `skills`; agents
-via `update` as subagents with `system` set to the body; `session` `context` and
-`permission` `evaluate` hooks that withhold and deny a catalog agent's unmapped
-actions while its `system` is still the catalog body; and an `execute.before`
-hook that strips `<namespace>:` from the skill tool's `id`.
+commands whose `execute` re-prompts with the full namespaced invocation, rebased
+attachment mentions, and the skill appended to `skills`; agents via `update` as
+subagents with `system` set to the body; `session` `context` and `permission`
+`evaluate` hooks that withhold and deny a catalog agent's unmapped actions while
+its `system` is still the catalog body; and an `execute.before` hook that strips
+`<namespace>:` from the skill tool's `id`.
 
 `registerWorkspace` gates on a local CBM entry with a nonempty command that
 neither `enabled: false` nor `disabled: true` turns off, resolves Git's
@@ -92,17 +93,17 @@ host's `effect` and `@opencode/plugin/promise/adapter`, required lazily; Bun's
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-19):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:10,25` — v1 mapping
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:32,47` — v2 mapping
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:127` — `readCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:159` — `applyCatalog`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:202` — `bridge`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:231` — `setupBridge` (MCP
-  callback at 235, agent limits hooks at 296-302)
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:319` — `v2Effect`
-- `.agents/plugins/agentdev/.opencode-plugin/index.ts:337` — default export
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:132` — `rebaseMentions`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:151` — `readCatalog`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:183` — `applyCatalog`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:226` — `bridge`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:255` — `setupBridge`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:346` — `v2Effect`
+- `.agents/plugins/agentdev/.opencode-plugin/index.ts:364` — default export
 - `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:20` —
   `runCommand`
 - `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:74` —

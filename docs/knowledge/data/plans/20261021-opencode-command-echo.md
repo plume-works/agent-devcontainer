@@ -98,11 +98,14 @@ supplied arguments, not whitespace the host has already removed.
 `docs/knowledge/data/codebase/agents/plugins/agentdev/opencode-plugin.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md`
 
-- [ ] Describe the full command plus arguments instead of arguments-only v2
+- [x] Describe the full command plus arguments instead of arguments-only v2
   messages in the feature and architecture documents. Refresh the affected
   codebase-map sections, verified anchors, and source digests. Run the complete
   bridge test file, catalog validation, map freshness check, normalization, and
   schema validation from Verification. Leave the durable spec merge to Ship.
+  - **Evidence:** The complete bridge suite passes 29/29 tests, catalog
+    validation passes 62/62 skills, the map reports 28/28 documents fresh, and
+    `iwe normalize` plus `iwe schema validate` pass.
 
 ### Task 4: Verify the visible Web UI result
 
