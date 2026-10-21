@@ -6,7 +6,7 @@ release:
 description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built unsandboxed as the Mac user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T18:00:00Z
+  at: 2026-10-21T19:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -15,6 +15,7 @@ sources:
 - resource: https://github.com/expo/eas-build
 - resource: https://code.visualstudio.com/api/advanced-topics/remote-extensions
 - resource: https://github.com/plume-works/vscode-expo-bridge
+- resource: https://github.com/plume-works/agent-expo-bridge-spikes
 - resource: https://blog.theredguild.org/leveraging-vscode-internals-to-escape-containers/
 - resource: https://github.com/microsoft/vscode/issues/287765
 - resource: https://developer.apple.com/videos/play/wwdc19/418/
@@ -229,7 +230,10 @@ Assumptions:
     A request on a container socket reached a `ui`-kind command through
     `executeCommand`. The command decoded the folder URI authority
     `dev-container+<hex JSON>` and took its `hostPath`. It then read back, at
-    that host path, a nonce file the container had written.
+    that host path, a nonce file the container had written. The spike extensions
+    are `extensions/ui` and `extensions/ws` in
+    [plume-works/agent-expo-bridge-spikes](https://github.com/plume-works/agent-expo-bridge-spikes/tree/3409e51830b52545a8cfd911f2296423052a0617)
+    at `3409e51`.
 - [x] The `ui` side runs `eas build --local -p ios --profile development` for an
   `ios.simulator: true` profile on a blank `bun create expo` app, and the
   artifact is readable in the container.
@@ -237,6 +241,9 @@ Assumptions:
     project `d67b0e6f-5880-4bab-b64b-77d1dd12519e`. The `ui` side ran the build,
     which exited 0. The container unpacked the resulting `.tar.gz` and read the
     `.app`'s `Info.plist`: `CFBundleSupportedPlatforms` is `iPhoneSimulator`.
+    The scratch app is `scratch-app` in
+    [plume-works/agent-expo-bridge-spikes](https://github.com/plume-works/agent-expo-bridge-spikes/tree/3409e51830b52545a8cfd911f2296423052a0617)
+    at `3409e51`.
 
 ### Task 2: Spike the `eas build --local` behavior the design relies on
 
@@ -331,6 +338,11 @@ extension; its findings are recorded under `## Verification results`
     `~/.config/gh`, `~/Library/Keychains` and `~/.netrc`. In both
     `INSTALL_DEPENDENCIES` and `PREBUILD`, `ls ~/.ssh` and
     `touch ~/Library/LaunchAgents/<file>` failed with `Operation not permitted`.
+    The profile is
+    [`extensions/ui/sandbox.sb`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/sandbox.sb)
+    and the `postinstall` probe
+    [`scratch-app/probe.sh`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/scratch-app/probe.sh)
+    in plume-works/agent-expo-bridge-spikes.
 - [x] When either check fails, it is recorded under `## Verification results`
   and the plan goes back to revise before Task 17.
   - **Evidence:** Commit `363370b` records the nested-sandbox failure under
@@ -402,7 +414,8 @@ Containers window on a Mac
     bridge: an `.app` unpacked into `.tmp/` (path-validated under `.tmp/`)
     installed on the booted iPhone 17 Pro (`simctl install` exit 0) and launched
     (`simctl launch` exit 0), bundle id `dev.plumeworks.expobridgespike` read
-    from its `Info.plist`.
+    from its `Info.plist`. Spike: `task8_installProvidedApp` in
+    [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [ ] When a probe escapes the simulator, the finding is recorded under
   `## Verification results` and the plan goes back to revise `install`,
   `launch`, and the dev-client loop before Task 11.
@@ -418,14 +431,16 @@ Containers window on a Mac
     boundary holds on macOS". Run 2026-10-21 on `robomac.local` via the spike
     bridge: a symlinked directory component and a final symlink both refused
     (`ELOOP`); fresh `O_CREAT|O_EXCL|O_NOFOLLOW_ANY` created, second create
-    `EEXIST`.
+    `EEXIST`. Spike: `task9_nofollow` in
+    [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] Whether eas-cli writes through a symlink the container planted at the
   artifact's file name, or in place of `EAS_LOCAL_BUILD_ARTIFACTS_DIR`, is
   recorded.
   - **Evidence:** See `## Verification results` → "Task 9". Recorded: the host
     extension builds into private global storage and copies out under the
     fresh-write rule, so a planted symlink at the artifact name or artifacts dir
-    is never followed.
+    is never followed. Spike: `task9_symlinkArtifactDir` in
+    [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] Container-written `.tar.gz` archives holding an absolute path, a `..`
   entry, and a symlink followed by an entry through it, unpacked the way
   `install` will unpack them, write nothing outside a fresh directory.
@@ -433,11 +448,14 @@ Containers window on a Mac
     entry rejected by bsdtar (`Path contains '..'`), absolute entry's leading
     `/` stripped, symlink entry's write did not reach outside and the
     post-extract symlink scan catches it so `install` rejects the artifact.
+    Spike: `task9_archives` in
+    [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] Reading `eas.json` as a symlink, a FIFO, and an oversized file fails
   without blocking, and the returned error contains none of the file's bytes.
   - **Evidence:** See `## Verification results` → "Task 9". Run 2026-10-21: all
     three refused (symlink / not-regular / too-large), no blocking (the
-    `O_NONBLOCK` open), no file bytes returned.
+    `O_NONBLOCK` open), no file bytes returned. Spike: `task9_configReads` in
+    [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] Every failure is recorded under `## Verification results` and the plan
   goes back to revise before Task 11.
   - **Evidence:** All four Task 9 checks passed, recorded under
@@ -453,13 +471,16 @@ Containers window on a Mac
   - **Evidence:** See `## Verification results` → "Task 10". eas-cli 25.3.0
     rejects `cocoapods`, `fastlane`, `image` at schema validation; a build with
     `"node": "20.18.0"` logged the Node.js-mismatch warning and built with the
-    Mac's Node (`.tmp/t10out1/build.log`, exit 0).
+    Mac's Node (`.tmp/t10out1/build.log`, exit 0). Spike: `task10_toolVersions`
+    in
+    [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] Whether a second build of the unchanged app reuses anything from the first
   — dependency install, pods, DerivedData — is recorded.
   - **Evidence:** See `## Verification results` → "Task 10". Two consecutive
     builds (`.tmp/t10out1`, `.tmp/t10out2`, both exit 0) each ran in a fresh
     `eas-build-local-nodejs/<uuid>` workdir and installed all 443 packages (929
-    ms, then 529 ms from bun's cache) and all 103 pods.
+    ms, then 529 ms from bun's cache) and all 103 pods. Spike: `task10_reuse` in
+    [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] The results are recorded under `## Verification results`; when a field is
   honored, `status`'s tool checks are revised before Task 11.
   - **Evidence:** See `## Verification results` → "Task 10: cocoapods, fastlane,
