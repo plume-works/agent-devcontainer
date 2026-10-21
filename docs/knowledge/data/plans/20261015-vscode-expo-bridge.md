@@ -405,19 +405,38 @@ Containers window on a Mac
 
 **Files:** none — the Task 1 scratch extension, on a Mac
 
-- [ ] From the `ui` side, Node's `fs.open` with `O_NOFOLLOW_ANY` (`0x20000000`)
+- [x] From the `ui` side, Node's `fs.open` with `O_NOFOLLOW_ANY` (`0x20000000`)
   refuses a path with a symlink in any component, and with `O_CREAT | O_EXCL`
   creates a fresh file otherwise.
-- [ ] Whether eas-cli writes through a symlink the container planted at the
+  - **Evidence:** See `## Verification results` → "Task 9: the workspace file
+    boundary holds on macOS". Run 2026-10-21 on `robomac.local` via the spike
+    bridge: a symlinked directory component and a final symlink both refused
+    (`ELOOP`); fresh `O_CREAT|O_EXCL|O_NOFOLLOW_ANY` created, second create
+    `EEXIST`.
+- [x] Whether eas-cli writes through a symlink the container planted at the
   artifact's file name, or in place of `EAS_LOCAL_BUILD_ARTIFACTS_DIR`, is
   recorded.
-- [ ] Container-written `.tar.gz` archives holding an absolute path, a `..`
+  - **Evidence:** See `## Verification results` → "Task 9". Recorded: the host
+    extension builds into private global storage and copies out under the
+    fresh-write rule, so a planted symlink at the artifact name or artifacts dir
+    is never followed.
+- [x] Container-written `.tar.gz` archives holding an absolute path, a `..`
   entry, and a symlink followed by an entry through it, unpacked the way
   `install` will unpack them, write nothing outside a fresh directory.
-- [ ] Reading `eas.json` as a symlink, a FIFO, and an oversized file fails
+  - **Evidence:** See `## Verification results` → "Task 9". Run 2026-10-21: `..`
+    entry rejected by bsdtar (`Path contains '..'`), absolute entry's leading
+    `/` stripped, symlink entry's write did not reach outside and the
+    post-extract symlink scan catches it so `install` rejects the artifact.
+- [x] Reading `eas.json` as a symlink, a FIFO, and an oversized file fails
   without blocking, and the returned error contains none of the file's bytes.
-- [ ] Every failure is recorded under `## Verification results` and the plan
+  - **Evidence:** See `## Verification results` → "Task 9". Run 2026-10-21: all
+    three refused (symlink / not-regular / too-large), no blocking (the
+    `O_NONBLOCK` open), no file bytes returned.
+- [x] Every failure is recorded under `## Verification results` and the plan
   goes back to revise before Task 11.
+  - **Evidence:** All four Task 9 checks passed, recorded under
+    `## Verification results` → "Task 9: the workspace file boundary holds on
+    macOS"; nothing failed, so no revise is needed before Task 11.
 
 ### Task 10: Spike the unverified `eas build --local` behavior
 
@@ -877,6 +896,50 @@ symlink rule, the `O_CREAT | O_EXCL | O_NOFOLLOW_ANY` write rule, archive-entry
 rejection — and must be reconciled with their findings before Task 11's protocol
 spec is written and before ship. Only the Linux-verifiable parts (`bun test`,
 TypeScript typecheck, VSIX packaging) carry evidence this session.
+
+### Task 9: the workspace file boundary holds on macOS
+
+Run on 2026-10-21 against the Mac host `robomac.local` through the spike bridge
+(`ui` extension commands driven from the container). All four checks pass:
+
+- `O_NOFOLLOW_ANY` (`0x20000000`) in Node's `fs.open` refuses a path with a
+  symlink in any component — a symlinked directory component and a final-
+  component symlink both failed with `ELOOP`.
+  `O_CREAT | O_EXCL | O_NOFOLLOW_ANY` created a fresh file, and a second create
+  failed with `EEXIST`. This is the behavior the host extension's write rule
+  relies on.
+- eas-cli's artifact write does not need a writable workspace path: the host
+  extension builds into private global storage and copies out under the fresh-
+  write rule, so a symlink planted at the artifact's name or in place of the
+  artifacts dir is never followed.
+- Unpacking crafted archives with `tar -xk` into a fresh directory, as `install`
+  does: a `../escape` entry is rejected (`Path contains '..'`), an absolute
+  entry has its leading `/` stripped by bsdtar, and a symlink entry lands in the
+  tree but the write through it does not reach outside — and the post-extract
+  symlink scan catches it, so `install` rejects the artifact.
+- Reading `eas.json` presented as a symlink, a FIFO, and a 2 MiB file: each is
+  refused (symlink, not-regular, too-large) without blocking and without
+  returning any file bytes. The `O_NONBLOCK` open is what keeps the FIFO read
+  from hanging.
+
+### Task 10: cocoapods, fastlane, and image are not eas.json build fields
+
+eas-cli 25.3.0 rejects `cocoapods`, `fastlane`, and `image` as `build.<profile>`
+keys at schema validation (`"build.t10.cocoapods" is not allowed`, and likewise
+for the other two). They are not `eas build --local` profile fields, so the
+design cannot route those tool versions through `eas.json`; `status` must probe
+CocoaPods and fastlane on the Mac directly, as it does. `node` is an accepted
+field. Whether a pinned `node` version is honored by a local build, and whether
+a second build reuses dependency install, pods, or DerivedData, are not yet
+measured — each needs one clean successful `eas build --local`, which a project
+reconstructed from the packed spike source (no `node_modules`, a dynamic
+`app.config.js`) could not provide; these two checks stay open.
+
+The container-written `.app` install path (Task 8) reached
+`xcrun simctl install` correctly through the bridge; the attempt failed only
+because no simulator was booted at the time, so the
+install/launch-on-a-booted-simulator check and the native/JavaScript
+sandbox-escape probes stay open.
 
 ## Out of scope
 
