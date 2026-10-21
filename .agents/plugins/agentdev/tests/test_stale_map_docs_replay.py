@@ -148,6 +148,23 @@ def test_an_uncommitted_unmasked_edit_forces_a_refresh(
     assert f'REFRESH {KEY}' in completed.stdout.splitlines()
 
 
+def test_an_uncommitted_masked_edit_is_reported_as_absorbed(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Working-tree evidence names an edit that contributes to a RESTAMP verdict."""
+    repository, _ = bumped_workspace(plugin_tmp_path)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+    (repository / COMPOSE).write_text(compose_text('c' * 64))
+
+    completed = run_script(plugin_root, repository, '--replay')
+
+    lines = completed.stdout.splitlines()
+    assert f'ABSORBED WORKTREE {COMPOSE}' in lines
+    assert (
+        f'HIDDEN deploy/.agent.metadata.json @sha256:[0-9a-f]{{64}} "@sha256:{"c" * 64}"' in lines
+    )
+
+
 def test_hidden_lists_each_distinct_value_once(plugin_root: Path, plugin_tmp_path: Path) -> None:
     """The pin seen in two revisions is one HIDDEN line, beside the bumped pin's."""
     # Arrange
@@ -177,6 +194,27 @@ def test_since_without_replay_is_a_preflight_error(
     assert verdict(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
 
 
+def test_replay_uses_the_digest_commit_ancestry_even_when_since_is_later(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Commit ancestry, not timestamps or --since, bounds evidence used for a verdict."""
+    repository = build_workspace(plugin_tmp_path)
+    commit_dated(repository, {COMPOSE: compose_text(PIN)}, ADDED_AT)
+    write_deploy_doc(repository, current_digest(repository, 'deploy'))
+    doc_path = repository / 'docs' / 'knowledge' / f'{KEY}.md'
+    commit_dated(
+        repository, {str(doc_path.relative_to(repository)): doc_path.read_text()}, VERIFIED_AT
+    )
+    bump = commit_dated(repository, {COMPOSE: compose_text(BUMPED_PIN)}, ADDED_AT)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+
+    completed = run_script(plugin_root, repository, '--replay', '--since', '2090-04-01')
+
+    lines = completed.stdout.splitlines()
+    assert f'ABSORBED {bump} {COMPOSE}' in lines
+    assert any(line.startswith(f'RESTAMP {KEY} ') for line in lines)
+
+
 def test_malformed_working_tree_metadata_is_broken(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
@@ -189,6 +227,20 @@ def test_malformed_working_tree_metadata_is_broken(
     completed = run_script(plugin_root, repository, '--replay')
 
     # Assert
+    assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
+    assert f'BROKEN {KEY} deploy/.agent.metadata.json' in completed.stdout.splitlines()
+
+
+def test_malformed_metadata_is_broken_when_missing_digest_would_refresh(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Metadata validation precedes an early REFRESH verdict."""
+    repository, _ = bumped_workspace(plugin_tmp_path)
+    write_deploy_doc(repository, '', verified=False)
+    (repository / 'deploy' / '.agent.metadata.json').write_text('{ not json')
+
+    completed = run_script(plugin_root, repository, '--replay')
+
     assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
     assert f'BROKEN {KEY} deploy/.agent.metadata.json' in completed.stdout.splitlines()
 

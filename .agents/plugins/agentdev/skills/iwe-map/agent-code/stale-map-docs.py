@@ -42,8 +42,8 @@ Options:
   --replay          Prove the working-tree masks against history instead of
                     classifying: replay every first-parent change of the files
                     they reach, and say which non-fresh doc the masks explain.
-  --since <date>    First commit date --replay reads. Default: the earliest
-                    verified.at across the map docs.
+  --since <date>    Also inspect masked-file commits on or after this date.
+                    Verdict-required ancestry is always included.
   -h, --help        Show this help text.
 
 Output:
@@ -60,16 +60,16 @@ Output:
         BROKEN_COUNT
 
 Replay output, then the counts, then RESULT:
-    ABSORBED <commit> <path>       the masks hide every byte this commit changed
-    MOVED <commit> <path>          the masked content still changed
+    ABSORBED <commit|WORKTREE> <path>  the masks hide every changed byte
+    MOVED <commit|WORKTREE> <path>     the masked content still changed
     HIDDEN <metadata-path> <pattern> <value>   one distinct value a mask hid,
                                    as a JSON string
     RESTAMP <key> <digest>         only masked content moved; record <digest>
     REFRESH <key>                  the masks do not explain the change
     BROKEN <key> <metadata-path>   a .agent.metadata.json could not be read
   A non-fresh doc is RESTAMP when its recorded digest equals the digest under
-  the metadata committed at HEAD, or when every first-parent commit since its
-  verified.at, and every uncommitted edit, touching its sources is absorbed.
+  the metadata committed at HEAD, or when every first-parent commit after the
+  commit that set its digest, and every uncommitted edit, is absorbed.
   Keys: MAP_DIR, DOC_COUNT, SINCE, ABSORBED_COUNT, MOVED_COUNT, RESTAMP_COUNT,
         REFRESH_COUNT, BROKEN_COUNT
   Replay ends SUCCESS when it ran to completion, whatever it found.
@@ -552,13 +552,15 @@ class Replayer:
             )
         return self._parents[commit]
 
-    def changes(self, since: str, paths: list[str]) -> list[tuple[str, list[str]]]:
-        """Return each first-parent commit since `since` touching `paths`, oldest first."""
+    def changes(
+        self, since: str, paths: list[str], *, ancestry: bool = False
+    ) -> list[tuple[str, list[str]]]:
+        """Return first-parent commits after an ancestor or date, oldest first."""
         if not paths:
             return []
         arguments = ['log', '--first-parent', '--reverse', '--format=%H']
         if since:
-            arguments.append(f'--since={since}')
+            arguments.append(f'{since}..HEAD' if ancestry else f'--since={since}')
         commits = git(*arguments, '--', *paths).split()
         return [(commit, self.changed(self.parent(commit), commit, paths)) for commit in commits]
 
@@ -595,11 +597,11 @@ class Replayer:
             self._absorbed[key] = old is not None and old == new
         return self._absorbed[key]
 
-    def explains(self, sources: list[str], since: str) -> bool:
+    def explains(self, sources: list[str], since: str, *, ancestry: bool = False) -> bool:
         """Say whether every change to `sources` since `since`, uncommitted included, is absorbed."""
         if not since:
             return False
-        for commit, paths in self.changes(since, sources):
+        for commit, paths in self.changes(since, sources, ancestry=ancestry):
             parent = self.parent(commit)
             if not all(self.absorbed(parent, commit, path) for path in paths):
                 return False
@@ -614,21 +616,46 @@ def digest_under(sources: list[str], resolver: MetadataResolver) -> str:
     return fold_in_masks(source_digest_for_paths(sources, resolver, applied), applied)
 
 
+def digest_commit(path: str, recorded: str) -> str:
+    """Return the commit that began the current first-parent run of `recorded`."""
+    boundary = ''
+    for commit in git('log', '--first-parent', '--format=%H', '--', path).split():
+        raw = blob_bytes(commit, path)
+        if raw is None:
+            break
+        lines = raw.decode(errors='surrogateescape').splitlines()
+        frontmatter = (
+            lines[1 : lines[1:].index('---') + 1]
+            if lines and lines[0] == '---' and '---' in lines[1:]
+            else []
+        )
+        if scalar_field(frontmatter, 'source_digest') != recorded:
+            break
+        boundary = commit
+    return boundary
+
+
 def replay_verdict(
-    key: str, frontmatter: list[str], replayer: Replayer, head_resolver: MetadataResolver
+    key: str,
+    path: str,
+    frontmatter: list[str],
+    replayer: Replayer,
+    head_resolver: MetadataResolver,
 ) -> tuple[str, str] | None:
     """Return the RESTAMP or REFRESH line and its counter, or None for a fresh doc."""
     recorded = scalar_field(frontmatter, 'source_digest')
     sources = source_paths(frontmatter)
-    if not recorded or not all(Path(source).exists() for source in sources):
-        return f'REFRESH {key}', 'refresh'
     replayer.resolver.verify(sources)
     head_resolver.verify(sources)
+    if not recorded or not all(Path(source).exists() for source in sources):
+        return f'REFRESH {key}', 'refresh'
     current = digest_under(sources, replayer.resolver)
     at_head = digest_under(sources, head_resolver)
     if current == recorded:
         return None
-    if at_head == recorded or replayer.explains(sources, verified_at(frontmatter)):
+    boundary = digest_commit(path, recorded)
+    start = boundary or verified_at(frontmatter)
+    if at_head == recorded or replayer.explains(sources, start, ancestry=bool(boundary)):
         return f'RESTAMP {key} {current}', 'restamp'
     return f'REFRESH {key}', 'refresh'
 
@@ -645,14 +672,19 @@ def replay(doc_files: list[str], library_path: str, since: str) -> int:
     counts = {'absorbed': 0, 'moved': 0, 'restamp': 0, 'refresh': 0, 'broken': 0}
     verdicts: list[str] = []
     readable_sources: list[str] = []
-    for key, frontmatter in docs:
+    evidence_windows: list[tuple[str, bool, list[str]]] = []
+    for (key, frontmatter), path in zip(docs, doc_files, strict=True):
         try:
-            outcome = replay_verdict(key, frontmatter, replayer, head_resolver)
+            outcome = replay_verdict(key, path, frontmatter, replayer, head_resolver)
         except BrokenMetadata as broken:
             outcome = (f'BROKEN {key} {broken.path}', 'broken')
         else:
-            readable_sources.extend(
-                source for source in source_paths(frontmatter) if Path(source).exists()
+            sources = [source for source in source_paths(frontmatter) if Path(source).exists()]
+            readable_sources.extend(sources)
+            recorded = scalar_field(frontmatter, 'source_digest')
+            boundary = digest_commit(path, recorded) if recorded else ''
+            evidence_windows.append(
+                (boundary or verified_at(frontmatter), bool(boundary), sources)
             )
         if outcome is not None:
             verdicts.append(outcome[0])
@@ -664,11 +696,24 @@ def replay(doc_files: list[str], library_path: str, since: str) -> int:
         for path in set(tracked)
         if Path(path).name != METADATA_FILENAME and replayer.resolver.masks_for(path)
     )
-    for commit, paths in replayer.changes(since, masked_files):
-        for path in paths:
-            absorbed = replayer.absorbed(replayer.parent(commit), commit, path, collect=True)
-            print(f'{"ABSORBED" if absorbed else "MOVED"} {commit} {path}')
-            counts['absorbed' if absorbed else 'moved'] += 1
+    evidence: set[tuple[str, str]] = set()
+    windows = [*evidence_windows, (since, False, readable_sources)] if since else evidence_windows
+    for start, ancestry, sources in windows:
+        source_files = [
+            path
+            for path in masked_files
+            if any(path == source or path.startswith(f'{source}/') for source in sources)
+        ]
+        for commit, paths in replayer.changes(start, source_files, ancestry=ancestry):
+            evidence.update((commit, path) for path in paths)
+    for commit, path in sorted(evidence):
+        absorbed = replayer.absorbed(replayer.parent(commit), commit, path, collect=True)
+        print(f'{"ABSORBED" if absorbed else "MOVED"} {commit} {path}')
+        counts['absorbed' if absorbed else 'moved'] += 1
+    for path in replayer.changed('HEAD', None, masked_files):
+        absorbed = replayer.absorbed('HEAD', None, path, collect=True)
+        print(f'{"ABSORBED" if absorbed else "MOVED"} WORKTREE {path}')
+        counts['absorbed' if absorbed else 'moved'] += 1
     for (declared_in, pattern), values in sorted(replayer.hidden.items()):
         for value in sorted(values):
             print(f'HIDDEN {declared_in} {pattern} {json.dumps(value)}')
