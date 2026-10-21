@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Mask version-only changes during a map
+refresh](plans/20261021-map-masks-version-bumps.md)
+
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Ship a standalone OpenCode

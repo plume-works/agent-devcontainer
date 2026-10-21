@@ -104,3 +104,5 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 [Xpra port forwarding](features/xpra-port-forwarding.md)
 
 [OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)
+
+[Map masks version-only changes](features/map-masks-version-bumps.md)

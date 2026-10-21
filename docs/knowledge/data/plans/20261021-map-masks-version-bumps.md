@@ -1,0 +1,246 @@
+---
+type: plan
+created: 2026-10-21
+description: Teach the iwe-map refresh to mask a version-only change in the colocated .agent.metadata.json, prove the mask with a new stale-map-docs.py --replay mode, and commit the mask with the digest re-stamps it explains before refreshing any prose.
+release:
+- features/map-masks-version-bumps
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-10-21T00:00:00Z
+sources:
+- resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
+- resource: .agents/plugins/agentdev/tests/test_stale_map_docs_masks.py
+- resource: docs/knowledge/data/spec/iwe-workflow-skills.md
+---
+
+# Mask version-only changes during a map refresh
+
+## Context
+
+[Map masks version-only changes](../features/map-masks-version-bumps.md) is the
+feature this plan delivers. [Digest masks for map
+docs](20260905-digest-masks.md) built the masking mechanism; its rules live in
+`.agent.metadata.json` files per [Agent metadata
+files](../architecture/agent-metadata-files.md). Nothing in the
+`/agentdev:iwe-map` refresh routes a version-only change to that mechanism: step
+8 tells the agent to re-read and rewrite every `STALE` doc, so a doc whose only
+change is a pinned value gets a hand refresh, and the missing mask is left for
+the next bump of the same kind to hit again.
+
+Two decisions were made with the maintainer: any version-only change qualifies
+for a mask whoever authored it, and the behavior runs in agent-driven refreshes
+(including the pre-push refresh from [Refresh the codebase map before
+pushing](20260929-map-refresh-before-push.md)), not in a CI job on
+dependency-update pull requests.
+
+## Approach
+
+The judgment and the proof are split. The agent decides what counts as a version
+and writes the rule; a new `--replay` mode of `stale-map-docs.py` proves it
+mechanically against history and tells the agent which digests the rule alone
+explains. SKILL.md step 8 gains a classification pass that runs before any prose
+refresh and ends in one atomic commit of the metadata change plus
+`source_digest` re-stamps.
+
+Replay applies the **working-tree** metadata to historical file contents
+(`git show <commit>:<path>` against its first parent), so a candidate rule is
+tested before it is committed. A doc is `RESTAMP` when its recorded digest
+equals the digest computed with the metadata committed at `HEAD` — the new rule
+is the only difference — or when every first-parent commit since its
+`verified.at` that touched its sources, plus any uncommitted change, is absorbed
+by the working-tree masks. Everything else is `REFRESH`.
+
+Rejected: recovering a doc's "before" content exactly by searching history for
+the commit whose tree reproduces its recorded digest. It is exact but costs a
+digest computation per candidate commit, and the `verified.at` cutoff errs only
+toward `REFRESH`, which is the safe direction. Also rejected: letting the script
+write the re-stamps itself. The script stays read-only; the agent applies the
+`RESTAMP` digests, as it already copies `STALE` digests.
+
+Assumption: `--since` defaults to the earliest `verified.at` across the map
+docs, so the replay corpus covers every change any current doc could have
+missed.
+
+## Implementation Steps
+
+### Task 1: Add `--replay` to `stale-map-docs.py`
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py`
+
+- [ ] `parse_arguments` accepts `--replay` and `--since <YYYY-MM-DD>`; `--since`
+  without `--replay` is a `PREFLIGHT_ERROR`. `USAGE` documents both and the
+  replay output lines below.
+- [ ] `MetadataResolver` can read metadata from the `HEAD` tree as well as the
+  working tree, so replay can compute a doc's digest under committed metadata. A
+  metadata file unreadable in either view is `BROKEN_METADATA`, the existing
+  code.
+- [ ] Replay walks `git log --first-parent --since=<since>` over the files the
+  working-tree masks reach under any map doc's `source`, and for each
+  commit/file pair whose raw content changed prints `ABSORBED <commit> <path>`
+  when the masked contents are equal, else `MOVED <commit> <path>`.
+- [ ] Replay prints one `HIDDEN <metadata-path> <pattern> <value>` line per
+  distinct value each mask matched across the replayed contents.
+- [ ] Replay prints `RESTAMP <key> <digest>` or `REFRESH <key>` for every map
+  doc that is not `FRESH` under the working-tree metadata, by the rule in
+  `## Approach`, then `ABSORBED_COUNT`, `MOVED_COUNT`, `RESTAMP_COUNT`,
+  `REFRESH_COUNT`, and `RESULT`. Replay uses the existing result codes:
+  `SUCCESS` when it ran to completion, whatever it found.
+
+### Task 2: Test replay
+
+**Files:** Create:
+`.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py`
+
+- [ ] Reuse `build_workspace`, `commit_file`, `write_map_doc`, and `run_script`
+  from `test_stale_map_docs.py` and `write_metadata` from
+  `test_stale_map_docs_masks.py`; fixtures use made-up paths and images.
+- [ ] A doc stale only from a pin bump, with a new uncommitted rule covering it,
+  is `RESTAMP` with the digest a plain run computes afterwards, and the bump
+  commit is `ABSORBED`.
+- [ ] A doc already fresh that the new rule reaches is `RESTAMP` (the
+  committed-metadata branch of the rule).
+- [ ] A doc whose sources also changed outside the rule since `verified.at` is
+  `REFRESH`, and that commit is `MOVED`.
+- [ ] An uncommitted unmasked source edit makes the doc `REFRESH`.
+- [ ] `HIDDEN` lists every distinct matched value once.
+- [ ] `--since` without `--replay` ends `PREFLIGHT_ERROR`; replay over a
+  malformed working-tree metadata file ends `BROKEN_METADATA`.
+
+### Task 3: Route version-only changes in SKILL.md
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-map/SKILL.md`
+
+- [ ] Step 8 opens with a classification pass before the per-verdict list: for
+  each `STALE` doc, read `git log -p --first-parent --since=<verified.at>` over
+  its `source` and sort the change as version-only (every changed span a
+  version, digest, or pin value, nothing around it moved, and the doc does not
+  quote the old value) or not.
+- [ ] For version-only changes: add or widen a `digest_ignore` rule in the
+  nearest `.agent.metadata.json` whose directory covers every file holding that
+  kind of value, with a `reason` naming what moves it; run
+  `agent-code/stale-map-docs.py --replay`; keep the rule only if every
+  `ABSORBED` commit is version-only and every `HIDDEN` value is version-shaped;
+  apply each `RESTAMP` digest to `source_digest` and nothing else; commit the
+  metadata files and re-stamps alone, with a message like
+  `map: mask <kind> in <dir>`; rerun the check and refresh only what is still
+  stale.
+- [ ] The finish of step 8 reports each masked kind whose rule also hides
+  major-version changes.
+- [ ] `## Script results` documents `--replay`, its line types, and that its
+  `SUCCESS` means "ran", not "nothing to do".
+
+### Task 4: Validate the catalog and suite
+
+**Files:** none
+
+- [ ] `uv run pytest .agents/plugins/agentdev/tests` passes.
+- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  passes.
+
+## Spec changes
+
+[IWE workflow skills](../spec/iwe-workflow-skills.md) — a new requirement; it
+governs when a staleness signal may be silenced, so it is a delta.
+
+``` markdown
+## ADDED Requirements
+
+### Requirement: Map masks a version-only change before refreshing
+
+When a refresh finds a map document stale and every change under its `source`
+since it was verified is a version, digest, or pin value whose surrounding
+structure is unchanged, the Map skill SHALL mask that kind of value in the
+colocated `digest_ignore` designation, SHALL keep the mask only when replaying
+it over history absorbs no change other than version-only ones, SHALL re-stamp
+`source_digest` only on documents the new mask alone explains, and SHALL commit
+the designation change and those re-stamps together before refreshing any
+document's prose.
+
+#### Scenario: A version-only change re-stamps instead of refreshing
+
+- **WHEN** a map document is stale only because a pinned value moved
+- **THEN** the refresh commits a mask for that kind of value and the
+  document's new `source_digest`, without editing the document's body
+- **AND** the staleness check then reports the document `FRESH`
+
+#### Scenario: A mixed change is masked first and refreshed after
+
+- **WHEN** a change under a document's `source` moves a pinned value and also
+  changes described content
+- **THEN** the mask lands in its own commit first
+- **AND** the document is refreshed for the remaining change
+
+#### Scenario: A document stale for another reason is not re-stamped
+
+- **WHEN** a new mask reaches a document whose sources also changed outside
+  that mask since it was verified
+- **THEN** replay reports the document `REFRESH`
+- **AND** its `source_digest` is left for the prose refresh to update
+
+#### Scenario: A quoted value is not masked away
+
+- **WHEN** the document quotes the value that moved
+- **THEN** the change is not version-only for that document and it is refreshed
+
+#### Scenario: The report names hidden major bumps
+
+- **WHEN** a mask added by the refresh also hides major-version changes of the
+  value it covers
+- **THEN** the run's report names that kind of value
+```
+
+## Verification
+
+- Task 2 tests pass:
+  `uv run pytest .agents/plugins/agentdev/tests/test_stale_map_docs_replay.py`.
+- The existing mask suite still passes:
+  `uv run pytest .agents/plugins/agentdev/tests/test_stale_map_docs_masks.py .agents/plugins/agentdev/tests/test_stale_map_docs.py`.
+- In this repository, `stale-map-docs.py --replay` with the committed metadata
+  ends `RESULT=SUCCESS`, reports `RESTAMP_COUNT=0` and `REFRESH_COUNT=0` on a
+  fresh map, and lists `ABSORBED` lines for the automerged bump commits since
+  the earliest `verified.at` (for example `c8d0aca`, the uv `0.13.4` bump).
+- A plain `stale-map-docs.py` run still ends `RESULT=SUCCESS`; its output is
+  unchanged without `--replay`.
+
+## Out of scope
+
+- A CI job or bot that masks or re-stamps on dependency-update pull requests.
+- Restricting automatic masks to bot-authored changes.
+- Writing frontmatter from the script; the agent applies `RESTAMP` digests.
+- Changing how masks are declared, resolved, or folded into a digest.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-10-21):
+
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:122` — step 8, refresh mode
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:142` — step 8's finish
+- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:144` — `## Script results`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:25` —
+  `USAGE`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:231` —
+  `MetadataResolver`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:237` —
+  `MetadataResolver._for_directory`, the working-tree metadata read
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:278` —
+  `masked_hash`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:292` —
+  `source_digest_for_paths`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:336` —
+  `fold_in_masks`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:363` —
+  `parse_arguments`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:389` —
+  `classify`
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:424` —
+  `main`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:43` — `commit_file`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:65` — `build_workspace`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:79` — `write_map_doc`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs.py:86` — `run_script`
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:33` —
+  `write_metadata`
+- `docs/knowledge/data/spec/iwe-workflow-skills.md:507` — Requirement: Map
+  staleness reflects described content
