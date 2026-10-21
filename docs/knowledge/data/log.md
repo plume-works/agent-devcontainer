@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-21
 
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for
+  `stale-map-docs.py --replay` and its test module.
 - **Update**: [Keep the Remote Control pin on the pane's current
   conversation](plans/20261021-remote-control-pin-follows-clear.md) done;
   [Claude Remote Control](spec/claude-remote-control.md) now stores the pane's

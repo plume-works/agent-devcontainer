@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:a928a2dabed9099853c520a5992b64650483ac924db7ed791f076b9497db0b7a
+source_digest: sha256:dab535dae7a8ebaef36b1c9dc58b4b9cd01c8780795d48e5c31dc4ad479ae909
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-18T09:20:00Z
-stale_after: 2027-01-15
+  at: 2026-10-21T12:00:00Z
+stale_after: 2027-01-19
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T09:20:00Z
+  at: 2026-10-21T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -70,19 +70,23 @@ metadata files themselves stay out of that fingerprint; a rule reaches a digest
 only as the pattern and replacement that applied. Its `--explain` flag prints
 one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
 shared result vocabulary for metadata it cannot read, compile, or apply to a
-masked text file. The IWE family runs against the [knowledge
-workspace](../../../docs/knowledge.md). `template-consume` optionally copies the
-repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
-`iwe-map`; update mode tracks only the reusable knowledge scaffold and never
-replaces consumer-owned project memory. An optional Expo profile edits files the
-consumer already has for EAS cloud builds and adds no tracked paths. Its state
-is split three ways: the `template-consume` section of the consumer root's
-`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
-the tracked paths — `check-updates.sh` reads nothing else, and a legacy
-`.agentdev-template.json` is consolidated into it on the next update;
-`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
-that survives an interrupted setup; and `data/template-adoption` summarizes the
-episode for a consumer that kept the knowledge base.
+masked text file. `--replay [--since <date>]` applies the working-tree rules to
+every first-parent change of the files they reach, printing `ABSORBED` or
+`MOVED` per commit and file and `HIDDEN` per masked value, then `RESTAMP` with a
+new digest for a non-fresh doc the rules explain and `REFRESH` for the rest;
+refresh mode in `iwe-map`'s `SKILL.md` runs it before committing a new mask. The
+IWE family runs against the [knowledge workspace](../../../docs/knowledge.md).
+`template-consume` optionally copies the repository's IWE seed into a consumer,
+then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
+reusable knowledge scaffold and never replaces consumer-owned project memory. An
+optional Expo profile edits files the consumer already has for EAS cloud builds
+and adds no tracked paths. Its state is split three ways: the `template-consume`
+section of the consumer root's `.agent.metadata.json` is the only machine-parsed
+record of the adopted ref and the tracked paths — `check-updates.sh` reads
+nothing else, and a legacy `.agentdev-template.json` is consolidated into it on
+the next update; `.agentdev-template-progress.md` is the consumer-owned task and
+choice ledger that survives an interrupted setup; and `data/template-adoption`
+summarizes the episode for a consumer that kept the knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not
@@ -125,7 +129,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -155,9 +159,14 @@ Verified anchor points (line numbers as of 2026-10-17):
   Implementer per plan
 - `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:145` — the Shipper
   re-dispatch after a revision
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:75` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:97` —
   `BROKEN_METADATA`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:231` —
-  `MetadataResolver`, which walks a source's ancestors for masking rules
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:292` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —
+  `MetadataResolver`, which walks a source's ancestors for masking rules, in the
+  working tree or a revision's tree
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:532` —
+  `Replayer`, the masked before/after comparison `--replay` runs
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:617` —
+  `replay_verdict`, the `RESTAMP`/`REFRESH` rule
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:364` —
   `source_digest_for_paths`

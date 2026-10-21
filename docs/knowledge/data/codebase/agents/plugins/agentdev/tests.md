@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:e00ec4e29e2f6beb163cd84c50d35c86808c3b622bb9b23998721fbb32813166
+source_digest: sha256:f165f949e15ce284198af6b0da63b89ecbf99398f69572528c8016664968ab05
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
-stale_after: 2027-01-17
+  at: 2026-10-21T12:00:00Z
+stale_after: 2027-01-19
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
+  at: 2026-10-21T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -17,7 +17,7 @@ sources:
 
 # Plugin tests
 
-16 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
+17 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
 with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`. `opencode/bridge.test.ts` and
 `opencode/workspace-index.test.ts` are separate Bun suites for the [OpenCode
@@ -46,8 +46,8 @@ commands, and skills, and the bridge's CBM warning in `opencode.log`.
   `test_install_codex_agents.py`, `test_git_new_branch.py`,
   `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
   `test_result_codes.py`, `test_stale_map_docs.py`,
-  `test_stale_map_docs_masks.py`, `test_template_consume_check_updates.py`,
-  `test_update_branch.py`
+  `test_stale_map_docs_masks.py`, `test_stale_map_docs_replay.py`,
+  `test_template_consume_check_updates.py`, `test_update_branch.py`
 
 ## How it works
 
@@ -57,29 +57,36 @@ Each module builds a throwaway world — a `git init` repository, stub `gh` or
 Signal handling is exercised by sending the signal to the running process, for
 both result-code libraries: `test_result_codes.py` drives the bash one through a
 fixture script and the Python one by generating a `main()` around a body of
-source. The two `stale_map_docs` modules also import the script by path so a
-fixture computes the expected digest from the same code under test rather than
+source. The `stale_map_docs` and masks modules also import the script by path so
+a fixture computes the expected digest from the same code under test rather than
 restating it; the masks module builds `.agent.metadata.json` files and checks
 that a masked pin bump stays `FRESH`, that structure around a masked value still
 moves the digest, that a rule reaches a subdirectory and a child adds to it,
 that a metadata file is not itself tracked content, and that unreadable,
 uncompilable, or inapplicable metadata is `BROKEN_METADATA` confined to its own
-subtree, including invalid replacements and masked binary files.
-`test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
-clone that pushes behind the working clone's back, a stub `git` with
-after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
-`api` for the stack number, `stack link` (a non-force atomic push of the named
-branches, in create or add mode), and `stack checkout`; it pins each
-`stack-guard.sh` result, including a squash-merged lower layer that GitHub-style
-rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only remote
-rewrite, a push leased on the checked tip, queued layers, link create and add
-modes, and a `publish` rerun after a failed link. `test_capture_close_issue.py`
-reuses `initialize_repository` from `test_update_branch.py` and a stub `gh` that
-logs closes, and pins each `close-issue.sh` result, including an already-closed
-issue left alone. `test_template_consume_check_updates.py` builds the same
-metadata file to hold the marker section, and pins `NO_MARKER` for an absent
-file and for an absent section, and `INVALID_MARKER` for malformed metadata or a
-section missing `consumed_ref` or `tracked_paths`.
+subtree, including invalid replacements and masked binary files. The replay
+module reuses both modules' helpers, commits fixtures at fixed future dates so
+`--since` and `verified.at` cut history predictably, and pins `--replay`: a pin
+bump a new uncommitted rule covers is `ABSORBED` and its doc `RESTAMP` with the
+digest a plain run then records, a doc fresh under `HEAD`'s metadata is
+`RESTAMP` without a verified date, a change outside the rule or an uncommitted
+unmasked edit is `REFRESH`, `HIDDEN` lists each value once, and `--since` alone
+or unreadable working-tree metadata is refused. `test_gh_stack_guard.py` builds
+a two-layer stack on a bare remote with a peer clone that pushes behind the
+working clone's back, a stub `git` with after-ls-remote and before-push hooks,
+and a stub `gh` that models `stack view`, `api` for the stack number,
+`stack link` (a non-force atomic push of the named branches, in create or add
+mode), and `stack checkout`; it pins each `stack-guard.sh` result, including a
+squash-merged lower layer that GitHub-style rebasing leaves `SUCCESS`, a peer
+merge of trunk, a whitespace-only remote rewrite, a push leased on the checked
+tip, queued layers, link create and add modes, and a `publish` rerun after a
+failed link. `test_capture_close_issue.py` reuses `initialize_repository` from
+`test_update_branch.py` and a stub `gh` that logs closes, and pins each
+`close-issue.sh` result, including an already-closed issue left alone.
+`test_template_consume_check_updates.py` builds the same metadata file to hold
+the marker section, and pins `NO_MARKER` for an absent file and for an absent
+section, and `INVALID_MARKER` for malformed metadata or a section missing
+`consumed_ref` or `tracked_paths`.
 
 `test_update_branch.py` builds a bare remote, a working clone on a pushed
 feature branch, and a publisher clone, and pins `update-branch.sh`'s upstream
@@ -128,7 +135,7 @@ diagnostics.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-18):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -150,6 +157,10 @@ Verified anchor points (line numbers as of 2026-10-18):
   `write_metadata`, the masking-rule fixture builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:286` — invalid
   replacement and masked binary regressions
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:36` —
+  `commit_dated`, the fixed-date commit helper
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:66` —
+  `bumped_workspace`, a mapped pin and its bump
 - `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:54` —
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
