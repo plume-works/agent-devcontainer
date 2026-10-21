@@ -80,12 +80,15 @@ supplied arguments, not whitespace the host has already removed.
 
 **Files:** Modify: `.agents/plugins/agentdev/.opencode-plugin/index.ts`
 
-- [ ] Build the v2 prompt text from the registered command name and arguments
+- [x] Build the v2 prompt text from the registered command name and arguments
   under the rule in Approach, keeping one submission, the selected skill,
   existing attachments, and delivery semantics intact. Rebase text-span mention
   offsets where the prefix moves their referenced text; do not mutate the
   incoming invocation. Make Task 1's tests pass and keep the v1 bridge tests
   passing without changing v1 templates or command registration.
+  - **Evidence:**
+    `bun test ./.agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes
+    all 29 v1 and v2 bridge tests.
 
 ### Task 3: Reconcile guidance and map provenance
 

@@ -313,16 +313,16 @@ describe("v2 setup", () => {
       text: "/agentdev:iwe-implement fix critical @critical.ts @tdd-red /iwe-plan\nwithout changing behavior",
       files: [{
         uri: "file:///critical.ts",
-        mention: { start: 41, end: 53, text: "@critical.ts" },
+        mention: { start: 37, end: 49, text: "@critical.ts" },
       }],
       agents: [{
         name: "tdd-red",
-        mention: { start: 54, end: 62, text: "@tdd-red" },
+        mention: { start: 50, end: 58, text: "@tdd-red" },
       }],
       skills: [{
         id: "iwe-plan",
         name: "iwe-plan",
-        mention: { start: 63, end: 72, text: "/iwe-plan" },
+        mention: { start: 59, end: 68, text: "/iwe-plan" },
       }, { id: "iwe-implement" }],
       delivery: "steer",
     }, {
