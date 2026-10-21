@@ -58,7 +58,8 @@ The pieces that make this possible:
 
 ## Approach
 
-Two extensions in the sibling repository `plume-works/vscode-expo-bridge`,
+Two extensions in the sibling repository
+[plume-works/vscode-expo-bridge](https://github.com/plume-works/vscode-expo-bridge),
 bundled by the extension pack `plume-works.vscode-expo-bridge`:
 
 ```
@@ -319,10 +320,11 @@ Assumptions:
 - [x] The repository exists with an MIT license, a bun-managed TypeScript
   extension skeleton, and `package.json` declaring `plume-works` as publisher.
   - **Evidence:** `plume-works/vscode-expo-bridge` is public, and GitHub detects
-    its license as `MIT`. Commit `91b9bbf` on `main` adds `package.json`
-    (`"publisher": "plume-works"`), `bun.lock`, `tsconfig.json` and
-    `src/extension.ts`. `bun run typecheck`, `bun run build` and
-    `bun run package` passed on it.
+    its license as `MIT`. Commit
+    [`91b9bbf`](https://github.com/plume-works/vscode-expo-bridge/commit/91b9bbfd1f825527f68f6895a4a27865628ce477)
+    on `main` adds `package.json` (`"publisher": "plume-works"`), `bun.lock`,
+    `tsconfig.json` and `src/extension.ts`. `bun run typecheck`, `bun run build`
+    and `bun run package` passed on it.
 
 ### Task 5: Spike a contained `eas build --local`
 
