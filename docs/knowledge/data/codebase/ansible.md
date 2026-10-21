@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:6e2477af7b5342131c76627140bc97fecf797ea278182c7f9f598c380f09dd4c
+source_digest: sha256:6147a928f457972c17f187c386ea10fcb3980a1ff2f0f9ce8ed29c3a7f3f6f88
 verified:
   by: codex/gpt-5
-  at: 2026-10-21T07:45:00Z
+  at: 2026-10-21T11:30:00-07:00
 stale_after: 2027-01-19
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:45:00Z
+  at: 2026-10-21T11:30:00-07:00
 sources:
 - id: code
   resource: ansible
@@ -48,7 +48,8 @@ the auth shim, and the pinned `gh-stack` extension), `bun_setup` (the bunx alias
 and Bun's PATH wiring; the binary itself comes from `dev_tools`), `nodejs`
 (NodeSource 24), `uv_setup`, `install_docker`, `install_docker_service`.
 `playwright_browser` installs the pinned Playwright CLI, its matching Chromium,
-and Linux browser dependencies into `/opt/playwright`.
+and Linux browser dependencies into `/opt/playwright`, then makes that browser
+tree writable so runtime users can add builds required by project-owned pins.
 
 ## Public surface
 
@@ -85,6 +86,8 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   auto-loaded from the current directory.
 - Capability roles default off. A leaner image is a different set of `-e` flags,
   not a different playbook.
+- The Playwright role owns the Renovate-managed version. Image builds pass that
+  value back as an extra var so installation and image metadata stay aligned.
 - The `final` perm probe is a build guard, not diagnostics: an ownership drift
   baked into the published image is inherited by every warm build layered on it,
   which is why it fails the play.
@@ -113,3 +116,5 @@ Verified anchor points (line numbers as of 2026-10-21):
   final guard
 - `ansible.cfg:5-8` — inventory, log path, roles path
 - `ansible/playbooks/group_vars/all.yml:5-28` — the capability booleans
+- `ansible/roles/playwright_browser/tasks/main.yml:37-64` — image-owned browser
+  installation and runtime write permissions

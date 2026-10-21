@@ -8,10 +8,10 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:4868c9a9e8ceb08dd63d4ec0ee1a3aa7da7f8116453fd6bad8eca90b410f8a72
+source_digest: sha256:38d0b47eeea0f6a75f96694d47b1c95b0f6f40968f569b517b2f9a6ae7df9c0a
 verified:
   by: codex/gpt-5
-  at: 2026-10-21T07:45:00Z
+  at: 2026-10-21T11:30:00-07:00
 stale_after: 2027-01-19
 generated:
   by: codex/gpt-5

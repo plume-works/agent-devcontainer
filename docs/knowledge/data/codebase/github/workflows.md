@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:a6a8429cff000acd65fb7932099e6872969333bdcb36194c29bb9ac9c12df9ef
+source_digest: sha256:a4cb719511a7f97890772308d6ebfc7ee95ee410586a3f55122a076e4e31b32f
 verified:
   by: codex/gpt-5
-  at: 2026-10-21T07:30:00Z
+  at: 2026-10-21T11:30:00-07:00
 stale_after: 2027-01-19
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:30:00Z
+  at: 2026-10-21T11:30:00-07:00
 sources:
 - id: code
   resource: .github/workflows
@@ -47,21 +47,24 @@ architecture, reusing the published `edge` image as a base unless the run is on
 `agent-opencode` on the desktop digest the same job produced. It merges each
 image's per-arch digests into its own manifest under `sha-<commit>` only, then
 patches the desktop pin and smoke-tests the devcontainer with
-`devcontainers/ci`, including a bundled Chromium launch. In parallel,
-`opencode-acceptance` runs `test-agent-runtime.sh` as root against the merged
-`agent-opencode` digest on each native architecture. `promote-dev-image` then
-moves the event's public tags to the three tested digests without rebuilding.
-`opencode-runtime-checks.yml` runs the same acceptance on the digest
-`opencode-compose-pins.yml` proposes and builds nothing; it requires the pin to
-carry `@sha256:`. It triggers on every pull request, without a `paths` filter,
-because a path-filtered workflow never reports a required check. Its `gate` step
-skips acceptance when no deployment file changed, or when CI/CD's path filter
-matched and a second `dorny/paths-filter` step saw `opencode-compose-pins.yml`
-unchanged, since CI/CD accepts the image it builds, never the pinned digest. The
-responder only runs for `plume-works` and never for a fork PR; its preflight
-decides between a review and a task, resolves the review's effort tier, and
-`ai-review-present` reports whether an accepted review exists. `renovate.yml`
-and the Renovate-config `validate` job run in `agent-desktop` at the digest
+`devcontainers/ci`, including a bundled Chromium launch. Each architecture reads
+the Playwright version from the role default and passes it into the desktop
+build, keeping the Renovate-owned pin, installed CLI, and image label identical.
+In parallel, `opencode-acceptance` runs `test-agent-runtime.sh` as root against
+the merged `agent-opencode` digest on each native architecture.
+`promote-dev-image` then moves the event's public tags to the three tested
+digests without rebuilding. `opencode-runtime-checks.yml` runs the same
+acceptance on the digest `opencode-compose-pins.yml` proposes and builds
+nothing; it requires the pin to carry `@sha256:`. It triggers on every pull
+request, without a `paths` filter, because a path-filtered workflow never
+reports a required check. Its `gate` step skips acceptance when no deployment
+file changed, or when CI/CD's path filter matched and a second
+`dorny/paths-filter` step saw `opencode-compose-pins.yml` unchanged, since CI/CD
+accepts the image it builds, never the pinned digest. The responder only runs
+for `plume-works` and never for a fork PR; its preflight decides between a
+review and a task, resolves the review's effort tier, and `ai-review-present`
+reports whether an accepted review exists. `renovate.yml` and the
+Renovate-config `validate` job run in `agent-desktop` at the digest
 `devcontainer-compose-pins.yml` pins, and both read the Renovate version from
 the `renovate-config-validator` hook's `bunx --package renovate@<version>` entry
 in `.pre-commit-config.yaml`; the bot authenticates with a GitHub App token and
@@ -137,8 +140,8 @@ Verified anchor points (line numbers as of 2026-10-20):
 - `.github/workflows/primary-checks.yml:32,54` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:186,280,422` — `super-linter`,
   `commit-format-changes`, `gate`
-- `.github/workflows/ci.yml:71,99,182,236` — build matrix, base-image selection,
-  merge, devcontainer smoke
+- `.github/workflows/ci.yml:71,99,130,182,236` — build matrix, base-image
+  selection, Playwright pin extraction, merge, devcontainer smoke
 - `.github/workflows/ci.yml:163,222` — the `agent-opencode` build on the desktop
   digest and its merge
 - `.github/workflows/ci.yml:265,277-315` — patch the digest pin and smoke-test
