@@ -4,7 +4,7 @@ stage: accepted
 description: Agents in a devcontainer opened by VS Code on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through the vscode-expo-bridge extension's fixed Expo-only action set, with EAS cloud as the fallback.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
+  at: 2026-10-21T00:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
@@ -21,13 +21,20 @@ EAS quota and lets agents see the running app.
 
 ## Behaviour
 
-**A two-part extension.** `plume-works.vscode-expo-bridge`, built in its own
-repository, has a half in the container and a half on the Mac. The container
-half installs the `eas-host` command; the Mac half runs the work.
+**Two extensions in one pack.** `plume-works.vscode-expo-bridge`, built in its
+own repository, bundles a workspace extension in the container and a host
+extension on the Mac. The workspace extension installs the `eas-host` command;
+the host extension runs the work.
 
 **A fixed action set.** `eas-host` accepts only `status`, `build`, `install`,
 `launch`, and `screenshot`. The Mac half never runs a command string from the
 container, and writes into the workspace only under `.tmp/expo-bridge/`.
+
+**Trust lives on the Mac.** The container is treated as hostile. The first
+request from a workspace asks the user on the Mac to trust it; every build asks
+again, with "Don't ask for an hour" and "Don't ask today" answers, and runs in a
+sandbox that keeps project code away from the user's credentials. `EXPO_TOKEN`
+lives in VS Code's secret storage on the Mac.
 
 **Dev-client loop.** Metro runs in the container and VS Code forwards port 8081
 to the Mac, so the native build reruns only when native code changes.

@@ -3,7 +3,7 @@ type: plan
 created: 2026-10-15
 release:
 - features/vscode-expo-bridge
-description: A VS Code extension in the sibling repository plume-works/vscode-expo-bridge that lets agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set, with EAS cloud as the fallback; the template's Expo profile lists the extension.
+description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and sandboxed — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-21T00:00:00Z
@@ -14,6 +14,7 @@ sources:
 - resource: https://docs.expo.dev/build-reference/local-builds/
 - resource: https://github.com/expo/eas-build
 - resource: https://code.visualstudio.com/api/advanced-topics/remote-extensions
+- resource: https://github.com/plume-works/vscode-expo-bridge
 ---
 
 # Build iOS on the Mac host through a VS Code bridge
@@ -23,76 +24,126 @@ sources:
 The [Expo profile](20261014-expo-eas-template-profile.md) builds iOS on EAS
 cloud Macs from the Linux devcontainer. When that devcontainer is opened by VS
 Code on a Mac, the Mac itself has Xcode and the iOS Simulator, and a build there
-costs no EAS quota and lets agents see the running app.
+costs no EAS quota and lets agents see the running app. The user-facing behavior
+is the [VS Code Expo bridge](../features/vscode-expo-bridge.md) feature.
 
 The pieces that make this possible:
 
 - **`eas build --local`** runs the EAS build steps on the local machine. It
-  builds in a working directory under `/tmp` with its own dependency install,
-  reads the same `eas.json` profiles, and authenticates with `EXPO_TOKEN`. It
-  ignores the `node`, `bun`, `cocoapods`, `fastlane`, and `image` fields of
-  `eas.json`, has no build cache, and does not resolve EAS "Secret" environment
-  variables. `EAS_LOCAL_BUILD_ARTIFACTS_DIR` sets where the artifact lands.
+  builds in a working directory under macOS's `$TMPDIR` with its own dependency
+  install, reads the same `eas.json` profiles, and authenticates with
+  `EXPO_TOKEN`. It ignores the `node`, `bun`, `cocoapods`, `fastlane`, and
+  `image` fields of `eas.json`, has no build cache, and does not resolve EAS
+  "Secret" environment variables. `EAS_LOCAL_BUILD_ARTIFACTS_DIR` sets where the
+  artifact lands. It packs uncommitted and untracked files with default
+  settings. It runs project code on the build machine: package lifecycle
+  scripts, `eas-build-*` hooks, `app.config.js`, config plugins, the `Podfile`,
+  and Xcode build phases.
+- **`eas init` writes `extra.eas.projectId` into `app.json`**, a tracked project
+  file.
 - **VS Code routes a command to whichever extension host registered it.** A `ui`
   extension runs in the Mac's local extension host with full Node; a `workspace`
-  extension runs in the container. Command arguments and results cross the
-  boundary as JSON.
+  extension runs in the container. One extension runs in exactly one host.
+  Command arguments and results cross the boundary as JSON. A command carries no
+  caller identity: any extension in any host can invoke it.
 - **The workspace is one directory on disk** seen by both sides, so a file the
-  Mac writes under the workspace is visible in the container at once.
+  Mac writes under the workspace is visible in the container at once. The
+  container can also place symlinks in it that resolve anywhere on the Mac.
+- **The Mac user's login shell may be fish** or another shell that does not
+  accept POSIX `sh` syntax.
 
 ## Approach
 
-A two-part extension, `plume-works.vscode-expo-bridge`, in the sibling
-repository `plume-works/vscode-expo-bridge`:
+Two extensions in the sibling repository `plume-works/vscode-expo-bridge`,
+bundled by the extension pack `plume-works.vscode-expo-bridge`:
 
 ```
  devcontainer                                 Mac host
 ┌──────────────────────────────┐   VS Code   ┌───────────────────────────────────┐
-│ eas-host <action> ...        │   command   │ ui half                           │
-│   │ unix socket              │   routing   │  ├ resolves the workspace's host  │
-│   ▼                          │ ──────────▶ │  │   path, validates arguments     │
-│ workspace half ──────────────┤             │  ├ eas build --local -p ios       │
-│                              │             │  ├ xcrun simctl install/launch/   │
-│ tails the log file ◀─────────┼─workspace───┼──┤   screenshot                   │
-│ reads the artifact           │  directory  │  └ writes .tmp/expo-bridge/        │
-└──────────────────────────────┘             └───────────────────────────────────┘
+│ eas-host <action> ...        │   command   │ host extension (ui)               │
+│   │ unix socket              │   routing   │  ├ trust + build confirmation     │
+│   ▼                          │ ──────────▶ │  ├ resolves the workspace's host  │
+│ workspace extension ─────────┤             │  │   path, validates arguments     │
+│                              │             │  ├ sandboxed eas build --local    │
+│ tails the log file ◀─────────┼─workspace───┼──┤ xcrun simctl install/launch/   │
+│ reads the artifact           │  directory  │  │   screenshot                   │
+└──────────────────────────────┘             │  └ writes .tmp/expo-bridge/        │
+                                             └───────────────────────────────────┘
 ```
 
-- **Fixed Expo-only protocol.** The `ui` half accepts exactly these actions:
-  `status`, `build`, `install`, `launch`, `screenshot`. It never runs a command
-  string from the container. `build` takes a profile name that must exist in the
-  workspace's `eas.json`; `install` takes a workspace-relative path that must
-  resolve under `.tmp/expo-bridge/`; `launch` reads the bundle identifier from
-  the app config; `screenshot` takes no argument. Every path in the protocol is
-  workspace-relative; the `ui` half resolves it against the host path.
+**Security model.** The container is treated as fully hostile. VS Code commands
+carry no caller identity, so pairing the two extensions is not a boundary: the
+host extension's own checks are the only boundary. They are these:
+
+- **Fixed Expo-only protocol.** The host extension accepts exactly these
+  actions: `status`, `build`, `install`, `launch`, `screenshot`. It never runs a
+  command string from the container. `build` takes a profile name that must
+  exist in the workspace's `eas.json`; `install` takes a workspace-relative path
+  that must resolve under `.tmp/expo-bridge/`; `launch` reads the bundle
+  identifier from the app config; `screenshot` takes no argument.
+- **Per-workspace trust, granted only on the Mac.** The first request from a
+  workspace with no recorded decision shows a VS Code prompt naming the
+  workspace's host path. Allowing it records trust in the host extension's
+  `globalState`, keyed by host path; declining fails the request. A command
+  lists and revokes trusted workspaces. Trust and every other security setting
+  are never read from workspace settings, `devcontainer.json`, or any other file
+  the container can write.
+- **A confirmation before every `build`.** The prompt names the profile and
+  states that project code will run on the Mac. Its answers are "Allow once",
+  "Don't ask for an hour", and "Don't ask today"; a cooldown applies to that
+  workspace only and is stored in `globalState`. `status`, `install`, `launch`,
+  and `screenshot` never prompt beyond trust.
+- **Sandboxed builds.** `eas build --local` runs under a `sandbox-exec` profile
+  that denies reads of `~/.ssh`, keychains, and other credential stores, and
+  denies writes outside the build's `$TMPDIR` working directory, the package
+  caches, and the workspace's `.tmp/expo-bridge/`.
+- **Safe paths and processes.** Every protocol path is resolved with `realpath`
+  and rejected when any component is a symlink or the result leaves the
+  workspace. The host extension starts every process with `execFile` and an
+  argument array, never a shell string.
+- **`EXPO_TOKEN` in VS Code SecretStorage.** Commands set and clear the token on
+  the Mac; the host extension injects it into the build process's environment
+  only. The build can still read it, so the README recommends a robot-account
+  token scoped to the project.
+
+**Host environment.** The host extension captures the user's login environment
+with `$SHELL -l -c 'env -0'`, which every common shell accepts, and starts its
+processes directly with that environment — never through the login shell. Tool
+lookup also searches Homebrew's prefixes `/opt/homebrew/bin` and
+`/usr/local/bin`, so a shell configuration that omits them does not break the
+bridge.
+
 - **`status`** reports whether the bridge can serve a build: a Mac host, a
-  workspace host path that exists locally, Xcode, CocoaPods, fastlane, Node, a
-  host bun at least as new as the container's (the container sends its
-  `bun --version`), `EXPO_TOKEN` in the host environment, a booted simulator,
+  workspace host path that exists locally, whether the workspace is trusted,
+  Xcode, CocoaPods, fastlane, Node, a host bun at least as new as the
+  container's (the container sends its `bun --version`), `EXPO_TOKEN` stored in
+  SecretStorage, `extra.eas.projectId` in the app config, a booted simulator,
   whether port 8081 is forwarded, and the protocol version.
-- **Nothing Mac-specific lands in the shared workspace.** The `ui` half never
-  runs `expo run:ios`, `expo prebuild`, or a package install in the workspace;
-  the only files it writes there are under `.tmp/expo-bridge/` — logs, build
-  artifacts, screenshots.
-- **One-click fix.** When `status` finds a missing tool, the `ui` half offers a
-  fix in the VS Code UI that runs Homebrew in a visible local terminal. Xcode is
-  a guided step (it opens the App Store page), after which the fix runs
+- **Nothing Mac-specific lands in the shared workspace.** The host extension
+  never runs `eas init`, `expo run:ios`, `expo prebuild`, or a package install
+  in the workspace; the only files it writes there are under `.tmp/expo-bridge/`
+  — logs, build artifacts, screenshots. Linking the EAS project is a one-time
+  setup step done from the container, which `status` reports when missing.
+- **One-click fix.** When `status` finds a missing tool, the host extension
+  offers a fix in the VS Code UI that runs Homebrew in a visible local terminal.
+  Xcode is a guided step (it opens the App Store page), after which the fix runs
   `xcode-select`, accepts the license, and downloads the iOS platform. A fix is
   only ever started by the user's click, never by a protocol action.
-- **`eas-host`** is the container-side command. The workspace half installs it
-  into `~/.local/bin` on activation and listens on a fixed socket; it streams
-  the build log by tailing the log file the `ui` half writes. When the bridge is
-  unavailable, `eas-host status` says so and exits non-zero, and the agent uses
-  the Expo profile's EAS cloud path.
+- **`eas-host`** is the container-side command. The workspace extension installs
+  it into `~/.local/bin` on activation and listens on a fixed socket; it streams
+  the build log by tailing the log file the host extension writes. When the
+  bridge is unavailable, `eas-host status` says so and exits non-zero, and the
+  agent uses the Expo profile's EAS cloud path.
 - **Dev-client loop.** Metro runs in the container; VS Code forwards port 8081
   to the Mac, where the simulator's development build connects to it, so the
   native build reruns only when native code changes.
-- **Template wiring.** The Expo profile lists the extension, forwards 8081, and
-  adds an `AGENTS.md` rule telling agents to use `eas-host` for iOS when
-  `eas-host status` succeeds.
+- **Template wiring.** The Expo profile lists the extension pack, forwards 8081,
+  and adds an `AGENTS.md` rule telling agents to use `eas-host` for iOS when
+  `eas-host status` succeeds. Setup never pre-authorizes the bridge.
 
-The protocol is specified in the sibling repository, which owns the code; this
-repository's spec covers only the template wiring and the fallback.
+The protocol and the security model are specified in the sibling repository,
+which owns the code; this repository's spec covers only the template wiring, the
+fallback, and that setup grants no trust.
 
 Rejected: a generic host-command bridge such as `dc2host` — any process in the
 container could run anything on the Mac. Rejected: wrapping `eas` so that
@@ -102,18 +153,30 @@ and silently changing a third-party command's meaning is fragile. Rejected:
 container's Linux `node_modules`. Rejected: a self-hosted GitHub Actions runner
 on the Mac — it needs CI plumbing and is not available from an open editor
 window. Rejected: a host network port — the protocol travels over VS Code's
-command routing, so the firewall allowlist does not change.
+command routing, so the firewall allowlist does not change. Rejected: a single
+extension whose host half registers a URI handler that `eas-host` reaches with
+`code --open-url` — the remote CLI needs `VSCODE_IPC_HOOK_CLI`, so a detached
+agent cannot reach it, and results would come back only by polling files.
+Rejected: relying on the fixed action set alone — `build` runs project code on
+the Mac, so the action set cannot contain a hostile workspace. Rejected, unless
+the sandbox spike fails: running builds as a dedicated low-privilege macOS user
+— heavier to set up than a `sandbox-exec` profile.
 
 Assumptions:
 
+- The extension IDs are `plume-works.vscode-expo-bridge` (the pack),
+  `plume-works.vscode-expo-bridge-host` (`ui`), and
+  `plume-works.vscode-expo-bridge-workspace` (`workspace`).
 - The socket is `/tmp/vscode-expo-bridge.sock` inside the container; one VS Code
   window serves one container.
-- The workspace half activates on `workspaceContains:eas.json`.
-- No per-action confirmation prompt: the fixed action set is the security
-  boundary.
+- The workspace extension activates on `workspaceContains:eas.json`.
+- A declined trust prompt is remembered until revoked through the trust command,
+  so a hostile workspace cannot re-prompt repeatedly.
 - The first workspace folder is the Expo project root.
 - CocoaPods and fastlane are owned by the one-click fix, not by the [macOS
   bootstrap](20261013-macos-native-bootstrap.md).
+- Listing the pack in `customizations.vscode.extensions` installs the host
+  extension in the Mac's local extension host; Task 21 checks it.
 
 ## Implementation Steps
 
@@ -216,28 +279,83 @@ Assumptions:
     `src/extension.ts`. `bun run typecheck`, `bun run build` and
     `bun run package` passed on it.
 
-### Task 5: Specify the protocol in the sibling repository
+### Task 5: Spike a sandboxed `eas build --local`
+
+**Files:** Create: a `sandbox-exec` profile in the Task 1 scratch extension
+
+- [ ] A simulator build of the Task 1 app succeeds under the profile, with the
+  artifact under `.tmp/expo-bridge/`.
+- [ ] A `postinstall` script added to the app that reads `~/.ssh` fails under
+  the profile, and one that writes to `~/Library/LaunchAgents` fails.
+- [ ] When either check fails, it is recorded under `## Verification results`
+  and the plan goes back to revise (the alternative is a dedicated low-privilege
+  macOS user) before Task 13.
+
+### Task 6: Specify the protocol and security model in the sibling repository
 
 **Files:** Create: `docs/protocol.md` in `plume-works/vscode-expo-bridge`
 
 - [ ] It defines the five actions, their arguments and validation, the result
-  and error shapes, workspace-relative paths, the `.tmp/expo-bridge/` write
-  boundary, the protocol version and how `status` reports a mismatch, and that
-  fixes are never protocol actions.
+  and error shapes, workspace-relative paths and the symlink rule, the
+  `.tmp/expo-bridge/` write boundary, the protocol version and how `status`
+  reports a mismatch, and that fixes are never protocol actions.
+- [ ] It states the threat model and each control from `## Approach`: the
+  per-workspace trust prompt, the build confirmation and its cooldowns, the
+  sandbox profile, `execFile` without a shell, and `EXPO_TOKEN` in
+  SecretStorage.
 
-### Task 6: Workspace half and `eas-host`
+### Task 7: Split the repository into the two extensions and the pack
+
+**Files:** Modify: the skeleton in `plume-works/vscode-expo-bridge`
+
+- [ ] The repository builds `plume-works.vscode-expo-bridge-host`
+  (`extensionKind: ["ui"]`), `plume-works.vscode-expo-bridge-workspace`
+  (`extensionKind: ["workspace"]`), and the pack
+  `plume-works.vscode-expo-bridge` listing both, each packaged as a VSIX.
+
+### Task 8: Workspace extension and `eas-host`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] The workspace half activates on `workspaceContains:eas.json`, installs
-  `eas-host` into `~/.local/bin`, and serves `/tmp/vscode-expo-bridge.sock`.
+- [ ] The workspace extension activates on `workspaceContains:eas.json`,
+  installs `eas-host` into `~/.local/bin`, and serves
+  `/tmp/vscode-expo-bridge.sock`.
 - [ ] `eas-host` maps each action to one socket request, streams the build log,
   prints the result as JSON, and exits non-zero when the bridge is unavailable
   or the action fails.
 - [ ] `bun test` covers argument handling, the unavailable path, and log
   streaming.
 
-### Task 7: `ui` half — `status`
+### Task 9: Host extension — environment, processes, and paths
+
+**Files:** Create: in `plume-works/vscode-expo-bridge`
+
+- [ ] The host extension captures the login environment with
+  `$SHELL -l -c 'env -0'`, resolves tools through it plus `/opt/homebrew/bin`
+  and `/usr/local/bin`, and starts every process with `execFile` and an argument
+  array.
+- [ ] A protocol path is rejected when any component is a symlink or its
+  `realpath` leaves the workspace.
+- [ ] `bun test` covers environment parsing for fish and POSIX shells, tool
+  lookup, and path rejection for symlinks and `..`.
+
+### Task 10: Host extension — trust, build confirmation, and the token
+
+**Files:** Create: in `plume-works/vscode-expo-bridge`
+
+- [ ] The first request from an untrusted workspace prompts for trust, recorded
+  in `globalState` by host path; a declined workspace fails every request until
+  a command revokes the decision; a command lists and revokes trusted
+  workspaces.
+- [ ] Each `build` prompts with "Allow once", "Don't ask for an hour", and
+  "Don't ask today", and a cooldown suppresses the prompt for that workspace
+  only until it expires.
+- [ ] Commands set and clear `EXPO_TOKEN` in SecretStorage, and the README
+  recommends a robot-account token scoped to the project.
+- [ ] `bun test` covers trust grant, decline, and revocation, each cooldown's
+  expiry, and per-workspace scoping, with the clock and prompts stubbed.
+
+### Task 11: Host extension — `status`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -246,18 +364,19 @@ Assumptions:
 - [ ] `bun test` covers each check's pass and fail result with the system probes
   stubbed.
 
-### Task 8: `ui` half — `build`
+### Task 12: Host extension — `build`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] `build` rejects a profile absent from `eas.json`, runs
-  `eas build --local -p ios --profile <name>` with the artifact and log under
-  `.tmp/expo-bridge/`, and returns the artifact's workspace-relative path and
-  the exit code.
-- [ ] `bun test` covers profile validation and the command line built, with
-  process spawning stubbed.
+- [ ] `build` rejects a profile absent from `eas.json`, requires trust and the
+  build confirmation, and runs `eas build --local -p ios --profile <name>` under
+  the Task 5 sandbox profile with `EXPO_TOKEN` from SecretStorage, the artifact
+  and log under `.tmp/expo-bridge/`; it returns the artifact's
+  workspace-relative path and the exit code, and never runs `eas init`.
+- [ ] `bun test` covers profile validation, the gating order, and the `execFile`
+  arguments and environment, with process spawning stubbed.
 
-### Task 9: `ui` half — `install`, `launch`, `screenshot`
+### Task 13: Host extension — `install`, `launch`, `screenshot`
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -267,7 +386,7 @@ Assumptions:
   `.tmp/expo-bridge/` and returns its workspace-relative path.
 - [ ] `bun test` covers path validation and the `xcrun simctl` invocations.
 
-### Task 10: One-click fix
+### Task 14: One-click fix
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
@@ -277,61 +396,67 @@ Assumptions:
   license acceptance, and `xcodebuild -downloadPlatform iOS`.
 - [ ] No protocol action can start a fix.
 
-### Task 11: Sibling repository CI
+### Task 15: Sibling repository CI
 
 **Files:** Create: `.github/workflows/` in `plume-works/vscode-expo-bridge`
 
-- [ ] A workflow runs lint, `bun test`, and a VSIX package build on every pull
-  request, and passes on `main`.
+- [ ] A workflow runs lint, `bun test`, and the three VSIX package builds on
+  every pull request, and passes on `main`.
 
-### Task 12: Publish to the Visual Studio Marketplace
+### Task 16: Publish to the Visual Studio Marketplace
 
-- [ ] `plume-works.vscode-expo-bridge` is installable from the Visual Studio
-  Marketplace.
+- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+  and `plume-works.vscode-expo-bridge-workspace` are installable from the Visual
+  Studio Marketplace.
 
-### Task 13: Publish to Open VSX
+### Task 17: Publish to Open VSX
 
-- [ ] `plume-works.vscode-expo-bridge` is installable from Open VSX.
+- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+  and `plume-works.vscode-expo-bridge-workspace` are installable from Open VSX.
 
-### Task 14: Wire the bridge into the Expo profile
+### Task 18: Wire the bridge into the Expo profile
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
 - [ ] `## Optional Expo setup` adds `plume-works.vscode-expo-bridge` to
   `customizations.vscode.extensions` and `8081` to `forwardPorts` in the
-  consumer's `.devcontainer/devcontainer.json`.
+  consumer's `.devcontainer/devcontainer.json`, and writes no bridge trust or
+  security setting.
 - [ ] The `## Expo` section of the merged `AGENTS.md` gains a rule: for an iOS
   build, run `eas-host status`; when it succeeds use `eas-host`, otherwise use
   EAS cloud.
 
-### Task 15: Record the bridge in the template boundary and architecture
+### Task 19: Record the bridge in the template boundary and architecture
 
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`;
 Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] The template boundary's Expo profile section names the extension, the
-  forwarded port, and the `AGENTS.md` rule.
+- [ ] The template boundary's Expo profile section names the extension pack, the
+  forwarded port, the `AGENTS.md` rule, and that setup grants no trust.
 - [ ] `data/architecture/vscode-expo-bridge` records the design in `## Approach`
-  with its rejected alternatives and links the sibling repository's protocol
-  document; `data/architecture.md` links it.
+  with its security model and rejected alternatives, and links the sibling
+  repository's protocol document; `data/architecture.md` links it.
 
-### Task 16: Validate the catalog change
+### Task 20: Validate the catalog change
 
 - [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
 
-### Task 17: End to end on a Mac
+### Task 21: End to end on a Mac
 
 - [ ] In an Expo consumer adopted with the Expo profile and opened by VS Code on
-  a Mac, an agent runs `eas-host status`, `build` for a simulator profile,
+  a Mac, the pack from `devcontainer.json` puts the host extension in the local
+  extension host and the workspace extension in the container.
+- [ ] An agent runs `eas-host status`, `build` for a simulator profile,
   `install`, `launch`, and `screenshot`, and reads the screenshot from the
-  container.
+  container; the trust prompt appears on the first request and the build
+  confirmation on `build`.
 - [ ] With Metro running in the container, the launched development build loads
   the JavaScript bundle over forwarded port 8081.
 
-### Task 18: Fallback when the bridge is unavailable
+### Task 22: Fallback when the bridge is unavailable
 
 - [ ] In a Codespace of the same consumer opened by VS Code on a Mac,
   `eas-host status` reports unavailable and exits non-zero, and
@@ -352,15 +477,25 @@ When the consumer's `optional_bundles` includes `"expo"`, setup SHALL list
 `8081` to `forwardPorts`, and add to the `## Expo` section of the root
 `AGENTS.md` a rule that an iOS build uses `eas-host` when `eas-host status`
 succeeds and EAS cloud otherwise. Setup SHALL NOT add any host command bridge
-other than this extension, and SHALL NOT change the firewall allowlist for it.
+other than this extension pack, SHALL NOT change the firewall allowlist for it,
+and SHALL NOT pre-authorize the bridge: trust in a workspace is granted only on
+the Mac.
 
 #### Scenario: an Expo consumer is opened by VS Code on a Mac
 
 - **WHEN** an Expo consumer's devcontainer is opened by VS Code on a Mac with
-  the extension installed and the tools `eas-host status` checks present
+  the extension pack installed, the tools `eas-host status` checks present, and
+  the workspace trusted on the Mac
 - **THEN** `eas-host status` succeeds
 - **AND** `eas-host build` with a profile from `eas.json` leaves the artifact
   under `.tmp/expo-bridge/`
+
+#### Scenario: setup grants no trust
+
+- **WHEN** setup applies the Expo profile
+- **THEN** it writes no bridge trust or security setting into any consumer file
+- **AND** the first bridge request from the consumer's workspace asks for trust
+  on the Mac
 
 #### Scenario: the bridge is unavailable
 
@@ -372,26 +507,29 @@ other than this extension, and SHALL NOT change the firewall allowlist for it.
 #### Scenario: a non-Expo consumer
 
 - **WHEN** the consumer's `optional_bundles` omits `"expo"`
-- **THEN** setup adds neither the extension, the forwarded port, nor the rule
+- **THEN** setup adds neither the extension pack, the forwarded port, nor the
+  rule
 ```
 
-The protocol contract is specified in `plume-works/vscode-expo-bridge`
-(`docs/protocol.md`), not in this repository.
+The protocol contract and security model are specified in
+`plume-works/vscode-expo-bridge` (`docs/protocol.md`), not in this repository.
 
 ## Depends on
 
 - [Expo profile for template adoption](20261014-expo-eas-template-profile.md) —
-  Task 14 extends its `## Optional Expo setup` section and its `## Expo`
+  Task 18 extends its `## Optional Expo setup` section and its `## Expo`
   `AGENTS.md` section.
 
 ## Verification
 
-- The Task 1–3 spikes pass, or their findings have been taken back to revise.
+- The Task 1–3 and Task 5 spikes pass, or their findings have been taken back to
+  revise.
 - The sibling repository's CI passes on `main`.
-- The extension installs from both the Visual Studio Marketplace and Open VSX.
+- The pack and both extensions install from both the Visual Studio Marketplace
+  and Open VSX.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-- Task 17's end-to-end run and Task 18's fallback run behave as described.
+- Task 21's end-to-end run and Task 22's fallback run behave as described.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -404,10 +542,11 @@ The protocol contract is specified in `plume-works/vscode-expo-bridge`
   extension locally.
 - Changes to this repository's own `.devcontainer/`.
 - Installing Xcode itself unattended.
+- Linking the EAS project (`eas init`) through the bridge.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.devcontainer/devcontainer.json:53` — `forwardPorts`
 - `.devcontainer/devcontainer.json:115` — `customizations.vscode.extensions`
