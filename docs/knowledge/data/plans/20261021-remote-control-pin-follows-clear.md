@@ -62,7 +62,7 @@ operator's terminal session.
 **Files:** Create: `.devcontainer/scripts/claude-remote-control-pin.sh`,
 `scripts/tests/test_claude_remote_control_pin.py`
 
-- [ ] Tests first; every test points `CLAUDE_CONFIG_DIR` at a directory under
+- [x] Tests first; every test points `CLAUDE_CONFIG_DIR` at a directory under
   `./.tmp`, never the real `~/.claude`:
   - stdin `{"session_id": "<uuid>", "source": "clear"}` with an existing pin:
     the pin holds `<uuid>`, the script exits 0, and no temporary file remains in
@@ -71,10 +71,17 @@ operator's terminal session.
     pin are created holding `<uuid>`;
   - stdin with `session_id` empty, stdin without `session_id`, and stdin that is
     not JSON: each exits 0 with the pin unchanged.
-- [ ] Script: `#!/usr/bin/env bash`, `set -euo pipefail`, behavior as in
+  - **Evidence:** commit "Add the Remote Control pin hook script":
+    `test_claude_remote_control_pin.py`, one test per case; all five failed
+    before the script existed.
+- [x] Script: `#!/usr/bin/env bash`, `set -euo pipefail`, behavior as in
   `## Approach`.
-- [ ] `shellcheck` clean;
+  - **Evidence:** commit "Add the Remote Control pin hook script":
+    `claude-remote-control-pin.sh`.
+- [x] `shellcheck` clean;
   `uv run pytest scripts/tests/test_claude_remote_control_pin.py` green.
+  - **Evidence:** commit "Add the Remote Control pin hook script": `shellcheck`
+    clean; the test file 5 passed.
 
 ### Task 2: Session script supplies the hook to the pane
 
