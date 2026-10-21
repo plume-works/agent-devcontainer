@@ -2,14 +2,14 @@
 type: codebase
 description: The postCreate, postStart, and postAttach hooks and the helpers they call — agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth links and full-access policies, gh credential helper, the Coder agent-start entry point, Remote Control, the OpenCode web UI — plus the standalone agent-opencode runtime built from the same helpers.
 source: .devcontainer/scripts
-source_digest: sha256:fad912d3fe01ca56c6d4881b025a0e9809adb51183fc8193401a8447322b0815
+source_digest: sha256:4bb4eb86653582566d181937b45835507e271d2338dc0aecbca7ee545949546d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-20T16:19:25Z
-stale_after: 2027-01-18
+  at: 2026-10-21T02:10:14Z
+stale_after: 2027-01-19
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T05:05:29Z
+  at: 2026-10-21T02:10:14Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -50,7 +50,8 @@ Devcontainer lifecycle and shared helpers:
 | `claude-remote-control-start.sh`                                                     | Coder start, by hand                 | with a claude.ai login, run `claude-remote-control-session.sh` named after `CODER_WORKSPACE_NAME` in session `claude-remote` on `tmux -L claude-remote`                                                                                                                                                                                                                                                                                                                                                                                     |
 | `opencode-web-start.sh`                                                              | Coder start, by hand                 | run the `coder-pane` command in session `opencode` on `tmux -L opencode` and print the `link`                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `opencode-web-command.sh link\|coder-hostname\|coder-pane\|coder-note\|serve\|probe` | the two OpenCode launchers, health   | print the server's root URL and build the Coder pane command, which runs `opencode serve` without `DISPLAY` on `0.0.0.0` with `OPENCODE_SERVER_PASSWORD` and otherwise on `127.0.0.1` with a password generated once into `~/.local/share/opencode/agentdev-server-password` (`0600`) and read by the pane, never on a command line; `coder-note` names that file; `serve` execs `opencode serve --port 4096 --hostname 0.0.0.0` in the workspace, refusing an empty password; `probe` needs a `version` from the authenticated `/api/info` |
-| `claude-remote-control-session.sh`                                                   | `claude-remote` pane                 | resume the conversation pinned in `remote-control-session-id`; when none is stored or the resume fails, start and pin a new one                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `claude-remote-control-session.sh`                                                   | `claude-remote` pane                 | resume the conversation pinned in `remote-control-session-id`; when none is stored or the resume fails, start and pin a new one; both calls get a `--settings` `SessionStart` hook running `claude-remote-control-pin.sh`                                                                                                                                                                                                                                                                                                                   |
+| `claude-remote-control-pin.sh`                                                       | `claude-remote` `SessionStart` hook  | write the hook input's `session_id` to `remote-control-session-id` atomically, so the pin follows `/clear`; leave it unchanged on unusable input and always exit 0                                                                                                                                                                                                                                                                                                                                                                          |
 | `setup-gh-credential-helper.sh`                                                      | start, Coder start, standalone clone | `gh auth setup-git` when gh is logged in (an injected token counts) and no github.com helper exists; loads `${AGENTDEV_KEYRING_ENV_FILE}` first                                                                                                                                                                                                                                                                                                                                                                                             |
 | `setup-keyring.sh`                                                                   | start                                | background dbus + gnome-keyring session over `runtime-keyring.sh`'s primitives, persisted to `${AGENTDEV_KEYRING_ENV_FILE:-.tmp/keyring-session.env}`                                                                                                                                                                                                                                                                                                                                                                                       |
 | `firewall.sh`                                                                        | start                                | run `init-firewall.sh` only when `ENABLE_FIREWALL=true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -156,7 +157,7 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56` —
   `setup-agent-state.sh create`; `:70` — staged-catalog install

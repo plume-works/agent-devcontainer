@@ -36,6 +36,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Keep the Remote Control pin on the pane's current
+conversation](plans/20261021-remote-control-pin-follows-clear.md)
+
 [Gate image publication on acceptance](plans/20261020-gate-image-publication.md)
 
 [Make OpenCode v2 the devcontainer

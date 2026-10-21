@@ -91,3 +91,6 @@ them](bugs/ci-publishes-images-before-acceptance.md)
 
 [Bug: Plan tasks bundle independent
 observations](bugs/plan-tasks-bundle-independent-observations.md)
+
+[Bug: the Remote Control pin ignores
+/clear](bugs/remote-control-pin-ignores-clear.md)

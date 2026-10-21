@@ -7,6 +7,10 @@ remote_control=(--remote-control)
 if [[ -n "${1:-}" ]]; then
   remote_control+=("$1")
 fi
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+pin_command="$(printf '%q' "$script_dir/claude-remote-control-pin.sh")"
+remote_control+=(--settings "$(jq -nc --arg command "$pin_command" \
+  '{hooks: {SessionStart: [{hooks: [{type: "command", command: $command}]}]}}')")
 
 stored_id=""
 if [[ -r "$id_file" ]]; then
