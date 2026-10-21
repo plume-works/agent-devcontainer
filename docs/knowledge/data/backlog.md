@@ -30,10 +30,16 @@ workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 
+[Clean up the local checkout after
+pr-merge](backlog/pr-merge-post-merge-cleanup.md)
+
 ## Low
 
 [Detect plan narration growth
 mechanically](backlog/detect-plan-narration-growth.md)
+
+[Clean up the local checkout after
+pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
 ## Done
 

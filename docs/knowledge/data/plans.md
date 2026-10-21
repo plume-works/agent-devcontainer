@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
+
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
