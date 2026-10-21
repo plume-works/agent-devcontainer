@@ -121,25 +121,50 @@ Assumptions:
 
 **Files:** Create: a scratch extension outside both repositories
 
-- [ ] A container-side command calls a `ui`-side command through
+- [x] A container-side command calls a `ui`-side command through
   `vscode.commands.executeCommand`, and the `ui` side resolves the workspace's
   host path from the remote window.
-- [ ] The `ui` side runs `eas build --local -p ios --profile development` for an
+  - **Evidence:** Spike on 2026-10-21, macOS arm64 host, Dev Containers window.
+    A request on a container socket reached a `ui`-kind command through
+    `executeCommand`. The command decoded the folder URI authority
+    `dev-container+<hex JSON>` and took its `hostPath`. It then read back, at
+    that host path, a nonce file the container had written.
+- [x] The `ui` side runs `eas build --local -p ios --profile development` for an
   `ios.simulator: true` profile on a blank `bun create expo` app, and the
   artifact is readable in the container.
+  - **Evidence:** Spike on 2026-10-21 with eas-cli 25.3.0, Expo SDK 58 and EAS
+    project `d67b0e6f-5880-4bab-b64b-77d1dd12519e`. The `ui` side ran the build,
+    which exited 0. The container unpacked the resulting `.tar.gz` and read the
+    `.app`'s `Info.plist`: `CFBundleSupportedPlatforms` is `iPhoneSimulator`.
 
 ### Task 2: Spike the `eas build --local` behavior the design relies on
 
 **Files:** none — run against the Task 1 scratch app on a Mac
 
-- [ ] The build runs outside the workspace: the workspace's `node_modules` is
+- [x] The build runs outside the workspace: the workspace's `node_modules` is
   unchanged and no `ios/` directory appears in it.
-- [ ] `EAS_LOCAL_BUILD_ARTIFACTS_DIR` set to `.tmp/expo-bridge/` places the
+  - **Evidence:** In the same build, the working directory was macOS's
+    `$TMPDIR/eas-build-local-nodejs/<id>/build`. A hash of the workspace's
+    `node_modules` file list (path, size, mtime) matched before and after, and
+    no `ios/` appeared.
+- [x] `EAS_LOCAL_BUILD_ARTIFACTS_DIR` set to `.tmp/expo-bridge/` places the
   artifact there.
-- [ ] The build uses the host's bun regardless of the `bun` field in `eas.json`,
+  - **Evidence:** In the same build, `EAS_LOCAL_BUILD_ARTIFACTS_DIR` was set to
+    the host path of `.tmp/expo-bridge/`. `build-<timestamp>.tar.gz` landed
+    there and was visible from the container.
+- [x] The build uses the host's bun regardless of the `bun` field in `eas.json`,
   as the build log reports.
-- [ ] `EXPO_TOKEN` in the host environment authenticates the build with no
+  - **Evidence:** In the same build, the profile pinned `"bun": "1.1.0"`. The
+    `INSTALL_DEPENDENCIES` and `PREBUILD` phases logged `bun install v1.4.3`,
+    the host's bun. An earlier run with host bun 1.3.10 failed
+    `bun install --frozen-lockfile` with `UnknownLockfileVersion` on a
+    `bun.lock` written by the container's 1.4.3. That confirms the `status`
+    bun-version check.
+- [x] `EXPO_TOKEN` in the host environment authenticates the build with no
   `eas login`.
+  - **Evidence:** In the same build, `EXPO_TOKEN` came only from the host login
+    environment and no `eas login` was run. Both
+    `eas init --non-interactive --force` and the build authenticated with it.
 - [ ] An EAS environment variable with "Secret" visibility is absent from the
   build, and the same variable set in the host environment is present.
 - [ ] The built app contains a change to a tracked file that was not committed
