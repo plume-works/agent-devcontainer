@@ -395,8 +395,14 @@ Containers window on a Mac
   `~/Library/LaunchAgents`.
 - [ ] JavaScript the development build loads from Metro in the container records
   whether it can read a file in the user's home through any API the app ships.
-- [ ] An `.app` the container writes into `.tmp/expo-bridge/`, not produced by a
+- [x] An `.app` the container writes into `.tmp/expo-bridge/`, not produced by a
   build, installs and launches through `xcrun simctl`; the result is recorded.
+  - **Evidence:** See `## Verification results` → "Task 8: a container-written
+    `.app` installs and launches". Run 2026-10-21 on `robomac.local` via the
+    bridge: an `.app` unpacked into `.tmp/` (path-validated under `.tmp/`)
+    installed on the booted iPhone 17 Pro (`simctl install` exit 0) and launched
+    (`simctl launch` exit 0), bundle id `dev.plumeworks.expobridgespike` read
+    from its `Info.plist`.
 - [ ] When a probe escapes the simulator, the finding is recorded under
   `## Verification results` and the plan goes back to revise `install`,
   `launch`, and the dev-client loop before Task 11.
@@ -442,12 +448,24 @@ Containers window on a Mac
 
 **Files:** none — the Task 1 scratch app, on a Mac
 
-- [ ] Whether a build honors the `node`, `cocoapods`, `fastlane`, and `image`
+- [x] Whether a build honors the `node`, `cocoapods`, `fastlane`, and `image`
   fields of `eas.json` is recorded from the tool versions the build log reports.
-- [ ] Whether a second build of the unchanged app reuses anything from the first
+  - **Evidence:** See `## Verification results` → "Task 10". eas-cli 25.3.0
+    rejects `cocoapods`, `fastlane`, `image` at schema validation; a build with
+    `"node": "20.18.0"` logged the Node.js-mismatch warning and built with the
+    Mac's Node (`.tmp/t10out1/build.log`, exit 0).
+- [x] Whether a second build of the unchanged app reuses anything from the first
   — dependency install, pods, DerivedData — is recorded.
-- [ ] The results are recorded under `## Verification results`; when a field is
+  - **Evidence:** See `## Verification results` → "Task 10". Two consecutive
+    builds (`.tmp/t10out1`, `.tmp/t10out2`, both exit 0) each ran in a fresh
+    `eas-build-local-nodejs/<uuid>` workdir and installed all 443 packages (929
+    ms, then 529 ms from bun's cache) and all 103 pods.
+- [x] The results are recorded under `## Verification results`; when a field is
   honored, `status`'s tool checks are revised before Task 11.
+  - **Evidence:** See `## Verification results` → "Task 10: cocoapods, fastlane,
+    and image are not eas.json build fields". No field is honored, so `status`
+    keeps probing the Mac's `node`, `pod`, and `fastlane` directly
+    (`packages/host/src/status.ts`); no revision needed.
 
 ### Task 11: Specify the protocol and security model in the sibling repository
 
@@ -929,17 +947,39 @@ keys at schema validation (`"build.t10.cocoapods" is not allowed`, and likewise
 for the other two). They are not `eas build --local` profile fields, so the
 design cannot route those tool versions through `eas.json`; `status` must probe
 CocoaPods and fastlane on the Mac directly, as it does. `node` is an accepted
-field. Whether a pinned `node` version is honored by a local build, and whether
-a second build reuses dependency install, pods, or DerivedData, are not yet
-measured — each needs one clean successful `eas build --local`, which a project
-reconstructed from the packed spike source (no `node_modules`, a dynamic
-`app.config.js`) could not provide; these two checks stay open.
+field, but a local build does not honor it: with `"node": "20.18.0"` pinned,
+eas-cli warns that the `eas.json` Node.js version does not match the one
+installed and builds with the Mac's own Node. `status` therefore checks the
+Mac's own Node rather than trusting the profile.
 
-The container-written `.app` install path (Task 8) reached
-`xcrun simctl install` correctly through the bridge; the attempt failed only
-because no simulator was booted at the time, so the
-install/launch-on-a-booted-simulator check and the native/JavaScript
-sandbox-escape probes stay open.
+Each `eas build --local` runs in a fresh working directory under the system
+temporary directory and reinstalls everything: two builds of the unchanged app
+each installed all 443 packages and all 103 pods. The only reuse is from the
+Mac's shared caches (bun's package cache, CocoaPods' cache), which makes the
+repeat install faster but not skipped.
+
+### Task 8: a container-written `.app` installs and launches
+
+An `.app` placed under the workspace's `.tmp/` by the container, not produced by
+a build, installs on a booted simulator through `xcrun simctl install` and
+launches through `xcrun simctl launch`, with its bundle id read from its
+`Info.plist`. Nothing in the simulator path verifies that an `.app` came from a
+bridge build. `install`, `launch`, and `screenshot` also need a booted
+simulator; with none booted, `simctl` fails with `No devices are booted`, so the
+bridge must create and boot one (`simctl create`, `boot`, `bootstatus -b`)
+before acting.
+
+### Task 8: code in the Simulator runs unconfined as the Mac user
+
+A process the booted iOS 26.5 simulator runs
+(`xcrun simctl spawn booted /bin/sh`) can list the user's `~/.ssh`, read
+`~/.ssh/known_hosts`, and create a file in `~/Library/LaunchAgents`, with the
+simulator's own data directory as the positive control. The Simulator is no
+containment boundary: whatever native code the container gets installed and
+launched runs with the Mac user's full file access, including persistence
+through LaunchAgents. The probe ran as a simulator-runtime process, not inside
+the installed app; the in-app native and Metro-loaded JavaScript probes remain
+unrun.
 
 ## Out of scope
 
