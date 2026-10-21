@@ -208,8 +208,13 @@ Assumptions:
 
 **Files:** Create: `plume-works/vscode-expo-bridge` on GitHub
 
-- [ ] The repository exists with an MIT license, a bun-managed TypeScript
+- [x] The repository exists with an MIT license, a bun-managed TypeScript
   extension skeleton, and `package.json` declaring `plume-works` as publisher.
+  - **Evidence:** `plume-works/vscode-expo-bridge` is public, and GitHub detects
+    its license as `MIT`. Commit `91b9bbf` on `main` adds `package.json`
+    (`"publisher": "plume-works"`), `bun.lock`, `tsconfig.json` and
+    `src/extension.ts`. `bun run typecheck`, `bun run build` and
+    `bun run package` passed on it.
 
 ### Task 5: Specify the protocol in the sibling repository
 
