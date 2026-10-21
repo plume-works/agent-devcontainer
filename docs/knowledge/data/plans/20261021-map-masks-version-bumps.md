@@ -183,9 +183,13 @@ missed.
 
 **Files:** none
 
-- [ ] `uv run pytest .agents/plugins/agentdev/tests` passes.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- [x] `uv run pytest .agents/plugins/agentdev/tests` passes.
+  - **Evidence:** this commit, at `58f2037`;
+    `uv run pytest .agents/plugins/agentdev/tests` passes 182 tests.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
+  - **Evidence:** this commit, at `58f2037`; the validator reports 62/62 skills
+    valid with 0 errors and 0 warnings.
 
 ## Spec changes
 
