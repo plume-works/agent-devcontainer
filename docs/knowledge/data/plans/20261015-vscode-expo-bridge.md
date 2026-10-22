@@ -245,7 +245,8 @@ Assumptions:
   extension in the Mac's local extension host.
 - Versions follow VS Code's pre-release convention: an odd minor for a
   pre-release, an even minor for a release, since the galleries accept only
-  `major.minor.patch`.
+  `major.minor.patch`. The pack and both extensions share one version, and every
+  change bumps its patch.
 - Installing the pack's pre-release installs its members' pre-releases. Task 24
   checks this.
 
