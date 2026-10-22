@@ -6,7 +6,7 @@ release:
 description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built unsandboxed as the Mac user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-22T12:00:00Z
+  at: 2026-10-22T00:31:22Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -14,6 +14,7 @@ sources:
 - resource: https://docs.expo.dev/build-reference/local-builds/
 - resource: https://github.com/expo/eas-build
 - resource: https://code.visualstudio.com/api/advanced-topics/remote-extensions
+- resource: https://code.visualstudio.com/api/working-with-extensions/publishing-extension
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/agent-expo-bridge-spikes
 - resource: https://blog.theredguild.org/leveraging-vscode-internals-to-escape-containers/
@@ -121,10 +122,10 @@ not claim to defend against a hostile one. The checks are these:
 - **Management commands are reachable from the container too.** The trust,
   token, and fix commands take no arguments, return nothing, and change nothing
   until the user answers a modal.
-- **No-VCS packing.** The build always sets `EAS_NO_VCS=1`. eas-cli's git
-  packing writes the workspace's `.git/config`; in no-VCS mode it writes nothing
-  in `.git`, still honors `.gitignore`, and includes untracked files, so the
-  bridge itself writes nothing in the workspace outside `.tmp/expo-bridge/`.
+- **No-VCS packing.** The build always sets `EAS_NO_VCS=1`, so eas-cli writes
+  nothing in the workspace's `.git`. Its archive still honors `.gitignore` and
+  includes uncommitted and untracked files, and the bridge writes nothing in the
+  workspace outside `.tmp/expo-bridge/`.
 - **Safe paths and processes.** Every protocol path is resolved with `realpath`
   and rejected when any component is a symlink or the result leaves the
   workspace. Every file the host extension writes under `.tmp/expo-bridge/` is
@@ -202,6 +203,14 @@ and a root-owned wrapper installed with the user's admin password, a standing
 privileged path on the Mac; and the account's home persists between builds, so
 one hostile build can poison the next.
 
+**Release sequence.** The packaged extensions run first from sideloaded VSIX
+files on a Mac, then as pre-releases installed from the Visual Studio
+Marketplace, and only then as releases; a release ships the code its pre-release
+was tested with. The pack is not sideloaded, because it resolves its members
+from a gallery. Rejected: publishing releases straight after CI — the unit tests
+stub VS Code and every process, so a defect only a real window shows would first
+appear in a public release.
+
 Assumptions:
 
 - The extension IDs are `plume-works.vscode-expo-bridge` (the pack),
@@ -217,6 +226,11 @@ Assumptions:
   bootstrap](20261013-macos-native-bootstrap.md).
 - Listing the pack in `customizations.vscode.extensions` installs the host
   extension in the Mac's local extension host.
+- Versions follow VS Code's pre-release convention: an odd minor for a
+  pre-release, an even minor for a release, since the galleries accept only
+  `major.minor.patch`.
+- Installing the pack's pre-release installs its members' pre-releases. Task 24
+  checks this.
 
 ## Implementation Steps
 
@@ -447,7 +461,7 @@ Containers window on a Mac
     `## Verification results` → "Task 9: the workspace file boundary holds on
     macOS"; nothing failed, so no revise is needed before Task 11.
 
-### Task 10: Spike the unverified `eas build --local` behavior
+### Task 10: Spike `eas build --local` tool versions and build reuse
 
 **Files:** none — the Task 1 scratch app, on a Mac
 
@@ -778,18 +792,65 @@ Containers window on a Mac
     on `main` in [run
     39698880522](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39698880522).
 
-### Task 21: Publish to the Visual Studio Marketplace
+### Task 21: Local test on a Mac from the packaged VSIX files
+
+**Files:** none — the `vscode-expo-bridge-host.vsix` and
+`vscode-expo-bridge-workspace.vsix` that `bun run package` builds from a commit
+on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
+`eas.json` simulator profile and a linked EAS project, on a Mac
+
+- [ ] With the host VSIX installed in VS Code on the Mac and the workspace VSIX
+  installed into the container of a Dev Containers window on the scratch app,
+  the Extensions view shows the host extension as local and the workspace
+  extension in the container, and `eas-host` is on the container's `PATH`.
+- [ ] From that window an agent runs `eas-host status`, `build` for the
+  simulator profile, `install`, `launch`, and `screenshot`, and reads the
+  screenshot from the container; the trust prompt appears on the first request
+  and the build confirmation on `build`.
+- [ ] With Metro running in the container, the launched development build loads
+  the JavaScript bundle over forwarded port 8081.
+- [ ] A `status` with a fixable failing check offers **Fix…**, which opens a
+  terminal on the Mac holding that check's Homebrew command.
+
+### Task 22: Publish pre-releases to the Visual Studio Marketplace
+
+- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+  and `plume-works.vscode-expo-bridge-workspace` are published to the Visual
+  Studio Marketplace as pre-releases with an odd minor version, from the commit
+  Task 21 tested.
+
+### Task 23: Publish pre-releases to Open VSX
+
+- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+  and `plume-works.vscode-expo-bridge-workspace` are published to Open VSX as
+  pre-releases with the same versions as Task 22.
+
+### Task 24: Pre-release test on a Mac
+
+**Files:** none — the Task 21 scratch app on a Mac, with the Task 21 VSIX
+installs removed
+
+- [ ] Installing the pack's pre-release from the Visual Studio Marketplace in VS
+  Code on the Mac puts the host extension's pre-release in the local extension
+  host and the workspace extension's pre-release in the container of a Dev
+  Containers window on the scratch app.
+- [ ] Task 21's `eas-host` action sequence, trust prompt, build confirmation,
+  and Metro load over port 8081 behave the same with the pre-releases.
+
+### Task 25: Publish releases to the Visual Studio Marketplace
 
 - [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
   and `plume-works.vscode-expo-bridge-workspace` are installable from the Visual
-  Studio Marketplace.
+  Studio Marketplace as releases with the next even minor version, built from
+  the code Task 24 tested.
 
-### Task 22: Publish to Open VSX
+### Task 26: Publish releases to Open VSX
 
 - [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
-  and `plume-works.vscode-expo-bridge-workspace` are installable from Open VSX.
+  and `plume-works.vscode-expo-bridge-workspace` are installable from Open VSX
+  as releases with the same versions as Task 25.
 
-### Task 23: Wire the bridge into the Expo profile
+### Task 27: Wire the bridge into the Expo profile
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
@@ -810,7 +871,7 @@ Containers window on a Mac
     `eas-host status` first and use `eas-host` when it exits 0, otherwise
     `bunx eas-cli@latest build -p ios`.
 
-### Task 24: Record the bridge in the template boundary and architecture
+### Task 28: Record the bridge in the template boundary and architecture
 
 **Files:** Modify: `docs/knowledge/data/architecture/template-boundary.md`;
 Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
@@ -833,27 +894,25 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
     `plume-works/vscode-expo-bridge` `docs/protocol.md`, and adds its inclusion
     link to `docs/knowledge/data/architecture.md`; `iwe schema validate` passes.
 
-### Task 25: Validate the catalog change
+### Task 29: Validate the catalog change
 
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-  - **Evidence:** Run on the tree of commit `d00d985` (the Task 23 and 24
+  - **Evidence:** Run on the tree of commit `d00d985` (the Task 27 and 28
     catalog and knowledge changes): exit 0, 62/62 skills valid, 0 errors, 0
     warnings.
 
-### Task 26: End to end on a Mac
+### Task 30: End to end on a Mac from the released pack
 
 - [ ] In an Expo consumer adopted with the Expo profile and opened by VS Code on
-  a Mac, the pack from `devcontainer.json` puts the host extension in the local
-  extension host and the workspace extension in the container.
-- [ ] An agent runs `eas-host status`, `build` for a simulator profile,
-  `install`, `launch`, and `screenshot`, and reads the screenshot from the
-  container; the trust prompt appears on the first request and the build
-  confirmation on `build`.
-- [ ] With Metro running in the container, the launched development build loads
-  the JavaScript bundle over forwarded port 8081.
+  a Mac with no bridge extension installed beforehand, the released pack listed
+  in `devcontainer.json` puts the host extension in the local extension host and
+  the workspace extension in the container.
+- [ ] In that window `eas-host status` succeeds, and `eas-host build` with a
+  simulator profile from `eas.json` leaves the artifact under
+  `.tmp/expo-bridge/`.
 
-### Task 27: Fallback when the bridge is unavailable
+### Task 31: Fallback when the bridge is unavailable
 
 - [ ] In a Codespace of the same consumer opened by VS Code on a Mac,
   `eas-host status` reports unavailable and exits non-zero, and
@@ -914,18 +973,20 @@ The protocol contract and security model are specified in
 ## Depends on
 
 - [Expo profile for template adoption](20261014-expo-eas-template-profile.md) —
-  Task 23 extends its `## Optional Expo setup` section and its `## Expo`
+  Task 27 extends its `## Optional Expo setup` section and its `## Expo`
   `AGENTS.md` section.
 
 ## Verification
 
 - Every Task 1–10 spike check is ticked.
 - The sibling repository's CI passes on `main`.
+- Task 21's local run passes before any version is published, and Task 24's
+  pre-release run passes before any release is published.
 - The pack and both extensions install from both the Visual Studio Marketplace
   and Open VSX.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-- Task 26's end-to-end run and Task 27's fallback run behave as described.
+- Task 30's end-to-end run and Task 31's fallback run behave as described.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Verification results
@@ -1090,13 +1151,12 @@ the installed app.
   Narrowing the forwarded SSH and GPG agent exposure is tracked separately as a
   someday idea.
 - Further probing of the window's host reach or the Simulator's containment:
-  Tasks 7 and 8 showed both are open, and the consent-surface model already
-  assumes both. Remaining checks of that kind were dropped by user decision on
-  2026-10-21.
+  both are open (`## Verification results`, Tasks 7 and 8), and the
+  consent-surface model assumes both. Excluded by user decision on 2026-10-21.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
+Verified anchor points (line numbers as of 2026-10-22):
 
 - `.devcontainer/devcontainer.json:53` — `forwardPorts`
 - `.devcontainer/devcontainer.json:115` — `customizations.vscode.extensions`
