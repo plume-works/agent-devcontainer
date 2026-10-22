@@ -905,6 +905,10 @@ Containers window on a Mac
     with `--initialUrl http://localhost:8081` loaded the bundle from the
     container's Metro ("Bundling 99%…", then the app) with no launcher or tap,
     where the `openurl` deep link stopped at "Open in 'app'?".
+- [ ] A development build's launch also passes
+  `-EXDevMenuIsOnboardingFinished YES` and `-EXDevMenuShowsAtLaunch NO`, so
+  neither expo-dev-menu's introduction nor the menu covers the app after it
+  loads.
 - [x] `bun test` covers the scheme read, a scheme that is not `exp+` plus a safe
   name, the development-build and plain launches, and the fix item text.
   - **Evidence:** Commits
