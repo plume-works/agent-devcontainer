@@ -153,8 +153,13 @@ bridge.
   workspace host path that exists locally, whether the workspace is trusted,
   Xcode, CocoaPods, fastlane, Node, a host bun at least as new as the
   container's (the container sends its `bun --version`), `EXPO_TOKEN` stored in
-  SecretStorage, `extra.eas.projectId` in `app.json`, a booted simulator,
-  whether port 8081 is forwarded, and the protocol version.
+  SecretStorage, `extra.eas.projectId` in `app.json`, an iOS simulator that is
+  booted or can be booted, whether port 8081 is forwarded, and the protocol
+  version.
+- **The bridge boots the simulator.** When no simulator is booted, `install`,
+  `launch`, and `screenshot` boot one headless through `xcrun simctl`: an
+  existing iPhone on the newest available iOS runtime, or a new one when there
+  is none. The user never opens a simulator app by hand.
 - **Nothing Mac-specific lands in the shared workspace.** The host extension
   never runs `eas init`, `expo run:ios`, `expo prebuild`, or a package install
   in the workspace; the only files it writes there are under `.tmp/expo-bridge/`
@@ -791,6 +796,40 @@ Containers window on a Mac
     [`4f2d7dd`](https://github.com/plume-works/vscode-expo-bridge/commit/4f2d7dd823d370500495eae7ad57b8cc5f955a38),
     on `main` in [run
     39698880522](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39698880522).
+
+### Task 20b: Host extension — boot a simulator on demand
+
+**Files:** Modify: `packages/host/src/install.ts`,
+`packages/host/src/status.ts`, `packages/protocol/src/index.ts`,
+`docs/protocol.md` in `plume-works/vscode-expo-bridge`
+
+- [x] With no simulator booted, `install`, `launch`, and `screenshot` boot an
+  available iPhone on the newest available iOS runtime, creating one when none
+  exists, and wait for the boot to finish; with one booted they boot nothing.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit
+    [`7405fd7`](https://github.com/plume-works/vscode-expo-bridge/commit/7405fd7)
+    ([PR #2](https://github.com/plume-works/vscode-expo-bridge/pull/2)):
+    `ensureBooted` in `packages/host/src/simulator.ts` reuses a booted device,
+    else boots an iPhone on the newest iOS runtime or creates one, and waits
+    with `simctl bootstatus <udid> -b`; `packages/host/src/install.ts` routes
+    `install`, `launch`, and `screenshot` through it by UDID.
+- [x] `status` replaces `bootedSimulator` with `simulator`, which passes when a
+  simulator is booted or an iOS runtime is available to boot one, and
+  `docs/protocol.md` describes both.
+  - **Evidence:** Commit
+    [`7405fd7`](https://github.com/plume-works/vscode-expo-bridge/commit/7405fd7):
+    `simulatorCheck` in `packages/host/src/status.ts` reports `simulator` from
+    the read-only `planBoot`, the protocol type renames the check, and
+    `docs/protocol.md` gains `### The simulator` and the `simulator` check.
+- [x] `bun test` covers an already-booted simulator, reusing a shut-down iPhone,
+  creating one, no available iOS runtime, a failed boot, and the `simulator`
+  check, with `simctl` stubbed.
+  - **Evidence:** Commit
+    [`7405fd7`](https://github.com/plume-works/vscode-expo-bridge/commit/7405fd7):
+    `packages/host/test/simulator.test.ts` covers each case plus a failed
+    create, `test/status.test.ts` the bootable and no-runtime `simulator`
+    results, and `test/install.test.ts` the UDID targeting; `bun test` 122 pass
+    / 0 fail.
 
 ### Task 21: Local test on a Mac from the packaged VSIX files
 
