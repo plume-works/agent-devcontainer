@@ -4,7 +4,7 @@ description: Implementation plans, migrations, and design proposals, one documen
 stage: living
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:02:02Z
+  at: 2026-10-22T00:23:44Z
 ---
 
 # 🗺️ Plans
@@ -38,6 +38,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Mask version-only changes during a map
+refresh](plans/20261021-map-masks-version-bumps.md)
 
 [Show the full OpenCode slash-command
 invocation](plans/20261021-opencode-command-echo.md)

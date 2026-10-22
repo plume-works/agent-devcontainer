@@ -2,8 +2,8 @@
 type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-16T18:00:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:23:54Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -537,6 +537,70 @@ placeholder before the source fingerprint is computed.
   as broken, naming it, rather than computing a fingerprint from unmasked
   content
 - **AND** documents whose sources do not reach it keep their normal verdicts
+
+### Requirement: Map masks a version-only change before refreshing
+
+When a refresh finds a map document stale and every change under its `source`
+since it was verified is a version, digest, or pin value whose surrounding
+structure is unchanged, the Map skill SHALL mask that kind of value in the
+colocated `digest_ignore` designation, SHALL keep the mask only when replaying
+it over history absorbs no change other than version-only ones, SHALL re-stamp
+`source_digest` only on documents the new mask alone explains, and SHALL commit
+the designation change and those re-stamps together before refreshing any
+document's prose.
+
+#### Scenario: A version-only change re-stamps instead of refreshing
+
+- **WHEN** a map document is stale only because a pinned value moved
+- **THEN** the refresh commits a mask for that kind of value and the document's
+  new `source_digest`, without editing the document's body
+- **AND** the staleness check then reports the document `FRESH`
+
+#### Scenario: A mixed change is masked first and refreshed after
+
+- **WHEN** a change under a document's `source` moves a pinned value and also
+  changes described content
+- **THEN** the mask lands in its own commit first
+- **AND** the document is refreshed for the remaining change
+
+#### Scenario: A document stale for another reason is not re-stamped
+
+- **WHEN** a new mask reaches a document whose sources also changed outside that
+  mask since it was verified
+- **THEN** replay reports the document `REFRESH`
+- **AND** its `source_digest` is left for the prose refresh to update
+
+#### Scenario: Replay evidence follows the recorded digest's ancestry
+
+- **WHEN** commit dates or `--since` exclude a source commit after the commit
+  that established a document's recorded digest
+- **THEN** replay still includes that source commit in the document's verdict
+  and evidence
+
+#### Scenario: Working-tree edits are reviewable evidence
+
+- **WHEN** a working-tree mask absorbs or fails to absorb an uncommitted source
+  edit
+- **THEN** replay reports that path as `ABSORBED WORKTREE` or `MOVED WORKTREE`
+- **AND** every value hidden by that comparison appears in `HIDDEN` evidence
+
+#### Scenario: Broken metadata has one replay result contract
+
+- **WHEN** a document depends on malformed metadata, including on an early
+  `REFRESH` path
+- **THEN** replay reports the document `BROKEN` and ends `BROKEN_METADATA`
+- **AND** it does not expose an exception traceback
+
+#### Scenario: A quoted value is not masked away
+
+- **WHEN** the document quotes the value that moved
+- **THEN** the change is not version-only for that document and it is refreshed
+
+#### Scenario: The report names hidden major bumps
+
+- **WHEN** a mask added by the refresh also hides major-version changes of the
+  value it covers
+- **THEN** the run's report names that kind of value
 
 ### Requirement: An agent push carries a fresh codebase map
 

@@ -4,8 +4,28 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-22
+
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for replay safeguards and
+  their regressions.
+- **Map**: refreshed the agentdev plugin, skills, and tests docs for replay
+  boundary digests reading committed blobs with universal newlines.
+
 ## 2026-10-21
 
+- **Update**: [Mask version-only changes during a map
+  refresh](plans/20261021-map-masks-version-bumps.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now specifies replay-proven masks before
+  prose refreshes.
+- **Update**: [Map masks version-only
+  changes](features/map-masks-version-bumps.md) implemented; listed under
+  Unreleased Added.
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for
+  `stale-map-docs.py --replay` and its test module.
 - **Map**: refreshed [Ansible](codebase/ansible.md), [image
   runtime](codebase/api-image-runtime.md), [Docker](codebase/docker.md), the
   [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md), [image

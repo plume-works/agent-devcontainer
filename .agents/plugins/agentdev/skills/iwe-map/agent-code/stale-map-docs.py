@@ -17,6 +17,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+from typing import NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
 
@@ -28,6 +29,7 @@ describes changed after the source fingerprint it was read at.
 
 Usage:
   stale-map-docs.py [--library <path>] [--explain]
+  stale-map-docs.py [--library <path>] --replay [--since <YYYY-MM-DD>]
 
 Options:
   --library <path>  IWE library directory, relative to the repository root.
@@ -37,6 +39,11 @@ Options:
   --explain         After the verdicts, print one MASK line per applied digest
                     mask, naming the doc, the source file, the metadata file
                     that declared it, the pattern, and its reason.
+  --replay          Prove the working-tree masks against history instead of
+                    classifying: replay every first-parent change of the files
+                    they reach, and say which non-fresh doc the masks explain.
+  --since <date>    Also inspect masked-file commits on or after this date.
+                    Verdict-required ancestry is always included.
   -h, --help        Show this help text.
 
 Output:
@@ -52,6 +59,21 @@ Output:
   Keys: MAP_DIR, DOC_COUNT, FRESH_COUNT, STALE_COUNT, GONE_COUNT, EXPIRED_COUNT,
         BROKEN_COUNT
 
+Replay output, then the counts, then RESULT:
+    ABSORBED <commit|WORKTREE> <path>  the masks hide every changed byte
+    MOVED <commit|WORKTREE> <path>     the masked content still changed
+    HIDDEN <metadata-path> <pattern> <value>   one distinct value a mask hid,
+                                   as a JSON string
+    RESTAMP <key> <digest>         only masked content moved; record <digest>
+    REFRESH <key>                  the masks do not explain the change
+    BROKEN <key> <metadata-path>   a .agent.metadata.json could not be read
+  A non-fresh doc is RESTAMP when its recorded digest equals the digest under
+  the metadata committed at HEAD, or when every first-parent commit after the
+  commit that set its digest, and every uncommitted edit, is absorbed.
+  Keys: MAP_DIR, DOC_COUNT, SINCE, ABSORBED_COUNT, MOVED_COUNT, RESTAMP_COUNT,
+        REFRESH_COUNT, BROKEN_COUNT
+  Replay ends SUCCESS when it ran to completion, whatever it found.
+
 Content designated machine-managed by an `iwe-map.digest_ignore` rule in a
 `.agent.metadata.json` is replaced with a fixed placeholder before the source
 fingerprint is computed, so an automerged pin bump does not mark a doc stale. The
@@ -59,7 +81,7 @@ fingerprint is computed, so an automerged pin bump does not mark a doc stale. Th
 rule enters a doc's digest only where it applies.
 
 Results (RESULT / exit code):
-  SUCCESS          0  Every map doc is fresh
+  SUCCESS          0  Every map doc is fresh, or --replay ran to completion
   STALE_FOUND      3  At least one doc is STALE, GONE, NO_DIGEST, or EXPIRED
   NO_MAP_DOCS      4  The library holds no data/codebase/ docs
   BROKEN_METADATA  5  A .agent.metadata.json could not be read or compiled
@@ -95,6 +117,14 @@ def git(*arguments: str) -> str:
     """Run git and return its stdout, stripped of the trailing newline."""
     completed = subprocess.run(['git', *arguments], check=True, capture_output=True, text=True)
     return completed.stdout.strip()
+
+
+def blob_bytes(revision: str, path: str) -> bytes | None:
+    """Return `path` as committed in `revision`, or None when that tree lacks it."""
+    completed = subprocess.run(
+        ['git', 'cat-file', 'blob', f'{revision}:{path}'], check=False, capture_output=True
+    )
+    return completed.stdout if completed.returncode == 0 else None
 
 
 def strip_quotes(value: str) -> str:
@@ -145,6 +175,25 @@ def source_paths(frontmatter: list[str]) -> list[str]:
     return []
 
 
+def verified_at(frontmatter: list[str]) -> str:
+    """Return the `at` of a block or flow `verified` mapping, or '' when absent."""
+    for index, line in enumerate(frontmatter):
+        if not line.startswith('verified:'):
+            continue
+        value = line[len('verified:') :].strip()
+        if value.startswith('{'):
+            match = re.search(r'\bat:\s*([^,}]+)', value)
+            return strip_quotes(match.group(1)) if match else ''
+        for entry in frontmatter[index + 1 :]:
+            if not entry.startswith((' ', '\t')):
+                break
+            match = re.match(r'^\s+at:\s*(.*)$', entry)
+            if match:
+                return strip_quotes(match.group(1))
+        return ''
+    return ''
+
+
 def glob_to_regex(pattern: str) -> re.Pattern[str]:
     """Compile a pathspec-style glob where `**` crosses separators and `*` does not."""
     parts: list[str] = []
@@ -184,11 +233,11 @@ class Mask:
         return f'{self.pattern}\0{self.replace}'
 
 
-def read_metadata(path: Path) -> list[tuple[str, list[Mask]]]:
+def read_metadata(path: Path, text: str | bytes | None = None) -> list[tuple[str, list[Mask]]]:
     """Read one metadata file's digest_ignore rules, or raise BrokenMetadata."""
     declared_in = str(path)
     try:
-        document = json.loads(path.read_text())
+        document = json.loads(path.read_text() if text is None else text)
     except (OSError, ValueError) as error:
         raise BrokenMetadata(declared_in) from error
     if not isinstance(document, dict):
@@ -229,10 +278,23 @@ def read_metadata(path: Path) -> list[tuple[str, list[Mask]]]:
 
 
 class MetadataResolver:
-    """Resolves the masks applying to a file, caching each directory's walk."""
+    """
+    Resolves the masks applying to a file, caching each directory's walk.
 
-    def __init__(self) -> None:
+    Metadata is read from the working tree, or from the tree of `revision` when
+    one is given; the files the masks apply to are always the caller's.
+    """
+
+    def __init__(self, revision: str | None = None) -> None:
         self._by_directory: dict[str, list[tuple[str, str, list[Mask]]]] = {}
+        self._revision = revision
+
+    def _declared(self, candidate: Path) -> list[tuple[str, list[Mask]]]:
+        """Read `candidate`'s rules from this resolver's view, [] when it has none."""
+        if self._revision is None:
+            return read_metadata(candidate) if candidate.is_file() else []
+        content = blob_bytes(self._revision, str(candidate))
+        return [] if content is None else read_metadata(candidate, content)
 
     def _for_directory(self, directory: Path) -> list[tuple[str, str, list[Mask]]]:
         """Accumulate (declaring dir, glob, masks) from the root down to `directory`."""
@@ -243,10 +305,8 @@ class MetadataResolver:
         parent = directory.parent
         inherited = [] if directory in (parent, Path('.')) else self._for_directory(parent)
         resolved = list(inherited)
-        candidate = directory / METADATA_FILENAME
-        if candidate.is_file():
-            for glob, masks in read_metadata(candidate):
-                resolved.append((str(directory), glob, masks))
+        for glob, masks in self._declared(directory / METADATA_FILENAME):
+            resolved.append((str(directory), glob, masks))
         self._by_directory[key] = resolved
         return resolved
 
@@ -275,24 +335,42 @@ class MetadataResolver:
         return applicable
 
 
+def apply_masks(
+    content: str,
+    masks: list[Mask],
+    hidden: dict[tuple[str, str], set[str]] | None = None,
+) -> str:
+    """Apply `masks` in resolution order, collecting each one's matches into `hidden`."""
+    for mask in masks:
+        if hidden is not None:
+            values = hidden.setdefault((mask.declared_in, mask.pattern), set())
+            values.update(match.group(0) for match in mask.expression.finditer(content))
+        try:
+            content = mask.expression.sub(mask.replace, content)
+        except re.error as error:
+            raise BrokenMetadata(mask.declared_in) from error
+    return content
+
+
+def universal_newlines(text: str) -> str:
+    """Translate line endings as `Path.read_text` does, so blobs digest like the working tree."""
+    return text.replace('\r\n', '\n').replace('\r', '\n')
+
+
 def masked_hash(relative_path: str, masks: list[Mask]) -> str:
     """Hash `relative_path` with each mask applied in resolution order."""
     try:
         content = Path(relative_path).read_text()
     except (OSError, UnicodeError) as error:
         raise BrokenMetadata(masks[0].declared_in) from error
-    for mask in masks:
-        try:
-            content = mask.expression.sub(mask.replace, content)
-        except re.error as error:
-            raise BrokenMetadata(mask.declared_in) from error
-    return hashlib.sha256(content.encode()).hexdigest()
+    return hashlib.sha256(apply_masks(content, masks).encode()).hexdigest()
 
 
 def source_digest_for_paths(
     sources: list[str],
     resolver: MetadataResolver | None = None,
     applied: list[tuple[str, Mask]] | None = None,
+    revision: str | None = None,
 ) -> str:
     """
     Fingerprint the tracked content under `sources`.
@@ -309,26 +387,43 @@ def source_digest_for_paths(
     if not sources:
         return f'sha256:{hashlib.sha256(b"").hexdigest()}'
 
+    command = (
+        ['git', 'ls-tree', '-rz', '--name-only', revision, '--', *sources]
+        if revision is not None
+        else ['git', 'ls-files', '-z', '--', *sources]
+    )
     listed = subprocess.run(
-        ['git', 'ls-files', '-z', '--', *sources],
+        command,
         check=True,
         capture_output=True,
     ).stdout
     digest = hashlib.sha256()
     for raw_path in sorted({path for path in listed.split(b'\0') if path}):
-        relative = raw_path.decode()
+        relative = os.fsdecode(raw_path)
         if Path(relative).name == METADATA_FILENAME:
             continue
-        if not Path(relative).exists():
+        content = blob_bytes(revision, relative) if revision is not None else None
+        if revision is None and not Path(relative).exists():
             digest.update(raw_path + b'\0' + b'MISSING' + b'\0')
             continue
         masks = resolver.masks_for(relative) if resolver is not None else []
         if masks:
-            content_hash = masked_hash(relative, masks)
+            if revision is None:
+                content_hash = masked_hash(relative, masks)
+            else:
+                try:
+                    decoded = universal_newlines(content.decode()) if content is not None else ''
+                except UnicodeError as error:
+                    raise BrokenMetadata(masks[0].declared_in) from error
+                content_hash = hashlib.sha256(apply_masks(decoded, masks).encode()).hexdigest()
             if applied is not None:
                 applied.extend((relative, mask) for mask in masks)
         else:
-            content_hash = git('hash-object', '--', relative)
+            content_hash = (
+                git('rev-parse', f'{revision}:{relative}')
+                if revision is not None
+                else git('hash-object', '--', relative)
+            )
         digest.update(raw_path + b'\0' + content_hash.encode() + b'\0')
     return f'sha256:{digest.hexdigest()}'
 
@@ -360,10 +455,21 @@ def library_from_config(config_file: Path) -> str:
     return ''
 
 
-def parse_arguments(argv: list[str]) -> tuple[str, bool] | None:
-    """Return the --library override and --explain flag, or None to stop with usage."""
+class Options(NamedTuple):
+    """The parsed command line."""
+
+    library: str
+    explain: bool
+    replay: bool
+    since: str
+
+
+def parse_arguments(argv: list[str]) -> Options | None:
+    """Return the parsed options, or None to stop with usage."""
     library_override = ''
     explain = False
+    replay = False
+    since = ''
     index = 0
     while index < len(argv):
         argument = argv[index]
@@ -373,17 +479,32 @@ def parse_arguments(argv: list[str]) -> tuple[str, bool] | None:
         elif argument == '--explain':
             explain = True
             index += 1
-        elif argument == '--library':
+        elif argument == '--replay':
+            replay = True
+            index += 1
+        elif argument in ('--library', '--since'):
             if index + 1 >= len(argv):
-                print_error('Missing value for --library.')
+                print_error(f'Missing value for {argument}.')
                 return None
-            library_override = argv[index + 1]
+            if argument == '--library':
+                library_override = argv[index + 1]
+            else:
+                since = argv[index + 1]
             index += 2
         else:
             print_error(f'Unknown argument: {argument}')
             print(USAGE, file=sys.stderr)
             return None
-    return library_override, explain
+    if since and not replay:
+        print_error('--since applies only to --replay.')
+        return None
+    if since and not re.fullmatch(r'\d{4}-\d{2}-\d{2}', since):
+        print_error(f'--since takes a YYYY-MM-DD date, not {since}.')
+        return None
+    if explain and replay:
+        print_error('--explain and --replay cannot be combined.')
+        return None
+    return Options(library_override, explain, replay, since)
 
 
 def classify(
@@ -421,12 +542,284 @@ def classify(
     return expired_or_fresh()
 
 
+EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
+
+
+def doc_key(path: str, library_path: str) -> str:
+    """Return the IWE key of the map doc at `path`."""
+    key = path[: -len('.md')]
+    prefix = f'{library_path}/'
+    return key[len(prefix) :] if key.startswith(prefix) else key
+
+
+class Replayer:
+    """Compares masked file contents across revisions, caching what it computed."""
+
+    def __init__(self, resolver: MetadataResolver) -> None:
+        self.resolver = resolver
+        self.hidden: dict[tuple[str, str], set[str]] = {}
+        self._parents: dict[str, str] = {}
+        self._absorbed: dict[tuple[str, str | None, str], bool] = {}
+
+    def parent(self, commit: str) -> str:
+        """Return `commit`'s first parent, or the empty tree for a root commit."""
+        if commit not in self._parents:
+            completed = subprocess.run(
+                ['git', 'rev-parse', '--verify', '--quiet', f'{commit}^1'],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self._parents[commit] = (
+                completed.stdout.strip() if completed.returncode == 0 else EMPTY_TREE
+            )
+        return self._parents[commit]
+
+    def changes(
+        self, since: str, paths: list[str], *, ancestry: bool = False
+    ) -> list[tuple[str, list[str]]]:
+        """Return first-parent commits after an ancestor or date, oldest first."""
+        if not paths:
+            return []
+        arguments = ['log', '--first-parent', '--reverse', '--format=%H']
+        if since:
+            arguments.append(f'{since}..HEAD' if ancestry else f'--since={since}')
+        commits = git(*arguments, '--', *paths).split()
+        return [(commit, self.changed(self.parent(commit), commit, paths)) for commit in commits]
+
+    @staticmethod
+    def changed(before: str, after: str | None, paths: list[str]) -> list[str]:
+        """Return the tracked files under `paths` that differ, the working tree when `after` is None."""
+        revisions = [before] if after is None else [before, after]
+        listed = subprocess.run(
+            ['git', 'diff', '--name-only', '-z', '--no-renames', *revisions, '--', *paths],
+            check=True,
+            capture_output=True,
+        ).stdout
+        return [
+            os.fsdecode(path)
+            for path in listed.split(b'\0')
+            if path and Path(os.fsdecode(path)).name != METADATA_FILENAME
+        ]
+
+    def masked(self, revision: str | None, path: str, collect: bool) -> str | None:
+        """Return `path` at `revision` (working tree for None) with its masks applied."""
+        if revision is None:
+            raw = Path(path).read_bytes() if Path(path).is_file() else None
+        else:
+            raw = blob_bytes(revision, path)
+        if raw is None:
+            return None
+        masks = self.resolver.masks_for(path)
+        if not masks:
+            return raw.decode(errors='surrogateescape')
+        try:
+            content = raw.decode()
+        except UnicodeError as error:
+            raise BrokenMetadata(masks[0].declared_in) from error
+        return apply_masks(content, masks, self.hidden if collect else None)
+
+    def absorbed(self, before: str, after: str | None, path: str, collect: bool = False) -> bool:
+        """Say whether the masks hide every byte `path` changed between the revisions."""
+        key = (before, after, path)
+        if collect or key not in self._absorbed:
+            old = self.masked(before, path, collect)
+            new = self.masked(after, path, collect)
+            self._absorbed[key] = old is not None and old == new
+        return self._absorbed[key]
+
+    def explains(self, sources: list[str], since: str, *, ancestry: bool = False) -> bool:
+        """Say whether every change to `sources` since `since`, uncommitted included, is absorbed."""
+        if not since:
+            return False
+        for commit, paths in self.changes(since, sources, ancestry=ancestry):
+            parent = self.parent(commit)
+            if not all(self.absorbed(parent, commit, path) for path in paths):
+                return False
+        return all(
+            self.absorbed('HEAD', None, path) for path in self.changed('HEAD', None, sources)
+        )
+
+
+def digest_under(
+    sources: list[str], resolver: MetadataResolver, revision: str | None = None
+) -> str:
+    """Return the digest `sources` would record under `resolver`'s metadata."""
+    applied: list[tuple[str, Mask]] = []
+    return fold_in_masks(
+        source_digest_for_paths(sources, resolver, applied, revision=revision), applied
+    )
+
+
+def digest_commit(path: str, recorded: str) -> str:
+    """Return the commit that began the current first-parent run of `recorded`."""
+    boundary = ''
+    for commit in git('log', '--first-parent', '--format=%H', '--', path).split():
+        raw = blob_bytes(commit, path)
+        if raw is None:
+            break
+        lines = raw.decode(errors='surrogateescape').splitlines()
+        frontmatter = (
+            lines[1 : lines[1:].index('---') + 1]
+            if lines and lines[0] == '---' and '---' in lines[1:]
+            else []
+        )
+        if scalar_field(frontmatter, 'source_digest') != recorded:
+            break
+        boundary = commit
+    return boundary
+
+
+def replay_verdict(
+    key: str,
+    path: str,
+    frontmatter: list[str],
+    replayer: Replayer,
+    head_resolver: MetadataResolver,
+) -> tuple[str, str] | None:
+    """Return the RESTAMP or REFRESH line and its counter, or None for a fresh doc."""
+    recorded = scalar_field(frontmatter, 'source_digest')
+    sources = source_paths(frontmatter)
+    replayer.resolver.verify(sources)
+    head_resolver.verify(sources)
+    if not recorded or not all(Path(source).exists() for source in sources):
+        return f'REFRESH {key}', 'refresh'
+    current = digest_under(sources, replayer.resolver)
+    at_head = digest_under(sources, head_resolver)
+    if current == recorded:
+        return None
+    boundary = digest_commit(path, recorded)
+    start = boundary or verified_at(frontmatter)
+    if boundary and digest_under(sources, MetadataResolver(boundary), boundary) != recorded:
+        return f'REFRESH {key}', 'refresh'
+    if at_head == recorded or replayer.explains(sources, start, ancestry=bool(boundary)):
+        return f'RESTAMP {key} {current}', 'restamp'
+    return f'REFRESH {key}', 'refresh'
+
+
+def replay(doc_files: list[str], library_path: str, since: str) -> int:
+    """Prove the working-tree masks against history and print the replay report."""
+    docs = [(doc_key(path, library_path), frontmatter_of(Path(path))) for path in doc_files]
+    if not since:
+        stamps = [verified_at(frontmatter) for _, frontmatter in docs]
+        since = min((stamp for stamp in stamps if stamp), default='')
+
+    replayer = Replayer(MetadataResolver())
+    head_resolver = MetadataResolver('HEAD')
+    counts = {'absorbed': 0, 'moved': 0, 'restamp': 0, 'refresh': 0, 'broken': 0}
+    verdicts: list[str] = []
+    readable_sources: list[str] = []
+    evidence_windows: list[tuple[str, bool, list[str]]] = []
+    for (key, frontmatter), path in zip(docs, doc_files, strict=True):
+        try:
+            outcome = replay_verdict(key, path, frontmatter, replayer, head_resolver)
+        except BrokenMetadata as broken:
+            outcome = (f'BROKEN {key} {broken.path}', 'broken')
+        else:
+            sources = [source for source in source_paths(frontmatter) if Path(source).exists()]
+            readable_sources.extend(sources)
+            recorded = scalar_field(frontmatter, 'source_digest')
+            boundary = digest_commit(path, recorded) if recorded else ''
+            evidence_windows.append(
+                (boundary or verified_at(frontmatter), bool(boundary), sources)
+            )
+        if outcome is not None:
+            verdicts.append(outcome[0])
+            counts[outcome[1]] += 1
+
+    tracked_output = (
+        subprocess.run(
+            ['git', 'ls-files', '-z', '--', *readable_sources],
+            check=True,
+            capture_output=True,
+        ).stdout
+        if readable_sources
+        else b''
+    )
+    tracked = [os.fsdecode(path) for path in tracked_output.split(b'\0') if path]
+    masked_files = sorted(
+        path
+        for path in set(tracked)
+        if Path(path).name != METADATA_FILENAME and replayer.resolver.masks_for(path)
+    )
+    evidence: set[tuple[str, str]] = set()
+    source_keys = [(key, source_paths(frontmatter)) for key, frontmatter in docs]
+
+    def keys_for(source_path: str) -> list[str]:
+        """Return docs whose sources contain `source_path`."""
+        return [
+            key
+            for key, sources in source_keys
+            if any(
+                source_path == source or source_path.startswith(f'{source}/') for source in sources
+            )
+        ]
+
+    broken_keys = {line.split()[1] for line in verdicts if line.startswith('BROKEN ')}
+
+    def record_broken(source_path: str, broken: BrokenMetadata) -> None:
+        """Record evidence failures against every doc that owns the source path."""
+        for key in keys_for(source_path):
+            if key not in broken_keys:
+                for line in list(verdicts):
+                    if line.startswith((f'RESTAMP {key} ', f'REFRESH {key}')):
+                        verdicts.remove(line)
+                        counts['restamp' if line.startswith('RESTAMP ') else 'refresh'] -= 1
+                verdicts.append(f'BROKEN {key} {broken.path}')
+                counts['broken'] += 1
+                broken_keys.add(key)
+
+    windows = [*evidence_windows, (since, False, readable_sources)] if since else evidence_windows
+    for start, ancestry, sources in windows:
+        source_files = [
+            path
+            for path in masked_files
+            if any(path == source or path.startswith(f'{source}/') for source in sources)
+        ]
+        for commit, paths in replayer.changes(start, source_files, ancestry=ancestry):
+            evidence.update((commit, path) for path in paths)
+    for commit, path in sorted(evidence):
+        try:
+            absorbed = replayer.absorbed(replayer.parent(commit), commit, path, collect=True)
+        except BrokenMetadata as broken:
+            record_broken(path, broken)
+            continue
+        print(f'{"ABSORBED" if absorbed else "MOVED"} {commit} {path}')
+        counts['absorbed' if absorbed else 'moved'] += 1
+    for path in replayer.changed('HEAD', None, masked_files):
+        try:
+            absorbed = replayer.absorbed('HEAD', None, path, collect=True)
+        except BrokenMetadata as broken:
+            record_broken(path, broken)
+            continue
+        print(f'{"ABSORBED" if absorbed else "MOVED"} WORKTREE {path}')
+        counts['absorbed' if absorbed else 'moved'] += 1
+    for path in masked_files:
+        try:
+            replayer.masked(None, path, collect=True)
+        except BrokenMetadata as broken:
+            record_broken(path, broken)
+    for (declared_in, pattern), values in sorted(replayer.hidden.items()):
+        for value in sorted(values):
+            print(f'HIDDEN {declared_in} {pattern} {json.dumps(value)}')
+    for line in verdicts:
+        print(line)
+
+    print(f'DOC_COUNT={len(doc_files)}')
+    print(f'SINCE={since}')
+    print(f'ABSORBED_COUNT={counts["absorbed"]}')
+    print(f'MOVED_COUNT={counts["moved"]}')
+    print(f'RESTAMP_COUNT={counts["restamp"]}')
+    print(f'REFRESH_COUNT={counts["refresh"]}')
+    print(f'BROKEN_COUNT={counts["broken"]}')
+    return BROKEN_METADATA if counts['broken'] else 0
+
+
 def main() -> int:
     """Scan the library's map docs and report each one's freshness."""
-    parsed = parse_arguments(sys.argv[1:])
-    if parsed is None:
+    options = parse_arguments(sys.argv[1:])
+    if options is None:
         return PREFLIGHT_ERROR
-    library_override, explain = parsed
 
     try:
         repo_root = git('rev-parse', '--show-toplevel')
@@ -440,7 +833,7 @@ def main() -> int:
         print_error(f'No .iwe/config.toml at {repo_root}; run from an IWE workspace root.')
         return PREFLIGHT_ERROR
 
-    library_path = library_override or library_from_config(config_file) or '.'
+    library_path = options.library or library_from_config(config_file) or '.'
     library_path = library_path.rstrip('/')
     map_dir = f'{library_path}/data/codebase'
     print(f'MAP_DIR={map_dir}')
@@ -456,6 +849,8 @@ def main() -> int:
     if not doc_files:
         print('DOC_COUNT=0')
         return NO_MAP_DOCS
+    if options.replay:
+        return replay(doc_files, library_path, options.since)
 
     today = dt.date.today().isoformat()
     counts = {'fresh': 0, 'stale': 0, 'gone': 0, 'expired': 0, 'broken': 0}
@@ -463,10 +858,7 @@ def main() -> int:
     explanations: list[str] = []
 
     for path in doc_files:
-        key = path[: -len('.md')]
-        prefix = f'{library_path}/'
-        if key.startswith(prefix):
-            key = key[len(prefix) :]
+        key = doc_key(path, library_path)
         applied: list[tuple[str, Mask]] = []
         try:
             line, counter = classify(key, frontmatter_of(Path(path)), today, resolver, applied)
@@ -479,7 +871,7 @@ def main() -> int:
                 f'MASK {key} {source_file} {mask.declared_in} {mask.pattern} {mask.reason}'
             )
 
-    if explain:
+    if options.explain:
         for explanation in explanations:
             print(explanation)
 

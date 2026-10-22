@@ -121,7 +121,36 @@ that one subtree and wires it into the existing map.
 
 8. **Refresh mode.** Run `agent-code/stale-map-docs.py` and
    branch on its last line (table below). Verify's audit produces the same
-   list; take its report as the worklist when it hands off. For each doc:
+   list; take its report as the worklist when it hands off.
+
+   **Mask version-only changes first.** Before refreshing any prose, read what
+   moved under each `STALE` doc's `source`:
+   `git log -p --first-parent --since=<verified.at> -- <source>`, plus
+   `git diff HEAD -- <source>`. A change is **version-only** when every
+   changed span is a version, digest, or pin value, nothing around it moved —
+   the artifact's name, the set of pinned entries, the presence of the pin —
+   and the doc does not quote the old value. Who authored it does not matter.
+   Record every doc that quotes an old value before adding shared masks; those
+   docs always require prose refresh and must never be copied from `RESTAMP`.
+   For each kind of version-only value:
+   1. Add or widen a `digest_ignore` rule in the `.agent.metadata.json`
+      nearest to the changed files whose directory covers every file holding
+      that kind of value, with a `reason` naming what moves it. Mask the kind
+      (every uv pin in workflow files), not the one value that changed.
+   2. Run `agent-code/stale-map-docs.py --replay`. Keep the rule only if every
+      `ABSORBED` commit it newly absorbs is itself version-only and every
+      `HIDDEN` value it lists is version-shaped; otherwise narrow the pattern
+      and replay again, or drop the rule and refresh normally.
+   3. Copy each eligible `RESTAMP` digest into that doc's `source_digest` and
+      change nothing else — nobody re-read the code, so `verified` stays.
+      Leave `REFRESH` docs and recorded quoted-value docs for the prose refresh
+      below, regardless of their replay verdict.
+   4. Commit the metadata files and the re-stamps alone, with a message like
+      `map: mask <kind> in <dir>`, before any prose edit. Then rerun
+      `agent-code/stale-map-docs.py` and refresh only what is still stale.
+
+   A change that mixes a bump with a real edit gets its mask commit first and
+   its refresh after. Then, for each doc:
    - `STALE` — re-read the changed files and any test that changed with them,
      rewrite only the sections they affect, re-verify every anchor, and bump
      `source_digest`, `verified`, `stale_after`, and `generated`. A new
@@ -140,6 +169,9 @@ that one subtree and wires it into the existing map.
    - `FRESH` — leave it alone.
 
    Finish as in step 7. Rerunning the script must end in `RESULT=SUCCESS`.
+   The report names every mask the run added and each masked kind whose rule
+   also hides a major-version change — an Ubuntu base moving from 24.04 to
+   26.04 no longer marks a doc stale.
 
 ## Script results
 
@@ -165,6 +197,24 @@ audit a `FRESH` verdict a mask is holding up:
 | `PREFLIGHT_ERROR` | `2`    | **STOP.** Not a git repository, or no `.iwe/config.toml` at the root; report it verbatim. |
 | `SCRIPT_FAILURE`  | `1`    | **STOP.** Report the blocker verbatim; do not work around it.                             |
 | `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; rerun it.                                              |
+
+`--replay [--since <YYYY-MM-DD>]` asks a different question: do the
+**working-tree** masks, committed or not, explain what history changed? For
+each non-fresh doc, it replays the first-parent ancestry after the commit that
+began the current `source_digest` run. `--since` additionally inspects masked
+files on or after that date; it never narrows the ancestry a verdict relies on.
+
+| Line                                       | Meaning                                                                                                |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `ABSORBED <commit\|WORKTREE> <path>`       | The masks hide every byte this commit or working-tree edit changed in this file.                       |
+| `MOVED <commit\|WORKTREE> <path>`          | The masked content still changed in this commit or working-tree edit.                                  |
+| `HIDDEN <metadata-path> <pattern> <value>` | One distinct value the mask hid, as a JSON string — what the rule would silence.                       |
+| `RESTAMP <key> <digest>`                   | Fresh under HEAD's metadata, or every change after its recorded digest commit is absorbed.             |
+| `REFRESH <key>`                            | The masks do not explain the change; refresh the doc. So is a doc whose own commit edited its sources. |
+| `BROKEN <key> <metadata-path>`             | A `.agent.metadata.json` the doc depends on cannot be read; the run ends `BROKEN_METADATA`.            |
+
+A replay ends `SUCCESS` when it ran to completion, whatever it found. That
+means "ran", not "nothing to do"; read the lines.
 
 ## Canonical keys
 

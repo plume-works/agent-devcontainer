@@ -5,8 +5,8 @@ version: unreleased
 stage: unreleased
 status: draft
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-17T12:00:00Z
+  by: opencode/gpt-6.1-sol
+  at: 2026-10-21T05:18:06Z
 ---
 
 # Unreleased
@@ -18,6 +18,8 @@ under `## Fixed`; cutting a release renames this file to the version number and
 starts a fresh one.*
 
 ## Added
+
+[Map masks version-only changes](../features/map-masks-version-bumps.md)
 
 [Renovate maintains checksum-carrying
 pins](../features/renovate-maintains-checksums.md)
