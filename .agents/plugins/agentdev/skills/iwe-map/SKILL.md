@@ -130,6 +130,8 @@ that one subtree and wires it into the existing map.
    changed span is a version, digest, or pin value, nothing around it moved —
    the artifact's name, the set of pinned entries, the presence of the pin —
    and the doc does not quote the old value. Who authored it does not matter.
+   Record every doc that quotes an old value before adding shared masks; those
+   docs always require prose refresh and must never be copied from `RESTAMP`.
    For each kind of version-only value:
    1. Add or widen a `digest_ignore` rule in the `.agent.metadata.json`
       nearest to the changed files whose directory covers every file holding
@@ -139,9 +141,10 @@ that one subtree and wires it into the existing map.
       `ABSORBED` commit it newly absorbs is itself version-only and every
       `HIDDEN` value it lists is version-shaped; otherwise narrow the pattern
       and replay again, or drop the rule and refresh normally.
-   3. Copy each `RESTAMP` digest into that doc's `source_digest` and change
-      nothing else — nobody re-read the code, so `verified` stays. `REFRESH`
-      docs are left for the prose refresh below.
+   3. Copy each eligible `RESTAMP` digest into that doc's `source_digest` and
+      change nothing else — nobody re-read the code, so `verified` stays.
+      Leave `REFRESH` docs and recorded quoted-value docs for the prose refresh
+      below, regardless of their replay verdict.
    4. Commit the metadata files and the re-stamps alone, with a message like
       `map: mask <kind> in <dir>`, before any prose edit. Then rerun
       `agent-code/stale-map-docs.py` and refresh only what is still stale.

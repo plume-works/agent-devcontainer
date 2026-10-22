@@ -365,6 +365,7 @@ def source_digest_for_paths(
     sources: list[str],
     resolver: MetadataResolver | None = None,
     applied: list[tuple[str, Mask]] | None = None,
+    revision: str | None = None,
 ) -> str:
     """
     Fingerprint the tracked content under `sources`.
@@ -381,26 +382,43 @@ def source_digest_for_paths(
     if not sources:
         return f'sha256:{hashlib.sha256(b"").hexdigest()}'
 
+    command = (
+        ['git', 'ls-tree', '-rz', '--name-only', revision, '--', *sources]
+        if revision is not None
+        else ['git', 'ls-files', '-z', '--', *sources]
+    )
     listed = subprocess.run(
-        ['git', 'ls-files', '-z', '--', *sources],
+        command,
         check=True,
         capture_output=True,
     ).stdout
     digest = hashlib.sha256()
     for raw_path in sorted({path for path in listed.split(b'\0') if path}):
-        relative = raw_path.decode()
+        relative = os.fsdecode(raw_path)
         if Path(relative).name == METADATA_FILENAME:
             continue
-        if not Path(relative).exists():
+        content = blob_bytes(revision, relative) if revision is not None else None
+        if revision is None and not Path(relative).exists():
             digest.update(raw_path + b'\0' + b'MISSING' + b'\0')
             continue
         masks = resolver.masks_for(relative) if resolver is not None else []
         if masks:
-            content_hash = masked_hash(relative, masks)
+            if revision is None:
+                content_hash = masked_hash(relative, masks)
+            else:
+                try:
+                    decoded = content.decode() if content is not None else ''
+                except UnicodeError as error:
+                    raise BrokenMetadata(masks[0].declared_in) from error
+                content_hash = hashlib.sha256(apply_masks(decoded, masks).encode()).hexdigest()
             if applied is not None:
                 applied.extend((relative, mask) for mask in masks)
         else:
-            content_hash = git('hash-object', '--', relative)
+            content_hash = (
+                git('rev-parse', f'{revision}:{relative}')
+                if revision is not None
+                else git('hash-object', '--', relative)
+            )
         digest.update(raw_path + b'\0' + content_hash.encode() + b'\0')
     return f'sha256:{digest.hexdigest()}'
 
@@ -568,8 +586,16 @@ class Replayer:
     def changed(before: str, after: str | None, paths: list[str]) -> list[str]:
         """Return the tracked files under `paths` that differ, the working tree when `after` is None."""
         revisions = [before] if after is None else [before, after]
-        listed = git('diff', '--name-only', '--no-renames', *revisions, '--', *paths)
-        return [path for path in listed.splitlines() if Path(path).name != METADATA_FILENAME]
+        listed = subprocess.run(
+            ['git', 'diff', '--name-only', '-z', '--no-renames', *revisions, '--', *paths],
+            check=True,
+            capture_output=True,
+        ).stdout
+        return [
+            os.fsdecode(path)
+            for path in listed.split(b'\0')
+            if path and Path(os.fsdecode(path)).name != METADATA_FILENAME
+        ]
 
     def masked(self, revision: str | None, path: str, collect: bool) -> str | None:
         """Return `path` at `revision` (working tree for None) with its masks applied."""
@@ -610,10 +636,14 @@ class Replayer:
         )
 
 
-def digest_under(sources: list[str], resolver: MetadataResolver) -> str:
+def digest_under(
+    sources: list[str], resolver: MetadataResolver, revision: str | None = None
+) -> str:
     """Return the digest `sources` would record under `resolver`'s metadata."""
     applied: list[tuple[str, Mask]] = []
-    return fold_in_masks(source_digest_for_paths(sources, resolver, applied), applied)
+    return fold_in_masks(
+        source_digest_for_paths(sources, resolver, applied, revision=revision), applied
+    )
 
 
 def digest_commit(path: str, recorded: str) -> str:
@@ -655,6 +685,8 @@ def replay_verdict(
         return None
     boundary = digest_commit(path, recorded)
     start = boundary or verified_at(frontmatter)
+    if boundary and digest_under(sources, MetadataResolver(boundary), boundary) != recorded:
+        return f'REFRESH {key}', 'refresh'
     if at_head == recorded or replayer.explains(sources, start, ancestry=bool(boundary)):
         return f'RESTAMP {key} {current}', 'restamp'
     return f'REFRESH {key}', 'refresh'
@@ -690,13 +722,48 @@ def replay(doc_files: list[str], library_path: str, since: str) -> int:
             verdicts.append(outcome[0])
             counts[outcome[1]] += 1
 
-    tracked = git('ls-files', '--', *readable_sources).splitlines() if readable_sources else []
+    tracked_output = (
+        subprocess.run(
+            ['git', 'ls-files', '-z', '--', *readable_sources],
+            check=True,
+            capture_output=True,
+        ).stdout
+        if readable_sources
+        else b''
+    )
+    tracked = [os.fsdecode(path) for path in tracked_output.split(b'\0') if path]
     masked_files = sorted(
         path
         for path in set(tracked)
         if Path(path).name != METADATA_FILENAME and replayer.resolver.masks_for(path)
     )
     evidence: set[tuple[str, str]] = set()
+    source_keys = [(key, source_paths(frontmatter)) for key, frontmatter in docs]
+
+    def keys_for(source_path: str) -> list[str]:
+        """Return docs whose sources contain `source_path`."""
+        return [
+            key
+            for key, sources in source_keys
+            if any(
+                source_path == source or source_path.startswith(f'{source}/') for source in sources
+            )
+        ]
+
+    broken_keys = {line.split()[1] for line in verdicts if line.startswith('BROKEN ')}
+
+    def record_broken(source_path: str, broken: BrokenMetadata) -> None:
+        """Record evidence failures against every doc that owns the source path."""
+        for key in keys_for(source_path):
+            if key not in broken_keys:
+                for line in list(verdicts):
+                    if line.startswith((f'RESTAMP {key} ', f'REFRESH {key}')):
+                        verdicts.remove(line)
+                        counts['restamp' if line.startswith('RESTAMP ') else 'refresh'] -= 1
+                verdicts.append(f'BROKEN {key} {broken.path}')
+                counts['broken'] += 1
+                broken_keys.add(key)
+
     windows = [*evidence_windows, (since, False, readable_sources)] if since else evidence_windows
     for start, ancestry, sources in windows:
         source_files = [
@@ -707,13 +774,26 @@ def replay(doc_files: list[str], library_path: str, since: str) -> int:
         for commit, paths in replayer.changes(start, source_files, ancestry=ancestry):
             evidence.update((commit, path) for path in paths)
     for commit, path in sorted(evidence):
-        absorbed = replayer.absorbed(replayer.parent(commit), commit, path, collect=True)
+        try:
+            absorbed = replayer.absorbed(replayer.parent(commit), commit, path, collect=True)
+        except BrokenMetadata as broken:
+            record_broken(path, broken)
+            continue
         print(f'{"ABSORBED" if absorbed else "MOVED"} {commit} {path}')
         counts['absorbed' if absorbed else 'moved'] += 1
     for path in replayer.changed('HEAD', None, masked_files):
-        absorbed = replayer.absorbed('HEAD', None, path, collect=True)
+        try:
+            absorbed = replayer.absorbed('HEAD', None, path, collect=True)
+        except BrokenMetadata as broken:
+            record_broken(path, broken)
+            continue
         print(f'{"ABSORBED" if absorbed else "MOVED"} WORKTREE {path}')
         counts['absorbed' if absorbed else 'moved'] += 1
+    for path in masked_files:
+        try:
+            replayer.masked(None, path, collect=True)
+        except BrokenMetadata as broken:
+            record_broken(path, broken)
     for (declared_in, pattern), values in sorted(replayer.hidden.items()):
         for value in sorted(values):
             print(f'HIDDEN {declared_in} {pattern} {json.dumps(value)}')

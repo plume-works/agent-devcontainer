@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:488da694abee767ee89f845f367e7de94df3f34cd4eef48919a9a0dec3452c35
+source_digest: sha256:cfec602c0bceb193fadf5fec98a9f77435d0305264c5f73b4a1c0592c3f215d4
 verified:
   by: codex/gpt-5
-  at: 2026-10-21T06:23:54Z
-stale_after: 2027-01-19
+  at: 2026-10-22T01:00:00Z
+stale_after: 2027-01-20
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T06:23:54Z
+  at: 2026-10-22T01:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -72,24 +72,27 @@ one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
 shared result vocabulary for metadata it cannot read, compile, or apply to a
 masked text file. `--replay [--since <date>]` bounds each verdict by the
 first-parent commit that established the document's recorded digest; the date
-can add evidence but cannot exclude that ancestry. It prints `ABSORBED` or
-`MOVED` per commit or working-tree edit and file, plus `HIDDEN` per masked
-value, then `RESTAMP` with a new digest for a non-fresh doc the rules explain
-and `REFRESH` for the rest. Unreadable metadata in either the working tree or
-`HEAD` is `BROKEN_METADATA`, including before an early refresh verdict. Refresh
-mode in `iwe-map`'s `SKILL.md` runs it before committing a new mask. The IWE
-family runs against the [knowledge workspace](../../../docs/knowledge.md).
-`template-consume` optionally copies the repository's IWE seed into a consumer,
-then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
-reusable knowledge scaffold and never replaces consumer-owned project memory. An
-optional Expo profile edits files the consumer already has for EAS cloud builds
-and adds no tracked paths. Its state is split three ways: the `template-consume`
-section of the consumer root's `.agent.metadata.json` is the only machine-parsed
-record of the adopted ref and the tracked paths — `check-updates.sh` reads
-nothing else, and a legacy `.agentdev-template.json` is consolidated into it on
-the next update; `.agentdev-template-progress.md` is the consumer-owned task and
-choice ledger that survives an interrupted setup; and `data/template-adoption`
-summarizes the episode for a consumer that kept the knowledge base.
+can add evidence but cannot exclude that ancestry. A digest boundary is trusted
+only when that revision's source computes to the recorded digest. Replay uses
+NUL-separated Git paths, inventories hidden values across every current masked
+file, and prints `ABSORBED` or `MOVED` per commit or working-tree edit and file,
+then `RESTAMP` with a new digest for a non-fresh doc the rules explain and
+`REFRESH` for the rest. Metadata or masked-text failures found while collecting
+evidence become document-scoped `BROKEN_METADATA`. Refresh mode records docs
+that quote old values before shared masks and excludes them from re-stamping.
+The IWE family runs against the [knowledge
+workspace](../../../docs/knowledge.md). `template-consume` optionally copies the
+repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
+`iwe-map`; update mode tracks only the reusable knowledge scaffold and never
+replaces consumer-owned project memory. An optional Expo profile edits files the
+consumer already has for EAS cloud builds and adds no tracked paths. Its state
+is split three ways: the `template-consume` section of the consumer root's
+`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
+the tracked paths — `check-updates.sh` reads nothing else, and a legacy
+`.agentdev-template.json` is consolidated into it on the next update;
+`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
+that survives an interrupted setup; and `data/template-adoption` summarizes the
+episode for a consumer that kept the knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not
@@ -167,11 +170,11 @@ Verified anchor points (line numbers as of 2026-10-21):
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —
   `MetadataResolver`, which walks a source's ancestors for masking rules, in the
   working tree or a revision's tree
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:532` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:550` —
   `Replayer`, the masked before/after comparison `--replay` runs
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:619` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:649` —
   `digest_commit`, the ancestry boundary for a replay verdict
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:638` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:668` —
   `replay_verdict`, the `RESTAMP`/`REFRESH` rule
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:364` —
   `source_digest_for_paths`

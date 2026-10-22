@@ -180,6 +180,42 @@ def test_hidden_lists_each_distinct_value_once(plugin_root: Path, plugin_tmp_pat
     assert hidden == [f'{prefix} "@sha256:{PIN}"', f'{prefix} "@sha256:{BUMPED_PIN}"']
 
 
+def test_hidden_includes_current_values_from_unchanged_masked_files(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """HIDDEN inventories every current masked file, not only changed evidence."""
+    repository, _ = bumped_workspace(plugin_tmp_path)
+    unchanged = 'deploy/unchanged.yml'
+    commit_dated(repository, {unchanged: compose_text('d' * 64)}, ADDED_AT)
+    write_metadata(repository / 'deploy', {'*.yml': digest_mask()})
+
+    completed = run_script(plugin_root, repository, '--replay')
+
+    assert (
+        f'HIDDEN deploy/.agent.metadata.json @sha256:[0-9a-f]{{64}} "@sha256:{"d" * 64}"'
+        in completed.stdout.splitlines()
+    )
+
+
+def test_replay_handles_non_ascii_and_quoted_masked_filenames(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Changed paths and ls-files are parsed without Git's display quoting."""
+    repository = build_workspace(plugin_tmp_path)
+    unusual = 'deploy/café "pin".yml'
+    commit_dated(repository, {unusual: compose_text(PIN)}, ADDED_AT)
+    write_deploy_doc(repository, current_digest(repository, 'deploy'))
+    bump = commit_dated(repository, {unusual: compose_text(BUMPED_PIN)}, BUMPED_AT)
+    write_metadata(repository / 'deploy', {'*.yml': digest_mask()})
+
+    completed = run_script(plugin_root, repository, '--replay')
+
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert f'ABSORBED {bump} {unusual}' in lines
+    assert any(line.startswith(f'RESTAMP {KEY} ') for line in lines)
+
+
 def test_since_without_replay_is_a_preflight_error(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
@@ -215,6 +251,31 @@ def test_replay_uses_the_digest_commit_ancestry_even_when_since_is_later(
     assert any(line.startswith(f'RESTAMP {KEY} ') for line in lines)
 
 
+def test_a_recorded_digest_mismatch_at_its_starting_commit_forces_refresh(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Replay cannot restamp when the recorded digest was never valid for its source."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    commit_dated(repository, {COMPOSE: compose_text(PIN)}, ADDED_AT)
+    write_deploy_doc(repository, 'sha256:not-the-source-digest')
+    doc_path = repository / 'docs' / 'knowledge' / f'{KEY}.md'
+    commit_dated(
+        repository, {str(doc_path.relative_to(repository)): doc_path.read_text()}, VERIFIED_AT
+    )
+    commit_dated(repository, {COMPOSE: compose_text(BUMPED_PIN)}, BUMPED_AT)
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert f'REFRESH {KEY}' in lines
+    assert 'RESTAMP_COUNT=0' in lines
+
+
 def test_malformed_working_tree_metadata_is_broken(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
@@ -227,6 +288,39 @@ def test_malformed_working_tree_metadata_is_broken(
     completed = run_script(plugin_root, repository, '--replay')
 
     # Assert
+    assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
+    assert f'BROKEN {KEY} deploy/.agent.metadata.json' in completed.stdout.splitlines()
+
+
+def test_broken_metadata_during_replay_evidence_names_the_doc(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Evidence decoding errors are classified instead of escaping replay."""
+    repository = build_workspace(plugin_tmp_path)
+    target = repository / COMPOSE
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(b'\xff')
+    environment = {**os.environ, 'GIT_AUTHOR_DATE': ADDED_AT, 'GIT_COMMITTER_DATE': ADDED_AT}
+    subprocess.run(
+        ['git', *GIT_IDENTITY, 'add', COMPOSE],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+        env=environment,
+    )
+    subprocess.run(
+        ['git', *GIT_IDENTITY, 'commit', '-m', 'binary source'],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+        env=environment,
+    )
+    commit_dated(repository, {COMPOSE: compose_text(PIN)}, BUMPED_AT)
+    write_deploy_doc(repository, current_digest(repository, 'deploy'))
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+
+    completed = run_script(plugin_root, repository, '--replay')
+
     assert verdict(completed) == (5, 'RESULT=BROKEN_METADATA')
     assert f'BROKEN {KEY} deploy/.agent.metadata.json' in completed.stdout.splitlines()
 

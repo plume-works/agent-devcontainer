@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-22
+
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for replay safeguards and
+  their regressions.
+
 ## 2026-10-21
 
 - **Update**: [Mask version-only changes during a map

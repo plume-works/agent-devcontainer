@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:0e1793644385a2a5f438aefae3c0a762491d649d8079b07023650c016617f2ff
+source_digest: sha256:c945c67228bbe1100632dd1af5fe87c24b4619a3b1c75313448fa1e7d2d0e753
 verified:
   by: codex/gpt-5
-  at: 2026-10-22T00:23:44Z
+  at: 2026-10-22T01:00:00Z
 stale_after: 2027-01-20
 generated:
   by: codex/gpt-5
-  at: 2026-10-22T00:23:44Z
+  at: 2026-10-22T01:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -70,11 +70,12 @@ module reuses both modules' helpers, commits fixtures at fixed future dates so
 bump a new uncommitted rule covers is `ABSORBED` and its doc `RESTAMP` with the
 digest a plain run then records, working-tree absorption emits `WORKTREE` and
 `HIDDEN` evidence, and verdict ancestry cannot be narrowed by commit dates or
-`--since`. A change outside the rule or an uncommitted unmasked edit is
-`REFRESH`; malformed metadata is `BROKEN_METADATA` even on an early refresh path
-and is tested with otherwise fresh, restamp, and refresh verdicts.
-`test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
-clone that pushes behind the working clone's back, a stub `git` with
+`--since`. It also covers stale starting digests, current hidden values in
+unchanged files, non-ASCII and quoted filenames, and historical masked-text
+decode failures. A change outside the rule or an uncommitted unmasked edit is
+`REFRESH`; malformed metadata is `BROKEN_METADATA` even on an early refresh
+path. `test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a
+peer clone that pushes behind the working clone's back, a stub `git` with
 after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
 `api` for the stack number, `stack link` (a non-force atomic push of the named
 branches, in create or add mode), and `stack checkout`; it pins each
@@ -165,7 +166,7 @@ Verified anchor points (line numbers as of 2026-10-21):
   `bumped_workspace`, a mapped pin and its bump
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:151` —
   working-tree evidence regression
-- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:197` —
+- `.agents/plugins/agentdev/tests/test_stale_map_docs_replay.py:254` —
   digest-commit ancestry regression
 - `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:54` —
   `build_repository`, the remote-plus-map fixture
