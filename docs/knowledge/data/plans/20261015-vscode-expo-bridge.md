@@ -186,10 +186,11 @@ bridge.
   agent uses the Expo profile's EAS cloud path.
 - **Dev-client loop.** Metro runs in the container; VS Code forwards port 8081
   to the Mac, where the simulator's development build connects to it, so the
-  native build reruns only when native code changes. `launch` opens the
-  development build at `http://localhost:8081` through the `exp+…` URL scheme
-  `install` read from the app's `Info.plist`, so it loads the bundle without a
-  tap; an app with no such scheme is launched plainly.
+  native build reruns only when native code changes. `launch` starts a
+  development build with the expo-dev-client launch argument
+  `--initialUrl http://localhost:8081`, so it loads the bundle without a tap or
+  a URL-scheme prompt; `install` recognizes a development build by the `exp+…`
+  URL scheme in its `Info.plist`, and any other app launches plainly.
 - **Template wiring.** The Expo profile lists the extension pack, forwards 8081,
   and adds an `AGENTS.md` rule telling agents to use `eas-host` for iOS when
   `eas-host status` succeeds. Setup never pre-authorizes the bridge.
@@ -891,25 +892,30 @@ Containers window on a Mac
   number of fixes and stays until a later `status` has none; clicking it opens
   the fix picker, which stays open on focus loss and shows each failing check's
   detail. No notification is shown, and no text calls an outdated tool missing.
-- [x] `install` records the app's `exp+…` URL scheme from its `Info.plist`, and
-  `launch` opens
-  `<scheme>://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081` with
-  `simctl openurl`, falling back to `simctl launch` when the app has no such
-  scheme.
+- [ ] `install` records whether the app is a development build, by an `exp+…`
+  URL scheme in its `Info.plist`, and `launch` restarts a development build with
+  `simctl launch --terminate-running-process <udid> <bundle id> --initialUrl http://localhost:8081`,
+  launching any other app without the argument. No URL is opened through
+  `simctl openurl`, which iOS answers with an "Open in" prompt.
   - **Evidence:** `plume-works/vscode-expo-bridge` commit
-    [`907b501`](https://github.com/plume-works/vscode-expo-bridge/commit/907b501)
-    ([PR #4](https://github.com/plume-works/vscode-expo-bridge/pull/4)):
-    `readInfoPlist` and `devSchemeOf` in `packages/host/src/install.ts` record
-    the scheme, `launch` opens `devClientUrl(scheme)` with `simctl openurl` or
-    runs `simctl launch`, and `docs/protocol.md` `### launch` describes it.
+    [`f7f276c`](https://github.com/plume-works/vscode-expo-bridge/commit/f7f276c)
+    ([PR #6](https://github.com/plume-works/vscode-expo-bridge/pull/6)):
+    `launch` in `packages/host/src/install.ts` and `docs/protocol.md`
+    `### launch`. On the Mac, `simctl launch` of the scratch development build
+    with `--initialUrl http://localhost:8081` loaded the bundle from the
+    container's Metro ("Bundling 99%…", then the app) with no launcher or tap,
+    where the `openurl` deep link stopped at "Open in 'app'?".
 - [x] `bun test` covers the scheme read, a scheme that is not `exp+` plus a safe
-  name, the deep-link and fallback launches, and the fix item text.
-  - **Evidence:** Commit
-    [`907b501`](https://github.com/plume-works/vscode-expo-bridge/commit/907b501):
+  name, the development-build and plain launches, and the fix item text.
+  - **Evidence:** Commits
+    [`907b501`](https://github.com/plume-works/vscode-expo-bridge/commit/907b501)
+    and
+    [`f7f276c`](https://github.com/plume-works/vscode-expo-bridge/commit/f7f276c):
     `packages/host/test/install.test.ts` covers the recorded scheme, the refused
-    `exp+evil://…` and bare `exp+`, the `openurl` launch, and the plain launch;
-    `test/fix.test.ts` covers `fixSummary`'s count, tooltip details, and that no
-    text says "missing". `bun test` 158 pass / 0 fail.
+    `exp+evil://…` and bare `exp+`, the exact `--initialUrl` launch with no
+    `openurl`, and the plain launch; `test/fix.test.ts` covers `fixSummary`'s
+    count, tooltip details, and that no text says "missing". `bun test` 162 pass
+    / 0 fail.
 
 ### Task 21: Local test on a Mac from the packaged VSIX files
 
