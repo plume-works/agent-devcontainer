@@ -6,7 +6,7 @@ release:
 description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built unsandboxed as the Mac user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T20:00:00Z
+  at: 2026-10-22T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -477,13 +477,27 @@ Containers window on a Mac
 
 **Files:** Create: `docs/protocol.md` in `plume-works/vscode-expo-bridge`
 
-- [ ] It defines the five actions, their arguments and validation, the result
+- [x] It defines the five actions, their arguments and validation, the result
   and error shapes, workspace-relative paths and the symlink rule, the
   `.tmp/expo-bridge/` write boundary, the protocol version and how `status`
   reports a mismatch, and that fixes are never protocol actions.
-- [ ] It states that the bridge is a consent surface, not a security boundary,
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit
+    [`5e7ab94`](https://github.com/plume-works/vscode-expo-bridge/commit/5e7ab94e922212321ac2121765f222114124d237)
+    adds `docs/protocol.md` with `## Actions`,
+    `## Paths and the write boundary`, `## Errors`, `## eas-host`, and
+    `## Fixes are not protocol actions`. The mismatch it specifies is
+    implemented in
+    [`b288ec8`](https://github.com/plume-works/vscode-expo-bridge/commit/b288ec8e2a3ea059d42d8cff2126df5c80154756):
+    `eas-host status` exits 3 naming both versions, covered by
+    `packages/workspace/test/eas-host.test.ts`; `bun test` 112 pass / 0 fail.
+- [x] It states that the bridge is a consent surface, not a security boundary,
   and names the trust prompt and the build confirmation the host extension
   implements.
+  - **Evidence:** `docs/protocol.md` `## Security model` in commit
+    [`5e7ab94`](https://github.com/plume-works/vscode-expo-bridge/commit/5e7ab94e922212321ac2121765f222114124d237)
+    states the bridge is "a consent surface for a cooperative container, not a
+    security boundary" and names the per-workspace trust modal and the per-build
+    confirmation with its three answers.
 
 ### Task 12: Split the repository into the two extensions and the pack
 
@@ -691,32 +705,53 @@ Containers window on a Mac
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] `install` rejects a path outside `.tmp/expo-bridge/`, unpacks the artifact
+- [x] `install` rejects a path outside `.tmp/expo-bridge/`, unpacks the artifact
   into a fresh private directory rejecting absolute, `..`, and symlink entries,
   and installs it on the booted simulator; `launch` starts the app `install`
   last installed, by the `CFBundleIdentifier` in its `Info.plist`; `screenshot`
   writes a PNG under `.tmp/expo-bridge/` and returns its workspace-relative
   path.
-- [ ] `bun test` covers path validation, archive entry rejection, and the
+  - **Evidence:** Commit
+    [`95037d4`](https://github.com/plume-works/vscode-expo-bridge/commit/95037d45be8347af51e542b469a844b4b7fd4017).
+    `packages/host/src/install.ts`: `install` resolves the path with
+    `requireUnderWriteDir`, unpacks with `tar -xk` into a fresh global-storage
+    directory and rejects any symlink in the tree, reads the binary
+    `Info.plist`'s `CFBundleIdentifier` through `plutil -convert json`, and runs
+    `simctl install booted`; `launch` runs `simctl launch booted <id>`;
+    `screenshot` captures into private storage and copies the PNG into
+    `.tmp/expo-bridge/` with `copyFresh`. The bsdtar entry handling and a
+    container-written `.app` installing and launching were confirmed on the Mac
+    by Tasks 8 and 9.
+- [x] `bun test` covers path validation, archive entry rejection, and the
   `xcrun simctl` invocations.
   - **Evidence:** Commit
-    [`8efc942`](https://github.com/plume-works/vscode-expo-bridge/commit/8efc942b76e5fcf2f28458f20abc79b8d10eab9b)/[`1a40f27`](https://github.com/plume-works/vscode-expo-bridge/commit/1a40f27c8ba25173f0e967fbf72f9aca769e13f1).
-    `test/tar.test.ts` covers absolute, `..`, symlink, and hard-link
-    archive-entry rejection; `test/install.test.ts` stubs the runner and covers
-    the path-outside-write-dir rejection, the post-unpack symlink rejection, the
-    `simctl install`/`launch`/ `io screenshot` invocation shapes, and the
-    bundle-id read. The box's first half (install/launch on a *booted
-    simulator*, a real `Info.plist`) stays unchecked: it needs the macOS
-    Simulator (plan Tasks 8 and 26).
+    [`95037d4`](https://github.com/plume-works/vscode-expo-bridge/commit/95037d45be8347af51e542b469a844b4b7fd4017).
+    `packages/host/test/install.test.ts` stubs the runner and covers the
+    path-outside-write-dir rejection, the post-unpack symlink rejection, the
+    `plutil` read of a binary `Info.plist`, a malformed bundle id, the
+    `simctl install`/`launch`/`io screenshot` invocations, and that a failed
+    capture writes nothing; `test/tar.test.ts` covers absolute, `..`, symlink,
+    and hard-link entries. `bun test` 112 pass / 0 fail.
 
 ### Task 19: One-click fix
 
 **Files:** Create: in `plume-works/vscode-expo-bridge`
 
-- [ ] For each failing `status` check that a tool install resolves, the VS Code
+- [x] For each failing `status` check that a tool install resolves, the VS Code
   UI offers a fix that runs the Homebrew command in a visible local terminal;
   for Xcode it opens the App Store page and then runs `xcode-select`, the
   license acceptance, and `xcodebuild -downloadPlatform iOS`.
+  - **Evidence:** Commit
+    [`b0e473f`](https://github.com/plume-works/vscode-expo-bridge/commit/b0e473f30dfe9eedf4ae5ea6ff0efc34d34ae9ac).
+    After a `status` with a fixable failure, `offerFixes` in
+    `packages/host/src/extension.ts` shows a notification whose **Fix…** button
+    runs `expoBridge.fix`, which opens a terminal from the `ui` host and sends
+    the chosen step's commands. `planFixes` in `packages/host/src/fix.ts` maps
+    CocoaPods, fastlane, Node, and bun to Homebrew installs and Xcode to the App
+    Store page followed by `xcode-select`, `xcodebuild -license accept`, and
+    `xcodebuild -downloadPlatform iOS`; `test/fix.test.ts` covers each. The
+    Xcode check now requires `xcodebuild -version` to succeed
+    (`test/status.test.ts`).
 - [x] No protocol action can start a fix.
   - **Evidence:** Commit
     [`1a40f27`](https://github.com/plume-works/vscode-expo-bridge/commit/1a40f27c8ba25173f0e967fbf72f9aca769e13f1).
