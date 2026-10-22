@@ -807,11 +807,22 @@ Containers window on a Mac
 Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] The template boundary's Expo profile section names the extension pack, the
+- [x] The template boundary's Expo profile section names the extension pack, the
   forwarded port, the `AGENTS.md` rule, and that setup grants no trust.
-- [ ] `data/architecture/vscode-expo-bridge` records the design in `## Approach`
+  - **Evidence:** `## Optional Expo profile` in
+    `docs/knowledge/data/architecture/template-boundary.md`, in the commit that
+    ticks this box, names `plume-works.vscode-expo-bridge`, port `8081`, the
+    `eas-host` `AGENTS.md` rule, and that setup writes no trust or security
+    setting.
+- [x] `data/architecture/vscode-expo-bridge` records the design in `## Approach`
   with its security model and rejected alternatives, and links the sibling
   repository's protocol document; `data/architecture.md` links it.
+  - **Evidence:** The same commit creates
+    `docs/knowledge/data/architecture/vscode-expo-bridge.md`, whose
+    `## Approach` holds `### Security model`, `### Constraints`, and
+    `### Rejected alternatives` and whose `## Context` links
+    `plume-works/vscode-expo-bridge` `docs/protocol.md`, and adds its inclusion
+    link to `docs/knowledge/data/architecture.md`; `iwe schema validate` passes.
 
 ### Task 25: Validate the catalog change
 
