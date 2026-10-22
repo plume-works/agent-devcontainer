@@ -890,13 +890,25 @@ Containers window on a Mac
   number of fixes and stays until a later `status` has none; clicking it opens
   the fix picker, which stays open on focus loss and shows each failing check's
   detail. No notification is shown, and no text calls an outdated tool missing.
-- [ ] `install` records the app's `exp+…` URL scheme from its `Info.plist`, and
+- [x] `install` records the app's `exp+…` URL scheme from its `Info.plist`, and
   `launch` opens
   `<scheme>://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081` with
   `simctl openurl`, falling back to `simctl launch` when the app has no such
   scheme.
-- [ ] `bun test` covers the scheme read, a scheme that is not `exp+` plus a safe
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit
+    [`907b501`](https://github.com/plume-works/vscode-expo-bridge/commit/907b501)
+    ([PR #4](https://github.com/plume-works/vscode-expo-bridge/pull/4)):
+    `readInfoPlist` and `devSchemeOf` in `packages/host/src/install.ts` record
+    the scheme, `launch` opens `devClientUrl(scheme)` with `simctl openurl` or
+    runs `simctl launch`, and `docs/protocol.md` `### launch` describes it.
+- [x] `bun test` covers the scheme read, a scheme that is not `exp+` plus a safe
   name, the deep-link and fallback launches, and the fix item text.
+  - **Evidence:** Commit
+    [`907b501`](https://github.com/plume-works/vscode-expo-bridge/commit/907b501):
+    `packages/host/test/install.test.ts` covers the recorded scheme, the refused
+    `exp+evil://…` and bare `exp+`, the `openurl` launch, and the plain launch;
+    `test/fix.test.ts` covers `fixSummary`'s count, tooltip details, and that no
+    text says "missing". `bun test` 158 pass / 0 fail.
 
 ### Task 21: Local test on a Mac from the packaged VSIX files
 
