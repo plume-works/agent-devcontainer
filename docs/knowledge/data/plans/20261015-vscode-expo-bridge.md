@@ -114,11 +114,17 @@ not claim to defend against a hostile one. The checks are these:
   `eas build --local -p ios --profile <name>` as the Mac user, unsandboxed, with
   no privileged setup on the Mac. Project code in the build can do anything the
   user can. Trust and the build confirmation are the only gate on it.
+- **A pinned eas-cli.** `build` runs eas-cli through the Mac's bun as
+  `bunx eas-cli@<spec>`, where `<spec>` is the `eas-cli` version or range in the
+  workspace's `package.json` (`devDependencies`, then `dependencies`), or
+  `latest` when it lists none. A spec that is not a semver version or range —
+  `file:`, git, URL, alias, dist-tag — is refused. Nothing installs eas-cli on
+  the Mac outside the build.
 - **No project code outside `build`.** The host extension never evaluates
-  `app.config.js` or any other project file as code. It reads only `eas.json`
-  and `app.json`, as JSON, and refuses a symlink, a non-regular file, or a file
-  over a size limit; an error returned to the container never quotes file
-  contents.
+  `app.config.js` or any other project file as code. It reads only `eas.json`,
+  `app.json`, and `package.json`, as JSON, and refuses a symlink, a non-regular
+  file, or a file over a size limit; an error returned to the container never
+  quotes file contents.
 - **Management commands are reachable from the container too.** The trust,
   token, and fix commands take no arguments, return nothing, and change nothing
   until the user answers a modal.
@@ -151,11 +157,11 @@ bridge.
 
 - **`status`** reports whether the bridge can serve a build: a Mac host, a
   workspace host path that exists locally, whether the workspace is trusted,
-  Xcode, CocoaPods, fastlane, Node, a host bun at least as new as the
-  container's (the container sends its `bun --version`), `EXPO_TOKEN` stored in
-  SecretStorage, `extra.eas.projectId` in `app.json`, an iOS simulator that is
-  booted or can be booted, whether port 8081 is forwarded, and the protocol
-  version.
+  Xcode, CocoaPods, fastlane, Node, the eas-cli version `build` runs, a host bun
+  at least as new as the container's (the container sends its `bun --version`),
+  `EXPO_TOKEN` stored in SecretStorage, `extra.eas.projectId` in `app.json`, an
+  iOS simulator that is booted or can be booted, whether port 8081 is forwarded,
+  and the protocol version.
 - **The bridge boots the simulator.** When no simulator is booted, `install`,
   `launch`, and `screenshot` boot one headless through `xcrun simctl`: an
   existing iPhone on the newest available iOS runtime, or a new one when there
@@ -830,6 +836,37 @@ Containers window on a Mac
     create, `test/status.test.ts` the bootable and no-runtime `simulator`
     results, and `test/install.test.ts` the UDID targeting; `bun test` 122 pass
     / 0 fail.
+
+### Task 20c: Host extension — pinned eas-cli and a fix that sees the container's bun
+
+**Files:** Create: `packages/host/src/eascli.ts`; Modify:
+`packages/host/src/build.ts`, `packages/host/src/status.ts`,
+`packages/host/src/extension.ts`, `packages/protocol/src/index.ts`,
+`docs/protocol.md` in `plume-works/vscode-expo-bridge`
+
+- [x] `build` runs `bunx eas-cli@<spec>` with the Mac's bun, `<spec>` taken from
+  the workspace `package.json` (`devDependencies`, then `dependencies`) or
+  `latest`, and refuses a spec that is not a semver version or range; `status`
+  reports the spec as an `easCli` check that fails only on a refused spec.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit
+    [`7b564da`](https://github.com/plume-works/vscode-expo-bridge/commit/7b564da)
+    on branch `eas-cli-check`: `easCliSpec` and `isVersionRange` in
+    `packages/host/src/eascli.ts`, the `bun x eas-cli@<spec>` invocation in
+    `packages/host/src/build.ts`, `easCliCheck` in
+    `packages/host/src/status.ts`, and `docs/protocol.md` `### build` describing
+    the pin.
+- [ ] The fix command plans its steps against the container bun version of the
+  last `status` request, so a bun older than the container's offers its fix
+  instead of "nothing to fix".
+- [x] `bun test` covers spec selection, accepted ranges, refused specs, the
+  `build` invocation and refusal, and the `easCli` check.
+  - **Evidence:** Commit
+    [`7b564da`](https://github.com/plume-works/vscode-expo-bridge/commit/7b564da):
+    `packages/host/test/eascli.test.ts` covers versions, `^`/`~`/`x`/`*`,
+    comparator, `||`, and hyphen ranges, refused `file:`/git/URL/alias/tag
+    specs, the `devDependencies` precedence, and a symlinked `package.json`;
+    `test/build.test.ts` covers the pinned invocation and the refusal;
+    `test/status.test.ts` the `easCli` results. `bun test` 152 pass / 0 fail.
 
 ### Task 21: Local test on a Mac from the packaged VSIX files
 
