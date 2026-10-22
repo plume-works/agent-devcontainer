@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-22
 
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
+  Bridge local-iOS path and EAS cloud fallback.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
   its [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for replay safeguards and

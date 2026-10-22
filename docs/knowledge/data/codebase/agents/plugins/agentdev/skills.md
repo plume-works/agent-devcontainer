@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:6ccc1fad423328f9a426f66bcb3468cb9e6da50beeb6990a054eb0c5f2265629
+source_digest: sha256:9218e9216eaa41838c719106483dfa3cbfa551efaa9cca86ff3287de3ed6b6f1
 verified:
-  by: claude-code/claude-opus-5-5
-  at: 2026-10-22T01:24:56Z
+  by: codex/gpt-5
+  at: 2026-10-22T17:21:26Z
 stale_after: 2027-01-20
 generated:
-  by: claude-code/claude-opus-5-5
-  at: 2026-10-22T01:24:56Z
+  by: codex/gpt-5
+  at: 2026-10-22T17:21:26Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -86,14 +86,15 @@ workspace](../../../docs/knowledge.md). `template-consume` optionally copies the
 repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
 `iwe-map`; update mode tracks only the reusable knowledge scaffold and never
 replaces consumer-owned project memory. An optional Expo profile edits files the
-consumer already has for EAS cloud builds and adds no tracked paths. Its state
-is split three ways: the `template-consume` section of the consumer root's
-`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
-the tracked paths — `check-updates.sh` reads nothing else, and a legacy
-`.agentdev-template.json` is consolidated into it on the next update;
-`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
-that survives an interrupted setup; and `data/template-adoption` summarizes the
-episode for a consumer that kept the knowledge base.
+consumer already has, enables the official Expo plugin, and adds the Expo Bridge
+extension plus port 8081 for Mac-hosted iOS builds with an EAS cloud fallback;
+it adds no tracked paths. Its state is split three ways: the `template-consume`
+section of the consumer root's `.agent.metadata.json` is the only machine-parsed
+record of the adopted ref and the tracked paths — `check-updates.sh` reads
+nothing else, and a legacy `.agentdev-template.json` is consolidated into it on
+the next update; `.agentdev-template-progress.md` is the consumer-owned task and
+choice ledger that survives an interrupted setup; and `data/template-adoption`
+summarizes the episode for a consumer that kept the knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not
@@ -136,7 +137,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
+Verified anchor points (line numbers as of 2026-10-22):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -148,6 +149,8 @@ Verified anchor points (line numbers as of 2026-10-21):
   document
 - `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:124`
   — the only read of the marker section
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:974`
+  — the Expo Bridge local-iOS rule and cloud fallback
 - `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh:109` —
   the shared issue-closing call, identical in `iwe-plan`
 - `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:141`
