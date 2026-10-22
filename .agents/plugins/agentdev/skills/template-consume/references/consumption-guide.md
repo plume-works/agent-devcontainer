@@ -971,8 +971,29 @@ Apply these edits to the consumer's files:
    above requires.
    ```
 
+   After it, append the iOS build rule, verbatim:
+
+   ```markdown
+   For an iOS build, run `eas-host status` first. When it exits 0, build,
+   install, launch, and screenshot on the Mac host through `eas-host`; otherwise
+   build on EAS cloud with `bunx eas-cli@latest build -p ios`.
+   ```
+
 5. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
    `enabledPlugins` alongside the template's entries.
+6. In `.devcontainer/devcontainer.json`, add `plume-works.vscode-expo-bridge`
+   to `customizations.vscode.extensions` and `8081` to `forwardPorts`. Write no
+   bridge trust or security setting anywhere: trust in a workspace is granted
+   only on the Mac, when the bridge's first request asks for it.
+
+The extension pack is the [Expo Bridge](https://github.com/plume-works/vscode-expo-bridge).
+When VS Code on a Mac opens the devcontainer, it builds the iOS app with
+`eas build --local` on that Mac and runs it in the iOS Simulator, and the
+container drives it through `eas-host`. Metro runs in the container and reaches
+the simulator's development build over the forwarded port 8081. Anywhere else —
+a Codespace, a non-Mac host — `eas-host status` exits non-zero and builds go to
+EAS cloud. The bridge reads `EXPO_TOKEN` from the Mac, not from the
+container: store it there with the **Expo Bridge: Set EXPO_TOKEN** command.
 
 Record `"expo"` in the marker's `optional_bundles`. It adds no `tracked_paths`:
 every edit lands in a file the template already tracks or the consumer owns.

@@ -785,13 +785,21 @@ Containers window on a Mac
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] `## Optional Expo setup` adds `plume-works.vscode-expo-bridge` to
+- [x] `## Optional Expo setup` adds `plume-works.vscode-expo-bridge` to
   `customizations.vscode.extensions` and `8081` to `forwardPorts` in the
   consumer's `.devcontainer/devcontainer.json`, and writes no bridge trust or
   security setting.
-- [ ] The `## Expo` section of the merged `AGENTS.md` gains a rule: for an iOS
+  - **Evidence:** Step 6 of `## Optional Expo setup` in
+    `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
+    in the commit that ticks this box, adds the pack and port `8081` and says to
+    write no bridge trust or security setting anywhere.
+- [x] The `## Expo` section of the merged `AGENTS.md` gains a rule: for an iOS
   build, run `eas-host status`; when it succeeds use `eas-host`, otherwise use
   EAS cloud.
+  - **Evidence:** Step 4 of `## Optional Expo setup` in the same commit appends,
+    verbatim after the command-translation line, the rule to run
+    `eas-host status` first and use `eas-host` when it exits 0, otherwise
+    `bunx eas-cli@latest build -p ios`.
 
 ### Task 24: Record the bridge in the template boundary and architecture
 
