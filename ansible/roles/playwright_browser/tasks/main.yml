@@ -1,0 +1,89 @@
+---
+- name: Read the globally installed Bun packages
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/bun
+      - pm
+      - ls
+      - --global
+  environment:
+    BUN_INSTALL: /usr/local
+  register: playwright_browser_bun_global
+  changed_when: false
+  failed_when: false
+
+- name: Collect the installed Bun package specs
+  ansible.builtin.set_fact:
+    playwright_browser_bun_global_specs: >-
+      {{ playwright_browser_bun_global.stdout_lines
+         | map('regex_replace', '^[^@A-Za-z]+', '') | map('trim') | list }}
+
+- name: Install the pinned Playwright CLI with Bun
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/bun
+      - add
+      - --global
+      - --exact
+      - "{{ playwright_browser_package }}@{{ playwright_browser_version }}"
+  environment:
+    BUN_INSTALL: /usr/local
+  register: playwright_browser_package_install
+  changed_when: true
+  when: >-
+    (playwright_browser_package ~ '@' ~ playwright_browser_version)
+    not in playwright_browser_bun_global_specs
+
+- name: Create the image-owned Playwright browser directory
+  ansible.builtin.file:
+    path: "{{ playwright_browser_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install Chromium and its Linux dependencies
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/playwright
+      - install
+      - --with-deps
+      - chromium
+  environment:
+    PLAYWRIGHT_BROWSERS_PATH: "{{ playwright_browser_path }}"
+  register: playwright_browser_install
+  changed_when: >-
+    'Downloading' in playwright_browser_install.stdout
+    or 'Downloading' in playwright_browser_install.stderr
+
+- name: Allow runtime users to install version-matched browser binaries
+  ansible.builtin.file:
+    path: "{{ playwright_browser_path }}"
+    state: directory
+    recurse: true
+    mode: a+rwX
+
+- name: Verify the pinned Playwright CLI version
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/playwright
+      - --version
+  register: playwright_browser_cli_version
+  changed_when: false
+  failed_when: >-
+    playwright_browser_cli_version.rc != 0
+    or playwright_browser_cli_version.stdout != 'Version ' ~ playwright_browser_version
+
+- name: Verify the Chromium installation
+  ansible.builtin.command:
+    argv:
+      - /usr/local/bin/playwright
+      - install
+      - --list
+  environment:
+    PLAYWRIGHT_BROWSERS_PATH: "{{ playwright_browser_path }}"
+  register: playwright_browser_list
+  changed_when: false
+  failed_when: >-
+    playwright_browser_list.rc != 0
+    or 'chromium-' not in playwright_browser_list.stdout

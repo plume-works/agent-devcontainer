@@ -3,9 +3,10 @@ type: spec
 description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment and resuming its pinned conversation, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T00:00:00Z
+  at: 2026-10-21T03:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
+- resource: .devcontainer/scripts/claude-remote-control-pin.sh
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/scripts/coder-agent-start.sh
@@ -13,6 +14,7 @@ sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .github/actions/run-claude-responder/action.yml
+- resource: scripts/tests/test_claude_remote_control_pin.py
 - resource: scripts/tests/test_claude_remote_control_session.py
 - resource: scripts/tests/test_claude_remote_control_start.py
 - resource: scripts/tests/test_preapprove_claude_workspace.py
@@ -50,9 +52,12 @@ live session rather than create another. It SHALL skip startup when `claude` or
 The session SHALL resume the conversation whose ID is stored in
 `remote-control-session-id` under Claude's configuration directory. When no ID
 is stored, or the resume exits non-zero, it SHALL start a new conversation under
-a newly generated ID and store that ID in place of the old one. A transient
-failure to reconnect a resumed conversation leaves Claude running with Remote
-Control off; running `/remote-control` in the session restores it.
+a newly generated ID and store that ID in place of the old one. Whenever the
+session's conversation changes while Claude runs, including through `/clear`,
+the session SHALL store the new conversation's ID in place of the old one; no
+other Claude process SHALL write the stored ID. A transient failure to reconnect
+a resumed conversation leaves Claude running with Remote Control off; running
+`/remote-control` in the session restores it.
 
 #### Scenario: the Coder agent restarts
 
@@ -101,6 +106,12 @@ Control off; running `/remote-control` in the session restores it.
 - **WHEN** resuming the stored conversation exits non-zero
 - **THEN** a new conversation starts under a new ID, and that ID replaces the
   stored one.
+
+#### Scenario: the operator clears the conversation
+
+- **WHEN** `/clear` runs in `claude-remote` and the workspace then restarts
+- **THEN** the pane resumes the post-clear conversation under the same session
+  URL.
 
 ### Requirement: Remote Control inherits the Coder agent's environment
 

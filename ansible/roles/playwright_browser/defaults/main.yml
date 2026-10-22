@@ -1,0 +1,5 @@
+---
+# renovate: datasource=npm depName=playwright
+playwright_browser_version: "1.64.0"
+playwright_browser_package: playwright
+playwright_browser_path: /opt/playwright

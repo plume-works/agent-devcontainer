@@ -1,9 +1,10 @@
 ---
 type: bug
+stage: done
 description: CI/CD moves the published tags of ubuntu-ansible, agent-desktop, and agent-opencode before the devcontainer and runtime acceptance jobs test the images, so a failed or cancelled run leaves edge naming an untested build.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T03:00:00Z
+  at: 2026-10-20T12:00:00Z
 sources:
 - resource: .github/workflows/ci.yml
 - resource: .github/workflows/primary-checks.yml
@@ -53,11 +54,16 @@ frequent.
 
 ## Fix
 
-Not fixed. The intended shape: per-arch builds and the merge push only an
-immutable per-run tag. A promotion job that needs every test job then points the
-event's moving tags at those tested digests with `imagetools create`, without
-rebuilding. Runs on `main` stop cancelling one another, so `edge` advances
-instead of starving.
+The per-arch builds and `merge-dev-image` push each image under its immutable
+`sha-<commit>` tag only, and export the merged digests. `promote-dev-image`
+needs `dev-container-ci` and `opencode-acceptance`, then points the event's
+moving tags at those digests with `imagetools create`, without rebuilding. It
+skips a tag whose current image's revision label names a descendant of the run's
+commit, so a re-run never moves a tag backwards. Primary checks runs on `main`
+queue instead of cancelling. `scripts/tests/test_agent_runtime_ci.py` covers the
+candidate-only merge and the promotion gate; the contract is the [Image
+pinning](../spec/image-pinning.md) requirement "published tags name only tested
+images".
 
 ## Key references
 

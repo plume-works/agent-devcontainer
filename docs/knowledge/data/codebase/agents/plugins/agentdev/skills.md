@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:a928a2dabed9099853c520a5992b64650483ac924db7ed791f076b9497db0b7a
+source_digest: sha256:6ccc1fad423328f9a426f66bcb3468cb9e6da50beeb6990a054eb0c5f2265629
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-18T09:20:00Z
-stale_after: 2027-01-15
+  by: claude-code/claude-opus-5-5
+  at: 2026-10-22T01:24:56Z
+stale_after: 2027-01-20
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-18T09:20:00Z
+  by: claude-code/claude-opus-5-5
+  at: 2026-10-22T01:24:56Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -70,7 +70,18 @@ metadata files themselves stay out of that fingerprint; a rule reaches a digest
 only as the pattern and replacement that applied. Its `--explain` flag prints
 one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
 shared result vocabulary for metadata it cannot read, compile, or apply to a
-masked text file. The IWE family runs against the [knowledge
+masked text file. `--replay [--since <date>]` bounds each verdict by the
+first-parent commit that established the document's recorded digest; the date
+can add evidence but cannot exclude that ancestry. A digest boundary is trusted
+only when that revision's source computes to the recorded digest, with committed
+blobs read under the same newline translation as the working tree. Replay uses
+NUL-separated Git paths, inventories hidden values across every current masked
+file, and prints `ABSORBED` or `MOVED` per commit or working-tree edit and file,
+then `RESTAMP` with a new digest for a non-fresh doc the rules explain and
+`REFRESH` for the rest. Metadata or masked-text failures found while collecting
+evidence become document-scoped `BROKEN_METADATA`. Refresh mode records docs
+that quote old values before shared masks and excludes them from re-stamping.
+The IWE family runs against the [knowledge
 workspace](../../../docs/knowledge.md). `template-consume` optionally copies the
 repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
 `iwe-map`; update mode tracks only the reusable knowledge scaffold and never
@@ -125,7 +136,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-17):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -155,9 +166,16 @@ Verified anchor points (line numbers as of 2026-10-17):
   Implementer per plan
 - `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:145` — the Shipper
   re-dispatch after a revision
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:75` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:97` —
   `BROKEN_METADATA`
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:231` —
-  `MetadataResolver`, which walks a source's ancestors for masking rules
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:292` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —
+  `MetadataResolver`, which walks a source's ancestors for masking rules, in the
+  working tree or a revision's tree
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:555` —
+  `Replayer`, the masked before/after comparison `--replay` runs
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:654` —
+  `digest_commit`, the ancestry boundary for a replay verdict
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:673` —
+  `replay_verdict`, the `RESTAMP`/`REFRESH` rule
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:369` —
   `source_digest_for_paths`
