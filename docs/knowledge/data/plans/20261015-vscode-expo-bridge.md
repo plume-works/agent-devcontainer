@@ -766,8 +766,17 @@ Containers window on a Mac
 
 **Files:** Create: `.github/workflows/` in `plume-works/vscode-expo-bridge`
 
-- [ ] A workflow runs lint, `bun test`, and the three VSIX package builds on
+- [x] A workflow runs lint, `bun test`, and the three VSIX package builds on
   every pull request, and passes on `main`.
+  - **Evidence:** `.github/workflows/ci.yml` runs on `pull_request` and on push
+    to `main`: Prettier lint (added in
+    [`32c704a`](https://github.com/plume-works/vscode-expo-bridge/commit/32c704a)),
+    typecheck, `bun test`, and the three VSIX builds. It passed on [PR
+    #1](https://github.com/plume-works/vscode-expo-bridge/pull/1) and, after the
+    squash merge
+    [`4f2d7dd`](https://github.com/plume-works/vscode-expo-bridge/commit/4f2d7dd823d370500495eae7ad57b8cc5f955a38),
+    on `main` in [run
+    39698880522](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39698880522).
 
 ### Task 21: Publish to the Visual Studio Marketplace
 
