@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:a4787abd132a0cebd5517c3c228cc88eb2479a8359573c6d9c2d24f7e3c84fb0
+source_digest: sha256:e62c8f76ea04f114d9c5ecbe69b04a9ca871a95fc1afc40878d1802b4d895c98
 verified:
   by: codex/gpt-5
-  at: 2026-10-21T06:23:54Z
-stale_after: 2027-01-19
+  at: 2026-10-22T00:23:44Z
+stale_after: 2027-01-20
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T06:23:54Z
+  at: 2026-10-22T00:23:44Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -71,7 +71,8 @@ re-registers the workspace copy on attach ([lifecycle
 scripts](../../devcontainer/scripts.md)). Codex reads the same skills; its
 agents are the one generated copy, written into `~/.codex/agents/` at install by
 `bin/install-codex-agents.py`. OpenCode reads them too, translated at startup by
-the bridge rather than copied. With enabled local CBM configuration, the bridge
+the bridge rather than copied; v2 command execution keeps the full namespaced
+invocation in the user message. With enabled local CBM configuration, the bridge
 also registers the active Git worktree for background indexing.
 
 ## Depends on
@@ -91,7 +92,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-18):
+Verified anchor points (line numbers as of 2026-10-21):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

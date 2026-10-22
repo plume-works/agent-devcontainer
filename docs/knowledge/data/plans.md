@@ -3,8 +3,8 @@ type: hub
 description: Implementation plans, migrations, and design proposals, one document per unit of work.
 stage: living
 generated:
-  by: opencode/gpt-6.1-sol
-  at: 2026-10-21T05:18:06Z
+  by: codex/gpt-5
+  at: 2026-10-22T00:23:44Z
 ---
 
 # 🗺️ Plans
@@ -16,6 +16,9 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
+
+[Bundle a Playwright browser in the development
+image](plans/20261021-playwright-browser.md)
 
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
@@ -38,6 +41,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 [Mask version-only changes during a map
 refresh](plans/20261021-map-masks-version-bumps.md)
+
+[Show the full OpenCode slash-command
+invocation](plans/20261021-opencode-command-echo.md)
 
 [Keep the Remote Control pin on the pane's current
 conversation](plans/20261021-remote-control-pin-follows-clear.md)

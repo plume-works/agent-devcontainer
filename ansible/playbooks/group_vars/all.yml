@@ -14,6 +14,9 @@ install_xpra: false
 # Agent CLIs and their tooling; the agentic_tools role README lists them.
 install_agentic_tools: false
 
+# Playwright CLI with its version-matched Chromium browser.
+install_playwright_browser: false
+
 # The validate_agent_files CLI, built from py_packages/validate_agent_files/ in the
 # provisioning sources. Turn it off when building from a tree that does not carry
 # that package.

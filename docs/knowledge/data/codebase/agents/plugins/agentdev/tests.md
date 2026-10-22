@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:f2c6276f6519dc4a096de090cff0e7f96f7ee0ad3a29d3b1b4572cb5f245e069
+source_digest: sha256:0e1793644385a2a5f438aefae3c0a762491d649d8079b07023650c016617f2ff
 verified:
   by: codex/gpt-5
-  at: 2026-10-21T06:23:54Z
-stale_after: 2027-01-19
+  at: 2026-10-22T00:23:44Z
+stale_after: 2027-01-20
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T06:23:54Z
+  at: 2026-10-22T00:23:44Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -119,8 +119,9 @@ The workspace suite creates Git repositories, symlinks, and linked worktrees
 under `.tmp/` and injects command/logging adapters. It covers registration
 gates, canonical exact-root matching, pagination, concurrency, retry after
 failure, MCP envelopes, and real subprocess timeout/output bounds. Bridge tests
-assert catalog availability while registration remains pending and client
-diagnostics.
+assert catalog availability while registration remains pending, client
+diagnostics, full v2 command text for bare and argument-bearing invocations, and
+rebased attachment mention spans without input mutation.
 
 ## Depends on
 
@@ -176,5 +177,7 @@ Verified anchor points (line numbers as of 2026-10-21):
   the v1 hook driver every config case shares
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:200` — `fakeV2`, the
   recording v2 plugin ctx
+- `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:277` — full v2
+  invocation payload and attachment-span regression
 - `.agents/plugins/agentdev/tests/opencode/workspace-index.test.ts:38` — command
   and logging harness

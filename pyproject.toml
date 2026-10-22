@@ -16,7 +16,7 @@ dev = [
   "pydantic>=2.0",
   "python-frontmatter>=1.1.0",
   # Matches the apt supervisor the agent-opencode image runs; see runtime-supervisor.py.
-  "supervisor==4.2.5",
+  "supervisor==4.3.0",
   # supervisor 4.2.5 imports pkg_resources, as the apt python3-pkg-resources provides.
   "setuptools<85",
   "validate_agent_files",

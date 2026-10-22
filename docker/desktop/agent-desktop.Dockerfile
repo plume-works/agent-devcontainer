@@ -28,6 +28,10 @@ ARG AGENTDEV_CATALOG_DIR=/opt/agentdev
 # py_packages/validate_agent_files/pyproject.toml.
 ARG VALIDATE_AGENT_FILES_VERSION=1.0.1
 
+# Supplied from the role default by the image workflow. Keeping the value in the
+# role lets Renovate update installation and image metadata together.
+ARG PLAYWRIGHT_VERSION
+
 # Provision the image with Ansible.
 #
 # The build context is the repository root, bind-mounted read-only rather than
@@ -42,6 +46,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     --mount=type=bind,readonly,target=/provision \
     apt-get update \
+    && test -n "$PLAYWRIGHT_VERSION" \
     && cd /provision \
     && ansible-playbook ansible/playbooks/setup-dev.yml \
       -vvv \
@@ -49,6 +54,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
            install_xpra=true \
            install_docker=true \
            install_agentic_tools=true \
+           install_playwright_browser=true \
            install_devcontainer_firewall=true \
            install_validate_agent_files=true \
            agentic_tools_stage_catalog=true \
@@ -58,6 +64,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
            agentic_tools_catalog_root=$AGENTDEV_CATALOG_DIR \
            validate_agent_files_source_dir=/provision/py_packages/validate_agent_files \
            validate_agent_files_version=$VALIDATE_AGENT_FILES_VERSION \
+           playwright_browser_version=$PLAYWRIGHT_VERSION \
          "
 
 # Inherited by any consumer of this image, including one that writes its own
@@ -66,8 +73,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # with no lifecycle hooks. A devcontainer mounts persistent ~/.claude and
 # ~/.codex volumes over that install, so its postCreate hook installs again.
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
 
 LABEL org.opencontainers.image.version.agentdev="$AGENTDEV_PLUGIN_VERSION"
+LABEL org.opencontainers.image.version.playwright="$PLAYWRIGHT_VERSION"
 LABEL org.opencontainers.image.version.validate-agent-files="$VALIDATE_AGENT_FILES_VERSION"
 
 WORKDIR $WORKSPACE_FOLDER

@@ -2,8 +2,8 @@
 type: architecture
 description: The dependency-free OpenCode catalog bridge that loads in OpenCode v1 and v2, its workspace registration boundary, host contracts, and rejected alternatives.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T02:00:00Z
+  by: codex/gpt-5
+  at: 2026-10-21T06:31:53Z
 sources:
 - resource: .agents/plugins/agentdev
 - resource: .agents/plugins/agentdev/.opencode-plugin/workspace-index.ts
@@ -64,8 +64,9 @@ registers:
 - every skill under its bare frontmatter name, with its `SKILL.md` path and
   body; `disable-model-invocation` sets `autoinvoke: false`;
 - a command `agentdev:<name>` per skill whose `execute` re-prompts the session
-  with the user's text and the skill appended to the prompt's `skills`, so the
-  chat shows the user's words and a skill chip rather than the skill body;
+  with `/agentdev:<name>` and any supplied arguments as the user's text, and the
+  skill appended to the prompt's `skills`; file, agent, and skill mention spans
+  are rebased by the inserted prefix without mutating the input;
 - every agent through `update` as a subagent with its description and body as
   `system`, adding no permission rules.
 

@@ -2,14 +2,14 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:ea9f40bc989e832bc59c880ec1cd973c2a54fd09c0ec4061aa759d7ba44027e5
+source_digest: sha256:086ce490e33501968c5cd94ac4bf08b0a6e2832f1e1413dadea2b95de6743d08
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T19:04:34Z
-stale_after: 2027-01-17
+  by: codex/gpt-5
+  at: 2026-10-21T11:30:00-07:00
+stale_after: 2027-01-19
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-19T19:04:34Z
+  by: codex/gpt-5
+  at: 2026-10-21T11:30:00-07:00
 sources:
 - id: code
   resource: docker
@@ -28,7 +28,8 @@ runtime on a supplied `agent-desktop` digest.
 
 - `docker/desktop/agent-desktop.Dockerfile` build args — `FROM_IMAGE:5`,
   `WORKSPACE_FOLDER:12`, `AGENTDEV_PLUGIN_VERSION:18`,
-  `AGENTDEV_CATALOG_DIR:22`, `VALIDATE_AGENT_FILES_VERSION:29`
+  `AGENTDEV_CATALOG_DIR:22`, `VALIDATE_AGENT_FILES_VERSION:29`,
+  `PLAYWRIGHT_VERSION:33` (required; supplied by the image workflow)
 - `docker/opencode/agent-opencode.Dockerfile` build arg `FROM_IMAGE:3`, also
   recorded as the `org.opencontainers.image.base.name` label
 - `docker/opencode/supervisord.conf` — the controller event listener and the
@@ -46,9 +47,11 @@ runtime on a supplied `agent-desktop` digest.
 The desktop Dockerfile bind-mounts the whole build context read-only at
 `/provision`, `cd`s into it so `ansible.cfg` is found, and runs
 `ansible-playbook ansible/playbooks/setup-dev.yml` with every `install_*` flag
-and the catalog and validator pins as extra vars; none of the provisioning
-sources land in a layer. It then exports `AGENTDEV_CATALOG_DIR`, labels the
-image with both versions, copies the two scripts, exposes `14500`, and sets the
+and the catalog, validator, and Playwright pins as extra vars; the workflow
+reads the Playwright pin from the role default before the build. None of the
+provisioning sources land in a layer. The Dockerfile then exports
+`AGENTDEV_CATALOG_DIR` and `PLAYWRIGHT_BROWSERS_PATH`, labels the image with all
+three versions, copies the two scripts, exposes `14500`, and sets the
 entrypoint, which only `exec`s the command.
 
 The OpenCode Dockerfile installs apt `supervisor`, deletes the stock `ubuntu`
@@ -86,8 +89,9 @@ which the OpenCode image bakes.
   digest built in the same run. A digest here would make Renovate bump a file
   under `docker/**`, which matches the image path filter and rebuilds the image
   that produced the digest, forever.
-- The two version args are verified pins: the playbook fails when the staged
-  catalog or the installed validator reports a different version.
+- The three version args are verified pins: the playbook fails when the staged
+  catalog, installed validator, or Playwright CLI reports a different version.
+  The Dockerfile also rejects an omitted Playwright build argument.
 - The build context is the repository root, never `docker/desktop/` or
   `docker/opencode/`.
 - The OpenCode image copies `start-xpra.sh` itself because the desktop digest it
@@ -97,9 +101,10 @@ which the OpenCode image bakes.
 
 Verified anchor points (line numbers as of 2026-10-19):
 
-- `docker/desktop/agent-desktop.Dockerfile:41` — the provisioning `RUN`
-- `docker/desktop/agent-desktop.Dockerfile:68-71` — `ENV` and version labels
-- `docker/desktop/agent-desktop.Dockerfile:76-86` — scripts, port, entrypoint
+- `docker/desktop/agent-desktop.Dockerfile:45-68` — provisioning and required
+  Playwright version
+- `docker/desktop/agent-desktop.Dockerfile:75-80` — `ENV` and version labels
+- `docker/desktop/agent-desktop.Dockerfile:84-94` — scripts, port, entrypoint
 - `docker/opencode/agent-opencode.Dockerfile:11` — supervisor, account removal,
   `gh-stack` relocation; `:22-26` — baked runtime files; `:30` — runtime `ENV`;
   `:59-65` — ports, healthcheck, entrypoint

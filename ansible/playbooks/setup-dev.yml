@@ -30,8 +30,9 @@
     # dev_tools installs the bun binary, so it must precede nodejs and
     # agentic_tools, which install global packages through `bun add --global`;
     # bun_setup adds the bunx alias and the PATH wiring around it.
-    - { role: bun_setup, tags: ["bun_setup", "nodejs", "agentic_tools"] }
+    - { role: bun_setup, tags: ["bun_setup", "nodejs", "agentic_tools", "playwright_browser"] }
     - { role: nodejs, tags: ["nodejs"] }
+    - { role: playwright_browser, tags: ["playwright_browser"], when: install_playwright_browser | default(false) | bool }
     - { role: uv_setup, tags: ["uv_setup"] }
     # Must follow uv_setup: the validator is installed as a uv tool.
     - { role: validate_agent_files, tags: ["validate_agent_files"], when: install_validate_agent_files | default(false) | bool }
