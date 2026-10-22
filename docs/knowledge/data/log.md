@@ -10,6 +10,8 @@ to the current day's group.
   its [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for replay safeguards and
   their regressions.
+- **Map**: refreshed the agentdev plugin, skills, and tests docs for replay
+  boundary digests reading committed blobs with universal newlines.
 
 ## 2026-10-21
 

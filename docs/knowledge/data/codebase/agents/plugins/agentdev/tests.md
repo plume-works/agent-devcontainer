@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:c945c67228bbe1100632dd1af5fe87c24b4619a3b1c75313448fa1e7d2d0e753
+source_digest: sha256:7c8af97d58a008e8d1466cb69b95dc994227f908292eccee7052bbc231a68e10
 verified:
-  by: codex/gpt-5
-  at: 2026-10-22T01:00:00Z
+  by: claude-code/claude-opus-5-5
+  at: 2026-10-22T01:24:56Z
 stale_after: 2027-01-20
 generated:
-  by: codex/gpt-5
-  at: 2026-10-22T01:00:00Z
+  by: claude-code/claude-opus-5-5
+  at: 2026-10-22T01:24:56Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -71,11 +71,12 @@ bump a new uncommitted rule covers is `ABSORBED` and its doc `RESTAMP` with the
 digest a plain run then records, working-tree absorption emits `WORKTREE` and
 `HIDDEN` evidence, and verdict ancestry cannot be narrowed by commit dates or
 `--since`. It also covers stale starting digests, current hidden values in
-unchanged files, non-ASCII and quoted filenames, and historical masked-text
-decode failures. A change outside the rule or an uncommitted unmasked edit is
-`REFRESH`; malformed metadata is `BROKEN_METADATA` even on an early refresh
-path. `test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a
-peer clone that pushes behind the working clone's back, a stub `git` with
+unchanged files, non-ASCII and quoted filenames, historical masked-text decode
+failures, and a CRLF masked file whose starting digest still validates. A change
+outside the rule or an uncommitted unmasked edit is `REFRESH`; malformed
+metadata is `BROKEN_METADATA` even on an early refresh path.
+`test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
+clone that pushes behind the working clone's back, a stub `git` with
 after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
 `api` for the stack number, `stack link` (a non-force atomic push of the named
 branches, in create or add mode), and `stack checkout`; it pins each

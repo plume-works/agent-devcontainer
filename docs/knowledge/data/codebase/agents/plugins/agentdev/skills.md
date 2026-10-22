@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:cfec602c0bceb193fadf5fec98a9f77435d0305264c5f73b4a1c0592c3f215d4
+source_digest: sha256:6ccc1fad423328f9a426f66bcb3468cb9e6da50beeb6990a054eb0c5f2265629
 verified:
-  by: codex/gpt-5
-  at: 2026-10-22T01:00:00Z
+  by: claude-code/claude-opus-5-5
+  at: 2026-10-22T01:24:56Z
 stale_after: 2027-01-20
 generated:
-  by: codex/gpt-5
-  at: 2026-10-22T01:00:00Z
+  by: claude-code/claude-opus-5-5
+  at: 2026-10-22T01:24:56Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -73,7 +73,8 @@ shared result vocabulary for metadata it cannot read, compile, or apply to a
 masked text file. `--replay [--since <date>]` bounds each verdict by the
 first-parent commit that established the document's recorded digest; the date
 can add evidence but cannot exclude that ancestry. A digest boundary is trusted
-only when that revision's source computes to the recorded digest. Replay uses
+only when that revision's source computes to the recorded digest, with committed
+blobs read under the same newline translation as the working tree. Replay uses
 NUL-separated Git paths, inventories hidden values across every current masked
 file, and prints `ABSORBED` or `MOVED` per commit or working-tree edit and file,
 then `RESTAMP` with a new digest for a non-fresh doc the rules explain and
@@ -170,11 +171,11 @@ Verified anchor points (line numbers as of 2026-10-21):
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —
   `MetadataResolver`, which walks a source's ancestors for masking rules, in the
   working tree or a revision's tree
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:550` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:555` —
   `Replayer`, the masked before/after comparison `--replay` runs
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:649` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:654` —
   `digest_commit`, the ancestry boundary for a replay verdict
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:668` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:673` —
   `replay_verdict`, the `RESTAMP`/`REFRESH` rule
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:364` —
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:369` —
   `source_digest_for_paths`
