@@ -73,7 +73,7 @@ dev_tools_pinned_tools:
   # which runs without AVX2; plain `x64` faults on a host that lacks it.
   - name: bun
     # renovate: datasource=github-releases depName=oven-sh/bun versioning=regex:^bun-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)$
-    version: bun-v1.4.3
+    version: bun-v1.4.4
     url_prefix: https://github.com/oven-sh/bun/releases/download
     asset_prefix: bun-linux-
     extension: zip
@@ -81,7 +81,7 @@ dev_tools_pinned_tools:
     archives:
       amd64:
         target: x64-baseline
-        checksum: 1fc2edac843102909e3a1be1d8d9802cc6071cf074e67e88231f4ffe0f8b397b
+        checksum: e0446eb55995772eb9894bebae9a6be368d985a8b9271ee124486f9946eedd76
       arm64:
         target: aarch64
-        checksum: efa9813da5ed72423bf847f916e8d2c47c0d776add972354026a75e10da9aa21
+        checksum: baa6bb36f51d6e58561e02bbea825038a9df454f673d6d776e8bbf86f8c7850e
