@@ -352,6 +352,11 @@ def apply_masks(
     return content
 
 
+def universal_newlines(text: str) -> str:
+    """Translate line endings as `Path.read_text` does, so blobs digest like the working tree."""
+    return text.replace('\r\n', '\n').replace('\r', '\n')
+
+
 def masked_hash(relative_path: str, masks: list[Mask]) -> str:
     """Hash `relative_path` with each mask applied in resolution order."""
     try:
@@ -407,7 +412,7 @@ def source_digest_for_paths(
                 content_hash = masked_hash(relative, masks)
             else:
                 try:
-                    decoded = content.decode() if content is not None else ''
+                    decoded = universal_newlines(content.decode()) if content is not None else ''
                 except UnicodeError as error:
                     raise BrokenMetadata(masks[0].declared_in) from error
                 content_hash = hashlib.sha256(apply_masks(decoded, masks).encode()).hexdigest()

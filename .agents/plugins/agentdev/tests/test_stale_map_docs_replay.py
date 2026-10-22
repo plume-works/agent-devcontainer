@@ -276,6 +276,38 @@ def test_a_recorded_digest_mismatch_at_its_starting_commit_forces_refresh(
     assert 'RESTAMP_COUNT=0' in lines
 
 
+def test_a_crlf_masked_file_validates_its_recorded_digest_at_the_starting_commit(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """Committed CRLF content digests as the working tree does, so a new mask can RESTAMP."""
+    # Arrange
+    repository = build_workspace(plugin_tmp_path)
+    metadata = repository / 'deploy' / '.agent.metadata.json'
+    write_metadata(repository / 'deploy', {'compose.yml': digest_mask()})
+    crlf_compose = compose_text(PIN).replace('\n', '\r\n')
+    commit_dated(
+        repository,
+        {COMPOSE: crlf_compose, 'deploy/.agent.metadata.json': metadata.read_text()},
+        ADDED_AT,
+    )
+    write_deploy_doc(repository, current_digest(repository, 'deploy'))
+    doc_path = repository / 'docs' / 'knowledge' / f'{KEY}.md'
+    commit_dated(
+        repository, {str(doc_path.relative_to(repository)): doc_path.read_text()}, VERIFIED_AT
+    )
+    commit_dated(repository, {COMPOSE: compose_text(BUMPED_PIN).replace('\n', '\r\n')}, BUMPED_AT)
+    image_mask = digest_mask('example[.]invalid/app')[0] | {'replace': '<IMAGE>'}
+    write_metadata(repository / 'deploy', {'compose.yml': [*digest_mask(), image_mask]})
+
+    # Act
+    completed = run_script(plugin_root, repository, '--replay')
+
+    # Assert
+    lines = completed.stdout.splitlines()
+    assert verdict(completed) == (0, 'RESULT=SUCCESS')
+    assert f'RESTAMP {KEY} {current_digest(repository, "deploy")}' in lines
+
+
 def test_malformed_working_tree_metadata_is_broken(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
