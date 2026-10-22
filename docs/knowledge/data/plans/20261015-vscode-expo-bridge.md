@@ -173,9 +173,12 @@ bridge.
   setup step done from the container, which `status` reports when missing.
 - **One-click fix.** When `status` finds a missing tool, the host extension
   offers a fix in the VS Code UI that runs Homebrew in a visible local terminal.
-  Xcode is a guided step (it opens the App Store page), after which the fix runs
-  `xcode-select`, accepts the license, and downloads the iOS platform. A fix is
-  only ever started by the user's click, never by a protocol action.
+  The offer is a status bar item in the Mac window that stays until a later
+  `status` finds nothing to fix; clicking it opens a picker, which stays open
+  when focus moves and shows each failing check's detail. Xcode is a guided step
+  (it opens the App Store page), after which the fix runs `xcode-select`,
+  accepts the license, and downloads the iOS platform. A fix is only ever
+  started by the user's click, never by a protocol action.
 - **`eas-host`** is the container-side command. The workspace extension installs
   it into `~/.local/bin` on activation and listens on a fixed socket; it streams
   the build log by tailing the log file the host extension writes. When the
@@ -183,7 +186,10 @@ bridge.
   agent uses the Expo profile's EAS cloud path.
 - **Dev-client loop.** Metro runs in the container; VS Code forwards port 8081
   to the Mac, where the simulator's development build connects to it, so the
-  native build reruns only when native code changes.
+  native build reruns only when native code changes. `launch` opens the
+  development build at `http://localhost:8081` through the `exp+…` URL scheme
+  `install` read from the app's `Info.plist`, so it loads the bundle without a
+  tap; an app with no such scheme is launched plainly.
 - **Template wiring.** The Expo profile lists the extension pack, forwards 8081,
   and adds an `AGENTS.md` rule telling agents to use `eas-host` for iOS when
   `eas-host status` succeeds. Setup never pre-authorizes the bridge.
@@ -855,9 +861,15 @@ Containers window on a Mac
     `packages/host/src/build.ts`, `easCliCheck` in
     `packages/host/src/status.ts`, and `docs/protocol.md` `### build` describing
     the pin.
-- [ ] The fix command plans its steps against the container bun version of the
+- [x] The fix command plans its steps against the container bun version of the
   last `status` request, so a bun older than the container's offers its fix
   instead of "nothing to fix".
+  - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
+    [`bd3faae`](https://github.com/plume-works/vscode-expo-bridge/commit/bd3faae)
+    (`lastContainerBunVersion` in `packages/host/src/extension.ts`). On the Mac,
+    after `eas-host status` sent a container bun `99.0.0`, **Fix…** opened the
+    picker listing "Install or update bun" where the previous build showed
+    "nothing to fix".
 - [x] `bun test` covers spec selection, accepted ranges, refused specs, the
   `build` invocation and refusal, and the `easCli` check.
   - **Evidence:** Commit
@@ -867,6 +879,24 @@ Containers window on a Mac
     specs, the `devDependencies` precedence, and a symlinked `package.json`;
     `test/build.test.ts` covers the pinned invocation and the refusal;
     `test/status.test.ts` the `easCli` results. `bun test` 152 pass / 0 fail.
+
+### Task 20d: Host extension — a lasting fix surface and a launch that loads Metro
+
+**Files:** Modify: `packages/host/src/extension.ts`, `packages/host/src/fix.ts`,
+`packages/host/src/install.ts`, `docs/protocol.md` in
+`plume-works/vscode-expo-bridge`
+
+- [ ] After a `status` with a fixable failure, a status bar item names the
+  number of fixes and stays until a later `status` has none; clicking it opens
+  the fix picker, which stays open on focus loss and shows each failing check's
+  detail. No notification is shown, and no text calls an outdated tool missing.
+- [ ] `install` records the app's `exp+…` URL scheme from its `Info.plist`, and
+  `launch` opens
+  `<scheme>://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081` with
+  `simctl openurl`, falling back to `simctl launch` when the app has no such
+  scheme.
+- [ ] `bun test` covers the scheme read, a scheme that is not `exp+` plus a safe
+  name, the deep-link and fallback launches, and the fix item text.
 
 ### Task 21: Local test on a Mac from the packaged VSIX files
 
