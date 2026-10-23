@@ -109,8 +109,9 @@ not claim to defend against a hostile one. The checks are these:
   states that project code will run on the Mac with the user's privileges. Its
   answers are "Allow once", "Allow and don't ask for an hour", and "Allow and
   don't ask today"; a cooldown applies to that workspace only and is stored in
-  `globalState`. `status`, `install`, `launch`, and `screenshot` never prompt
-  beyond trust.
+  `globalState`. A command ends a workspace's cooldown without touching its
+  trust, so its next build asks again. `status`, `install`, `launch`, and
+  `screenshot` never prompt beyond trust.
 - **No containment of the build.** `build` runs
   `eas build --local -p ios --profile <name>` as the Mac user, unsandboxed, with
   no privileged setup on the Mac. Project code in the build can do anything the
@@ -941,6 +942,24 @@ Containers window on a Mac
     `openurl`, and the plain launch; `test/fix.test.ts` covers `fixSummary`'s
     count, tooltip details, and that no text says "missing". `bun test` 162 pass
     / 0 fail.
+
+### Task 20e: Host extension — end a build cooldown without revoking trust
+
+**Files:** Modify: `packages/host/src/trust.ts`,
+`packages/host/src/extension.ts`, `packages/host/package.json`,
+`docs/protocol.md` in `plume-works/vscode-expo-bridge`
+
+- [ ] **Expo Bridge: Ask Before Every Build** takes no arguments, asks in a
+  modal, then ends the window's workspace cooldown so its next build confirms
+  again, leaving trust unchanged; with no live cooldown it changes nothing.
+- [x] `bun test` covers ending a cooldown with trust kept, per-workspace
+  scoping, and an expired cooldown.
+  - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
+    [`5fd9902`](https://github.com/plume-works/vscode-expo-bridge/commit/5fd9902)
+    ([PR #12](https://github.com/plume-works/vscode-expo-bridge/pull/12)):
+    `hasCooldown` and `clearCooldown` in `packages/host/src/trust.ts`, covered
+    by `test/trust.test.ts` `describe("clearCooldown")`; `bun test` 174 pass / 0
+    fail.
 
 ### Task 21: Local test on a Mac from the packaged VSIX files
 
