@@ -1278,7 +1278,7 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
 **Files:** Modify: `README.md`, `packages/pack/README.md` in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `README.md` and the pack's `packages/pack/README.md` state that a
+- [x] `README.md` and the pack's `packages/pack/README.md` state that a
   devcontainer listing the pack in `customizations.vscode.extensions` installs
   the workspace extension in the container and leaves the host extension
   disabled there, and that one click on the host extension's **Install
@@ -1287,6 +1287,15 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
   workspace extension activates after one **Reload Window**; the pack README no
   longer says the pack installs the host extension in the Mac's local extension
   host. CI passes on its pull request and on `main`.
+  - **Evidence:** [PR
+    #17](https://github.com/plume-works/vscode-expo-bridge/pull/17),
+    squash-merged as `79d9b29` with the patch bump to 0.2.1: `README.md` and
+    `packages/pack/README.md` describe the **Install Locally** click once per
+    Mac, **Reload Window** in windows already open, and one **Developer: Reload
+    Window** in a Codespace, and the pack README says where each extension runs
+    instead of that the pack installs the host extension locally. CI passed on
+    the pull request and on `main` ([run
+    39920579798](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39920579798)).
 
 ### Task 27: Wire the bridge into the Expo profile
 
