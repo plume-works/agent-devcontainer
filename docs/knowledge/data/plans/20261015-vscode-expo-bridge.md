@@ -197,9 +197,11 @@ bridge.
   `--initialUrl http://localhost:8081`, so it loads the bundle without a tap or
   a URL-scheme prompt; `install` recognizes a development build by the `exp+…`
   URL scheme in its `Info.plist`, and any other app launches plainly.
-- **Template wiring.** The Expo profile lists the extension pack, forwards 8081,
-  and adds an `AGENTS.md` rule telling agents to use `eas-host` for iOS when
-  `eas-host status` succeeds. Setup never pre-authorizes the bridge.
+- **Template wiring.** The Expo profile lists the extension pack, forwards 8081
+  with VS Code's auto-forward notification silenced so it never covers the
+  bridge's own notifications, and adds an `AGENTS.md` rule telling agents to use
+  `eas-host` for iOS when `eas-host status` succeeds. Setup never pre-authorizes
+  the bridge.
 
 The protocol and the security model are specified in the sibling repository,
 which owns the code; this repository's spec covers only the template wiring, the
@@ -875,8 +877,8 @@ Containers window on a Mac
     `### build`. On the Mac a pinned `eas-cli@25.3.0` built the scratch app
     through `bunx`, exit 0.
 - [x] The fix command plans its steps against the container bun version of the
-  last `status` request, so a bun older than the container's offers its fix
-  instead of "nothing to fix".
+  last `status` request, so a Mac bun older than the container's is offered as a
+  fix.
   - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
     [`bd3faae`](https://github.com/plume-works/vscode-expo-bridge/commit/bd3faae)
     (`lastContainerBunVersion` in `packages/host/src/extension.ts`). On the Mac,
@@ -1067,19 +1069,25 @@ installs removed
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [x] `## Optional Expo setup` adds `plume-works.vscode-expo-bridge` to
-  `customizations.vscode.extensions` and `8081` to `forwardPorts` in the
-  consumer's `.devcontainer/devcontainer.json`, and writes no bridge trust or
-  security setting.
-  - **Evidence:** Step 6 of `## Optional Expo setup` in
-    `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-    in the commit that ticks this box, adds the pack and port `8081` and says to
-    write no bridge trust or security setting anywhere.
+- [ ] `## Optional Expo setup` adds `plume-works.vscode-expo-bridge` to
+  `customizations.vscode.extensions`, `8081` to `forwardPorts`, and this entry
+  to the existing `portsAttributes` map in the consumer's
+  `.devcontainer/devcontainer.json`, and writes no bridge trust or security
+  setting:
+
+  ``` json
+  "8081": {
+    "label": "Metro",
+    "onAutoForward": "silent"
+  }
+  ```
+
 - [x] The `## Expo` section of the merged `AGENTS.md` gains a rule: for an iOS
   build, run `eas-host status`; when it succeeds use `eas-host`, otherwise use
   EAS cloud.
-  - **Evidence:** Step 4 of `## Optional Expo setup` in the same commit appends,
-    verbatim after the command-translation line, the rule to run
+
+  - **Evidence:** Step 4 of `## Optional Expo setup` in commit `2ec13c2`
+    appends, verbatim after the command-translation line, the rule to run
     `eas-host status` first and use `eas-host` when it exits 0, otherwise
     `bunx eas-cli@latest build -p ios`.
 
@@ -1089,17 +1097,13 @@ installs removed
 Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [x] The template boundary's Expo profile section names the extension pack, the
-  forwarded port, the `AGENTS.md` rule, and that setup grants no trust.
-  - **Evidence:** `## Optional Expo profile` in
-    `docs/knowledge/data/architecture/template-boundary.md`, in the commit that
-    ticks this box, names `plume-works.vscode-expo-bridge`, port `8081`, the
-    `eas-host` `AGENTS.md` rule, and that setup writes no trust or security
-    setting.
+- [ ] The template boundary's Expo profile section names the extension pack, the
+  forwarded port with its silenced auto-forward notification, the `AGENTS.md`
+  rule, and that setup grants no trust.
 - [x] `data/architecture/vscode-expo-bridge` records the design in `## Approach`
   with its security model and rejected alternatives, and links the sibling
   repository's protocol document; `data/architecture.md` links it.
-  - **Evidence:** The same commit creates
+  - **Evidence:** Commit `d00d985` creates
     `docs/knowledge/data/architecture/vscode-expo-bridge.md`, whose
     `## Approach` holds `### Security model`, `### Constraints`, and
     `### Rejected alternatives` and whose `## Context` links
@@ -1142,7 +1146,9 @@ Modifies [Template consumption](../spec/template-consumption.md):
 
 When the consumer's `optional_bundles` includes `"expo"`, setup SHALL list
 `plume-works.vscode-expo-bridge` in `customizations.vscode.extensions`, add
-`8081` to `forwardPorts`, and add to the `## Expo` section of the root
+`8081` to `forwardPorts` with the `portsAttributes` entry
+`"8081": { "label": "Metro", "onAutoForward": "silent" }`, and add to the
+`## Expo` section of the root
 `AGENTS.md` a rule that an iOS build uses `eas-host` when `eas-host status`
 succeeds and EAS cloud otherwise. Setup SHALL NOT add any host command bridge
 other than this extension pack, SHALL NOT change the firewall allowlist for it,
@@ -1175,8 +1181,8 @@ the Mac.
 #### Scenario: a non-Expo consumer
 
 - **WHEN** the consumer's `optional_bundles` omits `"expo"`
-- **THEN** setup adds neither the extension pack, the forwarded port, nor the
-  rule
+- **THEN** setup adds neither the extension pack, the forwarded port, its
+  `portsAttributes` entry, nor the rule
 ```
 
 The protocol contract and security model are specified in
@@ -1368,9 +1374,11 @@ the installed app.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-22):
+Verified anchor points (line numbers as of 2026-10-23):
 
 - `.devcontainer/devcontainer.json:53` — `forwardPorts`
+- `.devcontainer/devcontainer.json:54` — `portsAttributes`, the map the Expo
+  profile's `8081` entry joins
 - `.devcontainer/devcontainer.json:115` — `customizations.vscode.extensions`
 - `.devcontainer/docker-compose.yml:84` — the workspace bind mount at
   `/workspaces/<basename>`
@@ -1380,7 +1388,11 @@ Verified anchor points (line numbers as of 2026-10-22):
   `optional_bundles` row of the marker table
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
   — `## Optional Expo setup`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:984`
+  — step 6, the `devcontainer.json` edits
 - `docs/knowledge/data/architecture/template-boundary.md:256` —
   `## Optional Expo profile`
+- `docs/knowledge/data/architecture/template-boundary.md:268` — the
+  `forwardPorts` sentence
 - `docs/knowledge/data/spec/template-consumption.md:82` — Requirement: adoption
   is recorded for later updates
