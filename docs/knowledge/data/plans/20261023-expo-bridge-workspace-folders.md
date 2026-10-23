@@ -254,13 +254,21 @@ Assumptions:
 **Files:** Create: `packages/host/src/folder.ts`, its test; Modify:
 `packages/host/src/paths.ts`
 
-- [ ] A pure function maps a container folder to a Mac path through the longest
+- [x] A pure function maps a container folder to a Mac path through the longest
   path-component prefix among the bind mounts' destinations, with tests for the
   repeated host-path mounts, a `.git` mount, an unrelated mount, a non-bind
   mount, and a folder outside every mount.
-- [ ] The host accepts the result only when `folder` is one of its window's
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `85742ec` (`mapFolder`
+    in `packages/host/src/folder.ts`); `packages/host/test/folder.test.ts`
+    passes each named case.
+- [x] The host accepts the result only when `folder` is one of its window's
   workspace folders and the result is the host path or under it with no symlink
   component; anything else is `unavailable`.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `85742ec`
+    (`resolveFolder`, with `rejectSymlinksBelow` in
+    `packages/host/src/paths.ts`); `packages/host/test/folder.test.ts` and
+    `packages/host/test/paths.test.ts` pass. Task 8's `dispatch` answers a
+    rejected mapping as `unavailable`.
 
 ### Task 8: Host — every action runs at the folder's Mac path
 
