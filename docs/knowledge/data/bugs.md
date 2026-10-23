@@ -94,3 +94,6 @@ observations](bugs/plan-tasks-bundle-independent-observations.md)
 
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
+
+[Bug: the Expo bridge's fix terminal launches the container's shell on the
+Mac](bugs/expo-bridge-fix-terminal-remote-shell.md)
