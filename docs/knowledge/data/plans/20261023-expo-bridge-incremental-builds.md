@@ -6,13 +6,14 @@ release:
 description: Make a repeat `eas-host build` of an Expo iOS app on the Mac reuse the previous build's working directory, pods, and DerivedData from a per-workspace cache in the host extension's private global storage, with `eas-host build <profile> --clean` and a Mac-side Clean Build Cache command for a fresh build, the build mode reported in the result, disk use shown and capped, and protocol version 2 — spiked on a Mac before the details are designed.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T02:28:16Z
+  at: 2026-10-23T18:22:28Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/agent-expo-bridge-spikes
 - resource: https://docs.expo.dev/build-reference/local-builds/
 - resource: https://github.com/expo/eas-build
+- resource: https://www.npmjs.com/package/eas-cli-local-build-plugin/v/25.3.0
 ---
 
 # Incremental local iOS builds for the VS Code Expo bridge
@@ -109,16 +110,25 @@ Assumptions:
 **Files:** none — the bridge plan's scratch app, on a Mac, driven through the
 spike bridge in `plume-works/agent-expo-bridge-spikes`
 
-- [ ] What eas-cli does when `EAS_LOCAL_BUILD_WORKINGDIR` names a directory a
+- [x] What eas-cli does when `EAS_LOCAL_BUILD_WORKINGDIR` names a directory a
   previous build left: re-copies the project over it, wipes it, or refuses.
-- [ ] Which of the previous build's state the second build reuses —
+  - **Evidence:** refuses — `eas-cli-local-build-plugin@25.3.0`
+    `dist/workingdir.js:15-16`, and a second spike-bridge build into the kept
+    directory failing at `SETUP_WORKINGDIR`; recorded under
+    `## Verification results`.
+- [x] Which of the previous build's state the second build reuses —
   `node_modules`, `ios/Pods`, the prebuilt `ios/` project, DerivedData — and
   whether files deleted from the project between builds persist in the working
   directory.
+  - **Evidence:** none is reused and nothing persists, because the second build
+    stops before touching the directory (`dist/workingdir.js:15-16`); recorded
+    under `## Verification results`.
 - [ ] What state a build that fails, and a build that is killed, leave behind,
   and whether the next build in that directory succeeds.
-- [ ] The eas-cli version the spike ran and the working directory's layout and
+- [x] The eas-cli version the spike ran and the working directory's layout and
   size after one build are recorded under `## Verification results`.
+  - **Evidence:** eas-cli 25.3.0 with `eas-cli-local-build-plugin@25.3.0`, and
+    the layout table under `## Verification results` (4.5 GB, 102 s cold build).
 
 ### Task 2: Spike DerivedData and Ccache
 
@@ -433,3 +443,30 @@ In `plume-works/agent-expo-bridge-spikes` at `3409e51`:
 - `extensions/ui/extension.js:131` — the `keepWorkdir` build option setting
   `EAS_LOCAL_BUILD_WORKINGDIR` and `EAS_LOCAL_BUILD_SKIP_CLEANUP`
 - `extensions/ui/spikes.js:364` — `task10_reuse`
+
+## Verification results
+
+### Task 1: eas-cli refuses an existing working directory
+
+eas-cli 25.3.0 runs a local build through `eas-cli-local-build-plugin@25.3.0`.
+Its `prepareWorkingdirAsync` (`dist/workingdir.js:15-16`) throws
+`Workingdir is not empty.` when `EAS_LOCAL_BUILD_WORKINGDIR` names a directory
+that exists and has any entry. A second build of the unchanged scratch app into
+the directory the first build kept failed at `SETUP_WORKINGDIR` and changed
+nothing in it. No state from a previous build is reused, and no build in a
+directory a previous build left — finished or failed — succeeds. The plugin
+removes the directory in an exit handler unless `EAS_LOCAL_BUILD_SKIP_CLEANUP`
+is set.
+
+The working directory after one successful simulator build of the scratch app
+(Expo SDK 58, React Native 0.88, prebuilt React Native core) is 4.5 GB, and the
+cold build took 102 s:
+
+| Path in the working directory                                            | Contents                                          | Size   |
+| ------------------------------------------------------------------------ | ------------------------------------------------- | ------ |
+| `build/`                                                                 | the extracted project, after prebuild             | 4.4 GB |
+| `build/ios/build/`                                                       | DerivedData (Gymfile `derived_data_path ./build`) | 2.5 GB |
+| `build/ios/Pods/`                                                        | installed pods                                    | 1.5 GB |
+| `build/node_modules/`                                                    | installed packages                                | 563 MB |
+| `artifacts.tar.gz`, `logs/`, `project.tar.gz`                            | the artifact, logs, the project archive           | 44 MB  |
+| `artifacts/`, `bin/`, `custom-build/`, `env/`, `temporary-custom-build/` | empty or near-empty                               | —      |
