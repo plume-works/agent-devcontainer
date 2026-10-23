@@ -173,11 +173,17 @@ Assumptions:
 **Files:** Modify: `packages/workspace/src/extension.ts`; Create:
 `packages/workspace/src/registry.ts`, its test
 
-- [ ] On activation the extension serves `<SOCKET_DIR>/<id>.sock` and writes
+- [x] On activation the extension serves `<SOCKET_DIR>/<id>.sock` and writes
   `<id>.json` with its process id, activation time, and workspace folders, and
   rewrites the entry on `onDidChangeWorkspaceFolders`.
-- [ ] Disposal removes only its own socket and entry; activation removes entries
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `da61ade`;
+    `packages/workspace/test/registry.test.ts` passes (write, rewrite, read
+    back). The activation wiring itself runs only in VS Code, in Task 11.
+- [x] Disposal removes only its own socket and entry; activation removes entries
   whose process is gone, and never touches another live window's files.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `da61ade`;
+    `packages/workspace/test/registry.test.ts` passes its `removeOwn` and
+    `pruneStale` cases.
 
 ### Task 3: `eas-host` connects to its own window
 
