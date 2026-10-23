@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T12:00:00Z
+  at: 2026-10-23T14:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -188,10 +188,13 @@ When the consumer's `optional_bundles` includes `"expo"`, setup SHALL list
 `8081` to `forwardPorts` with the `portsAttributes` entry
 `"8081": { "label": "Metro", "onAutoForward": "silent" }`, and add to the
 `## Expo` section of the root `AGENTS.md` a rule that an iOS build uses
-`eas-host` when `eas-host status` succeeds and EAS cloud otherwise. Setup SHALL
-NOT add any host command bridge other than this extension pack, SHALL NOT change
-the firewall allowlist for it, and SHALL NOT pre-authorize the bridge: trust in
-a workspace is granted only on the Mac.
+`eas-host` when `eas-host status` succeeds and EAS cloud otherwise. The rule
+SHALL name the order `status`, `build <profile>`, `install`, `launch`,
+`screenshot`, and SHALL say to start Metro in the container on port 8081 before
+`launch` of a development build. Setup SHALL NOT add any host command bridge
+other than this extension pack, SHALL NOT change the firewall allowlist for it,
+and SHALL NOT pre-authorize the bridge: trust in a workspace is granted only on
+the Mac.
 
 The protocol contract and security model are specified in
 [`plume-works/vscode-expo-bridge`](https://github.com/plume-works/vscode-expo-bridge)

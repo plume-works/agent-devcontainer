@@ -974,9 +974,14 @@ Apply these edits to the consumer's files:
    After it, append the iOS build rule, verbatim:
 
    ```markdown
-   For an iOS build, run `eas-host status` first. When it exits 0, build,
-   install, launch, and screenshot on the Mac host through `eas-host`; otherwise
-   build on EAS cloud with `bunx eas-cli@latest build -p ios`.
+   For an iOS build, run `eas-host status` first. When it exits 0, work on the
+   Mac host through `eas-host`, in this order: `eas-host build <profile>`,
+   `eas-host install` (no path installs the newest build), `eas-host launch`,
+   `eas-host screenshot`. Before launching a development build, start Metro in
+   the container with `bunx expo start --dev-client --localhost --port 8081`;
+   without it the app has no bundle to load. `eas-host --help` lists the
+   sequence. When `eas-host status` exits non-zero, build on EAS cloud with
+   `bunx eas-cli@latest build -p ios`.
    ```
 
 5. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
