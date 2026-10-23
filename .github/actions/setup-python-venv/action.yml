@@ -19,7 +19,7 @@ runs:
         python-version: ${{ inputs.python-version }}
 
     - name: Install uv
-      uses: astral-sh/setup-uv@v10.3.0
+      uses: astral-sh/setup-uv@v10.3.2
       with:
         version: '0.13.4'
         # uv owns environment creation, so caching its package cache is the
