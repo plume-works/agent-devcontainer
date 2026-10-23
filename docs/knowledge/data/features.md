@@ -4,7 +4,7 @@ description: Feature design documents, each carrying its lifecycle stage.
 stage: living
 generated:
   by: codex/gpt-5
-  at: 2026-10-21T07:02:02Z
+  at: 2026-10-23T02:35:00Z
 ---
 
 # ✨ Features
@@ -108,3 +108,5 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 [OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)
 
 [Map masks version-only changes](features/map-masks-version-bumps.md)
+
+[Reusable agentdev Dev Container](features/reusable-agentdev-devcontainer.md)
