@@ -1202,8 +1202,17 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
     the Mac and the container (`code --list-extensions` on each);
     `eas-host build` then ran on the Mac through the host extension, and
     `eas-host` ran in the container through the workspace extension.
-- [ ] Task 21's `eas-host` action sequence, trust prompt, build confirmation,
+- [x] Task 21's `eas-host` action sequence, trust prompt, build confirmation,
   and Metro load over port 8081 behave the same with the pre-releases.
+  - **Evidence:** Run on 2026-10-23 on the Mac with the Marketplace pre-release
+    0.1.10: after the workspace's trust was revoked, the first `eas-host status`
+    raised the trust prompt naming the workspace's Mac path;
+    `eas-host build development` raised the build confirmation, a Cancel
+    answered `build-declined`, and an Allow once ran `build` (eas-cli 25.3.0),
+    `install`, `launch`, and `screenshot` to exit 0, with Metro in the container
+    logging `iOS Bundled 381ms index.js (712 modules)`. The fix ran from both
+    the notification and the status bar item, and the item cleared on the next
+    `status`.
 
 ### Task 24b: Register Open VSX trusted publishing
 
