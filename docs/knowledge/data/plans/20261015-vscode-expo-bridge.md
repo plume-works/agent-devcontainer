@@ -1210,17 +1210,26 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
 
 ### Task 25: Publish releases to the Visual Studio Marketplace
 
-- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+- [x] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
   and `plume-works.vscode-expo-bridge-workspace` are installable from the Visual
   Studio Marketplace as releases with the next even minor version by a Task 21b
   release workflow run, built from the code Task 24 tested.
+  - **Evidence:** [run
+    39907262994](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39907262994)
+    from the tag `v0.2.0` on `dd8ce13` (PR #16), which differs from `f0644d7`,
+    the code Task 24 tested, only in the three `package.json` versions; the
+    Marketplace gallery query on 2026-10-23 returns 0.2.0 with no
+    `Microsoft.VisualStudio.Code.PreRelease` property for all three.
 
 ### Task 26: Publish releases to Open VSX
 
-- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+- [x] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
   and `plume-works.vscode-expo-bridge-workspace` are installable from Open VSX
   as releases with the same versions as Task 25, by the same workflow run, with
   `OVSX_PAT`.
+  - **Evidence:** The same run; on 2026-10-23
+    `https://open-vsx.org/api/plume-works/<name>` returns version 0.2.0 with
+    `preRelease: false` for all three.
 
 ### Task 27: Wire the bridge into the Expo profile
 
