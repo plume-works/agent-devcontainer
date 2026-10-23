@@ -6,7 +6,7 @@ release:
 description: Make every push to a reviewed pull request through pr-open's update mode or pr-merge's CI-fix step run the re-review evaluation, restate that evaluation so it works from the pull request alone, and enforce one AI review trigger per head SHA with a bundled script.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T12:00:00Z
+  at: 2026-10-23T13:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-sync/SKILL.md
@@ -50,48 +50,52 @@ Three changes, each owned by one skill:
 3. **One trigger per head.** A new
    `pr-request-ai-review/agent-code/request-review.sh` is the only path that
    posts an AI review trigger, used by `pr-request-ai-review` and by
-   `pr-merge`'s AI Review Recovery, whose in-conversation ledger it replaces. It
-   ties a trigger to a head by a marker line in the comment body,
-   `<!-- ai-review-head: <sha> -->`, after the `@claude review` first line and
-   the rationale. Before posting it reads the pull request's head, its reviews,
-   and its issue comments, and refuses when an accepted AI review already names
-   the head or a marked trigger for the head exists.
+   `pr-merge`'s AI Review Recovery, whose in-conversation ledger it replaces.
+   The unit is the commit, not the poster: any comment whose body opens
+   `@claude review` (case folded, as the responder's preflight matches it)
+   counts as a trigger for the head when it was created at or after the head
+   reached the remote, whether a skill or a person posted it. Before posting,
+   the script reads the pull request's head, its reviews, and its issue
+   comments, and refuses when an accepted AI review already names the head or a
+   trigger for the head exists.
 
 `request-review.sh` takes `--pr <number>` (required), `--rationale <one line>`
 (optional; a newline in it is a `PREFLIGHT_ERROR`), and `--repo <owner/repo>`
-(optional). Accepted reviewers are the ones
-[spec/ai-review-gate](../spec/ai-review-gate.md) names — `claude[bot]`,
-`github-actions[bot]`, `chatgpt-codex-connector[bot]` — in state `APPROVED`,
-`CHANGES_REQUESTED`, or `COMMENTED`. The spec's `+1` reaction from
-`chatgpt-codex-connector[bot]` is not counted: a reaction names no commit, so it
-cannot show that the head was reviewed. Output keys: `PR_NUMBER`, `HEAD_SHA`,
-`COMMENT_URL` (the posted or the existing trigger; empty for
+(optional). The head's arrival time is the earliest `created_at` among the head
+commit's check suites (`repos/{owner}/{repo}/commits/<sha>/check-suites`), which
+each app with checks on push or pull-request events opens within seconds of the
+push; a head with no check suite falls back to the commit's committer date.
+Accepted reviewers are the ones [spec/ai-review-gate](../spec/ai-review-gate.md)
+names — `claude[bot]`, `github-actions[bot]`, `chatgpt-codex-connector[bot]` —
+in state `APPROVED`, `CHANGES_REQUESTED`, or `COMMENTED`. The spec's `+1`
+reaction from `chatgpt-codex-connector[bot]` is not counted: a reaction names no
+commit, so it cannot show that the head was reviewed. Output keys: `PR_NUMBER`,
+`HEAD_SHA`, `COMMENT_URL` (the posted or the existing trigger; empty for
 `ALREADY_REVIEWED`), and the `RESULT=` line:
 
-| RESULT              | Exit | When                                                         |
-| ------------------- | ---- | ------------------------------------------------------------ |
-| `SUCCESS`           | `0`  | Trigger posted for the head                                  |
-| `ALREADY_REVIEWED`  | `3`  | An accepted AI review's commit is the head                   |
-| `ALREADY_REQUESTED` | `4`  | A comment opening `@claude review` carries the head's marker |
-| `PR_NOT_OPEN`       | `5`  | The pull request is closed, merged, or not found             |
-| `GH_UNAVAILABLE`    | `6`  | `gh` is missing, unauthenticated, or its API call failed     |
-| `PREFLIGHT_ERROR`   | `2`  | Missing `--pr`, unknown argument, multi-line rationale       |
-| `SCRIPT_FAILURE`    | `1`  | Unhandled error                                              |
+| RESULT              | Exit | When                                                            |
+| ------------------- | ---- | --------------------------------------------------------------- |
+| `SUCCESS`           | `0`  | Trigger posted for the head                                     |
+| `ALREADY_REVIEWED`  | `3`  | An accepted AI review's commit is the head                      |
+| `ALREADY_REQUESTED` | `4`  | A comment opening `@claude review` postdates the head's arrival |
+| `PR_NOT_OPEN`       | `5`  | The pull request is closed, merged, or not found                |
+| `GH_UNAVAILABLE`    | `6`  | `gh` is missing, unauthenticated, or its API call failed        |
+| `PREFLIGHT_ERROR`   | `2`  | Missing `--pr`, unknown argument, multi-line rationale          |
+| `SCRIPT_FAILURE`    | `1`  | Unhandled error                                                 |
 
-Assumptions recorded here, not decided by the maintainer: a trigger typed by
-hand carries no marker and is not counted, so a manual request overrides the
-rule. The script does not inspect responder runs — attributing a
-comment-triggered run to a pull request needs its log
-(`pr-discover-ai-responder`); a run started by the script's own trigger is
-already covered by its marker, and `pr-merge`'s wait on an in-progress run stays
-prose.
+The maintainer decided that a hand-typed trigger counts like any other: two
+review requests on one commit are never useful. Assumption recorded here, not
+decided by the maintainer: the script does not inspect responder runs —
+attributing a comment-triggered run to a pull request needs its log
+(`pr-discover-ai-responder`); the trigger comment that started a run already
+counts, and `pr-merge`'s wait on an in-progress run stays prose.
 
-Rejected: matching triggers by comment time against the head commit's date —
-commit dates survive rebase and amend, and an old commit can be pushed late;
-reading push events from the timeline API to date the head — fragile and needs
-extra scopes; hooking the eval into `pr-sync` alone — `pr-open` reached directly
-in update mode would stay uncovered; gating step 10 on whether the push moved
-the head — a head pushed earlier by another path would be skipped unevaluated.
+Rejected: dating the head by its commit date alone — commit dates survive rebase
+and amend, and an old commit can be pushed late; reading the issue timeline to
+date the head — its `committed` event carries no timestamp; hooking the eval
+into `pr-sync` alone — `pr-open` reached directly in update mode would stay
+uncovered; gating step 10 on whether the push moved the head — a head pushed
+earlier by another path would be skipped unevaluated.
 
 ## Implementation Steps
 
@@ -104,16 +108,18 @@ the head — a head pushed earlier by another path would be skipped unevaluated.
 - [ ] Tests, written first with a stub `gh` on a hermetic `PATH` in the style of
   `test_discover_ai_responder.py`, fail before the script exists and cover: no
   review and no trigger posts one whose body opens `@claude review`, carries the
-  rationale line and the head marker, and prints `COMMENT_URL` (`SUCCESS`); an
-  accepted review on the head posts nothing (`ALREADY_REVIEWED`); an accepted
-  review on an older commit still posts; a review by an unaccepted author on the
-  head still posts; a marked trigger for the head posts nothing and prints its
-  URL (`ALREADY_REQUESTED`); a marked trigger for an older head still posts; a
-  closed pull request (`PR_NOT_OPEN`); a failing `gh` call (`GH_UNAVAILABLE`);
-  missing `--pr` and a multi-line rationale (`PREFLIGHT_ERROR`); `RESULT=` is
-  the last stdout line on every path
-- [ ] `request-review.sh` implements the Approach's arguments, checks, marker,
-  output keys, and result table per `/agentdev:skill-scripts`, sourcing
+  rationale line, and prints `COMMENT_URL` (`SUCCESS`); an accepted review on
+  the head posts nothing (`ALREADY_REVIEWED`); an accepted review on an older
+  commit still posts; a review by an unaccepted author on the head still posts;
+  a trigger posted after the head's earliest check suite — by a skill or typed
+  by hand, in any letter case — posts nothing and prints its URL
+  (`ALREADY_REQUESTED`); a trigger posted before it still posts; a comment that
+  mentions `@claude review` mid-body is not a trigger; a head with no check
+  suite is dated by its committer date; a closed pull request (`PR_NOT_OPEN`); a
+  failing `gh` call (`GH_UNAVAILABLE`); missing `--pr` and a multi-line
+  rationale (`PREFLIGHT_ERROR`); `RESULT=` is the last stdout line on every path
+- [ ] `request-review.sh` implements the Approach's arguments, checks, head
+  dating, output keys, and result table per `/agentdev:skill-scripts`, sourcing
   `bin/result-codes.sh`; `--help` lists options, keys, and results;
   `shellcheck -x` is clean; the new tests pass
 
@@ -128,9 +134,9 @@ the head — a head pushed earlier by another path would be skipped unevaluated.
   (`ALREADY_REVIEWED` and `ALREADY_REQUESTED` are reported, not retried;
   `GH_UNAVAILABLE`, `PR_NOT_OPEN`, `PREFLIGHT_ERROR`, `SCRIPT_FAILURE` stop);
   `## Post at most once per head SHA` states that the script enforces the rule
-  through the head marker and that no skill posts a trigger any other way; the
-  frontmatter gains `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)` as
-  `pr-open` has it
+  for every trigger on the head, hand-typed ones included, and that no skill
+  posts a trigger any other way; the frontmatter gains
+  `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)` as `pr-open` has it
 
 ### Task 3: The eval reads intent from the pull request
 
@@ -184,9 +190,9 @@ doc `stale-map-docs.py` reports
 - `ai-review-refresh` (new) — **normative outcome:** after any push to a pull
   request that has an accepted AI review, made through `pr-open`'s update mode,
   `pr-merge`'s CI-fix step, or feedback resolution, the agent SHALL apply the
-  re-review evaluation and report its decision; and the catalog SHALL post at
-  most one AI review trigger per pull request head SHA, refusing when an
-  accepted AI review already names that head.
+  re-review evaluation and report its decision; and the catalog SHALL NOT post
+  an AI review trigger for a head SHA that already has one, whoever posted it,
+  or that an accepted AI review already names.
 
 ## Verification
 
@@ -199,8 +205,9 @@ doc `stale-map-docs.py` reports
   `@claude review` trigger outside `request-review.sh`.
 - Manual: on a reviewed pull request, commit a behavior change no thread asked
   for and run `/agentdev:pr-sync`; the run reports a re-review decision and
-  posts one marked trigger. Rerun `/agentdev:pr-sync` without a new commit; the
-  script reports `ALREADY_REQUESTED` and nothing is posted.
+  posts one trigger. Rerun `/agentdev:pr-sync` without a new commit; the script
+  reports `ALREADY_REQUESTED` and nothing is posted. On a fresh head, type
+  `@claude review` by hand, then run the script; it reports `ALREADY_REQUESTED`.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
