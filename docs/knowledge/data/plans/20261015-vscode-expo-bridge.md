@@ -1191,10 +1191,17 @@ installs removed and the app uninstalled from the simulator:
 xcrun simctl uninstall booted dev.plumeworks.expobridgespike
 ```
 
-- [ ] Installing the pack's pre-release from the Visual Studio Marketplace in VS
+- [x] Installing the pack's pre-release from the Visual Studio Marketplace in VS
   Code on the Mac puts the host extension's pre-release in the local extension
   host and the workspace extension's pre-release in the container of a Dev
   Containers window on the scratch app.
+  - **Evidence:** Run on 2026-10-23 on the Mac after removing the Task 21 VSIX
+    installs and the app: installing the pack's pre-release 0.1.10 from the
+    Visual Studio Marketplace in the scratch app's Dev Containers window put
+    `plume-works.vscode-expo-bridge`, `-host`, and `-workspace` 0.1.10 on both
+    the Mac and the container (`code --list-extensions` on each);
+    `eas-host build` then ran on the Mac through the host extension, and
+    `eas-host` ran in the container through the workspace extension.
 - [ ] Task 21's `eas-host` action sequence, trust prompt, build confirmation,
   and Metro load over port 8081 behave the same with the pre-releases.
 
