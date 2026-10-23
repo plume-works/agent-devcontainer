@@ -900,14 +900,23 @@ Containers window on a Mac
 `packages/host/src/install.ts`, `docs/protocol.md` in
 `plume-works/vscode-expo-bridge`
 
-- [ ] After a `status` with a fixable failure, a status bar item names the
+- [x] After a `status` with a fixable failure, a status bar item names the
   number of fixes and stays until a later `status` has none; clicking it opens
   the fix picker, which stays open on focus loss and shows each failing check's
   detail. While a fix runs, the item shows it running and starts no other; when
   the fix's commands finish or its terminal closes, the host re-runs `status`. A
   notification with a **Fix…** button also appears whenever the set of failing
   checks changes, and no text calls an outdated tool missing.
-- [ ] `install` records whether the app is a development build, by an `exp+…`
+  - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
+    [`5fd9902`](https://github.com/plume-works/vscode-expo-bridge/commit/5fd9902)
+    (`showFixes`, `FixGate`, and `FixNotices` in `packages/host/src`,
+    unit-tested in `test/fix.test.ts` and `test/fixrun.test.ts`). Run on
+    2026-10-23 on the Mac with VSIX 0.1.7: after a `status` with a container bun
+    `99.0.0`, the notification "Install or update bun (Mac bun 1.4.3 is older
+    than the container's 99.0.0)" and "Expo Bridge: 1 fix" appeared; the
+    picker's fix ran in a Mac terminal while the item showed "fixing…"; the next
+    plain `eas-host status` reported `bun` ok and the item disappeared.
+- [x] `install` records whether the app is a development build, by an `exp+…`
   URL scheme in its `Info.plist`, and `launch` restarts a development build with
   `simctl launch --terminate-running-process <udid> <bundle id> --initialUrl http://localhost:8081`,
   launching any other app without the argument. No URL is opened through
@@ -972,10 +981,19 @@ on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
   installed into the container of a Dev Containers window on the scratch app,
   the Extensions view shows the host extension as local and the workspace
   extension in the container, and `eas-host` is on the container's `PATH`.
-- [ ] From that window an agent runs `eas-host status`, `build` for the
+- [x] From that window an agent runs `eas-host status`, `build` for the
   simulator profile, `install`, `launch`, and `screenshot`, and reads the
   screenshot from the container; the trust prompt appears on the first request
   and the build confirmation on `build`.
+  - **Evidence:** Run on 2026-10-23 on the Mac with VSIX 0.1.7 built from
+    `plume-works/vscode-expo-bridge` `main` at
+    [`5fd9902`](https://github.com/plume-works/vscode-expo-bridge/commit/5fd9902),
+    in the container of the scratch app's Dev Containers window, after its trust
+    was revoked: the first `eas-host status` raised the trust prompt and
+    `eas-host build development` the build confirmation; `build` (eas-cli 25.3.0
+    from `eas.json` `cli.version`), `install`, `launch`, and `screenshot` each
+    exited 0, and the screenshot read from `.tmp/expo-bridge/` showed the app.
+    The sequence ran from a script in that window, not an agent.
 - [x] With Metro running in the container, the launched development build loads
   the JavaScript bundle over forwarded port 8081.
   - **Evidence:** Run on 2026-10-22 on the Mac with VSIX 0.1.3 built from
