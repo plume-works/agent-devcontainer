@@ -5,7 +5,7 @@ release: internal
 description: Move the VS Code Expo bridge's Open VSX publishing from the OVSX_PAT access token to Open VSX trusted publishing — namespace ownership granted, a trusted publisher per extension for release.yml and the release environment, a publish job that passes no token, and the token revoked.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T18:18:26Z
+  at: 2026-10-23T18:19:33Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/openvsx-setup.md
@@ -98,8 +98,11 @@ Assumptions:
 
 **Files:** none — done by the user, after Task 4
 
-- [ ] The token behind `OVSX_PAT` is revoked on open-vsx.org, and `OVSX_PAT` is
+- [x] The token behind `OVSX_PAT` is revoked on open-vsx.org, and `OVSX_PAT` is
   removed from the environment `release`.
+  - **Evidence:** the user revoked the token on 2026-10-23;
+    `gh api repos/plume-works/vscode-expo-bridge/environments/release/secrets`
+    lists only `AZURE_CLIENT_ID` and `AZURE_TENANT_ID`.
 
 ## Spec changes
 
