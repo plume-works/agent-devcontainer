@@ -1329,7 +1329,7 @@ Supersedes Task 10's 30-minute health start period.
 `scripts/tests/test_agent_runtime_supervision.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] The controller writes a heartbeat and a state file each interval. The
+- [x] The controller writes a heartbeat and a state file each interval. The
   state is `pending`, `ready`, `degraded`, or `failed`, with each component's
   status. `runtime-health.sh ready` passes only when the heartbeat is younger
   than three intervals, the state is `ready`, and the core probes pass now. A
@@ -1340,13 +1340,13 @@ Supersedes Task 10's 30-minute health start period.
     `test_health_needs_a_live_controller_reporting_ready`: a failing core probe
     fails `ready`, a stopped controller fails it within three intervals as
     `stale`, and a killed one fails it.
-- [ ] `runtime-health.sh status` prints the state, each failed component, the
+- [x] `runtime-health.sh status` prints the state, each failed component, the
   failure record's phase, exit status, and time, and the retry command for each.
   A failing probe's output is logged, bounded, instead of discarded.
   - **Evidence:** same commit;
     `test_status_names_each_failure_and_its_retry_command` and
     `test_a_failing_probe_logs_its_output` (the last 500 characters) pass.
-- [ ] The image `HEALTHCHECK` start period covers core startup only. Pending,
+- [x] The image `HEALTHCHECK` start period covers core startup only. Pending,
   degraded, and failed report unhealthy. In container acceptance, a forced
   optional failure shows `unhealthy` in `docker inspect` while `/api/info`
   answers.
