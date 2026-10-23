@@ -5,7 +5,7 @@ release: internal
 description: Move the VS Code Expo bridge's Open VSX publishing from the OVSX_PAT access token to Open VSX trusted publishing — namespace ownership granted, a trusted publisher per extension for release.yml and the release environment, a publish job that passes no token, and the token revoked.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T18:13:10Z
+  at: 2026-10-23T18:18:26Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/openvsx-setup.md
@@ -88,8 +88,11 @@ Assumptions:
 
 **Files:** none — a release workflow run from a `vX.Y.Z` tag
 
-- [ ] A release workflow run publishes all three extensions to Open VSX through
+- [x] A release workflow run publishes all three extensions to Open VSX through
   trusted publishing, and Open VSX lists that version for each.
+  - **Evidence:** release run 40001397798 from `v0.2.2` logs a trusted
+    publishing token issued for each extension; Open VSX lists 0.2.2 for all
+    three.
 
 ### Task 5: Retire the access token
 
