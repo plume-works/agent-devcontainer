@@ -2,14 +2,14 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:12d316619ec1752302c102dbc5aeb62bc172b697d6744e45839628be5c946960
+source_digest: sha256:edabd3c0a70cfe1851ce4b22418a91113ea298a142160af8409daf27eb516eee
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T14:00:00Z
+  at: 2026-10-23T21:51:57Z
 stale_after: 2027-01-21
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T14:00:00Z
+  at: 2026-10-23T21:51:57Z
 sources:
 - id: code
   resource: docker
@@ -33,9 +33,11 @@ runtime on a supplied `agent-desktop` digest.
 - `docker/opencode/agent-opencode.Dockerfile` build arg `FROM_IMAGE:3`, also
   recorded as the `org.opencontainers.image.base.name` label
 - `docker/opencode/supervisord.conf` — the controller event listener and the
-  eight programs it starts; baked to `/etc/agentdev/supervisord.conf`
+  eleven programs it starts, each through `runtime-supervisor.py exec <name>`;
+  baked to `/etc/agentdev/supervisord.conf`
 - `docker/opencode/runtime.env.example` — every setting the root
-  `compose.opencode.yml` interpolates
+  `compose.opencode.yml` interpolates, with the accepted boolean spellings and
+  each limit's default
 - `docker/opencode/README.md` — the operator deployment guide for the root
   Compose files; not copied into the image
 - `/entrypoint.sh`, `/start-xpra.sh`, the `gh` wrapper — the files a running
@@ -62,8 +64,9 @@ account, and copies the root-home `gh-stack` extension to
 `/opt/agentdev-runtime`, `start-xpra.sh`, `supervisord.conf`, and the firewall
 allowlist to `/etc/agentdev/`. It then sets the runtime identity, path, and
 service `ENV`, exposes `4096` and `14500`, and gives `runtime-supervisor.py run`
-as the entrypoint with a `runtime-health.sh ready` healthcheck. `.dockerignore`
-reopens only `.devcontainer/scripts` and the allowlist for it.
+as the entrypoint with a `runtime-health.sh ready` healthcheck whose 10-minute
+start period covers the core startup path. `.dockerignore` reopens only
+`.devcontainer/scripts` and the allowlist for it.
 
 `start-xpra.sh` serves the HTML5 client on container port `14500` unless
 `--port` overrides it, clears a stale display lock, and supports `--background`,
@@ -101,7 +104,7 @@ which the OpenCode image bakes.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-19):
+Verified anchor points (line numbers as of 2026-10-23):
 
 - `docker/desktop/agent-desktop.Dockerfile:45-68` — provisioning and required
   Playwright version
@@ -109,8 +112,8 @@ Verified anchor points (line numbers as of 2026-10-19):
 - `docker/desktop/agent-desktop.Dockerfile:84-94` — scripts, port, entrypoint
 - `docker/opencode/agent-opencode.Dockerfile:11` — supervisor, account removal,
   `gh-stack` relocation; `:22-26` — baked runtime files; `:30` — runtime `ENV`;
-  `:59-65` — ports, healthcheck, entrypoint
-- `docker/opencode/supervisord.conf:23` — the controller; `:36-146` — the eight
+  `:59-66` — ports, healthcheck, entrypoint
+- `docker/opencode/supervisord.conf:24` — the controller; `:37-209` — the eleven
   programs
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
 - `docker/desktop/start-xpra.sh:7` — default HTML5 container port

@@ -6,6 +6,18 @@ to the current day's group.
 
 ## 2026-10-23
 
+- **Map**: refreshed [Ansible](codebase/ansible.md),
+  [dev_tools](codebase/ansible/roles/dev_tools.md),
+  [.devcontainer](codebase/devcontainer.md), its
+  [scripts](codebase/devcontainer/scripts.md), [Docker](codebase/docker.md), the
+  [image runtime](codebase/api-image-runtime.md), [GitHub
+  automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md), [image
+  build](codebase/flow-image-build.md), and [pull request
+  checks](codebase/flow-pull-request-checks.md) flows for the standalone
+  runtime's failure latch, optional work, background indexing, and pinned hook
+  binaries.
 - **Map**: refreshed [GitHub automation](codebase/github.md), its
   [workflows](codebase/github/workflows.md), and the [pull request
   checks](codebase/flow-pull-request-checks.md) flow for the removed pinned

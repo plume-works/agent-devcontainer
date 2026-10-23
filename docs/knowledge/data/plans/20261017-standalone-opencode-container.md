@@ -1411,8 +1411,13 @@ Supersedes Task 10's 30-minute health start period.
     latch with its rejected alternative, background indexing, and `hooks.json`.
     Prettier passes on both READMEs, and `iwe schema validate` exits 0.
 
-- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+- [x] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
+
+  - **Evidence:** commit "map: refresh 11 docs for the standalone failure latch
+    and optional work" refreshes the 11 docs that Tasks 25–34 made stale (all 28
+    were fresh at `ddd8cf3`); `stale-map-docs.py` ends `RESULT=SUCCESS` with 28
+    docs.
 
 ### Task 36: Verify the republished native images and repin the deployment
 

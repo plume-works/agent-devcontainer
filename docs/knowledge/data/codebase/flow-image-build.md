@@ -8,14 +8,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:b8a22535a3814f49c041bc12cf60629a65daa106791b9961a3f62ae68d401d8d
+source_digest: sha256:13642b52958fa7fed2ba392f611b264a70748f1ecbc3b9eddd737fc175f76eff
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T14:00:00Z
+  at: 2026-10-23T21:51:57Z
 stale_after: 2027-01-21
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T14:00:00Z
+  at: 2026-10-23T21:51:57Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -58,14 +58,14 @@ running the image it produced.
    and builds and smoke-tests the [devcontainer](devcontainer.md) with
    `devcontainers/ci`, launches the bundled Chromium against a data URL, then
    runs the repository's pytest suites inside it —
-   `.github/workflows/ci.yml:265-315`. Alongside it, `opencode-acceptance` runs
+   `.github/workflows/ci.yml:265-319`. Alongside it, `opencode-acceptance` runs
    `test-agent-runtime.sh` on the merged `agent-opencode` digest on each native
-   architecture — `.github/workflows/ci.yml:314`
+   architecture — `.github/workflows/ci.yml:336`
 8. `promote-dev-image`, once both pass, points the event's moving tags (`edge`,
    the branch, `pr-<n>`, release versions) at the three tested digests with
    `imagetools create`, skipping a tag whose image's revision label names a
    descendant of this commit; `finished` requires it —
-   `.github/workflows/ci.yml:352,403`,
+   `.github/workflows/ci.yml:374,425`,
    `.github/actions/docker/promote/action.yml:61,73`
 9. After the merge to `main`, the self-hosted Renovate bot
    (`.github/workflows/renovate.yml`) opens and automerges one PR bumping the
