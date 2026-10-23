@@ -1039,7 +1039,7 @@ nonzero-exit assertions of Tasks 6, 12, and 22.
 `scripts/tests/test_agent_runtime_supervision.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] A failed or timed-out bootstrap, a failed configuration check (including
+- [x] A failed or timed-out bootstrap, a failed configuration check (including
   the missing `XPRA_PASSWORD` check), a failed or timed-out core phase, and a
   core service exhausting its recovery budget each latch the runtime `failed`.
   PID 1 stays up and supervisord too, once started. No service restarts, no
@@ -1047,7 +1047,13 @@ nonzero-exit assertions of Tasks 6, 12, and 22.
   supervision tests that asserted exit `1` assert the latch instead, and a
   controller crash still exits PID 1 nonzero.
 
-- [ ] Each latch writes `last-failure.json` atomically under
+  - **Evidence:** commit "feat(runtime): latch unrecoverable failures instead of
+    exiting PID 1";
+    `uv run pytest scripts/tests/test_agent_runtime_supervision.py` 23 passed,
+    including the configuration, bootstrap, preparation exit and timeout,
+    exhausted-budget, and controller-crash cases.
+
+- [x] Each latch writes `last-failure.json` atomically under
   `$AGENTDEV_HOME/.local/state/agentdev/` with:
 
   - a per-start startup ID;
@@ -1059,17 +1065,36 @@ nonzero-exit assertions of Tasks 6, 12, and 22.
   Startup never deletes it, and only a later failure replaces it. A failure
   before the home volume is usable prints the same fields to stderr only.
 
-- [ ] `runtime-supervisor.py retry`, run through `docker exec`, resumes a
+  - **Evidence:** same commit; `runtime-supervisor.py exec` keeps each program's
+    command, exit status, and 200-line tail, and the supervision tests
+    `test_preparation_failure_latches_with_opencode_unavailable`,
+    `test_the_failure_record_keeps_the_last_200_output_lines`,
+    `test_a_new_start_keeps_the_previous_failure_record`, and
+    `test_bootstrap_failure_latches_before_any_service_and_retries` (stderr
+    only) pass.
+
+- [x] `runtime-supervisor.py retry`, run through `docker exec`, resumes a
   latched runtime from the failed phase or service in the same container. On
   success the runtime becomes ready; on failure it latches again with a new
   record.
 
-- [ ] In container acceptance under the shipped `restart: unless-stopped`
+  - **Evidence:** same commit;
+    `test_a_latched_preparation_resumes_on_retry_in_the_same_process` (a failed
+    retry rewrites the record, a passing one resumes from `prepare` without
+    rerunning the bootstrap or `dockerd`) and the bootstrap retry case pass.
+
+- [x] In container acceptance under the shipped `restart: unless-stopped`
   policy, preparation forced to exit `1` and then `3` leaves `RestartCount` at
   `0` across at least ten health intervals. In that window OpenCode never
   answers `/api/info`, the failure record is byte-identical at the end, and
   `retry` brings the runtime ready once the cause is removed. Killing the
   controller exits the container nonzero, and Docker restarts it.
+
+  - **Evidence:** same commit;
+    `AGENTDEV_RUNTIME_TEST_IMAGE=agent-opencode:t25 .devcontainer/scripts/test-agent-runtime.sh`
+    on aarch64, built from that tree on `agent-desktop:edge@sha256:ba26806f…`:
+    17 passed, 1 skipped (the upgrade test), including both
+    `test_a_latched_start_stays_put_under_the_restart_policy` cases.
 
 ### Task 26: Start OpenCode on the core path and run the rest as optional work
 

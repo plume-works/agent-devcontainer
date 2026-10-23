@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 import configparser
+import json
 import os
 from pathlib import Path
 import shutil
@@ -51,6 +52,8 @@ done
 FAKE_ONESHOT = """#!/usr/bin/env bash
 name="$1"; state="$STATE_DIR"
 echo "run $name" >> "$state/events"
+lines="$(cat "$state/$name.lines" 2>/dev/null || echo 0)"
+for ((i = 1; i <= lines; i++)); do echo "$name line $i"; done
 sleep "$(cat "$state/$name.sleep" 2>/dev/null || echo 0)"
 exit "$(cat "$state/$name.exit" 2>/dev/null || echo 0)"
 """
@@ -59,6 +62,7 @@ FAKE_HEALTH = """#!/usr/bin/env bash
 """
 FAKE_BOOTSTRAP = """#!/usr/bin/env bash
 echo "run bootstrap" >> "$STATE_DIR/events"
+echo "bootstrap says hello"
 exit "$(cat "$STATE_DIR/bootstrap.exit" 2>/dev/null || echo 0)"
 """
 
@@ -87,7 +91,7 @@ def build_config(root: Path, fake_service: Path, fake_oneshot: Path) -> Path:
         program.pop('user', None)
         program.pop('environment', None)
         fake = fake_oneshot if name in ONESHOTS else fake_service
-        program['command'] = f'{fake} {name}'
+        program['command'] = f'{sys.executable} {SUPERVISOR} exec {name} {fake} {name}'
     path = root / 'supervisord.conf'
     with path.open('w') as handle:
         parser.write(handle)
@@ -118,10 +122,12 @@ class Supervision:
             'AGENTDEV_PREPARE_TIMEOUT': '3',
             'AGENTDEV_STOP_TIMEOUT': '2',
             'DEV_WORKSPACE_FOLDER': str(root),
+            'AGENTDEV_HOME': str(root / 'home'),
             'XPRA_PASSWORD': 'supervision-test',
             **settings,
         }
         self.process: subprocess.Popen[str] | None = None
+        self._output: str | None = None
 
     def set(self, name: str, kind: str, value: str = '') -> None:
         (self.state / f'{name}.{kind}').write_text(value)
@@ -142,6 +148,44 @@ class Supervision:
     def ready(self) -> bool:
         return (self.root / 'run/ready').exists()
 
+    def runtime(self) -> dict:
+        path = self.root / 'run/state.json'
+        return json.loads(path.read_text()) if path.exists() else {}
+
+    def latched(self) -> str | None:
+        state = self.runtime()
+        return state.get('latched') if state.get('state') == 'failed' else None
+
+    @property
+    def record_path(self) -> Path:
+        return self.root / 'home/.local/state/agentdev/last-failure.json'
+
+    def record(self) -> dict:
+        return json.loads(self.record_path.read_text())
+
+    def retry(self, *component: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [sys.executable, SUPERVISOR, 'retry', *component],
+            env=self.env,
+            text=True,
+            capture_output=True,
+            timeout=60,
+        )
+
+    def alive(self) -> bool:
+        return self.process is not None and self.process.poll() is None
+
+    def controller_pid(self) -> int:
+        for proc in Path('/proc').iterdir():
+            try:
+                cmdline = (proc / 'cmdline').read_bytes().split(b'\0')
+                environ = (proc / 'environ').read_bytes()
+            except OSError:
+                continue
+            if cmdline[-2:] == [b'control', b''] and f'STATE_DIR={self.state}'.encode() in environ:
+                return int(proc.name)
+        pytest.fail('no controller process found')
+
     def wait_for(self, predicate: Callable[[], bool], timeout: float = 20) -> None:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
@@ -161,7 +205,9 @@ class Supervision:
     def output(self) -> str:
         if self.process is None or self.process.poll() is None or self.process.stdout is None:
             return ''
-        return self.process.stdout.read()
+        if self._output is None:
+            self._output = self.process.stdout.read()
+        return self._output
 
     def terminate(self) -> None:
         if self.process and self.process.poll() is None:
@@ -207,40 +253,124 @@ def test_disabled_xpra_is_neither_started_nor_required(make):
     assert 'xpra' not in started(box.events())
 
 
+def stays_latched(box: Supervision, component: str, seconds: float = 1.5) -> None:
+    """Assert the runtime latched on ``component`` and nothing reruns while it stays latched."""
+    box.wait_for(lambda: box.latched() == component)
+    before = box.events()
+    time.sleep(seconds)
+    assert box.alive(), box.output()
+    assert box.events() == before
+    assert not box.ready()
+
+
 @pytest.mark.parametrize('password', [None, ''])
-def test_enabled_xpra_without_a_password_fails_before_the_bootstrap(make, password):
+def test_enabled_xpra_without_a_password_latches_before_the_bootstrap(make, password):
     box = make()
     del box.env['XPRA_PASSWORD']
     if password is not None:
         box.env['XPRA_PASSWORD'] = password
     box.start()
-    assert box.wait_exit() == 1
+    stays_latched(box, 'configuration')
     assert box.events() == []
-    output = box.output()
-    assert 'XPRA_PASSWORD must be set' in output and 'AGENTDEV_SKIP_XPRA=1' in output
+    reason = box.runtime()['components']['configuration']['reason']
+    assert 'XPRA_PASSWORD must be set' in reason and 'AGENTDEV_SKIP_XPRA=1' in reason
+    assert not box.record_path.exists(), 'the home volume is not known usable yet'
+    box.terminate()
+    assert box.process is not None and box.process.returncode == 0
 
 
 @pytest.mark.parametrize('failure', ['exit', 'timeout'])
-def test_preparation_failure_keeps_opencode_unavailable_and_exits_nonzero(make, failure):
+def test_preparation_failure_latches_with_opencode_unavailable(make, failure):
     box = make()
     if failure == 'exit':
         box.set('prepare', 'exit', '7')
     else:
         box.set('prepare', 'sleep', '30')
     box.start()
-    assert box.wait_exit() == 1
+    stays_latched(box, 'prepare')
     assert 'opencode' not in started(box.events())
-    assert not box.ready()
-    reason = (box.root / 'run/failed').read_text()
-    assert 'prepare' in reason
+    record = box.record()
+    assert record['component'] == 'prepare' and 'prepare' in record['reason']
+    assert record['startup_id'] == box.runtime()['startup_id']
+    assert record['command'][-2:] == [str(box.root / 'fake-oneshot'), 'prepare']
+    assert record['exit_status'] == (7 if failure == 'exit' else 143)
+    assert record['time'].endswith('+00:00')
 
 
-def test_bootstrap_failure_exits_before_any_service(make):
+def test_a_latched_preparation_resumes_on_retry_in_the_same_process(make):
+    box = make()
+    box.set('prepare', 'exit', '7')
+    box.start()
+    stays_latched(box, 'prepare', seconds=0.5)
+    first = box.record_path.read_bytes()
+
+    again = box.retry()
+    assert again.returncode == 1 and 'failed' in again.stdout
+    second = box.record()
+    assert second['exit_status'] == 7 and box.record_path.read_bytes() != first
+    assert started(box.events()).count('prepare') == 2
+
+    (box.state / 'prepare.exit').unlink()
+    resumed = box.retry()
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    box.wait_for(box.ready)
+    runs = started(box.events())
+    assert runs.count('bootstrap') == 1 and runs.count('dockerd') == 1
+    assert runs[-4:] == ['cbm', 'index', 'xpra', 'opencode']
+    assert box.record() == second, 'success leaves the last failure in place'
+
+
+def test_the_failure_record_keeps_the_last_200_output_lines(make):
+    box = make()
+    box.set('prepare', 'lines', '300')
+    box.set('prepare', 'exit', '3')
+    box.start()
+    box.wait_for(lambda: box.latched() == 'prepare')
+    output = box.record()['output']
+    assert len(output) == 200
+    assert output[0] == 'prepare line 101' and output[-1] == 'prepare line 300'
+
+
+def test_a_new_start_keeps_the_previous_failure_record(make):
+    box = make()
+    box.set('prepare', 'exit', '7')
+    box.start()
+    box.wait_for(lambda: box.latched() == 'prepare')
+    recorded = box.record_path.read_bytes()
+    box.terminate()
+    (box.state / 'prepare.exit').unlink()
+    box.start()
+    box.wait_for(box.ready)
+    assert box.record_path.read_bytes() == recorded
+
+
+def test_bootstrap_failure_latches_before_any_service_and_retries(make):
     box = make()
     box.set('bootstrap', 'exit', '1')
     box.start()
-    assert box.wait_exit() == 1
+    stays_latched(box, 'bootstrap')
     assert started(box.events()) == ['bootstrap']
+    assert not box.record_path.exists()
+
+    (box.state / 'bootstrap.exit').unlink()
+    resumed = box.retry()
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    assert box.ready()
+    assert started(box.events()) == ['bootstrap', 'bootstrap', *STARTUP_ORDER]
+    box.terminate()
+    printed = [json.loads(line) for line in box.output().splitlines() if line.startswith('{')]
+    assert printed[0]['component'] == 'bootstrap' and printed[0]['exit_status'] == 1
+    assert printed[0]['output'] == ['bootstrap says hello']
+    assert set(printed[0]) >= {'startup_id', 'command', 'time'}
+
+
+def test_a_controller_crash_exits_pid_1_nonzero(make):
+    box = make()
+    box.start()
+    box.wait_for(box.ready)
+    os.kill(box.controller_pid(), signal.SIGKILL)
+    assert box.wait_exit() == 1
+    assert 'controller exited' in box.output()
 
 
 def test_a_crashed_service_recovers_without_rerunning_preparation(make):
@@ -264,22 +394,23 @@ def test_readiness_loss_counts_as_failure(make):
     box.wait_for(lambda: started(box.events()).count('xpra') == 2 and box.ready())
 
 
-def test_exhausted_recovery_after_running_stops_everything_and_exits_nonzero(make):
+def test_exhausted_recovery_after_running_latches_and_stops_opencode(make):
     box = make()
     box.start()
     box.wait_for(box.ready)
     box.set('cbm', 'mode', 'crash-always')
     box.set('cbm', 'crash')
-    assert box.wait_exit() == 1
+    stays_latched(box, 'cbm')
     assert started(box.events()).count('cbm') == 4
-    assert 'cbm exhausted 3 recovery attempts' in (box.root / 'run/failed').read_text()
+    assert 'stop opencode' in box.events()
+    assert 'cbm exhausted 3 recovery attempts' in box.record()['reason']
 
 
 def test_startup_failure_exhausts_the_same_budget(make):
     box = make()
     box.set('xpra', 'mode', 'never-ready')
     box.start()
-    assert box.wait_exit() == 1
+    stays_latched(box, 'xpra')
     assert started(box.events()).count('xpra') == 4
     assert 'opencode' not in started(box.events())
 
@@ -289,8 +420,8 @@ def test_hung_service_is_not_treated_as_healthy(make):
     box.start()
     box.wait_for(box.ready)
     box.set('dockerd', 'unhealthy')
-    assert box.wait_exit() == 1
-    assert 'dockerd exhausted' in (box.root / 'run/failed').read_text()
+    box.wait_for(lambda: box.latched() == 'dockerd')
+    assert 'dockerd exhausted' in box.record()['reason']
 
 
 def test_dependency_outage_recovers_clients_outside_their_budget(make):
@@ -356,6 +487,8 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
         assert program['stdout_logfile'] == '/dev/stdout'
         assert program['killasgroup'] == 'true'
         assert ('user' in program) == (name != 'dockerd')
+        wrapper = '/opt/agentdev-runtime/runtime-supervisor.py exec'
+        assert program['command'].startswith(f'{wrapper} {name} /'), name
     priorities = sorted(STOP_ORDER, key=lambda n: -int(programs[n]['priority']))
     assert priorities == STOP_ORDER
     assert parser['eventlistener:controller']['priority'] == '999'
