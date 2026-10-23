@@ -115,16 +115,16 @@ not claim to defend against a hostile one. The checks are these:
   no privileged setup on the Mac. Project code in the build can do anything the
   user can. Trust and the build confirmation are the only gate on it.
 - **A pinned eas-cli.** `build` runs eas-cli through the Mac's bun as
-  `bunx eas-cli@<spec>`, where `<spec>` is the `eas-cli` version or range in the
-  workspace's `package.json` (`devDependencies`, then `dependencies`), or
-  `latest` when it lists none. A spec that is not a semver version or range —
-  `file:`, git, URL, alias, dist-tag — is refused. Nothing installs eas-cli on
-  the Mac outside the build.
+  `bunx eas-cli@<spec>`, where `<spec>` is `cli.version` in the workspace's
+  `eas.json`, Expo's own pin for the CLI, or `latest` when it is unset. A value
+  that is not a semver version or range — `file:`, git, URL, alias, dist-tag —
+  is refused. eas-cli is never a project dependency, which `expo doctor` flags,
+  and nothing installs it on the Mac outside the build.
 - **No project code outside `build`.** The host extension never evaluates
-  `app.config.js` or any other project file as code. It reads only `eas.json`,
-  `app.json`, and `package.json`, as JSON, and refuses a symlink, a non-regular
-  file, or a file over a size limit; an error returned to the container never
-  quotes file contents.
+  `app.config.js` or any other project file as code. It reads only `eas.json`
+  and `app.json`, as JSON, and refuses a symlink, a non-regular file, or a file
+  over a size limit; an error returned to the container never quotes file
+  contents.
 - **Management commands are reachable from the container too.** The trust,
   token, and fix commands take no arguments, return nothing, and change nothing
   until the user answers a modal.
@@ -856,16 +856,17 @@ Containers window on a Mac
 `docs/protocol.md` in `plume-works/vscode-expo-bridge`
 
 - [x] `build` runs `bunx eas-cli@<spec>` with the Mac's bun, `<spec>` taken from
-  the workspace `package.json` (`devDependencies`, then `dependencies`) or
-  `latest`, and refuses a spec that is not a semver version or range; `status`
-  reports the spec as an `easCli` check that fails only on a refused spec.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit
-    [`7b564da`](https://github.com/plume-works/vscode-expo-bridge/commit/7b564da)
-    on branch `eas-cli-check`: `easCliSpec` and `isVersionRange` in
-    `packages/host/src/eascli.ts`, the `bun x eas-cli@<spec>` invocation in
-    `packages/host/src/build.ts`, `easCliCheck` in
-    `packages/host/src/status.ts`, and `docs/protocol.md` `### build` describing
-    the pin.
+  `cli.version` in the workspace `eas.json` or `latest`, and refuses a value
+  that is not a semver version or range; `status` reports the spec as an
+  `easCli` check that fails only on a refused value.
+  - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
+    [`a6c6574`](https://github.com/plume-works/vscode-expo-bridge/commit/a6c6574)
+    ([PR #9](https://github.com/plume-works/vscode-expo-bridge/pull/9)):
+    `easCliSpec` and `normalizeRange` in `packages/host/src/eascli.ts`, the
+    `bun x eas-cli@<spec>` invocation in `packages/host/src/build.ts`,
+    `easCliCheck` in `packages/host/src/status.ts`, and `docs/protocol.md`
+    `### build`. On the Mac a pinned `eas-cli@25.3.0` built the scratch app
+    through `bunx`, exit 0.
 - [x] The fix command plans its steps against the container bun version of the
   last `status` request, so a bun older than the container's offers its fix
   instead of "nothing to fix".
@@ -877,13 +878,14 @@ Containers window on a Mac
     "nothing to fix".
 - [x] `bun test` covers spec selection, accepted ranges, refused specs, the
   `build` invocation and refusal, and the `easCli` check.
-  - **Evidence:** Commit
-    [`7b564da`](https://github.com/plume-works/vscode-expo-bridge/commit/7b564da):
+  - **Evidence:** `main` at
+    [`a6c6574`](https://github.com/plume-works/vscode-expo-bridge/commit/a6c6574):
     `packages/host/test/eascli.test.ts` covers versions, `^`/`~`/`x`/`*`,
-    comparator, `||`, and hyphen ranges, refused `file:`/git/URL/alias/tag
-    specs, the `devDependencies` precedence, and a symlinked `package.json`;
+    comparator, `||`, and hyphen ranges with operator spaces removed, refused
+    `file:`/git/URL/alias/tag and non-string values, an unset `cli.version`, an
+    ignored `package.json` entry, and a symlinked `eas.json`;
     `test/build.test.ts` covers the pinned invocation and the refusal;
-    `test/status.test.ts` the `easCli` results. `bun test` 152 pass / 0 fail.
+    `test/status.test.ts` the `easCli` results. `bun test` 168 pass / 0 fail.
 
 ### Task 20d: Host extension — a lasting fix surface and a launch that loads Metro
 
@@ -910,10 +912,17 @@ Containers window on a Mac
     with `--initialUrl http://localhost:8081` loaded the bundle from the
     container's Metro ("Bundling 99%…", then the app) with no launcher or tap,
     where the `openurl` deep link stopped at "Open in 'app'?".
-- [ ] A development build's launch also passes
+- [x] A development build's launch also passes
   `-EXDevMenuIsOnboardingFinished YES` and `-EXDevMenuShowsAtLaunch NO`, so
   neither expo-dev-menu's introduction nor the menu covers the app after it
   loads.
+  - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
+    [`ac70320`](https://github.com/plume-works/vscode-expo-bridge/commit/ac70320)
+    ([PR #7](https://github.com/plume-works/vscode-expo-bridge/pull/7)):
+    `DEV_MENU_QUIET` in `packages/host/src/install.ts`, asserted in
+    `test/install.test.ts`. On the Mac, after `simctl uninstall` of the scratch
+    app, the 0.1.3 build's `eas-host install` and `launch` showed "Open up
+    App.js to start working on your app!" with no introduction or menu.
 - [x] `bun test` covers the scheme read, a scheme that is not `exp+` plus a safe
   name, the development-build and plain launches, and the fix item text.
   - **Evidence:** Commits
@@ -941,10 +950,21 @@ on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
   simulator profile, `install`, `launch`, and `screenshot`, and reads the
   screenshot from the container; the trust prompt appears on the first request
   and the build confirmation on `build`.
-- [ ] With Metro running in the container, the launched development build loads
+- [x] With Metro running in the container, the launched development build loads
   the JavaScript bundle over forwarded port 8081.
-- [ ] A `status` with a fixable failing check offers **Fix…**, which opens a
+  - **Evidence:** Run on 2026-10-22 on the Mac with VSIX 0.1.3 built from
+    `plume-works/vscode-expo-bridge` `main` at
+    [`21277a7`](https://github.com/plume-works/vscode-expo-bridge/commit/21277a7):
+    after `eas-host launch`, Metro in the container logged
+    `iOS Bundled 398ms index.js (712 modules)` and `eas-host screenshot` showed
+    the app's "Open up App.js to start working on your app!" screen.
+- [x] A `status` with a fixable failing check offers **Fix…**, which opens a
   terminal on the Mac holding that check's Homebrew command.
+  - **Evidence:** Same run: after `eas-host status` sent a container bun
+    `99.0.0`, the status bar showed "Expo Bridge: 1 fix"; picking "Install or
+    update bun" opened an "Expo Bridge fix" terminal marked "This shell is
+    running on your local machine", which ran `brew install oven-sh/bun/bun` on
+    `robomac`.
 
 ### Task 22: Publish pre-releases to the Visual Studio Marketplace
 
