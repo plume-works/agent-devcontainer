@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Opt-in Claude Remote Control server
+mode](plans/20261023-claude-remote-control-server-mode.md)
+
 [Incremental local iOS builds for the VS Code Expo
 bridge](plans/20261023-expo-bridge-incremental-builds.md)
 
