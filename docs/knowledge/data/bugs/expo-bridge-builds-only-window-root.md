@@ -3,7 +3,7 @@ type: bug
 description: The Expo bridge's host resolves every action to the devcontainer window's root folder, so an Expo app in a subdirectory or in another workspace folder cannot be checked or built, and `status` does not say which folder it inspected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T18:53:48Z
+  at: 2026-10-23T19:09:21Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/features/vscode-expo-bridge.md
@@ -28,12 +28,17 @@ and its output does not name the host path it inspected.
 request with `eas.json not found` before any confirmation. An Expo app in a
 subdirectory of a single-folder window hits the same behavior.
 
+Opening the app alone in another window on the same running container, through
+**File: Open Folder**, does not help: with that window the only one open and its
+bridge holding the socket, `status` still reports the same two details.
+
 ## Reproduction
 
 1. On a Mac with `plume-works.vscode-expo-bridge` 0.2.0 installed, open a
    repository in a Dev Containers window.
-2. Place an Expo app with `eas.json` and `app.json` in a subdirectory, or add
-   its folder to the window as a second workspace folder.
+2. Place an Expo app with `eas.json` and `app.json` in a subdirectory, then add
+   its folder to the window as a second workspace folder, or open it alone with
+   **File: Open Folder** in the running container.
 3. From the app's directory, run `eas-host status`: `easCli` and `easProjectId`
    describe the window root, not the app.
 
@@ -41,10 +46,11 @@ subdirectory of a single-folder window hits the same behavior.
 
 The host extension resolves the workspace once per request from
 `vscode.workspace.workspaceFolders?.[0]` and decodes the host path from that
-folder's `dev-container+<hex JSON>` remote authority. That authority carries the
-window's mounted root, by design: the container cannot redirect it, because
-injecting a folder does not change the window's own authority. Neither the
-`eas-host` request nor the dispatch carries a project location, so `status`,
+folder's `dev-container+<hex JSON>` remote authority. That authority's
+`hostPath` is the Mac folder the devcontainer was created from, whichever
+container folder the window opens, by design: the container cannot redirect it,
+because injecting a folder does not change the window's own authority. Neither
+the `eas-host` request nor the dispatch carries a project location, so `status`,
 `build`, and every file the host reads resolve against the root.
 
 ## Fix
