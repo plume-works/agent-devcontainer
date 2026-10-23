@@ -299,6 +299,10 @@ jobs:
             gh --version | head -n 1
             cmake --version | head -n 1
             zizmor --version
+            # Pre-commit's gitleaks and actionlint hooks run these pinned binaries, without Go.
+            gitleaks version
+            actionlint --version | head -n 1
+            ! command -v go
             command -v xpra
             command -v init-firewall.sh
             command -v gnome-keyring-daemon
