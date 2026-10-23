@@ -1135,7 +1135,7 @@ Supersedes the blocking initial index of Tasks 5 and 6.
 `scripts/tests/test_repair_codex_cbm_hooks_block.py`; Create: a fixture under
 `scripts/tests/fixtures/` built from CBM 0.12.1's own Codex output
 
-- [ ] The repair recognizes an orphaned SessionStart block: a closing marker
+- [x] The repair recognizes an orphaned SessionStart block: a closing marker
   with no opener, or an opener with no closer. It removes the block only when
   every hook table it would claim is exactly CBM's canonical
   `[[hooks.SessionStart]]`/`[[hooks.SubagentStart]]` content invoking the
@@ -1145,7 +1145,13 @@ Supersedes the blocking initial index of Tasks 5 and 6.
   exits nonzero naming it. The fixture covers the deployment state: Codex tables
   inserted above the closer and the opener gone. Tests cover LF and CRLF.
 
-- [ ] Before the repair and the install, `codebase-memory-mcp-install.sh`
+  - **Evidence:** commit "fix(cbm): recover an orphaned Codex hooks block into
+    hooks.json"; `scripts/tests/fixtures/codex-config-orphaned-cbm-hooks.toml`
+    is CBM 0.12.1's install output after `codex plugin marketplace add`, opener
+    removed; `uv run pytest scripts/tests/test_repair_codex_cbm_hooks_block.py`
+    17 passed, including the LF/CRLF orphan and refusal cases.
+
+- [x] Before the repair and the install, `codebase-memory-mcp-install.sh`
   creates `$CODEX_HOME` if needed and writes `$CODEX_HOME/hooks.json` as `{}`
   when it is absent, so a first boot registers Codex. Against the pinned CBM in
   a throwaway home:
@@ -1157,6 +1163,12 @@ Supersedes the blocking initial index of Tasks 5 and 6.
   - a rerun leaves both files byte-identical.
 
   The devcontainer and standalone installs share this behavior.
+
+  - **Evidence:** same commit; the three install tests in
+    `scripts/tests/test_repair_codex_cbm_hooks_block.py` run the pinned 0.12.1
+    binary staged by `scripts/tests/cbm_pin.py` under `./.tmp/` and pass. Both
+    runtime modes reach the script through `setup-agent-state.sh` and
+    `runtime-cbm.sh install`.
 
 ### Task 29: Make agent-config writers idempotent and serialized
 
