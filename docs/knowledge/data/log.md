@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-23
 
+- **Update**: [Publish the Expo bridge to Open VSX through trusted
+  publishing](plans/20261023-openvsx-trusted-publishing.md) done; internal, no
+  release entry.
 - **Update**: [Build iOS on the Mac host through a VS Code
   bridge](plans/20261015-vscode-expo-bridge.md) done; [Template
   consumption](spec/template-consumption.md) now specifies that an Expo consumer
