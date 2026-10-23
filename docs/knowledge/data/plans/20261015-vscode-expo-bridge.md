@@ -958,9 +958,16 @@ Containers window on a Mac
 `packages/host/src/extension.ts`, `packages/host/package.json`,
 `docs/protocol.md` in `plume-works/vscode-expo-bridge`
 
-- [ ] **Expo Bridge: Ask Before Every Build** takes no arguments, asks in a
+- [x] **Expo Bridge: Ask Before Every Build** takes no arguments, asks in a
   modal, then ends the window's workspace cooldown so its next build confirms
   again, leaving trust unchanged; with no live cooldown it changes nothing.
+  - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
+    [`5fd9902`](https://github.com/plume-works/vscode-expo-bridge/commit/5fd9902)
+    (`expoBridge.askBeforeEveryBuild` in `packages/host/src/extension.ts`). Run
+    on 2026-10-23 on the Mac with VSIX 0.1.7: after "Allow and don't ask" on a
+    build, running the command and confirming made the next
+    `eas-host build development` show the build confirmation again with no trust
+    prompt, between both completed and interrupted builds.
 - [x] `bun test` covers ending a cooldown with trust kept, per-workspace
   scoping, and an expired cooldown.
   - **Evidence:** `plume-works/vscode-expo-bridge` `main` at
