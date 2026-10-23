@@ -982,9 +982,19 @@ Apply these edits to the consumer's files:
 5. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
    `enabledPlugins` alongside the template's entries.
 6. In `.devcontainer/devcontainer.json`, add `plume-works.vscode-expo-bridge`
-   to `customizations.vscode.extensions` and `8081` to `forwardPorts`. Write no
-   bridge trust or security setting anywhere: trust in a workspace is granted
-   only on the Mac, when the bridge's first request asks for it.
+   to `customizations.vscode.extensions`, `8081` to `forwardPorts`, and this
+   entry to the existing `portsAttributes` map, so VS Code's auto-forward
+   notification for Metro does not cover the bridge's own notifications:
+
+   ```json
+   "8081": {
+     "label": "Metro",
+     "onAutoForward": "silent"
+   }
+   ```
+
+   Write no bridge trust or security setting anywhere: trust in a workspace is
+   granted only on the Mac, when the bridge's first request asks for it.
 
 The extension pack is the [Expo Bridge](https://github.com/plume-works/vscode-expo-bridge).
 When VS Code on a Mac opens the devcontainer, it builds the iOS app with

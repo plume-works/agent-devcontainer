@@ -1069,7 +1069,7 @@ installs removed
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] `## Optional Expo setup` adds `plume-works.vscode-expo-bridge` to
+- [x] `## Optional Expo setup` adds `plume-works.vscode-expo-bridge` to
   `customizations.vscode.extensions`, `8081` to `forwardPorts`, and this entry
   to the existing `portsAttributes` map in the consumer's
   `.devcontainer/devcontainer.json`, and writes no bridge trust or security
@@ -1081,6 +1081,11 @@ installs removed
     "onAutoForward": "silent"
   }
   ```
+
+  - **Evidence:** Step 6 of `## Optional Expo setup` in `consumption-guide.md`
+    adds the extension, `8081` to `forwardPorts`, and the `"8081"` entry above,
+    verbatim in a `json` block, to the existing `portsAttributes` map, and keeps
+    the no-trust-setting sentence; Prettier check passes.
 
 - [x] The `## Expo` section of the merged `AGENTS.md` gains a rule: for an iOS
   build, run `eas-host status`; when it succeeds use `eas-host`, otherwise use
