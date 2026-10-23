@@ -1402,10 +1402,19 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 
 ### Task 31: Fallback when the bridge is unavailable
 
-- [ ] In a Codespace of the same consumer opened by VS Code on a Mac,
+- [x] In a Codespace of the same consumer opened by VS Code on a Mac,
   `eas-host status` reports unavailable and exits non-zero, and
   `bunx eas-cli@latest build -p ios --non-interactive --no-wait` still submits
   to EAS cloud.
+  - **Evidence:** Run on 2026-10-23 in a Codespace of the t21 consumer
+    (`anton-matosov/expo-bridge-t21` `template-adoption`, codebase-memory-mcp
+    turned off in its lifecycle) opened by VS Code on the Mac, after **Reload
+    Window** activated the workspace extension: `eas-host status` returned
+    `available: false` with `hostPathExists` "workspace host path does not exist
+    locally" and exited 3. After `bun install`,
+    `bunx eas-cli@latest build -p ios --profile development --non-interactive --no-wait`
+    (the app's `eas.json` has no default `production` profile) uploaded the
+    project and queued EAS build `d3e559c6-9402-4d8d-96ed-23346999ddb7`.
 
 ## Spec changes
 
