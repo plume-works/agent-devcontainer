@@ -1351,12 +1351,19 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 `docs/knowledge/data/architecture/vscode-expo-bridge.md`,
 `docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] The paragraph after step 6 of `## Optional Expo setup` tells the user that
+- [x] The paragraph after step 6 of `## Optional Expo setup` tells the user that
   the first window on a Mac shows the host extension disabled in the container,
   and that one click on its **Install Locally** in the Extensions view, once per
   Mac, enables the bridge, with **Reload Window** in windows already open, and
   that in a Codespace the workspace extension activates after one **Reload
   Window**.
+  - **Evidence:** Commit `a248b1a` adds, after the paragraph that follows step 6
+    of `## Optional Expo setup` in `consumption-guide.md`, a paragraph on **Expo
+    Bridge (Host)** disabled with **Install Locally** in the first window on a
+    Mac, one click once per Mac, **Reload Window** in windows already open, and
+    one **Developer: Reload Window** in a Codespace; Prettier check and
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    (62/62 valid) pass.
 - [ ] `data/architecture/vscode-expo-bridge` `## Approach` and the template
   boundary's `## Optional Expo profile` state that the listed pack installs the
   workspace extension in the container and that the host extension is installed
