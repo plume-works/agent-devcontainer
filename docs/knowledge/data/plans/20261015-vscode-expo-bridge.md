@@ -1124,9 +1124,9 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-  - **Evidence:** Run on the tree of commit `d00d985` (the Task 27 and 28
-    catalog and knowledge changes): exit 0, 62/62 skills valid, 0 errors, 0
-    warnings.
+  - **Evidence:** Run on the tree of commit `25d756c` (the Task 27 and 28
+    catalog and knowledge changes, including the silenced Metro port): 62/62
+    skills valid, 0 errors, 0 warnings.
 
 ### Task 30: End to end on a Mac from the released pack
 
