@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Incremental local iOS builds for the VS Code Expo
+bridge](plans/20261023-expo-bridge-incremental-builds.md)
+
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
 
