@@ -234,12 +234,20 @@ Assumptions:
 **Files:** Create: `packages/host/src/container.ts`, its test; Modify:
 `packages/host/src/env.ts`
 
-- [ ] The `docker` binary comes from the user-level `dev.containers.dockerPath`
+- [x] The `docker` binary comes from the user-level `dev.containers.dockerPath`
   value, else from the login `PATH`, the Homebrew prefixes, and `~/.docker/bin`.
-- [ ] The container lookup filters on `devcontainer.local_folder`, and on
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae`
+    (`lookupDocker` in `packages/host/src/env.ts`, which reads only
+    `globalValue` of the setting's `inspect()` result);
+    `packages/host/test/env.test.ts` passes, including the ignored
+    workspace-level value.
+- [x] The container lookup filters on `devcontainer.local_folder`, and on
   `devcontainer.config_file` when known, against the authority's daemon; zero or
   several running containers is `unavailable`. Its bind mounts are read with
   `docker inspect`, run as argument arrays.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae`;
+    `packages/host/test/container.test.ts` passes. `ContainerError` becomes
+    `unavailable` where Task 7 resolves the folder.
 
 ### Task 7: Host — map a workspace folder to its Mac path
 
