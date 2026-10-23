@@ -3,13 +3,14 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T00:00:00Z
+  at: 2026-10-23T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/65#discussion_r3794941822
 - resource: .devcontainer/devcontainer.json
+- resource: https://github.com/plume-works/vscode-expo-bridge
 ---
 
 # Template consumption
@@ -179,6 +180,52 @@ build profile pinning `bun` to the devcontainer's bun version; and one root
   with the passthrough
 - **THEN** a shell started by the Dev Container's sub-agent sees `EXPO_TOKEN`
   and `eas whoami` reports the account
+
+## Requirement: an Expo consumer can build iOS on a Mac host through the bridge
+
+When the consumer's `optional_bundles` includes `"expo"`, setup SHALL list
+`plume-works.vscode-expo-bridge` in `customizations.vscode.extensions`, add
+`8081` to `forwardPorts` with the `portsAttributes` entry
+`"8081": { "label": "Metro", "onAutoForward": "silent" }`, and add to the
+`## Expo` section of the root `AGENTS.md` a rule that an iOS build uses
+`eas-host` when `eas-host status` succeeds and EAS cloud otherwise. Setup SHALL
+NOT add any host command bridge other than this extension pack, SHALL NOT change
+the firewall allowlist for it, and SHALL NOT pre-authorize the bridge: trust in
+a workspace is granted only on the Mac.
+
+The protocol contract and security model are specified in
+[`plume-works/vscode-expo-bridge`](https://github.com/plume-works/vscode-expo-bridge)
+(`docs/protocol.md`), not in this repository.
+
+### Scenario: an Expo consumer is opened by VS Code on a Mac
+
+- **WHEN** an Expo consumer's devcontainer is opened by VS Code on a Mac with
+  the listed pack's workspace extension in the container, the host extension
+  installed locally on the Mac, the tools `eas-host status` checks present, and
+  the workspace trusted on the Mac
+- **THEN** `eas-host status` succeeds
+- **AND** `eas-host build` with a profile from `eas.json` leaves the artifact
+  under `.tmp/expo-bridge/`
+
+### Scenario: setup grants no trust
+
+- **WHEN** setup applies the Expo profile
+- **THEN** it writes no bridge trust or security setting into any consumer file
+- **AND** the first bridge request from the consumer's workspace asks for trust
+  on the Mac
+
+### Scenario: the bridge is unavailable
+
+- **WHEN** the devcontainer runs where the workspace is not on the VS Code host
+  — a Codespace, a non-Mac host, or no VS Code window
+- **THEN** `eas-host status` exits non-zero
+- **AND** the EAS cloud build path works unchanged
+
+### Scenario: a non-Expo consumer
+
+- **WHEN** the consumer's `optional_bundles` omits `"expo"`
+- **THEN** setup adds neither the extension pack, the forwarded port, its
+  `portsAttributes` entry, nor the rule
 
 ## Pull request description guidance
 
