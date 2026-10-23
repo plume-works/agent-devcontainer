@@ -223,9 +223,11 @@ Assumptions:
 
 **Files:** Modify: `packages/host/src/hostpath.ts`, its test
 
-- [ ] `decodeHostPath` also returns `configFile` as a Mac path and the Docker
+- [x] `decodeHostPath` also returns `configFile` as a Mac path and the Docker
   host from `settings.host`, when the payload carries them, and still accepts a
   bare host path.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `ba42312`;
+    `packages/host/test/hostpath.test.ts` passes.
 
 ### Task 6: Host — find the container and its bind mounts
 
