@@ -1364,11 +1364,18 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
     one **Developer: Reload Window** in a Codespace; Prettier check and
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
     (62/62 valid) pass.
-- [ ] `data/architecture/vscode-expo-bridge` `## Approach` and the template
+- [x] `data/architecture/vscode-expo-bridge` `## Approach` and the template
   boundary's `## Optional Expo profile` state that the listed pack installs the
   workspace extension in the container and that the host extension is installed
   locally by that one click, and the architecture doc's
   `### Rejected alternatives` records listing only the workspace extension.
+  - **Evidence:** Commit `a248b1a`: `## Approach` in
+    `architecture/vscode-expo-bridge.md` states that the listed pack installs
+    the workspace extension in the container and the host extension takes one
+    **Install Locally** click once per Mac, and its `### Rejected alternatives`
+    lists listing only the workspace extension; `## Optional Expo profile` in
+    `template-boundary.md` states the same install split; `iwe schema validate`
+    passes.
 
 ### Task 29: Validate the catalog change
 
