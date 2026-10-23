@@ -390,7 +390,9 @@ and a digest update SHALL move every reference in one change.
 CI SHALL publish `ubuntu-ansible`, `agentdev-base`, `agentdev-deploy`, and
 `agentdev-devcontainer` candidates under immutable commit tags and SHALL move
 event tags only after native deploy and Dev Container acceptance pass for the
-same digests.
+same digests, without rebuilding. CI SHALL NOT move a tag to an image built
+from an ancestor of the commit it names. Primary checks runs on `main` SHALL NOT
+cancel one another.
 
 #### Scenario: every acceptance check passes
 
@@ -401,12 +403,18 @@ same digests.
 #### Scenario: a check fails or the run is cancelled
 
 - **WHEN** any required acceptance job fails or the run is cancelled
-- **THEN** every moving tag keeps its previous digest
+- **THEN** every moving tag keeps its previous digest, and only the immutable
+  commit tag names the new image family
 
 #### Scenario: an older run is re-run
 
 - **WHEN** an older commit passes after a newer commit was promoted
 - **THEN** moving tags keep the newer image family
+
+#### Scenario: pushes to main arrive during a run
+
+- **WHEN** commits land on `main` while its run is in progress
+- **THEN** that run completes, and the newest waiting run follows it
 ```
 
 ### [Catalog lifecycle](../spec/catalog-lifecycle.md)

@@ -29,7 +29,7 @@
    1. I have repo that only has iwe kb and CI adopted, the rest is coming as devcontainer derived from agentdev-devcontainer image
    1. I have my own devcontainer derived from agentdev-devcontainer image
 
-agentdev-devcontainer image: agentdev's image that bundles all needed scripts. Scripts include customization points via env variables or replacement scripts in my devcontainer.
+agentdev-devcontainer image: agentdev's image that bundles all needed scripts. Scripts include customization points via environment variables and executable files in ordered hook directories, without replacing managed runtime files.
 
 --
 
