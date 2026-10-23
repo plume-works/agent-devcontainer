@@ -265,13 +265,15 @@ root `AGENTS.md` — and the consumer-owned `eas.json`. The marker records it as
 
 In `.devcontainer/devcontainer.json` the profile lists the [VS Code Expo
 bridge](vscode-expo-bridge.md) extension pack `plume-works.vscode-expo-bridge`
-in `customizations.vscode.extensions` and adds `8081` to `forwardPorts` for
-Metro. Its `AGENTS.md` rule tells agents to build iOS through `eas-host` when
-`eas-host status` succeeds and on EAS cloud otherwise. Setup grants the bridge
-no trust: it writes no trust or security setting into any consumer file, and a
-workspace is trusted only on the Mac. `EXPO_TOKEN` needs no profile edit: the
-template devcontainer passes it from the host for every consumer, empty when the
-host does not set it.
+in `customizations.vscode.extensions`, adds `8081` to `forwardPorts` for Metro,
+and gives that port a `portsAttributes` entry with `"onAutoForward": "silent"`,
+so VS Code's auto-forward notification does not cover the bridge's own
+notifications. Its `AGENTS.md` rule tells agents to build iOS through `eas-host`
+when `eas-host status` succeeds and on EAS cloud otherwise. Setup grants the
+bridge no trust: it writes no trust or security setting into any consumer file,
+and a workspace is trusted only on the Mac. `EXPO_TOKEN` needs no profile edit:
+the template devcontainer passes it from the host for every consumer, empty when
+the host does not set it.
 
 The profile merges the Expo template's `AGENTS.md` into the root `AGENTS.md`,
 which therefore stops matching upstream: the consumer's progress document
