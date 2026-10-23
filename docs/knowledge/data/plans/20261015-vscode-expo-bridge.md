@@ -1081,17 +1081,29 @@ on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
     on `plume-works/vscode-expo-bridge` `main` adds
     `packages/release/src/release.ts` (`checkTag`, `channelOf`) and
     `packages/release/test/release.test.ts`; `bun test` passes 183 tests.
-- [ ] A `vX.Y.Z` tag push runs `release.yml`, whose build job installs with
+- [x] A `vX.Y.Z` tag push runs `release.yml`, whose build job installs with
   `--frozen-lockfile`, lints, typechecks, tests, runs the release check,
   packages the three VSIX — with `--pre-release` when the minor is odd — and
   uploads them as artifacts.
-- [ ] The publish job needs the build job, runs in the environment `release`
+  - **Evidence:** The tag `v0.1.10` on `f0644d7` started `release.yml` [run
+    39903090857](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39903090857);
+    its build job passed, and its `vsix` artifact holds the three VSIX at
+    0.1.10, each manifest carrying `Microsoft.VisualStudio.Code.PreRelease`.
+- [x] The publish job needs the build job, runs in the environment `release`
   with `id-token: write`, signs in with `azure/login` (`client-id` and
   `tenant-id` from the environment secrets `AZURE_CLIENT_ID` and
   `AZURE_TENANT_ID`, `allow-no-subscriptions: true`), runs
   `bunx vsce publish --packagePath <host> <workspace> <pack> --skip-duplicate --azure-credential`,
   then `bunx ovsx publish` for each VSIX with `OVSX_PAT`, and creates a GitHub
   Release holding the three VSIX files.
+  - **Evidence:** In [run
+    39903090857](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39903090857),
+    the publish job waited for the `release` environment's approval, then
+    published all three to the Visual Studio Marketplace through
+    `--azure-credential` and to Open VSX with `OVSX_PAT`, and created the GitHub
+    pre-release
+    [`v0.1.10`](https://github.com/plume-works/vscode-expo-bridge/releases/tag/v0.1.10)
+    holding the three VSIX files.
 - [x] `ovsx` is pinned to an exact version in the root `devDependencies`, next
   to `@vscode/vsce`.
   - **Evidence:**
@@ -1151,16 +1163,24 @@ GitHub, and Open VSX
 
 ### Task 22: Publish pre-releases to the Visual Studio Marketplace
 
-- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+- [x] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
   and `plume-works.vscode-expo-bridge-workspace` are published to the Visual
   Studio Marketplace as pre-releases with an odd minor version by a Task 21b
   release workflow run, from a tag on the commit Task 21's last box tested.
+  - **Evidence:** [run
+    39903090857](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39903090857)
+    from the tag `v0.1.10` on `f0644d7`, the commit Task 21's last box tested;
+    the Marketplace gallery query on 2026-10-23 returns 0.1.10 with
+    `Microsoft.VisualStudio.Code.PreRelease` `true` for all three.
 
 ### Task 23: Publish pre-releases to Open VSX
 
-- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+- [x] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
   and `plume-works.vscode-expo-bridge-workspace` are published to Open VSX as
   pre-releases with the same versions as Task 22, by the same workflow run.
+  - **Evidence:** The same run; on 2026-10-23
+    `https://open-vsx.org/api/plume-works/<name>` returns version 0.1.10 with
+    `preRelease: true` for all three.
 
 ### Task 24: Pre-release test on a Mac
 
