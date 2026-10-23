@@ -52,7 +52,7 @@ Phase 2.
 Store it on the `release` environment, not at the repository level, so that only
 the approved publish job can read it.
 
-## Phase 2 — after Task 23 has published the first pre-release (plan Task 24b)
+## Phase 2 — after Task 23 has published the first pre-release (trusted publishing plan, Tasks 1–2)
 
 ### 6. Claim namespace ownership
 
@@ -82,13 +82,13 @@ Each extension takes one registration, so do this three times: for
 If **GitHub Actions** is not offered as a provider, open-vsx.org has not enabled
 trusted publishing. Tell Claude; the plan then keeps `OVSX_PAT`.
 
-### 8. Workflow switch (plan Task 24c, done by Claude)
+### 8. Workflow switch (trusted publishing plan, Task 3, done by Claude)
 
 The publish job changes to run `ovsx publish --trusted-publishing` and stops
 passing the token. A token always overrides trusted publishing, so leaving it in
 the job would quietly keep the job on the token.
 
-## Phase 3 — after Task 26 has published a release through trusted publishing (plan Task 26b)
+## Phase 3 — after a release has published through trusted publishing (trusted publishing plan, Task 5)
 
 ### 9. Retire the token
 

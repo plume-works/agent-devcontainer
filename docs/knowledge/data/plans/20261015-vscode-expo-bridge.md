@@ -19,7 +19,6 @@ sources:
 - resource: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure
 - resource: https://learn.microsoft.com/entra/workload-id/workload-identities-github-immutable-subjects
 - resource: https://github.com/eclipse/openvsx/wiki/Publishing-Extensions
-- resource: https://github.com/eclipse/openvsx/wiki/Trusted-Publishing
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/agent-expo-bridge-spikes
 - resource: https://blog.theredguild.org/leveraging-vscode-internals-to-escape-containers/
@@ -251,13 +250,9 @@ tags. The Visual Studio Marketplace takes the VSIX files through Microsoft Entra
 ID: `azure/login` exchanges the job's GitHub OIDC token for one of a
 user-assigned managed identity whose federated credential names that
 environment, and `vsce publish --azure-credential` uses it, so no Marketplace
-secret is stored. Open VSX takes its first version with an access token held as
-the environment secret `OVSX_PAT`, because its trusted publishing registers only
-an extension that already has a version; after that, a trusted publisher
-registered for `release.yml` and the environment `release` lets
-`ovsx publish --trusted-publishing` use the same OIDC token, and the access
-token is revoked. The same run attaches the VSIX files to a GitHub Release.
-Rejected: a Marketplace personal access token — publishing needs a global
+secret is stored. Open VSX takes an access token held as the environment secret
+`OVSX_PAT`. The same run attaches the VSIX files to a GitHub Release. Rejected:
+a Marketplace personal access token — publishing needs a global
 (all-organizations) Azure DevOps token, and Azure DevOps blocks creating one
 from 2026-03-15 and retires every one on 2026-12-01.
 
@@ -280,8 +275,7 @@ Assumptions:
   pre-release, an even minor for a release, since the galleries accept only
   `major.minor.patch`. The pack and both extensions share one version, and every
   change bumps its patch.
-- Installing the pack's pre-release installs its members' pre-releases. Task 24
-  checks this.
+- Installing the pack's pre-release installs its members' pre-releases.
 - The workflow that prints the managed identity's Marketplace profile ID stays
   in the repository as a manual-dispatch workflow, for when the identity is
   replaced.
@@ -1214,23 +1208,6 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
     the notification and the status bar item, and the item cleared on the next
     `status`.
 
-### Task 24b: Register Open VSX trusted publishing
-
-**Files:** none — done by the user on open-vsx.org, after Task 23
-
-- [ ] The namespace `plume-works` is claimed as owned on Open VSX.
-- [ ] Each of the three extensions has a GitHub Actions trusted publisher for
-  `plume-works/vscode-expo-bridge`, workflow `release.yml`, environment
-  `release`.
-
-### Task 24c: Release workflow publishes to Open VSX without a token
-
-**Files:** Modify: `.github/workflows/release.yml` in
-`plume-works/vscode-expo-bridge`
-
-- [ ] The publish job runs `bunx ovsx publish --trusted-publishing` for each
-  VSIX and passes no access token; CI passes on its pull request and on `main`.
-
 ### Task 25: Publish releases to the Visual Studio Marketplace
 
 - [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
@@ -1242,15 +1219,8 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
 
 - [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
   and `plume-works.vscode-expo-bridge-workspace` are installable from Open VSX
-  as releases with the same versions as Task 25, by the same workflow run,
-  through trusted publishing.
-
-### Task 26b: Retire the Open VSX access token
-
-**Files:** none — done by the user, after Task 26
-
-- [ ] The token behind `OVSX_PAT` is revoked on open-vsx.org and the secret is
-  removed from the environment `release`.
+  as releases with the same versions as Task 25, by the same workflow run, with
+  `OVSX_PAT`.
 
 ### Task 27: Wire the bridge into the Expo profile
 
@@ -1400,8 +1370,8 @@ The protocol contract and security model are specified in
   before any version is published, and Task 24's pre-release run passes before
   any release is published.
 - Every publish is a release workflow run from a `vX.Y.Z` tag whose publish job
-  waited for the `release` environment's reviewer; after Task 26b the repository
-  holds no publishing token.
+  waited for the `release` environment's reviewer, and the repository holds no
+  Marketplace token.
 - The pack and both extensions install from both the Visual Studio Marketplace
   and Open VSX.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
@@ -1564,6 +1534,7 @@ the installed app.
 - Changes to this repository's own `.devcontainer/`.
 - Publishing on a merge to `main` without a tag, and publishing from a developer
   machine.
+- Open VSX trusted publishing; Open VSX publishing stays on `OVSX_PAT`.
 - Installing Xcode itself unattended.
 - Linking the EAS project (`eas init`) through the bridge.
 - Containing a build on the Mac: a trusted, confirmed build runs with the Mac
@@ -1604,8 +1575,7 @@ Verified anchor points (line numbers as of 2026-10-23):
   the release workflow matches; `:29` — `bun run package`
 - `plume-works/vscode-expo-bridge` `.github/workflows/release.yml:5` — the
   strict `vX.Y.Z` tag trigger; `:48` — the publish job's `environment: release`;
-  `:76` and `:81` — the Marketplace and Open VSX publish steps (Task 24c edits
-  `:81`)
+  `:76` and `:81` — the Marketplace and Open VSX publish steps
 - `plume-works/vscode-expo-bridge` `packages/release/src/release.ts` —
   `checkTag`, `channelOf`
 - `plume-works/vscode-expo-bridge` `package.json:19` — the `bump` script; `:24`

@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Publish the Expo bridge to Open VSX through trusted
+publishing](plans/20261023-openvsx-trusted-publishing.md)
+
 [Incremental local iOS builds for the VS Code Expo
 bridge](plans/20261023-expo-bridge-incremental-builds.md)
 
