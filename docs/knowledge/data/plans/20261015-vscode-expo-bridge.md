@@ -1063,9 +1063,14 @@ on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
 `packages/release/` with its tests; Modify: the root `package.json` in
 `plume-works/vscode-expo-bridge`
 
-- [ ] The release check fails unless the tag equals `v` plus the shared version
+- [x] The release check fails unless the tag equals `v` plus the shared version
   of the three extension `package.json` files, and reports a pre-release for an
   odd minor and a release for an even one; `bun test` covers both.
+  - **Evidence:**
+    [`48467e9`](https://github.com/plume-works/vscode-expo-bridge/commit/48467e9)
+    on `plume-works/vscode-expo-bridge` `main` adds
+    `packages/release/src/release.ts` (`checkTag`, `channelOf`) and
+    `packages/release/test/release.test.ts`; `bun test` passes 183 tests.
 - [ ] A `vX.Y.Z` tag push runs `release.yml`, whose build job installs with
   `--frozen-lockfile`, lints, typechecks, tests, runs the release check,
   packages the three VSIX — with `--pre-release` when the minor is odd — and
@@ -1077,27 +1082,42 @@ on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
   `bunx vsce publish --packagePath <host> <workspace> <pack> --skip-duplicate --azure-credential`,
   then `bunx ovsx publish` for each VSIX with `OVSX_PAT`, and creates a GitHub
   Release holding the three VSIX files.
-- [ ] `ovsx` is pinned to an exact version in the root `devDependencies`, next
+- [x] `ovsx` is pinned to an exact version in the root `devDependencies`, next
   to `@vscode/vsce`.
+  - **Evidence:**
+    [`48467e9`](https://github.com/plume-works/vscode-expo-bridge/commit/48467e9):
+    the root `package.json` `devDependencies` hold `"ovsx": "1.3.0"` next to
+    `"@vscode/vsce": "3.6.2"`.
 - [ ] `marketplace-identity.yml` runs only on `workflow_dispatch`, in the
   environment `release` with `id-token: write`, signs in the same way, and
   prints the identity's Marketplace profile with
   `az rest -u https://app.vssps.visualstudio.com/_apis/profile/profiles/me --resource 499b84ac-1321-427f-aa17-267ca6975798`.
-- [ ] CI passes on the pull request that adds both workflows, and on `main`
+- [x] CI passes on the pull request that adds both workflows, and on `main`
   after it merges.
+  - **Evidence:** CI passed on [PR
+    #14](https://github.com/plume-works/vscode-expo-bridge/pull/14) and, after
+    its squash merge `48467e9`, on `main` in [run
+    39900184569](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39900184569).
 
 ### Task 21c: Publishing accounts
 
 **Files:** none — done by the user in the Visual Studio Marketplace, Azure,
 GitHub, and Open VSX
 
-- [ ] The Visual Studio Marketplace publisher `plume-works` exists.
+- [x] The Visual Studio Marketplace publisher `plume-works` exists.
+  - **Evidence:** https://marketplace.visualstudio.com/publishers/plume-works
+    answers 200, where an unknown publisher answers 404 (checked 2026-10-23).
 - [ ] A user-assigned managed identity has a federated credential with subject
   `repo:plume-works@309183396/vscode-expo-bridge@1427809780:environment:release`,
   the immutable form GitHub issues for this repository.
-- [ ] `plume-works/vscode-expo-bridge` has the environment `release`, with the
+- [x] `plume-works/vscode-expo-bridge` has the environment `release`, with the
   user as required reviewer, deployment limited to `v*` tags, and the secrets
   `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` of that identity.
+  - **Evidence:**
+    `gh api repos/plume-works/vscode-expo-bridge/environments/release` on
+    2026-10-23: a `required_reviewers` rule with `anton-matosov`, a custom
+    deployment policy whose only rule is the tag pattern `v*`, and the secrets
+    `AZURE_CLIENT_ID` and `AZURE_TENANT_ID`.
 - [ ] The profile ID that `marketplace-identity.yml` prints is a member of the
   `plume-works` publisher with the Contributor role.
 - [ ] An Open VSX account linked to an Eclipse account that signed the Eclipse
@@ -1515,10 +1535,16 @@ Verified anchor points (line numbers as of 2026-10-23):
   `forwardPorts` sentence
 - `docs/knowledge/data/spec/template-consumption.md:82` — Requirement: adoption
   is recorded for later updates
-- `plume-works/vscode-expo-bridge` `.github/workflows/ci.yml:18` — the bun pin
-  the release workflow matches; `:27` — `bun run package`
+- `plume-works/vscode-expo-bridge` `.github/workflows/ci.yml:20` — the bun pin
+  the release workflow matches; `:29` — `bun run package`
+- `plume-works/vscode-expo-bridge` `.github/workflows/release.yml:5` — the
+  strict `vX.Y.Z` tag trigger; `:48` — the publish job's `environment: release`;
+  `:76` and `:81` — the Marketplace and Open VSX publish steps (Task 24c edits
+  `:81`)
+- `plume-works/vscode-expo-bridge` `packages/release/src/release.ts` —
+  `checkTag`, `channelOf`
 - `plume-works/vscode-expo-bridge` `package.json:19` — the `bump` script; `:24`
-  — the `@vscode/vsce` pin `ovsx` joins
+  — the `@vscode/vsce` pin; `:25` — `ovsx`
 - `plume-works/vscode-expo-bridge` `packages/release/src/bump.ts:5` —
   `EXTENSIONS`, the three packages that share one version
 - `plume-works/vscode-expo-bridge` `packages/host/package.json:51`,
