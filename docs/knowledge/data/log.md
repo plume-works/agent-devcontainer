@@ -12,6 +12,9 @@ to the current day's group.
   builds iOS on a Mac host through the bridge.
 - **Update**: [VS Code Expo bridge](features/vscode-expo-bridge.md) implemented;
   listed under Unreleased Added.
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
+  profile's silenced Metro port and `eas-host` iOS build rule.
 
 ## 2026-10-22
 
