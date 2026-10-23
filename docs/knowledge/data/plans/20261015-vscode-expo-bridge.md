@@ -528,15 +528,14 @@ Containers window on a Mac
   - **Evidence:** See `## Verification results` → "Task 10". eas-cli 25.3.0
     rejects `cocoapods`, `fastlane`, `image` at schema validation; a build with
     `"node": "20.18.0"` logged the Node.js-mismatch warning and built with the
-    Mac's Node (`.tmp/t10out1/build.log`, exit 0). Spike: `task10_toolVersions`
-    in
+    Mac's Node, exit 0. Spike: `task10_toolVersions` in
     [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] Whether a second build of the unchanged app reuses anything from the first
   — dependency install, pods, DerivedData — is recorded.
   - **Evidence:** See `## Verification results` → "Task 10". Two consecutive
-    builds (`.tmp/t10out1`, `.tmp/t10out2`, both exit 0) each ran in a fresh
-    `eas-build-local-nodejs/<uuid>` workdir and installed all 443 packages (929
-    ms, then 529 ms from bun's cache) and all 103 pods. Spike: `task10_reuse` in
+    builds (both exit 0) each ran in a fresh `eas-build-local-nodejs/<uuid>`
+    workdir and installed all 443 packages (929 ms, then 529 ms from bun's
+    cache) and all 103 pods. Spike: `task10_reuse` in
     [`plume-works/agent-expo-bridge-spikes extensions/ui/spikes.js`](https://github.com/plume-works/agent-expo-bridge-spikes/blob/3409e51830b52545a8cfd911f2296423052a0617/extensions/ui/spikes.js).
 - [x] The results are recorded under `## Verification results`; when a field is
   honored, `status`'s tool checks are revised before Task 11.
@@ -1415,16 +1414,18 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
   `.tmp/expo-bridge/`.
   - **Evidence:** Run on 2026-10-23 on the Mac in the same window: Task 21's
     script ran `eas-host status` (`available: true`, exit 0) and
-    `eas-host build development` (eas-cli 25.3.0, exit 0), which left
-    `.tmp/expo-bridge/build-1792737941518.tar.gz`; `install`, `launch`, and
-    `screenshot` exited 0, with Metro in the container logging
-    `iOS Bundled 2474ms index.js (712 modules)`.
+    `eas-host build development` (eas-cli 25.3.0, exit 0), which left the
+    `.tar.gz` artifact under `.tmp/expo-bridge/`; `install`, `launch`, and
+    `screenshot` exited 0, and the launched development build loaded its bundle
+    from Metro in the container.
 - [x] After a container rebuild of that window, the host extension runs in the
   local extension host with no further click, and `eas-host status` succeeds.
-  - **Evidence:** Run on 2026-10-23 on the Mac: after **Dev Containers: Rebuild
-    Container** (container `4f9c8389f604` replaced by `3e6a9185a155`), with no
-    click, `eas-host status` returned `available: true` with `macHost`,
-    `hostPathExists`, and `workspaceTrusted` ok.
+  - **Evidence:** Run on 2026-10-23 on the Mac in the same consumer,
+    `plume-works/expo-bridge-t21` `template-adoption` (`.agent.metadata.json`:
+    `consumed_ref` `c9bea80`, `optional_bundles: ["expo"]`), with the pack 0.2.0
+    that release run 39907262994 published: after **Dev Containers: Rebuild
+    Container**, with no click, `eas-host status` returned `available: true`
+    with `macHost`, `hostPathExists`, and `workspaceTrusted` ok.
 
 ### Task 31: Fallback when the bridge is unavailable
 
@@ -1751,9 +1752,10 @@ Verified anchor points (line numbers as of 2026-10-23):
   — `## Optional Expo setup`
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:984`
   — step 6, the `devcontainer.json` edits; `:999` — the paragraph on what the
-  pack does once the devcontainer opens
+  pack does once the devcontainer opens; `:1008` — the **Install Locally** and
+  **Reload Window** paragraph
 - `docs/knowledge/data/architecture/vscode-expo-bridge.md:32` — the pack and
-  where each extension runs; `:121` — `### Rejected alternatives`
+  where each extension runs; `:127` — `### Rejected alternatives`
 - `docs/knowledge/data/architecture/template-boundary.md:256` —
   `## Optional Expo profile`
 - `docs/knowledge/data/architecture/template-boundary.md:268` — the
@@ -1774,8 +1776,10 @@ Verified anchor points (line numbers as of 2026-10-23):
 - `plume-works/vscode-expo-bridge` `packages/host/package.json:51`,
   `packages/workspace/package.json:27`, `packages/pack/package.json:24` — the
   `vsce package` scripts
-- `plume-works/vscode-expo-bridge` `README.md:7` — installing the pack;
-  `packages/pack/README.md:4` — "This pack installs the host extension"
+- `plume-works/vscode-expo-bridge` `README.md:7` — installing the pack; `:16` —
+  the devcontainer-listed pack and **Install Locally**;
+  `packages/pack/README.md:4` — where each extension runs; `:7` — the
+  devcontainer-listed pack and **Install Locally**
 - `plume-works/vscode-expo-bridge` `packages/host/src/hostpath.ts:11` —
   `decodeHostPath`, which reads the Mac path from a `dev-container+<hex>`
   authority
