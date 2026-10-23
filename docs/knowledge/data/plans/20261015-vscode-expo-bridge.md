@@ -17,6 +17,7 @@ sources:
 - resource: https://code.visualstudio.com/api/working-with-extensions/publishing-extension
 - resource: https://devblogs.microsoft.com/devops/retirement-of-global-personal-access-tokens-in-azure-devops
 - resource: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure
+- resource: https://learn.microsoft.com/entra/workload-id/workload-identities-github-immutable-subjects
 - resource: https://github.com/eclipse/openvsx/wiki/Publishing-Extensions
 - resource: https://github.com/eclipse/openvsx/wiki/Trusted-Publishing
 - resource: https://github.com/plume-works/vscode-expo-bridge
@@ -1092,7 +1093,8 @@ GitHub, and Open VSX
 
 - [ ] The Visual Studio Marketplace publisher `plume-works` exists.
 - [ ] A user-assigned managed identity has a federated credential with subject
-  `repo:plume-works/vscode-expo-bridge:environment:release`.
+  `repo:plume-works@309183396/vscode-expo-bridge@1427809780:environment:release`,
+  the immutable form GitHub issues for this repository.
 - [ ] `plume-works/vscode-expo-bridge` has the environment `release`, with the
   user as required reviewer, deployment limited to `v*` tags, and the secrets
   `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` of that identity.
