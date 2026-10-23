@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: agent-opencode runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener sequences services on readiness, recovers each within a bounded budget, refreshes dependent clients, and exits the container nonzero when recovery is exhausted.
+description: agent-opencode runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T14:38:38Z
+  at: 2026-10-23T21:45:57Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -73,9 +73,10 @@ The proxy network is shared, so the proxy cannot be the only access boundary:
 any peer on it reaches the container's ports directly. Each service therefore
 authenticates on its own. OpenCode requires `OPENCODE_SERVER_PASSWORD`, and Xpra
 requires `XPRA_PASSWORD` through its `env` auth module, which keeps the secret
-off the command line. PID 1 refuses to start with Xpra enabled and no password,
-before the bootstrap, rather than failing Xpra's recovery budget later.
-Devcontainer and Coder starts bind Xpra to loopback and need no password.
+off the command line. PID 1 refuses to proceed with Xpra enabled and no
+password, before the bootstrap, latching a configuration failure rather than
+failing Xpra's recovery budget later. Devcontainer and Coder starts bind Xpra to
+loopback and need no password.
 
 Two alternatives were rejected. Requiring `ENABLE_FIREWALL` with trusted proxy
 CIDRs whenever Xpra runs would couple desktop access to the opt-in egress
@@ -97,9 +98,10 @@ PID 1 is `runtime-supervisor.py run`. It runs `runtime-bootstrap.sh` as root,
 which creates the runtime account before any program that names it is
 configured. It then calls `supervisor.supervisord.main()` in the same process.
 supervisord's own `main()` always exits `0`. Running it in-process lets PID 1
-exit `1` after a terminal failure while supervisord remains the process that
+exit `1` when the controller fails while supervisord remains the process that
 reaps every orphan. A wrapper shell or an init shim would take PID 1 away from
-supervisord.
+supervisord. A watchdog thread in PID 1 notices a controller listener that died
+outside a shutdown and stops supervisord, so that crash ends the container.
 
 Every program is `autostart=false`, `startretries=0`, `autorestart=false`:
 supervisord only spawns, signals, and reaps. The `controller` event listener
@@ -115,15 +117,61 @@ Bootstrap and the opt-in firewall run as root before supervisord starts, so the
 firewall's rule flush can never erase rules `dockerd` installs later. The
 controller then starts the services in dependency order.
 
-## Ordering and readiness
+## Core path and optional work
 
-Services start in this order, each gated on `runtime-health.sh <service>`
-passing within the service-start deadline: `dockerd`, `dbus`, `keyring`, the
-`prepare` one-shot, `cbm`, the `index` one-shot, `xpra`, then `opencode`.
-One-shots run once per container start under the preparation deadline, and a
-nonzero exit or timeout is terminal, so OpenCode never starts on a failed
-preparation. Aggregate readiness is the file `/run/agentdev/ready`, which the
-image healthcheck reads. It is removed for the length of any recovery.
+The core path is `dbus`, `keyring`, and the `prepare` one-shot (checkout, Claude
+and Codex login links, agent policy), then `opencode`. The other components are
+optional:
+
+- `config` registers the catalog and then the CBM client configuration. It runs
+  before OpenCode, which reads both when it starts.
+- `cbm` also starts before OpenCode: an MCP client that finds no daemon starts a
+  session-managed one that the runtime cannot adopt as permanent (see [CBM
+  daemon lifecycle](cbm-daemon-lifecycle.md)).
+- `xpra` launches together with `opencode`, and neither waits for the other.
+- `dockerd`, the `prune` image prune, the `project` one-shot (uv sync and
+  pre-commit hook registration), and the `index` request follow OpenCode.
+
+An optional failure marks the runtime `degraded`, and OpenCode keeps serving. A
+component whose dependency failed is `blocked` until that dependency is retried.
+`AGENTDEV_STRICT_STARTUP=true` treats every optional component as core.
+
+Starting OpenCode last, behind every service, was rejected. A broken uv sync or
+nested Docker would then keep the agent unreachable, and a large index would
+delay every start.
+
+## Readiness
+
+Each service is gated on `runtime-health.sh <service>` passing within the
+service-start deadline; one-shots run once per container start under the
+preparation deadline. The controller publishes `/run/agentdev/state.json`
+(`pending`, `ready`, `degraded`, or `failed`, with each component's status) and
+refreshes its heartbeat every interval from a separate thread, so a long phase
+never looks like a dead controller. `runtime-health.sh ready`, the image
+healthcheck, passes only when that heartbeat is younger than three intervals,
+the state is `ready`, and the `dbus`, `keyring`, and `opencode` probes pass at
+that moment. The healthcheck's start period covers the core path alone.
+
+## Failure latch
+
+A failure the runtime cannot recover from latches it `failed`: a failed
+bootstrap, an invalid setting or missing `XPRA_PASSWORD`, a failed core phase,
+or a core service exhausting its budget. PID 1 and supervisord stay up, OpenCode
+is stopped, nothing is restarted or rerun, and readiness stays withdrawn. Each
+program runs under `runtime-supervisor.py exec`, which streams its output and
+keeps its command, exit status, and last 200 lines. Every failure writes those,
+the start's ID, and the time to `last-failure.json` on the home volume. Startup
+never deletes that record. A failure before the home volume is validated goes to
+stderr only.
+
+`runtime-supervisor.py retry` resumes from the failed component in the same
+container. Before supervisord starts, PID 1 itself waits for the request and
+reruns the configuration check and bootstrap.
+
+Exiting PID 1 nonzero on every unrecoverable failure was rejected. Under
+Compose's `restart: unless-stopped`, that reruns non-transactional preparation
+against the same volumes without bound. PID 1 exits nonzero only when the
+controller or supervisord fails, which leaves the restart policy for crashes.
 
 ## Recovery
 
@@ -143,8 +191,8 @@ image healthcheck reads. It is removed for the length of any recovery.
   Xpra starts its X server in a separate session, beyond that group, so
   `start-xpra.sh --supervised` also stops a leftover Xpra X server holding the
   display when no live session owns it.
-- Exhaustion writes the reason to `/run/agentdev/failed` and asks supervisord to
-  shut down; PID 1 then exits `1`.
+- Exhaustion degrades the runtime for an optional service and latches it for a
+  core one.
 
 ## Shutdown
 

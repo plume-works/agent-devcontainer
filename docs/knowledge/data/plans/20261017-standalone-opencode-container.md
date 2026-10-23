@@ -1389,7 +1389,7 @@ Supersedes Task 10's 30-minute health start period.
 `docs/knowledge/data/architecture/cbm-daemon-lifecycle.md`; Refresh: stale
 `docs/knowledge/data/codebase/` docs
 
-- [ ] `README.md` `## Standalone OpenCode runtime` covers:
+- [x] `README.md` `## Standalone OpenCode runtime` covers:
 
   - the core path and the optional work;
   - degraded and failed states;
@@ -1401,6 +1401,15 @@ Supersedes Task 10's 30-minute health start period.
   The architecture document records the core/optional split and the failure
   latch with its rejected alternative from `## Approach`. The CBM document
   records the `hooks.json` representation.
+
+  - **Evidence:** commit "docs(runtime): document failure handling and
+    background indexing": `README.md` gains `### Startup and failures` and
+    rewrites `### Operating it`, the deploy guide's first start follows, and
+    [Standalone OpenCode
+    runtime](../architecture/standalone-opencode-runtime.md) and [CBM daemon
+    lifecycle](../architecture/cbm-daemon-lifecycle.md) carry the split, the
+    latch with its rejected alternative, background indexing, and `hooks.json`.
+    Prettier passes on both READMEs, and `iwe schema validate` exits 0.
 
 - [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.

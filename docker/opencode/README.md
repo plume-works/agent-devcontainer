@@ -84,16 +84,19 @@ docker compose -p myproject --env-file ~/secrets/myproject.env \
   -f compose.opencode.yml -f opencode-compose-pins.yml -f compose.opencode.bind.yml up -d
 ```
 
-The first start clones, syncs the project's Python environment, and indexes the code
-before OpenCode starts. Follow it until the container reports `healthy`:
+The first start clones the workspace and starts OpenCode; the Python environment,
+pre-commit hooks, and the code index follow in the background. Follow it until the
+container reports `healthy`:
 
 ```bash
 docker compose -p myproject logs -f
 docker compose -p myproject ps
 ```
 
-If the container exits instead, its last log lines name the cause. The README's
-[operating notes](../../README.md#operating-it) list the usual ones.
+If it stays unhealthy, `docker exec <container>
+/opt/agentdev-runtime/runtime-health.sh status` names what failed and how to retry
+it. The README's [operating notes](../../README.md#operating-it) list the usual
+causes.
 
 ## 5. Route the proxy to it
 
