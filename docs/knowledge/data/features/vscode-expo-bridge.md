@@ -4,10 +4,11 @@ stage: accepted
 description: Agents in a devcontainer opened by VS Code on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through the vscode-expo-bridge extension's fixed Expo-only action set, with EAS cloud as the fallback.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T00:00:00Z
+  at: 2026-10-23T08:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
+- resource: https://code.visualstudio.com/docs/devcontainers/containers
 ---
 
 # VS Code Expo bridge
@@ -48,6 +49,9 @@ and tells agents to use `eas-host` for iOS when `eas-host status` succeeds.
 
 - **The bridge is unavailable** — not a Mac, or a tool missing.
   `eas-host status` says so and exits non-zero, and agents use EAS cloud builds.
+- **The first window on a Mac.** The pack listed in `devcontainer.json` installs
+  into the container, where the host extension is disabled; one click on its
+  **Install Locally** installs it on the Mac.
 - **A Mac tool is missing.** The extension offers a one-click fix in the VS Code
   UI; a fix runs only on the user's click, never from a protocol action.
 - **Signed device and store builds** are not covered; the bridge builds for the

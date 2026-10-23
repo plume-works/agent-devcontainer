@@ -6,7 +6,7 @@ release:
 description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built unsandboxed as the Mac user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T03:58:45Z
+  at: 2026-10-23T08:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -14,6 +14,7 @@ sources:
 - resource: https://docs.expo.dev/build-reference/local-builds/
 - resource: https://github.com/expo/eas-build
 - resource: https://code.visualstudio.com/api/advanced-topics/remote-extensions
+- resource: https://code.visualstudio.com/docs/devcontainers/containers
 - resource: https://code.visualstudio.com/api/working-with-extensions/publishing-extension
 - resource: https://devblogs.microsoft.com/devops/retirement-of-global-personal-access-tokens-in-azure-devops
 - resource: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-azure
@@ -206,6 +207,13 @@ bridge.
   bridge's own notifications, and adds an `AGENTS.md` rule telling agents to use
   `eas-host` for iOS when `eas-host status` succeeds. Setup never pre-authorizes
   the bridge.
+- **Host install.** Dev Containers installs every extension listed in
+  `devcontainer.json` into the container, so the listed pack brings the
+  workspace extension and leaves the host extension disabled there. The
+  documented first-run step is one click on the host extension's **Install
+  Locally** in the Extensions view, once per Mac. Rejected: listing only the
+  workspace extension and telling users to install the pack on the Mac — a
+  window opened without that step shows nothing to click.
 
 The protocol and the security model are specified in the sibling repository,
 which owns the code; this repository's spec covers only the template wiring, the
@@ -269,8 +277,10 @@ Assumptions:
 - The first workspace folder is the Expo project root.
 - CocoaPods and fastlane are owned by the one-click fix, not by the [macOS
   bootstrap](20261013-macos-native-bootstrap.md).
-- Listing the pack in `customizations.vscode.extensions` installs the host
-  extension in the Mac's local extension host.
+- Once the host extension is installed locally, later Dev Containers windows on
+  that Mac, including after a container rebuild, run it without another click.
+- The Marketplace pages show a corrected pack README only from the next
+  published version; no version is published for the README change alone.
 - Versions follow VS Code's pre-release convention: an odd minor for a
   pre-release, an even minor for a release, since the galleries accept only
   `major.minor.patch`. The pack and both extensions share one version, and every
@@ -1263,6 +1273,19 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
     Mac's raised the fix notification and status bar item, the fix opened a
     terminal on the Mac, and the item cleared on the next `status`.
 
+### Task 26c: Document the host extension's one-click install in the sibling repository
+
+**Files:** Modify: `README.md`, `packages/pack/README.md` in
+`plume-works/vscode-expo-bridge`
+
+- [ ] `README.md` and the pack's `packages/pack/README.md` state that a
+  devcontainer listing the pack in `customizations.vscode.extensions` installs
+  the workspace extension in the container and leaves the host extension
+  disabled there, and that one click on the host extension's **Install
+  Locally**, once per Mac, installs it in the local extension host; the pack
+  README no longer says the pack installs the host extension in the Mac's local
+  extension host. CI passes on its pull request and on `main`.
+
 ### Task 27: Wire the bridge into the Expo profile
 
 **Files:** Modify:
@@ -1319,6 +1342,23 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
     `plume-works/vscode-expo-bridge` `docs/protocol.md`, and adds its inclusion
     link to `docs/knowledge/data/architecture.md`; `iwe schema validate` passes.
 
+### Task 28b: State the one-click host install in the Expo profile docs
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
+`docs/knowledge/data/architecture/vscode-expo-bridge.md`,
+`docs/knowledge/data/architecture/template-boundary.md`
+
+- [ ] The paragraph after step 6 of `## Optional Expo setup` tells the user that
+  the first window on a Mac shows the host extension disabled in the container,
+  and that one click on its **Install Locally** in the Extensions view, once per
+  Mac, enables the bridge.
+- [ ] `data/architecture/vscode-expo-bridge` `## Approach` and the template
+  boundary's `## Optional Expo profile` state that the listed pack installs the
+  workspace extension in the container and that the host extension is installed
+  locally by that one click, and the architecture doc's
+  `### Rejected alternatives` records listing only the workspace extension.
+
 ### Task 29: Validate the catalog change
 
 - [x] `uv run validate_agent_files --recommend . --require-marketplace claude codex`
@@ -1331,11 +1371,14 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 
 - [ ] In an Expo consumer adopted with the Expo profile and opened by VS Code on
   a Mac with no bridge extension installed beforehand, the released pack listed
-  in `devcontainer.json` puts the host extension in the local extension host and
-  the workspace extension in the container.
+  in `devcontainer.json` installs the workspace extension in the container and
+  shows the host extension disabled with **Install Locally**; one click on it
+  puts the host extension in the local extension host.
 - [ ] In that window `eas-host status` succeeds, and `eas-host build` with a
   simulator profile from `eas.json` leaves the artifact under
   `.tmp/expo-bridge/`.
+- [ ] After a container rebuild of that window, the host extension runs in the
+  local extension host with no further click, and `eas-host status` succeeds.
 
 ### Task 31: Fallback when the bridge is unavailable
 
@@ -1367,7 +1410,8 @@ the Mac.
 #### Scenario: an Expo consumer is opened by VS Code on a Mac
 
 - **WHEN** an Expo consumer's devcontainer is opened by VS Code on a Mac with
-  the extension pack installed, the tools `eas-host status` checks present, and
+  the listed pack's workspace extension in the container, the host extension
+  installed locally on the Mac, the tools `eas-host status` checks present, and
   the workspace trusted on the Mac
 - **THEN** `eas-host status` succeeds
 - **AND** `eas-host build` with a profile from `eas.json` leaves the artifact
@@ -1419,6 +1463,8 @@ The protocol contract and security model are specified in
   passes.
 - Task 26b's VSCodium run, Task 30's end-to-end run, and Task 31's fallback run
   behave as described.
+- No document in this repository or the sibling repository says that listing the
+  pack in `devcontainer.json` installs the host extension on the Mac.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Verification results
@@ -1582,6 +1628,19 @@ work:
 - `3timeslazy.vscodium-devpodcontainers` and `zwhy2025.open-dev-container`
   connect over SSH, whose authority carries no Mac path.
 
+### Task 30: `devcontainer.json` installs the host extension in the container
+
+On a Mac with no bridge extension installed, opening the adopted consumer with
+the pack listed in `customizations.vscode.extensions` installed the pack, the
+host extension, and the workspace extension 0.2.0 in the container and none on
+the Mac. VS Code disabled the host extension there with "This extension is
+disabled in this workspace because it is defined to run in the Local Extension
+Host. Please install the extension locally to enable." and offered **Install
+Locally**. VS Code's Dev Containers documentation describes the list as the
+extensions "installed when the container is created". Installing the pack from
+the Extensions view in an open window (Tasks 24 and 26b) does put the host
+extension on the Mac.
+
 ## Out of scope
 
 - Android builds through the bridge; the container builds Android itself.
@@ -1597,6 +1656,8 @@ work:
 - Publishing on a merge to `main` without a tag, and publishing from a developer
   machine.
 - Open VSX trusted publishing; Open VSX publishing stays on `OVSX_PAT`.
+- Installing the host extension on the Mac without a user click, and publishing
+  a version only to refresh the Marketplace README.
 - Installing Xcode itself unattended.
 - Linking the EAS project (`eas init`) through the bridge.
 - Containing a build on the Mac: a trusted, confirmed build runs with the Mac
@@ -1626,7 +1687,10 @@ Verified anchor points (line numbers as of 2026-10-23):
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
   — `## Optional Expo setup`
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:984`
-  — step 6, the `devcontainer.json` edits
+  — step 6, the `devcontainer.json` edits; `:999` — the paragraph on what the
+  pack does once the devcontainer opens
+- `docs/knowledge/data/architecture/vscode-expo-bridge.md:32` — the pack and
+  where each extension runs; `:121` — `### Rejected alternatives`
 - `docs/knowledge/data/architecture/template-boundary.md:256` —
   `## Optional Expo profile`
 - `docs/knowledge/data/architecture/template-boundary.md:268` — the
@@ -1647,6 +1711,8 @@ Verified anchor points (line numbers as of 2026-10-23):
 - `plume-works/vscode-expo-bridge` `packages/host/package.json:51`,
   `packages/workspace/package.json:27`, `packages/pack/package.json:24` — the
   `vsce package` scripts
+- `plume-works/vscode-expo-bridge` `README.md:7` — installing the pack;
+  `packages/pack/README.md:4` — "This pack installs the host extension"
 - `plume-works/vscode-expo-bridge` `packages/host/src/hostpath.ts:11` —
   `decodeHostPath`, which reads the Mac path from a `dev-container+<hex>`
   authority
