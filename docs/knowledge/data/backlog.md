@@ -16,6 +16,9 @@ write a plan and link the plan instead.*
 
 ## High
 
+[Make the Expo bridge self-explanatory to an
+agent](backlog/expo-bridge-agent-guidance.md)
+
 ## Medium
 
 [Document VSCodium support for the Expo
