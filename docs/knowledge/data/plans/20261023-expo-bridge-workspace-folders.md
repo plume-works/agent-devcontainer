@@ -190,12 +190,18 @@ Assumptions:
 **Files:** Modify: `packages/workspace/bin/eas-host.ts`,
 `packages/workspace/src/cli-args.ts`, their tests
 
-- [ ] `eas-host` picks the live registry entry with the longest workspace folder
+- [x] `eas-host` picks the live registry entry with the longest workspace folder
   containing its real working directory, the most recently activated on a tie,
   and sends its working directory with the request.
-- [ ] With no such entry it prints that no VS Code window has a workspace folder
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `87493e2`;
+    `packages/workspace/test/registry.test.ts` (`selectEntry`) and
+    `packages/workspace/test/eas-host.test.ts` (the request carries `cwd`) pass.
+- [x] With no such entry it prints that no VS Code window has a workspace folder
   containing the directory and exits 3. `eas-host --help` says to run it inside
   the Expo app's workspace folder.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `87493e2`;
+    `packages/workspace/test/eas-host.test.ts` (a run outside every folder) and
+    `packages/workspace/test/cli-args.test.ts` (help) pass.
 
 ### Task 4: Workspace extension — the request's folder
 
