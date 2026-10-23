@@ -78,6 +78,17 @@ cmd_create() {
   link_auth
 }
 
+# CBM install, agent policy, and catalog registration all rewrite the agents' config
+# files, so concurrent runs take turns on one lock. Spec: catalog-lifecycle.
+with_config_lock() {
+  local lock="$HOME/.local/state/agentdev/agent-config.lock"
+  mkdir -p "$(dirname "$lock")"
+  exec {lock_fd}>>"$lock"
+  flock --wait "${AGENTDEV_CONFIG_LOCK_TIMEOUT:-1800}" "$lock_fd" ||
+    { echo "timed out waiting for $lock" >&2 && exit 1; }
+  "$@"
+}
+
 cmd_catalog() {
   local catalog="$1" claude_scope="${2:-}"
   "$script_dir/reinstall-agentdev-codex.sh" "$catalog"
@@ -86,13 +97,13 @@ cmd_catalog() {
 }
 
 case "${1:-}" in
-  create) cmd_create ;;
+  create) with_config_lock cmd_create ;;
   links) link_auth ;;
-  agent-policy) apply_agent_policy ;;
-  cbm) install_cbm ;;
+  agent-policy) with_config_lock apply_agent_policy ;;
+  cbm) with_config_lock install_cbm ;;
   catalog)
     [[ -n ${2:-} ]] || { echo "usage: $(basename "$0") catalog <dir> [claude-scope]" >&2 && exit 2; }
-    cmd_catalog "$2" "${3:-}"
+    with_config_lock cmd_catalog "$2" "${3:-}"
     ;;
   *)
     echo "usage: $(basename "$0") create|links|agent-policy|cbm|catalog <dir> [claude-scope]" >&2

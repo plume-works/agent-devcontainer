@@ -1236,17 +1236,35 @@ Supersedes the blocking initial index of Tasks 5 and 6.
 `scripts/tests/test_agent_runtime_workspace.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] `reinstall-agentdev-codex.sh` leaves a marketplace already registered
+- [x] `reinstall-agentdev-codex.sh` leaves a marketplace already registered
   under the catalog's name and root, and its installed plugin, as they are: no
   remove, no add, and `config.toml` byte-identical on a rerun. A stale or
   renamed registration is still replaced, and
   `test_switching_catalogs_replaces_managed_registrations_only` still passes.
-- [ ] CBM installation, agent policy, and catalog registration hold one lock
+  - **Evidence:** commit "fix(runtime): make agent-config writers idempotent and
+    serialized"; a registration counts as current when the name, root, installed
+    version, and a byte-identical plugin cache all match.
+    `test_rerunning_codex_registration_leaves_config_byte_identical` (real
+    Codex: the rerun adds nothing, `config.toml` is unchanged, and an edited
+    catalog is installed again) and
+    `test_switching_catalogs_replaces_managed_registrations_only` pass.
+- [x] CBM installation, agent policy, and catalog registration hold one lock
   file under `$HOME/.local/state/agentdev/` in both runtime modes. A test shows
   two concurrent `setup-agent-state.sh` runs serialize.
-- [ ] In container acceptance, a first start with no `.codex` and three further
+  - **Evidence:** same commit; `setup-agent-state.sh` holds
+    `$HOME/.local/state/agentdev/agent-config.lock` for `create`,
+    `agent-policy`, `cbm`, and `catalog`, and `postAttachCommand.sh` now
+    registers through `catalog`. `test_concurrent_config_writers_take_turns`
+    passes for all three pairings and fails with the lock disabled.
+- [x] In container acceptance, a first start with no `.codex` and three further
   starts on the same volumes leave `config.toml` and `hooks.json` byte-identical
   after the first start, with CBM's hooks only in `hooks.json`.
+  - **Evidence:** same commit; the standalone `config` step registers the
+    catalog before the CBM install, so CBM's MCP block ends the file. In the
+    other order, Codex's tables land above CBM's trailing marker and the next
+    install rewrites it.
+    `test_restarts_leave_codex_config_and_hooks_byte_identical` passed in the
+    `agent-opencode:t29` run (20 passed, 1 skipped).
 
 ### Task 30: Register standalone pre-commit hooks without building environments
 

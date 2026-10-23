@@ -302,13 +302,13 @@ def test_the_core_phase_prepares_agent_state_but_no_optional_work(runtime: Runti
     assert runtime.calls() == ['setup-agent-state.sh create', 'setup-agent-state.sh agent-policy']
 
 
-def test_the_config_step_installs_cbm_then_registers_the_catalog(runtime: Runtime):
+def test_the_config_step_registers_the_catalog_then_installs_cbm(runtime: Runtime):
     (runtime.root / 'image-catalog').mkdir()
     result = runtime.run('config')
     assert result.returncode == 0, result.stderr
     assert runtime.calls() == [
-        'setup-agent-state.sh cbm',
         f'setup-agent-state.sh catalog {runtime.root / "image-catalog"} user',
+        'setup-agent-state.sh cbm',
     ]
 
 
@@ -410,3 +410,35 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
     assert opencode == {'plugin': ['other', bridge], 'theme': 'x'}
     assert (home / '.codex/agents/mine.toml').read_text() == 'name = "mine"\n'
     assert (home / '.codex/agents/agentdev-iwe-implementer.toml').exists()
+
+
+@pytest.mark.skipif(
+    not all(shutil.which(tool) for tool in ('codex', 'jq')), reason='requires Codex'
+)
+def test_rerunning_codex_registration_leaves_config_byte_identical(tmp_path: Path):
+    catalog = tmp_path / 'catalog'
+    shutil.copytree(REPO_ROOT / '.agents/plugins', catalog / '.agents/plugins', symlinks=True)
+    home = tmp_path / 'home'
+    (home / '.codex').mkdir(parents=True)
+    env = {'PATH': os.environ['PATH'], 'HOME': str(home), 'CODEX_HOME': str(home / '.codex')}
+
+    def register() -> str:
+        result = subprocess.run(
+            [SCRIPTS / 'reinstall-agentdev-codex.sh', str(catalog)],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+        return result.stdout
+
+    assert 'Added marketplace' in register()
+    config = home / '.codex/config.toml'
+    before = config.read_bytes()
+    again = register()
+    assert 'already registered' in again and 'Added' not in again
+    assert config.read_bytes() == before
+
+    (catalog / '.agents/plugins/agentdev/skills/added-in-place.md').write_text('new\n')
+    assert 'Added plugin' in register(), 'a changed catalog is installed again'

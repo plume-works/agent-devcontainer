@@ -111,10 +111,11 @@ cmd_prepare() {
   "$script_dir/setup-agent-state.sh" agent-policy
 }
 
-# Optional, but before OpenCode, which reads both when it starts.
+# Optional, but before OpenCode, which reads both when it starts. The catalog goes
+# first: Codex inserts its tables above a trailing CBM marker, which CBM then moves.
 cmd_config() {
-  "$script_dir/setup-agent-state.sh" cbm
   cmd_catalog
+  "$script_dir/setup-agent-state.sh" cbm
 }
 
 case "${1:-}" in

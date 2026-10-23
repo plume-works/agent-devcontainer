@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 import stat
 import subprocess
+import time
 
 import pytest
 
@@ -296,3 +297,30 @@ def test_keyring_environment_file_location_is_configurable(tmp_path: Path):
     setup = subprocess.run([GH_HELPER_SCRIPT], env=env, capture_output=True, text=True)
     assert setup.returncode == 0, setup.stderr
     assert 'Configured gh as the git credential helper.' in setup.stdout
+
+
+@pytest.mark.parametrize('second', ['catalog', 'agent-policy', 'cbm'])
+def test_concurrent_config_writers_take_turns(scripts: Path, tmp_path: Path, second: str):
+    log = tmp_path / 'calls.log'
+    slow = scripts / 'reinstall-agentdev-codex.sh'
+    slow.write_text(f'#!/usr/bin/env bash\necho begin >> "{log}"\nsleep 1\necho end >> "{log}"\n')
+    for name in ('configure-codex.py', 'runtime-cbm.sh'):
+        (scripts / name).write_text(f'#!/usr/bin/env bash\necho other >> "{log}"\n')
+    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='standalone')
+    args = {
+        'catalog': ['catalog', '/opt/catalog'],
+        'agent-policy': ['agent-policy'],
+        'cbm': ['cbm'],
+    }
+    first = subprocess.Popen(
+        [scripts / 'setup-agent-state.sh', 'catalog', '/opt/catalog'], env=env
+    )
+    deadline = time.monotonic() + 10
+    while 'begin' not in calls(tmp_path) and time.monotonic() < deadline:
+        time.sleep(0.05)
+    result = run_state(scripts, tmp_path, *args[second], AGENTDEV_RUNTIME_MODE='standalone')
+    assert first.wait(timeout=30) == 0
+    assert result.returncode == 0, result.stderr
+    lines = [line for line in calls(tmp_path) if line in {'begin', 'end', 'other'}]
+    assert lines[:2] == ['begin', 'end'], lines
+    assert (tmp_path / 'home/.local/state/agentdev/agent-config.lock').exists()

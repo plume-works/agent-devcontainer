@@ -672,6 +672,23 @@ def test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images(
     ready_runtime.sh('docker image inspect acceptance:kept >/dev/null')
 
 
+def test_restarts_leave_codex_config_and_hooks_byte_identical(make_runtime, scratch: Path):
+    runtime = make_runtime(workspace=bind(make_checkout(scratch)))
+    runtime.run()
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+    codex = '/home/agent/.codex'
+    files = f'cat {codex}/config.toml; echo ===; cat {codex}/hooks.json'
+    first = runtime.sh(files).stdout
+    config, hooks = first.split('===\n')
+    assert '[[hooks.' not in config and 'SessionStart' not in config
+    assert set(json.loads(hooks)['hooks']) >= {'SessionStart', 'SubagentStart'}
+    for _ in range(3):
+        runtime.restart()
+        assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+        assert runtime.sh(files).stdout == first
+    assert 'already registered' in runtime.logs()
+
+
 @pytest.mark.skipif(not PREVIOUS_IMAGE, reason='set AGENTDEV_RUNTIME_PREVIOUS_IMAGE')
 def test_upgrade_from_the_previous_image_keeps_user_state(make_runtime, scratch: Path):
     runtime = make_runtime(workspace=bind(make_checkout(scratch)))
