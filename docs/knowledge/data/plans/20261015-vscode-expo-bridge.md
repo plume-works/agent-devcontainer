@@ -1088,10 +1088,14 @@ on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
     [`48467e9`](https://github.com/plume-works/vscode-expo-bridge/commit/48467e9):
     the root `package.json` `devDependencies` hold `"ovsx": "1.3.0"` next to
     `"@vscode/vsce": "3.6.2"`.
-- [ ] `marketplace-identity.yml` runs only on `workflow_dispatch`, in the
+- [x] `marketplace-identity.yml` runs only on `workflow_dispatch`, in the
   environment `release` with `id-token: write`, signs in the same way, and
   prints the identity's Marketplace profile with
   `az rest -u https://app.vssps.visualstudio.com/_apis/profile/profiles/me --resource 499b84ac-1321-427f-aa17-267ca6975798`.
+  - **Evidence:** `marketplace-identity.yml` on `main` (`f0644d7`), dispatched
+    from the tag `v0-identity-2` and approved in `release`, succeeded in [run
+    39901281087](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39901281087)
+    and printed the profile `id` `9b5a92a1-ea20-6f94-a3ed-6ac9942f044f`.
 - [x] CI passes on the pull request that adds both workflows, and on `main`
   after it merges.
   - **Evidence:** CI passed on [PR
@@ -1122,8 +1126,12 @@ GitHub, and Open VSX
     2026-10-23: a `required_reviewers` rule with `anton-matosov`, a custom
     deployment policy whose only rule is the tag pattern `v*`, and the secrets
     `AZURE_CLIENT_ID` and `AZURE_TENANT_ID`.
-- [ ] The profile ID that `marketplace-identity.yml` prints is a member of the
+- [x] The profile ID that `marketplace-identity.yml` prints is a member of the
   `plume-works` publisher with the Contributor role.
+  - **Evidence:** On 2026-10-23 the `plume-works` publisher's Members page lists
+    the identity (`<tenant>\ff8195d2-f323-4507-99e7-6d55e837b35d`, the
+    descriptor run 39901281087 printed) with the Contributor role; the identity
+    holds Reader on the resource group `vscode-publishing`.
 - [x] An Open VSX account linked to an Eclipse account that signed the Eclipse
   Foundation Open VSX Publisher Agreement owns the namespace `plume-works`, and
   its access token is the `release` environment secret `OVSX_PAT`.
