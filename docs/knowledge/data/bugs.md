@@ -103,3 +103,6 @@ evaluation](bugs/pr-update-skips-review-eval.md)
 
 [Bug: the Expo bridge builds only the devcontainer window's root
 folder](bugs/expo-bridge-builds-only-window-root.md)
+
+[Bug: Expo bridge windows sharing a container break each other's
+socket](bugs/expo-bridge-shared-socket-across-windows.md)
