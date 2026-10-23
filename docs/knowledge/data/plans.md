@@ -4,7 +4,7 @@ description: Implementation plans, migrations, and design proposals, one documen
 stage: living
 generated:
   by: codex/gpt-5
-  at: 2026-10-23T02:35:00Z
+  at: 2026-10-23T03:13:20Z
 ---
 
 # 🗺️ Plans
@@ -16,6 +16,9 @@ mirrors `status: cancelled`. The plan skill files new plans, the ship skill
 moves them.*
 
 ## Active
+
+[Extract a reusable IWE bootstrap
+skill](plans/20261023-reusable-iwe-bootstrap.md)
 
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
