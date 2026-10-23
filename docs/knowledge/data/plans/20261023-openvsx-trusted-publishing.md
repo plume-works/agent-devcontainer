@@ -5,7 +5,7 @@ release: internal
 description: Move the VS Code Expo bridge's Open VSX publishing from the OVSX_PAT access token to Open VSX trusted publishing — namespace ownership granted, a trusted publisher per extension for release.yml and the release environment, a publish job that passes no token, and the token revoked.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T05:25:43Z
+  at: 2026-10-23T17:57:39Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/openvsx-setup.md
@@ -55,8 +55,10 @@ Assumptions:
 
 **Files:** none — Eclipse's review of the claim
 
-- [ ] Open VSX reports the namespace `plume-works` as verified
+- [x] Open VSX reports the namespace `plume-works` as verified
   (`https://open-vsx.org/api/plume-works` returns `"verified": true`).
+  - **Evidence:** `https://open-vsx.org/api/plume-works` returned
+    `"verified": true` on 2026-10-23; EclipseFdn/open-vsx.org#14608 is closed.
 
 ### Task 2: Register the trusted publishers
 
