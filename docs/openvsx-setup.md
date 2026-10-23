@@ -2,15 +2,15 @@
 
 Open VSX publishes in two phases:
 
-- **Now:** publish with an access token, because trusted publishing can only be
+- **Until the first version exists:** publish with an access token, because trusted publishing can only be
   registered for an extension that already has a version.
 - **After the first pre-release:** switch to trusted publishing, which uses the
   workflow's GitHub sign-in token, and revoke the access token.
 
-Pin the CLI: `bunx ovsx@1.3.0 …`. This is the latest version as of
-2026-10-23, and it will match the version pinned in the repo's `devDependencies`.
+Pin the CLI to the version in the extension repository's `devDependencies`:
+`bunx ovsx@1.3.0 …`.
 
-## Phase 1 — before the first pre-release (plan Task 21c)
+## Phase 1 — before the first pre-release
 
 ### 1. Eclipse account
 
@@ -52,7 +52,7 @@ Phase 2.
 Store it on the `release` environment, not at the repository level, so that only
 the approved publish job can read it.
 
-## Phase 2 — after Task 23 has published the first pre-release (trusted publishing plan, Tasks 1–2)
+## Phase 2 — after the first pre-release is published
 
 ### 6. Claim namespace ownership
 
@@ -80,15 +80,15 @@ Each extension takes one registration, so do this three times: for
    tag-only rule and required reviewer are what restrict it.
 
 If **GitHub Actions** is not offered as a provider, open-vsx.org has not enabled
-trusted publishing. Tell Claude; the plan then keeps `OVSX_PAT`.
+trusted publishing; keep publishing with `OVSX_PAT`.
 
-### 8. Workflow switch (trusted publishing plan, Task 3, done by Claude)
+### 8. Workflow switch
 
 The publish job changes to run `ovsx publish --trusted-publishing` and stops
 passing the token. A token always overrides trusted publishing, so leaving it in
 the job would quietly keep the job on the token.
 
-## Phase 3 — after a release has published through trusted publishing (trusted publishing plan, Task 5)
+## Phase 3 — after a release has published through trusted publishing
 
 ### 9. Retire the token
 
@@ -96,6 +96,9 @@ the job would quietly keep the job on the token.
 2. In GitHub, go to **release → Environment secrets** and delete `OVSX_PAT`.
 
 ## References
+
+- Plan: [Publish the Expo bridge to Open VSX through trusted
+  publishing](knowledge/data/plans/20261023-openvsx-trusted-publishing.md)
 
 - Publishing: https://github.com/eclipse/openvsx/wiki/Publishing-Extensions
 - Namespace ownership: https://github.com/eclipse/openvsx/wiki/Namespace-Access

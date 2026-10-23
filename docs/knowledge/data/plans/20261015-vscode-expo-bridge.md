@@ -1752,15 +1752,15 @@ Verified anchor points (line numbers as of 2026-10-23):
   `optional_bundles` row of the marker table
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:928`
   — `## Optional Expo setup`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:984`
-  — step 6, the `devcontainer.json` edits; `:999` — the paragraph on what the
-  pack does once the devcontainer opens; `:1008` — the **Install Locally** and
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:991`
+  — step 6, the `devcontainer.json` edits; `:1006` — the paragraph on what the
+  pack does once the devcontainer opens; `:1015` — the **Install Locally** and
   **Reload Window** paragraph
 - `docs/knowledge/data/architecture/vscode-expo-bridge.md:32` — the pack and
   where each extension runs; `:127` — `### Rejected alternatives`
 - `docs/knowledge/data/architecture/template-boundary.md:256` —
   `## Optional Expo profile`
-- `docs/knowledge/data/architecture/template-boundary.md:268` — the
+- `docs/knowledge/data/architecture/template-boundary.md:269` — the
   `forwardPorts` sentence
 - `docs/knowledge/data/spec/template-consumption.md:82` — Requirement: adoption
   is recorded for later updates

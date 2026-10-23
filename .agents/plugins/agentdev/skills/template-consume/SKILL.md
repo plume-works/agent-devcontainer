@@ -171,7 +171,7 @@ A marker section or legacy marker file exists.
 
    | RESULT            | Exit | Action                                                                                      |
    | ----------------- | ---- | ------------------------------------------------------------------------------------------- |
-   | `UP_TO_DATE`      | `4`  | Report it and stop; nothing to do.                                                          |
+   | `UP_TO_DATE`      | `4`  | Reconcile the Expo profile below when `optional_bundles` includes `"expo"`; then stop.      |
    | `CHANGES_FOUND`   | `5`  | Continue to step 3 with the printed `CHANGED_PATHS` list.                                   |
    | `NO_MARKER`       | `3`  | Wrong mode — fall back to [Setup Mode](#setup-mode).                                        |
    | `INVALID_MARKER`  | `7`  | Report the marker is malformed; fix `consumed_ref`/`tracked_paths` by hand or re-run setup. |
@@ -183,6 +183,14 @@ A marker section or legacy marker file exists.
    progress document. Generate its unticked task list from `CHANGED_PATHS`, one
    review/apply task per reported path. Keep `## Choices` in place and append
    newly settled decisions; never reset the existing choice log.
+
+   When `optional_bundles` includes `"expo"`, reconcile the Expo profile on
+   every update, whatever the script reports: its edits live in the guide, not
+   in `tracked_paths`, so no diff surfaces them. Walk each step of the guide's
+   Optional Expo setup against the consumer's files, add one progress task per
+   edit that is missing or differs, and apply what the user accepts. The root
+   `AGENTS.md` is customized, so merge its `## Expo` rules by hand. Never write
+   a bridge trust or security setting.
 
 5. **For each changed path**, inspect the actual upstream diff (the scratch
    clone is gone by the time the script returns, so re-clone or use

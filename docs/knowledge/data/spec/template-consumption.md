@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T14:00:00Z
+  at: 2026-10-23T19:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
@@ -187,14 +187,16 @@ When the consumer's `optional_bundles` includes `"expo"`, setup SHALL list
 `plume-works.vscode-expo-bridge` in `customizations.vscode.extensions`, add
 `8081` to `forwardPorts` with the `portsAttributes` entry
 `"8081": { "label": "Metro", "onAutoForward": "silent" }`, and add to the
-`## Expo` section of the root `AGENTS.md` a rule that an iOS build uses
-`eas-host` when `eas-host status` succeeds and EAS cloud otherwise. The rule
-SHALL name the order `status`, `build <profile>`, `install`, `launch`,
+`## Expo` section of the root `AGENTS.md` a rule that an iOS Simulator build
+uses `eas-host` when `eas-host status` succeeds and EAS cloud with the same
+profile otherwise, and that device and store builds always use EAS cloud. The
+rule SHALL name the order `status`, `build <profile>`, `install`, `launch`,
 `screenshot`, and SHALL say to start Metro in the container on port 8081 before
-`launch` of a development build. Setup SHALL NOT add any host command bridge
-other than this extension pack, SHALL NOT change the firewall allowlist for it,
-and SHALL NOT pre-authorize the bridge: trust in a workspace is granted only on
-the Mac.
+`launch` of a development build. Update mode SHALL reconcile these edits against
+the guide whenever `optional_bundles` includes `"expo"`, even when no tracked
+path changed. Setup SHALL NOT add any host command bridge other than this
+extension pack, SHALL NOT change the firewall allowlist for it, and SHALL NOT
+pre-authorize the bridge: trust in a workspace is granted only on the Mac.
 
 The protocol contract and security model are specified in
 [`plume-works/vscode-expo-bridge`](https://github.com/plume-works/vscode-expo-bridge)
@@ -223,6 +225,15 @@ The protocol contract and security model are specified in
   — a Codespace, a non-Mac host, or no VS Code window
 - **THEN** `eas-host status` exits non-zero
 - **AND** the EAS cloud build path works unchanged
+
+### Scenario: an Expo consumer adopted before the bridge updates
+
+- **WHEN** update mode runs for a consumer whose `optional_bundles` includes
+  `"expo"` and whose files lack the extension pack, the forwarded port, or the
+  iOS rule
+- **AND** `check-updates.sh` reports `UP_TO_DATE`
+- **THEN** update mode still proposes each missing edit from the guide's
+  Optional Expo setup
 
 ### Scenario: a non-Expo consumer
 

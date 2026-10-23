@@ -2,14 +2,14 @@
 type: codebase
 description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:0cf003dc5f542382c76ddece62ec7675a53d015879353904d0b57d55e6a9afd8
+source_digest: sha256:c13ba907b30c35bfcb66354e510d90fb0c09171c76cd263d71aae7fb66178bd0
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T18:00:00Z
+  at: 2026-10-23T19:00:00Z
 stale_after: 2027-01-21
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T18:00:00Z
+  at: 2026-10-23T19:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -88,14 +88,15 @@ repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
 replaces consumer-owned project memory. An optional Expo profile edits files the
 consumer already has, enables the official Expo plugin, and adds the Expo Bridge
 extension, Metro's port 8081 forwarded silently, and an `eas-host` iOS build
-rule with an EAS cloud fallback; it adds no tracked paths. Its state is split
-three ways: the `template-consume` section of the consumer root's
-`.agent.metadata.json` is the only machine-parsed record of the adopted ref and
-the tracked paths — `check-updates.sh` reads nothing else, and a legacy
-`.agentdev-template.json` is consolidated into it on the next update;
-`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
-that survives an interrupted setup; and `data/template-adoption` summarizes the
-episode for a consumer that kept the knowledge base.
+rule with an EAS cloud fallback; it adds no tracked paths, so update mode
+reconciles it against the guide on every run. Its state is split three ways: the
+`template-consume` section of the consumer root's `.agent.metadata.json` is the
+only machine-parsed record of the adopted ref and the tracked paths —
+`check-updates.sh` reads nothing else, and a legacy `.agentdev-template.json` is
+consolidated into it on the next update; `.agentdev-template-progress.md` is the
+consumer-owned task and choice ledger that survives an interrupted setup; and
+`data/template-adoption` summarizes the episode for a consumer that kept the
+knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not

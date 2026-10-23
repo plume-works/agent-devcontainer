@@ -35,8 +35,8 @@ The work spans both repositories:
   to start Metro in the container
   (`bunx expo start --dev-client --localhost --port 8081`) before `launch` of a
   development build. A change to that verbatim rule reaches existing consumers
-  only through update mode, which merges the customized root `AGENTS.md` by
-  hand.
+  through update mode's Expo-profile reconciliation, which merges the customized
+  root `AGENTS.md` by hand.
 - **`plume-works/vscode-expo-bridge`** — `eas-host --help` states that sequence,
   that `build` returns the artifact's workspace-relative path under
   `.tmp/expo-bridge/`, and that `launch` of a development build loads from Metro

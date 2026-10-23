@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T09:30:00Z
+  at: 2026-10-23T19:00:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -261,7 +261,8 @@ files the consumer already has — `.devcontainer/firewall-allowlist.txt`,
 `.devcontainer/devcontainer.json`, `.gitignore`, `.claude/settings.json`, the
 root `AGENTS.md` — and the consumer-owned `eas.json`. The marker records it as
 `"expo"` in `optional_bundles`, which is how update mode knows to re-check the
-`eas.json` bun pin when the image changes.
+`eas.json` bun pin when the image changes and to reconcile the profile's edits
+against the guide on every update, since no `tracked_paths` diff surfaces them.
 
 In `.devcontainer/devcontainer.json` the profile lists the [VS Code Expo
 bridge](vscode-expo-bridge.md) extension pack `plume-works.vscode-expo-bridge`

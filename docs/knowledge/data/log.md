@@ -15,6 +15,9 @@ to the current day's group.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
   and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
   profile's silenced Metro port and `eas-host` iOS build rule.
+- **Update**: [Template consumption](spec/template-consumption.md) now limits
+  the bridge to Simulator builds, keeps the profile on the EAS cloud fallback,
+  and has update mode reconcile the Expo profile on every run.
 
 ## 2026-10-22
 
