@@ -1293,11 +1293,16 @@ Supersedes Task 5's eager hook installation in standalone mode.
 template needs a version without its `v`; Test: the existing image
 tool-inventory checks
 
-- [ ] `dev_tools_pinned_tools` gains `gitleaks` and `actionlint` at the
+- [x] `dev_tools_pinned_tools` gains `gitleaks` and `actionlint` at the
   `.pre-commit-config.yaml` revisions, with per-architecture checksums from each
   release's published checksum file. The built image runs `gitleaks version` and
   `actionlint --version` at those versions on both architectures, with no Go
   toolchain installed.
+  - **Evidence:** commit "build(dev-tools): ship gitleaks and actionlint as
+    checksum-pinned binaries"; PR #440's CI/CD run 40037525553 at merge
+    `6f8fc90`: the devcontainer image smoke printed `8.30.1` and `1.7.12` and
+    passed `! command -v go` on arm64 (job 120704516450) and amd64 (job
+    120704516474).
 
 ### Task 32: Run the gitleaks and actionlint hooks from the pinned binaries
 
@@ -1914,6 +1919,16 @@ Recorded 2026-10-18 at `afae3a2`.
   `runtime-bootstrap.sh`, `codebase-memory-mcp-install.sh`, and the `dev_tools`
   pins are identical at `377be4a` and at Task 23's head. The 8 failures recorded
   above are therefore specific to a `fuse.grpcfuse` checkout.
+
+- **Tasks 25–35, recorded 2026-10-23.** PR #440's CI/CD run 40037525553 at merge
+  `6f8fc90` passed on both arches. Native acceptance against
+  `agent-opencode:sha-6f8fc90` gave 21 passed, 1 skipped (the upgrade test) on
+  amd64 (job 120704516441) and arm64 (job 120704516400). `scripts/tests` inside
+  the devcontainer gave 1373 passed, 42 skipped, 0 failed on amd64 (job
+  120704516474\) and arm64 (job 120704516450), `test_agent_runtime_cbm.py` and
+  `test_agent_runtime_identity.py` included. Super-Linter, the knowledge-base,
+  agent-file, and Renovate validations, and CodeQL pass. Task 32 waits for the
+  devcontainer pin to include Task 31's binaries, and Task 36 for publication.
 
 ## Out of scope
 
