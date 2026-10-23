@@ -1107,9 +1107,13 @@ GitHub, and Open VSX
 - [x] The Visual Studio Marketplace publisher `plume-works` exists.
   - **Evidence:** https://marketplace.visualstudio.com/publishers/plume-works
     answers 200, where an unknown publisher answers 404 (checked 2026-10-23).
-- [ ] A user-assigned managed identity has a federated credential with subject
+- [x] A user-assigned managed identity has a federated credential with subject
   `repo:plume-works@309183396/vscode-expo-bridge@1427809780:environment:release`,
   the immutable form GitHub issues for this repository.
+  - **Evidence:** In `marketplace-identity.yml` [run
+    39900424180](https://github.com/plume-works/vscode-expo-bridge/actions/runs/39900424180),
+    dispatched from the tag `v0-identity` and approved in `release`, the
+    `azure/login` step signed in as the identity.
 - [x] `plume-works/vscode-expo-bridge` has the environment `release`, with the
   user as required reviewer, deployment limited to `v*` tags, and the secrets
   `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` of that identity.
@@ -1120,9 +1124,12 @@ GitHub, and Open VSX
     `AZURE_CLIENT_ID` and `AZURE_TENANT_ID`.
 - [ ] The profile ID that `marketplace-identity.yml` prints is a member of the
   `plume-works` publisher with the Contributor role.
-- [ ] An Open VSX account linked to an Eclipse account that signed the Eclipse
+- [x] An Open VSX account linked to an Eclipse account that signed the Eclipse
   Foundation Open VSX Publisher Agreement owns the namespace `plume-works`, and
   its access token is the `release` environment secret `OVSX_PAT`.
+  - **Evidence:** On 2026-10-23, https://open-vsx.org/api/plume-works returns
+    the namespace `plume-works` (creating one requires the signed Publisher
+    Agreement), and the `release` environment lists the secret `OVSX_PAT`.
 
 ### Task 22: Publish pre-releases to the Visual Studio Marketplace
 
