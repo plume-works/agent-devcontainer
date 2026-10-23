@@ -97,3 +97,6 @@ observations](bugs/plan-tasks-bundle-independent-observations.md)
 
 [Bug: the Expo bridge's fix terminal launches the container's shell on the
 Mac](bugs/expo-bridge-fix-terminal-remote-shell.md)
+
+[Bug: PR updates skip the re-review
+evaluation](bugs/pr-update-skips-review-eval.md)

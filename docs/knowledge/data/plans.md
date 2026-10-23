@@ -4,7 +4,7 @@ description: Implementation plans, migrations, and design proposals, one documen
 stage: living
 generated:
   by: codex/gpt-5
-  at: 2026-10-22T00:23:44Z
+  at: 2026-10-23T03:13:20Z
 ---
 
 # 🗺️ Plans
@@ -22,6 +22,15 @@ publishing](plans/20261023-openvsx-trusted-publishing.md)
 
 [Incremental local iOS builds for the VS Code Expo
 bridge](plans/20261023-expo-bridge-incremental-builds.md)
+
+[PR updates re-evaluate the AI
+review](plans/20261023-pr-update-reevaluates-review.md)
+
+[Extract a reusable IWE bootstrap
+skill](plans/20261023-reusable-iwe-bootstrap.md)
+
+[Publish the reusable agentdev Dev Container
+image](plans/20261023-reusable-agentdev-devcontainer.md)
 
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
