@@ -1383,9 +1383,15 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
     Extension Host" with **Install Locally**. After that one click,
     `eas-host status` in the container returned `available: true` with `macHost`
     and `hostPathExists` ok, answered by the host extension on the Mac.
-- [ ] In that window `eas-host status` succeeds, and `eas-host build` with a
+- [x] In that window `eas-host status` succeeds, and `eas-host build` with a
   simulator profile from `eas.json` leaves the artifact under
   `.tmp/expo-bridge/`.
+  - **Evidence:** Run on 2026-10-23 on the Mac in the same window: Task 21's
+    script ran `eas-host status` (`available: true`, exit 0) and
+    `eas-host build development` (eas-cli 25.3.0, exit 0), which left
+    `.tmp/expo-bridge/build-1792737941518.tar.gz`; `install`, `launch`, and
+    `screenshot` exited 0, with Metro in the container logging
+    `iOS Bundled 2474ms index.js (712 modules)`.
 - [ ] After a container rebuild of that window, the host extension runs in the
   local extension host with no further click, and `eas-host status` succeeds.
 
