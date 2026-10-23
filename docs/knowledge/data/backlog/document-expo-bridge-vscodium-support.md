@@ -28,11 +28,10 @@ Add a VSCodium section to the sibling repository's `README.md` stating:
 
 - `s-h-a-d-o-w.dev-containers-oss` works. On VSCodium 140 and later it needs
   `"enable-proposed-api": ["s-h-a-d-o-w.dev-containers-oss"]` in `argv.json`
-  (**Preferences: Configure Runtime Arguments**), then a full restart. With
-  0.2.0 from Open VSX on a Mac, the trust prompt, the build confirmation,
-  `build`, `install`, `launch`, `screenshot`, Metro over port 8081, and the
-  one-click fix from the notification and the status bar item all behave as in
-  VS Code.
+  (**Preferences: Configure Runtime Arguments**), then a full restart. With it,
+  the bridge's full action set, the trust prompt, the build confirmation, Metro
+  over port 8081, and the one-click fix from the notification and the status bar
+  item work as in VS Code.
 - That extension ignores the `portsAttributes` `"onAutoForward": "silent"` entry
   for port 8081, so the forwarded-port notification still shows.
 - These do not work:
