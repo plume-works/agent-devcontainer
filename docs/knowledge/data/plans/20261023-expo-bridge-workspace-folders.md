@@ -157,11 +157,16 @@ Assumptions:
 **Files:** Modify: `packages/protocol/src/index.ts`, its test, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `PROTOCOL_VERSION` is 2. Every request type carries `folder: string`, the
+- [x] `PROTOCOL_VERSION` is 2. Every request type carries `folder: string`, the
   container path of a workspace folder. `StatusResult` carries `folderHostPath`
   (the Mac path inspected, empty when unmapped) and a `workspaceMapped` check.
-- [ ] `SOCKET_PATH` is replaced by `SOCKET_DIR`, `/tmp/vscode-expo-bridge`, and
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `bd7af44` on branch
+    `expo-bridge-workspace-folders`; `bun test packages/protocol` passes.
+- [x] `SOCKET_PATH` is replaced by `SOCKET_DIR`, `/tmp/vscode-expo-bridge`, and
   the shape of a registry entry is exported for both container-side packages.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `bd7af44` exports
+    `SOCKET_DIR`, `RegistryEntry`, and `parseRegistryEntry`;
+    `packages/protocol/test/index.test.ts` passes.
 
 ### Task 2: Workspace extension — one socket per window
 
