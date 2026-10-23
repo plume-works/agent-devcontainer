@@ -172,8 +172,11 @@ def test_start_index_and_stop_as_isolated_user(sandbox: Sandbox, checkout: Path)
 
     indexed = sandbox.adapter('index', str(checkout))
     assert indexed.returncode == 0, indexed.stderr
-    projects = sandbox.cbm('cli', '--json', 'list_projects')
-    assert str(checkout) in projects.stdout
+    assert 'in the background' in indexed.stdout
+    deadline = time.monotonic() + 60
+    while str(checkout) not in sandbox.cbm('cli', '--json', 'list_projects').stdout:
+        assert time.monotonic() < deadline, 'the background index never registered the project'
+        time.sleep(0.5)
 
     assert owners(sandbox.cache) == {sandbox.uid}
     assert owners(checkout) == checkout_owners

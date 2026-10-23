@@ -452,11 +452,20 @@ def test_enabled_xpra_needs_its_password_to_start(make_runtime, scratch: Path):
 
 
 def test_cbm_secret_service_and_nested_docker_serve_agent_processes(ready_runtime: Runtime):
-    found = ready_runtime.sh(
+    # Startup only submits the index; the daemon builds it in the background.
+    query = (
         'codebase-memory-mcp cli --json search_graph --project workspaces-project '
         '--name-pattern answer'
-    ).stdout
-    assert 'answer' in found and '"isError":false' in found.replace(' ', '')
+    )
+    deadline, found = time.monotonic() + 120, ''
+    while time.monotonic() < deadline:
+        found = ready_runtime.sh(query, check=False).stdout
+        indexed = 'answer' in found and 'results: 0' not in found
+        if indexed and '"isError":false' in found.replace(' ', ''):
+            break
+        time.sleep(1)
+    assert 'answer' in found and '"isError":false' in found.replace(' ', ''), found
+    assert 'indexing /workspaces/project in the background' in ready_runtime.logs()
 
     docker('cp', str(TESTS / 'secret_service_client.py'), f'{ready_runtime.name}:/tmp/ssc.py')
     ready_runtime.sh('chmod 755 /tmp/ssc.py', user='root')

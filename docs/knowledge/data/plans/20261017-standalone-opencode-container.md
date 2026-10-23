@@ -1160,18 +1160,32 @@ Supersedes the blocking initial index of Tasks 5 and 6.
 `scripts/tests/test_agent_runtime_acceptance.py`; Create:
 `scripts/tests/test_codebase_memory_mcp_index.py`
 
-- [ ] `codebase-memory-mcp-index.sh` submits
+- [x] `codebase-memory-mcp-index.sh` submits
   `cli --json index_repository --repo-path "$DEV_WORKSPACE_FOLDER" --async true`.
   It returns once CBM accepts the job (`queued`, `running`, or joined to one in
   flight) and fails when CBM reports an error. `codebase-memory-mcp-start.sh`
   starts the daemon and then calls it, and `postAttachCommand.sh` keeps calling
   it. A stub-CBM test asserts the arguments and that neither script waits for
   the index. No startup path runs a blocking `index_repository`.
-- [ ] Standalone `runtime-cbm.sh index` sends the same request once the CBM
+  - **Evidence:** commit "feat(cbm): request background indexing from every
+    startup path";
+    `uv run pytest scripts/tests/test_codebase_memory_mcp_index.py` 9 passed
+    (queued, running, and joined accepted; an MCP error, a failed state,
+    garbage, and a nonzero exit refused; `start` runs `daemon start` then the
+    request; no script runs `index_repository` without `--async true`). The
+    pinned 0.12.1 binary answers `state: queued` and refuses an async job with
+    no daemon.
+- [x] Standalone `runtime-cbm.sh index` sends the same request once the CBM
   daemon is ready. The `index` program is an optional one-shot that nothing
   waits for, and `AGENTDEV_CBM_INDEX_TIMEOUT` is removed. In container
   acceptance, the CBM `search_graph` check polls until the background job has
   indexed `answer`.
+  - **Evidence:** same commit;
+    `AGENTDEV_RUNTIME_TEST_IMAGE=agent-opencode:t29 .devcontainer/scripts/test-agent-runtime.sh`
+    on aarch64, built from that tree and Task 29's: 20 passed, 1 skipped (the
+    upgrade test), including
+    `test_cbm_secret_service_and_nested_docker_serve_agent_processes`, which
+    polls `search_graph` and sees the background request in the logs.
 
 ### Task 28: Keep CBM's Codex hooks in `hooks.json` and recover an orphaned block
 
