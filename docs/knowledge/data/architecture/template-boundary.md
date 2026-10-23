@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-22T12:00:00Z
+  at: 2026-10-23T09:30:00Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
@@ -268,12 +268,14 @@ bridge](vscode-expo-bridge.md) extension pack `plume-works.vscode-expo-bridge`
 in `customizations.vscode.extensions`, adds `8081` to `forwardPorts` for Metro,
 and gives that port a `portsAttributes` entry with `"onAutoForward": "silent"`,
 so VS Code's auto-forward notification does not cover the bridge's own
-notifications. Its `AGENTS.md` rule tells agents to build iOS through `eas-host`
-when `eas-host status` succeeds and on EAS cloud otherwise. Setup grants the
-bridge no trust: it writes no trust or security setting into any consumer file,
-and a workspace is trusted only on the Mac. `EXPO_TOKEN` needs no profile edit:
-the template devcontainer passes it from the host for every consumer, empty when
-the host does not set it.
+notifications. The listed pack installs the workspace extension in the
+container; the host extension is installed on the Mac by one click on its
+**Install Locally**, once per Mac. Its `AGENTS.md` rule tells agents to build
+iOS through `eas-host` when `eas-host status` succeeds and on EAS cloud
+otherwise. Setup grants the bridge no trust: it writes no trust or security
+setting into any consumer file, and a workspace is trusted only on the Mac.
+`EXPO_TOKEN` needs no profile edit: the template devcontainer passes it from the
+host for every consumer, empty when the host does not set it.
 
 The profile merges the Expo template's `AGENTS.md` into the root `AGENTS.md`,
 which therefore stops matching upstream: the consumer's progress document

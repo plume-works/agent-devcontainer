@@ -1005,6 +1005,14 @@ a Codespace, a non-Mac host — `eas-host status` exits non-zero and builds go t
 EAS cloud. The bridge reads `EXPO_TOKEN` from the Mac, not from the
 container: store it there with the **Expo Bridge: Set EXPO_TOKEN** command.
 
+VS Code installs every extension listed in `devcontainer.json` into the
+container, where the bridge's host extension cannot run. In the first window on
+a Mac, the Extensions view shows **Expo Bridge (Host)** disabled with **Install
+Locally**: one click, once per Mac, enables the bridge, and windows already open
+then offer **Reload Window**. A Codespace installs the listed extensions after
+its window opens, so the workspace extension activates, and `eas-host` appears,
+only after one **Developer: Reload Window**.
+
 Record `"expo"` in the marker's `optional_bundles`. It adds no `tracked_paths`:
 every edit lands in a file the template already tracks or the consumer owns.
 

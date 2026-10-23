@@ -3,7 +3,7 @@ type: architecture
 description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-22T12:00:00Z
+  at: 2026-10-23T09:30:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
@@ -36,6 +36,12 @@ The extension pack `plume-works.vscode-expo-bridge` bundles two extensions:
 - `plume-works.vscode-expo-bridge-workspace` (`extensionKind: ["workspace"]`)
   runs in the container. It installs `eas-host` into `~/.local/bin` and serves
   `/tmp/vscode-expo-bridge.sock`.
+
+The Expo profile lists the pack in `customizations.vscode.extensions`, which Dev
+Containers installs into the container: that brings the workspace extension, and
+leaves the host extension disabled there until the user clicks its **Install
+Locally**, once per Mac. In a Codespace the workspace extension activates after
+one **Developer: Reload Window**.
 
 ```
  devcontainer                                 Mac host
@@ -129,6 +135,9 @@ simulator processes run with the Mac user's file access.
   container's Linux `node_modules`.
 - **A self-hosted GitHub Actions runner on the Mac** — it needs CI plumbing and
   is not reachable from an open editor window.
+- **Listing only the workspace extension** in `devcontainer.json` and telling
+  users to install the pack on the Mac — a window opened without that step shows
+  nothing to click.
 - **A host network port** — command routing needs none and leaves the firewall
   allowlist unchanged.
 - **One extension with a URI handler** reached through `code --open-url` — a URI
