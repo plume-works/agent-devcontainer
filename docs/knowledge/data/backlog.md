@@ -18,6 +18,9 @@ write a plan and link the plan instead.*
 
 ## Medium
 
+[Document VSCodium support for the Expo
+bridge](backlog/document-expo-bridge-vscodium-support.md)
+
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
