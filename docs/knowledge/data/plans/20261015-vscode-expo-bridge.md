@@ -175,14 +175,15 @@ bridge.
 - **One-click fix.** When `status` finds a missing tool, the host extension
   offers a fix in the VS Code UI that runs Homebrew in a visible local terminal.
   The offer is a status bar item in the Mac window that stays until a later
-  `status` finds nothing to fix; clicking it opens a picker, which stays open
-  when focus moves and shows each failing check's detail. One fix runs at a
-  time; when its commands finish (VS Code's shell integration, VS Code 1.93 or
-  later) or its terminal closes, the host re-runs `status` and the item clears
-  or shows what still fails. Xcode is a guided step (it opens the App Store
-  page), after which the fix runs `xcode-select`, accepts the license, and
-  downloads the iOS platform. A fix is only ever started by the user's click,
-  never by a protocol action.
+  `status` finds nothing to fix, plus a notification whenever the set of failing
+  checks changes; clicking it opens a picker, which stays open when focus moves
+  and shows each failing check's detail. One fix runs at a time; when its
+  commands finish (VS Code's shell integration, VS Code 1.93 or later) or its
+  terminal closes, the host re-runs `status` and the item clears or shows what
+  still fails. Xcode is a guided step (it opens the App Store page), after which
+  the fix runs `xcode-select`, accepts the license, and downloads the iOS
+  platform. A fix is only ever started by the user's click, never by a protocol
+  action.
 - **`eas-host`** is the container-side command. The workspace extension installs
   it into `~/.local/bin` on activation and listens on a fixed socket; it streams
   the build log by tailing the log file the host extension writes. When the
@@ -902,8 +903,9 @@ Containers window on a Mac
   number of fixes and stays until a later `status` has none; clicking it opens
   the fix picker, which stays open on focus loss and shows each failing check's
   detail. While a fix runs, the item shows it running and starts no other; when
-  the fix's commands finish or its terminal closes, the host re-runs `status`.
-  No notification is shown, and no text calls an outdated tool missing.
+  the fix's commands finish or its terminal closes, the host re-runs `status`. A
+  notification with a **Fix…** button also appears whenever the set of failing
+  checks changes, and no text calls an outdated tool missing.
 - [ ] `install` records whether the app is a development build, by an `exp+…`
   URL scheme in its `Info.plist`, and `launch` restarts a development build with
   `simctl launch --terminate-running-process <udid> <bundle id> --initialUrl http://localhost:8081`,
