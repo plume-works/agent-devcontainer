@@ -208,11 +208,16 @@ Assumptions:
 **Files:** Modify: `packages/workspace/src/extension.ts`,
 `packages/workspace/src/artifacts.ts`, their tests
 
-- [ ] The extension resolves the working directory to its longest containing
+- [x] The extension resolves the working directory to its longest containing
   workspace folder and forwards the request with that `folder`; a directory
   outside every folder answers `unavailable`.
-- [ ] The build log it tails and the newest artifact `install` picks come from
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `38c3932`;
+    `packages/workspace/test/artifacts.test.ts` (`resolveRequest`) passes.
+- [x] The build log it tails and the newest artifact `install` picks come from
   that folder's `.tmp/expo-bridge/`.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `38c3932`;
+    `packages/workspace/test/artifacts.test.ts` passes its second-folder
+    artifact case. The log tail runs only in VS Code, in Task 11.
 
 ### Task 5: Host — the authority's config file and Docker daemon
 
