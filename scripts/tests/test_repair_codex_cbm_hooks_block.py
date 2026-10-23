@@ -1,9 +1,11 @@
+from collections.abc import Iterator
 import json
 import os
 from pathlib import Path
 import shutil
 import stat
 import subprocess
+import tempfile
 import tomllib
 
 from cbm_pin import stage_pinned_cbm
@@ -212,6 +214,7 @@ def install(home: Path, cbm_binary: Path) -> subprocess.CompletedProcess[str]:
         'CODEX_HOME': str(home / '.codex'),
         'CBM_CACHE_DIR': str(home / '.cache/cbm'),
         'CBM_INSTALL_DIR': str(home / '.local/bin'),
+        'CBM_RUNTIME_DIR': str(home.parent / 'rendezvous'),
     }
     return subprocess.run([INSTALL], env=env, capture_output=True, text=True, timeout=120)
 
@@ -221,11 +224,14 @@ def hook_events(hooks: dict) -> set[str]:
 
 
 @pytest.fixture
-def home(tmp_path: Path) -> Path:
-    home = REPO_ROOT / '.tmp' / f'cbm-install-{tmp_path.name}'
-    home.mkdir(parents=True)
-    yield home
-    subprocess.run(['rm', '-rf', str(home)], check=False)
+def home() -> Iterator[Path]:
+    # Short and private: CBM's socket path must fit a Unix socket address, and the
+    # rendezvous keeps the install away from any live daemon of this account.
+    root = Path(tempfile.mkdtemp(prefix='cbm-'))
+    (root / 'rendezvous').mkdir(mode=0o700)
+    (root / 'home').mkdir()
+    yield root / 'home'
+    shutil.rmtree(root, ignore_errors=True)
 
 
 def test_a_first_install_registers_codex_hooks_in_a_new_hooks_json(home: Path, cbm_binary: Path):
