@@ -5,7 +5,7 @@ release: internal
 description: Move the VS Code Expo bridge's Open VSX publishing from the OVSX_PAT access token to Open VSX trusted publishing — namespace ownership granted, a trusted publisher per extension for release.yml and the release environment, a publish job that passes no token, and the token revoked.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T17:57:39Z
+  at: 2026-10-23T18:02:17Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/openvsx-setup.md
@@ -64,10 +64,12 @@ Assumptions:
 
 **Files:** none — done by the user on open-vsx.org
 
-- [ ] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
+- [x] `plume-works.vscode-expo-bridge`, `plume-works.vscode-expo-bridge-host`,
   and `plume-works.vscode-expo-bridge-workspace` each have a GitHub Actions
   trusted publisher for `plume-works/vscode-expo-bridge`, workflow
   `release.yml`, environment `release`.
+  - **Evidence:** the user registered all three on open-vsx.org on 2026-10-23;
+    the Task 4 release run is what confirms them.
 
 ### Task 3: Publish to Open VSX without a token
 
