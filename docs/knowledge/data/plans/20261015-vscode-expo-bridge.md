@@ -1369,11 +1369,20 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 
 ### Task 30: End to end on a Mac from the released pack
 
-- [ ] In an Expo consumer adopted with the Expo profile and opened by VS Code on
+- [x] In an Expo consumer adopted with the Expo profile and opened by VS Code on
   a Mac with no bridge extension installed beforehand, the released pack listed
   in `devcontainer.json` installs the workspace extension in the container and
   shows the host extension disabled with **Install Locally**; one click on it
   puts the host extension in the local extension host.
+  - **Evidence:** Run on 2026-10-23 on the Mac with the t21 app adopted from
+    this repository at `c9bea80` (Workflow B, `"expo"`), after
+    `code --uninstall-extension` left the Mac with no `plume-works` extension:
+    the container's `code --list-extensions` listed the pack, `-host`, and
+    `-workspace` 0.2.0, and the Extensions view showed the host extension
+    "disabled in this workspace because it is defined to run in the Local
+    Extension Host" with **Install Locally**. After that one click,
+    `eas-host status` in the container returned `available: true` with `macHost`
+    and `hostPathExists` ok, answered by the host extension on the Mac.
 - [ ] In that window `eas-host status` succeeds, and `eas-host build` with a
   simulator profile from `eas.json` leaves the artifact under
   `.tmp/expo-bridge/`.
