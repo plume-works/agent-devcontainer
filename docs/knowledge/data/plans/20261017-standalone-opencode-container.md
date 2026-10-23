@@ -1362,14 +1362,25 @@ Supersedes Task 10's 30-minute health start period.
 `docker/opencode/runtime.env.example`,
 `scripts/tests/test_agent_runtime_supervision.py`
 
-- [ ] Standalone `AGENTDEV_SKIP_XPRA` and `AGENTDEV_STRICT_STARTUP` accept
+- [x] Standalone `AGENTDEV_SKIP_XPRA` and `AGENTDEV_STRICT_STARTUP` accept
   `1|true|yes|on` and `0|false|no|off|` (empty), ignoring case. Any other value
   latches a configuration failure naming the variable, and
   `AGENTDEV_SKIP_XPRA=false` starts Xpra.
-- [ ] Every count and deadline must be a positive number, and attempts a
+  - **Evidence:** commit "feat(runtime): parse runtime settings strictly";
+    `uv run pytest scripts/tests/test_agent_runtime_supervision.py` 80 passed,
+    including `test_a_false_spelling_of_skip_xpra_starts_xpra`,
+    `test_a_true_spelling_of_skip_xpra_skips_it`, and the `maybe` and `enabled`
+    cases of `test_a_malformed_setting_latches_a_configuration_failure`.
+- [x] Every count and deadline must be a positive number, and attempts a
   positive integer. `AGENTDEV_BOOTSTRAP_TIMEOUT` bounds the bootstrap apart from
   `AGENTDEV_PREPARE_TIMEOUT`, and `runtime.env.example` documents each one. A
   parametrized test rejects zero, negative, and non-numeric values.
+  - **Evidence:** same commit;
+    `test_a_malformed_setting_latches_a_configuration_failure` rejects `0`,
+    `-1`, and `soon` for each of the nine limits, and `1.5` for attempts;
+    `test_the_bootstrap_has_its_own_deadline` passes. Compose passes each limit
+    through, and the `agent-opencode:t33` acceptance run (21 passed, 1 skipped)
+    included this code.
 
 ### Task 35: Document failure handling and background indexing
 

@@ -79,6 +79,7 @@ HEALTH = REPO_ROOT / '.devcontainer/scripts/runtime-health.sh'
 FAKE_BOOTSTRAP = """#!/usr/bin/env bash
 echo "run bootstrap" >> "$STATE_DIR/events"
 echo "bootstrap says hello"
+sleep "$(cat "$STATE_DIR/bootstrap.sleep" 2>/dev/null || echo 0)"
 exit "$(cat "$STATE_DIR/bootstrap.exit" 2>/dev/null || echo 0)"
 """
 
@@ -666,3 +667,61 @@ def test_a_failing_probe_logs_its_output(make):
     box.wait_for(box.ready)
     box.terminate()
     assert 'xpra: probe exited 1: the display is gone' in box.output()
+
+
+@pytest.mark.parametrize('spelling', ['false', 'FALSE', '0', 'no', 'Off', ''])
+def test_a_false_spelling_of_skip_xpra_starts_xpra(make, spelling):
+    box = make(AGENTDEV_SKIP_XPRA=spelling)
+    box.start()
+    box.wait_for(box.ready)
+    assert 'xpra' in started(box.events())
+
+
+@pytest.mark.parametrize('spelling', ['1', 'true', 'Yes', 'ON'])
+def test_a_true_spelling_of_skip_xpra_skips_it(make, spelling):
+    box = make(AGENTDEV_SKIP_XPRA=spelling)
+    del box.env['XPRA_PASSWORD']
+    box.start()
+    box.wait_for(box.ready)
+    assert 'xpra' not in started(box.events())
+
+
+@pytest.mark.parametrize(
+    ('name', 'value'),
+    [
+        ('AGENTDEV_SKIP_XPRA', 'maybe'),
+        ('AGENTDEV_STRICT_STARTUP', 'enabled'),
+        *[
+            (name, value)
+            for name in (
+                'AGENTDEV_RECOVERY_ATTEMPTS',
+                'AGENTDEV_PROBE_FAILURES',
+                'AGENTDEV_STOP_TIMEOUT',
+                'AGENTDEV_RECOVERY_BACKOFF',
+                'AGENTDEV_HEALTHY_RESET',
+                'AGENTDEV_SERVICE_START_TIMEOUT',
+                'AGENTDEV_BOOTSTRAP_TIMEOUT',
+                'AGENTDEV_PREPARE_TIMEOUT',
+                'AGENTDEV_HEALTH_INTERVAL',
+            )
+            for value in ('0', '-1', 'soon')
+        ],
+        ('AGENTDEV_RECOVERY_ATTEMPTS', '1.5'),
+    ],
+)
+def test_a_malformed_setting_latches_a_configuration_failure(make, name, value):
+    box = make(**{name: value})
+    box.start()
+    box.wait_for(lambda: box.latched() == 'configuration')
+    assert box.events() == [], 'nothing starts on a malformed setting'
+    reason = box.runtime()['components']['configuration']['reason']
+    assert name in reason and repr(value) in reason
+
+
+def test_the_bootstrap_has_its_own_deadline(make):
+    box = make(AGENTDEV_BOOTSTRAP_TIMEOUT='1', AGENTDEV_PREPARE_TIMEOUT='600')
+    box.set('bootstrap', 'sleep', '30')
+    box.start()
+    box.wait_for(lambda: box.latched() == 'bootstrap', timeout=10)
+    reason = box.runtime()['components']['bootstrap']['reason']
+    assert reason == 'bootstrap did not finish within 1s'

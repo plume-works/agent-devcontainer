@@ -14,9 +14,10 @@ from __future__ import annotations
 
 from collections import deque
 import configparser
-from dataclasses import dataclass, field
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 import json
+import math
 import os
 from pathlib import Path
 import pwd
@@ -69,44 +70,88 @@ def read_json(path: Path) -> dict | None:
         return None
 
 
-def env_float(name: str, default: float) -> float:
-    """Read a numeric setting, failing loudly on a malformed value."""
-    raw = os.environ.get(name, '')
-    try:
-        return float(raw) if raw else default
-    except ValueError as error:
-        raise SystemExit(f'runtime-supervisor: {name} must be a number, got {raw!r}') from error
+TRUE_WORDS = {'1', 'true', 'yes', 'on'}
+FALSE_WORDS = {'0', 'false', 'no', 'off', ''}
+
+
+class SettingsParser:
+    """Read AGENTDEV_* settings, collecting every malformed value instead of guessing."""
+
+    def __init__(self) -> None:
+        self.errors: list[str] = []
+
+    def boolean(self, name: str) -> bool:
+        raw = os.environ.get(name, '')
+        if raw.strip().lower() in TRUE_WORDS:
+            return True
+        if raw.strip().lower() not in FALSE_WORDS:
+            self.errors.append(
+                f'{name} must be 1, true, yes, on, 0, false, no, off, or empty; got {raw!r}'
+            )
+        return False
+
+    def positive(self, name: str, default: float) -> float:
+        raw = os.environ.get(name, '')
+        if not raw:
+            return default
+        try:
+            value = float(raw)
+        except ValueError:
+            value = math.nan
+        if not (math.isfinite(value) and value > 0):
+            self.errors.append(f'{name} must be a positive number; got {raw!r}')
+            return default
+        return value
+
+    def count(self, name: str, default: int) -> int:
+        raw = os.environ.get(name, '')
+        if not raw:
+            return default
+        if not raw.strip().isdigit() or int(raw) <= 0:
+            self.errors.append(f'{name} must be a positive integer; got {raw!r}')
+            return default
+        return int(raw)
 
 
 @dataclass(frozen=True)
 class Settings:
     """Deadlines and budgets, overridable through documented AGENTDEV_* variables."""
 
-    attempts: int = field(default_factory=lambda: int(env_float('AGENTDEV_RECOVERY_ATTEMPTS', 3)))
-    backoff: float = field(default_factory=lambda: env_float('AGENTDEV_RECOVERY_BACKOFF', 1))
-    healthy_reset: float = field(default_factory=lambda: env_float('AGENTDEV_HEALTHY_RESET', 60))
-    start_timeout: float = field(
-        default_factory=lambda: env_float('AGENTDEV_SERVICE_START_TIMEOUT', 60)
-    )
-    prepare_timeout: float = field(
-        default_factory=lambda: env_float('AGENTDEV_PREPARE_TIMEOUT', 1800)
-    )
-    interval: float = field(default_factory=lambda: env_float('AGENTDEV_HEALTH_INTERVAL', 2))
-    probe_failures: int = field(
-        default_factory=lambda: int(env_float('AGENTDEV_PROBE_FAILURES', 2))
-    )
-    run_dir: Path = field(
-        default_factory=lambda: Path(os.environ.get('AGENTDEV_RUN_DIR', '/run/agentdev'))
-    )
-    health_command: str = field(
-        default_factory=lambda: os.environ.get(
-            'AGENTDEV_HEALTH_COMMAND', str(SCRIPT_DIR / 'runtime-health.sh')
+    attempts: int = 3
+    backoff: float = 1
+    healthy_reset: float = 60
+    start_timeout: float = 60
+    bootstrap_timeout: float = 1800
+    prepare_timeout: float = 1800
+    interval: float = 2
+    probe_failures: int = 2
+    run_dir: Path = Path('/run/agentdev')
+    health_command: str = str(SCRIPT_DIR / 'runtime-health.sh')
+    skip_xpra: bool = False
+    strict: bool = False
+    # Every malformed setting; PID 1 latches a configuration failure naming them.
+    errors: tuple[str, ...] = ()
+
+    @classmethod
+    def from_env(cls) -> Settings:
+        parse = SettingsParser()
+        settings = cls(
+            attempts=parse.count('AGENTDEV_RECOVERY_ATTEMPTS', cls.attempts),
+            backoff=parse.positive('AGENTDEV_RECOVERY_BACKOFF', cls.backoff),
+            healthy_reset=parse.positive('AGENTDEV_HEALTHY_RESET', cls.healthy_reset),
+            start_timeout=parse.positive('AGENTDEV_SERVICE_START_TIMEOUT', cls.start_timeout),
+            bootstrap_timeout=parse.positive('AGENTDEV_BOOTSTRAP_TIMEOUT', cls.bootstrap_timeout),
+            prepare_timeout=parse.positive('AGENTDEV_PREPARE_TIMEOUT', cls.prepare_timeout),
+            interval=parse.positive('AGENTDEV_HEALTH_INTERVAL', cls.interval),
+            probe_failures=parse.count('AGENTDEV_PROBE_FAILURES', cls.probe_failures),
+            run_dir=Path(os.environ.get('AGENTDEV_RUN_DIR') or cls.run_dir),
+            health_command=os.environ.get('AGENTDEV_HEALTH_COMMAND') or cls.health_command,
+            skip_xpra=parse.boolean('AGENTDEV_SKIP_XPRA'),
+            strict=parse.boolean('AGENTDEV_STRICT_STARTUP'),
         )
-    )
-    skip_xpra: bool = field(default_factory=lambda: bool(os.environ.get('AGENTDEV_SKIP_XPRA')))
-    strict: bool = field(
-        default_factory=lambda: os.environ.get('AGENTDEV_STRICT_STARTUP', '').lower() == 'true'
-    )
+        # supervisord reads this one itself, as each program's stopwaitsecs.
+        parse.count('AGENTDEV_STOP_TIMEOUT', 30)
+        return replace(settings, errors=tuple(parse.errors))
 
     @property
     def state_file(self) -> Path:
@@ -675,7 +720,7 @@ def control() -> int:
     """Event-listener entry point; a worker thread runs the controller."""
     from supervisor import childutils
 
-    settings = Settings()
+    settings = Settings.from_env()
     wakeups: queue.Queue[str] = queue.Queue()
 
     def work() -> None:
@@ -715,6 +760,10 @@ class Interrupted(Exception):
 
 def preflight(settings: Settings, holder: dict) -> dict | None:
     """Check the configuration and run the root bootstrap; return a failure, or None."""
+    if settings.errors:
+        reason = 'invalid settings: ' + '; '.join(settings.errors)
+        log(reason)
+        return {'component': 'configuration', 'reason': reason, 'command': [], 'exit_status': 1}
     if not settings.skip_xpra and not os.environ.get('XPRA_PASSWORD'):
         reason = (
             'XPRA_PASSWORD must be set to a nonempty secret: Xpra listens on the proxy '
@@ -729,12 +778,12 @@ def preflight(settings: Settings, holder: dict) -> dict | None:
     child = Captured([bootstrap])
     holder['child'] = child
     try:
-        status = child.wait(timeout=settings.prepare_timeout)
+        status = child.wait(timeout=settings.bootstrap_timeout)
         reason = f'bootstrap failed with exit status {status}'
     except subprocess.TimeoutExpired:
         child.process.kill()
         status = child.wait()
-        reason = f'bootstrap did not finish within {settings.prepare_timeout:g}s'
+        reason = f'bootstrap did not finish within {settings.bootstrap_timeout:g}s'
     finally:
         holder['child'] = None
     if status == 0:
@@ -759,7 +808,7 @@ def wait_for_retry(settings: Settings, state: dict) -> str:
 
 def run() -> int:
     """Container entrypoint: bootstrap as root, then supervisord in this process."""
-    settings = Settings()
+    settings = Settings.from_env()
     settings.run_dir.mkdir(parents=True, exist_ok=True)
     # /run survives `docker restart`: nothing from the previous start may leak into this one.
     for stale in (
@@ -837,7 +886,7 @@ def execute() -> int:
     child = Captured(command)
     status = child.wait()
     try:
-        write_json(Settings().output_dir / f'{name}.json', child.result(status))
+        write_json(Settings.from_env().output_dir / f'{name}.json', child.result(status))
     except OSError as error:
         log(f'{name}: could not keep its result: {error}')
     return status
@@ -845,11 +894,16 @@ def execute() -> int:
 
 def retry() -> int:
     """``retry [component]``: ask a latched or degraded runtime to rerun what failed."""
-    settings = Settings()
+    settings = Settings.from_env()
     component = sys.argv[2] if len(sys.argv) > 2 else None
     request = {'id': uuid4().hex, 'component': component}
     write_json(settings.retry_file, request)
-    deadline = time.monotonic() + settings.prepare_timeout * 2 + settings.start_timeout * 10
+    deadline = (
+        time.monotonic()
+        + settings.bootstrap_timeout
+        + settings.prepare_timeout * 2
+        + settings.start_timeout * 10
+    )
     while time.monotonic() < deadline:
         state = read_json(settings.state_file) or {}
         answer = state.get('retry') or {}
