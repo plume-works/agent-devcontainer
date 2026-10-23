@@ -275,14 +275,21 @@ Assumptions:
 **Files:** Modify: `packages/host/src/extension.ts`,
 `packages/host/src/dispatch.ts`, `packages/host/src/status.ts`,
 `packages/host/src/build.ts`, `packages/host/src/install.ts`,
-`packages/host/src/eascli.ts`, their tests
+`packages/host/src/eascli.ts`, `packages/host/src/trust.ts`, their tests
 
-- [ ] `dispatch` rejects a request without `folder` as `bad-request`, and maps
+- [x] `dispatch` rejects a request without `folder` as `bad-request`, and maps
   it before any action; `status`, `build`, `install`, `launch`, and `screenshot`
   read and write at the folder's Mac path.
-- [ ] `status` reports `folderHostPath` and `workspaceMapped`, and is
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `3a7ce79`;
+    `packages/host/test/dispatch.test.ts`, `build.test.ts`, `install.test.ts`,
+    and `status.test.ts` pass; `bun test` (250 tests), `bun run typecheck`,
+    `bun run lint`, and `bun run package` pass at that commit.
+- [x] `status` reports `folderHostPath` and `workspaceMapped`, and is
   unavailable when the folder does not map. Trust and the cooldown stay keyed to
   the host path, and the build confirmation names the folder's Mac path.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `3a7ce79`;
+    `packages/host/test/status.test.ts`, `dispatch.test.ts`, and `trust.test.ts`
+    (a build in a folder under the host path) pass.
 
 ### Task 9: Document the change in the sibling repository
 
