@@ -1052,9 +1052,19 @@ on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
     update bun" opened an "Expo Bridge fix" terminal marked "This shell is
     running on your local machine", which ran `brew install oven-sh/bun/bun` on
     `robomac`.
-- [ ] Before Task 22 tags the first pre-release, the second and third boxes'
+- [x] Before Task 22 tags the first pre-release, the second and third boxes'
   action sequence and Metro load pass again on the Mac from the host and
   workspace VSIX built from the commit that tag points at.
+  - **Evidence:** Run on 2026-10-23 on the Mac with host and workspace VSIX
+    0.1.10 built from `plume-works/vscode-expo-bridge` `main` at
+    [`f0644d7`](https://github.com/plume-works/vscode-expo-bridge/commit/f0644d7),
+    the commit the tag `v0.1.10` points at; `code --list-extensions` listed
+    `plume-works.vscode-expo-bridge-host@0.1.10` on the Mac and
+    `plume-works.vscode-expo-bridge-workspace@0.1.10` in the container. After
+    the app was uninstalled from the simulator, `build` (eas-cli 25.3.0),
+    `install`, `launch`, and `screenshot` exited 0, Metro logged
+    `iOS Bundled 404ms index.js (693 modules)`, and the screenshot showed the
+    app's "Open up App.js to start working on your app!" screen.
 
 ### Task 21b: Release workflow in the sibling repository
 
