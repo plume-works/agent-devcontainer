@@ -1297,6 +1297,15 @@ Recorded 2026-10-18 at `afae3a2`.
   16 remains the maintainer's gate. The `main` ruleset requires
   `Pinned runtime acceptance (amd64)` and `(arm64)`.
 
+- **On a native filesystem, recorded 2026-10-23.** Main's Primary checks run
+  39925246942 at `377be4a` ran `scripts/tests` inside the devcontainer on amd64
+  (job 120336324467) and arm64 (job 120336324478): `test_agent_runtime_cbm.py` 8
+  passed, `test_agent_runtime_identity.py` 15 passed, none skipped; the suite
+  gave 1286 passed, 36 skipped, 0 failed. Both test files, `runtime-cbm.sh`,
+  `runtime-bootstrap.sh`, `codebase-memory-mcp-install.sh`, and the `dev_tools`
+  pins are identical at `377be4a` and at Task 23's head. The 8 failures recorded
+  above are therefore specific to a `fuse.grpcfuse` checkout.
+
 ## Out of scope
 
 - Multiple projects per running container, automatic repository updates,
