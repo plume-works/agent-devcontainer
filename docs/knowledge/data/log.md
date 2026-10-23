@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-23
+
+- **Update**: [Build iOS on the Mac host through a VS Code
+  bridge](plans/20261015-vscode-expo-bridge.md) done; [Template
+  consumption](spec/template-consumption.md) now specifies that an Expo consumer
+  builds iOS on a Mac host through the bridge.
+- **Update**: [VS Code Expo bridge](features/vscode-expo-bridge.md) implemented;
+  listed under Unreleased Added.
+
 ## 2026-10-22
 
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)

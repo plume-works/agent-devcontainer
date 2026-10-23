@@ -6,7 +6,7 @@ release:
 description: Two VS Code extensions in the sibling repository plume-works/vscode-expo-bridge, bundled as one extension pack, that let agents in a devcontainer opened on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through a fixed Expo-only action set — trusted per workspace on the Mac, confirmed per build, and built unsandboxed as the Mac user — with EAS cloud as the fallback; the template's Expo profile lists the pack.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T08:00:00Z
+  at: 2026-10-23T12:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261014-expo-eas-template-profile.md
 - resource: .devcontainer/devcontainer.json
@@ -25,6 +25,8 @@ sources:
 - resource: https://blog.theredguild.org/leveraging-vscode-internals-to-escape-containers/
 - resource: https://github.com/microsoft/vscode/issues/287765
 - resource: https://developer.apple.com/videos/play/wwdc19/418/
+stage: done
+completed: 2026-10-23
 ---
 
 # Build iOS on the Mac host through a VS Code bridge

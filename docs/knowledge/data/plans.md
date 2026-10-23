@@ -31,9 +31,6 @@ image](plans/20261021-playwright-browser.md)
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
-[Build iOS on the Mac host through a VS Code
-bridge](plans/20261015-vscode-expo-bridge.md)
-
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
@@ -44,6 +41,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Build iOS on the Mac host through a VS Code
+bridge](plans/20261015-vscode-expo-bridge.md)
 
 [Mask version-only changes during a map
 refresh](plans/20261021-map-masks-version-bumps.md)
