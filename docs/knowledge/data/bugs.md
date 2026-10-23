@@ -94,3 +94,6 @@ observations](bugs/plan-tasks-bundle-independent-observations.md)
 
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
+
+[Bug: PR updates skip the re-review
+evaluation](bugs/pr-update-skips-review-eval.md)

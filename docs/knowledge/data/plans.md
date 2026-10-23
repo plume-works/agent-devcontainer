@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[PR updates re-evaluate the AI
+review](plans/20261023-pr-update-reevaluates-review.md)
+
 [Extract a reusable IWE bootstrap
 skill](plans/20261023-reusable-iwe-bootstrap.md)
 
