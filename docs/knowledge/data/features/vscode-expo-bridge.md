@@ -51,7 +51,8 @@ and tells agents to use `eas-host` for iOS when `eas-host status` succeeds.
   `eas-host status` says so and exits non-zero, and agents use EAS cloud builds.
 - **The first window on a Mac.** The pack listed in `devcontainer.json` installs
   into the container, where the host extension is disabled; one click on its
-  **Install Locally** installs it on the Mac.
+  **Install Locally** installs it on the Mac for every window, after a **Reload
+  Window** in windows already open.
 - **A Mac tool is missing.** The extension offers a one-click fix in the VS Code
   UI; a fix runs only on the user's click, never from a protocol action.
 - **Signed device and store builds** are not covered; the bridge builds for the
