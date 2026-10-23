@@ -984,10 +984,17 @@ Containers window on a Mac
 on `main` of `plume-works/vscode-expo-bridge`, and a scratch Expo app with an
 `eas.json` simulator profile and a linked EAS project, on a Mac
 
-- [ ] With the host VSIX installed in VS Code on the Mac and the workspace VSIX
+- [x] With the host VSIX installed in VS Code on the Mac and the workspace VSIX
   installed into the container of a Dev Containers window on the scratch app,
   the Extensions view shows the host extension as local and the workspace
   extension in the container, and `eas-host` is on the container's `PATH`.
+  - **Evidence:** Run on 2026-10-23 on the Mac with VSIX 0.1.7 from
+    `plume-works/vscode-expo-bridge` `main` at
+    [`5fd9902`](https://github.com/plume-works/vscode-expo-bridge/commit/5fd9902):
+    the Extensions view listed `plume-works.vscode-expo-bridge-host` 0.1.7 in
+    the local extension host and `plume-works.vscode-expo-bridge-workspace`
+    0.1.7 as "enabled on 'Dev Container: expo-bridge-t21'", both from VSIX;
+    `which eas-host` in that container printed `/home/node/.local/bin/eas-host`.
 - [x] From that window an agent runs `eas-host status`, `build` for the
   simulator profile, `install`, `launch`, and `screenshot`, and reads the
   screenshot from the container; the trust prompt appears on the first request
