@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:0170c4df72cbba5805a9cad0b5f78832e59b3c7eb420e3b6745f96a9e88eb389
+source_digest: sha256:715dccd1c70b112c1025ad78bf020e592198abe6f417e8e41b3d10e05aacab02
 verified:
-  by: claude-code/claude-opus-5-5
-  at: 2026-10-22T01:24:56Z
-stale_after: 2027-01-20
+  by: claude-code/opus-5.5
+  at: 2026-10-23T19:00:00Z
+stale_after: 2027-01-21
 generated:
-  by: claude-code/claude-opus-5-5
-  at: 2026-10-22T01:24:56Z
+  by: claude-code/opus-5.5
+  at: 2026-10-23T19:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -92,7 +92,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
+Verified anchor points (line numbers as of 2026-10-22):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

@@ -89,3 +89,5 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 devcontainers](architecture/sibling-devcontainer-testing.md)
 
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
+
+[VS Code Expo bridge](architecture/vscode-expo-bridge.md)

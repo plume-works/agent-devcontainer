@@ -971,8 +971,54 @@ Apply these edits to the consumer's files:
    above requires.
    ```
 
+   After it, append the iOS build rule, verbatim:
+
+   ```markdown
+   For an iOS Simulator build, run `eas-host status` first. When it exits 0,
+   work on the Mac host through `eas-host`, in this order:
+   `eas-host build <profile>`, `eas-host install` (no path installs the newest
+   build), `eas-host launch`, `eas-host screenshot`. Before launching a
+   development build, start Metro in the container with
+   `bunx expo start --dev-client --localhost --port 8081`; without it the app
+   has no bundle to load. `eas-host --help` lists the sequence. When
+   `eas-host status` exits non-zero, build the same profile on EAS cloud with
+   `bunx eas-cli@latest build -p ios --profile <profile>`. Device and store
+   builds always go to EAS cloud: the bridge builds only for the Simulator.
+   ```
+
 5. In `.claude/settings.json`, keep `expo@claude-plugins-official` in
    `enabledPlugins` alongside the template's entries.
+6. In `.devcontainer/devcontainer.json`, add `plume-works.vscode-expo-bridge`
+   to `customizations.vscode.extensions`, `8081` to `forwardPorts`, and this
+   entry to the existing `portsAttributes` map, so VS Code's auto-forward
+   notification for Metro does not cover the bridge's own notifications:
+
+   ```json
+   "8081": {
+     "label": "Metro",
+     "onAutoForward": "silent"
+   }
+   ```
+
+   Write no bridge trust or security setting anywhere: trust in a workspace is
+   granted only on the Mac, when the bridge's first request asks for it.
+
+The extension pack is the [Expo Bridge](https://github.com/plume-works/vscode-expo-bridge).
+When VS Code on a Mac opens the devcontainer, it builds the iOS app with
+`eas build --local` on that Mac and runs it in the iOS Simulator, and the
+container drives it through `eas-host`. Metro runs in the container and reaches
+the simulator's development build over the forwarded port 8081. Anywhere else —
+a Codespace, a non-Mac host — `eas-host status` exits non-zero and builds go to
+EAS cloud. The bridge reads `EXPO_TOKEN` from the Mac, not from the
+container: store it there with the **Expo Bridge: Set EXPO_TOKEN** command.
+
+VS Code installs every extension listed in `devcontainer.json` into the
+container, where the bridge's host extension cannot run. In the first window on
+a Mac, the Extensions view shows **Expo Bridge (Host)** disabled with **Install
+Locally**: one click, once per Mac, enables the bridge, and windows already open
+then offer **Reload Window**. A Codespace installs the listed extensions after
+its window opens, so the workspace extension activates, and `eas-host` appears,
+only after one **Developer: Reload Window**.
 
 Record `"expo"` in the marker's `optional_bundles`. It adds no `tracked_paths`:
 every edit lands in a file the template already tracks or the consumer owns.

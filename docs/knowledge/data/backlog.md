@@ -18,6 +18,9 @@ write a plan and link the plan instead.*
 
 ## Medium
 
+[Document VSCodium support for the Expo
+bridge](backlog/document-expo-bridge-vscodium-support.md)
+
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
@@ -42,6 +45,9 @@ mechanically](backlog/detect-plan-narration-growth.md)
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
 ## Done
+
+[Make the Expo bridge self-explanatory to an
+agent](backlog/expo-bridge-agent-guidance.md)
 
 [Name the usage limit when an OpenCode e2e run is
 refused](backlog/e2e-opencode-usage-limit-reason.md)
