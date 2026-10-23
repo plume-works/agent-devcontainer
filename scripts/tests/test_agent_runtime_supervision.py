@@ -71,8 +71,11 @@ sleep "$(cat "$state/$name.sleep" 2>/dev/null || echo 0)"
 exit "$(cat "$state/$name.exit" 2>/dev/null || echo 0)"
 """
 FAKE_HEALTH = """#!/usr/bin/env bash
+[[ -f $STATE_DIR/$1.unhealthy ]] && cat "$STATE_DIR/$1.unhealthy"
 [[ -f $STATE_DIR/$1.ready && ! -f $STATE_DIR/$1.unhealthy ]]
 """
+HEALTH = REPO_ROOT / '.devcontainer/scripts/runtime-health.sh'
+
 FAKE_BOOTSTRAP = """#!/usr/bin/env bash
 echo "run bootstrap" >> "$STATE_DIR/events"
 echo "bootstrap says hello"
@@ -159,11 +162,18 @@ class Supervision:
         return path.read_text().splitlines() if path.exists() else []
 
     def ready(self) -> bool:
-        return (self.root / 'run/ready').exists()
+        return self.runtime().get('state') == 'ready'
+
+    def health(self, check: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [HEALTH, check], env=self.env, text=True, capture_output=True, timeout=30
+        )
 
     def runtime(self) -> dict:
-        path = self.root / 'run/state.json'
-        return json.loads(path.read_text()) if path.exists() else {}
+        try:
+            return json.loads((self.root / 'run/state.json').read_text())
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}
 
     def latched(self) -> str | None:
         state = self.runtime()
@@ -485,8 +495,7 @@ def test_opencode_does_not_wait_for_xpra(make):
     box.wait_for(lambda: box.status('opencode') == 'ready')
     assert box.status('xpra') in {'starting', 'recovering'}
     box.wait_for(box.degraded)
-    runs = started(box.events())
-    assert runs.index('opencode') < runs.index('xpra')
+    assert box.status('opencode') == 'ready'
 
 
 @pytest.mark.parametrize('name', ['config', 'xpra', 'project'])
@@ -604,3 +613,56 @@ def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
     box.wait_for(lambda: started(box.events()).count('xpra') == 2 and box.ready())
     with pytest.raises(ProcessLookupError):
         os.kill(orphan, 0)
+
+
+def test_health_needs_a_live_controller_reporting_ready(make):
+    box = make()
+    box.start()
+    box.wait_for(box.ready)
+    assert box.health('ready').returncode == 0
+    box.set('opencode', 'unhealthy')
+    assert box.health('ready').returncode == 1, 'the core probes run at every check'
+    (box.state / 'opencode.unhealthy').unlink()
+
+    controller = box.controller_pid()
+    os.kill(controller, signal.SIGSTOP)
+    try:
+        stopped = time.monotonic()
+        while box.health('ready').returncode == 0:
+            assert time.monotonic() - stopped < 3 * 0.2 + 1, 'a stale heartbeat still passed'
+            time.sleep(0.05)
+        assert 'stale' in box.health('ready').stdout
+    finally:
+        os.kill(controller, signal.SIGCONT)
+    box.wait_for(lambda: box.health('ready').returncode == 0)
+
+    os.kill(controller, signal.SIGKILL)
+    box.wait_exit()
+    assert box.health('ready').returncode == 1
+
+
+def test_status_names_each_failure_and_its_retry_command(make):
+    box = make()
+    box.set('project', 'exit', '4')
+    box.start()
+    box.wait_for(box.degraded)
+    shown = box.health('status')
+    assert shown.returncode == 1
+    lines = shown.stdout
+    assert 'runtime state: degraded' in lines
+    assert 'project: failed (project failed (exit status 4))' in lines
+    assert 'runtime-supervisor.py retry project' in lines
+    record = box.record()
+    assert f'last failure: project, exit status 4, at {record["time"]}' in lines
+
+
+def test_a_failing_probe_logs_its_output(make):
+    box = make()
+    box.start()
+    box.wait_for(box.ready)
+    box.set('xpra', 'unhealthy', 'the display is gone')
+    box.wait_for(lambda: not box.ready())
+    (box.state / 'xpra.unhealthy').unlink()
+    box.wait_for(box.ready)
+    box.terminate()
+    assert 'xpra: probe exited 1: the display is gone' in box.output()

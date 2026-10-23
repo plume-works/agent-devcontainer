@@ -545,6 +545,33 @@ def test_a_failed_uv_sync_degrades_while_opencode_serves_until_retried(
     runtime.sh('test -x /uv/venvs/project/bin/python')
 
 
+def test_an_optional_failure_reports_unhealthy_while_opencode_serves(make_runtime, scratch: Path):
+    checkout = make_checkout(scratch, {'pyproject.toml': PYPROJECT.replace('>=3.12', '>=99')})
+    runtime = make_runtime(
+        workspace=bind(checkout),
+        options=[
+            '--health-interval',
+            '2s',
+            '--health-start-period',
+            '1s',
+            '--health-retries',
+            '1',
+        ],
+    )
+    runtime.run()
+    assert runtime.wait() == 'degraded', runtime.logs()[-4000:]
+    deadline = time.monotonic() + 60
+    while runtime.inspect('{{.State.Health.Status}}') != 'unhealthy':
+        assert time.monotonic() < deadline, runtime.inspect('{{json .State.Health}}')
+        time.sleep(1)
+    assert opencode_answers(runtime)
+    shown = runtime.sh(f'{RUNTIME}/runtime-health.sh status', user='root', check=False)
+    assert shown.returncode == 1
+    assert 'runtime state: degraded' in shown.stdout
+    assert 'runtime-supervisor.py retry project' in shown.stdout
+    assert 'last failure: project, exit status' in shown.stdout
+
+
 def test_non_python_bind_start_skips_project_tooling(ready_runtime: Runtime):
     logs = ready_runtime.logs()
     assert 'no pyproject.toml; skipping uv sync' in logs

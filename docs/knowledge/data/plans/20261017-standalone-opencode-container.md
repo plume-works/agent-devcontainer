@@ -1334,13 +1334,27 @@ Supersedes Task 10's 30-minute health start period.
   status. `runtime-health.sh ready` passes only when the heartbeat is younger
   than three intervals, the state is `ready`, and the core probes pass now. A
   test kills the controller and sees `ready` fail within three intervals.
+  - **Evidence:** commit "feat(runtime): report runtime state from a live
+    controller"; `uv run pytest scripts/tests/test_agent_runtime_supervision.py`
+    39 passed at that commit, including
+    `test_health_needs_a_live_controller_reporting_ready`: a failing core probe
+    fails `ready`, a stopped controller fails it within three intervals as
+    `stale`, and a killed one fails it.
 - [ ] `runtime-health.sh status` prints the state, each failed component, the
   failure record's phase, exit status, and time, and the retry command for each.
   A failing probe's output is logged, bounded, instead of discarded.
+  - **Evidence:** same commit;
+    `test_status_names_each_failure_and_its_retry_command` and
+    `test_a_failing_probe_logs_its_output` (the last 500 characters) pass.
 - [ ] The image `HEALTHCHECK` start period covers core startup only. Pending,
   degraded, and failed report unhealthy. In container acceptance, a forced
   optional failure shows `unhealthy` in `docker inspect` while `/api/info`
   answers.
+  - **Evidence:** same commit; the `HEALTHCHECK` start period is 10 minutes.
+    `AGENTDEV_RUNTIME_TEST_IMAGE=agent-opencode:t33 .devcontainer/scripts/test-agent-runtime.sh`
+    on aarch64, built from that tree with Task 34's: 21 passed, 1 skipped (the
+    upgrade test), including
+    `test_an_optional_failure_reports_unhealthy_while_opencode_serves`.
 
 ### Task 34: Parse runtime settings strictly
 

@@ -37,6 +37,7 @@ SETTLED = {'ready', 'done'}
 SUPERVISOR_FAULT_NOT_RUNNING = 70
 SUPERVISOR_FAULT_ALREADY_STARTED = 60
 OUTPUT_TAIL = 200
+PROBE_TAIL = 500
 DEFAULT_CONFIG = '/etc/agentdev/supervisord.conf'
 
 
@@ -106,10 +107,6 @@ class Settings:
     strict: bool = field(
         default_factory=lambda: os.environ.get('AGENTDEV_STRICT_STARTUP', '').lower() == 'true'
     )
-
-    @property
-    def ready_file(self) -> Path:
-        return self.run_dir / 'ready'
 
     @property
     def state_file(self) -> Path:
@@ -243,6 +240,7 @@ class Controller:
         # Each program leads its own process group, so its first pid is the group id.
         self.groups: dict[str, int] = {}
         self.commands = program_commands()
+        self.publishing = threading.Lock()
 
     # --- supervisord access -------------------------------------------------------------
     def state(self, name: str) -> dict:
@@ -291,30 +289,32 @@ class Controller:
         return 'ready'
 
     def publish(self) -> None:
-        state = self.runtime_state()
+        """Write the state file; its heartbeat is what tells health the controller is alive."""
+        statuses, reasons = self.status.copy(), self.reasons.copy()
         components = {
-            name: {
-                'status': status,
-                **({'reason': self.reasons[name]} if name in self.reasons else {}),
-            }
-            for name, status in self.status.items()
+            name: {'status': status, **({'reason': reasons[name]} if name in reasons else {})}
+            for name, status in statuses.items()
         }
-        write_json(
-            self.settings.state_file,
-            {
-                'startup_id': self.startup_id,
-                'state': state,
-                'latched': self.latched,
-                'components': components,
-                'retry': self.retry,
-                'interval': self.settings.interval,
-                'updated': utc_now(),
-            },
-        )
-        if state == 'ready':
-            self.settings.ready_file.write_text('ready\n')
-        else:
-            self.settings.ready_file.unlink(missing_ok=True)
+        with self.publishing:
+            write_json(
+                self.settings.state_file,
+                {
+                    'startup_id': self.startup_id,
+                    'state': self.runtime_state(),
+                    'latched': self.latched,
+                    'components': components,
+                    'retry': self.retry,
+                    'interval': self.settings.interval,
+                    'heartbeat': time.time(),
+                    'updated': utc_now(),
+                },
+            )
+
+    def beat(self) -> None:
+        """Publish every interval, even while the worker waits on a long phase."""
+        while True:
+            time.sleep(self.settings.interval)
+            self.publish()
 
     def set_status(self, name: str, status: str, reason: str | None = None) -> None:
         self.status[name] = status
@@ -381,13 +381,17 @@ class Controller:
         try:
             result = subprocess.run(
                 [self.settings.health_command, name],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                errors='replace',
                 timeout=max(self.settings.interval * 5, 10),
             )
         except subprocess.TimeoutExpired:
             log(f'{name}: readiness probe timed out')
             return False
+        if result.returncode != 0 and result.stdout.strip():
+            log(f'{name}: probe exited {result.returncode}: {result.stdout.strip()[-PROBE_TAIL:]}')
         return result.returncode == 0
 
     def healthy(self, name: str) -> bool:
@@ -615,6 +619,8 @@ class Controller:
 
     def run(self) -> None:
         startup_retry = os.environ.get('AGENTDEV_RETRY_ID')
+        self.publish()
+        threading.Thread(target=self.beat, name='heartbeat', daemon=True).start()
         try:
             self.resume()
         except Latched:
@@ -661,7 +667,7 @@ def crash(settings: Settings, rpc, reason: str) -> None:
     """End the container: the controller itself failed, so Docker's restart policy applies."""
     log(f'controller failure: {reason}')
     settings.crash_file.write_text(reason + '\n')
-    settings.ready_file.unlink(missing_ok=True)
+    settings.state_file.unlink(missing_ok=True)
     rpc.supervisor.shutdown()
 
 
@@ -737,13 +743,17 @@ def preflight(settings: Settings, holder: dict) -> dict | None:
     return {'component': 'bootstrap', 'reason': reason, **child.result(status)}
 
 
-def wait_for_retry(settings: Settings) -> str:
-    """Block until an operator asks for a retry; return the request's id."""
+def wait_for_retry(settings: Settings, state: dict) -> str:
+    """Keep ``state`` current until an operator asks for a retry; return the request's id."""
+    published = 0.0
     while True:
         request = read_json(settings.retry_file)
         if request is not None:
             settings.retry_file.unlink(missing_ok=True)
             return str(request.get('id', ''))
+        if time.monotonic() - published >= settings.interval:
+            write_json(settings.state_file, {**state, 'heartbeat': time.time()})
+            published = time.monotonic()
         time.sleep(0.5)
 
 
@@ -753,7 +763,6 @@ def run() -> int:
     settings.run_dir.mkdir(parents=True, exist_ok=True)
     # /run survives `docker restart`: nothing from the previous start may leak into this one.
     for stale in (
-        settings.ready_file,
         settings.state_file,
         settings.crash_file,
         settings.retry_file,
@@ -782,21 +791,19 @@ def run() -> int:
             flush=True,
         )
         retry = {'id': retry_id, 'ok': False, 'message': failure['reason']} if retry_id else None
-        write_json(
-            settings.state_file,
-            {
-                'startup_id': startup_id,
-                'state': 'failed',
-                'latched': failure['component'],
-                'components': {
-                    failure['component']: {'status': 'failed', 'reason': failure['reason']}
-                },
-                'retry': retry,
-                'updated': utc_now(),
+        state = {
+            'startup_id': startup_id,
+            'state': 'failed',
+            'latched': failure['component'],
+            'components': {
+                failure['component']: {'status': 'failed', 'reason': failure['reason']}
             },
-        )
+            'retry': retry,
+            'interval': settings.interval,
+            'updated': utc_now(),
+        }
         log(f'latched failed on {failure["component"]}; retry with runtime-supervisor.py retry')
-        retry_id = wait_for_retry(settings)
+        retry_id = wait_for_retry(settings, state)
     if retry_id:
         os.environ['AGENTDEV_RETRY_ID'] = retry_id
 
