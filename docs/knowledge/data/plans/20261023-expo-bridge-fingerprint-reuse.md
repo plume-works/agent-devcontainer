@@ -1,0 +1,448 @@
+---
+type: plan
+created: 2026-10-23
+release:
+- features/vscode-expo-bridge
+description: Make `eas-host build` of an Expo iOS development build reuse the workspace's earlier artifact when a cache key — the project's @expo/fingerprint, computed inside the confirmed build, plus the inputs the fingerprint leaves out — matches, with `eas-host build <profile> --clean` for a full build, the outcome reported in the result, and protocol version 1 kept.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-10-23T20:40:00Z
+sources:
+- resource: docs/knowledge/data/plans/20261023-expo-bridge-incremental-builds.md
+- resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
+- resource: https://github.com/plume-works/vscode-expo-bridge
+- resource: https://docs.expo.dev/versions/latest/sdk/fingerprint/
+- resource: https://www.npmjs.com/package/eas-cli/v/25.3.0
+- resource: https://www.npmjs.com/package/@expo/build-tools/v/25.3.0
+---
+
+# Reuse a matching Expo bridge build by fingerprint
+
+## Context
+
+The [VS Code Expo bridge](../features/vscode-expo-bridge.md) runs every
+`eas-host build` as a full `eas build --local`: a cold simulator build of the
+scratch app (Expo SDK 58, React Native 0.88, prebuilt React Native core) takes
+102 s. eas-cli 25.3.0 runs a local build through
+`eas-cli-local-build-plugin@25.3.0`, which refuses a non-empty working
+directory, so no build state carries over between local builds ([incremental
+builds plan](20261023-expo-bridge-incremental-builds.md), cancelled). That
+leaves the whole-build case: when nothing native changed, the earlier artifact
+is still the right artifact.
+
+A development build loads its JavaScript from Metro, so its `.app` depends only
+on native inputs. Expo uses the same rule: `eas build:dev` reuses a cloud
+development build whose fingerprint matches, and the `expo run` local build
+cache keys on platform, fingerprint, and build configuration.
+
+Settled facts this plan builds on:
+
+- **eas-cli already runs the fingerprint inside every build.** `eas build`
+  evaluates the app config and calls `createFingerprintAsync`, loading
+  `expo/fingerprint` from the workspace's own `node_modules` (`eas-cli@25.3.0`
+  `build/fingerprint/cli.js:23`, `build/build.js:656`). A local build does not
+  upload it (`project/maybeUploadFingerprintAsync.js`), and nothing in
+  `@expo/build-tools@25.3.0` or the local build plugin reads `fingerprintHash`.
+- **eas's own hash is not recoverable.** It is printed only in the failure
+  context (`build/local.js:116`); the plugin logs `job` but not `metadata`.
+  `eas fingerprint:generate` uploads the fingerprint and creates a Fingerprint
+  record on the EAS project (`fingerprint/utils.js:27-35`).
+- **What the default `balanced` fingerprint covers** (`@expo/fingerprint`
+  0.21.5, Expo SDK 58): a JavaScript edit, `version`, `eas.json` (including a
+  switch to `developmentClient: false`), and `bun.lock` leave the hash
+  unchanged; the app `name` and an installed native module change it. A native
+  module declared in `package.json` but not installed in `node_modules` leaves
+  it unchanged, and with no `node_modules` `expo/fingerprint` does not resolve.
+- **A development build's artifact embeds no JavaScript.** The scratch app's
+  `developmentClient` simulator artifact contains no `main.jsbundle`; a Release
+  build embeds one.
+
+## Approach
+
+**The fingerprint is a build step.** After trust and the per-build confirmation,
+`build` runs a host-owned script with the Mac's `node`, in the workspace's host
+path, that loads the project's `expo/fingerprint` and prints
+`createFingerprintAsync(hostPath, { platforms: ["ios"] })`'s hash. It runs no
+code `eas build` would not already run at the same point of the same confirmed
+build, so "outside `build`, the host never evaluates project code" still holds;
+the step never runs in `status` or before the confirmation. A missing node, an
+unresolvable `expo/fingerprint`, a failure, or output that is not one 40-digit
+hex hash means no fingerprint, and the build runs in full.
+
+**The cache key** is the SHA-256 of the fingerprint hash together with the
+inputs the fingerprint leaves out: the profile name, the bytes of `eas.json`,
+`package.json`, and each lockfile present (`bun.lock`, `bun.lockb`,
+`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`), the eas-cli version that
+`bunx eas-cli@<spec> --version` resolves, `xcodebuild -version`, and the host
+extension's version. The workspace files are read as bytes under the bridge's
+file rules — a symlink, a non-regular file, or a file over the size limit means
+no key, and the build runs in full.
+
+**The cache** lives in the host's private global storage under
+`build-cache/<sha256 of the host path>/`: an `index.json` and one artifact per
+key, newest five kept. The container sends only `profile` and `clean`; it never
+names a cache directory or a key. A build stores its artifact only when it
+exited 0, produced an artifact, and that artifact contains no `main.jsbundle` —
+so a build that embeds JavaScript is never reused. A hit copies the stored
+artifact into `.tmp/expo-bridge/` under the fresh-write rule with a new name, so
+`eas-host install` with no path picks it. Every build, reused or not, writes its
+log file. Writes go through a temporary file and a rename, so no reader sees a
+partial entry. Revoking a workspace's trust decision deletes its cache.
+
+**The protocol stays at version 1.** `BuildRequest` gains an optional `clean`,
+and `BuildResult` gains `mode` (`built` or `reused`), `reason` for a full build
+(`clean-requested`, `no-fingerprint`, `no-match`), and `reusedBuiltAt` for a
+reused one. A host without this change ignores `clean` and always builds in
+full, which is what `--clean` asks for; an `eas-host` without it ignores the new
+result fields. `eas-host status` compares versions for equality, and the two
+extensions update independently, so a version bump would break every mixed
+pairing for no gain.
+
+**A clean build.** `eas-host build <profile> --clean` sends `clean: true`; the
+host skips the lookup, builds in full, and computes the key after the build to
+store the result. The build confirmation names a clean build when `clean` is set
+and otherwise says a matching earlier build may be reused.
+
+The fingerprint is a correctness hint, not a security input. Project code
+(`app.config.js`, `fingerprint.config.js`) can force a match; the worst outcome
+is a stale artifact this same workspace's confirmed build produced, which the
+container could already reach by writing any `.app` under `.tmp/expo-bridge/`
+and installing it.
+
+Rejected: reading eas's own fingerprint through an `EAS_LOCAL_BUILD_PLUGIN_PATH`
+shim that decodes `EAS_LOCAL_BUILD_PLUGIN_INPUT` — it depends on an internal
+handoff that carries credentials, re-implements the plugin's launch, and still
+pays eas-cli's start-up on a hit. Rejected: `eas fingerprint:generate` — it
+writes a Fingerprint record to the EAS project on every build. Rejected:
+re-bundling JavaScript into a stored Release artifact — it re-implements Xcode's
+bundle phase and re-signing. Rejected: protocol version 2, for the mixed
+pairings above.
+
+Assumptions:
+
+- Five stored artifacts per workspace, a constant in the host extension; at
+  about 45 MB per simulator artifact a workspace's cache stays near 225 MB, so
+  no cross-workspace cap.
+- The fingerprint uses `@expo/fingerprint`'s defaults with `platforms: ["ios"]`
+  and no `ignorePaths`, so a generated `ios/` directory counts as native input.
+  The key needs only to agree with itself, not with eas's own hash.
+- The file size limit for hashing is 64 MB, a constant; `eas.json` keeps its
+  existing JSON limit for parsing.
+
+## Implementation Steps
+
+### Task 1: Protocol fields for reuse
+
+**Files:** Modify: `packages/protocol/src/index.ts`, its test, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] `BuildRequest` takes an optional `clean: boolean`. `BuildResult` carries
+  optional `mode: "built" | "reused"`, `reason` (`"clean-requested"`,
+  `"no-fingerprint"`, `"no-match"`) when `mode` is `built`, and `reusedBuiltAt`
+  (epoch milliseconds) when `mode` is `reused`. `PROTOCOL_VERSION` stays 1.
+- [ ] `bun test` covers the new fields' types and that the version is 1.
+
+### Task 2: `eas-host build <profile> --clean`
+
+**Files:** Modify: `packages/workspace/src/cli-args.ts`, its test, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] `eas-host build <profile> --clean` sends `clean: true`; any other argument
+  after the profile is a usage error. `USAGE` names the flag, and `HELP` says a
+  build reuses an earlier artifact when the native inputs are unchanged and that
+  `--clean` forces a full build.
+- [ ] `bun test` covers the flag, its absence, and a rejected unknown argument.
+
+### Task 3: Host — the fingerprint step
+
+**Files:** Create: `packages/host/src/fingerprint.ts` and its test, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] `projectFingerprint` runs the Mac's `node` (`lookupTool`) on a script held
+  as a constant in the module, with the host path as its argument and as the
+  working directory, through the runner's argument array. The script resolves
+  `expo/fingerprint` from the host path and prints the hash of
+  `createFingerprintAsync(hostPath, { platforms: ["ios"] })`.
+- [ ] It returns the hash only when the output is one 40-digit lowercase hex
+  string and the process exited 0; it returns null for a missing node, a
+  non-zero exit, or any other output, and never includes the output in an error.
+- [ ] `bun test` covers a hash, each null case, and the argument array.
+
+### Task 4: Host — the cache key
+
+**Files:** Create: `packages/host/src/buildkey.ts` and its test, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] `buildKey` returns the SHA-256 over the fingerprint hash, the profile, the
+  SHA-256 of `eas.json`, `package.json`, and each present lockfile (`bun.lock`,
+  `bun.lockb`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`), the resolved
+  eas-cli version, `xcodebuild -version`, and the host extension's version, each
+  named in the hashed record.
+- [ ] Each workspace file is read as bytes and refused when any path component
+  is a symlink, the file is not regular, or it is over 64 MB; a refusal, a
+  missing `package.json`, or a failed version probe returns null.
+- [ ] `bun test` covers a change in each input changing the key, an absent
+  lockfile, and each refusal.
+
+### Task 5: Host — the per-workspace build cache
+
+**Files:** Create: `packages/host/src/buildcache.ts` and its test, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] The cache directory is
+  `<globalStorage>/build-cache/<sha256 of the host path>/`, never derived from
+  anything the container sends. `index.json` records the host path and, per key,
+  the artifact file and the time it was built.
+- [ ] `lookup(key)` returns the stored artifact and its build time, or null.
+  `store(key, artifact, builtAt)` refuses an archive that contains a
+  `main.jsbundle`, writes through a temporary file and a rename, and keeps the
+  five newest entries, deleting the rest. `remove(hostPath)` deletes the
+  workspace's directory.
+- [ ] `bun test` covers a hit, a miss, the refused archive, the eviction order,
+  removal, and that two host paths never share a directory.
+
+### Task 6: Host — `build` reuses or stores
+
+**Files:** Modify: `packages/host/src/build.ts`,
+`packages/host/src/dispatch.ts`, `packages/host/src/extension.ts`, their tests,
+in `plume-works/vscode-expo-bridge`
+
+- [ ] Without `clean`, `build` computes the fingerprint and the key after its
+  existing profile and eas-cli checks. On a hit it copies the stored artifact
+  into `.tmp/expo-bridge/build-<ms>.tar.gz` under the fresh-write rule, writes
+  the log, and returns `mode: "reused"` with `reusedBuiltAt` and `exitCode` 0,
+  without running eas-cli.
+- [ ] On a miss, with no key, or with `clean`, it runs the existing
+  `eas build --local` and returns `mode: "built"` with the reason; a build that
+  exited 0 with an artifact is offered to `store` under its key (a clean build
+  computes the key after the build).
+- [ ] The log names the fingerprint hash, the key, and the outcome, and never a
+  file's contents.
+- [ ] `bun test` covers the hit, each `reason`, the store after success, no
+  store after a failed build, and that the fingerprint step runs only for a
+  confirmed build.
+
+### Task 7: Host — confirmation text and trust revocation
+
+**Files:** Modify: `packages/host/src/trust.ts`,
+`packages/host/src/extension.ts`, their tests, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] The build confirmation names a clean build when `clean` is set, and
+  otherwise says a matching earlier build may be reused; a cooldown covers both.
+- [ ] Revoking a workspace's trust decision through the manage-trust command
+  deletes that workspace's build cache.
+- [ ] `bun test` covers both confirmation texts and the deletion on revoke.
+
+### Task 8: Document reuse in the sibling repository
+
+**Files:** Modify: `docs/protocol.md`, `packages/host/README.md`, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] `docs/protocol.md` specifies `clean`, `mode`, `reason`, `reusedBuiltAt`,
+  the fingerprint step as part of `build`, the cache key's inputs, the
+  per-workspace cache and its five-entry limit, that only artifacts without an
+  embedded bundle are stored, that revoking trust deletes the cache, and that
+  the protocol version stays 1.
+- [ ] The host README states that a development build is reused when its native
+  inputs match and that `--clean` forces a full build.
+
+### Task 9: Sibling repository CI passes
+
+**Files:** none
+
+- [ ] The sibling repository's CI passes on the commit that completes Tasks 1–8.
+
+### Task 10: Mac timing of the fingerprint step and a reused build
+
+**Files:** none — the scratch app, on a Mac, in a VS Code window whose root
+folder is the app, with the packaged extensions sideloaded
+
+- [ ] The fingerprint step's time and a reused build's total time, from request
+  to result, are recorded under `## Verification results`, with the cold build
+  time on the same Mac.
+- [ ] When a reused build takes 15 s or more, the plan goes back to
+  `/agentdev:iwe-plan` revise mode with the measurement before Task 11.
+
+### Task 11: Mac round trip from the packaged VSIX files
+
+**Files:** none — the scratch app, on a Mac, as in Task 10
+
+- [ ] A first build reports `mode: "built"`, `reason: "no-match"`; a repeat
+  build reports `mode: "reused"`; `eas-host install` with no path and
+  `eas-host launch` run the reused artifact against Metro, and a screenshot
+  shows the app.
+- [ ] A JavaScript-only edit is reused and shows the edit through Metro; adding
+  an installed native module reports `reason: "no-match"` and the app launches
+  with it.
+- [ ] `--clean` asks for a confirmation naming a clean build and reports
+  `reason: "clean-requested"`; a Release simulator profile builds in full twice
+  in a row.
+- [ ] Revoking the workspace's trust leaves no cache directory for it.
+
+### Task 12: Record reuse in this repository's project memory
+
+**Files:** Modify: `docs/knowledge/data/features/vscode-expo-bridge.md`,
+`docs/knowledge/data/architecture/vscode-expo-bridge.md`
+
+- [ ] The feature's `## Behaviour` describes the reuse of a matching development
+  build and `--clean`, and the architecture document places the fingerprint step
+  inside `build` in its security model and describes the per-workspace cache.
+
+## Spec changes
+
+None in `data/spec/` — this repository's spec covers only the template wiring,
+which this plan leaves unchanged. The protocol contract lives in
+`plume-works/vscode-expo-bridge` `docs/protocol.md` (Task 8). Its intended
+post-change behavior, which Task 11 verifies:
+
+``` markdown
+## ADDED Requirements
+
+### Requirement: a build reuses a matching earlier development build
+
+Without `clean`, the host SHALL compute the cache key after trust and the build
+confirmation, and SHALL return the workspace's stored artifact with
+`mode: "reused"` when an entry for that key exists, without running eas-cli.
+Otherwise it SHALL run the full build and report `mode: "built"` with a
+`reason`. The host SHALL store an artifact only from a build that exited 0 and
+whose artifact contains no embedded JavaScript bundle. No workspace SHALL read
+another workspace's cache.
+
+#### Scenario: unchanged native inputs reuse the artifact
+
+- **WHEN** a trusted, confirmed build runs and its cache key matches a stored
+  entry
+- **THEN** the result reports `mode: "reused"` and `reusedBuiltAt`
+- **AND** the artifact is a fresh file under `.tmp/expo-bridge/`
+
+#### Scenario: a changed input builds in full
+
+- **WHEN** the fingerprint, the profile, `eas.json`, `package.json`, a lockfile,
+  the eas-cli version, the Xcode version, or the host extension version differs
+  from every stored entry
+- **THEN** the result reports `mode: "built"` and `reason: "no-match"`
+
+#### Scenario: no fingerprint builds in full
+
+- **WHEN** the fingerprint step yields no hash
+- **THEN** the result reports `mode: "built"` and `reason: "no-fingerprint"`
+
+#### Scenario: a build with an embedded bundle is never reused
+
+- **WHEN** a build's artifact contains `main.jsbundle`
+- **THEN** the host stores nothing for it
+
+#### Scenario: two workspaces never share a cache
+
+- **WHEN** two workspaces with different host paths build
+- **THEN** each reads and writes only its own cache directory
+
+### Requirement: the fingerprint step is part of the confirmed build
+
+The host SHALL evaluate the project's fingerprint only within a `build` that
+passed trust and the per-build confirmation, and never in `status` or any
+other action.
+
+#### Scenario: a declined build computes nothing
+
+- **WHEN** the user declines the build confirmation
+- **THEN** the host runs no fingerprint step
+
+### Requirement: a clean build is available from the container
+
+`eas-host build <profile> --clean` SHALL send `clean: true`. The host SHALL then
+skip the fingerprint lookup, run the full build, and report
+`mode: "built"` with `reason: "clean-requested"`. A clean build SHALL go through
+the same trust check and confirmation as any build, and the confirmation SHALL
+name it a clean build.
+
+#### Scenario: an agent asks for a clean build
+
+- **WHEN** `eas-host build <profile> --clean` runs for a trusted workspace
+- **THEN** the confirmation names a clean build
+- **AND** a confirmed build reports `reason: "clean-requested"`
+
+#### Scenario: an older host
+
+- **WHEN** `eas-host build <profile> --clean` reaches a host without reuse
+- **THEN** the host builds in full
+
+### Requirement: revoking trust removes the build cache
+
+Revoking a workspace's trust decision SHALL delete that workspace's build
+cache.
+
+#### Scenario: the user revokes trust
+
+- **WHEN** the user revokes a workspace's trust decision
+- **THEN** that workspace's cache directory no longer exists
+```
+
+## Depends on
+
+- [Build iOS on the Mac host through a VS Code
+  bridge](20261015-vscode-expo-bridge.md) — this work changes that plan's
+  `build` action and ships through the release sequence it defines.
+
+## Verification
+
+- In `plume-works/vscode-expo-bridge`, `bun test` passes, and the sibling CI
+  passes (Task 9).
+- Task 10's timings are recorded, and a reused build takes under 15 s.
+- Task 11's Mac run behaves as described.
+- `iwe normalize` and `iwe schema validate` pass.
+
+## Out of scope
+
+- Reusing a Release or other embedded-bundle build, device and store builds, and
+  Android.
+- Inputs outside the key: EAS server-side environment variables, the Mac login
+  environment, and the macOS and simulator runtime versions. `--clean` covers a
+  change in any of them.
+- A Mac-side command to delete a workspace's cache; revoking trust does.
+- Changing the template's Expo agent rule in the consumption guide.
+- Fixing [the bridge building only the window's root
+  folder](../bugs/expo-bridge-builds-only-window-root.md); Tasks 10–11 open the
+  scratch app as the window's root folder.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-10-23):
+
+In `plume-works/vscode-expo-bridge` at `63fc991`:
+
+- `packages/protocol/src/index.ts:6` — `PROTOCOL_VERSION`
+- `packages/protocol/src/index.ts:24` — `BuildRequest`
+- `packages/protocol/src/index.ts:78` — `BuildResult`
+- `packages/workspace/src/cli-args.ts:21` — `USAGE`
+- `packages/workspace/src/cli-args.ts:23` — `HELP`
+- `packages/workspace/src/cli-args.ts:63` — `parseArgs` `build` case
+- `packages/workspace/bin/eas-host.ts:81` — the protocol version equality check
+- `packages/host/src/build.ts:44` — `build`
+- `packages/host/src/build.ts:60` — `lookupTool("bun")`
+- `packages/host/src/build.ts:64` — `easCliSpec`
+- `packages/host/src/build.ts:71` — the private build directory
+- `packages/host/src/build.ts:113` — `copyFresh` of the artifact into the
+  workspace
+- `packages/host/src/dispatch.ts:56` — the `build` gate in `dispatch`
+- `packages/host/src/trust.ts:68` — `TrustStore.revoke`
+- `packages/host/src/trust.ts:98` — `TrustStore.confirmBuild`
+- `packages/host/src/extension.ts:31` — the build confirmation prompt
+- `packages/host/src/extension.ts:149` — `buildDeps`
+- `packages/host/src/extension.ts:223` — `expoBridge.manageTrust`
+- `packages/host/src/env.ts:49` — `lookupTool`
+- `packages/host/src/paths.ts:92` — `openFreshUnique`
+- `packages/host/src/paths.ts:106` — `copyFresh`
+- `packages/host/src/jsonfile.ts:4` — `MAX_JSON_BYTES`
+- `packages/host/package.json:6` — the host extension's version
+- `docs/protocol.md:105` — `### build`
+- `docs/protocol.md:199` — `## eas-host`
+
+In `eas-cli@25.3.0`:
+
+- `build/build.js:656` —
+  `computeAndMaybeUploadFingerprintWithoutExpoUpdatesAsync`
+- `build/fingerprint/cli.js:23` — `createFingerprintAsync` resolving
+  `expo/fingerprint` from the project
+- `build/local.js:116` — the fingerprint hash in the failure build context
