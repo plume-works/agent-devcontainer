@@ -4,8 +4,26 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-23
+
+- **Update**: [Build iOS on the Mac host through a VS Code
+  bridge](plans/20261015-vscode-expo-bridge.md) done; [Template
+  consumption](spec/template-consumption.md) now specifies that an Expo consumer
+  builds iOS on a Mac host through the bridge.
+- **Update**: [VS Code Expo bridge](features/vscode-expo-bridge.md) implemented;
+  listed under Unreleased Added.
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
+  profile's silenced Metro port and `eas-host` iOS build rule.
+- **Update**: [Template consumption](spec/template-consumption.md) now limits
+  the bridge to Simulator builds, keeps the profile on the EAS cloud fallback,
+  and has update mode reconcile the Expo profile on every run.
+
 ## 2026-10-22
 
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
+  Bridge local-iOS path and EAS cloud fallback.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
   its [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for replay safeguards and
