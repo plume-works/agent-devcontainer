@@ -107,9 +107,10 @@ not claim to defend against a hostile one. The checks are these:
   the container can write.
 - **A confirmation before every `build`.** The prompt names the profile and
   states that project code will run on the Mac with the user's privileges. Its
-  answers are "Allow once", "Don't ask for an hour", and "Don't ask today"; a
-  cooldown applies to that workspace only and is stored in `globalState`.
-  `status`, `install`, `launch`, and `screenshot` never prompt beyond trust.
+  answers are "Allow once", "Allow and don't ask for an hour", and "Allow and
+  don't ask today"; a cooldown applies to that workspace only and is stored in
+  `globalState`. `status`, `install`, `launch`, and `screenshot` never prompt
+  beyond trust.
 - **No containment of the build.** `build` runs
   `eas build --local -p ios --profile <name>` as the Mac user, unsandboxed, with
   no privileged setup on the Mac. Project code in the build can do anything the
@@ -649,16 +650,20 @@ Containers window on a Mac
     workspace stays declined until `revoke`; `listTrusted`/`revoke` back the
     manage-trust command). `test/trust.test.ts` covers prompt-once, remembered
     allow, sticky decline, and revocation.
-- [x] Each `build` prompts with "Allow once", "Don't ask for an hour", and
-  "Don't ask today", and a cooldown suppresses the prompt for that workspace
-  only until it expires.
+- [x] Each `build` prompts with "Allow once", "Allow and don't ask for an hour",
+  and "Allow and don't ask today", and a cooldown suppresses the prompt for that
+  workspace only until it expires.
   - **Evidence:** Commits
     [`8efc942`](https://github.com/plume-works/vscode-expo-bridge/commit/8efc942b76e5fcf2f28458f20abc79b8d10eab9b)/[`1a40f27`](https://github.com/plume-works/vscode-expo-bridge/commit/1a40f27c8ba25173f0e967fbf72f9aca769e13f1).
     `TrustStore.confirmBuild` and the build prompt in
     `packages/host/src/extension.ts` offer the three answers; "once" records no
     cooldown, "hour"/"today" record one scoped to the host path.
     `test/trust.test.ts` covers the hour cooldown's expiry, that "once"
-    re-prompts, per-workspace scoping, and decline.
+    re-prompts, per-workspace scoping, and decline. The labels are
+    `BUILD_ANSWERS` in `packages/host/src/trust.ts` since `main` at
+    [`c74f295`](https://github.com/plume-works/vscode-expo-bridge/commit/c74f295)
+    ([PR #10](https://github.com/plume-works/vscode-expo-bridge/pull/10)),
+    asserted in `test/trust.test.ts`.
 - [x] Commands set and clear `EXPO_TOKEN` in SecretStorage, and the README
   recommends a robot-account token scoped to the project.
   - **Evidence:** Commit
