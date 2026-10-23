@@ -1393,8 +1393,12 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
     `.tmp/expo-bridge/build-1792737941518.tar.gz`; `install`, `launch`, and
     `screenshot` exited 0, with Metro in the container logging
     `iOS Bundled 2474ms index.js (712 modules)`.
-- [ ] After a container rebuild of that window, the host extension runs in the
+- [x] After a container rebuild of that window, the host extension runs in the
   local extension host with no further click, and `eas-host status` succeeds.
+  - **Evidence:** Run on 2026-10-23 on the Mac: after **Dev Containers: Rebuild
+    Container** (container `4f9c8389f604` replaced by `3e6a9185a155`), with no
+    click, `eas-host status` returned `available: true` with `macHost`,
+    `hostPathExists`, and `workspaceTrusted` ok.
 
 ### Task 31: Fallback when the bridge is unavailable
 
