@@ -277,8 +277,8 @@ Assumptions:
 - The first workspace folder is the Expo project root.
 - CocoaPods and fastlane are owned by the one-click fix, not by the [macOS
   bootstrap](20261013-macos-native-bootstrap.md).
-- Once the host extension is installed locally, later Dev Containers windows on
-  that Mac, including after a container rebuild, run it without another click.
+- After a container rebuild, a window runs the locally installed host extension
+  without another click.
 - The Marketplace pages show a corrected pack README only from the next
   published version; no version is published for the README change alone.
 - Versions follow VS Code's pre-release convention: an odd minor for a
@@ -1282,9 +1282,10 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
   devcontainer listing the pack in `customizations.vscode.extensions` installs
   the workspace extension in the container and leaves the host extension
   disabled there, and that one click on the host extension's **Install
-  Locally**, once per Mac, installs it in the local extension host; the pack
-  README no longer says the pack installs the host extension in the Mac's local
-  extension host. CI passes on its pull request and on `main`.
+  Locally**, once per Mac, installs it in the local extension host, with
+  **Reload Window** in windows already open; the pack README no longer says the
+  pack installs the host extension in the Mac's local extension host. CI passes
+  on its pull request and on `main`.
 
 ### Task 27: Wire the bridge into the Expo profile
 
@@ -1352,7 +1353,7 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 - [ ] The paragraph after step 6 of `## Optional Expo setup` tells the user that
   the first window on a Mac shows the host extension disabled in the container,
   and that one click on its **Install Locally** in the Extensions view, once per
-  Mac, enables the bridge.
+  Mac, enables the bridge, with **Reload Window** in windows already open.
 - [ ] `data/architecture/vscode-expo-bridge` `## Approach` and the template
   boundary's `## Optional Expo profile` state that the listed pack installs the
   workspace extension in the container and that the host extension is installed
@@ -1655,6 +1656,10 @@ Locally**. VS Code's Dev Containers documentation describes the list as the
 extensions "installed when the container is created". Installing the pack from
 the Extensions view in an open window (Tasks 24 and 26b) does put the host
 extension on the Mac.
+
+One **Install Locally** click installs the host extension for the whole Mac:
+every other open Dev Containers window then offers **Reload Window**, after
+which the host extension runs there too.
 
 ## Out of scope
 
