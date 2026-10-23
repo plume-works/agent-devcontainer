@@ -4,7 +4,7 @@ stage: accepted
 description: Setting AGENTDEV_CLAUDE_RC_MODE=server makes the autostarted claude-remote session run Claude Remote Control in server mode, so new conversations can be spawned in the workspace from claude.ai/code, the Claude mobile app, or a claude.ai Project.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T23:59:00Z
+  at: 2026-10-24T00:10:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: https://code.claude.com/docs/en/remote-control
@@ -37,7 +37,8 @@ The contract is [Claude Remote Control](../spec/claude-remote-control.md).
 
 ## Edge cases
 
-- **An unrecognized mode value.** The script warns and keeps the pinned pane.
+- **An unrecognized mode value.** The script prints the valid options and fails
+  without starting a session.
 - **A session is already running.** It is reused, so a mode change applies on
   the next session start.
 - **The server has been stopped for more than about four hours.** Its sessions

@@ -6,7 +6,7 @@ release:
 description: Let AGENTDEV_CLAUDE_RC_MODE=server make claude-remote-control-start.sh run `claude remote-control --spawn same-dir` in the claude-remote tmux session in place of the pinned interactive pane, keeping the pinned pane as the default.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T23:59:00Z
+  at: 2026-10-24T00:10:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: scripts/tests/test_claude_remote_control_start.py
@@ -35,8 +35,10 @@ and `--remote-control-session-name-prefix` set to `CODER_WORKSPACE_NAME` when
 that is set. The command still runs under `exec env -u CLAUDE_CODE_OAUTH_TOKEN`
 on the `tmux -L claude-remote` server, so the auth gate, the session reuse, and
 the environment inheritance stay as they are. Unset or `session` keeps
-`claude-remote-control-session.sh`. Any other value prints a warning to stderr
-and keeps it.
+`claude-remote-control-session.sh`. Any other value is checked first, before the
+auth gate and the reuse check: the script prints the value and the valid
+options, `server` and `session`, to stderr, starts nothing, and exits non-zero,
+so the `coder_script` reports the misconfiguration.
 
 Server mode does not use the pin hook or the stored conversation ID: the server
 refuses `--settings` (Claude Code 2.1.309), and it brings back its own sessions
@@ -54,9 +56,9 @@ Rejected alternatives:
 - **`--spawn worktree`.** A spawned worktree session does not survive a server
   restart (Claude Code 2.1.309), so it would lose exactly what server mode
   brings back.
-
-Assumption: an unrecognized mode value falls back to the pinned pane rather than
-skipping startup, so a typo never leaves a workspace without Remote Control.
+- **Falling back to session mode on an unrecognized value.** The maintainer
+  chose a failed startup, so a mistyped mode is reported instead of silently
+  running the other mode.
 
 ## Implementation Steps
 
@@ -70,9 +72,11 @@ skipping startup, so a typo never leaves a workspace without Remote Control.
   `exec env -u CLAUDE_CODE_OAUTH_TOKEN claude remote-control --spawn same-dir`,
   with and without `CODER_WORKSPACE_NAME` (which adds `--name` and
   `--remote-control-session-name-prefix` with the workspace name)
-- [ ] Add tests that unset, `session`, and an unrecognized value start
-  `claude-remote-control-session.sh`, the session-mode pane command, and that
-  the unrecognized value prints a warning naming it
+- [ ] Add tests that unset and `session` start
+  `claude-remote-control-session.sh`, the session-mode pane command
+- [ ] Add tests that an unrecognized value exits non-zero, prints the value and
+  the valid options `server` and `session` to stderr, and makes no tmux call,
+  with and without a live `claude-remote` session
 - [ ] Add a test that a live `claude-remote` session is reused in server mode
 - [ ] Implement the mode selection in `claude-remote-control-start.sh`; the new
   tests and the existing ones pass with
@@ -86,14 +90,14 @@ skipping startup, so a typo never leaves a workspace without Remote Control.
 `docs/knowledge/data/architecture.md`
 
 - [ ] Write the architecture document: the opt-in decision and who made it, the
-  `same-dir` default, the Claude Code server-mode behavior it relies on
-  (measured on 2.1.309: `--settings` is refused; without `--spawn` and a saved
+  `same-dir` default, the Claude Code server-mode behavior it relies on (as of
+  Claude Code 2.1.309: `--settings` is refused; without `--spawn` and a saved
   choice the server prompts for a spawn mode; the existing preapproved trust and
   Remote Control confirmation suffice; each session is a child `claude` process
   inheriting the server's environment and with access to the credential store;
   the pre-created session returns under the same ID after a restart; a spawned
   worktree session does not), the documented limits (about four hours of resume
-  after a stop, exit after about ten minutes offline), and the three rejected
+  after a stop, exit after about ten minutes offline), and the rejected
   alternatives from `## Approach`
 - [ ] Link it from `data/architecture.md`; `iwe normalize` and
   `iwe schema validate` pass
@@ -200,8 +204,9 @@ a resumed conversation leaves Claude running with Remote Control off; running
 ### Requirement: server mode is opt-in
 
 `AGENTDEV_CLAUDE_RC_MODE` SHALL select the mode: `server` selects server mode,
-and an unset or `session` value selects session mode. Any other value SHALL
-print a warning naming it and select session mode. In server mode the
+and an unset or `session` value selects session mode. Any other value SHALL make
+the script print the value and the valid options to stderr, start no session,
+and exit non-zero, before any other check. In server mode the
 `claude-remote` session SHALL run `claude remote-control --spawn same-dir`,
 passing `--name` and `--remote-control-session-name-prefix` set to
 `CODER_WORKSPACE_NAME` when it is set, and SHALL neither read nor write the
@@ -223,9 +228,10 @@ stored conversation ID.
 
 #### Scenario: the mode value is unrecognized
 
-- **WHEN** the script starts `claude-remote` with `AGENTDEV_CLAUDE_RC_MODE` set
-  to a value other than `server` or `session`
-- **THEN** it prints a warning naming the value and starts session mode.
+- **WHEN** the script runs with `AGENTDEV_CLAUDE_RC_MODE` set to a value other
+  than `server` or `session`
+- **THEN** it prints the value and the valid options `server` and `session`,
+  starts no session, and exits non-zero.
 
 #### Scenario: the mode changes while a session is live
 
