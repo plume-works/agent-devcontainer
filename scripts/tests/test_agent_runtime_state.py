@@ -161,11 +161,7 @@ def test_standalone_create_order_migrates_the_users_claude_json(scripts: Path, t
 
     assert (home / '.claude/claude.json').read_text() == '{"user": true}'
     assert os.readlink(home / '.claude.json') == str(home / '.claude/claude.json')
-    assert [line.split()[0] for line in calls(tmp_path)] == [
-        'runtime-cbm.sh',
-        'preapprove-claude-workspace.sh',
-    ]
-    assert calls(tmp_path)[0] == 'runtime-cbm.sh install claude.json=symlink'
+    assert [line.split()[0] for line in calls(tmp_path)] == ['preapprove-claude-workspace.sh']
     assert (home / '.codex/auth.json').is_symlink()
     for agent in ('claude', 'codex'):
         assert mode(tmp_path / 'auth' / agent) == 0o700
@@ -189,16 +185,26 @@ def test_devcontainer_create_discards_the_image_file_and_tolerates_cbm_failure(
     assert calls(tmp_path)[0] == 'codebase-memory-mcp-install.sh  claude.json=symlink'
 
 
-def test_standalone_create_fails_when_cbm_install_fails(scripts: Path, tmp_path: Path):
+def test_standalone_cbm_step_installs_after_create_links_claude_json(
+    scripts: Path, tmp_path: Path
+):
+    assert (
+        run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='standalone').returncode == 0
+    )
+    result = run_state(scripts, tmp_path, 'cbm', AGENTDEV_RUNTIME_MODE='standalone')
+    assert result.returncode == 0, result.stderr
+    assert calls(tmp_path)[-1] == 'runtime-cbm.sh install claude.json=symlink'
+
+
+def test_standalone_cbm_step_fails_when_cbm_install_fails(scripts: Path, tmp_path: Path):
     result = run_state(
         scripts,
         tmp_path,
-        'create',
+        'cbm',
         AGENTDEV_RUNTIME_MODE='standalone',
         STUB_EXIT_RUNTIME_CBM='1',
     )
     assert result.returncode == 1
-    assert 'preapprove-claude-workspace.sh' not in '\n'.join(calls(tmp_path))
 
 
 def test_catalog_passes_the_scope_only_to_claude(scripts: Path, tmp_path: Path):

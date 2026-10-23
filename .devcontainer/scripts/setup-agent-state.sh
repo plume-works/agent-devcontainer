@@ -2,8 +2,9 @@
 set -euo pipefail
 
 # Agent-state primitives shared by the devcontainer hooks and standalone startup.
-# AGENTDEV_RUNTIME_MODE=standalone makes every step fatal; the hooks keep CBM nonfatal.
-# Usage: setup-agent-state.sh create|links|agent-policy|catalog <dir> [claude-scope]
+# AGENTDEV_RUNTIME_MODE=standalone makes every step fatal and leaves the CBM install
+# to its own optional `cbm` step; the hooks keep CBM nonfatal inside `create`.
+# Usage: setup-agent-state.sh create|links|agent-policy|cbm|catalog <dir> [claude-scope]
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=runtime-paths.sh
@@ -71,7 +72,7 @@ cmd_create() {
     register_user_tools
   fi
   link_claude_json
-  install_cbm
+  agentdev_standalone || install_cbm
   ensure_auth_dirs
   "$script_dir/preapprove-claude-workspace.sh"
   link_auth
@@ -88,12 +89,13 @@ case "${1:-}" in
   create) cmd_create ;;
   links) link_auth ;;
   agent-policy) apply_agent_policy ;;
+  cbm) install_cbm ;;
   catalog)
     [[ -n ${2:-} ]] || { echo "usage: $(basename "$0") catalog <dir> [claude-scope]" >&2 && exit 2; }
     cmd_catalog "$2" "${3:-}"
     ;;
   *)
-    echo "usage: $(basename "$0") create|links|agent-policy|catalog <dir> [claude-scope]" >&2
+    echo "usage: $(basename "$0") create|links|agent-policy|cbm|catalog <dir> [claude-scope]" >&2
     exit 2
     ;;
 esac

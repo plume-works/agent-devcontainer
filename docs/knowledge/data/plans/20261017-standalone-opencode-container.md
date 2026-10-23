@@ -1107,7 +1107,7 @@ nonzero-exit assertions of Tasks 6, 12, and 22.
 `scripts/tests/test_agent_runtime_workspace.py`,
 `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] The core path is bootstrap, D-Bus, keyring, a core preparation phase, then
+- [x] The core path is bootstrap, D-Bus, keyring, a core preparation phase, then
   OpenCode. The core phase covers checkout, auth links, and agent policy. DinD,
   the image prune, CBM client configuration and daemon, catalog registration, uv
   sync, and pre-commit hook registration are optional. Each marks the runtime
@@ -1115,17 +1115,37 @@ nonzero-exit assertions of Tasks 6, 12, and 22.
   CBM client configuration and catalog registration finish, or fail, before
   OpenCode starts. Supervision tests fail each optional component in turn and
   see OpenCode ready.
-- [ ] Xpra is a sibling of OpenCode: neither waits for the other, and an Xpra
+  - **Evidence:** commit "feat(runtime): start OpenCode on the core path and run
+    the rest as optional work";
+    `uv run pytest scripts/tests/test_agent_runtime_supervision.py` 36 passed,
+    including `test_an_optional_failure_degrades_while_opencode_serves` for
+    `config`, `cbm`, `xpra`, `dockerd`, `prune`, `project`, and `index`, and the
+    `prepare`/`config` split in `test_agent_runtime_workspace.py` (23 passed)
+    and `test_agent_runtime_state.py` (12 passed).
+- [x] Xpra is a sibling of OpenCode: neither waits for the other, and an Xpra
   that exhausts its budget leaves the runtime degraded with OpenCode serving.
-- [ ] `AGENTDEV_STRICT_STARTUP=true` turns any optional failure, Xpra included,
+  - **Evidence:** same commit; `test_opencode_does_not_wait_for_xpra` and the
+    default case of the acceptance test
+    `test_exhausted_xpra_degrades_or_latches_under_strict_startup` pass.
+- [x] `AGENTDEV_STRICT_STARTUP=true` turns any optional failure, Xpra included,
   into a Task 25 latch, and OpenCode is not started or is stopped. The default
   is `false`. Compose passes the variable and `runtime.env.example` documents
   it.
-- [ ] `runtime-supervisor.py retry <component>` reruns one failed optional
+  - **Evidence:** same commit;
+    `test_strict_startup_latches_on_an_optional_failure` (`config` never starts
+    OpenCode; `xpra` and `project` stop it) and the acceptance test's strict
+    case pass; `docker compose config` renders
+    `AGENTDEV_STRICT_STARTUP: "false"`.
+- [x] `runtime-supervisor.py retry <component>` reruns one failed optional
   component; the runtime returns to ready once nothing is failed. In container
   acceptance, a clone start whose uv sync fails serves OpenCode at the
   authenticated `/api/info`, reports degraded, and becomes ready after
   `retry project` succeeds.
+  - **Evidence:** same commit;
+    `test_retrying_one_optional_component_restores_readiness` passes, and
+    `AGENTDEV_RUNTIME_TEST_IMAGE=agent-opencode:t26 .devcontainer/scripts/test-agent-runtime.sh`
+    on aarch64 gave 19 passed, 1 skipped (the upgrade test), including
+    `test_a_failed_uv_sync_degrades_while_opencode_serves_until_retried`.
 
 ### Task 27: Request background indexing from every startup path
 

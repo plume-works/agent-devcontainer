@@ -293,6 +293,25 @@ def test_standalone_hook_registration_builds_no_environment_offline(runtime: Run
     assert not [path for path in cache.iterdir() if path.name.startswith('repo')]
 
 
+def test_the_core_phase_prepares_agent_state_but_no_optional_work(runtime: Runtime):
+    runtime.git('init', '-q')
+    for name in ('pyproject.toml', '.pre-commit-config.yaml'):
+        (runtime.workspace / name).write_text('')
+    result = runtime.run('prepare')
+    assert result.returncode == 0, result.stderr
+    assert runtime.calls() == ['setup-agent-state.sh create', 'setup-agent-state.sh agent-policy']
+
+
+def test_the_config_step_installs_cbm_then_registers_the_catalog(runtime: Runtime):
+    (runtime.root / 'image-catalog').mkdir()
+    result = runtime.run('config')
+    assert result.returncode == 0, result.stderr
+    assert runtime.calls() == [
+        'setup-agent-state.sh cbm',
+        f'setup-agent-state.sh catalog {runtime.root / "image-catalog"} user',
+    ]
+
+
 def ship_catalog(root: Path) -> None:
     for manifest in ('.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json'):
         (root / manifest).parent.mkdir(parents=True, exist_ok=True)

@@ -512,6 +512,30 @@ def test_clone_start_prepares_a_python_project_with_pre_commit(make_runtime, scr
     runtime.sh(f'test "$(stat -c %u {WORKSPACE})" = 1000')
 
 
+def test_a_failed_uv_sync_degrades_while_opencode_serves_until_retried(
+    make_runtime, scratch: Path
+):
+    broken = PYPROJECT.replace('>=3.12', '>=99')
+    seed = make_checkout(scratch, {'pyproject.toml': broken}, uid=os.geteuid())
+    remote = scratch / 'remote.git'
+    subprocess.run(['git', 'clone', '-q', '--bare', str(seed), str(remote)], check=True)
+    own(remote, 1000)
+    runtime = make_runtime(
+        workspace=['-v', f'{remote}:/srv/remote.git:ro'],
+        AGENTDEV_REPOSITORY_URL='file:///srv/remote.git',
+    )
+    runtime.run()
+    assert runtime.wait() == 'degraded', runtime.logs()[-4000:]
+    assert runtime.runtime()['components']['project']['status'] == 'failed'
+    assert opencode_answers(runtime)
+
+    runtime.sh(f"sed -i 's/>=99/>=3.12/' {WORKSPACE}/pyproject.toml")
+    resumed = runtime.retry('project')
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+    runtime.sh('test -x /uv/venvs/project/bin/python')
+
+
 def test_non_python_bind_start_skips_project_tooling(ready_runtime: Runtime):
     logs = ready_runtime.logs()
     assert 'no pyproject.toml; skipping uv sync' in logs
@@ -708,23 +732,28 @@ def test_crashed_and_hung_services_recover(ready_runtime: Runtime):
     assert ready_runtime.api('GET', '/info')['version'] in shipped
 
 
-def test_exhausted_recovery_latches_the_running_container(make_runtime, scratch: Path):
+@pytest.mark.parametrize('strict', [False, True], ids=['default', 'strict'])
+def test_exhausted_xpra_degrades_or_latches_under_strict_startup(
+    make_runtime, scratch: Path, strict: bool
+):
     runtime = make_runtime(
         workspace=bind(make_checkout(scratch)),
         AGENTDEV_RECOVERY_ATTEMPTS='1',
         AGENTDEV_HEALTHY_RESET='600',
+        AGENTDEV_STRICT_STARTUP='true' if strict else None,
     )
     runtime.run()
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
-    for expected in ('ready', 'failed'):
+    final = 'failed' if strict else 'degraded'
+    for expected in ('ready', final):
         runtime.sh('pkill -KILL -f "xpra start"', user='root', check=False)
         deadline = time.monotonic() + 120
         while runtime.state() == 'ready' and time.monotonic() < deadline:
             time.sleep(0.5)
         assert runtime.wait() == expected, runtime.logs()[-4000:]
-    assert runtime.runtime()['latched'] == 'xpra'
+    assert runtime.runtime()['components']['xpra']['status'] == 'failed'
     assert 'xpra exhausted 1 recovery attempts' in runtime.logs()
-    assert not opencode_answers(runtime)
+    assert opencode_answers(runtime) is not strict
 
 
 def test_clean_stop_is_bounded(ready_runtime: Runtime):

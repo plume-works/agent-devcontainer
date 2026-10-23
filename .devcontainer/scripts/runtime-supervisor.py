@@ -103,6 +103,9 @@ class Settings:
         )
     )
     skip_xpra: bool = field(default_factory=lambda: bool(os.environ.get('AGENTDEV_SKIP_XPRA')))
+    strict: bool = field(
+        default_factory=lambda: os.environ.get('AGENTDEV_STRICT_STARTUP', '').lower() == 'true'
+    )
 
     @property
     def ready_file(self) -> Path:
@@ -178,17 +181,26 @@ class Service:
     oneshot: bool = False
     # Clients restarted, outside their own budget, once this service recovers.
     refresh: tuple[str, ...] = ()
+    # A core failure latches the runtime; an optional one only degrades it.
+    core: bool = False
+    # Siblings launched together with this service, so neither waits for the other.
+    alongside: tuple[str, ...] = ()
 
 
+# Startup order. Optional work before OpenCode is what OpenCode reads when it starts;
+# the rest follows it. Spec: standalone-opencode-runtime.
 SERVICES = (
-    Service('dockerd'),
-    Service('dbus', refresh=('keyring', 'xpra')),
-    Service('keyring', after=('dbus',)),
-    Service('prepare', after=('dockerd', 'keyring'), oneshot=True),
+    Service('dbus', refresh=('keyring', 'xpra'), core=True),
+    Service('keyring', after=('dbus',), core=True),
+    Service('prepare', after=('keyring',), oneshot=True, core=True),
+    Service('config', after=('prepare',), oneshot=True),
     Service('cbm', after=('prepare',), refresh=('opencode',)),
+    Service('opencode', after=('keyring', 'prepare'), core=True, alongside=('xpra',)),
+    Service('xpra', after=('keyring',)),
+    Service('dockerd'),
+    Service('prune', after=('dockerd',), oneshot=True),
+    Service('project', after=('prepare',), oneshot=True),
     Service('index', after=('cbm',), oneshot=True),
-    Service('xpra', after=('keyring', 'index')),
-    Service('opencode', after=('dockerd', 'keyring', 'cbm', 'index', 'xpra')),
 )
 
 
@@ -340,18 +352,26 @@ class Controller:
             print(json.dumps(record), file=sys.stderr, flush=True)
 
     def fail(self, failure: ComponentFailure) -> None:
-        """Record a failed component and latch the runtime."""
+        """Record a failed component: a core one latches the runtime, an optional one degrades it."""
         log(f'{failure.name}: {failure.reason}')
         self.record(failure)
         self.status[failure.name] = 'failed'
         self.reasons[failure.name] = failure.reason
-        self.latch(failure.name)
+        if self.by_name[failure.name].core or self.settings.strict:
+            self.latch(failure.name)
+        log(
+            f'degraded: {failure.name} failed; retry with runtime-supervisor.py retry {failure.name}'
+        )
+        self.publish()
 
     def latch(self, name: str) -> NoReturn:
         self.latched = name
         if 'opencode' in self.status and self.status['opencode'] not in {'failed', 'pending'}:
             self.stop('opencode')
             self.status['opencode'] = 'pending'
+        for other, status in self.status.items():
+            if status == 'starting':
+                self.status[other] = 'pending'
         log(f'latched failed on {name}; retry with runtime-supervisor.py retry')
         self.publish()
         raise Latched(name)
@@ -446,52 +466,81 @@ class Controller:
         self.set_status(name, 'recovering')
         paused = self.dependents(name)
         self.restart_until_ready(name)
-        self.set_status(name, 'ready')
         service = self.by_name[name]
         for client in service.refresh:
-            if client not in self.status:
+            if self.status.get(client) != 'ready':
                 continue
             log(f'{client}: reconnecting after {name} recovered')
-            self.restart(client)
-            if not self.wait_ready(client):
-                self.restart_until_ready(client)
+            try:
+                self.restart(client)
+                if not self.wait_ready(client):
+                    self.restart_until_ready(client)
+            except ComponentFailure as failure:
+                self.fail(failure)
+                continue
             self.health[client].healthy_since = time.monotonic()
         for dependent in paused:
-            if dependent not in service.refresh and not self.healthy(dependent):
-                self.restart_until_ready(dependent)
+            if dependent in service.refresh or self.status.get(dependent) != 'ready':
+                continue
+            try:
+                if not self.healthy(dependent):
+                    self.restart_until_ready(dependent)
+            except ComponentFailure as failure:
+                self.fail(failure)
+        self.set_status(name, 'ready')
 
     # --- lifecycle ----------------------------------------------------------------------
-    def bring_up(self, service: Service) -> None:
+    def launch(self, service: Service) -> None:
+        self.set_status(service.name, 'starting')
+        if not service.oneshot:
+            log(f'{service.name}: starting')
+            self.restart(service.name)
+
+    def settle(self, service: Service) -> None:
         name = service.name
-        self.set_status(name, 'starting')
         if service.oneshot:
             self.run_oneshot(name)
             self.set_status(name, 'done')
             return
-        log(f'{name}: starting')
-        self.restart(name)
         if not self.wait_ready(name):
             self.restart_until_ready(name)
         self.health[name].healthy_since = time.monotonic()
         self.set_status(name, 'ready')
         log(f'{name}: ready')
 
+    def eligible(self, service: Service) -> bool:
+        """Return whether a component should start now, marking it blocked when it cannot."""
+        name = service.name
+        if self.status[name] in SETTLED or self.status[name] in {'failed', 'starting'}:
+            return False
+        unmet = [d for d in service.after if self.status.get(d, 'ready') not in SETTLED]
+        if unmet:
+            self.set_status(name, 'blocked', f'waiting for {", ".join(unmet)}')
+            return False
+        return True
+
     def resume(self) -> None:
         """Bring up, in order, every component that is not yet settled or failed."""
         for service in self.services:
-            name = service.name
-            if self.status[name] in SETTLED or self.status[name] == 'failed':
+            if not self.eligible(service):
                 continue
-            unmet = [d for d in service.after if self.status.get(d, 'ready') not in SETTLED]
-            if unmet:
-                self.set_status(name, 'blocked', f'waiting for {", ".join(unmet)}')
-                continue
-            try:
-                self.bring_up(service)
-            except ComponentFailure as failure:
-                self.fail(failure)
-        if self.runtime_state() == 'ready':
-            log('all required services are ready')
+            batch = [service] + [
+                self.by_name[name]
+                for name in service.alongside
+                if name in self.by_name and self.eligible(self.by_name[name])
+            ]
+            for member in batch:
+                self.launch(member)
+            for member in batch:
+                try:
+                    self.settle(member)
+                except ComponentFailure as failure:
+                    self.fail(failure)
+        state = self.runtime_state()
+        if state == 'ready':
+            log('all services are ready')
+        elif state == 'degraded':
+            log('OpenCode is serving; the runtime is degraded')
 
     def check_once(self) -> None:
         now = time.monotonic()
@@ -535,6 +584,11 @@ class Controller:
             return
         if component and self.status[component] != 'failed':
             self.answer(request, False, f'{component} has not failed')
+            return
+        if component and self.latched and component != self.latched:
+            self.answer(
+                request, False, f'the runtime is latched on {self.latched}; retry it first'
+            )
             return
         if not failed:
             self.answer(request, False, 'nothing has failed')

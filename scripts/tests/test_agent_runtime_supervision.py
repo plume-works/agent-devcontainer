@@ -20,9 +20,22 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SUPERVISOR = REPO_ROOT / '.devcontainer/scripts/runtime-supervisor.py'
 CONFIG = REPO_ROOT / 'docker/opencode/supervisord.conf'
 TMP_ROOT = REPO_ROOT / '.tmp'
-STARTUP_ORDER = ['dockerd', 'dbus', 'keyring', 'prepare', 'cbm', 'index', 'xpra', 'opencode']
+STARTUP_ORDER = [
+    'dbus',
+    'keyring',
+    'prepare',
+    'config',
+    'cbm',
+    'opencode',
+    'xpra',
+    'dockerd',
+    'prune',
+    'project',
+    'index',
+]
 STOP_ORDER = ['opencode', 'cbm', 'xpra', 'keyring', 'dbus', 'dockerd']
-ONESHOTS = {'prepare', 'index'}
+ONESHOTS = {'prepare', 'config', 'prune', 'project', 'index'}
+OPTIONAL = ['config', 'cbm', 'xpra', 'dockerd', 'prune', 'project', 'index']
 
 FAKE_SERVICE = """#!/usr/bin/env bash
 name="$1"; state="$STATE_DIR"
@@ -155,6 +168,12 @@ class Supervision:
     def latched(self) -> str | None:
         state = self.runtime()
         return state.get('latched') if state.get('state') == 'failed' else None
+
+    def degraded(self) -> bool:
+        return self.runtime().get('state') == 'degraded'
+
+    def status(self, name: str) -> str:
+        return self.runtime().get('components', {}).get(name, {}).get('status', '')
 
     @property
     def record_path(self) -> Path:
@@ -315,8 +334,8 @@ def test_a_latched_preparation_resumes_on_retry_in_the_same_process(make):
     assert resumed.returncode == 0, resumed.stdout + resumed.stderr
     box.wait_for(box.ready)
     runs = started(box.events())
-    assert runs.count('bootstrap') == 1 and runs.count('dockerd') == 1
-    assert runs[-4:] == ['cbm', 'index', 'xpra', 'opencode']
+    assert runs.count('bootstrap') == 1 and runs.count('keyring') == 1
+    assert runs[runs.index('prepare') + 2 :] == STARTUP_ORDER[STARTUP_ORDER.index('prepare') :]
     assert box.record() == second, 'success leaves the last failure in place'
 
 
@@ -398,20 +417,20 @@ def test_exhausted_recovery_after_running_latches_and_stops_opencode(make):
     box = make()
     box.start()
     box.wait_for(box.ready)
-    box.set('cbm', 'mode', 'crash-always')
-    box.set('cbm', 'crash')
-    stays_latched(box, 'cbm')
-    assert started(box.events()).count('cbm') == 4
+    box.set('keyring', 'mode', 'crash-always')
+    box.set('keyring', 'crash')
+    stays_latched(box, 'keyring')
+    assert started(box.events()).count('keyring') == 4
     assert 'stop opencode' in box.events()
-    assert 'cbm exhausted 3 recovery attempts' in box.record()['reason']
+    assert 'keyring exhausted 3 recovery attempts' in box.record()['reason']
 
 
 def test_startup_failure_exhausts_the_same_budget(make):
     box = make()
-    box.set('xpra', 'mode', 'never-ready')
+    box.set('keyring', 'mode', 'never-ready')
     box.start()
-    stays_latched(box, 'xpra')
-    assert started(box.events()).count('xpra') == 4
+    stays_latched(box, 'keyring')
+    assert started(box.events()).count('keyring') == 4
     assert 'opencode' not in started(box.events())
 
 
@@ -419,9 +438,83 @@ def test_hung_service_is_not_treated_as_healthy(make):
     box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
     box.start()
     box.wait_for(box.ready)
-    box.set('dockerd', 'unhealthy')
-    box.wait_for(lambda: box.latched() == 'dockerd')
-    assert 'dockerd exhausted' in box.record()['reason']
+    box.set('dbus', 'unhealthy')
+    box.wait_for(lambda: box.latched() == 'dbus')
+    assert 'dbus exhausted' in box.record()['reason']
+
+
+def fail_component(box: Supervision, name: str) -> None:
+    if name in ONESHOTS:
+        box.set(name, 'exit', '1')
+    else:
+        box.set(name, 'mode', 'never-ready')
+
+
+@pytest.mark.parametrize('name', OPTIONAL)
+def test_an_optional_failure_degrades_while_opencode_serves(make, name):
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
+    fail_component(box, name)
+    box.start()
+    box.wait_for(box.degraded)
+    assert box.alive()
+    assert (box.state / 'opencode.ready').exists() and box.status('opencode') == 'ready'
+    assert box.status(name) == 'failed'
+    assert box.record()['component'] == name
+    assert not box.ready()
+
+
+def test_a_failed_optional_dependency_blocks_its_dependents_until_retried(make):
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
+    box.set('dockerd', 'mode', 'never-ready')
+    box.start()
+    box.wait_for(box.degraded)
+    assert box.status('prune') == 'blocked'
+    assert 'prune' not in started(box.events())
+
+    (box.state / 'dockerd.mode').unlink()
+    resumed = box.retry('dockerd')
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    box.wait_for(box.ready)
+    assert started(box.events()).count('prune') == 1
+
+
+def test_opencode_does_not_wait_for_xpra(make):
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='2', AGENTDEV_SERVICE_START_TIMEOUT='1')
+    box.set('xpra', 'mode', 'never-ready')
+    box.start()
+    box.wait_for(lambda: box.status('opencode') == 'ready')
+    assert box.status('xpra') in {'starting', 'recovering'}
+    box.wait_for(box.degraded)
+    runs = started(box.events())
+    assert runs.index('opencode') < runs.index('xpra')
+
+
+@pytest.mark.parametrize('name', ['config', 'xpra', 'project'])
+def test_strict_startup_latches_on_an_optional_failure(make, name):
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='1', AGENTDEV_STRICT_STARTUP='true')
+    fail_component(box, name)
+    box.start()
+    stays_latched(box, name)
+    if name == 'config':
+        assert 'opencode' not in started(box.events())
+    else:
+        assert 'stop opencode' in box.events()
+
+
+def test_retrying_one_optional_component_restores_readiness(make):
+    box = make()
+    box.set('project', 'exit', '1')
+    box.start()
+    box.wait_for(box.degraded)
+    assert box.retry('opencode').returncode == 1, 'only a failed component can be retried'
+
+    (box.state / 'project.exit').unlink()
+    resumed = box.retry('project')
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    assert 'ready' in resumed.stdout
+    box.wait_for(box.ready)
+    assert started(box.events()).count('project') == 2
+    assert started(box.events()).count('prepare') == 1
 
 
 def test_dependency_outage_recovers_clients_outside_their_budget(make):
