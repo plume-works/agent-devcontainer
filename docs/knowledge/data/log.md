@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-23
+
+- **Map**: refreshed [GitHub automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [pull request
+  checks](codebase/flow-pull-request-checks.md) flow for the removed pinned
+  runtime acceptance workflow.
+
 ## 2026-10-22
 
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),

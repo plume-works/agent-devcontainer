@@ -954,8 +954,12 @@ sources
     workflow"; `uv run pytest scripts/tests/test_agent_runtime_ci.py` 16 passed;
     pre-commit actionlint over `.github/workflows/*.yml` and
     renovate-config-validator passed.
-- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+- [x] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
+  - **Evidence:** commit "map: refresh GitHub workflow docs for the removed pin
+    checks" refreshes `codebase/github`, `codebase/github/workflows`, and
+    `codebase/flow-pull-request-checks`; `stale-map-docs.py` ends
+    `RESULT=SUCCESS` with 28 docs.
 
 ### Task 24: Stop requiring the pinned acceptance checks
 
