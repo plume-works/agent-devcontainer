@@ -1,0 +1,74 @@
+---
+type: bug
+description: The Expo bridge's host resolves every action to the devcontainer window's root folder, so an Expo app in a subdirectory or in another workspace folder cannot be checked or built, and `status` does not say which folder it inspected.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-10-23T18:53:48Z
+sources:
+- resource: https://github.com/plume-works/vscode-expo-bridge
+- resource: docs/knowledge/data/features/vscode-expo-bridge.md
+- resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
+---
+
+# Bug: the Expo bridge builds only the devcontainer window's root folder
+
+## Symptom
+
+In a Dev Containers window on a Mac whose root folder is
+`/workspaces/agent-devcontainer` (host path
+`/Users/antonmatosov/Develop/agent-devcontainer`), with an Expo app added as a
+second workspace folder at `.tmp/expo-bridge-t21/app`, `eas-host status` run
+from the app's directory reports
+`easCli: "eas-cli@latest (no cli.version in eas.json)"` and
+`easProjectId: "extra.eas.projectId not set in app.json"`, although the app's
+`eas.json` pins `cli.version` 25.3.0 and its `app.json` sets
+`extra.eas.projectId`. Status inspected the window root, which has neither file,
+and its output does not name the host path it inspected.
+`eas-host build <profile>` resolves the same root, where `build` rejects the
+request with `eas.json not found` before any confirmation. An Expo app in a
+subdirectory of a single-folder window hits the same behavior.
+
+## Reproduction
+
+1. On a Mac with `plume-works.vscode-expo-bridge` 0.2.0 installed, open a
+   repository in a Dev Containers window.
+2. Place an Expo app with `eas.json` and `app.json` in a subdirectory, or add
+   its folder to the window as a second workspace folder.
+3. From the app's directory, run `eas-host status`: `easCli` and `easProjectId`
+   describe the window root, not the app.
+
+## Root cause
+
+The host extension resolves the workspace once per request from
+`vscode.workspace.workspaceFolders?.[0]` and decodes the host path from that
+folder's `dev-container+<hex JSON>` remote authority. That authority carries the
+window's mounted root, by design: the container cannot redirect it, because
+injecting a folder does not change the window's own authority. Neither the
+`eas-host` request nor the dispatch carries a project location, so `status`,
+`build`, and every file the host reads resolve against the root.
+
+## Fix
+
+Unfixed. A request could name a project directory relative to the trusted host
+path, validated by the bridge's existing workspace-relative path rules (no
+symlink component, no escape from the root), with trust still keyed to the
+window's host path, and `status` could report the project path it inspected. The
+container must still be unable to redirect the host path: it may only pick a
+subdirectory of the trusted root.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-10-23):
+
+In `plume-works/vscode-expo-bridge` at `69048dd`:
+
+- `packages/host/src/extension.ts:103` — `resolveHostPath`, taking
+  `workspaceFolders?.[0]` at line 104
+- `packages/host/src/hostpath.ts:11` — `decodeHostPath`, the authority's
+  `hostPath`
+- `packages/host/src/dispatch.ts:52` — the null host-path gate in `dispatch`
+- `packages/host/src/build.ts:51` — `build` reading `eas.json` at the host path
+- `packages/host/src/status.ts:114` — the `easProjectId` failure detail
+- `packages/host/src/status.ts:126` — the `easCli` "no cli.version" detail
+- `packages/host/src/status.ts:134` — `readProjectId`, reading `app.json` at the
+  host path

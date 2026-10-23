@@ -100,3 +100,6 @@ Mac](bugs/expo-bridge-fix-terminal-remote-shell.md)
 
 [Bug: PR updates skip the re-review
 evaluation](bugs/pr-update-skips-review-eval.md)
+
+[Bug: the Expo bridge builds only the devcontainer window's root
+folder](bugs/expo-bridge-builds-only-window-root.md)
