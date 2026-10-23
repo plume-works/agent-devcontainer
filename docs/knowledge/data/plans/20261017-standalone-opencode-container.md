@@ -947,9 +947,13 @@ Refresh: `docs/knowledge/data/codebase/flow-pull-request-checks.md`,
 `docs/knowledge/data/codebase/github/workflows.md`, and other stale mapped
 sources
 
-- [ ] Delete the workflow, the tests that restate it, and its mention in the
+- [x] Delete the workflow, the tests that restate it, and its mention in the
   `agent-opencode` Renovate rule; the README says the pin follows promoted
   `edge` digests.
+  - **Evidence:** commit "ci(runtime): drop the pinned runtime acceptance
+    workflow"; `uv run pytest scripts/tests/test_agent_runtime_ci.py` 16 passed;
+    pre-commit actionlint over `.github/workflows/*.yml` and
+    renovate-config-validator passed.
 - [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
   `stale-map-docs.py` ends `RESULT=SUCCESS`.
 

@@ -84,7 +84,8 @@ Code and Codex are installed and configured but not started.
 The supported deployment is [`compose.opencode.yml`](compose.opencode.yml) behind an
 existing reverse proxy. It publishes no host ports. Every launch adds the digest pin in
 [`opencode-compose-pins.yml`](opencode-compose-pins.yml), which Renovate advances to
-each newly published `edge` digest once native acceptance passes on it. Settings come
+each digest CI promotes to `edge`; CI promotes only builds that passed native
+acceptance. Settings come
 from a private copy of
 [`docker/opencode/runtime.env.example`](docker/opencode/runtime.env.example):
 
