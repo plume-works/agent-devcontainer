@@ -1283,9 +1283,10 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
   the workspace extension in the container and leaves the host extension
   disabled there, and that one click on the host extension's **Install
   Locally**, once per Mac, installs it in the local extension host, with
-  **Reload Window** in windows already open; the pack README no longer says the
-  pack installs the host extension in the Mac's local extension host. CI passes
-  on its pull request and on `main`.
+  **Reload Window** in windows already open, and that in a Codespace the
+  workspace extension activates after one **Reload Window**; the pack README no
+  longer says the pack installs the host extension in the Mac's local extension
+  host. CI passes on its pull request and on `main`.
 
 ### Task 27: Wire the bridge into the Expo profile
 
@@ -1353,7 +1354,9 @@ Create: `docs/knowledge/data/architecture/vscode-expo-bridge.md`; Modify:
 - [ ] The paragraph after step 6 of `## Optional Expo setup` tells the user that
   the first window on a Mac shows the host extension disabled in the container,
   and that one click on its **Install Locally** in the Extensions view, once per
-  Mac, enables the bridge, with **Reload Window** in windows already open.
+  Mac, enables the bridge, with **Reload Window** in windows already open, and
+  that in a Codespace the workspace extension activates after one **Reload
+  Window**.
 - [ ] `data/architecture/vscode-expo-bridge` `## Approach` and the template
   boundary's `## Optional Expo profile` state that the listed pack installs the
   workspace extension in the container and that the host extension is installed
@@ -1669,6 +1672,10 @@ Locally**. VS Code's Dev Containers documentation describes the list as the
 extensions "installed when the container is created". Installing the pack from
 the Extensions view in an open window (Tasks 24 and 26b) does put the host
 extension on the Mac.
+
+In a Codespace, VS Code installs the listed extensions after the window opens,
+and the workspace extension activates, installing `eas-host`, only after
+**Reload Window**; before that `eas-host` is not on `PATH`.
 
 One **Install Locally** click installs the host extension for the whole Mac:
 every other open Dev Containers window then offers **Reload Window**, after
