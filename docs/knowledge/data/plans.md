@@ -20,9 +20,6 @@ moves them.*
 [Publish the Expo bridge to Open VSX through trusted
 publishing](plans/20261023-openvsx-trusted-publishing.md)
 
-[Incremental local iOS builds for the VS Code Expo
-bridge](plans/20261023-expo-bridge-incremental-builds.md)
-
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
@@ -228,3 +225,6 @@ contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
 ## Cancelled
+
+[Incremental local iOS builds for the VS Code Expo
+bridge](plans/20261023-expo-bridge-incremental-builds.md)

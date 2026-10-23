@@ -14,6 +14,8 @@ sources:
 - resource: https://docs.expo.dev/build-reference/local-builds/
 - resource: https://github.com/expo/eas-build
 - resource: https://www.npmjs.com/package/eas-cli-local-build-plugin/v/25.3.0
+stage: cancelled
+status: deprecated
 ---
 
 # Incremental local iOS builds for the VS Code Expo bridge
