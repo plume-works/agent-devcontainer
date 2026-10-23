@@ -296,11 +296,13 @@ Assumptions:
 **Files:** Modify: `docs/protocol.md`, `README.md`, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `docs/protocol.md` describes the per-window socket and registry, the
+- [x] `docs/protocol.md` describes the per-window socket and registry, the
   `folder` field and its mapping, protocol version 2, the `status` fields, and
   replaces "never from a path the request supplies" with the rule that a request
   may choose only a workspace folder of its window, mapped through Docker under
   the host path. The README names the multi-root and multi-window support.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `c5266bf`;
+    `bun run lint` passes.
 
 ### Task 10: Sibling repository CI passes
 
