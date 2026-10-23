@@ -1155,7 +1155,11 @@ GitHub, and Open VSX
 ### Task 24: Pre-release test on a Mac
 
 **Files:** none — the Task 21 scratch app on a Mac, with the Task 21 VSIX
-installs removed
+installs removed and the app uninstalled from the simulator:
+
+``` bash
+xcrun simctl uninstall booted dev.plumeworks.expobridgespike
+```
 
 - [ ] Installing the pack's pre-release from the Visual Studio Marketplace in VS
   Code on the Mac puts the host extension's pre-release in the local extension
