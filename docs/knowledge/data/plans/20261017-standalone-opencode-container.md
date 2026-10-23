@@ -1196,12 +1196,18 @@ Supersedes Task 5's eager hook installation in standalone mode.
 **Files:** Modify: `.devcontainer/scripts/setup-pre-commit.sh`,
 `scripts/tests/test_agent_runtime_workspace.py`
 
-- [ ] Standalone `setup-pre-commit.sh` runs `pre-commit install` for its three
+- [x] Standalone `setup-pre-commit.sh` runs `pre-commit install` for its three
   hook types without `--install-hooks`, and keeps its `core.hooksPath` and
   custom-hook refusals. With no network, an empty `PRE_COMMIT_HOME`, and this
   repository's own `.pre-commit-config.yaml`, standalone setup succeeds, writes
   the hook scripts, and builds no hook environment. The devcontainer path is
   unchanged.
+  - **Evidence:** commit "fix(runtime): register standalone pre-commit hooks
+    without building environments";
+    `uv run pytest scripts/tests/test_agent_runtime_workspace.py` 21 passed,
+    including `test_standalone_hook_registration_builds_no_environment_offline`
+    under `unshare -n` with the real pre-commit, and the unchanged
+    `test_devcontainer_helpers_keep_their_defaults`.
 
 ### Task 31: Ship gitleaks and actionlint as checksum-pinned image binaries
 
