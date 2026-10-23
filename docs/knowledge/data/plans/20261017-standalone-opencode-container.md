@@ -965,8 +965,14 @@ sources
 
 **Files:** none; the repository's `main` ruleset
 
-- [ ] **Closed by: maintainer.** The `main` ruleset no longer lists
+- [x] **Closed by: maintainer.** The `main` ruleset no longer lists
   `Pinned runtime acceptance (amd64)` or `(arm64)` as required checks.
+  - **Evidence:** read on 2026-10-23 from
+    `gh api repos/plume-works/agent-devcontainer/rules/branches/main`: active
+    ruleset 20021618 `main` (updated 2026-10-20T04:40:37Z) requires only
+    `CI/CD / CI finished`, `Agent files validation finished`,
+    `ai-review-present`, and `Renovate config validation finished`; `main` has
+    no classic branch protection.
 
 ## Spec changes
 
