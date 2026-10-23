@@ -81,6 +81,8 @@ Code and Codex are installed and configured but not started.
 
 ### Launch
 
+[Deploying agent-opencode](docker/opencode/README.md) walks a new host through the
+proxy network, settings, first start, proxy routes, logins, and continuity checks.
 The supported deployment is [`compose.opencode.yml`](compose.opencode.yml) behind an
 existing reverse proxy. It publishes no host ports. Every launch adds the digest pin in
 [`opencode-compose-pins.yml`](opencode-compose-pins.yml), which Renovate advances to

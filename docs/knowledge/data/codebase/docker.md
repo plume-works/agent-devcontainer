@@ -2,14 +2,14 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:086ce490e33501968c5cd94ac4bf08b0a6e2832f1e1413dadea2b95de6743d08
+source_digest: sha256:12d316619ec1752302c102dbc5aeb62bc172b697d6744e45839628be5c946960
 verified:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
-stale_after: 2027-01-19
+  by: claude-code/opus-5.5
+  at: 2026-10-23T14:00:00Z
+stale_after: 2027-01-21
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
+  by: claude-code/opus-5.5
+  at: 2026-10-23T14:00:00Z
 sources:
 - id: code
   resource: docker
@@ -36,6 +36,8 @@ runtime on a supplied `agent-desktop` digest.
   eight programs it starts; baked to `/etc/agentdev/supervisord.conf`
 - `docker/opencode/runtime.env.example` — every setting the root
   `compose.opencode.yml` interpolates
+- `docker/opencode/README.md` — the operator deployment guide for the root
+  Compose files; not copied into the image
 - `/entrypoint.sh`, `/start-xpra.sh`, the `gh` wrapper — the files a running
   container exposes; their contract is in [the image runtime
   interface](api-image-runtime.md)

@@ -10,6 +10,10 @@ to the current day's group.
   [workflows](codebase/github/workflows.md), and the [pull request
   checks](codebase/flow-pull-request-checks.md) flow for the removed pinned
   runtime acceptance workflow.
+- **Map**: refreshed [Docker](codebase/docker.md), the [image
+  runtime](codebase/api-image-runtime.md), and the [image
+  build](codebase/flow-image-build.md) flow for the agent-opencode deployment
+  guide.
 
 ## 2026-10-22
 
