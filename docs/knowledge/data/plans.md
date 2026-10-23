@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Publish the Expo bridge to Open VSX through trusted
-publishing](plans/20261023-openvsx-trusted-publishing.md)
-
 [Incremental local iOS builds for the VS Code Expo
 bridge](plans/20261023-expo-bridge-incremental-builds.md)
 
@@ -50,6 +47,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Publish the Expo bridge to Open VSX through trusted
+publishing](plans/20261023-openvsx-trusted-publishing.md)
 
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)

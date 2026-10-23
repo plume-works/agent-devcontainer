@@ -5,7 +5,7 @@ release: internal
 description: Move the VS Code Expo bridge's Open VSX publishing from the OVSX_PAT access token to Open VSX trusted publishing — namespace ownership granted, a trusted publisher per extension for release.yml and the release environment, a publish job that passes no token, and the token revoked.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T18:19:33Z
+  at: 2026-10-23T18:21:57Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/openvsx-setup.md
@@ -13,6 +13,8 @@ sources:
 - resource: https://github.com/eclipse/openvsx/wiki/Namespace-Access
 - resource: https://github.com/EclipseFdn/open-vsx.org/issues/14608
 - resource: https://github.com/plume-works/vscode-expo-bridge
+stage: done
+completed: 2026-10-23
 ---
 
 # Publish the Expo bridge to Open VSX through trusted publishing
