@@ -6,7 +6,7 @@ release:
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T03:30:00Z
+  at: 2026-10-23T20:00:00Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore
@@ -23,6 +23,10 @@ sources:
 - resource: .github/renovate.json
 - resource: https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/v0.12.1/src/main.c
 - resource: https://opencode.ai/v2/docs
+- resource: .devcontainer/scripts/runtime-supervisor.py
+- resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
+- resource: .devcontainer/scripts/repair-codex-cbm-hooks-block.py
+- resource: .pre-commit-config.yaml
 ---
 
 # Ship a standalone OpenCode container
@@ -60,14 +64,30 @@ plan adapts the runtime to it. The v2 facts this plan relies on, for
   returns `{data: {id, ...}}`, `GET /api/session` returns `{data: [...]}`.
   `GET /api/info` returns `{version, ...}` and needs no workspace.
 - **No health route.** v2 has no `/global/health`. Any path outside `/api/`,
-  including `/global/health`, `/session`, and `/`, returns the web UI page with
-  status 200 and no password.
+  including `/global/health`, `/session`, and `/`, returns the web UI's static
+  shell with status 200. The shell holds no data: it prompts for the server
+  password before any API or WebSocket call succeeds.
 - **Browser and display.** `opencode serve` opens no browser when `DISPLAY` is
   set, and a PTY child inherits `DISPLAY`.
 
 [Gate image publication on acceptance](20261020-gate-image-publication.md) makes
 `edge` name only images that passed acceptance, which leaves the
 pinned-acceptance workflow with nothing to check.
+
+Three hazards make a failed standalone start destructive:
+
+- PID 1 exits nonzero on any terminal failure. Under Compose's
+  `restart: unless-stopped`, the container then reruns non-transactional
+  preparation against the same volumes without bound.
+- Standalone pre-commit setup builds hook environments eagerly. This
+  repository's gitleaks and actionlint hooks are Go-language hooks, and the
+  image has no Go, so building them downloads a toolchain.
+- Codex rewrites `config.toml` around CBM's hooks block, which can leave CBM
+  hook tables with a closing marker and no opener. The existing repair leaves
+  that state unchanged, and CBM 0.12.1's installer refuses it.
+
+Tasks 25–37 make a failed start stay put for inspection, keep optional work off
+OpenCode's critical path, and remove these hazards.
 
 ## Approach
 
@@ -81,11 +101,11 @@ unchanged. Keep `/opt/agentdev` immutable and separate from writable user state.
 Use an explicitly installed foreground `supervisord` as PID 1, with a root
 bootstrap for account/volume setup and root DinD, and user-owned agent services.
 An event listener owns dependency transitions, bounded restart budgets,
-readiness, and terminal failure. Do not rely on `startretries` alone to bound
-crashes after a service reaches RUNNING. OpenCode runs foreground; retain the
-existing Coder tmux launcher as an adapter over shared network/link
-construction. The Coder pane is the v2 plan's: `opencode serve` without
-`DISPLAY`, on `0.0.0.0` with `OPENCODE_SERVER_PASSWORD` and otherwise on
+readiness, and the failed and degraded states. Do not rely on `startretries`
+alone to bound crashes after a service reaches RUNNING. OpenCode runs
+foreground; retain the existing Coder tmux launcher as an adapter over shared
+network/link construction. The Coder pane is the v2 plan's: `opencode serve`
+without `DISPLAY`, on `0.0.0.0` with `OPENCODE_SERVER_PASSWORD` and otherwise on
 `127.0.0.1` with a generated password file. Standalone runs `opencode serve`
 too, which opens no browser, and keeps DISPLAY for graphical tools spawned by
 OpenCode. OpenCode readiness is an authenticated `GET /api/info` that returns a
@@ -119,19 +139,54 @@ GitHub authentication uses injected `GH_TOKEN`/`GITHUB_TOKEN`. No shared gh
 configuration, interactive-login persistence facility, credential broker, or
 shared keyring database is added. D-Bus and keyring remain instance-local.
 
-Startup order is identity/mount validation, optional firewall, user
-D-Bus/keyring and root DinD readiness, workspace validation/clone, auth and
-client/catalog configuration, matching project setup, CBM daemon and initial
-index, Xpra readiness, then OpenCode. Configure GitHub HTTPS credential handling
-before a private clone. Network-facing services are reachable only through an
-existing external proxy network; Compose publishes no host ports.
+Startup has a core path and optional work. The core path is identity/mount
+validation, the optional firewall, user D-Bus/keyring, workspace
+validation/clone, auth links and agent policy, then OpenCode. Optional work runs
+alongside it, and a failure there marks the runtime degraded while OpenCode
+keeps serving. Optional work is:
 
-Implementation defaults: three recovery attempts per required service with
-1/2/4-second backoff, reset only after 60 seconds continuously healthy;
-60-second service-start deadlines, a configurable preparation deadline
-defaulting to 1800 seconds, and a 30-second graceful-stop deadline before forced
-cleanup. Tests may shorten these values. Expose configuration through documented
-`AGENTDEV_*` variables, not command strings evaluated by a shell.
+- root DinD and the image prune;
+- CBM client configuration and its daemon;
+- catalog registration;
+- uv synchronization and pre-commit hook registration;
+- a background CBM index request for the workspace;
+- Xpra, which runs as a sibling of OpenCode rather than a prerequisite.
+
+CBM client configuration and catalog registration still finish before OpenCode
+starts, because OpenCode reads them at startup; their failure does not stop it.
+`AGENTDEV_STRICT_STARTUP=true` restores all-or-nothing startup, where any
+optional failure counts as a core failure. Configure GitHub HTTPS credential
+handling before a private clone. Network-facing services are reachable only
+through an existing external proxy network; Compose publishes no host ports.
+
+A failure the runtime cannot recover from latches it `failed`: a failed
+bootstrap, core phase, or configuration check, or a core service exhausting its
+recovery budget. Supervisord and PID 1 stay up, nothing reruns, readiness stays
+withdrawn, and a failure record persists on the home volume. An operator retries
+explicitly with `runtime-supervisor.py retry`. PID 1 exits nonzero only when the
+controller or supervisord itself fails, which leaves Docker's restart policy for
+crashes. Rejected: exiting PID 1 on every terminal failure, which under
+`restart: unless-stopped` reruns non-transactional preparation against the same
+volumes without bound.
+
+Startup never waits for indexing. Every startup path, devcontainer and
+standalone, submits an asynchronous `index_repository` request for the main
+workspace and continues; the CBM daemon indexes in the background, as the
+OpenCode bridge already does when it opens an unindexed repository. Blocking
+startup indexing is removed. Standalone pre-commit setup registers Git hook
+scripts without building hook environments; those build on first use, and this
+repository's Go-language hooks become checksum-pinned binaries so first use
+downloads no toolchain. CBM's Codex hooks live in `$CODEX_HOME/hooks.json`,
+which keeps them out of the `config.toml` that Codex rewrites.
+
+Implementation defaults: three recovery attempts per service with 1/2/4-second
+backoff, reset only after 60 seconds continuously healthy; 60-second
+service-start deadlines, separate configurable bootstrap and preparation
+deadlines defaulting to 1800 seconds, and a 30-second graceful-stop deadline
+before forced cleanup. Tests may shorten these values. Expose configuration
+through documented `AGENTDEV_*` variables, not command strings evaluated by a
+shell, and reject a malformed boolean or a non-positive limit instead of
+guessing.
 
 A pin change gets no acceptance run of its own: once publication is gated, every
 `edge` digest Renovate proposes already passed native acceptance in the run that
@@ -750,7 +805,7 @@ digest
 **Files:** none; operator deployment of the published candidate
 
 - [ ] **Closed by: maintainer with the external proxy and provider login.**
-  Launch the documented deployment of the Task 15 candidate, connect a provider
+  Launch the documented deployment of the Task 36 candidate, connect a provider
   in OpenCode, log in to Claude Code or Codex, and create an OpenCode session;
   replace the container and upgrade to a newer tested image with the same
   volumes; verify login, session, and user config continuity. Run a second
@@ -974,6 +1029,285 @@ sources
     `ai-review-present`, and `Renovate config validation finished`; `main` has
     no classic branch protection.
 
+### Task 25: Latch unrecoverable failures instead of exiting PID 1
+
+Supersedes Task 6's "terminal failure must make PID 1 exit nonzero" and the
+nonzero-exit assertions of Tasks 6, 12, and 22.
+
+**Files:** Modify: `.devcontainer/scripts/runtime-supervisor.py`,
+`.devcontainer/scripts/runtime-health.sh`,
+`scripts/tests/test_agent_runtime_supervision.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
+
+- [ ] A failed or timed-out bootstrap, a failed configuration check (including
+  the missing `XPRA_PASSWORD` check), a failed or timed-out core phase, and a
+  core service exhausting its recovery budget each latch the runtime `failed`.
+  PID 1 stays up and supervisord too, once started. No service restarts, no
+  phase reruns, and readiness stays withdrawn until SIGTERM or a retry. The
+  supervision tests that asserted exit `1` assert the latch instead, and a
+  controller crash still exits PID 1 nonzero.
+
+- [ ] Each latch writes `last-failure.json` atomically under
+  `$AGENTDEV_HOME/.local/state/agentdev/` with:
+
+  - a per-start startup ID;
+  - the phase or service;
+  - the command and exit status;
+  - at most the last 200 lines of that command's output;
+  - a UTC timestamp.
+
+  Startup never deletes it, and only a later failure replaces it. A failure
+  before the home volume is usable prints the same fields to stderr only.
+
+- [ ] `runtime-supervisor.py retry`, run through `docker exec`, resumes a
+  latched runtime from the failed phase or service in the same container. On
+  success the runtime becomes ready; on failure it latches again with a new
+  record.
+
+- [ ] In container acceptance under the shipped `restart: unless-stopped`
+  policy, preparation forced to exit `1` and then `3` leaves `RestartCount` at
+  `0` across at least ten health intervals. In that window OpenCode never
+  answers `/api/info`, the failure record is byte-identical at the end, and
+  `retry` brings the runtime ready once the cause is removed. Killing the
+  controller exits the container nonzero, and Docker restarts it.
+
+### Task 26: Start OpenCode on the core path and run the rest as optional work
+
+**Files:** Modify: `.devcontainer/scripts/runtime-supervisor.py`,
+`.devcontainer/scripts/runtime-workspace.sh`,
+`.devcontainer/scripts/setup-agent-state.sh`,
+`docker/opencode/supervisord.conf`, `compose.opencode.yml`,
+`docker/opencode/runtime.env.example`,
+`scripts/tests/test_agent_runtime_supervision.py`,
+`scripts/tests/test_agent_runtime_workspace.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
+
+- [ ] The core path is bootstrap, D-Bus, keyring, a core preparation phase, then
+  OpenCode. The core phase covers checkout, auth links, and agent policy. DinD,
+  the image prune, CBM client configuration and daemon, catalog registration, uv
+  sync, and pre-commit hook registration are optional. Each marks the runtime
+  `degraded` when it fails or exhausts its budget, and OpenCode keeps serving.
+  CBM client configuration and catalog registration finish, or fail, before
+  OpenCode starts. Supervision tests fail each optional component in turn and
+  see OpenCode ready.
+- [ ] Xpra is a sibling of OpenCode: neither waits for the other, and an Xpra
+  that exhausts its budget leaves the runtime degraded with OpenCode serving.
+- [ ] `AGENTDEV_STRICT_STARTUP=true` turns any optional failure, Xpra included,
+  into a Task 25 latch, and OpenCode is not started or is stopped. The default
+  is `false`. Compose passes the variable and `runtime.env.example` documents
+  it.
+- [ ] `runtime-supervisor.py retry <component>` reruns one failed optional
+  component; the runtime returns to ready once nothing is failed. In container
+  acceptance, a clone start whose uv sync fails serves OpenCode at the
+  authenticated `/api/info`, reports degraded, and becomes ready after
+  `retry project` succeeds.
+
+### Task 27: Request background indexing from every startup path
+
+Supersedes the blocking initial index of Tasks 5 and 6.
+
+**Files:** Modify: `.devcontainer/scripts/codebase-memory-mcp-index.sh`,
+`.devcontainer/scripts/codebase-memory-mcp-start.sh`,
+`.devcontainer/scripts/runtime-cbm.sh`,
+`.devcontainer/scripts/runtime-supervisor.py`,
+`docker/opencode/supervisord.conf`, `scripts/tests/test_agent_runtime_cbm.py`,
+`scripts/tests/test_agent_runtime_supervision.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`; Create:
+`scripts/tests/test_codebase_memory_mcp_index.py`
+
+- [ ] `codebase-memory-mcp-index.sh` submits
+  `cli --json index_repository --repo-path "$DEV_WORKSPACE_FOLDER" --async true`.
+  It returns once CBM accepts the job (`queued`, `running`, or joined to one in
+  flight) and fails when CBM reports an error. `codebase-memory-mcp-start.sh`
+  starts the daemon and then calls it, and `postAttachCommand.sh` keeps calling
+  it. A stub-CBM test asserts the arguments and that neither script waits for
+  the index. No startup path runs a blocking `index_repository`.
+- [ ] Standalone `runtime-cbm.sh index` sends the same request once the CBM
+  daemon is ready. The `index` program is an optional one-shot that nothing
+  waits for, and `AGENTDEV_CBM_INDEX_TIMEOUT` is removed. In container
+  acceptance, the CBM `search_graph` check polls until the background job has
+  indexed `answer`.
+
+### Task 28: Keep CBM's Codex hooks in `hooks.json` and recover an orphaned block
+
+**Files:** Modify: `.devcontainer/scripts/repair-codex-cbm-hooks-block.py`,
+`.devcontainer/scripts/codebase-memory-mcp-install.sh`,
+`scripts/tests/test_repair_codex_cbm_hooks_block.py`; Create: a fixture under
+`scripts/tests/fixtures/` built from CBM 0.12.1's own Codex output
+
+- [ ] The repair recognizes an orphaned SessionStart block: a closing marker
+  with no opener, or an opener with no closer. It removes the block only when
+  every hook table it would claim is exactly CBM's canonical
+  `[[hooks.SessionStart]]`/`[[hooks.SubagentStart]]` content invoking the
+  installed binary. It keeps every other table and comment, the file's LF or
+  CRLF newlines, and its mode, and writes atomically. A second run is
+  byte-identical. A modified or foreign hook table leaves the file untouched and
+  exits nonzero naming it. The fixture covers the deployment state: Codex tables
+  inserted above the closer and the opener gone. Tests cover LF and CRLF.
+
+- [ ] Before the repair and the install, `codebase-memory-mcp-install.sh`
+  creates `$CODEX_HOME` if needed and writes `$CODEX_HOME/hooks.json` as `{}`
+  when it is absent, so a first boot registers Codex. Against the pinned CBM in
+  a throwaway home:
+
+  - a well-formed TOML hooks block migrates out of `config.toml`;
+  - both events land in `hooks.json` and `config.toml` holds no `[[hooks.` table
+    and no SessionStart marker;
+  - existing hooks in `hooks.json` survive;
+  - a rerun leaves both files byte-identical.
+
+  The devcontainer and standalone installs share this behavior.
+
+### Task 29: Make agent-config writers idempotent and serialized
+
+**Files:** Modify: `.devcontainer/scripts/reinstall-agentdev-codex.sh`,
+`.devcontainer/scripts/setup-agent-state.sh`,
+`scripts/tests/test_agent_runtime_workspace.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
+
+- [ ] `reinstall-agentdev-codex.sh` leaves a marketplace already registered
+  under the catalog's name and root, and its installed plugin, as they are: no
+  remove, no add, and `config.toml` byte-identical on a rerun. A stale or
+  renamed registration is still replaced, and
+  `test_switching_catalogs_replaces_managed_registrations_only` still passes.
+- [ ] CBM installation, agent policy, and catalog registration hold one lock
+  file under `$HOME/.local/state/agentdev/` in both runtime modes. A test shows
+  two concurrent `setup-agent-state.sh` runs serialize.
+- [ ] In container acceptance, a first start with no `.codex` and three further
+  starts on the same volumes leave `config.toml` and `hooks.json` byte-identical
+  after the first start, with CBM's hooks only in `hooks.json`.
+
+### Task 30: Register standalone pre-commit hooks without building environments
+
+Supersedes Task 5's eager hook installation in standalone mode.
+
+**Files:** Modify: `.devcontainer/scripts/setup-pre-commit.sh`,
+`scripts/tests/test_agent_runtime_workspace.py`
+
+- [ ] Standalone `setup-pre-commit.sh` runs `pre-commit install` for its three
+  hook types without `--install-hooks`, and keeps its `core.hooksPath` and
+  custom-hook refusals. With no network, an empty `PRE_COMMIT_HOME`, and this
+  repository's own `.pre-commit-config.yaml`, standalone setup succeeds, writes
+  the hook scripts, and builds no hook environment. The devcontainer path is
+  unchanged.
+
+### Task 31: Ship gitleaks and actionlint as checksum-pinned image binaries
+
+**Files:** Modify: `ansible/roles/dev_tools/defaults/main.yml`, and
+`ansible/roles/dev_tools/tasks/install_pinned_tool.yml` if its asset-name
+template needs a version without its `v`; Test: the existing image
+tool-inventory checks
+
+- [ ] `dev_tools_pinned_tools` gains `gitleaks` and `actionlint` at the
+  `.pre-commit-config.yaml` revisions, with per-architecture checksums from each
+  release's published checksum file. The built image runs `gitleaks version` and
+  `actionlint --version` at those versions on both architectures, with no Go
+  toolchain installed.
+
+### Task 32: Run the gitleaks and actionlint hooks from the pinned binaries
+
+Lands only once the devcontainer image pin ships Task 31's binaries; before
+that, a `language: system` hook would fail every commit.
+
+**Files:** Modify: `.pre-commit-config.yaml`,
+`scripts/validate-super-linter-tool-versions.sh`,
+`.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md`,
+`.github/renovate.json`
+
+- [ ] The `gitleaks` and `actionlint` hooks become `language: system` local
+  hooks with the upstream hook ids, file patterns, and arguments. With an empty
+  `PRE_COMMIT_HOME` and no Go on `PATH`, `pre-commit run gitleaks --all-files`
+  and `pre-commit run actionlint --all-files` pass and download nothing.
+- [ ] `validate-super-linter-tool-versions.sh` reads both versions from
+  `dev_tools_pinned_tools`, as it does zizmor's. The sync skill's steps and the
+  Renovate Super-Linter rule name the new location. The validator passes, as do
+  `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  and `uv run pytest .agents/plugins/agentdev/tests`.
+
+### Task 33: Report runtime state from a live controller
+
+Supersedes Task 10's 30-minute health start period.
+
+**Files:** Modify: `.devcontainer/scripts/runtime-supervisor.py`,
+`.devcontainer/scripts/runtime-health.sh`,
+`docker/opencode/agent-opencode.Dockerfile`,
+`scripts/tests/test_agent_runtime_supervision.py`,
+`scripts/tests/test_agent_runtime_acceptance.py`
+
+- [ ] The controller writes a heartbeat and a state file each interval. The
+  state is `pending`, `ready`, `degraded`, or `failed`, with each component's
+  status. `runtime-health.sh ready` passes only when the heartbeat is younger
+  than three intervals, the state is `ready`, and the core probes pass now. A
+  test kills the controller and sees `ready` fail within three intervals.
+- [ ] `runtime-health.sh status` prints the state, each failed component, the
+  failure record's phase, exit status, and time, and the retry command for each.
+  A failing probe's output is logged, bounded, instead of discarded.
+- [ ] The image `HEALTHCHECK` start period covers core startup only. Pending,
+  degraded, and failed report unhealthy. In container acceptance, a forced
+  optional failure shows `unhealthy` in `docker inspect` while `/api/info`
+  answers.
+
+### Task 34: Parse runtime settings strictly
+
+**Files:** Modify: `.devcontainer/scripts/runtime-supervisor.py`,
+`docker/opencode/runtime.env.example`,
+`scripts/tests/test_agent_runtime_supervision.py`
+
+- [ ] Standalone `AGENTDEV_SKIP_XPRA` and `AGENTDEV_STRICT_STARTUP` accept
+  `1|true|yes|on` and `0|false|no|off|` (empty), ignoring case. Any other value
+  latches a configuration failure naming the variable, and
+  `AGENTDEV_SKIP_XPRA=false` starts Xpra.
+- [ ] Every count and deadline must be a positive number, and attempts a
+  positive integer. `AGENTDEV_BOOTSTRAP_TIMEOUT` bounds the bootstrap apart from
+  `AGENTDEV_PREPARE_TIMEOUT`, and `runtime.env.example` documents each one. A
+  parametrized test rejects zero, negative, and non-numeric values.
+
+### Task 35: Document failure handling and background indexing
+
+**Files:** Modify: `README.md`,
+`docs/knowledge/data/architecture/standalone-opencode-runtime.md`,
+`docs/knowledge/data/architecture/cbm-daemon-lifecycle.md`; Refresh: stale
+`docs/knowledge/data/codebase/` docs
+
+- [ ] `README.md` `## Standalone OpenCode runtime` covers:
+
+  - the core path and the optional work;
+  - degraded and failed states;
+  - `runtime-health.sh status`, the failure record, and `retry`;
+  - strict startup;
+  - background indexing;
+  - the firewall staying off unless `ENABLE_FIREWALL=true`.
+
+  The architecture document records the core/optional split and the failure
+  latch with its rejected alternative from `## Approach`. The CBM document
+  records the `hooks.json` representation.
+
+- [ ] Refresh the map docs whose sources moved through `/agentdev:iwe-map`;
+  `stale-map-docs.py` ends `RESULT=SUCCESS`.
+
+### Task 36: Verify the republished native images and repin the deployment
+
+Supersedes Task 15's candidate, which predates Tasks 25–34.
+
+**Files:** Modify: `opencode-compose-pins.yml` with the verified published
+digest
+
+- [ ] **Closed by: CI and the implementing session after publication.** The
+  candidate contains Tasks 25–34. Read its passing amd64/arm64 acceptance
+  results, inspect the published manifest and its same-run desktop ancestry, and
+  insert its real digest into the deployment pin. This cannot close on a local
+  build.
+
+### Task 37: Restart the retained first-run deployment on the new candidate
+
+**Files:** none; the maintainer's retained first-run volumes
+
+- [ ] **Closed by: maintainer.** With the firewall off and the home and
+  workspace volumes kept, start the Task 36 candidate once. Preparation recovers
+  the orphaned Codex block and reaches ready or a named degraded state without a
+  restart. A second start leaves `config.toml` and `hooks.json` byte-identical.
+  Keep credentials out of evidence.
+
 ## Spec changes
 
 Create `spec/standalone-opencode-runtime` with the following full contract.
@@ -1031,8 +1365,10 @@ persistent workspace, defaulting to /workspaces/project. It SHALL preserve an
 existing checkout without fetch, pull, reset, clean, branch switching, or
 ownership migration. It SHALL authenticate supported GitHub HTTPS operations
 with injected GH_TOKEN/GITHUB_TOKEN without storing those tokens. It SHALL run
-matching uv and pre-commit preparation and complete initial CBM indexing before
-OpenCode becomes available; errors and timeouts SHALL fail startup.
+matching uv synchronization, register pre-commit's Git hook scripts without
+building hook environments, and submit a background CBM index request for the
+workspace. None of these SHALL delay OpenCode, and their failure SHALL mark the
+runtime degraded. A checkout that cannot be used SHALL latch the runtime failed.
 
 #### Scenario: the first clone is private
 
@@ -1044,10 +1380,20 @@ OpenCode becomes available; errors and timeouts SHALL fail startup.
 - **WHEN** the workspace has local edits and a selected branch
 - **THEN** startup preserves the branch and edits, performs only the supported project preparation, and does not automatically contact Git remotes.
 
-#### Scenario: preparation cannot complete
+#### Scenario: the checkout cannot be used
 
-- **WHEN** required worktree metadata is absent, a nonempty destination is invalid, a custom hook conflicts, setup fails, or indexing times out
-- **THEN** startup reports the cause and OpenCode remains unavailable.
+- **WHEN** required worktree metadata is absent, a nonempty destination is invalid, or the clone fails
+- **THEN** the runtime latches failed, records the cause, keeps OpenCode unavailable, and does not restart or rerun preparation.
+
+#### Scenario: optional preparation fails
+
+- **WHEN** a custom hook conflicts, uv synchronization fails, catalog registration fails, or CBM rejects the index request
+- **THEN** OpenCode starts and serves, and the runtime reports degraded, naming the failed step and its retry command.
+
+#### Scenario: hook environments need the network
+
+- **WHEN** the project's pre-commit hooks would download toolchains or packages to build their environments
+- **THEN** startup registers the hook scripts without building any environment and contacts no hook source.
 
 ### Requirement: state survives replacement without cross-project session sharing
 
@@ -1070,29 +1416,83 @@ interactive GitHub-login storage.
 - **WHEN** same-ID containers mount the same agent-auth volume and different instance volumes
 - **THEN** they see shared Claude and Codex credentials but have independent OpenCode logins, sessions, keyring databases, caches, and Docker engines.
 
-### Requirement: required services have supervised bounded recovery
+### Requirement: services have supervised bounded recovery
 
 The runtime SHALL supervise OpenCode, DinD, CBM, D-Bus/keyring, and enabled Xpra
 with readiness probes, bounded startup, bounded per-service retries/backoff,
 and orderly termination. It SHALL detect actual daemon failure even when the
-public tool daemonizes. It SHALL mark dependency outages unready, recover
-affected clients coherently, and exit nonzero after recovery exhaustion.
-Xpra SHALL start by default with an explicit disable option.
+public tool daemonizes, mark dependency outages unready, and recover affected
+clients coherently. OpenCode and D-Bus/keyring SHALL be core services; DinD,
+CBM, and Xpra SHALL be optional, and OpenCode SHALL NOT wait for Xpra. A core
+service exhausting its budget SHALL latch the runtime failed; an optional one
+SHALL mark it degraded while OpenCode keeps serving. With
+`AGENTDEV_STRICT_STARTUP=true`, every optional failure SHALL be treated as a
+core failure. PID 1 SHALL keep running in both states and SHALL exit nonzero
+only when its controller or supervisord fails. Xpra SHALL start by default with
+an explicit disable option.
 
 #### Scenario: a running service fails
 
-- **WHEN** a required process exits or fails readiness
+- **WHEN** a supervised process exits or fails readiness
 - **THEN** the runtime becomes unready and restarts that service within its recovery budget without duplicating daemons or rerunning project mutation unnecessarily.
 
-#### Scenario: failures continue
+#### Scenario: a core service keeps failing
 
-- **WHEN** a service exhausts its bounded recovery budget
-- **THEN** remaining managed processes stop and the container exits nonzero.
+- **WHEN** OpenCode or D-Bus/keyring exhausts its bounded recovery budget
+- **THEN** the runtime latches failed, records the cause, and keeps PID 1 running without restarting the container.
+
+#### Scenario: an optional service keeps failing
+
+- **WHEN** DinD, CBM, or Xpra exhausts its bounded recovery budget without strict startup
+- **THEN** OpenCode keeps serving and the runtime reports degraded, naming that service.
+
+#### Scenario: strict startup is selected
+
+- **WHEN** `AGENTDEV_STRICT_STARTUP=true` and any optional service or preparation step fails
+- **THEN** the runtime latches failed and OpenCode is not served.
+
+#### Scenario: the controller fails
+
+- **WHEN** the supervisor's controller or supervisord itself terminates unexpectedly
+- **THEN** PID 1 exits nonzero, and the container's restart policy applies.
 
 #### Scenario: the container is stopped
 
 - **WHEN** PID 1 receives SIGTERM
 - **THEN** it stops managed clients and services in dependency order, bounds shutdown, and reaps remaining processes.
+
+### Requirement: runtime state is reported, persisted, and retried explicitly
+
+The runtime SHALL report one state, `pending`, `ready`, `degraded`, or
+`failed`, with each component's status, through `runtime-health.sh status`.
+Container health SHALL be healthy only while a live controller reports `ready`
+and the core probes pass. Every latched failure SHALL write a bounded record to
+the home volume: startup ID, phase, command, exit status, output tail, and time.
+Startup SHALL NOT delete that record. A failed or degraded runtime SHALL resume
+only through an explicit `runtime-supervisor.py retry`, never by an automatic
+rerun of preparation. Boolean settings SHALL accept only documented true and
+false spellings, and counts and deadlines SHALL be positive; any other value
+SHALL latch a configuration failure naming the variable.
+
+#### Scenario: a failure is inspected later
+
+- **WHEN** an operator inspects a latched runtime, including after a container restart or replacement on the same volumes
+- **THEN** the original failure record is present and unchanged, and `status` names it and its retry command.
+
+#### Scenario: the controller stops reporting
+
+- **WHEN** the controller's heartbeat is older than three health intervals
+- **THEN** container health reports unhealthy regardless of the last published state.
+
+#### Scenario: an operator retries
+
+- **WHEN** `runtime-supervisor.py retry` runs after the cause is removed
+- **THEN** the runtime resumes from the failed component in the same container and reports ready on success.
+
+#### Scenario: a boolean is spelled literally
+
+- **WHEN** `AGENTDEV_SKIP_XPRA=false` is set
+- **THEN** Xpra starts as if the variable were unset.
 
 ### Requirement: browser access uses an external proxy
 
@@ -1100,8 +1500,9 @@ Supported Compose deployments SHALL publish no host ports and SHALL connect to
 an operator-provided proxy network. OpenCode SHALL require a nonempty server
 password and bind container port 4096 on a network-reachable interface. Enabled
 Xpra SHALL serve port 14500 and SHALL require `XPRA_PASSWORD` for every session,
-read from its environment rather than its command line; the runtime SHALL refuse
-to start with Xpra enabled and no nonempty `XPRA_PASSWORD`. Devcontainer and
+read from its environment rather than its command line; the runtime SHALL latch
+a configuration failure before the bootstrap when Xpra is enabled and no
+nonempty `XPRA_PASSWORD` is set. Devcontainer and
 Coder starts SHALL NOT require it. OpenCode readiness SHALL be an
 authenticated API response and SHALL NOT be inferred from a response that does
 not require the password.
@@ -1114,7 +1515,7 @@ not require the password.
 #### Scenario: Xpra is enabled without its password
 
 - **WHEN** the standalone runtime starts with `AGENTDEV_SKIP_XPRA` empty and no nonempty `XPRA_PASSWORD`
-- **THEN** it exits nonzero before the bootstrap, naming `XPRA_PASSWORD` and `AGENTDEV_SKIP_XPRA=1`.
+- **THEN** it latches failed before the bootstrap, naming `XPRA_PASSWORD` and `AGENTDEV_SKIP_XPRA=1`, without restarting the container.
 
 #### Scenario: a peer on the proxy network connects to Xpra directly
 
@@ -1158,7 +1559,10 @@ Standalone agent-opencode startup SHALL use a valid checkout-provided agentdev
 catalog when present and otherwise the immutable image catalog. It SHALL
 reconcile Claude, Codex, and OpenCode configuration as the runtime user after
 mounts and before OpenCode starts, including generated Codex agents, without
-removing unrelated user settings or agents.
+removing unrelated user settings or agents. A registration already matching the
+selected catalog SHALL be left in place without rewriting client configuration.
+A failed reconciliation SHALL mark the runtime degraded and SHALL NOT stop
+OpenCode from starting, unless strict startup is selected.
 
 #### Scenario: the project provides the catalog
 
@@ -1169,7 +1573,61 @@ removing unrelated user settings or agents.
 
 - **WHEN** a checkout has no catalog or a newer bundled catalog is selected
 - **THEN** startup applies the selected bundled catalog over stale managed registrations and preserves unrelated configuration.
+
+#### Scenario: the container restarts with an unchanged catalog
+
+- **WHEN** startup selects the catalog that is already registered
+- **THEN** every client's configuration file is byte-identical afterwards.
 ```
+
+Create `spec/cbm-startup-integration` with the following contract. It covers the
+devcontainer hooks and the standalone runtime alike.
+
+``` markdown
+## ADDED Requirements
+
+### Requirement: startup requests workspace indexing in the background
+
+Every startup path SHALL submit an asynchronous CBM `index_repository` request
+for the main workspace and SHALL continue once CBM accepts it, without waiting
+for the index. No startup path SHALL run a blocking index.
+
+#### Scenario: a large workspace starts
+
+- **WHEN** the devcontainer hooks or the standalone runtime start on a workspace whose index takes minutes
+- **THEN** startup finishes while the CBM daemon indexes in the background.
+
+#### Scenario: an index job is already running
+
+- **WHEN** a startup request targets a workspace CBM is already indexing
+- **THEN** the request joins that job and startup continues.
+
+### Requirement: CBM's Codex hooks have one representation
+
+CBM installation SHALL keep its Codex hooks in `$CODEX_HOME/hooks.json`, created
+as an empty object when absent, so that `config.toml` holds no CBM hook tables.
+Before installing, it SHALL remove an orphaned CBM hooks block only when every
+claimed table is exactly CBM's own, preserving all other content, newline
+style, and file mode, and SHALL otherwise leave the file unchanged and fail
+naming the foreign table.
+
+#### Scenario: Codex wrote tables around a lone closing marker
+
+- **WHEN** `config.toml` holds CBM's exact hook tables and a closing marker with no opener, among Codex's own tables
+- **THEN** installation removes that block, writes the hooks to `hooks.json`, keeps every Codex table, and a second installation changes neither file.
+
+#### Scenario: the orphaned block was edited
+
+- **WHEN** a hook table inside an orphaned block differs from CBM's canonical content
+- **THEN** installation leaves `config.toml` byte-identical and fails naming that table.
+
+#### Scenario: Codex has not run yet
+
+- **WHEN** installation runs before any `$CODEX_HOME` exists
+- **THEN** CBM registers its Codex hooks in a new `hooks.json`.
+```
+
+Tasks 31 and 32 change development tooling only: no behavioral change.
 
 Add to [Image pinning](../spec/image-pinning.md), preserving all current
 requirements and scenarios:
@@ -1225,10 +1683,21 @@ devcontainer default](20261018-opencode-v2-default.md) must ship first.
   native amd64 and arm64; QEMU-only checks do not close native gates.
 - For Task 23, run `uv run pytest scripts/tests/test_agent_runtime_ci.py` and
   actionlint through pre-commit.
-- Tasks 15, 16, and 24 are separate external gates and must retain their named
-  closer until actually observed. No provider/model usage is required for
-  unit/ordinary container tests; any explicitly authorized model check uses
-  `openai/gpt-6.1-sol` and `openai/gpt-6-luna`.
+- For Tasks 25–34, run the touched unit files:
+  `uv run pytest scripts/tests/test_agent_runtime_supervision.py scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_agent_runtime_cbm.py scripts/tests/test_repair_codex_cbm_hooks_block.py scripts/tests/test_codebase_memory_mcp_index.py`.
+  Then run container acceptance against a local image built from them. Tests
+  that exercise CBM's `hooks.json` handling run the pinned 0.12.1 binary in a
+  throwaway home under `./.tmp/`, never the developer's own `CODEX_HOME` or
+  daemon.
+- For Task 32, run `scripts/validate-super-linter-tool-versions.sh`,
+  `pre-commit run gitleaks --all-files`, and
+  `pre-commit run actionlint --all-files` with an empty `PRE_COMMIT_HOME`, plus
+  the catalog validation and plugin tests the task names.
+- Tasks 15, 16, 24, 31's published image, 32's pin precondition, 36, and 37 are
+  separate external gates and must retain their named closer until actually
+  observed. No provider/model usage is required for unit/ordinary container
+  tests; any explicitly authorized model check uses `openai/gpt-6.1-sol` and
+  `openai/gpt-6-luna`.
 - Run `iwe normalize` and `iwe schema validate`; run `/agentdev:iwe-verify`
   against this plan and its full deltas before Ship merges durable specs.
 
@@ -1326,6 +1795,18 @@ Recorded 2026-10-18 at `afae3a2`.
   defaults, catalog hot reload without restart, and a new bare-metal installer.
 - Upgrading CBM to bypass a failed feasibility gate, promising concurrent
   upstream credential-write safety, or redesigning the existing firewall policy.
+- Widening the firewall allowlist to cover arbitrary project hooks and
+  installers; the standalone firewall stays off unless explicitly enabled.
+- Staged clones, staged-and-promoted configuration writes, and fault injection
+  after every mutating phase. Startup steps are expected to work; a failed one
+  latches for inspection and explicit retry.
+- An automated end-to-end test through a real Traefik deployment; the maintainer
+  covers real proxy routing, TLS, and WebSocket sessions in Task 16.
+- Stopping and restarting a recovering dependency's dependents in order:
+  [Dependency-ordered service
+  recovery](../someday/dependency-ordered-recovery.md).
+- A separate pre-commit environment warm-up job, and any change to devcontainer
+  pre-commit installation or devcontainer `AGENTDEV_SKIP_XPRA` parsing.
 
 ## Key references
 
@@ -1442,3 +1923,48 @@ Verified anchor points (line numbers as of 2026-10-20):
   `test_the_runtime_gets_its_own_manifest_and_native_acceptance`; `:86` and
   `:100` — the pin-check tests.
 - `README.md:86` — the pin's Renovate sentence.
+
+Verified anchor points (line numbers as of 2026-10-23):
+
+- `.devcontainer/scripts/runtime-supervisor.py:71` — `skip_xpra`, truthy on any
+  nonempty value; `:93-102` — `SERVICES`, with `index` gating `xpra` and
+  `opencode`; `:203-216` — `run_oneshot` raising `TerminalFailure`; `:255-271` —
+  `recover`; `:274-286` — `startup`; `:322-326` — `fail_terminally`; `:352-397`
+  — `run`, which clears the failure and ready files and exits `1`.
+- `.devcontainer/scripts/runtime-workspace.sh:73-84` — `cmd_project`; `:107-115`
+  — `cmd_prepare`.
+- `.devcontainer/scripts/runtime-health.sh:34` — `ready`, a marker-file check.
+- `.devcontainer/scripts/setup-agent-state.sh:31-39` — `install_cbm`; `:69-78` —
+  `cmd_create`, installing CBM before the Codex link; `:80-85` — `cmd_catalog`.
+- `.devcontainer/scripts/reinstall-agentdev-codex.sh:58-64` — unconditional
+  marketplace and plugin remove and re-add.
+- `.devcontainer/scripts/setup-pre-commit.sh:18-33` — standalone
+  `pre-commit install --install-hooks`.
+- `.devcontainer/scripts/repair-codex-cbm-hooks-block.py:47-70` — `repair`,
+  returning unchanged content without both markers.
+- `.devcontainer/scripts/codebase-memory-mcp-install.sh:79` — repair call; `:82`
+  — `codebase-memory-mcp install -y --force`.
+- `.devcontainer/scripts/codebase-memory-mcp-index.sh:16` and
+  `.devcontainer/scripts/codebase-memory-mcp-start.sh:19` — blocking
+  `index_repository`; `.devcontainer/scripts/postAttachCommand.sh:8` — the index
+  call.
+- `.devcontainer/scripts/runtime-cbm.sh:18` — `AGENTDEV_CBM_INDEX_TIMEOUT`;
+  `:154-158` — `cmd_index`.
+- `.agents/plugins/agentdev/.opencode-plugin/workspace-index.ts:112` — the
+  bridge's `--async true` index request.
+- `docker/opencode/supervisord.conf:23-34` — controller listener; `:130-144` —
+  the `index` program.
+- `docker/opencode/agent-opencode.Dockerfile:61-62` — `HEALTHCHECK` with a 30m
+  start period.
+- `compose.opencode.yml:8` — `restart: unless-stopped`; `:21` —
+  `ENABLE_FIREWALL` defaulting to `false`.
+- `.pre-commit-config.yaml:52-60` — Go-language gitleaks and actionlint hooks.
+- `ansible/roles/dev_tools/defaults/main.yml:18-29` — `dev_tools_pinned_tools`
+  and the zizmor entry; `ansible/roles/dev_tools/tasks/install_pinned_tool.yml`
+  — its installer.
+- `scripts/validate-super-linter-tool-versions.sh:165-169` — gitleaks and
+  actionlint read from pre-commit revisions, zizmor from the dev-tools defaults.
+- `scripts/tests/test_agent_runtime_supervision.py:224`, `:238`, `:267`, `:278`
+  — the exit-`1` assertions Task 25 replaces.
+- `scripts/tests/test_agent_runtime_acceptance.py:447` — the CBM query check;
+  `:524` — `test_preparation_failure_keeps_opencode_unavailable`.
