@@ -1231,6 +1231,38 @@ xcrun simctl uninstall booted dev.plumeworks.expobridgespike
     `https://open-vsx.org/api/plume-works/<name>` returns version 0.2.0 with
     `preRelease: false` for all three.
 
+### Task 26b: Release test in VSCodium on a Mac
+
+**Files:** none — the Task 21 scratch app in VSCodium on a Mac, with the
+`s-h-a-d-o-w.dev-containers-oss` extension,
+`"enable-proposed-api": ["s-h-a-d-o-w.dev-containers-oss"]` in VSCodium's
+runtime arguments, and the app uninstalled from the simulator:
+
+``` bash
+xcrun simctl uninstall booted dev.plumeworks.expobridgespike
+```
+
+- [x] Installing the pack's Task 26 release from Open VSX in VSCodium on the Mac
+  puts the host extension in the local extension host and the workspace
+  extension in the container of an `s-h-a-d-o-w.dev-containers-oss` window on
+  the scratch app.
+  - **Evidence:** Run on 2026-10-23 on the Mac: with the pack 0.2.0 installed
+    from Open VSX, `codium --list-extensions --show-versions` lists
+    `plume-works.vscode-expo-bridge`, `-host`, and `-workspace` 0.2.0 on both
+    the Mac and the container; `eas-host status` in the container returned
+    `available: true` with `hostPathExists`, `workspaceTrusted`, and
+    `port8081Forwarded` ok.
+- [x] Task 21's `eas-host` action sequence, trust prompt, build confirmation,
+  Metro load over port 8081, and one-click fix behave as in VS Code.
+  - **Evidence:** Run on 2026-10-23 on the Mac in the same window, with the app
+    absent from the simulator: the first `eas-host` call raised the trust prompt
+    and `build` the build confirmation; Task 21's script then ran `status`,
+    `build` (eas-cli 25.3.0), `install`, `launch`, and `screenshot` to exit 0,
+    with Metro in the container logging
+    `iOS Bundled 365ms index.js (512 modules)`. A container bun newer than the
+    Mac's raised the fix notification and status bar item, the fix opened a
+    terminal on the Mac, and the item cleared on the next `status`.
+
 ### Task 27: Wire the bridge into the Expo profile
 
 **Files:** Modify:
@@ -1385,7 +1417,8 @@ The protocol contract and security model are specified in
   and Open VSX.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-- Task 30's end-to-end run and Task 31's fallback run behave as described.
+- Task 26b's VSCodium run, Task 30's end-to-end run, and Task 31's fallback run
+  behave as described.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Verification results
@@ -1532,14 +1565,34 @@ launched runs with the Mac user's full file access, including persistence
 through LaunchAgents. The probe ran as a simulator-runtime process, not inside
 the installed app.
 
+### Task 26b: one VSCodium dev container extension carries the host path
+
+VSCodium cannot use Microsoft's Dev Containers extension, and the host extension
+works only in a window whose authority is `dev-container+<hex>` with the Mac
+path in its payload. Of the Open VSX dev container extensions,
+`s-h-a-d-o-w.dev-containers-oss` produces that authority and runs the whole Task
+21 sequence. It ignores the `portsAttributes` `"onAutoForward": "silent"` entry,
+so VSCodium still shows the port 8081 forwarding notification. The others do not
+work:
+
+- `DDorch.codium-devcontainer` runs `postCreateCommand` as a `RUN` step of its
+  generated Dockerfile, before the workspace is mounted, so the image build
+  fails.
+- `mythreyak.open-remote-devcontainer` does not connect to the container.
+- `3timeslazy.vscodium-devpodcontainers` and `zwhy2025.open-dev-container`
+  connect over SSH, whose authority carries no Mac path.
+
 ## Out of scope
 
 - Android builds through the bridge; the container builds Android itself.
 - Device and store builds that need Apple signing; the bridge covers simulator
   builds, and `eas credentials` stays a one-time human step.
 - A generic host-command facility.
-- Hosts other than VS Code desktop on macOS, and editors that cannot run a `ui`
-  extension locally.
+- Hosts other than VS Code desktop and VSCodium on macOS, and editors that
+  cannot run a `ui` extension locally.
+- Documenting the VSCodium setup in the sibling repository, tracked as the
+  backlog task [Document VSCodium support for the Expo
+  bridge](../backlog/document-expo-bridge-vscodium-support.md).
 - Changes to this repository's own `.devcontainer/`.
 - Publishing on a merge to `main` without a tag, and publishing from a developer
   machine.
@@ -1594,3 +1647,6 @@ Verified anchor points (line numbers as of 2026-10-23):
 - `plume-works/vscode-expo-bridge` `packages/host/package.json:51`,
   `packages/workspace/package.json:27`, `packages/pack/package.json:24` — the
   `vsce package` scripts
+- `plume-works/vscode-expo-bridge` `packages/host/src/hostpath.ts:11` —
+  `decodeHostPath`, which reads the Mac path from a `dev-container+<hex>`
+  authority
