@@ -308,7 +308,9 @@ Assumptions:
 
 **Files:** none
 
-- [ ] The sibling repository's CI passes on the commit that completes Tasks 1–9.
+- [x] The sibling repository's CI passes on the commit that completes Tasks 1–9.
+  - **Evidence:** CI run 40040548455 passes on `e7bc5d9`, the head of
+    `plume-works/vscode-expo-bridge#20`.
 
 ### Task 11: Mac round trip from the packaged VSIX files
 
