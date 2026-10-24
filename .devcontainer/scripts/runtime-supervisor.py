@@ -39,6 +39,7 @@ SUPERVISOR_FAULT_NOT_RUNNING = 70
 SUPERVISOR_FAULT_ALREADY_STARTED = 60
 OUTPUT_TAIL = 200
 PROBE_TAIL = 500
+OUTPUT_INTERVAL = 1.0
 DEFAULT_CONFIG = '/etc/agentdev/supervisord.conf'
 
 
@@ -190,10 +191,12 @@ def runtime_owner() -> tuple[int, int] | None:
 class Captured:
     """Run a command, stream its output to ours, and keep the tail for a failure record."""
 
-    def __init__(self, command: list[str]) -> None:
+    def __init__(self, command: list[str], session: bool = False) -> None:
         self.command = command
         self.tail: deque[str] = deque(maxlen=OUTPUT_TAIL)
-        self.process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        self.process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=session
+        )
         self.reader = threading.Thread(target=self.pump, daemon=True)
         self.reader.start()
 
@@ -209,8 +212,15 @@ class Captured:
         self.reader.join(timeout=5)
         return 128 - status if status < 0 else status
 
-    def result(self, status: int) -> dict:
+    def result(self, status: int | None) -> dict:
         return {'command': self.command, 'exit_status': status, 'output': list(self.tail)}
+
+    def kill_group(self, signum: int = signal.SIGKILL) -> None:
+        """Signal the whole session, so no child outlives a failed or interrupted run."""
+        try:
+            os.killpg(self.process.pid, signum)
+        except ProcessLookupError:
+            log(f'{self.command[0]}: process group {self.process.pid} already gone')
 
 
 @dataclass(frozen=True)
@@ -235,7 +245,7 @@ SERVICES = (
     Service('dbus', refresh=('keyring', 'xpra'), core=True),
     Service('keyring', after=('dbus',), core=True),
     Service('prepare', after=('keyring',), oneshot=True, core=True),
-    Service('config', after=('prepare',), oneshot=True),
+    Service('config', after=('prepare',), oneshot=True, refresh=('opencode',)),
     Service('cbm', after=('prepare',), refresh=('opencode',)),
     Service('opencode', after=('keyring', 'prepare'), core=True, alongside=('xpra',)),
     Service('xpra', after=('keyring',)),
@@ -286,12 +296,15 @@ class Controller:
         self.groups: dict[str, int] = {}
         self.commands = program_commands()
         self.publishing = threading.Lock()
+        # Wall-clock start of each component's current attempt, to reject older results.
+        self.started: dict[str, float] = {}
 
     # --- supervisord access -------------------------------------------------------------
     def state(self, name: str) -> dict:
         return self.rpc.supervisor.getProcessInfo(name)
 
     def start(self, name: str) -> None:
+        self.started[name] = time.time()
         try:
             self.rpc.supervisor.startProcess(name, False)
         except xmlrpc.client.Fault as fault:
@@ -372,6 +385,8 @@ class Controller:
     def record(self, failure: ComponentFailure) -> None:
         """Persist the failure on the home volume; only a later failure replaces it."""
         result = read_json(self.settings.output_dir / f'{failure.name}.json') or {}
+        if result.get('started', 0) < self.started.get(failure.name, float('inf')):
+            result = {}
         exit_status = failure.exit_status
         if exit_status is None:
             exit_status = result.get('exit_status')
@@ -411,9 +426,11 @@ class Controller:
 
     def latch(self, name: str) -> NoReturn:
         self.latched = name
-        if 'opencode' in self.status and self.status['opencode'] not in {'failed', 'pending'}:
+        if 'opencode' in self.status:
+            # A failed OpenCode can still be running: probes exhausted its budget, not a crash.
             self.stop('opencode')
-            self.status['opencode'] = 'pending'
+            if self.status['opencode'] != 'failed':
+                self.status['opencode'] = 'pending'
         for other, status in self.status.items():
             if status == 'starting':
                 self.status[other] = 'pending'
@@ -468,6 +485,7 @@ class Controller:
         timeout = self.settings.prepare_timeout
         self.start(name)
         deadline = time.monotonic() + timeout
+        next_check = time.monotonic() + self.settings.interval
         while time.monotonic() < deadline:
             info = self.state(name)
             if info['statename'] in DONE_STATES:
@@ -476,6 +494,14 @@ class Controller:
                     log(f'{name}: completed')
                     return
                 raise ComponentFailure(name, f'{name} failed (exit status {status})', status)
+            # A phase can run for its whole timeout; services already up stay watched meanwhile.
+            if time.monotonic() >= next_check:
+                try:
+                    self.check_once()
+                except Latched:
+                    self.stop(name)
+                    raise
+                next_check = time.monotonic() + self.settings.interval
             self.pause(0.5)
         self.stop(name)
         raise ComponentFailure(name, f'{name} did not finish within {timeout:g}s')
@@ -516,18 +542,7 @@ class Controller:
         paused = self.dependents(name)
         self.restart_until_ready(name)
         service = self.by_name[name]
-        for client in service.refresh:
-            if self.status.get(client) != 'ready':
-                continue
-            log(f'{client}: reconnecting after {name} recovered')
-            try:
-                self.restart(client)
-                if not self.wait_ready(client):
-                    self.restart_until_ready(client)
-            except ComponentFailure as failure:
-                self.fail(failure)
-                continue
-            self.health[client].healthy_since = time.monotonic()
+        self.refresh_clients(service, set(self.status))
         for dependent in paused:
             if dependent in service.refresh or self.status.get(dependent) != 'ready':
                 continue
@@ -537,6 +552,21 @@ class Controller:
             except ComponentFailure as failure:
                 self.fail(failure)
         self.set_status(name, 'ready')
+
+    def refresh_clients(self, service: Service, candidates: set[str]) -> None:
+        """Restart each ready client among ``candidates`` that reads ``service`` at startup."""
+        for client in service.refresh:
+            if client not in candidates or self.status.get(client) != 'ready':
+                continue
+            log(f'{client}: reconnecting after {service.name} came back')
+            try:
+                self.restart(client)
+                if not self.wait_ready(client):
+                    self.restart_until_ready(client)
+            except ComponentFailure as failure:
+                self.fail(failure)
+                continue
+            self.health[client].healthy_since = time.monotonic()
 
     # --- lifecycle ----------------------------------------------------------------------
     def launch(self, service: Service) -> None:
@@ -643,6 +673,8 @@ class Controller:
             self.answer(request, False, 'nothing has failed')
             return
         targets = [component] if component else failed
+        # Clients already serving read a retried component only when they restart.
+        serving = {name for name, status in self.status.items() if status == 'ready'}
         log(f'retrying {", ".join(targets)}')
         for name in targets:
             self.health[name] = Health()
@@ -654,6 +686,9 @@ class Controller:
         self.latched = None
         try:
             self.resume()
+            for name in targets:
+                if self.status[name] in SETTLED:
+                    self.refresh_clients(self.by_name[name], serving)
         finally:
             ok = all(self.status[name] in SETTLED for name in targets)
             self.answer(request, ok, None if ok else 'the retry failed again')
@@ -775,19 +810,21 @@ def preflight(settings: Settings, holder: dict) -> dict | None:
     bootstrap = os.environ.get(
         'AGENTDEV_BOOTSTRAP_COMMAND', str(SCRIPT_DIR / 'runtime-bootstrap.sh')
     )
-    child = Captured([bootstrap])
+    child = Captured([bootstrap], session=True)
     holder['child'] = child
     try:
         status = child.wait(timeout=settings.bootstrap_timeout)
         reason = f'bootstrap failed with exit status {status}'
     except subprocess.TimeoutExpired:
-        child.process.kill()
+        child.kill_group()
         status = child.wait()
         reason = f'bootstrap did not finish within {settings.bootstrap_timeout:g}s'
     finally:
         holder['child'] = None
     if status == 0:
         return None
+    # A retry reruns the bootstrap, so nothing the failed one started may keep running.
+    child.kill_group()
     log(reason)
     return {'component': 'bootstrap', 'reason': reason, **child.result(status)}
 
@@ -824,7 +861,7 @@ def run() -> int:
     def interrupt(signum: int, _frame) -> NoReturn:
         child = holder['child']
         if child is not None and child.process.poll() is None:
-            child.process.terminate()
+            child.kill_group(signal.SIGTERM)
             raise SystemExit(128 + signum)
         raise SystemExit(0)
 
@@ -883,12 +920,24 @@ def execute() -> int:
     # supervisord signals the whole process group, so the command already has the signal.
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, lambda *_: None)
+    started = time.time()
+    path = Settings.from_env().output_dir / f'{name}.json'
     child = Captured(command)
-    status = child.wait()
-    try:
-        write_json(Settings.from_env().output_dir / f'{name}.json', child.result(status))
-    except OSError as error:
-        log(f'{name}: could not keep its result: {error}')
+
+    def keep(status: int | None) -> None:
+        try:
+            write_json(path, {**child.result(status), 'started': started})
+        except OSError as error:
+            log(f'{name}: could not keep its result: {error}')
+
+    # A failure can be recorded while this attempt still runs, so its tail is kept live.
+    while True:
+        try:
+            status = child.wait(timeout=OUTPUT_INTERVAL)
+            break
+        except subprocess.TimeoutExpired:
+            keep(None)
+    keep(status)
     return status
 
 

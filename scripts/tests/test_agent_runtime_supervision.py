@@ -47,6 +47,7 @@ else
   trap 'echo "stop $name" >> "$state/events"; rm -f "$state/$name.ready"; exit 0' TERM
 fi
 if [[ $mode == with-child ]]; then sleep 1000 & echo $! > "$state/$name.child"; fi
+echo "$name is up"
 [[ $mode == never-ready ]] || touch "$state/$name.ready"
 while true; do
   if [[ -f $state/$name.crash ]]; then
@@ -79,6 +80,7 @@ HEALTH = REPO_ROOT / '.devcontainer/scripts/runtime-health.sh'
 FAKE_BOOTSTRAP = """#!/usr/bin/env bash
 echo "run bootstrap" >> "$STATE_DIR/events"
 echo "bootstrap says hello"
+if [[ -f $STATE_DIR/bootstrap.spawn ]]; then sleep 1000 & echo $! > "$STATE_DIR/bootstrap.child"; fi
 sleep "$(cat "$STATE_DIR/bootstrap.sleep" 2>/dev/null || echo 0)"
 exit "$(cat "$STATE_DIR/bootstrap.exit" 2>/dev/null || echo 0)"
 """
@@ -436,6 +438,16 @@ def test_exhausted_recovery_after_running_latches_and_stops_opencode(make):
     assert 'keyring exhausted 3 recovery attempts' in box.record()['reason']
 
 
+def test_an_unready_opencode_that_exhausts_its_budget_is_stopped(make):
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
+    box.start()
+    box.wait_for(box.ready)
+    box.set('opencode', 'unhealthy')
+    stays_latched(box, 'opencode')
+    opencode = [e for e in box.events() if e.endswith(' opencode')]
+    assert opencode[-1] == 'stop opencode', opencode
+
+
 def test_startup_failure_exhausts_the_same_budget(make):
     box = make()
     box.set('keyring', 'mode', 'never-ready')
@@ -525,6 +537,45 @@ def test_retrying_one_optional_component_restores_readiness(make):
     box.wait_for(box.ready)
     assert started(box.events()).count('project') == 2
     assert started(box.events()).count('prepare') == 1
+    assert started(box.events()).count('opencode') == 1, 'project is not read by OpenCode'
+
+
+def test_retrying_config_restarts_the_opencode_that_reads_it(make):
+    box = make()
+    box.set('config', 'exit', '1')
+    box.start()
+    box.wait_for(box.degraded)
+    assert started(box.events()).count('opencode') == 1
+
+    (box.state / 'config.exit').unlink()
+    resumed = box.retry('config')
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    box.wait_for(box.ready)
+    assert started(box.events()).count('opencode') == 2
+
+
+def test_core_services_recover_while_optional_work_runs(make):
+    box = make(AGENTDEV_PREPARE_TIMEOUT='60')
+    box.set('project', 'sleep', '30')
+    box.start()
+    box.wait_for(lambda: box.status('opencode') == 'ready' and box.status('project') == 'starting')
+    box.set('opencode', 'crash')
+    box.wait_for(lambda: started(box.events()).count('opencode') == 2)
+    box.wait_for(lambda: box.status('opencode') == 'ready')
+    assert box.status('project') == 'starting', 'recovery did not wait for the phase'
+
+
+def test_a_failure_record_holds_only_the_current_attempts_output(make):
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
+    stale = {'command': ['old'], 'exit_status': 9, 'output': ['stale'], 'started': 1.0}
+    (box.root / 'run/output').mkdir(parents=True)
+    (box.root / 'run/output/xpra.json').write_text(json.dumps(stale))
+    box.set('xpra', 'mode', 'never-ready')
+    box.start()
+    box.wait_for(box.degraded)
+    record = box.record()
+    assert record['component'] == 'xpra' and record['exit_status'] is None
+    assert record['output'] == ['xpra is up'], 'the live tail of the attempt that failed'
 
 
 def test_dependency_outage_recovers_clients_outside_their_budget(make):
@@ -725,3 +776,22 @@ def test_the_bootstrap_has_its_own_deadline(make):
     box.wait_for(lambda: box.latched() == 'bootstrap', timeout=10)
     reason = box.runtime()['components']['bootstrap']['reason']
     assert reason == 'bootstrap did not finish within 1s'
+
+
+def test_a_timed_out_bootstrap_takes_its_children_with_it(make):
+    box = make(AGENTDEV_BOOTSTRAP_TIMEOUT='1')
+    box.set('bootstrap', 'spawn')
+    box.set('bootstrap', 'sleep', '30')
+    box.start()
+    box.wait_for(lambda: box.latched() == 'bootstrap', timeout=10)
+    child = int((box.state / 'bootstrap.child').read_text())
+    box.wait_for(lambda: not running(child), timeout=5)
+
+
+def running(pid: int) -> bool:
+    """Return whether ``pid`` is alive, counting a zombie awaiting its reaper as gone."""
+    try:
+        stat_line = Path(f'/proc/{pid}/stat').read_text()
+    except FileNotFoundError:
+        return False
+    return stat_line.rsplit(')', 1)[1].split()[0] != 'Z'
