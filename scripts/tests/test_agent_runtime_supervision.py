@@ -7,6 +7,7 @@ import configparser
 import json
 import os
 from pathlib import Path
+import pwd
 import shutil
 import signal
 import subprocess
@@ -367,6 +368,19 @@ def test_the_failure_record_keeps_the_last_200_output_lines(make):
     output = box.record()['output']
     assert len(output) == 200
     assert output[0] == 'prepare line 101' and output[-1] == 'prepare line 300'
+
+
+def test_the_failure_record_leaves_a_fresh_home_owned_by_the_runtime_user(make):
+    account = pwd.getpwnam('nobody')
+    box = make(AGENTDEV_USER='nobody')
+    (box.root / 'home').mkdir()
+    box.set('prepare', 'exit', '7')
+    box.start()
+    box.wait_for(lambda: box.latched() == 'prepare')
+    box.wait_for(box.record_path.exists)
+    for directory in ('.local', '.local/state', '.local/state/agentdev'):
+        info = (box.root / 'home' / directory).stat()
+        assert (info.st_uid, info.st_gid) == (account.pw_uid, account.pw_gid), directory
 
 
 def test_a_new_start_keeps_the_previous_failure_record(make):

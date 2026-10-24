@@ -404,9 +404,11 @@ class Controller:
         path = self.settings.failure_record
         owner = runtime_owner()
         try:
+            # The controller runs as root: every level it creates on the home volume is the user's.
+            created = [parent for parent in reversed(path.parents) if not parent.exists()]
             path.parent.mkdir(parents=True, exist_ok=True)
             if owner is not None:
-                for parent in (path.parent.parent, path.parent):
+                for parent in created:
                     os.chown(parent, *owner)
             write_json(path, record, owner)
         except OSError as error:
@@ -740,7 +742,7 @@ def program_commands(config: str | None = None) -> dict[str, str]:
     }
 
 
-def server_proxy(config: str):
+def server_proxy(config: str) -> xmlrpc.client.ServerProxy:
     """Return an XML-RPC client for this process's supervisord, over its Unix socket."""
     from supervisor.xmlrpc import SupervisorTransport
 
