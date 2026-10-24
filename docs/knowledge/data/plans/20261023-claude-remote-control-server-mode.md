@@ -6,7 +6,7 @@ release:
 description: Let AGENTDEV_CLAUDE_RC_MODE=server make claude-remote-control-start.sh run `claude remote-control --spawn same-dir` in the claude-remote tmux session in place of the pinned interactive pane, keeping the pinned pane as the default.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T00:16:39Z
+  at: 2026-10-24T01:35:48Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: scripts/tests/test_claude_remote_control_start.py
@@ -123,11 +123,18 @@ Rejected alternatives:
 
 **Files:** none
 
-- [ ] With `AGENTDEV_CLAUDE_RC_MODE=server` as a Coder env user secret, a
+- [x] With `AGENTDEV_CLAUDE_RC_MODE=server` as a Coder env user secret, a
   workspace restart starts the server in `claude-remote` with no terminal
   interaction; a conversation spawned from claude.ai/code works in the workspace
   folder and `gh auth status` succeeds in it; after a second workspace restart
   within the hour, the pre-created conversation answers with its earlier turns
+  - **Evidence:** manual run on 2026-10-24 on Coder workspace `agent-dev1`,
+    branch `remote-control-v2-test` pinning `agent-desktop:pr-441` (PR #441 head
+    5fa2437), Claude Code 2.1.309: the server reached Connected with no input; a
+    session spawned from claude.ai/code ran in `/workspaces/agent-devcontainer`
+    and `gh auth status` reported the `GITHUB_TOKEN` login; after a further
+    restart the pre-created conversation answered with its earlier turns,
+    including after a `/clear` in it.
 
 ## Spec changes
 
