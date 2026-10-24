@@ -3,7 +3,7 @@ type: architecture
 description: After a Remote Control server restart, a same-dir session spawned on demand is not reattached at server start; a get_session lookup of that session prompts the server to spawn it again under the same ID within seconds.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T02:05:00Z
+  at: 2026-10-24T02:06:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 ---
@@ -30,6 +30,25 @@ After the server restarts, its sessions return in two different ways:
   seconds after the lookup, with no message sent to it. A disconnected session
   can therefore be recovered on demand from any session that holds the
   `claude-code-remote` tools.
+
+The server's process tree right after a restart, with its spawned sessions still
+disconnected:
+
+``` text
+tmux -L claude-remote
+└─ claude remote-control --spawn same-dir --name agent-dev1
+   └─ claude --print --session-id <pre-created> --resume=…
+```
+
+The same tree after a `get_session` lookup of each spawned session:
+
+``` text
+tmux -L claude-remote
+└─ claude remote-control --spawn same-dir --name agent-dev1
+   ├─ claude --print --session-id <pre-created> --resume=…
+   ├─ claude --print --session-id <fork> --resume=…
+   └─ claude --print --session-id <app-started> --resume=…   (one per woken session)
+```
 
 ## Hypotheses eliminated
 
