@@ -54,9 +54,9 @@ jobs:
           extra-filter: |
             - .github/workflows/ci.yml
             - .github/actions/log-debug-stats/**
-            # The devcontainer test suite is the only check of the deployment files.
+            # The devcontainer suite is the only check of the deployment compose files. The
+            # pins file stays out, so a pin bump never rebuilds the image it names.
             - compose.opencode*.yml
-            - opencode-compose-pins.yml
 
       - name: Log debug stats
         if: ${{ always() }}
