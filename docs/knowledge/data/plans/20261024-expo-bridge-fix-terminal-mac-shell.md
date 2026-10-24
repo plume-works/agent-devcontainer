@@ -182,11 +182,15 @@ sideloaded, this repository opened in a Dev Containers window
 `docs/knowledge/data/bugs/expo-bridge-fix-terminal-remote-shell.md`,
 `docs/knowledge/data/architecture/vscode-expo-bridge.md`
 
-- [ ] The bug's `## Fix` describes the fix and its `## Key references` point at
+- [x] The bug's `## Fix` describes the fix and its `## Key references` point at
   the current lines; the architecture document says the fix terminal resolves
   the Mac's default profile on the Mac and falls back to the login shell, with
   this plan's rejected alternatives. `iwe normalize` and `iwe schema validate`
   pass.
+  - **Evidence:** the commit that ticks this box updates the bug's `## Fix` and
+    its anchors at `6edf829`, and adds the fix-terminal constraint and three
+    rejected alternatives to `data/architecture/vscode-expo-bridge`;
+    `iwe normalize` and `iwe schema validate` pass.
 
 ## Spec changes
 

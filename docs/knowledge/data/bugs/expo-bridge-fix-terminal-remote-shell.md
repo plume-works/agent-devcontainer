@@ -3,12 +3,13 @@ type: bug
 description: The Expo bridge's one-click fix opens its Mac terminal with a shell path taken from the container's detected terminal profiles, so it fails to launch when the Mac's default profile name matches a container profile whose path does not exist on the Mac.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T08:30:00Z
+  at: 2026-10-24T15:00:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/terminal/browser/terminalProcessManager.ts
 - resource: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/terminal/browser/terminalProfileService.ts
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
+- resource: https://github.com/plume-works/vscode-expo-bridge/pull/21
 ---
 
 # Bug: the Expo bridge's fix terminal launches the container's shell on the Mac
@@ -48,24 +49,34 @@ path, which the Mac does not have.
 
 ## Fix
 
-Unfixed. The host extension can pass the Mac login shell it already resolves
-(`$SHELL`, `/bin/zsh` when unset) as `shellPath` to `createTerminal`; VS Code
-resolves an explicit executable without the default-profile lookup.
+[plume-works/vscode-expo-bridge#21](https://github.com/plume-works/vscode-expo-bridge/pull/21),
+released as 0.2.4, passes an explicit `shellPath` to `createTerminal`, so VS
+Code skips the default-profile lookup. `fixTerminalShell` resolves the merged
+`terminal.integrated.defaultProfile.osx` and `profiles.osx` values on the Mac:
+the named profile, without `source`, whose first `path` candidate exists there —
+an absolute path, or a bare name on the login `PATH` — with its `args` and
+`env`. Otherwise the terminal runs the login shell, `$SHELL` or `/bin/zsh`, with
+`-l`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-24):
 
-- `plume-works/vscode-expo-bridge` `packages/host/src/extension.ts:290` —
-  `vscode.window.createTerminal` for the fix, with a `file:` cwd and no
-  `shellPath`
-- `plume-works/vscode-expo-bridge` `packages/host/src/env.ts:38` — the login
-  shell, `process.env.SHELL ?? "/bin/zsh"`
-- `microsoft/vscode`
-  `src/vs/workbench/contrib/terminal/browser/terminalProcessManager.ts:183` —
+In `plume-works/vscode-expo-bridge` at `6edf829`:
+
+- `packages/host/src/shell.ts:31` — `fixTerminalShell`; `:15` —
+  `resolveCandidate`; `:38` — the login-shell fallback
+- `packages/host/src/extension.ts:116` — `fixShell`, which reads both settings
+  and the login environment; `:333` — `createTerminal` for the fix, with
+  `fixShell()`'s result
+- `packages/host/src/env.ts:38` — the login shell,
+  `process.env.SHELL ?? "/bin/zsh"`
+
+In `microsoft/vscode` `main`:
+
+- `src/vs/workbench/contrib/terminal/browser/terminalProcessManager.ts:183` —
   remote authority from the cwd; `:524` — `_launchLocalProcess` resolves with
   `os: OS`
-- `microsoft/vscode`
-  `src/vs/workbench/contrib/terminal/browser/terminalProfileService.ts:117` —
+- `src/vs/workbench/contrib/terminal/browser/terminalProfileService.ts:117` —
   `getDefaultProfile`, by name in `availableProfiles`; `:203` — profiles
   detected from the primary backend

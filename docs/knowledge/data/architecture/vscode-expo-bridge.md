@@ -3,10 +3,11 @@ type: architecture
 description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, one socket per window, the request's workspace folder mapped to its Mac path through Docker, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T00:30:00Z
+  at: 2026-10-24T15:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
+- resource: docs/knowledge/data/plans/20261024-expo-bridge-fix-terminal-mac-shell.md
 - resource: https://code.visualstudio.com/docs/devcontainers/containers
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/protocol.md
@@ -173,6 +174,15 @@ simulator processes run with the Mac user's file access.
   `dev.containers.dockerPath` value when set, else the login `PATH`, the
   Homebrew prefixes, and `~/.docker/bin`. A workspace-level value is never read,
   because the container can write workspace settings.
+- A terminal created with a `file:` cwd and no shell path launches on the Mac
+  but resolves the default profile's name against the profiles detected in the
+  container, so the host gives the one-click fix terminal an explicit
+  `shellPath`. It resolves the merged `terminal.integrated.defaultProfile.osx`
+  and `profiles.osx` values on the Mac — the named profile, without `source`,
+  whose first `path` candidate exists there, with its `args` and `env` — and
+  otherwise uses the login shell with `-l`. It reads the merged values, as VS
+  Code does for every local terminal, so a trusted workspace can choose the Mac
+  shell; the fix commands are shell-neutral.
 
 ### Rejected alternatives
 
@@ -215,3 +225,9 @@ simulator processes run with the Mac user's file access.
   account, a sudoers rule, and a root-owned wrapper installed with the admin
   password, a standing privileged path on the Mac; and the account's home
   persists, so one hostile build can poison the next.
+- **`$SHELL -l` alone for the fix terminal** — it ignores a default terminal
+  profile that differs from the login shell.
+- **Only the user-level terminal profile settings** — they diverge from what VS
+  Code launches for every other local terminal.
+- **A `Pseudoterminal` running the fix commands** with the login environment —
+  it has no pty, so the `sudo` prompts fail.
