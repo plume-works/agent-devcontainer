@@ -80,6 +80,7 @@ HEALTH = REPO_ROOT / '.devcontainer/scripts/runtime-health.sh'
 FAKE_BOOTSTRAP = """#!/usr/bin/env bash
 echo "run bootstrap" >> "$STATE_DIR/events"
 echo "bootstrap says hello"
+echo "${ENABLE_FIREWALL-unset}" > "$STATE_DIR/bootstrap.firewall"
 if [[ -f $STATE_DIR/bootstrap.spawn ]]; then sleep 1000 & echo $! > "$STATE_DIR/bootstrap.child"; fi
 sleep "$(cat "$STATE_DIR/bootstrap.sleep" 2>/dev/null || echo 0)"
 exit "$(cat "$STATE_DIR/bootstrap.exit" 2>/dev/null || echo 0)"
@@ -267,7 +268,12 @@ def make() -> Iterator[Callable[..., Supervision]]:
 
 
 def started(events: list[str]) -> list[str]:
-    return [e.split()[1] for e in events if e.split()[0] in {'start', 'run'}]
+    """Return what started, in order; OpenCode and Xpra launch together, so they may swap."""
+    runs = [e.split()[1] for e in events if e.split()[0] in {'start', 'run'}]
+    for index in range(len(runs) - 1):
+        if runs[index : index + 2] == ['xpra', 'opencode']:
+            runs[index : index + 2] = ['opencode', 'xpra']
+    return runs
 
 
 def test_starts_services_in_dependency_order_then_publishes_readiness(make):
@@ -554,6 +560,19 @@ def test_retrying_config_restarts_the_opencode_that_reads_it(make):
     assert started(box.events()).count('opencode') == 2
 
 
+def test_a_retry_whose_client_restart_fails_reports_failure(make):
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='1')
+    box.set('config', 'exit', '1')
+    box.start()
+    box.wait_for(box.degraded)
+    (box.state / 'config.exit').unlink()
+    box.set('opencode', 'mode', 'never-ready')
+
+    resumed = box.retry('config')
+    assert resumed.returncode == 1, resumed.stdout + resumed.stderr
+    box.wait_for(lambda: box.latched() == 'opencode')
+
+
 def test_core_services_recover_while_optional_work_runs(make):
     box = make(AGENTDEV_PREPARE_TIMEOUT='60')
     box.set('project', 'sleep', '30')
@@ -795,3 +814,19 @@ def running(pid: int) -> bool:
     except FileNotFoundError:
         return False
     return stat_line.rsplit(')', 1)[1].split()[0] != 'Z'
+
+
+@pytest.mark.parametrize(('spelling', 'passed'), [('yes', 'true'), ('ON', 'true'), ('0', 'false')])
+def test_the_bootstrap_sees_a_normalized_firewall_switch(make, spelling, passed):
+    box = make(ENABLE_FIREWALL=spelling)
+    box.start()
+    box.wait_for(box.ready)
+    assert (box.state / 'bootstrap.firewall').read_text().strip() == passed
+
+
+def test_a_malformed_firewall_switch_latches_before_the_bootstrap(make):
+    box = make(ENABLE_FIREWALL='enabled')
+    box.start()
+    box.wait_for(lambda: box.latched() == 'configuration')
+    assert box.events() == []
+    assert 'ENABLE_FIREWALL' in box.runtime()['components']['configuration']['reason']

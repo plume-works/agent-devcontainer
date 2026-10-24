@@ -165,6 +165,10 @@ on the home volume, taking output only from the attempt that failed. Startup
 never deletes that record. A failure before the home volume is validated goes to
 stderr only.
 
+PID 1 parses every boolean setting, `ENABLE_FIREWALL` included, and passes the
+firewall switch on as exactly `true` or `false`. A spelling the firewall would
+not recognize therefore latches the runtime instead of leaving egress open.
+
 `runtime-supervisor.py retry` resumes from the failed component in the same
 container. Before supervisord starts, PID 1 itself waits for the request and
 reruns the configuration check and bootstrap. The bootstrap runs in its own

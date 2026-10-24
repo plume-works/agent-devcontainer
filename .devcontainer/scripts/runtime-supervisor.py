@@ -130,6 +130,7 @@ class Settings:
     health_command: str = str(SCRIPT_DIR / 'runtime-health.sh')
     skip_xpra: bool = False
     strict: bool = False
+    firewall: bool = False
     # Every malformed setting; PID 1 latches a configuration failure naming them.
     errors: tuple[str, ...] = ()
 
@@ -149,6 +150,7 @@ class Settings:
             health_command=os.environ.get('AGENTDEV_HEALTH_COMMAND') or cls.health_command,
             skip_xpra=parse.boolean('AGENTDEV_SKIP_XPRA'),
             strict=parse.boolean('AGENTDEV_STRICT_STARTUP'),
+            firewall=parse.boolean('ENABLE_FIREWALL'),
         )
         # supervisord reads this one itself, as each program's stopwaitsecs.
         parse.count('AGENTDEV_STOP_TIMEOUT', 30)
@@ -486,7 +488,7 @@ class Controller:
         self.start(name)
         deadline = time.monotonic() + timeout
         next_check = time.monotonic() + self.settings.interval
-        while time.monotonic() < deadline:
+        while True:
             info = self.state(name)
             if info['statename'] in DONE_STATES:
                 status = info['exitstatus']
@@ -494,6 +496,9 @@ class Controller:
                     log(f'{name}: completed')
                     return
                 raise ComponentFailure(name, f'{name} failed (exit status {status})', status)
+            # Read after any service check, so a phase that ended meanwhile is not a timeout.
+            if time.monotonic() >= deadline:
+                break
             # A phase can run for its whole timeout; services already up stay watched meanwhile.
             if time.monotonic() >= next_check:
                 try:
@@ -690,7 +695,9 @@ class Controller:
                 if self.status[name] in SETTLED:
                     self.refresh_clients(self.by_name[name], serving)
         finally:
-            ok = all(self.status[name] in SETTLED for name in targets)
+            ok = all(self.status[name] in SETTLED for name in targets) and not any(
+                self.status[name] == 'failed' for name in serving
+            )
             self.answer(request, ok, None if ok else 'the retry failed again')
 
     def answer(self, request: dict, ok: bool, message: str | None) -> None:
@@ -857,6 +864,8 @@ def run() -> int:
     startup_id = uuid4().hex
     os.environ['AGENTDEV_STARTUP_ID'] = startup_id
     holder: dict = {'child': None}
+    # The bootstrap's firewall reads the exact word, so every accepted spelling reaches it.
+    os.environ['ENABLE_FIREWALL'] = 'true' if settings.firewall else 'false'
 
     def interrupt(signum: int, _frame) -> NoReturn:
         child = holder['child']

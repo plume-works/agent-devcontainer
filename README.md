@@ -203,7 +203,8 @@ supervisord fails.
 - `AGENTDEV_SKIP_XPRA=1` drops the desktop. The egress firewall stays off unless
   `ENABLE_FIREWALL=true`, which applies the default-deny policy and then needs
   `AGENTDEV_TRUSTED_PROXY_CIDRS`.
-- Booleans accept `1`, `true`, `yes`, or `on`, and `0`, `false`, `no`, `off`, or empty.
+- Booleans, `ENABLE_FIREWALL` included, accept `1`, `true`, `yes`, or `on`, and `0`,
+  `false`, `no`, `off`, or empty.
   Counts and deadlines must be positive. Any other value latches a configuration
   failure naming the variable.
 
