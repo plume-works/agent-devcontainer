@@ -124,10 +124,13 @@ Assumptions:
 **Files:** Modify: `packages/host/src/extension.ts`, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] The `expoBridge.fix` command captures the login environment, reads both
+- [x] The `expoBridge.fix` command captures the login environment, reads both
   settings with `getConfiguration("terminal.integrated").get()`, and passes
   `fixTerminalShell`'s result to `createTerminal` alongside the existing name
   and `file:` cwd. `bun run build` and `bun run lint` pass.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `04e4f9d` (`fixShell`
+    in `packages/host/src/extension.ts`); `bun run build`, `bun run lint`, and
+    `bun test` (263 pass) pass on a clean checkout of it.
 
 ### Task 3: Version and README
 
