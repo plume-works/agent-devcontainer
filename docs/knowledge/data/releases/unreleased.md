@@ -19,6 +19,8 @@ starts a fresh one.*
 
 ## Added
 
+[Remote Control server mode](../features/claude-remote-control-server-mode.md)
+
 [VS Code Expo bridge](../features/vscode-expo-bridge.md)
 
 [Map masks version-only changes](../features/map-masks-version-bumps.md)

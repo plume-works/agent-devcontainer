@@ -12,6 +12,8 @@ sources:
 - resource: scripts/tests/test_claude_remote_control_start.py
 - resource: https://code.claude.com/docs/en/remote-control
 - resource: https://code.claude.com/docs/en/claude-projects
+stage: done
+completed: 2026-10-24
 ---
 
 # Opt-in Claude Remote Control server mode

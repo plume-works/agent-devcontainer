@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-24
 
+- **Update**: [Opt-in Claude Remote Control server
+  mode](plans/20261023-claude-remote-control-server-mode.md) done; [Claude
+  Remote Control](spec/claude-remote-control.md) now specifies opt-in server
+  mode and limits pinned-conversation resume to session mode.
+- **Update**: [Remote Control server
+  mode](features/claude-remote-control-server-mode.md) implemented; listed under
+  Unreleased Added.
 - **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
   [scripts](codebase/devcontainer/scripts.md), and the [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) for the Remote Control
