@@ -106,13 +106,32 @@ def is_key(line: str) -> bool:
     return bool(line.strip()) and not is_comment(line)
 
 
+def block_headers(bare: list[str], marker: int) -> list[int]:
+    """Return the header lines of the owned tables that belong to the lone marker's block."""
+    # The contiguous run of owned tables after an opening marker, or the last run before a
+    # closing one, since Codex inserts its tables above a trailing marker.
+    headers = [index for index, line in enumerate(bare) if HEADER.match(line.strip())]
+    owned = {index for index in headers if OWNED_HEADER.fullmatch(bare[index].strip())}
+    if bare[marker] == OPEN_MARKER:
+        side = [index for index in headers if index > marker]
+    else:
+        side = [index for index in reversed(headers) if index < marker]
+        while side and side[0] not in owned:
+            side = side[1:]
+    run = []
+    for index in side:
+        if index not in owned:
+            break
+        run.append(index)
+    return sorted(run)
+
+
 def remove_orphan(lines: list[str], bare: list[str], marker: int, binary: str) -> str:
     """Return the text without the lone marker and cbm's tables, refusing any it does not own."""
     canonical = canonical_tables(binary)
     drop = {marker}
-    for start, header in enumerate(bare):
-        if not OWNED_HEADER.fullmatch(header.strip()):
-            continue
+    for start in block_headers(bare, marker):
+        header = bare[start].strip()
         # A table runs to the next header: a comment does not end it, and its keys still count.
         end = last = start + 1
         while end < len(bare) and not bare[end].lstrip().startswith('['):
@@ -120,8 +139,8 @@ def remove_orphan(lines: list[str], bare: list[str], marker: int, binary: str) -
                 last = end + 1
             end += 1
         body = [line.rstrip() for line in bare[start + 1 : last] if is_key(line)]
-        if body != canonical[header.strip()]:
-            raise ForeignHook(f'{header.strip()} at line {start + 1}')
+        if body != canonical[header]:
+            raise ForeignHook(f'{header} at line {start + 1}')
         while last < end and not bare[last].strip():
             last += 1
         drop.update(index for index in range(start, last) if not is_comment(bare[index]))

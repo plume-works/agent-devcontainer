@@ -89,8 +89,10 @@ TOML block out of `config.toml` itself.
 
 An orphaned block, a marker without its partner, is removed before the install
 only when every hook table it claims is exactly cbm's canonical content invoking
-the installed binary. A modified or foreign table leaves the file unchanged and
-fails the install, naming the table.
+the installed binary. It claims the contiguous run of hook tables after a lone
+opening marker, or the last run before a lone closing one; hook tables elsewhere
+are the user's and stay. A modified or foreign table in that run leaves the file
+unchanged and fails the install, naming the table. Comments are kept.
 
 The MCP block keeps its trailing marker, so Codex tables registered after cbm
 installs land above that marker, and the next install moves it. The standalone

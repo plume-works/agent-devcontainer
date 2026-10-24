@@ -180,6 +180,34 @@ def test_an_orphaned_opening_marker_is_removed_with_its_tables(codex_home: Path,
     assert config.read_bytes().decode() == (HEADER + FOREIGN).replace('\n', newline)
 
 
+USER_HOOK = """\
+[[hooks.SessionStart]]
+matcher = "startup"
+
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = "my-hook"
+
+"""
+
+
+@pytest.mark.parametrize('marker', ['open', 'close'])
+def test_an_orphaned_block_leaves_the_users_own_hooks_alone(codex_home: Path, marker: str):
+    if marker == 'close':
+        original = ORPHANED.replace('model = "x"\n', 'model = "x"\n' + USER_HOOK, 1)
+        expected = ORPHANED.replace(owned_tables(ORPHANED), '').replace(CLOSE, '')
+        expected = expected.replace('model = "x"\n', 'model = "x"\n' + USER_HOOK, 1)
+    else:
+        tables = owned_tables(ORPHANED)
+        original = HEADER + USER_HOOK + FOREIGN + OPEN + tables + '[profiles.x]\n'
+        expected = HEADER + USER_HOOK + FOREIGN + '[profiles.x]\n'
+    config = write_config(codex_home, original)
+
+    run_script(codex_home)
+
+    assert config.read_text() == expected
+
+
 def test_an_orphaned_block_keeps_the_comments_inside_its_tables(codex_home: Path):
     tables = owned_tables(ORPHANED).replace('type = "command"\n', 'type = "command"\n# mine\n', 1)
     config = write_config(codex_home, HEADER + OPEN + tables + FOREIGN)
