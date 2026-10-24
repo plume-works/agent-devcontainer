@@ -137,9 +137,12 @@ Assumptions:
 **Files:** Modify: the three extensions' `package.json` versions (through
 `bun run bump`), `packages/host/README.md`, in `plume-works/vscode-expo-bridge`
 
-- [ ] The pack and both extensions carry the next patch version, and the host
+- [x] The pack and both extensions carry the next patch version, and the host
   README says the fix terminal opens with the Mac's default terminal profile, or
   the login shell when that profile is not found on the Mac.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `a12c583`:
+    `bun run bump` sets all three extensions to 0.2.4, and
+    `packages/host/README.md` describes the fix terminal's shell.
 
 ### Task 4: Sibling repository CI passes
 
