@@ -347,11 +347,16 @@ in `plume-works/vscode-expo-bridge`
 Containers window on a repository that contains it, with the packaged extensions
 sideloaded
 
-- [ ] The fingerprint step's time and a reused build's total time, from request
+- [x] The fingerprint step's time and a reused build's total time, from request
   to result, are recorded under `## Verification results`, with the cold build
   time on the same Mac.
-- [ ] When a reused build takes 15 s or more, the plan goes back to
+  - **Evidence:** `## Verification results` Task 10: cold `--clean` build 111.0
+    s, reused build 0.68–0.72 s over three runs, which bounds the fingerprint
+    step.
+- [x] When a reused build takes 15 s or more, the plan goes back to
   `/agentdev:iwe-plan` revise mode with the measurement before Task 11.
+  - **Evidence:** not triggered: a reused build took at most 0.72 s
+    (`## Verification results` Task 10).
 
 ### Task 11: Mac round trip from the packaged VSIX files
 
@@ -543,3 +548,23 @@ In `eas-cli@25.3.0`:
 - `build/fingerprint/cli.js:23` — `createFingerprintAsync` resolving
   `expo/fingerprint` from the project
 - `build/local.js:116` — the fingerprint hash in the failure build context
+
+## Verification results
+
+### Task 10: fingerprint step and reused build timing
+
+The scratch app (Expo SDK 58, React Native 0.88, `development` simulator
+profile, eas-cli 25.3.0) is a workspace folder of a Dev Containers window on the
+Mac. Both extensions were packaged from plume-works/vscode-expo-bridge
+`2d8db83`. Times run from the `eas-host` request to its result:
+
+| Build                          | Result                               | Time        |
+| ------------------------------ | ------------------------------------ | ----------- |
+| cold, `--clean`                | `built`, `reason: "clean-requested"` | 111.0 s     |
+| repeat, no change (three runs) | `reused`                             | 0.68–0.72 s |
+
+A reused build's total time includes the fingerprint step, both version probes,
+the lookup, and the copy into `.tmp/expo-bridge/`, so the fingerprint step takes
+under 0.72 s. The build log has no per-step timestamps. The clean build's log
+names the fingerprint `c4bb2c64…` and the cache key, and says the artifact was
+stored.
