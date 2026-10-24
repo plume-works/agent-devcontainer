@@ -3,7 +3,7 @@ type: architecture
 description: AGENTDEV_CLAUDE_RC_MODE=server opts the claude-remote pane into `claude remote-control --spawn same-dir` in place of the pinned interactive pane, which stays the default; an unrecognized value fails startup.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T01:35:48Z
+  at: 2026-10-24T02:07:30Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: https://code.claude.com/docs/en/remote-control
@@ -46,8 +46,7 @@ Measured on Claude Code 2.1.309, in `claude remote-control` server mode:
 - **The pre-created session survives a restart.** After the server restarts, the
   session it created at start returns under the same ID with its earlier turns,
   and after a `/clear` in it, with the post-clear conversation.
-- **A spawned session does not survive a restart**, in `same-dir` or `worktree`
-  mode; only the pre-created session returns.
+- **A spawned worktree session does not survive a restart.**
 
 Documented limits of server mode:
 
