@@ -78,6 +78,9 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 ## Fixed
 
+[Bug: every gh call in the devcontainer leaks a D-Bus session and a
+keyring](../bugs/devcontainer-dbus-autolaunch-leak.md)
+
 [Bug: CI/CD publishes images before testing
 them](../bugs/ci-publishes-images-before-acceptance.md)
 

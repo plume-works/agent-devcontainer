@@ -17,6 +17,8 @@ to the current day's group.
   [scripts](codebase/devcontainer/scripts.md), and the [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) for the Remote Control
   launcher's `AGENTDEV_CLAUDE_RC_MODE` server mode.
+- **Bug**: filed and fixed [every gh call in the devcontainer leaks a D-Bus
+  session and a keyring](bugs/devcontainer-dbus-autolaunch-leak.md).
 - **Map**: refreshed [GitHub automation](codebase/github.md), its
   [workflows](codebase/github/workflows.md), and the [pull request
   checks](codebase/flow-pull-request-checks.md) flow for the compose files in
