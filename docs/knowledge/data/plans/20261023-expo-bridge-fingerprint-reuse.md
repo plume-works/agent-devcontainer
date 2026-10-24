@@ -259,20 +259,38 @@ Assumptions:
 `packages/host/src/dispatch.ts`, `packages/host/src/extension.ts`, their tests,
 in `plume-works/vscode-expo-bridge`
 
-- [ ] Without `clean`, `build` computes the fingerprint and the key after its
+- [x] Without `clean`, `build` computes the fingerprint and the key after its
   existing profile and eas-cli checks. On a hit it copies the stored artifact
   into the folder's `.tmp/expo-bridge/build-<ms>.tar.gz` under the fresh-write
   rule, writes the log, and returns `mode: "reused"` with `reusedBuiltAt` and
   `exitCode` 0, without running eas-cli.
-- [ ] On a miss, with no key, or with `clean`, it runs the existing
-  `eas build --local` and returns `mode: "built"` with the reason; a build that
-  exited 0 with an artifact is offered to `store` under its key (a clean build
-  computes the key after the build).
-- [ ] The log names the fingerprint hash, the key, and the outcome, and never a
+  - **Evidence:** plume-works/vscode-expo-bridge `0b5e10a`
+    `packages/host/src/build.ts` `build` (lookup and `copyFresh` to
+    `build-<ms>.tar.gz`); `packages/host/test/build.test.ts` "a first build is
+    built with no-match and stored; a repeat build is reused" asserts one
+    eas-cli run.
+- [x] On a miss, with no key, or with `clean`, it runs the existing
+  `eas build --local` and returns `mode: "built"` with the reason
+  (`no-fingerprint` also covers a fingerprint with no key); a build that exited
+  0 with an artifact is offered to `store` under its key (a clean build computes
+  the key after the build).
+  - **Evidence:** `0b5e10a` `build` and `dispatch` passing
+    `clean: req.clean === true`; `extension.ts` `buildDeps` supplies the host
+    path and `packageJSON.version`; build tests "a changed input builds in full
+    with no-match", "no fingerprint …", "a fingerprint without a key is also
+    no-fingerprint", "clean skips the lookup …".
+- [x] The log names the fingerprint hash, the key, and the outcome, and never a
   file's contents.
-- [ ] `bun test` covers the hit, each `reason`, the store after success, no
+  - **Evidence:** `0b5e10a` `build`'s `expo-bridge:` log lines; build tests
+    assert the fingerprint, key, and reuse lines and "the log names no file's
+    contents".
+- [x] `bun test` covers the hit, each `reason`, the store after success, no
   store after a failed build, and that the fingerprint step runs only for a
   confirmed build.
+  - **Evidence:** `0b5e10a` `packages/host/test/build.test.ts` `reuse` (10
+    tests, including "a failed build is not stored" and "an unconfirmed build
+    runs no fingerprint step") and `dispatch.test.ts` clean routing; `bun test`
+    300 pass, 0 fail.
 
 ### Task 7: Host — confirmation text and trust revocation
 
