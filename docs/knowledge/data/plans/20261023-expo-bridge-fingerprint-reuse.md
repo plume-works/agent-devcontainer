@@ -336,7 +336,10 @@ in `plume-works/vscode-expo-bridge`
 
 **Files:** none
 
-- [ ] The sibling repository's CI passes on the commit that completes Tasks 1–8.
+- [x] The sibling repository's CI passes on the commit that completes Tasks 1–8.
+  - **Evidence:** plume-works/vscode-expo-bridge PR #22, CI run 40063682902
+    `build` passed on `2d8db83` (lint, typecheck, `bun test`, three VSIX
+    packaged).
 
 ### Task 10: Mac timing of the fingerprint step and a reused build
 
