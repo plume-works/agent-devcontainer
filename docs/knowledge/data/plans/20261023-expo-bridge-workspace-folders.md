@@ -332,9 +332,13 @@ repository opened in a Dev Containers window and an Expo app under it
     app's `.tmp/expo-bridge/`; `install`, `launch`, and `screenshot` succeeded,
     the screenshot showing the app's bundle from Metro. `status` at the root
     reported the root.
-- [ ] A second window opened on the app in the same container serves its own
+- [x] A second window opened on the app in the same container serves its own
   socket; closing the first window leaves `eas-host status` in the second
   working.
+  - **Evidence:** On 2026-10-24, in the same setup, a second window opened with
+    `code -n` on the app registered its own socket and entry beside the first
+    window's. After the first window closed, only the second window's files
+    remained, and `eas-host status` in the app exited 0 with the app's Mac path.
 - [ ] A host extension still on protocol version 1 makes `eas-host status` exit
   3 and name both versions.
 
