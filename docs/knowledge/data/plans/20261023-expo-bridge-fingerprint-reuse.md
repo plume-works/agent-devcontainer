@@ -430,36 +430,36 @@ workspace folder under that host path.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-24):
 
-In `plume-works/vscode-expo-bridge` at `63fc991`:
+In `plume-works/vscode-expo-bridge` at `6c654ea`:
 
 - `packages/protocol/src/index.ts:6` — `PROTOCOL_VERSION`
-- `packages/protocol/src/index.ts:24` — `BuildRequest`
-- `packages/protocol/src/index.ts:78` — `BuildResult`
+- `packages/protocol/src/index.ts:52` — `BuildRequest`
+- `packages/protocol/src/index.ts:109` — `BuildResult`
 - `packages/workspace/src/cli-args.ts:21` — `USAGE`
 - `packages/workspace/src/cli-args.ts:23` — `HELP`
-- `packages/workspace/src/cli-args.ts:63` — `parseArgs` `build` case
-- `packages/workspace/bin/eas-host.ts:81` — the protocol version equality check
-- `packages/host/src/build.ts:44` — `build`
-- `packages/host/src/build.ts:60` — `lookupTool("bun")`
-- `packages/host/src/build.ts:64` — `easCliSpec`
-- `packages/host/src/build.ts:71` — the private build directory
-- `packages/host/src/build.ts:113` — `copyFresh` of the artifact into the
+- `packages/workspace/src/cli-args.ts:81` — `parseArgs` `build` case
+- `packages/workspace/bin/eas-host.ts:95` — the protocol version equality check
+- `packages/host/src/build.ts:45` — `build`
+- `packages/host/src/build.ts:61` — `lookupTool("bun")`
+- `packages/host/src/build.ts:65` — `easCliSpec`
+- `packages/host/src/build.ts:72` — the private build directory
+- `packages/host/src/build.ts:114` — `copyFresh` of the artifact into the
   workspace
-- `packages/host/src/dispatch.ts:56` — the `build` gate in `dispatch`
-- `packages/host/src/trust.ts:68` — `TrustStore.revoke`
-- `packages/host/src/trust.ts:98` — `TrustStore.confirmBuild`
-- `packages/host/src/extension.ts:31` — the build confirmation prompt
-- `packages/host/src/extension.ts:149` — `buildDeps`
-- `packages/host/src/extension.ts:223` — `expoBridge.manageTrust`
+- `packages/host/src/dispatch.ts:72` — the `build` gate in `dispatch`
+- `packages/host/src/trust.ts:73` — `TrustStore.revoke`
+- `packages/host/src/trust.ts:103` — `TrustStore.confirmBuild`
+- `packages/host/src/extension.ts:33` — the build confirmation prompt
+- `packages/host/src/extension.ts:183` — `buildDeps`
+- `packages/host/src/extension.ts:266` — `expoBridge.manageTrust`
 - `packages/host/src/env.ts:49` — `lookupTool`
-- `packages/host/src/paths.ts:92` — `openFreshUnique`
-- `packages/host/src/paths.ts:106` — `copyFresh`
+- `packages/host/src/paths.ts:102` — `openFreshUnique`
+- `packages/host/src/paths.ts:116` — `copyFresh`
 - `packages/host/src/jsonfile.ts:4` — `MAX_JSON_BYTES`
 - `packages/host/package.json:6` — the host extension's version
-- `docs/protocol.md:105` — `### build`
-- `docs/protocol.md:199` — `## eas-host`
+- `docs/protocol.md:154` — `### build`
+- `docs/protocol.md:248` — `## eas-host`
 
 In `eas-cli@25.3.0`:
 
