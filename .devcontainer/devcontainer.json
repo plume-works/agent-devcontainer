@@ -23,6 +23,9 @@
     "ENABLE_FIREWALL": "false",
 
     "DISPLAY": ":100",
+    // One session bus for every process; setup-keyring.sh starts it. Unset, gh autolaunches
+    // a bus that never exits on every call.
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/agentdev-dbus/bus",
     "DOCKER_HOST": "unix:///var/run/docker.sock",
     "DEVCONTAINER_ID": "${devcontainerId}",
     "DEV_WORKSPACE_FOLDER": "/workspaces/${localWorkspaceFolderBasename}",

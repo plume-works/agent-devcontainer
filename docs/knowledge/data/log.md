@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-24
 
+- **Bug**: filed and fixed [every gh call in the devcontainer leaks a D-Bus
+  session and a keyring](bugs/devcontainer-dbus-autolaunch-leak.md).
 - **Map**: refreshed [GitHub automation](codebase/github.md), its
   [workflows](codebase/github/workflows.md), and the [pull request
   checks](codebase/flow-pull-request-checks.md) flow for the compose files in
