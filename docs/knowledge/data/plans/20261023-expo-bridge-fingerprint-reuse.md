@@ -391,9 +391,13 @@ sideloaded
 **Files:** Modify: `docs/knowledge/data/features/vscode-expo-bridge.md`,
 `docs/knowledge/data/architecture/vscode-expo-bridge.md`
 
-- [ ] The feature's `## Behaviour` describes the reuse of a matching development
+- [x] The feature's `## Behaviour` describes the reuse of a matching development
   build and `--clean`, and the architecture document places the fingerprint step
   inside `build` in its security model and describes the per-folder cache.
+  - **Evidence:** `data/features/vscode-expo-bridge.md` "A matching development
+    build is reused." and `data/architecture/vscode-expo-bridge.md`
+    `### Build reuse`, its security model sentence on the fingerprint step, a
+    constraint, and two rejected alternatives; `iwe schema validate` passes.
 
 ## Spec changes
 

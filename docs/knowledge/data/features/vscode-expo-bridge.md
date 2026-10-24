@@ -4,10 +4,11 @@ stage: implemented
 description: Agents in a devcontainer opened by VS Code on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through the vscode-expo-bridge extension's fixed Expo-only action set, with EAS cloud as the fallback.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T00:30:00Z
+  at: 2026-10-24T08:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
+- resource: docs/knowledge/data/plans/20261023-expo-bridge-fingerprint-reuse.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://code.visualstudio.com/docs/devcontainers/containers
 ---
@@ -52,6 +53,16 @@ Code's secret storage on the Mac.
 
 **Dev-client loop.** Metro runs in the container and VS Code forwards port 8081
 to the Mac, so the native build reruns only when native code changes.
+
+**A matching development build is reused.** A development build loads its
+JavaScript from Metro, so when the project's native inputs are unchanged
+`eas-host build` returns the workspace folder's earlier artifact in under a
+second, without running eas-cli, and reports `mode: "reused"`. Any other build
+runs in full and reports `mode: "built"` with a `reason`: `no-match`,
+`no-fingerprint`, or `clean-requested`. `eas-host build <profile> --clean`
+forces a full build, and its confirmation on the Mac names a clean build. A
+build that embeds its JavaScript bundle, such as a Release build, is never
+reused. Revoking a workspace's trust deletes its stored builds.
 
 **Template wiring.** The Expo profile lists the extension, forwards port 8081,
 and tells agents to use `eas-host` for iOS when `eas-host status` succeeds.

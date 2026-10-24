@@ -3,11 +3,12 @@ type: architecture
 description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, one socket per window, the request's workspace folder mapped to its Mac path through Docker, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T15:00:00Z
+  at: 2026-10-24T08:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
 - resource: docs/knowledge/data/plans/20261024-expo-bridge-fix-terminal-mac-shell.md
+- resource: docs/knowledge/data/plans/20261023-expo-bridge-fingerprint-reuse.md
 - resource: https://code.visualstudio.com/docs/devcontainers/containers
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/protocol.md
@@ -108,6 +109,41 @@ through a shell. It writes nothing Mac-specific into the shared workspace: no
 `eas init`, `expo prebuild`, or package install; linking the EAS project is a
 one-time step from the container.
 
+### Build reuse
+
+A development build's `.app` depends only on native inputs, so `build` reuses
+the request folder's earlier artifact when a cache key matches:
+
+- **The fingerprint step runs inside the confirmed build.** After trust, the
+  confirmation, and the profile and eas-cli checks, the host runs a fixed script
+  with the Mac's `node` that loads the project's own `expo/fingerprint` and
+  prints `createFingerprintAsync(<folder>, { platforms: ["ios"] })`'s hash.
+  eas-cli evaluates the same app config at the same point of every build, so
+  this runs no code the confirmed build would not.
+- **The key** is a SHA-256 over that hash and the inputs the fingerprint leaves
+  out: the profile, the bytes of `eas.json`, `package.json`, and each lockfile,
+  `bunx eas-cli@<spec> --version`, `xcodebuild -version`, and the host
+  extension's version. Files are read under the bridge's file rules, at most 64
+  MiB; any refusal or failed probe means no key and a full build.
+- **The cache is per workspace folder**, under
+  `build-cache/<sha256 host path>/<sha256 folder Mac path>/` in the host's
+  private global storage: an `index.json` and the five newest artifacts, written
+  through a temporary file and a rename. The directory comes from the trusted
+  host path and the mapped folder only, so two apps under one host path never
+  share entries. Revoking a host path's trust deletes every folder's cache under
+  it.
+- **Only artifacts without an embedded bundle are stored.** An artifact holding
+  `main.jsbundle` would carry stale JavaScript, so a Release build always builds
+  in full.
+
+The fingerprint is a correctness hint, not a security input: project code can
+force a match, and the worst outcome is a stale artifact this folder's own
+confirmed build produced. Inputs outside the key — EAS server-side environment
+variables, the Mac login environment, the macOS and simulator runtimes — need
+`--clean`. The protocol stays at version 2: `clean`, `mode`, `reason`, and
+`reusedBuiltAt` are optional, so mixed extension versions keep working, and
+`eas-host status` compares versions for equality.
+
 ### Security model
 
 A devcontainer window already grants the container reach onto the Mac: through
@@ -137,9 +173,10 @@ Every command invocation is treated as possibly the container's: VS Code tells a
 handler nothing about its caller, so pairing the two extensions is not a
 boundary. No security setting is read from any file the container can write.
 Outside `build`, the host never evaluates project code; it reads only `eas.json`
-and `app.json` as size-limited regular JSON files. Every path is
-workspace-relative and rejected when any component is a symlink, and every file
-written into the workspace is created fresh with
+and `app.json` as size-limited regular JSON files. The fingerprint step that
+decides reuse is part of `build` and never runs before its confirmation. Every
+path is workspace-relative and rejected when any component is a symlink, and
+every file written into the workspace is created fresh with
 `O_CREAT | O_EXCL | O_NOFOLLOW_ANY`; tools write into the host's private storage
 and the host copies their output in. `build` sets `EAS_NO_VCS=1` so eas-cli
 writes nothing in the workspace's `.git`. `EXPO_TOKEN` lives in VS Code
@@ -157,6 +194,9 @@ simulator processes run with the Mac user's file access.
   Linux `node_modules`. It uses the Mac's bun and Node whatever `eas.json` pins,
   so `status` checks that the Mac's bun is at least the container's — an older
   bun cannot read the container's `bun.lock`.
+- eas-cli's local build plugin refuses an `EAS_LOCAL_BUILD_WORKINGDIR` that is
+  not empty, so no state carries over between local builds; reuse works only at
+  the level of the whole artifact.
 - A local build does not resolve EAS "Secret" environment variables; values the
   build needs must come from the host environment.
 - `cocoapods`, `fastlane`, and `image` are not `eas.json` build fields, so
@@ -193,6 +233,12 @@ simulator processes run with the Mac user's file access.
   meaning is fragile.
 - **`expo run:ios` on the Mac** — it builds in the shared workspace against the
   container's Linux `node_modules`.
+- **Reading eas-cli's own fingerprint** — a local build does not upload it, and
+  intercepting the local build plugin's input means handling an internal handoff
+  that carries credentials. `eas fingerprint:generate` writes a Fingerprint
+  record to the EAS project on every build.
+- **Re-bundling JavaScript into a stored Release artifact** — it re-implements
+  Xcode's bundle phase and re-signing.
 - **A self-hosted GitHub Actions runner on the Mac** — it needs CI plumbing and
   is not reachable from an open editor window.
 - **Listing only the workspace extension** in `devcontainer.json` and telling
