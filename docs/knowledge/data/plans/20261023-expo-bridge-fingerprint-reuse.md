@@ -298,11 +298,21 @@ in `plume-works/vscode-expo-bridge`
 `packages/host/src/extension.ts`, their tests, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] The build confirmation names a clean build when `clean` is set, and
+- [x] The build confirmation names a clean build when `clean` is set, and
   otherwise says a matching earlier build may be reused; a cooldown covers both.
-- [ ] Revoking a host path's trust decision through the manage-trust command
+  - **Evidence:** plume-works/vscode-expo-bridge `2a18b6d`
+    `packages/host/src/trust.ts` `buildConfirmationText` and `confirmBuild`'s
+    `clean`, which `dispatch` passes and the cooldown check precedes.
+- [x] Revoking a host path's trust decision through the manage-trust command
   deletes the build cache of every folder under it.
-- [ ] `bun test` covers both confirmation texts and the deletion on revoke.
+  - **Evidence:** `2a18b6d` `TrustStore`'s `onRevoke`, wired in `extension.ts`
+    `activate` to `buildcache.remove`; the manage-trust modal says the cache is
+    deleted.
+- [x] `bun test` covers both confirmation texts and the deletion on revoke.
+  - **Evidence:** `2a18b6d` `packages/host/test/trust.test.ts` "a clean build"
+    and "revoking trust" (a real cache directory removed) and `dispatch.test.ts`
+    "the build confirmation learns whether the build is clean"; `bun test` 306
+    pass, 0 fail.
 
 ### Task 8: Document reuse in the sibling repository
 
