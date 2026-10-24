@@ -84,6 +84,9 @@ devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 [Claude Remote Control server
 mode](architecture/claude-remote-control-server-mode.md)
 
+[Claude Remote Control server restart
+resume](architecture/claude-remote-control-server-restart-resume.md)
+
 [CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
