@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: After a Remote Control server restart, a same-dir session spawned on demand is not reattached at server start; it stays disconnected until something on the claude.ai side prompts the server to spawn it again under the same ID.
+description: After a Remote Control server restart, a same-dir session spawned on demand is not reattached at server start; a get_session lookup of that session prompts the server to spawn it again under the same ID within seconds.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T01:55:00Z
+  at: 2026-10-24T02:05:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 ---
@@ -23,11 +23,13 @@ After the server restarts, its sessions return in two different ways:
 - **A session spawned on demand** in the same directory, whether a fork of the
   pre-created session or one started from the Claude app, is not reattached at
   server start. claude.ai lists it as disconnected with a recoverable
-  `computer_unreachable` init error, and the server does not count it toward its
-  capacity. The server later spawns it again, under the same ID with its earlier
-  turns, without any message being sent to it. Each observed respawn followed,
-  by twenty seconds to two minutes, a `list_sessions` call made from the
-  pre-created session.
+  `computer_unreachable` init error stamped at server start, and the server does
+  not count it toward its capacity.
+- **A `get_session` lookup of a disconnected session wakes it.** The server
+  spawns it again, under the same ID with its earlier turns, five to fifteen
+  seconds after the lookup, with no message sent to it. A disconnected session
+  can therefore be recovered on demand from any session that holds the
+  `claude-code-remote` tools.
 
 ## Hypotheses eliminated
 
@@ -42,14 +44,19 @@ After the server restarts, its sessions return in two different ways:
   disconnected while open in the app to send those messages.
 - **Local inspection of server state wakes it.** Eliminated: process listings,
   `bridge-spawn` and pane reads alone left it disconnected.
+- **A `list_sessions` call wakes it.** Eliminated: a single `list_sessions` call
+  from the pre-created session left every spawned session disconnected for more
+  than five minutes.
 
 ## Open questions
 
-- **Whether a session listing triggers the respawn.** A `list_sessions` call is
-  the only remaining candidate. Settling it takes a restart, a wait past the
-  observed two-minute lag with no listing, then a single `list_sessions` call.
+- **Whether one lookup always wakes a session.** Of three `get_session` lookups
+  issued in parallel, two woke their sessions and one did not; a later single
+  lookup of that session woke it. Settling it takes a restart, then one lookup
+  per disconnected session, issued sequentially with a gap, and a count of the
+  sessions that return.
 - **Whether the respawn is bound by the documented four-hour resume window.**
-  Settling it takes the same trigger more than four hours after a restart.
+  Settling it takes a `get_session` lookup more than four hours after a restart.
 
 ## Closing
 
