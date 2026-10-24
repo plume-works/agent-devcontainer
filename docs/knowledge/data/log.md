@@ -4,8 +4,43 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-24
+
+- **Map**: refreshed [GitHub automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [pull request
+  checks](codebase/flow-pull-request-checks.md) flow for the compose files in
+  the image filter, and the [image runtime](codebase/api-image-runtime.md) and
+  [.devcontainer scripts](codebase/devcontainer/scripts.md) for the strict
+  firewall switch and comment-keeping hooks repair.
+- **Map**: refreshed the [image runtime](codebase/api-image-runtime.md) and the
+  [.devcontainer scripts](codebase/devcontainer/scripts.md) for attempt-scoped
+  failure output and client refresh on retry, and re-verified
+  [.devcontainer](codebase/devcontainer.md), [Docker](codebase/docker.md), and
+  the [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) and
+  [image build](codebase/flow-image-build.md) flows.
+
 ## 2026-10-23
 
+- **Map**: refreshed [Ansible](codebase/ansible.md),
+  [dev_tools](codebase/ansible/roles/dev_tools.md),
+  [.devcontainer](codebase/devcontainer.md), its
+  [scripts](codebase/devcontainer/scripts.md), [Docker](codebase/docker.md), the
+  [image runtime](codebase/api-image-runtime.md), [GitHub
+  automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md), [image
+  build](codebase/flow-image-build.md), and [pull request
+  checks](codebase/flow-pull-request-checks.md) flows for the standalone
+  runtime's failure latch, optional work, background indexing, and pinned hook
+  binaries.
+- **Map**: refreshed [GitHub automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [pull request
+  checks](codebase/flow-pull-request-checks.md) flow for the removed pinned
+  runtime acceptance workflow.
+- **Map**: refreshed [Docker](codebase/docker.md), the [image
+  runtime](codebase/api-image-runtime.md), and the [image
+  build](codebase/flow-image-build.md) flow for the agent-opencode deployment
+  guide.
 - **Update**: [Publish the Expo bridge to Open VSX through trusted
   publishing](plans/20261023-openvsx-trusted-publishing.md) done; internal, no
   release entry.

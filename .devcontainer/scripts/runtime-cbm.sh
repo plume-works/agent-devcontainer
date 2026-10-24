@@ -15,7 +15,6 @@ state_dir="${AGENTDEV_CBM_STATE_DIR:-${XDG_RUNTIME_DIR:-/tmp}/agentdev-cbm-$(id 
 generation_file="$state_dir/generation"
 start_timeout="${AGENTDEV_CBM_START_TIMEOUT:-60}"
 stop_timeout="${AGENTDEV_CBM_STOP_TIMEOUT:-30}"
-index_timeout="${AGENTDEV_CBM_INDEX_TIMEOUT:-1800}"
 poll_interval="${AGENTDEV_CBM_POLL_INTERVAL:-2}"
 unresponsive_limit="${AGENTDEV_CBM_UNRESPONSIVE_LIMIT:-3}"
 
@@ -151,10 +150,12 @@ cmd_check() {
   return 5
 }
 
+# Submits a background index to the supervised daemon; see codebase-memory-mcp-index.sh.
 cmd_index() {
   require_environment
   [[ -n ${1:-} ]] || usage
-  timeout "$index_timeout" "$cbm_bin" cli --quiet index_repository --repo-path "$1" >/dev/null
+  DEV_WORKSPACE_FOLDER="$1" AGENTDEV_CBM_BIN="$cbm_bin" timeout "$start_timeout" \
+    "$(dirname "${BASH_SOURCE[0]}")/codebase-memory-mcp-index.sh"
 }
 
 cmd_stop() {

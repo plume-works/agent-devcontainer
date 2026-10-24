@@ -74,9 +74,15 @@ restore_claude_json_symlink() {
 # and strand later config writes outside the persistent volume.
 trap restore_claude_json_symlink EXIT
 
+# cbm writes Codex hooks to hooks.json only when it exists, which keeps them out of
+# the config.toml Codex rewrites. Spec: cbm-startup-integration.
+codex_home="${CODEX_HOME:-$HOME/.codex}"
+mkdir -p "$codex_home"
+[[ -e $codex_home/hooks.json ]] || echo '{}' >"$codex_home/hooks.json"
+
 # Codex inserts tables above the hooks block's trailing marker; the installer then
 # refuses the whole Codex step. See bugs/cbm-codex-hooks-block-foreign-tables.
-"$(dirname "${BASH_SOURCE[0]}")/repair-codex-cbm-hooks-block.py"
+CBM_INSTALL_DIR="$cbm_install_dir" "$(dirname "${BASH_SOURCE[0]}")/repair-codex-cbm-hooks-block.py"
 
 install_status=0
 CBM_LOG_LEVEL="${CBM_LOG_LEVEL:-debug}" codebase-memory-mcp install -y --force || install_status=$?

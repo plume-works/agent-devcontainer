@@ -4,14 +4,14 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/desktop
-source_digest: sha256:ab3ef93e8f9428935982a49444d9df9bb31c15634ff09c29a6e324a280442115
+source_digest: sha256:1d301ee090d0e228a2abcf4e5871b9694df6f6e4153fe71bfd3d9dac1409d4ff
 verified:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
-stale_after: 2027-01-19
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
+stale_after: 2027-01-22
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
 sources:
 - id: code
   resource: .devcontainer
@@ -43,10 +43,11 @@ state.
    OpenCode's bridge plugin —
    `.devcontainer/scripts/postCreateCommand.sh:56-73`, in [lifecycle
    scripts](devcontainer/scripts.md)
-4. `postStartCommand` (every start): CBM daemon and index, git `safe.directory`,
-   pre-commit hooks, keyring, the gh git credential helper, the firewall gate,
-   Xpra in the background, `setup-agent-state.sh links` for the Codex auth link,
-   then `agent-policy` for both agents' full-access policies in their user
+4. `postStartCommand` (every start): CBM daemon start and a background index
+   request that returns once CBM accepts it, git `safe.directory`, pre-commit
+   hooks, keyring, the gh git credential helper, the firewall gate, Xpra in the
+   background, `setup-agent-state.sh links` for the Codex auth link, then
+   `agent-policy` for both agents' full-access policies in their user
    configuration files — `.devcontainer/scripts/postStartCommand.sh:9-30`. The
    gh helper setup there sees only a login stored on disk or in the keyring.
    Claude Remote Control is not part of it: in Coder, the template's
@@ -56,10 +57,12 @@ state.
    OpenCode web UI on `tmux -L opencode`, then execs
    `claude-remote-control-start.sh` —
    `.devcontainer/scripts/coder-agent-start.sh:9-21`
-5. `postAttachCommand` (every editor attach): CBM index, `uv sync`, and the
-   catalog reinstalled from this checkout at local scope, with OpenCode's bridge
-   entry repointed at it, which is how the catalog is developed in place —
-   `.devcontainer/scripts/postAttachCommand.sh:8-16`
+5. `postAttachCommand` (every editor attach): a background CBM index request,
+   `uv sync`, and `setup-agent-state.sh catalog` for this checkout at local
+   scope, under the agent-config lock, with OpenCode's bridge entry repointed at
+   it, which is how the catalog is developed in place. A Codex registration that
+   already matches the checkout, plugin cache included, is left as it is —
+   `.devcontainer/scripts/postAttachCommand.sh:8-14`
 
 ## Failure modes
 

@@ -10,60 +10,22 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
-import sys
 import time
 from uuid import uuid4
 
+from cbm_pin import binary_version, pinned_version, stage_pinned_cbm
 import pytest
-import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/runtime-cbm.sh'
-DEV_TOOLS = REPO_ROOT / 'ansible/roles/dev_tools/defaults/main.yml'
 TMP_ROOT = REPO_ROOT / '.tmp'
 ISOLATED_UID = 54321
 IS_ROOT = os.geteuid() == 0
 
 
-def pinned_version() -> str:
-    """Return the CBM version the image ships, without its leading ``v``."""
-    tools = yaml.safe_load(DEV_TOOLS.read_text())['dev_tools_pinned_tools']
-    return next(t['version'] for t in tools if t['name'] == 'codebase-memory-mcp').lstrip('v')
-
-
-def binary_version(path: Path) -> str:
-    """Return the version a CBM binary reports."""
-    output = subprocess.run([path, '--version'], capture_output=True, text=True, check=True)
-    return output.stdout.split()[-1]
-
-
 @pytest.fixture(scope='module')
 def cbm_binary() -> Path:
-    """
-    Stage the pinned CBM binary in .tmp, copying the image's when it matches the pin.
-
-    The isolated account cannot traverse the invoking user's home, where the image installs it.
-    """
-    version = pinned_version()
-    destination = TMP_ROOT / f'cbm-pin-{version}'
-    binary = destination / 'codebase-memory-mcp'
-    installed = shutil.which('codebase-memory-mcp')
-    if installed and binary_version(Path(installed)) == version:
-        destination.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(installed, binary)
-    elif not binary.exists() or binary_version(binary) != version:
-        subprocess.run(
-            [
-                sys.executable,
-                REPO_ROOT / 'scripts/fetch-pinned-tool.py',
-                'codebase-memory-mcp',
-                destination,
-                '--repo-root',
-                REPO_ROOT,
-            ],
-            check=True,
-        )
-    return binary
+    return stage_pinned_cbm()
 
 
 @dataclass
@@ -210,8 +172,11 @@ def test_start_index_and_stop_as_isolated_user(sandbox: Sandbox, checkout: Path)
 
     indexed = sandbox.adapter('index', str(checkout))
     assert indexed.returncode == 0, indexed.stderr
-    projects = sandbox.cbm('cli', '--json', 'list_projects')
-    assert str(checkout) in projects.stdout
+    assert 'in the background' in indexed.stdout
+    deadline = time.monotonic() + 60
+    while str(checkout) not in sandbox.cbm('cli', '--json', 'list_projects').stdout:
+        assert time.monotonic() < deadline, 'the background index never registered the project'
+        time.sleep(0.5)
 
     assert owners(sandbox.cache) == {sandbox.uid}
     assert owners(checkout) == checkout_owners

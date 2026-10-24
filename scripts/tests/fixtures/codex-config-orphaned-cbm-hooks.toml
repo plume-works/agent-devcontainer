@@ -1,0 +1,29 @@
+model = "x"
+# >>> codebase-memory-mcp MCP >>>
+[mcp_servers.codebase-memory-mcp]
+command = "/home/agent/.local/bin/codebase-memory-mcp"
+args = []
+env_vars = ["CBM_CACHE_DIR", "CBM_RUNTIME_DIR"]
+# <<< codebase-memory-mcp MCP <<<
+[[hooks.SessionStart]]
+matcher = "startup|resume|clear|compact"
+
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = "'/home/agent/.local/bin/codebase-memory-mcp' hook-augment"
+command_windows = "& '/home/agent/.local/bin/codebase-memory-mcp' hook-augment"
+timeout = 5
+
+[[hooks.SubagentStart]]
+matcher = "*"
+
+[[hooks.SubagentStart.hooks]]
+type = "command"
+command = "'/home/agent/.local/bin/codebase-memory-mcp' hook-augment"
+command_windows = "& '/home/agent/.local/bin/codebase-memory-mcp' hook-augment"
+timeout = 5
+
+[marketplaces.agent-devcontainer]
+source_type = "local"
+source = "/opt/agentdev"
+# <<< codebase-memory-mcp SessionStart <<<

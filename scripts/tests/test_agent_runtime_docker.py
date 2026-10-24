@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+import configparser
 import json
 import os
 from pathlib import Path
@@ -114,9 +115,13 @@ def test_refuses_a_second_engine_but_clears_a_stale_pid_file(engine: Engine, tmp
     assert not engine.pidfile.exists()
 
 
-def test_preparation_prunes_images_before_touching_the_workspace():
-    prepare = (SCRIPTS / 'runtime-workspace.sh').read_text().split('cmd_prepare() {', 1)[1]
-    assert prepare.index('docker-image-prune.sh') < prepare.index('cmd_checkout')
+def test_the_image_prune_runs_once_the_nested_engine_is_up():
+    supervisor = (SCRIPTS / 'runtime-supervisor.py').read_text()
+    assert "Service('prune', after=('dockerd',), oneshot=True)" in supervisor
+    config = configparser.RawConfigParser()
+    config.read(REPO_ROOT / 'docker/opencode/supervisord.conf')
+    assert config['program:prune']['command'].endswith('/docker-image-prune.sh')
+    assert 'docker-image-prune.sh' not in (SCRIPTS / 'runtime-workspace.sh').read_text()
 
 
 def desktop_image() -> str | None:

@@ -74,17 +74,20 @@ for prerequisites and the full-copy and selective-copy workflows.
 
 `agent-opencode` runs one project with no Dev Containers client, Coder, or project
 scaffolding. On start it creates its runtime account, prepares the workspace, and
-starts nested Docker, an instance-local keyring, Codebase Memory MCP, the Xpra
-desktop, and finally the OpenCode server. Each service is supervised and recovered
-within a bounded budget; the container exits nonzero when it cannot recover. Claude
-Code and Codex are installed and configured but not started.
+starts the OpenCode server, with nested Docker, an instance-local keyring, Codebase
+Memory MCP, and the Xpra desktop around it. Each service is supervised and recovered
+within a bounded budget. Claude Code and Codex are installed and configured but not
+started.
 
 ### Launch
 
+[Deploying agent-opencode](docker/opencode/README.md) walks a new host through the
+proxy network, settings, first start, proxy routes, logins, and continuity checks.
 The supported deployment is [`compose.opencode.yml`](compose.opencode.yml) behind an
 existing reverse proxy. It publishes no host ports. Every launch adds the digest pin in
 [`opencode-compose-pins.yml`](opencode-compose-pins.yml), which Renovate advances to
-each newly published `edge` digest once native acceptance passes on it. Settings come
+each digest CI promotes to `edge`; CI promotes only builds that passed native
+acceptance. Settings come
 from a private copy of
 [`docker/opencode/runtime.env.example`](docker/opencode/runtime.env.example):
 
@@ -109,7 +112,7 @@ the path its `.git` file names.
   `4096` for OpenCode, which enforces the password itself, and on `14500` for Xpra.
   Both are served at the root path, WebSockets included.
 - `XPRA_PASSWORD` is required unless `AGENTDEV_SKIP_XPRA` is set; without it the
-  container exits before starting anything. Xpra checks it on every session, so a
+  runtime latches failed before starting anything. Xpra checks it on every session, so a
   peer on the proxy network cannot bypass the proxy. The HTML5 page loads without
   it and asks for it on connect.
 - `AGENTDEV_PROXY_NETWORK` names the proxy's existing Docker network.
@@ -126,7 +129,7 @@ the path its `.git` file names.
 
 Tools run as `agent` with passwordless `sudo`, using numeric IDs from
 `AGENTDEV_UID`/`AGENTDEV_GID` (default `1000:1000`). Every container sharing one auth
-volume must use the same IDs; a container with other IDs refuses to start rather than
+volume must use the same IDs; a container with other IDs latches failed rather than
 change the volume. A bind-mounted checkout must be writable by those IDs, and its
 ownership is never changed.
 
@@ -143,20 +146,67 @@ Back up `home`, `workspace`, and the auth volume to keep an instance's state; `u
 down -v` also deletes the shared auth volume, so remove a single project's state by
 name instead, for example `docker volume rm myproject_home myproject_uv`.
 
+### Startup and failures
+
+The core path is the root bootstrap (account, volumes, and the opt-in firewall), the
+session bus and keyring, then the core phase (checkout, Claude and Codex login links,
+agent policy), then OpenCode. Everything else is optional work:
+
+- before OpenCode, which reads them when it starts: catalog registration, the
+  Codebase Memory MCP client configuration, and the CBM daemon its MCP client
+  connects to;
+- beside OpenCode: Xpra, which neither waits for OpenCode nor delays it;
+- after OpenCode: nested Docker and its image prune, uv sync, pre-commit hook
+  registration, and a background index request.
+
+Hook environments build on first use rather than at startup. The index request returns
+once CBM accepts the job, and the daemon indexes in the background, so a large
+workspace never delays startup.
+
+The runtime reports one state:
+
+- `pending` while startup or a recovery runs;
+- `ready` when everything is up;
+- `degraded` when optional work failed or exhausted its recovery budget. OpenCode keeps
+  serving.
+- `failed` when the bootstrap, a configuration check, the core phase, or a core service
+  failed. The runtime is latched: PID 1 stays up, nothing restarts or reruns, and
+  OpenCode is stopped. Docker's restart policy never reruns preparation.
+
+`AGENTDEV_STRICT_STARTUP=true` treats any optional failure as a core one. The container
+exits nonzero, and Docker restarts it, only when the supervisor's own controller or
+supervisord fails.
+
 ### Operating it
 
-- `docker logs` carries every service's output. The image healthcheck turns healthy
-  once every required service passes its readiness probe.
+- `docker logs` carries every service's output. The image healthcheck reports healthy
+  only while a live controller reports `ready` and the core probes pass; `pending`,
+  `degraded`, and `failed` all report unhealthy.
+- `docker exec <container> /opt/agentdev-runtime/runtime-health.sh status` prints the
+  state, each failed or blocked component, the last failure record, and the retry
+  command for each failure.
+- Every failure writes `~/.local/state/agentdev/last-failure.json` on the `home`
+  volume: the start's ID, the component, its command and exit status, the last 200
+  lines of its output, and the time. A later start never deletes it; only a later
+  failure replaces it. A failure before the home volume is checked, such as an invalid
+  setting or a failed bootstrap, goes to `docker logs` only.
+- After fixing the cause, `docker exec <container>
+/opt/agentdev-runtime/runtime-supervisor.py retry` resumes a latched runtime from
+  the failed component in the same container, and `retry <component>` reruns one
+  failed optional component. The usual causes are an unwritable checkout, an auth
+  volume from another identity, a missing worktree `.git`, or a failed project setup.
 - `docker exec <container> supervisorctl -c /etc/agentdev/supervisord.conf status`
   lists the services. `docker exec -u agent -it <container> bash` gives a shell with
   the same Docker, keyring, and display environment OpenCode's tools see.
 - To upgrade, advance the pin and run the same `up -d`. The new image reapplies its
   managed client and catalog configuration and keeps user settings and sessions.
-- A failed start leaves its cause in `docker logs` and in `/run/agentdev/failed`.
-  The usual causes are an unwritable checkout, an auth volume from another identity,
-  a missing worktree `.git`, or a failed project setup. Fix the cause and start again.
-- `AGENTDEV_SKIP_XPRA=1` drops the desktop. `ENABLE_FIREWALL=true` applies the
-  default-deny egress firewall and then needs `AGENTDEV_TRUSTED_PROXY_CIDRS`.
+- `AGENTDEV_SKIP_XPRA=1` drops the desktop. The egress firewall stays off unless
+  `ENABLE_FIREWALL=true`, which applies the default-deny policy and then needs
+  `AGENTDEV_TRUSTED_PROXY_CIDRS`.
+- Booleans, `ENABLE_FIREWALL` included, accept `1`, `true`, `yes`, or `on`, and `0`,
+  `false`, `no`, `off`, or empty.
+  Counts and deadlines must be positive. Any other value latches a configuration
+  failure naming the variable.
 
 ## Development environment
 

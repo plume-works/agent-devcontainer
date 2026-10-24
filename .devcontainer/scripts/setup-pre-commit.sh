@@ -29,7 +29,8 @@ if [[ ${AGENTDEV_RUNTIME_MODE:-} == standalone ]]; then
             exit 1
         fi
     done
-    pre-commit install --install-hooks "${hook_types[@]/#/--hook-type=}"
+    # Hook environments build on first use, never at startup. Spec: standalone-opencode-runtime.
+    pre-commit install "${hook_types[@]/#/--hook-type=}"
     exit 0
 fi
 

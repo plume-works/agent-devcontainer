@@ -58,8 +58,9 @@ WORKDIR /workspaces/project
 
 EXPOSE 4096 14500
 
-# Healthy only once every required service passed its probe; see runtime-health.sh.
-HEALTHCHECK --interval=15s --timeout=10s --start-period=30m --retries=3 \
+# Healthy only while a live controller reports ready and the core probes pass; the
+# start period covers the core path alone. See runtime-health.sh.
+HEALTHCHECK --interval=15s --timeout=10s --start-period=10m --retries=3 \
   CMD ["/opt/agentdev-runtime/runtime-health.sh", "ready"]
 
 ENTRYPOINT ["/opt/agentdev-runtime/runtime-supervisor.py", "run"]

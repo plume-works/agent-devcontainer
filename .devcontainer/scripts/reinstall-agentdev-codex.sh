@@ -55,19 +55,38 @@ try_remove() {
   fi
 }
 
-while read -r name; do
-  [[ -n "$name" ]] || continue
-  try_remove codex plugin remove "$plugin_name@$name"
-  try_remove codex plugin marketplace remove "$name"
-done < <(printf '%s\n' "$marketplace_name" "${stale_names[@]}" | sort -u)
+plugin_path="$(jq -er '.plugins[0].source.path' "$marketplace_json")"
+plugin_root="$catalog_root/$plugin_path"
 
-codex plugin marketplace add "$catalog_root"
-codex plugin add "$plugin_name@$marketplace_name"
+# Already registered under this name and root, with the plugin installed from an
+# identical copy: leave it, so config.toml stays byte-identical. Spec: catalog-lifecycle.
+registered() {
+  local version cache
+  [[ ${#stale_names[@]} == 1 && ${stale_names[0]} == "$marketplace_name" ]] || return 1
+  version="$(jq -er '.version' "$plugin_root/.codex-plugin/plugin.json" 2>/dev/null)" || return 1
+  codex plugin list --json | jq -e --arg id "$plugin_name@$marketplace_name" --arg version "$version" '
+      any(.installed[]; .pluginId == $id and .installed and .enabled and .version == $version)
+    ' >/dev/null || return 1
+  cache="${CODEX_HOME:-$HOME/.codex}/plugins/cache/$marketplace_name/$plugin_name/$version"
+  [[ -d $cache ]] && diff -rq "$plugin_root" "$cache" >/dev/null
+}
+
+if registered; then
+  echo "$marketplace_name and $plugin_name are already registered from $catalog_root; leaving them."
+else
+  while read -r name; do
+    [[ -n "$name" ]] || continue
+    try_remove codex plugin remove "$plugin_name@$name"
+    try_remove codex plugin marketplace remove "$name"
+  done < <(printf '%s\n' "$marketplace_name" "${stale_names[@]}" | sort -u)
+
+  codex plugin marketplace add "$catalog_root"
+  codex plugin add "$plugin_name@$marketplace_name"
+fi
 
 # Codex loads custom agents only from its own agents/ directory, never from a
 # plugin: see spec/catalog-lifecycle.
-plugin_path="$(jq -er '.plugins[0].source.path' "$marketplace_json")"
-agent_installer="$catalog_root/$plugin_path/bin/install-codex-agents.py"
+agent_installer="$plugin_root/bin/install-codex-agents.py"
 if [[ -f "$agent_installer" ]]; then
   # -B keeps __pycache__ out of a read-only staged catalog.
   python3 -B "$agent_installer"

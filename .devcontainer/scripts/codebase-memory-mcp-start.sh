@@ -16,4 +16,4 @@ fi
 # Environment used by daemon-owned components—such as diagnostics, daemon logging, and process-wide indexing resource limits—is captured from the first daemon-backed session that starts the daemon. Later sessions join that process and cannot replace those values. To change them, close all daemon-backed sessions, update the relevant agent configurations consistently, and restart a session. CBM_ALLOWED_ROOT remains session-specific, a conflicting CBM_CACHE_DIR is rejected, and one-shot CLI commands read their own environment without starting the daemon.
 codebase-memory-mcp daemon start
 
-codebase-memory-mcp cli index_repository --repo-path "$DEV_WORKSPACE_FOLDER"
+"$(dirname "${BASH_SOURCE[0]}")/codebase-memory-mcp-index.sh"
