@@ -147,11 +147,18 @@ Assumptions:
 **Files:** Modify: `packages/protocol/src/index.ts`, its test, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `BuildRequest` takes an optional `clean: boolean`. `BuildResult` carries
+- [x] `BuildRequest` takes an optional `clean: boolean`. `BuildResult` carries
   optional `mode: "built" | "reused"`, `reason` (`"clean-requested"`,
   `"no-fingerprint"`, `"no-match"`) when `mode` is `built`, and `reusedBuiltAt`
   (epoch milliseconds) when `mode` is `reused`. `PROTOCOL_VERSION` stays 2.
-- [ ] `bun test` covers the new fields' types and that the version is 2.
+  - **Evidence:** plume-works/vscode-expo-bridge `69ca507` on branch
+    `fingerprint-reuse` (`packages/protocol/src/index.ts`: `clean`, `BuildMode`,
+    `BuildReason`, `reusedBuiltAt`); `bun run typecheck` passes.
+- [x] `bun test` covers the new fields' types and that the version is 2.
+  - **Evidence:** `69ca507` `packages/protocol/test/index.test.ts` "build reuse
+    fields" (with a `@ts-expect-error` for an unknown mode under
+    `bun run typecheck`) and "is version 2"; `bun test packages/protocol` 6
+    pass, 0 fail.
 
 ### Task 2: `eas-host build <profile> --clean`
 
