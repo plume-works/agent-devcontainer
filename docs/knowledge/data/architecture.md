@@ -87,6 +87,9 @@ mode](architecture/claude-remote-control-server-mode.md)
 [Claude Remote Control server restart
 resume](architecture/claude-remote-control-server-restart-resume.md)
 
+[Claude Remote Control server
+--continue](architecture/claude-remote-control-server-continue.md)
+
 [CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
