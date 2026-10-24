@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-24
+
+- **Map**: refreshed the [image runtime](codebase/api-image-runtime.md) and the
+  [.devcontainer scripts](codebase/devcontainer/scripts.md) for attempt-scoped
+  failure output and client refresh on retry, and re-verified
+  [.devcontainer](codebase/devcontainer.md), [Docker](codebase/docker.md), and
+  the [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) and
+  [image build](codebase/flow-image-build.md) flows.
+
 ## 2026-10-23
 
 - **Map**: refreshed [Ansible](codebase/ansible.md),

@@ -8,11 +8,11 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:13642b52958fa7fed2ba392f611b264a70748f1ecbc3b9eddd737fc175f76eff
+source_digest: sha256:e61e709f0545f3d4c2028f3c67074463618a8ae3e0fd798e6ef1f53ba95434e6
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-23T21:51:57Z
-stale_after: 2027-01-21
+stale_after: 2027-01-22
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-23T21:51:57Z
