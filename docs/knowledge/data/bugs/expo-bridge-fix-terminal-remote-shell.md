@@ -3,7 +3,7 @@ type: bug
 description: The Expo bridge's one-click fix opens its Mac terminal with a shell path taken from the container's detected terminal profiles, so it fails to launch when the Mac's default profile name matches a container profile whose path does not exist on the Mac.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T15:00:00Z
+  at: 2026-10-24T16:00:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/terminal/browser/terminalProcessManager.ts
@@ -62,7 +62,7 @@ an absolute path, or a bare name on the login `PATH` — with its `args` and
 
 Verified anchor points (line numbers as of 2026-10-24):
 
-In `plume-works/vscode-expo-bridge` at `6edf829`:
+In `plume-works/vscode-expo-bridge` at `6c654ea` (`v0.2.4`):
 
 - `packages/host/src/shell.ts:31` — `fixTerminalShell`; `:15` —
   `resolveCandidate`; `:38` — the login-shell fallback
