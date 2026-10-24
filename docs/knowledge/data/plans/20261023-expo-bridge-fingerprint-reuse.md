@@ -362,19 +362,29 @@ sideloaded
 
 **Files:** none — the scratch app, on a Mac, as in Task 10
 
-- [ ] A first build reports `mode: "built"`, `reason: "no-match"`; a repeat
+- [x] A first build reports `mode: "built"`, `reason: "no-match"`; a repeat
   build reports `mode: "reused"`; `eas-host install` with no path and
   `eas-host launch` run the reused artifact against Metro, and a screenshot
   shows the app.
-- [ ] A JavaScript-only edit is reused and shows the edit through Metro; adding
+  - **Evidence:** `## Verification results` Task 11, the `expo-haptics` row:
+    `no-match`, then `reused`, installed with no path, launched against Metro,
+    and screenshotted.
+- [x] A JavaScript-only edit is reused and shows the edit through Metro; adding
   an installed native module reports `reason: "no-match"` and the app launches
   with it.
-- [ ] `--clean` asks for a confirmation naming a clean build and reports
+  - **Evidence:** `## Verification results` Task 11, the JavaScript-only edit
+    and `expo-haptics` rows.
+- [x] `--clean` asks for a confirmation naming a clean build and reports
   `reason: "clean-requested"`; a Release simulator profile builds in full twice
   in a row.
-- [ ] A second Expo app added as another workspace folder of the same window
+  - **Evidence:** `## Verification results` Task 11, the `--clean` and
+    `release-sim` rows.
+- [x] A second Expo app added as another workspace folder of the same window
   builds in full on its first build, without reusing the first app's entry.
-- [ ] Revoking the host path's trust leaves no cache directory for it.
+  - **Evidence:** `## Verification results` Task 11, the `app2` row: the same
+    key in the other folder did not hit.
+- [x] Revoking the host path's trust leaves no cache directory for it.
+  - **Evidence:** `## Verification results` Task 11, the trust revocation row.
 
 ### Task 12: Record reuse in this repository's project memory
 
@@ -568,3 +578,17 @@ the lookup, and the copy into `.tmp/expo-bridge/`, so the fingerprint step takes
 under 0.72 s. The build log has no per-step timestamps. The clean build's log
 names the fingerprint `c4bb2c64…` and the cache key, and says the artifact was
 stored.
+
+### Task 11: Mac round trip
+
+Same Mac, app, and packaged extensions as Task 10, with Metro running in the
+container on the forwarded port 8081.
+
+| Step                                                           | Result                                                                                                                                                                   |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| JavaScript-only edit to `App.js`                               | `reused`; after `install` with no path and `launch`, the screenshot shows the edited text from Metro                                                                     |
+| `expo-haptics` installed and imported                          | `built`, `reason: "no-match"` (96 s); the repeat build `reused`; the launched app shows `Haptics.impactAsync` as a function                                              |
+| `--clean` after the cooldown was cleared                       | the modal read "Run a clean "development" Expo build on this Mac? It builds in full, reusing no earlier build."; `reason: "clean-requested"`                             |
+| `release-sim` profile (`buildConfiguration: "Release"`), twice | `built`, `reason: "no-match"` both times, the same key; the artifact contains `main.jsbundle` and the log says it was not stored                                         |
+| copy of the app as a second workspace folder `app2`            | first build `built`, `no-match`, stored under key `25f8…`; the first app's next build computed `25f8…` and built in full with `no-match`; `app2`'s repeat build `reused` |
+| trust revoked through Manage Trusted Workspaces                | `build-cache/0696e519…` (the SHA-256 of the host path) was deleted, leaving `build-cache/` empty                                                                         |
