@@ -4,6 +4,13 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-24
+
+- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
+  [scripts](codebase/devcontainer/scripts.md), and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) for the Remote Control
+  launcher's `AGENTDEV_CLAUDE_RC_MODE` server mode.
+
 ## 2026-10-23
 
 - **Update**: [Publish the Expo bridge to Open VSX through trusted
