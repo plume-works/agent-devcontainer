@@ -36,7 +36,7 @@ pulled.
   `EXPO_TOKEN`, `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `CBM_CACHE_DIR`,
   `PRE_COMMIT_HOME`, `UV_*`), the Xpra `forwardPorts` and `portsAttributes`
   block (`:56-62`), five named volume mounts (`:63-115`), the VS Code extension
-  and settings block, and the three lifecycle commands (`:262-265`)
+  and settings block, and the three lifecycle commands (`:265-268`)
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the pass-through
   `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
