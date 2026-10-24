@@ -96,6 +96,11 @@ def move_foreign(lines: list[str], open_index: int, close_index: int) -> str:
     return ''.join(lines[: open_index + 1] + owned + [close] + moved + after)
 
 
+def is_key(line: str) -> bool:
+    """Return whether ``line`` holds TOML content rather than a blank or a comment."""
+    return bool(line.strip()) and not line.lstrip().startswith('#')
+
+
 def remove_orphan(lines: list[str], bare: list[str], marker: int, binary: str) -> str:
     """Return the text without the lone marker and cbm's tables, refusing any it does not own."""
     canonical = canonical_tables(binary)
@@ -103,13 +108,18 @@ def remove_orphan(lines: list[str], bare: list[str], marker: int, binary: str) -
     for start, header in enumerate(bare):
         if not OWNED_HEADER.fullmatch(header.strip()):
             continue
-        end = start + 1
-        while end < len(bare) and not bare[end].lstrip().startswith(('[', '#')):
+        # A table runs to the next header: a comment does not end it, and its keys still count.
+        end = last = start + 1
+        while end < len(bare) and not bare[end].lstrip().startswith('['):
+            if is_key(bare[end]):
+                last = end + 1
             end += 1
-        body = [line.rstrip() for line in bare[start + 1 : end] if line.strip()]
+        body = [line.rstrip() for line in bare[start + 1 : last] if is_key(line)]
         if body != canonical[header.strip()]:
             raise ForeignHook(f'{header.strip()} at line {start + 1}')
-        drop.update(range(start, end))
+        while last < end and not bare[last].strip():
+            last += 1
+        drop.update(range(start, last))
     return ''.join(line for index, line in enumerate(lines) if index not in drop)
 
 

@@ -185,6 +185,12 @@ def test_an_orphaned_opening_marker_is_removed_with_its_tables(codex_home: Path,
         pytest.param(
             lambda t: t.replace('matcher = "*"', 'matcher = "*"\nextra = 1'), id='added-key'
         ),
+        pytest.param(
+            lambda t: t.replace(
+                'timeout = 5\n\n[marketplaces', 'timeout = 5\n# note\nx = 1\n\n[marketplaces'
+            ),
+            id='key-after-comment',
+        ),
         pytest.param(lambda t: OPEN + OWNED_HOOKS + '\n' + FOREIGN, id='foreign-hooks'),
     ],
 )
