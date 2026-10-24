@@ -234,6 +234,9 @@ Assumptions:
 **Files:** Create: `packages/host/src/container.ts`, its test; Modify:
 `packages/host/src/env.ts`
 
+Docker Desktop reports a bind source under its VM's `/host_mnt`, so the bind
+mounts are read with that prefix removed (commit `af804c5`).
+
 - [x] The `docker` binary comes from the user-level `dev.containers.dockerPath`
   value, else from the login `PATH`, the Homebrew prefixes, and `~/.docker/bin`.
   - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae`
@@ -317,10 +320,18 @@ Assumptions:
 **Files:** none — on a Mac, with the packaged extensions sideloaded, this
 repository opened in a Dev Containers window and an Expo app under it
 
-- [ ] With the app added as a second workspace folder, `eas-host status` run in
+- [x] With the app added as a second workspace folder, `eas-host status` run in
   the app reports the app's Mac path, its `eas.json` `cli.version`, and its
   project id; `build`, `install`, `launch`, and `screenshot` complete there. Run
   at the repository root, `status` reports the root.
+  - **Evidence:** On 2026-10-24, macOS with Docker Desktop, host and workspace
+    extensions packaged from `plume-works/vscode-expo-bridge` commit `af804c5`,
+    `agent-devcontainer` opened as a multi-root workspace with the app second.
+    `status` in the app reported the app's Mac path, `eas-cli@25.3.0`, and the
+    project id; `build development` exited 0 with its artifact and log in the
+    app's `.tmp/expo-bridge/`; `install`, `launch`, and `screenshot` succeeded,
+    the screenshot showing the app's bundle from Metro. `status` at the root
+    reported the root.
 - [ ] A second window opened on the app in the same container serves its own
   socket; closing the first window leaves `eas-host status` in the second
   working.
