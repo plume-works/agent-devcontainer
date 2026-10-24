@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Expo bridge fix terminal launches the Mac's own
+shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
+
 [Reuse a matching Expo bridge build by
 fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)
 
