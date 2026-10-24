@@ -3,7 +3,7 @@ type: bug
 description: The Expo bridge's host resolves every action to the devcontainer window's root folder, so an Expo app in a subdirectory or in another workspace folder cannot be checked or built, and `status` does not say which folder it inspected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T19:09:21Z
+  at: 2026-10-24T00:30:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/features/vscode-expo-bridge.md
@@ -55,12 +55,14 @@ the `eas-host` request nor the dispatch carries a project location, so `status`,
 
 ## Fix
 
-Unfixed. A request could name a project directory relative to the trusted host
-path, validated by the bridge's existing workspace-relative path rules (no
-symlink component, no escape from the root), with trust still keyed to the
-window's host path, and `status` could report the project path it inspected. The
-container must still be unable to redirect the host path: it may only pick a
-subdirectory of the trusted root.
+Every request carries `folder`, the workspace folder containing `eas-host`'s
+working directory (protocol version 2). The host requires it to be one of its
+own window's workspace folders and maps it to a Mac path through the bind mounts
+of the one running container Dev Containers labeled with the window's host path,
+accepting only a path at or under the host path with no symlink component below
+it. Every action reads and writes there, and `status` reports it as
+`folderHostPath`; trust stays keyed to the host path. A window opened on the app
+alone in the same container maps the same way.
 
 ## Key references
 

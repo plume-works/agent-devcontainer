@@ -4,9 +4,10 @@ stage: implemented
 description: Agents in a devcontainer opened by VS Code on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through the vscode-expo-bridge extension's fixed Expo-only action set, with EAS cloud as the fallback.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T12:00:00Z
+  at: 2026-10-24T00:30:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
+- resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://code.visualstudio.com/docs/devcontainers/containers
 ---
@@ -31,6 +32,16 @@ the host extension runs the work.
 `launch`, and `screenshot`. The Mac half never runs a command string from the
 container, and writes into the workspace only under `.tmp/expo-bridge/`.
 
+**The project is a workspace folder.** `eas-host` acts on the workspace folder
+that contains its working directory, the longest one when folders nest, so an
+Expo app opened as a second folder of a window is checked and built there.
+`status` reports the folder's Mac path as `folderHostPath`.
+
+**One window, one socket.** Several VS Code windows can share a container. Each
+window's workspace extension serves its own socket, and `eas-host` connects to
+the window whose workspace folder contains its working directory, so closing one
+window leaves the others working.
+
 **Trust lives on the Mac.** A devcontainer window already lets the container
 reach the Mac through VS Code itself, so the bridge does not try to contain the
 container; it adds no reach beyond that and gates its own build behind a person
@@ -49,6 +60,18 @@ and tells agents to use `eas-host` for iOS when `eas-host status` succeeds.
 
 - **The bridge is unavailable** — not a Mac, or a tool missing.
   `eas-host status` says so and exits non-zero, and agents use EAS cloud builds.
+- **Outside every workspace folder.** `eas-host` run in a directory no window's
+  workspace folder contains names the directory and exits 3. An Expo app in a
+  subdirectory that is not itself a workspace folder is added to the window as
+  one.
+- **The folder does not map.** The Mac half finds the folder's Mac path through
+  the devcontainer's Docker bind mounts; without `docker` on the Mac, without
+  exactly one running container for the window, or for a folder outside the
+  window's host path, `status` is unavailable and no action falls back to the
+  window root.
+- **Mismatched halves.** The two extensions update separately, on the Mac and in
+  the container; against a host on another protocol version `eas-host status`
+  names both versions and exits 3.
 - **The first window on a Mac.** The pack listed in `devcontainer.json` installs
   into the container, where the host extension is disabled; one click on its
   **Install Locally** installs it on the Mac for every window, after a **Reload
@@ -66,3 +89,5 @@ None — the plan settles the design.
 
 - Plan: [Build iOS on the Mac host through a VS Code
   bridge](../plans/20261015-vscode-expo-bridge.md)
+- Plan: [Expo bridge acts on the agent's window and workspace
+  folder](../plans/20261023-expo-bridge-workspace-folders.md)

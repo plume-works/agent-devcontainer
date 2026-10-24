@@ -1,11 +1,13 @@
 ---
 type: architecture
-description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, a fixed Expo-only action set, and a consent surface rather than a security boundary.
+description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, one socket per window, the request's workspace folder mapped to its Mac path through Docker, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T09:30:00Z
+  at: 2026-10-24T00:30:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
+- resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
+- resource: https://code.visualstudio.com/docs/devcontainers/containers
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/protocol.md
 - resource: https://docs.expo.dev/build-reference/local-builds/
@@ -35,7 +37,7 @@ The extension pack `plume-works.vscode-expo-bridge` bundles two extensions:
   Mac's local extension host with full Node.
 - `plume-works.vscode-expo-bridge-workspace` (`extensionKind: ["workspace"]`)
   runs in the container. It installs `eas-host` into `~/.local/bin` and serves
-  `/tmp/vscode-expo-bridge.sock`.
+  one socket per window under `/tmp/vscode-expo-bridge/`.
 
 The Expo profile lists the pack in `customizations.vscode.extensions`, which Dev
 Containers installs into the container: that brings the workspace extension, and
@@ -47,21 +49,46 @@ one **Developer: Reload Window**.
  devcontainer                                 Mac host
 ┌──────────────────────────────┐   VS Code   ┌───────────────────────────────────┐
 │ eas-host <action> ...        │   command   │ host extension (ui)               │
-│   │ unix socket              │   routing   │  ├ trust + build confirmation     │
-│   ▼                          │ ──────────▶ │  ├ resolves the workspace's host  │
-│ workspace extension ─────────┤             │  │   path, validates arguments     │
+│   │ its window's socket      │   routing   │  ├ trust + build confirmation     │
+│   ▼                          │ ──────────▶ │  ├ maps the request's folder to   │
+│ workspace extension ─────────┤  + folder   │  │   its Mac path through Docker   │
 │                              │             │  ├ eas build --local              │
 │ tails the log file ◀─────────┼─workspace───┼──┤ xcrun simctl install/launch/   │
-│ reads the artifact           │  directory  │  │   screenshot                   │
+│ reads the artifact           │   folder    │  │   screenshot                   │
 └──────────────────────────────┘             │  └ writes .tmp/expo-bridge/        │
                                              └───────────────────────────────────┘
 ```
 
 VS Code routes a command to whichever extension host registered it, so a request
 crosses from container to Mac as a JSON command argument and opens no network
-port; the firewall allowlist does not change. The workspace is one directory
-seen by both sides, so the build log, the artifact, and screenshots reach the
-container as files under `.tmp/expo-bridge/`.
+port; the firewall allowlist does not change. The workspace folder is one
+directory seen by both sides, so the build log, the artifact, and screenshots
+reach the container as files under its `.tmp/expo-bridge/`.
+
+### The window and the workspace folder
+
+Several windows can share one container, and a window can hold several workspace
+folders, so every request answers which window and which folder it belongs to:
+
+- **One socket per window, found through a registry.** Each workspace extension
+  activation serves `/tmp/vscode-expo-bridge/<id>.sock` next to `<id>.json`,
+  which names its process, its activation time, and the container paths of its
+  workspace folders, rewritten when the folders change. A window removes only
+  its own two files, and prunes entries whose process is gone. `eas-host`
+  connects to the window with the longest workspace folder containing its real
+  working directory, the most recently activated on a tie, and exits 3 when no
+  window has one.
+- **The project is a workspace folder.** The workspace extension resolves the
+  working directory to its longest containing folder and sends that folder's
+  container path as `folder`; every request carries one (protocol version 2).
+- **The host maps the folder through Docker.** It finds the window's container
+  with `docker ps` filtered on the `devcontainer.local_folder` label — the host
+  path — and on `devcontainer.config_file` when the window's authority names
+  one, against the authority's Docker daemon, and requires exactly one running
+  container. It reads that container's bind mounts with `docker inspect`, takes
+  the one whose destination is the longest path-component prefix of `folder`,
+  and appends the rest to its source. Any failure makes the request unavailable;
+  the host never falls back to the window root.
 
 The host accepts exactly five actions — `status`, `build`, `install`, `launch`,
 `screenshot` — and never runs a command string from the container. `build` runs
@@ -92,8 +119,18 @@ boundary**, and its one privileged action, `build`, runs only behind:
 - **per-workspace trust**, granted in a Mac-side prompt naming the workspace's
   host path and stored in the host extension's `globalState`; a decline sticks
   until revoked, so a workspace cannot re-prompt;
-- **a confirmation before every `build`**, naming the profile and that project
-  code runs with the user's privileges, with an optional per-workspace cooldown.
+- **a confirmation before every `build`**, naming the profile, the folder's Mac
+  path, and that project code runs with the user's privileges, with an optional
+  per-workspace cooldown.
+
+Trust and the cooldown are keyed to the window's host path, which the host reads
+from its own window's remote authority: that is the one location the container
+cannot redirect. A request may choose only one of its window's workspace
+folders, and the host acts on it only when its Mac path is the host path or lies
+under it, with no symlink component below the host path. A container that
+reaches the Mac's Docker daemon can label another container with the same host
+path, which makes requests unavailable, or mount other Mac directories into it,
+which that rule rejects; it can pick no folder outside the host path.
 
 Every command invocation is treated as possibly the container's: VS Code tells a
 handler nothing about its caller, so pairing the two extensions is not a
@@ -123,6 +160,19 @@ simulator processes run with the Mac user's file access.
   build needs must come from the host environment.
 - `cocoapods`, `fastlane`, and `image` are not `eas.json` build fields, so
   `status` probes those tools on the Mac directly.
+- Dev Containers labels every container it creates with
+  `devcontainer.local_folder` (the host path) and `devcontainer.config_file`,
+  and a project may bind the host path more than once, at `/workspaces/<name>`
+  and at its own Mac path. Compose files, `runArgs`, and `mounts` add mounts
+  that `devcontainer.json` alone does not describe, so only `docker inspect`
+  gives the mapping.
+- Docker Desktop for Mac reports a bind mount's source as its path inside the
+  VM, `/host_mnt/<Mac path>` (sockets under `/socket_mnt/`); the host removes
+  `/host_mnt` before mapping.
+- The host runs `docker` as the Mac user, from the user-level
+  `dev.containers.dockerPath` value when set, else the login `PATH`, the
+  Homebrew prefixes, and `~/.docker/bin`. A workspace-level value is never read,
+  because the container can write workspace settings.
 
 ### Rejected alternatives
 
@@ -140,6 +190,19 @@ simulator processes run with the Mac user's file access.
   nothing to click.
 - **A host network port** — command routing needs none and leaves the firewall
   allowlist unchanged.
+- **An environment variable naming the socket**, set in each window's terminals
+  through `EnvironmentVariableCollection` — it goes stale after a window reload
+  and never reaches an agent started outside a VS Code terminal; the registry
+  answers both.
+- **Reading `workspaceFolder` from `devcontainer.json`** for the mapping — a
+  repository may have several configurations, the value uses variables, and
+  compose files, `runArgs`, and `mounts` change the mounts it describes.
+- **`remote-containers.openDevContainerFile`** for the configuration — it
+  returns nothing.
+- **Walking up from the working directory to the nearest `eas.json`** — the
+  workspace folder is already the unit VS Code and the agent work in.
+- **An optional `folder` on protocol version 1** — an older host would ignore it
+  and act on the window root.
 - **One extension with a URI handler** reached through `code --open-url` — a URI
   handler returns nothing, so results would come back only by polling files.
 - **Containing the build with `sandbox-exec`** — macOS does not apply a sandbox

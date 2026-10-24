@@ -3,7 +3,7 @@ type: bug
 description: Every Expo bridge workspace extension in a container listens on the one fixed socket `/tmp/vscode-expo-bridge.sock` and deletes it on activation and on shutdown, so with two VS Code windows on the same container the last window to start takes the socket and the first to close leaves `eas-host` with no host.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T19:00:06Z
+  at: 2026-10-24T00:30:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/features/vscode-expo-bridge.md
@@ -48,11 +48,13 @@ distinguishes one window's server from another's.
 
 ## Fix
 
-Unfixed. Each window's extension could listen on its own socket and remove only
-the socket it created. Two ways `eas-host` could find the right one: from an
-environment variable that the extension sets in its window's terminals
-(`EnvironmentVariableCollection`), or from a lookup keyed to the workspace
-folder. Either way, `eas-host` would reach the window it runs in.
+Each window's workspace extension serves its own
+`/tmp/vscode-expo-bridge/<id>.sock` next to a registry entry, `<id>.json`,
+naming its process, activation time, and workspace folders. It removes only its
+own two files, and prunes entries whose process is gone. `eas-host` connects to
+the window with the longest workspace folder containing its working directory,
+the most recently activated on a tie, so closing one window leaves the others
+reachable.
 
 ## Key references
 

@@ -353,11 +353,13 @@ repository opened in a Dev Containers window and an Expo app under it
 `docs/knowledge/data/bugs/expo-bridge-builds-only-window-root.md`,
 `docs/knowledge/data/bugs/expo-bridge-shared-socket-across-windows.md`
 
-- [ ] The feature's `## Behaviour` and `## Edge cases` describe the per-window
+- [x] The feature's `## Behaviour` and `## Edge cases` describe the per-window
   socket and the project as the workspace folder containing the working
   directory; the architecture document describes the registry, the Docker
   mapping, and the trust rule in its security model, with this plan's rejected
   alternatives; each bug's `## Fix` describes the fix.
+  - **Evidence:** this commit updates the four documents; `iwe normalize` and
+    `iwe schema validate` pass.
 
 ## Spec changes
 
