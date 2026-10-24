@@ -165,8 +165,11 @@ sideloaded, this repository opened in a Dev Containers window
     files packaged from `6edf829`: the bun fix opened in the Mac's fish and ran
     `brew install oven-sh/bun/bun`. Its notice persisting is [a separate
     bug](../bugs/expo-bridge-bun-fix-misses-path-bun.md).
-- [ ] With the default profile set to `bash`, the fix terminal opens in the
+- [x] With the default profile set to `bash`, the fix terminal opens in the
   first `bash` on the Mac's login `PATH`.
+  - **Evidence:** Mac run on 2026-10-24 with the same VSIX files: the fix
+    terminal's `$0` and `ps -p $$` are `/bin/bash`, the only `bash` that
+    `which -a bash` lists, and the fix ran.
 - [ ] With the default profile unset, and set to a name `profiles.osx` lacks,
   the fix terminal opens in the login shell.
 
