@@ -1431,11 +1431,21 @@ Supersedes Task 15's candidate, which predates Tasks 25–34.
 **Files:** Modify: `opencode-compose-pins.yml` with the verified published
 digest
 
-- [ ] **Closed by: CI and the implementing session after publication.** The
+- [x] **Closed by: CI and the implementing session after publication.** The
   candidate contains Tasks 25–34. Read its passing amd64/arm64 acceptance
   results, inspect the published manifest and its same-run desktop ancestry, and
   insert its real digest into the deployment pin. This cannot close on a local
   build.
+  - **Evidence:** main's CI/CD run 40054975946 at `71da0d8`, the merge of PR
+    #440, passed native OpenCode runtime acceptance on amd64 (job 120759538728)
+    and arm64 (job 120759538739), 21 passed and 1 skipped each, against
+    `agent-opencode:sha-71da0d8@sha256:da176dc4…`, and promoted that index to
+    `edge`. Its amd64 and arm64 images record revision `71da0d8` and base
+    indexes `agent-desktop@sha256:e30b4ae6…` and `@sha256:f25d5ff6…`, which wrap
+    the `897cf013…` and `773b4841…` images of that run's
+    `agent-desktop:edge@sha256:3fcea743…`. Commit "deploy(opencode): pin the
+    agent-opencode digest from PR #440's merge" writes the digest into
+    `opencode-compose-pins.yml`.
 
 ### Task 37: Restart the retained first-run deployment on the new candidate
 
