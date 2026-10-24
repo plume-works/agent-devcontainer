@@ -494,6 +494,21 @@ def test_cbm_secret_service_and_nested_docker_serve_agent_processes(ready_runtim
     assert gc.stdout.strip() == '10GB'
 
 
+def test_every_shell_names_the_runtime_bus_and_gh_launches_none(ready_runtime: Runtime):
+    # A process with no bus address can autolaunch a bus and a keyring per D-Bus call.
+    # See bugs/devcontainer-dbus-autolaunch-leak.
+    count = "ps -eo comm= | grep -cE '^(dbus-daemon|gnome-keyring-d)$' || true"
+    before = ready_runtime.sh(count, user='root').stdout.strip()
+    for user in ('agent', 'root'):
+        address = ready_runtime.sh('printenv DBUS_SESSION_BUS_ADDRESS', user=user).stdout
+        assert address.strip() == 'unix:path=/run/agentdev/xdg/bus', user
+        ready_runtime.sh(
+            'for i in 1 2 3; do gh auth status >/dev/null 2>&1; done; true', user=user
+        )
+    time.sleep(2)
+    assert ready_runtime.sh(count, user='root').stdout.strip() == before
+
+
 PYPROJECT = '[project]\nname = "probe"\nversion = "0"\nrequires-python = ">=3.12"\n'
 PRE_COMMIT = (
     'repos:\n- repo: local\n  hooks:\n  - id: noop\n    name: noop\n'
