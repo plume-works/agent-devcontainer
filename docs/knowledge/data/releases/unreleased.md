@@ -76,6 +76,9 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 ## Fixed
 
+[Bug: the Expo bridge's fix terminal launches the container's shell on the
+Mac](../bugs/expo-bridge-fix-terminal-remote-shell.md)
+
 [Bug: the Expo bridge builds only the devcontainer window's root
 folder](../bugs/expo-bridge-builds-only-window-root.md)
 

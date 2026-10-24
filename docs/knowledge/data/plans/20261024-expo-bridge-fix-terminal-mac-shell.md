@@ -12,6 +12,8 @@ sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/microsoft/vscode/blob/main/src/vs/platform/terminal/common/terminalPlatformConfiguration.ts
 - resource: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/terminal/browser/terminalProfileResolverService.ts
+stage: done
+completed: 2026-10-24
 ---
 
 # Expo bridge fix terminal launches the Mac's own shell

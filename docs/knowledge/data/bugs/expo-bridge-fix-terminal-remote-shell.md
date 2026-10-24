@@ -10,6 +10,7 @@ sources:
 - resource: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/terminal/browser/terminalProfileService.ts
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge/pull/21
+stage: done
 ---
 
 # Bug: the Expo bridge's fix terminal launches the container's shell on the Mac

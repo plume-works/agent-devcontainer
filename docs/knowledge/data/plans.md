@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Expo bridge fix terminal launches the Mac's own
-shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
-
 [Reuse a matching Expo bridge build by
 fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)
 
@@ -53,6 +50,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Expo bridge fix terminal launches the Mac's own
+shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
 
 [Expo bridge acts on the agent's window and workspace
 folder](plans/20261023-expo-bridge-workspace-folders.md)

@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-24
 
+- **Update**: [Expo bridge fix terminal launches the Mac's own
+  shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md) done; no
+  `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.
+- **Update**: [Bug: the Expo bridge's fix terminal launches the container's
+  shell on the Mac](bugs/expo-bridge-fix-terminal-remote-shell.md) fixed; listed
+  under Unreleased Fixed.
 - **Update**: [Expo bridge acts on the agent's window and workspace
   folder](plans/20261023-expo-bridge-workspace-folders.md) done; no `data/spec/`
   change, the protocol contract lives in the bridge's `docs/protocol.md`.
