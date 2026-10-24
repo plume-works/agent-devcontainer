@@ -96,9 +96,14 @@ def move_foreign(lines: list[str], open_index: int, close_index: int) -> str:
     return ''.join(lines[: open_index + 1] + owned + [close] + moved + after)
 
 
+def is_comment(line: str) -> bool:
+    """Return whether ``line`` is a TOML comment, which the repair keeps."""
+    return line.lstrip().startswith('#')
+
+
 def is_key(line: str) -> bool:
     """Return whether ``line`` holds TOML content rather than a blank or a comment."""
-    return bool(line.strip()) and not line.lstrip().startswith('#')
+    return bool(line.strip()) and not is_comment(line)
 
 
 def remove_orphan(lines: list[str], bare: list[str], marker: int, binary: str) -> str:
@@ -119,7 +124,7 @@ def remove_orphan(lines: list[str], bare: list[str], marker: int, binary: str) -
             raise ForeignHook(f'{header.strip()} at line {start + 1}')
         while last < end and not bare[last].strip():
             last += 1
-        drop.update(range(start, last))
+        drop.update(index for index in range(start, last) if not is_comment(bare[index]))
     return ''.join(line for index, line in enumerate(lines) if index not in drop)
 
 
