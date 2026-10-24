@@ -8,14 +8,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:38d0b47eeea0f6a75f96694d47b1c95b0f6f40968f569b517b2f9a6ae7df9c0a
+source_digest: sha256:ddef1a56b606437e98ba67817fd0dafb276645c6cf035c1964252f9ee403c06b
 verified:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
-stale_after: 2027-01-19
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
+stale_after: 2027-01-22
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T07:45:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -39,11 +39,11 @@ running the image it produced.
 3. `build-dev-image` runs once per architecture; `Set base image refs` reuses
    the published `edge` image as the Ansible base unless the run is on `main`, a
    tag, a merge group, or a `[ci:clean_build]` commit —
-   `.github/workflows/ci.yml:99`
+   `.github/workflows/ci.yml:102`
 4. `docker/ansible/Dockerfile` builds `ubuntu-ansible`, then
    `agent-desktop.Dockerfile` is built `FROM` that digest with the catalog,
    validator, and Playwright version pins, and `agent-opencode.Dockerfile`
-   `FROM` the desktop digest just built — `.github/workflows/ci.yml:130-175`, in
+   `FROM` the desktop digest just built — `.github/workflows/ci.yml:133-178`, in
    [docker/](docker.md)
 5. The desktop Dockerfile's `RUN` mounts the checkout at `/provision` and runs
    the [playbook](ansible.md) with every capability on; the `perm_probe` guards
@@ -52,20 +52,20 @@ running the image it produced.
 6. `merge-dev-image` merges each image's per-arch digests into its own manifest,
    tagged `sha-<commit>` only, and emits `image_pinned`,
    `opencode_image_pinned`, and the three digests —
-   `.github/workflows/ci.yml:182`,
+   `.github/workflows/ci.yml:185`,
    `.github/actions/docker/multiarch-merge/action.yml:66`
 7. `dev-container-ci` rewrites `devcontainer-compose-pins.yml` to that digest
    and builds and smoke-tests the [devcontainer](devcontainer.md) with
    `devcontainers/ci`, launches the bundled Chromium against a data URL, then
    runs the repository's pytest suites inside it —
-   `.github/workflows/ci.yml:265-315`. Alongside it, `opencode-acceptance` runs
+   `.github/workflows/ci.yml:268-322`. Alongside it, `opencode-acceptance` runs
    `test-agent-runtime.sh` on the merged `agent-opencode` digest on each native
-   architecture — `.github/workflows/ci.yml:314`
+   architecture — `.github/workflows/ci.yml:339`
 8. `promote-dev-image`, once both pass, points the event's moving tags (`edge`,
    the branch, `pr-<n>`, release versions) at the three tested digests with
    `imagetools create`, skipping a tag whose image's revision label names a
    descendant of this commit; `finished` requires it —
-   `.github/workflows/ci.yml:352,403`,
+   `.github/workflows/ci.yml:377,428`,
    `.github/actions/docker/promote/action.yml:61,73`
 9. After the merge to `main`, the self-hosted Renovate bot
    (`.github/workflows/renovate.yml`) opens and automerges one PR bumping the

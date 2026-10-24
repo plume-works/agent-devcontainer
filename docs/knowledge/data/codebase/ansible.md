@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agent-desktop ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:6147a928f457972c17f187c386ea10fcb3980a1ff2f0f9ce8ed29c3a7f3f6f88
+source_digest: sha256:600878085a4b861b8834587b3705ad090ee6e37b0ea92c83ce7b6cfeeb01de66
 verified:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
-stale_after: 2027-01-19
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
+stale_after: 2027-01-21
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
 sources:
 - id: code
   resource: ansible
@@ -97,9 +97,9 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
   instead of being skipped. A directly downloaded binary also carries
   per-architecture checksums, registered in `PIN_FILES` of
   `scripts/refresh-pin-checksums.py` so Renovate's post-upgrade task recomputes
-  them; `zizmor` alone moves with the Super-Linter sync instead. The `gh-stack`
-  extension is one of these: its release binary and extension manifest are
-  written directly, never through `gh extension install`.
+  them; `zizmor`, `gitleaks`, and `actionlint` move with the Super-Linter sync
+  instead. The `gh-stack` extension is one of these: its release binary and
+  extension manifest are written directly, never through `gh extension install`.
   `ansible/roles/.agent.metadata.json` keeps the automerged versions and
   checksums out of this doc's `source_digest`.
 - Apt packages are not pinned: each role lists them by name inline, and apt

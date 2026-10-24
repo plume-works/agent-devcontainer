@@ -11,8 +11,6 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CI = yaml.safe_load((REPO_ROOT / '.github/workflows/ci.yml').read_text())
-CHECKS_PATH = REPO_ROOT / '.github/workflows/opencode-runtime-checks.yml'
-CHECKS = yaml.safe_load(CHECKS_PATH.read_text())
 FILTER_ACTION = (REPO_ROOT / '.github/actions/paths-filter/action.yml').read_text()
 ACTIONS = REPO_ROOT / '.github/actions/docker'
 MERGE_ACTION = yaml.safe_load((ACTIONS / 'multiarch-merge/action.yml').read_text())
@@ -122,44 +120,6 @@ def test_promotion_never_moves_a_tag_back_or_rebuilds():
     assert 'imagetools create' in run
     uses = [s.get('uses', '') for s in PROMOTE_ACTION['runs']['steps']]
     assert not any('build-push-action' in u for u in uses)
-
-
-def test_pin_checks_accept_the_proposed_digest_without_building_anything():
-    triggers = CHECKS.get('on', CHECKS.get(True))
-    # A path-filtered workflow never reports, so a required check would hang.
-    assert not (triggers['pull_request'] or {}).get('paths')
-    job = CHECKS['jobs']['acceptance']
-    assert job['permissions'] == {'actions': 'read', 'contents': 'read', 'packages': 'read'}
-    text = CHECKS_PATH.read_text()
-    assert 'build-push-action' not in text and 'multiarch-merge' not in text
-    run = next(s for s in steps(job) if 'test-agent-runtime.sh' in s.get('run', ''))
-    assert run['env']['AGENTDEV_RUNTIME_TEST_IMAGE'] == '${{ steps.pin.outputs.image }}'
-    pin = next(s for s in steps(job) if s.get('id') == 'pin')
-    assert '@sha256:' in pin['run'] and PIN in pin['run']
-
-
-def test_pin_checks_skip_untouched_deployments_and_unchanged_pins_ci_cd_covers():
-    job = steps(CHECKS['jobs']['acceptance'])
-    scope = next(s for s in job if s.get('id') == 'scope')
-    ci_filter = next(s for s in steps(CI['jobs']['paths-filter']) if s.get('id') == 'filter')
-    assert scope['uses'] == ci_filter['uses'] == './.github/actions/paths-filter'
-    assert scope['with']['extra-filter'] == ci_filter['with']['extra-filter']
-    pin_change = next(s for s in job if s.get('id') == 'pin-change')
-    assert yaml.safe_load(pin_change['with']['filters']) == {
-        'pin': [PIN],
-        'deployment': DEPLOYMENT_ONLY,
-    }
-    gate = next(s for s in job if s.get('id') == 'gate')
-    assert gate['env'] == {
-        'EVENT': '${{ github.event_name }}',
-        'COVERED': '${{ steps.scope.outputs.pass }}',
-        'PIN_CHANGED': '${{ steps.pin-change.outputs.pin }}',
-        'DEPLOYMENT_CHANGED': '${{ steps.pin-change.outputs.deployment }}',
-    }
-    assert '$EVENT == pull_request && $DEPLOYMENT_CHANGED != true' in gate['run']
-    assert '$COVERED == true && $PIN_CHANGED != true' in gate['run']
-    later = job[job.index(gate) + 1 :]
-    assert later and all(s['if'] == "steps.gate.outputs.skip != 'true'" for s in later)
 
 
 def test_renovate_tracks_the_pin_and_lets_its_tasks_edit_it():
