@@ -4,6 +4,18 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-24
+
+- **Update**: [Expo bridge acts on the agent's window and workspace
+  folder](plans/20261023-expo-bridge-workspace-folders.md) done; no `data/spec/`
+  change, the protocol contract lives in the bridge's `docs/protocol.md`.
+- **Update**: [Bug: the Expo bridge builds only the devcontainer window's root
+  folder](bugs/expo-bridge-builds-only-window-root.md) fixed; listed under
+  Unreleased Fixed.
+- **Update**: [Bug: Expo bridge windows sharing a container break each other's
+  socket](bugs/expo-bridge-shared-socket-across-windows.md) fixed; listed under
+  Unreleased Fixed.
+
 ## 2026-10-23
 
 - **Update**: [Build iOS on the Mac host through a VS Code

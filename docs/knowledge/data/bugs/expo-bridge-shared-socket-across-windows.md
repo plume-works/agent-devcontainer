@@ -3,11 +3,12 @@ type: bug
 description: Every Expo bridge workspace extension in a container listens on the one fixed socket `/tmp/vscode-expo-bridge.sock` and deletes it on activation and on shutdown, so with two VS Code windows on the same container the last window to start takes the socket and the first to close leaves `eas-host` with no host.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T00:30:00Z
+  at: 2026-10-24T01:42:10Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/features/vscode-expo-bridge.md
 - resource: docs/knowledge/data/bugs/expo-bridge-builds-only-window-root.md
+stage: done
 ---
 
 # Bug: Expo bridge windows sharing a container break each other's socket

@@ -8,13 +8,15 @@ release:
 description: Make every `eas-host` action reach the VS Code window it runs in and act on the workspace folder that contains its working directory — one socket per window found through a registry, the folder mapped to its Mac path through the devcontainer's Docker bind mounts, trust still keyed to the window's host path, and protocol version 2.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T22:00:00Z
+  at: 2026-10-24T01:42:10Z
 sources:
 - resource: docs/knowledge/data/bugs/expo-bridge-builds-only-window-root.md
 - resource: docs/knowledge/data/bugs/expo-bridge-shared-socket-across-windows.md
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://code.visualstudio.com/docs/devcontainers/containers
+stage: done
+completed: 2026-10-24
 ---
 
 # Expo bridge acts on the agent's window and workspace folder
