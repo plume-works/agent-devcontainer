@@ -2,7 +2,7 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:3ce46efec339e29c55c180654b752d37c71942e246557d24131080a6d1fa3d74
+source_digest: sha256:9f76718fbcee10c51969ecdf7bba3e6a7a1ae258eef32dcb47093ec59f2f4f0c
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-23T21:51:57Z

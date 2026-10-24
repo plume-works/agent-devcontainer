@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-24
 
+- **Map**: refreshed [GitHub automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [pull request
+  checks](codebase/flow-pull-request-checks.md) flow for the compose files in
+  the image filter, and the [image runtime](codebase/api-image-runtime.md) and
+  [.devcontainer scripts](codebase/devcontainer/scripts.md) for the strict
+  firewall switch and comment-keeping hooks repair.
 - **Map**: refreshed the [image runtime](codebase/api-image-runtime.md) and the
   [.devcontainer scripts](codebase/devcontainer/scripts.md) for attempt-scoped
   failure output and client refresh on retry, and re-verified

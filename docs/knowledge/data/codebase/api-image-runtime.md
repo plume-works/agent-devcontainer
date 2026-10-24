@@ -6,7 +6,7 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:f30813b074ee3da9b1c9a4da373cca9192689213dae6594dc36a179faa43add7
+source_digest: sha256:28c9567a0ec3135a9e848fd596c5228ca98f57eb78ac6b71ee78f5dd4464c6d5
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-23T21:51:57Z
@@ -97,7 +97,7 @@ supported deployment is the root `compose.opencode.yml`.
 | `AGENTDEV_BOOTSTRAP_TIMEOUT`, `AGENTDEV_PREPARE_TIMEOUT`, `AGENTDEV_HEALTH_INTERVAL`    | positive seconds: 1800 for the bootstrap, 1800 per preparation step, 2 between controller checks                                                                                  |
 
 Any other spelling or a non-positive value latches a configuration failure
-naming the variable — `.devcontainer/scripts/runtime-supervisor.py:78`, `:137`.
+naming the variable — `.devcontainer/scripts/runtime-supervisor.py:78`, `:138`.
 `docker exec` sessions see the same `DISPLAY`, `DOCKER_HOST`, `XDG_RUNTIME_DIR`,
 and `DBUS_SESSION_BUS_ADDRESS` as OpenCode's tools.
 
@@ -106,7 +106,7 @@ Operator surface, all through `docker exec`:
 - `/run/agentdev/state.json` — `state` (`pending`, `ready`, `degraded`,
   `failed`), `latched`, each component's `status` and `reason`, and a
   `heartbeat` refreshed every interval —
-  `.devcontainer/scripts/runtime-supervisor.py:349`.
+  `.devcontainer/scripts/runtime-supervisor.py:351`.
 - `runtime-health.sh ready` passes only with a heartbeat under three intervals
   old, state `ready`, and passing `dbus`, `keyring`, and `opencode` probes;
   `runtime-health.sh status` prints the state, each failed or blocked component
@@ -115,15 +115,15 @@ Operator surface, all through `docker exec`:
 - `~/.local/state/agentdev/last-failure.json` on the home volume — startup ID,
   component, reason, command, exit status, at most 200 output lines from the
   attempt that failed, UTC time; only a later failure replaces it —
-  `.devcontainer/scripts/runtime-supervisor.py:385`.
+  `.devcontainer/scripts/runtime-supervisor.py:387`.
 - `runtime-supervisor.py retry [component]` — resumes a latched runtime, or
   reruns one failed component, restarts the serving clients that read it, and
   exits `0` when it succeeded —
-  `.devcontainer/scripts/runtime-supervisor.py:944`.
+  `.devcontainer/scripts/runtime-supervisor.py:953`.
 
 A failed bootstrap, configuration check, core phase, or core service latches the
 runtime with PID 1 running; the container exits nonzero only when the controller
-or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:775`.
+or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:782`.
 
 ## Guarantees
 
