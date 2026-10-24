@@ -106,3 +106,6 @@ folder](bugs/expo-bridge-builds-only-window-root.md)
 
 [Bug: Expo bridge windows sharing a container break each other's
 socket](bugs/expo-bridge-shared-socket-across-windows.md)
+
+[Bug: the Expo bridge's bun fix upgrades a bun the check never
+runs](bugs/expo-bridge-bun-fix-misses-path-bun.md)
