@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+mode="${AGENTDEV_CLAUDE_RC_MODE:-session}"
+if [[ "$mode" != "server" && "$mode" != "session" ]]; then
+  printf "Unrecognized AGENTDEV_CLAUDE_RC_MODE '%s'; valid options: server, session.\n" \
+    "$mode" >&2
+  exit 1
+fi
+
 for command in claude tmux; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "$command is not installed; skipping Claude Remote Control startup." >&2
@@ -29,9 +36,19 @@ fi
 session="claude-remote"
 workspace="${DEV_WORKSPACE_FOLDER:-$PWD}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-pane_command="$(printf '%q' "$script_dir/claude-remote-control-session.sh")"
-if [[ -n "${CODER_WORKSPACE_NAME:-}" ]]; then
-  pane_command+=" $(printf '%q' "$CODER_WORKSPACE_NAME")"
+workspace_name="$(printf '%q' "${CODER_WORKSPACE_NAME:-}")"
+# Server mode refuses --settings and prompts without --spawn: see
+# architecture/claude-remote-control-server-mode.
+if [[ "$mode" == "server" ]]; then
+  pane_command="claude remote-control --spawn same-dir"
+  if [[ -n "${CODER_WORKSPACE_NAME:-}" ]]; then
+    pane_command+=" --name $workspace_name --remote-control-session-name-prefix $workspace_name"
+  fi
+else
+  pane_command="$(printf '%q' "$script_dir/claude-remote-control-session.sh")"
+  if [[ -n "${CODER_WORKSPACE_NAME:-}" ]]; then
+    pane_command+=" $workspace_name"
+  fi
 fi
 
 if tmux -L "$session" has-session -t "=$session" 2>/dev/null; then

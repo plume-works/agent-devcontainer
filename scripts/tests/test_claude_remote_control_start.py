@@ -37,6 +37,7 @@ def run_with_fake_tmux(
     status: dict[str, object] | None = None,
     status_exit: int = 0,
     workspace_name: str | None = None,
+    mode: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
     test_dir = make_test_dir()
     log = test_dir / 'tmux.log'
@@ -60,8 +61,11 @@ def run_with_fake_tmux(
         'TMUX_TEST_LOG': str(log),
     }
     env.pop('CODER_WORKSPACE_NAME', None)
+    env.pop('AGENTDEV_CLAUDE_RC_MODE', None)
     if workspace_name is not None:
         env['CODER_WORKSPACE_NAME'] = workspace_name
+    if mode is not None:
+        env['AGENTDEV_CLAUDE_RC_MODE'] = mode
     try:
         result = subprocess.run([SCRIPT], env=env, text=True, capture_output=True)
         return result, log.read_text() if log.exists() else ''
@@ -86,6 +90,51 @@ def test_names_session_after_coder_workspace():
         f'exec env -u CLAUDE_CODE_OAUTH_TOKEN {PANE_SCRIPT} agent-dev1'
     )
     assert_dedicated_socket(calls)
+
+
+@pytest.mark.parametrize('mode', [None, 'session'])
+def test_session_mode_starts_pinned_pane(mode):
+    result, calls = run_with_fake_tmux(mode=mode)
+    assert result.returncode == 0, result.stderr
+    assert calls.splitlines()[-1].endswith(f'exec env -u CLAUDE_CODE_OAUTH_TOKEN {PANE_SCRIPT}')
+
+
+@pytest.mark.parametrize(
+    ('workspace_name', 'server_args'),
+    [
+        pytest.param(None, '', id='no-workspace-name'),
+        pytest.param(
+            'agent-dev1',
+            ' --name agent-dev1 --remote-control-session-name-prefix agent-dev1',
+            id='workspace-name',
+        ),
+    ],
+)
+def test_server_mode_starts_remote_control_server(workspace_name, server_args):
+    result, calls = run_with_fake_tmux(mode='server', workspace_name=workspace_name)
+    assert result.returncode == 0, result.stderr
+    assert 'new-session -d -s claude-remote -c /workspaces/example' in calls
+    assert calls.splitlines()[-1].endswith(
+        'exec env -u CLAUDE_CODE_OAUTH_TOKEN claude remote-control --spawn same-dir' + server_args
+    )
+    assert_dedicated_socket(calls)
+
+
+def test_server_mode_reuses_existing_session():
+    result, calls = run_with_fake_tmux(mode='server', session_exists=True)
+    assert result.returncode == 0, result.stderr
+    assert 'has-session -t =claude-remote' in calls
+    assert 'new-session' not in calls
+
+
+@pytest.mark.parametrize('session_exists', [False, True])
+def test_unrecognized_mode_fails_without_tmux(session_exists):
+    result, calls = run_with_fake_tmux(mode='sever', session_exists=session_exists)
+    assert result.returncode != 0
+    assert 'sever' in result.stderr
+    assert 'server' in result.stderr
+    assert 'session' in result.stderr
+    assert calls == ''
 
 
 def assert_dedicated_socket(calls: str) -> None:

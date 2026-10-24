@@ -6,7 +6,7 @@ release:
 description: Let AGENTDEV_CLAUDE_RC_MODE=server make claude-remote-control-start.sh run `claude remote-control --spawn same-dir` in the claude-remote tmux session in place of the pinned interactive pane, keeping the pinned pane as the default.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T00:10:00Z
+  at: 2026-10-24T00:16:39Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: scripts/tests/test_claude_remote_control_start.py
@@ -67,21 +67,33 @@ Rejected alternatives:
 **Files:** Modify: `.devcontainer/scripts/claude-remote-control-start.sh`,
 `scripts/tests/test_claude_remote_control_start.py`
 
-- [ ] Add failing tests, using the existing fake-tmux harness, that
+- [x] Add failing tests, using the existing fake-tmux harness, that
   `AGENTDEV_CLAUDE_RC_MODE=server` starts the pane with
   `exec env -u CLAUDE_CODE_OAUTH_TOKEN claude remote-control --spawn same-dir`,
   with and without `CODER_WORKSPACE_NAME` (which adds `--name` and
   `--remote-control-session-name-prefix` with the workspace name)
-- [ ] Add tests that unset and `session` start
+  - **Evidence:** commit "Select Remote Control server mode in the start
+    script": `test_server_mode_starts_remote_control_server`, both cases failed
+    before the script change.
+- [x] Add tests that unset and `session` start
   `claude-remote-control-session.sh`, the session-mode pane command
-- [ ] Add tests that an unrecognized value exits non-zero, prints the value and
+  - **Evidence:** commit "Select Remote Control server mode in the start
+    script": `test_session_mode_starts_pinned_pane`, unset and `session` cases.
+- [x] Add tests that an unrecognized value exits non-zero, prints the value and
   the valid options `server` and `session` to stderr, and makes no tmux call,
   with and without a live `claude-remote` session
-- [ ] Add a test that a live `claude-remote` session is reused in server mode
-- [ ] Implement the mode selection in `claude-remote-control-start.sh`; the new
+  - **Evidence:** commit "Select Remote Control server mode in the start
+    script": `test_unrecognized_mode_fails_without_tmux`, both cases failed
+    before the script change.
+- [x] Add a test that a live `claude-remote` session is reused in server mode
+  - **Evidence:** commit "Select Remote Control server mode in the start
+    script": `test_server_mode_reuses_existing_session`.
+- [x] Implement the mode selection in `claude-remote-control-start.sh`; the new
   tests and the existing ones pass with
   `uv run pytest scripts/tests/test_claude_remote_control_start.py`, and
   `shellcheck` passes
+  - **Evidence:** commit "Select Remote Control server mode in the start
+    script": the test file 17 passed; `shellcheck` clean.
 
 ### Task 2: Record the server-mode decision
 
