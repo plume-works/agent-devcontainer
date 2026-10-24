@@ -10,6 +10,8 @@ sources:
 - resource: .devcontainer/scripts/setup-keyring.sh
 - resource: .devcontainer/scripts/setup-gh-credential-helper.sh
 - resource: scripts/tests/test_agent_runtime_keyring.py
+- resource: docker/opencode/agent-opencode.Dockerfile
+- resource: scripts/tests/test_agent_runtime_acceptance.py
 ---
 
 # Bug: every gh call in the devcontainer leaks a D-Bus session and a keyring
@@ -51,8 +53,13 @@ every process they start inherit the container environment, which named no bus.
 fixed `unix:path=/tmp/agentdev-dbus/bus`, so every process names the same bus.
 `setup-keyring.sh` starts its bus at that address when one is given, reuses a
 live bus there, replaces a stale socket, and skips restoring a saved random
-session. With no address in its environment it keeps its previous behavior. The
-standalone runtime already uses a fixed address from `runtime-keyring.sh`.
+session. With no address in its environment it keeps its previous behavior.
+
+The `agent-opencode` image sets the same kind of fixed address,
+`unix:path=/run/agentdev/xdg/bus`, as an image `ENV`, so supervised programs and
+every `docker exec` shell name the bus that `runtime-keyring.sh` serves.
+`test_every_shell_names_the_runtime_bus_and_gh_launches_none` checks that for
+the `agent` and `root` shells, and that their `gh` calls add no bus or keyring.
 
 `test_a_fixed_address_gets_one_bus_that_every_client_reuses` starts the bus over
 a stale socket, reruns setup to show the bus is reused, and has a client with
@@ -69,3 +76,5 @@ Verified anchor points (line numbers as of 2026-10-24):
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:11` — the only consumer
   of the saved session file
 - `scripts/tests/test_agent_runtime_keyring.py:216` — the fixed-address test
+- `docker/opencode/agent-opencode.Dockerfile:43` — the image's fixed address
+- `scripts/tests/test_agent_runtime_acceptance.py:497` — the runtime check
