@@ -160,12 +160,12 @@ Assumptions:
 - [x] `PROTOCOL_VERSION` is 2. Every request type carries `folder: string`, the
   container path of a workspace folder. `StatusResult` carries `folderHostPath`
   (the Mac path inspected, empty when unmapped) and a `workspaceMapped` check.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `bd7af44` on branch
-    `expo-bridge-workspace-folders`; `bun test packages/protocol` passes.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `bd7af44` (PR #20);
+    `bun test packages/protocol` passes.
 - [x] `SOCKET_PATH` is replaced by `SOCKET_DIR`, `/tmp/vscode-expo-bridge`, and
   the shape of a registry entry is exported for both container-side packages.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `bd7af44` exports
-    `SOCKET_DIR`, `RegistryEntry`, and `parseRegistryEntry`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `bd7af44` (PR #20)
+    exports `SOCKET_DIR`, `RegistryEntry`, and `parseRegistryEntry`;
     `packages/protocol/test/index.test.ts` passes.
 
 ### Task 2: Workspace extension — one socket per window
@@ -176,12 +176,12 @@ Assumptions:
 - [x] On activation the extension serves `<SOCKET_DIR>/<id>.sock` and writes
   `<id>.json` with its process id, activation time, and workspace folders, and
   rewrites the entry on `onDidChangeWorkspaceFolders`.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `da61ade`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `da61ade` (PR #20);
     `packages/workspace/test/registry.test.ts` passes (write, rewrite, read
     back). The activation wiring itself runs only in VS Code, in Task 11.
 - [x] Disposal removes only its own socket and entry; activation removes entries
   whose process is gone, and never touches another live window's files.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `da61ade`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `da61ade` (PR #20);
     `packages/workspace/test/registry.test.ts` passes its `removeOwn` and
     `pruneStale` cases.
 
@@ -193,13 +193,13 @@ Assumptions:
 - [x] `eas-host` picks the live registry entry with the longest workspace folder
   containing its real working directory, the most recently activated on a tie,
   and sends its working directory with the request.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `87493e2`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `87493e2` (PR #20);
     `packages/workspace/test/registry.test.ts` (`selectEntry`) and
     `packages/workspace/test/eas-host.test.ts` (the request carries `cwd`) pass.
 - [x] With no such entry it prints that no VS Code window has a workspace folder
   containing the directory and exits 3. `eas-host --help` says to run it inside
   the Expo app's workspace folder.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `87493e2`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `87493e2` (PR #20);
     `packages/workspace/test/eas-host.test.ts` (a run outside every folder) and
     `packages/workspace/test/cli-args.test.ts` (help) pass.
 
@@ -211,11 +211,11 @@ Assumptions:
 - [x] The extension resolves the working directory to its longest containing
   workspace folder and forwards the request with that `folder`; a directory
   outside every folder answers `unavailable`.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `38c3932`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `38c3932` (PR #20);
     `packages/workspace/test/artifacts.test.ts` (`resolveRequest`) passes.
 - [x] The build log it tails and the newest artifact `install` picks come from
   that folder's `.tmp/expo-bridge/`.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `38c3932`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `38c3932` (PR #20);
     `packages/workspace/test/artifacts.test.ts` passes its second-folder
     artifact case. The log tail runs only in VS Code, in Task 11.
 
@@ -226,7 +226,7 @@ Assumptions:
 - [x] `decodeHostPath` also returns `configFile` as a Mac path and the Docker
   host from `settings.host`, when the payload carries them, and still accepts a
   bare host path.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `ba42312`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `ba42312` (PR #20);
     `packages/host/test/hostpath.test.ts` passes.
 
 ### Task 6: Host — find the container and its bind mounts
@@ -235,11 +235,11 @@ Assumptions:
 `packages/host/src/env.ts`
 
 Docker Desktop reports a bind source under its VM's `/host_mnt`, so the bind
-mounts are read with that prefix removed (commit `af804c5`).
+mounts are read with that prefix removed (commit `af804c5`, PR #20).
 
 - [x] The `docker` binary comes from the user-level `dev.containers.dockerPath`
   value, else from the login `PATH`, the Homebrew prefixes, and `~/.docker/bin`.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae`
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae` (PR #20)
     (`lookupDocker` in `packages/host/src/env.ts`, which reads only
     `globalValue` of the setting's `inspect()` result);
     `packages/host/test/env.test.ts` passes, including the ignored
@@ -248,7 +248,7 @@ mounts are read with that prefix removed (commit `af804c5`).
   `devcontainer.config_file` when known, against the authority's daemon; zero or
   several running containers is `unavailable`. Its bind mounts are read with
   `docker inspect`, run as argument arrays.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae` (PR #20);
     `packages/host/test/container.test.ts` passes. `ContainerError` becomes
     `unavailable` where Task 7 resolves the folder.
 
@@ -261,13 +261,13 @@ mounts are read with that prefix removed (commit `af804c5`).
   path-component prefix among the bind mounts' destinations, with tests for the
   repeated host-path mounts, a `.git` mount, an unrelated mount, a non-bind
   mount, and a folder outside every mount.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `85742ec` (`mapFolder`
-    in `packages/host/src/folder.ts`); `packages/host/test/folder.test.ts`
-    passes each named case.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `85742ec` (PR #20)
+    (`mapFolder` in `packages/host/src/folder.ts`);
+    `packages/host/test/folder.test.ts` passes each named case.
 - [x] The host accepts the result only when `folder` is one of its window's
   workspace folders and the result is the host path or under it with no symlink
   component; anything else is `unavailable`.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `85742ec`
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `85742ec` (PR #20)
     (`resolveFolder`, with `rejectSymlinksBelow` in
     `packages/host/src/paths.ts`); `packages/host/test/folder.test.ts` and
     `packages/host/test/paths.test.ts` pass. Task 8's `dispatch` answers a
@@ -283,14 +283,14 @@ mounts are read with that prefix removed (commit `af804c5`).
 - [x] `dispatch` rejects a request without `folder` as `bad-request`, and maps
   it before any action; `status`, `build`, `install`, `launch`, and `screenshot`
   read and write at the folder's Mac path.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `3a7ce79`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `3a7ce79` (PR #20);
     `packages/host/test/dispatch.test.ts`, `build.test.ts`, `install.test.ts`,
     and `status.test.ts` pass; `bun test` (250 tests), `bun run typecheck`,
     `bun run lint`, and `bun run package` pass at that commit.
 - [x] `status` reports `folderHostPath` and `workspaceMapped`, and is
   unavailable when the folder does not map. Trust and the cooldown stay keyed to
   the host path, and the build confirmation names the folder's Mac path.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `3a7ce79`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `3a7ce79` (PR #20);
     `packages/host/test/status.test.ts`, `dispatch.test.ts`, and `trust.test.ts`
     (a build in a folder under the host path) pass.
 
@@ -304,7 +304,7 @@ mounts are read with that prefix removed (commit `af804c5`).
   replaces "never from a path the request supplies" with the rule that a request
   may choose only a workspace folder of its window, mapped through Docker under
   the host path. The README names the multi-root and multi-window support.
-  - **Evidence:** `plume-works/vscode-expo-bridge` commit `c5266bf`;
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `c5266bf` (PR #20);
     `bun run lint` passes.
 
 ### Task 10: Sibling repository CI passes
@@ -325,13 +325,13 @@ repository opened in a Dev Containers window and an Expo app under it
   project id; `build`, `install`, `launch`, and `screenshot` complete there. Run
   at the repository root, `status` reports the root.
   - **Evidence:** On 2026-10-24, macOS with Docker Desktop, host and workspace
-    extensions packaged from `plume-works/vscode-expo-bridge` commit `af804c5`,
-    `agent-devcontainer` opened as a multi-root workspace with the app second.
-    `status` in the app reported the app's Mac path, `eas-cli@25.3.0`, and the
-    project id; `build development` exited 0 with its artifact and log in the
-    app's `.tmp/expo-bridge/`; `install`, `launch`, and `screenshot` succeeded,
-    the screenshot showing the app's bundle from Metro. `status` at the root
-    reported the root.
+    extensions packaged from `plume-works/vscode-expo-bridge` commit `af804c5`
+    (PR #20), `agent-devcontainer` opened as a multi-root workspace with the app
+    second. `status` in the app reported the app's Mac path, `eas-cli@25.3.0`,
+    and the project id; `build development` exited 0 with its artifact and log
+    in the app's `.tmp/expo-bridge/`; `install`, `launch`, and `screenshot`
+    succeeded, the screenshot showing the app's bundle from Metro. `status` at
+    the root reported the root.
 - [x] A second window opened on the app in the same container serves its own
   socket; closing the first window leaves `eas-host status` in the second
   working.
@@ -342,7 +342,7 @@ repository opened in a Dev Containers window and an Expo app under it
 - [x] A host extension still on protocol version 1 makes `eas-host status` exit
   3 and name both versions.
   - **Evidence:** On 2026-10-24, with the published host extension 0.2.2 on the
-    Mac and workspace extension from `af804c5` in the container,
+    Mac and workspace extension from commit `af804c5` (PR #20) in the container,
     `eas-host status` in the app exited 3 and printed
     `expo bridge protocol version mismatch: host 1, eas-host 2`.
 
@@ -358,8 +358,8 @@ repository opened in a Dev Containers window and an Expo app under it
   directory; the architecture document describes the registry, the Docker
   mapping, and the trust rule in its security model, with this plan's rejected
   alternatives; each bug's `## Fix` describes the fix.
-  - **Evidence:** this commit updates the four documents; `iwe normalize` and
-    `iwe schema validate` pass.
+  - **Evidence:** commit `e9a193e` updates the four documents; `iwe normalize`
+    and `iwe schema validate` pass.
 
 ## Spec changes
 
