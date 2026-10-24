@@ -158,7 +158,7 @@ Assumptions:
 **Files:** none — on a Mac, the host extension packaged from the Task 4 commit
 sideloaded, this repository opened in a Dev Containers window
 
-- [ ] With `terminal.integrated.defaultProfile.osx` set to `fish` and fish
+- [x] With `terminal.integrated.defaultProfile.osx` set to `fish` and fish
   installed through Homebrew, the bug's reproduction opens the fix terminal in
   the Mac's fish and the fix runs.
   - **Evidence:** Mac run on 2026-10-24 with the host and workspace 0.2.4 VSIX
