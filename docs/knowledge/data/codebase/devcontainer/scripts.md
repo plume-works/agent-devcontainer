@@ -2,14 +2,14 @@
 type: codebase
 description: The postCreate, postStart, and postAttach hooks and the helpers they call — agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth links and full-access policies, gh credential helper, the Coder agent-start entry point, Remote Control, the OpenCode web UI — plus the standalone agent-opencode runtime built from the same helpers.
 source: .devcontainer/scripts
-source_digest: sha256:7247b96a0af7557263e507b9a1b795abdafc1d38cf7bb2fee0018288dacacd5f
+source_digest: sha256:43aabde8b5953f9349a1e3ac691c41221dd16151df373e692fff5aac7d88f2d6
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  at: 2026-10-24T04:17:27Z
 stale_after: 2027-01-22
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  at: 2026-10-24T04:17:27Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -47,7 +47,7 @@ Devcontainer lifecycle and shared helpers:
 | `preapprove-claude-workspace.sh`                                                     | `create`                                      | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `coder-agent-start.sh`                                                               | Coder `coder_script`                          | the Coder agent's entry point: `docker-image-prune.sh`, `setup-gh-credential-helper.sh`, `opencode-web-start.sh` (each failure only warns), then exec `claude-remote-control-start.sh`                                                                                                                                                                                                                                                                                                                                                      |
 | `docker-image-prune.sh`                                                              | Coder start, standalone `prepare`             | `docker image prune -af --filter until=72h`, printing the reclaimed total; exits 0 when docker or its daemon is unavailable, and only warns when the prune fails                                                                                                                                                                                                                                                                                                                                                                            |
-| `claude-remote-control-start.sh`                                                     | Coder start, by hand                          | with a claude.ai login, run `claude-remote-control-session.sh` named after `CODER_WORKSPACE_NAME` in session `claude-remote` on `tmux -L claude-remote`                                                                                                                                                                                                                                                                                                                                                                                     |
+| `claude-remote-control-start.sh`                                                     | Coder start, by hand                          | with a claude.ai login, run `claude-remote-control-session.sh` named after `CODER_WORKSPACE_NAME`, or with `AGENTDEV_CLAUDE_RC_MODE=server` `claude remote-control --spawn same-dir`, in session `claude-remote` on `tmux -L claude-remote`                                                                                                                                                                                                                                                                                                 |
 | `opencode-web-start.sh`                                                              | Coder start, by hand                          | run the `coder-pane` command in session `opencode` on `tmux -L opencode` and print the `link`                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `opencode-web-command.sh link\|coder-hostname\|coder-pane\|coder-note\|serve\|probe` | the two OpenCode launchers, health            | print the server's root URL and build the Coder pane command, which runs `opencode serve` without `DISPLAY` on `0.0.0.0` with `OPENCODE_SERVER_PASSWORD` and otherwise on `127.0.0.1` with a password generated once into `~/.local/share/opencode/agentdev-server-password` (`0600`) and read by the pane, never on a command line; `coder-note` names that file; `serve` execs `opencode serve --port 4096 --hostname 0.0.0.0` in the workspace, refusing an empty password; `probe` needs a `version` from the authenticated `/api/info` |
 | `claude-remote-control-session.sh`                                                   | `claude-remote` pane                          | resume the conversation pinned in `remote-control-session-id`; when none is stored or the resume fails, start and pin a new one; both calls get a `--settings` `SessionStart` hook running `claude-remote-control-pin.sh`                                                                                                                                                                                                                                                                                                                   |
@@ -138,7 +138,10 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 - `uv-sync.sh` removes only a `.venv` symlink pointing into `/uv/venvs/`, and
   never in standalone mode.
 - The Remote Control launcher never passes `CLAUDE_CODE_OAUTH_TOKEN` to `claude`
-  and exits 0 when the login is absent, expired, or not claude.ai.
+  and exits 0 when the login is absent, expired, or not claude.ai. An
+  `AGENTDEV_CLAUDE_RC_MODE` other than `server` or `session` exits 1 first.
+  Decision: [Claude Remote Control server
+  mode](../../architecture/claude-remote-control-server-mode.md).
 - `opencode-web-start.sh` exits 0 when `opencode` or `tmux` is missing or the
   `opencode` session is live; a failed tmux start exits 1.
 - `setup-gh-credential-helper.sh` loads the keyring session file, so in the

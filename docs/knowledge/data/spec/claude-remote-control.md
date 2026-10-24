@@ -1,9 +1,9 @@
 ---
 type: spec
-description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment and resuming its pinned conversation, and every container pre-approves Claude's first-run state unless it opts out.
+description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T03:00:00Z
+  at: 2026-10-24T03:00:00Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/scripts/claude-remote-control-pin.sh
@@ -20,6 +20,7 @@ sources:
 - resource: scripts/tests/test_preapprove_claude_workspace.py
 - resource: https://code.claude.com/docs/en/errors#login-expired
 - resource: https://code.claude.com/docs/en/authentication
+- resource: https://code.claude.com/docs/en/remote-control
 - resource: https://github.com/anthropics/claude-code/issues/21765
 - resource: https://github.com/anthropics/claude-code/issues/88583
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
@@ -49,7 +50,7 @@ live session rather than create another. It SHALL skip startup when `claude` or
 `tmux` is unavailable. The Claude process SHALL NOT receive
 `CLAUDE_CODE_OAUTH_TOKEN`.
 
-The session SHALL resume the conversation whose ID is stored in
+In session mode, the session SHALL resume the conversation whose ID is stored in
 `remote-control-session-id` under Claude's configuration directory. When no ID
 is stored, or the resume exits non-zero, it SHALL start a new conversation under
 a newly generated ID and store that ID in place of the old one. Whenever the
@@ -91,14 +92,14 @@ a resumed conversation leaves Claude running with Remote Control off; running
 
 #### Scenario: the workspace restarts or is rebuilt
 
-- **WHEN** `claude-remote` starts with a stored conversation ID whose
-  conversation still exists
+- **WHEN** `claude-remote` starts in session mode with a stored conversation ID
+  whose conversation still exists
 - **THEN** it resumes that conversation, and claude.ai/code shows it under the
   same session URL with its earlier turns.
 
 #### Scenario: the first start in a new volume
 
-- **WHEN** `claude-remote` starts with no stored conversation ID
+- **WHEN** `claude-remote` starts in session mode with no stored conversation ID
 - **THEN** it starts a new conversation and stores its ID.
 
 #### Scenario: the stored conversation cannot be resumed
@@ -109,9 +110,47 @@ a resumed conversation leaves Claude running with Remote Control off; running
 
 #### Scenario: the operator clears the conversation
 
-- **WHEN** `/clear` runs in `claude-remote` and the workspace then restarts
+- **WHEN** `/clear` runs in `claude-remote` in session mode and the workspace
+  then restarts
 - **THEN** the pane resumes the post-clear conversation under the same session
   URL.
+
+### Requirement: server mode is opt-in
+
+`AGENTDEV_CLAUDE_RC_MODE` SHALL select the mode: `server` selects server mode,
+and an unset or `session` value selects session mode. Any other value SHALL make
+the script print the value and the valid options to stderr, start no session,
+and exit non-zero, before any other check. In server mode the `claude-remote`
+session SHALL run `claude remote-control --spawn same-dir`, passing `--name` and
+`--remote-control-session-name-prefix` set to `CODER_WORKSPACE_NAME` when it is
+set, and SHALL neither read nor write the stored conversation ID.
+
+#### Scenario: server mode is selected
+
+- **WHEN** the script starts `claude-remote` with
+  `AGENTDEV_CLAUDE_RC_MODE=server`
+- **THEN** the session runs `claude remote-control --spawn same-dir` and reaches
+  a connected server with no terminal interaction.
+
+#### Scenario: a conversation is spawned from a device
+
+- **WHEN** a new conversation is started in the workspace's environment from
+  claude.ai/code or the Claude mobile app
+- **THEN** it runs in the workspace folder with the environment of the process
+  that ran the script.
+
+#### Scenario: the mode value is unrecognized
+
+- **WHEN** the script runs with `AGENTDEV_CLAUDE_RC_MODE` set to a value other
+  than `server` or `session`
+- **THEN** it prints the value and the valid options `server` and `session`,
+  starts no session, and exits non-zero.
+
+#### Scenario: the mode changes while a session is live
+
+- **WHEN** the script runs with a different mode while `claude-remote` is live
+- **THEN** it leaves the existing session running, and the new mode applies on
+  the next session start.
 
 ### Requirement: Remote Control inherits the Coder agent's environment
 

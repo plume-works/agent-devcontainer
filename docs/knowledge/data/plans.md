@@ -48,6 +48,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Opt-in Claude Remote Control server
+mode](plans/20261023-claude-remote-control-server-mode.md)
+
 [Publish the Expo bridge to Open VSX through trusted
 publishing](plans/20261023-openvsx-trusted-publishing.md)
 
