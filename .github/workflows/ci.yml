@@ -54,6 +54,9 @@ jobs:
           extra-filter: |
             - .github/workflows/ci.yml
             - .github/actions/log-debug-stats/**
+            # The devcontainer test suite is the only check of the deployment files.
+            - compose.opencode*.yml
+            - opencode-compose-pins.yml
 
       - name: Log debug stats
         if: ${{ always() }}
@@ -302,7 +305,7 @@ jobs:
             # Pre-commit's gitleaks and actionlint hooks run these pinned binaries, without Go.
             gitleaks version
             actionlint --version | head -n 1
-            ! command -v go
+            if command -v go; then echo 'unexpected Go toolchain on PATH' >&2; exit 1; fi
             command -v xpra
             command -v init-firewall.sh
             command -v gnome-keyring-daemon
