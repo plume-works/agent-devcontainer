@@ -207,16 +207,24 @@ Assumptions:
 **Files:** Create: `packages/host/src/buildkey.ts` and its test, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `buildKey` returns the SHA-256 over the fingerprint hash, the profile, the
+- [x] `buildKey` returns the SHA-256 over the fingerprint hash, the profile, the
   SHA-256 of `eas.json`, `package.json`, and each present lockfile (`bun.lock`,
   `bun.lockb`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`), the resolved
   eas-cli version, `xcodebuild -version`, and the host extension's version, each
   named in the hashed record.
-- [ ] Each file is read as bytes from the folder's Mac path and refused when any
+  - **Evidence:** plume-works/vscode-expo-bridge `b6c806e`
+    `packages/host/src/buildkey.ts` `buildKey`, hashing a JSON record keyed by
+    input name.
+- [x] Each file is read as bytes from the folder's Mac path and refused when any
   path component is a symlink, the file is not regular, or it is over 64 MB; a
   refusal, a missing `package.json`, or a failed version probe returns null.
-- [ ] `bun test` covers a change in each input changing the key, an absent
+  - **Evidence:** `b6c806e` `hashFile` (`rejectSymlinksBelow`, `O_NOFOLLOW`,
+    `fstat` regular-file and `MAX_HASHED_BYTES` checks) and the null returns in
+    `buildKey`.
+- [x] `bun test` covers a change in each input changing the key, an absent
   lockfile, and each refusal.
+  - **Evidence:** `b6c806e` `packages/host/test/buildkey.test.ts`;
+    `bun test packages/host/test/buildkey.test.ts` 9 pass, 0 fail.
 
 ### Task 5: Host — the per-folder build cache
 
