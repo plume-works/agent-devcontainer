@@ -319,13 +319,18 @@ in `plume-works/vscode-expo-bridge`
 **Files:** Modify: `docs/protocol.md`, `packages/host/README.md`, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `docs/protocol.md` specifies `clean`, `mode`, `reason`, `reusedBuiltAt`,
+- [x] `docs/protocol.md` specifies `clean`, `mode`, `reason`, `reusedBuiltAt`,
   the fingerprint step as part of `build`, the cache key's inputs, the
   per-folder cache and its five-entry limit, that only artifacts without an
   embedded bundle are stored, that revoking trust deletes the cache, and that
   the protocol version stays 2.
-- [ ] The host README states that a development build is reused when its native
+  - **Evidence:** plume-works/vscode-expo-bridge `2d8db83` `docs/protocol.md`
+    "Reuse of a matching development build" under `### build`, the actions
+    table, the security model's confirmation, trust, and fingerprint-step
+    bullets, and `## eas-host`; `bun run lint` passes.
+- [x] The host README states that a development build is reused when its native
   inputs match and that `--clean` forces a full build.
+  - **Evidence:** `2d8db83` `packages/host/README.md`.
 
 ### Task 9: Sibling repository CI passes
 
