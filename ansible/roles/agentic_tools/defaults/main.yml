@@ -3,11 +3,11 @@
 # version; `agentic_tools_bun_packages` is what the role installs. `trust: true`
 # lets a package's postinstall run, which Bun blocks by default.
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
-agentic_tools_claude_code_version: "2.1.309"
+agentic_tools_claude_code_version: "2.1.310"
 # renovate: datasource=npm depName=@openai/codex
 agentic_tools_codex_version: "0.164.0"
 # renovate: datasource=npm depName=@opencode/cli
-agentic_tools_opencode_version: "2.1.3"
+agentic_tools_opencode_version: "2.1.4"
 # renovate: datasource=npm depName=@modelcontextprotocol/inspector
 agentic_tools_inspector_version: "2.12.0"
 
