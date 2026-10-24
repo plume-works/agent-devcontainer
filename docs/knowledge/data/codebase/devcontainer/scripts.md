@@ -2,14 +2,14 @@
 type: codebase
 description: The postCreate, postStart, and postAttach hooks and the helpers they call — agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth links and full-access policies, gh credential helper, the Coder agent-start entry point, Remote Control, the OpenCode web UI — plus the standalone agent-opencode runtime built from the same helpers.
 source: .devcontainer/scripts
-source_digest: sha256:1c1708fbb6c91271b332789feb5ecb6c486fa83bd418cb9d6e1c12c6511ed6b2
+source_digest: sha256:3d3e42bb5427948081756e58a73dad51255adb9dcceb2f7eb0bf503caf6dbd5a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-24T02:57:54Z
+  at: 2026-10-24T03:37:16Z
 stale_after: 2027-01-22
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T02:57:54Z
+  at: 2026-10-24T03:37:16Z
 sources:
 - id: code
   resource: .devcontainer/scripts

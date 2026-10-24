@@ -127,11 +127,12 @@ def test_server_mode_reuses_existing_session():
     assert 'new-session' not in calls
 
 
+@pytest.mark.parametrize('mode', ['sever', ''])
 @pytest.mark.parametrize('session_exists', [False, True])
-def test_unrecognized_mode_fails_without_tmux(session_exists):
-    result, calls = run_with_fake_tmux(mode='sever', session_exists=session_exists)
+def test_unrecognized_mode_fails_without_tmux(mode, session_exists):
+    result, calls = run_with_fake_tmux(mode=mode, session_exists=session_exists)
     assert result.returncode != 0
-    assert 'sever' in result.stderr
+    assert f"'{mode}'" in result.stderr
     assert 'server' in result.stderr
     assert 'session' in result.stderr
     assert calls == ''

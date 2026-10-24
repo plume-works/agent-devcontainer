@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mode="${AGENTDEV_CLAUDE_RC_MODE:-session}"
+mode="${AGENTDEV_CLAUDE_RC_MODE-session}"
 if [[ "$mode" != "server" && "$mode" != "session" ]]; then
   printf "Unrecognized AGENTDEV_CLAUDE_RC_MODE '%s'; valid options: server, session.\n" \
     "$mode" >&2
