@@ -339,8 +339,12 @@ repository opened in a Dev Containers window and an Expo app under it
     `code -n` on the app registered its own socket and entry beside the first
     window's. After the first window closed, only the second window's files
     remained, and `eas-host status` in the app exited 0 with the app's Mac path.
-- [ ] A host extension still on protocol version 1 makes `eas-host status` exit
+- [x] A host extension still on protocol version 1 makes `eas-host status` exit
   3 and name both versions.
+  - **Evidence:** On 2026-10-24, with the published host extension 0.2.2 on the
+    Mac and workspace extension from `af804c5` in the container,
+    `eas-host status` in the app exited 3 and printed
+    `expo bridge protocol version mismatch: host 1, eas-host 2`.
 
 ### Task 12: Record the change in this repository's project memory
 
