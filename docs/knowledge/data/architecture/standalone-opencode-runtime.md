@@ -159,14 +159,19 @@ bootstrap, an invalid setting or missing `XPRA_PASSWORD`, a failed core phase,
 or a core service exhausting its budget. PID 1 and supervisord stay up, OpenCode
 is stopped, nothing is restarted or rerun, and readiness stays withdrawn. Each
 program runs under `runtime-supervisor.py exec`, which streams its output and
-keeps its command, exit status, and last 200 lines. Every failure writes those,
-the start's ID, and the time to `last-failure.json` on the home volume. Startup
+keeps its command, exit status, and last 200 lines, refreshed while it runs.
+Every failure writes those, the start's ID, and the time to `last-failure.json`
+on the home volume, taking output only from the attempt that failed. Startup
 never deletes that record. A failure before the home volume is validated goes to
 stderr only.
 
 `runtime-supervisor.py retry` resumes from the failed component in the same
 container. Before supervisord starts, PID 1 itself waits for the request and
-reruns the configuration check and bootstrap.
+reruns the configuration check and bootstrap. The bootstrap runs in its own
+session, and a failed or timed-out one is killed with every process it started,
+so nothing of it overlaps the retry. A successful retry restarts each client
+that was already serving and reads the retried component at startup: `config`
+and `cbm` refresh `opencode`.
 
 Exiting PID 1 nonzero on every unrecoverable failure was rejected. Under
 Compose's `restart: unless-stopped`, that reruns non-transactional preparation
@@ -192,7 +197,10 @@ controller or supervisord fails, which leaves the restart policy for crashes.
   `start-xpra.sh --supervised` also stops a leftover Xpra X server holding the
   display when no live session owns it.
 - Exhaustion degrades the runtime for an optional service and latches it for a
-  core one.
+  core one. A latch stops OpenCode even when OpenCode is what failed, since an
+  exhausted probe budget leaves the process running.
+- Services already up stay watched while a one-shot phase runs, so a crash
+  during a long uv sync recovers without waiting for the phase.
 
 ## Shutdown
 

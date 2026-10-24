@@ -89,11 +89,11 @@ pre-commit hooks, and the code index follow in the background. Follow it until t
 container reports `healthy`:
 
 ```bash
-docker compose -p myproject logs -f
-docker compose -p myproject ps
+docker logs -f myproject-opencode-1
+docker inspect --format '{{.State.Health.Status}}' myproject-opencode-1
 ```
 
-If it stays unhealthy, `docker exec <container>
+If it stays unhealthy, `docker exec myproject-opencode-1
 /opt/agentdev-runtime/runtime-health.sh status` names what failed and how to retry
 it. The README's [operating notes](../../README.md#operating-it) list the usual
 causes.

@@ -152,11 +152,12 @@ The core path is the root bootstrap (account, volumes, and the opt-in firewall),
 session bus and keyring, then the core phase (checkout, Claude and Codex login links,
 agent policy), then OpenCode. Everything else is optional work:
 
-- before OpenCode, which reads them when it starts: catalog registration and the
-  Codebase Memory MCP client configuration;
+- before OpenCode, which reads them when it starts: catalog registration, the
+  Codebase Memory MCP client configuration, and the CBM daemon its MCP client
+  connects to;
 - beside OpenCode: Xpra, which neither waits for OpenCode nor delays it;
-- after OpenCode: the CBM daemon, nested Docker and its image prune, uv sync,
-  pre-commit hook registration, and a background index request.
+- after OpenCode: nested Docker and its image prune, uv sync, pre-commit hook
+  registration, and a background index request.
 
 Hook environments build on first use rather than at startup. The index request returns
 once CBM accepts the job, and the daemon indexes in the background, so a large
