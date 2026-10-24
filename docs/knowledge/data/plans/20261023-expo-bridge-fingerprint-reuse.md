@@ -183,11 +183,15 @@ Assumptions:
 **Files:** Create: `packages/host/src/fingerprint.ts` and its test, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `projectFingerprint` runs the Mac's `node` (`lookupTool`) on a script held
+- [x] `projectFingerprint` runs the Mac's `node` (`lookupTool`) on a script held
   as a constant in the module, with the folder's Mac path as its argument and as
   the working directory, through the runner's argument array. The script
   resolves `expo/fingerprint` from that path and prints the hash of
   `createFingerprintAsync(<that path>, { platforms: ["ios"] })`.
+  - **Evidence:** plume-works/vscode-expo-bridge `af84206`
+    `packages/host/src/fingerprint.ts` (`FINGERPRINT_SCRIPT`, run as `node -e`);
+    the script printed a 40-digit hash against the scratch Expo SDK 58 app's own
+    `expo/fingerprint`.
 - [x] It returns the hash only when the output is one 40-digit lowercase hex
   string and the process exited 0; it returns null for a missing node, a
   non-zero exit, or any other output, and never includes the output in an error.
