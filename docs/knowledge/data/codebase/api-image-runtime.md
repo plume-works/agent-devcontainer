@@ -119,11 +119,11 @@ Operator surface, all through `docker exec`:
 - `runtime-supervisor.py retry [component]` — resumes a latched runtime, or
   reruns one failed component, restarts the serving clients that read it, and
   exits `0` when it succeeded —
-  `.devcontainer/scripts/runtime-supervisor.py:953`.
+  `.devcontainer/scripts/runtime-supervisor.py:955`.
 
 A failed bootstrap, configuration check, core phase, or core service latches the
 runtime with PID 1 running; the container exits nonzero only when the controller
-or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:782`.
+or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:784`.
 
 ## Guarantees
 
