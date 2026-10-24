@@ -101,7 +101,7 @@ Rejected alternatives:
 `docs/knowledge/data/architecture/claude-remote-control-server-mode.md`; Modify:
 `docs/knowledge/data/architecture.md`
 
-- [ ] Write the architecture document: the opt-in decision and who made it, the
+- [x] Write the architecture document: the opt-in decision and who made it, the
   `same-dir` default, the Claude Code server-mode behavior it relies on (as of
   Claude Code 2.1.309: `--settings` is refused; without `--spawn` and a saved
   choice the server prompts for a spawn mode; the existing preapproved trust and
@@ -111,8 +111,13 @@ Rejected alternatives:
   worktree session does not), the documented limits (about four hours of resume
   after a stop, exit after about ten minutes offline), and the rejected
   alternatives from `## Approach`
-- [ ] Link it from `data/architecture.md`; `iwe normalize` and
+  - **Evidence:** commit "Record the Remote Control server-mode decision":
+    `data/architecture/claude-remote-control-server-mode.md`.
+- [x] Link it from `data/architecture.md`; `iwe normalize` and
   `iwe schema validate` pass
+  - **Evidence:** commit "Record the Remote Control server-mode decision":
+    linked after Claude Remote Control resume; `iwe normalize` clean and
+    `iwe schema validate` exit 0.
 
 ### Task 3: Server mode runs in a Coder workspace
 
