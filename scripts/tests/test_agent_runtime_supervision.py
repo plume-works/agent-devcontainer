@@ -370,6 +370,7 @@ def test_the_failure_record_keeps_the_last_200_output_lines(make):
     assert output[0] == 'prepare line 101' and output[-1] == 'prepare line 300'
 
 
+@pytest.mark.skipif(os.geteuid() != 0, reason='changing ownership requires root')
 def test_the_failure_record_leaves_a_fresh_home_owned_by_the_runtime_user(make):
     account = pwd.getpwnam('nobody')
     box = make(AGENTDEV_USER='nobody')
