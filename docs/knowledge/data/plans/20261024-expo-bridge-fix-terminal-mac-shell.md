@@ -103,16 +103,21 @@ Assumptions:
 **Files:** Create: `packages/host/src/shell.ts`,
 `packages/host/test/shell.test.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] A pure `fixTerminalShell` returns `{ shellPath, shellArgs?, env? }` from
+- [x] A pure `fixTerminalShell` returns `{ shellPath, shellArgs?, env? }` from
   the default profile name, the profiles value, the login environment, a
   file-exists check, and the login shell, following the Approach's four steps
   and its fallback.
-- [ ] `bun test packages/host/test/shell.test.ts` covers: a default profile
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `857f5b1` on branch
+    `fix-terminal-mac-shell`, `packages/host/src/shell.ts`; `bun run typecheck`
+    passes.
+- [x] `bun test packages/host/test/shell.test.ts` covers: a default profile
   whose bare path is found on the login `PATH` with its `args`; an absolute path
   that exists; an array whose first candidate is missing; the profile's `env`
   passed through; and the fallback to the login shell with `["-l"]` for an unset
   default, a name with no profile, a `null` profile, a profile with `source`, a
   candidate containing `${`, and no candidate existing on the Mac.
+  - **Evidence:** `packages/host/test/shell.test.ts` in commit `857f5b1`; 11
+    tests pass under `bun test packages/host/test/shell.test.ts`.
 
 ### Task 2: The fix terminal uses the resolved shell
 
