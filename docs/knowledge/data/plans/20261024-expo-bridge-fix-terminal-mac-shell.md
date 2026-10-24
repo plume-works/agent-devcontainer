@@ -170,8 +170,11 @@ sideloaded, this repository opened in a Dev Containers window
   - **Evidence:** Mac run on 2026-10-24 with the same VSIX files: the fix
     terminal's `$0` and `ps -p $$` are `/bin/bash`, the only `bash` that
     `which -a bash` lists, and the fix ran.
-- [ ] With the default profile unset, and set to a name `profiles.osx` lacks,
+- [x] With the default profile unset, and set to a name `profiles.osx` lacks,
   the fix terminal opens in the login shell.
+  - **Evidence:** Mac runs on 2026-10-24 with the same VSIX files, the default
+    profile unset and then `nosuchprofile`: each fix terminal ran
+    `/opt/homebrew/bin/fish -l`, the Mac's `$SHELL`, and `status is-login` held.
 
 ### Task 6: Record the fix in this repository's project memory
 
