@@ -165,11 +165,18 @@ Assumptions:
 **Files:** Modify: `packages/workspace/src/cli-args.ts`, its test, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `eas-host build <profile> --clean` sends `clean: true`; any other argument
+- [x] `eas-host build <profile> --clean` sends `clean: true`; any other argument
   after the profile is a usage error. `USAGE` names the flag, and `HELP` says a
   build reuses an earlier artifact when the native inputs are unchanged and that
   `--clean` forces a full build.
-- [ ] `bun test` covers the flag, its absence, and a rejected unknown argument.
+  - **Evidence:** plume-works/vscode-expo-bridge `f591bf8`
+    (`packages/workspace/src/cli-args.ts` `parseArgs` `build` case, `USAGE`,
+    `HELP`); `bun run typecheck` passes.
+- [x] `bun test` covers the flag, its absence, and a rejected unknown argument.
+  - **Evidence:** `f591bf8` `packages/workspace/test/cli-args.test.ts` "build
+    --clean asks for a clean build", "build rejects any other argument after the
+    profile", and the HELP assertions; `bun test packages/workspace` 52 pass, 0
+    fail.
 
 ### Task 3: Host — the fingerprint step
 
