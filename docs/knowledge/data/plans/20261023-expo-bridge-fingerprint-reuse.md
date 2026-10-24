@@ -188,10 +188,15 @@ Assumptions:
   the working directory, through the runner's argument array. The script
   resolves `expo/fingerprint` from that path and prints the hash of
   `createFingerprintAsync(<that path>, { platforms: ["ios"] })`.
-- [ ] It returns the hash only when the output is one 40-digit lowercase hex
+- [x] It returns the hash only when the output is one 40-digit lowercase hex
   string and the process exited 0; it returns null for a missing node, a
   non-zero exit, or any other output, and never includes the output in an error.
-- [ ] `bun test` covers a hash, each null case, and the argument array.
+  - **Evidence:** `af84206` `projectFingerprint` returns null on no node, a
+    non-zero exit, or a non-hash stdout and throws nothing; covered by
+    `packages/host/test/fingerprint.test.ts`.
+- [x] `bun test` covers a hash, each null case, and the argument array.
+  - **Evidence:** `af84206` `packages/host/test/fingerprint.test.ts`;
+    `bun test packages/host/test/fingerprint.test.ts` 5 pass, 0 fail.
 
 ### Task 4: Host — the cache key
 
