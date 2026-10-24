@@ -231,19 +231,27 @@ Assumptions:
 **Files:** Create: `packages/host/src/buildcache.ts` and its test, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] The cache directory is
+- [x] The cache directory is
   `<globalStorage>/build-cache/<sha256 of the host path>/<sha256 of the folder's Mac path>/`,
   from the host path and the mapped folder, never from a path the container
   sends. `index.json` records both paths and, per key, the artifact file and the
   time it was built.
-- [ ] `lookup(key)` returns the stored artifact and its build time, or null.
+  - **Evidence:** plume-works/vscode-expo-bridge `d5533c1`
+    `packages/host/src/buildcache.ts` `folderCacheDir` and `CacheIndex`; the
+    `BuildCache` constructor takes the host path and the mapped folder only.
+- [x] `lookup(key)` returns the stored artifact and its build time, or null.
   `store(key, artifact, builtAt)` refuses an archive that contains a
   `main.jsbundle`, writes through a temporary file and a rename, and keeps the
   five newest entries, deleting the rest. `remove(hostPath)` deletes the host
   path's directory with every folder under it.
-- [ ] `bun test` covers a hit, a miss, the refused archive, the eviction order,
+  - **Evidence:** `d5533c1` `BuildCache.lookup`, `BuildCache.store` (`tar -tzf`
+    listing, `writeAtomic`, `MAX_ENTRIES` = 5), and `remove`.
+- [x] `bun test` covers a hit, a miss, the refused archive, the eviction order,
   removal, and that two host paths, or two folders under one host path, never
   share a directory.
+  - **Evidence:** `d5533c1` `packages/host/test/buildcache.test.ts`, with real
+    gzipped tar archives; `bun test packages/host/test/buildcache.test.ts` 8
+    pass, 0 fail.
 
 ### Task 6: Host — `build` reuses or stores
 
