@@ -119,7 +119,7 @@ Verified anchor points (line numbers as of 2026-10-02):
 - `docs/knowledge/tests/test_pre_commit_rev_mask.py:60` — hook-config mask
   workspace fixture; all three mask fixtures run with the caller's `GIT_*`
   variables removed
-- `.pre-commit-config.yaml:102-122` — `plan-checkboxes`, `iwe-schema-validate`,
+- `.pre-commit-config.yaml:107-127` — `plan-checkboxes`, `iwe-schema-validate`,
   `iwe-normalize` hooks
 - `.github/workflows/validate-knowledge-base.yml:84-104` — pinned iwe, graph and
   seed checks

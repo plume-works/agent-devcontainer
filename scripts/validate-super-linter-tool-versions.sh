@@ -5,7 +5,7 @@ set -euo pipefail
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 root_dir=$(cd "$script_dir/.." && pwd)
 pre_commit_config="$root_dir/.pre-commit-config.yaml"
-zizmor_defaults="$root_dir/ansible/roles/dev_tools/defaults/main.yml"
+dev_tools_defaults="$root_dir/ansible/roles/dev_tools/defaults/main.yml"
 # shellcheck source=../.agents/plugins/agentdev/bin/super-linter-defaults.sh
 . "$root_dir/.agents/plugins/agentdev/bin/super-linter-defaults.sh"
 
@@ -76,6 +76,16 @@ pre_commit_rev()
       exit
     }
   ' "$pre_commit_config"
+}
+
+pinned_tool_version()
+{
+  local tool="$1"
+
+  awk -v entry="- name: $tool" '
+    index($0, entry) { found = 1 }
+    found && /version:/ { sub(/.*version: /, ""); print; exit }
+  ' "$dev_tools_defaults"
 }
 
 normalize_configured_version()
@@ -162,11 +172,9 @@ configured_versions[ansible-lint]=$(pre_commit_rev https://github.com/ansible/an
 configured_versions[hadolint]=$(pre_commit_rev https://github.com/hadolint/hadolint)
 configured_versions[ruff]=$(pre_commit_rev https://github.com/astral-sh/ruff-pre-commit)
 configured_versions[shellcheck]=$(pre_commit_rev https://github.com/shellcheck-py/shellcheck-py)
-configured_versions[gitleaks]=$(pre_commit_rev https://github.com/gitleaks/gitleaks)
-configured_versions[actionlint]=$(pre_commit_rev https://github.com/rhysd/actionlint)
-configured_versions[zizmor]=$(awk \
-  '/- name: zizmor/ { found=1 } found && /version:/ { sub(/.*version: v?/, ""); print; exit }' \
-  "$zizmor_defaults")
+configured_versions[gitleaks]=$(pinned_tool_version gitleaks)
+configured_versions[actionlint]=$(pinned_tool_version actionlint)
+configured_versions[zizmor]=$(pinned_tool_version zizmor)
 
 validation_failed=0
 
