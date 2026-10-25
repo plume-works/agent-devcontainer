@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-25
+
+- **Map**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md), and the [knowledge
+  workspace](codebase/docs/knowledge.md) for the `iwe-branch-name` skill.
+
 ## 2026-10-24
 
 - **Update**: [Opt-in Claude Remote Control server

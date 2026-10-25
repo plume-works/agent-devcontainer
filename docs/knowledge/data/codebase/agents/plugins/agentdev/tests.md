@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:7c8af97d58a008e8d1466cb69b95dc994227f908292eccee7052bbc231a68e10
+source_digest: sha256:b211952bfa12c4d3e648bbf545e6cff2250345a334a481eb3042ca4e7b6137ac
 verified:
   by: claude-code/claude-opus-5-5
-  at: 2026-10-22T01:24:56Z
-stale_after: 2027-01-20
+  at: 2026-10-25T12:00:00Z
+stale_after: 2027-01-23
 generated:
   by: claude-code/claude-opus-5-5
-  at: 2026-10-22T01:24:56Z
+  at: 2026-10-25T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -17,8 +17,9 @@ sources:
 
 # Plugin tests
 
-17 test modules plus `conftest.py` and the `git_fixtures.py` helper module, run
-with `uv run pytest .agents/plugins/agentdev/tests` and in CI by
+20 test modules plus `conftest.py` and the `git_fixtures.py` and
+`iwe_branch_fixtures.py` helper modules, run with
+`uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`. `opencode/bridge.test.ts` and
 `opencode/workspace-index.test.ts` are separate Bun suites for the [OpenCode
 bridge](opencode-plugin.md), run with
@@ -40,14 +41,18 @@ commands, and skills, and the bridge's CBM warning in `opencode.log`.
   removed after each test
 - `git_fixtures.py` — `FIXTURE_ENV`, `git()`, `outcome()`, and `stub_gh()`,
   shared by the git-skill modules and the push-branch module
+- `iwe_branch_fixtures.py` — `Workspace`, `plan_document()`, `run_script()`, and
+  `tools_without_gh()`, shared by the three `iwe-branch-name` modules
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
   `test_discover_ai_responder.py`, `test_explicit_only_parity.py`,
   `test_fetch_issue.py`, `test_gh_stack_guard.py`, `test_git_commit.py`,
   `test_install_codex_agents.py`, `test_git_new_branch.py`,
-  `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
-  `test_result_codes.py`, `test_stale_map_docs.py`,
-  `test_stale_map_docs_masks.py`, `test_stale_map_docs_replay.py`,
-  `test_template_consume_check_updates.py`, `test_update_branch.py`
+  `test_iwe_branch_name_next.py`, `test_iwe_branch_name_parse.py`,
+  `test_iwe_branch_name_plan_state.py`, `test_push_branch_map_check.py`,
+  `test_remote_codespace_session.py`, `test_result_codes.py`,
+  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
+  `test_stale_map_docs_replay.py`, `test_template_consume_check_updates.py`,
+  `test_update_branch.py`
 
 ## How it works
 
@@ -112,6 +117,15 @@ still checked and a stale one pushed outside the helper stops at `MAP_STALE`, an
 uncommitted edit does not change the verdict, and the temporary check worktree
 is removed.
 
+The `iwe-branch-name` modules share `iwe_branch_fixtures.Workspace`: a bare
+remote seeded with an IWE config and made-up plans, a working clone, and a
+publisher clone that advances the remote. They pin `parse` on names on and off
+the shape; `plan-state` on each state, a plan finished only locally reading as
+`incomplete`, key and slug lookup, `AMBIGUOUS_PLAN`, and `FETCH_FAILED`; and
+`next` on iterations found locally, only on the remote, or only in a stub `gh`'s
+pull-request list, each plan state's `NEXT_KIND`, and `GH_UNAVAILABLE` both for
+a `PATH` without `gh` and for a `gh` that fails its query.
+
 `test_explicit_only_parity.py` requires every skill that sets
 `disable-model-invocation: true` to carry an `agents/openai.yaml` with
 `allow_implicit_invocation: false`, and the reverse, and pins the mismatch check
@@ -139,7 +153,7 @@ rebased attachment mention spans without input mutation.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
@@ -148,6 +162,14 @@ Verified anchor points (line numbers as of 2026-10-21):
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
+- `.agents/plugins/agentdev/tests/iwe_branch_fixtures.py:40` — `Workspace`, the
+  remote/work/publisher triple with plans
+- `.agents/plugins/agentdev/tests/iwe_branch_fixtures.py:68` —
+  `tools_without_gh`, a `PATH` that lacks `gh`
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py:59` — a
+  plan finished only locally stays `incomplete`
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:62` — each source
+  of a used iteration counts
 - `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:116` — `Stack`, the
   two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the

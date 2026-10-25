@@ -196,8 +196,11 @@ Create: `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 **Files:** Modify: the `data/codebase/` documents `agent-code/stale-map-docs.py`
 reports stale after Tasks 1–6
 
-- [ ] `/agentdev:iwe-map` refresh mode re-reads every map document the new skill
+- [x] `/agentdev:iwe-map` refresh mode re-reads every map document the new skill
   and the edited files make stale, and `stale-map-docs.py` reports none
+  - **Evidence:** `stale-map-docs.py` reported `RESULT=SUCCESS` with 28 docs
+    fresh on 2026-10-25, after refreshing the four docs Tasks 1–6 made stale, in
+    the commit that refreshes them.
 
 ## Spec changes
 

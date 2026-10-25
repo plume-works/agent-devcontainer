@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 40 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:c13ba907b30c35bfcb66354e510d90fb0c09171c76cd263d71aae7fb66178bd0
+source_digest: sha256:48dc4d2f8bb2976e143fd82d0e1a22c4fd87cfecc47f3f8e38834bdbbd6b184b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T19:00:00Z
-stale_after: 2027-01-21
+  at: 2026-10-25T12:00:00Z
+stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T19:00:00Z
+  at: 2026-10-25T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -31,17 +31,17 @@ namespaced name.
 | Git and pull requests             | 15    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-stack` |
 | Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                                      |
 | Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                             |
-| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                                    |
+| IWE knowledge-graph workflow      | 13    | `iwe-audit`, `iwe-branch-name`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                 |
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
-`gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-capture`, `iwe-explore`,
-`iwe-map`, `iwe-plan`, `pr-discover-ai-responder`, `pr-gen-description`,
-`pr-open`, `pr-review`, `remote-codespace-session`, `template-consume`,
-`update-branch`. Skills with `references/` pages: `gh-stack`,
-`semantic-refactor-audit`, `template-consume`. `gh-stack`'s `SKILL.md` is the
-repository's own; its `references/upstream/` pages and `LICENSE` are copied
-unchanged from `github/gh-stack` at the release the image's `github_cli` role
-installs.
+`gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-branch-name`,
+`iwe-capture`, `iwe-explore`, `iwe-map`, `iwe-plan`, `pr-discover-ai-responder`,
+`pr-gen-description`, `pr-open`, `pr-review`, `remote-codespace-session`,
+`template-consume`, `update-branch`. Skills with `references/` pages:
+`gh-stack`, `semantic-refactor-audit`, `template-consume`. `gh-stack`'s
+`SKILL.md` is the repository's own; its `references/upstream/` pages and
+`LICENSE` are copied unchanged from `github/gh-stack` at the release the image's
+`github_cli` role installs.
 
 ## How it works
 
@@ -105,6 +105,16 @@ when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
 `git-new-branch.sh` stashes only with `--stash` and pops only the entry it
 created, located by its commit.
 
+`iwe-branch-name.py` names a plan's work branches
+`<impl|ship>/<slug>/iteration-<N>` and creates none; `iwe-implementer` and
+`git-new-branch`'s naming table defer plan branch names to it. `next` takes one
+more than the highest iteration among local branches, `git ls-remote --heads`,
+and `gh pr list --state all`, and reports `GH_UNAVAILABLE` (6) rather than a
+number when `gh` cannot answer. `plan-state` fetches the remote default branch,
+resolved through `bin/git-default-branch.sh`, and reads the plan from that tree,
+never the working tree; without `--phase`, `next` maps a `complete` plan to
+`ship`, an `incomplete` one to `impl`, and any other to the default branch.
+
 `update-branch.sh` brings in the branch's configured upstream — a fast-forward
 when only behind, a merge when diverged — before it merges `<remote>/<base>`,
 and reports it as `UPSTREAM_ACTION`. Both merges run `git-merge-resolve.sh` as a
@@ -139,7 +149,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -184,3 +194,7 @@ Verified anchor points (line numbers as of 2026-10-23):
   `replay_verdict`, the `RESTAMP`/`REFRESH` rule
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:369` —
   `source_digest_for_paths`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:284`
+  — `read_plan_state`, the remote-default-branch plan read
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:344`
+  — `next_iteration`, the three sources of used iterations
