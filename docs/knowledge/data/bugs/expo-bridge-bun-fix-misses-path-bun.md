@@ -54,13 +54,13 @@ of paths. The resolved path stays on the host; the protocol is unchanged.
 
 Verified anchor points (line numbers as of 2026-10-25):
 
-In `plume-works/vscode-expo-bridge` at `d53478a`:
+In `plume-works/vscode-expo-bridge` at `f79cc6b`:
 
-- `packages/host/src/bunfix.ts:35` — `resolveBunFix`; `:44` —
-  `brew upgrade bun`; `:47` — the bun.sh `upgrade` by absolute path
-- `packages/host/src/bunfix.ts:82` — `findShadowedBun`; `:120` — `ShadowNotes`
+- `packages/host/src/bunfix.ts:35` — `resolveBunFix`; `:46` —
+  `brew upgrade bun`; `:49` — the bun.sh `upgrade` by absolute path
+- `packages/host/src/bunfix.ts:84` — `findShadowedBun`; `:122` — `ShadowNotes`
 - `packages/host/src/fix.ts:22` — `planFixes`, taking the host's `BunFix`; `:59`
-  — the bun step's commands
+  — the bun step's commands; `:72` — `noCommandMessage`
 - `packages/host/src/extension.ts:50` — `planHostFixes`; `:258` — `ShadowNotes`
   over `context.globalState`; `:379` — a step with no command shows its detail
 - `packages/host/src/status.ts:106` — the bun check, unchanged
