@@ -40,8 +40,9 @@ def test_next_starts_at_iteration_one(plugin_root: Path, plugin_tmp_path: Path) 
         '1',
     )
     recorded = (gh / 'gh-args').read_text().splitlines()
-    assert recorded[:5] == ['pr', 'list', '--state', 'all', '--search']
-    assert recorded[5] == f'head:impl/{PLAN_SLUG}/'
+    assert recorded[:2] == ['pr', 'list']
+    assert recorded[recorded.index('--state') + 1] == 'all'
+    assert recorded[recorded.index('--search') + 1] == f'head:impl/{PLAN_SLUG}/'
 
 
 def test_next_follows_every_used_iteration(plugin_root: Path, plugin_tmp_path: Path) -> None:
@@ -77,6 +78,29 @@ def test_next_counts_each_source(plugin_root: Path, plugin_tmp_path: Path, sourc
     )
 
     assert values['NEXT'] == f'impl/{PLAN_SLUG}/iteration-4'
+
+
+@pytest.mark.parametrize('remote', ['origin', 'upstream'])
+def test_next_reads_pull_requests_of_the_remote(
+    plugin_root: Path, plugin_tmp_path: Path, remote: str
+) -> None:
+    """The pull-request query names the --remote URL's repository, not gh's default."""
+    workspace = Workspace(plugin_tmp_path)
+    upstream = plugin_tmp_path / 'upstream.git'
+    git(plugin_tmp_path, 'clone', '--quiet', '--bare', str(workspace.remote), str(upstream))
+    git(workspace.work, 'remote', 'add', 'upstream', str(upstream))
+    gh = pr_heads(plugin_tmp_path / 'gh')
+
+    completed, _ = run_script(
+        plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'impl', '--remote', remote,
+        path_prefix=gh,
+    )  # fmt: skip
+
+    recorded = (gh / 'gh-args').read_text().splitlines()
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert recorded[recorded.index('--repo') + 1] == git(
+        workspace.work, 'remote', 'get-url', remote
+    )
 
 
 def test_next_ignores_names_off_the_shape_and_the_other_phase(

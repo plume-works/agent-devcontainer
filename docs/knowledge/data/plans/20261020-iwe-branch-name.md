@@ -250,9 +250,15 @@ reports stale after Tasks 1–6
 `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
-- [ ] `pull_request_heads` passes `--repo <URL of --remote>` to `gh pr list`
-- [ ] `next` tests show the stub `gh` receiving `--repo` with the URL of the
+- [x] `pull_request_heads` passes `--repo <URL of --remote>` to `gh pr list`
+  - **Evidence:** `test_next_reads_pull_requests_of_the_remote` passed on
+    2026-10-25; in this repository `next 20261020-iwe-branch-name --phase impl`
+    still printed `NEXT=impl/iwe-branch-name/iteration-1` through the real `gh`.
+- [x] `next` tests show the stub `gh` receiving `--repo` with the URL of the
   remote `--remote` names, for `origin` and for a second remote
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
+    passed (19 tests) on 2026-10-25, with `origin` and `upstream` cases.
 
 ### Task 10: Skill text states the task-heading, empty-plan, and remote-repository rules
 

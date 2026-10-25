@@ -177,11 +177,13 @@ def library_path(root: Path) -> str:
     return (library_from_config(config_file) or '.').rstrip('/')
 
 
-def require_remote(remote: str) -> None:
-    """Stop with a preflight error when `remote` is not configured."""
-    if run_tool('git', 'remote', 'get-url', remote).returncode != 0:
+def require_remote(remote: str) -> str:
+    """Return the URL of `remote`, or stop with a preflight error when it is not configured."""
+    completed = run_tool('git', 'remote', 'get-url', remote)
+    if completed.returncode != 0:
         print_error(f"No remote named '{remote}'.")
         raise Stop(PREFLIGHT_ERROR)
+    return completed.stdout.strip()
 
 
 def remote_default_branch(remote: str) -> str:
@@ -328,26 +330,34 @@ def remote_branches(remote: str) -> list[str]:
     ]
 
 
-def pull_request_heads(phase: str, slug: str) -> list[str]:
-    """Return the head branches of pull requests in any state, or stop when gh cannot say."""
+def pull_request_heads(phase: str, slug: str, remote_url: str) -> list[str]:
+    """Return the heads of the remote repository's pull requests, or stop when gh cannot say."""
     if shutil.which('gh') is None:
         print_error('gh is not installed; a merged pull request may already hold the next name.')
         raise Stop(GH_UNAVAILABLE)
     completed = run_tool(
-        'gh', 'pr', 'list', '--state', 'all', '--search', f'head:{phase}/{slug}/',
+        'gh', 'pr', 'list', '--repo', remote_url, '--state', 'all',
+        '--search', f'head:{phase}/{slug}/',
         '--limit', '1000', '--json', 'headRefName', '--jq', '.[].headRefName',
     )  # fmt: skip
     if completed.returncode != 0:
         sys.stderr.write(completed.stderr)
-        print_error('gh could not list pull requests; run `gh auth status` to check the login.')
+        print_error(
+            f'gh could not list pull requests of {remote_url}; run `gh auth status` to check the '
+            'login, or the remote may not be a GitHub repository.'
+        )
         raise Stop(GH_UNAVAILABLE)
     return completed.stdout.splitlines()
 
 
 def next_iteration(phase: str, slug: str, remote: str) -> int:
     """Return one more than the highest iteration of `phase` and `slug` already used."""
-    require_remote(remote)
-    names = [*local_branches(), *remote_branches(remote), *pull_request_heads(phase, slug)]
+    remote_url = require_remote(remote)
+    names = [
+        *local_branches(),
+        *remote_branches(remote),
+        *pull_request_heads(phase, slug, remote_url),
+    ]
     used = [
         branch.iteration
         for name in names
