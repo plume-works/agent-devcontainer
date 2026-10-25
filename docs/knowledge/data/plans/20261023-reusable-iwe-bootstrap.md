@@ -5,8 +5,8 @@ release:
 - features/consumer-iwe-seed
 description: Extract a self-contained IWE bootstrap skill and make full template adoption reuse it without overwriting consumer knowledge.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-23T03:13:20Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:17:32Z
 sources:
 - resource: docs/knowledge/data/features/consumer-iwe-seed.md
 - resource: docs/knowledge/data/spec/template-consumption.md
@@ -37,12 +37,16 @@ can ship first.
 ## Approach
 
 Move the canonical blank workspace into assets owned by a new
-`/agentdev:iwe-bootstrap` skill as the sole scaffold source. Give the skill a
-deterministic helper that preflights a repository root, installs the complete
-`.iwe/` and `docs/knowledge/` scaffold only when its destinations are absent,
-validates the result, and reports stable result codes. A complete valid
-workspace is an idempotent success. Any partial or conflicting workspace is a
-non-destructive stop that identifies the paths requiring reconciliation.
+`/agentdev:iwe-bootstrap` skill as the sole source any initialization copies
+from. The scaffold's schemas, configuration, and knowledge instructions are the
+same bytes this repository's own workspace uses; a publisher-side test keeps the
+two identical and every asset tracked, so a schema change is a scaffold change.
+Give the skill a deterministic helper that preflights a repository root,
+installs the complete `.iwe/` and `docs/knowledge/` scaffold only when its
+destinations are absent, validates the result, and reports stable result codes.
+A complete valid workspace is an idempotent success. Any partial or conflicting
+workspace is a non-destructive stop that identifies the paths requiring
+reconciliation.
 
 Keep product discovery and code mapping out of bootstrap. A direct user may
 invoke `iwe-setup` and `iwe-map` afterwards; `template-consume` continues to
@@ -54,6 +58,13 @@ changes to consumer memory.
 Repository CI and pre-commit integration remain template-adoption concerns.
 Bootstrap establishes a locally valid knowledge base without merging unrelated
 repository configuration.
+
+The scaffold's Markdown uses IWE's extension-less links, which resolve only once
+installed, so `validate_agent_files` stops scanning the `assets/` directory
+beside a `SKILL.md` for references — in the Agent Skills layout that directory
+holds output templates, not documents read in place. No `data/spec/` document
+governs that scan; the validators codebase map documents it. The plugin-test CI
+job installs the pinned `iwe` so the bootstrap tests run rather than skip.
 
 ## Implementation Steps
 
@@ -197,22 +208,28 @@ Modify: `.agents/plugins/agentdev/README.md`,
     the guide's update section forbid invoking bootstrap or applying scaffold
     changes; `validate_agent_files` reports 64/64 and prettier is clean.
 
-### Task 5: Align the feature contract and maintenance guidance
+### Task 5: Align the feature and boundary documents
 
-**Files:** Create: `docs/knowledge/data/spec/iwe-bootstrap.md`; Modify:
-`docs/knowledge/data/features/consumer-iwe-seed.md`,
-`docs/knowledge/data/spec/template-consumption.md`,
-`docs/knowledge/data/architecture/template-boundary.md`,
-`docs/knowledge/data/spec.md`
+**Files:** Modify: `docs/knowledge/data/features/consumer-iwe-seed.md`,
+`docs/knowledge/data/architecture/template-boundary.md`
 
-- [ ] Document the independently invokable bootstrap contract, filesystem
-  ownership boundary, idempotent and conflict outcomes, and separation from
-  onboarding, mapping, and CI adoption.
-- [ ] Update full-adoption requirements and boundary inventories so
-  `template-consume` reuses the installed skill while consumer knowledge remains
-  consumer-owned after initialization.
+Spec documents are not edited here: Ship merges `## Spec changes` into
+`data/spec/template-consumption` and creates `data/spec/iwe-bootstrap`.
+
+- [ ] Update the template boundary inventories so `template-consume` reuses the
+  installed skill, the scaffold is catalog-owned rather than a template path,
+  and consumer knowledge remains consumer-owned after initialization.
 - [ ] Refresh the feature from repository-owned seed terminology to a reusable
   catalog-owned bootstrap while preserving full adoption as a supported path.
+
+### Task 6: Refresh the codebase map
+
+**Files:** Modify: the `docs/knowledge/data/codebase/` documents
+`stale-map-docs.py` reports stale or gone, and `docs/knowledge/data/codebase.md`
+
+- [ ] Run `/agentdev:iwe-map` refresh mode over every stale document, retire or
+  retarget the `templates/iwe` component to the `iwe-bootstrap` skill's
+  scaffold, and leave `stale-map-docs.py` reporting `RESULT=SUCCESS`.
 
 ## Spec changes
 
@@ -365,6 +382,9 @@ SHALL be reviewed against existing consumer data.
 
 - Run `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py`.
 - Run `uv run pytest docs/knowledge/tests/test_iwe_seed.py`.
+- Run `uv run --isolated --extra dev pytest` from
+  `py_packages/validate_agent_files`, confirming a skill's `assets/` is not
+  scanned while an `assets/` directory outside a skill still is.
 - Run the agent-file validator against the canonical plugin and an installed
   catalog copy, confirming the skill assets survive installation unchanged.
 - In a repository fixture outside the publisher tree, run bootstrap twice;
@@ -377,6 +397,8 @@ SHALL be reviewed against existing consumer data.
   invoke bootstrap before setup/map; exercise update mode and verify it never
   invokes bootstrap.
 - Run `iwe normalize` and `iwe schema validate` from the repository root.
+- Run `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py` and
+  confirm `RESULT=SUCCESS`.
 
 ## Out of scope
 
@@ -393,20 +415,31 @@ SHALL be reviewed against existing consumer data.
 
 Verified anchor points (line numbers as of 2026-10-25):
 
-- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:107` — current
-  full-adoption seed and onboarding handoff
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:824`
-  — current source-checkout-dependent seeding procedure
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:859`
-  — current setup-then-map onboarding sequence
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:142`
+  — `transaction_phase`, recognition of helper-owned transaction state
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:219`
+  — `required_files`, the structural files a complete workspace keeps
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md:26` —
+  scaffold ownership and import attribution
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:107` —
+  full-adoption bootstrap and onboarding handoff
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:772`
+  — retained knowledge paths after bootstrap
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:826`
+  — knowledge initialization through bootstrap
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:864`
+  — setup-then-map onboarding sequence
 - `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:9` — setup's assumption
   that a blank workspace already exists
-- `docs/knowledge/tests/test_iwe_seed.py:26` — publisher-root scaffold source
-  constants
-- `docs/knowledge/tests/test_iwe_seed.py:57` — isolated consumer workspace
-  fixture
-- `.iwe/config.toml:10` — root-relative IWE workspace path contract
-- `templates/iwe/README.md:7` — current seed ownership and maintenance boundary
+- `docs/knowledge/tests/test_iwe_seed.py:28` — `SCAFFOLD`, the packaged asset
+  root the seed tests copy
+- `docs/knowledge/tests/test_iwe_seed.py:110` —
+  `test_scaffold_support_files_match_the_publisher_workspace`
+- `py_packages/validate_agent_files/validate_agent_files/validators/bundled_markdown.py:29`
+  — `SKILL_ASSETS_DIR`, the skill asset tree the reference scan skips
+- `.github/workflows/validate-agent-files.yml:82` — pinned `iwe` install for the
+  plugin tests
+- `.iwe/config.toml:17` — root-relative IWE workspace path contract
 - `docs/knowledge/data/spec/template-consumption.md:279` — current reusable seed
   requirement
 - `docs/knowledge/data/spec/template-consumption.md:292` — current fresh IWE
