@@ -106,3 +106,6 @@ keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
 
 [Bug: Codex login stops being shared between standalone
 projects](bugs/standalone-codex-auth-unshared.md)
+
+[Bug: plan tasks edit spec documents that only Ship may
+change](bugs/plan-tasks-edit-specs.md)
