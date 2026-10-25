@@ -184,10 +184,17 @@ Assumptions:
 **Files:** none — on an Apple silicon Mac, the host extension packaged from the
 Task 5 commit sideloaded, an Expo consumer opened in a Dev Containers window
 
-- [ ] With the bug's reproduction — a bun.sh bun older than the container's in
+- [x] With the bug's reproduction — a bun.sh bun older than the container's in
   `~/.bun/bin` ahead of Homebrew's `oven-sh/bun/bun` at the container's version
   — the shadowing note names both paths once, the fix runs
   `'<home>/.bun/bin/bun' upgrade`, and the bun fix is no longer offered.
+  - **Evidence:** Mac run on 2026-10-25 with the host 0.2.6 VSIX packaged from
+    `e037795`, the container's bun 1.4.3, `~/.bun/bin/bun` 1.4.2 ahead of
+    Homebrew's 1.4.4: `status` failed the bun check, one notice named
+    `/Users/antonmatosov/.bun/bin/bun 1.4.2` and `/opt/homebrew/bin/bun 1.4.4`
+    across three `status` runs, the fix ran
+    `'/Users/antonmatosov/.bun/bin/bun' upgrade` to 1.4.4, and the bun fix was
+    no longer offered.
 - [x] After restoring the older bun.sh bun and reloading the window, the bun fix
   is offered again and the shadowing note is not shown again.
   - **Evidence:** Mac run on 2026-10-25, same VSIX: after reinstalling bun.sh
