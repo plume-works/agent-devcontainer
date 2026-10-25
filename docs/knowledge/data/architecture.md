@@ -100,3 +100,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
 [VS Code Expo bridge](architecture/vscode-expo-bridge.md)
+
+[Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
