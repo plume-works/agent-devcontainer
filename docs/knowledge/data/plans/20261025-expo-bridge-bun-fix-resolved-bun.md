@@ -163,10 +163,13 @@ Assumptions:
 **Files:** Modify: the three extensions' `package.json` versions (through
 `bun run bump`), `packages/host/README.md`, in `plume-works/vscode-expo-bridge`
 
-- [ ] The pack and both extensions carry the next patch version, and the host
+- [x] The pack and both extensions carry the next patch version, and the host
   README says the bun fix upgrades the bun first on the Mac's login `PATH` —
   through Homebrew or `bun upgrade` according to how it was installed — and
   notes once when that bun shadows a newer one.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `e037795`:
+    `bun run bump` sets all three extensions to 0.2.6, and
+    `packages/host/README.md` describes the bun fix.
 
 ### Task 5: Sibling repository CI passes
 
