@@ -280,21 +280,35 @@ workflow shape a repository runs — no consumer runs the earlier one.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] Every `Require AI Review` reference — the completion criteria, the check
+- [x] Every `Require AI Review` reference — the completion criteria, the check
   classification in step 4, and the `## AI Review Recovery` introduction — names
   the `ai-review-present` check instead
-- [ ] `## AI Review Recovery` drops workflow-filename discovery, the
+  - **Evidence:** `pr-merge/SKILL.md` names `ai-review-present` in the
+    completion criteria, step 4, and the `## AI Review Recovery` introduction;
+    `grep -n "Require AI Review"` on it returns nothing.
+- [x] `## AI Review Recovery` drops workflow-filename discovery, the
   in-conversation per-head-SHA ledger, the "`gh pr checks` is not sufficient"
   warning, the `Determine checkout ref` attribution, and `gh run watch` by run
   id. A review in progress is a pending `Claude PR Review Responder` or
   `ai-review-present` check on the head, waited on with `gh pr checks --watch`
-- [ ] Its trigger step requests the review through
+  - **Evidence:** recovery steps 1-2 confirm the failed gate and wait on a
+    pending `Claude PR Review Responder` or `ai-review-present` check with
+    `gh pr checks --watch`; `grep` for `discover`, `ledger`, `gh run watch`, and
+    `Determine checkout` on `pr-merge/SKILL.md` returns nothing.
+- [x] Its trigger step requests the review through
   [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose script posts
   it; `ALREADY_REQUESTED` means wait on the head's checks, not post again
-- [ ] The step that waits for a clean review's gate "to rerun and pass" says
+  - **Evidence:** recovery step 3 requests through `pr-request-ai-review` and
+    handles `ALREADY_REQUESTED` by waiting on the head checks and
+    `ALREADY_REVIEWED` by reporting.
+- [x] The step that waits for a clean review's gate "to rerun and pass" says
   instead that the latest `ai-review-present` run on the head completes with the
   review, and a run whose review job ends without a review is reported, not
   retried; `## Related Skills` drops `pr-discover-ai-responder`
+  - **Evidence:** recovery steps 4-6 wait for the latest `ai-review-present` run
+    on the head and report a review job that ends without a review;
+    `## Related Skills` lists `pr-request-ai-review` instead of
+    `pr-discover-ai-responder`; `validate_agent_files` reports no errors.
 
 ### Task 8: Delete pr-discover-ai-responder
 
