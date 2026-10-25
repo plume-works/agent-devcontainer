@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Update**: filed [Bug: a comment-requested review's gate does not count
+  toward merge](bugs/dispatched-review-gate-not-counted.md), reproduced on
+  throwaway PR #472.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
   its [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for the removed

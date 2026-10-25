@@ -118,3 +118,6 @@ projects](bugs/standalone-codex-auth-unshared.md)
 
 [Bug: plan tasks edit spec documents that only Ship may
 change](bugs/plan-tasks-edit-specs.md)
+
+[Bug: a comment-requested review's gate does not count toward
+merge](bugs/dispatched-review-gate-not-counted.md)
