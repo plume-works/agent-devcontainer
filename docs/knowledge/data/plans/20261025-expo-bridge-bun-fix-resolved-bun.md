@@ -188,10 +188,16 @@ Task 5 commit sideloaded, an Expo consumer opened in a Dev Containers window
   `~/.bun/bin` ahead of Homebrew's `oven-sh/bun/bun` at the container's version
   — the shadowing note names both paths once, the fix runs
   `'<home>/.bun/bin/bun' upgrade`, and the bun fix is no longer offered.
-- [ ] After restoring the older bun.sh bun and reloading the window, the bun fix
+- [x] After restoring the older bun.sh bun and reloading the window, the bun fix
   is offered again and the shadowing note is not shown again.
-- [ ] With `oven-sh/bun/bun` installed, `brew upgrade --dry-run bun` names
+  - **Evidence:** Mac run on 2026-10-25, same VSIX: after reinstalling bun.sh
+    1.4.2 and reloading the window, the bun fix was offered and ran
+    `'/Users/antonmatosov/.bun/bin/bun' upgrade` again, with no second notice.
+- [x] With `oven-sh/bun/bun` installed, `brew upgrade --dry-run bun` names
   `oven-sh/bun/bun`, not `homebrew/core/bun`.
+  - **Evidence:** Mac run on 2026-10-25: `brew upgrade --dry-run bun` prints
+    `oven-sh/bun/bun 1.4.4 already installed`, and `brew info bun` warns that
+    `bun` shadows `homebrew/core/bun`.
 
 ### Task 7: Record the fix in this repository's project memory
 
