@@ -3,7 +3,7 @@ type: architecture
 description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, one socket per window, the request's workspace folder mapped to its Mac path through Docker, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T08:00:00Z
+  at: 2026-10-25T09:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
@@ -135,6 +135,13 @@ the request folder's earlier artifact when a cache key matches:
 - **Only artifacts without an embedded bundle are stored.** An artifact holding
   `main.jsbundle` would carry stale JavaScript, so a Release build always builds
   in full.
+- **An artifact `tar -tzf` cannot list is not stored**, since nothing shows it
+  holds no `main.jsbundle`. A simulator build's artifact is always a gzipped
+  tar, so this refuses no development build.
+- **The fingerprint step and the version probes have no timeout**, like the
+  eas-cli build they precede, which evaluates the same app config and runs
+  through the same `bunx`. A timeout on the probes alone would not bound a
+  build, so it is not worth adding.
 
 The fingerprint is a correctness hint, not a security input: project code can
 force a match, and the worst outcome is a stale artifact this folder's own
