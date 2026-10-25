@@ -56,27 +56,38 @@ after it.
 
 ## Confirm it started
 
-A posted comment is not a started review. Resolve the responder workflow and
-list its `issue_comment` runs with
-[pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) rather than
-assuming the workflow's filename: it differs between repositories, and a wrong
-one returns an empty list that reads exactly like "no run started".
+A posted comment is not a started review. The trigger dispatches the responder
+on the pull request's head branch, so the review's checks attach to the head
+commit and `gh pr checks` lists them:
 
-Comment-triggered runs may not be attached to the PR head. Use
-[pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) instead of
-relying on `gh pr checks` alone.
+```bash
+gh pr checks <pr> --json name,state,link
+```
 
-Report the comment URL and the run you observed. When nothing turns up, the
-shape of the gap points at the cause:
+A pending `Claude PR Review Responder` or `ai-review-present` check on the head
+means the review started. Report the comment URL and that check. When neither
+appears, read the `issue_comment` run the comment started on the default branch,
+the one created just after it:
 
-- **No run at all** — the mention never qualified. Re-read the comment as
+```bash
+gh run list --workflow ai-responder.yml --event issue_comment \
+  --json databaseId,status,conclusion,createdAt,url --limit 5
+gh run view <run-id> --json jobs --jq '.jobs[] | {name, conclusion}'
+```
+
+The shape of that run points at the cause:
+
+- **Every job skipped** — the mention never qualified. Re-read the comment as
   posted and confirm it truly opens with `@claude`.
-- **A run that ends without a review** — the preflight rejected the request.
-  Check whether the pull request comes from a fork or the requester lacks write
-  access. Either rejection needs a person rather than a retry.
+- **Preflight failed, or the bridge (`Dispatch on the pull request branch`)
+  skipped or failed** — no review was dispatched: the requester lacks write
+  access, the pull request comes from a fork, or its head branch has no
+  `ai-responder.yml`. Each needs a person rather than a retry.
+- **The bridge succeeded, then a review check completed without a review** —
+  report that review run's failure from its log.
 
-If neither applies and the run is simply slow, say so plainly instead of
-posting the comment again.
+If none of these applies and the check is simply still pending, say so plainly
+instead of posting the comment again.
 
 ## Post at most once per head SHA
 
@@ -102,7 +113,5 @@ triggering again.
 
 - [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) — decide whether
   pushed work warrants the request this skill posts.
-- [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) — resolve the
-  responder workflow's filename and find its runs.
 - [pr-merge](../pr-merge/SKILL.md) — merge-time recovery when the AI-review gate
   is red, including when to trigger and when to escalate.

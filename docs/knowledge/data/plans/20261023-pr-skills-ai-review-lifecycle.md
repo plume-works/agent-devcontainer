@@ -205,16 +205,26 @@ workflow shape a repository runs — no consumer runs the earlier one.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md`
 
-- [ ] `## Confirm it started` confirms the review from a pending
+- [x] `## Confirm it started` confirms the review from a pending
   `Claude PR Review Responder` or `ai-review-present` check on the head commit
   in `gh pr checks <pr>`, and drops workflow discovery and the claim that
   comment-triggered runs are not attached to the head
-- [ ] Its gap shapes become: no `issue_comment` run of `ai-responder.yml` on the
-  default branch — the mention never qualified; such a run but no check on the
-  head — the bridge dispatched nothing (a fork, a head branch without
-  `ai-responder.yml`, or a rejected requester), which needs a person; a review
-  check that completes without a review — report the run's failure
-- [ ] `## Related Skills` drops `pr-discover-ai-responder`
+  - **Evidence:** `pr-request-ai-review/SKILL.md` `## Confirm it started` reads
+    `gh pr checks <pr>` for a pending `Claude PR Review Responder` or
+    `ai-review-present` check and no longer mentions workflow discovery or runs
+    detached from the head.
+- [x] Its gap shapes are read from the `issue_comment` run of `ai-responder.yml`
+  the comment started on the default branch: every job skipped — the mention
+  never qualified; preflight failed, or the bridge skipped or failed — nothing
+  was dispatched (a fork, a head branch without `ai-responder.yml`, or a
+  rejected requester), which needs a person; a review check that completes
+  without a review — report the run's failure
+  - **Evidence:** the same section lists the three shapes of the `issue_comment`
+    run, with the `gh run list` and `gh run view --json jobs` commands that read
+    it.
+- [x] `## Related Skills` drops `pr-discover-ai-responder`
+  - **Evidence:** `grep -n discover` on `pr-request-ai-review/SKILL.md` returns
+    nothing; `validate_agent_files` reports 63/63 skills valid.
 
 ### Task 4: The eval reads intent from the pull request
 
