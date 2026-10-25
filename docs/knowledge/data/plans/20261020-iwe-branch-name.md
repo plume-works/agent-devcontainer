@@ -163,9 +163,12 @@ Create: `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 **Files:** Modify: `.agents/plugins/agentdev/README.md`, `README.md`,
 `docs/knowledge/AGENTS.md`
 
-- [ ] `iwe-branch-name` rows in the plugin README's IWE table, the root README's
+- [x] `iwe-branch-name` rows in the plugin README's IWE table, the root README's
   skill table, and the `## Workspace skills` table of the workspace operating
   manual
+  - **Evidence:** the rows are at `.agents/plugins/agentdev/README.md:152`,
+    `README.md:296`, and `docs/knowledge/AGENTS.md:227` as of 2026-10-25;
+    `prettier` and `iwe normalize` passed in the commit that adds them.
 
 ### Task 5: Implementer names its branch through iwe-branch-name
 
