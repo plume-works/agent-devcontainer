@@ -166,17 +166,22 @@ Assumptions:
 **Files:** Modify:
 `docs/knowledge/data/features/claude-remote-control-server-mode.md`
 
-- [ ] In `## Behaviour`, replace the `--spawn same-dir` command and the "Same
+- [x] In `## Behaviour`, replace the `--spawn same-dir` command and the "Same
   directory" paragraph with the spawn-mode setting: each on-demand conversation
   in its own worktree by default, the workspace folder with
   `AGENTDEV_CLAUDE_RC_SPAWN=same-dir`, the pre-created conversation in the
   workspace folder either way
-- [ ] In `## Edge cases`, replace "Worktree spawn mode. Not offered" with an
+  - **Evidence:** commit "Describe the worktree spawn default in the server-mode
+    feature": the "A worktree per conversation by default" paragraph.
+- [x] In `## Edge cases`, replace "Worktree spawn mode. Not offered" with an
   unrecognized spawn value failing startup in server mode and being ignored in
   session mode; add to `## Open questions` whether worktrees of spawned
   conversations accumulate, since spawned sessions run as `claude --print`
   (restart resume finding) and Claude Code documents no worktree cleanup for
   `-p` runs; `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit "Describe the worktree spawn default in the server-mode
+    feature": the unrecognized spawn value edge case and the accumulation open
+    question; `iwe normalize` and `iwe schema validate` clean.
 
 ### Task 5: Confirm both spawn modes on a Coder workspace
 
