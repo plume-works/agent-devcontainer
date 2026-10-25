@@ -13,6 +13,8 @@ sources:
 - resource: .github/workflows/ci.yml
 - resource: https://playwright.dev/docs/browsers
 - resource: https://playwright.dev/docs/docker
+stage: done
+completed: 2026-10-25
 ---
 
 # Bundle a Playwright browser in the development image

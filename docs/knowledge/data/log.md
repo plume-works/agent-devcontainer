@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Update**: [Bundle a Playwright browser in the development
+  image](plans/20261021-playwright-browser.md) done; created the [Playwright
+  browser](spec/playwright-browser.md) spec.
+- **Update**: [Playwright browser in the development
+  image](features/playwright-browser.md) implemented; listed under Unreleased
+  Added.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
   and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
   `exec-summary` skill.

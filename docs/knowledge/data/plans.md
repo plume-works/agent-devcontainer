@@ -26,9 +26,6 @@ skill](plans/20261023-reusable-iwe-bootstrap.md)
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
-[Bundle a Playwright browser in the development
-image](plans/20261021-playwright-browser.md)
-
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Ship a standalone OpenCode
@@ -44,6 +41,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Bundle a Playwright browser in the development
+image](plans/20261021-playwright-browser.md)
 
 [Reuse a matching Expo bridge build by
 fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)
