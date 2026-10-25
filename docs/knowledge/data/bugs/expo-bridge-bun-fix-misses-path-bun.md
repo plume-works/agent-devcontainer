@@ -3,10 +3,11 @@ type: bug
 description: The Expo bridge's bun fix installs Homebrew's bun, but the bun check runs the first bun on the Mac's login PATH, so a stale bun.sh install ahead of Homebrew keeps the fix offered forever.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T14:00:00Z
+  at: 2026-10-25T17:00:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
+- resource: docs/knowledge/data/plans/20261025-expo-bridge-bun-fix-resolved-bun.md
 ---
 
 # Bug: the Expo bridge's bun fix upgrades a bun the check never runs
@@ -39,22 +40,28 @@ binary the check runs untouched.
 
 ## Fix
 
-Unfixed. The fix step needs to act on the bun the check resolved, for example
-`bun upgrade` when that bun is not under a Homebrew prefix, and the check's
-detail could name the resolved path.
+The fix is in `plume-works.vscode-expo-bridge-host` 0.2.6
+([plume-works/vscode-expo-bridge#24](https://github.com/plume-works/vscode-expo-bridge/pull/24)).
+When the bun check fails, the host resolves the same first `bun` on the login
+`PATH` and picks the fix by where that bun came from: `brew upgrade bun` when
+its real path is under `/opt/homebrew/Cellar/`, `'<path>' upgrade` when it is
+the bun.sh install, `brew install oven-sh/bun/bun` when there is none, and no
+command, with a detail naming the path, otherwise. When a later bun on the
+`PATH` already meets the container's version, a notice names both once per pair
+of paths. The resolved path stays on the host; the protocol is unchanged.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-24):
+Verified anchor points (line numbers as of 2026-10-25):
 
-In `plume-works/vscode-expo-bridge` at `8d8b77c`:
+In `plume-works/vscode-expo-bridge` at `d53478a`:
 
-- `packages/host/src/fix.ts:54` — the bun fix step; `:58` — its only command,
-  `brew install oven-sh/bun/bun`
-- `packages/host/src/status.ts:37` — `toolVersion`, which runs the first match
-  of `lookupTool`; `:106` — the bun check; `:112` — the "older than the
-  container's" detail
-- `packages/host/src/env.ts:26` — `withHomebrewPath`, which prepends only
-  missing prefixes; `:49` — `lookupTool`, first match on `PATH`
-- `packages/host/src/extension.ts:122` — `captureLoginEnv()`, the environment
-  the checks run in
+- `packages/host/src/bunfix.ts:35` — `resolveBunFix`; `:44` —
+  `brew upgrade bun`; `:47` — the bun.sh `upgrade` by absolute path
+- `packages/host/src/bunfix.ts:82` — `findShadowedBun`; `:120` — `ShadowNotes`
+- `packages/host/src/fix.ts:22` — `planFixes`, taking the host's `BunFix`; `:59`
+  — the bun step's commands
+- `packages/host/src/extension.ts:50` — `planHostFixes`; `:258` — `ShadowNotes`
+  over `context.globalState`; `:379` — a step with no command shows its detail
+- `packages/host/src/status.ts:106` — the bun check, unchanged
+- `packages/host/src/build.ts:75` — `build` resolves the same bun

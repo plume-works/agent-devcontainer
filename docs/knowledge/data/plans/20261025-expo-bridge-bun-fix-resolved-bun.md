@@ -212,10 +212,14 @@ Task 5 commit sideloaded, an Expo consumer opened in a Dev Containers window
 `docs/knowledge/data/bugs/expo-bridge-bun-fix-misses-path-bun.md`,
 `docs/knowledge/data/architecture/vscode-expo-bridge.md`
 
-- [ ] The bug's `## Fix` describes the fix and its `## Key references` point at
+- [x] The bug's `## Fix` describes the fix and its `## Key references` point at
   the current lines; the architecture document says the bun fix acts on the bun
   the check resolved, by origin, with this plan's rejected alternatives.
   `iwe normalize` and `iwe schema validate` pass.
+  - **Evidence:** the commit that ticks this box rewrites the bug's `## Fix` and
+    its anchors at `d53478a`, and adds the bun-fix constraint and five rejected
+    alternatives to `data/architecture/vscode-expo-bridge`; `iwe normalize` and
+    `iwe schema validate` pass.
 
 ## Spec changes
 
