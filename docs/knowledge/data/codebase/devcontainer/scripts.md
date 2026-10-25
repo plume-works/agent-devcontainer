@@ -2,11 +2,11 @@
 type: codebase
 description: The postCreate, postStart, and postAttach hooks and the helpers they call — agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth links and full-access policies, gh credential helper, the Coder agent-start entry point, Remote Control, the OpenCode web UI — plus the standalone agent-opencode runtime built from the same helpers.
 source: .devcontainer/scripts
-source_digest: sha256:43aabde8b5953f9349a1e3ac691c41221dd16151df373e692fff5aac7d88f2d6
+source_digest: sha256:5b14040a020458a489bac48314d001ebb6b55145fdeb889b52b99f1a1a8857b2
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-24T04:17:27Z
-stale_after: 2027-01-22
+stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-24T04:17:27Z
@@ -17,7 +17,7 @@ sources:
 
 # Devcontainer lifecycle scripts
 
-Thirty-five shell scripts, all `set -euo pipefail` except the sourced
+Thirty-six shell scripts, all `set -euo pipefail` except the sourced
 `runtime-paths.sh`, and four Python scripts. The three lifecycle commands in
 [devcontainer.json](../devcontainer.md) fan out to them. The `agent-opencode`
 image bakes the whole directory into `/opt/agentdev-runtime` and runs the
@@ -55,6 +55,7 @@ Devcontainer lifecycle and shared helpers:
 | `setup-gh-credential-helper.sh`                                                      | start, Coder start, standalone clone          | `gh auth setup-git` when gh is logged in (an injected token counts) and no github.com helper exists; loads `${AGENTDEV_KEYRING_ENV_FILE}` first                                                                                                                                                                                                                                                                                                                                                                                             |
 | `setup-keyring.sh`                                                                   | start                                         | dbus + gnome-keyring session over `runtime-keyring.sh`'s primitives, at containerEnv's fixed `DBUS_SESSION_BUS_ADDRESS` when set, persisted to `${AGENTDEV_KEYRING_ENV_FILE:-.tmp/keyring-session.env}`                                                                                                                                                                                                                                                                                                                                     |
 | `firewall.sh`                                                                        | start                                         | run `init-firewall.sh` only when `ENABLE_FIREWALL=true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `environment-health.sh`                                                              | by hand                                       | read-only PASS/FAIL/SKIP report of tools, services, auth links, and network for the devcontainer or standalone mode; exits `1` on any FAIL and never prints auth output                                                                                                                                                                                                                                                                                                                                                                     |
 | `setup-git-safe-directory.sh`, `setup-pre-commit.sh`                                 | start, standalone                             | add `safe.directory` once; hook install unless `AGENTDEV_SKIP_PRE_COMMIT`; standalone registers hook scripts without building environments and refuses conflicts                                                                                                                                                                                                                                                                                                                                                                            |
 | `ci-hooks-repro.sh`                                                                  | by hand                                       | run the hooks inside a bare `container:` job image to reproduce CI                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
