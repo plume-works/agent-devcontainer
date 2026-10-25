@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 40 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:9adb744ebf2d23efdbb74d5a43673dab906c683e6773570d494405ab33b51ab0
+source_digest: sha256:697882c2bbc4f0cc0f145fdecc880305c714df6aec6ad70b39518cd335c3a128
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T05:57:15Z
-stale_after: 2027-01-21
+  at: 2026-10-25T14:00:00Z
+stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T19:00:00Z
+  at: 2026-10-25T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -29,7 +29,7 @@ namespaced name.
 | Family                            | Count | Skills                                                                                                                                                                                                                                                                         |
 | --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Git and pull requests             | 15    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-stack` |
-| Review, CI, and formatting        | 6     | `code-review-standards`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                                      |
+| Review, CI, and formatting        | 7     | `code-review-standards`, `exec-summary`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                      |
 | Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                             |
 | IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                                    |
 
