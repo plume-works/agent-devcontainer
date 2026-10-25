@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
 import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
 
 USAGE = """\
-Name an IWE plan's work branches <phase>/<slug>/iteration-<N> and read the
+Name an IWE plan's work branches <phase>/<slug>/iter-<N> and read the
 plan's state at the remote default branch. Creates, switches, and deletes no
 branch.
 
@@ -59,7 +59,7 @@ URL names. plan-state counts task checkboxes under ## Implementation Steps or
 
 Results (RESULT / exit code):
   SUCCESS            0  The name's parts, the plan's state, or the next name was reported
-  NOT_A_WORK_BRANCH  3  parse: the branch is not <impl|ship>/<slug>/iteration-<N>
+  NOT_A_WORK_BRANCH  3  parse: the branch is not <impl|ship>/<slug>/iter-<N>
   AMBIGUOUS_PLAN     4  The slug matches more than one plan at the default branch
   FETCH_FAILED       5  The remote could not be fetched or its branches listed
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or its pull-request query failed
@@ -78,7 +78,7 @@ FETCH_FAILED = 5
 GH_UNAVAILABLE = 6
 
 PHASES = ('impl', 'ship')
-WORK_BRANCH = re.compile(r'(impl|ship)/([^/]+)/iteration-([1-9][0-9]*)')
+WORK_BRANCH = re.compile(r'(impl|ship)/([^/]+)/iter-([1-9][0-9]*)')
 DATED_PLAN = re.compile(r'([0-9]{8})-(.+)')
 # The task sections the repository's plan-checkbox gate also reads.
 TASK_SECTIONS = ('## Implementation Steps', '## Tasks')
@@ -383,7 +383,7 @@ def run_next(options: Options) -> int:
         phase = 'ship' if plan.state == 'complete' else 'impl'
         slug = slug_of(plan.key)
     iteration = next_iteration(phase, slug, options.remote)
-    print(f'NEXT={phase}/{slug}/iteration-{iteration}')
+    print(f'NEXT={phase}/{slug}/iter-{iteration}')
     print(f'NEXT_KIND={phase}')
     print(f'ITERATION={iteration}')
     return 0
@@ -445,7 +445,7 @@ def run_parse(branch: str) -> int:
     """Print the parts of a work branch name."""
     work_branch = parse_work_branch(branch)
     if work_branch is None:
-        print_error(f"'{branch}' is not <impl|ship>/<slug>/iteration-<N>.")
+        print_error(f"'{branch}' is not <impl|ship>/<slug>/iter-<N>.")
         return NOT_A_WORK_BRANCH
     print(f'PHASE={work_branch.phase}')
     print(f'SLUG={work_branch.slug}')

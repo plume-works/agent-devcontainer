@@ -35,7 +35,7 @@ def test_next_starts_at_iteration_one(plugin_root: Path, plugin_tmp_path: Path) 
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert (values['NEXT'], values['NEXT_KIND'], values['ITERATION']) == (
-        f'impl/{PLAN_SLUG}/iteration-1',
+        f'impl/{PLAN_SLUG}/iter-1',
         'impl',
         '1',
     )
@@ -48,22 +48,22 @@ def test_next_starts_at_iteration_one(plugin_root: Path, plugin_tmp_path: Path) 
 def test_next_follows_every_used_iteration(plugin_root: Path, plugin_tmp_path: Path) -> None:
     """The highest of a local, a remote-only, and a PR-only iteration plus one."""
     workspace = Workspace(plugin_tmp_path)
-    git(workspace.work, 'branch', f'impl/{PLAN_SLUG}/iteration-1')
-    workspace.push_branch(f'impl/{PLAN_SLUG}/iteration-2')
-    gh = pr_heads(plugin_tmp_path / 'gh', f'impl/{PLAN_SLUG}/iteration-4')
+    git(workspace.work, 'branch', f'impl/{PLAN_SLUG}/iter-1')
+    workspace.push_branch(f'impl/{PLAN_SLUG}/iter-2')
+    gh = pr_heads(plugin_tmp_path / 'gh', f'impl/{PLAN_SLUG}/iter-4')
 
     _, values = run_script(
         plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'impl', path_prefix=gh
     )
 
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iteration-5'
+    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-5'
 
 
 @pytest.mark.parametrize('source', ['local', 'remote', 'pr'])
 def test_next_counts_each_source(plugin_root: Path, plugin_tmp_path: Path, source: str) -> None:
     """A merged iteration whose branch was deleted still counts, as do local and remote ones."""
     workspace = Workspace(plugin_tmp_path)
-    used = f'impl/{PLAN_SLUG}/iteration-3'
+    used = f'impl/{PLAN_SLUG}/iter-3'
     heads: tuple[str, ...] = ()
     if source == 'local':
         git(workspace.work, 'branch', used)
@@ -77,7 +77,7 @@ def test_next_counts_each_source(plugin_root: Path, plugin_tmp_path: Path, sourc
         plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'impl', path_prefix=gh
     )
 
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iteration-4'
+    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-4'
 
 
 @pytest.mark.parametrize('remote', ['origin', 'upstream'])
@@ -106,15 +106,16 @@ def test_next_reads_pull_requests_of_the_remote(
 def test_next_ignores_names_off_the_shape_and_the_other_phase(
     plugin_root: Path, plugin_tmp_path: Path
 ) -> None:
-    """Only exact <phase>/<slug>/iteration-<N> names of the asked phase and slug count."""
+    """Only exact <phase>/<slug>/iter-<N> names of the asked phase and slug count."""
     workspace = Workspace(plugin_tmp_path)
-    git(workspace.work, 'branch', f'ship/{PLAN_SLUG}/iteration-7')
+    git(workspace.work, 'branch', f'ship/{PLAN_SLUG}/iter-7')
     git(workspace.work, 'branch', PLAN_SLUG)
-    git(workspace.work, 'branch', f'impl/{PLAN_SLUG}-v2/iteration-9')
+    git(workspace.work, 'branch', f'impl/{PLAN_SLUG}-v2/iter-9')
     gh = pr_heads(
         plugin_tmp_path / 'gh',
-        f'impl/{PLAN_SLUG}/iteration-8-retry',
-        f'impl/{PLAN_SLUG}/iteration-0',
+        f'impl/{PLAN_SLUG}/iter-8-retry',
+        f'impl/{PLAN_SLUG}/iter-0',
+        f'impl/{PLAN_SLUG}/iteration-3',
         f'impl-{PLAN_SLUG}-iter2',
     )
 
@@ -122,7 +123,7 @@ def test_next_ignores_names_off_the_shape_and_the_other_phase(
         plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'impl', path_prefix=gh
     )
 
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iteration-1'
+    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-1'
 
 
 def test_next_with_phase_does_not_need_the_plan(plugin_root: Path, plugin_tmp_path: Path) -> None:
@@ -135,7 +136,7 @@ def test_next_with_phase_does_not_need_the_plan(plugin_root: Path, plugin_tmp_pa
     )
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iteration-1'
+    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-1'
     assert 'PLAN_STATE' not in values
 
 
@@ -148,13 +149,13 @@ def test_next_with_phase_does_not_need_the_plan(plugin_root: Path, plugin_tmp_pa
         (
             {PLAN_KEY: plan_document(ticks=(True, True))},
             'complete',
-            f'ship/{PLAN_SLUG}/iteration-2',
+            f'ship/{PLAN_SLUG}/iter-2',
             'ship',
         ),
         (
             {PLAN_KEY: plan_document(ticks=(True, False))},
             'incomplete',
-            f'impl/{PLAN_SLUG}/iteration-1',
+            f'impl/{PLAN_SLUG}/iter-1',
             'impl',
         ),
     ],
@@ -169,7 +170,7 @@ def test_next_follows_the_plan_state(
 ) -> None:
     """Without --phase, each plan state maps to its NEXT_KIND."""
     workspace = Workspace(plugin_tmp_path, plans)
-    gh = pr_heads(plugin_tmp_path / 'gh', f'ship/{PLAN_SLUG}/iteration-1')
+    gh = pr_heads(plugin_tmp_path / 'gh', f'ship/{PLAN_SLUG}/iter-1')
 
     completed, values = run_script(plugin_root, workspace.work, 'next', PLAN_SLUG, path_prefix=gh)
 

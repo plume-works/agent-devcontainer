@@ -363,11 +363,18 @@ reports stale after Tasks 8–12
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py`,
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
-- [ ] `WORK_BRANCH`, the `NEXT=` line, the `--help` text, and the
+- [x] `WORK_BRANCH`, the `NEXT=` line, the `--help` text, and the
   `NOT_A_WORK_BRANCH` message use `<phase>/<slug>/iter-<N>`
-- [ ] `parse` and `next` tests use `iter-<N>` names, and a `parse` test reports
+  - **Evidence:** `iwe-branch-name.py` lines 24, 62, 81, 386, and 448 in the
+    commit that renames the suffix; `python-lint-check.sh` clean on 2026-10-25.
+- [x] `parse` and `next` tests use `iter-<N>` names, and a `parse` test reports
   `NOT_A_WORK_BRANCH` for an `iteration-<N>` name; a `next` test shows an
   `iteration-<N>` branch is not counted
+  - **Evidence:** `uv run pytest` on the three `test_iwe_branch_name_*.py`
+    modules passed (49 tests) on 2026-10-25, including the
+    `impl/focus-timer/iteration-1` case of
+    `test_parse_rejects_a_name_off_the_shape` and the `iteration-3` head in
+    `test_next_ignores_names_off_the_shape_and_the_other_phase`.
 
 ### Task 16: Skill text names the iter-<N> suffix
 
