@@ -78,6 +78,8 @@ GH_UNAVAILABLE = 6
 PHASES = ('impl', 'ship')
 WORK_BRANCH = re.compile(r'(impl|ship)/([^/]+)/iteration-([1-9][0-9]*)')
 DATED_PLAN = re.compile(r'([0-9]{8})-(.+)')
+# The task sections the repository's plan-checkbox gate also reads.
+TASK_SECTIONS = ('## Implementation Steps', '## Tasks')
 DEFAULT_BRANCH_HELPER = Path(__file__).resolve().parents[3] / 'bin' / 'git-default-branch.sh'
 
 
@@ -252,7 +254,7 @@ def frontmatter_stage(lines: list[str]) -> str:
 
 
 def task_checkboxes(lines: list[str]) -> list[bool]:
-    """Return each task checkbox under ## Implementation Steps as ticked or not."""
+    """Return each task checkbox under a task section as ticked or not."""
     boxes: list[bool] = []
     in_steps = False
     in_fence = False
@@ -263,7 +265,7 @@ def task_checkboxes(lines: list[str]) -> list[bool]:
         if in_fence:
             continue
         if line.startswith('## '):
-            in_steps = line.strip() == '## Implementation Steps'
+            in_steps = line.strip() in TASK_SECTIONS
             continue
         if in_steps:
             box = re.match(r'\s*[-*] \[([ xX])\]', line)
@@ -278,7 +280,8 @@ def classify_plan(text: str) -> str:
     stage = frontmatter_stage(lines)
     if stage in ('done', 'cancelled'):
         return stage
-    return 'complete' if all(task_checkboxes(lines)) else 'incomplete'
+    boxes = task_checkboxes(lines)
+    return 'complete' if boxes and all(boxes) else 'incomplete'
 
 
 def read_plan_state(target: str, remote: str) -> PlanState:

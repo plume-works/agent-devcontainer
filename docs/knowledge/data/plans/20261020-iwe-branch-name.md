@@ -232,11 +232,17 @@ reports stale after Tasks 1–6
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py`,
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
-- [ ] `task_checkboxes` reads `## Implementation Steps` and `## Tasks`, and
+- [x] `task_checkboxes` reads `## Implementation Steps` and `## Tasks`, and
   `classify_plan` reports `incomplete` for a plan with no task checkboxes
-- [ ] `plan-state` tests cover a ticked plan under `## Tasks` as `complete`, an
+  - **Evidence:** `test_plan_state_classifies_the_plan` in
+    `test_iwe_branch_name_plan_state.py` passed on 2026-10-25 with the
+    `## Tasks` and empty-plan cases.
+- [x] `plan-state` tests cover a ticked plan under `## Tasks` as `complete`, an
   unticked one as `incomplete`, and a plan with no task checkboxes as
   `incomplete`; a `next` test shows that plan named `impl`, not `ship`
+  - **Evidence:** `uv run pytest` on the three `test_iwe_branch_name_*.py`
+    modules passed (46 tests) on 2026-10-25, including
+    `test_next_names_impl_for_a_plan_without_tasks`.
 
 ### Task 9: next reads pull requests from the remote's repository
 

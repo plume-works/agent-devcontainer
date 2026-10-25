@@ -158,6 +158,18 @@ def test_next_follows_the_plan_state(
     assert ('ITERATION' in values) == (kind != 'default')
 
 
+def test_next_names_impl_for_a_plan_without_tasks(
+    plugin_root: Path, plugin_tmp_path: Path
+) -> None:
+    """A plan with no task checkboxes is still being implemented, never shipped."""
+    workspace = Workspace(plugin_tmp_path, {PLAN_KEY: plan_document(ticks=())})
+    gh = pr_heads(plugin_tmp_path / 'gh')
+
+    _, values = run_script(plugin_root, workspace.work, 'next', PLAN_SLUG, path_prefix=gh)
+
+    assert (values['PLAN_STATE'], values['NEXT_KIND']) == ('incomplete', 'impl')
+
+
 def test_next_without_gh_gives_no_name(plugin_root: Path, plugin_tmp_path: Path) -> None:
     """A missing gh cannot rule out a merged iteration, so no name is reported."""
     workspace = Workspace(plugin_tmp_path)

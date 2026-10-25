@@ -17,13 +17,17 @@ PLAN_KEY = 'data/plans/20250102-focus-timer'
 PLAN_SLUG = 'focus-timer'
 
 
-def plan_document(stage: str = '', ticks: tuple[bool, ...] = (True, False)) -> str:
-    """Return a made-up plan whose task checkboxes are ticked as `ticks` says."""
+def plan_document(
+    stage: str = '',
+    ticks: tuple[bool, ...] = (True, False),
+    heading: str = 'Implementation Steps',
+) -> str:
+    """Return a made-up plan whose task checkboxes under `heading` are ticked as `ticks` says."""
     stage_line = f'stage: {stage}\n' if stage else ''
     boxes = ''.join(f'- [{"x" if ticked else " "}] Task {n}\n' for n, ticked in enumerate(ticks))
     return (
         f'---\ntype: plan\n{stage_line}created: 2025-01-02\n---\n\n# Focus timer\n\n'
-        f'## Implementation Steps\n\n### Task 1\n\n{boxes}\n'
+        f'## {heading}\n\n### Task 1\n\n{boxes}\n'
         '## Verification\n\n- [ ] not a task checkbox\n'
     )
 

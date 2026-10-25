@@ -26,6 +26,10 @@ import pytest
         (plan_document(stage='done', ticks=(True, True)), 'done'),
         (plan_document(ticks=(True, True)), 'complete'),
         (plan_document(ticks=(True, False)), 'incomplete'),
+        (plan_document(ticks=(True, True), heading='Tasks'), 'complete'),
+        (plan_document(ticks=(True, False), heading='Tasks'), 'incomplete'),
+        (plan_document(ticks=()), 'incomplete'),
+        (plan_document(ticks=(True,), heading='Steps'), 'incomplete'),
     ],
 )
 def test_plan_state_classifies_the_plan(
