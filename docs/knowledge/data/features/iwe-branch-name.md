@@ -1,6 +1,6 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: The iwe-branch-name skill names a plan's work branches as <impl|ship>/<plan-slug>/iter-<N> and reads a plan's state at the remote default branch, so callers create the next branch through git-new-branch.
 generated:
   by: claude-code/opus-5.5

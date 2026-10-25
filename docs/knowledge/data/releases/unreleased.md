@@ -70,6 +70,8 @@ Coder](../features/opencode-web-coder-autostart.md)
 [Automatic CBM indexing for OpenCode
 workspaces](../features/opencode-workspace-cbm-indexing.md)
 
+[iwe-branch-name](../features/iwe-branch-name.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

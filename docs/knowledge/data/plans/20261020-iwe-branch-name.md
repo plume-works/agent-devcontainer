@@ -12,6 +12,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/skill-scripts/SKILL.md
 - resource: .agents/plugins/agentdev/bin/result_codes.py
+stage: done
+completed: 2026-10-25
 ---
 
 # iwe-branch-name skill

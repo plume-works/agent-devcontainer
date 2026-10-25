@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Update**: [iwe-branch-name skill](plans/20261020-iwe-branch-name.md) done;
+  new spec [iwe-branch-name](spec/iwe-branch-name.md), and [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now names the Implement work branch
+  `impl/<slug>/iter-<N>`.
+- **Update**: [iwe-branch-name](features/iwe-branch-name.md) implemented; listed
+  under Unreleased Added.
 - **Map**: refreshed the [agentdev
   catalog](codebase/agents/plugins/agentdev.md), its
   [skills](codebase/agents/plugins/agentdev/skills.md), and [plugin
