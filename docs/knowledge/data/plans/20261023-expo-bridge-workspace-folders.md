@@ -237,7 +237,7 @@ Assumptions:
 `packages/host/src/env.ts`
 
 Docker Desktop reports a bind source under its VM's `/host_mnt`, so the bind
-mounts are read with that prefix removed (commit `af804c5`, PR #20).
+mounts are read with that prefix removed.
 
 - [x] The `docker` binary comes from the user-level `dev.containers.dockerPath`
   value, else from the login `PATH`, the Homebrew prefixes, and `~/.docker/bin`.
@@ -252,7 +252,8 @@ mounts are read with that prefix removed (commit `af804c5`, PR #20).
   `docker inspect`, run as argument arrays.
   - **Evidence:** `plume-works/vscode-expo-bridge` commit `80fcdae` (PR #20);
     `packages/host/test/container.test.ts` passes. `ContainerError` becomes
-    `unavailable` where Task 7 resolves the folder.
+    `unavailable` where Task 7 resolves the folder. The `/host_mnt` prefix
+    removal is commit `af804c5` (PR #20).
 
 ### Task 7: Host — map a workspace folder to its Mac path
 

@@ -27,9 +27,7 @@ launches it on the Mac but resolves the default profile's name against the
 profiles detected in the container. When the Mac's
 `terminal.integrated.defaultProfile.osx` names a profile the container also has,
 such as `fish` (`/usr/bin/fish` in the template image), the terminal fails to
-launch and no fix runs. Whether `bash`, which the image has at `/usr/bin/bash`
-and macOS only at `/bin/bash`, fails the same way is not reproduced; Task 5
-checks it.
+launch and no fix runs.
 
 Settled facts this plan builds on:
 

@@ -208,9 +208,9 @@ simulator processes run with the Mac user's file access.
   Linux `node_modules`. It uses the Mac's bun and Node whatever `eas.json` pins,
   so `status` checks that the Mac's bun is at least the container's — an older
   bun cannot read the container's `bun.lock`.
-- eas-cli's local build plugin refuses an `EAS_LOCAL_BUILD_WORKINGDIR` that is
-  not empty, so no state carries over between local builds; reuse works only at
-  the level of the whole artifact.
+- `eas-cli-local-build-plugin` 25.3.0 refuses a non-empty
+  `EAS_LOCAL_BUILD_WORKINGDIR`, so no state carries over between local builds;
+  reuse works only at the level of the whole artifact.
 - A local build does not resolve EAS "Secret" environment variables; values the
   build needs must come from the host environment.
 - `cocoapods`, `fastlane`, and `image` are not `eas.json` build fields, so
@@ -267,8 +267,8 @@ simulator processes run with the Mac user's file access.
 - **Reading `workspaceFolder` from `devcontainer.json`** for the mapping — a
   repository may have several configurations, the value uses variables, and
   compose files, `runArgs`, and `mounts` change the mounts it describes.
-- **`remote-containers.openDevContainerFile`** for the configuration — it
-  returns nothing.
+- **`remote-containers.openDevContainerFile`** for the configuration — in Dev
+  Containers 0.469.0 it opens the file in an editor and returns no value.
 - **Walking up from the working directory to the nearest `eas.json`** — the
   workspace folder is already the unit VS Code and the agent work in.
 - **An optional `folder` on protocol version 1** — an older host would ignore it
