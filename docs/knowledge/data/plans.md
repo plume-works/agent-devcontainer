@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Configurable Remote Control spawn mode, worktree by
+default](plans/20261025-claude-remote-control-spawn-mode.md)
+
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
