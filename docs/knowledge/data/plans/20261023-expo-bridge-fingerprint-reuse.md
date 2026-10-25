@@ -419,17 +419,27 @@ sideloaded
 **Files:** Modify: `packages/host/src/buildcache.ts`, its test, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `BuildCache.store` holds `index.lock` in the folder's cache directory,
+- [x] `BuildCache.store` holds `index.lock` in the folder's cache directory,
   created with `O_CREAT | O_EXCL` and holding the process id, from reading
   `index.json` through writing it, and removes the lock afterwards, also when
   the update throws.
-- [ ] A lock whose process id is not a live process, or whose age is over 60 s,
+  - **Evidence:** plume-works/vscode-expo-bridge `1e643f6`
+    `packages/host/src/buildcache.ts` `withIndexLock`, which `store` wraps
+    around the artifact copy and the `index.json` read, update, and write; its
+    `finally` removes only its own lock (inode check).
+- [x] A lock whose process id is not a live process, or whose age is over 60 s,
   is removed and taken; any other held lock is retried every 50 ms for up to 10
   s, after which `store` stores nothing and returns false.
-- [ ] `bun test` covers two concurrent `store` calls for different keys in one
+  - **Evidence:** `1e643f6` `isStale`, `takeOver`, and the `LOCK_STALE_MS`,
+    `LOCK_RETRY_MS`, `LOCK_WAIT_MS` constants; `store` returns false when
+    `withIndexLock` returns null.
+- [x] `bun test` covers two concurrent `store` calls for different keys in one
   folder — from two separate processes — keeping both entries, the takeover of a
   dead owner's and of an expired lock, the refusal after the wait, and the
   lock's removal after a failed update.
+  - **Evidence:** `1e643f6` `packages/host/test/buildcache.test.ts` "the index
+    lock" (5 tests; the two-process test runs `test/fixtures/store-child.ts`
+    twice and fails with the lock bypassed); `bun test` 311 pass, 0 fail.
 
 ### Task 14: Document the index lock
 
