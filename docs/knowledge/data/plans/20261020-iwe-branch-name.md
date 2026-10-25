@@ -395,6 +395,10 @@ reports stale after Tasks 8–12
 - [ ] `BRANCH_WORK` is `impl/e2e-branch/iter-1`, and
   `test_main_clone_has_a_remote_and_a_stub_gh` expects
   `NEXT=impl/e2e-branch/iter-1`; the offline e2e tests pass
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py scripts/tests/test_e2e_live_gate.py`
+    passed (31 tests) and `uv run pytest scripts/e2e` without `E2E_RUN_LIVE`
+    skipped all 18 on 2026-10-25, in the commit that sets `BRANCH_WORK`.
 
 ### Task 18: Live e2e run with iter-1
 
