@@ -6,7 +6,7 @@ release:
 - features/iwe-branch-name
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T00:00:00Z
+  at: 2026-10-25T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
@@ -38,11 +38,12 @@ following the `skill-scripts` contract through the plugin's
 `bin/result_codes.py` (the way `iwe-map`'s `stale-map-docs.py` does). It creates
 no branch: callers pass the name to `/agentdev:git-new-branch`.
 
-**Name shape.** `<phase>/<slug>/iteration-<N>`, `phase` ∈ `impl`, `ship`; `slug`
-is the plan key's file name without its `YYYYMMDD-` prefix; `N` ≥ 1. The suffix
-is always present. Git cannot hold a ref beside another it would nest under
-(`ship/foo` blocks `ship/foo/iteration-2`), and a name that always ends in
-`iteration-<N>` is never a path prefix of another.
+**Name shape.** `<phase>/<slug>/iter-<N>`, `phase` ∈ `impl`, `ship`; `slug` is
+the plan key's file name without its `YYYYMMDD-` prefix; `N` ≥ 1. The suffix is
+always present. Git cannot hold a ref beside another it would nest under
+(`ship/foo` blocks `ship/foo/iter-2`), and a name that always ends in `iter-<N>`
+is never a path prefix of another. The suffix is kept short because the slug
+already makes up most of the name.
 
 **Subcommands.**
 
@@ -89,17 +90,16 @@ both Implement scenarios. A new `main_clone` fixture checks out `main` in a
 clone backed by a bare remote beside it, with `origin/HEAD` set and a stub `gh`
 first on the agent's `PATH` that lists no pull requests; Implement of a new
 trivial fixture plan, `data/plans/20261025-e2e-branch`, must end on
-`impl/e2e-branch/iteration-1`, pushed to that remote. The existing
-`test_implement`, which runs on the fixture's own `e2e-fixture` branch, also
-asserts the checkout stays on that branch and gains no other. The start-on-main
-case runs on OpenCode and Claude Code; Codex runs the installed catalog rather
-than the clone's and commits nothing under its `workspace-write` sandbox in this
-suite, so it carries only the stay-put assertion.
+`impl/e2e-branch/iter-1`, pushed to that remote. The existing `test_implement`,
+which runs on the fixture's own `e2e-fixture` branch, also asserts the checkout
+stays on that branch and gains no other. The start-on-main case runs on OpenCode
+and Claude Code; Codex reads its installed catalog, not the clone's, so it
+carries only the stay-put assertion.
 
 Rejected: reusing the greet fixture plan for the start-on-main case — its task
-deliberately conflicts with its spec outcome, so a run may stop before the
-branch step and prove nothing; parsing the remote URL into `OWNER/REPO` before
-calling `gh` — `gh --repo` already accepts every URL form a GitHub remote uses.
+conflicts with its spec outcome by design, so a run may stop before the branch
+step and prove nothing; parsing the remote URL into `OWNER/REPO` before calling
+`gh` — `gh --repo` already accepts every URL form a GitHub remote uses.
 
 Rejected: deriving `N` from the current branch alone — it has no answer on the
 default branch, where the implementer starts, and misses iterations made in
@@ -107,7 +107,14 @@ other checkouts; tolerating a missing `gh` with a lower bound — a reused name
 ends in `BRANCH_EXISTS` at best and a PR history mixed across iterations at
 worst; letting the skill create the branch — branch creation stays in one place,
 `git-new-branch`; a bare `ship/<slug>` for the first ship iteration — it nests
-under nothing but blocks `ship/<slug>/iteration-2`.
+under nothing but blocks `ship/<slug>/iter-2`.
+
+Rejected suffixes: `iteration-<N>` — ten characters on every name for no added
+meaning; `t<N>` — reads as plan Task N; `take<N>` — implies the previous branch
+was discarded, where an iteration builds on the merged one; `v<N>` — reads as a
+release version; a bare `<N>` — says nothing about what the number counts; a
+flat `<slug>-<N>` — ambiguous beside slugs that end in digits; `pr<N>` and
+`#<N>` — read as a pull request number, and `#` starts a shell comment.
 
 Assumptions: one script with subcommands rather than one script per lookup (they
 share fetch, plan resolution, and the shape regex); results are `SUCCESS 0`,
@@ -349,6 +356,53 @@ reports stale after Tasks 8–12
     after refreshing the agentdev catalog, skills, and tests docs, in the commit
     that refreshes them.
 
+### Task 15: The script names and parses the iter-<N> suffix
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
+`.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py`,
+`.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
+
+- [ ] `WORK_BRANCH`, the `NEXT=` line, the `--help` text, and the
+  `NOT_A_WORK_BRANCH` message use `<phase>/<slug>/iter-<N>`
+- [ ] `parse` and `next` tests use `iter-<N>` names, and a `parse` test reports
+  `NOT_A_WORK_BRANCH` for an `iteration-<N>` name; a `next` test shows an
+  `iteration-<N>` branch is not counted
+
+### Task 16: Skill text names the iter-<N> suffix
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md`
+
+- [ ] The description, `## The Name Shape`, and the `NOT_A_WORK_BRANCH` row use
+  `iter-<N>`, and `validate_agent_files` reports 0 errors
+
+### Task 17: e2e expects iter-1
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
+`scripts/tests/test_e2e_iwe_workflows_clone.py`
+
+- [ ] `BRANCH_WORK` is `impl/e2e-branch/iter-1`, and
+  `test_main_clone_has_a_remote_and_a_stub_gh` expects
+  `NEXT=impl/e2e-branch/iter-1`; the offline e2e tests pass
+
+### Task 18: Live e2e run with iter-1
+
+**Files:** none
+
+- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k "implement" -n 3`
+  passes `test_implement_on_main` on OpenCode and Claude Code with the checkout
+  ending on `impl/e2e-branch/iter-1`
+
+### Task 19: Refresh the codebase map for the suffix
+
+**Files:** Modify: the `data/codebase/` documents `agent-code/stale-map-docs.py`
+reports stale after Tasks 15–17
+
+- [ ] `/agentdev:iwe-map` refresh mode re-reads every stale map document,
+  including the `iter-<N>` shape in
+  `data/codebase/agents/plugins/agentdev/skills`, and `stale-map-docs.py`
+  reports none
+
 ## Spec changes
 
 `data/spec/iwe-branch-name` (new):
@@ -359,7 +413,7 @@ reports stale after Tasks 8–12
 ### Requirement: Plan work branches carry phase, slug, and iteration
 
 The iwe-branch-name skill SHALL name a plan's work branch
-`<phase>/<slug>/iteration-<N>`, where `phase` is `impl` or `ship`, `slug` is the
+`<phase>/<slug>/iter-<N>`, where `phase` is `impl` or `ship`, `slug` is the
 plan key's file name without its `YYYYMMDD-` prefix, and `N` is a positive
 integer, and SHALL always include the iteration suffix.
 
@@ -367,11 +421,11 @@ integer, and SHALL always include the iteration suffix.
 
 - **WHEN** no branch or pull request of phase `impl` exists for plan
   `data/plans/20261020-foo`
-- **THEN** the next `impl` name is `impl/foo/iteration-1`
+- **THEN** the next `impl` name is `impl/foo/iter-1`
 
 #### Scenario: A name off the shape is not parsed
 
-- **WHEN** `parse` receives `foo`, `impl/foo`, or `impl/foo/iteration-0`
+- **WHEN** `parse` receives `foo`, `impl/foo`, or `impl/foo/iter-0`
 - **THEN** it reports `NOT_A_WORK_BRANCH` and no phase, slug, or iteration
 
 ### Requirement: The next iteration follows every iteration already used
@@ -384,9 +438,9 @@ when those pull requests cannot be read.
 
 #### Scenario: A merged iteration's branch was deleted
 
-- **WHEN** `impl/foo/iteration-2` survives only as a merged pull request's head
-  and `impl/foo/iteration-1` exists locally
-- **THEN** the next `impl` name is `impl/foo/iteration-3`
+- **WHEN** `impl/foo/iter-2` survives only as a merged pull request's head
+  and `impl/foo/iter-1` exists locally
+- **THEN** the next `impl` name is `impl/foo/iter-3`
 
 #### Scenario: gh cannot answer
 
@@ -439,8 +493,8 @@ plan. The skill SHALL NOT create, switch, or delete any branch.
 
 #### Scenario: A complete plan moves to shipping
 
-- **WHEN** plan `foo` is `complete` and `ship/foo/iteration-1` was used before
-- **THEN** `next foo` reports `NEXT=ship/foo/iteration-2`
+- **WHEN** plan `foo` is `complete` and `ship/foo/iter-1` was used before
+- **THEN** `next foo` reports `NEXT=ship/foo/iter-2`
 
 #### Scenario: A shipped plan returns to the default branch
 
@@ -464,7 +518,7 @@ and SHALL continue on the current branch otherwise.
 
 - **WHEN** Implement begins plan `data/plans/<date>-<slug>` with `main` checked
   out
-- **THEN** it creates branch `impl/<slug>/iteration-<N>`, with `N` from
+- **THEN** it creates branch `impl/<slug>/iter-<N>`, with `N` from
   iwe-branch-name, through git-new-branch before executing any task
 
 #### Scenario: Implementation starts on a feature branch
@@ -499,8 +553,8 @@ and SHALL continue on the current branch otherwise.
 - pr-merge-stack's cleanup — [backlog
   task](../backlog/pr-merge-stack-post-merge-cleanup.md).
 - Renaming or migrating branches named before this shape.
-- Creating `ship/` branches from the ship skills; iwe-ship works on the current
-  checkout as it does today.
+- Creating `ship/` branches from the ship skills; iwe-ship keeps working on the
+  current checkout.
 - The start-on-main e2e case on Codex.
 - A pull-request lookup for a remote that is not on GitHub.
 
@@ -510,7 +564,21 @@ Verified anchor points (line numbers as of 2026-10-25):
 
 - `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:260`
   — `task_checkboxes`; `classify_plan` at line 281, `pull_request_heads` at line
-  335
+  335; `WORK_BRANCH` at line 81, the `NEXT=` line at line 386, the
+  `NOT_A_WORK_BRANCH` message at line 448, and the `--help` shape at lines 24
+  and 62
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py:23` —
+  `test_parse_splits_a_work_branch`; `test_parse_rejects_a_name_off_the_shape`
+  at line 43
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:106` —
+  `test_next_ignores_names_off_the_shape_and_the_other_phase`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md:16` — the name
+  shape; description at line 3, `NOT_A_WORK_BRANCH` row at line 78
+- `scripts/e2e/iwe-workflows/scenarios.py:11` — `BRANCH_WORK`
+- `scripts/tests/test_e2e_iwe_workflows_clone.py:126` —
+  `test_main_clone_has_a_remote_and_a_stub_gh`; expected `NEXT=` at line 149
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:109` — the
+  name shape in the codebase map
 - `scripts/e2e/iwe-workflows/clone.py:31` — `_ACTIVE_LINKS`; `FIXTURE_PLANS` at
   line 23, `build_fixture_repo` at line 129, `make_clone` at line 233
 - `scripts/e2e/iwe-workflows/conftest.py:55` — `base_clone`
