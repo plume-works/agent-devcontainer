@@ -115,3 +115,6 @@ keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
 
 [Bug: Codex login stops being shared between standalone
 projects](bugs/standalone-codex-auth-unshared.md)
+
+[Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
+/workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md)
