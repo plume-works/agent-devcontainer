@@ -16,6 +16,9 @@ write a plan and link the plan instead.*
 
 ## High
 
+[Start Claude Remote Control in the standalone runtime when
+asked](backlog/standalone-claude-remote-control.md)
+
 ## Medium
 
 [Document VSCodium support for the Expo

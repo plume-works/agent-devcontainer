@@ -14,6 +14,8 @@ to the current day's group.
   `data/spec/` change, the protocol contract lives in the bridge's
   `docs/protocol.md`; [VS Code Expo bridge](features/vscode-expo-bridge.md)
   stays implemented and listed under Unreleased Added.
+- **Task**: captured [Start Claude Remote Control in the standalone runtime when
+  asked](backlog/standalone-claude-remote-control.md).
 - **Bug**: filed [Codex login stops being shared between standalone
   projects](bugs/standalone-codex-auth-unshared.md).
 
