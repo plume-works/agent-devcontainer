@@ -2,7 +2,7 @@
 type: codebase
 description: The 42 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:715c2e7bce4013b9f59047194b873550f57985d0fe4c0a29dc8b892facb232cb
+source_digest: sha256:87d97b878982e729a81dc871946c42ea19193ddb45aca300290adae72862c53a
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-25T23:00:00Z
