@@ -63,3 +63,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [Devcontainer OpenCode policy](spec/devcontainer-opencode-policy.md)
 
 [update-branch](spec/update-branch.md)
+
+[IWE bootstrap](spec/iwe-bootstrap.md)
