@@ -804,7 +804,7 @@ digest
 
 **Files:** none; operator deployment of the published candidate
 
-- [ ] **Closed by: maintainer with the external proxy and provider login.**
+- [x] **Closed by: maintainer with the external proxy and provider login.**
   Launch the documented deployment of the Task 36 candidate, connect a provider
   in OpenCode, log in to Claude Code or Codex, and create an OpenCode session;
   replace the container and upgrade to a newer tested image with the same
@@ -814,6 +814,22 @@ digest
   sessions. Verify healthy proxy access to OpenCode/Xpra and proxy protection of
   the desktop. Keep credentials out of evidence. Do not substitute synthetic
   auth JSON for this gate.
+  - **Evidence:** the maintainer's run on 2026-10-25, on clean volumes, behind a
+    TLS proxy on `agentdev-proxy`. The Task 36 candidate
+    `agent-opencode@sha256:da176dc4…` was deployed and replaced with
+    `--force-recreate`. It was then upgraded to
+    `agent-opencode@sha256:d9be6418…`, built from `c4bfd68` and accepted
+    natively by main's CI/CD run 40064273950. The OpenCode session, provider
+    login, user settings, and the Claude Code and Codex logins, all made as
+    `agent`, survived both steps. The container stayed healthy and ready with
+    restart count `0` and published no host ports. Through the proxy, an
+    anonymous OpenCode API request returned `401` and authenticated requests
+    `200`; Xpra refused a missing or wrong password. A second project with the
+    same IDs and auth volume shared the Claude Code and Codex logins, asked for
+    its own OpenCode sign-in, and listed none of the first project's sessions.
+    Codex sharing first failed, because the first project held an unshared
+    regular `~/.codex/auth.json`. Running `link-codex-auth.sh` as `agent`
+    restored the shared file, and a third project then shared the login.
 
 ### Task 17: Keep OpenCode logins per project container
 
