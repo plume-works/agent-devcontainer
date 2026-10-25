@@ -1467,11 +1467,21 @@ digest
 
 **Files:** none; the maintainer's retained first-run volumes
 
-- [ ] **Closed by: maintainer.** With the firewall off and the home and
+- [x] **Closed by: maintainer.** With the firewall off and the home and
   workspace volumes kept, start the Task 36 candidate once. Preparation recovers
   the orphaned Codex block and reaches ready or a named degraded state without a
   restart. A second start leaves `config.toml` and `hooks.json` byte-identical.
   Keep credentials out of evidence.
+  - **Evidence:** the maintainer's run on 2026-10-25. On the retained first-run
+    volumes, with the firewall off, the candidate recovered the orphaned Codex
+    block and reached ready and healthy, as the maintainer reports. Those
+    volumes were then discarded with their host, so the second-start check ran
+    on a fresh deployment of the same image on another host: after a restart to
+    healthy with restart count `0`, `config.toml` stayed `sha256:6073bb20…` and
+    `hooks.json` `sha256:392db8b9…`. The maintainer accepted that substitution.
+    Byte-identical restarts after recovering an orphaned block are covered by
+    `test_an_install_recovers_the_orphaned_deployment_state` and by native
+    acceptance's restart test.
 
 ## Spec changes
 
@@ -1955,6 +1965,13 @@ Recorded 2026-10-18 at `afae3a2`.
   `test_agent_runtime_identity.py` included. Super-Linter, the knowledge-base,
   agent-file, and Renovate validations, and CodeQL pass. Task 32 waits for the
   devcontainer pin to include Task 31's binaries, and Task 36 for publication.
+
+- **Deployment, recorded 2026-10-25.** Main's CI/CD run 40054975946 at `71da0d8`
+  accepted `agent-opencode@sha256:da176dc4…` natively on both arches (21 passed,
+  1 skipped each), and PR #445 pinned it, closing Task 36. The maintainer's
+  deployment closed Tasks 16 and 37 with the evidence under each, upgrading to
+  `@sha256:d9be6418…` from run 40064273950 (22 passed, 1 skipped each). Host
+  reboot persistence was not exercised, and no task requires it.
 
 ## Out of scope
 
