@@ -70,6 +70,8 @@ Coder](../features/opencode-web-coder-autostart.md)
 [Automatic CBM indexing for OpenCode
 workspaces](../features/opencode-workspace-cbm-indexing.md)
 
+[Playwright browser in the development image](../features/playwright-browser.md)
+
 ## Changed
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

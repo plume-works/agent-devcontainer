@@ -5,14 +5,16 @@ release:
 - features/playwright-browser
 description: Provision and validate a pinned Playwright CLI and matching Chromium browser in the published development image.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T07:45:00Z
+  by: claude-code/opus-5
+  at: 2026-10-25T03:52:00Z
 sources:
 - resource: ansible/playbooks/setup-dev.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .github/workflows/ci.yml
 - resource: https://playwright.dev/docs/browsers
 - resource: https://playwright.dev/docs/docker
+stage: done
+completed: 2026-10-25
 ---
 
 # Bundle a Playwright browser in the development image
@@ -103,12 +105,17 @@ reported stale for the touched sources
 
 **Files:** None
 
-- [ ] Confirm the image build and browser-launch acceptance pass for both
+- [x] Confirm the image build and browser-launch acceptance pass for both
   `linux/amd64` and `linux/arm64` on the current head.
+  - **Evidence:** Primary checks run 40160416829 on `151546f` passed
+    `Development image` and `Devcontainer image` (including the Playwright
+    screenshot launch) for both `amd64` and `arm64`; later main commits through
+    `71f3c64` change only the CI-patched image pin and a script not baked into
+    the image.
 
 ## Spec changes
 
-`data/spec/playwright-browser`
+Introduces [Playwright browser](../spec/playwright-browser.md):
 
 ``` markdown
 ## ADDED Requirements
@@ -168,7 +175,7 @@ project's independently versioned Playwright dependency.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `ansible/playbooks/setup-dev.yml:33` — Bun and Node role ordering
 - `ansible/playbooks/setup-dev.yml:35` — opt-in Playwright capability
@@ -176,10 +183,10 @@ Verified anchor points (line numbers as of 2026-10-21):
   Playwright pin
 - `ansible/roles/playwright_browser/tasks/main.yml:21` — exact Bun package
   installation
-- `ansible/roles/playwright_browser/tasks/main.yml:39` — Chromium and dependency
+- `ansible/roles/playwright_browser/tasks/main.yml:45` — Chromium and dependency
   installation
 - `docker/desktop/agent-desktop.Dockerfile:45` — Ansible provisioning layer
-- `docker/desktop/agent-desktop.Dockerfile:52` — published-image role inputs
-- `.github/workflows/ci.yml:277` — native devcontainer image acceptance
-- `.github/workflows/ci.yml:299` — Playwright CLI and Chromium smoke checks
-- `.devcontainer/docker-compose.yml:53` — published image runtime service
+- `docker/desktop/agent-desktop.Dockerfile:53` — published-image role inputs
+- `.github/workflows/ci.yml:248` — native devcontainer image acceptance
+- `.github/workflows/ci.yml:315` — Playwright CLI and Chromium smoke checks
+- `.devcontainer/docker-compose.yml:57` — published image runtime service
