@@ -101,6 +101,15 @@ Mac](bugs/expo-bridge-fix-terminal-remote-shell.md)
 [Bug: PR updates skip the re-review
 evaluation](bugs/pr-update-skips-review-eval.md)
 
+[Bug: the Expo bridge builds only the devcontainer window's root
+folder](bugs/expo-bridge-builds-only-window-root.md)
+
+[Bug: Expo bridge windows sharing a container break each other's
+socket](bugs/expo-bridge-shared-socket-across-windows.md)
+
+[Bug: the Expo bridge's bun fix upgrades a bun the check never
+runs](bugs/expo-bridge-bun-fix-misses-path-bun.md)
+
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
 keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
 

@@ -4,7 +4,7 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:7ad944f4af8b4deb77645e0364b1194dab1cab84b20031516c934a9be66f3ccd
+source_digest: sha256:47c8c96b16391920e6847a1fb14330d817521e1c335c96b524efb0cf775b7dc9
 verified:
   by: claude-code/opus-5
   at: 2026-10-25T06:34:10Z
@@ -30,7 +30,7 @@ before the push.
    `.github/actionlint.yml`, which Super-Linter reads too),
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
    and IWE validation and normalization, Prettier and the Renovate validator
-   through `bunx` — `.pre-commit-config.yaml:2-126`; `no-commit-to-branch`
+   through `bunx` — `.pre-commit-config.yaml:2-131`; `no-commit-to-branch`
    refuses a commit on `main` or `master` — `.pre-commit-config.yaml:11`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the

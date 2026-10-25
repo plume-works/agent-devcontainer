@@ -54,7 +54,7 @@ always brings that plugin's manifests and bundled Markdown into the run.
 
 ## Consumers
 
-- `.pre-commit-config.yaml:81` — the local hook
+- `.pre-commit-config.yaml:96` — the local hook
 - `.github/workflows/validate-agent-files.yml:74` —
   `--recommend . --require-marketplace claude codex`
 - The image, via [its role](ansible/roles/validate_agent_files.md)

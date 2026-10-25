@@ -17,17 +17,11 @@ moves them.*
 
 ## Active
 
-[Incremental local iOS builds for the VS Code Expo
-bridge](plans/20261023-expo-bridge-incremental-builds.md)
-
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
-
-[Bundle a Playwright browser in the development
-image](plans/20261021-playwright-browser.md)
 
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
@@ -44,6 +38,18 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Bundle a Playwright browser in the development
+image](plans/20261021-playwright-browser.md)
+
+[Reuse a matching Expo bridge build by
+fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)
+
+[Expo bridge fix terminal launches the Mac's own
+shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
+
+[Expo bridge acts on the agent's window and workspace
+folder](plans/20261023-expo-bridge-workspace-folders.md)
 
 [Extract a reusable IWE bootstrap
 skill](plans/20261023-reusable-iwe-bootstrap.md)
@@ -231,3 +237,6 @@ contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
 ## Cancelled
+
+[Incremental local iOS builds for the VS Code Expo
+bridge](plans/20261023-expo-bridge-incremental-builds.md)

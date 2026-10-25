@@ -49,18 +49,23 @@ repos:
     hooks:
       - id: shellcheck
 
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.30.1
-    hooks:
-      - id: gitleaks
-
-  - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.12
-    hooks:
-      - id: actionlint
-
   - repo: local
     hooks:
+      # gitleaks and actionlint run the binaries dev_tools_pinned_tools provisions,
+      # so a commit needs no Go toolchain. Upstream hook ids, entries, and patterns.
+      - id: gitleaks
+        name: Detect hardcoded secrets
+        entry: gitleaks git --pre-commit --redact --staged --verbose
+        language: system
+        pass_filenames: false
+
+      - id: actionlint
+        name: Lint GitHub Actions workflow files
+        entry: actionlint
+        language: system
+        types: [yaml]
+        files: '^\.github/workflows/'
+
       # language: system + bunx: pre-commit's language: node installs hook envs with npm.
       # Prettier's file set matches Super-Linter's; .prettierignore still applies.
       - id: prettier

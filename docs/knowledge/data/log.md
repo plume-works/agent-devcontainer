@@ -13,6 +13,20 @@ to the current day's group.
   the catalog-owned bootstrap.
 - **Update**: [Reusable IWE bootstrap](features/consumer-iwe-seed.md) gained
   direct bootstrap; listed under Unreleased Changed.
+- **Update**: [Bundle a Playwright browser in the development
+  image](plans/20261021-playwright-browser.md) done; created the [Playwright
+  browser](spec/playwright-browser.md) spec.
+- **Update**: [Playwright browser in the development
+  image](features/playwright-browser.md) implemented; listed under Unreleased
+  Added.
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `exec-summary` skill.
+- **Update**: [Reuse a matching Expo bridge build by
+  fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md) done; no
+  `data/spec/` change, the protocol contract lives in the bridge's
+  `docs/protocol.md`; [VS Code Expo bridge](features/vscode-expo-bridge.md)
+  stays implemented and listed under Unreleased Added.
 - **Task**: captured [Start Claude Remote Control in the standalone runtime when
   asked](backlog/standalone-claude-remote-control.md).
 - **Bug**: filed [Codex login stops being shared between standalone
@@ -35,6 +49,21 @@ to the current day's group.
 
 ## 2026-10-24
 
+- **Update**: [Expo bridge fix terminal launches the Mac's own
+  shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md) done; no
+  `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.
+- **Update**: [Bug: the Expo bridge's fix terminal launches the container's
+  shell on the Mac](bugs/expo-bridge-fix-terminal-remote-shell.md) fixed; listed
+  under Unreleased Fixed.
+- **Update**: [Expo bridge acts on the agent's window and workspace
+  folder](plans/20261023-expo-bridge-workspace-folders.md) done; no `data/spec/`
+  change, the protocol contract lives in the bridge's `docs/protocol.md`.
+- **Update**: [Bug: the Expo bridge builds only the devcontainer window's root
+  folder](bugs/expo-bridge-builds-only-window-root.md) fixed; listed under
+  Unreleased Fixed.
+- **Update**: [Bug: Expo bridge windows sharing a container break each other's
+  socket](bugs/expo-bridge-shared-socket-across-windows.md) fixed; listed under
+  Unreleased Fixed.
 - **Update**: [Opt-in Claude Remote Control server
   mode](plans/20261023-claude-remote-control-server-mode.md) done; [Claude
   Remote Control](spec/claude-remote-control.md) now specifies opt-in server

@@ -5,7 +5,7 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:344a1bf39d7dfee635de60b18c505e3a7c804d620e6f63fd90e6f517ed35f699
+source_digest: sha256:4a9040d65d5e662de676813edd0770b63b0370683c9cdee9e725c56fb857595a
 verified:
   by: claude-code/opus-5
   at: 2026-10-25T06:34:10Z
@@ -47,7 +47,7 @@ layout are in [Module layout](../../../architecture/module-layout.md) and
 
 ## Public surface
 
-- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (40
+- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (41
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`

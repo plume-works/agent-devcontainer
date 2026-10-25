@@ -2,7 +2,7 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:253b187e26157490428183b5c563554352204f357767a54f19b9047494f376d1
+source_digest: sha256:c507b80fb18574a1b3987fd3229c4051a9c558a2db87414f69c8696c3ede03f5
 verified:
   by: claude-code/opus-5
   at: 2026-10-25T06:34:10Z
@@ -96,11 +96,11 @@ Verified anchor points (line numbers as of 2026-10-25):
 - `.github/renovate.json:63-70` — Dev Container features automerged
 - `.github/renovate.json:71-77` — Dockerfile `ubuntu` base disabled
 - `.github/renovate.json:78-84` — pre-commit hook revisions automerged
-- `.github/renovate.json:85-100` — Super-Linter family disabled
-- `.github/renovate.json:101-109` — Renovate validator `bunx` pin automerged
-- `.github/renovate.json:110-126` — role dependency pins grouped and automerged,
+- `.github/renovate.json:85-97` — Super-Linter family disabled
+- `.github/renovate.json:98-106` — Renovate validator `bunx` pin automerged
+- `.github/renovate.json:107-123` — role dependency pins grouped and automerged,
   with `astral-sh/uv` grouped across both places it is pinned
-- `.github/renovate.json:128-174` — the custom managers: post-upgrade script's
+- `.github/renovate.json:125-171` — the custom managers: post-upgrade script's
   devcontainer CLI, `dev_tools` versions, role version pins, the pre-commit
   `bunx` pin, commit pins
 - `.github/.agent.metadata.json` — runner-label and image-digest masks
