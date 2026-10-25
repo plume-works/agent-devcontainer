@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 from typing import NamedTuple
@@ -27,13 +28,17 @@ branch.
 Usage:
   iwe-branch-name.py parse <branch>
   iwe-branch-name.py plan-state <plan-key|slug> [--remote <name>]
+  iwe-branch-name.py next <plan-key|slug> [--phase impl|ship] [--remote <name>]
 
 Arguments:
   <branch>          A branch name to split into phase, slug, and iteration.
   <plan-key|slug>   data/plans/<YYYYMMDD>-<slug>, <YYYYMMDD>-<slug>, or <slug>.
 
 Options:
-  --remote <name>   The remote whose default branch holds the plan. Default: origin.
+  --remote <name>   The remote whose default branch holds the plan and whose
+                    branches count as used iterations. Default: origin.
+  --phase <phase>   next only: impl or ship, naming the next iteration of that
+                    phase without reading the plan.
   -h, --help        Show this help text.
 
 Output (key=value lines):
@@ -41,12 +46,21 @@ Output (key=value lines):
   parse:       PHASE, SLUG, ITERATION
   plan-state:  DEFAULT_BRANCH, PLAN_STATE (missing | cancelled | done | complete
                | incomplete), and PLAN_KEY when the plan exists
+  next:        NEXT, NEXT_KIND (default | impl | ship), and ITERATION for a
+               work branch; without --phase also the plan-state keys
+
+Without --phase, next names the default branch for a done, cancelled, or
+missing plan, the next ship iteration for a complete one, and the next impl
+iteration for an incomplete one. The next iteration is one more than the
+highest used for the phase and slug across local branches, the remote's
+branches, and the repository's pull requests in any state.
 
 Results (RESULT / exit code):
-  SUCCESS            0  The name's parts or the plan's state was reported
+  SUCCESS            0  The name's parts, the plan's state, or the next name was reported
   NOT_A_WORK_BRANCH  3  parse: the branch is not <impl|ship>/<slug>/iteration-<N>
   AMBIGUOUS_PLAN     4  The slug matches more than one plan at the default branch
-  FETCH_FAILED       5  The remote's default branch could not be fetched
+  FETCH_FAILED       5  The remote could not be fetched or its branches listed
+  GH_UNAVAILABLE     6  gh is missing, unauthenticated, or its pull-request query failed
   PREFLIGHT_ERROR    2  Usage error, not a git repository, no .iwe/config.toml,
                         or the remote's default branch is unknown
   SCRIPT_FAILURE     1  Unhandled error
@@ -59,7 +73,9 @@ PREFLIGHT_ERROR = 2
 NOT_A_WORK_BRANCH = 3
 AMBIGUOUS_PLAN = 4
 FETCH_FAILED = 5
+GH_UNAVAILABLE = 6
 
+PHASES = ('impl', 'ship')
 WORK_BRANCH = re.compile(r'(impl|ship)/([^/]+)/iteration-([1-9][0-9]*)')
 DATED_PLAN = re.compile(r'([0-9]{8})-(.+)')
 DEFAULT_BRANCH_HELPER = Path(__file__).resolve().parents[3] / 'bin' / 'git-default-branch.sh'
@@ -79,6 +95,7 @@ class Options(NamedTuple):
     command: str
     target: str
     remote: str
+    phase: str
 
 
 class PlanState(NamedTuple):
@@ -288,21 +305,96 @@ def print_plan_state(plan: PlanState) -> None:
     print(f'PLAN_STATE={plan.state}')
 
 
+def local_branches() -> list[str]:
+    """Return the repository's local branch names."""
+    completed = run_tool('git', 'for-each-ref', '--format=%(refname:short)', 'refs/heads/')
+    return completed.stdout.splitlines()
+
+
+def remote_branches(remote: str) -> list[str]:
+    """Return the remote's branch names, or stop when it cannot be listed."""
+    completed = run_tool('git', 'ls-remote', '--heads', remote)
+    if completed.returncode != 0:
+        sys.stderr.write(completed.stderr)
+        print_error(f"Failed to list the branches of remote '{remote}'.")
+        raise Stop(FETCH_FAILED)
+    return [
+        line.split('\t', 1)[1].removeprefix('refs/heads/')
+        for line in completed.stdout.splitlines()
+        if '\t' in line
+    ]
+
+
+def pull_request_heads(phase: str, slug: str) -> list[str]:
+    """Return the head branches of pull requests in any state, or stop when gh cannot say."""
+    if shutil.which('gh') is None:
+        print_error('gh is not installed; a merged pull request may already hold the next name.')
+        raise Stop(GH_UNAVAILABLE)
+    completed = run_tool(
+        'gh', 'pr', 'list', '--state', 'all', '--search', f'head:{phase}/{slug}/',
+        '--limit', '1000', '--json', 'headRefName', '--jq', '.[].headRefName',
+    )  # fmt: skip
+    if completed.returncode != 0:
+        sys.stderr.write(completed.stderr)
+        print_error('gh could not list pull requests; run `gh auth status` to check the login.')
+        raise Stop(GH_UNAVAILABLE)
+    return completed.stdout.splitlines()
+
+
+def next_iteration(phase: str, slug: str, remote: str) -> int:
+    """Return one more than the highest iteration of `phase` and `slug` already used."""
+    require_remote(remote)
+    names = [*local_branches(), *remote_branches(remote), *pull_request_heads(phase, slug)]
+    used = [
+        branch.iteration
+        for name in names
+        if (branch := parse_work_branch(name.strip())) and branch[:2] == (phase, slug)
+    ]
+    return max(used, default=0) + 1
+
+
+def run_next(options: Options) -> int:
+    """Print the next branch name for the plan, from --phase or from its state."""
+    repository_root()
+    phase = options.phase
+    slug = slug_of(options.target)
+    if not phase:
+        plan = read_plan_state(options.target, options.remote)
+        print_plan_state(plan)
+        if plan.state not in ('complete', 'incomplete'):
+            print(f'NEXT={plan.default_branch}')
+            print('NEXT_KIND=default')
+            return 0
+        phase = 'ship' if plan.state == 'complete' else 'impl'
+        slug = slug_of(plan.key)
+    iteration = next_iteration(phase, slug, options.remote)
+    print(f'NEXT={phase}/{slug}/iteration-{iteration}')
+    print(f'NEXT_KIND={phase}')
+    print(f'ITERATION={iteration}')
+    return 0
+
+
 def parse_arguments(argv: list[str]) -> Options | None:
     """Return the parsed options, or None after printing why the usage is wrong."""
-    if not argv or argv[0] not in ('parse', 'plan-state'):
-        print_error('Expected a subcommand: parse or plan-state.')
+    if not argv or argv[0] not in ('parse', 'plan-state', 'next'):
+        print_error('Expected a subcommand: parse, plan-state, or next.')
         return None
     command, positional = argv[0], []
-    remote = 'origin'
+    remote, phase = 'origin', ''
     rest = iter(argv[1:])
     for argument in rest:
-        if argument == '--remote' and command != 'parse':
+        if argument in ('--remote', '--phase') and command != 'parse':
             value = next(rest, '')
             if not value:
                 print_error(f'Missing value for {argument}.')
                 return None
-            remote = value
+            if argument == '--remote':
+                remote = value
+            elif command == 'next' and value in PHASES:
+                phase = value
+            else:
+                print_error(f'--phase takes impl or ship and applies to next only: {value}.')
+                return None
         elif argument.startswith('-'):
             print_error(f'Unknown option: {argument}.')
             return None
@@ -311,7 +403,7 @@ def parse_arguments(argv: list[str]) -> Options | None:
     if len(positional) != 1 or not positional[0]:
         print_error(f'{command} takes exactly one argument.')
         return None
-    return Options(command, positional[0], remote)
+    return Options(command, positional[0], remote, phase)
 
 
 def main() -> int:
@@ -326,6 +418,8 @@ def main() -> int:
     try:
         if options.command == 'parse':
             return run_parse(options.target)
+        if options.command == 'next':
+            return run_next(options)
         print_plan_state(read_plan_state(options.target, options.remote))
         return 0
     except Stop as stop:
@@ -348,5 +442,6 @@ if __name__ == '__main__':
     rc.RESULT_CODES[NOT_A_WORK_BRANCH] = 'NOT_A_WORK_BRANCH'
     rc.RESULT_CODES[AMBIGUOUS_PLAN] = 'AMBIGUOUS_PLAN'
     rc.RESULT_CODES[FETCH_FAILED] = 'FETCH_FAILED'
+    rc.RESULT_CODES[GH_UNAVAILABLE] = 'GH_UNAVAILABLE'
     rc.install()
     rc.run(main)

@@ -132,13 +132,20 @@ results.
 `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`;
 Create: `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
-- [ ] `next` computes the iteration from local branches, remote branches, and a
+- [x] `next` computes the iteration from local branches, remote branches, and a
   `gh pr list` stub, and picks the phase from `--phase` or from `plan-state`
-- [ ] Tests cover: `iteration-1` when nothing exists; the highest of a local, a
+  - **Evidence:** `test_next_counts_each_source` and
+    `test_next_follows_the_plan_state` in `test_iwe_branch_name_next.py` passed
+    on 2026-10-25; `next 20261020-iwe-branch-name --phase impl` in this
+    repository printed `NEXT=impl/iwe-branch-name/iteration-1`.
+- [x] Tests cover: `iteration-1` when nothing exists; the highest of a local, a
   remote-only, and a PR-only iteration plus one; names off the shape and the
   other phase ignored; `--phase` used for a plan missing on the remote; each
   plan state mapped to its `NEXT_KIND`; `GH_UNAVAILABLE` for a missing and for
   an unauthenticated `gh`
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
+    passed on 2026-10-25.
 
 ### Task 3: Skill definition
 

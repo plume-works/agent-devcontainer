@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import shutil
 import subprocess
 
 from git_fixtures import FIXTURE_ENV, git
@@ -64,13 +65,29 @@ class Workspace:
         git(self.publisher, 'push', 'origin', f'HEAD:refs/heads/{branch}')
 
 
+def tools_without_gh(directory: Path) -> Path:
+    """Return a PATH directory holding the tools the script needs, and no gh."""
+    directory.mkdir()
+    for tool in ('bash', 'git', 'python3'):
+        found = shutil.which(tool)
+        assert found is not None, tool
+        (directory / tool).symlink_to(found)
+    return directory
+
+
 def run_script(
-    plugin_root: Path, cwd: Path, *args: str, path_prefix: Path | None = None
+    plugin_root: Path,
+    cwd: Path,
+    *args: str,
+    path_prefix: Path | None = None,
+    path: Path | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
-    """Run iwe-branch-name.py and parse its key=value stdout."""
+    """Run iwe-branch-name.py and parse its key=value stdout; `path` replaces PATH."""
     env = {**os.environ, **FIXTURE_ENV}
     if path_prefix is not None:
         env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
+    if path is not None:
+        env['PATH'] = str(path)
     completed = subprocess.run(
         [str(plugin_root / SCRIPT), *args],
         cwd=cwd,

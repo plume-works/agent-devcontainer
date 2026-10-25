@@ -59,6 +59,7 @@ def test_help_prints_the_results_table(plugin_root: Path, plugin_tmp_path: Path)
         'NOT_A_WORK_BRANCH  3',
         'AMBIGUOUS_PLAN     4',
         'FETCH_FAILED       5',
+        'GH_UNAVAILABLE     6',
         'PREFLIGHT_ERROR    2',
     ):
         assert row in completed.stdout
