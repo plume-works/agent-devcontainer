@@ -97,19 +97,22 @@ or scope interview.
    publishing (§3 / Optional custom-image setup)? Keep IWE-based project memory
    under `docs/knowledge/`? Keep the shared `agentdev-agents-auth` credential
    volume default? Is the consumer an Expo app? Keeping project memory pulls in
-   the seed and the onboarding run in step 4; an Expo app runs the guide's
+   `/agentdev:iwe-bootstrap` and the onboarding run in step 5; an Expo app runs the guide's
    Optional Expo setup after the workflow's steps.
 4. **Execute the guide's numbered steps** for the chosen workflow using your
    normal file tools — this is an agent-guided walkthrough, not a script. Merge
    rather than overwrite wherever the guide says to (Workflow B step 3
    especially: never replace an existing project manifest, lockfile, or lint
    config without the user's go-ahead).
-5. **When IWE was kept, run the guide's Optional knowledge-base setup**: seed
-   `docs/knowledge/data/` from `templates/iwe/data/` at the ref being adopted,
-   then invoke `/agentdev:iwe-setup` and `/agentdev:iwe-map` in that order from
-   the consumer root. Those skills own their interviews and confirmations —
+5. **When IWE was kept, run the guide's Optional knowledge-base setup**: in
+   Workflow A, remove the copied `.iwe/` and `docs/knowledge/` only after
+   proving them the untouched publisher copy; then invoke
+   `/agentdev:iwe-bootstrap` for the consumer root, and on a fresh or already
+   initialized workspace invoke `/agentdev:iwe-setup` and `/agentdev:iwe-map`
+   in that order from the consumer root. Those skills own their interviews and confirmations —
    never answer for the user or skip a gate. Existing consumer knowledge is
-   never replaced: ask how to reconcile it. Report onboarding as pending, not
+   never replaced: a differing copy or a `RECONCILIATION_REQUIRED` result means
+   asking how to reconcile it. Report onboarding as pending, not
    complete, while any required input is outstanding, and report mapping as
    deferred for a project with no code. Finish by writing the guide's thin
    adoption summary; keep the checklist only in the root progress document.
@@ -219,12 +222,13 @@ A marker section or legacy marker file exists.
    itself already carry a `.github/pr-description-guidance.md` to preserve), so
    an upstream template change does not silently discard captured guidance or a
    consumer heading.
-8. **Never reseed or re-onboard.** Update mode has no seeding step and no
-   `/agentdev:iwe-setup` or `/agentdev:iwe-map` invocation. A change to the
-   publisher's `docs/knowledge/data/` or to `templates/iwe/` is not a consumer
-   change and produces no consumer edit — neither path is tracked, so neither
-   should appear in `CHANGED_PATHS` at all; one that does means the marker was
-   not narrowed in step 1.
+8. **Never re-initialize or re-onboard.** Update mode has no
+   `/agentdev:iwe-bootstrap`, `/agentdev:iwe-setup`, or `/agentdev:iwe-map`
+   invocation. A change to the publisher's `docs/knowledge/data/` or to the
+   catalog's bootstrap scaffold is not a consumer change and produces no
+   consumer edit — neither is tracked, so neither should appear in
+   `CHANGED_PATHS` at all; one that does means the marker was not narrowed in
+   step 3.
 
    A change to `.iwe/schemas/` or `.iwe/config.toml` _is_ tracked, and applying
    it can invalidate documents the consumer already wrote. Before applying one,
@@ -297,12 +301,12 @@ docs/knowledge/tests/test_plan_checkboxes.py
 memory upstream and the consumer's project memory here — the same path, two
 owners — so every diff of it is noise at best and a proposal to overwrite the
 consumer's memory at worst. `docs/knowledge/LICENSE.md` is absent for the same
-reason: it arrives from the seed and is consumer-owned afterward.
-`templates/iwe/` never belongs in `tracked_paths` either; it is
-initialization-only publisher source, read once at adoption.
+reason: bootstrap installs it and it is consumer-owned afterward. The
+bootstrap scaffold lives in the installed catalog, not in the template
+checkout, so it is never a `tracked_paths` entry either.
 
 Never add `.agents/`, `.claude-plugin/`, `py_packages/`,
-`scripts/validate-super-linter-tool-versions.sh`, `templates/iwe/`, or
+`scripts/validate-super-linter-tool-versions.sh`, or
 `docs/knowledge/tests/test_iwe_seed.py` — those are publisher-only source this
 guide has the consumer delete during setup, so they can never be legitimate
 members of a consumer's `tracked_paths`.

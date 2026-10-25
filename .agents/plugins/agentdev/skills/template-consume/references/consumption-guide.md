@@ -84,15 +84,11 @@ Delete these paths from the copied repository:
 .claude-plugin/
 py_packages/
 scripts/validate-super-linter-tool-versions.sh
-templates/iwe/
 docs/knowledge/tests/test_iwe_seed.py
 ```
 
-`templates/iwe/` is the IWE seed's source. Delete it only _after_ [Optional
-knowledge-base setup](#optional-knowledge-base-setup) has copied the seed to
-`docs/knowledge/data/`, or when IWE is being declined; `docs/knowledge/` is
-handled there too, not here. `templates/` holds nothing else, so it goes with
-it.
+`.iwe/` and the rest of `docs/knowledge/` are handled in [Optional
+knowledge-base setup](#optional-knowledge-base-setup), not here.
 
 `scripts/` holds nothing else, so it disappears with its one file; delete the
 empty directory rather than leaving it behind. The same applies to the
@@ -368,8 +364,9 @@ setup](#optional-knowledge-base-setup) for the full adoption path; otherwise
 delete the workflow along with the `iwe-schema-validate` and `iwe-normalize`
 pre-commit hooks and the `docs/knowledge/tests` pytest path.
 
-The workflow's seed-test step is publisher-only: it validates `templates/iwe/`,
-which no consumer keeps. Drop that step along with
+The workflow's scaffold-test step is publisher-only: it validates the
+`iwe-bootstrap` skill's packaged scaffold in the catalog source, which no
+consumer keeps. Drop that step along with
 `docs/knowledge/tests/test_iwe_seed.py`.
 
 #### AI responder and the review gate
@@ -486,8 +483,8 @@ than a separate one.
 
 The copied repository carries the publisher's own `docs/knowledge/data/`, which
 is never the consumer's memory. Follow [Optional knowledge-base
-setup](#optional-knowledge-base-setup) to replace it with the seed and onboard
-the consumer, or to remove IWE entirely.
+setup](#optional-knowledge-base-setup) to replace it with a bootstrapped
+workspace and onboard the consumer, or to remove IWE entirely.
 
 ### 10. Verify the copied project
 
@@ -731,8 +728,9 @@ visible in a diff.
 
 If the project is adopting IWE-based project memory, follow [Optional
 knowledge-base setup](#optional-knowledge-base-setup). An existing
-`docs/knowledge/` in this repository is the consumer's own and is never
-replaced — that section's step 2 covers it. Skip this step otherwise.
+`docs/knowledge/` or `.iwe/` in this repository is the consumer's own and is
+never replaced — bootstrap refuses to write over it, and that section's step 2
+covers reconciliation. Skip this step otherwise.
 
 ### 6. Verify
 
@@ -773,7 +771,10 @@ to `0.25.0` or later in the same change.
 
 ### Reusable scaffold
 
-These paths are template-owned and copy across as-is:
+`/agentdev:iwe-bootstrap` installs `.iwe/` and every `docs/knowledge/` support
+file from the installed catalog, so knowledge initialization reads nothing from
+the agent-devcontainer checkout. After initialization these are the
+template-owned knowledge paths update mode tracks:
 
 ```text
 .iwe/
@@ -783,11 +784,13 @@ docs/knowledge/README.md
 docs/knowledge/SCHEMA.md
 docs/knowledge/STRUCTURE.md
 docs/knowledge/CHANGELOG.md
-docs/knowledge/LICENSE.md
 docs/knowledge/tests/test_plan_checkboxes.py
 ```
 
-Alongside them, retain the validation the scaffold depends on:
+`docs/knowledge/LICENSE.md` is installed by bootstrap and consumer-owned
+afterward, like `docs/knowledge/data/`. Bootstrap installs no tests, CI, or
+hooks: copy `docs/knowledge/tests/test_plan_checkboxes.py` from the checkout
+after bootstrap succeeds, and retain the validation the workspace depends on:
 
 - `.github/workflows/validate-knowledge-base.yml` (see [Knowledge-base
   validation](#knowledge-base-validation));
@@ -802,63 +805,65 @@ enforces that it is a no-op. Prettier also formats markdown, and the two
 disagree on emphasis style, so leaving both pointed at these files makes every
 commit re-flip the formatting.
 
-**Scenario: prettier and `iwe normalize` fight over the seeded graph**
+**Scenario: prettier and `iwe normalize` fight over the bootstrapped graph**
 
 - **WHEN** a repository adopts the knowledge scaffold and the template's
   prettier hook without excluding `docs/knowledge/` from prettier
-- **THEN** the first hook run rewrites the seeded documents, and
+- **THEN** the first hook run rewrites the bootstrapped documents, and
   `iwe normalize` reverts them on the next run, indefinitely.
 
-Add `docs/knowledge/**` to `.prettierignore` as part of the scaffold copy. This
+Add `docs/knowledge/**` to `.prettierignore` when IWE is adopted. This
 repository's own `.prettierignore` carries the entry and the rationale; a
-consumer assembling the scaffold from the path list above does not get it
-implicitly. This is the same class of problem as [formatter adoption never
+consumer bootstrapping the workspace does not get it implicitly. This is the same class of problem as [formatter adoption never
 rewrites verbatim third-party
 captures](#requirement-formatter-adoption-never-rewrites-verbatim-third-party-captures).
 
 `docs/knowledge/tests/test_iwe_seed.py` is **not** in that list. It validates
-the publisher's seed source under `templates/iwe/`, which a consumer does not
-keep; copying it leaves a test that fails on a missing directory. Delete it if
-the copy brought it along.
+the catalog source's packaged scaffold, which a consumer does not keep; copying
+it leaves a test that fails on a missing directory. Delete it if the copy
+brought it along.
 
-### Seed the consumer's data
+### Initialize the consumer's knowledge
 
 `docs/knowledge/data/` is the one part a consumer must not receive from the
-publisher — that directory is the publisher's own project memory. The starting
-content comes from the seed at `templates/iwe/data/` in the agent-devcontainer
-checkout at the ref being adopted, the same checkout every other template file
-is read from. There is no copy of the seed inside the installed plugin, and
-nothing is fetched from anywhere else.
+publisher — that directory is the publisher's own project memory. Every fresh
+workspace comes from `/agentdev:iwe-bootstrap`, which installs `.iwe/` and
+`docs/knowledge/` from the installed catalog and refuses whenever either
+already exists.
 
 1. **Decide whether the consumer has knowledge already.**
-   - **Workflow A**: the copy carries the publisher's `docs/knowledge/data/`.
-     Compare it against that same ref's `docs/knowledge/data/`. Identical means
-     it is the untouched publisher copy — replace it wholesale with the seed.
-     Any difference means the user has already written into it: it is consumer
-     memory from here on, and step 2 applies instead.
-   - **Workflow B**: an absent or empty `docs/knowledge/data/` is the only state
-     that gets seeded. Anything present is consumer memory.
-2. **When knowledge already exists, do not seed.** Never delete, overwrite, or
-   reset a consumer's data directory. Present what is there and what the seed
-   would add, and ask how to reconcile it — the same question applies to an
-   existing root `.iwe/` whose schemas or `[workspace].path` differ from the
-   template's. Proceed only on the user's answer; leaving both in place
+   - **Workflow A**: the copy carries the publisher's `.iwe/` and
+     `docs/knowledge/`. Compare both trees against the same ref's, leaving out
+     `docs/knowledge/tests/`, which holds template tests rather than memory.
+     Byte-identical means the untouched publisher copy: remove the copied
+     `.iwe/` and `docs/knowledge/` and continue with step 3. Any difference — a changed,
+     added, or missing file — means the user has already written into it: it is
+     consumer memory from here on, and step 2 applies instead.
+   - **Workflow B**: nothing is removed. Continue with step 3 and let bootstrap
+     classify what is there.
+2. **When knowledge already exists, do not bootstrap.** Never delete,
+   overwrite, or reset consumer knowledge, including a modified publisher copy
+   or a partly onboarded workspace. Present what is there and ask how to
+   reconcile it. Proceed only on the user's answer; leaving it in place
    unmerged is a valid answer.
-3. **Copy the seed** into `docs/knowledge/data/`, and copy
-   `templates/iwe/LICENSE.md` to `docs/knowledge/LICENSE.md` so the notice the
-   seed carries survives into the consumer.
-4. **Do not retain `templates/iwe/` itself.** It is publisher source; the seed's
-   destination is `docs/knowledge/data/`, and the source directory is deleted
-   with the rest of the publisher-only trees.
+3. **Invoke `/agentdev:iwe-bootstrap`** with the consumer root, and follow its
+   result table:
+   - `SUCCESS` — a blank workspace is installed; continue with step 4.
+   - `ALREADY_INITIALIZED` — a complete workspace was already there; it is
+     consumer memory, and onboarding resumes from its current state.
+   - `RECONCILIATION_REQUIRED` — show each `CONFLICT` path and apply step 2.
+   - Any other result stops knowledge setup; report it as pending.
+4. **Restore the retained validation** listed under [Reusable
+   scaffold](#reusable-scaffold) from the template checkout.
 
 When this skill runs from inside the template repository against a different
-target directory, every path above is read from the publisher checkout and
-written only under the target. The publisher's own `docs/knowledge/` and
-`templates/iwe/` are never modified.
+target directory, bootstrap runs with that target as `--root`, and every other
+path is read from the publisher checkout and written only under the target. The
+publisher's own `.iwe/` and `docs/knowledge/` are never modified.
 
 ### Onboard the consumer's project memory
 
-A freshly seeded workspace holds placeholders, not project memory. Fill it by
+A freshly bootstrapped workspace holds placeholders, not project memory. Fill it by
 invoking the two onboarding skills, in order, from the **consumer** repository
 root:
 
@@ -877,7 +882,7 @@ root:
 The summary key is `data/template-adoption` and its frontmatter `type` is
 `tracker`. Adoption state is a living record refreshed in place, which matches
 the tracker schema; it is not a design decision or a one-time release record.
-The seeded `.iwe/config.toml` binds that exact key to `[schemas.tracker]`. Setup
+The bootstrapped `.iwe/config.toml` binds that exact key to `[schemas.tracker]`. Setup
 writes it and update mode refreshes it at the end of every episode. A consumer
 without IWE skips the summary entirely.
 
@@ -895,7 +900,8 @@ Two states need naming explicitly:
   outstanding and `.agentdev-template-progress.md` as the file holding that
   state; never report it complete. Resuming follows its unticked tasks and the
   consumer's current `docs/knowledge/data/`, which is now consumer memory:
-  re-copying the seed would discard the answers already given.
+  bootstrap reports it `ALREADY_INITIALIZED`, and removing it to bootstrap
+  again would discard the answers already given.
 
 Verify the result from the consumer root: `iwe schema validate` and
 `iwe normalize` both clean, `data/product.md` free of `✏️` placeholders, and
@@ -905,13 +911,12 @@ consumer, the installed iwe-map skill's `stale-map-docs.py` must report
 
 ### When IWE is declined
 
-Skip seeding and onboarding entirely, and remove the IWE-only artifacts a copy
+Skip bootstrap and onboarding entirely, and remove the IWE-only artifacts a copy
 may have brought in:
 
 ```text
 .iwe/
 docs/knowledge/
-templates/iwe/
 .github/workflows/validate-knowledge-base.yml
 ```
 
@@ -1103,8 +1108,10 @@ path. Keep it tracked in the consumer repository and extend it across update
 episodes; template updates neither replace nor delete it.
 
 Project memory is outside that loop. `docs/knowledge/data/` is the consumer's
-own from the moment it is seeded, so update mode neither compares it nor reseeds
-it, and it never re-runs `/agentdev:iwe-setup` or `/agentdev:iwe-map`. Only the
+own from the moment it is bootstrapped, so update mode neither compares it nor
+invokes `/agentdev:iwe-bootstrap`, and it never re-runs `/agentdev:iwe-setup` or
+`/agentdev:iwe-map`. A catalog update that changes the bootstrap scaffold never
+reaches an initialized workspace. Only the
 reusable scaffold listed above is tracked. A marker written before that
 distinction existed tracks `docs/knowledge/` wholesale; update mode narrows it
 to the scaffold before diffing anything, without advancing `consumed_ref`.

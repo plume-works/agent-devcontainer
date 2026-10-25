@@ -45,7 +45,6 @@ jobs:
             # Keep this aligned with every source declared by codebase map docs.
             - .pre-commit-config.yaml
             - devcontainer-compose-pins.yml
-            - templates/iwe/**
             - docs/knowledge/tests/**
             - docs/knowledge/AGENTS.md
             - docs/knowledge/SCHEMA.md
@@ -78,6 +77,12 @@ jobs:
 
       - name: Test validate_agent_files
         run: uv run pytest py_packages/validate_agent_files/tests
+
+      # The iwe-bootstrap tests validate the installed scaffold with the image's iwe pin.
+      - name: Install the pinned iwe
+        run: |
+          uv run --frozen scripts/fetch-pinned-tool.py iwe "$RUNNER_TEMP/iwe"
+          echo "$RUNNER_TEMP/iwe" >> "$GITHUB_PATH"
 
       - name: Test agentdev plugin scripts
         run: uv run pytest .agents/plugins/agentdev/tests

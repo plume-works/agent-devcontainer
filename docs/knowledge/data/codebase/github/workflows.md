@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:2c199245f177bbe445bb72e915f4990b7edd4551872742686db5f5ffd2226d4f
+source_digest: sha256:a0263c11123fdf69318fc45cefc78e49bdda59b299a299eafc07da73b7d135c6
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
-stale_after: 2027-01-22
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
+stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
 sources:
 - id: code
   resource: .github/workflows
@@ -22,17 +22,17 @@ scheduled Renovate bot, and one manual job.
 
 ## Public surface
 
-| Workflow                       | Trigger                                         | Jobs                                                                                                                                                   |
-| ------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`); a new run cancels the old except on `main`, where it queues                                            |
-| `reformat.yml`                 | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                                                                           |
-| `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` + `opencode-acceptance` → `promote-dev-image` → `finished` |
-| `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites and the OpenCode bridge bun suite, the validator with `--require-marketplace claude codex`, then the map-staleness check           |
-| `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                                                                   |
-| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate pin) → `finished`                                                              |
-| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate pin, in `agent-desktop`, as the Renovate GitHub App                                                         |
-| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                                        |
-| `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                                                             |
+| Workflow                       | Trigger                                         | Jobs                                                                                                                                                           |
+| ------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`); a new run cancels the old except on `main`, where it queues                                                    |
+| `reformat.yml`                 | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                                                                                   |
+| `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` + `opencode-acceptance` → `promote-dev-image` → `finished`         |
+| `validate-agent-files.yml`     | PR, push, merge group                           | the pinned `iwe`, three pytest suites and the OpenCode bridge bun suite, the validator with `--require-marketplace claude codex`, then the map-staleness check |
+| `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone scaffold tests                                                                       |
+| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate pin) → `finished`                                                                      |
+| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate pin, in `agent-desktop`, as the Renovate GitHub App                                                                 |
+| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                                                |
+| `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                                                                     |
 
 ## How it works
 
@@ -69,10 +69,10 @@ through `pull_request_target`, which still fires on a conflicted PR and never
 checks out PR code. Every run queues in one job-level concurrency group, so two
 never write the same branch at once and a skipped bot edit never enters it.
 Knowledge validation always checks this graph when its outer filter passes and
-runs the standalone consumer-seed suite only when its inner seed filter passes.
-Agent-file validation's filter covers the union of codebase map `source` paths,
-then its final step verifies every recorded digest. The full traces are [the
-image build flow](../flow-image-build.md) and [the pull request checks
+runs the standalone iwe-bootstrap scaffold suite only when its inner filter
+passes. Agent-file validation's filter covers the union of codebase map `source`
+paths, then its final step verifies every recorded digest. The full traces are
+[the image build flow](../flow-image-build.md) and [the pull request checks
 flow](../flow-pull-request-checks.md).
 
 ## Depends on
@@ -84,7 +84,8 @@ flow](../flow-pull-request-checks.md).
 
 - `validate-knowledge-base.yml` installs `iwe` from the
   [dev_tools](../ansible/roles/dev_tools.md) pin, so its paths filter includes
-  that pin file.
+  that pin file; `validate-agent-files.yml` installs the same pin before the
+  plugin tests, whose bootstrap tests otherwise skip.
 - `permissions: {}` at the top of `primary-checks.yml`; each job grants only
   what it uses.
 - `finished` needs `opencode-acceptance`, so a failed native runtime acceptance
@@ -127,7 +128,7 @@ flow](../flow-pull-request-checks.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.github/workflows/primary-checks.yml:22-24` — `concurrency`, cancelling in
   progress except on `main`
@@ -142,10 +143,10 @@ Verified anchor points (line numbers as of 2026-10-20):
   the toolchain, the pinned hook binaries, and bundled Chromium
 - `.github/workflows/ci.yml:339,377,428` — `opencode-acceptance`,
   `promote-dev-image`, `finished`
-- `.github/workflows/validate-agent-files.yml:39-100` — map-source filter and
-  the check steps
-- `.github/workflows/validate-knowledge-base.yml:39-48,85-105` — paths filter,
-  pinned iwe, graph validation, and the path-filtered seed suite
+- `.github/workflows/validate-agent-files.yml:39-105` — map-source filter,
+  pinned iwe, and the check steps
+- `.github/workflows/validate-knowledge-base.yml:39-46,86-107` — paths filter,
+  pinned iwe, graph validation, and the path-filtered scaffold suite
 - `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
 - `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
   markers, both anchored to their own line
