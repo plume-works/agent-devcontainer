@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Map**: refreshed the [iwe-bootstrap
+  skill](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) and the
+  [plugin tests](codebase/agents/plugins/agentdev/tests.md) for recovery of a
+  transaction interrupted at its first `OWNER` write.
 - **Update**: [Extract a reusable IWE bootstrap
   skill](plans/20261023-reusable-iwe-bootstrap.md) done; created the [IWE
   bootstrap](spec/iwe-bootstrap.md) spec, and [Template

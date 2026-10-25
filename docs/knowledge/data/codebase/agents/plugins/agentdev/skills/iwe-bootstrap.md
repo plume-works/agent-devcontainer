@@ -2,14 +2,14 @@
 type: codebase
 description: The iwe-bootstrap skill — a packaged blank IWE workspace and the fail-closed helper that installs it into a repository root.
 source: .agents/plugins/agentdev/skills/iwe-bootstrap
-source_digest: sha256:91cf27e306f2f8fad8989b65c4ff05ab345a91b4c126f6e84985229b05db0d7f
+source_digest: sha256:bc0adc4ecf862b3473f2dfd99841fe6d97ad278379ee6867ebfebcb10565f4ee
 verified:
   by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  at: 2026-10-25T16:37:10Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  at: 2026-10-25T16:37:10Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills/iwe-bootstrap
@@ -41,15 +41,17 @@ stages and validates the copy, and moves it into place.
 
 The helper resolves `--root` or the git top level, requires `iwe` on PATH, then
 recovers any transaction directory: a `staging` phase is discarded, a
-`committing` phase is finished by moving whatever is still staged, and a
-directory without its marker is a `foreign-transaction` conflict. With both
-managed trees absent it copies `assets/` into the transaction's `stage/`, runs
-`iwe schema validate` there, checks that `iwe normalize` on a second copy
-changes nothing, records `committing`, and renames `.iwe/` and `docs/knowledge/`
-into the root. With either tree present it reports `ALREADY_INITIALIZED` only
-when every structural scaffold file — everything outside the document folders
-under `data/` — exists, the workspace path is `docs/knowledge`, and the root
-validates; anything else is `RECONCILIATION_REQUIRED` with nothing written.
+`committing` phase is finished by moving whatever is still staged, a directory
+holding nothing or only its first, unrenamed `OWNER.next` counts as `staging`,
+and any other directory without its marker is a `foreign-transaction` conflict.
+With both managed trees absent it copies `assets/` into the transaction's
+`stage/`, runs `iwe schema validate` there, checks that `iwe normalize` on a
+second copy changes nothing, records `committing`, and renames `.iwe/` and
+`docs/knowledge/` into the root. With either tree present it reports
+`ALREADY_INITIALIZED` only when every structural scaffold file — everything
+outside the document folders under `data/` — exists, the workspace path is
+`docs/knowledge`, and the root validates; anything else is
+`RECONCILIATION_REQUIRED` with nothing written.
 
 ## Depends on
 
@@ -67,7 +69,8 @@ The [bin helpers](../bin.md)' `result-codes.sh`, `git`, and the `iwe` CLI.
 - The validator does not scan `assets/` for references: the scaffold's
   extension-less IWE links resolve only once installed.
 - The helper never deletes or overwrites a path it did not create; the only
-  state it removes is its own transaction directory.
+  state it removes is its own transaction directory, whose `OWNER` it removes
+  last so an interrupted cleanup still reads as owned.
 
 ## Key references
 
@@ -75,15 +78,17 @@ Verified anchor points (line numbers as of 2026-10-25):
 
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:14`
   — the declared results
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:142`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:143`
+  — `discard_transaction`, cleanup that removes `OWNER` last
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:157`
   — `transaction_phase`, recognition of owned state
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:178`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:192`
   — interrupted-transaction recovery
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:219`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:233`
   — `required_files`, the completeness set
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:287`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:301`
   — staged validation and the normalize no-op check
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:306`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:320`
   — the commit phase
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md:53` — the result table
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md:26` —

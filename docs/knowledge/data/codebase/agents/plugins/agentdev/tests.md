@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:8deff0b6f0f1c650d83de157f414c98c9c6270ae28eb55f762a849c925b91310
+source_digest: sha256:d40f8ff025e7c6adcb6c0e2e895d589abea0e3a1296ece323ffd77a77d1ad1db
 verified:
   by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  at: 2026-10-25T16:37:10Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  at: 2026-10-25T16:37:10Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -124,7 +124,9 @@ change, and partial, incompatible, colliding, symlinked, and foreign-transaction
 states are `RECONCILIATION_REQUIRED` with nothing written. A restricted `PATH`
 of symlinked tools plus stub `iwe` or `mv` scripts covers a missing `iwe`, a
 failing validation, and `SIGTERM` during staging or commit, each followed by a
-recovering run. Tests that need the real `iwe` skip without it.
+recovering run; a transaction left empty or holding only its first `OWNER.next`
+write is discarded on the next run. Tests that need the real `iwe` skip without
+it.
 
 `test_explicit_only_parity.py` requires every skill that sets
 `disable-model-invocation: true` to carry an `agents/openai.yaml` with
@@ -163,7 +165,7 @@ Verified anchor points (line numbers as of 2026-10-25):
   path, byte, and mtime record every refusal is compared against
 - `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:127` —
   `restricted_path`, the tool-only `PATH` with stub scripts
-- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:399` — interrupted
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:422` — interrupted
   commit and its completing rerun
 - `.agents/plugins/agentdev/tests/test_update_branch.py:112` —
   `UpstreamFixture`, the remote/work/publisher triple for upstream sync
