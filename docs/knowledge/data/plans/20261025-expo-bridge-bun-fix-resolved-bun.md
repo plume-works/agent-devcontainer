@@ -143,14 +143,20 @@ Assumptions:
 **Files:** Modify: `packages/host/src/fix.ts`, `packages/host/src/extension.ts`,
 `packages/host/test/fix.test.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] `planFixes` takes the resolver's result and uses its command, or its
+- [x] `planFixes` takes the resolver's result and uses its command, or its
   detail and no command, for the bun step; `showFixes` and the `expoBridge.fix`
   command compute that result on the host when the bun check fails, show the
   shadowing note once per pair through `context.globalState`, and a picked step
   with no command shows its detail instead of opening a terminal.
-- [ ] `bun test packages/host/test/fix.test.ts` covers the bun step's command
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `a6dba1b`:
+    `planFixes(status, bun)` in `packages/host/src/fix.ts`, and `planHostFixes`,
+    `ShadowNotes` over `context.globalState`, and the no-command branch of
+    `expoBridge.fix` in `packages/host/src/extension.ts`.
+- [x] `bun test packages/host/test/fix.test.ts` covers the bun step's command
   for each origin and the step with no command; `bun run build`, `bun run lint`,
   and `bun test` pass.
+  - **Evidence:** `packages/host/test/fix.test.ts` in commit `a6dba1b`;
+    `bun run build`, `bun run lint`, and `bun test` (328 pass) pass on it.
 
 ### Task 4: Version and README
 
