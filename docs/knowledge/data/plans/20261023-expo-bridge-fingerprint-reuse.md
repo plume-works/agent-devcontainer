@@ -6,7 +6,7 @@ release:
 description: Make `eas-host build` of an Expo iOS development build reuse the workspace's earlier artifact when a cache key — the project's @expo/fingerprint, computed inside the confirmed build, plus the inputs the fingerprint leaves out — matches, with `eas-host build <profile> --clean` for a full build, the outcome reported in the result, a cache per workspace folder, and protocol version 2 kept.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T22:30:00Z
+  at: 2026-10-25T09:30:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-incremental-builds.md
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
@@ -61,9 +61,10 @@ Settled facts this plan builds on:
   unchanged; the app `name` and an installed native module change it. A native
   module declared in `package.json` but not installed in `node_modules` leaves
   it unchanged, and with no `node_modules` `expo/fingerprint` does not resolve.
-- **A development build's artifact embeds no JavaScript.** The scratch app's
-  `developmentClient` simulator artifact contains no `main.jsbundle`; a Release
-  build embeds one.
+- **A development build's artifact embeds no JavaScript.** A `developmentClient`
+  build loads its JavaScript from Metro and its artifact holds no
+  `main.jsbundle`; a Release build embeds one. The store check (Task 5) enforces
+  this rather than relying on it.
 
 ## Approach
 
@@ -100,6 +101,16 @@ log file. Writes go through a temporary file and a rename, so no reader sees a
 partial entry. Revoking a host path's trust decision deletes the cache of every
 folder under it.
 
+**One index update at a time per folder.** Updates to a folder's `index.json`
+are serialized by an `index.lock` file in that folder's cache directory, created
+with `O_CREAT | O_EXCL` and holding its owner's process id. Builds in one folder
+can run concurrently from one VS Code window or several, and each window's host
+extension is its own process, so a lock held in memory would not cover them.
+Only the read, update, eviction, and write of `index.json` hold the lock, never
+the build. A lock whose owner process no longer exists, or that is older than a
+fixed limit, is taken over; when the lock cannot be taken within a fixed wait,
+the build stores nothing and its log says so.
+
 **The protocol stays at version 2**, the version the workspace-folder plan sets.
 `BuildRequest` gains an optional `clean`, and `BuildResult` gains `mode`
 (`built` or `reused`), `reason` for a full build (`clean-requested`,
@@ -127,7 +138,8 @@ pays eas-cli's start-up on a hit. Rejected: `eas fingerprint:generate` — it
 writes a Fingerprint record to the EAS project on every build. Rejected:
 re-bundling JavaScript into a stored Release artifact — it re-implements Xcode's
 bundle phase and re-signing. Rejected: protocol version 3, for the mixed
-pairings above.
+pairings above. Rejected: an in-process mutex for the index — it does not cover
+a second VS Code window's host extension.
 
 Assumptions:
 
@@ -139,6 +151,9 @@ Assumptions:
   The key needs only to agree with itself, not with eas's own hash.
 - The file size limit for hashing is 64 MB, a constant; `eas.json` keeps its
   existing JSON limit for parsing.
+- The index lock waits up to 10 s, retrying every 50 ms, and a lock older than
+  60 s is stale; both are constants in the host extension. An index update takes
+  milliseconds, so neither bound is reached while its owner is alive.
 
 ## Implementation Steps
 
@@ -399,6 +414,41 @@ sideloaded
     `### Build reuse`, its security model sentence on the fingerprint step, a
     constraint, and two rejected alternatives; `iwe schema validate` passes.
 
+### Task 13: Host — lock the folder's cache index
+
+**Files:** Modify: `packages/host/src/buildcache.ts`, its test, in
+`plume-works/vscode-expo-bridge`
+
+- [ ] `BuildCache.store` holds `index.lock` in the folder's cache directory,
+  created with `O_CREAT | O_EXCL` and holding the process id, from reading
+  `index.json` through writing it, and removes the lock afterwards, also when
+  the update throws.
+- [ ] A lock whose process id is not a live process, or whose age is over 60 s,
+  is removed and taken; any other held lock is retried every 50 ms for up to 10
+  s, after which `store` stores nothing and returns false.
+- [ ] `bun test` covers two concurrent `store` calls for different keys in one
+  folder — from two separate processes — keeping both entries, the takeover of a
+  dead owner's and of an expired lock, the refusal after the wait, and the
+  lock's removal after a failed update.
+
+### Task 14: Document the index lock
+
+**Files:** Modify: `docs/protocol.md` in `plume-works/vscode-expo-bridge`;
+`docs/knowledge/data/architecture/vscode-expo-bridge.md`
+
+- [ ] `docs/protocol.md`'s reuse section states that updates to a folder's
+  `index.json` are serialized by `index.lock` across processes, the stale-lock
+  takeover, and that a build that cannot take the lock stores nothing.
+- [ ] The architecture document's `### Build reuse` states the cross-process
+  index lock and why an in-memory lock does not suffice.
+
+### Task 15: Sibling repository CI passes on the index lock
+
+**Files:** none
+
+- [ ] The sibling repository's CI passes on the commit that completes Tasks
+  13–14.
+
 ## Spec changes
 
 None in `data/spec/` — this repository's spec covers only the template wiring,
@@ -416,8 +466,10 @@ confirmation, and SHALL return the request folder's stored artifact with
 `mode: "reused"` when an entry for that key exists, without running eas-cli.
 Otherwise it SHALL run the full build and report `mode: "built"` with a
 `reason`. The host SHALL store an artifact only from a build that exited 0 and
-whose artifact contains no embedded JavaScript bundle. No workspace folder
-SHALL read another folder's cache, under the same host path or another.
+whose artifact contains no embedded JavaScript bundle. Concurrent builds in one
+folder SHALL NOT drop each other's stored entries, from one VS Code window or
+several. No workspace folder SHALL read another folder's cache, under the same
+host path or another.
 
 #### Scenario: unchanged native inputs reuse the artifact
 
@@ -425,6 +477,13 @@ SHALL read another folder's cache, under the same host path or another.
   entry
 - **THEN** the result reports `mode: "reused"` and `reusedBuiltAt`
 - **AND** the artifact is a fresh file under `.tmp/expo-bridge/`
+
+#### Scenario: concurrent builds in one folder keep both entries
+
+- **WHEN** two builds with different cache keys in the same folder store their
+  artifacts at the same time, from the same or different host extension
+  processes
+- **THEN** a later build with either key reports `mode: "reused"`
 
 #### Scenario: a changed input builds in full
 
@@ -507,7 +566,9 @@ workspace folder under that host path.
 ## Verification
 
 - In `plume-works/vscode-expo-bridge`, `bun test` passes, and the sibling CI
-  passes (Task 9).
+  passes (Task 9, and Task 15 for the index lock).
+- Task 13's two-process test keeps both entries; the lock needs no Mac run, as
+  its behavior does not depend on macOS or Xcode.
 - Task 10's timings are recorded, and a reused build takes under 15 s.
 - Task 11's Mac run behaves as described.
 - `iwe normalize` and `iwe schema validate` pass.
@@ -554,6 +615,16 @@ In `plume-works/vscode-expo-bridge` at `6c654ea`:
 - `packages/host/package.json:6` — the host extension's version
 - `docs/protocol.md:154` — `### build`
 - `docs/protocol.md:248` — `## eas-host`
+
+In `plume-works/vscode-expo-bridge` at `2d8db83` (line numbers as of
+2026-10-25):
+
+- `packages/host/src/buildcache.ts:47` — `writeAtomic`
+- `packages/host/src/buildcache.ts:76` — `BuildCache.readIndex`
+- `packages/host/src/buildcache.ts:89` — `BuildCache.writeIndex`
+- `packages/host/src/buildcache.ts:108` — `BuildCache.store`
+- `packages/host/src/buildcache.ts:119` — the index read-modify-write in `store`
+- `packages/host/src/build.ts:171` — `build` offering its artifact to `store`
 
 In `eas-cli@25.3.0`:
 
