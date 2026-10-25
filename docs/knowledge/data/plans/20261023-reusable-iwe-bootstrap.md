@@ -172,15 +172,30 @@ Modify: `.agents/plugins/agentdev/README.md`,
 **Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] Replace Workflow B's manual seed-copy procedure with
+- [x] Replace Workflow B's manual seed-copy procedure with
   `/agentdev:iwe-bootstrap`, then retain the existing `iwe-setup` and `iwe-map`
   handoffs and their confirmation gates.
-- [ ] In Workflow A, keep the byte-identical publisher-memory check. Remove only
+  - **Evidence:** the guide's `### Initialize the consumer's knowledge` step 3
+    invokes `/agentdev:iwe-bootstrap` and branches on its `RESULT`, Workflow B
+    step 5 defers to it, and `### Onboard the consumer's project memory` keeps
+    setup before map with its gates; `template-consume/SKILL.md` step 5 names
+    the same order.
+- [x] In Workflow A, keep the byte-identical publisher-memory check. Remove only
   a proven untouched publisher copy, invoke bootstrap against the consumer, and
   preserve any differing or partial knowledge for explicit reconciliation.
-- [ ] Remove the source-checkout dependency from knowledge initialization and
+  - **Evidence:** step 1 of `### Initialize the consumer's knowledge` compares
+    the copied `.iwe/` and `docs/knowledge/` (tests aside) with the adopted ref,
+    removes them only when byte-identical, and sends any difference to the step
+    2 reconciliation question without bootstrapping.
+- [x] Remove the source-checkout dependency from knowledge initialization and
   its tracked-path rules. Keep update mode non-initializing: it must neither
   invoke bootstrap nor merge changed scaffold assets into consumer memory.
+  - **Evidence:** neither `template-consume` file mentions `templates/iwe/`
+    except the legacy-marker drop in update step 3; `### Reusable scaffold` says
+    bootstrap installs the support files from the catalog, the Default Template
+    Surface keeps the scaffold out of `tracked_paths`, and update step 8 plus
+    the guide's update section forbid invoking bootstrap or applying scaffold
+    changes; `validate_agent_files` reports 64/64 and prettier is clean.
 
 ### Task 5: Align the feature contract and maintenance guidance
 
