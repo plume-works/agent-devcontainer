@@ -231,16 +231,28 @@ workflow shape a repository runs — no consumer runs the earlier one.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md`
 
-- [ ] `## The test` asks whether the diff since the newest reviewed commit goes
+- [x] `## The test` asks whether the diff since the newest reviewed commit goes
   beyond what the pull request's review threads and review comments since that
   review asked for, replacing the first-person question; the request/decline
   lists in `## What counts as beyond the feedback` keep their items
-- [ ] `## Establish what the last review saw` adds the command that reads the
+  - **Evidence:** `pr-eval-review-needed/SKILL.md` `## The test` asks whether
+    the diff since the newest reviewed commit goes beyond the review threads and
+    comments since that review; `## What counts as beyond the feedback` is
+    unchanged.
+- [x] `## Establish what the last review saw` adds the command that reads the
   review threads and comments posted since the newest reviewed commit, and says
   that a run with no such threads judges the whole diff as undirected
-- [ ] The frontmatter `description` and the opening paragraph name `pr-open`'s
+  - **Evidence:** the section adds `gh pr view --json reviews,comments` and
+    `gh api --paginate repos/{owner}/{repo}/pulls/<pr>/comments` filtered from
+    the newest reviewed review, and judges the whole diff as new work when
+    nothing since asks for anything; both commands return the expected fields
+    against PR #429.
+- [x] The frontmatter `description` and the opening paragraph name `pr-open`'s
   update mode and `pr-merge`'s CI-fix push as callers alongside feedback
   resolution
+  - **Evidence:** the description and opening paragraph name `pr-open` update
+    mode, `pr-merge` after a CI-fix push, and `pr-feedback-resolution`;
+    `validate_agent_files` reports 63/63 skills valid.
 
 ### Task 5: pr-open evaluates on every update
 
