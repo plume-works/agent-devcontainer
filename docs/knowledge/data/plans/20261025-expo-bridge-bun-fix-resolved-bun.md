@@ -110,7 +110,7 @@ Assumptions:
   - **Evidence:** `plume-works/vscode-expo-bridge` commit `eebf019` on branch
     `expo-bridge-bun-fix-resolved-bun`, `resolveBunFix` in
     `packages/host/src/bunfix.ts`; `bun run typecheck` passes.
-- [ ] `bun test packages/host/test/bunfix.test.ts` covers each row of the table:
+- [x] `bun test packages/host/test/bunfix.test.ts` covers each row of the table:
   no bun; a `/opt/homebrew/bin/bun` symlink into the Cellar; `~/.bun/bin/bun`
   with `BUN_INSTALL` unset; `$BUN_INSTALL/bin/bun`; a mise-style shim path; a
   path containing `'`; and a stale `~/.bun/bin/bun` ahead of Homebrew's, which
@@ -123,15 +123,20 @@ Assumptions:
 **Files:** Modify: `packages/host/src/bunfix.ts`,
 `packages/host/test/bunfix.test.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] Given the container's bun version and a runner, the resolver returns the
+- [x] Given the container's bun version and a runner, the resolver returns the
   first later `bun` on the `PATH`, with a different `realpath`, whose
   `--version` meets the container's version; a store over a `Memento` reports
   whether a resolved-and-shadowed pair was already noted and records it.
-- [ ] `bun test packages/host/test/bunfix.test.ts` covers: a newer Homebrew bun
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `bcd31a8`,
+    `findShadowedBun` and `ShadowNotes` in `packages/host/src/bunfix.ts`;
+    `bun run typecheck` passes.
+- [x] `bun test packages/host/test/bunfix.test.ts` covers: a newer Homebrew bun
   behind a stale bun.sh bun is found; a later entry with the resolved bun's
   `realpath` is skipped; a later bun older than the container's is not a
   shadowed bun; no lookup without a container version; a noted pair is not noted
   again; a different pair is noted.
+  - **Evidence:** `packages/host/test/bunfix.test.ts` in commit `bcd31a8`; 15
+    tests pass under `bun test packages/host/test/bunfix.test.ts`.
 
 ### Task 3: The fix and the status bar use the resolution
 
