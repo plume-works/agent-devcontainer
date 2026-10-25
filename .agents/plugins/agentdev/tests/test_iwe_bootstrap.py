@@ -396,6 +396,29 @@ def test_interrupted_staging_is_discarded_on_the_next_run(
 
 
 @requires_iwe
+@pytest.mark.parametrize(
+    'leftover',
+    [
+        pytest.param(None, id='empty-directory'),
+        pytest.param('', id='truncated-owner-write'),
+        pytest.param('iwe-bootstrap transaction\nphase=staging\n', id='unrenamed-owner-write'),
+    ],
+)
+def test_interrupted_first_owner_write_is_discarded_on_the_next_run(
+    installed_iwe_bootstrap: Path, unrelated_repository: Path, leftover: str | None
+) -> None:
+    (unrelated_repository / TRANSACTION).mkdir()
+    if leftover is not None:
+        (unrelated_repository / TRANSACTION / 'OWNER.next').write_text(leftover, encoding='utf-8')
+
+    completed = run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS'), completed.stderr
+    assert output_values(completed, 'RECOVERED_TRANSACTION') == ['discarded']
+    assert not (unrelated_repository / TRANSACTION).exists()
+
+
+@requires_iwe
 def test_interrupted_commit_is_completed_on_the_next_run(
     installed_iwe_bootstrap: Path, unrelated_repository: Path, plugin_tmp_path: Path
 ) -> None:

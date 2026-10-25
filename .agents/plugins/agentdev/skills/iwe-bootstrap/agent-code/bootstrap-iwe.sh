@@ -139,11 +139,25 @@ write_phase() {
   mv "${transaction}/OWNER.next" "${transaction}/OWNER"
 }
 
+# Removes OWNER last, so a partial discard never leaves owned files without their mark.
+discard_transaction() {
+  find "${transaction}" -mindepth 1 -maxdepth 1 ! -name OWNER -exec rm -rf {} +
+  rm -rf "${transaction}"
+}
+
+# mkdir and the first OWNER rename are not atomic together; nothing is staged before it.
+holds_only_first_owner_write() {
+  local entries pending="${transaction}/OWNER.next"
+  entries="$(ls -A "${transaction}")"
+  [[ -z "${entries}" ]] && return 0
+  [[ "${entries}" == "OWNER.next" && -f "${pending}" && ! -L "${pending}" ]] || return 1
+  [[ ! -s "${pending}" || "$(head -n 1 "${pending}")" == "${owner_mark}" ]]
+}
+
 transaction_phase() {
   local owner="${transaction}/OWNER"
   [[ ! -L "${transaction}" && -d "${transaction}" ]] || return 1
-  # mkdir and the first OWNER write are not atomic together; an empty directory holds no bytes.
-  if [[ -z "$(ls -A "${transaction}")" ]]; then
+  if holds_only_first_owner_write; then
     printf 'staging\n'
     return 0
   fi
@@ -172,7 +186,7 @@ move_staged() {
       mv "${transaction}/stage/${item}" "${root}/${item}"
     fi
   done
-  rm -rf "${transaction}"
+  discard_transaction
 }
 
 recovered=""
@@ -180,7 +194,7 @@ if path_exists "${transaction}"; then
   phase="$(transaction_phase)" || phase="foreign"
   case "${phase}" in
     staging)
-      rm -rf "${transaction}"
+      discard_transaction
       recovered="discarded"
       ;;
     committing)
@@ -298,7 +312,7 @@ else
   fi
 fi
 if [[ "${validated}" -eq 0 ]]; then
-  rm -rf "${transaction}"
+  discard_transaction
   quit_by_code 6
 fi
 rm -rf "${transaction}/check"
