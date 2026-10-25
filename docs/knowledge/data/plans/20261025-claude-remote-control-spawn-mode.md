@@ -132,23 +132,34 @@ Assumptions:
 **Files:** Modify:
 `docs/knowledge/data/architecture/claude-remote-control-server-mode.md`
 
-- [ ] Rewrite the decision: server mode spawns on-demand conversations with
+- [x] Rewrite the decision: server mode spawns on-demand conversations with
   `--spawn worktree` by default and `--spawn same-dir` when
   `AGENTDEV_CLAUDE_RC_SPAWN=same-dir`, decided by the maintainer; the
   pre-created session stays in the workspace folder; the spawn value is read
   only in server mode and an unrecognized one fails startup
-- [ ] Remove "A spawned worktree session does not survive a restart" from the
+  - **Evidence:** commit "Record the Remote Control spawn-mode decision": the
+    second `## Decision` paragraph of the architecture document.
+- [x] Remove "A spawned worktree session does not survive a restart" from the
   measured Claude Code behavior list, and add that worktree mode needs a git
   repository and creates worktrees under `.claude/worktrees/`
-- [ ] Add a separate "Assumed, not measured" list, outside the measured one: a
+  - **Evidence:** commit "Record the Remote Control spawn-mode decision": the
+    line is gone from the measured list; the worktree-mode facts are under the
+    documented limits, since they come from the Claude Code docs.
+- [x] Add a separate "Assumed, not measured" list, outside the measured one: a
   spawned session returns after a restart the same way in either spawn mode
   (measured for `same-dir` in the restart resume finding), and a revived
   worktree session re-enters its worktree
-- [ ] Replace the `--spawn worktree` rejected alternative with this plan's
+  - **Evidence:** commit "Record the Remote Control spawn-mode decision":
+    "Assumed, not measured" list with both items.
+- [x] Replace the `--spawn worktree` rejected alternative with this plan's
   rejected alternatives from `## Approach`; keep the other three
-- [ ] Add to Consequences that a spawn-mode change, like a mode change, applies
+  - **Evidence:** commit "Record the Remote Control spawn-mode decision":
+    `## Rejected alternatives` lists three kept and four new entries.
+- [x] Add to Consequences that a spawn-mode change, like a mode change, applies
   on the next session start, and that `.claude/worktrees/` is gitignored;
   `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit "Record the Remote Control spawn-mode decision":
+    `## Consequences`; `iwe normalize` and `iwe schema validate` clean.
 
 ### Task 4: Update the feature
 
