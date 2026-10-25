@@ -426,7 +426,7 @@ reports stale after Tasks 15–17
 
 ## Spec changes
 
-`data/spec/iwe-branch-name` (new):
+[iwe-branch-name](../spec/iwe-branch-name.md) (new):
 
 ``` markdown
 ## ADDED Requirements
