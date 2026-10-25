@@ -6,7 +6,7 @@ release:
 description: Make `eas-host build` of an Expo iOS development build reuse the workspace's earlier artifact when a cache key — the project's @expo/fingerprint, computed inside the confirmed build, plus the inputs the fingerprint leaves out — matches, with `eas-host build <profile> --clean` for a full build, the outcome reported in the result, a cache per workspace folder, and protocol version 2 kept.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T09:30:00Z
+  at: 2026-10-25T11:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-incremental-builds.md
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
@@ -105,11 +105,13 @@ folder under it.
 are serialized by an `index.lock` file in that folder's cache directory, created
 with `O_CREAT | O_EXCL` and holding its owner's process id. Builds in one folder
 can run concurrently from one VS Code window or several, and each window's host
-extension is its own process, so a lock held in memory would not cover them.
-Only the read, update, eviction, and write of `index.json` hold the lock, never
-the build. A lock whose owner process no longer exists, or that is older than a
-fixed limit, is taken over; when the lock cannot be taken within a fixed wait,
-the build stores nothing and its log says so.
+extension is its own process, so a lock held in memory would not cover them. The
+copy of the artifact into the cache and the read, update, eviction, and write of
+`index.json` hold the lock, never the build; with the copy inside, a build that
+times out waiting leaves no orphaned artifact. A lock whose owner process no
+longer exists, or that is older than a fixed limit, is taken over; when the lock
+cannot be taken within a fixed wait, the build stores nothing and its log says
+so.
 
 **The protocol stays at version 2**, the version the workspace-folder plan sets.
 `BuildRequest` gains an optional `clean`, and `BuildResult` gains `mode`
@@ -420,9 +422,9 @@ sideloaded
 `plume-works/vscode-expo-bridge`
 
 - [x] `BuildCache.store` holds `index.lock` in the folder's cache directory,
-  created with `O_CREAT | O_EXCL` and holding the process id, from reading
-  `index.json` through writing it, and removes the lock afterwards, also when
-  the update throws.
+  created with `O_CREAT | O_EXCL` and holding the process id, from copying the
+  artifact through writing `index.json`, and removes the lock afterwards, also
+  when the update throws.
   - **Evidence:** plume-works/vscode-expo-bridge `1e643f6`
     `packages/host/src/buildcache.ts` `withIndexLock`, which `store` wraps
     around the artifact copy and the `index.json` read, update, and write; its
@@ -635,14 +637,16 @@ In `plume-works/vscode-expo-bridge` at `6c654ea`:
 - `docs/protocol.md:154` — `### build`
 - `docs/protocol.md:248` — `## eas-host`
 
-In `plume-works/vscode-expo-bridge` at `2d8db83` (line numbers as of
+In `plume-works/vscode-expo-bridge` at `8b5a960` (line numbers as of
 2026-10-25):
 
 - `packages/host/src/buildcache.ts:47` — `writeAtomic`
-- `packages/host/src/buildcache.ts:76` — `BuildCache.readIndex`
-- `packages/host/src/buildcache.ts:89` — `BuildCache.writeIndex`
-- `packages/host/src/buildcache.ts:108` — `BuildCache.store`
-- `packages/host/src/buildcache.ts:119` — the index read-modify-write in `store`
+- `packages/host/src/buildcache.ts:99` — `withIndexLock`
+- `packages/host/src/buildcache.ts:193` — `BuildCache.readIndex`
+- `packages/host/src/buildcache.ts:206` — `BuildCache.writeIndex`
+- `packages/host/src/buildcache.ts:225` — `BuildCache.store`
+- `packages/host/src/buildcache.ts:235` — the locked copy and index update in
+  `store`
 - `packages/host/src/build.ts:171` — `build` offering its artifact to `store`
 
 In `eas-cli@25.3.0`:
