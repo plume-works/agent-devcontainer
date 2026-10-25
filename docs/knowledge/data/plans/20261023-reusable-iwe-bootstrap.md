@@ -216,11 +216,20 @@ Modify: `.agents/plugins/agentdev/README.md`,
 Spec documents are not edited here: Ship merges `## Spec changes` into
 `data/spec/template-consumption` and creates `data/spec/iwe-bootstrap`.
 
-- [ ] Update the template boundary inventories so `template-consume` reuses the
+- [x] Update the template boundary inventories so `template-consume` reuses the
   installed skill, the scaffold is catalog-owned rather than a template path,
   and consumer knowledge remains consumer-owned after initialization.
-- [ ] Refresh the feature from repository-owned seed terminology to a reusable
+  - **Evidence:** `data/architecture/template-boundary` replaces the
+    `templates/iwe/` source table with the `iwe-bootstrap` scaffold's
+    destinations and owners, states that the scaffold is never a `tracked_paths`
+    entry, drops `LICENSE.md` from the tracked knowledge paths, and removes the
+    `templates/iwe/` publisher-only row; `iwe schema validate` passes.
+- [x] Refresh the feature from repository-owned seed terminology to a reusable
   catalog-owned bootstrap while preserving full adoption as a supported path.
+  - **Evidence:** `data/features/consumer-iwe-seed` (key kept, H1 now "Reusable
+    IWE bootstrap") describes the catalog-owned scaffold, direct bootstrap and
+    its refusal outcomes, and full adoption composing bootstrap before setup and
+    map; `iwe normalize` and `iwe schema validate` pass.
 
 ### Task 6: Refresh the codebase map
 
