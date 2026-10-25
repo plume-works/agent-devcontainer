@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Expo bridge bun fix upgrades the bun the check
+runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
+
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
