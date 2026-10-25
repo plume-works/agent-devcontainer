@@ -87,23 +87,36 @@ Assumptions:
 **Files:** Modify: `.devcontainer/scripts/claude-remote-control-start.sh`,
 `scripts/tests/test_claude_remote_control_start.py`
 
-- [ ] Extend `run_with_fake_tmux` with a `spawn` argument that sets
+- [x] Extend `run_with_fake_tmux` with a `spawn` argument that sets
   `AGENTDEV_CLAUDE_RC_SPAWN`, and pop the variable from the inherited
   environment by default, as the harness does for `AGENTDEV_CLAUDE_RC_MODE`
-- [ ] Change `test_server_mode_starts_remote_control_server` to expect
+  - **Evidence:** commit "Select the Remote Control spawn mode in the start
+    script": `run_with_fake_tmux(spawn=...)`.
+- [x] Change `test_server_mode_starts_remote_control_server` to expect
   `claude remote-control --spawn worktree` with `spawn` unset and with
   `worktree`, and `--spawn same-dir` with `same-dir`, each with and without
   `CODER_WORKSPACE_NAME`; the unset and `worktree` cases fail before the script
   change
-- [ ] Add a test that in server mode an unrecognized spawn value (`worktre`,
+  - **Evidence:** commit "Select the Remote Control spawn mode in the start
+    script": six parametrized cases; the four unset and `worktree` cases failed
+    before the script change.
+- [x] Add a test that in server mode an unrecognized spawn value (`worktre`,
   empty) exits non-zero, prints the value and the valid options `worktree` and
   `same-dir` to stderr, and makes no tmux call, with and without a live
   `claude-remote` session
-- [ ] Add a test that in session mode (mode unset and `session`) an unrecognized
+  - **Evidence:** commit "Select the Remote Control spawn mode in the start
+    script": `test_unrecognized_spawn_fails_in_server_mode_without_tmux`, all
+    four cases failed before the script change.
+- [x] Add a test that in session mode (mode unset and `session`) an unrecognized
   spawn value still starts `claude-remote-control-session.sh`
-- [ ] Implement the spawn-mode selection in `claude-remote-control-start.sh`;
+  - **Evidence:** commit "Select the Remote Control spawn mode in the start
+    script": `test_session_mode_ignores_unrecognized_spawn`, unset and `session`
+    cases.
+- [x] Implement the spawn-mode selection in `claude-remote-control-start.sh`;
   `uv run pytest scripts/tests/test_claude_remote_control_start.py` passes and
   `shellcheck .devcontainer/scripts/claude-remote-control-start.sh` is clean
+  - **Evidence:** commit "Select the Remote Control spawn mode in the start
+    script": the test file 29 passed; `shellcheck` clean.
 
 ### Task 2: Keep spawned worktrees out of the main checkout's status
 
@@ -289,16 +302,19 @@ Verified anchor points (line numbers as of 2026-10-25):
 
 - `.devcontainer/scripts/claude-remote-control-start.sh:4` — `mode`, read from
   `AGENTDEV_CLAUDE_RC_MODE`, validated through line 9
-- `.devcontainer/scripts/claude-remote-control-start.sh:11` — the `claude` and
+- `.devcontainer/scripts/claude-remote-control-start.sh:11` — `spawn`, read from
+  `AGENTDEV_CLAUDE_RC_SPAWN` in server mode only, validated through line 16
+- `.devcontainer/scripts/claude-remote-control-start.sh:19` — the `claude` and
   `tmux` availability check the spawn validation precedes
-- `.devcontainer/scripts/claude-remote-control-start.sh:42` — the server-mode
-  branch; line 43 holds the hardcoded `--spawn same-dir`
+- `.devcontainer/scripts/claude-remote-control-start.sh:50` — the server-mode
+  branch; line 51 passes `--spawn $spawn`
 - `scripts/tests/test_claude_remote_control_start.py:33` — `run_with_fake_tmux`;
-  lines 64 and 68 pop and set `AGENTDEV_CLAUDE_RC_MODE`
-- `scripts/tests/test_claude_remote_control_start.py:113` —
-  `test_server_mode_starts_remote_control_server`, asserting `--spawn same-dir`
-  at line 118
-- `scripts/tests/test_claude_remote_control_start.py:132` —
-  `test_unrecognized_mode_fails_without_tmux`, the pattern for the spawn-value
-  test
+  lines 65-72 pop and set `AGENTDEV_CLAUDE_RC_MODE` and
+  `AGENTDEV_CLAUDE_RC_SPAWN`
+- `scripts/tests/test_claude_remote_control_start.py:125` —
+  `test_server_mode_starts_remote_control_server`, over the spawn modes
+- `scripts/tests/test_claude_remote_control_start.py:157` —
+  `test_unrecognized_spawn_fails_in_server_mode_without_tmux`
+- `scripts/tests/test_claude_remote_control_start.py:167` —
+  `test_session_mode_ignores_unrecognized_spawn`
 - `.claude/.gitignore:1` — `*.local.json`, the file's only entry
