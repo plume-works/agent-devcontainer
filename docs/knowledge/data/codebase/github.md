@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:d20aa91cf61fc146b08daef1915bcfff979a44c25963b20acfd53b7deca5d9c6
+source_digest: sha256:c507b80fb18574a1b3987fd3229c4051a9c558a2db87414f69c8696c3ede03f5
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-25T05:57:15Z
-stale_after: 2027-01-22
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
+stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
 sources:
 - id: code
   resource: .github
@@ -55,16 +55,16 @@ the composite actions they share, `renovate.json`, and
 and `ci.yml`. Three more workflows trigger independently on their own path
 filters, `renovate.yml` runs the bot on a schedule, on every push to `main`, and
 when a person edits its Dependency Dashboard or one of its PRs, and one is
-manual. Knowledge validation has its own inner filter so the consumer IWE seed
-tests run only when the seed, schemas, or seed test moved. Agent-file validation
-includes every source path declared by a codebase map doc, so source drift
-cannot skip the staleness gate.
+manual. Knowledge validation has its own inner filter so the packaged IWE
+scaffold tests run only when the scaffold, schemas, shared knowledge files, or
+scaffold test moved. Agent-file validation includes every source path declared
+by a codebase map doc, so source drift cannot skip the staleness gate.
 
 ## Depends on
 
 The [Dockerfiles](docker.md) and [playbook](ansible.md) for the image jobs; `uv`
 and the [validator](py_packages/validate_agent_files.md) for the check jobs;
-`iwe` for the knowledge-base job.
+`iwe` for the knowledge-base job and the plugin-test step.
 
 ## Invariants & gotchas
 
@@ -104,5 +104,5 @@ Verified anchor points (line numbers as of 2026-10-25):
   devcontainer CLI, `dev_tools` versions, role version pins, the pre-commit
   `bunx` pin, commit pins
 - `.github/.agent.metadata.json` — runner-label and image-digest masks
-- `.github/workflows/validate-knowledge-base.yml:70-105` — seed filter and
-  standalone seed validation
+- `.github/workflows/validate-knowledge-base.yml:70-107` — scaffold filter and
+  standalone scaffold validation

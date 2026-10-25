@@ -2,14 +2,14 @@
 type: codebase
 description: The independently released Python package that validates skills, agents, prompts, and plugin packaging; its CLI is the repository gate and ships in the image as a uv tool.
 source: py_packages/validate_agent_files
-source_digest: sha256:ee7130c31259ef90e42c8c6cbe09136eca354a1fbc8fa5b2159eefa5ee405f3f
+source_digest: sha256:62731bd8be2aed7bc95f9b4074dfdbe65d62acddb32be36d0e966847c696cf90
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T13:00:00Z
-stale_after: 2026-12-31
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
+stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T13:00:00Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files
@@ -47,12 +47,12 @@ it from its own directory alone.
 calls `validate_paths`, and exits `1` if any result is invalid. `validate_paths`
 resolves every requested path (a missing or empty path is itself a failure),
 validates required and present marketplaces, then plugin manifests and bundled
-Markdown containment for every plugin root it can see, then discovers and
-validates skills, agents, and prompts by `kind`. Discovery walks the tree
-skipping gitignored entries when inside a work tree. Formatters render text,
-JSON, or CSV. Skill frontmatter and structure recommendations enter results only
-when warnings are enabled, and the engine filters out those legacy validators'
-stricter error-level rules.
+Markdown containment — outside any skill's `assets/` tree — for every plugin
+root it can see, then discovers and validates skills, agents, and prompts by
+`kind`. Discovery walks the tree skipping gitignored entries when inside a work
+tree. Formatters render text, JSON, or CSV. Skill frontmatter and structure
+recommendations enter results only when warnings are enabled, and the engine
+filters out those legacy validators' stricter error-level rules.
 
 ## Depends on
 
@@ -70,7 +70,7 @@ nothing in this repository.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `py_packages/validate_agent_files/validate_agent_files/main.py:15` — `main`
 - `py_packages/validate_agent_files/validate_agent_files/cli.py:13` —

@@ -10,7 +10,8 @@ catalog discovery only finds ``SKILL.md``, ``*.agent.md``, and ``*.prompt.md``,
 so nothing was checking them.
 
 These files have no frontmatter contract to enforce; they are validated for
-their references alone.
+their references alone. A skill's ``assets/`` tree is skipped: it holds files the
+skill copies out as output, whose references resolve where they land.
 """
 
 from __future__ import annotations
@@ -24,6 +25,9 @@ from .cross_reference import CrossReferenceValidator
 
 EXCLUDED_DIRS = {'test', 'tests', '.pytest_cache', '__pycache__', '.git', 'node_modules'}
 
+# Output templates beside a SKILL.md, per the Agent Skills directory layout.
+SKILL_ASSETS_DIR = 'assets'
+
 # Suffixes owned by a catalog validator, which already checks their references.
 CATALOG_ENTRY_SUFFIXES = ('.agent.md', '.prompt.md')
 
@@ -33,7 +37,10 @@ def find_bundled_markdown(plugin_root: Path) -> List[Path]:
     bundled: List[Path] = []
 
     for directory, subdirectories, filenames in os.walk(plugin_root):
-        subdirectories[:] = [name for name in subdirectories if name not in EXCLUDED_DIRS]
+        skipped = set(EXCLUDED_DIRS)
+        if 'SKILL.md' in filenames:
+            skipped.add(SKILL_ASSETS_DIR)
+        subdirectories[:] = [name for name in subdirectories if name not in skipped]
         for filename in filenames:
             if not filename.endswith('.md'):
                 continue

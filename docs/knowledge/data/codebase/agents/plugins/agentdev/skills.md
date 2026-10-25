@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 40 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:fe5a4b93c373e03239eb2d1aeda71d66bf37ba01b6e995ad99af6863e44d5c9f
+source_digest: sha256:e6bec0a8fc2cbc7e759a5509e6028165afa842522d537976e8a229b9732e89c2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T16:00:00Z
+  at: 2026-10-25T18:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T16:00:00Z
+  at: 2026-10-25T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -19,10 +19,14 @@ sources:
 
 Each skill is a directory holding `SKILL.md` — frontmatter per the Agent Skills
 specification plus Claude Code's `disable-model-invocation` — and optionally
-`agent-code/` (bundled scripts) and `references/`. A skill reaches its own files
-by a path relative to its directory (`agent-code/<file>`), uses
-`${CLAUDE_SKILL_DIR}` only in `allowed-tools`, and reaches a sibling through its
-namespaced name.
+`agent-code/` (bundled scripts), `references/`, and `assets/` (files the skill
+copies out as output). A skill reaches its own files by a path relative to its
+directory (`agent-code/<file>`), uses `${CLAUDE_SKILL_DIR}` only in
+`allowed-tools`, and reaches a sibling through its namespaced name.
+
+## Contains
+
+[iwe-bootstrap skill](skills/iwe-bootstrap.md)
 
 ## Public surface
 
@@ -31,14 +35,16 @@ namespaced name.
 | Git and pull requests             | 14    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-merge`, `pr-merge-stack` |
 | Review, CI, and formatting        | 7     | `code-review-standards`, `exec-summary`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                          |
 | Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                 |
-| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                        |
+| IWE knowledge-graph workflow      | 13    | `iwe-audit`, `iwe-bootstrap`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                       |
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
-`gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-capture`, `iwe-explore`,
-`iwe-map`, `iwe-plan`, `pr-gen-description`, `pr-open`, `pr-request-ai-review`,
-`pr-review`, `remote-codespace-session`, `template-consume`, `update-branch`.
-Skills with `references/` pages: `gh-stack`, `semantic-refactor-audit`,
-`template-consume`. `gh-stack`'s `SKILL.md` is the repository's own; its
+`gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-bootstrap`,
+`iwe-capture`, `iwe-explore`, `iwe-map`, `iwe-plan`, `pr-gen-description`,
+`pr-open`, `pr-request-ai-review`, `pr-review`, `remote-codespace-session`,
+`template-consume`, `update-branch`. Skills with `references/` pages:
+`gh-stack`, `iwe-bootstrap`, `semantic-refactor-audit`, `template-consume`.
+`iwe-bootstrap` is the one skill with `assets/`: the blank IWE workspace it
+installs. `gh-stack`'s `SKILL.md` is the repository's own; its
 `references/upstream/` pages and `LICENSE` are copied unchanged from
 `github/gh-stack` at the release the image's `github_cli` role installs.
 
@@ -81,11 +87,13 @@ then `RESTAMP` with a new digest for a non-fresh doc the rules explain and
 evidence become document-scoped `BROKEN_METADATA`. Refresh mode records docs
 that quote old values before shared masks and excludes them from re-stamping.
 The IWE family runs against the [knowledge
-workspace](../../../docs/knowledge.md). `template-consume` optionally copies the
-repository's IWE seed into a consumer, then hands onboarding to `iwe-setup` and
-`iwe-map`; update mode tracks only the reusable knowledge scaffold and never
-replaces consumer-owned project memory. An optional Expo profile edits files the
-consumer already has, enables the official Expo plugin, and adds the Expo Bridge
+workspace](../../../docs/knowledge.md). `template-consume` optionally
+initializes a consumer's knowledge by invoking `iwe-bootstrap` — after removing
+a copied publisher workspace only when it is byte-identical to the adopted ref —
+then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
+reusable knowledge support files, never invokes bootstrap, and never replaces
+consumer-owned project memory. An optional Expo profile edits files the consumer
+already has, enables the official Expo plugin, and adds the Expo Bridge
 extension, Metro's port 8081 forwarded silently, and an `eas-host` iOS build
 rule with an EAS cloud fallback; it adds no tracked paths, so update mode
 reconciles it against the guide on every run. Its state is split three ways: the
@@ -138,7 +146,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -150,8 +158,10 @@ Verified anchor points (line numbers as of 2026-10-23):
   document
 - `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:124`
   — the only read of the marker section
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:977`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:982`
   — the `eas-host` iOS build rule: action order, Metro start, cloud fallback
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:826`
+  — knowledge initialization through `iwe-bootstrap`
 - `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh:109` —
   the shared issue-closing call, identical in `iwe-plan`
 - `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:141`

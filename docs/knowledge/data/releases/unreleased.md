@@ -74,6 +74,8 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 ## Changed
 
+[Reusable IWE bootstrap](../features/consumer-iwe-seed.md)
+
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)
 
 [AI responder workflows](../features/ai-responder-workflows.md)

@@ -1,15 +1,15 @@
 """
-Consumer-workspace checks for the IWE seed in `templates/iwe/`.
+Consumer-workspace checks for the IWE scaffold the iwe-bootstrap skill ships.
 
-The seed is not a member of this repository's graph — `.iwe/config.toml` points
-the library at `docs/knowledge`, so `iwe` at the repository root never reads it.
-These tests give it the only validation it can get: assemble a throwaway
-consumer workspace under the repo-root `.tmp/` from the repository's own `.iwe/`
-plus the seed at the consumer's `docs/knowledge/data/` layout, and run the same
-gates a consumer's first session runs.
+The scaffold under the skill's `assets/` is laid out as a repository root, and
+no live graph reads it: `.iwe/config.toml` here points the library at
+`docs/knowledge`. These tests copy that tree alone into a throwaway workspace
+under the repo-root `.tmp/` and run the same gates a consumer's first session
+runs, so a file missing from the package fails here rather than being borrowed
+from this repository.
 
-Requiring the checked-in seed to equal `iwe normalize`'s output is what keeps a
-consumer's first `git status` clean.
+Requiring the packaged scaffold to equal `iwe normalize`'s output is what keeps
+a consumer's first `git status` clean.
 """
 
 from __future__ import annotations
@@ -19,15 +19,30 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import tomllib
 
 import frontmatter
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-SEED_DATA = REPO_ROOT / 'templates' / 'iwe' / 'data'
-SEED_LICENSE = REPO_ROOT / 'templates' / 'iwe' / 'LICENSE.md'
-IWE_CONFIG = REPO_ROOT / '.iwe'
+SCAFFOLD = REPO_ROOT / '.agents' / 'plugins' / 'agentdev' / 'skills' / 'iwe-bootstrap' / 'assets'
+SEED_DATA = SCAFFOLD / 'docs' / 'knowledge' / 'data'
+SEED_LICENSE = SCAFFOLD / 'docs' / 'knowledge' / 'LICENSE.md'
 TMP_ROOT = REPO_ROOT / '.tmp'
+
+# Knowledge-base support files the scaffold shares byte for byte with this
+# repository's own workspace; see the skill's references/scaffold.md.
+SHARED_KNOWLEDGE_FILES = (
+    'AGENTS.md',
+    'CLAUDE.md',
+    'README.md',
+    'SCHEMA.md',
+    'STRUCTURE.md',
+    'CHANGELOG.md',
+    'LICENSE.md',
+    '.gitignore',
+    '.markdownlint.yml',
+)
 
 # The keys `/agentdev:iwe-setup` closes in its "Close the loop" step. Renaming
 # either one silently breaks that step, which no schema can catch.
@@ -56,24 +71,69 @@ def _run_iwe(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
 
 @pytest.fixture(scope='module')
 def consumer_workspace() -> Path:
-    """Assemble the seed at a consumer's layout in an isolated directory."""
+    """Copy the packaged scaffold, and nothing else, into an isolated directory."""
     TMP_ROOT.mkdir(exist_ok=True)
     workspace = TMP_ROOT / 'iwe-seed-consumer'
     if workspace.exists():
         shutil.rmtree(workspace)
-    (workspace / 'docs' / 'knowledge').mkdir(parents=True)
-    shutil.copytree(IWE_CONFIG, workspace / '.iwe')
-    shutil.copytree(SEED_DATA, workspace / 'docs' / 'knowledge' / 'data')
+    shutil.copytree(SCAFFOLD, workspace)
     return workspace
 
 
 def test_seed_is_not_a_member_of_the_publisher_graph() -> None:
-    """`iwe` at the repository root must not see any seed document."""
-    result = _run_iwe('find', '--roots', '-f', 'keys', cwd=REPO_ROOT)
+    """`iwe` at the repository root must not see any scaffold document."""
+    result = _run_iwe('find', '-f', 'keys', cwd=REPO_ROOT)
     assert result.returncode == 0, result.stderr
-    keys = _run_iwe('stats', cwd=REPO_ROOT)
-    assert 'templates/' not in result.stdout
-    assert 'templates/' not in keys.stdout
+    keys = result.stdout.split()
+    assert keys, 'the publisher graph listed no documents'
+    assert not [key for key in keys if 'assets/' in key or key.endswith('.example')]
+
+
+def test_scaffold_is_complete() -> None:
+    """The package carries every file a workspace needs, schemas included."""
+    config = tomllib.loads((SCAFFOLD / '.iwe' / 'config.toml').read_text(encoding='utf-8'))
+    assert config['workspace']['path'] == 'docs/knowledge'
+    missing = [
+        f'.iwe/schemas/{name}.yaml'
+        for name in config['schemas']
+        if not (SCAFFOLD / '.iwe' / 'schemas' / f'{name}.yaml').is_file()
+    ]
+    missing += [
+        f'docs/knowledge/{name}'
+        for name in SHARED_KNOWLEDGE_FILES
+        if not (SCAFFOLD / 'docs' / 'knowledge' / name).is_file()
+    ]
+    assert not missing, 'the packaged scaffold is missing:\n' + '\n'.join(missing)
+    assert sorted(path.name for path in SCAFFOLD.iterdir()) == ['.iwe', 'docs']
+
+
+def test_scaffold_support_files_match_the_publisher_workspace() -> None:
+    """Schemas, config, and instructions stay the bytes this repository uses."""
+    tracked = subprocess.run(
+        ['git', 'ls-files', '.iwe'],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.split()
+    packaged = sorted(
+        path.relative_to(SCAFFOLD).as_posix()
+        for path in (SCAFFOLD / '.iwe').rglob('*')
+        if path.is_file()
+    )
+    assert packaged == sorted(tracked)
+    drifted = [
+        name
+        for name in tracked
+        if (REPO_ROOT / name).read_bytes() != (SCAFFOLD / name).read_bytes()
+    ]
+    drifted += [
+        f'docs/knowledge/{name}'
+        for name in SHARED_KNOWLEDGE_FILES
+        if (REPO_ROOT / 'docs' / 'knowledge' / name).read_bytes()
+        != (SCAFFOLD / 'docs' / 'knowledge' / name).read_bytes()
+    ]
+    assert not drifted, 'copy these into the scaffold or back:\n' + '\n'.join(drifted)
 
 
 def test_seed_carries_its_license() -> None:
@@ -95,8 +155,7 @@ def test_checked_in_seed_matches_normalized_output(consumer_workspace: Path) -> 
     result = _run_iwe('normalize', cwd=consumer_workspace)
     assert result.returncode == 0, f'{result.stdout}\n{result.stderr}'
 
-    normalized = consumer_workspace / 'docs' / 'knowledge' / 'data'
-    comparison = filecmp.dircmp(str(SEED_DATA), str(normalized))
+    comparison = filecmp.dircmp(str(SCAFFOLD), str(consumer_workspace))
     differences: list[str] = []
 
     def collect(node: filecmp.dircmp, prefix: str = '') -> None:
@@ -111,7 +170,9 @@ def test_checked_in_seed_matches_normalized_output(consumer_workspace: Path) -> 
             collect(sub, f'{prefix}{name}/')
 
     collect(comparison)
-    assert not differences, 'run `iwe normalize` on the seed fixture:\n' + '\n'.join(differences)
+    assert not differences, 'run `iwe normalize` on the packaged scaffold:\n' + '\n'.join(
+        differences
+    )
 
 
 def test_onboarding_tasks_are_present_and_open(consumer_workspace: Path) -> None:
@@ -160,3 +221,20 @@ def test_seed_holds_no_publisher_paths() -> None:
             if marker in text:
                 offenders.append(f'{doc.relative_to(SEED_DATA)}: {marker}')
     assert not offenders, 'publisher-specific references in the seed:\n' + '\n'.join(offenders)
+
+
+def test_every_scaffold_file_is_tracked() -> None:
+    """Catalog installs copy tracked files only, so an ignored asset never ships."""
+    tracked = set(
+        subprocess.run(
+            ['git', 'ls-files', '--', str(SCAFFOLD)],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.split()
+    )
+    on_disk = {
+        path.relative_to(REPO_ROOT).as_posix() for path in SCAFFOLD.rglob('*') if path.is_file()
+    }
+    assert on_disk - tracked == set(), 'untracked or ignored scaffold files'
