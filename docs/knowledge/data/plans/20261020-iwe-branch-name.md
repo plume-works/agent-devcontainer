@@ -151,9 +151,12 @@ Create: `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
 **Files:** Create: `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md`
 
-- [ ] SKILL.md with a discovery description, the name shape and why the suffix
+- [x] SKILL.md with a discovery description, the name shape and why the suffix
   is always present, the three subcommands, the `RESULT`-keyed decision table,
   and the rule that callers create the branch through `/agentdev:git-new-branch`
+  - **Evidence:**
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reported 63/63 skills valid, 0 errors, on 2026-10-25.
 
 ### Task 4: Catalog listings
 
