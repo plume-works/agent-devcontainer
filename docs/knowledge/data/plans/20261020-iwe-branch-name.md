@@ -1,7 +1,7 @@
 ---
 type: plan
 created: 2026-10-20
-description: Add the iwe-branch-name skill, which names a plan's work branches <impl|ship>/<plan-slug>/iteration-<N> and reads plan state at the remote default branch, and have the implementer name its first branch through it.
+description: Add the iwe-branch-name skill, which names a plan's work branches <impl|ship>/<plan-slug>/iter-<N> and reads plan state at the remote default branch, and have the implementer name its first branch through it.
 release:
 - features/iwe-branch-name
 generated:
