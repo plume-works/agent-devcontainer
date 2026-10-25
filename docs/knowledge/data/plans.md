@@ -17,8 +17,8 @@ moves them.*
 
 ## Active
 
-[PR updates re-evaluate the AI
-review](plans/20261023-pr-update-reevaluates-review.md)
+[PR skills drive the AI review lifecycle on the single review
+workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)
 
 [Extract a reusable IWE bootstrap
 skill](plans/20261023-reusable-iwe-bootstrap.md)

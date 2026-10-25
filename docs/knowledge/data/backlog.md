@@ -30,9 +30,6 @@ end](backlog/exercise-removed-delta-blocks.md)
 [Fail a review run that published no
 review](backlog/fail-review-run-without-review.md)
 
-[Simplify the pr-* skills for the single review
-workflow](backlog/simplify-pr-skills-single-review-workflow.md)
-
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 
@@ -48,6 +45,9 @@ mechanically](backlog/detect-plan-narration-growth.md)
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
 ## Done
+
+[Simplify the pr-* skills for the single review
+workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
 [Make the Expo bridge self-explanatory to an
 agent](backlog/expo-bridge-agent-guidance.md)
