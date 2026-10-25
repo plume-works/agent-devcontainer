@@ -23,9 +23,6 @@ bridge](plans/20261023-expo-bridge-incremental-builds.md)
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
-[Extract a reusable IWE bootstrap
-skill](plans/20261023-reusable-iwe-bootstrap.md)
-
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
@@ -47,6 +44,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Extract a reusable IWE bootstrap
+skill](plans/20261023-reusable-iwe-bootstrap.md)
 
 [Opt-in Claude Remote Control server
 mode](plans/20261023-claude-remote-control-server-mode.md)

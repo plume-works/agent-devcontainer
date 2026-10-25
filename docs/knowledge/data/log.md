@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Update**: [Extract a reusable IWE bootstrap
+  skill](plans/20261023-reusable-iwe-bootstrap.md) done; created the [IWE
+  bootstrap](spec/iwe-bootstrap.md) spec, and [Template
+  consumption](spec/template-consumption.md) now initializes knowledge through
+  the catalog-owned bootstrap.
+- **Update**: [Reusable IWE bootstrap](features/consumer-iwe-seed.md) gained
+  direct bootstrap; listed under Unreleased Changed.
 - **Task**: captured [Start Claude Remote Control in the standalone runtime when
   asked](backlog/standalone-claude-remote-control.md).
 - **Bug**: filed [Codex login stops being shared between standalone

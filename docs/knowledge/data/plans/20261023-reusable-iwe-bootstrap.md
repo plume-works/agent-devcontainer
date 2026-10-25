@@ -14,6 +14,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/iwe-setup/SKILL.md
 - resource: docs/knowledge/tests/test_iwe_seed.py
+stage: done
+completed: 2026-10-25
 ---
 
 # Extract a reusable IWE bootstrap skill
