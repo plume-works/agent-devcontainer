@@ -333,6 +333,8 @@ Template consumption SHALL initialize knowledge by invoking
 - **THEN** all scaffold content is available from the installed skill and
   adoption makes no request to another repository
 
+## MODIFIED Requirements
+
 ### Requirement: fresh IWE adoption initializes consumer memory
 
 For both adoption workflows, choosing IWE SHALL invoke `iwe-bootstrap`, then
@@ -367,9 +369,11 @@ Mapping SHALL be explicitly deferred for a project with no code.
 
 ### Requirement: consumer knowledge survives adoption and updates
 
-Adoption SHALL preserve pre-existing consumer knowledge and send partial or
-incompatible bootstrap destinations to explicit reconciliation. Updates SHALL
-never invoke bootstrap or apply scaffold changes to consumer memory, and SHALL
+Adoption SHALL preserve pre-existing consumer knowledge, send partial or
+incompatible bootstrap destinations to explicit reconciliation, and resolve
+collisions with the user. Updates SHALL never invoke bootstrap, SHALL exclude
+publisher data and bootstrap scaffold changes from consumer-memory changes,
+SHALL narrow legacy broad knowledge tracking before checking updates, and SHALL
 preserve the consumed ref until selected updates are applied. Schema changes
 SHALL be reviewed against existing consumer data.
 
@@ -385,11 +389,18 @@ SHALL be reviewed against existing consumer data.
 - **THEN** it narrows tracking to retained reusable support paths before
   diffing, preserving unrelated paths and the consumed ref
 
-#### Scenario: the bundled scaffold changes
+#### Scenario: publisher memory or the bundled scaffold changes
 
-- **WHEN** an agentdev update changes bootstrap assets
-- **THEN** template update mode does not apply those changes to consumer memory
-  and does not rerun onboarding
+- **WHEN** an update changes the publisher's `docs/knowledge/data/` or an
+  agentdev update changes bootstrap assets
+- **THEN** template update mode does not apply those changes to consumer memory,
+  does not invoke bootstrap, and does not rerun onboarding
+
+#### Scenario: IWE is declined
+
+- **WHEN** the consumer declines IWE adoption
+- **THEN** setup skips bootstrap and onboarding, removes copied IWE-only
+  artifacts, and preserves pre-existing consumer knowledge
 ```
 
 ## Verification
@@ -482,3 +493,9 @@ Verified anchor points (line numbers as of 2026-10-25):
   requirement
 - `docs/knowledge/data/spec/template-consumption.md:292` — current fresh IWE
   adoption requirement
+- `docs/knowledge/data/spec/template-consumption.md:321` — current
+  consumer-knowledge survival requirement, including the IWE-declined scenario
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:225` — update
+  mode's bar on bootstrap and on publisher-data and scaffold changes
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:912`
+  — declining IWE skips bootstrap and onboarding
