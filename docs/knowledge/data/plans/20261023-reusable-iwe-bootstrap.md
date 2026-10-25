@@ -135,20 +135,37 @@ Delete: `templates/iwe/**`
 
 **Files:** Create: `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh`;
-Modify: `.agents/plugins/agentdev/README.md`
+Modify: `.agents/plugins/agentdev/README.md`,
+`.github/workflows/validate-agent-files.yml`
 
-- [ ] Define a skill that resolves the explicit or current repository root, runs
+- [x] Define a skill that resolves the explicit or current repository root, runs
   its helper, explains each named outcome, and stops after a validated scaffold
   is present. It must not answer onboarding questions, run `iwe-setup`, run
   `iwe-map`, or edit repository CI.
-- [ ] Implement preflight and copy as a fail-closed operation using
+  - **Evidence:** `skills/iwe-bootstrap/SKILL.md` resolves `--root` or the
+    current repository, tables every `RESULT` and `CONFLICT` reason, and reports
+    `NEXT_SKILLS` without running them;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 64/64 valid.
+- [x] Implement preflight and copy as a fail-closed operation using
   skill-relative assets. Reject partial and conflicting destinations before
   copying, make helper-created transaction state recognizable and safely
   recoverable after interruption, and never delete or overwrite consumer-owned
   paths.
-- [ ] Use the shared skill-script result contract so shell callers and agents
+  - **Evidence:** `agent-code/bootstrap-iwe.sh` classifies the root before
+    writing, stages and validates in an `OWNER`-marked `.iwe-bootstrap.txn/`,
+    and discards or completes it by recorded phase;
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py` passes
+    25 tests with iwe 0.29.0 and the pinned 0.29.1, and `shellcheck -x` is
+    clean.
+- [x] Use the shared skill-script result contract so shell callers and agents
   can distinguish created, already initialized, reconciliation required, missing
   dependency, validation failure, and interruption outcomes.
+  - **Evidence:** the helper sources `bin/result-codes.sh` and declares
+    `MISSING_DEPENDENCY` 3, `ALREADY_INITIALIZED` 4, `RECONCILIATION_REQUIRED`
+    5, and `VALIDATION_FAILED` 6, each pinned with `SUCCESS`, `PREFLIGHT_ERROR`,
+    and `SIGNAL_TERM` in `test_iwe_bootstrap.py`; the validate-agent-files
+    workflow now installs the pinned iwe so those tests run in CI.
 
 ### Task 4: Make full adoption compose the bootstrap skill
 
