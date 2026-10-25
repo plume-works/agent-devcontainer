@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Expo bridge bun fix upgrades the bun the check
-runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
-
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
@@ -47,6 +44,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Expo bridge bun fix upgrades the bun the check
+runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
 
 [Reuse a matching Expo bridge build by
 fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)

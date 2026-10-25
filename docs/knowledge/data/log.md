@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Update**: [Expo bridge bun fix upgrades the bun the check
+  runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md) done; no
+  `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.
+- **Update**: [Bug: the Expo bridge's bun fix upgrades a bun the check never
+  runs](bugs/expo-bridge-bun-fix-misses-path-bun.md) fixed; listed under
+  Unreleased Fixed.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
   and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
   `exec-summary` skill.

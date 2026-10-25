@@ -6,13 +6,15 @@ release:
 description: Make the Expo bridge's bun fix upgrade the bun the bun check resolved — through Homebrew for a Homebrew bun, through that binary's own bun upgrade for a bun.sh install, and with no command for any other origin — and note once per path pair when that bun shadows a newer one later on the PATH.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T22:22:41Z
 sources:
 - resource: docs/knowledge/data/bugs/expo-bridge-bun-fix-misses-path-bun.md
 - resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/oven-sh/bun/blob/main/src/runtime/cli/upgrade_command.rs
 - resource: https://github.com/oven-sh/homebrew-bun/blob/main/Formula/bun.rb
+stage: done
+completed: 2026-10-25
 ---
 
 # Expo bridge bun fix upgrades the bun the check runs
