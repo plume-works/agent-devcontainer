@@ -392,7 +392,7 @@ reports stale after Tasks 8–12
 **Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
 `scripts/tests/test_e2e_iwe_workflows_clone.py`
 
-- [ ] `BRANCH_WORK` is `impl/e2e-branch/iter-1`, and
+- [x] `BRANCH_WORK` is `impl/e2e-branch/iter-1`, and
   `test_main_clone_has_a_remote_and_a_stub_gh` expects
   `NEXT=impl/e2e-branch/iter-1`; the offline e2e tests pass
   - **Evidence:**
