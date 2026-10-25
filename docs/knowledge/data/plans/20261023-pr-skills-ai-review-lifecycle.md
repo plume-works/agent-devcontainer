@@ -270,8 +270,11 @@ workflow shape a repository runs — no consumer runs the earlier one.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [ ] Step 5 applies [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md)
+- [x] Step 5 applies [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md)
   after the push and before restarting the loop
+  - **Evidence:** `pr-merge/SKILL.md` step 5 applies `pr-eval-review-needed`
+    after the push and before restarting the loop; `validate_agent_files`
+    reports no errors.
 
 ### Task 7: pr-merge recovers the AI review from the head commit's checks
 

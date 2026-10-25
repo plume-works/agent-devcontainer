@@ -203,8 +203,10 @@ to check later.
    On a stacked PR, run the guard's `begin` before the commit, then
    `gh stack rebase --upstack` and the guard's `publish`, through
    [gh-stack](../gh-stack/SKILL.md) instead, so every layer above carries the
-   fix. Restart the loop
-   from step 1 because the head SHA and checks have changed.
+   fix. After the push, apply
+   [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) and report its
+   decision. Restart the loop from step 1 because the head SHA and checks have
+   changed.
 
 6. Once CI is successful, inspect reviews and unresolved review threads. Wait
    for an in-progress review agent before declaring success. Apply
