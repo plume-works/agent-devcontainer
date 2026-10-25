@@ -1,6 +1,6 @@
 ---
 name: iwe-branch-name
-description: "Name the next work branch for an IWE plan — impl/<slug>/iteration-<N> or ship/<slug>/iteration-<N> — counting every iteration already used locally, on the remote, and in pull requests of any state, and read the plan's state at the remote default branch to pick the phase. Use when starting implementation or shipping work for a plan, when a skill needs the plan's next branch name, or to tell whether a branch is a plan work branch. Creates no branch: callers pass the name to git-new-branch. Keywords: plan branch name, iteration, impl branch, ship branch, next branch, plan state."
+description: "Name the next work branch for an IWE plan — impl/<slug>/iter-<N> or ship/<slug>/iter-<N> — counting every iteration already used locally, on the remote, and in pull requests of any state, and read the plan's state at the remote default branch to pick the phase. Use when starting implementation or shipping work for a plan, when a skill needs the plan's next branch name, or to tell whether a branch is a plan work branch. Creates no branch: callers pass the name to git-new-branch. Keywords: plan branch name, iteration, impl branch, ship branch, next branch, plan state."
 allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
@@ -13,7 +13,7 @@ number has to be recovered from everywhere an earlier one may survive.
 
 ## The Name Shape
 
-`<phase>/<slug>/iteration-<N>`:
+`<phase>/<slug>/iter-<N>`:
 
 - `phase` is `impl` or `ship`;
 - `slug` is the plan key's file name without its `YYYYMMDD-` prefix
@@ -21,10 +21,10 @@ number has to be recovered from everywhere an earlier one may survive.
 - `N` is a positive integer, one more than the highest already used for that
   phase and slug.
 
-The `iteration-<N>` suffix is always present, even on the first branch. Git
-cannot hold a ref beside another it would nest under — `ship/foo` blocks
-`ship/foo/iteration-2` — and a name that always ends in `iteration-<N>` is
-never a path prefix of another.
+The `iter-<N>` suffix is always present, even on the first branch. Git cannot
+hold a ref beside another it would nest under — `ship/foo` blocks
+`ship/foo/iter-2` — and a name that always ends in `iter-<N>` is never a path
+prefix of another.
 
 ## Bundled Script
 
@@ -75,7 +75,7 @@ a bare number.
 | RESULT              | Exit                | Meaning                                                                              | Action                                                                                                                        |
 | ------------------- | ------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
 | `SUCCESS`           | `0`                 | The name's parts, the plan's state, or the next name was printed                     | Use the keys. For `next`, create a work branch through `/agentdev:git-new-branch NEXT`; on `NEXT_KIND=default`, switch to it. |
-| `NOT_A_WORK_BRANCH` | `3`                 | `parse`: the branch is not `<impl\|ship>/<slug>/iteration-<N>`                       | Treat the branch as not a plan work branch. It is never renamed.                                                              |
+| `NOT_A_WORK_BRANCH` | `3`                 | `parse`: the branch is not `<impl\|ship>/<slug>/iter-<N>`                            | Treat the branch as not a plan work branch. It is never renamed.                                                              |
 | `AMBIGUOUS_PLAN`    | `4`                 | The slug matches more than one dated plan at the remote default branch               | **STOP.** Show the candidates from stderr and rerun with the full plan key the user means.                                    |
 | `FETCH_FAILED`      | `5`                 | The remote could not be fetched or its branches listed                               | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                  |
 | `GH_UNAVAILABLE`    | `6`                 | `gh` is missing, unauthenticated, or could not read the remote's pull requests       | **STOP.** Ask the user to install or log in to `gh` (`gh auth status`). Never pick an iteration without it.                   |

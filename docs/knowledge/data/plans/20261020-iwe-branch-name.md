@@ -380,8 +380,12 @@ reports stale after Tasks 8–12
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md`
 
-- [ ] The description, `## The Name Shape`, and the `NOT_A_WORK_BRANCH` row use
+- [x] The description, `## The Name Shape`, and the `NOT_A_WORK_BRANCH` row use
   `iter-<N>`, and `validate_agent_files` reports 0 errors
+  - **Evidence:**
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reported 63/63 skills valid, 0 errors, on 2026-10-25, in the commit that
+    renames the suffix in SKILL.md.
 
 ### Task 17: e2e expects iter-1
 
