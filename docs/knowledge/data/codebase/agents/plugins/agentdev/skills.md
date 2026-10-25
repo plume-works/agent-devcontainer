@@ -2,14 +2,14 @@
 type: codebase
 description: The 40 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:a5452489646fa570f9aa6ea4880591d3d9a18934986c79023010293edb0df929
+source_digest: sha256:2cc4ba7e2807defdfac3fedafd2e14244036f8182326c5569b788ef2a404e999
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T18:00:00Z
+  at: 2026-10-25T21:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T18:00:00Z
+  at: 2026-10-25T21:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -105,11 +105,11 @@ when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
 `git-new-branch.sh` stashes only with `--stash` and pops only the entry it
 created, located by its commit.
 
-`iwe-branch-name.py` names a plan's work branches
-`<impl|ship>/<slug>/iteration-<N>` and creates none; `iwe-implementer` and
-`git-new-branch`'s naming table defer plan branch names to it. `next` takes one
-more than the highest iteration among local branches, `git ls-remote --heads`,
-and `gh pr list --repo <remote URL> --state all`, so pull requests come from the
+`iwe-branch-name.py` names a plan's work branches `<impl|ship>/<slug>/iter-<N>`
+and creates none; `iwe-implementer` and `git-new-branch`'s naming table defer
+plan branch names to it. `next` takes one more than the highest iteration among
+local branches, `git ls-remote --heads`, and
+`gh pr list --repo <remote URL> --state all`, so pull requests come from the
 remote's own repository, and reports `GH_UNAVAILABLE` (6) rather than a number
 when `gh` cannot answer. `plan-state` fetches the remote default branch,
 resolved through `bin/git-default-branch.sh`, and reads the plan from that tree,

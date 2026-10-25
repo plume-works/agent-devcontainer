@@ -413,10 +413,13 @@ reports stale after Tasks 8–12
 **Files:** Modify: the `data/codebase/` documents `agent-code/stale-map-docs.py`
 reports stale after Tasks 15–17
 
-- [ ] `/agentdev:iwe-map` refresh mode re-reads every stale map document,
+- [x] `/agentdev:iwe-map` refresh mode re-reads every stale map document,
   including the `iter-<N>` shape in
   `data/codebase/agents/plugins/agentdev/skills`, and `stale-map-docs.py`
   reports none
+  - **Evidence:** `stale-map-docs.py` reported `RESULT=SUCCESS` on 2026-10-25
+    after refreshing the agentdev catalog, skills, and tests docs, in the commit
+    that refreshes them.
 
 ## Spec changes
 

@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:6596758d821eff4527d51ff214e2af5f0ae7d1a347d2f620ac2149442f8c74e3
+source_digest: sha256:9170f4c565b20be9c078c26e8bef6884bc28d4fe1bfea13baf113eaddbaa3240
 verified:
   by: claude-code/claude-opus-5-5
-  at: 2026-10-25T18:00:00Z
+  at: 2026-10-25T21:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/claude-opus-5-5
-  at: 2026-10-25T18:00:00Z
+  at: 2026-10-25T21:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -120,13 +120,14 @@ is removed.
 The `iwe-branch-name` modules share `iwe_branch_fixtures.Workspace`: a bare
 remote seeded with an IWE config and made-up plans, a working clone, and a
 publisher clone that advances the remote. They pin `parse` on names on and off
-the shape; `plan-state` on each state, tasks under `## Tasks`, a plan with no
-task checkbox reading as `incomplete`, a plan finished only locally reading as
-`incomplete`, key and slug lookup, `AMBIGUOUS_PLAN`, and `FETCH_FAILED`; and
-`next` on iterations found locally, only on the remote, or only in a stub `gh`'s
-pull-request list, the `--repo` URL of `origin` or a second remote, each plan
-state's `NEXT_KIND`, and `GH_UNAVAILABLE` both for a `PATH` without `gh` and for
-a `gh` that fails its query.
+the shape, an `iteration-<N>` suffix among the off-shape ones; `plan-state` on
+each state, tasks under `## Tasks`, a plan with no task checkbox reading as
+`incomplete`, a plan finished only locally reading as `incomplete`, key and slug
+lookup, `AMBIGUOUS_PLAN`, and `FETCH_FAILED`; and `next` on iterations found
+locally, only on the remote, or only in a stub `gh`'s pull-request list, the
+`--repo` URL of `origin` or a second remote, each plan state's `NEXT_KIND`, and
+`GH_UNAVAILABLE` both for a `PATH` without `gh` and for a `gh` that fails its
+query.
 
 `test_explicit_only_parity.py` requires every skill that sets
 `disable-model-invocation: true` to carry an `agents/openai.yaml` with
