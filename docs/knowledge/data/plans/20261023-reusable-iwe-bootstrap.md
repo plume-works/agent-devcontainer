@@ -62,16 +62,30 @@ repository configuration.
 **Files:** Create: `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py`;
 Modify: `.agents/plugins/agentdev/tests/conftest.py`
 
-- [ ] Add installed-plugin fixtures that invoke the bootstrap helper against an
+- [x] Add installed-plugin fixtures that invoke the bootstrap helper against an
   unrelated repository root, with no access to `templates/iwe/` or other
   publisher paths.
-- [ ] Define fresh-install, already-valid, partial-scaffold, conflicting-config,
+  - **Evidence:** `.agents/plugins/agentdev/tests/conftest.py` gains
+    `installed_iwe_bootstrap` (copies only `bin/` and `skills/iwe-bootstrap/`
+    into a scratch plugin layout) and `unrelated_repository` (a fresh git
+    repository); committed with `test_iwe_bootstrap.py`, which runs the helper
+    only from that copy.
+- [x] Define fresh-install, already-valid, partial-scaffold, conflicting-config,
   non-directory collision, and interrupted-install outcomes. Assert that every
   refusal leaves pre-existing bytes unchanged and that a repeated successful run
   makes no filesystem changes.
-- [ ] Assert that success installs a normalized, schema-valid graph with the
+  - **Evidence:** `test_iwe_bootstrap.py` pins each outcome's exit code and
+    `RESULT` pair, compares full path, byte, and mtime snapshots for every
+    refusal and repeat, and interrupts both the staging and commit phases with
+    `SIGTERM`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_bootstrap.py` fails
+    in fixture setup until the skill exists.
+- [x] Assert that success installs a normalized, schema-valid graph with the
   onboarding keys, product placeholders, nested knowledge instructions, and MIT
   notice required by `iwe-setup`.
+  - **Evidence:** `test_installed_graph_is_normalized_and_schema_valid` and
+    `test_installed_graph_carries_what_iwe_setup_needs` in
+    `test_iwe_bootstrap.py`, committed with the fixtures above.
 
 ### Task 2: Relocate the canonical scaffold into the skill
 
@@ -319,7 +333,7 @@ SHALL be reviewed against existing consumer data.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:107` — current
   full-adoption seed and onboarding handoff
@@ -335,7 +349,7 @@ Verified anchor points (line numbers as of 2026-10-23):
   fixture
 - `.iwe/config.toml:10` — root-relative IWE workspace path contract
 - `templates/iwe/README.md:7` — current seed ownership and maintenance boundary
-- `docs/knowledge/data/spec/template-consumption.md:218` — current reusable seed
+- `docs/knowledge/data/spec/template-consumption.md:279` — current reusable seed
   requirement
-- `docs/knowledge/data/spec/template-consumption.md:231` — current fresh IWE
+- `docs/knowledge/data/spec/template-consumption.md:292` — current fresh IWE
   adoption requirement
