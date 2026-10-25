@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `exec-summary` skill.
 - **Update**: [Reuse a matching Expo bridge build by
   fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md) done; no
   `data/spec/` change, the protocol contract lives in the bridge's
