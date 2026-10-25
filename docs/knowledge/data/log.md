@@ -8,6 +8,11 @@ to the current day's group.
 
 - **Map**: refreshed the [agentdev
   catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md), and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) for `iwe-branch-name`'s task
+  headings, empty plans, and `--repo` lookup.
+- **Map**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
   [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
   tests](codebase/agents/plugins/agentdev/tests.md), and the [knowledge
   workspace](codebase/docs/knowledge.md) for the `iwe-branch-name` skill.

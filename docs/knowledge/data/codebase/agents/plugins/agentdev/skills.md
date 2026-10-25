@@ -2,14 +2,14 @@
 type: codebase
 description: The 40 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:48dc4d2f8bb2976e143fd82d0e1a22c4fd87cfecc47f3f8e38834bdbbd6b184b
+source_digest: sha256:a5452489646fa570f9aa6ea4880591d3d9a18934986c79023010293edb0df929
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T18:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -109,11 +109,14 @@ created, located by its commit.
 `<impl|ship>/<slug>/iteration-<N>` and creates none; `iwe-implementer` and
 `git-new-branch`'s naming table defer plan branch names to it. `next` takes one
 more than the highest iteration among local branches, `git ls-remote --heads`,
-and `gh pr list --state all`, and reports `GH_UNAVAILABLE` (6) rather than a
-number when `gh` cannot answer. `plan-state` fetches the remote default branch,
+and `gh pr list --repo <remote URL> --state all`, so pull requests come from the
+remote's own repository, and reports `GH_UNAVAILABLE` (6) rather than a number
+when `gh` cannot answer. `plan-state` fetches the remote default branch,
 resolved through `bin/git-default-branch.sh`, and reads the plan from that tree,
-never the working tree; without `--phase`, `next` maps a `complete` plan to
-`ship`, an `incomplete` one to `impl`, and any other to the default branch.
+never the working tree; it counts task checkboxes under
+`## Implementation Steps` or `## Tasks`, and a plan with none is `incomplete`.
+Without `--phase`, `next` maps a `complete` plan to `ship`, an `incomplete` one
+to `impl`, and any other to the default branch.
 
 `update-branch.sh` brings in the branch's configured upstream — a fast-forward
 when only behind, a merge when diverged — before it merges `<remote>/<base>`,
@@ -194,7 +197,7 @@ Verified anchor points (line numbers as of 2026-10-25):
   `replay_verdict`, the `RESTAMP`/`REFRESH` rule
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:369` —
   `source_digest_for_paths`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:284`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:291`
   — `read_plan_state`, the remote-default-branch plan read
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:344`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:355`
   — `next_iteration`, the three sources of used iterations

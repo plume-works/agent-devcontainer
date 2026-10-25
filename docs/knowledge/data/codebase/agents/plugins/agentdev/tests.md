@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:b211952bfa12c4d3e648bbf545e6cff2250345a334a481eb3042ca4e7b6137ac
+source_digest: sha256:6596758d821eff4527d51ff214e2af5f0ae7d1a347d2f620ac2149442f8c74e3
 verified:
   by: claude-code/claude-opus-5-5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T18:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/claude-opus-5-5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -120,11 +120,13 @@ is removed.
 The `iwe-branch-name` modules share `iwe_branch_fixtures.Workspace`: a bare
 remote seeded with an IWE config and made-up plans, a working clone, and a
 publisher clone that advances the remote. They pin `parse` on names on and off
-the shape; `plan-state` on each state, a plan finished only locally reading as
+the shape; `plan-state` on each state, tasks under `## Tasks`, a plan with no
+task checkbox reading as `incomplete`, a plan finished only locally reading as
 `incomplete`, key and slug lookup, `AMBIGUOUS_PLAN`, and `FETCH_FAILED`; and
 `next` on iterations found locally, only on the remote, or only in a stub `gh`'s
-pull-request list, each plan state's `NEXT_KIND`, and `GH_UNAVAILABLE` both for
-a `PATH` without `gh` and for a `gh` that fails its query.
+pull-request list, the `--repo` URL of `origin` or a second remote, each plan
+state's `NEXT_KIND`, and `GH_UNAVAILABLE` both for a `PATH` without `gh` and for
+a `gh` that fails its query.
 
 `test_explicit_only_parity.py` requires every skill that sets
 `disable-model-invocation: true` to carry an `agents/openai.yaml` with
@@ -162,13 +164,13 @@ Verified anchor points (line numbers as of 2026-10-25):
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —
   `initialize_repository`, the shared mock-repository builder
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
-- `.agents/plugins/agentdev/tests/iwe_branch_fixtures.py:40` — `Workspace`, the
+- `.agents/plugins/agentdev/tests/iwe_branch_fixtures.py:44` — `Workspace`, the
   remote/work/publisher triple with plans
-- `.agents/plugins/agentdev/tests/iwe_branch_fixtures.py:68` —
+- `.agents/plugins/agentdev/tests/iwe_branch_fixtures.py:72` —
   `tools_without_gh`, a `PATH` that lacks `gh`
-- `.agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py:59` — a
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py:63` — a
   plan finished only locally stays `incomplete`
-- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:62` — each source
+- `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:63` — each source
   of a used iteration counts
 - `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:116` — `Stack`, the
   two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`

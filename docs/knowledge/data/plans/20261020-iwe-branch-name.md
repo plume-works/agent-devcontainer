@@ -329,17 +329,25 @@ the `--help` text in
 
 **Files:** none
 
-- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k "implement" -n 3`
+- [x] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k "implement" -n 3`
   passes on OpenCode and Claude Code, and the Codex `test_implement` passes or
   is skipped by its own catalog check
+  - **Evidence:** on 2026-10-25 the live run passed OpenCode `test_implement`
+    and `test_implement_on_main`; Claude Code's two passed with `6e5ec3c`. Codex
+    `test_implement` was reported passing by the user from the checkout
+    `/workspaces/agent-devcontainer-wortree-3` after
+    `reinstall-agentdev-codex.sh`; that run's commit was not recorded.
 
 ### Task 14: Refresh the codebase map again
 
 **Files:** Modify: the `data/codebase/` documents `agent-code/stale-map-docs.py`
 reports stale after Tasks 8–12
 
-- [ ] `/agentdev:iwe-map` refresh mode re-reads every map document Tasks 8–12
+- [x] `/agentdev:iwe-map` refresh mode re-reads every map document Tasks 8–12
   make stale, and `stale-map-docs.py` reports none
+  - **Evidence:** `stale-map-docs.py` reported `RESULT=SUCCESS` on 2026-10-25
+    after refreshing the agentdev catalog, skills, and tests docs, in the commit
+    that refreshes them.
 
 ## Spec changes
 
@@ -500,20 +508,20 @@ and SHALL continue on the current branch otherwise.
 
 Verified anchor points (line numbers as of 2026-10-25):
 
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:254`
-  — `task_checkboxes`; `classify_plan` at line 275, `pull_request_heads` at line
-  328
-- `scripts/e2e/iwe-workflows/clone.py:24` — `_ACTIVE_LINKS`; `FIXTURE_PLANS` at
-  line 20, `build_fixture_repo` at line 121, `make_clone` at line 196
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:260`
+  — `task_checkboxes`; `classify_plan` at line 281, `pull_request_heads` at line
+  335
+- `scripts/e2e/iwe-workflows/clone.py:31` — `_ACTIVE_LINKS`; `FIXTURE_PLANS` at
+  line 23, `build_fixture_repo` at line 129, `make_clone` at line 233
 - `scripts/e2e/iwe-workflows/conftest.py:55` — `base_clone`
 - `scripts/e2e/iwe-workflows/harness_opencode.py:60` — `isolated_env`;
-  `start_server` at line 263
+  `start_server` at line 265
 - `scripts/e2e/iwe-workflows/harness_claude.py:20` — `allowed_tools`;
-  `run_claude` at line 108
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:72`,
-  `test_iwe_workflows_claude.py:67`, `test_iwe_workflows_codex.py:95` —
+  `run_claude` at line 112
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:75`,
+  `test_iwe_workflows_claude.py:70`, `test_iwe_workflows_codex.py:104` —
   `test_implement`
-- `scripts/tests/test_e2e_iwe_workflows_clone.py:42` —
+- `scripts/tests/test_e2e_iwe_workflows_clone.py:43` —
   `test_fixtures_are_the_only_active_plans`
 - `docs/knowledge/tests/test_plan_checkboxes.py:31` — `TASK_SECTIONS`, the two
   task headings
