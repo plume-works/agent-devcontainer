@@ -281,15 +281,27 @@ the `--help` text in
 `scripts/e2e/iwe-workflows/harness_claude.py`,
 `scripts/tests/test_e2e_iwe_workflows_clone.py`
 
-- [ ] The fixture repository carries the active `e2e-branch` fixture plan, whose
+- [x] The fixture repository carries the active `e2e-branch` fixture plan, whose
   one task writes `e2e/branch.txt`, and `test_e2e_iwe_workflows_clone.py` passes
   with it listed among the fixture plans
-- [ ] A `main_clone` fixture provides a clone on `main` whose `origin` is a bare
+  - **Evidence:** `test_fixtures_are_the_only_active_plans` passed on 2026-10-25
+    with `FIXTURE_PLANS` listing `plans/20261025-e2e-branch.md`.
+- [x] A `main_clone` fixture provides a clone on `main` whose `origin` is a bare
   repository beside it holding `main`, with `origin/HEAD` set, and whose agent
   `PATH` starts with a stub `gh` that answers `pr list` with no pull requests;
   an offline test in `test_e2e_iwe_workflows_clone.py` pins that layout
-- [ ] The OpenCode and Claude Code harnesses run the agent with that `PATH`, and
+  - **Evidence:** `test_main_clone_has_a_remote_and_a_stub_gh` passed on
+    2026-10-25, running the clone's own `iwe-branch-name.py next` through the
+    stub to `NEXT=impl/e2e-branch/iteration-1`;
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py scripts/tests/test_e2e_live_gate.py`
+    passed (31 tests).
+- [x] The OpenCode and Claude Code harnesses run the agent with that `PATH`, and
   Claude Code may run the catalog's bundled skill scripts without a prompt
+  - **Evidence:** `harness_opencode.isolated_env` and
+    `harness_claude.run_claude` take the PATH from `Clone.agent_path`, and
+    `allowed_tools` allows `Bash(<catalog>/skills/*)`, as of 2026-10-25;
+    `test_plain_clones_have_no_tool_dir` passed and `uv run pytest scripts/e2e`
+    without `E2E_RUN_LIVE` skipped all 16 tests.
 
 ### Task 12: e2e scenarios for both Implement branch rules
 
