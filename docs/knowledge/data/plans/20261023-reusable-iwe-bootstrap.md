@@ -91,19 +91,45 @@ Modify: `.agents/plugins/agentdev/tests/conftest.py`
 
 **Files:** Create:
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/.iwe/**`,
-`.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/**`;
-Modify: `.prettierignore`, `docs/knowledge/tests/test_iwe_seed.py`; Delete:
-`templates/iwe/**`
+`.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/**`,
+`.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md`; Modify:
+`.prettierignore`, `docs/knowledge/tests/test_iwe_seed.py`,
+`.github/workflows/validate-knowledge-base.yml`,
+`.github/workflows/validate-agent-files.yml`,
+`py_packages/validate_agent_files/validate_agent_files/validators/bundled_markdown.py`,
+`py_packages/validate_agent_files/tests/test_bundled_markdown_containment.py`;
+Delete: `templates/iwe/**`
 
-- [ ] Move the seed, schemas, configuration, knowledge instructions, and license
+- [x] Move the seed, schemas, configuration, knowledge instructions, and license
   into one skill-owned asset tree. Preserve normalized bytes, import
   attribution, onboarding keys, and separation from this repository's live IWE
   graph.
-- [ ] Retarget seed validation to the installed-plugin asset tree and prove the
+  - **Evidence:** the commit that closes this task `git mv`s
+    `templates/iwe/data` and `LICENSE.md` under
+    `skills/iwe-bootstrap/assets/docs/knowledge/`, copies the tracked `.iwe/`
+    files and the knowledge instructions beside them, and moves the seed
+    README's ownership, import attribution, and maintenance rules into
+    `skills/iwe-bootstrap/references/scaffold.md`;
+    `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passes 11 tests,
+    including the normalize no-op and publisher-graph separation checks.
+- [x] Retarget seed validation to the installed-plugin asset tree and prove the
   packaged scaffold is complete without reconstructing it from publisher-root
   files.
-- [ ] Keep IWE-owned Markdown out of Prettier and ensure catalog packaging and
+  - **Evidence:** `test_iwe_seed.py` builds its consumer workspace by copying
+    `assets/` alone, adds `test_scaffold_is_complete` (a schema file for every
+    `[schemas.*]` binding plus every knowledge file) and
+    `test_scaffold_support_files_match_the_publisher_workspace`, and the
+    knowledge-base workflow's seed filter now watches the asset tree and the
+    shared `docs/knowledge/` files; 11 passed.
+- [x] Keep IWE-owned Markdown out of Prettier and ensure catalog packaging and
   validation retain nested asset files unchanged.
+  - **Evidence:** `.prettierignore` swaps `templates/iwe/**` for the asset tree;
+    `test_every_scaffold_file_is_tracked` fails on any ignored asset;
+    `validate_agent_files`'s bundled-markdown scan skips the `assets/` directory
+    beside a `SKILL.md` (user-directed, since the scaffold's extension-less IWE
+    links resolve only once installed), pinned by two new tests in
+    `test_bundled_markdown_containment.py`, whose suite passes 169 tests under
+    `uv run --isolated --extra dev pytest`.
 
 ### Task 3: Implement the reusable bootstrap skill
 

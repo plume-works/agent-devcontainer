@@ -45,7 +45,6 @@ jobs:
             # Keep this aligned with every source declared by codebase map docs.
             - .pre-commit-config.yaml
             - devcontainer-compose-pins.yml
-            - templates/iwe/**
             - docs/knowledge/tests/**
             - docs/knowledge/AGENTS.md
             - docs/knowledge/SCHEMA.md
