@@ -186,8 +186,10 @@ Create: `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`
 
-- [ ] The "Choose the Name" row for an IWE plan points at
+- [x] The "Choose the Name" row for an IWE plan points at
   `/agentdev:iwe-branch-name` instead of suggesting `<slug>`
+  - **Evidence:** `git-new-branch/SKILL.md` "Choose the Name" table as of
+    2026-10-25; `prettier` and `validate_agent_files` passed.
 
 ### Task 7: Refresh the codebase map
 
