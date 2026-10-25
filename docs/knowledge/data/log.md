@@ -10,6 +10,21 @@ to the current day's group.
   asked](backlog/standalone-claude-remote-control.md).
 - **Bug**: filed [Codex login stops being shared between standalone
   projects](bugs/standalone-codex-auth-unshared.md).
+- **Bug**: filed [plan tasks edit spec documents that only Ship may
+  change](bugs/plan-tasks-edit-specs.md).
+- **Map**: moved the IWE seed component to the [iwe-bootstrap
+  skill](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), now a child
+  of [Catalog skills](codebase/agents/plugins/agentdev/skills.md), and refreshed
+  the [agentdev catalog](codebase/agents/plugins/agentdev.md), its
+  [tests](codebase/agents/plugins/agentdev/tests.md), the [knowledge
+  workspace](codebase/docs/knowledge.md), [GitHub
+  automation](codebase/github.md) and its
+  [workflows](codebase/github/workflows.md), the [pull request
+  checks](codebase/flow-pull-request-checks.md), and the [validator
+  package](codebase/py_packages/validate_agent_files.md), its
+  [tests](codebase/py_packages/validate_agent_files/tests.md), and
+  [rules](codebase/py_packages/validate_agent_files/validators.md) for the
+  catalog-owned scaffold.
 
 ## 2026-10-24
 
@@ -241,8 +256,9 @@ to the current day's group.
   bug](bugs/ship-release-link-without-feature.md) fixed.
 - **Update**: [Agentdev plugin](codebase/agents/plugins/agentdev.md), [agentdev
   skills](codebase/agents/plugins/agentdev/skills.md), [Knowledge
-  base](codebase/docs/knowledge.md), and [IWE seed](codebase/templates/iwe.md)
-  map docs refreshed for the plan `release` declaration.
+  base](codebase/docs/knowledge.md), and [IWE
+  seed](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) map docs
+  refreshed for the plan `release` declaration.
 - **Update**: [Xpra port forwarding](features/xpra-port-forwarding.md)
   backfilled as implemented and listed under Added on the
   [1.0.0](releases/1.0.0.md) release, which shipped it.
@@ -854,8 +870,8 @@ to the current day's group.
   [1.0.0](releases/1.0.0.md).
 - **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
   re-read, all source digests were verified, and the tested [consumer IWE
-  seed](codebase/templates/iwe.md) was added as the twenty-seventh mapped
-  document.
+  seed](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) was added as
+  the twenty-seventh mapped document.
 - **Update**: Refreshed the [codebase map](codebase.md) — the catalog, [bin
   helpers](codebase/agents/plugins/agentdev/bin.md),
   [skills](codebase/agents/plugins/agentdev/skills.md), [plugin

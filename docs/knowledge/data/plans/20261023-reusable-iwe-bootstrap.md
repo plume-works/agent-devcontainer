@@ -236,9 +236,14 @@ Spec documents are not edited here: Ship merges `## Spec changes` into
 **Files:** Modify: the `docs/knowledge/data/codebase/` documents
 `stale-map-docs.py` reports stale or gone, and `docs/knowledge/data/codebase.md`
 
-- [ ] Run `/agentdev:iwe-map` refresh mode over every stale document, retire or
+- [x] Run `/agentdev:iwe-map` refresh mode over every stale document, retire or
   retarget the `templates/iwe` component to the `iwe-bootstrap` skill's
   scaffold, and leave `stale-map-docs.py` reporting `RESULT=SUCCESS`.
+  - **Evidence:** `iwe rename` moved `data/codebase/templates/iwe` to
+    `data/codebase/agents/plugins/agentdev/skills/iwe-bootstrap`, rewritten from
+    the skill and linked under Catalog skills' `## Contains`; the ten other
+    stale docs were re-read and re-stamped, and `stale-map-docs.py` reports
+    `RESULT=SUCCESS` for all 28 docs.
 
 ## Spec changes
 
