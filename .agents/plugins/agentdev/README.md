@@ -117,6 +117,7 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 | Skill                                       | What it does                                             |
 | ------------------------------------------- | -------------------------------------------------------- |
 | `/agentdev:code-review-standards`           | The review standards the other review skills apply.      |
+| `/agentdev:exec-summary`                    | One-minute, non-technical summary of the work in focus.  |
 | `/agentdev:extract-github-actions-logs`     | Pull failing job logs out of a workflow run.             |
 | `/agentdev:get-codeql-data`                 | Fetch CodeQL code-scanning alerts.                       |
 | `/agentdev:local-reformat`                  | Run the full reformat workflow locally via Super-Linter. |
