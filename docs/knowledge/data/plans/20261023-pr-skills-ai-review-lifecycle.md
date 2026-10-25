@@ -333,10 +333,15 @@ workflow shape a repository runs — no consumer runs the earlier one.
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md` and any other
 doc `stale-map-docs.py` reports
 
-- [ ] `/agentdev:iwe-map` refresh mode re-reads the stale docs —
+- [x] `/agentdev:iwe-map` refresh mode re-reads the stale docs —
   `pr-discover-ai-responder` leaves the skill count, the family table, and the
   bundled-scripts list, and `pr-request-ai-review` joins that list — and
   `stale-map-docs.py` reports none stale
+  - **Evidence:** `/agentdev:iwe-map` refresh re-read the three stale docs:
+    `codebase/agents/plugins/agentdev` and `agentdev/skills` count 39 skills and
+    list `pr-request-ai-review` among the skills with bundled scripts, and
+    `agentdev/tests` lists `test_request_review.py`; `stale-map-docs.py` ends
+    `RESULT=SUCCESS`.
 
 ## Spec changes
 

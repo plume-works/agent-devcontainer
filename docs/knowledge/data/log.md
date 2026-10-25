@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for the removed
+  `pr-discover-ai-responder` skill and the new `request-review.sh` script.
 - **Update**: [Bundle a Playwright browser in the development
   image](plans/20261021-playwright-browser.md) done; created the [Playwright
   browser](spec/playwright-browser.md) spec.

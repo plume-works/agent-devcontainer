@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 40 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 39 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:697882c2bbc4f0cc0f145fdecc880305c714df6aec6ad70b39518cd335c3a128
+source_digest: sha256:fe5a4b93c373e03239eb2d1aeda71d66bf37ba01b6e995ad99af6863e44d5c9f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T14:00:00Z
+  at: 2026-10-25T16:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T16:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -26,22 +26,21 @@ namespaced name.
 
 ## Public surface
 
-| Family                            | Count | Skills                                                                                                                                                                                                                                                                         |
-| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Git and pull requests             | 15    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-stack` |
-| Review, CI, and formatting        | 7     | `code-review-standards`, `exec-summary`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                      |
-| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                             |
-| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                                                    |
+| Family                            | Count | Skills                                                                                                                                                                                                                                             |
+| --------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Git and pull requests             | 14    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-merge`, `pr-merge-stack` |
+| Review, CI, and formatting        | 7     | `code-review-standards`, `exec-summary`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                          |
+| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                 |
+| IWE knowledge-graph workflow      | 12    | `iwe-audit`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                        |
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
 `gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-capture`, `iwe-explore`,
-`iwe-map`, `iwe-plan`, `pr-discover-ai-responder`, `pr-gen-description`,
-`pr-open`, `pr-review`, `remote-codespace-session`, `template-consume`,
-`update-branch`. Skills with `references/` pages: `gh-stack`,
-`semantic-refactor-audit`, `template-consume`. `gh-stack`'s `SKILL.md` is the
-repository's own; its `references/upstream/` pages and `LICENSE` are copied
-unchanged from `github/gh-stack` at the release the image's `github_cli` role
-installs.
+`iwe-map`, `iwe-plan`, `pr-gen-description`, `pr-open`, `pr-request-ai-review`,
+`pr-review`, `remote-codespace-session`, `template-consume`, `update-branch`.
+Skills with `references/` pages: `gh-stack`, `semantic-refactor-audit`,
+`template-consume`. `gh-stack`'s `SKILL.md` is the repository's own; its
+`references/upstream/` pages and `LICENSE` are copied unchanged from
+`github/gh-stack` at the release the image's `github_cli` role installs.
 
 ## How it works
 
