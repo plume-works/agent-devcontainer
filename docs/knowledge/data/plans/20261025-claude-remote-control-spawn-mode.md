@@ -122,8 +122,10 @@ Assumptions:
 
 **Files:** Modify: `.claude/.gitignore`
 
-- [ ] Add `worktrees/` to `.claude/.gitignore`;
+- [x] Add `worktrees/` to `.claude/.gitignore`;
   `git check-ignore -q .claude/worktrees/example/file` succeeds
+  - **Evidence:** commit "Ignore Claude Code worktrees under .claude":
+    `git check-ignore` exits 1 before and 0 after.
 
 ### Task 3: Record the spawn-mode decision
 
@@ -317,4 +319,5 @@ Verified anchor points (line numbers as of 2026-10-25):
   `test_unrecognized_spawn_fails_in_server_mode_without_tmux`
 - `scripts/tests/test_claude_remote_control_start.py:167` —
   `test_session_mode_ignores_unrecognized_spawn`
-- `.claude/.gitignore:1` — `*.local.json`, the file's only entry
+- `.claude/.gitignore:2` — `worktrees/`, the spawned worktrees Claude Code
+  creates
