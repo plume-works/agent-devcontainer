@@ -175,7 +175,9 @@ Assumptions:
 
 **Files:** none
 
-- [ ] The sibling repository's CI passes on the commit that completes Tasks 1–4.
+- [x] The sibling repository's CI passes on the commit that completes Tasks 1–4.
+  - **Evidence:** `build` passes in CI run `40210051177` on
+    `plume-works/vscode-expo-bridge#24` at `e037795`.
 
 ### Task 6: Mac round trip from the packaged VSIX files
 
