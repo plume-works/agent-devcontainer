@@ -446,11 +446,17 @@ sideloaded
 **Files:** Modify: `docs/protocol.md` in `plume-works/vscode-expo-bridge`;
 `docs/knowledge/data/architecture/vscode-expo-bridge.md`
 
-- [ ] `docs/protocol.md`'s reuse section states that updates to a folder's
+- [x] `docs/protocol.md`'s reuse section states that updates to a folder's
   `index.json` are serialized by `index.lock` across processes, the stale-lock
   takeover, and that a build that cannot take the lock stores nothing.
-- [ ] The architecture document's `### Build reuse` states the cross-process
+  - **Evidence:** plume-works/vscode-expo-bridge `8b5a960` `docs/protocol.md`
+    "Reuse of a matching development build", the store paragraph; `bun run lint`
+    passes.
+- [x] The architecture document's `### Build reuse` states the cross-process
   index lock and why an in-memory lock does not suffice.
+  - **Evidence:** `data/architecture/vscode-expo-bridge.md` `### Build reuse`,
+    the "Index updates are serialized across processes" bullet, in this commit;
+    `iwe schema validate` passes.
 
 ### Task 15: Sibling repository CI passes on the index lock
 

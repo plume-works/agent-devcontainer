@@ -3,7 +3,7 @@ type: architecture
 description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, one socket per window, the request's workspace folder mapped to its Mac path through Docker, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T09:00:00Z
+  at: 2026-10-25T10:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
@@ -132,6 +132,13 @@ the request folder's earlier artifact when a cache key matches:
   host path and the mapped folder only, so two apps under one host path never
   share entries. Revoking a host path's trust deletes every folder's cache under
   it.
+- **Index updates are serialized across processes.** Each VS Code window's host
+  extension is its own process, and builds in one folder can run from several
+  windows at once, so an in-memory lock would not cover them. `store` holds an
+  `index.lock` file, created with `O_CREAT | O_EXCL` and naming its process,
+  while it copies the artifact and updates `index.json`; the build never holds
+  it. A lock whose owner is gone or that is older than 60 s is taken over, and a
+  build that waits 10 s for it stores nothing.
 - **Only artifacts without an embedded bundle are stored.** An artifact holding
   `main.jsbundle` would carry stale JavaScript, so a Release build always builds
   in full.
