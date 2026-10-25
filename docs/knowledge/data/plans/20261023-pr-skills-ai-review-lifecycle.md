@@ -148,7 +148,7 @@ workflow shape a repository runs — no consumer runs the earlier one.
 `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh`,
 `.agents/plugins/agentdev/tests/test_request_review.py`
 
-- [ ] Tests, written first with a stub `gh` on a hermetic `PATH` in the style of
+- [x] Tests, written first with a stub `gh` on a hermetic `PATH` in the style of
   `test_fetch_issue.py`, fail before the script exists and cover: no review and
   no trigger posts one whose body opens `@claude review`, carries the rationale
   line, and prints `COMMENT_URL` (`SUCCESS`); an accepted review on the head
@@ -165,10 +165,18 @@ workflow shape a repository runs — no consumer runs the earlier one.
   (`PR_NOT_OPEN`); a failing `gh` call (`GH_UNAVAILABLE`); missing `--pr` and a
   multi-line rationale (`PREFLIGHT_ERROR`); `RESULT=` is the last stdout line on
   every path
-- [ ] `request-review.sh` implements the Approach's arguments, checks, head
+  - **Evidence:** `tests/test_request_review.py` covers every listed case with a
+    stub `gh` on a hermetic `PATH`; all 24 tests failed before the script
+    existed.
+- [x] `request-review.sh` implements the Approach's arguments, checks, head
   dating, output keys, and result table per `/agentdev:skill-scripts`, sourcing
   `bin/result-codes.sh`; `--help` lists options, keys, and results;
   `shellcheck -x` is clean; the new tests pass
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` — 24
+    passed; `shellcheck -x` on `request-review.sh` is clean; `gh api` confirmed
+    to print the 404 body on stdout, which the script reads to report
+    `PR_NOT_OPEN`.
 
 ### Task 2: pr-request-ai-review posts through the script
 
