@@ -30,12 +30,12 @@ gets the same answer.
   `N` starts at 1. The suffix is always present, so no name is a path prefix of
   another and Git never refuses one for nesting under an existing ref.
 - **Next iteration.** `N` is one more than the highest iteration of that phase
-  and slug found among local branches, the remote's branches, and the
-  repository's pull requests in any state. Only names matching the shape exactly
-  count.
+  and slug found among local branches, the remote's branches, and the pull
+  requests in any state of the repository the remote names. Only names matching
+  the shape exactly count.
 - **Plan state.** The plan is read at the fetched remote default branch and
-  reported as missing, cancelled, done, complete (no stage, every task ticked),
-  or incomplete.
+  reported as missing, cancelled, done, complete (no stage, at least one task,
+  every task ticked), or incomplete.
 - **Next name from state.** Done, cancelled, or missing → the default branch;
   complete → the next `ship` name; incomplete → the next `impl` name.
 - **Parse.** A branch name is split into phase, slug, and iteration; a name off

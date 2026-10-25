@@ -22,10 +22,8 @@ A plan's work spans several pull requests — one or more for implementation, on
 for shipping — and each needs a fresh branch off the default branch. This
 repository squash-merges and deletes the head branch on merge, so after a merge
 nothing on the remote records which iteration comes next, and hand-picked names
-drift (`impl-opencode-container-iter2`, `opencode-web-coder-autostart-impl`).
-The implementer names its only branch after the bare plan slug
-(`iwe-implementer.agent.md` step 4), which leaves no room for a second
-iteration.
+drift (`impl-<slug>-iter2`, `<slug>-impl`). A branch named after the bare plan
+slug leaves no room for a second iteration.
 
 Feature: [iwe-branch-name](../features/iwe-branch-name.md). The first planned
 consumer after the implementer is [Clean up the local checkout after
@@ -53,8 +51,12 @@ is always present. Git cannot hold a ref beside another it would nest under
   `NOT_A_WORK_BRANCH`.
 - `plan-state <plan-key|slug> [--remote <name>]` — fetches the remote's default
   branch, finds `data/plans/*-<slug>.md` in that tree, and reports `PLAN_KEY`
-  and `PLAN_STATE`: `missing`, `cancelled`, `done`, `complete` (no `stage`,
-  every task checkbox under `## Implementation Steps` ticked), or `incomplete`.
+  and `PLAN_STATE`: `missing`, `cancelled`, `done`, `complete` (no `stage`, at
+  least one task checkbox, and every task checkbox under
+  `## Implementation Steps` or the older `## Tasks` heading ticked), or
+  `incomplete`. A plan with no task checkboxes is `incomplete`, so `next` never
+  routes it to `ship`. The two headings are the task sections the repository's
+  plan-checkbox gate already reads.
 - `next <plan-key|slug> [--phase impl|ship] [--remote <name>]` — with `--phase`,
   the next name of that phase without reading the plan; without it, the phase
   follows `plan-state`: `complete` → `ship`, `incomplete` → `impl`,
@@ -63,10 +65,14 @@ is always present. Git cannot hold a ref beside another it would nest under
 
 **Next iteration** is one more than the highest `N` for that phase and slug
 across local branches (`git for-each-ref`), the remote's branches
-(`git ls-remote --heads`), and the repository's pull requests in any state
-(`gh pr list --state all --search "head:<phase>/<slug>/"`), keeping only head
-names that match the shape exactly. When `gh` cannot answer, `next` fails with
-`GH_UNAVAILABLE` rather than return a number a merged PR may already hold.
+(`git ls-remote --heads`), and the remote's pull requests in any state
+(`gh pr list --repo <remote URL> --state all --search "head:<phase>/<slug>/"`),
+keeping only head names that match the shape exactly. GitHub's `head:` search
+matches by prefix, and `gh --repo` accepts the remote's HTTPS, SSH, or scp-style
+URL as is, so branches and pull requests always come from the same repository; a
+URL that names no GitHub repository fails the query. When `gh` cannot answer,
+`next` fails with `GH_UNAVAILABLE` rather than return a number a merged PR may
+already hold.
 
 **Library path and default branch** resolve as they do elsewhere in the plugin:
 `[workspace].path` from `.iwe/config.toml` (as `stale-map-docs.py` reads it),
@@ -77,6 +83,23 @@ and the remote default branch through the shared `bin/git-default-branch.sh`
 the branch with `next <plan-key> --phase impl`. It passes the phase because a
 plan written on the current checkout may not be on the remote default branch
 yet, where `plan-state` would read it as `missing`.
+
+**End to end.** The agent-owned e2e suite (`scripts/e2e/iwe-workflows/`) covers
+both Implement scenarios. A new `main_clone` fixture checks out `main` in a
+clone backed by a bare remote beside it, with `origin/HEAD` set and a stub `gh`
+first on the agent's `PATH` that lists no pull requests; Implement of a new
+trivial fixture plan, `data/plans/20261025-e2e-branch`, must end on
+`impl/e2e-branch/iteration-1`, pushed to that remote. The existing
+`test_implement`, which runs on the fixture's own `e2e-fixture` branch, also
+asserts the checkout stays on that branch and gains no other. The start-on-main
+case runs on OpenCode and Claude Code; Codex runs the installed catalog rather
+than the clone's and commits nothing under its `workspace-write` sandbox in this
+suite, so it carries only the stay-put assertion.
+
+Rejected: reusing the greet fixture plan for the start-on-main case — its task
+deliberately conflicts with its spec outcome, so a run may stop before the
+branch step and prove nothing; parsing the remote URL into `OWNER/REPO` before
+calling `gh` — `gh --repo` already accepts every URL form a GitHub remote uses.
 
 Rejected: deriving `N` from the current branch alone — it has no answer on the
 default branch, where the implementer starts, and misses iterations made in
@@ -202,6 +225,86 @@ reports stale after Tasks 1–6
     fresh on 2026-10-25, after refreshing the four docs Tasks 1–6 made stale, in
     the commit that refreshes them.
 
+### Task 8: plan-state reads both task headings and refuses an empty plan
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
+`.agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py`,
+`.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
+
+- [ ] `task_checkboxes` reads `## Implementation Steps` and `## Tasks`, and
+  `classify_plan` reports `incomplete` for a plan with no task checkboxes
+- [ ] `plan-state` tests cover a ticked plan under `## Tasks` as `complete`, an
+  unticked one as `incomplete`, and a plan with no task checkboxes as
+  `incomplete`; a `next` test shows that plan named `impl`, not `ship`
+
+### Task 9: next reads pull requests from the remote's repository
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
+`.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
+
+- [ ] `pull_request_heads` passes `--repo <URL of --remote>` to `gh pr list`
+- [ ] `next` tests show the stub `gh` receiving `--repo` with the URL of the
+  remote `--remote` names, for `origin` and for a second remote
+
+### Task 10: Skill text states the task-heading, empty-plan, and remote-repository rules
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md`
+
+- [ ] SKILL.md states the `complete` definition with both headings and the
+  empty-plan rule, and that pull requests come from the `--remote` repository
+
+### Task 11: e2e clone on main with a remote and a stub gh
+
+**Files:** Create:
+`scripts/e2e/iwe-workflows/fixtures/plans/20261025-e2e-branch.md`,
+`scripts/e2e/iwe-workflows/fixtures/bin/gh`; Modify:
+`scripts/e2e/iwe-workflows/clone.py`, `scripts/e2e/iwe-workflows/conftest.py`,
+`scripts/e2e/iwe-workflows/harness_opencode.py`,
+`scripts/e2e/iwe-workflows/harness_claude.py`,
+`scripts/tests/test_e2e_iwe_workflows_clone.py`
+
+- [ ] The fixture repository carries the active `e2e-branch` fixture plan, whose
+  one task writes `e2e/branch.txt`, and `test_e2e_iwe_workflows_clone.py` passes
+  with it listed among the fixture plans
+- [ ] A `main_clone` fixture provides a clone on `main` whose `origin` is a bare
+  repository beside it holding `main`, with `origin/HEAD` set, and whose agent
+  `PATH` starts with a stub `gh` that answers `pr list` with no pull requests;
+  an offline test in `test_e2e_iwe_workflows_clone.py` pins that layout
+- [ ] The OpenCode and Claude Code harnesses run the agent with that `PATH`, and
+  Claude Code may run the catalog's bundled skill scripts without a prompt
+
+### Task 12: e2e scenarios for both Implement branch rules
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`
+
+- [ ] OpenCode and Claude Code each have a `test_implement_on_main` that runs
+  Implement of `data/plans/20261025-e2e-branch` in `main_clone` and asserts the
+  checkout ends on `impl/e2e-branch/iteration-1` and that branch exists on the
+  bare remote
+- [ ] `test_implement` on all three harnesses also asserts the checkout is still
+  on `e2e-fixture` and no local branch was added
+
+### Task 13: Live e2e run
+
+**Files:** none
+
+- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k "implement" -n 3`
+  passes on OpenCode and Claude Code, and the Codex `test_implement` passes or
+  is skipped by its own catalog check
+
+### Task 14: Refresh the codebase map again
+
+**Files:** Modify: the `data/codebase/` documents `agent-code/stale-map-docs.py`
+reports stale after Tasks 8–12
+
+- [ ] `/agentdev:iwe-map` refresh mode re-reads every map document Tasks 8–12
+  make stale, and `stale-map-docs.py` reports none
+
 ## Spec changes
 
 `data/spec/iwe-branch-name` (new):
@@ -230,9 +333,10 @@ integer, and SHALL always include the iteration suffix.
 ### Requirement: The next iteration follows every iteration already used
 
 The skill SHALL compute the next `N` for a phase and slug as one more than the
-highest `N` among local branches, the remote's branches, and the repository's
-pull requests in any state whose names match the shape exactly, and SHALL fail
-with `GH_UNAVAILABLE` rather than answer when the pull requests cannot be read.
+highest `N` among local branches, the remote's branches, and the pull requests
+in any state of the repository the remote's URL names, counting only names that
+match the shape exactly, and SHALL fail with `GH_UNAVAILABLE` rather than answer
+when those pull requests cannot be read.
 
 #### Scenario: A merged iteration's branch was deleted
 
@@ -242,20 +346,38 @@ with `GH_UNAVAILABLE` rather than answer when the pull requests cannot be read.
 
 #### Scenario: gh cannot answer
 
-- **WHEN** `gh` is missing or unauthenticated
+- **WHEN** `gh` is missing or unauthenticated, or the remote's URL names no
+  repository `gh` can read
 - **THEN** `next` reports `GH_UNAVAILABLE` and no name
+
+#### Scenario: Pull requests come from the remote's repository
+
+- **WHEN** `next` runs with `--remote upstream`
+- **THEN** it reads pull requests of the repository `upstream`'s URL names, not
+  of `gh`'s default repository
 
 ### Requirement: Plan state is read at the remote default branch
 
 The skill SHALL fetch the remote's default branch and read the plan there,
 reporting `missing`, `cancelled`, `done`, `complete` when the plan has no
-`stage` and every task checkbox is ticked, or `incomplete` otherwise, and SHALL
-refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
+`stage`, has at least one task checkbox under `## Implementation Steps` or
+`## Tasks`, and every such checkbox is ticked, or `incomplete` otherwise, and
+SHALL refuse a slug that matches more than one plan with `AMBIGUOUS_PLAN`.
 
 #### Scenario: Local edits do not count
 
 - **WHEN** a plan's last checkbox is ticked only in the working tree
 - **THEN** `plan-state` reports `incomplete`
+
+#### Scenario: A plan with no task checkboxes is not complete
+
+- **WHEN** a plan has no `stage` and no task checkbox
+- **THEN** `plan-state` reports `incomplete`
+
+#### Scenario: The older task heading counts
+
+- **WHEN** a plan without `stage` lists every task ticked under `## Tasks`
+- **THEN** `plan-state` reports `complete`
 
 #### Scenario: Two plans share a slug
 
@@ -319,6 +441,11 @@ and SHALL continue on the current branch otherwise.
 - In this repository,
   `iwe-branch-name.py next 20261020-iwe-branch-name --phase impl` prints a name
   of the shape, and `plan-state` on a shipped plan reports `done`.
+- `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py scripts/tests/test_e2e_live_gate.py`
+  passes, and `uv run pytest scripts/e2e` with `E2E_RUN_LIVE` unset reports
+  every test skipped.
+- `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k "implement" -n 3`
+  passes on OpenCode and Claude Code.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -330,11 +457,30 @@ and SHALL continue on the current branch otherwise.
 - Renaming or migrating branches named before this shape.
 - Creating `ship/` branches from the ship skills; iwe-ship works on the current
   checkout as it does today.
+- The start-on-main e2e case on Codex.
+- A pull-request lookup for a remote that is not on GitHub.
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-25):
 
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:254`
+  — `task_checkboxes`; `classify_plan` at line 275, `pull_request_heads` at line
+  328
+- `scripts/e2e/iwe-workflows/clone.py:24` — `_ACTIVE_LINKS`; `FIXTURE_PLANS` at
+  line 20, `build_fixture_repo` at line 121, `make_clone` at line 196
+- `scripts/e2e/iwe-workflows/conftest.py:55` — `base_clone`
+- `scripts/e2e/iwe-workflows/harness_opencode.py:60` — `isolated_env`;
+  `start_server` at line 263
+- `scripts/e2e/iwe-workflows/harness_claude.py:20` — `allowed_tools`;
+  `run_claude` at line 108
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:72`,
+  `test_iwe_workflows_claude.py:67`, `test_iwe_workflows_codex.py:95` —
+  `test_implement`
+- `scripts/tests/test_e2e_iwe_workflows_clone.py:42` —
+  `test_fixtures_are_the_only_active_plans`
+- `docs/knowledge/tests/test_plan_checkboxes.py:31` — `TASK_SECTIONS`, the two
+  task headings
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:48` — step 4, "Start
   on a work branch"
 - `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md:36` — "Choose the
@@ -348,7 +494,7 @@ Verified anchor points (line numbers as of 2026-10-25):
   `plugin_tmp_path` at line 28
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
 - `.agents/plugins/agentdev/README.md:143` — IWE skills table
-- `README.md:298` — skill table, `iwe-weekly` row
-- `docs/knowledge/AGENTS.md:229` — `## Workspace skills` table, `iwe-weekly` row
+- `README.md:299` — skill table, `iwe-weekly` row
+- `docs/knowledge/AGENTS.md:230` — `## Workspace skills` table, `iwe-weekly` row
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:229` — "Implement starts work
   on its own branch"
