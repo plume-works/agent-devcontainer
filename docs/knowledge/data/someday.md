@@ -28,6 +28,8 @@ model](someday/pr-review-large-validator.md)
 [Deduplicate Docker storage at the host
 filesystem](someday/host-filesystem-dedup.md)
 
+[Dependency-ordered service recovery](someday/dependency-ordered-recovery.md)
+
 [Restart Coder-started harness sessions after a catalog
 refresh](someday/harness-refresh-restart-signal.md)
 

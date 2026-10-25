@@ -33,7 +33,20 @@ env_file="${AGENTDEV_KEYRING_ENV_FILE:-$script_dir/../../.tmp/keyring-session.en
 # shellcheck source=runtime-keyring.sh
 source "$script_dir/runtime-keyring.sh"
 
+# A fixed address from containerEnv reaches every process in the container; without one,
+# D-Bus clients such as gh autolaunch a bus per call that never exits.
+fixed_socket=""
+if [[ ${DBUS_SESSION_BUS_ADDRESS:-} =~ ^unix:path=([^,\;]+)$ ]]; then
+    fixed_socket="${BASH_REMATCH[1]}"
+fi
+
+bus_alive() {
+    gdbus call --session --dest org.freedesktop.DBus --object-path /org/freedesktop/DBus \
+        --method org.freedesktop.DBus.GetId >/dev/null 2>&1
+}
+
 load_saved_session() {
+    [[ -z "$fixed_socket" ]] || return 1
     [[ -f "$env_file" ]] || return 1
     # shellcheck disable=SC1090
     source "$env_file"
@@ -52,7 +65,10 @@ EOF
 
 # Reuse a live Secret Service session, or restore a previously-saved one.
 if keyring_session_ready; then
-    write_env_file
+    # A fixed bus is reused as is; rewriting would drop the PID recorded at its start.
+    if [[ -z "$fixed_socket" ]] || ! grep -qF "'$DBUS_SESSION_BUS_ADDRESS'" "$env_file" 2>/dev/null; then
+        write_env_file
+    fi
     exit 0
 fi
 
@@ -62,7 +78,10 @@ if load_saved_session; then
 fi
 
 rm -f "$env_file"
-unset DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID GNOME_KEYRING_CONTROL
+if [[ -z "$fixed_socket" ]]; then
+    unset DBUS_SESSION_BUS_ADDRESS
+fi
+unset DBUS_SESSION_BUS_PID GNOME_KEYRING_CONTROL
 
 # Skip gracefully when the GNOME keyring stack is unavailable. This script runs
 # unconditionally from the post-start hook, so a hard failure here would break
@@ -76,9 +95,20 @@ done
 
 keyring_ensure_login_keyring
 
-dbus_output="$(dbus-daemon --session --fork --print-address=1 --print-pid=1)"
-DBUS_SESSION_BUS_ADDRESS="$(printf '%s\n' "$dbus_output" | sed -n '1p')"
-DBUS_SESSION_BUS_PID="$(printf '%s\n' "$dbus_output" | sed -n '2p')"
+if [[ -n "$fixed_socket" ]]; then
+    if ! bus_alive; then
+        mkdir -p "$(dirname "$fixed_socket")"
+        chmod 700 "$(dirname "$fixed_socket")"
+        # A socket left by a killed daemon would make the bind fail.
+        rm -f "$fixed_socket"
+        DBUS_SESSION_BUS_PID="$(dbus-daemon --session --fork --print-pid=1 \
+            --address="$DBUS_SESSION_BUS_ADDRESS")"
+    fi
+else
+    dbus_output="$(dbus-daemon --session --fork --print-address=1 --print-pid=1)"
+    DBUS_SESSION_BUS_ADDRESS="$(printf '%s\n' "$dbus_output" | sed -n '1p')"
+    DBUS_SESSION_BUS_PID="$(printf '%s\n' "$dbus_output" | sed -n '2p')"
+fi
 export DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID
 
 keyring_output="$(gnome-keyring-daemon --start --components=secrets)"

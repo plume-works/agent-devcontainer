@@ -109,3 +109,9 @@ socket](bugs/expo-bridge-shared-socket-across-windows.md)
 
 [Bug: the Expo bridge's bun fix upgrades a bun the check never
 runs](bugs/expo-bridge-bun-fix-misses-path-bun.md)
+
+[Bug: every gh call in the devcontainer leaks a D-Bus session and a
+keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
+
+[Bug: Codex login stops being shared between standalone
+projects](bugs/standalone-codex-auth-unshared.md)

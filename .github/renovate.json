@@ -52,7 +52,7 @@
       "platformAutomerge": true
     },
     {
-      "description": "agent-opencode is built by this repository's own pipeline from the same run's agent-desktop digest. Its deployment pin lives in opencode-compose-pins.yml at the repository root, outside the CI image path filter, so a bump cannot rebuild the image it names. The OpenCode runtime pin checks workflow runs native acceptance against the proposed digest before it can merge. That is what makes automerge safe here.",
+      "description": "agent-opencode is built by this repository's own pipeline from the same run's agent-desktop digest. Its deployment pin lives in opencode-compose-pins.yml at the repository root, outside the CI image path filter, so a bump cannot rebuild the image it names. CI moves edge only to digests that passed native acceptance, so every proposed digest is already accepted. That is what makes automerge safe here.",
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/plume-works/agent-opencode"],
       "groupName": "agent-opencode",

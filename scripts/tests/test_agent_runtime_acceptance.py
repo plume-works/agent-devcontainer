@@ -38,6 +38,8 @@ INSTANCE_VOLUMES = {'home': '/home/agent', 'uv': '/uv', 'docker': '/var/lib/dock
 AUTH = '/var/lib/agentdev/auth'
 WORKSPACE = '/workspaces/project'
 SCRATCH_DOCKERFILE = 'printf "FROM scratch\\nCOPY f /f\\n" > ~/ctx/Dockerfile'
+RUNTIME = '/opt/agentdev-runtime'
+FAILURE_RECORD = '/home/agent/.local/state/agentdev/last-failure.json'
 
 # Without an explicit image these tests skip rather than run against whatever is local.
 pytestmark = pytest.mark.skipif(not IMAGE, reason='set AGENTDEV_RUNTIME_TEST_IMAGE')
@@ -65,6 +67,8 @@ class Runtime:
     workspace: list[str]
     # A None value leaves that variable out of the container entirely.
     env: dict[str, str | None] = field(default_factory=dict)
+    # Further `docker run` options, such as a restart policy or extra mounts.
+    options: list[str] = field(default_factory=list)
 
     def volume(self, key: str) -> str:
         return f'{self.name}-{key}'
@@ -101,6 +105,7 @@ class Runtime:
             '--network',
             self.network,
             '--privileged',
+            *self.options,
             *mounts,
             *self.workspace,
             '-v',
@@ -112,38 +117,34 @@ class Runtime:
     def exit_code(self) -> int:
         return int(docker('inspect', '-f', '{{.State.ExitCode}}', self.name).stdout)
 
+    def runtime(self) -> dict:
+        """Return the controller's published state, or an empty dict before it publishes one."""
+        shown = docker('exec', self.name, 'cat', '/run/agentdev/state.json', check=False)
+        return json.loads(shown.stdout) if shown.returncode == 0 else {}
+
     def state(self) -> str:
-        """Return 'ready', 'failed: <reason>', 'exited', or 'starting'."""
+        """Return 'ready', 'degraded', 'failed', 'exited', or 'starting'."""
         if docker('inspect', '-f', '{{.State.Running}}', self.name).stdout.strip() != 'true':
             return 'exited'
-        probe = docker(
-            'exec',
-            self.name,
-            'bash',
-            '-c',
-            'cat /run/agentdev/failed 2>/dev/null && exit 2; test -f /run/agentdev/ready',
-            check=False,
-        )
-        if probe.returncode == 0:
-            return 'ready'
-        if probe.returncode == 2:
-            return f'failed: {probe.stdout.strip()}'
-        return 'starting'
+        state = self.runtime().get('state')
+        return state if state in {'ready', 'degraded', 'failed'} else 'starting'
 
     def wait(self, timeout: float = 600) -> str:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             state = self.state()
             if state != 'starting':
-                if state.startswith('failed'):
-                    self.wait_exit()
-                    return 'exited'
                 return state
             time.sleep(1)
         pytest.fail(f'{self.name} not settled within {timeout}s:\n{self.logs()[-4000:]}')
 
-    def wait_exit(self, timeout: float = 300) -> None:
-        docker('wait', self.name, timeout=timeout)
+    def inspect(self, template: str) -> str:
+        return docker('inspect', '-f', template, self.name).stdout.strip()
+
+    def retry(self, *component: str) -> subprocess.CompletedProcess[str]:
+        return docker(
+            'exec', self.name, f'{RUNTIME}/runtime-supervisor.py', 'retry', *component, check=False
+        )
 
     def wait_unready_then_ready(self, timeout: float = 300) -> None:
         deadline = time.monotonic() + timeout
@@ -261,9 +262,15 @@ def make_runtime(network: str) -> Iterator[Callable[..., Runtime]]:
     created: list[Runtime] = []
     auth_volumes: set[str] = set()
 
-    def factory(*, workspace: list[str], auth: str | None = None, **env: str | None) -> Runtime:
+    def factory(
+        *,
+        workspace: list[str],
+        auth: str | None = None,
+        options: list[str] | None = None,
+        **env: str | None,
+    ) -> Runtime:
         name = f'agentdev-accept-{uuid4().hex[:8]}'
-        runtime = Runtime(name, network, auth or f'{name}-auth', workspace, env)
+        runtime = Runtime(name, network, auth or f'{name}-auth', workspace, env, options or [])
         auth_volumes.add(runtime.auth)
         created.append(runtime)
         return runtime
@@ -431,8 +438,8 @@ def test_peers_on_the_proxy_network_need_the_xpra_password(ready_runtime: Runtim
 def test_enabled_xpra_needs_its_password_to_start(make_runtime, scratch: Path):
     runtime = make_runtime(workspace=bind(make_checkout(scratch / 'a')), XPRA_PASSWORD='')
     runtime.run()
-    assert runtime.wait() == 'exited'
-    assert runtime.exit_code() == 1
+    assert runtime.wait() == 'failed'
+    assert runtime.runtime()['latched'] == 'configuration'
     logs = runtime.logs()
     assert 'XPRA_PASSWORD must be set' in logs and 'AGENTDEV_SKIP_XPRA=1' in logs
     assert 'runtime-bootstrap:' not in logs
@@ -445,11 +452,20 @@ def test_enabled_xpra_needs_its_password_to_start(make_runtime, scratch: Path):
 
 
 def test_cbm_secret_service_and_nested_docker_serve_agent_processes(ready_runtime: Runtime):
-    found = ready_runtime.sh(
+    # Startup only submits the index; the daemon builds it in the background.
+    query = (
         'codebase-memory-mcp cli --json search_graph --project workspaces-project '
         '--name-pattern answer'
-    ).stdout
-    assert 'answer' in found and '"isError":false' in found.replace(' ', '')
+    )
+    deadline, found = time.monotonic() + 120, ''
+    while time.monotonic() < deadline:
+        found = ready_runtime.sh(query, check=False).stdout
+        indexed = 'answer' in found and 'results: 0' not in found
+        if indexed and '"isError":false' in found.replace(' ', ''):
+            break
+        time.sleep(1)
+    assert 'answer' in found and '"isError":false' in found.replace(' ', ''), found
+    assert 'indexing /workspaces/project in the background' in ready_runtime.logs()
 
     docker('cp', str(TESTS / 'secret_service_client.py'), f'{ready_runtime.name}:/tmp/ssc.py')
     ready_runtime.sh('chmod 755 /tmp/ssc.py', user='root')
@@ -476,6 +492,21 @@ def test_cbm_secret_service_and_nested_docker_serve_agent_processes(ready_runtim
     )
     gc = ready_runtime.sh('jq -r .builder.gc.defaultMaxUsedSpace /etc/docker/daemon.json')
     assert gc.stdout.strip() == '10GB'
+
+
+def test_every_shell_names_the_runtime_bus_and_gh_launches_none(ready_runtime: Runtime):
+    # A process with no bus address can autolaunch a bus and a keyring per D-Bus call.
+    # See bugs/devcontainer-dbus-autolaunch-leak.
+    count = "ps -eo comm= | grep -cE '^(dbus-daemon|gnome-keyring-d)$' || true"
+    before = ready_runtime.sh(count, user='root').stdout.strip()
+    for user in ('agent', 'root'):
+        address = ready_runtime.sh('printenv DBUS_SESSION_BUS_ADDRESS', user=user).stdout
+        assert address.strip() == 'unix:path=/run/agentdev/xdg/bus', user
+        ready_runtime.sh(
+            'for i in 1 2 3; do gh auth status >/dev/null 2>&1; done; true', user=user
+        )
+    time.sleep(2)
+    assert ready_runtime.sh(count, user='root').stdout.strip() == before
 
 
 PYPROJECT = '[project]\nname = "probe"\nversion = "0"\nrequires-python = ">=3.12"\n'
@@ -505,6 +536,57 @@ def test_clone_start_prepares_a_python_project_with_pre_commit(make_runtime, scr
     runtime.sh(f'test "$(stat -c %u {WORKSPACE})" = 1000')
 
 
+def test_a_failed_uv_sync_degrades_while_opencode_serves_until_retried(
+    make_runtime, scratch: Path
+):
+    broken = PYPROJECT.replace('>=3.12', '>=99')
+    seed = make_checkout(scratch, {'pyproject.toml': broken}, uid=os.geteuid())
+    remote = scratch / 'remote.git'
+    subprocess.run(['git', 'clone', '-q', '--bare', str(seed), str(remote)], check=True)
+    own(remote, 1000)
+    runtime = make_runtime(
+        workspace=['-v', f'{remote}:/srv/remote.git:ro'],
+        AGENTDEV_REPOSITORY_URL='file:///srv/remote.git',
+    )
+    runtime.run()
+    assert runtime.wait() == 'degraded', runtime.logs()[-4000:]
+    assert runtime.runtime()['components']['project']['status'] == 'failed'
+    assert opencode_answers(runtime)
+
+    runtime.sh(f"sed -i 's/>=99/>=3.12/' {WORKSPACE}/pyproject.toml")
+    resumed = runtime.retry('project')
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+    runtime.sh('test -x /uv/venvs/project/bin/python')
+
+
+def test_an_optional_failure_reports_unhealthy_while_opencode_serves(make_runtime, scratch: Path):
+    checkout = make_checkout(scratch, {'pyproject.toml': PYPROJECT.replace('>=3.12', '>=99')})
+    runtime = make_runtime(
+        workspace=bind(checkout),
+        options=[
+            '--health-interval',
+            '2s',
+            '--health-start-period',
+            '1s',
+            '--health-retries',
+            '1',
+        ],
+    )
+    runtime.run()
+    assert runtime.wait() == 'degraded', runtime.logs()[-4000:]
+    deadline = time.monotonic() + 60
+    while runtime.inspect('{{.State.Health.Status}}') != 'unhealthy':
+        assert time.monotonic() < deadline, runtime.inspect('{{json .State.Health}}')
+        time.sleep(1)
+    assert opencode_answers(runtime)
+    shown = runtime.sh(f'{RUNTIME}/runtime-health.sh status', user='root', check=False)
+    assert shown.returncode == 1
+    assert 'runtime state: degraded' in shown.stdout
+    assert 'runtime-supervisor.py retry project' in shown.stdout
+    assert 'last failure: project, exit status' in shown.stdout
+
+
 def test_non_python_bind_start_skips_project_tooling(ready_runtime: Runtime):
     logs = ready_runtime.logs()
     assert 'no pyproject.toml; skipping uv sync' in logs
@@ -524,11 +606,79 @@ def test_custom_ids_own_their_files_and_keep_sudo(make_runtime, scratch: Path):
 def test_preparation_failure_keeps_opencode_unavailable(make_runtime):
     runtime = make_runtime(workspace=[], AGENTDEV_REPOSITORY_URL='file:///nonexistent.git')
     runtime.run()
-    assert runtime.wait() == 'exited'
-    assert runtime.exit_code() == 1
-    logs = runtime.logs()
-    assert 'terminal failure: prepare failed' in logs
-    assert 'opencode: starting' not in logs
+    assert runtime.wait() == 'failed'
+    assert runtime.runtime()['latched'] == 'prepare'
+    record = json.loads(runtime.sh(f'cat {FAILURE_RECORD}').stdout)
+    assert record['component'] == 'prepare' and record['exit_status'] == 1
+    assert any('git clone failed' in line for line in record['output'])
+    assert 'opencode: starting' not in runtime.logs()
+
+
+FORCED_PREPARE = """#!/usr/bin/env bash
+if [[ ${1:-} == prepare && -f /srv/force/exit ]]; then
+  echo "forced preparation failure"
+  exit "$(cat /srv/force/exit)"
+fi
+exec /opt/agentdev-runtime/runtime-workspace-real.sh "$@"
+"""
+
+
+def opencode_answers(runtime: Runtime) -> bool:
+    probe = (
+        f'curl -fsS --max-time 5 -H "Authorization: {AUTH_HEADER}" http://127.0.0.1:4096/api/info'
+    )
+    return runtime.sh(probe, check=False).returncode == 0
+
+
+@pytest.mark.parametrize('status', [1, 3])
+def test_a_latched_start_stays_put_under_the_restart_policy(
+    make_runtime, scratch: Path, status: int
+):
+    force = scratch / 'force'
+    force.mkdir()
+    (force / 'exit').write_text(str(status))
+    stub = scratch / 'runtime-workspace.sh'
+    stub.write_text(FORCED_PREPARE)
+    stub.chmod(0o755)
+    real = REPO_ROOT / '.devcontainer/scripts/runtime-workspace.sh'
+    runtime = make_runtime(
+        workspace=bind(make_checkout(scratch)),
+        options=[
+            '--restart',
+            'unless-stopped',
+            '-v',
+            f'{force}:/srv/force:ro',
+            '-v',
+            f'{stub}:{RUNTIME}/runtime-workspace.sh:ro',
+            '-v',
+            f'{real}:{RUNTIME}/runtime-workspace-real.sh:ro',
+        ],
+    )
+    runtime.run()
+    assert runtime.wait() == 'failed', runtime.logs()[-4000:]
+    recorded = runtime.sh(f'cat {FAILURE_RECORD}').stdout
+    assert json.loads(recorded)['exit_status'] == status
+    interval = float(runtime.runtime().get('interval', 2))
+    for _ in range(10):
+        time.sleep(interval)
+        assert not opencode_answers(runtime)
+    assert runtime.inspect('{{.RestartCount}}') == '0'
+    assert runtime.state() == 'failed'
+    assert runtime.sh(f'cat {FAILURE_RECORD}').stdout == recorded
+
+    (force / 'exit').unlink()
+    resumed = runtime.retry()
+    assert resumed.returncode == 0, resumed.stdout + resumed.stderr
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+    assert opencode_answers(runtime)
+
+    docker('exec', runtime.name, 'pkill', '-KILL', '-f', 'runtime-supervisor.py control')
+    deadline = time.monotonic() + 120
+    while runtime.inspect('{{.RestartCount}}') == '0' and time.monotonic() < deadline:
+        time.sleep(1)
+    assert runtime.inspect('{{.RestartCount}}') != '0', runtime.logs()[-4000:]
+    assert 'controller exited' in runtime.logs()
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
 
 
 def test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images(
@@ -562,6 +712,23 @@ def test_restart_and_replacement_keep_the_dirty_tree_config_sessions_and_images(
     assert any(p.endswith('/.opencode-plugin') for p in config['plugin'])
     assert session['id'] in {s['id'] for s in ready_runtime.api('GET', '/session')}
     ready_runtime.sh('docker image inspect acceptance:kept >/dev/null')
+
+
+def test_restarts_leave_codex_config_and_hooks_byte_identical(make_runtime, scratch: Path):
+    runtime = make_runtime(workspace=bind(make_checkout(scratch)))
+    runtime.run()
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+    codex = '/home/agent/.codex'
+    files = f'cat {codex}/config.toml; echo ===; cat {codex}/hooks.json'
+    first = runtime.sh(files).stdout
+    config, hooks = first.split('===\n')
+    assert '[[hooks.' not in config and 'SessionStart' not in config
+    assert set(json.loads(hooks)['hooks']) >= {'SessionStart', 'SubagentStart'}
+    for _ in range(3):
+        runtime.restart()
+        assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+        assert runtime.sh(files).stdout == first
+    assert 'already registered' in runtime.logs()
 
 
 @pytest.mark.skipif(not PREVIOUS_IMAGE, reason='set AGENTDEV_RUNTIME_PREVIOUS_IMAGE')
@@ -606,8 +773,8 @@ def test_concurrent_projects_share_codex_auth_but_not_sessions(make_runtime, scr
         AGENTDEV_GID='2001',
     )
     intruder.run()
-    assert intruder.wait() == 'exited'
-    assert intruder.exit_code() == 1
+    assert intruder.wait() == 'failed'
+    assert intruder.runtime()['latched'] == 'bootstrap'
     assert 'must all use AGENTDEV_UID=1000' in intruder.logs()
     assert json.loads(first.sh('cat ~/.codex/auth.json').stdout) == {'shared': True}
 
@@ -619,7 +786,7 @@ def test_unavailable_worktree_metadata_fails_preparation(make_runtime, scratch: 
     own(worktree, 1000)
     runtime = make_runtime(workspace=bind(worktree))
     runtime.run()
-    assert runtime.wait() == 'exited'
+    assert runtime.wait() == 'failed'
     assert 'mount the main repository' in runtime.logs()
 
 
@@ -633,22 +800,28 @@ def test_crashed_and_hung_services_recover(ready_runtime: Runtime):
     assert ready_runtime.api('GET', '/info')['version'] in shipped
 
 
-def test_exhausted_recovery_stops_the_container_nonzero(make_runtime, scratch: Path):
+@pytest.mark.parametrize('strict', [False, True], ids=['default', 'strict'])
+def test_exhausted_xpra_degrades_or_latches_under_strict_startup(
+    make_runtime, scratch: Path, strict: bool
+):
     runtime = make_runtime(
         workspace=bind(make_checkout(scratch)),
         AGENTDEV_RECOVERY_ATTEMPTS='1',
         AGENTDEV_HEALTHY_RESET='600',
+        AGENTDEV_STRICT_STARTUP='true' if strict else None,
     )
     runtime.run()
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
-    for expected in ('ready', 'exited'):
+    final = 'failed' if strict else 'degraded'
+    for expected in ('ready', final):
         runtime.sh('pkill -KILL -f "xpra start"', user='root', check=False)
         deadline = time.monotonic() + 120
         while runtime.state() == 'ready' and time.monotonic() < deadline:
             time.sleep(0.5)
         assert runtime.wait() == expected, runtime.logs()[-4000:]
-    assert runtime.exit_code() == 1
+    assert runtime.runtime()['components']['xpra']['status'] == 'failed'
     assert 'xpra exhausted 1 recovery attempts' in runtime.logs()
+    assert opencode_answers(runtime) is not strict
 
 
 def test_clean_stop_is_bounded(ready_runtime: Runtime):

@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Publish the Expo bridge to Open VSX through trusted
-publishing](plans/20261023-openvsx-trusted-publishing.md)
-
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
@@ -56,6 +53,12 @@ shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
 
 [Expo bridge acts on the agent's window and workspace
 folder](plans/20261023-expo-bridge-workspace-folders.md)
+
+[Opt-in Claude Remote Control server
+mode](plans/20261023-claude-remote-control-server-mode.md)
+
+[Publish the Expo bridge to Open VSX through trusted
+publishing](plans/20261023-openvsx-trusted-publishing.md)
 
 [Build iOS on the Mac host through a VS Code
 bridge](plans/20261015-vscode-expo-bridge.md)

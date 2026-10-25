@@ -110,3 +110,5 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 [Map masks version-only changes](features/map-masks-version-bumps.md)
 
 [Reusable agentdev Dev Container](features/reusable-agentdev-devcontainer.md)
+
+[Remote Control server mode](features/claude-remote-control-server-mode.md)

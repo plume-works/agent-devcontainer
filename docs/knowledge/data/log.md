@@ -11,6 +11,8 @@ to the current day's group.
   `data/spec/` change, the protocol contract lives in the bridge's
   `docs/protocol.md`; [VS Code Expo bridge](features/vscode-expo-bridge.md)
   stays implemented and listed under Unreleased Added.
+- **Bug**: filed [Codex login stops being shared between standalone
+  projects](bugs/standalone-codex-auth-unshared.md).
 
 ## 2026-10-24
 
@@ -29,9 +31,57 @@ to the current day's group.
 - **Update**: [Bug: Expo bridge windows sharing a container break each other's
   socket](bugs/expo-bridge-shared-socket-across-windows.md) fixed; listed under
   Unreleased Fixed.
+- **Update**: [Opt-in Claude Remote Control server
+  mode](plans/20261023-claude-remote-control-server-mode.md) done; [Claude
+  Remote Control](spec/claude-remote-control.md) now specifies opt-in server
+  mode and limits pinned-conversation resume to session mode.
+- **Update**: [Remote Control server
+  mode](features/claude-remote-control-server-mode.md) implemented; listed under
+  Unreleased Added.
+- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
+  [scripts](codebase/devcontainer/scripts.md), and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) for the Remote Control
+  launcher's `AGENTDEV_CLAUDE_RC_MODE` server mode.
+- **Bug**: filed and fixed [every gh call in the devcontainer leaks a D-Bus
+  session and a keyring](bugs/devcontainer-dbus-autolaunch-leak.md).
+- **Map**: refreshed [GitHub automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [pull request
+  checks](codebase/flow-pull-request-checks.md) flow for the compose files in
+  the image filter, and the [image runtime](codebase/api-image-runtime.md) and
+  [.devcontainer scripts](codebase/devcontainer/scripts.md) for the strict
+  firewall switch and comment-keeping hooks repair.
+- **Map**: refreshed the [image runtime](codebase/api-image-runtime.md) and the
+  [.devcontainer scripts](codebase/devcontainer/scripts.md) for attempt-scoped
+  failure output and client refresh on retry, and re-verified
+  [.devcontainer](codebase/devcontainer.md), [Docker](codebase/docker.md), and
+  the [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) and
+  [image build](codebase/flow-image-build.md) flows.
 
 ## 2026-10-23
 
+- **Map**: refreshed [Ansible](codebase/ansible.md),
+  [dev_tools](codebase/ansible/roles/dev_tools.md),
+  [.devcontainer](codebase/devcontainer.md), its
+  [scripts](codebase/devcontainer/scripts.md), [Docker](codebase/docker.md), the
+  [image runtime](codebase/api-image-runtime.md), [GitHub
+  automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md), [image
+  build](codebase/flow-image-build.md), and [pull request
+  checks](codebase/flow-pull-request-checks.md) flows for the standalone
+  runtime's failure latch, optional work, background indexing, and pinned hook
+  binaries.
+- **Map**: refreshed [GitHub automation](codebase/github.md), its
+  [workflows](codebase/github/workflows.md), and the [pull request
+  checks](codebase/flow-pull-request-checks.md) flow for the removed pinned
+  runtime acceptance workflow.
+- **Map**: refreshed [Docker](codebase/docker.md), the [image
+  runtime](codebase/api-image-runtime.md), and the [image
+  build](codebase/flow-image-build.md) flow for the agent-opencode deployment
+  guide.
+- **Update**: [Publish the Expo bridge to Open VSX through trusted
+  publishing](plans/20261023-openvsx-trusted-publishing.md) done; internal, no
+  release entry.
 - **Update**: [Build iOS on the Mac host through a VS Code
   bridge](plans/20261015-vscode-expo-bridge.md) done; [Template
   consumption](spec/template-consumption.md) now specifies that an Expo consumer

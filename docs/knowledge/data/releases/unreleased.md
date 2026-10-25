@@ -19,6 +19,8 @@ starts a fresh one.*
 
 ## Added
 
+[Remote Control server mode](../features/claude-remote-control-server-mode.md)
+
 [VS Code Expo bridge](../features/vscode-expo-bridge.md)
 
 [Map masks version-only changes](../features/map-masks-version-bumps.md)
@@ -84,6 +86,9 @@ folder](../bugs/expo-bridge-builds-only-window-root.md)
 
 [Bug: Expo bridge windows sharing a container break each other's
 socket](../bugs/expo-bridge-shared-socket-across-windows.md)
+
+[Bug: every gh call in the devcontainer leaks a D-Bus session and a
+keyring](../bugs/devcontainer-dbus-autolaunch-leak.md)
 
 [Bug: CI/CD publishes images before testing
 them](../bugs/ci-publishes-images-before-acceptance.md)

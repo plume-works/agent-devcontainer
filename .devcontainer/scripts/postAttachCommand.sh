@@ -11,6 +11,4 @@ git config --global gpg.ssh.program ssh-keygen
 
 # Refresh the workspace catalog on every editor attachment so newly added agents
 # and skills reach every client after a window reload.
-"$script_dir/reinstall-agentdev-codex.sh"
-"$script_dir/reinstall-agentdev-claude.sh"
-"$script_dir/reinstall-agentdev-opencode.sh"
+"$script_dir/setup-agent-state.sh" catalog "$(cd "$script_dir/../.." && pwd)"

@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:a4cb719511a7f97890772308d6ebfc7ee95ee410586a3f55122a076e4e31b32f
+source_digest: sha256:2c199245f177bbe445bb72e915f4990b7edd4551872742686db5f5ffd2226d4f
 verified:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
-stale_after: 2027-01-19
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
+stale_after: 2027-01-22
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
 sources:
 - id: code
   resource: .github/workflows
@@ -17,68 +17,62 @@ sources:
 
 # Workflows
 
-Two reusable workflows behind one entry point, four path-filtered checks, a
-deployment-pin check, the scheduled Renovate bot, and one manual job.
+Two reusable workflows behind one entry point, four path-filtered checks, the
+scheduled Renovate bot, and one manual job.
 
 ## Public surface
 
-| Workflow                       | Trigger                                                                     | Jobs                                                                                                                                                               |
-| ------------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch                              | `reformat` → `ci` (only when `run_downstream`); a new run cancels the old except on `main`, where it queues                                                        |
-| `reformat.yml`                 | `workflow_call`                                                             | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                                                                                       |
-| `ci.yml`                       | `workflow_call`                                                             | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` + `opencode-acceptance` → `promote-dev-image` → `finished`             |
-| `opencode-runtime-checks.yml`  | every PR (skips unless the OpenCode pin or Compose files changed), dispatch | `acceptance` (amd64 + arm64): native container acceptance of the pinned `agent-opencode` digest, skipped when CI/CD's path filter matched and the pin is unchanged |
-| `validate-agent-files.yml`     | PR, push, merge group                                                       | three pytest suites and the OpenCode bridge bun suite, the validator with `--require-marketplace claude codex`, then the map-staleness check                       |
-| `validate-knowledge-base.yml`  | PR, push, merge group                                                       | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                                                                               |
-| `validate-renovate-config.yml` | PR, push, merge group, dispatch                                             | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate pin) → `finished`                                                                          |
-| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch                              | `renovate`: the bot at the hook's Renovate pin, in `agent-desktop`, as the Renovate GitHub App                                                                     |
-| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch                             | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                                                    |
-| `delete-old-containers.yml`    | dispatch                                                                    | prune old package versions                                                                                                                                         |
+| Workflow                       | Trigger                                         | Jobs                                                                                                                                                   |
+| ------------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `primary-checks.yml`           | push to `main`/`v*`, PR, merge group, dispatch  | `reformat` → `ci` (only when `run_downstream`); a new run cancels the old except on `main`, where it queues                                            |
+| `reformat.yml`                 | `workflow_call`                                 | `paths-filter` → `super-linter` (autofix) → `commit-format-changes` → `gate`                                                                           |
+| `ci.yml`                       | `workflow_call`                                 | `paths-filter` → `build-dev-image` (amd64 + arm64) → `merge-dev-image` → `dev-container-ci` + `opencode-acceptance` → `promote-dev-image` → `finished` |
+| `validate-agent-files.yml`     | PR, push, merge group                           | three pytest suites and the OpenCode bridge bun suite, the validator with `--require-marketplace claude codex`, then the map-staleness check           |
+| `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone seed tests                                                                   |
+| `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agent-desktop`, at the hook's Renovate pin) → `finished`                                                              |
+| `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate pin, in `agent-desktop`, as the Renovate GitHub App                                                         |
+| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                                        |
+| `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                                                             |
 
 ## How it works
 
 Every check job starts with the shared `paths-filter` action and skips when
-nothing relevant changed. `reformat` runs Super-Linter in fix mode and, for a
-same-repository non-draft PR, commits the formatting back; its `gate` publishes
-`run_downstream`, false when a formatting commit was pushed, so `ci` waits for
-the next run. `ci` builds `ubuntu-ansible` then `agent-desktop` per
-architecture, reusing the published `edge` image as a base unless the run is on
-`main`, a tag, a merge group, or the commit says `[ci:clean_build]`, and builds
-`agent-opencode` on the desktop digest the same job produced. It merges each
-image's per-arch digests into its own manifest under `sha-<commit>` only, then
-patches the desktop pin and smoke-tests the devcontainer with
-`devcontainers/ci`, including a bundled Chromium launch. Each architecture reads
-the Playwright version from the role default and passes it into the desktop
-build, keeping the Renovate-owned pin, installed CLI, and image label identical.
-In parallel, `opencode-acceptance` runs `test-agent-runtime.sh` as root against
-the merged `agent-opencode` digest on each native architecture.
+nothing relevant changed. `ci` adds its own workflow and the root
+`compose.opencode*.yml` files to the image filter; `opencode-compose-pins.yml`
+stays out, so a pin bump never rebuilds the image it names. `reformat` runs
+Super-Linter in fix mode and, for a same-repository non-draft PR, commits the
+formatting back; its `gate` publishes `run_downstream`, false when a formatting
+commit was pushed, so `ci` waits for the next run. `ci` builds `ubuntu-ansible`
+then `agent-desktop` per architecture, reusing the published `edge` image as a
+base unless the run is on `main`, a tag, a merge group, or the commit says
+`[ci:clean_build]`, and builds `agent-opencode` on the desktop digest the same
+job produced. It merges each image's per-arch digests into its own manifest
+under `sha-<commit>` only, then patches the desktop pin and smoke-tests the
+devcontainer with `devcontainers/ci`, including the pinned `gitleaks` and
+`actionlint` with no Go toolchain and a bundled Chromium launch. Each
+architecture reads the Playwright version from the role default and passes it
+into the desktop build, keeping the Renovate-owned pin, installed CLI, and image
+label identical. In parallel, `opencode-acceptance` runs `test-agent-runtime.sh`
+as root against the merged `agent-opencode` digest on each native architecture.
 `promote-dev-image` then moves the event's public tags to the three tested
-digests without rebuilding. `opencode-runtime-checks.yml` runs the same
-acceptance on the digest `opencode-compose-pins.yml` proposes and builds
-nothing; it requires the pin to carry `@sha256:`. It triggers on every pull
-request, without a `paths` filter, because a path-filtered workflow never
-reports a required check. Its `gate` step skips acceptance when no deployment
-file changed, or when CI/CD's path filter matched and a second
-`dorny/paths-filter` step saw `opencode-compose-pins.yml` unchanged, since CI/CD
-accepts the image it builds, never the pinned digest. The responder only runs
-for `plume-works` and never for a fork PR; its preflight decides between a
-review and a task, resolves the review's effort tier, and `ai-review-present`
-reports whether an accepted review exists. `renovate.yml` and the
-Renovate-config `validate` job run in `agent-desktop` at the digest
-`devcontainer-compose-pins.yml` pins, and both read the Renovate version from
-the `renovate-config-validator` hook's `bunx --package renovate@<version>` entry
-in `.pre-commit-config.yaml`; the bot authenticates with a GitHub App token and
-takes its global options from `RENOVATE_*` variables. A person's edit of the
-Dependency Dashboard issue or of a Renovate PR's body starts a run; the bot's
-own edits never do. PR edits arrive through `pull_request_target`, which still
-fires on a conflicted PR and never checks out PR code. Every run queues in one
-job-level concurrency group, so two never write the same branch at once and a
-skipped bot edit never enters it. Knowledge validation always checks this graph
-when its outer filter passes and runs the standalone consumer-seed suite only
-when its inner seed filter passes. Agent-file validation's filter covers the
-union of codebase map `source` paths, then its final step verifies every
-recorded digest. The full traces are [the image build
-flow](../flow-image-build.md) and [the pull request checks
+digests without rebuilding. The responder only runs for `plume-works` and never
+for a fork PR; its preflight decides between a review and a task, resolves the
+review's effort tier, and `ai-review-present` reports whether an accepted review
+exists. `renovate.yml` and the Renovate-config `validate` job run in
+`agent-desktop` at the digest `devcontainer-compose-pins.yml` pins, and both
+read the Renovate version from the `renovate-config-validator` hook's
+`bunx --package renovate@<version>` entry in `.pre-commit-config.yaml`; the bot
+authenticates with a GitHub App token and takes its global options from
+`RENOVATE_*` variables. A person's edit of the Dependency Dashboard issue or of
+a Renovate PR's body starts a run; the bot's own edits never do. PR edits arrive
+through `pull_request_target`, which still fires on a conflicted PR and never
+checks out PR code. Every run queues in one job-level concurrency group, so two
+never write the same branch at once and a skipped bot edit never enters it.
+Knowledge validation always checks this graph when its outer filter passes and
+runs the standalone consumer-seed suite only when its inner seed filter passes.
+Agent-file validation's filter covers the union of codebase map `source` paths,
+then its final step verifies every recorded digest. The full traces are [the
+image build flow](../flow-image-build.md) and [the pull request checks
 flow](../flow-pull-request-checks.md).
 
 ## Depends on
@@ -140,17 +134,14 @@ Verified anchor points (line numbers as of 2026-10-20):
 - `.github/workflows/primary-checks.yml:32,54` — `reformat`, `ci`
 - `.github/workflows/reformat.yml:186,280,422` — `super-linter`,
   `commit-format-changes`, `gate`
-- `.github/workflows/ci.yml:71,99,130,182,236` — build matrix, base-image
+- `.github/workflows/ci.yml:74,102,133,185,239` — build matrix, base-image
   selection, Playwright pin extraction, merge, devcontainer smoke
-- `.github/workflows/ci.yml:163,222` — the `agent-opencode` build on the desktop
+- `.github/workflows/ci.yml:166,225` — the `agent-opencode` build on the desktop
   digest and its merge
-- `.github/workflows/ci.yml:265,277-315` — patch the digest pin and smoke-test
-  the toolchain and bundled Chromium
-- `.github/workflows/ci.yml:314,352,403` — `opencode-acceptance`,
+- `.github/workflows/ci.yml:268,280-322` — patch the digest pin and smoke-test
+  the toolchain, the pinned hook binaries, and bundled Chromium
+- `.github/workflows/ci.yml:339,377,428` — `opencode-acceptance`,
   `promote-dev-image`, `finished`
-- `.github/workflows/opencode-runtime-checks.yml:47,57,70` — CI/CD path-filter
-  scope check, pin and deployment filters, and the skip `gate`; `:82-91` — the
-  digest requirement
 - `.github/workflows/validate-agent-files.yml:39-100` — map-source filter and
   the check steps
 - `.github/workflows/validate-knowledge-base.yml:39-48,85-105` — paths filter,

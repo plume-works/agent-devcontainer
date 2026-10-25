@@ -204,3 +204,58 @@ def test_background_lifecycle_still_starts_and_reuses_a_session(tmp_path: Path):
         )
         if pid:
             os.kill(int(pid), signal.SIGTERM)
+
+
+def saved_bus_pid(env_file: Path) -> int | None:
+    for line in env_file.read_text().splitlines() if env_file.exists() else []:
+        if 'DBUS_SESSION_BUS_PID' in line and line.split("'")[1]:
+            return int(line.split("'")[1])
+    return None
+
+
+def test_a_fixed_address_gets_one_bus_that_every_client_reuses():
+    TMP_ROOT.mkdir(exist_ok=True)
+    root = TMP_ROOT / f'kf-{uuid4().hex[:8]}'
+    (root / 'home').mkdir(parents=True)
+    socket = root / 'bus/socket'
+    socket.parent.mkdir()
+    socket.write_text('left by a killed daemon')
+    env_file = root / 'state/keyring-session.env'
+    (root / 'run').mkdir(mode=0o700)
+    env = {
+        'PATH': '/usr/bin:/bin',
+        'HOME': str(root / 'home'),
+        'XDG_RUNTIME_DIR': str(root / 'run'),
+        'AGENTDEV_KEYRING_ENV_FILE': str(env_file),
+        'DBUS_SESSION_BUS_ADDRESS': f'unix:path={socket}',
+    }
+    try:
+        first = subprocess.run([SETUP_KEYRING], env=env, capture_output=True, text=True)
+        assert first.returncode == 0, first.stderr
+        assert socket.is_socket()
+        assert f"DBUS_SESSION_BUS_ADDRESS='unix:path={socket}'" in env_file.read_text()
+        bus = saved_bus_pid(env_file)
+        assert bus is not None
+
+        second = subprocess.run([SETUP_KEYRING], env=env, capture_output=True, text=True)
+        assert second.returncode == 0, second.stderr
+        assert saved_bus_pid(env_file) == bus, 'the running bus is reused'
+
+        client = {**env, 'DISPLAY': ':1'}
+        stored = subprocess.run(
+            [SYSTEM_PYTHON, CLIENT, 'store', 'gh', 'one-bus'], env=client, capture_output=True
+        )
+        assert stored.returncode == 0, stored.stderr
+        looked_up = subprocess.run(
+            [SYSTEM_PYTHON, CLIENT, 'lookup', 'gh'], env=client, capture_output=True, text=True
+        )
+        assert looked_up.stdout.strip() == 'one-bus', looked_up.stderr
+    finally:
+        bus = subprocess.run(
+            ['pgrep', '-f', f'dbus-daemon .*--address=unix:path={socket}'],
+            capture_output=True,
+            text=True,
+        ).stdout.split()
+        for pid in bus:
+            os.kill(int(pid), signal.SIGTERM)
+        shutil.rmtree(root, ignore_errors=True)

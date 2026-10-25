@@ -6,14 +6,14 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:4af205dd01ce4d551d34c01578073994f2f3ad9e40326f567fa13d87ae02a255
+source_digest: sha256:28c9567a0ec3135a9e848fd596c5228ca98f57eb78ac6b71ee78f5dd4464c6d5
 verified:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
-stale_after: 2027-01-19
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
+stale_after: 2027-01-22
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T11:30:00-07:00
+  by: claude-code/opus-5.5
+  at: 2026-10-23T21:51:57Z
 sources:
 - id: code
   resource: docker
@@ -66,9 +66,10 @@ is the surface those consumers touch; the build that produces it is
   in `~/.codex/agents/agentdev-<stem>.toml`, and its OpenCode bridge listed in
   `~/.config/opencode/opencode.json`
 - On `PATH`: `uv`, `bun`, `node`, `claude`, `codex`, `opencode`, `gh`, `cmake`,
-  `ninja`, `shellcheck`, `zizmor`, `jq`, `iwe`/`iwes`, `codebase-memory-mcp`,
-  `validate_agent_files`, `playwright` with matching Chromium, `pre-commit`,
-  `xpra`, `gnome-keyring-daemon`, Docker CE with buildx and compose
+  `ninja`, `shellcheck`, `zizmor`, `gitleaks`, `actionlint`, `jq`, `iwe`/`iwes`,
+  `codebase-memory-mcp`, `validate_agent_files`, `playwright` with matching
+  Chromium, `pre-commit`, `xpra`, `gnome-keyring-daemon`, Docker CE with buildx
+  and compose
 - `EXPOSE 14500` — the Xpra HTML5 container port, fixed by default and
   overridable with `/start-xpra.sh --port`; the devcontainer forwards `14500`
 
@@ -76,29 +77,53 @@ is the surface those consumers touch; the build that produces it is
 
 The image runs itself:
 `ENTRYPOINT ["/opt/agentdev-runtime/runtime-supervisor.py", "run"]`,
-`EXPOSE 4096 14500`, and a `HEALTHCHECK` that passes once every required service
-is ready — `docker/opencode/agent-opencode.Dockerfile:59-65`. It must run
-privileged, with volumes at `/home/agent`, `/uv`, `/var/lib/docker`,
+`EXPOSE 4096 14500`, and a `HEALTHCHECK` of `runtime-health.sh ready` with a
+10-minute start period — `docker/opencode/agent-opencode.Dockerfile:59-66`. It
+must run privileged, with volumes at `/home/agent`, `/uv`, `/var/lib/docker`,
 `/workspaces/project` (or a bind checkout), and `/var/lib/agentdev/auth`; the
 supported deployment is the root `compose.opencode.yml`.
 
-| Variable                                                                                                                                                                   | Meaning                                                                                                                   |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `OPENCODE_SERVER_PASSWORD`                                                                                                                                                 | required, nonempty; OpenCode listens on `0.0.0.0:4096` behind it                                                          |
-| `AGENTDEV_UID`, `AGENTDEV_GID`                                                                                                                                             | numeric runtime identity, default `1000`; must match within one auth-volume cohort                                        |
-| `AGENTDEV_REPOSITORY_URL`, `AGENTDEV_REPOSITORY_REF`                                                                                                                       | clone an empty workspace once, optionally at a branch or tag                                                              |
-| `GH_TOKEN`, `GITHUB_TOKEN`                                                                                                                                                 | HTTPS Git through `gh`, configured before a clone; never written to disk                                                  |
-| `XPRA_PASSWORD`                                                                                                                                                            | required, nonempty, unless `AGENTDEV_SKIP_XPRA` is set; Xpra's session password, separate from OpenCode's                 |
-| `AGENTDEV_SKIP_XPRA`                                                                                                                                                       | nonempty drops the desktop from startup and readiness                                                                     |
-| `ENABLE_FIREWALL`, `AGENTDEV_TRUSTED_PROXY_CIDRS`, `FIREWALL_ALLOWLIST`                                                                                                    | opt-in egress firewall; proxy sources allowed to 4096/14500; allowlist override of `/etc/agentdev/firewall-allowlist.txt` |
-| `AGENTDEV_RECOVERY_ATTEMPTS`, `AGENTDEV_RECOVERY_BACKOFF`, `AGENTDEV_HEALTHY_RESET`, `AGENTDEV_SERVICE_START_TIMEOUT`, `AGENTDEV_PREPARE_TIMEOUT`, `AGENTDEV_STOP_TIMEOUT` | recovery budget (3, doubling from 1 s, reset after 60 s healthy), deadlines (60 s, 1800 s, 30 s)                          |
+| Variable                                                                                | Meaning                                                                                                                                                                           |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENCODE_SERVER_PASSWORD`                                                              | required, nonempty; OpenCode listens on `0.0.0.0:4096` behind it                                                                                                                  |
+| `AGENTDEV_UID`, `AGENTDEV_GID`                                                          | numeric runtime identity, default `1000`; must match within one auth-volume cohort                                                                                                |
+| `AGENTDEV_REPOSITORY_URL`, `AGENTDEV_REPOSITORY_REF`                                    | clone an empty workspace once, optionally at a branch or tag                                                                                                                      |
+| `GH_TOKEN`, `GITHUB_TOKEN`                                                              | HTTPS Git through `gh`, configured before a clone; never written to disk                                                                                                          |
+| `XPRA_PASSWORD`                                                                         | required, nonempty, unless `AGENTDEV_SKIP_XPRA` is true; Xpra's session password, separate from OpenCode's                                                                        |
+| `AGENTDEV_SKIP_XPRA`, `AGENTDEV_STRICT_STARTUP`, `ENABLE_FIREWALL`                      | booleans: `1`/`true`/`yes`/`on` or `0`/`false`/`no`/`off`/empty, any case; strict makes every optional failure latch; the bootstrap sees the firewall switch as `true` or `false` |
+| `AGENTDEV_TRUSTED_PROXY_CIDRS`, `FIREWALL_ALLOWLIST`                                    | opt-in egress firewall; proxy sources allowed to 4096/14500; allowlist override of `/etc/agentdev/firewall-allowlist.txt`                                                         |
+| `AGENTDEV_RECOVERY_ATTEMPTS`, `AGENTDEV_PROBE_FAILURES`, `AGENTDEV_STOP_TIMEOUT`        | positive integers: 3 attempts, 2 failed probes, 30 s stop                                                                                                                         |
+| `AGENTDEV_RECOVERY_BACKOFF`, `AGENTDEV_HEALTHY_RESET`, `AGENTDEV_SERVICE_START_TIMEOUT` | positive seconds: backoff doubling from 1, reset after 60 healthy, 60 to first readiness                                                                                          |
+| `AGENTDEV_BOOTSTRAP_TIMEOUT`, `AGENTDEV_PREPARE_TIMEOUT`, `AGENTDEV_HEALTH_INTERVAL`    | positive seconds: 1800 for the bootstrap, 1800 per preparation step, 2 between controller checks                                                                                  |
 
-Without `XPRA_PASSWORD`, and with Xpra enabled, `runtime-supervisor.py run`
-exits `1` before the bootstrap —
-`.devcontainer/scripts/runtime-supervisor.py:358-364`. `docker exec` sessions
-see the same `DISPLAY`, `DOCKER_HOST`, `XDG_RUNTIME_DIR`, and
-`DBUS_SESSION_BUS_ADDRESS` as OpenCode's tools. `/run/agentdev/failed` holds the
-reason after a terminal failure, and the container then exits `1`.
+Any other spelling or a non-positive value latches a configuration failure
+naming the variable — `.devcontainer/scripts/runtime-supervisor.py:78`, `:138`.
+`docker exec` sessions see the same `DISPLAY`, `DOCKER_HOST`, `XDG_RUNTIME_DIR`,
+and `DBUS_SESSION_BUS_ADDRESS` as OpenCode's tools.
+
+Operator surface, all through `docker exec`:
+
+- `/run/agentdev/state.json` — `state` (`pending`, `ready`, `degraded`,
+  `failed`), `latched`, each component's `status` and `reason`, and a
+  `heartbeat` refreshed every interval —
+  `.devcontainer/scripts/runtime-supervisor.py:351`.
+- `runtime-health.sh ready` passes only with a heartbeat under three intervals
+  old, state `ready`, and passing `dbus`, `keyring`, and `opencode` probes;
+  `runtime-health.sh status` prints the state, each failed or blocked component
+  with its retry command, and the last failure —
+  `.devcontainer/scripts/runtime-health.sh:48`, `:58`.
+- `~/.local/state/agentdev/last-failure.json` on the home volume — startup ID,
+  component, reason, command, exit status, at most 200 output lines from the
+  attempt that failed, UTC time; only a later failure replaces it —
+  `.devcontainer/scripts/runtime-supervisor.py:387`.
+- `runtime-supervisor.py retry [component]` — resumes a latched runtime, or
+  reruns one failed component, restarts the serving clients that read it, and
+  exits `0` when it succeeded —
+  `.devcontainer/scripts/runtime-supervisor.py:955`.
+
+A failed bootstrap, configuration check, core phase, or core service latches the
+runtime with PID 1 running; the container exits nonzero only when the controller
+or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:784`.
 
 ## Guarantees
 
