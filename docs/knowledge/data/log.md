@@ -4,6 +4,14 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-25
+
+- **Update**: [Reuse a matching Expo bridge build by
+  fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md) done; no
+  `data/spec/` change, the protocol contract lives in the bridge's
+  `docs/protocol.md`; [VS Code Expo bridge](features/vscode-expo-bridge.md)
+  stays implemented and listed under Unreleased Added.
+
 ## 2026-10-24
 
 - **Update**: [Expo bridge fix terminal launches the Mac's own

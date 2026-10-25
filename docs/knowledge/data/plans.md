@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Reuse a matching Expo bridge build by
-fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)
-
 [Publish the Expo bridge to Open VSX through trusted
 publishing](plans/20261023-openvsx-trusted-publishing.md)
 
@@ -50,6 +47,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Reuse a matching Expo bridge build by
+fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)
 
 [Expo bridge fix terminal launches the Mac's own
 shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
