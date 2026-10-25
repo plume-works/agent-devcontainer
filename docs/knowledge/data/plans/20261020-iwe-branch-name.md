@@ -404,9 +404,12 @@ reports stale after Tasks 8–12
 
 **Files:** none
 
-- [ ] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k "implement" -n 3`
+- [x] `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows -k "implement" -n 3`
   passes `test_implement_on_main` on OpenCode and Claude Code with the checkout
   ending on `impl/e2e-branch/iter-1`
+  - **Evidence:** on 2026-10-25 the live run at `102144e` passed
+    `test_implement` and `test_implement_on_main` on Claude Code and, with the
+    OpenCode web UI started, on OpenCode.
 
 ### Task 19: Refresh the codebase map for the suffix
 
