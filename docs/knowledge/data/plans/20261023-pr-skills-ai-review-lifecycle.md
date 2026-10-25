@@ -258,10 +258,13 @@ workflow shape a repository runs — no consumer runs the earlier one.
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
-- [ ] A new `### 10. Re-Review Evaluation` follows step 9: in update mode,
+- [x] A new `### 10. Re-Review Evaluation` follows step 9: in update mode,
   always apply [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) with
   `PR_NUMBER`, and add its decision to the step 9 report; create mode skips it.
   `### 10. Error Handling` becomes `### 11. Error Handling`
+  - **Evidence:** `pr-open/SKILL.md` gains `### 10. Re-Review Evaluation`, run
+    on every update-mode run and skipped in create mode, and renumbers
+    `### 11. Error Handling`; `validate_agent_files` reports 63/63 skills valid.
 
 ### Task 6: pr-merge evaluates CI-fix pushes
 
