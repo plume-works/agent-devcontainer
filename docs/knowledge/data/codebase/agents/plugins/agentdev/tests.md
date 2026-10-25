@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:9170f4c565b20be9c078c26e8bef6884bc28d4fe1bfea13baf113eaddbaa3240
+source_digest: sha256:3c2048e5724db4b230e545c7e6911284342e564ea09c128f02347959a7e9736a
 verified:
-  by: claude-code/claude-opus-5-5
-  at: 2026-10-25T21:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-25T23:00:00Z
 stale_after: 2027-01-23
 generated:
-  by: claude-code/claude-opus-5-5
-  at: 2026-10-25T21:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-25T23:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -17,7 +17,7 @@ sources:
 
 # Plugin tests
 
-20 test modules plus `conftest.py` and the `git_fixtures.py` and
+21 test modules plus `conftest.py` and the `git_fixtures.py` and
 `iwe_branch_fixtures.py` helper modules, run with
 `uv run pytest .agents/plugins/agentdev/tests` and in CI by
 `validate-agent-files.yml`. `opencode/bridge.test.ts` and
@@ -39,6 +39,9 @@ commands, and skills, and the bridge's CBM warning in `opencode.log`.
   test is resolved
 - `plugin_tmp_path` fixture — a scratch directory under the plugin's `.tmp/`,
   removed after each test
+- `installed_iwe_bootstrap` and `unrelated_repository` fixtures — a copy of only
+  `bin/` and `skills/iwe-bootstrap/` in a scratch plugin layout, and a fresh git
+  repository for it to initialize
 - `git_fixtures.py` — `FIXTURE_ENV`, `git()`, `outcome()`, and `stub_gh()`,
   shared by the git-skill modules and the push-branch module
 - `iwe_branch_fixtures.py` — `Workspace`, `plan_document()`, `run_script()`, and
@@ -46,13 +49,13 @@ commands, and skills, and the bridge's CBM warning in `opencode.log`.
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
   `test_discover_ai_responder.py`, `test_explicit_only_parity.py`,
   `test_fetch_issue.py`, `test_gh_stack_guard.py`, `test_git_commit.py`,
-  `test_install_codex_agents.py`, `test_git_new_branch.py`,
-  `test_iwe_branch_name_next.py`, `test_iwe_branch_name_parse.py`,
-  `test_iwe_branch_name_plan_state.py`, `test_push_branch_map_check.py`,
-  `test_remote_codespace_session.py`, `test_result_codes.py`,
-  `test_stale_map_docs.py`, `test_stale_map_docs_masks.py`,
-  `test_stale_map_docs_replay.py`, `test_template_consume_check_updates.py`,
-  `test_update_branch.py`
+  `test_install_codex_agents.py`, `test_iwe_bootstrap.py`,
+  `test_git_new_branch.py`, `test_iwe_branch_name_next.py`,
+  `test_iwe_branch_name_parse.py`, `test_iwe_branch_name_plan_state.py`,
+  `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
+  `test_result_codes.py`, `test_stale_map_docs.py`,
+  `test_stale_map_docs_masks.py`, `test_stale_map_docs_replay.py`,
+  `test_template_consume_check_updates.py`, `test_update_branch.py`
 
 ## How it works
 
@@ -129,6 +132,18 @@ locally, only on the remote, or only in a stub `gh`'s pull-request list, the
 `GH_UNAVAILABLE` both for a `PATH` without `gh` and for a `gh` that fails its
 query.
 
+`test_iwe_bootstrap.py` runs `bootstrap-iwe.sh` only from the
+`installed_iwe_bootstrap` copy and compares full path, byte, and mtime snapshots
+of the target: a fresh install equals `assets/` and validates and normalizes
+cleanly, a repeat and an onboarded workspace are `ALREADY_INITIALIZED` with no
+change, and partial, incompatible, colliding, symlinked, and foreign-transaction
+states are `RECONCILIATION_REQUIRED` with nothing written. A restricted `PATH`
+of symlinked tools plus stub `iwe` or `mv` scripts covers a missing `iwe`, a
+failing validation, and `SIGTERM` during staging or commit, each followed by a
+recovering run; a transaction left empty or holding only its first `OWNER.next`
+write is discarded on the next run. Tests that need the real `iwe` skip without
+it.
+
 `test_explicit_only_parity.py` requires every skill that sets
 `disable-model-invocation: true` to carry an `agents/openai.yaml` with
 `allow_implicit_invocation: false`, and the reverse, and pins the mismatch check
@@ -144,7 +159,8 @@ rebased attachment mention spans without input mutation.
 
 ## Depends on
 
-`pytest`, `git`, `bash`, PyYAML, and `bun` for the OpenCode suite.
+`pytest`, `git`, `bash`, PyYAML, `bun` for the OpenCode suite, and `iwe` for the
+bootstrap tests.
 
 ## Invariants & gotchas
 
@@ -158,8 +174,15 @@ rebased attachment mention spans without input mutation.
 
 Verified anchor points (line numbers as of 2026-10-25):
 
-- `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`
-- `.agents/plugins/agentdev/tests/conftest.py:28` — `plugin_tmp_path`
+- `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root`
+- `.agents/plugins/agentdev/tests/conftest.py:29` — `plugin_tmp_path`
+- `.agents/plugins/agentdev/tests/conftest.py:40` — `installed_iwe_bootstrap`
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:92` — `snapshot`, the
+  path, byte, and mtime record every refusal is compared against
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:127` —
+  `restricted_path`, the tool-only `PATH` with stub scripts
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:422` — interrupted
+  commit and its completing rerun
 - `.agents/plugins/agentdev/tests/test_update_branch.py:112` —
   `UpstreamFixture`, the remote/work/publisher triple for upstream sync
 - `.agents/plugins/agentdev/tests/test_update_branch.py:14` —

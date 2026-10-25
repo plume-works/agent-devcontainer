@@ -67,3 +67,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [iwe-branch-name](spec/iwe-branch-name.md)
 
 [Playwright browser](spec/playwright-browser.md)
+
+[IWE bootstrap](spec/iwe-bootstrap.md)

@@ -20,9 +20,6 @@ moves them.*
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
-[Extract a reusable IWE bootstrap
-skill](plans/20261023-reusable-iwe-bootstrap.md)
-
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
@@ -53,6 +50,9 @@ shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
 
 [Expo bridge acts on the agent's window and workspace
 folder](plans/20261023-expo-bridge-workspace-folders.md)
+
+[Extract a reusable IWE bootstrap
+skill](plans/20261023-reusable-iwe-bootstrap.md)
 
 [Opt-in Claude Remote Control server
 mode](plans/20261023-claude-remote-control-server-mode.md)

@@ -143,6 +143,7 @@ and codebase-map documents. They are the project's memory across sessions.
 
 | Skill                         | What it does                                                         |
 | ----------------------------- | -------------------------------------------------------------------- |
+| `/agentdev:iwe-bootstrap`     | Installs a blank IWE workspace without touching existing knowledge.  |
 | `/agentdev:iwe-setup`         | Brownfield onboarding: drafts the product and architecture docs.     |
 | `/agentdev:iwe-map`           | Codebase archaeology: writes and refreshes the `data/codebase/` map. |
 | `/agentdev:iwe-explore`       | Thinking partner from an idea or a GitHub issue; never writes code.  |

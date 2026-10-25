@@ -2,14 +2,14 @@
 type: codebase
 description: The self-contained pytest suite for the validator package, built on an invented mock catalog so it passes from an extracted package.
 source: py_packages/validate_agent_files/tests
-source_digest: sha256:08c60cf0d484425f3d94e74e3f133d4bb21076a4a8e966527d25e825e39efb0d
+source_digest: sha256:1faafae06ca7d876ee98c92e6fc21a494a3897376e657a4020b4975313975076
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T13:00:00Z
-stale_after: 2026-12-31
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
+stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T13:00:00Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/tests
@@ -39,9 +39,10 @@ directory with `pytest`, or in isolation with
 Each module builds a fictional catalog on disk from `mock_catalog` builders and
 drives either the engine directly or the CLI entry point, asserting on issues
 and exit codes. Contract values — manifest locations, flags, entry points — are
-imported from the code under test rather than restated. Recommendation tests
-also pin that local warning checks do not reject inputs accepted by
-`skills-ref`, with and without `--recommend`.
+imported from the code under test rather than restated. Bundled-markdown tests
+pin that a skill's `assets/` is not scanned while an `assets/` directory outside
+a skill is. Recommendation tests also pin that local warning checks do not
+reject inputs accepted by `skills-ref`, with and without `--recommend`.
 
 ## Depends on
 
@@ -56,7 +57,7 @@ also pin that local warning checks do not reject inputs accepted by
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `py_packages/validate_agent_files/tests/mock_catalog.py:1` — fixture identity
 - `py_packages/validate_agent_files/AGENTS.md:1` — the package's own contributor
