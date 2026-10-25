@@ -174,10 +174,13 @@ Create: `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Step 4 names the work branch with
+- [x] Step 4 names the work branch with
   `/agentdev:iwe-branch-name next <plan-key> --phase impl` and creates it
   through `/agentdev:git-new-branch`; on any other branch it still continues
   where it is
+  - **Evidence:** `iwe-implementer.agent.md` step 4 as of 2026-10-25;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reported 0 errors.
 
 ### Task 6: git-new-branch defers plan branch names
 
