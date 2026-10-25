@@ -101,18 +101,30 @@ results.
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py`,
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py`
 
-- [ ] `parse` and `plan-state` follow the `skill-scripts` contract through
+- [x] `parse` and `plan-state` follow the `skill-scripts` contract through
   `bin/result_codes.py` — `RESULT=` last on stdout, `--help` printing the
   results table with the codes listed in `## Approach` — and import only the
   standard library
-- [ ] `parse` tests cover `impl` and `ship` names, multi-digit iterations, and
+  - **Evidence:** `test_help_prints_the_results_table`,
+    `test_usage_error_is_a_preflight_error`, and
+    `test_script_imports_only_the_standard_library` in
+    `test_iwe_branch_name_parse.py` passed on 2026-10-25, in the commit that
+    adds the script.
+- [x] `parse` tests cover `impl` and `ship` names, multi-digit iterations, and
   `NOT_A_WORK_BRANCH` for a bare slug, `iteration-0`, a missing suffix, and an
   unknown phase
-- [ ] `plan-state` tests, against a local bare-repository remote with made-up
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py`
+    passed on 2026-10-25 (`test_parse_splits_a_work_branch`,
+    `test_parse_rejects_a_name_off_the_shape`).
+- [x] `plan-state` tests, against a local bare-repository remote with made-up
   plans, cover each of `missing`, `cancelled`, `done`, `complete`, and
   `incomplete`; a plan changed only in the working tree being read from the
   remote default branch; lookup by plan key and by slug; `AMBIGUOUS_PLAN` for a
   slug two dated plans share; `FETCH_FAILED` for an unreachable remote
+  - **Evidence:**
+    `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py`
+    passed on 2026-10-25.
 
 ### Task 2: next, with tests
 
@@ -300,7 +312,7 @@ and SHALL continue on the current branch otherwise.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-20):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:48` — step 4, "Start
   on a work branch"
@@ -310,12 +322,12 @@ Verified anchor points (line numbers as of 2026-10-20):
 - `.agents/plugins/agentdev/bin/git-default-branch.sh:12` —
   `remote_default_branch`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:21` —
-  plugin `bin/` import; `library_from_config` at line 351
+  plugin `bin/` import; `library_from_config` at line 446
 - `.agents/plugins/agentdev/tests/conftest.py:22` — `plugin_root`;
   `plugin_tmp_path` at line 28
 - `.agents/plugins/agentdev/tests/git_fixtures.py:37` — `stub_gh`
-- `.agents/plugins/agentdev/README.md:145` — IWE skills table
-- `README.md:248` — skill table, `iwe-weekly` row
+- `.agents/plugins/agentdev/README.md:143` — IWE skills table
+- `README.md:298` — skill table, `iwe-weekly` row
 - `docs/knowledge/AGENTS.md:229` — `## Workspace skills` table, `iwe-weekly` row
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:229` — "Implement starts work
   on its own branch"
