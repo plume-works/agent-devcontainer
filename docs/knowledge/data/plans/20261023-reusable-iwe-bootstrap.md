@@ -414,6 +414,30 @@ SHALL be reviewed against existing consumer data.
 - Run `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py` and
   confirm `RESULT=SUCCESS`.
 
+## Verification results
+
+All `## Verification` checks pass on the branch head with iwe 0.29.0, and the
+bootstrap and scaffold suites also pass with the pinned 0.29.1.
+
+- `test_iwe_bootstrap.py` 25 passed; `test_iwe_seed.py` 11 passed; the validator
+  package's isolated suite 169 passed; the whole plugin suite 217 passed, 1
+  skipped.
+- `validate_agent_files --recommend . --require-marketplace claude codex`
+  reports 64/64 valid both in the checkout and in a `git archive` export of the
+  marketplace plugins, whose `iwe-bootstrap/assets/` is byte-identical to the
+  checkout's.
+- Run from that export against a fresh repository outside the publisher tree,
+  bootstrap reported `SUCCESS`, `iwe schema validate` passed, and a second run
+  reported `ALREADY_INITIALIZED` with every file's hash unchanged.
+- The partial, incompatible, collision, foreign-transaction, and interrupted
+  staging and commit cases are the parametrized refusal and interruption tests
+  above.
+- Both workflows reach `/agentdev:iwe-bootstrap` before setup and map — Workflow
+  A through guide step 1's identical-copy removal, Workflow B through its step 5
+  — and the only bootstrap mention in update mode is step 8's prohibition.
+- `iwe normalize` and `iwe schema validate` are clean, and `stale-map-docs.py`
+  reports `RESULT=SUCCESS`.
+
 ## Out of scope
 
 - Changing `iwe-setup` interviews or `iwe-map` behavior.
