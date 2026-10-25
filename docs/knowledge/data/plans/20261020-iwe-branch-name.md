@@ -299,9 +299,10 @@ the `--help` text in
   Claude Code may run the catalog's bundled skill scripts without a prompt
   - **Evidence:** `harness_opencode.isolated_env` and
     `harness_claude.run_claude` take the PATH from `Clone.agent_path`, and
-    `allowed_tools` allows `Bash(<catalog>/skills/*)`, as of 2026-10-25;
-    `test_plain_clones_have_no_tool_dir` passed and `uv run pytest scripts/e2e`
-    without `E2E_RUN_LIVE` skipped all 16 tests.
+    `allowed_tools` allows the catalog's skill scripts by relative,
+    `./`-relative, and absolute path, as of 2026-10-25;
+    `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k implement`
+    passed both tests on 2026-10-25 in the commit that adds the relative forms.
 
 ### Task 12: e2e scenarios for both Implement branch rules
 

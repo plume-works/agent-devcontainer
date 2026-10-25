@@ -20,7 +20,7 @@ from clone import Clone
 def allowed_tools(clone: Clone) -> list[str]:
     """Return the tools a run may use without a prompt nobody would answer."""
     publish = 'bin/publish-e2e.sh'
-    catalog = clone.path / '.agents/plugins/agentdev'
+    scripts = '.agents/plugins/agentdev/skills/'
     return [
         'Bash(iwe *)',
         'Bash(git *)',
@@ -29,7 +29,9 @@ def allowed_tools(clone: Clone) -> list[str]:
         f'Bash({publish}*)',
         f'Bash(./{publish}*)',
         f'Bash({clone.path}/{publish}*)',
-        f'Bash({catalog}/skills/*)',
+        f'Bash({scripts}*)',
+        f'Bash(./{scripts}*)',
+        f'Bash({clone.path}/{scripts}*)',
         'Read',
         'Edit',
         'Write',
