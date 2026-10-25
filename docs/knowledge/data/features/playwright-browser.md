@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: The published development image includes a version-matched Playwright CLI and Chromium browser for agent-driven web automation.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T07:02:02Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:36:50Z
 sources:
 - resource: https://playwright.dev/docs/browsers
 - resource: https://playwright.dev/docs/docker

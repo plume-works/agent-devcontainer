@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:d3dbab2c4d614527a8a8e2e04b95cdb31c6cd0b5c0abfdb861938245a8bf2927
+source_digest: sha256:e3ab611e857ca8acb781d4a148ec104f1458f61b3dffa537c6c83febee8df36d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T21:00:00Z
+  at: 2026-10-25T22:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T21:00:00Z
+  at: 2026-10-25T22:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -47,7 +47,7 @@ layout are in [Module layout](../../../architecture/module-layout.md) and
 
 ## Public surface
 
-- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (40
+- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (41
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`

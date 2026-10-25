@@ -804,7 +804,7 @@ digest
 
 **Files:** none; operator deployment of the published candidate
 
-- [ ] **Closed by: maintainer with the external proxy and provider login.**
+- [x] **Closed by: maintainer with the external proxy and provider login.**
   Launch the documented deployment of the Task 36 candidate, connect a provider
   in OpenCode, log in to Claude Code or Codex, and create an OpenCode session;
   replace the container and upgrade to a newer tested image with the same
@@ -814,6 +814,22 @@ digest
   sessions. Verify healthy proxy access to OpenCode/Xpra and proxy protection of
   the desktop. Keep credentials out of evidence. Do not substitute synthetic
   auth JSON for this gate.
+  - **Evidence:** the maintainer's run on 2026-10-25, on clean volumes, behind a
+    TLS proxy on `agentdev-proxy`. The Task 36 candidate
+    `agent-opencode@sha256:da176dc4…` was deployed and replaced with
+    `--force-recreate`. It was then upgraded to
+    `agent-opencode@sha256:d9be6418…`, built from `c4bfd68` and accepted
+    natively by main's CI/CD run 40064273950. The OpenCode session, provider
+    login, user settings, and the Claude Code and Codex logins, all made as
+    `agent`, survived both steps. The container stayed healthy and ready with
+    restart count `0` and published no host ports. Through the proxy, an
+    anonymous OpenCode API request returned `401` and authenticated requests
+    `200`; Xpra refused a missing or wrong password. A second project with the
+    same IDs and auth volume shared the Claude Code and Codex logins, asked for
+    its own OpenCode sign-in, and listed none of the first project's sessions.
+    Codex sharing first failed, because the first project held an unshared
+    regular `~/.codex/auth.json`. Running `link-codex-auth.sh` as `agent`
+    restored the shared file, and a third project then shared the login.
 
 ### Task 17: Keep OpenCode logins per project container
 
@@ -1314,15 +1330,26 @@ that, a `language: system` hook would fail every commit.
 `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md`,
 `.github/renovate.json`
 
-- [ ] The `gitleaks` and `actionlint` hooks become `language: system` local
+- [x] The `gitleaks` and `actionlint` hooks become `language: system` local
   hooks with the upstream hook ids, file patterns, and arguments. With an empty
   `PRE_COMMIT_HOME` and no Go on `PATH`, `pre-commit run gitleaks --all-files`
   and `pre-commit run actionlint --all-files` pass and download nothing.
-- [ ] `validate-super-linter-tool-versions.sh` reads both versions from
+  - **Evidence:** commit "build: run gitleaks and actionlint hooks from the
+    pinned binaries"; in the pinned devcontainer image
+    `agent-desktop@sha256:54866624…` (`gitleaks` 8.30.1, `actionlint` 1.7.12, no
+    `go`), both hooks passed over the working tree with an empty
+    `PRE_COMMIT_HOME`, which gained no gitleaks or actionlint repository and no
+    golang environment.
+- [x] `validate-super-linter-tool-versions.sh` reads both versions from
   `dev_tools_pinned_tools`, as it does zizmor's. The sync skill's steps and the
   Renovate Super-Linter rule name the new location. The validator passes, as do
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   and `uv run pytest .agents/plugins/agentdev/tests`.
+  - **Evidence:** commit "build: run gitleaks and actionlint hooks from the
+    pinned binaries"; the validator reported every tool `OK` against
+    `super-linter:slim-v8.7.0`, the catalog validation reported 62/62 skills
+    valid with no errors or warnings, the plugin tests gave 193 passed, and
+    `renovate-config-validator --strict` accepted `.github/renovate.json`.
 
 ### Task 33: Report runtime state from a live controller
 
@@ -1451,11 +1478,21 @@ digest
 
 **Files:** none; the maintainer's retained first-run volumes
 
-- [ ] **Closed by: maintainer.** With the firewall off and the home and
+- [x] **Closed by: maintainer.** With the firewall off and the home and
   workspace volumes kept, start the Task 36 candidate once. Preparation recovers
   the orphaned Codex block and reaches ready or a named degraded state without a
   restart. A second start leaves `config.toml` and `hooks.json` byte-identical.
   Keep credentials out of evidence.
+  - **Evidence:** the maintainer's run on 2026-10-25. On the retained first-run
+    volumes, with the firewall off, the candidate recovered the orphaned Codex
+    block and reached ready and healthy, as the maintainer reports. Those
+    volumes were then discarded with their host, so the second-start check ran
+    on a fresh deployment of the same image on another host: after a restart to
+    healthy with restart count `0`, `config.toml` stayed `sha256:6073bb20…` and
+    `hooks.json` `sha256:392db8b9…`. The maintainer accepted that substitution.
+    Byte-identical restarts after recovering an orphaned block are covered by
+    `test_an_install_recovers_the_orphaned_deployment_state` and by native
+    acceptance's restart test.
 
 ## Spec changes
 
@@ -1939,6 +1976,13 @@ Recorded 2026-10-18 at `afae3a2`.
   `test_agent_runtime_identity.py` included. Super-Linter, the knowledge-base,
   agent-file, and Renovate validations, and CodeQL pass. Task 32 waits for the
   devcontainer pin to include Task 31's binaries, and Task 36 for publication.
+
+- **Deployment, recorded 2026-10-25.** Main's CI/CD run 40054975946 at `71da0d8`
+  accepted `agent-opencode@sha256:da176dc4…` natively on both arches (21 passed,
+  1 skipped each), and PR #445 pinned it, closing Task 36. The maintainer's
+  deployment closed Tasks 16 and 37 with the evidence under each, upgrading to
+  `@sha256:d9be6418…` from run 40064273950 (22 passed, 1 skipped each). Host
+  reboot persistence was not exercised, and no task requires it.
 
 ## Out of scope
 

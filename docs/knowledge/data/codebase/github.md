@@ -2,10 +2,10 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:43d84eea978bd3c045ad5ea5c2734aab9faddb28df1cb547544db237b0fa94eb
+source_digest: sha256:d20aa91cf61fc146b08daef1915bcfff979a44c25963b20acfd53b7deca5d9c6
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  at: 2026-10-25T05:57:15Z
 stale_after: 2027-01-22
 generated:
   by: claude-code/opus-5.5
@@ -85,7 +85,7 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-19):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.github/renovate.json:5-24` — `postUpgradeTasks`
 - `.github/renovate.json:25-30` — lock-file maintenance automerge
@@ -96,11 +96,11 @@ Verified anchor points (line numbers as of 2026-10-19):
 - `.github/renovate.json:63-70` — Dev Container features automerged
 - `.github/renovate.json:71-77` — Dockerfile `ubuntu` base disabled
 - `.github/renovate.json:78-84` — pre-commit hook revisions automerged
-- `.github/renovate.json:85-100` — Super-Linter family disabled
-- `.github/renovate.json:101-109` — Renovate validator `bunx` pin automerged
-- `.github/renovate.json:110-126` — role dependency pins grouped and automerged,
+- `.github/renovate.json:85-97` — Super-Linter family disabled
+- `.github/renovate.json:98-106` — Renovate validator `bunx` pin automerged
+- `.github/renovate.json:107-123` — role dependency pins grouped and automerged,
   with `astral-sh/uv` grouped across both places it is pinned
-- `.github/renovate.json:128-174` — the custom managers: post-upgrade script's
+- `.github/renovate.json:125-171` — the custom managers: post-upgrade script's
   devcontainer CLI, `dev_tools` versions, role version pins, the pre-commit
   `bunx` pin, commit pins
 - `.github/.agent.metadata.json` — runner-label and image-digest masks
