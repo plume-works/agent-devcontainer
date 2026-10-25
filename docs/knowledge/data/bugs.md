@@ -103,3 +103,6 @@ evaluation](bugs/pr-update-skips-review-eval.md)
 
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
 keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
+
+[Bug: Codex login stops being shared between standalone
+projects](bugs/standalone-codex-auth-unshared.md)

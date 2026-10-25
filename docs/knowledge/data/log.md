@@ -4,6 +4,11 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-25
+
+- **Bug**: filed [Codex login stops being shared between standalone
+  projects](bugs/standalone-codex-auth-unshared.md).
+
 ## 2026-10-24
 
 - **Update**: [Opt-in Claude Remote Control server
