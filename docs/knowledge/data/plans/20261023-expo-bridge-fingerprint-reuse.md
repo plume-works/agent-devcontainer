@@ -462,8 +462,11 @@ sideloaded
 
 **Files:** none
 
-- [ ] The sibling repository's CI passes on the commit that completes Tasks
+- [x] The sibling repository's CI passes on the commit that completes Tasks
   13–14.
+  - **Evidence:** plume-works/vscode-expo-bridge PR #22, CI run 40150892687
+    `build` passed on `8b5a960` (lint, typecheck, `bun test`, three VSIX
+    packaged).
 
 ## Spec changes
 
