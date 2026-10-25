@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Read-only health report for the devcontainer or standalone runtime; exits 1 on any FAIL.
-# Run from the repository root as the runtime user. Never prints auth output.
+# Run from the workspace root as the runtime user. Never prints auth output.
 set -euo pipefail
 
-runtime_scripts=.devcontainer/scripts
+# Beside this script: /opt/agentdev-runtime in the standalone image, which any workspace can use.
+runtime_scripts="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 runtime_mode="${AGENTDEV_RUNTIME_MODE:-devcontainer}"
 checks_passed=0
 checks_failed=0

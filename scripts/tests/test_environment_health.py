@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import re
+import shutil
 import stat
 import subprocess
 
@@ -28,10 +29,14 @@ def _run_health(
     processes_present: bool = True,
     sleep_commands: frozenset[str] = frozenset(),
 ) -> subprocess.CompletedProcess[str]:
+    # The script beside stub helpers, as the image installs it, run from a workspace
+    # that has no copy of this repository's scripts.
     project = tmp_path / 'project'
     project.mkdir(parents=True)
-    runtime = project / '.devcontainer/scripts'
-    runtime.mkdir(parents=True)
+    runtime = tmp_path / 'runtime'
+    runtime.mkdir()
+    health = runtime / HEALTH.name
+    shutil.copy2(HEALTH, health)
     for name in ('runtime-keyring.sh', 'runtime-cbm.sh', 'opencode-web-command.sh'):
         _executable(runtime / name, '#!/usr/bin/env bash\nexit 0\n')
 
@@ -122,7 +127,7 @@ esac
         'SLEEP_COMMANDS': ','.join(sorted(sleep_commands)),
     }
     return subprocess.run(
-        [HEALTH],
+        [health],
         cwd=project,
         env=env,
         capture_output=True,
