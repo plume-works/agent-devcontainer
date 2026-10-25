@@ -21,9 +21,6 @@ asked](backlog/standalone-claude-remote-control.md)
 
 ## Medium
 
-[Document VSCodium support for the Expo
-bridge](backlog/document-expo-bridge-vscodium-support.md)
-
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
@@ -48,6 +45,9 @@ mechanically](backlog/detect-plan-narration-growth.md)
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
 ## Done
+
+[Document VSCodium support for the Expo
+bridge](backlog/document-expo-bridge-vscodium-support.md)
 
 [Make the Expo bridge self-explanatory to an
 agent](backlog/expo-bridge-agent-guidance.md)
