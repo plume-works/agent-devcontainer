@@ -345,14 +345,14 @@ doc `stale-map-docs.py` reports
 
 ## Spec changes
 
-- `ai-review-refresh` (new) — **normative outcome:** after any push to a pull
-  request that has an accepted AI review, made through `pr-open`'s update mode,
-  `pr-merge`'s CI-fix step, or feedback resolution, the agent SHALL apply the
-  re-review evaluation and report its decision; the catalog SHALL NOT post an AI
-  review trigger for a head SHA that already has one, whoever posted it, or that
-  an accepted AI review already names; and the catalog SHALL judge a requested
-  review as running or finished from the checks on the pull request's head
-  commit.
+- [AI review refresh](../spec/ai-review-refresh.md) (new) — **normative
+  outcome:** after any push to a pull request that has an accepted AI review,
+  made through `pr-open`'s update mode, `pr-merge`'s CI-fix step, or feedback
+  resolution, the agent SHALL apply the re-review evaluation and report its
+  decision; the catalog SHALL NOT post an AI review trigger for a head SHA that
+  already has one, whoever posted it, or that an accepted AI review already
+  names; and the catalog SHALL judge a requested review as running or finished
+  from the checks on the pull request's head commit.
 
 [spec/ai-review-gate](../spec/ai-review-gate.md) is unchanged: the workflow
 already behaves as its comment-mention requirement states.
