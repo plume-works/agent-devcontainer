@@ -37,8 +37,10 @@ repository root. It imports only the standard library and changes no branch.
 - `plan-state <plan-key|slug>` fetches the remote's default branch, finds
   `data/plans/*-<slug>.md` in that tree — never the working tree — and prints
   `DEFAULT_BRANCH`, `PLAN_KEY`, and `PLAN_STATE`: `missing`, `cancelled`,
-  `done`, `complete` (no `stage`, every task checkbox under
-  `## Implementation Steps` ticked), or `incomplete`.
+  `done`, `complete`, or `incomplete`. A plan with no `stage` is `complete`
+  when it has at least one task checkbox under `## Implementation Steps` or
+  the older `## Tasks` heading and every one is ticked; a plan with no task
+  checkbox is `incomplete`, so `next` never sends it to `ship`.
 - `next <plan-key|slug>` prints `NEXT`, `NEXT_KIND` (`default`, `impl`,
   `ship`), and `ITERATION` for a work branch. With `--phase impl|ship` it names
   the next iteration of that phase without reading the plan; without it, the
@@ -46,10 +48,12 @@ repository root. It imports only the standard library and changes no branch.
   `done`, `cancelled`, or `missing` → the default branch, with the plan-state
   keys printed too.
 
-The iteration counts local branches, the remote's branches, and the
-repository's pull requests in any state through `gh pr list`. When `gh` cannot
-answer, `next` reports `GH_UNAVAILABLE` rather than a number a merged pull
-request may already hold.
+The iteration counts local branches, the remote's branches, and the pull
+requests in any state of the repository the remote's URL names, through
+`gh pr list --repo <remote URL>`, so branches and pull requests always come from
+the same repository. When `gh` cannot answer — missing, unauthenticated, or a
+remote that is not on GitHub — `next` reports `GH_UNAVAILABLE` rather than a
+number a merged pull request may already hold.
 
 `<plan-key|slug>` takes `data/plans/<date>-<slug>`, `<date>-<slug>`, or a bare
 `<slug>`. `--remote <name>` selects the remote; default: `origin`. Supply it
@@ -74,7 +78,7 @@ a bare number.
 | `NOT_A_WORK_BRANCH` | `3`                 | `parse`: the branch is not `<impl\|ship>/<slug>/iteration-<N>`                       | Treat the branch as not a plan work branch. It is never renamed.                                                              |
 | `AMBIGUOUS_PLAN`    | `4`                 | The slug matches more than one dated plan at the remote default branch               | **STOP.** Show the candidates from stderr and rerun with the full plan key the user means.                                    |
 | `FETCH_FAILED`      | `5`                 | The remote could not be fetched or its branches listed                               | **STOP.** Report the Git error; restore connectivity or authentication. Do not change the configured remote.                  |
-| `GH_UNAVAILABLE`    | `6`                 | `gh` is missing, unauthenticated, or its pull-request query failed                   | **STOP.** Ask the user to install or log in to `gh` (`gh auth status`). Never pick an iteration without it.                   |
+| `GH_UNAVAILABLE`    | `6`                 | `gh` is missing, unauthenticated, or could not read the remote's pull requests       | **STOP.** Ask the user to install or log in to `gh` (`gh auth status`). Never pick an iteration without it.                   |
 | `PREFLIGHT_ERROR`   | `2`                 | Bad usage, not a repository, no `.iwe/config.toml`, unknown remote or default branch | **STOP.** Report the error verbatim and fix the input before retrying.                                                        |
 | `SCRIPT_FAILURE`    | `1`                 | The script broke                                                                     | **STOP.** Report the blocker verbatim; do not retry or work around it.                                                        |
 | `SIGNAL_*`          | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM                                                     | **STOP.** Nothing was changed; rerun when ready.                                                                              |

@@ -262,10 +262,14 @@ reports stale after Tasks 1–6
 
 ### Task 10: Skill text states the task-heading, empty-plan, and remote-repository rules
 
-**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md`
+**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md`,
+the `--help` text in
+`.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`
 
-- [ ] SKILL.md states the `complete` definition with both headings and the
+- [x] SKILL.md states the `complete` definition with both headings and the
   empty-plan rule, and that pull requests come from the `--remote` repository
+  - **Evidence:** `validate_agent_files` reported 0 errors and `prettier` passed
+    on 2026-10-25; `test_iwe_branch_name_parse.py` (help table) passed.
 
 ### Task 11: e2e clone on main with a remote and a stub gh
 

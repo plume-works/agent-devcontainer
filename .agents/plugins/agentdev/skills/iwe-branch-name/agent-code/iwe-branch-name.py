@@ -53,7 +53,9 @@ Without --phase, next names the default branch for a done, cancelled, or
 missing plan, the next ship iteration for a complete one, and the next impl
 iteration for an incomplete one. The next iteration is one more than the
 highest used for the phase and slug across local branches, the remote's
-branches, and the repository's pull requests in any state.
+branches, and the pull requests in any state of the repository the remote's
+URL names. plan-state counts task checkboxes under ## Implementation Steps or
+## Tasks; a plan with none is incomplete.
 
 Results (RESULT / exit code):
   SUCCESS            0  The name's parts, the plan's state, or the next name was reported
