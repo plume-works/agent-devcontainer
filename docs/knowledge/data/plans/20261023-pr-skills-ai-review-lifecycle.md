@@ -183,7 +183,7 @@ workflow shape a repository runs — no consumer runs the earlier one.
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md`
 
-- [ ] `## Post the request` runs
+- [x] `## Post the request` runs
   `agent-code/request-review.sh --pr <pr> --rationale '<one line>'` instead of
   `gh pr comment`, with a table mapping each `RESULT` to its action
   (`ALREADY_REVIEWED` and `ALREADY_REQUESTED` are reported, not retried;
@@ -193,6 +193,12 @@ workflow shape a repository runs — no consumer runs the earlier one.
   dates them after the head, and that no skill posts a trigger any other way;
   the frontmatter gains `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`
   as `pr-open` has it
+  - **Evidence:** `pr-request-ai-review/SKILL.md` runs `request-review.sh` under
+    `## Post the request` with a seven-row RESULT table,
+    `## Post at most once per head SHA` names the script as the only trigger
+    path, and the frontmatter carries `allowed-tools`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 63/63 skills valid.
 
 ### Task 3: pr-request-ai-review confirms from the head commit's checks
 

@@ -1,6 +1,7 @@
 ---
 name: pr-request-ai-review
 description: 'Post the comment that triggers a fresh AI review on an open pull request, then confirm a run actually picked it up. Use when asked to request, re-request, or trigger an AI, Claude, or bot review of a PR, to ask for a re-review after new work landed, or to check whether a requested review ever started — including indirect phrasings such as "ping the reviewer again" or "get the bot to take another look". This is the posting playbook, not the judgment call: whether new work warrants a re-review belongs to pr-eval-review-needed, and merge-time review recovery belongs to pr-merge.'
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Request an AI Review
@@ -22,13 +23,26 @@ triggers nothing.
 
 Those opening words also select what runs: `@claude review` asks for the pull
 request review, while `@claude` followed by anything else is dispatched as a
-free-form task built from the rest of the body. Keep the first line exactly
-`@claude review`, and put a one-line rationale under it:
+free-form task built from the rest of the body. The bundled script posts a
+body whose first line is exactly `@claude review`, with a one-line rationale
+under it:
 
 ```bash
-gh pr comment <pr> --body '@claude review
-<one-line rationale for the re-review>'
+agent-code/request-review.sh --pr <pr> --rationale '<one line>'
 ```
+
+It prints `PR_NUMBER`, `HEAD_SHA`, and `COMMENT_URL` — the posted trigger, or the
+one already requesting this head — and ends with a `RESULT=` line:
+
+| RESULT              | Exit | What to do                                                                                    |
+| ------------------- | ---- | --------------------------------------------------------------------------------------------- |
+| `SUCCESS`           | 0    | Report `COMMENT_URL`, then confirm the review started.                                        |
+| `ALREADY_REVIEWED`  | 3    | An accepted AI review already names the head. Report it; post nothing.                        |
+| `ALREADY_REQUESTED` | 4    | A trigger for the head exists at `COMMENT_URL`. Report it and confirm that one; do not retry. |
+| `PR_NOT_OPEN`       | 5    | The pull request is closed, merged, or not found. Stop and report.                            |
+| `GH_UNAVAILABLE`    | 6    | `gh` is missing, unauthenticated, or failed. Stop and report the blocker.                     |
+| `PREFLIGHT_ERROR`   | 2    | Usage error: missing `--pr`, a multi-line rationale, or no `jq`. Fix the call.                |
+| `SCRIPT_FAILURE`    | 1    | Unhandled error. Stop and report stderr.                                                      |
 
 The rationale does not steer the review — the responder composes the reviewer's
 prompt itself — so write it for the humans reading the thread later. One line
@@ -73,7 +87,10 @@ push produced.
 
 Post at most one trigger per head SHA. Responder concurrency is keyed to the
 comment ID, so a second comment starts a separate run instead of superseding
-the first.
+the first. `request-review.sh` enforces the rule for every trigger on the head,
+whoever posted it: a trigger it posts carries a `review-head` marker naming its
+commit, and a hand-typed one counts when it was created after the head's
+earliest check suite. No skill posts a trigger any other way.
 
 The workflow listens for `issue_comment: created` only, so editing a trigger does
 not start another run. Do not delete the trigger comment.
