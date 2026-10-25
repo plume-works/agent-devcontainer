@@ -2,8 +2,8 @@
 type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-21T06:23:54Z
+  by: claude-code/opus-5.5
+  at: 2026-10-25T00:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -229,16 +229,16 @@ and SHALL never create a feature.
 ### Requirement: Implement starts work on its own branch
 
 The Implement skill SHALL, when the checkout is on `main` or `master`, create
-the work branch through the git-new-branch skill, named from the plan key's
-slug, before executing the first task, and SHALL continue on the current branch
-otherwise.
+the work branch through the git-new-branch skill, named by the iwe-branch-name
+skill's next `impl` iteration for the plan, before executing the first task, and
+SHALL continue on the current branch otherwise.
 
 #### Scenario: Implementation starts on main
 
 - **WHEN** Implement begins plan `data/plans/<date>-<slug>` with `main` checked
   out
-- **THEN** it creates branch `<slug>` through git-new-branch before executing
-  any task
+- **THEN** it creates branch `impl/<slug>/iter-<N>`, with `N` from
+  iwe-branch-name, through git-new-branch before executing any task
 
 #### Scenario: Implementation starts on a feature branch
 

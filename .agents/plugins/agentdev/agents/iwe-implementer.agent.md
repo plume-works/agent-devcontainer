@@ -49,9 +49,10 @@ user's direction behaves according to the mode:
    default branch — `main`, `master`, the branch
    `git symbolic-ref --short refs/remotes/origin/HEAD` names, or, when that is
    unset, the one `gh repo view --json defaultBranchRef` reports — create the
-   work branch through the `/agentdev:git-new-branch` skill, named
-   from the plan key's slug (`data/plans/<date>-<slug>` → `<slug>`), before
-   executing any task. On any other branch, continue where it is.
+   work branch before executing any task: name it with
+   `/agentdev:iwe-branch-name next <plan-key> --phase impl`, following that
+   skill's result table, and create the `NEXT` it prints through the
+   `/agentdev:git-new-branch` skill. On any other branch, continue where it is.
 5. **Re-verify the anchors.** The plan's `## Key references` line numbers were
    true when written; re-locate each symbol in the current checkout before
    relying on it. If lines moved, update the anchor list and its

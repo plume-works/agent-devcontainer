@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 
-from clone import build_fixture_repo, Clone, FixtureRepo, make_clone
+from clone import build_fixture_repo, Clone, FixtureRepo, make_clone, make_main_clone
 from harness_opencode import CATALOG_TIMEOUT, OpenCodeServer, READY_TIMEOUT, start_server
 import opencode_credential
 import pytest
@@ -55,6 +55,13 @@ def clone_at(fixture_repo: FixtureRepo, request: pytest.FixtureRequest) -> Calla
 def base_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
     """Provide a clone at the fixture plans' ``base`` commit."""
     return clone_at(fixture_repo.base)
+
+
+@pytest.fixture
+def main_clone(fixture_repo: FixtureRepo, request: pytest.FixtureRequest) -> Clone:
+    """Provide a ``base`` clone on ``main`` with a bare ``origin`` and a stub ``gh``."""
+    parent = WORK / work_dir_name(request.node.nodeid)
+    return make_main_clone(fixture_repo, parent, fixture_repo.base)
 
 
 @pytest.fixture
