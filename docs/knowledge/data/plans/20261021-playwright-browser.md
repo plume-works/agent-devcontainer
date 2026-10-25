@@ -113,7 +113,7 @@ reported stale for the touched sources
 
 ## Spec changes
 
-`data/spec/playwright-browser`
+Introduces [Playwright browser](../spec/playwright-browser.md):
 
 ``` markdown
 ## ADDED Requirements
