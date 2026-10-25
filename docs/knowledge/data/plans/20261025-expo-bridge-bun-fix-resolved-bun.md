@@ -103,15 +103,20 @@ Assumptions:
 **Files:** Create: `packages/host/src/bunfix.ts`,
 `packages/host/test/bunfix.test.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] A pure resolver takes the login environment, a file-exists check, a
+- [x] A pure resolver takes the login environment, a file-exists check, a
   `realpath`, and the home directory, and returns the resolved bun's path and
   the fix command per the Approach's table, or no command with a detail naming
   the path.
+  - **Evidence:** `plume-works/vscode-expo-bridge` commit `eebf019` on branch
+    `expo-bridge-bun-fix-resolved-bun`, `resolveBunFix` in
+    `packages/host/src/bunfix.ts`; `bun run typecheck` passes.
 - [ ] `bun test packages/host/test/bunfix.test.ts` covers each row of the table:
   no bun; a `/opt/homebrew/bin/bun` symlink into the Cellar; `~/.bun/bin/bun`
   with `BUN_INSTALL` unset; `$BUN_INSTALL/bin/bun`; a mise-style shim path; a
   path containing `'`; and a stale `~/.bun/bin/bun` ahead of Homebrew's, which
   yields `'<home>/.bun/bin/bun' upgrade`.
+  - **Evidence:** `packages/host/test/bunfix.test.ts` in commit `eebf019`; 8
+    tests pass under `bun test packages/host/test/bunfix.test.ts`.
 
 ### Task 2: Find a shadowed bun and note it once per path pair
 
