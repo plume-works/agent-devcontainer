@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Task**: captured [Start Claude Remote Control in the standalone runtime when
+  asked](backlog/standalone-claude-remote-control.md).
 - **Bug**: filed [Codex login stops being shared between standalone
   projects](bugs/standalone-codex-auth-unshared.md).
 
