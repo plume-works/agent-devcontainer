@@ -154,8 +154,9 @@ Assumptions:
 - The file size limit for hashing is 64 MB, a constant; `eas.json` keeps its
   existing JSON limit for parsing.
 - The index lock waits up to 10 s, retrying every 50 ms, and a lock older than
-  60 s is stale; both are constants in the host extension. An index update takes
-  milliseconds, so neither bound is reached while its owner is alive.
+  60 s is stale; both are constants in the host extension. The locked section
+  copies one simulator artifact, about 45 MB, and rewrites a small JSON file,
+  far shorter than either bound, so neither is reached while its owner is alive.
 
 ## Implementation Steps
 
