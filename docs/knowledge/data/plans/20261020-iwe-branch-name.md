@@ -310,12 +310,19 @@ the `--help` text in
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`
 
-- [ ] OpenCode and Claude Code each have a `test_implement_on_main` that runs
+- [x] OpenCode and Claude Code each have a `test_implement_on_main` that runs
   Implement of `data/plans/20261025-e2e-branch` in `main_clone` and asserts the
   checkout ends on `impl/e2e-branch/iteration-1` and that branch exists on the
   bare remote
-- [ ] `test_implement` on all three harnesses also asserts the checkout is still
+  - **Evidence:** `test_implement_on_main` in `test_iwe_workflows_opencode.py`
+    and `test_iwe_workflows_claude.py` as of 2026-10-25; `python-lint-check.sh`
+    clean and `uv run pytest scripts/e2e` without `E2E_RUN_LIVE` collected and
+    skipped all 18 tests. The live result is Task 13.
+- [x] `test_implement` on all three harnesses also asserts the checkout is still
   on `e2e-fixture` and no local branch was added
+  - **Evidence:** `test_implement` in all three `test_iwe_workflows_*.py`
+    modules asserts `branch() == FIXTURE_BRANCH` and
+    `local_branches() == [FIXTURE_BRANCH]` as of 2026-10-25; lint clean.
 
 ### Task 13: Live e2e run
 

@@ -15,7 +15,16 @@ from harness_codex import (
     WORKFLOW_SKILL_FILE,
 )
 import pytest
-from scenarios import APPROVAL, CODEX_BUDGET, EXPLORE, GREET_KEY, HELLO_KEY, PLANTED, RULEBOOK
+from scenarios import (
+    APPROVAL,
+    CODEX_BUDGET,
+    EXPLORE,
+    FIXTURE_BRANCH,
+    GREET_KEY,
+    HELLO_KEY,
+    PLANTED,
+    RULEBOOK,
+)
 
 pytestmark = pytest.mark.e2e
 
@@ -101,6 +110,12 @@ def test_implement(codex_clone: Clone) -> None:
     )
     assert transcript.spawns() == [], f'nothing spawned\n{transcript.spawns()}'
     assert codex_clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'
+    assert codex_clone.branch() == FIXTURE_BRANCH, (
+        f'stayed on {FIXTURE_BRANCH}\n{transcript.excerpt()}'
+    )
+    assert codex_clone.local_branches() == [FIXTURE_BRANCH], (
+        f'no branch added\n{transcript.excerpt()}'
+    )
 
 
 def test_explore(codex_open_question_clone: Clone) -> None:

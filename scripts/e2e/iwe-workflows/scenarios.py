@@ -6,6 +6,10 @@ from typing import Any
 
 HELLO_KEY = 'data/plans/20261008-e2e-hello'
 GREET_KEY = 'data/plans/20261008-e2e-greet'
+BRANCH_KEY = 'data/plans/20261025-e2e-branch'
+# The name iwe-branch-name gives the first implementation branch of BRANCH_KEY.
+BRANCH_WORK = 'impl/e2e-branch/iteration-1'
+FIXTURE_BRANCH = 'e2e-fixture'
 APPROVAL = 'I approve running `bin/publish-e2e.sh`.'
 PLANTED = 'Earlier today the reviewer said the hello file looks great.'
 EXPLORE = (
