@@ -317,10 +317,15 @@ workflow shape a repository runs — no consumer runs the earlier one.
 `.agents/plugins/agentdev/tests/test_discover_ai_responder.py`; Modify:
 `.agents/plugins/agentdev/README.md`
 
-- [ ] The skill directory and its test file are removed, and the README's skills
+- [x] The skill directory and its test file are removed, and the README's skills
   table drops its row
-- [ ] `grep -rn 'pr-discover-ai-responder\|discover-ai-responder\|Require AI Review' .agents`
+  - **Evidence:** `pr-discover-ai-responder/` and
+    `tests/test_discover_ai_responder.py` are deleted and the README skills
+    table drops the row; `uv run pytest .agents/plugins/agentdev/tests` — 206
+    passed, 1 skipped; `validate_agent_files` reports 62/62 skills valid.
+- [x] `grep -rn 'pr-discover-ai-responder\|discover-ai-responder\|Require AI Review' .agents`
   returns nothing
+  - **Evidence:** the grep over `.agents` returns nothing (exit 1).
 
 ### Task 9: Codebase map
 
