@@ -191,14 +191,27 @@ on files in the container. The container reads its own files directly.
 `packages/protocol/src/index.ts`, `packages/host/src/eascli.ts`, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `normalizeRange` moves from `packages/host/src/eascli.ts` into the
+- [x] `normalizeRange` moves from `packages/host/src/eascli.ts` into the
   protocol package. The host imports it from there, and its tests pass
   unchanged.
-- [ ] `easJsonChecks(folder, rememberedProfile)` reports two things: no build
+  - **Evidence:** plume-works/vscode-expo-bridge `49c1fd8`:
+    `packages/protocol/src/index.ts` `normalizeRange`, which
+    `packages/host/src/eascli.ts` imports and re-exports;
+    `packages/host/test/eascli.test.ts` passes unchanged.
+- [x] `easJsonChecks(folder, rememberedProfile)` reports two things: no build
   profile with `ios.simulator: true`, and a remembered profile that `eas.json`
   no longer defines. Each comes with its JSON range.
-- [ ] `buildProfiles(folder)` lists `eas.json`'s build profiles for the panel's
+  - **Evidence:** `49c1fd8` `packages/workspace/src/easjson.ts`
+    `easJsonChecks(readEasJson(folder), rememberedProfile)`. It follows
+    `extends` chains, and the range is the `build` key, else the file's first
+    character. `jsonc-parser` 3.3.1 was added here rather than in Task 8,
+    because this task needs it for the ranges. The `easjson.test.ts` checks
+    tests pass.
+- [x] `buildProfiles(folder)` lists `eas.json`'s build profiles for the panel's
   profile picker.
+  - **Evidence:** `49c1fd8` `buildProfiles(readEasJson(folder))`;
+    `easjson.test.ts` "lists the build profiles in file order" passes, and
+    `bun test` passes 363/363.
 
 ### Task 5: The panel
 
