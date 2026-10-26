@@ -20,13 +20,8 @@ moves them.*
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
-[Extract a reusable IWE bootstrap
-skill](plans/20261023-reusable-iwe-bootstrap.md)
-
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
-
-[iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
@@ -45,6 +40,8 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 [Configurable Remote Control spawn mode, worktree by
 default](plans/20261025-claude-remote-control-spawn-mode.md)
 
+[iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
+
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
 
@@ -56,6 +53,9 @@ shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
 
 [Expo bridge acts on the agent's window and workspace
 folder](plans/20261023-expo-bridge-workspace-folders.md)
+
+[Extract a reusable IWE bootstrap
+skill](plans/20261023-reusable-iwe-bootstrap.md)
 
 [Opt-in Claude Remote Control server
 mode](plans/20261023-claude-remote-control-server-mode.md)

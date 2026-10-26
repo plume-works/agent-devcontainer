@@ -10,6 +10,7 @@ from pathlib import Path
 from validate_agent_files.main import main
 from validate_agent_files.validators.bundled_markdown import (
     find_bundled_markdown,
+    SKILL_ASSETS_DIR,
     validate_bundled_markdown,
 )
 
@@ -121,3 +122,24 @@ def test_codex_only_plugin_still_enforces_containment(tmp_path, monkeypatch, cap
 
     assert exit_code == 1
     assert 'resolves outside the plugin root' in capsys.readouterr().out
+
+
+def test_skill_assets_are_not_scanned(tmp_path):
+    """A skill's assets/ ship as output templates whose links resolve once copied out."""
+    plugin_root = _write_plugin(tmp_path)
+    asset = plugin_root / 'skills' / 'demo' / SKILL_ASSETS_DIR / 'docs' / 'guide.md'
+    asset.parent.mkdir(parents=True)
+    asset.write_text('[Timer](spec/timer)\n' + ESCAPING_LINK)
+
+    assert asset not in find_bundled_markdown(plugin_root)
+    assert validate_bundled_markdown(plugin_root) == []
+
+
+def test_assets_directory_outside_a_skill_is_still_scanned(tmp_path):
+    """Only the directory beside a SKILL.md is an asset tree."""
+    plugin_root = _write_plugin(tmp_path)
+    stray = plugin_root / SKILL_ASSETS_DIR / 'notes.md'
+    stray.parent.mkdir()
+    stray.write_text(ESCAPING_LINK)
+
+    assert stray in find_bundled_markdown(plugin_root)

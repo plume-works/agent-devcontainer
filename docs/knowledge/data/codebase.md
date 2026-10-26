@@ -57,7 +57,6 @@ script, `/agentdev:<skill>` (the catalog), and `.codex/setup-codex-cloud.sh`
 | `py_packages/validate_agent_files/`                                                                                                                                                           | [validate_agent_files package](codebase/py_packages/validate_agent_files.md)                                                             |
 | `.github/`                                                                                                                                                                                    | [GitHub automation](codebase/github.md)                                                                                                  |
 | `.iwe/`, `docs/knowledge/`                                                                                                                                                                    | [Knowledge workspace machinery](codebase/docs/knowledge.md) — the `data/` inside it is this graph                                        |
-| `templates/iwe/`                                                                                                                                                                              | [Consumer IWE seed](codebase/templates/iwe.md)                                                                                           |
 | `scripts/validate-super-linter-tool-versions.sh`                                                                                                                                              | checks pre-commit and local tool versions against the pinned Super-Linter image; no doc                                                  |
 | `scripts/renovate-post-upgrade.sh`, `scripts/refresh-pin-checksums.py`, `scripts/tests/`                                                                                                      | Renovate's post-upgrade task: recomputes role pin checksums and regenerates locks in the bump's commit; no doc                           |
 | `scripts/analyze-claude-responder-costs.py`, `scripts/download-claude-responder-runs.sh`                                                                                                      | download and summarize AI responder token and cost artifacts; no doc                                                                     |
@@ -83,8 +82,6 @@ script, `/agentdev:<skill>` (the catalog), and `.codex/setup-codex-cloud.sh`
 [GitHub automation](codebase/github.md)
 
 [Knowledge workspace machinery](codebase/docs/knowledge.md)
-
-[Consumer IWE seed](codebase/templates/iwe.md)
 
 ## Flows
 

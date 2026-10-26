@@ -39,7 +39,7 @@ jobs:
           extra-filter: |
             - docs/knowledge/**
             - .iwe/**
-            - templates/iwe/**
+            - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
             - ansible/roles/dev_tools/defaults/main.yml
             - scripts/fetch-pinned-tool.py
             - .github/workflows/validate-knowledge-base.yml
@@ -67,15 +67,17 @@ jobs:
 
       # The shared paths-filter action carries an image-staleness baseline that
       # matches far more than the seed, so this gate uses dorny directly.
-      - name: Did the seed, schemas, or its tests change?
+      - name: Did the scaffold, its shared files, or its tests change?
         id: seed-filter
         uses: dorny/paths-filter@v4.0.3
         with:
           base: ${{ github.event_name == 'pull_request' && '' || 'main' }}
           filters: |
             seed:
-              - templates/iwe/**
+              - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
               - .iwe/**
+              - docs/knowledge/*
+              - docs/knowledge/.*
               - docs/knowledge/tests/test_iwe_seed.py
 
       - name: Set up the Python environment
@@ -98,9 +100,9 @@ jobs:
       - name: Check that ticked plan checkboxes carry evidence
         run: uv run pytest docs/knowledge/tests --ignore=docs/knowledge/tests/test_iwe_seed.py
 
-      # The seed is not a member of this graph, so the steps above never touch
-      # it; these tests assemble it as a consumer workspace instead.
-      - name: Validate the consumer IWE seed
+      # The scaffold is not a member of this graph, so the steps above never touch
+      # it; these tests copy it into a consumer workspace instead.
+      - name: Validate the packaged IWE scaffold
         if: steps.seed-filter.outputs.seed == 'true'
         run: uv run pytest docs/knowledge/tests/test_iwe_seed.py
 
