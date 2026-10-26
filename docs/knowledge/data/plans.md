@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Expo Bridge panel, status bar, and Problems in the workspace
+extension](plans/20261026-expo-bridge-panel.md)
+
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
