@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-26
 
+- **Update**: recorded [Assignee-triggered AI
+  re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
+  [Verify that auto-merge waits for an assignee-triggered
+  review](backlog/verify-assignee-review-automerge.md).
 - **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
   task trigger](backlog/drop-claude-free-form-task-trigger.md).
 

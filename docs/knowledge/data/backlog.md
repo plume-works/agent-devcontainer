@@ -36,6 +36,9 @@ JavaScript](backlog/test-responder-workflow-js.md)
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 
+[Verify that auto-merge waits for an assignee-triggered
+review](backlog/verify-assignee-review-automerge.md)
+
 ## Low
 
 [Detect plan narration growth
