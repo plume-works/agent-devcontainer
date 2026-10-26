@@ -3,7 +3,7 @@ type: architecture
 description: AGENTDEV_CLAUDE_RC_MODE=server opts the claude-remote pane into `claude remote-control` in place of the pinned interactive pane, which stays the default; AGENTDEV_CLAUDE_RC_SPAWN picks the worktree (default) or same-dir spawn mode, and an unrecognized value of either fails startup.
 generated:
   by: claude-code/opus-5
-  at: 2026-10-25T19:00:00Z
+  at: 2026-10-26T03:10:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: https://code.claude.com/docs/en/remote-control
@@ -56,12 +56,17 @@ Measured on Claude Code 2.1.309, in `claude remote-control` server mode:
   session it created at start returns under the same ID with its earlier turns,
   and after a `/clear` in it, with the post-clear conversation.
 
-Assumed, not measured:
+Measured on Claude Code 2.1.310, across a devcontainer rebuild and a server
+restart:
 
-- **A spawned session returns after a restart the same way in either spawn
-  mode.** Measured for `same-dir` in [Claude Remote Control server restart
-  resume](claude-remote-control-server-restart-resume.md).
-- **A revived worktree session re-enters its worktree.**
+- **A spawned session returns after a restart in either spawn mode.** It comes
+  back under the same ID with its earlier turns once the claude.ai service
+  dispatches it, which can take minutes; see [Claude Remote Control server
+  restart resume](claude-remote-control-server-restart-resume.md) for `same-dir`
+  and [Claude Remote Control worktree restart
+  resume](claude-remote-control-worktree-restart-resume.md) for `worktree`.
+- **A revived worktree session re-enters its worktree.** The rebuild keeps the
+  worktree and its branch, and the revived process runs in it.
 
 Documented limits of server mode:
 
@@ -89,8 +94,8 @@ Documented limits of server mode:
   `AGENTDEV_CLAUDE_RC_MODE=session`, and it serves one session and exits when
   that ends, which ends the pane.
 - **Making the worktree default depend on a measured worktree revival.** The
-  maintainer made worktree the default regardless; revival of a worktree session
-  is an assumption, not a measured behaviour.
+  maintainer made worktree the default independently of how a worktree session
+  revives.
 - **Falling back to session mode on an unrecognized value.** The maintainer
   chose a failed startup, so a mistyped mode is reported instead of silently
   running the other mode.
