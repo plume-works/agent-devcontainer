@@ -78,6 +78,7 @@ user's direction behaves according to the mode:
      detail can be corrected while preserving intent and every material
      boundary, update the plan first, report the correction and why it
      preserves intent, then continue within the user's requested task boundary.
+     Adding a task is never a tactical correction.
      The plan's recorded spec impact is one of those boundaries: a correction
      may proceed only while the recorded behavioral outcome still holds exactly
      as written.
@@ -143,8 +144,9 @@ loop dispatches is a leaf and dispatches nothing.
    dispatch `iwe-verifier` again (step 1). The coordinator re-dispatches
    `iwe-implementer` with the plan key and the findings to fix, quoted as
    reported, instead of fixing them itself.
-4. **Revision route** — a finding about the plan's intent, or a material
-   deviation that is not always-escalate (Step 7):
+4. **Revision route** — a finding about the plan's intent, such as a
+   requirement no task covers, or a material deviation that is not
+   always-escalate (Step 7). Never code past a gap in the tasks:
    1. Follow [the iwe-planner rulebook](iwe-planner.agent.md) in place, in
       its **From the Implement orchestrator** mode: draft the revision, run
       its Durable Knowledge Auditor gate and validation, and leave the plan
