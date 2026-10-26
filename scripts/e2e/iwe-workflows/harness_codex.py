@@ -164,9 +164,9 @@ class CodexTranscript:
                 found.append(command if isinstance(command, str) else shlex.join(command))
         return found
 
-    def shipper_spawns(self) -> int:
-        """Return how many ``iwe-shipper`` agents were spawned."""
-        return sum(1 for spawn in self.spawns() if spawn.get('agent_type') == 'iwe-shipper')
+    def agent_spawns(self, agent: str) -> int:
+        """Return how many agents of the catalog type ``agent`` were spawned."""
+        return sum(1 for spawn in self.spawns() if spawn.get('agent_type') == agent)
 
     def fresh_spawns(self) -> bool:
         """Whether every spawn started with no conversation."""

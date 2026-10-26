@@ -1,4 +1,4 @@
-"""Ship, Implement, and Explore on OpenCode, one isolated server per scenario."""
+"""Verify, Ship, Implement, and Explore on OpenCode, one isolated server per scenario."""
 
 from clone import Clone
 from harness_opencode import OpenCodeServer, Transcript
@@ -16,6 +16,7 @@ from scenarios import (
     PLANTED,
     RULEBOOK,
     SHIPPER,
+    VERIFIER,
     WORKFLOW_SKILL,
 )
 
@@ -30,16 +31,42 @@ def run(server: OpenCodeServer, name: str, command: str, text: str) -> Transcrip
     return transcript
 
 
-def shipper_prompts(transcript: Transcript) -> list[str]:
-    """Return the prompt of every ``iwe-shipper`` dispatch."""
+def agent_prompts(transcript: Transcript, agent: str) -> list[str]:
+    """Return the prompt of every dispatch of the catalog agent ``agent``."""
     calls = transcript.calls('subagent')
-    return [str(call.get('prompt', '')) for call in calls if call.get('agent') == SHIPPER]
+    return [str(call.get('prompt', '')) for call in calls if call.get('agent') == agent]
+
+
+def test_verify(base_clone: Clone, opencode) -> None:
+    """Verify without approval dispatches the verifier once and changes nothing."""
+    transcript = run(opencode(base_clone), 'verify', 'agentdev:iwe-verify', HELLO_KEY)
+    prompts = agent_prompts(transcript, VERIFIER)
+    dispatches = transcript.excerpt('subagent')
+    assert len(prompts) == 1, f'one iwe-verifier dispatch\n{dispatches}'
+    assert HELLO_KEY in '\n'.join(prompts), f'prompt names the plan\n{dispatches}'
+    assert not base_clone.has_marker(), f'publish did not run\n{transcript.excerpt()}'
+    assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert base_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+
+
+def test_verify_approved(base_clone: Clone, opencode) -> None:
+    """Approved Verify quotes only the approval, publishes, and still changes no state."""
+    text = f'{HELLO_KEY} — {APPROVAL} {PLANTED}'
+    transcript = run(opencode(base_clone), 'verify-approved', 'agentdev:iwe-verify', text)
+    prompts = agent_prompts(transcript, VERIFIER)
+    dispatches = transcript.excerpt('subagent')
+    assert len(prompts) == 1, f'one iwe-verifier dispatch\n{dispatches}'
+    assert APPROVAL in '\n'.join(prompts), f'approval quoted verbatim\n{dispatches}'
+    assert PLANTED not in '\n'.join(prompts), f'planted sentence left out\n{dispatches}'
+    assert base_clone.has_marker(), f'publish ran\n{transcript.excerpt()}'
+    assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert base_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
 
 
 def test_ship(base_clone: Clone, opencode) -> None:
     """Ship without approval dispatches the shipper once and publishes nothing."""
     transcript = run(opencode(base_clone), 'ship', 'agentdev:iwe-ship', HELLO_KEY)
-    prompts = shipper_prompts(transcript)
+    prompts = agent_prompts(transcript, SHIPPER)
     dispatches = transcript.excerpt('subagent')
     assert len(prompts) == 1, f'one iwe-shipper dispatch\n{dispatches}'
     assert HELLO_KEY in '\n'.join(prompts), f'prompt names the plan\n{dispatches}'
@@ -52,7 +79,7 @@ def test_ship_approved(base_clone: Clone, opencode) -> None:
     """Approved Ship quotes only the approval, publishes, and ships the internal plan."""
     text = f'{HELLO_KEY} — {APPROVAL} {PLANTED}'
     transcript = run(opencode(base_clone), 'ship-approved', 'agentdev:iwe-ship', text)
-    prompts = shipper_prompts(transcript)
+    prompts = agent_prompts(transcript, SHIPPER)
     dispatches = transcript.excerpt('subagent')
     assert len(prompts) == 1, f'one iwe-shipper dispatch\n{dispatches}'
     assert APPROVAL in '\n'.join(prompts), f'approval quoted verbatim\n{dispatches}'
@@ -62,12 +89,13 @@ def test_ship_approved(base_clone: Clone, opencode) -> None:
     assert base_clone.unreleased_diff() == '', (
         f'internal plan adds no release entry\n{base_clone.unreleased_diff()}'
     )
+    assert agent_prompts(transcript, VERIFIER) == [], f'Verify ran in place\n{dispatches}'
 
 
 def test_ship_all(base_clone: Clone, opencode) -> None:
     """Ship-all dispatches the shipper once for the one shippable plan."""
     transcript = run(opencode(base_clone), 'ship-all', 'agentdev:iwe-ship-all', f'— {APPROVAL}')
-    assert len(shipper_prompts(transcript)) == 1, (
+    assert len(agent_prompts(transcript, SHIPPER)) == 1, (
         f'one iwe-shipper dispatch\n{transcript.excerpt("subagent")}'
     )
 

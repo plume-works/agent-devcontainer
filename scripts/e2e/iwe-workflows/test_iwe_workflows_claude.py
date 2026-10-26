@@ -1,4 +1,4 @@
-"""Ship, Implement, and Explore on Claude Code, one clone per scenario."""
+"""Verify, Ship, Implement, and Explore on Claude Code, one clone per scenario."""
 
 from clone import Clone
 from harness_claude import ClaudeTranscript, run_claude
@@ -15,6 +15,8 @@ from scenarios import (
     mentions,
     PLANTED,
     RULEBOOK,
+    SHIPPER,
+    VERIFIER,
     WORKFLOW_SKILL,
 )
 
@@ -31,10 +33,36 @@ def run(clone: Clone, name: str, prompt: str) -> ClaudeTranscript:
     return transcript
 
 
+def test_verify(base_clone: Clone) -> None:
+    """Verify without approval dispatches the verifier once and changes nothing."""
+    transcript = run(base_clone, 'verify', f'/agentdev:iwe-verify {HELLO_KEY}')
+    prompts = transcript.agent_prompts(VERIFIER)
+    dispatches = transcript.excerpt('Agent')
+    assert len(prompts) == 1, f'one iwe-verifier dispatch\n{dispatches}'
+    assert HELLO_KEY in '\n'.join(prompts), f'prompt names the plan\n{dispatches}'
+    assert not base_clone.has_marker(), f'publish did not run\n{transcript.excerpt()}'
+    assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert base_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+
+
+def test_verify_approved(base_clone: Clone) -> None:
+    """Approved Verify quotes only the approval, publishes, and still changes no state."""
+    prompt = f'/agentdev:iwe-verify {HELLO_KEY} — {APPROVAL} {PLANTED}'
+    transcript = run(base_clone, 'verify-approved', prompt)
+    prompts = transcript.agent_prompts(VERIFIER)
+    dispatches = transcript.excerpt('Agent')
+    assert len(prompts) == 1, f'one iwe-verifier dispatch\n{dispatches}'
+    assert APPROVAL in '\n'.join(prompts), f'approval quoted verbatim\n{dispatches}'
+    assert PLANTED not in '\n'.join(prompts), f'planted sentence left out\n{dispatches}'
+    assert base_clone.has_marker(), f'publish ran\n{transcript.excerpt()}'
+    assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert base_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+
+
 def test_ship(base_clone: Clone) -> None:
     """Ship without approval dispatches the shipper once and publishes nothing."""
     transcript = run(base_clone, 'ship', f'/agentdev:iwe-ship {HELLO_KEY}')
-    prompts = transcript.shipper_prompts()
+    prompts = transcript.agent_prompts(SHIPPER)
     dispatches = transcript.excerpt('Agent')
     assert len(prompts) == 1, f'one iwe-shipper dispatch\n{dispatches}'
     assert HELLO_KEY in '\n'.join(prompts), f'prompt names the plan\n{dispatches}'
@@ -47,7 +75,7 @@ def test_ship_approved(base_clone: Clone) -> None:
     """Approved Ship quotes only the approval, publishes, and ships the internal plan."""
     prompt = f'/agentdev:iwe-ship {HELLO_KEY} — {APPROVAL} {PLANTED}'
     transcript = run(base_clone, 'ship-approved', prompt)
-    prompts = transcript.shipper_prompts()
+    prompts = transcript.agent_prompts(SHIPPER)
     dispatches = transcript.excerpt('Agent')
     assert len(prompts) == 1, f'one iwe-shipper dispatch\n{dispatches}'
     assert APPROVAL in '\n'.join(prompts), f'approval quoted verbatim\n{dispatches}'
@@ -57,12 +85,13 @@ def test_ship_approved(base_clone: Clone) -> None:
     assert base_clone.unreleased_diff() == '', (
         f'internal plan adds no release entry\n{base_clone.unreleased_diff()}'
     )
+    assert transcript.agent_prompts(VERIFIER) == [], f'Verify ran in place\n{dispatches}'
 
 
 def test_ship_all(base_clone: Clone) -> None:
     """Ship-all dispatches the shipper once for the one shippable plan."""
     transcript = run(base_clone, 'ship-all', f'/agentdev:iwe-ship-all — {APPROVAL}')
-    assert len(transcript.shipper_prompts()) == 1, (
+    assert len(transcript.agent_prompts(SHIPPER)) == 1, (
         f'one iwe-shipper dispatch\n{transcript.excerpt("Agent")}'
     )
 

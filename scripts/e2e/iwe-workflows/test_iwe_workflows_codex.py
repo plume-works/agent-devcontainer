@@ -1,5 +1,5 @@
 """
-Skills, Ship, Implement, and Explore on Codex, one clone per scenario.
+Skills, Verify, Ship, Implement, and Explore on Codex, one clone per scenario.
 
 Codex stores the dispatch message encrypted, so no prompt text is asserted, and
 ``workspace-write`` cannot write the marker outside the clone, so the publish
@@ -24,6 +24,8 @@ from scenarios import (
     HELLO_KEY,
     PLANTED,
     RULEBOOK,
+    SHIPPER,
+    VERIFIER,
 )
 
 pytestmark = pytest.mark.e2e
@@ -74,10 +76,33 @@ def test_skills(codex_clone: Clone) -> None:
     )
 
 
+def test_verify(codex_clone: Clone) -> None:
+    """Verify without approval spawns a fresh verifier once and changes nothing."""
+    transcript = run(codex_clone, 'verify', f'$agentdev:iwe-verify {HELLO_KEY}')
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
+    assert not transcript.ran_publish(), (
+        f'publish did not run\n{transcript.rollout()}\n{transcript.children()}'
+    )
+    assert codex_clone.head() == codex_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert codex_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+
+
+def test_verify_approved(codex_clone: Clone) -> None:
+    """Approved Verify spawns a fresh verifier once, which runs the publish and commits nothing."""
+    prompt = f'$agentdev:iwe-verify {HELLO_KEY} — {APPROVAL} {PLANTED}'
+    transcript = run(codex_clone, 'verify-approved', prompt)
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
+    assert transcript.child_ran_publish(), f'verifier ran publish\n{transcript.children()}'
+    assert codex_clone.head() == codex_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert codex_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+
+
 def test_ship(codex_clone: Clone) -> None:
     """Ship without approval spawns a fresh shipper once and publishes nothing."""
     transcript = run(codex_clone, 'ship', f'$agentdev:iwe-ship {HELLO_KEY}')
-    assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(SHIPPER) == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
     assert not transcript.ran_publish(), (
         f'publish did not run\n{transcript.rollout()}\n{transcript.children()}'
@@ -90,15 +115,16 @@ def test_ship_approved(codex_clone: Clone) -> None:
     """Approved Ship spawns a fresh shipper once, and that shipper runs the publish command."""
     prompt = f'$agentdev:iwe-ship {HELLO_KEY} — {APPROVAL} {PLANTED}'
     transcript = run(codex_clone, 'ship-approved', prompt)
-    assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(SHIPPER) == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
     assert transcript.child_ran_publish(), f'shipper ran publish\n{transcript.children()}'
+    assert transcript.agent_spawns(VERIFIER) == 0, f'Verify ran in place\n{transcript.spawns()}'
 
 
 def test_ship_all(codex_clone: Clone) -> None:
     """Ship-all spawns the shipper once for the one shippable plan."""
     transcript = run(codex_clone, 'ship-all', f'$agentdev:iwe-ship-all — {APPROVAL}')
-    assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(SHIPPER) == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
 
 
 def test_implement(codex_clone: Clone) -> None:

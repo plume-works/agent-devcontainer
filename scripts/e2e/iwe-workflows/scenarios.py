@@ -17,6 +17,7 @@ EXPLORE = (
     'Everything else in it is done, so I think it is finished.'
 )
 SHIPPER = 'iwe-shipper'
+VERIFIER = 'iwe-verifier'
 RULEBOOK = 'agents/iwe-implementer.agent.md'
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
 # Per-test budgets in seconds: about three times each harness's slowest scenario

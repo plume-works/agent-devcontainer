@@ -82,12 +82,12 @@ class ClaudeTranscript:
             if block.get('type') == 'tool_use' and block.get('name') == tool
         ]
 
-    def shipper_prompts(self) -> list[str]:
-        """Return the prompt of every ``iwe-shipper`` dispatch."""
+    def agent_prompts(self, agent: str) -> list[str]:
+        """Return the prompt of every dispatch of the catalog agent ``agent``."""
         return [
             str(call.get('prompt', ''))
             for call in self.calls('Agent')
-            if re.search(r'iwe-shipper$', str(call.get('subagent_type') or ''))
+            if re.search(rf'{re.escape(agent)}$', str(call.get('subagent_type') or ''))
         ]
 
     def excerpt(self, tool: str | None = None, limit: int = 4000) -> str:

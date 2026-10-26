@@ -144,8 +144,12 @@ Rejected:
 `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [ ] Add `VERIFIER = 'iwe-verifier'` and generalize the per-agent dispatch
+- [x] Add `VERIFIER = 'iwe-verifier'` and generalize the per-agent dispatch
   helpers (`shipper_prompts`, `shipper_spawns`) to take the agent name.
+  - **Evidence:** commit "Cover Verify in the iwe-workflows e2e suite":
+    `VERIFIER` in `scenarios.py`, `agent_prompts` / `agent_spawns` in the
+    harnesses; `ruff check` and `ruff format --check` clean, 24 tests collect,
+    and the live Claude Code and Codex `verify or ship` runs pass 5 of 5 each.
 - [ ] On each harness add `test_verify`: `/agentdev:iwe-verify` on `HELLO_KEY`
   with no approval dispatches `iwe-verifier` once with a prompt naming the plan,
   publishes nothing, commits nothing, and leaves the plan active; on Codex the
@@ -275,6 +279,19 @@ stop before it and report the approval it needs.
 - `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k 'verify or ship'`,
   and the same for `test_iwe_workflows_codex.py` and
   `test_iwe_workflows_opencode.py` — each spends model usage.
+- `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+- `uv run validate_agent_files --recommend . --require-marketplace claude codex`:
+  67/67 skills valid, 0 errors, 0 warnings.
+- `uv run pytest .agents/plugins/agentdev/tests`: 270 passed.
+- `CODEX_HOME=./.tmp/codex-home uv run .agents/plugins/agentdev/bin/install-codex-agents.py`:
+  `RESULT=SUCCESS`; `agentdev-iwe-verifier.toml` carries
+  `sandbox_mode = "workspace-write"`.
+- Live `verify or ship` scenarios: Claude Code 2.1.310 passed 5 of 5; Codex
+  0.164.0 passed 5 of 5. OpenCode skipped all 5: no OpenCode web UI server
+  credential was available.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
