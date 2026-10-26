@@ -12,6 +12,10 @@ to the current day's group.
   spec; [Remote Control server
   mode](features/claude-remote-control-server-mode.md) stays implemented and
   listed under Unreleased Added.
+- **Update**: refreshed the [devcontainer
+  scripts](codebase/devcontainer/scripts.md) map for the Remote Control spawn
+  mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
 
 ## 2026-10-25
 
