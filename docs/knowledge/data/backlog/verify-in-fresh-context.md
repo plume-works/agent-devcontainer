@@ -1,7 +1,8 @@
 ---
 type: task
 created: 2026-10-25
-stage: planned
+stage: done
+completed: 2026-10-26
 priority: high
 description: Run Verify from a fresh context on every entry point, by moving its rulebook into an iwe-verifier catalog agent that the verify skill dispatches and the Shipper follows in place.
 generated:

@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Run Verify from a fresh context](plans/20261026-verify-in-fresh-context.md)
+
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
