@@ -166,13 +166,23 @@ on files in the container. The container reads its own files directly.
 `packages/workspace/test/statusstore.test.ts`; Modify:
 `packages/workspace/src/requests.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] Every successful `status` response from `runRequest` has its
+- [x] Every successful `status` response from `runRequest` has its
   `checks.easProjectId` replaced by Task 2's result before it is returned. An
   unresolved ID gives `ok: false` with its reason as the detail, so
   `eas-host status` prints the container's answer.
-- [ ] The store keeps the last status result per folder, with its time, and the
+  - **Evidence:** plume-works/vscode-expo-bridge `59e06bb`: `relayRequest` wraps
+    `runRequest` and applies `projectIdCheck`, and the socket handler
+    `handleRequest` relays through it. `requests.test.ts` "replaces the host's
+    easProjectId with the container's resolution" and "maps each resolution to a
+    check" pass.
+- [x] The store keeps the last status result per folder, with its time, and the
   last host-not-installed or failure outcome. It fires a change event that the
   panel, the status bar item, and Problems subscribe to.
+  - **Evidence:** `59e06bb` `packages/workspace/src/statusstore.ts`
+    `StatusStore` with `onDidChange`, fed by `relayRequest`'s `onOutcome`, and
+    `retain` run when the window's folders change. The four
+    `statusstore.test.ts` tests pass, and `bun test` passes 354/354. Tasks 5, 7,
+    and 8 subscribe to it.
 
 ### Task 4: Container checks on `eas.json`
 
