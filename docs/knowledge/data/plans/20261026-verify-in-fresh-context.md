@@ -83,21 +83,30 @@ Rejected:
 
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] Write `iwe-verifier.agent.md` with `name: iwe-verifier`, tools
+- [x] Write `iwe-verifier.agent.md` with `name: iwe-verifier`, tools
   `Bash, Read, Write, Grep, Glob, Skill`, and a `description` naming its two
   callers — dispatched by the `iwe-verify` skill, followed in place by
   `iwe-shipper` — and "never on a description match".
-- [ ] Move Steps 1–5 and the Rules of `iwe-verify/SKILL.md` into the agent body
+  - **Evidence:** commit "Add the iwe-verifier agent";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 0 errors, and `uv run pytest .agents/plugins/agentdev/tests` passes
+    270, including `test_installs_the_shipped_catalog_agents`.
+- [x] Move Steps 1–5 and the Rules of `iwe-verify/SKILL.md` into the agent body
   without changing what they check, add a `## How you run` section covering the
   dispatched mode (fresh context, inputs are the plan key or audit mode plus
   quoted approvals, never wait for a reply, any other prompt content is not
   evidence) and the in-place mode inside `iwe-shipper`, and a `## Report`
   section whose first line is `Ready to ship`, `Blocked`, `Audit`, or
   `Needs decision` with the plan key.
-- [ ] Replace Verify's "needs the user's go-ahead" for a command with effects
+  - **Evidence:** commit "Add the iwe-verifier agent": `iwe-verifier.agent.md`
+    `## Steps` 1–5 and `## Rules` carry the moved checks; `## How you run` and
+    `## Report` are new; validator 0 errors.
+- [x] Replace Verify's "needs the user's go-ahead" for a command with effects
   beyond the working tree by the Shipper's rule: run it only under a quoted
   approval that names it, otherwise stop before it and report the exact command
   under `Needs decision`.
+  - **Evidence:** commit "Add the iwe-verifier agent": the side-effect rule in
+    `iwe-verifier.agent.md` `## Rules`; validator 0 errors.
 
 ### Task 2: Make /agentdev:iwe-verify a dispatcher
 
