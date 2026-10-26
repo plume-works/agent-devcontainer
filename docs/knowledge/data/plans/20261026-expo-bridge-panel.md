@@ -306,12 +306,18 @@ on files in the container. The container reads its own files directly.
 **Files:** Create: `packages/workspace/src/statusbar.ts`; Modify:
 `packages/workspace/src/extension.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] A status bar item is shown while the extension is active. It reads
+- [x] A status bar item is shown while the extension is active. It reads
   `Expo Bridge: OK` when every folder's last status is available and has no
   Error or Warning diagnostic. It reads `Expo Bridge: N issues` with N the Error
   and Warning count, `Expo Bridge: unavailable`,
   `Expo Bridge: Mac half not installed`, or `Expo Bridge: not checked`. Clicking
   it opens the panel.
+  - **Evidence:** plume-works/vscode-expo-bridge `bd0bd26`:
+    `packages/workspace/src/statusbar.ts` `statusBarState`, which counts
+    `issues.ts` `folderIssues` (the list Task 8's diagnostics use). The item is
+    created in `ui.ts` with the command `workbench.view.extension.expoBridge`.
+    It is hidden in a window with no Expo folder, and a failed status reads "not
+    checked". The `statusbar.test.ts` tests pass, and `bun test` passes 385/385.
 
 ### Task 8: Diagnostics in Problems
 
