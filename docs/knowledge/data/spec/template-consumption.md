@@ -3,8 +3,9 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T19:00:00Z
+  at: 2026-10-25T15:52:57Z
 sources:
+- resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/pr-gen-description/SKILL.md
@@ -276,35 +277,39 @@ structure from the pull request template itself.
 - **THEN** `pr-gen-description` preserves the two sections and their `- [x]` /
   `- [ ]` tense split regardless of the guidance
 
-## Requirement: the repository owns a complete reusable IWE seed
+## Requirement: the installed catalog owns a complete reusable IWE scaffold
 
-The repository SHALL maintain a clean seed in `templates/iwe/data/`, compatible
-with its IWE schemas and onboarding skills and separate from publisher memory.
-Consumption SHALL use the seed at the adopted agent-devcontainer ref and SHALL
-NOT depend on the initial import repository remaining available.
+The installed agentdev catalog SHALL carry one complete IWE scaffold compatible
+with its schemas and onboarding skills and separate from publisher memory.
+Template consumption SHALL initialize knowledge by invoking
+`/agentdev:iwe-bootstrap` and SHALL NOT maintain or copy a second seed source.
 
-### Scenario: the initial source is unavailable
+### Scenario: agent-devcontainer source is unavailable
 
-- **WHEN** a consumer adopts IWE after the initial import repository disappears
-- **THEN** all seed content is available from agent-devcontainer and adoption
-  makes no request to the initial import repository
+- **WHEN** a consumer adopts IWE through an installed agentdev catalog without
+  an agent-devcontainer source checkout
+- **THEN** all scaffold content is available from the installed skill and
+  adoption makes no request to another repository
 
 ## Requirement: fresh IWE adoption initializes consumer memory
 
-For both adoption workflows, choosing IWE SHALL install its reusable scaffold
-and seed, invoke iwe-setup followed by iwe-map, and validate the resulting
-consumer workspace. The invoked skills' confirmation gates SHALL remain in
-force. Mapping SHALL be explicitly deferred for a project with no code.
+For both adoption workflows, choosing IWE SHALL invoke `iwe-bootstrap`, then
+invoke `iwe-setup` followed by `iwe-map`, and validate the resulting consumer
+workspace. The invoked skills' confirmation gates SHALL remain in force. Mapping
+SHALL be explicitly deferred for a project with no code.
 
 ### Scenario: fresh full-copy adoption
 
-- **WHEN** Workflow A retains IWE and data is the unmodified publisher copy
-- **THEN** adoption replaces that data with the seed and onboards the consumer
+- **WHEN** Workflow A retains IWE and data is proven to be the unmodified
+  publisher copy
+- **THEN** adoption removes that publisher copy, invokes bootstrap, and onboards
+  the consumer
 
 ### Scenario: adoption into an existing repository without knowledge
 
-- **WHEN** Workflow B retains IWE and its data directory is absent or empty
-- **THEN** adoption installs the seed and runs setup before mapping
+- **WHEN** Workflow B retains IWE and the bootstrap-managed destinations are
+  absent
+- **THEN** adoption invokes bootstrap and runs setup before mapping
 
 ### Scenario: a greenfield consumer
 
@@ -320,17 +325,19 @@ force. Mapping SHALL be explicitly deferred for a project with no code.
 
 ## Requirement: consumer knowledge survives adoption and updates
 
-Adoption SHALL preserve pre-existing consumer knowledge and resolve collisions
-with the user. Updates SHALL exclude publisher data and initialization seeds
-from consumer-memory changes, narrow legacy broad knowledge tracking before
-checking updates, and preserve the consumed ref until updates are applied.
-Schema changes SHALL be reviewed against existing consumer data.
+Adoption SHALL preserve pre-existing consumer knowledge, send partial or
+incompatible bootstrap destinations to explicit reconciliation, and resolve
+collisions with the user. Updates SHALL never invoke bootstrap, SHALL exclude
+publisher data and bootstrap scaffold changes from consumer-memory changes,
+SHALL narrow legacy broad knowledge tracking before checking updates, and SHALL
+preserve the consumed ref until selected updates are applied. Schema changes
+SHALL be reviewed against existing consumer data.
 
 ### Scenario: knowledge already exists
 
 - **WHEN** adoption encounters consumer-authored data, including a modified
   publisher copy or partially completed onboarding
-- **THEN** it preserves that data and resolves collisions without reseeding
+- **THEN** it preserves that data and resolves collisions without bootstrapping
 
 ### Scenario: an older marker tracks the entire knowledge directory
 
@@ -338,14 +345,15 @@ Schema changes SHALL be reviewed against existing consumer data.
 - **THEN** it narrows tracking to retained reusable support paths before
   diffing, preserving unrelated paths and the consumed ref
 
-### Scenario: publisher memory or seed content changes
+### Scenario: publisher memory or the bundled scaffold changes
 
-- **WHEN** updates change publisher data or the seed
-- **THEN** those changes are not applied to consumer memory and onboarding is
-  not rerun
+- **WHEN** an update changes the publisher's `docs/knowledge/data/` or an
+  agentdev update changes bootstrap assets
+- **THEN** template update mode does not apply those changes to consumer memory,
+  does not invoke bootstrap, and does not rerun onboarding
 
 ### Scenario: IWE is declined
 
 - **WHEN** the consumer declines IWE adoption
-- **THEN** setup skips seeding and onboarding, removes copied IWE-only
+- **THEN** setup skips bootstrap and onboarding, removes copied IWE-only
   artifacts, and preserves pre-existing consumer knowledge

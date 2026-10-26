@@ -1330,15 +1330,26 @@ that, a `language: system` hook would fail every commit.
 `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md`,
 `.github/renovate.json`
 
-- [ ] The `gitleaks` and `actionlint` hooks become `language: system` local
+- [x] The `gitleaks` and `actionlint` hooks become `language: system` local
   hooks with the upstream hook ids, file patterns, and arguments. With an empty
   `PRE_COMMIT_HOME` and no Go on `PATH`, `pre-commit run gitleaks --all-files`
   and `pre-commit run actionlint --all-files` pass and download nothing.
-- [ ] `validate-super-linter-tool-versions.sh` reads both versions from
+  - **Evidence:** commit "build: run gitleaks and actionlint hooks from the
+    pinned binaries"; in the pinned devcontainer image
+    `agent-desktop@sha256:54866624…` (`gitleaks` 8.30.1, `actionlint` 1.7.12, no
+    `go`), both hooks passed over the working tree with an empty
+    `PRE_COMMIT_HOME`, which gained no gitleaks or actionlint repository and no
+    golang environment.
+- [x] `validate-super-linter-tool-versions.sh` reads both versions from
   `dev_tools_pinned_tools`, as it does zizmor's. The sync skill's steps and the
   Renovate Super-Linter rule name the new location. The validator passes, as do
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   and `uv run pytest .agents/plugins/agentdev/tests`.
+  - **Evidence:** commit "build: run gitleaks and actionlint hooks from the
+    pinned binaries"; the validator reported every tool `OK` against
+    `super-linter:slim-v8.7.0`, the catalog validation reported 62/62 skills
+    valid with no errors or warnings, the plugin tests gave 193 passed, and
+    `renovate-config-validator --strict` accepted `.github/renovate.json`.
 
 ### Task 33: Report runtime state from a live controller
 

@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:43d84eea978bd3c045ad5ea5c2734aab9faddb28df1cb547544db237b0fa94eb
+source_digest: sha256:c507b80fb18574a1b3987fd3229c4051a9c558a2db87414f69c8696c3ede03f5
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
-stale_after: 2027-01-22
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
+stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
 sources:
 - id: code
   resource: .github
@@ -55,16 +55,16 @@ the composite actions they share, `renovate.json`, and
 and `ci.yml`. Three more workflows trigger independently on their own path
 filters, `renovate.yml` runs the bot on a schedule, on every push to `main`, and
 when a person edits its Dependency Dashboard or one of its PRs, and one is
-manual. Knowledge validation has its own inner filter so the consumer IWE seed
-tests run only when the seed, schemas, or seed test moved. Agent-file validation
-includes every source path declared by a codebase map doc, so source drift
-cannot skip the staleness gate.
+manual. Knowledge validation has its own inner filter so the packaged IWE
+scaffold tests run only when the scaffold, schemas, shared knowledge files, or
+scaffold test moved. Agent-file validation includes every source path declared
+by a codebase map doc, so source drift cannot skip the staleness gate.
 
 ## Depends on
 
 The [Dockerfiles](docker.md) and [playbook](ansible.md) for the image jobs; `uv`
 and the [validator](py_packages/validate_agent_files.md) for the check jobs;
-`iwe` for the knowledge-base job.
+`iwe` for the knowledge-base job and the plugin-test step.
 
 ## Invariants & gotchas
 
@@ -85,7 +85,7 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-19):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.github/renovate.json:5-24` — `postUpgradeTasks`
 - `.github/renovate.json:25-30` — lock-file maintenance automerge
@@ -96,13 +96,13 @@ Verified anchor points (line numbers as of 2026-10-19):
 - `.github/renovate.json:63-70` — Dev Container features automerged
 - `.github/renovate.json:71-77` — Dockerfile `ubuntu` base disabled
 - `.github/renovate.json:78-84` — pre-commit hook revisions automerged
-- `.github/renovate.json:85-100` — Super-Linter family disabled
-- `.github/renovate.json:101-109` — Renovate validator `bunx` pin automerged
-- `.github/renovate.json:110-126` — role dependency pins grouped and automerged,
+- `.github/renovate.json:85-97` — Super-Linter family disabled
+- `.github/renovate.json:98-106` — Renovate validator `bunx` pin automerged
+- `.github/renovate.json:107-123` — role dependency pins grouped and automerged,
   with `astral-sh/uv` grouped across both places it is pinned
-- `.github/renovate.json:128-174` — the custom managers: post-upgrade script's
+- `.github/renovate.json:125-171` — the custom managers: post-upgrade script's
   devcontainer CLI, `dev_tools` versions, role version pins, the pre-commit
   `bunx` pin, commit pins
 - `.github/.agent.metadata.json` — runner-label and image-digest masks
-- `.github/workflows/validate-knowledge-base.yml:70-105` — seed filter and
-  standalone seed validation
+- `.github/workflows/validate-knowledge-base.yml:70-107` — scaffold filter and
+  standalone scaffold validation

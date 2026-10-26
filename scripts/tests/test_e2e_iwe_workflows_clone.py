@@ -1,6 +1,7 @@
 """The IWE workflow suite's per-test clones are isolated and refuse foreign repositories."""
 
 import importlib.util
+import os
 from pathlib import Path
 import re
 import shutil
@@ -120,3 +121,39 @@ def test_each_test_gets_its_own_work_directory(monkeypatch):
         'test_iwe_workflows_codex-test_x_a_b_c_'
     )
     assert conftest.WORK == REPO_ROOT / '.tmp/e2e/iwe-workflows'
+
+
+def test_main_clone_has_a_remote_and_a_stub_gh(fixture, work):
+    """A main clone sits on ``main``, pushed to a bare origin, with only the stub gh on PATH."""
+    clone = clone_module.make_main_clone(fixture, work / 'main', fixture.base)
+    assert clone.branch() == 'main'
+    assert clone.head() == fixture.base
+    assert clone.git('remote', 'get-url', 'origin').strip() == str(clone.remote)
+    assert (
+        clone.git('symbolic-ref', '--short', 'refs/remotes/origin/HEAD').strip() == 'origin/main'
+    )
+    assert clone.remote_has('main')
+    assert clone.agent_path('/usr/bin').split(os.pathsep) == [str(clone.tool_dir), '/usr/bin']
+
+    script = clone.path / '.agents/plugins/agentdev/skills/iwe-branch-name/agent-code'
+    named = subprocess.run(
+        [str(script / 'iwe-branch-name.py'), 'next', 'data/plans/20261025-e2e-branch', '--phase',
+         'impl'],
+        cwd=clone.path,
+        capture_output=True,
+        text=True,
+        check=False,
+        env={**os.environ, 'PATH': clone.agent_path(os.environ['PATH'])},
+    )  # fmt: skip
+    assert named.stdout.splitlines()[-1] == 'RESULT=SUCCESS', named.stderr
+    assert 'NEXT=impl/e2e-branch/iter-1' in named.stdout.splitlines()
+    assert f'--repo {clone.remote}' in clone.gh_calls()
+    assert clone.local_branches() == ['e2e-fixture', 'main']
+
+
+def test_plain_clones_have_no_tool_dir(fixture, work):
+    """Only a main clone changes the agent's PATH."""
+    clone = clone_module.make_clone(fixture, work / 'plain', fixture.base)
+    assert clone.tool_dir is None
+    assert clone.agent_path('/usr/bin') == '/usr/bin'
+    assert clone.gh_calls() == ''

@@ -3,10 +3,12 @@ The fixture repository and the per-test clones the IWE workflow suite runs in.
 
 The fixture repository is built once per worker from ``HEAD``: every active plan
 cancelled, the fixture plans committed as ``base``, and the open-question edit
-committed on top as ``open_question``. Each test gets its own clone of it.
+committed on top as ``open_question``. Each test gets its own clone of it; a
+main clone also gets ``main``, a bare ``origin`` beside it, and a stub ``gh``.
 """
 
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import re
 import shutil
@@ -16,14 +18,20 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 DATA = 'docs/knowledge/data'
 HELLO = f'{DATA}/plans/20261008-e2e-hello.md'
 GREET = f'{DATA}/plans/20261008-e2e-greet.md'
+BRANCH = f'{DATA}/plans/20261025-e2e-branch.md'
 UNRELEASED = f'{DATA}/releases/unreleased.md'
-FIXTURE_PLANS = ('plans/20261008-e2e-hello.md', 'plans/20261008-e2e-greet.md')
+FIXTURE_PLANS = (
+    'plans/20261008-e2e-hello.md',
+    'plans/20261008-e2e-greet.md',
+    'plans/20261025-e2e-branch.md',
+)
 MARKER = 'published.marker'
 GREET_TASK = re.compile(r'^- \[ \] Write `e2e/greet\.txt`', re.MULTILINE)
 _HUB_LINK = re.compile(r'^\[.*\]\((plans/[^)]*\.md)\)$')
 _ACTIVE_LINKS = (
     '[E2E hello fixture](plans/20261008-e2e-hello.md)',
     '[E2E greet fixture](plans/20261008-e2e-greet.md)',
+    '[E2E branch fixture](plans/20261025-e2e-branch.md)',
 )
 _AUTHOR = ('-c', 'user.name=e2e', '-c', 'user.email=e2e@example.invalid')
 
@@ -139,6 +147,7 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copy2(FIXTURES / 'e2e/hello.txt', path / 'e2e')
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-hello.md', path / HELLO)
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-greet.md', path / GREET)
+    shutil.copy2(FIXTURES / 'plans/20261025-e2e-branch.md', path / BRANCH)
     _activate_fixtures(data)
     repo.iwe_check()
     base = repo.commit_all('e2e fixtures')
@@ -152,11 +161,39 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
 class Clone(Repo):
     """One test's clone, with the facts the scenarios assert read from it."""
 
-    def __init__(self, path: Path, start: str, base: str) -> None:
-        """Wrap the clone at ``path``, checked out at ``start``."""
+    def __init__(self, path: Path, start: str, base: str, tool_dir: Path | None = None) -> None:
+        """Wrap the clone at ``path``, checked out at ``start``; ``tool_dir`` leads its PATH."""
         super().__init__(path)
         self.start = start
         self.base = base
+        self.tool_dir = tool_dir
+
+    def agent_path(self, path: str) -> str:
+        """Return the PATH an agent in this clone runs with, given the inherited ``path``."""
+        return path if self.tool_dir is None else f'{self.tool_dir}{os.pathsep}{path}'
+
+    @property
+    def remote(self) -> Path:
+        """Where a main clone's bare ``origin`` lives: beside the clone."""
+        return self.path.parent / 'remote.git'
+
+    def branch(self) -> str:
+        """Return the checked-out branch."""
+        return self.git('branch', '--show-current').strip()
+
+    def local_branches(self) -> list[str]:
+        """Return every local branch name."""
+        return self.git('for-each-ref', '--format=%(refname:short)', 'refs/heads/').split()
+
+    def remote_has(self, branch: str) -> bool:
+        """Whether the bare ``origin`` holds ``branch``."""
+        listing = _run(['git', 'ls-remote', '--heads', str(self.remote), branch], self.path)
+        return listing.strip() != ''
+
+    def gh_calls(self) -> str:
+        """Return every call the stub ``gh`` logged; empty when none."""
+        log = None if self.tool_dir is None else self.tool_dir / 'gh-calls.log'
+        return log.read_text() if log is not None and log.exists() else ''
 
     @property
     def marker(self) -> Path:
@@ -204,3 +241,17 @@ def make_clone(fixture: FixtureRepo, parent: Path, start: str) -> Clone:
     clone.git('remote', 'remove', 'origin')
     clone.git('reset', '-q', '--hard', start)
     return clone
+
+
+def make_main_clone(fixture: FixtureRepo, parent: Path, start: str) -> Clone:
+    """Clone ``fixture`` on ``main``, pushed to a bare ``origin`` beside it, with a stub ``gh``."""
+    plain = make_clone(fixture, parent, start)
+    plain.git('checkout', '-q', '-B', 'main')
+    _run(['git', 'clone', '-q', '--bare', str(plain.path), str(plain.remote)], parent)
+    plain.git('remote', 'add', 'origin', str(plain.remote))
+    plain.git('fetch', '-q', 'origin')
+    plain.git('remote', 'set-head', 'origin', 'main')
+    tools = parent / 'tools'
+    tools.mkdir()
+    shutil.copy2(FIXTURES / 'bin/gh', tools / 'gh')
+    return Clone(plain.path, start=start, base=fixture.base, tool_dir=tools)

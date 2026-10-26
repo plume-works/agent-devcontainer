@@ -118,3 +118,9 @@ projects](bugs/standalone-codex-auth-unshared.md)
 
 [Bug: the Expo bridge's project ID check ignores dynamic app
 config](bugs/expo-bridge-project-id-ignores-dynamic-config.md)
+
+[Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
+/workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md)
+
+[Bug: plan tasks edit spec documents that only Ship may
+change](bugs/plan-tasks-edit-specs.md)

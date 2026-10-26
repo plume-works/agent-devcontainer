@@ -27,15 +27,16 @@ maintained version table.
 
 3. Update the matching values in the repository's `.pre-commit-config.yaml`:
    the Prettier version in the local hook's `bunx prettier@<version>` entry,
-   plus the Clang Format, Ansible Lint, Hadolint, Ruff, ShellCheck, Gitleaks,
-   and Actionlint repository revisions. Preserve the `shellcheck-py` wrapper's fourth version
+   plus the Clang Format, Ansible Lint, Hadolint, Ruff, and ShellCheck
+   repository revisions. Preserve the `shellcheck-py` wrapper's fourth version
    component; its first three components must match Super-Linter's ShellCheck
    binary.
 
-4. Update the `version` of the `zizmor` entry in `dev_tools_pinned_tools`, in the
-   Ansible dev-tools defaults (`ansible/roles/dev_tools/defaults/main.yml`),
-   along with its per-architecture checksums. The local pre-commit hook uses
-   the binary provisioned by that role.
+4. Update the `version` of the `gitleaks`, `actionlint`, and `zizmor` entries in
+   `dev_tools_pinned_tools`, in the Ansible dev-tools defaults
+   (`ansible/roles/dev_tools/defaults/main.yml`), along with their
+   per-architecture checksums. Their local pre-commit hooks run the binaries
+   provisioned by that role.
 
 5. Re-run the validator. It must report every tool as `OK` before considering
    the upgrade complete. Then run the affected hooks or

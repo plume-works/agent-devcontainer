@@ -4,6 +4,19 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-26
+
+- **Update**: [Configurable Remote Control spawn mode, worktree by
+  default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
+  spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
+  spec; [Remote Control server
+  mode](features/claude-remote-control-server-mode.md) stays implemented and
+  listed under Unreleased Added.
+- **Update**: refreshed the [devcontainer
+  scripts](codebase/devcontainer/scripts.md) map for the Remote Control spawn
+  mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
+
 ## 2026-10-25
 
 - **Update**: [Expo bridge bun fix upgrades the bun the check
@@ -12,6 +25,39 @@ to the current day's group.
 - **Update**: [Bug: the Expo bridge's bun fix upgrades a bun the check never
   runs](bugs/expo-bridge-bun-fix-misses-path-bun.md) fixed; listed under
   Unreleased Fixed.
+- **Update**: [iwe-branch-name skill](plans/20261020-iwe-branch-name.md) done;
+  new spec [iwe-branch-name](spec/iwe-branch-name.md), and [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now names the Implement work branch
+  `impl/<slug>/iter-<N>`.
+- **Update**: [iwe-branch-name](features/iwe-branch-name.md) implemented; listed
+  under Unreleased Added.
+- **Map**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md), and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) for `iwe-branch-name`'s task
+  headings, empty plans, and `--repo` lookup.
+- **Map**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md), and the [knowledge
+  workspace](codebase/docs/knowledge.md) for the `iwe-branch-name` skill.
+- **Map**: refreshed the [iwe-bootstrap
+  skill](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) and the
+  [plugin tests](codebase/agents/plugins/agentdev/tests.md) for recovery of a
+  transaction interrupted at its first `OWNER` write.
+- **Update**: [Extract a reusable IWE bootstrap
+  skill](plans/20261023-reusable-iwe-bootstrap.md) done; created the [IWE
+  bootstrap](spec/iwe-bootstrap.md) spec, and [Template
+  consumption](spec/template-consumption.md) now initializes knowledge through
+  the catalog-owned bootstrap.
+- **Update**: [Reusable IWE bootstrap](features/consumer-iwe-seed.md) gained
+  direct bootstrap; listed under Unreleased Changed.
+- **Update**: [Bundle a Playwright browser in the development
+  image](plans/20261021-playwright-browser.md) done; created the [Playwright
+  browser](spec/playwright-browser.md) spec.
+- **Update**: [Playwright browser in the development
+  image](features/playwright-browser.md) implemented; listed under Unreleased
+  Added.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
   and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
   `exec-summary` skill.
@@ -24,6 +70,21 @@ to the current day's group.
   asked](backlog/standalone-claude-remote-control.md).
 - **Bug**: filed [Codex login stops being shared between standalone
   projects](bugs/standalone-codex-auth-unshared.md).
+- **Bug**: filed [plan tasks edit spec documents that only Ship may
+  change](bugs/plan-tasks-edit-specs.md).
+- **Map**: moved the IWE seed component to the [iwe-bootstrap
+  skill](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), now a child
+  of [Catalog skills](codebase/agents/plugins/agentdev/skills.md), and refreshed
+  the [agentdev catalog](codebase/agents/plugins/agentdev.md), its
+  [tests](codebase/agents/plugins/agentdev/tests.md), the [knowledge
+  workspace](codebase/docs/knowledge.md), [GitHub
+  automation](codebase/github.md) and its
+  [workflows](codebase/github/workflows.md), the [pull request
+  checks](codebase/flow-pull-request-checks.md), and the [validator
+  package](codebase/py_packages/validate_agent_files.md), its
+  [tests](codebase/py_packages/validate_agent_files/tests.md), and
+  [rules](codebase/py_packages/validate_agent_files/validators.md) for the
+  catalog-owned scaffold.
 
 ## 2026-10-24
 
@@ -270,8 +331,9 @@ to the current day's group.
   bug](bugs/ship-release-link-without-feature.md) fixed.
 - **Update**: [Agentdev plugin](codebase/agents/plugins/agentdev.md), [agentdev
   skills](codebase/agents/plugins/agentdev/skills.md), [Knowledge
-  base](codebase/docs/knowledge.md), and [IWE seed](codebase/templates/iwe.md)
-  map docs refreshed for the plan `release` declaration.
+  base](codebase/docs/knowledge.md), and [IWE
+  seed](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) map docs
+  refreshed for the plan `release` declaration.
 - **Update**: [Xpra port forwarding](features/xpra-port-forwarding.md)
   backfilled as implemented and listed under Added on the
   [1.0.0](releases/1.0.0.md) release, which shipped it.
@@ -883,8 +945,8 @@ to the current day's group.
   [1.0.0](releases/1.0.0.md).
 - **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
   re-read, all source digests were verified, and the tested [consumer IWE
-  seed](codebase/templates/iwe.md) was added as the twenty-seventh mapped
-  document.
+  seed](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) was added as
+  the twenty-seventh mapped document.
 - **Update**: Refreshed the [codebase map](codebase.md) — the catalog, [bin
   helpers](codebase/agents/plugins/agentdev/bin.md),
   [skills](codebase/agents/plugins/agentdev/skills.md), [plugin

@@ -2,13 +2,14 @@
 type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T19:00:00Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:31:58Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: .devcontainer/scripts/postStartCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
+- resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 ---
 
 # Template boundary
@@ -225,8 +226,8 @@ customization work, not hidden template behavior.
 
 Keep these paths together only when a project adopts IWE project memory:
 `.iwe/`, the supporting documents under `docs/knowledge/` (`AGENTS.md`,
-`CLAUDE.md`, `README.md`, `SCHEMA.md`, `STRUCTURE.md`, `CHANGELOG.md`,
-`LICENSE.md`), `docs/knowledge/tests/test_plan_checkboxes.py`,
+`CLAUDE.md`, `README.md`, `SCHEMA.md`, `STRUCTURE.md`, `CHANGELOG.md`),
+`docs/knowledge/tests/test_plan_checkboxes.py`,
 `.github/workflows/validate-knowledge-base.yml`, the `iwe-schema-validate` and
 `iwe-normalize` pre-commit hooks, and the `docs/knowledge/tests` entry in
 `pyproject.toml`'s `testpaths`. Those are the paths a consumer tracks; they are
@@ -239,19 +240,23 @@ mode must never compare it, because there is no version of that diff that is
 meaningful: every difference is either the publisher's history or the
 consumer's, and applying either direction destroys memory.
 
-The consumer's starting content for that directory comes from the seed, which
-has its own source path and a fixed destination:
+The consumer's starting workspace comes from the installed agentdev catalog, not
+from the template checkout: template consumption invokes
+`/agentdev:iwe-bootstrap`, which copies its own scaffold into the consumer root
+and refuses whenever `.iwe/` or `docs/knowledge/` already exists.
 
-| Source                     | Destination                 | Owner after adoption |
-| -------------------------- | --------------------------- | -------------------- |
-| `templates/iwe/data/`      | `docs/knowledge/data/`      | Consumer             |
-| `templates/iwe/LICENSE.md` | `docs/knowledge/LICENSE.md` | Consumer             |
+| Scaffold source (`skills/iwe-bootstrap/assets/`) | Destination                 | Owner after initialization                       |
+| ------------------------------------------------ | --------------------------- | ------------------------------------------------ |
+| `.iwe/`                                          | `.iwe/`                     | Consumer; tracked against the template's `.iwe/` |
+| `docs/knowledge/` support documents              | `docs/knowledge/`           | Consumer; tracked against the template's copies  |
+| `docs/knowledge/data/`                           | `docs/knowledge/data/`      | Consumer                                         |
+| `docs/knowledge/LICENSE.md`                      | `docs/knowledge/LICENSE.md` | Consumer                                         |
 
-The seed is initialization-only. It is read once, at adoption, from the
-agent-devcontainer checkout at the ref being adopted; `templates/iwe/` itself is
-publisher-only source that the consumer deletes afterward, so it never appears
-in `tracked_paths` and a later change to the seed never reaches an already-
-onboarded consumer.
+The scaffold is initialization-only. It is catalog content, never a template
+path, so it never appears in `tracked_paths`, and a catalog update that changes
+it never reaches an initialized consumer. Bootstrap installs no tests, CI
+workflows, or hooks; the remaining knowledge-base paths above come from the
+template checkout as usual.
 
 ## Optional Expo profile
 
@@ -287,14 +292,13 @@ records it as customized, and update mode merges it by hand.
 These paths stay in this repository but are deleted from a normal full template
 copy:
 
-| Path                                             | Responsibility                                                                                               |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| `.agents/`                                       | Canonical `agentdev` plugin source: four agents, 35 skills, hooks, helper commands, and plugin-script tests. |
-| `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                 |
-| `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                       |
-| `scripts/validate-super-linter-tool-versions.sh` | Publisher CI consistency check.                                                                              |
-| `templates/iwe/`                                 | Initialization-only IWE seed; copied to `docs/knowledge/data/` at adoption, then deleted.                    |
-| `docs/knowledge/tests/test_iwe_seed.py`          | Validates the seed source above, which no consumer keeps.                                                    |
+| Path                                             | Responsibility                                                                                                                                 |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.agents/`                                       | Canonical `agentdev` plugin source: agents, skills (the `iwe-bootstrap` scaffold among them), hooks, helper commands, and plugin-script tests. |
+| `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                                                   |
+| `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                                                         |
+| `scripts/validate-super-linter-tool-versions.sh` | Publisher CI consistency check.                                                                                                                |
+| `docs/knowledge/tests/test_iwe_seed.py`          | Validates the `iwe-bootstrap` scaffold in the catalog source, which no consumer keeps.                                                         |
 
 After deleting `py_packages/validate_agent_files/`, remove the now-empty
 `py_packages/` wrapper and its standalone `LICENSE` as well. `scripts/` holds

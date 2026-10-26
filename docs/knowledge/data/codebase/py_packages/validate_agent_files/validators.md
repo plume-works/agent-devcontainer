@@ -2,14 +2,14 @@
 type: codebase
 description: 'The rule modules the engine composes: skill frontmatter and structure, agent handoffs, prompts, name uniqueness, cross-references, plugin manifests, marketplaces, bundled Markdown containment, and literal catalog paths.'
 source: py_packages/validate_agent_files/validate_agent_files/validators
-source_digest: sha256:f913a9ce98239c94c2d11bfa31669e7bb7ec377044a17c64e4a40e07557c102e
+source_digest: sha256:89c570a795997fdc7f0384ed25f1e6b8d322d904c88ba642c6f603a31e9db4fa
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
-stale_after: 2026-12-31
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
+stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/validate_agent_files/validators
@@ -22,17 +22,17 @@ One module per concern, each returning `ValidationIssue`s or a
 
 ## Public surface
 
-| Module                | Entry points                                                                        | Rule                                                                   |
-| --------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `skill.py`            | `SkillFrontmatterValidator`, `SkillStructureValidator`                              | frontmatter keys and description quality; directory shape              |
-| `agents.py`           | `validate_agent_frontmatter`, `validate_handoff`, `build_known_agent_targets`       | `.agent.md` frontmatter and handoff targets that exist                 |
-| `prompts.py`          | `validate_prompt_frontmatter`, `validate_prompt_body`, `validate_prompt_references` | `.prompt.md` shape and `#file:` references                             |
-| `uniqueness.py`       | `UniquenessValidator`                                                               | no two skills share a name                                             |
-| `cross_reference.py`  | `CrossReferenceValidator`                                                           | links between catalog files resolve                                    |
-| `plugin_manifest.py`  | `find_plugin_root`, `find_packaged_plugin_root`, `validate_plugin_manifests`        | manifests parse, agree on `version`, name the same plugin              |
-| `marketplace.py`      | `validate_required_marketplaces`, `validate_present_marketplaces`                   | an ecosystem's manifest exists, parses, and points at plugins on disk  |
-| `bundled_markdown.py` | `find_bundled_markdown`, `validate_bundled_markdown`                                | `references/` pages and the plugin README stay inside the plugin       |
-| `catalog_paths.py`    | `validate_catalog_paths`                                                            | no literal `.claude/skills/` or `.claude/agents/` path in a skill body |
+| Module                | Entry points                                                                        | Rule                                                                                                 |
+| --------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `skill.py`            | `SkillFrontmatterValidator`, `SkillStructureValidator`                              | frontmatter keys and description quality; directory shape                                            |
+| `agents.py`           | `validate_agent_frontmatter`, `validate_handoff`, `build_known_agent_targets`       | `.agent.md` frontmatter and handoff targets that exist                                               |
+| `prompts.py`          | `validate_prompt_frontmatter`, `validate_prompt_body`, `validate_prompt_references` | `.prompt.md` shape and `#file:` references                                                           |
+| `uniqueness.py`       | `UniquenessValidator`                                                               | no two skills share a name                                                                           |
+| `cross_reference.py`  | `CrossReferenceValidator`                                                           | links between catalog files resolve                                                                  |
+| `plugin_manifest.py`  | `find_plugin_root`, `find_packaged_plugin_root`, `validate_plugin_manifests`        | manifests parse, agree on `version`, name the same plugin                                            |
+| `marketplace.py`      | `validate_required_marketplaces`, `validate_present_marketplaces`                   | an ecosystem's manifest exists, parses, and points at plugins on disk                                |
+| `bundled_markdown.py` | `find_bundled_markdown`, `validate_bundled_markdown`, `SKILL_ASSETS_DIR`            | `references/` pages and the plugin README stay inside the plugin; a skill's `assets/` is not scanned |
+| `catalog_paths.py`    | `validate_catalog_paths`                                                            | no literal `.claude/skills/` or `.claude/agents/` path in a skill body                               |
 
 ## How it works
 
@@ -55,16 +55,19 @@ because a repository-relative path resolves nowhere from a plugin cache.
   suppression happens before an issue exists. `CrossReferenceValidator` also has
   an ungated warning path for an unresolvable reference at
   `cross_reference.py:81`.
+- The bundled-markdown walk prunes `assets/` only in a directory holding a
+  `SKILL.md`; an `assets/` directory anywhere else is still scanned.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-02):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.../validators/skill.py:11,123` — the two skill validators
 - `.../validators/agents.py:12,67` — frontmatter and handoff
 - `.../validators/plugin_manifest.py:69` — `validate_plugin_manifests`
 - `.../validators/marketplace.py:32,51` — required and present marketplaces
-- `.../validators/bundled_markdown.py:47` — containment
+- `.../validators/bundled_markdown.py:54` — containment
+- `.../validators/bundled_markdown.py:41` — the skill `assets/` prune
 - `.../validators/catalog_paths.py:30` — literal-path guard
 
 (`...` is `py_packages/validate_agent_files/validate_agent_files`.)

@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:b3e4e2cc2ed6704b8fa3dc24ed94ba35cc984eacbfd4ca9588db230fe7698569
+source_digest: sha256:36629bc76625e21908605cd472966cd8b54086c14e2bb4c6061c8be5d9535693
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T23:00:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-25T23:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -47,7 +47,7 @@ layout are in [Module layout](../../../architecture/module-layout.md) and
 
 ## Public surface
 
-- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (40
+- `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (42
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
   `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`
@@ -85,14 +85,16 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 - No link in any shipped Markdown may resolve outside the plugin root, and no
   skill body may contain a literal `.claude/skills/...` path; the validator
-  enforces both because the plugin runs from a cache, not this checkout.
+  enforces both because the plugin runs from a cache, not this checkout. A
+  skill's `assets/` tree is exempt from the link check: it is output a skill
+  copies elsewhere.
 - The four version pins move together or the image build fails.
 - `.codex/` and `.claude/` at the repository root are project configuration,
   never a copy of the catalog.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-22):
+Verified anchor points (line numbers as of 2026-10-25):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

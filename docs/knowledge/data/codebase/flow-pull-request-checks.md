@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:85dd55b396d05e636eb06467f7053d0b55523bd4171554b6bb4670ee8af2512c
+source_digest: sha256:47c8c96b16391920e6847a1fb14330d817521e1c335c96b524efb0cf775b7dc9
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
-stale_after: 2027-01-22
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
+stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  by: claude-code/opus-5
+  at: 2026-10-25T06:34:10Z
 sources:
 - id: code
   resource: .github
@@ -30,7 +30,7 @@ before the push.
    `.github/actionlint.yml`, which Super-Linter reads too),
    `renovate-config-validator`, zizmor, the agent-files validator, plan-checkbox
    and IWE validation and normalization, Prettier and the Renovate validator
-   through `bunx` — `.pre-commit-config.yaml:2-126`; `no-commit-to-branch`
+   through `bunx` — `.pre-commit-config.yaml:2-131`; `no-commit-to-branch`
    refuses a commit on `main` or `master` — `.pre-commit-config.yaml:11`
 2. `primary-checks.yml` → `reformat.yml`: Super-Linter in fix mode; for a
    same-repository, non-draft PR, formatting changes are committed back and the
@@ -43,17 +43,18 @@ before the push.
    `agent-opencode` container acceptance; the devcontainer smoke test launches
    bundled Chromium before the promotion moves `pr-<n>` to the tested images
 4. `validate-agent-files.yml`, when any source declared by the codebase map or
-   the map itself changed: the validator, agentdev, and self-improve pytest
-   suites, the OpenCode bridge `bun test` suite,
+   the map itself changed: the pinned `iwe`, then the validator, agentdev, and
+   self-improve pytest suites, the OpenCode bridge `bun test` suite,
    `validate_agent_files --recommend . --require-marketplace claude codex`, then
    `stale-map-docs.py`, which fails the job when a map doc no longer matches the
-   code it describes — `.github/workflows/validate-agent-files.yml:39-100`
-5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, the IWE seed,
-   or the `dev_tools` pins changed, with the pinned `iwe`:
+   code it describes — `.github/workflows/validate-agent-files.yml:39-105`
+5. `validate-knowledge-base.yml`, when `docs/knowledge/`, `.iwe/`, the IWE
+   scaffold, or the `dev_tools` pins changed, with the pinned `iwe`:
    `iwe schema validate`, `iwe normalize` must be a no-op, and the plan-checkbox
-   tests; a second, path-filtered pytest pass assembles and validates the
-   consumer seed — `.github/workflows/validate-knowledge-base.yml:39-48,70-105`,
-   in [the knowledge workspace](docs/knowledge.md)
+   tests; a second, path-filtered pytest pass copies and validates the
+   iwe-bootstrap scaffold —
+   `.github/workflows/validate-knowledge-base.yml:39-46,70-107`, in [the
+   knowledge workspace](docs/knowledge.md)
 6. `validate-renovate-config.yml`: its `paths-filter` passes when
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
