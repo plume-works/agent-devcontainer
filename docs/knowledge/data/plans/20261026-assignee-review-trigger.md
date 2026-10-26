@@ -97,15 +97,26 @@ Rejected:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] In preflight's `wantsReview`, a `workflow_dispatch` never reviews.
+- [x] In preflight's `wantsReview`, a `workflow_dispatch` never reviews.
   Preflight fails a dispatch whose `task` is empty, naming the assignee toggle.
   The comment claiming an explicit request outranks the marker is removed. The
   marker check stays ahead of the action rules.
-- [ ] `ai-review-present`'s `if:` drops the empty-task `workflow_dispatch`
+  - **Evidence:** commit "Stop dispatched runs from reviewing and read the tier
+    from the body marker" — the empty-task throw opens
+    `Determine agent prompts`, and `wantsReview` starts at the skip-marker
+    check; `pre-commit run actionlint --all-files` and
+    `pre-commit run zizmor --all-files` passed.
+- [x] `ai-review-present`'s `if:` drops the empty-task `workflow_dispatch`
   clause.
-- [ ] The `review_effort` dispatch input, `DISPATCH_REVIEW_EFFORT`, and its
+  - **Evidence:** commit "Stop dispatched runs from reviewing and read the tier
+    from the body marker" — the `if:` lists `pull_request`,
+    `pull_request_review`, and `merge_group` only; `actionlint` passed.
+- [x] The `review_effort` dispatch input, `DISPATCH_REVIEW_EFFORT`, and its
   precedence over the body marker are removed. `reviewEffort` comes from
   `[ci:review-effort=…]` alone.
+  - **Evidence:** commit "Stop dispatched runs from reviewing and read the tier
+    from the body marker" — the Verification grep for `inputs.review_effort`,
+    `DISPATCH_REVIEW_EFFORT`, and the input key returns nothing.
 
 ### Task 3: The bridge rejects `@claude review`
 
@@ -426,22 +437,20 @@ branch does not declare is rejected on the key alone, whatever its value.
 
 Verified anchor points (line numbers as of 2026-10-26):
 
-- `.github/workflows/ai-responder.yml:44` — `review_effort` dispatch input
-- `.github/workflows/ai-responder.yml:102` — preflight `if:`, excluding
+- `.github/workflows/ai-responder.yml:95` — preflight `if:`, excluding
   bot-authored and fork `pull_request` events
-- `.github/workflows/ai-responder.yml:264` — "explicit request outranks the
-  marker" comment and the empty-task dispatch review
-- `.github/workflows/ai-responder.yml:269` — skip-marker check
-- `.github/workflows/ai-responder.yml:275` — actions that always review,
+- `.github/workflows/ai-responder.yml:254` — preflight failure for an empty-task
+  dispatch
+- `.github/workflows/ai-responder.yml:261` — skip-marker check
+- `.github/workflows/ai-responder.yml:267` — actions that always review,
   including `assigned`
-- `.github/workflows/ai-responder.yml:288` — `reviewEffort` precedence, dispatch
-  input over body marker
-- `.github/workflows/ai-responder.yml:363` — `bridge` job
-- `.github/workflows/ai-responder.yml:373` — bridge permissions
-- `.github/workflows/ai-responder.yml:402` — bridge `reviewEffort` parse
-- `.github/workflows/ai-responder.yml:406` — empty-task dispatch for
+- `.github/workflows/ai-responder.yml:275` — `reviewEffort` from the body marker
+- `.github/workflows/ai-responder.yml:348` — `bridge` job
+- `.github/workflows/ai-responder.yml:358` — bridge permissions
+- `.github/workflows/ai-responder.yml:387` — bridge `reviewEffort` parse
+- `.github/workflows/ai-responder.yml:391` — empty-task dispatch for
   `@claude review`
-- `.github/workflows/ai-responder.yml:514` — `ai-review-present` `if:`
+- `.github/workflows/ai-responder.yml:499` — `ai-review-present` `if:`
 - `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`, the only
   accepted reviewers
 - `.github/actions/ai-review-status/action.yml:97` — failure message
