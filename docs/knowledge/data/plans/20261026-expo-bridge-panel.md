@@ -109,12 +109,22 @@ on files in the container. The container reads its own files directly.
 `packages/workspace/test/requests.test.ts`; Modify:
 `packages/workspace/src/extension.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] `runRequest(request, onLog)` dispatches through `expoBridge.ui.dispatch`
+- [x] `runRequest(request, onLog)` dispatches through `expoBridge.ui.dispatch`
   and tails the newest build log while a `build` runs. The socket handler
   `handleRequest` uses it, and the CLI's behavior does not change.
-- [ ] A dispatch rejected because `expoBridge.ui.dispatch` is not registered is
+  - **Evidence:** plume-works/vscode-expo-bridge `880dd2b`:
+    `packages/workspace/src/requests.ts` `runRequest(request, execute, onLog)`,
+    which takes the command runner as a parameter so it is testable without
+    `vscode`; `handleRequest` emits its response. `requests.test.ts` "streams
+    the build log written while a build runs" passes, and `bun test` passes
+    336/336.
+- [x] A dispatch rejected because `expoBridge.ui.dispatch` is not registered is
   reported as host-not-installed, distinct from other failures. A test covers
   both outcomes.
+  - **Evidence:** `880dd2b` `RequestOutcome.hostMissing` from
+    `isCommandNotFound`; `requests.test.ts` "reports a missing host command as
+    host-not-installed" and "reports any other failure without
+    host-not-installed" pass.
 
 ### Task 2: Resolve the project ID in the container
 
