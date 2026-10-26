@@ -104,24 +104,36 @@ Rejected:
 **Files:** Create: `.agents/plugins/agentdev/agents/iwe-planner.agent.md`;
 Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 
-- [ ] Create `iwe-planner.agent.md` holding the skill's Steps,
+- [x] Create `iwe-planner.agent.md` holding the skill's Steps,
   `## Closing the issue`, `## The three forms of ## Spec changes`, and Rules,
   unchanged in what they require. Its tools are
   `Bash, Read, Edit, Write, Grep, Glob, Skill`. Its `description` says it is
   followed in place by the `iwe-plan` skill and by the Implement orchestrator
   applying a revision, and is never dispatched or started on a description
   match.
-- [ ] Add a `## How you run` section with two modes. **From
+  - **Evidence:** commit "Move the Plan rulebook into iwe-planner"; the moved
+    sections differ from the old skill only by the close-issue script location
+    sentence;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 0 errors, and `uv run pytest .agents/plugins/agentdev/tests` passes
+    270\.
+- [x] Add a `## How you run` section with two modes. **From
   `/agentdev:iwe-plan`** is today's behavior: create or revise, asking the user.
   **From the Implement orchestrator** is revise mode only: it drafts the
   revision, runs the audit and validation, and stops uncommitted for the
   evaluator. It never creates a plan, closes an issue, or re-dispatches the
   Shipper. The issue-closing step names the script as the `iwe-plan` skill's
   bundled `agent-code/close-issue.sh`.
-- [ ] Reduce `iwe-plan/SKILL.md` to following
+  - **Evidence:** commit "Move the Plan rulebook into iwe-planner" adds
+    `## How you run` to `iwe-planner.agent.md` with both modes and the
+    close-issue script location in step 8; the validator reports 0 errors.
+- [x] Reduce `iwe-plan/SKILL.md` to following
   `../../agents/iwe-planner.agent.md` in place in its **From
   `/agentdev:iwe-plan`** mode, keeping the skill's frontmatter, `allowed-tools`,
   and `agent-code/`.
+  - **Evidence:** commit "Move the Plan rulebook into iwe-planner"; the skill
+    keeps its frontmatter, `allowed-tools`, `agents/openai.yaml`, and
+    `agent-code/`, and `test_catalog_gates_agree` passes in the 270-test run.
 
 ### Task 2: Create the iwe-revision-evaluator agent
 
@@ -496,15 +508,15 @@ Verified anchor points (line numbers as of 2026-10-26):
 - `scripts/e2e/iwe-workflows/clone.py:23` — `FIXTURE_PLANS`
 - `scripts/e2e/iwe-workflows/clone.py:148` — fixture plans copied into the clone
 - `scripts/e2e/iwe-workflows/scenarios.py:8` — `GREET_KEY`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:70` — `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py:104` — `test_implement`
-- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:75` —
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:99` — `test_implement`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py:130` — `test_implement`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:103` —
   `test_implement`
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:249` — "Implement never hides
   a material deviation"
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:400` — "Ship and Implement
   start only from an explicit request or a named dispatcher"
-- `docs/knowledge/data/features/verification-in-the-main-loop.md:42` — the
+- `docs/knowledge/data/features/verification-in-the-main-loop.md:50` — the
   Behaviour property that Implement does not invoke Verify
-- `docs/knowledge/data/features/verification-in-the-main-loop.md:80` — the
+- `docs/knowledge/data/features/verification-in-the-main-loop.md:88` — the
   matching resolved decision
