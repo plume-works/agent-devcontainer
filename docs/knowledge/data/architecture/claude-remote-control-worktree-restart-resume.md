@@ -3,7 +3,7 @@ type: architecture
 description: After a devcontainer rebuild or a server restart, sessions that `claude remote-control --spawn worktree` spawned on demand return in their own worktrees with their earlier turns and no user action, after a delay from seconds to several minutes.
 generated:
   by: claude-code/opus-5
-  at: 2026-10-26T02:48:00Z
+  at: 2026-10-26T02:55:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: https://github.com/anthropics/claude-code/issues/104940
@@ -24,8 +24,9 @@ devcontainer rebuild and a later server restart.
   session's own `.claude/worktrees/bridge-<session ID>` worktree, which the
   rebuild leaves in place, still registered and locked in git, on its
   `worktree-bridge-<session ID>` branch.
-- **They return without any user action.** No message was sent to any of them;
-  the Claude app shows no send button for an offline session.
+- **Waiting is the only recovery.** Neither the Claude app nor claude.ai/code
+  lets a user send to an offline session, so every return happened with no user
+  action.
 - **The return is delayed and uneven.** The pre-created session returns within
   seconds of the server starting. After the rebuild, three spawned sessions
   returned 3 min 19 s to 3 min 46 s after the server started and the fourth 8
@@ -39,8 +40,8 @@ devcontainer rebuild and a later server restart.
 
 [anthropics/claude-code#104940](https://github.com/anthropics/claude-code/issues/104940)
 reports on 2.1.284 that worktree sessions stay offline after a server restart
-until a message is sent. Here every session returned with no message sent, so
-the report may describe sessions that were still inside this delay.
+until a message is sent. Here no message could be sent and every session
+returned, so the report may describe sessions that were still inside this delay.
 
 ## Open questions
 
@@ -48,8 +49,6 @@ the report may describe sessions that were still inside this delay.
   with timed returns, or the service's dispatch rules.
 - **What carries the dispatch for a worktree session**, given that its
   transcript holds no `initialize` pair.
-- **Whether a message sent through the session's URL wakes it sooner.** Settling
-  it needs a session still offline when the message is sent.
 
 ## Closing
 
