@@ -2,14 +2,14 @@
 type: codebase
 description: The 42 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:2cf42571d35f9b8f156d0132e14570322045d56a23c1812516129f5753ca81cb
+source_digest: sha256:daa5fd9396d7a7798babb188f129ddf1d8bb8acacf9f0412c6710328e4e316dd
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-26T13:00:00Z
+  at: 2026-10-26T14:00:00Z
 stale_after: 2027-01-24
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T13:00:00Z
+  at: 2026-10-26T14:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -60,11 +60,14 @@ model-invocable for workflow handoffs. Ship and Implement keep their rulebooks
 in the `iwe-shipper` and `iwe-implementer` catalog agents: `iwe-ship` only
 builds a conversation-free prompt and dispatches `iwe-shipper`, `iwe-implement`
 follows `iwe-implementer` in place, the two `-all` coordinators dispatch one
-agent per plan in dependency order, and `iwe-plan` revise re-dispatches
-`iwe-shipper` when a revision answers its blocker report. Verify keeps its
-rulebook in the `iwe-verifier` agent: from a session `iwe-verify` dispatches it
-with a conversation-free prompt, and inside `iwe-shipper` it has the Shipper
-follow that rulebook in place. Scripts are bash or Python, pull in the matching
+agent per plan in dependency order, and `iwe-implement` and `iwe-implement-all`
+also run that rulebook's `## Running the loop`, dispatching `iwe-verifier` after
+the tasks and `iwe-revision-evaluator` on a drafted revision. `iwe-plan` follows
+the `iwe-planner` agent in place, whose revise mode re-dispatches `iwe-shipper`
+when a revision answers its blocker report. Verify keeps its rulebook in the
+`iwe-verifier` agent: from a session `iwe-verify` dispatches it with a
+conversation-free prompt, and inside `iwe-shipper` it has the Shipper follow
+that rulebook in place. Scripts are bash or Python, pull in the matching
 [result-code helpers](bin.md), and end every path with `RESULT=<NAME>` on
 stdout; the `SKILL.md` carries a table keyed on those names. `iwe-capture` and
 `iwe-plan` each bundle a `close-issue.sh` that parses its arguments and
@@ -197,8 +200,13 @@ Verified anchor points (line numbers as of 2026-10-26):
   plan
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — one
   Implementer per plan
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:145` — the Shipper
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:14` — the in-place follow
+  of `iwe-planner`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:163` — the Shipper
   re-dispatch after a revision
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:19` and
+  `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:18` — the
+  orchestrator running `## Running the loop`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:97` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —

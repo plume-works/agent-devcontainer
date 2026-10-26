@@ -8,6 +8,12 @@ to the current day's group.
 
 - **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
   and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `iwe-planner` and `iwe-revision-evaluator` agents, the thin `iwe-plan` skill,
+  and the Implement loop.
+- **Create**: [Autonomous Implement
+  loop](architecture/autonomous-implement-loop.md) architecture doc.
+- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
   `iwe-verifier` agent and the dispatching `iwe-verify` skill.
 
 ## 2026-10-25

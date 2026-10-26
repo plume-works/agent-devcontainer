@@ -281,9 +281,14 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md`, and any other
 doc the map skill reports stale
 
-- [ ] Run `/agentdev:iwe-map` refresh mode so the agent list names `iwe-planner`
+- [x] Run `/agentdev:iwe-map` refresh mode so the agent list names `iwe-planner`
   and `iwe-revision-evaluator`, and the skill descriptions match the thin
   `iwe-plan` and the loop.
+  - **Evidence:** commit "map: refresh the agentdev catalog for the Implement
+    loop"; `stale-map-docs.py` reports `RESULT=SUCCESS` in a clean worktree of
+    that commit. The `devcontainer` and `flow-devcontainer-lifecycle` docs it
+    flags in this checkout are stale only against an uncommitted
+    `.devcontainer/docker-compose.yml` edit outside this plan.
 
 ## Spec changes
 
