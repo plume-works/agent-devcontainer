@@ -422,8 +422,11 @@ extensions' `package.json` versions (through `bun run bump`), in
 
 **Files:** none
 
-- [ ] The sibling repository's CI passes on the commit that completes Tasks
+- [x] The sibling repository's CI passes on the commit that completes Tasks
   1–10.
+  - **Evidence:** `build` passes in CI run `40395176086` on
+    plume-works/vscode-expo-bridge#25 at `cce47ba`: lint, typecheck, `bun test`,
+    and three VSIX packaged.
 
 ### Task 12: Mac round trip from the packaged VSIX files
 
