@@ -112,12 +112,16 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`
 
-- [ ] Rewrite the skill as the two routes in `## Approach`: from a session,
+- [x] Rewrite the skill as the two routes in `## Approach`: from a session,
   build the prompt from the request alone (plan key or audit mode, approvals
   quoted verbatim, nothing else from the conversation), dispatch `iwe-verifier`
   forwarding no conversation turns, and re-post its report verbatim; from inside
   `iwe-shipper`, read `../../agents/iwe-verifier.agent.md` and follow it in
   place without dispatching. Keep the skill's `description`.
+  - **Evidence:** commit "Make iwe-verify dispatch iwe-verifier":
+    `iwe-verify/SKILL.md` `## From a session` and `## From inside iwe-shipper`;
+    validator 0 errors; `uv run pytest .agents/plugins/agentdev/tests` passes
+    270\.
 
 ### Task 3: Have the Shipper follow the verifier rulebook in place
 
