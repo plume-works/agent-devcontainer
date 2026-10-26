@@ -7,6 +7,8 @@ from typing import Any
 HELLO_KEY = 'data/plans/20261008-e2e-hello'
 GREET_KEY = 'data/plans/20261008-e2e-greet'
 BRANCH_KEY = 'data/plans/20261025-e2e-branch'
+LOOP_KEY = 'data/plans/20261026-e2e-loop'
+REVISE_KEY = 'data/plans/20261026-e2e-revise'
 # The name iwe-branch-name gives the first implementation branch of BRANCH_KEY.
 BRANCH_WORK = 'impl/e2e-branch/iter-1'
 FIXTURE_BRANCH = 'e2e-fixture'
@@ -18,6 +20,7 @@ EXPLORE = (
 )
 SHIPPER = 'iwe-shipper'
 VERIFIER = 'iwe-verifier'
+EVALUATOR = 'iwe-revision-evaluator'
 RULEBOOK = 'agents/iwe-implementer.agent.md'
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
 # Per-test budgets in seconds: about three times each harness's slowest scenario

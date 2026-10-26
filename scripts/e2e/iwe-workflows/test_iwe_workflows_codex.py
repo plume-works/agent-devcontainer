@@ -18,11 +18,14 @@ import pytest
 from scenarios import (
     APPROVAL,
     CODEX_BUDGET,
+    EVALUATOR,
     EXPLORE,
     FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
+    LOOP_KEY,
     PLANTED,
+    REVISE_KEY,
     RULEBOOK,
     SHIPPER,
     VERIFIER,
@@ -135,6 +138,7 @@ def test_implement(codex_clone: Clone) -> None:
         f'rulebook read in session\n{commands}\n{transcript.excerpt()}'
     )
     assert transcript.spawns() == [], f'nothing spawned\n{transcript.spawns()}'
+    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
     assert codex_clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'
     assert codex_clone.branch() == FIXTURE_BRANCH, (
         f'stayed on {FIXTURE_BRANCH}\n{transcript.excerpt()}'
@@ -142,6 +146,29 @@ def test_implement(codex_clone: Clone) -> None:
     assert codex_clone.local_branches() == [FIXTURE_BRANCH], (
         f'no branch added\n{transcript.excerpt()}'
     )
+
+
+def test_implement_verifies(codex_clone: Clone) -> None:
+    """Implement closes the task, then spawns a fresh verifier once and no evaluator."""
+    transcript = run(codex_clone, 'implement-verifies', f'$agentdev:iwe-implement {LOOP_KEY}')
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
+    assert codex_clone.loop_done(), (
+        f'task ticked with evidence, file written\n{transcript.excerpt()}'
+    )
+
+
+def test_implement_revises(codex_clone: Clone) -> None:
+    """Implement takes an evaluated revision that adds the missing task, then completes it."""
+    transcript = run(codex_clone, 'implement-revises', f'$agentdev:iwe-implement {REVISE_KEY}')
+    assert transcript.agent_spawns(EVALUATOR) == 1, (
+        f'one iwe-revision-evaluator spawn\n{transcript.spawns()}'
+    )
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
+    before, after = codex_clone.revise_tasks_committed()
+    assert after > before, f'a task added in a commit: {before} -> {after}\n{transcript.excerpt()}'
+    assert codex_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
 
 
 def test_explore(codex_open_question_clone: Clone) -> None:

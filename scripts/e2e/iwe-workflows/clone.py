@@ -19,19 +19,29 @@ DATA = 'docs/knowledge/data'
 HELLO = f'{DATA}/plans/20261008-e2e-hello.md'
 GREET = f'{DATA}/plans/20261008-e2e-greet.md'
 BRANCH = f'{DATA}/plans/20261025-e2e-branch.md'
+LOOP = f'{DATA}/plans/20261026-e2e-loop.md'
+REVISE = f'{DATA}/plans/20261026-e2e-revise.md'
 UNRELEASED = f'{DATA}/releases/unreleased.md'
 FIXTURE_PLANS = (
     'plans/20261008-e2e-hello.md',
     'plans/20261008-e2e-greet.md',
     'plans/20261025-e2e-branch.md',
+    'plans/20261026-e2e-loop.md',
+    'plans/20261026-e2e-revise.md',
 )
 MARKER = 'published.marker'
 GREET_TASK = re.compile(r'^- \[ \] Write `e2e/greet\.txt`', re.MULTILINE)
+TICKED_WITH_EVIDENCE = re.compile(
+    r'^- \[x\] .*\n(?:  .*\n)*?  - \*\*Evidence:\*\* \S', re.MULTILINE
+)
+TASK_HEADING = re.compile(r'^### Task \d+', re.MULTILINE)
 _HUB_LINK = re.compile(r'^\[.*\]\((plans/[^)]*\.md)\)$')
 _ACTIVE_LINKS = (
     '[E2E hello fixture](plans/20261008-e2e-hello.md)',
     '[E2E greet fixture](plans/20261008-e2e-greet.md)',
     '[E2E branch fixture](plans/20261025-e2e-branch.md)',
+    '[E2E loop fixture](plans/20261026-e2e-loop.md)',
+    '[E2E revise fixture](plans/20261026-e2e-revise.md)',
 )
 _AUTHOR = ('-c', 'user.name=e2e', '-c', 'user.email=e2e@example.invalid')
 
@@ -148,6 +158,8 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-hello.md', path / HELLO)
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-greet.md', path / GREET)
     shutil.copy2(FIXTURES / 'plans/20261025-e2e-branch.md', path / BRANCH)
+    shutil.copy2(FIXTURES / 'plans/20261026-e2e-loop.md', path / LOOP)
+    shutil.copy2(FIXTURES / 'plans/20261026-e2e-revise.md', path / REVISE)
     _activate_fixtures(data)
     repo.iwe_check()
     base = repo.commit_all('e2e fixtures')
@@ -223,6 +235,24 @@ class Clone(Repo):
     def unreleased_diff(self) -> str:
         """Return the release accumulator's diff against ``base``; empty when unchanged."""
         return self.git('diff', self.base, '--', UNRELEASED)
+
+    def loop_done(self) -> bool:
+        """Whether the loop task is ticked with an evidence line and its file holds ``loop``."""
+        ticked = TICKED_WITH_EVIDENCE.search((self.path / LOOP).read_text()) is not None
+        written = self.path / 'e2e/loop.txt'
+        return ticked and written.exists() and written.read_text().strip() == 'loop'
+
+    def revise_tasks_committed(self) -> tuple[int, int]:
+        """Return the revise plan's task count at ``base`` and at ``HEAD``."""
+        before = self.git('show', f'{self.base}:{REVISE}')
+        after = self.git('show', f'HEAD:{REVISE}')
+        return len(TASK_HEADING.findall(before)), len(TASK_HEADING.findall(after))
+
+    def revise_files(self) -> bool:
+        """Whether both files the revise fixture's spec outcome names exist."""
+        return all(
+            (self.path / f'e2e/{name}').exists() for name in ('revise.txt', 'revise-notes.txt')
+        )
 
     def greet_untouched(self) -> bool:
         """Whether the greet task is still unticked and its file still absent."""

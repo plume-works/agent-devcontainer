@@ -8,12 +8,15 @@ from scenarios import (
     BRANCH_KEY,
     BRANCH_WORK,
     CLAUDE_BUDGET,
+    EVALUATOR,
     EXPLORE,
     FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
+    LOOP_KEY,
     mentions,
     PLANTED,
+    REVISE_KEY,
     RULEBOOK,
     SHIPPER,
     VERIFIER,
@@ -103,6 +106,9 @@ def test_implement(base_clone: Clone) -> None:
         f'rulebook read in session\n{transcript.excerpt("Read")}'
     )
     assert transcript.calls('Agent') == [], f'nothing dispatched\n{transcript.excerpt("Agent")}'
+    assert transcript.agent_prompts(EVALUATOR) == [], (
+        f'no evaluator\n{transcript.excerpt("Agent")}'
+    )
     assert base_clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'
     assert base_clone.branch() == FIXTURE_BRANCH, (
         f'stayed on {FIXTURE_BRANCH}\n{transcript.excerpt()}'
@@ -110,6 +116,29 @@ def test_implement(base_clone: Clone) -> None:
     assert base_clone.local_branches() == [FIXTURE_BRANCH], (
         f'no branch added\n{transcript.excerpt()}'
     )
+
+
+def test_implement_verifies(base_clone: Clone) -> None:
+    """Implement closes the task, then dispatches the verifier once and no evaluator."""
+    transcript = run(base_clone, 'implement-verifies', f'/agentdev:iwe-implement {LOOP_KEY}')
+    dispatches = transcript.excerpt('Agent')
+    assert len(transcript.agent_prompts(VERIFIER)) == 1, f'one iwe-verifier dispatch\n{dispatches}'
+    assert transcript.agent_prompts(EVALUATOR) == [], f'no evaluator\n{dispatches}'
+    assert base_clone.loop_done(), (
+        f'task ticked with evidence, file written\n{transcript.excerpt()}'
+    )
+
+
+def test_implement_revises(base_clone: Clone) -> None:
+    """Implement takes an evaluated revision that adds the missing task, then completes it."""
+    transcript = run(base_clone, 'implement-revises', f'/agentdev:iwe-implement {REVISE_KEY}')
+    prompts = transcript.agent_prompts(EVALUATOR)
+    dispatches = transcript.excerpt('Agent')
+    assert len(prompts) == 1, f'one iwe-revision-evaluator dispatch\n{dispatches}'
+    assert REVISE_KEY in prompts[0], f'prompt names the plan\n{dispatches}'
+    before, after = base_clone.revise_tasks_committed()
+    assert after > before, f'a task added in a commit: {before} -> {after}\n{transcript.excerpt()}'
+    assert base_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
 
 
 def test_implement_on_main(main_clone: Clone) -> None:
