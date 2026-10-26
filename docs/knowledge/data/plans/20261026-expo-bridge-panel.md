@@ -355,7 +355,7 @@ on files in the container. The container reads its own files directly.
 **Files:** Create: `packages/workspace/src/quickfix.ts`,
 `packages/workspace/test/quickfix.test.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] A `CodeActionProvider` for the bridge's diagnostics offers:
+- [x] A `CodeActionProvider` for the bridge's diagnostics offers:
   - `xcode`, `cocoapods`, `fastlane`, `node`, `bun` → **Fix on the Mac…**, which
     runs `expoBridge.fix` with no arguments;
   - `expoToken` → **Set EXPO_TOKEN on the Mac…**, which runs
@@ -376,7 +376,16 @@ on files in the container. The container reads its own files directly.
     `development-simulator`, with the same body;
   - a remembered profile that no longer exists → **Pick a build profile…**, Task
     6's **Change build profile**.
-- [ ] `easCli`, `simulator`, and availability get no quick fix.
+  - **Evidence:** plume-works/vscode-expo-bridge `0c18bc7`:
+    `packages/workspace/src/quickfix.ts` `quickFixesFor` and
+    `simulatorProfileEdits`. `codeactions.ts` registers the `CodeActionProvider`
+    and `expoBridge.quickfix.runInTerminal`, which opens the container terminal.
+    The `quickfix.test.ts` tests pass, including "inserts the development
+    simulator profile under build" with the plan's body and
+    `"ios": { "simulator": true }` on one line.
+- [x] `easCli`, `simulator`, and availability get no quick fix.
+  - **Evidence:** `0c18bc7`; `quickfix.test.ts` "easCli, simulator, and
+    availability get none" passes, and `bun test` passes 401/401.
 
 The inserted profile:
 
