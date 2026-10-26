@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: After a devcontainer rebuild, sessions that `claude remote-control --spawn worktree` spawned on demand return in their own worktrees with their earlier turns and no user action, some several minutes after the server starts.
+description: After a devcontainer rebuild or a server restart, sessions that `claude remote-control --spawn worktree` spawned on demand return in their own worktrees with their earlier turns and no user action, after a delay from seconds to several minutes.
 generated:
   by: claude-code/opus-5
-  at: 2026-10-26T02:50:00Z
+  at: 2026-10-26T02:48:00Z
 sources:
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: https://github.com/anthropics/claude-code/issues/104940
@@ -15,7 +15,7 @@ Finding against [Claude Remote Control server
 mode](claude-remote-control-server-mode.md) and [Claude Remote Control server
 restart resume](claude-remote-control-server-restart-resume.md), measured on
 Claude Code 2.1.310 with `claude remote-control --spawn worktree` across a
-devcontainer rebuild.
+devcontainer rebuild and a later server restart.
 
 ## Measurement
 
@@ -24,13 +24,13 @@ devcontainer rebuild.
   session's own `.claude/worktrees/bridge-<session ID>` worktree, which the
   rebuild leaves in place, still registered and locked in git, on its
   `worktree-bridge-<session ID>` branch.
-- **They return without any user action.** While a session is offline, the
-  Claude app offers no way to send it a message, so nothing in the app can wake
-  it.
-- **The return is late and uneven.** The pre-created session returned within
-  seconds of the server starting. Three spawned sessions returned between 3 min
-  19 s and 3 min 46 s after the server started; the fourth returned 8 min 45 s
-  after.
+- **They return without any user action.** No message was sent to any of them;
+  the Claude app shows no send button for an offline session.
+- **The return is delayed and uneven.** The pre-created session returns within
+  seconds of the server starting. After the rebuild, three spawned sessions
+  returned 3 min 19 s to 3 min 46 s after the server started and the fourth 8
+  min 45 s after. After the later server restart, two returned within 5 s and
+  the other two after 43 s.
 - **No `initialize` pair shows in a worktree session's transcript.** Unlike the
   `same-dir` dispatch, the worktree transcripts record no `initialize` control
   requests around the return.
@@ -48,6 +48,8 @@ the report may describe sessions that were still inside this delay.
   with timed returns, or the service's dispatch rules.
 - **What carries the dispatch for a worktree session**, given that its
   transcript holds no `initialize` pair.
+- **Whether a message sent through the session's URL wakes it sooner.** Settling
+  it needs a session still offline when the message is sent.
 
 ## Closing
 
