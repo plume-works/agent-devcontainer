@@ -86,9 +86,12 @@ Rejected:
 
 **Files:** Modify: `.github/actions/ai-review-status/action.yml`
 
-- [ ] `codexLogins`, the Codex review lookup, and the `+1` reaction lookup are
+- [x] `codexLogins`, the Codex review lookup, and the `+1` reaction lookup are
   removed. The failure message names only `claude[bot]` and
   `github-actions[bot]`. `actionlint` and `zizmor` pass.
+  - **Evidence:** commit "Accept only Claude reviews in the AI review gate" —
+    `ai-review-status/action.yml` -37/+6; `pre-commit run actionlint` and
+    `pre-commit run zizmor --all-files` passed.
 
 ### Task 2: Only pull request events review
 
@@ -439,10 +442,9 @@ Verified anchor points (line numbers as of 2026-10-26):
 - `.github/workflows/ai-responder.yml:406` — empty-task dispatch for
   `@claude review`
 - `.github/workflows/ai-responder.yml:514` — `ai-review-present` `if:`
-- `.github/actions/ai-review-status/action.yml:68` — `codexLogins`
-- `.github/actions/ai-review-status/action.yml:117` — Codex `+1` reaction lookup
-- `.github/actions/ai-review-status/action.yml:128` — failure message naming
-  Codex
+- `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`, the only
+  accepted reviewers
+- `.github/actions/ai-review-status/action.yml:97` — failure message
 - `README.md:318` — comment re-review instruction
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:420`
   — untrusted-bot note
