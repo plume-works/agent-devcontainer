@@ -415,8 +415,9 @@ extensions' `package.json` versions (through `bun run bump`), in
   and its quick fixes. The pack and both extensions carry the next minor
   version.
   - **Evidence:** `cce47ba`: `packages/workspace/README.md`
-    `## Panel, status bar, and Problems`, and `bun run bump 0.3.0` sets the
-    pack, host, and workspace to 0.3.0.
+    `## Panel, status bar, and Problems`. `530b160`: `bun run bump 0.4.0` sets
+    the pack, host, and workspace to 0.4.0. That is the next even minor, so the
+    release workflow's `channelOf` publishes it as a release, not a pre-release.
 
 ### Task 11: Sibling repository CI passes
 
@@ -424,8 +425,8 @@ extensions' `package.json` versions (through `bun run bump`), in
 
 - [x] The sibling repository's CI passes on the commit that completes Tasks
   1–10.
-  - **Evidence:** `build` passes in CI run `40395176086` on
-    plume-works/vscode-expo-bridge#25 at `cce47ba`: lint, typecheck, `bun test`,
+  - **Evidence:** `build` passes in CI run `40422198156` on
+    plume-works/vscode-expo-bridge#25 at `530b160`: lint, typecheck, `bun test`,
     and three VSIX packaged.
 
 ### Task 12: Mac round trip from the packaged VSIX files
