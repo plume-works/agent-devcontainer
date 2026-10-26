@@ -104,3 +104,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
 
 [Fresh-context Verify](architecture/fresh-context-verify.md)
+
+[Autonomous Implement loop](architecture/autonomous-implement-loop.md)

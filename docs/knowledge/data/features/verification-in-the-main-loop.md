@@ -4,11 +4,12 @@ stage: implemented
 description: Ship invokes report-only Verify for every normal plan shipment and refuses all CRITICAL findings, while cancellation remains exempt.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T12:00:00Z
+  at: 2026-10-26T13:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
+- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 ---
 
 # Verification in the main loop
@@ -47,9 +48,10 @@ Properties that should hold:
   without shipping anything.
 - Verify keeps writing nothing to the graph. Its report is consumed by ship in
   the same turn; "Report, never fix" is unaffected.
-- Implement continues to run task evidence and final plan commands, but does not
-  automatically invoke the full Verify workflow. Ship is the one mandatory
-  integration point.
+- The Implement orchestrator dispatches `iwe-verifier` after the plan's tasks
+  close and acts on its findings ([Autonomous Implement
+  loop](autonomous-implement-loop.md)). Ship stays the mandatory gate before any
+  shipping state change.
 
 **The coupling only bites for defects Verify can name.** Making Ship refuse a
 CRITICAL raises the cost of a finding; it does not widen what counts as one. A
@@ -85,8 +87,9 @@ None — every design question this feature raised is settled.
 
 ## Resolved decisions
 
-- Mandatory verification lives in normal Ship only. Verify remains available
-  independently, and Implement does not gain a second automatic invocation.
+- Mandatory verification lives in normal Ship. Verify remains available
+  independently, and the Implement orchestrator dispatches `iwe-verifier` after
+  the tasks; Ship stays the mandatory gate before any shipping state change.
 - A CRITICAL finding is not overridable. Three outcomes remain: the plan stays
   active for fixes, it can be revised to drop the offending work (via the plan
   skill's revise mode, which treats that as a material scope change and asks the

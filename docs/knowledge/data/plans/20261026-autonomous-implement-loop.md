@@ -258,14 +258,21 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/verification-in-the-main-loop.md`
 
-- [ ] Write `data/architecture/autonomous-implement-loop.md` with the decisions
+- [x] Write `data/architecture/autonomous-implement-loop.md` with the decisions
   in `## Approach` and their rejected alternatives, linked from
   `data/architecture.md`.
-- [ ] In [Verification in the main
+  - **Evidence:** commit "Record the autonomous Implement loop in the graph":
+    `data/architecture/autonomous-implement-loop.md`, linked from
+    `data/architecture.md`; `iwe normalize` and `iwe schema validate` pass.
+- [x] In [Verification in the main
   loop](../features/verification-in-the-main-loop.md), replace the Behaviour
   property and the resolved decision that Implement does not invoke Verify. The
   replacement says the Implement orchestrator dispatches `iwe-verifier` after
   the tasks, and Ship stays the mandatory gate before any shipping state change.
+  - **Evidence:** commit "Record the autonomous Implement loop in the graph":
+    the Behaviour property and the first resolved decision in
+    `data/features/verification-in-the-main-loop.md` now say so;
+    `iwe schema validate` passes.
 
 ### Task 8: Refresh the codebase map
 
