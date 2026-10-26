@@ -150,15 +150,27 @@ Rejected:
     `VERIFIER` in `scenarios.py`, `agent_prompts` / `agent_spawns` in the
     harnesses; `ruff check` and `ruff format --check` clean, 24 tests collect,
     and the live Claude Code and Codex `verify or ship` runs pass 5 of 5 each.
-- [ ] On each harness add `test_verify`: `/agentdev:iwe-verify` on `HELLO_KEY`
+- [x] On each harness add `test_verify`: `/agentdev:iwe-verify` on `HELLO_KEY`
   with no approval dispatches `iwe-verifier` once with a prompt naming the plan,
   publishes nothing, commits nothing, and leaves the plan active; on Codex the
   spawn forwards no turns.
-- [ ] On each harness add `test_verify_approved`: the same request with
+  - **Evidence:** commit "Cover Verify in the iwe-workflows e2e suite":
+    `test_verify` in the three `test_iwe_workflows_*.py` files; the live
+    `-k 'verify or ship'` runs on 2026-10-26 pass 5 of 5 on Claude Code 2.1.310,
+    Codex 0.164.0, and OpenCode 2.1.4.
+- [x] On each harness add `test_verify_approved`: the same request with
   `APPROVAL` and `PLANTED` quotes the approval, leaves the planted sentence out,
   runs the publish, commits nothing, and leaves the plan active.
-- [ ] In each harness's `test_ship_approved`, assert no `iwe-verifier` was
+  - **Evidence:** commit "Cover Verify in the iwe-workflows e2e suite":
+    `test_verify_approved` in the three `test_iwe_workflows_*.py` files; Codex
+    stores the spawn message encrypted, so its test asserts `fork_turns: none`
+    and the child's publish in place of prompt text; the live runs above pass on
+    all three harnesses.
+- [x] In each harness's `test_ship_approved`, assert no `iwe-verifier` was
   dispatched — the Shipper ran Verify in place.
+  - **Evidence:** commit "Cover Verify in the iwe-workflows e2e suite": the
+    `VERIFIER` assertion closing each `test_ship_approved`; the live runs above
+    pass on all three harnesses.
 
 ### Task 5: Run the e2e suite on all three harnesses
 
