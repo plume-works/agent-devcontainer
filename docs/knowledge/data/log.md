@@ -4,6 +4,11 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-26
+
+- **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
+  task trigger](backlog/drop-claude-free-form-task-trigger.md).
+
 ## 2026-10-25
 
 - **Update**: filed [Bug: a comment-requested review's gate does not count

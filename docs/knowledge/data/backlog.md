@@ -44,6 +44,9 @@ mechanically](backlog/detect-plan-narration-growth.md)
 [Clean up the local checkout after
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
+[Drop the `@claude <custom prompt>` free-form task
+trigger](backlog/drop-claude-free-form-task-trigger.md)
+
 ## Done
 
 [Simplify the pr-* skills for the single review
