@@ -127,10 +127,13 @@ Rejected:
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] Rewrite step 3 so the Shipper invokes `/agentdev:iwe-verify` and takes its
+- [x] Rewrite step 3 so the Shipper invokes `/agentdev:iwe-verify` and takes its
   in-place route, following the `iwe-verifier` rulebook in its own context and
   never dispatching an agent; the approval and CRITICAL handling in that step
   stay as they are.
+  - **Evidence:** commit "Have iwe-shipper run Verify in place":
+    `iwe-shipper.agent.md` step 3; validator 0 errors;
+    `uv run pytest .agents/plugins/agentdev/tests` passes 270.
 
 ### Task 4: Cover Verify in the e2e suite
 
