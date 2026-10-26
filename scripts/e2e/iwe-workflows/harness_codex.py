@@ -204,7 +204,17 @@ def run_codex(clone: Clone, name: str, prompt: str, budget: float) -> CodexTrans
     path = transcripts / f'{name}.jsonl'
     with path.open('w') as out, (transcripts / f'{name}.err').open('w') as err:
         process = subprocess.Popen(
-            ['codex', 'exec', '-s', 'workspace-write', '--json', prompt],
+            # workspace-write keeps .git read-only; naming it as a root lets the run commit.
+            [
+                'codex',
+                'exec',
+                '-s',
+                'workspace-write',
+                '--add-dir',
+                str(clone.path / '.git'),
+                '--json',
+                prompt,
+            ],
             cwd=clone.path,
             stdin=subprocess.DEVNULL,
             stdout=out,

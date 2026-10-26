@@ -223,6 +223,7 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 `scripts/e2e/iwe-workflows/fixtures/plans/20261026-e2e-loop.md`,
 `scripts/e2e/iwe-workflows/fixtures/plans/20261026-e2e-revise.md`; Modify:
 `scripts/e2e/iwe-workflows/clone.py`, `scripts/e2e/iwe-workflows/scenarios.py`,
+`scripts/e2e/iwe-workflows/harness_codex.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
