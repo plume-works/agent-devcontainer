@@ -153,21 +153,34 @@ Rejected:
 `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] The README "Pull-request automation" section names removing and re-adding
+- [x] The README "Pull-request automation" section names removing and re-adding
   the author as assignee as the way to request another review.
-- [ ] The consumption guide's `@claude review` references are rewritten:
+  - **Evidence:** commit "Document the assignee toggle as the AI re-review
+    trigger" — `README.md` "Pull-request automation" replaces the
+    `@claude review` sentence with the assignee toggle.
+- [x] The consumption guide's `@claude review` references are rewritten:
   - the untrusted-bot note says such pull requests need ruleset bypass;
   - the run-link note is limited to comment-triggered task requests;
   - the re-review trigger behaviour names the assignee toggle;
   - the default-branch caveat covers task mentions and the rejection.
-- [ ] The feature doc drops Codex acceptance and the comment re-review, states
+  - **Evidence:** commit "Document the assignee toggle as the AI re-review
+    trigger" — `consumption-guide.md` -8/+8 covering all four points; the
+    Verification `@claude review` grep shows only the default-branch rejection
+    note.
+- [x] The feature doc drops Codex acceptance and the comment re-review, states
   that the marker outranks an assignment, and takes the effort tier from the
   body marker alone.
-- [ ] `pr-review/SKILL.md` names the body marker as the only source of the
+  - **Evidence:** commit "Document the assignee toggle as the AI re-review
+    trigger" — `ai-responder-workflows.md` gate, skip-marker, and effort
+    paragraphs rewritten; `iwe normalize` and `iwe schema validate` passed.
+- [x] `pr-review/SKILL.md` names the body marker as the only source of the
   effort tier, and its trigger example no longer offers `@claude review` or
   `@codex review`.
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
+  - **Evidence:** commit "Document the assignee toggle as the AI re-review
+    trigger" — `pr-review/SKILL.md` lines 14 and 87; the validator reported
+    64/64 skills valid, 0 errors, 0 warnings.
 
 ### Task 5: Assignment reviews on a live pull request
 
@@ -465,12 +478,12 @@ Verified anchor points (line numbers as of 2026-10-26):
 - `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`, the only
   accepted reviewers
 - `.github/actions/ai-review-status/action.yml:97` — failure message
-- `README.md:318` — comment re-review instruction
+- `README.md:318` — assignee-toggle re-review instruction
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:420`
   — untrusted-bot note
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:450`
-  — re-review by comment
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:448`
+  — re-review by assignee toggle
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:14` — trigger example
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:87` — effort-tier source
-- `docs/knowledge/data/features/ai-responder-workflows.md:66` — gate acceptance
+- `docs/knowledge/data/features/ai-responder-workflows.md:70` — gate acceptance
   and re-review paragraph
