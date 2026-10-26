@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:e2ac76e874de5704da2fd2e310d12a4e60ce74acd3cc26193d1abec6bbbe8e0f
+source_digest: sha256:e0bd2e0132d5096762375034698fece5c4b5a5dfbab9be1236c9d54d26797290
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-24T04:17:27Z
-stale_after: 2027-01-23
+  at: 2026-10-26T03:30:00Z
+stale_after: 2027-01-24
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T04:17:27Z
+  at: 2026-10-26T03:30:00Z
 sources:
 - id: code
   resource: .devcontainer

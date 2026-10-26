@@ -4,6 +4,19 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-26
+
+- **Update**: [Configurable Remote Control spawn mode, worktree by
+  default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
+  spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
+  spec; [Remote Control server
+  mode](features/claude-remote-control-server-mode.md) stays implemented and
+  listed under Unreleased Added.
+- **Update**: refreshed the [devcontainer
+  scripts](codebase/devcontainer/scripts.md) map for the Remote Control spawn
+  mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
+
 ## 2026-10-25
 
 - **Update**: [iwe-branch-name skill](plans/20261020-iwe-branch-name.md) done;

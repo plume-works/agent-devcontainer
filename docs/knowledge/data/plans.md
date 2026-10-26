@@ -37,6 +37,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Configurable Remote Control spawn mode, worktree by
+default](plans/20261025-claude-remote-control-spawn-mode.md)
+
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Bundle a Playwright browser in the development
