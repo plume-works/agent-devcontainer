@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-26
+
+- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `iwe-verifier` agent and the dispatching `iwe-verify` skill.
+
 ## 2026-10-25
 
 - **Update**: [iwe-branch-name skill](plans/20261020-iwe-branch-name.md) done;

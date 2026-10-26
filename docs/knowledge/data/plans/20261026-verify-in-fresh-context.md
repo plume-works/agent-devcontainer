@@ -190,8 +190,11 @@ Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md`, and any other
 doc the map skill reports stale
 
-- [ ] Run `/agentdev:iwe-map` refresh mode so the agent list and the skill
+- [x] Run `/agentdev:iwe-map` refresh mode so the agent list and the skill
   descriptions name `iwe-verifier` and the dispatching `iwe-verify`.
+  - **Evidence:** commit "map: refresh the agentdev catalog for iwe-verifier":
+    `stale-map-docs.py` reported the two docs `STALE` and ends `RESULT=SUCCESS`
+    after the refresh; `iwe schema validate` passes.
 
 ## Spec changes
 

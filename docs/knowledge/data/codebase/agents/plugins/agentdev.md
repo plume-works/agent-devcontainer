@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:36629bc76625e21908605cd472966cd8b54086c14e2bb4c6061c8be5d9535693
+source_digest: sha256:ae6b8480db6fbb820df87e401ffc00371957cbc84ab51a04b24666274aa93e33
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
-stale_after: 2027-01-23
+  at: 2026-10-26T13:00:00Z
+stale_after: 2027-01-24
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
+  at: 2026-10-26T13:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -41,19 +41,23 @@ layout are in [Module layout](../../../architecture/module-layout.md) and
 
 [Plugin tests](agentdev/tests.md)
 
-*Not mapped*: `agents/` — seven agent definitions (`Principal Engineer`,
+*Not mapped*: `agents/` — eight agent definitions (`Principal Engineer`,
 `TDD Red`, `TDD Green`, `TDD Refactor`, `Durable Knowledge Auditor`,
-`iwe-shipper`, `iwe-implementer`), one file each.
+`iwe-shipper`, `iwe-implementer`, `iwe-verifier`), one file each.
 
 ## Public surface
 
 - `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (42
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
-  `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`
-  — the last two hold the Ship and Implement rulebooks and are started only by
-  their explicit-only skills ([Explicit-only workflow
-  agents](../../../architecture/explicit-only-workflow-agents.md))
+  `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`,
+  `iwe-verifier` — `iwe-shipper` and `iwe-implementer` hold the Ship and
+  Implement rulebooks and are started only by their explicit-only skills
+  ([Explicit-only workflow
+  agents](../../../architecture/explicit-only-workflow-agents.md));
+  `iwe-verifier` holds the Verify rulebook, dispatched by `iwe-verify` and
+  followed in place by `iwe-shipper` ([Fresh-context
+  Verify](../../../architecture/fresh-context-verify.md))
 - `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
   `result_codes.py`, which a Python skill script imports from there
 - `.opencode-plugin/` — the directory an OpenCode `plugin` entry names
@@ -94,7 +98,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-26):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
@@ -106,3 +110,4 @@ Verified anchor points (line numbers as of 2026-10-25):
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:2` — the Ship agent
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:2` — the Implement
   agent
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:2` — the Verify agent
