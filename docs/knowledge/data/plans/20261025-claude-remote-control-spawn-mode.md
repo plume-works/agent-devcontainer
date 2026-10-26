@@ -187,13 +187,15 @@ Assumptions:
 
 **Files:** none
 
-- [ ] With `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN`
+- [x] With `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN`
   unset, a conversation started from claude.ai/code runs in a worktree under
   `.claude/worktrees/` on its own branch, `gh auth status` succeeds in it, its
   project MCP servers are connected, and `git status` in the workspace folder
   lists no worktree files, while the pre-created session works in the workspace
   folder; a missing MCP server is captured as a bug with
   `/agentdev:iwe-capture bug`
+  - **Evidence:** Coder workspace `agent-dev2`, 2026-10-26: see
+    `## Verification results`.
 - [ ] With `AGENTDEV_CLAUDE_RC_SPAWN=same-dir` and a fresh `claude-remote`
   session, a conversation started from claude.ai/code runs in the workspace
   folder
@@ -202,11 +204,13 @@ Assumptions:
 
 **Files:** none
 
-- [ ] In worktree mode, restart the server with a spawned worktree conversation
+- [x] In worktree mode, restart the server with a spawned worktree conversation
   live, wait for the service to dispatch it, and record in
   `## Verification results` whether it returned with its earlier turns and in
   which directory; a return outside its worktree is captured as a bug with
   `/agentdev:iwe-capture bug`
+  - **Evidence:** Coder workspace `agent-dev2`, 2026-10-26, a devcontainer
+    rebuild and a server restart: see `## Verification results`.
 
 ## Spec changes
 
@@ -299,6 +303,24 @@ spawn-on-demand server, if its wording no longer fits.
 - `git check-ignore -q .claude/worktrees/example/file` succeeds.
 - Tasks 5 and 6 on a Coder workspace.
 - `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+- **Task 5, worktree mode** (Coder workspace `agent-dev2`, Claude Code 2.1.310):
+  a conversation started from claude.ai/code ran in
+  `.claude/worktrees/bridge-<session ID>` on its own
+  `worktree-bridge-<session ID>` branch, at `origin/main` with a clean tree.
+  `gh auth status` succeeded in it, and the codebase-memory MCP server was
+  connected. `git status` in the workspace folder listed no worktree files, and
+  the pre-created session ran in the workspace folder. The `gateway` MCP server
+  failed to connect in both the worktree and the pre-created session: it is the
+  Docker-compose desktop sidecar, absent on Coder by design, so no bug was
+  captured.
+- **Task 6:** across a devcontainer rebuild and a later server restart, every
+  spawned worktree session returned under the same ID with its earlier turns,
+  running in its own worktree, after a delay of seconds to several minutes and
+  with no user action. Recorded in [Claude Remote Control worktree restart
+  resume](../architecture/claude-remote-control-worktree-restart-resume.md).
 
 ## Out of scope
 
