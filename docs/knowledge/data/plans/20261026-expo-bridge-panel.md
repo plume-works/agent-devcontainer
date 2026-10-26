@@ -276,17 +276,30 @@ on files in the container. The container reads its own files directly.
 **Files:** Modify: `packages/workspace/src/panel.ts`,
 `packages/workspace/package.json`, in `plume-works/vscode-expo-bridge`
 
-- [ ] **Re-run status** in the view title sends one `status` request for each
+- [x] **Re-run status** in the view title sends one `status` request for each
   Expo folder.
-- [ ] **Build** builds the folder's remembered profile, asking from
+  - **Evidence:** plume-works/vscode-expo-bridge `9c54e69`:
+    `expoBridge.panel.refresh` in `view/title` runs `requestStatus` in
+    `packages/workspace/src/ui.ts`, through the same `relayRequest` as the
+    socket.
+- [x] **Build** builds the folder's remembered profile, asking from
   `buildProfiles` the first time and storing the answer in `workspaceState`
   under the folder's path. **Change build profile** asks again. **Clean build**
   sends the same request with `clean: true`. The log streams to an
   `Expo Bridge Build` output channel, and a notification names the artifact and
   the `mode`/`reason`.
-- [ ] **Fix…** on a failing Mac tool item runs `expoBridge.fix`. **Set
+  - **Evidence:** `9c54e69`: `build` and `pickProfile` in `ui.ts`, with the
+    `workspaceState` key `profileKey(folder)` and the `buildMessage` text in
+    `actions.ts`. The `actions.test.ts` `buildMessage` tests pass. Task 12
+    checks on the Mac that a second build does not ask for the profile.
+- [x] **Fix…** on a failing Mac tool item runs `expoBridge.fix`. **Set
   EXPO_TOKEN** runs `expoBridge.setToken`, and **Manage trust** runs
   `expoBridge.manageTrust`. Each is called with no arguments.
+  - **Evidence:** `9c54e69`: `expoBridge.panel.fix`, `.setToken`, and
+    `.manageTrust` are inline on the `expoBridge.check.fixable`, `.expoToken`,
+    and `.workspaceTrusted` items. Each runs `host(HOST_COMMANDS.*)`, which
+    drops the tree item argument. `actions.test.ts` "names the host's existing
+    consent-bearing commands" passes, and `bun test` passes 378/378.
 
 ### Task 7: The status bar item
 
