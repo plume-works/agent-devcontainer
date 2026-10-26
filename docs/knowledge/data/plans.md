@@ -23,8 +23,6 @@ review](plans/20261023-pr-update-reevaluates-review.md)
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
-[iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
-
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
 
@@ -38,6 +36,8 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)

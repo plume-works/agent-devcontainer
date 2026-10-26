@@ -57,9 +57,11 @@ def render_config(clone: Clone) -> dict[str, Any]:
     return json.loads(text)
 
 
-def isolated_env(root: Path, password: str) -> dict[str, str]:
+def isolated_env(root: Path, password: str, path: str | None = None) -> dict[str, str]:
     """Return an environment whose OpenCode state and git identity all live under ``root``."""
     env = {k: v for k, v in os.environ.items() if k not in _INHERITED_CONFIG}
+    if path is not None:
+        env['PATH'] = path
     env.update(
         HOME=str(root / 'home'),
         XDG_CONFIG_HOME=str(root / 'config'),
@@ -267,7 +269,7 @@ def start_server(clone: Clone, login: dict[str, Any], binary: str) -> OpenCodeSe
         raise FileNotFoundError(f'no OpenCode binary {binary!r}; set OPENCODE_BIN')
     root = clone.path.parent / 'opencode'
     password = secrets.token_urlsafe(24)
-    env = isolated_env(root, password)
+    env = isolated_env(root, password, clone.agent_path(os.environ.get('PATH', '')))
     config = Path(env['OPENCODE_CONFIG_DIR']) / 'opencode.json'
     config.write_text(json.dumps(render_config(clone), indent=2))
     port = free_port()

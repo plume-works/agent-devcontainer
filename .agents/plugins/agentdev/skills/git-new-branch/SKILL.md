@@ -38,11 +38,11 @@ To bring an existing branch up to date with its base, use
 Use the name the user gives. When they give none, suggest one from context and
 confirm it before running the script:
 
-| Context                                | Suggested name                         |
-| -------------------------------------- | -------------------------------------- |
-| An IWE plan `data/plans/<date>-<slug>` | `<slug>`                               |
-| A GitHub issue                         | `<number>-<slug>`                      |
-| Anything else                          | a short kebab-case summary of the work |
+| Context                                | Suggested name                                          |
+| -------------------------------------- | ------------------------------------------------------- |
+| An IWE plan `data/plans/<date>-<slug>` | the `NEXT` that `/agentdev:iwe-branch-name next` prints |
+| A GitHub issue                         | `<number>-<slug>`                                       |
+| Anything else                          | a short kebab-case summary of the work                  |
 
 `<slug>` for an issue is a short kebab-case form of its title.
 
