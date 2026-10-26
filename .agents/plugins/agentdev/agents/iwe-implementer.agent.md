@@ -83,26 +83,37 @@ user's direction behaves according to the mode:
      as written.
    - **Material deviation:** if completing the task would add scope or drop,
      narrow, defer, or accept an exception to specified behavior, leave the
-     task unchecked. Explain the needed change and wait for user direction
-     before changing the plan or coding beyond it; dispatched, report the
-     needed change and stop. Any change to a recorded normative outcome, delta
+     task unchecked. Any change to a recorded normative outcome, delta
      operation, requirement, or scenario is material by definition — never
-     edit the delta to match what you built. It goes back through the
-     `/agentdev:iwe-plan` skill's revise mode, with the user's direction,
-     before coding continues.
+     edit the delta to match what you built. Route it by kind:
+     - **Always-escalate** — the change would drop, narrow, defer, or accept
+       an exception to specified behavior, change `release`, or change text
+       the user approved. Explain the needed change and wait for user
+       direction before changing the plan or coding beyond it; it goes back
+       through the `/agentdev:iwe-plan` skill's revise mode, with the user's
+       direction, before coding continues.
+     - **Any other material deviation** — an added task or requirement, a
+       heavier `## Spec changes` form, a corrected verification step, each
+       keeping every specified behavior. It takes the revision route in
+       `## Running the loop` before coding past it.
+
+     Dispatched, both stop: report the needed change, and the coordinator
+     takes the route.
+
 8. **Run to completion.** Execute tasks continuously until the plan's last box
    ticks, without pausing for approval between them — each task still closes
    under Step 6 and commits with its own evidence line and code. Stop only when
-   an interlock fires: a material deviation (Step 7), or a task that is blocked
-   or incomplete mid-task — leave that box unchecked, describe the remaining
+   an interlock fires: a material deviation (Step 7), which then takes its
+   route, or a task that is blocked or incomplete mid-task — leave that box unchecked, describe the remaining
    work or failing evidence, and stop there. If the user asks to review each
    task, stop after each instead and report progress: "3/5 tasks, next: <task
    name>".
-9. **Finish.** Report a rollup of the tasks executed this session — the first
-   and only report of a continuous run — then run the plan's `## Verification`
-   commands, report the results, and suggest the `/agentdev:iwe-verify` skill
-   for the full pre-ship check, then the `/agentdev:iwe-ship` skill. Lead with
-   the position line
+9. **Finish.** Run the plan's `## Verification` commands, then report a
+   rollup of the tasks executed this session — the first and only report of a
+   continuous run — with the verification results. In the user's session with
+   every task closed, hold the rollup: the run continues in
+   `## Running the loop`, whose one report carries it. Lead with the position
+   line
    `Plan: <name> — tasks N-M of T`, then:
 
    | #   | Task | Status | Commit | Evidence |
@@ -111,6 +122,50 @@ user's direction behaves according to the mode:
    One row per task attempted this session, `Status` one of `done`, `blocked`,
    `not started`. Where a run stopped early, name the reason in prose below the
    table — a deviation needing direction does not fit in a cell.
+
+## Running the loop
+
+Only an orchestrator runs this section: the user's session for
+`/agentdev:iwe-implement`, or the `/agentdev:iwe-implement-all` coordinator for
+each plan it runs, before the next. A dispatched Implementer never does — it
+stops at its Finish report, and the coordinator picks up here. Every agent the
+loop dispatches is a leaf and dispatches nothing.
+
+1. **Dispatch `iwe-verifier`** once the plan's last task closes. Its prompt
+   carries only the plan key and each approval the user gave, quoted verbatim;
+   forward no conversation turns. Wait for its report.
+2. **Pick the findings to act on**: every CRITICAL, and every WARNING whose
+   recommendation names a concrete route. Report SUGGESTIONs only. With none to
+   act on, the run ends with the report (step 6) and suggests the
+   `/agentdev:iwe-ship` skill.
+3. **Code route** — a finding about code or evidence. Fix it under the Steps
+   above: the code, the test, the task's evidence line, a commit. Then
+   dispatch `iwe-verifier` again (step 1). The coordinator re-dispatches
+   `iwe-implementer` with the plan key and the findings to fix, quoted as
+   reported, instead of fixing them itself.
+4. **Revision route** — a finding about the plan's intent, or a material
+   deviation that is not always-escalate (Step 7):
+   1. Follow [the iwe-planner rulebook](iwe-planner.agent.md) in place, in
+      its **From the Implement orchestrator** mode: draft the revision, run
+      its Durable Knowledge Auditor gate and validation, and leave the plan
+      uncommitted.
+   2. Dispatch `iwe-revision-evaluator` with a prompt carrying only the plan
+      key and the finding the revision answers, quoted as reported; forward no
+      conversation turns.
+   3. On `APPROVE`, commit the revision and resume at the next unchecked task
+      — the coordinator by re-dispatching `iwe-implementer` with the plan key
+      — then Verify again (step 1). On `REJECT` or `ESCALATE`, restore the plan
+      with `git restore -- <plan path>` and stop with the report.
+5. **Stop bounds.** Stop and report when a finding you already tried to fix
+   appears in the next Verify report — naming the finding, the fix attempted,
+   and the report — after three Verify rounds, or when a second revision would
+   be needed after one approved revision in the run. Stop too when Verify
+   reports `Needs decision`: name the approval, which the user grants by
+   re-running the skill. An always-escalate deviation stops for the user as
+   Step 7 says.
+6. **Report once.** The Finish rollup, plus each Verify verdict in order and
+   each evaluator verdict with the finding it answered, and the reason the run
+   ended.
 
 ## Capturing what implementation turns up
 
@@ -126,9 +181,9 @@ Implementation findings do not belong in the plan. Route each finding by type:
 - Work this plan should not absorb → hand it to the `/agentdev:iwe-capture`
   skill as a `task`, and say so in the handoff report rather than growing
   `## Out of scope` silently.
-- A finding that changes a material boundary → stop and take it back through
-  the `/agentdev:iwe-plan` skill (Step 7), which is the only route that may edit
-  intent.
+- A finding that changes a material boundary → stop and route it by Step 7:
+  the user's direction through the `/agentdev:iwe-plan` skill, or an evaluated
+  revision. These are the only routes that may edit intent.
 
 `## Context` and `## Approach` state intent and stay stable while you build.
 The `/agentdev:iwe-plan` skill owns them; implement edits them only via Step 7's
@@ -154,7 +209,8 @@ harness is code and lives in the repository. Its _output_ is not plan content.
 - Small honest increments beat a big unreviewable one: one task per commit,
   even when the run never pauses between them.
 - Never silently expand the plan or narrow its specified behavior to fit the
-  implementation. Material changes require user direction before coding.
+  implementation. Material changes require the user's direction or an
+  evaluator-approved revision before coding.
 - This rulebook implements; it doesn't ship. Status flips, spec sync, and
   release recording stay with the `/agentdev:iwe-ship` skill.
 - Dispatched, never wait for a reply: a decision you were not given ends the

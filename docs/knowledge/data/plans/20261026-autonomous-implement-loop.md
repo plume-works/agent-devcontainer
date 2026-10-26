@@ -165,11 +165,16 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`
 
-- [ ] Split step 7's material deviation in two. A deviation on the
+- [x] Split step 7's material deviation in two. A deviation on the
   always-escalate list waits for the user, as today. Any other deviation leaves
   the task unchecked and takes the revision route. Dispatched, both stop and
   report.
-- [ ] Add a `## Running the loop` section that only an orchestrator runs: the
+  - **Evidence:** commit "Run the verify, fix, and revise loop from the
+    Implement orchestrator"; step 7 of `iwe-implementer.agent.md` routes
+    **Always-escalate** to the user and **Any other material deviation** to the
+    revision route, and both stop when dispatched; the validator reports 0
+    errors.
+- [x] Add a `## Running the loop` section that only an orchestrator runs: the
   user's session, or the `iwe-implement-all` coordinator. It covers:
   - the `iwe-verifier` dispatch after the last task, carrying only the plan key
     and quoted approvals, with no conversation forwarded;
@@ -179,9 +184,17 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
     commit or revert;
   - the stop bounds;
   - one rollup that adds each Verify verdict and each evaluator verdict.
-- [ ] Rewrite step 9 so the run hands to `## Running the loop` instead of
+  - **Evidence:** commit "Run the verify, fix, and revise loop from the
+    Implement orchestrator"; `## Running the loop` steps 1-6 cover the Verify
+    dispatch, findings to act on, the code route, the revision route, the stop
+    bounds, and the one report.
+- [x] Rewrite step 9 so the run hands to `## Running the loop` instead of
   suggesting `/agentdev:iwe-verify`, and update the Rules: material changes need
   the user's direction or an approved revision.
+  - **Evidence:** commit "Run the verify, fix, and revise loop from the
+    Implement orchestrator"; step 9 no longer names `/agentdev:iwe-verify` and
+    hands a completed session run to `## Running the loop`, and `## Rules` names
+    the user's direction or an evaluator-approved revision.
 
 ### Task 4: Wire the two entry skills to the loop
 
