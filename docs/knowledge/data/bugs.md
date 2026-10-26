@@ -124,3 +124,6 @@ config](bugs/expo-bridge-project-id-ignores-dynamic-config.md)
 
 [Bug: plan tasks edit spec documents that only Ship may
 change](bugs/plan-tasks-edit-specs.md)
+
+[Bug: the Expo bridge's build log tail drops
+lines](bugs/expo-bridge-build-log-tail-drops-lines.md)
