@@ -36,6 +36,8 @@ JavaScript](backlog/test-responder-workflow-js.md)
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 
+[Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
+
 ## Low
 
 [Detect plan narration growth
