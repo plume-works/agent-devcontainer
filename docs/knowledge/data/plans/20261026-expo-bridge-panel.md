@@ -220,8 +220,14 @@ on files in the container. The container reads its own files directly.
 `packages/workspace/package.json`, `packages/workspace/src/extension.ts`, in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `package.json` contributes an activity-bar view container `expoBridge`
+- [x] `package.json` contributes an activity-bar view container `expoBridge`
   with a placeholder icon, and a tree view `expoBridge.panel`.
+
+  - **Evidence:** plume-works/vscode-expo-bridge `a722022`
+    `packages/workspace/package.json` `contributes.viewsContainers` and `views`,
+    with `media/expo-bridge.svg`, which
+    `bun run --filter vscode-expo-bridge-workspace package` includes in the
+    VSIX.
 
 - [ ] The tree shows these sections for each workspace folder with an
   `eas.json`, and leaves out the folder level when there is one:
@@ -234,16 +240,36 @@ on files in the container. The container reads its own files directly.
 
   Each item shows its check's detail.
 
-- [ ] Before any status, after host-not-installed, and when unavailable, the
+  - **Evidence:** `a722022`: `packages/workspace/src/panelmodel.ts` `panelTree`,
+    with the check metadata in `checks.ts`, and the vscode glue in `panel.ts`
+    and `ui.ts`. The `panelmodel.test.ts` tests "shows the sections directly for
+    one folder", "shows each check's detail, and marks a failing Mac tool
+    fixable", "adds the container's eas.json problems to Project", and "an
+    unavailable folder beside an available one shows only its connection" pass.
+
+- [x] Before any status, after host-not-installed, and when unavailable, the
   view shows welcome content saying what that state means. Host-not-installed
   opens the Extensions view on `plume-works.vscode-expo-bridge-host`, for its
   **Install Locally**. Unavailable names the failing availability check and that
   EAS cloud builds still work.
 
-- [ ] The first time the view becomes visible in a window, it sends one `status`
+  - **Evidence:** `a722022` `contributes.viewsWelcome`, one entry per
+    `expoBridge.panelState` value, which `panelState` sets: `no-project`,
+    `not-checked`, `failed`, `host-missing` (a `workbench.extensions.search`
+    link), and one `unavailable-<check>` per availability check.
+    `panelmodel.test.ts` "names each state the welcome content covers" and "is
+    empty unless ready, so the welcome content shows" pass.
+
+- [x] The first time the view becomes visible in a window, it sends one `status`
   request for each Expo folder, carrying `containerBunVersion` as `eas-host`
   does. Nothing in `activate()` awaits revealing or focusing a view, since
   awaiting that during activation deadlocks the extension.
+
+  - **Evidence:** `a722022` `packages/workspace/src/ui.ts`: `firstLook` runs
+    from `onDidChangeVisibility` and a zero-delay timer, and `requestStatus`
+    sends `containerBunVersion` from `cli-args.ts`. `activate` awaits nothing.
+    The jsonc-parser import uses its ESM build, because the UMD build failed
+    activation of the bundled extension. `bun test` passes 373/373.
 
 ### Task 6: Panel actions
 
