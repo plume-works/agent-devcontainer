@@ -13,6 +13,8 @@ sources:
 - resource: .claude/.gitignore
 - resource: https://code.claude.com/docs/en/remote-control
 - resource: https://code.claude.com/docs/en/worktrees
+stage: done
+completed: 2026-10-26
 ---
 
 # Configurable Remote Control spawn mode, worktree by default

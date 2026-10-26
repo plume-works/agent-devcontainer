@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Configurable Remote Control spawn mode, worktree by
-default](plans/20261025-claude-remote-control-spawn-mode.md)
-
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
@@ -44,6 +41,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Configurable Remote Control spawn mode, worktree by
+default](plans/20261025-claude-remote-control-spawn-mode.md)
 
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
