@@ -176,8 +176,12 @@ Rejected:
 
 **Files:** none
 
-- [ ] Run the verify and ship scenarios live on Claude Code, Codex, and OpenCode
+- [x] Run the verify and ship scenarios live on Claude Code, Codex, and OpenCode
   (`## Verification`) and record the result in `## Verification results`.
+  - **Evidence:** commit "plan: record the live Verify and Ship e2e runs":
+    `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows/test_iwe_workflows_<harness>.py -k 'verify or ship'`
+    passes 5 of 5 on each harness at code commit "Cover Verify in the
+    iwe-workflows e2e suite", recorded in `## Verification results`.
 
 ### Task 6: Record the design and the changed behavior
 
@@ -301,9 +305,8 @@ stop before it and report the approval it needs.
 - `CODEX_HOME=./.tmp/codex-home uv run .agents/plugins/agentdev/bin/install-codex-agents.py`:
   `RESULT=SUCCESS`; `agentdev-iwe-verifier.toml` carries
   `sandbox_mode = "workspace-write"`.
-- Live `verify or ship` scenarios: Claude Code 2.1.310 passed 5 of 5; Codex
-  0.164.0 passed 5 of 5. OpenCode skipped all 5: no OpenCode web UI server
-  credential was available.
+- Live `verify or ship` scenarios: Claude Code 2.1.310, Codex 0.164.0, and
+  OpenCode 2.1.4 each passed 5 of 5.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
