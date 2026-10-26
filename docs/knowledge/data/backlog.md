@@ -19,9 +19,6 @@ write a plan and link the plan instead.*
 [Start Claude Remote Control in the standalone runtime when
 asked](backlog/standalone-claude-remote-control.md)
 
-[Let Implement verify, fix, and revise on its
-own](backlog/autonomous-implement-loop.md)
-
 ## Medium
 
 [Document VSCodium support for the Expo
@@ -51,6 +48,9 @@ mechanically](backlog/detect-plan-narration-growth.md)
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
 ## Done
+
+[Let Implement verify, fix, and revise on its
+own](backlog/autonomous-implement-loop.md)
 
 [Run Verify from a fresh context](backlog/verify-in-fresh-context.md)
 

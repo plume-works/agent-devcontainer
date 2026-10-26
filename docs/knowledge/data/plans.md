@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Let Implement verify, fix, and revise on its
+own](plans/20261026-autonomous-implement-loop.md)
+
 [Run Verify from a fresh context](plans/20261026-verify-in-fresh-context.md)
 
 [PR updates re-evaluate the AI

@@ -1,7 +1,8 @@
 ---
 type: task
 created: 2026-10-25
-stage: planned
+stage: done
+completed: 2026-10-26
 priority: high
 description: Let Implement run Verify itself, act on its findings, and revise its own plan after a fresh-context evaluator approves the revision, escalating to the user only for narrowing, dropping, or release changes.
 generated:
