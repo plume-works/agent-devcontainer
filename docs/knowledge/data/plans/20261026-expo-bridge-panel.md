@@ -330,8 +330,8 @@ on files in the container. The container reads its own files directly.
   per failing check, with the check's detail as the message and its key as the
   code, at the Approach's severities. Anchors:
   - `easCli` → `eas.json` `cli.version`;
-  - `easProjectId` → `app.json` `expo.extra`, else `expo`, else the first line
-    of `app.config.*`;
+  - `easProjectId` → the first line of `app.config.*` when the folder has one,
+    since it decides the value; else `app.json` `expo.extra`, else `expo`;
   - Task 4's checks → their own ranges;
   - every other check → the first line of `eas.json`.
   - **Evidence:** plume-works/vscode-expo-bridge `60353f3`:
