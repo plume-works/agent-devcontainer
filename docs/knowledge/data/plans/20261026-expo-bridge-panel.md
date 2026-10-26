@@ -326,7 +326,7 @@ on files in the container. The container reads its own files directly.
 `packages/workspace/package.json` (`jsonc-parser`), in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `diagnosticsFor(folder, status, containerChecks)` returns one diagnostic
+- [x] `diagnosticsFor(folder, status, containerChecks)` returns one diagnostic
   per failing check, with the check's detail as the message and its key as the
   code, at the Approach's severities. Anchors:
   - `easCli` → `eas.json` `cli.version`;
@@ -334,9 +334,21 @@ on files in the container. The container reads its own files directly.
     of `app.config.*`;
   - Task 4's checks → their own ranges;
   - every other check → the first line of `eas.json`.
-- [ ] When `available` is false, only the availability diagnostic is published.
+  - **Evidence:** plume-works/vscode-expo-bridge `60353f3`:
+    `packages/workspace/src/diagnostics.ts`
+    `diagnosticsFor(view, readFolderFiles(folder))`, where the view carries the
+    folder, its status, and the container's checks. When a dynamic config
+    exists, `easProjectId` is anchored to its first line ahead of `app.json`,
+    since that config decides the value. The `diagnostics.test.ts` anchor and
+    severity tests pass. `jsonc-parser` was already added in Task 4.
+- [x] When `available` is false, only the availability diagnostic is published.
   The diagnostics are republished on every store change and every watched file
   change, and cleared for a folder removed from the window.
+  - **Evidence:** `60353f3`: `publishDiagnostics` in `ui.ts` clears the
+    collection and republishes from the current Expo folders on every `refresh`.
+    `refresh` runs on store changes, folder changes, and the config watcher.
+    `diagnostics.test.ts` "an unavailable status publishes only its availability
+    diagnostic" passes, and `bun test` passes 392/392.
 
 ### Task 9: Quick fixes
 
