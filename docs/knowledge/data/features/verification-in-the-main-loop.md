@@ -4,9 +4,10 @@ stage: implemented
 description: Ship invokes report-only Verify for every normal plan shipment and refuses all CRITICAL findings, while cancellation remains exempt.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
+  at: 2026-10-26T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 ---
 
@@ -28,6 +29,13 @@ normal shipping.
 the selected plan and proceeds only when it reports zero CRITICAL findings. The
 report lands in Ship's current context and is consumed immediately, so no
 separate persisted verification artifact is required.
+
+**Verify always runs from a fresh context.** Its rulebook is the `iwe-verifier`
+catalog agent. `/agentdev:iwe-verify` dispatches it with a prompt carrying only
+the plan key or audit mode and the user's quoted approvals, and re-posts its
+report. Inside `iwe-shipper`, itself a fresh context, the Shipper follows the
+same rulebook in place and still consumes the report in its own context. See
+[Fresh-context Verify](../architecture/fresh-context-verify.md).
 
 This keeps the loop at four steps, makes verification non-optional, and makes
 the refusal mechanical rather than advisory.
@@ -63,9 +71,10 @@ for the next defect class: this feature is a transmission, not a detector.
   not tied to a plan or a ship, so the coupling must leave that entry point
   reachable on its own.
 - **Verify's own commands can have side effects.** Verify runs the plan's
-  `## Verification` commands; it currently requires the user's go-ahead for
-  anything with effects beyond the working tree. Invoking it automatically from
-  ship must preserve that prompt rather than inheriting a blanket approval.
+  `## Verification` commands; one with effects beyond the working tree runs only
+  under a quoted approval that names it, and otherwise Verify stops and reports
+  the command. Invoking it from ship carries only the approvals Ship's own
+  prompt quotes, never a blanket approval.
 - **A plan with a thin `## Verification` section.** Ship would still pay the
   requirement-tracing and coherence passes for a plan whose verification is
   three green commands. Acceptable, but it is the main cost of the change.

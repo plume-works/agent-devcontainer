@@ -169,13 +169,20 @@ Rejected:
 Modify: `docs/knowledge/data/architecture.md`,
 `docs/knowledge/data/features/verification-in-the-main-loop.md`
 
-- [ ] Write `data/architecture/fresh-context-verify.md` with the decision in
+- [x] Write `data/architecture/fresh-context-verify.md` with the decision in
   `## Approach` and its rejected alternatives, linked from
   `data/architecture.md`.
-- [ ] Update `## Behaviour` in [Verification in the main
+  - **Evidence:** commit "Record fresh-context Verify in the graph":
+    `data/architecture/fresh-context-verify.md`, linked from
+    `data/architecture.md`; `iwe normalize` and `iwe schema validate` pass.
+- [x] Update `## Behaviour` in [Verification in the main
   loop](../features/verification-in-the-main-loop.md): Verify always runs from a
   fresh context — dispatched by the skill, in place inside the Shipper — and the
   Shipper still consumes the report in its own context.
+  - **Evidence:** commit "Record fresh-context Verify in the graph": the
+    `## Behaviour` paragraph "Verify always runs from a fresh context" in
+    `data/features/verification-in-the-main-loop.md`; `iwe schema validate`
+    passes.
 
 ### Task 7: Refresh the codebase map
 
