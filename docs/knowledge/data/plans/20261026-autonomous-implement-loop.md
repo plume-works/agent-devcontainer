@@ -228,29 +228,53 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`,
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [ ] Add the loop fixture. Its one task writes `e2e/loop.txt` holding `loop`,
+- [x] Add the loop fixture. Its one task writes `e2e/loop.txt` holding `loop`,
   and its `## Verification` greps that file. Add the revise fixture. Its spec
   outcome requires `e2e/revise.txt` and `e2e/revise-notes.txt`, but its only
   task writes `e2e/revise.txt`. Register both in `clone.py` the way the existing
   fixtures are registered, and add `EVALUATOR` and the two keys to
   `scenarios.py`.
-- [ ] On each harness, add `test_implement_verifies`. On the loop fixture,
+  - **Evidence:** commit "Cover the Implement loop in the iwe-workflows e2e
+    suite": both fixture plans, `LOOP`/`REVISE` in `FIXTURE_PLANS` and
+    `_ACTIVE_LINKS`, and `EVALUATOR`, `LOOP_KEY`, `REVISE_KEY` in
+    `scenarios.py`;
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes 7.
+- [x] On each harness, add `test_implement_verifies`. On the loop fixture,
   Implement dispatches `iwe-verifier` once, ticks the task with evidence,
   creates the file, and dispatches no evaluator.
-- [ ] On each harness, add `test_implement_revises`. On the revise fixture,
+  - **Evidence:** commit "Cover the Implement loop in the iwe-workflows e2e
+    suite": `test_implement_verifies` in the three `test_iwe_workflows_*.py`
+    files; the live runs at commit "Stop the Implement loop only on a Verify
+    command approval" pass it on Claude Code 2.1.310, Codex 0.164.0, and
+    OpenCode 2.1.4.
+- [x] On each harness, add `test_implement_revises`. On the revise fixture,
   Implement dispatches `iwe-revision-evaluator` once with a prompt naming the
   plan. The plan gains a task in a commit, and both files exist. On Codex, every
   spawn forwards no turns.
-- [ ] In each harness's `test_implement`, which uses the greet fixture whose
+  - **Evidence:** commit "Cover the Implement loop in the iwe-workflows e2e
+    suite": `test_implement_revises` in the three `test_iwe_workflows_*.py`
+    files; Codex stores the spawn message encrypted, so its test asserts
+    `fork_turns: none` in place of prompt text, and commit "Let Codex e2e runs
+    commit in their clone" makes the clone's `.git` writable; the live runs
+    above pass it on all three harnesses.
+- [x] In each harness's `test_implement`, which uses the greet fixture whose
   task conflicts with the approved text, also assert that no
   `iwe-revision-evaluator` was dispatched.
+  - **Evidence:** commit "Cover the Implement loop in the iwe-workflows e2e
+    suite": the `EVALUATOR` assertion in each `test_implement`; the live runs
+    above pass it on all three harnesses.
 
 ### Task 6: Run the e2e suite on all three harnesses
 
 **Files:** none
 
-- [ ] Run the implement scenarios live on Claude Code, Codex, and OpenCode
+- [x] Run the implement scenarios live on Claude Code, Codex, and OpenCode
   (`## Verification`), and record the result in `## Verification results`.
+  - **Evidence:** commit "plan: record the live Implement loop e2e runs":
+    `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows/test_iwe_workflows_<harness>.py -k implement`
+    passes 4 of 4 on Claude Code and OpenCode, and the whole Codex file passes
+    10 of 10, at commit "Stop the Implement loop only on a Verify command
+    approval", recorded in `## Verification results`.
 
 ### Task 7: Record the design and the changed behavior
 
@@ -510,6 +534,20 @@ creates `iwe-verifier`, which this plan dispatches.
 - `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k implement`,
   and the same for `test_iwe_workflows_codex.py` and
   `test_iwe_workflows_opencode.py` — each spends model usage.
+- `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+- `uv run validate_agent_files --recommend . --require-marketplace claude codex`:
+  69/69 skills valid, 0 errors, 0 warnings.
+- `uv run pytest .agents/plugins/agentdev/tests`: 270 passed.
+- `CODEX_HOME=./.tmp/codex-home uv run .agents/plugins/agentdev/bin/install-codex-agents.py`:
+  `RESULT=SUCCESS`; `agentdev-iwe-planner.toml` carries
+  `sandbox_mode = "workspace-write"` and `agentdev-iwe-revision-evaluator.toml`
+  carries `sandbox_mode = "read-only"`.
+- Live `implement` scenarios: Claude Code 2.1.310 and OpenCode 2.1.4 each passed
+  4 of 4; the whole Codex 0.164.0 file passed 10 of 10, covering the harness
+  change to its verify and ship scenarios.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
