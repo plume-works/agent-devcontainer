@@ -15,5 +15,11 @@ order, with the plan key as its prompt. Allow each to load `AGENTS.md` or
 plan whose dependency is not yet `stage: done` stops at its own dependency
 check.
 
-Re-post each Implementer's final rollup here, including any decision it
-stopped for.
+You are also each plan's orchestrator. Read `## Running the loop` in [the
+iwe-implementer rulebook](../../agents/iwe-implementer.agent.md) and run it
+for each plan before the next dispatch. Where it fixes code, re-dispatch
+`iwe-implementer` with the plan key and the findings to fix, quoted as
+reported, rather than fixing them yourself.
+
+Re-post each plan's rollup here, with each Verify verdict and each evaluator
+verdict, and any decision it stopped for.

@@ -201,14 +201,21 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md`
 
-- [ ] In `iwe-implement`, say that the session also runs `## Running the loop`.
+- [x] In `iwe-implement`, say that the session also runs `## Running the loop`.
   It asks the user only for an always-escalate deviation, a `Needs decision`, or
   a stop bound.
-- [ ] In `iwe-implement-all`, have the coordinator read `## Running the loop` in
+  - **Evidence:** commit "Wire the Implement entry skills to the loop";
+    `iwe-implement/SKILL.md` names the session as orchestrator and lists the
+    three cases it asks about; the validator reports 0 errors.
+- [x] In `iwe-implement-all`, have the coordinator read `## Running the loop` in
   `../../agents/iwe-implementer.agent.md` and run it for each plan before the
   next. It re-dispatches `iwe-implementer` with the plan key and the findings to
   fix, quoted as reported. It re-posts each rollup with its Verify and evaluator
   verdicts.
+  - **Evidence:** commit "Wire the Implement entry skills to the loop";
+    `iwe-implement-all/SKILL.md` links the rulebook's `## Running the loop`,
+    runs it per plan before the next dispatch, and re-posts each rollup with
+    both verdict kinds; the validator reports 0 errors.
 
 ### Task 5: Cover the loop in the e2e suite
 
