@@ -357,6 +357,7 @@ jobs:
     permissions:
       actions: write
       contents: read
+      pull-requests: write # To answer a rejected `@claude review`
     steps:
       - name: Dispatch the responder on the head branch
         uses: actions/github-script@v9.0.0
@@ -371,6 +372,19 @@ jobs:
             const body = context.payload.comment?.body ?? context.payload.review?.body ?? '';
             const requester = context.payload.comment ?? context.payload.review;
 
+            // Re-reviews are requested by assignment: see spec/ai-review-gate.
+            if (body.toLowerCase().startsWith('@claude review')) {
+              const message = "`@claude review` is no longer supported. To request an AI review, remove the pull request's author as assignee and add them back.";
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: Number(process.env.PR_NUMBER),
+                body: message,
+              });
+              core.setFailed(message);
+              return;
+            }
+
             try {
               await github.rest.repos.getContent({ owner, repo, path: workflowPath, ref: headRef });
             } catch (error) {
@@ -381,15 +395,9 @@ jobs:
               throw error;
             }
 
-            // A head branch whose workflow predates an input rejects the
-            // dispatch on the key alone, so a tier is sent only when requested.
-            // See spec/ai-review-gate.
-            const reviewEffort =
-              /^@claude review (light|full)\b/i.exec(body)?.[1].toLowerCase() ?? '';
             const inputs = {
               pr_number: String(process.env.PR_NUMBER),
-              task: body.toLowerCase().startsWith('@claude review') ? '' : body,
-              ...(reviewEffort ? { review_effort: reviewEffort } : {}),
+              task: body,
               comment_id: String(requester?.id ?? ''),
               comment_kind: context.eventName,
               requester: context.actor,

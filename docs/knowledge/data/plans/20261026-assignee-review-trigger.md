@@ -122,7 +122,7 @@ Rejected:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] The bridge job handles a mention whose body opens `@claude review` (case
+- [x] The bridge job handles a mention whose body opens `@claude review` (case
   folded) without dispatching. It posts the message below as a comment on the
   pull request, then fails the job with the same message. Its `reviewEffort`
   parse and empty-task dispatch are removed. Other `@claude` mentions dispatch
@@ -132,8 +132,19 @@ Rejected:
   `@claude review` is no longer supported. To request an AI review, remove the pull request's author as assignee and add them back.
   ```
 
-- [ ] The bridge job gains `pull-requests: write` and nothing else. `zizmor`
+  - **Evidence:** commit "Reject `@claude review` in the bridge with a pointer
+    to the assignee toggle" — the rejection branch runs before the head-branch
+    lookup, posts the message with `issues.createComment`, and calls
+    `core.setFailed` with it; other mentions dispatch with `task: body`.
+    `pre-commit run actionlint --all-files` passed. Live behaviour is Task 6.
+
+- [x] The bridge job gains `pull-requests: write` and nothing else. `zizmor`
   passes.
+
+  - **Evidence:** commit "Reject `@claude review` in the bridge with a pointer
+    to the assignee toggle" — bridge permissions are `actions: write`,
+    `contents: read`, `pull-requests: write`;
+    `pre-commit run zizmor --all-files` passed.
 
 ### Task 4: Documentation names the assignee trigger
 
@@ -439,18 +450,18 @@ Verified anchor points (line numbers as of 2026-10-26):
 
 - `.github/workflows/ai-responder.yml:95` — preflight `if:`, excluding
   bot-authored and fork `pull_request` events
-- `.github/workflows/ai-responder.yml:254` — preflight failure for an empty-task
+- `.github/workflows/ai-responder.yml:253` — preflight failure for an empty-task
   dispatch
 - `.github/workflows/ai-responder.yml:261` — skip-marker check
 - `.github/workflows/ai-responder.yml:267` — actions that always review,
   including `assigned`
 - `.github/workflows/ai-responder.yml:275` — `reviewEffort` from the body marker
 - `.github/workflows/ai-responder.yml:348` — `bridge` job
-- `.github/workflows/ai-responder.yml:358` — bridge permissions
-- `.github/workflows/ai-responder.yml:387` — bridge `reviewEffort` parse
-- `.github/workflows/ai-responder.yml:391` — empty-task dispatch for
+- `.github/workflows/ai-responder.yml:360` — bridge `pull-requests: write`
+- `.github/workflows/ai-responder.yml:376` — bridge rejection of
   `@claude review`
-- `.github/workflows/ai-responder.yml:499` — `ai-review-present` `if:`
+- `.github/workflows/ai-responder.yml:400` — bridge task dispatch
+- `.github/workflows/ai-responder.yml:507` — `ai-review-present` `if:`
 - `.github/actions/ai-review-status/action.yml:68` — `claudeLogins`, the only
   accepted reviewers
 - `.github/actions/ai-review-status/action.yml:97` — failure message
