@@ -196,9 +196,11 @@ Assumptions:
   `/agentdev:iwe-capture bug`
   - **Evidence:** Coder workspace `agent-dev2`, 2026-10-26: see
     `## Verification results`.
-- [ ] With `AGENTDEV_CLAUDE_RC_SPAWN=same-dir` and a fresh `claude-remote`
+- [x] With `AGENTDEV_CLAUDE_RC_SPAWN=same-dir` and a fresh `claude-remote`
   session, a conversation started from claude.ai/code runs in the workspace
   folder
+  - **Evidence:** Coder workspace `agent-dev2`, 2026-10-26: see
+    `## Verification results`.
 
 ### Task 6: Observe a worktree session across a server restart
 
@@ -316,6 +318,11 @@ spawn-on-demand server, if its wording no longer fits.
   failed to connect in both the worktree and the pre-created session: it is the
   Docker-compose desktop sidecar, absent on Coder by design, so no bug was
   captured.
+- **Task 5, same-dir mode:** with `AGENTDEV_CLAUDE_RC_SPAWN=same-dir` and a
+  fresh `claude-remote` session, the server ran
+  `claude remote-control --spawn same-dir --name agent-dev2`, and a conversation
+  started from claude.ai/code ran in the workspace folder on the checked-out
+  branch, with no worktree created for it. `gh auth status` succeeded in it.
 - **Task 6:** across a devcontainer rebuild and a later server restart, every
   spawned worktree session returned under the same ID with its earlier turns,
   running in its own worktree, after a delay of seconds to several minutes and
