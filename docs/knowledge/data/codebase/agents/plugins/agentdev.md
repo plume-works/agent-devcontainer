@@ -5,7 +5,7 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:3f828ce4be3f9b278b305240c0546ea5eaa4bb6abf5551b7c75108706e36563d
+source_digest: sha256:12d287a6cb2bb463a3b1697cb78a79375ed366205b79b7500da7658361414090
 verified:
   by: claude-code/opus-5.5
   at: 2026-10-26T14:00:00Z
