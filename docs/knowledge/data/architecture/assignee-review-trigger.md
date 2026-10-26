@@ -23,6 +23,11 @@ The maintainer decided on 2026-10-26 to:
 - drop the `@claude review` comment trigger;
 - drop Codex reviews, and the Codex `+1` reaction, from the AI review gate.
 
+The per-request effort tier, which `@claude review light|full` carried, goes
+with the comment trigger, and the `[ci:review-effort=…]` body marker remains.
+This supersedes the comment tier in [PR review effort
+tiers](pr-review-effort-tiers.md).
+
 Dropping the free-form `@claude <prompt>` task trigger is separate,
 lower-priority work: [Drop the `@claude <custom prompt>` free-form task
 trigger](../backlog/drop-claude-free-form-task-trigger.md).

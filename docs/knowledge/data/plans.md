@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Assignee-triggered AI re-reviews replace the comment
+trigger](plans/20261026-assignee-review-trigger.md)
+
 [PR skills drive the AI review lifecycle on the single review
 workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)
 
