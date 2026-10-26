@@ -131,19 +131,34 @@ on files in the container. The container reads its own files directly.
 **Files:** Create: `packages/workspace/src/appconfig.ts`,
 `packages/workspace/test/appconfig.test.ts`, in `plume-works/vscode-expo-bridge`
 
-- [ ] `resolveProjectId(folder, runner, fileExists)` runs the folder's own
+- [x] `resolveProjectId(folder, runner, fileExists)` runs the folder's own
   `node_modules/.bin/expo config --json --type public` with the folder as its
   working directory and reads `extra.eas.projectId`. It never runs `bunx`, which
   could fetch Expo from the registry.
-- [ ] Without a local `expo`, it reads `app.json` statically when no
+  - **Evidence:** plume-works/vscode-expo-bridge `24a66ea`
+    `packages/workspace/src/appconfig.ts` `resolveProjectId`;
+    `appconfig.test.ts` "runs expo config --json --type public in the folder"
+    passes.
+- [x] Without a local `expo`, it reads `app.json` statically when no
   `app.config.js` or `app.config.ts` exists. Otherwise it reports the ID as
   unresolved, with a reason.
-- [ ] Results are cached per folder. A file system watcher on `app.json`,
+  - **Evidence:** `24a66ea`; the four "resolveProjectId without a local expo"
+    tests in `appconfig.test.ts` pass, including "a dynamic config is unresolved
+    and names the file". `.mjs` and `.cjs` configs count as dynamic too.
+- [x] Results are cached per folder. A file system watcher on `app.json`,
   `app.config.*`, `eas.json`, and `package.json` clears the cache.
-- [ ] Tests cover the bug's three reproduction cases, a fake runner standing in
+  - **Evidence:** `24a66ea` `ProjectIdCache`, and the `PROJECT_ID_INPUTS_GLOB`
+    watcher in `packages/workspace/src/extension.ts` `activate`, which clears
+    the containing folder's entry; `appconfig.test.ts` "resolves a folder once
+    until it is cleared" passes.
+- [x] Tests cover the bug's three reproduction cases, a fake runner standing in
   for `expo config`: the ID set only in `app.config.ts` and the ID added by
   `app.config.js` resolve as set, and the ID dropped by `app.config.js` resolves
   as not set.
+  - **Evidence:** `24a66ea` `appconfig.test.ts`: "an ID set only in
+    app.config.ts resolves as set", "an ID that app.config.js adds to app.json
+    resolves as set", and "an ID that app.config.js drops from app.json resolves
+    as not set" pass; `bun test` passes 347/347.
 
 ### Task 3: Status results pass through the container checks
 
