@@ -140,19 +140,26 @@ Modify: `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md`
 **Files:** Create:
 `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md`
 
-- [ ] Write the agent with tools `Bash, Read, Grep, Glob`. Its `description`
+- [x] Write the agent with tools `Bash, Read, Grep, Glob`. Its `description`
   says it is dispatched only by the Implement orchestrator, never on a
   description match. Its inputs are the plan key and the quoted finding, and any
   other prompt content is not evidence. It reads the plan with
   `git show HEAD:<path>` and `git diff -- <path>`. It returns `APPROVE`,
   `REJECT`, or `ESCALATE` on the first line, with reasons citing the diff's
   lines.
-- [ ] State the rubric. `ESCALATE` covers every item on the always-escalate list
+  - **Evidence:** commit "Add the iwe-revision-evaluator agent";
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 0 errors, and `install-codex-agents.py` writes
+    `agentdev-iwe-revision-evaluator.toml` with `sandbox_mode = "read-only"`.
+- [x] State the rubric. `ESCALATE` covers every item on the always-escalate list
   in `## Context`. `REJECT` covers a revision that does not answer the quoted
   finding, or one that rewrites intent to describe the code instead of the
   outcome. `APPROVE` covers everything else: a corrected anchor or task
   breakdown, an added task or requirement, a heavier `## Spec changes` form, or
   a corrected verification step, each keeping every specified behavior.
+  - **Evidence:** commit "Add the iwe-revision-evaluator agent"; `## Rubric` in
+    `iwe-revision-evaluator.agent.md` lists the three verdicts with exactly
+    these conditions, checked in the order ESCALATE, REJECT, APPROVE.
 
 ### Task 3: Put the loop in the iwe-implementer rulebook
 
