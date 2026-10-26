@@ -403,14 +403,20 @@ The inserted profile:
 extensions' `package.json` versions (through `bun run bump`), in
 `plume-works/vscode-expo-bridge`
 
-- [ ] `docs/protocol.md` `### status` says that the workspace extension replaces
+- [x] `docs/protocol.md` `### status` says that the workspace extension replaces
   `easProjectId` with the container's resolution of the app config in every
   result it relays. `## Fixes are not protocol actions` says that the panel and
   the quick fixes start a fix only through `expoBridge.fix` with no arguments,
   and that the Mac picker still decides.
-- [ ] The workspace README describes the panel, the status bar item, Problems,
+  - **Evidence:** plume-works/vscode-expo-bridge `cce47ba` `docs/protocol.md`: a
+    new paragraph under `### status`, and a new last paragraph of
+    `## Fixes are not protocol actions`. `bun run lint` passes.
+- [x] The workspace README describes the panel, the status bar item, Problems,
   and its quick fixes. The pack and both extensions carry the next minor
   version.
+  - **Evidence:** `cce47ba`: `packages/workspace/README.md`
+    `## Panel, status bar, and Problems`, and `bun run bump 0.3.0` sets the
+    pack, host, and workspace to 0.3.0.
 
 ### Task 11: Sibling repository CI passes
 
