@@ -160,7 +160,7 @@ toggle-without-check case — one
 `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh`,
 `.agents/plugins/agentdev/tests/test_request_review.py`
 
-- [ ] Tests, rewritten first with the stub `gh` on a hermetic `PATH`, fail
+- [x] Tests, rewritten first with the stub `gh` on a hermetic `PATH`, fail
   against the comment-posting script and cover: no review and no responder check
   toggles an assigned author remove-then-add and an unassigned author
   add-then-remove, posts no comment without `--rationale`, and reports `SUCCESS`
@@ -177,11 +177,21 @@ toggle-without-check case — one
   names the assignment left unrestored (`GH_UNAVAILABLE`); missing `--pr` and a
   multi-line rationale (`PREFLIGHT_ERROR`); `RESULT=` is the last stdout line on
   every path
-- [ ] `request-review.sh` implements the Approach's arguments, checks, toggle,
+  - **Evidence:** commit "Request AI reviews by toggling the author's assignment
+    in request-review.sh" — `tests/test_request_review.py` covers every listed
+    case; against the comment-posting script 17 of its 27 tests failed, every
+    toggle, responder-check, and Codex case among them.
+- [x] `request-review.sh` implements the Approach's arguments, checks, toggle,
   rationale comment, output keys, and result table per
   `/agentdev:skill-scripts`, sourcing `bin/result-codes.sh`; it no longer reads
   check suites or issue comments or matches a `review-head` marker; `--help`
   lists options, keys, and results; `shellcheck -x` is clean; the tests pass
+  - **Evidence:** commit "Request AI reviews by toggling the author's assignment
+    in request-review.sh" —
+    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` — 27
+    passed; `shellcheck -x` on `request-review.sh` is clean; a read-only
+    `gh api` call on PR #485's head returned `name`, `status`, `conclusion`, and
+    `html_url` on its check runs, the fields the script reads.
 
 ### Task 2: pr-request-ai-review requests through the script
 
@@ -482,18 +492,18 @@ Verified anchor points (line numbers as of 2026-10-27):
   `## Related Skills`
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:20`
   — `usage()`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:138`
-  — accepted reviewers, Codex included
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:146`
-  — check-suite arrival dating
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:152`
-  — issue comments read for existing triggers
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:168`
-  — the `@claude review` body and `review-head` marker
-- `.agents/plugins/agentdev/tests/test_request_review.py:89` — `make_fixture`,
-  the stub `gh` fixture
-- `.agents/plugins/agentdev/tests/test_request_review.py:107` — `comment()` and
-  `marker()` builders
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:156`
+  — accepted reviewers, Claude only
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:162`
+  — responder check runs on the head
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:174`
+  — the assignment toggle
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:195`
+  — the rationale comment body
+- `.agents/plugins/agentdev/tests/test_request_review.py:29` — `GH_STUB`, the
+  stub `gh` that logs write calls
+- `.agents/plugins/agentdev/tests/test_request_review.py:96` — `pull_request()`
+  and `make_fixture()` builders
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:242` —
   `## AI Review Recovery`
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:244` — introduction naming
