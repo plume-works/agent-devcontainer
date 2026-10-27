@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Create**: [Run implement-all live against two
+  plans](backlog/implement-all-multi-plan-e2e.md), done in the same change:
+  `test_implement_all` now runs against the loop and pair fixture plans on every
+  harness.
+- **Create**: someday ideas [Calibrate the revision evaluator against human
+  review](someday/revision-evaluator-calibration.md) and [Nested dispatch from
+  catalog agents](someday/nested-catalog-agent-dispatch.md).
 - **Map**: re-stamped the [agentdev
   catalog](codebase/agents/plugins/agentdev.md) and its
   [skills](codebase/agents/plugins/agentdev/skills.md) after merging `main` into

@@ -1,12 +1,13 @@
 ---
 type: task
 created: 2026-10-27
-stage: planned
+stage: done
+completed: 2026-10-27
 priority: medium
 description: Run /agentdev:iwe-implement-all live against two active fixture plans, so the e2e suite checks that the coordinator dispatches the implementer and runs the Verify loop once per plan rather than only for a single plan.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T14:00:44Z
+  at: 2026-10-27T14:20:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: scripts/e2e/iwe-workflows/clone.py

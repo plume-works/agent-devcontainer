@@ -38,9 +38,6 @@ review](backlog/verify-assignee-review-automerge.md)
 
 [Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
-[Run implement-all live against two
-plans](backlog/implement-all-multi-plan-e2e.md)
-
 ## Low
 
 [Detect plan narration growth
@@ -53,6 +50,9 @@ pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 trigger](backlog/drop-claude-free-form-task-trigger.md)
 
 ## Done
+
+[Run implement-all live against two
+plans](backlog/implement-all-multi-plan-e2e.md)
 
 [Let Implement verify, fix, and revise on its
 own](backlog/autonomous-implement-loop.md)
