@@ -53,6 +53,9 @@ Results (RESULT / exit code):
   GH_UNAVAILABLE     6  gh is missing, unauthenticated, or an API call failed, the toggle too
   PREFLIGHT_ERROR    2  Missing --pr, unknown argument, multi-line rationale, no jq
   SCRIPT_FAILURE     1  Unhandled error
+  SIGNAL_HUP       129  Interrupted by HUP
+  SIGNAL_INT       130  Interrupted by INT
+  SIGNAL_TERM      143  Interrupted by TERM
 EOF
 }
 

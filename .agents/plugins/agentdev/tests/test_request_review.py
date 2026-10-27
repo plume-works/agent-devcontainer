@@ -424,6 +424,9 @@ def test_help_lists_options_keys_and_results(plugin_root: Path, plugin_tmp_path:
         'ALREADY_REQUESTED',
         'PR_NOT_OPEN',
         'GH_UNAVAILABLE',
+        'SIGNAL_HUP',
+        'SIGNAL_INT',
+        'SIGNAL_TERM',
     ):
         assert word in completed.stdout
 
