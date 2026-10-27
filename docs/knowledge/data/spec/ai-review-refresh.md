@@ -3,7 +3,7 @@ type: spec
 description: When the agentdev pr-* skills evaluate whether a reviewed pull request needs a fresh AI review, how they request one at most once per head commit, and how they judge a requested review's progress.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T16:39:29Z
+  at: 2026-10-27T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh
+- resource: .github/workflows/ai-responder.yml
 ---
 
 # AI review refresh
@@ -43,39 +44,50 @@ from the pull request rather than from the session that made the change.
 
 ## Requirement: one AI review trigger per head commit
 
-The catalog SHALL post an AI review trigger only through
-`pr-request-ai-review`'s `request-review.sh`, and SHALL NOT post one for a head
-commit that an accepted AI review already names or that already has a trigger,
-whoever posted it. A comment is a trigger when its body opens with
-`@claude review`, in any letter case. A trigger the script posts SHALL carry a
-`review-head` marker naming its commit and SHALL count for that commit only; an
-unmarked trigger SHALL count for the head only when it was created after the
-earliest check suite on the head commit, so a head with no check suite has no
-unmarked trigger counted for it. Accepted reviews are those the AI review gate
-names, by author and state; a reaction names no commit and is not counted.
+The catalog SHALL request an AI review only through `pr-request-ai-review`'s
+`request-review.sh`, and SHALL request it by toggling the pull request author's
+assignment: an assigned author is removed and added back, and an unassigned
+author is added and removed, so the assignees end as they were found. The
+catalog SHALL NOT post an `@claude review` comment.
+
+The script SHALL NOT toggle for a head commit that an accepted AI review already
+names, or that carries a `Claude PR Review Responder` check run that is queued,
+in progress, or completed with a conclusion other than `skipped` or `cancelled`,
+whoever started it. Accepted reviews are those the AI review gate names, by
+author and state; a reaction names no commit and is not counted.
+
+A rationale, when given, SHALL be posted as a pull request comment that opens
+with `AI review requested for <sha>:` and carries no `@claude` mention.
 
 ### Scenario: a second request for the same head
 
-- **WHEN** a trigger marked for the head already exists
-- **THEN** the script posts nothing and reports `ALREADY_REQUESTED` with that
-  trigger's URL.
+- **WHEN** a `Claude PR Review Responder` check on the head is queued, in
+  progress, or completed with a failure
+- **THEN** the script toggles nothing and reports `ALREADY_REQUESTED` with that
+  check's URL.
 
 ### Scenario: the head is already reviewed
 
 - **WHEN** an accepted AI review names the head commit
-- **THEN** the script posts nothing and reports `ALREADY_REVIEWED`.
+- **THEN** the script toggles nothing and reports `ALREADY_REVIEWED`.
 
-### Scenario: a hand-typed trigger on the head
+### Scenario: a push to a reviewed pull request
 
-- **WHEN** an unmarked `@claude review` comment was created after the head's
-  earliest check suite
-- **THEN** the script posts nothing and reports `ALREADY_REQUESTED`.
+- **WHEN** the only `Claude PR Review Responder` check on the head was skipped
+- **THEN** the script toggles the author's assignment and reports `SUCCESS`.
 
-### Scenario: a trigger that may belong to an earlier head
+### Scenario: an unassigned author
 
-- **WHEN** the only unmarked trigger predates the head's earliest check suite,
-  or the head has no check suite
-- **THEN** the script posts a new marked trigger.
+- **WHEN** the script requests a review on a pull request whose author is not
+  assigned
+- **THEN** it adds the author, then removes them, and the pull request ends with
+  the assignees it had.
+
+### Scenario: a request with a rationale
+
+- **WHEN** the script toggles with `--rationale`
+- **THEN** it posts one comment opening `AI review requested for <sha>:` with
+  the rationale, and the bridge dispatches nothing for it.
 
 ## Requirement: a requested review's status is read from the head commit's checks
 
@@ -84,21 +96,23 @@ The catalog SHALL judge a requested review as running when
 request's head commit, and as finished when the latest `ai-review-present` run
 on the head completes, reading both from `gh pr checks`. It SHALL NOT look up
 the review workflow by name or follow a run by id to decide either. When a
-trigger produces no check on the head, the cause SHALL be read from the
-`issue_comment` run of `ai-responder.yml` on the default branch and reported for
-a person rather than retried.
+toggle produces no review check on the head, the cause SHALL be read from the
+`pull_request` run of `ai-responder.yml` on the head branch, or from its
+absence, and reported for a person rather than retried.
 
-### Scenario: confirming a posted request
+### Scenario: confirming a request
 
-- **WHEN** a trigger is posted and `Claude PR Review Responder` is pending on
-  the head commit
+- **WHEN** the script toggles the assignment and `Claude PR Review Responder` is
+  pending on the head commit
 - **THEN** the agent reports the review as started and waits on the head's
-  checks instead of posting again.
+  checks instead of requesting again.
 
-### Scenario: a trigger that dispatched nothing
+### Scenario: a toggle that reviewed nothing
 
-- **WHEN** no review check appears on the head and the `issue_comment` run's
-  preflight failed or its bridge skipped or failed
-- **THEN** the agent reports that a fork, a head branch without
-  `ai-responder.yml`, or a rejected requester needs a person, and posts no
-  further trigger.
+- **WHEN** no review check runs on the head because the toggle started no
+  `pull_request` run, or that run skipped or failed its preflight, or its
+  preflight passed and its review job skipped
+- **THEN** the agent reports, respectively, a token whose events start no
+  workflow, a bot-authored or fork pull request, a requester without write
+  access, or the `[ci:skip-ai-review]` marker as needing a person, and requests
+  no further review.

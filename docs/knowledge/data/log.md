@@ -6,6 +6,20 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Update**: [PR skills drive the AI review lifecycle on the single review
+  workflow](plans/20261023-pr-skills-ai-review-lifecycle.md) done; merged the
+  assignee-toggle request and head-check status into the [AI review
+  refresh](spec/ai-review-refresh.md) spec; [Bug: PR updates skip the re-review
+  evaluation](bugs/pr-update-skips-review-eval.md) fixed and listed under
+  Unreleased Fixed.
+- **Update**: [Assignee-triggered AI re-reviews replace the comment
+  trigger](plans/20261026-assignee-review-trigger.md) done; merged the assignee
+  re-review trigger and the `@claude review` rejection into the [AI review
+  gate](spec/ai-review-gate.md) spec; [Bug: a comment-requested review's gate
+  does not count toward merge](bugs/dispatched-review-gate-not-counted.md) fixed
+  and listed under Unreleased Fixed; [AI responder
+  workflows](features/ai-responder-workflows.md) stays implemented and listed
+  under Unreleased Changed.
 - **Map**: re-stamped the [agentdev
   catalog](codebase/agents/plugins/agentdev.md) and its
   [skills](codebase/agents/plugins/agentdev/skills.md) after merging `main` into
