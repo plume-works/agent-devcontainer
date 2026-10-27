@@ -1,13 +1,15 @@
 ---
 type: task
 description: When AGENTDEV_CLAUDE_RC_MODE is set, the standalone agent-opencode runtime runs claude-remote-control-start.sh as an optional component; unset, Remote Control stays off as it is today.
-stage: planned
+stage: done
+completed: 2026-10-27
 priority: high
 created: 2026-10-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T03:23:30Z
+  at: 2026-10-27T12:30:00Z
 sources:
+- resource: docs/knowledge/data/plans/20261027-standalone-remote-control-autostart.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: .devcontainer/scripts/runtime-supervisor.py

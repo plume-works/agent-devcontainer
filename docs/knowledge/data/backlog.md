@@ -16,9 +16,6 @@ write a plan and link the plan instead.*
 
 ## High
 
-[Start Claude Remote Control in the standalone runtime when
-asked](backlog/standalone-claude-remote-control.md)
-
 ## Medium
 
 [Exercise REMOVED delta blocks end to
@@ -47,6 +44,9 @@ mechanically](backlog/detect-plan-narration-growth.md)
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
 ## Done
+
+[Start Claude Remote Control in the standalone runtime when
+asked](backlog/standalone-claude-remote-control.md)
 
 [Document VSCodium support for the Expo
 bridge](backlog/document-expo-bridge-vscodium-support.md)
