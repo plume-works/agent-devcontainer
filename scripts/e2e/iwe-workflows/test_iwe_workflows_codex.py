@@ -199,14 +199,16 @@ def codex_implement_all_clone(implement_all_clone: Clone) -> Clone:
 
 
 def test_implement_all(codex_implement_all_clone: Clone) -> None:
-    """Implement-all spawns the implementer and the loop's verifier once per plan."""
+    """Implement-all spawns the implementer for each plan and verifies every round."""
     clone = codex_implement_all_clone
     transcript = run(clone, 'implement-all', '$agentdev:iwe-implement-all')
     spawns = transcript.spawns()
-    assert transcript.agent_spawns(IMPLEMENTER) == 2, (
-        f'one iwe-implementer spawn per plan\n{spawns}'
+    # Codex encrypts spawn messages, so plan coverage rests on both plans ending done.
+    implementers = transcript.agent_spawns(IMPLEMENTER)
+    assert implementers >= 2, f'an iwe-implementer spawn per plan\n{spawns}'
+    assert transcript.agent_spawns(VERIFIER) == implementers, (
+        f'one iwe-verifier spawn per implementer round\n{spawns}'
     )
-    assert transcript.agent_spawns(VERIFIER) == 2, f'one iwe-verifier spawn per plan\n{spawns}'
     assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{spawns}'
     assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{spawns}'
     assert clone.loop_done(), f'loop ticked with evidence, file written\n{transcript.excerpt()}'

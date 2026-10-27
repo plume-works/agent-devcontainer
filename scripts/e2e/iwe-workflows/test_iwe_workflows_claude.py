@@ -147,16 +147,16 @@ def test_implement_revises(base_clone: Clone) -> None:
 
 
 def test_implement_all(implement_all_clone: Clone) -> None:
-    """Implement-all dispatches the implementer and runs the loop's verifier once per plan."""
+    """Implement-all dispatches the implementer for each plan and verifies every round."""
     clone = implement_all_clone
     transcript = run(clone, 'implement-all', '/agentdev:iwe-implement-all')
     prompts = transcript.agent_prompts(IMPLEMENTER)
     dispatches = transcript.excerpt('Agent')
-    assert len(prompts) == 2, f'one iwe-implementer dispatch per plan\n{dispatches}'
-    assert {LOOP_KEY in p for p in prompts} == {True, False}, f'one names loop\n{dispatches}'
-    assert {PAIR_KEY in p for p in prompts} == {True, False}, f'one names pair\n{dispatches}'
-    assert len(transcript.agent_prompts(VERIFIER)) == 2, (
-        f'one iwe-verifier dispatch per plan\n{dispatches}'
+    # A fix round re-dispatches the implementer, so only each plan's first is certain.
+    assert any(LOOP_KEY in p for p in prompts), f'an implementer for loop\n{dispatches}'
+    assert any(PAIR_KEY in p for p in prompts), f'an implementer for pair\n{dispatches}'
+    assert len(transcript.agent_prompts(VERIFIER)) == len(prompts), (
+        f'one iwe-verifier dispatch per implementer round\n{dispatches}'
     )
     assert transcript.agent_prompts(EVALUATOR) == [], f'no evaluator\n{dispatches}'
     assert clone.loop_done(), f'loop ticked with evidence, file written\n{transcript.excerpt()}'
