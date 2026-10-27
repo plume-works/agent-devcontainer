@@ -3,10 +3,10 @@ type: plan
 created: 2026-10-23
 release:
 - bugs/pr-update-skips-review-eval
-description: Make every push to a reviewed pull request run the re-review evaluation, enforce one AI review trigger per head SHA with a bundled script, and retire the pr-* skill logic that assumed comment-requested reviews ran invisibly on the default branch, deleting pr-discover-ai-responder.
+description: Make every push to a reviewed pull request run the re-review evaluation, request an AI review by toggling the pull request author's assignment at most once per head SHA through a bundled script, and retire the pr-* skill logic that assumed comment-requested reviews ran invisibly on the default branch, deleting pr-discover-ai-responder.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T12:00:00Z
+  at: 2026-10-27T06:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-sync/SKILL.md
@@ -16,6 +16,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-discover-ai-responder/SKILL.md
 - resource: .github/workflows/ai-responder.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
+- resource: docs/knowledge/data/architecture/assignee-review-trigger.md
 ---
 
 # PR skills drive the AI review lifecycle on the single review workflow
@@ -29,28 +30,39 @@ pushes and leaves refreshing it to the author; `pr-eval-review-needed` is the
 skill that makes that call. Only `pr-feedback-resolution` invokes it, so
 `pr-sync` — which keeps a pull request's title and body in step with what the
 branch changes, and handles no feedback — and `pr-merge`'s CI-fix pushes update
-reviewed pull requests without ever asking. The once-per-head-SHA trigger rule
-is prose held in conversation memory, so separate sessions double-trigger.
+reviewed pull requests without ever asking.
 
 Absorbs [Simplify the pr-* skills for the single review
 workflow](../backlog/simplify-pr-skills-single-review-workflow.md). Since [One
 AI review workflow with a needs-coupled
-gate](20260903-single-ai-review-workflow.md), an `@claude review` comment runs a
-short `bridge` job (an `issue_comment` run filed on the default branch) that
-dispatches `ai-responder.yml` on the pull request's head branch. That dispatched
-run's `AI responder preflight`, `Claude PR Review Responder`, and
-`ai-review-present` checks are filed on the head commit, so `gh pr checks` shows
-the review while it runs, and `ai-review-present` needs the review job, so it
-stays pending until the review finishes and resolves in the same run.
-`pr-merge`, `pr-request-ai-review`, and `pr-discover-ai-responder` still carry
-the logic for the earlier shape: workflow-filename discovery, run attribution by
-log grep, watching runs by id, and the retired `Require AI Review` workflow
-name.
+gate](20260903-single-ai-review-workflow.md), every review runs in
+`ai-responder.yml` and its `Claude PR Review Responder` and `ai-review-present`
+checks are filed on the head commit, so `gh pr checks` shows the review while it
+runs, and `ai-review-present` needs the review job, so it stays pending until
+the review finishes and resolves in the same run. The plan removes the logic for
+the earlier shape from `pr-merge`, `pr-request-ai-review`, and
+`pr-discover-ai-responder`: workflow-filename discovery, run attribution by log
+grep, watching runs by id, and the retired `Require AI Review` workflow name.
 
 The maintainer decided that no consumer repository runs the earlier two-workflow
 shape, so the skills are simplified outright with no shape detection, and that
-`pr-discover-ai-responder` is deleted. The workflow filename is fixed by
-contract: the bridge dispatches `.github/workflows/ai-responder.yml` by path.
+`pr-discover-ai-responder` is deleted.
+
+[Assignee-triggered AI re-reviews replace the comment
+trigger](20261026-assignee-review-trigger.md) makes a `pull_request`/`assigned`
+event the only way to request a re-review, and the bridge rejects an
+`@claude review` comment. [Assignee-triggered AI
+re-reviews](../architecture/assignee-review-trigger.md) records why. The
+maintainer decided on 2026-10-27 that the catalog requests a review the same
+way:
+
+- the script removes and re-adds the pull request's author as assignee, and
+  restores the assignees it found, so an author who was not assigned before is
+  not assigned after;
+- a `Claude PR Review Responder` check on the head commit is what shows that a
+  review was already requested, because the run, not the assignment, is what
+  reviews;
+- a rationale, when given, is posted as a plain pull request comment.
 
 ## Approach
 
@@ -62,143 +74,133 @@ Four changes:
    CI-fix push, before restarting its loop. `pr-feedback-resolution` already
    calls the eval and pushes through `push-branch.sh` rather than the `pr-open`
    skill, so it never evaluates twice.
-2. **The test.** `pr-eval-review-needed` stops asking "did I change anything the
-   reviewer did not direct?" and asks whether the diff since the newest reviewed
-   commit goes beyond what the pull request's review threads and review comments
-   since that review asked for. The evidence is read from the pull request, so a
-   cold run from `pr-sync` or `pr-merge` decides on the same footing as a
-   feedback pass. The request/decline lists are unchanged.
-3. **One trigger per head.** A new
+2. **The test.** `pr-eval-review-needed` asks whether the diff since the newest
+   reviewed commit goes beyond what the pull request's review threads and review
+   comments since that review asked for. The evidence is read from the pull
+   request, so a cold run from `pr-sync` or `pr-merge` decides on the same
+   footing as a feedback pass. The request/decline lists are unchanged.
+3. **One request per head, by assignment.** A new
    `pr-request-ai-review/agent-code/request-review.sh` is the only path that
-   posts an AI review trigger, used by `pr-request-ai-review` and by
-   `pr-merge`'s AI Review Recovery, whose in-conversation ledger it replaces.
-   The unit is the commit, not the poster: a comment whose body opens
-   `@claude review` (case folded, as the responder's preflight matches it) is a
-   trigger whether a skill or a person posted it. A trigger the script posts
-   names the commit it requests and counts for that commit only; a hand-typed
-   one counts for the head only when it provably postdates the head's arrival.
-   Before posting, the script reads the pull request's head, its reviews, and
-   its issue comments, and refuses when an accepted AI review already names the
-   head or a trigger for the head exists.
+   requests an AI review, used by `pr-request-ai-review` and by `pr-merge`'s AI
+   Review Recovery, whose in-conversation ledger it replaces. It requests a
+   review by toggling the author's assignment, which fires the
+   `pull_request`/`assigned` event the responder reviews on. Before toggling, it
+   reads the pull request's head, its reviews, and the head commit's
+   `Claude PR Review Responder` check runs, and refuses when an accepted AI
+   review already names the head or a responder check on the head shows a review
+   was requested, whoever started it.
 4. **The head commit's checks are the review's status.** A requested review has
    started when `Claude PR Review Responder` or `ai-review-present` is pending
    on the head commit, and it has finished when the latest `ai-review-present`
    run on the head completes; `pr-merge` and `pr-request-ai-review` watch
    `gh pr checks` for both and never look up the workflow by name or a run by
-   id. A trigger that produces no check on the head names its cause from the
-   `issue_comment` run on the default branch: a fork, a head branch without
-   `ai-responder.yml`, or a rejected requester — each needs a person, not a
-   retry. `pr-discover-ai-responder`, its script, and its tests are deleted;
-   every `Require AI Review` reference becomes `ai-review-present`.
+   id. A toggle that produces no review check on the head names its cause from
+   the `pull_request` run it started on the head branch: a bot-authored or fork
+   pull request, a requester without write access, or the `[ci:skip-ai-review]`
+   marker — each needs a person, not a retry. `pr-discover-ai-responder`, its
+   script, and its tests are deleted; every `Require AI Review` reference
+   becomes `ai-review-present`.
 
 `request-review.sh` takes `--pr <number>` (required), `--rationale <one line>`
 (optional; a newline in it is a `PREFLIGHT_ERROR`), and `--repo <owner/repo>`
-(optional). The head's arrival time is the earliest `created_at` among the head
-commit's check suites (`repos/{owner}/{repo}/commits/<sha>/check-suites`). A
-posted trigger's body is `@claude review`, then the rationale line when given,
-then `<!-- review-head: <sha> -->`; a comment carrying that marker counts for
-the SHA it names and no other, whatever its date. An unmarked trigger counts for
-the head only when created after the head's arrival; a head with no check suite
-has no arrival time, so no unmarked trigger counts for it. Doubt resolves toward
-posting: a duplicate trigger costs one redundant review, a wrongly counted one
-leaves the head unreviewed. Accepted reviewers are the ones
-[spec/ai-review-gate](../spec/ai-review-gate.md) names — `claude[bot]`,
-`github-actions[bot]`, `chatgpt-codex-connector[bot]` — in state `APPROVED`,
-`CHANGES_REQUESTED`, or `COMMENTED`. The spec's `+1` reaction from
-`chatgpt-codex-connector[bot]` is not counted: a reaction names no commit, so it
-cannot show that the head was reviewed. Output keys: `PR_NUMBER`, `HEAD_SHA`,
-`COMMENT_URL` (the posted or the existing trigger; empty for
-`ALREADY_REVIEWED`), and the `RESULT=` line:
+(optional). Accepted reviewers are the ones
+[spec/ai-review-gate](../spec/ai-review-gate.md) names — `claude[bot]` and
+`github-actions[bot]` — in state `APPROVED`, `CHANGES_REQUESTED`, or
+`COMMENTED`. A `Claude PR Review Responder` check run on the head commit counts
+as a request when it is queued or in progress, or completed with any conclusion
+other than `skipped` or `cancelled`: a `skipped` responder is the gate-only run
+that a push to a reviewed pull request starts, and doubt resolves toward
+requesting, because a duplicate costs one redundant review while a wrongly
+counted one leaves the head unreviewed. A completed responder that failed still
+counts, so a failed review is reported, not retried on the same head.
 
-| RESULT              | Exit | When                                                               |
-| ------------------- | ---- | ------------------------------------------------------------------ |
-| `SUCCESS`           | `0`  | Trigger posted for the head                                        |
-| `ALREADY_REVIEWED`  | `3`  | An accepted AI review's commit is the head                         |
-| `ALREADY_REQUESTED` | `4`  | A trigger names the head, or an unmarked one postdates its arrival |
-| `PR_NOT_OPEN`       | `5`  | The pull request is closed, merged, or not found                   |
-| `GH_UNAVAILABLE`    | `6`  | `gh` is missing, unauthenticated, or its API call failed           |
-| `PREFLIGHT_ERROR`   | `2`  | Missing `--pr`, unknown argument, multi-line rationale             |
-| `SCRIPT_FAILURE`    | `1`  | Unhandled error                                                    |
+The toggle: when the author is assigned, remove them, then add them back; when
+they are not, add them, then remove them. Adding fires the event, and removing
+fires none, because `unassigned` is not a trigger type. A rationale is posted
+afterward as a comment whose body is
+`AI review requested for <sha>: <rationale>`, which opens with no `@claude`
+mention, so the bridge never dispatches it. The toggle and the comment need a
+token whose events start workflows: an assignment made with an Actions
+`GITHUB_TOKEN` starts no run. Output keys: `PR_NUMBER`, `HEAD_SHA`, `CHECK_URL`
+(the existing responder check for `ALREADY_REQUESTED`; empty otherwise),
+`COMMENT_URL` (the posted rationale; empty when none was posted), and the
+`RESULT=` line:
 
-The maintainer decided that a hand-typed trigger counts like any other: two
-review requests on one commit are never useful. One that no check suite dates
-after the head is not counted, because it may belong to the previous head. The
-script reads no workflow runs: the checks on the head commit already show
-whether a requested review is running, and the skills read them there.
+| RESULT              | Exit | When                                                                    |
+| ------------------- | ---- | ----------------------------------------------------------------------- |
+| `SUCCESS`           | `0`  | The author's assignment was toggled for the head                        |
+| `ALREADY_REVIEWED`  | `3`  | An accepted AI review's commit is the head                              |
+| `ALREADY_REQUESTED` | `4`  | A `Claude PR Review Responder` check on the head counts as a request    |
+| `PR_NOT_OPEN`       | `5`  | The pull request is closed, merged, or not found                        |
+| `GH_UNAVAILABLE`    | `6`  | `gh` is missing, unauthenticated, or an API call failed, the toggle too |
+| `PREFLIGHT_ERROR`   | `2`  | Missing `--pr`, unknown argument, multi-line rationale, no `jq`         |
+| `SCRIPT_FAILURE`    | `1`  | Unhandled error                                                         |
 
-Rejected: dating the head by its commit date, alone or as a fallback — a
-commit's date records when it was authored or committed, not when it reached the
-pull request, so an old commit pushed late would inherit the previous head's
-trigger; matching a marked trigger by date instead of by its marker — a trigger
-posted before the head's first check suite would be missed; reading the issue
-timeline to date the head — its `committed` event carries no timestamp; hooking
-the eval into `pr-sync` alone — `pr-open` reached directly in update mode would
-stay uncovered; gating step 10 on whether the push moved the head — a head
-pushed earlier by another path would be skipped unevaluated; keeping
-`pr-discover-ai-responder` for the trigger-without-check case — one
-`gh run list --workflow ai-responder.yml --event issue_comment` line in
-`pr-request-ai-review` covers it, and the filename is fixed; detecting which
-workflow shape a repository runs — no consumer runs the earlier one.
+Assumption, not decided by the maintainer: a failure on the toggle's second call
+reports `GH_UNAVAILABLE` and names the assignment it could not restore, since
+the review may already be running.
+
+Rejected: posting `@claude review` — the bridge rejects it, and a dispatched
+review's gate is not counted toward merge; posting a `review-head` marker
+comment with each toggle — the responder check already names the head commit;
+leaving a previously unassigned author assigned — the toggle would change who
+the pull request visibly belongs to; hooking the eval into `pr-sync` alone —
+`pr-open` reached directly in update mode would stay uncovered; gating step 10
+on whether the push moved the head — a head pushed earlier by another path would
+be skipped unevaluated; keeping `pr-discover-ai-responder` for the
+toggle-without-check case — one
+`gh run list --workflow ai-responder.yml --event pull_request` line in
+`pr-request-ai-review` covers it, and the filename is fixed.
 
 ## Implementation Steps
 
 ### Task 1: Trigger script
 
-**Files:** Create:
+**Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh`,
 `.agents/plugins/agentdev/tests/test_request_review.py`
 
-- [x] Tests, written first with a stub `gh` on a hermetic `PATH` in the style of
-  `test_fetch_issue.py`, fail before the script exists and cover: no review and
-  no trigger posts one whose body opens `@claude review`, carries the rationale
-  line, and prints `COMMENT_URL` (`SUCCESS`); an accepted review on the head
-  posts nothing (`ALREADY_REVIEWED`); an accepted review on an older commit
-  still posts; a review by an unaccepted author on the head still posts; the
-  posted body ends with the head's `review-head` marker; a marked trigger for
-  the head posts nothing and prints its URL (`ALREADY_REQUESTED`), even when
-  created before the head's earliest check suite; a marked trigger for another
-  commit still posts, even when created after it; a hand-typed trigger created
-  after the head's earliest check suite, in any letter case, posts nothing
-  (`ALREADY_REQUESTED`); one created before it still posts; a hand-typed trigger
-  on a head with no check suite still posts; a comment that mentions
-  `@claude review` mid-body is not a trigger; a closed pull request
-  (`PR_NOT_OPEN`); a failing `gh` call (`GH_UNAVAILABLE`); missing `--pr` and a
+- [ ] Tests, rewritten first with the stub `gh` on a hermetic `PATH`, fail
+  against the comment-posting script and cover: no review and no responder check
+  toggles an assigned author remove-then-add and an unassigned author
+  add-then-remove, posts no comment without `--rationale`, and reports `SUCCESS`
+  with an empty `COMMENT_URL`; `--rationale` posts one comment whose body is
+  `AI review requested for <sha>: <rationale>` and prints its `COMMENT_URL`; no
+  `@claude review` comment is posted on any path; an accepted review on the head
+  toggles nothing (`ALREADY_REVIEWED`); an accepted review on an older commit
+  still toggles; a review by an unaccepted author on the head, the Codex bot
+  included, still toggles; a queued, in-progress, successful, or failed
+  responder check on the head toggles nothing and prints its `CHECK_URL`
+  (`ALREADY_REQUESTED`); a `skipped` or `cancelled` responder check on the head,
+  or one on another commit, still toggles; a closed pull request
+  (`PR_NOT_OPEN`); a failing `gh` call, and a failing second toggle call that
+  names the assignment left unrestored (`GH_UNAVAILABLE`); missing `--pr` and a
   multi-line rationale (`PREFLIGHT_ERROR`); `RESULT=` is the last stdout line on
   every path
-  - **Evidence:** `tests/test_request_review.py` covers every listed case with a
-    stub `gh` on a hermetic `PATH`; all 24 tests failed before the script
-    existed.
-- [x] `request-review.sh` implements the Approach's arguments, checks, head
-  dating, output keys, and result table per `/agentdev:skill-scripts`, sourcing
-  `bin/result-codes.sh`; `--help` lists options, keys, and results;
-  `shellcheck -x` is clean; the new tests pass
-  - **Evidence:**
-    `uv run pytest .agents/plugins/agentdev/tests/test_request_review.py` — 24
-    passed; `shellcheck -x` on `request-review.sh` is clean; `gh api` confirmed
-    to print the 404 body on stdout, which the script reads to report
-    `PR_NOT_OPEN`.
+- [ ] `request-review.sh` implements the Approach's arguments, checks, toggle,
+  rationale comment, output keys, and result table per
+  `/agentdev:skill-scripts`, sourcing `bin/result-codes.sh`; it no longer reads
+  check suites or issue comments or matches a `review-head` marker; `--help`
+  lists options, keys, and results; `shellcheck -x` is clean; the tests pass
 
-### Task 2: pr-request-ai-review posts through the script
+### Task 2: pr-request-ai-review requests through the script
 
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md`
 
-- [x] `## Post the request` runs
-  `agent-code/request-review.sh --pr <pr> --rationale '<one line>'` instead of
-  `gh pr comment`, with a table mapping each `RESULT` to its action
-  (`ALREADY_REVIEWED` and `ALREADY_REQUESTED` are reported, not retried;
-  `GH_UNAVAILABLE`, `PR_NOT_OPEN`, `PREFLIGHT_ERROR`, `SCRIPT_FAILURE` stop);
-  `## Post at most once per head SHA` states that the script enforces the rule
-  for every trigger on the head, hand-typed ones included when a check suite
-  dates them after the head, and that no skill posts a trigger any other way;
-  the frontmatter gains `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`
-  as `pr-open` has it
-  - **Evidence:** `pr-request-ai-review/SKILL.md` runs `request-review.sh` under
-    `## Post the request` with a seven-row RESULT table,
-    `## Post at most once per head SHA` names the script as the only trigger
-    path, and the frontmatter carries `allowed-tools`;
-    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-    reports 63/63 skills valid.
+- [ ] The frontmatter `description` and the opening paragraph say the skill
+  requests a review by toggling the author's assignment, not by posting a
+  comment. `## Post the request` drops the `startsWith` explanation and the
+  `@claude review` body, runs
+  `agent-code/request-review.sh --pr <pr> [--rationale '<one line>']`, and maps
+  each `RESULT` to its action (`ALREADY_REVIEWED` and `ALREADY_REQUESTED` are
+  reported, not retried; `GH_UNAVAILABLE`, `PR_NOT_OPEN`, `PREFLIGHT_ERROR`,
+  `SCRIPT_FAILURE` stop), naming `CHECK_URL` and `COMMENT_URL`. It says the
+  toggle needs a token whose events start workflows.
+  `## Post at most once per head SHA` states that the script counts a responder
+  check on the head as the request, whoever started it, and that no skill
+  requests a review any other way; the paragraphs on comment concurrency,
+  editing, and deleting the trigger comment are removed
 
 ### Task 3: pr-request-ai-review confirms from the head commit's checks
 
@@ -213,15 +215,16 @@ workflow shape a repository runs — no consumer runs the earlier one.
     `gh pr checks <pr>` for a pending `Claude PR Review Responder` or
     `ai-review-present` check and no longer mentions workflow discovery or runs
     detached from the head.
-- [x] Its gap shapes are read from the `issue_comment` run of `ai-responder.yml`
-  the comment started on the default branch: every job skipped — the mention
-  never qualified; preflight failed, or the bridge skipped or failed — nothing
-  was dispatched (a fork, a head branch without `ai-responder.yml`, or a
-  rejected requester), which needs a person; a review check that completes
-  without a review — report the run's failure
-  - **Evidence:** the same section lists the three shapes of the `issue_comment`
-    run, with the `gh run list` and `gh run view --json jobs` commands that read
-    it.
+- [ ] Its gap shapes are read from the `pull_request` run of `ai-responder.yml`
+  the toggle started on the head branch, found with
+  `gh run list --workflow ai-responder.yml --event pull_request --branch <head>`:
+  no run, or every job skipped — preflight's `if:` excluded a bot-authored or
+  fork pull request; preflight failed — the requester lacks write access; the
+  review job skipped while `ai-review-present` ran — the `[ci:skip-ai-review]`
+  marker; a review check that completes without a review — report the run's
+  failure. The first three need a person. The section's opening says the
+  toggle's `pull_request` run files its checks on the head commit, not that a
+  trigger comment dispatches the responder
 - [x] `## Related Skills` drops `pr-discover-ai-responder`
   - **Evidence:** `grep -n discover` on `pr-request-ai-review/SKILL.md` returns
     nothing; `validate_agent_files` reports 63/63 skills valid.
@@ -309,6 +312,11 @@ workflow shape a repository runs — no consumer runs the earlier one.
     on the head and report a review job that ends without a review;
     `## Related Skills` lists `pr-request-ai-review` instead of
     `pr-discover-ai-responder`; `validate_agent_files` reports no errors.
+- [ ] The `## AI Review Recovery` introduction says the `ai-review-present`
+  check accepts a submitted Claude review, without Codex, and that a review is
+  requested by toggling the author's assignment, which runs the review in a
+  `pull_request` run whose checks are filed on the head commit; no
+  `@claude review` comment remains in `pr-merge/SKILL.md`
 
 ### Task 8: Delete pr-discover-ai-responder
 
@@ -333,29 +341,92 @@ workflow shape a repository runs — no consumer runs the earlier one.
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md` and any other
 doc `stale-map-docs.py` reports
 
-- [x] `/agentdev:iwe-map` refresh mode re-reads the stale docs —
-  `pr-discover-ai-responder` leaves the skill count, the family table, and the
-  bundled-scripts list, and `pr-request-ai-review` joins that list — and
-  `stale-map-docs.py` reports none stale
-  - **Evidence:** `/agentdev:iwe-map` refresh re-read the three stale docs:
-    `codebase/agents/plugins/agentdev` and `agentdev/skills` count 39 skills and
-    list `pr-request-ai-review` among the skills with bundled scripts, and
-    `agentdev/tests` lists `test_request_review.py`; `stale-map-docs.py` ends
-    `RESULT=SUCCESS`.
+- [ ] `/agentdev:iwe-map` refresh mode re-reads the docs `stale-map-docs.py`
+  reports after Tasks 1-3 and 7, and the [agentdev
+  tests](../codebase/agents/plugins/agentdev/tests.md) map describes
+  `test_request_review.py` against the toggle; `stale-map-docs.py` reports none
+  stale
 
 ## Spec changes
 
-- [AI review refresh](../spec/ai-review-refresh.md) (new) — **normative
-  outcome:** after any push to a pull request that has an accepted AI review,
-  made through `pr-open`'s update mode, `pr-merge`'s CI-fix step, or feedback
-  resolution, the agent SHALL apply the re-review evaluation and report its
-  decision; the catalog SHALL NOT post an AI review trigger for a head SHA that
-  already has one, whoever posted it, or that an accepted AI review already
-  names; and the catalog SHALL judge a requested review as running or finished
-  from the checks on the pull request's head commit.
+[AI review refresh](../spec/ai-review-refresh.md):
 
-[spec/ai-review-gate](../spec/ai-review-gate.md) is unchanged: the workflow
-already behaves as its comment-mention requirement states.
+``` markdown
+## MODIFIED Requirements
+
+## Requirement: one AI review trigger per head commit
+
+The catalog SHALL request an AI review only through `pr-request-ai-review`'s
+`request-review.sh`, and SHALL request it by toggling the pull request author's
+assignment: an assigned author is removed and added back, and an unassigned
+author is added and removed, so the assignees end as they were found. The
+catalog SHALL NOT post an `@claude review` comment.
+
+The script SHALL NOT toggle for a head commit that an accepted AI review already
+names, or that carries a `Claude PR Review Responder` check run that is queued,
+in progress, or completed with a conclusion other than `skipped` or
+`cancelled`, whoever started it. Accepted reviews are those the AI review gate
+names, by author and state; a reaction names no commit and is not counted.
+
+A rationale, when given, SHALL be posted as a pull request comment that opens
+with `AI review requested for <sha>:` and carries no `@claude` mention.
+
+### Scenario: a second request for the same head
+
+- **WHEN** a `Claude PR Review Responder` check on the head is queued, in
+  progress, or completed with a failure
+- **THEN** the script toggles nothing and reports `ALREADY_REQUESTED` with that
+  check's URL.
+
+### Scenario: the head is already reviewed
+
+- **WHEN** an accepted AI review names the head commit
+- **THEN** the script toggles nothing and reports `ALREADY_REVIEWED`.
+
+### Scenario: a push to a reviewed pull request
+
+- **WHEN** the only `Claude PR Review Responder` check on the head was skipped
+- **THEN** the script toggles the author's assignment and reports `SUCCESS`.
+
+### Scenario: an unassigned author
+
+- **WHEN** the script requests a review on a pull request whose author is not
+  assigned
+- **THEN** it adds the author, then removes them, and the pull request ends
+  with the assignees it had.
+
+### Scenario: a request with a rationale
+
+- **WHEN** the script toggles with `--rationale`
+- **THEN** it posts one comment opening `AI review requested for <sha>:` with
+  the rationale, and the bridge dispatches nothing for it.
+
+## Requirement: a requested review's status is read from the head commit's checks
+
+The catalog SHALL judge a requested review as running when
+`Claude PR Review Responder` or `ai-review-present` is pending on the pull
+request's head commit, and as finished when the latest `ai-review-present` run
+on the head completes, reading both from `gh pr checks`. It SHALL NOT look up
+the review workflow by name or follow a run by id to decide either. When a
+toggle produces no review check on the head, the cause SHALL be read from the
+`pull_request` run of `ai-responder.yml` on the head branch and reported for a
+person rather than retried.
+
+### Scenario: confirming a request
+
+- **WHEN** the script toggles the assignment and `Claude PR Review Responder` is
+  pending on the head commit
+- **THEN** the agent reports the review as started and waits on the head's
+  checks instead of requesting again.
+
+### Scenario: a toggle that reviewed nothing
+
+- **WHEN** no review check runs on the head and the `pull_request` run started
+  no job, failed its preflight, or skipped its review job
+- **THEN** the agent reports that a bot-authored or fork pull request, a
+  requester without write access, or the `[ci:skip-ai-review]` marker needs a
+  person, and requests no further review.
+```
 
 ## Verification
 
@@ -366,24 +437,30 @@ already behaves as its comment-mention requirement states.
   is clean.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
-- `grep -rn "gh pr comment" .agents/plugins/agentdev/skills/*/SKILL.md` shows no
-  `@claude review` trigger outside `request-review.sh`.
+- `grep -rn '@claude review\|review-head\|chatgpt-codex-connector' .agents/plugins/agentdev/skills/pr-request-ai-review .agents/plugins/agentdev/skills/pr-merge .agents/plugins/agentdev/skills/pr-eval-review-needed .agents/plugins/agentdev/tests/test_request_review.py`
+  returns only assertions that no `@claude review` comment is posted.
 - `grep -rn 'pr-discover-ai-responder\|Require AI Review\|gh run watch\|Determine checkout ref' .agents/plugins/agentdev`
   returns nothing.
-- Manual: on a reviewed pull request, commit a behavior change no thread asked
-  for and run `/agentdev:pr-sync`; the run reports a re-review decision, posts
-  one trigger, and confirms it from a pending check on the head commit. Rerun
-  `/agentdev:pr-sync` without a new commit; the script reports
-  `ALREADY_REQUESTED` and nothing is posted. On a fresh head, type
-  `@claude review` by hand, then run the script; it reports `ALREADY_REQUESTED`.
+- Manual, once [Assignee-triggered AI re-reviews replace the comment
+  trigger](20261026-assignee-review-trigger.md) is on `main`: on a reviewed pull
+  request whose author is not assigned, commit a behavior change no thread asked
+  for and run `/agentdev:pr-sync`; the run reports a re-review decision, toggles
+  the assignment, leaves the author unassigned, and confirms the review from a
+  pending check on the head commit. Rerun `/agentdev:pr-sync` without a new
+  commit; the script reports `ALREADY_REQUESTED` and toggles nothing.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
 
 - `update-branch`'s own pushes — it runs no eval after a base merge, though the
   eval counts a judgment-call conflict merge as new scope.
-- Reading workflow runs inside `request-review.sh`.
-- Any change to the `ai-review-present` gate or the responder workflow.
+- Reading workflow runs, or looking a run up by id, inside `request-review.sh`;
+  it reads the head commit's check runs only.
+- Any change to the `ai-review-present` gate or the responder workflow, which
+  [Assignee-triggered AI re-reviews replace the comment
+  trigger](20261026-assignee-review-trigger.md) owns.
+- A review dropped from the `pr-<n>` concurrency queue by a later pull request
+  event, accepted by that plan's decision.
 - A push during a running review: the new head's gate passes on the prior review
   while the older head's run is pending. The skills do not claim that watching
   `gh pr checks` closes this window.
@@ -391,64 +468,46 @@ already behaves as its comment-mention requirement states.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-27):
 
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:266` — step 9, create or
-  update the pull request
-- `.agents/plugins/agentdev/skills/pr-open/SKILL.md:311` —
-  `### 10. Error Handling`, renumbered by Task 5
-- `.agents/plugins/agentdev/skills/pr-sync/SKILL.md:8` — delegation to `pr-open`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:139` — completion criterion
-  naming `Require AI Review`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:193` — step 4
-  classification naming `Require AI Review`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:199` — step 5, CI-fix
-  commit and push
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:240` —
-  `## AI Review Recovery`
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:249` — workflow-filename
-  discovery
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:259` — in-conversation
-  trigger ledger
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:262` — "`gh pr checks` is
-  not sufficient" warning
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:275` — step 3, bare
-  `gh pr comment` trigger
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:288` — step 4, wait by run
-  id
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:297` — gate "to rerun and
-  pass"
-- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:310` — `## Related Skills`
-- `.agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md:338` — the
-  eval's existing caller
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:27` —
-  `## The test`
-- `.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md:67` —
-  `## Establish what the last review saw`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:14` —
-  `## Post the request`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:43` —
-  `## Confirm it started`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:67` —
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:3` —
+  frontmatter `description` naming the posted comment
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:15` —
+  `## Post the request`, the `@claude review` body
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:57` —
+  `## Confirm it started`, gap shapes read from the `issue_comment` run
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:92` —
   `## Post at most once per head SHA`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:84` —
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:112` —
   `## Related Skills`
-- `.agents/plugins/agentdev/skills/pr-discover-ai-responder/SKILL.md:1` — skill
-  deleted by Task 8
-- `.agents/plugins/agentdev/README.md:111` — skills-table row for
-  `pr-discover-ai-responder`
-- `.agents/plugins/agentdev/skills/extract-github-actions-logs/agent-code/parse-actions-url.sh:19`
-  — `RESULT_CODES` pattern for a standalone script sourcing
-  `bin/result-codes.sh`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:20`
+  — `usage()`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:138`
+  — accepted reviewers, Codex included
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:146`
+  — check-suite arrival dating
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:152`
+  — issue comments read for existing triggers
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:168`
+  — the `@claude review` body and `review-head` marker
+- `.agents/plugins/agentdev/tests/test_request_review.py:89` — `make_fixture`,
+  the stub `gh` fixture
+- `.agents/plugins/agentdev/tests/test_request_review.py:107` — `comment()` and
+  `marker()` builders
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:242` —
+  `## AI Review Recovery`
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:244` — introduction naming
+  Codex and the `@claude review` comment
+- `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:261` — step 3, request
+  through `pr-request-ai-review`
 - `.agents/plugins/agentdev/bin/result-codes.sh` — shared result helpers
-- `.agents/plugins/agentdev/tests/test_fetch_issue.py:37` — hermetic `PATH` and
-  `gh` stub pattern
-- `.github/workflows/ai-responder.yml:363` — `bridge` job dispatching on the
-  head branch
-- `.github/workflows/ai-responder.yml:384` — the dispatched workflow path
-- `.github/workflows/ai-responder.yml:509` — `ai-review-present`, needing
+- `.github/workflows/ai-responder.yml:82` — `preflight`, whose `if:` excludes
+  bot-authored and fork `pull_request` events
+- `.github/workflows/ai-responder.yml:267` — `assigned` among the actions that
+  always review
+- `.github/workflows/ai-responder.yml:502` — `ai-review-present`, needing
   `claude-respond`
 - `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:31` — family
-  table counting `pr-discover-ai-responder`
-- `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md:36` — skills
-  with bundled scripts
+  table
+- `docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md:1` — plugin
+  tests map
