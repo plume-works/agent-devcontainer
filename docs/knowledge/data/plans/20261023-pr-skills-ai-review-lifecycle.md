@@ -228,10 +228,11 @@ toggle-without-check case — one
   `Claude PR Review Responder` or `ai-review-present` check on the head commit
   in `gh pr checks <pr>`, and drops workflow discovery and the claim that
   comment-triggered runs are not attached to the head
-  - **Evidence:** `pr-request-ai-review/SKILL.md` `## Confirm it started` reads
+  - **Evidence:** commits `9ac9991` and `935e13d` —
+    `pr-request-ai-review/SKILL.md` `## Confirm it started` reads
     `gh pr checks <pr>` for a pending `Claude PR Review Responder` or
-    `ai-review-present` check and no longer mentions workflow discovery or runs
-    detached from the head.
+    `ai-review-present` check; `grep -c 'discover\|issue_comment'` on the skill
+    returns 0; `validate_agent_files` reports 0 errors.
 - [x] Its gap shapes are read from the `pull_request` run of `ai-responder.yml`
   the toggle started on the head branch, found with
   `gh run list --workflow ai-responder.yml --event pull_request --branch <head>`:
@@ -262,10 +263,11 @@ toggle-without-check case — one
   beyond what the pull request's review threads and review comments since that
   review asked for, replacing the first-person question; the request/decline
   lists in `## What counts as beyond the feedback` keep their items
-  - **Evidence:** `pr-eval-review-needed/SKILL.md` `## The test` asks whether
-    the diff since the newest reviewed commit goes beyond the review threads and
-    comments since that review; `## What counts as beyond the feedback` is
-    unchanged.
+  - **Evidence:** commit `7df47cd` — `pr-eval-review-needed/SKILL.md`
+    `## The test` asks whether the diff since the newest reviewed commit goes
+    beyond the review threads and comments since that review, and
+    `## What counts as beyond the feedback` keeps its lists;
+    `validate_agent_files` reports 0 errors.
 - [x] `## Establish what the last review saw` adds the command that reads the
   review threads and comments posted since the newest reviewed commit, and says
   that a run with no such threads judges the whole diff as undirected
@@ -325,9 +327,10 @@ toggle-without-check case — one
 - [x] Its trigger step requests the review through
   [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose script posts
   it; `ALREADY_REQUESTED` means wait on the head's checks, not post again
-  - **Evidence:** recovery step 3 requests through `pr-request-ai-review` and
-    handles `ALREADY_REQUESTED` by waiting on the head checks and
-    `ALREADY_REVIEWED` by reporting.
+  - **Evidence:** commits `62d7fbc` and `e92bbb9` — `pr-merge/SKILL.md` recovery
+    step 3 requests through `pr-request-ai-review`, waits on the head's checks
+    on `ALREADY_REQUESTED`, and reports `ALREADY_REVIEWED`;
+    `validate_agent_files` reports 0 errors.
 - [x] The step that waits for a clean review's gate "to rerun and pass" says
   instead that the latest `ai-review-present` run on the head completes with the
   review, and a run whose review job ends without a review is reported, not
