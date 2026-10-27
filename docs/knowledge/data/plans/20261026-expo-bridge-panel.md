@@ -438,15 +438,28 @@ Dev Containers window.
 - [ ] Opening the panel runs one status, the status bar item reads
   `Expo Bridge: OK`, and a build of the remembered profile streams its log to
   the output channel. A second build does not ask for the profile.
-- [ ] With CocoaPods uninstalled, Re-run shows the `cocoapods` diagnostic in
+- [x] With CocoaPods uninstalled, Re-run shows the `cocoapods` diagnostic in
   Problems, and its quick fix opens the host's existing fix picker.
-- [ ] A project whose ID is set only in `app.config.ts` shows no `easProjectId`
+  - **Evidence:** Mac run of 0.4.0 at `530b160`, VS Code 1.143.1: with
+    `brew unlink cocoapods`, Problems showed `CocoaPods not found` at `eas.json`
+    Ln 1, and **Fix on the Mac…** opened the host's picker, running nothing
+    until a fix was picked.
+- [x] A project whose ID is set only in `app.config.ts` shows no `easProjectId`
   diagnostic, and `eas-host status` reports the check as passing.
-- [ ] Removing the simulator profile shows its diagnostic, and the quick fix
+  - **Evidence:** same Mac run: with the ID only in `app.config.ts`, no
+    `easProjectId` diagnostic, and `eas-host status` reported
+    `"easProjectId":{"ok":true}`. With no ID anywhere it reported
+    `extra.eas.projectId not set in the app config`.
+- [x] Removing the simulator profile shows its diagnostic, and the quick fix
   inserts the profile.
-- [ ] With the host extension uninstalled from the Mac, the panel shows the
+  - **Evidence:** same Mac run: the diagnostic sat on the `"build"` key, **Add a
+    simulator build profile** inserted `development`, and the diagnostic
+    cleared.
+- [x] With the host extension uninstalled from the Mac, the panel shows the
   host-not-installed welcome and the status bar item reads
   `Expo Bridge: Mac half not installed`.
+  - **Evidence:** same Mac run: the welcome with **Show the Mac half** appeared,
+    and the status bar read `Expo Bridge: Mac half not installed`.
 
 ### Task 13: Record the panel in this repository's project memory
 
@@ -555,6 +568,15 @@ diagnostic, naming the failing availability check.
   `bun run lint` pass, and the sibling CI passes (Task 11).
 - Task 12's Mac run behaves as described.
 - `iwe normalize` and `iwe schema validate` pass.
+
+## Verification results
+
+Task 12, on an Apple silicon Mac with VS Code 1.143.1 and 0.4.0 at `530b160`:
+four of five boxes pass. The first fails on one clause: the panel opens with one
+status and `Expo Bridge: OK`, and a second build skips the profile prompt, but
+the build streamed none of its log to the `Expo Bridge Build` channel, though
+the log file on the Mac was complete. Streaming shares `runRequest` with
+`eas-host build`, so the defect is not specific to the panel.
 
 ## Out of scope
 
