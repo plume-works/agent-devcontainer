@@ -198,7 +198,7 @@ toggle-without-check case — one
 **Files:** Modify:
 `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md`
 
-- [ ] The frontmatter `description` and the opening paragraph say the skill
+- [x] The frontmatter `description` and the opening paragraph say the skill
   requests a review by toggling the author's assignment, not by posting a
   comment. `## Post the request` drops the `startsWith` explanation and the
   `@claude review` body, runs
@@ -211,6 +211,13 @@ toggle-without-check case — one
   check on the head as the request, whoever started it, and that no skill
   requests a review any other way; the paragraphs on comment concurrency,
   editing, and deleting the trigger comment are removed
+  - **Evidence:** commit "Request reviews by assignee toggle in
+    pr-request-ai-review" — the description and opening name the toggle;
+    `## Post the request` runs `request-review.sh` with a seven-row RESULT table
+    naming `CHECK_URL` and `COMMENT_URL` and the `GITHUB_TOKEN` limit;
+    `## Post at most once per head SHA` counts the responder check and drops the
+    comment concurrency, editing, and deletion paragraphs;
+    `validate_agent_files` reports 65/65 skills valid.
 
 ### Task 3: pr-request-ai-review confirms from the head commit's checks
 
