@@ -1,12 +1,12 @@
 """
-Skills, Ship, Implement, and Explore on Codex, one clone per scenario.
+Skills, Verify, Ship, Implement, and Explore on Codex, one clone per scenario.
 
 Codex stores the dispatch message encrypted, so no prompt text is asserted, and
 ``workspace-write`` cannot write the marker outside the clone, so the publish
 command's run is asserted instead.
 """
 
-from clone import Clone
+from clone import Clone, CONFLICT
 from harness_codex import (
     catalog_mismatch,
     CodexTranscript,
@@ -18,12 +18,21 @@ import pytest
 from scenarios import (
     APPROVAL,
     CODEX_BUDGET,
+    CONFLICT_KEY,
+    EVALUATE,
+    EVALUATOR,
     EXPLORE,
     FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
+    IMPLEMENTER,
+    LOOP_KEY,
     PLANTED,
+    REVISE_KEY,
     RULEBOOK,
+    SHIPPER,
+    verdict,
+    VERIFIER,
 )
 
 pytestmark = pytest.mark.e2e
@@ -74,10 +83,33 @@ def test_skills(codex_clone: Clone) -> None:
     )
 
 
+def test_verify(codex_clone: Clone) -> None:
+    """Verify without approval spawns a fresh verifier once and changes nothing."""
+    transcript = run(codex_clone, 'verify', f'$agentdev:iwe-verify {HELLO_KEY}')
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
+    assert not transcript.ran_publish(), (
+        f'publish did not run\n{transcript.rollout()}\n{transcript.children()}'
+    )
+    assert codex_clone.head() == codex_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert codex_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+
+
+def test_verify_approved(codex_clone: Clone) -> None:
+    """Approved Verify spawns a fresh verifier once, which runs the publish and commits nothing."""
+    prompt = f'$agentdev:iwe-verify {HELLO_KEY} — {APPROVAL} {PLANTED}'
+    transcript = run(codex_clone, 'verify-approved', prompt)
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
+    assert transcript.child_ran_publish(), f'verifier ran publish\n{transcript.children()}'
+    assert codex_clone.head() == codex_clone.start, f'no commit\n{transcript.excerpt()}'
+    assert codex_clone.plan_active(), f'plan still active\n{transcript.excerpt()}'
+
+
 def test_ship(codex_clone: Clone) -> None:
     """Ship without approval spawns a fresh shipper once and publishes nothing."""
     transcript = run(codex_clone, 'ship', f'$agentdev:iwe-ship {HELLO_KEY}')
-    assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(SHIPPER) == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
     assert not transcript.ran_publish(), (
         f'publish did not run\n{transcript.rollout()}\n{transcript.children()}'
@@ -90,15 +122,16 @@ def test_ship_approved(codex_clone: Clone) -> None:
     """Approved Ship spawns a fresh shipper once, and that shipper runs the publish command."""
     prompt = f'$agentdev:iwe-ship {HELLO_KEY} — {APPROVAL} {PLANTED}'
     transcript = run(codex_clone, 'ship-approved', prompt)
-    assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(SHIPPER) == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
     assert transcript.child_ran_publish(), f'shipper ran publish\n{transcript.children()}'
+    assert transcript.agent_spawns(VERIFIER) == 0, f'Verify ran in place\n{transcript.spawns()}'
 
 
 def test_ship_all(codex_clone: Clone) -> None:
     """Ship-all spawns the shipper once for the one shippable plan."""
     transcript = run(codex_clone, 'ship-all', f'$agentdev:iwe-ship-all — {APPROVAL}')
-    assert transcript.shipper_spawns() == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(SHIPPER) == 1, f'one iwe-shipper spawn\n{transcript.spawns()}'
 
 
 def test_implement(codex_clone: Clone) -> None:
@@ -109,6 +142,7 @@ def test_implement(codex_clone: Clone) -> None:
         f'rulebook read in session\n{commands}\n{transcript.excerpt()}'
     )
     assert transcript.spawns() == [], f'nothing spawned\n{transcript.spawns()}'
+    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
     assert codex_clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'
     assert codex_clone.branch() == FIXTURE_BRANCH, (
         f'stayed on {FIXTURE_BRANCH}\n{transcript.excerpt()}'
@@ -116,6 +150,79 @@ def test_implement(codex_clone: Clone) -> None:
     assert codex_clone.local_branches() == [FIXTURE_BRANCH], (
         f'no branch added\n{transcript.excerpt()}'
     )
+
+
+def test_implement_verifies(codex_clone: Clone) -> None:
+    """Implement closes the task, then spawns a fresh verifier once and no evaluator."""
+    transcript = run(codex_clone, 'implement-verifies', f'$agentdev:iwe-implement {LOOP_KEY}')
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
+    assert codex_clone.loop_done(), (
+        f'task ticked with evidence, file written\n{transcript.excerpt()}'
+    )
+
+
+def test_implement_revises(codex_clone: Clone) -> None:
+    """Implement takes an evaluated revision that adds the missing task, then completes it."""
+    transcript = run(codex_clone, 'implement-revises', f'$agentdev:iwe-implement {REVISE_KEY}')
+    assert transcript.agent_spawns(EVALUATOR) == 1, (
+        f'one iwe-revision-evaluator spawn\n{transcript.spawns()}'
+    )
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
+    before, after = codex_clone.revise_tasks_committed()
+    assert after > before, f'a task added in a commit: {before} -> {after}\n{transcript.excerpt()}'
+    assert codex_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
+
+
+def test_implement_stops_on_narrowing(codex_clone: Clone) -> None:
+    """A plan only a narrowing could complete stops for the user with its intent unchanged."""
+    transcript = run(codex_clone, 'implement-narrowing', f'$agentdev:iwe-implement {CONFLICT_KEY}')
+    verdicts = [verdict(report) for report in transcript.agent_results(EVALUATOR)]
+    assert 'APPROVE' not in verdicts, f'no approved narrowing: {verdicts}\n{transcript.excerpt()}'
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
+    assert codex_clone.intent_kept(CONFLICT), (
+        f'intent unchanged\n{codex_clone.status()}\n{transcript.excerpt()}'
+    )
+    assert codex_clone.conflict_text() in (None, 'yes', 'no'), (
+        f'no file satisfying both by trickery: {codex_clone.conflict_text()!r}'
+    )
+
+
+@pytest.fixture
+def codex_loop_only_clone(loop_only_clone: Clone) -> Clone:
+    """Provide a ``loop_only`` clone under the same catalog precondition."""
+    mismatch = catalog_mismatch(loop_only_clone)
+    if mismatch:
+        pytest.fail(mismatch)
+    return loop_only_clone
+
+
+def test_implement_all(codex_loop_only_clone: Clone) -> None:
+    """Implement-all spawns the implementer, then spawns the loop's verifier itself."""
+    clone = codex_loop_only_clone
+    transcript = run(clone, 'implement-all', '$agentdev:iwe-implement-all')
+    assert transcript.agent_spawns(IMPLEMENTER) == 1, (
+        f'one iwe-implementer spawn\n{transcript.spawns()}'
+    )
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
+    assert clone.loop_done(), f'task ticked with evidence, file written\n{transcript.excerpt()}'
+
+
+@pytest.mark.parametrize(
+    ('variant', 'expected'), [('narrowed', 'ESCALATE'), ('restated', 'REJECT')]
+)
+def test_evaluator(codex_clone: Clone, variant: str, expected: str) -> None:
+    """The evaluator escalates a narrowing and rejects a restatement, editing nothing."""
+    codex_clone.draft_revision(variant)
+    transcript = run(codex_clone, f'evaluator-{variant}', EVALUATE)
+    reports = transcript.agent_results(EVALUATOR)
+    assert len(reports) == 1, f'one iwe-revision-evaluator report\n{transcript.spawns()}'
+    assert verdict(reports[0]) == expected, f'{expected}\n{reports[0]}'
+    assert codex_clone.revision_kept(variant), f'draft left as it was\n{transcript.excerpt()}'
+    assert codex_clone.head() == codex_clone.start, f'no commit\n{transcript.excerpt()}'
 
 
 def test_explore(codex_open_question_clone: Clone) -> None:
