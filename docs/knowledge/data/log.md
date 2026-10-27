@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Map**: refreshed the agentdev [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) map for
+  `request-review.sh`'s assignee toggle, and re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) and its
+  [skills](codebase/agents/plugins/agentdev/skills.md).
 - **Map**: refreshed the [workflows](codebase/github/workflows.md) map for the
   assignee re-review trigger and the `@claude review` rejection, re-anchored
   [pull request checks](codebase/flow-pull-request-checks.md), and re-stamped

@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:f4806a7549a5420b6d05fb67cb13938740996e6ab59aa2a925a33e0d778494ac
+source_digest: sha256:2ffa90904860b4ca3e767eb31cac51e63a69d34136788270444bc860ed93b263
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-27T05:30:00Z
+  at: 2026-10-27T07:30:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T05:30:00Z
+  at: 2026-10-27T07:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -95,10 +95,11 @@ modes, and a `publish` rerun after a failed link. `test_capture_close_issue.py`
 reuses `initialize_repository` from `test_update_branch.py` and a stub `gh` that
 logs closes, and pins each `close-issue.sh` result, including an already-closed
 issue left alone. `test_request_review.py` runs `request-review.sh` against a
-Python stub `gh` that answers the pull request, reviews, comments, and
-check-suite endpoints from a JSON fixture and records a posted body, and pins
-each result, including a marked trigger counted for its commit only and a
-hand-typed one counted only after the head's earliest check suite.
+Python stub `gh` that answers the pull request, reviews, and check-run endpoints
+from a JSON fixture and logs every write call, and pins each result, including
+the remove-then-add and add-then-remove assignment toggles, a responder check on
+the head counted as a request unless skipped or cancelled, and a half-done
+toggle that names the assignment it left unrestored.
 `test_template_consume_check_updates.py` builds the same metadata file to hold
 the marker section, and pins `NO_MARKER` for an absent file and for an absent
 section, and `INVALID_MARKER` for malformed metadata or a section missing

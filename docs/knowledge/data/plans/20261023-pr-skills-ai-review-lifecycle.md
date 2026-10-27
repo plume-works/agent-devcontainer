@@ -371,11 +371,15 @@ toggle-without-check case — one
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md` and any other
 doc `stale-map-docs.py` reports
 
-- [ ] `/agentdev:iwe-map` refresh mode re-reads the docs `stale-map-docs.py`
+- [x] `/agentdev:iwe-map` refresh mode re-reads the docs `stale-map-docs.py`
   reports after Tasks 1-3 and 7, and the [agentdev
   tests](../codebase/agents/plugins/agentdev/tests.md) map describes
   `test_request_review.py` against the toggle; `stale-map-docs.py` reports none
   stale
+  - **Evidence:** commit "map: refresh the agentdev tests map for the assignee
+    toggle" — `codebase/agents/plugins/agentdev/tests` describes the toggle, the
+    responder-check rule, and the half-done toggle; the catalog and skills maps
+    are re-stamped; `stale-map-docs.py` ends `RESULT=SUCCESS`.
 
 ## Spec changes
 
