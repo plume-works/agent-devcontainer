@@ -147,14 +147,17 @@ loop dispatches is a leaf and dispatches nothing.
 4. **Revision route** — a finding about the plan's intent, such as a
    requirement no task covers, or a material deviation that is not
    always-escalate (Step 7). Never code past a gap in the tasks:
-   1. Follow [the iwe-planner rulebook](iwe-planner.agent.md) in place, in
+   1. Commit any pending edit to the plan file, such as refreshed anchors or a
+      tactical correction, in a commit of its own. `HEAD` then holds it, so the
+      evaluator's diff is only the revision and a restore keeps that edit.
+   2. Follow [the iwe-planner rulebook](iwe-planner.agent.md) in place, in
       its **From the Implement orchestrator** mode: draft the revision, run
       its Durable Knowledge Auditor gate and validation, and leave the plan
       uncommitted.
-   2. Dispatch `iwe-revision-evaluator` with a prompt carrying only the plan
+   3. Dispatch `iwe-revision-evaluator` with a prompt carrying only the plan
       key and the finding the revision answers, quoted as reported; forward no
       conversation turns.
-   3. On `APPROVE`, commit the revision and resume at the next unchecked task
+   4. On `APPROVE`, commit the revision and resume at the next unchecked task
       — the coordinator by re-dispatching `iwe-implementer` with the plan key
       — then Verify again (step 1). On `REJECT` or `ESCALATE`, restore the plan
       from `HEAD` with
