@@ -157,7 +157,9 @@ loop dispatches is a leaf and dispatches nothing.
    3. On `APPROVE`, commit the revision and resume at the next unchecked task
       — the coordinator by re-dispatching `iwe-implementer` with the plan key
       — then Verify again (step 1). On `REJECT` or `ESCALATE`, restore the plan
-      with `git restore -- <plan path>` and stop with the report.
+      from `HEAD` with
+      `git restore --source=HEAD --staged --worktree -- <plan path>` and stop
+      with the report.
 5. **Stop bounds.** Stop and report when a finding you already tried to fix
    appears in the next Verify report — naming the finding, the fix attempted,
    and the report — after three Verify rounds, or when a second revision would
