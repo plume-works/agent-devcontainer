@@ -47,7 +47,8 @@ if [[ $mode == ignore-term ]]; then
 else
   trap 'echo "stop $name" >> "$state/events"; rm -f "$state/$name.ready"; exit 0' TERM
 fi
-if [[ $mode == with-child ]]; then sleep 1000 & echo $! > "$state/$name.child"; fi
+# The child leaves the wrapper's output, so the wrapper exits with the service.
+if [[ $mode == with-child ]]; then sleep 1000 >/dev/null 2>&1 & echo $! > "$state/$name.child"; fi
 echo "$name is up"
 [[ $mode == never-ready ]] || touch "$state/$name.ready"
 while true; do
@@ -647,8 +648,10 @@ def test_sigterm_stops_in_dependency_order_and_reaps_process_groups(make):
 
     stops = [e.split()[1] for e in box.events() if e.startswith('stop ')]
     assert stops == STOP_ORDER
-    with pytest.raises(ProcessLookupError):
-        os.kill(child, 0)
+    deadline = time.monotonic() + 5
+    while running(child) and time.monotonic() < deadline:
+        time.sleep(0.05)
+    assert not running(child)
 
 
 def test_shutdown_is_bounded_when_a_service_ignores_sigterm(make):
@@ -697,8 +700,7 @@ def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
     orphan = int((box.state / 'xpra.child').read_text())
     box.set('xpra', 'crash')
     box.wait_for(lambda: started(box.events()).count('xpra') == 2 and box.ready())
-    with pytest.raises(ProcessLookupError):
-        os.kill(orphan, 0)
+    box.wait_for(lambda: not running(orphan), timeout=5)
 
 
 def test_health_needs_a_live_controller_reporting_ready(make):

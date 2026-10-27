@@ -1,12 +1,13 @@
 ---
 type: task
-stage: planned
+stage: done
+completed: 2026-10-27
 priority: medium
 created: 2026-10-27
 description: Find the root cause of the intermittent test_recovery_kills_what_a_crashed_service_left_in_its_group failure, starting from the unreaped-zombie hypothesis, and record it in the bug.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T16:00:00Z
+  at: 2026-10-27T18:00:00Z
 sources:
 - resource: docs/knowledge/data/bugs/supervision-orphan-kill-test-flaky.md
 - resource: scripts/tests/test_agent_runtime_supervision.py

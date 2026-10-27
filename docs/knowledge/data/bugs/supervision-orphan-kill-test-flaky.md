@@ -1,9 +1,10 @@
 ---
 type: bug
-description: test_recovery_kills_what_a_crashed_service_left_in_its_group fails intermittently when the supervision tests run as root inside an agent-opencode container, on main as well as on feature branches; the cause is not yet known.
+description: test_recovery_kills_what_a_crashed_service_left_in_its_group failed intermittently because it treated a killed orphan that its adopting PID 1 had not yet reaped as alive, and its fake child held the exec wrapper's output, so supervisord's group stop rather than the controller's group kill did the killing.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T16:00:00Z
+  at: 2026-10-27T18:00:00Z
+stage: done
 sources:
 - resource: scripts/tests/test_agent_runtime_supervision.py
 - resource: .devcontainer/scripts/runtime-supervisor.py
@@ -35,26 +36,49 @@ run.
 
 ## Root cause
 
-Not yet determined; finding it is tracked by [Find why the orphan-kill
-supervision test is flaky](../backlog/supervision-orphan-kill-test-cause.md).
+Two defects in the test, none in the controller.
 
-The leading hypothesis, untested: `Controller.restart` does `SIGKILL` the
-orphan's process group, but the orphan, reparented outside the test's
-supervisord, stays a zombie until the container's PID 1 reaps it, and
-`os.kill(pid, 0)` succeeds on a zombie. Checking the orphan's `/proc/<pid>/stat`
-state at the assertion (`Z` versus a live state) would confirm or kill it.
+**The assertion races a reaper.** The fake service's child is orphaned when the
+service crashes, and the kernel reparents it to the nearest subreaper or PID 1.
+Nothing in the test's process tree is a subreaper, so inside an `agent-opencode`
+container the orphan's parent becomes the container's own PID 1, whose
+supervisord reaps adopted children on its next poll, a fraction of a second
+later. The controller's `SIGKILL` has already ended the orphan by then, but
+`os.kill(pid, 0)` succeeds on a zombie, so the check fails whenever it runs
+before that reap. At the failing assertion `/proc/<pid>/stat` shows state `Z`
+with parent PID 1, and the zombie disappears without further action.
+`test_sigterm_stops_in_dependency_order_and_reaps_process_groups` makes the same
+check after shutdown and carries the same race.
+
+**The test did not reach the code it names.** The child inherited the `exec`
+wrapper's stdout, and the wrapper waits up to five seconds for that pipe to
+close (`Captured.wait`). The wrapper therefore outlived the crashed service, so
+supervisord still saw the program running, and the controller's `stop` before
+the restart signalled the whole group (`killasgroup`). The test passed with
+`Controller.restart`'s `os.killpg` removed.
 
 ## Fix
 
-Unfixed.
+The fake child sends its output to `/dev/null`, so the wrapper exits with the
+service and only the controller's group kill can end the orphan: with that
+`os.killpg` removed, the orphan test now fails. Both tests assert the child is
+no longer running through the file's `running` helper, which counts a zombie as
+gone, polling for up to five seconds because the kill is asynchronous. This
+matches the bootstrap-kill test, which already waited that way.
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-27):
 
-- `scripts/tests/test_agent_runtime_supervision.py:692` —
-  `test_recovery_kills_what_a_crashed_service_left_in_its_group`
-- `scripts/tests/test_agent_runtime_supervision.py:700` — the
-  `ProcessLookupError` assertion
-- `.devcontainer/scripts/runtime-supervisor.py:341` — `Controller.restart`, the
-  process-group kill
+- `scripts/tests/test_agent_runtime_supervision.py:51` — the fake service's
+  `with-child` mode
+- `scripts/tests/test_agent_runtime_supervision.py:695` —
+  `test_recovery_kills_what_a_crashed_service_left_in_its_group`; `:703` — the
+  wait for the orphan to stop running
+- `scripts/tests/test_agent_runtime_supervision.py:638` —
+  `test_sigterm_stops_in_dependency_order_and_reaps_process_groups`
+- `scripts/tests/test_agent_runtime_supervision.py:827` — `running`
+- `.devcontainer/scripts/runtime-supervisor.py:349` — `Controller.restart`'s
+  `os.killpg`
+- `.devcontainer/scripts/runtime-supervisor.py:227` — `Captured.wait` joining
+  the output reader
