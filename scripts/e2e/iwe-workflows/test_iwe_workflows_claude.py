@@ -184,6 +184,17 @@ def test_implement_stops_on_rejection(stub_evaluator_clone: Clone) -> None:
     assert not clone.revise_notes_written(), f'no coding past the gap\n{transcript.excerpt()}'
 
 
+def test_implement_stops_on_escalation(stub_planner_clone: Clone) -> None:
+    """The real evaluator escalates a drafted narrowing; the plan is restored and the run stops."""
+    clone = stub_planner_clone
+    transcript = run(clone, 'implement-escalated', f'/agentdev:iwe-implement {REVISE_KEY}')
+    verdicts = [verdict(report) for report in transcript.agent_results(EVALUATOR)]
+    assert verdicts == ['ESCALATE'], f'one ESCALATE: {verdicts}\n{transcript.excerpt("Agent")}'
+    assert clone.intent_kept(REVISE), f'plan restored\n{clone.status()}\n{transcript.excerpt()}'
+    assert clone.status() == '', f'clean tree\n{clone.status()}'
+    assert not clone.revise_notes_written(), f'no coding past the gap\n{transcript.excerpt()}'
+
+
 def test_implement_stops_on_narrowing(base_clone: Clone) -> None:
     """A plan only a narrowing could complete stops for the user with its intent unchanged."""
     transcript = run(base_clone, 'implement-narrowing', f'/agentdev:iwe-implement {CONFLICT_KEY}')

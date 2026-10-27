@@ -209,6 +209,17 @@ def test_implement_stops_on_rejection(stub_evaluator_clone: Clone, opencode) -> 
     assert not clone.revise_notes_written(), f'no coding past the gap\n{transcript.excerpt()}'
 
 
+def test_implement_stops_on_escalation(stub_planner_clone: Clone, opencode) -> None:
+    """The real evaluator escalates a drafted narrowing; the plan is restored and the run stops."""
+    clone = stub_planner_clone
+    transcript = run(opencode(clone), 'implement-escalated', 'agentdev:iwe-implement', REVISE_KEY)
+    verdicts = [verdict(report) for report in agent_results(transcript, EVALUATOR)]
+    assert verdicts == ['ESCALATE'], f'one ESCALATE: {verdicts}\n{transcript.excerpt("subagent")}'
+    assert clone.intent_kept(REVISE), f'plan restored\n{clone.status()}\n{transcript.excerpt()}'
+    assert clone.status() == '', f'clean tree\n{clone.status()}'
+    assert not clone.revise_notes_written(), f'no coding past the gap\n{transcript.excerpt()}'
+
+
 def test_implement_stops_on_narrowing(base_clone: Clone, opencode) -> None:
     """A plan only a narrowing could complete stops for the user with its intent unchanged."""
     transcript = run(

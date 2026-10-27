@@ -82,6 +82,12 @@ def stub_evaluator_clone(clone_at: Callable[[str], Clone], fixture_repo: Fixture
     return clone_at(fixture_repo.stub_evaluator)
 
 
+@pytest.fixture
+def stub_planner_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
+    """Provide a clone whose catalog planner always drafts the revise plan's narrowing."""
+    return clone_at(fixture_repo.stub_planner)
+
+
 @pytest.fixture(scope='session')
 def opencode_source() -> opencode_credential.Server:
     """Locate the web UI's OpenCode 2.x server, or skip the OpenCode tests."""

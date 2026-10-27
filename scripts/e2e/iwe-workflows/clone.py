@@ -6,7 +6,8 @@ cancelled, the fixture plans committed as ``base``, and the open-question edit
 committed on top as ``open_question``, and, on a branch from ``base``, every
 fixture plan but the loop plan cancelled as ``loop_only``, and, on another,
 the catalog's revision evaluator replaced by a stub that rejects every revision
-as ``stub_evaluator``. Each test gets its own clone of it; a
+as ``stub_evaluator``, and, on a third, the planner replaced by a stub that
+always drafts the revise plan's narrowing as ``stub_planner``. Each test gets its own clone of it; a
 main clone also gets ``main``, a bare ``origin`` beside it, and a stub ``gh``.
 """
 
@@ -26,6 +27,7 @@ LOOP = f'{DATA}/plans/20261026-e2e-loop.md'
 REVISE = f'{DATA}/plans/20261026-e2e-revise.md'
 CONFLICT = f'{DATA}/plans/20261027-e2e-conflict.md'
 EVALUATOR_AGENT = '.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md'
+PLANNER_AGENT = '.agents/plugins/agentdev/agents/iwe-planner.agent.md'
 UNRELEASED = f'{DATA}/releases/unreleased.md'
 FIXTURE_PLANS = (
     'plans/20261008-e2e-hello.md',
@@ -110,6 +112,7 @@ class FixtureRepo:
     open_question: str
     loop_only: str
     stub_evaluator: str
+    stub_planner: str
 
 
 def cancel_active_plans(data: Path, keep: tuple[str, ...] = ()) -> list[str]:
@@ -188,6 +191,11 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     repo.git('checkout', '-q', '-b', 'e2e-stub-evaluator', base)
     shutil.copy2(FIXTURES / 'agents/iwe-revision-evaluator.stub.md', path / EVALUATOR_AGENT)
     stub_evaluator = repo.commit_all('e2e: stub evaluator rejects every revision')
+
+    repo.git('checkout', '-q', '-b', 'e2e-stub-planner', base)
+    shutil.copy2(FIXTURES / 'agents/iwe-planner.narrowing-stub.md', path / PLANNER_AGENT)
+    shutil.copy2(FIXTURES / 'e2e/revise.narrowed.md', path / 'e2e')
+    stub_planner = repo.commit_all('e2e: stub planner drafts the narrowing')
     repo.git('checkout', '-q', 'e2e-fixture')
     return FixtureRepo(
         path=path,
@@ -195,6 +203,7 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
         open_question=open_question,
         loop_only=loop_only,
         stub_evaluator=stub_evaluator,
+        stub_planner=stub_planner,
     )
 
 
