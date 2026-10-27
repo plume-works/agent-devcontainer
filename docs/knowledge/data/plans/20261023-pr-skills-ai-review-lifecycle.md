@@ -491,6 +491,18 @@ absence, and reported for a person rather than retried.
   commit; the script reports `ALREADY_REQUESTED` and toggles nothing.
 - `iwe normalize` and `iwe schema validate` pass.
 
+## Verification results
+
+- The manual check passed on `main` at `7ec9407`, on throwaway PR #492, whose
+  author was not assigned and whose head `7e02efd` was approved. After a change
+  no thread asked for, the push's run skipped the review and `ai-review-present`
+  passed on the old review. `request-review.sh` then returned `SUCCESS`,
+  assigned and unassigned the author, and left the PR unassigned;
+  `Claude PR Review Responder` went pending on head `144a606` in run
+  40464620830, which approved it. A second request returned `ALREADY_REQUESTED`
+  with that run's check and toggled nothing. The re-review steps `pr-sync`
+  applies were run directly rather than through `pr-sync` itself.
+
 ## Out of scope
 
 - `update-branch`'s own pushes — it runs no eval after a base merge, though the

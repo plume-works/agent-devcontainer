@@ -207,10 +207,17 @@ Rejected:
 **Files:** none (CI evidence). It stands alone, because GitHub resolves
 `issue_comment` against the default branch's workflow file.
 
-- [ ] After merge, an `@claude review` comment on a throwaway pull request gets
+- [x] After merge, an `@claude review` comment on a throwaway pull request gets
   the approved message as a reply, the bridge job fails with it, and no review
   run starts.
-- [ ] After merge, an `@claude <task>` comment still dispatches a task run.
+  - **Evidence:** on `main` at `7ec9407`, PR #492's `@claude review` comment
+    started `issue_comment` run 40464035316, whose
+    `Dispatch on the pull request branch` job failed with the approved message,
+    posted as a `github-actions` reply on #492; no review run was dispatched.
+- [x] After merge, an `@claude <task>` comment still dispatches a task run.
+  - **Evidence:** PR #492's `@claude` task comment started bridge run
+    40464041658, which dispatched `workflow_dispatch` run 40464069953; its
+    Claude Task Responder succeeded and replied on #492 quoting the request.
 
 ## Spec changes
 
