@@ -127,3 +127,6 @@ change](bugs/plan-tasks-edit-specs.md)
 
 [Bug: the Expo bridge's build log tail drops
 lines](bugs/expo-bridge-build-log-tail-drops-lines.md)
+
+[Bug: the container sees the Expo bridge's build log only after the build
+ends](bugs/expo-bridge-build-log-invisible-until-close.md)
