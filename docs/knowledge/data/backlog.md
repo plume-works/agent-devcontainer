@@ -18,6 +18,9 @@ write a plan and link the plan instead.*
 
 ## Medium
 
+[Find why the orphan-kill supervision test is
+flaky](backlog/supervision-orphan-kill-test-cause.md)
+
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
