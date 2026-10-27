@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Map**: re-verified the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
+  restore-from-`HEAD` wording.
 - **Update**: [Let Implement verify, fix, and revise on its
   own](plans/20261026-autonomous-implement-loop.md) done; [IWE workflow
   skills](spec/iwe-workflow-skills.md) now requires Implement to verify its own
