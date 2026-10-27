@@ -223,12 +223,18 @@ tick was rejected for the cost of a Claude process every interval.
 **Files:** Modify: `docker/opencode/README.md`,
 `docs/knowledge/data/architecture/standalone-opencode-runtime.md`
 
-- [ ] The README's settings and log-in steps say how to opt in, that Remote
+- [x] The README's settings and log-in steps say how to opt in, that Remote
   Control starts by itself after `claude`'s `/login`, and how to read its line
   in `status`.
-- [ ] The architecture doc records the watcher: the gate in the runtime, the
+  - **Evidence:** commit "Document Remote Control in the standalone runtime":
+    `docker/opencode/README.md` steps 3 and 6; `prettier` passed in the commit's
+    pre-commit run.
+- [x] The architecture doc records the watcher: the gate in the runtime, the
   credential-signature trigger, recovery through the controller's budget, and
   the rejected one-shot and per-tick polling.
+  - **Evidence:** commit "Document Remote Control in the standalone runtime":
+    `## Remote Control watcher` in `architecture/standalone-opencode-runtime`;
+    `iwe schema validate` passed.
 
 ### Task 6: Confirm Remote Control on a real deployment
 
