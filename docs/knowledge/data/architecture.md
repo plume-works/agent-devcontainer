@@ -99,6 +99,9 @@ switch](architecture/claude-remote-control-spawn-mode-switch.md)
 [Claude Remote Control expired session
 recovery](architecture/claude-remote-control-expired-session-recovery.md)
 
+[Claude Remote Control archived pre-created
+session](architecture/claude-remote-control-archived-pre-created-session.md)
+
 [CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
