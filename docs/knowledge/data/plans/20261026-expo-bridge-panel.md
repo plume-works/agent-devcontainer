@@ -4,6 +4,8 @@ created: 2026-10-26
 release:
 - features/vscode-expo-bridge
 - bugs/expo-bridge-project-id-ignores-dynamic-config
+- bugs/expo-bridge-build-log-invisible-until-close
+- bugs/expo-bridge-build-log-tail-drops-lines
 description: Give the Expo bridge's workspace extension an activity-bar panel, an always-on status bar item, and Problems-panel diagnostics with quick fixes for every status check and container config check, with the project ID resolved in the container, the host extension and the protocol unchanged.
 generated:
   by: claude-code/opus-5.5
@@ -461,6 +463,28 @@ Dev Containers window.
   - **Evidence:** same Mac run: the welcome with **Show the Mac half** appeared,
     and the status bar read `Expo Bridge: Mac half not installed`.
 
+### Task 12a: Stream the build log from the host
+
+The container cannot tail the Mac's build log: it sees the file grow only when
+the host closes it ([the container sees the Expo bridge's build log only after
+the build ends](../bugs/expo-bridge-build-log-invisible-until-close.md)).
+
+**Files:** Create: `packages/host/src/buildlog.ts`. Modify:
+`packages/protocol/src/index.ts`, `packages/host/src/build.ts`,
+`packages/host/src/extension.ts`, `packages/workspace/src/requests.ts`,
+`packages/workspace/src/extension.ts`, `docs/protocol.md`. In
+`plume-works/vscode-expo-bridge`.
+
+- [x] The host sends each build log chunk to the workspace command
+  `expoBridge.workspace.buildLog`, one call at a time and all before the
+  response. The workspace passes the folder's chunks, as lines, to `eas-host`
+  and the panel, and no longer tails the file.
+  - **Evidence:** `dd7cbf2`; `bun test` 407 pass, including the new
+    `buildlog.test.ts`, the `BuildLogs` tests, and the `build` test that passes
+    `onLog` every chunk it writes. `bun run typecheck` and `bun run lint` pass.
+- [ ] Both build log bugs record the fix in `## Fix` and `## Key references`,
+  and are set to `stage: done` once Task 12's first box passes on the Mac.
+
 ### Task 13: Record the panel in this repository's project memory
 
 **Files:** Modify: `docs/knowledge/data/features/vscode-expo-bridge.md`,
@@ -576,7 +600,8 @@ four of five boxes pass. The first fails on one clause: the panel opens with one
 status and `Expo Bridge: OK`, and a second build skips the profile prompt, but
 the build streamed none of its log to the `Expo Bridge Build` channel, though
 the log file on the Mac was complete. Streaming shares `runRequest` with
-`eas-host build`, so the defect is not specific to the panel.
+`eas-host build`, so the defect is not specific to the panel. Task 12a replaces
+the file tail.
 
 ## Out of scope
 
