@@ -184,11 +184,20 @@ tick was rejected for the cost of a Claude process every interval.
 `docker/opencode/runtime.env.example`,
 `scripts/tests/test_agent_runtime_compose.py`
 
-- [ ] `compose.opencode.yml` passes `AGENTDEV_CLAUDE_RC_MODE` and
+- [x] `compose.opencode.yml` passes `AGENTDEV_CLAUDE_RC_MODE` and
   `AGENTDEV_CLAUDE_RC_SPAWN` as `${VAR:-}`, and `runtime.env.example` documents
   both, empty by default, with their valid values.
-- [ ] A Compose test asserts both reach the container, and
+  - **Evidence:** commit "Pass Remote Control settings through the standalone
+    Compose file": both settings in `compose.opencode.yml` and
+    `runtime.env.example`;
+    `uv run pytest scripts/tests/test_agent_runtime_compose.py`: 11 passed.
+- [x] A Compose test asserts both reach the container, and
   `test_env_example_documents_every_interpolated_setting` passes.
+  - **Evidence:** commit "Pass Remote Control settings through the standalone
+    Compose file":
+    `test_remote_control_settings_reach_the_container_and_default_to_off` and
+    `test_env_example_documents_every_interpolated_setting`;
+    `uv run pytest scripts/tests/test_agent_runtime_compose.py`: 11 passed.
 
 ### Task 4: Accept the watcher in a container
 

@@ -116,6 +116,21 @@ def test_custom_ids_cohort_volume_and_disabled_xpra_reach_the_container():
     assert project['volumes']['agents-auth']['name'] == 'agentdev-opencode-auth-2345'
 
 
+def test_remote_control_settings_reach_the_container_and_default_to_off():
+    unset, _ = service(BASE, PINS, **REQUIRED)
+    assert unset['environment']['AGENTDEV_CLAUDE_RC_MODE'] == ''
+    assert unset['environment']['AGENTDEV_CLAUDE_RC_SPAWN'] == ''
+    present, _ = service(
+        BASE,
+        PINS,
+        AGENTDEV_CLAUDE_RC_MODE='server',
+        AGENTDEV_CLAUDE_RC_SPAWN='same-dir',
+        **REQUIRED,
+    )
+    assert present['environment']['AGENTDEV_CLAUDE_RC_MODE'] == 'server'
+    assert present['environment']['AGENTDEV_CLAUDE_RC_SPAWN'] == 'same-dir'
+
+
 def test_xpra_password_reaches_the_container_and_is_checked_at_start_not_render():
     unset, _ = service(BASE, PINS, **REQUIRED)
     assert unset['environment']['XPRA_PASSWORD'] == ''
