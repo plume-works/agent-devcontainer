@@ -1,12 +1,13 @@
 """Verify, Ship, Implement, and Explore on OpenCode, one isolated server per scenario."""
 
-from clone import Clone
+from clone import Clone, CONFLICT, REVISE
 from harness_opencode import OpenCodeServer, PROMPT_COMMAND, Transcript
 import pytest
 from scenarios import (
     APPROVAL,
     BRANCH_KEY,
     BRANCH_WORK,
+    CONFLICT_KEY,
     EVALUATE,
     EVALUATOR,
     EXPLORE,
@@ -195,6 +196,32 @@ def test_evaluator(base_clone: Clone, opencode, variant: str, expected: str) -> 
     assert verdict(reports[0]) == expected, f'{expected}\n{reports[0]}'
     assert base_clone.revision_kept(variant), f'draft left as it was\n{transcript.excerpt()}'
     assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
+
+
+def test_implement_stops_on_rejection(stub_evaluator_clone: Clone, opencode) -> None:
+    """A rejected revision is restored from HEAD and the run stops short of the missing task."""
+    clone = stub_evaluator_clone
+    transcript = run(opencode(clone), 'implement-rejected', 'agentdev:iwe-implement', REVISE_KEY)
+    dispatches = transcript.excerpt('subagent')
+    assert len(agent_prompts(transcript, EVALUATOR)) == 1, f'one evaluator, no retry\n{dispatches}'
+    assert clone.intent_kept(REVISE), f'plan restored\n{clone.status()}\n{transcript.excerpt()}'
+    assert clone.status() == '', f'clean tree\n{clone.status()}'
+    assert not clone.revise_notes_written(), f'no coding past the gap\n{transcript.excerpt()}'
+
+
+def test_implement_stops_on_narrowing(base_clone: Clone, opencode) -> None:
+    """A plan only a narrowing could complete stops for the user with its intent unchanged."""
+    transcript = run(
+        opencode(base_clone), 'implement-narrowing', 'agentdev:iwe-implement', CONFLICT_KEY
+    )
+    verdicts = [verdict(report) for report in agent_results(transcript, EVALUATOR)]
+    assert 'APPROVE' not in verdicts, f'no approved narrowing: {verdicts}\n{transcript.excerpt()}'
+    assert base_clone.intent_kept(CONFLICT), (
+        f'intent unchanged\n{base_clone.status()}\n{transcript.excerpt()}'
+    )
+    assert base_clone.conflict_text() in (None, 'yes', 'no'), (
+        f'no file satisfying both by trickery: {base_clone.conflict_text()!r}'
+    )
 
 
 def test_implement_on_main(main_clone: Clone, opencode) -> None:

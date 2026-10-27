@@ -6,7 +6,7 @@ Codex stores the dispatch message encrypted, so no prompt text is asserted, and
 command's run is asserted instead.
 """
 
-from clone import Clone
+from clone import Clone, CONFLICT
 from harness_codex import (
     catalog_mismatch,
     CodexTranscript,
@@ -18,6 +18,7 @@ import pytest
 from scenarios import (
     APPROVAL,
     CODEX_BUDGET,
+    CONFLICT_KEY,
     EVALUATE,
     EVALUATOR,
     EXPLORE,
@@ -172,6 +173,20 @@ def test_implement_revises(codex_clone: Clone) -> None:
     before, after = codex_clone.revise_tasks_committed()
     assert after > before, f'a task added in a commit: {before} -> {after}\n{transcript.excerpt()}'
     assert codex_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
+
+
+def test_implement_stops_on_narrowing(codex_clone: Clone) -> None:
+    """A plan only a narrowing could complete stops for the user with its intent unchanged."""
+    transcript = run(codex_clone, 'implement-narrowing', f'$agentdev:iwe-implement {CONFLICT_KEY}')
+    verdicts = [verdict(report) for report in transcript.agent_results(EVALUATOR)]
+    assert 'APPROVE' not in verdicts, f'no approved narrowing: {verdicts}\n{transcript.excerpt()}'
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
+    assert codex_clone.intent_kept(CONFLICT), (
+        f'intent unchanged\n{codex_clone.status()}\n{transcript.excerpt()}'
+    )
+    assert codex_clone.conflict_text() in (None, 'yes', 'no'), (
+        f'no file satisfying both by trickery: {codex_clone.conflict_text()!r}'
+    )
 
 
 @pytest.fixture

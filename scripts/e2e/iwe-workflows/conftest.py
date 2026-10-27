@@ -76,6 +76,12 @@ def loop_only_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo)
     return clone_at(fixture_repo.loop_only)
 
 
+@pytest.fixture
+def stub_evaluator_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
+    """Provide a clone whose catalog evaluator rejects every revision."""
+    return clone_at(fixture_repo.stub_evaluator)
+
+
 @pytest.fixture(scope='session')
 def opencode_source() -> opencode_credential.Server:
     """Locate the web UI's OpenCode 2.x server, or skip the OpenCode tests."""

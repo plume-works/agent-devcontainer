@@ -1,6 +1,6 @@
 """Verify, Ship, Implement, and Explore on Claude Code, one clone per scenario."""
 
-from clone import Clone
+from clone import Clone, CONFLICT, REVISE
 from harness_claude import ClaudeTranscript, run_claude
 import pytest
 from scenarios import (
@@ -8,6 +8,7 @@ from scenarios import (
     BRANCH_KEY,
     BRANCH_WORK,
     CLAUDE_BUDGET,
+    CONFLICT_KEY,
     EVALUATE,
     EVALUATOR,
     EXPLORE,
@@ -170,6 +171,30 @@ def test_evaluator(base_clone: Clone, variant: str, expected: str) -> None:
     assert verdict(reports[0]) == expected, f'{expected}\n{reports[0]}'
     assert base_clone.revision_kept(variant), f'draft left as it was\n{transcript.excerpt()}'
     assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
+
+
+def test_implement_stops_on_rejection(stub_evaluator_clone: Clone) -> None:
+    """A rejected revision is restored from HEAD and the run stops short of the missing task."""
+    clone = stub_evaluator_clone
+    transcript = run(clone, 'implement-rejected', f'/agentdev:iwe-implement {REVISE_KEY}')
+    dispatches = transcript.excerpt('Agent')
+    assert len(transcript.agent_prompts(EVALUATOR)) == 1, f'one evaluator, no retry\n{dispatches}'
+    assert clone.intent_kept(REVISE), f'plan restored\n{clone.status()}\n{transcript.excerpt()}'
+    assert clone.status() == '', f'clean tree\n{clone.status()}'
+    assert not clone.revise_notes_written(), f'no coding past the gap\n{transcript.excerpt()}'
+
+
+def test_implement_stops_on_narrowing(base_clone: Clone) -> None:
+    """A plan only a narrowing could complete stops for the user with its intent unchanged."""
+    transcript = run(base_clone, 'implement-narrowing', f'/agentdev:iwe-implement {CONFLICT_KEY}')
+    verdicts = [verdict(report) for report in transcript.agent_results(EVALUATOR)]
+    assert 'APPROVE' not in verdicts, f'no approved narrowing: {verdicts}\n{transcript.excerpt()}'
+    assert base_clone.intent_kept(CONFLICT), (
+        f'intent unchanged\n{base_clone.status()}\n{transcript.excerpt()}'
+    )
+    assert base_clone.conflict_text() in (None, 'yes', 'no'), (
+        f'no file satisfying both by trickery: {base_clone.conflict_text()!r}'
+    )
 
 
 def test_implement_on_main(main_clone: Clone) -> None:
