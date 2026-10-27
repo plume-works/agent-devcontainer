@@ -53,10 +53,11 @@ optional service started after `prepare`. Its program,
 `runtime-remote-control.sh run`, loops every `AGENTDEV_HEALTH_INTERVAL`:
 
 1. It compares the signature (mtime and size) of
-   `$AGENTDEV_CLAUDE_DIR/.credentials.json` with the last one it checked. Only
-   when the signature changes, and on its first pass, does it run
-   `claude auth status --json` without `CLAUDE_CODE_OAUTH_TOKEN`, so an idle
-   wait costs a `stat`, not a Claude process.
+   `$CLAUDE_SECURESTORAGE_CONFIG_DIR/.credentials.json`, in the shared auth
+   volume, with the last one it checked. Only when the signature changes, and on
+   its first pass, does it run `claude auth status --json` without
+   `CLAUDE_CODE_OAUTH_TOKEN`, so an idle wait costs a `stat`, not a Claude
+   process.
 2. With no claude.ai login, it writes `waiting for a claude.ai login` to
    `$XDG_RUNTIME_DIR/remote-control.status` and keeps waiting. A login that
    expires clears the credential file, which changes its signature, so the
@@ -89,26 +90,58 @@ tick was rejected for the cost of a Claude process every interval.
 
 ### Task 1: Gate the remote-control component on the mode
 
-**Files:** Modify: `.devcontainer/scripts/runtime-supervisor.py`; Create:
-`scripts/tests/test_agent_runtime_remote_control.py`
+**Files:** Modify: `.devcontainer/scripts/runtime-supervisor.py`,
+`docker/opencode/supervisord.conf`,
+`scripts/tests/test_agent_runtime_supervision.py`
 
-- [ ] `Settings` parses `AGENTDEV_CLAUDE_RC_MODE` (empty, `session`, `server`)
+- [x] `Settings` parses `AGENTDEV_CLAUDE_RC_MODE` (empty, `session`, `server`)
   and, in server mode, `AGENTDEV_CLAUDE_RC_SPAWN` (empty, `worktree`,
   `same-dir`); any other value is recorded in `errors` naming the variable and
   its valid values.
-- [ ] `SERVICES` gains `Service('remote-control', after=('prepare',))`, optional
+  - **Evidence:** commit "Gate standalone Remote Control on
+    AGENTDEV_CLAUDE_RC_MODE": `Settings.from_env` and `SettingsParser.choice`;
+    `test_an_unrecognized_remote_control_setting_latches_before_the_bootstrap`
+    and `test_a_session_mode_ignores_the_spawn_setting` in
+    `test_agent_runtime_supervision.py`, run as root (sudo, the venv
+    interpreter) with
+    `-k "remote_control or real_probe or shipped_config or dependency_order"`:
+    13 passed.
+- [x] `SERVICES` gains `Service('remote-control', after=('prepare',))`, optional
   and long-running; `Controller` leaves it out when the mode is empty.
-- [ ] Supervision tests, through the existing fake-service harness: unset mode
+  - **Evidence:** commit "Gate standalone Remote Control on
+    AGENTDEV_CLAUDE_RC_MODE": `test_remote_control_is_left_out_without_a_mode`
+    and `test_a_remote_control_mode_starts_it_after_prepare`, run as root (sudo,
+    the venv interpreter) with
+    `-k "remote_control or real_probe or shipped_config or dependency_order"`:
+    13 passed.
+- [x] `supervisord.conf` adds `[program:remote-control]` running
+  `runtime-supervisor.py exec remote-control /opt/agentdev-runtime/runtime-remote-control.sh run`
+  as the runtime user, in the same shape as the other user programs.
+  - **Evidence:** commit "Gate standalone Remote Control on
+    AGENTDEV_CLAUDE_RC_MODE":
+    `test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout`
+    covers the program, run as root (sudo, the venv interpreter) with
+    `-k "remote_control or real_probe or shipped_config or dependency_order"`:
+    13 passed.
+- [x] Supervision tests, through the existing fake-service harness: unset mode
   starts no `remote-control` and the state file has no such component; `session`
   and `server` start it after `prepare`; an unrecognized mode or server-mode
   spawn latches a configuration failure naming the variable; its failure
   degrades the runtime while OpenCode serves, and latches under strict startup.
+  - **Evidence:** commit "Gate standalone Remote Control on
+    AGENTDEV_CLAUDE_RC_MODE": the six `remote_control` tests in
+    `test_agent_runtime_supervision.py`, including
+    `test_a_failing_remote_control_degrades_while_opencode_serves` and
+    `test_strict_startup_latches_on_a_failing_remote_control`, run as root
+    (sudo, the venv interpreter) with
+    `-k "remote_control or real_probe or shipped_config or dependency_order"`:
+    13 passed.
 
 ### Task 2: Supervise the watcher
 
 **Files:** Create: `.devcontainer/scripts/runtime-remote-control.sh`,
 `scripts/tests/test_runtime_remote_control.py`; Modify:
-`.devcontainer/scripts/runtime-health.sh`, `docker/opencode/supervisord.conf`,
+`.devcontainer/scripts/runtime-health.sh`,
 `scripts/tests/test_agent_runtime_supervision.py`
 
 - [ ] `runtime-remote-control.sh run` implements the loop in `## Approach`, and
@@ -116,9 +149,6 @@ tick was rejected for the cost of a Claude process every interval.
 - [ ] `runtime-health.sh remote-control` runs that check as the runtime user,
   and `runtime-health.sh status` prints `  remote-control: <status file line>`
   whenever the state file names the component.
-- [ ] `supervisord.conf` adds `[program:remote-control]` running
-  `runtime-supervisor.py exec remote-control /opt/agentdev-runtime/runtime-remote-control.sh run`
-  as the runtime user, in the same shape as the other user programs.
 - [ ] Watcher tests with fake `claude` and `tmux`: no credential file writes the
   waiting status and runs no `claude auth status` on later ticks; a credential
   file appearing with a claude.ai login starts the session once; a setup-token
@@ -397,7 +427,7 @@ container](20261017-standalone-opencode-container.md) — it creates
 
 ## Verification
 
-- `uv run pytest scripts/tests/test_agent_runtime_remote_control.py scripts/tests/test_runtime_remote_control.py scripts/tests/test_agent_runtime_supervision.py scripts/tests/test_agent_runtime_compose.py scripts/tests/test_claude_remote_control_start.py`
+- `uv run pytest scripts/tests/test_runtime_remote_control.py scripts/tests/test_agent_runtime_supervision.py scripts/tests/test_agent_runtime_compose.py scripts/tests/test_claude_remote_control_start.py`
 - `.devcontainer/scripts/test-agent-runtime.sh` against a locally built
   `agent-opencode`, including the Task 4 acceptance test.
 - `shellcheck .devcontainer/scripts/runtime-remote-control.sh .devcontainer/scripts/runtime-health.sh`
@@ -431,7 +461,8 @@ Verified anchor points (line numbers as of 2026-10-27):
 - `.devcontainer/scripts/claude-remote-control-start.sh:4` — mode default
 - `.devcontainer/scripts/claude-remote-control-start.sh:62` — live-session reuse
 - `docker/opencode/supervisord.conf:195` — `[program:opencode]`
-- `docker/opencode/agent-opencode.Dockerfile:38` — `AGENTDEV_CLAUDE_DIR`
+- `docker/opencode/agent-opencode.Dockerfile:37` —
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR`
 - `docker/opencode/agent-opencode.Dockerfile:42` — `XDG_RUNTIME_DIR`
 - `compose.opencode.yml:30` — `AGENTDEV_STRICT_STARTUP`
 - `docker/opencode/runtime.env.example:53` — `AGENTDEV_STRICT_STARTUP`

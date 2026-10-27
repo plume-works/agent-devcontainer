@@ -669,7 +669,7 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
     programs = {
         s.split(':', 1)[1]: parser[s] for s in parser.sections() if s.startswith('program:')
     }
-    assert set(programs) == set(STARTUP_ORDER)
+    assert set(programs) == set(STARTUP_ORDER) | {'remote-control'}
     for name, program in programs.items():
         assert program['autostart'] == 'false' and program['startretries'] == '0'
         assert program['stdout_logfile'] == '/dev/stdout'
@@ -845,3 +845,67 @@ def test_a_malformed_firewall_switch_latches_before_the_bootstrap(make):
     box.wait_for(lambda: box.latched() == 'configuration')
     assert box.events() == []
     assert 'ENABLE_FIREWALL' in box.runtime()['components']['configuration']['reason']
+
+
+def test_remote_control_is_left_out_without_a_mode(make):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='')
+    box.start()
+    box.wait_for(box.ready)
+    assert 'remote-control' not in started(box.events())
+    assert 'remote-control' not in box.runtime()['components']
+
+
+@pytest.mark.parametrize('mode', ['session', 'server'])
+def test_a_remote_control_mode_starts_it_after_prepare(make, mode):
+    box = make(AGENTDEV_CLAUDE_RC_MODE=mode)
+    box.start()
+    box.wait_for(box.ready)
+    runs = started(box.events())
+    assert runs.index('prepare') < runs.index('remote-control')
+    assert box.status('remote-control') == 'ready'
+
+
+@pytest.mark.parametrize(
+    'settings, variable',
+    [
+        ({'AGENTDEV_CLAUDE_RC_MODE': 'sever'}, 'AGENTDEV_CLAUDE_RC_MODE'),
+        (
+            {'AGENTDEV_CLAUDE_RC_MODE': 'server', 'AGENTDEV_CLAUDE_RC_SPAWN': 'tree'},
+            'AGENTDEV_CLAUDE_RC_SPAWN',
+        ),
+    ],
+)
+def test_an_unrecognized_remote_control_setting_latches_before_the_bootstrap(
+    make, settings, variable
+):
+    box = make(**settings)
+    box.start()
+    stays_latched(box, 'configuration')
+    assert box.events() == []
+    assert variable in box.runtime()['components']['configuration']['reason']
+
+
+def test_a_session_mode_ignores_the_spawn_setting(make):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='session', AGENTDEV_CLAUDE_RC_SPAWN='tree')
+    box.start()
+    box.wait_for(box.ready)
+
+
+def test_a_failing_remote_control_degrades_while_opencode_serves(make):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='server', AGENTDEV_RECOVERY_ATTEMPTS='1')
+    box.set('remote-control', 'mode', 'never-ready')
+    box.start()
+    box.wait_for(box.degraded)
+    assert box.status('remote-control') == 'failed'
+    assert box.status('opencode') == 'ready'
+
+
+def test_strict_startup_latches_on_a_failing_remote_control(make):
+    box = make(
+        AGENTDEV_CLAUDE_RC_MODE='server',
+        AGENTDEV_RECOVERY_ATTEMPTS='1',
+        AGENTDEV_STRICT_STARTUP='true',
+    )
+    box.set('remote-control', 'mode', 'never-ready')
+    box.start()
+    stays_latched(box, 'remote-control')
