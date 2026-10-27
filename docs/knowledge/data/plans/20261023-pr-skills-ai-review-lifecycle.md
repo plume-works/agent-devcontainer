@@ -6,7 +6,7 @@ release:
 description: Make every push to a reviewed pull request run the re-review evaluation, request an AI review by toggling the pull request author's assignment at most once per head SHA through a bundled script, and retire the pr-* skill logic that assumed comment-requested reviews ran invisibly on the default branch, deleting pr-discover-ai-responder.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T06:00:00Z
+  at: 2026-10-27T08:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-sync/SKILL.md
@@ -443,8 +443,8 @@ request's head commit, and as finished when the latest `ai-review-present` run
 on the head completes, reading both from `gh pr checks`. It SHALL NOT look up
 the review workflow by name or follow a run by id to decide either. When a
 toggle produces no review check on the head, the cause SHALL be read from the
-`pull_request` run of `ai-responder.yml` on the head branch and reported for a
-person rather than retried.
+`pull_request` run of `ai-responder.yml` on the head branch, or from its
+absence, and reported for a person rather than retried.
 
 ### Scenario: confirming a request
 
@@ -455,11 +455,13 @@ person rather than retried.
 
 ### Scenario: a toggle that reviewed nothing
 
-- **WHEN** no review check runs on the head and the `pull_request` run started
-  no job, failed its preflight, or skipped its review job
-- **THEN** the agent reports that a bot-authored or fork pull request, a
-  requester without write access, or the `[ci:skip-ai-review]` marker needs a
-  person, and requests no further review.
+- **WHEN** no review check runs on the head because the toggle started no
+  `pull_request` run, or that run skipped or failed its preflight, or its
+  preflight passed and its review job skipped
+- **THEN** the agent reports, respectively, a token whose events start no
+  workflow, a bot-authored or fork pull request, a requester without write
+  access, or the `[ci:skip-ai-review]` marker as needing a person, and requests
+  no further review.
 ```
 
 ## Verification
@@ -472,7 +474,9 @@ person rather than retried.
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   passes.
 - `grep -rn '@claude review\|review-head\|chatgpt-codex-connector' .agents/plugins/agentdev/skills/pr-request-ai-review .agents/plugins/agentdev/skills/pr-merge .agents/plugins/agentdev/skills/pr-eval-review-needed .agents/plugins/agentdev/tests/test_request_review.py`
-  returns only assertions that no `@claude review` comment is posted.
+  returns only the bridge-rejection note in `pr-request-ai-review/SKILL.md` and
+  test lines asserting that no `@claude` comment is posted or that a Codex
+  review is not accepted.
 - `grep -rn 'pr-discover-ai-responder\|Require AI Review\|gh run watch\|Determine checkout ref' .agents/plugins/agentdev`
   returns nothing.
 - Manual, once [Assignee-triggered AI re-reviews replace the comment
@@ -505,14 +509,14 @@ person rather than retried.
 Verified anchor points (line numbers as of 2026-10-27):
 
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:3` —
-  frontmatter `description` naming the posted comment
+  frontmatter `description` naming the assignee toggle
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:15` —
-  `## Post the request`, the `@claude review` body
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:57` —
-  `## Confirm it started`, gap shapes read from the `issue_comment` run
+  `## Post the request`, running `request-review.sh`
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:56` —
+  `## Confirm it started`, causes read from the `pull_request` run
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:92` —
   `## Post at most once per head SHA`
-- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:112` —
+- `.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md:110` —
   `## Related Skills`
 - `.agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh:20`
   — `usage()`
