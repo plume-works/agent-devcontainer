@@ -4,8 +4,29 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-27
+
+- **Map**: refreshed the agentdev [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) map for
+  `request-review.sh`'s assignee toggle, and re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) and its
+  [skills](codebase/agents/plugins/agentdev/skills.md).
+- **Map**: refreshed the [workflows](codebase/github/workflows.md) map for the
+  assignee re-review trigger and the `@claude review` rejection, re-anchored
+  [pull request checks](codebase/flow-pull-request-checks.md), and re-stamped
+  [GitHub](codebase/github.md), [actions](codebase/github/actions.md), and the
+  [agentdev catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) after merging `main`.
+
 ## 2026-10-26
 
+- **Update**: recorded [Assignee-triggered AI
+  re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
+  [Verify that auto-merge waits for an assignee-triggered
+  review](backlog/verify-assignee-review-automerge.md).
+- **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
+  task trigger](backlog/drop-claude-free-form-task-trigger.md).
 - **Update**: [Configurable Remote Control spawn mode, worktree by
   default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
   spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
@@ -19,6 +40,13 @@ to the current day's group.
 
 ## 2026-10-25
 
+- **Update**: filed [Bug: a comment-requested review's gate does not count
+  toward merge](bugs/dispatched-review-gate-not-counted.md), reproduced on
+  throwaway PR #472.
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for the removed
+  `pr-discover-ai-responder` skill and the new `request-review.sh` script.
 - **Update**: [Expo bridge bun fix upgrades the bun the check
   runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md) done; no
   `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.

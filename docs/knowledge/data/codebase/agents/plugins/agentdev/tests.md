@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:3c2048e5724db4b230e545c7e6911284342e564ea09c128f02347959a7e9736a
+source_digest: sha256:1a0d12d6360686799b2d654202a377542e5f0550780a33d04307e9b83e0c5173
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
+  at: 2026-10-27T08:30:00Z
 stale_after: 2027-01-23
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
+  at: 2026-10-27T08:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -47,13 +47,13 @@ commands, and skills, and the bridge's CBM warning in `opencode.log`.
 - `iwe_branch_fixtures.py` — `Workspace`, `plan_document()`, `run_script()`, and
   `tools_without_gh()`, shared by the three `iwe-branch-name` modules
 - Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
-  `test_discover_ai_responder.py`, `test_explicit_only_parity.py`,
-  `test_fetch_issue.py`, `test_gh_stack_guard.py`, `test_git_commit.py`,
+  `test_explicit_only_parity.py`, `test_fetch_issue.py`,
+  `test_gh_stack_guard.py`, `test_git_commit.py`,
   `test_install_codex_agents.py`, `test_iwe_bootstrap.py`,
   `test_git_new_branch.py`, `test_iwe_branch_name_next.py`,
   `test_iwe_branch_name_parse.py`, `test_iwe_branch_name_plan_state.py`,
   `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
-  `test_result_codes.py`, `test_stale_map_docs.py`,
+  `test_request_review.py`, `test_result_codes.py`, `test_stale_map_docs.py`,
   `test_stale_map_docs_masks.py`, `test_stale_map_docs_replay.py`,
   `test_template_consume_check_updates.py`, `test_update_branch.py`
 
@@ -94,10 +94,16 @@ rewrite, a push leased on the checked tip, queued layers, link create and add
 modes, and a `publish` rerun after a failed link. `test_capture_close_issue.py`
 reuses `initialize_repository` from `test_update_branch.py` and a stub `gh` that
 logs closes, and pins each `close-issue.sh` result, including an already-closed
-issue left alone. `test_template_consume_check_updates.py` builds the same
-metadata file to hold the marker section, and pins `NO_MARKER` for an absent
-file and for an absent section, and `INVALID_MARKER` for malformed metadata or a
-section missing `consumed_ref` or `tracked_paths`.
+issue left alone. `test_request_review.py` runs `request-review.sh` against a
+Python stub `gh` that answers the pull request, reviews, and check-run endpoints
+from a JSON fixture and logs every write call, and pins each result, including
+the remove-then-add and add-then-remove assignment toggles, a responder check on
+the head counted as a request unless skipped or cancelled, and a half-done
+toggle that names the assignment it left unrestored.
+`test_template_consume_check_updates.py` builds the same metadata file to hold
+the marker section, and pins `NO_MARKER` for an absent file and for an absent
+section, and `INVALID_MARKER` for malformed metadata or a section missing
+`consumed_ref` or `tracked_paths`.
 
 `test_update_branch.py` builds a bare remote, a working clone on a pushed
 feature branch, and a publisher clone, and pins `update-branch.sh`'s upstream
@@ -219,6 +225,10 @@ Verified anchor points (line numbers as of 2026-10-25):
   digest-commit ancestry regression
 - `.agents/plugins/agentdev/tests/test_push_branch_map_check.py:54` —
   `build_repository`, the remote-plus-map fixture
+- `.agents/plugins/agentdev/tests/test_request_review.py:29` — `GH_STUB`, the
+  fixture-driven stub `gh`
+- `.agents/plugins/agentdev/tests/test_request_review.py:117` —
+  `install_stub_path`, the hermetic `PATH`
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
   an absent marker section is `NO_MARKER`
 - `.agents/plugins/agentdev/tests/test_explicit_only_parity.py:33` —

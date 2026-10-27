@@ -136,8 +136,8 @@ branch:
 - Every reported CI check has completed successfully. Report external checks
   that cannot be inspected, but do not claim they passed without evidence or
   call the PR merge-ready while one is failing or pending.
-- The `Require AI Review` gate is successful and an accepted Claude or Codex
-  review exists for the PR's current review cycle.
+- The `ai-review-present` gate is successful and an accepted Claude review
+  exists for the PR's current review cycle.
 - The review agent has finished; all of its actionable, unresolved feedback is
   fixed, replied to, and resolved using the feedback-resolution workflow.
 - `gh pr view` reports no remaining merge blocker (for example, a conflict or
@@ -190,7 +190,7 @@ to check later.
      its linked security or coverage workflow.
    - An external check: record its URL and report it as an external blocker;
      do not fabricate a GitHub Actions diagnosis.
-   - `Require AI Review` / `ai-review-present`: follow **AI Review Recovery**
+   - `ai-review-present`: follow **AI Review Recovery**
      below. Do not try to repair this gate with a code change.
    - A cancelled, timed-out, or infrastructure failure: rerun only when the
      repository permits it and the failure is demonstrably transient;
@@ -203,8 +203,10 @@ to check later.
    On a stacked PR, run the guard's `begin` before the commit, then
    `gh stack rebase --upstack` and the guard's `publish`, through
    [gh-stack](../gh-stack/SKILL.md) instead, so every layer above carries the
-   fix. Restart the loop
-   from step 1 because the head SHA and checks have changed.
+   fix. After the push, apply
+   [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) and report its
+   decision. Restart the loop from step 1 because the head SHA and checks have
+   changed.
 
 6. Once CI is successful, inspect reviews and unresolved review threads. Wait
    for an in-progress review agent before declaring success. Apply
@@ -239,66 +241,42 @@ otherwise report the concrete error as a blocker.
 
 ## AI Review Recovery
 
-This repository's `Require AI Review` check accepts a submitted review from
-Claude or Codex. Its AI responder workflow runs a pull-request review
-when an issue comment opens with `@claude review`.
+The `ai-review-present` check accepts a submitted review from Claude. A review is
+requested by toggling the pull request author's assignment, which starts a
+`pull_request` run of the AI responder workflow: the review's
+`Claude PR Review Responder` check and the `ai-review-present` gate that waits on
+it are filed on the head commit and listed by `gh pr checks`.
 
-1. Confirm that the failed AI-review check actually says no accepted AI review
-   was found. Inspect its log before triggering anything.
+1. Confirm that the failed `ai-review-present` check actually says no accepted
+   AI review was found. Inspect its log before triggering anything.
 
-   Resolve the responder workflow's filename first, with
-   [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md), and bind it
-   for the queries in the later steps. It is not the same in every repository,
-   and a wrong name makes every `gh run list` below return nothing, which reads
-   exactly like "no responder ran". If it reports `NO_RESPONDER_WORKFLOW` or
-   `AMBIGUOUS_WORKFLOW`, resolve that before drawing any conclusion about
-   whether a review ran.
-
-2. Check current PR reviews and active responder runs first. If a
-   responder is already reviewing this PR, wait for that run rather than
-   starting a duplicate review. Maintain a per-head-SHA trigger ledger in the
-   conversation so a trigger is posted at most once for each head SHA.
-
-   **`gh pr checks <pr>` is not sufficient to find these runs.**
-   Comment-triggered responder runs may not appear in `gh pr checks`. Use the
-   run queries and the "Determine checkout ref" confirmation in
-   [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) to find
-   responder runs and decide which ones belong to this PR.
-
-   If an in-progress or queued run is confirmed to be reviewing this PR's
-   current head SHA, wait on it directly instead of posting a new trigger:
+2. If `Claude PR Review Responder` or `ai-review-present` is pending on the
+   current head, a review is already running. Wait on it rather than requesting
+   another:
 
    ```bash
-   gh run watch <run-id> --exit-status
+   gh pr checks <pr> --watch --interval 30
    ```
 
-3. If no review is in progress and no trigger has been posted for that head
-   SHA, post exactly this comment:
+3. Otherwise request the review through
+   [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
+   `request-review.sh` toggles the author's assignment at most once per head
+   SHA. On `ALREADY_REQUESTED`, a responder check already covers this head:
+   confirm it started as that skill describes and wait on the head's checks;
+   never request again. On
+   `ALREADY_REVIEWED`, an accepted review already names the head and the failed
+   gate predates it; report that instead of requesting.
 
-   ```bash
-   gh pr comment <pr> --body '@claude review'
-   ```
-
-   This is an operational trigger, not a review finding or status update.
-   Immediately after posting it, capture the new run with the `issue_comment`
-   query in
-   [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) so you can
-   watch it directly instead of polling `gh pr checks`.
-
-4. Wait for the responder workflow to complete — via `gh run watch
-<run-id> --exit-status` on the run captured above, or by repeating the
-   `gh run list --workflow="$RESPONDER_WORKFLOW"` query from
-   [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) until that
-   run's `status` reaches `completed` — then refresh both `gh pr checks` and PR
-   reviews. Do not treat workflow start, a plain comment, or a pending review
-   as completion.
+4. Wait until the latest `ai-review-present` run on the head completes — it
+   finishes in the same run as the review — then refresh both `gh pr checks`
+   and PR reviews. Do not treat a toggled assignment, a started run, or a pending
+   review as completion.
 5. If the responder publishes actionable feedback, return to the review step
    in the monitoring loop and use `pr-feedback-resolution` to address all of
-   it. If it publishes a clean review, wait for the `Require AI Review` gate
-   to rerun and pass.
-6. If the responder finishes without a submitted review, inspect its logs and
-   report that concrete failure. Do not repeatedly post the trigger comment;
-   require a new head SHA or user direction before retrying.
+   it. If it publishes a clean review, the gate passes in that same run.
+6. If the review job ends without a submitted review, the gate fails in that
+   run: inspect its log and report that concrete failure. Do not request it
+   again; require a new head SHA or user direction before retrying.
 
 ## Final Report
 
@@ -315,5 +293,5 @@ evidenced.
   retrieve GitHub Actions logs and uploaded test artifacts.
 - [pr-review](../pr-review/SKILL.md) — automated-review behavior used by the
   AI responder workflow.
-- [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) — resolve the
-  responder workflow's filename and find its runs.
+- [pr-request-ai-review](../pr-request-ai-review/SKILL.md) — request the
+  review by assignee toggle, at most once per head SHA, and confirm it started.

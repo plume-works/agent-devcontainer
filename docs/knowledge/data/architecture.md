@@ -109,3 +109,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
 [VS Code Expo bridge](architecture/vscode-expo-bridge.md)
+
+[Assignee-triggered AI re-reviews](architecture/assignee-review-trigger.md)
