@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-27
+
+- **Map**: refreshed the [workflows](codebase/github/workflows.md) map for the
+  assignee re-review trigger and the `@claude review` rejection, re-anchored
+  [pull request checks](codebase/flow-pull-request-checks.md), and re-stamped
+  [GitHub](codebase/github.md), [actions](codebase/github/actions.md), and the
+  [agentdev catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) after merging `main`.
+
 ## 2026-10-26
 
 - **Update**: recorded [Assignee-triggered AI
