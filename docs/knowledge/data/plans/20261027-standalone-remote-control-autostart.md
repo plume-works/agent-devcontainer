@@ -6,7 +6,7 @@ release:
 description: Opt the standalone agent-opencode runtime into Claude Remote Control with AGENTDEV_CLAUDE_RC_MODE, through a supervised remote-control watcher that waits for a claude.ai login, starts claude-remote, and restarts it within the recovery budget.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T12:30:00Z
+  at: 2026-10-27T22:55:00Z
 sources:
 - resource: docs/knowledge/data/backlog/standalone-claude-remote-control.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -474,6 +474,21 @@ container](20261017-standalone-opencode-container.md) — it creates
 - `shellcheck .devcontainer/scripts/runtime-remote-control.sh .devcontainer/scripts/runtime-health.sh`
   and `python-lint-check.sh`.
 - Task 6 on a real deployment with a claude.ai login.
+
+## Verification results
+
+- **Task 6, with a claude.ai login already in the auth volume (2026-10-27):** a
+  standalone `agent-opencode` deployment with `AGENTDEV_CLAUDE_RC_MODE=server`
+  and `AGENTDEV_CLAUDE_RC_SPAWN` empty, rebuilt from the image that carries the
+  watcher. With no operator action, the supervisor (PID 1 at 19:25:47) started
+  `runtime-remote-control.sh run`, and that started
+  `claude remote-control --spawn worktree` in the `claude-remote` tmux session
+  at 19:26:31. `runtime-health.sh status` reported `runtime state: ready` and
+  `remote-control: running in tmux session claude-remote`. A conversation
+  started from claude.ai/code in that environment ran in `/workspaces/project`:
+  it created and pushed a branch and read the runtime state. The no-login phase
+  was not exercised (no waiting status, no `/login` without a restart), so Task
+  6 stays open.
 
 ## Out of scope
 
