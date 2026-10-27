@@ -38,3 +38,8 @@ exposure](someday/devcontainer-forwarded-agent-exposure.md)
 
 [Build on the Mac for a Codespace through the Expo
 bridge](someday/expo-bridge-codespaces.md)
+
+[Calibrate the revision evaluator against human
+review](someday/revision-evaluator-calibration.md)
+
+[Nested dispatch from catalog agents](someday/nested-catalog-agent-dispatch.md)
