@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Map**: re-verified the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
+  plan-edit commit before a revision.
 - **Map**: refreshed the [agentdev
   skills](codebase/agents/plugins/agentdev/skills.md) and
   [catalog](codebase/agents/plugins/agentdev.md) for implement-all's
