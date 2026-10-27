@@ -20,6 +20,37 @@ to the current day's group.
   and listed under Unreleased Fixed; [AI responder
   workflows](features/ai-responder-workflows.md) stays implemented and listed
   under Unreleased Changed.
+- **Map**: re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) and its
+  [skills](codebase/agents/plugins/agentdev/skills.md) after merging `main` into
+  the Implement loop branch.
+- **Map**: re-verified the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
+  plan-edit commit before a revision.
+- **Map**: refreshed the [agentdev
+  skills](codebase/agents/plugins/agentdev/skills.md) and
+  [catalog](codebase/agents/plugins/agentdev.md) for implement-all's
+  conversation-free Implementer dispatch.
+- **Map**: re-verified the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
+  restore-from-`HEAD` wording.
+- **Update**: [Let Implement verify, fix, and revise on its
+  own](plans/20261026-autonomous-implement-loop.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now requires Implement to verify its own
+  work, act on the findings, and revise its plan only after an independent
+  evaluation.
+- **Update**: [Autonomous Implement loop](features/autonomous-implement-loop.md)
+  implemented; listed under Unreleased Added.
+- **Update**: [Verification in the main
+  loop](features/verification-in-the-main-loop.md) gained the Implement
+  orchestrator's Verify dispatch; already listed under Unreleased Changed.
+- **Update**: [Run Verify from a fresh
+  context](plans/20261026-verify-in-fresh-context.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now requires every Verify run to start
+  from a fresh context through the `iwe-verifier` agent.
+- **Update**: [Verification in the main
+  loop](features/verification-in-the-main-loop.md) gained fresh-context Verify;
+  listed under Unreleased Changed.
 - **Map**: refreshed the agentdev [plugin
   tests](codebase/agents/plugins/agentdev/tests.md) map for
   `request-review.sh`'s assignee toggle, and re-stamped the [agentdev
@@ -35,12 +66,15 @@ to the current day's group.
 
 ## 2026-10-26
 
-- **Update**: recorded [Assignee-triggered AI
-  re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
-  [Verify that auto-merge waits for an assignee-triggered
-  review](backlog/verify-assignee-review-automerge.md).
-- **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
-  task trigger](backlog/drop-claude-free-form-task-trigger.md).
+- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `iwe-planner` and `iwe-revision-evaluator` agents, the thin `iwe-plan` skill,
+  and the Implement loop.
+- **Create**: [Autonomous Implement
+  loop](architecture/autonomous-implement-loop.md) architecture doc.
+- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `iwe-verifier` agent and the dispatching `iwe-verify` skill.
 - **Update**: [Configurable Remote Control spawn mode, worktree by
   default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
   spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
@@ -51,16 +85,15 @@ to the current day's group.
   scripts](codebase/devcontainer/scripts.md) map for the Remote Control spawn
   mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
   [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
+- **Update**: recorded [Assignee-triggered AI
+  re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
+  [Verify that auto-merge waits for an assignee-triggered
+  review](backlog/verify-assignee-review-automerge.md).
+- **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
+  task trigger](backlog/drop-claude-free-form-task-trigger.md).
 
 ## 2026-10-25
 
-- **Update**: filed [Bug: a comment-requested review's gate does not count
-  toward merge](bugs/dispatched-review-gate-not-counted.md), reproduced on
-  throwaway PR #472.
-- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
-  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
-  [tests](codebase/agents/plugins/agentdev/tests.md) for the removed
-  `pr-discover-ai-responder` skill and the new `request-review.sh` script.
 - **Update**: [Expo bridge bun fix upgrades the bun the check
   runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md) done; no
   `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.
@@ -127,6 +160,13 @@ to the current day's group.
   [tests](codebase/py_packages/validate_agent_files/tests.md), and
   [rules](codebase/py_packages/validate_agent_files/validators.md) for the
   catalog-owned scaffold.
+- **Update**: filed [Bug: a comment-requested review's gate does not count
+  toward merge](bugs/dispatched-review-gate-not-counted.md), reproduced on
+  throwaway PR #472.
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for the removed
+  `pr-discover-ai-responder` skill and the new `request-review.sh` script.
 
 ## 2026-10-24
 

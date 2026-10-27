@@ -99,6 +99,9 @@ switch](architecture/claude-remote-control-spawn-mode-switch.md)
 [Claude Remote Control expired session
 recovery](architecture/claude-remote-control-expired-session-recovery.md)
 
+[Claude Remote Control archived pre-created
+session](architecture/claude-remote-control-archived-pre-created-session.md)
+
 [CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
@@ -109,5 +112,11 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 [Dr.QP devcontainer testing](architecture/drqp-devcontainer-testing.md)
 
 [VS Code Expo bridge](architecture/vscode-expo-bridge.md)
+
+[Nested subagent dispatch](architecture/nested-subagent-dispatch.md)
+
+[Fresh-context Verify](architecture/fresh-context-verify.md)
+
+[Autonomous Implement loop](architecture/autonomous-implement-loop.md)
 
 [Assignee-triggered AI re-reviews](architecture/assignee-review-trigger.md)

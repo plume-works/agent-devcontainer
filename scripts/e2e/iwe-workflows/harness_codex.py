@@ -90,6 +90,14 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return events
 
 
+def _spawn_calls(rollout: Path) -> list[dict[str, Any]]:
+    return [
+        json.loads(payload.get('arguments') or '{}')
+        for payload in (event.get('payload') or {} for event in _read_jsonl(rollout))
+        if payload.get('type') == 'function_call' and payload.get('name') == 'spawn_agent'
+    ]
+
+
 def _publishes(rollouts: list[Path]) -> bool:
     return any(
         PUBLISH_COMMAND.search(line) for path in rollouts for line in path.read_text().splitlines()
@@ -137,6 +145,30 @@ class CodexTranscript:
         needle = f'"parent_thread_id":"{thread}"'
         return [p for p in sorted(self.sessions.rglob('*.jsonl')) if needle in p.read_text()]
 
+    def descendants(self) -> list[Path]:
+        """Return the rollouts of every agent this run spawned, at any depth."""
+        thread = self.thread()
+        if not thread:
+            return []
+        parents: dict[str, tuple[str, Path]] = {}
+        for path in sorted(self.sessions.rglob('*.jsonl')):
+            with path.open() as rollout:
+                first = rollout.readline()
+            try:
+                meta = json.loads(first).get('payload') or {}
+            except json.JSONDecodeError:
+                continue
+            if meta.get('parent_thread_id') and meta.get('id'):
+                parents[meta['id']] = (meta['parent_thread_id'], path)
+        found, frontier = [], {thread}
+        while frontier:
+            level = [
+                (child, path) for child, (parent, path) in parents.items() if parent in frontier
+            ]
+            found.extend(path for _, path in level)
+            frontier = {child for child, _ in level}
+        return found
+
     def _payloads(self) -> list[dict[str, Any]]:
         rollout = self.rollout()
         if rollout is None:
@@ -144,12 +176,9 @@ class CodexTranscript:
         return [event.get('payload') or {} for event in _read_jsonl(rollout)]
 
     def spawns(self) -> list[dict[str, Any]]:
-        """Return the arguments of every ``spawn_agent`` call."""
-        return [
-            json.loads(payload.get('arguments') or '{}')
-            for payload in self._payloads()
-            if payload.get('type') == 'function_call' and payload.get('name') == 'spawn_agent'
-        ]
+        """Return the arguments of every ``spawn_agent`` call the orchestrator made."""
+        rollout = self.rollout()
+        return _spawn_calls(rollout) if rollout else []
 
     def commands(self) -> list[str]:
         """Return every shell command the orchestrator ran, as a finished command or a call."""
@@ -164,13 +193,37 @@ class CodexTranscript:
                 found.append(command if isinstance(command, str) else shlex.join(command))
         return found
 
-    def shipper_spawns(self) -> int:
-        """Return how many ``iwe-shipper`` agents were spawned."""
-        return sum(1 for spawn in self.spawns() if spawn.get('agent_type') == 'iwe-shipper')
+    def agent_results(self, agent: str) -> list[str]:
+        """Return the final message of every spawned agent of the catalog type ``agent``."""
+        results = []
+        for child in self.children():
+            events = _read_jsonl(child)
+            roles = [
+                (event.get('payload') or {}).get('agent_role')
+                for event in events
+                if event.get('type') == 'session_meta'
+            ]
+            if agent not in roles:
+                continue
+            results.extend(
+                str(payload.get('last_agent_message') or '')
+                for payload in (event.get('payload') or {} for event in events)
+                if payload.get('type') == 'task_complete'
+            )
+        return results
 
-    def fresh_spawns(self) -> bool:
-        """Whether every spawn started with no conversation."""
-        return all(spawn.get('fork_turns') == 'none' for spawn in self.spawns())
+    def agent_spawns(self, agent: str) -> int:
+        """Return how many agents of the catalog type ``agent`` were spawned, at any depth."""
+        calls = self.spawns() + [s for path in self.descendants() for s in _spawn_calls(path)]
+        return sum(1 for spawn in calls if spawn.get('agent_type') == agent)
+
+    def fresh_spawns(self, agent: str | None = None) -> bool:
+        """Whether every orchestrator spawn, or each one of type ``agent``, had no conversation."""
+        return all(
+            spawn.get('fork_turns') == 'none'
+            for spawn in self.spawns()
+            if agent is None or spawn.get('agent_type') == agent
+        )
 
     def ran_publish(self) -> bool:
         """Whether the orchestrator or any agent it spawned executed ``bin/publish-e2e.sh``."""
@@ -204,7 +257,17 @@ def run_codex(clone: Clone, name: str, prompt: str, budget: float) -> CodexTrans
     path = transcripts / f'{name}.jsonl'
     with path.open('w') as out, (transcripts / f'{name}.err').open('w') as err:
         process = subprocess.Popen(
-            ['codex', 'exec', '-s', 'workspace-write', '--json', prompt],
+            # workspace-write keeps .git read-only; naming it as a root lets the run commit.
+            [
+                'codex',
+                'exec',
+                '-s',
+                'workspace-write',
+                '--add-dir',
+                str(clone.path / '.git'),
+                '--json',
+                prompt,
+            ],
             cwd=clone.path,
             stdin=subprocess.DEVNULL,
             stdout=out,

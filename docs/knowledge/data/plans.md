@@ -43,6 +43,11 @@ workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)
 [Assignee-triggered AI re-reviews replace the comment
 trigger](plans/20261026-assignee-review-trigger.md)
 
+[Let Implement verify, fix, and revise on its
+own](plans/20261026-autonomous-implement-loop.md)
+
+[Run Verify from a fresh context](plans/20261026-verify-in-fresh-context.md)
+
 [Expo bridge bun fix upgrades the bun the check
 runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
 

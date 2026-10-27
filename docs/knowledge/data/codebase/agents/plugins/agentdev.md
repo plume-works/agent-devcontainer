@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:cf798d2c240084308591b653236c4804d1e7ec9b97000da129d6001c00f3ed56
+source_digest: sha256:9cf39573412e66544c23c7cd8069956cfdda2030d9ce8b6bb5225681c5ed29a2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-27T08:30:00Z
-stale_after: 2027-01-23
+  at: 2026-10-27T09:00:00Z
+stale_after: 2027-01-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T08:30:00Z
+  at: 2026-10-27T09:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -41,19 +41,28 @@ layout are in [Module layout](../../../architecture/module-layout.md) and
 
 [Plugin tests](agentdev/tests.md)
 
-*Not mapped*: `agents/` — seven agent definitions (`Principal Engineer`,
+*Not mapped*: `agents/` — ten agent definitions (`Principal Engineer`,
 `TDD Red`, `TDD Green`, `TDD Refactor`, `Durable Knowledge Auditor`,
-`iwe-shipper`, `iwe-implementer`), one file each.
+`iwe-shipper`, `iwe-implementer`, `iwe-verifier`, `iwe-planner`,
+`iwe-revision-evaluator`), one file each.
 
 ## Public surface
 
 - `/agentdev:<skill>` for every directory under `skills/` with a `SKILL.md` (41
   at this commit)
 - Agent names, addressed as `principal-engineer`, `tdd-red`, `tdd-green`,
-  `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`
-  — the last two hold the Ship and Implement rulebooks and are started only by
-  their explicit-only skills ([Explicit-only workflow
-  agents](../../../architecture/explicit-only-workflow-agents.md))
+  `tdd-refactor`, `durable-knowledge-auditor`, `iwe-shipper`, `iwe-implementer`,
+  `iwe-verifier`, `iwe-planner`, `iwe-revision-evaluator` — `iwe-shipper` and
+  `iwe-implementer` hold the Ship and Implement rulebooks and are started only
+  by their explicit-only skills ([Explicit-only workflow
+  agents](../../../architecture/explicit-only-workflow-agents.md));
+  `iwe-verifier` holds the Verify rulebook, dispatched by `iwe-verify` and
+  followed in place by `iwe-shipper` ([Fresh-context
+  Verify](../../../architecture/fresh-context-verify.md)); `iwe-planner` holds
+  the Plan rulebook, followed in place by `iwe-plan` and, in revise mode, by the
+  Implement orchestrator, which dispatches `iwe-revision-evaluator` to judge a
+  drafted revision ([Autonomous Implement
+  loop](../../../architecture/autonomous-implement-loop.md))
 - `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
   `result_codes.py`, which a Python skill script imports from there
 - `.opencode-plugin/` — the directory an OpenCode `plugin` entry names
@@ -94,7 +103,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-26):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
@@ -106,3 +115,7 @@ Verified anchor points (line numbers as of 2026-10-25):
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:2` — the Ship agent
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:2` — the Implement
   agent
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:2` — the Verify agent
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:2` — the Plan agent
+- `.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md:2` — the
+  revision evaluator

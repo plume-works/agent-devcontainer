@@ -70,6 +70,24 @@ def open_question_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureR
     return clone_at(fixture_repo.open_question)
 
 
+@pytest.fixture
+def loop_only_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
+    """Provide a clone at the ``loop_only`` commit, where the loop plan is the only active one."""
+    return clone_at(fixture_repo.loop_only)
+
+
+@pytest.fixture
+def stub_evaluator_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
+    """Provide a clone whose catalog evaluator rejects every revision."""
+    return clone_at(fixture_repo.stub_evaluator)
+
+
+@pytest.fixture
+def stub_planner_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
+    """Provide a clone whose catalog planner always drafts the revise plan's narrowing."""
+    return clone_at(fixture_repo.stub_planner)
+
+
 @pytest.fixture(scope='session')
 def opencode_source() -> opencode_credential.Server:
     """Locate the web UI's OpenCode 2.x server, or skip the OpenCode tests."""
