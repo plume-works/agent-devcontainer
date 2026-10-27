@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Map**: refreshed the [scripts](codebase/devcontainer/scripts.md),
+  [docker](codebase/docker.md), and [image and
+  runtime](codebase/api-image-runtime.md) maps for the standalone Remote Control
+  watcher and its settings, and re-stamped
+  [devcontainer](codebase/devcontainer.md), the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md), and the [image
+  build](codebase/flow-image-build.md).
 - **Map**: refreshed the agentdev [plugin
   tests](codebase/agents/plugins/agentdev/tests.md) map for
   `request-review.sh`'s assignee toggle, and re-stamped the [agentdev

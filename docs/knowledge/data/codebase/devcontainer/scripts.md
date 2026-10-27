@@ -2,14 +2,14 @@
 type: codebase
 description: The postCreate, postStart, and postAttach hooks and the helpers they call — agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth links and full-access policies, gh credential helper, the Coder agent-start entry point, Remote Control, the OpenCode web UI — plus the standalone agent-opencode runtime built from the same helpers.
 source: .devcontainer/scripts
-source_digest: sha256:568a8e53fa24ce42629d0ebea7d0c8d5c138b6cf41634e64dbd4bb3135f4cbdf
+source_digest: sha256:1cd92f0d91fa74640ff8419099a64ff3389b23c19fe71e2d55b38f34a6924651
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-26T03:30:00Z
-stale_after: 2027-01-24
+  at: 2026-10-27T17:00:00Z
+stale_after: 2027-01-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T03:30:00Z
+  at: 2026-10-27T17:00:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -47,7 +47,7 @@ Devcontainer lifecycle and shared helpers:
 | `preapprove-claude-workspace.sh`                                                     | `create`                                      | unless `AGENTDEV_SKIP_CLAUDE_PREAPPROVE`, record onboarding, Remote Control, trust, and MCP approval                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `coder-agent-start.sh`                                                               | Coder `coder_script`                          | the Coder agent's entry point: `docker-image-prune.sh`, `setup-gh-credential-helper.sh`, `opencode-web-start.sh` (each failure only warns), then exec `claude-remote-control-start.sh`                                                                                                                                                                                                                                                                                                                                                      |
 | `docker-image-prune.sh`                                                              | Coder start, standalone `prepare`             | `docker image prune -af --filter until=72h`, printing the reclaimed total; exits 0 when docker or its daemon is unavailable, and only warns when the prune fails                                                                                                                                                                                                                                                                                                                                                                            |
-| `claude-remote-control-start.sh`                                                     | Coder start, by hand                          | with a claude.ai login, run `claude-remote-control-session.sh` named after `CODER_WORKSPACE_NAME`, or with `AGENTDEV_CLAUDE_RC_MODE=server` `claude remote-control --spawn <AGENTDEV_CLAUDE_RC_SPAWN>` (`worktree` by default, or `same-dir`), in session `claude-remote` on `tmux -L claude-remote`                                                                                                                                                                                                                                        |
+| `claude-remote-control-start.sh`                                                     | Coder start, standalone watcher, by hand      | with a claude.ai login, run `claude-remote-control-session.sh` named after `CODER_WORKSPACE_NAME`, or with `AGENTDEV_CLAUDE_RC_MODE=server` `claude remote-control --spawn <AGENTDEV_CLAUDE_RC_SPAWN>` (`worktree` by default, or `same-dir`), in session `claude-remote` on `tmux -L claude-remote`                                                                                                                                                                                                                                        |
 | `opencode-web-start.sh`                                                              | Coder start, by hand                          | run the `coder-pane` command in session `opencode` on `tmux -L opencode` and print the `link`                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `opencode-web-command.sh link\|coder-hostname\|coder-pane\|coder-note\|serve\|probe` | the two OpenCode launchers, health            | print the server's root URL and build the Coder pane command, which runs `opencode serve` without `DISPLAY` on `0.0.0.0` with `OPENCODE_SERVER_PASSWORD` and otherwise on `127.0.0.1` with a password generated once into `~/.local/share/opencode/agentdev-server-password` (`0600`) and read by the pane, never on a command line; `coder-note` names that file; `serve` execs `opencode serve --port 4096 --hostname 0.0.0.0` in the workspace, refusing an empty password; `probe` needs a `version` from the authenticated `/api/info` |
 | `claude-remote-control-session.sh`                                                   | `claude-remote` pane                          | resume the conversation pinned in `remote-control-session-id`; when none is stored or the resume fails, start and pin a new one; both calls get a `--settings` `SessionStart` hook running `claude-remote-control-pin.sh`                                                                                                                                                                                                                                                                                                                   |
@@ -70,7 +70,8 @@ The standalone runtime, run by `agent-opencode`:
 | `runtime-keyring.sh env\|dbus\|keyring\|check\|wait`               | `dbus`, `keyring` programs, sourced     | foreground session bus on `$XDG_RUNTIME_DIR/bus` and gnome-keyring; readiness and non-destructive `login.keyring` primitives                                                                                                                                                                                                                                                        |
 | `runtime-workspace.sh checkout\|project\|catalog\|config\|prepare` | `prepare`, `config`, `project` programs | `prepare`: reuse or clone the checkout, agent state, agent policy. `config`: register the checkout's or the image's catalog, then install CBM. `project`: uv and pre-commit for present configuration                                                                                                                                                                               |
 | `runtime-cbm.sh install\|start\|check\|index\|run\|stop`           | `create`, `cbm`, `index` programs       | drive CBM through `daemon start/status/stop`, tracking PID plus start time; install from a user-owned copy of the pinned binary                                                                                                                                                                                                                                                     |
-| `runtime-health.sh <service>\|ready\|status`                       | controller, image `HEALTHCHECK`         | one probe per service, as the runtime user for user services; `ready`: a heartbeat under three intervals old, state `ready`, and live core probes; `status`: state, failures, retry commands, last failure record                                                                                                                                                                   |
+| `runtime-health.sh <service>\|ready\|status`                       | controller, image `HEALTHCHECK`         | one probe per service, as the runtime user for user services; `ready`: a heartbeat under three intervals old, state `ready`, and live core probes; `status`: state, failures, retry commands, the `remote-control` status line when that component exists, last failure record                                                                                                      |
+| `runtime-remote-control.sh run\|check`                             | `remote-control` program                | `run`: with no claude.ai login, write `waiting for a claude.ai login` to `$XDG_RUNTIME_DIR/remote-control.status`, re-running `claude auth status` only when the shared credential file changes; with one, run `claude-remote-control-start.sh` and exit `1` once a `claude-remote` session it saw is gone. `check`: the status file exists                                         |
 | `test-agent-runtime.sh [pytest args]`                              | CI, by hand                             | container acceptance against `AGENTDEV_RUNTIME_TEST_IMAGE`, cleaning up labelled resources and failing an all-skipped run                                                                                                                                                                                                                                                           |
 
 ## How it works
@@ -163,7 +164,7 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-27):
 
 - `.devcontainer/scripts/postCreateCommand.sh:56` —
   `setup-agent-state.sh create`; `:70` — staged-catalog install
@@ -192,8 +193,9 @@ Verified anchor points (line numbers as of 2026-10-23):
   `coder_pane`; `:62` — `probe`; `:76` — `serve`
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:8` — keyring session file
 - `.devcontainer/scripts/setup-keyring.sh:32` — session file location
-- `.devcontainer/scripts/runtime-supervisor.py:855` — `run`; `:805` —
-  `preflight`; `:925` — `exec`; `:955` — `retry`
+- `.devcontainer/scripts/runtime-supervisor.py:873` — `run`; `:823` —
+  `preflight`; `:943` — `exec`; `:973` — `retry`; `:259` — `SERVICES`
+- `.devcontainer/scripts/runtime-remote-control.sh:32` — `cmd_run`
 - `.devcontainer/scripts/runtime-bootstrap.sh:93` — `claim_instance_dir`; `:123`
   — `prepare_shared_auth`; `:169` — firewall last
 - `.devcontainer/scripts/runtime-workspace.sh:27` — `validate_checkout`; `:41` —
