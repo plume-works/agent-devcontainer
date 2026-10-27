@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Map**: refreshed the [agentdev
+  skills](codebase/agents/plugins/agentdev/skills.md) and
+  [catalog](codebase/agents/plugins/agentdev.md) for implement-all's
+  conversation-free Implementer dispatch.
 - **Map**: re-verified the [agentdev
   catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
   restore-from-`HEAD` wording.

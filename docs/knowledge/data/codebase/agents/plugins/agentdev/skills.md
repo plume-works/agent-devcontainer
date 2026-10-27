@@ -2,14 +2,14 @@
 type: codebase
 description: The 42 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:daa5fd9396d7a7798babb188f129ddf1d8bb8acacf9f0412c6710328e4e316dd
+source_digest: sha256:417ad1841f0caf9da47b289f346abd9682fc444a087e4036a54082e2319db735
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-26T14:00:00Z
-stale_after: 2027-01-24
+  at: 2026-10-27T06:00:00Z
+stale_after: 2027-01-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T14:00:00Z
+  at: 2026-10-27T06:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -60,11 +60,12 @@ model-invocable for workflow handoffs. Ship and Implement keep their rulebooks
 in the `iwe-shipper` and `iwe-implementer` catalog agents: `iwe-ship` only
 builds a conversation-free prompt and dispatches `iwe-shipper`, `iwe-implement`
 follows `iwe-implementer` in place, the two `-all` coordinators dispatch one
-agent per plan in dependency order, and `iwe-implement` and `iwe-implement-all`
-also run that rulebook's `## Running the loop`, dispatching `iwe-verifier` after
-the tasks and `iwe-revision-evaluator` on a drafted revision. `iwe-plan` follows
-the `iwe-planner` agent in place, whose revise mode re-dispatches `iwe-shipper`
-when a revision answers its blocker report. Verify keeps its rulebook in the
+agent per plan in dependency order with no conversation forwarded, and
+`iwe-implement` and `iwe-implement-all` also run that rulebook's
+`## Running the loop`, dispatching `iwe-verifier` after the tasks and
+`iwe-revision-evaluator` on a drafted revision. `iwe-plan` follows the
+`iwe-planner` agent in place, whose revise mode re-dispatches `iwe-shipper` when
+a revision answers its blocker report. Verify keeps its rulebook in the
 `iwe-verifier` agent: from a session `iwe-verify` dispatches it with a
 conversation-free prompt, and inside `iwe-shipper` it has the Shipper follow
 that rulebook in place. Scripts are bash or Python, pull in the matching
@@ -164,7 +165,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
+Verified anchor points (line numbers as of 2026-10-27):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -205,7 +206,7 @@ Verified anchor points (line numbers as of 2026-10-26):
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:163` — the Shipper
   re-dispatch after a revision
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:19` and
-  `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:18` — the
+  `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:19` — the
   orchestrator running `## Running the loop`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:97` —
   `BROKEN_METADATA`
