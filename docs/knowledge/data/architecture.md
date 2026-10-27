@@ -96,6 +96,9 @@ resume](architecture/claude-remote-control-worktree-restart-resume.md)
 [Claude Remote Control spawn mode
 switch](architecture/claude-remote-control-spawn-mode-switch.md)
 
+[Claude Remote Control expired session
+recovery](architecture/claude-remote-control-expired-session-recovery.md)
+
 [CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
