@@ -55,38 +55,39 @@ after it.
 
 ## Confirm it started
 
-A posted comment is not a started review. The trigger dispatches the responder
-on the pull request's head branch, so the review's checks attach to the head
-commit and `gh pr checks` lists them:
+A toggled assignment is not a started review. The toggle starts a
+`pull_request` run of `ai-responder.yml` on the head branch, and that run files
+its checks on the head commit, so `gh pr checks` lists them:
 
 ```bash
 gh pr checks <pr> --json name,state,link
 ```
 
 A pending `Claude PR Review Responder` or `ai-review-present` check on the head
-means the review started. Report the comment URL and that check. When neither
-appears, read the `issue_comment` run the comment started on the default branch,
-the one created just after it:
+means the review started. Report that check. When neither appears, read the
+`pull_request` run the toggle started on the head branch:
 
 ```bash
-gh run list --workflow ai-responder.yml --event issue_comment \
+gh run list --workflow ai-responder.yml --event pull_request --branch <head-branch> \
   --json databaseId,status,conclusion,createdAt,url --limit 5
 gh run view <run-id> --json jobs --jq '.jobs[] | {name, conclusion}'
 ```
 
 The shape of that run points at the cause:
 
-- **Every job skipped** — the mention never qualified. Re-read the comment as
-  posted and confirm it truly opens with `@claude`.
-- **Preflight failed, or the bridge (`Dispatch on the pull request branch`)
-  skipped or failed** — no review was dispatched: the requester lacks write
-  access, the pull request comes from a fork, or its head branch has no
-  `ai-responder.yml`. Each needs a person rather than a retry.
-- **The bridge succeeded, then a review check completed without a review** —
-  report that review run's failure from its log.
+- **No run** — the toggle was made with a token whose events start no
+  workflow, such as an Actions `GITHUB_TOKEN`.
+- **Preflight skipped** — its `if:` excluded the pull request: it is
+  bot-authored or comes from a fork. `ai-review-present` still runs.
+- **Preflight failed** — the person whose token made the toggle lacks write
+  access.
+- **Preflight passed, then the review job skipped** — the pull request body
+  carries the `[ci:skip-ai-review]` marker.
+- **A review check completed without a review** — report that review run's
+  failure from its log.
 
-If none of these applies and the check is simply still pending, say so plainly
-instead of posting the comment again.
+The first four need a person rather than a retry. If none of these applies and
+the check is simply still pending, say so plainly instead of requesting again.
 
 ## Post at most once per head SHA
 

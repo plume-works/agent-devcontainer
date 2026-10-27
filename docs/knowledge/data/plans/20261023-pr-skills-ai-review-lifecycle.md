@@ -232,16 +232,23 @@ toggle-without-check case — one
     `gh pr checks <pr>` for a pending `Claude PR Review Responder` or
     `ai-review-present` check and no longer mentions workflow discovery or runs
     detached from the head.
-- [ ] Its gap shapes are read from the `pull_request` run of `ai-responder.yml`
+- [x] Its gap shapes are read from the `pull_request` run of `ai-responder.yml`
   the toggle started on the head branch, found with
   `gh run list --workflow ai-responder.yml --event pull_request --branch <head>`:
-  no run, or every job skipped — preflight's `if:` excluded a bot-authored or
-  fork pull request; preflight failed — the requester lacks write access; the
-  review job skipped while `ai-review-present` ran — the `[ci:skip-ai-review]`
-  marker; a review check that completes without a review — report the run's
-  failure. The first three need a person. The section's opening says the
-  toggle's `pull_request` run files its checks on the head commit, not that a
-  trigger comment dispatches the responder
+  no run — the toggle's token starts no workflow, such as an Actions
+  `GITHUB_TOKEN`; preflight skipped — its `if:` excluded a bot-authored or fork
+  pull request, while `ai-review-present` still runs; preflight failed — the
+  requester lacks write access; preflight passed, then the review job skipped —
+  the `[ci:skip-ai-review]` marker; a review check that completes without a
+  review — report the run's failure. The first four need a person. The section's
+  opening says the toggle's `pull_request` run files its checks on the head
+  commit, not that a trigger comment dispatches the responder
+  - **Evidence:** commit "Confirm a toggled review from the head branch's
+    pull_request run in pr-request-ai-review" — `## Confirm it started` opens on
+    the toggle's `pull_request` run, reads it with
+    `gh run list --event pull_request --branch`, and lists the five shapes;
+    `grep` for `issue_comment` and `dispatch` on the skill returns nothing;
+    `validate_agent_files` reports 0 errors.
 - [x] `## Related Skills` drops `pr-discover-ai-responder`
   - **Evidence:** `grep -n discover` on `pr-request-ai-review/SKILL.md` returns
     nothing; `validate_agent_files` reports 63/63 skills valid.
