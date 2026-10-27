@@ -76,6 +76,8 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 ## Changed
 
+[Verification in the main loop](../features/verification-in-the-main-loop.md)
+
 [Reusable IWE bootstrap](../features/consumer-iwe-seed.md)
 
 [Agentdev IWE workflow skills](../features/agentdev-iwe-workflow-skills.md)

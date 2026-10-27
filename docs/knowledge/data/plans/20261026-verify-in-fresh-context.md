@@ -6,13 +6,15 @@ release:
 - features/verification-in-the-main-loop
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T04:00:00Z
+  at: 2026-10-27T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/bin/install-codex-agents.py
 - resource: scripts/e2e/iwe-workflows/scenarios.py
+stage: done
+completed: 2026-10-27
 ---
 
 # Run Verify from a fresh context

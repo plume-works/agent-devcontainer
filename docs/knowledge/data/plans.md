@@ -20,8 +20,6 @@ moves them.*
 [Let Implement verify, fix, and revise on its
 own](plans/20261026-autonomous-implement-loop.md)
 
-[Run Verify from a fresh context](plans/20261026-verify-in-fresh-context.md)
-
 [PR updates re-evaluate the AI
 review](plans/20261023-pr-update-reevaluates-review.md)
 
@@ -41,6 +39,8 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Run Verify from a fresh context](plans/20261026-verify-in-fresh-context.md)
 
 [iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 

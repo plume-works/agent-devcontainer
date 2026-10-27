@@ -4,6 +4,16 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-27
+
+- **Update**: [Run Verify from a fresh
+  context](plans/20261026-verify-in-fresh-context.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now requires every Verify run to start
+  from a fresh context through the `iwe-verifier` agent.
+- **Update**: [Verification in the main
+  loop](features/verification-in-the-main-loop.md) gained fresh-context Verify;
+  listed under Unreleased Changed.
+
 ## 2026-10-26
 
 - **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
