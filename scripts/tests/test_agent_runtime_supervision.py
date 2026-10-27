@@ -685,7 +685,7 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
 def test_every_supervised_service_has_a_real_probe():
     health = (REPO_ROOT / '.devcontainer/scripts/runtime-health.sh').read_text()
     probes = health.split('case "$service" in', 2)[2]
-    for name in STOP_ORDER:
+    for name in [*STOP_ORDER, 'remote-control']:
         assert f'\n  {name})' in probes or f'\n  {name} |' in probes, name
 
 
@@ -909,3 +909,22 @@ def test_strict_startup_latches_on_a_failing_remote_control(make):
     box.set('remote-control', 'mode', 'never-ready')
     box.start()
     stays_latched(box, 'remote-control')
+
+
+def test_status_shows_what_remote_control_is_doing(make, tmp_path):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='server', XDG_RUNTIME_DIR=str(tmp_path))
+    box.start()
+    box.wait_for(box.ready)
+    assert 'remote-control: not started' in box.health('status').stdout
+    (tmp_path / 'remote-control.status').write_text('waiting for a claude.ai login\n')
+    shown = box.health('status')
+    assert shown.returncode == 0
+    assert '  remote-control: waiting for a claude.ai login' in shown.stdout
+
+
+def test_status_names_no_remote_control_without_a_mode(make, tmp_path):
+    box = make(XDG_RUNTIME_DIR=str(tmp_path))
+    box.start()
+    box.wait_for(box.ready)
+    (tmp_path / 'remote-control.status').write_text('waiting for a claude.ai login\n')
+    assert 'remote-control' not in box.health('status').stdout

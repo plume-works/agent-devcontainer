@@ -144,20 +144,39 @@ tick was rejected for the cost of a Claude process every interval.
 `.devcontainer/scripts/runtime-health.sh`,
 `scripts/tests/test_agent_runtime_supervision.py`
 
-- [ ] `runtime-remote-control.sh run` implements the loop in `## Approach`, and
+- [x] `runtime-remote-control.sh run` implements the loop in `## Approach`, and
   `runtime-remote-control.sh check` passes only when the status file exists.
-- [ ] `runtime-health.sh remote-control` runs that check as the runtime user,
+  - **Evidence:** commit "Supervise a Remote Control watcher in the standalone
+    runtime": `runtime-remote-control.sh`;
+    `uv run pytest scripts/tests/test_runtime_remote_control.py`: 8 passed;
+    `shellcheck` clean.
+- [x] `runtime-health.sh remote-control` runs that check as the runtime user,
   and `runtime-health.sh status` prints `  remote-control: <status file line>`
   whenever the state file names the component.
-- [ ] Watcher tests with fake `claude` and `tmux`: no credential file writes the
+  - **Evidence:** commit "Supervise a Remote Control watcher in the standalone
+    runtime": `test_status_shows_what_remote_control_is_doing` and
+    `test_status_names_no_remote_control_without_a_mode` in
+    `test_agent_runtime_supervision.py`, run as root (sudo, the venv
+    interpreter) with
+    `-k "remote_control or real_probe or shipped_config or dependency_order"`:
+    13 passed.
+- [x] Watcher tests with fake `claude` and `tmux`: no credential file writes the
   waiting status and runs no `claude auth status` on later ticks; a credential
   file appearing with a claude.ai login starts the session once; a setup-token
   login keeps waiting; an expired login returns to waiting; an already-live
   session is adopted without a start; a seen session that disappears ends the
   watcher non-zero; a start-script failure ends it with that status; an empty
   `AGENTDEV_CLAUDE_RC_SPAWN` does not reach the start script.
-- [ ] `test_every_supervised_service_has_a_real_probe` and the shipped-config
+  - **Evidence:** commit "Supervise a Remote Control watcher in the standalone
+    runtime": the eight tests in `test_runtime_remote_control.py`, which run the
+    real `claude-remote-control-start.sh` behind fake `claude` and `tmux`;
+    `uv run pytest scripts/tests/test_runtime_remote_control.py`: 8 passed.
+- [x] `test_every_supervised_service_has_a_real_probe` and the shipped-config
   test cover `remote-control`.
+  - **Evidence:** commit "Supervise a Remote Control watcher in the standalone
+    runtime": both tests pass, run as root (sudo, the venv interpreter) with
+    `-k "remote_control or real_probe or shipped_config or dependency_order"`:
+    13 passed.
 
 ### Task 3: Pass the settings through Compose
 

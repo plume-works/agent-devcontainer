@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Readiness probes for the standalone runtime's services, the aggregate readiness the
 # image HEALTHCHECK reads, and an operator status report. Exit 0 means ready.
-# Usage: runtime-health.sh dockerd|dbus|keyring|cbm|xpra|opencode|ready|status
+# Usage: runtime-health.sh dockerd|dbus|keyring|cbm|xpra|opencode|remote-control|ready|status
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 service="${1:-}"
@@ -25,7 +25,7 @@ current_state() {
 # User services are probed as the runtime user: the session bus and the CBM
 # rendezvous both admit only the account that owns them.
 case "$service" in
-  dbus | keyring | cbm | opencode | xpra)
+  dbus | keyring | cbm | opencode | xpra | remote-control)
     if [[ $(id -u) == 0 && -n ${AGENTDEV_USER:-} ]]; then
       exec setpriv --reuid="$AGENTDEV_USER" --regid="$(id -g "$AGENTDEV_USER")" --init-groups \
         env HOME="${AGENTDEV_HOME:-/home/$AGENTDEV_USER}" USER="$AGENTDEV_USER" "$0" "$service"
@@ -45,6 +45,7 @@ case "$service" in
     curl -fsS -o /dev/null --max-time 5 "http://127.0.0.1:${AGENTDEV_XPRA_PORT:-14500}/"
     ;;
   opencode) "$script_dir/opencode-web-command.sh" probe ;;
+  remote-control) "$script_dir/runtime-remote-control.sh" check ;;
   ready)
     state="$(current_state)"
     if [[ $state != ready ]]; then
@@ -64,6 +65,10 @@ case "$service" in
         | "  \(.key): \(.value.status)\(if .value.reason then " (\(.value.reason))" else "" end)"
           + (if .value.status == "failed" then "\n    retry: \($retry) \(.key)" else "" end)
       ' "$state_file"
+    if jq -e '.components | has("remote-control")' "$state_file" >/dev/null 2>&1; then
+      rc_status="$(cat "${XDG_RUNTIME_DIR:-}/remote-control.status" 2>/dev/null || echo "not started")"
+      echo "  remote-control: $rc_status"
+    fi
     if [[ -f $record ]]; then
       jq -r '"last failure: \(.component), exit status \(.exit_status // "none"), at \(.time)"' \
         "$record"
@@ -72,7 +77,7 @@ case "$service" in
     [[ $(current_state) == ready ]]
     ;;
   *)
-    echo "usage: $(basename "$0") dockerd|dbus|keyring|cbm|xpra|opencode|ready|status" >&2
+    echo "usage: $(basename "$0") dockerd|dbus|keyring|cbm|xpra|opencode|remote-control|ready|status" >&2
     exit 2
     ;;
 esac
