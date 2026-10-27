@@ -18,6 +18,7 @@ from scenarios import (
     IMPLEMENTER,
     LOOP_KEY,
     mentions,
+    PAIR_KEY,
     PLANTED,
     REVISE_KEY,
     RULEBOOK,
@@ -145,17 +146,21 @@ def test_implement_revises(base_clone: Clone) -> None:
     assert base_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
 
 
-def test_implement_all(loop_only_clone: Clone) -> None:
-    """Implement-all dispatches the implementer, then runs the loop's verifier itself."""
-    clone = loop_only_clone
+def test_implement_all(implement_all_clone: Clone) -> None:
+    """Implement-all dispatches the implementer and runs the loop's verifier once per plan."""
+    clone = implement_all_clone
     transcript = run(clone, 'implement-all', '/agentdev:iwe-implement-all')
     prompts = transcript.agent_prompts(IMPLEMENTER)
     dispatches = transcript.excerpt('Agent')
-    assert len(prompts) == 1, f'one iwe-implementer dispatch\n{dispatches}'
-    assert LOOP_KEY in prompts[0], f'prompt names the plan\n{dispatches}'
-    assert len(transcript.agent_prompts(VERIFIER)) == 1, f'one iwe-verifier dispatch\n{dispatches}'
+    assert len(prompts) == 2, f'one iwe-implementer dispatch per plan\n{dispatches}'
+    assert {LOOP_KEY in p for p in prompts} == {True, False}, f'one names loop\n{dispatches}'
+    assert {PAIR_KEY in p for p in prompts} == {True, False}, f'one names pair\n{dispatches}'
+    assert len(transcript.agent_prompts(VERIFIER)) == 2, (
+        f'one iwe-verifier dispatch per plan\n{dispatches}'
+    )
     assert transcript.agent_prompts(EVALUATOR) == [], f'no evaluator\n{dispatches}'
-    assert clone.loop_done(), f'task ticked with evidence, file written\n{transcript.excerpt()}'
+    assert clone.loop_done(), f'loop ticked with evidence, file written\n{transcript.excerpt()}'
+    assert clone.pair_done(), f'pair ticked with evidence, file written\n{transcript.excerpt()}'
 
 
 @pytest.mark.parametrize(

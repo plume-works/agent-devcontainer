@@ -4,7 +4,8 @@ The fixture repository and the per-test clones the IWE workflow suite runs in.
 The fixture repository is built once per worker from ``HEAD``: every active plan
 cancelled, the fixture plans committed as ``base``, and the open-question edit
 committed on top as ``open_question``, and, on a branch from ``base``, every
-fixture plan but the loop plan cancelled as ``loop_only``, and, on another,
+fixture plan but the loop plan cancelled and the pair plan added beside it as
+``implement_all``, and, on another,
 the catalog's revision evaluator replaced by a stub that rejects every revision
 as ``stub_evaluator``, and, on a third, the planner replaced by a stub that
 always drafts the revise plan's narrowing as ``stub_planner``. Each test gets
@@ -27,6 +28,7 @@ BRANCH = f'{DATA}/plans/20261025-e2e-branch.md'
 LOOP = f'{DATA}/plans/20261026-e2e-loop.md'
 REVISE = f'{DATA}/plans/20261026-e2e-revise.md'
 CONFLICT = f'{DATA}/plans/20261027-e2e-conflict.md'
+PAIR = f'{DATA}/plans/20261027-e2e-pair.md'
 EVALUATOR_AGENT = '.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md'
 PLANNER_AGENT = '.agents/plugins/agentdev/agents/iwe-planner.agent.md'
 UNRELEASED = f'{DATA}/releases/unreleased.md'
@@ -55,6 +57,7 @@ _ACTIVE_LINKS = (
     '[E2E revise fixture](plans/20261026-e2e-revise.md)',
     '[E2E conflict fixture](plans/20261027-e2e-conflict.md)',
 )
+_PAIR_LINK = '[E2E pair fixture](plans/20261027-e2e-pair.md)'
 _AUTHOR = ('-c', 'user.name=e2e', '-c', 'user.email=e2e@example.invalid')
 
 
@@ -111,7 +114,7 @@ class FixtureRepo:
     path: Path
     base: str
     open_question: str
-    loop_only: str
+    implement_all: str
     stub_evaluator: str
     stub_planner: str
 
@@ -186,8 +189,11 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
 
     repo.git('checkout', '-q', '-b', 'e2e-loop-only', base)
     cancel_active_plans(data, keep=('plans/20261026-e2e-loop.md',))
+    shutil.copy2(FIXTURES / 'plans/20261027-e2e-pair.md', path / PAIR)
+    hub = data / 'plans.md'
+    hub.write_text(hub.read_text().replace('## Active\n', f'## Active\n\n{_PAIR_LINK}\n', 1))
     repo.iwe_check()
-    loop_only = repo.commit_all('e2e: only the loop plan active')
+    implement_all = repo.commit_all('e2e: only the loop and pair plans active')
 
     repo.git('checkout', '-q', '-b', 'e2e-stub-evaluator', base)
     shutil.copy2(FIXTURES / 'agents/iwe-revision-evaluator.stub.md', path / EVALUATOR_AGENT)
@@ -202,7 +208,7 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
         path=path,
         base=base,
         open_question=open_question,
-        loop_only=loop_only,
+        implement_all=implement_all,
         stub_evaluator=stub_evaluator,
         stub_planner=stub_planner,
     )
@@ -287,9 +293,16 @@ class Clone(Repo):
 
     def loop_done(self) -> bool:
         """Whether the loop task is ticked with an evidence line and its file holds ``loop``."""
-        ticked = TICKED_WITH_EVIDENCE.search((self.path / LOOP).read_text()) is not None
-        written = self.path / 'e2e/loop.txt'
-        return ticked and written.exists() and written.read_text().strip() == 'loop'
+        return self._plain_done(LOOP, 'loop')
+
+    def pair_done(self) -> bool:
+        """Whether the pair task is ticked with an evidence line and its file holds ``pair``."""
+        return self._plain_done(PAIR, 'pair')
+
+    def _plain_done(self, plan: str, word: str) -> bool:
+        ticked = TICKED_WITH_EVIDENCE.search((self.path / plan).read_text()) is not None
+        written = self.path / f'e2e/{word}.txt'
+        return ticked and written.exists() and written.read_text().strip() == word
 
     def revise_tasks_committed(self) -> tuple[int, int]:
         """Return the revise plan's task count at ``base`` and at ``HEAD``."""

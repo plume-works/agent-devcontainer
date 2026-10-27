@@ -190,25 +190,27 @@ def test_implement_stops_on_narrowing(codex_clone: Clone) -> None:
 
 
 @pytest.fixture
-def codex_loop_only_clone(loop_only_clone: Clone) -> Clone:
-    """Provide a ``loop_only`` clone under the same catalog precondition."""
-    mismatch = catalog_mismatch(loop_only_clone)
+def codex_implement_all_clone(implement_all_clone: Clone) -> Clone:
+    """Provide an ``implement_all`` clone under the same catalog precondition."""
+    mismatch = catalog_mismatch(implement_all_clone)
     if mismatch:
         pytest.fail(mismatch)
-    return loop_only_clone
+    return implement_all_clone
 
 
-def test_implement_all(codex_loop_only_clone: Clone) -> None:
-    """Implement-all spawns the implementer, then spawns the loop's verifier itself."""
-    clone = codex_loop_only_clone
+def test_implement_all(codex_implement_all_clone: Clone) -> None:
+    """Implement-all spawns the implementer and the loop's verifier once per plan."""
+    clone = codex_implement_all_clone
     transcript = run(clone, 'implement-all', '$agentdev:iwe-implement-all')
-    assert transcript.agent_spawns(IMPLEMENTER) == 1, (
-        f'one iwe-implementer spawn\n{transcript.spawns()}'
+    spawns = transcript.spawns()
+    assert transcript.agent_spawns(IMPLEMENTER) == 2, (
+        f'one iwe-implementer spawn per plan\n{spawns}'
     )
-    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
-    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
-    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
-    assert clone.loop_done(), f'task ticked with evidence, file written\n{transcript.excerpt()}'
+    assert transcript.agent_spawns(VERIFIER) == 2, f'one iwe-verifier spawn per plan\n{spawns}'
+    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{spawns}'
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{spawns}'
+    assert clone.loop_done(), f'loop ticked with evidence, file written\n{transcript.excerpt()}'
+    assert clone.pair_done(), f'pair ticked with evidence, file written\n{transcript.excerpt()}'
 
 
 @pytest.mark.parametrize(
