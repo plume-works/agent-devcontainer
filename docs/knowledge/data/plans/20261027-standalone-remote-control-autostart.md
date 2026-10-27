@@ -203,13 +203,20 @@ tick was rejected for the cost of a Claude process every interval.
 
 **Files:** Modify: `scripts/tests/test_agent_runtime_acceptance.py`
 
-- [ ] Container acceptance, with a fake `claude` placed ahead of the real one on
-  the runtime user's `PATH` (acceptance has no claude.ai login): with the mode
+- [x] Container acceptance, with a fake `claude` bind-mounted over
+  `/usr/local/bin/claude` (acceptance has no claude.ai login): with the mode
   unset, no `claude-remote` tmux session exists and `status` names no
   `remote-control`; with `server` and no login, the runtime is `ready` and
   `status` says it is waiting for a claude.ai login; after the fake login
   appears, `claude-remote` runs in `/workspaces/project` with no terminal
   interaction; after the session is killed, it comes back.
+  - **Evidence:** commit "Accept standalone Remote Control in a container":
+    `test_remote_control_is_off_without_a_mode` and
+    `test_remote_control_waits_for_a_login_then_starts_and_comes_back`,
+    `.devcontainer/scripts/test-agent-runtime.sh -k remote_control` against
+    `agent-opencode` built locally from the tree of commit "Supervise a Remote
+    Control watcher in the standalone runtime" on
+    `ghcr.io/plume-works/agent- desktop:edge`: 2 passed.
 
 ### Task 5: Document the runtime's Remote Control
 
