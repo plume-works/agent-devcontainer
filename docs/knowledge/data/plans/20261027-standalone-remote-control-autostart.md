@@ -6,7 +6,7 @@ release:
 description: Opt the standalone agent-opencode runtime into Claude Remote Control with AGENTDEV_CLAUDE_RC_MODE, through a supervised remote-control watcher that waits for a claude.ai login, starts claude-remote, and restarts it within the recovery budget.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T22:55:00Z
+  at: 2026-10-27T22:59:26Z
 sources:
 - resource: docs/knowledge/data/backlog/standalone-claude-remote-control.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -240,11 +240,19 @@ tick was rejected for the cost of a Claude process every interval.
 
 **Files:** none
 
-- [ ] On a standalone deployment with `AGENTDEV_CLAUDE_RC_MODE=server` and no
+- [x] On a standalone deployment with `AGENTDEV_CLAUDE_RC_MODE=server` and no
   Claude login, `status` says it is waiting; after `/login` from
   `docker exec -u agent -it <container> claude`, `claude-remote` starts without
   a restart, and a conversation started from claude.ai/code in that environment
   works in the workspace.
+  - **Evidence:** operator-run check on 2026-10-27, recorded under
+    `## Verification results`: the Project1 deployment, logged out and upgraded
+    to `agent-opencode` image
+    `sha256:54e1bab164da46f27440f27aceb9352138f1d0ef709a643b6eece7142ba2246d`
+    (revision `f5d47eb`), came up `ready` with Remote Control waiting; after
+    `/login`, `claude-remote` started with no container restart, and
+    claude.ai/code listed the environment `1e493a7ec181` at
+    `/workspaces/project` with a running session.
 
 ## Spec changes
 
@@ -486,9 +494,20 @@ container](20261017-standalone-opencode-container.md) — it creates
   at 19:26:31. `runtime-health.sh status` reported `runtime state: ready` and
   `remote-control: running in tmux session claude-remote`. A conversation
   started from claude.ai/code in that environment ran in `/workspaces/project`:
-  it created and pushed a branch and read the runtime state. The no-login phase
-  was not exercised (no waiting status, no `/login` without a restart), so Task
-  6 stays open.
+  it created and pushed a branch and read the runtime state. This run did not
+  exercise the no-login phase.
+- **Task 6, from no login (2026-10-27):** the Project1 standalone deployment,
+  logged out of Claude, upgraded from container `5ddd810b6826` to `1e493a7ec181`
+  on image
+  `sha256:54e1bab164da46f27440f27aceb9352138f1d0ef709a643b6eece7142ba2246d`
+  (revision `f5d47eb88c1cb9731e1d2f7a09b65c18276460c5`), with all five named
+  volumes and the workspace HEAD preserved. The runtime came up `ready`, Docker
+  health `healthy`, CBM active, and OpenCode's internal probe answered HTTP 200,
+  with Remote Control waiting for a login. After the operator's `/login`,
+  `claude-remote` started with no container restart as one live process, and
+  claude.ai/code listed the environment at `/workspaces/project` with a running
+  session. The operator reported the waiting status and the start order; no
+  restart or OOM events occurred.
 
 ## Out of scope
 
