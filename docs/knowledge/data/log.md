@@ -6,6 +6,14 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Update**: [Assignee-triggered AI re-reviews replace the comment
+  trigger](plans/20261026-assignee-review-trigger.md) done; merged the assignee
+  re-review trigger and the `@claude review` rejection into the [AI review
+  gate](spec/ai-review-gate.md) spec; [Bug: a comment-requested review's gate
+  does not count toward merge](bugs/dispatched-review-gate-not-counted.md) fixed
+  and listed under Unreleased Fixed; [AI responder
+  workflows](features/ai-responder-workflows.md) stays implemented and listed
+  under Unreleased Changed.
 - **Map**: refreshed the agentdev [plugin
   tests](codebase/agents/plugins/agentdev/tests.md) map for
   `request-review.sh`'s assignee toggle, and re-stamped the [agentdev

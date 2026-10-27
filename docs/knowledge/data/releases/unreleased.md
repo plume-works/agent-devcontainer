@@ -134,3 +134,6 @@ bug](../bugs/ship-release-link-without-feature.md)
 
 [Bug: the Remote Control pin ignores
 `/clear`](../bugs/remote-control-pin-ignores-clear.md)
+
+[Bug: a comment-requested review's gate does not count toward
+merge](../bugs/dispatched-review-gate-not-counted.md)

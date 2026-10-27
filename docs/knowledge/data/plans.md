@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Assignee-triggered AI re-reviews replace the comment
-trigger](plans/20261026-assignee-review-trigger.md)
-
 [Expo Bridge panel, status bar, and Problems in the workspace
 extension](plans/20261026-expo-bridge-panel.md)
 
@@ -42,6 +39,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Assignee-triggered AI re-reviews replace the comment
+trigger](plans/20261026-assignee-review-trigger.md)
 
 [Expo bridge bun fix upgrades the bun the check
 runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)

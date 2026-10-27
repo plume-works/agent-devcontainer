@@ -13,6 +13,8 @@ sources:
 - resource: .github/actions/ai-review-status/action.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
+stage: done
+completed: 2026-10-27
 ---
 
 # Assignee-triggered AI re-reviews replace the comment trigger
