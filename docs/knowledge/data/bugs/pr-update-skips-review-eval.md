@@ -12,6 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
+stage: done
 ---
 
 # Bug: PR updates skip the re-review evaluation
