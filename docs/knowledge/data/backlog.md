@@ -27,14 +27,14 @@ end](backlog/exercise-removed-delta-blocks.md)
 [Fail a review run that published no
 review](backlog/fail-review-run-without-review.md)
 
-[Simplify the pr-* skills for the single review
-workflow](backlog/simplify-pr-skills-single-review-workflow.md)
-
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
+
+[Verify that auto-merge waits for an assignee-triggered
+review](backlog/verify-assignee-review-automerge.md)
 
 [Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
@@ -46,10 +46,16 @@ mechanically](backlog/detect-plan-narration-growth.md)
 [Clean up the local checkout after
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
+[Drop the `@claude <custom prompt>` free-form task
+trigger](backlog/drop-claude-free-form-task-trigger.md)
+
 ## Done
 
 [Start Claude Remote Control in the standalone runtime when
 asked](backlog/standalone-claude-remote-control.md)
+
+[Simplify the pr-* skills for the single review
+workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
 [Document VSCodium support for the Expo
 bridge](backlog/document-expo-bridge-vscodium-support.md)

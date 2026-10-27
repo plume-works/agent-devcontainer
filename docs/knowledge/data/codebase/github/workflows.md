@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:a0263c11123fdf69318fc45cefc78e49bdda59b299a299eafc07da73b7d135c6
+source_digest: sha256:3b6416950137a1353bb335593af18b3f043e6e24c09f0b03e9af7e83bf948ac4
 verified:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  by: claude-code/opus-5.5
+  at: 2026-10-27T05:30:00Z
 stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  by: claude-code/opus-5.5
+  at: 2026-10-27T05:30:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -113,13 +113,18 @@ flow](../flow-pull-request-checks.md).
   without ARM runners can still build.
 - A `[ci:skip-ai-review]` marker alone on a line of the PR body suppresses the
   review job only; `ai-review-present` never reads it, so the gate cannot be
-  waived from an author-controlled body, and an explicit `@claude review`
-  outranks it. The policy is in [AI review gate](../../spec/ai-review-gate.md).
-- A `[ci:review-effort=light|full]` marker on its own line, or an
-  `@claude review light|full` comment that outranks it, selects the review's
-  effort tier; preflight resolves it because only a workflow-level `--model` can
-  size the session. The reasoning is in [PR review effort
-  tiers](../../architecture/pr-review-effort-tiers.md).
+  waived from an author-controlled body, and it outranks an assignment. The
+  policy is in [AI review gate](../../spec/ai-review-gate.md).
+- A re-review is requested by removing the PR's author as assignee and adding
+  them back; the `pull_request`/`assigned` run reviews and its gate counts. The
+  bridge rejects an `@claude review` mention with a reply and dispatches every
+  other `@claude` mention as a task; a dispatch never reviews, and one with an
+  empty task fails preflight. See [Assignee-triggered AI
+  re-reviews](../../architecture/assignee-review-trigger.md).
+- A `[ci:review-effort=light|full]` marker on its own line, the only tier
+  source, selects the review's effort tier; preflight resolves it because only a
+  workflow-level `--model` can size the session. The reasoning is in [PR review
+  effort tiers](../../architecture/pr-review-effort-tiers.md).
 - The `if:` gate admitting an `@claude` mention folds case, because the workflow
   expression language's `startsWith` does. Every mention test in the workflow's
   JavaScript folds it too, so the two agree on what a mention is — see [the
@@ -128,7 +133,7 @@ flow](../flow-pull-request-checks.md).
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-27):
 
 - `.github/workflows/primary-checks.yml:22-24` — `concurrency`, cancelling in
   progress except on `main`
@@ -147,11 +152,11 @@ Verified anchor points (line numbers as of 2026-10-25):
   pinned iwe, and the check steps
 - `.github/workflows/validate-knowledge-base.yml:39-46,86-107` — paths filter,
   pinned iwe, graph validation, and the path-filtered scaffold suite
-- `.github/workflows/ai-responder.yml:89,363,421,468,509` — the five jobs
-- `.github/workflows/ai-responder.yml:192,194` — the skip and effort body
+- `.github/workflows/ai-responder.yml:82,348,414,461,502` — the five jobs
+- `.github/workflows/ai-responder.yml:185,187` — the skip and effort body
   markers, both anchored to their own line
-- `.github/workflows/ai-responder.yml:298,402-407` — `opensWith`, and the
-  bridge's review-versus-task split and effort label
+- `.github/workflows/ai-responder.yml:283,376,400` — `opensWith`, the bridge's
+  `@claude review` rejection, and its task dispatch
 - `.github/workflows/validate-renovate-config.yml:26,52,78` — `paths-filter`,
   `validate`, `finished`
 - `.github/workflows/validate-renovate-config.yml:59-60,70-76` — pinned

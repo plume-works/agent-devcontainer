@@ -11,7 +11,7 @@ Use this skill to review a pull request's diff and publish feedback as a GitHub 
 ## When to Use This Skill
 
 - A pull request was just opened or reopened and needs an automated review
-- Someone explicitly asks for a review of a pull request (for example, "@claude review this PR" or "@codex review this PR")
+- Someone explicitly asks for a review of a pull request (for example, "review this PR")
 
 ## Prerequisites
 
@@ -84,7 +84,7 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 ## Effort Tiers
 
-The review runs at one of two effort tiers, `light` or `full`. The responder workflow resolves the tier from an `@claude review light`/`@claude review full` comment or a `[ci:review-effort=light]`/`[ci:review-effort=full]` marker alone on a line of the PR body, and hands it to this skill as a `REQUESTED REVIEW EFFORT` line in the prompt.
+The review runs at one of two effort tiers, `light` or `full`. The responder workflow resolves the tier from a `[ci:review-effort=light]`/`[ci:review-effort=full]` marker alone on a line of the PR body, its only source, and hands it to this skill as a `REQUESTED REVIEW EFFORT` line in the prompt.
 
 **A requested tier is absolute.** Run the tier you were handed, exactly. Never escalate to the other tier, refuse the review, or fail it because the diff looks like a poor fit for the tier — that call belongs to whoever requested it.
 

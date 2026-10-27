@@ -127,3 +127,6 @@ change](bugs/plan-tasks-edit-specs.md)
 
 [Orphan-kill supervision test fails
 intermittently](bugs/supervision-orphan-kill-test-flaky.md)
+
+[Bug: a comment-requested review's gate does not count toward
+merge](bugs/dispatched-review-gate-not-counted.md)

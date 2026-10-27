@@ -20,11 +20,14 @@ moves them.*
 [Start Claude Remote Control in the standalone
 runtime](plans/20261027-standalone-remote-control-autostart.md)
 
+[Assignee-triggered AI re-reviews replace the comment
+trigger](plans/20261026-assignee-review-trigger.md)
+
 [Expo Bridge panel, status bar, and Problems in the workspace
 extension](plans/20261026-expo-bridge-panel.md)
 
-[PR updates re-evaluate the AI
-review](plans/20261023-pr-update-reevaluates-review.md)
+[PR skills drive the AI review lifecycle on the single review
+workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)
 
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)

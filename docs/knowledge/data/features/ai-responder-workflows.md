@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
+  at: 2026-10-26T06:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -12,6 +12,7 @@ sources:
 - resource: data/plans/20260816-ai-responder-workflows.md
 - resource: data/plans/20260903-single-ai-review-workflow.md
 - resource: data/architecture/pr-review-effort-tiers.md
+- resource: data/architecture/assignee-review-trigger.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
 - resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
@@ -59,20 +60,22 @@ custom prompt, but intentionally leaves `track_progress` unset. That action
 input restores tag-mode tracking comments for custom prompts, but for this
 review workflow it routes findings into a regular PR comment instead of a
 submitted GitHub PR review. A `@claude` mention on a pull request is bridged
-into a `workflow_dispatch` on the head branch, so the review runs the branch's
-own file and its checks attach to the head commit; the dispatched run appends
-its Actions run link to the triggering comment before the responder starts.
-Free-form task prompts instruct Claude to post its response back to the issue or
-pull request thread, quoting the original request.
+into a `workflow_dispatch` on the head branch as a free-form task, so the task
+runs the branch's own file and its checks attach to the head commit; the
+dispatched run appends its Actions run link to the triggering comment before the
+responder starts. A dispatch never reviews. Free-form task prompts instruct
+Claude to post its response back to the issue or pull request thread, quoting
+the original request.
 
-**The gate accepts any AI review, past or present.** `ai-review-present` accepts
-a review from `claude[bot]`/`github-actions[bot]`, a review from
-`chatgpt-codex-connector[bot]`, or a `+1` reaction from that Codex bot, in state
+**The gate accepts any Claude review, past or present.** `ai-review-present`
+accepts a review from `claude[bot]` or `github-actions[bot]` in state
 `approved`, `changes_requested`, or `commented`. It asserts the PR has been
 reviewed, not that each pushed commit has been, and never requires the review to
-name the current head commit. Refreshing a review is the author's call via an
-`@claude review` comment. Codex reviews arrive through Codex web, entirely
-outside GitHub Actions.
+name the current head commit. Refreshing a review is the author's call: removing
+the pull request's author as assignee and adding them back runs a `pull_request`
+review whose gate counts toward merge, as recorded in [Assignee-triggered AI
+re-reviews](../architecture/assignee-review-trigger.md). An `@claude review`
+comment is rejected with a reply pointing at that toggle.
 
 The gate's full contract lives in the [AI review
 gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle
@@ -83,25 +86,24 @@ availability](../architecture/ci-agent-plugin-availability.md).
 **Pull requests can opt out of the review run, not out of the gate.** A
 `[ci:skip-ai-review]` marker alone on a line of the pull request body skips the
 review responder — matched as a whole line, so a body that merely discusses the
-marker stays prose. An explicit `@claude review` outranks it.
-`ai-review-present` never reads the marker: a PR body is author-controlled and a
-skipped job satisfies a required check, so a marker the gate honored would be a
-self-service waiver of the mandatory review. A marked PR without an accepted
-review keeps a red gate, mergeable only by ruleset bypass. The marker does not
-disable free-form `@claude` tasks.
+marker stays prose. The marker outranks an assignment, so assigning a marked PR
+runs the gate without a review. `ai-review-present` never reads the marker: a PR
+body is author-controlled and a skipped job satisfies a required check, so a
+marker the gate honored would be a self-service waiver of the mandatory review.
+A marked PR without an accepted review keeps a red gate, mergeable only by
+ruleset bypass. The marker does not disable free-form `@claude` tasks.
 
-**A review can be asked to run cheaply.** An `@claude review light` or
-`@claude review full` comment, or a `[ci:review-effort=light]` /
-`[ci:review-effort=full]` marker alone on a line of the pull request body,
-requests one of two effort tiers; the comment outranks the marker, and the
-marker is matched as a whole line for the same reason the skip marker is.
-Preflight resolves the tier and the responder sizes the review session from it.
-A requested tier is obeyed exactly — the review never escalates it, refuses, or
-fails over the diff it finds — and with no request the review sizes itself and
-keeps the session's configured model. An effort tier changes what a review
-costs, never whether one is required: both tiers run the metadata check and the
-durable-knowledge pass, and neither waives `ai-review-present`. The reasoning is
-recorded in [PR review effort tiers](../architecture/pr-review-effort-tiers.md).
+**A review can be asked to run cheaply.** A `[ci:review-effort=light]` or
+`[ci:review-effort=full]` marker alone on a line of the pull request body is the
+only way to request one of two effort tiers, matched as a whole line for the
+same reason the skip marker is. Preflight resolves the tier and the responder
+sizes the review session from it. A requested tier is obeyed exactly — the
+review never escalates it, refuses, or fails over the diff it finds — and with
+no request the review sizes itself and keeps the session's configured model. An
+effort tier changes what a review costs, never whether one is required: both
+tiers run the metadata check and the durable-knowledge pass, and neither waives
+`ai-review-present`. The reasoning is recorded in [PR review effort
+tiers](../architecture/pr-review-effort-tiers.md).
 
 ## Edge cases
 
