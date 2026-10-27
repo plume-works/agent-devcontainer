@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T00:00:00Z
+  at: 2026-10-27T00:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -27,6 +27,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 ---
 
@@ -320,7 +321,14 @@ the audit scope and the plan file, before the edit is validated.
 The Ship skill SHALL run the report-only Verify workflow before normal shipping
 state changes and SHALL refuse to ship while Verify reports any CRITICAL
 finding. Verify SHALL remain independently invocable and SHALL not edit code or
-project state.
+project state. Verify's rulebook SHALL be defined once, as the catalog agent
+`iwe-verifier`, and every Verify run SHALL start from a fresh context:
+`/agentdev:iwe-verify` SHALL dispatch `iwe-verifier` with a prompt carrying only
+the plan key or audit mode and the user's approvals quoted verbatim, and
+`iwe-shipper` SHALL follow that rulebook in its own context without dispatching
+an agent. Verify SHALL run a verification command whose effects reach beyond the
+working tree only under a quoted approval that names it, and otherwise SHALL
+stop before it and report the approval it needs.
 
 #### Scenario: Verification reports no critical findings
 
@@ -344,8 +352,29 @@ project state.
 #### Scenario: Verify is invoked outside Ship
 
 - **WHEN** the user requests a mid-implementation check or a workspace audit
-- **THEN** Verify produces its evidence-backed report and stops without invoking
-  Ship or mutating the graph
+- **THEN** the skill dispatches `iwe-verifier`, which produces its
+  evidence-backed report and stops without invoking Ship or mutating the graph
+
+#### Scenario: The user verifies a plan without an approval
+
+- **WHEN** the user runs `/agentdev:iwe-verify <plan>` and a `## Verification`
+  command reaches beyond the working tree
+- **THEN** the dispatch prompt carries the plan key and nothing else from the
+  conversation, and `iwe-verifier` stops before that command and reports the
+  approval it needs
+
+#### Scenario: The user verifies a plan with an approval
+
+- **WHEN** the user re-runs `/agentdev:iwe-verify <plan>` granting the approval
+  the verifier reported, alongside other claims about the work
+- **THEN** the dispatch prompt quotes the approval verbatim and leaves the other
+  claims out, and `iwe-verifier` runs the approved command
+
+#### Scenario: Ship runs Verify in place
+
+- **WHEN** `iwe-shipper` reaches its Verify step
+- **THEN** it follows the `iwe-verifier` rulebook in its own context and
+  dispatches no agent
 
 ### Requirement: Ship synchronizes durable specs by intelligent merge
 
