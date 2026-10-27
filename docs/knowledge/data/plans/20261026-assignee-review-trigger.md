@@ -186,13 +186,21 @@ Rejected:
 
 **Files:** none (CI evidence)
 
-- [ ] On a throwaway same-repository pull request whose head already passed
+- [x] On a throwaway same-repository pull request whose head already passed
   `ai-review-present`, removing and re-adding the author runs a
   `pull_request`/`assigned` review, and its `ai-review-present` appears in
   `gh pr checks`.
-- [ ] On a throwaway pull request whose body carries `[ci:skip-ai-review]` and
+  - **Evidence:** PR #485, head already green in run 40450025316 (`opened`);
+    after unassign and reassign, run 40450845023 (`pull_request`) ran Claude PR
+    Review Responder (success), and its `ai-review-present` passed and is listed
+    by `gh pr checks 485`.
+- [x] On a throwaway pull request whose body carries `[ci:skip-ai-review]` and
   that has no accepted review, assigning the author runs no review, and
   `ai-review-present` fails.
+  - **Evidence:** PR #486; the `assigned` event started run 40450442550
+    (`pull_request`): Claude PR Review Responder skipped, and
+    `ai-review-present` failed with "No AI review found. Expected a review from
+    Claude (claude[bot] or github-actions[bot])."
 
 ### Task 6: The bridge rejects `@claude review` once on `main`
 
