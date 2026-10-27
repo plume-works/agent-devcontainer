@@ -18,16 +18,19 @@ import pytest
 from scenarios import (
     APPROVAL,
     CODEX_BUDGET,
+    EVALUATE,
     EVALUATOR,
     EXPLORE,
     FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
+    IMPLEMENTER,
     LOOP_KEY,
     PLANTED,
     REVISE_KEY,
     RULEBOOK,
     SHIPPER,
+    verdict,
     VERIFIER,
 )
 
@@ -169,6 +172,42 @@ def test_implement_revises(codex_clone: Clone) -> None:
     before, after = codex_clone.revise_tasks_committed()
     assert after > before, f'a task added in a commit: {before} -> {after}\n{transcript.excerpt()}'
     assert codex_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
+
+
+@pytest.fixture
+def codex_loop_only_clone(loop_only_clone: Clone) -> Clone:
+    """Provide a ``loop_only`` clone under the same catalog precondition."""
+    mismatch = catalog_mismatch(loop_only_clone)
+    if mismatch:
+        pytest.fail(mismatch)
+    return loop_only_clone
+
+
+def test_implement_all(codex_loop_only_clone: Clone) -> None:
+    """Implement-all spawns the implementer, then spawns the loop's verifier itself."""
+    clone = codex_loop_only_clone
+    transcript = run(clone, 'implement-all', '$agentdev:iwe-implement-all')
+    assert transcript.agent_spawns(IMPLEMENTER) == 1, (
+        f'one iwe-implementer spawn\n{transcript.spawns()}'
+    )
+    assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
+    assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
+    assert clone.loop_done(), f'task ticked with evidence, file written\n{transcript.excerpt()}'
+
+
+@pytest.mark.parametrize(
+    ('variant', 'expected'), [('narrowed', 'ESCALATE'), ('restated', 'REJECT')]
+)
+def test_evaluator(codex_clone: Clone, variant: str, expected: str) -> None:
+    """The evaluator escalates a narrowing and rejects a restatement, editing nothing."""
+    codex_clone.draft_revision(variant)
+    transcript = run(codex_clone, f'evaluator-{variant}', EVALUATE)
+    reports = transcript.agent_results(EVALUATOR)
+    assert len(reports) == 1, f'one iwe-revision-evaluator report\n{transcript.spawns()}'
+    assert verdict(reports[0]) == expected, f'{expected}\n{reports[0]}'
+    assert codex_clone.revision_kept(variant), f'draft left as it was\n{transcript.excerpt()}'
+    assert codex_clone.head() == codex_clone.start, f'no commit\n{transcript.excerpt()}'
 
 
 def test_explore(codex_open_question_clone: Clone) -> None:

@@ -90,6 +90,32 @@ class ClaudeTranscript:
             if re.search(rf'{re.escape(agent)}$', str(call.get('subagent_type') or ''))
         ]
 
+    def agent_results(self, agent: str) -> list[str]:
+        """Return the report of every finished dispatch of the catalog agent ``agent``."""
+        ids = {
+            block.get('id')
+            for event in self.events
+            if event.get('type') == 'assistant'
+            for block in (event.get('message') or {}).get('content') or []
+            if block.get('type') == 'tool_use'
+            and block.get('name') == 'Agent'
+            and re.search(
+                rf'{re.escape(agent)}$', str((block.get('input') or {}).get('subagent_type'))
+            )
+        }
+        return [
+            content
+            if isinstance(content, str)
+            else '\n'.join(part.get('text', '') for part in content if isinstance(part, dict))
+            for event in self.events
+            if event.get('type') == 'user'
+            for block in (event.get('message') or {}).get('content') or []
+            if isinstance(block, dict)
+            and block.get('type') == 'tool_result'
+            and block.get('tool_use_id') in ids
+            for content in [block.get('content') or '']
+        ]
+
     def excerpt(self, tool: str | None = None, limit: int = 4000) -> str:
         """Return the tail of the run's text, or of one tool's calls, for a failure message."""
         if tool is not None:

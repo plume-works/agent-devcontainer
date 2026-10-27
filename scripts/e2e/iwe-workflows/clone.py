@@ -3,7 +3,8 @@ The fixture repository and the per-test clones the IWE workflow suite runs in.
 
 The fixture repository is built once per worker from ``HEAD``: every active plan
 cancelled, the fixture plans committed as ``base``, and the open-question edit
-committed on top as ``open_question``. Each test gets its own clone of it; a
+committed on top as ``open_question``, and, on a branch from ``base``, every
+fixture plan but the loop plan cancelled as ``loop_only``. Each test gets its own clone of it; a
 main clone also gets ``main``, a bare ``origin`` beside it, and a stub ``gh``.
 """
 
@@ -99,10 +100,11 @@ class FixtureRepo:
     path: Path
     base: str
     open_question: str
+    loop_only: str
 
 
-def cancel_active_plans(data: Path) -> list[str]:
-    """Move every ``## Active`` plan to ``## Cancelled`` and mark it cancelled."""
+def cancel_active_plans(data: Path, keep: tuple[str, ...] = ()) -> list[str]:
+    """Move every ``## Active`` plan but those in ``keep`` to ``## Cancelled``, marked cancelled."""
     hub = data / 'plans.md'
     # iwe normalize wraps long link titles over several lines, so match paragraphs.
     paragraphs = [p for p in re.split(r'\n[ \t]*\n', hub.read_text().strip('\n')) if p]
@@ -111,7 +113,7 @@ def cancel_active_plans(data: Path) -> list[str]:
         if paragraph.startswith('## '):
             section = paragraph
         link = _HUB_LINK.match(paragraph.replace('\n', ' '))
-        if section == '## Active' and link:
+        if section == '## Active' and link and link.group(1) not in keep:
             keys.append(link.group(1))
             moved.append(paragraph.replace('\n', ' '))
             continue
@@ -167,7 +169,13 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-hello.open-question.md', path / HELLO)
     repo.iwe_check()
     open_question = repo.commit_all('e2e: open question')
-    return FixtureRepo(path=path, base=base, open_question=open_question)
+
+    repo.git('checkout', '-q', '-b', 'e2e-loop-only', base)
+    cancel_active_plans(data, keep=('plans/20261026-e2e-loop.md',))
+    repo.iwe_check()
+    loop_only = repo.commit_all('e2e: only the loop plan active')
+    repo.git('checkout', '-q', 'e2e-fixture')
+    return FixtureRepo(path=path, base=base, open_question=open_question, loop_only=loop_only)
 
 
 class Clone(Repo):
@@ -253,6 +261,15 @@ class Clone(Repo):
         return all(
             (self.path / f'e2e/{name}').exists() for name in ('revise.txt', 'revise-notes.txt')
         )
+
+    def draft_revision(self, variant: str) -> None:
+        """Leave the revise plan's ``variant`` fixture uncommitted over it, as a drafted revision."""
+        shutil.copy2(FIXTURES / f'plans/20261026-e2e-revise.{variant}.md', self.path / REVISE)
+
+    def revision_kept(self, variant: str) -> bool:
+        """Whether the revise plan still holds the ``variant`` draft, unrestored and unedited."""
+        draft = (FIXTURES / f'plans/20261026-e2e-revise.{variant}.md').read_text()
+        return (self.path / REVISE).read_text() == draft
 
     def greet_untouched(self) -> bool:
         """Whether the greet task is still unticked and its file still absent."""

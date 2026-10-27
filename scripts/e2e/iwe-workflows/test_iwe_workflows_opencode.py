@@ -1,17 +1,19 @@
 """Verify, Ship, Implement, and Explore on OpenCode, one isolated server per scenario."""
 
 from clone import Clone
-from harness_opencode import OpenCodeServer, Transcript
+from harness_opencode import OpenCodeServer, PROMPT_COMMAND, Transcript
 import pytest
 from scenarios import (
     APPROVAL,
     BRANCH_KEY,
     BRANCH_WORK,
+    EVALUATE,
     EVALUATOR,
     EXPLORE,
     FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
+    IMPLEMENTER,
     LOOP_KEY,
     mentions,
     OPENCODE_BUDGET,
@@ -19,6 +21,7 @@ from scenarios import (
     REVISE_KEY,
     RULEBOOK,
     SHIPPER,
+    verdict,
     VERIFIER,
     WORKFLOW_SKILL,
 )
@@ -38,6 +41,17 @@ def agent_prompts(transcript: Transcript, agent: str) -> list[str]:
     """Return the prompt of every dispatch of the catalog agent ``agent``."""
     calls = transcript.calls('subagent')
     return [str(call.get('prompt', '')) for call in calls if call.get('agent') == agent]
+
+
+def agent_results(transcript: Transcript, agent: str) -> list[str]:
+    """Return the report of every finished dispatch of the catalog agent ``agent``."""
+    return [
+        '\n'.join(item.get('text', '') for item in state.get('content') or [])
+        for part in transcript.assistant_parts()
+        if part.get('type') == 'tool' and part.get('name') == 'subagent'
+        for state in [part.get('state') or {}]
+        if (state.get('input') or {}).get('agent') == agent and state.get('status') == 'completed'
+    ]
 
 
 def test_verify(base_clone: Clone, opencode) -> None:
@@ -151,6 +165,36 @@ def test_implement_revises(base_clone: Clone, opencode) -> None:
     before, after = base_clone.revise_tasks_committed()
     assert after > before, f'a task added in a commit: {before} -> {after}\n{transcript.excerpt()}'
     assert base_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
+
+
+def test_implement_all(loop_only_clone: Clone, opencode) -> None:
+    """Implement-all dispatches the implementer, then runs the loop's verifier itself."""
+    clone = loop_only_clone
+    transcript = run(opencode(clone), 'implement-all', 'agentdev:iwe-implement-all', '')
+    prompts = agent_prompts(transcript, IMPLEMENTER)
+    dispatches = transcript.excerpt('subagent')
+    assert len(prompts) == 1, f'one iwe-implementer dispatch\n{dispatches}'
+    assert LOOP_KEY in prompts[0], f'prompt names the plan\n{dispatches}'
+    assert len(agent_prompts(transcript, VERIFIER)) == 1, (
+        f'one iwe-verifier dispatch\n{dispatches}'
+    )
+    assert agent_prompts(transcript, EVALUATOR) == [], f'no evaluator\n{dispatches}'
+    assert clone.loop_done(), f'task ticked with evidence, file written\n{transcript.excerpt()}'
+
+
+@pytest.mark.parametrize(
+    ('variant', 'expected'), [('narrowed', 'ESCALATE'), ('restated', 'REJECT')]
+)
+def test_evaluator(base_clone: Clone, opencode, variant: str, expected: str) -> None:
+    """The evaluator escalates a narrowing and rejects a restatement, editing nothing."""
+    base_clone.draft_revision(variant)
+    transcript = run(opencode(base_clone), f'evaluator-{variant}', PROMPT_COMMAND, EVALUATE)
+    reports = agent_results(transcript, EVALUATOR)
+    dispatches = transcript.excerpt('subagent')
+    assert len(reports) == 1, f'one iwe-revision-evaluator report\n{dispatches}'
+    assert verdict(reports[0]) == expected, f'{expected}\n{reports[0]}'
+    assert base_clone.revision_kept(variant), f'draft left as it was\n{transcript.excerpt()}'
+    assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
 
 
 def test_implement_on_main(main_clone: Clone, opencode) -> None:

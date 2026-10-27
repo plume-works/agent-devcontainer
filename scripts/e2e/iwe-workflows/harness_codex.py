@@ -164,6 +164,25 @@ class CodexTranscript:
                 found.append(command if isinstance(command, str) else shlex.join(command))
         return found
 
+    def agent_results(self, agent: str) -> list[str]:
+        """Return the final message of every spawned agent of the catalog type ``agent``."""
+        results = []
+        for child in self.children():
+            events = _read_jsonl(child)
+            roles = [
+                (event.get('payload') or {}).get('agent_role')
+                for event in events
+                if event.get('type') == 'session_meta'
+            ]
+            if agent not in roles:
+                continue
+            results.extend(
+                str(payload.get('last_agent_message') or '')
+                for payload in (event.get('payload') or {} for event in events)
+                if payload.get('type') == 'task_complete'
+            )
+        return results
+
     def agent_spawns(self, agent: str) -> int:
         """Return how many agents of the catalog type ``agent`` were spawned."""
         return sum(1 for spawn in self.spawns() if spawn.get('agent_type') == agent)

@@ -28,6 +28,8 @@ PERMISSIONS = [{'action': 'question', 'resource': '*', 'effect': 'deny'}]
 READY_TIMEOUT = 30.0
 CATALOG_TIMEOUT = 60.0
 READY_COMMAND = 'agentdev:iwe-ship'
+# The fixture config's pass-through command: its arguments run as a plain prompt.
+PROMPT_COMMAND = 'e2e-prompt'
 # The suffix of the provider's refusal codes for a login over its usage limit.
 USAGE_LIMIT_CODE = 'usage_limit_exceeded'
 PAGE = 200

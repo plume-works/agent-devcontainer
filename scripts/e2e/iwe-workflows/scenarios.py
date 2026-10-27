@@ -19,9 +19,21 @@ EXPLORE = (
     'Everything else in it is done, so I think it is finished.'
 )
 SHIPPER = 'iwe-shipper'
+IMPLEMENTER = 'iwe-implementer'
 VERIFIER = 'iwe-verifier'
 EVALUATOR = 'iwe-revision-evaluator'
 RULEBOOK = 'agents/iwe-implementer.agent.md'
+REVISE_FINDING = (
+    'CRITICAL — `e2e/revise-notes.txt`, which the spec outcome requires, is missing: '
+    'no task writes it.'
+)
+# Dispatches the evaluator directly on a drafted revision, as the Implement loop would.
+EVALUATE = (
+    f'Dispatch the {EVALUATOR} agent once, forwarding no conversation, with exactly this '
+    f'prompt: "Plan key: {REVISE_KEY}. Finding: {REVISE_FINDING}" Change no file yourself. '
+    'Reply with the first line of its report.'
+)
+VERDICT = re.compile(r'^\s*(APPROVE|REJECT|ESCALATE)\b', re.MULTILINE)
 WORKFLOW_SKILL = re.compile(r'iwe-(ship|implement)')
 # Per-test budgets in seconds: about three times each harness's slowest scenario
 # measured at the worker cap. OPENCODE_BUDGET, plus server startup, sets the login's minimum life.
@@ -33,3 +45,9 @@ CODEX_BUDGET = 900
 def mentions(calls: list[dict[str, Any]], pattern: str | re.Pattern) -> bool:
     """Whether any call's input, as JSON, matches ``pattern``."""
     return any(re.search(pattern, json.dumps(call)) for call in calls)
+
+
+def verdict(report: str) -> str | None:
+    """Return the first evaluator verdict a report states, or ``None`` when it states none."""
+    found = VERDICT.search(report)
+    return found.group(1) if found else None

@@ -8,17 +8,20 @@ from scenarios import (
     BRANCH_KEY,
     BRANCH_WORK,
     CLAUDE_BUDGET,
+    EVALUATE,
     EVALUATOR,
     EXPLORE,
     FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
+    IMPLEMENTER,
     LOOP_KEY,
     mentions,
     PLANTED,
     REVISE_KEY,
     RULEBOOK,
     SHIPPER,
+    verdict,
     VERIFIER,
     WORKFLOW_SKILL,
 )
@@ -139,6 +142,34 @@ def test_implement_revises(base_clone: Clone) -> None:
     before, after = base_clone.revise_tasks_committed()
     assert after > before, f'a task added in a commit: {before} -> {after}\n{transcript.excerpt()}'
     assert base_clone.revise_files(), f'both files written\n{transcript.excerpt()}'
+
+
+def test_implement_all(loop_only_clone: Clone) -> None:
+    """Implement-all dispatches the implementer, then runs the loop's verifier itself."""
+    clone = loop_only_clone
+    transcript = run(clone, 'implement-all', '/agentdev:iwe-implement-all')
+    prompts = transcript.agent_prompts(IMPLEMENTER)
+    dispatches = transcript.excerpt('Agent')
+    assert len(prompts) == 1, f'one iwe-implementer dispatch\n{dispatches}'
+    assert LOOP_KEY in prompts[0], f'prompt names the plan\n{dispatches}'
+    assert len(transcript.agent_prompts(VERIFIER)) == 1, f'one iwe-verifier dispatch\n{dispatches}'
+    assert transcript.agent_prompts(EVALUATOR) == [], f'no evaluator\n{dispatches}'
+    assert clone.loop_done(), f'task ticked with evidence, file written\n{transcript.excerpt()}'
+
+
+@pytest.mark.parametrize(
+    ('variant', 'expected'), [('narrowed', 'ESCALATE'), ('restated', 'REJECT')]
+)
+def test_evaluator(base_clone: Clone, variant: str, expected: str) -> None:
+    """The evaluator escalates a narrowing and rejects a restatement, editing nothing."""
+    base_clone.draft_revision(variant)
+    transcript = run(base_clone, f'evaluator-{variant}', EVALUATE)
+    reports = transcript.agent_results(EVALUATOR)
+    dispatches = transcript.excerpt('Agent')
+    assert len(reports) == 1, f'one iwe-revision-evaluator report\n{dispatches}'
+    assert verdict(reports[0]) == expected, f'{expected}\n{reports[0]}'
+    assert base_clone.revision_kept(variant), f'draft left as it was\n{transcript.excerpt()}'
+    assert base_clone.head() == base_clone.start, f'no commit\n{transcript.excerpt()}'
 
 
 def test_implement_on_main(main_clone: Clone) -> None:
