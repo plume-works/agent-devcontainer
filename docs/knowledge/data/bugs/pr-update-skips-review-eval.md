@@ -53,8 +53,8 @@ only be remembered, not read back from the pull request.
 
 ## Fix
 
-Open. Planned in [PR updates re-evaluate the AI
-review](../plans/20261023-pr-update-reevaluates-review.md).
+Open. Planned in [PR skills drive the AI review lifecycle on the single review
+workflow](../plans/20261023-pr-skills-ai-review-lifecycle.md).
 
 ## Key references
 

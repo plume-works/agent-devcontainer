@@ -1,16 +1,17 @@
 ---
 type: task
 description: Once comment-requested reviews run on the PR head branch, retire the run-discovery and polling prose in the pr-* skills that exists only because those runs were filed against main.
-stage: planned
+stage: done
 priority: medium
 created: 2026-09-03
 generated:
-  by: claude-code/fable-5-1
-  at: 2026-09-03T01:30:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-25T12:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-discover-ai-responder/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
+completed: 2026-10-25
 ---
 
 # Simplify the pr-* skills for the single review workflow

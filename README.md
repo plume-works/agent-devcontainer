@@ -316,7 +316,8 @@ requires an accepted AI review.
 Security gates prevent the responder from checking out or executing untrusted fork
 code and restrict task execution to actors with write access. Reviews use the pull
 request branch's own catalog, so changes to agent workflows are reviewed as changed.
-Comment `@claude review` to request another review after new work lands.
+To request another review after new work lands, remove the pull request's author as
+assignee and add them back.
 
 Adopters must configure the `CLAUDE_CODE_OAUTH_TOKEN` repository secret and the
 `claude-review` environment before enabling the workflow.

@@ -308,7 +308,14 @@ If `gh` is unavailable or unauthenticated, fall back to the connected GitHub
 MCP server's pull-request creation operation with the same title, body, base,
 and head values.
 
-### 10. Error Handling
+### 10. Re-Review Evaluation
+
+In **update mode**, always apply
+[pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) with `PR_NUMBER`,
+whatever the push or the body edit changed, and add its decision to the step 9
+report. **Create mode** skips this step.
+
+### 11. Error Handling
 
 Handle common error scenarios gracefully:
 

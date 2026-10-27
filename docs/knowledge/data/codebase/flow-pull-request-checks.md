@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:47c8c96b16391920e6847a1fb14330d817521e1c335c96b524efb0cf775b7dc9
+source_digest: sha256:42c05f88bde5ef5e52fa287272d72672c003f7a0477647c6ddbe0d128b78a574
 verified:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  by: claude-code/opus-5.5
+  at: 2026-10-27T05:30:00Z
 stale_after: 2027-01-23
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  by: claude-code/opus-5.5
+  at: 2026-10-27T05:30:00Z
 sources:
 - id: code
   resource: .github
@@ -68,7 +68,7 @@ before the push.
    `anthropics/claude-code-action`, sizing the session from that tier;
    `ai-review-present` reports whether an accepted review exists, waived for the
    Renovate and Dependabot bots —
-   `.github/workflows/ai-responder.yml:89,421,509`
+   `.github/workflows/ai-responder.yml:82,414,502`
 8. Merge: `merge_group` runs steps 2–7 again with a clean image build.
 
 ## Failure modes

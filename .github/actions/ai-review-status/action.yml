@@ -8,7 +8,7 @@ inputs:
     description: Pull request number to inspect
     required: true
   github-token:
-    description: GitHub token used to read reviews and reactions
+    description: GitHub token used to read reviews
     required: true
   trusted-bot-actors:
     description: >-
@@ -65,18 +65,13 @@ runs:
           // The rule asserts that the PR has been reviewed, not that its
           // current head has been -- see spec/ai-review-gate. Do not compare
           // review.commit_id against the head SHA.
-          const codexLogins = new Set(['chatgpt-codex-connector[bot]']);
           const claudeLogins = new Set(['claude[bot]', 'github-actions[bot]']);
           const acceptedReviewStates = new Set(['approved', 'changes_requested', 'commented']);
 
           const reviewLogin = (review) => review?.user?.login;
           const reviewState = (review) => review?.state?.toLowerCase();
-          const isAcceptedReview = (logins) => (review) =>
-            logins.has(reviewLogin(review)) && acceptedReviewStates.has(reviewState(review));
-          const isCodexReview = isAcceptedReview(codexLogins);
-          const isClaudeReview = isAcceptedReview(claudeLogins);
-          const isCodexApprovalReaction = (reaction) =>
-            codexLogins.has(reaction?.user?.login) && reaction?.content === '+1';
+          const isClaudeReview = (review) =>
+            claudeLogins.has(reviewLogin(review)) && acceptedReviewStates.has(reviewState(review));
 
           const reviews = await github.paginate(github.rest.pulls.listReviews, {
             ...pullRequest,
@@ -88,42 +83,16 @@ runs:
               .join(', ') || 'none'}`
           );
 
-          const latest = (predicate) => [...reviews].reverse().find(predicate);
-          const describe = (label, review) =>
-            `Found accepted ${label} review by ${review.user.login} for ${review.commit_id} with state ${review.state}.`;
-
-          const codexReview = latest(isCodexReview);
-          if (codexReview) {
-            report(true, describe('Codex', codexReview));
-            return;
-          }
-          const claudeReview = latest(isClaudeReview);
+          const claudeReview = [...reviews].reverse().find(isClaudeReview);
           if (claudeReview) {
-            report(true, describe('Claude', claudeReview));
-            return;
-          }
-
-          const reactions = await github.paginate(github.rest.reactions.listForIssue, {
-            owner: pullRequest.owner,
-            repo: pullRequest.repo,
-            issue_number: pullRequest.pull_number,
-            per_page: 100,
-          });
-          core.info(
-            `Observed PR reactions: ${reactions
-              .map((reaction) => `${reaction.user?.login ?? 'unknown'}:${reaction.content}:${reaction.created_at}`)
-              .join(', ') || 'none'}`
-          );
-          const reaction = reactions.find(isCodexApprovalReaction);
-          if (reaction) {
             report(
               true,
-              `Found accepted Codex review marker by ${reaction.user.login}: ${reaction.content} reaction created at ${reaction.created_at}.`
+              `Found accepted Claude review by ${claudeReview.user.login} for ${claudeReview.commit_id} with state ${claudeReview.state}.`
             );
             return;
           }
 
           report(
             false,
-            'No AI review found. Expected a review from Claude (claude[bot] or github-actions[bot]) or Codex (chatgpt-codex-connector[bot] review or +1 reaction).'
+            'No AI review found. Expected a review from Claude (claude[bot] or github-actions[bot]).'
           );
