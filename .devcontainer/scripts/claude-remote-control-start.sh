@@ -7,6 +7,14 @@ if [[ "$mode" != "server" && "$mode" != "session" ]]; then
     "$mode" >&2
   exit 1
 fi
+if [[ "$mode" == "server" ]]; then
+  spawn="${AGENTDEV_CLAUDE_RC_SPAWN-worktree}"
+  if [[ "$spawn" != "worktree" && "$spawn" != "same-dir" ]]; then
+    printf "Unrecognized AGENTDEV_CLAUDE_RC_SPAWN '%s'; valid options: worktree, same-dir.\n" \
+      "$spawn" >&2
+    exit 1
+  fi
+fi
 
 for command in claude tmux; do
   if ! command -v "$command" >/dev/null 2>&1; then
@@ -40,7 +48,7 @@ workspace_name="$(printf '%q' "${CODER_WORKSPACE_NAME:-}")"
 # Server mode refuses --settings and prompts without --spawn: see
 # architecture/claude-remote-control-server-mode.
 if [[ "$mode" == "server" ]]; then
-  pane_command="claude remote-control --spawn same-dir"
+  pane_command="claude remote-control --spawn $spawn"
   if [[ -n "${CODER_WORKSPACE_NAME:-}" ]]; then
     pane_command+=" --name $workspace_name --remote-control-session-name-prefix $workspace_name"
   fi

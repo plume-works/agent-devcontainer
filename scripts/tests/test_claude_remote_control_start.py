@@ -38,6 +38,7 @@ def run_with_fake_tmux(
     status_exit: int = 0,
     workspace_name: str | None = None,
     mode: str | None = None,
+    spawn: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
     test_dir = make_test_dir()
     log = test_dir / 'tmux.log'
@@ -62,10 +63,13 @@ def run_with_fake_tmux(
     }
     env.pop('CODER_WORKSPACE_NAME', None)
     env.pop('AGENTDEV_CLAUDE_RC_MODE', None)
+    env.pop('AGENTDEV_CLAUDE_RC_SPAWN', None)
     if workspace_name is not None:
         env['CODER_WORKSPACE_NAME'] = workspace_name
     if mode is not None:
         env['AGENTDEV_CLAUDE_RC_MODE'] = mode
+    if spawn is not None:
+        env['AGENTDEV_CLAUDE_RC_SPAWN'] = spawn
     try:
         result = subprocess.run([SCRIPT], env=env, text=True, capture_output=True)
         return result, log.read_text() if log.exists() else ''
@@ -100,6 +104,14 @@ def test_session_mode_starts_pinned_pane(mode):
 
 
 @pytest.mark.parametrize(
+    ('spawn', 'spawn_mode'),
+    [
+        pytest.param(None, 'worktree', id='spawn-unset'),
+        pytest.param('worktree', 'worktree', id='spawn-worktree'),
+        pytest.param('same-dir', 'same-dir', id='spawn-same-dir'),
+    ],
+)
+@pytest.mark.parametrize(
     ('workspace_name', 'server_args'),
     [
         pytest.param(None, '', id='no-workspace-name'),
@@ -110,12 +122,14 @@ def test_session_mode_starts_pinned_pane(mode):
         ),
     ],
 )
-def test_server_mode_starts_remote_control_server(workspace_name, server_args):
-    result, calls = run_with_fake_tmux(mode='server', workspace_name=workspace_name)
+def test_server_mode_starts_remote_control_server(workspace_name, server_args, spawn, spawn_mode):
+    result, calls = run_with_fake_tmux(mode='server', workspace_name=workspace_name, spawn=spawn)
     assert result.returncode == 0, result.stderr
     assert 'new-session -d -s claude-remote -c /workspaces/example' in calls
     assert calls.splitlines()[-1].endswith(
-        'exec env -u CLAUDE_CODE_OAUTH_TOKEN claude remote-control --spawn same-dir' + server_args
+        'exec env -u CLAUDE_CODE_OAUTH_TOKEN claude remote-control --spawn '
+        + spawn_mode
+        + server_args
     )
     assert_dedicated_socket(calls)
 
@@ -136,6 +150,24 @@ def test_unrecognized_mode_fails_without_tmux(mode, session_exists):
     assert 'server' in result.stderr
     assert 'session' in result.stderr
     assert calls == ''
+
+
+@pytest.mark.parametrize('spawn', ['worktre', ''])
+@pytest.mark.parametrize('session_exists', [False, True])
+def test_unrecognized_spawn_fails_in_server_mode_without_tmux(spawn, session_exists):
+    result, calls = run_with_fake_tmux(mode='server', spawn=spawn, session_exists=session_exists)
+    assert result.returncode != 0
+    assert f"'{spawn}'" in result.stderr
+    assert 'worktree' in result.stderr
+    assert 'same-dir' in result.stderr
+    assert calls == ''
+
+
+@pytest.mark.parametrize('mode', [None, 'session'])
+def test_session_mode_ignores_unrecognized_spawn(mode):
+    result, calls = run_with_fake_tmux(mode=mode, spawn='worktre')
+    assert result.returncode == 0, result.stderr
+    assert calls.splitlines()[-1].endswith(f'exec env -u CLAUDE_CODE_OAUTH_TOKEN {PANE_SCRIPT}')
 
 
 def assert_dedicated_socket(calls: str) -> None:

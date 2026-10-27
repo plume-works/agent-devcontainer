@@ -21,9 +21,6 @@ asked](backlog/standalone-claude-remote-control.md)
 
 ## Medium
 
-[Document VSCodium support for the Expo
-bridge](backlog/document-expo-bridge-vscodium-support.md)
-
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
@@ -39,6 +36,8 @@ JavaScript](backlog/test-responder-workflow-js.md)
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 
+[Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
+
 ## Low
 
 [Detect plan narration growth
@@ -53,6 +52,9 @@ pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 own](backlog/autonomous-implement-loop.md)
 
 [Run Verify from a fresh context](backlog/verify-in-fresh-context.md)
+
+[Document VSCodium support for the Expo
+bridge](backlog/document-expo-bridge-vscodium-support.md)
 
 [Make the Expo bridge self-explanatory to an
 agent](backlog/expo-bridge-agent-guidance.md)
