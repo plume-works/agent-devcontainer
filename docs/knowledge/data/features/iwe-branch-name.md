@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
-description: The iwe-branch-name skill names a plan's work branches as <impl|ship>/<plan-slug>/iteration-<N> and reads a plan's state at the remote default branch, so callers create the next branch through git-new-branch.
+stage: implemented
+description: The iwe-branch-name skill names a plan's work branches as <impl|ship>/<plan-slug>/iter-<N> and reads a plan's state at the remote default branch, so callers create the next branch through git-new-branch.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T00:00:00Z
+  at: 2026-10-25T00:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
@@ -25,17 +25,17 @@ gets the same answer.
 
 ## Behaviour
 
-- **Name shape.** `<phase>/<slug>/iteration-<N>`, where `phase` is `impl` or
-  `ship`, `slug` is the plan key's file name without its `YYYYMMDD-` prefix, and
-  `N` starts at 1. The suffix is always present, so no name is a path prefix of
+- **Name shape.** `<phase>/<slug>/iter-<N>`, where `phase` is `impl` or `ship`,
+  `slug` is the plan key's file name without its `YYYYMMDD-` prefix, and `N`
+  starts at 1. The suffix is always present, so no name is a path prefix of
   another and Git never refuses one for nesting under an existing ref.
 - **Next iteration.** `N` is one more than the highest iteration of that phase
-  and slug found among local branches, the remote's branches, and the
-  repository's pull requests in any state. Only names matching the shape exactly
-  count.
+  and slug found among local branches, the remote's branches, and the pull
+  requests in any state of the repository the remote names. Only names matching
+  the shape exactly count.
 - **Plan state.** The plan is read at the fetched remote default branch and
-  reported as missing, cancelled, done, complete (no stage, every task ticked),
-  or incomplete.
+  reported as missing, cancelled, done, complete (no stage, at least one task,
+  every task ticked), or incomplete.
 - **Next name from state.** Done, cancelled, or missing → the default branch;
   complete → the next `ship` name; incomplete → the next `impl` name.
 - **Parse.** A branch name is split into phase, slug, and iteration; a name off

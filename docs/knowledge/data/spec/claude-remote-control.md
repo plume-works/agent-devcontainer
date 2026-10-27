@@ -1,10 +1,11 @@
 ---
 type: spec
-description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server, and every container pre-approves Claude's first-run state unless it opts out.
+description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T03:00:00Z
+  at: 2026-10-26T12:00:00Z
 sources:
+- resource: .claude/.gitignore
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/scripts/claude-remote-control-pin.sh
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
@@ -21,6 +22,7 @@ sources:
 - resource: https://code.claude.com/docs/en/errors#login-expired
 - resource: https://code.claude.com/docs/en/authentication
 - resource: https://code.claude.com/docs/en/remote-control
+- resource: https://code.claude.com/docs/en/worktrees
 - resource: https://github.com/anthropics/claude-code/issues/21765
 - resource: https://github.com/anthropics/claude-code/issues/88583
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
@@ -120,22 +122,42 @@ a resumed conversation leaves Claude running with Remote Control off; running
 `AGENTDEV_CLAUDE_RC_MODE` SHALL select the mode: `server` selects server mode,
 and an unset or `session` value selects session mode. Any other value SHALL make
 the script print the value and the valid options to stderr, start no session,
-and exit non-zero, before any other check. In server mode the `claude-remote`
-session SHALL run `claude remote-control --spawn same-dir`, passing `--name` and
-`--remote-control-session-name-prefix` set to `CODER_WORKSPACE_NAME` when it is
-set, and SHALL neither read nor write the stored conversation ID.
+and exit non-zero, before any other check. In server mode,
+`AGENTDEV_CLAUDE_RC_SPAWN` SHALL select the spawn mode: an unset or `worktree`
+value selects `worktree`, and `same-dir` selects `same-dir`. Any other value
+SHALL make the script print the value and the valid options to stderr, start no
+session, and exit non-zero, before any check other than the mode's. In session
+mode the script SHALL NOT read `AGENTDEV_CLAUDE_RC_SPAWN`. In server mode the
+`claude-remote` session SHALL run `claude remote-control --spawn <spawn mode>`,
+passing `--name` and `--remote-control-session-name-prefix` set to
+`CODER_WORKSPACE_NAME` when it is set, and SHALL neither read nor write the
+stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 
 #### Scenario: server mode is selected
 
 - **WHEN** the script starts `claude-remote` with
-  `AGENTDEV_CLAUDE_RC_MODE=server`
-- **THEN** the session runs `claude remote-control --spawn same-dir` and reaches
+  `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN` unset
+- **THEN** the session runs `claude remote-control --spawn worktree` and reaches
   a connected server with no terminal interaction.
 
-#### Scenario: a conversation is spawned from a device
+#### Scenario: same-dir spawn mode is selected
+
+- **WHEN** the script starts `claude-remote` with
+  `AGENTDEV_CLAUDE_RC_MODE=server` and `AGENTDEV_CLAUDE_RC_SPAWN=same-dir`
+- **THEN** the session runs `claude remote-control --spawn same-dir`.
+
+#### Scenario: a conversation is spawned in worktree mode
 
 - **WHEN** a new conversation is started in the workspace's environment from
-  claude.ai/code or the Claude mobile app
+  claude.ai/code or the Claude mobile app while the server runs in worktree mode
+- **THEN** it runs in its own git worktree under the workspace folder's
+  `.claude/worktrees/` with the environment of the process that ran the script,
+  and `git status` in the workspace folder lists none of its files.
+
+#### Scenario: a conversation is spawned in same-dir mode
+
+- **WHEN** a new conversation is started in the workspace's environment from
+  claude.ai/code or the Claude mobile app while the server runs in same-dir mode
 - **THEN** it runs in the workspace folder with the environment of the process
   that ran the script.
 
@@ -146,11 +168,25 @@ set, and SHALL neither read nor write the stored conversation ID.
 - **THEN** it prints the value and the valid options `server` and `session`,
   starts no session, and exits non-zero.
 
-#### Scenario: the mode changes while a session is live
+#### Scenario: the spawn value is unrecognized in server mode
 
-- **WHEN** the script runs with a different mode while `claude-remote` is live
-- **THEN** it leaves the existing session running, and the new mode applies on
-  the next session start.
+- **WHEN** the script runs with `AGENTDEV_CLAUDE_RC_MODE=server` and
+  `AGENTDEV_CLAUDE_RC_SPAWN` set to a value other than `worktree` or `same-dir`
+- **THEN** it prints the value and the valid options `worktree` and `same-dir`,
+  starts no session, and exits non-zero.
+
+#### Scenario: the spawn value is set in session mode
+
+- **WHEN** the script runs in session mode with `AGENTDEV_CLAUDE_RC_SPAWN` set
+  to any value
+- **THEN** it starts the pinned pane exactly as with the variable unset.
+
+#### Scenario: the mode or spawn mode changes while a session is live
+
+- **WHEN** the script runs with a different mode or spawn mode while
+  `claude-remote` is live
+- **THEN** it leaves the existing session running, and the new setting applies
+  on the next session start.
 
 ### Requirement: Remote Control inherits the Coder agent's environment
 

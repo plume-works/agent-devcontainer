@@ -21,9 +21,6 @@ asked](backlog/standalone-claude-remote-control.md)
 
 ## Medium
 
-[Document VSCodium support for the Expo
-bridge](backlog/document-expo-bridge-vscodium-support.md)
-
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
@@ -38,6 +35,8 @@ pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 
 [Verify that auto-merge waits for an assignee-triggered
 review](backlog/verify-assignee-review-automerge.md)
+
+[Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
 ## Low
 
@@ -54,6 +53,9 @@ trigger](backlog/drop-claude-free-form-task-trigger.md)
 
 [Simplify the pr-* skills for the single review
 workflow](backlog/simplify-pr-skills-single-review-workflow.md)
+
+[Document VSCodium support for the Expo
+bridge](backlog/document-expo-bridge-vscodium-support.md)
 
 [Make the Expo bridge self-explanatory to an
 agent](backlog/expo-bridge-agent-guidance.md)

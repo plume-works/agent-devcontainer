@@ -293,6 +293,7 @@ complete workflow:
 | `iwe-plan`                         | Plan work with verified anchors and risk-scaled specification impact. |
 | `iwe-capture`                      | File complete, deduplicated bugs, proposed features, and tasks.       |
 | `iwe-implement`                    | Execute plans task by task and record evidence.                       |
+| `iwe-branch-name`                  | Name a plan's next implementation or shipping branch.                 |
 | `iwe-verify`                       | Check implementation claims against code and specifications.          |
 | `iwe-ship`                         | Block CRITICAL findings and record released behavior.                 |
 | `iwe-weekly`                       | Summarize project status and graph health.                            |

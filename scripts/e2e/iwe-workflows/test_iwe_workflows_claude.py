@@ -5,8 +5,11 @@ from harness_claude import ClaudeTranscript, run_claude
 import pytest
 from scenarios import (
     APPROVAL,
+    BRANCH_KEY,
+    BRANCH_WORK,
     CLAUDE_BUDGET,
     EXPLORE,
+    FIXTURE_BRANCH,
     GREET_KEY,
     HELLO_KEY,
     mentions,
@@ -72,6 +75,22 @@ def test_implement(base_clone: Clone) -> None:
     )
     assert transcript.calls('Agent') == [], f'nothing dispatched\n{transcript.excerpt("Agent")}'
     assert base_clone.greet_untouched(), f'task unticked, file absent\n{transcript.excerpt()}'
+    assert base_clone.branch() == FIXTURE_BRANCH, (
+        f'stayed on {FIXTURE_BRANCH}\n{transcript.excerpt()}'
+    )
+    assert base_clone.local_branches() == [FIXTURE_BRANCH], (
+        f'no branch added\n{transcript.excerpt()}'
+    )
+
+
+def test_implement_on_main(main_clone: Clone) -> None:
+    """Implement on main names its work branch through iwe-branch-name and pushes it."""
+    transcript = run(main_clone, 'implement-on-main', f'/agentdev:iwe-implement {BRANCH_KEY}')
+    assert main_clone.branch() == BRANCH_WORK, f'on {BRANCH_WORK}\n{transcript.excerpt()}'
+    assert main_clone.remote_has(BRANCH_WORK), f'pushed to origin\n{transcript.excerpt()}'
+    assert 'head:impl/e2e-branch/' in main_clone.gh_calls(), (
+        f'named through iwe-branch-name\n{main_clone.gh_calls()}\n{transcript.excerpt()}'
+    )
 
 
 def test_explore(open_question_clone: Clone) -> None:

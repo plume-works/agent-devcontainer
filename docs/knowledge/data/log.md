@@ -12,6 +12,16 @@ to the current day's group.
   review](backlog/verify-assignee-review-automerge.md).
 - **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
   task trigger](backlog/drop-claude-free-form-task-trigger.md).
+- **Update**: [Configurable Remote Control spawn mode, worktree by
+  default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
+  spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
+  spec; [Remote Control server
+  mode](features/claude-remote-control-server-mode.md) stays implemented and
+  listed under Unreleased Added.
+- **Update**: refreshed the [devcontainer
+  scripts](codebase/devcontainer/scripts.md) map for the Remote Control spawn
+  mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
 
 ## 2026-10-25
 
@@ -22,6 +32,28 @@ to the current day's group.
   its [skills](codebase/agents/plugins/agentdev/skills.md), and its
   [tests](codebase/agents/plugins/agentdev/tests.md) for the removed
   `pr-discover-ai-responder` skill and the new `request-review.sh` script.
+- **Update**: [Expo bridge bun fix upgrades the bun the check
+  runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md) done; no
+  `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.
+- **Update**: [Bug: the Expo bridge's bun fix upgrades a bun the check never
+  runs](bugs/expo-bridge-bun-fix-misses-path-bun.md) fixed; listed under
+  Unreleased Fixed.
+- **Update**: [iwe-branch-name skill](plans/20261020-iwe-branch-name.md) done;
+  new spec [iwe-branch-name](spec/iwe-branch-name.md), and [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now names the Implement work branch
+  `impl/<slug>/iter-<N>`.
+- **Update**: [iwe-branch-name](features/iwe-branch-name.md) implemented; listed
+  under Unreleased Added.
+- **Map**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md), and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) for `iwe-branch-name`'s task
+  headings, empty plans, and `--repo` lookup.
+- **Map**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md), and the [knowledge
+  workspace](codebase/docs/knowledge.md) for the `iwe-branch-name` skill.
 - **Map**: refreshed the [iwe-bootstrap
   skill](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) and the
   [plugin tests](codebase/agents/plugins/agentdev/tests.md) for recovery of a

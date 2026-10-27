@@ -20,6 +20,7 @@ from clone import Clone
 def allowed_tools(clone: Clone) -> list[str]:
     """Return the tools a run may use without a prompt nobody would answer."""
     publish = 'bin/publish-e2e.sh'
+    scripts = '.agents/plugins/agentdev/skills/'
     return [
         'Bash(iwe *)',
         'Bash(git *)',
@@ -28,6 +29,9 @@ def allowed_tools(clone: Clone) -> list[str]:
         f'Bash({publish}*)',
         f'Bash(./{publish}*)',
         f'Bash({clone.path}/{publish}*)',
+        f'Bash({scripts}*)',
+        f'Bash(./{scripts}*)',
+        f'Bash({clone.path}/{scripts}*)',
         'Read',
         'Edit',
         'Write',
@@ -130,6 +134,7 @@ def run_claude(clone: Clone, name: str, prompt: str, budget: float) -> ClaudeTra
         process = subprocess.Popen(
             args,
             cwd=clone.path,
+            env={**os.environ, 'PATH': clone.agent_path(os.environ.get('PATH', ''))},
             stdin=subprocess.DEVNULL,
             stdout=out,
             stderr=err,

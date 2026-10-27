@@ -3,11 +3,12 @@ type: architecture
 description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, one socket per window, the request's workspace folder mapped to its Mac path through Docker, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T10:00:00Z
+  at: 2026-10-25T17:00:00Z
 sources:
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
 - resource: docs/knowledge/data/plans/20261024-expo-bridge-fix-terminal-mac-shell.md
+- resource: docs/knowledge/data/plans/20261025-expo-bridge-bun-fix-resolved-bun.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-fingerprint-reuse.md
 - resource: https://code.visualstudio.com/docs/devcontainers/containers
 - resource: https://github.com/plume-works/vscode-expo-bridge
@@ -237,6 +238,17 @@ simulator processes run with the Mac user's file access.
   otherwise uses the login shell with `-l`. It reads the merged values, as VS
   Code does for every local terminal, so a trusted workspace can choose the Mac
   shell; the fix commands are shell-neutral.
+- The bun fix acts on the bun the check resolved, the first `bun` on the login
+  `PATH`, which is also the one `build` runs: `brew upgrade bun` when its real
+  path is under `/opt/homebrew/Cellar/`, that binary's absolute path with
+  `upgrade` when it is the bun.sh install (`$BUN_INSTALL/bin/bun`, by default
+  `~/.bun/bin/bun`), `brew install oven-sh/bun/bun` when none is found, and no
+  command otherwise. The fix terminal's own `PATH` can name a different bun, so
+  the command carries the absolute path in single quotes; a path containing `'`
+  or `\` gets no command. `bun upgrade` replaces its own executable in place,
+  and a bare `bun` formula name resolves to the installed formula. The resolved
+  path stays on the host, and a bun shadowing a newer one is noted once per pair
+  of paths in the host's `globalState`.
 
 ### Rejected alternatives
 
@@ -291,3 +303,13 @@ simulator processes run with the Mac user's file access.
   Code launches for every other local terminal.
 - **A `Pseudoterminal` running the fix commands** with the login environment —
   it has no pty, so the `sudo` prompts fail.
+- **A bun check that picks the newest or the Homebrew bun** — `build` still runs
+  the first bun on the login `PATH`.
+- **A bare `bun upgrade` in the fix terminal** — the terminal's `PATH` can
+  resolve a different bun.
+- **`bun upgrade` for a Homebrew bun** — it overwrites the Cellar file and
+  leaves Homebrew's version record wrong.
+- **Sending the resolved bun path in the status result** — only the host acts on
+  it, and it would change the protocol.
+- **`homebrew-core`'s `bun` for a fresh install** — `oven-sh/bun/bun` installs
+  bun's own release builds, so its version tracks bun.sh.

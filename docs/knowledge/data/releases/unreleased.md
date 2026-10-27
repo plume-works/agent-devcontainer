@@ -70,6 +70,8 @@ Coder](../features/opencode-web-coder-autostart.md)
 [Automatic CBM indexing for OpenCode
 workspaces](../features/opencode-workspace-cbm-indexing.md)
 
+[iwe-branch-name](../features/iwe-branch-name.md)
+
 [Playwright browser in the development image](../features/playwright-browser.md)
 
 ## Changed
@@ -81,6 +83,9 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 [AI responder workflows](../features/ai-responder-workflows.md)
 
 ## Fixed
+
+[Bug: the Expo bridge's bun fix upgrades a bun the check never
+runs](../bugs/expo-bridge-bun-fix-misses-path-bun.md)
 
 [Bug: the Expo bridge's fix terminal launches the container's shell on the
 Mac](../bugs/expo-bridge-fix-terminal-remote-shell.md)

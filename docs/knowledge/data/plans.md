@@ -20,13 +20,14 @@ moves them.*
 [Assignee-triggered AI re-reviews replace the comment
 trigger](plans/20261026-assignee-review-trigger.md)
 
+[Expo Bridge panel, status bar, and Problems in the workspace
+extension](plans/20261026-expo-bridge-panel.md)
+
 [PR skills drive the AI review lifecycle on the single review
 workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)
 
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
-
-[iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
@@ -41,6 +42,14 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Expo bridge bun fix upgrades the bun the check
+runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
+
+[Configurable Remote Control spawn mode, worktree by
+default](plans/20261025-claude-remote-control-spawn-mode.md)
+
+[iwe-branch-name skill](plans/20261020-iwe-branch-name.md)
 
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
