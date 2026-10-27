@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Update**: recorded [Holding the AI review gate during a
+  re-review](architecture/rereview-gate-pending.md): a separate commit status is
+  the leading candidate, and the marker-commit trigger and a merged
+  review-and-gate job are rejected.
 - **Update**: [PR skills drive the AI review lifecycle on the single review
   workflow](plans/20261023-pr-skills-ai-review-lifecycle.md) done; merged the
   assignee-toggle request and head-check status into the [AI review
