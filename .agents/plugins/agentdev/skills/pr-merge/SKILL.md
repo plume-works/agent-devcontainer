@@ -136,8 +136,8 @@ branch:
 - Every reported CI check has completed successfully. Report external checks
   that cannot be inspected, but do not claim they passed without evidence or
   call the PR merge-ready while one is failing or pending.
-- The `ai-review-present` gate is successful and an accepted Claude or Codex
-  review exists for the PR's current review cycle.
+- The `ai-review-present` gate is successful and an accepted Claude review
+  exists for the PR's current review cycle.
 - The review agent has finished; all of its actionable, unresolved feedback is
   fixed, replied to, and resolved using the feedback-resolution workflow.
 - `gh pr view` reports no remaining merge blocker (for example, a conflict or
@@ -241,9 +241,9 @@ otherwise report the concrete error as a blocker.
 
 ## AI Review Recovery
 
-The `ai-review-present` check accepts a submitted review from Claude or Codex.
-The AI responder workflow runs a pull-request review when an issue comment opens
-with `@claude review`, dispatched on the pull request's head branch: the review's
+The `ai-review-present` check accepts a submitted review from Claude. A review is
+requested by toggling the pull request author's assignment, which starts a
+`pull_request` run of the AI responder workflow: the review's
 `Claude PR Review Responder` check and the `ai-review-present` gate that waits on
 it are filed on the head commit and listed by `gh pr checks`.
 
@@ -260,22 +260,23 @@ it are filed on the head commit and listed by `gh pr checks`.
 
 3. Otherwise request the review through
    [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
-   `request-review.sh` posts the trigger at most once per head SHA. On
-   `ALREADY_REQUESTED`, a trigger for this head exists: confirm it started as
-   that skill describes and wait on the head's checks; never post again. On
+   `request-review.sh` toggles the author's assignment at most once per head
+   SHA. On `ALREADY_REQUESTED`, a responder check already covers this head:
+   confirm it started as that skill describes and wait on the head's checks;
+   never request again. On
    `ALREADY_REVIEWED`, an accepted review already names the head and the failed
-   gate predates it; report that instead of triggering.
+   gate predates it; report that instead of requesting.
 
 4. Wait until the latest `ai-review-present` run on the head completes — it
    finishes in the same run as the review — then refresh both `gh pr checks`
-   and PR reviews. Do not treat a posted comment, a started run, or a pending
+   and PR reviews. Do not treat a toggled assignment, a started run, or a pending
    review as completion.
 5. If the responder publishes actionable feedback, return to the review step
    in the monitoring loop and use `pr-feedback-resolution` to address all of
    it. If it publishes a clean review, the gate passes in that same run.
 6. If the review job ends without a submitted review, the gate fails in that
-   run: inspect its log and report that concrete failure. Do not post the
-   trigger again; require a new head SHA or user direction before retrying.
+   run: inspect its log and report that concrete failure. Do not request it
+   again; require a new head SHA or user direction before retrying.
 
 ## Final Report
 
@@ -292,5 +293,5 @@ evidenced.
   retrieve GitHub Actions logs and uploaded test artifacts.
 - [pr-review](../pr-review/SKILL.md) — automated-review behavior used by the
   AI responder workflow.
-- [pr-request-ai-review](../pr-request-ai-review/SKILL.md) — post the review
-  trigger, at most once per head SHA, and confirm it started.
+- [pr-request-ai-review](../pr-request-ai-review/SKILL.md) — request the
+  review by assignee toggle, at most once per head SHA, and confirm it started.

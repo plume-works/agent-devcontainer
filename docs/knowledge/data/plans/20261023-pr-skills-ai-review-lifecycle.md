@@ -336,11 +336,17 @@ toggle-without-check case — one
     on the head and report a review job that ends without a review;
     `## Related Skills` lists `pr-request-ai-review` instead of
     `pr-discover-ai-responder`; `validate_agent_files` reports no errors.
-- [ ] The `## AI Review Recovery` introduction says the `ai-review-present`
+- [x] The `## AI Review Recovery` introduction says the `ai-review-present`
   check accepts a submitted Claude review, without Codex, and that a review is
   requested by toggling the author's assignment, which runs the review in a
   `pull_request` run whose checks are filed on the head commit; no
   `@claude review` comment remains in `pr-merge/SKILL.md`
+  - **Evidence:** commit "Name the assignee toggle in pr-merge's AI Review
+    Recovery" — the introduction names a Claude review and the toggle's
+    `pull_request` run; the completion criterion and recovery steps 3, 4, and 6
+    drop Codex and the posted trigger; `grep -in '@claude\|codex'` on
+    `pr-merge/SKILL.md` returns nothing; `validate_agent_files` reports 0
+    errors.
 
 ### Task 8: Delete pr-discover-ai-responder
 
@@ -521,7 +527,7 @@ Verified anchor points (line numbers as of 2026-10-27):
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:242` —
   `## AI Review Recovery`
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:244` — introduction naming
-  Codex and the `@claude review` comment
+  the assignee toggle
 - `.agents/plugins/agentdev/skills/pr-merge/SKILL.md:261` — step 3, request
   through `pr-request-ai-review`
 - `.agents/plugins/agentdev/bin/result-codes.sh` — shared result helpers
