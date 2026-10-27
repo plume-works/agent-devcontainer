@@ -14,6 +14,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: scripts/e2e/iwe-workflows/clone.py
+stage: done
+completed: 2026-10-27
 ---
 
 # Let Implement verify, fix, and revise on its own

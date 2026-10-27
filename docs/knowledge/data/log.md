@@ -6,6 +6,16 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Update**: [Let Implement verify, fix, and revise on its
+  own](plans/20261026-autonomous-implement-loop.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now requires Implement to verify its own
+  work, act on the findings, and revise its plan only after an independent
+  evaluation.
+- **Update**: [Autonomous Implement loop](features/autonomous-implement-loop.md)
+  implemented; listed under Unreleased Added.
+- **Update**: [Verification in the main
+  loop](features/verification-in-the-main-loop.md) gained the Implement
+  orchestrator's Verify dispatch; already listed under Unreleased Changed.
 - **Update**: [Run Verify from a fresh
   context](plans/20261026-verify-in-fresh-context.md) done; [IWE workflow
   skills](spec/iwe-workflow-skills.md) now requires every Verify run to start

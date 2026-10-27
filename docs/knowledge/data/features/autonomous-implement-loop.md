@@ -1,6 +1,6 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: Implement runs a fresh-context Verify itself, acts on its findings, and revises its own plan once an independent evaluator approves the revision, leaving the user only the decisions that narrow, drop, or re-word what was agreed.
 generated:
   by: claude-code/opus-5.5
