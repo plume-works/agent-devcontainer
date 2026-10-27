@@ -17,6 +17,8 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
+stage: done
+completed: 2026-10-27
 ---
 
 # PR skills drive the AI review lifecycle on the single review workflow

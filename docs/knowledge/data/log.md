@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Update**: [PR skills drive the AI review lifecycle on the single review
+  workflow](plans/20261023-pr-skills-ai-review-lifecycle.md) done; merged the
+  assignee-toggle request and head-check status into the [AI review
+  refresh](spec/ai-review-refresh.md) spec; [Bug: PR updates skip the re-review
+  evaluation](bugs/pr-update-skips-review-eval.md) fixed and listed under
+  Unreleased Fixed.
 - **Update**: [Assignee-triggered AI re-reviews replace the comment
   trigger](plans/20261026-assignee-review-trigger.md) done; merged the assignee
   re-review trigger and the `@claude review` rejection into the [AI review

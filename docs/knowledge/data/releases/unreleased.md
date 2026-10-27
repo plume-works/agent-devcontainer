@@ -137,3 +137,6 @@ bug](../bugs/ship-release-link-without-feature.md)
 
 [Bug: a comment-requested review's gate does not count toward
 merge](../bugs/dispatched-review-gate-not-counted.md)
+
+[Bug: PR updates skip the re-review
+evaluation](../bugs/pr-update-skips-review-eval.md)
