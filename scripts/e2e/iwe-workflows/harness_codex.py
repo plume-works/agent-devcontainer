@@ -187,9 +187,13 @@ class CodexTranscript:
         """Return how many agents of the catalog type ``agent`` were spawned."""
         return sum(1 for spawn in self.spawns() if spawn.get('agent_type') == agent)
 
-    def fresh_spawns(self) -> bool:
-        """Whether every spawn started with no conversation."""
-        return all(spawn.get('fork_turns') == 'none' for spawn in self.spawns())
+    def fresh_spawns(self, agent: str | None = None) -> bool:
+        """Whether every spawn, or every spawn of the catalog type ``agent``, had no conversation."""
+        return all(
+            spawn.get('fork_turns') == 'none'
+            for spawn in self.spawns()
+            if agent is None or spawn.get('agent_type') == agent
+        )
 
     def ran_publish(self) -> bool:
         """Whether the orchestrator or any agent it spawned executed ``bin/publish-e2e.sh``."""
