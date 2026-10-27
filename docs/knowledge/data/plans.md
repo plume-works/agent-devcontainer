@@ -46,6 +46,11 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Let Implement verify, fix, and revise on its
+own](plans/20261026-autonomous-implement-loop.md)
+
+[Run Verify from a fresh context](plans/20261026-verify-in-fresh-context.md)
+
 [Expo bridge bun fix upgrades the bun the check
 runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
 

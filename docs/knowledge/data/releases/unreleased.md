@@ -74,7 +74,11 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 [Playwright browser in the development image](../features/playwright-browser.md)
 
+[Autonomous Implement loop](../features/autonomous-implement-loop.md)
+
 ## Changed
+
+[Verification in the main loop](../features/verification-in-the-main-loop.md)
 
 [Reusable IWE bootstrap](../features/consumer-iwe-seed.md)
 

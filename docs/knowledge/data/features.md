@@ -115,3 +115,5 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 
 [Remote Control autostart in the standalone
 runtime](features/standalone-remote-control-autostart.md)
+
+[Autonomous Implement loop](features/autonomous-implement-loop.md)

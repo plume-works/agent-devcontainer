@@ -54,6 +54,11 @@ flaky](backlog/supervision-orphan-kill-test-cause.md)
 [Start Claude Remote Control in the standalone runtime when
 asked](backlog/standalone-claude-remote-control.md)
 
+[Let Implement verify, fix, and revise on its
+own](backlog/autonomous-implement-loop.md)
+
+[Run Verify from a fresh context](backlog/verify-in-fresh-context.md)
+
 [Simplify the pr-* skills for the single review
 workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 

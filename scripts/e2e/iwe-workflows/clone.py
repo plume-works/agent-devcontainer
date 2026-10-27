@@ -3,8 +3,13 @@ The fixture repository and the per-test clones the IWE workflow suite runs in.
 
 The fixture repository is built once per worker from ``HEAD``: every active plan
 cancelled, the fixture plans committed as ``base``, and the open-question edit
-committed on top as ``open_question``. Each test gets its own clone of it; a
-main clone also gets ``main``, a bare ``origin`` beside it, and a stub ``gh``.
+committed on top as ``open_question``, and, on a branch from ``base``, every
+fixture plan but the loop plan cancelled as ``loop_only``, and, on another,
+the catalog's revision evaluator replaced by a stub that rejects every revision
+as ``stub_evaluator``, and, on a third, the planner replaced by a stub that
+always drafts the revise plan's narrowing as ``stub_planner``. Each test gets
+its own clone of it; a main clone also gets ``main``, a bare ``origin`` beside
+it, and a stub ``gh``.
 """
 
 from dataclasses import dataclass
@@ -19,19 +24,36 @@ DATA = 'docs/knowledge/data'
 HELLO = f'{DATA}/plans/20261008-e2e-hello.md'
 GREET = f'{DATA}/plans/20261008-e2e-greet.md'
 BRANCH = f'{DATA}/plans/20261025-e2e-branch.md'
+LOOP = f'{DATA}/plans/20261026-e2e-loop.md'
+REVISE = f'{DATA}/plans/20261026-e2e-revise.md'
+CONFLICT = f'{DATA}/plans/20261027-e2e-conflict.md'
+EVALUATOR_AGENT = '.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md'
+PLANNER_AGENT = '.agents/plugins/agentdev/agents/iwe-planner.agent.md'
 UNRELEASED = f'{DATA}/releases/unreleased.md'
 FIXTURE_PLANS = (
     'plans/20261008-e2e-hello.md',
     'plans/20261008-e2e-greet.md',
     'plans/20261025-e2e-branch.md',
+    'plans/20261026-e2e-loop.md',
+    'plans/20261026-e2e-revise.md',
+    'plans/20261027-e2e-conflict.md',
 )
 MARKER = 'published.marker'
 GREET_TASK = re.compile(r'^- \[ \] Write `e2e/greet\.txt`', re.MULTILINE)
+TICKED_WITH_EVIDENCE = re.compile(
+    r'^- \[x\] .*\n(?:  .*\n)*?  - \*\*Evidence:\*\* \S', re.MULTILINE
+)
+TASK_HEADING = re.compile(r'^### Task \d+', re.MULTILINE)
+# The sections that state a plan's intent; ticks, evidence, and results live elsewhere.
+INTENT_SECTIONS = ('## Approach', '## Spec changes', '## Verification', '## Out of scope')
 _HUB_LINK = re.compile(r'^\[.*\]\((plans/[^)]*\.md)\)$')
 _ACTIVE_LINKS = (
     '[E2E hello fixture](plans/20261008-e2e-hello.md)',
     '[E2E greet fixture](plans/20261008-e2e-greet.md)',
     '[E2E branch fixture](plans/20261025-e2e-branch.md)',
+    '[E2E loop fixture](plans/20261026-e2e-loop.md)',
+    '[E2E revise fixture](plans/20261026-e2e-revise.md)',
+    '[E2E conflict fixture](plans/20261027-e2e-conflict.md)',
 )
 _AUTHOR = ('-c', 'user.name=e2e', '-c', 'user.email=e2e@example.invalid')
 
@@ -89,10 +111,13 @@ class FixtureRepo:
     path: Path
     base: str
     open_question: str
+    loop_only: str
+    stub_evaluator: str
+    stub_planner: str
 
 
-def cancel_active_plans(data: Path) -> list[str]:
-    """Move every ``## Active`` plan to ``## Cancelled`` and mark it cancelled."""
+def cancel_active_plans(data: Path, keep: tuple[str, ...] = ()) -> list[str]:
+    """Cancel every ``## Active`` plan except those in ``keep``."""
     hub = data / 'plans.md'
     # iwe normalize wraps long link titles over several lines, so match paragraphs.
     paragraphs = [p for p in re.split(r'\n[ \t]*\n', hub.read_text().strip('\n')) if p]
@@ -101,7 +126,7 @@ def cancel_active_plans(data: Path) -> list[str]:
         if paragraph.startswith('## '):
             section = paragraph
         link = _HUB_LINK.match(paragraph.replace('\n', ' '))
-        if section == '## Active' and link:
+        if section == '## Active' and link and link.group(1) not in keep:
             keys.append(link.group(1))
             moved.append(paragraph.replace('\n', ' '))
             continue
@@ -148,6 +173,9 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-hello.md', path / HELLO)
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-greet.md', path / GREET)
     shutil.copy2(FIXTURES / 'plans/20261025-e2e-branch.md', path / BRANCH)
+    shutil.copy2(FIXTURES / 'plans/20261026-e2e-loop.md', path / LOOP)
+    shutil.copy2(FIXTURES / 'plans/20261026-e2e-revise.md', path / REVISE)
+    shutil.copy2(FIXTURES / 'plans/20261027-e2e-conflict.md', path / CONFLICT)
     _activate_fixtures(data)
     repo.iwe_check()
     base = repo.commit_all('e2e fixtures')
@@ -155,7 +183,40 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copy2(FIXTURES / 'plans/20261008-e2e-hello.open-question.md', path / HELLO)
     repo.iwe_check()
     open_question = repo.commit_all('e2e: open question')
-    return FixtureRepo(path=path, base=base, open_question=open_question)
+
+    repo.git('checkout', '-q', '-b', 'e2e-loop-only', base)
+    cancel_active_plans(data, keep=('plans/20261026-e2e-loop.md',))
+    repo.iwe_check()
+    loop_only = repo.commit_all('e2e: only the loop plan active')
+
+    repo.git('checkout', '-q', '-b', 'e2e-stub-evaluator', base)
+    shutil.copy2(FIXTURES / 'agents/iwe-revision-evaluator.stub.md', path / EVALUATOR_AGENT)
+    stub_evaluator = repo.commit_all('e2e: stub evaluator rejects every revision')
+
+    repo.git('checkout', '-q', '-b', 'e2e-stub-planner', base)
+    shutil.copy2(FIXTURES / 'agents/iwe-planner.narrowing-stub.md', path / PLANNER_AGENT)
+    shutil.copy2(FIXTURES / 'e2e/revise.narrowed.md', path / 'e2e')
+    stub_planner = repo.commit_all('e2e: stub planner drafts the narrowing')
+    repo.git('checkout', '-q', 'e2e-fixture')
+    return FixtureRepo(
+        path=path,
+        base=base,
+        open_question=open_question,
+        loop_only=loop_only,
+        stub_evaluator=stub_evaluator,
+        stub_planner=stub_planner,
+    )
+
+
+def plan_intent(text: str) -> tuple[list[str], dict[str, str]]:
+    """Return a plan's task headings and the text of each of its intent sections."""
+    sections = {}
+    for heading in INTENT_SECTIONS:
+        found = re.search(
+            rf'^{re.escape(heading)}\n(.*?)(?=^## |\Z)', text, re.MULTILINE | re.DOTALL
+        )
+        sections[heading] = found.group(1).strip() if found else ''
+    return TASK_HEADING.findall(text), sections
 
 
 class Clone(Repo):
@@ -223,6 +284,48 @@ class Clone(Repo):
     def unreleased_diff(self) -> str:
         """Return the release accumulator's diff against ``base``; empty when unchanged."""
         return self.git('diff', self.base, '--', UNRELEASED)
+
+    def loop_done(self) -> bool:
+        """Whether the loop task is ticked with an evidence line and its file holds ``loop``."""
+        ticked = TICKED_WITH_EVIDENCE.search((self.path / LOOP).read_text()) is not None
+        written = self.path / 'e2e/loop.txt'
+        return ticked and written.exists() and written.read_text().strip() == 'loop'
+
+    def revise_tasks_committed(self) -> tuple[int, int]:
+        """Return the revise plan's task count at ``base`` and at ``HEAD``."""
+        before = self.git('show', f'{self.base}:{REVISE}')
+        after = self.git('show', f'HEAD:{REVISE}')
+        return len(TASK_HEADING.findall(before)), len(TASK_HEADING.findall(after))
+
+    def revise_files(self) -> bool:
+        """Whether both files the revise fixture's spec outcome names exist."""
+        return all(
+            (self.path / f'e2e/{name}').exists() for name in ('revise.txt', 'revise-notes.txt')
+        )
+
+    def draft_revision(self, variant: str) -> None:
+        """Copy the revise plan's ``variant`` fixture over it, uncommitted, as a draft."""
+        shutil.copy2(FIXTURES / f'plans/20261026-e2e-revise.{variant}.md', self.path / REVISE)
+
+    def revision_kept(self, variant: str) -> bool:
+        """Whether the revise plan still holds the ``variant`` draft, unrestored and unedited."""
+        draft = (FIXTURES / f'plans/20261026-e2e-revise.{variant}.md').read_text()
+        return (self.path / REVISE).read_text() == draft
+
+    def intent_kept(self, plan: str) -> bool:
+        """Whether ``plan``'s intent at ``HEAD`` matches ``base``, with no uncommitted edit."""
+        before = plan_intent(self.git('show', f'{self.base}:{plan}'))
+        after = plan_intent(self.git('show', f'HEAD:{plan}'))
+        return before == after and self.git('status', '--porcelain', '--', plan) == ''
+
+    def conflict_text(self) -> str | None:
+        """Return the conflict fixture's file, stripped, or ``None`` when it was never written."""
+        written = self.path / 'e2e/conflict.txt'
+        return written.read_text().strip() if written.exists() else None
+
+    def revise_notes_written(self) -> bool:
+        """Whether the file no task of the revise fixture writes exists."""
+        return (self.path / 'e2e/revise-notes.txt').exists()
 
     def greet_untouched(self) -> bool:
         """Whether the greet task is still unticked and its file still absent."""

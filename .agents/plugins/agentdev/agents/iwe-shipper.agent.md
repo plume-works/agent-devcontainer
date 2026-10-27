@@ -69,8 +69,10 @@ needed. In particular:
    happened. Run `iwe normalize` and `iwe schema validate`, commit the
    cancellation, report it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
-   `/agentdev:iwe-verify` workflow for the selected plan, including its named
-   verification commands and evidence checks. A command with effects beyond
+   `/agentdev:iwe-verify` skill for the selected plan and take its route for a
+   caller inside `iwe-shipper`: follow the `iwe-verifier` rulebook in your own
+   context, including its named verification commands and evidence checks, and
+   never dispatch an agent. A command with effects beyond
    the working tree runs only under a quoted approval that names it; otherwise
    stop as above. If the report contains any CRITICAL finding, make no shipping
    state transition and return a **Ship blocker report** (below); there is no
