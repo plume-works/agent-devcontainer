@@ -830,3 +830,75 @@ def test_clean_stop_is_bounded(ready_runtime: Runtime):
     assert elapsed < 90
     stops = [line for line in ready_runtime.logs().splitlines() if 'INFO stopped:' in line]
     assert stops and 'dockerd' in stops[-1]
+
+
+# Stands in for claude: `auth status` reads a fake login, `remote-control` stays up.
+FAKE_CLAUDE = """#!/usr/bin/env bash
+case "${1:-}" in
+  auth)
+    if grep -qs fake-claude-ai "$CLAUDE_SECURESTORAGE_CONFIG_DIR/.credentials.json"; then
+      echo '{"loggedIn": true, "authMethod": "claude.ai"}'
+    else
+      echo '{"loggedIn": false}'
+      exit 1
+    fi
+    ;;
+  remote-control) echo "$PWD $*" > /tmp/fake-claude.args; exec sleep infinity ;;
+esac
+"""
+CLAUDE_REMOTE = 'tmux -L claude-remote has-session -t =claude-remote'
+
+
+def fake_claude(scratch: Path) -> list[str]:
+    fake = scratch / 'claude'
+    fake.write_text(FAKE_CLAUDE)
+    fake.chmod(0o755)
+    return ['-v', f'{fake}:/usr/local/bin/claude:ro']
+
+
+def wait_until(check: Callable[[], bool], timeout: float = 60) -> None:
+    deadline = time.monotonic() + timeout
+    while not check():
+        assert time.monotonic() < deadline, 'condition not met in time'
+        time.sleep(0.5)
+
+
+def test_remote_control_is_off_without_a_mode(make_runtime, scratch: Path):
+    runtime = make_runtime(workspace=bind(make_checkout(scratch)), options=fake_claude(scratch))
+    runtime.run()
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+    runtime.sh('echo fake-claude-ai > "$CLAUDE_SECURESTORAGE_CONFIG_DIR/.credentials.json"')
+    time.sleep(5)
+    assert runtime.sh(CLAUDE_REMOTE, check=False).returncode != 0
+    assert 'remote-control' not in runtime.runtime()['components']
+    status = docker('exec', runtime.name, f'{RUNTIME}/runtime-health.sh', 'status')
+    assert 'remote-control' not in status.stdout
+
+
+def test_remote_control_waits_for_a_login_then_starts_and_comes_back(make_runtime, scratch: Path):
+    runtime = make_runtime(
+        workspace=bind(make_checkout(scratch)),
+        options=fake_claude(scratch),
+        AGENTDEV_CLAUDE_RC_MODE='server',
+    )
+    runtime.run()
+    assert runtime.wait() == 'ready', runtime.logs()[-4000:]
+
+    def status() -> str:
+        return docker(
+            'exec', runtime.name, f'{RUNTIME}/runtime-health.sh', 'status', check=False
+        ).stdout
+
+    wait_until(lambda: 'remote-control: waiting for a claude.ai login' in status())
+    assert runtime.sh(CLAUDE_REMOTE, check=False).returncode != 0
+
+    runtime.sh('echo fake-claude-ai > "$CLAUDE_SECURESTORAGE_CONFIG_DIR/.credentials.json"')
+    wait_until(lambda: runtime.sh(CLAUDE_REMOTE, check=False).returncode == 0)
+    args = runtime.sh('cat /tmp/fake-claude.args').stdout
+    assert args.startswith(f'{WORKSPACE} remote-control --spawn worktree'), args
+    wait_until(lambda: 'remote-control: running in tmux session claude-remote' in status())
+    assert runtime.state() == 'ready'
+
+    runtime.sh('tmux -L claude-remote kill-session -t =claude-remote')
+    wait_until(lambda: runtime.sh(CLAUDE_REMOTE, check=False).returncode == 0)
+    wait_until(lambda: runtime.state() == 'ready')

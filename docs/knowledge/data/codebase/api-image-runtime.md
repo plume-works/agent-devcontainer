@@ -6,14 +6,14 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:28c9567a0ec3135a9e848fd596c5228ca98f57eb78ac6b71ee78f5dd4464c6d5
+source_digest: sha256:53674bcf86ff3d7e7151ea1c7a683225400e7d3773250289a4292736da27b787
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
-stale_after: 2027-01-22
+  at: 2026-10-27T17:00:00Z
+stale_after: 2027-01-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  at: 2026-10-27T17:00:00Z
 sources:
 - id: code
   resource: docker
@@ -95,9 +95,10 @@ supported deployment is the root `compose.opencode.yml`.
 | `AGENTDEV_RECOVERY_ATTEMPTS`, `AGENTDEV_PROBE_FAILURES`, `AGENTDEV_STOP_TIMEOUT`        | positive integers: 3 attempts, 2 failed probes, 30 s stop                                                                                                                         |
 | `AGENTDEV_RECOVERY_BACKOFF`, `AGENTDEV_HEALTHY_RESET`, `AGENTDEV_SERVICE_START_TIMEOUT` | positive seconds: backoff doubling from 1, reset after 60 healthy, 60 to first readiness                                                                                          |
 | `AGENTDEV_BOOTSTRAP_TIMEOUT`, `AGENTDEV_PREPARE_TIMEOUT`, `AGENTDEV_HEALTH_INTERVAL`    | positive seconds: 1800 for the bootstrap, 1800 per preparation step, 2 between controller checks                                                                                  |
+| `AGENTDEV_CLAUDE_RC_MODE`, `AGENTDEV_CLAUDE_RC_SPAWN`                                   | `session` or `server` adds the `remote-control` component, empty leaves it out; in server mode the spawn mode is `worktree` (or empty) or `same-dir`                              |
 
 Any other spelling or a non-positive value latches a configuration failure
-naming the variable — `.devcontainer/scripts/runtime-supervisor.py:78`, `:138`.
+naming the variable — `.devcontainer/scripts/runtime-supervisor.py:78`, `:147`.
 `docker exec` sessions see the same `DISPLAY`, `DOCKER_HOST`, `XDG_RUNTIME_DIR`,
 and `DBUS_SESSION_BUS_ADDRESS` as OpenCode's tools.
 
@@ -106,24 +107,24 @@ Operator surface, all through `docker exec`:
 - `/run/agentdev/state.json` — `state` (`pending`, `ready`, `degraded`,
   `failed`), `latched`, each component's `status` and `reason`, and a
   `heartbeat` refreshed every interval —
-  `.devcontainer/scripts/runtime-supervisor.py:351`.
+  `.devcontainer/scripts/runtime-supervisor.py:369`.
 - `runtime-health.sh ready` passes only with a heartbeat under three intervals
   old, state `ready`, and passing `dbus`, `keyring`, and `opencode` probes;
   `runtime-health.sh status` prints the state, each failed or blocked component
-  with its retry command, and the last failure —
-  `.devcontainer/scripts/runtime-health.sh:48`, `:58`.
+  with its retry command, what `remote-control` is doing when it runs, and the
+  last failure — `.devcontainer/scripts/runtime-health.sh:49`, `:59`.
 - `~/.local/state/agentdev/last-failure.json` on the home volume — startup ID,
   component, reason, command, exit status, at most 200 output lines from the
   attempt that failed, UTC time; only a later failure replaces it —
-  `.devcontainer/scripts/runtime-supervisor.py:387`.
+  `.devcontainer/scripts/runtime-supervisor.py:405`.
 - `runtime-supervisor.py retry [component]` — resumes a latched runtime, or
   reruns one failed component, restarts the serving clients that read it, and
   exits `0` when it succeeded —
-  `.devcontainer/scripts/runtime-supervisor.py:955`.
+  `.devcontainer/scripts/runtime-supervisor.py:973`.
 
 A failed bootstrap, configuration check, core phase, or core service latches the
 runtime with PID 1 running; the container exits nonzero only when the controller
-or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:784`.
+or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:802`.
 
 ## Guarantees
 

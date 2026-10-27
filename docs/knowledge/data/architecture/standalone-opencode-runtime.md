@@ -3,7 +3,7 @@ type: architecture
 description: agent-opencode runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:45:57Z
+  at: 2026-10-27T15:00:00Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -20,6 +20,7 @@ sources:
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: compose.opencode.yml
 - resource: scripts/tests/test_agent_runtime_acceptance.py
+- resource: .devcontainer/scripts/runtime-remote-control.sh
 ---
 
 # Standalone OpenCode runtime
@@ -131,6 +132,8 @@ optional:
 - `xpra` launches together with `opencode`, and neither waits for the other.
 - `dockerd`, the `prune` image prune, the `project` one-shot (uv sync and
   pre-commit hook registration), and the `index` request follow OpenCode.
+- `remote-control`, present only when `AGENTDEV_CLAUDE_RC_MODE` is set, follows
+  `prepare` (see [Remote Control watcher](#remote-control-watcher)).
 
 An optional failure marks the runtime `degraded`, and OpenCode keeps serving. A
 component whose dependency failed is `blocked` until that dependency is retried.
@@ -205,6 +208,31 @@ controller or supervisord fails, which leaves the restart policy for crashes.
   exhausted probe budget leaves the process running.
 - Services already up stay watched while a one-shot phase runs, so a crash
   during a long uv sync recovers without waiting for the phase.
+
+## Remote Control watcher
+
+Claude Remote Control is opt-in through `AGENTDEV_CLAUDE_RC_MODE`, and PID 1
+owns the gate: `claude-remote-control-start.sh` reads an unset mode as
+`session`, so it cannot tell "off" from the default. Without a mode, the
+component is not configured at all.
+
+The component is a long-running watcher, `runtime-remote-control.sh run`, not a
+one-shot, because the usual first start has no claude.ai login yet. It re-runs
+`claude auth status` only when the credential file's inode, mtime, or size
+changes, which a login, a refresh, and an expiry all cause, so an idle wait
+costs one `stat` per interval. Without a login it reports waiting in
+`$XDG_RUNTIME_DIR/remote-control.status`, which `runtime-health.sh status`
+prints, and stays ready. With one, it runs the start script, which keeps Remote
+Control on its own `tmux -L claude-remote` server as on Coder. That tmux server
+daemonizes outside the watcher's process group, so a restarted watcher adopts
+the live session instead of starting a second one. When a session it saw is gone
+while the login holds, the watcher exits, and the controller's recovery budget,
+not a loop of its own, bounds how often Remote Control restarts.
+
+Two alternatives were rejected. A one-shot whose "no login" skip waits for a
+manual retry or the next container start needs an operator step after the first
+`/login`, and nothing would restart a session that exits. Running
+`claude auth status` on every interval starts a Claude process each time.
 
 ## Shutdown
 
