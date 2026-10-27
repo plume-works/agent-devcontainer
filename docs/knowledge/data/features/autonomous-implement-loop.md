@@ -62,7 +62,8 @@ narrows, drops, or re-words what they agreed to.
   - changes `release`;
   - changes text the user approved.
 
-  These wait for the user, as a material deviation does today.
+  These wait for the user's direction, as `iwe-implementer` Step 7's
+  always-escalate route requires.
 
 - **Bounds.** The run stops when a finding comes back after a fix attempt. It
   also stops after 3 Verify rounds or 1 approved revision, whichever comes

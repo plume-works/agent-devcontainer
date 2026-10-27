@@ -39,8 +39,7 @@ bump is the point at which to recheck them.
   therefore has to ask for no forwarded turns explicitly; a role defined as
   conversation-free is not enough on its own. Each rollout's `session_meta`
   records `thread_spawn.depth` and `parent_thread_id`. Agents in the user's
-  `~/.codex/agents/` are listed as `agent_type` values; a `.codex/agents/` in a
-  scratch repository outside the trusted project was not.
+  `~/.codex/agents/` are listed as `agent_type` values.
 - **OpenCode.** At the default depth a nested `task` call fails with "Subagent
   depth limit reached (1). Increase "experimental.subagent_depth" to allow
   nested subagents." The key is experimental, so a design that needs it takes on

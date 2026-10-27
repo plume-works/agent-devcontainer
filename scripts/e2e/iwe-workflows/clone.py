@@ -7,8 +7,9 @@ committed on top as ``open_question``, and, on a branch from ``base``, every
 fixture plan but the loop plan cancelled as ``loop_only``, and, on another,
 the catalog's revision evaluator replaced by a stub that rejects every revision
 as ``stub_evaluator``, and, on a third, the planner replaced by a stub that
-always drafts the revise plan's narrowing as ``stub_planner``. Each test gets its own clone of it; a
-main clone also gets ``main``, a bare ``origin`` beside it, and a stub ``gh``.
+always drafts the revise plan's narrowing as ``stub_planner``. Each test gets
+its own clone of it; a main clone also gets ``main``, a bare ``origin`` beside
+it, and a stub ``gh``.
 """
 
 from dataclasses import dataclass
@@ -116,7 +117,7 @@ class FixtureRepo:
 
 
 def cancel_active_plans(data: Path, keep: tuple[str, ...] = ()) -> list[str]:
-    """Move every ``## Active`` plan but those in ``keep`` to ``## Cancelled``, marked cancelled."""
+    """Cancel every ``## Active`` plan except those in ``keep``."""
     hub = data / 'plans.md'
     # iwe normalize wraps long link titles over several lines, so match paragraphs.
     paragraphs = [p for p in re.split(r'\n[ \t]*\n', hub.read_text().strip('\n')) if p]
@@ -303,7 +304,7 @@ class Clone(Repo):
         )
 
     def draft_revision(self, variant: str) -> None:
-        """Leave the revise plan's ``variant`` fixture uncommitted over it, as a drafted revision."""
+        """Copy the revise plan's ``variant`` fixture over it, uncommitted, as a draft."""
         shutil.copy2(FIXTURES / f'plans/20261026-e2e-revise.{variant}.md', self.path / REVISE)
 
     def revision_kept(self, variant: str) -> bool:
@@ -312,7 +313,7 @@ class Clone(Repo):
         return (self.path / REVISE).read_text() == draft
 
     def intent_kept(self, plan: str) -> bool:
-        """Whether ``plan``'s intent at ``HEAD`` matches ``base`` and no uncommitted edit remains."""
+        """Whether ``plan``'s intent at ``HEAD`` matches ``base``, with no uncommitted edit."""
         before = plan_intent(self.git('show', f'{self.base}:{plan}'))
         after = plan_intent(self.git('show', f'HEAD:{plan}'))
         return before == after and self.git('status', '--porcelain', '--', plan) == ''

@@ -90,6 +90,14 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return events
 
 
+def _spawn_calls(rollout: Path) -> list[dict[str, Any]]:
+    return [
+        json.loads(payload.get('arguments') or '{}')
+        for payload in (event.get('payload') or {} for event in _read_jsonl(rollout))
+        if payload.get('type') == 'function_call' and payload.get('name') == 'spawn_agent'
+    ]
+
+
 def _publishes(rollouts: list[Path]) -> bool:
     return any(
         PUBLISH_COMMAND.search(line) for path in rollouts for line in path.read_text().splitlines()
@@ -137,6 +145,30 @@ class CodexTranscript:
         needle = f'"parent_thread_id":"{thread}"'
         return [p for p in sorted(self.sessions.rglob('*.jsonl')) if needle in p.read_text()]
 
+    def descendants(self) -> list[Path]:
+        """Return the rollouts of every agent this run spawned, at any depth."""
+        thread = self.thread()
+        if not thread:
+            return []
+        parents: dict[str, tuple[str, Path]] = {}
+        for path in sorted(self.sessions.rglob('*.jsonl')):
+            with path.open() as rollout:
+                first = rollout.readline()
+            try:
+                meta = json.loads(first).get('payload') or {}
+            except json.JSONDecodeError:
+                continue
+            if meta.get('parent_thread_id') and meta.get('id'):
+                parents[meta['id']] = (meta['parent_thread_id'], path)
+        found, frontier = [], {thread}
+        while frontier:
+            level = [
+                (child, path) for child, (parent, path) in parents.items() if parent in frontier
+            ]
+            found.extend(path for _, path in level)
+            frontier = {child for child, _ in level}
+        return found
+
     def _payloads(self) -> list[dict[str, Any]]:
         rollout = self.rollout()
         if rollout is None:
@@ -144,12 +176,9 @@ class CodexTranscript:
         return [event.get('payload') or {} for event in _read_jsonl(rollout)]
 
     def spawns(self) -> list[dict[str, Any]]:
-        """Return the arguments of every ``spawn_agent`` call."""
-        return [
-            json.loads(payload.get('arguments') or '{}')
-            for payload in self._payloads()
-            if payload.get('type') == 'function_call' and payload.get('name') == 'spawn_agent'
-        ]
+        """Return the arguments of every ``spawn_agent`` call the orchestrator made."""
+        rollout = self.rollout()
+        return _spawn_calls(rollout) if rollout else []
 
     def commands(self) -> list[str]:
         """Return every shell command the orchestrator ran, as a finished command or a call."""
@@ -184,11 +213,12 @@ class CodexTranscript:
         return results
 
     def agent_spawns(self, agent: str) -> int:
-        """Return how many agents of the catalog type ``agent`` were spawned."""
-        return sum(1 for spawn in self.spawns() if spawn.get('agent_type') == agent)
+        """Return how many agents of the catalog type ``agent`` were spawned, at any depth."""
+        calls = self.spawns() + [s for path in self.descendants() for s in _spawn_calls(path)]
+        return sum(1 for spawn in calls if spawn.get('agent_type') == agent)
 
     def fresh_spawns(self, agent: str | None = None) -> bool:
-        """Whether every spawn, or every spawn of the catalog type ``agent``, had no conversation."""
+        """Whether every orchestrator spawn, or each one of type ``agent``, had no conversation."""
         return all(
             spawn.get('fork_turns') == 'none'
             for spawn in self.spawns()
