@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# The standalone runtime's Remote Control watcher: waits for a claude.ai login, starts
-# claude-remote, and exits once a session it saw is gone, so the controller's recovery
-# budget restarts it. Spec: claude-remote-control.
+# Waits for a claude.ai login, starts claude-remote, and exits once a session it saw is
+# gone, so the controller's recovery budget restarts it. Spec: claude-remote-control.
 # Usage: runtime-remote-control.sh run|check
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -2,14 +2,14 @@
 type: codebase
 description: The postCreate, postStart, and postAttach hooks and the helpers they call — agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall gate, auth links and full-access policies, gh credential helper, the Coder agent-start entry point, Remote Control, the OpenCode web UI — plus the standalone agent-opencode runtime built from the same helpers.
 source: .devcontainer/scripts
-source_digest: sha256:1cd92f0d91fa74640ff8419099a64ff3389b23c19fe71e2d55b38f34a6924651
+source_digest: sha256:b749f9884dfa2568cf2782d8d194fbdf8ef199564b28a5efbda4bb82fe01a0c3
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-27T17:00:00Z
+  at: 2026-10-27T19:00:00Z
 stale_after: 2027-01-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T17:00:00Z
+  at: 2026-10-27T19:00:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -195,7 +195,7 @@ Verified anchor points (line numbers as of 2026-10-27):
 - `.devcontainer/scripts/setup-keyring.sh:32` — session file location
 - `.devcontainer/scripts/runtime-supervisor.py:873` — `run`; `:823` —
   `preflight`; `:943` — `exec`; `:973` — `retry`; `:259` — `SERVICES`
-- `.devcontainer/scripts/runtime-remote-control.sh:32` — `cmd_run`
+- `.devcontainer/scripts/runtime-remote-control.sh:31` — `cmd_run`
 - `.devcontainer/scripts/runtime-bootstrap.sh:93` — `claim_instance_dir`; `:123`
   — `prepare_shared_auth`; `:169` — firewall last
 - `.devcontainer/scripts/runtime-workspace.sh:27` — `validate_checkout`; `:41` —
