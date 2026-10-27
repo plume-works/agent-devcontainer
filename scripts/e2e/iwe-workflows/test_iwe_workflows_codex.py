@@ -207,9 +207,7 @@ def test_implement_all(codex_loop_only_clone: Clone) -> None:
     )
     assert transcript.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{transcript.spawns()}'
     assert transcript.agent_spawns(EVALUATOR) == 0, f'no evaluator\n{transcript.spawns()}'
-    assert transcript.fresh_spawns(VERIFIER), (
-        f'the verifier spawn forwards no turns\n{transcript.spawns()}'
-    )
+    assert transcript.fresh_spawns(), f'every spawn forwards no turns\n{transcript.spawns()}'
     assert clone.loop_done(), f'task ticked with evidence, file written\n{transcript.excerpt()}'
 
 
