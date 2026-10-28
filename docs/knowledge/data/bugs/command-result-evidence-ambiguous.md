@@ -51,8 +51,8 @@ the same line the other way.
 
 Reasoning effort does not settle it. With `gpt-5.6-sol`, the first Verify of a
 plan rejected the line in 2 of 4 plan runs at `low` effort and 2 of 6 at
-`medium`, which `E2E_CODEX_REASONING_EFFORT=medium` selects. At both efforts the
-implementer's first evidence line cited the check alone.
+`medium`. At both efforts the implementer's first evidence line cited the check
+alone.
 
 ## Root cause
 
