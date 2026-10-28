@@ -4,6 +4,17 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-28
+
+- **Update**: [Ship a standalone OpenCode
+  container](plans/20261017-standalone-opencode-container.md) done; created the
+  [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md) and [CBM
+  startup integration](spec/cbm-startup-integration.md) specs and merged the
+  standalone requirements into [Catalog lifecycle](spec/catalog-lifecycle.md)
+  and [Image pinning](spec/image-pinning.md); [Standalone OpenCode
+  container](features/standalone-opencode-container.md) implemented and listed
+  under Unreleased Added.
+
 ## 2026-10-27
 
 - **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for

@@ -26,9 +26,6 @@ extension](plans/20261026-expo-bridge-panel.md)
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
-[Ship a standalone OpenCode
-container](plans/20261017-standalone-opencode-container.md)
-
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
@@ -39,6 +36,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Ship a standalone OpenCode
+container](plans/20261017-standalone-opencode-container.md)
 
 [PR skills drive the AI review lifecycle on the single review
 workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)

@@ -6,7 +6,7 @@ release:
 description: Publish agent-opencode with shared lifecycle helpers, configurable non-root identity, supervised project services, persistent state, and external-proxy Compose deployment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T20:00:00Z
+  at: 2026-10-28T02:36:16Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .dockerignore
@@ -27,6 +27,8 @@ sources:
 - resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
 - resource: .devcontainer/scripts/repair-codex-cbm-hooks-block.py
 - resource: .pre-commit-config.yaml
+stage: done
+completed: 2026-10-28
 ---
 
 # Ship a standalone OpenCode container
