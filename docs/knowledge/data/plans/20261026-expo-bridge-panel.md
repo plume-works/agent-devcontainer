@@ -490,11 +490,8 @@ the build ends](../bugs/expo-bridge-build-log-invisible-until-close.md)).
   - **Evidence:** both bugs' `## Fix` describe the command stream and their
     `## Key references` are verified at `0c15a5c`. Ship sets them to
     `stage: done` through the plan's `release` list.
-- [x] The panel's channel shows build log lines without terminal escape
-  sequences; `eas-host` passes them through unchanged.
-  - **Evidence:** `8490fa5`: `plainLogLine` in `actions.ts`, applied only to the
-    `Expo Bridge Build` channel in `ui.ts`; its three `actions.test.ts` tests
-    pass, `bun test` 411 pass, and typecheck and lint pass.
+- [ ] The panel shows the build log in an `Expo Bridge Build` terminal that
+  renders eas-cli's colours, reopened when the user has closed it.
 
 ### Task 13: Record the panel in this repository's project memory
 
@@ -614,7 +611,8 @@ the log file on the Mac was complete. Streaming shares `runRequest` with
 `eas-host build`, so the defect is not specific to the panel. Task 12a replaces
 the file tail. At `0c15a5c` the Mac re-run streamed the build log while the
 build ran, which passes the first box. The stream carried eas-cli's terminal
-escape sequences into the channel, which `8490fa5` strips.
+escape sequences, which an output channel shows as text, so the panel's build
+log moves to a terminal.
 
 ## Out of scope
 
