@@ -6,6 +6,19 @@ to the current day's group.
 
 ## 2026-10-28
 
+- **Update**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) now
+  counts a check only together with the commit that holds its change, and puts
+  the tick in a commit after the code rather than in the same one; bug
+  [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md) done.
+- **Map**: re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
+  the [knowledge workspace](codebase/docs/knowledge.md) for the evidence rule
+  change.
+- **Create**: [Make plan task evidence survive history
+  rewrites](backlog/resilient-task-evidence.md).
 - **Create**: bug [Command-result evidence is judged
   inconsistently](bugs/command-result-evidence-ambiguous.md), found by the
   two-plan `implement-all` e2e run on Codex.

@@ -3,12 +3,13 @@ type: bug
 description: An evidence line that names a check command and says it passed, with no commit, is accepted by one iwe-verifier run and rejected as residue by the next, because the evidence rule leaves such a line undecided and asks for the commit to be named from inside that same commit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T09:00:00Z
+  at: 2026-10-28T10:45:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 - resource: scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py
+stage: done
 ---
 
 # Bug: Command-result evidence is judged inconsistently
@@ -81,14 +82,17 @@ written. The harnesses resolve it differently, from the same rulebook:
 
 ## Fix
 
-Unfixed. Decided by the maintainer: a named check plus its result is evidence
-only together with the commit that holds the change it checks. A check on its
-own is not evidence. The spec in [Plan checkbox
-evidence](../spec/plan-checkbox-evidence.md) and both rulebooks change to say so
-in the same words.
+The maintainer decided two rules, now written in the same words in [Plan
+checkbox evidence](../spec/plan-checkbox-evidence.md), the `iwe-implementer`,
+`iwe-verifier`, and `iwe-planner` rulebooks, and the workspace operating manual:
 
-Since the tick lands in the same commit as the code, the fix also has to say how
-that commit is named, because its hash is unknown when the line is written.
+- A check and its result count as evidence only together with the commit that
+  holds the change they check. A check cited on its own is residue, and Verify
+  reports it as a ticked task without usable evidence.
+- A task's code is committed first. The checkbox flip and its evidence line,
+  naming that commit, follow in a commit of their own. This replaces the rule
+  that put the tick in the same commit as the code, which asked a commit to name
+  itself.
 
 The `test_implement_all` e2e checks pass whether or not a fix round runs, since
 a fix round is the loop working as specified.
@@ -97,20 +101,19 @@ a fix round is the loop working as specified.
 
 Verified anchor points (line numbers as of 2026-10-28):
 
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:63` — Step 6, "the
-  commit, the test run and its result, the CI run" as evidence
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:65` — "raw command
-  stdout transcribed as evidence" listed as residue
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:62` — the CRITICAL for
-  evidence not "traceable to a commit, test run, or CI run"
-- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:63` — the same residue
-  list on the verifier side
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md:31` — Requirement: A
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:66` — Step 6, a
+  check counts only together with the commit that holds the change
+- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:218` — code is
+  committed before the checkbox flip and evidence line
+- `.agents/plugins/agentdev/agents/iwe-verifier.agent.md:63` — the same rule on
+  the verifier side, a check without its commit listed as residue
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md:35` — Requirement: A
   ticked task carries the evidence that closed it
-- `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:215` — the tick and
-  its evidence line in "the same commit as the code they describe"
-- `docs/knowledge/data/spec/plan-checkbox-evidence.md:67` — Scenario: A tick
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md:48` — Scenario: Evidence
+  names only a check
+- `docs/knowledge/data/spec/plan-checkbox-evidence.md:75` — Scenario: A tick
   lands in a commit
+- `docs/knowledge/AGENTS.md:139` — the convention where every session loads it
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:21` — the
   coordinator's fix-round re-dispatch that a rejection triggers
 - `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py:208` — the e2e check
