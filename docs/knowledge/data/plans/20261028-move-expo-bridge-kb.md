@@ -104,13 +104,21 @@ Assumptions:
 **Files:** Create: `.iwe/`, `docs/knowledge/` (extension repository); Modify:
 `.prettierignore` (extension repository)
 
-- [ ] Run `/agentdev:iwe-bootstrap --root /workspaces/vscode-expo-bridge`;
+- [x] Run `/agentdev:iwe-bootstrap --root /workspaces/vscode-expo-bridge`;
   result `SUCCESS`.
-- [ ] Add `docs/knowledge/**` to `.prettierignore`: `iwe normalize` owns those
-  files, and `bun run lint` runs `prettier --check .` over the repository.
-- [ ] Run `/agentdev:iwe-setup` there with the maintainer so `data/product.md`
+  - **Evidence:** plume-works/vscode-expo-bridge `d66c5ac` on `expo-repo-kb`
+    adds `.iwe/` and `docs/knowledge/`; `iwe schema validate` exits 0 there.
+- [x] Add `docs/knowledge/**` and `.iwe/**` to `.prettierignore`:
+  `iwe normalize` owns the knowledge base and the scaffold owns `.iwe/`, and
+  `bun run lint` runs `prettier --check .` over the repository.
+  - **Evidence:** vscode-expo-bridge `d66c5ac` `.prettierignore`; `bun run lint`
+    passes there.
+- [x] Run `/agentdev:iwe-setup` there with the maintainer so `data/product.md`
   describes the extension and holds no ✏️ placeholder; delete the scaffold's
   `.example.md` documents as setup does.
+  - **Evidence:** vscode-expo-bridge `d66c5ac` `docs/knowledge/data/product.md`
+    (Users, Constraints, stage, and rules from the maintainer's answers), no
+    `.example.md` left, `backlog/fill-product-doc` done.
 
 ### Task 2: Copy the 28 documents and list them in the new hubs
 
