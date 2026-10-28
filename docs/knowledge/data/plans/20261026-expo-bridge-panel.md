@@ -504,17 +504,31 @@ the build ends](../bugs/expo-bridge-build-log-invisible-until-close.md)).
 `docs/knowledge/data/architecture/vscode-expo-bridge.md`,
 `docs/knowledge/data/bugs/expo-bridge-project-id-ignores-dynamic-config.md`
 
-- [ ] The feature's `## Behaviour` describes the panel, the status bar item, and
+- [x] The feature's `## Behaviour` describes the panel, the status bar item, and
   Problems with quick fixes.
-- [ ] The architecture document places the UI in the workspace extension, states
+  - **Evidence:** `data/features/vscode-expo-bridge.md` `## Behaviour` "A panel,
+    a status bar item, and Problems", checked against `panelmodel.ts`,
+    `statusbar.ts`, and `quickfix.ts` at `f269245`.
+- [x] The architecture document places the UI in the workspace extension, states
   the no-argument host command rule and the activation constraint, and records
   both rejected alternatives. The first is recorded as a capability: a `ui`
   extension's views can live in a view container a `workspace` extension
   declares, hidden elsewhere by a `when` clause on a context key the container
   sets.
-- [ ] The bug's `## Fix` and `## Key references` describe the container's
+  - **Evidence:** `data/architecture/vscode-expo-bridge.md`
+    `### The workspace UI` (one request path, no-argument host commands,
+    activation awaits no view), and two `### Rejected alternatives` entries, the
+    first naming the `when`-clause capability; checked against `ui.ts` and
+    `package.json` at `f269245`.
+- [x] The bug's `## Fix` and `## Key references` describe the container's
   resolution of the project ID.
-- [ ] `iwe normalize` and `iwe schema validate` pass.
+  - **Evidence:** `data/bugs/expo-bridge-project-id-ignores-dynamic-config.md`
+    `## Fix` describes `resolveProjectId` and `relayRequest`, and its
+    `## Key references` are verified at `f269245`.
+- [x] `iwe normalize` and `iwe schema validate` pass.
+  - **Evidence:** both pass at the repository root on the commit that ticks this
+    box, and its `iwe-normalize` and `iwe-schema-validate` pre-commit hooks
+    pass.
 
 ## Spec changes
 

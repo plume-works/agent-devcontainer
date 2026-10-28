@@ -3,8 +3,9 @@ type: bug
 description: The Expo bridge's easProjectId status check reads only app.json, so a project whose app.config.js or app.config.ts sets, adds, or drops extra.eas.projectId gets the wrong answer.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T04:20:00Z
+  at: 2026-10-28T03:00:00Z
 sources:
+- resource: docs/knowledge/data/plans/20261026-expo-bridge-panel.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/protocol.md
 - resource: https://docs.expo.dev/workflow/configuration/
@@ -45,21 +46,31 @@ bridge](../architecture/vscode-expo-bridge.md), Security model).
 
 ## Fix
 
-Not fixed. `eas-host status` exits by `available` alone, so no build is blocked;
-the wrong check line misleads agents and would mislead any diagnostic built on
-it. A fix either resolves the ID where evaluating project code crosses no trust
-boundary — the container, which can run `bunx expo config --json --type public`
-against its own code — or has the host report the check as not statically
-checkable when an `app.config.*` file exists.
+Fixed by [Expo Bridge panel, status bar, and Problems in the workspace
+extension](../plans/20261026-expo-bridge-panel.md). The container resolves the
+ID, where evaluating project code crosses no trust boundary. `resolveProjectId`
+runs the folder's own `node_modules/.bin/expo config --json --type public` and
+reads `extra.eas.projectId`. Without a local `expo` it reads `app.json` as JSON
+when no `app.config.*` exists, and otherwise reports the ID as unresolved,
+naming the dynamic config. The workspace extension's `relayRequest` replaces
+`checks.easProjectId` in every `status` result it relays with that answer, so
+`eas-host status` and the panel report the resolved config. Results are cached
+per folder until a watched app config, `eas.json`, or `package.json` changes.
+The host's own check is unchanged and still never evaluates project code.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
+Verified anchor points (line numbers as of 2026-10-28):
 
-In `plume-works/vscode-expo-bridge` at `b10949f`:
+In `plume-works/vscode-expo-bridge` at `f269245`:
 
-- `packages/host/src/status.ts:118` — `status`, the `easProjectId` check; `:140`
-  — `readProjectId`
-- `packages/protocol/src/index.ts:105` — `StatusResult.checks.easProjectId`
-- `docs/protocol.md:152` — the `easProjectId` check's documented meaning
-- `packages/workspace/bin/eas-host.ts:102` — the exit code follows `available`
+- `packages/workspace/src/appconfig.ts:69` — `resolveProjectId`; `:35` —
+  `DYNAMIC_CONFIGS`; `:103` — `ProjectIdCache`
+- `packages/workspace/src/requests.ts:85` — `projectIdCheck`; `:105` —
+  `relayRequest`
+- `packages/workspace/src/extension.ts:126` — the `PROJECT_ID_INPUTS_GLOB`
+  watcher that clears the cache
+- `packages/host/src/status.ts:118` — the host's `easProjectId` check; `:140` —
+  `readProjectId`
+- `docs/protocol.md:157` — the workspace extension's replacement of
+  `easProjectId`
