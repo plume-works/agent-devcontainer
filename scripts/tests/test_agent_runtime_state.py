@@ -218,11 +218,17 @@ def test_catalog_passes_the_scope_only_to_claude(scripts: Path, tmp_path: Path):
 
 def test_hooks_keep_their_call_order():
     post_start = (SCRIPTS / 'postStartCommand.sh').read_text()
-    assert post_start.index('start-xpra.sh') < post_start.index('setup-agent-state.sh" links')
-    assert post_start.rstrip().endswith('"$script_dir/setup-agent-state.sh" agent-policy')
-    post_create = (SCRIPTS / 'postCreateCommand.sh').read_text()
-    assert post_create.index('setup-agent-state.sh" create') < post_create.index('uv-sync.sh')
-    assert post_create.index('uv-sync.sh') < post_create.index('setup-agent-state.sh" catalog')
+    assert post_start.index('start-xpra.sh') < post_start.index('devcontainer-ready.sh" --no-wait')
+    ready = (SCRIPTS / 'devcontainer-ready.sh').read_text()
+    assert ready.index('setup-agent-state.sh" links') < ready.index('agent-policy')
+    assert ready.rstrip().endswith('"$script_dir/run-agentdev-hooks.sh" started')
+    created = (SCRIPTS / 'devcontainer-created.sh').read_text()
+    assert created.index('setup-agent-state.sh" create') < created.index(
+        'runtime-workspace.sh" project'
+    )
+    assert created.index('runtime-workspace.sh" project') < created.index(
+        'setup-agent-state.sh" catalog'
+    )
 
 
 def fake_gh(directory: Path) -> None:

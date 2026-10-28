@@ -7,6 +7,8 @@ set -euo pipefail
 # Spec: standalone-opencode-runtime, agentdev-runtime-images.
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=runtime-paths.sh
+source "$script_dir/runtime-paths.sh"
 workspace="${DEV_WORKSPACE_FOLDER:-/workspaces/project}"
 state_dir="${AGENTDEV_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/agentdev}"
 clone_marker="$state_dir/clone-in-progress"
@@ -86,11 +88,8 @@ cmd_project() {
   fi
 }
 
-# The checkout's own catalog wins when it ships all three clients' manifests.
 select_catalog() {
-  if [[ -f $workspace/.claude-plugin/marketplace.json &&
-    -f $workspace/.agents/plugins/marketplace.json &&
-    -d $workspace/.agents/plugins/agentdev/.opencode-plugin ]]; then
+  if agentdev_complete_catalog "$workspace"; then
     echo "$workspace"
   elif [[ -n ${AGENTDEV_CATALOG_DIR:-} && -d $AGENTDEV_CATALOG_DIR ]]; then
     echo "$AGENTDEV_CATALOG_DIR"
