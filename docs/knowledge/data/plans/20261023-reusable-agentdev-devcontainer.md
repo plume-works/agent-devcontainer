@@ -236,10 +236,14 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
     to a local build of commit bcd8c5e2,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
     passed.
-- [ ] Build a derived fixture image that adds custom tooling and ordered hooks.
+- [x] Build a derived fixture image that adds custom tooling and ordered hooks.
   Verify it retains managed startup, can override documented environment values,
   cannot require replacement of `/opt/agentdev-runtime`, and does not execute
   similarly named files from the mounted repository.
+  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed.
 - [ ] Run both fixtures through create, stop/start, rebuild, and repeated attach
   events and assert the right phase runs exactly when specified.
 
