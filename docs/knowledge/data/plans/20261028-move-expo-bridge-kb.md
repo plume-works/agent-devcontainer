@@ -140,22 +140,36 @@ Assumptions:
 
 **Files:** Modify: the 28 moved documents (extension repository)
 
-- [ ] Links to the six documents staying here —
+- [x] Links to the six documents staying here —
   `architecture/template-boundary`, `features/expo-eas-builds`,
   `plans/20261013-macos-native-bootstrap`,
   `plans/20261014-expo-eas-template-profile`,
   `someday/devcontainer-forwarded-agent-exposure`, `spec/template-consumption` —
   become
   `https://github.com/plume-works/agent-devcontainer/blob/main/docs/knowledge/data/<key>.md`.
-- [ ] `sources` entries and code anchors naming
+  - **Evidence:** vscode-expo-bridge `0d413c8`; `iwe stats` there lists no
+    broken link.
+- [x] `sources` entries and code anchors naming
   `https://github.com/plume-works/vscode-expo-bridge/blob/main/<path>` or
   `plume-works/vscode-expo-bridge:<path>` become `<path>`; entries naming paths
   in this repository (`.agents/…`, `.devcontainer/…`, staying
-  `docs/knowledge/data/…` documents) become URLs into it.
-- [ ] `architecture/vscode-expo-bridge`'s Context says the extension repository
+  `docs/knowledge/data/…` documents) become URLs into it; a bare
+  `https://github.com/plume-works/vscode-expo-bridge` source, which names the
+  repository itself, is dropped; a backticked commit ID that resolves only in
+  this repository becomes its commit URL.
+  - **Evidence:** vscode-expo-bridge `0d413c8`: this-repository sources and
+    `plans/20261015-vscode-expo-bridge` anchors carry
+    `plume-works/agent-devcontainer`, extension paths are local, and the 13
+    commit IDs found only here link to their commits.
+- [x] `architecture/vscode-expo-bridge`'s Context says the extension repository
   owns the bridge and `agent-devcontainer` owns only its template wiring, and
-  points to `docs/protocol.md` by relative link.
-- [ ] Stamp `generated` on every document this task changed.
+  keeps its link to `docs/protocol.md` as a URL: `iwe` counts a relative
+  Markdown link outside `docs/knowledge/` as a broken graph link.
+  - **Evidence:** vscode-expo-bridge `0d413c8`
+    `docs/knowledge/data/architecture/vscode-expo-bridge.md` `## Context`.
+- [x] Stamp `generated` on every document this task changed.
+  - **Evidence:** vscode-expo-bridge `0d413c8`: all 28 carry
+    `generated.at: 2026-10-28T16:52:14Z`.
 
 ### Task 4: Write the extension repository's agent instructions and README
 
