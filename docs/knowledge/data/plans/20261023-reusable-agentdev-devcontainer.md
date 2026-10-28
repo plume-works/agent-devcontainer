@@ -244,8 +244,12 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
     to a local build of commit bcd8c5e2,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
     passed.
-- [ ] Run both fixtures through create, stop/start, rebuild, and repeated attach
+- [x] Run both fixtures through create, stop/start, rebuild, and repeated attach
   events and assert the right phase runs exactly when specified.
+  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed.
 
 ### Task 7: Publish, pin, and accept all three canonical images
 
