@@ -78,7 +78,7 @@ repos:
       # Renovate version: see architecture/renovate-config-validation.
       - id: renovate-config-validator
         name: renovate-config-validator
-        entry: bunx --package renovate@44.190.1 renovate-config-validator --no-global --strict
+        entry: bunx --package renovate@44.190.2 renovate-config-validator --no-global --strict
         language: system
         files: '^\.github/renovate\.json$'
 
