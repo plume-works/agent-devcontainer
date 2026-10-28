@@ -16,6 +16,9 @@ write a plan and link the plan instead.*
 
 ## High
 
+[Revise the Expo bridge build controls after CMake
+Tools](backlog/expo-bridge-build-controls.md)
+
 [Start Claude Remote Control in the standalone runtime when
 asked](backlog/standalone-claude-remote-control.md)
 
