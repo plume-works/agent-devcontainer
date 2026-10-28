@@ -175,10 +175,15 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
     base digest, then
     `AGENTDEV_RUNTIME_TEST_IMAGE=<that image> .devcontainer/scripts/test-agent-runtime.sh`
     — 24 passed, 1 skipped (no previous image).
-- [ ] Add `agentdev-devcontainer` as a sibling derived from the exact same-run
+- [x] Add `agentdev-devcontainer` as a sibling derived from the exact same-run
   base digest. Install the runtime scripts, both stable lifecycle commands and
   supervisor dependencies, declare the devcontainer profile entrypoint, and
   embed Dev Container metadata for lifecycle commands and default environment.
+  - **Evidence:** commits bcd8c5e2, c4dcaeb3; with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed; the fixtures declare no managed commands, so the lifecycle came from
+    the image metadata.
 
 ### Task 5: Consume the image in this repository
 
