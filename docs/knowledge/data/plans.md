@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Move the Expo bridge knowledge into its own
+repository](plans/20261028-move-expo-bridge-kb.md)
+
 [Start Claude Remote Control in the standalone
 runtime](plans/20261027-standalone-remote-control-autostart.md)
 
