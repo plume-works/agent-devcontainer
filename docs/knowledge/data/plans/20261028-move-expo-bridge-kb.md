@@ -186,7 +186,8 @@ Create: `CLAUDE.md` (extension repository)
   no security setting read from a container-writable file); scratch files in
   `./.tmp/`; and the project memory in `docs/knowledge/data/`, run with `iwe`
   from the repository root, following `docs/knowledge/AGENTS.md`.
-- [ ] `CLAUDE.md` holds only `@AGENTS.md`.
+- [x] `CLAUDE.md` holds only `@AGENTS.md`.
+  - **Evidence:** vscode-expo-bridge `41b964b` `CLAUDE.md`.
 - [ ] `README.md` lets a user adopt the bridge with no other repository: the
   `devcontainer.json` wiring (the pack in `customizations.vscode.extensions`,
   `8081` in `forwardPorts` with `"onAutoForward": "silent"`), `EXPO_TOKEN` set
@@ -194,7 +195,9 @@ Create: `CLAUDE.md` (extension repository)
   order `eas-host --help` lists them, artifacts under `.tmp/expo-bridge/`, Metro
   in the container before `launch`, and EAS cloud when `eas-host status` exits
   non-zero.
-- [ ] `bun run bump`; `bun run lint`, `bun run typecheck`, and `bun test` pass.
+- [x] `bun run bump`; `bun run lint`, `bun run typecheck`, and `bun test` pass.
+  - **Evidence:** vscode-expo-bridge `41b964b` bumps to `0.4.1`; lint and
+    typecheck clean, `bun test` 409 pass, 0 fail.
 
 ### Task 5: File the agent-skill task in the extension repository's backlog
 
