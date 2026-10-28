@@ -18,6 +18,8 @@ runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$runtime_uid}"
 sudoers_file="${AGENTDEV_SUDOERS_FILE:-/etc/sudoers.d/agentdev-runtime}"
 lock_timeout="${AGENTDEV_AUTH_LOCK_TIMEOUT:-60}"
 lifecycle_dir="${AGENTDEV_LIFECYCLE_DIR:-/var/lib/agentdev/lifecycle}"
+runtime_root="${AGENTDEV_RUNTIME_ROOT:-/opt/agentdev-runtime}"
+runtime_manifest="${AGENTDEV_RUNTIME_MANIFEST:-/etc/agentdev/runtime.sha256}"
 
 fail() {
   echo "runtime-bootstrap: $*" >&2
@@ -170,6 +172,20 @@ bootstrap_deploy() {
   log "identity $runtime_user ($runtime_uid:$runtime_gid) ready"
 }
 
+# The image records its runtime root at build time; a derived image that replaced, added, or
+# removed a file there would run lifecycle code nobody tested. Spec: agentdev-runtime-images.
+verify_runtime_root() {
+  [[ -f $runtime_manifest ]] || return 0
+  local recorded actual
+  if ! (cd "$runtime_root" && sha256sum --check --quiet --strict "$runtime_manifest" >/dev/null 2>&1); then
+    fail "a file below $runtime_root differs from the image's; extend the runtime through /etc/agentdev/hooks and documented environment instead"
+  fi
+  recorded="$(awk '{print $2}' "$runtime_manifest" | sed 's#^\*##' | LC_ALL=C sort)"
+  actual="$(cd "$runtime_root" && find . -type f -not -path '*/__pycache__/*' | LC_ALL=C sort)"
+  [[ $recorded == "$actual" ]] ||
+    fail "files were added to or removed from $runtime_root; extend the runtime through /etc/agentdev/hooks and documented environment instead"
+}
+
 # The Dev Container tool owns the account, mounts, and checkout; the create lifecycle
 # prepares client state. Only the directories the runtime itself owns are set up here.
 bootstrap_devcontainer() {
@@ -187,6 +203,7 @@ bootstrap_devcontainer() {
   log "accepted account $runtime_user ($runtime_uid:$runtime_gid) and workspace $workspace as mounted"
 }
 
+verify_runtime_root
 case "${AGENTDEV_RUNTIME_MODE:-}" in
   deploy) bootstrap_deploy ;;
   devcontainer) bootstrap_devcontainer ;;

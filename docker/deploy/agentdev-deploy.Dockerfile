@@ -1,6 +1,6 @@
-# Tag-only by design, like agent-desktop's base: CI always supplies the exact
-# agent-desktop digest built in the same run (see .github/workflows/ci.yml).
-ARG FROM_IMAGE=ghcr.io/plume-works/agent-desktop:edge
+# Tag-only by design, like agentdev-base's own base: CI always supplies the exact
+# agentdev-base digest built in the same run (see .github/workflows/ci.yml).
+ARG FROM_IMAGE=ghcr.io/plume-works/agentdev-base:edge
 
 FROM $FROM_IMAGE
 
@@ -20,13 +20,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       /usr/local/lib/agentdev/gh-stack/manifest.yml
 
 COPY --chmod=0755 .devcontainer/scripts/ /opt/agentdev-runtime/
-# The base desktop image may predate start-xpra.sh's --supervised mode.
-COPY --chmod=0755 docker/desktop/start-xpra.sh /start-xpra.sh
 COPY --chmod=0644 docker/deploy/supervisord.conf /etc/agentdev/supervisord.conf
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 
 # The runtime identity, paths, and service defaults. Every value is overridable at
-# `docker run`/Compose time; see docker/opencode/runtime.env.example.
+# `docker run`/Compose time; see docker/deploy/runtime.env.example.
 ENV AGENTDEV_RUNTIME_MODE=deploy \
     AGENTDEV_USER=agent \
     AGENTDEV_UID=1000 \
@@ -50,7 +48,7 @@ ENV AGENTDEV_RUNTIME_MODE=deploy \
     AGENTDEV_STOP_TIMEOUT=30 \
     PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin
 
-LABEL org.opencontainers.image.title="agent-opencode"
+LABEL org.opencontainers.image.title="agentdev-deploy"
 LABEL org.opencontainers.image.description="Self-starting single-project OpenCode runtime with nested Docker, CBM, keyring, and Xpra."
 LABEL org.opencontainers.image.base.name="$FROM_IMAGE"
 

@@ -6,7 +6,7 @@
 .claude
 .codex
 .devcontainer
-# agent-opencode bakes only .devcontainer/scripts and the firewall allowlist.
+# The runtime images bake only .devcontainer/scripts and the firewall allowlist.
 !.devcontainer/scripts
 !.devcontainer/firewall-allowlist.txt
 .tmp

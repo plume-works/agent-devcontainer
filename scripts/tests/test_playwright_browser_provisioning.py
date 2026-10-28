@@ -1,4 +1,4 @@
-"""Contract tests for the Playwright browser bundled in agent-desktop."""
+"""Contract tests for the Playwright browser bundled in agentdev-base."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ ROLE_ROOT = REPO_ROOT / 'ansible/roles/playwright_browser'
 DEFAULTS = (ROLE_ROOT / 'defaults/main.yml').read_text()
 DEFAULT_VALUES = yaml.safe_load(DEFAULTS)
 TASKS = (ROLE_ROOT / 'tasks/main.yml').read_text()
-DOCKERFILE = (REPO_ROOT / 'docker/desktop/agent-desktop.Dockerfile').read_text()
+DOCKERFILE = (REPO_ROOT / 'docker/base/agentdev-base.Dockerfile').read_text()
 CI = yaml.safe_load((REPO_ROOT / '.github/workflows/ci.yml').read_text())
 
 

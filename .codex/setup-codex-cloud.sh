@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Provision Codex Cloud with the same playbook and capabilities as the published
-# agent-desktop image. Keep these pins and extra vars aligned with
-# docker/desktop/agent-desktop.Dockerfile.
+# agentdev-base image. Keep these pins and extra vars aligned with
+# docker/base/agentdev-base.Dockerfile.
 
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 cd "$REPO_ROOT"

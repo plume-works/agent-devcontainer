@@ -24,10 +24,10 @@ current_state() {
 }
 
 # User services are probed as the runtime user: the session bus and the CBM
-# rendezvous both admit only the account that owns them.
+# rendezvous both admit only the account that owns them. A root runtime user probes as is.
 case "$service" in
   dbus | keyring | cbm | opencode | xpra | remote-control)
-    if [[ $(id -u) == 0 && -n ${AGENTDEV_USER:-} ]]; then
+    if [[ $(id -u) == 0 && -n ${AGENTDEV_USER:-} && $(id -u "$AGENTDEV_USER") != 0 ]]; then
       exec setpriv --reuid="$AGENTDEV_USER" --regid="$(id -g "$AGENTDEV_USER")" --init-groups \
         env HOME="${AGENTDEV_HOME:-/home/$AGENTDEV_USER}" USER="$AGENTDEV_USER" "$0" "$service"
     fi
