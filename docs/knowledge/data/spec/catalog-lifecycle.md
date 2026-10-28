@@ -3,7 +3,7 @@ type: spec
 description: When and how the agentdev catalog gets installed into the persistent Claude/Codex plugin state and the OpenCode user config — at image build time and again by postCreateCommand.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T12:00:00Z
+  at: 2026-10-28T02:36:16Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
@@ -13,6 +13,8 @@ sources:
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: README.md
+- resource: .devcontainer/scripts/setup-agent-state.sh
+- resource: .devcontainer/scripts/runtime-workspace.sh
 ---
 
 # Catalog lifecycle
@@ -132,3 +134,30 @@ lives in the per-devcontainer-instance `agentdev-claude` / `agentdev-codex` /
 - **THEN** each gets its own catalog install (scoped per instance) but shares
   the same logged-in Claude/Codex/OpenCode credentials (scoped to the shared
   auth volume).
+
+## Requirement: standalone startup selects and reconciles the runtime catalog
+
+Standalone agent-opencode startup SHALL use a valid checkout-provided agentdev
+catalog when present and otherwise the immutable image catalog. It SHALL
+reconcile Claude, Codex, and OpenCode configuration as the runtime user after
+mounts and before OpenCode starts, including generated Codex agents, without
+removing unrelated user settings or agents. A registration already matching the
+selected catalog SHALL be left in place without rewriting client configuration.
+A failed reconciliation SHALL mark the runtime degraded and SHALL NOT stop
+OpenCode from starting, unless strict startup is selected.
+
+### Scenario: the project provides the catalog
+
+- **WHEN** the checkout contains the required catalog manifests and bridge
+- **THEN** all three clients use that checkout catalog for the container start.
+
+### Scenario: a catalog is absent or the image is upgraded
+
+- **WHEN** a checkout has no catalog or a newer bundled catalog is selected
+- **THEN** startup applies the selected bundled catalog over stale managed
+  registrations and preserves unrelated configuration.
+
+### Scenario: the container restarts with an unchanged catalog
+
+- **WHEN** startup selects the catalog that is already registered
+- **THEN** every client's configuration file is byte-identical afterwards.

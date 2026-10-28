@@ -1496,14 +1496,14 @@ digest
 
 ## Spec changes
 
-Create `spec/standalone-opencode-runtime` with the following full contract.
-[OpenCode web](../spec/opencode-web.md), as the [OpenCode v2
-plan](20261018-opencode-v2-default.md) amends it, [Devcontainer Git
-credentials](../spec/devcontainer-git-credentials.md), and [Devcontainer Docker
-storage](../spec/devcontainer-docker-storage.md) keep their integration-specific
-requirements; shared-helper extraction preserves them. The standalone
-requirements below define strict startup and injected-token behavior without
-changing Coder's tmux/failure semantics.
+Create [Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md)
+with the following full contract. [OpenCode web](../spec/opencode-web.md), as
+the [OpenCode v2 plan](20261018-opencode-v2-default.md) amends it, [Devcontainer
+Git credentials](../spec/devcontainer-git-credentials.md), and [Devcontainer
+Docker storage](../spec/devcontainer-docker-storage.md) keep their
+integration-specific requirements; shared-helper extraction preserves them. The
+standalone requirements below define strict startup and injected-token behavior
+without changing Coder's tmux/failure semantics.
 
 ``` markdown
 ## ADDED Requirements
@@ -1766,8 +1766,9 @@ OpenCode from starting, unless strict startup is selected.
 - **THEN** every client's configuration file is byte-identical afterwards.
 ```
 
-Create `spec/cbm-startup-integration` with the following contract. It covers the
-devcontainer hooks and the standalone runtime alike.
+Create [CBM startup integration](../spec/cbm-startup-integration.md) with the
+following contract. It covers the devcontainer hooks and the standalone runtime
+alike.
 
 ``` markdown
 ## ADDED Requirements
