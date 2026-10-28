@@ -157,3 +157,16 @@ def test_plain_clones_have_no_tool_dir(fixture, work):
     assert clone.tool_dir is None
     assert clone.agent_path('/usr/bin') == '/usr/bin'
     assert clone.gh_calls() == ''
+
+
+def test_implement_all_commit_keeps_the_loop_and_pair_plans(fixture, work):
+    """``implement_all`` leaves exactly the loop and pair plans active, both unimplemented."""
+    clone = clone_module.make_clone(fixture, work / 'implement-all', fixture.implement_all)
+    hub = (clone.path / clone_module.DATA / 'plans.md').read_text()
+    assert sorted(active_links(hub)) == [
+        'plans/20261026-e2e-loop.md',
+        'plans/20261027-e2e-pair.md',
+    ]
+    assert not clone.loop_done()
+    assert not clone.pair_done()
+    assert clone.status() == ''

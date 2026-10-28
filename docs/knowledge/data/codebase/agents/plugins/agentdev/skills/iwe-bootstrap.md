@@ -2,14 +2,14 @@
 type: codebase
 description: The iwe-bootstrap skill — a packaged blank IWE workspace and the fail-closed helper that installs it into a repository root.
 source: .agents/plugins/agentdev/skills/iwe-bootstrap
-source_digest: sha256:01d3724423f4694eccbde824ccd617a5c7377d0b814cb88e865e19de92d307d9
+source_digest: sha256:c0826e162c874f22cc166f9920fda750aa625d199f7c023707b0ac2bda1c5df8
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
-stale_after: 2027-01-23
+  at: 2026-10-28T10:30:00Z
+stale_after: 2027-01-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
+  at: 2026-10-28T10:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills/iwe-bootstrap

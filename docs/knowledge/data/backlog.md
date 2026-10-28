@@ -38,6 +38,9 @@ review](backlog/verify-assignee-review-automerge.md)
 
 [Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
+[Make plan task evidence survive history
+rewrites](backlog/resilient-task-evidence.md)
+
 [Show one Expo Bridge status bar
 item](backlog/expo-bridge-one-status-bar-item.md)
 
@@ -59,6 +62,9 @@ procedure](backlog/expo-bridge-sideload-procedure.md)
 trigger](backlog/drop-claude-free-form-task-trigger.md)
 
 ## Done
+
+[Run implement-all live against two
+plans](backlog/implement-all-multi-plan-e2e.md)
 
 [Find why the orphan-kill supervision test is
 flaky](backlog/supervision-orphan-kill-test-cause.md)

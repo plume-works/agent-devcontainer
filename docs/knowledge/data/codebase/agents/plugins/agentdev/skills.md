@@ -2,14 +2,14 @@
 type: codebase
 description: The 41 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:d5a8cadf868da38f71d7a13e0294cc0317b465d1fd077f92f4d2a54eeb92519c
+source_digest: sha256:43d1e74d5cdccc7dc85a4df220201636eb7cd17160c3577978b162b45aa7574c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-27T09:00:00Z
-stale_after: 2027-01-25
+  at: 2026-10-28T10:30:00Z
+stale_after: 2027-01-26
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T09:00:00Z
+  at: 2026-10-28T10:30:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -203,7 +203,7 @@ Verified anchor points (line numbers as of 2026-10-27):
   Implementer per plan
 - `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:14` — the in-place follow
   of `iwe-planner`
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:163` — the Shipper
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:164` — the Shipper
   re-dispatch after a revision
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:19` and
   `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:19` — the

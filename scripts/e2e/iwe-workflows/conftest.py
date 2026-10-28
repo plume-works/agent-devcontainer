@@ -71,9 +71,9 @@ def open_question_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureR
 
 
 @pytest.fixture
-def loop_only_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
-    """Provide a clone at the ``loop_only`` commit, where the loop plan is the only active one."""
-    return clone_at(fixture_repo.loop_only)
+def implement_all_clone(clone_at: Callable[[str], Clone], fixture_repo: FixtureRepo) -> Clone:
+    """Provide a clone at the ``implement_all`` commit, where the loop and pair plans are active."""
+    return clone_at(fixture_repo.implement_all)
 
 
 @pytest.fixture

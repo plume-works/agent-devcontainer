@@ -10,6 +10,7 @@ BRANCH_KEY = 'data/plans/20261025-e2e-branch'
 LOOP_KEY = 'data/plans/20261026-e2e-loop'
 REVISE_KEY = 'data/plans/20261026-e2e-revise'
 CONFLICT_KEY = 'data/plans/20261027-e2e-conflict'
+PAIR_KEY = 'data/plans/20261027-e2e-pair'
 # The name iwe-branch-name gives the first implementation branch of BRANCH_KEY.
 BRANCH_WORK = 'impl/e2e-branch/iter-1'
 FIXTURE_BRANCH = 'e2e-fixture'
