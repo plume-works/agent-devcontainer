@@ -73,6 +73,12 @@ def catalog_mismatch(clone: Clone) -> str | None:
     return None
 
 
+def _effort_override() -> list[str]:
+    """Return ``-c`` arguments for ``E2E_CODEX_REASONING_EFFORT``; none leaves the config's."""
+    effort = os.environ.get('E2E_CODEX_REASONING_EFFORT')
+    return ['-c', f'model_reasoning_effort="{effort}"'] if effort else []
+
+
 def gated_skills(clone: Clone) -> list[str]:
     """Return the catalog skills that only an explicit invocation may run."""
     skills = clone.path / '.agents/plugins/agentdev/skills'
@@ -266,6 +272,7 @@ def run_codex(clone: Clone, name: str, prompt: str, budget: float) -> CodexTrans
                 '--add-dir',
                 str(clone.path / '.git'),
                 '--json',
+                *_effort_override(),
                 prompt,
             ],
             cwd=clone.path,
