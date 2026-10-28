@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Start Claude Remote Control in the standalone
-runtime](plans/20261027-standalone-remote-control-autostart.md)
-
 [Expo Bridge panel, status bar, and Problems in the workspace
 extension](plans/20261026-expo-bridge-panel.md)
 
@@ -36,6 +33,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Start Claude Remote Control in the standalone
+runtime](plans/20261027-standalone-remote-control-autostart.md)
 
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)

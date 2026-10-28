@@ -17,6 +17,8 @@ sources:
 - resource: docker/opencode/runtime.env.example
 - resource: docker/opencode/README.md
 - resource: compose.opencode.yml
+stage: done
+completed: 2026-10-28
 ---
 
 # Start Claude Remote Control in the standalone runtime

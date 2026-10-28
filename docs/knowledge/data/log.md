@@ -6,6 +6,14 @@ to the current day's group.
 
 ## 2026-10-28
 
+- **Update**: [Start Claude Remote Control in the standalone
+  runtime](plans/20261027-standalone-remote-control-autostart.md) done; merged
+  the standalone watcher requirement into [Claude Remote
+  Control](spec/claude-remote-control.md) and Remote Control as an optional
+  service into [Standalone OpenCode
+  runtime](spec/standalone-opencode-runtime.md); [Remote Control autostart in
+  the standalone runtime](features/standalone-remote-control-autostart.md)
+  implemented and listed under Unreleased Added.
 - **Update**: [Ship a standalone OpenCode
   container](plans/20261017-standalone-opencode-container.md) done; created the
   [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md) and [CBM
