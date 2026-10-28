@@ -6,7 +6,7 @@ release:
 - bugs/expo-bridge-project-id-ignores-dynamic-config
 - bugs/expo-bridge-build-log-invisible-until-close
 - bugs/expo-bridge-build-log-tail-drops-lines
-description: Give the Expo bridge's workspace extension an activity-bar panel, an always-on status bar item, and Problems-panel diagnostics with quick fixes for every status check and container config check, with the project ID resolved in the container, the host extension and the protocol unchanged.
+description: Give the Expo bridge's workspace extension an activity-bar panel, an always-on status bar item, and Problems-panel diagnostics with quick fixes for every status check and container config check, with the project ID resolved in the container and the Mac sending each build log chunk to the container, at protocol version 2 with no new request or response field.
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-26T06:30:00Z
@@ -47,10 +47,13 @@ in the workspace extension. It reaches the host only through the existing
 (`expoBridge.fix`, `expoBridge.setToken`, `expoBridge.manageTrust`). It calls
 those commands with no arguments, so each still asks for consent on the Mac
 itself. The fix flow, the host's fix status bar item, and its toasts stay as
-they are. The protocol stays at version 2 with no new fields.
+they are. The host sends each build log chunk to the workspace command
+`expoBridge.workspace.buildLog`, since the container sees a Mac file grow only
+when the host closes it. The protocol stays at version 2 with no new request or
+response field.
 
 ```
- workspace extension (container)                    host extension (Mac): unchanged
+ workspace extension (container)                    host extension (Mac)
 ┌──────────────────────────────────────────────┐   ┌─────────────────────────────────┐
 │ status store ◀── every status response ──────┼───┤ status / build / install / ...  │
 │   (socket from eas-host, or the panel)       │   │                                 │
@@ -59,13 +62,15 @@ they are. The protocol stays at version 2 with no new fields.
 │   Problems + quick fixes                     │   │ expoBridge.setToken /           │
 │ Re-run status / Build ── dispatch ───────────┼──▶│   manageTrust                   │
 │ Fix… / Set token / Trust ── no-arg command ──┼──▶│                                 │
+│ build log → eas-host / terminal ◀── chunks ──┼───┤ expoBridge.workspace.buildLog   │
 └──────────────────────────────────────────────┘   └─────────────────────────────────┘
 ```
 
 - **One path for every request.** The socket handler and the panel send requests
-  through one function. It dispatches the request, tails the build log, and
-  passes every `status` result through the container's checks before anyone sees
-  it. So `eas-host status` and the panel always show the same result.
+  through one function. It dispatches the request, passes the build log chunks
+  the Mac sends for the folder to `eas-host` or the panel, and passes every
+  `status` result through the container's checks before anyone sees it. So
+  `eas-host status` and the panel always show the same result.
 - **The project ID is resolved in the container.** Evaluating `app.config.*`
   there runs the container's own code, so it crosses no trust boundary. The host
   still never evaluates project code outside a confirmed build.
@@ -94,10 +99,10 @@ on files in the container. The container reads its own files directly.
   `workspaceMapped`). The skipped tool checks get none, since `status` reports
   them as failing only because they were skipped.
 - Severity: Error for `xcode`, `cocoapods`, `fastlane`, `node`, `bun`, `easCli`,
-  `easProjectId`, and a missing simulator profile. Warning for
-  `workspaceTrusted`, `expoToken`, and a remembered profile that no longer
-  exists. Information for `simulator`, `port8081Forwarded`, availability, and a
-  project ID that cannot be resolved.
+  `easProjectId`, including a project ID that cannot be resolved, and a missing
+  simulator profile. Warning for `workspaceTrusted`, `expoToken`, and a
+  remembered profile that no longer exists. Information for `simulator`,
+  `port8081Forwarded`, and availability.
 - `jsonc-parser` is added as a workspace dependency. It finds the JSON ranges
   diagnostics point at and inserts the simulator profile.
 - The panel's build covers `build` and a clean build only. `install`, `launch`,
@@ -112,7 +117,7 @@ on files in the container. The container reads its own files directly.
 `packages/workspace/src/extension.ts`, in `plume-works/vscode-expo-bridge`
 
 - [x] `runRequest(request, onLog)` dispatches through `expoBridge.ui.dispatch`
-  and tails the newest build log while a `build` runs. The socket handler
+  and passes `onLog` the build log while a `build` runs. The socket handler
   `handleRequest` uses it, and the CLI's behavior does not change.
   - **Evidence:** plume-works/vscode-expo-bridge `880dd2b`:
     `packages/workspace/src/requests.ts` `runRequest(request, execute, onLog)`,
@@ -288,9 +293,9 @@ on files in the container. The container reads its own files directly.
 - [x] **Build** builds the folder's remembered profile, asking from
   `buildProfiles` the first time and storing the answer in `workspaceState`
   under the folder's path. **Change build profile** asks again. **Clean build**
-  sends the same request with `clean: true`. The log streams to an
-  `Expo Bridge Build` output channel, and a notification names the artifact and
-  the `mode`/`reason`.
+  sends the same request with `clean: true`. The log streams to
+  `Expo Bridge Build`, and a notification names the artifact and the
+  `mode`/`reason`.
   - **Evidence:** `9c54e69`: `build` and `pickProfile` in `ui.ts`, with the
     `workspaceState` key `profileKey(folder)` and the `buildMessage` text in
     `actions.ts`. The `actions.test.ts` `buildMessage` tests pass. Task 12
@@ -440,7 +445,7 @@ Dev Containers window.
 
 - [x] Opening the panel runs one status, the status bar item reads
   `Expo Bridge: OK`, and a build of the remembered profile streams its log to
-  the output channel. A second build does not ask for the profile.
+  `Expo Bridge Build`. A second build does not ask for the profile.
   - **Evidence:** Mac run of 0.4.0 at `530b160`: one status, `Expo Bridge: OK`,
     and no profile prompt on the second build. Mac re-run at `0c15a5c`: a clean
     build streamed eas-cli output to the `Expo Bridge Build` channel while it
