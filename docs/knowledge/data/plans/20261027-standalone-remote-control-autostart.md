@@ -6,7 +6,7 @@ release:
 description: Opt the standalone agent-opencode runtime into Claude Remote Control with AGENTDEV_CLAUDE_RC_MODE, through a supervised remote-control watcher that waits for a claude.ai login, starts claude-remote, and restarts it within the recovery budget.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T12:30:00Z
+  at: 2026-10-28T00:31:59Z
 sources:
 - resource: docs/knowledge/data/backlog/standalone-claude-remote-control.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -17,6 +17,8 @@ sources:
 - resource: docker/opencode/runtime.env.example
 - resource: docker/opencode/README.md
 - resource: compose.opencode.yml
+stage: done
+completed: 2026-10-28
 ---
 
 # Start Claude Remote Control in the standalone runtime
@@ -34,8 +36,9 @@ login in its auth volume. The maintainer asked for standalone support, gated on
 Control after a login that happens once the runtime is already up.
 
 The contracts are [Claude Remote Control](../spec/claude-remote-control.md) and
-`spec/standalone-opencode-runtime`, which the [standalone OpenCode container
-plan](20261017-standalone-opencode-container.md) creates.
+[Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md), which the
+[standalone OpenCode container plan](20261017-standalone-opencode-container.md)
+creates.
 
 ## Approach
 
@@ -240,11 +243,17 @@ tick was rejected for the cost of a Claude process every interval.
 
 **Files:** none
 
-- [ ] On a standalone deployment with `AGENTDEV_CLAUDE_RC_MODE=server` and no
+- [x] On a standalone deployment with `AGENTDEV_CLAUDE_RC_MODE=server` and no
   Claude login, `status` says it is waiting; after `/login` from
   `docker exec -u agent -it <container> claude`, `claude-remote` starts without
   a restart, and a conversation started from claude.ai/code in that environment
   works in the workspace.
+  - **Evidence:** the Project3 run of 2026-10-28 under
+    `## Verification results`: with its own auth volume, the watcher started at
+    00:22:57 UTC with no login, `claude auth login` wrote `.credentials.json` at
+    00:27:55, and `claude remote-control --spawn worktree` started at 00:27:56
+    under the same PID 1; the resulting claude.ai/code conversation ran commands
+    in `/workspaces/project`.
 
 ## Spec changes
 
@@ -389,8 +398,9 @@ runtime's recovery budget for optional services.
   before the bootstrap.
 ```
 
-`spec/standalone-opencode-runtime`: the image no longer promises never to
-autostart Claude Code, and Remote Control joins the optional services.
+[Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md): the image
+no longer promises never to autostart Claude Code, and Remote Control joins the
+optional services.
 
 ``` markdown
 ## MODIFIED Requirements
@@ -463,8 +473,9 @@ default with an explicit disable option.
 ## Depends on
 
 [Ship a standalone OpenCode
-container](20261017-standalone-opencode-container.md) — it creates
-`spec/standalone-opencode-runtime`, which this plan modifies.
+container](20261017-standalone-opencode-container.md) — it creates [Standalone
+OpenCode runtime](../spec/standalone-opencode-runtime.md), which this plan
+modifies.
 
 ## Verification
 
@@ -474,6 +485,46 @@ container](20261017-standalone-opencode-container.md) — it creates
 - `shellcheck .devcontainer/scripts/runtime-remote-control.sh .devcontainer/scripts/runtime-health.sh`
   and `python-lint-check.sh`.
 - Task 6 on a real deployment with a claude.ai login.
+
+## Verification results
+
+- **Task 6, with a claude.ai login already in the auth volume (2026-10-27):** a
+  standalone `agent-opencode` deployment with `AGENTDEV_CLAUDE_RC_MODE=server`
+  and `AGENTDEV_CLAUDE_RC_SPAWN` empty, rebuilt from the image that carries the
+  watcher. With no operator action, the supervisor (PID 1 at 19:25:47) started
+  `runtime-remote-control.sh run`, and that started
+  `claude remote-control --spawn worktree` in the `claude-remote` tmux session
+  at 19:26:31. `runtime-health.sh status` reported `runtime state: ready` and
+  `remote-control: running in tmux session claude-remote`. A conversation
+  started from claude.ai/code in that environment ran in `/workspaces/project`:
+  it created and pushed a branch and read the runtime state. This run did not
+  exercise the no-login phase.
+- **Task 6, upgrade of a logged-out deployment (2026-10-27):** the Project1
+  standalone deployment, logged out of Claude, upgraded from container
+  `5ddd810b6826` to `1e493a7ec181` on image
+  `sha256:54e1bab164da46f27440f27aceb9352138f1d0ef709a643b6eece7142ba2246d`
+  (revision `f5d47eb88c1cb9731e1d2f7a09b65c18276460c5`), with all five named
+  volumes and the workspace HEAD preserved. The container's PID 1 started at
+  22:52:10 UTC; the shared auth volume's `.credentials.json` was rewritten by a
+  login at 22:52:19; the `remote-control` watcher started at 22:52:53 and
+  `claude-remote` at 22:52:54. The runtime reported `ready`, and a
+  claude.ai/code conversation resumed in `/workspaces/project` through that
+  server. The watcher started after the login, so it never reported waiting:
+  this run did not exercise the no-login phase either.
+- **Task 6, from no login (2026-10-28):** a new Project3 standalone deployment
+  (container `62f72d6c1439`) with `AGENTDEV_CLAUDE_RC_MODE=server`, an empty
+  `AGENTDEV_CLAUDE_RC_SPAWN`, and an auth volume of its own. PID 1 started at
+  00:22:37 UTC and the `remote-control` watcher at 00:22:57. Before the login,
+  `claude auth status` reported `loggedIn: false` and no `claude` process ran.
+  `claude auth login` from a `docker exec` shell wrote `.credentials.json` at
+  00:27:55; `claude remote-control --spawn worktree` started in tmux
+  `claude-remote` at 00:27:56, and a conversation worker at 00:28:13, all under
+  the same PID 1. Afterwards the state file showed the runtime `ready` with
+  `remote-control: ready`, `status` reported
+  `running in tmux session claude-remote`, and the claude.ai/code conversation
+  ran commands in `/workspaces/project` and answered a peer session. The waiting
+  status line itself was not captured; the watcher writes it on every tick while
+  no login exists.
 
 ## Out of scope
 

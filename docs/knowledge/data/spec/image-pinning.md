@@ -3,7 +3,7 @@ type: spec
 description: How the published agent-desktop, agent-opencode, and ubuntu-ansible images are tagged after acceptance, and pinned and updated by consumers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-20T12:00:00Z
+  at: 2026-10-28T02:36:16Z
 sources:
 - resource: devcontainer-compose-pins.yml
 - resource: README.md
@@ -13,6 +13,8 @@ sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/actions/docker/promote/action.yml
 - resource: .github/actions/docker/multiarch-merge/action.yml
+- resource: opencode-compose-pins.yml
+- resource: .github/actions/paths-filter/action.yml
 ---
 
 # Image pinning
@@ -99,6 +101,26 @@ cancel one another.
 
 - **WHEN** commits land on `main` while its run is in progress
 - **THEN** that run completes, and the newest waiting run follows it.
+
+## Requirement: standalone runtime deployment is digest-pinned
+
+Supported agent-opencode Compose launch commands SHALL include a tag-and-digest
+pin in root-level opencode-compose-pins.yml. Runtime builds SHALL use the exact
+agent-desktop digest from their build run. A pin change SHALL NOT rebuild or
+publish the image it names.
+
+### Scenario: runtime sources change
+
+- **WHEN** a runtime image is built and published
+- **THEN** native amd64 and arm64 builds and acceptance checks gate success and
+  the manifest identifies the corresponding desktop ancestry.
+
+### Scenario: only a deployment digest changes
+
+- **WHEN** Renovate advances opencode-compose-pins.yml
+- **THEN** the proposed digest is one CI promoted after acceptance, the
+  image-build path filter does not match, and the update does not create a
+  publish/pin loop.
 
 ## Unknowns
 

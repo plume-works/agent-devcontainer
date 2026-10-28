@@ -38,6 +38,9 @@ review](backlog/verify-assignee-review-automerge.md)
 
 [Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
+[Supervise Claude Remote Control in Coder
+workspaces](backlog/coder-supervised-remote-control.md)
+
 [Make plan task evidence survive history
 rewrites](backlog/resilient-task-evidence.md)
 

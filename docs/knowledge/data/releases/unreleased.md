@@ -76,6 +76,11 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 [Autonomous Implement loop](../features/autonomous-implement-loop.md)
 
+[Standalone OpenCode container](../features/standalone-opencode-container.md)
+
+[Remote Control autostart in the standalone
+runtime](../features/standalone-remote-control-autostart.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)

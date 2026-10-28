@@ -71,3 +71,7 @@ whenever a plan ships, so this section never drifts from the code.*
 [AI review refresh](spec/ai-review-refresh.md)
 
 [IWE bootstrap](spec/iwe-bootstrap.md)
+
+[Standalone OpenCode runtime](spec/standalone-opencode-runtime.md)
+
+[CBM startup integration](spec/cbm-startup-integration.md)

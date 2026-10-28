@@ -6,6 +6,22 @@ to the current day's group.
 
 ## 2026-10-28
 
+- **Update**: [Start Claude Remote Control in the standalone
+  runtime](plans/20261027-standalone-remote-control-autostart.md) done; merged
+  the standalone watcher requirement into [Claude Remote
+  Control](spec/claude-remote-control.md) and Remote Control as an optional
+  service into [Standalone OpenCode
+  runtime](spec/standalone-opencode-runtime.md); [Remote Control autostart in
+  the standalone runtime](features/standalone-remote-control-autostart.md)
+  implemented and listed under Unreleased Added.
+- **Update**: [Ship a standalone OpenCode
+  container](plans/20261017-standalone-opencode-container.md) done; created the
+  [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md) and [CBM
+  startup integration](spec/cbm-startup-integration.md) specs and merged the
+  standalone requirements into [Catalog lifecycle](spec/catalog-lifecycle.md)
+  and [Image pinning](spec/image-pinning.md); [Standalone OpenCode
+  container](features/standalone-opencode-container.md) implemented and listed
+  under Unreleased Added.
 - **Update**: bug [Command-result evidence is judged
   inconsistently](bugs/command-result-evidence-ambiguous.md) records the Codex
   e2e run under the fixed rules: both plans' evidence cites the code commit and
