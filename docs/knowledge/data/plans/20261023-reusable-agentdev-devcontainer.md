@@ -109,10 +109,15 @@ recovery.
   - **Evidence:** commits 6171b723, ebcccecf;
     `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
     — 127 passed.
-- [ ] Split bootstrap responsibilities so deploy may create or validate its
+- [x] Split bootstrap responsibilities so deploy may create or validate its
   runtime identity and workspace, while devcontainer accepts the Dev Container
   tool's user and mounted workspace without cloning, recursively changing
   checkout ownership, or requiring deploy-only proxy secrets.
+  - **Evidence:** commit ebcccecf;
+    `uv run pytest scripts/tests/test_agent_runtime_identity.py scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_agent_runtime_firewall.py`
+    — the devcontainer bootstrap, no-clone, and proxy-free firewall tests pass;
+    `test_rejects_an_unwritable_checkout_without_changing_ownership` fails on
+    this host before and after the change.
 - [ ] Run Docker, D-Bus, keyring, CBM, and Xpra through the devcontainer profile
   with the same probes and recovery guarantees as deploy. Keep OpenCode Web and
   Claude Remote Control opt-in clients rather than required readiness gates.
