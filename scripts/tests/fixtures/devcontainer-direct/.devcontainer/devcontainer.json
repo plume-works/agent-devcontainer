@@ -1,0 +1,11 @@
+{
+  // A direct consumer: the published image supplies the lifecycle, this descriptor only
+  // the workspace and its own repository-owned commands, which count each phase.
+  "name": "agentdev direct consumer fixture",
+  "image": "${localEnv:AGENTDEV_DEVCONTAINER_TEST_IMAGE}",
+  "workspaceFolder": "/workspaces/fixture",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/fixture,type=bind",
+  "postCreateCommand": "echo created >> .phases",
+  "postStartCommand": "echo started >> .phases",
+  "postAttachCommand": "echo attached >> .phases"
+}

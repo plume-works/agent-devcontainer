@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Mounted with the repository, never registered by the image: it must not run.
+touch "$DEV_WORKSPACE_FOLDER/.evil"
