@@ -248,7 +248,10 @@ Modify: `docs/knowledge/data/backlog.md` (extension repository)
 
 **Files:** none
 
-- [ ] Commit, push, and open the pull request with `/agentdev:pr-open`.
+- [x] Commit, push, and open the pull request with `/agentdev:pr-open`.
+  - **Evidence:**
+    [plume-works/vscode-expo-bridge#26](https://github.com/plume-works/vscode-expo-bridge/pull/26)
+    at `9c4625f`.
 
 ### Task 8: Merge the extension repository's pull request
 
