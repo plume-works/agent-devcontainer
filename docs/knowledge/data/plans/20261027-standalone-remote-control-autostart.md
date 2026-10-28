@@ -6,7 +6,7 @@ release:
 description: Opt the standalone agent-opencode runtime into Claude Remote Control with AGENTDEV_CLAUDE_RC_MODE, through a supervised remote-control watcher that waits for a claude.ai login, starts claude-remote, and restarts it within the recovery budget.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T23:01:56Z
+  at: 2026-10-28T00:31:59Z
 sources:
 - resource: docs/knowledge/data/backlog/standalone-claude-remote-control.md
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
@@ -240,11 +240,17 @@ tick was rejected for the cost of a Claude process every interval.
 
 **Files:** none
 
-- [ ] On a standalone deployment with `AGENTDEV_CLAUDE_RC_MODE=server` and no
+- [x] On a standalone deployment with `AGENTDEV_CLAUDE_RC_MODE=server` and no
   Claude login, `status` says it is waiting; after `/login` from
   `docker exec -u agent -it <container> claude`, `claude-remote` starts without
   a restart, and a conversation started from claude.ai/code in that environment
   works in the workspace.
+  - **Evidence:** the Project3 run of 2026-10-28 under
+    `## Verification results`: with its own auth volume, the watcher started at
+    00:22:57 UTC with no login, `claude auth login` wrote `.credentials.json` at
+    00:27:55, and `claude remote-control --spawn worktree` started at 00:27:56
+    under the same PID 1; the resulting claude.ai/code conversation ran commands
+    in `/workspaces/project`.
 
 ## Spec changes
 
@@ -500,6 +506,20 @@ container](20261017-standalone-opencode-container.md) — it creates
   claude.ai/code conversation resumed in `/workspaces/project` through that
   server. The watcher started after the login, so it never reported waiting:
   this run did not exercise the no-login phase either.
+- **Task 6, from no login (2026-10-28):** a new Project3 standalone deployment
+  (container `62f72d6c1439`) with `AGENTDEV_CLAUDE_RC_MODE=server`, an empty
+  `AGENTDEV_CLAUDE_RC_SPAWN`, and an auth volume of its own. PID 1 started at
+  00:22:37 UTC and the `remote-control` watcher at 00:22:57. Before the login,
+  `claude auth status` reported `loggedIn: false` and no `claude` process ran.
+  `claude auth login` from a `docker exec` shell wrote `.credentials.json` at
+  00:27:55; `claude remote-control --spawn worktree` started in tmux
+  `claude-remote` at 00:27:56, and a conversation worker at 00:28:13, all under
+  the same PID 1. Afterwards the state file showed the runtime `ready` with
+  `remote-control: ready`, `status` reported
+  `running in tmux session claude-remote`, and the claude.ai/code conversation
+  ran commands in `/workspaces/project` and answered a peer session. The waiting
+  status line itself was not captured; the watcher writes it on every tick while
+  no login exists.
 
 ## Out of scope
 
