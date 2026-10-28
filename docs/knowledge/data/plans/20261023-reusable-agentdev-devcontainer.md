@@ -118,9 +118,12 @@ recovery.
     — the devcontainer bootstrap, no-clone, and proxy-free firewall tests pass;
     `test_rejects_an_unwritable_checkout_without_changing_ownership` fails on
     this host before and after the change.
-- [ ] Run Docker, D-Bus, keyring, CBM, and Xpra through the devcontainer profile
+- [x] Run Docker, D-Bus, keyring, CBM, and Xpra through the devcontainer profile
   with the same probes and recovery guarantees as deploy. Keep OpenCode Web and
   Claude Remote Control opt-in clients rather than required readiness gates.
+  - **Evidence:** commit ebcccecf;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py` — 26 passed,
+    including the shared program definitions and per-service recovery and exit.
 
 ### Task 3: Package stable Dev Container lifecycle entry points
 
