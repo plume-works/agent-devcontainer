@@ -49,8 +49,10 @@ the same line the other way.
    residue CRITICAL, followed by an evidence-repair implementer round, and
    others report `Ready to ship`.
 
-The Codex runs used `gpt-5.6-sol` at `low` reasoning effort from the user's
-`~/.codex/config.toml`; the harness sets no model.
+Reasoning effort does not settle it. With `gpt-5.6-sol`, the first Verify of a
+plan rejected the line in 2 of 4 plan runs at `low` effort and 2 of 6 at
+`medium`, which `E2E_CODEX_REASONING_EFFORT=medium` selects. At both efforts the
+implementer's first evidence line cited the check alone.
 
 ## Root cause
 
@@ -59,8 +61,8 @@ line falls between them. The implementer rulebook and the spec allow "the test
 run and its result" as evidence, and both rulebooks call "raw command stdout
 transcribed as evidence" residue. A named, re-runnable check plus its outcome is
 neither: it is not stdout, and it is not a durable record of a run a later
-session can look up. The verifier settles it by judgment on every run, and at
-low reasoning effort the judgment flips between runs.
+session can look up. The verifier settles it by judgment on every run, and the
+judgment flips between runs.
 
 The implementer's other rules then push it toward that line. Evidence must "name
 the commit", but the tick and its evidence line must land "in the same commit as
