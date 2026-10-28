@@ -127,3 +127,6 @@ change](bugs/plan-tasks-edit-specs.md)
 
 [Bug: a comment-requested review's gate does not count toward
 merge](bugs/dispatched-review-gate-not-counted.md)
+
+[Command-result evidence is judged
+inconsistently](bugs/command-result-evidence-ambiguous.md)

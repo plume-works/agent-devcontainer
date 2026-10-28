@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-28
+
+- **Create**: bug [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md), found by the
+  two-plan `implement-all` e2e run on Codex.
+
 ## 2026-10-27
 
 - **Create**: [Run implement-all live against two
