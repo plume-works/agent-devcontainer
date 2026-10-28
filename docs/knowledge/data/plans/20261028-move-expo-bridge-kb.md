@@ -207,7 +207,7 @@ Create: `CLAUDE.md` (extension repository)
 **Files:** Create: `docs/knowledge/data/backlog/expo-bridge-agent-skill.md`;
 Modify: `docs/knowledge/data/backlog.md` (extension repository)
 
-- [ ] File it with `/agentdev:iwe-capture task` at `priority: high`. The task:
+- [x] File it with `/agentdev:iwe-capture task` at `priority: high`. The task:
   ship a skill that teaches an agent the bridge — run `eas-host status` first,
   then `build <profile>`, `install`, start Metro, `launch`, `screenshot`;
   artifacts under `.tmp/expo-bridge/`; EAS cloud when `status` exits non-zero;
@@ -229,14 +229,20 @@ Modify: `docs/knowledge/data/backlog.md` (extension repository)
   Acceptance names the chosen option and, for B, the directories verified
   against each agent's current documentation.
 
+  - **Evidence:** vscode-expo-bridge `9c4625f`
+    `docs/knowledge/data/backlog/expo-bridge-agent-skill.md` under `## High`.
+
 ### Task 6: Validate the extension repository's graph
 
 **Files:** none
 
-- [ ] From `/workspaces/vscode-expo-bridge`: `iwe normalize` leaves no diff,
+- [x] From `/workspaces/vscode-expo-bridge`: `iwe normalize` leaves no diff,
   `iwe schema validate` exits 0, `iwe stats` reports no broken link and no
   orphan among the 28, and no relative link in `docs/knowledge/data/` resolves
   outside it.
+  - **Evidence:** vscode-expo-bridge `9c4625f`: `iwe normalize` no-op,
+    `iwe schema validate` exits 0, `iwe stats` lists no broken link and only the
+    scaffold's own orphans, no relative link leaves `docs/knowledge/data/`.
 
 ### Task 7: Open the extension repository's pull request
 
