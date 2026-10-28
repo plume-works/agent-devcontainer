@@ -76,11 +76,14 @@ recovery.
 `.devcontainer/scripts/runtime-supervisor.py`,
 `.devcontainer/scripts/runtime-health.sh`
 
-- [ ] Add focused tests that define the shared service set and the distinct
+- [x] Add focused tests that define the shared service set and the distinct
   deploy and devcontainer dependency graphs. Prove deploy still gates OpenCode
   on project preparation, with indexing requested in the background, while
   devcontainer omits automatic OpenCode service startup and publishes readiness
   for editor attachment.
+  - **Evidence:** commit 6171b723;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
+    — 124 passed.
 - [ ] Cover invalid profile names, disabled optional services, terminal
   failures, bounded recovery, signal handling, and readiness-file semantics so a
   profile cannot silently degrade into a partially initialized container.
