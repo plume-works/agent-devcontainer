@@ -78,8 +78,9 @@ recovery.
 
 - [ ] Add focused tests that define the shared service set and the distinct
   deploy and devcontainer dependency graphs. Prove deploy still gates OpenCode
-  on project preparation and indexing, while devcontainer omits automatic
-  OpenCode service startup and publishes readiness for editor attachment.
+  on project preparation, with indexing requested in the background, while
+  devcontainer omits automatic OpenCode service startup and publishes readiness
+  for editor attachment.
 - [ ] Cover invalid profile names, disabled optional services, terminal
   failures, bounded recovery, signal handling, and readiness-file semantics so a
   profile cannot silently degrade into a partially initialized container.
@@ -512,7 +513,7 @@ container](20261017-standalone-opencode-container.md)
 - `uv run pytest scripts/tests/test_agent_runtime_docker.py`
 - `uv run pytest scripts/tests/test_agent_runtime_keyring.py`
 - `uv run pytest scripts/tests/test_agent_runtime_cbm.py`
-- `.devcontainer/scripts/python-lint-check.sh`
+- `.agents/plugins/agentdev/bin/python-lint-check.sh`
 - Run `shellcheck` on every created or modified shell script.
 - Build the three-image family locally through the repository's image-build
   action or the microVM sandbox, then inspect each image's labels, ancestry,
