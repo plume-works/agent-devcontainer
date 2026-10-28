@@ -141,10 +141,13 @@ recovery.
   attach-scoped catalog/index refresh behind stable commands installed under
   `/opt/agentdev-runtime/`. Preserve restart and repeated-attach semantics and
   make each command idempotent.
-- [ ] Define ordered `/etc/agentdev/hooks/{created,started,attached}.d/`
+- [x] Define ordered `/etc/agentdev/hooks/{created,started,attached}.d/`
   extension points. Run only executable files from those explicit directories,
   fail with the hook name and phase, and never discover or execute hooks merely
   because an untrusted workspace was mounted.
+  - **Evidence:** commit 096c5c8f;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed, including order, skip, failure naming, and workspace-script refusal.
 - [ ] Retain the checkout-catalog override only when all required agentdev
   manifests are present. A normal consumer with no catalog must continue using
   the immutable staged catalog.
