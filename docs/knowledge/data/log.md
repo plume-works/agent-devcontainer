@@ -22,9 +22,62 @@ to the current day's group.
   and [Image pinning](spec/image-pinning.md); [Standalone OpenCode
   container](features/standalone-opencode-container.md) implemented and listed
   under Unreleased Added.
+- **Update**: bug [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md) records the Codex
+  e2e run under the fixed rules: both plans' evidence cites the code commit and
+  passes its first Verify.
+- **Update**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) now
+  counts a check only together with the commit that holds its change, and puts
+  the tick in a commit after the code rather than in the same one; bug
+  [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md) done.
+- **Map**: re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
+  the [knowledge workspace](codebase/docs/knowledge.md) for the evidence rule
+  change.
+- **Create**: [Make plan task evidence survive history
+  rewrites](backlog/resilient-task-evidence.md).
+- **Create**: bug [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md), found by the
+  two-plan `implement-all` e2e run on Codex.
+- **Update**: [Expo Bridge panel, status bar, and Problems in the workspace
+  extension](plans/20261026-expo-bridge-panel.md) done; no `data/spec/` change.
+- **Update**: [Bug: the Expo bridge's project ID check ignores dynamic app
+  config](bugs/expo-bridge-project-id-ignores-dynamic-config.md) fixed and
+  listed under Unreleased Fixed.
+- **Update**: [Bug: the container sees the Expo bridge's build log only after
+  the build ends](bugs/expo-bridge-build-log-invisible-until-close.md) fixed and
+  listed under Unreleased Fixed.
+- **Update**: [Bug: the Expo bridge's build log tail drops
+  lines](bugs/expo-bridge-build-log-tail-drops-lines.md) fixed and listed under
+  Unreleased Fixed.
+- **Bug**: filed [Bug: the Expo bridge's project ID diagnostic stays stale after
+  a config
+  edit](bugs/expo-bridge-project-id-diagnostic-stale-after-config-edit.md).
+- **Bug**: filed [Bug: the Expo bridge's CocoaPods fix does not repair an
+  unlinked keg](bugs/expo-bridge-cocoapods-fix-misses-unlinked-keg.md).
+- **Bug**: filed [Bug: the Expo bridge's simulator profile quick fix omits the
+  bun pin](bugs/expo-bridge-simulator-profile-quick-fix-omits-bun.md).
+- **Task**: captured [Revise the Expo bridge build controls after CMake
+  Tools](backlog/expo-bridge-build-controls.md).
+- **Task**: captured [Show one Expo Bridge status bar
+  item](backlog/expo-bridge-one-status-bar-item.md).
+- **Task**: captured [Show each Expo bridge panel section's state on its
+  row](backlog/expo-bridge-section-status-icons.md).
+- **Task**: captured [Verify the build in the Expo bridge sideload
+  procedure](backlog/expo-bridge-sideload-procedure.md).
 
 ## 2026-10-27
 
+- **Create**: [Run implement-all live against two
+  plans](backlog/implement-all-multi-plan-e2e.md), done in the same change:
+  `test_implement_all` now runs against the loop and pair fixture plans on every
+  harness.
+- **Create**: someday ideas [Calibrate the revision evaluator against human
+  review](someday/revision-evaluator-calibration.md) and [Nested dispatch from
+  catalog agents](someday/nested-catalog-agent-dispatch.md).
 - **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for
   the Remote Control watcher's shorter header, and re-stamped
   [devcontainer](codebase/devcontainer.md) and the [devcontainer

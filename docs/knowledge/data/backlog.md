@@ -16,6 +16,9 @@ write a plan and link the plan instead.*
 
 ## High
 
+[Revise the Expo bridge build controls after CMake
+Tools](backlog/expo-bridge-build-controls.md)
+
 ## Medium
 
 [Exercise REMOVED delta blocks end to
@@ -38,6 +41,15 @@ review](backlog/verify-assignee-review-automerge.md)
 [Supervise Claude Remote Control in Coder
 workspaces](backlog/coder-supervised-remote-control.md)
 
+[Make plan task evidence survive history
+rewrites](backlog/resilient-task-evidence.md)
+
+[Show one Expo Bridge status bar
+item](backlog/expo-bridge-one-status-bar-item.md)
+
+[Show each Expo bridge panel section's state on its
+row](backlog/expo-bridge-section-status-icons.md)
+
 ## Low
 
 [Detect plan narration growth
@@ -46,10 +58,16 @@ mechanically](backlog/detect-plan-narration-growth.md)
 [Clean up the local checkout after
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
+[Verify the build in the Expo bridge sideload
+procedure](backlog/expo-bridge-sideload-procedure.md)
+
 [Drop the `@claude <custom prompt>` free-form task
 trigger](backlog/drop-claude-free-form-task-trigger.md)
 
 ## Done
+
+[Run implement-all live against two
+plans](backlog/implement-all-multi-plan-e2e.md)
 
 [Find why the orphan-kill supervision test is
 flaky](backlog/supervision-orphan-kill-test-cause.md)

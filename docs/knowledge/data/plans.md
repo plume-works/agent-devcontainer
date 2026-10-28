@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Expo Bridge panel, status bar, and Problems in the workspace
-extension](plans/20261026-expo-bridge-panel.md)
-
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
@@ -39,6 +36,9 @@ runtime](plans/20261027-standalone-remote-control-autostart.md)
 
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
+
+[Expo Bridge panel, status bar, and Problems in the workspace
+extension](plans/20261026-expo-bridge-panel.md)
 
 [PR skills drive the AI review lifecycle on the single review
 workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)

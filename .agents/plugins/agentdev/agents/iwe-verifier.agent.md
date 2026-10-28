@@ -60,7 +60,9 @@ runs in one of two modes:
      taking it. Mirroring it, every ticked `- [x]` task whose indented
      `- **Evidence:**` line is missing or empty, or whose evidence names nothing
      traceable to a commit, test run, or CI run, is also a CRITICAL,
-     recommendation "untick it". Residue is not traceable evidence: raw command
+     recommendation "untick it". A check and its result count only together
+     with the commit that holds the change they check. Residue is not traceable
+     evidence: a check cited without that commit, raw command
      stdout transcribed as evidence, an ephemeral identifier that will not exist
      next session (a container or machine id, a temp path), and a citation of an
      uncommitted `.tmp/` harness each fail this check the same way an empty line

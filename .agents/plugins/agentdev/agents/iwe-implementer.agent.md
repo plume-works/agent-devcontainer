@@ -58,16 +58,19 @@ user's direction behaves according to the mode:
    relying on it. If lines moved, update the anchor list and its
    "verified as of" date — that edit is part of this session's work.
 6. **Execute the next unchecked task.** Follow its `**Files:**` list; write
-   the code; run every test and check required for that task. Closing it is a
-   single edit that ticks `- [ ]` → `- [x]` _and_ writes the task's indented
-   `- **Evidence:**` child naming what closed it — the commit, the test run and
-   its result, the CI run — specifically enough that a later session can go
-   look. Cite what survives the session, not what it produced: raw command
-   stdout transcribed as evidence, an ephemeral identifier that will not exist
-   next session (a container or machine id, a temp path), and a citation of an
-   uncommitted `.tmp/` harness are all residue, not evidence — name the commit,
-   test run, or CI run instead. Do it only when the task's complete specified
-   behavior is implemented with passing evidence, then run `iwe normalize`.
+   the code; run every test and check required for that task; commit the code.
+   Closing it is then a single edit that ticks `- [ ]` → `- [x]` _and_ writes
+   the task's indented `- **Evidence:**` child naming what closed it — the
+   commit that holds the code, the test run and its result, the CI run —
+   specifically enough that a later session can go look; commit that edit next,
+   on its own. A check and its result count only together with the commit that
+   holds the change they check. Cite what survives the session, not what it
+   produced: a check cited without that commit, raw command stdout transcribed
+   as evidence, an ephemeral identifier that will not exist next session (a
+   container or machine id, a temp path), and a citation of an uncommitted
+   `.tmp/` harness are all residue, not evidence — name the commit, test run,
+   or CI run instead. Do it only when the task's complete specified behavior is
+   implemented with passing evidence, then run `iwe normalize`.
    Partial work, deferred behavior, or a failing required test or check stays
    unchecked, with no evidence line. If you cannot name the evidence, the box is
    not closable: that is the check working, not a formatting obstacle.
@@ -103,7 +106,7 @@ user's direction behaves according to the mode:
 
 8. **Run to completion.** Execute tasks continuously until the plan's last box
    ticks, without pausing for approval between them — each task still closes
-   under Step 6 and commits with its own evidence line and code. Stop only when
+   under Step 6, its code committed first and its evidence line next. Stop only when
    an interlock fires: a material deviation (Step 7), which then takes its
    route, or a task that is blocked or incomplete mid-task — leave that box unchecked, describe the remaining
    work or failing evidence, and stop there. If the user asks to review each
@@ -140,7 +143,7 @@ loop dispatches is a leaf and dispatches nothing.
    act on, the run ends with the report (step 6) and suggests the
    `/agentdev:iwe-ship` skill.
 3. **Code route** — a finding about code or evidence. Fix it under the Steps
-   above: the code, the test, the task's evidence line, a commit. Then
+   above: the code, the test, its commit, then the task's evidence line. Then
    dispatch `iwe-verifier` again (step 1). The coordinator re-dispatches
    `iwe-implementer` with the plan key and the findings to fix, quoted as
    reported, instead of fixing them itself.
@@ -212,8 +215,8 @@ harness is code and lives in the repository. Its _output_ is not plan content.
   substitution across the file is itself the defect, not a faster route to the
   same result: eight verified ticks and one careless sweep produce identical
   bytes, and only the per-box evidence line tells them apart.
-- Checkbox flips, their evidence lines, and anchor updates belong in the same
-  commit as the code they describe.
+- A task's code is committed before its checkbox flip and evidence line, which
+  name that commit and follow in a commit of their own.
 - Small honest increments beat a big unreviewable one: one task per commit,
   even when the run never pauses between them.
 - Never silently expand the plan or narrow its specified behavior to fit the

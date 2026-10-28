@@ -3,8 +3,9 @@ type: architecture
 description: How an Expo consumer's devcontainer builds, installs, launches, and screenshots its iOS app on the Mac that opened it — two VS Code extensions bridged by command routing, one socket per window, the request's workspace folder mapped to its Mac path through Docker, a fixed Expo-only action set, and a consent surface rather than a security boundary.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T17:00:00Z
+  at: 2026-10-28T03:00:00Z
 sources:
+- resource: docs/knowledge/data/plans/20261026-expo-bridge-panel.md
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
 - resource: docs/knowledge/data/plans/20261024-expo-bridge-fix-terminal-mac-shell.md
@@ -56,8 +57,8 @@ one **Developer: Reload Window**.
 │   ▼                          │ ──────────▶ │  ├ maps the request's folder to   │
 │ workspace extension ─────────┤  + folder   │  │   its Mac path through Docker   │
 │                              │             │  ├ eas build --local              │
-│ tails the log file ◀─────────┼─workspace───┼──┤ xcrun simctl install/launch/   │
-│ reads the artifact           │   folder    │  │   screenshot                   │
+│ reads the artifact ◀─────────┼─workspace───┼──┤ xcrun simctl install/launch/   │
+│                              │   folder    │  │   screenshot                   │
 └──────────────────────────────┘             │  └ writes .tmp/expo-bridge/        │
                                              └───────────────────────────────────┘
 ```
@@ -65,8 +66,11 @@ one **Developer: Reload Window**.
 VS Code routes a command to whichever extension host registered it, so a request
 crosses from container to Mac as a JSON command argument and opens no network
 port; the firewall allowlist does not change. The workspace folder is one
-directory seen by both sides, so the build log, the artifact, and screenshots
-reach the container as files under its `.tmp/expo-bridge/`.
+directory seen by both sides, so the artifact and screenshots reach the
+container as files under its `.tmp/expo-bridge/`. The build log does not: the
+container sees a file on the Mac grow only when the host closes it, so the host
+sends each log chunk to the workspace command `expoBridge.workspace.buildLog`
+before the `build` response.
 
 ### The window and the workspace folder
 
@@ -158,6 +162,29 @@ variables, the Mac login environment, the macOS and simulator runtimes — need
 `--clean`. The protocol stays at version 2: `clean`, `mode`, `reason`, and
 `reusedBuiltAt` are optional, so mixed extension versions keep working, and
 `eas-host status` compares versions for equality.
+
+### The workspace UI
+
+The panel, the status bar item, and Problems belong to the workspace extension;
+the host extension keeps its fix flow, its fix status bar item, and its toasts.
+
+- **One request path.** The socket handler and the panel relay every request
+  through one function, which replaces `checks.easProjectId` in each `status`
+  result with the container's resolution of the folder's app config, so
+  `eas-host status` and the panel always agree. Evaluating `app.config.*` in the
+  container runs the container's own code and crosses no trust boundary; only
+  the folder's local `node_modules/.bin/expo` is run, never `bunx`, which could
+  fetch Expo from the registry.
+- **Host commands are called with no arguments.** The UI reaches the Mac only
+  through `status` and `build` requests and the existing `expoBridge.fix`,
+  `expoBridge.setToken`, and `expoBridge.manageTrust`, each without arguments,
+  so the Mac's own picker and prompts decide what runs.
+- **Activation awaits no view.** Awaiting a reveal or focus of a view during
+  `activate()` deadlocks the extension, so the first `status` runs when the
+  panel first becomes visible, never from activation itself.
+- **Diagnostics are computed in the container.** It reads its own `eas.json` and
+  app config directly and publishes on those files; checks that have no file of
+  their own are anchored to the folder's `eas.json`.
 
 ### Security model
 
@@ -311,5 +338,12 @@ simulator processes run with the Mac user's file access.
   leaves Homebrew's version record wrong.
 - **Sending the resolved bun path in the status result** — only the host acts on
   it, and it would change the protocol.
+- **The host extension contributing the panel's views** — a `ui` extension's
+  views can live in a view container that a `workspace` extension declares,
+  hidden elsewhere by a `when` clause on a context key the container sets, but
+  it moves UI to the host and changes what each extension does.
+- **Diagnostics computed on the host** — its file rules let it read only
+  `eas.json` and `app.json`, and it would publish diagnostics on files in the
+  container.
 - **`homebrew-core`'s `bun` for a fresh install** — `oven-sh/bun/bun` installs
   bun's own release builds, so its version tracks bun.sh.
