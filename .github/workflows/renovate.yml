@@ -48,7 +48,7 @@ jobs:
       group: ${{ github.workflow }}
       cancel-in-progress: false
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
-    # The same digest as devcontainer-compose-pins.yml; Renovate's agent-desktop
+    # The same digest as devcontainer-compose-pins.yml; Renovate's agentdev-devcontainer
     # group moves every copy together. See spec/image-pinning.
     container:
       image: ghcr.io/plume-works/agent-desktop:edge@sha256:6db847e3d96a83e94b0c4586626d839a8e4b8ed621c5e09ab687fb49dc47020d

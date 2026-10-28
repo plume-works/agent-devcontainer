@@ -1,4 +1,4 @@
-"""Tests for how CI builds, publishes, and accepts agent-opencode, and how its pin is tracked."""
+"""Tests for how CI builds, publishes, and accepts the agentdev image family, and its pins."""
 
 from __future__ import annotations
 
@@ -22,12 +22,20 @@ RUNTIME_SOURCES = [
     '.devcontainer/scripts/runtime-supervisor.py',
     '.devcontainer/scripts/runtime-bootstrap.sh',
     '.devcontainer/firewall-allowlist.txt',
-    'docker/opencode/agent-opencode.Dockerfile',
+    'docker/base/agentdev-base.Dockerfile',
+    'docker/deploy/agentdev-deploy.Dockerfile',
     'docker/deploy/supervisord.conf',
+    'docker/devcontainer/agentdev-devcontainer.Dockerfile',
+    'docker/devcontainer/supervisord.conf',
     'docker/desktop/start-xpra.sh',
     'scripts/tests/test_agent_runtime_acceptance.py',
 ]
-DEPLOYMENT_ONLY = [PIN, 'compose.opencode.yml', 'compose.opencode.bind.yml']
+DEPLOYMENT_ONLY = [
+    PIN,
+    'devcontainer-compose-pins.yml',
+    'compose.opencode.yml',
+    'compose.opencode.bind.yml',
+]
 
 
 def image_filter() -> list[str]:
@@ -56,33 +64,60 @@ def test_deployment_files_do_not_trigger_the_image_build(path: str):
     assert not any(glob_match(pattern, path) for pattern in image_filter())
 
 
-def test_the_runtime_builds_on_the_same_run_desktop_digest():
+RUNTIMES = {
+    'deploy': ('Build agentdev deploy image', 'docker/deploy/agentdev-deploy.Dockerfile'),
+    'devcontainer': (
+        'Build agentdev devcontainer image',
+        'docker/devcontainer/agentdev-devcontainer.Dockerfile',
+    ),
+}
+
+
+@pytest.mark.parametrize('runtime', RUNTIMES)
+def test_each_runtime_builds_on_the_same_run_base_digest(runtime: str):
     build = steps(CI['jobs']['build-dev-image'])
     names = [step.get('name') for step in build]
-    opencode = build[names.index('Build agent opencode image')]
-    assert names.index('Build agent desktop image') < names.index('Build agent opencode image')
-    assert build[names.index('Build agent desktop image')]['id'] == 'build'
-    assert opencode['with']['file'] == 'docker/opencode/agent-opencode.Dockerfile'
-    assert opencode['with']['arch'] == '${{ matrix.arch }}'
-    assert (
-        'DESKTOP_IMAGE_NAME }}@${{ steps.build.outputs.digest }}' in opencode['with']['build-args']
-    )
+    name, dockerfile = RUNTIMES[runtime]
+    step = build[names.index(name)]
+    assert names.index('Build agentdev base image') < names.index(name)
+    assert build[names.index('Build agentdev base image')]['id'] == 'build'
+    assert step['with']['file'] == dockerfile
+    assert step['with']['arch'] == '${{ matrix.arch }}'
+    args = step['with']['build-args']
+    assert 'BASE_IMAGE_NAME }}@${{ steps.build.outputs.digest }}' in args
+    assert 'DEPLOY_IMAGE_NAME' not in args and 'DEVCONTAINER_IMAGE_NAME' not in args
 
 
-def test_the_runtime_gets_its_own_manifest_and_native_acceptance():
+def test_each_runtime_gets_its_own_manifest_and_native_acceptance():
     merge = CI['jobs']['merge-dev-image']
-    merged = next(s for s in steps(merge) if s.get('id') == 'merge_opencode')
-    assert merged['with']['image'].endswith('${{ env.OPENCODE_IMAGE_NAME }}')
-    assert 'merge_opencode' in merge['outputs']['opencode_image_pinned']
-    acceptance = CI['jobs']['opencode-acceptance']
-    assert acceptance['needs'] == ['merge-dev-image']
-    assert {
-        entry['arch'].split("'")[-2] for entry in acceptance['strategy']['matrix']['include']
-    } == {'amd64', 'arm64'}
-    run = next(s for s in steps(acceptance) if 'test-agent-runtime.sh' in s.get('run', ''))
-    assert 'opencode_image_pinned' in run['env']['AGENTDEV_RUNTIME_TEST_IMAGE']
-    assert 'opencode-acceptance' in CI['jobs']['finished']['needs']
+    for runtime, env in (('deploy', 'DEPLOY'), ('devcontainer', 'DEVCONTAINER')):
+        merged = next(s for s in steps(merge) if s.get('id') == f'merge_{runtime}')
+        assert merged['with']['image'].endswith(f'${{{{ env.{env}_IMAGE_NAME }}}}')
+        assert f'merge_{runtime}' in merge['outputs'][f'{runtime}_image_pinned']
+    for job, script, variable in (
+        ('deploy-acceptance', 'test-agent-runtime.sh', 'AGENTDEV_RUNTIME_TEST_IMAGE'),
+        (
+            'devcontainer-acceptance',
+            'test_agentdev_devcontainer_image.py',
+            'AGENTDEV_DEVCONTAINER_TEST_IMAGE',
+        ),
+    ):
+        acceptance = CI['jobs'][job]
+        assert acceptance['needs'] == ['merge-dev-image']
+        assert {
+            entry['arch'].split("'")[-2] for entry in acceptance['strategy']['matrix']['include']
+        } == {'amd64', 'arm64'}
+        run = next(s for s in steps(acceptance) if script in s.get('run', ''))
+        assert job.split('-')[0] + '_image_pinned' in run['env'][variable]
+        assert job in CI['jobs']['finished']['needs']
     assert {'build-dev-image', 'dev-container-ci'} <= set(CI['jobs']['finished']['needs'])
+
+
+def test_the_dev_container_check_runs_this_runs_image():
+    job = steps(CI['jobs']['dev-container-ci'])
+    patch = next(s for s in job if s.get('name', '').startswith('Patch image pin'))
+    assert 'devcontainer_image_pinned' in patch['env']['MERGED_IMAGE']
+    assert 's|image: ghcr.io/.*|image: ${MERGED_IMAGE}|' in patch['run']
 
 
 def test_the_merge_pushes_only_the_candidate_tag():
@@ -99,15 +134,26 @@ def test_the_merge_pushes_only_the_candidate_tag():
 def test_promotion_waits_for_both_test_jobs_and_reuses_the_merged_digests():
     merge = CI['jobs']['merge-dev-image']
     promote = CI['jobs']['promote-dev-image']
-    assert set(promote['needs']) == {'merge-dev-image', 'dev-container-ci', 'opencode-acceptance'}
+    assert set(promote['needs']) == {
+        'merge-dev-image',
+        'dev-container-ci',
+        'deploy-acceptance',
+        'devcontainer-acceptance',
+    }
     assert 'if' not in promote
     checkout = steps(promote)[0]
     assert checkout['uses'].startswith('actions/checkout@')
     assert checkout['with']['fetch-depth'] == 0
     promoted = [s for s in steps(promote) if s.get('uses') == './.github/actions/docker/promote']
-    image_names = ['ANSIBLE_IMAGE_NAME', 'DESKTOP_IMAGE_NAME', 'OPENCODE_IMAGE_NAME']
+    image_names = [
+        'ANSIBLE_IMAGE_NAME',
+        'BASE_IMAGE_NAME',
+        'DEPLOY_IMAGE_NAME',
+        'DEVCONTAINER_IMAGE_NAME',
+    ]
     assert [s['with']['image'].split('env.')[-1].rstrip(' }') for s in promoted] == image_names
-    for step, output in zip(promoted, ['ansible_digest', 'desktop_digest', 'opencode_digest']):
+    outputs = ['ansible_digest', 'base_digest', 'deploy_digest', 'devcontainer_digest']
+    for step, output in zip(promoted, outputs):
         assert step['with']['digest'] == f'${{{{ needs.merge-dev-image.outputs.{output} }}}}'
         assert merge['outputs'][output].endswith('.outputs.digest }}')
     assert 'promote-dev-image' in CI['jobs']['finished']['needs']
@@ -129,6 +175,30 @@ def test_renovate_tracks_the_pin_and_lets_its_tasks_edit_it():
     rule = next(
         r
         for r in RENOVATE['packageRules']
-        if r.get('matchPackageNames') == ['ghcr.io/plume-works/agent-opencode']
+        if r.get('matchPackageNames') == ['ghcr.io/plume-works/agentdev-deploy']
     )
-    assert rule['groupName'] == 'agent-opencode'
+    assert rule['groupName'] == 'agentdev-deploy'
+
+
+def test_renovate_moves_every_dev_container_reference_together():
+    rule = next(
+        r
+        for r in RENOVATE['packageRules']
+        if r.get('matchPackageNames') == ['ghcr.io/plume-works/agentdev-devcontainer']
+    )
+    assert rule['groupName'] == 'agentdev-devcontainer'
+    names = {p for r in RENOVATE['packageRules'] for p in r.get('matchPackageNames', [])}
+    assert not {'ghcr.io/plume-works/agent-desktop', 'ghcr.io/plume-works/agent-opencode'} & names
+
+
+def test_workflow_jobs_share_the_dev_container_pin():
+    pin = re.search(r'image: (\S+)', (REPO_ROOT / 'devcontainer-compose-pins.yml').read_text())
+    assert pin is not None and '/agentdev-devcontainer:' in pin.group(1)
+    workflows = REPO_ROOT / '.github/workflows'
+    images = [
+        line.split('image:', 1)[1].strip()
+        for path in workflows.glob('*.yml')
+        for line in path.read_text().splitlines()
+        if re.match(r'\s+image: ghcr.io/plume-works/', line)
+    ]
+    assert images and set(images) == {pin.group(1)}
