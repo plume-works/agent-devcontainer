@@ -47,7 +47,8 @@ if [[ $mode == ignore-term ]]; then
 else
   trap 'echo "stop $name" >> "$state/events"; rm -f "$state/$name.ready"; exit 0' TERM
 fi
-if [[ $mode == with-child ]]; then sleep 1000 & echo $! > "$state/$name.child"; fi
+# The child leaves the wrapper's output, so the wrapper exits with the service.
+if [[ $mode == with-child ]]; then sleep 1000 >/dev/null 2>&1 & echo $! > "$state/$name.child"; fi
 echo "$name is up"
 [[ $mode == never-ready ]] || touch "$state/$name.ready"
 while true; do
@@ -647,8 +648,10 @@ def test_sigterm_stops_in_dependency_order_and_reaps_process_groups(make):
 
     stops = [e.split()[1] for e in box.events() if e.startswith('stop ')]
     assert stops == STOP_ORDER
-    with pytest.raises(ProcessLookupError):
-        os.kill(child, 0)
+    deadline = time.monotonic() + 5
+    while running(child) and time.monotonic() < deadline:
+        time.sleep(0.05)
+    assert not running(child)
 
 
 def test_shutdown_is_bounded_when_a_service_ignores_sigterm(make):
@@ -669,7 +672,7 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
     programs = {
         s.split(':', 1)[1]: parser[s] for s in parser.sections() if s.startswith('program:')
     }
-    assert set(programs) == set(STARTUP_ORDER)
+    assert set(programs) == set(STARTUP_ORDER) | {'remote-control'}
     for name, program in programs.items():
         assert program['autostart'] == 'false' and program['startretries'] == '0'
         assert program['stdout_logfile'] == '/dev/stdout'
@@ -685,7 +688,7 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
 def test_every_supervised_service_has_a_real_probe():
     health = (REPO_ROOT / '.devcontainer/scripts/runtime-health.sh').read_text()
     probes = health.split('case "$service" in', 2)[2]
-    for name in STOP_ORDER:
+    for name in [*STOP_ORDER, 'remote-control']:
         assert f'\n  {name})' in probes or f'\n  {name} |' in probes, name
 
 
@@ -697,8 +700,7 @@ def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
     orphan = int((box.state / 'xpra.child').read_text())
     box.set('xpra', 'crash')
     box.wait_for(lambda: started(box.events()).count('xpra') == 2 and box.ready())
-    with pytest.raises(ProcessLookupError):
-        os.kill(orphan, 0)
+    box.wait_for(lambda: not running(orphan), timeout=5)
 
 
 def test_health_needs_a_live_controller_reporting_ready(make):
@@ -845,3 +847,86 @@ def test_a_malformed_firewall_switch_latches_before_the_bootstrap(make):
     box.wait_for(lambda: box.latched() == 'configuration')
     assert box.events() == []
     assert 'ENABLE_FIREWALL' in box.runtime()['components']['configuration']['reason']
+
+
+def test_remote_control_is_left_out_without_a_mode(make):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='')
+    box.start()
+    box.wait_for(box.ready)
+    assert 'remote-control' not in started(box.events())
+    assert 'remote-control' not in box.runtime()['components']
+
+
+@pytest.mark.parametrize('mode', ['session', 'server'])
+def test_a_remote_control_mode_starts_it_after_prepare(make, mode):
+    box = make(AGENTDEV_CLAUDE_RC_MODE=mode)
+    box.start()
+    box.wait_for(box.ready)
+    runs = started(box.events())
+    assert runs.index('prepare') < runs.index('remote-control')
+    assert box.status('remote-control') == 'ready'
+
+
+@pytest.mark.parametrize(
+    'settings, variable',
+    [
+        ({'AGENTDEV_CLAUDE_RC_MODE': 'sever'}, 'AGENTDEV_CLAUDE_RC_MODE'),
+        (
+            {'AGENTDEV_CLAUDE_RC_MODE': 'server', 'AGENTDEV_CLAUDE_RC_SPAWN': 'tree'},
+            'AGENTDEV_CLAUDE_RC_SPAWN',
+        ),
+    ],
+)
+def test_an_unrecognized_remote_control_setting_latches_before_the_bootstrap(
+    make, settings, variable
+):
+    box = make(**settings)
+    box.start()
+    stays_latched(box, 'configuration')
+    assert box.events() == []
+    assert variable in box.runtime()['components']['configuration']['reason']
+
+
+def test_a_session_mode_ignores_the_spawn_setting(make):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='session', AGENTDEV_CLAUDE_RC_SPAWN='tree')
+    box.start()
+    box.wait_for(box.ready)
+
+
+def test_a_failing_remote_control_degrades_while_opencode_serves(make):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='server', AGENTDEV_RECOVERY_ATTEMPTS='1')
+    box.set('remote-control', 'mode', 'never-ready')
+    box.start()
+    box.wait_for(box.degraded)
+    assert box.status('remote-control') == 'failed'
+    assert box.status('opencode') == 'ready'
+
+
+def test_strict_startup_latches_on_a_failing_remote_control(make):
+    box = make(
+        AGENTDEV_CLAUDE_RC_MODE='server',
+        AGENTDEV_RECOVERY_ATTEMPTS='1',
+        AGENTDEV_STRICT_STARTUP='true',
+    )
+    box.set('remote-control', 'mode', 'never-ready')
+    box.start()
+    stays_latched(box, 'remote-control')
+
+
+def test_status_shows_what_remote_control_is_doing(make, tmp_path):
+    box = make(AGENTDEV_CLAUDE_RC_MODE='server', XDG_RUNTIME_DIR=str(tmp_path))
+    box.start()
+    box.wait_for(box.ready)
+    assert 'remote-control: not started' in box.health('status').stdout
+    (tmp_path / 'remote-control.status').write_text('waiting for a claude.ai login\n')
+    shown = box.health('status')
+    assert shown.returncode == 0
+    assert '  remote-control: waiting for a claude.ai login' in shown.stdout
+
+
+def test_status_names_no_remote_control_without_a_mode(make, tmp_path):
+    box = make(XDG_RUNTIME_DIR=str(tmp_path))
+    box.start()
+    box.wait_for(box.ready)
+    (tmp_path / 'remote-control.status').write_text('waiting for a claude.ai login\n')
+    assert 'remote-control' not in box.health('status').stdout

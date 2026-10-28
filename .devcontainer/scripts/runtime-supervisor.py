@@ -104,6 +104,13 @@ class SettingsParser:
             return default
         return value
 
+    def choice(self, name: str, options: tuple[str, ...]) -> str:
+        raw = os.environ.get(name, '')
+        if raw and raw not in options:
+            self.errors.append(f'{name} must be {", ".join(options)}, or empty; got {raw!r}')
+            return ''
+        return raw
+
     def count(self, name: str, default: int) -> int:
         raw = os.environ.get(name, '')
         if not raw:
@@ -129,6 +136,8 @@ class Settings:
     run_dir: Path = Path('/run/agentdev')
     health_command: str = str(SCRIPT_DIR / 'runtime-health.sh')
     skip_xpra: bool = False
+    # Empty leaves Remote Control out. Spec: claude-remote-control.
+    remote_control: str = ''
     strict: bool = False
     firewall: bool = False
     # Every malformed setting; PID 1 latches a configuration failure naming them.
@@ -149,11 +158,15 @@ class Settings:
             run_dir=Path(os.environ.get('AGENTDEV_RUN_DIR') or cls.run_dir),
             health_command=os.environ.get('AGENTDEV_HEALTH_COMMAND') or cls.health_command,
             skip_xpra=parse.boolean('AGENTDEV_SKIP_XPRA'),
+            remote_control=parse.choice('AGENTDEV_CLAUDE_RC_MODE', ('session', 'server')),
             strict=parse.boolean('AGENTDEV_STRICT_STARTUP'),
             firewall=parse.boolean('ENABLE_FIREWALL'),
         )
         # supervisord reads this one itself, as each program's stopwaitsecs.
         parse.count('AGENTDEV_STOP_TIMEOUT', 30)
+        # claude-remote-control-start.sh reads the spawn mode; checked here to latch early.
+        if settings.remote_control == 'server':
+            parse.choice('AGENTDEV_CLAUDE_RC_SPAWN', ('worktree', 'same-dir'))
         return replace(settings, errors=tuple(parse.errors))
 
     @property
@@ -255,6 +268,7 @@ SERVICES = (
     Service('prune', after=('dockerd',), oneshot=True),
     Service('project', after=('prepare',), oneshot=True),
     Service('index', after=('cbm',), oneshot=True),
+    Service('remote-control', after=('prepare',)),
 )
 
 
@@ -286,7 +300,11 @@ class Controller:
         self.settings = settings
         self.rpc = rpc
         self.wakeups = wakeups
-        self.services = [s for s in SERVICES if not (s.name == 'xpra' and settings.skip_xpra)]
+        skipped = {
+            'xpra': settings.skip_xpra,
+            'remote-control': not settings.remote_control,
+        }
+        self.services = [s for s in SERVICES if not skipped.get(s.name)]
         self.by_name = {s.name: s for s in self.services}
         self.health = {s.name: Health() for s in self.services}
         self.status = {s.name: 'pending' for s in self.services}

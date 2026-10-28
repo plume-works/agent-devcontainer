@@ -4,8 +4,9 @@ stage: implemented
 description: Agents in a devcontainer opened by VS Code on a Mac build, install, launch, and screenshot an Expo iOS app on that Mac through the vscode-expo-bridge extension's fixed Expo-only action set, with EAS cloud as the fallback.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T08:00:00Z
+  at: 2026-10-28T03:00:00Z
 sources:
+- resource: docs/knowledge/data/plans/20261026-expo-bridge-panel.md
 - resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md
 - resource: docs/knowledge/data/plans/20261023-expo-bridge-fingerprint-reuse.md
@@ -64,6 +65,20 @@ forces a full build, and its confirmation on the Mac names a clean build. A
 build that embeds its JavaScript bundle, such as a Release build, is never
 reused. Revoking a workspace's trust deletes its stored builds.
 
+**A panel, a status bar item, and Problems.** The workspace extension adds an
+`Expo Bridge` view to the activity bar, which shows each Expo folder's last
+`status` in sections (Connection, Mac tools, Project, Trust & token, Simulator)
+and offers Re-run status, Build, Clean build, and Change build profile. A build
+started there streams its log to an `Expo Bridge Build` terminal, and the
+folder's profile is remembered per user. A status bar item reads
+`Expo Bridge: OK`, the number of issues, `unavailable`,
+`Mac half not installed`, or `not checked`, and opens the view. Problems lists
+each failing check, anchored to `eas.json` or the app config, with quick fixes:
+the Mac's own fix, token, and trust prompts, `eas init` and Metro in a container
+terminal, and a simulator build profile inserted into `eas.json`. The project ID
+check reflects the resolved app config, `app.config.js` or `app.config.ts`
+included, in the panel and in `eas-host status` alike.
+
 **Template wiring.** The Expo profile lists the extension, forwards port 8081,
 and tells agents to use `eas-host` for iOS when `eas-host status` succeeds.
 
@@ -102,3 +117,5 @@ None — the plan settles the design.
   bridge](../plans/20261015-vscode-expo-bridge.md)
 - Plan: [Expo bridge acts on the agent's window and workspace
   folder](../plans/20261023-expo-bridge-workspace-folders.md)
+- Plan: [Expo Bridge panel, status bar, and Problems in the workspace
+  extension](../plans/20261026-expo-bridge-panel.md)

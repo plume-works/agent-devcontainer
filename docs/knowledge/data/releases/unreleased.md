@@ -88,6 +88,15 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 ## Fixed
 
+[Bug: the Expo bridge's project ID check ignores dynamic app
+config](../bugs/expo-bridge-project-id-ignores-dynamic-config.md)
+
+[Bug: the container sees the Expo bridge's build log only after the build
+ends](../bugs/expo-bridge-build-log-invisible-until-close.md)
+
+[Bug: the Expo bridge's build log tail drops
+lines](../bugs/expo-bridge-build-log-tail-drops-lines.md)
+
 [Bug: the Expo bridge's bun fix upgrades a bun the check never
 runs](../bugs/expo-bridge-bun-fix-misses-path-bun.md)
 
@@ -138,3 +147,9 @@ bug](../bugs/ship-release-link-without-feature.md)
 
 [Bug: the Remote Control pin ignores
 `/clear`](../bugs/remote-control-pin-ignores-clear.md)
+
+[Bug: a comment-requested review's gate does not count toward
+merge](../bugs/dispatched-review-gate-not-counted.md)
+
+[Bug: PR updates skip the re-review
+evaluation](../bugs/pr-update-skips-review-eval.md)

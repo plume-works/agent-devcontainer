@@ -26,6 +26,32 @@ to the current day's group.
 - **Create**: bug [Command-result evidence is judged
   inconsistently](bugs/command-result-evidence-ambiguous.md), found by the
   two-plan `implement-all` e2e run on Codex.
+- **Update**: [Expo Bridge panel, status bar, and Problems in the workspace
+  extension](plans/20261026-expo-bridge-panel.md) done; no `data/spec/` change.
+- **Update**: [Bug: the Expo bridge's project ID check ignores dynamic app
+  config](bugs/expo-bridge-project-id-ignores-dynamic-config.md) fixed and
+  listed under Unreleased Fixed.
+- **Update**: [Bug: the container sees the Expo bridge's build log only after
+  the build ends](bugs/expo-bridge-build-log-invisible-until-close.md) fixed and
+  listed under Unreleased Fixed.
+- **Update**: [Bug: the Expo bridge's build log tail drops
+  lines](bugs/expo-bridge-build-log-tail-drops-lines.md) fixed and listed under
+  Unreleased Fixed.
+- **Bug**: filed [Bug: the Expo bridge's project ID diagnostic stays stale after
+  a config
+  edit](bugs/expo-bridge-project-id-diagnostic-stale-after-config-edit.md).
+- **Bug**: filed [Bug: the Expo bridge's CocoaPods fix does not repair an
+  unlinked keg](bugs/expo-bridge-cocoapods-fix-misses-unlinked-keg.md).
+- **Bug**: filed [Bug: the Expo bridge's simulator profile quick fix omits the
+  bun pin](bugs/expo-bridge-simulator-profile-quick-fix-omits-bun.md).
+- **Task**: captured [Revise the Expo bridge build controls after CMake
+  Tools](backlog/expo-bridge-build-controls.md).
+- **Task**: captured [Show one Expo Bridge status bar
+  item](backlog/expo-bridge-one-status-bar-item.md).
+- **Task**: captured [Show each Expo bridge panel section's state on its
+  row](backlog/expo-bridge-section-status-icons.md).
+- **Task**: captured [Verify the build in the Expo bridge sideload
+  procedure](backlog/expo-bridge-sideload-procedure.md).
 
 ## 2026-10-27
 
@@ -36,6 +62,35 @@ to the current day's group.
 - **Create**: someday ideas [Calibrate the revision evaluator against human
   review](someday/revision-evaluator-calibration.md) and [Nested dispatch from
   catalog agents](someday/nested-catalog-agent-dispatch.md).
+- **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for
+  the Remote Control watcher's shorter header, and re-stamped
+  [devcontainer](codebase/devcontainer.md) and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md).
+- **Map**: refreshed the [scripts](codebase/devcontainer/scripts.md),
+  [docker](codebase/docker.md), and [image and
+  runtime](codebase/api-image-runtime.md) maps for the standalone Remote Control
+  watcher and its settings, and re-stamped
+  [devcontainer](codebase/devcontainer.md), the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md), and the [image
+  build](codebase/flow-image-build.md).
+- **Update**: recorded [Holding the AI review gate during a
+  re-review](architecture/rereview-gate-pending.md): a separate commit status is
+  the leading candidate, and the marker-commit trigger and a merged
+  review-and-gate job are rejected.
+- **Update**: [PR skills drive the AI review lifecycle on the single review
+  workflow](plans/20261023-pr-skills-ai-review-lifecycle.md) done; merged the
+  assignee-toggle request and head-check status into the [AI review
+  refresh](spec/ai-review-refresh.md) spec; [Bug: PR updates skip the re-review
+  evaluation](bugs/pr-update-skips-review-eval.md) fixed and listed under
+  Unreleased Fixed.
+- **Update**: [Assignee-triggered AI re-reviews replace the comment
+  trigger](plans/20261026-assignee-review-trigger.md) done; merged the assignee
+  re-review trigger and the `@claude review` rejection into the [AI review
+  gate](spec/ai-review-gate.md) spec; [Bug: a comment-requested review's gate
+  does not count toward merge](bugs/dispatched-review-gate-not-counted.md) fixed
+  and listed under Unreleased Fixed; [AI responder
+  workflows](features/ai-responder-workflows.md) stays implemented and listed
+  under Unreleased Changed.
 - **Map**: re-stamped the [agentdev
   catalog](codebase/agents/plugins/agentdev.md) and its
   [skills](codebase/agents/plugins/agentdev/skills.md) after merging `main` into
