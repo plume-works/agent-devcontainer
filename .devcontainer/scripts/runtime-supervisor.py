@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-PID 1 and service controller for the standalone agent-opencode runtime.
+PID 1 and service controller for the agentdev-deploy and agentdev-devcontainer runtimes.
 
-``run`` is the container entrypoint: it runs the root bootstrap, then supervisord in this same
-process. ``control`` is the supervisord event listener that starts services in dependency order,
+``run`` is the container entrypoint: it selects the ``AGENTDEV_RUNTIME_MODE`` profile, runs the
+root bootstrap, then supervisord in this same process. ``control`` is the supervisord event listener that starts services in dependency order,
 gates them on readiness, and recovers failures within a bounded budget. A failure it cannot
-recover latches the runtime ``failed`` until ``retry``; PID 1 exits nonzero only when the
-controller or supervisord itself fails. ``exec`` wraps each program to keep its last result for
-the failure record. Spec: standalone-opencode-runtime.
+recover latches the runtime ``failed``: deploy waits for ``retry`` and exits nonzero only when
+the controller or supervisord itself fails, while devcontainer exits nonzero. ``exec`` wraps each
+program to keep its last result for the failure record. Spec: standalone-opencode-runtime,
+agentdev-runtime-images.
 """
 
 from __future__ import annotations
@@ -104,6 +105,13 @@ class SettingsParser:
             return default
         return value
 
+    def required(self, name: str, options: tuple[str, ...]) -> str:
+        raw = os.environ.get(name, '')
+        if raw not in options:
+            self.errors.append(f'{name} must be {" or ".join(options)}; got {raw!r}')
+            return ''
+        return raw
+
     def choice(self, name: str, options: tuple[str, ...]) -> str:
         raw = os.environ.get(name, '')
         if raw and raw not in options:
@@ -133,9 +141,13 @@ class Settings:
     prepare_timeout: float = 1800
     interval: float = 2
     probe_failures: int = 2
+    # The service profile; empty only when the setting is invalid.
+    mode: str = ''
     run_dir: Path = Path('/run/agentdev')
     health_command: str = str(SCRIPT_DIR / 'runtime-health.sh')
     skip_xpra: bool = False
+    # Starts OpenCode Web in a Dev Container; deploy always serves it.
+    opencode_web: bool = False
     # Empty leaves Remote Control out. Spec: claude-remote-control.
     remote_control: str = ''
     strict: bool = False
@@ -147,6 +159,7 @@ class Settings:
     def from_env(cls) -> Settings:
         parse = SettingsParser()
         settings = cls(
+            mode=parse.required('AGENTDEV_RUNTIME_MODE', tuple(PROFILES)),
             attempts=parse.count('AGENTDEV_RECOVERY_ATTEMPTS', cls.attempts),
             backoff=parse.positive('AGENTDEV_RECOVERY_BACKOFF', cls.backoff),
             healthy_reset=parse.positive('AGENTDEV_HEALTHY_RESET', cls.healthy_reset),
@@ -158,6 +171,7 @@ class Settings:
             run_dir=Path(os.environ.get('AGENTDEV_RUN_DIR') or cls.run_dir),
             health_command=os.environ.get('AGENTDEV_HEALTH_COMMAND') or cls.health_command,
             skip_xpra=parse.boolean('AGENTDEV_SKIP_XPRA'),
+            opencode_web=parse.boolean('AGENTDEV_OPENCODE_WEB'),
             remote_control=parse.choice('AGENTDEV_CLAUDE_RC_MODE', ('session', 'server')),
             strict=parse.boolean('AGENTDEV_STRICT_STARTUP'),
             firewall=parse.boolean('ENABLE_FIREWALL'),
@@ -168,6 +182,10 @@ class Settings:
         if settings.remote_control == 'server':
             parse.choice('AGENTDEV_CLAUDE_RC_SPAWN', ('worktree', 'same-dir'))
         return replace(settings, errors=tuple(parse.errors))
+
+    @property
+    def profile(self) -> Profile | None:
+        return PROFILES.get(self.mode)
 
     @property
     def state_file(self) -> Path:
@@ -252,11 +270,23 @@ class Service:
     core: bool = False
     # Siblings launched together with this service, so neither waits for the other.
     alongside: tuple[str, ...] = ()
+    # An opt-in client: it never gates readiness, and strict startup leaves it optional.
+    client: bool = False
+
+
+@dataclass(frozen=True)
+class Profile:
+    """One runtime image's service graph, and how its PID 1 answers a latched failure."""
+
+    name: str
+    services: tuple[Service, ...]
+    # The editor cannot retry a Dev Container, so a latch ends the container instead.
+    exit_on_latch: bool = False
 
 
 # Startup order. Optional work before OpenCode is what OpenCode reads when it starts;
 # the rest follows it. Spec: standalone-opencode-runtime.
-SERVICES = (
+DEPLOY_SERVICES = (
     Service('dbus', refresh=('keyring', 'xpra'), core=True),
     Service('keyring', after=('dbus',), core=True),
     Service('prepare', after=('keyring',), oneshot=True, core=True),
@@ -270,6 +300,39 @@ SERVICES = (
     Service('index', after=('cbm',), oneshot=True),
     Service('remote-control', after=('prepare',)),
 )
+
+# Every service the editor relies on is core. Project and catalog work belong to the
+# lifecycle commands, so clients wait for the create phase. Spec: agentdev-runtime-images.
+DEVCONTAINER_SERVICES = (
+    Service('dbus', refresh=('keyring', 'xpra'), core=True),
+    Service('keyring', after=('dbus',), core=True),
+    Service('dockerd', core=True),
+    Service('cbm', core=True, refresh=('opencode',)),
+    Service('xpra', after=('keyring',), core=True),
+    Service('created', oneshot=True, client=True),
+    Service('opencode', after=('keyring', 'cbm', 'created'), client=True),
+    Service('remote-control', after=('created',), client=True),
+)
+
+PROFILES = {
+    'deploy': Profile('deploy', DEPLOY_SERVICES),
+    'devcontainer': Profile('devcontainer', DEVCONTAINER_SERVICES, exit_on_latch=True),
+}
+
+
+def enabled_services(settings: Settings) -> tuple[Service, ...]:
+    """Return the selected profile's services, without those its settings leave out."""
+    profile = settings.profile
+    if profile is None:
+        raise ValueError(f'no runtime profile named {settings.mode!r}')
+    opencode = profile.name == 'deploy' or settings.opencode_web
+    skipped = {
+        'xpra': settings.skip_xpra,
+        'remote-control': not settings.remote_control,
+        'opencode': not opencode,
+        'created': not (settings.opencode_web or settings.remote_control),
+    }
+    return tuple(s for s in profile.services if not skipped.get(s.name))
 
 
 class ComponentFailure(Exception):
@@ -300,11 +363,8 @@ class Controller:
         self.settings = settings
         self.rpc = rpc
         self.wakeups = wakeups
-        skipped = {
-            'xpra': settings.skip_xpra,
-            'remote-control': not settings.remote_control,
-        }
-        self.services = [s for s in SERVICES if not skipped.get(s.name)]
+        self.profile = settings.profile
+        self.services = list(enabled_services(settings))
         self.by_name = {s.name: s for s in self.services}
         self.health = {s.name: Health() for s in self.services}
         self.status = {s.name: 'pending' for s in self.services}
@@ -359,12 +419,24 @@ class Controller:
     def runtime_state(self) -> str:
         if self.latched:
             return 'failed'
-        statuses = set(self.status.values())
-        if statuses & {'pending', 'starting', 'recovering'}:
+        gating = {s for n, s in self.status.items() if not self.by_name[n].client}
+        if gating & {'pending', 'starting', 'recovering'}:
             return 'pending'
-        if statuses & {'failed', 'blocked'}:
+        if set(self.status.values()) & {'failed', 'blocked'}:
             return 'degraded'
         return 'ready'
+
+    def ready(self) -> bool:
+        """Return whether every service that gates readiness has settled."""
+        return self.latched is None and all(
+            status in SETTLED
+            for name, status in self.status.items()
+            if not self.by_name[name].client
+        )
+
+    def probes(self) -> list[str]:
+        """Return the core services whose probes runtime-health.sh ready repeats."""
+        return [s.name for s in self.services if s.core and not s.oneshot]
 
     def publish(self) -> None:
         """Write the state file; its heartbeat is what tells health the controller is alive."""
@@ -378,7 +450,10 @@ class Controller:
                 self.settings.state_file,
                 {
                     'startup_id': self.startup_id,
+                    'profile': self.profile.name,
                     'state': self.runtime_state(),
+                    'ready': self.ready(),
+                    'probes': self.probes(),
                     'latched': self.latched,
                     'components': components,
                     'retry': self.retry,
@@ -439,7 +514,8 @@ class Controller:
         self.record(failure)
         self.status[failure.name] = 'failed'
         self.reasons[failure.name] = failure.reason
-        if self.by_name[failure.name].core or self.settings.strict:
+        service = self.by_name[failure.name]
+        if service.core or (self.settings.strict and not service.client):
             self.latch(failure.name)
         log(
             f'degraded: {failure.name} failed; retry with runtime-supervisor.py retry {failure.name}'
@@ -644,7 +720,7 @@ class Controller:
         if state == 'ready':
             log('all services are ready')
         elif state == 'degraded':
-            log('OpenCode is serving; the runtime is degraded')
+            log('the core services are serving; the runtime is degraded')
 
     def check_once(self) -> None:
         now = time.monotonic()
@@ -724,6 +800,11 @@ class Controller:
         self.retry = {'id': request.get('id'), 'ok': ok, 'message': message}
         self.publish()
 
+    def end(self) -> None:
+        """Stop the container on a latch, keeping the failed state for anyone still reading."""
+        name = self.latched or 'runtime'
+        crash(self.settings, self.rpc, f'{name}: {self.reasons.get(name, "failed")}', keep=True)
+
     def run(self) -> None:
         startup_retry = os.environ.get('AGENTDEV_RETRY_ID')
         self.publish()
@@ -731,6 +812,9 @@ class Controller:
         try:
             self.resume()
         except Latched:
+            if self.profile.exit_on_latch:
+                self.end()
+                return
             log('startup latched; waiting for a retry')
         if startup_retry:
             self.answer({'id': startup_retry}, self.latched is None, None)
@@ -746,6 +830,9 @@ class Controller:
                 elif self.latched is None:
                     self.check_once()
             except Latched:
+                if self.profile.exit_on_latch:
+                    self.end()
+                    return
                 log('latched; waiting for a retry')
 
 
@@ -770,11 +857,12 @@ def server_proxy(config: str) -> xmlrpc.client.ServerProxy:
     return xmlrpc.client.ServerProxy('http://127.0.0.1', transport=transport)
 
 
-def crash(settings: Settings, rpc, reason: str) -> None:
-    """End the container: the controller itself failed, so Docker's restart policy applies."""
-    log(f'controller failure: {reason}')
+def crash(settings: Settings, rpc, reason: str, keep: bool = False) -> None:
+    """End the container, so Docker's restart policy applies; ``keep`` leaves the state file."""
+    log(f'stopping the runtime: {reason}')
     settings.crash_file.write_text(reason + '\n')
-    settings.state_file.unlink(missing_ok=True)
+    if not keep:
+        settings.state_file.unlink(missing_ok=True)
     rpc.supervisor.shutdown()
 
 
@@ -790,7 +878,7 @@ def control() -> int:
         try:
             Controller(settings, rpc, wakeups).run()
         except Exception as error:  # noqa: BLE001 — any controller crash ends the container.
-            crash(settings, rpc, f'controller error: {error!r}')
+            crash(settings, rpc, f'controller failure: controller error: {error!r}')
 
     threading.Thread(target=work, name='controller', daemon=True).start()
     while True:
@@ -812,7 +900,7 @@ def watch_controller(settings: Settings, config: str) -> None:
             log(f'controller watch: supervisord not answering yet ({error})')
             continue
         if info['statename'] in DONE_STATES:
-            crash(settings, proxy, f'controller exited ({info["statename"]})')
+            crash(settings, proxy, f'controller failure: controller exited ({info["statename"]})')
             return
 
 
@@ -826,7 +914,12 @@ def preflight(settings: Settings, holder: dict) -> dict | None:
         reason = 'invalid settings: ' + '; '.join(settings.errors)
         log(reason)
         return {'component': 'configuration', 'reason': reason, 'command': [], 'exit_status': 1}
-    if not settings.skip_xpra and not os.environ.get('XPRA_PASSWORD'):
+    # Only deploy publishes Xpra on a proxy network; a Dev Container forwards a local port.
+    if (
+        settings.mode == 'deploy'
+        and not settings.skip_xpra
+        and not os.environ.get('XPRA_PASSWORD')
+    ):
         reason = (
             'XPRA_PASSWORD must be set to a nonempty secret: Xpra listens on the proxy '
             'network and authenticates every session with it. Set XPRA_PASSWORD, or set '
@@ -908,7 +1001,10 @@ def run() -> int:
         retry = {'id': retry_id, 'ok': False, 'message': failure['reason']} if retry_id else None
         state = {
             'startup_id': startup_id,
+            'profile': settings.mode,
             'state': 'failed',
+            'ready': False,
+            'probes': [],
             'latched': failure['component'],
             'components': {
                 failure['component']: {'status': 'failed', 'reason': failure['reason']}
@@ -917,6 +1013,11 @@ def run() -> int:
             'interval': settings.interval,
             'updated': utc_now(),
         }
+        # No profile, or one whose PID 1 cannot wait: nothing can start, so the container ends.
+        if settings.profile is None or settings.profile.exit_on_latch:
+            write_json(settings.state_file, {**state, 'heartbeat': time.time()})
+            log(f'exiting: {failure["component"]} failed: {failure["reason"]}')
+            return 1
         log(f'latched failed on {failure["component"]}; retry with runtime-supervisor.py retry')
         retry_id = wait_for_retry(settings, state)
     if retry_id:
@@ -935,7 +1036,7 @@ def run() -> int:
     ).start()
     supervisord.main(['--nodaemon', '--configuration', config])
     if settings.crash_file.exists():
-        log(f'exiting after a controller failure: {settings.crash_file.read_text().strip()}')
+        log(f'exiting: {settings.crash_file.read_text().strip()}')
         return 1
     return 0
 

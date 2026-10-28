@@ -95,10 +95,16 @@ def write_executable(path: Path, body: str) -> Path:
     return path
 
 
-def build_config(root: Path, fake_service: Path, fake_oneshot: Path) -> Path:
-    """Rewrite the shipped config: same programs and flags, scripted commands, local paths."""
+def build_config(
+    root: Path,
+    fake_service: Path,
+    fake_oneshot: Path,
+    config: Path = CONFIG,
+    oneshots: set[str] = ONESHOTS,
+) -> Path:
+    """Rewrite a shipped config: same programs and flags, scripted commands, local paths."""
     parser = configparser.RawConfigParser()
-    parser.read(CONFIG)
+    parser.read(config)
     run_dir = root / 'run'
     parser['unix_http_server']['file'] = str(run_dir / 'supervisor.sock')
     parser['supervisorctl']['serverurl'] = f'unix://{run_dir}/supervisor.sock'
@@ -112,7 +118,7 @@ def build_config(root: Path, fake_service: Path, fake_oneshot: Path) -> Path:
         program = parser[section]
         program.pop('user', None)
         program.pop('environment', None)
-        fake = fake_oneshot if name in ONESHOTS else fake_service
+        fake = fake_oneshot if name in oneshots else fake_service
         program['command'] = f'{sys.executable} {SUPERVISOR} exec {name} {fake} {name}'
     path = root / 'supervisord.conf'
     with path.open('w') as handle:
@@ -123,17 +129,26 @@ def build_config(root: Path, fake_service: Path, fake_oneshot: Path) -> Path:
 class Supervision:
     """One supervised container start under test."""
 
-    def __init__(self, root: Path, **settings: str) -> None:
+    def __init__(
+        self,
+        root: Path,
+        config: Path = CONFIG,
+        oneshots: set[str] = ONESHOTS,
+        mode: str = 'deploy',
+        **settings: str,
+    ) -> None:
         self.root = root
         self.state = root / 'state'
         self.state.mkdir(parents=True)
         fake_service = write_executable(root / 'fake-service', FAKE_SERVICE)
         fake_oneshot = write_executable(root / 'fake-oneshot', FAKE_ONESHOT)
+        built = build_config(root, fake_service, fake_oneshot, config, oneshots)
         self.env = {
             'PATH': os.environ['PATH'],
             'STATE_DIR': str(self.state),
+            'AGENTDEV_RUNTIME_MODE': mode,
             'AGENTDEV_RUN_DIR': str(root / 'run'),
-            'AGENTDEV_SUPERVISOR_CONFIG': str(build_config(root, fake_service, fake_oneshot)),
+            'AGENTDEV_SUPERVISOR_CONFIG': str(built),
             'AGENTDEV_BOOTSTRAP_COMMAND': str(
                 write_executable(root / 'bootstrap', FAKE_BOOTSTRAP)
             ),
@@ -258,7 +273,7 @@ def make() -> Iterator[Callable[..., Supervision]]:
     TMP_ROOT.mkdir(exist_ok=True)
     created: list[Supervision] = []
 
-    def factory(**settings: str) -> Supervision:
+    def factory(**settings) -> Supervision:
         box = Supervision(TMP_ROOT / f'sv-{uuid4().hex[:8]}', **settings)
         created.append(box)
         return box
