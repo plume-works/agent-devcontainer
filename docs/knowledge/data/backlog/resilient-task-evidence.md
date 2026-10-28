@@ -35,14 +35,26 @@ evidence only until its next rebase.
 
 The work is to explore and decide how evidence is named so a later session can
 still look it up, then record the decision in `data/architecture/` and change
-the spec through a plan. Leads to weigh:
+the spec through a plan.
+
+The primary candidate, the maintainer's preferred lead, is a path plus a test
+name: evidence names the test that proves the task and where it lives, and a
+later session re-runs it from any tree that holds the change. It depends on no
+history, so rebase, squash, and amend leave it intact. Questions it has to
+answer:
+
+- What a task whose proof is not a test cites — a docs edit, a config change, a
+  check that only a live run can make.
+- How Verify tells a test that proves the task from one that merely passes, and
+  what it does when the named test is later renamed or removed.
+
+Alternatives to weigh against it:
 
 - The codebase map's `source_digest` already solved the same problem for map
   docs: it fingerprints tracked content rather than naming a commit, so it stays
   valid across squash merges and branch rewrites.
 - The PR number survives both rebase and squash and links the squashed commit to
   the branch's history.
-- A path plus a test name, re-runnable from any tree that holds the change.
 
 Closing it can also be the decision that the current rule is good enough for one
 PR's lifetime, recorded with its reason.
