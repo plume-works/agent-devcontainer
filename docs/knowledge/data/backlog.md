@@ -35,6 +35,9 @@ review](backlog/verify-assignee-review-automerge.md)
 
 [Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
+[Supervise Claude Remote Control in Coder
+workspaces](backlog/coder-supervised-remote-control.md)
+
 ## Low
 
 [Detect plan narration growth
