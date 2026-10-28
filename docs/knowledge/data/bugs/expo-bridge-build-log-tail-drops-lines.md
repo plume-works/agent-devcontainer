@@ -3,7 +3,7 @@ type: bug
 description: The Expo bridge's build log tail drops the lines written in the last poll interval before a build returns, and the start of any line it reads before the line's newline arrives.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T20:40:00Z
+  at: 2026-10-28T02:30:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
@@ -50,18 +50,26 @@ Both faults predate the workspace UI. The code moved unchanged from
 
 ## Fix
 
-Not fixed. `read()` should keep an unterminated tail and prepend it to the next
-read. `stop()` should run its final `read()` before setting `closed`, and then
-emit any tail that is left.
+Fixed by removing `tailLog` and `newestBuildLog`: the host now sends the build
+log to the workspace by command ([the container sees the Expo bridge's build log
+only after the build ends](expo-bridge-build-log-invisible-until-close.md)). The
+workspace keeps an unended last line until the next chunk, and emits it when the
+build's response arrives.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
+Verified anchor points (line numbers as of 2026-10-28):
 
-In `plume-works/vscode-expo-bridge` at `cce47ba`:
+In `plume-works/vscode-expo-bridge` at `0c15a5c`:
 
-- `packages/workspace/src/requests.ts:25` — `tailLog`; `:29` — the `closed`
-  early return; `:37` — the complete-lines split; `:45` — `stop()` setting
-  `closed` before the final `read()`
-- `packages/workspace/src/requests.ts:73` — `runRequest`, which calls `stopTail`
-  when the build's response arrives
+- `packages/protocol/src/index.ts:38` — `BUILD_LOG_COMMAND`
+- `packages/host/src/build.ts:93` — `write`, which passes each log chunk to
+  `onLog` as it writes it
+- `packages/host/src/buildlog.ts:5` — `LogForwarder`; `:26` — `drain`
+- `packages/host/src/extension.ts:296` — the forwarder for a `build` request;
+  `:319` — draining it before the response
+- `packages/workspace/src/requests.ts:23` — `BuildLogs`; `:34` — `open`, which
+  splits a folder's chunks into lines; `:67` — `runRequest` opening it for a
+  `build`
+- `packages/workspace/src/extension.ts:136` — the `BUILD_LOG_COMMAND`
+  registration

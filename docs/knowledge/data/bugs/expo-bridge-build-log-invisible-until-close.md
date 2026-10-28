@@ -3,7 +3,7 @@ type: bug
 description: The container does not see the Mac's build log grow while the host holds it open, so the Expo bridge streams no build log lines; the log appears only when the build ends and the host closes it.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T12:00:00Z
+  at: 2026-10-28T02:30:00Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/plans/20261026-expo-bridge-panel.md
@@ -51,17 +51,27 @@ log was found.
 
 ## Fix
 
-Not fixed. Polling the file from the container cannot follow a log the Mac holds
-open. The log must reach the container another way while the build runs, or the
-host must write it so that each write becomes visible.
+Fixed by no longer reading the file from the container. The host passes each
+chunk it writes to the log to the workspace command
+`expoBridge.workspace.buildLog`, one call at a time, and drains every call
+before it sends the build's response. The workspace splits the folder's chunks
+into lines for `eas-host` and the panel's `Expo Bridge Build` channel. A failed
+call stops the stream with a warning on the Mac; the log file stays complete.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-27):
+Verified anchor points (line numbers as of 2026-10-28):
 
-In `plume-works/vscode-expo-bridge` at `530b160`:
+In `plume-works/vscode-expo-bridge` at `0c15a5c`:
 
-- `packages/host/src/build.ts:88` — the log opened once per build; `:160` —
-  `writeSync` per eas-cli output chunk; `:180` — the only `closeSync`
-- `packages/workspace/src/requests.ts:25` — `tailLog`; `:32` — the `fstat` whose
-  size stays fixed; `:51` — `newestBuildLog`
+- `packages/protocol/src/index.ts:38` — `BUILD_LOG_COMMAND`
+- `packages/host/src/build.ts:93` — `write`, which passes each log chunk to
+  `onLog` as it writes it
+- `packages/host/src/buildlog.ts:5` — `LogForwarder`; `:26` — `drain`
+- `packages/host/src/extension.ts:296` — the forwarder for a `build` request;
+  `:319` — draining it before the response
+- `packages/workspace/src/requests.ts:23` — `BuildLogs`; `:34` — `open`, which
+  splits a folder's chunks into lines; `:67` — `runRequest` opening it for a
+  `build`
+- `packages/workspace/src/extension.ts:136` — the `BUILD_LOG_COMMAND`
+  registration

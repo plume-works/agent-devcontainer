@@ -437,9 +437,13 @@ extensions' `package.json` versions (through `bun run bump`), in
 VSIX files from the Task 11 commit sideloaded and an Expo consumer opened in a
 Dev Containers window.
 
-- [ ] Opening the panel runs one status, the status bar item reads
+- [x] Opening the panel runs one status, the status bar item reads
   `Expo Bridge: OK`, and a build of the remembered profile streams its log to
   the output channel. A second build does not ask for the profile.
+  - **Evidence:** Mac run of 0.4.0 at `530b160`: one status, `Expo Bridge: OK`,
+    and no profile prompt on the second build. Mac re-run at `0c15a5c`: a clean
+    build streamed eas-cli output to the `Expo Bridge Build` channel while it
+    ran.
 - [x] With CocoaPods uninstalled, Re-run shows the `cocoapods` diagnostic in
   Problems, and its quick fix opens the host's existing fix picker.
   - **Evidence:** Mac run of 0.4.0 at `530b160`, VS Code 1.143.1: with
@@ -482,8 +486,15 @@ the build ends](../bugs/expo-bridge-build-log-invisible-until-close.md)).
   - **Evidence:** `dd7cbf2`; `bun test` 407 pass, including the new
     `buildlog.test.ts`, the `BuildLogs` tests, and the `build` test that passes
     `onLog` every chunk it writes. `bun run typecheck` and `bun run lint` pass.
-- [ ] Both build log bugs record the fix in `## Fix` and `## Key references`,
-  and are set to `stage: done` once Task 12's first box passes on the Mac.
+- [x] Both build log bugs record the fix in `## Fix` and `## Key references`.
+  - **Evidence:** both bugs' `## Fix` describe the command stream and their
+    `## Key references` are verified at `0c15a5c`. Ship sets them to
+    `stage: done` through the plan's `release` list.
+- [x] The panel's channel shows build log lines without terminal escape
+  sequences; `eas-host` passes them through unchanged.
+  - **Evidence:** `8490fa5`: `plainLogLine` in `actions.ts`, applied only to the
+    `Expo Bridge Build` channel in `ui.ts`; its three `actions.test.ts` tests
+    pass, `bun test` 411 pass, and typecheck and lint pass.
 
 ### Task 13: Record the panel in this repository's project memory
 
@@ -601,7 +612,9 @@ status and `Expo Bridge: OK`, and a second build skips the profile prompt, but
 the build streamed none of its log to the `Expo Bridge Build` channel, though
 the log file on the Mac was complete. Streaming shares `runRequest` with
 `eas-host build`, so the defect is not specific to the panel. Task 12a replaces
-the file tail.
+the file tail. At `0c15a5c` the Mac re-run streamed the build log while the
+build ran, which passes the first box. The stream carried eas-cli's terminal
+escape sequences into the channel, which `8490fa5` strips.
 
 ## Out of scope
 
