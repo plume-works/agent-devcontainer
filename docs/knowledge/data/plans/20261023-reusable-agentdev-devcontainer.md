@@ -84,9 +84,12 @@ recovery.
   - **Evidence:** commit 6171b723;
     `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
     — 124 passed.
-- [ ] Cover invalid profile names, disabled optional services, terminal
+- [x] Cover invalid profile names, disabled optional services, terminal
   failures, bounded recovery, signal handling, and readiness-file semantics so a
   profile cannot silently degrade into a partially initialized container.
+  - **Evidence:** commit 6171b723;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
+    — 124 passed.
 
 ### Task 2: Refactor the supervisor into shared primitives and image profiles
 
