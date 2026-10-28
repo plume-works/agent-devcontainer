@@ -167,9 +167,14 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 - [ ] Rename the lifecycle-neutral `agent-desktop` build to `agentdev-base`
   without copying `.devcontainer/scripts/` into it. Preserve its tools, catalog,
   validators, default shell entrypoint, and multi-architecture build.
-- [ ] Rename `agent-opencode` to `agentdev-deploy`, derive it from the exact
+- [x] Rename `agent-opencode` to `agentdev-deploy`, derive it from the exact
   same-run `agentdev-base` digest, and keep its established deploy profile and
   public service contract.
+  - **Evidence:** commit bcd8c5e2;
+    `docker build -f docker/deploy/agentdev-deploy.Dockerfile` on the pinned
+    base digest, then
+    `AGENTDEV_RUNTIME_TEST_IMAGE=<that image> .devcontainer/scripts/test-agent-runtime.sh`
+    — 24 passed, 1 skipped (no previous image).
 - [ ] Add `agentdev-devcontainer` as a sibling derived from the exact same-run
   base digest. Install the runtime scripts, both stable lifecycle commands and
   supervisor dependencies, declare the devcontainer profile entrypoint, and
