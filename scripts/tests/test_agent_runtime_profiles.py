@@ -16,11 +16,14 @@ from uuid import uuid4
 import pytest
 from test_agent_runtime_supervision import (
     CONFIG,
+    REPO_ROOT,
     started,
     Supervision,
     SUPERVISOR,
     TMP_ROOT,
 )
+
+DEVCONTAINER_CONFIG = REPO_ROOT / 'docker/devcontainer/supervisord.conf'
 
 SHARED = {'dbus', 'keyring', 'dockerd', 'cbm', 'xpra', 'opencode', 'remote-control'}
 DEVCONTAINER_REQUIRED = ['dbus', 'keyring', 'dockerd', 'cbm', 'xpra']
@@ -143,23 +146,28 @@ def test_an_invalid_profile_name_is_a_configuration_error(supervisor, monkeypatc
         supervisor.enabled_services(parsed)
 
 
-def devcontainer_config(root: Path) -> Path:
-    """Return the deploy config's program flags, carrying the devcontainer profile's programs."""
-    profile = load_supervisor().PROFILES['devcontainer']
+def programs(config: Path) -> list[str]:
     parser = configparser.RawConfigParser()
-    parser.read(CONFIG)
-    template = dict(parser['program:prepare'])
-    for section in [s for s in parser.sections() if s.startswith('program:')]:
-        if section.split(':', 1)[1] not in names(profile.services):
-            parser.remove_section(section)
-    for service in profile.services:
-        if not parser.has_section(f'program:{service.name}'):
-            parser[f'program:{service.name}'] = template
-    root.mkdir(parents=True, exist_ok=True)
-    path = root / 'devcontainer-template.conf'
-    with path.open('w') as handle:
-        parser.write(handle)
-    return path
+    parser.read(config)
+    return [s.split(':', 1)[1] for s in parser.sections() if s.startswith('program:')]
+
+
+@pytest.mark.parametrize(
+    ('mode', 'config'), [('deploy', CONFIG), ('devcontainer', DEVCONTAINER_CONFIG)]
+)
+def test_each_image_config_carries_exactly_its_profile_programs(supervisor, mode, config):
+    assert sorted(programs(config)) == sorted(names(supervisor.PROFILES[mode].services))
+
+
+def test_the_profiles_share_their_program_definitions(supervisor):
+    deploy, devcontainer = configparser.RawConfigParser(), configparser.RawConfigParser()
+    deploy.read(CONFIG)
+    devcontainer.read(DEVCONTAINER_CONFIG)
+    for name in SHARED:
+        assert dict(devcontainer[f'program:{name}']) == dict(deploy[f'program:{name}']), name
+    for section in ('supervisord', 'unix_http_server', 'eventlistener:controller'):
+        assert dict(devcontainer[section]) == dict(deploy[section]), section
+    assert devcontainer['program:created']['command'].endswith('devcontainer-created.sh wait')
 
 
 @pytest.fixture
@@ -169,8 +177,9 @@ def devcontainer() -> Iterator[Callable[..., Supervision]]:
 
     def factory(**env: str) -> Supervision:
         root = TMP_ROOT / f'dc-{uuid4().hex[:8]}'
-        config = devcontainer_config(root / 'template')
-        box = Supervision(root, config=config, oneshots={'created'}, mode='devcontainer', **env)
+        box = Supervision(
+            root, config=DEVCONTAINER_CONFIG, oneshots={'created'}, mode='devcontainer', **env
+        )
         # A Dev Container forwards Xpra locally; it needs no proxy secret.
         del box.env['XPRA_PASSWORD']
         created.append(box)

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Standalone wrapper for the shared egress firewall; inert unless ENABLE_FIREWALL=true.
+# Runtime wrapper for the shared egress firewall; inert unless ENABLE_FIREWALL=true.
 # Runs before dockerd, so init-firewall.sh's flush cannot erase the engine's rules.
+# Only deploy admits a proxy; a Dev Container's ports are forwarded through the tool.
 # Spec: firewall, standalone-opencode-runtime.
 
 allowlist="${FIREWALL_ALLOWLIST:-/etc/agentdev/firewall-allowlist.txt}"
@@ -64,8 +65,12 @@ filter_nested_egress() {
 }
 
 validate_allowlist
-read_proxy_cidrs
+if [[ ${AGENTDEV_RUNTIME_MODE:-} == deploy ]]; then
+  read_proxy_cidrs
+fi
 FIREWALL_ALLOWLIST="$allowlist" "$init_firewall"
-allow_proxy_ingress
+if [[ ${AGENTDEV_RUNTIME_MODE:-} == deploy ]]; then
+  allow_proxy_ingress
+  echo "runtime-firewall: proxy sources ${proxy_cidrs[*]} may reach ports $web_ports"
+fi
 filter_nested_egress
-echo "runtime-firewall: proxy sources ${proxy_cidrs[*]} may reach ports $web_ports"

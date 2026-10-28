@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Root bootstrap for the standalone runtime: create or reuse the runtime account,
-# then validate and initialize only the storage this instance owns. Ownership is
-# never rewritten recursively; incompatible state is rejected. Spec: standalone-opencode-runtime.
+# Root bootstrap for the runtime profiles. Deploy creates or reuses the runtime account,
+# then validates and initializes only the storage this instance owns; a Dev Container
+# accepts the tool's account and mounted workspace as they are. Ownership is never
+# rewritten recursively. Spec: standalone-opencode-runtime, agentdev-runtime-images.
 
 runtime_user="${AGENTDEV_USER:-agent}"
 runtime_uid="${AGENTDEV_UID:-1000}"
@@ -16,6 +17,7 @@ auth_dir="${AGENTDEV_AGENTS_AUTH_DIR:-/var/lib/agentdev/auth}"
 runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$runtime_uid}"
 sudoers_file="${AGENTDEV_SUDOERS_FILE:-/etc/sudoers.d/agentdev-runtime}"
 lock_timeout="${AGENTDEV_AUTH_LOCK_TIMEOUT:-60}"
+lifecycle_dir="${AGENTDEV_LIFECYCLE_DIR:-/var/lib/agentdev/lifecycle}"
 
 fail() {
   echo "runtime-bootstrap: $*" >&2
@@ -150,20 +152,45 @@ reset_runtime_dir() {
   install -d -m 700 -o "$runtime_uid" -g "$runtime_gid" "$runtime_dir"
 }
 
-validate_id AGENTDEV_UID "$runtime_uid"
-validate_id AGENTDEV_GID "$runtime_gid"
-runtime_uid=$((10#$runtime_uid))
-runtime_gid=$((10#$runtime_gid))
+bootstrap_deploy() {
+  validate_id AGENTDEV_UID "$runtime_uid"
+  validate_id AGENTDEV_GID "$runtime_gid"
+  runtime_uid=$((10#$runtime_uid))
+  runtime_gid=$((10#$runtime_gid))
 
-ensure_group
-ensure_account
-ensure_sudo
-claim_instance_dir "$runtime_home" "home and client configuration"
-claim_instance_dir "$uv_dir" "uv cache and environments"
-require_mount "$docker_dir" "nested Docker storage"
-validate_workspace
-prepare_shared_auth
-reset_runtime_dir
-log "identity $runtime_user ($runtime_uid:$runtime_gid) ready"
+  ensure_group
+  ensure_account
+  ensure_sudo
+  claim_instance_dir "$runtime_home" "home and client configuration"
+  claim_instance_dir "$uv_dir" "uv cache and environments"
+  require_mount "$docker_dir" "nested Docker storage"
+  validate_workspace
+  prepare_shared_auth
+  reset_runtime_dir
+  log "identity $runtime_user ($runtime_uid:$runtime_gid) ready"
+}
+
+# The Dev Container tool owns the account, mounts, and checkout; the create lifecycle
+# prepares client state. Only the directories the runtime itself owns are set up here.
+bootstrap_devcontainer() {
+  local entry
+  entry="$(getent passwd "$runtime_user")" ||
+    fail "account $runtime_user does not exist; AGENTDEV_USER must name an account in the image"
+  IFS=: read -r _ _ runtime_uid runtime_gid _ _ _ <<<"$entry"
+  runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$runtime_uid}"
+  if ((runtime_uid != 0)) && getent group docker >/dev/null; then
+    usermod --append --groups docker "$runtime_user"
+  fi
+  # Container storage: it survives a restart and is gone after a rebuild, like the create phase.
+  install -d -m 0755 -o "$runtime_uid" -g "$runtime_gid" "$lifecycle_dir"
+  reset_runtime_dir
+  log "accepted account $runtime_user ($runtime_uid:$runtime_gid) and workspace $workspace as mounted"
+}
+
+case "${AGENTDEV_RUNTIME_MODE:-}" in
+  deploy) bootstrap_deploy ;;
+  devcontainer) bootstrap_devcontainer ;;
+  *) fail "AGENTDEV_RUNTIME_MODE must be deploy or devcontainer; got '${AGENTDEV_RUNTIME_MODE:-}'" ;;
+esac
 # Last, and before supervisord starts dockerd: see runtime-firewall.sh.
 "$(dirname "${BASH_SOURCE[0]}")/runtime-firewall.sh"

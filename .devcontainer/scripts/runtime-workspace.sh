@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Standalone workspace preparation, run as the runtime user. A valid checkout is
-# reused without contacting a remote; only an empty destination is cloned into.
+# Workspace preparation, run as the runtime user. A valid checkout is reused without
+# contacting a remote; only deploy clones, and only into an empty destination.
 # Usage: runtime-workspace.sh checkout|project|catalog|config|prepare.
-# Spec: standalone-opencode-runtime.
+# Spec: standalone-opencode-runtime, agentdev-runtime-images.
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 workspace="${DEV_WORKSPACE_FOLDER:-/workspaces/project}"
@@ -40,6 +40,8 @@ validate_checkout() {
 
 clone_workspace() {
   local url="${AGENTDEV_REPOSITORY_URL:-}" ref="${AGENTDEV_REPOSITORY_REF:-}" status=0
+  [[ ${AGENTDEV_RUNTIME_MODE:-} == deploy ]] ||
+    fail "$workspace is empty; a Dev Container uses the checkout its tool mounts and never clones"
   [[ -n $url ]] ||
     fail "$workspace is empty and AGENTDEV_REPOSITORY_URL is not set; mount a checkout or set a repository to clone"
   # HTTPS credentials come from the injected token through gh, set up before the clone.

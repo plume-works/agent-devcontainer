@@ -101,7 +101,12 @@ def run(
     detach: bool = False,
 ):
     """Run the bootstrap in a fresh container, then ``script`` as root."""
-    env = {'OPENCODE_SERVER_PASSWORD': SECRET, 'GH_TOKEN': SECRET, **(extra_env or {})}
+    env = {
+        'AGENTDEV_RUNTIME_MODE': 'deploy',
+        'OPENCODE_SERVER_PASSWORD': SECRET,
+        'GH_TOKEN': SECRET,
+        **(extra_env or {}),
+    }
     if uid is not None:
         env['AGENTDEV_UID'] = str(uid)
     if gid is not None:
@@ -178,6 +183,8 @@ def test_rejects_a_uid_owned_by_another_account(image, volumes):
         '-v',
         f'{SCRIPTS}:/opt/agentdev-runtime:ro',
         *volumes.args(),
+        '-e',
+        'AGENTDEV_RUNTIME_MODE=deploy',
         image,
         'bash',
         '-c',
@@ -196,6 +203,8 @@ def test_reuses_a_colliding_group(image, volumes):
         '-v',
         f'{SCRIPTS}:/opt/agentdev-runtime:ro',
         *volumes.args(),
+        '-e',
+        'AGENTDEV_RUNTIME_MODE=deploy',
         image,
         'bash',
         '-c',
@@ -310,3 +319,55 @@ def test_restart_rewrites_nothing_and_resets_runtime_state(image, volumes):
     result = run(image, volumes.args(), script)
     assert_ok(result)
     assert result.stdout.splitlines()[-3:] == ['unchanged', 'reset', '1']
+
+
+DEVCONTAINER_CHECKS = """
+getent passwd agent >/dev/null && echo agent-created
+stat -c '%u:%g' /workspaces/project /workspaces/project/file
+test -e /var/lib/agentdev/auth && echo auth-created
+stat -c '%u:%g %a' /var/lib/agentdev/lifecycle /run/agentdev/xdg
+id -nG "$AGENTDEV_USER" | tr ' ' '\\n' | grep -qx docker && echo docker-member || true
+"""
+
+
+@pytest.mark.parametrize(('user', 'owner'), [('root', '0:0'), ('nobody', '65534:65534')])
+def test_a_devcontainer_accepts_the_tools_account_and_workspace(image, tmp_path, user, owner):
+    checkout = TMP_ROOT / f'dc-checkout-{uuid4().hex[:8]}'
+    (checkout / 'nested').mkdir(parents=True)
+    (checkout / 'file').write_text('keep')
+    os.chown(checkout, 4242, 4242)
+    os.chown(checkout / 'file', 4242, 4242)
+    try:
+        result = run(
+            image,
+            ['-v', f'{checkout}:/workspaces/project'],
+            DEVCONTAINER_CHECKS,
+            extra_env={
+                'AGENTDEV_RUNTIME_MODE': 'devcontainer',
+                'AGENTDEV_USER': user,
+                'XDG_RUNTIME_DIR': '/run/agentdev/xdg',
+            },
+        )
+        assert_ok(result)
+        lines = result.stdout.splitlines()
+        assert 'agent-created' not in lines and 'auth-created' not in lines
+        assert '4242:4242' in lines and lines.count('4242:4242') == 2
+        assert f'{owner} 755' in lines and f'{owner} 700' in lines
+        assert ('docker-member' in lines) == (user != 'root')
+        assert 'accepted account' in result.stdout
+    finally:
+        shutil.rmtree(checkout, ignore_errors=True)
+
+
+def test_a_devcontainer_rejects_an_account_the_image_lacks(image):
+    result = run(
+        image, [], extra_env={'AGENTDEV_RUNTIME_MODE': 'devcontainer', 'AGENTDEV_USER': 'vscode'}
+    )
+    assert result.returncode == 1
+    assert 'account vscode does not exist' in result.stderr
+
+
+def test_the_bootstrap_requires_a_runtime_mode(image):
+    result = run(image, [], extra_env={'AGENTDEV_RUNTIME_MODE': 'standalone'})
+    assert result.returncode == 1
+    assert 'AGENTDEV_RUNTIME_MODE must be deploy or devcontainer' in result.stderr

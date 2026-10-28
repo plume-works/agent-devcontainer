@@ -119,7 +119,7 @@ def test_the_image_prune_runs_once_the_nested_engine_is_up():
     supervisor = (SCRIPTS / 'runtime-supervisor.py').read_text()
     assert "Service('prune', after=('dockerd',), oneshot=True)" in supervisor
     config = configparser.RawConfigParser()
-    config.read(REPO_ROOT / 'docker/opencode/supervisord.conf')
+    config.read(REPO_ROOT / 'docker/deploy/supervisord.conf')
     assert config['program:prune']['command'].endswith('/docker-image-prune.sh')
     assert 'docker-image-prune.sh' not in (SCRIPTS / 'runtime-workspace.sh').read_text()
 

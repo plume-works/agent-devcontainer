@@ -23,7 +23,7 @@ RUNTIME_SOURCES = [
     '.devcontainer/scripts/runtime-bootstrap.sh',
     '.devcontainer/firewall-allowlist.txt',
     'docker/opencode/agent-opencode.Dockerfile',
-    'docker/opencode/supervisord.conf',
+    'docker/deploy/supervisord.conf',
     'docker/desktop/start-xpra.sh',
     'scripts/tests/test_agent_runtime_acceptance.py',
 ]

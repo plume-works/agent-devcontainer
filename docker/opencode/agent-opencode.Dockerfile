@@ -22,12 +22,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 COPY --chmod=0755 .devcontainer/scripts/ /opt/agentdev-runtime/
 # The base desktop image may predate start-xpra.sh's --supervised mode.
 COPY --chmod=0755 docker/desktop/start-xpra.sh /start-xpra.sh
-COPY --chmod=0644 docker/opencode/supervisord.conf /etc/agentdev/supervisord.conf
+COPY --chmod=0644 docker/deploy/supervisord.conf /etc/agentdev/supervisord.conf
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 
 # The runtime identity, paths, and service defaults. Every value is overridable at
 # `docker run`/Compose time; see docker/opencode/runtime.env.example.
-ENV AGENTDEV_RUNTIME_MODE=standalone \
+ENV AGENTDEV_RUNTIME_MODE=deploy \
     AGENTDEV_USER=agent \
     AGENTDEV_UID=1000 \
     AGENTDEV_GID=1000 \
