@@ -126,10 +126,15 @@ Assumptions:
 `data/architecture.md`, `data/features.md`, `data/plans.md`, `data/bugs.md`,
 `data/backlog.md`, `data/someday.md` (extension repository)
 
-- [ ] Copy each document byte for byte to the same key.
+- [x] Copy each document byte for byte to the same key.
+  - **Evidence:** vscode-expo-bridge `bf1aea5`; `cmp` of all 28 against this
+    repository's copies reports no difference.
 - [ ] Add each one's inclusion link to the matching hub at the section it holds
   here (`## Active`/`## Done`/`## Cancelled` for plans,
   `## High`/`## Medium`/`## Low`/`## Done` for backlog).
+  - **Evidence:** vscode-expo-bridge `bf1aea5` hubs: 8 plans (7 Done, 1
+    Cancelled), 7 backlog (1 High, 3 Medium, 1 Low, 2 Done), 10 bugs, and one
+    each in architecture, features, and someday; `iwe schema validate` exits 0.
 
 ### Task 3: Rewrite cross-repository references in the moved documents
 
