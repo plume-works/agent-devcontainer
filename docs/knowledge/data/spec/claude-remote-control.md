@@ -3,7 +3,7 @@ type: spec
 description: Claude Remote Control autostarts from the Coder agent only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T12:00:00Z
+  at: 2026-10-28T01:47:43Z
 sources:
 - resource: .claude/.gitignore
 - resource: .devcontainer/docker-compose.yml
@@ -153,6 +153,13 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 - **THEN** it runs in its own git worktree under the workspace folder's
   `.claude/worktrees/` with the environment of the process that ran the script,
   and `git status` in the workspace folder lists none of its files.
+
+#### Scenario: the server pre-creates its session in worktree mode
+
+- **WHEN** `claude remote-control --spawn worktree` starts and creates its first
+  session
+- **THEN** that session runs in the workspace folder, not in a worktree; only
+  conversations spawned after it get worktrees under `.claude/worktrees/`.
 
 #### Scenario: a conversation is spawned in same-dir mode
 
