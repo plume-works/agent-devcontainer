@@ -38,6 +38,9 @@ pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 
 [Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
+[Show one Expo Bridge status bar
+item](backlog/expo-bridge-one-status-bar-item.md)
+
 ## Low
 
 [Detect plan narration growth
@@ -45,6 +48,9 @@ mechanically](backlog/detect-plan-narration-growth.md)
 
 [Clean up the local checkout after
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
+
+[Verify the build in the Expo bridge sideload
+procedure](backlog/expo-bridge-sideload-procedure.md)
 
 ## Done
 

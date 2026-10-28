@@ -130,3 +130,12 @@ lines](bugs/expo-bridge-build-log-tail-drops-lines.md)
 
 [Bug: the container sees the Expo bridge's build log only after the build
 ends](bugs/expo-bridge-build-log-invisible-until-close.md)
+
+[Bug: the Expo bridge's project ID diagnostic stays stale after a config
+edit](bugs/expo-bridge-project-id-diagnostic-stale-after-config-edit.md)
+
+[Bug: the Expo bridge's CocoaPods fix does not repair an unlinked
+keg](bugs/expo-bridge-cocoapods-fix-misses-unlinked-keg.md)
+
+[Bug: the Expo bridge's simulator profile quick fix omits the bun
+pin](bugs/expo-bridge-simulator-profile-quick-fix-omits-bun.md)
