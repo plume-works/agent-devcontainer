@@ -201,9 +201,14 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
     `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_repository.py` — 3
     passed.
-- [ ] Prove this repository's checkout catalog wins after attachment and that a
+- [x] Prove this repository's checkout catalog wins after attachment and that a
   rebuild, restart, window reload, ordinary clone, and Git worktree preserve
   their intended state boundaries.
+  - **Evidence:** commit 480ea23f; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_repository.py` — 3
+    passed: clone and worktree through reload, restart, and rebuild, sharing
+    only credentials.
 
 ### Task 6: Verify direct and derived consumers
 
