@@ -3,10 +3,11 @@ type: bug
 description: The Expo bridge's build log tail drops the lines written in the last poll interval before a build returns, and the start of any line it reads before the line's newline arrives.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T02:30:00Z
+  at: 2026-10-28T06:09:33Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
+stage: done
 ---
 
 # Bug: the Expo bridge's build log tail drops lines

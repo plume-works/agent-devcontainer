@@ -9,7 +9,7 @@ release:
 description: Give the Expo bridge's workspace extension an activity-bar panel, an always-on status bar item, and Problems-panel diagnostics with quick fixes for every status check and container config check, with the project ID resolved in the container and the Mac sending each build log chunk to the container, at protocol version 2 with no new request or response field.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T06:30:00Z
+  at: 2026-10-28T06:09:33Z
 sources:
 - resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
 - resource: docs/knowledge/data/features/vscode-expo-bridge.md
@@ -20,6 +20,8 @@ sources:
 - resource: https://code.visualstudio.com/api/references/vscode-api
 - resource: https://docs.expo.dev/workflow/configuration/
 - resource: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/api/browser/viewsExtensionPoint.ts
+stage: done
+completed: 2026-10-28
 ---
 
 # Expo Bridge panel, status bar, and Problems in the workspace extension

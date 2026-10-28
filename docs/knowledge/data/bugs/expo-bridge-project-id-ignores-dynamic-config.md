@@ -3,13 +3,14 @@ type: bug
 description: The Expo bridge's easProjectId status check reads only app.json, so a project whose app.config.js or app.config.ts sets, adds, or drops extra.eas.projectId gets the wrong answer.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T03:00:00Z
+  at: 2026-10-28T06:09:33Z
 sources:
 - resource: docs/knowledge/data/plans/20261026-expo-bridge-panel.md
 - resource: https://github.com/plume-works/vscode-expo-bridge
 - resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/protocol.md
 - resource: https://docs.expo.dev/workflow/configuration/
 - resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
+stage: done
 ---
 
 # Bug: the Expo bridge's project ID check ignores dynamic app config

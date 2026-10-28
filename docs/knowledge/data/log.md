@@ -4,6 +4,20 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-28
+
+- **Update**: [Expo Bridge panel, status bar, and Problems in the workspace
+  extension](plans/20261026-expo-bridge-panel.md) done; no `data/spec/` change.
+- **Update**: [Bug: the Expo bridge's project ID check ignores dynamic app
+  config](bugs/expo-bridge-project-id-ignores-dynamic-config.md) fixed and
+  listed under Unreleased Fixed.
+- **Update**: [Bug: the container sees the Expo bridge's build log only after
+  the build ends](bugs/expo-bridge-build-log-invisible-until-close.md) fixed and
+  listed under Unreleased Fixed.
+- **Update**: [Bug: the Expo bridge's build log tail drops
+  lines](bugs/expo-bridge-build-log-tail-drops-lines.md) fixed and listed under
+  Unreleased Fixed.
+
 ## 2026-10-27
 
 - **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for
