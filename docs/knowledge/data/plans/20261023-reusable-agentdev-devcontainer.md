@@ -228,10 +228,14 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `scripts/tests/fixtures/devcontainer-derived/`,
 `scripts/tests/test_agentdev_devcontainer_image.py`
 
-- [ ] Build a fixture that references the published image contract without
+- [x] Build a fixture that references the published image contract without
   copying lifecycle scripts. Verify project dependency setup, pre-commit when
   configured, agent policy, CBM indexing, Xpra, nested Docker, and staged
   catalog availability.
+  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed.
 - [ ] Build a derived fixture image that adds custom tooling and ordered hooks.
   Verify it retains managed startup, can override documented environment values,
   cannot require replacement of `/opt/agentdev-runtime`, and does not execute
