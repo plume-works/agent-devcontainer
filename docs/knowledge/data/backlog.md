@@ -16,9 +16,6 @@ write a plan and link the plan instead.*
 
 ## High
 
-[Start Claude Remote Control in the standalone runtime when
-asked](backlog/standalone-claude-remote-control.md)
-
 ## Medium
 
 [Exercise REMOVED delta blocks end to
@@ -50,6 +47,12 @@ pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 trigger](backlog/drop-claude-free-form-task-trigger.md)
 
 ## Done
+
+[Find why the orphan-kill supervision test is
+flaky](backlog/supervision-orphan-kill-test-cause.md)
+
+[Start Claude Remote Control in the standalone runtime when
+asked](backlog/standalone-claude-remote-control.md)
 
 [Let Implement verify, fix, and revise on its
 own](backlog/autonomous-implement-loop.md)

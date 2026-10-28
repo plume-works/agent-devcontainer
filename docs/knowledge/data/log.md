@@ -6,6 +6,17 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for
+  the Remote Control watcher's shorter header, and re-stamped
+  [devcontainer](codebase/devcontainer.md) and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md).
+- **Map**: refreshed the [scripts](codebase/devcontainer/scripts.md),
+  [docker](codebase/docker.md), and [image and
+  runtime](codebase/api-image-runtime.md) maps for the standalone Remote Control
+  watcher and its settings, and re-stamped
+  [devcontainer](codebase/devcontainer.md), the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md), and the [image
+  build](codebase/flow-image-build.md).
 - **Update**: recorded [Holding the AI review gate during a
   re-review](architecture/rereview-gate-pending.md): a separate commit status is
   the leading candidate, and the marker-commit trigger and a merged

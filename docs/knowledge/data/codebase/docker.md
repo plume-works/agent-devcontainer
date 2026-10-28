@@ -2,14 +2,14 @@
 type: codebase
 description: The Dockerfiles that produce ubuntu-ansible, agent-desktop, and agent-opencode, plus the entrypoint, the Xpra start script, the gh auth wrapper, and the standalone runtime's supervisord config and settings example.
 source: docker
-source_digest: sha256:9f76718fbcee10c51969ecdf7bba3e6a7a1ae258eef32dcb47093ec59f2f4f0c
+source_digest: sha256:588fcfc9ce780ba123d2b7e2f62eab67b1ab817609d9130ab726ac5ed15bc82c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
-stale_after: 2027-01-22
+  at: 2026-10-27T17:00:00Z
+stale_after: 2027-01-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  at: 2026-10-27T17:00:00Z
 sources:
 - id: code
   resource: docker
@@ -33,11 +33,11 @@ runtime on a supplied `agent-desktop` digest.
 - `docker/opencode/agent-opencode.Dockerfile` build arg `FROM_IMAGE:3`, also
   recorded as the `org.opencontainers.image.base.name` label
 - `docker/opencode/supervisord.conf` — the controller event listener and the
-  eleven programs it starts, each through `runtime-supervisor.py exec <name>`;
+  twelve programs it starts, each through `runtime-supervisor.py exec <name>`;
   baked to `/etc/agentdev/supervisord.conf`
 - `docker/opencode/runtime.env.example` — every setting the root
   `compose.opencode.yml` interpolates, with the accepted boolean spellings and
-  each limit's default
+  each limit's default, and the Claude Remote Control mode and spawn mode
 - `docker/opencode/README.md` — the operator deployment guide for the root
   Compose files; not copied into the image
 - `/entrypoint.sh`, `/start-xpra.sh`, the `gh` wrapper — the files a running
@@ -104,7 +104,7 @@ which the OpenCode image bakes.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-27):
 
 - `docker/desktop/agent-desktop.Dockerfile:45-68` — provisioning and required
   Playwright version
@@ -113,8 +113,8 @@ Verified anchor points (line numbers as of 2026-10-23):
 - `docker/opencode/agent-opencode.Dockerfile:11` — supervisor, account removal,
   `gh-stack` relocation; `:22-26` — baked runtime files; `:30` — runtime `ENV`;
   `:59-66` — ports, healthcheck, entrypoint
-- `docker/opencode/supervisord.conf:24` — the controller; `:37-209` — the eleven
-  programs
+- `docker/opencode/supervisord.conf:24` — the controller; `:37-225` — the twelve
+  programs, `:211` — `remote-control`
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
 - `docker/desktop/start-xpra.sh:7` — default HTML5 container port
 - `docker/desktop/start-xpra.sh:175-183` — `--port` override

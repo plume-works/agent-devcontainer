@@ -105,6 +105,9 @@ recovery](architecture/claude-remote-control-expired-session-recovery.md)
 [Claude Remote Control archived pre-created
 session](architecture/claude-remote-control-archived-pre-created-session.md)
 
+[Claude Remote Control pointerless server
+start](architecture/claude-remote-control-pointerless-server-start.md)
+
 [CBM daemon lifecycle](architecture/cbm-daemon-lifecycle.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
