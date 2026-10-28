@@ -32,10 +32,11 @@ substitution and a set of careful verifications produced identical bytes.
 
 Every ticked `- [x]` task under a plan's task section SHALL carry an indented
 `- **Evidence:**` child naming the commit, test run, or CI run that closed it,
-specifically enough that a later session can go and look. Plan SHALL specify the
-format, Implement SHALL write the evidence line in the same edit that ticks the
-box, and the convention SHALL be recorded where every session loads it rather
-than only where a skill is invoked.
+specifically enough that a later session can go and look. A check and its result
+SHALL count as evidence only together with the commit that holds the change they
+check. Plan SHALL specify the format, Implement SHALL write the evidence line in
+the same edit that ticks the box, and the convention SHALL be recorded where
+every session loads it rather than only where a skill is invoked.
 
 #### Scenario: A task is completed
 
@@ -43,6 +44,13 @@ than only where a skill is invoked.
   tests and checks pass
 - **THEN** one edit ticks the box and writes its `- **Evidence:**` child naming
   what closed it
+
+#### Scenario: Evidence names only a check
+
+- **WHEN** a ticked task's evidence line names a check and its result but not
+  the commit that holds the change it checks
+- **THEN** it is residue rather than evidence, and Verify reports it as a ticked
+  task without usable evidence
 
 #### Scenario: Evidence cannot be named
 
@@ -66,8 +74,9 @@ than only where a skill is invoked.
 
 #### Scenario: A tick lands in a commit
 
-- **WHEN** a checkbox flip, its evidence line, or an anchor update is committed
-- **THEN** it belongs to the same commit as the code it describes
+- **WHEN** a task closes
+- **THEN** its code is committed first, and the checkbox flip with its evidence
+  line, naming that commit, follows in a commit of its own
 
 ### Requirement: Plan tasks are sized so a tick can be honest
 

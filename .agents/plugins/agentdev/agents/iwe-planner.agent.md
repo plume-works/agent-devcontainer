@@ -83,8 +83,9 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    - `## Implementation Steps` — `### Task N: <name>` blocks, each with
      `**Files:** Create:/Modify: ...` and `- [ ]` checkboxes. Each checkbox
      carries an indented `- **Evidence:**` child once it is ticked, naming the
-     commit, test run, or CI run that closed it; leave the checkbox bare while
-     it is unticked. A task may describe an _action_; it may never paraphrase
+     commit, test run, or CI run that closed it — a check and its result count
+     only together with the commit that holds the change they check; leave the
+     checkbox bare while it is unticked. A task may describe an _action_; it may never paraphrase
      _approved content_. When a decision was made as specific text — wording for
      a document, a snippet, a message — reproduce that text verbatim in a fenced
      block under the task that applies it, and check
