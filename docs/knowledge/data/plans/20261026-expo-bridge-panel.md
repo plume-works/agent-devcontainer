@@ -231,7 +231,7 @@ on files in the container. The container reads its own files directly.
     `bun run --filter vscode-expo-bridge-workspace package` includes in the
     VSIX.
 
-- [ ] The tree shows these sections for each workspace folder with an
+- [x] The tree shows these sections for each workspace folder with an
   `eas.json`, and leaves out the folder level when there is one:
 
   - Connection: availability, the folder's Mac path, and protocol versions;
@@ -247,7 +247,8 @@ on files in the container. The container reads its own files directly.
     and `ui.ts`. The `panelmodel.test.ts` tests "shows the sections directly for
     one folder", "shows each check's detail, and marks a failing Mac tool
     fixable", "adds the container's eas.json problems to Project", and "an
-    unavailable folder beside an available one shows only its connection" pass.
+    unavailable folder beside an available one shows only its connection" pass,
+    and still pass at `f269245`, whose CI run `40619096690` passes.
 
 - [x] Before any status, after host-not-installed, and when unavailable, the
   view shows welcome content saying what that state means. Host-not-installed
