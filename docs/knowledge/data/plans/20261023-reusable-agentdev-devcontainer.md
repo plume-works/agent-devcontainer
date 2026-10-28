@@ -103,9 +103,12 @@ recovery.
 `.devcontainer/scripts/runtime-keyring.sh`; Delete:
 `docker/opencode/supervisord.conf`
 
-- [ ] Select an explicit `AGENTDEV_RUNTIME_MODE=deploy|devcontainer` service
+- [x] Select an explicit `AGENTDEV_RUNTIME_MODE=deploy|devcontainer` service
   profile without evaluating caller-provided shell commands. Keep common
   dependency, health, recovery, and shutdown logic in one controller.
+  - **Evidence:** commits 6171b723, ebcccecf;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
+    — 127 passed.
 - [ ] Split bootstrap responsibilities so deploy may create or validate its
   runtime identity and workspace, while devcontainer accepts the Dev Container
   tool's user and mounted workspace without cloning, recursively changing
