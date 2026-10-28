@@ -3,9 +3,10 @@ type: spec
 description: The agent-opencode image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T02:36:16Z
+  at: 2026-10-28T12:00:00Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
+- resource: .devcontainer/scripts/runtime-remote-control.sh
 - resource: .devcontainer/scripts/runtime-bootstrap.sh
 - resource: .devcontainer/scripts/runtime-workspace.sh
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -37,8 +38,9 @@ tmux/failure semantics.
 `ghcr.io/plume-works/agent-opencode` SHALL derive from the corresponding digest
 of `agent-desktop`, provide linux/amd64 and linux/arm64 images, and start its
 environment without Coder, a Dev Containers client, or project scaffolding. It
-SHALL keep Claude Code and Codex available without autostarting them and SHALL
-omit Docker MCP gateway integration.
+SHALL keep Claude Code and Codex available without autostarting them, except
+Claude Remote Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL omit
+Docker MCP gateway integration.
 
 #### Scenario: an ordinary checkout is mounted
 
@@ -146,17 +148,18 @@ interactive GitHub-login storage.
 
 ### Requirement: services have supervised bounded recovery
 
-The runtime SHALL supervise OpenCode, DinD, CBM, D-Bus/keyring, and enabled Xpra
-with readiness probes, bounded startup, bounded per-service retries/backoff, and
-orderly termination. It SHALL detect actual daemon failure even when the public
-tool daemonizes, mark dependency outages unready, and recover affected clients
-coherently. OpenCode and D-Bus/keyring SHALL be core services; DinD, CBM, and
-Xpra SHALL be optional, and OpenCode SHALL NOT wait for Xpra. A core service
-exhausting its budget SHALL latch the runtime failed; an optional one SHALL mark
-it degraded while OpenCode keeps serving. With `AGENTDEV_STRICT_STARTUP=true`,
-every optional failure SHALL be treated as a core failure. PID 1 SHALL keep
-running in both states and SHALL exit nonzero only when its controller or
-supervisord fails. Xpra SHALL start by default with an explicit disable option.
+The runtime SHALL supervise OpenCode, DinD, CBM, D-Bus/keyring, enabled Xpra,
+and enabled Remote Control with readiness probes, bounded startup, bounded
+per-service retries/backoff, and orderly termination. It SHALL detect actual
+daemon failure even when the public tool daemonizes, mark dependency outages
+unready, and recover affected clients coherently. OpenCode and D-Bus/keyring
+SHALL be core services; DinD, CBM, Xpra, and Remote Control SHALL be optional,
+and OpenCode SHALL NOT wait for Xpra. A core service exhausting its budget SHALL
+latch the runtime failed; an optional one SHALL mark it degraded while OpenCode
+keeps serving. With `AGENTDEV_STRICT_STARTUP=true`, every optional failure SHALL
+be treated as a core failure. PID 1 SHALL keep running in both states and SHALL
+exit nonzero only when its controller or supervisord fails. Xpra SHALL start by
+default with an explicit disable option.
 
 #### Scenario: a running service fails
 
@@ -173,8 +176,8 @@ supervisord fails. Xpra SHALL start by default with an explicit disable option.
 
 #### Scenario: an optional service keeps failing
 
-- **WHEN** DinD, CBM, or Xpra exhausts its bounded recovery budget without
-  strict startup
+- **WHEN** DinD, CBM, Xpra, or Remote Control exhausts its bounded recovery
+  budget without strict startup
 - **THEN** OpenCode keeps serving and the runtime reports degraded, naming that
   service.
 
