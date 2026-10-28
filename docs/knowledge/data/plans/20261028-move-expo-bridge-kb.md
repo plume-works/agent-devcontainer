@@ -176,7 +176,7 @@ Assumptions:
 **Files:** Modify: `AGENTS.md`, `README.md`, the package `version` fields;
 Create: `CLAUDE.md` (extension repository)
 
-- [ ] `AGENTS.md` keeps its packaging section and adds what a contributor needs
+- [x] `AGENTS.md` keeps its packaging section and adds what a contributor needs
   without this template: the `bun` commands (`install`, `lint`, `typecheck`,
   `test`, `package`, `bump`) and `bun` only for JavaScript; the patch bump on
   every change; `docs/protocol.md` as the contract, changed together with the
@@ -186,15 +186,18 @@ Create: `CLAUDE.md` (extension repository)
   no security setting read from a container-writable file); scratch files in
   `./.tmp/`; and the project memory in `docs/knowledge/data/`, run with `iwe`
   from the repository root, following `docs/knowledge/AGENTS.md`.
+  - **Evidence:** vscode-expo-bridge `41b964b` `AGENTS.md`.
 - [x] `CLAUDE.md` holds only `@AGENTS.md`.
   - **Evidence:** vscode-expo-bridge `41b964b` `CLAUDE.md`.
-- [ ] `README.md` lets a user adopt the bridge with no other repository: the
+- [x] `README.md` lets a user adopt the bridge with no other repository: the
   `devcontainer.json` wiring (the pack in `customizations.vscode.extensions`,
   `8081` in `forwardPorts` with `"onAutoForward": "silent"`), `EXPO_TOKEN` set
   on the Mac through the host's token command, the `eas-host` actions in the
   order `eas-host --help` lists them, artifacts under `.tmp/expo-bridge/`, Metro
   in the container before `launch`, and EAS cloud when `eas-host status` exits
   non-zero.
+  - **Evidence:** vscode-expo-bridge `41b964b` `README.md`, sections "Setting up
+    a project" and "Using `eas-host`".
 - [x] `bun run bump`; `bun run lint`, `bun run typecheck`, and `bun test` pass.
   - **Evidence:** vscode-expo-bridge `41b964b` bumps to `0.4.1`; lint and
     typecheck clean, `bun test` 409 pass, 0 fail.
