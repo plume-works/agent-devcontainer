@@ -4,8 +4,92 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-27
+
+- **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for
+  the Remote Control watcher's shorter header, and re-stamped
+  [devcontainer](codebase/devcontainer.md) and the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md).
+- **Map**: refreshed the [scripts](codebase/devcontainer/scripts.md),
+  [docker](codebase/docker.md), and [image and
+  runtime](codebase/api-image-runtime.md) maps for the standalone Remote Control
+  watcher and its settings, and re-stamped
+  [devcontainer](codebase/devcontainer.md), the [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md), and the [image
+  build](codebase/flow-image-build.md).
+- **Update**: recorded [Holding the AI review gate during a
+  re-review](architecture/rereview-gate-pending.md): a separate commit status is
+  the leading candidate, and the marker-commit trigger and a merged
+  review-and-gate job are rejected.
+- **Update**: [PR skills drive the AI review lifecycle on the single review
+  workflow](plans/20261023-pr-skills-ai-review-lifecycle.md) done; merged the
+  assignee-toggle request and head-check status into the [AI review
+  refresh](spec/ai-review-refresh.md) spec; [Bug: PR updates skip the re-review
+  evaluation](bugs/pr-update-skips-review-eval.md) fixed and listed under
+  Unreleased Fixed.
+- **Update**: [Assignee-triggered AI re-reviews replace the comment
+  trigger](plans/20261026-assignee-review-trigger.md) done; merged the assignee
+  re-review trigger and the `@claude review` rejection into the [AI review
+  gate](spec/ai-review-gate.md) spec; [Bug: a comment-requested review's gate
+  does not count toward merge](bugs/dispatched-review-gate-not-counted.md) fixed
+  and listed under Unreleased Fixed; [AI responder
+  workflows](features/ai-responder-workflows.md) stays implemented and listed
+  under Unreleased Changed.
+- **Map**: re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) and its
+  [skills](codebase/agents/plugins/agentdev/skills.md) after merging `main` into
+  the Implement loop branch.
+- **Map**: re-verified the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
+  plan-edit commit before a revision.
+- **Map**: refreshed the [agentdev
+  skills](codebase/agents/plugins/agentdev/skills.md) and
+  [catalog](codebase/agents/plugins/agentdev.md) for implement-all's
+  conversation-free Implementer dispatch.
+- **Map**: re-verified the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
+  restore-from-`HEAD` wording.
+- **Update**: [Let Implement verify, fix, and revise on its
+  own](plans/20261026-autonomous-implement-loop.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now requires Implement to verify its own
+  work, act on the findings, and revise its plan only after an independent
+  evaluation.
+- **Update**: [Autonomous Implement loop](features/autonomous-implement-loop.md)
+  implemented; listed under Unreleased Added.
+- **Update**: [Verification in the main
+  loop](features/verification-in-the-main-loop.md) gained the Implement
+  orchestrator's Verify dispatch; already listed under Unreleased Changed.
+- **Update**: [Run Verify from a fresh
+  context](plans/20261026-verify-in-fresh-context.md) done; [IWE workflow
+  skills](spec/iwe-workflow-skills.md) now requires every Verify run to start
+  from a fresh context through the `iwe-verifier` agent.
+- **Update**: [Verification in the main
+  loop](features/verification-in-the-main-loop.md) gained fresh-context Verify;
+  listed under Unreleased Changed.
+- **Map**: refreshed the agentdev [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) map for
+  `request-review.sh`'s assignee toggle, and re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md) and its
+  [skills](codebase/agents/plugins/agentdev/skills.md).
+- **Map**: refreshed the [workflows](codebase/github/workflows.md) map for the
+  assignee re-review trigger and the `@claude review` rejection, re-anchored
+  [pull request checks](codebase/flow-pull-request-checks.md), and re-stamped
+  [GitHub](codebase/github.md), [actions](codebase/github/actions.md), and the
+  [agentdev catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
+  tests](codebase/agents/plugins/agentdev/tests.md) after merging `main`.
+
 ## 2026-10-26
 
+- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `iwe-planner` and `iwe-revision-evaluator` agents, the thin `iwe-plan` skill,
+  and the Implement loop.
+- **Create**: [Autonomous Implement
+  loop](architecture/autonomous-implement-loop.md) architecture doc.
+- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
+  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
+  `iwe-verifier` agent and the dispatching `iwe-verify` skill.
 - **Update**: [Configurable Remote Control spawn mode, worktree by
   default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
   spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
@@ -16,6 +100,12 @@ to the current day's group.
   scripts](codebase/devcontainer/scripts.md) map for the Remote Control spawn
   mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
   [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
+- **Update**: recorded [Assignee-triggered AI
+  re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
+  [Verify that auto-merge waits for an assignee-triggered
+  review](backlog/verify-assignee-review-automerge.md).
+- **Update**: filed backlog task [Drop the `@claude <custom prompt>` free-form
+  task trigger](backlog/drop-claude-free-form-task-trigger.md).
 
 ## 2026-10-25
 
@@ -85,6 +175,13 @@ to the current day's group.
   [tests](codebase/py_packages/validate_agent_files/tests.md), and
   [rules](codebase/py_packages/validate_agent_files/validators.md) for the
   catalog-owned scaffold.
+- **Update**: filed [Bug: a comment-requested review's gate does not count
+  toward merge](bugs/dispatched-review-gate-not-counted.md), reproduced on
+  throwaway PR #472.
+- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
+  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
+  [tests](codebase/agents/plugins/agentdev/tests.md) for the removed
+  `pr-discover-ai-responder` skill and the new `request-review.sh` script.
 
 ## 2026-10-24
 

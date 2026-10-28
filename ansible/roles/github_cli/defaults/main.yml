@@ -2,14 +2,14 @@
 # gh-stack: GitHub native stacked pull requests (`gh stack`), installed as a
 # precompiled gh extension; see architecture/stacked-prs.
 # renovate: datasource=github-releases depName=github/gh-stack
-github_cli_gh_stack_version: "v0.2.1"
+github_cli_gh_stack_version: "v0.3.0"
 github_cli_gh_stack_download_url: >-
   https://github.com/github/gh-stack/releases/download/{{ github_cli_gh_stack_version }}/linux-{{ system_arch }}
 
 # SHA-256 checksums of the release binaries, keyed by architecture. Renovate's
 # post-upgrade script recomputes them on a bump.
 github_cli_gh_stack_checksums:
-  amd64: sha256:ffe9d48b6342faffc3b0cb420202ff1df32e24faf32693debd7423274bbdf859
-  arm64: sha256:25ec261a391261a1462d38f85c230b0e0b14ae3547926130996541f62f25f78b
+  amd64: sha256:957e822cfa7e435cd84a297cd96c419b58e51e3ac58be249762c24bd9e45099b
+  arm64: sha256:803ec91eeba9b2ac38827e299a79830fe75ca7284f0c28d60e6a2704bb34ed13
 github_cli_gh_stack_checksum: "{{ github_cli_gh_stack_checksums[system_arch] }}"
 github_cli_gh_stack_dir: "{{ user_home }}/.local/share/gh/extensions/gh-stack"

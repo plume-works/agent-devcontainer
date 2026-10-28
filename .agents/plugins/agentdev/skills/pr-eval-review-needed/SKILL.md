@@ -1,14 +1,15 @@
 ---
 name: pr-eval-review-needed
-description: 'Decide whether work just pushed to an open pull request needs a fresh AI review, because it went beyond what a reviewer already saw. Use after implementing, refactoring, or fixing anything on a branch with an open PR that has already been reviewed — especially when resolving review feedback led to changes wider than the feedback asked for, or when new behavior, files, or dependencies entered the PR since the last review. Keywords: re-review needed, stale review, reviewed changed since, beyond feedback scope, review scope.'
+description: 'Decide whether work just pushed to an open pull request needs a fresh AI review, because it went beyond what a reviewer already saw. Use after implementing, refactoring, or fixing anything on a branch with an open PR that has already been reviewed — especially when resolving review feedback led to changes wider than the feedback asked for, or when new behavior, files, or dependencies entered the PR since the last review. Applied by pr-open in update mode, by pr-merge after a CI-fix push, and by pr-feedback-resolution. Keywords: re-review needed, stale review, reviewed changed since, beyond feedback scope, review scope.'
 ---
 
 # Evaluate Whether a Re-Review Is Needed
 
 Decide whether the current head of an open, already-reviewed pull request
 contains work the last review never saw, and request a fresh review when it
-does. Run this after pushing to such a PR, particularly at the end of a
-feedback-resolution pass. This skill owns the outcome: it decides, and when the
+does. Run this after pushing to such a PR: `pr-open` applies it on every
+update-mode run, `pr-merge` after a CI-fix push, and `pr-feedback-resolution` at
+the end of a feedback pass. This skill owns the outcome: it decides, and when the
 answer is yes it carries the request out through
 [pr-request-ai-review](../pr-request-ai-review/SKILL.md).
 
@@ -28,13 +29,18 @@ neither. When genuinely balanced, request it.
 
 Compare what is on the PR head now against what the last review saw.
 
-**Ask: did I change anything the reviewer did not direct?**
+**Ask: does the diff since the newest reviewed commit go beyond what the pull
+request's review threads and review comments since that review asked for?**
 
-- **No** — the diff since the last review only applies what reviewers asked
-  for. That is the review working as intended, and re-reviewing it re-reads the
+The answer comes from the pull request, not from the session that made the
+change, so a cold run from `pr-sync` or `pr-merge` decides on the same footing as
+a feedback pass.
+
+- **No** — the diff only applies what those threads and comments asked for.
+  That is the review working as intended, and re-reviewing it re-reads the
   reviewer's own instructions. Reply in the threads; do not request a review.
-- **Yes** — behavior entered the PR that no reviewer has seen. Request a fresh
-  review.
+- **Yes** — behavior entered the PR that no reviewer has seen or asked for.
+  Request a fresh review.
 
 Applying feedback faithfully is not new scope, even across many files. A
 one-line change can be new scope. Judge by what a reviewer would need to look at
@@ -71,7 +77,7 @@ summary is not evidence of what was reviewed. Read the PR:
 
 ```bash
 gh pr view <pr> --json reviews,headRefOid \
-  --jq '{head: .headRefOid, reviews: [.reviews[] | {author: .author.login, state: .state, commit: .commit.oid}]}'
+  --jq '{head: .headRefOid, reviews: [.reviews[] | {author: .author.login, state, submittedAt, commit: .commit.oid}]}'
 ```
 
 Then diff the newest reviewed commit against the current head to see exactly
@@ -81,6 +87,22 @@ what has landed since:
 gh pr diff <pr> --name-only          # scope of the PR overall
 git diff <last-reviewed-sha>..HEAD   # what no review has seen
 ```
+
+Then read what reviewers asked for since that review — its own comments
+included — from the review bodies, the conversation, and the inline threads,
+keeping the entries dated at or after the newest reviewed review's
+`submittedAt`:
+
+```bash
+gh pr view <pr> --json reviews,comments \
+  --jq '{reviews: [.reviews[] | {author: .author.login, submittedAt, body}],
+         comments: [.comments[] | {author: .author.login, createdAt, body}]}'
+gh api --paginate 'repos/{owner}/{repo}/pulls/<pr>/comments' \
+  --jq '.[] | {author: .user.login, created_at, path, line, body}'
+```
+
+When no thread or comment since that review asks for anything, nothing in the
+diff was directed: judge the whole diff as new work.
 
 If no AI review exists at all, this skill does not apply — the gate itself is
 unsatisfied, and that is a merge-time concern for `/agentdev:pr-merge`.

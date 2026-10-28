@@ -139,3 +139,9 @@ keg](bugs/expo-bridge-cocoapods-fix-misses-unlinked-keg.md)
 
 [Bug: the Expo bridge's simulator profile quick fix omits the bun
 pin](bugs/expo-bridge-simulator-profile-quick-fix-omits-bun.md)
+
+[Orphan-kill supervision test fails
+intermittently](bugs/supervision-orphan-kill-test-flaky.md)
+
+[Bug: a comment-requested review's gate does not count toward
+merge](bugs/dispatched-review-gate-not-counted.md)

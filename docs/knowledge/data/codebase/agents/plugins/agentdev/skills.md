@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: The 42 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
+description: The 41 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:87d97b878982e729a81dc871946c42ea19193ddb45aca300290adae72862c53a
+source_digest: sha256:d5a8cadf868da38f71d7a13e0294cc0317b465d1fd077f92f4d2a54eeb92519c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
-stale_after: 2027-01-23
+  at: 2026-10-27T09:00:00Z
+stale_after: 2027-01-25
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T23:00:00Z
+  at: 2026-10-27T09:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -30,17 +30,17 @@ directory (`agent-code/<file>`), uses `${CLAUDE_SKILL_DIR}` only in
 
 ## Public surface
 
-| Family                            | Count | Skills                                                                                                                                                                                                                                                                         |
-| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Git and pull requests             | 15    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-discover-ai-responder`, `pr-merge`, `pr-merge-stack` |
-| Review, CI, and formatting        | 7     | `code-review-standards`, `exec-summary`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                                                      |
-| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                                             |
-| IWE knowledge-graph workflow      | 14    | `iwe-audit`, `iwe-bootstrap`, `iwe-branch-name`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                                                |
+| Family                            | Count | Skills                                                                                                                                                                                                                                             |
+| --------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Git and pull requests             | 14    | `git-commit`, `git-new-branch`, `git-merge-resolve`, `update-branch`, `gh-stack`, `pr-open`, `pr-sync`, `pr-gen-description`, `pr-review`, `pr-feedback-resolution`, `pr-eval-review-needed`, `pr-request-ai-review`, `pr-merge`, `pr-merge-stack` |
+| Review, CI, and formatting        | 7     | `code-review-standards`, `exec-summary`, `extract-github-actions-logs`, `get-codeql-data`, `local-reformat`, `semantic-refactor-audit`, `sync-super-linter-tool-versions`                                                                          |
+| Escalation and the catalog itself | 6     | `microvm-sandbox`, `remote-codespace-session`, `create-agent`, `create-skill`, `skill-scripts`, `template-consume`                                                                                                                                 |
+| IWE knowledge-graph workflow      | 14    | `iwe-audit`, `iwe-bootstrap`, `iwe-branch-name`, `iwe-capture`, `iwe-explore`, `iwe-implement`, `iwe-implement-all`, `iwe-map`, `iwe-plan`, `iwe-setup`, `iwe-ship`, `iwe-ship-all`, `iwe-verify`, `iwe-weekly`                                    |
 
 Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
 `gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-bootstrap`,
 `iwe-branch-name`, `iwe-capture`, `iwe-explore`, `iwe-map`, `iwe-plan`,
-`pr-discover-ai-responder`, `pr-gen-description`, `pr-open`, `pr-review`,
+`pr-gen-description`, `pr-open`, `pr-request-ai-review`, `pr-review`,
 `remote-codespace-session`, `template-consume`, `update-branch`. Skills with
 `references/` pages: `gh-stack`, `iwe-bootstrap`, `semantic-refactor-audit`,
 `template-consume`. `iwe-bootstrap` is the one skill with `assets/`: the blank
@@ -60,50 +60,56 @@ model-invocable for workflow handoffs. Ship and Implement keep their rulebooks
 in the `iwe-shipper` and `iwe-implementer` catalog agents: `iwe-ship` only
 builds a conversation-free prompt and dispatches `iwe-shipper`, `iwe-implement`
 follows `iwe-implementer` in place, the two `-all` coordinators dispatch one
-agent per plan in dependency order, and `iwe-plan` revise re-dispatches
-`iwe-shipper` when a revision answers its blocker report. Scripts are bash or
-Python, pull in the matching [result-code helpers](bin.md), and end every path
-with `RESULT=<NAME>` on stdout; the `SKILL.md` carries a table keyed on those
-names. `iwe-capture` and `iwe-plan` each bundle a `close-issue.sh` that parses
-its arguments and delegates the view-then-close step to the shared
-`close_issue_with_comment` helper, so both report the same results. `iwe-map`'s
-`stale-map-docs.py` is the Python case: it fingerprints the tracked source
-behind every `data/codebase/` doc, normalizing content that an
-`iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
-machine-managed so an automerged pin bump does not register as a change. The
-metadata files themselves stay out of that fingerprint; a rule reaches a digest
-only as the pattern and replacement that applied. Its `--explain` flag prints
-one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
-shared result vocabulary for metadata it cannot read, compile, or apply to a
-masked text file. `--replay [--since <date>]` bounds each verdict by the
-first-parent commit that established the document's recorded digest; the date
-can add evidence but cannot exclude that ancestry. A digest boundary is trusted
-only when that revision's source computes to the recorded digest, with committed
-blobs read under the same newline translation as the working tree. Replay uses
-NUL-separated Git paths, inventories hidden values across every current masked
-file, and prints `ABSORBED` or `MOVED` per commit or working-tree edit and file,
-then `RESTAMP` with a new digest for a non-fresh doc the rules explain and
-`REFRESH` for the rest. Metadata or masked-text failures found while collecting
-evidence become document-scoped `BROKEN_METADATA`. Refresh mode records docs
-that quote old values before shared masks and excludes them from re-stamping.
-The IWE family runs against the [knowledge
-workspace](../../../docs/knowledge.md). `template-consume` optionally
-initializes a consumer's knowledge by invoking `iwe-bootstrap` — after removing
-a copied publisher workspace only when it is byte-identical to the adopted ref —
-then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
-reusable knowledge support files, never invokes bootstrap, and never replaces
-consumer-owned project memory. An optional Expo profile edits files the consumer
-already has, enables the official Expo plugin, and adds the Expo Bridge
-extension, Metro's port 8081 forwarded silently, and an `eas-host` iOS build
-rule with an EAS cloud fallback; it adds no tracked paths, so update mode
-reconciles it against the guide on every run. Its state is split three ways: the
-`template-consume` section of the consumer root's `.agent.metadata.json` is the
-only machine-parsed record of the adopted ref and the tracked paths —
-`check-updates.sh` reads nothing else, and a legacy `.agentdev-template.json` is
-consolidated into it on the next update; `.agentdev-template-progress.md` is the
-consumer-owned task and choice ledger that survives an interrupted setup; and
-`data/template-adoption` summarizes the episode for a consumer that kept the
-knowledge base.
+agent per plan in dependency order with no conversation forwarded, and
+`iwe-implement` and `iwe-implement-all` also run that rulebook's
+`## Running the loop`, dispatching `iwe-verifier` after the tasks and
+`iwe-revision-evaluator` on a drafted revision. `iwe-plan` follows the
+`iwe-planner` agent in place, whose revise mode re-dispatches `iwe-shipper` when
+a revision answers its blocker report. Verify keeps its rulebook in the
+`iwe-verifier` agent: from a session `iwe-verify` dispatches it with a
+conversation-free prompt, and inside `iwe-shipper` it has the Shipper follow
+that rulebook in place. Scripts are bash or Python, pull in the matching
+[result-code helpers](bin.md), and end every path with `RESULT=<NAME>` on
+stdout; the `SKILL.md` carries a table keyed on those names. `iwe-capture` and
+`iwe-plan` each bundle a `close-issue.sh` that parses its arguments and
+delegates the view-then-close step to the shared `close_issue_with_comment`
+helper, so both report the same results. `iwe-map`'s `stale-map-docs.py` is the
+Python case: it fingerprints the tracked source behind every `data/codebase/`
+doc, normalizing content that an `iwe-map.digest_ignore` rule in an
+`.agent.metadata.json` designates machine-managed so an automerged pin bump does
+not register as a change. The metadata files themselves stay out of that
+fingerprint; a rule reaches a digest only as the pattern and replacement that
+applied. Its `--explain` flag prints one `MASK` line per applied rule, and it
+adds `BROKEN_METADATA` (exit 5) to the shared result vocabulary for metadata it
+cannot read, compile, or apply to a masked text file.
+`--replay [--since <date>]` bounds each verdict by the first-parent commit that
+established the document's recorded digest; the date can add evidence but cannot
+exclude that ancestry. A digest boundary is trusted only when that revision's
+source computes to the recorded digest, with committed blobs read under the same
+newline translation as the working tree. Replay uses NUL-separated Git paths,
+inventories hidden values across every current masked file, and prints
+`ABSORBED` or `MOVED` per commit or working-tree edit and file, then `RESTAMP`
+with a new digest for a non-fresh doc the rules explain and `REFRESH` for the
+rest. Metadata or masked-text failures found while collecting evidence become
+document-scoped `BROKEN_METADATA`. Refresh mode records docs that quote old
+values before shared masks and excludes them from re-stamping. The IWE family
+runs against the [knowledge workspace](../../../docs/knowledge.md).
+`template-consume` optionally initializes a consumer's knowledge by invoking
+`iwe-bootstrap` — after removing a copied publisher workspace only when it is
+byte-identical to the adopted ref — then hands onboarding to `iwe-setup` and
+`iwe-map`; update mode tracks only the reusable knowledge support files, never
+invokes bootstrap, and never replaces consumer-owned project memory. An optional
+Expo profile edits files the consumer already has, enables the official Expo
+plugin, and adds the Expo Bridge extension, Metro's port 8081 forwarded
+silently, and an `eas-host` iOS build rule with an EAS cloud fallback; it adds
+no tracked paths, so update mode reconciles it against the guide on every run.
+Its state is split three ways: the `template-consume` section of the consumer
+root's `.agent.metadata.json` is the only machine-parsed record of the adopted
+ref and the tracked paths — `check-updates.sh` reads nothing else, and a legacy
+`.agentdev-template.json` is consolidated into it on the next update;
+`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
+that survives an interrupted setup; and `data/template-adoption` summarizes the
+episode for a consumer that kept the knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not
@@ -159,7 +165,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-27):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -187,12 +193,21 @@ Verified anchor points (line numbers as of 2026-10-25):
   `check_map_freshness`, the push-time map gate
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — the `iwe-shipper`
   dispatch
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:34` — the `iwe-verifier`
+  dispatch
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:13` — the in-place route
+  for `iwe-shipper`
 - `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — one Shipper per
   plan
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — one
   Implementer per plan
-- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:145` — the Shipper
+- `.agents/plugins/agentdev/skills/iwe-plan/SKILL.md:14` — the in-place follow
+  of `iwe-planner`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:163` — the Shipper
   re-dispatch after a revision
+- `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:19` and
+  `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:19` — the
+  orchestrator running `## Running the loop`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:97` —
   `BROKEN_METADATA`
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:280` —

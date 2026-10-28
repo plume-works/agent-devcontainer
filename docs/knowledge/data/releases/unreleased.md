@@ -74,7 +74,11 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 
 [Playwright browser in the development image](../features/playwright-browser.md)
 
+[Autonomous Implement loop](../features/autonomous-implement-loop.md)
+
 ## Changed
+
+[Verification in the main loop](../features/verification-in-the-main-loop.md)
 
 [Reusable IWE bootstrap](../features/consumer-iwe-seed.md)
 
@@ -134,3 +138,9 @@ bug](../bugs/ship-release-link-without-feature.md)
 
 [Bug: the Remote Control pin ignores
 `/clear`](../bugs/remote-control-pin-ignores-clear.md)
+
+[Bug: a comment-requested review's gate does not count toward
+merge](../bugs/dispatched-review-gate-not-counted.md)
+
+[Bug: PR updates skip the re-review
+evaluation](../bugs/pr-update-skips-review-eval.md)

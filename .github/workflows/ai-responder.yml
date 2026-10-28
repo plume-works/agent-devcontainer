@@ -29,7 +29,7 @@ on:
     types:
       - checks_requested
   # A comment mention is bridged into a dispatch on the PR head branch, so the
-  # review runs the branch's own file. See spec/ai-review-gate.
+  # task runs the branch's own file. See spec/ai-review-gate.
   workflow_dispatch:
     inputs:
       pr_number:
@@ -37,14 +37,7 @@ on:
         required: true
         type: string
       task:
-        description: Free-form request; empty means a review
-        required: false
-        type: string
-        default: ''
-      review_effort:
-        description: >-
-          Review effort tier: light, full, or empty for orchestrator
-          judgment
+        description: Free-form request; a dispatch never reviews
         required: false
         type: string
         default: ''
@@ -94,7 +87,7 @@ jobs:
     # workflow, a doc example, a fix description -- starts a container job.
     # That is not hypothetical; it fired repeatedly while this workflow was
     # being reviewed. Requiring the mention up front keeps the deliberate
-    # "@claude review ..." working while quoted or code-fenced mentions stay
+    # "@claude <task>" working while quoted or code-fenced mentions stay
     # inert. Trailing text is unrestricted, so the request itself is free-form.
     #
     # Bot-authored pull requests get no automatic review,
@@ -251,21 +244,20 @@ jobs:
           SKIP_AI_REVIEW: ${{ steps.checkout_ref.outputs.skipAiReview }}
           REVIEW_EXISTS: ${{ steps.review_status.outputs.found }}
           DISPATCH_TASK: ${{ inputs.task }}
-          DISPATCH_REVIEW_EFFORT: ${{ inputs.review_effort }}
           BODY_REVIEW_EFFORT: ${{ steps.checkout_ref.outputs.bodyReviewEffort }}
         with:
           script: |
             const { eventName, payload } = context;
             const prNumber = process.env.PR_NUMBER;
             const dispatchTask = (process.env.DISPATCH_TASK ?? '').trim();
+            if (eventName === 'workflow_dispatch' && dispatchTask === '') {
+              throw new Error(
+                "A dispatch needs a task and never runs a review. To request an AI review, remove the pull request's author as assignee and add them back."
+              );
+            }
             // When the review job runs: see spec/ai-review-gate, "a review
             // runs on first push and on explicit request".
             const wantsReview = (() => {
-              // An explicit request outranks the marker; a bridged `@claude
-              // review` arrives here as an empty-task dispatch.
-              if (eventName === 'workflow_dispatch') {
-                return dispatchTask === '';
-              }
               if (process.env.SKIP_AI_REVIEW === 'true') {
                 return false;
               }
@@ -278,16 +270,9 @@ jobs:
               return payload.action === 'synchronize' && process.env.REVIEW_EXISTS !== 'true';
             })();
             core.setOutput('wantsReview', wantsReview);
-            // Tier precedence (see spec/ai-review-gate): an `@claude review
-            // <label>` comment reaches a dispatched run as review_effort and
-            // outranks the body marker. Empty means the orchestrator sizes it.
-            const asEffort = (value) =>
-              ['light', 'full'].includes((value ?? '').trim().toLowerCase())
-                ? value.trim().toLowerCase()
-                : '';
-            const reviewEffort =
-              asEffort(process.env.DISPATCH_REVIEW_EFFORT) ||
-              asEffort(process.env.BODY_REVIEW_EFFORT);
+            // The body marker is the only tier source (see spec/ai-review-gate);
+            // empty means the orchestrator sizes the review.
+            const reviewEffort = process.env.BODY_REVIEW_EFFORT ?? '';
             core.setOutput('reviewEffort', reviewEffort);
             const comment = payload.comment?.body ?? '';
             const review = payload.review?.body ?? '';
@@ -372,6 +357,7 @@ jobs:
     permissions:
       actions: write
       contents: read
+      pull-requests: write # To answer a rejected `@claude review`
     steps:
       - name: Dispatch the responder on the head branch
         uses: actions/github-script@v9.0.0
@@ -386,6 +372,19 @@ jobs:
             const body = context.payload.comment?.body ?? context.payload.review?.body ?? '';
             const requester = context.payload.comment ?? context.payload.review;
 
+            // Re-reviews are requested by assignment: see spec/ai-review-gate.
+            if (body.toLowerCase().startsWith('@claude review')) {
+              const message = "`@claude review` is no longer supported. To request an AI review, remove the pull request's author as assignee and add them back.";
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: Number(process.env.PR_NUMBER),
+                body: message,
+              });
+              core.setFailed(message);
+              return;
+            }
+
             try {
               await github.rest.repos.getContent({ owner, repo, path: workflowPath, ref: headRef });
             } catch (error) {
@@ -396,15 +395,9 @@ jobs:
               throw error;
             }
 
-            // A head branch whose workflow predates an input rejects the
-            // dispatch on the key alone, so a tier is sent only when requested.
-            // See spec/ai-review-gate.
-            const reviewEffort =
-              /^@claude review (light|full)\b/i.exec(body)?.[1].toLowerCase() ?? '';
             const inputs = {
               pr_number: String(process.env.PR_NUMBER),
-              task: body.toLowerCase().startsWith('@claude review') ? '' : body,
-              ...(reviewEffort ? { review_effort: reviewEffort } : {}),
+              task: body,
               comment_id: String(requester?.id ?? ''),
               comment_kind: context.eventName,
               requester: context.actor,
@@ -427,7 +420,7 @@ jobs:
       needs.preflight.outputs.wants_review == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agent-desktop:edge@sha256:2d1080148261b1017f09b3653d35cbe6c482a4628e9d3c48fdc0dd0bc8c15e2a
+      image: ghcr.io/plume-works/agent-desktop:edge@sha256:6db847e3d96a83e94b0c4586626d839a8e4b8ed621c5e09ab687fb49dc47020d
     permissions:
       contents: read
       pull-requests: write # For PR reviews and inline comments
@@ -474,7 +467,7 @@ jobs:
       needs.preflight.outputs.wants_task == 'true'
     runs-on: ${{ vars.AMD_ONLY == '1' && 'ubuntu-24.04' || 'ubuntu-24.04-arm' }}
     container:
-      image: ghcr.io/plume-works/agent-desktop:edge@sha256:2d1080148261b1017f09b3653d35cbe6c482a4628e9d3c48fdc0dd0bc8c15e2a
+      image: ghcr.io/plume-works/agent-desktop:edge@sha256:6db847e3d96a83e94b0c4586626d839a8e4b8ed621c5e09ab687fb49dc47020d
     permissions:
       contents: write # For requested repository edits
       pull-requests: write # For PR comments and inline comments
@@ -513,8 +506,7 @@ jobs:
       - claude-respond
     if: |
       always() &&
-      (contains(fromJSON('["pull_request", "pull_request_review", "merge_group"]'), github.event_name) ||
-       (github.event_name == 'workflow_dispatch' && inputs.task == ''))
+      contains(fromJSON('["pull_request", "pull_request_review", "merge_group"]'), github.event_name)
     runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:

@@ -416,9 +416,8 @@ Then adapt the workflows themselves:
   responder is for, not a limitation. Waiving the _requirement_ is a separate
   statement of trust, so it is spelled out as a list rather than inferred from
   the author being a bot: routine dependency bumps from Renovate and
-  Dependabot merge unreviewed, while a pull request from any other bot stays
-  blocked until a maintainer asks for a review with an `@claude review`
-  comment, which arrives under their own account.
+  Dependabot merge unreviewed, while a pull request from any other bot gets no
+  AI review and stays blocked, mergeable only by a user with ruleset bypass.
 - Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
   comma-separated list of bot logins, matched exactly and only for authors
   whose `user.type` is `Bot`. A consuming project running its own Renovate
@@ -438,7 +437,7 @@ Then adapt the workflows themselves:
   also changes review delivery from a formal GitHub PR review into a regular
   PR comment. Preserve the review artifact, and keep job-link or status
   reporting in a separate workflow step, such as a `github-script` step that
-  appends the current Actions run link to comment-triggered `@claude review`
+  appends the current Actions run link to comment-triggered `@claude` task
   requests.
 
 Two trigger behaviors are part of the workflow contract:
@@ -447,16 +446,19 @@ Two trigger behaviors are part of the workflow contract:
   a pull request that has no accepted review yet; a push to an already-reviewed
   pull request runs the gate alone, which passes on the existing review. Adding
   a blanket review-every-push would be prohibitively expensive; re-request a
-  review of a reviewed pull request by commenting `@claude review` instead.
+  review of a reviewed pull request by removing its author as assignee and
+  adding them back instead. The `assigned` event reviews whether or not an
+  accepted review exists, and `[ci:skip-ai-review]` still outranks it.
 - **Comment triggers only work once the workflow is on the default branch.**
   `issue_comment` is a repository-level event, and GitHub dispatches it using
   the workflow file on the default branch — so while the workflow exists only
-  on a feature branch, `@claude review` starts nothing. The Claude app may still
+  on a feature branch, an `@claude` task mention starts nothing, and an
+  `@claude review` comment gets no rejection reply. The Claude app may still
   react with 👀, which makes this look like an app or authentication problem
   when it is purely a trigger-resolution one. Plan for the first end-to-end
   comment test to happen after the workflow merges. A comment mention on the
   default branch is bridged into a `workflow_dispatch` of this workflow on the
-  pull request's head branch, so the review runs the branch's own file and its
+  pull request's head branch, so the task runs the branch's own file and its
   checks attach to the head commit; the `workflow_dispatch` trigger and its
   inputs are therefore part of the contract and must be retained.
 

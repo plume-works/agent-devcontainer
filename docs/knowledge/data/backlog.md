@@ -19,9 +19,6 @@ write a plan and link the plan instead.*
 [Revise the Expo bridge build controls after CMake
 Tools](backlog/expo-bridge-build-controls.md)
 
-[Start Claude Remote Control in the standalone runtime when
-asked](backlog/standalone-claude-remote-control.md)
-
 ## Medium
 
 [Exercise REMOVED delta blocks end to
@@ -30,14 +27,14 @@ end](backlog/exercise-removed-delta-blocks.md)
 [Fail a review run that published no
 review](backlog/fail-review-run-without-review.md)
 
-[Simplify the pr-* skills for the single review
-workflow](backlog/simplify-pr-skills-single-review-workflow.md)
-
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 
 [Clean up the local checkout after
 pr-merge](backlog/pr-merge-post-merge-cleanup.md)
+
+[Verify that auto-merge waits for an assignee-triggered
+review](backlog/verify-assignee-review-automerge.md)
 
 [Give the Expo bridge extensions icons](backlog/expo-bridge-icons.md)
 
@@ -58,7 +55,24 @@ pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 [Verify the build in the Expo bridge sideload
 procedure](backlog/expo-bridge-sideload-procedure.md)
 
+[Drop the `@claude <custom prompt>` free-form task
+trigger](backlog/drop-claude-free-form-task-trigger.md)
+
 ## Done
+
+[Find why the orphan-kill supervision test is
+flaky](backlog/supervision-orphan-kill-test-cause.md)
+
+[Start Claude Remote Control in the standalone runtime when
+asked](backlog/standalone-claude-remote-control.md)
+
+[Let Implement verify, fix, and revise on its
+own](backlog/autonomous-implement-loop.md)
+
+[Run Verify from a fresh context](backlog/verify-in-fresh-context.md)
+
+[Simplify the pr-* skills for the single review
+workflow](backlog/simplify-pr-skills-single-review-workflow.md)
 
 [Document VSCodium support for the Expo
 bridge](backlog/document-expo-bridge-vscodium-support.md)

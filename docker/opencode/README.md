@@ -68,6 +68,11 @@ Fill in at least:
 Every project that should share Claude Code and Codex logins uses the same
 `AGENTDEV_UID`, `AGENTDEV_GID`, and `AGENTDEV_AUTH_VOLUME`.
 
+To reach the project from claude.ai/code or the Claude app, also set
+`AGENTDEV_CLAUDE_RC_MODE` to `server` (conversations started on demand) or
+`session` (one pinned conversation); `runtime.env.example` lists the spawn setting
+for server mode. Left empty, Claude Remote Control stays off.
+
 ## 4. Start the project
 
 The `-p` name scopes the project's volumes and its container name,
@@ -158,6 +163,17 @@ the proxy a static `ipv4_address` keeps that address stable.
   docker exec -u agent -it myproject-opencode-1 bash
   claude        # follow its login prompt, then exit
   codex login   # `codex login --help` lists a device-code flow for remote hosts
+  ```
+
+- **Claude Remote Control.** With `AGENTDEV_CLAUDE_RC_MODE` set, Remote Control
+  starts by itself, in tmux session `claude-remote`, within seconds of the
+  claude.ai login above, in every running project container that shares the login
+  and sets the mode; no restart is needed. Until then, `runtime-health.sh status`
+  shows `remote-control: waiting for a claude.ai login`. If the session exits, the
+  runtime starts it again. To look at it:
+
+  ```bash
+  docker exec -u agent -it myproject-opencode-1 tmux -L claude-remote attach -t claude-remote
   ```
 
 ## 7. Check that state survives

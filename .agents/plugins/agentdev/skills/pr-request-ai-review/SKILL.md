@@ -1,68 +1,94 @@
 ---
 name: pr-request-ai-review
-description: 'Post the comment that triggers a fresh AI review on an open pull request, then confirm a run actually picked it up. Use when asked to request, re-request, or trigger an AI, Claude, or bot review of a PR, to ask for a re-review after new work landed, or to check whether a requested review ever started — including indirect phrasings such as "ping the reviewer again" or "get the bot to take another look". This is the posting playbook, not the judgment call: whether new work warrants a re-review belongs to pr-eval-review-needed, and merge-time review recovery belongs to pr-merge.'
+description: 'Request a fresh AI review of an open pull request by toggling its author''s assignment, then confirm a run actually picked it up. Use when asked to request, re-request, or trigger an AI, Claude, or bot review of a PR, to ask for a re-review after new work landed, or to check whether a requested review ever started — including indirect phrasings such as "ping the reviewer again" or "get the bot to take another look". This is the posting playbook, not the judgment call: whether new work warrants a re-review belongs to pr-eval-review-needed, and merge-time review recovery belongs to pr-merge.'
+allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)
 ---
 
 # Request an AI Review
 
-Post the comment that triggers a fresh AI review on an open pull request, then
-confirm a run actually picked it up. Whether the newest work needs a review at
+Request a fresh AI review of an open pull request by toggling its author's
+assignment, then confirm a run actually picked it up. Whether the newest work needs a review at
 all is a separate call, owned by
 [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md); this skill starts
 once that answer is yes.
 
 ## Post the request
 
-The responder's preflight matches a mention that **opens** the comment body —
-`startsWith`, not `contains`. A substring test cannot tell an invocation from a
-discussion, so any comment quoting `@claude` while talking _about_ the
-responder would start a container job. `@claude` therefore has to be the first
-thing in the body, and a body that merely contains `@claude review` mid-sentence
-triggers nothing.
-
-Those opening words also select what runs: `@claude review` asks for the pull
-request review, while `@claude` followed by anything else is dispatched as a
-free-form task built from the rest of the body. Keep the first line exactly
-`@claude review`, and put a one-line rationale under it:
+The responder reviews on a `pull_request` `assigned` event, so the bundled
+script requests a review by toggling the pull request author's assignment: an
+assigned author is removed and added back, an unassigned one is added and
+removed, and the assignees end as the script found them. An `@claude review`
+comment requests nothing; the responder rejects it.
 
 ```bash
-gh pr comment <pr> --body '@claude review
-<one-line rationale for the re-review>'
+agent-code/request-review.sh --pr <pr> [--rationale '<one line>']
 ```
 
-The rationale does not steer the review — the responder composes the reviewer's
-prompt itself — so write it for the humans reading the thread later. One line
-naming what the reviewer has not seen yet is enough, for example `Reworked the
-retry backoff beyond the thread's ask; please re-check the new timer path.`
+It prints `PR_NUMBER`, `HEAD_SHA`, `CHECK_URL` — the responder check already
+covering this head — and `COMMENT_URL` — the posted rationale — and ends with a
+`RESULT=` line:
+
+| RESULT              | Exit                | What to do                                                                                                                                         |
+| ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUCCESS`           | 0                   | Report the toggle and any `COMMENT_URL`, then confirm the review started.                                                                          |
+| `ALREADY_REVIEWED`  | 3                   | An accepted AI review already names the head. Report it; request nothing.                                                                          |
+| `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL` already covers the head. Report it and confirm that one; do not retry.                                          |
+| `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                 |
+| `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, the toggle included. Stop and report stderr, which names any assignment left unrestored.              |
+| `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr`, a multi-line rationale, or no `jq`. Fix the call.                                                                     |
+| `SCRIPT_FAILURE`    | 1                   | Unhandled error. Stop and report stderr.                                                                                                           |
+| `SIGNAL_*`          | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM. Stop; check the pull request's assignees, since an interrupted toggle can leave the author's assignment changed. |
+
+Run it with a token whose events start workflows, such as your own `gh` login.
+An assignment made with an Actions `GITHUB_TOKEN` starts no run.
+
+The rationale, when given, is posted as a plain comment,
+`AI review requested for <sha>: <rationale>`. It does not steer the review —
+the responder composes the reviewer's prompt itself — so write it for the
+humans reading the thread later. One line naming what the reviewer has not seen
+yet is enough, for example `Reworked the retry backoff beyond the thread's ask;
+please re-check the new timer path.`
 
 Skip the diff summary, the apology, and the roundup of resolved threads. The
 review reports its own findings, and a status update wrapped around an
-operational trigger makes the thread harder to read for everyone who comes
+operational request makes the thread harder to read for everyone who comes
 after it.
 
 ## Confirm it started
 
-A posted comment is not a started review. Resolve the responder workflow and
-list its `issue_comment` runs with
-[pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) rather than
-assuming the workflow's filename: it differs between repositories, and a wrong
-one returns an empty list that reads exactly like "no run started".
+A toggled assignment is not a started review. The toggle starts a
+`pull_request` run of `ai-responder.yml` on the head branch, and that run files
+its checks on the head commit, so `gh pr checks` lists them:
 
-Comment-triggered runs may not be attached to the PR head. Use
-[pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) instead of
-relying on `gh pr checks` alone.
+```bash
+gh pr checks <pr> --json name,state,link
+```
 
-Report the comment URL and the run you observed. When nothing turns up, the
-shape of the gap points at the cause:
+A pending `Claude PR Review Responder` or `ai-review-present` check on the head
+means the review started. Report that check. When neither appears, read the
+`pull_request` run the toggle started on the head branch:
 
-- **No run at all** — the mention never qualified. Re-read the comment as
-  posted and confirm it truly opens with `@claude`.
-- **A run that ends without a review** — the preflight rejected the request.
-  Check whether the pull request comes from a fork or the requester lacks write
-  access. Either rejection needs a person rather than a retry.
+```bash
+gh run list --workflow ai-responder.yml --event pull_request --branch <head-branch> \
+  --json databaseId,status,conclusion,createdAt,url --limit 5
+gh run view <run-id> --json jobs --jq '.jobs[] | {name, conclusion}'
+```
 
-If neither applies and the run is simply slow, say so plainly instead of
-posting the comment again.
+The shape of that run points at the cause:
+
+- **No run** — the toggle was made with a token whose events start no
+  workflow, such as an Actions `GITHUB_TOKEN`.
+- **Preflight skipped** — its `if:` excluded the pull request: it is
+  bot-authored or comes from a fork. `ai-review-present` still runs.
+- **Preflight failed** — the person whose token made the toggle lacks write
+  access.
+- **Preflight passed, then the review job skipped** — the pull request body
+  carries the `[ci:skip-ai-review]` marker.
+- **A review check completed without a review** — report that review run's
+  failure from its log.
+
+The first four need a person rather than a retry. If none of these applies and
+the check is simply still pending, say so plainly instead of requesting again.
 
 ## Post at most once per head SHA
 
@@ -71,21 +97,20 @@ unit: it is what makes an existing review stale, and it is what justifies the
 next request. Push the work first, then request the review for the head that
 push produced.
 
-Post at most one trigger per head SHA. Responder concurrency is keyed to the
-comment ID, so a second comment starts a separate run instead of superseding
-the first.
+Request at most one review per head SHA. `request-review.sh` enforces the rule
+whoever started the review: a `Claude PR Review Responder` check on the head
+that is queued, in progress, or completed other than skipped or cancelled is
+that head's request. A skipped responder is the gate-only run a push to a
+reviewed pull request starts, so it does not count. No skill requests a review
+any other way.
 
-The workflow listens for `issue_comment: created` only, so editing a trigger does
-not start another run. Do not delete the trigger comment.
 When a run genuinely fails without publishing a review, inspect its logs and
 report that failure; wait for a new head SHA or explicit user direction before
-triggering again.
+requesting again.
 
 ## Related Skills
 
 - [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) — decide whether
   pushed work warrants the request this skill posts.
-- [pr-discover-ai-responder](../pr-discover-ai-responder/SKILL.md) — resolve the
-  responder workflow's filename and find its runs.
 - [pr-merge](../pr-merge/SKILL.md) — merge-time recovery when the AI-review gate
   is red, including when to trigger and when to escalate.

@@ -68,4 +68,6 @@ whenever a plan ships, so this section never drifts from the code.*
 
 [Playwright browser](spec/playwright-browser.md)
 
+[AI review refresh](spec/ai-review-refresh.md)
+
 [IWE bootstrap](spec/iwe-bootstrap.md)

@@ -112,3 +112,8 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 [Reusable agentdev Dev Container](features/reusable-agentdev-devcontainer.md)
 
 [Remote Control server mode](features/claude-remote-control-server-mode.md)
+
+[Remote Control autostart in the standalone
+runtime](features/standalone-remote-control-autostart.md)
+
+[Autonomous Implement loop](features/autonomous-implement-loop.md)

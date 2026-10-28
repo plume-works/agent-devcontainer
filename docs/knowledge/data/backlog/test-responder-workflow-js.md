@@ -5,8 +5,8 @@ stage: planned
 priority: medium
 description: Give the responder workflow's inline github-script logic executable regression coverage, which no test harness in this repository currently reaches.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-19T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-25T16:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .agents/plugins/agentdev/tests/
@@ -23,11 +23,10 @@ bridge's review-versus-task classification. None of it is reachable by a test
 today.
 
 Both pytest suites in `testpaths` test *scripts* — Python and bash under
-`.agents/plugins/agentdev/`. `test_discover_ai_responder.py` tests the
-discover-ai-responder skill script, not the workflow. No harness in this
-repository loads a workflow file, extracts a `script:` block, or runs it against
-a synthetic `context`/`payload`, so a regression in any of the logic above
-surfaces only as a wrong review on a real pull request.
+`.agents/plugins/agentdev/`. No harness in this repository loads a workflow
+file, extracts a `script:` block, or runs it against a synthetic
+`context`/`payload`, so a regression in any of the logic above surfaces only as
+a wrong review on a real pull request.
 
 ## What to do
 

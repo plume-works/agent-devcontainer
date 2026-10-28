@@ -28,6 +28,9 @@ services:
       AGENTDEV_PROBE_FAILURES: ${AGENTDEV_PROBE_FAILURES:-}
       AGENTDEV_STOP_TIMEOUT: ${AGENTDEV_STOP_TIMEOUT:-30}
       AGENTDEV_STRICT_STARTUP: ${AGENTDEV_STRICT_STARTUP:-false}
+      # Empty leaves Claude Remote Control off; see runtime.env.example.
+      AGENTDEV_CLAUDE_RC_MODE: ${AGENTDEV_CLAUDE_RC_MODE:-}
+      AGENTDEV_CLAUDE_RC_SPAWN: ${AGENTDEV_CLAUDE_RC_SPAWN:-}
       ENABLE_FIREWALL: ${ENABLE_FIREWALL:-false}
       AGENTDEV_TRUSTED_PROXY_CIDRS: ${AGENTDEV_TRUSTED_PROXY_CIDRS:-}
       # Passed through only when set: an empty GIT_* value would override user.name/email.

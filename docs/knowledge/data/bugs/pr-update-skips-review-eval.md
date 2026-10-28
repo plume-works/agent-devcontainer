@@ -12,6 +12,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
+stage: done
 ---
 
 # Bug: PR updates skip the re-review evaluation
@@ -53,8 +54,8 @@ only be remembered, not read back from the pull request.
 
 ## Fix
 
-Open. Planned in [PR updates re-evaluate the AI
-review](../plans/20261023-pr-update-reevaluates-review.md).
+Open. Planned in [PR skills drive the AI review lifecycle on the single review
+workflow](../plans/20261023-pr-skills-ai-review-lifecycle.md).
 
 ## Key references
 

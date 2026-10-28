@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T00:00:00Z
+  at: 2026-10-27T12:00:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -27,6 +27,9 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-planner.agent.md
+- resource: .agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md
 - resource: .agents/plugins/agentdev/.opencode-plugin/index.ts
 ---
 
@@ -249,9 +252,12 @@ SHALL continue on the current branch otherwise.
 ### Requirement: Implement never hides a material deviation
 
 The Implement skill SHALL distinguish intent-preserving task corrections from
-material changes, SHALL pause before narrowing or extending specified behavior
-without authority, and SHALL mark a task complete only when its full specified
-behavior has passing evidence.
+material changes, SHALL never narrow or extend specified behavior without either
+the user's direction or an evaluator-approved plan revision, SHALL leave to the
+user every change that drops, narrows, defers, or accepts an exception to
+specified behavior, changes `release`, or changes text the user approved, and
+SHALL mark a task complete only when its full specified behavior has passing
+evidence.
 
 #### Scenario: A tactical correction preserves intent
 
@@ -261,10 +267,19 @@ behavior has passing evidence.
 - **THEN** Implement updates the plan, reports the correction, and may continue
   within the user's requested task boundary
 
-#### Scenario: Completing a task requires a material change
+#### Scenario: Completing a task requires extending the plan
 
-- **WHEN** implementation would need to add scope or drop, narrow, defer, or
-  accept an exception to specified behavior
+- **WHEN** implementation would need an added task or requirement, a heavier
+  `## Spec changes` form, or a corrected verification step, keeping every
+  specified behavior
+- **THEN** Implement leaves the task unchecked and takes the plan through an
+  evaluated revision before coding past it
+
+#### Scenario: Completing a task requires narrowing what was agreed
+
+- **WHEN** implementation would need to drop, narrow, defer, or accept an
+  exception to specified behavior, change `release`, or change text the user
+  approved
 - **THEN** Implement leaves the task unchecked, explains the material deviation,
   and waits for user direction before coding past it
 
@@ -274,6 +289,92 @@ behavior has passing evidence.
   its required tests or checks do not pass
 - **THEN** Implement leaves the task unchecked and reports the remaining work or
   failing evidence
+
+### Requirement: Implement verifies its own work and acts on the report
+
+When a plan's last task closes, the Implement orchestrator — the user's session
+for `/agentdev:iwe-implement`, and the `iwe-implement-all` coordinator for each
+plan it runs — SHALL dispatch `iwe-verifier` and SHALL act on every CRITICAL
+finding and every WARNING that names a concrete route, reporting SUGGESTIONs
+only. A code or evidence finding SHALL be fixed under the Implement rules and
+verified again, and a finding about the plan's intent SHALL go through an
+evaluated revision. The orchestrator SHALL stop when a finding recurs after a
+fix attempt, after three Verify rounds, or after one approved revision in the
+run. No agent the loop dispatches SHALL dispatch another.
+
+#### Scenario: Verify finds nothing to act on
+
+- **WHEN** the plan's tasks are closed and `iwe-verifier` reports zero CRITICAL
+  findings and no WARNING with a concrete route
+- **THEN** the run ends with its rollup and the Verify verdict, and suggests
+  `/agentdev:iwe-ship`
+
+#### Scenario: Verify finds a code defect
+
+- **WHEN** the Verify report carries a CRITICAL whose route is code or evidence
+- **THEN** the orchestrator fixes it under the Implement rules, closes it with
+  evidence, and dispatches `iwe-verifier` again
+
+#### Scenario: A finding recurs
+
+- **WHEN** a finding the orchestrator already tried to fix appears in the next
+  Verify report
+- **THEN** the run stops and reports the finding, the fix it attempted, and the
+  Verify report
+
+#### Scenario: Verify needs an approval
+
+- **WHEN** `iwe-verifier` reports `Needs decision` for a command with effects
+  beyond the working tree
+- **THEN** the run stops and names the approval, which the user grants by
+  re-running the skill
+
+#### Scenario: The coordinator implements every active plan
+
+- **WHEN** the user runs `/agentdev:iwe-implement-all`
+- **THEN** the coordinator dispatches `iwe-implementer` once per plan in
+  dependency order, runs the same loop for that plan before the next, and
+  re-posts each rollup with its Verify and evaluator verdicts
+
+### Requirement: Implement revises its plan only after an independent evaluation
+
+The Plan rulebook SHALL be defined once, as the catalog agent `iwe-planner`,
+which `/agentdev:iwe-plan` follows in place. The Implement orchestrator SHALL
+revise a plan only by drafting the revision under the `iwe-planner` revise
+rules, including its fresh-context audit and validation, leaving it uncommitted,
+and dispatching `iwe-revision-evaluator` with a prompt carrying only the plan
+key and the finding the revision answers, quoted as reported. It SHALL commit
+the revision only on the evaluator's `APPROVE`. On `REJECT` or `ESCALATE` it
+SHALL restore the plan from `HEAD` and stop with a report. The evaluator SHALL
+judge the uncommitted diff against the plan at `HEAD` and SHALL never approve a
+revision that drops, narrows, defers, or accepts an exception to specified
+behavior, changes `release`, or changes text the user approved.
+
+#### Scenario: The evaluator approves an added task
+
+- **WHEN** Verify reports a requirement with no implementation, the drafted
+  revision adds a task that covers it, and the evaluator returns `APPROVE`
+- **THEN** the revision commits, Implement executes the new task, and
+  `iwe-verifier` runs again
+
+#### Scenario: The evaluator escalates a narrowing
+
+- **WHEN** a drafted revision would narrow specified behavior
+- **THEN** the evaluator returns `ESCALATE`, the orchestrator restores the plan
+  from `HEAD`, and the run stops for the user's direction
+
+#### Scenario: The evaluator rejects a restatement
+
+- **WHEN** a drafted revision rewrites the plan's intent to describe the code
+  without answering the quoted finding
+- **THEN** the evaluator returns `REJECT`, the orchestrator restores the plan
+  from `HEAD`, and the run stops with the evaluator's reasons
+
+#### Scenario: The evaluator sees no conversation
+
+- **WHEN** the orchestrator dispatches `iwe-revision-evaluator`
+- **THEN** the prompt holds the plan key and the quoted finding and nothing else
+  from the conversation, and on Codex the spawn forwards no turns
 
 ### Requirement: Plans record intent, not the path taken to it
 
@@ -320,7 +421,14 @@ the audit scope and the plan file, before the edit is validated.
 The Ship skill SHALL run the report-only Verify workflow before normal shipping
 state changes and SHALL refuse to ship while Verify reports any CRITICAL
 finding. Verify SHALL remain independently invocable and SHALL not edit code or
-project state.
+project state. Verify's rulebook SHALL be defined once, as the catalog agent
+`iwe-verifier`, and every Verify run SHALL start from a fresh context:
+`/agentdev:iwe-verify` SHALL dispatch `iwe-verifier` with a prompt carrying only
+the plan key or audit mode and the user's approvals quoted verbatim, and
+`iwe-shipper` SHALL follow that rulebook in its own context without dispatching
+an agent. Verify SHALL run a verification command whose effects reach beyond the
+working tree only under a quoted approval that names it, and otherwise SHALL
+stop before it and report the approval it needs.
 
 #### Scenario: Verification reports no critical findings
 
@@ -344,8 +452,29 @@ project state.
 #### Scenario: Verify is invoked outside Ship
 
 - **WHEN** the user requests a mid-implementation check or a workspace audit
-- **THEN** Verify produces its evidence-backed report and stops without invoking
-  Ship or mutating the graph
+- **THEN** the skill dispatches `iwe-verifier`, which produces its
+  evidence-backed report and stops without invoking Ship or mutating the graph
+
+#### Scenario: The user verifies a plan without an approval
+
+- **WHEN** the user runs `/agentdev:iwe-verify <plan>` and a `## Verification`
+  command reaches beyond the working tree
+- **THEN** the dispatch prompt carries the plan key and nothing else from the
+  conversation, and `iwe-verifier` stops before that command and reports the
+  approval it needs
+
+#### Scenario: The user verifies a plan with an approval
+
+- **WHEN** the user re-runs `/agentdev:iwe-verify <plan>` granting the approval
+  the verifier reported, alongside other claims about the work
+- **THEN** the dispatch prompt quotes the approval verbatim and leaves the other
+  claims out, and `iwe-verifier` runs the approved command
+
+#### Scenario: Ship runs Verify in place
+
+- **WHEN** `iwe-shipper` reaches its Verify step
+- **THEN** it follows the `iwe-verifier` rulebook in its own context and
+  dispatches no agent
 
 ### Requirement: Ship synchronizes durable specs by intelligent merge
 
@@ -428,7 +557,7 @@ SHALL stop and report at any point that needs a user decision it was not given.
 #### Scenario: The user implements a plan directly
 
 - **WHEN** the user runs `/agentdev:iwe-implement <plan>` and a task needs a
-  material deviation
+  material deviation that narrows what was agreed
 - **THEN** the session follows the `iwe-implementer` rulebook and waits for the
   user's direction.
 
