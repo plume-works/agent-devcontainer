@@ -148,9 +148,12 @@ recovery.
   - **Evidence:** commit 096c5c8f;
     `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
     passed, including order, skip, failure naming, and workspace-script refusal.
-- [ ] Retain the checkout-catalog override only when all required agentdev
+- [x] Retain the checkout-catalog override only when all required agentdev
   manifests are present. A normal consumer with no catalog must continue using
   the immutable staged catalog.
+  - **Evidence:** commit 096c5c8f;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed, including complete and incomplete checkout catalogs.
 
 ### Task 4: Build the canonical image family
 
