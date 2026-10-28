@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-28
 
+- **Update**: bug [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md) records the Codex
+  e2e run under the fixed rules: both plans' evidence cites the code commit and
+  passes its first Verify.
 - **Update**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) now
   counts a check only together with the commit that holds its change, and puts
   the tick in a commit after the code rather than in the same one; bug

@@ -97,6 +97,13 @@ checkbox evidence](../spec/plan-checkbox-evidence.md), the `iwe-implementer`,
 The `test_implement_all` e2e checks pass whether or not a fix round runs, since
 a fix round is the loop working as specified.
 
+Under the fixed rules, with `gpt-5.6-sol` at `low` effort, the full Codex e2e
+suite passed. In `test_implement_all` both implementers cited the code commit
+together with the check, and each plan's first Verify returned `Ready to ship`,
+so each plan took one implementer and one verifier. That is one run of two
+plans, against the 2 of 4 first-Verify rejections measured before the fix; it
+shows the rule being followed, not a rejection rate.
+
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-28):
