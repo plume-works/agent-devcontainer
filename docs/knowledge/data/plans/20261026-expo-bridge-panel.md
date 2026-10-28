@@ -490,8 +490,12 @@ the build ends](../bugs/expo-bridge-build-log-invisible-until-close.md)).
   - **Evidence:** both bugs' `## Fix` describe the command stream and their
     `## Key references` are verified at `0c15a5c`. Ship sets them to
     `stage: done` through the plan's `release` list.
-- [ ] The panel shows the build log in an `Expo Bridge Build` terminal that
+- [x] The panel shows the build log in an `Expo Bridge Build` terminal that
   renders eas-cli's colours, reopened when the user has closed it.
+  - **Evidence:** `f269245`: `PendingWrites` in `buildterminal.ts` and its test,
+    the pseudoterminal in `ui.ts`; `bun test` 409 pass. On the Mac, a clean
+    build streamed eas-cli's coloured `[Codegen]` lines into the
+    `Expo Bridge Build` terminal.
 
 ### Task 13: Record the panel in this repository's project memory
 
