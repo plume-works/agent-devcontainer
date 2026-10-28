@@ -137,10 +137,17 @@ recovery.
 `.devcontainer/scripts/postAttachCommand.sh`,
 `.devcontainer/scripts/setup-agent-state.sh`
 
-- [ ] Extract create-once project/client initialization, start readiness, and
+- [x] Extract create-once project/client initialization, start readiness, and
   attach-scoped catalog/index refresh behind stable commands installed under
   `/opt/agentdev-runtime/`. Preserve restart and repeated-attach semantics and
   make each command idempotent.
+  - **Evidence:** commits 096c5c8f, bcd8c5e2;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of
+    commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed, running the commands from `/opt/agentdev-runtime/` through restart
+    and repeated attach.
 - [x] Define ordered `/etc/agentdev/hooks/{created,started,attached}.d/`
   extension points. Run only executable files from those explicit directories,
   fail with the hook name and phase, and never discover or execute hooks merely
