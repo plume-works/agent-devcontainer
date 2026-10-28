@@ -33,9 +33,6 @@ rejected are as valuable as the one you picked.*
 
 [Dispatched review identity](architecture/dispatched-review-identity.md)
 
-[Holding the AI review gate during a
-re-review](architecture/rereview-gate-pending.md)
-
 [Agent auth persistence](architecture/agent-auth-persistence.md)
 
 [Nested Docker provisioning](architecture/nested-docker-provisioning.md)
