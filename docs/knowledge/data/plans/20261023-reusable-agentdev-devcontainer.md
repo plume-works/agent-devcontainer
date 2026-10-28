@@ -191,10 +191,16 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   and let the image entrypoint own supervised services. Retain SSH support, MCP
   sidecar wiring, workspace/worktree mounts, persistent state volumes, and the
   shared-auth volume.
-- [ ] Replace checkout-relative lifecycle commands with the image metadata or
+- [x] Replace checkout-relative lifecycle commands with the image metadata or
   stable `/opt/agentdev-runtime/` commands. Keep `waitFor` tied to the runtime
   readiness command; editor startup must fail when the required service graph is
   not ready.
+  - **Evidence:** commits 096c5c8f, bcd8c5e2, 480ea23f;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed, including the start phase failing on a failed or late runtime; with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_repository.py` — 3
+    passed.
 - [ ] Prove this repository's checkout catalog wins after attachment and that a
   rebuild, restart, window reload, ordinary clone, and Git worktree preserve
   their intended state boundaries.
