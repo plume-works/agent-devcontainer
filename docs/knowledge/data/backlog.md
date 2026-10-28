@@ -44,6 +44,9 @@ pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 [Show one Expo Bridge status bar
 item](backlog/expo-bridge-one-status-bar-item.md)
 
+[Show each Expo bridge panel section's state on its
+row](backlog/expo-bridge-section-status-icons.md)
+
 ## Low
 
 [Detect plan narration growth
