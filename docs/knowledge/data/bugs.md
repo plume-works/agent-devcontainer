@@ -130,3 +130,6 @@ intermittently](bugs/supervision-orphan-kill-test-flaky.md)
 
 [Bug: a comment-requested review's gate does not count toward
 merge](bugs/dispatched-review-gate-not-counted.md)
+
+[Bug: the Remote Control watcher restarts a session that never comes up on every
+tick](bugs/remote-control-watcher-start-loop.md)

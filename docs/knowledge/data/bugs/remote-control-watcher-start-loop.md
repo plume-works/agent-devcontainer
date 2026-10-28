@@ -1,0 +1,71 @@
+---
+type: bug
+description: When claude-remote-control-start.sh succeeds but the claude-remote pane exits before the watcher's live check, the standalone Remote Control watcher re-runs the start every interval, with two claude auth status calls each time, and never reaches the controller's recovery budget.
+generated:
+  by: claude-code/opus-5.5
+  at: 2026-10-28T03:00:00Z
+sources:
+- resource: .devcontainer/scripts/runtime-remote-control.sh
+- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: scripts/tests/test_runtime_remote_control.py
+- resource: docs/knowledge/data/plans/20261027-standalone-remote-control-autostart.md
+---
+
+# Bug: the Remote Control watcher restarts a session that never comes up on every tick
+
+## Symptom
+
+With a claude.ai login, if the `claude-remote` pane exits before the watcher
+checks for it, `runtime-remote-control.sh run` starts it again on every
+`AGENTDEV_HEALTH_INTERVAL`, indefinitely. Each pass runs
+`claude-remote-control-start.sh` and two `claude auth status` processes, one in
+the watcher and one in the start script. The watcher never exits, so the
+controller's bounded recovery never applies and the runtime never reports
+`remote-control` degraded. The status file is not rewritten: it is missing on a
+first start, or keeps `waiting for a claude.ai login` when the login arrived
+after the watcher started.
+
+## Reproduction
+
+Using the `Watch` harness in `scripts/tests/test_runtime_remote_control.py`,
+replace the fake `tmux` with one whose `new-session` succeeds but whose
+`has-session` always fails, as a pane that exits at once would leave it; then
+log in and start the watcher with `AGENTDEV_HEALTH_INTERVAL=0.1`. After 3 s: 25
+starts, 50 `claude auth status` calls, an empty status, and the watcher still
+running (2026-10-28).
+
+A real pane exits that fast when its `claude` process fails at once, before
+`live` runs right after the start script returns. A pane that lives long enough
+for one `live` check is handled: the next tick sees it gone and the watcher
+exits non-zero.
+
+## Root cause
+
+When the start script returns 0 and `live` fails, the watcher treats it as "not
+started yet": it clears `checked` so the next tick re-reads the login and
+retries the start, without setting `seen` or exiting. The start script also
+returns 0 when it skips startup, so a 0 exit does not mean a session was
+created; the watcher cannot tell "skipped" from "started and died", and neither
+case is bounded.
+
+## Fix
+
+Not fixed. A fix makes a start that leaves no live session end the watcher
+non-zero, as a seen session that disappears already does, so the controller's
+recovery budget bounds the retries; clearing `checked` then stops costing a
+Claude process per tick.
+
+## Key references
+
+Verified anchor points (line numbers as of 2026-10-28):
+
+- `.devcontainer/scripts/runtime-remote-control.sh:43` — login re-check when the
+  credential signature changes
+- `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
+  gone ends the watcher
+- `.devcontainer/scripts/runtime-remote-control.sh:57` — start-script call
+- `.devcontainer/scripts/runtime-remote-control.sh:62` — `checked=""` retry path
+- `.devcontainer/scripts/claude-remote-control-start.sh:27` — the start script's
+  own `claude auth status` check, which exits 0 when it skips
+- `.devcontainer/scripts/claude-remote-control-start.sh:68` — `tmux new-session`
+  that returns before the pane's process runs
