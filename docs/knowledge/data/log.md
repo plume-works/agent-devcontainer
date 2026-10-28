@@ -17,6 +17,21 @@ to the current day's group.
 - **Update**: [Bug: the Expo bridge's build log tail drops
   lines](bugs/expo-bridge-build-log-tail-drops-lines.md) fixed and listed under
   Unreleased Fixed.
+- **Bug**: filed [Bug: the Expo bridge's project ID diagnostic stays stale after
+  a config
+  edit](bugs/expo-bridge-project-id-diagnostic-stale-after-config-edit.md).
+- **Bug**: filed [Bug: the Expo bridge's CocoaPods fix does not repair an
+  unlinked keg](bugs/expo-bridge-cocoapods-fix-misses-unlinked-keg.md).
+- **Bug**: filed [Bug: the Expo bridge's simulator profile quick fix omits the
+  bun pin](bugs/expo-bridge-simulator-profile-quick-fix-omits-bun.md).
+- **Task**: captured [Revise the Expo bridge build controls after CMake
+  Tools](backlog/expo-bridge-build-controls.md).
+- **Task**: captured [Show one Expo Bridge status bar
+  item](backlog/expo-bridge-one-status-bar-item.md).
+- **Task**: captured [Show each Expo bridge panel section's state on its
+  row](backlog/expo-bridge-section-status-icons.md).
+- **Task**: captured [Verify the build in the Expo bridge sideload
+  procedure](backlog/expo-bridge-sideload-procedure.md).
 
 ## 2026-10-27
 
