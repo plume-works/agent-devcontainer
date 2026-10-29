@@ -293,6 +293,7 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 `docs/knowledge/data/product.md`,
 `docs/knowledge/data/architecture/nested-docker-provisioning.md`,
+`docs/knowledge/data/architecture/standalone-opencode-runtime.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/features/standalone-opencode-container.md`,
 `docs/knowledge/data/codebase/`, `docs/knowledge/data/architecture.md`
