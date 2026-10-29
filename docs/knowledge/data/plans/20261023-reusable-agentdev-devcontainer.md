@@ -187,9 +187,14 @@ second name to maintain.
 Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `docker/opencode/agent-opencode.Dockerfile`
 
-- [ ] Rename the lifecycle-neutral `agent-desktop` build to `agentdev-base`
+- [x] Rename the lifecycle-neutral `agent-desktop` build to `agentdev-base`
   without copying `.devcontainer/scripts/` into it. Preserve its tools, catalog,
   validators, default shell entrypoint, and multi-architecture build.
+  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on ee494f54
+    built `agentdev-base` natively on amd64 and arm64, merged its manifest, and
+    built both siblings from that digest; `docker/base/agentdev-base.Dockerfile`
+    copies only `entrypoint.sh` and `start-xpra.sh` from the build context
+    besides the provisioning sources.
 - [x] Rename `agent-opencode` to `agentdev-deploy`, derive it from the exact
   same-run `agentdev-base` digest, and keep its established deploy profile and
   public service contract.
