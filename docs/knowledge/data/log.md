@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-29
 
+- **Update**: refreshed the [devcontainer](codebase/devcontainer.md) and
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
+  the per-instance `/workspaces/project` volume.
 - **Update**: [Move the Expo bridge knowledge into its own
   repository](plans/20261028-move-expo-bridge-kb.md) done; no `data/spec/`
   change.
