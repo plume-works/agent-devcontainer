@@ -35,7 +35,7 @@ a stock image, no longer binds the runtime. [Python skill
 scripts](20260905-python-skill-scripts.md) recorded that constraint and the rule
 that inline Python inside bash is neither testable nor lintable.
 
-The runtime is 41 shell scripts (2658 lines) beside a 1111-line Python
+The runtime is 41 shell scripts (2651 lines) beside a 1111-line Python
 supervisor. The scripts read 54 distinct `AGENTDEV_*` settings against the
 supervisor's 23, each file declaring its own defaults, and one variable defaults
 to two different paths in two files. The supervisor writes `state.json` in
@@ -648,7 +648,7 @@ Verified anchor points (line numbers as of 2026-10-29):
 - `.devcontainer/scripts/runtime-supervisor.py:79` — `SettingsParser`
 - `.devcontainer/scripts/runtime-supervisor.py:306` — `DEVCONTAINER_SERVICES`
 - `.devcontainer/scripts/runtime-supervisor.py:931` — bootstrap command hook
-- `.devcontainer/scripts/runtime-health.sh:19` — `current_state` jq parse of
+- `.devcontainer/scripts/runtime-health.sh:18` — `current_state` jq parse of
   `state.json`
 - `.devcontainer/scripts/runtime-bootstrap.sh:177` — `verify_runtime_root`
 - `.devcontainer/scripts/runtime-bootstrap.sh:16` and
