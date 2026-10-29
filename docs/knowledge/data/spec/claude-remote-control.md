@@ -1,13 +1,11 @@
 ---
 type: spec
-description: Claude Remote Control autostarts from the Coder agent, or from the standalone runtime's supervised watcher when AGENTDEV_CLAUDE_RC_MODE opts in, only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, every container pre-approves Claude's first-run state unless it opts out, and the dev container's hostname, which names the Remote Control environment, says where the container came from.
+description: Claude Remote Control autostarts from the Coder agent, or from the standalone runtime's supervised watcher when AGENTDEV_CLAUDE_RC_MODE opts in, only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T12:00:00Z
+  at: 2026-10-28T12:00:00Z
 sources:
 - resource: .claude/.gitignore
-- resource: .devcontainer/devcontainer-init.sh
-- resource: .devcontainer/scripts/container-hostname.sh
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/scripts/claude-remote-control-pin.sh
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
@@ -22,7 +20,6 @@ sources:
 - resource: scripts/tests/test_claude_remote_control_pin.py
 - resource: scripts/tests/test_claude_remote_control_session.py
 - resource: scripts/tests/test_claude_remote_control_start.py
-- resource: scripts/tests/test_container_hostname.py
 - resource: scripts/tests/test_preapprove_claude_workspace.py
 - resource: https://code.claude.com/docs/en/errors#login-expired
 - resource: https://code.claude.com/docs/en/authentication
@@ -253,42 +250,6 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
   `claude-remote` is live
 - **THEN** it leaves the existing session running, and the new setting applies
   on the next session start.
-
-### Requirement: the dev container hostname names its launcher
-
-Claude Remote Control names its environment after the container hostname, and no
-Claude option overrides that name. `devcontainer-init.sh` SHALL write
-`CONTAINER_HOSTNAME` to the Compose `.env`, and the `devcontainer` service SHALL
-take its `hostname` from it. `container-hostname.sh` SHALL derive the value, in
-this order of precedence:
-
-- `coder-<CODER_WORKSPACE_NAME>` when `CODER_WORKSPACE_NAME` is set;
-- `vscode-<host>-<checkout>` when `VSCODE_PID` or `VSCODE_IPC_HOOK` is set,
-  which the VS Code extension host exports to the initialize command;
-- `cli-<host>-<checkout>` otherwise.
-
-`<host>` is the launching machine's hostname without its domain, and
-`<checkout>` is the base name of the checkout directory. The value SHALL be one
-RFC 1123 label: lowercase, every run of other characters replaced by one hyphen,
-no leading or trailing hyphen, and at most 63 characters.
-
-#### Scenario: a Coder workspace starts the dev container
-
-- **WHEN** the initialize command runs with `CODER_WORKSPACE_NAME=agent-dev2`
-- **THEN** the container hostname, and so the Remote Control environment name,
-  is `coder-agent-dev2`, whatever VS Code variables Coder also sets.
-
-#### Scenario: VS Code on a laptop starts the dev container
-
-- **WHEN** VS Code on `Antons-MBP.local` opens the `agent-devcontainer` checkout
-  in a container
-- **THEN** the hostname is `vscode-antons-mbp-agent-devcontainer`.
-
-#### Scenario: the devcontainer CLI starts the dev container
-
-- **WHEN** `devcontainer up` runs on `builder` for the `agent-devcontainer`
-  checkout outside VS Code and Coder
-- **THEN** the hostname is `cli-builder-agent-devcontainer`.
 
 ### Requirement: Remote Control inherits the Coder agent's environment
 

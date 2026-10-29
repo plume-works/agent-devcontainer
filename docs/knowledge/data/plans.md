@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Name Remote Control environments after their
+launcher](plans/20261029-remote-control-environment-names.md)
+
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
