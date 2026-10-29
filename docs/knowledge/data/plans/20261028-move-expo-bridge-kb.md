@@ -301,13 +301,18 @@ and its link to `features/vscode-expo-bridge`
 
 **Files:** Modify: `docs/knowledge/data/features/expo-eas-builds.md`
 
-- [ ] Its Behaviour gains the profile's bridge wiring, as
+- [x] Its Behaviour gains the profile's bridge wiring, as
   `architecture/template-boundary` records it: the pack
   `plume-works.vscode-expo-bridge` in `customizations.vscode.extensions`, port
   `8081` forwarded silently for Metro, the `AGENTS.md` rule to build through
   `eas-host` when `eas-host status` succeeds and on EAS cloud otherwise, and no
   trust granted by setup; linked to the extension repository by URL. Stamp
   `generated` and add the extension repository to `sources`.
+  - **Evidence:** the Task 11 commit adds "The profile wires in the Mac-host
+    bridge" to the Behaviour of `features/expo-eas-builds`, matching
+    `architecture/template-boundary` line 272's paragraph, with the extension
+    repository linked by URL and listed in `sources`; `iwe schema validate`
+    exits 0.
 
 ### Task 12: Validate this repository's graph
 
