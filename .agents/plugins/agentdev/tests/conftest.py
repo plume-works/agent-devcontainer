@@ -27,8 +27,8 @@ def plugin_root() -> Path:
 
 @pytest.fixture
 def plugin_tmp_path(plugin_root: Path):
-    """Create an isolated temporary directory inside the plugin tree."""
-    temp_path = plugin_root / '.tmp' / f'pytest-{uuid4().hex}'
+    """Create an isolated temporary directory under /tmp."""
+    temp_path = Path('/tmp/agentdev-tests') / f'pytest-{uuid4().hex}'
     temp_path.mkdir(parents=True)
     try:
         yield temp_path

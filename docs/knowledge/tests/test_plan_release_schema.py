@@ -1,7 +1,7 @@
 """
 Checks for the `release` field the plan schema requires on active plans.
 
-Each test copies the graph into the repo-root `.tmp/`, rewrites the release
+Each test copies the graph into `/tmp`, rewrites the release
 declaration of one active plan, and runs `iwe schema validate` against it.
 """
 
@@ -18,7 +18,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA = REPO_ROOT / 'docs' / 'knowledge' / 'data'
 IWE_CONFIG = REPO_ROOT / '.iwe'
-TMP_ROOT = REPO_ROOT / '.tmp'
+TMP_ROOT = Path('/tmp/agentdev-tests')
 
 FRONTMATTER = re.compile(r'\A---\n(.*?)\n---\n', re.S)
 RELEASE = re.compile(r'^release:.*\n(?:- .*\n)*', re.M)

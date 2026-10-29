@@ -30,9 +30,8 @@ import pytest
 
 @pytest.fixture
 def package_tmp_path():
-    """Create an isolated temporary directory under this package's own root."""
-    package_root = Path(__file__).resolve().parents[1]
-    temp_path = package_root / '.tmp' / f'pytest-{uuid4().hex}'
+    """Create an isolated temporary directory under /tmp."""
+    temp_path = Path('/tmp/agentdev-tests') / f'pytest-{uuid4().hex}'
     temp_path.mkdir(parents=True)
     try:
         yield temp_path

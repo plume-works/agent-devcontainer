@@ -4,7 +4,7 @@ Consumer-workspace checks for the IWE scaffold the iwe-bootstrap skill ships.
 The scaffold under the skill's `assets/` is laid out as a repository root, and
 no live graph reads it: `.iwe/config.toml` here points the library at
 `docs/knowledge`. These tests copy that tree alone into a throwaway workspace
-under the repo-root `.tmp/` and run the same gates a consumer's first session
+under `/tmp` and run the same gates a consumer's first session
 runs, so a file missing from the package fails here rather than being borrowed
 from this repository.
 
@@ -28,7 +28,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 SCAFFOLD = REPO_ROOT / '.agents' / 'plugins' / 'agentdev' / 'skills' / 'iwe-bootstrap' / 'assets'
 SEED_DATA = SCAFFOLD / 'docs' / 'knowledge' / 'data'
 SEED_LICENSE = SCAFFOLD / 'docs' / 'knowledge' / 'LICENSE.md'
-TMP_ROOT = REPO_ROOT / '.tmp'
+TMP_ROOT = Path('/tmp/agentdev-tests')
 
 # Knowledge-base support files the scaffold shares byte for byte with this
 # repository's own workspace; see the skill's references/scaffold.md.

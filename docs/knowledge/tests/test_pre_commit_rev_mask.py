@@ -18,7 +18,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = REPO_ROOT / '.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py'
 PLUGIN_BIN = REPO_ROOT / '.agents/plugins/agentdev/bin'
-TMP_ROOT = REPO_ROOT / '.tmp'
+TMP_ROOT = Path('/tmp/agentdev-tests')
 CONFIG = '.pre-commit-config.yaml'
 REV = re.compile(r'(?m)^(\s+rev: )(\S+)$')
 BUNX_PIN = re.compile(r'(bunx (?:--package )?\S+@)(\d\S*)')
