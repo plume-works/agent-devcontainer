@@ -41,6 +41,8 @@ rewrites](backlog/resilient-task-evidence.md)
 
 ## Low
 
+[Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
+
 [Detect plan narration growth
 mechanically](backlog/detect-plan-narration-growth.md)
 
