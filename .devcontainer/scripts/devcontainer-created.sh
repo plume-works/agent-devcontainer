@@ -42,6 +42,8 @@ cmd_create() {
     claim_ancestors "$owner" "$HOME"
   fi
   claim_mounts "$owner"
+  # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
+  "$script_dir/setup-git-safe-directory.sh"
   # Links ~/.claude.json, wires CBM into each client, and creates the shared auth directories.
   "$script_dir/setup-agent-state.sh" create
   "$script_dir/runtime-workspace.sh" project

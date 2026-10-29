@@ -148,7 +148,9 @@ def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(l
     lifecycle.hook('created', '20-second')
     lifecycle.hook('created', '10-first')
     assert_ok(lifecycle.run('devcontainer-created.sh'))
+    # Trust the checkout first: pre-commit refuses a repository another UID owns.
     assert lifecycle.calls() == [
+        'setup-git-safe-directory.sh',
         'setup-agent-state.sh create',
         'runtime-workspace.sh project',
         f'setup-agent-state.sh catalog {lifecycle.staged} user',
