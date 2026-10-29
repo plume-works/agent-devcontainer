@@ -4,12 +4,13 @@ stage: implemented
 description: The template devcontainer passes EXPO_TOKEN to every consumer, and template-consume's opt-in Expo profile prepares an adopted Expo app for EAS cloud iOS builds driven from the Linux devcontainer.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T00:00:00Z
+  at: 2026-10-29T00:00:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: docs/knowledge/data/architecture/template-boundary.md
+- resource: https://github.com/plume-works/vscode-expo-bridge
 ---
 
 # Expo apps build for iOS through EAS
@@ -42,6 +43,15 @@ and applies the guide's Optional Expo setup:
   the separate Expo `AGENTS.md` is deleted and the root one recorded as
   customized;
 - `.claude/settings.json` keeps `expo@claude-plugins-official` enabled.
+
+**The profile wires in the Mac-host bridge.** It lists the
+[vscode-expo-bridge](https://github.com/plume-works/vscode-expo-bridge)
+extension pack `plume-works.vscode-expo-bridge` in
+`customizations.vscode.extensions` of `.devcontainer/devcontainer.json`, adds
+port `8081` to `forwardPorts` for Metro with `"onAutoForward": "silent"`, and
+its `AGENTS.md` rule tells agents to build iOS through `eas-host` when
+`eas-host status` succeeds and on EAS cloud otherwise. Setup grants the bridge
+no trust: a workspace is trusted only on the Mac.
 
 **Update mode keeps the bun pin current.** When an update changes
 `devcontainer-compose-pins.yml` for an Expo consumer, it compares

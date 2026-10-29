@@ -31,14 +31,14 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Move the Expo bridge knowledge into its own
+repository](plans/20261028-move-expo-bridge-kb.md)
+
 [Start Claude Remote Control in the standalone
 runtime](plans/20261027-standalone-remote-control-autostart.md)
 
 [Ship a standalone OpenCode
 container](plans/20261017-standalone-opencode-container.md)
-
-[Expo Bridge panel, status bar, and Problems in the workspace
-extension](plans/20261026-expo-bridge-panel.md)
 
 [PR skills drive the AI review lifecycle on the single review
 workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)
@@ -51,9 +51,6 @@ own](plans/20261026-autonomous-implement-loop.md)
 
 [Run Verify from a fresh context](plans/20261026-verify-in-fresh-context.md)
 
-[Expo bridge bun fix upgrades the bun the check
-runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
-
 [Configurable Remote Control spawn mode, worktree by
 default](plans/20261025-claude-remote-control-spawn-mode.md)
 
@@ -62,26 +59,11 @@ default](plans/20261025-claude-remote-control-spawn-mode.md)
 [Bundle a Playwright browser in the development
 image](plans/20261021-playwright-browser.md)
 
-[Reuse a matching Expo bridge build by
-fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md)
-
-[Expo bridge fix terminal launches the Mac's own
-shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
-
-[Expo bridge acts on the agent's window and workspace
-folder](plans/20261023-expo-bridge-workspace-folders.md)
-
 [Extract a reusable IWE bootstrap
 skill](plans/20261023-reusable-iwe-bootstrap.md)
 
 [Opt-in Claude Remote Control server
 mode](plans/20261023-claude-remote-control-server-mode.md)
-
-[Publish the Expo bridge to Open VSX through trusted
-publishing](plans/20261023-openvsx-trusted-publishing.md)
-
-[Build iOS on the Mac host through a VS Code
-bridge](plans/20261015-vscode-expo-bridge.md)
 
 [Mask version-only changes during a map
 refresh](plans/20261021-map-masks-version-bumps.md)
@@ -257,6 +239,3 @@ contracts](plans/20260815-strengthen-workflow-skill-contracts.md)
 [Drop the .venv symlink](plans/20260814-drop-venv-symlink.md)
 
 ## Cancelled
-
-[Incremental local iOS builds for the VS Code Expo
-bridge](plans/20261023-expo-bridge-incremental-builds.md)

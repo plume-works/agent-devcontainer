@@ -36,9 +36,6 @@ refresh](someday/harness-refresh-restart-signal.md)
 [Narrow the devcontainer's forwarded agent
 exposure](someday/devcontainer-forwarded-agent-exposure.md)
 
-[Build on the Mac for a Codespace through the Expo
-bridge](someday/expo-bridge-codespaces.md)
-
 [Calibrate the revision evaluator against human
 review](someday/revision-evaluator-calibration.md)
 
