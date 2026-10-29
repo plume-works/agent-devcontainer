@@ -319,12 +319,15 @@ and its link to `features/vscode-expo-bridge`
 **Files:** Modify:
 `docs/knowledge/data/plans/20261023-pr-skills-ai-review-lifecycle.md`
 
-- [ ] Its three links written as `../pr-eval-review-needed/SKILL.md` and
+- [x] Its three links written as `../pr-eval-review-needed/SKILL.md` and
   `../pr-request-ai-review/SKILL.md` become
   `https://github.com/plume-works/agent-devcontainer/blob/main/.agents/plugins/agentdev/skills/<skill>/SKILL.md`
   URLs, with link text and surrounding prose unchanged; `iwe` counts a relative
   link outside `docs/knowledge/` as broken, so a corrected relative path would
   not clear them.
+  - **Evidence:** the Task 12 commit changes only those three link targets in
+    `plans/20261023-pr-skills-ai-review-lifecycle` (`iwe normalize` reflows
+    their lines); `iwe stats` then has no `## Broken Links` section.
 
 ### Task 13: Validate this repository's graph
 
