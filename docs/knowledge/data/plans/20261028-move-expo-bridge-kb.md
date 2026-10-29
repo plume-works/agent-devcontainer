@@ -29,9 +29,9 @@ packaging a VSIX.
 
 This plan changes [Expo apps build for iOS through
 EAS](../features/expo-eas-builds.md): its behaviour gains the Expo profile's
-bridge wiring, which today only the moved [VS Code Expo
+bridge wiring, which the moved [VS Code Expo
 bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
-feature describes.
+feature also describes.
 
 Decisions made with the maintainer:
 
@@ -314,13 +314,28 @@ and its link to `features/vscode-expo-bridge`
     repository linked by URL and listed in `sources`; `iwe schema validate`
     exits 0.
 
-### Task 12: Validate this repository's graph
+### Task 12: Repair the graph's two broken skill links
+
+**Files:** Modify:
+`docs/knowledge/data/plans/20261023-pr-skills-ai-review-lifecycle.md`
+
+- [ ] Its three links written as `../pr-eval-review-needed/SKILL.md` and
+  `../pr-request-ai-review/SKILL.md` become
+  `https://github.com/plume-works/agent-devcontainer/blob/main/.agents/plugins/agentdev/skills/<skill>/SKILL.md`
+  URLs, with link text and surrounding prose unchanged; `iwe` counts a relative
+  link outside `docs/knowledge/` as broken, so a corrected relative path would
+  not clear them.
+
+### Task 13: Validate this repository's graph
 
 **Files:** none
 
 - [ ] `iwe normalize`, then `iwe schema validate` exits 0; `iwe stats` reports
-  no broken link; `grep -rn "expo-bridge" docs/knowledge/data` finds only URLs,
-  the backticked key list in this plan, and historical text in
+  no broken link; `grep -rn "expo-bridge" docs/knowledge/data` finds no link to
+  or key of the 28 except as a URL — its other matches are the extension ID
+  `plume-works.vscode-expo-bridge`, the repository name
+  `plume-works/vscode-expo-bridge`, the `.tmp/expo-bridge/` path, this plan's
+  own key and text, and historical text in
   `plans/20261016-release-impact-at-plan-time`;
   `uv run pytest docs/knowledge/tests` passes.
 
@@ -359,27 +374,25 @@ extension repository by URL and its Expo profile requirement is unchanged.
 
 Verified anchor points (line numbers as of 2026-10-29):
 
-- `docs/knowledge/data/releases/unreleased.md:24` — `## Added` link to
-  `features/vscode-expo-bridge`
-- `docs/knowledge/data/releases/unreleased.md:92` — first of seven `## Fixed`
-  links to `bugs/expo-bridge-*` (through line 110)
-- `docs/knowledge/data/releases/unreleased.md:45` — `features/expo-eas-builds`
+- `docs/knowledge/data/releases/unreleased.md:43` — `features/expo-eas-builds`
   under `## Added`
 - `docs/knowledge/data/architecture/template-boundary.md:272` — Expo profile
-  paragraph linking `vscode-expo-bridge.md`
+  paragraph, linking the extension repository's
+  `architecture/vscode-expo-bridge` by URL
 - `docs/knowledge/data/someday/devcontainer-forwarded-agent-exposure.md:8` —
-  `sources` entry, and `:13` the prose link to
+  `sources` entry, and `:14` the prose link to
   `plans/20261015-vscode-expo-bridge`
 - `docs/research/vscode-vulnerability/deep-technical.md:6` — link to
   `plans/20261015-vscode-expo-bridge`
 - `docs/knowledge/data/log.md` — 24 links to moved documents
-- `docs/knowledge/data/features/expo-eas-builds.md:1` — frontmatter; no bridge
-  wiring in its Behaviour today
+- `docs/knowledge/data/features/expo-eas-builds.md:47` — the Behaviour paragraph
+  on the bridge wiring
+- `docs/knowledge/data/plans/20261023-pr-skills-ai-review-lifecycle.md:293` —
+  first of the links to `../pr-eval-review-needed/SKILL.md` (also `:304`), and
+  `:330` the link to `../pr-request-ai-review/SKILL.md`
 - `docs/knowledge/data/spec/template-consumption.md:203` — already links the
   extension repository by URL
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md:44` — Workflow 2,
   `bootstrap-iwe.sh [--root <dir>]`
-- vscode-expo-bridge `AGENTS.md:1` — packaging-only instructions
-- vscode-expo-bridge `README.md:73` — `## Versioning`, the patch bump rule
-- vscode-expo-bridge `.prettierignore:1` — no `docs/knowledge` entry;
-  `package.json` `lint` is `prettier --check .`
+- vscode-expo-bridge `README.md:126` — `## Versioning`, the patch bump rule
+- vscode-expo-bridge `package.json:14` — `lint` is `prettier --check .`
