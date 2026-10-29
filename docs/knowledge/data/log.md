@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-29
 
+- **Update**: re-stamped the [agentdev](codebase/agents/plugins/agentdev.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
+  [knowledge workspace](codebase/docs/knowledge.md) map docs after the
+  `generated.by` actor wording became a pattern.
 - **Update**: refreshed the [devcontainer](codebase/devcontainer.md) and
   [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
   the per-instance `/workspaces/project` volume.

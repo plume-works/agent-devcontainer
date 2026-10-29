@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:2d8300a1c71b47d460cb21b73d682d28522d338c9f04c30113f029b7013f6479
+source_digest: sha256:9eeade7206a8a1d1507085742bb25e298b24aae8a07cc07ac5f1a085680e02de
 verified:
-  by: claude-code/opus-5.5
-  at: 2026-10-28T10:30:00Z
-stale_after: 2027-01-26
+  by: claude-code/2.1.304
+  at: 2026-10-29T19:24:54Z
+stale_after: 2027-01-27
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-28T10:30:00Z
+  by: claude-code/2.1.304
+  at: 2026-10-29T19:24:54Z
 sources:
 - id: code
   resource: .iwe
