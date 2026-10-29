@@ -257,10 +257,13 @@ Modify: `docs/knowledge/data/backlog.md` (extension repository)
 
 **Files:** none
 
-- [ ] The pull request is merged to `main`, CI green, and each moved document
+- [x] The pull request is merged to `main`, CI green, and each moved document
   resolves at its
   `https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/<key>.md`
   URL.
+  - **Evidence:** plume-works/vscode-expo-bridge#26 squash-merged as `7885dfd`;
+    CI run 40754291746 on `main` at that commit succeeded; the contents API
+    returns every one of the 28 keys at `ref=main`.
 
 ### Task 9: Point this repository's remaining links at the new home
 
