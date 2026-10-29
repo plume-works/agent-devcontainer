@@ -32,9 +32,9 @@ stays the agent's job.
 
 ## Prototype
 
-Written during a 14-doc refresh, run from the repository root as
-`stamp.py <key>...`. It hard-codes the actor, the 90-day window, and the
-frontmatter layout, and stamps without checking the key is `STALE`:
+Run from the repository root as `stamp.py <key>...`. It hard-codes the actor,
+the 90-day window, and the frontmatter layout, and stamps without checking the
+key is `STALE`:
 
 ``` python
 """Stamp map docs with their current source digest, verified, stale_after, and generated."""
