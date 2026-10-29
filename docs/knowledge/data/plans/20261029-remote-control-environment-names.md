@@ -20,10 +20,10 @@ sources:
 
 Claude Remote Control registers its environment with `machine_name` set to the
 process's `os.hostname()`; `--name` and `--remote-control-session-name-prefix`
-name sessions only. The `devcontainer` Compose service sets no hostname, so
-every dev container registers under its Docker container ID and Coder workspaces
-are indistinguishable in Claude Desktop. The feature is [Remote Control
-environment names](../features/remote-control-environment-names.md).
+name sessions only. Without an explicit `hostname`, a Compose service's
+container is named after its Docker container ID, so Coder workspaces would be
+indistinguishable in Claude Desktop. The feature is [Remote Control environment
+names](../features/remote-control-environment-names.md).
 
 ## Approach
 
@@ -45,8 +45,8 @@ own hostname.
 
 Assumptions recorded for minor details the rule leaves open:
 
-- **Coder is checked first.** Coder sets `VSCODE_PROXY_URI`, so a VS Code check
-  ahead of it would misname Coder workspaces.
+- **Coder is checked first**, so a Coder workspace keeps its `coder-` name
+  whatever VS Code variables are also set.
 - **VS Code is detected by `VSCODE_PID` or `VSCODE_IPC_HOOK`**, which the VS
   Code extension host exports to the initialize command.
 - **`${HOSTNAME}` is the short hostname.** The domain is dropped, so a Mac's
