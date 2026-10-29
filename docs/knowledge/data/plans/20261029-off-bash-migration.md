@@ -6,7 +6,7 @@ release:
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/fable-5.1
-  at: 2026-10-29T19:47:30Z
+  at: 2026-10-29T20:45:51Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -86,8 +86,10 @@ hashes, which keeps the derived-image protection the manifest provided.
 A container with no supervisor socket runs `lifecycle ready --no-wait`, one
 function that starts the CBM daemon and then the per-start repairs. Nothing else
 starts there: a review job needs CBM and the checkout catalog and never the
-keyring, firewall, or a desktop. The function stays small so a later move of
-in-repo CI consumers to supervisor-mode images can delete it.
+keyring, firewall, or a desktop. A GitHub `container:` job runs no image
+entrypoint and accepts no `--entrypoint` option, and `claude-code-action` is a
+composite action that runs in the job's own runtime, so the supervisor can never
+be PID 1 there; this function is the supported start for such a job.
 
 The firewall and the Xpra launcher join the package. The firewall runs as root
 from the bootstrap in both profiles, so its sudoers entry and the script in the
@@ -99,8 +101,13 @@ Rejected: loose stdlib scripts on the system interpreter, which keeps either the
 runtime PyPI fetch or an apt dependency hunt and keeps the file manifest; bash
 shims preserving the `/opt/agentdev-runtime/*.sh` names, which the user ruled
 out in favour of one CLI; porting the legacy no-supervisor starters, which would
-preserve a second start path nobody needs; and keeping `init-firewall.sh` as
-bash behind a Python wrapper, which the user ruled out.
+preserve a second start path nobody needs; keeping `init-firewall.sh` as bash
+behind a Python wrapper, which the user ruled out; starting the supervisor as a
+background process inside the responder's container job, which needs a
+privileged job container for the profile's core `dockerd` and buys only the
+deletion of this one function; and running the responder as a host job through
+`devcontainers/ci`, which gives the supervisor PID 1 but loses
+`claude-code-action` and its `claude[bot]` authentication.
 
 ## Implementation Steps
 
@@ -464,7 +471,8 @@ Delete: `docker/desktop/start-xpra.sh`
 
 - [ ] The architecture document records the package over loose scripts, the
   `RECORD` integrity check, the firewall leaving the base image, the CBM-only
-  no-supervisor start, and the rejected alternatives above.
+  no-supervisor start with the container-job alternatives rejected in its
+  favour, and the other rejected alternatives above.
 - [ ] Every document and comment that names a runtime script names the CLI
   subcommand instead; `product.md` describes the package in its stack and the
   firewall constraint by its command; root `AGENTS.md` points
@@ -615,8 +623,12 @@ image](20261023-reusable-agentdev-devcontainer.md)
   `docker/bin/gh` (a PATH shim on every `gh` call),
   `docker/ansible/setup-ansible.sh` (runs before the toolchain exists), the test
   fixtures' hook scripts, and the self-improve plugin's `si` launcher.
-- Running in-repo CI consumers on supervisor-mode images;
-  `lifecycle ready --no-wait` stays one function so that work can delete it.
+- Running the responder's `container:` jobs under the supervisor, decided
+  against in `## Approach`; and re-pinning the toolchain-only `renovate` and
+  `validate-renovate-config` jobs to `agentdev-base`, which the image-pinning
+  change of [Publish the reusable agentdev Dev Container
+  image](20261023-reusable-agentdev-devcontainer.md) keeps on the Dev Container
+  pin.
 - Publishing `agentdev_runtime` to PyPI or installing it anywhere but the two
   runtime images.
 - Any behaviour change: profile service sets, recovery budgets, catalog policy,
@@ -648,6 +660,12 @@ Verified anchor points (line numbers as of 2026-10-29):
 - `.devcontainer/scripts/runtime-supervisor.py:79` — `SettingsParser`
 - `.devcontainer/scripts/runtime-supervisor.py:306` — `DEVCONTAINER_SERVICES`
 - `.devcontainer/scripts/runtime-supervisor.py:931` — bootstrap command hook
+- `.devcontainer/scripts/runtime-supervisor.py:309` — `dockerd` is core in the
+  devcontainer profile
+- `.devcontainer/scripts/runtime-supervisor.py:173` — `AGENTDEV_SKIP_XPRA`
+- `.github/workflows/ai-responder.yml:422` — review job `container:` block
+- `.github/actions/run-claude-responder/action.yml:150` — composite
+  `claude-code-action` step
 - `.devcontainer/scripts/runtime-health.sh:18` — `current_state` jq parse of
   `state.json`
 - `.devcontainer/scripts/runtime-bootstrap.sh:177` — `verify_runtime_root`
