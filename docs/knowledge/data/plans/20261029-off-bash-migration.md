@@ -19,6 +19,8 @@ sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: docs/knowledge/data/architecture/ci-agent-plugin-availability.md
 - resource: docs/knowledge/data/plans/20260905-python-skill-scripts.md
+- resource: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontaineroptions
+- resource: https://github.com/anthropics/claude-code-action/blob/v1/action.yml
 ---
 
 # Replace the runtime shell scripts with one agentdev-runtime CLI
@@ -431,8 +433,9 @@ Delete: `docker/desktop/start-xpra.sh`
 `.codex/setup-codex-cloud.sh`
 
 - [ ] The script and every reference to it are gone;
-  `git grep -iE 'codex[ -]cloud'` outside `data/plans/` and `data/log.md` prints
-  nothing.
+  `git grep -iE 'codex[ -]cloud'` outside `data/plans/`, `data/log.md`, the
+  feature document that describes the removal, and the codebase map Task 16
+  refreshes prints nothing.
 
 ### Task 15: Publisher scripts
 
