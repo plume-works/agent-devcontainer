@@ -327,10 +327,16 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 `docs/knowledge/data/features/standalone-opencode-container.md`,
 `docs/knowledge/data/codebase/`, `docs/knowledge/data/architecture.md`
 
-- [ ] Document the canonical image family, profile boundary, lifecycle
+- [x] Document the canonical image family, profile boundary, lifecycle
   ownership, customization interface, and supported direct/derived/full adoption
   modes in the architecture, README, and user-story documents. State explicitly
   that `template-consume` remains supported for full adoption.
+  - **Evidence:** commits bef0fd05, 1f85dae3;
+    `architecture/devcontainer- runtime.md` records the family, profiles,
+    lifecycle ownership, hooks and environment interface, and the direct,
+    derived, and full adoption modes, with `template-consume` supported for full
+    adoption; the README and user stories describe the same;
+    `iwe schema validate` clean.
 - [ ] Update image, catalog, Docker-storage, pinning, and product terminology to
   the shipped names and behaviour in the non-spec documents this task lists,
   without copying runtime implementation detail into multiple documents. Spec
