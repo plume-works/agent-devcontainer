@@ -326,7 +326,7 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
   advance past the change.
   - **Evidence:** commits c9dc2e30, ad70031a; with
     `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to the CI candidate built from commit
-    b112e4ee, `uv run pytest scripts/tests/test_template_consume_migration.py` —
+    d6b06b82, `uv run pytest scripts/tests/test_template_consume_migration.py` —
     2 passed: the migrated descriptor runs no copied script, and a consumer
     holding only the files the migration keeps reaches runtime readiness on the
     staged catalog; `validate_agent_files --ci .` clean.
