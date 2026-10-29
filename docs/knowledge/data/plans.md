@@ -17,14 +17,8 @@ moves them.*
 
 ## Active
 
-[Start Claude Remote Control in the standalone
-runtime](plans/20261027-standalone-remote-control-autostart.md)
-
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
-
-[Ship a standalone OpenCode
-container](plans/20261017-standalone-opencode-container.md)
 
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
@@ -39,6 +33,12 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 [Move the Expo bridge knowledge into its own
 repository](plans/20261028-move-expo-bridge-kb.md)
+
+[Start Claude Remote Control in the standalone
+runtime](plans/20261027-standalone-remote-control-autostart.md)
+
+[Ship a standalone OpenCode
+container](plans/20261017-standalone-opencode-container.md)
 
 [PR skills drive the AI review lifecycle on the single review
 workflow](plans/20261023-pr-skills-ai-review-lifecycle.md)

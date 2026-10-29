@@ -136,8 +136,10 @@ software project's memory and system of record. The division of labor:
 - **A ticked task carries the evidence that closed it**: every `- [x]` under a
   plan's `## Implementation Steps` has an indented `- **Evidence:**` child
   naming the commit, test run, or CI run behind it, written in the same edit as
-  the tick. One edit ticks one box — a sweep across the file is the defect, not
-  a shortcut. Unticked boxes stay bare.
+  the tick. A check and its result count only together with the commit that
+  holds the change they check, so the code is committed first and the tick
+  follows in a commit of its own. One edit ticks one box — a sweep across the
+  file is the defect, not a shortcut. Unticked boxes stay bare.
 - **Naming**: plans are `YYYYMMDD-<kebab-slug>`; everything else is a short
   kebab slug; releases are `<semver>` plus `unreleased`. One topic per file.
 - **Markdown links only, never wiki links.** References are extension-less

@@ -33,6 +33,12 @@ pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 [Verify that auto-merge waits for an assignee-triggered
 review](backlog/verify-assignee-review-automerge.md)
 
+[Supervise Claude Remote Control in Coder
+workspaces](backlog/coder-supervised-remote-control.md)
+
+[Make plan task evidence survive history
+rewrites](backlog/resilient-task-evidence.md)
+
 ## Low
 
 [Detect plan narration growth
@@ -45,6 +51,9 @@ pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 trigger](backlog/drop-claude-free-form-task-trigger.md)
 
 ## Done
+
+[Run implement-all live against two
+plans](backlog/implement-all-multi-plan-e2e.md)
 
 [Find why the orphan-kill supervision test is
 flaky](backlog/supervision-orphan-kill-test-cause.md)

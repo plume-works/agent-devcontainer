@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: A dedicated agent-opencode image starts a persistent single-project agent environment with OpenCode, Docker-in-Docker, CBM, keyring, and Xpra without a Dev Containers client.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T12:16:25Z
+  at: 2026-10-28T02:36:16Z
 sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: .devcontainer/scripts/postCreateCommand.sh

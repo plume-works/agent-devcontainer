@@ -115,3 +115,12 @@ intermittently](bugs/supervision-orphan-kill-test-flaky.md)
 
 [Bug: a comment-requested review's gate does not count toward
 merge](bugs/dispatched-review-gate-not-counted.md)
+
+[Bug: the Remote Control watcher restarts a session that never comes up on every
+tick](bugs/remote-control-watcher-start-loop.md)
+
+[Command-result evidence is judged
+inconsistently](bugs/command-result-evidence-ambiguous.md)
+
+[Bug: a CBM daemon start failure latches the standalone runtime
+degraded](bugs/cbm-start-failure-latches-degraded.md)

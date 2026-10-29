@@ -12,6 +12,42 @@ to the current day's group.
 
 ## 2026-10-28
 
+- **Update**: [Start Claude Remote Control in the standalone
+  runtime](plans/20261027-standalone-remote-control-autostart.md) done; merged
+  the standalone watcher requirement into [Claude Remote
+  Control](spec/claude-remote-control.md) and Remote Control as an optional
+  service into [Standalone OpenCode
+  runtime](spec/standalone-opencode-runtime.md); [Remote Control autostart in
+  the standalone runtime](features/standalone-remote-control-autostart.md)
+  implemented and listed under Unreleased Added.
+- **Update**: [Ship a standalone OpenCode
+  container](plans/20261017-standalone-opencode-container.md) done; created the
+  [Standalone OpenCode runtime](spec/standalone-opencode-runtime.md) and [CBM
+  startup integration](spec/cbm-startup-integration.md) specs and merged the
+  standalone requirements into [Catalog lifecycle](spec/catalog-lifecycle.md)
+  and [Image pinning](spec/image-pinning.md); [Standalone OpenCode
+  container](features/standalone-opencode-container.md) implemented and listed
+  under Unreleased Added.
+- **Update**: bug [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md) records the Codex
+  e2e run under the fixed rules: both plans' evidence cites the code commit and
+  passes its first Verify.
+- **Update**: [Plan checkbox evidence](spec/plan-checkbox-evidence.md) now
+  counts a check only together with the commit that holds its change, and puts
+  the tick in a commit after the code rather than in the same one; bug
+  [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md) done.
+- **Map**: re-stamped the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md), its
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
+  the [knowledge workspace](codebase/docs/knowledge.md) for the evidence rule
+  change.
+- **Create**: [Make plan task evidence survive history
+  rewrites](backlog/resilient-task-evidence.md).
+- **Create**: bug [Command-result evidence is judged
+  inconsistently](bugs/command-result-evidence-ambiguous.md), found by the
+  two-plan `implement-all` e2e run on Codex.
 - **Update**: [Expo Bridge panel, status bar, and Problems in the workspace
   extension](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261026-expo-bridge-panel.md)
   done; no `data/spec/` change.
@@ -45,6 +81,13 @@ to the current day's group.
 
 ## 2026-10-27
 
+- **Create**: [Run implement-all live against two
+  plans](backlog/implement-all-multi-plan-e2e.md), done in the same change:
+  `test_implement_all` now runs against the loop and pair fixture plans on every
+  harness.
+- **Create**: someday ideas [Calibrate the revision evaluator against human
+  review](someday/revision-evaluator-calibration.md) and [Nested dispatch from
+  catalog agents](someday/nested-catalog-agent-dispatch.md).
 - **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for
   the Remote Control watcher's shorter header, and re-stamped
   [devcontainer](codebase/devcontainer.md) and the [devcontainer
