@@ -15,6 +15,7 @@ import time
 import uuid
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
 SUITE = REPO_ROOT / 'scripts/e2e/iwe-workflows'
@@ -74,8 +75,8 @@ def start(suite_modules, work: Path):
 
 @pytest.fixture(scope='module')
 def work():
-    """Provide a scratch directory under ./.tmp for this module's servers."""
-    path = REPO_ROOT / '.tmp' / f'e2e-iwe-workflows-server-{uuid.uuid4().hex}'
+    """Provide a scratch directory under /tmp for this module's servers."""
+    path = TMP_ROOT / f'e2e-iwe-workflows-server-{uuid.uuid4().hex}'
     yield path
     shutil.rmtree(path, ignore_errors=True)
 

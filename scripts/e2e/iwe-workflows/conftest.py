@@ -21,7 +21,7 @@ REPO_ROOT = Path(
         check=True,
     ).stdout.strip()
 )
-WORK = REPO_ROOT / '.tmp/e2e/iwe-workflows'
+WORK = Path('/tmp/agentdev-tests/e2e/iwe-workflows')
 # Every test shares the model provider's rate limits.
 MAX_WORKERS = 3
 

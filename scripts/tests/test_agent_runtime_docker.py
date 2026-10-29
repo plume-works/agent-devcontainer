@@ -17,7 +17,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 SCRIPT = SCRIPTS / 'runtime-docker.sh'
 PINS = REPO_ROOT / 'devcontainer-compose-pins.yml'
-TMP_ROOT = REPO_ROOT / '.tmp'
 PRIVILEGED_CAPS = 'CapEff:\t000001ffffffffff\n'
 UNPRIVILEGED_CAPS = 'CapEff:\t00000000a80425fb\n'
 DAEMON_JSON = {'builder': {'gc': {'enabled': True, 'defaultMaxUsedSpace': '10GB'}}}

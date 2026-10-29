@@ -10,10 +10,10 @@ import subprocess
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-TMP_ROOT = REPO_ROOT / '.tmp'
 HOOK_ID = 'no-commit-to-branch'
 FIXTURE_ENV = {
     'GIT_AUTHOR_NAME': 'Fixture Author',
