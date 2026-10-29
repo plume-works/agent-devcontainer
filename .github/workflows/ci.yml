@@ -309,6 +309,12 @@ jobs:
             devcontainer-compose-pins.yml
           grep -n 'image:' devcontainer-compose-pins.yml
 
+      # Its own step, so the pull's duration shows apart from the build and tests.
+      - name: Pull the candidate image
+        env:
+          MERGED_IMAGE: ${{ needs.merge-dev-image.outputs.devcontainer_image_pinned }}
+        run: docker pull "$MERGED_IMAGE"
+
       - name: Build and test dev container image
         uses: devcontainers/ci@v0.3.1900000450
         with:
@@ -423,13 +429,18 @@ jobs:
       - uses: ./.github/actions/setup-python-venv
       - uses: oven-sh/setup-bun@v2.2.0
 
+      # Its own step, so the pull's duration shows apart from the fixtures.
+      - name: Pull the candidate image
+        env:
+          AGENTDEV_DEVCONTAINER_TEST_IMAGE: ${{ needs.merge-dev-image.outputs.devcontainer_image_pinned }}
+        run: docker pull "$AGENTDEV_DEVCONTAINER_TEST_IMAGE"
+
       # Direct and derived consumers, then this repository's own clone and worktree,
       # through create, attach, stop/start, and rebuild.
       - name: Run Dev Container fixtures on the native architecture
         env:
           AGENTDEV_DEVCONTAINER_TEST_IMAGE: ${{ needs.merge-dev-image.outputs.devcontainer_image_pinned }}
         run: |
-          docker pull "$AGENTDEV_DEVCONTAINER_TEST_IMAGE"
           uv run pytest scripts/tests/test_agentdev_devcontainer_image.py \
             scripts/tests/test_agentdev_devcontainer_repository.py \
             scripts/tests/test_template_consume_migration.py -rs

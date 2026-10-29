@@ -121,6 +121,17 @@ def test_the_dev_container_check_runs_this_runs_image():
     assert 's|image: ghcr.io/.*|image: ${MERGED_IMAGE}|' in patch['run']
 
 
+@pytest.mark.parametrize('job', ['dev-container-ci', 'devcontainer-acceptance'])
+def test_the_candidate_is_pulled_in_its_own_step_before_any_test(job):
+    job_steps = steps(CI['jobs'][job])
+    pulls = [i for i, s in enumerate(job_steps) if 'docker pull' in s.get('run', '')]
+    assert len(pulls) == 1
+    pull = job_steps[pulls[0]]
+    assert pull['name'] == 'Pull the candidate image'
+    assert 'devcontainer_image_pinned' in str(pull['env'])
+    assert any('pytest' in str(s) for s in job_steps[pulls[0] + 1 :])
+
+
 def test_the_merge_pushes_only_the_candidate_tag():
     meta = next(s for s in MERGE_ACTION['runs']['steps'] if s.get('id') == 'meta')
     assert meta['with']['candidate'] == 'true'
