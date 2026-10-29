@@ -35,7 +35,7 @@ a stock image, no longer binds the runtime. [Python skill
 scripts](20260905-python-skill-scripts.md) recorded that constraint and the rule
 that inline Python inside bash is neither testable nor lintable.
 
-The runtime is 41 shell scripts (2658 lines) beside a 1010-line Python
+The runtime is 41 shell scripts (2658 lines) beside a 1111-line Python
 supervisor. The scripts read 54 distinct `AGENTDEV_*` settings against the
 supervisor's 23, each file declaring its own defaults, and one variable defaults
 to two different paths in two files. The supervisor writes `state.json` in
@@ -47,13 +47,13 @@ deploy profile's core `prepare` phase. A second, no-supervisor start path for
 GitHub `container:` jobs and Codex Cloud keeps `setup-keyring.sh`,
 `codebase-memory-mcp-start.sh`, and `firewall.sh` alive beside their supervised
 twins ([CI agent plugin
-availability](../architecture/ci-agent-plugin-availability.md)). Codex Cloud
-never worked and is removed.
+availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
+bootstrap is removed at the user's decision.
 
-The user's decisions for this plan: Option B, one Python package installed as a
-uv tool the way `validate_agent_files` is; one CLI rather than per-script shims;
-the catalog's scripts in their own plan, [Port the catalog's bundled shell
-scripts to Python](20261029-catalog-scripts-python.md); a CBM-only start when no
+The user's decisions for this plan: one Python package installed as a uv tool
+the way `validate_agent_files` is; one CLI rather than per-script shims; the
+catalog's scripts in their own plan, [Port the catalog's bundled shell scripts
+to Python](20261029-catalog-scripts-python.md); a CBM-only start when no
 supervisor is present, with the legacy no-supervisor starters deleted; and the
 firewall script ported rather than wrapped.
 
@@ -86,15 +86,14 @@ hashes, which keeps the derived-image protection the manifest provided.
 A container with no supervisor socket runs `lifecycle ready --no-wait`, one
 function that starts the CBM daemon and then the per-start repairs. Nothing else
 starts there: a review job needs CBM and the checkout catalog and never the
-keyring, firewall, or a desktop. The function is deliberately small so a later
-move of in-repo CI consumers to supervisor-mode images can delete it.
+keyring, firewall, or a desktop. The function stays small so a later move of
+in-repo CI consumers to supervisor-mode images can delete it.
 
 The firewall and the Xpra launcher join the package. The firewall runs as root
 from the bootstrap in both profiles, so its sudoers entry and the script in the
 Ansible role go; the role keeps the packages. The devcontainer profile reads the
-checkout's allowlist when present and the image copy otherwise, which is what
-`spec/firewall` promises and what the no-supervisor wrapper did, while deploy
-keeps the image copy.
+checkout's allowlist when present, as `spec/firewall` promises, and the image
+copy otherwise, as the supervised wrapper does; deploy keeps the image copy.
 
 Rejected: loose stdlib scripts on the system interpreter, which keeps either the
 runtime PyPI fetch or an apt dependency hunt and keeps the file manifest; bash
