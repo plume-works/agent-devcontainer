@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import socket
 import subprocess
@@ -192,7 +193,7 @@ def test_opencode_serves_its_web_ui_and_websockets_at_the_root(opencode_server):
     root, port, _ = opencode_server
     auth = f'opencode:{PASSWORD}'
     status, page = request(port, '/', auth=None)
-    assert status == 200 and b'<title>OpenCode</title>' in page
+    assert status == 200 and re.search(rb'<title\b[^>]*>OpenCode</title>', page)
     asset = page.split(b'src="', 1)[1].split(b'"', 1)[0].decode()
     assert request(port, asset, auth=None)[0] == 200
     marker = root / 'display.txt'

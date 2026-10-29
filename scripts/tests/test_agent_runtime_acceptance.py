@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 import json
 import os
 from pathlib import Path
+import re
 import shlex
 import shutil
 import socket
@@ -403,7 +404,7 @@ def test_proxy_reaches_opencode_and_xpra_at_the_root_without_host_ports(
     shipped = ready_runtime.sh('opencode --version').stdout.strip()
     assert status == 200 and json.loads(body)['version'] in shipped
     status, page = http(f'http://{address}:8080/', auth=True)
-    assert status == 200 and b'<title>OpenCode</title>' in page
+    assert status == 200 and re.search(rb'<title\b[^>]*>OpenCode</title>', page)
     asset = page.split(b'src="', 1)[1].split(b'"', 1)[0].decode()
     assert http(f'http://{address}:8080{asset}', auth=True)[0] == 200
     pty = ready_runtime.api('POST', '/pty', {'command': 'bash', 'args': ['-c', 'sleep 60']})
