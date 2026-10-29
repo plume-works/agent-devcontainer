@@ -70,7 +70,8 @@ software project's memory and system of record. The division of labor:
    - Release cut → ship skill's release mode (rename unreleased, stamp
      version/date, fresh accumulator).
 5. **Stamp** — every document you create or meaningfully change gets
-   `generated: { by: claude-code/opus-5, at: <ISO 8601 now> }`, a one-sentence
+   `generated: { by: <producer>/<version>, at: <ISO 8601 now> }` (an actor as
+   `SCHEMA.md` defines it, for example `claude-code/2.1.304`), a one-sentence
    `description` if it has none, and — when you derived it from code or an
    external page — a `sources` entry naming that path or URL. Whenever you set
    `stage`, derive OKF `status` from the table in `SCHEMA.md` and set or clear
