@@ -7,31 +7,35 @@ to the current day's group.
 ## 2026-10-28
 
 - **Update**: [Expo Bridge panel, status bar, and Problems in the workspace
-  extension](plans/20261026-expo-bridge-panel.md) done; no `data/spec/` change.
+  extension](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261026-expo-bridge-panel.md)
+  done; no `data/spec/` change.
 - **Update**: [Bug: the Expo bridge's project ID check ignores dynamic app
-  config](bugs/expo-bridge-project-id-ignores-dynamic-config.md) fixed and
-  listed under Unreleased Fixed.
+  config](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-project-id-ignores-dynamic-config.md)
+  fixed and listed under Unreleased Fixed.
 - **Update**: [Bug: the container sees the Expo bridge's build log only after
-  the build ends](bugs/expo-bridge-build-log-invisible-until-close.md) fixed and
-  listed under Unreleased Fixed.
+  the build
+  ends](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-build-log-invisible-until-close.md)
+  fixed and listed under Unreleased Fixed.
 - **Update**: [Bug: the Expo bridge's build log tail drops
-  lines](bugs/expo-bridge-build-log-tail-drops-lines.md) fixed and listed under
-  Unreleased Fixed.
+  lines](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-build-log-tail-drops-lines.md)
+  fixed and listed under Unreleased Fixed.
 - **Bug**: filed [Bug: the Expo bridge's project ID diagnostic stays stale after
   a config
-  edit](bugs/expo-bridge-project-id-diagnostic-stale-after-config-edit.md).
+  edit](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-project-id-diagnostic-stale-after-config-edit.md).
 - **Bug**: filed [Bug: the Expo bridge's CocoaPods fix does not repair an
-  unlinked keg](bugs/expo-bridge-cocoapods-fix-misses-unlinked-keg.md).
+  unlinked
+  keg](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-cocoapods-fix-misses-unlinked-keg.md).
 - **Bug**: filed [Bug: the Expo bridge's simulator profile quick fix omits the
-  bun pin](bugs/expo-bridge-simulator-profile-quick-fix-omits-bun.md).
+  bun
+  pin](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-simulator-profile-quick-fix-omits-bun.md).
 - **Task**: captured [Revise the Expo bridge build controls after CMake
-  Tools](backlog/expo-bridge-build-controls.md).
+  Tools](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/backlog/expo-bridge-build-controls.md).
 - **Task**: captured [Show one Expo Bridge status bar
-  item](backlog/expo-bridge-one-status-bar-item.md).
+  item](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/backlog/expo-bridge-one-status-bar-item.md).
 - **Task**: captured [Show each Expo bridge panel section's state on its
-  row](backlog/expo-bridge-section-status-icons.md).
+  row](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/backlog/expo-bridge-section-status-icons.md).
 - **Task**: captured [Verify the build in the Expo bridge sideload
-  procedure](backlog/expo-bridge-sideload-procedure.md).
+  procedure](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/backlog/expo-bridge-sideload-procedure.md).
 
 ## 2026-10-27
 
@@ -139,11 +143,12 @@ to the current day's group.
 ## 2026-10-25
 
 - **Update**: [Expo bridge bun fix upgrades the bun the check
-  runs](plans/20261025-expo-bridge-bun-fix-resolved-bun.md) done; no
-  `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.
+  runs](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261025-expo-bridge-bun-fix-resolved-bun.md)
+  done; no `data/spec/` change, the behavior lives in
+  `plume-works/vscode-expo-bridge`.
 - **Update**: [Bug: the Expo bridge's bun fix upgrades a bun the check never
-  runs](bugs/expo-bridge-bun-fix-misses-path-bun.md) fixed; listed under
-  Unreleased Fixed.
+  runs](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-bun-fix-misses-path-bun.md)
+  fixed; listed under Unreleased Fixed.
 - **Update**: [iwe-branch-name skill](plans/20261020-iwe-branch-name.md) done;
   new spec [iwe-branch-name](spec/iwe-branch-name.md), and [IWE workflow
   skills](spec/iwe-workflow-skills.md) now names the Implement work branch
@@ -181,9 +186,10 @@ to the current day's group.
   and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
   `exec-summary` skill.
 - **Update**: [Reuse a matching Expo bridge build by
-  fingerprint](plans/20261023-expo-bridge-fingerprint-reuse.md) done; no
-  `data/spec/` change, the protocol contract lives in the bridge's
-  `docs/protocol.md`; [VS Code Expo bridge](features/vscode-expo-bridge.md)
+  fingerprint](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261023-expo-bridge-fingerprint-reuse.md)
+  done; no `data/spec/` change, the protocol contract lives in the bridge's
+  `docs/protocol.md`; [VS Code Expo
+  bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
   stays implemented and listed under Unreleased Added.
 - **Task**: captured [Start Claude Remote Control in the standalone runtime when
   asked](backlog/standalone-claude-remote-control.md).
@@ -215,20 +221,23 @@ to the current day's group.
 ## 2026-10-24
 
 - **Update**: [Expo bridge fix terminal launches the Mac's own
-  shell](plans/20261024-expo-bridge-fix-terminal-mac-shell.md) done; no
-  `data/spec/` change, the behavior lives in `plume-works/vscode-expo-bridge`.
+  shell](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261024-expo-bridge-fix-terminal-mac-shell.md)
+  done; no `data/spec/` change, the behavior lives in
+  `plume-works/vscode-expo-bridge`.
 - **Update**: [Bug: the Expo bridge's fix terminal launches the container's
-  shell on the Mac](bugs/expo-bridge-fix-terminal-remote-shell.md) fixed; listed
-  under Unreleased Fixed.
+  shell on the
+  Mac](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-fix-terminal-remote-shell.md)
+  fixed; listed under Unreleased Fixed.
 - **Update**: [Expo bridge acts on the agent's window and workspace
-  folder](plans/20261023-expo-bridge-workspace-folders.md) done; no `data/spec/`
-  change, the protocol contract lives in the bridge's `docs/protocol.md`.
+  folder](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261023-expo-bridge-workspace-folders.md)
+  done; no `data/spec/` change, the protocol contract lives in the bridge's
+  `docs/protocol.md`.
 - **Update**: [Bug: the Expo bridge builds only the devcontainer window's root
-  folder](bugs/expo-bridge-builds-only-window-root.md) fixed; listed under
-  Unreleased Fixed.
+  folder](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-builds-only-window-root.md)
+  fixed; listed under Unreleased Fixed.
 - **Update**: [Bug: Expo bridge windows sharing a container break each other's
-  socket](bugs/expo-bridge-shared-socket-across-windows.md) fixed; listed under
-  Unreleased Fixed.
+  socket](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/bugs/expo-bridge-shared-socket-across-windows.md)
+  fixed; listed under Unreleased Fixed.
 - **Update**: [Opt-in Claude Remote Control server
   mode](plans/20261023-claude-remote-control-server-mode.md) done; [Claude
   Remote Control](spec/claude-remote-control.md) now specifies opt-in server
@@ -278,14 +287,15 @@ to the current day's group.
   build](codebase/flow-image-build.md) flow for the agent-opencode deployment
   guide.
 - **Update**: [Publish the Expo bridge to Open VSX through trusted
-  publishing](plans/20261023-openvsx-trusted-publishing.md) done; internal, no
-  release entry.
+  publishing](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261023-openvsx-trusted-publishing.md)
+  done; internal, no release entry.
 - **Update**: [Build iOS on the Mac host through a VS Code
-  bridge](plans/20261015-vscode-expo-bridge.md) done; [Template
-  consumption](spec/template-consumption.md) now specifies that an Expo consumer
-  builds iOS on a Mac host through the bridge.
-- **Update**: [VS Code Expo bridge](features/vscode-expo-bridge.md) implemented;
-  listed under Unreleased Added.
+  bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261015-vscode-expo-bridge.md)
+  done; [Template consumption](spec/template-consumption.md) now specifies that
+  an Expo consumer builds iOS on a Mac host through the bridge.
+- **Update**: [VS Code Expo
+  bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
+  implemented; listed under Unreleased Added.
 - **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
   and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
   profile's silenced Metro port and `eas-host` iOS build rule.
@@ -476,8 +486,9 @@ to the current day's group.
   only JavaScript runner](features/bun-only-javascript-runner.md).
 - **Feature**: [Native macOS bootstrap](features/macos-native-bootstrap.md),
   [Shared BuildKit builder](features/shared-buildkit-builder.md), and [VS Code
-  Expo bridge](features/vscode-expo-bridge.md) filed and accepted for their
-  active plans.
+  Expo
+  bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
+  filed and accepted for their active plans.
 - **Plan**: [Declare release impact when a plan is
   written](plans/20261016-release-impact-at-plan-time.md) filed, to fix [Ship's
   release-link rule is undefined for a plan with no feature or

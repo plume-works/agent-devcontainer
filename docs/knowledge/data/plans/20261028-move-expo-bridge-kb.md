@@ -9,8 +9,8 @@ generated:
   at: 2026-10-28T16:12:37Z
 sources:
 - resource: https://github.com/plume-works/vscode-expo-bridge
-- resource: docs/knowledge/data/architecture/vscode-expo-bridge.md
-- resource: docs/knowledge/data/features/vscode-expo-bridge.md
+- resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/architecture/vscode-expo-bridge.md
+- resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md
 - resource: docs/knowledge/data/architecture/template-boundary.md
 - resource: docs/knowledge/data/features/expo-eas-builds.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
@@ -30,7 +30,8 @@ packaging a VSIX.
 This plan changes [Expo apps build for iOS through
 EAS](../features/expo-eas-builds.md): its behaviour gains the Expo profile's
 bridge wiring, which today only the moved [VS Code Expo
-bridge](../features/vscode-expo-bridge.md) feature describes.
+bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
+feature describes.
 
 Decisions made with the maintainer:
 
@@ -270,11 +271,17 @@ Modify: `docs/knowledge/data/backlog.md` (extension repository)
 **Files:** Modify: `docs/knowledge/data/log.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/someday/devcontainer-forwarded-agent-exposure.md`,
-`docs/research/vscode-vulnerability/deep-technical.md`
+`docs/research/vscode-vulnerability/deep-technical.md`, this plan's `sources`
+and its link to `features/vscode-expo-bridge`
 
-- [ ] Every link from a staying document to one of the 28 becomes
+- [x] Every link from a staying document to one of the 28 becomes
   `https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/<key>.md`,
   in prose and in `sources`; `log.md` entries keep their text.
+  - **Evidence:** the Task 9 commit rewrites 31 links — 24 in `log.md`, 1 in
+    `template-boundary.md`, 2 in the someday note, 1 in the research note, 3 in
+    this plan — each a one-for-one target change; a repository-wide search finds
+    no relative reference to the 28 outside them, the hubs, and
+    `releases/unreleased.md`.
 
 ### Task 10: Remove the 28 documents from this graph
 
@@ -341,7 +348,7 @@ extension repository by URL and its Expo profile requirement is unchanged.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-28):
+Verified anchor points (line numbers as of 2026-10-29):
 
 - `docs/knowledge/data/releases/unreleased.md:24` — `## Added` link to
   `features/vscode-expo-bridge`
@@ -356,7 +363,7 @@ Verified anchor points (line numbers as of 2026-10-28):
   `plans/20261015-vscode-expo-bridge`
 - `docs/research/vscode-vulnerability/deep-technical.md:6` — link to
   `plans/20261015-vscode-expo-bridge`
-- `docs/knowledge/data/log.md` — 25 links to moved documents
+- `docs/knowledge/data/log.md` — 24 links to moved documents
 - `docs/knowledge/data/features/expo-eas-builds.md:1` — frontmatter; no bridge
   wiring in its Behaviour today
 - `docs/knowledge/data/spec/template-consumption.md:203` — already links the
