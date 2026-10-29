@@ -600,27 +600,52 @@ SHALL NOT rebuild or publish the image it names.
 
 ### Requirement: the catalog is installed at image build time and again by postCreateCommand
 
-The agentdev catalog SHALL be installed in `agentdev-base` at image build time.
-`agentdev-devcontainer` SHALL reconcile that catalog into mounted client-state
-volumes during its create lifecycle after establishing persistent auth and
-configuration links.
+The `agentdev` catalog staged at `$AGENTDEV_CATALOG_DIR` SHALL be installed into
+each agent's plugin state during the `agentdev-base` build, at Claude user
+scope, via Codex's own registration, and by registering the catalog's OpenCode
+bridge plugin in the user's OpenCode config, so a consumer that runs the image
+without lifecycle commands resolves `agentdev:*` skills.
+`agentdev-devcontainer`'s `postCreateCommand` SHALL also install it, because a
+mounted `~/.claude` / `~/.codex` volume shadows what the image build wrote.
+Because the build-time Claude install seeds a real `/root/.claude.json` into the
+image, `postCreateCommand` SHALL establish the volume→`/root/.claude.json`
+symlink before CBM is configured — discarding the image's real file, seeding
+`/root/.claude/claude.json` with `{}` only when the volume has none — so the
+mounted `agentdev-claude` volume remains the source of truth for `claude.json`,
+the CBM install folds its MCP entry back into the volume, and no image content
+is folded into it.
 
-#### Scenario: a base-image consumer uses no lifecycle hooks
+#### Scenario: the image runs with no volumes and no lifecycle hooks
 
-- **WHEN** it starts `agentdev-base` without client-state volumes
-- **THEN** Claude, Codex, and OpenCode resolve the staged agentdev catalog
+- **WHEN** a container starts from `agentdev-base` without client-state volumes
+  and no lifecycle command runs
+- **THEN** the catalog installed during the image build is present, an
+  `agentdev:*` skill resolves in Claude Code and Codex, and OpenCode loads the
+  staged bridge plugin and lists the catalog's skills.
 
-#### Scenario: a Dev Container starts with fresh client-state volumes
+#### Scenario: a devcontainer starts for the first time on a fresh volume
 
-- **WHEN** the create lifecycle runs
-- **THEN** it establishes persistent links before CBM configuration and installs
-  the staged catalog into every mounted client state
+- **WHEN** `postCreateCommand` runs, `$AGENTDEV_CATALOG_DIR` exists, and the
+  image ships a real `/root/.claude.json`
+- **THEN** `postCreateCommand` discards that image file and symlinks
+  `/root/.claude.json` to a freshly-seeded `/root/.claude/claude.json` before
+  CBM is configured, so the CBM install folds only its MCP entry into the
+  volume's clean `claude.json` with no image content, and the staged catalog is
+  installed into the fresh `agentdev-claude` / `agentdev-codex` volumes at
+  Claude user scope and into the OpenCode user config.
 
-#### Scenario: a Dev Container starts with an existing catalog install
+#### Scenario: a devcontainer starts with a catalog already installed on its volume
 
-- **WHEN** persistent client-state volumes shadow the build-time install
-- **THEN** their unrelated state is preserved and the staged catalog is
-  reconciled to the image version
+- **WHEN** the `agentdev-claude` / `agentdev-codex` volumes already contain a
+  prior install and `claude.json` (they persist per devcontainer instance), and
+  the recreated container carries the image's `/root/.claude.json`
+- **THEN** `postCreateCommand` discards the image's `/root/.claude.json` and
+  symlinks `/root/.claude.json` to the volume's existing `claude.json` before
+  CBM is configured, so that content is preserved (the CBM install folds its MCP
+  entry back in; Claude may append bootstrap fields, so the guarantee is content
+  preservation, not byte-identity), the volume mount shadows the image-build
+  catalog install, and `postCreateCommand` re-applies that install every time
+  the container is created, so it is never silently stale.
 
 ### Requirement: this repository's own checkout overrides the staged catalog on attach
 
