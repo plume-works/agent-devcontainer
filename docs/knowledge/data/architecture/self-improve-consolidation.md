@@ -2,8 +2,8 @@
 type: architecture
 description: Why the self-improvement plugin lives in this repository as a second catalog plugin, and the constraints that placement creates.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-09T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-29T22:00:00Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement, merged at e94031a
@@ -45,7 +45,7 @@ Publishing the plugin from the catalog and enabling it for consumers are
 separate decisions, and only the first is made. `self-improve` registers seven
 hook events, including `UserPromptSubmit`, `PostToolUse`, and a `Stop` hook with
 an asynchronous rewake — a behavioral change to every session, not a packaging
-change. Staging it into `agent-desktop` is a later decision that carries its own
+change. Staging it into `agentdev-base` is a later decision that carries its own
 evidence bar. A marketplace can publish a plugin that nothing enables.
 
 What the repository ships is the boundary that matters. Nothing tracked enables
