@@ -7,11 +7,11 @@ source:
 - .claude-plugin
 source_digest: sha256:ef548c4b4cf0fd07e8eba1581d6f68cfb04aaa8a4ba1d41c40e9954b4554a7aa
 verified:
-  by: claude-code/2.1.304
+  by: claude-code/opus-5.5
   at: 2026-10-29T19:33:18Z
 stale_after: 2027-01-27
 generated:
-  by: claude-code/2.1.304
+  by: claude-code/opus-5.5
   at: 2026-10-29T19:33:18Z
 sources:
 - id: code

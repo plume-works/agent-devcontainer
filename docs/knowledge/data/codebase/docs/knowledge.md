@@ -9,11 +9,11 @@ source:
 - docs/knowledge/STRUCTURE.md
 source_digest: sha256:ba1224e0d09c5f2f92cf5ebde184be160dbc01af89e679dcd74db48a99190faf
 verified:
-  by: claude-code/2.1.304
+  by: claude-code/opus-5.5
   at: 2026-10-29T19:33:18Z
 stale_after: 2027-01-27
 generated:
-  by: claude-code/2.1.304
+  by: claude-code/opus-5.5
   at: 2026-10-29T19:33:18Z
 sources:
 - id: code

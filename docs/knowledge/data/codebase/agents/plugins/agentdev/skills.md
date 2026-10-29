@@ -4,11 +4,11 @@ description: The 41 skills the agentdev plugin ships, grouped by family, with th
 source: .agents/plugins/agentdev/skills
 source_digest: sha256:0f7bca24b81458dcea35063bc89e813f4d972e611d756f26f0f81ffbd1339245
 verified:
-  by: claude-code/2.1.304
+  by: claude-code/opus-5.5
   at: 2026-10-29T19:33:18Z
 stale_after: 2027-01-27
 generated:
-  by: claude-code/2.1.304
+  by: claude-code/opus-5.5
   at: 2026-10-29T19:33:18Z
 sources:
 - id: code
