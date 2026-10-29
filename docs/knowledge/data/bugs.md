@@ -124,3 +124,6 @@ inconsistently](bugs/command-result-evidence-ambiguous.md)
 
 [Bug: a CBM daemon start failure latches the standalone runtime
 degraded](bugs/cbm-start-failure-latches-degraded.md)
+
+[Bug: a client is recovered on its own budget before its dependency's failure is
+confirmed](bugs/supervisor-client-recovered-before-dependency.md)
