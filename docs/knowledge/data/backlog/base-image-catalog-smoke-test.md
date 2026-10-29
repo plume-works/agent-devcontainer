@@ -24,9 +24,8 @@ Code and Codex and that OpenCode lists the catalog's skills.
 
 A consumer that derives from `agentdev-base` without the Dev Container lifecycle
 relies on that build-time install. The only catalog check today goes through the
-lifecycle of `agentdev-devcontainer`, so a broken build-time install would
-surface only once the create phase reinstalls over it — never for a base-image
-consumer.
+lifecycle of `agentdev-devcontainer`, whose create phase reinstalls the catalog
+and so hides a broken build-time install that a base-image consumer would hit.
 
 **Work:** add a check to CI's acceptance that runs the merged `agentdev-base`
 candidate with no volumes and no lifecycle command, then checks all three
