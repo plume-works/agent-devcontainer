@@ -289,9 +289,13 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   and `agentdev-devcontainer` from that run's immutable base digest. Merge and
   promote moving tags only after deploy and Dev Container native acceptance
   succeeds.
-- [ ] Rename deploy Compose, pins, Renovate rules, workflow outputs, and
+- [x] Rename deploy Compose, pins, Renovate rules, workflow outputs, and
   repository references to the canonical image names. Stop publishing the old
   `agent-desktop` and `agent-opencode` names rather than creating aliases.
+  - **Evidence:** squash commit 9f50acd7 (#518) and commit aac27ed3;
+    `git grep -E "agent-desktop|agent-opencode"` outside the specs, plans, and
+    logs leaves only the migration guide, its skill step, history entries, and
+    the assertion that no pin names the old images.
 - [ ] Run AI review and other development-image workflow jobs in the same pinned
   `agentdev-devcontainer` digest used by the repository Dev Container; keep
   digest-only pin changes outside the image build path filter.
