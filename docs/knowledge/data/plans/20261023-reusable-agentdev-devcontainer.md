@@ -219,11 +219,15 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `.devcontainer/docker-compose.yml`, `.devcontainer/devcontainer-init.sh`,
 `devcontainer-compose-pins.yml`, `.devcontainer/devcontainer-lock.json`
 
-- [ ] Point the canonical Dev Container at the pinned `agentdev-devcontainer`
+- [x] Point the canonical Dev Container at the pinned `agentdev-devcontainer`
   image, remove the Docker-in-Docker Feature and the `sleep infinity` command,
   and let the image entrypoint own supervised services. Retain SSH support, MCP
   sidecar wiring, workspace/worktree mounts, persistent state volumes, and the
   shared-auth volume.
+  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on ee494f54
+    passed Dev Container runtime acceptance on both architectures, including the
+    repository suite inside the pinned `agentdev-devcontainer`; the descriptor
+    declares only the sshd Feature and no command.
 - [x] Replace checkout-relative lifecycle commands with the image metadata or
   stable `/opt/agentdev-runtime/` commands. Keep `waitFor` tied to the runtime
   readiness command; editor startup must fail when the required service graph is
