@@ -315,7 +315,7 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `.github/workflows/ci.yml`
 
-- [ ] Add an update-mode migration that applies when the consumer's Dev
+- [x] Add an update-mode migration that applies when the consumer's Dev
   Container still pins `agent-desktop` and the upstream template pins
   `agentdev-devcontainer`. One change moves the Compose pin and every workflow
   `container.image` reference to `agentdev-devcontainer`, removes the keepalive
@@ -324,6 +324,12 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
   additions as descriptor commands or derived-image hooks. A consumer that
   declines keeps its previous descriptor and pin, and `consumed_ref` does not
   advance past the change.
+  - **Evidence:** commits c9dc2e30, ad70031a; with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to the CI candidate built from commit
+    b112e4ee, `uv run pytest scripts/tests/test_template_consume_migration.py` —
+    2 passed: the migrated descriptor runs no copied script, and a consumer
+    holding only the files the migration keeps reaches runtime readiness on the
+    staged catalog; `validate_agent_files --ci .` clean.
 - [ ] Ask a custom-image consumer whose Dockerfile derives from `agent-desktop`
   whether it derives from `agentdev-base` or `agentdev-devcontainer`, and change
   its base to the chosen image.
