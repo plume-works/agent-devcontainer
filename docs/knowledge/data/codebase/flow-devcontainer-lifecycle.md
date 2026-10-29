@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:5c24125ae75a2cc67bbf318610bd624a2e9ee198d6944adfe437ef6a7d9b923f
+source_digest: sha256:bf16d1fe021d5b11a14ce770dc9a414a484f4582500b79c10177dc6f8692b24e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
+  at: 2026-10-29T23:04:28Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
+  at: 2026-10-29T23:04:28Z
 sources:
 - id: code
   resource: .devcontainer
@@ -45,7 +45,7 @@ state.
    keyring, Docker, CBM, and Xpra as core services and publishes readiness in
    `/run/agentdev/state.json` once their probes pass —
    `.devcontainer/scripts/runtime-supervisor.py:966`,
-   `.devcontainer/scripts/runtime-bootstrap.sh:191`, in [lifecycle
+   `.devcontainer/scripts/runtime-bootstrap.sh:190`, in [lifecycle
    scripts](devcontainer/scripts.md)
 4. `postCreateCommand` (once per container): ancestor and mount ownership,
    `safe.directory`, then `setup-agent-state.sh create` — the `~/.claude.json`

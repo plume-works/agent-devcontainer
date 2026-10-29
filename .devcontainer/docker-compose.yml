@@ -57,10 +57,9 @@ services:
     image: ghcr.io/plume-works/agentdev-devcontainer:edge
     # No `init` or `command`: the image's supervisor is PID 1, owns the persistent
     # services, and reaps every orphan.
-    # Required for the supervised nested Docker engine, and for privileged access to
-    # the host's GPU for hardware-accelerated rendering through Xpra/VirtualGL.
-    # Note: privileged mode grants the container elevated permissions, which can pose
-    # security risks. Use with caution and only in trusted environments.
+
+    # Nested Docker and the host GPU for Xpra/VirtualGL need privileged mode, which grants
+    # elevated host access: use it only in trusted environments.
     privileged: true
 
     environment:

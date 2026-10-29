@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Workspace preparation, run as the runtime user. A valid checkout is reused without
-# contacting a remote; only deploy clones, and only into an empty destination.
-# Usage: runtime-workspace.sh checkout|project|catalog|config|prepare.
-# Spec: standalone-opencode-runtime, agentdev-runtime-images.
+# Workspace preparation as the runtime user: a valid checkout is reused offline; only deploy
+# clones, into an empty destination. Spec: standalone-opencode-runtime, agentdev-runtime-images.
+# Usage: runtime-workspace.sh checkout|project|catalog|config|prepare
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=runtime-paths.sh

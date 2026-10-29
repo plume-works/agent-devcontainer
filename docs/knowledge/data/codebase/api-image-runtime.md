@@ -100,7 +100,7 @@ lifecycle commands run in addition to those.
   the managed phase; a failing hook names itself and its phase —
   `.devcontainer/scripts/run-agentdev-hooks.sh:9`.
 - Changing, adding, or removing a file below `/opt/agentdev-runtime` fails
-  startup — `.devcontainer/scripts/runtime-bootstrap.sh:177`.
+  startup — `.devcontainer/scripts/runtime-bootstrap.sh:176`.
 - `AGENTDEV_USER`, `AGENTDEV_HOME`, `CBM_CACHE_DIR`, and the bus and display
   defaults are overridable `ENV` — `:29-37`. OpenCode Web and Claude Remote
   Control are opt-in clients, never readiness gates.

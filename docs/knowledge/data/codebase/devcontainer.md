@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:bf8957a8008275c6f058c064168c4fd0e9352ebca6d6a75eb7916032bd088944
+source_digest: sha256:bae60d92aad7e52f8ca77ea72ee4fb9420b8e58b3c83820ee6ee82ee7021c6a0
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
+  at: 2026-10-29T23:04:28Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
+  at: 2026-10-29T23:04:28Z
 sources:
 - id: code
   resource: .devcontainer
@@ -107,8 +107,8 @@ Verified anchor points (line numbers as of 2026-10-29):
 - `.devcontainer/devcontainer.json:15` — the SSH Feature, the only Feature
 - `.devcontainer/devcontainer.json:53-59` — Xpra port forwarding
 - `.devcontainer/devcontainer.json:60-119` — the six volume mounts
-- `.devcontainer/docker-compose.yml:2,53,104` — sidecar, service, volumes
-- `.devcontainer/docker-compose.yml:68-71,102` — identity pass-through, shared
+- `.devcontainer/docker-compose.yml:2,53,103` — sidecar, service, volumes
+- `.devcontainer/docker-compose.yml:67-70,101` — identity pass-through, shared
   auth volume
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile:41-50` — the lifecycle
   the descriptor inherits

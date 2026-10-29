@@ -133,7 +133,7 @@ Verified anchor points (line numbers as of 2026-10-29):
   programs, `:211` — `remote-control`
 - `docker/devcontainer/supervisord.conf:24` — the controller; `:37-161` — the
   eight programs, `:115` — `created`
-- `.devcontainer/scripts/runtime-bootstrap.sh:177-187` — `verify_runtime_root`,
+- `.devcontainer/scripts/runtime-bootstrap.sh:176-186` — `verify_runtime_root`,
   the manifest check
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
 - `docker/desktop/start-xpra.sh:7` — default HTML5 container port
