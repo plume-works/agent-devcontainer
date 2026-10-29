@@ -13,10 +13,10 @@ import tarfile
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / 'scripts/fetch-pinned-tool.py'
-TMP_ROOT = REPO_ROOT / '.tmp'
 
 
 def _load_script():

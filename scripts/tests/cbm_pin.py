@@ -7,11 +7,11 @@ import shutil
 import subprocess
 import sys
 
+from scratch import TMP_ROOT
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEV_TOOLS = REPO_ROOT / 'ansible/roles/dev_tools/defaults/main.yml'
-TMP_ROOT = REPO_ROOT / '.tmp'
 
 
 def pinned_version() -> str:
@@ -28,7 +28,7 @@ def binary_version(path: Path) -> str:
 
 def stage_pinned_cbm() -> Path:
     """
-    Stage the pinned CBM binary in .tmp, copying the image's when it matches the pin.
+    Stage the pinned CBM binary under /tmp, copying the image's when it matches the pin.
 
     The isolated account cannot traverse the invoking user's home, where the image installs it.
     """

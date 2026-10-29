@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync } from "node:
 import path from "node:path"
 import { registerWorkspace, runCommand } from "../../.opencode-plugin/workspace-index.ts"
 
-const scratch = path.resolve(import.meta.dir, "../../../../../.tmp")
+const scratch = "/tmp/agentdev-tests"
 mkdirSync(scratch, { recursive: true })
 const fixture = mkdtempSync(path.join(scratch, "workspace-index-"))
 afterAll(() => rmSync(fixture, { recursive: true, force: true }))

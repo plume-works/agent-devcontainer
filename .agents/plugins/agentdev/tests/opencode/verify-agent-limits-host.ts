@@ -13,8 +13,9 @@ const version = spawnSync(opencode, ["--version"], { encoding: "utf8" })
 assert.match(version.stdout, /(^|[^\d.])2\.\d+\.\d+/, `OpenCode v2 is required, found: ${version.stdout}`)
 
 const gitRoot = spawnSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" }).stdout.trim()
-mkdirSync(path.join(gitRoot, ".tmp"), { recursive: true })
-const fixture = mkdtempSync(path.join(gitRoot, ".tmp", "oc-limits-"))
+const scratch = "/tmp/agentdev-tests"
+mkdirSync(scratch, { recursive: true })
+const fixture = mkdtempSync(path.join(scratch, "oc-limits-"))
 const workspace = path.join(fixture, "ws")
 const configDir = path.join(fixture, "home/.config/opencode")
 for (const dir of [workspace, configDir]) mkdirSync(dir, { recursive: true })

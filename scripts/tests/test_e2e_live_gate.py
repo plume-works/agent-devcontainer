@@ -9,6 +9,7 @@ import sys
 import uuid
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
 GATE = REPO_ROOT / 'scripts/e2e/conftest.py'
@@ -29,8 +30,8 @@ def test_live():
 
 @pytest.fixture
 def suite():
-    """Provide a throwaway suite under ./.tmp guarded by the real gate."""
-    path = REPO_ROOT / '.tmp' / f'e2e-live-gate-{uuid.uuid4().hex}'
+    """Provide a throwaway suite under /tmp guarded by the real gate."""
+    path = TMP_ROOT / f'e2e-live-gate-{uuid.uuid4().hex}'
     path.mkdir(parents=True)
     shutil.copy(GATE, path / 'conftest.py')
     (path / 'test_gated.py').write_text(TEST_MODULE)

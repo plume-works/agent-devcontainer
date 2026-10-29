@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-29
 
+- **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
+  [agentdev tests](codebase/agents/plugins/agentdev/tests.md), [knowledge
+  workspace](codebase/docs/knowledge.md),
+  [validate_agent_files](codebase/py_packages/validate_agent_files.md), and [its
+  tests](codebase/py_packages/validate_agent_files/tests.md) map docs after test
+  scratch moved under `/tmp/agentdev-tests`.
 - **Update**: re-stamped the [agentdev](codebase/agents/plugins/agentdev.md),
   [skills](codebase/agents/plugins/agentdev/skills.md),
   [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
