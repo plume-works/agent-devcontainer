@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # renovate: datasource=npm depName=@devcontainers/cli
-DEVCONTAINER_CLI_VERSION="0.89.0"
+DEVCONTAINER_CLI_VERSION="0.90.0"
 
 cd "$(git rev-parse --show-toplevel)"
 
