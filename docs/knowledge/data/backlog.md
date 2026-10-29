@@ -43,6 +43,9 @@ rewrites](backlog/resilient-task-evidence.md)
 
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
 
+[Smoke-test the agentdev-base catalog without lifecycle
+commands](backlog/base-image-catalog-smoke-test.md)
+
 [Detect plan narration growth
 mechanically](backlog/detect-plan-narration-growth.md)
 
