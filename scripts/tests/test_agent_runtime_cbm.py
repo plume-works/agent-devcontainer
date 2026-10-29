@@ -15,10 +15,10 @@ from uuid import uuid4
 
 from cbm_pin import binary_version, pinned_version, stage_pinned_cbm
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/runtime-cbm.sh'
-TMP_ROOT = REPO_ROOT / '.tmp'
 ISOLATED_UID = 54321
 IS_ROOT = os.geteuid() == 0
 

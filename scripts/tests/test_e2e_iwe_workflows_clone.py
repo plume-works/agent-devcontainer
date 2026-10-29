@@ -10,6 +10,7 @@ import sys
 import uuid
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
 _spec = importlib.util.spec_from_file_location(
@@ -21,8 +22,8 @@ _spec.loader.exec_module(clone_module)
 
 @pytest.fixture(scope='module')
 def work():
-    """Provide a scratch directory under ./.tmp for this module's repositories."""
-    path = REPO_ROOT / '.tmp' / f'e2e-iwe-workflows-clone-{uuid.uuid4().hex}'
+    """Provide a scratch directory under /tmp for this module's repositories."""
+    path = TMP_ROOT / f'e2e-iwe-workflows-clone-{uuid.uuid4().hex}'
     path.mkdir(parents=True)
     yield path
     shutil.rmtree(path)
@@ -101,7 +102,7 @@ def test_git_refuses_a_path_outside_its_own_repository(fixture, work):
 
 
 def test_each_test_gets_its_own_work_directory(monkeypatch):
-    """Same-named tests in different harness modules never share a clone directory."""
+    """Same-named tests in different modules or checkouts never share a clone directory."""
     suite = REPO_ROOT / 'scripts/e2e/iwe-workflows'
     monkeypatch.syspath_prepend(str(suite))
     monkeypatch.setitem(sys.modules, 'clone', clone_module)
@@ -120,7 +121,11 @@ def test_each_test_gets_its_own_work_directory(monkeypatch):
     assert conftest.work_dir_name(f'{prefix}codex.py::test_x[a/b c]') == (
         'test_iwe_workflows_codex-test_x_a_b_c_'
     )
-    assert conftest.WORK == REPO_ROOT / '.tmp/e2e/iwe-workflows'
+    assert conftest.WORK == conftest.work_root(REPO_ROOT)
+    roots = {conftest.work_root(Path(f'/workspaces/{name}')) for name in ('one', 'two')}
+    assert len(roots) == 2
+    assert all(root.parent.parent == TMP_ROOT / 'e2e' for root in roots)
+    assert all(root.name == 'iwe-workflows' for root in roots)
 
 
 def test_main_clone_has_a_remote_and_a_stub_gh(fixture, work):

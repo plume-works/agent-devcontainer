@@ -10,10 +10,10 @@ import subprocess
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = 'scripts/renovate-post-upgrade.sh'
-TMP_ROOT = REPO_ROOT / '.tmp'
 LOCK = '.devcontainer/devcontainer-lock.json'
 DEV_TOOLS = 'ansible/roles/dev_tools/defaults/main.yml'
 IWE_CONFIG = '.iwe/config.toml'

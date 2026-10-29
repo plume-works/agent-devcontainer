@@ -6,6 +6,7 @@ import subprocess
 import uuid
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/claude-remote-control-session.sh'
@@ -22,7 +23,7 @@ FAKE_CLAUDE = (
 
 @pytest.fixture
 def test_dir():
-    path = REPO_ROOT / '.tmp' / f'claude-remote-control-session-{uuid.uuid4().hex}'
+    path = TMP_ROOT / f'claude-remote-control-session-{uuid.uuid4().hex}'
     path.mkdir(parents=True)
     yield path
     shutil.rmtree(path)

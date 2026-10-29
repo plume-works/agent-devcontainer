@@ -7,6 +7,7 @@ import time
 import uuid
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/claude-remote-control-start.sh'
@@ -25,7 +26,7 @@ FAKE_CLAUDE_AUTH = (
 
 
 def make_test_dir() -> Path:
-    path = REPO_ROOT / '.tmp' / f'claude-remote-control-{uuid.uuid4().hex}'
+    path = TMP_ROOT / f'claude-remote-control-{uuid.uuid4().hex}'
     path.mkdir(parents=True)
     return path
 
@@ -208,10 +209,10 @@ def test_reuses_existing_session():
 def test_real_tmux_starts_claude_without_setup_token(existing_server):
     test_dir = make_test_dir()
     fake_bin = test_dir / 'bin'
-    tmux_dir = REPO_ROOT / '.tmp'
+    tmux_dir = TMP_ROOT
     result_file = test_dir / 'result'
     fake_bin.mkdir()
-    tmux_dir.mkdir(exist_ok=True)
+    tmux_dir.mkdir(parents=True, exist_ok=True)
     (fake_bin / 'claude').write_text(
         FAKE_CLAUDE_AUTH + 'test "${1:-}" = --remote-control\n'
         'test -z "${CLAUDE_CODE_OAUTH_TOKEN:-}"\n'

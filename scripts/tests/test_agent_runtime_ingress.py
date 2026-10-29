@@ -18,11 +18,11 @@ import urllib.request
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 COMMAND = REPO_ROOT / '.devcontainer/scripts/opencode-web-command.sh'
 START_XPRA = REPO_ROOT / 'docker/desktop/start-xpra.sh'
-TMP_ROOT = REPO_ROOT / '.tmp'
 PASSWORD = 'p@ss "quoted" \\ word'
 XPRA_SECRET = 'xpra-ingress-secret'
 

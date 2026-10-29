@@ -6,6 +6,17 @@ to the current day's group.
 
 ## 2026-10-29
 
+- **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
+  [agentdev tests](codebase/agents/plugins/agentdev/tests.md), [knowledge
+  workspace](codebase/docs/knowledge.md),
+  [validate_agent_files](codebase/py_packages/validate_agent_files.md), and [its
+  tests](codebase/py_packages/validate_agent_files/tests.md) map docs after test
+  scratch moved under `/tmp/agentdev-tests`.
+- **Update**: re-stamped the [agentdev](codebase/agents/plugins/agentdev.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
+  [knowledge workspace](codebase/docs/knowledge.md) map docs after the
+  `generated.by` actor wording became a pattern.
 - **Update**: re-verified 10 [codebase map](codebase.md) docs after the agentdev
   images were pinned to their promoted `edge` digests and the remaining
   repository references named the canonical images.

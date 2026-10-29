@@ -10,12 +10,10 @@ import tomllib
 
 from cbm_pin import stage_pinned_cbm
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/repair-codex-cbm-hooks-block.py'
-TMP_ROOT = REPO_ROOT / '.tmp'
-# The longest base directory under which cbm 0.12.1's rendezvous socket still fits.
-SOCKET_ROOT_LIMIT = 40
 INSTALL = REPO_ROOT / '.devcontainer/scripts/codebase-memory-mcp-install.sh'
 # cbm 0.12.1's own Codex hook tables, after a Codex write, with the opening marker gone.
 ORPHANED = (Path(__file__).parent / 'fixtures/codex-config-orphaned-cbm-hooks.toml').read_text()
@@ -271,11 +269,9 @@ def hook_events(hooks: dict) -> set[str]:
 
 @pytest.fixture
 def home() -> Iterator[Path]:
-    # Private, so the install stays away from any live daemon of this account. CBM's
-    # socket path must fit a Unix socket address, which a long checkout path overflows.
+    # Private, so the install stays away from any live daemon of this account.
     TMP_ROOT.mkdir(exist_ok=True)
-    base = TMP_ROOT if len(str(TMP_ROOT)) <= SOCKET_ROOT_LIMIT else Path('/tmp')
-    root = Path(tempfile.mkdtemp(prefix='cbm-', dir=base))
+    root = Path(tempfile.mkdtemp(prefix='cbm-', dir=TMP_ROOT))
     (root / 'rendezvous').mkdir(mode=0o700)
     (root / 'home').mkdir()
     yield root / 'home'

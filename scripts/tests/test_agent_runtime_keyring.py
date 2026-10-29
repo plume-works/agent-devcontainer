@@ -12,6 +12,7 @@ import time
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
@@ -19,7 +20,6 @@ RUNTIME_KEYRING = SCRIPTS / 'runtime-keyring.sh'
 SETUP_KEYRING = SCRIPTS / 'setup-keyring.sh'
 CLIENT = Path(__file__).with_name('secret_service_client.py')
 SYSTEM_PYTHON = '/usr/bin/python3'
-TMP_ROOT = REPO_ROOT / '.tmp'
 
 pytestmark = pytest.mark.skipif(
     not all(shutil.which(tool) for tool in ('dbus-daemon', 'gnome-keyring-daemon', 'gdbus'))

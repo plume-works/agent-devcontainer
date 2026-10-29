@@ -17,10 +17,10 @@ import subprocess
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = REPO_ROOT / 'scripts/tests/fixtures'
-TMP_ROOT = REPO_ROOT / '.tmp'
 IMAGE = os.environ.get('AGENTDEV_DEVCONTAINER_TEST_IMAGE', '')
 CLI = shlex.split(
     os.environ.get('AGENTDEV_DEVCONTAINER_CLI', 'bunx --bun @devcontainers/cli@0.80.2')
