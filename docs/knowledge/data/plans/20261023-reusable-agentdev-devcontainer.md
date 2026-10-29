@@ -310,8 +310,10 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 
 ### Task 9: Migrate full-adoption consumers through template-consume
 
-**Files:** Modify: `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
-`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
+**Files:** Create: `scripts/tests/test_template_consume_migration.py`; Modify:
+`.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
+`.github/workflows/ci.yml`
 
 - [ ] Add an update-mode migration that applies when the consumer's Dev
   Container still pins `agent-desktop` and the upstream template pins
