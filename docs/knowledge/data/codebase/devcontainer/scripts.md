@@ -2,14 +2,14 @@
 type: codebase
 description: The runtime both agentdev images bake at /opt/agentdev-runtime — the supervisor and its deploy and devcontainer profiles, the Dev Container create, start, and attach commands with their hook runner, and the helpers they call, from agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall, auth links, and full-access policies to the gh credential helper, the Coder agent-start entry point, Remote Control, and the OpenCode web UI.
 source: .devcontainer/scripts
-source_digest: sha256:d498b68088ad9e410ecc1a2ea752b2a86c255c89e2deb09d1c92b5042c83b6ed
+source_digest: sha256:8892931072402ede7a7073b0c523668dd660206428adabcd73683375b3a4a7e5
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
+  at: 2026-10-29T21:16:01Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
+  at: 2026-10-29T21:16:01Z
 sources:
 - id: code
   resource: .devcontainer/scripts

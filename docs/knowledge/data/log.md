@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-29
 
+- **Update**: re-verified 10 [codebase map](codebase.md) docs after the agentdev
+  images were pinned to their promoted `edge` digests and the remaining
+  repository references named the canonical images.
 - **Update**: refreshed 14 [codebase map](codebase.md) docs for the agentdev
   image family — the base and its deploy and Dev Container siblings, the
   image-owned lifecycle commands and hooks, the four-image CI pipeline and its
