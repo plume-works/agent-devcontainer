@@ -130,7 +130,7 @@ Assumptions:
 - [x] Copy each document byte for byte to the same key.
   - **Evidence:** vscode-expo-bridge `bf1aea5`; `cmp` of all 28 against this
     repository's copies reports no difference.
-- [ ] Add each one's inclusion link to the matching hub at the section it holds
+- [x] Add each one's inclusion link to the matching hub at the section it holds
   here (`## Active`/`## Done`/`## Cancelled` for plans,
   `## High`/`## Medium`/`## Low`/`## Done` for backlog).
   - **Evidence:** vscode-expo-bridge `bf1aea5` hubs: 8 plans (7 Done, 1
