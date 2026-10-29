@@ -335,8 +335,10 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
   its base to the chosen image.
   - **Evidence:** commit c9dc2e30; the guide's migration step 7 asks for the
     base and changes it; `validate_agent_files --ci .` clean.
-- [ ] Name the canonical images throughout the guide's setup, custom-image, and
+- [x] Name the canonical images throughout the guide's setup, custom-image, and
   ongoing-maintenance sections.
+  - **Evidence:** commit c9dc2e30; the guide names `agent-desktop` only in its
+    migration section; `validate_agent_files --ci .` clean.
 
 ### Task 10: Verify published multi-architecture images
 
