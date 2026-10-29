@@ -285,10 +285,16 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `.github/workflows/ai-responder.yml`, `devcontainer-compose-pins.yml`,
 `opencode-compose-pins.yml`, `compose.opencode.yml`
 
-- [ ] Build `agentdev-base` once per architecture and build `agentdev-deploy`
+- [x] Build `agentdev-base` once per architecture and build `agentdev-deploy`
   and `agentdev-devcontainer` from that run's immutable base digest. Merge and
   promote moving tags only after deploy and Dev Container native acceptance
   succeeds.
+  - **Evidence:** squash commit 9f50acd7 (#518); main CI run 40949574006 on
+    9f50acd7 built `agentdev-base` once per architecture, built
+    `agentdev- deploy` and `agentdev-devcontainer` from its digest, passed
+    deploy and Dev Container native acceptance on amd64 and arm64, and only then
+    promoted `edge`: `agentdev-devcontainer:edge` and `:sha-9f50acd` both
+    resolve to `sha256:dddd993a…`.
 - [x] Rename deploy Compose, pins, Renovate rules, workflow outputs, and
   repository references to the canonical image names. Stop publishing the old
   `agent-desktop` and `agent-opencode` names rather than creating aliases.
