@@ -296,9 +296,14 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
     `git grep -E "agent-desktop|agent-opencode"` outside the specs, plans, and
     logs leaves only the migration guide, its skill step, history entries, and
     the assertion that no pin names the old images.
-- [ ] Run AI review and other development-image workflow jobs in the same pinned
+- [x] Run AI review and other development-image workflow jobs in the same pinned
   `agentdev-devcontainer` digest used by the repository Dev Container; keep
   digest-only pin changes outside the image build path filter.
+  - **Evidence:** squash commit 9f50acd7 (#518);
+    `uv run pytest scripts/tests/test_agent_runtime_ci.py` — 26 passed,
+    including the shared Dev Container pin across `ai-responder.yml`,
+    `renovate.yml`, and `validate- renovate-config.yml`; the pins live in root
+    files outside the image path filter.
 
 ### Task 8: Align the product contract and codebase map
 
