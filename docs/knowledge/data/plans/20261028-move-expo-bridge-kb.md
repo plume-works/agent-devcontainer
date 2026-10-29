@@ -289,9 +289,13 @@ and its link to `features/vscode-expo-bridge`
 `data/features.md`, `data/plans.md`, `data/bugs.md`, `data/backlog.md`,
 `data/someday.md`, `data/releases/unreleased.md`
 
-- [ ] `iwe delete` each key; `git diff` shows only hub and
+- [x] `iwe delete` each key; `git diff` shows only hub and
   `releases/unreleased.md` inclusion links removed — the feature under
   `## Added` and the seven bugs under `## Fixed` — and no prose link rewritten.
+  - **Evidence:** the Task 10 commit deletes the 28 files with one `iwe delete`
+    per key; its diff of the six hubs and `releases/unreleased.md` removes only
+    inclusion-link lines — 28 hub entries, the feature under `## Added`, and the
+    seven bugs under `## Fixed` — and adds none; `iwe schema validate` exits 0.
 
 ### Task 11: Describe the template's bridge wiring in its Expo feature
 

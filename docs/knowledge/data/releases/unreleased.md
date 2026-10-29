@@ -21,8 +21,6 @@ starts a fresh one.*
 
 [Remote Control server mode](../features/claude-remote-control-server-mode.md)
 
-[VS Code Expo bridge](../features/vscode-expo-bridge.md)
-
 [Map masks version-only changes](../features/map-masks-version-bumps.md)
 
 [Renovate maintains checksum-carrying
@@ -87,27 +85,6 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 [AI responder workflows](../features/ai-responder-workflows.md)
 
 ## Fixed
-
-[Bug: the Expo bridge's project ID check ignores dynamic app
-config](../bugs/expo-bridge-project-id-ignores-dynamic-config.md)
-
-[Bug: the container sees the Expo bridge's build log only after the build
-ends](../bugs/expo-bridge-build-log-invisible-until-close.md)
-
-[Bug: the Expo bridge's build log tail drops
-lines](../bugs/expo-bridge-build-log-tail-drops-lines.md)
-
-[Bug: the Expo bridge's bun fix upgrades a bun the check never
-runs](../bugs/expo-bridge-bun-fix-misses-path-bun.md)
-
-[Bug: the Expo bridge's fix terminal launches the container's shell on the
-Mac](../bugs/expo-bridge-fix-terminal-remote-shell.md)
-
-[Bug: the Expo bridge builds only the devcontainer window's root
-folder](../bugs/expo-bridge-builds-only-window-root.md)
-
-[Bug: Expo bridge windows sharing a container break each other's
-socket](../bugs/expo-bridge-shared-socket-across-windows.md)
 
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
 keyring](../bugs/devcontainer-dbus-autolaunch-leak.md)
