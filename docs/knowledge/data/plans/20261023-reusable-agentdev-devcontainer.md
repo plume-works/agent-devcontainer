@@ -330,9 +330,11 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
     2 passed: the migrated descriptor runs no copied script, and a consumer
     holding only the files the migration keeps reaches runtime readiness on the
     staged catalog; `validate_agent_files --ci .` clean.
-- [ ] Ask a custom-image consumer whose Dockerfile derives from `agent-desktop`
+- [x] Ask a custom-image consumer whose Dockerfile derives from `agent-desktop`
   whether it derives from `agentdev-base` or `agentdev-devcontainer`, and change
   its base to the chosen image.
+  - **Evidence:** commit c9dc2e30; the guide's migration step 7 asks for the
+    base and changes it; `validate_agent_files --ci .` clean.
 - [ ] Name the canonical images throughout the guide's setup, custom-image, and
   ongoing-maintenance sections.
 
