@@ -1,6 +1,7 @@
 """Fixtures for the IWE workflow e2e suite: the fixture repository and per-test clones."""
 
 from collections.abc import Callable, Iterator
+import hashlib
 import os
 from pathlib import Path
 import re
@@ -21,7 +22,15 @@ REPO_ROOT = Path(
         check=True,
     ).stdout.strip()
 )
-WORK = Path('/tmp/agentdev-tests/e2e/iwe-workflows')
+
+
+def work_root(repo_root: Path) -> Path:
+    """Give each checkout its own work root, since two runs would rmtree each other's fixtures."""
+    checkout = hashlib.sha256(str(repo_root).encode()).hexdigest()[:8]
+    return Path('/tmp/agentdev-tests/e2e') / checkout / 'iwe-workflows'
+
+
+WORK = work_root(REPO_ROOT)
 # Every test shares the model provider's rate limits.
 MAX_WORKERS = 3
 
