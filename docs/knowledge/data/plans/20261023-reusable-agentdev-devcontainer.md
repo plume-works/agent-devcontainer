@@ -345,8 +345,10 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
     `git grep -E "agent- desktop|agent-opencode"` over the documents Task 8
     lists leaves only the migration notes and changelog entries; no spec
     document changed; `iwe schema validate` clean.
-- [ ] Refresh every stale codebase-map document through `/agentdev:iwe-map`
+- [x] Refresh every stale codebase-map document through `/agentdev:iwe-map`
   after paths and flows settle.
+  - **Evidence:** commit c2881b47; `stale-map-docs.py` — RESULT=SUCCESS, 28 docs
+    fresh.
 
 ### Task 9: Migrate full-adoption consumers through template-consume
 
