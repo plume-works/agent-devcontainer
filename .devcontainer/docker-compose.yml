@@ -55,6 +55,8 @@ services:
     # use. The digest pin lives in ../devcontainer-compose-pins.yml, which devcontainer.json layers on
     # top of this file; pass `-f devcontainer-compose-pins.yml` too when invoking compose directly.
     image: ghcr.io/plume-works/agentdev-devcontainer:edge
+    # Written by devcontainer-init.sh; see spec/claude-remote-control.
+    hostname: ${CONTAINER_HOSTNAME:-agentdev}
     # No `init` or `command`: the image's supervisor is PID 1, owns the persistent
     # services, and reaps every orphan.
     # Required for the supervised nested Docker engine, and for privileged access to

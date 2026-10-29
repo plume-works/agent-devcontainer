@@ -27,12 +27,16 @@ gitdir=$(realpath "$(git rev-parse --git-common-dir)")
 echo "GIT_REPO=$gitdir" >> "$script_dir/.env"
 
 LOCAL_WORKSPACE_FOLDER=$(realpath "$script_dir/..")
-echo "LOCAL_WORKSPACE_FOLDER=$LOCAL_WORKSPACE_FOLDER" >> "$script_dir/.env"
-
-# Compose has no equivalent of devcontainer.json's ${localWorkspaceFolderBasename},
-# so export it here. It must stay in sync with `workspaceFolder` in
-# devcontainer.json, which is /workspaces/${localWorkspaceFolderBasename}.
-echo "WORKSPACE_BASENAME=$(basename "$LOCAL_WORKSPACE_FOLDER")" >> "$script_dir/.env"
+container_hostname=$("$script_dir/scripts/container-hostname.sh" "$LOCAL_WORKSPACE_FOLDER")
+{
+    echo "LOCAL_WORKSPACE_FOLDER=$LOCAL_WORKSPACE_FOLDER"
+    # Compose has no equivalent of devcontainer.json's ${localWorkspaceFolderBasename},
+    # so export it here. It must stay in sync with `workspaceFolder` in
+    # devcontainer.json, which is /workspaces/${localWorkspaceFolderBasename}.
+    echo "WORKSPACE_BASENAME=$(basename "$LOCAL_WORKSPACE_FOLDER")"
+    # Remote Control names its environment after the container hostname.
+    echo "CONTAINER_HOSTNAME=$container_hostname"
+} >> "$script_dir/.env"
 
 HOST_MCP_DIR="$HOME/.docker/mcp"
 CONTAINER_MCP_DIR="/root/.docker/mcp"
