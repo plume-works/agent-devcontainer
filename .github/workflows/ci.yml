@@ -431,7 +431,8 @@ jobs:
         run: |
           docker pull "$AGENTDEV_DEVCONTAINER_TEST_IMAGE"
           uv run pytest scripts/tests/test_agentdev_devcontainer_image.py \
-            scripts/tests/test_agentdev_devcontainer_repository.py -rs
+            scripts/tests/test_agentdev_devcontainer_repository.py \
+            scripts/tests/test_template_consume_migration.py -rs
 
       - name: Log debug stats
         if: ${{ always() }}
