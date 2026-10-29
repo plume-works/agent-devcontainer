@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:77c139d776e4eb56f40136cd855caabce795b1c250def8a123792aea0c77995f
+source_digest: sha256:c9f19dbc6b16ecf6b5dea2189654692c865705e1b228001fd9d068d52f54e297
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-27T19:00:00Z
-stale_after: 2027-01-25
+  at: 2026-10-29T17:00:00Z
+stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T19:00:00Z
+  at: 2026-10-29T17:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -35,8 +35,8 @@ pulled.
   `DBUS_SESSION_BUS_ADDRESS`, `DEVCONTAINER_ID`, `DEV_WORKSPACE_FOLDER`,
   `EXPO_TOKEN`, `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `CBM_CACHE_DIR`,
   `PRE_COMMIT_HOME`, `UV_*`), the Xpra `forwardPorts` and `portsAttributes`
-  block (`:56-62`), five named volume mounts (`:63-115`), the VS Code extension
-  and settings block, and the three lifecycle commands (`:265-268`)
+  block (`:56-62`), six named volume mounts (`:63-122`), the VS Code extension
+  and settings block, and the three lifecycle commands (`:272-275`)
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the pass-through
   `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
@@ -58,11 +58,11 @@ declares as external. Compose then layers the tag-only `docker-compose.yml`
 under the digest pin, mounts the workspace at `/workspaces/<basename>` and the
 git common dir at its host path so worktrees resolve, and starts the MCP gateway
 only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
-`~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`) is on Compose-scoped
-volumes; only Claude and Codex credentials share the literal
-`agentdev-agents-auth` volume across instances. The start lifecycle also
-restores Codex and OpenCode full-access policies in their user configuration
-files.
+`~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`, and the sibling checkout
+at `/workspaces/project`) is on Compose-scoped volumes; only Claude and Codex
+credentials share the literal `agentdev-agents-auth` volume across instances.
+The start lifecycle also restores Codex and OpenCode full-access policies in
+their user configuration files.
 
 The `agent-opencode` image also bakes `scripts/` as its standalone runtime; none
 of this directory's Compose or `devcontainer.json` reaches it. Its own
@@ -93,12 +93,12 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-19):
+Verified anchor points (line numbers as of 2026-10-29):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:56-62` — Xpra port forwarding
-- `.devcontainer/devcontainer.json:63-115` — the five volume mounts
-- `.devcontainer/devcontainer.json:265-268` — lifecycle commands
+- `.devcontainer/devcontainer.json:63-122` — the six volume mounts
+- `.devcontainer/devcontainer.json:272-275` — lifecycle commands
 - `.devcontainer/docker-compose.yml:2,53,107` — sidecar, service, volumes
 - `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
   auth volume

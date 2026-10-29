@@ -108,6 +108,13 @@
       "source": "agentdev-opencode",
       "target": "/root/.local/share/opencode",
       "type": "volume"
+    },
+    {
+      // Sibling checkout opened as ../project by agent-devcontainer-and-project.code-workspace;
+      // per instance so its uncommitted work survives a rebuild without worktrees sharing it.
+      "source": "agentdev-project",
+      "target": "/workspaces/project",
+      "type": "volume"
     }
     // agentdev-agents-auth is mounted via docker-compose.yml (top-level `volumes:` with
     // explicit `name:`) so it's shared across every devcontainer instance instead
