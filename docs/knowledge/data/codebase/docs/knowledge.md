@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:2d8300a1c71b47d460cb21b73d682d28522d338c9f04c30113f029b7013f6479
+source_digest: sha256:8b3a8fc0c1fe9d15538af27fb788967a6696cfff85719f0680666d67da544493
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-28T10:30:00Z
-stale_after: 2027-01-26
+  at: 2026-10-29T18:53:01Z
+stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T10:30:00Z
+  at: 2026-10-29T18:53:01Z
 sources:
 - id: code
   resource: .iwe
@@ -67,9 +67,9 @@ itself stale.
   fresh while feature identity or the locked registry changes remain stale
 - `docs/knowledge/tests/test_pin_metadata_masks.py` — runs `stale-map-docs.py`
   over a copy of the production role and workflow masks: Renovate pin, checksum,
-  and `agent-desktop` digest bumps keep a map doc fresh, while `zizmor`'s
-  version, a download URL, a `# renovate:` comment, a 64-hex value outside a
-  checksum field, or a different image still make it stale
+  and `agentdev-devcontainer` digest bumps keep a map doc fresh, while
+  `zizmor`'s version, a download URL, a `# renovate:` comment, a 64-hex value
+  outside a checksum field, or a different image still make it stale
 - `docs/knowledge/tests/test_pre_commit_rev_mask.py` — runs `stale-map-docs.py`
   over the production root mask and hook config: hook `rev` and local hooks'
   `bunx` version bumps keep a map doc fresh, while a changed hook id,
@@ -105,7 +105,7 @@ the image and fetched by `scripts/fetch-pinned-tool.py` in CI;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-29):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings

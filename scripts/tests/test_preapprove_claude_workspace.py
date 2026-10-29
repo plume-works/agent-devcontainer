@@ -6,7 +6,7 @@ import subprocess
 
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/preapprove-claude-workspace.sh'
-POST_CREATE = REPO_ROOT / '.devcontainer/scripts/postCreateCommand.sh'
+POST_CREATE = REPO_ROOT / '.devcontainer/scripts/devcontainer-created.sh'
 AGENT_STATE = REPO_ROOT / '.devcontainer/scripts/setup-agent-state.sh'
 RESPONDER_ACTION = REPO_ROOT / '.github/actions/run-claude-responder/action.yml'
 

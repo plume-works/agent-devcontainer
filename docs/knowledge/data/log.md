@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-29
 
+- **Update**: refreshed 14 [codebase map](codebase.md) docs for the agentdev
+  image family — the base and its deploy and Dev Container siblings, the
+  image-owned lifecycle commands and hooks, the four-image CI pipeline and its
+  acceptance jobs, the `agentdev-devcontainer` and `agentdev-deploy` pins, and
+  the template-consume image-family migration.
 - **Update**: refreshed the [devcontainer](codebase/devcontainer.md) and
   [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
   the per-instance `/workspaces/project` volume.

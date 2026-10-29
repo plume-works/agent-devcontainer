@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:c9f19dbc6b16ecf6b5dea2189654692c865705e1b228001fd9d068d52f54e297
+source_digest: sha256:b2682eea8b20bd01cd3d81ccdbe4a7800d5096ddd5c43441064e5be0e153329c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T17:00:00Z
+  at: 2026-10-29T19:42:03Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T17:00:00Z
+  at: 2026-10-29T19:42:03Z
 sources:
 - id: code
   resource: .devcontainer
@@ -19,10 +19,12 @@ sources:
 
 # Devcontainer scaffolding
 
-What turns the published image into a working editor container. It is the
-surface `/agentdev:template-consume` copies into another repository, so
-everything here must work with only `DEV_WORKSPACE_FOLDER` set and the image
-pulled.
+This repository's descriptor for the published `agentdev-devcontainer` image:
+the workspace, mounts, sidecar, editor settings, and pin. The image's
+`devcontainer.metadata` supplies the lifecycle commands, `waitFor`, privileged
+mode, and nested-Docker storage, so the descriptor declares none of them. The
+descriptor files are the surface `/agentdev:template-consume` keeps in another
+repository.
 
 ## Contains
 
@@ -31,19 +33,19 @@ pulled.
 ## Public surface
 
 - `.devcontainer/devcontainer.json` — `initializeCommand:3`, the layered
-  `dockerComposeFile:7`, `containerEnv` (`ENABLE_FIREWALL`, `DISPLAY`, the fixed
-  `DBUS_SESSION_BUS_ADDRESS`, `DEVCONTAINER_ID`, `DEV_WORKSPACE_FOLDER`,
-  `EXPO_TOKEN`, `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `CBM_CACHE_DIR`,
-  `PRE_COMMIT_HOME`, `UV_*`), the Xpra `forwardPorts` and `portsAttributes`
-  block (`:56-62`), six named volume mounts (`:63-122`), the VS Code extension
-  and settings block, and the three lifecycle commands (`:272-275`)
+  `dockerComposeFile:7`, the SSH Feature (`:15`), `containerEnv`
+  (`ENABLE_FIREWALL`, `DEVCONTAINER_ID`, `DEV_WORKSPACE_FOLDER`, `EXPO_TOKEN`,
+  `CLAUDE_SECURESTORAGE_CONFIG_DIR`, `CBM_CACHE_DIR`, `PRE_COMMIT_HOME`,
+  `UV_*`), the Xpra `forwardPorts` and `portsAttributes` block (`:53-59`), six
+  named volume mounts (`:60-119`), and the VS Code extension and settings block
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with the pass-through
   `GIT_*` identity variables (`:69-72`) and the shared `agentdev-agents-auth`
   volume (`:103`)
-- `devcontainer-compose-pins.yml` — the digest pin Renovate advances
+- `devcontainer-compose-pins.yml` — the `agentdev-devcontainer` tag-and-digest
+  pin Renovate advances, shared with every workflow `container.image`
 - `.devcontainer/firewall-allowlist.txt` — read by the firewall at start, and
-  baked by `agent-opencode` as its default allowlist
+  baked by both runtime images as their default allowlist
 - `.devcontainer/.agent.metadata.json` — masks the feature version pins, and the
   versions and digests `devcontainer-lock.json` records for them, out of this
   directory's map digest; see architecture/agent-metadata-files
@@ -61,12 +63,16 @@ only when the `mcp` profile was activated. Per-instance state (`~/.claude`,
 `~/.codex`, `~/.local/share/opencode`, `/uv`, `.cache`, and the sibling checkout
 at `/workspaces/project`) is on Compose-scoped volumes; only Claude and Codex
 credentials share the literal `agentdev-agents-auth` volume across instances.
-The start lifecycle also restores Codex and OpenCode full-access policies in
-their user configuration files.
+The `devcontainer` service has no `command` or `init`: the image's supervisor is
+PID 1, owns the persistent services, and reaps orphans. The image's create,
+start, and attach commands then run the [lifecycle
+scripts](devcontainer/scripts.md) baked at `/opt/agentdev-runtime`; the start
+phase also restores Codex and OpenCode full-access policies in their user
+configuration files.
 
-The `agent-opencode` image also bakes `scripts/` as its standalone runtime; none
-of this directory's Compose or `devcontainer.json` reaches it. Its own
-deployment is the root `compose.opencode.yml`.
+Both runtime images bake `scripts/` at `/opt/agentdev-runtime`; this directory's
+Compose and `devcontainer.json` reach only `agentdev-devcontainer`.
+`agentdev-deploy`'s deployment is the root `compose.opencode.yml`.
 
 ## Depends on
 
@@ -81,7 +87,9 @@ moves the digest pin.
   produced it.
 - `~/.claude.json` is a file; Docker volumes are directories, so the file is
   persisted inside the `agentdev-claude` volume and symlinked by
-  `setup-agent-state.sh create`, which `postCreateCommand` runs.
+  `setup-agent-state.sh create`, which the image's create command runs.
+- Declaring lifecycle commands or the Docker-in-Docker Feature here as well
+  would run each phase twice and start a second Docker engine.
 - The MCP gateway publishes no host port and runs `--allow-unauthenticated` on
   the private Compose network; both are what let several worktrees run at once.
 - `initializeCommand` runs under `/bin/sh -c` with no `HOME` in Codespaces; the
@@ -96,12 +104,14 @@ moves the digest pin.
 Verified anchor points (line numbers as of 2026-10-29):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
-- `.devcontainer/devcontainer.json:56-62` — Xpra port forwarding
-- `.devcontainer/devcontainer.json:63-122` — the six volume mounts
-- `.devcontainer/devcontainer.json:272-275` — lifecycle commands
-- `.devcontainer/docker-compose.yml:2,53,107` — sidecar, service, volumes
-- `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
+- `.devcontainer/devcontainer.json:15` — the SSH Feature, the only Feature
+- `.devcontainer/devcontainer.json:53-59` — Xpra port forwarding
+- `.devcontainer/devcontainer.json:60-119` — the six volume mounts
+- `.devcontainer/docker-compose.yml:2,53,104` — sidecar, service, volumes
+- `.devcontainer/docker-compose.yml:68-71,102` — identity pass-through, shared
   auth volume
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:41-50` — the lifecycle
+  the descriptor inherits
 - `.devcontainer/devcontainer-init.sh:11` — `HOME` default for Codespaces
 - `.devcontainer/devcontainer-init.sh:24` — shared auth volume creation
 - `devcontainer-compose-pins.yml:14` — the digest pin

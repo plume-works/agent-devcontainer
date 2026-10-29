@@ -1,4 +1,4 @@
-"""Contract tests for the Playwright browser bundled in agent-desktop."""
+"""Contract tests for the Playwright browser bundled in agentdev-base."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ ROLE_ROOT = REPO_ROOT / 'ansible/roles/playwright_browser'
 DEFAULTS = (ROLE_ROOT / 'defaults/main.yml').read_text()
 DEFAULT_VALUES = yaml.safe_load(DEFAULTS)
 TASKS = (ROLE_ROOT / 'tasks/main.yml').read_text()
-DOCKERFILE = (REPO_ROOT / 'docker/desktop/agent-desktop.Dockerfile').read_text()
+DOCKERFILE = (REPO_ROOT / 'docker/base/agentdev-base.Dockerfile').read_text()
 CI = yaml.safe_load((REPO_ROOT / '.github/workflows/ci.yml').read_text())
 
 
@@ -69,15 +69,15 @@ def test_desktop_image_enables_and_describes_the_pinned_browser() -> None:
 def test_image_build_derives_the_playwright_version_from_the_role_default() -> None:
     build_steps = CI['jobs']['build-dev-image']['steps']
     version_step = next(step for step in build_steps if step.get('id') == 'playwright_version')
-    desktop_build = next(
-        step for step in build_steps if step.get('name') == 'Build agent desktop image'
+    base_build = next(
+        step for step in build_steps if step.get('name') == 'Build agentdev base image'
     )
 
     assert 'ansible/roles/playwright_browser/defaults/main.yml' in version_step['run']
     assert 'playwright_browser_version:' in version_step['run']
     assert (
         'PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}'
-        in (desktop_build['with']['build-args'])
+        in (base_build['with']['build-args'])
     )
 
 

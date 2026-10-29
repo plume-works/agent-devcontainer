@@ -1,5 +1,5 @@
 """
-Container acceptance tests for agent-opencode, run against AGENTDEV_RUNTIME_TEST_IMAGE.
+Container acceptance tests for agentdev-deploy, run against AGENTDEV_RUNTIME_TEST_IMAGE.
 
 Every container, volume, and network carries the ``agentdev.test=acceptance`` label so
 ``.devcontainer/scripts/test-agent-runtime.sh`` can clean up after an interrupted run. No test

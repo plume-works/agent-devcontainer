@@ -18,8 +18,8 @@ The steps below walk that classification path by path.
 ## Requirement: the finished project retains every current runtime capability
 
 The default setup SHALL retain all runtime capabilities provided by the
-template's devcontainer: the digest-pinned `agent-desktop` image;
-Docker-in-Docker and Codespaces SSH; worktree-safe workspace mounts;
+template's devcontainer: the digest-pinned `agentdev-devcontainer` image
+with its supervised nested Docker, and Codespaces SSH; worktree-safe workspace mounts;
 Xpra/VirtualGL desktop access; the Docker Desktop MCP gateway and secrets
 socket integration; persistent state volumes (one shared volume holding both
 agents' credentials, the rest of each agent's state scoped per devcontainer
@@ -131,9 +131,10 @@ build works after the catalog source was deleted.
 
 ### 4. Adapt the uv project
 
-The post-create lifecycle runs `.devcontainer/scripts/uv-sync.sh`
-unconditionally, so keep a valid root `pyproject.toml` even when the
-application itself is not Python. It can remain a development-tool project.
+The image's create phase runs `uv sync` when the workspace has a root
+`pyproject.toml`. Keep one when the project wants the template's Python
+tooling; it can remain a development-tool project even when the application
+itself is not Python.
 
 In `pyproject.toml`:
 
@@ -228,13 +229,13 @@ Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
 8. Keep `devcontainer-compose-pins.yml` in the `dockerComposeFile` list; it is
    the actual digest pin.
 9. Rewrite publisher-specific comments in `devcontainer-compose-pins.yml` when
-   the consumer no longer builds `agent-desktop` itself; keep the pinned image
+   the consumer no longer builds `agentdev-devcontainer` itself; keep the pinned image
    reference and Renovate discovery behavior intact.
 
-The lifecycle scripts are not optional fragments: post-create depends on
-`uv-sync.sh` and both plugin installers; post-start depends on pre-commit,
-keyring, firewall, Xpra, and Codex configuration; and `devcontainer-init.sh`
-supplies the environment consumed by Compose.
+The descriptor runs none of `.devcontainer/scripts/`: `agentdev-devcontainer`
+supplies the create, start, and attach commands, `waitFor`, and the supervised
+services through its image metadata. `devcontainer-init.sh` still runs on the
+host as `initializeCommand` and supplies the environment consumed by Compose.
 
 ### 7. Review agent configuration
 
@@ -313,7 +314,7 @@ codex` argument, which asserts publisher manifests a consumer does not have;
 and path filters for deleted catalog/package source in the `paths-filter`
 job's `extra-filter`.
 
-Rebuild the remaining job to run through the digest-pinned `agent-desktop`
+Rebuild the remaining job to run through the digest-pinned `agentdev-devcontainer`
 image instead of `uv run`, since the working-tree package that made `uv run`
 necessary is gone. Give the job a `container.image` carrying the same
 tag-plus-digest as `devcontainer-compose-pins.yml`, never the moving `edge`
@@ -326,7 +327,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       # Same tag-plus-digest as devcontainer-compose-pins.yml. Never the moving `edge` tag.
-      image: ghcr.io/plume-works/agent-desktop:edge@sha256:<digest>
+      image: ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:<digest>
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -1052,7 +1053,7 @@ bunx eas-cli@latest init --non-interactive
 
 ## Optional custom-image setup
 
-Only follow this section when the published `agent-desktop` image does not
+Only follow this section when the published `agentdev-devcontainer` image does not
 meet the project's needs.
 
 Retain or copy:
@@ -1070,7 +1071,7 @@ docker/
 Also retain the image job in `primary-checks.yml` and the corresponding image
 paths in the shared filter action.
 
-Before running the build, inspect `docker/desktop/agent-desktop.Dockerfile`.
+Before running the build, inspect `docker/base/agentdev-base.Dockerfile`.
 Its Ansible invocation reads publisher source from the repository build
 context twice: it enables `agentic_tools_stage_catalog` for `.agents/` and
 `.claude-plugin/`, and `install_validate_agent_files` for
@@ -1083,8 +1084,9 @@ message from each role. Choose explicitly whether to:
   validator — set `agentic_tools_stage_catalog=false` and
   `install_validate_agent_files=false`, and drop the `AGENTDEV_PLUGIN_VERSION`
   and `VALIDATE_AGENT_FILES_VERSION` pins and labels with them; or
-- construct a derivative from the published `agent-desktop` image, which
-  already carries both.
+- construct a derivative from the published `agentdev-devcontainer` image,
+  which already carries both and the managed Dev Container lifecycle; derive
+  from `agentdev-base` only for an image that runs no Dev Container.
 
 Only the first option is implemented by the template repository today. Treat
 the other options as project-owned image work and update the CI path
@@ -1095,12 +1097,79 @@ Do not publish under `plume-works` names from a consuming repository. Update
 image names and metadata to the new repository owner, then pin the resulting
 consumer image in `devcontainer-compose-pins.yml`.
 
+## Migrating to the agentdev image family
+
+The template's Dev Container moved from `agent-desktop`, which ran the
+lifecycle from scripts copied into each consumer, to `agentdev-devcontainer`,
+whose image supplies the lifecycle commands, `waitFor`, and the supervised
+services. A pin that still names `agent-desktop` keeps resolving to its last
+image but receives no further updates. Apply the migration when the consumer's
+`devcontainer-compose-pins.yml` names `agent-desktop` and the upstream
+template's names `agentdev-devcontainer`.
+
+The migration is one change. Applying the new descriptor while the pin still
+names `agent-desktop` leaves a container whose default command exits at once,
+because the keepalive command is gone; applying the pin without the descriptor
+runs every lifecycle phase twice. When the user declines, apply none of the
+paths below, leave `consumed_ref` at its current value, and record the decision
+in `## Choices`.
+
+1. **Pins.** Set the `devcontainer-compose-pins.yml` image to the upstream
+   `ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:<digest>`, and every
+   workflow `container.image` that carried the old pin to the same tag and
+   digest.
+2. **Compose.** In `.devcontainer/docker-compose.yml`, name
+   `ghcr.io/plume-works/agentdev-devcontainer:edge` and remove `init: true` and
+   `command: ['sleep', 'infinity']`; the image's supervisor is PID 1. Keep
+   `privileged: true`, which the nested Docker engine needs.
+3. **Descriptor.** In `.devcontainer/devcontainer.json`, remove the
+   `docker-in-docker` Feature, and its entry in `devcontainer-lock.json`; remove
+   the `DISPLAY`, `DBUS_SESSION_BUS_ADDRESS`, and `DOCKER_HOST` entries from
+   `containerEnv`, which the image sets; and remove the `postCreateCommand`,
+   `postStartCommand`, `postAttachCommand`, and `waitFor` keys that ran the
+   copied scripts. Keep the consumer's mounts, workspace, editor settings,
+   `initializeCommand`, and SSH Feature.
+4. **The consumer's own lifecycle work.** Compare each copied lifecycle script
+   with the upstream copy at `consumed_ref`. Move what the consumer added into a
+   descriptor `postCreateCommand`, `postStartCommand`, or `postAttachCommand`,
+   which run after the image's own phase command, or into an executable file
+   in `/etc/agentdev/hooks/<phase>.d/` of a derived image. Never keep an
+   edited copy of an agentdev script.
+5. **Copied scripts.** Delete `.devcontainer/scripts/`. Repoint any workflow
+   step that ran `.devcontainer/scripts/postCreateCommand.sh`,
+   `postStartCommand.sh`, or `postAttachCommand.sh` — the copied
+   `run-claude-responder` action does — at the same names under
+   `/opt/agentdev-runtime/`, and record that action as customized.
+6. **Marker.** Replace the `.devcontainer/` entry in `tracked_paths` with the
+   files the consumer still owns, so later updates stop proposing the
+   publisher's runtime scripts:
+
+   ```text
+   .devcontainer/devcontainer.json
+   .devcontainer/docker-compose.yml
+   .devcontainer/devcontainer-init.sh
+   .devcontainer/devcontainer-lock.json
+   .devcontainer/firewall-allowlist.txt
+   ```
+
+7. **Custom image.** When `optional_bundles` includes `"custom-image"` and the
+   consumer's Dockerfile derives from `agent-desktop`, ask whether it derives
+   from `agentdev-base` (tools and catalog, no lifecycle) or
+   `agentdev-devcontainer` (the managed Dev Container runtime), and change its
+   base to the chosen image. A Dev Container that runs the custom image needs
+   `agentdev-devcontainer` as its base.
+
+Rebuild the Dev Container with `Dev Containers: Rebuild Container`, not a
+reopen, so the editor does not reuse the configuration it saved from the old
+image, and run [the verification section](#10-verify-the-copied-project)
+before advancing `consumed_ref`.
+
 ## Ongoing maintenance
 
 A manual copy or merge creates no upstream relationship by itself — that is
 what this skill's update mode is for. After bootstrap: Renovate advances
 external image and tool pins configured in the consumer; catalog updates
-arrive through a rebuilt/pinned `agent-desktop` image; and project-specific
+arrive through a rebuilt/pinned `agentdev-devcontainer` image; and project-specific
 changes remain owned by the consuming repository. Use update mode to compare
 template files against a later improvement instead of tracking scaffolding
 churn by hand.

@@ -9,12 +9,14 @@
     "../devcontainer-compose-pins.yml"
   ],
   "service": "devcontainer",
+  // agentdev-devcontainer supplies the lifecycle commands, waitFor, and the supervised
+  // services, nested Docker included, through its image metadata; see
+  // architecture/devcontainer-runtime. Declaring them here too would run each twice.
   "features": {
     // Configures the SSH server (openssh-server is pre-installed in the image)
     // so `gh codespace ssh` can attach — required by the
     // remote-codespace-session skill and GitHub Codespaces SSH access.
-    "ghcr.io/devcontainers/features/sshd:1": {},
-    "ghcr.io/devcontainers/features/docker-in-docker:4.1.3": {}
+    "ghcr.io/devcontainers/features/sshd:1": {}
   },
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "containerEnv": {
@@ -22,11 +24,6 @@
     // See .devcontainer/firewall-allowlist.txt for the allowed destinations.
     "ENABLE_FIREWALL": "false",
 
-    "DISPLAY": ":100",
-    // One session bus for every process; setup-keyring.sh starts it. Unset, gh autolaunches
-    // a bus that never exits on every call.
-    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/agentdev-dbus/bus",
-    "DOCKER_HOST": "unix:///var/run/docker.sock",
     "DEVCONTAINER_ID": "${devcontainerId}",
     "DEV_WORKSPACE_FOLDER": "/workspaces/${localWorkspaceFolderBasename}",
     // From the host environment or the hosting platform's secret store; empty when unset.
@@ -83,8 +80,8 @@
       // ~/.claude.json is a single file, not a directory, and Docker named volumes are
       // always directory-backed (mounting one straight at a file path materializes an
       // empty directory there instead, breaking Claude Code's read/write of that file).
-      // It's persisted as a plain file inside this volume instead, with
-      // .devcontainer/scripts/postCreateCommand.sh symlinking ~/.claude.json to it.
+      // It's persisted as a plain file inside this volume instead, with the image's
+      // create command symlinking ~/.claude.json to it.
       "source": "agentdev-claude",
       "target": "/root/.claude",
       "type": "volume"
@@ -268,9 +265,5 @@
         }
       }
     }
-  },
-  "postCreateCommand": "./.devcontainer/scripts/postCreateCommand.sh",
-  "postAttachCommand": "./.devcontainer/scripts/postAttachCommand.sh",
-  "postStartCommand": "./.devcontainer/scripts/postStartCommand.sh",
-  "waitFor": "postStartCommand"
+  }
 }

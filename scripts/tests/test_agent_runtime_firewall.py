@@ -40,6 +40,7 @@ class Firewall:
         base = {
             'PATH': f'{self.bin}:/usr/bin:/bin',
             'ENABLE_FIREWALL': 'true',
+            'AGENTDEV_RUNTIME_MODE': 'deploy',
             'FIREWALL_ALLOWLIST': str(self.allowlist),
             'AGENTDEV_INIT_FIREWALL': str(self.bin / 'init-firewall.sh'),
             'AGENTDEV_TRUSTED_PROXY_CIDRS': '10.9.0.5/32,10.9.1.0/24',
@@ -75,6 +76,15 @@ def test_applies_the_shared_policy_then_proxy_ingress_and_nested_egress(firewall
     ]
     assert 'iptables -A DOCKER-USER -m set --match-set allowed-domains dst -j RETURN' in rules
     assert rules[-1] == 'iptables -A DOCKER-USER -j REJECT --reject-with icmp-admin-prohibited'
+
+
+def test_a_devcontainer_filters_egress_without_admitting_a_proxy(firewall: Firewall):
+    result = firewall.run(AGENTDEV_RUNTIME_MODE='devcontainer', AGENTDEV_TRUSTED_PROXY_CIDRS='')
+    assert result.returncode == 0, result.stderr
+    calls = firewall.calls()
+    assert calls[0] == f'init-firewall.sh  {firewall.allowlist}'
+    assert not any(' INPUT ' in call for call in calls)
+    assert calls[-1].startswith('iptables -A DOCKER-USER -j REJECT')
 
 
 @pytest.mark.parametrize(

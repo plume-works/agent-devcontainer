@@ -42,6 +42,15 @@ class Engine:
         fake = self.bin / 'dockerd'
         fake.write_text(f'#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "{self.argv}"\n')
         fake.chmod(0o755)
+        # The storage guard's filesystem type, independent of where the test itself runs.
+        self.fs_type = root / 'fs-type'
+        self.fs_type.write_text('ext2/ext3\n')
+        fake_stat = self.bin / 'stat'
+        fake_stat.write_text(
+            '#!/usr/bin/env bash\n'
+            f'if [[ $1 == -f ]]; then cat "{self.fs_type}"; else exec /usr/bin/stat "$@"; fi\n'
+        )
+        fake_stat.chmod(0o755)
 
     def run(self, *args: str) -> subprocess.CompletedProcess[str]:
         env = {
@@ -91,6 +100,15 @@ def test_refuses_an_unprivileged_container(engine: Engine):
 
 
 @needs_root
+def test_refuses_storage_on_the_container_overlay(engine: Engine):
+    engine.fs_type.write_text('overlayfs\n')
+    result = engine.run('run')
+    assert result.returncode == 1
+    assert 'overlay filesystem' in result.stderr
+    assert not engine.argv.exists()
+
+
+@needs_root
 def test_refuses_configured_listeners(engine: Engine):
     engine.config.write_text(json.dumps({**DAEMON_JSON, 'hosts': ['tcp://0.0.0.0:2375']}))
     result = engine.run('run')
@@ -119,7 +137,7 @@ def test_the_image_prune_runs_once_the_nested_engine_is_up():
     supervisor = (SCRIPTS / 'runtime-supervisor.py').read_text()
     assert "Service('prune', after=('dockerd',), oneshot=True)" in supervisor
     config = configparser.RawConfigParser()
-    config.read(REPO_ROOT / 'docker/opencode/supervisord.conf')
+    config.read(REPO_ROOT / 'docker/deploy/supervisord.conf')
     assert config['program:prune']['command'].endswith('/docker-image-prune.sh')
     assert 'docker-image-prune.sh' not in (SCRIPTS / 'runtime-workspace.sh').read_text()
 

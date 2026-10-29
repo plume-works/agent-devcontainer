@@ -54,12 +54,11 @@ services:
     # Tag-only fallback for standalone `docker compose -f .devcontainer/docker-compose.yml`
     # use. The digest pin lives in ../devcontainer-compose-pins.yml, which devcontainer.json layers on
     # top of this file; pass `-f devcontainer-compose-pins.yml` too when invoking compose directly.
-    image: ghcr.io/plume-works/agent-desktop:edge
-    # required for codebase-memory-mcp to stop leaving zombie processes behind
-    init: true
-    # Required for Docker in Docker (dind) to allow nested containers, and for
-    # privileged access to the host's GPU for hardware-accelerated rendering
-    # through Xpra/VirtualGL.
+    image: ghcr.io/plume-works/agentdev-devcontainer:edge
+    # No `init` or `command`: the image's supervisor is PID 1, owns the persistent
+    # services, and reaps every orphan.
+    # Required for the supervised nested Docker engine, and for privileged access to
+    # the host's GPU for hardware-accelerated rendering through Xpra/VirtualGL.
     # Note: privileged mode grants the container elevated permissions, which can pose
     # security risks. Use with caution and only in trusted environments.
     privileged: true
@@ -101,8 +100,6 @@ services:
       # per instance instead; see the agentdev-claude and agentdev-codex mounts in
       # devcontainer.json.
       - agentdev-agents-auth:/root/.agents-auth
-
-    command: ['sleep', 'infinity']
 
 volumes:
   # `name:` pins the literal Docker volume name so it's shared across every

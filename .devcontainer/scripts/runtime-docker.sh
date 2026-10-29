@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# The standalone runtime's own nested Docker engine: exactly one root dockerd on a
-# private Unix socket over per-instance storage, with no TCP listener and no host
-# socket. Spec: standalone-opencode-runtime. Usage: runtime-docker.sh run
+# The runtime's own nested Docker engine: exactly one root dockerd on a
+# private Unix socket over per-instance storage, with no TCP listener and no host socket.
+# Spec: standalone-opencode-runtime, devcontainer-docker-storage. Usage: runtime-docker.sh run
 
 data_dir="${AGENTDEV_DOCKER_DATA_DIR:-/var/lib/docker}"
 socket="${AGENTDEV_DOCKER_SOCKET:-/var/run/docker.sock}"

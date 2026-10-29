@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Readiness probes for the standalone runtime's services, the aggregate readiness the
-# image HEALTHCHECK reads, and an operator status report. Exit 0 means ready.
+# Per-service probes, the aggregate readiness both images' healthchecks read, and a
+# status report; exit 0 means ready.
 # Usage: runtime-health.sh dockerd|dbus|keyring|cbm|xpra|opencode|remote-control|ready|status
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,10 +23,10 @@ current_state() {
 }
 
 # User services are probed as the runtime user: the session bus and the CBM
-# rendezvous both admit only the account that owns them.
+# rendezvous both admit only the account that owns them. A root runtime user probes as is.
 case "$service" in
   dbus | keyring | cbm | opencode | xpra | remote-control)
-    if [[ $(id -u) == 0 && -n ${AGENTDEV_USER:-} ]]; then
+    if [[ $(id -u) == 0 && -n ${AGENTDEV_USER:-} && $(id -u "$AGENTDEV_USER") != 0 ]]; then
       exec setpriv --reuid="$AGENTDEV_USER" --regid="$(id -g "$AGENTDEV_USER")" --init-groups \
         env HOME="${AGENTDEV_HOME:-/home/$AGENTDEV_USER}" USER="$AGENTDEV_USER" "$0" "$service"
     fi
@@ -47,18 +47,22 @@ case "$service" in
   opencode) "$script_dir/opencode-web-command.sh" probe ;;
   remote-control) "$script_dir/runtime-remote-control.sh" check ;;
   ready)
+    # The controller decides which services gate readiness, and which core probes repeat here.
     state="$(current_state)"
-    if [[ $state != ready ]]; then
+    if [[ $state == stale || $state == missing || $state == unreadable ]] ||
+      ! jq -e '.ready == true' "$state_file" >/dev/null 2>&1; then
       echo "runtime state: $state"
       exit 1
     fi
-    for core in dbus keyring opencode; do
+    mapfile -t probes < <(jq -r '.probes[]?' "$state_file")
+    for core in "${probes[@]}"; do
       "$probe" "$core" >/dev/null 2>&1 || { echo "core probe failed: $core" && exit 1; }
     done
     ;;
   status)
     echo "runtime state: $(current_state)"
     [[ -f $state_file ]] || exit 1
+    jq -r '"  profile: \(.profile // "unknown"), ready: \(.ready // false)"' "$state_file"
     jq -r --arg retry "$retry" '
         .components | to_entries[]
         | select(.value.status == "failed" or .value.status == "blocked")

@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-# This script is run after the container is started, but before the VSCode extension host is started.
-# This allows to avoid race conditions and setup safe environment for the extension host to run in.
+# Start phase for a checkout-relative lifecycle; see postCreateCommand.sh. With no runtime
+# supervisor — a CI container job or Codex Cloud — it starts the services itself first.
 
 set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-"$script_dir/codebase-memory-mcp-start.sh"
+if [[ -S ${AGENTDEV_RUN_DIR:-/run/agentdev}/supervisor.sock ]]; then
+  exec "$script_dir/devcontainer-ready.sh"
+fi
 
-"$script_dir/setup-git-safe-directory.sh"
-"$script_dir/setup-pre-commit.sh"
+"$script_dir/codebase-memory-mcp-start.sh"
 "$script_dir/setup-keyring.sh"
-# After the keyring: gh may keep its login there.
-"$script_dir/setup-gh-credential-helper.sh"
 "$script_dir/firewall.sh"
 # Headless callers — the CI responder job — opt out of the remote desktop
 # nothing will connect to. Unset (the devcontainer default) starts it as before.
@@ -22,9 +21,4 @@ else
   /start-xpra.sh --background
 fi
 
-# Repairs the shared auth.json symlink if a `codex logout` during this container's
-# previous run destroyed it; see link-codex-auth.sh for why that can happen.
-"$script_dir/setup-agent-state.sh" links
-
-# Last, so a failure here cannot keep the firewall, keyring, or Xpra from starting.
-"$script_dir/setup-agent-state.sh" agent-policy
+exec "$script_dir/devcontainer-ready.sh" --no-wait

@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:afd87eff4117a4e341ecda07e8ba07459a1dcc284bccf3692d3431026bc8487e
+source_digest: sha256:eea9e4d3defd3b0fdb9eb5c58cdd8dd28034dd7ecc645651d96fc86c1f409447
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-28T10:30:00Z
-stale_after: 2027-01-26
+  at: 2026-10-29T18:54:08Z
+stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T10:30:00Z
+  at: 2026-10-29T18:54:08Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -103,14 +103,14 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-26):
+Verified anchor points (line numbers as of 2026-10-29):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest
   version
 - `.agents/plugins/agentdev/.codex-plugin/plugin.json:3` — Codex manifest
   version
-- `docker/desktop/agent-desktop.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`, the
+- `docker/base/agentdev-base.Dockerfile:18` — `AGENTDEV_PLUGIN_VERSION`, the
   fourth pin
 - `.agents/plugins/agentdev/agents/iwe-shipper.agent.md:2` — the Ship agent
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:2` — the Implement

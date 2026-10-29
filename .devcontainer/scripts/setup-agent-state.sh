@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Agent-state primitives shared by the devcontainer hooks and standalone startup.
-# AGENTDEV_RUNTIME_MODE=standalone makes every step fatal and leaves the CBM install
+# Agent-state primitives shared by the devcontainer hooks and deploy startup.
+# AGENTDEV_RUNTIME_MODE=deploy makes every step fatal and leaves the CBM install
 # to its own optional `cbm` step; the hooks keep CBM nonfatal inside `create`.
 # Usage: setup-agent-state.sh create|links|agent-policy|cbm|catalog <dir> [claude-scope]
 
@@ -16,8 +16,8 @@ link_claude_json() {
   local target="$agentdev_claude_dir/claude.json"
   mkdir -p "$agentdev_claude_dir"
   if [[ -f $agentdev_claude_json && ! -L $agentdev_claude_json ]]; then
-    if agentdev_standalone; then
-      # No image-baked copy exists in a standalone home: a real file is the user's.
+    if agentdev_deploy; then
+      # No image-baked copy exists in a deploy home: a real file is the user's.
       mv -f "$agentdev_claude_json" "$target"
     else
       rm -f "$agentdev_claude_json"
@@ -30,7 +30,7 @@ link_claude_json() {
 }
 
 install_cbm() {
-  if agentdev_standalone; then
+  if agentdev_deploy; then
     "$script_dir/runtime-cbm.sh" install
   else
     # Nonfatal: a failure here would also skip postStart (firewall, keyring, Xpra).
@@ -68,11 +68,11 @@ link_auth() {
 }
 
 cmd_create() {
-  if agentdev_standalone; then
+  if agentdev_deploy; then
     register_user_tools
   fi
   link_claude_json
-  agentdev_standalone || install_cbm
+  agentdev_deploy || install_cbm
   ensure_auth_dirs
   "$script_dir/preapprove-claude-workspace.sh"
   link_auth
