@@ -24,10 +24,10 @@ OKF's optional families (SPEC §4.1, §5), declared on every schema and checked 
 - `generated` — `{ by, at }`. Write it on **every** edit. `by` is an actor in
   the form [OKF SPEC
   §7](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md#7-actor-convention)
-  defines: `<producer>/<version>` for agent writes, where `<version>` is the
-  producer's release or the model that wrote the content (for example
-  `claude-code/2.1.304`); `human:<handle>` for hand-authored or human-confirmed
-  content; `process:<id>` for automation.
+  defines: `<producer>/<model-version>` for agent writes — the agent and the
+  model version that wrote the content, as in the spec's own example;
+  `human:<handle>` for hand-authored or human-confirmed content; `process:<id>`
+  for automation.
 - `sources` — the materials a document derives from, each
   `{ id, resource, title, author, usage_count, last_modified }` with `resource`
   required. A `resource` may be a URL or a repo path, so a codebase map cites

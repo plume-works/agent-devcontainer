@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:9eeade7206a8a1d1507085742bb25e298b24aae8a07cc07ac5f1a085680e02de
+source_digest: sha256:ba1224e0d09c5f2f92cf5ebde184be160dbc01af89e679dcd74db48a99190faf
 verified:
   by: claude-code/2.1.304
-  at: 2026-10-29T19:24:54Z
+  at: 2026-10-29T19:33:18Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/2.1.304
-  at: 2026-10-29T19:24:54Z
+  at: 2026-10-29T19:33:18Z
 sources:
 - id: code
   resource: .iwe
