@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:1a0d12d6360686799b2d654202a377542e5f0550780a33d04307e9b83e0c5173
+source_digest: sha256:fb4983a792eed112168caa8ee0ae15a01c35fdd04a9c3626808d807bd805d39a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-27T08:30:00Z
-stale_after: 2027-01-23
+  at: 2026-10-29T22:15:00Z
+stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T08:30:00Z
+  at: 2026-10-29T22:15:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -28,16 +28,17 @@ suite drives the v1 hooks directly and the v2 setup against a fake plugin ctx.
 Two host checks are not Bun test files and stay out of CI; each runs directly
 with `bun` against an OpenCode v2 executable (`OPENCODE_BIN`, else `opencode`):
 `opencode/verify-workspace-host.ts` checks workspace registration with the
-installed CBM, isolated in a private mount namespace under `.tmp/`, and
-`opencode/verify-agent-limits-host.ts` drives a local mock model to check
-catalog agent tool limits under full access, user replacement of agents,
-commands, and skills, and the bridge's CBM warning in `opencode.log`.
+installed CBM, isolated in a private mount namespace under
+`/tmp/agentdev-tests`, and `opencode/verify-agent-limits-host.ts` drives a local
+mock model to check catalog agent tool limits under full access, user
+replacement of agents, commands, and skills, and the bridge's CBM warning in
+`opencode.log`.
 
 ## Public surface
 
 - `plugin_root` fixture — the plugin directory, from which every script under
   test is resolved
-- `plugin_tmp_path` fixture — a scratch directory under the plugin's `.tmp/`,
+- `plugin_tmp_path` fixture — a scratch directory under `/tmp/agentdev-tests`,
   removed after each test
 - `installed_iwe_bootstrap` and `unrelated_repository` fixtures — a copy of only
   `bin/` and `skills/iwe-bootstrap/` in a scratch plugin layout, and a fresh git
@@ -156,12 +157,12 @@ it.
 on fake skills in each direction.
 
 The workspace suite creates Git repositories, symlinks, and linked worktrees
-under `.tmp/` and injects command/logging adapters. It covers registration
-gates, canonical exact-root matching, pagination, concurrency, retry after
-failure, MCP envelopes, and real subprocess timeout/output bounds. Bridge tests
-assert catalog availability while registration remains pending, client
-diagnostics, full v2 command text for bare and argument-bearing invocations, and
-rebased attachment mention spans without input mutation.
+under `/tmp/agentdev-tests` and injects command/logging adapters. It covers
+registration gates, canonical exact-root matching, pagination, concurrency,
+retry after failure, MCP envelopes, and real subprocess timeout/output bounds.
+Bridge tests assert catalog availability while registration remains pending,
+client diagnostics, full v2 command text for bare and argument-bearing
+invocations, and rebased attachment mention spans without input mutation.
 
 ## Depends on
 
@@ -178,7 +179,7 @@ bootstrap tests.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-29):
 
 - `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:29` — `plugin_tmp_path`
