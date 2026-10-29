@@ -143,7 +143,7 @@ def test_the_image_prune_runs_once_the_nested_engine_is_up():
 
 
 def desktop_image() -> str | None:
-    """Return a local agent-desktop image to run the nested engine in, if one is present."""
+    """Return a local agentdev-devcontainer image for the nested engine, if one is present."""
     candidates = [os.environ.get('AGENTDEV_DESKTOP_TEST_IMAGE', '')]
     for line in PINS.read_text().splitlines():
         if line.strip().startswith('image:'):
@@ -160,7 +160,7 @@ def desktop_image() -> str | None:
 @pytest.fixture
 def nested() -> Iterator[tuple[str, str]]:
     if shutil.which('docker') is None or desktop_image() is None:
-        pytest.skip('requires Docker and a local agent-desktop image')
+        pytest.skip('requires Docker and a local agentdev-devcontainer image')
     volume = f'agentdev-test-docker-{uuid4().hex[:8]}'
     try:
         yield desktop_image() or '', volume

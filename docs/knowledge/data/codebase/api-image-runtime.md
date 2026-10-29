@@ -1,6 +1,6 @@
 ---
 type: codebase
-description: 'What a consumer of ghcr.io/plume-works/agent-desktop and agent-opencode can rely on: environment variables each image reads, files and tools it provides, labels, ports, and, for agent-opencode, its entrypoint, health, and volumes.'
+description: 'What a consumer of the ghcr.io/plume-works agentdev-base, agentdev-devcontainer and agentdev-deploy images can rely on: environment variables each image reads, files and tools it provides, labels, ports, and, for the runtime images, entrypoint, health, and volumes.'
 source:
 - docker
 - ansible/roles/agentic_tools

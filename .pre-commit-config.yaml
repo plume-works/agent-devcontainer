@@ -88,7 +88,7 @@ repos:
         language: system
         files: '^\.github/(actions|workflows)/.*\.ya?ml$'
 
-      # `uv run` on purpose. The agent-desktop image also ships a
+      # `uv run` on purpose. The agentdev images also ship a
       # `validate_agent_files` on PATH, and that is what a consuming project
       # should call (see docs/knowledge/data/spec/template-consumption.md),
       # but the publisher must validate against the working-tree source it is
