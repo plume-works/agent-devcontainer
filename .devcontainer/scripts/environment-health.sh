@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Read-only health report for the devcontainer or standalone runtime; exits 1 on any FAIL.
+# Read-only health report for the devcontainer or deploy runtime; exits 1 on any FAIL.
 # Run from the workspace root as the runtime user. Never prints auth output.
 set -euo pipefail
 
-# Beside this script: /opt/agentdev-runtime in the standalone image, which any workspace can use.
+# Beside this script: /opt/agentdev-runtime in the runtime images, which any workspace can use.
 runtime_scripts="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 runtime_mode="${AGENTDEV_RUNTIME_MODE:-devcontainer}"
 checks_passed=0
@@ -65,12 +65,12 @@ check_link() {
 
 echo '== Runtime =='
 case "$runtime_mode" in
-  standalone | devcontainer) result 'runtime mode' PASS "$runtime_mode" ;;
-  *) result 'runtime mode' FAIL 'expected standalone or devcontainer' ;;
+  deploy | devcontainer) result 'runtime mode' PASS "$runtime_mode" ;;
+  *) result 'runtime mode' FAIL 'expected deploy or devcontainer' ;;
 esac
-if [[ -x /opt/agentdev-runtime/runtime-health.sh ]]; then
-  check 'runtime ready' /opt/agentdev-runtime/runtime-health.sh ready
-  check 'runtime status' /opt/agentdev-runtime/runtime-health.sh status
+if [[ -x "$runtime_scripts/runtime-health.sh" ]]; then
+  check 'runtime ready' "$runtime_scripts/runtime-health.sh" ready
+  check 'runtime status' "$runtime_scripts/runtime-health.sh" status
 else
   result 'runtime health' SKIP 'runtime-health.sh unavailable'
 fi
@@ -108,9 +108,9 @@ check 'xpra http :14500' curl -fsS -o /dev/null -w '%{http_code}' --max-time 5 h
 check 'xpra process' bash -c "pgrep -f '[x]pra' >/dev/null"
 check 'cbm process' bash -c "pgrep -f '[c]odebase-memory' >/dev/null"
 check 'opencode probe' "$runtime_scripts/opencode-web-command.sh" probe
-if [[ "$runtime_mode" == standalone ]]; then
-  result 'sshd process' SKIP 'not used in standalone mode'
-  result 'mcp-gateway' SKIP 'sidecar is not part of standalone mode'
+if [[ "$runtime_mode" == deploy ]]; then
+  result 'sshd process' SKIP 'not used in deploy mode'
+  result 'mcp-gateway' SKIP 'sidecar is not part of deploy mode'
 elif [[ "$runtime_mode" == devcontainer ]]; then
   check 'sshd process' bash -c "pgrep -x sshd >/dev/null"
   check 'mcp-gateway DNS' getent hosts mcp-gateway

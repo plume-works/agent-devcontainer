@@ -26,7 +26,7 @@ ROLE_FILES = [
     'ansible/roles/xpra_setup/defaults/main.yml',
 ]
 WORKFLOW = '.github/workflows/job.yml'
-IMAGE = 'ghcr.io/plume-works/agent-desktop:edge'
+IMAGE = 'ghcr.io/plume-works/agentdev-devcontainer:edge'
 RENOVATE_PIN = re.compile(r'(# renovate:[^\n]*\n\s*[a-z_]+: "?)([^"\s]+)')
 SHA256 = re.compile(r'\b[0-9a-f]{64}\b')
 ZIZMOR_VERSION = re.compile(r'(- name: zizmor\n\s+version: \S+)')

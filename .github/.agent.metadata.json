@@ -20,7 +20,7 @@
         {
           "pattern": "@sha256:[0-9a-f]{64}",
           "replace": "@sha256:<DIGEST>",
-          "reason": "Renovate automerges agent-desktop digest bumps, which move every workflow container image with devcontainer-compose-pins.yml (.github/renovate.json); the image name and tag stay unmasked."
+          "reason": "Renovate automerges agentdev-devcontainer digest bumps, which move every workflow container image with devcontainer-compose-pins.yml (.github/renovate.json); the image name and tag stay unmasked."
         }
       ]
     }

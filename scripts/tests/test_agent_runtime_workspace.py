@@ -14,6 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 REAL_SCRIPTS = (
     'runtime-workspace.sh',
+    'runtime-paths.sh',
     'setup-git-safe-directory.sh',
     'uv-sync.sh',
     'setup-pre-commit.sh',
@@ -57,7 +58,7 @@ class Runtime:
             'GIT_CONFIG_GLOBAL': str(self.root / 'gitconfig'),
             'GIT_CONFIG_NOSYSTEM': '1',
             'DEV_WORKSPACE_FOLDER': str(self.workspace),
-            'AGENTDEV_RUNTIME_MODE': 'standalone',
+            'AGENTDEV_RUNTIME_MODE': 'deploy',
             'AGENTDEV_CATALOG_DIR': str(self.root / 'image-catalog'),
             **extra,
         }
@@ -136,6 +137,18 @@ def test_empty_workspace_without_url_fails(runtime: Runtime):
     result = runtime.run('checkout')
     assert result.returncode == 1
     assert 'AGENTDEV_REPOSITORY_URL is not set' in result.stderr
+
+
+def test_a_devcontainer_never_clones_into_an_empty_workspace(runtime: Runtime):
+    remote = make_remote(runtime)
+    result = runtime.run(
+        'checkout',
+        AGENTDEV_RUNTIME_MODE='devcontainer',
+        AGENTDEV_REPOSITORY_URL=f'file://{remote}',
+    )
+    assert result.returncode == 1
+    assert 'never clones' in result.stderr
+    assert not any(runtime.workspace.iterdir())
 
 
 def test_nonempty_non_checkout_fails_without_deleting(runtime: Runtime):

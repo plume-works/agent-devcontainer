@@ -1,7 +1,7 @@
 ---
 # Main playbook: provision a general-purpose development container.
 #
-# Capability roles are opt-in; docker/desktop/agent-desktop.Dockerfile turns them
+# Capability roles are opt-in; docker/base/agentdev-base.Dockerfile turns them
 # all on when building the published image.
 - name: Setup development environment
   hosts: all

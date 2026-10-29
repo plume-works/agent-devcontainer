@@ -1,0 +1,11 @@
+{
+  // A derived consumer: its image adds tooling and ordered hooks on top of the published one.
+  "name": "agentdev derived consumer fixture",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": { "BASE_IMAGE": "${localEnv:AGENTDEV_DEVCONTAINER_TEST_IMAGE}" }
+  },
+  "workspaceFolder": "/workspaces/fixture",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/fixture,type=bind",
+  "containerEnv": { "FIXTURE_GREETING": "from-the-descriptor" }
+}

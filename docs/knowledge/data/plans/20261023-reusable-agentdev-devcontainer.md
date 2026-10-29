@@ -5,8 +5,8 @@ release:
 - features/reusable-agentdev-devcontainer
 description: Publish the agentdev image family and a self-contained Dev Container runtime that reuses the deploy supervisor without copying lifecycle scripts into consumers.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-23T02:45:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-29T05:05:59Z
 sources:
 - resource: docs/user-stories/agent-containers.md
 - resource: docs/knowledge/data/plans/20261017-standalone-opencode-container.md
@@ -17,6 +17,8 @@ sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .github/workflows/ci.yml
+- resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
+- resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 ---
 
 # Publish the reusable agentdev Dev Container image
@@ -46,6 +48,13 @@ path. A later IWE-bootstrap plan will let full and minimal adoption reuse one
 knowledge initializer; neither that extraction nor template-consume retirement
 belongs here.
 
+Repositories that adopted the template pin `agent-desktop` by digest. When the
+old names stop moving, those pins keep resolving to their last image without
+further updates. A consumer breaks only if it takes the new Dev Container
+descriptor while its pin still names `agent-desktop`, whose default `bash`
+command exits without the old keepalive command, so `template-consume` update
+mode carries the migration.
+
 ## Approach
 
 Parameterize the existing runtime controller around explicit deploy and
@@ -68,6 +77,13 @@ Replace the Docker-in-Docker Feature in the canonical configuration with the
 supervised Docker service; exactly one component owns daemon startup and
 recovery.
 
+Full-adoption consumers move to the image family through `template-consume`
+update mode, which migrates the Dev Container pin, descriptor, and workflow
+container images in one change. Publishing `agent-desktop` as an alias was
+rejected: it would name the lifecycle-neutral base, which cannot run the new
+descriptor, so consumers would need the same migration while the alias added a
+second name to maintain.
+
 ## Implementation Steps
 
 ### Task 1: Define the two runtime profiles with failing tests
@@ -76,13 +92,20 @@ recovery.
 `.devcontainer/scripts/runtime-supervisor.py`,
 `.devcontainer/scripts/runtime-health.sh`
 
-- [ ] Add focused tests that define the shared service set and the distinct
+- [x] Add focused tests that define the shared service set and the distinct
   deploy and devcontainer dependency graphs. Prove deploy still gates OpenCode
-  on project preparation and indexing, while devcontainer omits automatic
-  OpenCode service startup and publishes readiness for editor attachment.
-- [ ] Cover invalid profile names, disabled optional services, terminal
+  on project preparation, with indexing requested in the background, while
+  devcontainer omits automatic OpenCode service startup and publishes readiness
+  for editor attachment.
+  - **Evidence:** commit 6171b723;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
+    — 124 passed.
+- [x] Cover invalid profile names, disabled optional services, terminal
   failures, bounded recovery, signal handling, and readiness-file semantics so a
   profile cannot silently degrade into a partially initialized container.
+  - **Evidence:** commit 6171b723;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
+    — 124 passed.
 
 ### Task 2: Refactor the supervisor into shared primitives and image profiles
 
@@ -96,16 +119,27 @@ recovery.
 `.devcontainer/scripts/runtime-keyring.sh`; Delete:
 `docker/opencode/supervisord.conf`
 
-- [ ] Select an explicit `AGENTDEV_RUNTIME_MODE=deploy|devcontainer` service
+- [x] Select an explicit `AGENTDEV_RUNTIME_MODE=deploy|devcontainer` service
   profile without evaluating caller-provided shell commands. Keep common
   dependency, health, recovery, and shutdown logic in one controller.
-- [ ] Split bootstrap responsibilities so deploy may create or validate its
+  - **Evidence:** commits 6171b723, ebcccecf;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
+    — 127 passed.
+- [x] Split bootstrap responsibilities so deploy may create or validate its
   runtime identity and workspace, while devcontainer accepts the Dev Container
   tool's user and mounted workspace without cloning, recursively changing
   checkout ownership, or requiring deploy-only proxy secrets.
-- [ ] Run Docker, D-Bus, keyring, CBM, and Xpra through the devcontainer profile
+  - **Evidence:** commit ebcccecf;
+    `uv run pytest scripts/tests/test_agent_runtime_identity.py scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_agent_runtime_firewall.py`
+    — the devcontainer bootstrap, no-clone, and proxy-free firewall tests pass;
+    `test_rejects_an_unwritable_checkout_without_changing_ownership` fails on
+    this host before and after the change.
+- [x] Run Docker, D-Bus, keyring, CBM, and Xpra through the devcontainer profile
   with the same probes and recovery guarantees as deploy. Keep OpenCode Web and
   Claude Remote Control opt-in clients rather than required readiness gates.
+  - **Evidence:** commit ebcccecf;
+    `uv run pytest scripts/tests/test_agent_runtime_profiles.py` — 26 passed,
+    including the shared program definitions and per-service recovery and exit.
 
 ### Task 3: Package stable Dev Container lifecycle entry points
 
@@ -119,17 +153,30 @@ recovery.
 `.devcontainer/scripts/postAttachCommand.sh`,
 `.devcontainer/scripts/setup-agent-state.sh`
 
-- [ ] Extract create-once project/client initialization, start readiness, and
+- [x] Extract create-once project/client initialization, start readiness, and
   attach-scoped catalog/index refresh behind stable commands installed under
   `/opt/agentdev-runtime/`. Preserve restart and repeated-attach semantics and
   make each command idempotent.
-- [ ] Define ordered `/etc/agentdev/hooks/{created,started,attached}.d/`
+  - **Evidence:** commits 096c5c8f, bcd8c5e2;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of
+    commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed, running the commands from `/opt/agentdev-runtime/` through restart
+    and repeated attach.
+- [x] Define ordered `/etc/agentdev/hooks/{created,started,attached}.d/`
   extension points. Run only executable files from those explicit directories,
   fail with the hook name and phase, and never discover or execute hooks merely
   because an untrusted workspace was mounted.
-- [ ] Retain the checkout-catalog override only when all required agentdev
+  - **Evidence:** commit 096c5c8f;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed, including order, skip, failure naming, and workspace-script refusal.
+- [x] Retain the checkout-catalog override only when all required agentdev
   manifests are present. A normal consumer with no catalog must continue using
   the immutable staged catalog.
+  - **Evidence:** commit 096c5c8f;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed, including complete and incomplete checkout catalogs.
 
 ### Task 4: Build the canonical image family
 
@@ -143,13 +190,23 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 - [ ] Rename the lifecycle-neutral `agent-desktop` build to `agentdev-base`
   without copying `.devcontainer/scripts/` into it. Preserve its tools, catalog,
   validators, default shell entrypoint, and multi-architecture build.
-- [ ] Rename `agent-opencode` to `agentdev-deploy`, derive it from the exact
+- [x] Rename `agent-opencode` to `agentdev-deploy`, derive it from the exact
   same-run `agentdev-base` digest, and keep its established deploy profile and
   public service contract.
-- [ ] Add `agentdev-devcontainer` as a sibling derived from the exact same-run
+  - **Evidence:** commit bcd8c5e2;
+    `docker build -f docker/deploy/agentdev-deploy.Dockerfile` on the pinned
+    base digest, then
+    `AGENTDEV_RUNTIME_TEST_IMAGE=<that image> .devcontainer/scripts/test-agent-runtime.sh`
+    — 24 passed, 1 skipped (no previous image).
+- [x] Add `agentdev-devcontainer` as a sibling derived from the exact same-run
   base digest. Install the runtime scripts, both stable lifecycle commands and
   supervisor dependencies, declare the devcontainer profile entrypoint, and
   embed Dev Container metadata for lifecycle commands and default environment.
+  - **Evidence:** commits bcd8c5e2, c4dcaeb3; with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed; the fixtures declare no managed commands, so the lifecycle came from
+    the image metadata.
 
 ### Task 5: Consume the image in this repository
 
@@ -162,13 +219,24 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   and let the image entrypoint own supervised services. Retain SSH support, MCP
   sidecar wiring, workspace/worktree mounts, persistent state volumes, and the
   shared-auth volume.
-- [ ] Replace checkout-relative lifecycle commands with the image metadata or
+- [x] Replace checkout-relative lifecycle commands with the image metadata or
   stable `/opt/agentdev-runtime/` commands. Keep `waitFor` tied to the runtime
   readiness command; editor startup must fail when the required service graph is
   not ready.
-- [ ] Prove this repository's checkout catalog wins after attachment and that a
+  - **Evidence:** commits 096c5c8f, bcd8c5e2, 480ea23f;
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
+    passed, including the start phase failing on a failed or late runtime; with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_repository.py` — 3
+    passed.
+- [x] Prove this repository's checkout catalog wins after attachment and that a
   rebuild, restart, window reload, ordinary clone, and Git worktree preserve
   their intended state boundaries.
+  - **Evidence:** commit 480ea23f; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_repository.py` — 3
+    passed: clone and worktree through reload, restart, and rebuild, sharing
+    only credentials.
 
 ### Task 6: Verify direct and derived consumers
 
@@ -176,16 +244,28 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `scripts/tests/fixtures/devcontainer-derived/`,
 `scripts/tests/test_agentdev_devcontainer_image.py`
 
-- [ ] Build a fixture that references the published image contract without
+- [x] Build a fixture that references the published image contract without
   copying lifecycle scripts. Verify project dependency setup, pre-commit when
   configured, agent policy, CBM indexing, Xpra, nested Docker, and staged
   catalog availability.
-- [ ] Build a derived fixture image that adds custom tooling and ordered hooks.
+  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed.
+- [x] Build a derived fixture image that adds custom tooling and ordered hooks.
   Verify it retains managed startup, can override documented environment values,
   cannot require replacement of `/opt/agentdev-runtime`, and does not execute
   similarly named files from the mounted repository.
-- [ ] Run both fixtures through create, stop/start, rebuild, and repeated attach
+  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed.
+- [x] Run both fixtures through create, stop/start, rebuild, and repeated attach
   events and assert the right phase runs exactly when specified.
+  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
+    to a local build of commit bcd8c5e2,
+    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
+    passed.
 
 ### Task 7: Publish, pin, and accept all three canonical images
 
@@ -209,29 +289,58 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 
 ### Task 8: Align the product contract and codebase map
 
-**Files:** Create: `docs/knowledge/data/spec/agentdev-runtime-images.md`,
-`docs/knowledge/data/architecture/devcontainer-runtime.md`; Modify: `README.md`,
-`docs/user-stories/agent-containers.md`, `docs/knowledge/data/product.md`,
-`docs/knowledge/data/spec/image-pinning.md`,
-`docs/knowledge/data/spec/catalog-lifecycle.md`,
-`docs/knowledge/data/spec/devcontainer-docker-storage.md`,
+**Files:** Create: `docs/knowledge/data/architecture/devcontainer-runtime.md`;
+Modify: `README.md`, `docs/user-stories/agent-containers.md`,
+`docs/knowledge/data/product.md`,
 `docs/knowledge/data/architecture/nested-docker-provisioning.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/features/standalone-opencode-container.md`,
-`docs/knowledge/data/codebase/`, `docs/knowledge/data/spec.md`,
-`docs/knowledge/data/architecture.md`
+`docs/knowledge/data/codebase/`, `docs/knowledge/data/architecture.md`
 
 - [ ] Document the canonical image family, profile boundary, lifecycle
   ownership, customization interface, and supported direct/derived/full adoption
-  modes. State explicitly that `template-consume` remains supported for full
-  adoption.
+  modes in the architecture, README, and user-story documents. State explicitly
+  that `template-consume` remains supported for full adoption.
 - [ ] Update image, catalog, Docker-storage, pinning, and product terminology to
-  the shipped names and behaviour without copying runtime implementation detail
-  into multiple documents.
+  the shipped names and behaviour in the non-spec documents this task lists,
+  without copying runtime implementation detail into multiple documents. Spec
+  documents change only when Ship merges `## Spec changes`.
 - [ ] Refresh every stale codebase-map document through `/agentdev:iwe-map`
   after paths and flows settle.
 
-### Task 9: Verify published multi-architecture images
+### Task 9: Migrate full-adoption consumers through template-consume
+
+**Files:** Create: `scripts/tests/test_template_consume_migration.py`; Modify:
+`.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
+`.github/workflows/ci.yml`
+
+- [x] Add an update-mode migration that applies when the consumer's Dev
+  Container still pins `agent-desktop` and the upstream template pins
+  `agentdev-devcontainer`. One change moves the Compose pin and every workflow
+  `container.image` reference to `agentdev-devcontainer`, removes the keepalive
+  command and the Docker-in-Docker Feature, and replaces copied agentdev
+  lifecycle scripts with the image's commands, keeping the consumer's own
+  additions as descriptor commands or derived-image hooks. A consumer that
+  declines keeps its previous descriptor and pin, and `consumed_ref` does not
+  advance past the change.
+  - **Evidence:** commits c9dc2e30, ad70031a; with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to the CI candidate built from commit
+    d6b06b82, `uv run pytest scripts/tests/test_template_consume_migration.py` —
+    2 passed: the migrated descriptor runs no copied script, and a consumer
+    holding only the files the migration keeps reaches runtime readiness on the
+    staged catalog; `validate_agent_files --ci .` clean.
+- [x] Ask a custom-image consumer whose Dockerfile derives from `agent-desktop`
+  whether it derives from `agentdev-base` or `agentdev-devcontainer`, and change
+  its base to the chosen image.
+  - **Evidence:** commit c9dc2e30; the guide's migration step 7 asks for the
+    base and changes it; `validate_agent_files --ci .` clean.
+- [x] Name the canonical images throughout the guide's setup, custom-image, and
+  ongoing-maintenance sections.
+  - **Evidence:** commit c9dc2e30; the guide names `agent-desktop` only in its
+    migration section; `validate_agent_files --ci .` clean.
+
+### Task 10: Verify published multi-architecture images
 
 **Files:** None.
 
@@ -367,7 +476,7 @@ rebuild never silently changes a running environment.
 - **THEN** a consumer's pinned digest still resolves to the old image until the
   pinned digest is updated
 
-### Requirement: workflow container images share the Dev Container pin
+### Requirement: workflow container images share the devcontainer pin
 
 Every workflow job that runs in the development runtime SHALL reference the
 same `agentdev-devcontainer` tag and digest as `devcontainer-compose-pins.yml`,
@@ -415,6 +524,26 @@ cancel one another.
 
 - **WHEN** commits land on `main` while its run is in progress
 - **THEN** that run completes, and the newest waiting run follows it
+
+### Requirement: standalone runtime deployment is digest-pinned
+
+Supported `agentdev-deploy` Compose launch commands SHALL include a
+tag-and-digest pin in root-level `opencode-compose-pins.yml`. Runtime builds
+SHALL use the exact `agentdev-base` digest from their build run. A pin change
+SHALL NOT rebuild or publish the image it names.
+
+#### Scenario: runtime sources change
+
+- **WHEN** a runtime image is built and published
+- **THEN** native amd64 and arm64 builds and acceptance checks gate success and
+  the manifest identifies the corresponding `agentdev-base` ancestry
+
+#### Scenario: only a deployment digest changes
+
+- **WHEN** Renovate advances `opencode-compose-pins.yml`
+- **THEN** the proposed digest is one CI promoted after acceptance, the
+  image-build path filter does not match, and the update does not create a
+  publish/pin loop
 ```
 
 ### [Catalog lifecycle](../spec/catalog-lifecycle.md)
@@ -422,7 +551,7 @@ cancel one another.
 ``` markdown
 ## MODIFIED Requirements
 
-### Requirement: the catalog is installed in the base image and reconciled by the Dev Container create lifecycle
+### Requirement: the catalog is installed at image build time and again by postCreateCommand
 
 The agentdev catalog SHALL be installed in `agentdev-base` at image build time.
 `agentdev-devcontainer` SHALL reconcile that catalog into mounted client-state
@@ -446,7 +575,7 @@ configuration links.
 - **THEN** their unrelated state is preserved and the staged catalog is
   reconciled to the image version
 
-### Requirement: this repository's checkout overrides the staged catalog on attach
+### Requirement: this repository's own checkout overrides the staged catalog on attach
 
 The attach lifecycle SHALL register this checkout's complete Claude, Codex, and
 OpenCode catalog over the staged copy and SHALL leave the staged copy selected
@@ -461,12 +590,39 @@ when the mounted repository does not contain a complete catalog.
 
 - **WHEN** its repository has no complete agentdev catalog
 - **THEN** attach succeeds without changing the staged catalog registration
+
+### Requirement: standalone startup selects and reconciles the runtime catalog
+
+Standalone `agentdev-deploy` startup SHALL use a valid checkout-provided
+agentdev catalog when present and otherwise the immutable image catalog. It
+SHALL reconcile Claude, Codex, and OpenCode configuration as the runtime user
+after mounts and before OpenCode starts, including generated Codex agents,
+without removing unrelated user settings or agents. A registration already
+matching the selected catalog SHALL be left in place without rewriting client
+configuration. A failed reconciliation SHALL mark the runtime degraded and SHALL
+NOT stop OpenCode from starting, unless strict startup is selected.
+
+#### Scenario: the project provides the catalog
+
+- **WHEN** the checkout contains the required catalog manifests and bridge
+- **THEN** all three clients use that checkout catalog for the container start
+
+#### Scenario: a catalog is absent or the image is upgraded
+
+- **WHEN** a checkout has no catalog or a newer bundled catalog is selected
+- **THEN** startup applies the selected bundled catalog over stale managed
+  registrations and preserves unrelated configuration
+
+#### Scenario: the container restarts with an unchanged catalog
+
+- **WHEN** startup selects the catalog that is already registered
+- **THEN** every client's configuration file is byte-identical afterwards
 ```
 
 ### [Devcontainer Docker storage](../spec/devcontainer-docker-storage.md)
 
 ``` markdown
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: the Dev Container image supervises its nested Docker engine
 
@@ -485,6 +641,8 @@ BuildKit garbage-collection policy.
 - **WHEN** the daemon cannot recover within its bounded budget
 - **THEN** the runtime fails and reports Docker as the terminal service
 
+## MODIFIED Requirements
+
 ### Requirement: the Dev Container engine limits its build cache
 
 The image's Docker configuration SHALL enable BuildKit garbage collection with
@@ -495,6 +653,114 @@ a 10 GB build-cache limit, and the supervised daemon SHALL run with it.
 - **WHEN** builds inside the Dev Container push the build cache past 10 GB
 - **THEN** BuildKit garbage collection reduces it to at most 10 GB
 ```
+
+### [Standalone OpenCode runtime](../spec/standalone-opencode-runtime.md)
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: a dedicated image owns a single-project runtime
+
+`ghcr.io/plume-works/agentdev-deploy` SHALL derive from the corresponding
+digest of `agentdev-base`, provide linux/amd64 and linux/arm64 images, and start
+its environment without Coder, a Dev Containers client, or project scaffolding.
+It SHALL keep Claude Code and Codex available without autostarting them, except
+Claude Remote Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL omit
+Docker MCP gateway integration.
+
+#### Scenario: an ordinary checkout is mounted
+
+- **WHEN** an operator starts the dedicated image with valid required
+  configuration
+- **THEN** it prepares that single project and starts OpenCode and its required
+  services using image-owned shared helpers
+
+#### Scenario: the base image is used
+
+- **WHEN** an existing consumer starts `agentdev-base` or runs its own copied
+  devcontainer hooks on it
+- **THEN** its command defaults, Coder integration, opt-outs, and lifecycle
+  failure semantics remain those `agent-desktop` provided, and no deploy runtime
+  starts
+```
+
+### [Playwright browser](../spec/playwright-browser.md)
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: the development image provides a version-matched Playwright browser
+
+The published `agentdev-base` image SHALL provide a pinned Playwright CLI and
+its matching Chromium browser and Linux dependencies from an image-owned path,
+and both runtime images SHALL inherit it.
+
+#### Scenario: a consumer launches the bundled browser
+
+- **WHEN** a user starts the published image without mounting a home-directory
+  browser cache
+- **THEN** the Playwright CLI launches the bundled Chromium without downloading
+  browser binaries at runtime
+
+#### Scenario: the image is built for a supported architecture
+
+- **WHEN** CI builds and accepts either the `linux/amd64` or `linux/arm64`
+  variant
+- **THEN** the same pinned Playwright release and matching Chromium capability
+  are present and a headless browser launch succeeds
+```
+
+### [Template consumption](../spec/template-consumption.md)
+
+``` markdown
+## ADDED Requirements
+
+### Requirement: an update migrates the consumer to the agentdev image family in one change
+
+When a consumer's Dev Container pins `agent-desktop` and the upstream template
+pins `agentdev-devcontainer`, update mode SHALL apply the new descriptor only
+together with moving the Compose pin and every workflow `container.image`
+reference to `agentdev-devcontainer`, removing the keepalive command and the
+Docker-in-Docker Feature, and replacing copied agentdev lifecycle scripts with
+the image's commands. It SHALL preserve the consumer's own lifecycle additions
+as descriptor commands or derived-image hooks.
+
+#### Scenario: a consumer updates across the image change
+
+- **WHEN** update mode applies the migration
+- **THEN** one change moves the pin, descriptor, and workflow images together,
+  and the rebuilt Dev Container reaches runtime readiness
+
+#### Scenario: a consumer declines the migration
+
+- **WHEN** the user declines the migration
+- **THEN** the descriptor and pin keep their previous values, and
+  `consumed_ref` does not advance past the change
+
+#### Scenario: a custom image derives from agent-desktop
+
+- **WHEN** the consumer's retained Dockerfile derives from `agent-desktop`
+- **THEN** update mode asks whether it derives from `agentdev-base` or
+  `agentdev-devcontainer` and changes the base to the chosen image
+
+## MODIFIED Requirements
+
+### Requirement: the finished project retains every runtime capability
+
+The default setup SHALL retain every runtime capability the template's
+devcontainer provides — the digest-pinned `agentdev-devcontainer` image with its
+supervised nested Docker and Codespaces SSH, worktree-safe mounts,
+Xpra/VirtualGL, the MCP gateway and secrets socket, persistent agent-state
+volumes with one shared credentials volume, the image-staged `agentdev`
+catalog, keyring and GitHub authentication, uv caching and pre-commit setup, and
+the opt-in egress firewall. It SHALL NOT infer a language, create application
+code, choose dependencies, or invent CI for the consuming project's product.
+```
+
+Ship also renames `agent-desktop` to `agentdev-base` and `agent-opencode` to
+`agentdev-deploy` in the descriptions, `sources`, and non-requirement prose of
+the specs above and of [Claude Remote
+Control](../spec/claude-remote-control.md).
 
 ## Depends on
 
@@ -512,7 +778,7 @@ container](20261017-standalone-opencode-container.md)
 - `uv run pytest scripts/tests/test_agent_runtime_docker.py`
 - `uv run pytest scripts/tests/test_agent_runtime_keyring.py`
 - `uv run pytest scripts/tests/test_agent_runtime_cbm.py`
-- `.devcontainer/scripts/python-lint-check.sh`
+- `.agents/plugins/agentdev/bin/python-lint-check.sh`
 - Run `shellcheck` on every created or modified shell script.
 - Build the three-image family locally through the repository's image-build
   action or the microVM sandbox, then inspect each image's labels, ancestry,
@@ -521,6 +787,11 @@ container](20261017-standalone-opencode-container.md)
   rebuild, and repeated attach operations; confirm their per-phase counters and
   required service health.
 - Run `iwe normalize`, `iwe schema validate`, and the knowledge-base tests.
+- Run `template-consume` update mode against a fixture consumer adopted from the
+  template before this change, which pins `agent-desktop` and carries copied
+  lifecycle scripts; confirm the migration lands as one change and the rebuilt
+  Dev Container reaches runtime readiness, and that declining it leaves the
+  descriptor, pin, and `consumed_ref` unchanged.
 - Run `/agentdev:iwe-map` refresh and confirm no changed mapped source remains
   stale.
 - Confirm CI on the current head builds and accepts amd64 and arm64 candidates
@@ -536,33 +807,39 @@ container](20261017-standalone-opencode-container.md)
 - Installing repository-specific knowledge, build, or review CI workflows.
 - Running more than one target repository inside one Dev Container instance.
 - Providing compatibility aliases for `agent-desktop` or `agent-opencode`.
+- Migrating individual consumer repositories; each migrates when it next runs
+  `template-consume` update mode.
 - Starting Claude or Codex interfaces automatically.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-23):
+Verified anchor points (line numbers as of 2026-10-29):
 
-- `.github/workflows/ci.yml:26` — image-name environment and image-family build
-  pipeline
-- `docker/desktop/agent-desktop.Dockerfile:5` — current lifecycle-neutral image
-  base
-- `docker/opencode/agent-opencode.Dockerfile:22` — runtime-script packaging
+- `.github/workflows/ci.yml:30` — image-name environment for the image family
+- `.github/workflows/ci.yml:68` — `build-dev-image`, the per-architecture family
+  build
+- `.github/workflows/ci.yml:442` — `promote-dev-image`, moving-tag promotion
+  after acceptance
+- `docker/base/agentdev-base.Dockerfile:96` — lifecycle-neutral base entrypoint
+- `docker/deploy/agentdev-deploy.Dockerfile:22` — runtime-script packaging
   boundary
-- `docker/opencode/agent-opencode.Dockerfile:65` — current supervised entrypoint
-- `docker/opencode/supervisord.conf:36` — current deploy service definitions
-- `.devcontainer/scripts/runtime-supervisor.py:46` — runtime settings and
-  service graph
-- `.devcontainer/scripts/runtime-supervisor.py:352` — PID 1 bootstrap and
-  supervisor entrypoint
-- `.devcontainer/devcontainer.json:19` — current workspace and Feature
-  configuration
-- `.devcontainer/devcontainer.json:262` — checkout-relative lifecycle commands
-- `.devcontainer/docker-compose.yml:57` — current development image selection
-- `.devcontainer/docker-compose.yml:105` — current keepalive command replacing
-  image command
-- `.devcontainer/scripts/postCreateCommand.sh:53` — create-scoped agent state
-  and catalog setup
-- `.devcontainer/scripts/postStartCommand.sh:9` — start-scoped persistent
-  services
-- `.devcontainer/scripts/postAttachCommand.sh:8` — attach-scoped index and
-  catalog refresh
+- `docker/deploy/agentdev-deploy.Dockerfile:64` — deploy supervised entrypoint
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:60` — Dev Container
+  supervised entrypoint
+- `docker/deploy/supervisord.conf:37` — deploy service definitions
+- `.devcontainer/scripts/runtime-supervisor.py:317` — `PROFILES`, the service
+  graphs
+- `.devcontainer/scripts/runtime-supervisor.py:1099` — `main`, the supervisor
+  entrypoint
+- `.devcontainer/scripts/devcontainer-created.sh:37` — `cmd_create`, the create
+  phase
+- `.devcontainer/devcontainer.json:21` — workspace configuration
+- `.devcontainer/docker-compose.yml:57` — development image selection
+- `devcontainer-compose-pins.yml:14` — the Dev Container digest pin
+- `.agents/plugins/agentdev/skills/template-consume/SKILL.md:134` — update mode
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:206`
+  — devcontainer review step
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1053`
+  — custom-image setup
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1098`
+  — ongoing maintenance

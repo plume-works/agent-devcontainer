@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:42c05f88bde5ef5e52fa287272d72672c003f7a0477647c6ddbe0d128b78a574
+source_digest: sha256:0a19f2497cfec358d5feb57598c7ef37e544dbcb3f24cf192e7b256ebd4a9d27
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-27T05:30:00Z
-stale_after: 2027-01-23
+  at: 2026-10-29T19:02:56Z
+stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T05:30:00Z
+  at: 2026-10-29T19:02:56Z
 sources:
 - id: code
   resource: .github
@@ -40,8 +40,9 @@ before the push.
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
    build](flow-image-build.md), whose `finished` also waits on native
-   `agent-opencode` container acceptance; the devcontainer smoke test launches
-   bundled Chromium before the promotion moves `pr-<n>` to the tested images
+   `agentdev-deploy` and `agentdev-devcontainer` acceptance; the devcontainer
+   smoke test launches bundled Chromium before the promotion moves `pr-<n>` to
+   the tested images
 4. `validate-agent-files.yml`, when any source declared by the codebase map or
    the map itself changed: the pinned `iwe`, then the validator, agentdev, and
    self-improve pytest suites, the OpenCode bridge `bun test` suite,
@@ -59,8 +60,8 @@ before the push.
    `renovate.json`, `.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
    the workflow, or the image sources changed; `validate` then runs
    `renovate-config-validator --no-global --strict` inside the pinned
-   `agent-desktop` image at the Renovate release the hook's `bunx` pin names,
-   and `finished` reports the required result either way —
+   `agentdev-devcontainer` image at the Renovate release the hook's `bunx` pin
+   names, and `finished` reports the required result either way —
    `.github/workflows/validate-renovate-config.yml:26,52,70-76,78`
 7. `ai-responder.yml`: `preflight` admits only `plume-works` events from
    non-fork, non-bot PRs or `@claude` mentions and resolves the review's effort
@@ -84,8 +85,9 @@ before the push.
   `ai-review-present` does not read it, and both tiers keep the metadata check
   and the durable-knowledge pass.
 - Step 1 and step 6 run the same validator against the same file at the one
-  Renovate version the bot runs; an `agent-desktop` digest bump reaches step 6
-  through the pin file, so an image that cannot run the bot fails here first.
+  Renovate version the bot runs; an `agentdev-devcontainer` digest bump reaches
+  step 6 through the pin file, so an image that cannot run the bot fails here
+  first.
 - Step 1 and step 2 must agree on tool versions; `renovate.json` disables
   Renovate for the Super-Linter family so
   `/agentdev:sync-super-linter-tool-versions` moves them together.

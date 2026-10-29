@@ -67,14 +67,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
            playwright_browser_version=$PLAYWRIGHT_VERSION \
          "
 
-# Inherited by any consumer of this image, including one that writes its own
-# devcontainer.json. The catalog is staged here and installed into each agent's
-# plugin state at build time, so a raw-image consumer resolves agentdev:* skills
-# with no lifecycle hooks. A devcontainer mounts persistent ~/.claude and
-# ~/.codex volumes over that install, so its postCreate hook installs again.
+# Inherited by agentdev-deploy, agentdev-devcontainer, and any direct consumer. The
+# catalog is staged here and installed into each agent's plugin state at build time, so
+# a raw-image consumer resolves agentdev:* skills with no lifecycle hooks. This image
+# carries no runtime lifecycle; agentdev-devcontainer reinstalls the catalog into the
+# persistent ~/.claude and ~/.codex volumes it mounts over this install.
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
 
+LABEL org.opencontainers.image.title="agentdev-base"
+LABEL org.opencontainers.image.description="Lifecycle-neutral agentdev tools, staged catalog, and default policy."
 LABEL org.opencontainers.image.version.agentdev="$AGENTDEV_PLUGIN_VERSION"
 LABEL org.opencontainers.image.version.playwright="$PLAYWRIGHT_VERSION"
 LABEL org.opencontainers.image.version.validate-agent-files="$VALIDATE_AGENT_FILES_VERSION"

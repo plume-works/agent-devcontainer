@@ -1,6 +1,6 @@
-# One-project agent-opencode deployment behind an existing reverse proxy; launch with
+# One-project agentdev-deploy deployment behind an existing reverse proxy; launch with
 # -f opencode-compose-pins.yml (and -f compose.opencode.bind.yml for a host checkout).
-# Settings: docker/opencode/runtime.env.example. Spec: standalone-opencode-runtime.
+# Settings: docker/deploy/runtime.env.example. Spec: standalone-opencode-runtime.
 services:
   opencode:
     # PID 1 is the image's supervisor, so no `init`. Nested Docker needs privileges.

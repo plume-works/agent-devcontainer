@@ -15,8 +15,8 @@ fi
 
 hook_types=(pre-commit pre-push pre-merge-commit)
 
-# Standalone startup fails on any hook problem instead of logging and continuing.
-if [[ ${AGENTDEV_RUNTIME_MODE:-} == standalone ]]; then
+# Deploy startup fails on any hook problem instead of logging and continuing.
+if [[ ${AGENTDEV_RUNTIME_MODE:-} == deploy ]]; then
     command -v pre-commit >/dev/null || { echo "pre-commit is not installed" >&2 && exit 1; }
     if hooks_path="$(git config --get core.hooksPath)"; then
         echo "core.hooksPath is set to $hooks_path; refusing to replace those hooks with pre-commit's." >&2

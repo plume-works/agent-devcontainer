@@ -11,6 +11,11 @@ to the current day's group.
   [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
   [knowledge workspace](codebase/docs/knowledge.md) map docs after the
   `generated.by` actor wording became a pattern.
+- **Update**: refreshed 14 [codebase map](codebase.md) docs for the agentdev
+  image family — the base and its deploy and Dev Container siblings, the
+  image-owned lifecycle commands and hooks, the four-image CI pipeline and its
+  acceptance jobs, the `agentdev-devcontainer` and `agentdev-deploy` pins, and
+  the template-consume image-family migration.
 - **Update**: refreshed the [devcontainer](codebase/devcontainer.md) and
   [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
   the per-instance `/workspaces/project` volume.

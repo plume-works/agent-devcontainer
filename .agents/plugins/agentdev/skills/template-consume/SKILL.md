@@ -195,7 +195,15 @@ A marker section or legacy marker file exists.
    `AGENTS.md` is customized, so merge its `## Expo` rules by hand. Never write
    a bridge trust or security setting.
 
-5. **For each changed path**, inspect the actual upstream diff (the scratch
+5. **Migrate to the agentdev image family first** when the consumer's
+   `devcontainer-compose-pins.yml` still names `agent-desktop` and the
+   upstream template's names `agentdev-devcontainer`. Follow the
+   "Migrating to the agentdev image family" section of
+   [the consumption guide](references/consumption-guide.md) as one unit: its pin, Compose, descriptor, script, and marker changes are
+   applied together or not at all, and a declined migration leaves
+   `consumed_ref` where it was. Then review the remaining changed paths.
+
+   **For each changed path**, inspect the actual upstream diff (the scratch
    clone is gone by the time the script returns, so re-clone or use
    `git log`/`git show` against `https://github.com/<source_repo>` — do not
    guess from the path name alone) and decide with the user whether to pull it

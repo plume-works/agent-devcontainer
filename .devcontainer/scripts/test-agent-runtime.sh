@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Container acceptance for agent-opencode against the explicit image in
+# Container acceptance for agentdev-deploy against the explicit image in
 # AGENTDEV_RUNTIME_TEST_IMAGE; extra arguments go to pytest. Bounded, cleans up every
 # labelled resource it made, and fails when every test was skipped.
 

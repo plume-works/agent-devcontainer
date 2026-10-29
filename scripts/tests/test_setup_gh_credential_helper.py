@@ -7,6 +7,7 @@ import pytest
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/setup-gh-credential-helper.sh'
 POST_START = REPO_ROOT / '.devcontainer/scripts/postStartCommand.sh'
+READY = REPO_ROOT / '.devcontainer/scripts/devcontainer-ready.sh'
 GH_HELPER = '!gh auth git-credential'
 
 
@@ -91,5 +92,9 @@ def test_reads_gh_login_through_saved_keyring_session(tmp_path):
 
 def test_post_start_runs_setup_after_keyring():
     post_start = POST_START.read_text()
-    helper = post_start.index('"$script_dir/setup-gh-credential-helper.sh"')
-    assert post_start.index('"$script_dir/setup-keyring.sh"') < helper
+    assert post_start.index('"$script_dir/setup-keyring.sh"') < post_start.index(
+        'devcontainer-ready.sh" --no-wait'
+    )
+    ready = READY.read_text()
+    helper = ready.index('"$script_dir/setup-gh-credential-helper.sh"')
+    assert ready.index("'') wait_ready ;;") < helper

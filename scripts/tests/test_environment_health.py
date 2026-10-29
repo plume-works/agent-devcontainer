@@ -21,7 +21,7 @@ def _executable(path: Path, content: str) -> None:
 def _run_health(
     tmp_path: Path,
     *,
-    mode: str = 'standalone',
+    mode: str = 'deploy',
     missing: frozenset[str] = frozenset(),
     fail_commands: frozenset[str] = frozenset(),
     firewall: str = 'false',
@@ -152,7 +152,7 @@ def test_script_uses_uv_project_environment_instead_of_workspace_slug() -> None:
     assert 'uv run --no-sync ruff' in source
 
 
-def test_standalone_mode_skips_non_applicable_sidecars_and_redacts_auth_output(
+def test_deploy_mode_skips_non_applicable_sidecars_and_redacts_auth_output(
     tmp_path: Path,
 ) -> None:
     result = _run_health(tmp_path)

@@ -157,7 +157,7 @@ def test_standalone_create_order_migrates_the_users_claude_json(scripts: Path, t
     home.mkdir()
     (home / '.claude.json').write_text('{"user": true}')
 
-    result = run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='standalone')
+    result = run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='deploy')
     assert result.returncode == 0, result.stderr
 
     assert (home / '.claude/claude.json').read_text() == '{"user": true}'
@@ -189,10 +189,8 @@ def test_devcontainer_create_discards_the_image_file_and_tolerates_cbm_failure(
 def test_standalone_cbm_step_installs_after_create_links_claude_json(
     scripts: Path, tmp_path: Path
 ):
-    assert (
-        run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='standalone').returncode == 0
-    )
-    result = run_state(scripts, tmp_path, 'cbm', AGENTDEV_RUNTIME_MODE='standalone')
+    assert run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='deploy').returncode == 0
+    result = run_state(scripts, tmp_path, 'cbm', AGENTDEV_RUNTIME_MODE='deploy')
     assert result.returncode == 0, result.stderr
     assert calls(tmp_path)[-1] == 'runtime-cbm.sh install claude.json=symlink'
 
@@ -202,7 +200,7 @@ def test_standalone_cbm_step_fails_when_cbm_install_fails(scripts: Path, tmp_pat
         scripts,
         tmp_path,
         'cbm',
-        AGENTDEV_RUNTIME_MODE='standalone',
+        AGENTDEV_RUNTIME_MODE='deploy',
         STUB_EXIT_RUNTIME_CBM='1',
     )
     assert result.returncode == 1
@@ -220,11 +218,17 @@ def test_catalog_passes_the_scope_only_to_claude(scripts: Path, tmp_path: Path):
 
 def test_hooks_keep_their_call_order():
     post_start = (SCRIPTS / 'postStartCommand.sh').read_text()
-    assert post_start.index('start-xpra.sh') < post_start.index('setup-agent-state.sh" links')
-    assert post_start.rstrip().endswith('"$script_dir/setup-agent-state.sh" agent-policy')
-    post_create = (SCRIPTS / 'postCreateCommand.sh').read_text()
-    assert post_create.index('setup-agent-state.sh" create') < post_create.index('uv-sync.sh')
-    assert post_create.index('uv-sync.sh') < post_create.index('setup-agent-state.sh" catalog')
+    assert post_start.index('start-xpra.sh') < post_start.index('devcontainer-ready.sh" --no-wait')
+    ready = (SCRIPTS / 'devcontainer-ready.sh').read_text()
+    assert ready.index('setup-agent-state.sh" links') < ready.index('agent-policy')
+    assert ready.rstrip().endswith('"$script_dir/run-agentdev-hooks.sh" started')
+    created = (SCRIPTS / 'devcontainer-created.sh').read_text()
+    assert created.index('setup-agent-state.sh" create') < created.index(
+        'runtime-workspace.sh" project'
+    )
+    assert created.index('runtime-workspace.sh" project') < created.index(
+        'setup-agent-state.sh" catalog'
+    )
 
 
 def fake_gh(directory: Path) -> None:
@@ -306,7 +310,7 @@ def test_concurrent_config_writers_take_turns(scripts: Path, tmp_path: Path, sec
     slow.write_text(f'#!/usr/bin/env bash\necho begin >> "{log}"\nsleep 1\necho end >> "{log}"\n')
     for name in ('configure-codex.py', 'runtime-cbm.sh'):
         (scripts / name).write_text(f'#!/usr/bin/env bash\necho other >> "{log}"\n')
-    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='standalone')
+    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='deploy')
     args = {
         'catalog': ['catalog', '/opt/catalog'],
         'agent-policy': ['agent-policy'],
@@ -318,7 +322,7 @@ def test_concurrent_config_writers_take_turns(scripts: Path, tmp_path: Path, sec
     deadline = time.monotonic() + 10
     while 'begin' not in calls(tmp_path) and time.monotonic() < deadline:
         time.sleep(0.05)
-    result = run_state(scripts, tmp_path, *args[second], AGENTDEV_RUNTIME_MODE='standalone')
+    result = run_state(scripts, tmp_path, *args[second], AGENTDEV_RUNTIME_MODE='deploy')
     assert first.wait(timeout=30) == 0
     assert result.returncode == 0, result.stderr
     lines = [line for line in calls(tmp_path) if line in {'begin', 'end', 'other'}]

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Standalone workspace preparation, run as the runtime user. A valid checkout is
-# reused without contacting a remote; only an empty destination is cloned into.
+# Workspace preparation, run as the runtime user. A valid checkout is reused without
+# contacting a remote; only deploy clones, and only into an empty destination.
 # Usage: runtime-workspace.sh checkout|project|catalog|config|prepare.
-# Spec: standalone-opencode-runtime.
+# Spec: standalone-opencode-runtime, agentdev-runtime-images.
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=runtime-paths.sh
+source "$script_dir/runtime-paths.sh"
 workspace="${DEV_WORKSPACE_FOLDER:-/workspaces/project}"
 state_dir="${AGENTDEV_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/agentdev}"
 clone_marker="$state_dir/clone-in-progress"
@@ -40,6 +42,8 @@ validate_checkout() {
 
 clone_workspace() {
   local url="${AGENTDEV_REPOSITORY_URL:-}" ref="${AGENTDEV_REPOSITORY_REF:-}" status=0
+  [[ ${AGENTDEV_RUNTIME_MODE:-} == deploy ]] ||
+    fail "$workspace is empty; a Dev Container uses the checkout its tool mounts and never clones"
   [[ -n $url ]] ||
     fail "$workspace is empty and AGENTDEV_REPOSITORY_URL is not set; mount a checkout or set a repository to clone"
   # HTTPS credentials come from the injected token through gh, set up before the clone.
@@ -84,11 +88,8 @@ cmd_project() {
   fi
 }
 
-# The checkout's own catalog wins when it ships all three clients' manifests.
 select_catalog() {
-  if [[ -f $workspace/.claude-plugin/marketplace.json &&
-    -f $workspace/.agents/plugins/marketplace.json &&
-    -d $workspace/.agents/plugins/agentdev/.opencode-plugin ]]; then
+  if agentdev_complete_catalog "$workspace"; then
     echo "$workspace"
   elif [[ -n ${AGENTDEV_CATALOG_DIR:-} && -d $AGENTDEV_CATALOG_DIR ]]; then
     echo "$AGENTDEV_CATALOG_DIR"
