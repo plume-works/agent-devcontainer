@@ -2,14 +2,14 @@
 type: codebase
 description: The runtime both agentdev images bake at /opt/agentdev-runtime — the supervisor and its deploy and devcontainer profiles, the Dev Container create, start, and attach commands with their hook runner, and the helpers they call, from agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall, auth links, and full-access policies to the gh credential helper, the Coder agent-start entry point, Remote Control, and the OpenCode web UI.
 source: .devcontainer/scripts
-source_digest: sha256:92d99b16cea42cc810f29a211694e39cc5fd0020aa091fac102245db5b576ce0
+source_digest: sha256:d498b68088ad9e410ecc1a2ea752b2a86c255c89e2deb09d1c92b5042c83b6ed
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:04:17Z
+  at: 2026-10-29T19:42:03Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:04:17Z
+  at: 2026-10-29T19:42:03Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -186,14 +186,14 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 Verified anchor points (line numbers as of 2026-10-29):
 
-- `.devcontainer/scripts/devcontainer-created.sh:37` — `cmd_create`; `:46` —
-  `safe.directory`; `:48` — `setup-agent-state.sh create`; `:53` —
-  staged-catalog install; `:57` — created hooks; `:62` — `cmd_wait`
-- `.devcontainer/scripts/devcontainer-ready.sh:22` — `wait_ready`; `:42-48` —
+- `.devcontainer/scripts/devcontainer-created.sh:36` — `cmd_create`; `:45` —
+  `safe.directory`; `:47` — `setup-agent-state.sh create`; `:52` —
+  staged-catalog install; `:56` — created hooks; `:61` — `cmd_wait`
+- `.devcontainer/scripts/devcontainer-ready.sh:20` — `wait_ready`; `:40-46` —
   the per-start steps and started hooks
-- `.devcontainer/scripts/devcontainer-attached.sh:20-25` — complete-catalog
+- `.devcontainer/scripts/devcontainer-attached.sh:19-24` — complete-catalog
   registration and attached hooks
-- `.devcontainer/scripts/run-agentdev-hooks.sh:10` — the hook root
+- `.devcontainer/scripts/run-agentdev-hooks.sh:9` — the hook root
 - `.devcontainer/scripts/postStartCommand.sh:9-22` — services started without a
   supervisor
 - `.devcontainer/scripts/setup-agent-state.sh:15` — `link_claude_json`; `:32` —
@@ -231,7 +231,7 @@ Verified anchor points (line numbers as of 2026-10-29):
   `cmd_install`; `:154` — `cmd_index`; `:179` — `cmd_run`
 - `.devcontainer/scripts/runtime-keyring.sh:79,86` — foreground bus and keyring
 - `.devcontainer/scripts/runtime-docker.sh:61` — the `dockerd` exec
-- `.devcontainer/scripts/runtime-firewall.sh:49` — proxy ingress; `:58` — nested
+- `.devcontainer/scripts/runtime-firewall.sh:48` — proxy ingress; `:57` — nested
   egress
 - `.devcontainer/scripts/setup-agent-state.sh:61` — `apply_agent_policy`
 - `.devcontainer/scripts/codebase-memory-mcp-index.sh:20` — the async request

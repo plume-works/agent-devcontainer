@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Attach phase for agentdev-devcontainer, run as postAttachCommand on every editor
-# attachment: refreshes the index request, the project environment, and, when the checkout
-# ships a complete catalog, its registration over the staged one; then the attached hooks.
+# Attach phase (postAttachCommand): index request, project environment, a complete
+# checkout catalog over the staged one, then the attached hooks.
 # Spec: agentdev-runtime-images, catalog-lifecycle.
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

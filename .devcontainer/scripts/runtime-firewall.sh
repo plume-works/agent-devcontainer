@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Runtime wrapper for the shared egress firewall; inert unless ENABLE_FIREWALL=true.
-# Runs before dockerd, so init-firewall.sh's flush cannot erase the engine's rules.
-# Only deploy admits a proxy; a Dev Container's ports are forwarded through the tool.
+# Egress firewall wrapper, inert unless ENABLE_FIREWALL=true; runs before dockerd so the
+# flush keeps the engine's rules. Only deploy admits a proxy.
 # Spec: firewall, standalone-opencode-runtime.
 
 allowlist="${FIREWALL_ALLOWLIST:-/etc/agentdev/firewall-allowlist.txt}"

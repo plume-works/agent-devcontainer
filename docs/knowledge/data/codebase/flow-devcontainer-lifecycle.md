@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:7a3225f1ff08f7c9d28584a3626c74be83018f6571fe75054730d2aee0d06b0a
+source_digest: sha256:78fb1cb27e991356f27ba26de449041e550934d0e7ac7add7381b553f218a5e3
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:01:48Z
+  at: 2026-10-29T19:42:03Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:01:48Z
+  at: 2026-10-29T19:42:03Z
 sources:
 - id: code
   resource: .devcontainer
@@ -56,12 +56,12 @@ state.
    `setup-agent-state.sh catalog` for the image-staged catalog; then the image's
    `created` hooks and the create marker, which releases the opt-in OpenCode and
    Remote Control programs —
-   `.devcontainer/scripts/devcontainer-created.sh:37-59`
+   `.devcontainer/scripts/devcontainer-created.sh:36-58`
 5. `postStartCommand` (every start, and the `waitFor` target): wait until
    `runtime-health.sh ready` passes, failing when the runtime failed or is late;
    then `safe.directory`, the gh git credential helper,
    `setup-agent-state.sh links` and `agent-policy`, and the `started` hooks —
-   `.devcontainer/scripts/devcontainer-ready.sh:22-48`. Claude Remote Control is
+   `.devcontainer/scripts/devcontainer-ready.sh:20-46`. Claude Remote Control is
    not part of it: in Coder, the template's `coder_script` on the dev
    container's sub-agent runs `coder-agent-start.sh` after the agent starts,
    which prunes unused images in the nested Docker engine, repeats the gh helper
@@ -73,7 +73,7 @@ state.
    `setup-agent-state.sh catalog` for it at local scope, with OpenCode's bridge
    entry repointed at it, which is how this repository develops the catalog in
    place; then the `attached` hooks —
-   `.devcontainer/scripts/devcontainer-attached.sh:16-25`
+   `.devcontainer/scripts/devcontainer-attached.sh:15-24`
 
 ## Failure modes
 

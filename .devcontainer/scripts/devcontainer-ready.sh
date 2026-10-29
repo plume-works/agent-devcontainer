@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Start phase for agentdev-devcontainer, run as postStartCommand and named by waitFor: waits
-# until the supervised runtime reports its required services ready, then repairs per-start
-# state and runs the image's started hooks. --no-wait is for a host with no supervisor,
-# whose postStartCommand.sh started the services itself. Spec: agentdev-runtime-images.
-# Usage: devcontainer-ready.sh [--no-wait]
+# Start phase (postStartCommand, the waitFor target): wait for the runtime's required
+# services, repair per-start state, run the started hooks. --no-wait: no supervisor runs.
+# Spec: agentdev-runtime-images. Usage: devcontainer-ready.sh [--no-wait]
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 workspace="${DEV_WORKSPACE_FOLDER:-$PWD}"

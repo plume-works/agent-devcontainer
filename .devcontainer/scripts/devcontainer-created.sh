@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Create-once initialization for agentdev-devcontainer, run as postCreateCommand: client
-# state, project dependencies and hooks, and the staged catalog, then the image's created
-# hooks. Idempotent. `wait` blocks until a create phase of this container has finished.
+# Create phase (postCreateCommand), idempotent: client state, project dependencies and
+# hooks, the staged catalog, then the created hooks. `wait` blocks until one has finished.
 # Spec: agentdev-runtime-images, catalog-lifecycle. Usage: devcontainer-created.sh [wait]
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

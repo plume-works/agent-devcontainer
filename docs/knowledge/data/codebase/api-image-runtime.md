@@ -58,7 +58,7 @@ acceptance.
 | `FIREWALL_ALLOWLIST`                                | `init-firewall.sh:14`                                                      | overrides the allowlist path                                             |
 | `XPRA_HOST`, `XPRA_VIDEO_ENCODERS`, `XPRA_LOG_FILE` | `/start-xpra.sh:6-14`                                                      | bind host, encoders, log path                                            |
 | `XPRA_PASSWORD`                                     | `/start-xpra.sh:285-287`                                                   | nonempty: every TCP/WebSocket session must authenticate with it          |
-| `AGENTDEV_CATALOG_DIR`                              | set by `agentdev-base.Dockerfile:75`, read by `devcontainer-created.sh:52` | where the catalog is staged (`/opt/agentdev`)                            |
+| `AGENTDEV_CATALOG_DIR`                              | set by `agentdev-base.Dockerfile:75`, read by `devcontainer-created.sh:51` | where the catalog is staged (`/opt/agentdev`)                            |
 | `PLAYWRIGHT_BROWSERS_PATH`                          | set by the image                                                           | shared, runtime-writable browser binaries at `/opt/playwright`           |
 | `CBM_CACHE_DIR`                                     | the `codebase-memory-mcp-*.sh` scripts                                     | required; cache and logs location                                        |
 | `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`    | `setup-pre-commit.sh` and the runtime profiles                             | opt out of hook install and desktop start                                |
@@ -98,7 +98,7 @@ lifecycle commands run in addition to those.
 - A derived image extends each phase with executable files in
   `/etc/agentdev/hooks/{created,started,attached}.d/`, run in name order after
   the managed phase; a failing hook names itself and its phase —
-  `.devcontainer/scripts/run-agentdev-hooks.sh:10`.
+  `.devcontainer/scripts/run-agentdev-hooks.sh:9`.
 - Changing, adding, or removing a file below `/opt/agentdev-runtime` fails
   startup — `.devcontainer/scripts/runtime-bootstrap.sh:177`.
 - `AGENTDEV_USER`, `AGENTDEV_HOME`, `CBM_CACHE_DIR`, and the bus and display
@@ -148,7 +148,7 @@ Operator surface, all through `docker exec`:
   `keyring`, and `opencode` for deploy; `runtime-health.sh status` prints the
   state, each failed or blocked component with its retry command, what
   `remote-control` is doing when it runs, and the last failure —
-  `.devcontainer/scripts/runtime-health.sh:50`, `:63`.
+  `.devcontainer/scripts/runtime-health.sh:49`, `:62`.
 - `~/.local/state/agentdev/last-failure.json` on the home volume — startup ID,
   component, reason, command, exit status, at most 200 output lines from the
   attempt that failed, UTC time; only a later failure replaces it —

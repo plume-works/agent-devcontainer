@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Readiness probes for the runtime's services, the aggregate readiness the deploy
-# HEALTHCHECK and the Dev Container start lifecycle read, and an operator status report.
-# Exit 0 means ready.
+# Per-service probes, the aggregate readiness both images' healthchecks read, and a
+# status report; exit 0 means ready.
 # Usage: runtime-health.sh dockerd|dbus|keyring|cbm|xpra|opencode|remote-control|ready|status
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Runs the executable hooks an image installed for one lifecycle phase, in C-locale name
-# order, after the managed phase. Only the image's hook root is read; a mounted workspace
-# never contributes hooks. Spec: agentdev-runtime-images.
+# Runs one phase's image-installed executable hooks in C-locale name order; a mounted
+# workspace never contributes hooks. Spec: agentdev-runtime-images.
 # Usage: run-agentdev-hooks.sh created|started|attached
 
 phase="${1:-}"
