@@ -337,10 +337,14 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
     derived, and full adoption modes, with `template-consume` supported for full
     adoption; the README and user stories describe the same;
     `iwe schema validate` clean.
-- [ ] Update image, catalog, Docker-storage, pinning, and product terminology to
+- [x] Update image, catalog, Docker-storage, pinning, and product terminology to
   the shipped names and behaviour in the non-spec documents this task lists,
   without copying runtime implementation detail into multiple documents. Spec
   documents change only when Ship merges `## Spec changes`.
+  - **Evidence:** commits aac27ed3, bef0fd05, 87c40c78;
+    `git grep -E "agent- desktop|agent-opencode"` over the documents Task 8
+    lists leaves only the migration notes and changelog entries; no spec
+    document changed; `iwe schema validate` clean.
 - [ ] Refresh every stale codebase-map document through `/agentdev:iwe-map`
   after paths and flows settle.
 
