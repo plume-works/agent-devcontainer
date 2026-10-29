@@ -291,8 +291,8 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   succeeds.
   - **Evidence:** squash commit 9f50acd7 (#518); main CI run 40949574006 on
     9f50acd7 built `agentdev-base` once per architecture, built
-    `agentdev- deploy` and `agentdev-devcontainer` from its digest, passed
-    deploy and Dev Container native acceptance on amd64 and arm64, and only then
+    `agentdev-deploy` and `agentdev-devcontainer` from its digest, passed deploy
+    and Dev Container native acceptance on amd64 and arm64, and only then
     promoted `edge`: `agentdev-devcontainer:edge` and `:sha-9f50acd` both
     resolve to `sha256:dddd993a…`.
 - [x] Rename deploy Compose, pins, Renovate rules, workflow outputs, and
@@ -308,7 +308,7 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   - **Evidence:** squash commit 9f50acd7 (#518);
     `uv run pytest scripts/tests/test_agent_runtime_ci.py` — 26 passed,
     including the shared Dev Container pin across `ai-responder.yml`,
-    `renovate.yml`, and `validate- renovate-config.yml`; the pins live in root
+    `renovate.yml`, and `validate-renovate-config.yml`; the pins live in root
     files outside the image path filter.
 
 ### Task 8: Align the product contract and codebase map
@@ -332,7 +332,7 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
   modes in the architecture, README, and user-story documents. State explicitly
   that `template-consume` remains supported for full adoption.
   - **Evidence:** commits bef0fd05, 1f85dae3;
-    `architecture/devcontainer- runtime.md` records the family, profiles,
+    `architecture/devcontainer-runtime.md` records the family, profiles,
     lifecycle ownership, hooks and environment interface, and the direct,
     derived, and full adoption modes, with `template-consume` supported for full
     adoption; the README and user stories describe the same;
@@ -342,9 +342,9 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
   without copying runtime implementation detail into multiple documents. Spec
   documents change only when Ship merges `## Spec changes`.
   - **Evidence:** commits aac27ed3, bef0fd05, 87c40c78;
-    `git grep -E "agent- desktop|agent-opencode"` over the documents Task 8
-    lists leaves only the migration notes and changelog entries; no spec
-    document changed; `iwe schema validate` clean.
+    `git grep -E "agent-desktop|agent-opencode"` over the documents Task 8 lists
+    leaves only the migration notes and changelog entries; no spec document
+    changed; `iwe schema validate` clean.
 - [x] Refresh every stale codebase-map document through `/agentdev:iwe-map`
   after paths and flows settle.
   - **Evidence:** commit c2881b47; `stale-map-docs.py` — RESULT=SUCCESS, 28 docs
@@ -392,7 +392,7 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
   - **Evidence:** CI run 40962199551 on acd24731 built the three candidate
     images natively on amd64 and arm64, passed deploy and Dev Container runtime
     acceptance on both, and only then promoted `pr-541`
-    (`agentdev- devcontainer:pr-541@sha256:b672b905…`); main run 40949574006
+    (`agentdev-devcontainer:pr-541@sha256:b672b905…`); main run 40949574006
     promoted `edge` the same way.
 
 ## Spec changes
