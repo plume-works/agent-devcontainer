@@ -270,10 +270,11 @@ root `AGENTS.md` — and the consumer-owned `eas.json`. The marker records it as
 against the guide on every update, since no `tracked_paths` diff surfaces them.
 
 In `.devcontainer/devcontainer.json` the profile lists the [VS Code Expo
-bridge](vscode-expo-bridge.md) extension pack `plume-works.vscode-expo-bridge`
-in `customizations.vscode.extensions`, adds `8081` to `forwardPorts` for Metro,
-and gives that port a `portsAttributes` entry with `"onAutoForward": "silent"`,
-so VS Code's auto-forward notification does not cover the bridge's own
+bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/architecture/vscode-expo-bridge.md)
+extension pack `plume-works.vscode-expo-bridge` in
+`customizations.vscode.extensions`, adds `8081` to `forwardPorts` for Metro, and
+gives that port a `portsAttributes` entry with `"onAutoForward": "silent"`, so
+VS Code's auto-forward notification does not cover the bridge's own
 notifications. The listed pack installs the workspace extension in the
 container; the host extension is installed on the Mac by one click on its
 **Install Locally**, once per Mac. Its `AGENTS.md` rule tells agents to build

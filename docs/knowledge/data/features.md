@@ -84,8 +84,6 @@ restarts](features/claude-remote-control-resume.md)
 
 [Shared BuildKit builder](features/shared-buildkit-builder.md)
 
-[VS Code Expo bridge](features/vscode-expo-bridge.md)
-
 [Docker storage limits](features/docker-storage-limits.md)
 
 [update-branch pulls the branch's

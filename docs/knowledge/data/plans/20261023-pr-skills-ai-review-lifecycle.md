@@ -290,9 +290,10 @@ toggle-without-check case — one
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-open/SKILL.md`
 
 - [x] A new `### 10. Re-Review Evaluation` follows step 9: in update mode,
-  always apply [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md) with
-  `PR_NUMBER`, and add its decision to the step 9 report; create mode skips it.
-  `### 10. Error Handling` becomes `### 11. Error Handling`
+  always apply
+  [pr-eval-review-needed](https://github.com/plume-works/agent-devcontainer/blob/main/.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md)
+  with `PR_NUMBER`, and add its decision to the step 9 report; create mode skips
+  it. `### 10. Error Handling` becomes `### 11. Error Handling`
   - **Evidence:** `pr-open/SKILL.md` gains `### 10. Re-Review Evaluation`, run
     on every update-mode run and skipped in create mode, and renumbers
     `### 11. Error Handling`; `validate_agent_files` reports 63/63 skills valid.
@@ -301,7 +302,8 @@ toggle-without-check case — one
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`
 
-- [x] Step 5 applies [pr-eval-review-needed](../pr-eval-review-needed/SKILL.md)
+- [x] Step 5 applies
+  [pr-eval-review-needed](https://github.com/plume-works/agent-devcontainer/blob/main/.agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md)
   after the push and before restarting the loop
   - **Evidence:** `pr-merge/SKILL.md` step 5 applies `pr-eval-review-needed`
     after the push and before restarting the loop; `validate_agent_files`
@@ -327,8 +329,9 @@ toggle-without-check case — one
     `gh pr checks --watch`; `grep` for `discover`, `ledger`, `gh run watch`, and
     `Determine checkout` on `pr-merge/SKILL.md` returns nothing.
 - [x] Its trigger step requests the review through
-  [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose script posts
-  it; `ALREADY_REQUESTED` means wait on the head's checks, not post again
+  [pr-request-ai-review](https://github.com/plume-works/agent-devcontainer/blob/main/.agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md),
+  whose script posts it; `ALREADY_REQUESTED` means wait on the head's checks,
+  not post again
   - **Evidence:** commits `62d7fbc` and `e92bbb9` — `pr-merge/SKILL.md` recovery
     step 3 requests through `pr-request-ai-review`, waits on the head's checks
     on `ALREADY_REQUESTED`, and reports `ALREADY_REVIEWED`;

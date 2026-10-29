@@ -5,12 +5,13 @@ generated:
   by: claude-code/opus-4.8
   at: 2026-10-21T00:00:00Z
 sources:
-- resource: docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
+- resource: https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261015-vscode-expo-bridge.md
 ---
 
 # Narrow the devcontainer's forwarded agent exposure
 
-A spike for the [VS Code Expo bridge](../plans/20261015-vscode-expo-bridge.md)
+A spike for the [VS Code Expo
+bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261015-vscode-expo-bridge.md)
 found, while establishing that the bridge adds no reach a devcontainer window
 does not already grant, that VS Code's Dev Containers forwards the Mac's SSH
 agent (`SSH_AUTH_SOCK`) and GPG agent into the container. From a container
