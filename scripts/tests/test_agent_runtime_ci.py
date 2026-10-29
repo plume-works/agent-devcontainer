@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import re
+import subprocess
 
 import pytest
 import yaml
@@ -192,7 +193,15 @@ def test_renovate_moves_every_dev_container_reference_together():
 
 
 def test_workflow_jobs_share_the_dev_container_pin():
-    pin = re.search(r'image: (\S+)', (REPO_ROOT / 'devcontainer-compose-pins.yml').read_text())
+    # The committed pin: the Dev Container smoke test patches the working copy to its own build.
+    committed = subprocess.run(
+        ['git', 'show', 'HEAD:devcontainer-compose-pins.yml'],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    pin = re.search(r'image: (\S+)', committed)
     assert pin is not None and '/agentdev-devcontainer:' in pin.group(1)
     workflows = REPO_ROOT / '.github/workflows'
     images = [

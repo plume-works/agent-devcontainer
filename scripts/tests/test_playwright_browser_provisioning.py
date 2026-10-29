@@ -69,15 +69,15 @@ def test_desktop_image_enables_and_describes_the_pinned_browser() -> None:
 def test_image_build_derives_the_playwright_version_from_the_role_default() -> None:
     build_steps = CI['jobs']['build-dev-image']['steps']
     version_step = next(step for step in build_steps if step.get('id') == 'playwright_version')
-    desktop_build = next(
-        step for step in build_steps if step.get('name') == 'Build agent desktop image'
+    base_build = next(
+        step for step in build_steps if step.get('name') == 'Build agentdev base image'
     )
 
     assert 'ansible/roles/playwright_browser/defaults/main.yml' in version_step['run']
     assert 'playwright_browser_version:' in version_step['run']
     assert (
         'PLAYWRIGHT_VERSION=${{ steps.playwright_version.outputs.version }}'
-        in (desktop_build['with']['build-args'])
+        in (base_build['with']['build-args'])
     )
 
 

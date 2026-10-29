@@ -36,7 +36,7 @@ or fetch the files at the commit you want to run:
 mkdir -p ~/agent-opencode && cd ~/agent-opencode
 base=https://raw.githubusercontent.com/plume-works/agent-devcontainer/main
 for f in compose.opencode.yml compose.opencode.bind.yml opencode-compose-pins.yml \
-  docker/opencode/runtime.env.example; do
+  docker/deploy/runtime.env.example; do
   curl -fsSLO "$base/$f"
 done
 ```

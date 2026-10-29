@@ -14,6 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 REAL_SCRIPTS = (
     'runtime-workspace.sh',
+    'runtime-paths.sh',
     'setup-git-safe-directory.sh',
     'uv-sync.sh',
     'setup-pre-commit.sh',

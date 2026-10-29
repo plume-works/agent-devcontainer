@@ -68,9 +68,9 @@ case "$runtime_mode" in
   deploy | devcontainer) result 'runtime mode' PASS "$runtime_mode" ;;
   *) result 'runtime mode' FAIL 'expected deploy or devcontainer' ;;
 esac
-if [[ -x /opt/agentdev-runtime/runtime-health.sh ]]; then
-  check 'runtime ready' /opt/agentdev-runtime/runtime-health.sh ready
-  check 'runtime status' /opt/agentdev-runtime/runtime-health.sh status
+if [[ -x "$runtime_scripts/runtime-health.sh" ]]; then
+  check 'runtime ready' "$runtime_scripts/runtime-health.sh" ready
+  check 'runtime status' "$runtime_scripts/runtime-health.sh" status
 else
   result 'runtime health' SKIP 'runtime-health.sh unavailable'
 fi
