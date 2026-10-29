@@ -1,17 +1,17 @@
 ---
 type: codebase
-description: The Ansible playbook and roles that provision the agent-desktop image from an Ubuntu base; capability roles are opt-in and the desktop Dockerfile turns them all on.
+description: The Ansible playbook and roles that provision the agentdev-base image from an Ubuntu base; capability roles are opt-in and the base Dockerfile turns them all on.
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:600878085a4b861b8834587b3705ad090ee6e37b0ea92c83ce7b6cfeeb01de66
+source_digest: sha256:d84301a1d9e5f65b3c2a9c8da0f7c358ee8add5a1fda27c455aeaf2428b6f899
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
-stale_after: 2027-01-21
+  at: 2026-10-29T18:53:31Z
+stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:51:57Z
+  at: 2026-10-29T18:53:31Z
 sources:
 - id: code
   resource: ansible
@@ -20,11 +20,12 @@ sources:
 # Image provisioning (Ansible)
 
 `ansible/playbooks/setup-dev.yml` provisions an Ubuntu 24.04 base into the
-published `agent-desktop` image. Every capability role is a boolean in
-`ansible/playbooks/group_vars/all.yml`, `false` by default, and [the desktop
-Dockerfile](docker.md) passes them all as `true`. `ansible.cfg` sits at the
-repository root so `ansible-playbook`, `ansible-lint`, and the Dockerfile's
-`cd /provision` all resolve the inventory, roles path, and log path from there.
+published `agentdev-base` image, which both runtime images derive from. Every
+capability role is a boolean in `ansible/playbooks/group_vars/all.yml`, `false`
+by default, and [the base Dockerfile](docker.md) passes them all as `true`.
+`ansible.cfg` sits at the repository root so `ansible-playbook`, `ansible-lint`,
+and the Dockerfile's `cd /provision` all resolve the inventory, roles path, and
+log path from there.
 
 ## Contains
 
@@ -108,7 +109,7 @@ The `ubuntu-ansible` base image from [docker/](docker.md) supplies Ansible
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-21):
+Verified anchor points (line numbers as of 2026-10-29):
 
 - `ansible/playbooks/setup-dev.yml:18` — `perm_probe` pre-check guard
 - `ansible/playbooks/setup-dev.yml:28` — `dev_tools`
