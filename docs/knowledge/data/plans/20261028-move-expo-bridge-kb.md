@@ -333,7 +333,7 @@ and its link to `features/vscode-expo-bridge`
 
 **Files:** none
 
-- [ ] `iwe normalize`, then `iwe schema validate` exits 0; `iwe stats` reports
+- [x] `iwe normalize`, then `iwe schema validate` exits 0; `iwe stats` reports
   no broken link; `grep -rn "expo-bridge" docs/knowledge/data` finds no link to
   or key of the 28 except as a URL — its other matches are the extension ID
   `plume-works.vscode-expo-bridge`, the repository name
@@ -341,6 +341,12 @@ and its link to `features/vscode-expo-bridge`
   own key and text, and historical text in
   `plans/20261016-release-impact-at-plan-time`;
   `uv run pytest docs/knowledge/tests` passes.
+  - **Evidence:** at `f63c666a`, `iwe normalize` changes nothing,
+    `iwe schema validate` exits 0, and `iwe stats` has no `## Broken Links`
+    section; the grep, minus URLs, the extension ID, the repository name, the
+    `.tmp/expo-bridge/` path, and this plan, leaves only
+    `plans/20261016-release-impact-at-plan-time.md:116`;
+    `uv run pytest docs/knowledge/tests` passes 58 tests.
 
 ## Spec changes
 
