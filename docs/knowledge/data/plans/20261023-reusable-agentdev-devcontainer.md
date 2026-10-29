@@ -386,9 +386,14 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 
 **Files:** None.
 
-- [ ] **Closed by: CI on the current head.** Both architectures publish the
+- [x] **Closed by: CI on the current head.** Both architectures publish the
   three candidate images, run deploy and Dev Container native acceptance, and
   promote the canonical moving tags only after every required check passes.
+  - **Evidence:** CI run 40962199551 on acd24731 built the three candidate
+    images natively on amd64 and arm64, passed deploy and Dev Container runtime
+    acceptance on both, and only then promoted `pr-541`
+    (`agentdev- devcontainer:pr-541@sha256:b672b905…`); main run 40949574006
+    promoted `edge` the same way.
 
 ## Spec changes
 
