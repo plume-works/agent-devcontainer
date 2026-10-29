@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-29
+
+- **Update**: [Move the Expo bridge knowledge into its own
+  repository](plans/20261028-move-expo-bridge-kb.md) done; no `data/spec/`
+  change.
+
 ## 2026-10-28
 
 - **Update**: [Expo Bridge panel, status bar, and Problems in the workspace

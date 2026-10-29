@@ -14,6 +14,8 @@ sources:
 - resource: docs/knowledge/data/architecture/template-boundary.md
 - resource: docs/knowledge/data/features/expo-eas-builds.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
+stage: done
+completed: 2026-10-29
 ---
 
 # Move the Expo bridge knowledge into its own repository
