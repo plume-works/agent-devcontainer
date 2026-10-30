@@ -132,7 +132,7 @@ reformat and targeted validation:
    ```
 
 2. Push with the [pr-open](../pr-open/SKILL.md) push helper,
-   `agent-code/push-branch.sh`, and handle its result exactly as that skill's
+   `agent-code/push-branch.py`, and handle its result exactly as that skill's
    step 8 describes — including `MAP_STALE`, which refreshes the codebase map
    and pushes again. Pass `--remote` only for an explicitly selected remote. If
    push authentication is unavailable, stop and report the blocker. Do not fall
