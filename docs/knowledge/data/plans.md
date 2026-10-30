@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[iwe-branch-name v2: one iteration counter per
+plan](plans/20261030-iwe-branch-name-v2.md)
+
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
