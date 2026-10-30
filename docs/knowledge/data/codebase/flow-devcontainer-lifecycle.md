@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:fd693f046e1f1172c6deebb34e09630dda641974580859b3dbb2eefc908faea0
+source_digest: sha256:72918a1c9f06aa61c43ac09dcade13e98dfb06296279d68e6b6e72e76c7880bb
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:30:00Z
+  at: 2026-10-30T06:40:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:30:00Z
+  at: 2026-10-30T06:40:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -57,7 +57,7 @@ state.
    `setup-agent-state.sh catalog` for the image-staged catalog; then the image's
    `created` hooks and the create marker, which releases the opt-in OpenCode and
    Remote Control programs —
-   `.devcontainer/scripts/devcontainer-created.sh:36-58`
+   `.devcontainer/scripts/devcontainer-created.sh:34-56`
 5. `postStartCommand` (every start, and the `waitFor` target): wait until
    `runtime-health.sh ready` passes, failing when the runtime failed or is late;
    then `safe.directory`, the gh git credential helper,
