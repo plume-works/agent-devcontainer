@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -14,6 +15,9 @@ import pytest
 
 PLAN = 'data/plans/20260101-focus-timer'
 REPORT = 'Ready to ship data/plans/20260101-focus-timer\n\n- Findings: none\n'
+SKILL_REQUEST = '/agentdev:iwe-verify data/plans/20260101-focus-timer'
+VERIFIER_PROMPT = 'Plan key: data/plans/20260101-focus-timer\n\nApprovals: none.'
+PROMPTS = ('--skill-request', SKILL_REQUEST, '--verifier-prompt', VERIFIER_PROMPT)
 
 
 @pytest.fixture
@@ -54,7 +58,9 @@ def run_cache(
     return completed, values
 
 
-def save_current(installed: Path, repository: Path, target: str = PLAN) -> dict[str, str]:
+def save_current(
+    installed: Path, repository: Path, target: str = PLAN, prompts: tuple[str, ...] = PROMPTS
+) -> dict[str, str]:
     """Look up `target`, expect a miss, and save REPORT for the commit it printed."""
     completed, values = run_cache(installed, repository, 'lookup', target)
     assert outcome(completed) == (4, 'RESULT=MISS')
@@ -67,10 +73,29 @@ def save_current(installed: Path, repository: Path, target: str = PLAN) -> dict[
         values['COMMIT'],
         '--verdict',
         'Ready to ship',
+        *prompts,
         stdin=REPORT,
     )
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     return saved
+
+
+def block_scalars(report: Path) -> dict[str, str]:
+    """Read the `key: |2-` literal blocks from a saved report's frontmatter."""
+    match = re.match(r'---\n(.*?)\n---\n', report.read_text(encoding='utf-8'), re.DOTALL)
+    assert match is not None
+    frontmatter = match.group(1)
+    blocks: dict[str, list[str]] = {}
+    current = None
+    for line in frontmatter.splitlines():
+        if line.endswith(': |2-'):
+            current = line.removesuffix(': |2-')
+            blocks[current] = []
+        elif current is not None and (line.startswith('  ') or not line):
+            blocks[current].append(line[2:])
+        else:
+            current = None
+    return {key: '\n'.join(lines) for key, lines in blocks.items()}
 
 
 def commit_change(repository: Path) -> None:
@@ -193,7 +218,7 @@ def test_dirty_worktree_stops_both_commands(
         (repository / 'new.txt').write_text('new\n', encoding='utf-8')
     arguments = ['lookup', PLAN]
     if command == 'save':
-        arguments = ['save', PLAN, '--commit', head, '--verdict', 'Blocked']
+        arguments = ['save', PLAN, '--commit', head, '--verdict', 'Blocked', *PROMPTS]
 
     completed, _ = run_cache(installed_verify, repository, *arguments, stdin=REPORT)
 
@@ -215,6 +240,7 @@ def test_save_refuses_a_moved_head(installed_verify: Path, repository: Path) -> 
         stale,
         '--verdict',
         'Blocked',
+        *PROMPTS,
         stdin=REPORT,
     )
 
@@ -235,6 +261,7 @@ def test_save_refuses_needs_decision(installed_verify: Path, repository: Path) -
         head,
         '--verdict',
         'Needs decision',
+        *PROMPTS,
         stdin=REPORT,
     )
 
@@ -261,3 +288,51 @@ def test_help_prints_the_results_table(installed_verify: Path, repository: Path)
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     for row in ('HIT                3', 'MISS               4', 'DIRTY_WORKTREE     5'):
         assert row in completed.stdout
+
+
+def test_save_records_both_prompts_verbatim(installed_verify: Path, repository: Path) -> None:
+    """Multi-line prompts with a colon and quotes survive into the frontmatter, and still hit."""
+    skill_request = "/agentdev:iwe-verify data/plans/x — I approve: 'e2e'"
+    verifier_prompt = (
+        'Plan key: data/plans/x\n\nApprovals:\n  - "I approve running `bin/e2e.sh`."\n---'
+    )
+    saved = save_current(
+        installed_verify,
+        repository,
+        prompts=('--skill-request', skill_request, '--verifier-prompt', verifier_prompt),
+    )
+
+    assert block_scalars(Path(saved['REPORT'])) == {
+        'skill_request': skill_request,
+        'verifier_prompt': verifier_prompt,
+    }
+    completed, values = run_cache(installed_verify, repository, 'lookup', PLAN)
+    assert outcome(completed) == (3, 'RESULT=HIT')
+    assert values['VERDICT'] == 'Ready to ship'
+
+
+@pytest.mark.parametrize('missing', ['--skill-request', '--verifier-prompt'])
+def test_save_requires_both_prompts(
+    installed_verify: Path, repository: Path, missing: str
+) -> None:
+    """Saving without either prompt is a usage error and writes nothing."""
+    head = git(repository, 'rev-parse', 'HEAD')
+    prompts = dict(zip(PROMPTS[::2], PROMPTS[1::2], strict=True))
+    del prompts[missing]
+    flags = [part for flag, value in prompts.items() for part in (flag, value)]
+
+    completed, _ = run_cache(
+        installed_verify,
+        repository,
+        'save',
+        PLAN,
+        '--commit',
+        head,
+        '--verdict',
+        'Blocked',
+        *flags,
+        stdin=REPORT,
+    )
+
+    assert outcome(completed) == (2, 'RESULT=PREFLIGHT_ERROR')
+    assert not (repository / '.tmp' / 'verify').exists()

@@ -28,7 +28,8 @@ catalog. Run from inside the repository being verified.
 
 Usage:
   verify-cache.py lookup <plan-key|audit> [--fresh]
-  verify-cache.py save <plan-key|audit> --commit <sha> --verdict <verdict> < report
+  verify-cache.py save <plan-key|audit> --commit <sha> --verdict <verdict>
+                  --skill-request <text> --verifier-prompt <text> < report
 
 Arguments:
   <plan-key|audit>  data/plans/<YYYYMMDD>-<slug>, its file path, or audit.
@@ -38,6 +39,12 @@ Options:
   --commit <sha>    save only: the COMMIT the lookup's miss printed.
   --verdict <v>     save only: Ready to ship, Blocked, or Audit. A Needs
                     decision report is never saved.
+  --skill-request <text>
+                    save only: the request the iwe-verify skill was invoked
+                    with, verbatim.
+  --verifier-prompt <text>
+                    save only: the prompt the iwe-verifier rulebook ran under,
+                    dispatched or followed in place, verbatim.
   -h, --help        Show this help text.
 
 Output (key=value lines):
@@ -48,6 +55,8 @@ Output (key=value lines):
 
 The saved report lives at .tmp/verify/<plan file name>.md, or
 .tmp/verify/audit.md, under the repository root, and each save overwrites it.
+Both prompts are recorded in its frontmatter as block scalars; they are not
+part of the key.
 A dirty worktree is any tracked change or any untracked file Git does not
 ignore; the cache directory ignores itself.
 
@@ -76,6 +85,7 @@ SAVED_VERDICTS = ('Ready to ship', 'Blocked', 'Audit')
 PLUGIN_ROOT = Path(__file__).resolve().parents[3]
 CACHE_DIRECTORY = Path('.tmp') / 'verify'
 FRONTMATTER = re.compile(r'---\n(.*?)\n---\n', re.DOTALL)
+SAVE_FLAGS = ('--commit', '--verdict', '--skill-request', '--verifier-prompt')
 
 
 class Options(NamedTuple):
@@ -86,6 +96,8 @@ class Options(NamedTuple):
     fresh: bool
     commit: str
     verdict: str
+    skill_request: str
+    verifier_prompt: str
 
 
 class Stop(Exception):
@@ -115,19 +127,22 @@ def parse_arguments(arguments: list[str]) -> Options | None:
     if len(arguments) < 2 or arguments[0] not in ('lookup', 'save'):
         return None
     command, target, rest = arguments[0], arguments[1], arguments[2:]
-    fresh, commit, verdict = False, '', ''
+    fresh = False
+    values: dict[str, str] = {}
     while rest:
         flag = rest.pop(0)
         if command == 'lookup' and flag == '--fresh':
             fresh = True
-        elif command == 'save' and flag in ('--commit', '--verdict') and rest:
-            value = rest.pop(0)
-            commit, verdict = (value, verdict) if flag == '--commit' else (commit, value)
+        elif command == 'save' and flag in SAVE_FLAGS and rest:
+            values[flag] = rest.pop(0)
         else:
             return None
-    if command == 'save' and not (commit and verdict):
+    if command == 'save' and not all(values.get(flag) for flag in SAVE_FLAGS):
         return None
-    return Options(command, canonical_target(target), fresh, commit, verdict)
+    commit, verdict, skill_request, verifier_prompt = (values.get(flag, '') for flag in SAVE_FLAGS)
+    return Options(
+        command, canonical_target(target), fresh, commit, verdict, skill_request, verifier_prompt
+    )
 
 
 def canonical_target(target: str) -> str:
@@ -163,8 +178,15 @@ def read_frontmatter(path: Path) -> dict[str, str]:
         return {}
     if match is None:
         return {}
-    fields = (line.partition(': ') for line in match.group(1).splitlines())
-    return {key: value for key, _, value in fields}
+    # Indented lines belong to a block scalar, which holds no key field.
+    lines = (line for line in match.group(1).splitlines() if not line.startswith(' '))
+    return {key: value for key, _, value in (line.partition(': ') for line in lines)}
+
+
+def block_scalar(key: str, text: str) -> str:
+    """Render `text` as a YAML literal block that keeps every line verbatim."""
+    body = ''.join(f'  {line}\n' if line else '\n' for line in text.rstrip('\n').split('\n'))
+    return f'{key}: |2-\n{body}'
 
 
 def run_lookup(options: Options, report: Path) -> int:
@@ -208,6 +230,8 @@ def run_save(options: Options, report: Path) -> int:
         f'catalog_digest: {catalog_digest()}\n'
         f'verdict: {options.verdict}\n'
         f'saved_at: {saved_at}\n'
+        f'{block_scalar("skill_request", options.skill_request)}'
+        f'{block_scalar("verifier_prompt", options.verifier_prompt)}'
         '---\n'
         f'{body}',
         encoding='utf-8',
