@@ -2,14 +2,14 @@
 type: codebase
 description: The runtime both agentdev images bake at /opt/agentdev-runtime — the supervisor and its deploy and devcontainer profiles, the Dev Container create, start, and attach commands with their hook runner, and the helpers they call, from agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall, auth links, and full-access policies to the gh credential helper, the Coder agent-start entry point, Remote Control, and the OpenCode web UI.
 source: .devcontainer/scripts
-source_digest: sha256:eef112483b454f1432f87340be99fcf62796de41086f25704953f0f126e46de4
+source_digest: sha256:d498b68088ad9e410ecc1a2ea752b2a86c255c89e2deb09d1c92b5042c83b6ed
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:00:00Z
+  at: 2026-10-30T01:30:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:00:00Z
+  at: 2026-10-30T01:30:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -37,7 +37,6 @@ Devcontainer lifecycle and shared helpers:
 | `devcontainer-attached.sh`                                                           | every editor attach                               | background CBM index request, uv sync, `setup-agent-state.sh catalog` for a checkout with a complete catalog, the `attached` hooks                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `run-agentdev-hooks.sh created\|started\|attached`                                   | each phase, last                                  | run the executable files of `/etc/agentdev/hooks/<phase>.d/` in C-locale name order; refuse a hook root inside the workspace; a failing hook names itself and its phase                                                                                                                                                                                                                                                                                                                                                                     |
 | `postCreateCommand.sh`, `postStartCommand.sh`, `postAttachCommand.sh`                | a CI `container:` job, Codex Cloud                | exec the matching `devcontainer-*.sh`; with no supervisor socket, the start wrapper first starts CBM, keyring, firewall, and Xpra itself                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `container-hostname.sh <checkout-dir>`                                               | `devcontainer-init.sh`, on the host               | print the container hostname: `coder-<CODER_WORKSPACE_NAME>`, else `vscode-<host>-<checkout>` when `VSCODE_PID` or `VSCODE_IPC_HOOK` is set, else `cli-<host>-<checkout>`; the host loses its domain, and the result is lowercased, hyphenated, and cut to one 63-character label                                                                                                                                                                                                                                                           |
 | `setup-agent-state.sh create\|links\|agent-policy\|cbm\|catalog <dir> [scope]`       | the phase commands, deploy `prepare` and `config` | `create`: register image user tooling (deploy), link `~/.claude.json` into the Claude dir, CBM install (devcontainer only), auth dirs `0700`, Claude pre-approval, Codex auth link. `agent-policy`: both `configure-*.py`. `cbm`: the CBM install. `catalog`: the three reinstall scripts, scope to Claude only. All but `links` hold `~/.local/state/agentdev/agent-config.lock`                                                                                                                                                           |
 | `runtime-paths.sh`                                                                   | sourced                                           | the auth, Claude, Codex, and OpenCode roots, each `/root`-layout by default and overridable; `agentdev_deploy` reads `AGENTDEV_RUNTIME_MODE`; `agentdev_complete_catalog` checks the three catalog manifests                                                                                                                                                                                                                                                                                                                                |
 | `reinstall-agentdev-claude.sh [root] [scope]`                                        | `catalog`, attach                                 | remove stale marketplaces for `root`, add it, install every published plugin at `scope`                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
@@ -187,8 +186,6 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 Verified anchor points (line numbers as of 2026-10-29):
 
-- `.devcontainer/scripts/container-hostname.sh:12-18` — launcher precedence
-- `.devcontainer/scripts/container-hostname.sh:21-24` — label normalisation
 - `.devcontainer/scripts/devcontainer-created.sh:36` — `cmd_create`; `:45` —
   `safe.directory`; `:47` — `setup-agent-state.sh create`; `:52` —
   staged-catalog install; `:56` — created hooks; `:61` — `cmd_wait`

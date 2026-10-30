@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:301e8e86d422f75f38b5b1dde6fd6cde0df854bae41c408846328bff4a1c0226
+source_digest: sha256:5964075852a909149c72e1d483343726b8b03d6cc2017ae53bf50e4317e090d6
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:00:00Z
+  at: 2026-10-30T01:30:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:00:00Z
+  at: 2026-10-30T01:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -54,22 +54,22 @@ repository.
 
 `devcontainer-init.sh` runs on the host before Compose: it writes
 `.devcontainer/.env` with the git common dir, the workspace path and basename,
-the container hostname `scripts/container-hostname.sh` derives from the
-launcher, and the host MCP directory and secrets socket when Docker Desktop
-provides them (stubs otherwise), and creates the `agentdev-agents-auth` volume
-Compose declares as external. Compose then layers the tag-only
-`docker-compose.yml` under the digest pin, mounts the workspace at
-`/workspaces/<basename>` and the git common dir at its host path so worktrees
-resolve, and starts the MCP gateway only when the `mcp` profile was activated.
-Per-instance state (`~/.claude`, `~/.codex`, `~/.local/share/opencode`, `/uv`,
-`.cache`, and the sibling checkout at `/workspaces/project`) is on
-Compose-scoped volumes; only Claude and Codex credentials share the literal
-`agentdev-agents-auth` volume across instances. The `devcontainer` service has
-no `command` or `init`: the image's supervisor is PID 1, owns the persistent
-services, and reaps orphans. The image's create, start, and attach commands then
-run the [lifecycle scripts](devcontainer/scripts.md) baked at
-`/opt/agentdev-runtime`; the start phase also restores Codex and OpenCode
-full-access policies in their user configuration files.
+the container hostname it derives from the launcher itself, and the host MCP
+directory and secrets socket when Docker Desktop provides them (stubs
+otherwise), and creates the `agentdev-agents-auth` volume Compose declares as
+external. Compose then layers the tag-only `docker-compose.yml` under the digest
+pin, mounts the workspace at `/workspaces/<basename>` and the git common dir at
+its host path so worktrees resolve, and starts the MCP gateway only when the
+`mcp` profile was activated. Per-instance state (`~/.claude`, `~/.codex`,
+`~/.local/share/opencode`, `/uv`, `.cache`, and the sibling checkout at
+`/workspaces/project`) is on Compose-scoped volumes; only Claude and Codex
+credentials share the literal `agentdev-agents-auth` volume across instances.
+The `devcontainer` service has no `command` or `init`: the image's supervisor is
+PID 1, owns the persistent services, and reaps orphans. The image's create,
+start, and attach commands then run the [lifecycle
+scripts](devcontainer/scripts.md) baked at `/opt/agentdev-runtime`; the start
+phase also restores Codex and OpenCode full-access policies in their user
+configuration files.
 
 Both runtime images bake `scripts/` at `/opt/agentdev-runtime`; this directory's
 Compose and `devcontainer.json` reach only `agentdev-devcontainer`.
@@ -119,6 +119,6 @@ Verified anchor points (line numbers as of 2026-10-29):
   the descriptor inherits
 - `.devcontainer/devcontainer-init.sh:11` — `HOME` default for Codespaces
 - `.devcontainer/devcontainer-init.sh:24` — shared auth volume creation
-- `.devcontainer/devcontainer-init.sh:30,38` — `CONTAINER_HOSTNAME` written to
-  `.env`
+- `.devcontainer/devcontainer-init.sh:30-45,52` — launcher-derived
+  `CONTAINER_HOSTNAME` written to `.env`
 - `devcontainer-compose-pins.yml:14` — the digest pin

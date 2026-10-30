@@ -16,6 +16,10 @@ to the current day's group.
   [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the
   launcher-derived container hostname.
+- **Update**: the launcher hostname is now derived inside
+  `devcontainer-init.sh`, since a migrated consumer keeps no
+  `.devcontainer/scripts/`; [Claude Remote
+  Control](spec/claude-remote-control.md) and the devcontainer map docs say so.
 
 ## 2026-10-29
 

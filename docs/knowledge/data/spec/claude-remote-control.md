@@ -3,7 +3,7 @@ type: spec
 description: Claude Remote Control autostarts from the Coder agent, or from the standalone runtime's supervised watcher when AGENTDEV_CLAUDE_RC_MODE opts in, only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, every container pre-approves Claude's first-run state unless it opts out, and the dev container's hostname, which names the Remote Control environment, says where the container came from.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-30T01:30:00Z
 sources:
 - resource: .claude/.gitignore
 - resource: .devcontainer/devcontainer-init.sh
@@ -12,7 +12,6 @@ sources:
 - resource: .devcontainer/scripts/claude-remote-control-session.sh
 - resource: .devcontainer/scripts/claude-remote-control-start.sh
 - resource: .devcontainer/scripts/coder-agent-start.sh
-- resource: .devcontainer/scripts/container-hostname.sh
 - resource: .devcontainer/scripts/preapprove-claude-workspace.sh
 - resource: .devcontainer/scripts/runtime-remote-control.sh
 - resource: .devcontainer/scripts/runtime-supervisor.py
@@ -259,8 +258,9 @@ stored conversation ID. `.claude/worktrees/` SHALL be ignored by git.
 Claude Remote Control names its environment after the container hostname, and no
 Claude option overrides that name. `devcontainer-init.sh` SHALL write
 `CONTAINER_HOSTNAME` to the Compose `.env`, and the `devcontainer` service SHALL
-take its `hostname` from it. `container-hostname.sh` SHALL derive the value, in
-this order of precedence:
+take its `hostname` from it. The init script SHALL derive the value itself,
+reading no file under `.devcontainer/scripts/`, which a consumer migrated to the
+agentdev image does not keep. It checks, in this order of precedence:
 
 - `coder-<CODER_WORKSPACE_NAME>` when `CODER_WORKSPACE_NAME` is set;
 - `vscode-<host>-<checkout>` when `VSCODE_PID` or `VSCODE_IPC_HOOK` is set,

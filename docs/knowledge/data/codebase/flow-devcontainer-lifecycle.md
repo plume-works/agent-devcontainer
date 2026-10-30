@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:71fc3ef72639b50e26b7e0226127102e44aee78335c0aecbe869d0e4375141e2
+source_digest: sha256:c0ae36844432ff651b32e9c4579e099762dcc0df684cbeda2ecc7bfeb723780b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:00:00Z
+  at: 2026-10-30T01:30:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:00:00Z
+  at: 2026-10-30T01:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -27,12 +27,10 @@ state.
 ## Trace
 
 1. `initializeCommand` runs `devcontainer-init.sh` on the host: writes
-   `.devcontainer/.env`, including the `CONTAINER_HOSTNAME` that
-   `container-hostname.sh` derives from the launcher (Coder, VS Code, or the
-   CLI), and creates the shared `agentdev-agents-auth` volume —
-   `.devcontainer/devcontainer.json:3`,
-   `.devcontainer/devcontainer-init.sh:13-39`,
-   `.devcontainer/scripts/container-hostname.sh:12-18`
+   `.devcontainer/.env`, including the `CONTAINER_HOSTNAME` it derives from the
+   launcher (Coder, VS Code, or the CLI), and creates the shared
+   `agentdev-agents-auth` volume — `.devcontainer/devcontainer.json:3`,
+   `.devcontainer/devcontainer-init.sh:13-53`
 2. Compose starts the `devcontainer` service from the pinned
    `agentdev-devcontainer` image under that hostname, layering
    `devcontainer-compose-pins.yml` over `docker-compose.yml`, and the
