@@ -12,6 +12,10 @@ to the current day's group.
   Control](spec/claude-remote-control.md); [Remote Control environment
   names](features/remote-control-environment-names.md) implemented and listed
   under Unreleased Added.
+- **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
+  [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the
+  launcher-derived container hostname.
 
 ## 2026-10-29
 
