@@ -296,8 +296,10 @@ four `.sh` scripts and `__common.sh`
 `.agents/plugins/agentdev/skills/extract-github-actions-logs/agent-code/parse-actions-url.py`,
 `.agents/plugins/agentdev/tests/test_parse_actions_url.py`; Modify: the two
 skills' `SKILL.md`,
-`.agents/plugins/agentdev/tests/test_template_consume_check_updates.py`; Delete:
-the two `.sh` scripts and template-consume's `__common.sh`
+`.agents/plugins/agentdev/tests/test_template_consume_check_updates.py`,
+`.agents/plugins/agentdev/bin/skill_common.py` and its test, which gain the
+shared `bash_quote`, and the remote-codespace-session scripts that import it;
+Delete: the two `.sh` scripts and template-consume's `__common.sh`
 
 - [ ] Both scripts reproduce their contracts; the URL parser gains its first
   test.
