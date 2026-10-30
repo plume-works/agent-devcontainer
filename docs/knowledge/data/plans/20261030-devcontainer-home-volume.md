@@ -36,9 +36,9 @@ container filesystem, so every piece of per-instance state has its own volume
 (`agentdev-claude`, `agentdev-codex`, `agentdev-opencode`, `agentdev-uv`, and
 the volumes holding the CBM and pre-commit caches), `~/.claude.json` is a
 symlink into the `~/.claude` volume, and a cache below the bind-mounted checkout
-depends on the checkout's owner ([Bug: CBM cache under a checkout another UID
-owns](../bugs/cbm-cache-under-foreign-owned-checkout.md)). The deploy runtime
-has none of this: a non-root account whose whole home is one volume.
+depends on the checkout's owner, because CBM refuses a cache directory with an
+ancestor another UID owns. The deploy runtime has none of this: a non-root
+account whose whole home is one volume.
 
 The owner's decisions for this plan: a non-root account; the work lands after
 [Replace the runtime shell scripts with one agentdev-runtime
