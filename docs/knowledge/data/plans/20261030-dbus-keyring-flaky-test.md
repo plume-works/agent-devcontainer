@@ -112,8 +112,12 @@ client's budget and dependency-ordered recovery.
 
 ### Task 4: The full supervision suite passes in CI
 
-- [ ] The devcontainer image jobs (amd64 and arm64) on the pull request pass
+- [x] The devcontainer image jobs (amd64 and arm64) on the pull request pass
   `scripts/tests/test_agent_runtime_supervision.py`.
+  - **Evidence:** PR #549 at commit 5279e76, CI run 41006547688: the
+    "Devcontainer image (amd64)" and "Devcontainer image (arm64)" jobs collect
+    `scripts/tests/test_agent_runtime_supervision.py` and pass (1609 passed, 0
+    failed).
 
 ## Spec changes
 
