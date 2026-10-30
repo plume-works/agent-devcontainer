@@ -399,13 +399,15 @@ Verified anchor points (line numbers as of 2026-10-30):
 - `.github/workflows/ai-responder.yml:533` — `trusted-bot-actors` read from
   `TRUSTED_BOT_ACTORS`
 - `.github/workflows/ai-responder.yml:562` — `trusted-bot-approval` job
-- `.github/workflows/ai-responder.yml:589` — Dependabot actor skip, where the
-  commit check goes
-- `.github/workflows/ai-responder.yml:611` — `createReview` approval
+- `.github/workflows/ai-responder.yml:589` — Dependabot actor skip
+- `.github/workflows/ai-responder.yml:625` — commit check
+- `.github/workflows/ai-responder.yml:654` — `createReview` approval
 - `.github/actions/ai-review-status/action.yml:60` — trusted-bot waiver
 - `docs/knowledge/data/architecture/ai-review-event-selection.md:16` —
   `## Decision`
 - `docs/knowledge/data/architecture/ai-review-event-selection.md:73` —
+  `## Trusted-bot approval covers only the bot's commits`
+- `docs/knowledge/data/architecture/ai-review-event-selection.md:92` —
   `## Alternatives rejected`
 - `docs/knowledge/data/spec/template-consumption.md:99` — "the AI review gate's
   trust is explicit"
