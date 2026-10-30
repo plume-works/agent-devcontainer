@@ -6,7 +6,7 @@ release:
 description: Resume an interrupted Claude pull-request review from a persistent local session when a writer adds the one-shot ai-review-resume label.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-10-30T21:30:00Z
 sources:
 - resource: https://github.com/plume-works/agent-devcontainer/actions/runs/34403145254/job/102639842076?pr=134
   title: Interrupted PR 134 review
@@ -19,6 +19,7 @@ sources:
 - resource: https://github.com/github/docs/blob/main/data/reusables/actions/jobs/section-running-jobs-in-a-container-volumes.md
   title: GitHub Actions job-container volumes
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
+- resource: docs/knowledge/data/plans/20261030-responder-quill-app-identity.md
 ---
 
 # Resume interrupted Claude PR reviews on a persistent runner
@@ -38,6 +39,13 @@ Re-reviews are requested by assigning the pull request, because only a
 `pull_request`-event run's `ai-review-present` counts toward merge ([Assignee-
 triggered AI re-reviews](../architecture/assignee-review-trigger.md)). A resume
 request follows the same rule, so it is a pull-request label, not a comment.
+
+Once [The AI responder posts as the plume-works-quill
+App](20261030-responder-quill-app-identity.md) lands, the review job runs in the
+`plume-works-review` environment and posts as the `plume-works-quill` App, with
+an installation token minted inside `run-claude-responder` after the
+devcontainer lifecycle scripts. A resume run inherits that identity and token
+flow unchanged.
 
 ## Approach
 
@@ -77,10 +85,14 @@ and adds artifact download orchestration; and persisting only the execution
 output, which is not the transcript format `--resume` consumes.
 
 Registering the runner host with the `claude-review` label and its
-operating-system maintenance remain external administration; the `claude-review`
-GitHub environment both responder jobs use already exists. The repository
-declares the required runner label and Docker volume; the implementation is not
-complete until a CI run proves that external prerequisite.
+operating-system maintenance remain external administration. The
+`plume-works-review` GitHub environment and the App secrets it holds are the
+dependency's prerequisites; the self-hosted runner receives them for each review
+job as a hosted runner does. The persistent volume holds only
+`.claude/projects`, so neither the App private key nor a minted token outlives
+the job container. The repository declares the required runner label and Docker
+volume; the implementation is not complete until a CI run proves that external
+prerequisite.
 
 The workflow keeps one latest-attempt metadata pointer per repository and pull
 request and never deletes Claude-owned transcript files. Claude's configured
@@ -140,9 +152,9 @@ metadata.
   label needs.
 - [ ] Before invoking Claude for a resume, resolve the previous attempt and also
   refuse when an accepted AI review already exists. On any refusal, post exactly
-  one top-level operational comment naming the reason and current run, then fail
-  without invoking Claude. This comment is workflow diagnostics, not a review
-  finding.
+  one top-level operational comment, as the App with the job's minted token,
+  naming the reason and current run, then fail without invoking Claude. This
+  comment is workflow diagnostics, not a review finding.
 - [ ] For valid state, pass the resolved session ID through the responder's
   `claude_args` as `--resume` and replace the fresh-review request with a
   continuation instruction that says prior background processes are gone,
@@ -180,8 +192,9 @@ metadata.
   continuation by label without weakening the existing review gate.
 - [ ] Add the dedicated `claude-review` self-hosted runner, its Docker daemon,
   and the `ai-review-resume` label as required external prerequisites in the
-  template-consumption guide, and tell consumers that keep the responder
-  workflow to adapt the runner label and persistence policy to their
+  template-consumption guide, beside the App and `plume-works-review`
+  environment the dependency documents, and tell consumers that keep the
+  responder workflow to adapt the runner label and persistence policy to their
   infrastructure.
 
 ### Task 6: Prove continuation on the dedicated runner
@@ -283,6 +296,11 @@ controls.
   review waits in the pull request's concurrency group
 - **THEN** no review runs for the label and the waiting review still runs.
 ```
+
+## Depends on
+
+- [The AI responder posts as the plume-works-quill
+  App](20261030-responder-quill-app-identity.md)
 
 ## Verification
 
