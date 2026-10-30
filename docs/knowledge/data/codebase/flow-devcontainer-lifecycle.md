@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:78fb1cb27e991356f27ba26de449041e550934d0e7ac7add7381b553f218a5e3
+source_digest: sha256:71fc3ef72639b50e26b7e0226127102e44aee78335c0aecbe869d0e4375141e2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
-stale_after: 2027-01-27
+  at: 2026-10-30T01:00:00Z
+stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
+  at: 2026-10-30T01:00:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -27,17 +27,20 @@ state.
 ## Trace
 
 1. `initializeCommand` runs `devcontainer-init.sh` on the host: writes
-   `.devcontainer/.env` and creates the shared `agentdev-agents-auth` volume —
+   `.devcontainer/.env`, including the `CONTAINER_HOSTNAME` that
+   `container-hostname.sh` derives from the launcher (Coder, VS Code, or the
+   CLI), and creates the shared `agentdev-agents-auth` volume —
    `.devcontainer/devcontainer.json:3`,
-   `.devcontainer/devcontainer-init.sh:13-35`
+   `.devcontainer/devcontainer-init.sh:13-39`,
+   `.devcontainer/scripts/container-hostname.sh:12-18`
 2. Compose starts the `devcontainer` service from the pinned
-   `agentdev-devcontainer` image, layering `devcontainer-compose-pins.yml` over
-   `docker-compose.yml`, and the `mcp-gateway` sidecar when the `mcp` profile
-   was written to `.env`. The Dev Containers tool merges the image's
-   `devcontainer.metadata` — privileged mode, the kept entrypoint, the
-   `/var/lib/docker` volume, and the three lifecycle commands — under the
-   descriptor — `.devcontainer/devcontainer.json:7`,
-   `.devcontainer/docker-compose.yml:2,53`,
+   `agentdev-devcontainer` image under that hostname, layering
+   `devcontainer-compose-pins.yml` over `docker-compose.yml`, and the
+   `mcp-gateway` sidecar when the `mcp` profile was written to `.env`. The Dev
+   Containers tool merges the image's `devcontainer.metadata` — privileged mode,
+   the kept entrypoint, the `/var/lib/docker` volume, and the three lifecycle
+   commands — under the descriptor — `.devcontainer/devcontainer.json:7`,
+   `.devcontainer/docker-compose.yml:2,53,59`,
    `docker/devcontainer/agentdev-devcontainer.Dockerfile:41-50`
 3. PID 1 is `runtime-supervisor.py run` in the `devcontainer` profile: the root
    bootstrap checks `/opt/agentdev-runtime` against the image manifest and
