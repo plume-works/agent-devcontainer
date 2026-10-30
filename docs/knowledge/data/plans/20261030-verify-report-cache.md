@@ -252,9 +252,9 @@ tasks reuse them. Each scenario runs in one clone:
 - [x] The three scenarios added to `test_iwe_workflows_claude.py`;
   `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k 'saved or dirty or decision'`
   passes.
-  - **Evidence:** commit 7af9d82; the `-k 'saved or dirty or decision'` run at
-    `e7d96f9`: 3 passed. Ship's lookup returned `HIT` and its report named the
-    saved commit.
+  - **Evidence:** commits 7af9d82 and 14f02f0 (assertion on `verifier_prompt`);
+    the `-k 'saved or dirty or decision'` run at `e7d96f9`: 3 passed. Ship's
+    lookup returned `HIT` and its report named the saved commit.
 
 ### Task 10: Add the saved-report e2e scenarios on Codex
 
@@ -263,8 +263,9 @@ tasks reuse them. Each scenario runs in one clone:
 - [x] The three scenarios from Task 9 added;
   `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py -k 'saved or dirty or decision'`
   passes.
-  - **Evidence:** commit 30dcd8b; the `-k 'saved or dirty or decision'` run at
-    `e7d96f9`, with the catalog reinstalled into Codex: 3 passed.
+  - **Evidence:** commits 30dcd8b and 14f02f0; the
+    `-k 'saved or dirty or decision'` run at `e7d96f9`, with the catalog
+    reinstalled into Codex: 3 passed.
 
 ### Task 11: Add the saved-report e2e scenarios on OpenCode
 
@@ -273,8 +274,8 @@ tasks reuse them. Each scenario runs in one clone:
 - [x] The three scenarios from Task 9 added;
   `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py -k 'saved or dirty or decision'`
   passes.
-  - **Evidence:** commit e7d96f9; the `-k 'saved or dirty or decision'` run at
-    that commit: 3 passed.
+  - **Evidence:** commits e7d96f9 and 14f02f0; the
+    `-k 'saved or dirty or decision'` run at that commit: 3 passed.
 
 ## Spec changes
 
