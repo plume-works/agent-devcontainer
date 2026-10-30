@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[The AI responder posts as the plume-works-quill
+App](plans/20261030-responder-quill-app-identity.md)
+
 [AI review verdicts gate merge and trusted bots are
 auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
 
