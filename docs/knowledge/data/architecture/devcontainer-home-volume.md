@@ -1,10 +1,9 @@
 ---
 type: architecture
-status: draft
-description: The Dev Container is to run as a non-root account whose whole home is one per-instance volume, like the deploy runtime, replacing the per-directory state volumes under /root; editor servers persisting on that volume are an open cleanup risk.
+description: The Dev Container is to run as a non-root account whose whole home is one per-instance volume, like the deploy runtime, replacing the per-directory state volumes under /root; editor servers persisting on that volume are an accepted risk.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T05:41:22Z
+  at: 2026-10-30T06:30:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: compose.opencode.yml
@@ -33,11 +32,12 @@ state is dropped, not migrated; shared credentials are unaffected.
 
 The Dev Container runs as root with `/root` on the container filesystem, so each
 piece of state needs its own volume: `agentdev-claude`, `agentdev-codex`,
-`agentdev-opencode`, `agentdev-cbm`, and `agentdev-pre-commit`. A volume cannot
-be mounted on a single file, so `~/.claude.json` is kept inside the `~/.claude`
-volume and symlinked, and the CBM install has to work around that symlink (see
-[Agent auth persistence](agent-auth-persistence.md)). With the whole home on one
-volume, the file is an ordinary file and the per-directory mounts go away.
+`agentdev-opencode`, `agentdev-uv`, and the volumes holding the CBM and
+pre-commit caches. A volume cannot be mounted on a single file, so
+`~/.claude.json` is kept inside the `~/.claude` volume and symlinked, and the
+CBM install has to work around that symlink (see [Agent auth
+persistence](agent-auth-persistence.md)). With the whole home on one volume, the
+file is an ordinary file and the per-directory mounts go away.
 
 ## Constraints
 
@@ -57,11 +57,16 @@ volume, the file is an ordinary file and the per-directory mounts go away.
 - **A volume on `/root` refreshed from the image on every start.** Overwrites
   the user's own edits to those files and needs an ownership decision for each
   one.
+- **Creating the account at container start, as deploy does.** The devcontainer
+  CLI's UID update needs an account the image defines, so the account is created
+  at image build time without a home directory.
+- **A separate `/uv` volume, in either runtime.** The owner chose one home
+  volume; uv's cache, Python installs, and project venv live on it.
 - **Keeping per-directory volumes.** Every new piece of state needs its own
   volume decision, and single files such as `~/.claude.json` need symlink
   workarounds.
 
-## Open risk: editor servers on the home volume
+## Accepted risk: editor servers on the home volume
 
 VS Code and its derivatives install their remote servers in the home
 (`~/.vscode-server`, `~/.vscode-insiders-server`, `~/.cursor-server`,
@@ -72,5 +77,6 @@ whether each editor prunes its own old versions is unverified. The risk is
 unbounded growth of the home volume, and a broken server install surviving the
 rebuild that would otherwise reset it.
 
-Closing it means choosing where editor servers live — kept on the volume with a
-cleanup policy, or kept off it — before the change ships.
+The repository owner accepted the risk: editor servers stay on the home volume
+with no cleanup. Keeping them off the volume, and pruning old server versions at
+create, were both declined.

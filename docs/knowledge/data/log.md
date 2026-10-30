@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **New**: [Run the Dev Container as a non-root account with one home
+  volume](plans/20261030-devcontainer-home-volume.md) plans the [Dev Container
+  home volume](features/devcontainer-home-volume.md) feature, now accepted.
 - **New**: [Dev Container home volume](architecture/devcontainer-home-volume.md)
   records the decision to run the Dev Container as a non-root account with one
   home volume, and the open editor-server cleanup risk.
