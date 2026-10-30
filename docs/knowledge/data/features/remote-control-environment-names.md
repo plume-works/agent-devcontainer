@@ -47,7 +47,5 @@ Remote Control start script already passes; only the environment name changes.
 
 ## Open questions
 
-- Whether the Coder agent exports `CODER_WORKSPACE_NAME` to the initialize
-  command it runs on the outer workspace container.
 - Whether `devcontainer up` run from VS Code's integrated terminal reads as VS
   Code or as the CLI.
