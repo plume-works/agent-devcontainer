@@ -17,6 +17,8 @@ moves them.*
 
 ## Active
 
+[Verify report cache](plans/20261030-verify-report-cache.md)
+
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
