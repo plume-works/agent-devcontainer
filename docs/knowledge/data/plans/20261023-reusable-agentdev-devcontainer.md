@@ -6,7 +6,7 @@ release:
 description: Publish the agentdev image family and a self-contained Dev Container runtime that reuses the deploy supervisor without copying lifecycle scripts into consumers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T05:05:59Z
+  at: 2026-10-30T05:42:07Z
 sources:
 - resource: docs/user-stories/agent-containers.md
 - resource: docs/knowledge/data/plans/20261017-standalone-opencode-container.md
@@ -19,6 +19,8 @@ sources:
 - resource: .github/workflows/ci.yml
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
+stage: done
+completed: 2026-10-30
 ---
 
 # Publish the reusable agentdev Dev Container image
@@ -97,13 +99,13 @@ second name to maintain.
   on project preparation, with indexing requested in the background, while
   devcontainer omits automatic OpenCode service startup and publishes readiness
   for editor attachment.
-  - **Evidence:** commit 6171b723;
+  - **Evidence:** commit 6171b723 (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
     — 124 passed.
 - [x] Cover invalid profile names, disabled optional services, terminal
   failures, bounded recovery, signal handling, and readiness-file semantics so a
   profile cannot silently degrade into a partially initialized container.
-  - **Evidence:** commit 6171b723;
+  - **Evidence:** commit 6171b723 (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
     — 124 passed.
 
@@ -122,22 +124,20 @@ second name to maintain.
 - [x] Select an explicit `AGENTDEV_RUNTIME_MODE=deploy|devcontainer` service
   profile without evaluating caller-provided shell commands. Keep common
   dependency, health, recovery, and shutdown logic in one controller.
-  - **Evidence:** commits 6171b723, ebcccecf;
+  - **Evidence:** commits 6171b723, ebcccecf (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_supervision.py`
     — 127 passed.
 - [x] Split bootstrap responsibilities so deploy may create or validate its
   runtime identity and workspace, while devcontainer accepts the Dev Container
   tool's user and mounted workspace without cloning, recursively changing
   checkout ownership, or requiring deploy-only proxy secrets.
-  - **Evidence:** commit ebcccecf;
+  - **Evidence:** commit ebcccecf (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agent_runtime_identity.py scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_agent_runtime_firewall.py`
-    — the devcontainer bootstrap, no-clone, and proxy-free firewall tests pass;
-    `test_rejects_an_unwritable_checkout_without_changing_ownership` fails on
-    this host before and after the change.
+    — the devcontainer bootstrap, no-clone, and proxy-free firewall tests pass.
 - [x] Run Docker, D-Bus, keyring, CBM, and Xpra through the devcontainer profile
   with the same probes and recovery guarantees as deploy. Keep OpenCode Web and
   Claude Remote Control opt-in clients rather than required readiness gates.
-  - **Evidence:** commit ebcccecf;
+  - **Evidence:** commit ebcccecf (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agent_runtime_profiles.py` — 26 passed,
     including the shared program definitions and per-service recovery and exit.
 
@@ -157,7 +157,7 @@ second name to maintain.
   attach-scoped catalog/index refresh behind stable commands installed under
   `/opt/agentdev-runtime/`. Preserve restart and repeated-attach semantics and
   make each command idempotent.
-  - **Evidence:** commits 096c5c8f, bcd8c5e2;
+  - **Evidence:** commits 096c5c8f, bcd8c5e2 (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
     passed; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of
     commit bcd8c5e2,
@@ -168,13 +168,13 @@ second name to maintain.
   extension points. Run only executable files from those explicit directories,
   fail with the hook name and phase, and never discover or execute hooks merely
   because an untrusted workspace was mounted.
-  - **Evidence:** commit 096c5c8f;
+  - **Evidence:** commit 096c5c8f (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
     passed, including order, skip, failure naming, and workspace-script refusal.
 - [x] Retain the checkout-catalog override only when all required agentdev
   manifests are present. A normal consumer with no catalog must continue using
   the immutable staged catalog.
-  - **Evidence:** commit 096c5c8f;
+  - **Evidence:** commit 096c5c8f (squashed into 9f50acd7, #518);
     `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
     passed, including complete and incomplete checkout catalogs.
 
@@ -190,15 +190,15 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 - [x] Rename the lifecycle-neutral `agent-desktop` build to `agentdev-base`
   without copying `.devcontainer/scripts/` into it. Preserve its tools, catalog,
   validators, default shell entrypoint, and multi-architecture build.
-  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on ee494f54
-    built `agentdev-base` natively on amd64 and arm64, merged its manifest, and
-    built both siblings from that digest; `docker/base/agentdev-base.Dockerfile`
-    copies only `entrypoint.sh` and `start-xpra.sh` from the build context
-    besides the provisioning sources.
+  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on #518's
+    head ee494f54 built `agentdev-base` natively on amd64 and arm64, merged its
+    manifest, and built both siblings from that digest;
+    `docker/base/agentdev-base.Dockerfile` copies only `entrypoint.sh` and
+    `start-xpra.sh` from the build context besides the provisioning sources.
 - [x] Rename `agent-opencode` to `agentdev-deploy`, derive it from the exact
   same-run `agentdev-base` digest, and keep its established deploy profile and
   public service contract.
-  - **Evidence:** commit bcd8c5e2;
+  - **Evidence:** commit bcd8c5e2 (squashed into 9f50acd7, #518);
     `docker build -f docker/deploy/agentdev-deploy.Dockerfile` on the pinned
     base digest, then
     `AGENTDEV_RUNTIME_TEST_IMAGE=<that image> .devcontainer/scripts/test-agent-runtime.sh`
@@ -207,11 +207,11 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   base digest. Install the runtime scripts, both stable lifecycle commands and
   supervisor dependencies, declare the devcontainer profile entrypoint, and
   embed Dev Container metadata for lifecycle commands and default environment.
-  - **Evidence:** commits bcd8c5e2, c4dcaeb3; with
-    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit bcd8c5e2,
-    `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
-    passed; the fixtures declare no managed commands, so the lifecycle came from
-    the image metadata.
+  - **Evidence:** commits bcd8c5e2, c4dcaeb3 (squashed into 9f50acd7, #518);
+    with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit
+    bcd8c5e2, `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py`
+    — 5 passed; the fixtures declare no managed commands, so the lifecycle came
+    from the image metadata.
 
 ### Task 5: Consume the image in this repository
 
@@ -224,25 +224,25 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   and let the image entrypoint own supervised services. Retain SSH support, MCP
   sidecar wiring, workspace/worktree mounts, persistent state volumes, and the
   shared-auth volume.
-  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on ee494f54
-    passed Dev Container runtime acceptance on both architectures, including the
-    repository suite inside the pinned `agentdev-devcontainer`; the descriptor
-    declares only the sshd Feature and no command.
+  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on #518's
+    head ee494f54 passed Dev Container runtime acceptance on both architectures,
+    including the repository suite inside the pinned `agentdev-devcontainer`;
+    the descriptor declares only the sshd Feature and no command.
 - [x] Replace checkout-relative lifecycle commands with the image metadata or
   stable `/opt/agentdev-runtime/` commands. Keep `waitFor` tied to the runtime
   readiness command; editor startup must fail when the required service graph is
   not ready.
-  - **Evidence:** commits 096c5c8f, bcd8c5e2, 480ea23f;
-    `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py` — 20
-    passed, including the start phase failing on a failed or late runtime; with
-    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build,
+  - **Evidence:** commits 096c5c8f, bcd8c5e2, 480ea23f (squashed into 9f50acd7,
+    #518); `uv run pytest scripts/tests/test_agentdev_devcontainer_lifecycle.py`
+    — 20 passed, including the start phase failing on a failed or late runtime;
+    with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_repository.py` — 3
     passed.
 - [x] Prove this repository's checkout catalog wins after attachment and that a
   rebuild, restart, window reload, ordinary clone, and Git worktree preserve
   their intended state boundaries.
-  - **Evidence:** commit 480ea23f; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
-    to a local build of commit bcd8c5e2,
+  - **Evidence:** commit 480ea23f (squashed into 9f50acd7, #518); with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit bcd8c5e2,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_repository.py` — 3
     passed: clone and worktree through reload, restart, and rebuild, sharing
     only credentials.
@@ -257,22 +257,22 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
   copying lifecycle scripts. Verify project dependency setup, pre-commit when
   configured, agent policy, CBM indexing, Xpra, nested Docker, and staged
   catalog availability.
-  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
-    to a local build of commit bcd8c5e2,
+  - **Evidence:** commit c4dcaeb3 (squashed into 9f50acd7, #518); with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit bcd8c5e2,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
     passed.
 - [x] Build a derived fixture image that adds custom tooling and ordered hooks.
   Verify it retains managed startup, can override documented environment values,
   cannot require replacement of `/opt/agentdev-runtime`, and does not execute
   similarly named files from the mounted repository.
-  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
-    to a local build of commit bcd8c5e2,
+  - **Evidence:** commit c4dcaeb3 (squashed into 9f50acd7, #518); with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit bcd8c5e2,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
     passed.
 - [x] Run both fixtures through create, stop/start, rebuild, and repeated attach
   events and assert the right phase runs exactly when specified.
-  - **Evidence:** commit c4dcaeb3; with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set
-    to a local build of commit bcd8c5e2,
+  - **Evidence:** commit c4dcaeb3 (squashed into 9f50acd7, #518); with
+    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to a local build of commit bcd8c5e2,
     `uv run pytest scripts/tests/test_agentdev_devcontainer_image.py` — 5
     passed.
 
@@ -366,21 +366,24 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
   additions as descriptor commands or derived-image hooks. A consumer that
   declines keeps its previous descriptor and pin, and `consumed_ref` does not
   advance past the change.
-  - **Evidence:** commits c9dc2e30, ad70031a; with
-    `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to the CI candidate built from commit
-    d6b06b82, `uv run pytest scripts/tests/test_template_consume_migration.py` —
-    2 passed: the migrated descriptor runs no copied script, and a consumer
-    holding only the files the migration keeps reaches runtime readiness on the
-    staged catalog; `validate_agent_files --ci .` clean.
+  - **Evidence:** commits c9dc2e30, ad70031a (squashed into 9f50acd7, #518);
+    with `AGENTDEV_DEVCONTAINER_TEST_IMAGE` set to the CI candidate built from
+    commit d6b06b82,
+    `uv run pytest scripts/tests/test_template_consume_migration.py` — 2 passed:
+    the migrated descriptor runs no copied script, and a consumer holding only
+    the files the migration keeps reaches runtime readiness on the staged
+    catalog; `validate_agent_files --ci .` clean.
 - [x] Ask a custom-image consumer whose Dockerfile derives from `agent-desktop`
   whether it derives from `agentdev-base` or `agentdev-devcontainer`, and change
   its base to the chosen image.
-  - **Evidence:** commit c9dc2e30; the guide's migration step 7 asks for the
-    base and changes it; `validate_agent_files --ci .` clean.
+  - **Evidence:** commit c9dc2e30 (squashed into 9f50acd7, #518); the guide's
+    migration step 7 asks for the base and changes it;
+    `validate_agent_files --ci .` clean.
 - [x] Name the canonical images throughout the guide's setup, custom-image, and
   ongoing-maintenance sections.
-  - **Evidence:** commit c9dc2e30; the guide names `agent-desktop` only in its
-    migration section; `validate_agent_files --ci .` clean.
+  - **Evidence:** commit c9dc2e30 (squashed into 9f50acd7, #518); the guide
+    names `agent-desktop` only in its migration section;
+    `validate_agent_files --ci .` clean.
 
 ### Task 10: Verify published multi-architecture images
 
@@ -389,15 +392,14 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 - [x] **Closed by: CI on the current head.** Both architectures publish the
   three candidate images, run deploy and Dev Container native acceptance, and
   promote the canonical moving tags only after every required check passes.
-  - **Evidence:** CI run 40962199551 on acd24731 built the three candidate
-    images natively on amd64 and arm64, passed deploy and Dev Container runtime
-    acceptance on both, and only then promoted `pr-541`
-    (`agentdev-devcontainer:pr-541@sha256:b672b905…`); main run 40949574006
-    promoted `edge` the same way.
+  - **Evidence:** CI run 40976244718 on 5ce59896, the final #541 head, built the
+    three candidate images natively on amd64 and arm64, passed deploy and Dev
+    Container runtime acceptance on both, and only then promoted `pr-541`; main
+    run 40949574006 promoted `edge` the same way.
 
 ## Spec changes
 
-### `data/spec/agentdev-runtime-images`
+### [agentdev runtime images](../spec/agentdev-runtime-images.md)
 
 ``` markdown
 ## ADDED Requirements
