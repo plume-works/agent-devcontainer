@@ -24,10 +24,10 @@ sources:
 [Verify report cache](../features/verify-report-cache.md) is the feature. The
 regular flow is Implement → Verify → Ship → `pr-open` on one branch. A plan that
 first needs a merge — images published from the default branch and checked in CI
-— resumes Implement on a `ship/<slug>/iter-<N>` branch and ships from there, so
-the Implement loop's last Verify and the Shipper's Verify always judge the same
-commit. Both run the plan's `## Verification` commands, and those test and e2e
-runs are the cost. [Fresh-context
+— resumes Implement on a `iwe/<slug>/iter-<N>-ship` branch and ships from there,
+so the Implement loop's last Verify and the Shipper's Verify always judge the
+same commit. Both run the plan's `## Verification` commands, and those test and
+e2e runs are the cost. [Fresh-context
 Verify](../architecture/fresh-context-verify.md) requires the verdict to come
 from a fresh context, and the Implement loop's dispatched `iwe-verifier` already
 is one, so the Shipper's repeat adds nothing. The e2e scenarios that prove an
