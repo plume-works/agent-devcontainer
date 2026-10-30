@@ -138,9 +138,12 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`
 
-- [ ] After the `## Verification` commands run, a non-empty
+- [x] After the `## Verification` commands run, a non-empty
   `git status --porcelain` is a CRITICAL naming the dirty paths, with the
   recommendation to make the command leave the worktree clean.
+  - **Evidence:** commit 4236d1e;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    at that commit: 0 errors.
 
 ### Task 4: Run the Implement loop's Verify through the skill
 
