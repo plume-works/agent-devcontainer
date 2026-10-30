@@ -55,18 +55,26 @@ client's budget and dependency-ordered recovery.
 
 **Files:** Modify: `scripts/tests/test_agent_runtime_supervision.py`
 
-- [ ] Add a `wedge` trigger to `FAKE_SERVICE`: when `$state/$name.wedge` exists,
+- [x] Add a `wedge` trigger to `FAKE_SERVICE`: when `$state/$name.wedge` exists,
   the service removes the file and its `.ready` marker, appends `wedge <name>`
   to the events, and keeps running without readiness until it is stopped. A
   wedged D-Bus makes every client that needs it exit at once while D-Bus itself
   still runs.
-- [ ] Add a test that starts the deploy profile with
+  - **Evidence:** commit 3234a92 adds the trigger to `FAKE_SERVICE`; the new
+    test's run records `wedge dbus` followed by `lost keyring`.
+- [x] Add a test that starts the deploy profile with
   `AGENTDEV_RECOVERY_ATTEMPTS='1'`, keyring needing D-Bus, and
   `AGENTDEV_PROBE_FAILURES` high enough that the debounce cannot confirm D-Bus
   within the test's wait. It wedges D-Bus and asserts that D-Bus and keyring
   each start twice, the runtime returns to `ready`, and nothing is latched.
-- [ ] Run the new test against the current controller and confirm it fails with
+  - **Evidence:** commit 3234a92 adds
+    `test_a_client_failure_escalates_to_its_failing_dependency` with
+    `AGENTDEV_PROBE_FAILURES='1000'`.
+- [x] Run the new test against the current controller and confirm it fails with
   keyring exhausting its budget (red).
+  - **Evidence:**
+    `uv run pytest scripts/tests/test_agent_runtime_supervision.py::test_a_client_failure_escalates_to_its_failing_dependency`
+    at commit 3234a92 fails with `keyring exhausted 1 recovery attempts`.
 
 ### Task 2: Escalate a client failure to its failing dependency
 
