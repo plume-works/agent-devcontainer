@@ -93,8 +93,12 @@ Assumptions recorded for minor details the rule leaves open:
 
 ### Task 4: Confirm the VS Code name on a laptop
 
-- [ ] Open the checkout in a container from VS Code on macOS and confirm the
+- [x] Open the checkout in a container from VS Code on macOS and confirm the
   hostname reads `vscode-<short host>-<checkout>`.
+  - **Evidence:** the maintainer opened the checkout from VS Code on the Mac
+    `robomac`; the init step wrote
+    `CONTAINER_HOSTNAME=vscode-robomac-agent-devcontainer`, which Compose
+    applies as the hostname as Task 3 showed on Coder.
 
 ## Spec changes
 
