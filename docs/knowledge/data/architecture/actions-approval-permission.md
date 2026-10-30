@@ -36,6 +36,17 @@ gh api repos/<owner>/<repo>/actions/permissions/workflow --jq .can_approve_pull_
 which must print `true`. A repository cannot enable the setting while its
 organization disallows it.
 
+## Alternatives rejected
+
+- **Leave the setting off.** The AI reviewer cannot submit `APPROVE`, so under
+  the one-approval ruleset no pull request merges without ruleset bypass, and a
+  clean re-review cannot lift the reviewer's own earlier change request.
+- **Post as a GitHub App installation token instead.** It removes the dependency
+  on this setting and gives the reviewer an identity no other workflow shares,
+  but it needs an App registration, its secrets, and per-job token minting. The
+  responder posts with `GITHUB_TOKEN` until that work lands, so the setting is
+  required meanwhile.
+
 ## Consequences
 
 - The `main` ruleset requires one approving review, and an `APPROVE` from
