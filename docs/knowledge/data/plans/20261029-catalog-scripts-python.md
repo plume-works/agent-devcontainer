@@ -169,7 +169,8 @@ which would make 26 untested scripts' behaviour a matter of reading.
 `.agents/plugins/agentdev/skills/git-merge-resolve/agent-code/git-merge-resolve.py`,
 `.agents/plugins/agentdev/skills/git-commit/agent-code/git-commit.py`,
 `.agents/plugins/agentdev/tests/test_git_merge_resolve.py`; Modify: the four
-skills' `SKILL.md`, `.agents/plugins/agentdev/tests/test_git_new_branch.py`,
+skills' `SKILL.md`, `.agents/plugins/agentdev/bin/skill_common.py`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`,
 `.agents/plugins/agentdev/tests/test_update_branch.py`,
 `.agents/plugins/agentdev/tests/test_git_commit.py`; Delete: the four `.sh`
 scripts, the `__common.sh` of git-new-branch and update-branch, and
@@ -205,7 +206,8 @@ are
 `.agents/plugins/agentdev/tests/test_find_branch_pr.py`,
 `.agents/plugins/agentdev/tests/test_post_review.py`,
 `.agents/plugins/agentdev/tests/test_review_git_changes.py`; Modify: the four
-skills' `SKILL.md`,
+skills' `SKILL.md`, the `SKILL.md` of pr-feedback-resolution, pr-merge, and
+update-branch, which name `push-branch` or `request-review`,
 `.agents/plugins/agentdev/tests/test_push_branch_map_check.py`,
 `.agents/plugins/agentdev/tests/test_request_review.py`; Delete: the five `.sh`
 scripts and the `__common.sh` of pr-open, pr-review, and pr-gen-description
