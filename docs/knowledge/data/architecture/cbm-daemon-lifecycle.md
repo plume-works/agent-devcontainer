@@ -3,7 +3,7 @@ type: architecture
 description: The codebase-memory-mcp daemon is one per account per rendezvous directory; a supervisor drives it only through daemon start/status/stop, identifies a generation by PID plus start time, and must close MCP clients before stopping it. Startup only submits an async index request, and cbm's Codex hooks live in hooks.json.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-23T21:45:57Z
+  at: 2026-10-30T12:00:00Z
 sources:
 - resource: .devcontainer/scripts/runtime-cbm.sh
 - resource: scripts/tests/test_agent_runtime_cbm.py
@@ -14,6 +14,7 @@ sources:
 - resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
 - resource: .devcontainer/scripts/repair-codex-cbm-hooks-block.py
 - resource: .devcontainer/scripts/runtime-workspace.sh
+- resource: .devcontainer/devcontainer.json
 ---
 
 # CBM daemon lifecycle
@@ -32,6 +33,16 @@ Every CBM process — daemon, MCP client, CLI, installer — meets at
 
 The UI listener port is a per-cache setting (`config set ui_enabled false` or
 `--port`); it is not part of the rendezvous.
+
+## The cache stays off the checkout
+
+CBM refuses a cache directory with an ancestor that is owned by neither root nor
+the effective UID, or that is world-writable. A bind-mounted checkout is owned
+by the host's user, and the supervisor starts CBM at boot, before any lifecycle
+hook could change that owner. The Dev Container therefore keeps `CBM_CACHE_DIR`
+at `/root/.cache/codebase-memory-mcp`, on its own per-worktree `agentdev-cbm`
+volume, never below the workspace (see [Bug: CBM cache under a checkout another
+UID owns](../bugs/cbm-cache-under-foreign-owned-checkout.md)).
 
 ## Supervising it
 

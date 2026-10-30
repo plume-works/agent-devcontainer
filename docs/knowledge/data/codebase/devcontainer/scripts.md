@@ -2,14 +2,14 @@
 type: codebase
 description: The runtime both agentdev images bake at /opt/agentdev-runtime — the supervisor and its deploy and devcontainer profiles, the Dev Container create, start, and attach commands with their hook runner, and the helpers they call, from agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall, auth links, and full-access policies to the gh credential helper, the Coder agent-start entry point, Remote Control, and the OpenCode web UI.
 source: .devcontainer/scripts
-source_digest: sha256:eb01aefc83218c446b4995da475976d7ff08c5e3932c4805615101b6fe39f1ef
+source_digest: sha256:531a32d314b179d95d07f0f98b198473ab052afe7b02851d6419a7a2ac37c4a2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:30:00Z
+  at: 2026-10-30T06:40:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:30:00Z
+  at: 2026-10-30T06:40:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -186,9 +186,9 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 Verified anchor points (line numbers as of 2026-10-29):
 
-- `.devcontainer/scripts/devcontainer-created.sh:36` — `cmd_create`; `:45` —
-  `safe.directory`; `:47` — `setup-agent-state.sh create`; `:52` —
-  staged-catalog install; `:56` — created hooks; `:61` — `cmd_wait`
+- `.devcontainer/scripts/devcontainer-created.sh:34` — `cmd_create`; `:43` —
+  `safe.directory`; `:45` — `setup-agent-state.sh create`; `:50` —
+  staged-catalog install; `:54` — created hooks; `:59` — `cmd_wait`
 - `.devcontainer/scripts/devcontainer-ready.sh:20` — `wait_ready`; `:40-46` —
   the per-start steps and started hooks
 - `.devcontainer/scripts/devcontainer-attached.sh:19-24` — complete-catalog
