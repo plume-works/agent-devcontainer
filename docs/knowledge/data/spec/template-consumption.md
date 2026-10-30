@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T15:52:57Z
+  at: 2026-10-30T02:01:26Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -36,13 +36,41 @@ keep/customize/optional/delete inventory the guide walks.
 ## Requirement: the finished project retains every runtime capability
 
 The default setup SHALL retain every runtime capability the template's
-devcontainer provides — the digest-pinned `agent-desktop` image,
-Docker-in-Docker and Codespaces SSH, worktree-safe mounts, Xpra/VirtualGL, the
-MCP gateway and secrets socket, persistent agent-state volumes with one shared
-credentials volume, the image-staged `agentdev` catalog, keyring and GitHub
-authentication, uv caching and pre-commit setup, and the opt-in egress firewall.
-It SHALL NOT infer a language, create application code, choose dependencies, or
-invent CI for the consuming project's product.
+devcontainer provides — the digest-pinned `agentdev-devcontainer` image with its
+supervised nested Docker and Codespaces SSH, worktree-safe mounts,
+Xpra/VirtualGL, the MCP gateway and secrets socket, persistent agent-state
+volumes with one shared credentials volume, the image-staged `agentdev` catalog,
+keyring and GitHub authentication, uv caching and pre-commit setup, and the
+opt-in egress firewall. It SHALL NOT infer a language, create application code,
+choose dependencies, or invent CI for the consuming project's product.
+
+## Requirement: an update migrates the consumer to the agentdev image family in one change
+
+When a consumer's Dev Container pins `agent-desktop` and the upstream template
+pins `agentdev-devcontainer`, update mode SHALL apply the new descriptor only
+together with moving the Compose pin and every workflow `container.image`
+reference to `agentdev-devcontainer`, removing the keepalive command and the
+Docker-in-Docker Feature, and replacing copied agentdev lifecycle scripts with
+the image's commands. It SHALL preserve the consumer's own lifecycle additions
+as descriptor commands or derived-image hooks.
+
+### Scenario: a consumer updates across the image change
+
+- **WHEN** update mode applies the migration
+- **THEN** one change moves the pin, descriptor, and workflow images together,
+  and the rebuilt Dev Container reaches runtime readiness
+
+### Scenario: a consumer declines the migration
+
+- **WHEN** the user declines the migration
+- **THEN** the descriptor and pin keep their previous values, and `consumed_ref`
+  does not advance past the change
+
+### Scenario: a custom image derives from agent-desktop
+
+- **WHEN** the consumer's retained Dockerfile derives from `agent-desktop`
+- **THEN** update mode asks whether it derives from `agentdev-base` or
+  `agentdev-devcontainer` and changes the base to the chosen image
 
 ## Requirement: publisher-only source never survives adoption
 

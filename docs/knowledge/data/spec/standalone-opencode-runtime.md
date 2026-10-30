@@ -1,9 +1,9 @@
 ---
 type: spec
-description: The agent-opencode image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
+description: The agentdev-deploy image runs one persistent project without Coder or a Dev Containers client, under a configurable non-root identity, with supervised bounded recovery, a latched failed or degraded state with explicit retry, and browser access only through an external proxy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T12:00:00Z
+  at: 2026-10-30T02:01:26Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-remote-control.sh
@@ -13,15 +13,15 @@ sources:
 - resource: .devcontainer/scripts/runtime-docker.sh
 - resource: .devcontainer/scripts/runtime-firewall.sh
 - resource: .devcontainer/scripts/setup-pre-commit.sh
-- resource: docker/opencode/agent-opencode.Dockerfile
-- resource: docker/opencode/supervisord.conf
+- resource: docker/deploy/agentdev-deploy.Dockerfile
+- resource: docker/deploy/supervisord.conf
 - resource: compose.opencode.yml
 - resource: compose.opencode.bind.yml
 ---
 
 # Standalone OpenCode runtime
 
-The single-project runtime of the `agent-opencode` image, for the [Standalone
+The single-project runtime of the `agentdev-deploy` image, for the [Standalone
 OpenCode container](../features/standalone-opencode-container.md) feature. Its
 design is [Standalone OpenCode
 runtime](../architecture/standalone-opencode-runtime.md). [OpenCode
@@ -35,8 +35,8 @@ tmux/failure semantics.
 
 ### Requirement: a dedicated image owns a single-project runtime
 
-`ghcr.io/plume-works/agent-opencode` SHALL derive from the corresponding digest
-of `agent-desktop`, provide linux/amd64 and linux/arm64 images, and start its
+`ghcr.io/plume-works/agentdev-deploy` SHALL derive from the corresponding digest
+of `agentdev-base`, provide linux/amd64 and linux/arm64 images, and start its
 environment without Coder, a Dev Containers client, or project scaffolding. It
 SHALL keep Claude Code and Codex available without autostarting them, except
 Claude Remote Control when `AGENTDEV_CLAUDE_RC_MODE` opts in, and SHALL omit
@@ -49,12 +49,13 @@ Docker MCP gateway integration.
 - **THEN** it prepares that single project and starts OpenCode and its required
   services using image-owned shared helpers.
 
-#### Scenario: the existing image is used
+#### Scenario: the base image is used
 
-- **WHEN** an existing consumer starts agent-desktop or runs its devcontainer
-  hooks
+- **WHEN** an existing consumer starts `agentdev-base` or runs its own copied
+  devcontainer hooks on it
 - **THEN** its command defaults, Coder integration, opt-outs, and lifecycle
-  failure semantics remain compatible.
+  failure semantics remain those `agent-desktop` provided, and no deploy runtime
+  starts.
 
 ### Requirement: runtime identity preserves workspace and credential ownership
 

@@ -82,6 +82,8 @@ runtime](../features/standalone-remote-control-autostart.md)
 [Remote Control environment
 names](../features/remote-control-environment-names.md)
 
+[Reusable agentdev Dev Container](../features/reusable-agentdev-devcontainer.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)
