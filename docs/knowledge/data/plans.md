@@ -37,6 +37,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[iwe-branch-name v2: one iteration counter per
+plan](plans/20261030-iwe-branch-name-v2.md)
+
 [Name Remote Control environments after their
 launcher](plans/20261029-remote-control-environment-names.md)
 

@@ -218,15 +218,15 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 
 ## Workspace skills
 
-| Skill                       | What it does                                                              |
-| --------------------------- | ------------------------------------------------------------------------- |
-| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product/architecture    |
-| `/agentdev:iwe-map`         | Codebase archaeology: writes and refreshes the `data/codebase/` map       |
-| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code        |
-| `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, Active listing    |
-| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated     |
-| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries     |
-| `/agentdev:iwe-branch-name` | Names a plan's next `impl/` or `ship/` iteration branch, never creates it |
-| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code     |
-| `/agentdev:iwe-ship`        | Closes the loop: spec sync, stage flips, release recording, release cut   |
-| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health         |
+| Skill                       | What it does                                                            |
+| --------------------------- | ----------------------------------------------------------------------- |
+| `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product/architecture  |
+| `/agentdev:iwe-map`         | Codebase archaeology: writes and refreshes the `data/codebase/` map     |
+| `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code      |
+| `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, Active listing  |
+| `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated   |
+| `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries   |
+| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it           |
+| `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code   |
+| `/agentdev:iwe-ship`        | Closes the loop: spec sync, stage flips, release recording, release cut |
+| `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health       |

@@ -23,34 +23,45 @@ is read from the remote default branch to pick the phase.
 ### Requirement: Plan work branches carry phase, slug, and iteration
 
 The iwe-branch-name skill SHALL name a plan's work branch
-`<phase>/<slug>/iter-<N>`, where `phase` is `impl` or `ship`, `slug` is the plan
-key's file name without its `YYYYMMDD-` prefix, and `N` is a positive integer,
-and SHALL always include the iteration suffix.
+`iwe/<slug>/iter-<N>-<phase>`, where `slug` is the plan key's file name without
+its `YYYYMMDD-` prefix, `N` is a positive integer, and `phase` is `impl` or
+`ship`, and SHALL always include the `iwe/` prefix and the iteration suffix.
 
 #### Scenario: First implementation branch
 
-- **WHEN** no branch or pull request of phase `impl` exists for plan
-  `data/plans/20261020-foo`
-- **THEN** the next `impl` name is `impl/foo/iter-1`
+- **WHEN** no branch or pull request named `iwe/foo/iter-<N>-<phase>` exists for
+  plan `data/plans/20261020-foo`
+- **THEN** the next `impl` name is `iwe/foo/iter-1-impl`
 
 #### Scenario: A name off the shape is not parsed
 
-- **WHEN** `parse` receives `foo`, `impl/foo`, or `impl/foo/iter-0`
+- **WHEN** `parse` receives `foo`, `impl/foo/iter-1`, `iwe/foo/iter-1`, or
+  `iwe/foo/iter-0-impl`
 - **THEN** it reports `NOT_A_WORK_BRANCH` and no phase, slug, or iteration
 
 ### Requirement: The next iteration follows every iteration already used
 
-The skill SHALL compute the next `N` for a phase and slug as one more than the
-highest `N` among local branches, the remote's branches, and the pull requests
-in any state of the repository the remote's URL names, counting only names that
-match the shape exactly, and SHALL fail with `GH_UNAVAILABLE` rather than answer
-when those pull requests cannot be read.
+The skill SHALL compute the next `N` for a slug as one more than the highest `N`
+of either phase among local branches, the remote's branches, and the pull
+requests in any state of the repository the remote's URL names, counting only
+names that match the shape exactly, and SHALL fail with `GH_UNAVAILABLE` rather
+than answer when those pull requests cannot be read.
 
 #### Scenario: A merged iteration's branch was deleted
 
-- **WHEN** `impl/foo/iter-2` survives only as a merged pull request's head and
-  `impl/foo/iter-1` exists locally
-- **THEN** the next `impl` name is `impl/foo/iter-3`
+- **WHEN** `iwe/foo/iter-2-impl` survives only as a merged pull request's head
+  and `iwe/foo/iter-1-impl` exists locally
+- **THEN** the next `impl` name is `iwe/foo/iter-3-impl`
+
+#### Scenario: Iterations run in order across phases
+
+- **WHEN** `iwe/foo/iter-2-impl` was used before
+- **THEN** the next `ship` name is `iwe/foo/iter-3-ship`
+
+#### Scenario: Names from before the iwe/ shape are not counted
+
+- **WHEN** only `impl/foo/iter-4` exists for plan `foo`
+- **THEN** the next `impl` name is `iwe/foo/iter-1-impl`
 
 #### Scenario: gh cannot answer
 
@@ -103,8 +114,8 @@ plan. The skill SHALL NOT create, switch, or delete any branch.
 
 #### Scenario: A complete plan moves to shipping
 
-- **WHEN** plan `foo` is `complete` and `ship/foo/iter-1` was used before
-- **THEN** `next foo` reports `NEXT=ship/foo/iter-2`
+- **WHEN** plan `foo` is `complete` and `iwe/foo/iter-1-ship` was used before
+- **THEN** `next foo` reports `NEXT=iwe/foo/iter-2-ship`
 
 #### Scenario: A shipped plan returns to the default branch
 

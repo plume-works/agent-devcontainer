@@ -15,9 +15,9 @@ import pytest
 @pytest.mark.parametrize(
     ('branch', 'phase', 'slug', 'iteration'),
     [
-        ('impl/focus-timer/iter-1', 'impl', 'focus-timer', '1'),
-        ('ship/focus-timer/iter-2', 'ship', 'focus-timer', '2'),
-        ('impl/focus-timer/iter-12', 'impl', 'focus-timer', '12'),
+        ('iwe/focus-timer/iter-1-impl', 'impl', 'focus-timer', '1'),
+        ('iwe/focus-timer/iter-2-ship', 'ship', 'focus-timer', '2'),
+        ('iwe/focus-timer/iter-12-impl', 'impl', 'focus-timer', '12'),
     ],
 )
 def test_parse_splits_a_work_branch(
@@ -34,17 +34,21 @@ def test_parse_splits_a_work_branch(
     'branch',
     [
         'focus-timer',
-        'impl/focus-timer',
-        'impl/focus-timer/iter-0',
-        'impl/focus-timer/iter-01',
-        'review/focus-timer/iter-1',
-        'impl/focus-timer/iteration-1',
+        'iwe/focus-timer',
+        'impl/focus-timer/iter-1',
+        'ship/focus-timer/iter-2',
+        'iwe/focus-timer/iter-1',
+        'iwe/focus-timer/iter-0-impl',
+        'iwe/focus-timer/iter-01-impl',
+        'iwe/focus-timer/iter-1-review',
+        'iwe/focus-timer/iteration-1-impl',
+        'other/focus-timer/iter-1-impl',
     ],
 )
 def test_parse_rejects_a_name_off_the_shape(
     plugin_root: Path, plugin_tmp_path: Path, branch: str
 ) -> None:
-    """A bare slug, a missing suffix, iteration 0, an unknown phase, or iteration-<N> is off the shape."""
+    """A v1 name, a bare slug, a missing phase or prefix, iteration 0, or an unknown phase is off it."""
     completed, values = run_script(plugin_root, plugin_tmp_path, 'parse', branch)
 
     assert outcome(completed) == (3, 'RESULT=NOT_A_WORK_BRANCH')
