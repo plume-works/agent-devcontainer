@@ -70,9 +70,11 @@ needed. In particular:
    cancellation, report it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
    `/agentdev:iwe-verify` skill for the selected plan and take its route for a
-   caller inside `iwe-shipper`: follow the `iwe-verifier` rulebook in your own
-   context, including its named verification commands and evidence checks, and
-   never dispatch an agent. A command with effects beyond
+   caller inside `iwe-shipper`: it returns the report saved for this commit and
+   catalog when one exists, and otherwise you follow the `iwe-verifier`
+   rulebook in your own context, including its named verification commands and
+   evidence checks. Never dispatch an agent. A saved report is the Verify
+   report for every later step. A command with effects beyond
    the working tree runs only under a quoted approval that names it; otherwise
    stop as above. If the report contains any CRITICAL finding, make no shipping
    state transition and return a **Ship blocker report** (below); there is no
@@ -164,7 +166,7 @@ Your final message is the whole result your dispatcher sees. Lead with one line
 `Needs decision` — and the plan key, then:
 
 - **Verify verdict** — zero-CRITICAL or the CRITICAL count, for normal
-  shipping.
+  shipping, and `saved report from <commit>` when the skill returned one.
 - **Completed** and **preserved** operations, and the commit.
 - **Needs decision** — the exact command or choice and why, when you stopped
   for one.
