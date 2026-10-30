@@ -156,12 +156,17 @@ a clean break over carrying two shapes.
 `docs/knowledge/data/backlog/pr-merge-post-merge-cleanup.md`,
 `docs/knowledge/data/codebase/agents/plugins/agentdev/skills.md`
 
-- [ ] The feature's description and `## Behaviour` describe the v2 shape and the
+- [x] The feature's description and `## Behaviour` describe the v2 shape and the
   shared counter, and its edge cases say v1 names are ignored
-- [ ] The backlog item's dependency sentence and diagram use
+  - **Evidence:** commit f3ad06e
+- [x] The backlog item's dependency sentence and diagram use
   `iwe/<slug>/iter-N-ship` and `iwe/<slug>/iter-N-impl`
-- [ ] The codebase map's `iwe-branch-name.py` paragraph is refreshed through
+  - **Evidence:** commit f3ad06e, which also updates the nesting constraint's
+    `iwe/<slug>/iter-1-ship` example
+- [x] The codebase map's `iwe-branch-name.py` paragraph is refreshed through
   `/agentdev:iwe-map`; `iwe normalize` and `iwe schema validate` pass
+  - **Evidence:** commit f3ad06e refreshes the five stale map docs; after it,
+    `stale-map-docs.py` ends `RESULT=SUCCESS` and `iwe schema validate` passes
 
 ## Spec changes
 
