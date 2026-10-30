@@ -59,9 +59,11 @@ See [CBM daemon lifecycle](../architecture/cbm-daemon-lifecycle.md).
 
 ## Key references
 
-- `.devcontainer/devcontainer.json` — `CBM_CACHE_DIR` and the `agentdev-cbm`
-  mount.
-- `.devcontainer/scripts/devcontainer-created.sh` — `claim_ancestors`, which
-  runs only at create.
+Verified anchor points (line numbers as of 2026-10-30):
+
+- `.devcontainer/devcontainer.json:39` — `CBM_CACHE_DIR`
+- `.devcontainer/devcontainer.json:73` — the `agentdev-cbm` mount
+- `.devcontainer/scripts/devcontainer-created.sh:16` — `claim_ancestors`, which
+  runs only at create
 - CBM v0.12.1 `src/cli/runtime_settings.c` (`canonical_cache_path`) and
   `src/daemon/ipc.c` (`private_directory_tree_open`).
