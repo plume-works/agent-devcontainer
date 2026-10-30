@@ -280,8 +280,14 @@ Modify: `.agents/plugins/agentdev/skills/remote-codespace-session/SKILL.md`,
 `.agents/plugins/agentdev/tests/test_remote_codespace_session.py`; Delete: the
 four `.sh` scripts and `__common.sh`
 
-- [ ] The four entry points reproduce their contracts over one skill-local
+- [x] The four entry points reproduce their contracts over one skill-local
   module; the test covers ensure, sync, and teardown as well as exec.
+  - **Evidence:** commit e3d4000 "Port the remote Codespace session scripts to
+    Python"; before the `.sh` deletion, `test_remote_codespace_session.py`,
+    extended to ensure, sync, and teardown, passed against both implementations
+    with identical normalized output on all 27 script runs, and `bash_quote`
+    matched `printf %q` on 19 sample words;
+    `uv run pytest .agents/plugins/agentdev/tests` passed (434).
 
 ### Task 9: Template consumption and Actions log helpers
 
