@@ -176,12 +176,12 @@ def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
 
 
 @pytest.mark.skipif(os.geteuid() != 0, reason='ancestor ownership is claimed only as root')
-def test_create_claims_only_ancestors_and_mounted_volumes(lifecycle):
+def test_create_claims_ancestors_but_never_checkout_contents(lifecycle):
     (lifecycle.workspace / '.cache').mkdir()
     assert_ok(lifecycle.run('devcontainer-created.sh'))
     sudo = [line for line in lifecycle.log.read_text().splitlines() if line.startswith('sudo ')]
     assert f'sudo chown 0:0 {lifecycle.workspace}' in sudo
-    assert f'sudo chown -R 0:0 {lifecycle.workspace}/.cache' in sudo
+    assert f'sudo chown -R 0:0 {lifecycle.workspace}/.cache' not in sudo
     assert not any(line.startswith(f'sudo chown -R 0:0 {lifecycle.workspace} ') for line in sudo)
 
 
