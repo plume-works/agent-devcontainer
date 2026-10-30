@@ -249,9 +249,12 @@ tasks reuse them. Each scenario runs in one clone:
 - **Needs decision is not reused** — `/agentdev:iwe-verify <hello>` without the
   approval, then with it: two `iwe-verifier` dispatches, and the marker is
   present.
-- [ ] The three scenarios added to `test_iwe_workflows_claude.py`;
+- [x] The three scenarios added to `test_iwe_workflows_claude.py`;
   `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k 'saved or dirty or decision'`
   passes.
+  - **Evidence:** commit 7af9d82; the `-k 'saved or dirty or decision'` run at
+    `e7d96f9`: 3 passed. Ship's lookup returned `HIT` and its report named the
+    saved commit.
 
 ### Task 10: Add the saved-report e2e scenarios on Codex
 
