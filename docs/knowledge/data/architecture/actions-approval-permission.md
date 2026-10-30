@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: The AI reviewer submits APPROVE with the workflow's GITHUB_TOKEN, so "Allow GitHub Actions to create and approve pull requests" must be enabled at the organization level and inherited by the repository.
+description: The AI reviewer submits APPROVE with the workflow's GITHUB_TOKEN, so "Allow GitHub Actions to create and approve pull requests" must be enabled at the organization level and inherited by the repository; the reviewer's approval is the one the main ruleset requires.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T18:00:00Z
+  at: 2026-10-30T18:30:00Z
 sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
@@ -38,14 +38,17 @@ organization disallows it.
 
 ## Consequences
 
-- With the setting off, a clean review cannot carry `APPROVE`. The
-  `ai-review-present` gate still passes on a `COMMENTED` review, so the loss is
-  silent: the review reads as a comment rather than an approval.
+- The `main` ruleset requires one approving review, and an `APPROVE` from
+  `github-actions[bot]` satisfies it. The reviewer's approval is therefore what
+  makes a pull request mergeable without ruleset bypass; with the setting off,
+  no pull request can be approved by the AI reviewer at all.
 - Only an `APPROVE` from the same reviewer replaces that reviewer's earlier
   `CHANGES_REQUESTED`. Without the setting, a clean re-review cannot lift the
   bot's own change request, which then needs a manual dismissal.
 - The setting also lets any workflow's `GITHUB_TOKEN` in the organization
-  approve and open pull requests as `github-actions[bot]`. The `main` ruleset
-  requires zero approvals, so such an approval satisfies no merge requirement.
+  approve and open pull requests as `github-actions[bot]`, and that approval
+  counts toward the ruleset's required approval. The trust placed in the AI
+  reviewer extends to every workflow on `main` that holds
+  `pull-requests: write`.
 - The prerequisite is tied to the `GITHUB_TOKEN` reviewer identity. A responder
   that posts with a GitHub App installation token does not depend on it.
