@@ -3,8 +3,8 @@ type: feature
 stage: accepted
 description: One agentdev-runtime Python CLI, installed in the runtime images as an embedded uv tool package, replaces the lifecycle shell scripts, the Xpra launcher, and the firewall script, and the Codex Cloud bootstrap is removed.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-10-29T19:47:27Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T16:18:33Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -42,13 +42,18 @@ from PyPI at container start.
   `remote-control`, `opencode`, `coder`, `lifecycle`, and `doctor`. The image
   `ENTRYPOINT`, `HEALTHCHECK`, supervisord program commands, and the
   `devcontainer.metadata` lifecycle commands name these subcommands.
-- The package pins `supervisor`, `tomlkit`, and `json5`. The images stop
-  installing supervisor from apt, and no runtime step resolves a dependency over
-  the network.
+- The package pins `supervisor`, `tomlkit`, `json5`, and `pyyaml`. The images
+  stop installing supervisor from apt, and no runtime step resolves a dependency
+  over the network.
 - The behaviour behind each command is unchanged: profiles, probes, recovery
   budgets, readiness, the failure latch, the catalog override, CBM daemon
   handling, Remote Control, and the firewall's default-DROP policy with its
   self-verification.
+- One detection is added: `project hooks` warns about each `language: system`
+  pre-commit hook whose executable is missing, and `doctor` requires `gitleaks`
+  and `actionlint`, as [Bug: a workspace on a pre-pin image has no gitleaks or
+  actionlint and nothing says
+  so](../bugs/workspace-image-lacks-hook-binaries.md) asks.
 - A container with no supervisor socket, such as a GitHub Actions `container:`
   job, runs `agentdev-runtime lifecycle ready --no-wait`, which starts only the
   CBM daemon before the per-start repairs. The shell starters for keyring,

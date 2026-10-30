@@ -3,76 +3,92 @@ type: plan
 created: 2026-10-13
 release:
 - features/macos-native-bootstrap
-description: A Homebrew-based bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — bash 5 first on PATH, the catalog's CLI tools, pinned release-only tools, and the agentdev plugin.
+description: A zsh bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — Homebrew tools including uv, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-10-30T14:51:47Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T16:18:33Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml
-- resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
-- resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
+- resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
+- resource: pyproject.toml
+- resource: .pre-commit-config.yaml
 - resource: .github/workflows/validate-agent-files.yml
 - resource: .agents/AGENTS.md
+- resource: docs/knowledge/data/plans/20261029-catalog-scripts-python.md
+- resource: https://docs.astral.sh/uv/concepts/python-versions/
 ---
 
 # Bootstrap agentdev natively on macOS with Homebrew
 
 ## Context
 
-The agentdev catalog is provisioned only by the `agent-desktop` image: its tools
-come from apt-based Ansible roles and the plugin is installed from the
-image-staged `/opt/agentdev`. Running agents natively on macOS — for example
-inside a UTM macOS guest that serves as the isolation boundary in place of the
-devcontainer, so that Xcode and the iOS Simulator are directly reachable — has
-no provisioning path at all.
+The agentdev catalog is provisioned only by the runtime images: their tools come
+from apt-based Ansible roles and the plugin is installed from the image-staged
+catalog. Running agents natively on macOS — for example inside a UTM macOS guest
+that serves as the isolation boundary in place of the devcontainer, so that
+Xcode and the iOS Simulator are directly reachable — has no provisioning path at
+all.
 
-Two gaps block it on a stock macOS host:
+[Port the catalog's bundled shell scripts to
+Python](20261029-catalog-scripts-python.md) ships first and makes every catalog
+script stdlib-only Python on `#!/usr/bin/env python3`. Two gaps then block a
+stock macOS host:
 
-- macOS ships bash 3.2 at `/bin/bash`. Catalog scripts start with
-  `#!/usr/bin/env bash` and three of them use bash 4 builtins (`mapfile`,
-  `declare -A`), so they fail unless a newer bash precedes `/bin` on `PATH`.
-- The tools skills call — `gh`, `jq`, `shellcheck`, `uv`, `bun`, `pre-commit`,
-  `iwe`, `codebase-memory-mcp` — and the agent CLIs that install the plugin are
-  absent.
+- The catalog needs Python 3.10 or newer: `stale-map-docs.py` calls
+  `zip(strict=...)`. A stock host's `/usr/bin/python3` is a shim that installs
+  the Xcode Command Line Tools through a dialog and then provides Python 3.9.
+- The tools the catalog calls — `gh`, `jq`, `shellcheck`, `uv`, `bun`,
+  `pre-commit`, `iwe`, `codebase-memory-mcp` — and the agent CLIs that install
+  the plugin are absent.
 
 ## Approach
 
-Add `bin/macos-bootstrap.sh` to the agentdev catalog. It is a single
-self-contained file, so a first run works through `curl -fsSL <raw URL> | bash`
-before the plugin exists, and once the plugin is enabled the same script is on
-`PATH` for re-runs. Steps, each idempotent:
+Add `bin/macos-bootstrap.zsh` to the agentdev catalog. It is a single
+self-contained zsh file, so a first run works through
+`curl -fsSL <raw URL> | zsh` before the plugin exists, using the `/bin/zsh`
+every supported macOS ships, and once the plugin is enabled the same script is
+on `PATH` for re-runs. Steps, each idempotent:
 
 1. Refuse to run on anything but Darwin; require `brew` and print Homebrew's
    official install command when it is absent.
-2. `brew bundle --file=-` with an inline Brewfile: formulae `bash`, `jq`, `gh`,
-   `shellcheck`, `uv`, `bun`, `pre-commit`, and cask `claude-code`. Versions
-   float; only the release-only tools in step 3 are pinned.
-3. Install the tools Homebrew lacks — `iwe` with `iwes`, and
+2. `brew bundle --file=-` with an inline Brewfile: formulae `uv`, `jq`, `gh`,
+   `shellcheck`, `bun`, `pre-commit`, and cask `claude-code`. Versions float;
+   only the tools in steps 3 and 4 are pinned.
+3. `uv python install <version> --default`, which places a `python3` executable
+   in uv's executable directory, `~/.local/bin`. `<version>` is recorded in the
+   script.
+4. Install the tools Homebrew lacks — `iwe` with `iwes`, and
    `codebase-memory-mcp` — from their GitHub release darwin tarballs into
    `~/.local/bin`, at the same versions `ansible/roles/dev_tools` pins, each
    verified against a SHA-256 recorded in the script per architecture. `iwec`
    stays uninstalled even though the iwe tarball ships it, matching the image
    ([IWE through the CLI, not MCP](../architecture/iwe-cli-over-mcp.md)).
-4. Write a marker-delimited block to `~/.zprofile` that evaluates
-   `brew shellenv` and prepends `~/.local/bin`, so `env bash` resolves to
-   Homebrew's bash 5 in every new login shell. Rewrite the block in place on
+5. Write a marker-delimited block to `~/.zprofile` that evaluates
+   `brew shellenv` and prepends `~/.local/bin`, so `env python3` resolves to the
+   uv-provisioned Python in every new login shell. Rewrite the block in place on
    re-run; never duplicate it.
-5. Unless `--skip-plugins` is passed: register the
+6. Unless `--skip-plugins` is passed: register the
    `plume-works/agent-devcontainer` GitHub marketplace in Claude Code at user
    scope and install `agentdev` only; when `codex` is on `PATH`, do the
    equivalent for Codex.
-6. Verify: print each tool's version, confirm the `bash` a fresh login shell
-   resolves reports major version ≥ 4, and exit nonzero naming whatever failed.
+7. Verify: print each tool's version, confirm the `python3` a fresh login shell
+   resolves reports the recorded version, and exit nonzero naming whatever
+   failed.
 
-The script itself runs under `/bin/bash` 3.2 on a first run, so it uses no bash
-4 constructs.
+zsh sits outside the repository's shell convention, which requires bash and
+`shellcheck`, and `shellcheck` cannot parse zsh. The bootstrap is checked with
+`zsh -n` and kept out of the `shellcheck` hook, and root `AGENTS.md` and the
+catalog-script-language architecture document record it as the catalog's one
+non-Python script, because it runs before anything is installed.
 
-Rejected: a `macos/` Template-class directory at the repository root. It would
-reach only template consumers who copy it, whereas the catalog reaches every
-plugin user and keeps the bootstrap versioned with the scripts it makes
-runnable. Rejected: pinning brew formulae to the image versions — it would mean
-replacing Homebrew with release tarballs for every tool.
+Rejected: a bash bootstrap that also installs Homebrew bash 5, because no
+catalog script needs bash once the Python port has shipped; Homebrew's `python`
+formula, because uv provisions the exact version the catalog is tested on and is
+already a required tool; a `macos/` Template-class directory at the repository
+root, which would reach only template consumers who copy it, whereas the catalog
+reaches every plugin user; and pinning brew formulae to the image versions,
+which would mean replacing Homebrew with release tarballs for every tool.
 
 Assumptions:
 
@@ -81,11 +97,16 @@ Assumptions:
 - Homebrew itself is not installed by the script; installing it needs an
   interactive `sudo` the script should not drive.
 - The bootstrap is a user-run command, not a skill script, so it does not adopt
-  the `RESULT=` contract or source `result-codes.sh` — it must run before the
-  catalog is on disk.
+  the `RESULT=` contract — it must run before the catalog is on disk.
 - Codex gets the same `agentdev` install when its CLI is present. The user
   decided the plugin step covers Claude Code, plus Codex when present, and
   installs `agentdev` only.
+- The recorded Python version is the lower bound of the root `pyproject.toml`'s
+  `requires-python`, the oldest version the repository's own tests run the
+  catalog on.
+- uv's `--default` install of the `python3` executable works without `--preview`
+  at the uv version Homebrew ships. Task 3's macOS run confirms it; if it does
+  not, the plan returns to revise mode before Task 4.
 
 ## Implementation Steps
 
@@ -94,15 +115,17 @@ Assumptions:
 **Files:** Create: `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`,
 `scripts/tests/test_macos_bootstrap_pins.py`
 
-The plugin test resolves the script through the `plugin_root` fixture. Stub
-`uname`, `brew`, `curl`, `shasum`, `claude`, and `codex` as executables on a
-temporary `PATH`, each logging its arguments; point `HOME` at a temporary
-directory.
+The plugin test resolves the script through the `plugin_root` fixture and runs
+it with `zsh`, skipping when `zsh` is absent, as it is in the Linux images; the
+macOS job in Task 3 runs it. Stub `uname`, `brew`, `uv`, `curl`, `shasum`,
+`claude`, and `codex` as executables on a temporary `PATH`, each logging its
+arguments; point `HOME` at a temporary directory.
 
 - [ ] A non-Darwin `uname` exits nonzero before any `brew` call.
 - [ ] A missing `brew` exits nonzero and prints the Homebrew install command.
 - [ ] `brew bundle --file=-` receives every formula and the `claude-code` cask
   on stdin.
+- [ ] `uv python install` receives the recorded version and `--default`.
 - [ ] A release tarball whose checksum does not match is rejected and nothing
   lands in `~/.local/bin`.
 - [ ] From an iwe archive that holds `iwe`, `iwes`, and `iwec`, only `iwe` and
@@ -113,33 +136,38 @@ directory.
   `self-improve`; `--skip-plugins` makes no `claude` or `codex` call; no `codex`
   call happens when `codex` is absent from `PATH`.
 - [ ] In `scripts/tests/test_macos_bootstrap_pins.py` (repository-level, because
-  the Ansible defaults do not ship with the plugin): the release versions in the
-  script equal the `iwe` and `codebase-memory-mcp` versions in
-  `ansible/roles/dev_tools/defaults/main.yml`, read from that file rather than
-  restated.
-- [ ] The script contains no bash 4 constructs (`mapfile`, `readarray`,
-  `declare -A`, `local -A`, `${var,,}`, `${var^^}`, `|&`, `&>>`).
+  the Ansible defaults and the root `pyproject.toml` do not ship with the
+  plugin): the release versions in the script equal the `iwe` and
+  `codebase-memory-mcp` versions in `ansible/roles/dev_tools/defaults/main.yml`,
+  and the recorded Python version equals the lower bound of `requires-python`,
+  each read from its file rather than restated.
 
-### Task 2: Implement `bin/macos-bootstrap.sh`
+### Task 2: Implement `bin/macos-bootstrap.zsh`
 
-**Files:** Create: `.agents/plugins/agentdev/bin/macos-bootstrap.sh`
+**Files:** Create: `.agents/plugins/agentdev/bin/macos-bootstrap.zsh`; Modify:
+`.pre-commit-config.yaml`, `AGENTS.md`
 
-- [ ] The six steps in `## Approach`, with darwin `arm64` and `amd64` SHA-256
-  values for `iwe-v0.26.1` and `codebase-memory-mcp` `v0.11.0` taken from the
-  published release assets.
+- [ ] The seven steps in `## Approach`, with darwin `arm64` and `amd64` SHA-256
+  values for the `iwe` and `codebase-memory-mcp` versions `dev_tools` pins at
+  implementation time, taken from the published release assets.
 - [ ] Task 1's tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
-- [ ] `shellcheck` passes on the script.
+- [ ] `zsh -n .agents/plugins/agentdev/bin/macos-bootstrap.zsh` passes, and
+  `pre-commit run shellcheck --files .agents/plugins/agentdev/bin/macos-bootstrap.zsh`
+  does not lint it, with an `exclude` on the hook if it would.
+- [ ] Root `AGENTS.md`'s Shell convention names the bootstrap as the one zsh
+  script and why it is zsh.
 
 ### Task 3: Run the bootstrap on a macOS CI runner
 
 **Files:** Modify: `.github/workflows/validate-agent-files.yml`
 
 - [ ] Add a `macos-bootstrap` job on `macos-latest`, gated by the existing
-  `paths-filter`, that runs the script with `/bin/bash`, then runs
-  `git-new-branch.sh --help` from a fresh login `zsh` to show a bash 4 script
-  now runs. Pass `--skip-plugins` only if the plugin commands need
-  authentication, and record that in `## Verification results`.
+  `paths-filter`, that runs the script with `/bin/zsh`, then from a fresh login
+  `zsh` runs `git-new-branch.py --help` to show a catalog script runs on the
+  provisioned Python, and runs Task 1's plugin test file with pytest through uv.
+  Pass `--skip-plugins` only if the plugin commands need authentication, and
+  record that in `## Verification results`.
 
 ### Task 4: Green macOS CI run
 
@@ -148,22 +176,27 @@ directory.
 ### Task 5: Document the native macOS path
 
 **Files:** Modify: `.agents/plugins/agentdev/README.md`,
-`docs/knowledge/data/architecture/template-boundary.md`
+`docs/knowledge/data/architecture/template-boundary.md`,
+`docs/knowledge/data/architecture/catalog-script-language.md`
 
-- [ ] The catalog README gains a "Native macOS" section: the one-line `curl`
-  invocation, what the script changes on the host (`~/.zprofile`,
-  `~/.local/bin`, Homebrew packages, plugin install), and `--skip-plugins`.
+- [ ] The catalog README gains a "Native macOS" section: the one-line
+  `curl -fsSL <raw URL> | zsh` invocation, what the script changes on the host
+  (`~/.zprofile`, `~/.local/bin`, Homebrew packages, the uv-managed Python,
+  plugin install), and `--skip-plugins`.
 - [ ] `template-boundary` states that a native macOS host consumes the catalog
-  only, provisioned by `bin/macos-bootstrap.sh`, and that the `.devcontainer/`
+  only, provisioned by `bin/macos-bootstrap.zsh`, and that the `.devcontainer/`
   runtime surface does not apply to it.
+- [ ] `catalog-script-language` records the bootstrap as the catalog's one
+  non-Python script and the reason.
 
 ### Task 6: Refresh the codebase map docs
 
 **Files:** Modify:
 `docs/knowledge/data/codebase/agents/plugins/agentdev/bin.md`,
-`docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md`
+`docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md`, and any other
+map doc `stale-map-docs.py` reports stale
 
-- [ ] Refresh both with `/agentdev:iwe-map` so `stale-map-docs.py` passes.
+- [ ] Refresh them with `/agentdev:iwe-map` so `stale-map-docs.py` passes.
 
 ## Spec changes
 
@@ -174,10 +207,10 @@ Creates `spec/macos-native-bootstrap`:
 
 ### Requirement: the bootstrap provisions a stock macOS host for agentdev
 
-`bin/macos-bootstrap.sh` SHALL run under macOS's `/bin/bash` 3.2, SHALL refuse
-any OS other than Darwin, and SHALL install through Homebrew `bash`, `jq`, `gh`,
-`shellcheck`, `uv`, `bun`, `pre-commit`, and the `claude-code` cask. It SHALL
-NOT install Homebrew itself.
+`bin/macos-bootstrap.zsh` SHALL run under macOS's `/bin/zsh`, SHALL refuse any
+OS other than Darwin, and SHALL install through Homebrew `uv`, `jq`, `gh`,
+`shellcheck`, `bun`, `pre-commit`, and the `claude-code` cask. It SHALL NOT
+install Homebrew itself.
 
 #### Scenario: Homebrew is missing
 
@@ -189,6 +222,17 @@ NOT install Homebrew itself.
 
 - **WHEN** `uname -s` is not `Darwin`
 - **THEN** the script exits nonzero before running any installer
+
+### Requirement: uv provisions the catalog's Python
+
+The script SHALL install, through uv, the Python version it records, as the
+default `python3` executable in `~/.local/bin`.
+
+#### Scenario: Only the stock Python is present
+
+- **WHEN** the host's only `python3` is `/usr/bin/python3`
+- **THEN** after the script runs, `python3 --version` in a fresh login shell
+  reports the recorded version
 
 ### Requirement: release-only tools are pinned and checksum-verified
 
@@ -209,7 +253,7 @@ installing anything from it. It SHALL NOT install `iwec`.
 - **THEN** `iwe` and `iwes` are installed
 - **AND** `iwec` is not
 
-### Requirement: bash 5 precedes /bin on PATH in login shells
+### Requirement: login shells resolve the provisioned tools first
 
 The script SHALL maintain exactly one marker-delimited block in `~/.zprofile`
 that evaluates `brew shellenv` and prepends `~/.local/bin`, rewriting it in place
@@ -236,13 +280,13 @@ install `self-improve`.
 ### Requirement: the bootstrap verifies its result
 
 The script SHALL finish by reporting each installed tool's version and checking
-that a fresh login shell resolves `bash` to major version 4 or later, and SHALL
+that a fresh login shell resolves `python3` to the recorded version, and SHALL
 exit nonzero naming each check that failed.
 
-#### Scenario: Old bash still first on PATH
+#### Scenario: The stock Python still comes first on PATH
 
-- **WHEN** a fresh login shell resolves `bash` to version 3.2
-- **THEN** the script exits nonzero and names the bash check
+- **WHEN** a fresh login shell resolves `python3` to `/usr/bin/python3`
+- **THEN** the script exits nonzero and names the Python check
 ```
 
 ## Depends on
@@ -254,7 +298,7 @@ Python](20261029-catalog-scripts-python.md)
 
 - `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
   passes.
-- `shellcheck .agents/plugins/agentdev/bin/macos-bootstrap.sh` is clean.
+- `zsh -n .agents/plugins/agentdev/bin/macos-bootstrap.zsh` passes.
 - The `macos-bootstrap` job in `validate-agent-files.yml` passes on the pull
   request.
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py` passes.
@@ -262,8 +306,7 @@ Python](20261029-catalog-scripts-python.md)
 
 ## Out of scope
 
-- Porting the catalog's bash 4 scripts to bash 3.2; the bootstrap makes bash 5
-  available instead.
+- Installing Homebrew bash or Homebrew's `python` formula.
 - Docker, Super-Linter, and `microvm-sandbox` on macOS; the existing
   `remote-codespace-session` escalation covers hosts without Docker.
 - The MCP gateway sidecar, the egress firewall, git SSH signing, and the keyring
@@ -276,27 +319,25 @@ Python](20261029-catalog-scripts-python.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-15):
+Verified anchor points (line numbers as of 2026-10-30):
 
-- `.agents/plugins/agentdev/bin/shellcheck-fix.sh:9` — `mapfile -d ''`, a bash 4
-  builtin
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh:247`
-  — `declare -A changed_between`
-- `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:178`
-  — `mapfile -t tracked_paths`; `:180` `declare -A seen_changed_paths`
-- `ansible/roles/dev_tools/defaults/main.yml:32` — `iwe` entry (`iwe-v0.26.1`,
-  `binaries: [iwe, iwes]` at `:37`)
-- `ansible/roles/dev_tools/defaults/main.yml:58` — `codebase-memory-mcp` entry
-  (`v0.11.0`)
-- `.devcontainer/scripts/reinstall-agentdev-claude.sh:74` —
-  `claude plugin marketplace add`; `:76` `claude plugin install`
-- `.devcontainer/scripts/reinstall-agentdev-codex.sh:16` — Codex marketplace
-  manifest path `.agents/plugins/marketplace.json`
-- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:62`
-  `validate-agent-files` job; `:83` agentdev plugin test step
-- `docs/knowledge/data/codebase/agents/plugins/agentdev.md:57` — `bin/` is on
+- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:713` —
+  `zip(..., strict=True)`, the use that sets the catalog's Python 3.10 floor
+- `pyproject.toml:4` — `requires-python = ">=3.12"`, the recorded Python version
+- `ansible/roles/dev_tools/defaults/main.yml:58` — `iwe` entry (`iwe-v0.29.3`,
+  `binaries: [iwe, iwes]` at `:63`)
+- `ansible/roles/dev_tools/defaults/main.yml:84` — `codebase-memory-mcp` entry
+  (`v0.12.1`)
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml:10` — the staged Claude
+  marketplace manifest; `:15` — the Codex manifest, the image's equivalent of
+  the plugin step
+- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:61`
+  `validate-agent-files` job; `:88` agentdev plugin test step
+- `.pre-commit-config.yaml:50` — the `shellcheck` hook
+- `AGENTS.md:97` — the Shell convention: bash and `shellcheck`
+- `docs/knowledge/data/codebase/agents/plugins/agentdev.md:66` — `bin/` is on
   `PATH` while the plugin is enabled
-- `docs/knowledge/data/architecture/template-boundary.md:253` — Publisher-only
+- `docs/knowledge/data/architecture/template-boundary.md:273` — Publisher-only
   source section listing `.agents/`
 - `.agents/AGENTS.md:16` — plugin tests must pass from a consumer's plugin
   cache, resolving scripts through `plugin_root`

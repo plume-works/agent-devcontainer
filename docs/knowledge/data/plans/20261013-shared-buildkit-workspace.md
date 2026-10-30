@@ -5,11 +5,12 @@ release:
 - features/shared-buildkit-builder
 description: Run one BuildKit daemon in a dedicated Coder workspace and make it the default builder for docker build inside every Dev Container, falling back to the local builder when it is unreachable.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-10-30T14:51:47Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T16:18:33Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
-- resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
+- resource: docs/knowledge/data/plans/20261029-off-bash-migration.md
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/ff4e472/template/main.tf
 - resource: https://docs.docker.com/build/builders/drivers/remote/
 - resource: https://docs.docker.com/build/cache/garbage-collection/
 ---
@@ -24,6 +25,12 @@ workspaces that build the same images each store and rebuild the same layers.
 collection](20261013-docker-storage-gc.md) bounds each cache. This plan removes
 the duplication: workspaces share one builder and one cache.
 
+The Coder agent start this plan extends is `agentdev-runtime coder start`, which
+[Replace the runtime shell scripts with one agentdev-runtime
+CLI](20261029-off-bash-migration.md) ports from `coder-agent-start.sh`. The
+builder registration is written into that command, never as a new script under
+`.devcontainer/scripts/`, which that plan removes.
+
 ## Approach
 
 One `buildkitd` runs in a dedicated, always-on Coder workspace, with its state
@@ -33,6 +40,10 @@ plain `docker build` still loads its result into the local engine. The agent
 start makes `shared` the default builder when it answers, and selects the local
 `default` builder otherwise. A builder that becomes unreachable mid-session
 fails the build; `docker build --builder default` builds locally.
+
+The registration is `agentdev-runtime docker builder`, beside the existing
+`docker run` and `docker prune`. `coder start` runs it the way it runs prune and
+the credential helper: a failure is a warning, and Remote Control still starts.
 
 Only `docker build` inside Dev Containers changes. The devcontainer CLI builds
 the Dev Container image on the workspace engine, which keeps its own builder.
@@ -66,8 +77,9 @@ survive any workspace, but needs host access to deploy and change.
 
 - [ ] Write the architecture document: the chosen transport, how the endpoint is
   authenticated, where the builder workspace's template lives, and the rejected
-  alternatives. Probe the chosen transport from a Dev Container in a live
-  workspace and record the result under `## Verification results`.
+  alternatives.
+- [ ] Probe the chosen transport from a Dev Container in a live workspace and
+  record the result under `## Verification results`.
 
 ### Task 2: Template the builder workspace
 
@@ -89,19 +101,21 @@ survive any workspace, but needs host access to deploy and change.
 
 ### Task 4: Register the shared builder on agent start
 
-**Files:** Create: `.devcontainer/scripts/buildx-shared-builder.sh`,
-`scripts/tests/test_buildx_shared_builder.py`; Modify:
-`.devcontainer/scripts/coder-agent-start.sh`,
+**Files:** Create: `py_packages/agentdev_runtime/tests/test_docker_builder.py`;
+Modify: `py_packages/agentdev_runtime/agentdev_runtime/docker.py`,
+`py_packages/agentdev_runtime/agentdev_runtime/coder.py`,
 `scripts/tests/test_coder_agent_start.py`
 
-- [ ] `buildx-shared-builder.sh` creates or updates the `shared` builder with
-  the `remote` driver, the Task 1 endpoint, and `default-load=true`. It runs
-  `docker buildx use shared` when `docker buildx inspect --bootstrap shared`
-  succeeds within a timeout, and `docker buildx use default` otherwise. It exits
-  0 in every case, and does nothing when `docker` or buildx is missing. Tests
-  cover reachable, unreachable, and missing-tool paths with a stub `docker`.
-- [ ] `coder-agent-start.sh` runs it, and its failure does not stop Remote
-  Control from starting. Tests cover the failure path.
+- [ ] `agentdev-runtime docker builder` creates or updates the `shared` builder
+  with the `remote` driver, the Task 1 endpoint, and `default-load=true`. It
+  runs `docker buildx use shared` when
+  `docker buildx inspect --bootstrap shared` succeeds within a timeout, and
+  `docker buildx use default` otherwise. It exits 0 in every case, and does
+  nothing when `docker` or buildx is missing. Tests cover reachable,
+  unreachable, and missing-tool paths with a stub `docker`.
+- [ ] `agentdev-runtime coder start` runs it before the Remote Control start,
+  and its failure is a warning that does not stop Remote Control from starting.
+  Tests cover the failure path.
 
 ### Task 5: Confirm the shared cache across workspaces
 
@@ -109,8 +123,11 @@ survive any workspace, but needs host access to deploy and change.
 
 - [ ] Build the same Dockerfile with plain `docker build` in two workspaces and
   record under `## Verification results` that the second build reuses cached
-  layers, that its image is in the local engine, and that a third build with the
-  builder workspace stopped runs on the local builder after an agent restart.
+  layers.
+- [ ] Record under `## Verification results` that the second build's image is in
+  that workspace's local engine.
+- [ ] Stop the builder workspace, restart a workspace's agent, and record under
+  `## Verification results` that a third build runs on the local builder.
 
 ## Spec changes
 
@@ -122,11 +139,11 @@ is behavior other workflows rely on, so it carries a full delta.
 
 ### Requirement: Dev Containers build on the shared builder when it answers
 
-`coder-agent-start.sh` SHALL register a buildx builder named `shared`, using the
-`remote` driver with `default-load=true`, pointed at the builder workspace. It
-SHALL make `shared` the default builder when the builder answers within a
-timeout, and SHALL select the local `default` builder otherwise. The agent start
-SHALL continue when registration fails.
+`agentdev-runtime coder start` SHALL register a buildx builder named `shared`,
+using the `remote` driver with `default-load=true`, pointed at the builder
+workspace. It SHALL make `shared` the default builder when the builder answers
+within a timeout, and SHALL select the local `default` builder otherwise. The
+agent start SHALL continue when registration fails.
 
 #### Scenario: the builder workspace is running
 
@@ -164,10 +181,10 @@ CLI](20261029-off-bash-migration.md)
 
 ## Verification
 
-- `uv run pytest scripts/tests/test_buildx_shared_builder.py scripts/tests/test_coder_agent_start.py`
-- `shellcheck .devcontainer/scripts/buildx-shared-builder.sh`
+- `uv run pytest py_packages/agentdev_runtime/tests/test_docker_builder.py scripts/tests/test_coder_agent_start.py`
+- `uv run ruff check py_packages/agentdev_runtime`
 - `terraform fmt -check` and `terraform validate` for the builder template.
-- Task 5's live cross-workspace check.
+- Task 5's live cross-workspace checks.
 
 ## Out of scope
 
@@ -178,13 +195,15 @@ CLI](20261029-off-bash-migration.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-13):
+Verified anchor points (line numbers as of 2026-10-30). The runtime CLI plan
+ports `coder-agent-start.sh` to `agentdev-runtime coder start` and the Docker
+scripts to `agentdev_runtime/docker.py`.
 
-- `.devcontainer/scripts/coder-agent-start.sh:13` — credential helper call;
-  `:17` — `exec` of `claude-remote-control-start.sh`
-- `scripts/tests/test_coder_agent_start.py:56` —
+- `.devcontainer/scripts/coder-agent-start.sh:13` — credential helper call, a
+  warning on failure; `:21` — `exec` of `claude-remote-control-start.sh`
+- `scripts/tests/test_coder_agent_start.py:70` —
   `test_remote_control_starts_when_helper_setup_fails`
-- `.devcontainer/devcontainer.json:17` — docker-in-docker feature, the Dev
+- `.devcontainer/scripts/runtime-supervisor.py:309` — `dockerd`, the Dev
   Container engine whose builder changes
-- `coder-ide-baseline` `template/main.tf:113` — `coder_agent.dev`; `:403` —
-  `docker_container.workspace`
+- `coder-ide-baseline` `template/main.tf:113` — `coder_agent.dev`; `:259` —
+  `coder_script.agent_start`; `:435` — `docker_container.workspace`
