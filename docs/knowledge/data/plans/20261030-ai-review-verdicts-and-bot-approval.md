@@ -193,11 +193,18 @@ Assumptions:
 **Files:** Modify: `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] The feature's `## Behaviour` describes the verdict rule and the
+- [x] The feature's `## Behaviour` describes the verdict rule and the
   trusted-bot approval, including the Dependabot skip.
-- [ ] The consumption guide's trusted-bot bullets say the same list drives the
+  - **Evidence:** commit `c600879` — `ai-responder-workflows.md` `## Behaviour`
+    adds the verdict rule and the trusted-bot approval with the Dependabot skip;
+    `iwe schema validate` passed.
+- [x] The consumption guide's trusted-bot bullets say the same list drives the
   approval, and that a consumer's ruleset needs the organization's Actions
   approval setting for either verdict path.
+  - **Evidence:** commit `c600879` — the consumption guide's bot-gate and
+    `TRUSTED_BOT_ACTORS` bullets name the approval, and a new bullet requires
+    the organization's Actions approval setting for both verdict paths;
+    `validate_agent_files` passed.
 
 ### Task 5: A trusted-bot pull request merges without bypass
 
