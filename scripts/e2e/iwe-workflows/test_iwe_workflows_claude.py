@@ -218,7 +218,7 @@ def test_implement_on_main(main_clone: Clone) -> None:
     transcript = run(main_clone, 'implement-on-main', f'/agentdev:iwe-implement {BRANCH_KEY}')
     assert main_clone.branch() == BRANCH_WORK, f'on {BRANCH_WORK}\n{transcript.excerpt()}'
     assert main_clone.remote_has(BRANCH_WORK), f'pushed to origin\n{transcript.excerpt()}'
-    assert 'head:impl/e2e-branch/' in main_clone.gh_calls(), (
+    assert 'head:iwe/e2e-branch/' in main_clone.gh_calls(), (
         f'named through iwe-branch-name\n{main_clone.gh_calls()}\n{transcript.excerpt()}'
     )
 
