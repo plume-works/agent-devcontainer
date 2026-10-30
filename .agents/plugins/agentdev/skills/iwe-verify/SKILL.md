@@ -48,20 +48,15 @@ does not key on:
   dispatch prompt on the session route, and on the Shipper's route the plan key
   and the approvals the Shipper's own prompt quotes, in the same form.
 
-Never save a `Needs decision` report. The quoted heredocs pass every character
-through literally:
+Never save a `Needs decision` report. Single-quote each prompt, newlines
+included, and write a single quote inside one as `'\''`; the report goes on
+stdin through a quoted heredoc:
 
 ```bash
 agent-code/verify-cache.py save <plan-key|audit> --commit <COMMIT> \
   --verdict '<verdict>' \
-  --skill-request "$(cat <<'SKILL_REQUEST'
-<the skill request, verbatim>
-SKILL_REQUEST
-)" \
-  --verifier-prompt "$(cat <<'VERIFIER_PROMPT'
-<the verifier prompt, verbatim>
-VERIFIER_PROMPT
-)" <<'VERIFY_REPORT'
+  --skill-request '<the skill request, verbatim>' \
+  --verifier-prompt '<the verifier prompt, verbatim>' <<'VERIFY_REPORT'
 <the report, verbatim>
 VERIFY_REPORT
 ```
