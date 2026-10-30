@@ -212,8 +212,16 @@ update-branch, which name `push-branch` or `request-review`,
 `.agents/plugins/agentdev/tests/test_request_review.py`; Delete: the five `.sh`
 scripts and the `__common.sh` of pr-open, pr-review, and pr-gen-description
 
-- [ ] Each script reproduces its contract; the three untested scripts gain tests
+- [x] Each script reproduces its contract; the three untested scripts gain tests
   covering their `RESULT` paths.
+  - **Evidence:** commit aec9b96 "Port the pull-request skill scripts to
+    Python"; before the `.sh` deletion, the new `test_find_branch_pr.py`,
+    `test_post_review.py`, and `test_review_git_changes.py` with
+    `test_request_review.py` and `test_push_branch_map_check.py` passed against
+    both implementations, with identical normalized output on 80 of 83 script
+    runs; the 3 differences are the dropped `jq` prerequisite (help text, and
+    jq's own parse message). `uv run pytest .agents/plugins/agentdev/tests`
+    passed (407).
 
 ### Task 6: gh-stack guard
 
