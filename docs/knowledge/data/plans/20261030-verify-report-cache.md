@@ -270,9 +270,11 @@ tasks reuse them. Each scenario runs in one clone:
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
 
-- [ ] The three scenarios from Task 9 added;
+- [x] The three scenarios from Task 9 added;
   `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py -k 'saved or dirty or decision'`
   passes.
+  - **Evidence:** commit e7d96f9; the `-k 'saved or dirty or decision'` run at
+    that commit: 3 passed.
 
 ## Spec changes
 
