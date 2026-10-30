@@ -94,8 +94,11 @@ Assumptions recorded for minor details the rule leaves open:
 
 ### Task 4: Confirm the VS Code name on a laptop
 
-- [ ] Open the checkout in a container from VS Code on macOS and confirm the
+- [x] Open the checkout in a container from VS Code on macOS and confirm the
   hostname reads `vscode-<short host>-<checkout>`.
+  - **Evidence:** the maintainer's Mac `robomac` checkout at commit df90d99,
+    which contains c60bfb9, opened from VS Code; `hostname` inside the container
+    reads `vscode-robomac-agent-devcontainer`.
 
 ## Spec changes
 
