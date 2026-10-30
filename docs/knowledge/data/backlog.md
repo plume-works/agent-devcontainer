@@ -20,9 +20,6 @@ write a plan and link the plan instead.*
 
 [Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
 
-[Exercise the saved Verify report end to
-end](backlog/e2e-verify-report-cache.md)
-
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
@@ -61,6 +58,9 @@ pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 trigger](backlog/drop-claude-free-form-task-trigger.md)
 
 ## Done
+
+[Exercise the saved Verify report end to
+end](backlog/e2e-verify-report-cache.md)
 
 [Run implement-all live against two
 plans](backlog/implement-all-multi-plan-e2e.md)

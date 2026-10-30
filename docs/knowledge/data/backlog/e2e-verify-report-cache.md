@@ -1,7 +1,7 @@
 ---
 type: task
 created: 2026-10-30
-stage: planned
+stage: done
 priority: medium
 description: Add IWE workflow e2e scenarios that prove the Shipper reuses a saved Verify report without running verification commands, and that Verify stops on a dirty worktree before any dispatch.
 generated:
@@ -12,6 +12,7 @@ sources:
 - resource: scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
+completed: 2026-10-30
 ---
 
 # Exercise the saved Verify report end to end

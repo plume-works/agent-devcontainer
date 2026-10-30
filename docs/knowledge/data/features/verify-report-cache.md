@@ -4,7 +4,7 @@ stage: accepted
 description: Verify saves its last report per plan, keyed by the commit it ran on and the active catalog digest, and returns that report instead of re-running when invoked again on the same clean commit, so Ship reuses the Implement loop's Verify instead of repeating its test and e2e runs.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:30:00Z
+  at: 2026-10-30T16:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
@@ -33,6 +33,9 @@ verdict for a commit it has already judged.
 - A later invocation on the same commit with the same catalog digest returns the
   saved report, marked as saved, without running any check or verification
   command.
+- The saved report's frontmatter records the request the skill was invoked with
+  and the prompt the verifier ran under, including the approvals it quotes, so a
+  reused verdict shows what it was granted.
 - A `Needs decision` report is never saved, so re-running with the approval runs
   Verify.
 - `--fresh`, given by the user, runs Verify and overwrites the saved report.

@@ -6,13 +6,15 @@ release:
 - features/verify-report-cache
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:30:00Z
+  at: 2026-10-30T16:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
+- resource: scripts/e2e/iwe-workflows/scenarios.py
+- resource: scripts/e2e/iwe-workflows/clone.py
 ---
 
 # Verify report cache
@@ -28,7 +30,9 @@ commit. Both run the plan's `## Verification` commands, and those test and e2e
 runs are the cost. [Fresh-context
 Verify](../architecture/fresh-context-verify.md) requires the verdict to come
 from a fresh context, and the Implement loop's dispatched `iwe-verifier` already
-is one, so the Shipper's repeat adds nothing.
+is one, so the Shipper's repeat adds nothing. The e2e scenarios that prove an
+agent follows the cache routing come from [Exercise the saved Verify report end
+to end](../backlog/e2e-verify-report-cache.md).
 
 ## Approach
 
@@ -42,19 +46,26 @@ deterministic part:
   when its `commit` equals `HEAD`, its `catalog_digest` equals the active
   catalog's, and `--fresh` is absent. Any other state is a miss that prints the
   current commit and digest.
-- `save <plan-key|audit> --commit <sha> --verdict <verdict>` reads the report on
-  stdin and overwrites the one saved report for that plan. It refuses when
-  `HEAD` moved off `--commit` or the worktree is dirty, and accepts only the
-  verdicts `Ready to ship`, `Blocked`, and `Audit`, so `Needs decision` is never
-  saved.
+- `save <plan-key|audit> --commit <sha> --verdict <verdict> --skill-request <text> --verifier-prompt <text>`
+  reads the report on stdin and overwrites the one saved report for that plan.
+  It refuses when `HEAD` moved off `--commit` or the worktree is dirty, and
+  accepts only the verdicts `Ready to ship`, `Blocked`, and `Audit`, so
+  `Needs decision` is never saved.
 
 The saved report is `.tmp/verify/<YYYYMMDD>-<slug>.md`, named by the plan file,
 or `.tmp/verify/audit.md` in audit mode — one file per plan, overwritten like a
 build folder. Its frontmatter carries `plan`, `commit`, `catalog_digest`,
-`verdict`, and `saved_at`, and the body is the report verbatim. The script
-writes `.tmp/verify/.gitignore` containing `*`, so the cache never dirties the
-worktree it checks, including in a consuming repository that does not ignore
-`.tmp/`.
+`verdict`, `saved_at`, `skill_request`, and `verifier_prompt`, and the body is
+the report verbatim. `skill_request` is the request `/agentdev:iwe-verify` was
+invoked with — the user's words on the session route, the Implement loop's or
+the Shipper's invocation otherwise — and `verifier_prompt` is the prompt the
+verifier rulebook ran under: the dispatch prompt on the session route, and on
+the Shipper's route the plan key and the approvals the Shipper forwards from its
+own prompt, such as an approval to run e2e tests. Both are recorded for audit
+and are not part of the key: a run that needs an approval it lacks ends in
+`Needs decision`, which is never saved. The script writes
+`.tmp/verify/.gitignore` containing `*`, so the cache never dirties the worktree
+it checks, including in a consuming repository that does not ignore `.tmp/`.
 
 The catalog digest is `sha256:<hex>` over every regular file under the plugin
 root the script runs from (`parents[3]`), in sorted relative-path order with
@@ -84,6 +95,8 @@ Rejected:
   would miss changes outside their scope.
 - **Re-running only the `## Verification` commands at Ship.** Those commands are
   the cost the cache exists to remove.
+- **Keying the report by its approvals too.** Approvals change a verdict only by
+  unblocking a command, and a blocked run is never saved.
 - **Keeping one report per commit.** Only the latest is ever looked up; the
   ancestor reuse that would read older ones is a separate task.
 
@@ -180,6 +193,73 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
   and the tree or blob-hash key from `## Approach`.
   - **Evidence:** commit 9ce18c8; `iwe schema validate` at that commit: clean.
 
+### Task 7: Record the invoking prompts in the saved report
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py`,
+`.agents/plugins/agentdev/tests/test_verify_cache.py`
+
+`save` takes `--skill-request <text>` and `--verifier-prompt <text>`, both
+required, and writes each as a YAML literal block scalar so multi-line text and
+colons survive; the frontmatter reader skips block-scalar lines when it reads
+the key fields.
+
+- [ ] Tests cover: both prompts round-trip into the saved frontmatter verbatim,
+  including multiple lines, a colon, and a quote; a lookup after such a save is
+  still a `HIT`; `save` without either flag is `PREFLIGHT_ERROR`.
+- [ ] `verify-cache.py` implemented; the tests pass.
+
+### Task 8: Pass the invoking prompts on every route
+
+**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`,
+`.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
+
+- [ ] The skill's save step passes `--skill-request` with the request the skill
+  was invoked with, verbatim, and `--verifier-prompt` with the prompt the
+  verifier ran under: the dispatch prompt on the session route, and the plan key
+  and the approvals the Shipper's own prompt quotes on the Shipper's route.
+  Shipper step 3 forwards those approvals to the rulebook it follows in place.
+
+### Task 9: Add the saved-report e2e scenarios on Claude Code
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/scenarios.py`,
+`scripts/e2e/iwe-workflows/clone.py`,
+`scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py`
+
+Shared helpers go in `scenarios.py` and `clone.py` so the Codex and OpenCode
+tasks reuse them. Each scenario runs in one clone:
+
+- **Ship reuses a saved report** — `/agentdev:iwe-verify <hello> — <approval>`,
+  then the publish marker is removed, then `/agentdev:iwe-ship <hello>` with no
+  approval: Ship does not report `Needs decision`, the marker stays absent, the
+  Shipper's report names the saved report's commit, and the saved report's
+  `verifier_prompt` quotes the approval.
+- **Dirty worktree** — an untracked file in the clone, then
+  `/agentdev:iwe-verify <hello>`: no `iwe-verifier` dispatch, and the report
+  names the file.
+- **Needs decision is not reused** — `/agentdev:iwe-verify <hello>` without the
+  approval, then with it: two `iwe-verifier` dispatches, and the marker is
+  present.
+- [ ] The three scenarios added to `test_iwe_workflows_claude.py`;
+  `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k 'saved or dirty or decision'`
+  passes.
+
+### Task 10: Add the saved-report e2e scenarios on Codex
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`
+
+- [ ] The three scenarios from Task 9 added;
+  `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py -k 'saved or dirty or decision'`
+  passes.
+
+### Task 11: Add the saved-report e2e scenarios on OpenCode
+
+**Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`
+
+- [ ] The three scenarios from Task 9 added;
+  `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py -k 'saved or dirty or decision'`
+  passes.
+
 ## Spec changes
 
 [IWE workflow skills](../spec/iwe-workflow-skills.md):
@@ -254,8 +334,11 @@ digest of the active agentdev catalog, and SHALL never save a `Needs decision`
 report. On both routes it SHALL return the saved report, marked as saved and
 without running any check or verification command, when that report's commit is
 `HEAD` and its catalog digest is the active catalog's, unless the user's request
-carries `--fresh`. A verification command that leaves the worktree dirty SHALL be
-a CRITICAL finding.
+carries `--fresh`. The saved report SHALL record the request
+`/agentdev:iwe-verify` was invoked with and the prompt the `iwe-verifier`
+rulebook ran under, whether dispatched or followed in place, and neither SHALL
+be part of the key. A verification command that leaves the worktree dirty SHALL
+be a CRITICAL finding.
 
 #### Scenario: Verification reports no critical findings
 
@@ -335,6 +418,12 @@ a CRITICAL finding.
   with a saved report
 - **THEN** Verify runs in full and its report replaces the saved one
 
+#### Scenario: The saved report records how Verify was invoked
+
+- **WHEN** Verify saves a report on either route
+- **THEN** its frontmatter carries the request the skill was invoked with and
+  the verifier prompt, verbatim, including every approval the prompt quotes
+
 #### Scenario: A verification command dirties the worktree
 
 - **WHEN** a `## Verification` command leaves a tracked change or an unignored
@@ -348,6 +437,10 @@ a CRITICAL finding.
 - `uv run pytest .agents/plugins/agentdev/tests`
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
 - `iwe normalize` then `iwe schema validate`, from the repository root
+- `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py -k 'verify or ship or implement or saved or dirty or decision'`,
+  and the same for `test_iwe_workflows_codex.py` and
+  `test_iwe_workflows_opencode.py`. Each spends model usage, so Verify runs it
+  only under a quoted approval.
 
 ## Out of scope
 
@@ -392,3 +485,18 @@ Verified anchor points (line numbers as of 2026-10-30):
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:419` — Normal shipping
   requires a clean independent verification
 - `docs/knowledge/data/architecture/fresh-context-verify.md:15` — `## Decision`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:113` —
+  `parse_arguments`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:158` —
+  `read_frontmatter`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:191` —
+  `run_save`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:39` — the save step
+- `scripts/e2e/iwe-workflows/scenarios.py:17` — `APPROVAL`
+- `scripts/e2e/iwe-workflows/clone.py:266` — `Clone.marker`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py:56` —
+  `test_verify_approved`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py:98` —
+  `test_verify_approved`
+- `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py:71` —
+  `test_verify_approved`
