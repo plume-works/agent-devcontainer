@@ -48,12 +48,13 @@ deterministic part:
   verdicts `Ready to ship`, `Blocked`, and `Audit`, so `Needs decision` is never
   saved.
 
-The saved report is `.tmp/verify/<plan-slug>.md`, or `.tmp/verify/audit.md` in
-audit mode — one file per plan, overwritten like a build folder. Its frontmatter
-carries `plan`, `commit`, `catalog_digest`, `verdict`, and `saved_at`, and the
-body is the report verbatim. The script writes `.tmp/verify/.gitignore`
-containing `*`, so the cache never dirties the worktree it checks, including in
-a consuming repository that does not ignore `.tmp/`.
+The saved report is `.tmp/verify/<YYYYMMDD>-<slug>.md`, named by the plan file,
+or `.tmp/verify/audit.md` in audit mode — one file per plan, overwritten like a
+build folder. Its frontmatter carries `plan`, `commit`, `catalog_digest`,
+`verdict`, and `saved_at`, and the body is the report verbatim. The script
+writes `.tmp/verify/.gitignore` containing `*`, so the cache never dirties the
+worktree it checks, including in a consuming repository that does not ignore
+`.tmp/`.
 
 The catalog digest is `sha256:<hex>` over every regular file under the plugin
 root the script runs from (`parents[3]`), in sorted relative-path order with
