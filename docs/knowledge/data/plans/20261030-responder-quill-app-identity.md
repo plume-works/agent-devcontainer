@@ -6,7 +6,7 @@ release:
 description: Post every AI responder review, comment, commit, and trusted-bot approval as the plume-works-quill GitHub App, make it the only identity the AI review gate accepts, and retire GitHub Actions' ability to approve pull requests.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T20:30:00Z
+  at: 2026-10-30T20:10:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/run-claude-responder/action.yml
@@ -45,8 +45,8 @@ The maintainer decided on 2026-10-30:
 - reviews by the previous bot identities are ignored, with no transition period
   and no dismissals;
 - the `plume-works-review` environment replaces `claude-review` and holds
-  `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, and `QUILL_PRIVATE_KEY`; a
-  job whose App secrets are missing fails, with no `GITHUB_TOKEN` fallback;
+  `CLAUDE_CODE_OAUTH_TOKEN`, `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY`;
+  a job whose App secrets are missing fails, with no `GITHUB_TOKEN` fallback;
 - the bridge job keeps dispatching with `GITHUB_TOKEN`, so [Dispatched review
   identity](../architecture/dispatched-review-identity.md) stays valid;
 - commits the responder makes are signed and attributed to the App;
@@ -138,9 +138,9 @@ Assumptions:
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
 - [ ] `claude-respond` and `claude-task` use `environment: plume-works-review`,
-  pass `QUILL_APP_CLIENT_ID`, `QUILL_PRIVATE_KEY`, and their contents permission
-  (`read` and `write`) to the action, and drop `id-token: write` and its
-  comment.
+  pass `QUILL_APP_CLIENT_ID`, `QUILL_APP_PRIVATE_KEY`, and their contents
+  permission (`read` and `write`) to the action, and drop `id-token: write` and
+  its comment.
 - [ ] A workflow-level `AI_REVIEWER_LOGIN` is `plume-works-quill[bot]`, and
   preflight fails a request whose comment, review, or issue author is that login
   before any dispatch.
@@ -188,7 +188,7 @@ Modify: `docs/knowledge/data/architecture.md`
 - [ ] The consumption guide's required prerequisites become: register a GitHub
   App with the installation permissions under `## Approach` and install it;
   create the `plume-works-review` environment with `CLAUDE_CODE_OAUTH_TOKEN`,
-  `QUILL_APP_CLIENT_ID`, and `QUILL_PRIVATE_KEY` and no deployment branch
+  `QUILL_APP_CLIENT_ID`, and `QUILL_APP_PRIVATE_KEY` and no deployment branch
   policy; set `AI_REVIEWER_LOGIN` to the App's bot login. The optional Claude
   GitHub App step is removed.
 - [ ] `README.md` names the App, the environment, and the three secrets where it
@@ -302,7 +302,7 @@ authored by `AI_REVIEWER_LOGIN`. The comment bridge SHALL keep dispatching with
 ### Scenario: the App secrets are missing
 
 - **WHEN** a responder job runs and `QUILL_APP_CLIENT_ID` or
-  `QUILL_PRIVATE_KEY` is empty
+  `QUILL_APP_PRIVATE_KEY` is empty
 - **THEN** the job fails naming the missing secret, and nothing is posted.
 
 ### Scenario: the App's own comment mentions the responder
