@@ -14,6 +14,12 @@ to the current day's group.
   owns](bugs/cbm-cache-under-foreign-owned-checkout.md) fixed: the Dev Container
   keeps `CBM_CACHE_DIR` on its own `agentdev-cbm` volume, off the checkout; [CBM
   daemon lifecycle](architecture/cbm-daemon-lifecycle.md) records why.
+- **New**: [Run the Dev Container as a non-root account with one home
+  volume](plans/20261030-devcontainer-home-volume.md) plans the [Dev Container
+  home volume](features/devcontainer-home-volume.md) feature, now accepted.
+- **New**: [Dev Container home volume](architecture/devcontainer-home-volume.md)
+  records the decision to run the Dev Container as a non-root account with one
+  home volume, and the open editor-server cleanup risk.
 - **Update**: refreshed the [github](codebase/github.md) and [pull request
   checks flow](codebase/flow-pull-request-checks.md) map docs for the single
   Renovate group that now carries both agentdev image digests.
@@ -31,6 +37,18 @@ to the current day's group.
   `devcontainer-init.sh`, since a migrated consumer keeps no
   `.devcontainer/scripts/`; [Claude Remote
   Control](spec/claude-remote-control.md) and the devcontainer map docs say so.
+- **Update**: [Publish the reusable agentdev Dev Container
+  image](plans/20261023-reusable-agentdev-devcontainer.md) done; created the
+  [agentdev runtime images](spec/agentdev-runtime-images.md) spec and merged the
+  image family into [Image pinning](spec/image-pinning.md), [Catalog
+  lifecycle](spec/catalog-lifecycle.md), [Devcontainer Docker
+  storage](spec/devcontainer-docker-storage.md), [Standalone OpenCode
+  runtime](spec/standalone-opencode-runtime.md), [Playwright
+  browser](spec/playwright-browser.md), [Template
+  consumption](spec/template-consumption.md), and [Claude Remote
+  Control](spec/claude-remote-control.md); [Reusable agentdev Dev
+  Container](features/reusable-agentdev-devcontainer.md) implemented and listed
+  under Unreleased Added.
 
 ## 2026-10-29
 

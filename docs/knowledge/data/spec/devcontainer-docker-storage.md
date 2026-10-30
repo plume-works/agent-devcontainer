@@ -1,30 +1,52 @@
 ---
 type: spec
-description: The Dev Container's nested Docker engine caps its BuildKit cache at 10 GB, and the Coder agent start prunes its unused images older than 72 hours.
+description: The agentdev-devcontainer image supervises its nested Docker engine on persistent non-overlay storage, caps its BuildKit cache at 10 GB, and the Coder agent start prunes its unused images older than 72 hours.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-13T21:30:00Z
+  at: 2026-10-30T02:01:26Z
 sources:
 - resource: ansible/roles/install_docker/tasks/main.yml
 - resource: .devcontainer/scripts/docker-image-prune.sh
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: scripts/tests/test_docker_image_prune.py
 - resource: scripts/tests/test_coder_agent_start.py
+- resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
+- resource: docker/devcontainer/supervisord.conf
+- resource: .devcontainer/scripts/runtime-docker.sh
 ---
 
 # Devcontainer Docker storage
 
-The Dev Container engine is the nested `dockerd` from the [docker-in-docker
-feature](../architecture/nested-docker-provisioning.md). It holds the images and
-build cache of work done inside the Dev Container. The workspace engine around
-it is bounded by the [Coder IDE baseline template](coder-ide-baseline.md).
+The Dev Container engine is the nested `dockerd` that `agentdev-devcontainer`
+supervises ([nested Docker
+provisioning](../architecture/nested-docker-provisioning.md)). It holds the
+images and build cache of work done inside the Dev Container. The workspace
+engine around it is bounded by the [Coder IDE baseline
+template](coder-ide-baseline.md).
 
 ## Requirements
 
+### Requirement: the Dev Container image supervises its nested Docker engine
+
+`agentdev-devcontainer` SHALL run the nested Docker daemon through its managed
+service profile on non-overlay persistent storage and SHALL apply the image's
+BuildKit garbage-collection policy.
+
+#### Scenario: Docker becomes ready
+
+- **WHEN** the Dev Container runtime starts
+- **THEN** runtime readiness remains blocked until the managed Docker daemon
+  answers its probe.
+
+#### Scenario: Docker exhausts recovery
+
+- **WHEN** the daemon cannot recover within its bounded budget
+- **THEN** the runtime fails and reports Docker as the terminal service.
+
 ### Requirement: the Dev Container engine limits its build cache
 
-The image's `/etc/docker/daemon.json` SHALL enable BuildKit garbage collection
-with a 10 GB build-cache limit, and the nested `dockerd` SHALL run with it.
+The image's Docker configuration SHALL enable BuildKit garbage collection with a
+10 GB build-cache limit, and the supervised daemon SHALL run with it.
 
 #### Scenario: the build cache passes the limit
 
