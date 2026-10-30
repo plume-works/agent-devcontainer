@@ -26,9 +26,6 @@ CLI](plans/20261029-off-bash-migration.md)
 [Port the catalog's bundled shell scripts to
 Python](plans/20261029-catalog-scripts-python.md)
 
-[Publish the reusable agentdev Dev Container
-image](plans/20261023-reusable-agentdev-devcontainer.md)
-
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
@@ -42,6 +39,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 [Name Remote Control environments after their
 launcher](plans/20261029-remote-control-environment-names.md)
+
+[Publish the reusable agentdev Dev Container
+image](plans/20261023-reusable-agentdev-devcontainer.md)
 
 [Move the Expo bridge knowledge into its own
 repository](plans/20261028-move-expo-bridge-kb.md)
