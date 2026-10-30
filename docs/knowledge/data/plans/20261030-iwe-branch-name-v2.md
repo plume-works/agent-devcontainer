@@ -77,18 +77,26 @@ a clean break over carrying two shapes.
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py`,
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py`
 
-- [ ] `parse` splits `iwe/<slug>/iter-<N>-<phase>` and reports
+- [x] `parse` splits `iwe/<slug>/iter-<N>-<phase>` and reports
   `NOT_A_WORK_BRANCH` for v1 names (`impl/foo/iter-1`), for
   `iwe/foo/iter-0-impl`, `iwe/foo/iter-01-impl`, `iwe/foo/iter-1`, and
   `iwe/foo/iter-1-review`; the docstring, usage text, and error message name the
   v2 shape
-- [ ] `next` prints `NEXT=iwe/<slug>/iter-<N>-<phase>`, counts used iterations
+  - **Evidence:** commit 14aec99; `test_parse_splits_a_work_branch` and
+    `test_parse_rejects_a_name_off_the_shape` in `test_iwe_branch_name_parse.py`
+    pass
+- [x] `next` prints `NEXT=iwe/<slug>/iter-<N>-<phase>`, counts used iterations
   of both phases for the slug, ignores v1 names, and searches pull requests with
   `head:iwe/<slug>/`; tests cover a `ship` name following an `impl` iteration
   (`iwe/foo/iter-2-impl` used → `next --phase ship` gives `iwe/foo/iter-3-ship`)
   and v1 names being ignored
-- [ ] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py .agents/plugins/agentdev/tests/test_iwe_branch_name_next.py .agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py`
+  - **Evidence:** commit 14aec99; `test_next_counts_both_phases`,
+    `test_next_ignores_names_off_the_shape`, and
+    `test_next_starts_at_iteration_one` (the `head:iwe/<slug>/` search) in
+    `test_iwe_branch_name_next.py` pass
+- [x] `uv run pytest .agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py .agents/plugins/agentdev/tests/test_iwe_branch_name_next.py .agents/plugins/agentdev/tests/test_iwe_branch_name_plan_state.py`
   passes
+  - **Evidence:** commit 14aec99; the three files pass, 55 tests
 
 ### Task 2: Skill and implementer text name the v2 shape
 
