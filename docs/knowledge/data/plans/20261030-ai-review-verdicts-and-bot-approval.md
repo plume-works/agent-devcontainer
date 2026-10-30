@@ -231,19 +231,34 @@ Assumptions:
 `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] `trusted-bot-approval` lists the pull request's commits and approves only
+- [x] `trusted-bot-approval` lists the pull request's commits and approves only
   when each one's GitHub author is the pull request's author, its committer is
   that author or `web-flow`, and `verification.verified` is true, and, on
   `synchronize`, when `github.actor` is the pull request's author.
-- [ ] When the check fails, the job approves nothing, dismisses any `APPROVED`
+  - **Evidence:** commit `9a6226c` — the job's script fails on a `synchronize`
+    push whose `context.actor` is not the author, else lists commits and
+    requires author login, committer login or `web-flow`, and
+    `verification.verified`.
+- [x] When the check fails, the job approves nothing, dismisses any `APPROVED`
   review from `github-actions[bot]` on the pull request, and posts a notice
   naming the first failing commit and the reason.
-- [ ] The architecture note records the commit check and the rejected author
+  - **Evidence:** commit `9a6226c` — on failure the script dismisses every
+    `github-actions[bot]` `APPROVED` review and posts a notice naming the
+    failing commit SHA or pushed head and the reason.
+- [x] The architecture note records the commit check and the rejected author
   skip; the feature's `## Behaviour` and the consumption guide replace
   "Dependabot pull requests stay unapproved" with the commit check and the
   approval a person-triggered run gives a Dependabot pull request.
-- [ ] `actionlint` and `zizmor` pass through pre-commit, and
+  - **Evidence:** commit `c8c5676` — `ai-review-event-selection.md` adds
+    `## Trusted-bot approval covers only the bot's commits` and rejects the
+    Dependabot author skip; the feature doc and consumption guide describe the
+    commit check and the person-triggered Dependabot approval.
+- [x] `actionlint` and `zizmor` pass through pre-commit, and
   `iwe schema validate` passes.
+  - **Evidence:** commits `9a6226c` and `c8c5676` —
+    `uv run pre-commit run --files .github/workflows/ai-responder.yml` passed
+    actionlint and zizmor; `iwe schema validate` passed in the `c8c5676`
+    pre-commit run.
 
 ### Task 6: A trusted-bot pull request merges without bypass
 
