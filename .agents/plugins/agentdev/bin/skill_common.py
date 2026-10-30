@@ -34,6 +34,18 @@ def run_tool(*arguments: str, cwd: Path | None = None) -> subprocess.CompletedPr
     return subprocess.run(list(arguments), check=False, capture_output=True, text=True, cwd=cwd)
 
 
+def run_to_stderr(*arguments: str, cwd: Path | None = None) -> int:
+    """Run a command with its stdout sent to stderr, keeping stdout for KEY=value lines."""
+    sys.stdout.flush()
+    return subprocess.run(list(arguments), check=False, stdout=sys.stderr, cwd=cwd).returncode
+
+
+def run_inherited(*arguments: str, cwd: Path | None = None) -> int:
+    """Run a command on this process's own stdout and stderr."""
+    sys.stdout.flush()
+    return subprocess.run(list(arguments), check=False, cwd=cwd).returncode
+
+
 def require_git_repo() -> Path:
     """Return the repository's top level, or stop with a preflight error outside one."""
     completed = run_tool('git', 'rev-parse', '--show-toplevel')

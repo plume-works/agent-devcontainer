@@ -39,7 +39,7 @@ For a merge that does not require fetching or base-branch synchronization, use
 
 ## Bundled Script
 
-Use [update-branch.sh](agent-code/update-branch.sh) instead of running the fetch and
+Use [update-branch.py](agent-code/update-branch.py) instead of running the fetch and
 merge commands manually. It:
 
 - checks repository, branch, and working-tree preconditions
@@ -92,7 +92,7 @@ no local stack continues to Workflow 1.
 ## Workflow 1: Run the Update Script
 
 ```bash
-agent-code/update-branch.sh
+agent-code/update-branch.py
 ```
 
 The script defaults to `origin/main`. Supply `--remote` or `--base` only when

@@ -48,7 +48,7 @@ confirm it before running the script:
 
 ## Bundled Script
 
-Use [git-new-branch.sh](agent-code/git-new-branch.sh) instead of running the
+Use [git-new-branch.py](agent-code/git-new-branch.py) instead of running the
 branch commands manually. It:
 
 - validates the name with `git check-ref-format --branch`
@@ -88,7 +88,7 @@ on a bare number.
 ## Workflow 1: Create the Branch
 
 ```bash
-agent-code/git-new-branch.sh <name>
+agent-code/git-new-branch.py <name>
 ```
 
 ## Workflow 2: Handle the Result
