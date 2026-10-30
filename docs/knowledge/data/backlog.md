@@ -18,6 +18,8 @@ write a plan and link the plan instead.*
 
 ## Medium
 
+[Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
+
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
