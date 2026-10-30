@@ -17,9 +17,6 @@ moves them.*
 
 ## Active
 
-[Escalate a client failure to the dependency that caused
-it](plans/20261030-dbus-keyring-flaky-test.md)
-
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
@@ -39,6 +36,9 @@ Homebrew](plans/20261013-macos-native-bootstrap.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Escalate a client failure to the dependency that caused
+it](plans/20261030-dbus-keyring-flaky-test.md)
 
 [Name Remote Control environments after their
 launcher](plans/20261029-remote-control-environment-names.md)
