@@ -83,9 +83,13 @@ Assumptions recorded for minor details the rule leaves open:
 
 ### Task 3: Confirm the Coder name on a rebuilt workspace
 
-- [ ] Rebuild a Coder workspace's dev container and confirm `hostname` inside it
+- [x] Rebuild a Coder workspace's dev container and confirm `hostname` inside it
   and the Remote Control environment in Claude Desktop both read
   `coder-<workspace name>`.
+  - **Evidence:** agent-dev2's dev container rebuilt from commit 2415d3a;
+    `hostname` inside it reads `coder-agent-dev2`, and the init step wrote
+    `CONTAINER_HOSTNAME=coder-agent-dev2`; the maintainer confirmed the Remote
+    Control environment shows the new name.
 
 ### Task 4: Confirm the VS Code name on a laptop
 
