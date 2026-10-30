@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Escalate a client failure to the dependency that caused
+it](plans/20261030-dbus-keyring-flaky-test.md)
+
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 
