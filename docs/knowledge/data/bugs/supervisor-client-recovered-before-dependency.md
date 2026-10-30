@@ -3,7 +3,7 @@ type: bug
 description: When D-Bus crashes, the standalone runtime controller can find keyring exited before it confirms the D-Bus failure, restart keyring on keyring's own budget against a dead bus, and latch the runtime failed.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:55:07Z
+  at: 2026-10-30T14:09:49Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: scripts/tests/test_agent_runtime_supervision.py
@@ -80,26 +80,23 @@ under load is as plausible in production as in the test.
 
 ## Fix
 
-Not fixed, and no direction is decided. Two directions keep the `refresh` path
-as the recovery for a dependency outage:
+Fixed by [Escalate a client failure to the dependency that caused
+it](../plans/20261030-dbus-keyring-flaky-test.md). When `check_once` confirms a
+failure, `Controller.failing_dependency` walks the failed service's `after`
+dependencies transitively, and returns the first one in startup order that is
+long-running, `ready`, and fails `healthy()` at that moment. If it finds one,
+the controller recovers that dependency instead of the client. The dependency's
+`refresh` list then restarts the client outside the client's budget. The
+client's failure corroborates the dependency's failed probe, so the debounce
+does not apply. The accepted cost: a dependency that was only slow to answer is
+restarted, taking its clients with it. The rule is recorded under `## Recovery`
+in
+[standalone-opencode-runtime](../architecture/standalone-opencode-runtime.md),
+together with why deferring the client was rejected.
 
-- **Defer.** `check_once` skips a failed service while any of its long-running
-  `after` dependencies fails a single probe, so the next pass confirms the
-  dependency and its `refresh` list restarts the client. This keeps the
-  probe-failure debounce, and costs one extra probe per client failure and up to
-  one interval of latency.
-- **Escalate.** A failed service whose long-running dependency fails a probe at
-  that moment is treated as the dependency's failure, and the dependency is
-  recovered in the same pass. The client's exit corroborates the dependency's
-  failed probe, so the debounce does not apply. The cost: a dependency that was
-  only slow to answer is restarted, taking its clients with it.
-
-Deferring cannot mark the waiting client unready. `refresh_clients` restarts
-only a client whose status is `ready`, and `recover` skips a dependent that is
-in the recovered service's `refresh` list, so a client marked `blocked` or
-`recovering` while it waits is never restarted. It therefore reads `ready` while
-it is down, for up to one interval. Escalating has no such gap: recovering the
-dependency sets it `recovering`, which makes the runtime `pending`.
+`test_a_client_failure_escalates_to_its_failing_dependency` reproduces the race
+deterministically. A wedged fake D-Bus drops readiness but keeps running, and a
+debounce too high to confirm it means only escalation can recover it.
 
 Rejected directions:
 
@@ -111,48 +108,36 @@ Rejected directions:
   covers this case, but it is the general init-system behavior that idea was
   held back to avoid, and this defect does not need it.
 
-Open questions for the fix:
-
-- Whether the dependency check walks transitively. OpenCode needs keyring, which
-  needs D-Bus, so a non-transitive check could escalate an OpenCode failure to
-  keyring while D-Bus is the cause. Only long-running dependencies count: a
-  one-shot such as `prepare` has no probe.
-- Which clients exit when their dependency does. A replaced session bus takes
-  gnome-keyring down with it; whether Xpra or OpenCode exit or only degrade
-  decides whether the defect reaches beyond keyring in practice.
-- A deterministic regression test. The slowed probe above makes the race likely,
-  not certain. A fake D-Bus that drops readiness and holds before it exits would
-  fix the order.
-
-The spec already requires the runtime to "recover affected clients coherently",
-so the fix needs no spec change. The chosen rule belongs in the `## Recovery`
-section of
-[standalone-opencode-runtime](../architecture/standalone-opencode-runtime.md),
-with the rejected directions.
+Still unknown: whether Xpra or OpenCode exit or only degrade when their
+dependency is replaced. That decides whether the defect reached beyond keyring
+in practice. The fix covers any client that exits.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-30):
 
-- `.devcontainer/scripts/runtime-supervisor.py:649` — `Controller.check_once`;
-  `:656` — an exited service counts as failed at once; `:659` — the
-  probe-failure debounce
-- `.devcontainer/scripts/runtime-supervisor.py:565` — `Controller.recover`;
-  `:572` — it skips a dependent in the `refresh` list
-- `.devcontainer/scripts/runtime-supervisor.py:581` —
-  `Controller.refresh_clients`; `:584` — it restarts only a `ready` client
-- `.devcontainer/scripts/runtime-supervisor.py:484` — `Controller.pause`, woken
-  early by a process-state event; `:781` — `control`, which queues every event
+- `.devcontainer/scripts/runtime-supervisor.py:742` — `Controller.check_once`;
+  `:748` — an exited service counts as failed at once; `:752` — the
+  probe-failure debounce; `:765` — the escalation to a failing dependency
+- `.devcontainer/scripts/runtime-supervisor.py:620` —
+  `Controller.failing_dependency`
+- `.devcontainer/scripts/runtime-supervisor.py:658` — `Controller.recover`;
+  `:665` — it skips a dependent in the `refresh` list
+- `.devcontainer/scripts/runtime-supervisor.py:674` —
+  `Controller.refresh_clients`; `:677` — it restarts only a `ready` client
+- `.devcontainer/scripts/runtime-supervisor.py:560` — `Controller.pause`, woken
+  early by a process-state event; `:891` — `control`, which queues every event
 - `.devcontainer/scripts/runtime-health.sh:38` — the D-Bus probe; `:42` — the
   keyring probe
-- `.devcontainer/scripts/runtime-supervisor.py:544` —
+- `.devcontainer/scripts/runtime-supervisor.py:637` —
   `Controller.restart_until_ready`, which charges the service's own budget
-- `.devcontainer/scripts/runtime-supervisor.py:260` — `dbus` refreshes `keyring`
-  and `xpra`; `:261` — `keyring` is core and runs `after` `dbus`
-- `.devcontainer/scripts/runtime-supervisor.py:135` — `Settings.probe_failures`
+- `.devcontainer/scripts/runtime-supervisor.py:290` — `dbus` refreshes `keyring`
+  and `xpra`; `:291` — `keyring` is core and runs `after` `dbus`
+- `.devcontainer/scripts/runtime-supervisor.py:143` — `Settings.probe_failures`
   default
-- `scripts/tests/test_agent_runtime_supervision.py:616` —
-  `test_dependency_outage_recovers_clients_outside_their_budget`
-- `scripts/tests/test_agent_runtime_supervision.py:63` — the fake service exits
-  once a service it needs loses readiness
-- `scripts/tests/test_agent_runtime_supervision.py:76` — `FAKE_HEALTH`
+- `scripts/tests/test_agent_runtime_supervision.py:634` —
+  `test_dependency_outage_recovers_clients_outside_their_budget`; `:645` —
+  `test_a_client_failure_escalates_to_its_failing_dependency`
+- `scripts/tests/test_agent_runtime_supervision.py:58` — the fake service's
+  `wedge` trigger; `:65` — it exits once a service it needs loses readiness
+- `scripts/tests/test_agent_runtime_supervision.py:79` — `FAKE_HEALTH`
