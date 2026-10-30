@@ -69,7 +69,8 @@ needed. In particular:
    happened. Run `iwe normalize` and `iwe schema validate`, commit the
    cancellation, report it, and stop.
 3. **Run Verify for normal shipping.** Invoke the report-only
-   `/agentdev:iwe-verify` skill for the selected plan and take its route for a
+   `/agentdev:iwe-verify` skill for the selected plan, forwarding every
+   approval your prompt quotes, verbatim, and take its route for a
    caller inside `iwe-shipper`: it returns the report saved for this commit and
    catalog when one exists, and otherwise you follow the `iwe-verifier`
    rulebook in your own context, including its named verification commands and

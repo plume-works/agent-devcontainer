@@ -37,12 +37,31 @@ agent-code/verify-cache.py lookup <plan-key|audit> [--fresh]
 | `SIGNAL_*`        | `129`+ | **STOP.** The run was interrupted; report it.                                                                                          |
 
 **Save** the report the run produced, verbatim on stdin, with the `COMMIT` the
-miss printed and the verdict its lead line names — `Ready to ship`, `Blocked`,
-or `Audit`. Never save a `Needs decision` report:
+miss printed, the verdict its lead line names — `Ready to ship`, `Blocked`, or
+`Audit` — and two prompts, each verbatim, which the saved report records but
+does not key on:
+
+- **Skill request** — the request this skill was invoked with: the user's words
+  on the session route, or the plan key and approvals the Implement loop or the
+  Shipper invoked it with.
+- **Verifier prompt** — the prompt the `iwe-verifier` rulebook ran under: the
+  dispatch prompt on the session route, and on the Shipper's route the plan key
+  and the approvals the Shipper's own prompt quotes, in the same form.
+
+Never save a `Needs decision` report. The quoted heredocs pass every character
+through literally:
 
 ```bash
 agent-code/verify-cache.py save <plan-key|audit> --commit <COMMIT> \
-  --verdict '<verdict>' <<'VERIFY_REPORT'
+  --verdict '<verdict>' \
+  --skill-request "$(cat <<'SKILL_REQUEST'
+<the skill request, verbatim>
+SKILL_REQUEST
+)" \
+  --verifier-prompt "$(cat <<'VERIFIER_PROMPT'
+<the verifier prompt, verbatim>
+VERIFIER_PROMPT
+)" <<'VERIFY_REPORT'
 <the report, verbatim>
 VERIFY_REPORT
 ```
@@ -61,9 +80,9 @@ VERIFY_REPORT
 You are already a fresh context, and you stay a leaf. Look up the plan you are
 shipping. On a `HIT`, return the saved report to your Verify step. On a `MISS`,
 read [the iwe-verifier rulebook](../../agents/iwe-verifier.agent.md) in full and
-follow it in place, in its **In place inside `iwe-shipper`** mode, with the
-approvals your own prompt quotes; then save its report and return it to your
-Verify step. Do not dispatch any agent.
+follow it in place, in its **In place inside `iwe-shipper`** mode, under the
+plan key and the approvals your own prompt quotes — your verifier prompt; then
+save its report and return it to your Verify step. Do not dispatch any agent.
 
 ## From a session
 
@@ -83,7 +102,8 @@ Verify step. Do not dispatch any agent.
 
 3. **Dispatch `iwe-verifier`** with that prompt, forwarding no conversation
    turns, and wait for its report.
-4. **Save its report**, unless it reports `Needs decision`.
+4. **Save its report**, unless it reports `Needs decision`, with the user's
+   request as the skill request and the step 2 prompt as the verifier prompt.
 5. **Re-post its report verbatim.** When it reports `Needs decision`, name the
    approval or choice it needs and tell the user to re-run
    `/agentdev:iwe-verify <plan>` granting it.
