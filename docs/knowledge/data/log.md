@@ -6,6 +6,15 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: ordered the active [plans](plans.md), open [bugs](bugs.md), and
+  planned [backlog](backlog.md) items into one implementation sequence; [Share
+  one BuildKit builder across Coder
+  workspaces](plans/20261013-shared-buildkit-workspace.md) now depends on the
+  agentdev-runtime CLI plan, [Bootstrap agentdev natively on macOS with
+  Homebrew](plans/20261013-macos-native-bootstrap.md) on the catalog Python
+  port, and [Run the Dev Container as a non-root account with one home
+  volume](plans/20261030-devcontainer-home-volume.md) releases [~/.claude.json
+  stops being the volume symlink](bugs/claude-json-symlink-replaced.md).
 - **Update**: [Escalate a client failure to the dependency that caused
   it](plans/20261030-dbus-keyring-flaky-test.md) done; [Bug: a client is
   recovered on its own budget before its dependency's failure is

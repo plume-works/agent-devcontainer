@@ -5,8 +5,8 @@ release:
 - features/macos-native-bootstrap
 description: A Homebrew-based bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — bash 5 first on PATH, the catalog's CLI tools, pinned release-only tools, and the agentdev plugin.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-15T00:00:00Z
+  by: claude-code/fable-5.1
+  at: 2026-10-30T14:51:47Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml
@@ -244,6 +244,11 @@ exit nonzero naming each check that failed.
 - **WHEN** a fresh login shell resolves `bash` to version 3.2
 - **THEN** the script exits nonzero and names the bash check
 ```
+
+## Depends on
+
+[Port the catalog's bundled shell scripts to
+Python](20261029-catalog-scripts-python.md)
 
 ## Verification
 

@@ -5,8 +5,8 @@ release:
 - features/shared-buildkit-builder
 description: Run one BuildKit daemon in a dedicated Coder workspace and make it the default builder for docker build inside every Dev Container, falling back to the local builder when it is unreachable.
 generated:
-  by: claude-code/opus-5.5
-  at: 2026-10-13T00:00:00Z
+  by: claude-code/fable-5.1
+  at: 2026-10-30T14:51:47Z
 sources:
 - resource: .devcontainer/scripts/coder-agent-start.sh
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ab1c595/template/main.tf
@@ -156,6 +156,11 @@ garbage collection limiting the cache to 30 GB.
 - **WHEN** the builder workspace restarts
 - **THEN** its build cache is still there.
 ```
+
+## Depends on
+
+[Replace the runtime shell scripts with one agentdev-runtime
+CLI](20261029-off-bash-migration.md)
 
 ## Verification
 
