@@ -1,14 +1,13 @@
 ---
 type: feature
 stage: implemented
-description: A dedicated agent-opencode image starts a persistent single-project agent environment with OpenCode, Docker-in-Docker, CBM, keyring, and Xpra without a Dev Containers client.
+description: A dedicated agentdev-deploy image starts a persistent single-project agent environment with OpenCode, nested Docker, CBM, keyring, and Xpra without a Dev Containers client.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T02:36:16Z
+  at: 2026-10-29T21:00:00Z
 sources:
-- resource: docker/desktop/agent-desktop.Dockerfile
-- resource: .devcontainer/scripts/postCreateCommand.sh
-- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: docker/deploy/agentdev-deploy.Dockerfile
+- resource: docker/base/agentdev-base.Dockerfile
 - resource: .devcontainer/scripts/opencode-web-start.sh
 - resource: .devcontainer/devcontainer.json
 - resource: .github/workflows/ci.yml
@@ -18,18 +17,18 @@ sources:
 
 ## Purpose
 
-Publish `ghcr.io/plume-works/agent-opencode` as a dedicated, self-starting image
-for one project or worktree. Operators can use it without a Dev Containers
+Publish `ghcr.io/plume-works/agentdev-deploy` as a dedicated, self-starting
+image for one project or worktree. Operators can use it without a Dev Containers
 client, Coder, or this repository's scaffolding in the project checkout.
 
 ## Behaviour
 
-- Derive the image from `agent-desktop` and share lifecycle helpers with the
-  existing devcontainer integration.
+- Derive the image from `agentdev-base` and share the runtime primitives with
+  the `agentdev-devcontainer` image.
 - Accept a mounted checkout or clone a configured repository into a persistent
   workspace volume. Reuse an existing checkout without automatic Git updates.
-- Start DinD, CBM, an instance-local D-Bus/keyring, and Xpra. Start OpenCode
-  only after required services, initial indexing, and matching project
+- Start nested Docker, CBM, an instance-local D-Bus/keyring, and Xpra. Start
+  OpenCode only after required services, initial indexing, and matching project
   preparation succeed. Run uv sync and install pre-commit hooks when their
   project configuration exists.
 - Supervise required services individually, retry failures with bounded backoff,

@@ -34,6 +34,9 @@ to the current day's group.
   [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
   [knowledge workspace](codebase/docs/knowledge.md) map docs after the
   `generated.by` actor wording became a pattern.
+- **Update**: re-verified 10 [codebase map](codebase.md) docs after the agentdev
+  images were pinned to their promoted `edge` digests and the remaining
+  repository references named the canonical images.
 - **Update**: refreshed 14 [codebase map](codebase.md) docs for the agentdev
   image family — the base and its deploy and Dev Container siblings, the
   image-owned lifecycle commands and hooks, the four-image CI pipeline and its

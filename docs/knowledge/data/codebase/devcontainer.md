@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:5964075852a909149c72e1d483343726b8b03d6cc2017ae53bf50e4317e090d6
+source_digest: sha256:0628f2d1ebecd231bf26ff3e3a8190366225014ad997ce678589a19e5d5596a2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:30:00Z
+  at: 2026-10-30T02:30:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:30:00Z
+  at: 2026-10-30T02:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -41,7 +41,7 @@ repository.
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with its
   launcher-derived `hostname` (`:59`), the pass-through `GIT_*` identity
-  variables (`:70-73`), and the shared `agentdev-agents-auth` volume (`:104`)
+  variables (`:69-72`), and the shared `agentdev-agents-auth` volume (`:103`)
 - `devcontainer-compose-pins.yml` — the `agentdev-devcontainer` tag-and-digest
   pin Renovate advances, shared with every workflow `container.image`
 - `.devcontainer/firewall-allowlist.txt` — read by the firewall at start, and
@@ -111,9 +111,9 @@ Verified anchor points (line numbers as of 2026-10-29):
 - `.devcontainer/devcontainer.json:15` — the SSH Feature, the only Feature
 - `.devcontainer/devcontainer.json:53-59` — Xpra port forwarding
 - `.devcontainer/devcontainer.json:60-119` — the six volume mounts
-- `.devcontainer/docker-compose.yml:2,53,106` — sidecar, service, volumes
+- `.devcontainer/docker-compose.yml:2,53,105` — sidecar, service, volumes
 - `.devcontainer/docker-compose.yml:59` — launcher-derived hostname
-- `.devcontainer/docker-compose.yml:70-73,104` — identity pass-through, shared
+- `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
   auth volume
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile:41-50` — the lifecycle
   the descriptor inherits

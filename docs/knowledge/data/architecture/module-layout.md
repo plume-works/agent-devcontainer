@@ -2,8 +2,8 @@
 type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-29T22:00:00Z
 ---
 
 # Module layout
@@ -14,9 +14,10 @@ The repository carries three distinct build/publish surfaces from one checkout,
 documented as the authoritative inventory in [Template
 boundary](template-boundary.md):
 
-1. **Image build** (`ansible/` + `docker/`) — provisions and publishes
-   `ghcr.io/plume-works/agent-desktop` and its `ubuntu-ansible` base,
-   multi-arch, pinned by tag and digest.
+1. **Image build** (`ansible/` + `docker/`) — provisions and publishes the
+   agentdev image family (`agentdev-base`, `agentdev-devcontainer`,
+   `agentdev-deploy`) and its `ubuntu-ansible` base, multi-arch, pinned by tag
+   and digest.
 2. **Agent catalog** (`.agents/plugins/agentdev/`) — the canonical Claude Code /
    Codex plugin: agents, skills, `bin/` scripts, and the plugin's own test suite
    (`.agents/plugins/agentdev/tests/`). Everything else that references the
@@ -38,13 +39,13 @@ How the three main surfaces come together for a consumer, per the README's
 "Runtime flow" (verbatim structure, condensed):
 
 ``` text
-ansible/ + docker/ + catalog publisher source
-        -> ghcr.io/plume-works/agent-desktop  (digest-pinned in devcontainer-compose-pins.yml)
+ansible/ + docker/ + .devcontainer/scripts/ + catalog publisher source
+        -> ghcr.io/plume-works/agentdev-devcontainer  (digest-pinned in devcontainer-compose-pins.yml)
         -> .devcontainer/devcontainer.json + docker-compose.yml
-        -> postCreateCommand (once): install staged agentdev catalog into
-           persistent Claude/Codex state volumes
-        -> postStartCommand (each start): CBM daemon, pre-commit, keyring,
-           firewall, Xpra, workspace catalog override if present
+        -> image entrypoint: supervised dbus, keyring, dockerd, CBM, Xpra
+        -> postCreateCommand (once, from the image metadata): install the staged
+           agentdev catalog into persistent Claude/Codex state volumes
+        -> postAttachCommand (each attach): workspace catalog override if present
 ```
 
 The image stages the catalog read-only at `/opt/agentdev`

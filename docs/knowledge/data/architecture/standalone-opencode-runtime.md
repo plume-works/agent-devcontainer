@@ -1,13 +1,13 @@
 ---
 type: architecture
-description: agent-opencode runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
+description: agentdev-deploy runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T15:00:00Z
+  at: 2026-10-29T21:00:00Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
-- resource: docker/opencode/supervisord.conf
+- resource: docker/deploy/supervisord.conf
 - resource: scripts/tests/test_agent_runtime_supervision.py
 - resource: .devcontainer/scripts/runtime-docker.sh
 - resource: scripts/tests/test_agent_runtime_docker.py
@@ -15,7 +15,7 @@ sources:
 - resource: .devcontainer/scripts/runtime-workspace.sh
 - resource: .devcontainer/scripts/setup-agent-state.sh
 - resource: .devcontainer/scripts/runtime-firewall.sh
-- resource: docker/opencode/agent-opencode.Dockerfile
+- resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/desktop/start-xpra.sh
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: compose.opencode.yml
@@ -25,18 +25,19 @@ sources:
 
 # Standalone OpenCode runtime
 
-`agent-opencode` is a separate image layered on `agent-desktop`. It is not a new
-default for the desktop image, whose entrypoint, Dev Containers hooks, and Coder
-start are unchanged.
+`agentdev-deploy` is a sibling of `agentdev-devcontainer`, both derived from the
+lifecycle-neutral `agentdev-base` (see [Dev Container
+runtime](devcontainer-runtime.md)). This document records the deploy profile;
+the two images share the supervisor, its primitives, and its recovery model.
 
 ## Shared helpers, not shared hooks
 
 The image bakes `.devcontainer/scripts/` into `/opt/agentdev-runtime` and calls
-the same primitives the devcontainer hooks call: `setup-agent-state.sh`,
-`runtime-paths.sh`, the CBM, keyring, and Git helpers. Every path those
-primitives touch is overridable, and the defaults are the devcontainer's root
-layout. `AGENTDEV_RUNTIME_MODE=standalone` makes every step fatal where a hook
-logs and continues.
+the same primitives the Dev Container lifecycle commands call:
+`setup-agent-state.sh`, `runtime-paths.sh`, the CBM, keyring, and Git helpers.
+Every path those primitives touch is overridable, and the defaults are the
+devcontainer's root layout. `AGENTDEV_RUNTIME_MODE=deploy` makes every step
+fatal where the Dev Container lifecycle logs and continues.
 
 Running the lifecycle hooks unchanged was rejected. They assume root, a checkout
 that contains this repository's scaffolding, and the Dev Containers client's
@@ -245,12 +246,12 @@ stop and take a program's whole process group with it.
 
 ## Nested Docker
 
-The standalone image runs its own engine instead of the Dev Containers feature's
-(see [Nested Docker provisioning](nested-docker-provisioning.md) for the
-devcontainer's decision). `runtime-docker.sh run` execs one root `dockerd` on
-`/var/run/docker.sock` with `--group docker`; the runtime user reaches it
-through that group. A `hosts` key in `daemon.json` is refused: dockerd rejects
-it beside `--host`, and any extra listener would widen the engine's reach.
+Both runtime images run the same supervised engine (see [Nested Docker
+provisioning](nested-docker-provisioning.md)). `runtime-docker.sh run` execs one
+root `dockerd` on `/var/run/docker.sock` with `--group docker`; the runtime user
+reaches it through that group. A `hosts` key in `daemon.json` is refused:
+dockerd rejects it beside `--host`, and any extra listener would widen the
+engine's reach.
 
 With no system containerd socket present, dockerd supervises its own containerd
 and roots it at `/var/lib/docker/containerd/daemon`. The containerd image

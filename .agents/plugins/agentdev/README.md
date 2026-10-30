@@ -10,7 +10,7 @@ so projects consume it by version instead of copying files around.
 
 ## Installing in Claude Code
 
-Working inside the `agent-desktop` devcontainer image, there is nothing to do:
+Working inside the `agentdev-devcontainer` image, there is nothing to do:
 the catalog is staged in the image and installed at user scope when the container
 is created, with no clone and no network. It is an ordinary install, so updating
 it means updating the image, and a project that declares its own marketplace
@@ -44,7 +44,7 @@ start a new Codex session after attaching or reloading the window.
 ## Installing in OpenCode
 
 OpenCode reads the same directory through the bridge plugin in
-`.opencode-plugin/`. The `agent-desktop` image registers the staged bridge in
+`.opencode-plugin/`. The agentdev images register the staged bridge in
 `~/.config/opencode/opencode.json`, and this repository's devcontainer points it
 at the workspace copy on every editor attachment.
 

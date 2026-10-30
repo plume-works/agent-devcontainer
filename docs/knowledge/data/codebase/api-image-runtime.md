@@ -1,19 +1,19 @@
 ---
 type: codebase
-description: 'What a consumer of ghcr.io/plume-works/agent-desktop and agent-opencode can rely on: environment variables each image reads, files and tools it provides, labels, ports, and, for agent-opencode, its entrypoint, health, and volumes.'
+description: 'What a consumer of the ghcr.io/plume-works agentdev-base, agentdev-devcontainer and agentdev-deploy images can rely on: environment variables each image reads, files and tools it provides, labels, ports, and, for the runtime images, entrypoint, health, and volumes.'
 source:
 - docker
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:17695c0692c88cae1f2f770364fb1112b8d421d497fe4a624964b70723f8b768
+source_digest: sha256:ac42a6ace816082c13c096c6e81425795386b32189b0d40d4f3cc84835c2522a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:57:35Z
+  at: 2026-10-29T21:16:01Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:57:35Z
+  at: 2026-10-29T21:16:01Z
 sources:
 - id: code
   resource: docker
@@ -100,7 +100,7 @@ lifecycle commands run in addition to those.
   the managed phase; a failing hook names itself and its phase —
   `.devcontainer/scripts/run-agentdev-hooks.sh:9`.
 - Changing, adding, or removing a file below `/opt/agentdev-runtime` fails
-  startup — `.devcontainer/scripts/runtime-bootstrap.sh:177`.
+  startup — `.devcontainer/scripts/runtime-bootstrap.sh:176`.
 - `AGENTDEV_USER`, `AGENTDEV_HOME`, `CBM_CACHE_DIR`, and the bus and display
   defaults are overridable `ENV` — `:29-37`. OpenCode Web and Claude Remote
   Control are opt-in clients, never readiness gates.

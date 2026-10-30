@@ -23,9 +23,12 @@ way, this hub is what is.*
 
 **Build.** The image: `docker build -t local/ubuntu-ansible docker/ansible`,
 then
-`docker buildx build -f docker/desktop/agent-desktop.Dockerfile --build-arg FROM_IMAGE=local/ubuntu-ansible -t local/agent-desktop .`
-from the repository root. The Python environment: `uv sync --all-groups` (the
-devcontainer runs `.devcontainer/scripts/uv-sync.sh` for you).
+`docker buildx build -f docker/base/agentdev-base.Dockerfile --build-arg FROM_IMAGE=local/ubuntu-ansible -t local/agentdev-base .`,
+then `docker/devcontainer/agentdev-devcontainer.Dockerfile` or
+`docker/deploy/agentdev-deploy.Dockerfile` with
+`--build-arg FROM_IMAGE=local/agentdev-base` from the repository root. The
+Python environment: `uv sync --all-groups` (the devcontainer runs
+`.devcontainer/scripts/uv-sync.sh` for you).
 
 **Run.** Open the folder in a devcontainer, or
 `devcontainer up --workspace-folder .`; the lifecycle hooks do the rest
@@ -40,12 +43,13 @@ formatters; `super-linter-local.sh` runs the full Super-Linter pass;
 `iwe schema validate` gates this workspace.
 
 **Entry points.** `.devcontainer/devcontainer.json` (the container),
-`docker/desktop/agent-desktop.Dockerfile` (the image),
-`docker/opencode/agent-opencode.Dockerfile` and `compose.opencode.yml` (the
-standalone OpenCode runtime), `ansible/playbooks/setup-dev.yml` (provisioning),
-`.github/workflows/primary-checks.yml` (CI), the `validate_agent_files` console
-script, `/agentdev:<skill>` (the catalog), and `.codex/setup-codex-cloud.sh`
-(Codex Cloud bootstrap).
+`docker/base/agentdev-base.Dockerfile` (the base image),
+`docker/devcontainer/agentdev-devcontainer.Dockerfile` (the Dev Container
+image), `docker/deploy/agentdev-deploy.Dockerfile` and `compose.opencode.yml`
+(the standalone OpenCode runtime), `ansible/playbooks/setup-dev.yml`
+(provisioning), `.github/workflows/primary-checks.yml` (CI), the
+`validate_agent_files` console script, `/agentdev:<skill>` (the catalog), and
+`.codex/setup-codex-cloud.sh` (Codex Cloud bootstrap).
 
 | Path                                                                                                                                                                                          | Component                                                                                                                                |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
