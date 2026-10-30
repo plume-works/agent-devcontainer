@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:fb4983a792eed112168caa8ee0ae15a01c35fdd04a9c3626808d807bd805d39a
+source_digest: sha256:bfe32f58e9cbd72597820590d4682e0aa6a1a3aaf789c9761a01f3c5e51c4bcb
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:15:00Z
-stale_after: 2027-01-27
+  at: 2026-10-30T12:00:00Z
+stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:15:00Z
+  at: 2026-10-30T12:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -130,14 +130,15 @@ is removed.
 The `iwe-branch-name` modules share `iwe_branch_fixtures.Workspace`: a bare
 remote seeded with an IWE config and made-up plans, a working clone, and a
 publisher clone that advances the remote. They pin `parse` on names on and off
-the shape, an `iteration-<N>` suffix among the off-shape ones; `plan-state` on
-each state, tasks under `## Tasks`, a plan with no task checkbox reading as
-`incomplete`, a plan finished only locally reading as `incomplete`, key and slug
-lookup, `AMBIGUOUS_PLAN`, and `FETCH_FAILED`; and `next` on iterations found
-locally, only on the remote, or only in a stub `gh`'s pull-request list, the
-`--repo` URL of `origin` or a second remote, each plan state's `NEXT_KIND`, and
-`GH_UNAVAILABLE` both for a `PATH` without `gh` and for a `gh` that fails its
-query.
+the shape, earlier `<impl|ship>/<slug>/iter-<N>` names and an `iteration-<N>`
+suffix among the off-shape ones; `plan-state` on each state, tasks under
+`## Tasks`, a plan with no task checkbox reading as `incomplete`, a plan
+finished only locally reading as `incomplete`, key and slug lookup,
+`AMBIGUOUS_PLAN`, and `FETCH_FAILED`; and `next` on iterations found locally,
+only on the remote, or only in a stub `gh`'s pull-request list, one counter
+across both phases, the `--repo` URL of `origin` or a second remote, each plan
+state's `NEXT_KIND`, and `GH_UNAVAILABLE` both for a `PATH` without `gh` and for
+a `gh` that fails its query.
 
 `test_iwe_bootstrap.py` runs `bootstrap-iwe.sh` only from the
 `installed_iwe_bootstrap` copy and compares full path, byte, and mtime snapshots

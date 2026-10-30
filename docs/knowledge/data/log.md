@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
+  [agentdev skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md),
+  [agentdev tests](codebase/agents/plugins/agentdev/tests.md), and [knowledge
+  workspace](codebase/docs/knowledge.md) map docs for the
+  `iwe/<slug>/iter-<N>-<phase>` work branch shape.
 - **Update**: refreshed the [github](codebase/github.md) and [pull request
   checks flow](codebase/flow-pull-request-checks.md) map docs for the single
   Renovate group that now carries both agentdev image digests.
