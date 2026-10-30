@@ -43,19 +43,13 @@
       "platformAutomerge": true
     },
     {
-      "description": "agentdev-devcontainer is built by this repository's own pipeline. Its pin lives in devcontainer-compose-pins.yml, outside the CI image path filter, so merging a bump cannot retrigger the build that produced the digest and bump itself again. That is what makes automerge safe here. Workflow jobs that run in the image pin the same digest, and the group moves every reference in one pull request.",
+      "description": "agentdev-devcontainer and agentdev-deploy are built by this repository's own pipeline, so their edge digest bumps share one pull request. Each pin lives outside the CI image path filter (devcontainer-compose-pins.yml, opencode-compose-pins.yml), so merging a bump cannot retrigger the build that produced the digest and bump itself again. CI moves agentdev-deploy's edge only to digests that passed native acceptance. That is what makes automerge safe here. Workflow jobs that run in the dev container pin the same digest, and the group moves every reference.",
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["ghcr.io/plume-works/agentdev-devcontainer"],
-      "groupName": "agentdev-devcontainer",
-      "automerge": true,
-      "automergeType": "pr",
-      "platformAutomerge": true
-    },
-    {
-      "description": "agentdev-deploy is built by this repository's own pipeline from the same run's agentdev-base digest. Its deployment pin lives in opencode-compose-pins.yml at the repository root, outside the CI image path filter, so a bump cannot rebuild the image it names. CI moves edge only to digests that passed native acceptance, so every proposed digest is already accepted. That is what makes automerge safe here.",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["ghcr.io/plume-works/agentdev-deploy"],
-      "groupName": "agentdev-deploy",
+      "matchPackageNames": [
+        "ghcr.io/plume-works/agentdev-devcontainer",
+        "ghcr.io/plume-works/agentdev-deploy"
+      ],
+      "groupName": "agentdev image digests",
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true
