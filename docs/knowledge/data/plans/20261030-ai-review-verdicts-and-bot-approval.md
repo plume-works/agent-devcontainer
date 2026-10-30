@@ -33,16 +33,16 @@ permission](../architecture/actions-approval-permission.md) records along with
 the organization setting it depends on. A pending `CHANGES_REQUESTED` blocks
 merge until the same reviewer approves or the review is dismissed.
 
-Two consequences follow for the current setup:
+Two consequences followed for the setup this plan changes:
 
-- `pr-review` Step 9 submits `COMMENT` whenever its blocking findings are all
-  anchored inline or only non-blocking findings remain. A `COMMENT` never
+- `pr-review` Step 9 submitted `COMMENT` whenever its blocking findings were all
+  anchored inline or only non-blocking findings remained. A `COMMENT` never
   satisfies the required approval and never replaces the reviewer's own change
-  request, so such a pull request needs a clean re-review or ruleset bypass to
+  request, so such a pull request needed a clean re-review or ruleset bypass to
   merge.
-- Bot-authored pull requests get no AI review, and `ai-review-present` waives
-  its requirement for the trusted bots, but nothing approves them. Renovate's
-  automerged pull requests stay `BLOCKED` on `REVIEW_REQUIRED`.
+- Bot-authored pull requests got no AI review, and `ai-review-present` waived
+  its requirement for the trusted bots, but nothing approved them. Renovate's
+  automerged pull requests stayed `BLOCKED` on `REVIEW_REQUIRED`.
 
 The maintainer decided on 2026-10-30:
 
@@ -54,10 +54,14 @@ The maintainer decided on 2026-10-30:
   the trusted-bot list, posting an approval whose body states that the AI review
   was skipped and that it approves for the bot; one list governs both the gate
   waiver and the approval;
-- the approval runs as a job in `ai-responder.yml` on the `pull_request` event.
-  A `pull_request` run triggered by Dependabot holds a read-only `GITHUB_TOKEN`,
-  so `dependabot[bot]` stays in the gate waiver while the approval job skips it
-  with a notice.
+- the approval runs as a job in `ai-responder.yml` on the `pull_request` event;
+  a `pull_request` run triggered by Dependabot holds a read-only `GITHUB_TOKEN`,
+  so `dependabot[bot]` stays in the trusted list, and the approval job skips,
+  with a notice, a run that `dependabot[bot]` triggers;
+- the approval holds only while the pull request carries nothing but the bot's
+  own commits, so no one can push a change past review under a bot's approval;
+  the same check lets a person-triggered run approve a Dependabot pull request,
+  whose commits are Dependabot's alone.
 
 ## Approach
 
@@ -83,8 +87,19 @@ and no preflight. It runs on `pull_request` events whose author is a `Bot` on a
 same-repository head, matches the author exactly against the trusted list, skips
 when the triggering actor is `dependabot[bot]`, and skips when
 `github-actions[bot]` already has an `APPROVED` review on the pull request, so a
-push does not stack approvals. The trusted list moves to a workflow-level
-`TRUSTED_BOT_ACTORS` variable that both this job and `ai-review-present` read.
+push does not stack approvals.
+
+Before approving, the job checks every commit on the pull request: its GitHub
+author is the pull request's author, its committer is that author or `web-flow`
+(GitHub's committer for commits an App creates through the API), and its
+signature verifies. A `synchronize` run also requires the triggering actor to be
+the pull request's author, because a commit created through the API by another
+account can name the bot as author and still verify. When any check fails, the
+job approves nothing, dismisses a standing `github-actions[bot]` approval, and
+posts a notice naming the failing commit; the ruleset keeps stale approvals on
+push, so a standing approval would otherwise cover the new commit. The trusted
+list moves to a workflow-level `TRUSTED_BOT_ACTORS` variable that both this job
+and `ai-review-present` read.
 
 Rejected alternatives, recorded in the architecture note:
 
@@ -98,6 +113,9 @@ Rejected alternatives, recorded in the architecture note:
   repository does not configure for version updates.
 - **Ruleset bypass for the Renovate App**: it removes the approval requirement
   for dependency bumps instead of recording an approval on each.
+- **Skipping Dependabot pull requests by author**: the commit check already
+  keeps a person's change out of a bot approval, so the author skip would only
+  withhold approval from pull requests that hold Dependabot's commits alone.
 
 Assumptions:
 
@@ -206,14 +224,35 @@ Assumptions:
     the organization's Actions approval setting for both verdict paths;
     `validate_agent_files` passed.
 
-### Task 5: A trusted-bot pull request merges without bypass
+### Task 5: Trusted-bot approval requires the bot's own commits
+
+**Files:** Modify: `.github/workflows/ai-responder.yml`,
+`docs/knowledge/data/architecture/ai-review-event-selection.md`,
+`docs/knowledge/data/features/ai-responder-workflows.md`,
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
+
+- [ ] `trusted-bot-approval` lists the pull request's commits and approves only
+  when each one's GitHub author is the pull request's author, its committer is
+  that author or `web-flow`, and `verification.verified` is true, and, on
+  `synchronize`, when `github.actor` is the pull request's author.
+- [ ] When the check fails, the job approves nothing, dismisses any `APPROVED`
+  review from `github-actions[bot]` on the pull request, and posts a notice
+  naming the first failing commit and the reason.
+- [ ] The architecture note records the commit check and the rejected author
+  skip; the feature's `## Behaviour` and the consumption guide replace
+  "Dependabot pull requests stay unapproved" with the commit check and the
+  approval a person-triggered run gives a Dependabot pull request.
+- [ ] `actionlint` and `zizmor` pass through pre-commit, and
+  `iwe schema validate` passes.
+
+### Task 6: A trusted-bot pull request merges without bypass
 
 - [ ] After the change is on `main`, the next Renovate pull request receives the
   bot approval and merges through Renovate's automerge with no ruleset bypass,
   or the plan records that the ruleset's
   `require_extra_approval_for_unattributed_changes` demanded another approval.
 
-### Task 6: A review with only non-blocking findings approves
+### Task 7: A review with only non-blocking findings approves
 
 - [ ] A pull request reviewed after the change, whose validated findings are all
   non-blocking, carries an `APPROVED` review from `github-actions[bot]`, and
@@ -252,9 +291,13 @@ because the reviewer owns the pull request.
 
 The AI responder workflow SHALL approve a same-repository pull request whose
 author is a `Bot` listed in `TRUSTED_BOT_ACTORS`, with a review body stating
-that the AI review was skipped. It SHALL NOT check out the pull request, SHALL
-NOT approve a pull request that already carries its approval, and SHALL skip a
-run triggered by `dependabot[bot]`, whose token cannot approve.
+that the AI review was skipped, only when every commit on the pull request is
+authored by that bot, committed by that bot or `web-flow`, and carries a
+verified signature, and, for a push, only when that bot pushed. When any commit
+fails that check it SHALL NOT approve, and SHALL dismiss its own standing
+approval. It SHALL NOT check out the pull request, SHALL NOT approve a pull
+request that already carries its approval, and SHALL skip a run triggered by
+`dependabot[bot]`, whose token cannot approve.
 
 ### Scenario: Renovate opens a pull request
 
@@ -268,6 +311,13 @@ run triggered by `dependabot[bot]`, whose token cannot approve.
 - **WHEN** a bot not listed in `TRUSTED_BOT_ACTORS` opens a pull request
 - **THEN** no approval and no AI review is posted, and the pull request stays
   blocked unless merged by ruleset bypass.
+
+### Scenario: a person pushes to a trusted-bot pull request
+
+- **WHEN** an account other than the author bot pushes a commit to a
+  trusted-bot pull request the workflow already approved
+- **THEN** the workflow dismisses its approval, approves nothing, and the pull
+  request needs a human approval to merge.
 ```
 
 [Template consumption](../spec/template-consumption.md):
@@ -300,13 +350,15 @@ branch's workflow and attach checks to that head.
   `COMMENT` only as the self-owned retry and in the Codex tool's accepted
   actions.
 - `iwe normalize` and `iwe schema validate` pass.
-- Tasks 5 and 6 are observed on live pull requests after merge.
+- Tasks 6 and 7 are observed on live pull requests after merge; the maintainer
+  accepted that live observation, with no automated test of the approval job, as
+  the coverage for the spec scenarios.
 
 ## Out of scope
 
 - Moving the reviewer to a GitHub App identity (`plume-works-quill[bot]`); a
   later plan owns it.
-- Approving Dependabot pull requests.
+- Approving a Dependabot pull request from a Dependabot-triggered run.
 - Dismissing change requests already standing on open pull requests.
 - Changing what `ai-review-present` accepts as a review.
 
@@ -332,6 +384,9 @@ Verified anchor points (line numbers as of 2026-10-30):
 - `.github/workflows/ai-responder.yml:533` — `trusted-bot-actors` read from
   `TRUSTED_BOT_ACTORS`
 - `.github/workflows/ai-responder.yml:562` — `trusted-bot-approval` job
+- `.github/workflows/ai-responder.yml:589` — Dependabot actor skip, where the
+  commit check goes
+- `.github/workflows/ai-responder.yml:611` — `createReview` approval
 - `.github/actions/ai-review-status/action.yml:60` — trusted-bot waiver
 - `docs/knowledge/data/architecture/ai-review-event-selection.md:16` —
   `## Decision`
