@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:3c4e5d34233e094f3dcaef9975d3d853a9acbf2dcb5000aec0c53cf532c853e2
+source_digest: sha256:7f0072c7b474b3bfef5699db814aea2448be9129da593c97f989ccd35750b206
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:10:00Z
+  at: 2026-10-30T12:30:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:10:00Z
+  at: 2026-10-30T12:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -61,16 +61,15 @@ external. Compose then layers the tag-only `docker-compose.yml` under the digest
 pin, mounts the workspace at `/workspaces/<basename>` and the git common dir at
 its host path so worktrees resolve, and starts the MCP gateway only when the
 `mcp` profile was activated. Per-instance state (`~/.claude`, `~/.codex`,
-`~/.local/share/opencode`, `/uv`, `.cache`, the CBM cache at
-`~/.cache/codebase-memory-mcp`, and the sibling checkout at
-`/workspaces/project`) is on Compose-scoped volumes; only Claude and Codex
-credentials share the literal `agentdev-agents-auth` volume across instances.
-The `devcontainer` service has no `command` or `init`: the image's supervisor is
-PID 1, owns the persistent services, and reaps orphans. The image's create,
-start, and attach commands then run the [lifecycle
-scripts](devcontainer/scripts.md) baked at `/opt/agentdev-runtime`; the start
-phase also restores Codex and OpenCode full-access policies in their user
-configuration files.
+`~/.local/share/opencode`, `/uv`, the CBM and pre-commit caches under
+`~/.cache`, and the sibling checkout at `/workspaces/project`) is on
+Compose-scoped volumes; only Claude and Codex credentials share the literal
+`agentdev-agents-auth` volume across instances. The `devcontainer` service has
+no `command` or `init`: the image's supervisor is PID 1, owns the persistent
+services, and reaps orphans. The image's create, start, and attach commands then
+run the [lifecycle scripts](devcontainer/scripts.md) baked at
+`/opt/agentdev-runtime`; the start phase also restores Codex and OpenCode
+full-access policies in their user configuration files.
 
 Both runtime images bake `scripts/` at `/opt/agentdev-runtime`; this directory's
 Compose and `devcontainer.json` reach only `agentdev-devcontainer`.

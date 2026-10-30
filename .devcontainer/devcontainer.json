@@ -38,8 +38,8 @@
     // On the agentdev-cbm volume, outside the checkout: see architecture/cbm-daemon-lifecycle.
     "CBM_CACHE_DIR": "/root/.cache/codebase-memory-mcp",
 
-    // On the per-worktree agentdev-cache volume, so rebuilds start warm.
-    "PRE_COMMIT_HOME": "/workspaces/${localWorkspaceFolderBasename}/.cache/pre-commit",
+    // On the agentdev-pre-commit volume, outside the checkout: see features/persist-pre-commit-cache.
+    "PRE_COMMIT_HOME": "/root/.cache/pre-commit",
 
     "UV_CACHE_DIR": "/uv/cache",
     "UV_PYTHON_INSTALL_DIR": "/uv/python",
@@ -64,8 +64,8 @@
     },
     {
       // Persists the pre-commit hook cache (PRE_COMMIT_HOME) across rebuilds, per worktree.
-      "source": "agentdev-cache",
-      "target": "/workspaces/${localWorkspaceFolderBasename}/.cache",
+      "source": "agentdev-pre-commit",
+      "target": "/root/.cache/pre-commit",
       "type": "volume"
     },
     {
