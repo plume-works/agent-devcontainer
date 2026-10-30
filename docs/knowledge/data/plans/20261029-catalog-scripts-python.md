@@ -81,9 +81,9 @@ which would make 26 untested scripts' behaviour a matter of reading.
 `.agents/plugins/agentdev/bin/github_issue.py`,
 `.agents/plugins/agentdev/tests/test_skill_common.py`,
 `.agents/plugins/agentdev/tests/test_git_default_branch.py`,
-`.agents/plugins/agentdev/tests/test_github_issue.py`; Delete:
-`.agents/plugins/agentdev/bin/git-default-branch.sh`,
-`.agents/plugins/agentdev/bin/github-issue.sh`
+`.agents/plugins/agentdev/tests/test_github_issue.py`; Modify:
+`.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
+`.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py`
 
 - [ ] The three modules reproduce the helpers the `__common.sh` files and the
   two bin scripts provide, importable through the `sys.path` pattern and
@@ -129,7 +129,9 @@ which would make 26 untested scripts' behaviour a matter of reading.
 skills' `SKILL.md`, `.agents/plugins/agentdev/tests/test_git_new_branch.py`,
 `.agents/plugins/agentdev/tests/test_update_branch.py`,
 `.agents/plugins/agentdev/tests/test_git_commit.py`; Delete: the four `.sh`
-scripts and the `__common.sh` of git-new-branch and update-branch
+scripts, the `__common.sh` of git-new-branch and update-branch, and
+`.agents/plugins/agentdev/bin/git-default-branch.sh`, whose last consumers they
+are
 
 - [ ] Each script reproduces its `RESULT` table, `KEY=value` lines, options, and
   stash, worktree, and conflict handling; the merge-resolve script gains its
@@ -180,7 +182,8 @@ the four skills' `SKILL.md`,
 `.agents/plugins/agentdev/tests/test_fetch_issue.py`,
 `.agents/plugins/agentdev/tests/test_close_issue.py`,
 `.agents/plugins/agentdev/tests/test_capture_close_issue.py`; Delete: the four
-`.sh` scripts and the `__common.sh` of iwe-explore, iwe-plan, and iwe-capture
+`.sh` scripts, the `__common.sh` of iwe-explore, iwe-plan, and iwe-capture, and
+`.agents/plugins/agentdev/bin/github-issue.sh`, whose last consumers they are
 
 - [ ] Each script reproduces its contract; the two close-issue entry points
   share `bin/github_issue.py` while staying separate files, since a skill never
