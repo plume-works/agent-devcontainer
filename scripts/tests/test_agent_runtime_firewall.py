@@ -135,7 +135,7 @@ def desktop_image() -> str | None:
 @pytest.fixture
 def network() -> Iterator[tuple[str, str]]:
     if shutil.which('docker') is None or desktop_image() is None:
-        pytest.skip('requires Docker and a local agent-desktop image')
+        pytest.skip('requires Docker and a local agentdev-devcontainer image')
     name = f'agentdev-fw-{uuid4().hex[:8]}'
     subprocess.run(
         ['docker', 'network', 'create', '--subnet', '10.231.7.0/24', name],

@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T23:59:00Z
+  at: 2026-10-29T21:00:00Z
 ---
 
 # Product
@@ -12,25 +12,26 @@ generated:
 ## What is it
 
 A general-purpose, Ansible-provisioned devcontainer built for agent-driven
-development, published as `ghcr.io/plume-works/agent-desktop`.
+development, published as `ghcr.io/plume-works/agentdev-devcontainer`.
 
 The repository has three responsibilities in one checkout: it publishes the
-`agent-desktop` image (Python + Node, Docker-in-Docker, an Xpra remote desktop,
+agentdev image family (Python + Node, nested Docker, an Xpra remote desktop,
 Claude Code and Codex preinstalled, an opt-in egress firewall), it publishes the
 `agentdev` catalog of agents and skills for Claude Code and Codex, and it
-carries reusable devcontainer scaffolding that other projects copy in (either by
-pointing at the published image, or by copying the template surface — lifecycle
-scripts, MCP config, GitHub workflows). A project adopting it gets a
-digital-pinned, reproducible agent development environment without building its
-own container tooling.
+carries reusable devcontainer scaffolding. Other projects point a descriptor at
+`agentdev-devcontainer`, derive their own image from it, or copy the template
+surface — descriptor, MCP config, GitHub workflows — through
+`/agentdev:template-consume`; the lifecycle implementation always comes from the
+image. A project adopting it gets a digital-pinned, reproducible agent
+development environment without building its own container tooling.
 
 ## Users
 
 Two audiences, matching the repo's own dual role:
 
-- **This repository's maintainers** — build and evolve the `agent-desktop`
-  image, the `agentdev` catalog (Principal Engineer + TDD Red/Green/Refactor
-  agents, 35 skills), and the Ansible/Docker publishing pipeline itself.
+- **This repository's maintainers** — build and evolve the agentdev images, the
+  `agentdev` catalog (Principal Engineer + TDD Red/Green/Refactor agents, 35
+  skills), and the Ansible/Docker publishing pipeline itself.
 - **Consuming-project developers** — point their own devcontainer at the
   published image, or copy the template surface into an existing repository, to
   get the same environment and agent catalog without building it themselves.
@@ -42,18 +43,18 @@ the driver of design decisions — internal needs come first.
 ## Platforms
 
 - **Distribution**: multi-arch (`linux/amd64` + `linux/arm64`) container images
-  on GHCR — `ghcr.io/plume-works/agent-desktop:edge` and
-  `ghcr.io/plume-works/ubuntu-ansible:edge` — pinned by tag *and* digest
-  (`devcontainer-compose-pins.yml`), kept current by Renovate.
+  on GHCR, pinned by tag *and* digest (`devcontainer-compose-pins.yml`), kept
+  current by Renovate: `ubuntu-ansible`, the lifecycle-neutral `agentdev-base`
+  (tools and the staged catalog), and its siblings `agentdev-devcontainer` and
+  `agentdev-deploy`, each built from the same run's `agentdev-base` digest.
   - Consumed via VS Code / any `devcontainer.json`-compatible tool (Dev
     Containers spec), or GitHub Codespaces.
-- **Standalone runtime**: `ghcr.io/plume-works/agent-opencode:edge`, built in
-  the same run on each `agent-desktop` digest, starts one project's OpenCode
-  server and its supporting services by itself. It is deployed with the root
-  `compose.opencode.yml` behind an operator's existing reverse proxy, with its
-  digest pinned in `opencode-compose-pins.yml`.
-- **Host requirement**: a Docker daemon (Docker-in-Docker is provisioned inside
-  the container itself for nested builds).
+- **Standalone runtime**: `ghcr.io/plume-works/agentdev-deploy:edge` starts one
+  project's OpenCode server and its supporting services by itself. It is
+  deployed with the root `compose.opencode.yml` behind an operator's existing
+  reverse proxy, with its digest pinned in `opencode-compose-pins.yml`.
+- **Host requirement**: a Docker daemon (the runtime images supervise their own
+  nested Docker engine for nested builds).
 - **Base OS**: Ubuntu, provisioned with Ansible.
 - **Deliberately not supported**: no non-container/bare-metal install path; the
   environment is only distributed as a container image plus copyable
@@ -77,9 +78,11 @@ the driver of design decisions — internal needs come first.
     source of truth, everything else under `.claude-plugin/`,
     `.agents/plugins/marketplace.json`, and the reinstall scripts is derived.
   - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
-  - `docker/desktop/agent-desktop.Dockerfile`, `docker/ansible/` — image build.
-  - `.devcontainer/` — the devcontainer definition and lifecycle scripts
-    (`postCreateCommand`, `postStartCommand`, firewall, Xpra startup).
+  - `docker/base/`, `docker/devcontainer/`, `docker/deploy/`, `docker/ansible/`
+    — image build.
+  - `.devcontainer/` — the devcontainer descriptor, and in `scripts/` the
+    runtime the images install at `/opt/agentdev-runtime/` (supervisor,
+    lifecycle commands, firewall, Xpra startup).
 - **Tests**: two independent pytest suites declared in `pyproject.toml`'s
   `testpaths` — `.agents/plugins/agentdev/tests/` (plugin script behavior, via a
   `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
@@ -193,3 +196,7 @@ it):
   and `openai/gpt-6-luna` (small).
 - 2026-10-17 — added the standalone `agent-opencode` image and its Compose
   deployment to the distribution.
+- 2026-10-29 — renamed the images to the agentdev family (`agentdev-base`,
+  `agentdev-deploy`) and added `agentdev-devcontainer`, which owns the Dev
+  Container lifecycle; the `agent-desktop` and `agent-opencode` names stopped
+  publishing.

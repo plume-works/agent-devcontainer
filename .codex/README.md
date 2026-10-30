@@ -9,4 +9,4 @@ skills symlink.
 
 | Path                   | Nature                                                                                                                                                                 |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `setup-codex-cloud.sh` | Codex Cloud bootstrap: provisions the agent-desktop image capabilities, runs the devcontainer lifecycle (including pre-commit setup), then checks `gh` authentication. |
+| `setup-codex-cloud.sh` | Codex Cloud bootstrap: provisions the agentdev-base image capabilities, runs the devcontainer lifecycle (including pre-commit setup), then checks `gh` authentication. |

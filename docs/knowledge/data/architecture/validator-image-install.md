@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Why validate_agent_files is built from the repository build context and installed as an isolated uv tool in the agent-desktop image, rather than published to PyPI or installed another way.
+description: Why validate_agent_files is built from the repository build context and installed as an isolated uv tool in the agentdev-base image, rather than published to PyPI or installed another way.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-09-03T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-29T22:00:00Z
 sources:
 - resource: docs/agents/specs/template-reuse-validation/ (folded and removed)
 ---
@@ -12,7 +12,7 @@ sources:
 
 ## Decision
 
-`validate_agent_files` is installed into the `agent-desktop` image as an
+`validate_agent_files` is installed into the `agentdev-base` image as an
 isolated `uv` tool, built from the repository build context — not published to
 PyPI, not installed some other way.
 
@@ -33,8 +33,8 @@ validation had no validator, in the devcontainer or in CI.
 would have meant new work (name reservation, a release workflow, trusted
 publishing) before this could land at all. Building from the build context
 instead keeps release coupling inside this repository and matches how the
-catalog is already staged (`docker/desktop/agent-desktop.Dockerfile` already
-reads `.claude-plugin/` and `.agents/` from the same context under
+catalog is already staged (`docker/base/agentdev-base.Dockerfile` already reads
+`.claude-plugin/` and `.agents/` from the same context under
 `agentic_tools_stage_catalog=true`). The tradeoff, inherited deliberately: the
 image build only works while `py_packages/validate_agent_files/` is present in
 the build context — see [Template boundary](template-boundary.md).
@@ -54,7 +54,7 @@ nor any project environment.
 ## Versioning
 
 The package moved from `0.0.0` to `1.0.0`, pinned by
-`VALIDATE_AGENT_FILES_VERSION` in `docker/desktop/agent-desktop.Dockerfile` and
+`VALIDATE_AGENT_FILES_VERSION` in `docker/base/agentdev-base.Dockerfile` and
 surfaced as the `org.opencontainers.image.version.validate-agent-files` label.
 The role reads the version back from the installed distribution and fails the
 build on a mismatch, so the pin describes what the image actually carries rather

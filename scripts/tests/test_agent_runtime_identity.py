@@ -16,7 +16,7 @@ from scratch import TMP_ROOT
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 BASE = 'ubuntu:24.04'
-# Mirrors the account layout agent-opencode builds: no stock UID 1000 account, a docker group.
+# Mirrors the account layout agentdev-deploy builds: no stock UID 1000 account, a docker group.
 BASE_DOCKERFILE = f"""\
 FROM {BASE}
 RUN apt-get update && apt-get install -y --no-install-recommends sudo \\

@@ -17,7 +17,7 @@
 # Exit status is the hooks' own: 0 only when all three succeed.
 set -euo pipefail
 
-IMAGE="${IMAGE:-ghcr.io/plume-works/agent-desktop:edge}"
+IMAGE="${IMAGE:-ghcr.io/plume-works/agentdev-devcontainer:edge}"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # Where GitHub mounts a checkout, and it runs the job as root.

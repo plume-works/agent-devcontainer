@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Root bootstrap for the runtime profiles. Deploy creates or reuses the runtime account,
-# then validates and initializes only the storage this instance owns; a Dev Container
-# accepts the tool's account and mounted workspace as they are. Ownership is never
+# Root bootstrap: deploy creates or reuses the runtime account, then validates and initializes
+# only its own storage; a Dev Container keeps the tool's account and mounts. Ownership is never
 # rewritten recursively. Spec: standalone-opencode-runtime, agentdev-runtime-images.
 
 runtime_user="${AGENTDEV_USER:-agent}"

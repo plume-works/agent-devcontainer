@@ -187,9 +187,14 @@ second name to maintain.
 Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `docker/opencode/agent-opencode.Dockerfile`
 
-- [ ] Rename the lifecycle-neutral `agent-desktop` build to `agentdev-base`
+- [x] Rename the lifecycle-neutral `agent-desktop` build to `agentdev-base`
   without copying `.devcontainer/scripts/` into it. Preserve its tools, catalog,
   validators, default shell entrypoint, and multi-architecture build.
+  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on ee494f54
+    built `agentdev-base` natively on amd64 and arm64, merged its manifest, and
+    built both siblings from that digest; `docker/base/agentdev-base.Dockerfile`
+    copies only `entrypoint.sh` and `start-xpra.sh` from the build context
+    besides the provisioning sources.
 - [x] Rename `agent-opencode` to `agentdev-deploy`, derive it from the exact
   same-run `agentdev-base` digest, and keep its established deploy profile and
   public service contract.
@@ -214,11 +219,15 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `.devcontainer/docker-compose.yml`, `.devcontainer/devcontainer-init.sh`,
 `devcontainer-compose-pins.yml`, `.devcontainer/devcontainer-lock.json`
 
-- [ ] Point the canonical Dev Container at the pinned `agentdev-devcontainer`
+- [x] Point the canonical Dev Container at the pinned `agentdev-devcontainer`
   image, remove the Docker-in-Docker Feature and the `sleep infinity` command,
   and let the image entrypoint own supervised services. Retain SSH support, MCP
   sidecar wiring, workspace/worktree mounts, persistent state volumes, and the
   shared-auth volume.
+  - **Evidence:** squash commit 9f50acd7 (#518); CI run 40921226997 on ee494f54
+    passed Dev Container runtime acceptance on both architectures, including the
+    repository suite inside the pinned `agentdev-devcontainer`; the descriptor
+    declares only the sshd Feature and no command.
 - [x] Replace checkout-relative lifecycle commands with the image metadata or
   stable `/opt/agentdev-runtime/` commands. Keep `waitFor` tied to the runtime
   readiness command; editor startup must fail when the required service graph is
@@ -276,37 +285,70 @@ Delete: `docker/desktop/agent-desktop.Dockerfile`,
 `.github/workflows/ai-responder.yml`, `devcontainer-compose-pins.yml`,
 `opencode-compose-pins.yml`, `compose.opencode.yml`
 
-- [ ] Build `agentdev-base` once per architecture and build `agentdev-deploy`
+- [x] Build `agentdev-base` once per architecture and build `agentdev-deploy`
   and `agentdev-devcontainer` from that run's immutable base digest. Merge and
   promote moving tags only after deploy and Dev Container native acceptance
   succeeds.
-- [ ] Rename deploy Compose, pins, Renovate rules, workflow outputs, and
+  - **Evidence:** squash commit 9f50acd7 (#518); main CI run 40949574006 on
+    9f50acd7 built `agentdev-base` once per architecture, built
+    `agentdev-deploy` and `agentdev-devcontainer` from its digest, passed deploy
+    and Dev Container native acceptance on amd64 and arm64, and only then
+    promoted `edge`: `agentdev-devcontainer:edge` and `:sha-9f50acd` both
+    resolve to `sha256:dddd993a…`.
+- [x] Rename deploy Compose, pins, Renovate rules, workflow outputs, and
   repository references to the canonical image names. Stop publishing the old
   `agent-desktop` and `agent-opencode` names rather than creating aliases.
-- [ ] Run AI review and other development-image workflow jobs in the same pinned
+  - **Evidence:** squash commit 9f50acd7 (#518) and commit aac27ed3;
+    `git grep -E "agent-desktop|agent-opencode"` outside the specs, plans, and
+    logs leaves only the migration guide, its skill step, history entries, and
+    the assertion that no pin names the old images.
+- [x] Run AI review and other development-image workflow jobs in the same pinned
   `agentdev-devcontainer` digest used by the repository Dev Container; keep
   digest-only pin changes outside the image build path filter.
+  - **Evidence:** squash commit 9f50acd7 (#518);
+    `uv run pytest scripts/tests/test_agent_runtime_ci.py` — 26 passed,
+    including the shared Dev Container pin across `ai-responder.yml`,
+    `renovate.yml`, and `validate-renovate-config.yml`; the pins live in root
+    files outside the image path filter.
 
 ### Task 8: Align the product contract and codebase map
 
 **Files:** Create: `docs/knowledge/data/architecture/devcontainer-runtime.md`;
 Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 `docs/knowledge/data/product.md`,
+`docs/knowledge/data/architecture/ci-agent-plugin-availability.md`,
+`docs/knowledge/data/architecture/module-layout.md`,
 `docs/knowledge/data/architecture/nested-docker-provisioning.md`,
+`docs/knowledge/data/architecture/renovate-config-validation.md`,
+`docs/knowledge/data/architecture/self-improve-consolidation.md`,
+`docs/knowledge/data/architecture/standalone-opencode-runtime.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
+`docs/knowledge/data/architecture/validator-image-install.md`,
 `docs/knowledge/data/features/standalone-opencode-container.md`,
 `docs/knowledge/data/codebase/`, `docs/knowledge/data/architecture.md`
 
-- [ ] Document the canonical image family, profile boundary, lifecycle
+- [x] Document the canonical image family, profile boundary, lifecycle
   ownership, customization interface, and supported direct/derived/full adoption
   modes in the architecture, README, and user-story documents. State explicitly
   that `template-consume` remains supported for full adoption.
-- [ ] Update image, catalog, Docker-storage, pinning, and product terminology to
+  - **Evidence:** commits bef0fd05, 1f85dae3;
+    `architecture/devcontainer-runtime.md` records the family, profiles,
+    lifecycle ownership, hooks and environment interface, and the direct,
+    derived, and full adoption modes, with `template-consume` supported for full
+    adoption; the README and user stories describe the same;
+    `iwe schema validate` clean.
+- [x] Update image, catalog, Docker-storage, pinning, and product terminology to
   the shipped names and behaviour in the non-spec documents this task lists,
   without copying runtime implementation detail into multiple documents. Spec
   documents change only when Ship merges `## Spec changes`.
-- [ ] Refresh every stale codebase-map document through `/agentdev:iwe-map`
+  - **Evidence:** commits aac27ed3, bef0fd05, 87c40c78;
+    `git grep -E "agent-desktop|agent-opencode"` over the documents Task 8 lists
+    leaves only the migration notes and changelog entries; no spec document
+    changed; `iwe schema validate` clean.
+- [x] Refresh every stale codebase-map document through `/agentdev:iwe-map`
   after paths and flows settle.
+  - **Evidence:** commit c2881b47; `stale-map-docs.py` — RESULT=SUCCESS, 28 docs
+    fresh.
 
 ### Task 9: Migrate full-adoption consumers through template-consume
 
@@ -344,9 +386,14 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 
 **Files:** None.
 
-- [ ] **Closed by: CI on the current head.** Both architectures publish the
+- [x] **Closed by: CI on the current head.** Both architectures publish the
   three candidate images, run deploy and Dev Container native acceptance, and
   promote the canonical moving tags only after every required check passes.
+  - **Evidence:** CI run 40962199551 on acd24731 built the three candidate
+    images natively on amd64 and arm64, passed deploy and Dev Container runtime
+    acceptance on both, and only then promoted `pr-541`
+    (`agentdev-devcontainer:pr-541@sha256:b672b905…`); main run 40949574006
+    promoted `edge` the same way.
 
 ## Spec changes
 
@@ -553,27 +600,52 @@ SHALL NOT rebuild or publish the image it names.
 
 ### Requirement: the catalog is installed at image build time and again by postCreateCommand
 
-The agentdev catalog SHALL be installed in `agentdev-base` at image build time.
-`agentdev-devcontainer` SHALL reconcile that catalog into mounted client-state
-volumes during its create lifecycle after establishing persistent auth and
-configuration links.
+The `agentdev` catalog staged at `$AGENTDEV_CATALOG_DIR` SHALL be installed into
+each agent's plugin state during the `agentdev-base` build, at Claude user
+scope, via Codex's own registration, and by registering the catalog's OpenCode
+bridge plugin in the user's OpenCode config, so a consumer that runs the image
+without lifecycle commands resolves `agentdev:*` skills.
+`agentdev-devcontainer`'s `postCreateCommand` SHALL also install it, because a
+mounted `~/.claude` / `~/.codex` volume shadows what the image build wrote.
+Because the build-time Claude install seeds a real `/root/.claude.json` into the
+image, `postCreateCommand` SHALL establish the volume→`/root/.claude.json`
+symlink before CBM is configured — discarding the image's real file, seeding
+`/root/.claude/claude.json` with `{}` only when the volume has none — so the
+mounted `agentdev-claude` volume remains the source of truth for `claude.json`,
+the CBM install folds its MCP entry back into the volume, and no image content
+is folded into it.
 
-#### Scenario: a base-image consumer uses no lifecycle hooks
+#### Scenario: the image runs with no volumes and no lifecycle hooks
 
-- **WHEN** it starts `agentdev-base` without client-state volumes
-- **THEN** Claude, Codex, and OpenCode resolve the staged agentdev catalog
+- **WHEN** a container starts from `agentdev-base` without client-state volumes
+  and no lifecycle command runs
+- **THEN** the catalog installed during the image build is present, an
+  `agentdev:*` skill resolves in Claude Code and Codex, and OpenCode loads the
+  staged bridge plugin and lists the catalog's skills.
 
-#### Scenario: a Dev Container starts with fresh client-state volumes
+#### Scenario: a devcontainer starts for the first time on a fresh volume
 
-- **WHEN** the create lifecycle runs
-- **THEN** it establishes persistent links before CBM configuration and installs
-  the staged catalog into every mounted client state
+- **WHEN** `postCreateCommand` runs, `$AGENTDEV_CATALOG_DIR` exists, and the
+  image ships a real `/root/.claude.json`
+- **THEN** `postCreateCommand` discards that image file and symlinks
+  `/root/.claude.json` to a freshly-seeded `/root/.claude/claude.json` before
+  CBM is configured, so the CBM install folds only its MCP entry into the
+  volume's clean `claude.json` with no image content, and the staged catalog is
+  installed into the fresh `agentdev-claude` / `agentdev-codex` volumes at
+  Claude user scope and into the OpenCode user config.
 
-#### Scenario: a Dev Container starts with an existing catalog install
+#### Scenario: a devcontainer starts with a catalog already installed on its volume
 
-- **WHEN** persistent client-state volumes shadow the build-time install
-- **THEN** their unrelated state is preserved and the staged catalog is
-  reconciled to the image version
+- **WHEN** the `agentdev-claude` / `agentdev-codex` volumes already contain a
+  prior install and `claude.json` (they persist per devcontainer instance), and
+  the recreated container carries the image's `/root/.claude.json`
+- **THEN** `postCreateCommand` discards the image's `/root/.claude.json` and
+  symlinks `/root/.claude.json` to the volume's existing `claude.json` before
+  CBM is configured, so that content is preserved (the CBM install folds its MCP
+  entry back in; Claude may append bootstrap fields, so the guarantee is content
+  preservation, not byte-identity), the volume mount shadows the image-build
+  catalog install, and `postCreateCommand` re-applies that install every time
+  the container is created, so it is never silently stale.
 
 ### Requirement: this repository's own checkout overrides the staged catalog on attach
 

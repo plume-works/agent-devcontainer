@@ -12,7 +12,7 @@ repositories.
 
 - Multi-architecture `linux/amd64` and `linux/arm64` images published through GHCR.
 - Python development through `uv`, plus Bun and Node.js 24.
-- Docker-in-Docker, Buildx, Compose, CMake, Ninja, Git LFS, and GitHub CLI.
+- A supervised nested Docker engine, Buildx, Compose, CMake, Ninja, Git LFS, and GitHub CLI.
 - Claude Code and Codex preinstalled with the shared `agentdev` catalog.
 - An optional `self-improve` plugin that turns verified corrections into reviewable
   instructions, published but not enabled by default.
@@ -22,18 +22,25 @@ repositories.
 - GitHub Actions for validation, formatting, image publishing, and AI review.
 - A resumable template workflow for adopting or updating the environment elsewhere.
 
-The repository publishes three images:
+The repository publishes four images:
 
-- `ghcr.io/plume-works/agent-desktop:edge` — the development environment.
-- `ghcr.io/plume-works/agent-opencode:edge` — a self-starting single-project OpenCode
-  runtime built on `agent-desktop`; see [Standalone OpenCode runtime](#standalone-opencode-runtime).
+- `ghcr.io/plume-works/agentdev-devcontainer:edge` — the Dev Container runtime: tools,
+  the staged catalog, supervised services, and the lifecycle commands.
+- `ghcr.io/plume-works/agentdev-deploy:edge` — a self-starting single-project OpenCode
+  runtime; see [Standalone OpenCode runtime](#standalone-opencode-runtime).
+- `ghcr.io/plume-works/agentdev-base:edge` — the lifecycle-neutral base both runtimes
+  derive from, for custom images that bring their own runtime.
 - `ghcr.io/plume-works/ubuntu-ansible:edge` — the Ansible-ready base image.
 
-All are built on native runners and merged into multi-architecture manifests.
+All are built on native runners and merged into multi-architecture manifests. The two
+runtimes are built from the same run's `agentdev-base` digest, and `edge` moves only
+after both pass native acceptance. The `agent-desktop` and `agent-opencode` names are no
+longer published; `/agentdev:template-consume` update mode migrates a repository that
+still pins `agent-desktop`.
 
 ## Quick start
 
-There are two supported adoption paths.
+There are three supported adoption paths, all on the same published runtime.
 
 ### Use the image
 
@@ -42,25 +49,38 @@ Point an existing devcontainer at the published image:
 ```jsonc
 // .devcontainer/devcontainer.json
 {
-  "image": "ghcr.io/plume-works/agent-desktop:edge@sha256:b5175b7e5e9d2e7b99a67cbb3f25d37523fc0763800495ca613443f538b3eed8",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:4.1.0": {},
-  },
+  "image": "ghcr.io/plume-works/agentdev-devcontainer:edge@sha256:dddd993a4ba9d09b0c05e452d9ccdd56ab261b3454a16826cf3a72fb47e1e12c",
   "containerEnv": {
     "DEV_WORKSPACE_FOLDER": "/workspaces/${localWorkspaceFolderBasename}",
   },
 }
 ```
 
+The image's metadata supplies the create, start, and attach commands, `waitFor`, the
+privileged mode and `/var/lib/docker` volume nested Docker needs, and its entrypoint
+starts the supervised services. Declare none of them again, add no Docker-in-Docker
+Feature, and copy no lifecycle script; the editor attaches only once the required
+services are ready.
+
 Pin by tag and digest so the environment never changes silently. Renovate or an
 equivalent dependency updater can advance the digest when a new image is available;
 this repository's [Renovate configuration](.github/renovate.json) provides a working
 example.
 
+### Derive a custom image
+
+Add tooling in an image that starts `FROM ghcr.io/plume-works/agentdev-devcontainer`.
+Extend the lifecycle with executable hooks in
+`/etc/agentdev/hooks/{created,started,attached}.d/`, which run in name order at the end
+of their phase, and override the image's documented environment. Files below
+`/opt/agentdev-runtime/` belong to the image: the runtime refuses to start when one is
+changed, added, or removed. See [Dev Container
+runtime](docs/knowledge/data/architecture/devcontainer-runtime.md).
+
 ### Adopt the complete template
 
 Run `/agentdev:template-consume` to copy the complete setup or merge selected parts
-into an existing repository. The workflow installs the devcontainer lifecycle,
+into an existing repository. The workflow installs the devcontainer descriptor,
 agent settings, MCP configuration, project tooling, and adaptable GitHub workflows.
 It also records the adopted revision so future runs can safely propose upstream
 updates.
@@ -72,7 +92,7 @@ for prerequisites and the full-copy and selective-copy workflows.
 
 ## Standalone OpenCode runtime
 
-`agent-opencode` runs one project with no Dev Containers client, Coder, or project
+`agentdev-deploy` runs one project with no Dev Containers client, Coder, or project
 scaffolding. On start it creates its runtime account, prepares the workspace, and
 starts the OpenCode server, with nested Docker, an instance-local keyring, Codebase
 Memory MCP, and the Xpra desktop around it. Each service is supervised and recovered
@@ -81,7 +101,7 @@ started.
 
 ### Launch
 
-[Deploying agent-opencode](docker/opencode/README.md) walks a new host through the
+[Deploying agentdev-deploy](docker/deploy/README.md) walks a new host through the
 proxy network, settings, first start, proxy routes, logins, and continuity checks.
 The supported deployment is [`compose.opencode.yml`](compose.opencode.yml) behind an
 existing reverse proxy. It publishes no host ports. Every launch adds the digest pin in
@@ -89,7 +109,7 @@ existing reverse proxy. It publishes no host ports. Every launch adds the digest
 each digest CI promotes to `edge`; CI promotes only builds that passed native
 acceptance. Settings come
 from a private copy of
-[`docker/opencode/runtime.env.example`](docker/opencode/runtime.env.example):
+[`docker/deploy/runtime.env.example`](docker/deploy/runtime.env.example):
 
 ```bash
 # First start clones AGENTDEV_REPOSITORY_URL into a persistent workspace volume.
@@ -350,7 +370,7 @@ Rules come from [`.devcontainer/firewall-allowlist.txt`](.devcontainer/firewall-
 When enabled, the firewall default-denies IPv4 egress, blocks IPv6, preserves Docker
 DNS, and verifies both an allowed and a blocked destination during startup.
 
-The supplied devcontainer runs in privileged mode for Docker-in-Docker and optional
+The supplied devcontainer runs in privileged mode for nested Docker and optional
 GPU access. Use it only with trusted repositories and container contents.
 
 Xpra starts on display `:100` and container port `14500`. Open the **Xpra HTML5**
@@ -361,16 +381,23 @@ acceleration. Advanced users can manage the service with
 
 ## Build and contribute
 
-Build both images from the repository root:
+Build the images from the repository root:
 
 ```bash
 docker build -t local/ubuntu-ansible docker/ansible
 
 docker buildx build \
-  -f docker/desktop/agent-desktop.Dockerfile \
+  -f docker/base/agentdev-base.Dockerfile \
   --build-arg FROM_IMAGE=local/ubuntu-ansible \
-  -t local/agent-desktop .
+  -t local/agentdev-base .
+
+docker buildx build \
+  -f docker/devcontainer/agentdev-devcontainer.Dockerfile \
+  --build-arg FROM_IMAGE=local/agentdev-base \
+  -t local/agentdev-devcontainer .
 ```
+
+`docker/deploy/agentdev-deploy.Dockerfile` builds `agentdev-deploy` the same way.
 
 Install dependencies and run the primary repository checks:
 

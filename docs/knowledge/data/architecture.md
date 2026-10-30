@@ -109,6 +109,8 @@ start](architecture/claude-remote-control-pointerless-server-start.md)
 
 [Standalone OpenCode runtime](architecture/standalone-opencode-runtime.md)
 
+[Dev Container runtime](architecture/devcontainer-runtime.md)
+
 [Testing sibling workspaces in
 devcontainers](architecture/sibling-devcontainer-testing.md)
 

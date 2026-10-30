@@ -2,14 +2,14 @@
 type: codebase
 description: The four images built in sequence — ubuntu-ansible, the lifecycle-neutral agentdev-base, and its sibling runtimes agentdev-deploy and agentdev-devcontainer — and the scripts they bake.
 source: docker
-source_digest: sha256:2b976c2b55a50e29aa85a8cdb7db378d468c2c9f2e56679bce335584b5f720c7
+source_digest: sha256:79b0267b29d9d28fd2ba7fac1f7545cdffed3018d0b75388448292992e0ed691
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:55:13Z
+  at: 2026-10-29T21:16:01Z
 stale_after: 2027-01-27
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:55:13Z
+  at: 2026-10-29T21:16:01Z
 sources:
 - id: code
   resource: docker
@@ -133,7 +133,7 @@ Verified anchor points (line numbers as of 2026-10-29):
   programs, `:211` — `remote-control`
 - `docker/devcontainer/supervisord.conf:24` — the controller; `:37-161` — the
   eight programs, `:115` — `created`
-- `.devcontainer/scripts/runtime-bootstrap.sh:177-187` — `verify_runtime_root`,
+- `.devcontainer/scripts/runtime-bootstrap.sh:176-186` — `verify_runtime_root`,
   the manifest check
 - `docker/ansible/setup-ansible.sh:4` — `ANSIBLE_VERSION`
 - `docker/desktop/start-xpra.sh:7` — default HTML5 container port

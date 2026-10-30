@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Why .github/renovate.json is validated by a pre-commit hook and a workflow at the one Renovate version the self-hosted bot runs, why both pass --no-global, and why the workflow runs in the pinned agent-desktop image.
+description: Why .github/renovate.json is validated by a pre-commit hook and a workflow at the one Renovate version the self-hosted bot runs, why both pass --no-global, and why the workflow runs in the pinned agentdev-devcontainer image.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-08T00:00:00Z
+  at: 2026-10-29T22:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: .github/workflows/validate-renovate-config.yml
@@ -46,9 +46,9 @@ variables.
 
 ## The workflow is the image canary
 
-The validation job runs in `ghcr.io/plume-works/agent-desktop` at the digest
-`devcontainer-compose-pins.yml` pins, and Renovate moves every copy of that
-digest in one pull request — the workflow's own among them. A digest bump
+The validation job runs in `ghcr.io/plume-works/agentdev-devcontainer` at the
+digest `devcontainer-compose-pins.yml` pins, and Renovate moves every copy of
+that digest in one pull request — the workflow's own among them. A digest bump
 therefore runs this required check inside the new image before it can automerge,
 so an image that cannot run the bot's toolchain fails there rather than in the
 next bot run.
