@@ -40,8 +40,10 @@ Options:
   --worktree             Create the branch in a new worktree; leave the current
                          checkout alone
   --worktree-root <dir>  Parent directory for the worktree (implies --worktree).
-                         Default: /workspaces when the main checkout lives
-                         directly under it, otherwise <main checkout>/.worktrees.
+                         Default: <main checkout>/.worktrees under
+                         AGENTDEV_RUNTIME_MODE=standalone, else /workspaces
+                         when the main checkout lives directly under it,
+                         otherwise <main checkout>/.worktrees.
                          The worktree is <parent>/<repo>-<name>; a '/' in <name>
                          stays a directory separator
   -h, --help             Show this help text.
@@ -208,7 +210,9 @@ if [[ "${worktree_mode}" -eq 1 ]]; then
   main_dir="$(main_checkout_dir)"
   parent_dir="${worktree_root}"
   if [[ -z "${parent_dir}" ]]; then
-    if [[ "$(dirname -- "${main_dir}")" == "/workspaces" ]]; then
+    # A standalone runtime mounts only the checkout; /workspaces is root-owned there.
+    if [[ "${AGENTDEV_RUNTIME_MODE:-}" != "standalone" \
+      && "$(dirname -- "${main_dir}")" == "/workspaces" ]]; then
       parent_dir="/workspaces"
     else
       parent_dir="${main_dir}/.worktrees"

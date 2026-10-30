@@ -51,10 +51,14 @@ def run_script(
     cwd: Path,
     *args: str,
     path_prefix: Path | None = None,
+    runtime_mode: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
     """Run git-new-branch.sh and parse its key=value stdout."""
     script = plugin_root / 'skills/git-new-branch/agent-code/git-new-branch.sh'
     env = {**os.environ, **FIXTURE_ENV}
+    env.pop('AGENTDEV_RUNTIME_MODE', None)
+    if runtime_mode is not None:
+        env['AGENTDEV_RUNTIME_MODE'] = runtime_mode
     if path_prefix is not None:
         env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
     completed = subprocess.run(
@@ -575,7 +579,53 @@ def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(
     assert git(fixture.work, 'status', '--porcelain') == ''
 
 
+def test_standalone_worktree_mode_uses_the_ignored_worktrees_directory(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """The standalone runtime puts the worktree in .worktrees/, which Git then ignores."""
+    # Act
+    completed, keys = run_script(
+        plugin_root, fixture.work, 'fixture/topic', '--worktree', runtime_mode='standalone'
+    )
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    worktree = fixture.work / '.worktrees' / 'work-fixture' / 'topic'
+    assert keys['WORKTREE'] == str(worktree)
+    assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
+    exclude = (fixture.work / '.git' / 'info' / 'exclude').read_text()
+    assert '.worktrees/' in exclude.splitlines()
+
+
 WORKSPACES = Path('/workspaces')
+
+
+@pytest.mark.skipif(
+    not (WORKSPACES.is_dir() and os.access(WORKSPACES, os.W_OK)),
+    reason='needs a writable /workspaces',
+)
+def test_standalone_worktree_mode_under_workspaces_stays_in_the_checkout(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """A standalone checkout directly under /workspaces keeps its worktree in .worktrees/."""
+    # Arrange
+    name = f'fixture-{uuid4().hex}'
+    checkout = WORKSPACES / name
+    git(fixture.root, 'clone', str(fixture.remote), str(checkout))
+    try:
+        # Act
+        completed, keys = run_script(
+            plugin_root, checkout, 'fixture/topic', '--worktree', runtime_mode='standalone'
+        )
+
+        # Assert
+        assert outcome(completed) == (0, 'RESULT=SUCCESS')
+        assert keys['WORKTREE'] == str(checkout / '.worktrees' / f'{name}-fixture' / 'topic')
+        assert not (WORKSPACES / f'{name}-fixture').exists()
+    finally:
+        shutil.rmtree(checkout)
 
 
 @pytest.mark.skipif(
