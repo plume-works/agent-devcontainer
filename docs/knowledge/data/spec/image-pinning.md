@@ -1,9 +1,9 @@
 ---
 type: spec
-description: How the published agent-desktop, agent-opencode, and ubuntu-ansible images are tagged after acceptance, and pinned and updated by consumers.
+description: How the published ubuntu-ansible, agentdev-base, agentdev-deploy, and agentdev-devcontainer images are tagged after acceptance, and pinned and updated by consumers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T02:36:16Z
+  at: 2026-10-30T02:01:26Z
 sources:
 - resource: devcontainer-compose-pins.yml
 - resource: README.md
@@ -21,16 +21,15 @@ sources:
 
 ## Requirement: images are pinned by tag and digest, never a bare moving tag
 
-The devcontainer SHALL reference `ghcr.io/plume-works/agent-desktop` by tag and
-digest (`:edge@sha256:...` for consumers; this repository pins to a PR-scoped
-tag in `devcontainer-compose-pins.yml` while iterating) so that a rebuild
-upstream never silently changes what a running container uses.
+The canonical `agentdev-devcontainer` and `agentdev-deploy` consumer
+configurations SHALL reference their image by tag and digest so an upstream
+rebuild never silently changes a running environment.
 
-### Scenario: upstream image is rebuilt with the same tag
+### Scenario: a canonical image is rebuilt with the same tag
 
-- **WHEN** `ghcr.io/plume-works/agent-desktop:edge` is rebuilt and pushed again
+- **WHEN** either canonical moving tag is rebuilt and pushed again
 - **THEN** a consumer's pinned digest still resolves to the old image until the
-  pin is deliberately advanced.
+  pinned digest is updated.
 
 ## Requirement: `devcontainer-compose-pins.yml` stays outside the image-build path filter
 
@@ -54,48 +53,47 @@ via `dockerComposeFile` in `devcontainer.json`.
 
 ## Requirement: workflow container images share the devcontainer pin
 
-Every workflow job that runs in `ghcr.io/plume-works/agent-desktop` SHALL
-reference it by the same tag and digest as `devcontainer-compose-pins.yml`, and
-a digest update SHALL move every reference in one change.
+Every workflow job that runs in the development runtime SHALL reference the same
+`agentdev-devcontainer` tag and digest as `devcontainer-compose-pins.yml`, and a
+digest update SHALL move every reference in one change.
 
-### Scenario: Renovate bumps the agent-desktop digest
+### Scenario: Renovate bumps the Dev Container digest
 
-- **WHEN** Renovate proposes a new agent-desktop digest
-- **THEN** one pull request changes `devcontainer-compose-pins.yml` and every
-  workflow `container.image` to that digest.
+- **WHEN** Renovate proposes a new `agentdev-devcontainer` digest
+- **THEN** one pull request changes the Compose pin and every workflow
+  `container.image` reference to that digest.
 
 ### Scenario: a bumped digest is exercised before merge
 
-- **WHEN** a pull request changes the agent-desktop digest
-- **THEN** a required check runs inside the new image, and the pull request
-  cannot merge while it fails.
+- **WHEN** a pull request changes the Dev Container digest
+- **THEN** a required check runs inside it and the pull request cannot merge
+  while that check fails.
 
 ## Requirement: published tags name only tested images
 
-CI SHALL push each built ubuntu-ansible, agent-desktop, and agent-opencode
-multi-arch image under an immutable `sha-<commit>` tag only. It SHALL point the
-event's moving tags (`edge`, `main`, `pr-<n>`, and release versions) at those
-digests only after the devcontainer checks and native runtime acceptance pass in
-the same run, without rebuilding, and SHALL NOT move a tag to an image built
-from an ancestor of the commit it names. Primary checks runs on `main` SHALL NOT
+CI SHALL publish `ubuntu-ansible`, `agentdev-base`, `agentdev-deploy`, and
+`agentdev-devcontainer` candidates under immutable commit tags and SHALL move
+event tags only after native deploy and Dev Container acceptance pass for the
+same digests, without rebuilding. CI SHALL NOT move a tag to an image built from
+an ancestor of the commit it names. Primary checks runs on `main` SHALL NOT
 cancel one another.
 
-### Scenario: the tests pass
+### Scenario: every acceptance check passes
 
-- **WHEN** a run's devcontainer checks and runtime acceptance pass
-- **THEN** the event's moving tags name the digests that run built and tested.
+- **WHEN** the run's image and runtime checks pass
+- **THEN** the event's moving tags name the exact digests that run built and
+  tested.
 
-### Scenario: a test fails or the run is cancelled
+### Scenario: a check fails or the run is cancelled
 
-- **WHEN** a test job fails, or the run is cancelled after the manifests merge
-- **THEN** every moving tag keeps its previous digest, and only the
-  `sha-<commit>` tag names the new build.
+- **WHEN** any required acceptance job fails or the run is cancelled
+- **THEN** every moving tag keeps its previous digest, and only the immutable
+  commit tag names the new image family.
 
 ### Scenario: an older run is re-run
 
-- **WHEN** a re-run of an older commit's run passes after a newer commit was
-  promoted
-- **THEN** `edge` and `main` keep the newer commit's images.
+- **WHEN** an older commit passes after a newer commit was promoted
+- **THEN** moving tags keep the newer image family.
 
 ### Scenario: pushes to main arrive during a run
 
@@ -104,20 +102,20 @@ cancel one another.
 
 ## Requirement: standalone runtime deployment is digest-pinned
 
-Supported agent-opencode Compose launch commands SHALL include a tag-and-digest
-pin in root-level opencode-compose-pins.yml. Runtime builds SHALL use the exact
-agent-desktop digest from their build run. A pin change SHALL NOT rebuild or
-publish the image it names.
+Supported `agentdev-deploy` Compose launch commands SHALL include a
+tag-and-digest pin in root-level `opencode-compose-pins.yml`. Runtime builds
+SHALL use the exact `agentdev-base` digest from their build run. A pin change
+SHALL NOT rebuild or publish the image it names.
 
 ### Scenario: runtime sources change
 
 - **WHEN** a runtime image is built and published
 - **THEN** native amd64 and arm64 builds and acceptance checks gate success and
-  the manifest identifies the corresponding desktop ancestry.
+  the manifest identifies the corresponding `agentdev-base` ancestry.
 
 ### Scenario: only a deployment digest changes
 
-- **WHEN** Renovate advances opencode-compose-pins.yml
+- **WHEN** Renovate advances `opencode-compose-pins.yml`
 - **THEN** the proposed digest is one CI promoted after acceptance, the
   image-build path filter does not match, and the update does not create a
   publish/pin loop.

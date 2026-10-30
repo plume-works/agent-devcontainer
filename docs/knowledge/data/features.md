@@ -119,3 +119,5 @@ runtime](features/standalone-remote-control-autostart.md)
 [agentdev-runtime CLI](features/agentdev-runtime-cli.md)
 
 [Remote Control environment names](features/remote-control-environment-names.md)
+
+[Dev Container home volume](features/devcontainer-home-volume.md)
