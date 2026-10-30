@@ -116,16 +116,26 @@ Assumptions:
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/pr-review/SKILL.md`
 
-- [ ] Step 9 selects `APPROVE` for no validated findings or only non-blocking
+- [x] Step 9 selects `APPROVE` for no validated findings or only non-blocking
   findings, and `REQUEST_CHANGES` for any blocking finding, inline or not; the
   `COMMENT` branch is removed.
-- [ ] The self-owned retry covers both verdicts: when GitHub rejects `APPROVE`
+  - **Evidence:** commit `de50d28` — `pr-review/SKILL.md` Step 9 lists only the
+    `APPROVE` and `REQUEST_CHANGES` rules.
+- [x] The self-owned retry covers both verdicts: when GitHub rejects `APPROVE`
   or `REQUEST_CHANGES` because the account owns the pull request, retry as
   `COMMENT` and say so in the body.
-- [ ] The severity-tier definitions, the Codex single-call option, and the
+  - **Evidence:** commit `de50d28` — Step 9 retries a rejected `APPROVE` or
+    `REQUEST_CHANGES` as `COMMENT` and notes it in the body.
+- [x] The severity-tier definitions, the Codex single-call option, and the
   fallback-script contract state the same rule; the Codex option routes
   `REQUEST_CHANGES` through `post-review.sh`.
-- [ ] The `validate-agent-files` pre-commit hook passes on the changed skill.
+  - **Evidence:** commit `de50d28` — the severity tiers, the Codex single-call
+    option, and the fallback `--event` contract state the rule; Codex routes
+    `REQUEST_CHANGES` through `post-review.sh`.
+- [x] The `validate-agent-files` pre-commit hook passes on the changed skill.
+  - **Evidence:** commit `de50d28` —
+    `uv run pre-commit run --files .agents/plugins/agentdev/skills/pr-review/SKILL.md`
+    passed `validate-agent-files` and `prettier`.
 
 ### Task 2: Trusted-bot pull requests are approved
 
