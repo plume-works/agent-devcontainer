@@ -225,9 +225,9 @@ the key fields.
   verifier ran under: the dispatch prompt on the session route, and the plan key
   and the approvals the Shipper's own prompt quotes on the Shipper's route.
   Shipper step 3 forwards those approvals to the rulebook it follows in place.
-  - **Evidence:** commit 183acd7;
+  - **Evidence:** commits 183acd7 and 76de7c2 (prompts as quoted arguments);
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-    at that commit: 0 errors.
+    at each commit: 0 errors.
 
 ### Task 9: Add the saved-report e2e scenarios on Claude Code
 
