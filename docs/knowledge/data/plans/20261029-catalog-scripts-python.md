@@ -122,10 +122,15 @@ which would make 26 untested scripts' behaviour a matter of reading.
 `.agents/plugins/agentdev/bin/__utils.sh`,
 `scripts/validate-super-linter-tool-versions.sh`
 
-- [ ] `super_linter.py` holds the defaults and prints the same `GITHUB_ENV`
+- [x] `super_linter.py` holds the defaults and prints the same `GITHUB_ENV`
   lines for `env` and `env --autofix`, runs the local Super-Linter container for
   `local`, and the version check imports its defaults from it; the two workflow
   steps and the skills name the `.py` entry points.
+  - **Evidence:** commit f7a14ff "Port the Super-Linter and lint helpers to
+    Python";
+    `uv run pytest .agents/plugins/agentdev/tests scripts/tests/test_validate_super_linter_tool_versions.py`
+    passed (355), including `test_super_linter.py`, `test_lint_helpers.py`, and
+    the validator's tests.
 
 ### Task 3: Git workflow skills
 
