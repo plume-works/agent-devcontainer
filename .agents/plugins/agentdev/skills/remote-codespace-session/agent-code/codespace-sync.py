@@ -9,6 +9,7 @@ import sys
 
 import codespace_common as cs
 from codespace_common import print_error, run_tool, Stop
+from skill_common import bash_quote
 
 REMOTE_CHECKOUT_DIRTY = 4
 REMOTE_COMMITS_ABSENT = 5
@@ -190,7 +191,7 @@ def push_sync(name: str, workspace_q: str) -> int:
         return PUSH_REJECTED
     print(output)
 
-    branch_q = cs.bash_quote(branch)
+    branch_q = bash_quote(branch)
     status, output = merged(
         'gh', 'codespace', 'ssh', '-c', name, '--',
         f'cd {workspace_q} && git fetch origin && git checkout {branch_q} '
@@ -221,7 +222,7 @@ def run(arguments: list[str]) -> int:
     cs.preflight()
     name = cs.read_codespace_name()
     workspace_dir = cs.codespace_workspace_dir()
-    workspace_q = cs.bash_quote(workspace_dir)
+    workspace_q = bash_quote(workspace_dir)
 
     status, output = merged(
         'gh', 'codespace', 'ssh', '-c', name, '--', preflight_command(workspace_q)

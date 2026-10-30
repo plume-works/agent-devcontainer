@@ -21,7 +21,7 @@ Use this skill to pull GitHub Actions logs with `gh`.
 
 Use the bundled helper script to parse GitHub Actions URLs:
 
-- [parse-actions-url.sh](agent-code/parse-actions-url.sh)
+- [parse-actions-url.py](agent-code/parse-actions-url.py)
 
 The last line of its stdout is always `RESULT=<NAME>`; match on that name, not on
 a bare number.
@@ -59,8 +59,8 @@ gh run view <run-id> --repo <owner>/<repo> --job <job-id> --log
 Use the helper script when the input is a GitHub Actions URL:
 
 ```bash
-agent-code/parse-actions-url.sh --url '<github-actions-url>'
-agent-code/parse-actions-url.sh --url '<github-actions-url>' --format command --log
+agent-code/parse-actions-url.py --url '<github-actions-url>'
+agent-code/parse-actions-url.py --url '<github-actions-url>' --format command --log
 ```
 
 Handle its result:
@@ -85,7 +85,7 @@ gh run view <run-id> --repo <owner>/<repo> --job <job-id> --log | grep -nE "FAIL
 Or generate that command from the helper script:
 
 ```bash
-agent-code/parse-actions-url.sh --url '<github-actions-job-url>' --format command --log --grep-failures
+agent-code/parse-actions-url.py --url '<github-actions-job-url>' --format command --log --grep-failures
 ```
 
 If the user needs artifacts the run uploaded (test reports, coverage, build logs), download them with `gh run download`.
@@ -115,7 +115,7 @@ Run:
 
 ```bash
 gh auth status
-agent-code/parse-actions-url.sh --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901' --format command --log
+agent-code/parse-actions-url.py --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901' --format command --log
 ```
 
 Then run the emitted `gh run view ... --log` command to fetch the whole run log.
@@ -156,5 +156,5 @@ gh run view 12345678901 --repo <owner>/<repo> --job 23456789012 --log | grep -nE
 The same job URL can be parsed with:
 
 ```bash
-agent-code/parse-actions-url.sh --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901/job/23456789012?pr=42'
+agent-code/parse-actions-url.py --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901/job/23456789012?pr=42'
 ```

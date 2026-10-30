@@ -9,6 +9,7 @@ import sys
 
 import codespace_common as cs
 from codespace_common import print_error, Stop
+from skill_common import bash_quote
 
 REMOTE_COMMAND_FAILED = 4
 PREFLIGHT_ERROR = 2
@@ -66,7 +67,7 @@ def run(arguments: list[str]) -> int:
 
     # One string, not a 'bash -lc' triple: ssh flattens forwarded arguments into a
     # single string the remote shell re-parses, which would re-split the '&&'.
-    remote_command = ' '.join([f'cd {workspace_dir} &&', *map(cs.bash_quote, arguments)])
+    remote_command = ' '.join([f'cd {workspace_dir} &&', *map(bash_quote, arguments)])
     sys.stdout.flush()
     status = subprocess.run(
         ['gh', 'codespace', 'ssh', '-c', name, '--', remote_command], check=False

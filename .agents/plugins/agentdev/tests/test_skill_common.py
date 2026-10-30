@@ -101,3 +101,22 @@ def test_help_header_names_the_skill_root(plugin_root: Path, repository: Path) -
     assert completed.stdout == (
         f'Describe it.\n\nSkill root: {plugin_root.resolve() / "skills" / "fixture"}\n'
     )
+
+
+@pytest.mark.parametrize(
+    'word',
+    ['plain-path/x.y_z', 'a b', "it's", '$HOME', '', '~x', 'x~y', 'a=~b', 'x:~y', '#c', 'd#e',
+     'tab\there', 'new\nline', 'ünï', 'a,b', '{x}', 'esc\x1b', '\x01'],
+)  # fmt: skip
+def test_bash_quote_matches_printf_q(plugin_root: Path, word: str) -> None:
+    """bash_quote reproduces bash's printf %q byte for byte."""
+    sys.path.insert(0, str(plugin_root / 'bin'))
+    try:
+        from skill_common import bash_quote
+    finally:
+        sys.path.pop(0)
+    expected = subprocess.run(
+        ['bash', '-c', 'printf %q "$1"', '_', word], capture_output=True, text=True, check=True
+    ).stdout
+
+    assert bash_quote(word) == expected

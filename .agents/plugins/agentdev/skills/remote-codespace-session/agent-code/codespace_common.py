@@ -24,36 +24,6 @@ PREFLIGHT_ERROR = 2
 # it reports is declared once, here; each script declares its own outcomes from 4.
 CODESPACE_SCOPE_MISSING = 3
 
-# Characters bash's printf %q escapes with a backslash anywhere in a word.
-_SHELL_SPECIAL = set(' \t\n\'"\\|&;()<>!{}*[?]^$`,')
-_ANSI_C = {'\a': '\\a', '\b': '\\b', '\f': '\\f', '\n': '\\n', '\r': '\\r', '\t': '\\t',
-           '\v': '\\v', '\\': '\\\\', "'": "\\'", '\x1b': '\\E'}  # fmt: skip
-
-
-def bash_quote(word: str) -> str:
-    """Quote `word` exactly as bash's printf %q does, so the remote shell re-reads it."""
-    if not word:
-        return "''"
-    if any(not character.isprintable() for character in word):
-        quoted = ''.join(
-            _ANSI_C.get(character)
-            or (character if character.isprintable() else
-                ''.join(f'\\{byte:03o}' for byte in character.encode()))
-            for character in word
-        )  # fmt: skip
-        return f"$'{quoted}'"
-    quoted = []
-    for index, character in enumerate(word):
-        previous = word[index - 1] if index else ''
-        if character in _SHELL_SPECIAL:
-            quoted.append('\\')
-        elif character == '~' and (index == 0 or previous in '=:'):
-            quoted.append('\\')
-        elif character == '#' and index == 0:
-            quoted.append('\\')
-        quoted.append(character)
-    return ''.join(quoted)
-
 
 def install(results: dict[int, str]) -> None:
     """Declare the shared and the script's own results, then install the RESULT hooks."""
