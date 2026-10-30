@@ -4,8 +4,8 @@ created: 2026-10-29
 release: internal
 description: Port every bundled shell script in the agentdev catalog, its shared bin helpers, and the publisher's Super-Linter version check to stdlib-only Python behind unchanged RESULT contracts, with a test for each script and the skill-scripts contract rewritten Python-first.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-10-29T19:47:32Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T16:18:33Z
 sources:
 - resource: .agents/plugins/agentdev/bin/result_codes.py
 - resource: .agents/plugins/agentdev/bin/result-codes.sh
@@ -16,6 +16,7 @@ sources:
 - resource: .github/workflows/reformat.yml
 - resource: scripts/validate-super-linter-tool-versions.sh
 - resource: docs/knowledge/data/plans/20260905-python-skill-scripts.md
+- resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
 ---
 
 # Port the catalog's bundled shell scripts to Python
@@ -31,13 +32,19 @@ first catalog script, added `bin/result_codes.py` as the Python `RESULT=`
 contract, and recorded the constraint that binds every catalog script: it ships
 in the plugin cache of any consuming repository and runs on whatever host runs
 the agent, so it is stdlib-only on `#!/usr/bin/env python3` and reaches `bin/`
-through `sys.path`, never through a repository-relative path. Two scripts
-already follow that pattern.
+through `sys.path`, never through a repository-relative path. The skill scripts
+`stale-map-docs.py` and `iwe-branch-name.py` already follow that pattern.
 
 This is the companion of [Replace the runtime shell scripts with one
 agentdev-runtime CLI](20261029-off-bash-migration.md), filed separately because
 its verification story is the plugin test suite and per-script output baselines,
 not an image build.
+
+Task 3 depends on [Bug: git-new-branch worktree mode fails on a standalone
+deployment's root-owned
+/workspaces](../bugs/git-new-branch-worktree-unwritable-workspaces.md): the fix
+lands in `git-new-branch.sh` and in the spec's worktree requirement before the
+port, so the port's baseline carries the corrected worktree parent.
 
 ## Approach
 
@@ -273,10 +280,12 @@ exit code, and scenario keeps its behaviour.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-30):
 
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:22` —
   `sys.path` to `bin/`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:85`
+  — `DEFAULT_BRANCH_HELPER`, the shell helper Task 1 replaces with the module
 - `.agents/plugins/agentdev/skills/git-new-branch/agent-code/__common.sh:13` —
   shell equivalent
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
@@ -302,5 +311,5 @@ Verified anchor points (line numbers as of 2026-10-29):
   `super-linter-defaults.sh` link
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:152` — `close-issue.sh`
   in the rulebook
-- `AGENTS.md:6` — force-push exception naming `stack-guard.sh`
-- `docs/knowledge/data/product.md:129` — the same exception
+- `AGENTS.md:7` — force-push exception naming `stack-guard.sh`
+- `docs/knowledge/data/product.md:132` — the same exception
