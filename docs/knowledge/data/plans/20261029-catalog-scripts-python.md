@@ -186,10 +186,13 @@ are
     identical normalized stdout, stderr, and exit codes on all 62 script runs,
     and `--help`, an unknown option, and a missing option value matched for each
     script; `uv run pytest .agents/plugins/agentdev/tests` passed (366).
-- [ ] `git-new-branch.py` decides the worktree parent in a function of the main
+- [x] `git-new-branch.py` decides the worktree parent in a function of the main
   checkout path, the runtime mode, and `--worktree-root`; a test calls it for a
   checkout directly under `/workspaces` in standalone and in other modes, and
   replaces the test that skips without a writable `/workspaces`.
+  - **Evidence:** commit a9abdb5 "Test the worktree parent choice without a
+    writable /workspaces"; `uv run pytest .agents/plugins/agentdev/tests` passed
+    (372), with no `skipif` left in `test_git_new_branch.py`.
 
 ### Task 5: Pull-request skills
 
