@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-30
+
+- **Update**: refreshed the [github](codebase/github.md) and [pull request
+  checks flow](codebase/flow-pull-request-checks.md) map docs for the single
+  Renovate group that now carries both agentdev image digests.
+
 ## 2026-10-29
 
 - **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
