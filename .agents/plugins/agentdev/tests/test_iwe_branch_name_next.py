@@ -35,35 +35,35 @@ def test_next_starts_at_iteration_one(plugin_root: Path, plugin_tmp_path: Path) 
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
     assert (values['NEXT'], values['NEXT_KIND'], values['ITERATION']) == (
-        f'impl/{PLAN_SLUG}/iter-1',
+        f'iwe/{PLAN_SLUG}/iter-1-impl',
         'impl',
         '1',
     )
     recorded = (gh / 'gh-args').read_text().splitlines()
     assert recorded[:2] == ['pr', 'list']
     assert recorded[recorded.index('--state') + 1] == 'all'
-    assert recorded[recorded.index('--search') + 1] == f'head:impl/{PLAN_SLUG}/'
+    assert recorded[recorded.index('--search') + 1] == f'head:iwe/{PLAN_SLUG}/'
 
 
 def test_next_follows_every_used_iteration(plugin_root: Path, plugin_tmp_path: Path) -> None:
     """The highest of a local, a remote-only, and a PR-only iteration plus one."""
     workspace = Workspace(plugin_tmp_path)
-    git(workspace.work, 'branch', f'impl/{PLAN_SLUG}/iter-1')
-    workspace.push_branch(f'impl/{PLAN_SLUG}/iter-2')
-    gh = pr_heads(plugin_tmp_path / 'gh', f'impl/{PLAN_SLUG}/iter-4')
+    git(workspace.work, 'branch', f'iwe/{PLAN_SLUG}/iter-1-impl')
+    workspace.push_branch(f'iwe/{PLAN_SLUG}/iter-2-impl')
+    gh = pr_heads(plugin_tmp_path / 'gh', f'iwe/{PLAN_SLUG}/iter-4-impl')
 
     _, values = run_script(
         plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'impl', path_prefix=gh
     )
 
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-5'
+    assert values['NEXT'] == f'iwe/{PLAN_SLUG}/iter-5-impl'
 
 
 @pytest.mark.parametrize('source', ['local', 'remote', 'pr'])
 def test_next_counts_each_source(plugin_root: Path, plugin_tmp_path: Path, source: str) -> None:
     """A merged iteration whose branch was deleted still counts, as do local and remote ones."""
     workspace = Workspace(plugin_tmp_path)
-    used = f'impl/{PLAN_SLUG}/iter-3'
+    used = f'iwe/{PLAN_SLUG}/iter-3-impl'
     heads: tuple[str, ...] = ()
     if source == 'local':
         git(workspace.work, 'branch', used)
@@ -77,7 +77,7 @@ def test_next_counts_each_source(plugin_root: Path, plugin_tmp_path: Path, sourc
         plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'impl', path_prefix=gh
     )
 
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-4'
+    assert values['NEXT'] == f'iwe/{PLAN_SLUG}/iter-4-impl'
 
 
 @pytest.mark.parametrize('remote', ['origin', 'upstream'])
@@ -103,19 +103,19 @@ def test_next_reads_pull_requests_of_the_remote(
     )
 
 
-def test_next_ignores_names_off_the_shape_and_the_other_phase(
-    plugin_root: Path, plugin_tmp_path: Path
-) -> None:
-    """Only exact <phase>/<slug>/iter-<N> names of the asked phase and slug count."""
+def test_next_ignores_names_off_the_shape(plugin_root: Path, plugin_tmp_path: Path) -> None:
+    """Only exact iwe/<slug>/iter-<N>-<phase> names of the slug count; v1 names do not."""
     workspace = Workspace(plugin_tmp_path)
-    git(workspace.work, 'branch', f'ship/{PLAN_SLUG}/iter-7')
     git(workspace.work, 'branch', PLAN_SLUG)
-    git(workspace.work, 'branch', f'impl/{PLAN_SLUG}-v2/iter-9')
+    git(workspace.work, 'branch', f'iwe/{PLAN_SLUG}-v2/iter-9-impl')
+    git(workspace.work, 'branch', f'impl/{PLAN_SLUG}/iter-5')
+    workspace.push_branch(f'ship/{PLAN_SLUG}/iter-6')
     gh = pr_heads(
         plugin_tmp_path / 'gh',
-        f'impl/{PLAN_SLUG}/iter-8-retry',
-        f'impl/{PLAN_SLUG}/iter-0',
-        f'impl/{PLAN_SLUG}/iteration-3',
+        f'iwe/{PLAN_SLUG}/iter-8-retry',
+        f'iwe/{PLAN_SLUG}/iter-0-impl',
+        f'iwe/{PLAN_SLUG}/iteration-3-impl',
+        f'impl/{PLAN_SLUG}/iter-7',
         f'impl-{PLAN_SLUG}-iter2',
     )
 
@@ -123,7 +123,29 @@ def test_next_ignores_names_off_the_shape_and_the_other_phase(
         plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', 'impl', path_prefix=gh
     )
 
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-1'
+    assert values['NEXT'] == f'iwe/{PLAN_SLUG}/iter-1-impl'
+
+
+@pytest.mark.parametrize(
+    ('used', 'phase', 'next_name'),
+    [
+        (f'iwe/{PLAN_SLUG}/iter-2-impl', 'ship', f'iwe/{PLAN_SLUG}/iter-3-ship'),
+        (f'iwe/{PLAN_SLUG}/iter-3-ship', 'impl', f'iwe/{PLAN_SLUG}/iter-4-impl'),
+    ],
+)
+def test_next_counts_both_phases(
+    plugin_root: Path, plugin_tmp_path: Path, used: str, phase: str, next_name: str
+) -> None:
+    """One counter runs through the plan's lifecycle, whichever phase used the last N."""
+    workspace = Workspace(plugin_tmp_path)
+    git(workspace.work, 'branch', used)
+    gh = pr_heads(plugin_tmp_path / 'gh')
+
+    _, values = run_script(
+        plugin_root, workspace.work, 'next', PLAN_SLUG, '--phase', phase, path_prefix=gh
+    )
+
+    assert values['NEXT'] == next_name
 
 
 def test_next_with_phase_does_not_need_the_plan(plugin_root: Path, plugin_tmp_path: Path) -> None:
@@ -136,7 +158,7 @@ def test_next_with_phase_does_not_need_the_plan(plugin_root: Path, plugin_tmp_pa
     )
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS')
-    assert values['NEXT'] == f'impl/{PLAN_SLUG}/iter-1'
+    assert values['NEXT'] == f'iwe/{PLAN_SLUG}/iter-1-impl'
     assert 'PLAN_STATE' not in values
 
 
@@ -149,13 +171,13 @@ def test_next_with_phase_does_not_need_the_plan(plugin_root: Path, plugin_tmp_pa
         (
             {PLAN_KEY: plan_document(ticks=(True, True))},
             'complete',
-            f'ship/{PLAN_SLUG}/iter-2',
+            f'iwe/{PLAN_SLUG}/iter-2-ship',
             'ship',
         ),
         (
             {PLAN_KEY: plan_document(ticks=(True, False))},
             'incomplete',
-            f'impl/{PLAN_SLUG}/iter-1',
+            f'iwe/{PLAN_SLUG}/iter-2-impl',
             'impl',
         ),
     ],
@@ -170,7 +192,7 @@ def test_next_follows_the_plan_state(
 ) -> None:
     """Without --phase, each plan state maps to its NEXT_KIND."""
     workspace = Workspace(plugin_tmp_path, plans)
-    gh = pr_heads(plugin_tmp_path / 'gh', f'ship/{PLAN_SLUG}/iter-1')
+    gh = pr_heads(plugin_tmp_path / 'gh', f'iwe/{PLAN_SLUG}/iter-1-ship')
 
     completed, values = run_script(plugin_root, workspace.work, 'next', PLAN_SLUG, path_prefix=gh)
 

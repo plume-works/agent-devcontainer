@@ -15,6 +15,19 @@ to the current day's group.
   [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the runtime
   controller escalating a client failure to its failing dependency.
+- **Update**: [iwe-branch-name v2: one iteration counter per
+  plan](plans/20261030-iwe-branch-name-v2.md) done; merged the
+  `iwe/<slug>/iter-<N>-<phase>` shape and shared counter into
+  [iwe-branch-name](spec/iwe-branch-name.md) and the start-on-main scenario of
+  [iwe-workflow-skills](spec/iwe-workflow-skills.md);
+  [iwe-branch-name](features/iwe-branch-name.md) stays implemented and listed
+  under Unreleased Added.
+- **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
+  [agentdev skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md),
+  [agentdev tests](codebase/agents/plugins/agentdev/tests.md), and [knowledge
+  workspace](codebase/docs/knowledge.md) map docs for the
+  `iwe/<slug>/iter-<N>-<phase>` work branch shape.
 - **Update**: [Persist the pre-commit hook
   cache](features/persist-pre-commit-cache.md) now uses its own
   `agentdev-pre-commit` volume at `~/.cache/pre-commit`; no cache volume is
