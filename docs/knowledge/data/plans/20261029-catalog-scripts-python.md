@@ -233,9 +233,13 @@ scripts and the `__common.sh` of pr-open, pr-review, and pr-gen-description
 `docs/knowledge/data/architecture/stack-push-guard.md`; Delete:
 `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh`
 
-- [ ] `stack-guard.py` reproduces `begin` and `publish` with the leased push and
+- [x] `stack-guard.py` reproduces `begin` and `publish` with the leased push and
   every refusal; root `AGENTS.md` and `product.md` name `stack-guard.py` in the
   force-push exception.
+  - **Evidence:** commit 471db59 "Port the gh-stack guard to Python"; before the
+    `.sh` deletion, `test_gh_stack_guard.py` passed against both implementations
+    with identical normalized output on all 62 script runs, and the usage paths
+    matched; `uv run pytest .agents/plugins/agentdev/tests` passed (407).
 
 ### Task 7: IWE workflow skills
 
