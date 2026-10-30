@@ -80,14 +80,20 @@ client's budget and dependency-ordered recovery.
 
 **Files:** Modify: `.devcontainer/scripts/runtime-supervisor.py`
 
-- [ ] Add a `Controller` method that returns the root-most long-running
+- [x] Add a `Controller` method that returns the root-most long-running
   dependency of a service, walked transitively through `after`, that is `ready`
   and not `healthy()`, or `None`.
-- [ ] In `check_once`, after a failure is confirmed and before `recover`, look
+  - **Evidence:** commit 99de61a adds `Controller.failing_dependency`.
+- [x] In `check_once`, after a failure is confirmed and before `recover`, look
   up that dependency; when one is found, log that the client's failure is
   escalated to it and recover the dependency instead of the client.
-- [ ] Run the Task 1 test and
+  - **Evidence:** commit 99de61a calls `failing_dependency` in
+    `Controller.check_once` and recovers the cause it returns.
+- [x] Run the Task 1 test and
   `test_dependency_outage_recovers_clients_outside_their_budget` (green).
+  - **Evidence:** at commit 99de61a,
+    `uv run pytest scripts/tests/test_agent_runtime_supervision.py -k "escalates_to_its_failing_dependency or dependency_outage_recovers"`
+    passes both tests on three consecutive runs.
 
 ### Task 3: Record the escalation rule
 
