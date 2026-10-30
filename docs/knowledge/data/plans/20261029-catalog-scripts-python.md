@@ -85,10 +85,14 @@ which would make 26 untested scripts' behaviour a matter of reading.
 `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py`,
 `.agents/plugins/agentdev/tests/test_iwe_branch_name_parse.py`
 
-- [ ] The three modules reproduce the helpers the `__common.sh` files and the
+- [x] The three modules reproduce the helpers the `__common.sh` files and the
   two bin scripts provide, importable through the `sys.path` pattern and
   runnable with the same arguments; `iwe-branch-name.py` calls the module
   instead of the shell helper.
+  - **Evidence:** commit fa0f1cc "Add the shared Python skill helpers to the
+    plugin's bin"; `uv run pytest .agents/plugins/agentdev/tests` passed (339),
+    including the new `test_skill_common.py`, `test_git_default_branch.py`, and
+    `test_github_issue.py` and the iwe-branch-name suites.
 
 ### Task 2: Super-Linter and lint helpers
 
