@@ -204,9 +204,12 @@ required, and writes each as a YAML literal block scalar so multi-line text and
 colons survive; the frontmatter reader skips block-scalar lines when it reads
 the key fields.
 
-- [ ] Tests cover: both prompts round-trip into the saved frontmatter verbatim,
+- [x] Tests cover: both prompts round-trip into the saved frontmatter verbatim,
   including multiple lines, a colon, and a quote; a lookup after such a save is
   still a `HIT`; `save` without either flag is `PREFLIGHT_ERROR`.
+  - **Evidence:** commit 6a0c670 adds `test_save_records_both_prompts_verbatim`
+    and `test_save_requires_both_prompts` to
+    `.agents/plugins/agentdev/tests/test_verify_cache.py`.
 - [ ] `verify-cache.py` implemented; the tests pass.
 
 ### Task 8: Pass the invoking prompts on every route
