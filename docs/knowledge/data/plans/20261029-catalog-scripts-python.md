@@ -101,8 +101,13 @@ which would make 26 untested scripts' behaviour a matter of reading.
 `.agents/plugins/agentdev/bin/shellcheck_fix.py`,
 `scripts/validate-super-linter-tool-versions.py`,
 `.agents/plugins/agentdev/tests/test_super_linter.py`,
-`scripts/tests/test_validate_super_linter_tool_versions.py`; Modify:
-`.github/workflows/reformat.yml`,
+`scripts/tests/test_validate_super_linter_tool_versions.py`,
+`.agents/plugins/agentdev/tests/test_lint_helpers.py`; Modify:
+`.github/workflows/reformat.yml`, `AGENTS.md`,
+`.agents/plugins/agentdev/README.md`,
+`.agents/plugins/agentdev/agents/principal-engineer.agent.md`,
+`.agents/plugins/agentdev/agents/tdd-refactor.agent.md`,
+`py_packages/validate_agent_files/validate_agent_files/validators/cross_reference.py`,
 `.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/SKILL.md`,
 `.agents/plugins/agentdev/skills/local-reformat/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
