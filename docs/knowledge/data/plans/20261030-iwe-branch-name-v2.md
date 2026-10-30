@@ -136,10 +136,12 @@ a clean break over carrying two shapes.
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`,
 `scripts/tests/test_e2e_iwe_workflows_clone.py`
 
-- [ ] `BRANCH_WORK` is `iwe/e2e-branch/iter-1-impl`; both e2e tests assert
+- [x] `BRANCH_WORK` is `iwe/e2e-branch/iter-1-impl`; both e2e tests assert
   `head:iwe/e2e-branch/` in the recorded `gh` calls; the clone test expects
   `NEXT=iwe/e2e-branch/iter-1-impl`
-- [ ] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes
+  - **Evidence:** commit 0694aca
+- [x] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes
+  - **Evidence:** commit 0694aca; 8 tests pass
 
 ### Task 4: The live start-on-main e2e run ends on the v2 branch
 
