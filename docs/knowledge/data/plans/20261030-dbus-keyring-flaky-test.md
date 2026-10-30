@@ -158,13 +158,16 @@ Verified anchor points (line numbers as of 2026-10-30):
 - `.devcontainer/scripts/runtime-supervisor.py:540` — `Controller.probe`; `:557`
   — `Controller.healthy`
 - `.devcontainer/scripts/runtime-supervisor.py:620` —
+  `Controller.failing_dependency`
+- `.devcontainer/scripts/runtime-supervisor.py:637` —
   `Controller.restart_until_ready`, which charges the service's own budget
-- `.devcontainer/scripts/runtime-supervisor.py:641` — `Controller.recover`;
-  `:657` — `Controller.refresh_clients`, which restarts only a `ready` client
-- `.devcontainer/scripts/runtime-supervisor.py:725` — `Controller.check_once`;
-  `:731` — an exited service counts as failed at once; `:735` — the
-  probe-failure debounce; `:748` — the `recover` call
+- `.devcontainer/scripts/runtime-supervisor.py:658` — `Controller.recover`;
+  `:674` — `Controller.refresh_clients`, which restarts only a `ready` client
+- `.devcontainer/scripts/runtime-supervisor.py:742` — `Controller.check_once`;
+  `:748` — an exited service counts as failed at once; `:752` — the
+  probe-failure debounce; `:770` — the `recover` call
 - `scripts/tests/test_agent_runtime_supervision.py:41` — `FAKE_SERVICE`; `:55` —
-  its `crash` trigger
-- `scripts/tests/test_agent_runtime_supervision.py:631` —
-  `test_dependency_outage_recovers_clients_outside_their_budget`
+  its `crash` trigger; `:58` — its `wedge` trigger
+- `scripts/tests/test_agent_runtime_supervision.py:634` —
+  `test_dependency_outage_recovers_clients_outside_their_budget`; `:645` —
+  `test_a_client_failure_escalates_to_its_failing_dependency`
