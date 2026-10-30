@@ -165,9 +165,9 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
 - [x] Step 3 states that the skill may return a saved report, which counts as
   the Verify report for every later step, and the `## Report` Verify verdict
   line names a reused report as saved from `<commit>`.
-  - **Evidence:** commit 0cb3a84;
+  - **Evidence:** commits 0cb3a84 and 0b0d69b (dirty-worktree blocker);
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-    at that commit: 0 errors.
+    at each commit: 0 errors.
 
 ### Task 6: Record the cache in Fresh-context Verify
 
