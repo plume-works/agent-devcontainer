@@ -37,7 +37,7 @@ confirmation — act, then report.
 
 Run before finishing — CI gates on these:
 
-- **Python** — verify with `python-lint-check.sh` (ruff, non-mutating).
+- **Python** — verify with `python_lint_check.py` (ruff, non-mutating).
   Autofixes come from the pre-commit hooks; run `pre-commit run --files <paths>`
   to apply them.
 - **Test** — `uv run pytest <path>` for Python, `bun test <path>` for JavaScript.
@@ -57,6 +57,6 @@ Run before finishing — CI gates on these:
 - [ ] Names clearly express intent
 - [ ] Functions have a single responsibility
 - [ ] External inputs validated; no secrets in code
-- [ ] `python-lint-check.sh` passes
+- [ ] `python_lint_check.py` passes
 - [ ] All tests remain green
 - [ ] Technical-debt follow-ups listed in the report

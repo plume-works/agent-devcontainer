@@ -314,7 +314,7 @@ bootstrap scaffold lives in the installed catalog, not in the template
 checkout, so it is never a `tracked_paths` entry either.
 
 Never add `.agents/`, `.claude-plugin/`, `py_packages/`,
-`scripts/validate-super-linter-tool-versions.sh`, or
+`scripts/validate-super-linter-tool-versions.py`, or
 `docs/knowledge/tests/test_iwe_seed.py` — those are publisher-only source this
 guide has the consumer delete during setup, so they can never be legitimate
 members of a consumer's `tracked_paths`.
