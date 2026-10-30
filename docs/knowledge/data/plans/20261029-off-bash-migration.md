@@ -3,10 +3,11 @@ type: plan
 created: 2026-10-29
 release:
 - features/agentdev-runtime-cli
+- bugs/workspace-image-lacks-hook-binaries
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-10-29T20:45:51Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T16:18:33Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -19,6 +20,8 @@ sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: docs/knowledge/data/architecture/ci-agent-plugin-availability.md
 - resource: docs/knowledge/data/plans/20260905-python-skill-scripts.md
+- resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
+- resource: .pre-commit-config.yaml
 - resource: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontaineroptions
 - resource: https://github.com/anthropics/claude-code-action/blob/v1/action.yml
 ---
@@ -37,18 +40,18 @@ a stock image, no longer binds the runtime. [Python skill
 scripts](20260905-python-skill-scripts.md) recorded that constraint and the rule
 that inline Python inside bash is neither testable nor lintable.
 
-The runtime is 41 shell scripts (2651 lines) beside a 1111-line Python
+The runtime is 41 shell scripts (2647 lines) beside a 1133-line Python
 supervisor. The scripts read 54 distinct `AGENTDEV_*` settings against the
 supervisor's 23, each file declaring its own defaults, and one variable defaults
 to two different paths in two files. The supervisor writes `state.json` in
-Python and `runtime-health.sh` parses it back with jq. Eleven scripts are
-subcommand dispatchers calling one another through `$script_dir/<name>.sh`, with
-the environment as the parameter list. Three scripts run under `uv run --script`
-and resolve `tomlkit` and `json5` from PyPI the first time they run, inside the
-deploy profile's core `prepare` phase. A second, no-supervisor start path for
-GitHub `container:` jobs and Codex Cloud keeps `setup-keyring.sh`,
-`codebase-memory-mcp-start.sh`, and `firewall.sh` alive beside their supervised
-twins ([CI agent plugin
+Python and `runtime-health.sh` parses it back with jq. Fourteen scripts are
+subcommand dispatchers, and thirteen call one another through
+`$script_dir/<name>.sh`, with the environment as the parameter list. Three
+scripts run under `uv run --script` and resolve `tomlkit` and `json5` from PyPI
+the first time they run, inside the deploy profile's core `prepare` phase. A
+second, no-supervisor start path for GitHub `container:` jobs and Codex Cloud
+keeps `setup-keyring.sh`, `codebase-memory-mcp-start.sh`, and `firewall.sh`
+alive beside their supervised twins ([CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
 bootstrap is removed at the user's decision.
 
@@ -56,8 +59,21 @@ The user's decisions for this plan: one Python package installed as a uv tool
 the way `validate_agent_files` is; one CLI rather than per-script shims; the
 catalog's scripts in their own plan, [Port the catalog's bundled shell scripts
 to Python](20261029-catalog-scripts-python.md); a CBM-only start when no
-supervisor is present, with the legacy no-supervisor starters deleted; and the
-firewall script ported rather than wrapped.
+supervisor is present, with the legacy no-supervisor starters deleted; the
+firewall script ported rather than wrapped; and the detection that [Bug: a
+workspace on a pre-pin image has no gitleaks or actionlint and nothing says
+so](../bugs/workspace-image-lacks-hook-binaries.md) asks for, carried by
+`doctor` and `project hooks` as this plan's one behaviour change.
+
+Three other open bugs sit in scripts this plan ports. [Bug: the Remote Control
+watcher restarts a session that never comes up on every
+tick](../bugs/remote-control-watcher-start-loop.md) is fixed in shell before
+Task 10, so the port's baseline carries the fix. [Bug: a CBM daemon start
+failure latches the standalone runtime
+degraded](../bugs/cbm-start-failure-latches-degraded.md) and [Bug: Codex login
+stops being shared between standalone
+projects](../bugs/standalone-codex-auth-unshared.md) have no settled root cause
+and are fixed after the port, in the package.
 
 ## Approach
 
@@ -66,9 +82,9 @@ test suite, and one console script, `agentdev-runtime`. Both runtime Dockerfiles
 install it with `uv tool install` from the bind-mounted build context onto the
 system interpreter, into `/opt/uv-tools` with the entry point on
 `/usr/local/bin`, no cache and no interpreter download, mirroring the validator
-role. The package pins `supervisor`, `tomlkit`, `json5`, and `setuptools<85`;
-the apt `supervisor` package leaves both images. `agentdev-base` stays
-lifecycle-neutral and never carries the package.
+role. The package pins `supervisor`, `tomlkit`, `json5`, `pyyaml`, and
+`setuptools<85`; the apt `supervisor` package leaves both images.
+`agentdev-base` stays lifecycle-neutral and never carries the package.
 
 Every script becomes a subcommand of one CLI whose nouns are the runtime's
 concerns. One settings module parses every environment value once, with one
@@ -77,6 +93,14 @@ state module defines the `state.json`, retry, and failure-record shapes for
 writer and reader alike. Behaviour behind each command is unchanged; this plan
 changes language and packaging, not policy, so every existing scenario in the
 affected specs holds as written.
+
+The one exception is the hook-binary detection. After registering the hooks,
+`project hooks` warns about each `language: system` hook in the checkout's
+`.pre-commit-config.yaml` whose `entry` executable is not on `PATH`, and
+`doctor` requires `gitleaks` and `actionlint` in its toolchain section. A
+missing hook executable is a warning, not a failure, in both profiles, so a
+consumer whose own hooks need tools the image lacks still starts; reading the
+hook configuration is why the package needs `pyyaml`.
 
 The migration is incremental. The package installs beside the scripts first, PID
 1 and the healthcheck switch to the CLI next, and each service then moves with
@@ -127,9 +151,9 @@ deletion of this one function; and running the responder as a host job through
 
 - [ ] The package declares `requires-python >= 3.12`, the console script
   `agentdev-runtime`, and dependencies `supervisor` at the version the root
-  project pins today, `setuptools<85`, `tomlkit`, and `json5`. The root project
-  takes the package as an editable dev dependency and drops its direct
-  `supervisor` and `setuptools` pins; `uv.lock` is regenerated.
+  project pins today, `setuptools<85`, `tomlkit`, `json5`, and `pyyaml`. The
+  root project takes the package as an editable dev dependency and drops its
+  direct `supervisor` and `setuptools` pins; `uv.lock` is regenerated.
 - [ ] Both runtime Dockerfiles install the package with
   `uv tool install --reinstall --python /usr/bin/python3` from the bind-mounted
   build context, with `UV_TOOL_DIR=/opt/uv-tools`,
@@ -353,7 +377,8 @@ Delete: `docker/desktop/start-xpra.sh`
 
 **Files:** Create: `py_packages/agentdev_runtime/agentdev_runtime/workspace.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
-`py_packages/agentdev_runtime/agentdev_runtime/git.py`; Modify:
+`py_packages/agentdev_runtime/agentdev_runtime/git.py`,
+`py_packages/agentdev_runtime/tests/test_project_hooks.py`; Modify:
 `docker/deploy/supervisord.conf`,
 `scripts/tests/test_agent_runtime_workspace.py`,
 `scripts/tests/test_setup_gh_credential_helper.py`, `AGENTS.md`,
@@ -371,6 +396,10 @@ Delete: `docker/desktop/start-xpra.sh`
   `.venv` link cleanup, deploy's refusal to replace custom hooks, the skip
   variables, and the keyring-session environment read; root `AGENTS.md` and the
   microvm-sandbox skill stop naming `uv-sync.sh`.
+- [ ] `agentdev-runtime project hooks`, after registering the hooks, writes one
+  warning to stderr for each `language: system` hook whose `entry` executable is
+  not on `PATH`, naming the hook and the executable, and keeps the exit status
+  it has today; tests cover a missing and a present executable in both profiles.
 
 ### Task 12: Lifecycle commands, hooks, and the no-supervisor start
 
@@ -416,6 +445,8 @@ Delete: `docker/desktop/start-xpra.sh`
 
 - [ ] `agentdev-runtime doctor` reproduces the health report's sections, its
   PASS/FAIL/SKIP tabulation, and its exit status.
+- [ ] `doctor`'s toolchain section also requires `gitleaks` and `actionlint`,
+  reporting `required tool not installed` for either when it is absent.
 - [ ] `ci.yml` runs the acceptance suite through `uv run pytest`; a conftest
   fixture labels and removes the containers, volumes, and networks the suite
   creates, and a session hook fails the run when every test skipped.
@@ -551,15 +582,18 @@ actually open or actually blocking required traffic.
 - **THEN** the verification step exits non-zero.
 ```
 
-### `data/spec/agentdev-runtime-images`
+### [agentdev runtime images](../spec/agentdev-runtime-images.md)
 
-Created when the reusable Dev Container plan ships. Normative outcome: the
-stable lifecycle commands SHALL be `agentdev-runtime lifecycle created`,
-`agentdev-runtime lifecycle ready`, and `agentdev-runtime lifecycle attached`,
-published through the image's Dev Container metadata; the bootstrap SHALL refuse
-to run when the installed `agentdev_runtime` distribution differs from its
-recorded file hashes, which replaces the manifest over `/opt/agentdev-runtime`;
-and `agentdev-base` SHALL NOT carry the package.
+Normative outcome: the stable lifecycle commands SHALL be
+`agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready`, and
+`agentdev-runtime lifecycle attached`, published through the image's Dev
+Container metadata; the bootstrap SHALL refuse to run when the installed
+`agentdev_runtime` distribution differs from its recorded file hashes, which
+replaces the manifest over `/opt/agentdev-runtime`; `agentdev-base` SHALL NOT
+carry the package; `agentdev-runtime project hooks` SHALL warn, without failing,
+about each `language: system` pre-commit hook whose executable is not on `PATH`;
+and `agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as
+required tools.
 
 ### Specs that name a script
 
@@ -603,7 +637,7 @@ image](20261023-reusable-agentdev-devcontainer.md)
   `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml`
 - Build the three-image family locally through the repository's image-build
   action or the microVM sandbox; confirm `dpkg -l supervisor` reports nothing,
-  `/opt/uv-tools/agentdev-runtime/bin/python -c 'import supervisor, tomlkit, json5'`
+  `/opt/uv-tools/agentdev-runtime/bin/python -c 'import supervisor, tomlkit, json5, yaml'`
   succeeds, the `devcontainer.metadata` label names the CLI, and
   `agentdev-runtime doctor` passes inside a started Dev Container
 - Run the direct and derived fixtures through create, stop/start, rebuild, and
@@ -611,6 +645,9 @@ image](20261023-reusable-agentdev-devcontainer.md)
   bootstrap
 - Run the acceptance suite against the deploy image through the `ci.yml`
   invocation, offline for the CBM cases
+- In a started Dev Container with `gitleaks` moved off `PATH`,
+  `agentdev-runtime doctor` fails its toolchain section naming it, and
+  `agentdev-runtime project hooks` warns about the `gitleaks` hook and exits 0
 - `iwe normalize`, `iwe schema validate`, the knowledge-base tests, and an
   `/agentdev:iwe-map` refresh with no stale mapped source
 - CI on the current head builds and accepts both architectures
@@ -634,13 +671,15 @@ image](20261023-reusable-agentdev-devcontainer.md)
   pin.
 - Publishing `agentdev_runtime` to PyPI or installing it anywhere but the two
   runtime images.
-- Any behaviour change: profile service sets, recovery budgets, catalog policy,
-  the managed `.venv` link cleanup, or any spec scenario.
+- Any other behaviour change: profile service sets, recovery budgets, catalog
+  policy, the managed `.venv` link cleanup, or any spec scenario.
+- The fixes for the CBM start latch and the Codex auth link, which land after
+  this plan, in the package.
 - Shims for the retired `/opt/agentdev-runtime/*.sh` names.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-30):
 
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile:12` — apt `supervisor`
   install
@@ -662,7 +701,9 @@ Verified anchor points (line numbers as of 2026-10-29):
 - `docker/deploy/supervisord.conf:84` — `prepare` one-shot
 - `.devcontainer/scripts/runtime-supervisor.py:79` — `SettingsParser`
 - `.devcontainer/scripts/runtime-supervisor.py:306` — `DEVCONTAINER_SERVICES`
-- `.devcontainer/scripts/runtime-supervisor.py:931` — bootstrap command hook
+- `.devcontainer/scripts/runtime-supervisor.py:953` — bootstrap command hook
+- `.devcontainer/scripts/runtime-supervisor.py:620` — `failing_dependency`, the
+  client-to-dependency escalation the port keeps; `:742` — `check_once`
 - `.devcontainer/scripts/runtime-supervisor.py:309` — `dockerd` is core in the
   devcontainer profile
 - `.devcontainer/scripts/runtime-supervisor.py:173` — `AGENTDEV_SKIP_XPRA`
@@ -676,7 +717,7 @@ Verified anchor points (line numbers as of 2026-10-29):
   `.devcontainer/scripts/runtime-paths.sh:6` — one variable, two defaults
 - `.devcontainer/scripts/postStartCommand.sh:9` — no-supervisor branch
 - `.devcontainer/scripts/configure-codex.py:1` — `uv run --script` shebang
-- `.devcontainer/scripts/ci-hooks-repro.sh:20` — retired image name
+- `.devcontainer/scripts/ci-hooks-repro.sh:20` — default image reference
 - `docker/desktop/start-xpra.sh:197` — `--supervised` mode
 - `ansible/roles/devcontainer_firewall/tasks/main.yml:16` — script install task
 - `ansible/roles/devcontainer_firewall/tasks/main.yml:24` — sudoers task
@@ -694,9 +735,15 @@ Verified anchor points (line numbers as of 2026-10-29):
   integrity test
 - `scripts/e2e/iwe-workflows/harness_codex.py:22` — Codex reinstall path
 - `scripts/e2e/iwe-workflows/opencode_credential.py:24` — OpenCode start path
-- `AGENTS.md:12` — `uv-sync.sh` reference
-- `README.md:185` — `runtime-health.sh status` operator command
+- `AGENTS.md:13` — `uv-sync.sh` reference
+- `README.md:205` — `runtime-health.sh status` operator command
 - `docker/deploy/README.md:102` — `runtime-health.sh status` operator command
-- `docs/knowledge/data/product.md:108` — firewall wrapper constraint
-- `docs/knowledge/data/architecture/template-boundary.md:133` — `.codex/` row
+- `docs/knowledge/data/product.md:112` — firewall wrapper constraint
+- `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
 - `.codex/setup-codex-cloud.sh:4` — Codex Cloud bootstrap
+- `.devcontainer/scripts/environment-health.sh:79` — required toolchain list,
+  without `gitleaks` or `actionlint`
+- `.devcontainer/scripts/setup-pre-commit.sh:33` — deploy hook registration;
+  `:41` — devcontainer hook install, neither checking hook executables
+- `.pre-commit-config.yaml:56` — `gitleaks`, a `language: system` hook; `:62` —
+  `actionlint`

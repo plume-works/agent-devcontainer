@@ -17,26 +17,26 @@ moves them.*
 
 ## Active
 
-[The AI responder posts as the plume-works-quill
-App](plans/20261030-responder-quill-app-identity.md)
-
 [AI review verdicts gate merge and trusted bots are
 auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
 
-[Run the Dev Container as a non-root account with one home
-volume](plans/20261030-devcontainer-home-volume.md)
+[Port the catalog's bundled shell scripts to
+Python](plans/20261029-catalog-scripts-python.md)
 
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
-[Port the catalog's bundled shell scripts to
-Python](plans/20261029-catalog-scripts-python.md)
+[Run the Dev Container as a non-root account with one home
+volume](plans/20261030-devcontainer-home-volume.md)
 
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)
 
 [Bootstrap agentdev natively on macOS with
 Homebrew](plans/20261013-macos-native-bootstrap.md)
+
+[The AI responder posts as the plume-works-quill
+App](plans/20261030-responder-quill-app-identity.md)
 
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)

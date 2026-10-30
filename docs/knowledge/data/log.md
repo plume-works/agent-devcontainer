@@ -6,6 +6,31 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: revised the six active plans for the agreed sequence. [Share one
+  BuildKit builder across Coder
+  workspaces](plans/20261013-shared-buildkit-workspace.md) registers the builder
+  in `agentdev-runtime`; [Bootstrap agentdev natively on macOS with
+  Homebrew](plans/20261013-macos-native-bootstrap.md) is a zsh script that
+  provisions Python through Homebrew's uv; [Resume interrupted Claude PR reviews
+  on a persistent runner](plans/20260909-resumable-claude-review-sessions.md)
+  starts from a one-shot `ai-review-resume` label; [Replace the runtime shell
+  scripts with one agentdev-runtime CLI](plans/20261029-off-bash-migration.md)
+  also fixes [Bug: a workspace on a pre-pin image has no gitleaks or
+  actionlint](bugs/workspace-image-lacks-hook-binaries.md); [Run the Dev
+  Container as a non-root account with one home
+  volume](plans/20261030-devcontainer-home-volume.md) first settles whether a
+  Codex login keeps the `auth.json` link; [Port the catalog's bundled shell
+  scripts to Python](plans/20261029-catalog-scripts-python.md) refreshes its
+  anchors.
+- **Update**: ordered the active [plans](plans.md), open [bugs](bugs.md), and
+  planned [backlog](backlog.md) items into one implementation sequence; [Share
+  one BuildKit builder across Coder
+  workspaces](plans/20261013-shared-buildkit-workspace.md) now depends on the
+  agentdev-runtime CLI plan, [Bootstrap agentdev natively on macOS with
+  Homebrew](plans/20261013-macos-native-bootstrap.md) on the catalog Python
+  port, and [Run the Dev Container as a non-root account with one home
+  volume](plans/20261030-devcontainer-home-volume.md) releases [~/.claude.json
+  stops being the volume symlink](bugs/claude-json-symlink-replaced.md).
 - **Update**: [Escalate a client failure to the dependency that caused
   it](plans/20261030-dbus-keyring-flaky-test.md) done; [Bug: a client is
   recovered on its own budget before its dependency's failure is

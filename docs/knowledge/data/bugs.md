@@ -13,8 +13,40 @@ generated:
 Its title, body sections, and stages are defined under Bugs in `SCHEMA.md` and
 enforced by `.iwe/schemas/bug.yaml`.*
 
+[Bug: an AI re-review that comments leaves its own change request blocking
+merge](bugs/ai-rereview-comment-keeps-changes-requested.md)
+
+[Bug: firewalled Docker Hub pulls fail at the CloudFront
+CDN](bugs/firewall-docker-hub-cloudfront.md)
+
+[Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
+/workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md)
+
+[Bug: the Remote Control watcher restarts a session that never comes up on every
+tick](bugs/remote-control-watcher-start-loop.md)
+
+[Bug: plan tasks edit spec documents that only Ship may
+change](bugs/plan-tasks-edit-specs.md)
+
+[Bug: Plan tasks bundle independent
+observations](bugs/plan-tasks-bundle-independent-observations.md)
+
+[Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing
+says so](bugs/workspace-image-lacks-hook-binaries.md)
+
+[Bug: a CBM daemon start failure latches the standalone runtime
+degraded](bugs/cbm-start-failure-latches-degraded.md)
+
+[Bug: Codex login stops being shared between standalone
+projects](bugs/standalone-codex-auth-unshared.md)
+
 [~/.claude.json stops being the volume
 symlink](bugs/claude-json-symlink-replaced.md)
+
+[Unstageable routing option in the improve
+skill](bugs/self-improve-unstageable-routing-option.md)
+
+[Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
 
 [A capitalized @Claude mention was admitted, then
 misrouted](bugs/responder-mention-case-sensitivity.md)
@@ -35,11 +67,6 @@ user](bugs/self-test-unwritable-root-check.md)
 
 [Fixture git inherits the outer commit's
 index](bugs/fixture-git-inherits-commit-index.md)
-
-[Reviewer decline asymmetry](bugs/self-improve-reviewer-decline-asymmetry.md)
-
-[Unstageable routing option in the improve
-skill](bugs/self-improve-unstageable-routing-option.md)
 
 [AI review gate was self-waivable from the PR
 body](bugs/ai-review-gate-self-waivable.md)
@@ -80,17 +107,11 @@ run](bugs/main-image-rebuild-lost-on-cancel.md)
 [Bug: gh stack push overwrites a stack layer whose remote is
 ahead](bugs/gh-stack-push-overwrites-remote-layer.md)
 
-[Bug: firewalled Docker Hub pulls fail at the CloudFront
-CDN](bugs/firewall-docker-hub-cloudfront.md)
-
 [Bug: xpra_setup installs Ubuntu's xpra
 3.1.5](bugs/xpra-setup-installs-ubuntu-xpra.md)
 
 [Bug: CI/CD publishes images before testing
 them](bugs/ci-publishes-images-before-acceptance.md)
-
-[Bug: Plan tasks bundle independent
-observations](bugs/plan-tasks-bundle-independent-observations.md)
 
 [Bug: the Remote Control pin ignores
 /clear](bugs/remote-control-pin-ignores-clear.md)
@@ -101,38 +122,17 @@ evaluation](bugs/pr-update-skips-review-eval.md)
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
 keyring](bugs/devcontainer-dbus-autolaunch-leak.md)
 
-[Bug: Codex login stops being shared between standalone
-projects](bugs/standalone-codex-auth-unshared.md)
-
-[Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
-/workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md)
-
-[Bug: plan tasks edit spec documents that only Ship may
-change](bugs/plan-tasks-edit-specs.md)
-
 [Orphan-kill supervision test fails
 intermittently](bugs/supervision-orphan-kill-test-flaky.md)
 
 [Bug: a comment-requested review's gate does not count toward
 merge](bugs/dispatched-review-gate-not-counted.md)
 
-[Bug: the Remote Control watcher restarts a session that never comes up on every
-tick](bugs/remote-control-watcher-start-loop.md)
-
 [Command-result evidence is judged
 inconsistently](bugs/command-result-evidence-ambiguous.md)
-
-[Bug: a CBM daemon start failure latches the standalone runtime
-degraded](bugs/cbm-start-failure-latches-degraded.md)
 
 [Bug: a client is recovered on its own budget before its dependency's failure is
 confirmed](bugs/supervisor-client-recovered-before-dependency.md)
 
-[Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing
-says so](bugs/workspace-image-lacks-hook-binaries.md)
-
 [Bug: CBM cache under a checkout another UID owns stops the Dev
 Container](bugs/cbm-cache-under-foreign-owned-checkout.md)
-
-[Bug: an AI re-review that comments leaves its own change request blocking
-merge](bugs/ai-rereview-comment-keeps-changes-requested.md)
