@@ -1,7 +1,8 @@
 ---
 type: plan
 created: 2026-10-29
-release: internal
+release:
+- bugs/git-new-branch-worktree-unwritable-workspaces
 description: Port every bundled shell script in the agentdev catalog, its shared bin helpers, and the publisher's Super-Linter version check to stdlib-only Python behind unchanged RESULT contracts, with a test for each script and the skill-scripts contract rewritten Python-first.
 generated:
   by: claude-code/opus-5.5
@@ -23,28 +24,30 @@ sources:
 
 ## Context
 
-The agentdev catalog ships 30 shell scripts under `skills/*/agent-code/` (4411
-lines) and 9 under `bin/` (498 lines); 26 of the 39 are named by no test file.
-The publisher's `scripts/validate-super-linter-tool-versions.sh` (216 lines)
-sources the catalog's `bin/super-linter-defaults.sh`, so it belongs with that
-cluster. [Python skill scripts](20260905-python-skill-scripts.md) ported the
-first catalog script, added `bin/result_codes.py` as the Python `RESULT=`
-contract, and recorded the constraint that binds every catalog script: it ships
-in the plugin cache of any consuming repository and runs on whatever host runs
-the agent, so it is stdlib-only on `#!/usr/bin/env python3` and reaches `bin/`
-through `sys.path`, never through a repository-relative path. The skill scripts
-`stale-map-docs.py` and `iwe-branch-name.py` already follow that pattern.
+The agentdev catalog ships 30 shell scripts under `skills/*/agent-code/` and 9
+under `bin/`; 26 of the 39 are named by no test file. The publisher's
+`scripts/validate-super-linter-tool-versions.sh` sources the catalog's
+`bin/super-linter-defaults.sh`, so it belongs with that cluster. [Python skill
+scripts](20260905-python-skill-scripts.md) ported the first catalog script,
+added `bin/result_codes.py` as the Python `RESULT=` contract, and recorded the
+constraint that binds every catalog script: it ships in the plugin cache of any
+consuming repository and runs on whatever host runs the agent, so it is
+stdlib-only on `#!/usr/bin/env python3` and reaches `bin/` through `sys.path`,
+never through a repository-relative path. The skill scripts `stale-map-docs.py`
+and `iwe-branch-name.py` already follow that pattern.
 
 This is the companion of [Replace the runtime shell scripts with one
 agentdev-runtime CLI](20261029-off-bash-migration.md), filed separately because
 its verification story is the plugin test suite and per-script output baselines,
 not an image build.
 
-Task 3 depends on [Bug: git-new-branch worktree mode fails on a standalone
-deployment's root-owned
-/workspaces](../bugs/git-new-branch-worktree-unwritable-workspaces.md): the fix
-lands in `git-new-branch.sh` and in the spec's worktree requirement before the
-port, so the port's baseline carries the corrected worktree parent.
+The port of the git workflow skills carries a fix first: [Bug: git-new-branch
+worktree mode fails on a standalone deployment's root-owned
+/workspaces](../bugs/git-new-branch-worktree-unwritable-workspaces.md) lands in
+`git-new-branch.sh` as Task 3, so the port's baseline carries the corrected
+worktree parent. The user chose the fix: under
+`AGENTDEV_RUNTIME_MODE=standalone`, worktree mode always uses
+`<checkout>/.worktrees/` as the parent.
 
 ## Approach
 
@@ -65,6 +68,12 @@ and `allowed-tools` reference `agent-code/<name>.py`; the `agent-code/*` glob
 already admits it. `bin/result-codes.sh` and the bash case of its test are
 deleted when the last shell script leaves, and the skill-scripts skill is
 rewritten Python-first in the same task.
+
+The worktree-parent fix is the one behaviour change, and it lands in the shell
+script on its own before any port, so the git-new-branch baseline the port is
+compared against already holds it. The port then decides the parent in a
+function of the main checkout path, the runtime mode, and `--worktree-root`, so
+a test covers the `/workspaces` cases without a writable `/workspaces`.
 
 Rejected: a Python package installed into the plugin, because a plugin cache has
 no install step and `sys.path` to `bin/` is the mechanism the catalog already
@@ -132,7 +141,21 @@ which would make 26 untested scripts' behaviour a matter of reading.
     passed (355), including `test_super_linter.py`, `test_lint_helpers.py`, and
     the validator's tests.
 
-### Task 3: Git workflow skills
+### Task 3: Standalone worktree parent
+
+**Files:** Modify:
+`.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh`,
+`.agents/plugins/agentdev/skills/git-new-branch/SKILL.md`,
+`.agents/plugins/agentdev/tests/test_git_new_branch.py`,
+`docs/knowledge/data/bugs/git-new-branch-worktree-unwritable-workspaces.md`
+
+- [ ] Under `AGENTDEV_RUNTIME_MODE=standalone`, worktree mode without
+  `--worktree-root` uses `<main checkout>/.worktrees/`, added to
+  `.git/info/exclude` unless Git already ignores it, wherever the checkout
+  lives; the help text and the skill say so; a test runs the standalone case for
+  a checkout outside `/workspaces`; the bug's `## Fix` records the fix.
+
+### Task 4: Git workflow skills
 
 **Files:** Create:
 `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py`,
@@ -150,8 +173,12 @@ are
 - [ ] Each script reproduces its `RESULT` table, `KEY=value` lines, options, and
   stash, worktree, and conflict handling; the merge-resolve script gains its
   first test.
+- [ ] `git-new-branch.py` decides the worktree parent in a function of the main
+  checkout path, the runtime mode, and `--worktree-root`; a test calls it for a
+  checkout directly under `/workspaces` in standalone and in other modes, and
+  replaces the test that skips without a writable `/workspaces`.
 
-### Task 4: Pull-request skills
+### Task 5: Pull-request skills
 
 **Files:** Create:
 `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py`,
@@ -170,7 +197,7 @@ scripts and the `__common.sh` of pr-open, pr-review, and pr-gen-description
 - [ ] Each script reproduces its contract; the three untested scripts gain tests
   covering their `RESULT` paths.
 
-### Task 5: gh-stack guard
+### Task 6: gh-stack guard
 
 **Files:** Create:
 `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py`; Modify:
@@ -183,7 +210,7 @@ scripts and the `__common.sh` of pr-open, pr-review, and pr-gen-description
   every refusal; root `AGENTS.md` and `product.md` name `stack-guard.py` in the
   force-push exception.
 
-### Task 6: IWE workflow skills
+### Task 7: IWE workflow skills
 
 **Files:** Create:
 `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py`,
@@ -203,7 +230,7 @@ the four skills' `SKILL.md`,
   share `bin/github_issue.py` while staying separate files, since a skill never
   references a sibling's code.
 
-### Task 7: Remote Codespace session
+### Task 8: Remote Codespace session
 
 **Files:** Create:
 `.agents/plugins/agentdev/skills/remote-codespace-session/agent-code/codespace-ensure.py`,
@@ -218,7 +245,7 @@ four `.sh` scripts and `__common.sh`
 - [ ] The four entry points reproduce their contracts over one skill-local
   module; the test covers ensure, sync, and teardown as well as exec.
 
-### Task 8: Template consumption and Actions log helpers
+### Task 9: Template consumption and Actions log helpers
 
 **Files:** Create:
 `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.py`,
@@ -231,7 +258,7 @@ the two `.sh` scripts and template-consume's `__common.sh`
 - [ ] Both scripts reproduce their contracts; the URL parser gains its first
   test.
 
-### Task 9: Retire the shell contract
+### Task 10: Retire the shell contract
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`,
 `.agents/plugins/agentdev/tests/test_result_codes.py`, `.agents/AGENTS.md`;
@@ -242,7 +269,7 @@ Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
   stdlib-only rule, and the `python3 -S` check; the bash test case leaves with
   the helper, and `git ls-files '.agents/**/*.sh'` prints nothing.
 
-### Task 10: Record the constraint and refresh the map
+### Task 11: Record the constraint and refresh the map
 
 **Files:** Create:
 `docs/knowledge/data/architecture/catalog-script-language.md`; Modify:
@@ -256,18 +283,61 @@ Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
 
 Normative outcome for each: the specification SHALL name the `.py` script in
 place of the `.sh` script it names today, and every requirement, `RESULT` name,
-exit code, and scenario keeps its behaviour.
+exit code, and scenario keeps its behaviour, except the git-new-branch worktree
+requirement, whose delta is in its own entry below.
 
 - [Git new branch](../spec/git-new-branch.md) — `git-new-branch.sh`,
   `git-commit.sh`, `git-default-branch.sh`
+
+- [Git new branch](../spec/git-new-branch.md) — the worktree requirement changes
+  for the standalone runtime (Task 3):
+
+  ``` markdown
+  ## MODIFIED Requirements
+
+  ### Requirement: Worktree mode leaves the current checkout alone
+
+  In worktree mode the git-new-branch skill SHALL create the branch in a new
+  worktree named `<repo>-<branch>`, with any `/` in the branch kept as a directory
+  separator, under the checkout's ignored `.worktrees/` directory when
+  `AGENTDEV_RUNTIME_MODE` is `standalone`, otherwise under `/workspaces` when the
+  main checkout lives there and under the checkout's ignored `.worktrees/`
+  directory when it does not, and SHALL NOT change the current checkout.
+
+  #### Scenario: Repository outside /workspaces
+
+  - **WHEN** the main checkout is not directly under `/workspaces`
+  - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
+    directory is ignored by Git
+
+  #### Scenario: Standalone runtime
+
+  - **WHEN** `AGENTDEV_RUNTIME_MODE` is `standalone`, whether or not the main
+    checkout is directly under `/workspaces`
+  - **THEN** the worktree is created under `<checkout>/.worktrees/` and that
+    directory is ignored by Git
+
+  #### Scenario: Branch names that differ only by `/` and `-`
+
+  - **WHEN** worktrees for `feature/foo` and `feature-foo` are created under the
+    same parent
+  - **THEN** each gets its own directory
+  ```
+
 - [Update branch](../spec/update-branch.md) — `update-branch.sh`
+
 - [IWE bootstrap](../spec/iwe-bootstrap.md) — `bootstrap-iwe.sh`
+
 - [IWE workflow skills](../spec/iwe-workflow-skills.md) — `close-issue.sh`,
   `fetch-issue.sh`, `push-branch.sh`
+
 - [Stacked PRs](../spec/stacked-prs.md) and [PR merge
   conflicts](../spec/pr-merge-conflicts.md) — `stack-guard.sh`
+
 - [AI review refresh](../spec/ai-review-refresh.md) — `request-review.sh`
+
 - [iwe-branch-name](../spec/iwe-branch-name.md) — `git-default-branch.sh`
+
 - [Template consumption](../spec/template-consumption.md) — `check-updates.sh`,
   `scripts/validate-super-linter-tool-versions.sh`
 
@@ -301,8 +371,8 @@ Verified anchor points (line numbers as of 2026-10-30):
 
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:22` —
   `sys.path` to `bin/`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:85`
-  — `DEFAULT_BRANCH_HELPER`, the shell helper Task 1 replaces with the module
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:191`
+  — `remote_default_branch`, which calls the `bin/git_default_branch.py` module
 - `.agents/plugins/agentdev/skills/git-new-branch/agent-code/__common.sh:13` —
   shell equivalent
 - `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
@@ -316,16 +386,19 @@ Verified anchor points (line numbers as of 2026-10-30):
 - `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:92` — shell helper
   instructions
 - `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:34` — `stack-guard.sh` link
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh:211`
+  — the `/workspaces` worktree-parent default Task 3 fixes
+- `.agents/plugins/agentdev/tests/test_git_new_branch.py:581` — the test that
+  skips without a writable `/workspaces`
+- `docs/knowledge/data/spec/git-new-branch.md:97` — the worktree requirement
 - `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md:51` —
   `git-new-branch.sh` link
-- `.github/workflows/reformat.yml:210` — `super-linter-env.sh --autofix`
-- `.github/workflows/reformat.yml:249` — `super-linter-env.sh`
-- `.github/workflows/reformat.yml:272` —
-  `validate-super-linter-tool-versions.sh`
-- `scripts/validate-super-linter-tool-versions.sh:10` — sources
-  `super-linter-defaults.sh`
+- `.github/workflows/reformat.yml:207` — `super_linter.py env --autofix`
+- `.github/workflows/reformat.yml:246` — `super_linter.py env`
+- `.github/workflows/reformat.yml:269` —
+  `validate-super-linter-tool-versions.py`
 - `.agents/plugins/agentdev/skills/local-reformat/SKILL.md:34` —
-  `super-linter-defaults.sh` link
+  `super_linter.py` link
 - `.agents/plugins/agentdev/agents/iwe-planner.agent.md:152` — `close-issue.sh`
   in the rulebook
 - `AGENTS.md:7` — force-push exception naming `stack-guard.sh`
