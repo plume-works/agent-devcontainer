@@ -173,11 +173,12 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
 
 **Files:** Modify: `docs/knowledge/data/architecture/fresh-context-verify.md`
 
-- [ ] `## Decision` gains the cache: a saved report is a fresh-context verdict
+- [x] `## Decision` gains the cache: a saved report is a fresh-context verdict
   keyed by commit and catalog digest, the lookup sits in the skill, and trust in
   `.tmp/verify/` rests on the rule that only the skill's script writes it.
   `## Rejected alternatives` gains the rulebook lookup, the committed handoff,
   and the tree or blob-hash key from `## Approach`.
+  - **Evidence:** commit 9ce18c8; `iwe schema validate` at that commit: clean.
 
 ## Spec changes
 
