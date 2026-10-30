@@ -600,10 +600,53 @@ jobs:
               ...pullRequest,
               per_page: 100,
             });
-            const approved = reviews.some(
+            const ownApprovals = reviews.filter(
               (review) => review.user?.login === 'github-actions[bot]' && review.state === 'APPROVED',
             );
-            if (approved) {
+
+            // Approval covers only the bot's own commits, see spec/ai-review-gate.
+            const commitFailure = (commit) => {
+              if (commit.author?.login !== login) {
+                return `author is ${commit.author?.login ?? 'not a GitHub account'}`;
+              }
+              const committer = commit.committer?.login;
+              if (committer !== login && committer !== 'web-flow') {
+                return `committer is ${committer ?? 'not a GitHub account'}`;
+              }
+              if (commit.commit.verification?.verified !== true) {
+                return `signature is not verified (${commit.commit.verification?.reason ?? 'unknown'})`;
+              }
+              return '';
+            };
+            let failure = '';
+            if (payload.action === 'synchronize' && context.actor !== login) {
+              failure = `head ${payload.pull_request.head.sha} pushed by ${context.actor}, not ${login}`;
+            } else {
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
+                ...pullRequest,
+                per_page: 100,
+              });
+              for (const commit of commits) {
+                const reason = commitFailure(commit);
+                if (reason) {
+                  failure = `commit ${commit.sha}: ${reason}`;
+                  break;
+                }
+              }
+            }
+            if (failure) {
+              for (const review of ownApprovals) {
+                await github.rest.pulls.dismissReview({
+                  ...pullRequest,
+                  review_id: review.id,
+                  message: `Trusted-bot approval withdrawn: ${failure}.`,
+                });
+              }
+              core.notice(`Not approving the pull request by ${login}: ${failure}.`);
+              return;
+            }
+
+            if (ownApprovals.length > 0) {
               core.info('github-actions[bot] already approved this pull request.');
               return;
             }
