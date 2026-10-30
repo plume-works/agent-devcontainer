@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:65c84f3ea580d20c2c0fad8acca8aaa100abdd03490dcb0156b9f0135b44cd2b
+source_digest: sha256:688eeb7ac15dc7d957c34a777d9b056a017daab5dd4103125cdf0d629c4bbd4b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T05:05:44Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T05:05:44Z
 sources:
 - id: code
   resource: .devcontainer
@@ -45,7 +45,7 @@ state.
    accepts the mounted account and workspace, then supervisord starts D-Bus,
    keyring, Docker, CBM, and Xpra as core services and publishes readiness in
    `/run/agentdev/state.json` once their probes pass —
-   `.devcontainer/scripts/runtime-supervisor.py:966`,
+   `.devcontainer/scripts/runtime-supervisor.py:988`,
    `.devcontainer/scripts/runtime-bootstrap.sh:190`, in [lifecycle
    scripts](devcontainer/scripts.md)
 4. `postCreateCommand` (once per container): ancestor and mount ownership,

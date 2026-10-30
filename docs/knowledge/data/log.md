@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
+  [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the runtime
+  controller escalating a client failure to its failing dependency.
 - **Update**: refreshed the [github](codebase/github.md) and [pull request
   checks flow](codebase/flow-pull-request-checks.md) map docs for the single
   Renovate group that now carries both agentdev image digests.
