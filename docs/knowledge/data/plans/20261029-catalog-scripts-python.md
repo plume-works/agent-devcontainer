@@ -229,7 +229,8 @@ scripts and the `__common.sh` of pr-open, pr-review, and pr-gen-description
 `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py`; Modify:
 `.agents/plugins/agentdev/skills/gh-stack/SKILL.md`,
 `.agents/plugins/agentdev/tests/test_gh_stack_guard.py`, `AGENTS.md`,
-`docs/knowledge/data/product.md`; Delete:
+`docs/knowledge/data/product.md`,
+`docs/knowledge/data/architecture/stack-push-guard.md`; Delete:
 `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh`
 
 - [ ] `stack-guard.py` reproduces `begin` and `publish` with the leased push and
