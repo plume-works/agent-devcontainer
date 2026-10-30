@@ -3,8 +3,8 @@ type: feature
 stage: implemented
 description: A published agentdev-devcontainer image owns the reusable Dev Container lifecycle and supervised services so repositories can use agentdev without copying their implementation.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-23T02:35:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T05:42:07Z
 sources:
 - resource: docs/user-stories/agent-containers.md
 - resource: docker/desktop/agent-desktop.Dockerfile

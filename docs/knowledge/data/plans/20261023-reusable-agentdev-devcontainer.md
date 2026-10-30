@@ -6,7 +6,7 @@ release:
 description: Publish the agentdev image family and a self-contained Dev Container runtime that reuses the deploy supervisor without copying lifecycle scripts into consumers.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T05:05:59Z
+  at: 2026-10-30T05:42:07Z
 sources:
 - resource: docs/user-stories/agent-containers.md
 - resource: docs/knowledge/data/plans/20261017-standalone-opencode-container.md
