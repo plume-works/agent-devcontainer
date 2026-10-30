@@ -121,7 +121,7 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`
 
-- [ ] Both routes run `agent-code/verify-cache.py lookup` first with a decision
+- [x] Both routes run `agent-code/verify-cache.py lookup` first with a decision
   table: `DIRTY_WORKTREE` stops and reports; `HIT` returns the saved report led
   by a line naming it as saved from `<commit>`; `MISS` runs Verify — the
   dispatch or the in-place rulebook — then pipes the report to `save` with the
@@ -130,6 +130,9 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
   request carries it and is never forwarded to the verifier. The frontmatter
   gains `allowed-tools: Bash(${CLAUDE_SKILL_DIR}/agent-code/*)`, and the session
   route's no-Verify-step rule names the cache script as its one exception.
+  - **Evidence:** commit fa4aad4;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    at that commit: 68/68 skills valid, 0 errors.
 
 ### Task 3: Fail Verify on a worktree its commands dirtied
 
