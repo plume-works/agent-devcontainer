@@ -180,6 +180,9 @@ def test_promotion_never_moves_a_tag_back_or_rebuilds():
     assert not any('build-push-action' in u for u in uses)
 
 
+AGENTDEV_DIGEST_GROUP = 'agentdev image digests'
+
+
 def test_renovate_tracks_the_pin_and_lets_its_tasks_edit_it():
     patterns = RENOVATE['docker-compose']['managerFilePatterns']
     assert any(re.search(p.strip('/'), PIN) for p in patterns)
@@ -187,18 +190,18 @@ def test_renovate_tracks_the_pin_and_lets_its_tasks_edit_it():
     rule = next(
         r
         for r in RENOVATE['packageRules']
-        if r.get('matchPackageNames') == ['ghcr.io/plume-works/agentdev-deploy']
+        if 'ghcr.io/plume-works/agentdev-deploy' in r.get('matchPackageNames', [])
     )
-    assert rule['groupName'] == 'agentdev-deploy'
+    assert rule['groupName'] == AGENTDEV_DIGEST_GROUP
 
 
 def test_renovate_moves_every_dev_container_reference_together():
     rule = next(
         r
         for r in RENOVATE['packageRules']
-        if r.get('matchPackageNames') == ['ghcr.io/plume-works/agentdev-devcontainer']
+        if 'ghcr.io/plume-works/agentdev-devcontainer' in r.get('matchPackageNames', [])
     )
-    assert rule['groupName'] == 'agentdev-devcontainer'
+    assert rule['groupName'] == AGENTDEV_DIGEST_GROUP
     names = {p for r in RENOVATE['packageRules'] for p in r.get('matchPackageNames', [])}
     assert not {'ghcr.io/plume-works/agent-desktop', 'ghcr.io/plume-works/agent-opencode'} & names
 
