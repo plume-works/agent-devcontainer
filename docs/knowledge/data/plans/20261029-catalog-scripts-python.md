@@ -250,6 +250,7 @@ scripts and the `__common.sh` of pr-open, pr-review, and pr-gen-description
 `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.py`; Modify:
 the four skills' `SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-planner.agent.md`,
+`.agents/plugins/agentdev/bin/github_issue.py`,
 `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py`,
 `.agents/plugins/agentdev/tests/test_fetch_issue.py`,
 `.agents/plugins/agentdev/tests/test_close_issue.py`,
@@ -257,9 +258,15 @@ the four skills' `SKILL.md`,
 `.sh` scripts, the `__common.sh` of iwe-explore, iwe-plan, and iwe-capture, and
 `.agents/plugins/agentdev/bin/github-issue.sh`, whose last consumers they are
 
-- [ ] Each script reproduces its contract; the two close-issue entry points
+- [x] Each script reproduces its contract; the two close-issue entry points
   share `bin/github_issue.py` while staying separate files, since a skill never
   references a sibling's code.
+  - **Evidence:** commit 56e1899 "Port the IWE workflow skill scripts to
+    Python"; before the `.sh` deletion, `test_iwe_bootstrap.py`,
+    `test_close_issue.py`, `test_capture_close_issue.py`, and
+    `test_fetch_issue.py` passed against both implementations with identical
+    normalized output on all 44 script runs, and the usage paths matched;
+    `uv run pytest .agents/plugins/agentdev/tests` passed (407).
 
 ### Task 8: Remote Codespace session
 
