@@ -26,7 +26,13 @@ def hostname_for(**env: str) -> str:
 
 
 def test_coder_workspace_uses_the_workspace_name() -> None:
-    env = {'CODER_WORKSPACE_NAME': 'agent-dev2', 'VSCODE_PROXY_URI': 'https://x', 'HOSTNAME': 'h'}
+    env = {
+        'CODER_WORKSPACE_NAME': 'agent-dev2',
+        'VSCODE_PID': '1',
+        'VSCODE_IPC_HOOK': '/tmp/ipc',
+        'VSCODE_PROXY_URI': 'https://x',
+        'HOSTNAME': 'h',
+    }
     assert hostname_for(**env) == 'coder-agent-dev2'
 
 
