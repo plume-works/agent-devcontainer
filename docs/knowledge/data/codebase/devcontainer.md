@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:0628f2d1ebecd231bf26ff3e3a8190366225014ad997ce678589a19e5d5596a2
+source_digest: sha256:3c4e5d34233e094f3dcaef9975d3d853a9acbf2dcb5000aec0c53cf532c853e2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T12:10:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T12:10:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -61,7 +61,8 @@ external. Compose then layers the tag-only `docker-compose.yml` under the digest
 pin, mounts the workspace at `/workspaces/<basename>` and the git common dir at
 its host path so worktrees resolve, and starts the MCP gateway only when the
 `mcp` profile was activated. Per-instance state (`~/.claude`, `~/.codex`,
-`~/.local/share/opencode`, `/uv`, `.cache`, and the sibling checkout at
+`~/.local/share/opencode`, `/uv`, `.cache`, the CBM cache at
+`~/.cache/codebase-memory-mcp`, and the sibling checkout at
 `/workspaces/project`) is on Compose-scoped volumes; only Claude and Codex
 credentials share the literal `agentdev-agents-auth` volume across instances.
 The `devcontainer` service has no `command` or `init`: the image's supervisor is

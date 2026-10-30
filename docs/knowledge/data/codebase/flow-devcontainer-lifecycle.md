@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:65c84f3ea580d20c2c0fad8acca8aaa100abdd03490dcb0156b9f0135b44cd2b
+source_digest: sha256:11c7cf66416c02fa53aa953cb80f7a4c8fbd31bb76a0d183dc86fc3f7338841a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T12:10:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T12:10:00Z
 sources:
 - id: code
   resource: .devcontainer
