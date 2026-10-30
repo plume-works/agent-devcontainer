@@ -210,7 +210,10 @@ the key fields.
   - **Evidence:** commit 6a0c670 adds `test_save_records_both_prompts_verbatim`
     and `test_save_requires_both_prompts` to
     `.agents/plugins/agentdev/tests/test_verify_cache.py`.
-- [ ] `verify-cache.py` implemented; the tests pass.
+- [x] `verify-cache.py` implemented; the tests pass.
+  - **Evidence:** commit 6a0c670;
+    `uv run pytest .agents/plugins/agentdev/tests/test_verify_cache.py` at that
+    commit: 20 passed.
 
 ### Task 8: Pass the invoking prompts on every route
 
