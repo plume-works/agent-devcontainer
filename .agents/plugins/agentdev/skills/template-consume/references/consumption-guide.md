@@ -420,8 +420,12 @@ Then adapt the workflows themselves:
   the author being a bot: routine dependency bumps from Renovate merge with
   the job's approval and no AI review, while a pull request from any other bot
   gets neither and stays blocked, mergeable only by a user with ruleset bypass.
-  A Dependabot-triggered run holds a read-only token, so the job skips it and
-  a Dependabot pull request passes the gate but still needs an approval.
+  The job approves only while every commit is the bot's own — authored by
+  it, committed by it or `web-flow`, signature verified — and a push comes from
+  the bot; otherwise it dismisses its approval, so a person's commit never
+  merges under a bot approval. A Dependabot-triggered run holds a read-only
+  token and is skipped; a run a person triggers on a Dependabot pull request
+  approves it when that check passes.
 - Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
   comma-separated list of bot logins, matched exactly and only for authors
   whose `user.type` is `Bot`. A consuming project running its own Renovate

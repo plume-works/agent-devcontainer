@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T21:30:00Z
+  at: 2026-10-30T23:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -92,9 +92,15 @@ selection](../architecture/ai-review-event-selection.md).
 is a `Bot` listed exactly in `TRUSTED_BOT_ACTORS`, with a body stating that the
 AI review was skipped. It checks out nothing and approves once: a push to a pull
 request it already approved adds no second approval. The same list drives the
-`ai-review-present` waiver. A run triggered by `dependabot[bot]` holds a
-read-only token, so the job skips it with a notice; Dependabot pull requests
-pass the gate on the waiver but stay unapproved.
+`ai-review-present` waiver.
+
+The approval holds only while every commit is the bot's own — authored by the
+bot, committed by the bot or `web-flow`, with a verified signature — and a push
+comes from the bot itself. When any commit or push fails that check, the job
+approves nothing, dismisses its standing approval, and posts a notice naming the
+failure, so the pull request needs a human approval. A run triggered by
+`dependabot[bot]` holds a read-only token and is skipped with a notice; a run a
+person triggers on a Dependabot pull request approves it when the check passes.
 
 The gate's full contract lives in the [AI review
 gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle
