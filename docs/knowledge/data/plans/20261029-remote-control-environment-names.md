@@ -67,9 +67,10 @@ Assumptions recorded for minor details the rule leaves open:
   and assumptions above; tests cover each launcher, Coder precedence over VS
   Code variables, domain and case normalisation, invalid characters, and the
   63-character limit.
-  - **Evidence:** commit c60bfb9;
-    `uv run pytest scripts/tests/test_container_hostname.py` — 8 passed;
-    `shellcheck` clean.
+  - **Evidence:** commits c60bfb9 and a2917d1, the second setting both VS Code
+    markers in the Coder precedence test;
+    `uv run pytest scripts/tests/test_container_hostname.py` — 8 passed, and 1
+    fails when the Coder and VS Code checks are swapped; `shellcheck` clean.
 
 ### Task 2: Apply it to the dev container
 
