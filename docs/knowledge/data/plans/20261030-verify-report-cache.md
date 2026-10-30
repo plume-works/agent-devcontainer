@@ -260,9 +260,11 @@ tasks reuse them. Each scenario runs in one clone:
 
 **Files:** Modify: `scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py`
 
-- [ ] The three scenarios from Task 9 added;
+- [x] The three scenarios from Task 9 added;
   `E2E_RUN_LIVE=1 uv run pytest -m e2e scripts/e2e/iwe-workflows/test_iwe_workflows_codex.py -k 'saved or dirty or decision'`
   passes.
+  - **Evidence:** commit 30dcd8b; the `-k 'saved or dirty or decision'` run at
+    `e7d96f9`, with the catalog reinstalled into Codex: 3 passed.
 
 ### Task 11: Add the saved-report e2e scenarios on OpenCode
 
