@@ -150,10 +150,13 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
 
-- [ ] `## Running the loop` steps 1, 3, and 4 run Verify through
+- [x] `## Running the loop` steps 1, 3, and 4 run Verify through
   `/agentdev:iwe-verify` with the plan key and the user's approvals instead of
   dispatching `iwe-verifier` directly, and the `iwe-implement` skill's summary
   of the loop says the same. No agent the loop dispatches dispatches another.
+  - **Evidence:** commit 3c1e8e2;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    at that commit: 0 errors.
 
 ### Task 5: Name a reused report in the Shipper's report
 
