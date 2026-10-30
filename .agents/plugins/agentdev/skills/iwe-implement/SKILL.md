@@ -16,6 +16,6 @@ full and follow it in place for the plan the user named, in its
 `/agentdev:iwe-implement-all` does that.
 
 This session is the orchestrator, so it also runs the rulebook's
-`## Running the loop`: it dispatches `iwe-verifier`, acts on the findings, and
-takes an evaluated revision without asking. Ask the user only for an
-always-escalate deviation, a Verify `Needs decision`, or a stop bound.
+`## Running the loop`: it runs Verify through `/agentdev:iwe-verify`, acts on
+the findings, and takes an evaluated revision without asking. Ask the user only
+for an always-escalate deviation, a Verify `Needs decision`, or a stop bound.
