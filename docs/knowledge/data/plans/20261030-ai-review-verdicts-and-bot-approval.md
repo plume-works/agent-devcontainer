@@ -141,20 +141,35 @@ Assumptions:
 
 **Files:** Modify: `.github/workflows/ai-responder.yml`
 
-- [ ] A workflow-level `TRUSTED_BOT_ACTORS` env holds
+- [x] A workflow-level `TRUSTED_BOT_ACTORS` env holds
   `renovate[bot],plume-works-renovate[bot],dependabot[bot]`, and
   `ai-review-present` passes it to `ai-review-status` instead of the inline
   literal.
-- [ ] A new job approves a `pull_request` (`opened`, `reopened`, `synchronize`,
+  - **Evidence:** commit `06d3beb` — `ai-responder.yml:81` defines the env;
+    `ai-review-present` passes `${{ env.TRUSTED_BOT_ACTORS }}` at
+    `ai-responder.yml:533`.
+- [x] A new job approves a `pull_request` (`opened`, `reopened`, `synchronize`,
   `ready_for_review`) whose author is a `Bot` listed exactly in
   `TRUSTED_BOT_ACTORS`, on a same-repository head, under the existing
   `repository_owner` gate, with `pull-requests: write` only and no checkout.
-- [ ] The job skips with a notice when `github.actor` is `dependabot[bot]`, and
+  - **Evidence:** commit `06d3beb` — job `trusted-bot-approval`
+    (`ai-responder.yml:562`) gates on owner, the four actions, same-repository
+    head, and `user.type == 'Bot'`, matches the login exactly against
+    `TRUSTED_BOT_ACTORS`, with `pull-requests: write` only and no checkout.
+- [x] The job skips with a notice when `github.actor` is `dependabot[bot]`, and
   skips when `github-actions[bot]` already has an `APPROVED` review on the pull
   request.
-- [ ] The approval body is the text under `## Approach`, with `<login>` replaced
+  - **Evidence:** commit `06d3beb` — the script posts a notice and returns when
+    `context.actor` is `dependabot[bot]`, and returns when a
+    `github-actions[bot]` `APPROVED` review exists.
+- [x] The approval body is the text under `## Approach`, with `<login>` replaced
   by the author's login.
-- [ ] `actionlint` and `zizmor` pass through pre-commit.
+  - **Evidence:** commit `06d3beb` — `createReview` body is the `## Approach`
+    text with the author's login interpolated.
+- [x] `actionlint` and `zizmor` pass through pre-commit.
+  - **Evidence:** commit `06d3beb` —
+    `uv run pre-commit run --files .github/workflows/ai-responder.yml` passed
+    actionlint and zizmor.
 
 ### Task 3: Architecture note records the new event rule
 
