@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: [iwe-branch-name v2: one iteration counter per
+  plan](plans/20261030-iwe-branch-name-v2.md) done; merged the
+  `iwe/<slug>/iter-<N>-<phase>` shape and shared counter into
+  [iwe-branch-name](spec/iwe-branch-name.md) and the start-on-main scenario of
+  [iwe-workflow-skills](spec/iwe-workflow-skills.md);
+  [iwe-branch-name](features/iwe-branch-name.md) stays implemented and listed
+  under Unreleased Added.
 - **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
   [agentdev skills](codebase/agents/plugins/agentdev/skills.md),
   [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md),

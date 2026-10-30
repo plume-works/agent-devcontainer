@@ -11,6 +11,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
+stage: done
+completed: 2026-10-30
 ---
 
 # iwe-branch-name v2: one iteration counter per plan
