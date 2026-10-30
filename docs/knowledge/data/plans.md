@@ -37,6 +37,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Name Remote Control environments after their
+launcher](plans/20261029-remote-control-environment-names.md)
+
 [Move the Expo bridge knowledge into its own
 repository](plans/20261028-move-expo-bridge-kb.md)
 

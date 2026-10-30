@@ -5,11 +5,11 @@ source: .devcontainer/scripts
 source_digest: sha256:eb01aefc83218c446b4995da475976d7ff08c5e3932c4805615101b6fe39f1ef
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T23:23:46Z
-stale_after: 2027-01-27
+  at: 2026-10-30T01:30:00Z
+stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T23:23:46Z
+  at: 2026-10-30T01:30:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts

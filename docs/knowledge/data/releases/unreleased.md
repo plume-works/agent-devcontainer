@@ -79,6 +79,9 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 [Remote Control autostart in the standalone
 runtime](../features/standalone-remote-control-autostart.md)
 
+[Remote Control environment
+names](../features/remote-control-environment-names.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)
