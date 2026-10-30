@@ -9,6 +9,7 @@ sources:
 - resource: scripts/tests/test_agent_runtime_supervision.py
 - resource: .devcontainer/scripts/runtime-health.sh
 - resource: https://github.com/plume-works/agent-devcontainer/pull/511
+stage: done
 ---
 
 # Bug: a client is recovered on its own budget before its dependency's failure is confirmed

@@ -617,6 +617,23 @@ class Controller:
                 found.append(service.name)
         return found
 
+    def failing_dependency(self, name: str) -> str | None:
+        """Return the root-most ready long-running dependency of ``name`` failing right now."""
+        needed: set[str] = set()
+        pending = list(self.by_name[name].after)
+        while pending:
+            dependency = pending.pop()
+            if dependency in needed or dependency not in self.by_name:
+                continue
+            needed.add(dependency)
+            pending.extend(self.by_name[dependency].after)
+        for service in self.services:
+            if service.name not in needed or service.oneshot:
+                continue
+            if self.status[service.name] == 'ready' and not self.healthy(service.name):
+                return service.name
+        return None
+
     def restart_until_ready(self, name: str) -> None:
         health = self.health[name]
         while True:
@@ -744,6 +761,11 @@ class Controller:
             if self.shutting_down():
                 return
             log(f'{name}: {failed}')
+            # Escalation to a failing dependency: see architecture/standalone-opencode-runtime.
+            cause = self.failing_dependency(name)
+            if cause is not None:
+                log(f'{name}: failure escalated to {cause}, which fails its readiness probe')
+                name = cause
             try:
                 self.recover(name)
             except ComponentFailure as failure:

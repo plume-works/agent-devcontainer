@@ -140,3 +140,6 @@ merge](../bugs/dispatched-review-gate-not-counted.md)
 
 [Bug: PR updates skip the re-review
 evaluation](../bugs/pr-update-skips-review-eval.md)
+
+[Bug: a client is recovered on its own budget before its dependency's failure is
+confirmed](../bugs/supervisor-client-recovered-before-dependency.md)

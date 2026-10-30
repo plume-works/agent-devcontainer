@@ -37,6 +37,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Escalate a client failure to the dependency that caused
+it](plans/20261030-dbus-keyring-flaky-test.md)
+
 [iwe-branch-name v2: one iteration counter per
 plan](plans/20261030-iwe-branch-name-v2.md)
 

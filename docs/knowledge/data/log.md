@@ -6,6 +6,15 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: [Escalate a client failure to the dependency that caused
+  it](plans/20261030-dbus-keyring-flaky-test.md) done; [Bug: a client is
+  recovered on its own budget before its dependency's failure is
+  confirmed](bugs/supervisor-client-recovered-before-dependency.md) fixed and
+  listed under Unreleased Fixed.
+- **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
+  [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the runtime
+  controller escalating a client failure to its failing dependency.
 - **Update**: [iwe-branch-name v2: one iteration counter per
   plan](plans/20261030-iwe-branch-name-v2.md) done; merged the
   `iwe/<slug>/iter-<N>-<phase>` shape and shared counter into

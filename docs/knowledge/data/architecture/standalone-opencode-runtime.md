@@ -3,7 +3,7 @@ type: architecture
 description: agentdev-deploy runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:00:00Z
+  at: 2026-10-30T04:35:08Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh
@@ -199,6 +199,19 @@ controller or supervisord fails, which leaves the restart policy for crashes.
   refreshes `keyring` and `xpra`. A replaced CBM daemon ends OpenCode's stdio
   MCP clients (see [CBM daemon lifecycle](cbm-daemon-lifecycle.md)), so `cbm`
   refreshes `opencode`.
+- A client failure is charged to the root-most long-running dependency, walked
+  transitively through `after`, that fails a probe at that moment. That
+  dependency is recovered instead, and its `refresh` list restarts the client
+  outside the client's budget. The client's failure corroborates the
+  dependency's failed probe, so this check bypasses the probe-failure debounce;
+  the accepted cost is that a dependency that was only slow to answer is
+  restarted, taking its clients with it. Deferring the client until the next
+  pass confirms the dependency was rejected: a client that is waiting cannot be
+  marked unready without leaving it out of the `refresh` restart, so it would
+  read `ready` while down for up to one interval. The
+  [bug](../bugs/supervisor-client-recovered-before-dependency.md) records why
+  not charging the client's budget and dependency-ordered recovery were
+  rejected.
 - Before restarting a service, the controller kills whatever is left of the
   failed process's group: supervisord signals a group only on an orderly stop.
   Xpra starts its X server in a separate session, beyond that group, so

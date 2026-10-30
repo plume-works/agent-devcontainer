@@ -2,14 +2,14 @@
 type: codebase
 description: The runtime both agentdev images bake at /opt/agentdev-runtime — the supervisor and its deploy and devcontainer profiles, the Dev Container create, start, and attach commands with their hook runner, and the helpers they call, from agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall, auth links, and full-access policies to the gh credential helper, the Coder agent-start entry point, Remote Control, and the OpenCode web UI.
 source: .devcontainer/scripts
-source_digest: sha256:531a32d314b179d95d07f0f98b198473ab052afe7b02851d6419a7a2ac37c4a2
+source_digest: sha256:b9844ae97dd8b40cf197748907c25d477ff6322c43491eb50ed53cc2b5e5d096
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T06:40:00Z
+  at: 2026-10-30T07:34:45Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T06:40:00Z
+  at: 2026-10-30T07:34:45Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -184,7 +184,7 @@ contract](../api-image-runtime.md) lists. `uv-sync.sh` is also
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-30):
 
 - `.devcontainer/scripts/devcontainer-created.sh:34` — `cmd_create`; `:43` —
   `safe.directory`; `:45` — `setup-agent-state.sh create`; `:50` —
@@ -217,8 +217,8 @@ Verified anchor points (line numbers as of 2026-10-29):
   `coder_pane`; `:62` — `probe`; `:76` — `serve`
 - `.devcontainer/scripts/setup-gh-credential-helper.sh:8` — keyring session file
 - `.devcontainer/scripts/setup-keyring.sh:32` — session file location
-- `.devcontainer/scripts/runtime-supervisor.py:966` — `run`; `:911` —
-  `preflight`; `:1044` — `execute`; `:1074` — `retry`; `:289,306` — the deploy
+- `.devcontainer/scripts/runtime-supervisor.py:988` — `run`; `:933` —
+  `preflight`; `:1066` — `execute`; `:1096` — `retry`; `:289,306` — the deploy
   and devcontainer service graphs; `:317` — `PROFILES`
 - `.devcontainer/scripts/runtime-remote-control.sh:31` — `cmd_run`
 - `.devcontainer/scripts/runtime-bootstrap.sh:96` — `claim_instance_dir`; `:126`
