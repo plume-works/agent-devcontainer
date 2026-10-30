@@ -20,6 +20,8 @@ import subprocess
 import sys
 from typing import NamedTuple
 
+from skill_common import help_header, print_error, require_git_repo, Stop
+
 USAGE = """\
 Usage:
   github_issue.py parse <ref>
@@ -75,10 +77,15 @@ def require_gh() -> bool:
 
 
 def resolve_current_repo() -> str | None:
-    """Return OWNER/REPO for the repository in the current directory, or None."""
-    completed = _run('gh', 'repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner')
-    name = completed.stdout.strip()
-    return name if completed.returncode == 0 and name else None
+    """Return OWNER/REPO for the repository in the current directory, or None when gh fails."""
+    sys.stdout.flush()
+    completed = subprocess.run(
+        ['gh', 'repo', 'view', '--json', 'nameWithOwner', '--jq', '.nameWithOwner'],
+        check=False,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    return completed.stdout.rstrip('\n') if completed.returncode == 0 else None
 
 
 def gh_output_says_not_found(output: str) -> bool:
@@ -128,6 +135,111 @@ def close_issue_with_comment(repo: str, number: str, comment: str) -> int:
 
     print('ISSUE_STATE=CLOSED')
     return CLOSED
+
+
+class CloseCommand(NamedTuple):
+    """The wording of one skill's close-issue entry point; the behavior is shared."""
+
+    description: str
+    option: str
+    option_help: str
+    comment_help: str
+    missing_label: str
+    not_found: str
+    comment: str
+
+
+CLOSE_USAGE = """
+Usage:
+  close-issue.py --issue <issue> {option} <path> [--comment <text>]
+
+Options:
+  --issue <issue>    An issue URL, OWNER/REPO#N, #N, or N. The bare forms
+                     resolve against the repository in the current directory.
+{option_help}
+  --comment <text>   Replace the default closing comment, which names the
+{comment_help}
+  -h, --help         Show this help text.
+
+Output (key=value lines):
+  RESULT, ISSUE_REPO, ISSUE_NUMBER, ISSUE_URL, ISSUE_STATE
+
+Results (RESULT / exit code):
+  SUCCESS          0  The comment was posted and the issue is now closed
+  ALREADY_CLOSED   5  The issue was already closed; nothing was changed
+  ISSUE_NOT_FOUND  4  The repository has no issue with that number
+  GH_UNAVAILABLE   3  gh is missing, unauthenticated, or its API call failed
+  PREFLIGHT_ERROR  2  Usage or preflight error (not a repo, missing {missing_label})
+  SCRIPT_FAILURE   1  Unhandled error
+  SIGNAL_HUP     129  Interrupted by HUP
+  SIGNAL_INT     130  Interrupted by INT
+  SIGNAL_TERM    143  Interrupted by TERM
+"""
+
+CLOSE_RESULTS = {
+    GH_FAILED: 'GH_UNAVAILABLE',
+    NOT_FOUND: 'ISSUE_NOT_FOUND',
+    ALREADY_CLOSED: 'ALREADY_CLOSED',
+}
+
+
+def run_close(command: CloseCommand, script: str, arguments: list[str]) -> int:
+    """Close the issue a document now tracks, linking the document in a comment."""
+    usage = help_header(command.description, script) + CLOSE_USAGE.format(**command._asdict())
+    values = {'--issue': '', command.option: '', '--comment': ''}
+    remaining = list(arguments)
+    while remaining:
+        argument = remaining.pop(0)
+        if argument in values:
+            if not remaining:
+                print_error(f'Missing value for {argument}')
+                return 2
+            values[argument] = remaining.pop(0)
+        elif argument in ('-h', '--help'):
+            print(usage, end='')
+            return 0
+        else:
+            print_error(f'Unknown argument: {argument}')
+            print(usage, end='', file=sys.stderr)
+            return 2
+    for required in ('--issue', command.option):
+        if not values[required]:
+            print_error(f'Missing {required}.')
+            print(usage, end='', file=sys.stderr)
+            return 2
+
+    ref = parse_issue_ref(values['--issue'])
+    if ref is None:
+        print_error(
+            f'Unrecognized issue reference: {values["--issue"]} '
+            '(use a URL, OWNER/REPO#N, #N, or N).'
+        )
+        return 2
+    try:
+        repo_root = require_git_repo()
+    except Stop as stop:
+        return stop.code
+    path = values[command.option]
+    if not (repo_root / path).is_file():
+        print_error(f'{command.not_found}: {path} (relative to {repo_root}).')
+        return 2
+    if not require_gh():
+        return GH_FAILED
+
+    comment, repo, current_repo = values['--comment'], ref.repo, ''
+    if not repo or not comment:
+        resolved = resolve_current_repo()
+        if resolved is None:
+            print_error(
+                'Could not resolve the current repository; pass OWNER/REPO#N or an issue URL.'
+            )
+            return GH_FAILED
+        current_repo = resolved
+    repo = repo or current_repo
+    if not comment:
+        branch = _run('git', 'rev-parse', '--abbrev-ref', 'HEAD').stdout.strip()
+        comment = command.comment.format(path=path, branch=branch, repo=current_repo)
+    return close_issue_with_comment(repo, ref.number, comment)
 
 
 def main(arguments: list[str]) -> int:
