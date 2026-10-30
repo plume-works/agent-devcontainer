@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md), and
+  [tests](codebase/agents/plugins/agentdev/tests.md) map docs for the saved
+  Verify report cache.
 - **Update**: [Escalate a client failure to the dependency that caused
   it](plans/20261030-dbus-keyring-flaky-test.md) done; [Bug: a client is
   recovered on its own budget before its dependency's failure is

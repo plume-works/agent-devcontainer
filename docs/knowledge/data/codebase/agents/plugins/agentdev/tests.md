@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:bfe32f58e9cbd72597820590d4682e0aa6a1a3aaf789c9761a01f3c5e51c4bcb
+source_digest: sha256:72edb9306aa443cc845d2e9f7f46fff3c2c90c3110ccf53115c07b378c68ab2d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-30T18:00:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-30T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -56,7 +56,8 @@ replacement of agents, commands, and skills, and the bridge's CBM warning in
   `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
   `test_request_review.py`, `test_result_codes.py`, `test_stale_map_docs.py`,
   `test_stale_map_docs_masks.py`, `test_stale_map_docs_replay.py`,
-  `test_template_consume_check_updates.py`, `test_update_branch.py`
+  `test_template_consume_check_updates.py`, `test_update_branch.py`,
+  `test_verify_cache.py`
 
 ## How it works
 
@@ -180,7 +181,7 @@ bootstrap tests.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-30):
 
 - `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:29` — `plugin_tmp_path`
@@ -204,6 +205,10 @@ Verified anchor points (line numbers as of 2026-10-29):
   plan finished only locally stays `incomplete`
 - `.agents/plugins/agentdev/tests/test_iwe_branch_name_next.py:63` — each source
   of a used iteration counts
+- `.agents/plugins/agentdev/tests/test_verify_cache.py:107` — a saved report for
+  `HEAD` and the active catalog is a `HIT`
+- `.agents/plugins/agentdev/tests/test_verify_cache.py:293` — both prompts
+  survive into the frontmatter verbatim
 - `.agents/plugins/agentdev/tests/test_gh_stack_guard.py:116` — `Stack`, the
   two-layer stack fixture with a peer clone and a gh-stack-like stub `gh`
 - `.agents/plugins/agentdev/tests/test_git_new_branch.py:24` — `Fixture`, the
@@ -229,7 +234,7 @@ Verified anchor points (line numbers as of 2026-10-29):
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_request_review.py:29` — `GH_STUB`, the
   fixture-driven stub `gh`
-- `.agents/plugins/agentdev/tests/test_request_review.py:117` —
+- `.agents/plugins/agentdev/tests/test_request_review.py:128` —
   `install_stub_path`, the hermetic `PATH`
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —
   an absent marker section is `NO_MARKER`
