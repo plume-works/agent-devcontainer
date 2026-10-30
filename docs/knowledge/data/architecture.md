@@ -126,3 +126,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 
 [Holding the AI review gate during a
 re-review](architecture/rereview-gate-pending.md)
+
+[Dev Container home volume](architecture/devcontainer-home-volume.md)
