@@ -18,7 +18,8 @@ from typing import NamedTuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
 
-import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
+import git_default_branch  # noqa: E402  (path set above so the plugin's bin/ resolves)
+import result_codes as rc  # noqa: E402
 
 USAGE = """\
 Name an IWE plan's work branches iwe/<slug>/iter-<N>-<phase> and read
@@ -82,7 +83,6 @@ WORK_BRANCH = re.compile(r'iwe/([^/]+)/iter-([1-9][0-9]*)-(impl|ship)')
 DATED_PLAN = re.compile(r'([0-9]{8})-(.+)')
 # The task sections the repository's plan-checkbox gate also reads.
 TASK_SECTIONS = ('## Implementation Steps', '## Tasks')
-DEFAULT_BRANCH_HELPER = Path(__file__).resolve().parents[3] / 'bin' / 'git-default-branch.sh'
 
 
 class WorkBranch(NamedTuple):
@@ -189,17 +189,9 @@ def require_remote(remote: str) -> str:
 
 
 def remote_default_branch(remote: str) -> str:
-    """Resolve the remote's default branch through the shared shell helper."""
-    completed = run_tool(
-        'bash',
-        '-c',
-        'source "$1" && remote_default_branch "$2"',
-        'git-default-branch',
-        str(DEFAULT_BRANCH_HELPER),
-        remote,
-    )
-    name = completed.stdout.strip()
-    if completed.returncode != 0 or not name:
+    """Resolve the remote's default branch through the shared bin/ module."""
+    name = git_default_branch.remote_default_branch(remote)
+    if not name:
         print_error(
             f"Cannot tell the default branch of '{remote}': set it with "
             f'`git remote set-head {remote} --auto`.'
