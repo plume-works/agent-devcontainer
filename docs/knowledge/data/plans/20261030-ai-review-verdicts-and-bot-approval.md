@@ -322,18 +322,20 @@ Verified anchor points (line numbers as of 2026-10-30):
   gate
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:149` — Step 9 event
   selection
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:154` — self-owned
-  `REQUEST_CHANGES` retry
-- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:191` — fallback script
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:153` — self-owned
+  `APPROVE`/`REQUEST_CHANGES` retry
+- `.agents/plugins/agentdev/skills/pr-review/SKILL.md:190` — fallback script
   `--event`
 - `.github/workflows/ai-responder.yml:77` — workflow `env`
-- `.github/workflows/ai-responder.yml:96` — preflight owner gate and bot skip
-- `.github/workflows/ai-responder.yml:502` — `ai-review-present` job
-- `.github/workflows/ai-responder.yml:532` — inline `trusted-bot-actors` list
-- `.github/actions/ai-review-status/action.yml:59` — trusted-bot waiver
+- `.github/workflows/ai-responder.yml:98` — preflight owner gate and bot skip
+- `.github/workflows/ai-responder.yml:504` — `ai-review-present` job
+- `.github/workflows/ai-responder.yml:533` — `trusted-bot-actors` read from
+  `TRUSTED_BOT_ACTORS`
+- `.github/workflows/ai-responder.yml:562` — `trusted-bot-approval` job
+- `.github/actions/ai-review-status/action.yml:60` — trusted-bot waiver
 - `docs/knowledge/data/architecture/ai-review-event-selection.md:16` —
   `## Decision`
-- `docs/knowledge/data/architecture/ai-review-event-selection.md:102` —
+- `docs/knowledge/data/architecture/ai-review-event-selection.md:73` —
   `## Alternatives rejected`
 - `docs/knowledge/data/spec/template-consumption.md:99` — "the AI review gate's
   trust is explicit"
