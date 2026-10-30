@@ -4,7 +4,7 @@ NEVER use "$TMPDIR" env variable.
 ALWAYS use "./.tmp" (relative to the repo root) for temporary files; create it if it does not exist.
 The one exception is test scratch: tests always write under real `/tmp` (`scripts/tests/scratch.py` exports `TMP_ROOT`), never under the checkout. A bind-mounted checkout refuses the `chmod`, `chown` and hard links a Unix socket needs, so supervisord, CBM and tmux fail there with `EINVAL`.
 NEVER use GitHub API or GitHub MCP tools to update branch refs or push branch contents. Use local git branch workflows instead; if push authentication is unavailable, stop and report the blocker rather than updating the branch remotely via API.
-NEVER force-push. The one exception: `gh stack rebase` and the `gh-stack` skill's `stack-guard.sh publish`, run after its `stack-guard.sh begin`, may update branches of a GitHub stack with `--force-with-lease` (see `docs/knowledge/data/architecture/stacked-prs.md`). Never run a bare `gh stack push`, `gh stack submit`, or `gh stack sync`.
+NEVER force-push. The one exception: `gh stack rebase` and the `gh-stack` skill's `stack-guard.py publish`, run after its `stack-guard.py begin`, may update branches of a GitHub stack with `--force-with-lease` (see `docs/knowledge/data/architecture/stacked-prs.md`). Never run a bare `gh stack push`, `gh stack submit`, or `gh stack sync`.
 Commit at checkpoints as meaningful progress is achieved, rather than accumulating a whole task into one commit at the end.
 
 ## Best Practices for Agents

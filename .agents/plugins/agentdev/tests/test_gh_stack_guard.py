@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Behavior tests for the gh-stack skill's stack-guard.sh."""
+"""Behavior tests for the gh-stack skill's stack-guard.py."""
 
 from __future__ import annotations
 
@@ -257,8 +257,8 @@ class Stack:
 def guard(
     plugin_root: Path, stack: Stack, *args: str
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, list[str]]]:
-    """Run stack-guard.sh in the working clone and collect its key=value stdout."""
-    script = plugin_root / 'skills/gh-stack/agent-code/stack-guard.sh'
+    """Run stack-guard.py in the working clone and collect its key=value stdout."""
+    script = plugin_root / 'skills/gh-stack/agent-code/stack-guard.py'
     env = {**os.environ, **FIXTURE_ENV, 'PATH': f'{stack.stub}{os.pathsep}{os.environ["PATH"]}'}
     completed = subprocess.run(
         [str(script), *args], cwd=stack.work, check=False, capture_output=True, text=True, env=env
