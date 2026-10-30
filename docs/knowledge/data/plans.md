@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[AI review verdicts gate merge and trusted bots are
+auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
+
 [Run the Dev Container as a non-root account with one home
 volume](plans/20261030-devcontainer-home-volume.md)
 

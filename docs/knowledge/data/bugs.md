@@ -133,3 +133,6 @@ says so](bugs/workspace-image-lacks-hook-binaries.md)
 
 [Bug: CBM cache under a checkout another UID owns stops the Dev
 Container](bugs/cbm-cache-under-foreign-owned-checkout.md)
+
+[Bug: an AI re-review that comments leaves its own change request blocking
+merge](bugs/ai-rereview-comment-keeps-changes-requested.md)
