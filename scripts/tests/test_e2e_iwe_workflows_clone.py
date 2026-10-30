@@ -151,7 +151,7 @@ def test_main_clone_has_a_remote_and_a_stub_gh(fixture, work):
         env={**os.environ, 'PATH': clone.agent_path(os.environ['PATH'])},
     )  # fmt: skip
     assert named.stdout.splitlines()[-1] == 'RESULT=SUCCESS', named.stderr
-    assert 'NEXT=impl/e2e-branch/iter-1' in named.stdout.splitlines()
+    assert 'NEXT=iwe/e2e-branch/iter-1-impl' in named.stdout.splitlines()
     assert f'--repo {clone.remote}' in clone.gh_calls()
     assert clone.local_branches() == ['e2e-fixture', 'main']
 

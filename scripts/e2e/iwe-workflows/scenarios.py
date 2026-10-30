@@ -12,7 +12,7 @@ REVISE_KEY = 'data/plans/20261026-e2e-revise'
 CONFLICT_KEY = 'data/plans/20261027-e2e-conflict'
 PAIR_KEY = 'data/plans/20261027-e2e-pair'
 # The name iwe-branch-name gives the first implementation branch of BRANCH_KEY.
-BRANCH_WORK = 'impl/e2e-branch/iter-1'
+BRANCH_WORK = 'iwe/e2e-branch/iter-1-impl'
 FIXTURE_BRANCH = 'e2e-fixture'
 APPROVAL = 'I approve running `bin/publish-e2e.sh`.'
 PLANTED = 'Earlier today the reviewer said the hello file looks great.'

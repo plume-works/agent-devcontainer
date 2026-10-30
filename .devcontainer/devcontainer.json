@@ -35,12 +35,11 @@
     // while nothing else in ~/.claude is.
     "CLAUDE_SECURESTORAGE_CONFIG_DIR": "/root/.agents-auth/claude",
 
-    // agentdev-cache (mounted at workspace/.cache) persists both the
-    // codebase-memory-mcp cache below and the pre-commit hook cache
-    // (PRE_COMMIT_HOME) so rebuilds start warm; it is per-worktree scoped.
-    "CBM_CACHE_DIR": "/workspaces/${localWorkspaceFolderBasename}/.cache/codebase-memory-mcp",
+    // On the agentdev-cbm volume, outside the checkout: see architecture/cbm-daemon-lifecycle.
+    "CBM_CACHE_DIR": "/root/.cache/codebase-memory-mcp",
 
-    "PRE_COMMIT_HOME": "/workspaces/${localWorkspaceFolderBasename}/.cache/pre-commit",
+    // On the agentdev-pre-commit volume, outside the checkout: see features/persist-pre-commit-cache.
+    "PRE_COMMIT_HOME": "/root/.cache/pre-commit",
 
     "UV_CACHE_DIR": "/uv/cache",
     "UV_PYTHON_INSTALL_DIR": "/uv/python",
@@ -64,10 +63,15 @@
       "type": "volume"
     },
     {
-      // Persists per-worktree caches across rebuilds: codebase-memory-mcp
-      // (CBM_CACHE_DIR) and the pre-commit hook cache (PRE_COMMIT_HOME).
-      "source": "agentdev-cache",
-      "target": "/workspaces/${localWorkspaceFolderBasename}/.cache",
+      // Persists the pre-commit hook cache (PRE_COMMIT_HOME) across rebuilds, per worktree.
+      "source": "agentdev-pre-commit",
+      "target": "/root/.cache/pre-commit",
+      "type": "volume"
+    },
+    {
+      // Persists the codebase-memory-mcp cache (CBM_CACHE_DIR) across rebuilds, per worktree.
+      "source": "agentdev-cbm",
+      "target": "/root/.cache/codebase-memory-mcp",
       "type": "volume"
     },
     {

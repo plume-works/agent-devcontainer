@@ -21,16 +21,14 @@ claim_ancestors() {
   done
 }
 
-# Named volumes are created root-owned; claim only the mounts that exist.
+# Named volumes are created root-owned; claim /uv only when it is mounted.
 claim_mounts() {
-  local owner="$1" mount_point
-  for mount_point in "$workspace/.cache" /uv; do
-    if [[ -e $mount_point ]]; then
-      sudo chown -R "$owner" "$mount_point"
-    else
-      echo "$mount_point is not mounted; skipping its ownership fix."
-    fi
-  done
+  local owner="$1" mount_point=/uv
+  if [[ -e $mount_point ]]; then
+    sudo chown -R "$owner" "$mount_point"
+  else
+    echo "$mount_point is not mounted; skipping its ownership fix."
+  fi
 }
 
 cmd_create() {

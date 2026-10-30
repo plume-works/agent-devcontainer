@@ -1,10 +1,10 @@
 ---
 type: feature
 stage: implemented
-description: The pre-commit hook cache lives on the per-worktree agentdev-cache volume via PRE_COMMIT_HOME, so only the first devcontainer create per worktree pays the cold hook-install cost and every rebuild after starts warm.
+description: The pre-commit hook cache lives on its own per-worktree agentdev-pre-commit volume via PRE_COMMIT_HOME, outside the checkout, so only the first devcontainer create per worktree pays the cold hook-install cost and every rebuild after starts warm.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
+  at: 2026-10-30T12:30:00Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/setup-pre-commit.sh
@@ -15,22 +15,24 @@ sources:
 ## Purpose
 
 `setup-pre-commit.sh` runs `pre-commit install --install-hooks` on every
-container start. With `PRE_COMMIT_HOME` unset, pre-commit installs its hook
-environments into `$HOME/.cache/pre-commit` on the container overlay filesystem,
-which is discarded on every rebuild — so the cold install (~33s, ~935 MB for the
-repository's hook set) is paid again each time. Persisting the cache on the
-already-mounted `agentdev-cache` volume gives the same warm-start benefit at
-zero image-size cost and with no new volume.
+container start. Without a volume, pre-commit installs its hook environments
+into `$HOME/.cache/pre-commit` on the container overlay filesystem, which is
+discarded on every rebuild — so the cold install (~33s, ~935 MB for the
+repository's hook set) is paid again each time. A volume at that path keeps it
+across rebuilds at zero image-size cost.
 
 ## Behaviour
 
-**`PRE_COMMIT_HOME` points at the agentdev-cache volume.** `devcontainer.json`'s
-`containerEnv` sets `PRE_COMMIT_HOME` to
-`/workspaces/${localWorkspaceFolderBasename}/.cache/pre-commit`, a subfolder of
-the `agentdev-cache` volume that already holds `codebase-memory-mcp` under
-`CBM_CACHE_DIR`. The first create per worktree installs the hook environments
-fresh into that volume path; every rebuild after reuses them and completes in
-well under a second.
+**`PRE_COMMIT_HOME` points at the agentdev-pre-commit volume.**
+`devcontainer.json` mounts the `agentdev-pre-commit` volume at
+`/root/.cache/pre-commit` and sets `PRE_COMMIT_HOME` to that path. The first
+create per worktree installs the hook environments fresh into the volume; every
+rebuild after reuses them and completes in well under a second.
+
+**The cache stays off the checkout.** No cache volume is mounted inside the
+workspace, so the checkout carries no mount point and its owner or filesystem
+never decides whether a cache works. The CBM cache follows the same rule (see
+[CBM daemon lifecycle](../architecture/cbm-daemon-lifecycle.md)).
 
 **The cache is installed fresh, never copied.** pre-commit's store keys each
 hook environment by `(repo, ref)` and records an absolute path it trusts blindly
@@ -47,17 +49,14 @@ where it actually lives whether or not `PRE_COMMIT_HOME` is set.
 
 ## Scope
 
-Per-worktree scope is intended: `agentdev-cache` is Compose-project-scoped, so
-each worktree's cache is naturally isolated and the first create per worktree
-pays the cold cost. No lifecycle-script logic changed —
-`install --install-hooks` already installs into the volume path, and the
-postCreate chown loop over `$workspace/.cache` covers the new subdir for free.
-Firewall allowlisting for the one-time cold fill under `ENABLE_FIREWALL=true` is
-out of scope.
+Per-worktree scope is intended: `agentdev-pre-commit` is Compose-project-scoped,
+so each worktree's cache is naturally isolated and the first create per worktree
+pays the cold cost. `install --install-hooks` installs into the volume path with
+no lifecycle-script logic of its own. Firewall allowlisting for the one-time
+cold fill under `ENABLE_FIREWALL=true` is out of scope.
 
 A global shared volume (warm across all worktrees after the first-ever create)
-and a dedicated `agentdev-precommit` volume were both rejected in favour of
-reusing the existing per-worktree volume; the shared variant can be revisited if
+was rejected in favour of a per-worktree one; it can be revisited if
 first-create-per-worktree cost becomes a pain.
 
 ## Edge cases

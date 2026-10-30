@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:65c84f3ea580d20c2c0fad8acca8aaa100abdd03490dcb0156b9f0135b44cd2b
+source_digest: sha256:12208362a621197763215c142c9e2592e3b3147fd9702799c12daa26e9a898a0
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T07:34:45Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:30:00Z
+  at: 2026-10-30T07:34:45Z
 sources:
 - id: code
   resource: .devcontainer
@@ -45,7 +45,7 @@ state.
    accepts the mounted account and workspace, then supervisord starts D-Bus,
    keyring, Docker, CBM, and Xpra as core services and publishes readiness in
    `/run/agentdev/state.json` once their probes pass —
-   `.devcontainer/scripts/runtime-supervisor.py:966`,
+   `.devcontainer/scripts/runtime-supervisor.py:988`,
    `.devcontainer/scripts/runtime-bootstrap.sh:190`, in [lifecycle
    scripts](devcontainer/scripts.md)
 4. `postCreateCommand` (once per container): ancestor and mount ownership,
@@ -57,7 +57,7 @@ state.
    `setup-agent-state.sh catalog` for the image-staged catalog; then the image's
    `created` hooks and the create marker, which releases the opt-in OpenCode and
    Remote Control programs —
-   `.devcontainer/scripts/devcontainer-created.sh:36-58`
+   `.devcontainer/scripts/devcontainer-created.sh:34-56`
 5. `postStartCommand` (every start, and the `waitFor` target): wait until
    `runtime-health.sh ready` passes, failing when the runtime failed or is late;
    then `safe.directory`, the gh git credential helper,
