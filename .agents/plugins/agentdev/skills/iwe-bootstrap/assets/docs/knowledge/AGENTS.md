@@ -226,7 +226,7 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 | `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, Active listing    |
 | `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated     |
 | `/agentdev:iwe-implement`   | Executes a plan task-by-task: tests, checkbox ticks, clean boundaries     |
-| `/agentdev:iwe-branch-name` | Names a plan's next `impl/` or `ship/` iteration branch, never creates it |
+| `/agentdev:iwe-branch-name` | Names a plan's next `iwe/` iteration branch, never creates it |
 | `/agentdev:iwe-verify`      | Pre-ship gate + drift audit: claims in the graph checked against code     |
 | `/agentdev:iwe-ship`        | Closes the loop: spec sync, stage flips, release recording, release cut   |
 | `/agentdev:iwe-weekly`      | Read-only digest: shipped, in flight, bugs, backlog, graph health         |

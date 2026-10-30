@@ -150,7 +150,7 @@ and codebase-map documents. They are the project's memory across sessions.
 | `/agentdev:iwe-capture`       | Files a complete bug, proposed feature, or task, deduplicated.       |
 | `/agentdev:iwe-implement`     | Executes a plan task-by-task, ticking boxes with evidence.           |
 | `/agentdev:iwe-implement-all` | Implements every active plan in turn.                                |
-| `/agentdev:iwe-branch-name`   | Names a plan's next `impl/` or `ship/` iteration branch.             |
+| `/agentdev:iwe-branch-name`   | Names a plan's next `iwe/` iteration branch.                         |
 | `/agentdev:iwe-verify`        | Pre-ship gate and drift audit: graph claims checked against code.    |
 | `/agentdev:iwe-ship`          | Closes the loop: spec sync, stage flips, release recording.          |
 | `/agentdev:iwe-ship-all`      | Ships every implemented plan in turn.                                |
