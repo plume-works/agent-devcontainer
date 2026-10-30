@@ -100,12 +100,15 @@ client's budget and dependency-ordered recovery.
 **Files:** Modify:
 `docs/knowledge/data/architecture/standalone-opencode-runtime.md`
 
-- [ ] Add a bullet to `## Recovery`: a client failure is charged to the
+- [x] Add a bullet to `## Recovery`: a client failure is charged to the
   root-most long-running dependency that fails a probe at that moment, which is
   recovered and refreshes the client outside the client's budget; the dependency
   check bypasses the probe-failure debounce, and a dependency that was only slow
   is restarted. Name the rejected Defer direction and why, and point at the bug
   document for the other two.
+  - **Evidence:** commit aa1b10a adds the bullet to `## Recovery` in
+    `data/architecture/standalone-opencode-runtime`; `iwe schema validate`
+    passes at that commit.
 
 ### Task 4: The full supervision suite passes in CI
 
