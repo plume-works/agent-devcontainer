@@ -20,6 +20,9 @@ write a plan and link the plan instead.*
 
 [Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
 
+[Exercise the saved Verify report end to
+end](backlog/e2e-verify-report-cache.md)
+
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
