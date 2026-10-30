@@ -112,7 +112,10 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
   - **Evidence:** commit 45fff92 adds
     `.agents/plugins/agentdev/tests/test_verify_cache.py`, covering each listed
     case.
-- [ ] `verify-cache.py` implemented; the tests pass.
+- [x] `verify-cache.py` implemented; the tests pass.
+  - **Evidence:** commit 45fff92;
+    `uv run pytest .agents/plugins/agentdev/tests/test_verify_cache.py` at that
+    commit: 17 passed.
 
 ### Task 2: Route the iwe-verify skill through the cache
 
