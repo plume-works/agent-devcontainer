@@ -102,13 +102,16 @@ and `CATALOG_DIGEST`), `DIRTY_WORKTREE`. `save` results: `SUCCESS`,
 `HEAD_MOVED`, `DIRTY_WORKTREE`. Bad arguments and a disallowed verdict are
 `PREFLIGHT_ERROR`.
 
-- [ ] Tests through the `plugin_root` fixture in a temporary Git repository
+- [x] Tests through the `plugin_root` fixture in a temporary Git repository
   cover: a dirty worktree (tracked change, untracked file) fails `lookup` and
   `save`; a saved report for `HEAD` and the current digest is a `HIT`; a new
   commit, a changed catalog file, and `--fresh` are each a `MISS`; `save`
   overwrites the previous report; `save` refuses `HEAD_MOVED` and the verdict
   `Needs decision`; audit mode uses `audit.md`; the cache's own `.gitignore`
   keeps a saved report from dirtying the worktree.
+  - **Evidence:** commit 45fff92 adds
+    `.agents/plugins/agentdev/tests/test_verify_cache.py`, covering each listed
+    case.
 - [ ] `verify-cache.py` implemented; the tests pass.
 
 ### Task 2: Route the iwe-verify skill through the cache
