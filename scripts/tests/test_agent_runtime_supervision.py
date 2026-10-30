@@ -16,11 +16,11 @@ import time
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SUPERVISOR = REPO_ROOT / '.devcontainer/scripts/runtime-supervisor.py'
 CONFIG = REPO_ROOT / 'docker/deploy/supervisord.conf'
-TMP_ROOT = REPO_ROOT / '.tmp'
 STARTUP_ORDER = [
     'dbus',
     'keyring',

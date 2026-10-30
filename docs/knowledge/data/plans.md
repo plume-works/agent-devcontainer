@@ -17,6 +17,12 @@ moves them.*
 
 ## Active
 
+[Replace the runtime shell scripts with one agentdev-runtime
+CLI](plans/20261029-off-bash-migration.md)
+
+[Port the catalog's bundled shell scripts to
+Python](plans/20261029-catalog-scripts-python.md)
+
 [Publish the reusable agentdev Dev Container
 image](plans/20261023-reusable-agentdev-devcontainer.md)
 

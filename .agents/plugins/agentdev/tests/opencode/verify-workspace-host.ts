@@ -26,7 +26,7 @@ assert(readFileSync("/proc/self/mountinfo", "utf8").split("\n").some(line => lin
 
 const gitRoot = spawnSync("git", ["rev-parse", "--show-toplevel"], { encoding: "utf8" })
 assert.equal(gitRoot.status, 0, "Run inside the repository being verified")
-const scratch = path.join(gitRoot.stdout.trim(), ".tmp")
+const scratch = "/tmp/agentdev-tests"
 mkdirSync(scratch, { recursive: true })
 const fixture = mkdtempSync(path.join(scratch, "oc-host-"))
 const configDir = path.join(fixture, "config/opencode")

@@ -14,10 +14,10 @@ import threading
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / 'scripts/refresh-pin-checksums.py'
-TMP_ROOT = REPO_ROOT / '.tmp'
 
 
 def _load_script():

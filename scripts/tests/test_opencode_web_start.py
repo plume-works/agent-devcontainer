@@ -7,6 +7,7 @@ import time
 import uuid
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/opencode-web-start.sh'
@@ -19,7 +20,7 @@ LOCAL_LINK = 'http://127.0.0.1:4096'
 
 
 def make_test_dir() -> Path:
-    path = REPO_ROOT / '.tmp' / f'opencode-web-{uuid.uuid4().hex}'
+    path = TMP_ROOT / f'opencode-web-{uuid.uuid4().hex}'
     path.mkdir(parents=True)
     return path
 
@@ -200,7 +201,7 @@ def run_with_real_tmux(test_dir: Path, password: str | None) -> str:
     env = os.environ | {
         'PATH': f'{fake_bin}:{os.environ["PATH"]}',
         'HOME': str(test_dir),
-        'TMUX_TMPDIR': str(REPO_ROOT / '.tmp'),
+        'TMUX_TMPDIR': str(TMP_ROOT),
         'OPENCODE_TEST_RESULT': str(result_file),
         'DISPLAY': ':100',
         'DEV_WORKSPACE_FOLDER': str(REPO_ROOT),

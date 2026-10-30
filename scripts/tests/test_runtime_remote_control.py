@@ -12,10 +12,10 @@ import time
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 WATCHER = REPO_ROOT / '.devcontainer/scripts/runtime-remote-control.sh'
-TMP_ROOT = REPO_ROOT / '.tmp'
 CLAUDE_AI_LOGIN = {'loggedIn': True, 'authMethod': 'claude.ai'}
 WAITING = 'waiting for a claude.ai login'
 RUNNING = 'running in tmux session claude-remote'

@@ -2,14 +2,14 @@
 type: codebase
 description: The self-contained pytest suite for the validator package, built on an invented mock catalog so it passes from an extracted package.
 source: py_packages/validate_agent_files/tests
-source_digest: sha256:1faafae06ca7d876ee98c92e6fc21a494a3897376e657a4020b4975313975076
+source_digest: sha256:433b84b1b5eacb26a87a23ac4f1b7a7bb2e7917da4b9ec33a38f66b2fae78802
 verified:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
-stale_after: 2027-01-23
+  by: claude-code/opus-5.5
+  at: 2026-10-29T22:15:00Z
+stale_after: 2027-01-27
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:34:10Z
+  by: claude-code/opus-5.5
+  at: 2026-10-29T22:15:00Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/tests
@@ -25,7 +25,7 @@ directory with `pytest`, or in isolation with
 
 - `mock_catalog.py` — the one place fixture identities (marketplace, plugin,
   organization, paths) are defined
-- `package_tmp_path` fixture — scratch inside the package
+- `package_tmp_path` fixture — scratch under `/tmp/agentdev-tests`
 - Modules: `test_agent_validation.py`, `test_bundled_markdown_containment.py`,
   `test_cli.py`, `test_download_claude_responder_runs.py`,
   `test_entrypoints.py`, `test_formatters.py`, `test_gitignore_discovery.py`,
