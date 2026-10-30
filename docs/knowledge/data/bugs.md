@@ -130,3 +130,6 @@ confirmed](bugs/supervisor-client-recovered-before-dependency.md)
 
 [Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing
 says so](bugs/workspace-image-lacks-hook-binaries.md)
+
+[Bug: CBM cache under a checkout another UID owns stops the Dev
+Container](bugs/cbm-cache-under-foreign-owned-checkout.md)

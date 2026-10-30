@@ -19,6 +19,14 @@ to the current day's group.
   [agentdev tests](codebase/agents/plugins/agentdev/tests.md), and [knowledge
   workspace](codebase/docs/knowledge.md) map docs for the
   `iwe/<slug>/iter-<N>-<phase>` work branch shape.
+- **Update**: [Persist the pre-commit hook
+  cache](features/persist-pre-commit-cache.md) now uses its own
+  `agentdev-pre-commit` volume at `~/.cache/pre-commit`; no cache volume is
+  mounted inside the checkout any more.
+- **Update**: [Bug: CBM cache under a checkout another UID
+  owns](bugs/cbm-cache-under-foreign-owned-checkout.md) fixed: the Dev Container
+  keeps `CBM_CACHE_DIR` on its own `agentdev-cbm` volume, off the checkout; [CBM
+  daemon lifecycle](architecture/cbm-daemon-lifecycle.md) records why.
 - **New**: [Run the Dev Container as a non-root account with one home
   volume](plans/20261030-devcontainer-home-volume.md) plans the [Dev Container
   home volume](features/devcontainer-home-volume.md) feature, now accepted.
