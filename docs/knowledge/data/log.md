@@ -6,6 +6,10 @@ to the current day's group.
 
 ## 2026-10-30
 
+- **Update**: [Bug: CBM cache under a checkout another UID
+  owns](bugs/cbm-cache-under-foreign-owned-checkout.md) fixed: the Dev Container
+  keeps `CBM_CACHE_DIR` on its own `agentdev-cbm` volume, off the checkout; [CBM
+  daemon lifecycle](architecture/cbm-daemon-lifecycle.md) records why.
 - **Update**: refreshed the [github](codebase/github.md) and [pull request
   checks flow](codebase/flow-pull-request-checks.md) map docs for the single
   Renovate group that now carries both agentdev image digests.
