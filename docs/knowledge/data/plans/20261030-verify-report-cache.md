@@ -220,11 +220,14 @@ the key fields.
 **Files:** Modify: `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`
 
-- [ ] The skill's save step passes `--skill-request` with the request the skill
+- [x] The skill's save step passes `--skill-request` with the request the skill
   was invoked with, verbatim, and `--verifier-prompt` with the prompt the
   verifier ran under: the dispatch prompt on the session route, and the plan key
   and the approvals the Shipper's own prompt quotes on the Shipper's route.
   Shipper step 3 forwards those approvals to the rulebook it follows in place.
+  - **Evidence:** commit 183acd7;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    at that commit: 0 errors.
 
 ### Task 9: Add the saved-report e2e scenarios on Claude Code
 
