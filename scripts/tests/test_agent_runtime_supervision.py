@@ -55,6 +55,9 @@ while true; do
   if [[ -f $state/$name.crash ]]; then
     rm -f "$state/$name.crash" "$state/$name.ready"; echo "crash $name" >> "$state/events"; exit 1
   fi
+  if [[ -f $state/$name.wedge ]]; then
+    rm -f "$state/$name.wedge" "$state/$name.ready"; echo "wedge $name" >> "$state/events"
+  fi
   if [[ $mode == crash-always ]]; then
     sleep 0.3; rm -f "$state/$name.ready"; echo "crash $name" >> "$state/events"; exit 1
   fi
@@ -637,6 +640,21 @@ def test_dependency_outage_recovers_clients_outside_their_budget(make):
     box.wait_for(lambda: started(box.events()).count('keyring') == 2 and box.ready())
     assert 'lost keyring' in box.events()
     assert box.process is not None and box.process.poll() is None
+
+
+def test_a_client_failure_escalates_to_its_failing_dependency(make):
+    # The debounce cannot confirm a wedged D-Bus, so only escalation recovers it.
+    box = make(AGENTDEV_RECOVERY_ATTEMPTS='1', AGENTDEV_PROBE_FAILURES='1000')
+    box.set('keyring', 'needs', 'dbus')
+    box.start()
+    box.wait_for(box.ready)
+    box.set('dbus', 'wedge')
+    box.wait_for(lambda: box.latched() is not None or started(box.events()).count('dbus') == 2)
+    box.wait_for(lambda: box.latched() is not None or box.ready())
+    assert box.latched() is None, box.record()['reason']
+    runs = started(box.events())
+    assert runs.count('dbus') == 2 and runs.count('keyring') == 2, runs
+    assert 'wedge dbus' in box.events() and 'lost keyring' in box.events()
 
 
 def test_budget_resets_after_a_healthy_period(make):
