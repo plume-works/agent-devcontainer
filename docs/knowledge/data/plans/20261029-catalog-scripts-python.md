@@ -176,9 +176,16 @@ scripts, the `__common.sh` of git-new-branch and update-branch, and
 `.agents/plugins/agentdev/bin/git-default-branch.sh`, whose last consumers they
 are
 
-- [ ] Each script reproduces its `RESULT` table, `KEY=value` lines, options, and
+- [x] Each script reproduces its `RESULT` table, `KEY=value` lines, options, and
   stash, worktree, and conflict handling; the merge-resolve script gains its
   first test.
+  - **Evidence:** commit 9b9d66c "Port the git workflow skill scripts to
+    Python"; before the `.sh` deletion, `test_git_new_branch.py`,
+    `test_update_branch.py`, `test_git_commit.py`, and the new
+    `test_git_merge_resolve.py` passed against both implementations with
+    identical normalized stdout, stderr, and exit codes on all 62 script runs,
+    and `--help`, an unknown option, and a missing option value matched for each
+    script; `uv run pytest .agents/plugins/agentdev/tests` passed (366).
 - [ ] `git-new-branch.py` decides the worktree parent in a function of the main
   checkout path, the runtime mode, and `--worktree-root`; a test calls it for a
   checkout directly under `/workspaces` in standalone and in other modes, and
