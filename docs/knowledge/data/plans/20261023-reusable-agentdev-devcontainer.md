@@ -19,6 +19,8 @@ sources:
 - resource: .github/workflows/ci.yml
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
+stage: done
+completed: 2026-10-30
 ---
 
 # Publish the reusable agentdev Dev Container image

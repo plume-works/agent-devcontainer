@@ -4,6 +4,21 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-30
+
+- **Update**: [Publish the reusable agentdev Dev Container
+  image](plans/20261023-reusable-agentdev-devcontainer.md) done; created the
+  [agentdev runtime images](spec/agentdev-runtime-images.md) spec and merged the
+  image family into [Image pinning](spec/image-pinning.md), [Catalog
+  lifecycle](spec/catalog-lifecycle.md), [Devcontainer Docker
+  storage](spec/devcontainer-docker-storage.md), [Standalone OpenCode
+  runtime](spec/standalone-opencode-runtime.md), [Playwright
+  browser](spec/playwright-browser.md), [Template
+  consumption](spec/template-consumption.md), and [Claude Remote
+  Control](spec/claude-remote-control.md); [Reusable agentdev Dev
+  Container](features/reusable-agentdev-devcontainer.md) implemented and listed
+  under Unreleased Added.
+
 ## 2026-10-29
 
 - **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),

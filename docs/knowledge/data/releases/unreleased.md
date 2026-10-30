@@ -79,6 +79,8 @@ workspaces](../features/opencode-workspace-cbm-indexing.md)
 [Remote Control autostart in the standalone
 runtime](../features/standalone-remote-control-autostart.md)
 
+[Reusable agentdev Dev Container](../features/reusable-agentdev-devcontainer.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)

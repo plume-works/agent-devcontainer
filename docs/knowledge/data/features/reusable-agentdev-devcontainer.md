@@ -1,6 +1,6 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: A published agentdev-devcontainer image owns the reusable Dev Container lifecycle and supervised services so repositories can use agentdev without copying their implementation.
 generated:
   by: codex/gpt-5
