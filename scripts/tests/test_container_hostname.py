@@ -8,6 +8,7 @@ import subprocess
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 import yaml
 
 REPO_ROOT = Path(__file__).parents[2]
@@ -19,7 +20,7 @@ CHECKOUT = 'agent-devcontainer'
 @pytest.fixture
 def checkout() -> Iterator[Path]:
     """Yield a git checkout holding only the init script, beside a stub docker."""
-    root = REPO_ROOT / '.tmp' / f'container-hostname-{uuid4().hex}'
+    root = TMP_ROOT / f'container-hostname-{uuid4().hex}'
     path = root / CHECKOUT
     (path / '.devcontainer').mkdir(parents=True)
     shutil.copy2(INIT, path / '.devcontainer/devcontainer-init.sh')
