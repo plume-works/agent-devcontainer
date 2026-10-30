@@ -403,29 +403,36 @@ the head SHA as a change in policy, not a bug fix.
 
 Then adapt the workflows themselves:
 
-- Change the owner gate. The preflight `if:` opens with
-  `github.repository_owner == 'plume-works'`; a copy that keeps that literal
-  never runs anywhere else. This gate is deliberate — it stops the workflow
-  running in forks of the template.
+- Change the owner gate. The preflight and `trusted-bot-approval` `if:`
+  conditions open with `github.repository_owner == 'plume-works'`; a copy that
+  keeps that literal never runs anywhere else. This gate is deliberate — it
+  stops the workflow running in forks of the template.
 - Keep the fork gate and the write-access gate exactly as written. They are
   the security spine: together they ensure no fork's code is checked out and
   no actor without write access can drive the responder.
-- Keep the two bot gates as they are: the responder does not auto-review any
-  bot author, while `ai-review-present` waives its requirement only for the
-  bots named in `TRUSTED_BOT_ACTORS`. The asymmetry is deliberate. Bot-authored
-  pull requests get no automatic review — that is a decision about what the
+- Keep the bot gates as they are: the responder does not auto-review any
+  bot author, while `ai-review-present` waives its requirement, and the
+  `trusted-bot-approval` job approves, only for the bots named in
+  `TRUSTED_BOT_ACTORS`. The asymmetry is deliberate. Bot-authored pull
+  requests get no automatic review — that is a decision about what the
   responder is for, not a limitation. Waiving the _requirement_ is a separate
   statement of trust, so it is spelled out as a list rather than inferred from
-  the author being a bot: routine dependency bumps from Renovate and
-  Dependabot merge unreviewed, while a pull request from any other bot gets no
-  AI review and stays blocked, mergeable only by a user with ruleset bypass.
+  the author being a bot: routine dependency bumps from Renovate merge with
+  the job's approval and no AI review, while a pull request from any other bot
+  gets neither and stays blocked, mergeable only by a user with ruleset bypass.
+  A Dependabot-triggered run holds a read-only token, so the job skips it and
+  a Dependabot pull request passes the gate but still needs an approval.
 - Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
   comma-separated list of bot logins, matched exactly and only for authors
   whose `user.type` is `Bot`. A consuming project running its own Renovate
   app, or another bot whose pull requests should merge without review, adds
-  that login here. Widening it to every bot restores the old blanket
-  exemption and hands a green required check to any app that can open a pull
-  request.
+  that login here; the one list drives both the gate waiver and the approval.
+  Widening it to every bot restores the old blanket exemption and hands a green
+  required check and an approval to any app that can open a pull request.
+- A ruleset that requires an approving review needs the organization setting
+  **Allow GitHub Actions to create and approve pull requests**, inherited by
+  the repository. Both the AI reviewer's verdict and the trusted-bot approval
+  post with the workflow's `GITHUB_TOKEN`, which cannot approve without it.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's
   own lifecycle scripts. It exists because a `container:` job runs no
