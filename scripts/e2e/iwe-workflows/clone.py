@@ -41,6 +41,8 @@ FIXTURE_PLANS = (
     'plans/20261027-e2e-conflict.md',
 )
 MARKER = 'published.marker'
+# An untracked file no fixture plan claims, so Verify sees a dirty worktree.
+STRAY = 'e2e/stray.txt'
 GREET_TASK = re.compile(r'^- \[ \] Write `e2e/greet\.txt`', re.MULTILINE)
 TICKED_WITH_EVIDENCE = re.compile(
     r'^- \[x\] .*\n(?:  .*\n)*?  - \*\*Evidence:\*\* \S', re.MULTILINE
@@ -270,6 +272,19 @@ class Clone(Repo):
     def has_marker(self) -> bool:
         """Whether the publish step ran."""
         return self.marker.exists()
+
+    def remove_marker(self) -> None:
+        """Forget an earlier publish, so a later run's publish is observable."""
+        self.marker.unlink(missing_ok=True)
+
+    def add_stray(self) -> None:
+        """Leave an untracked file in the worktree."""
+        (self.path / STRAY).write_text('stray\n')
+
+    def saved_report(self, key: str) -> str | None:
+        """Return the saved Verify report for plan ``key``, or ``None`` when none was saved."""
+        report = self.path / '.tmp/verify' / f'{Path(key).name}.md'
+        return report.read_text() if report.exists() else None
 
     def status(self) -> str:
         """Return ``git status --porcelain``; empty means a clean tree."""
