@@ -301,8 +301,15 @@ skills' `SKILL.md`,
 shared `bash_quote`, and the remote-codespace-session scripts that import it;
 Delete: the two `.sh` scripts and template-consume's `__common.sh`
 
-- [ ] Both scripts reproduce their contracts; the URL parser gains its first
+- [x] Both scripts reproduce their contracts; the URL parser gains its first
   test.
+  - **Evidence:** commit f9be4f0 "Port the template-consume and Actions log
+    helpers to Python"; before the `.sh` deletion,
+    `test_template_consume_check_updates.py` and the new
+    `test_parse_actions_url.py` passed against both implementations with
+    identical normalized stdout and exit codes on all 31 script runs (stderr
+    differs only in the random clone directory name and in the unhandled-error
+    diagnostic); `uv run pytest .agents/plugins/agentdev/tests` passed (469).
 
 ### Task 10: Retire the shell contract
 
