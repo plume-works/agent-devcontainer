@@ -105,18 +105,29 @@ a clean break over carrying two shapes.
 `.agents/plugins/agentdev/README.md`, `docs/knowledge/AGENTS.md`,
 `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md`
 
-- [ ] `SKILL.md` frontmatter description, `## The Name Shape`, the `next`
+- [x] `SKILL.md` frontmatter description, `## The Name Shape`, the `next`
   bullet, and the `NOT_A_WORK_BRANCH` row describe
   `iwe/<slug>/iter-<N>-<phase>`, the shared counter, and v1 names as not work
   branches; the "Never rename or migrate" rule stays
-- [ ] `iwe-implementer.agent.md` step 4 still names the branch through
+  - **Evidence:** commit 2a5aa41 rewrites the description, `## The Name Shape`,
+    the `parse` and `next` bullets, and the `NOT_A_WORK_BRANCH` row; the "Never
+    rename or migrate" rule is unchanged
+- [x] `iwe-implementer.agent.md` step 4 still names the branch through
   `next <plan-key> --phase impl`; any wording that implies a per-phase count is
   removed
-- [ ] The `/agentdev:iwe-branch-name` rows in
+  - **Evidence:** step 4 at commit 2a5aa41 still calls
+    `/agentdev:iwe-branch-name next <plan-key> --phase impl` and has no
+    per-phase count wording, so the file needed no change
+- [x] The `/agentdev:iwe-branch-name` rows in
   `.agents/plugins/agentdev/README.md`, `docs/knowledge/AGENTS.md`, and
   `.agents/plugins/agentdev/skills/iwe-bootstrap/assets/docs/knowledge/AGENTS.md`
   say the skill names a plan's next `iwe/` iteration branch
-- [ ] `validate_agent_files` reports 0 errors for the catalog
+  - **Evidence:** commits 2a5aa41 and 7b3d305 (the bootstrap asset re-synced to
+    its source byte for byte)
+- [x] `validate_agent_files` reports 0 errors for the catalog
+  - **Evidence:** commit 7b3d305;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reports 68/68 skills valid, 0 errors
 
 ### Task 3: End-to-end fixtures expect the v2 name
 
