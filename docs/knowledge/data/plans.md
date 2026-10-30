@@ -19,14 +19,14 @@ moves them.*
 
 [Verify report cache](plans/20261030-verify-report-cache.md)
 
-[Run the Dev Container as a non-root account with one home
-volume](plans/20261030-devcontainer-home-volume.md)
+[Port the catalog's bundled shell scripts to
+Python](plans/20261029-catalog-scripts-python.md)
 
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
-[Port the catalog's bundled shell scripts to
-Python](plans/20261029-catalog-scripts-python.md)
+[Run the Dev Container as a non-root account with one home
+volume](plans/20261030-devcontainer-home-volume.md)
 
 [Share one BuildKit builder across Coder
 workspaces](plans/20261013-shared-buildkit-workspace.md)

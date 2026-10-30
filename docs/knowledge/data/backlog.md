@@ -18,10 +18,11 @@ write a plan and link the plan instead.*
 
 ## Medium
 
-[Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
+[Clean up the local checkout after
+pr-merge](backlog/pr-merge-post-merge-cleanup.md)
 
-[Exercise REMOVED delta blocks end to
-end](backlog/exercise-removed-delta-blocks.md)
+[Verify that auto-merge waits for an assignee-triggered
+review](backlog/verify-assignee-review-automerge.md)
 
 [Fail a review run that published no
 review](backlog/fail-review-run-without-review.md)
@@ -29,17 +30,16 @@ review](backlog/fail-review-run-without-review.md)
 [Test the responder workflow's inline
 JavaScript](backlog/test-responder-workflow-js.md)
 
-[Clean up the local checkout after
-pr-merge](backlog/pr-merge-post-merge-cleanup.md)
-
-[Verify that auto-merge waits for an assignee-triggered
-review](backlog/verify-assignee-review-automerge.md)
-
 [Supervise Claude Remote Control in Coder
 workspaces](backlog/coder-supervised-remote-control.md)
 
 [Make plan task evidence survive history
 rewrites](backlog/resilient-task-evidence.md)
+
+[Exercise REMOVED delta blocks end to
+end](backlog/exercise-removed-delta-blocks.md)
+
+[Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
 
 ## Low
 
@@ -48,14 +48,14 @@ rewrites](backlog/resilient-task-evidence.md)
 [Smoke-test the agentdev-base catalog without lifecycle
 commands](backlog/base-image-catalog-smoke-test.md)
 
-[Detect plan narration growth
-mechanically](backlog/detect-plan-narration-growth.md)
-
 [Clean up the local checkout after
 pr-merge-stack](backlog/pr-merge-stack-post-merge-cleanup.md)
 
 [Drop the `@claude <custom prompt>` free-form task
 trigger](backlog/drop-claude-free-form-task-trigger.md)
+
+[Detect plan narration growth
+mechanically](backlog/detect-plan-narration-growth.md)
 
 ## Done
 
