@@ -147,8 +147,11 @@ a clean break over carrying two shapes.
 
 **Files:** none
 
-- [ ] The Claude Code and OpenCode start-on-main Implement e2e tests pass,
+- [x] The Claude Code and OpenCode start-on-main Implement e2e tests pass,
   ending on `iwe/e2e-branch/iter-1-impl` pushed to the fixture remote
+  - **Evidence:** at commit 6a46988,
+    `E2E_RUN_LIVE=1 uv run pytest scripts/e2e/iwe-workflows/test_iwe_workflows_claude.py::test_implement_on_main scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py::test_implement_on_main`
+    — 2 passed
 
 ### Task 5: Project memory names the v2 shape
 
