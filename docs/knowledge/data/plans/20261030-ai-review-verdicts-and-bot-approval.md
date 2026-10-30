@@ -176,11 +176,17 @@ Assumptions:
 **Files:** Modify:
 `docs/knowledge/data/architecture/ai-review-event-selection.md`
 
-- [ ] `## Decision` states the severity-only rule from `## Approach`; the
+- [x] `## Decision` states the severity-only rule from `## Approach`; the
   `COMMENT`-preference rationale is replaced by the one-approval ruleset and the
   per-reviewer change-request rule it must satisfy.
-- [ ] The superseded rule and the anchored-blocking `APPROVE` variant are listed
+  - **Evidence:** commit `390c699` — `## Decision` carries the severity table;
+    `## Why the verdict follows severity` rests it on the one-approval ruleset
+    and the per-reviewer change-request rule; `iwe schema validate` passed.
+- [x] The superseded rule and the anchored-blocking `APPROVE` variant are listed
   under `## Alternatives rejected` with the reasons in `## Approach`.
+  - **Evidence:** commit `390c699` — `## Alternatives rejected` lists `COMMENT`
+    for anchored blocking findings and `APPROVE` with anchored blocking
+    findings, with the `## Approach` reasons.
 
 ### Task 4: Feature and template guidance describe the approval
 
