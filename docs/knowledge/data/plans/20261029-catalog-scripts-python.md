@@ -314,8 +314,9 @@ Delete: the two `.sh` scripts and template-consume's `__common.sh`
 ### Task 10: Retire the shell contract
 
 **Files:** Modify: `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md`,
-`.agents/plugins/agentdev/tests/test_result_codes.py`, `.agents/AGENTS.md`;
-Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
+`.agents/plugins/agentdev/tests/test_result_codes.py`, `.agents/AGENTS.md`,
+`.agents/plugins/agentdev/bin/result_codes.py`, whose docstring names the shell
+helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
 
 - [ ] The skill-scripts skill documents the Python contract only:
   `result_codes.py`, the stdout and stderr rules, the `sys.path` import, the
