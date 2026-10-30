@@ -102,8 +102,10 @@ def test_ship_reuses_saved_report(base_clone: Clone) -> None:
     assert len(verify.agent_prompts(VERIFIER)) == 1, (
         f'one iwe-verifier dispatch\n{verify.excerpt("Agent")}'
     )
-    saved = base_clone.saved_report(HELLO_KEY)
-    assert saved is not None and APPROVAL in saved, f'report saved with its prompts\n{saved}'
+    prompt = base_clone.saved_prompt(HELLO_KEY, 'verifier_prompt')
+    assert prompt is not None and APPROVAL in prompt, (
+        f'verifier prompt saved with the approval\n{base_clone.saved_report(HELLO_KEY)}'
+    )
     verified = base_clone.head()
     base_clone.remove_marker()
     ship = run(base_clone, 'saved-ship', f'/agentdev:iwe-ship {HELLO_KEY}')

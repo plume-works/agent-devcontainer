@@ -62,9 +62,10 @@ repeating its test and e2e runs. The lookup and save are a bundled script in the
 skill, the one place both routes reach on every harness. Trust in `.tmp/verify/`
 rests on a rule: only that script writes it.
 
-The catalog digest hashes files on disk rather than Git-tracked ones, because an
-installed plugin is not a Git checkout; inside this repository the commit
-already covers the catalog, and the digest adds nothing there.
+The catalog digest hashes the files of the catalog the script runs from, on disk
+rather than Git-tracked, because an installed plugin is not a Git checkout, and
+a session can load an installed catalog that differs from the one the commit
+holds.
 
 `/agentdev:iwe-verify` stays model-invocable: Verify mutates nothing, and the
 Implement loop invokes it to get a fresh-context verdict, so an explicit-only

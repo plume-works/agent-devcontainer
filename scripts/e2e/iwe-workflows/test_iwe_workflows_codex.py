@@ -133,8 +133,10 @@ def test_ship_reuses_saved_report(codex_clone: Clone) -> None:
     prompt = f'$agentdev:iwe-verify {HELLO_KEY} — {APPROVAL}'
     verify = run(codex_clone, 'saved-verify', prompt)
     assert verify.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{verify.spawns()}'
-    saved = codex_clone.saved_report(HELLO_KEY)
-    assert saved is not None and APPROVAL in saved, f'report saved with its prompts\n{saved}'
+    prompt = codex_clone.saved_prompt(HELLO_KEY, 'verifier_prompt')
+    assert prompt is not None and APPROVAL in prompt, (
+        f'verifier prompt saved with the approval\n{codex_clone.saved_report(HELLO_KEY)}'
+    )
     verified = codex_clone.head()
     ship = run(codex_clone, 'saved-ship', f'$agentdev:iwe-ship {HELLO_KEY}')
     reports = ship.agent_results(SHIPPER)

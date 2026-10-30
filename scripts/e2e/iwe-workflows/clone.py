@@ -286,6 +286,12 @@ class Clone(Repo):
         report = self.path / '.tmp/verify' / f'{Path(key).name}.md'
         return report.read_text() if report.exists() else None
 
+    def saved_prompt(self, key: str, field: str) -> str | None:
+        """Return the ``field`` block scalar of plan ``key``'s saved report, or ``None``."""
+        report = self.saved_report(key)
+        block = re.search(rf'^{field}: \|2-\n((?:  .*\n|\n)*)', report or '', re.MULTILINE)
+        return None if block is None else re.sub(r'^  ', '', block.group(1), flags=re.MULTILINE)
+
     def status(self) -> str:
         """Return ``git status --porcelain``; empty means a clean tree."""
         return self.git('status', '--porcelain')
