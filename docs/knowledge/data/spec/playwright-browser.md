@@ -1,14 +1,14 @@
 ---
 type: spec
-description: The pinned Playwright CLI and matching Chromium browser the published agent-desktop image provides, and the boundary with project-owned Playwright dependencies.
+description: The pinned Playwright CLI and matching Chromium browser the published agentdev-base image provides to both runtime images, and the boundary with project-owned Playwright dependencies.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T06:36:50Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T02:01:26Z
 sources:
 - resource: ansible/roles/playwright_browser/defaults/main.yml
 - resource: ansible/roles/playwright_browser/tasks/main.yml
 - resource: ansible/playbooks/setup-dev.yml
-- resource: docker/desktop/agent-desktop.Dockerfile
+- resource: docker/base/agentdev-base.Dockerfile
 - resource: .github/workflows/ci.yml
 - resource: https://playwright.dev/docs/browsers
 ---
@@ -19,8 +19,9 @@ sources:
 
 ### Requirement: the development image provides a version-matched Playwright browser
 
-The published `agent-desktop` image SHALL provide a pinned Playwright CLI and
-its matching Chromium browser and Linux dependencies from an image-owned path.
+The published `agentdev-base` image SHALL provide a pinned Playwright CLI and
+its matching Chromium browser and Linux dependencies from an image-owned path,
+and both runtime images SHALL inherit it.
 
 #### Scenario: a consumer launches the bundled browser
 

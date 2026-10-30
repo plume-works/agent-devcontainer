@@ -3,7 +3,7 @@ type: spec
 description: Claude Remote Control autostarts from the Coder agent, or from the standalone runtime's supervised watcher when AGENTDEV_CLAUDE_RC_MODE opts in, only on a live claude.ai login, inheriting the agent's environment and either resuming its pinned conversation or, opted in with AGENTDEV_CLAUDE_RC_MODE=server, running a spawn-on-demand server that gives each spawned conversation its own git worktree unless AGENTDEV_CLAUDE_RC_SPAWN=same-dir, and every container pre-approves Claude's first-run state unless it opts out.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T12:00:00Z
+  at: 2026-10-30T02:01:26Z
 sources:
 - resource: .claude/.gitignore
 - resource: .devcontainer/docker-compose.yml
@@ -37,9 +37,9 @@ Claude credentials come only from a `/login` inside a container, persisted in
 the shared `agentdev-agents-auth` volume ([Agent auth
 persistence](../architecture/agent-auth-persistence.md)). On top of that login,
 a Coder workspace starts Claude Remote Control unattended under the Coder agent,
-the standalone `agent-opencode` runtime starts it when `AGENTDEV_CLAUDE_RC_MODE`
-opts in, and every devcontainer answers Claude's first-run prompts ahead of
-time.
+the standalone `agentdev-deploy` runtime starts it when
+`AGENTDEV_CLAUDE_RC_MODE` opts in, and every devcontainer answers Claude's
+first-run prompts ahead of time.
 
 ## Requirements
 
@@ -312,7 +312,7 @@ script execs `claude-remote-control-start.sh` ([Devcontainer Git
 credentials](devcontainer-git-credentials.md)). The `coder_script` runs nothing
 when the repository ships no such script.
 
-In the standalone `agent-opencode` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
+In the standalone `agentdev-deploy` runtime, set `AGENTDEV_CLAUDE_RC_MODE` to
 `session` or `server` (and, in server mode, optionally
 `AGENTDEV_CLAUDE_RC_SPAWN`); its `remote-control` watcher then starts the script
 once a claude.ai login exists, and `runtime-health.sh status` reports what it is

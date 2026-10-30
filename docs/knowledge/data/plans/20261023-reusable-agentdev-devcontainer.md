@@ -397,7 +397,7 @@ Modify: `README.md`, `docs/user-stories/agent-containers.md`,
 
 ## Spec changes
 
-### `data/spec/agentdev-runtime-images`
+### [agentdev runtime images](../spec/agentdev-runtime-images.md)
 
 ``` markdown
 ## ADDED Requirements
