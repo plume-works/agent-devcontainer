@@ -4,6 +4,15 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-30
+
+- **Update**: [Name Remote Control environments after their
+  launcher](plans/20261029-remote-control-environment-names.md) done; merged the
+  launcher hostname requirement into [Claude Remote
+  Control](spec/claude-remote-control.md); [Remote Control environment
+  names](features/remote-control-environment-names.md) implemented and listed
+  under Unreleased Added.
+
 ## 2026-10-29
 
 - **Update**: refreshed 14 [codebase map](codebase.md) docs for the agentdev
