@@ -55,8 +55,7 @@ out = subprocess.run(
     text=True,
 ).stdout
 current = {
-    m.group(1): m.group(2)
-    for m in re.finditer(r'^STALE (\S+) source_digest (\S+)$', out, re.M)
+    m.group(1): m.group(2) for m in re.finditer(r'^STALE (\S+) source_digest (\S+)$', out, re.M)
 }
 for key in sys.argv[1:]:
     path = ROOT / 'docs/knowledge' / f'{key}.md'
@@ -64,15 +63,19 @@ for key in sys.argv[1:]:
     head, body = text.split('\n---\n', 1)
     head = re.sub(r'^source_digest: .*$', f'source_digest: {current[key]}', head, flags=re.M)
     head = re.sub(
-        r'^verified:\n  by: .*\n  at: .*$', f'verified:\n  by: {ACTOR}\n  at: {now}', head, flags=re.M
+        r'^verified:\n  by: .*\n  at: .*$',
+        f'verified:\n  by: {ACTOR}\n  at: {now}',
+        head,
+        flags=re.M,
     )
     head = re.sub(
-        r'^generated:\n  by: .*\n  at: .*$', f'generated:\n  by: {ACTOR}\n  at: {now}', head, flags=re.M
+        r'^generated:\n  by: .*\n  at: .*$',
+        f'generated:\n  by: {ACTOR}\n  at: {now}',
+        head,
+        flags=re.M,
     )
     head = re.sub(r'^stale_after: .*$', f'stale_after: {stale_after}', head, flags=re.M)
-    body = re.sub(
-        r'line numbers as of \d{4}-\d{2}-\d{2}', f'line numbers as of {now[:10]}', body
-    )
+    body = re.sub(r'line numbers as of \d{4}-\d{2}-\d{2}', f'line numbers as of {now[:10]}', body)
     path.write_text(head + '\n---\n' + body)
     print('stamped', key)
 ```

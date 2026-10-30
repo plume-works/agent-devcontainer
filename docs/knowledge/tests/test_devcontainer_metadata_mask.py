@@ -21,7 +21,7 @@ PLUGIN_BIN = REPO_ROOT / '.agents/plugins/agentdev/bin'
 METADATA = REPO_ROOT / '.devcontainer/.agent.metadata.json'
 DEVCONTAINER = REPO_ROOT / '.devcontainer/devcontainer.json'
 LOCK = REPO_ROOT / '.devcontainer/devcontainer-lock.json'
-TMP_ROOT = REPO_ROOT / '.tmp'
+TMP_ROOT = Path('/tmp/agentdev-tests')
 FEATURE = 'ghcr.io/devcontainers/features/sshd'
 FEATURE_ENTRY = re.compile(
     rf'(?m)^\s*"(?P<feature>{re.escape(FEATURE)}):(?P<version>\d+(?:\.\d+)*)": \{{\}},?$'

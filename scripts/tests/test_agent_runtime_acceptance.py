@@ -25,10 +25,10 @@ import urllib.request
 from uuid import uuid4
 
 import pytest
+from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TESTS = Path(__file__).resolve().parent
-TMP_ROOT = REPO_ROOT / '.tmp'
 IMAGE = os.environ.get('AGENTDEV_RUNTIME_TEST_IMAGE', '')
 PREVIOUS_IMAGE = os.environ.get('AGENTDEV_RUNTIME_PREVIOUS_IMAGE', '')
 LABEL = 'agentdev.test=acceptance'

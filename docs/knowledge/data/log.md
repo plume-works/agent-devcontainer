@@ -4,8 +4,42 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-30
+
+- **Update**: refreshed the [github](codebase/github.md) and [pull request
+  checks flow](codebase/flow-pull-request-checks.md) map docs for the single
+  Renovate group that now carries both agentdev image digests.
+- **Update**: [Name Remote Control environments after their
+  launcher](plans/20261029-remote-control-environment-names.md) done; merged the
+  launcher hostname requirement into [Claude Remote
+  Control](spec/claude-remote-control.md); [Remote Control environment
+  names](features/remote-control-environment-names.md) implemented and listed
+  under Unreleased Added.
+- **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
+  [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the
+  launcher-derived container hostname.
+- **Update**: the launcher hostname is now derived inside
+  `devcontainer-init.sh`, since a migrated consumer keeps no
+  `.devcontainer/scripts/`; [Claude Remote
+  Control](spec/claude-remote-control.md) and the devcontainer map docs say so.
+
 ## 2026-10-29
 
+- **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
+  [agentdev tests](codebase/agents/plugins/agentdev/tests.md), [knowledge
+  workspace](codebase/docs/knowledge.md),
+  [validate_agent_files](codebase/py_packages/validate_agent_files.md), and [its
+  tests](codebase/py_packages/validate_agent_files/tests.md) map docs after test
+  scratch moved under `/tmp/agentdev-tests`.
+- **Update**: re-stamped the [agentdev](codebase/agents/plugins/agentdev.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
+  [knowledge workspace](codebase/docs/knowledge.md) map docs after the
+  `generated.by` actor wording became a pattern.
+- **Update**: re-verified 10 [codebase map](codebase.md) docs after the agentdev
+  images were pinned to their promoted `edge` digests and the remaining
+  repository references named the canonical images.
 - **Update**: refreshed 14 [codebase map](codebase.md) docs for the agentdev
   image family — the base and its deploy and Dev Container siblings, the
   image-owned lifecycle commands and hooks, the four-image CI pipeline and its

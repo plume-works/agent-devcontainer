@@ -1,6 +1,6 @@
-# Deploying agent-opencode
+# Deploying agentdev-deploy
 
-This guide takes a host from nothing to a running `agent-opencode` project behind
+This guide takes a host from nothing to a running `agentdev-deploy` project behind
 TLS, then shows how to check that logins and sessions survive replacement and
 upgrade. The settings, storage, and operating reference is the
 [Standalone OpenCode runtime](../../README.md#standalone-opencode-runtime) section of
@@ -33,7 +33,7 @@ The deployment is three Compose files and an env-file template. Clone the reposi
 or fetch the files at the commit you want to run:
 
 ```bash
-mkdir -p ~/agent-opencode && cd ~/agent-opencode
+mkdir -p ~/agentdev-deploy && cd ~/agentdev-deploy
 base=https://raw.githubusercontent.com/plume-works/agent-devcontainer/main
 for f in compose.opencode.yml compose.opencode.bind.yml opencode-compose-pins.yml \
   docker/deploy/runtime.env.example; do
@@ -79,7 +79,7 @@ The `-p` name scopes the project's volumes and its container name,
 `<project>-opencode-1`.
 
 ```bash
-cd ~/agent-opencode
+cd ~/agentdev-deploy
 # Clone mode: the first start clones the repository into the workspace volume.
 docker compose -p myproject --env-file ~/secrets/myproject.env \
   -f compose.opencode.yml -f opencode-compose-pins.yml up -d

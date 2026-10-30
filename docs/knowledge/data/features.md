@@ -115,3 +115,7 @@ conflicts](features/pr-feedback-resolves-merge-conflicts.md)
 runtime](features/standalone-remote-control-autostart.md)
 
 [Autonomous Implement loop](features/autonomous-implement-loop.md)
+
+[agentdev-runtime CLI](features/agentdev-runtime-cli.md)
+
+[Remote Control environment names](features/remote-control-environment-names.md)

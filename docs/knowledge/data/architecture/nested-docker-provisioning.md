@@ -1,10 +1,12 @@
 ---
 type: architecture
-description: Docker-in-Docker comes from the upstream devcontainer feature rather than a hand-rolled dockerd bootstrap, and SSH comes from the sshd feature plus image-level packages, so the same image works from a Codespace.
+description: The agentdev-devcontainer runtime supervises the nested dockerd instead of the Docker-in-Docker feature, on a per-container /var/lib/docker volume, and SSH comes from the sshd feature plus image-level packages, so the same image works from a Codespace.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-04T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-29T21:00:00Z
 sources:
+- resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
+- resource: .devcontainer/scripts/runtime-docker.sh
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/devcontainer-lock.json
 - resource: .devcontainer/devcontainer-init.sh
@@ -18,25 +20,27 @@ sources:
 
 ## Decision
 
-The nested Docker engine is provided by the upstream
-`ghcr.io/devcontainers/features/docker-in-docker` feature, with its resolved
-version pinned in `devcontainer-lock.json`. No repository script starts,
-detects, or restarts `dockerd`.
+The nested Docker engine is a supervised service of the `agentdev-devcontainer`
+runtime: `runtime-docker.sh run` starts `dockerd`, and the runtime controller
+gates readiness on it and recovers it within its budget. The image's Dev
+Container metadata mounts a per-container volume at `/var/lib/docker`.
 
-SSH is provided the same way, by the `devcontainers/features/sshd` feature,
-while the packages it needs (`openssh-server`, `rsync`) are installed in the
-image by Ansible.
+SSH is provided by the `devcontainers/features/sshd` feature, while the packages
+it needs (`openssh-server`, `rsync`) are installed in the image by Ansible.
 
-## Why a feature rather than a bootstrap script
+## Why the runtime owns the engine
 
 A nested `dockerd` cannot use the container's own overlay-mounted writable layer
-for `/var/lib/docker` — overlayfs on overlayfs, which the kernel rejects.
-Solving that in the repository means carrying storage-driver fallback, PID and
-socket detection, and restart logic, invoked from every lifecycle hook that
-might find the daemon down.
+for `/var/lib/docker`, so the engine needs a separate mount and someone has to
+start, watch, and restart it. The runtime already supervises every other service
+the editor relies on, with readiness and bounded recovery; the engine joins that
+graph, and `runtime-docker.sh` refuses to start without the separate mount.
 
-The feature owns that problem upstream and manages its own Docker storage, so no
-repository-declared volume is needed to give `dockerd` a non-overlay filesystem.
+The upstream `ghcr.io/devcontainers/features/docker-in-docker` feature was the
+previous provider. Keeping it beside the supervised engine was rejected because
+two components would then start and restart one daemon, so exactly one owns it.
+The same supervised engine serves the deploy image, which has no Dev Containers
+client to run a feature (see [Dev Container runtime](devcontainer-runtime.md)).
 
 ## Why the SSH capability is split across a feature and the image
 
@@ -60,7 +64,8 @@ error.
 
 ## Consequences
 
-- Upgrading either capability is a version bump in `devcontainer.json` plus a
-  regenerated `devcontainer-lock.json`, not a script change.
-- The features run at container-create time, so they take effect even before a
-  rebuilt image carries the packages.
+- Upgrading Docker is an image change; upgrading SSH configuration is a feature
+  version bump in `devcontainer.json` plus a regenerated
+  `devcontainer-lock.json`.
+- The sshd feature runs at container-create time, so it takes effect even before
+  a rebuilt image carries the packages.

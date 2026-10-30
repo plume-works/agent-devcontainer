@@ -29,14 +29,24 @@
    1. I have repo that only has iwe kb and CI adopted, the rest is coming as devcontainer derived from agentdev-devcontainer image
    1. I have my own devcontainer derived from agentdev-devcontainer image
 
-agentdev-devcontainer image: agentdev's image that bundles all needed scripts. Scripts include customization points via environment variables and executable files in ordered hook directories, without replacing managed runtime files.
+`agentdev-devcontainer` image: agentdev's image that bundles all needed scripts. It runs the persistent services from its entrypoint and supplies the create, start, and attach lifecycle commands through its Dev Container metadata. Scripts include customization points via environment variables and executable files in ordered hook directories (`/etc/agentdev/hooks/{created,started,attached}.d/`), without replacing managed runtime files.
 
---
+The three sub-scenarios above are the supported adoption modes:
 
-Image tree:
+- **Full adoption** — `/agentdev:template-consume` copies the descriptor, Compose file, and workflows; it remains supported and uses the same published runtime.
+- **Direct** — a descriptor references `agentdev-devcontainer` by tag and digest and copies no lifecycle script.
+- **Derived** — a custom image starts `FROM agentdev-devcontainer` and adds tooling and hooks.
 
+See [Dev Container runtime](../knowledge/data/architecture/devcontainer-runtime.md).
+
+## Image tree
+
+```text
 ubuntu
-|--- agentdev-ansible
-|--- agentdev-base (renamed agent-desktop, bundles plugins and basic tools)
-|--- agentdev-deploy (renamed agent-opencode)
-|--- agentdev-devcontainer (new image, includes all devcontainer scripts as described above)
+└── ubuntu-ansible
+    └── agentdev-base          lifecycle-neutral: tools, staged catalog, validators
+        ├── agentdev-deploy        single-project runtime, no Dev Containers client
+        └── agentdev-devcontainer  Dev Container runtime and lifecycle commands
+```
+
+`agentdev-base` replaces `agent-desktop`, and `agentdev-deploy` replaces `agent-opencode`; the old names are no longer published.

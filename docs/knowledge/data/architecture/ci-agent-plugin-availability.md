@@ -3,7 +3,7 @@ type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-29T08:30:00Z
+  at: 2026-10-29T22:00:00Z
 sources:
 - resource: .devcontainer/scripts/postCreateCommand.sh
 - resource: .devcontainer/scripts/postAttachCommand.sh
@@ -32,8 +32,8 @@ job needs no `packages: read` permission.
 
 ## Problem this solved
 
-The `agent-desktop` image stages the plugin catalog at `/opt/agentdev` but does
-not install it: the marketplace is not registered and the plugin cache under
+The agentdev images stage the plugin catalog at `/opt/agentdev` but does not
+install it: the marketplace is not registered and the plugin cache under
 `~/.claude` is empty. Installation belongs to the container's lifecycle scripts,
 because `~/.claude` and `~/.codex` are commonly mounted as volumes that would
 shadow anything the build wrote.

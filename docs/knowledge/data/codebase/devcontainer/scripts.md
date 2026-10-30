@@ -2,14 +2,14 @@
 type: codebase
 description: The runtime both agentdev images bake at /opt/agentdev-runtime — the supervisor and its deploy and devcontainer profiles, the Dev Container create, start, and attach commands with their hook runner, and the helpers they call, from agent-state setup, catalog reinstalls, codebase-memory-mcp wiring, uv sync, keyring, firewall, auth links, and full-access policies to the gh credential helper, the Coder agent-start entry point, Remote Control, and the OpenCode web UI.
 source: .devcontainer/scripts
-source_digest: sha256:d498b68088ad9e410ecc1a2ea752b2a86c255c89e2deb09d1c92b5042c83b6ed
+source_digest: sha256:eb01aefc83218c446b4995da475976d7ff08c5e3932c4805615101b6fe39f1ef
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
-stale_after: 2027-01-27
+  at: 2026-10-30T01:30:00Z
+stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
+  at: 2026-10-30T01:30:00Z
 sources:
 - id: code
   resource: .devcontainer/scripts
@@ -221,11 +221,11 @@ Verified anchor points (line numbers as of 2026-10-29):
   `preflight`; `:1044` — `execute`; `:1074` — `retry`; `:289,306` — the deploy
   and devcontainer service graphs; `:317` — `PROFILES`
 - `.devcontainer/scripts/runtime-remote-control.sh:31` — `cmd_run`
-- `.devcontainer/scripts/runtime-bootstrap.sh:97` — `claim_instance_dir`; `:127`
-  — `prepare_shared_auth`; `:177` — `verify_runtime_root`; `:191` —
-  `bootstrap_devcontainer`; `:213` — firewall last
-- `.devcontainer/scripts/runtime-workspace.sh:29` — `validate_checkout`; `:43` —
-  `clone_workspace`; `:91` — `select_catalog`; `:109` — `cmd_prepare`; `:117` —
+- `.devcontainer/scripts/runtime-bootstrap.sh:96` — `claim_instance_dir`; `:126`
+  — `prepare_shared_auth`; `:176` — `verify_runtime_root`; `:190` —
+  `bootstrap_devcontainer`; `:212` — firewall last
+- `.devcontainer/scripts/runtime-workspace.sh:28` — `validate_checkout`; `:42` —
+  `clone_workspace`; `:90` — `select_catalog`; `:108` — `cmd_prepare`; `:116` —
   `cmd_config`
 - `.devcontainer/scripts/runtime-cbm.sh:80` — `kill_generation`; `:92` —
   `cmd_install`; `:154` — `cmd_index`; `:179` — `cmd_run`

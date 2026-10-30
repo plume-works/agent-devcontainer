@@ -1,7 +1,7 @@
 """
 Rejection checks for the body shape the bug and feature schemas require.
 
-Each test copies the graph into the repo-root `.tmp/`, breaks one conforming
+Each test copies the graph into `/tmp`, breaks one conforming
 bug or feature document the way a hand-written one would, and asserts that
 `iwe schema validate` refuses it and names the section at fault.
 """
@@ -19,7 +19,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DATA = REPO_ROOT / 'docs' / 'knowledge' / 'data'
 IWE_CONFIG = REPO_ROOT / '.iwe'
-TMP_ROOT = REPO_ROOT / '.tmp'
+TMP_ROOT = Path('/tmp/agentdev-tests')
 
 SECTION = re.compile(r'^## .+\n(?:(?!## ).*\n?)*', re.M)
 

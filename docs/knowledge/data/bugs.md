@@ -127,3 +127,6 @@ degraded](bugs/cbm-start-failure-latches-degraded.md)
 
 [Bug: a client is recovered on its own budget before its dependency's failure is
 confirmed](bugs/supervisor-client-recovered-before-dependency.md)
+
+[Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing
+says so](bugs/workspace-image-lacks-hook-binaries.md)

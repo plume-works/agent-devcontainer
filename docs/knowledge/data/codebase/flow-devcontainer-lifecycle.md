@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - docker/desktop
-source_digest: sha256:78fb1cb27e991356f27ba26de449041e550934d0e7ac7add7381b553f218a5e3
+source_digest: sha256:65c84f3ea580d20c2c0fad8acca8aaa100abdd03490dcb0156b9f0135b44cd2b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
-stale_after: 2027-01-27
+  at: 2026-10-30T02:30:00Z
+stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T19:42:03Z
+  at: 2026-10-30T02:30:00Z
 sources:
 - id: code
   resource: .devcontainer
@@ -27,17 +27,18 @@ state.
 ## Trace
 
 1. `initializeCommand` runs `devcontainer-init.sh` on the host: writes
-   `.devcontainer/.env` and creates the shared `agentdev-agents-auth` volume —
-   `.devcontainer/devcontainer.json:3`,
-   `.devcontainer/devcontainer-init.sh:13-35`
+   `.devcontainer/.env`, including the `CONTAINER_HOSTNAME` it derives from the
+   launcher (Coder, VS Code, or the CLI), and creates the shared
+   `agentdev-agents-auth` volume — `.devcontainer/devcontainer.json:3`,
+   `.devcontainer/devcontainer-init.sh:13-53`
 2. Compose starts the `devcontainer` service from the pinned
-   `agentdev-devcontainer` image, layering `devcontainer-compose-pins.yml` over
-   `docker-compose.yml`, and the `mcp-gateway` sidecar when the `mcp` profile
-   was written to `.env`. The Dev Containers tool merges the image's
-   `devcontainer.metadata` — privileged mode, the kept entrypoint, the
-   `/var/lib/docker` volume, and the three lifecycle commands — under the
-   descriptor — `.devcontainer/devcontainer.json:7`,
-   `.devcontainer/docker-compose.yml:2,53`,
+   `agentdev-devcontainer` image under that hostname, layering
+   `devcontainer-compose-pins.yml` over `docker-compose.yml`, and the
+   `mcp-gateway` sidecar when the `mcp` profile was written to `.env`. The Dev
+   Containers tool merges the image's `devcontainer.metadata` — privileged mode,
+   the kept entrypoint, the `/var/lib/docker` volume, and the three lifecycle
+   commands — under the descriptor — `.devcontainer/devcontainer.json:7`,
+   `.devcontainer/docker-compose.yml:2,53,59`,
    `docker/devcontainer/agentdev-devcontainer.Dockerfile:41-50`
 3. PID 1 is `runtime-supervisor.py run` in the `devcontainer` profile: the root
    bootstrap checks `/opt/agentdev-runtime` against the image manifest and
@@ -45,7 +46,7 @@ state.
    keyring, Docker, CBM, and Xpra as core services and publishes readiness in
    `/run/agentdev/state.json` once their probes pass —
    `.devcontainer/scripts/runtime-supervisor.py:966`,
-   `.devcontainer/scripts/runtime-bootstrap.sh:191`, in [lifecycle
+   `.devcontainer/scripts/runtime-bootstrap.sh:190`, in [lifecycle
    scripts](devcontainer/scripts.md)
 4. `postCreateCommand` (once per container): ancestor and mount ownership,
    `safe.directory`, then `setup-agent-state.sh create` — the `~/.claude.json`

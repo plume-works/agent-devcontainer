@@ -55,7 +55,7 @@ install_ansible() {
 }
 
 provision_environment() {
-    log "Provisioning the agent-desktop environment"
+    log "Provisioning the agentdev-base environment"
     ansible-playbook ansible/playbooks/setup-dev.yml \
         -vvv \
         -e "workspace_folder=$WORKSPACE_FOLDER \
