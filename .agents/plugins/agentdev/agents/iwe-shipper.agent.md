@@ -74,7 +74,10 @@ needed. In particular:
    catalog when one exists, and otherwise you follow the `iwe-verifier`
    rulebook in your own context, including its named verification commands and
    evidence checks. Never dispatch an agent. A saved report is the Verify
-   report for every later step. A command with effects beyond
+   report for every later step. When the skill stops on a dirty worktree —
+   typically uncommitted edits an earlier, interrupted Ship left behind — make
+   no mutation and return a Ship blocker report listing the dirty paths. A
+   command with effects beyond
    the working tree runs only under a quoted approval that names it; otherwise
    stop as above. If the report contains any CRITICAL finding, make no shipping
    state transition and return a **Ship blocker report** (below); there is no
@@ -183,6 +186,8 @@ evidence. It names the plan and, for each blocker, the route that answers it:
   missing or unresolvable `release` declaration:
   `/agentdev:iwe-plan` revise mode on that plan, which re-dispatches this agent
   once the revision validates.
+- **Dirty worktree** — uncommitted changes Verify refuses to judge: the user
+  commits or discards the listed paths, then runs `/agentdev:iwe-ship` again.
 
 ## Rules
 
