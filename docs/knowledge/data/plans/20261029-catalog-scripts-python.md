@@ -149,11 +149,17 @@ which would make 26 untested scripts' behaviour a matter of reading.
 `.agents/plugins/agentdev/tests/test_git_new_branch.py`,
 `docs/knowledge/data/bugs/git-new-branch-worktree-unwritable-workspaces.md`
 
-- [ ] Under `AGENTDEV_RUNTIME_MODE=standalone`, worktree mode without
+- [x] Under `AGENTDEV_RUNTIME_MODE=standalone`, worktree mode without
   `--worktree-root` uses `<main checkout>/.worktrees/`, added to
   `.git/info/exclude` unless Git already ignores it, wherever the checkout
   lives; the help text and the skill say so; a test runs the standalone case for
   a checkout outside `/workspaces`; the bug's `## Fix` records the fix.
+  - **Evidence:** commit 42b277e "Keep standalone worktrees inside the
+    checkout"; `uv run pytest .agents/plugins/agentdev/tests` passed (353),
+    including
+    `test_standalone_worktree_mode_uses_the_ignored_worktrees_directory` and,
+    with `/workspaces` writable,
+    `test_standalone_worktree_mode_under_workspaces_stays_in_the_checkout`.
 
 ### Task 4: Git workflow skills
 
