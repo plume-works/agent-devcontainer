@@ -240,7 +240,7 @@ SHALL continue on the current branch otherwise.
 
 - **WHEN** Implement begins plan `data/plans/<date>-<slug>` with `main` checked
   out
-- **THEN** it creates branch `impl/<slug>/iter-<N>`, with `N` from
+- **THEN** it creates branch `iwe/<slug>/iter-<N>-impl`, with `N` from
   iwe-branch-name, through git-new-branch before executing any task
 
 #### Scenario: Implementation starts on a feature branch
