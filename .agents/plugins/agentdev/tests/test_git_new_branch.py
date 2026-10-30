@@ -4,14 +4,17 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
 from pathlib import Path
 import shutil
 import subprocess
-from uuid import uuid4
+from types import ModuleType
 
 from git_fixtures import FIXTURE_ENV, git, outcome, stub_gh
 import pytest
+
+SCRIPT_PATH = 'skills/git-new-branch/agent-code/git-new-branch.py'
 
 
 def commit_file(repository: Path, name: str, content: str) -> None:
@@ -54,7 +57,7 @@ def run_script(
     runtime_mode: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
     """Run git-new-branch.py and parse its key=value stdout."""
-    script = plugin_root / 'skills/git-new-branch/agent-code/git-new-branch.py'
+    script = plugin_root / SCRIPT_PATH
     env = {**os.environ, **FIXTURE_ENV}
     env.pop('AGENTDEV_RUNTIME_MODE', None)
     if runtime_mode is not None:
@@ -598,63 +601,39 @@ def test_standalone_worktree_mode_uses_the_ignored_worktrees_directory(
     assert '.worktrees/' in exclude.splitlines()
 
 
-WORKSPACES = Path('/workspaces')
+def load_script(plugin_root: Path) -> ModuleType:
+    """Import git-new-branch.py as a module without running it."""
+    spec = importlib.util.spec_from_file_location('git_new_branch', plugin_root / SCRIPT_PATH)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-@pytest.mark.skipif(
-    not (WORKSPACES.is_dir() and os.access(WORKSPACES, os.W_OK)),
-    reason='needs a writable /workspaces',
+@pytest.mark.parametrize(
+    ('main_dir', 'runtime_mode', 'worktree_root', 'expected'),
+    [
+        ('/workspaces/project', 'standalone', '', ('/workspaces/project/.worktrees', True)),
+        ('/workspaces/project', 'devcontainer', '', ('/workspaces', False)),
+        ('/workspaces/project', '', '', ('/workspaces', False)),
+        ('/srv/project', 'standalone', '', ('/srv/project/.worktrees', True)),
+        ('/srv/project', '', '', ('/srv/project/.worktrees', True)),
+        ('/workspaces/project', 'standalone', '/elsewhere', ('/elsewhere', False)),
+        ('/workspaces/project', '', 'relative/root', ('relative/root', False)),
+        ('/workspaces/nested/project', '', '', ('/workspaces/nested/project/.worktrees', True)),
+    ],
 )
-def test_standalone_worktree_mode_under_workspaces_stays_in_the_checkout(
+def test_worktree_parent_follows_root_runtime_mode_and_location(
     plugin_root: Path,
-    fixture: Fixture,
+    main_dir: str,
+    runtime_mode: str,
+    worktree_root: str,
+    expected: tuple[str, bool],
 ) -> None:
-    """A standalone checkout directly under /workspaces keeps its worktree in .worktrees/."""
-    # Arrange
-    name = f'fixture-{uuid4().hex}'
-    checkout = WORKSPACES / name
-    git(fixture.root, 'clone', str(fixture.remote), str(checkout))
-    try:
-        # Act
-        completed, keys = run_script(
-            plugin_root, checkout, 'fixture/topic', '--worktree', runtime_mode='standalone'
-        )
+    """--worktree-root wins; standalone keeps .worktrees/; else a /workspaces checkout's sibling."""
+    script = load_script(plugin_root)
 
-        # Assert
-        assert outcome(completed) == (0, 'RESULT=SUCCESS')
-        assert keys['WORKTREE'] == str(checkout / '.worktrees' / f'{name}-fixture' / 'topic')
-        assert not (WORKSPACES / f'{name}-fixture').exists()
-    finally:
-        shutil.rmtree(checkout)
-
-
-@pytest.mark.skipif(
-    not (WORKSPACES.is_dir() and os.access(WORKSPACES, os.W_OK)),
-    reason='needs a writable /workspaces',
-)
-def test_worktree_mode_under_workspaces_defaults_to_a_sibling(
-    plugin_root: Path,
-    fixture: Fixture,
-) -> None:
-    """A main checkout directly under /workspaces gets its worktree beside it there."""
-    # Arrange
-    name = f'fixture-{uuid4().hex}'
-    checkout = WORKSPACES / name
-    worktree_parent = WORKSPACES / f'{name}-fixture'
-    worktree = worktree_parent / 'topic'
-    git(fixture.root, 'clone', str(fixture.remote), str(checkout))
-    try:
-        # Act
-        completed, keys = run_script(plugin_root, checkout, 'fixture/topic', '--worktree')
-
-        # Assert
-        assert outcome(completed) == (0, 'RESULT=SUCCESS')
-        assert keys['WORKTREE'] == str(worktree)
-        assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
-        assert not (checkout / '.worktrees').exists()
-    finally:
-        shutil.rmtree(worktree_parent, ignore_errors=True)
-        shutil.rmtree(checkout)
+    assert tuple(script.worktree_parent(main_dir, runtime_mode, worktree_root)) == expected
 
 
 def test_unreachable_remote_reports_fetch_failed(plugin_root: Path, fixture: Fixture) -> None:
