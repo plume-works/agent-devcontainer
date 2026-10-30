@@ -227,10 +227,7 @@ before Task 5.
 
 ## Spec changes
 
-### `data/spec/catalog-lifecycle`
-
-The base text is this requirement as [Publish the reusable agentdev Dev
-Container image](20261023-reusable-agentdev-devcontainer.md) leaves it.
+### [Catalog lifecycle](../spec/catalog-lifecycle.md)
 
 ``` markdown
 ## MODIFIED Requirements
@@ -309,13 +306,11 @@ share it. All other client state SHALL live on each instance's home volume.
 The verification procedure SHALL check the credential store at
 `/var/lib/agentdev/auth/claude` in place of `/root/.agents-auth/claude`.
 
-### `data/spec/agentdev-runtime-images`
+### [agentdev runtime images](../spec/agentdev-runtime-images.md)
 
-Created by [Publish the reusable agentdev Dev Container
-image](20261023-reusable-agentdev-devcontainer.md). The Dev Container image
-SHALL run its user services, lifecycle commands, and editor sessions as a
-non-root account remapped to the host user's UID and GID, with its home on one
-per-instance volume.
+The Dev Container image SHALL run its user services, lifecycle commands, and
+editor sessions as a non-root account remapped to the host user's UID and GID,
+with its home on one per-instance volume.
 
 ## Depends on
 
