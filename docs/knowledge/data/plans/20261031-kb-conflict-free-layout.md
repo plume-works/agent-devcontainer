@@ -261,8 +261,12 @@ only where it asserts the old layout
 - [x] The scaffold's support files and `.iwe/` match the publisher workspace's
   - **Evidence:** commit 73ba80b7;
     `test_scaffold_support_files_match_the_publisher_workspace` passed
-- [ ] The seed has flat sorted hubs, no `data/index.md`, no unreleased page, and
+- [x] The seed has flat sorted hubs, no `data/index.md`, no unreleased page, and
   a release example at `stage: released`
+  - **Evidence:** commit 73ba80b7; the seed hubs hold no `##` section and pass
+    the hub schema in `test_schema_validation_passes`, `data/index.md` and
+    `releases/unreleased.md` were removed with `iwe delete`, and
+    `releases/0.1.0.example.md` is `stage: released`
 - [ ] `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passes
 
 ### Task 10: The e2e workflow harness checks the new ship contract
