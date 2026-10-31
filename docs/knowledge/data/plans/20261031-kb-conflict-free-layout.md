@@ -162,8 +162,10 @@ under `docs/knowledge/tests/`
 ### Task 6: Ship and the release cut follow the layout
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`,
-`docs/knowledge/data/releases.md`, `.iwe/schemas/release.yaml`; Delete:
-`docs/knowledge/data/releases/unreleased.md`
+`docs/knowledge/data/releases.md`, `.iwe/schemas/release.yaml`,
+`docs/knowledge/data/log.md`; Rename:
+`docs/knowledge/data/releases/unreleased.md` to
+`docs/knowledge/data/releases/2.0.0.md`
 
 - [x] Shipping sets `stage` and `completed`, removes `rank` from the plan and
   from each bug it fixes, sets each listed feature implemented, and writes no
@@ -190,11 +192,14 @@ under `docs/knowledge/tests/`
   - **Evidence:** commit 59a15b09; ship writes frontmatter only, and iwe-shipper
     Step 8 keeps an existing page's links, ensures exactly one release link and
     one dated log group, and adds only missing bullets
-- [ ] The release page this procedure builds for the plans completed since 1.0.0
-  lists the same features and bugs, under the same Added, Changed, and Fixed
-  headings, as `data/releases/unreleased.md` does
-- [ ] `data/releases/unreleased.md` is removed with `iwe delete`, and
-  `data/releases.md` links only cut releases
+- [ ] The accumulated entries are cut as release 2.0.0, as the maintainer
+  directed: `iwe rename` moves `data/releases/unreleased.md` to
+  `data/releases/2.0.0.md` with every entry kept, at `stage: released` and
+  dated, and `data/log.md` gains one release bullet for it. Plans that predate
+  `release` and fixes that shipped without a plan cannot be rebuilt by the
+  release cut, so they close with this last accumulator.
+- [ ] No `data/releases/unreleased.md` remains, and `data/releases.md` links
+  only cut releases
 - [ ] `release` accepts only `stage: released`
 
 ### Task 7: The other skills read and write frontmatter, not hub sections
