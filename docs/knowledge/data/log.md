@@ -4,6 +4,12 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-31
+
+- **Update**: [Verify report cache](features/verify-report-cache.md)
+  implemented; [Verify report cache](plans/20261030-verify-report-cache.md) plan
+  done.
+
 ## 2026-10-30
 
 - **Update**: refreshed the [agentdev
