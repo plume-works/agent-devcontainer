@@ -749,7 +749,7 @@ Delete: `docker/desktop/start-xpra.sh`
 [plume-works/coder-ide-baseline](https://github.com/plume-works/coder-ide-baseline):
 `template/main.tf`
 
-- [ ] The `agent_start_script` parameter becomes a command run in the repository
+- [x] The `agent_start_script` parameter becomes a command run in the repository
   checkout, defaulting to `agentdev-runtime coder start`; its `display_name` and
   `description` say so. `coder_script.agent_start` runs the value when its first
   word resolves through `command -v`, runs the default in place of the legacy
@@ -758,6 +758,29 @@ Delete: `docker/desktop/start-xpra.sh`
   `.devcontainer/scripts/coder-agent-start.sh` when the command does not resolve
   but that script exists, and otherwise logs that the repository ships no
   agent-start command and exits 0.
+  - **Evidence:** coder-ide-baseline commit 4a2d980 (squash of
+    [#31](https://github.com/plume-works/coder-ide-baseline/pull/31)), whose
+    `push.sh` also defaults the template name to `coder-ide-baseline`.
+    `terraform fmt -check` and `terraform validate` pass. The rendered script,
+    run under `sh`, takes every branch: default, legacy, script fallback, custom
+    command, empty, and unresolvable. On template version `main-4a2d980`:
+    - Case (a): `anton/agent-dev3` was updated with the parameter set to the
+      default, on its current image, which has no CLI. Its agent-start log at
+      05:53:44 shows `coder-agent-start.sh` running through the fallback: "A git
+      credential helper for github.com is already configured", "Started OpenCode
+      web …", "Started Claude Remote Control …". `opencode serve` and
+      `claude remote-control` restarted at 05:53:43, and Remote Control reports
+      Ready.
+    - Case (b): `anton/agent-dev4` was updated without a parameter change, so it
+      keeps the stored legacy value. It takes the same path, with the same three
+      lines at 05:55:14 and both processes restarted at 05:55:13. Its locked
+      worktree `bridge-cse_01Q7BhLtd7Zx6jbm3HGXyvW7` is still listed at 4b2302d
+      with no changes.
+    - Case (c): the default command was run in this plan's Dev Container image,
+      started under its supervisor with `health ready` passing and no script in
+      the checkout. It ran `agentdev-runtime coder start` and exited 0 with
+      "Started OpenCode web …"; gh and Claude, not logged in, were skipped as
+      logged.
 - [ ] The template change merges through its own pull request with its
   `Docker Build and Push` check passing, and the new template version is pushed
   to Coder before this plan's pull request merges.
