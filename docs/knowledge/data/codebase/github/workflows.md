@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:a936cb42975ffdd2a39a991e2ae9d2ae403a31796dcb5420ecd9ec900eb96679
+source_digest: sha256:9b370c02482a8872f264e1605b77071bd61cdc5e4cc76bfc3d0424ba45872c85
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T03:00:00Z
+  at: 2026-10-31T08:00:00Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T03:00:00Z
+  at: 2026-10-31T08:00:00Z
 sources:
 - id: code
   resource: .github/workflows
@@ -146,7 +146,7 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.github/workflows/primary-checks.yml:22-24` — `concurrency`, cancelling in
   progress except on `main`
 - `.github/workflows/primary-checks.yml:32,54` — `reformat`, `ci`
-- `.github/workflows/reformat.yml:186,280,422` — `super-linter`,
+- `.github/workflows/reformat.yml:183,277,419` — `super-linter`,
   `commit-format-changes`, `gate`
 - `.github/workflows/ci.yml:75,103,134,208,271` — build matrix, base-image
   selection, Playwright pin extraction, merge, devcontainer smoke

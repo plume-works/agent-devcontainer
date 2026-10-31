@@ -48,7 +48,7 @@ confirm it before running the script:
 
 ## Bundled Script
 
-Use [git-new-branch.sh](agent-code/git-new-branch.sh) instead of running the
+Use [git-new-branch.py](agent-code/git-new-branch.py) instead of running the
 branch commands manually. It:
 
 - validates the name with `git check-ref-format --branch`
@@ -73,10 +73,11 @@ Options:
   branch, then pops them onto it. Pass it only after the user approves.
 - `--worktree` creates the branch in a new worktree `<repo>-<branch>` (a `/`
   in the branch stays a directory separator) and leaves the current checkout
-  alone. Its parent is
-  `/workspaces` when the main checkout lives directly under `/workspaces`,
-  otherwise `<main checkout>/.worktrees/`, which the script adds to
-  `.git/info/exclude` unless Git already ignores it.
+  alone. Its parent is `<main checkout>/.worktrees/` when
+  `AGENTDEV_RUNTIME_MODE` is `standalone`; otherwise it is `/workspaces` when
+  the main checkout lives directly under `/workspaces`, and
+  `<main checkout>/.worktrees/` when it does not. The script adds `.worktrees/`
+  to `.git/info/exclude` unless Git already ignores it.
 - `--worktree-root <dir>` overrides the worktree parent and implies
   `--worktree`.
 
@@ -87,7 +88,7 @@ on a bare number.
 ## Workflow 1: Create the Branch
 
 ```bash
-agent-code/git-new-branch.sh <name>
+agent-code/git-new-branch.py <name>
 ```
 
 ## Workflow 2: Handle the Result

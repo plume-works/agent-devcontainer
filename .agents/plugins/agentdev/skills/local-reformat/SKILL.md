@@ -31,7 +31,7 @@ intended changes.
 
 - Install and start Docker or Podman before running Super-Linter. The local
   wrapper uses the image configured in
-  [super-linter-defaults.sh](../../bin/super-linter-defaults.sh) unless
+  [super_linter.py](../../bin/super_linter.py) unless
   overridden.
 - The shared clang-format configuration is `.clang-format` at the repository
   root.
@@ -39,7 +39,7 @@ intended changes.
 ## Codex Managed-Sandbox Execution
 
 The Super-Linter container needs Docker daemon access and the repository mount,
-so when this skill runs under Codex, invoke `super-linter-local.sh` with
+so when this skill runs under Codex, invoke `super_linter.py local` with
 `sandbox_permissions: "require_escalated"`. The local wrapper's Ansible,
 clang-format, and Prettier autofixes run under the same escalated permission.
 
@@ -50,7 +50,7 @@ clang-format, and Prettier autofixes run under the same escalated permission.
    runs:
 
    ```bash
-   super-linter-local.sh
+   super_linter.py local
    ```
 
    The wrapper enables every local check and available autofix in one pass.
@@ -148,14 +148,14 @@ default `validate_all_codebase: false` input. Use `--all` when CI is invoked
 with full-repository validation:
 
 ```bash
-super-linter-local.sh --all
+super_linter.py local --all
 ```
 
 Use these troubleshooting options only when necessary:
 
 ```bash
-super-linter-local.sh --log-level DEBUG
-super-linter-local.sh --image ghcr.io/super-linter/super-linter:v8.7.0
+super_linter.py local --log-level DEBUG
+super_linter.py local --image ghcr.io/super-linter/super-linter:v8.7.0
 ```
 
 Do not substitute a newer image merely to make a local result pass: keep the
@@ -163,7 +163,7 @@ pinned CI image unless the workflow itself is intentionally being updated.
 
 ## Related Entry Points
 
-| Entry point                                              | CI-equivalent responsibility                                                                |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [super-linter-local.sh](../../bin/super-linter-local.sh) | Run one local pass with all checks enabled and available autofixes applied.                 |
-| [super-linter-env.sh](../../bin/super-linter-env.sh)     | Generate the shared Ansible, clang-format, Prettier, and validation settings for each pass. |
+| Entry point                                        | CI-equivalent responsibility                                                                |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [super_linter.py local](../../bin/super_linter.py) | Run one local pass with all checks enabled and available autofixes applied.                 |
+| [super_linter.py env](../../bin/super_linter.py)   | Generate the shared Ansible, clang-format, Prettier, and validation settings for each pass. |

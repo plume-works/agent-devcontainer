@@ -4,14 +4,14 @@ description: 'Every gate a pull request passes: formatting, the image build, age
 source:
 - .github
 - .pre-commit-config.yaml
-source_digest: sha256:a5f03bd8879bcfdb53e95387bc12ea8dc35469cd9d25b83d8fb3e65bfa3d3496
+source_digest: sha256:e3324c61abc842b129f482de3f5cbf8e88ee68ac8bfe2ecdde657c2aa1cc24ec
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T03:00:00Z
+  at: 2026-10-31T08:00:00Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T03:00:00Z
+  at: 2026-10-31T08:00:00Z
 sources:
 - id: code
   resource: .github
@@ -36,7 +36,7 @@ before the push.
    same-repository, non-draft PR, formatting changes are committed back and the
    `gate` withholds `run_downstream` so the next run checks the pushed commit;
    on a Renovate bot's PR nothing is pushed and the `gate` fails —
-   `.github/workflows/reformat.yml:186,280,422`, in
+   `.github/workflows/reformat.yml:183,277,419`, in
    [workflows](github/workflows.md)
 3. `primary-checks.yml` → `ci.yml`, when the image filter matched: [the image
    build](flow-image-build.md), whose `finished` also waits on native

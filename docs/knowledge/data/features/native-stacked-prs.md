@@ -4,12 +4,12 @@ stage: implemented
 description: The PR skills merge a GitHub native stack of pull requests as one all-or-nothing operation through gh stack, route every stack branch update through gh stack, and merge every pull request explicitly instead of through auto-merge.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T09:30:00Z
+  at: 2026-10-31T01:33:40Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
-- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
+- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 - resource: ansible/roles/github_cli/defaults/main.yml
 ---
 
@@ -41,9 +41,9 @@ when it is the lowest unmerged layer; a higher layer is handed to
 `pr-merge-stack`.
 
 **Stack branches are updated only through the gh-stack skill's guard.**
-`stack-guard.sh begin` runs before a stack is rewritten: it fast-forwards a
+`stack-guard.py begin` runs before a stack is rewritten: it fast-forwards a
 layer its remote is ahead of and stops on commits that exist only on a layer's
-remote. `stack-guard.sh publish` replaces `gh stack push` and `submit`, and
+remote. `stack-guard.py publish` replaces `gh stack push` and `submit`, and
 refuses to push over a remote that moved since `begin`. `pr-open` publishes
 stack branches through it, `pr-feedback-resolution` resolves a conflicted
 stacked PR with `begin`, `gh stack rebase`, and `publish`, and `update-branch`

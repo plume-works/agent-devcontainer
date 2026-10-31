@@ -4,9 +4,9 @@ stage: implemented
 description: Every agent push runs the codebase-map staleness check first and refreshes a stale map before the branch leaves the machine, and the AI review leaves map staleness to CI.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T12:00:00Z
+  at: 2026-10-31T01:33:40Z
 sources:
-- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh
+- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
@@ -26,7 +26,7 @@ already asserts.
 
 ## Behaviour
 
-**`push-branch.sh` gates every push on map freshness.** Before pushing, and
+**`push-branch.py` gates every push on map freshness.** Before pushing, and
 before reporting `ACTION=none` for a head the upstream already holds, it runs
 `stale-map-docs.py` in a temporary detached worktree at the branch head and
 prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`. A stale map ends

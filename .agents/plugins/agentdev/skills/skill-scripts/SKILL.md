@@ -1,6 +1,6 @@
 ---
 name: skill-scripts
-description: "Write and document a skill's bundled scripts so their outcome is readable by both a shell caller and an agent — a shared exit-code vocabulary, a RESULT= enum line on stdout, and the shared result-codes.sh helpers. Use when adding or editing a script under a skill's agent-code/ directory, choosing or renumbering its exit codes, deciding what it prints, or wiring a SKILL.md step to branch on a script's outcome. Keywords: exit code, RESULT, quit_by_code, result-codes.sh, script output contract."
+description: "Write and document a skill's bundled scripts so their outcome is readable by both a shell caller and an agent — a shared exit-code vocabulary, a RESULT= enum line on stdout, and the shared result_codes.py helpers. Use when adding or editing a Python script under a skill's agent-code/ directory, choosing or renumbering its exit codes, deciding what it prints, or wiring a SKILL.md step to branch on a script's outcome. Keywords: exit code, RESULT, result_codes.py, rc.run, Stop, script output contract."
 ---
 
 # Skill Script Result Contract
@@ -11,7 +11,7 @@ needs a self-describing outcome. Serve both: **keep the exit code, and name it
 on stdout.**
 
 Apply this to every script under a skill's `agent-code/` directory, the directory that
-holds a skill's bundled code.
+holds a skill's bundled code. Every such script is Python.
 
 ## The Contract
 
@@ -33,19 +33,20 @@ holds a skill's bundled code.
 
 ## Reserved Codes
 
-| Code  | Name              | Meaning                                                                                                                                                                                                                                                                                              |
-| ----- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `0`   | `SUCCESS`         | The script did what it was asked.                                                                                                                                                                                                                                                                    |
-| `1`   | `SCRIPT_FAILURE`  | The script broke. **Never give `1` a workflow meaning** — `set -e` and unhandled errors produce it, so a deliberate `1` is indistinguishable from a crash. Deliberately reporting a breakage _as_ a breakage (`quit_by_code 1` when a delegate returns something impossible) is the one correct use. |
-| `2`   | `PREFLIGHT_ERROR` | Bad usage, or the environment cannot support the operation at all: not a repo, detached HEAD, missing required argument.                                                                                                                                                                             |
-| `3`+  | script-specific   | Outcomes the caller must branch on. Number them in the order the workflow meets them and stay at or below `125`.                                                                                                                                                                                     |
-| `129` | `SIGNAL_HUP`      | The process received HUP (`128 + 1`). The result is emitted before the signal is re-raised.                                                                                                                                                                                                          |
-| `130` | `SIGNAL_INT`      | The process received INT (`128 + 2`). The result is emitted before the signal is re-raised.                                                                                                                                                                                                          |
-| `143` | `SIGNAL_TERM`     | The process received TERM (`128 + 15`). The result is emitted before the signal is re-raised.                                                                                                                                                                                                        |
+| Code  | Name              | Meaning                                                                                                                                                                                                                                                                                    |
+| ----- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `0`   | `SUCCESS`         | The script did what it was asked.                                                                                                                                                                                                                                                          |
+| `1`   | `SCRIPT_FAILURE`  | The script broke. **Never give `1` a workflow meaning** — an uncaught exception produces it, so a deliberate `1` is indistinguishable from a crash. Deliberately reporting a breakage _as_ a breakage (returning `1` when a delegate returns something impossible) is the one correct use. |
+| `2`   | `PREFLIGHT_ERROR` | Bad usage, or the environment cannot support the operation at all: not a repo, detached HEAD, missing required argument.                                                                                                                                                                   |
+| `3`+  | script-specific   | Outcomes the caller must branch on. Number them in the order the workflow meets them and stay at or below `125`.                                                                                                                                                                           |
+| `129` | `SIGNAL_HUP`      | The process received HUP (`128 + 1`). The result is emitted before the signal is re-raised.                                                                                                                                                                                                |
+| `130` | `SIGNAL_INT`      | The process received INT (`128 + 2`). The result is emitted before the signal is re-raised.                                                                                                                                                                                                |
+| `143` | `SIGNAL_TERM`     | The process received TERM (`128 + 15`). The result is emitted before the signal is re-raised.                                                                                                                                                                                              |
 
-Codes `126`, `127`, and `128+N` are shell-reserved. The shared implementation uses
-the conventional `129`, `130`, and `143` statuses only for HUP, INT, and TERM;
-never override them with workflow meanings.
+Codes `126`, `127`, and `128+N` are shell-reserved, since a shell caller reads
+the status. The shared implementation uses the conventional `129`, `130`, and
+`143` statuses only for HUP, INT, and TERM; never override them with workflow
+meanings.
 
 ## Numbers Are Local, Names Are Shared
 
@@ -89,121 +90,117 @@ discriminator. Codes are for outcomes, not for variants of one outcome.
 
 ## Implementation
 
-Source [result-codes.sh](../../bin/result-codes.sh) from the plugin's shared
-`bin/` directory. Resolve the path from the consuming script's own location so
-it works from both a repository checkout and an installed plugin cache. Never
-copy or inline the helpers into a skill.
+A script is Python on `#!/usr/bin/env python3` and imports nothing beyond the
+standard library: it ships in the plugin cache of any consuming repository and
+runs on whatever host runs the agent, where nothing is installed for it. It
+reaches the plugin's shared `bin/` modules through `sys.path`, resolved from the
+script's own location, so it works from a repository checkout and from an
+installed plugin cache alike. Never copy or inline the shared helpers into a
+skill.
 
-A skill with an `agent-code/__common.sh` loads the shared helpers there:
+```python
+#!/usr/bin/env python3
 
-```bash
-skill_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=/dev/null
-source "${skill_script_dir}/../../../bin/result-codes.sh"
+"""Find the pull request whose head is the current branch."""
+
+from __future__ import annotations
+
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
+
+import result_codes as rc  # noqa: E402  (path set above so the plugin's bin/ resolves)
+from skill_common import print_error, require_git_repo, Stop  # noqa: E402
+
+NO_PR_FOUND = 3
+MULTIPLE_PRS = 4
+
+
+def run(arguments: list[str]) -> int:
+    """Look up the branch's pull request and report it."""
+    ...
+    print('PR_FOUND=false')
+    return NO_PR_FOUND
+
+
+def main() -> int:
+    """Run the script, turning a declared stop into its result code."""
+    try:
+        return run(sys.argv[1:])
+    except Stop as stop:
+        return stop.code
+
+
+if __name__ == '__main__':
+    rc.RESULT_CODES.update({NO_PR_FOUND: 'NO_PR_FOUND', MULTIPLE_PRS: 'MULTIPLE_PRS'})
+    rc.install()
+    rc.run(main)
 ```
 
-A skill whose `agent-code/` holds a single standalone script resolves its own
-directory and sources the same file directly. Define alongside it the
-`print_error` every converted script uses:
+`bin/result_codes.py` owns the contract. `rc.install()` installs the exit hook,
+the exception hook, and the HUP, INT, and TERM handlers; `rc.run(main)` exits
+with the code `main` returns after printing its `RESULT` line. **Never print
+`RESULT=` yourself.** An uncaught exception still ends as
+`RESULT=SCRIPT_FAILURE` with status `1`, and a terminating signal prints its
+`SIGNAL_*` result, restores the default action, and re-raises the signal, so a
+shell caller observes `129`, `130`, or `143` and the operating system records a
+genuine signal death.
 
-```bash
-script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+`bin/skill_common.py` holds what every script needs: `print_error` (the
+`ERROR: ` line on stderr), `Stop` (raised by a helper to end the run with a
+declared code, caught once in `main`), `require_git_repo`, `current_branch`,
+`help_header`, `bash_quote` (bash's `printf %q`, for a command line a shell will
+re-read), and the subprocess runners below. Shared code that only one skill's
+scripts use lives beside them as `agent-code/<name>_common.py`, imported by
+name, since the script's own directory is on `sys.path`. Code two skills share
+moves to `bin/`; a skill never imports a sibling skill's code.
 
-print_error() {
-  printf 'ERROR: %s\n' "$*" >&2
-}
-
-# shellcheck source=/dev/null
-source "${script_dir}/../../../bin/result-codes.sh"
-```
-
-The ShellCheck directive acknowledges that the source path is resolved
-dynamically at runtime; lint the shared file separately with the other plugin
-shell scripts.
-
-In a script that has `__common.sh`, source that file as usual. Declare the
-script-specific codes immediately after all shared helpers have loaded, then
-call `quit_by_code` on every terminal path:
-
-```bash
-source "${script_dir}/__common.sh"
-
-RESULT_CODES+=("3=NO_PR_FOUND" "4=MULTIPLE_PRS" "5=PROTECTED_BRANCH" "6=GH_UNAVAILABLE")
-
-[[ $# -ge 2 ]] || { print_error "Missing value for --branch"; quit_by_code 2; }
-...
-printf 'PR_FOUND=false\n'
-quit_by_code 3
-```
-
-`quit_by_code 0` replaces a bare `exit 0`, including at the end of the happy
-path and after `--help`. An uncaught failure still prints
-`RESULT=SCRIPT_FAILURE` through the `EXIT` trap, so a reader never sees a run
-with no verdict.
-
-The shared implementation installs the exit and signal traps:
-
-```bash
-trap report_unhandled_exit EXIT
-trap 'report_signal HUP 129' HUP
-trap 'report_signal INT 130' INT
-trap 'report_signal TERM 143' TERM
-```
-
-Do not override these traps in a consuming script. Without them, Bash can enter
-the `EXIT` trap after HUP, INT, or TERM with the status of the previous successful
-command; the process then terminates with `128 + signal` while printing
-`RESULT=SUCCESS`. `report_signal` emits the matching signal result, restores
-that signal's default action, and re-raises it. A shell caller observes status
-`129`, `130`, or `143`, and the operating system still records genuine signal
-termination rather than a normal `exit` with the same number. The later
-`EXIT` trap sees `result_emitted=1` and does not print a second result.
-
-**Only a top-level path may call `quit_by_code`.** A helper that runs inside
-`$( )` cannot: its `RESULT` line is captured into the variable instead of
-reaching stdout, and the script then dies through `set -e` and re-emits a
-_different_ verdict from the trap. Substitution helpers `return 1`; the caller
-decides:
-
-```bash
-owner_repo="$(resolve_owner_repo)" || quit_by_code 6
-```
+Declare the script's codes as module constants and register their names in the
+`__main__` block, before `rc.install()`. A helper deep in the call stack ends
+the run with `raise Stop(CODE)` after printing its diagnostic, so every
+terminal path still reaches `rc.run`.
 
 ## Guard External Commands and Validate Their Products
 
-**Wrap every tool call whose own status could be mistaken for yours.** An
-external command may return a number assigned to a different script outcome; if
-that status escapes through `set -e`, the script can report a confident, wrong
-result. Capture the status, decide what it means, and `quit_by_code` a code you declared.
-Keep the tool's stderr visible when it explains the failure:
+Run tools through the `skill_common` runners, which never raise on a non-zero
+status and keep stdout for the script's product:
 
-```bash
-if ! git fetch "${remote_name}"; then
-  print_error "Failed to fetch remote '${remote_name}'."
-  quit_by_code 6  # FETCH_FAILED
-fi
+- `run_tool(...)` captures stdout and stderr, for a value the script reads.
+- `run_to_stderr(...)` sends the tool's stdout to stderr, for chatter that
+  narrates rather than reports (`git push`, `git stash pop`).
+- `run_inherited(...)` passes the tool's output straight through, for output
+  that _is_ the product (`git log`, a `git diff` section).
+
+The last two flush the script's own stdout first, so lines stay in order.
+**Check every status whose meaning could be mistaken for yours**, decide what it
+means, and return a code you declared. Keep the tool's stderr visible when it
+explains the failure:
+
+```python
+if run_inherited('git', 'fetch', remote):
+    print_error(f"Failed to fetch remote '{remote}'.")
+    return FETCH_FAILED
 ```
 
 A successful external call validates only what it actually did. Fetching a
 reachable remote does not prove a caller-supplied branch exists. Resolve refs,
 ranges, paths, IDs, and similar inputs explicitly before passing them to a
-later command whose failure would escape through `set -e`:
+later command:
 
-```bash
-base_ref="${remote_name}/${base_branch}"
-if ! git rev-parse --verify --quiet "${base_ref}^{commit}" >/dev/null; then
-  print_error "Base branch '${base_ref}' does not exist."
-  quit_by_code 2
-fi
-
-merge_base="$(git merge-base HEAD "${base_ref}")"
+```python
+base_ref = f'{remote}/{base}'
+if run_tool('git', 'rev-parse', '--verify', '--quiet', f'{base_ref}^{{commit}}').returncode:
+    print_error(f"Base branch '{base_ref}' does not exist.")
+    return PREFLIGHT_ERROR
 ```
 
 Classify the two failures separately: an invalid caller-supplied identifier is
 a preflight error, while an attempted routine operation that the caller may
 handle differently gets its own declared result such as `FETCH_FAILED`.
 `UNKNOWN_CODE_<n>` in a real run is a bug report against the script, not a
-reason to widen the table.
+reason to widen the table. Parse JSON with the `json` module rather than
+calling `jq`, which a consuming host may lack.
 
 ## Wrapping a Foreign Exit Status
 
@@ -225,15 +222,12 @@ When its output streams directly to the wrapper's stdout, establish a line
 boundary before printing metadata; otherwise `printf foo` becomes
 `fooREMOTE_EXIT_CODE=0`, which is not a parseable key-value line:
 
-```bash
-status=0
-run_remote_command || status=$?
-
-printf '\nREMOTE_EXIT_CODE=%s\n' "${status}"
-if [[ "${status}" -ne 0 ]]; then
-  quit_by_code 4  # REMOTE_COMMAND_FAILED
-fi
-quit_by_code 0
+```python
+status = run_inherited('gh', 'codespace', 'ssh', '-c', name, '--', remote_command)
+print(f'\nREMOTE_EXIT_CODE={status}')
+if status:
+    return REMOTE_COMMAND_FAILED
+return 0
 ```
 
 The unconditional separator may produce a blank line when the foreign output
@@ -246,32 +240,26 @@ since it changes the script's shell-level contract.
 
 ## Delegating to Another Script
 
-When a script hands the rest of its work to a sibling script, **align the two
-code tables and `exec`**. The delegate then owns the process, and its `RESULT`
-line is the run's one verdict:
+When a script hands part of its work to a sibling script, **align the two code
+tables** so a shared situation carries the same number _and_ the same name in
+both — the natural outcome of the naming rule above. Run the delegate with its
+stdout captured, forward every line but its `RESULT` line, and translate its
+status: two `RESULT=` lines are worse than none, since a reader takes the last
+one. Send an unrecognized delegate status to `1`:
 
-```bash
-exec "${merge_script}" --message "..." "${base_ref}"
+```python
+helper = subprocess.run(
+    [str(MERGE_SCRIPT), source], check=False, stdout=subprocess.PIPE, text=True
+)
+for line in helper.stdout.rstrip('\n').split('\n'):
+    if not line.startswith('RESULT='):
+        print(line)
+if helper.returncode not in (0, MERGE_CONFLICTS, PREFLIGHT_ERROR):
+    raise Stop(1)
 ```
 
-This requires the shared situations to carry the same number _and_ the same
-name in both scripts — which is the natural outcome of the naming rule above.
-Reach for `exec` first; it removes the translation layer entirely, and because
-`exec` replaces the process it also discards the caller's `EXIT` trap, so no
-second `RESULT` line can appear.
-
-Guard the handoff, since a failed `exec` is the one case the discarded trap
-would have covered:
-
-```bash
-[[ -x "${merge_script}" ]] || { print_error "Merge helper not executable: ${merge_script}"; quit_by_code 1; }
-```
-
-Map explicitly only when the tables genuinely cannot align, and then run the
-delegate as a call, translate its status, and make sure the delegate's own
-`RESULT` line does not reach stdout — two `RESULT=` lines is worse than none,
-since a reader takes the last one. Send an unrecognized delegate status to
-`quit_by_code 1`.
+Guard the handoff first: check that the delegate exists and is executable, and
+report a missing one as `1`.
 
 ## Document It Twice
 
@@ -323,7 +311,7 @@ script directly. Pin the outcomes an agent acts on with a test in the plugin's
 `tests/` directory.
 
 Resolve the script from the `plugin_root` fixture — `plugin_root / 'bin/...'` or
-`plugin_root / 'skills/<name>/agent-code/<script>.sh'` — never through a path that
+`plugin_root / 'skills/<name>/agent-code/<script>.py'` — never through a path that
 climbs out of the plugin, which resolves nowhere once the plugin is installed
 into a cache. Use `plugin_tmp_path` for scratch fixtures, and assert on the pair
 that forms the contract:
@@ -345,10 +333,14 @@ happens to sit beside it in the developing repository.
 
 - Every result an agent branches on is pinned by a test in the plugin's
   `tests/`, resolving the script through `plugin_root`.
+- The script imports only the standard library and the plugin's `bin/`
+  modules, and `python3 -S agent-code/<script>.py --help` runs, proving it needs
+  nothing installed.
 - Every skill loads the sole result-code implementation from the plugin's
-  shared `bin/result-codes.sh`; none copies or inlines its helpers.
-- Every terminal path exits through `quit_by_code`; no bare `exit N` remains
-  outside the shared result-code implementation.
+  shared `bin/result_codes.py` through `rc.install()` and `rc.run(main)`; none
+  copies or inlines its helpers, and none prints `RESULT=` itself.
+- Every terminal path returns a declared code from `main` or raises `Stop`; no
+  `sys.exit(N)` with a workflow meaning remains outside `main`.
 - Exactly one declared, uppercase `RESULT=` value reaches stdout last.
 - HUP, INT, and TERM emit exactly one matching `SIGNAL_*` result, re-raise the
   signal, and produce shell statuses `129`, `130`, and `143` respectively.
@@ -359,11 +351,11 @@ happens to sit beside it in the developing repository.
 - Each code appears once in the script with one meaning.
 - Every caller-supplied ref, range, path, or remote is resolved during
   preflight, so a bad argument becomes `PREFLIGHT_ERROR` rather than a `git`
-  or `gh` crash surfacing as `UNKNOWN_CODE_128`.
+  or `gh` failure surfacing as `UNKNOWN_CODE_128`.
 - Every expected external-operation failure exits through a declared result
   while preserving useful diagnostics from the failed tool.
 - Recurring situations use the same `RESULT` name as sibling skills.
 - The `--help` table and the SKILL.md table list the same names and codes as
   the script.
-- The script passes `shellcheck -x` and has been run for at least its success
-  path and one branching failure path, with artifacts in `./.tmp/`.
+- The script passes `ruff` and has been run for at least its success path and
+  one branching failure path, with artifacts in `./.tmp/`.

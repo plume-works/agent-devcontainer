@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:00:00Z
+  at: 2026-10-30T23:36:24Z
 ---
 
 # Product
@@ -129,7 +129,7 @@ it):
   unavailable.
 - Commit at meaningful checkpoints during a task, not only at the end.
 - Never force-push, except `gh stack rebase` and the `gh-stack` skill's
-  `stack-guard.sh publish` (after its `begin`) with `--force-with-lease` on
+  `stack-guard.py publish` (after its `begin`) with `--force-with-lease` on
   branches of a GitHub stack; never a bare `gh stack push`, `submit`, or `sync`.
 - Never change git config (local or global) or switch/change the remote unless
   explicitly instructed; the repository-local `rerere.enabled` and

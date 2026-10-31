@@ -12,7 +12,7 @@ import sys
 
 from test_update_branch import initialize_repository
 
-SCRIPT_PATH = 'skills/iwe-plan/agent-code/close-issue.sh'
+SCRIPT_PATH = 'skills/iwe-plan/agent-code/close-issue.py'
 PLAN_PATH = 'docs/knowledge/data/plans/20260903-fixture.md'
 
 
@@ -20,7 +20,7 @@ def install_gh_stub(path: Path, state: str) -> tuple[Path, Path]:
     """Create a stub `gh` reporting `state` for the issue and logging `issue close` calls."""
     stub_directory = path / 'stub-bin'
     stub_directory.mkdir(parents=True, exist_ok=True)
-    for command in ('bash', 'git', 'dirname', 'sed', 'grep'):
+    for command in ('git', 'python3'):
         executable = shutil.which(command)
         assert executable is not None
         (stub_directory / command).symlink_to(executable)

@@ -29,9 +29,9 @@ The Step-3 metadata gate is a blocking finding and submits `REQUEST_CHANGES`.
 verdict because the reviewer owns the pull request (see below).
 
 The rule is stated in `pr-review/SKILL.md` at the event-decision step, the tier
-definitions, the Codex single-call option, and the `post-review.sh` fallback
+definitions, the Codex single-call option, and the `post-review.py` fallback
 contract. The Codex single-call tool accepts only `APPROVE` or `COMMENT`, so a
-Codex review that must request changes posts through `post-review.sh`.
+Codex review that must request changes posts through `post-review.py`.
 
 ## Why the verdict follows severity
 

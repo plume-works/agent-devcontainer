@@ -130,3 +130,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 re-review](architecture/rereview-gate-pending.md)
 
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
+
+[Catalog script language](architecture/catalog-script-language.md)

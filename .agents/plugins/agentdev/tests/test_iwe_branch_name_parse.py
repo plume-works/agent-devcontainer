@@ -86,4 +86,4 @@ def test_script_imports_only_the_standard_library(plugin_root: Path) -> None:
         if line.startswith(('import ', 'from '))
     }
 
-    assert imports - {'result_codes'} <= sys.stdlib_module_names
+    assert imports - {'result_codes', 'git_default_branch'} <= sys.stdlib_module_names

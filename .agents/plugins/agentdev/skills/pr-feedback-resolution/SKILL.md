@@ -250,7 +250,7 @@ Systematically resolve failing tests.
 5. **Push and verify CI passes**:
    - Commit fix with descriptive message
    - Push to PR branch with the [pr-open](../pr-open/SKILL.md) push helper,
-     `agent-code/push-branch.sh`, handling its result as that skill's step 8 does
+     `agent-code/push-branch.py`, handling its result as that skill's step 8 does
    - Monitor CI for green checks
 
 ### Workflow 5: Resolve CodeQL Security Findings

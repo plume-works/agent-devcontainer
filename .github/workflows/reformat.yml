@@ -118,12 +118,9 @@ jobs:
             - '**/Dockerfile'
             - ansible/**
             - ansible.cfg
-            - .agents/plugins/agentdev/bin/super-linter-defaults.sh
-            - .agents/plugins/agentdev/bin/super-linter-local.sh
             - .agents/plugins/agentdev/**/*.py
             - py_packages/**/*.py
             - scripts/**/*.py
-            - scripts/validate-super-linter-tool-versions.sh
 
       - name: Override pass for draft AI PRs
         id: override
@@ -207,7 +204,7 @@ jobs:
           persist-credentials: false
 
       - name: Load Super-Linter autofix configuration
-        run: ./.agents/plugins/agentdev/bin/super-linter-env.sh --autofix >> "$GITHUB_ENV"
+        run: ./.agents/plugins/agentdev/bin/super_linter.py env --autofix >> "$GITHUB_ENV"
 
       - name: Run Super-Linter autofixes
         continue-on-error: true
@@ -246,7 +243,7 @@ jobs:
 
       - name: Load Super-Linter check configuration
         if: steps.patch.outputs.changed != 'true'
-        run: ./.agents/plugins/agentdev/bin/super-linter-env.sh >> "$GITHUB_ENV"
+        run: ./.agents/plugins/agentdev/bin/super_linter.py env >> "$GITHUB_ENV"
 
       - name: Run Super-Linter checks
         if: steps.patch.outputs.changed != 'true'
@@ -269,7 +266,7 @@ jobs:
           path: super-linter.log
 
       - name: Validate pre-commit and local tool versions
-        run: scripts/validate-super-linter-tool-versions.sh
+        run: scripts/validate-super-linter-tool-versions.py
 
       - name: Log debug stats
         if: ${{ always() }}
