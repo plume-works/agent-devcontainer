@@ -342,7 +342,7 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
     "Refresh the codebase map for the Python catalog scripts"; after it,
     `stale-map-docs.py` reported 28 fresh docs and `RESULT=SUCCESS`, and
     `iwe schema validate` passed.
-- [ ] Every feature and architecture document that still names a deleted `.sh`
+- [x] Every feature and architecture document that still names a deleted `.sh`
   script, in its body or under `sources:`, names the `.py` script that replaced
   it: `features/native-stacked-prs`, `features/fresh-map-on-push`,
   `features/uv-run-only-environment`, `features/pre-commit-owns-formatting`,
@@ -352,6 +352,10 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
   `architecture/validator-image-install`;
   `git grep -n '\.sh\b' docs/knowledge/data/features docs/knowledge/data/architecture`
   names none of the deleted scripts.
+  - **Evidence:** commit 48a5ea1 "Name the Python scripts in feature and
+    architecture docs"; `git grep -n -E` over `docs/knowledge/data/features` and
+    `docs/knowledge/data/architecture` for every deleted script name printed
+    nothing, and `iwe schema validate` passed.
 
 ### Task 12: Unhandled errors print no traceback
 
