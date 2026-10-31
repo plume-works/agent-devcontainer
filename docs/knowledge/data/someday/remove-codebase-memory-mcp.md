@@ -3,7 +3,7 @@ type: someday
 description: Agents never chose the codebase-memory-mcp graph tools on their own and gained no accuracy when told to use them, so removal is the leaning, pending a test on a much larger codebase.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T22:00:00Z
+  at: 2026-10-31T23:30:00Z
 sources:
 - resource: AGENTS-codebase-memory-mcp.md
 - resource: .devcontainer/scripts/runtime-supervisor.py
@@ -69,10 +69,11 @@ available and unmentioned, and with the prompt telling the agent to use it.
 
 ## Operating cost
 
+Every client on an account shares one cache directory; see [CBM daemon
+lifecycle](../architecture/cbm-daemon-lifecycle.md).
+
 Observed with CBM 0.12.1:
 
-- Every client on an account shares one cache directory; see [CBM daemon
-  lifecycle](../architecture/cbm-daemon-lifecycle.md).
 - A session in a git worktree queries the index of the main checkout, not its
   own tree.
 - An index is keyed to the checkout path, so moving the checkout leaves an index
