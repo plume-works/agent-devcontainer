@@ -13,9 +13,11 @@ Each entry in `dev_tools_pinned_tools` (`defaults/main.yml`) describes a tool
 released as a per-architecture archive: a name, a version, a download URL
 built from `url_prefix`/`asset_prefix`/the per-arch `target`, and a SHA-256
 checksum per architecture. `extension` selects the archive format when it is
-not `tar.gz`, and `binaries_in_asset_dir` says the archive unpacks into a
-directory named after the asset rather than laying its binaries out flat; both
-apply to `bun`, whose `.zip` carries `bun-linux-<target>/bun`. `tasks/install_pinned_tool.yml` is included once
+not `tar.gz`, and `bare_binary` says the asset is the binary itself, as
+`hadolint` publishes it. An archive lays its binaries out flat unless
+`binaries_in_asset_dir` says they sit in a directory named after the asset, as
+in `bun`'s `.zip`, or `binaries_dir` names the directory, as `shellcheck-{version}`
+does for `shellcheck`'s `.tar.xz`. `tasks/install_pinned_tool.yml` is included once
 per entry via `loop` and, for each one: verifies `system_arch` is covered,
 downloads and checksum-verifies the archive, extracts it to a scratch
 tempdir, and copies out the files named in `binaries` (defaulting to a
