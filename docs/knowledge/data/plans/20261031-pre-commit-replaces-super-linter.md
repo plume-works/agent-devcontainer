@@ -101,11 +101,14 @@ path filter: pre-commit already skips hooks whose files did not change.
 `ansible/roles/dev_tools/tasks/main.yml`, `scripts/refresh-pin-checksums.py`,
 `scripts/tests/test_refresh_pin_checksums.py`
 
-- [ ] `install_pinned_tool.yml` installs an entry published as a bare binary
+- [x] `install_pinned_tool.yml` installs an entry published as a bare binary
   (hadolint's `hadolint-linux-<arch>`) and one whose archive unpacks into a
   directory not named after the asset (shellcheck's `shellcheck-<version>/`),
   and `refresh-pin-checksums.py` renders the same URLs for both, covered by
   tests.
+  - **Evidence:** commit `85534b52` adds `bare_binary` and `binaries_dir`;
+    `uv run pytest scripts/tests/test_refresh_pin_checksums.py` passes 11,
+    including `test_bare_binary_and_nested_dir_urls_follow_the_install_task`.
 - [ ] `dev_tools_pinned_tools` pins hadolint `v2.14.0` and shellcheck `v0.11.0`
   with per-architecture checksums, and the apt `shellcheck` package is removed
   from `tasks/main.yml`.
