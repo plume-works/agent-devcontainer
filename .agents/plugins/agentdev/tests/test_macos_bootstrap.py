@@ -70,7 +70,6 @@ exit 0
 
 CODEX_STUB = """
 [ "$1" = --version ] && echo 'codex 0.0.0'
-[ "$3" = list ] && echo '{}'
 exit 0
 """
 
@@ -289,24 +288,21 @@ def test_plugin_step_installs_only_agentdev(host: Host) -> None:
     assert host.calls('codex') == []
 
 
-def test_plugin_step_includes_codex_when_present(host: Host) -> None:
+def test_plugin_step_never_invokes_codex_on_path(host: Host) -> None:
     host.trust_archives()
     host.stub('codex', CODEX_STUB)
 
-    host.run()
+    result = host.run()
 
-    codex = host.calls('codex')
-    assert any(re.match(r'codex plugin marketplace add \S+/agent-devcontainer', c) for c in codex)
-    assert any(re.match(r'codex plugin add agentdev@', c) for c in codex)
-    assert not any('self-improve' in call for call in codex)
+    assert result.returncode == 0, result.stderr
+    assert any(call.startswith('claude plugin install') for call in host.calls('claude'))
+    assert host.calls('codex') == []
 
 
-def test_skip_plugins_calls_neither_agent_plugin_command(host: Host) -> None:
+def test_skip_plugins_does_not_invoke_claude(host: Host) -> None:
     host.trust_archives()
-    host.stub('codex', CODEX_STUB)
 
     result = host.run('--skip-plugins')
 
     assert result.returncode == 0, result.stderr
     assert host.calls('claude') == []
-    assert host.calls('codex') == []

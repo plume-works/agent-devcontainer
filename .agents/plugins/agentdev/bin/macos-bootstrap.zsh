@@ -39,9 +39,9 @@ usage() {
 Install the tools the agentdev catalog needs on macOS: Homebrew packages, a
 uv-managed Python $PYTHON_VERSION as the default python3, iwe and
 codebase-memory-mcp in ~/.local/bin, a PATH block in ~/.zprofile, and the
-$PLUGIN plugin for Claude Code (and Codex when installed).
+$PLUGIN plugin for Claude Code.
 
-  --skip-plugins  Leave Claude Code and Codex plugins untouched."
+  --skip-plugins  Leave Claude Code's plugins untouched."
 }
 
 # Run a command in a login zsh that starts from the system PATH, as a new terminal does.
@@ -116,13 +116,6 @@ install_plugins() {
     claude plugin marketplace add $MARKETPLACE_REPO --scope user
   fi
   claude plugin install $PLUGIN@$MARKETPLACE --scope user
-
-  (( $+commands[codex] )) || return 0
-  step "Installing the $PLUGIN plugin for Codex"
-  if [[ $(codex plugin marketplace list --json) != *\"$MARKETPLACE\"* ]]; then
-    codex plugin marketplace add $MARKETPLACE_REPO
-  fi
-  codex plugin add $PLUGIN@$MARKETPLACE
 }
 
 verify() {

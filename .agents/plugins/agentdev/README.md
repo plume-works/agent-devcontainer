@@ -81,9 +81,9 @@ to repeat. It changes the host in these ways:
   markers that loads `brew shellenv` and puts `~/.local/bin` first on `PATH`.
   A re-run rewrites that block and leaves the rest of the file alone.
 - **Plugins** — registers this marketplace in Claude Code at user scope and
-  installs `agentdev`, and does the same in Codex when `codex` is on `PATH`.
-  Pass `--skip-plugins` (`curl ... | zsh -s -- --skip-plugins`) to leave both
-  agents untouched.
+  installs `agentdev`; Claude Code is the only agent it configures. Pass
+  `--skip-plugins` (`curl ... | zsh -s -- --skip-plugins`) to leave Claude
+  Code's plugins untouched.
 
 It ends by checking every tool and the `python3` from a fresh login shell, and
 exits nonzero naming whatever failed. Open a new terminal afterwards to pick up
