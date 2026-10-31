@@ -18,6 +18,7 @@ sources:
 - resource: docs/knowledge/data/plans/20261029-catalog-scripts-python.md
 - resource: https://docs.astral.sh/uv/concepts/python-versions/
 - resource: docs/knowledge/data/plans/20261031-remove-codex.md
+rank: 900
 ---
 
 # Bootstrap agentdev natively on macOS with Homebrew

@@ -25,6 +25,7 @@ sources:
 - resource: ansible/roles/bun_setup/tasks/main.yml
 - resource: ansible/roles/github_cli/tasks/main.yml
 - resource: https://containers.dev/implementors/json_reference/
+rank: 600
 ---
 
 # Run the Dev Container as a non-root account with one home volume

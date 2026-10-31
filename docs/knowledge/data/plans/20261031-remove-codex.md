@@ -15,6 +15,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: scripts/e2e/iwe-workflows/harness_codex.py
+rank: 300
 ---
 
 # Remove Codex support

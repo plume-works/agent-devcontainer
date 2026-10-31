@@ -12,6 +12,7 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: docs/knowledge/data/plans/20261027-standalone-remote-control-autostart.md
+rank: 1600
 ---
 
 # Supervise Claude Remote Control in Coder workspaces

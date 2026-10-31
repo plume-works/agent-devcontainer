@@ -12,6 +12,7 @@ sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: scripts/tests/test_agentdev_devcontainer_image.py
+rank: 2100
 ---
 
 # Smoke-test the agentdev-base catalog without lifecycle commands

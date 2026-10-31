@@ -11,6 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: docs/knowledge/data/plans/20260816-structured-plan-spec-deltas.md
+rank: 1800
 ---
 
 # Exercise REMOVED delta blocks end to end

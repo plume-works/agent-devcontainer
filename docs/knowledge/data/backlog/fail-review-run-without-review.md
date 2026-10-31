@@ -11,6 +11,7 @@ sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .github/workflows/ai-responder.yml
 - resource: https://github.com/plume-works/agent-devcontainer/issues/198
+rank: 1400
 ---
 
 # Fail a review run that published no review
