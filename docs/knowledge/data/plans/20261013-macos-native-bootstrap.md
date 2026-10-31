@@ -356,8 +356,11 @@ arguments; point `HOME` at a temporary directory.
 
 ### Task 8: Green macOS CI run without Codex and with fish
 
-- [ ] The `macos-bootstrap` job passes on the pull request at a commit that
+- [x] The `macos-bootstrap` job passes on the pull request at a commit that
   includes Tasks 6 and 7.
+  - **Evidence:** on PR #601 at commit `c8c3ce1e`, which holds Task 6's
+    `c2915879` and Task 7's `6f4f7b6a`, Actions run 41252562998's
+    `macOS native bootstrap` job concluded `success`.
 
 ## Spec changes
 
