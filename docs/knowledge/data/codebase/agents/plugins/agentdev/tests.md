@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:9ded9f58985bf364622caa4b4c7829f9f48f36b7c93e47d5b116f7efad68957d
+source_digest: sha256:73a2f57389e46fc3eb4319e6a2bef37d21a4f7c9fe9188d15d2cc33fbccc4b28
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:05:52Z
+  at: 2026-10-31T01:42:14Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:05:52Z
+  at: 2026-10-31T01:42:14Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -71,44 +71,46 @@ Each module builds a throwaway world — a `git init` repository, stub `gh` or
 `subprocess.run`, and asserts on the pair `(returncode, last stdout line)`.
 Signal handling is exercised by sending the signal to the running process:
 `test_result_codes.py` generates a `main()` around a body of source under the
-result-code module. `test_skill_common.py` checks `bash_quote` against bash's
-own `printf %q`, and `test_git_new_branch.py` calls the script's
-`worktree_parent` directly, by-path, for checkouts under `/workspaces` in each
-runtime mode. The `stale_map_docs` and masks modules also import the script by
-path so a fixture computes the expected digest from the same code under test
-rather than restating it; the masks module builds `.agent.metadata.json` files
-and checks that a masked pin bump stays `FRESH`, that structure around a masked
-value still moves the digest, that a rule reaches a subdirectory and a child
-adds to it, that a metadata file is not itself tracked content, and that
-unreadable, uncompilable, or inapplicable metadata is `BROKEN_METADATA` confined
-to its own subtree, including invalid replacements and masked binary files. The
-replay module reuses both modules' helpers, commits fixtures at fixed future
-dates so `--since` and `verified.at` cut history predictably, and pins
-`--replay`: a pin bump a new uncommitted rule covers is `ABSORBED` and its doc
-`RESTAMP` with the digest a plain run then records, working-tree absorption
-emits `WORKTREE` and `HIDDEN` evidence, and verdict ancestry cannot be narrowed
-by commit dates or `--since`. It also covers stale starting digests, current
-hidden values in unchanged files, non-ASCII and quoted filenames, historical
-masked-text decode failures, and a CRLF masked file whose starting digest still
-validates. A change outside the rule or an uncommitted unmasked edit is
-`REFRESH`; malformed metadata is `BROKEN_METADATA` even on an early refresh
-path. `test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a
-peer clone that pushes behind the working clone's back, a stub `git` with
-after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
-`api` for the stack number, `stack link` (a non-force atomic push of the named
-branches, in create or add mode), and `stack checkout`; it pins each
-`stack-guard.py` result, including a squash-merged lower layer that GitHub-style
-rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only remote
-rewrite, a push leased on the checked tip, queued layers, link create and add
-modes, and a `publish` rerun after a failed link. `test_capture_close_issue.py`
-reuses `initialize_repository` from `test_update_branch.py` and a stub `gh` that
-logs closes, and pins each `close-issue.py` result, including an already-closed
-issue left alone. `test_request_review.py` runs `request-review.py` against a
-Python stub `gh` that answers the pull request, reviews, and check-run endpoints
-from a JSON fixture and logs every write call, and pins each result, including
-the remove-then-add and add-then-remove assignment toggles, a responder check on
-the head counted as a request unless skipped or cancelled, and a half-done
-toggle that names the assignment it left unrestored.
+result-code module, and also pins the one-line, traceback-free report of an
+uncaught exception and of a failed subprocess. `test_skill_common.py` checks
+`bash_quote` against bash's own `printf %q`, and `test_git_new_branch.py` calls
+the script's `worktree_parent` directly, by-path, for checkouts under
+`/workspaces` in each runtime mode. The `stale_map_docs` and masks modules also
+import the script by path so a fixture computes the expected digest from the
+same code under test rather than restating it; the masks module builds
+`.agent.metadata.json` files and checks that a masked pin bump stays `FRESH`,
+that structure around a masked value still moves the digest, that a rule reaches
+a subdirectory and a child adds to it, that a metadata file is not itself
+tracked content, and that unreadable, uncompilable, or inapplicable metadata is
+`BROKEN_METADATA` confined to its own subtree, including invalid replacements
+and masked binary files. The replay module reuses both modules' helpers, commits
+fixtures at fixed future dates so `--since` and `verified.at` cut history
+predictably, and pins `--replay`: a pin bump a new uncommitted rule covers is
+`ABSORBED` and its doc `RESTAMP` with the digest a plain run then records,
+working-tree absorption emits `WORKTREE` and `HIDDEN` evidence, and verdict
+ancestry cannot be narrowed by commit dates or `--since`. It also covers stale
+starting digests, current hidden values in unchanged files, non-ASCII and quoted
+filenames, historical masked-text decode failures, and a CRLF masked file whose
+starting digest still validates. A change outside the rule or an uncommitted
+unmasked edit is `REFRESH`; malformed metadata is `BROKEN_METADATA` even on an
+early refresh path. `test_gh_stack_guard.py` builds a two-layer stack on a bare
+remote with a peer clone that pushes behind the working clone's back, a stub
+`git` with after-ls-remote and before-push hooks, and a stub `gh` that models
+`stack view`, `api` for the stack number, `stack link` (a non-force atomic push
+of the named branches, in create or add mode), and `stack checkout`; it pins
+each `stack-guard.py` result, including a squash-merged lower layer that
+GitHub-style rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only
+remote rewrite, a push leased on the checked tip, queued layers, link create and
+add modes, and a `publish` rerun after a failed link.
+`test_capture_close_issue.py` reuses `initialize_repository` from
+`test_update_branch.py` and a stub `gh` that logs closes, and pins each
+`close-issue.py` result, including an already-closed issue left alone.
+`test_request_review.py` runs `request-review.py` against a Python stub `gh`
+that answers the pull request, reviews, and check-run endpoints from a JSON
+fixture and logs every write call, and pins each result, including the
+remove-then-add and add-then-remove assignment toggles, a responder check on the
+head counted as a request unless skipped or cancelled, and a half-done toggle
+that names the assignment it left unrestored.
 `test_template_consume_check_updates.py` builds the same metadata file to hold
 the marker section, and pins `NO_MARKER` for an absent file and for an absent
 section, and `INVALID_MARKER` for malformed metadata or a section missing
