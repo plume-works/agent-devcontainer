@@ -457,7 +457,9 @@ requirement, whose delta is in its own entry below.
 - For every ported script, its tests run against the `.sh` script and the `.py`
   port produce the same normalized stdout and exit status
 - `for f in $(git ls-files '.agents/plugins/agentdev/bin/*.py' '.agents/plugins/agentdev/skills/*/agent-code/*.py'); do python3 -S "$f" --help >/dev/null; done`
-  succeeds, proving every script runs on the standard library alone
+  runs every script on the standard library alone; each exits 0 except
+  `codespace-exec.py`, which forwards `--help` to the remote command and exits 2
+  outside a recorded codespace
 - `uv run ruff check .agents scripts`
 - `git ls-files '.agents/**/*.sh' 'scripts/validate-super-linter-tool-versions.sh'`
   prints nothing
@@ -515,13 +517,13 @@ Verified anchor points (line numbers as of 2026-10-31):
   `sys.path` to `bin/`
 - `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:191`
   — `remote_default_branch`, which calls the `bin/git_default_branch.py` module
-- `.agents/plugins/agentdev/bin/result_codes.py:48` — Python `quit_by_code`
-- `.agents/plugins/agentdev/bin/result_codes.py:82` — `_excepthook`, which hands
+- `.agents/plugins/agentdev/bin/result_codes.py:49` — Python `quit_by_code`
+- `.agents/plugins/agentdev/bin/result_codes.py:83` — `_excepthook`, which hands
   an escaping exception to the default traceback printer Task 12 replaces
-- `.agents/plugins/agentdev/tests/test_result_codes.py:71` — Python contract
-  test
+- `.agents/plugins/agentdev/tests/test_result_codes.py:34` — Python contract
+  tests
 - `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root`
-- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:92` — the Python
+- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:91` — the Python
   implementation rules
 - `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:34` — `stack-guard.py` link
 - `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py:124`
