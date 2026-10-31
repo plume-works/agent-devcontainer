@@ -233,11 +233,13 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 **Files:** Modify: `.github/workflows/validate-agent-files.yml`,
 `.github/actions/run-claude-responder/action.yml`, `.pre-commit-config.yaml`
 
-- [ ] `validate-agent-files.yml` runs
+- [x] `validate-agent-files.yml` runs
   `validate_agent_files --recommend . --require-marketplace claude` and its path
   filter has no `.codex/agents/**` entry.
-- [ ] The responder action no longer creates `/root/.codex`, and the pre-commit
+  - **Evidence:** `c0267a2c`; actionlint and zizmor pass in its pre-commit run.
+- [x] The responder action no longer creates `/root/.codex`, and the pre-commit
   hook's `files` pattern no longer names `.codex/agents`.
+  - **Evidence:** `c0267a2c`.
 
 ### Task 9: Remove Codex from the e2e suites
 
