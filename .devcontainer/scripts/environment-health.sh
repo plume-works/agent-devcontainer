@@ -107,7 +107,7 @@ check 'cbm' "$runtime_scripts/runtime-cbm.sh" check
 check 'xpra http :14500' curl -fsS -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:14500/
 check 'xpra process' bash -c "pgrep -f '[x]pra' >/dev/null"
 check 'cbm process' bash -c "pgrep -f '[c]odebase-memory' >/dev/null"
-check 'opencode probe' "$runtime_scripts/opencode-web-command.sh" probe
+check 'opencode probe' agentdev-runtime opencode probe
 if [[ "$runtime_mode" == deploy ]]; then
   result 'sshd process' SKIP 'not used in deploy mode'
   result 'mcp-gateway' SKIP 'sidecar is not part of deploy mode'

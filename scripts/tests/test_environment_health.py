@@ -37,7 +37,7 @@ def _run_health(
     runtime.mkdir()
     health = runtime / HEALTH.name
     shutil.copy2(HEALTH, health)
-    for name in ('runtime-cbm.sh', 'opencode-web-command.sh'):
+    for name in ('runtime-cbm.sh',):
         _executable(runtime / name, '#!/usr/bin/env bash\nexit 0\n')
 
     home = tmp_path / 'home'

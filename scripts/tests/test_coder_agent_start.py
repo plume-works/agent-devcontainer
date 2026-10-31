@@ -1,13 +1,14 @@
+"""Tests for `agentdev-runtime coder start`: each step warns on failure, then Remote Control."""
+
 import os
 from pathlib import Path
-import shutil
 import subprocess
+import sys
 
-REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/coder-agent-start.sh'
+CODER_START = [sys.executable, '-m', 'agentdev_runtime', 'coder', 'start']
 IMAGE_PRUNE = 'agentdev-runtime docker prune'
 HELPER_SETUP = 'setup-gh-credential-helper.sh'
-OPENCODE_WEB = 'opencode-web-start.sh'
+OPENCODE_WEB = 'agentdev-runtime opencode coder-start'
 REMOTE_CONTROL = 'claude-remote-control-start.sh'
 
 
@@ -19,31 +20,30 @@ def run_agent_start(
     opencode_exit: int = 0,
     env: dict[str, str] | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
-    """Run a copy of the script beside fakes that append their name to a log."""
-    scripts = tmp_path / 'scripts'
-    scripts.mkdir()
-    script = scripts / SCRIPT.name
-    shutil.copy2(SCRIPT, script)
+    """Run the start with a fake CLI on PATH and fake scripts in the runtime root."""
+    root = tmp_path / 'runtime'
+    bin_dir = tmp_path / 'bin'
+    root.mkdir()
+    bin_dir.mkdir()
     log = tmp_path / 'calls.log'
     fakes = {
-        HELPER_SETUP: f'echo "{HELPER_SETUP} token=${{GITHUB_TOKEN:-}}" >> "{log}"\n'
+        bin_dir / 'agentdev-runtime': f'echo "agentdev-runtime $* '
+        f'password=${{OPENCODE_SERVER_PASSWORD:-}}" >> "{log}"\n'
+        f'case "$1" in docker) exit {prune_exit} ;; opencode) exit {opencode_exit} ;; esac\n',
+        root / HELPER_SETUP: f'echo "{HELPER_SETUP} token=${{GITHUB_TOKEN:-}}" >> "{log}"\n'
         f'exit {helper_exit}\n',
-        OPENCODE_WEB: f'echo "{OPENCODE_WEB} password=${{OPENCODE_SERVER_PASSWORD:-}}" >> "{log}"\n'
-        f'exit {opencode_exit}\n',
-        REMOTE_CONTROL: f'echo "{REMOTE_CONTROL}" >> "{log}"\n',
+        root / REMOTE_CONTROL: f'echo "{REMOTE_CONTROL}" >> "{log}"\n',
     }
-    bin_dir = tmp_path / 'bin'
-    bin_dir.mkdir()
-    fakes[f'../bin/{IMAGE_PRUNE.split()[0]}'] = (
-        f'echo "agentdev-runtime $*" >> "{log}"\nexit {prune_exit}\n'
-    )
-    for name, body in fakes.items():
-        fake = scripts / name
+    for fake, body in fakes.items():
         fake.write_text('#!/usr/bin/env bash\n' + body)
         fake.chmod(0o755)
     result = subprocess.run(
-        [script],
-        env={'PATH': f'{bin_dir}:{os.environ["PATH"]}', **(env or {})},
+        CODER_START,
+        env={
+            'PATH': f'{bin_dir}:{os.environ["PATH"]}',
+            'AGENTDEV_RUNTIME_ROOT': str(root),
+            **(env or {}),
+        },
         text=True,
         capture_output=True,
     )
@@ -51,11 +51,16 @@ def run_agent_start(
     return result, calls
 
 
+def first_words(calls: list[str]) -> list[str]:
+    """Name each call by its command, without the environment it logged."""
+    return [call.split(' password=')[0].split(' token=')[0] for call in calls]
+
+
 def test_prune_helper_and_opencode_run_before_remote_control(tmp_path):
     result, calls = run_agent_start(tmp_path)
     assert result.returncode == 0, result.stderr
-    assert calls[0] == IMAGE_PRUNE
-    assert [call.split()[0] for call in calls[1:]] == [
+    assert first_words(calls) == [
+        IMAGE_PRUNE,
         HELPER_SETUP,
         OPENCODE_WEB,
         REMOTE_CONTROL,
@@ -65,8 +70,8 @@ def test_prune_helper_and_opencode_run_before_remote_control(tmp_path):
 def test_remote_control_starts_when_prune_fails(tmp_path):
     result, calls = run_agent_start(tmp_path, prune_exit=3)
     assert result.returncode == 0, result.stderr
-    assert calls[0] == IMAGE_PRUNE
-    assert [call.split()[0] for call in calls[1:]] == [
+    assert first_words(calls) == [
+        IMAGE_PRUNE,
         HELPER_SETUP,
         OPENCODE_WEB,
         REMOTE_CONTROL,

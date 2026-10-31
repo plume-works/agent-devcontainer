@@ -79,7 +79,7 @@ def probe(settings: env.Settings, service: str) -> bool:
             ['curl', '-fsS', '-o', '/dev/null', '--max-time', '5', f'http://127.0.0.1:{port}/']
         )
     if service == 'opencode':
-        return _run([_script(settings, 'opencode-web-command.sh'), 'probe'])
+        return _run([*SELF, 'opencode', 'probe'])
     if service == 'remote-control':
         return _run([_script(settings, 'runtime-remote-control.sh'), 'check'])
     raise ValueError(service)
