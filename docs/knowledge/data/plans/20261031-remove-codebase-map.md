@@ -228,20 +228,32 @@ Modify, in this workspace and byte-identically in the scaffold:
 `.github/workflows/validate-agent-files.yml`, `README.md`,
 `.agents/plugins/agentdev/README.md`, `docs/knowledge/data/index.md`.
 
-- [ ] Remove every map document with `iwe delete`, the hub last, and remove the
+- [x] Remove every map document with `iwe delete`, the hub last, and remove the
   de-linked lines it leaves in `data/index.md` and
   `backlog/remove-agentdev-session-start-hook.md`. Plans and the log keep the
   flattened text as history.
-- [ ] Delete the four `.agent.metadata.json` files; each holds only an `iwe-map`
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" deletes the 28 map docs and the hub through `iwe delete`
+    and drops the de-linked lines from `data/index.md` and
+    `remove-agentdev-session-start-hook.md`; `iwe schema validate` passed.
+- [x] Delete the four `.agent.metadata.json` files; each holds only an `iwe-map`
   key.
-- [ ] `validate-agent-files.yml` drops the "Check codebase map docs against
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" deletes all four.
+- [x] `validate-agent-files.yml` drops the "Check codebase map docs against
   their sources" step, and the paths-filter comment and entries that track map
   sources (`.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
   `docs/knowledge/tests/**`, `docs/knowledge/AGENTS.md`,
   `docs/knowledge/SCHEMA.md`, `docs/knowledge/STRUCTURE.md`,
   `docs/knowledge/data/codebase/**`). `.iwe/**` stays.
-- [ ] The root README's IWE section and the catalog README drop the map from
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" removes the step, the comment, and the seven paths,
+    keeping `.iwe/**`.
+- [x] The root README's IWE section and the catalog README drop the map from
   their descriptions and the `iwe-map` rows from their skill tables.
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" edits `README.md` and
+    `.agents/plugins/agentdev/README.md`.
 - [ ] `git grep -n -I -E 'iwe-map|stale-map-docs|MAP_STALE|MAP_CHECK|data/codebase|source_digest'`
   matches nothing outside `docs/knowledge/data/plans/`,
   `docs/knowledge/data/log.md`, `docs/knowledge/data/releases/`,
@@ -264,25 +276,40 @@ Modify, in this workspace and byte-identically in the scaffold:
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/architecture/pr-review-correctness-bar.md`.
 
-- [ ] `fresh-map-on-push` and `map-masks-version-bumps` move to
+- [x] `fresh-map-on-push` and `map-masks-version-bumps` move to
   `stage: deprecated`, with OKF `status` set from the `SCHEMA.md` table.
-- [ ] `agentdev-iwe-workflow-skills` lists eight skills without Map, and drops
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph" sets both to `stage: deprecated` with `status: deprecated`;
+    `iwe schema validate` passed.
+- [x] `agentdev-iwe-workflow-skills` lists eight skills without Map, and drops
   the "Map owns the `data/codebase/` lane" behaviour, the Setup edge case, and
   the `iwe-map` source.
-- [ ] `consumer-iwe-seed` names only `iwe-setup` as the onboarding step after
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph".
+- [x] `consumer-iwe-seed` names only `iwe-setup` as the onboarding step after
   bootstrap.
-- [ ] `native-stacked-prs` drops the stack-push edge case about the map check.
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph".
+- [x] `native-stacked-prs` drops the stack-push edge case about the map check.
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph".
 - [ ] The `map-doc-stamper` task is `stage: cancelled`, and its link moves to
   `## Cancelled` in `data/backlog.md`.
-- [ ] `remove-agentdev-session-start-hook` drops its map-refresh steps and the
+- [x] `remove-agentdev-session-start-hook` drops its map-refresh steps and the
   map docs from its version-pin sweep; `resilient-task-evidence` drops the
   `source_digest` alternative.
-- [ ] `agent-metadata-files` names template-consume's root section as the only
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" drops the map-refresh steps and commit 0340656 "Retire
+    the codebase map in the knowledge graph" the map docs from the pin sweep and
+    the `source_digest` alternative.
+- [x] `agent-metadata-files` names template-consume's root section as the only
   current consumer and drops the `iwe-map` example, the digest-mask consumer
   entry, and the `stale-map-docs.py` sources and references; the root-to-leaf
   resolution stays as the contract for a future colocated consumer.
   `template-boundary` drops the root file's `iwe-map` rules, and
   `pr-review-correctness-bar` drops the codebase-map review-ignore item.
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph" edits all three architecture docs; `iwe schema validate` passed.
 
 ### Task 6: Validate
 
