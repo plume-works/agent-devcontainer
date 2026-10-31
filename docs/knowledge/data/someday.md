@@ -15,8 +15,6 @@ an idea gets real, promote it to a backlog task with
 `/agentdev:iwe-capture task --from someday/<slug>`, which moves the link, or
 straight to a plan.*
 
-[Codex integration for self-improve](someday/self-improve-codex-integration.md)
-
 [Self-improve execution tracing](someday/self-improve-execution-tracing.md)
 
 [Hermes-derived prompt stack for

@@ -29,7 +29,6 @@ def record(text, code=0):
 git.safe_directory = lambda settings: record('agentdev-runtime git safe-directory')
 git.credential_helper = lambda settings: record('agentdev-runtime git credential-helper')
 agent_state.create = lambda settings: record('agentdev-runtime state create')
-agent_state.link_codex_auth = lambda settings: record('agentdev-runtime state links')
 agent_state.apply_agent_policy = lambda: record('agentdev-runtime state agent-policy')
 workspace.Workspace.project = lambda self: record('agentdev-runtime workspace project')
 catalog.install = lambda settings, root, scope: record(
@@ -51,7 +50,6 @@ sys.exit(lifecycle.main(sys.argv[1:]))
 START_STEPS = [
     'agentdev-runtime git safe-directory',
     'agentdev-runtime git credential-helper',
-    'agentdev-runtime state links',
     'agentdev-runtime state agent-policy',
 ]
 
@@ -134,7 +132,6 @@ class Lifecycle:
         (self.workspace / '.claude-plugin').mkdir()
         (self.workspace / '.claude-plugin/marketplace.json').write_text('{}')
         (self.workspace / '.agents/plugins/agentdev/.opencode-plugin').mkdir(parents=True)
-        (self.workspace / '.agents/plugins/marketplace.json').write_text('{}')
 
     @property
     def marker(self) -> Path:

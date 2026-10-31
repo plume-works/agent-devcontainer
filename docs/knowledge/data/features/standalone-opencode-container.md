@@ -4,7 +4,7 @@ stage: implemented
 description: A dedicated agentdev-deploy image starts a persistent single-project agent environment with OpenCode, nested Docker, CBM, keyring, and Xpra without a Dev Containers client.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:00:00Z
+  at: 2026-10-31T21:00:44Z
 sources:
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/base/agentdev-base.Dockerfile
@@ -33,12 +33,12 @@ client, Coder, or this repository's scaffolding in the project checkout.
   project configuration exists.
 - Supervise required services individually, retry failures with bounded backoff,
   and exit the container if recovery is exhausted.
-- Keep Claude Code and Codex available, including catalog and auth setup,
-  without automatically starting either interface. Prefer a checkout-provided
-  agentdev catalog when present; otherwise use the image-bundled catalog.
+- Keep Claude Code available, including catalog and auth setup, without
+  automatically starting its interface. Prefer a checkout-provided agentdev
+  catalog when present; otherwise use the image-bundled catalog.
 - Run agent tools as a configurable numeric UID/GID, default `1000:1000`, with
   passwordless sudo. Containers sharing agent credentials use the same UID/GID.
-- Share Claude/Codex credentials; keep OpenCode logins, sessions, configuration,
+- Share Claude credentials; keep OpenCode logins, sessions, configuration,
   keyrings, caches, and Docker storage per instance. Support injected GitHub
   tokens without adding an interactive GitHub-login persistence facility.
 - Connect to an existing external reverse proxy without publishing host ports.
@@ -60,7 +60,7 @@ client, Coder, or this repository's scaffolding in the project checkout.
   preparation, or missing required service must produce an actionable failure.
 - Restarting a dirty checkout must preserve its branch, tracked changes, and
   user files; project preparation is limited to its expressly supported changes.
-- Two project containers may share Claude/Codex credentials but must not share
+- Two project containers may share Claude credentials but must not share
   OpenCode logins, session databases, keyring databases, Docker engines, or
   instance caches.
 - Service crashes and container termination require bounded recovery and clean

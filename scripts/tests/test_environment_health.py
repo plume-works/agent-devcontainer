@@ -31,20 +31,15 @@ def _run_health(
     health_timeout: str = '30',
     processes_present: bool = True,
     sleep_commands: frozenset[str] = frozenset(),
+    environ: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
     # Run from a workspace with no copy of this repository, beside stub tools.
     project = tmp_path / 'project'
     project.mkdir(parents=True)
 
     home = tmp_path / 'home'
-    codex = home / '.codex'
     claude = home / '.claude'
-    shared = tmp_path / 'auth/codex'
-    codex.mkdir(parents=True)
     claude.mkdir(parents=True)
-    shared.mkdir(parents=True)
-    (shared / 'auth.json').write_text('{}')
-    (codex / 'auth.json').symlink_to(shared / 'auth.json')
     (claude / 'claude.json').write_text('{}')
     (home / '.claude.json').symlink_to(claude / 'claude.json')
 
@@ -67,8 +62,9 @@ fi
 case "$command_name:$*" in
   "gh:auth status"*) printf '%s\\n' SHOULD_NOT_APPEAR ;;
   "git:config --get-all credential.https://github.com.helper") printf '%s\\n' 'helper-with-SECRET_VALUE' ;;
-  "git:config user.name") printf '%s\\n' 'Test User' ;;
-  "git:config user.email") printf '%s\\n' 'test@example.invalid' ;;
+  "git:var GIT_AUTHOR_IDENT"|"git:var GIT_COMMITTER_IDENT")
+    [[ -z "${{NO_GIT_IDENT:-}}" ]] || exit 128
+    printf '%s\\n' 'Test User <test@example.invalid> 0 +0000' ;;
   "sudo:iptables -S OUTPUT") printf '%s\\n' '-A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT' ;;
   "curl:"*) printf 200 ;;
   *) printf '%s\\n' ok ;;
@@ -83,7 +79,6 @@ esac
         'claude',
         'cmake',
         'codebase-memory-mcp',
-        'codex',
         'copilot',
         'curl',
         'docker',
@@ -124,6 +119,8 @@ esac
         'PATH': f'{fake_bin}:/usr/bin:/bin',
         'PROCESSES_PRESENT': str(processes_present).lower(),
         'SLEEP_COMMANDS': ','.join(sorted(sleep_commands)),
+        'COMPOSE_PROFILES': 'mcp',
+        **(environ or {}),
     }
     return subprocess.run(
         DOCTOR,
@@ -137,8 +134,7 @@ esac
 
 def test_links_are_read_from_the_runtime_home() -> None:
     source = DOCTOR_SOURCE.read_text()
-    assert '/root/.codex' not in source and '/root/.claude.json' not in source
-    assert "home / '.codex/auth.json'" in source
+    assert '/root/.claude.json' not in source
     assert "home / '.claude.json'" in source
 
 
@@ -167,15 +163,17 @@ def test_deploy_mode_skips_non_applicable_sidecars_and_redacts_auth_output(
     assert re.search(r'^sshd process\s+SKIP\b', result.stdout, re.MULTILINE)
     assert 'SHOULD_NOT_APPEAR' not in result.stdout
     assert 'SECRET_VALUE' not in result.stdout
-    assert 'codex auth link' in result.stdout
+    assert 'claude.json link' in result.stdout
     assert 'PASS' in result.stdout
     assert 'Overall: PASS' in result.stdout
 
 
 def test_missing_required_tool_fails_health_check(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, missing=frozenset({'codex'}))
+    result = _run_health(tmp_path, missing=frozenset({'opencode'}))
     assert result.returncode == 1
-    assert re.search(r'^codex\s+FAIL\s+required tool not installed$', result.stdout, re.MULTILINE)
+    assert re.search(
+        r'^opencode\s+FAIL\s+required tool not installed$', result.stdout, re.MULTILINE
+    )
     assert 'Overall: FAIL' in result.stdout
 
 
@@ -188,9 +186,9 @@ def test_absent_processes_fail_without_printing_command_lines(tmp_path: Path) ->
 
 
 def test_command_failure_sets_aggregate_failure(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, fail_commands=frozenset({'codex'}))
+    result = _run_health(tmp_path, fail_commands=frozenset({'opencode'}))
     assert result.returncode == 1
-    assert re.search(r'^codex\s+FAIL\s+rc=9', result.stdout, re.MULTILINE)
+    assert re.search(r'^opencode\s+FAIL\s+rc=9', result.stdout, re.MULTILINE)
     assert 'Overall: FAIL' in result.stdout
 
 
@@ -198,19 +196,27 @@ def test_command_timeout_sets_aggregate_failure(tmp_path: Path) -> None:
     result = _run_health(
         tmp_path,
         health_timeout='0.1',
-        sleep_commands=frozenset({'codex'}),
+        sleep_commands=frozenset({'opencode'}),
     )
     assert result.returncode == 1
-    assert re.search(r'^codex\s+FAIL\s+rc=124', result.stdout, re.MULTILINE)
+    assert re.search(r'^opencode\s+FAIL\s+rc=124', result.stdout, re.MULTILINE)
     assert 'Overall: FAIL' in result.stdout
 
 
 def test_devcontainer_mode_checks_sidecars(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, mode='devcontainer')
+    result = _run_health(tmp_path, mode='devcontainer', environ={'COMPOSE_PROFILES': 'web,mcp'})
     assert result.returncode == 0, result.stdout + result.stderr
     assert re.search(r'^sshd process\s+PASS\b', result.stdout, re.MULTILINE)
     assert re.search(r'^mcp-gateway DNS\s+PASS\b', result.stdout, re.MULTILINE)
     assert re.search(r'^mcp-gateway :8811\s+PASS\b', result.stdout, re.MULTILINE)
+
+
+@pytest.mark.parametrize('profiles', ['', 'web'])
+def test_the_gateway_is_skipped_without_the_mcp_profile(tmp_path: Path, profiles: str) -> None:
+    result = _run_health(tmp_path, mode='devcontainer', environ={'COMPOSE_PROFILES': profiles})
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert re.search(r'^mcp-gateway\s+SKIP\b', result.stdout, re.MULTILINE)
+    assert 'getent hosts mcp-gateway' not in (tmp_path / 'calls.log').read_text()
 
 
 def test_documented_false_firewall_values_are_skipped(tmp_path: Path) -> None:
@@ -235,3 +241,17 @@ def test_unknown_runtime_mode_and_firewall_value_fail(tmp_path: Path) -> None:
     assert re.search(r'^runtime mode\s+FAIL\b', result.stdout, re.MULTILINE)
     assert re.search(r'^runtime firewall\s+FAIL\b', result.stdout, re.MULTILINE)
     assert 'Overall: FAIL' in result.stdout
+
+
+def test_an_identity_git_resolves_passes_the_git_user_check(tmp_path: Path) -> None:
+    result = _run_health(tmp_path)
+    assert re.search(r'^git user\s+PASS\b', result.stdout, re.MULTILINE)
+    calls = (tmp_path / 'calls.log').read_text()
+    assert 'git var GIT_AUTHOR_IDENT' in calls
+    assert 'git var GIT_COMMITTER_IDENT' in calls
+
+
+def test_an_identity_git_cannot_resolve_fails_the_git_user_check(tmp_path: Path) -> None:
+    result = _run_health(tmp_path, environ={'NO_GIT_IDENT': '1'})
+    assert result.returncode == 1
+    assert re.search(r'^git user\s+FAIL\b', result.stdout, re.MULTILINE)

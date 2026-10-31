@@ -7,7 +7,7 @@ repository can delete the publisher source without inheriting its maintenance ru
 ## Validation and test ownership
 
 - Validate catalog changes with
-  `uv run validate_agent_files --recommend . --require-marketplace claude codex`.
+  `uv run validate_agent_files --recommend . --require-marketplace claude`.
 - After editing a script the plugin ships, also run
   `uv run pytest .agents/plugins/agentdev/tests`.
 - Tests for scripts shipped by the plugin belong in `.agents/plugins/agentdev/tests/` and
@@ -24,11 +24,11 @@ repository can delete the publisher source without inheriting its maintenance ru
 
 ## Catalog locations and portability
 
-- `.agents/plugins/agentdev/` is the canonical source for Claude Code and Codex agents,
+- `.agents/plugins/agentdev/` is the canonical source for Claude Code and OpenCode agents,
   skills, hooks, helper commands, and plugin tests. Skills are namespaced as
   `/agentdev:<skill-name>`.
-- Codex consumes the same tree through
-  `.agents/plugins/agentdev/.codex-plugin/plugin.json`; never create a separate Codex copy.
+- Claude Code consumes the tree through the marketplace in `.claude-plugin/`; never create a
+  separate copy for either harness.
 - OpenCode consumes the same tree through the bridge plugin in
   `.agents/plugins/agentdev/.opencode-plugin/`. The bridge takes no runtime dependencies:
   type-only imports and Bun built-ins, nothing to install.
@@ -46,4 +46,3 @@ repository can delete the publisher source without inheriting its maintenance ru
   they resolve in the repository using the installed plugin.
 - The validator enforces plugin containment across every Markdown file the plugin ships,
   including `references/` pages and the plugin README.
-- Keep the Claude and Codex plugin manifest versions aligned when releasing the catalog.

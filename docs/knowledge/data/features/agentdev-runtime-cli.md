@@ -1,10 +1,10 @@
 ---
 type: feature
-stage: accepted
+stage: implemented
 description: One agentdev-runtime Python CLI, installed in the runtime images as an embedded uv tool package, replaces the lifecycle shell scripts, the Xpra launcher, and the firewall script, and the Codex Cloud bootstrap is removed.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-10-31T21:00:00Z
 sources:
 - resource: .devcontainer/scripts/runtime-supervisor.py
 - resource: .devcontainer/scripts/runtime-health.sh

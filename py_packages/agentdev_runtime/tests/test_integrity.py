@@ -45,6 +45,20 @@ def test_bytecode_written_at_run_time_is_ignored(installed: metadata.Distributio
     integrity.verify(installed)
 
 
+def test_bytecode_for_no_recorded_module_is_refused(installed: metadata.Distribution) -> None:
+    cache = Path(str(installed.locate_file('pkg/__pycache__')))
+    cache.mkdir()
+    (cache / 'evil.cpython-312.pyc').write_bytes(b'x')
+    with pytest.raises(integrity.IntegrityError, match='was added'):
+        integrity.verify(installed)
+
+
+def test_a_removed_metadata_file_is_refused(installed: metadata.Distribution) -> None:
+    Path(str(installed.locate_file('pkg-1.0.dist-info/METADATA'))).unlink()
+    with pytest.raises(integrity.IntegrityError, match='METADATA differs'):
+        integrity.verify(installed)
+
+
 def test_a_patched_file_is_refused(installed: metadata.Distribution) -> None:
     Path(str(installed.locate_file('pkg/cli.py'))).write_text('print(2)\n')
     with pytest.raises(integrity.IntegrityError, match='differs from the image'):

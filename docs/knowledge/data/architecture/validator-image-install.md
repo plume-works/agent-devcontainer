@@ -3,7 +3,7 @@ type: architecture
 description: Why validate_agent_files is built from the repository build context and installed as an isolated uv tool in the agentdev-base image, rather than published to PyPI or installed another way.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T01:33:40Z
+  at: 2026-10-31T21:00:28Z
 sources:
 - resource: docs/agents/specs/template-reuse-validation/ (folded and removed)
 ---
@@ -101,7 +101,7 @@ consumption](../spec/template-consumption.md):
   missing `pyproject.toml` dependencies, an orphaned `clean_build` workflow
   input, the `zizmor` pre-commit hook needing a host-portable alternative,
   `.gitignore` entries for generated devcontainer env files, and
-  `--require-marketplace claude codex` asserting manifests a consumer does not
+  `--require-marketplace` asserting publisher manifests a consumer does not
   have) — all folded into the guide.
 
 One item was out of scope and stayed with its owning repository: a pre-existing

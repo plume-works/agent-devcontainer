@@ -13,6 +13,14 @@ to the current day's group.
   done; specs synced.
 - **Update**: [Remove the codebase map](plans/20261031-remove-codebase-map.md)
   plan done; specs synced.
+- **Update**: [agentdev-runtime CLI](features/agentdev-runtime-cli.md)
+  implemented; [Replace the runtime shell scripts with one agentdev-runtime
+  CLI](plans/20261029-off-bash-migration.md) plan done; fixed [Bug: a workspace
+  on a pre-pin image has no gitleaks or actionlint and nothing says
+  so](bugs/workspace-image-lacks-hook-binaries.md), [Bug: the Remote Control
+  watcher restarts a session that never comes up on every
+  tick](bugs/remote-control-watcher-start-loop.md), and [Bug: doctor fails a
+  healthy Coder Dev Container](bugs/doctor-fails-healthy-coder-devcontainer.md).
 - **Create**: [agentdev runtime
   package](architecture/agentdev-runtime-package.md) records the runtime as one
   `agentdev-runtime` CLI package, its `RECORD` integrity check, the firewall run
@@ -739,10 +747,9 @@ to the current day's group.
 - **Update**: Refreshed the agentdev, agentdev skills, GitHub, workflows, and
   pull-request-checks codebase maps for the `bunx` Prettier and Renovate
   validator hooks and the Renovate pin they now carry.
-- **Update**: [Codex full access in the
-  devcontainer](architecture/codex-full-access-in-devcontainer.md) recorded;
-  refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow codebase
-  maps for the `configure-codex.py` postStart step.
+- **Update**: Codex full access in the devcontainer recorded; refreshed the
+  devcontainer, lifecycle-scripts, and lifecycle-flow codebase maps for the
+  `configure-codex.py` postStart step.
 - **Update**: [Install the catalog agents into
   Codex](plans/20261007-codex-catalog-agents.md) done. Every Codex install now
   writes the catalog agents as generated TOML agents; see [Catalog

@@ -39,7 +39,7 @@ REQUIRED_TOOLS = (
 # gitleaks prints its version through a subcommand; every other tool takes --version.
 VERSION_ARGS = {'gitleaks': ('version',)}
 OPTIONAL_TOOLS = ('clang-format', 'copilot', 'gemini')
-AI_TOOLS = ('claude', 'codex', 'opencode')
+AI_TOOLS = ('claude', 'opencode')
 DETAIL_LIMIT = 160
 FALSE_WORDS = {'false', '0', 'no', 'off', ''}
 TRUE_WORDS = {'true', '1', 'yes', 'on'}
@@ -139,6 +139,27 @@ def ai_tools(report: Report) -> None:
         report.check_command(tool, tool, '--version')
 
 
+def gateway(report: Report) -> None:
+    """Check the mcp-gateway sidecar when Compose was asked to start it."""
+    # Compose starts it only under the opt-in profile devcontainer-init.sh enables.
+    if 'mcp' not in os.environ.get('COMPOSE_PROFILES', '').split(','):
+        report.result('mcp-gateway', 'SKIP', 'the mcp Compose profile is not enabled')
+        return
+    report.check('mcp-gateway DNS', 'getent', 'hosts', 'mcp-gateway')
+    report.check(
+        'mcp-gateway :8811',
+        'curl',
+        '-fsS',
+        '-o',
+        '/dev/null',
+        '-w',
+        '%{http_code}',
+        '--max-time',
+        '5',
+        'http://mcp-gateway:8811/sse',
+    )
+
+
 def services(report: Report, mode: str, firewall: str) -> None:
     print('== Services ==')
     report.check(
@@ -182,19 +203,7 @@ def services(report: Report, mode: str, firewall: str) -> None:
         report.result('mcp-gateway', 'SKIP', 'sidecar is not part of deploy mode')
     elif mode == env.DEVCONTAINER:
         report.check('sshd process', 'bash', '-c', 'pgrep -x sshd >/dev/null')
-        report.check('mcp-gateway DNS', 'getent', 'hosts', 'mcp-gateway')
-        report.check(
-            'mcp-gateway :8811',
-            'curl',
-            '-fsS',
-            '-o',
-            '/dev/null',
-            '-w',
-            '%{http_code}',
-            '--max-time',
-            '5',
-            'http://mcp-gateway:8811/sse',
-        )
+        gateway(report)
     else:
         report.result('sshd process', 'SKIP', 'runtime mode is invalid')
         report.result('mcp-gateway', 'SKIP', 'runtime mode is invalid')
@@ -220,9 +229,12 @@ def auth(report: Report, settings: env.Settings) -> None:
         report.result('git credential helper', 'PASS', 'configured')
     else:
         report.result('git credential helper', 'FAIL', 'not configured')
-    name = git_config('user.name').stdout.strip()
-    email = git_config('user.email').stdout.strip()
-    if name and email:
+    # git var resolves identity as a commit would, including GIT_AUTHOR_* and GIT_COMMITTER_*.
+    roles = ('GIT_AUTHOR_IDENT', 'GIT_COMMITTER_IDENT')
+    identities = [
+        subprocess.run(['git', 'var', role], capture_output=True, check=False) for role in roles
+    ]
+    if all(result.returncode == 0 for result in identities):
         report.result('git user', 'PASS', 'name and email configured')
     else:
         report.result('git user', 'FAIL', 'name or email missing')
@@ -237,7 +249,6 @@ def auth(report: Report, settings: env.Settings) -> None:
     else:
         report.result('claude credentials', 'FAIL', 'credential directory missing')
     home = Path(os.environ.get('HOME') or Path.home())
-    report.check_link('codex auth link', home / '.codex/auth.json')
     report.check_link('claude.json link', home / '.claude.json')
 
 

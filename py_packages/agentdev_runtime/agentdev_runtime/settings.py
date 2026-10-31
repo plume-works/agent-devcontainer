@@ -146,7 +146,6 @@ VARIABLES: tuple[Variable, ...] = (
         "Claude Code's own configuration directory.",
         Derived('$HOME/.claude', lambda s: f'{s.home}/.claude'),
     ),
-    Variable('CODEX_HOME', 'Codex home.', Derived('$HOME/.codex', lambda s: f'{s.home}/.codex')),
     Variable(
         'XDG_CONFIG_HOME',
         'XDG configuration root.',

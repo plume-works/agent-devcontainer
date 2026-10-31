@@ -39,7 +39,6 @@ jobs:
           extra-filter: |
             - .agents/plugins/agentdev/**
             - .claude-plugin/**
-            - .codex/agents/**
             - .github/**
             - py_packages/**/*.py
             - .iwe/**
@@ -91,7 +90,7 @@ jobs:
         run: uv run pytest .agents/plugins/self-improve/tests
 
       - name: Validate Agent Files
-        run: uv run validate_agent_files --recommend . --require-marketplace claude codex
+        run: uv run validate_agent_files --recommend . --require-marketplace claude
 
       - name: Log debug stats
         if: ${{ always() }}

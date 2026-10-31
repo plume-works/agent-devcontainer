@@ -61,11 +61,6 @@ rejected are as valuable as the one you picked.*
 
 [PR review scenario validation](architecture/pr-review-scenario-validation.md)
 
-[Headless Codex runs](architecture/codex-headless-runs.md)
-
-[Codex full access in the
-devcontainer](architecture/codex-full-access-in-devcontainer.md)
-
 [OpenCode full access in the
 devcontainer](architecture/opencode-full-access-in-devcontainer.md)
 
@@ -136,3 +131,5 @@ re-review](architecture/rereview-gate-pending.md)
 [Catalog script language](architecture/catalog-script-language.md)
 
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
+
+[Supported harnesses](architecture/supported-harnesses.md)

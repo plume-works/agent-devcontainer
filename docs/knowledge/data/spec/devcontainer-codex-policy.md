@@ -1,12 +1,14 @@
 ---
 type: spec
-description: Devcontainer Codex sessions run with no sandbox and no approval prompts, configured in config.toml on every start by a script that needs nothing from the consumer project.
+description: Devcontainer Codex sessions run with no sandbox and no approval prompts, configured in config.toml on every start by a runtime command that needs nothing from the consumer project.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-09T00:00:00Z
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: .devcontainer/scripts/configure-codex.py
-- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/codex_config.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: scripts/tests/test_configure_codex.py
 ---
 
@@ -15,14 +17,15 @@ sources:
 ## Purpose
 
 Defines the Codex sandbox and approval policy inside the devcontainer, which is
-itself the isolation boundary. Decision and constraints: [Codex full access in
-the devcontainer](../architecture/codex-full-access-in-devcontainer.md).
+itself the isolation boundary. Decision and constraints: Codex full access in
+the devcontainer.
 
 ## Requirements
 
 ### Requirement: devcontainer Codex runs without sandbox or approval prompts
 
-On every container start, `postStartCommand.sh` SHALL set the top-level keys
+On every container start, `agentdev-runtime lifecycle ready` SHALL set the
+top-level keys, through `agentdev-runtime state agent-policy`,
 `sandbox_mode = "danger-full-access"` and `approval_policy = "never"` in
 `${CODEX_HOME:-~/.codex}/config.toml`, leaving the Codex home at mode `0700` and
 the file at mode `0600`.
@@ -44,8 +47,9 @@ the file at mode `0600`.
 
 ### Requirement: the configure step needs nothing from the consumer project
 
-The configure script SHALL declare its own dependencies inline (PEP 723) and run
-through `uv`, independent of the workspace `pyproject.toml`.
+`agentdev-runtime state agent-policy` SHALL take its dependencies from the
+`agentdev_runtime` package installed in the image, independent of the workspace
+`pyproject.toml`.
 
 #### Scenario: a consumer repository without tomlkit
 
