@@ -10,22 +10,15 @@ generated:
 # 📋 Backlog
 
 *Prioritized work waiting to become plans, one task per document in
-`backlog/<slug>.md`. A finished task gets `stage: done` + `completed` and its
-link moves to `## Done`. When a task grows past a single sitting, promote it:
-write a plan and link the plan instead.*
-
-## High
-
-[Fill in the product doc](backlog/fill-product-doc.md)
-
-[Plan the first feature](backlog/plan-first-feature.md)
-
-## Medium
+`backlog/<slug>.md`, listed in one list sorted by slug. A task's `stage`,
+`priority`, `completed`, and `rank` live only in its frontmatter. When a task
+grows past a single sitting, promote it: write a plan and link the plan
+instead.*
 
 [Capture the current architecture](backlog/capture-current-architecture.md)
 
+[Fill in the product doc](backlog/fill-product-doc.md)
+
 [Import the existing backlog](backlog/import-existing-backlog.md)
 
-## Low
-
-## Done
+[Plan the first feature](backlog/plan-first-feature.md)
