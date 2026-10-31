@@ -599,16 +599,30 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/ci-hooks-repro.sh`,
 `.devcontainer/scripts/test-agent-runtime.sh`
 
-- [ ] `agentdev-runtime doctor` reproduces the health report's sections, its
+- [x] `agentdev-runtime doctor` reproduces the health report's sections, its
   PASS/FAIL/SKIP tabulation, and its exit status.
-- [ ] `doctor`'s toolchain section also requires `gitleaks` and `actionlint`,
+  - **Evidence:** commit 76a1836; `test_environment_health.py` (13 passed) runs
+    the CLI against stub tools for both profiles, the firewall values, missing
+    tools, failures, timeouts, and the redaction.
+- [x] `doctor`'s toolchain section also requires `gitleaks` and `actionlint`,
   reporting `required tool not installed` for either when it is absent.
-- [ ] `ci.yml` runs the acceptance suite through `uv run pytest`; a conftest
+  - **Evidence:** commit 76a1836;
+    `test_a_missing_hook_binary_fails_the_toolchain` passes for each.
+- [x] `ci.yml` runs the acceptance suite through `uv run pytest`; a conftest
   fixture labels and removes the containers, volumes, and networks the suite
   creates, and a session hook fails the run when every test skipped.
-- [ ] The `COPY .devcontainer/scripts/` lines and the `.dockerignore` exception
+  - **Evidence:** commit 76a1836;
+    `uv run pytest -n 4 scripts/tests/test_agent_runtime_acceptance.py` passes
+    (24, one skipped) against `agentdev-deploy` built from that commit and
+    leaves no labelled container behind; selecting only the skipped upgrade case
+    with the image set prints `every acceptance test was skipped` and exits 1.
+- [x] The `COPY .devcontainer/scripts/` lines and the `.dockerignore` exception
   leave; `.devcontainer/scripts/` is gone from the tree, and
   `git ls-files '.devcontainer/**/*.sh'` lists only `devcontainer-init.sh`.
+  - **Evidence:** commit 76a1836; both images build without the copy, and
+    `git ls-files ':(glob).devcontainer/**/*.sh'` lists only
+    `.devcontainer/devcontainer-init.sh`. Git's default pathspec needs the
+    `:(glob)` magic for `**` to match no directory.
 
 ### Task 15: Remove Codex Cloud
 
