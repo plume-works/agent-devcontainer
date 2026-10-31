@@ -3,18 +3,16 @@ type: architecture
 description: agentdev-devcontainer owns the Dev Container lifecycle and its supervised services, so a repository references or derives from the image instead of copying lifecycle scripts; consumers extend it only through hook directories and documented environment.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:00:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: docker/devcontainer/supervisord.conf
 - resource: docker/deploy/agentdev-deploy.Dockerfile
-- resource: .devcontainer/scripts/runtime-supervisor.py
-- resource: .devcontainer/scripts/runtime-bootstrap.sh
-- resource: .devcontainer/scripts/devcontainer-created.sh
-- resource: .devcontainer/scripts/devcontainer-ready.sh
-- resource: .devcontainer/scripts/devcontainer-attached.sh
-- resource: .devcontainer/scripts/run-agentdev-hooks.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/hooks.py
 - resource: .devcontainer/devcontainer.json
 - resource: scripts/tests/test_agentdev_devcontainer_image.py
 - resource: scripts/tests/test_template_consume_migration.py
@@ -33,8 +31,9 @@ its entrypoint is a plain shell. Two sibling runtimes derive from the exact
   [Standalone OpenCode runtime](standalone-opencode-runtime.md)).
 - `agentdev-devcontainer` is the Dev Container runtime this document describes.
 
-Both install `.devcontainer/scripts/` as the image-owned runtime root
-`/opt/agentdev-runtime/` and run `runtime-supervisor.py run` as PID 1.
+Both install the `agentdev_runtime` package as a uv tool, the image-owned
+runtime that `/usr/local/bin/agentdev-runtime` runs, and run
+`agentdev-runtime supervisor run` as PID 1.
 
 The old `agent-desktop` and `agent-opencode` names are not published as aliases.
 `agent-desktop` would have to name the lifecycle-neutral base, which cannot run
@@ -60,11 +59,11 @@ PID 1 owns the persistent services. Work whose timing PID 1 cannot observe stays
 in three thin image commands, declared in the image's `devcontainer.metadata`
 label so every descriptor that selects the image inherits them:
 
-| Phase               | Command                    | Runs                                                                                           |
-| ------------------- | -------------------------- | ---------------------------------------------------------------------------------------------- |
-| `postCreateCommand` | `devcontainer-created.sh`  | Once per container: client state, project dependencies and hooks, the staged catalog.          |
-| `postStartCommand`  | `devcontainer-ready.sh`    | Every start: waits for the core services, repairs per-start state. It is the `waitFor` target. |
-| `postAttachCommand` | `devcontainer-attached.sh` | Every attach: CBM index request, project environment, a complete checkout catalog.             |
+| Phase               | Command                               | Runs                                                                                           |
+| ------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `postCreateCommand` | `agentdev-runtime lifecycle created`  | Once per container: client state, project dependencies and hooks, the staged catalog.          |
+| `postStartCommand`  | `agentdev-runtime lifecycle ready`    | Every start: waits for the core services, repairs per-start state. It is the `waitFor` target. |
+| `postAttachCommand` | `agentdev-runtime lifecycle attached` | Every attach: CBM index request, project environment, a complete checkout catalog.             |
 
 The editor therefore never attaches to a container whose required services
 failed. The label also sets `overrideCommand: false`, so the client keeps the

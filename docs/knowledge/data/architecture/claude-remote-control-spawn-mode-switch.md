@@ -2,10 +2,10 @@
 type: architecture
 description: A Remote Control server revives every earlier session in its own current spawn mode, so after a worktree-to-same-dir switch the former worktree sessions run in the workspace folder; the maintainer accepts this because spawn mode is not switched in production.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-26T03:15:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 ---
 
 # Claude Remote Control spawn mode switch

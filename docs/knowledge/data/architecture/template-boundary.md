@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:18:32Z
+  at: 2026-10-31T04:32:14Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -35,7 +35,7 @@ must satisfy are in [Template consumption](../spec/template-consumption.md).
 ## Runtime flow
 
 ``` text
-ansible/ + docker/ + .devcontainer/scripts/ + catalog publisher source
+ansible/ + docker/ + py_packages/agentdev_runtime/ + catalog publisher source
                     |
                     v
    ghcr.io/plume-works/agentdev-base  (tools, staged catalog)
@@ -86,7 +86,7 @@ tracked in git, survives template updates, and never appears in `tracked_paths`.
 
 The default devcontainer surface is the tracked `.devcontainer/` descriptor plus
 two root companions — one runtime unit. The lifecycle implementation comes from
-the image, so `.devcontainer/scripts/` is not part of it:
+the image's `agentdev-runtime`, so no lifecycle script is part of it:
 
 | Path                                   | Responsibility                                                                                    |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -181,7 +181,7 @@ the project deliberately adopts a compatible alternative.
 
 Keep these paths together only when a project needs to build a customized
 development image: `ansible/`, `ansible.cfg`, `docker/`,
-`.devcontainer/scripts/`, `.dockerignore`, `.github/workflows/ci.yml`,
+`py_packages/agentdev_runtime/`, `.dockerignore`, `.github/workflows/ci.yml`,
 `.github/workflows/delete-old-containers.yml`, `.github/actions/docker/`, and
 the matching image paths and job invocation in the shared GitHub files.
 

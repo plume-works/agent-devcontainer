@@ -3,12 +3,10 @@ type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:00:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/postCreateCommand.sh
-- resource: .devcontainer/scripts/postAttachCommand.sh
-- resource: .devcontainer/scripts/postStartCommand.sh
-- resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
 - resource: .devcontainer/devcontainer.json
 - resource: ansible/roles/agentic_tools/README.md
 - resource: .github/actions/run-claude-responder/action.yml
@@ -52,21 +50,20 @@ The checkout-scoped catalog install and the CBM *index* both live in
 **postAttach**; postStart only *starts* CBM, and postCreate is what *installs*
 it in the first place.
 
-| hook       | what a review job needs from it                                         |
-| ---------- | ----------------------------------------------------------------------- |
-| postCreate | **CBM install**, auth symlinks, `uv-sync`, image-scoped catalog install |
-| postStart  | `codebase-memory-mcp-start.sh` — starts CBM, does not index             |
-| postAttach | **CBM index**, `uv-sync`, **catalog from this checkout**                |
+| hook                                                    | what a review job needs from it                                            |
+| ------------------------------------------------------- | -------------------------------------------------------------------------- |
+| postCreate: `agentdev-runtime lifecycle created`        | **CBM wiring**, auth links, the project sync, image-scoped catalog install |
+| postStart: `agentdev-runtime lifecycle ready --no-wait` | starts the CBM daemon, then the per-start repairs; does not index          |
+| postAttach: `agentdev-runtime lifecycle attached`       | **CBM index**, the project sync, **catalog from this checkout**            |
 
 CBM is spread across all three hooks and no one of them is sufficient:
-`codebase-memory-mcp-install.sh` wires the binary into agent config from
-**postCreate** (`postCreateCommand.sh:52`), postStart starts it, postAttach
-indexes. Dropping postCreate to slim a CI job would leave the responder with no
-CBM wiring at all.
+`agentdev-runtime cbm install` wires the binary into agent config from
+**postCreate**, postStart starts it, postAttach indexes. Dropping postCreate to
+slim a CI job would leave the responder with no CBM wiring at all.
 
 Running only postCreate and postStart would leave the responder with the image's
 catalog and an unindexed CBM — the two things that make the review grounded are
-both in postAttach (`postAttachCommand.sh:8` and `:14-15`).
+both in postAttach.
 
 ## What a `container:` job must supply itself
 
@@ -74,12 +71,12 @@ The hooks depend on `devcontainer.json` — its `containerEnv` and its `mounts` 
 not only on the image, and a `container:` job applies neither. The responder job
 supplies the load-bearing hook environment explicitly:
 
-| what                                  | why                                                                              |
-| ------------------------------------- | -------------------------------------------------------------------------------- |
-| `DEV_WORKSPACE_FOLDER`                | workspace root for every script                                                  |
-| `CBM_CACHE_DIR`                       | `codebase-memory-mcp-install.sh:22` dereferences it under `set -u`               |
-| `UV_PROJECT_ENVIRONMENT`              | see below — unset is silent, not fatal                                           |
-| `mkdir -p /root/.claude /root/.codex` | `postCreateCommand.sh:63-69` writes `claude.json` where a volume normally mounts |
+| what                                  | why                                                                  |
+| ------------------------------------- | -------------------------------------------------------------------- |
+| `DEV_WORKSPACE_FOLDER`                | workspace root for every script                                      |
+| `CBM_CACHE_DIR`                       | every `agentdev-runtime cbm` step refuses to run without it          |
+| `UV_PROJECT_ENVIRONMENT`              | see below — unset is silent, not fatal                               |
+| `mkdir -p /root/.claude /root/.codex` | the create phase writes `claude.json` where a volume normally mounts |
 
 The remaining devcontainer `containerEnv` variables are not required here:
 `ENABLE_FIREWALL` is already inert by default; `UV_CACHE_DIR` and
@@ -93,9 +90,10 @@ would report success while having written into the very tree it is reviewing.
 That failure mode is invisible to CI, so the local reproducer checks for this
 side effect explicitly.
 
-Mounts have the same shape: `postCreateCommand.sh` chowns `$workspace/.cache`
-and `/uv`, which exist only because `devcontainer.json` mounts them, so that
-chown skips targets that are absent rather than aborting the script.
+Mounts have the same shape: `agentdev-runtime lifecycle created` chowns
+`$workspace/.cache` and `/uv`, which exist only because `devcontainer.json`
+mounts them, so that chown skips targets that are absent rather than aborting
+the script.
 
 **The settings handed to `claude-code-action` must include the hook-written user
 layer.** The hooks enable `agentdev@agent-devcontainer` in
@@ -109,20 +107,20 @@ plugin into `settings.local.json`, which a consumer repository never has.
 
 ## What a review job should skip
 
-Two postStart steps are pure cost in CI and are guarded by `AGENTDEV_*`
-variables that default to today's behavior:
+The create phase's one expensive step is guarded by an `AGENTDEV_*` variable
+that defaults to the devcontainer's behavior: `agentdev-runtime project hooks`
+runs `pre-commit install --install-hooks`, which eagerly builds a virtualenv for
+every hook in the repository — minutes of work for hooks a review job never
+fires. `AGENTDEV_SKIP_PRE_COMMIT` skips it.
 
-- `setup-pre-commit.sh` runs `pre-commit install --install-hooks`, which eagerly
-  builds a virtualenv for every hook in the repository. That is minutes of work
-  for hooks a review job never fires.
-- `/start-xpra.sh --background` starts a remote desktop nothing will connect to.
-
-`setup-keyring.sh` needs no guard: it already exits cleanly when the keyring
-stack is absent (`setup-keyring.sh:99-107`).
+With no supervisor, `agentdev-runtime lifecycle ready --no-wait` starts only the
+CBM daemon before the per-start repairs. The keyring, the firewall, Xpra, and
+the other supervised services never start in a `container:` job; a review job
+needs none of them.
 
 `git config --global --add safe.directory` is *not* skippable — a CI checkout is
-owned by a different uid — which is why it moves out of `setup-pre-commit.sh`
-into its own script rather than living behind the pre-commit guard.
+owned by a different uid — which is why it runs as its own step,
+`agentdev-runtime git safe-directory`, rather than behind the pre-commit guard.
 
 ## Alternatives considered
 
@@ -136,9 +134,9 @@ the repository anyway, so the catalog is already there, and using it is strictly
 better because it reflects the branch under review rather than the image's
 pinned `AGENTDEV_PLUGIN_VERSION`. The image change would also have made the
 image ship a `~/.claude.json` it does not ship today, changing which branch of
-`postCreateCommand.sh:52-59` fires on a fresh volume — a real behavior change to
-the devcontainer path in exchange for a capability the checkout already
-provides.
+the create phase's `~/.claude.json` link fires on a fresh volume — a real
+behavior change to the devcontainer path in exchange for a capability the
+checkout already provides.
 
 Rejected *for CI*, not discarded: it still closes a real gap for consumers that
 never run the lifecycle hooks — a plain `docker run`, a Codespace. That is

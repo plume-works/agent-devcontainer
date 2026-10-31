@@ -57,7 +57,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "json5", specifier = ">=0.9" },
+    { name = "json5", specifier = "==0.17.3" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "setuptools", specifier = "<85" },
     { name = "supervisor", specifier = "==4.3.0" },

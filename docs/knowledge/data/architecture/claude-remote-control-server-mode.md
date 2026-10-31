@@ -2,10 +2,10 @@
 type: architecture
 description: AGENTDEV_CLAUDE_RC_MODE=server opts the claude-remote pane into `claude remote-control` in place of the pinned interactive pane, which stays the default; AGENTDEV_CLAUDE_RC_SPAWN picks the worktree (default) or same-dir spawn mode, and an unrecognized value of either fails startup.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-26T03:10:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: https://code.claude.com/docs/en/remote-control
 - resource: https://code.claude.com/docs/en/claude-projects
 - resource: https://code.claude.com/docs/en/worktrees
@@ -18,8 +18,8 @@ sources:
 The maintainer decided that Remote Control server mode is an opt-in trial run
 next to the pinned pane of [Claude Remote Control
 resume](claude-remote-control-resume.md), which stays the default.
-`AGENTDEV_CLAUDE_RC_MODE=server` makes `claude-remote-control-start.sh` run
-`claude remote-control --spawn <spawn mode>` in the `claude-remote` tmux
+`AGENTDEV_CLAUDE_RC_MODE=server` makes `agentdev-runtime remote-control start`
+run `claude remote-control --spawn <spawn mode>` in the `claude-remote` tmux
 session, passing `--name` and `--remote-control-session-name-prefix` set to
 `CODER_WORKSPACE_NAME` when it is set. Unset or `session` keeps the pinned pane.
 Any other value fails startup before any other check, printing the value and the

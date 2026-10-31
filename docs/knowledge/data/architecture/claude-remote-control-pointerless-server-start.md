@@ -3,9 +3,9 @@ type: architecture
 description: A Remote Control server started without bridge-pointer.json pre-creates a fresh session in the workspace folder, unless a terminal Remote Control session already runs in that folder, in which case it exits at once; with a pointer present it starts regardless.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T17:20:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 ---
 
 # Claude Remote Control pointerless server start

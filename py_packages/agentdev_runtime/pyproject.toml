@@ -14,7 +14,7 @@ dependencies = [
   # supervisor imports pkg_resources, which setuptools 85 drops.
   "setuptools<85",
   "tomlkit>=0.13",
-  "json5>=0.9",
+  "json5==0.17.3",
   "pyyaml>=6.0",
 ]
 
