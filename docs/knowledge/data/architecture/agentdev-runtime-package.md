@@ -3,7 +3,7 @@ type: architecture
 description: The agentdev runtime is one Python package, agentdev_runtime, installed as a uv tool in the two runtime images and run as the agentdev-runtime CLI; its integrity is the installed distribution's RECORD, the firewall runs from the bootstrap, and a container with no supervisor starts only CBM.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:03:19Z
+  at: 2026-10-31T19:49:18Z
 sources:
 - resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cli.py
@@ -49,7 +49,9 @@ recorded file must hash as recorded, and no file may sit in the package's
 installed directories that `RECORD` does not name, bytecode aside. A failure
 refuses to start and names the supported extension points, the hook directories
 and documented environment. A source checkout, whose egg-info records nothing,
-is not checked.
+is not checked. The check catches accidental or partial edits and is not a
+security boundary: an image that deletes the distribution's metadata or rewrites
+its `RECORD` passes it.
 
 The image's entry point `/usr/local/bin/agentdev-runtime` is a symlink into the
 tool's environment, so a bind mount over it replaces a recorded file; a test

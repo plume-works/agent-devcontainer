@@ -9,7 +9,7 @@ release:
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:18:32Z
+  at: 2026-10-31T19:49:18Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -128,7 +128,8 @@ The migration is incremental. The package installs beside the scripts first, PID
 its supervisord `command=` and its tests, so the image boots at every task
 boundary. The last runtime task removes the `COPY` of the script tree and the
 sha256 manifest; integrity moves to the installed distribution's `RECORD`
-hashes, which keeps the derived-image protection the manifest provided.
+hashes, which, like the manifest, catches accidental edits by a derived image
+but is not a security boundary.
 
 A container with no supervisor socket runs `lifecycle ready --no-wait`, one
 function that starts the CBM daemon and then the per-start repairs. Nothing else
