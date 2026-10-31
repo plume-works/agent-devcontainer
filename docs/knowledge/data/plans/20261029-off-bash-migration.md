@@ -797,9 +797,26 @@ Delete: `docker/desktop/start-xpra.sh`
 
 **Files:** None.
 
-- [ ] **Closed by: CI on the current head.** Both architectures build the three
+- [x] **Closed by: CI on the current head.** Both architectures build the three
   images, the deploy and Dev Container acceptance jobs pass, and the canonical
   tags move.
+  - **Evidence:** [CI run
+    41176206238](https://github.com/plume-works/agent-devcontainer/actions/runs/41176206238)
+    on 8761041. The run includes:
+
+    - `Development image` builds `agentdev-base`, `agentdev-deploy`, and
+      `agentdev-devcontainer` on amd64 and arm64, and `Merge development image`
+      merges them.
+    - `Devcontainer image`, `Deploy runtime acceptance`, and
+      `Dev Container runtime acceptance` pass on both architectures.
+    - `Promote development image` moves `pr-573` on all three images, and
+      `CI finished` passes.
+
+    Getting there required one fix, commit f25e9e2b. CI collects every test tree
+    in one pytest session, so the runtime's `tests/test_cli.py` is now
+    `tests/test_runtime_cli.py`. `ACCEPTANCE_LABEL` moved to
+    `scripts/tests/acceptance_label.py`, so the acceptance module no longer
+    imports `conftest`, which resolved to another package's.
 
 ## Spec changes
 
