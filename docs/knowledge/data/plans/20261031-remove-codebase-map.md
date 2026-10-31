@@ -356,9 +356,14 @@ Modify, in this workspace and byte-identically in the scaffold:
 
 ### Task 7: Validate
 
-- [ ] `iwe normalize` and `iwe schema validate` pass from the repository root.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests`
+- [x] `iwe normalize` and `iwe schema validate` pass from the repository root.
+  - **Evidence:** on commit e199a638 "Record the stamper and grep evidence for
+    the codebase map removal", `iwe normalize` left the tree clean and
+    `iwe schema validate` exited 0.
+- [x] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests`
   passes.
+  - **Evidence:** on commit e199a638 "Record the stamper and grep evidence for
+    the codebase map removal", the run passed (464).
 
 ### Task 8: CI passes
 
