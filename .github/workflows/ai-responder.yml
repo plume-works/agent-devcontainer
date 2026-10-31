@@ -77,6 +77,8 @@ concurrency:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   CLAUDE_PR_REVIEW_ARGS: 'mcp__github__stub,mcp__github_comment__,mcp__github_inline_comment__,mcp__github_ci__'
+  # Bots whose pull requests skip the AI review and are approved instead.
+  TRUSTED_BOT_ACTORS: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
 
 jobs:
   preflight:
@@ -528,8 +530,7 @@ jobs:
         with:
           pr-number: ${{ github.event.pull_request.number || inputs.pr_number }}
           github-token: ${{ github.token }}
-          # Bots whose pull requests do not need an AI review to merge.
-          trusted-bot-actors: 'renovate[bot],plume-works-renovate[bot],dependabot[bot]'
+          trusted-bot-actors: ${{ env.TRUSTED_BOT_ACTORS }}
 
       - name: Verify AI reviewed PR
         env:
@@ -555,3 +556,130 @@ jobs:
         uses: ./.github/actions/log-debug-stats
         with:
           github-token: ${{ github.token }}
+
+  # Stands in for the AI review on trusted-bot pull requests, see
+  # spec/ai-review-gate. A Dependabot-triggered run holds a read-only token.
+  trusted-bot-approval:
+    name: Approve trusted-bot pull request
+    if: |
+      github.repository_owner == 'plume-works' &&
+      github.event_name == 'pull_request' &&
+      contains(fromJSON('["opened", "reopened", "synchronize", "ready_for_review"]'), github.event.action) &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.type == 'Bot'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    # contents: read lists the branch's push history.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Approve on behalf of the trusted bot
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            const { payload } = context;
+            const login = payload.pull_request.user.login;
+            const trustedBotActors = (process.env.TRUSTED_BOT_ACTORS ?? '')
+              .split(',')
+              .map((actor) => actor.trim())
+              .filter(Boolean);
+            if (!trustedBotActors.includes(login)) {
+              core.info(`${login} is not a trusted bot; nothing to approve.`);
+              return;
+            }
+            if (context.actor === 'dependabot[bot]') {
+              core.notice('Run triggered by dependabot[bot] holds a read-only token; skipping the approval.');
+              return;
+            }
+
+            const pullRequest = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: payload.pull_request.number,
+            };
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              ...pullRequest,
+              per_page: 100,
+            });
+            const ownApprovals = reviews.filter(
+              (review) => review.user?.login === 'github-actions[bot]' && review.state === 'APPROVED',
+            );
+
+            // Approval covers only the bot's own commits, see spec/ai-review-gate.
+            const commitFailure = (commit) => {
+              if (commit.author?.login !== login) {
+                return `author is ${commit.author?.login ?? 'not a GitHub account'}`;
+              }
+              const committer = commit.committer?.login;
+              if (committer !== login && committer !== 'web-flow') {
+                return `committer is ${committer ?? 'not a GitHub account'}`;
+              }
+              if (commit.commit.verification?.verified !== true) {
+                return `signature is not verified (${commit.commit.verification?.reason ?? 'unknown'})`;
+              }
+              return '';
+            };
+            let failure = '';
+            // A reused branch name starts clean at its latest creation.
+            const activities = await github.paginate(
+              github.rest.repos.listActivities,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${payload.pull_request.head.ref}`,
+                direction: 'desc',
+                per_page: 100,
+              },
+              (response, done) => {
+                const created = response.data.findIndex((activity) => activity.activity_type === 'branch_creation');
+                if (created === -1) {
+                  return response.data;
+                }
+                done();
+                return response.data.slice(0, created + 1);
+              },
+            );
+            const foreignPush = activities.find(
+              (activity) =>
+                ['branch_creation', 'push', 'force_push'].includes(activity.activity_type) &&
+                activity.actor?.login !== login,
+            );
+            if (foreignPush) {
+              failure = `${foreignPush.activity_type} to ${foreignPush.after} by ${foreignPush.actor?.login ?? 'an unknown actor'}`;
+            } else {
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
+                ...pullRequest,
+                per_page: 100,
+              });
+              for (const commit of commits) {
+                const reason = commitFailure(commit);
+                if (reason) {
+                  failure = `commit ${commit.sha}: ${reason}`;
+                  break;
+                }
+              }
+            }
+            if (failure) {
+              for (const review of ownApprovals) {
+                await github.rest.pulls.dismissReview({
+                  ...pullRequest,
+                  review_id: review.id,
+                  message: `Trusted-bot approval withdrawn: ${failure}.`,
+                });
+              }
+              core.notice(`Not approving the pull request by ${login}: ${failure}.`);
+              return;
+            }
+
+            if (ownApprovals.length > 0) {
+              core.info('github-actions[bot] already approved this pull request.');
+              return;
+            }
+
+            await github.rest.pulls.createReview({
+              ...pullRequest,
+              event: 'APPROVE',
+              body: `AI review skipped: this pull request is authored by ${login}, a trusted bot. Approving on its behalf.`,
+            });
+            core.info(`Approved pull request #${pullRequest.pull_number} authored by ${login}.`);

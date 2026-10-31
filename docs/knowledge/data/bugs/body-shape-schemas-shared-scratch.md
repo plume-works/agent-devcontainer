@@ -4,6 +4,7 @@ description: The body-shape schema tests build their scratch graph at a fixed /t
 generated:
   by: claude-code/opus-5.5
   at: 2026-10-31T06:00:00Z
+stage: done
 sources:
 - resource: docs/knowledge/tests/test_body_shape_schemas.py
 - resource: docs/knowledge/tests/test_plan_release_schema.py
@@ -50,8 +51,11 @@ way.
 
 ## Fix
 
-Unfixed. Give each run its own scratch root, as the mask tests already do with
-`TMP_ROOT / f'<name>-{uuid4().hex}'`, and remove it when the fixture finishes.
+Commit `c535ab9`: the three fixtures create a `uuid4`-suffixed directory under
+`/tmp/agentdev-tests` per run and remove it on teardown, as the sibling fixtures
+do, so concurrent runs never share a workspace. With the fix, three rounds of
+two concurrent `uv run pytest docs/knowledge/tests` runs each ended `58 passed`,
+and no per-run directory was left behind.
 
 ## Key references
 

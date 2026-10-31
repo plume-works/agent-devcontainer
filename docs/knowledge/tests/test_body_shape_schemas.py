@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+from uuid import uuid4
 
 import pytest
 
@@ -76,16 +77,17 @@ def _strip_bug_prefix(content: str) -> str:
 
 
 @pytest.fixture(scope='module')
-def workspace() -> Path:
-    """Copy the configuration and graph into an isolated workspace."""
+def workspace() -> Iterator[Path]:
+    """Copy the configuration and graph into a workspace private to this run."""
     TMP_ROOT.mkdir(exist_ok=True)
-    root = TMP_ROOT / 'body-shape-schemas'
-    if root.exists():
-        shutil.rmtree(root)
-    (root / 'docs' / 'knowledge').mkdir(parents=True)
-    shutil.copytree(IWE_CONFIG, root / '.iwe')
-    shutil.copytree(DATA, root / 'docs' / 'knowledge' / 'data')
-    return root
+    root = TMP_ROOT / f'body-shape-schemas-{uuid4().hex}'
+    try:
+        (root / 'docs' / 'knowledge').mkdir(parents=True)
+        shutil.copytree(IWE_CONFIG, root / '.iwe')
+        shutil.copytree(DATA, root / 'docs' / 'knowledge' / 'data')
+        yield root
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
 
 
 @pytest.fixture

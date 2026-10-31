@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T06:00:00Z
+  at: 2026-10-31T02:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -13,6 +13,7 @@ sources:
 - resource: data/plans/20260903-single-ai-review-workflow.md
 - resource: data/architecture/pr-review-effort-tiers.md
 - resource: data/architecture/assignee-review-trigger.md
+- resource: data/architecture/ai-review-event-selection.md
 - resource: https://github.com/Dr-QP/Dr.QP/commit/24e1e3aa5426de0ba32f018eefdf2f587e96aba3
 - resource: https://github.com/Dr-QP/Dr.QP/commit/b15bee1540306b698937ce2dee72b243e7747fec
 ---
@@ -76,6 +77,35 @@ the pull request's author as assignee and adding them back runs a `pull_request`
 review whose gate counts toward merge, as recorded in [Assignee-triggered AI
 re-reviews](../architecture/assignee-review-trigger.md). An `@claude review`
 comment is rejected with a reply pointing at that toggle.
+
+**The review's verdict follows its findings.** The review submits `APPROVE` when
+it has no validated finding or only non-blocking ones, and `REQUEST_CHANGES`
+when any blocking finding remains, inline or not. The `main` ruleset requires
+one approving review, so an approving review is what lets a reviewed pull
+request merge; its inline comments still open threads that must be resolved
+first. A clean re-review approves, which replaces the reviewer's own earlier
+change request. The rule is recorded in [AI review event
+selection](../architecture/ai-review-event-selection.md).
+
+**Trusted-bot pull requests are approved instead of reviewed.** A
+`trusted-bot-approval` job approves a same-repository pull request whose author
+is a `Bot` listed exactly in `TRUSTED_BOT_ACTORS`, with a body stating that the
+AI review was skipped. It checks out nothing and approves once: a push to a pull
+request it already approved adds no second approval. The same list drives the
+`ai-review-present` waiver.
+
+The approval holds only while every commit is the bot's own — authored by the
+bot, committed by the bot or `web-flow`, with a verified signature — and every
+push since the head branch's latest creation (that creation, pushes, force
+pushes) came from the bot itself. When any commit or push fails that check, the
+job approves nothing, dismisses its standing approval, and posts a notice naming
+the failure, so the pull request needs a human approval. A run triggered by
+`dependabot[bot]` holds a read-only token and is skipped with a notice; a run a
+person triggers on a Dependabot pull request approves it when the check passes.
+The job runs the pull request's own copy of the workflow, so the approval is
+only as strong as the trust in the repository's writers: the checks hold against
+a commit that leaves the workflow unchanged, not against a writer who edits the
+job.
 
 The gate's full contract lives in the [AI review
 gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle

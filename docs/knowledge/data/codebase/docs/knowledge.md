@@ -7,14 +7,14 @@ source:
 - docs/knowledge/AGENTS.md
 - docs/knowledge/SCHEMA.md
 - docs/knowledge/STRUCTURE.md
-source_digest: sha256:e86c969709d72c1296729c8582b63040b06f4f2c9531857791fdad522299139d
+source_digest: sha256:48bbfe1c710b130b4ac3798bf54b37624f4173692cce4119beb1054e9b7f61b2
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
-stale_after: 2027-01-28
+  at: 2026-10-31T04:15:00Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-31T04:15:00Z
 sources:
 - id: code
   resource: .iwe
@@ -102,10 +102,13 @@ the image and fetched by `scripts/fetch-pinned-tool.py` in CI;
 - `.iwe/`, `AGENTS.md`, `SCHEMA.md`, `STRUCTURE.md`, and the other support files
   beside `data/` are duplicated byte for byte in the iwe-bootstrap scaffold; a
   change here is a change there.
+- A fixture that builds a workspace under `/tmp/agentdev-tests` names it with a
+  `uuid4` suffix and removes it on teardown, so concurrent runs, such as the
+  `plan-checkboxes` hook in two worktrees, never share one.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.iwe/config.toml:17` — `path = "docs/knowledge"`
 - `.iwe/config.toml:63-124` — schema bindings
@@ -114,11 +117,11 @@ Verified anchor points (line numbers as of 2026-10-29):
 - `.iwe/schemas/bug.yaml:6`, `.iwe/schemas/feature.yaml:6` — the required body
   sections
 - `docs/knowledge/tests/test_plan_checkboxes.py:162` — `check_plan`
-- `docs/knowledge/tests/test_body_shape_schemas.py:124` —
+- `docs/knowledge/tests/test_body_shape_schemas.py:126` —
   `test_malformed_body_is_rejected`
-- `docs/knowledge/tests/test_iwe_seed.py:73` — standalone consumer-workspace
+- `docs/knowledge/tests/test_iwe_seed.py:75` — standalone consumer-workspace
   fixture
-- `docs/knowledge/tests/test_iwe_seed.py:110` —
+- `docs/knowledge/tests/test_iwe_seed.py:113` —
   `test_scaffold_support_files_match_the_publisher_workspace`
 - `docs/knowledge/tests/test_devcontainer_metadata_mask.py:72,210` — production
   mask workspace fixture and the feature-bump-with-lock test

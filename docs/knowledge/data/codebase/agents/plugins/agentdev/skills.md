@@ -2,14 +2,14 @@
 type: codebase
 description: The 41 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:fdbdd1417cbba8eebe3e411b56a682432c3199030be3b56c6ca768a1fa452ed7
+source_digest: sha256:d0b24f18386f9756ca5e7e7ca229d0db76b4985da7e81da401518a7379ef1495
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T06:14:58Z
+  at: 2026-10-31T08:00:00Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T06:14:58Z
+  at: 2026-10-31T08:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -189,13 +189,13 @@ Verified anchor points (line numbers as of 2026-10-31):
   section that selects setup or update mode
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:61` — the progress
   document
-- `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.py:108`
+- `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.py:109`
   — `read_marker`, the only read of the marker section
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:985`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:997`
   — the `eas-host` iOS build rule: action order, Metro start, cloud fallback
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:829`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:841`
   — knowledge initialization through `iwe-bootstrap`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1100`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1112`
   — the image-family migration update mode applies first
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:198` — update
   mode's migration step

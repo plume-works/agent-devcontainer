@@ -3,7 +3,7 @@ type: architecture
 description: The AI reviewer submits APPROVE with the workflow's GITHUB_TOKEN, so "Allow GitHub Actions to create and approve pull requests" must be enabled at the organization level and inherited by the repository; the reviewer's approval is the one the main ruleset requires.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T18:30:00Z
+  at: 2026-10-31T02:00:00Z
 sources:
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
@@ -59,7 +59,8 @@ organization disallows it.
 - The setting also lets any workflow's `GITHUB_TOKEN` in the organization
   approve and open pull requests as `github-actions[bot]`, and that approval
   counts toward the ruleset's required approval. The trust placed in the AI
-  reviewer extends to every workflow on `main` that holds
-  `pull-requests: write`.
+  reviewer extends to every workflow that holds `pull-requests: write`,
+  including a pull request's own copy of a `pull_request` workflow, so it is
+  only as strong as the trust in the repository's writers.
 - The prerequisite is tied to the `GITHUB_TOKEN` reviewer identity. A responder
   that posts with a GitHub App installation token does not depend on it.
