@@ -5,8 +5,7 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-10-31T03:45:25Z
 sources:
-- resource: .devcontainer/scripts/runtime-remote-control.sh
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: scripts/tests/test_runtime_remote_control.py
 - resource: docs/knowledge/data/plans/20261027-standalone-remote-control-autostart.md
 ---
@@ -61,14 +60,15 @@ non-zero exit.
 
 Verified anchor points (line numbers as of 2026-10-31):
 
-- `.devcontainer/scripts/runtime-remote-control.sh:43` — login re-check when the
-  credential signature changes
-- `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
-  gone ends the watcher
-- `.devcontainer/scripts/runtime-remote-control.sh:57` — start-script call
-- `.devcontainer/scripts/runtime-remote-control.sh:60` — a start that leaves no
-  live session ends the watcher
-- `.devcontainer/scripts/claude-remote-control-start.sh:27` — the start script's
-  own `claude auth status` check, which exits 0 when it skips
-- `.devcontainer/scripts/claude-remote-control-start.sh:68` — `tmux new-session`
-  that returns before the pane's process runs
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:240` — `run`:
+  login re-check when the credential signature changes
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:249` — a seen
+  session that is gone ends the watcher
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:253` — the
+  `start()` call
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:257` — a
+  start that leaves no live session ends the watcher
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:115` —
+  `start`'s own `claude auth status` check, which returns 0 when it skips
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:143` —
+  `tmux new-session`, which returns before the pane's process runs

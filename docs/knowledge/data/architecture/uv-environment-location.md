@@ -52,14 +52,13 @@ convention most Python tooling expects. Rejected: it breaks cache-to-environment
 hardlinking, as above.
 
 **Keep the `.venv` symlink to the out-of-tree environment.** This was the prior
-state — the environment lived on `/uv`, and `agentdev-runtime project sync`
-recreated `.venv` as a symlink to it on every postCreate and postAttach, as a
-shim for tooling expecting the conventional path. Rejected: the repository's
-stated convention is to run project commands through `uv run`, and the symlink
-was the one affordance contradicting it. Once every consumer routes through
-`uv run` or an absolute path, the shim has no remaining benefit and two costs —
-a second name for one environment, and a stale link whenever the target path
-changes.
+state — the environment lived on `/uv`, and the project sync step recreated
+`.venv` as a symlink to it on every postCreate and postAttach, as a shim for
+tooling expecting the conventional path. Rejected: the repository's stated
+convention is to run project commands through `uv run`, and the symlink was the
+one affordance contradicting it. Once every consumer routes through `uv run` or
+an absolute path, the shim has no remaining benefit and two costs — a second
+name for one environment, and a stale link whenever the target path changes.
 
 ## Consequences
 

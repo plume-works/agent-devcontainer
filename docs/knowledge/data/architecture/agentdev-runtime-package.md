@@ -60,9 +60,9 @@ configuration instead.
 
 `agentdev-runtime firewall apply` runs as root from the bootstrap in both
 profiles, before supervisord starts `dockerd`, so the flush keeps the engine's
-rules and no sudoers entry is needed. The Ansible role that used to install the
-script and its sudoers entry now installs only `iptables` and `ipset`. A Dev
-Container reads its checkout's allowlist when present and the image copy
+rules and no sudoers entry is needed. The `devcontainer_firewall` Ansible role
+installs only `iptables` and `ipset`; it carries no script and no sudoers entry.
+A Dev Container reads its checkout's allowlist when present and the image copy
 otherwise; deploy reads `FIREWALL_ALLOWLIST` or the image copy.
 
 ## A container with no supervisor
