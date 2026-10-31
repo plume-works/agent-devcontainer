@@ -105,7 +105,7 @@ repos:
       # plans directory rather than the staged subset, so it takes no filenames.
       - id: plan-checkboxes
         name: plan-checkboxes
-        entry: uv run pytest docs/knowledge/tests
+        entry: uv run pytest docs/knowledge/tests/test_plan_checkboxes.py
         language: system
         files: '^docs/knowledge/data/plans/.*\.md$'
         pass_filenames: false

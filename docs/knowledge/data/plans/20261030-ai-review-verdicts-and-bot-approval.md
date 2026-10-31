@@ -16,6 +16,8 @@ sources:
 - resource: docs/knowledge/data/architecture/actions-approval-permission.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/spec/template-consumption.md
+stage: done
+completed: 2026-10-31
 ---
 
 # AI review verdicts gate merge and trusted bots are auto-approved
@@ -337,21 +339,37 @@ Assumptions:
 
 ### Task 8: A trusted-bot pull request merges without bypass
 
-- [ ] After the change is on `main`, the next Renovate pull request receives the
+- [x] After the change is on `main`, the next Renovate pull request receives the
   bot approval and merges through Renovate's automerge with no ruleset bypass,
   or the plan records that the ruleset's
   `require_extra_approval_for_unattributed_changes` demanded another approval.
-- [ ] A pull request opened by a bot outside `TRUSTED_BOT_ACTORS` receives no
+  - **Evidence:** PR #582 — `plume-works-renovate[bot]` opened it; the
+    `trusted-bot-approval` job posted an `APPROVED` review from
+    `github-actions[bot]`, and Renovate merged it through automerge as
+    `ae8e1c73` with no further approval and no bypass.
+- [x] A pull request opened by a bot outside `TRUSTED_BOT_ACTORS` receives no
   approval and no AI review.
-- [ ] A commit a person pushes to an approved trusted-bot pull request dismisses
+  - **Evidence:** PR #586 — opened by `chocobot-agent[bot]`; the job logged
+    "chocobot-agent[bot] is not a trusted bot; nothing to approve.", the review
+    responder was skipped, `ai-review-present` failed, and the pull request
+    stayed `REVIEW_REQUIRED`.
+- [x] A commit a person pushes to an approved trusted-bot pull request dismisses
   the bot approval, and closing and reopening the pull request does not restore
   it.
+  - **Evidence:** PR #590 — a person's commit `b406aef1` dismissed the bot
+    approval with the notice "push to b406aef1… by anton-matosov"; the run for
+    the `reopened` event refused again with the same notice and approved
+    nothing.
 
 ### Task 9: A review with only non-blocking findings approves
 
-- [ ] A pull request reviewed after the change, whose validated findings are all
+- [x] A pull request reviewed after the change, whose validated findings are all
   non-blocking, carries an `APPROVED` review from `github-actions[bot]`, and
   merges once its threads are resolved.
+  - **Evidence:** PR #594 — the review was `APPROVED` with one inline
+    non-blocking AGENTS.md compliance finding; once the thread was resolved, the
+    pull request reached `CLEAN`. PR #592 showed the blocking side: blocking
+    findings drew `REQUEST_CHANGES`, and a clean re-review approved.
 
 ## Spec changes
 

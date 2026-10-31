@@ -146,8 +146,8 @@ from the bootstrap in both profiles, so its sudoers entry and the script in the
 Ansible role go; the role keeps the packages. A set `FIREWALL_ALLOWLIST` names
 the allowlist in both profiles, as `init-firewall.sh` let it. Unset, the
 devcontainer profile reads the checkout's allowlist when present, as
-`spec/firewall` promises, and the image copy otherwise, as the supervised
-wrapper did; deploy keeps the image copy.
+`spec/firewall` promises, and the image copy otherwise; deploy keeps the image
+copy.
 
 Rejected: loose stdlib scripts on the system interpreter, which keeps either the
 runtime PyPI fetch or an apt dependency hunt and keeps the file manifest; bash

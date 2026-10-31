@@ -9,6 +9,9 @@ sources:
 - resource: .github/actions/ai-review-status/action.yml
 - resource: .github/actions/run-claude-responder/action.yml
 - resource: data/architecture/assignee-review-trigger.md
+- resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
+- resource: data/architecture/ai-review-event-selection.md
+- resource: data/plans/20261030-ai-review-verdicts-and-bot-approval.md
 ---
 
 # AI review gate
@@ -245,3 +248,65 @@ branch does not declare is rejected on the key alone, whatever its value.
 
 - **WHEN** the pull request's head branch does not carry `ai-responder.yml`
 - **THEN** the bridge fails naming the branch, and no task runs.
+
+## Requirement: the AI review verdict follows its findings
+
+The review responder SHALL submit `APPROVE` when no validated finding remains or
+every validated finding is non-blocking, and SHALL submit `REQUEST_CHANGES` when
+any blocking finding remains, whether or not it is attached inline. It SHALL NOT
+choose `COMMENT`, except as the retry when GitHub rejects a verdict because the
+reviewer owns the pull request.
+
+### Scenario: a re-review finds only non-blocking issues
+
+- **WHEN** the AI reviewer earlier requested changes on a pull request and a
+  re-review finds only non-blocking issues
+- **THEN** the re-review is an `APPROVE` with inline comments, the reviewer's
+  change request no longer blocks merge, and merge waits only for the inline
+  threads to be resolved.
+
+### Scenario: a review finds an anchored blocking issue
+
+- **WHEN** a review finds a blocking issue and attaches it inline
+- **THEN** the review is `REQUEST_CHANGES`, and the pull request stays blocked
+  until a later review from the same reviewer approves it.
+
+## Requirement: trusted-bot pull requests are approved without an AI review
+
+The AI responder workflow SHALL approve a same-repository pull request whose
+author is a `Bot` listed in `TRUSTED_BOT_ACTORS`, with a review body stating
+that the AI review was skipped, only when every commit on the pull request is
+authored by that bot, committed by that bot or `web-flow`, and carries a
+verified signature, and only when that bot made the head branch's latest
+creation and every push and force push since. When any commit or update fails
+that check it SHALL NOT approve, and SHALL dismiss its own standing approval. It
+SHALL NOT check out the pull request, SHALL NOT approve a pull request that
+already carries its approval, and SHALL skip a run triggered by
+`dependabot[bot]`, whose token cannot approve.
+
+### Scenario: Renovate opens a pull request
+
+- **WHEN** `plume-works-renovate[bot]` opens a pull request on a branch of this
+  repository
+- **THEN** the workflow approves it once, no AI review runs, and
+  `ai-review-present` passes on the trusted-bot waiver.
+
+### Scenario: a bot outside the list opens a pull request
+
+- **WHEN** a bot not listed in `TRUSTED_BOT_ACTORS` opens a pull request
+- **THEN** no approval and no AI review is posted, and the pull request stays
+  blocked unless merged by ruleset bypass.
+
+### Scenario: a person pushes to a trusted-bot pull request
+
+- **WHEN** an account other than the author bot pushes a commit that leaves the
+  workflow unchanged to a trusted-bot pull request the workflow already approved
+- **THEN** the workflow dismisses its approval, approves nothing, and the pull
+  request needs a human approval to merge, even after it is closed and reopened.
+
+### Scenario: a reused branch name starts clean
+
+- **WHEN** a trusted bot recreates a branch whose earlier life included a
+  person's push, and opens a new pull request from it
+- **THEN** only the pushes since the branch's latest creation are checked, and
+  the workflow approves the new pull request.
