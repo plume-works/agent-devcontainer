@@ -2,14 +2,14 @@
 type: codebase
 description: The 41 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:529b65db3a2da03898f393ebf7a1dd93ddceef630ea06fa1f928917b66b67713
+source_digest: sha256:a13e50e763a88b91a97f854acf862125859f215c5a1d31dd6613a8cb87590288
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T18:00:00Z
-stale_after: 2027-01-28
+  at: 2026-10-31T03:00:00Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T18:00:00Z
+  at: 2026-10-31T03:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -176,7 +176,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -188,11 +188,11 @@ Verified anchor points (line numbers as of 2026-10-30):
   document
 - `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:124`
   — the only read of the marker section
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:985`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:997`
   — the `eas-host` iOS build rule: action order, Metro start, cloud fallback
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:829`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:841`
   — knowledge initialization through `iwe-bootstrap`
-- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1100`
+- `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:1112`
   — the image-family migration update mode applies first
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:198` — update
   mode's migration step

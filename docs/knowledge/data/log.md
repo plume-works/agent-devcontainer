@@ -6,6 +6,12 @@ to the current day's group.
 
 ## 2026-10-31
 
+- **Update**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [.github](codebase/github.md), [workflows](codebase/github/workflows.md), and
+  [pull request checks flow](codebase/flow-pull-request-checks.md) map docs for
+  the AI review verdict rule and the trusted-bot approval job.
 - **Update**: [Verify report cache](features/verify-report-cache.md)
   implemented; [Verify report cache](plans/20261030-verify-report-cache.md) plan
   done.
