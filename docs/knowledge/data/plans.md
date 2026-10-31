@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Show the Verify report in the
+conversation](plans/20261031-verify-report-in-chat.md)
+
 [Move the Coder template's knowledge into
 coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
 
