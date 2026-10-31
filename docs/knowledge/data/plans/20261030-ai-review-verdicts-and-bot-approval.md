@@ -314,15 +314,26 @@ Assumptions:
 `docs/knowledge/data/architecture/actions-approval-permission.md`,
 `docs/knowledge/data/features/ai-responder-workflows.md`
 
-- [ ] `trusted-bot-approval` reads the head branch's activity newest first and
+- [x] `trusted-bot-approval` reads the head branch's activity newest first and
   stops at the latest `branch_creation`, so only that entry and the pushes after
   it are checked against the pull request's author.
-- [ ] The architecture note records that the approval is only as strong as the
+  - **Evidence:** commit `14d0b4d` — `listActivities` is paged with
+    `direction: 'desc'`, and its map function keeps entries up to and including
+    the first `branch_creation` and then stops paging.
+- [x] The architecture note records that the approval is only as strong as the
   trust in the repository's writers, because the job runs the pull request's
   copy of the workflow, and `actions-approval-permission.md` states that
   boundary instead of "every workflow on `main`"; the feature doc matches.
-- [ ] `actionlint` and `zizmor` pass through pre-commit, and
+  - **Evidence:** commit `744525e` — `ai-review-event-selection.md` records the
+    trust limit and the bounded history, `actions-approval-permission.md` names
+    a pull request's own workflow copy instead of "every workflow on `main`",
+    and the feature doc matches.
+- [x] `actionlint` and `zizmor` pass through pre-commit, and
   `iwe schema validate` passes.
+  - **Evidence:** commits `14d0b4d` and `744525e` —
+    `uv run pre-commit run --files .github/workflows/ai-responder.yml` passed
+    actionlint and zizmor; `iwe schema validate` passed in the `744525e`
+    pre-commit run.
 
 ### Task 8: A trusted-bot pull request merges without bypass
 
