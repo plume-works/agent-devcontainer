@@ -196,8 +196,10 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
     (health 17, workspace 24, lifecycle 19, cbm 8, the other five 33), and the
     33 tests that need the runtime images are skipped here — CI runs them (Task
     13).
-- [ ] `git grep -i codex -- scripts/tests` prints nothing, and each modified
+- [x] `git grep -i codex -- scripts/tests` prints nothing, and each modified
   test file passes under `uv run pytest`.
+  - **Evidence:** `126cf3a1` and `1a4332b6`; the grep prints nothing after
+    `1a4332b6`, and each modified file passes as recorded for the box above.
 
 ### Task 7: Stop installing Codex in the images and the devcontainer
 
@@ -240,11 +242,14 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `scripts/e2e/iwe-workflows/scenarios.py`,
 `scripts/tests/test_e2e_iwe_workflows_clone.py`
 
-- [ ] `scenarios.py` has no `CODEX_BUDGET`, no scenario branches on Codex, and
+- [x] `scenarios.py` has no `CODEX_BUDGET`, no scenario branches on Codex, and
   `git grep -i codex -- scripts/e2e` prints nothing.
-- [ ] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes and
+  - **Evidence:** `1a4332b6`; `git grep -i codex -- scripts/e2e` prints nothing.
+- [x] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes and
   the Claude and OpenCode e2e modules still collect
   (`uv run pytest --collect-only scripts/e2e/iwe-workflows`).
+  - **Evidence:** `1a4332b6`; the clone test passes (8), and `--collect-only`
+    collects 42 Claude and OpenCode e2e tests.
 
 ### Task 10: Rewrite the README for two harnesses
 
