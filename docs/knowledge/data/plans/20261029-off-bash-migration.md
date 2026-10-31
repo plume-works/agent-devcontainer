@@ -856,8 +856,12 @@ Delete: `docker/desktop/start-xpra.sh`
     `test_an_identity_git_resolves_passes_the_git_user_check` and
     `test_an_identity_git_cannot_resolve_fails_the_git_user_check` pass in
     `test_environment_health.py` (17 passed).
-- [ ] `agentdev-runtime doctor` ends `Overall: PASS` in this repository's
+- [x] `agentdev-runtime doctor` ends `Overall: PASS` in this repository's
   Compose Dev Container under Coder with credentials.
+  - **Evidence:** commit 666da330; `uv run agentdev-runtime doctor` from the
+    package at that commit, in the Coder workspace's Compose Dev Container,
+    whose image predates the CLI, reports 45 PASS, 0 FAIL, 6 SKIP and
+    `Overall: PASS`, with `mcp-gateway` SKIP and `git user` PASS.
 
 ## Spec changes
 
@@ -1118,16 +1122,9 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 ## Verification results
 
-- `agentdev-runtime doctor` does not end `Overall: PASS` in this repository's
-  Compose Dev Container under Coder with credentials. Run from the package at
-  ef21b750 (the workspace image predates the CLI), it reports 44 PASS, 3 FAIL,
-  and 5 SKIP: the runtime state, the toolchain including `gitleaks` and
-  `actionlint`, the services, and the auth links pass. The three failures are
-  checks carried over unchanged from `environment-health.sh` that misjudge this
-  workspace — `mcp-gateway` DNS and `:8811` without the opt-in `mcp` Compose
-  profile, and `git user` with Coder's environment identity — filed as [Bug:
-  doctor fails a healthy Coder Dev
-  Container](../bugs/doctor-fails-healthy-coder-devcontainer.md).
+- `agentdev-runtime doctor` ends `Overall: PASS` in this repository's Compose
+  Dev Container under Coder with credentials, run from the package because the
+  workspace image predates the CLI: 45 PASS, 0 FAIL, 6 SKIP (Task 21).
 - The task commits landed on `main` squashed as c96e1ef1 (#573); the per-task
   SHAs the evidence cites are reachable on
   `origin/iwe/off-bash-migration/iter-1-impl`.
