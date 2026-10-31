@@ -514,18 +514,34 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/setup-git-safe-directory.sh`,
 `.devcontainer/scripts/setup-gh-credential-helper.sh`
 
-- [ ] `agentdev-runtime workspace checkout|project|catalog|config|prepare` keeps
+- [x] `agentdev-runtime workspace checkout|project|catalog|config|prepare` keeps
   the clone marker, worktree validation, credential redaction, and deploy-only
   cloning.
-- [ ] `agentdev-runtime project sync|hooks` and
+  - **Evidence:** commit 4773feb; `test_agent_runtime_workspace.py` (25 passed,
+    including the real Claude and Codex catalog registration and the offline
+    hook registration) runs the command with the other modules' steps recorded.
+    Deploy acceptance (24 passed), whose prepare, config, and project phases run
+    it, and the Dev Container image suite (5 passed) pass against images built
+    from that commit. The forced-prepare acceptance case now swaps the phase
+    through `AGENTDEV_SUPERVISOR_CONFIG`, since the CLI's entry point is a
+    symlink into the integrity-checked tool.
+- [x] `agentdev-runtime project sync|hooks` and
   `agentdev-runtime git safe-directory|credential-helper` keep the managed
   `.venv` link cleanup, deploy's refusal to replace custom hooks, the skip
   variables, and the keyring-session environment read; root `AGENTS.md` and the
   microvm-sandbox skill stop naming `uv-sync.sh`.
-- [ ] `agentdev-runtime project hooks`, after registering the hooks, writes one
+  - **Evidence:** commit 4773feb; the project cases of
+    `test_agent_runtime_workspace.py` and `test_setup_gh_credential_helper.py`
+    pass through the CLI;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passes after the skill edit.
+- [x] `agentdev-runtime project hooks`, after registering the hooks, writes one
   warning to stderr for each `language: system` hook whose `entry` executable is
   not on `PATH`, naming the hook and the executable, and keeps the exit status
   it has today; tests cover a missing and a present executable in both profiles.
+  - **Evidence:** commit 4773feb; `test_project_hooks.py` covers a missing and a
+    present executable in both profiles, a non-system hook, and deploy's
+    custom-hook refusal, which exits 1 before any warning.
 
 ### Task 13: Lifecycle commands, hooks, and the no-supervisor start
 
