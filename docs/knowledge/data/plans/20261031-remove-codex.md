@@ -3,7 +3,6 @@ type: plan
 created: 2026-10-31
 release:
 - features/claude-and-opencode-only-harnesses
-- features/codex-full-access-config
 description: Remove Codex from the images, the agentdev-runtime package, the agentdev catalog, CI, the e2e suites, and the knowledge graph, leaving Claude Code and OpenCode as the only supported harnesses.
 generated:
   by: claude-code/opus-5.5
@@ -39,7 +38,8 @@ volume](20261030-devcontainer-home-volume.md), so that plan no longer carries
 Codex volume and auth work.
 
 [Codex full-access config](../features/codex-full-access-config.md) is
-superseded and becomes `deprecated`.
+superseded and becomes `deprecated`. Task 11 deprecates it; it stays out of
+`release`, because Ship sets every feature listed there to `implemented`.
 
 ## Approach
 
@@ -303,6 +303,10 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
     `codex-skill-dir-unresolved`, which were already `done`, on the maintainer's
     direction to cancel every pending Codex bug. `data/bugs.md` is a flat hub,
     so no link moves; `iwe schema validate` passes.
+- [ ] `features/codex-full-access-config` is `stage: deprecated` with
+  `status: deprecated`, and its body states that [Claude Code and OpenCode are
+  the only supported
+  harnesses](../features/claude-and-opencode-only-harnesses.md) supersedes it.
 
 ### Task 12: Update the knowledge documents that describe current Codex behavior
 
