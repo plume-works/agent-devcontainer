@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:30:00Z
+  at: 2026-10-31T02:00:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -96,12 +96,16 @@ request it already approved adds no second approval. The same list drives the
 
 The approval holds only while every commit is the bot's own — authored by the
 bot, committed by the bot or `web-flow`, with a verified signature — and every
-push in the head branch's history (branch creation, push, force push) came from
-the bot itself. When any commit or push fails that check, the job approves
-nothing, dismisses its standing approval, and posts a notice naming the failure,
-so the pull request needs a human approval. A run triggered by `dependabot[bot]`
-holds a read-only token and is skipped with a notice; a run a person triggers on
-a Dependabot pull request approves it when the check passes.
+push since the head branch's latest creation (that creation, pushes, force
+pushes) came from the bot itself. When any commit or push fails that check, the
+job approves nothing, dismisses its standing approval, and posts a notice naming
+the failure, so the pull request needs a human approval. A run triggered by
+`dependabot[bot]` holds a read-only token and is skipped with a notice; a run a
+person triggers on a Dependabot pull request approves it when the check passes.
+The job runs the pull request's own copy of the workflow, so the approval is
+only as strong as the trust in the repository's writers: the checks hold against
+a commit that leaves the workflow unchanged, not against a writer who edits the
+job.
 
 The gate's full contract lives in the [AI review
 gate](../spec/ai-review-gate.md) spec. The boundary between the lifecycle

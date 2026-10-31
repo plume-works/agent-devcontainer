@@ -3,7 +3,7 @@ type: architecture
 description: The AI reviewer picks its review event from finding severity alone — APPROVE for no or only non-blocking findings, REQUEST_CHANGES for any blocking finding — because the one-approval main ruleset needs its approval and only its own APPROVE lifts its earlier change request.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:30:00Z
+  at: 2026-10-31T02:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml
@@ -79,12 +79,14 @@ commits an App creates through the API), and its signature verifies.
 
 Commit metadata alone cannot prove who pushed: a commit another account creates
 through the API can name the bot as author and still verify. On every run, the
-job therefore also reads the head branch's repository activity and requires
-every `branch_creation`, `push`, and `force_push` entry to have the pull
-request's author as actor. Checking the whole push history, rather than the
-actor of the run that triggered it, keeps a reopened pull request or a cancelled
-run from restoring an approval after a person's push. The activity endpoint
-needs `contents: read`.
+job therefore also reads the head branch's repository activity, newest first,
+back to its latest `branch_creation`, and requires that entry and every `push`
+and `force_push` after it to have the pull request's author as actor. Checking
+the branch's push history, rather than the actor of the run that triggered it,
+keeps a reopened pull request or a cancelled run from restoring an approval
+after a person's push. Stopping at the latest creation lets a reused branch
+name, such as Renovate's `renovate/<dep>`, start clean once the old branch is
+deleted. The activity endpoint needs `contents: read`.
 
 When a check fails, the job approves nothing, dismisses its own standing
 approval, and posts a notice naming the failing push or commit. The `main`
@@ -94,6 +96,13 @@ given to the bot's commits would also cover a person's commit pushed after it.
 The same checks let a person-triggered run approve a Dependabot pull request
 whose commits are Dependabot's alone. Only a run `dependabot[bot]` triggers is
 skipped, because its `GITHUB_TOKEN` is read-only.
+
+The approval is only as strong as the trust in the repository's writers. The job
+runs on `pull_request` from a same-repository head, so it runs the pull
+request's own copy of the workflow: a writer who pushes a commit that also edits
+the job can skip the checks and post an approval. The checks hold against a
+commit that leaves the workflow unchanged; guarding the job against a writer who
+edits it is out of scope.
 
 ## Alternatives rejected
 
