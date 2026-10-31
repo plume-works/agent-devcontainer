@@ -136,3 +136,5 @@ re-review](architecture/rereview-gate-pending.md)
 [Catalog script language](architecture/catalog-script-language.md)
 
 [Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
+
+[Supported harnesses](architecture/supported-harnesses.md)
