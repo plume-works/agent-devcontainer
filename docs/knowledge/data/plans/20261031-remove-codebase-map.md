@@ -86,20 +86,38 @@ Rejected:
 `.agents/plugins/agentdev/skills/pr-review/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`.
 
-- [ ] Delete the `iwe-map` skill directory and the seven test files that load
+- [x] Delete the `iwe-map` skill directory and the seven test files that load
   `stale-map-docs.py` or test the push gate.
-- [ ] `push-branch.py` runs no map check: drop `MAP_STALE`, `MAP_CHECK_FAILED`,
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" deletes `skills/iwe-map/` and the seven test files.
+- [x] `push-branch.py` runs no map check: drop `MAP_STALE`, `MAP_CHECK_FAILED`,
   `MAP_CHECK_SCRIPT`, the `--skip-map-check` option, the `MAP_CHECK=` output
   line, the check function, and their usage-text and result-name entries.
   Branch-up-to-date reports `SUCCESS` with `ACTION=none` directly.
-- [ ] `pr-open` step 8 lists no map result codes, no `--skip-map-check`, and no
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check"; `push-branch.py` holds no `MAP_` constant, `--skip-map-check`, or
+    `MAP_CHECK=` line, and `uv run pytest .agents/plugins/agentdev/tests` passed
+    (424).
+- [x] `pr-open` step 8 lists no map result codes, no `--skip-map-check`, and no
   `MAP_STALE` refresh; its stack-publish note no longer mentions a map check.
-- [ ] `update-branch` step 2 no longer names `MAP_STALE`.
-- [ ] `pr-review` drops its IGNORE rule for stale codebase-map docs.
-- [ ] The verifier's audit drops the stale-map-docs item.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests` passes, and the
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" edits `pr-open/SKILL.md` step 8 and its stack-publish note.
+- [x] `update-branch` step 2 no longer names `MAP_STALE`.
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" edits `update-branch/SKILL.md` step 2.
+- [x] `pr-review` drops its IGNORE rule for stale codebase-map docs.
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" removes the IGNORE rule from `pr-review/SKILL.md`.
+- [x] The verifier's audit drops the stale-map-docs item.
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" removes the item from `iwe-verifier.agent.md`.
+- [x] `uv run pytest .agents/plugins/agentdev/tests` passes, and the
   `Validate Agent Files` command CI runs
   (`.github/workflows/validate-agent-files.yml`) passes.
+  - **Evidence:** on commit b5f5a4b "Remove the iwe-map skill and the push map
+    check", `uv run pytest .agents/plugins/agentdev/tests` passed (424) and
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reported 67/67 skills valid, 0 errors.
 
 ### Task 2: Remove the map from onboarding and template consumption
 
