@@ -6,6 +6,11 @@ to the current day's group.
 
 ## 2026-10-31
 
+- **Update**: [Bug: git-new-branch worktree mode fails on a standalone
+  deployment's root-owned
+  /workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md) fixed;
+  [Port the catalog's bundled shell scripts to
+  Python](plans/20261029-catalog-scripts-python.md) plan done.
 - **Update**: fixed [Bug: body-shape schema tests share one scratch graph across
   concurrent runs](bugs/body-shape-schemas-shared-scratch.md) and refreshed the
   [knowledge workspace](codebase/docs/knowledge.md) map doc.

@@ -145,3 +145,6 @@ evaluation](../bugs/pr-update-skips-review-eval.md)
 
 [Bug: a client is recovered on its own budget before its dependency's failure is
 confirmed](../bugs/supervisor-client-recovered-before-dependency.md)
+
+[Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
+/workspaces](../bugs/git-new-branch-worktree-unwritable-workspaces.md)

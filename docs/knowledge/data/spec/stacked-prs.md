@@ -3,7 +3,7 @@ type: spec
 description: How the PR skills merge pull requests explicitly, merge a GitHub native stack through gh stack merge, limit force-pushes to stack branches, publish stack branches only through the push guard, and keep update-branch off stack branches.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T17:45:00Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md
@@ -11,7 +11,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: AGENTS.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
-- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
+- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 ---
 
 # Stacked PRs
@@ -70,7 +70,7 @@ every unmerged layer through CI and review bottom-up and land them with one
 ### Requirement: Force-pushes are limited to stack branches
 
 Agent skills SHALL NOT force-push, except that `gh stack rebase` and the
-gh-stack skill's `stack-guard.sh publish` MAY update branches of a GitHub stack
+gh-stack skill's `stack-guard.py publish` MAY update branches of a GitHub stack
 with `--force-with-lease`. The repository-local `rerere.enabled` and
 `remote.pushDefault` written by `gh stack` or the gh-stack skill's setup are the
 only permitted git config changes.
@@ -84,7 +84,7 @@ only permitted git config changes.
 
 - **WHEN** a commit lands on a lower layer of a stack
 - **THEN** the layers above are updated with `gh stack rebase --upstack` and
-  published with `stack-guard.sh publish`
+  published with `stack-guard.py publish`
 
 ### Requirement: update-branch refuses stack branches
 
@@ -99,8 +99,8 @@ SHALL direct the caller to the gh-stack skill's post-merge refresh.
 ### Requirement: Stack pushes never drop remote-only commits
 
 Agent skills SHALL update the remote branches of a GitHub stack only through
-`stack-guard.sh publish`, never with a bare `gh stack push`, `gh stack submit`,
-or `gh stack sync`. `stack-guard.sh begin` SHALL run before a skill rewrites a
+`stack-guard.py publish`, never with a bare `gh stack push`, `gh stack submit`,
+or `gh stack sync`. `stack-guard.py begin` SHALL run before a skill rewrites a
 stack layer. It SHALL fast-forward a layer that its remote is ahead of, and it
 SHALL stop when a layer's remote holds a commit whose exact patch, whitespace
 included, the local branch lacks, each local commit matching at most one remote
