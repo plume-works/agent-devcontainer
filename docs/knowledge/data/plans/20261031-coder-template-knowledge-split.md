@@ -5,7 +5,7 @@ release: internal
 description: Give plume-works/coder-ide-baseline its own IWE workspace holding the template's requirements and how to work on it, and narrow this repository's Coder spec to what the repository owes the template.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T12:00:00Z
+  at: 2026-10-31T19:45:07Z
 sources:
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md
@@ -42,8 +42,7 @@ The maintainer decided:
   Coder workspace containerd
   store](20261011-persist-coder-workspace-containerd.md), are copied into the
   new workspace; the originals stay unchanged.
-- The new workspace is bootstrapped, then onboarded with `/agentdev:iwe-setup`
-  and mapped with `/agentdev:iwe-map`.
+- The new workspace is bootstrapped, then onboarded with `/agentdev:iwe-setup`.
 
 ## Approach
 
@@ -68,15 +67,13 @@ template, which takes this repository's half of mixed plans with it.
 This plan starts after the [off-bash migration](20261029-off-bash-migration.md)
 ships. That plan replaces `coder-agent-start.sh` with
 `agentdev-runtime coder start`, makes the template's `agent_start_script` a
-command defaulting to it (mapping the legacy script path onto that default, and
-running a checkout's `coder-agent-start.sh` when the command does not resolve),
-and rewrites the hook requirement as
+command defaulting to it, and rewrites the hook requirement as
 `the agent-start command is the repository's only start hook`. The requirements
 that move carry that wording, and the added requirement names the command.
 
 ## Implementation Steps
 
-Tasks 1-7 run in a `coder-ide-baseline` checkout (in a Coder workspace,
+Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 `/workspaces/coder-ide-baseline`), from its repository root.
 
 ### Task 1: Bootstrap the template workspace
@@ -97,15 +94,7 @@ Tasks 1-7 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 - [ ] `/agentdev:iwe-setup` fills `product.md`, with the maintainer answering
   its questions; no ✏️ placeholder remains.
 
-### Task 3: Map the template repository
-
-**Files:** Create (in `plume-works/coder-ide-baseline`):
-`docs/knowledge/data/codebase/`
-
-- [ ] `/agentdev:iwe-map` in initial mode maps `template/`, `root-container/`,
-  and `.github/`.
-
-### Task 4: Write the template spec
+### Task 3: Write the template spec
 
 **Files:** Create (in `plume-works/coder-ide-baseline`):
 `docs/knowledge/data/spec/workspace-template.md`; Modify:
@@ -130,7 +119,7 @@ Tasks 1-7 run in a `coder-ide-baseline` checkout (in a Coder workspace,
   `spec/coder-ide-baseline` as the Dev Container repository's side of the
   contract, and `spec.md` links the new spec.
 
-### Task 5: Copy the template-only history
+### Task 4: Copy the template-only history
 
 **Files:** Create (in `plume-works/coder-ide-baseline`):
 `docs/knowledge/data/bugs/coder-devcontainer-lost-on-restart.md`,
@@ -143,21 +132,21 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
   the commit copied.
 - [ ] `bugs.md` links the bug, and `plans.md` links the plan under `## Done`.
 
-### Task 6: Validate and commit the template workspace
+### Task 5: Validate and commit the template workspace
 
 **Files:** none
 
 - [ ] `iwe normalize` and then `iwe schema validate` pass in the template
   checkout, and the branch is committed and pushed.
 
-### Task 7: Merge the template pull request
+### Task 6: Merge the template pull request
 
 **Files:** none (in `plume-works/coder-ide-baseline`)
 
-- [ ] A pull request carrying Tasks 1-6 passes the required
+- [ ] A pull request carrying Tasks 1-5 passes the required
   `Docker Build and Push` check and merges to `main`.
 
-### Task 8: Point the open bug at the moved requirement
+### Task 7: Point the open bug at the moved requirement
 
 **Files:** Modify:
 `docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md`
@@ -225,16 +214,16 @@ bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
 
 - In the template checkout on `main`: `iwe schema validate` passes;
   `grep -c '^### Requirement:' docs/knowledge/data/spec/workspace-template.md`
-  prints `6`; `product.md` has no ✏️; `docs/knowledge/data/codebase/` exists.
+  prints `6`; `product.md` has no ✏️.
 - Each requirement removed here appears in `spec/workspace-template` with the
-  same SHALL text and scenarios, apart from the exceptions Task 4 names.
+  same SHALL text and scenarios, apart from the exceptions Task 3 names.
 - Here, after Ship:
   `grep -c '^### Requirement:' docs/knowledge/data/spec/coder-ide-baseline.md`
   prints `2`, and `iwe schema validate` passes.
 - Every `coder-ide-baseline` URL this plan adds returns the file from
   `gh api repos/plume-works/coder-ide-baseline/contents/<path>`.
 - `git diff` of this plan's changes touches no plan under `data/plans/` other
-  than this one, and no bug other than the one Task 8 names.
+  than this one, and no bug other than the one Task 7 names.
 
 ## Out of scope
 

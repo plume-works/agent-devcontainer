@@ -96,6 +96,8 @@ names](../features/remote-control-environment-names.md)
 
 [AI responder workflows](../features/ai-responder-workflows.md)
 
+[Resumable template consumption](../features/resumable-template-consumption.md)
+
 ## Fixed
 
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
