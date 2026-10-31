@@ -139,3 +139,6 @@ Container](bugs/cbm-cache-under-foreign-owned-checkout.md)
 
 [Bug: CBM pin staging races under
 pytest-xdist](bugs/cbm-pin-staging-races-under-xdist.md)
+
+[Bug: body-shape schema tests share one scratch graph across concurrent
+runs](bugs/body-shape-schemas-shared-scratch.md)
