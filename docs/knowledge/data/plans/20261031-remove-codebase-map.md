@@ -50,7 +50,10 @@ schema and hub, the scaffold's example map, and every map document in this
 workspace. Every document, skill, and spec that hands work to the map loses that
 handoff. `.agent.metadata.json` stays as a format, because the root file's
 `template-consume` section is the adoption marker; only its `iwe-map` key goes,
-and the four files in this repository that hold nothing else are deleted.
+and the four files in this repository that hold nothing else are deleted. The
+map-doc stamper task is retired with the map; backlog tasks gain a `cancelled`
+stage, mapped to OKF `status: deprecated` as for cancelled plans and bugs, so
+that retirement stays listed like every other work item.
 
 Template-consume update mode removes a consumer's map without asking, as the one
 exception to its rule that migrating consumer documents is the user's decision:
@@ -258,10 +261,31 @@ Modify, in this workspace and byte-identically in the scaffold:
   matches nothing outside `docs/knowledge/data/plans/`,
   `docs/knowledge/data/log.md`, `docs/knowledge/data/releases/`,
   `docs/knowledge/data/spec/` (Ship merges the spec changes), both
-  `CHANGELOG.md` copies, and documents whose `stage` is `done`, `deprecated`, or
-  `cancelled`.
+  `CHANGELOG.md` copies, documents whose `stage` is `done`, `deprecated`, or
+  `cancelled`, a hub link whose title names such a document, the
+  template-consume `SKILL.md` and `consumption-guide.md` (update mode names the
+  artifacts it removes), and `data/someday/remove-codebase-memory-mcp.md` (its
+  evidence that no agent read the map).
 
-### Task 5: Update the knowledge graph
+### Task 5: Let a backlog task be cancelled
+
+**Files:** Modify, in this workspace and byte-identically in the scaffold:
+`.iwe/schemas/task.yaml`, `docs/knowledge/AGENTS.md`,
+`docs/knowledge/SCHEMA.md`, `docs/knowledge/CHANGELOG.md`.
+
+- [ ] `task.yaml` accepts `stage: cancelled` beside `planned` and `done`, in
+  both copies.
+- [ ] `SCHEMA.md` lists `cancelled` in the task example's stage comment and maps
+  task `cancelled` to `status: deprecated` in the `stage` versus `status` table,
+  dropping `task` from the types that never set `status`; `AGENTS.md` lists
+  `planned|done|cancelled` for backlog and adds a "Task dropped" operating-loop
+  item: `stage: cancelled`, link moved to `## Cancelled` in `data/backlog.md`.
+- [ ] `CHANGELOG.md` gains an `### Added` entry under `[Unreleased]` for the
+  task `cancelled` stage.
+- [ ] `uv run pytest docs/knowledge/tests` passes, and `iwe schema validate`
+  passes from the repository root.
+
+### Task 6: Update the knowledge graph
 
 **Files:** Modify: `docs/knowledge/data/features/fresh-map-on-push.md`,
 `docs/knowledge/data/features/map-masks-version-bumps.md`,
@@ -293,8 +317,9 @@ Modify, in this workspace and byte-identically in the scaffold:
 - [x] `native-stacked-prs` drops the stack-push edge case about the map check.
   - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
     graph".
-- [ ] The `map-doc-stamper` task is `stage: cancelled`, and its link moves to
-  `## Cancelled` in `data/backlog.md`.
+- [ ] The `map-doc-stamper` task is `stage: cancelled` with
+  `status: deprecated`, and its link moves to a new `## Cancelled` section after
+  `## Done` in `data/backlog.md`.
 - [x] `remove-agentdev-session-start-hook` drops its map-refresh steps and the
   map docs from its version-pin sweep; `resilient-task-evidence` drops the
   `source_digest` alternative.
@@ -311,13 +336,13 @@ Modify, in this workspace and byte-identically in the scaffold:
   - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
     graph" edits all three architecture docs; `iwe schema validate` passed.
 
-### Task 6: Validate
+### Task 7: Validate
 
 - [ ] `iwe normalize` and `iwe schema validate` pass from the repository root.
 - [ ] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests`
   passes.
 
-### Task 7: CI passes
+### Task 8: CI passes
 
 - [ ] The pull request's CI is green.
 
@@ -529,3 +554,9 @@ Verified anchor points (line numbers as of 2026-10-31):
   — the four removed requirements
 - `docs/knowledge/data/spec/iwe-bootstrap.md:66-77` — onboarding separation
 - `docs/knowledge/data/spec/template-consumption.md:322-352` — fresh adoption
+- `.iwe/schemas/task.yaml:11-13` — task `stage` enum
+- `docs/knowledge/SCHEMA.md:46-55`, `:146` — `stage` versus `status` table, task
+  stage comment
+- `docs/knowledge/AGENTS.md:63-64`, `:97` — task-finished loop item, backlog
+  stage vocabulary
+- `docs/knowledge/data/backlog.md:49`, `:63` — stamper link, `## Done`
