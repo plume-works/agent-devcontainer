@@ -55,6 +55,15 @@ def output(*argv: str) -> str:
     return result.stdout
 
 
+def listing(*argv: str) -> object:
+    """Return a client's JSON listing; one it cannot give lists nothing to clean up."""
+    result = subprocess.run(argv, capture_output=True, text=True, check=False)
+    try:
+        return json.loads(result.stdout) if result.returncode == 0 else []
+    except ValueError:
+        return []
+
+
 def try_remove(absent: re.Pattern[str], *argv: str) -> None:
     """Remove blind, reporting output only on success or an unexpected failure."""
     result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -82,11 +91,11 @@ def claude(root: str, scope: str = 'local') -> None:
     manifest = read_manifest(manifest_path)
     name = manifest['name']
     plugins = [plugin['name'] for plugin in manifest.get('plugins') or []]
-    listed = json.loads(output('claude', 'plugin', 'marketplace', 'list', '--json'))
     stale = {
         entry['name']
-        for entry in listed
-        if entry.get('path') == root or entry.get('installLocation') == root
+        for entry in listing('claude', 'plugin', 'marketplace', 'list', '--json')
+        if isinstance(entry, dict)
+        and (entry.get('path') == root or entry.get('installLocation') == root)
     }
     # A declaration left in either the image's user scope or a checkout's local scope
     # shadows the other, so both removals sweep every scope.
@@ -154,10 +163,10 @@ def codex(settings: env.Settings, root: str) -> None:
     name = manifest['name']
     # The Codex manifest publishes one plugin: self-improve ships no Codex manifest.
     plugin = manifest['plugins'][0]['name']
-    listed = json.loads(output('codex', 'plugin', 'marketplace', 'list', '--json'))
+    listed = listing('codex', 'plugin', 'marketplace', 'list', '--json')
     stale = [
         entry['name']
-        for entry in listed.get('marketplaces', [])
+        for entry in (listed.get('marketplaces', []) if isinstance(listed, dict) else [])
         if entry.get('root') == root
         or (entry.get('marketplaceSource') or {}).get('source') == root
     ]
