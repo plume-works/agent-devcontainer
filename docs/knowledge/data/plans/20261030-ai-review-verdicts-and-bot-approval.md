@@ -345,8 +345,12 @@ Assumptions:
     `trusted-bot-approval` job posted an `APPROVED` review from
     `github-actions[bot]`, and Renovate merged it through automerge as
     `ae8e1c73` with no further approval and no bypass.
-- [ ] A pull request opened by a bot outside `TRUSTED_BOT_ACTORS` receives no
+- [x] A pull request opened by a bot outside `TRUSTED_BOT_ACTORS` receives no
   approval and no AI review.
+  - **Evidence:** PR #586 — opened by `chocobot-agent[bot]`; the job logged
+    "chocobot-agent[bot] is not a trusted bot; nothing to approve.", the review
+    responder was skipped, `ai-review-present` failed, and the pull request
+    stayed `REVIEW_REQUIRED`.
 - [ ] A commit a person pushes to an approved trusted-bot pull request dismisses
   the bot approval, and closing and reopening the pull request does not restore
   it.
