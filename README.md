@@ -252,8 +252,16 @@ require signing in again.
 Earlier images also shipped Codex. Claude Code and OpenCode are now the only
 supported harnesses, so an existing devcontainer's `agentdev-codex` volume and the
 `codex/auth.json` file on the shared auth volume are no longer used. Nothing removes
-them; delete them by hand once you no longer need them, for example
-`docker volume rm <project>_agentdev-codex`.
+them; delete them by hand once you no longer need them:
+
+```bash
+# A devcontainer's per-instance Codex volume
+docker volume rm <project>_agentdev-codex
+# The Codex login on the devcontainer's shared auth volume
+docker run --rm -v agentdev-agents-auth:/auth busybox rm -rf /auth/codex
+# The Codex login on an agentdev-deploy auth volume
+docker run --rm -v "${AGENTDEV_AUTH_VOLUME:-agentdev-opencode-auth}":/auth busybox rm -rf /auth/codex
+```
 
 ## The plugin catalog
 
