@@ -202,8 +202,10 @@ under `docs/knowledge/tests/`
     `iwe rename data/releases/unreleased data/releases/2.0.0` kept all entries,
     the page is `stage: released` dated 2026-10-31, and `data/log.md` gained one
     `**Release**` bullet
-- [ ] No `data/releases/unreleased.md` remains, and `data/releases.md` links
+- [x] No `data/releases/unreleased.md` remains, and `data/releases.md` links
   only cut releases
+  - **Evidence:** commit 45a9cae4; `data/releases.md` links `1.0.0` and `2.0.0`
+    only, and `test_hub_links_are_sorted` passes for it
 - [ ] `release` accepts only `stage: released`
 
 ### Task 7: The other skills read and write frontmatter, not hub sections
