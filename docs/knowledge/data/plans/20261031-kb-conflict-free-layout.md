@@ -152,9 +152,12 @@ under `docs/knowledge/tests/`
 
 ### Task 5: The maintainer approves the sequence
 
-- [ ] The maintainer confirms the ranked list
+- [x] The maintainer confirms the ranked list
   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1` prints, or
   supplies corrections that are applied
+  - **Evidence:** the maintainer approved the sequence
+    `iwe find --filter '{rank: {$exists: true}}' --sort rank:1` prints at commit
+    40379eed, with no corrections
 
 ### Task 6: Ship and the release cut follow the layout
 
