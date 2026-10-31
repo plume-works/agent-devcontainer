@@ -12,7 +12,7 @@ import sys
 
 from test_update_branch import initialize_repository
 
-SCRIPT_PATH = 'skills/iwe-explore/agent-code/fetch-issue.sh'
+SCRIPT_PATH = 'skills/iwe-explore/agent-code/fetch-issue.py'
 
 ISSUE_VIEW_OUTPUT = """ISSUE_NUMBER=42
 ISSUE_URL=https://github.com/octo/repo/issues/42
@@ -37,7 +37,7 @@ def install_runtime_commands(path: Path) -> Path:
     """Create a PATH directory holding only the commands the script needs."""
     stub_directory = path / 'stub-bin'
     stub_directory.mkdir(parents=True, exist_ok=True)
-    for command in ('bash', 'git', 'dirname', 'mkdir', 'sed', 'grep'):
+    for command in ('git', 'python3'):
         executable = shutil.which(command)
         assert executable is not None
         (stub_directory / command).symlink_to(executable)

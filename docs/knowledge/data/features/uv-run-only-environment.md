@@ -4,11 +4,11 @@ stage: implemented
 description: Reach the Python environment exclusively through `uv run` — in the devcontainer, with no in-tree .venv symlink and a fixed out-of-tree path, and in CI, which provisions without activating.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-27T09:48:53Z
+  at: 2026-10-31T01:33:40Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/scripts/uv-sync.sh
-- resource: .agents/plugins/agentdev/bin/python-lint-check.sh
+- resource: .agents/plugins/agentdev/bin/python_lint_check.py
 - resource: .github/actions/setup-python-venv/action.yml
 - resource: .github/workflows/validate-agent-files.yml
 ---
@@ -80,7 +80,7 @@ ephemeral runner in Actions — but neither activates anything:
 ## Edge cases
 
 - **Host and CI checkouts still produce a real `.venv`.** `.gitignore`,
-  `.dockerignore`, `search.exclude`, and the `shellcheck-fix.sh` prune all keep
+  `.dockerignore`, `search.exclude`, and the `shellcheck_fix.py` prune all keep
   their `.venv` entries. `.github/actions/setup-python-venv/action.yml` lets uv
   create one in-tree, since `UV_PROJECT_ENVIRONMENT` is unset on a runner; it is
   never referenced by name and dies with the runner.

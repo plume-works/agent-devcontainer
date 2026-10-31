@@ -199,7 +199,7 @@ to check later.
 5. After a code change, run the narrowest relevant local verification —
    `uv run pytest <path>` or `bun test <path>` for the affected area.
    Commit, then push with the [pr-open](../pr-open/SKILL.md) push helper,
-   `agent-code/push-branch.sh`, handling its result as that skill's step 8 does.
+   `agent-code/push-branch.py`, handling its result as that skill's step 8 does.
    On a stacked PR, run the guard's `begin` before the commit, then
    `gh stack rebase --upstack` and the guard's `publish`, through
    [gh-stack](../gh-stack/SKILL.md) instead, so every layer above carries the
@@ -260,7 +260,7 @@ it are filed on the head commit and listed by `gh pr checks`.
 
 3. Otherwise request the review through
    [pr-request-ai-review](../pr-request-ai-review/SKILL.md), whose
-   `request-review.sh` toggles the author's assignment at most once per head
+   `request-review.py` toggles the author's assignment at most once per head
    SHA. On `ALREADY_REQUESTED`, a responder check already covers this head:
    confirm it started as that skill describes and wait on the head's checks;
    never request again. On

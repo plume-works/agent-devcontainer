@@ -36,7 +36,7 @@ Generate a comprehensive PR description by analyzing the change set and writing 
 
 Use this helper instead of retyping inline git commands:
 
-- [review-git-changes.sh](agent-code/review-git-changes.sh) prints the branch,
+- [review-git-changes.py](agent-code/review-git-changes.py) prints the branch,
   working tree status, diff stat, patch, and commit log for the change set.
 
 The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a
@@ -47,7 +47,7 @@ bare number.
 ### Step 1: Analyze Git Changes
 
 ```bash
-agent-code/review-git-changes.sh
+agent-code/review-git-changes.py
 ```
 
 Pass `--base-ref <ref>` when the caller supplies a base other than

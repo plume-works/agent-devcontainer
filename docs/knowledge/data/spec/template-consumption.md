@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -75,7 +75,7 @@ as descriptor commands or derived-image hooks.
 ## Requirement: publisher-only source never survives adoption
 
 A consumer SHALL delete `.agents/`, `.claude-plugin/`, `py_packages/`, and
-`scripts/validate-super-linter-tool-versions.sh`, and SHALL adapt every CI
+`scripts/validate-super-linter-tool-versions.py`, and SHALL adapt every CI
 workflow, pre-commit hook, `pyproject.toml` entry, and path filter that
 referenced them. Agent-file validation, when retained, SHALL run the validator
 the digest-pinned image provides, never the deleted working-tree package.
@@ -260,7 +260,7 @@ The protocol contract and security model are specified in
 - **WHEN** update mode runs for a consumer whose `optional_bundles` includes
   `"expo"` and whose files lack the extension pack, the forwarded port, or the
   iOS rule
-- **AND** `check-updates.sh` reports `UP_TO_DATE`
+- **AND** `check-updates.py` reports `UP_TO_DATE`
 - **THEN** update mode still proposes each missing edit from the guide's
   Optional Expo setup
 

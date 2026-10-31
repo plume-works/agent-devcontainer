@@ -17,11 +17,11 @@ moves them.*
 
 ## Active
 
+[Move the Coder template's knowledge into
+coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
+
 [AI review verdicts gate merge and trusted bots are
 auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
-
-[Port the catalog's bundled shell scripts to
-Python](plans/20261029-catalog-scripts-python.md)
 
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
@@ -47,6 +47,9 @@ App](plans/20261030-responder-quill-app-identity.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Port the catalog's bundled shell scripts to
+Python](plans/20261029-catalog-scripts-python.md)
 
 [Verify report cache](plans/20261030-verify-report-cache.md)
 

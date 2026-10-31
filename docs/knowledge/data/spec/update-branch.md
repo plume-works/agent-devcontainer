@@ -3,10 +3,10 @@ type: spec
 description: How the update-branch skill brings in the branch's own upstream before merging the base, and how a conflicted merge stops the run and a rerun continues.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T22:00:00Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
-- resource: .agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh
+- resource: .agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.py
 - resource: .agents/plugins/agentdev/tests/test_update_branch.py
 ---
 

@@ -37,7 +37,7 @@ The per-script tables below list only what each script adds.
 1. Preview the first possible Codespace creation:
 
    ```bash
-   agent-code/codespace-ensure.sh --dry-run
+   agent-code/codespace-ensure.py --dry-run
    ```
 
    If it reports `ACTION=create`, show the user the proposed machine,
@@ -47,7 +47,7 @@ The per-script tables below list only what each script adds.
 2. Create or reuse the approved Codespace:
 
    ```bash
-   agent-code/codespace-ensure.sh
+   agent-code/codespace-ensure.py
    ```
 
    | RESULT               | Exit | Meaning                                           | Action                                                                                                                          |
@@ -60,7 +60,7 @@ The per-script tables below list only what each script adds.
 3. Sync local work:
 
    ```bash
-   agent-code/codespace-sync.sh
+   agent-code/codespace-sync.py
    ```
 
    A clean local tree is pushed and synced with git. A dirty local tree is
@@ -73,7 +73,7 @@ The per-script tables below list only what each script adds.
    | `SUCCESS`               | `0`  | Local work is on the Codespace; `ACTION` names the path   | Continue to the exec step.                                                                                                                            |
    | `REMOTE_CHECKOUT_DIRTY` | `4`  | The Codespace checkout has uncommitted or untracked files | **STOP and ask the user.** Overwriting would destroy that work. Have them commit and push it, or discard it, then re-run sync.                        |
    | `REMOTE_COMMITS_ABSENT` | `5`  | The Codespace checkout has commits that are not on origin | **STOP and ask the user.** Push or recover those commits, or explicitly return the remote checkout to an `origin` commit, then re-run sync.           |
-   | `REMOTE_SSH_FAILED`     | `6`  | An SSH call to the Codespace failed                       | The Codespace may be stopped or unreachable. Re-run `codespace-ensure.sh` to wake it, then retry sync once; **STOP** if it fails again.               |
+   | `REMOTE_SSH_FAILED`     | `6`  | An SSH call to the Codespace failed                       | The Codespace may be stopped or unreachable. Re-run `codespace-ensure.py` to wake it, then retry sync once; **STOP** if it fails again.               |
    | `RSYNC_FAILED`          | `7`  | `rsync` could not copy the working tree                   | **STOP.** Show the rsync error; nothing partial should be trusted until it is understood.                                                             |
    | `PUSH_REJECTED`         | `8`  | `git push` failed — typically a diverged branch           | Reconcile locally with `/agentdev:update-branch` and re-run sync. Never force-push, and never update the branch ref through a GitHub API or MCP tool. |
 
@@ -81,12 +81,12 @@ The per-script tables below list only what each script adds.
    itself, so pass the command exactly as you would run it locally:
 
    ```bash
-   agent-code/codespace-exec.sh \
+   agent-code/codespace-exec.py \
      uv run pytest py_packages/validate_agent_files
    ```
 
    ```bash
-   agent-code/codespace-exec.sh bun test
+   agent-code/codespace-exec.py bun test
    ```
 
    Run `uv sync` remotely first if a dependency changed. Re-sync after each
@@ -119,8 +119,8 @@ The per-script tables below list only what each script adds.
    direction:
 
    ```bash
-   agent-code/codespace-teardown.sh
-   agent-code/codespace-teardown.sh --delete
+   agent-code/codespace-teardown.py
+   agent-code/codespace-teardown.py --delete
    ```
 
    | RESULT               | Exit | Meaning                                               | Action                                                                                                                             |
@@ -132,17 +132,17 @@ The per-script tables below list only what each script adds.
 
 ## Bundled scripts
 
-- [codespace-ensure.sh](agent-code/codespace-ensure.sh) creates or reuses a
+- [codespace-ensure.py](agent-code/codespace-ensure.py) creates or reuses a
   Codespace. Its help describes machine and polling options.
-- [codespace-sync.sh](agent-code/codespace-sync.sh) uses the non-destructive sync
+- [codespace-sync.py](agent-code/codespace-sync.py) uses the non-destructive sync
   policy above. Both paths exclude `.git` and locally ignored files, and each
   refuses to touch a remote checkout that holds work of its own.
-- [codespace-exec.sh](agent-code/codespace-exec.sh) runs one command remotely in
+- [codespace-exec.py](agent-code/codespace-exec.py) runs one command remotely in
   the workspace directory and reports that command's exit code as
   `REMOTE_EXIT_CODE`. Everything after the script name is forwarded verbatim,
   including `-h`/`--help`, so the script's own help appears only when it is
   called with no arguments at all.
-- [codespace-teardown.sh](agent-code/codespace-teardown.sh) stops or deletes the
+- [codespace-teardown.py](agent-code/codespace-teardown.py) stops or deletes the
   recorded Codespace.
 
 Each script's `--help` carries the same result table as the sections above.

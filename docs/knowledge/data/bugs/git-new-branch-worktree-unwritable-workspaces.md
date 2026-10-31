@@ -2,8 +2,8 @@
 type: bug
 description: In a standalone agent-opencode deployment, git-new-branch --worktree defaults the worktree parent to /workspaces, which is root-owned and outside every persistent mount, so the worktree cannot be created and would not persist if it could.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-25T16:42:02Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T07:40:01Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh
 - resource: .agents/plugins/agentdev/tests/test_git_new_branch.py
@@ -11,6 +11,7 @@ sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: compose.opencode.yml
 - resource: compose.opencode.bind.yml
+stage: done
 ---
 
 # Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned /workspaces
@@ -48,12 +49,12 @@ when the container is recreated.
 
 ## Fix
 
-Not fixed. When worktree mode would default to `/workspaces`, it needs a
-writable, persistent parent. Two candidates: fall back to
-`<checkout>/.worktrees/` when `/workspaces` is not writable, or always use
-`.worktrees/` in standalone mode. The `git-new-branch` spec's worktree
-requirement changes with either. Workaround: pass
-`--worktree-root <checkout>/.worktrees`.
+Under `AGENTDEV_RUNTIME_MODE=standalone`, worktree mode without
+`--worktree-root` uses `<checkout>/.worktrees/` as the parent wherever the
+checkout lives, adding `.worktrees/` to `.git/info/exclude` unless Git already
+ignores it. The parent therefore sits inside the mounted checkout, which the
+agent user owns and which persists. Other runtimes keep the `/workspaces`
+sibling default.
 
 ## Key references
 

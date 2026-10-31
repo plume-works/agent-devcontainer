@@ -3,11 +3,11 @@ type: spec
 description: How the iwe-branch-name skill names a plan's impl and ship work branches, counts the iterations already used, and reads plan state at the remote default branch.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T00:00:00Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py
-- resource: .agents/plugins/agentdev/bin/git-default-branch.sh
+- resource: .agents/plugins/agentdev/bin/git_default_branch.py
 ---
 
 # iwe-branch-name

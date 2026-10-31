@@ -77,7 +77,7 @@ Run every `iwe` command from the repository root; keys are relative to
    the issue:
 
    ```bash
-   agent-code/close-issue.sh \
+   agent-code/close-issue.py \
      --issue <url-or-ref> --doc docs/knowledge/data/<lane>/<slug>.md
    ```
 
