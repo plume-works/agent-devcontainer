@@ -334,9 +334,14 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
 `docs/knowledge/data/architecture/catalog-script-language.md`; Modify:
 `docs/knowledge/data/architecture.md`, `docs/knowledge/data/codebase/`
 
-- [ ] The architecture document records why catalog scripts are stdlib-only
+- [x] The architecture document records why catalog scripts are stdlib-only
   Python reaching `bin/` through `sys.path`, and the rejected alternatives
   above; `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
+  - **Evidence:** commit 6434d6d "Record why catalog scripts are stdlib-only
+    Python" (the architecture document and its hub link) and commit 86e1a18
+    "Refresh the codebase map for the Python catalog scripts"; after it,
+    `stale-map-docs.py` reported 28 fresh docs and `RESULT=SUCCESS`, and
+    `iwe schema validate` passed.
 
 ## Spec changes
 
