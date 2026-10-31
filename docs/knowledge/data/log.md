@@ -734,10 +734,9 @@ to the current day's group.
 - **Update**: Refreshed the agentdev, agentdev skills, GitHub, workflows, and
   pull-request-checks codebase maps for the `bunx` Prettier and Renovate
   validator hooks and the Renovate pin they now carry.
-- **Update**: [Codex full access in the
-  devcontainer](architecture/codex-full-access-in-devcontainer.md) recorded;
-  refreshed the devcontainer, lifecycle-scripts, and lifecycle-flow codebase
-  maps for the `configure-codex.py` postStart step.
+- **Update**: Codex full access in the devcontainer recorded; refreshed the
+  devcontainer, lifecycle-scripts, and lifecycle-flow codebase maps for the
+  `configure-codex.py` postStart step.
 - **Update**: [Install the catalog agents into
   Codex](plans/20261007-codex-catalog-agents.md) done. Every Codex install now
   writes the catalog agents as generated TOML agents; see [Catalog
