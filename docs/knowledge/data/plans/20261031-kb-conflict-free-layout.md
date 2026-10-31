@@ -292,8 +292,12 @@ only where it asserts the old layout
 
 **Files:** Modify: `.github/workflows/validate-knowledge-base.yml`
 
-- [ ] A step prints a GitHub `::warning::` naming every pair of documents that
+- [x] A step prints a GitHub `::warning::` naming every pair of documents that
   share a `rank`, and never fails the job
+  - **Evidence:** commit 3a0dfaed; actionlint and zizmor pass on
+    `validate-knowledge-base.yml`; the step's jq program prints
+    `::warning::rank 1 is shared by a, b` for two equal ranks and nothing for
+    this graph, and `continue-on-error: true` keeps the job green
 
 ### Task 12: The e2e workflow suite passes
 
