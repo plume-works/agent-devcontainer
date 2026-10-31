@@ -110,11 +110,6 @@ runs in one of two modes:
      behavior with no feature doc.
    - Open bugs (no `stage`) — still reproducible? Point at ones whose
      `## Key references` no longer exist.
-   - Stale map docs: for each `data/codebase/` doc, commits touching its
-     `source` after its `commit`
-     (`git log --oneline <commit>..HEAD -- <source>`) — flag for the
-     `/agentdev:iwe-map` skill's refresh mode, which classifies the same docs
-     with its bundled `stale-map-docs.py`.
    - Consistency: plans with `stage: done` still linked under `## Active`
      (`iwe find --filter '{stage: done}' --included-by data/plans -f keys`
      cross-checked against the hub sections); `iwe schema validate`
