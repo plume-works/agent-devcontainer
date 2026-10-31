@@ -4,7 +4,7 @@ description: Codebase maps derived from the code, each pinned to the tracked-sou
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:06:04Z
+  at: 2026-10-31T04:18:32Z
 ---
 
 # 🧭 Codebase
@@ -48,8 +48,7 @@ formatters; `super_linter.py local` runs the full Super-Linter pass;
 image), `docker/deploy/agentdev-deploy.Dockerfile` and `compose.opencode.yml`
 (the standalone OpenCode runtime), `ansible/playbooks/setup-dev.yml`
 (provisioning), `.github/workflows/primary-checks.yml` (CI), the
-`validate_agent_files` console script, `/agentdev:<skill>` (the catalog), and
-`.codex/setup-codex-cloud.sh` (Codex Cloud bootstrap).
+`validate_agent_files` console script, and `/agentdev:<skill>` (the catalog).
 
 | Path                                                                                                                                                                                          | Component                                                                                                                                |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |

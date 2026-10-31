@@ -250,8 +250,6 @@ Retain `.claude/` and `.codex/`, then review them as project policy:
   permissions.
 - Rewrite `.claude/README.md` so it no longer links to the deleted catalog
   publisher tree.
-- `.codex/setup-codex-cloud.sh` is useful only for Codex Cloud hosts that need
-  GitHub CLI; retaining it is harmless elsewhere.
 - Rewrite `.codex/README.md` to describe the consumer project without links to
   deleted publisher manifests.
 - Root `CLAUDE.md` continues to include root `AGENTS.md`.

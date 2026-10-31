@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T22:05:14Z
+  at: 2026-10-31T04:18:32Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -111,7 +111,7 @@ opt-in egress firewall; and Codespaces SSH and worktree-safe mounts.
 | `AGENTS.md` | Template    | Reusable safety, workflow, language, testing, and spike guidance.                        |
 | `CLAUDE.md` | Template    | Includes the root `AGENTS.md` for Claude Code.                                           |
 | `.claude/`  | Customize   | Shared Claude permissions, official plugins, local ignore rules, and explanatory README. |
-| `.codex/`   | Customize   | Codex Cloud bootstrap and explanation of where the shared catalog lives.                 |
+| `.codex/`   | Customize   | Explanation of where the shared catalog lives.                                           |
 
 Publisher-only instructions are scoped below `.agents/`, `.claude-plugin/`,
 `ansible/`, and `py_packages/validate_agent_files/`. Deleting those sources also
