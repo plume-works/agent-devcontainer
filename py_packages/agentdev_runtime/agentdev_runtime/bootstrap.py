@@ -21,7 +21,7 @@ import sys
 import time
 from typing import NoReturn
 
-from agentdev_runtime import integrity, settings as env
+from agentdev_runtime import firewall as egress, integrity, settings as env
 
 PREFIX = 'agentdev-runtime bootstrap'
 MAX_ID = 2147483647
@@ -338,9 +338,8 @@ def devcontainer(settings: env.Settings) -> None:
 
 
 def firewall(settings: env.Settings) -> int:
-    """Run the firewall last, before supervisord starts dockerd."""
-    command = [str(settings.path('AGENTDEV_RUNTIME_ROOT') / 'runtime-firewall.sh')]
-    return subprocess.run(command, check=False).returncode
+    """Apply the firewall last, before supervisord starts dockerd."""
+    return egress.apply(settings)
 
 
 def main(argv: list[str]) -> int:

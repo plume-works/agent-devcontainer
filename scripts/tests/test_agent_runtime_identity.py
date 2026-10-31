@@ -156,7 +156,7 @@ def test_creates_the_account_and_claims_fresh_instance_storage(image, volumes, u
     assert_ok(result)
     want_uid, want_gid = uid or 1000, gid or 1000
     tail = result.stdout.split('agentdev-runtime bootstrap: identity')[1].splitlines()[1:]
-    lines = [line for line in tail if not line.startswith('runtime-firewall:')]
+    lines = [line for line in tail if not line.startswith('agentdev-runtime firewall:')]
     owner = f'{want_uid}:{want_gid}'
     assert lines == [
         str(want_uid),

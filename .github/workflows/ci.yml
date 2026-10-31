@@ -337,7 +337,7 @@ jobs:
             actionlint --version | head -n 1
             if command -v go; then echo 'unexpected Go toolchain on PATH' >&2; exit 1; fi
             command -v xpra
-            command -v init-firewall.sh
+            command -v iptables ipset
             command -v gnome-keyring-daemon
 
             # The image must carry a launchable browser; this command cannot

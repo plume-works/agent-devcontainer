@@ -223,13 +223,8 @@ VARIABLES: tuple[Variable, ...] = (
     Variable('ENABLE_FIREWALL', '`true` applies the egress firewall.', 'false'),
     Variable(
         'FIREWALL_ALLOWLIST',
-        'Firewall allowlist file.',
+        'Firewall allowlist; unset, a Dev Container reads its checkout copy when present.',
         '/etc/agentdev/firewall-allowlist.txt',
-    ),
-    Variable(
-        'AGENTDEV_INIT_FIREWALL',
-        'Firewall program the supervised wrapper runs.',
-        '/usr/local/bin/init-firewall.sh',
     ),
     Variable(
         'AGENTDEV_TRUSTED_PROXY_CIDRS',
