@@ -754,8 +754,10 @@ Delete: `docker/desktop/start-xpra.sh`
   `description` say so. `coder_script.agent_start` runs the value when its first
   word resolves through `command -v`, runs the default in place of the legacy
   value `.devcontainer/scripts/coder-agent-start.sh` that existing workspaces
-  stored, and otherwise logs that the repository ships no agent-start command
-  and exits 0.
+  stored, runs the checkout's executable
+  `.devcontainer/scripts/coder-agent-start.sh` when the command does not resolve
+  but that script exists, and otherwise logs that the repository ships no
+  agent-start command and exits 0.
 - [ ] The template change merges through its own pull request with its
   `Docker Build and Push` check passing, and the new template version is pushed
   to Coder before this plan's pull request merges.
@@ -884,9 +886,11 @@ repository checkout. The value defaults to `agentdev-runtime coder start`. The
 command SHALL run under the sub-agent, so it inherits the agent's environment,
 including Coder user secrets. The legacy value
 `.devcontainer/scripts/coder-agent-start.sh`, the template's former default,
-SHALL run the default command. When the value is empty, or
-its first word does not resolve to a command, nothing SHALL run and the
-script's log SHALL say so. The template SHALL NOT name any other command in
+SHALL run the default command. When the command does not resolve but the
+checkout ships an executable `.devcontainer/scripts/coder-agent-start.sh`, that
+script SHALL run, so a workspace on an image without the CLI keeps its start.
+When the value is empty, or its first word does not resolve to a command and no
+such script exists, nothing SHALL run and the script's log SHALL say so. The template SHALL NOT name any other command in
 this repository; new agent-start steps belong in `agentdev-runtime coder start`.
 
 #### Scenario: the repository ships the CLI
@@ -900,6 +904,12 @@ this repository; new agent-start steps belong in `agentdev-runtime coder start`.
 - **WHEN** the workspace starts with `agent_start_script` set to
   `.devcontainer/scripts/coder-agent-start.sh`
 - **THEN** `agentdev-runtime coder start` runs, as it would for the default.
+
+#### Scenario: an image without the CLI still ships the script
+
+- **WHEN** `agentdev-runtime` does not resolve and the checkout ships an
+  executable `.devcontainer/scripts/coder-agent-start.sh`
+- **THEN** that script runs with the Coder user secrets in its environment.
 
 #### Scenario: another repository has no agent-start command
 
