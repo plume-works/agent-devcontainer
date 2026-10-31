@@ -5,10 +5,11 @@ release:
 - features/agentdev-runtime-cli
 - bugs/workspace-image-lacks-hook-binaries
 - bugs/remote-control-watcher-start-loop
+- bugs/doctor-fails-healthy-coder-devcontainer
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:54:51Z
+  at: 2026-10-31T17:23:43Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -23,6 +24,7 @@ sources:
 - resource: docs/knowledge/data/plans/20260905-python-skill-scripts.md
 - resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
 - resource: .pre-commit-config.yaml
+- resource: docs/knowledge/data/bugs/doctor-fails-healthy-coder-devcontainer.md
 - resource: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontaineroptions
 - resource: https://github.com/anthropics/claude-code-action/blob/v1/action.yml
 ---
@@ -74,7 +76,8 @@ supervisor is present, with the legacy no-supervisor starters deleted; the
 firewall script ported rather than wrapped; and the detection that [Bug: a
 workspace on a pre-pin image has no gitleaks or actionlint and nothing says
 so](../bugs/workspace-image-lacks-hook-binaries.md) asks for, carried by
-`doctor` and `project hooks` as this plan's one behaviour change.
+`doctor` and `project hooks`, one of this plan's two behaviour changes; the
+other is Task 21's `doctor` checks.
 
 Three other open bugs sit in scripts this plan ports. [Bug: the Remote Control
 watcher restarts a session that never comes up on every
@@ -101,17 +104,24 @@ Every script becomes a subcommand of one CLI whose nouns are the runtime's
 concerns. One settings module parses every environment value once, with one
 default per variable, keyed by profile where the scripts disagreed. One state
 module defines the `state.json`, retry, and failure-record shapes for writer and
-reader alike. Behaviour behind each command is unchanged; this plan changes
-language and packaging, not policy, so every existing scenario in the affected
-specs holds as written.
+reader alike. Except for the two changes below, behaviour behind each command is
+unchanged; this plan changes language and packaging, not policy, so every
+existing scenario in the affected specs holds as written.
 
-The one exception is the hook-binary detection. After registering the hooks,
+The first exception is the hook-binary detection. After registering the hooks,
 `project hooks` warns about each `language: system` hook in the checkout's
 `.pre-commit-config.yaml` whose `entry` executable is not on `PATH`, and
 `doctor` requires `gitleaks` and `actionlint` in its toolchain section. A
 missing hook executable is a warning, not a failure, in both profiles, so a
 consumer whose own hooks need tools the image lacks still starts; reading the
 hook configuration is why the package needs `pyyaml`.
+
+`doctor` also judges a healthy Compose Dev Container healthy, which the user
+directed. Compose passes `COMPOSE_PROFILES` from `.devcontainer/.env` into the
+container, and `doctor` checks the `mcp-gateway` sidecar only when that names
+the opt-in `mcp` profile, reporting it SKIP otherwise. Its `git user` check
+accepts whatever identity git itself resolves for author and committer, so the
+`GIT_AUTHOR_*` and `GIT_COMMITTER_*` values Coder sets count.
 
 The migration is incremental. The package installs beside the scripts first, PID
 1 and the healthcheck switch to the CLI next, and each service then moves with
@@ -825,6 +835,22 @@ Delete: `docker/desktop/start-xpra.sh`
       `ACCEPTANCE_LABEL` lives in `scripts/tests/acceptance_label.py` (commit
       f25e9e2b).
 
+### Task 21: doctor passes a healthy Coder Dev Container
+
+**Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/doctor.py`,
+`.devcontainer/docker-compose.yml`, `scripts/tests/test_environment_health.py`
+
+- [ ] In the devcontainer profile, `doctor` checks `mcp-gateway` DNS and `:8811`
+  only when `COMPOSE_PROFILES` names `mcp`, and otherwise reports `mcp-gateway`
+  SKIP; the Compose `devcontainer` service passes `COMPOSE_PROFILES` through.
+  `test_environment_health.py` covers both.
+- [ ] `git user` passes when `git var GIT_AUTHOR_IDENT` and
+  `git var GIT_COMMITTER_IDENT` both resolve, so an identity set only through
+  `GIT_AUTHOR_*` and `GIT_COMMITTER_*` passes and a missing one still fails.
+  `test_environment_health.py` covers both.
+- [ ] `agentdev-runtime doctor` ends `Overall: PASS` in this repository's
+  Compose Dev Container under Coder with credentials.
+
 ## Spec changes
 
 ### [Firewall](../spec/firewall.md)
@@ -902,7 +928,10 @@ Container metadata; `agentdev-base` SHALL NOT carry the package;
 `agentdev-runtime project hooks` SHALL warn, without failing, about each
 `language: system` pre-commit hook whose executable is not on `PATH`; and
 `agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as required
-tools.
+tools; and in the devcontainer profile `doctor` SHALL check the `mcp-gateway`
+sidecar only when the Compose `mcp` profile is enabled and SHALL accept the git
+identity git resolves, including one set through `GIT_AUTHOR_*` and
+`GIT_COMMITTER_*`.
 
 The integrity check that replaces the manifest over `/opt/agentdev-runtime`
 guards what a derived image may change, so it is a delta:
@@ -1114,8 +1143,9 @@ image](20261023-reusable-agentdev-devcontainer.md)
   pin.
 - Publishing `agentdev_runtime` to PyPI or installing it anywhere but the two
   runtime images.
-- Any other behaviour change: profile service sets, recovery budgets, catalog
-  policy, the managed `.venv` link cleanup, or any spec scenario.
+- Any other behaviour change beyond the hook-binary detection and Task 21's
+  `doctor` checks: profile service sets, recovery budgets, catalog policy, the
+  managed `.venv` link cleanup, or any spec scenario.
 - The fixes for the CBM start latch and the Codex auth link, which land after
   this plan, in the package.
 - Shims for the retired `/opt/agentdev-runtime/*.sh` names.
@@ -1171,7 +1201,7 @@ Verified anchor points (line numbers as of 2026-10-31):
   command
 - `docs/knowledge/data/product.md:112` — firewall constraint
 - `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
-- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:47` — `verify`:
+- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:55` — `verify`:
   changed, missing, or added package files against `RECORD`
 - `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:351` — the
   bootstrap's integrity call
@@ -1179,6 +1209,11 @@ Verified anchor points (line numbers as of 2026-10-31):
   naming `/opt/agentdev-runtime`
 - `docs/knowledge/data/spec/coder-ide-baseline.md:28` — the agent-start script
   requirement the Task 19 delta removes
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:183` — the
+  devcontainer branch checking `mcp-gateway` unconditionally; `:223` —
+  `git user` reading git config only
+- `.devcontainer/docker-compose.yml:67` — the `devcontainer` service's
+  `environment`
 - `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:19` —
   `REQUIRED_TOOLS`, with `gitleaks` (`:30`) and `actionlint` (`:31`)
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py:82` — `hooks`:
