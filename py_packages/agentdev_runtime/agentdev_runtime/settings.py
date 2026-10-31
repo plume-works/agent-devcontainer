@@ -125,17 +125,17 @@ VARIABLES: tuple[Variable, ...] = (
     Variable(
         'AGENTDEV_CLAUDE_DIR',
         'Claude configuration directory.',
-        Derived('$AGENTDEV_HOME/.claude', lambda s: f'{s.home}/.claude'),
+        Derived('$HOME/.claude', lambda s: f'{s.home}/.claude'),
     ),
     Variable(
         'AGENTDEV_CLAUDE_JSON',
         'Claude state file.',
-        Derived('$AGENTDEV_HOME/.claude.json', lambda s: f'{s.home}/.claude.json'),
+        Derived('$HOME/.claude.json', lambda s: f'{s.home}/.claude.json'),
     ),
     Variable(
         'AGENTDEV_CLAUDE_STATE_PATH',
         'Claude state file the workspace pre-approval edits.',
-        Derived('$AGENTDEV_HOME/.claude.json', lambda s: f'{s.home}/.claude.json'),
+        Derived('$HOME/.claude.json', lambda s: f'{s.home}/.claude.json'),
     ),
     Variable(
         'CLAUDE_SECURESTORAGE_CONFIG_DIR',
@@ -145,25 +145,23 @@ VARIABLES: tuple[Variable, ...] = (
     Variable(
         'CLAUDE_CONFIG_DIR',
         "Claude Code's own configuration directory.",
-        Derived('$AGENTDEV_HOME/.claude', lambda s: f'{s.home}/.claude'),
+        Derived('$HOME/.claude', lambda s: f'{s.home}/.claude'),
     ),
-    Variable(
-        'CODEX_HOME', 'Codex home.', Derived('$AGENTDEV_HOME/.codex', lambda s: f'{s.home}/.codex')
-    ),
+    Variable('CODEX_HOME', 'Codex home.', Derived('$HOME/.codex', lambda s: f'{s.home}/.codex')),
     Variable(
         'XDG_CONFIG_HOME',
         'XDG configuration root.',
-        Derived('$AGENTDEV_HOME/.config', lambda s: f'{s.home}/.config'),
+        Derived('$HOME/.config', lambda s: f'{s.home}/.config'),
     ),
     Variable(
         'XDG_DATA_HOME',
         'XDG data root.',
-        Derived('$AGENTDEV_HOME/.local/share', lambda s: f'{s.home}/.local/share'),
+        Derived('$HOME/.local/share', lambda s: f'{s.home}/.local/share'),
     ),
     Variable(
         'XDG_STATE_HOME',
         'XDG state root.',
-        Derived('$AGENTDEV_HOME/.local/state', lambda s: f'{s.home}/.local/state'),
+        Derived('$HOME/.local/state', lambda s: f'{s.home}/.local/state'),
     ),
     Variable(
         'XDG_RUNTIME_DIR',
@@ -249,7 +247,7 @@ VARIABLES: tuple[Variable, ...] = (
     Variable(
         'CBM_INSTALL_DIR',
         'Directory of the user-owned CBM binary.',
-        Derived('$AGENTDEV_HOME/.local/bin', lambda s: f'{s.home}/.local/bin'),
+        Derived('$HOME/.local/bin', lambda s: f'{s.home}/.local/bin'),
     ),
     Variable('CBM_LOG_LEVEL', 'CBM log level during install.', 'debug'),
     Variable('AGENTDEV_CBM_BIN', 'CBM executable.', 'codebase-memory-mcp'),
@@ -321,7 +319,8 @@ class Settings:
 
     @property
     def home(self) -> str:
-        return self.get('AGENTDEV_HOME')
+        """Return the calling account's ``HOME``, as the scripts read it, else the runtime's."""
+        return self.environ.get('HOME') or self.get('AGENTDEV_HOME')
 
     def raw(self, name: str) -> str:
         """Return the variable exactly as set, empty when unset."""

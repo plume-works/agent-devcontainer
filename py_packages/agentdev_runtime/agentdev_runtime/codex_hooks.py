@@ -1,7 +1,3 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.12"
-# ///
 """
 Repair codebase-memory-mcp's SessionStart block in Codex's config.toml before cbm installs.
 
@@ -32,9 +28,11 @@ def codex_home() -> Path:
     return Path(os.environ.get('CODEX_HOME') or Path.home() / '.codex')
 
 
-def installed_binary() -> str:
+def installed_binary(install_dir: str | None = None) -> str:
     """Return the path cbm's hooks invoke: the binary its installer staged."""
-    install_dir = os.environ.get('CBM_INSTALL_DIR') or str(Path.home() / '.local/bin')
+    install_dir = (
+        install_dir or os.environ.get('CBM_INSTALL_DIR') or str(Path.home() / '.local/bin')
+    )
     return f'{install_dir}/codebase-memory-mcp'
 
 
@@ -177,15 +175,15 @@ def write_atomically(path: Path, content: str) -> None:
         raise
 
 
-def main() -> int:
-    """Repair the hooks block in the current Codex home's config, if it needs it."""
-    config = codex_home() / 'config.toml'
+def repair_config(home: Path | None = None, install_dir: str | None = None) -> int:
+    """Repair the hooks block in the Codex home's config, if it needs it."""
+    config = (home or codex_home()) / 'config.toml'
     if not config.is_file():
         return 0
     with config.open(encoding='utf-8', newline='') as handle:
         current = handle.read()
     try:
-        repaired = repair(current)
+        repaired = repair(current, installed_binary(install_dir))
     except ForeignHook as foreign:
         print(
             f'{config}: the orphaned codebase-memory-mcp hooks block claims {foreign}, which is '
@@ -197,7 +195,3 @@ def main() -> int:
         write_atomically(config, repaired)
         print(f'repaired the codebase-memory-mcp hooks block in {config}')
     return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())

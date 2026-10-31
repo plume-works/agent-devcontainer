@@ -101,3 +101,9 @@ def test_numeric_defaults_parse() -> None:
         if isinstance(default, str) and default.isdigit():
             assert Settings({}).count(variable.name) == int(default)
     assert BY_NAME['AGENTDEV_STOP_TIMEOUT'].default == '30'
+
+
+def test_home_derived_defaults_follow_the_caller_home() -> None:
+    settings = Settings({'AGENTDEV_RUNTIME_MODE': DEPLOY, 'HOME': '/sandbox'})
+    assert settings.get('CBM_INSTALL_DIR') == '/sandbox/.local/bin'
+    assert settings.get('CODEX_HOME') == '/sandbox/.codex'

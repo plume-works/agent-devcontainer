@@ -72,7 +72,7 @@ def probe(settings: env.Settings, service: str) -> bool:
     if service == 'keyring':
         return _run([*SELF, 'keyring', 'check'], timeout=5)
     if service == 'cbm':
-        return _run([_script(settings, 'runtime-cbm.sh'), 'check'], timeout=10, stderr=False)
+        return _run([*SELF, 'cbm', 'check'], timeout=10, stderr=False)
     if service == 'xpra':
         port = settings.get('AGENTDEV_XPRA_PORT')
         return _run(

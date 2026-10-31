@@ -4,7 +4,6 @@
 set -euo pipefail
 
 # Beside this script: /opt/agentdev-runtime in the runtime images, which any workspace can use.
-runtime_scripts="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 runtime_mode="${AGENTDEV_RUNTIME_MODE:-devcontainer}"
 checks_passed=0
 checks_failed=0
@@ -103,7 +102,7 @@ echo '== Services =='
 check 'dockerd' docker info --format '{{.ServerVersion}} containers={{.Containers}} running={{.ContainersRunning}}'
 check 'dbus session' gdbus call --session --dest org.freedesktop.DBus --object-path /org/freedesktop/DBus --method org.freedesktop.DBus.GetId
 check 'keyring' agentdev-runtime keyring check
-check 'cbm' "$runtime_scripts/runtime-cbm.sh" check
+check 'cbm' agentdev-runtime cbm check
 check 'xpra http :14500' curl -fsS -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:14500/
 check 'xpra process' bash -c "pgrep -f '[x]pra' >/dev/null"
 check 'cbm process' bash -c "pgrep -f '[c]odebase-memory' >/dev/null"

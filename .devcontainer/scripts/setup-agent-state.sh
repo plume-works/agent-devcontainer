@@ -31,10 +31,10 @@ link_claude_json() {
 
 install_cbm() {
   if agentdev_deploy; then
-    "$script_dir/runtime-cbm.sh" install
+    agentdev-runtime cbm install
   else
     # Nonfatal: a failure here would also skip postStart (firewall, keyring, Xpra).
-    "$script_dir/codebase-memory-mcp-install.sh" ||
+    agentdev-runtime cbm install --config-only ||
       echo "WARNING: codebase-memory-mcp install failed (exit $?); continuing without it." >&2
   fi
 }

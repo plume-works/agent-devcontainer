@@ -12,7 +12,9 @@ workspace="${DEV_WORKSPACE_FOLDER:-$PWD}"
 export DEV_WORKSPACE_FOLDER="$workspace"
 
 git config --global gpg.ssh.program ssh-keygen
-"$script_dir/codebase-memory-mcp-index.sh"
+if command -v codebase-memory-mcp >/dev/null 2>&1; then
+  agentdev-runtime cbm index "$workspace"
+fi
 if [[ -f $workspace/pyproject.toml ]]; then
   "$script_dir/uv-sync.sh"
 fi

@@ -37,6 +37,12 @@ def _bootstrap(argv: list[str]) -> int:
     return bootstrap.main(argv)
 
 
+def _cbm(argv: list[str]) -> int:
+    from agentdev_runtime import cbm
+
+    return cbm.main(argv)
+
+
 def _coder(argv: list[str]) -> int:
     from agentdev_runtime import coder
 
@@ -70,6 +76,7 @@ def _xpra(argv: list[str]) -> int:
 PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
     'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),
+    'cbm': (_cbm, 'the codebase-memory-mcp daemon, its install, and its index request'),
     'coder': (_coder, "the Coder agent's start"),
     'docker': (_docker, 'the nested Docker engine and its image prune'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),

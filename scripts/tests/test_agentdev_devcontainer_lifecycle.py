@@ -27,8 +27,6 @@ STUBS = [
     'setup-agent-state.sh',
     'runtime-workspace.sh',
     'uv-sync.sh',
-    'codebase-memory-mcp-index.sh',
-    'codebase-memory-mcp-start.sh',
     'setup-git-safe-directory.sh',
     'setup-gh-credential-helper.sh',
 ]
@@ -67,6 +65,8 @@ class Lifecycle:
             self.stub(self.scripts / name, name)
         self.write(self.scripts / 'runtime-health.sh', FAKE_HEALTH)
         self.stub(self.bin / 'sudo', 'sudo')
+        self.stub(self.bin / 'agentdev-runtime', 'agentdev-runtime')
+        self.stub(self.bin / 'codebase-memory-mcp', 'codebase-memory-mcp')
 
     def write(self, path: Path, body: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -236,7 +236,7 @@ def test_attach_registers_a_complete_checkout_catalog(lifecycle):
     lifecycle.hook('attached', 'refresh')
     assert_ok(lifecycle.run('devcontainer-attached.sh'))
     assert lifecycle.calls() == [
-        'codebase-memory-mcp-index.sh',
+        f'agentdev-runtime cbm index {lifecycle.workspace}',
         'uv-sync.sh',
         f'setup-agent-state.sh catalog {lifecycle.workspace}',
         'hook attached/refresh attached',
@@ -255,14 +255,14 @@ def test_attach_keeps_the_staged_catalog_for_an_incomplete_checkout(lifecycle, m
         target.unlink()
     result = lifecycle.run('devcontainer-attached.sh')
     assert_ok(result)
-    assert lifecycle.calls() == ['codebase-memory-mcp-index.sh']
+    assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}']
     assert 'keeping the staged catalog' in result.stdout
 
 
 def test_repeated_attach_reruns_only_attach_scoped_work(lifecycle):
     for _ in range(3):
         assert_ok(lifecycle.run('devcontainer-attached.sh'))
-    assert lifecycle.calls() == ['codebase-memory-mcp-index.sh'] * 3
+    assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}'] * 3
     assert not lifecycle.marker.exists()
 
 
@@ -324,13 +324,14 @@ def test_checkout_relative_hooks_delegate_to_the_image_commands(lifecycle):
     assert lifecycle.marker.exists()
     lifecycle.log.unlink()
     assert_ok(lifecycle.run('postAttachCommand.sh'))
-    assert lifecycle.calls() == ['codebase-memory-mcp-index.sh']
+    assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}']
 
 
 def test_an_unsupervised_start_starts_services_before_the_start_steps(lifecycle):
     assert_ok(lifecycle.run('postStartCommand.sh'))
     assert lifecycle.calls() == [
-        'codebase-memory-mcp-start.sh',
+        'agentdev-runtime cbm start',
+        f'agentdev-runtime cbm index {lifecycle.workspace}',
         *START_STEPS,
     ]
 

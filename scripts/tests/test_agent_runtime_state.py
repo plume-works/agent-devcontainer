@@ -21,8 +21,6 @@ REAL_SCRIPTS = (
     'link-codex-auth.sh',
 )
 STUBBED_SCRIPTS = (
-    'runtime-cbm.sh',
-    'codebase-memory-mcp-install.sh',
     'preapprove-claude-workspace.sh',
     'configure-codex.py',
     'configure-opencode.py',
@@ -37,7 +35,7 @@ def runtime_env(root: Path, **extra: str) -> dict[str, str]:
     """Return explicit standalone-style roots under ``root``."""
     home = root / 'home'
     return {
-        'PATH': os.environ['PATH'],
+        'PATH': f'{root / "bin"}:{os.environ["PATH"]}',
         'HOME': str(home),
         'CODEX_HOME': str(home / '.codex'),
         'XDG_DATA_HOME': str(home / '.local/share'),
@@ -65,6 +63,15 @@ def scripts(tmp_path: Path) -> Path:
             f'exit "${{STUB_EXIT_{name.split(".")[0].replace("-", "_").upper()}:-0}}"\n'
         )
         stub.chmod(0o755)
+    cli = tmp_path / 'bin/agentdev-runtime'
+    cli.parent.mkdir()
+    cli.write_text(
+        '#!/usr/bin/env bash\n'
+        'link=plain; [[ -L "$AGENTDEV_CLAUDE_JSON" ]] && link=symlink\n'
+        f'echo "agentdev-runtime $* claude.json=$link" >> "{log}"\n'
+        'exit "${STUB_EXIT_AGENTDEV_RUNTIME:-0}"\n'
+    )
+    cli.chmod(0o755)
     return directory
 
 
@@ -178,12 +185,12 @@ def test_devcontainer_create_discards_the_image_file_and_tolerates_cbm_failure(
     (home / '.claude/claude.json').write_text('{"volume": true}')
     (home / '.claude.json').write_text('{"image": true}')
 
-    result = run_state(scripts, tmp_path, 'create', STUB_EXIT_CODEBASE_MEMORY_MCP_INSTALL='1')
+    result = run_state(scripts, tmp_path, 'create', STUB_EXIT_AGENTDEV_RUNTIME='1')
     assert result.returncode == 0, result.stderr
 
     assert 'codebase-memory-mcp install failed' in result.stderr
     assert (home / '.claude.json').read_text() == '{"volume": true}'
-    assert calls(tmp_path)[0] == 'codebase-memory-mcp-install.sh  claude.json=symlink'
+    assert calls(tmp_path)[0] == 'agentdev-runtime cbm install --config-only claude.json=symlink'
 
 
 def test_standalone_cbm_step_installs_after_create_links_claude_json(
@@ -192,7 +199,7 @@ def test_standalone_cbm_step_installs_after_create_links_claude_json(
     assert run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='deploy').returncode == 0
     result = run_state(scripts, tmp_path, 'cbm', AGENTDEV_RUNTIME_MODE='deploy')
     assert result.returncode == 0, result.stderr
-    assert calls(tmp_path)[-1] == 'runtime-cbm.sh install claude.json=symlink'
+    assert calls(tmp_path)[-1] == 'agentdev-runtime cbm install claude.json=symlink'
 
 
 def test_standalone_cbm_step_fails_when_cbm_install_fails(scripts: Path, tmp_path: Path):
@@ -201,7 +208,7 @@ def test_standalone_cbm_step_fails_when_cbm_install_fails(scripts: Path, tmp_pat
         tmp_path,
         'cbm',
         AGENTDEV_RUNTIME_MODE='deploy',
-        STUB_EXIT_RUNTIME_CBM='1',
+        STUB_EXIT_AGENTDEV_RUNTIME='1',
     )
     assert result.returncode == 1
 
@@ -310,8 +317,8 @@ def test_concurrent_config_writers_take_turns(scripts: Path, tmp_path: Path, sec
     log = tmp_path / 'calls.log'
     slow = scripts / 'reinstall-agentdev-codex.sh'
     slow.write_text(f'#!/usr/bin/env bash\necho begin >> "{log}"\nsleep 1\necho end >> "{log}"\n')
-    for name in ('configure-codex.py', 'runtime-cbm.sh'):
-        (scripts / name).write_text(f'#!/usr/bin/env bash\necho other >> "{log}"\n')
+    for path in (scripts / 'configure-codex.py', tmp_path / 'bin/agentdev-runtime'):
+        path.write_text(f'#!/usr/bin/env bash\necho other >> "{log}"\n')
     env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='deploy')
     args = {
         'catalog': ['catalog', '/opt/catalog'],

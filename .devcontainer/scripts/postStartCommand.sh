@@ -10,7 +10,10 @@ if [[ -S ${AGENTDEV_RUN_DIR:-/run/agentdev}/supervisor.sock ]]; then
   exec "$script_dir/devcontainer-ready.sh"
 fi
 
-"$script_dir/codebase-memory-mcp-start.sh"
+if command -v codebase-memory-mcp >/dev/null 2>&1; then
+  agentdev-runtime cbm start
+  agentdev-runtime cbm index "${DEV_WORKSPACE_FOLDER:-$PWD}"
+fi
 # Headless callers — the CI responder job — opt out of the remote desktop
 # nothing will connect to. Unset (the devcontainer default) starts it as before.
 if [[ -n "${AGENTDEV_SKIP_XPRA:-}" ]]; then
