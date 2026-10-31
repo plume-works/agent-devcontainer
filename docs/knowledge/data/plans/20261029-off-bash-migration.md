@@ -217,7 +217,11 @@ deletion of this one function; and running the responder as a host job through
   - **Evidence:** commit facf454;
     `test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout` and
     the failure-record supervision tests pass, and both images built from that
-    commit boot to ready in the acceptance and image suites.
+    commit boot to ready in the acceptance and image suites. The same commit
+    adds `py_packages/agentdev_runtime/**` to the image path filter, points
+    `ci.yml`, `devcontainer-ready.sh`, and `environment-health.sh` at the CLI,
+    and renames the deleted paths in the later tasks' lifecycle, image,
+    repository, migration, and acceptance tests.
 
 ### Task 3: Bootstrap and distribution integrity
 
@@ -275,7 +279,9 @@ deletion of this one function; and running the responder as a host job through
     rules in a privileged container on the pinned Dev Container image: egress
     blocked, GitHub and nested pulls allowed, proxy-only ingress. Deploy
     acceptance (24 passed) and the Dev Container image suite (5 passed) pass
-    against images built from merge ecf005c.
+    against images built from merge ecf005c. The network test now sets
+    `AGENTDEV_RUNTIME_MODE=deploy`: against the current image pin it never
+    reached proxy ingress.
 - [x] The devcontainer profile reads
   `<workspace>/.devcontainer/firewall-allowlist.txt` when it exists and
   `/etc/agentdev/firewall-allowlist.txt` otherwise; deploy reads
@@ -391,8 +397,10 @@ Delete: `docker/desktop/start-xpra.sh`
     `test_repair_codex_cbm_hooks_block.py` (29 passed) drive the pinned CBM
     binary through the CLI as an isolated account, including the offline
     install; `test_codebase_memory_mcp_index.py` and `test_codex_hooks.py` pass.
-    Deploy acceptance (24 passed) and the Dev Container image suite (5 passed)
-    pass against images built from that commit.
+    `cbm install --config-only` carries the Dev Container's nonfatal wiring, and
+    settings derived from the home directory follow `$HOME`, as every script
+    read it. Deploy acceptance (24 passed) and the Dev Container image suite (5
+    passed) pass against images built from that commit.
 
 ### Task 9: Agent state and catalog registration
 
@@ -440,6 +448,8 @@ Delete: `docker/desktop/start-xpra.sh`
     against the real Claude and Codex CLIs; deploy acceptance (24 passed,
     including the fake-`claude` Remote Control cases whose config phase
     registers the catalog) passes against `agentdev-deploy` built from 9732df9.
+    `catalog complete <root>` exposes the one complete-catalog test to the shell
+    lifecycle scripts until Tasks 12 and 13 replace them.
 
 ### Task 10: Remote Control watcher ends on a start that never comes up
 
