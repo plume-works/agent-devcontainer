@@ -135,14 +135,14 @@ macOS job in Task 3 runs it. Stub `uname`, `brew`, `uv`, `curl`, `shasum`,
 arguments; point `HOME` at a temporary directory.
 
 - [x] A non-Darwin `uname` exits nonzero before any `brew` call.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_non_darwin_exits_before_any_installer` in
     `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
     missing script:
     `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
     → 3 failed, 11 errors.
 - [x] A missing `brew` exits nonzero and prints the Homebrew install command.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_missing_brew_prints_install_command_and_changes_nothing` in
     `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
     missing script:
@@ -150,14 +150,14 @@ arguments; point `HOME` at a temporary directory.
     → 3 failed, 11 errors.
 - [x] `brew bundle --file=-` receives every formula and the `claude-code` cask
   on stdin.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_brew_bundle_receives_every_formula_and_the_claude_code_cask` in
     `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
     missing script:
     `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
     → 3 failed, 11 errors.
 - [x] `uv python install` receives the recorded version and `--default`.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_uv_installs_the_recorded_python_as_default` in
     `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
     missing script:
@@ -165,7 +165,7 @@ arguments; point `HOME` at a temporary directory.
     → 3 failed, 11 errors.
 - [x] A release tarball whose checksum does not match is rejected and nothing
   lands in `~/.local/bin`.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_checksum_mismatch_rejects_the_archive` in
     `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
     missing script:
@@ -173,7 +173,7 @@ arguments; point `HOME` at a temporary directory.
     → 3 failed, 11 errors.
 - [x] From an iwe archive that holds `iwe`, `iwes`, and `iwec`, only `iwe` and
   `iwes` land in `~/.local/bin`.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_only_iwe_and_iwes_are_installed_from_the_iwe_archive` in
     `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
     missing script:
@@ -181,7 +181,7 @@ arguments; point `HOME` at a temporary directory.
     → 3 failed, 11 errors.
 - [x] Two runs leave exactly one marker block in `~/.zprofile`, and existing
   content outside it is preserved byte-for-byte.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_rerun_keeps_one_marker_block_and_preserves_other_content` in
     `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
     missing script:
@@ -190,7 +190,7 @@ arguments; point `HOME` at a temporary directory.
 - [x] The plugin step adds the marketplace and installs `agentdev` and never
   `self-improve`; `--skip-plugins` makes no `claude` or `codex` call; no `codex`
   call happens when `codex` is absent from `PATH`.
-  - **Evidence:** commit `031b7ec0` adds
+  - **Evidence:** commit `9b5db2c8` adds
     `test_plugin_step_installs_only_agentdev`,
     `test_plugin_step_includes_codex_when_present`, and
     `test_skip_plugins_calls_neither_agent_plugin_command` in
@@ -204,7 +204,7 @@ arguments; point `HOME` at a temporary directory.
   `codebase-memory-mcp` versions in `ansible/roles/dev_tools/defaults/main.yml`,
   and the recorded Python version equals the lower bound of `requires-python`,
   each read from its file rather than restated.
-  - **Evidence:** commit `031b7ec0` adds `test_iwe_matches_the_image_pin`,
+  - **Evidence:** commit `9b5db2c8` adds `test_iwe_matches_the_image_pin`,
     `test_codebase_memory_mcp_matches_the_image_pin`, and
     `test_python_is_the_requires_python_floor`, reading `dev_tools` through
     `yaml` and `pyproject.toml` through `tomllib`; red against the missing
@@ -218,26 +218,26 @@ arguments; point `HOME` at a temporary directory.
 - [x] The seven steps in `## Approach`, with darwin `arm64` and `amd64` SHA-256
   values for the `iwe` and `codebase-memory-mcp` versions `dev_tools` pins at
   implementation time, taken from the published release assets.
-  - **Evidence:** commit `470a78dd` adds
+  - **Evidence:** commit `01f4d6ed` adds
     `.agents/plugins/agentdev/bin/macos-bootstrap.zsh`; its four SHA-256 values
     equal the GitHub release asset digests for `iwe-v0.29.3` and `v0.12.1`
     (`gh release view --json assets`), whose Linux digests match the `dev_tools`
     checksums.
 - [x] Task 1's tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
-  - **Evidence:** at commit `470a78dd`, the command → 14 passed under zsh 5.9;
+  - **Evidence:** at commit `01f4d6ed`, the command → 14 passed under zsh 5.9;
     the full plugin suite `uv run pytest .agents/plugins/agentdev/tests` → 435
     passed.
 - [x] `zsh -n .agents/plugins/agentdev/bin/macos-bootstrap.zsh` passes, and
   `pre-commit run shellcheck --files .agents/plugins/agentdev/bin/macos-bootstrap.zsh`
   does not lint it, with an `exclude` on the hook if it would.
-  - **Evidence:** commit `470a78dd` adds the `exclude` to the `shellcheck` hook,
+  - **Evidence:** commit `01f4d6ed` adds the `exclude` to the `shellcheck` hook,
     which otherwise fails with SC1071; at that commit `zsh -n` passes and the
     hook reports `(no files to check)Skipped`.
 - [x] Root `AGENTS.md`'s Shell convention names the bootstrap as the one zsh
   script and why it is zsh, and `.agents/AGENTS.md`'s rule that every `bin/`
   script is Python names it as the exception.
-  - **Evidence:** commit `470a78dd` edits root `AGENTS.md` `### Shell` and the
+  - **Evidence:** commit `01f4d6ed` edits root `AGENTS.md` `### Shell` and the
     `bin/` language rule in `.agents/AGENTS.md`.
 
 ### Task 3: Run the bootstrap on a macOS CI runner
@@ -250,19 +250,19 @@ arguments; point `HOME` at a temporary directory.
   provisioned Python, and runs Task 1's plugin test file with pytest through uv.
   Pass `--skip-plugins` only if the plugin commands need authentication, and
   record that in `## Verification results`.
-  - **Evidence:** commit `09e79dd4` adds the job to
-    `.github/workflows/validate-agent-files.yml`, and commit `fc11e146` makes
+  - **Evidence:** commit `4c95e8a4` adds the job to
+    `.github/workflows/validate-agent-files.yml`, and commit `56f2cd7a` makes
     the script's `~/.zprofile` rewrite work with macOS awk; Actions run
-    41241447306 (job `macOS native bootstrap`) runs the bootstrap without
-    `--skip-plugins` — the plugin commands needed no authentication — then
-    `git-new-branch.py --help` on `/Users/runner/.local/bin/python3` (Python
-    3.12.15) and the plugin test file (11 passed).
+    41253637406 (job `macOS native bootstrap`, at `8fbd67d1`) runs the bootstrap
+    without `--skip-plugins` — the plugin commands needed no authentication —
+    then `git-new-branch.py --help` on `/Users/runner/.local/bin/python3`
+    (Python 3.12.15) and the plugin test file (15 passed).
 
 ### Task 4: Green macOS CI run
 
 - [x] The `macos-bootstrap` job passes on the pull request.
-  - **Evidence:** on PR #601 at commit `fc11e146`, Actions run 41241447306's
-    `macOS native bootstrap` job concluded `success`.
+  - **Evidence:** on PR #601 at commit `8fbd67d1`, which holds `56f2cd7a`,
+    Actions run 41253637406's `macOS native bootstrap` job concluded `success`.
 
 ### Task 5: Document the native macOS path
 
@@ -274,19 +274,19 @@ arguments; point `HOME` at a temporary directory.
   `curl -fsSL <raw URL> | zsh` invocation, what the script changes on the host
   (`~/.zprofile`, `~/.local/bin`, Homebrew packages, the uv-managed Python,
   plugin install), and `--skip-plugins`.
-  - **Evidence:** commit `c8b1d7ac` adds `## Native macOS` to
+  - **Evidence:** commit `396ff10b` adds `## Native macOS` to
     `.agents/plugins/agentdev/README.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
     → 0 errors, 0 warnings.
 - [x] `template-boundary` states that a native macOS host consumes the catalog
   only, provisioned by `bin/macos-bootstrap.zsh`, and that the `.devcontainer/`
   runtime surface does not apply to it.
-  - **Evidence:** commit `c8b1d7ac` adds `## Native macOS host` to
+  - **Evidence:** commit `396ff10b` adds `## Native macOS host` to
     `data/architecture/template-boundary`; `iwe normalize` and
     `iwe schema validate` pass.
 - [x] `catalog-script-language` records the bootstrap as the catalog's one
   non-Python script and the reason.
-  - **Evidence:** commit `c8b1d7ac` adds `## The one non-Python script` to
+  - **Evidence:** commit `396ff10b` adds `## The one non-Python script` to
     `data/architecture/catalog-script-language` and names the exception in its
     description and `## Decision`; `iwe schema validate` passes.
 
@@ -299,19 +299,19 @@ arguments; point `HOME` at a temporary directory.
 - [x] `install_plugins` makes no `codex` call even when `codex` is on `PATH`;
   `test_plugin_step_includes_codex_when_present` is replaced by a test that
   stubs `codex` on `PATH` and asserts the script never invokes it.
-  - **Evidence:** commit `c2915879` removes the Codex branch from
+  - **Evidence:** commit `9303fb69` removes the Codex branch from
     `install_plugins` and replaces the Codex test with
     `test_plugin_step_never_invokes_codex_on_path`, which failed before the
     removal and passes after.
 - [x] The script's `--help` text and the README's "Native macOS" section name
   Claude Code as the only agent the plugin step installs into.
-  - **Evidence:** commit `c2915879` changes the `--help` text and the README's
+  - **Evidence:** commit `9303fb69` changes the `--help` text and the README's
     `**Plugins**` bullet to name Claude Code only;
     `uv run validate_agent_files --recommend . --require-marketplace claude` → 0
     errors, 0 warnings.
 - [x] Task 1's tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
-  - **Evidence:** at commit `c2915879`, the command → 14 passed under zsh 5.9;
+  - **Evidence:** at commit `9303fb69`, the command → 14 passed under zsh 5.9;
     `zsh -n` passes.
 
 ### Task 7: Provision fish login shells
@@ -328,7 +328,7 @@ arguments; point `HOME` at a temporary directory.
   `fish` and a zsh `$SHELL`, the file is not created; with `$SHELL` naming a
   shell whose login `python3` is not `~/.local/bin/python3`, the script exits
   nonzero and names that shell's Python check.
-  - **Evidence:** commit `57310be3` adds
+  - **Evidence:** commit `5f62af0e` adds
     `test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content`,
     `test_no_fish_block_without_fish`,
     `test_user_shell_resolving_another_python_fails_its_check`, and
@@ -339,21 +339,21 @@ arguments; point `HOME` at a temporary directory.
 - [x] The script writes the fish block and runs the `$SHELL` check as step 5 and
   step 7 of `## Approach` describe, and the tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
-  - **Evidence:** commit `6f4f7b6a` adds `write_block`, `write_path_blocks`, and
+  - **Evidence:** commit `7d511bd5` adds `write_block`, `write_path_blocks`, and
     `check_python` to the script and limits the test fixture's `PATH` to the
     host tools the script runs; at that commit the command → 18 passed under zsh
     5.9, and the whole plugin suite → 423 passed.
 - [x] The README's "Native macOS" section lists
   `~/.config/fish/conf.d/agentdev.fish` among the host changes.
-  - **Evidence:** commit `8f3b15f0` adds the fish bullet and the `$SHELL` check
+  - **Evidence:** commit `670f7786` adds the fish bullet and the `$SHELL` check
     to `## Native macOS` in `.agents/plugins/agentdev/README.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude` → 0
     errors, 0 warnings.
 - [x] The `macos-bootstrap` job installs fish with Homebrew and runs the
   bootstrap with `SHELL` set to it, so the fish block and the `$SHELL` check run
   on a real macOS host.
-  - **Evidence:** commit `c8c3ce1e` adds the `Install fish` step and runs the
-    bootstrap with `SHELL` set to Homebrew's fish; Actions run 41252562998 (job
+  - **Evidence:** commit `9383deea` adds the `Install fish` step and runs the
+    bootstrap with `SHELL` set to Homebrew's fish; Actions run 41253637406 (job
     `macOS native bootstrap`) writes
     `/Users/runner/.config/fish/conf.d/agentdev.fish` and reports
     `python3 in fish: /Users/runner/.local/bin/python3, Python 3.12.15`.
@@ -362,8 +362,8 @@ arguments; point `HOME` at a temporary directory.
 
 - [x] The `macos-bootstrap` job passes on the pull request at a commit that
   includes Tasks 6 and 7.
-  - **Evidence:** on PR #601 at commit `c8c3ce1e`, which holds Task 6's
-    `c2915879` and Task 7's `6f4f7b6a`, Actions run 41252562998's
+  - **Evidence:** on PR #601 at commit `8fbd67d1`, which holds Task 6's
+    `9303fb69` and Task 7's `7d511bd5`, Actions run 41253637406's
     `macOS native bootstrap` job concluded `success`.
 
 ### Task 9: Bring the feature doc in line with the plan
@@ -373,14 +373,14 @@ arguments; point `HOME` at a temporary directory.
 - [x] `## Behaviour` says the plugin step installs `agentdev` into Claude Code
   only, and describes the fish block in `~/.config/fish/conf.d/agentdev.fish`
   and the `python3` check in the user's `$SHELL`.
-  - **Evidence:** commit `db89cac2` rewrites the plugin, PATH-block, and
+  - **Evidence:** commit `89c8fe66` rewrites the plugin, PATH-block, and
     verification bullets of `## Behaviour` in
     `data/features/macos-native-bootstrap`; `iwe normalize` and
     `iwe schema validate` pass at that commit.
 - [x] `## Edge cases` covers fish being absent and a `$SHELL` whose login shell
   resolves another `python3`, and `iwe normalize` and `iwe schema validate`
   pass.
-  - **Evidence:** commit `e1330a3b` adds the **No fish** and **Another `python3`
+  - **Evidence:** commit `0c8d8f1a` adds the **No fish** and **Another `python3`
     in the user's shell** edge cases to `data/features/macos-native-bootstrap`
     and stamps it; `iwe normalize` and `iwe schema validate` pass at that
     commit.
