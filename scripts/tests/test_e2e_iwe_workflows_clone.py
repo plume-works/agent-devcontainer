@@ -118,8 +118,8 @@ def test_each_test_gets_its_own_work_directory(monkeypatch):
         'test_iwe_workflows_opencode-test_ship',
         'test_iwe_workflows_claude-test_ship',
     }
-    assert conftest.work_dir_name(f'{prefix}codex.py::test_x[a/b c]') == (
-        'test_iwe_workflows_codex-test_x_a_b_c_'
+    assert conftest.work_dir_name(f'{prefix}claude.py::test_x[a/b c]') == (
+        'test_iwe_workflows_claude-test_x_a_b_c_'
     )
     assert conftest.WORK == conftest.work_root(REPO_ROOT)
     roots = {conftest.work_root(Path(f'/workspaces/{name}')) for name in ('one', 'two')}
