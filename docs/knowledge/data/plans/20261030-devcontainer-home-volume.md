@@ -7,7 +7,7 @@ release:
 description: Run the Dev Container as a non-root account remapped to the host user, with its whole home on one per-instance volume and Claude and Codex credentials on a per-UID-cohort auth volume, replacing the per-directory volumes under /root; uv moves onto the home volume in both runtimes.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-10-31T19:45:07Z
 sources:
 - resource: docs/knowledge/data/architecture/devcontainer-home-volume.md
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -249,12 +249,11 @@ returns to revise mode before Task 4.
 `docs/knowledge/data/architecture/devcontainer-home-volume.md`,
 `docs/knowledge/data/architecture/agent-auth-persistence.md`,
 `docs/knowledge/data/architecture/cbm-daemon-lifecycle.md`,
-`docs/knowledge/data/features/persist-pre-commit-cache.md`, affected
-`docs/knowledge/data/codebase/` map docs
+`docs/knowledge/data/features/persist-pre-commit-cache.md`
 
 - [ ] The architecture document describes the shipped account and volumes; the
   auth and CBM documents and the pre-commit feature name the home volume and the
-  cohort auth volume instead of the per-directory volumes; the map is refreshed.
+  cohort auth volume instead of the per-directory volumes.
 
 ## Spec changes
 

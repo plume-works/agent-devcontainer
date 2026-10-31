@@ -104,7 +104,7 @@ role. The package pins `supervisor`, `tomlkit`, `json5`, `pyyaml`, and
 
 Every script becomes a subcommand of one CLI whose nouns are the runtime's
 concerns. One settings module parses every environment value once, with one
-default per variable, keyed by profile where the scripts disagreed. One state
+default per variable, keyed by profile where the profiles differ. One state
 module defines the `state.json`, retry, and failure-record shapes for writer and
 reader alike. Except for the two changes below, behaviour behind each command is
 unchanged; this plan changes language and packaging, not policy, so every
@@ -146,8 +146,8 @@ from the bootstrap in both profiles, so its sudoers entry and the script in the
 Ansible role go; the role keeps the packages. A set `FIREWALL_ALLOWLIST` names
 the allowlist in both profiles, as `init-firewall.sh` let it. Unset, the
 devcontainer profile reads the checkout's allowlist when present, as
-`spec/firewall` promises, and the image copy otherwise, as the supervised
-wrapper did; deploy keeps the image copy.
+`spec/firewall` promises, and the image copy otherwise; deploy keeps the image
+copy.
 
 Rejected: loose stdlib scripts on the system interpreter, which keeps either the
 runtime PyPI fetch or an apt dependency hunt and keeps the file manifest; bash
@@ -195,7 +195,7 @@ deletion of this one function; and running the responder as a host job through
     `tomlkit`, `json5`, and `yaml`.
 - [x] `settings.py` parses every environment value the scripts and the
   supervisor read, with one default per variable, keyed by profile where the
-  scripts disagree; the package README lists each variable, its default, and the
+  profiles differ; the package README lists each variable, its default, and the
   profiles that read it.
   - **Evidence:** commit cfaac26;
     `py_packages/agentdev_runtime/tests/test_settings.py` checks the profile
@@ -652,7 +652,8 @@ Delete: `docker/desktop/start-xpra.sh`
     with the image set prints `every acceptance test was skipped` and exits 1.
 - [x] The `COPY .devcontainer/scripts/` lines and the `.dockerignore` exception
   leave; `.devcontainer/scripts/` is gone from the tree, and
-  `git ls-files '.devcontainer/**/*.sh'` lists only `devcontainer-init.sh`.
+  `git ls-files ':(glob).devcontainer/**/*.sh'` lists only
+  `.devcontainer/devcontainer-init.sh`.
   - **Evidence:** commit 76a1836; both images build without the copy, and
     `git ls-files ':(glob).devcontainer/**/*.sh'` lists only
     `.devcontainer/devcontainer-init.sh`. Git's default pathspec needs the
@@ -663,7 +664,6 @@ Delete: `docker/desktop/start-xpra.sh`
 **Files:** Modify: `.codex/README.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-`docs/knowledge/data/codebase.md`,
 `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md`; Delete:
 `.codex/setup-codex-cloud.sh`
 

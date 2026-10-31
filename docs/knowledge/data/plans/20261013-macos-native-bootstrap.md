@@ -6,7 +6,7 @@ release:
 description: A zsh bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — Homebrew tools including uv, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-10-31T19:45:07Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml
@@ -35,9 +35,10 @@ Python](20261029-catalog-scripts-python.md) ships first and makes every catalog
 script stdlib-only Python on `#!/usr/bin/env python3`. Two gaps then block a
 stock macOS host:
 
-- The catalog needs Python 3.10 or newer: `stale-map-docs.py` calls
-  `zip(strict=...)`. A stock host's `/usr/bin/python3` is a shim that installs
-  the Xcode Command Line Tools through a dialog and then provides Python 3.9.
+- The catalog is tested only on the Python version the root `pyproject.toml`'s
+  `requires-python` names. A stock host's `/usr/bin/python3` is a shim that
+  installs the Xcode Command Line Tools through a dialog and then provides
+  Python 3.9.
 - The tools the catalog calls — `gh`, `jq`, `shellcheck`, `uv`, `bun`,
   `pre-commit`, `iwe`, `codebase-memory-mcp` — and the agent CLIs that install
   the plugin are absent.
@@ -189,15 +190,6 @@ arguments; point `HOME` at a temporary directory.
 - [ ] `catalog-script-language` records the bootstrap as the catalog's one
   non-Python script and the reason.
 
-### Task 6: Refresh the codebase map docs
-
-**Files:** Modify:
-`docs/knowledge/data/codebase/agents/plugins/agentdev/bin.md`,
-`docs/knowledge/data/codebase/agents/plugins/agentdev/tests.md`, and any other
-map doc `stale-map-docs.py` reports stale
-
-- [ ] Refresh them with `/agentdev:iwe-map` so `stale-map-docs.py` passes.
-
 ## Spec changes
 
 Creates `spec/macos-native-bootstrap`:
@@ -301,7 +293,6 @@ Python](20261029-catalog-scripts-python.md)
 - `zsh -n .agents/plugins/agentdev/bin/macos-bootstrap.zsh` passes.
 - The `macos-bootstrap` job in `validate-agent-files.yml` passes on the pull
   request.
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py` passes.
 - `iwe normalize` and `iwe schema validate` pass.
 
 ## Out of scope
@@ -319,10 +310,8 @@ Python](20261029-catalog-scripts-python.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
-- `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:713` —
-  `zip(..., strict=True)`, the use that sets the catalog's Python 3.10 floor
 - `pyproject.toml:4` — `requires-python = ">=3.12"`, the recorded Python version
 - `ansible/roles/dev_tools/defaults/main.yml:58` — `iwe` entry (`iwe-v0.29.3`,
   `binaries: [iwe, iwes]` at `:63`)
@@ -331,13 +320,13 @@ Verified anchor points (line numbers as of 2026-10-30):
 - `ansible/roles/agentic_tools/tasks/install_catalog.yml:10` — the staged Claude
   marketplace manifest; `:15` — the Codex manifest, the image's equivalent of
   the plugin step
-- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:61`
-  `validate-agent-files` job; `:88` agentdev plugin test step
+- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:53`
+  `validate-agent-files` job; `:79` agentdev plugin test step
 - `.pre-commit-config.yaml:50` — the `shellcheck` hook
 - `AGENTS.md:97` — the Shell convention: bash and `shellcheck`
-- `docs/knowledge/data/codebase/agents/plugins/agentdev.md:66` — `bin/` is on
-  `PATH` while the plugin is enabled
-- `docs/knowledge/data/architecture/template-boundary.md:273` — Publisher-only
+- `.agents/plugins/agentdev/README.md:81` — `bin/` is on `PATH` while the plugin
+  is enabled
+- `docs/knowledge/data/architecture/template-boundary.md:272` — Publisher-only
   source section listing `.agents/`
 - `.agents/AGENTS.md:16` — plugin tests must pass from a consumer's plugin
   cache, resolving scripts through `plugin_root`

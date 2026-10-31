@@ -98,6 +98,8 @@ names](../features/remote-control-environment-names.md)
 
 [AI responder workflows](../features/ai-responder-workflows.md)
 
+[Resumable template consumption](../features/resumable-template-consumption.md)
+
 ## Fixed
 
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
@@ -159,3 +161,6 @@ tick](../bugs/remote-control-watcher-start-loop.md)
 
 [Bug: doctor fails a healthy Coder Dev
 Container](../bugs/doctor-fails-healthy-coder-devcontainer.md)
+
+[Bug: an AI re-review that comments leaves its own change request blocking
+merge](../bugs/ai-rereview-comment-keeps-changes-requested.md)

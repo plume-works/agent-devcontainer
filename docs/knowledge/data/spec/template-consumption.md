@@ -3,7 +3,7 @@ type: spec
 description: How a project adopts this repository as a template — the normative requirements, with the full setup and update procedure owned by the agentdev template-consume skill.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T07:39:19Z
+  at: 2026-10-31T18:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
@@ -100,14 +100,15 @@ Directories holding byte-exact third-party captures SHALL be excluded in
 
 The `claude-respond` and `ai-review-present` jobs in `ai-responder.yml` SHALL be
 kept or dropped together. The responder SHALL NOT auto-review any bot-authored
-pull request; `ai-review-present` SHALL waive its requirement only for the bot
-logins listed in `TRUSTED_BOT_ACTORS`, matched exactly and only when `user.type`
-is `Bot`. The gate checks that the pull request has a review, not that its head
-commit does — a copy comparing the review's `commit_id` to the head SHA is a
-policy change. The fork gate and write-access gate SHALL be preserved as
-written; the owner gate SHALL be repointed at the consumer. The
-`workflow_dispatch` bridge SHALL be retained so default-branch comment events
-can run the pull request head branch's workflow and attach checks to that head.
+pull request; `ai-review-present` SHALL waive its requirement, and the
+trusted-bot approval job SHALL approve, only for the bot logins listed in
+`TRUSTED_BOT_ACTORS`, matched exactly and only when `user.type` is `Bot`. The
+gate checks that the pull request has a review, not that its head commit does —
+a copy comparing the review's `commit_id` to the head SHA is a policy change.
+The fork gate and write-access gate SHALL be preserved as written; the owner
+gate SHALL be repointed at the consumer. The `workflow_dispatch` bridge SHALL be
+retained so default-branch comment events can run the pull request head branch's
+workflow and attach checks to that head.
 
 ## Requirement: adoption is recorded for later updates
 
@@ -322,9 +323,8 @@ Template consumption SHALL initialize knowledge by invoking
 ## Requirement: fresh IWE adoption initializes consumer memory
 
 For both adoption workflows, choosing IWE SHALL invoke `iwe-bootstrap`, then
-invoke `iwe-setup` followed by `iwe-map`, and validate the resulting consumer
-workspace. The invoked skills' confirmation gates SHALL remain in force. Mapping
-SHALL be explicitly deferred for a project with no code.
+invoke `iwe-setup`, and validate the resulting consumer workspace. The invoked
+skill's confirmation gates SHALL remain in force.
 
 ### Scenario: fresh full-copy adoption
 
@@ -337,17 +337,16 @@ SHALL be explicitly deferred for a project with no code.
 
 - **WHEN** Workflow B retains IWE and the bootstrap-managed destinations are
   absent
-- **THEN** adoption invokes bootstrap and runs setup before mapping
+- **THEN** adoption invokes bootstrap and runs setup
 
 ### Scenario: a greenfield consumer
 
-- **WHEN** an adopting project has no code to map
-- **THEN** setup establishes product memory and the report explicitly defers
-  mapping
+- **WHEN** an adopting project has no code
+- **THEN** setup establishes product memory from the interview alone
 
 ### Scenario: required onboarding input is pending
 
-- **WHEN** setup or map requires an unanswered question or confirmation
+- **WHEN** setup requires an unanswered question or confirmation
 - **THEN** adoption reports pending work, preserves current data, and does not
   declare onboarding complete or reset it on resumption
 
@@ -385,3 +384,33 @@ SHALL be reviewed against existing consumer data.
 - **WHEN** the consumer declines IWE adoption
 - **THEN** setup skips bootstrap and onboarding, removes copied IWE-only
   artifacts, and preserves pre-existing consumer knowledge
+
+## Requirement: an update removes a retired codebase map
+
+When a consumer holds codebase-map artifacts, update mode SHALL remove them
+without asking: every `data/codebase/` document and the `data/codebase.md` hub,
+the codebase schema and its `.iwe/config.toml` entries, the `iwe-map` key of
+every `.agent.metadata.json` and each such file left empty, and any CI step or
+pre-commit hook that runs `stale-map-docs.py`. It SHALL report each removal and
+SHALL leave the workspace passing `iwe normalize` and `iwe schema validate`.
+This is the one consumer-memory change update mode makes without the user's
+decision.
+
+### Scenario: a mapped consumer updates
+
+- **WHEN** update mode runs for a consumer with a `data/codebase/` map and a CI
+  step running `stale-map-docs.py`
+- **THEN** the map documents, hub, schema, configuration entries, metadata keys,
+  and CI step are removed, each removal is reported, and schema validation
+  passes
+
+### Scenario: metadata holds another key
+
+- **WHEN** an `.agent.metadata.json` carries an `iwe-map` key beside another
+  key, such as the root `template-consume` section
+- **THEN** only the `iwe-map` key is removed and the file stays
+
+### Scenario: a consumer never adopted the map
+
+- **WHEN** update mode finds no codebase-map artifact
+- **THEN** it changes nothing for the map and reports nothing about it

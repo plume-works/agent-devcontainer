@@ -6,6 +6,13 @@ to the current day's group.
 
 ## 2026-10-31
 
+- **Update**: [Bug: an AI re-review that comments leaves its own change request
+  blocking merge](bugs/ai-rereview-comment-keeps-changes-requested.md) fixed;
+  [AI review verdicts gate merge and trusted bots are
+  auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md) plan
+  done; specs synced.
+- **Update**: [Remove the codebase map](plans/20261031-remove-codebase-map.md)
+  plan done; specs synced.
 - **Update**: [agentdev-runtime CLI](features/agentdev-runtime-cli.md)
   implemented; [Replace the runtime shell scripts with one agentdev-runtime
   CLI](plans/20261029-off-bash-migration.md) plan done; fixed [Bug: a workspace

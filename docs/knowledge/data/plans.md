@@ -23,9 +23,6 @@ conversation](plans/20261031-verify-report-in-chat.md)
 [Move the Coder template's knowledge into
 coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
 
-[AI review verdicts gate merge and trusted bots are
-auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
-
 [Remove Codex support](plans/20261031-remove-codex.md)
 
 [Replace Super-Linter with pre-commit in
@@ -46,14 +43,17 @@ App](plans/20261030-responder-quill-app-identity.md)
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
-[Remove the codebase map](plans/20261031-remove-codebase-map.md)
-
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
 ## Done
 
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
+
+[AI review verdicts gate merge and trusted bots are
+auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
+
+[Remove the codebase map](plans/20261031-remove-codebase-map.md)
 
 [Port the catalog's bundled shell scripts to
 Python](plans/20261029-catalog-scripts-python.md)
