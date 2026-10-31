@@ -203,17 +203,30 @@ arguments; point `HOME` at a temporary directory.
 **Files:** Create: `.agents/plugins/agentdev/bin/macos-bootstrap.zsh`; Modify:
 `.pre-commit-config.yaml`, `AGENTS.md`, `.agents/AGENTS.md`
 
-- [ ] The seven steps in `## Approach`, with darwin `arm64` and `amd64` SHA-256
+- [x] The seven steps in `## Approach`, with darwin `arm64` and `amd64` SHA-256
   values for the `iwe` and `codebase-memory-mcp` versions `dev_tools` pins at
   implementation time, taken from the published release assets.
-- [ ] Task 1's tests pass:
+  - **Evidence:** commit `470a78dd` adds
+    `.agents/plugins/agentdev/bin/macos-bootstrap.zsh`; its four SHA-256 values
+    equal the GitHub release asset digests for `iwe-v0.29.3` and `v0.12.1`
+    (`gh release view --json assets`), whose Linux digests match the `dev_tools`
+    checksums.
+- [x] Task 1's tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
-- [ ] `zsh -n .agents/plugins/agentdev/bin/macos-bootstrap.zsh` passes, and
+  - **Evidence:** at commit `470a78dd`, the command → 14 passed under zsh 5.9;
+    the full plugin suite `uv run pytest .agents/plugins/agentdev/tests` → 435
+    passed.
+- [x] `zsh -n .agents/plugins/agentdev/bin/macos-bootstrap.zsh` passes, and
   `pre-commit run shellcheck --files .agents/plugins/agentdev/bin/macos-bootstrap.zsh`
   does not lint it, with an `exclude` on the hook if it would.
-- [ ] Root `AGENTS.md`'s Shell convention names the bootstrap as the one zsh
+  - **Evidence:** commit `470a78dd` adds the `exclude` to the `shellcheck` hook,
+    which otherwise fails with SC1071; at that commit `zsh -n` passes and the
+    hook reports `(no files to check)Skipped`.
+- [x] Root `AGENTS.md`'s Shell convention names the bootstrap as the one zsh
   script and why it is zsh, and `.agents/AGENTS.md`'s rule that every `bin/`
   script is Python names it as the exception.
+  - **Evidence:** commit `470a78dd` edits root `AGENTS.md` `### Shell` and the
+    `bin/` language rule in `.agents/AGENTS.md`.
 
 ### Task 3: Run the bootstrap on a macOS CI runner
 
