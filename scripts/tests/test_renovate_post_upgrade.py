@@ -1,10 +1,12 @@
-"""Tests for scripts/renovate-post-upgrade.sh, with its tools replaced by recording stubs."""
+"""Tests for scripts/renovate-post-upgrade.py, with its tools replaced by recording stubs."""
 
 from __future__ import annotations
 
 from collections.abc import Iterator
+import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 from uuid import uuid4
@@ -13,7 +15,7 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = 'scripts/renovate-post-upgrade.sh'
+SCRIPT = 'scripts/renovate-post-upgrade.py'
 LOCK = '.devcontainer/devcontainer-lock.json'
 DEV_TOOLS = 'ansible/roles/dev_tools/defaults/main.yml'
 IWE_CONFIG = '.iwe/config.toml'
@@ -245,3 +247,18 @@ def test_a_failed_iwe_fetch_fails_before_pre_commit(repo: Path) -> None:
 
     assert code != 0
     assert not any(call.startswith('iwe') or 'pre-commit' in call for call in calls)
+
+
+def test_renovate_reads_the_cli_pin_from_the_script() -> None:
+    """The custom manager's pattern still finds the devcontainer CLI pin in the script."""
+    config = json.loads((REPO_ROOT / '.github/renovate.json').read_text())
+    manager = next(
+        m
+        for m in config['customManagers']
+        if 'renovate-post-upgrade' in m['managerFilePatterns'][0]
+    )
+    pattern = manager['matchStrings'][0].replace('(?<', '(?P<')
+    found = re.search(pattern, (REPO_ROOT / SCRIPT).read_text())
+    assert found is not None
+    assert found['depName'] == '@devcontainers/cli'
+    assert SCRIPT in config['postUpgradeTasks']['commands']

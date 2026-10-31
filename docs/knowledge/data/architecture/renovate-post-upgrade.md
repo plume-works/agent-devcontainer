@@ -6,7 +6,7 @@ generated:
   at: 2026-10-09T14:00:00Z
 sources:
 - resource: .github/renovate.json
-- resource: scripts/renovate-post-upgrade.sh
+- resource: scripts/renovate-post-upgrade.py
 - resource: scripts/refresh-pin-checksums.py
 - resource: scripts/fetch-pinned-tool.py
 - resource: .github/workflows/reformat.yml
@@ -23,7 +23,7 @@ sources:
 ## Decision
 
 `.github/renovate.json` declares one top-level `postUpgradeTasks` in `branch`
-mode, running `scripts/renovate-post-upgrade.sh`, and `renovate.yml` allows
+mode, running `scripts/renovate-post-upgrade.py`, and `renovate.yml` allows
 exactly that command through the anchored `allowedCommands` pattern. The script
 derives the bump from `git diff HEAD` in Renovate's clone and, in order:
 

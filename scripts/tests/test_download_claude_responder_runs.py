@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -11,7 +12,7 @@ import textwrap
 
 def test_download_aggregates_only_current_run_artifacts(tmp_path: Path) -> None:
     """A reused output directory must not aggregate stale artifact cache entries."""
-    repo_root = Path(__file__).resolve().parents[3]
+    repo_root = Path(__file__).resolve().parents[2]
     output_dir = tmp_path / 'output'
     artifacts_dir = output_dir / 'artifacts'
     artifacts_dir.mkdir(parents=True)
@@ -79,7 +80,7 @@ def test_download_aggregates_only_current_run_artifacts(tmp_path: Path) -> None:
 
     subprocess.run(
         [
-            str(repo_root / 'scripts/download-claude-responder-runs.sh'),
+            str(repo_root / 'scripts/download-claude-responder-runs.py'),
             '--start',
             '2026-09-03T00:00:00Z',
             '--end',
@@ -103,3 +104,16 @@ def test_download_aggregates_only_current_run_artifacts(tmp_path: Path) -> None:
     assert aggregate['count'] == 1
     assert aggregate['unexpired'] == 1
     assert not (output_dir / 'downloads' / str(stale_run_id) / '.downloaded').exists()
+
+
+def test_the_runs_table_quotes_like_jq_csv(tmp_path: Path) -> None:
+    """Strings are quoted with doubled quotes, numbers bare, and null empty, as @csv does."""
+    spec = importlib.util.spec_from_file_location(
+        'download_runs',
+        Path(__file__).resolve().parents[2] / 'scripts/download-claude-responder-runs.py',
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    fields = [222, 'say "hi"', None, True]
+    assert ','.join(module.csv_field(f) for f in fields) == '222,"say ""hi""",,true'
