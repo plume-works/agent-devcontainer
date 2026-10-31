@@ -258,7 +258,9 @@ under `docs/knowledge/tests/`
 releases, and onboarding tasks); Modify: `docs/knowledge/tests/test_iwe_seed.py`
 only where it asserts the old layout
 
-- [ ] The scaffold's support files and `.iwe/` match the publisher workspace's
+- [x] The scaffold's support files and `.iwe/` match the publisher workspace's
+  - **Evidence:** commit 73ba80b7;
+    `test_scaffold_support_files_match_the_publisher_workspace` passed
 - [ ] The seed has flat sorted hubs, no `data/index.md`, no unreleased page, and
   a release example at `stage: released`
 - [ ] `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passes
