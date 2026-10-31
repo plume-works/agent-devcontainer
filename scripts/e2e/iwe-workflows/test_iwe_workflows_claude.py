@@ -1,6 +1,6 @@
 """Verify, Ship, Implement, and Explore on Claude Code, one clone per scenario."""
 
-from clone import Clone, CONFLICT, REVISE
+from clone import Clone, CONFLICT, REVISE, STRAY
 from harness_claude import ClaudeTranscript, run_claude
 import pytest
 from scenarios import (
@@ -94,6 +94,47 @@ def test_ship_approved(base_clone: Clone) -> None:
         f'internal plan adds no release entry\n{base_clone.unreleased_diff()}'
     )
     assert transcript.agent_prompts(VERIFIER) == [], f'Verify ran in place\n{dispatches}'
+
+
+def test_ship_reuses_saved_report(base_clone: Clone) -> None:
+    """Ship on the commit an approved Verify saved needs no approval and runs no command."""
+    verify = run(base_clone, 'saved-verify', f'/agentdev:iwe-verify {HELLO_KEY} — {APPROVAL}')
+    assert len(verify.agent_prompts(VERIFIER)) == 1, (
+        f'one iwe-verifier dispatch\n{verify.excerpt("Agent")}'
+    )
+    prompt = base_clone.saved_prompt(HELLO_KEY, 'verifier_prompt')
+    assert prompt is not None and APPROVAL in prompt, (
+        f'verifier prompt saved with the approval\n{base_clone.saved_report(HELLO_KEY)}'
+    )
+    verified = base_clone.head()
+    base_clone.remove_marker()
+    ship = run(base_clone, 'saved-ship', f'/agentdev:iwe-ship {HELLO_KEY}')
+    reports = ship.agent_results(SHIPPER)
+    assert len(reports) == 1, f'one iwe-shipper report\n{ship.excerpt("Agent")}'
+    assert not reports[0].lstrip().startswith('Needs decision'), f'no approval asked\n{reports[0]}'
+    assert verified[:7] in reports[0], f'saved report named\n{reports[0]}'
+    assert not base_clone.has_marker(), f'publish did not run again\n{ship.excerpt()}'
+
+
+def test_verify_refuses_dirty_worktree(base_clone: Clone) -> None:
+    """Verify on a worktree with an untracked file dispatches nothing and names the file."""
+    base_clone.add_stray()
+    transcript = run(base_clone, 'dirty-verify', f'/agentdev:iwe-verify {HELLO_KEY}')
+    dispatches = transcript.excerpt('Agent')
+    assert transcript.agent_prompts(VERIFIER) == [], f'no iwe-verifier dispatch\n{dispatches}'
+    assert STRAY in transcript.excerpt(), f'dirty file named\n{transcript.excerpt()}'
+    assert base_clone.saved_report(HELLO_KEY) is None, 'nothing saved'
+
+
+def test_needs_decision_not_reused(base_clone: Clone) -> None:
+    """A Needs decision report is not saved, so the approved re-run verifies again."""
+    first = run(base_clone, 'decision-verify', f'/agentdev:iwe-verify {HELLO_KEY}')
+    assert len(first.agent_prompts(VERIFIER)) == 1, f'first dispatch\n{first.excerpt("Agent")}'
+    assert base_clone.saved_report(HELLO_KEY) is None, 'Needs decision not saved'
+    prompt = f'/agentdev:iwe-verify {HELLO_KEY} — {APPROVAL}'
+    second = run(base_clone, 'decision-verify-approved', prompt)
+    assert len(second.agent_prompts(VERIFIER)) == 1, f'second dispatch\n{second.excerpt("Agent")}'
+    assert base_clone.has_marker(), f'publish ran\n{second.excerpt()}'
 
 
 def test_ship_all(base_clone: Clone) -> None:

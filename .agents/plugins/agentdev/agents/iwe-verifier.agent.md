@@ -89,7 +89,10 @@ runs in one of two modes:
      WARNING with the file and lines to review). For each `#### Scenario:`,
      check the condition is handled in code and covered by a test (uncovered
      scenario is a WARNING). Run the plan's `## Verification` commands and
-     report their actual output — a failing command is a CRITICAL.
+     report their actual output — a failing command is a CRITICAL. Then run
+     `git status --porcelain`: any output is a CRITICAL naming the dirty paths,
+     recommending that the command leave the worktree clean, because a saved
+     report describes a clean commit.
    - **Coherence** — the implementation follows the plan's `## Approach` (a
      different approach that works is a WARNING: either the code or the plan
      should change); `## Out of scope` items stayed out; the

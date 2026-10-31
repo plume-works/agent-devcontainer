@@ -120,6 +120,8 @@ runtime](features/standalone-remote-control-autostart.md)
 
 [Remote Control environment names](features/remote-control-environment-names.md)
 
+[Verify report cache](features/verify-report-cache.md)
+
 [Dev Container home volume](features/devcontainer-home-volume.md)
 
 [Claude Code and OpenCode are the only supported

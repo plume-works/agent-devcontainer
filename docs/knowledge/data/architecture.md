@@ -33,6 +33,8 @@ rejected are as valuable as the one you picked.*
 
 [Dispatched review identity](architecture/dispatched-review-identity.md)
 
+[Actions approval permission](architecture/actions-approval-permission.md)
+
 [Agent auth persistence](architecture/agent-auth-persistence.md)
 
 [Nested Docker provisioning](architecture/nested-docker-provisioning.md)

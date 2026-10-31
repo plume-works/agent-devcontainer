@@ -39,6 +39,8 @@ rewrites](backlog/resilient-task-evidence.md)
 [Exercise REMOVED delta blocks end to
 end](backlog/exercise-removed-delta-blocks.md)
 
+[Re-verify incrementally from a saved report](backlog/incremental-re-verify.md)
+
 ## Low
 
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
@@ -56,6 +58,9 @@ trigger](backlog/drop-claude-free-form-task-trigger.md)
 mechanically](backlog/detect-plan-narration-growth.md)
 
 ## Done
+
+[Exercise the saved Verify report end to
+end](backlog/e2e-verify-report-cache.md)
 
 [Run implement-all live against two
 plans](backlog/implement-all-multi-plan-e2e.md)

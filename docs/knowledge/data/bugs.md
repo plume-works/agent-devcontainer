@@ -13,6 +13,9 @@ generated:
 Its title, body sections, and stages are defined under Bugs in `SCHEMA.md` and
 enforced by `.iwe/schemas/bug.yaml`.*
 
+[Bug: an AI re-review that comments leaves its own change request blocking
+merge](bugs/ai-rereview-comment-keeps-changes-requested.md)
+
 [Bug: firewalled Docker Hub pulls fail at the CloudFront
 CDN](bugs/firewall-docker-hub-cloudfront.md)
 

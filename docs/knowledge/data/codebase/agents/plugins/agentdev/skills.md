@@ -2,14 +2,14 @@
 type: codebase
 description: The 41 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:8b98a157e189886b51e3f860605323e6177ab44d76bd5a108b988c1e1714ac4e
+source_digest: sha256:529b65db3a2da03898f393ebf7a1dd93ddceef630ea06fa1f928917b66b67713
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-30T18:00:00Z
 stale_after: 2027-01-28
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-30T18:00:00Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -40,13 +40,14 @@ directory (`agent-code/<file>`), uses `${CLAUDE_SKILL_DIR}` only in
 Skills with bundled scripts: `extract-github-actions-logs`, `git-commit`,
 `gh-stack`, `git-new-branch`, `git-merge-resolve`, `iwe-bootstrap`,
 `iwe-branch-name`, `iwe-capture`, `iwe-explore`, `iwe-map`, `iwe-plan`,
-`pr-gen-description`, `pr-open`, `pr-request-ai-review`, `pr-review`,
-`remote-codespace-session`, `template-consume`, `update-branch`. Skills with
-`references/` pages: `gh-stack`, `iwe-bootstrap`, `semantic-refactor-audit`,
-`template-consume`. `iwe-bootstrap` is the one skill with `assets/`: the blank
-IWE workspace it installs. `gh-stack`'s `SKILL.md` is the repository's own; its
-`references/upstream/` pages and `LICENSE` are copied unchanged from
-`github/gh-stack` at the release the image's `github_cli` role installs.
+`iwe-verify`, `pr-gen-description`, `pr-open`, `pr-request-ai-review`,
+`pr-review`, `remote-codespace-session`, `template-consume`, `update-branch`.
+Skills with `references/` pages: `gh-stack`, `iwe-bootstrap`,
+`semantic-refactor-audit`, `template-consume`. `iwe-bootstrap` is the one skill
+with `assets/`: the blank IWE workspace it installs. `gh-stack`'s `SKILL.md` is
+the repository's own; its `references/upstream/` pages and `LICENSE` are copied
+unchanged from `github/gh-stack` at the release the image's `github_cli` role
+installs.
 
 ## How it works
 
@@ -62,58 +63,63 @@ builds a conversation-free prompt and dispatches `iwe-shipper`, `iwe-implement`
 follows `iwe-implementer` in place, the two `-all` coordinators dispatch one
 agent per plan in dependency order with no conversation forwarded, and
 `iwe-implement` and `iwe-implement-all` also run that rulebook's
-`## Running the loop`, dispatching `iwe-verifier` after the tasks and
+`## Running the loop`, running Verify through `iwe-verify` after the tasks and
 `iwe-revision-evaluator` on a drafted revision. `iwe-plan` follows the
 `iwe-planner` agent in place, whose revise mode re-dispatches `iwe-shipper` when
 a revision answers its blocker report. Verify keeps its rulebook in the
 `iwe-verifier` agent: from a session `iwe-verify` dispatches it with a
 conversation-free prompt, and inside `iwe-shipper` it has the Shipper follow
-that rulebook in place. Scripts are bash or Python, pull in the matching
-[result-code helpers](bin.md), and end every path with `RESULT=<NAME>` on
-stdout; the `SKILL.md` carries a table keyed on those names. `iwe-capture` and
-`iwe-plan` each bundle a `close-issue.sh` that parses its arguments and
-delegates the view-then-close step to the shared `close_issue_with_comment`
-helper, so both report the same results. `iwe-map`'s `stale-map-docs.py` is the
-Python case: it fingerprints the tracked source behind every `data/codebase/`
-doc, normalizing content that an `iwe-map.digest_ignore` rule in an
-`.agent.metadata.json` designates machine-managed so an automerged pin bump does
-not register as a change. The metadata files themselves stay out of that
-fingerprint; a rule reaches a digest only as the pattern and replacement that
-applied. Its `--explain` flag prints one `MASK` line per applied rule, and it
-adds `BROKEN_METADATA` (exit 5) to the shared result vocabulary for metadata it
-cannot read, compile, or apply to a masked text file.
-`--replay [--since <date>]` bounds each verdict by the first-parent commit that
-established the document's recorded digest; the date can add evidence but cannot
-exclude that ancestry. A digest boundary is trusted only when that revision's
-source computes to the recorded digest, with committed blobs read under the same
-newline translation as the working tree. Replay uses NUL-separated Git paths,
-inventories hidden values across every current masked file, and prints
-`ABSORBED` or `MOVED` per commit or working-tree edit and file, then `RESTAMP`
-with a new digest for a non-fresh doc the rules explain and `REFRESH` for the
-rest. Metadata or masked-text failures found while collecting evidence become
-document-scoped `BROKEN_METADATA`. Refresh mode records docs that quote old
-values before shared masks and excludes them from re-stamping. The IWE family
-runs against the [knowledge workspace](../../../docs/knowledge.md).
-`template-consume` optionally initializes a consumer's knowledge by invoking
-`iwe-bootstrap` — after removing a copied publisher workspace only when it is
-byte-identical to the adopted ref — then hands onboarding to `iwe-setup` and
-`iwe-map`; update mode tracks only the reusable knowledge support files, never
-invokes bootstrap, and never replaces consumer-owned project memory. An optional
-Expo profile edits files the consumer already has, enables the official Expo
-plugin, and adds the Expo Bridge extension, Metro's port 8081 forwarded
-silently, and an `eas-host` iOS build rule with an EAS cloud fallback; it adds
-no tracked paths, so update mode reconciles it against the guide on every run.
-An update that finds the consumer still pinned to `agent-desktop` while the
-template pins `agentdev-devcontainer` first applies the guide's image-family
-migration as one unit — pins, Compose, descriptor, copied scripts, and tracked
-paths together — or, when declined, nothing. Its state is split three ways: the
-`template-consume` section of the consumer root's `.agent.metadata.json` is the
-only machine-parsed record of the adopted ref and the tracked paths —
-`check-updates.sh` reads nothing else, and a legacy `.agentdev-template.json` is
-consolidated into it on the next update; `.agentdev-template-progress.md` is the
-consumer-owned task and choice ledger that survives an interrupted setup; and
-`data/template-adoption` summarizes the episode for a consumer that kept the
-knowledge base.
+that rulebook in place. Both routes start and end at `iwe-verify`'s
+`verify-cache.py`: `lookup` refuses a dirty worktree and returns the one saved
+report for the plan under `.tmp/verify/` when its commit is `HEAD` and its
+catalog digest, over the files of the catalog the script runs from, still
+matches; `save` overwrites that report, recording the skill request and the
+verifier prompt in its frontmatter, and refuses a `Needs decision` verdict.
+Scripts are bash or Python, pull in the matching [result-code helpers](bin.md),
+and end every path with `RESULT=<NAME>` on stdout; the `SKILL.md` carries a
+table keyed on those names. `iwe-capture` and `iwe-plan` each bundle a
+`close-issue.sh` that parses its arguments and delegates the view-then-close
+step to the shared `close_issue_with_comment` helper, so both report the same
+results. `iwe-map`'s `stale-map-docs.py` is the Python case: it fingerprints the
+tracked source behind every `data/codebase/` doc, normalizing content that an
+`iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
+machine-managed so an automerged pin bump does not register as a change. The
+metadata files themselves stay out of that fingerprint; a rule reaches a digest
+only as the pattern and replacement that applied. Its `--explain` flag prints
+one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
+shared result vocabulary for metadata it cannot read, compile, or apply to a
+masked text file. `--replay [--since <date>]` bounds each verdict by the
+first-parent commit that established the document's recorded digest; the date
+can add evidence but cannot exclude that ancestry. A digest boundary is trusted
+only when that revision's source computes to the recorded digest, with committed
+blobs read under the same newline translation as the working tree. Replay uses
+NUL-separated Git paths, inventories hidden values across every current masked
+file, and prints `ABSORBED` or `MOVED` per commit or working-tree edit and file,
+then `RESTAMP` with a new digest for a non-fresh doc the rules explain and
+`REFRESH` for the rest. Metadata or masked-text failures found while collecting
+evidence become document-scoped `BROKEN_METADATA`. Refresh mode records docs
+that quote old values before shared masks and excludes them from re-stamping.
+The IWE family runs against the [knowledge
+workspace](../../../docs/knowledge.md). `template-consume` optionally
+initializes a consumer's knowledge by invoking `iwe-bootstrap` — after removing
+a copied publisher workspace only when it is byte-identical to the adopted ref —
+then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
+reusable knowledge support files, never invokes bootstrap, and never replaces
+consumer-owned project memory. An optional Expo profile edits files the consumer
+already has, enables the official Expo plugin, and adds the Expo Bridge
+extension, Metro's port 8081 forwarded silently, and an `eas-host` iOS build
+rule with an EAS cloud fallback; it adds no tracked paths, so update mode
+reconciles it against the guide on every run. An update that finds the consumer
+still pinned to `agent-desktop` while the template pins `agentdev-devcontainer`
+first applies the guide's image-family migration as one unit — pins, Compose,
+descriptor, copied scripts, and tracked paths together — or, when declined,
+nothing. Its state is split three ways: the `template-consume` section of the
+consumer root's `.agent.metadata.json` is the only machine-parsed record of the
+adopted ref and the tracked paths — `check-updates.sh` reads nothing else, and a
+legacy `.agentdev-template.json` is consolidated into it on the next update;
+`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
+that survives an interrupted setup; and `data/template-adoption` summarizes the
+episode for a consumer that kept the knowledge base.
 
 `git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
 `bin/git-default-branch.sh`: the first falls back to it when `--base` does not
@@ -170,7 +176,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-30):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -202,10 +208,18 @@ Verified anchor points (line numbers as of 2026-10-29):
   `check_map_freshness`, the push-time map gate
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — the `iwe-shipper`
   dispatch
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:34` — the `iwe-verifier`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:98` — the `iwe-verifier`
   dispatch
-- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:13` — the in-place route
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:73` — the in-place route
   for `iwe-shipper`
+- `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:16` — the saved-report
+  lookup and save
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:192` —
+  `run_lookup`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:213` —
+  `run_save`
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:153` —
+  `catalog_digest`
 - `.agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md:13` — one Shipper per
   plan
 - `.agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md:12` — one

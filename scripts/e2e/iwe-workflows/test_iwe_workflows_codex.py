@@ -6,7 +6,7 @@ Codex stores the dispatch message encrypted, so no prompt text is asserted, and
 command's run is asserted instead.
 """
 
-from clone import Clone, CONFLICT
+from clone import Clone, CONFLICT, STRAY
 from harness_codex import (
     catalog_mismatch,
     CodexTranscript,
@@ -126,6 +126,44 @@ def test_ship_approved(codex_clone: Clone) -> None:
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
     assert transcript.child_ran_publish(), f'shipper ran publish\n{transcript.children()}'
     assert transcript.agent_spawns(VERIFIER) == 0, f'Verify ran in place\n{transcript.spawns()}'
+
+
+def test_ship_reuses_saved_report(codex_clone: Clone) -> None:
+    """Ship on the commit an approved Verify saved needs no approval and runs no command."""
+    prompt = f'$agentdev:iwe-verify {HELLO_KEY} — {APPROVAL}'
+    verify = run(codex_clone, 'saved-verify', prompt)
+    assert verify.agent_spawns(VERIFIER) == 1, f'one iwe-verifier spawn\n{verify.spawns()}'
+    prompt = codex_clone.saved_prompt(HELLO_KEY, 'verifier_prompt')
+    assert prompt is not None and APPROVAL in prompt, (
+        f'verifier prompt saved with the approval\n{codex_clone.saved_report(HELLO_KEY)}'
+    )
+    verified = codex_clone.head()
+    ship = run(codex_clone, 'saved-ship', f'$agentdev:iwe-ship {HELLO_KEY}')
+    reports = ship.agent_results(SHIPPER)
+    assert len(reports) == 1, f'one iwe-shipper report\n{ship.spawns()}'
+    assert not reports[0].lstrip().startswith('Needs decision'), f'no approval asked\n{reports[0]}'
+    assert verified[:7] in reports[0], f'saved report named\n{reports[0]}'
+    assert not ship.ran_publish(), f'publish did not run again\n{ship.children()}'
+
+
+def test_verify_refuses_dirty_worktree(codex_clone: Clone) -> None:
+    """Verify on a worktree with an untracked file spawns nothing and names the file."""
+    codex_clone.add_stray()
+    transcript = run(codex_clone, 'dirty-verify', f'$agentdev:iwe-verify {HELLO_KEY}')
+    assert transcript.agent_spawns(VERIFIER) == 0, f'no iwe-verifier spawn\n{transcript.spawns()}'
+    assert STRAY in transcript.excerpt(), f'dirty file named\n{transcript.excerpt()}'
+    assert codex_clone.saved_report(HELLO_KEY) is None, 'nothing saved'
+
+
+def test_needs_decision_not_reused(codex_clone: Clone) -> None:
+    """A Needs decision report is not saved, so the approved re-run verifies again."""
+    first = run(codex_clone, 'decision-verify', f'$agentdev:iwe-verify {HELLO_KEY}')
+    assert first.agent_spawns(VERIFIER) == 1, f'first spawn\n{first.spawns()}'
+    assert codex_clone.saved_report(HELLO_KEY) is None, 'Needs decision not saved'
+    prompt = f'$agentdev:iwe-verify {HELLO_KEY} — {APPROVAL}'
+    second = run(codex_clone, 'decision-verify-approved', prompt)
+    assert second.agent_spawns(VERIFIER) == 1, f'second spawn\n{second.spawns()}'
+    assert second.child_ran_publish(), f'verifier ran publish\n{second.children()}'
 
 
 def test_ship_all(codex_clone: Clone) -> None:
