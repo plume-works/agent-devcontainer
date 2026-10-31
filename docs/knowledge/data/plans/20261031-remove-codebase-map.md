@@ -273,17 +273,26 @@ Modify, in this workspace and byte-identically in the scaffold:
 `.iwe/schemas/task.yaml`, `docs/knowledge/AGENTS.md`,
 `docs/knowledge/SCHEMA.md`, `docs/knowledge/CHANGELOG.md`.
 
-- [ ] `task.yaml` accepts `stage: cancelled` beside `planned` and `done`, in
+- [x] `task.yaml` accepts `stage: cancelled` beside `planned` and `done`, in
   both copies.
-- [ ] `SCHEMA.md` lists `cancelled` in the task example's stage comment and maps
+  - **Evidence:** commit cf99950 "Let a backlog task be cancelled" edits both
+    `task.yaml` copies, byte-identical.
+- [x] `SCHEMA.md` lists `cancelled` in the task example's stage comment and maps
   task `cancelled` to `status: deprecated` in the `stage` versus `status` table,
   dropping `task` from the types that never set `status`; `AGENTS.md` lists
   `planned|done|cancelled` for backlog and adds a "Task dropped" operating-loop
   item: `stage: cancelled`, link moved to `## Cancelled` in `data/backlog.md`.
-- [ ] `CHANGELOG.md` gains an `### Added` entry under `[Unreleased]` for the
+  - **Evidence:** commit cf99950 "Let a backlog task be cancelled" edits both
+    `SCHEMA.md` and `AGENTS.md` copies, byte-identical.
+- [x] `CHANGELOG.md` gains an `### Added` entry under `[Unreleased]` for the
   task `cancelled` stage.
-- [ ] `uv run pytest docs/knowledge/tests` passes, and `iwe schema validate`
+  - **Evidence:** commit cf99950 "Let a backlog task be cancelled" adds the
+    entry to both `CHANGELOG.md` copies.
+- [x] `uv run pytest docs/knowledge/tests` passes, and `iwe schema validate`
   passes from the repository root.
+  - **Evidence:** on commit cf99950 "Let a backlog task be cancelled",
+    `uv run pytest docs/knowledge/tests` passed (40) and `iwe schema validate`
+    exited 0.
 
 ### Task 6: Update the knowledge graph
 
