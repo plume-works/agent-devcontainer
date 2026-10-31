@@ -172,12 +172,16 @@ under `docs/knowledge/tests/`
   hub
   - **Evidence:** commit 59a15b09; iwe-shipper Step 2 sets `stage: cancelled`,
     removes `rank`, and leaves `data/plans.md` untouched
-- [ ] Release mode builds `releases/<X.Y.Z>.md` from
+- [x] Release mode builds `releases/<X.Y.Z>.md` from
   `iwe find --filter '{type: plan, stage: done, completed: {$gt: <previous release date>}}'`
   and each plan's `release` list — a feature absent from every earlier release
   page under Added, one present under Changed, a bug under Fixed — links it from
   `data/releases.md` in sorted position, and adds one dated group to
   `data/log.md`
+  - **Evidence:** commit 59a15b09; iwe-shipper Step 8 lists plans by the
+    `completed` filter, classifies each `release` key against earlier release
+    pages into Added, Changed, and Fixed, links the page in sorted position, and
+    adds one `data/log.md` group
 - [ ] Resuming a partial ship or release cut never writes a second copy of a
   release link or log group
 - [ ] The release page this procedure builds for the plans completed since 1.0.0
