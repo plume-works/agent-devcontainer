@@ -43,6 +43,8 @@ FIXTURE_PLANS = (
 MARKER = 'published.marker'
 # An untracked file no fixture plan claims, so Verify sees a dirty worktree.
 STRAY = 'e2e/stray.txt'
+# What the bundling variant's verification command leaves untracked.
+BUNDLE = 'e2e/hello.bundle'
 GREET_TASK = re.compile(r'^- \[ \] Write `e2e/greet\.txt`', re.MULTILINE)
 TICKED_WITH_EVIDENCE = re.compile(
     r'^- \[x\] .*\n(?:  .*\n)*?  - \*\*Evidence:\*\* \S', re.MULTILINE
@@ -281,6 +283,13 @@ class Clone(Repo):
         """Leave an untracked file in the worktree."""
         (self.path / STRAY).write_text('stray\n')
 
+    def bundle_on_verify(self) -> None:
+        """Commit the hello plan variant whose verification command leaves ``BUNDLE`` behind."""
+        shutil.copy2(FIXTURES / 'plans/20261008-e2e-hello.bundling.md', self.path / HELLO)
+        shutil.copy2(FIXTURES / 'bin/bundle-e2e.sh', self.path / 'bin')
+        self.iwe_check()
+        self.commit_all('e2e: hello verification bundles its file')
+
     def saved_report(self, key: str) -> str | None:
         """Return the saved Verify report for plan ``key``, or ``None`` when none was saved."""
         report = self.path / '.tmp/verify' / f'{Path(key).name}.md'
@@ -291,6 +300,11 @@ class Clone(Repo):
         report = self.saved_report(key)
         block = re.search(rf'^{field}: \|2-\n((?:  .*\n|\n)*)', report or '', re.MULTILINE)
         return None if block is None else re.sub(r'^  ', '', block.group(1), flags=re.MULTILINE)
+
+    def saved_field(self, key: str, field: str) -> str | None:
+        """Return the one-line ``field`` of plan ``key``'s saved report, or ``None``."""
+        found = re.search(rf'^{field}: (.*)$', self.saved_report(key) or '', re.MULTILINE)
+        return None if found is None else found.group(1)
 
     def status(self) -> str:
         """Return ``git status --porcelain``; empty means a clean tree."""
