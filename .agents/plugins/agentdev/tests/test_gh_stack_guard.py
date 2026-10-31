@@ -293,6 +293,21 @@ def test_begin_fast_forwards_a_layer_its_remote_is_ahead_of(
     assert stack.remote_tip('layer-b') == remote_sha
 
 
+def test_begin_fast_forwards_a_layer_in_a_worktree_with_a_non_utf8_path(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """Worktree paths are read as bytes, so a Latin-1 directory name cannot crash begin."""
+    linked = stack.root / os.fsdecode(b'caf\xe9-layer-a')
+    git(stack.work, 'worktree', 'add', '-q', str(linked), 'layer-a')
+    remote_sha = stack.peer_commit('layer-a', 'R-fix')
+
+    completed, keys = guard(plugin_root, stack, 'begin')
+
+    assert outcome(completed) == (0, 'RESULT=SUCCESS'), completed.stderr
+    assert keys['FAST_FORWARDED'] == ['layer-a']
+    assert git(linked, 'rev-parse', 'HEAD') == remote_sha
+
+
 def test_begin_stops_when_local_and_remote_each_gained_a_commit(
     plugin_root: Path, stack: Stack
 ) -> None:
@@ -305,6 +320,27 @@ def test_begin_stops_when_local_and_remote_each_gained_a_commit(
     assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
     assert 'R-fix' in completed.stderr
     assert git(stack.work, 'rev-parse', 'layer-b') == local_before
+
+
+def test_begin_reads_a_diverged_layer_whose_diffs_are_not_utf8(
+    plugin_root: Path, stack: Stack
+) -> None:
+    """Patch content is compared as bytes, so a Latin-1 file on either side cannot crash it."""
+    git(stack.peer, 'fetch', '-q', 'origin')
+    git(stack.peer, 'switch', '-q', 'layer-b')
+    (stack.peer / 'latin1.txt').write_bytes(b'caf\xe9 remote\n')
+    git(stack.peer, 'add', 'latin1.txt')
+    git(stack.peer, 'commit', '-q', '-m', 'R-latin1')
+    git(stack.peer, 'push', '-q', 'origin', 'layer-b')
+    (stack.work / 'latin1-local.txt').write_bytes(b'caf\xe9 local\n')
+    git(stack.work, 'add', 'latin1-local.txt')
+    git(stack.work, 'commit', '-q', '-m', 'L-latin1')
+
+    completed, _ = guard(plugin_root, stack, 'begin')
+
+    assert outcome(completed) == (3, 'RESULT=REMOTE_ONLY_COMMITS')
+    assert 'R-latin1' in completed.stderr
+    assert 'Traceback' not in completed.stderr
 
 
 def test_begin_stops_on_a_remote_only_merge_of_trunk(plugin_root: Path, stack: Stack) -> None:

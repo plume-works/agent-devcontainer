@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from collections import Counter
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -218,19 +219,21 @@ class Guard:
         The key is the verbatim patch-id (the default ignores whitespace), or "empty"
         for an empty diff.
         """
-        log = run_tool(
-            'git', 'log', '-p', '--no-merges', '--no-color', '--no-ext-diff',
-            '--format=commit %H', *arguments,
+        # Patches stay bytes: a diff of a file in any encoding must not stop the check.
+        log = subprocess.run(
+            ['git', 'log', '-p', '--no-merges', '--no-color', '--no-ext-diff',
+             '--format=commit %H', *arguments],
+            check=False,
+            stdout=subprocess.PIPE,
         )  # fmt: skip
         patch_ids = subprocess.run(
             ['git', 'patch-id', '--verbatim'],
             check=False,
             input=log.stdout,
-            capture_output=True,
-            text=True,
+            stdout=subprocess.PIPE,
         )
         ids = {}
-        for line in patch_ids.stdout.splitlines():
+        for line in patch_ids.stdout.decode('ascii').splitlines():
             patch_id, _, sha = line.partition(' ')
             ids[sha] = patch_id
         commits = git_out('rev-list', '--reverse', '--no-merges', *arguments).split()
@@ -312,7 +315,11 @@ class Guard:
     def worktree_of(layer: str) -> str:
         """Return the worktree that has `layer` checked out, or ''."""
         path = ''
-        for line in git_out('worktree', 'list', '--porcelain').splitlines():
+        # Paths are printed raw; os.fsdecode keeps a non-UTF-8 one usable for `git -C`.
+        listing = subprocess.run(
+            ['git', 'worktree', 'list', '--porcelain'], check=False, stdout=subprocess.PIPE
+        ).stdout
+        for line in os.fsdecode(listing).splitlines():
             if line.startswith('worktree '):
                 path = line.removeprefix('worktree ')
             elif line == f'branch refs/heads/{layer}':

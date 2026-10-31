@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import subprocess
 import sys
 from typing import NamedTuple
 
@@ -271,8 +272,14 @@ def create_worktree(options: Options, start_sha: str) -> int:
 
 
 def null_separated(*arguments: str) -> list[str]:
-    """Return the NUL-separated paths a git command prints."""
-    return [path for path in run_tool('git', *arguments).stdout.split('\0') if path]
+    """
+    Return the NUL-separated paths a git command prints, in any encoding.
+
+    `-z` turns off git's quoting, so names arrive as raw bytes; `os.fsdecode`
+    keeps a non-UTF-8 name round-trippable instead of failing on it.
+    """
+    listing = subprocess.run(['git', *arguments], check=False, capture_output=True).stdout
+    return [os.fsdecode(path) for path in listing.split(b'\0') if path]
 
 
 def blocked_paths(start_sha: str) -> list[str]:
@@ -345,8 +352,10 @@ def create_in_place(
             print_error(
                 f'Uncommitted changes touch paths that differ between HEAD and {base_ref}:'
             )
+            sys.stderr.flush()
             for path in blocked:
-                print(f'  {path}', file=sys.stderr)
+                sys.stderr.buffer.write(b'  ' + os.fsencode(path) + b'\n')
+            sys.stderr.buffer.flush()
             print_error(
                 'Nothing was changed. Rerun with --stash only after the user approves stashing.'
             )
