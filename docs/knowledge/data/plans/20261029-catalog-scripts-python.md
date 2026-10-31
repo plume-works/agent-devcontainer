@@ -186,7 +186,10 @@ are
     `test_git_merge_resolve.py` passed against both implementations with
     identical normalized stdout, stderr, and exit codes on all 62 script runs,
     and `--help`, an unknown option, and a missing option value matched for each
-    script; `uv run pytest .agents/plugins/agentdev/tests` passed (366).
+    script; `uv run pytest .agents/plugins/agentdev/tests` passed (366). Commit
+    7ef1324 gives `test_git_merge_resolve.py`'s merge-in-progress setup the
+    fixture identity it lacked on CI; the suite passed (470) with no git
+    identity configured.
 - [x] `git-new-branch.py` decides the worktree parent in a function of the main
   checkout path, the runtime mode, and `--worktree-root`; a test calls it for a
   checkout directly under `/workspaces` in standalone and in other modes, and
