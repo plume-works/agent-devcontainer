@@ -56,6 +56,11 @@ alive beside their supervised twins ([CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
 bootstrap is removed at the user's decision.
 
+The user decided that the Coder template's agent-start parameter becomes a
+command defaulting to `agentdev-runtime coder start`, since a CLI subcommand is
+no path the template can test for; the template maps the legacy script path that
+existing workspaces stored onto that default.
+
 The user decided that the AI responder installs `agentdev-runtime` from the
 checkout when its pinned image lacks it, so the responder keeps working, on this
 plan's own pull request and after merge, until the image pin moves to an image
@@ -738,7 +743,24 @@ Delete: `docker/desktop/start-xpra.sh`
     `ready --no-wait`, and `attached`, and exits 0. The package directory in the
     checkout gains no `build/` tree.
 
-### Task 19: Verify the published image family
+### Task 19: The Coder template starts the agent through the CLI
+
+**Files:** Modify, in
+[plume-works/coder-ide-baseline](https://github.com/plume-works/coder-ide-baseline):
+`template/main.tf`
+
+- [ ] The `agent_start_script` parameter becomes a command run in the repository
+  checkout, defaulting to `agentdev-runtime coder start`; its `display_name` and
+  `description` say so. `coder_script.agent_start` runs the value when its first
+  word resolves through `command -v`, runs the default in place of the legacy
+  value `.devcontainer/scripts/coder-agent-start.sh` that existing workspaces
+  stored, and otherwise logs that the repository ships no agent-start command
+  and exits 0.
+- [ ] The template change merges through its own pull request with its
+  `Docker Build and Push` check passing, and the new template version is pushed
+  to Coder before this plan's pull request merges.
+
+### Task 20: Verify the published image family
 
 **Files:** None.
 
@@ -837,7 +859,6 @@ scenario keeps its behaviour.
 | [Devcontainer Docker storage](../spec/devcontainer-docker-storage.md)   | `coder-agent-start.sh`, `docker-image-prune.sh`                                                                                                                           | `coder start`, `docker prune`                                                                       |
 | [Devcontainer Codex policy](../spec/devcontainer-codex-policy.md)       | `postStartCommand.sh`, `configure-codex.py`                                                                                                                               | `lifecycle ready`, `state agent-policy`                                                             |
 | [Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md) | `postStartCommand.sh`, `configure-opencode.py`                                                                                                                            | `lifecycle ready`, `state agent-policy`                                                             |
-| [Coder IDE baseline](../spec/coder-ide-baseline.md)                     | `.devcontainer/scripts/coder-agent-start.sh`                                                                                                                              | `agentdev-runtime coder start`                                                                      |
 | [Xpra port forwarding](../spec/xpra-port-forwarding.md)                 | `start-xpra.sh`                                                                                                                                                           | `xpra`                                                                                              |
 | [Dependency updates](../spec/dependency-updates.md)                     | `scripts/renovate-post-upgrade.sh`                                                                                                                                        | `scripts/renovate-post-upgrade.py`                                                                  |
 
@@ -847,6 +868,45 @@ gains a normative outcome. A start that returns without leaving a live
 `claude-remote` session SHALL count as the session exiting, so the runtime
 restarts it and, once the recovery budget is exhausted, reports degraded naming
 `remote-control`, or latches failed under strict startup.
+
+[Coder IDE baseline](../spec/coder-ide-baseline.md), Task 19 — the start hook
+becomes a command, and every other mention of `coder-agent-start.sh` in the spec
+names `agentdev-runtime coder start`:
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: the agent-start command is the repository's only start hook
+
+The template SHALL run, on every start of the Dev Container's sub-agent, the
+command that the `agent_start_script` workspace parameter names, in the
+repository checkout. The value defaults to `agentdev-runtime coder start`. The
+command SHALL run under the sub-agent, so it inherits the agent's environment,
+including Coder user secrets. The legacy value
+`.devcontainer/scripts/coder-agent-start.sh`, the template's former default,
+SHALL run the default command. When the value is empty, or
+its first word does not resolve to a command, nothing SHALL run and the
+script's log SHALL say so. The template SHALL NOT name any other command in
+this repository; new agent-start steps belong in `agentdev-runtime coder start`.
+
+#### Scenario: the repository ships the CLI
+
+- **WHEN** the workspace starts with the default parameter value
+- **THEN** `agentdev-runtime coder start` runs in the Dev Container with the
+  Coder user secrets in its environment.
+
+#### Scenario: a workspace stored the legacy script path
+
+- **WHEN** the workspace starts with `agent_start_script` set to
+  `.devcontainer/scripts/coder-agent-start.sh`
+- **THEN** `agentdev-runtime coder start` runs, as it would for the default.
+
+#### Scenario: another repository has no agent-start command
+
+- **WHEN** the configured command does not resolve in the Dev Container
+- **THEN** the start script logs that the repository ships no agent-start
+  command and exits without error.
+```
 
 ## Depends on
 
