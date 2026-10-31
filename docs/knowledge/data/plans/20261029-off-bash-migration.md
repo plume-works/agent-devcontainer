@@ -485,11 +485,19 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/claude-remote-control-session.sh`,
 `.devcontainer/scripts/claude-remote-control-pin.sh`
 
-- [ ] `agentdev-runtime remote-control run|check|start|session [name]|pin` keeps
+- [x] `agentdev-runtime remote-control run|check|start|session [name]|pin` keeps
   the credential-signature watch, the mode and spawn validation, the
   `tmux -L claude-remote` server, the pinned-conversation resume, and the
   SessionStart hook, whose command in `--settings` becomes
   `agentdev-runtime remote-control pin`.
+  - **Evidence:** commit e457d98; `test_runtime_remote_control.py`,
+    `test_claude_remote_control_start.py` (fake and real tmux),
+    `test_claude_remote_control_session.py`, and
+    `test_claude_remote_control_pin.py` pass through the CLI. Deploy acceptance
+    (24 passed, including the Remote Control login, start, and recovery cases)
+    and the Dev Container image suite pass against images built from merge
+    f3c202d. One image-suite run failed once, on the open CBM start latch; the
+    test passed on both re-runs.
 
 ### Task 12: Workspace, project, and git helpers
 
