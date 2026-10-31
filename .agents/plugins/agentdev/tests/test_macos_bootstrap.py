@@ -262,6 +262,78 @@ def test_rerun_keeps_one_marker_block_and_preserves_other_content(host: Host) ->
     assert '.local/bin' in block
 
 
+def login_shell_stub(python3: str, version: str) -> str:
+    """Body of a login shell stub that resolves ``python3`` to a fixed answer."""
+    return f"""
+case "$*" in
+  *'command -v python3'*) echo "{python3}" ;;
+  *'python3 --version'*) echo "Python {version}" ;;
+esac
+"""
+
+
+def test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content(host: Host) -> None:
+    host.trust_archives()
+    host.stub('fish', 'exit 0')
+    conf = host.home / '.config' / 'fish' / 'conf.d' / 'agentdev.fish'
+    conf.parent.mkdir(parents=True)
+    before, after = 'set -gx EDITOR vim\n', '\nabbr -a ll ls -l\n'
+    conf.write_text(before)
+
+    host.run('--skip-plugins')
+    with conf.open('a') as handle:
+        handle.write(after)
+    result = host.run('--skip-plugins')
+
+    assert result.returncode == 0, result.stderr
+    content = conf.read_text()
+    assert content.count(MARKER_BEGIN) == 1
+    assert content.count(MARKER_END) == 1
+    start = content.index(MARKER_BEGIN)
+    end = content.index(MARKER_END) + len(MARKER_END) + 1
+    assert content[:start] == before
+    assert content[end:] == after
+    block = content[start:end].splitlines()
+    shellenv = next(i for i, line in enumerate(block) if 'shellenv fish' in line)
+    add_path = next(i for i, line in enumerate(block) if line.startswith('fish_add_path'))
+    assert shellenv < add_path
+    assert '.local/bin' in block[add_path]
+
+
+def test_no_fish_block_without_fish(host: Host) -> None:
+    host.trust_archives()
+    host.env['SHELL'] = '/bin/zsh'
+
+    result = host.run('--skip-plugins')
+
+    assert result.returncode == 0, result.stderr
+    assert not (host.home / '.config' / 'fish').exists()
+
+
+def test_user_shell_resolving_another_python_fails_its_check(host: Host) -> None:
+    host.trust_archives()
+    host.stub('othersh', login_shell_stub('/opt/homebrew/bin/python3', '3.14.0'))
+    host.env['SHELL'] = str(host.stub_dir / 'bin' / 'othersh')
+
+    result = host.run('--skip-plugins')
+
+    assert result.returncode != 0
+    assert 'othersh' in result.stderr
+    assert 'python3' in result.stderr
+
+
+def test_user_shell_resolving_the_provisioned_python_passes(host: Host) -> None:
+    host.trust_archives()
+    provisioned = host.home / '.local' / 'bin' / 'python3'
+    host.stub('othersh', login_shell_stub(str(provisioned), host.env['STUB_UV_PYTHON']))
+    host.env['SHELL'] = str(host.stub_dir / 'bin' / 'othersh')
+
+    result = host.run('--skip-plugins')
+
+    assert result.returncode == 0, result.stderr
+    assert any(call.startswith('othersh -l -c') for call in host.calls('othersh'))
+
+
 def test_stock_python_first_on_path_fails_the_python_check(host: Host) -> None:
     host.trust_archives()
     del host.env['STUB_UV_PYTHON']
