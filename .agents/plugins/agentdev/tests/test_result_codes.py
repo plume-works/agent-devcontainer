@@ -91,3 +91,33 @@ def test_python_unknown_code_renders_as_unknown(plugin_root: Path) -> None:
 
     # Assert
     assert (process.returncode, process.stdout) == (7, 'RESULT=UNKNOWN_CODE_7\n')
+
+
+def test_python_uncaught_exception_prints_one_line_and_no_traceback(plugin_root: Path) -> None:
+    """An escaping exception is named in one stderr line; status and RESULT are unchanged."""
+    # Act
+    process = run_python_helper(plugin_root, 'raise ValueError("bad fixture input")')
+
+    # Assert
+    assert (process.returncode, process.stdout) == (1, 'RESULT=SCRIPT_FAILURE\n')
+    assert process.stderr == 'ERROR: -c: ValueError: bad fixture input\n'
+
+
+def test_python_failed_subprocess_prints_its_own_stderr(plugin_root: Path) -> None:
+    """A CalledProcessError names the command's failure and adds the command's stderr."""
+    # Act
+    process = run_python_helper(
+        plugin_root,
+        'import subprocess\n'
+        "subprocess.run(['sh', '-c', 'echo fixture boom >&2; exit 3'],"
+        ' check=True, capture_output=True, text=True)',
+    )
+
+    # Assert
+    assert (process.returncode, process.stdout) == (1, 'RESULT=SCRIPT_FAILURE\n')
+    assert 'Traceback' not in process.stderr
+    assert process.stderr.splitlines() == [
+        "ERROR: -c: CalledProcessError: Command '['sh', '-c', 'echo fixture boom >&2; exit 3']'"
+        ' returned non-zero exit status 3.',
+        'fixture boom',
+    ]

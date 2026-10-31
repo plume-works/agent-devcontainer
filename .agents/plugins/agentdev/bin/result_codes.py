@@ -16,7 +16,9 @@ from __future__ import annotations
 import atexit
 from collections.abc import Callable
 import os
+from pathlib import Path
 import signal
+import subprocess
 import sys
 from types import FrameType
 
@@ -32,7 +34,6 @@ RESULT_CODES: dict[int, str] = {
 _SIGNAL_CODES = {signal.SIGHUP: 129, signal.SIGINT: 130, signal.SIGTERM: 143}
 
 _result_emitted = False
-_previous_excepthook = sys.excepthook
 
 
 def emit_result(code: int) -> None:
@@ -79,10 +80,23 @@ def _report_signal(signal_number: int, _frame: FrameType | None) -> None:
     os.kill(os.getpid(), signal_number)
 
 
-def _excepthook(kind: type[BaseException], value: BaseException, traceback: object) -> None:
-    """Record the exit status an escaping exception implies, then report it."""
+def _excepthook(kind: type[BaseException], value: BaseException, _traceback: object) -> None:
+    """
+    Record the exit status an escaping exception implies, and name it in one line.
+
+    A failed command's own stderr follows, since it usually says why.
+    """
     _record_exit(value)
-    _previous_excepthook(kind, value, traceback)  # type: ignore[arg-type]
+    print(f'ERROR: {Path(sys.argv[0]).name}: {kind.__name__}: {value}', file=sys.stderr)
+    detail = (
+        getattr(value, 'stderr', None)
+        if isinstance(value, subprocess.CalledProcessError)
+        else None
+    )
+    if isinstance(detail, bytes):
+        detail = detail.decode(errors='replace')
+    if detail:
+        sys.stderr.write(detail if detail.endswith('\n') else f'{detail}\n')
 
 
 def run(main: Callable[[], int | None]) -> None:
@@ -92,7 +106,7 @@ def run(main: Callable[[], int | None]) -> None:
     The entry point every Python skill script uses. ``SystemExit`` bypasses
     ``sys.excepthook``, so a bare ``sys.exit(2)`` inside `main` is only
     observable by catching it here — this is what keeps the RESULT name and the
-    exit status agreeing on every path, as ``$?`` does for the bash helper.
+    exit status agreeing on every path.
     """
     try:
         code = main() or 0
@@ -104,8 +118,6 @@ def run(main: Callable[[], int | None]) -> None:
 
 def install() -> None:
     """Install the exit hook, the exception hook, and the signal handlers."""
-    global _previous_excepthook
-    _previous_excepthook = sys.excepthook
     sys.excepthook = _excepthook
     atexit.register(_report_unhandled_exit)
     for terminating_signal in _SIGNAL_CODES:
