@@ -7,7 +7,7 @@ release:
 description: Keep work-item state only in frontmatter, order active work by a global rank field, flatten the hubs into alphabetical membership lists, write the log and release pages only at a release cut, and drop OKF conformance, in this workspace and the bootstrap scaffold.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T12:30:00Z
+  at: 2026-10-31T14:00:00Z
 sources:
 - resource: .iwe/config.toml
 - resource: .iwe/schemas/hub.yaml
@@ -21,11 +21,11 @@ sources:
 
 ## Context
 
-Most catch-up merges on this repository's pull requests resolve conflicts in the
-knowledge graph, and none of those conflicts is a disagreement about content.
-Every pull request that files, ships, or logs work edits the same spots in the
-same shared files: the top of today's group in `data/log.md`, the `## Active`
-and `## Done` sections of `data/plans.md`, the backlog priority sections, and
+Catch-up merges on this repository's pull requests resolve conflicts in the
+knowledge graph that are never disagreements about content. Every pull request
+that files, ships, or logs work edits the same spots in the same shared files:
+the top of today's group in `data/log.md`, the `## Active` and `## Done`
+sections of `data/plans.md`, the backlog priority sections, and
 `data/releases/unreleased.md`. Each conflict costs a catch-up merge, a full CI
 run, agent tokens, and often a fresh AI review.
 
@@ -172,7 +172,7 @@ under `docs/knowledge/tests/`
   and no reference to a hub section
 - [ ] Map writes no log entry
 - [ ] Validation with
-  `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes
 
 ### Task 8: The workspace manuals describe the layout
@@ -304,6 +304,21 @@ a release page or the log.
 - **WHEN** a prior release cut already wrote some of its results
 - **THEN** the cut preserves them and writes no second release link or log
   group
+
+### Requirement: Workflow improvements preserve the IWE model
+
+The strengthened skills SHALL continue to use IWE's single-plan-document
+workflow, graph links, durable specs, existing stage conventions, provenance
+requirements, and schema validation. Risk-scaled spec deltas SHALL remain
+embedded planning content without introducing OpenSpec change bundles, stores,
+separate delta files, archive moves, or a claimed programmatic delta application
+engine.
+
+#### Scenario: Updated skills write project memory
+
+- **WHEN** an updated skill creates or meaningfully changes an IWE document
+- **THEN** it follows the existing metadata, graph membership, normalization,
+  validation, and commit requirements defined by the workspace
 
 ## MODIFIED Requirements
 
@@ -451,21 +466,20 @@ its hub and end with `iwe normalize` and `iwe schema validate` passing.
   defect or work its plan should not absorb
 - **THEN** it hands the item to Capture rather than writing the document itself
 
-### Requirement: Workflow improvements preserve the IWE model
+## REMOVED Requirements
 
-The strengthened skills SHALL continue to use IWE's single-plan-document
-workflow, graph links, durable specs, existing stage conventions, provenance
-requirements, and schema validation. Risk-scaled spec deltas SHALL remain
-embedded planning content without introducing OpenSpec change bundles, stores,
-separate delta files, archive moves, or a claimed programmatic delta application
-engine.
+### Requirement: Workflow improvements preserve the IWE and OKF model
 
-#### Scenario: Updated skills write project memory
-
-- **WHEN** an updated skill creates or meaningfully changes an IWE document
-- **THEN** it follows the existing metadata, graph membership, normalization,
-  validation, and commit requirements defined by the workspace
+Replaced by "Workflow improvements preserve the IWE model": the graph no
+longer follows OKF, so the requirement drops OKF metadata and the `status`
+convention.
 ```
+
+## Depends on
+
+- [Remove Codex support](20261031-remove-codex.md) ships first: it removes the
+  Codex marketplace from agent-file validation and the Codex e2e harness, and
+  edits the same catalog agents and skills this plan rewrites.
 
 ## Verification
 
@@ -473,7 +487,7 @@ engine.
 - `iwe stats` reports no broken link.
 - `uv run pytest docs/knowledge/tests` passes, including the hub-order test and
   the seed tests.
-- `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+- `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes.
 - `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes.
 - `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys` prints the
