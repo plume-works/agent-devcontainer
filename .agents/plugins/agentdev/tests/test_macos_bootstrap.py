@@ -20,6 +20,23 @@ pytestmark = pytest.mark.skipif(ZSH is None, reason='the bootstrap runs under zs
 MARKER_BEGIN = '# >>> agentdev macos-bootstrap >>>'
 MARKER_END = '# <<< agentdev macos-bootstrap <<<'
 VERSION_TOOLS = ('jq', 'gh', 'shellcheck', 'bun', 'pre-commit')
+# The host tools the script and its stubs run; nothing else on the host leaks onto PATH.
+SYSTEM_TOOLS = (
+    'awk',
+    'basename',
+    'bash',
+    'cat',
+    'chmod',
+    'cp',
+    'env',
+    'gzip',
+    'install',
+    'mkdir',
+    'mktemp',
+    'rm',
+    'tar',
+    'zsh',
+)
 
 LOGGING_STUB = """#!/bin/bash
 printf '%s\\n' "$(basename "$0") $*" >> "$STUB_LOG"
@@ -143,11 +160,14 @@ def host(plugin_root: Path, plugin_tmp_path: Path) -> Host:
     script = plugin_root / 'bin' / 'macos-bootstrap.zsh'
     home = plugin_tmp_path / 'home'
     stub_dir = plugin_tmp_path / 'stubs'
-    for directory in (home, stub_dir / 'bin', stub_dir / 'archives', stub_dir / 'sha256'):
+    system = stub_dir / 'system'
+    for directory in (home, stub_dir / 'bin', stub_dir / 'archives', stub_dir / 'sha256', system):
         directory.mkdir(parents=True)
+    for tool in SYSTEM_TOOLS:
+        (system / tool).symlink_to(shutil.which(tool))
     env = {
         'HOME': str(home),
-        'PATH': f'{stub_dir / "bin"}:/usr/bin:/bin:/usr/sbin:/sbin',
+        'PATH': f'{stub_dir / "bin"}:{system}',
         'STUB_DIR': str(stub_dir),
         'STUB_LOG': str(stub_dir / 'calls.log'),
         'STUB_UNAME_S': 'Darwin',

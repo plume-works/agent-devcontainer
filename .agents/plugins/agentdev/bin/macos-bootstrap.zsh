@@ -19,6 +19,7 @@ typeset -r MARKETPLACE=agent-devcontainer
 typeset -r PLUGIN=agentdev
 typeset -r BIN_DIR=$HOME/.local/bin
 typeset -r ZPROFILE=$HOME/.zprofile
+typeset -r FISH_CONF=$HOME/.config/fish/conf.d/agentdev.fish
 typeset -r MARKER_BEGIN='# >>> agentdev macos-bootstrap >>>'
 typeset -r MARKER_END='# <<< agentdev macos-bootstrap <<<'
 typeset -r BREW_INSTALL='/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
@@ -39,7 +40,8 @@ usage() {
 Install the tools the agentdev catalog needs on macOS: Homebrew packages, a
 uv-managed Python $PYTHON_VERSION as the default python3, iwe and
 codebase-memory-mcp in ~/.local/bin, a PATH block in ~/.zprofile, and the
-$PLUGIN plugin for Claude Code.
+$PLUGIN plugin for Claude Code. When fish is installed, the same PATH setup
+goes in ~/.config/fish/conf.d/agentdev.fish.
 
   --skip-plugins  Leave Claude Code's plugins untouched."
 }
@@ -85,16 +87,18 @@ install_release() {
   done
 }
 
-write_zprofile() {
+# Replace the marker block in a file in place, or append it; content outside it is kept.
+write_block() {
+  local file=$1 body=$2 current=$work/${1:t}
   local block="$MARKER_BEGIN
-eval \"\$(${(qq)commands[brew]} shellenv)\"
-export PATH=\"\$HOME/.local/bin:\$PATH\"
+$body
 $MARKER_END"
-  step "Writing the PATH block in $ZPROFILE"
-  if [[ -e $ZPROFILE ]]; then
-    cat -- $ZPROFILE >$work/zprofile
+  step "Writing the PATH block in $file"
+  mkdir -p ${file:h}
+  if [[ -e $file ]]; then
+    cat -- $file >$current
   else
-    : >$work/zprofile
+    : >$current
   fi
   # ENVIRON, not -v: macOS awk rejects a newline inside a -v value.
   BEGIN_LINE=$MARKER_BEGIN END_LINE=$MARKER_END BLOCK=$block awk '
@@ -103,9 +107,30 @@ $MARKER_END"
     $0 == end { if (!inside) { bad = 1; exit } inside = 0; done = 1; next }
     !inside { print }
     END { if (bad || inside) exit 2; if (!done) print block }
-  ' $work/zprofile >$work/zprofile.new ||
-    die "$ZPROFILE holds a malformed '$MARKER_BEGIN' block; fix it by hand and re-run"
-  cat -- $work/zprofile.new >$ZPROFILE
+  ' $current >$current.new ||
+    die "$file holds a malformed '$MARKER_BEGIN' block; fix it by hand and re-run"
+  cat -- $current.new >$file
+}
+
+write_path_blocks() {
+  local brew=${(qq)commands[brew]}
+  write_block $ZPROFILE "eval \"\$($brew shellenv)\"
+export PATH=\"\$HOME/.local/bin:\$PATH\""
+  if (( $+commands[fish] )) || [[ ${SHELL:-} == */fish ]]; then
+    write_block $FISH_CONF "$brew shellenv fish | source
+fish_add_path --move --path \$HOME/.local/bin"
+  fi
+}
+
+# Fail unless a login shell resolves python3 to the provisioned interpreter.
+check_python() {
+  local shell=$1 python_path python_version
+  python_path=$(PATH=$LOGIN_PATH $shell -l -c 'command -v python3') || python_path='(none)'
+  python_version=$(PATH=$LOGIN_PATH $shell -l -c 'python3 --version' 2>&1) ||
+    python_version='(failed)'
+  print -r -- "  python3 in ${shell:t}: $python_path, $python_version"
+  [[ $python_path == $BIN_DIR/python3 && $python_version == "Python $PYTHON_VERSION."* ]] ||
+    failures+=("python3 in ${shell:t} (expected Python $PYTHON_VERSION at $BIN_DIR/python3)")
 }
 
 install_plugins() {
@@ -120,7 +145,7 @@ install_plugins() {
 
 verify() {
   local -a failures
-  local tool output python_path python_version
+  local tool output
   step "Verifying from a fresh login shell"
   for tool in uv jq gh shellcheck bun pre-commit iwe iwes codebase-memory-mcp claude; do
     # iwes is a language server without --version; --skip-plugins promises no claude call.
@@ -132,11 +157,9 @@ verify() {
     print -r -- "  $tool: ${output%%$'\n'*}"
   done
 
-  python_path=$(login_shell 'command -v python3') || python_path='(none)'
-  python_version=$(login_shell 'python3 --version' 2>&1) || python_version='(failed)'
-  print -r -- "  python3: $python_path, $python_version"
-  if [[ $python_path != $BIN_DIR/python3 || $python_version != "Python $PYTHON_VERSION."* ]]; then
-    failures+=("python3 (expected Python $PYTHON_VERSION at $BIN_DIR/python3)")
+  check_python ${commands[zsh]:-/bin/zsh}
+  if [[ -n ${SHELL:-} && ${SHELL:t} != zsh ]]; then
+    check_python $SHELL
   fi
 
   (( $#failures == 0 )) || die "verification failed: ${(j:, :)failures}"
@@ -177,7 +200,7 @@ main() {
   install_release codebase-memory-mcp-$arch \
     https://github.com/DeusData/codebase-memory-mcp/releases/download/$CBM_VERSION/codebase-memory-mcp-darwin-$arch.tar.gz \
     codebase-memory-mcp
-  write_zprofile
+  write_path_blocks
   (( skip_plugins )) || install_plugins
   verify
 }
