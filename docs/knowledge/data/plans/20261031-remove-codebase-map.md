@@ -502,6 +502,23 @@ ships after this plan.
   section, and passes `iwe schema validate`.
 - CI on the pull request is green.
 
+## Verification results
+
+- `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests` passed
+  (464); the `Validate Agent Files` command reported 0 errors; `iwe normalize`
+  and `iwe schema validate` passed; `push-branch.py --help` names no map option
+  or result code.
+- The Task 4 grep matched only the paths its revised check exempts.
+- A scratch consumer under `/tmp`, built from the pre-removal scaffold with four
+  `data/codebase/` docs, an `iwe-map` key beside `template-consume` in the root
+  metadata, an `iwe-map`-only `.github/.agent.metadata.json`, and a CI step
+  running `stale-map-docs.py`, was taken through update mode's step 9 as
+  written: no map document, hub, schema, config entry, `iwe-map` key, or CI step
+  remained, the root file kept `template-consume`, the `iwe-map`-only file was
+  deleted, and `iwe schema validate` passed. The consumer's scaffold
+  `AGENTS.md`, `SCHEMA.md`, and `STRUCTURE.md` still describe the map until
+  update mode's tracked-path diff applies this version's copies.
+
 ## Out of scope
 
 - The codebase-memory MCP server and its hooks; a separate plan owns them.
