@@ -312,12 +312,20 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `base-image-catalog-smoke-test`; the someday ideas
 `harness-refresh-restart-signal` and `nested-catalog-agent-dispatch`
 
-- [ ] Each listed document describes current behavior for Claude Code and
+- [x] Each listed document describes current behavior for Claude Code and
   OpenCode only; `explicit-only-workflow-agents` names only the
   `disable-model-invocation` frontmatter gate; `template-boundary` has no
   `.codex/` row.
-- [ ] Done plans, done backlog tasks, released notes, `data/log.md`, and
+  - **Evidence:** `f99ee72f`; `iwe schema validate` passes and `iwe stats`
+    reports no broken links. The Codex mentions left in the listed documents
+    concern the third-party Codex reviewer and responder on GitHub
+    (`assignee-review-trigger`, `ai-responder-workflows`), a removed Coder
+    secret (`agent-sign-in-without-seeding`), a history bullet
+    (`template-boundary`), and `generated.by` values.
+- [x] Done plans, done backlog tasks, released notes, `data/log.md`, and
   `generated.by` provenance values are left unchanged.
+  - **Evidence:** `f99ee72f` touches none of them, and keeps every
+    `generated.by` that names a Codex model.
 
 ### Task 13: CI passes on the implementation branch
 
