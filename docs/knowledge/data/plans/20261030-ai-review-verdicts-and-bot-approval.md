@@ -351,9 +351,13 @@ Assumptions:
     "chocobot-agent[bot] is not a trusted bot; nothing to approve.", the review
     responder was skipped, `ai-review-present` failed, and the pull request
     stayed `REVIEW_REQUIRED`.
-- [ ] A commit a person pushes to an approved trusted-bot pull request dismisses
+- [x] A commit a person pushes to an approved trusted-bot pull request dismisses
   the bot approval, and closing and reopening the pull request does not restore
   it.
+  - **Evidence:** PR #590 — a person's commit `b406aef1` dismissed the bot
+    approval with the notice "push to b406aef1… by anton-matosov"; the run for
+    the `reopened` event refused again with the same notice and approved
+    nothing.
 
 ### Task 9: A review with only non-blocking findings approves
 
