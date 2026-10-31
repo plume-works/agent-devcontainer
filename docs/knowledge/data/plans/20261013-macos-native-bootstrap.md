@@ -370,9 +370,13 @@ arguments; point `HOME` at a temporary directory.
 
 **Files:** Modify: `docs/knowledge/data/features/macos-native-bootstrap.md`
 
-- [ ] `## Behaviour` says the plugin step installs `agentdev` into Claude Code
+- [x] `## Behaviour` says the plugin step installs `agentdev` into Claude Code
   only, and describes the fish block in `~/.config/fish/conf.d/agentdev.fish`
   and the `python3` check in the user's `$SHELL`.
+  - **Evidence:** commit `db89cac2` rewrites the plugin, PATH-block, and
+    verification bullets of `## Behaviour` in
+    `data/features/macos-native-bootstrap`; `iwe normalize` and
+    `iwe schema validate` pass at that commit.
 - [ ] `## Edge cases` covers fish being absent and a `$SHELL` whose login shell
   resolves another `python3`, and `iwe normalize` and `iwe schema validate`
   pass.
