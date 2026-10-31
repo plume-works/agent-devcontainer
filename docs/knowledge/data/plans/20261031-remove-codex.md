@@ -386,6 +386,11 @@ catalog SHALL NOT require a Codex marketplace manifest.
 - **WHEN** this checkout's catalog changed and attach runs
 - **THEN** all clients resolve the checkout version without an image rebuild.
 
+#### Scenario: a normal consumer attaches
+
+- **WHEN** its repository has no complete agentdev catalog
+- **THEN** attach succeeds without changing the staged catalog registration.
+
 #### Scenario: a checkout without a Codex manifest
 
 - **WHEN** the checkout holds `.claude-plugin/marketplace.json` and the
