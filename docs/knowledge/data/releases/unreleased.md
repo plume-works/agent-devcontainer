@@ -150,3 +150,6 @@ confirmed](../bugs/supervisor-client-recovered-before-dependency.md)
 
 [Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
 /workspaces](../bugs/git-new-branch-worktree-unwritable-workspaces.md)
+
+[Bug: an AI re-review that comments leaves its own change request blocking
+merge](../bugs/ai-rereview-comment-keeps-changes-requested.md)
