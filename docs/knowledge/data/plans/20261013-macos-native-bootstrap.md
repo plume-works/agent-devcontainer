@@ -232,12 +232,19 @@ arguments; point `HOME` at a temporary directory.
 
 **Files:** Modify: `.github/workflows/validate-agent-files.yml`
 
-- [ ] Add a `macos-bootstrap` job on `macos-latest`, gated by the existing
+- [x] Add a `macos-bootstrap` job on `macos-latest`, gated by the existing
   `paths-filter`, that runs the script with `/bin/zsh`, then from a fresh login
   `zsh` runs `git-new-branch.py --help` to show a catalog script runs on the
   provisioned Python, and runs Task 1's plugin test file with pytest through uv.
   Pass `--skip-plugins` only if the plugin commands need authentication, and
   record that in `## Verification results`.
+  - **Evidence:** commit `09e79dd4` adds the job to
+    `.github/workflows/validate-agent-files.yml`, and commit `fc11e146` makes
+    the script's `~/.zprofile` rewrite work with macOS awk; Actions run
+    41241447306 (job `macOS native bootstrap`) runs the bootstrap without
+    `--skip-plugins` — the plugin commands needed no authentication — then
+    `git-new-branch.py --help` on `/Users/runner/.local/bin/python3` (Python
+    3.12.15) and the plugin test file (11 passed).
 
 ### Task 4: Green macOS CI run
 
