@@ -136,3 +136,6 @@ confirmed](bugs/supervisor-client-recovered-before-dependency.md)
 
 [Bug: CBM cache under a checkout another UID owns stops the Dev
 Container](bugs/cbm-cache-under-foreign-owned-checkout.md)
+
+[Bug: knowledge-base tests share a fixed scratch directory across concurrent
+runs](bugs/knowledge-tests-share-fixed-scratch.md)
