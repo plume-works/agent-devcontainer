@@ -109,9 +109,13 @@ path filter: pre-commit already skips hooks whose files did not change.
   - **Evidence:** commit `85534b52` adds `bare_binary` and `binaries_dir`;
     `uv run pytest scripts/tests/test_refresh_pin_checksums.py` passes 11,
     including `test_bare_binary_and_nested_dir_urls_follow_the_install_task`.
-- [ ] `dev_tools_pinned_tools` pins hadolint `v2.14.0` and shellcheck `v0.11.0`
+- [x] `dev_tools_pinned_tools` pins hadolint `v2.14.0` and shellcheck `v0.11.0`
   with per-architecture checksums, and the apt `shellcheck` package is removed
   from `tasks/main.yml`.
+  - **Evidence:** commit `d5a2fdb3`;
+    `uv run scripts/refresh-pin-checksums.py ansible/roles/dev_tools/defaults/main.yml`
+    downloads every pin, both new ones included, and exits 0 with the file
+    unchanged.
 
 ### Task 2: Let Renovate bump every pinned binary
 
