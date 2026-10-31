@@ -65,7 +65,13 @@ The maintainer decided on 2026-10-30:
   whose commits are Dependabot's alone;
 - the bot must also have made every update to the head branch, read from the
   repository activity on every run, so closing and reopening the pull request
-  cannot restore an approval a person's push withdrew.
+  cannot restore an approval a person's push withdrew; the history counts back
+  only to the branch's latest creation, since Renovate reuses branch names;
+- the approval is only as strong as the trust in the repository's writers: the
+  job runs the workflow file as the pull request has it, so a writer whose push
+  also edits the job can skip its checks. That opens no new path, since any
+  writer can already obtain a `github-actions[bot]` approval through a pull
+  request workflow, and it is recorded as a limit rather than closed.
 
 ## Approach
 
@@ -98,16 +104,17 @@ author is the pull request's author, its committer is that author or `web-flow`
 (GitHub's committer for commits an App creates through the API), and its
 signature verifies. It also reads the repository activity for the head branch
 and requires that the pull request's author made every creation, push, and force
-push recorded there, checked on every run: a commit another account creates
-through the API can name the bot as author and still verify, and only the
-repository activity still shows that push to a later run, such as a reopen. When
-any check fails, the job approves nothing, dismisses a standing
-`github-actions[bot]` approval, and posts a notice naming the failing commit or
-push; the ruleset keeps stale approvals on push, so a standing approval would
-otherwise cover the new commit. The trusted list moves to a workflow-level
-`TRUSTED_BOT_ACTORS` variable that both this job and `ai-review-present` read.
+push recorded there since the branch's latest creation, checked on every run: a
+commit another account creates through the API can name the bot as author and
+still verify, and only the repository activity still shows that push to a later
+run, such as a reopen. When any check fails, the job approves nothing, dismisses
+a standing `github-actions[bot]` approval, and posts a notice naming the failing
+commit or push; the ruleset keeps stale approvals on push, so a standing
+approval would otherwise cover the new commit. The trusted list moves to a
+workflow-level `TRUSTED_BOT_ACTORS` variable that both this job and
+`ai-review-present` read.
 
-Rejected alternatives, recorded in the architecture note:
+Rejected alternatives:
 
 - **`COMMENT` for anchored blocking findings** (the superseded rule): it neither
   satisfies the required approval nor replaces an earlier change request.
@@ -300,7 +307,24 @@ Assumptions:
     actionlint and zizmor; `iwe schema validate` passed in the `b58bf8c`
     pre-commit run.
 
-### Task 7: A trusted-bot pull request merges without bypass
+### Task 7: Push history covers the branch's current life, and the trust limit is recorded
+
+**Files:** Modify: `.github/workflows/ai-responder.yml`,
+`docs/knowledge/data/architecture/ai-review-event-selection.md`,
+`docs/knowledge/data/architecture/actions-approval-permission.md`,
+`docs/knowledge/data/features/ai-responder-workflows.md`
+
+- [ ] `trusted-bot-approval` reads the head branch's activity newest first and
+  stops at the latest `branch_creation`, so only that entry and the pushes after
+  it are checked against the pull request's author.
+- [ ] The architecture note records that the approval is only as strong as the
+  trust in the repository's writers, because the job runs the pull request's
+  copy of the workflow, and `actions-approval-permission.md` states that
+  boundary instead of "every workflow on `main`"; the feature doc matches.
+- [ ] `actionlint` and `zizmor` pass through pre-commit, and
+  `iwe schema validate` passes.
+
+### Task 8: A trusted-bot pull request merges without bypass
 
 - [ ] After the change is on `main`, the next Renovate pull request receives the
   bot approval and merges through Renovate's automerge with no ruleset bypass,
@@ -312,7 +336,7 @@ Assumptions:
   the bot approval, and closing and reopening the pull request does not restore
   it.
 
-### Task 8: A review with only non-blocking findings approves
+### Task 9: A review with only non-blocking findings approves
 
 - [ ] A pull request reviewed after the change, whose validated findings are all
   non-blocking, carries an `APPROVED` review from `github-actions[bot]`, and
@@ -353,8 +377,8 @@ The AI responder workflow SHALL approve a same-repository pull request whose
 author is a `Bot` listed in `TRUSTED_BOT_ACTORS`, with a review body stating
 that the AI review was skipped, only when every commit on the pull request is
 authored by that bot, committed by that bot or `web-flow`, and carries a
-verified signature, and only when that bot made every creation, push, and force
-push of the head branch. When any commit or update fails that check it SHALL
+verified signature, and only when that bot made the head branch's latest
+creation and every push and force push since. When any commit or update fails that check it SHALL
 NOT approve, and SHALL dismiss its own standing
 approval. It SHALL NOT check out the pull request, SHALL NOT approve a pull
 request that already carries its approval, and SHALL skip a run triggered by
@@ -375,11 +399,19 @@ request that already carries its approval, and SHALL skip a run triggered by
 
 ### Scenario: a person pushes to a trusted-bot pull request
 
-- **WHEN** an account other than the author bot pushes a commit to a
-  trusted-bot pull request the workflow already approved
+- **WHEN** an account other than the author bot pushes a commit that leaves the
+  workflow unchanged to a trusted-bot pull request the workflow already
+  approved
 - **THEN** the workflow dismisses its approval, approves nothing, and the pull
   request needs a human approval to merge, even after it is closed and
   reopened.
+
+### Scenario: a reused branch name starts clean
+
+- **WHEN** a trusted bot recreates a branch whose earlier life included a
+  person's push, and opens a new pull request from it
+- **THEN** only the pushes since the branch's latest creation are checked, and
+  the workflow approves the new pull request.
 ```
 
 [Template consumption](../spec/template-consumption.md):
@@ -412,9 +444,10 @@ branch's workflow and attach checks to that head.
   `COMMENT` only as the self-owned retry and in the Codex tool's accepted
   actions.
 - `iwe normalize` and `iwe schema validate` pass.
-- Tasks 7 and 8 are observed on live pull requests after merge; the maintainer
-  accepted that live observation, with no automated test of the approval job, as
-  the coverage for the spec scenarios.
+- Tasks 8 and 9 are observed on live pull requests after merge, and the plan
+  ships after they are observed; the maintainer accepted that live observation,
+  with no automated test of the approval job, as the coverage for the spec
+  scenarios.
 
 ## Out of scope
 
@@ -423,6 +456,8 @@ branch's workflow and attach checks to that head.
 - Approving a Dependabot pull request from a Dependabot-triggered run.
 - Dismissing change requests already standing on open pull requests.
 - Changing what `ai-review-present` accepts as a review.
+- Protecting the approval job against a writer who edits it in the same pull
+  request; recorded as a trust limit.
 
 ## Key references
 
