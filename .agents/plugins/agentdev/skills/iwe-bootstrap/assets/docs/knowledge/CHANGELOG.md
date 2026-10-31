@@ -54,6 +54,14 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   `okf_version: "0.2"`, and its body is sections of link bullets carrying each
   target's description.
 
+### Removed
+
+- **The codebase map.** The `data/codebase/` lane, its `codebase` schema, and
+  the catalog's map skill are gone. If you cloned an earlier copy, delete
+  `data/codebase/`, `data/codebase.md`, and `.iwe/schemas/codebase.yaml`, and
+  remove `[schemas.codebase]` and `"data/codebase"` from the hub `match` list in
+  `.iwe/config.toml`.
+
 ### Fixed
 
 - A convention note in `data/codebase/timer.example.md` opened an emphasis span
