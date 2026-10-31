@@ -268,13 +268,17 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
   `codex login` step, and the validation command reads
   `--require-marketplace claude`.
   - **Evidence:** `0ec2b23e`.
-- [ ] The top README carries an upgrade note: existing `agentdev-codex` volumes
+- [x] The top README carries an upgrade note: existing `agentdev-codex` volumes
   and `codex/auth.json` on the shared auth volume are no longer used, nothing
   removes them, and they can be deleted by hand. The note gives a command
   example for each: removing a devcontainer's `agentdev-codex` volume, and
   deleting `codex/auth.json` from the shared auth volume —
   `agentdev-agents-auth` for the devcontainer, the `AGENTDEV_AUTH_VOLUME` volume
   for `agentdev-deploy`.
+  - **Evidence:** `0ec2b23e` and `aeb3be42`;
+    `### Upgrading from an image with Codex` in `README.md` removes the
+    `agentdev-codex` volume and the `codex/` login directory on both auth
+    volumes.
 
 ### Task 11: Retire Codex documents in the knowledge graph
 
@@ -303,10 +307,11 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
     `codex-skill-dir-unresolved`, which were already `done`, on the maintainer's
     direction to cancel every pending Codex bug. `data/bugs.md` is a flat hub,
     so no link moves; `iwe schema validate` passes.
-- [ ] `features/codex-full-access-config` is `stage: deprecated` with
+- [x] `features/codex-full-access-config` is `stage: deprecated` with
   `status: deprecated`, and its body states that [Claude Code and OpenCode are
   the only supported
   harnesses](../features/claude-and-opencode-only-harnesses.md) supersedes it.
+  - **Evidence:** `16ceedad`; `iwe schema validate` passes.
 
 ### Task 12: Update the knowledge documents that describe current Codex behavior
 
