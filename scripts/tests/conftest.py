@@ -11,9 +11,9 @@ from __future__ import annotations
 import os
 import subprocess
 
+from acceptance_label import ACCEPTANCE_LABEL
 import pytest
 
-ACCEPTANCE_LABEL = 'agentdev.test=acceptance'
 ACCEPTANCE_MODULE = 'test_agent_runtime_acceptance.py'
 IMAGE_VARIABLE = 'AGENTDEV_RUNTIME_TEST_IMAGE'
 # Removal order: containers hold volumes and networks.

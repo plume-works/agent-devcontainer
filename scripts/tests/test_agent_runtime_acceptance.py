@@ -1,7 +1,7 @@
 """
 Container acceptance tests for agentdev-deploy, run against AGENTDEV_RUNTIME_TEST_IMAGE.
 
-Every container, volume, and network carries ``conftest.ACCEPTANCE_LABEL``, so the session
+Every container, volume, and network carries ``ACCEPTANCE_LABEL``, so the session
 cleans up after an interrupted run. No test
 spends provider or model usage.
 """
@@ -25,7 +25,7 @@ import urllib.error
 import urllib.request
 from uuid import uuid4
 
-from conftest import ACCEPTANCE_LABEL
+from acceptance_label import ACCEPTANCE_LABEL
 import pytest
 from scratch import TMP_ROOT
 
