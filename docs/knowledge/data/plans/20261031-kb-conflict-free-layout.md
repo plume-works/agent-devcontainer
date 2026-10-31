@@ -125,8 +125,11 @@ under `docs/knowledge/tests/`
 `features.md`, `spec.md`, `architecture.md`, `concept.md`, `someday.md`; Delete:
 `docs/knowledge/data/index.md`
 
-- [ ] Every hub is one sorted list of inclusion links with no sections, and
+- [x] Every hub is one sorted list of inclusion links with no sections, and
   every member it linked before is still linked
+  - **Evidence:** commit 854b910a; the set of link targets in each of the nine
+    hubs is identical to its parent commit's, and `test_hub_links_are_sorted`
+    passes
 - [ ] `data/index.md` is removed with `iwe delete`, the base schema binds every
   document under `data/` but the log, and `iwe stats` reports no broken link
 
