@@ -6,7 +6,7 @@ release:
 description: A zsh bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — Homebrew tools including uv, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:27:47Z
+  at: 2026-10-31T21:42:30Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml
@@ -37,9 +37,8 @@ script stdlib-only Python on `#!/usr/bin/env python3`. Two gaps then block a
 stock macOS host:
 
 - The catalog is tested only on the Python version the root `pyproject.toml`'s
-  `requires-python` names. A stock host's `/usr/bin/python3` is a shim that
-  installs the Xcode Command Line Tools through a dialog and then provides
-  Python 3.9.
+  `requires-python` names. A stock host's `/usr/bin/python3` comes from the
+  Xcode Command Line Tools and is older than that floor.
 - The tools the catalog calls — `gh`, `jq`, `shellcheck`, `uv`, `bun`,
   `pre-commit`, `iwe`, `codebase-memory-mcp` — and the agent CLIs that install
   the plugin are absent.
@@ -60,9 +59,9 @@ on `PATH` for re-runs. Steps, each idempotent:
 2. `brew bundle --file=-` with an inline Brewfile: formulae `uv`, `jq`, `gh`,
    `shellcheck`, `bun`, `pre-commit`, and cask `claude-code`. Versions float;
    only the tools in steps 3 and 4 are pinned.
-3. `uv python install <version> --default`, which places a `python3` executable
-   in uv's executable directory, `~/.local/bin`. `<version>` is recorded in the
-   script.
+3. `UV_PYTHON_BIN_DIR=~/.local/bin uv python install <version> --default`, which
+   places a `python3` executable in `~/.local/bin`. `<version>` is recorded in
+   the script.
 4. Install the tools Homebrew lacks — `iwe` with `iwes`, and
    `codebase-memory-mcp` — from their GitHub release darwin tarballs into
    `~/.local/bin`, at the same versions `ansible/roles/dev_tools` pins, each
@@ -72,14 +71,19 @@ on `PATH` for re-runs. Steps, each idempotent:
 5. Write a marker-delimited block to `~/.zprofile` that evaluates
    `brew shellenv` and prepends `~/.local/bin`, so `env python3` resolves to the
    uv-provisioned Python in every new login shell. Rewrite the block in place on
-   re-run; never duplicate it.
+   re-run; never duplicate it. When fish is installed — `fish` on `PATH`, or the
+   user's `$SHELL` — also write the same kind of marker block to
+   `~/.config/fish/conf.d/agentdev.fish`, which runs `brew shellenv` for fish
+   and then `fish_add_path` for `~/.local/bin`, so it lands ahead of Homebrew's
+   `bin`.
 6. Unless `--skip-plugins` is passed: register the
    `plume-works/agent-devcontainer` GitHub marketplace in Claude Code at user
    scope and install `agentdev` only. Codex is never touched, even when its CLI
    is on `PATH`.
-7. Verify: print each tool's version, confirm the `python3` a fresh login shell
-   resolves reports the recorded version, and exit nonzero naming whatever
-   failed.
+7. Verify: print each tool's version, confirm the `python3` a fresh zsh login
+   shell resolves reports the recorded version, check `python3` the same way in
+   a fresh login shell of the user's `$SHELL` when that is not zsh, and exit
+   nonzero naming whatever failed.
 
 zsh sits outside the repository's shell convention, which requires bash and
 `shellcheck`, and `shellcheck` cannot parse zsh. The bootstrap is checked with
@@ -109,8 +113,14 @@ Assumptions:
 - The recorded Python version is the lower bound of the root `pyproject.toml`'s
   `requires-python`, the oldest version the repository's own tests run the
   catalog on.
-- uv's `--default` install of the `python3` executable works without
-  `--preview`; Task 3's macOS run confirms it.
+- uv's `--default` install of the `python3` executable needs no `--preview`.
+- The user decided that fish gets its own PATH block and that the final check
+  also tests the user's `$SHELL`. A `$SHELL` other than zsh or fish gets no
+  block, so its check fails and names it rather than reporting a `PATH` the
+  user's terminal does not have.
+- A shell configuration that runs after the block and puts another `python3`
+  first, such as a `config.fish` that re-runs `brew shellenv`, is the user's to
+  fix; the `$SHELL` check surfaces it.
 
 ## Implementation Steps
 
@@ -295,10 +305,33 @@ arguments; point `HOME` at a temporary directory.
 - [ ] Task 1's tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
 
-### Task 7: Green macOS CI run without Codex
+### Task 7: Provision fish login shells
+
+**Files:** Modify: `.agents/plugins/agentdev/bin/macos-bootstrap.zsh`,
+`.agents/plugins/agentdev/tests/test_macos_bootstrap.py`,
+`.agents/plugins/agentdev/README.md`,
+`.github/workflows/validate-agent-files.yml`
+
+- [ ] Failing tests in `test_macos_bootstrap.py`: with `fish` stubbed on `PATH`,
+  two runs leave exactly one marker block in
+  `~/.config/fish/conf.d/agentdev.fish` holding `brew shellenv` and
+  `fish_add_path` for `~/.local/bin`, with content outside it preserved; with no
+  `fish` and a zsh `$SHELL`, the file is not created; with `$SHELL` naming a
+  shell whose login `python3` is not `~/.local/bin/python3`, the script exits
+  nonzero and names that shell's Python check.
+- [ ] The script writes the fish block and runs the `$SHELL` check as step 5 and
+  step 7 of `## Approach` describe, and the tests pass:
+  `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
+- [ ] The README's "Native macOS" section lists
+  `~/.config/fish/conf.d/agentdev.fish` among the host changes.
+- [ ] The `macos-bootstrap` job installs fish with Homebrew and runs the
+  bootstrap with `SHELL` set to it, so the fish block and the `$SHELL` check run
+  on a real macOS host.
+
+### Task 8: Green macOS CI run without Codex and with fish
 
 - [ ] The `macos-bootstrap` job passes on the pull request at a commit that
-  includes Task 6.
+  includes Tasks 6 and 7.
 
 ## Spec changes
 
@@ -359,13 +392,28 @@ installing anything from it. It SHALL NOT install `iwec`.
 
 The script SHALL maintain exactly one marker-delimited block in `~/.zprofile`
 that evaluates `brew shellenv` and prepends `~/.local/bin`, rewriting it in place
-on re-run and leaving all content outside it unchanged.
+on re-run and leaving all content outside it unchanged. When `fish` is on `PATH`
+or is the user's `$SHELL`, the script SHALL maintain the same kind of block in
+`~/.config/fish/conf.d/agentdev.fish`, running `brew shellenv` for fish and then
+`fish_add_path` for `~/.local/bin`.
 
 #### Scenario: Re-run
 
 - **WHEN** the script runs twice
 - **THEN** `~/.zprofile` holds one marker block
 - **AND** content outside the block is unchanged
+
+#### Scenario: fish is installed
+
+- **WHEN** `fish` is on `PATH` and the script runs twice
+- **THEN** `~/.config/fish/conf.d/agentdev.fish` holds one marker block that
+  puts `~/.local/bin` ahead of Homebrew's `bin`
+- **AND** content outside the block is unchanged
+
+#### Scenario: fish is absent
+
+- **WHEN** `fish` is not on `PATH` and `$SHELL` is zsh
+- **THEN** the script does not create `~/.config/fish/conf.d/agentdev.fish`
 
 ### Requirement: only the agentdev plugin is installed
 
@@ -388,13 +436,20 @@ scope in Claude Code. It SHALL NOT install `self-improve`, and SHALL NOT invoke
 ### Requirement: the bootstrap verifies its result
 
 The script SHALL finish by reporting each installed tool's version and checking
-that a fresh login shell resolves `python3` to the recorded version, and SHALL
-exit nonzero naming each check that failed.
+that a fresh zsh login shell, and a fresh login shell of the user's `$SHELL`
+when that is not zsh, resolve `python3` to the recorded version in
+`~/.local/bin`, and SHALL exit nonzero naming each check that failed.
 
 #### Scenario: The stock Python still comes first on PATH
 
 - **WHEN** a fresh login shell resolves `python3` to `/usr/bin/python3`
 - **THEN** the script exits nonzero and names the Python check
+
+#### Scenario: The user's shell resolves another Python
+
+- **WHEN** `$SHELL` is not zsh and its fresh login shell resolves `python3`
+  outside `~/.local/bin`
+- **THEN** the script exits nonzero and names that shell's Python check
 ```
 
 ## Depends on
@@ -421,6 +476,8 @@ Python](20261029-catalog-scripts-python.md)
 - Installing `self-improve`.
 - Installing `iwec` or registering an IWE MCP server in Claude Code.
 - Installing the plugin into any agent CLI other than Claude Code.
+- A `PATH` block for login shells other than zsh and fish.
+- Installing fish; the bootstrap configures it only when it is present.
 - Xcode, Expo, and iOS Simulator setup.
 - Renovate automation for the script's release pins; the Task 1 sync test turns
   an image-only bump into a failing test instead.
@@ -448,8 +505,8 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.agents/AGENTS.md:16` — plugin tests must pass from a consumer's plugin
   cache, resolving scripts through `plugin_root`; `:36` — every `bin/` and
   `agent-code/` script is standard-library-only Python
-- `.agents/plugins/agentdev/bin/macos-bootstrap.zsh:111` — `install_plugins`;
-  `:120` — its Codex branch
+- `.agents/plugins/agentdev/bin/macos-bootstrap.zsh:88` — `write_zprofile`;
+  `:128` — `verify`; `:111` — `install_plugins`; `:120` — its Codex branch
 - `.agents/plugins/agentdev/tests/test_macos_bootstrap.py:71` — `CODEX_STUB`;
   `:292` — `test_plugin_step_includes_codex_when_present`; `:304` —
   `test_skip_plugins_calls_neither_agent_plugin_command`
