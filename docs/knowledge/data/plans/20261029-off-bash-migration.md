@@ -380,11 +380,17 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/codebase-memory-mcp-start.sh`,
 `.devcontainer/scripts/repair-codex-cbm-hooks-block.py`
 
-- [ ] `agentdev-runtime cbm install|start|check|index <repo>|run|stop` keeps the
+- [x] `agentdev-runtime cbm install|start|check|index <repo>|run|stop` keeps the
   daemon generation as PID plus `/proc` start time, the user-owned binary copy,
   the `~/.claude.json` materialise-and-restore as a context manager,
   `hooks.json` creation, the Codex hooks-block repair as a module, and the async
   index request with its acceptance check.
+  - **Evidence:** commit 8e12cec; `test_agent_runtime_cbm.py` and
+    `test_repair_codex_cbm_hooks_block.py` (29 passed) drive the pinned CBM
+    binary through the CLI as an isolated account, including the offline
+    install; `test_codebase_memory_mcp_index.py` and `test_codex_hooks.py` pass.
+    Deploy acceptance (24 passed) and the Dev Container image suite (5 passed)
+    pass against images built from that commit.
 
 ### Task 9: Agent state and catalog registration
 
