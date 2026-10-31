@@ -67,15 +67,13 @@ template, which takes this repository's half of mixed plans with it.
 This plan starts after the [off-bash migration](20261029-off-bash-migration.md)
 ships. That plan replaces `coder-agent-start.sh` with
 `agentdev-runtime coder start`, makes the template's `agent_start_script` a
-command defaulting to it (mapping the legacy script path onto that default, and
-running a checkout's `coder-agent-start.sh` when the command does not resolve),
-and rewrites the hook requirement as
+command defaulting to it, and rewrites the hook requirement as
 `the agent-start command is the repository's only start hook`. The requirements
 that move carry that wording, and the added requirement names the command.
 
 ## Implementation Steps
 
-Tasks 1-7 run in a `coder-ide-baseline` checkout (in a Coder workspace,
+Tasks 1-6 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 `/workspaces/coder-ide-baseline`), from its repository root.
 
 ### Task 1: Bootstrap the template workspace
@@ -145,7 +143,7 @@ Modify: `docs/knowledge/data/bugs.md`, `docs/knowledge/data/plans.md`
 
 **Files:** none (in `plume-works/coder-ide-baseline`)
 
-- [ ] A pull request carrying Tasks 1-6 passes the required
+- [ ] A pull request carrying Tasks 1-5 passes the required
   `Docker Build and Push` check and merges to `main`.
 
 ### Task 7: Point the open bug at the moved requirement
