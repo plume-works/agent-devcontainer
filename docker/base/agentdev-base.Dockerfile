@@ -17,8 +17,8 @@ ARG WORKSPACE_FOLDER=/workspaces/project
 # provisioning fails. Bump both together when releasing the catalog.
 ARG AGENTDEV_PLUGIN_VERSION=4.2.0
 
-# Where the staged catalog lives. Outside $HOME on purpose: ~/.claude and ~/.codex
-# are commonly mounted as volumes, which would shadow anything placed under them.
+# Where the staged catalog lives. Outside $HOME on purpose: ~/.claude is commonly
+# mounted as a volume, which would shadow anything placed under them.
 ARG AGENTDEV_CATALOG_DIR=/opt/agentdev
 
 # Version of the validate_agent_files CLI installed into the image. Like the catalog
@@ -71,7 +71,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # catalog is staged here and installed into each agent's plugin state at build time, so
 # a raw-image consumer resolves agentdev:* skills with no lifecycle hooks. This image
 # carries no runtime lifecycle; agentdev-devcontainer reinstalls the catalog into the
-# persistent ~/.claude and ~/.codex volumes it mounts over this install.
+# persistent ~/.claude volume it mounts over this install.
 ENV AGENTDEV_CATALOG_DIR=$AGENTDEV_CATALOG_DIR
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/playwright
 
