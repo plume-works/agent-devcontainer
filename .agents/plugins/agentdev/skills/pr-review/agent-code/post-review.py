@@ -176,7 +176,8 @@ def run(arguments: list[str]) -> int:
         comments_values = json_values(Path(comments_file).read_text()) if comments_file else [[]]
     except (json.JSONDecodeError, UnicodeDecodeError):
         print_error(
-            f'Could not build the review payload; check that {comments_file} holds a valid JSON array.'
+            'Could not build the review payload; '
+            f'check that {comments_file} holds a valid JSON array.'
         )
         return PREFLIGHT_ERROR
     payload = {

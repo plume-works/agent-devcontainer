@@ -31,7 +31,8 @@ USAGE = """\
 Parse a GitHub Actions run or job URL into fields or a gh command.
 
 Usage:
-  parse-actions-url.py --url <github-actions-url> [--format fields|command] [--log] [--grep-failures]
+  parse-actions-url.py --url <github-actions-url> [--format fields|command] [--log]
+                       [--grep-failures]
 
 Options:
   --url <url>          GitHub Actions run or job URL to parse.
@@ -54,7 +55,8 @@ Results (RESULT / exit code):
 
 Examples:
   parse-actions-url.py --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901'
-  parse-actions-url.py --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901/job/23456789012?pr=42' --format command --log
+  parse-actions-url.py --format command --log \
+    --url 'https://github.com/<owner>/<repo>/actions/runs/12345678901/job/23456789012?pr=42'
 """
 
 

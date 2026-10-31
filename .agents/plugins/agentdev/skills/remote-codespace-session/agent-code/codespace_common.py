@@ -46,7 +46,7 @@ def captured(*arguments: str, stderr: int | None = None) -> subprocess.Completed
 
 
 def strip_lines(text: str) -> str:
-    """Trim each line as `sed 's/^[[:space:]]*//; s/[[:space:]]*$//'` does, as `$(...)` reads it."""
+    """Trim each line as `sed 's/^[[:space:]]*//; s/[[:space:]]*$//'` does, read by `$(...)`."""
     return '\n'.join(line.strip() for line in text.split('\n')).rstrip('\n')
 
 

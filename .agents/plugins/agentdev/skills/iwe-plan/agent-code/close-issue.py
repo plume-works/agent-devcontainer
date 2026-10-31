@@ -18,13 +18,18 @@ import github_issue  # noqa: E402  (path set above so the plugin's bin/ resolves
 import result_codes as rc  # noqa: E402
 
 COMMAND = github_issue.CloseCommand(
-    description='Close a GitHub issue that a filed plan now tracks, linking the plan in a comment.',
+    description=(
+        'Close a GitHub issue that a filed plan now tracks, linking the plan in a comment.'
+    ),
     option='--plan',
     option_help='  --plan <path>      Repo-relative path of the plan document; it must exist.',
     comment_help='                     plan path, the current branch, and the repository.',
     missing_label='plan file',
     not_found='Plan file not found',
-    comment='Planned in `{path}` on branch `{branch}` of {repo}. Closing; the plan tracks the work from here.',
+    comment=(
+        'Planned in `{path}` on branch `{branch}` of {repo}. '
+        'Closing; the plan tracks the work from here.'
+    ),
 )
 
 
