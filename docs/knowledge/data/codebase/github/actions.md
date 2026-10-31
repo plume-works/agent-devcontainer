@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine local composite actions the workflows share: the paths filter, the four Docker build and promotion helpers, the uv-based Python setup, the API debug logger, and the AI responder helpers.'
 source: .github/actions
-source_digest: sha256:09058c1cfd432ce3dab7f7949ba0b535d2800ab4143a5658fe103cce1f54625a
+source_digest: sha256:c859d163d354cba677b7dc0f38895c2017e1d5848cf01e6f53f54f86ebde1856
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T05:14:35Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T05:14:35Z
 sources:
 - id: code
   resource: .github/actions
@@ -69,11 +69,12 @@ review gate](../../spec/ai-review-gate.md) once, without waiting.
   needs a full-history checkout for its ancestry check.
 - Callers invoke Python tools through `uv run`; `setup-python-venv` never
   activates the environment.
-- `run-claude-responder` runs `agentdev-runtime lifecycle created`,
-  `ready --no-wait`, and `attached` with `AGENTDEV_SKIP_PRE_COMMIT`,
-  `AGENTDEV_SKIP_XPRA`, and `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` set, so the
-  headless runner installs no hooks, starts no desktop, and enables no project
-  MCP server.
+- `run-claude-responder` installs `agentdev-runtime` from a temporary copy of
+  the checkout's `py_packages/agentdev_runtime` as a uv tool when the job image
+  lacks it, then runs `agentdev-runtime lifecycle created`, `ready --no-wait`,
+  and `attached` with `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`, and
+  `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` set, so the headless runner installs no
+  hooks, starts no desktop, and enables no project MCP server.
 - `run-claude-responder` uploads the execution file and checks it for a usage
   limit under `always()`, so a failed Claude step still leaves its output
   inspectable and a quota failure is still reported as one.
@@ -95,13 +96,13 @@ Verified anchor points (line numbers as of 2026-10-31):
   `last-pass`, the last passing push run's head
 - `.github/actions/ai-review-status/action.yml:6-27` — inputs and outputs
 - `.github/actions/run-claude-responder/action.yml:4-40` — inputs
-- `.github/actions/run-claude-responder/action.yml:95-109` — lifecycle commands
-  and their opt-outs
-- `.github/actions/run-claude-responder/action.yml:114-130` —
+- `.github/actions/run-claude-responder/action.yml:95-117` — lifecycle commands,
+  their opt-outs, and the CLI install when the image lacks it
+- `.github/actions/run-claude-responder/action.yml:122-139` —
   `Merge Claude settings`, the user, tracked, and optional local layers
-- `.github/actions/run-claude-responder/action.yml:135` —
+- `.github/actions/run-claude-responder/action.yml:143` —
   `Compose Claude arguments`, where `--model` is appended
-- `.github/actions/run-claude-responder/action.yml:163,171` — `always()` on the
+- `.github/actions/run-claude-responder/action.yml:171,179` — `always()` on the
   artifact upload and the usage-limit check
 - `.github/actions/docker/multiarch-merge/action.yml:20-29` — outputs; `:66` —
   `candidate: 'true'`
