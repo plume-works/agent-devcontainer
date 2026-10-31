@@ -297,13 +297,23 @@ arguments; point `HOME` at a temporary directory.
 `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`,
 `.agents/plugins/agentdev/README.md`
 
-- [ ] `install_plugins` makes no `codex` call even when `codex` is on `PATH`;
+- [x] `install_plugins` makes no `codex` call even when `codex` is on `PATH`;
   `test_plugin_step_includes_codex_when_present` is replaced by a test that
   stubs `codex` on `PATH` and asserts the script never invokes it.
-- [ ] The script's `--help` text and the README's "Native macOS" section name
+  - **Evidence:** commit `c2915879` removes the Codex branch from
+    `install_plugins` and replaces the Codex test with
+    `test_plugin_step_never_invokes_codex_on_path`, which failed before the
+    removal and passes after.
+- [x] The script's `--help` text and the README's "Native macOS" section name
   Claude Code as the only agent the plugin step installs into.
-- [ ] Task 1's tests pass:
+  - **Evidence:** commit `c2915879` changes the `--help` text and the README's
+    `**Plugins**` bullet to name Claude Code only;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` → 0
+    errors, 0 warnings.
+- [x] Task 1's tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
+  - **Evidence:** at commit `c2915879`, the command → 14 passed under zsh 5.9;
+    `zsh -n` passes.
 
 ### Task 7: Provision fish login shells
 
