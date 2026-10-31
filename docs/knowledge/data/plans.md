@@ -17,8 +17,6 @@ moves them.*
 
 ## Active
 
-[Verify report cache](plans/20261030-verify-report-cache.md)
-
 [AI review verdicts gate merge and trusted bots are
 auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
 
@@ -44,6 +42,8 @@ App](plans/20261030-responder-quill-app-identity.md)
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
+
+[Verify report cache](plans/20261030-verify-report-cache.md)
 
 [Escalate a client failure to the dependency that caused
 it](plans/20261030-dbus-keyring-flaky-test.md)

@@ -84,6 +84,8 @@ names](../features/remote-control-environment-names.md)
 
 [Reusable agentdev Dev Container](../features/reusable-agentdev-devcontainer.md)
 
+[Verify report cache](../features/verify-report-cache.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)
