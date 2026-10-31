@@ -108,7 +108,7 @@ match = ["data/product", "data/milestone", "data/template-adoption"]
 # data/ that arrives without a type. The log has no frontmatter; log checks its
 # date-grouped body.
 [schemas.base]
-match = ["data/**", "!data/log", "!data/index"]
+match = ["data/**", "!data/log"]
 
 [schemas.log]
 match = ["data/log"]
