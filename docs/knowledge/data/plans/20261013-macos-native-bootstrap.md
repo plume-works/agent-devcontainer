@@ -122,26 +122,81 @@ macOS job in Task 3 runs it. Stub `uname`, `brew`, `uv`, `curl`, `shasum`,
 `claude`, and `codex` as executables on a temporary `PATH`, each logging its
 arguments; point `HOME` at a temporary directory.
 
-- [ ] A non-Darwin `uname` exits nonzero before any `brew` call.
-- [ ] A missing `brew` exits nonzero and prints the Homebrew install command.
-- [ ] `brew bundle --file=-` receives every formula and the `claude-code` cask
+- [x] A non-Darwin `uname` exits nonzero before any `brew` call.
+  - **Evidence:** commit `031b7ec0` adds
+    `test_non_darwin_exits_before_any_installer` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] A missing `brew` exits nonzero and prints the Homebrew install command.
+  - **Evidence:** commit `031b7ec0` adds
+    `test_missing_brew_prints_install_command_and_changes_nothing` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] `brew bundle --file=-` receives every formula and the `claude-code` cask
   on stdin.
-- [ ] `uv python install` receives the recorded version and `--default`.
-- [ ] A release tarball whose checksum does not match is rejected and nothing
+  - **Evidence:** commit `031b7ec0` adds
+    `test_brew_bundle_receives_every_formula_and_the_claude_code_cask` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] `uv python install` receives the recorded version and `--default`.
+  - **Evidence:** commit `031b7ec0` adds
+    `test_uv_installs_the_recorded_python_as_default` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] A release tarball whose checksum does not match is rejected and nothing
   lands in `~/.local/bin`.
-- [ ] From an iwe archive that holds `iwe`, `iwes`, and `iwec`, only `iwe` and
+  - **Evidence:** commit `031b7ec0` adds
+    `test_checksum_mismatch_rejects_the_archive` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] From an iwe archive that holds `iwe`, `iwes`, and `iwec`, only `iwe` and
   `iwes` land in `~/.local/bin`.
-- [ ] Two runs leave exactly one marker block in `~/.zprofile`, and existing
+  - **Evidence:** commit `031b7ec0` adds
+    `test_only_iwe_and_iwes_are_installed_from_the_iwe_archive` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] Two runs leave exactly one marker block in `~/.zprofile`, and existing
   content outside it is preserved byte-for-byte.
-- [ ] The plugin step adds the marketplace and installs `agentdev` and never
+  - **Evidence:** commit `031b7ec0` adds
+    `test_rerun_keeps_one_marker_block_and_preserves_other_content` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] The plugin step adds the marketplace and installs `agentdev` and never
   `self-improve`; `--skip-plugins` makes no `claude` or `codex` call; no `codex`
   call happens when `codex` is absent from `PATH`.
-- [ ] In `scripts/tests/test_macos_bootstrap_pins.py` (repository-level, because
+  - **Evidence:** commit `031b7ec0` adds
+    `test_plugin_step_installs_only_agentdev`,
+    `test_plugin_step_includes_codex_when_present`, and
+    `test_skip_plugins_calls_neither_agent_plugin_command` in
+    `.agents/plugins/agentdev/tests/test_macos_bootstrap.py`; red against the
+    missing script:
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
+    → 3 failed, 11 errors.
+- [x] In `scripts/tests/test_macos_bootstrap_pins.py` (repository-level, because
   the Ansible defaults and the root `pyproject.toml` do not ship with the
   plugin): the release versions in the script equal the `iwe` and
   `codebase-memory-mcp` versions in `ansible/roles/dev_tools/defaults/main.yml`,
   and the recorded Python version equals the lower bound of `requires-python`,
   each read from its file rather than restated.
+  - **Evidence:** commit `031b7ec0` adds `test_iwe_matches_the_image_pin`,
+    `test_codebase_memory_mcp_matches_the_image_pin`, and
+    `test_python_is_the_requires_python_floor`, reading `dev_tools` through
+    `yaml` and `pyproject.toml` through `tomllib`; red against the missing
+    script in the same run.
 
 ### Task 2: Implement `bin/macos-bootstrap.zsh`
 
