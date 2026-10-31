@@ -158,8 +158,7 @@ deletion of this one function; and running the responder as a host job through
   `uv tool install --reinstall --python /usr/bin/python3` from the bind-mounted
   build context, with `UV_TOOL_DIR=/opt/uv-tools`,
   `UV_TOOL_BIN_DIR=/usr/local/bin`, `UV_NO_CACHE=1`,
-  `UV_PYTHON_DOWNLOADS=never`, and `UV_LINK_MODE=copy`, and stop installing the
-  apt `supervisor` package. `.dockerignore` admits
+  `UV_PYTHON_DOWNLOADS=never`, and `UV_LINK_MODE=copy`. `.dockerignore` admits
   `py_packages/agentdev_runtime`. The `COPY .devcontainer/scripts/` lines stay
   until Task 13.
 - [ ] `settings.py` parses every environment value the scripts and the
@@ -194,7 +193,8 @@ deletion of this one function; and running the responder as a host job through
   the service modules as they land and the remaining scripts until then.
 - [ ] `ENTRYPOINT`, `HEALTHCHECK`, the controller listener, and every `command=`
   in both supervisord configurations name the CLI, and the `exec` wrapper keeps
-  its output capture and failure record.
+  its output capture and failure record. Both images stop installing the apt
+  `supervisor` package, which PID 1 needs until it runs from the CLI.
 
 ### Task 3: Bootstrap and distribution integrity
 
