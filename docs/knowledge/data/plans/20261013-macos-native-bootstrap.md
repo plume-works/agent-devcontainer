@@ -322,13 +322,21 @@ arguments; point `HOME` at a temporary directory.
 `.agents/plugins/agentdev/README.md`,
 `.github/workflows/validate-agent-files.yml`
 
-- [ ] Failing tests in `test_macos_bootstrap.py`: with `fish` stubbed on `PATH`,
+- [x] Failing tests in `test_macos_bootstrap.py`: with `fish` stubbed on `PATH`,
   two runs leave exactly one marker block in
   `~/.config/fish/conf.d/agentdev.fish` holding `brew shellenv` and
   `fish_add_path` for `~/.local/bin`, with content outside it preserved; with no
   `fish` and a zsh `$SHELL`, the file is not created; with `$SHELL` naming a
   shell whose login `python3` is not `~/.local/bin/python3`, the script exits
   nonzero and names that shell's Python check.
+  - **Evidence:** commit `57310be3` adds
+    `test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content`,
+    `test_no_fish_block_without_fish`,
+    `test_user_shell_resolving_another_python_fails_its_check`, and
+    `test_user_shell_resolving_the_provisioned_python_passes`;
+    `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py` at
+    that commit → 3 failed, 12 passed (the no-fish test holds before the change
+    too).
 - [ ] The script writes the fish block and runs the `$SHELL` check as step 5 and
   step 7 of `## Approach` describe, and the tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
