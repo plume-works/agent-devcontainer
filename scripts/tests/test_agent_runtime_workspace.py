@@ -340,9 +340,8 @@ def test_the_config_step_registers_the_catalog_then_installs_cbm(runtime: Runtim
 
 
 def ship_catalog(root: Path) -> None:
-    for manifest in ('.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json'):
-        (root / manifest).parent.mkdir(parents=True, exist_ok=True)
-        (root / manifest).write_text('{}')
+    (root / '.claude-plugin').mkdir(parents=True)
+    (root / '.claude-plugin/marketplace.json').write_text('{}')
     (root / '.agents/plugins/agentdev/.opencode-plugin').mkdir(parents=True)
 
 
@@ -378,22 +377,19 @@ def test_devcontainer_helpers_keep_their_defaults(runtime: Runtime):
 
 
 @pytest.mark.skipif(
-    not all(shutil.which(tool) for tool in ('claude', 'codex')),
-    reason='requires the Claude and Codex CLIs',
+    not shutil.which('claude'),
+    reason='requires the Claude CLI',
 )
 def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
     image_catalog = tmp_path / 'image-catalog'
     for part in ('.claude-plugin', '.agents/plugins'):
         shutil.copytree(REPO_ROOT / part, image_catalog / part, symlinks=True)
     home = tmp_path / 'home'
-    (home / '.codex/agents').mkdir(parents=True)
-    (home / '.codex/agents/mine.toml').write_text('name = "mine"\n')
     (home / '.config/opencode').mkdir(parents=True)
     (home / '.config/opencode/opencode.json').write_text('{"plugin": ["other"], "theme": "x"}')
     env = {
         'PATH': os.environ['PATH'],
         'HOME': str(home),
-        'CODEX_HOME': str(home / '.codex'),
         'XDG_CONFIG_HOME': str(home / '.config'),
     }
 
@@ -407,16 +403,9 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
         )
         assert result.returncode == 0, result.stdout + result.stderr
 
-    def registered() -> tuple[list[str], list[str], dict]:
+    def registered() -> tuple[list[str], dict]:
         claude = subprocess.run(
             ['claude', 'plugin', 'marketplace', 'list', '--json'],
-            env=env,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        codex = subprocess.run(
-            ['codex', 'plugin', 'marketplace', 'list', '--json'],
             env=env,
             capture_output=True,
             text=True,
@@ -425,53 +414,13 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
         opencode = json.loads((home / '.config/opencode/opencode.json').read_text())
         return (
             [m['path'] for m in json.loads(claude.stdout)],
-            [m['root'] for m in json.loads(codex.stdout)['marketplaces']],
             opencode,
         )
 
     register(REPO_ROOT)
     register(image_catalog)
 
-    claude, codex, opencode = registered()
+    claude, opencode = registered()
     assert claude == [str(image_catalog)]
-    assert codex == [str(image_catalog)]
     bridge = str(image_catalog / '.agents/plugins/agentdev/.opencode-plugin')
     assert opencode == {'plugin': ['other', bridge], 'theme': 'x'}
-    assert (home / '.codex/agents/mine.toml').read_text() == 'name = "mine"\n'
-    assert (home / '.codex/agents/agentdev-iwe-implementer.toml').exists()
-
-
-@pytest.mark.skipif(not all(shutil.which(tool) for tool in ('codex',)), reason='requires Codex')
-def test_rerunning_codex_registration_leaves_config_byte_identical(tmp_path: Path):
-    catalog = tmp_path / 'catalog'
-    shutil.copytree(REPO_ROOT / '.agents/plugins', catalog / '.agents/plugins', symlinks=True)
-    home = tmp_path / 'home'
-    (home / '.codex').mkdir(parents=True)
-    env = {'PATH': os.environ['PATH'], 'HOME': str(home), 'CODEX_HOME': str(home / '.codex')}
-
-    def register() -> str:
-        result = subprocess.run(
-            [
-                sys.executable,
-                '-c',
-                'import sys; from agentdev_runtime import catalog, settings; '
-                'catalog.codex(settings.Settings(), sys.argv[1])',
-                str(catalog),
-            ],
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=300,
-        )
-        assert result.returncode == 0, result.stdout + result.stderr
-        return result.stdout
-
-    assert 'Added marketplace' in register()
-    config = home / '.codex/config.toml'
-    before = config.read_bytes()
-    again = register()
-    assert 'already registered' in again and 'Added' not in again
-    assert config.read_bytes() == before
-
-    (catalog / '.agents/plugins/agentdev/skills/added-in-place.md').write_text('new\n')
-    assert 'Added plugin' in register(), 'a changed catalog is installed again'

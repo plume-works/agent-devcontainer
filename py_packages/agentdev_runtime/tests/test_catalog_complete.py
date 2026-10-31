@@ -14,7 +14,7 @@ def write_root(root: Path, *, claude: bool = True, opencode: bool = True) -> Pat
     return root
 
 
-def test_a_root_without_a_codex_manifest_is_complete(tmp_path: Path) -> None:
+def test_claude_and_opencode_manifests_alone_make_a_root_complete(tmp_path: Path) -> None:
     root = write_root(tmp_path)
     assert not (root / '.agents/plugins/marketplace.json').exists()
     assert catalog.complete(root)
