@@ -47,7 +47,9 @@ repos:
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.11.0.1
     hooks:
+      # shellcheck cannot parse zsh; the macOS bootstrap is checked with `zsh -n`.
       - id: shellcheck
+        exclude: '^\.agents/plugins/agentdev/bin/macos-bootstrap\.zsh$'
 
   - repo: local
     hooks:
