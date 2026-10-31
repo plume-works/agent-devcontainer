@@ -122,10 +122,13 @@ path filter: pre-commit already skips hooks whose files did not change.
 **Files:** Modify: `ansible/roles/dev_tools/defaults/main.yml`,
 `ansible/AGENTS.md`, `.github/renovate.json`
 
-- [ ] zizmor, gitleaks, actionlint, hadolint, and shellcheck each carry a
+- [x] zizmor, gitleaks, actionlint, hadolint, and shellcheck each carry a
   `# renovate: datasource=github-releases depName=<owner/repo>` comment; the
   defaults header and `ansible/AGENTS.md` no longer say any tool moves with a
   Super-Linter sync.
+  - **Evidence:** commit `79f6f374`; the `dev_tools_pinned_tools` custom manager
+    regex in `.github/renovate.json` matches all five new comments, and
+    `git grep -i super-linter ansible/` returns nothing.
 - [ ] `.github/renovate.json` drops the Super-Linter sync rule, the npm regex
   manager also matches the prettier `bunx` pin, no description names
   Super-Linter, and `bunx renovate-config-validator --strict` passes.
