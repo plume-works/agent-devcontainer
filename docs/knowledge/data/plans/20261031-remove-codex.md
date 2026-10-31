@@ -131,16 +131,21 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] No skill gives Codex-specific instructions: `create-skill` loses its Codex
+- [x] No skill gives Codex-specific instructions: `create-skill` loses its Codex
   skill-creator pointer, `codex plugin add`, and `openai.yaml` guidance;
   `local-reformat` loses its Codex managed-sandbox section; `pr-review` loses
   its Codex tool, model column, and Codex waiting and budget rules;
   `create-agent` names Claude Code and OpenCode as consumers.
-- [ ] `template-consume` and its consumption guide no longer list `.codex/`, the
+  - **Evidence:** `71d61218`; validator 66/66 valid and the plugin suite passes
+    (408 tests).
+- [x] `template-consume` and its consumption guide no longer list `.codex/`, the
   `agentdev-codex` volume, Codex policy configuration, or Codex in the
   catalog-install check, and recommend `--require-marketplace claude`.
-- [ ] `git grep -i codex -- .agents` prints only lines about the
+  - **Evidence:** `71d61218`.
+- [x] `git grep -i codex -- .agents` prints only lines about the
   `chatgpt-codex-connector[bot]` GitHub actor.
+  - **Evidence:** `71d61218`; the grep prints only the two
+    `chatgpt-codex-connector[bot]` lines in `test_request_review.py`.
 
 ### Task 5: Remove Codex from the agentdev-runtime package
 
