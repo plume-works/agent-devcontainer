@@ -10,6 +10,7 @@ generated:
 sources:
 - resource: .github/workflows/primary-checks.yml
 - resource: .github/workflows/reformat.yml
+rank: 2000
 ---
 
 # Run Primary checks' ci job in parallel with the pre-commit job

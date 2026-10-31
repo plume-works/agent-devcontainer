@@ -15,6 +15,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/assets
 - resource: docs/knowledge/AGENTS.md
+rank: 400
 ---
 
 # Conflict-free knowledge layout

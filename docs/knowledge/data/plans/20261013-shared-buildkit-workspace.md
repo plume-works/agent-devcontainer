@@ -13,6 +13,7 @@ sources:
 - resource: https://github.com/plume-works/coder-ide-baseline/blob/ff4e472/template/main.tf
 - resource: https://docs.docker.com/build/builders/drivers/remote/
 - resource: https://docs.docker.com/build/cache/garbage-collection/
+rank: 800
 ---
 
 # Share one BuildKit builder across Coder workspaces

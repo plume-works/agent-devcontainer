@@ -11,6 +11,7 @@ sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .agents/plugins/agentdev/tests/
 - resource: https://github.com/plume-works/agent-devcontainer/pull/163
+rank: 1500
 ---
 
 # Test the responder workflow's inline JavaScript

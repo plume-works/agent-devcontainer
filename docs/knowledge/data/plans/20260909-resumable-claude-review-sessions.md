@@ -20,6 +20,7 @@ sources:
   title: GitHub Actions job-container volumes
 - resource: docs/knowledge/data/architecture/assignee-review-trigger.md
 - resource: docs/knowledge/data/plans/20261030-responder-quill-app-identity.md
+rank: 1100
 ---
 
 # Resume interrupted Claude PR reviews on a persistent runner

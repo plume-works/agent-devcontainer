@@ -17,6 +17,7 @@ sources:
 - resource: pyproject.toml
 - resource: .github/renovate.json
 - resource: https://github.com/gitleaks/gitleaks-action
+rank: 500
 ---
 
 # Replace Super-Linter with pre-commit in CI
