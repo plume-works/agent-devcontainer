@@ -82,8 +82,12 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
 `.iwe/schemas/okf.yaml`, `.iwe/schemas/okf-index.yaml`,
 `.iwe/schemas/okf-log.yaml`; Modify: `docs/knowledge/tests/`
 
-- [ ] `plan`, `bug`, and `task` schemas accept an optional integer `rank` of at
+- [x] `plan`, `bug`, and `task` schemas accept an optional integer `rank` of at
   least 1, and a test rejects a non-integer and a zero rank
+  - **Evidence:** commit 36fa31c4;
+    `uv run pytest docs/knowledge/tests/test_rank_and_base_schemas.py` passed
+    (29 tests) — rank cases in `test_invalid_rank_is_rejected` and
+    `test_positive_integer_rank_passes`
 - [ ] No schema and no document under `data/` declares `status`
 - [ ] `base.yaml` requires a non-empty `type` on every document under `data/`
   except `data/log`, and replaces the `okf` binding; a test rejects a document
