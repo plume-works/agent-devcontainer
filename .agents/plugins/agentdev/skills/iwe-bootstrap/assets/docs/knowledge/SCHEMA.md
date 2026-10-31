@@ -8,64 +8,57 @@ hubs included. Run `iwe schema validate` before committing — exit 0 is the gat
 The examples below describe one fictional product (Pomodux, a focus-timer app);
 the `*.example.md` docs demonstrate each shape in place.
 
-`data/` is a conformant [Open Knowledge
-Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
-v0.2 bundle. That is why every document carries a `type` and why the reserved
-`data/index.md` and `data/log.md` have shapes of their own. The per-type blocks
-below show only the fields specific to that type; the shared families come next.
+Every document under `data/` carries a non-empty `type` —
+`.iwe/schemas/base.yaml` enforces it, because every query selects documents by
+it. `data/log.md` is the one exception and has a shape of its own. The per-type
+blocks below show only the fields specific to that type; the shared families
+come next.
 
 ## Fields every type carries
 
-OKF's optional families (SPEC §4.1, §5), declared on every schema and checked by
-`.iwe/schemas/okf.yaml`:
+Declared on every schema:
 
-- `description` — one sentence. Every document has one; it is what an OKF
-  consumer and `data/index.md` show before opening the file.
-- `generated` — `{ by, at }`. Write it on **every** edit. `by` is an actor in
-  the form [OKF SPEC
-  §7](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md#7-actor-convention)
-  defines: `<producer>/<model-version>` for agent writes — the agent and the
-  model version that wrote the content, as in the spec's own example;
-  `human:<handle>` for hand-authored or human-confirmed content; `process:<id>`
-  for automation.
+- `description` — one sentence. Every document has one; it is what a reader sees
+  in query results before opening the file.
+- `generated` — `{ by, at }`. Write it on **every** edit. `by` is an actor:
+  `<producer>/<model-version>` for agent writes — the agent and the model
+  version that wrote the content; `human:<handle>` for hand-authored or
+  human-confirmed content; `process:<id>` for automation.
 - `sources` — the materials a document derives from, each
   `{ id, resource, title, author, usage_count, last_modified }` with `resource`
   required. A `resource` may be a URL or a repo path. Attribute individual
-  claims with a markdown footnote keyed to an entry's `id` (SPEC §5.1).
+  claims with a markdown footnote keyed to an entry's `id`.
 - `verified` — `{ by, at }` or a list, recording who confirmed the content
   against its sources.
 - `resource`, `tags`, `stale_after`, `usage_window` — optional.
 
-### `stage` versus `status`
+`stage` is the only lifecycle field: the per-type enums below. A work item's
+state lives only in its own frontmatter; no hub section repeats it.
 
-`stage` is this workspace's workflow field — the per-type enums below. `status`
-is OKF's lifecycle field and takes only `draft | stable | deprecated`; absent
-means stable, which is why most documents omit it. Maintain the two together:
-whenever you set `stage`, derive `status` from this table and set or clear it.
+## The build order — `rank`
 
-| type    | `stage` value             | set `status` |
-| ------- | ------------------------- | ------------ |
-| bug     | `cancelled`               | `deprecated` |
-| feature | `proposed`                | `draft`      |
-| feature | `deprecated`, `cancelled` | `deprecated` |
-| plan    | `cancelled`               | `deprecated` |
-| release | `unreleased`              | `draft`      |
-| task    | `cancelled`               | `deprecated` |
+Active plans, open bugs, and planned backlog tasks may carry `rank`, a positive
+integer: their place in one build order shared across the three types, lower
+first.
 
-Every other `stage` value means the document is current — omit `status`. The
-reference types never set it.
+``` yaml
+rank: 300 # optional; positive integer
+```
 
-## Reserved files
+- The sequence is
+  `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`. An item
+  without `rank` is not yet sequenced; that is the separate
+  `rank: {$exists: false}` query, never part of the sequence.
+- Ranks step by 100; an insertion takes the midpoint of its neighbours. Only a
+  reorder pull request renumbers.
+- Ship removes `rank` from a plan, bug, or task it marks done or cancelled.
+- Equal ranks are valid and break by key; CI warns about them.
 
-`data/index.md` and `data/log.md` are OKF reserved filenames and are not concept
-documents — they carry no `type` and are checked by `okf-index.yaml` and
-`okf-log.yaml` instead.
+## The log — `data/log.md`
 
-- `data/index.md` — the bundle-root index. Its only frontmatter is
-  `okf_version: "0.2"`. The body is `#` sections of link bullets, each bullet a
-  markdown link to a document followed by `-` and that document's `description`.
-- `data/log.md` — the update history. A title section over `## YYYY-MM-DD`
-  groups of bullets, newest first. The `ship` skill appends to it.
+The update history, written only by a release cut. It has no frontmatter, and
+`.iwe/schemas/log.yaml` checks its body: a title section over `## YYYY-MM-DD`
+groups of bullets, newest first.
 
 ## Plans — `data/plans/YYYYMMDD-<slug>.md`
 
@@ -84,14 +77,13 @@ release: # required while active: internal, or the keys below
 
 `release` is the plan's release impact, chosen when the plan is written:
 `internal` when no workspace user or template consumer sees a difference,
-otherwise the `features/` and `bugs/` keys the work adds, changes, or fixes.
-Ship takes the plan's release entries from it.
+otherwise the `features/` and `bugs/` keys the work adds, changes, or fixes. The
+release cut takes the plan's release entries from it.
 
 Body: `## Context`, `## Approach`, `## Implementation Steps` (`### Task N`,
 `**Files:**`, checkboxes), `## Spec changes`, `## Depends on` (optional),
 `## Verification`, `## Out of scope`, `## Key references` (dated
-`path:line — symbol` anchors). The link in `data/plans.md` sits under the
-section matching the stage.
+`path:line — symbol` anchors). Its link in `data/plans.md` never moves.
 
 ## Features — `data/features/<slug>.md`
 
@@ -122,14 +114,15 @@ Body: `## Symptom`, `## Reproduction`, `## Root cause`, `## Fix`,
 
 ## Releases — `data/releases/<version>.md`
 
-One page per version; `unreleased.md` accumulates until a release is cut.
+One page per cut version, written only by the release cut from the plans
+completed since the previous release and their `release` lists.
 
 ``` yaml
 ---
 type: release # required
-version: 0.1.0 # required; the accumulator page uses "unreleased"
-date: 2026-07-18 # required when stage: released
-stage: released # released | unreleased — required
+version: 0.1.0 # required
+date: 2026-07-18 # the day the release was cut
+stage: released # required, always released
 ---
 ```
 
@@ -164,5 +157,7 @@ rejected alternatives.
 
 Hub files (`data/plans.md`, `data/features.md`, …) carry `type: hub`;
 `data/product.md` and `data/milestone.md` carry `type: tracker`. Both take
-`stage: living`. A hub's body is inclusion links grouped by `##` sections; a
-document's category is which hub links it, not which directory holds it.
+`stage: living`. A hub's body is one flat list of inclusion links, one per
+member, sorted by the member's key with any `YYYYMMDD-` prefix removed, with no
+`##` sections — `.iwe/schemas/hub.yaml` rejects a section, and a test checks the
+order. A hub changes only when a member is created, removed, or renamed.

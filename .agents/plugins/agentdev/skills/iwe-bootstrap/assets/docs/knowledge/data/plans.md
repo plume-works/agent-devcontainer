@@ -9,20 +9,13 @@ generated:
 
 # 🗺️ Plans
 
-*Every plan lives in `plans/YYYYMMDD-<slug>.md` and is listed here, always — a
-stage change moves its link between sections, never removes it. `## Active`
-holds plans without a `stage`; `## Done` mirrors `stage: done`; `## Cancelled`
-mirrors `stage: cancelled`. The plan skill files new plans, the ship skill moves
-them.*
-
-## Active
-
-[Streak widget](plans/20260720-streak-widget.example)
-
-[MVP](plans/mvp.example)
-
-## Done
+*Every plan lives in `plans/YYYYMMDD-<slug>.md` and is listed here, always, in
+one list sorted by slug without the date prefix. A plan's stage and its place in
+the build order (`rank`) live only in its frontmatter, so shipping or cancelling
+a plan never edits this page.*
 
 [Focus sessions](plans/20260701-focus-sessions.example)
 
-## Cancelled
+[MVP](plans/mvp.example)
+
+[Streak widget](plans/20260720-streak-widget.example)

@@ -1,8 +1,7 @@
 # Project Update Log
 
-The history of this workspace, newest first. The `ship` skill appends a dated
-group on every release; any skill that creates or retires a document adds a line
-to the current day's group.
+The history of this workspace, newest first. The `ship` skill's release cut adds
+one dated group per release; nothing else writes here.
 
 ## 2026-08-01
 
