@@ -284,7 +284,9 @@ only where it asserts the old layout
     page, and the log against `base`,
     `test_shared_diff_covers_hubs_releases_and_log_only` checks it, and both
     `test_ship_approved` workflow tests assert it is empty
-- [ ] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes
+- [x] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes
+  - **Evidence:** commit 6494a782;
+    `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passed (10)
 
 ### Task 11: CI warns about equal ranks
 
