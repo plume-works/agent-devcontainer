@@ -168,8 +168,10 @@ under `docs/knowledge/tests/`
   - **Evidence:** commit 59a15b09; iwe-shipper Step 6 sets `stage`, `completed`,
     implemented features and done bugs, removes `rank`, and writes no hub,
     release page, or log
-- [ ] Cancelling sets `stage: cancelled` and removes `rank` without editing the
+- [x] Cancelling sets `stage: cancelled` and removes `rank` without editing the
   hub
+  - **Evidence:** commit 59a15b09; iwe-shipper Step 2 sets `stage: cancelled`,
+    removes `rank`, and leaves `data/plans.md` untouched
 - [ ] Release mode builds `releases/<X.Y.Z>.md` from
   `iwe find --filter '{type: plan, stage: done, completed: {$gt: <previous release date>}}'`
   and each plan's `release` list — a feature absent from every earlier release
