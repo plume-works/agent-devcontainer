@@ -6,7 +6,7 @@ release:
 description: A zsh bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — Homebrew tools including uv, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:45:07Z
+  at: 2026-10-31T21:27:47Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml
@@ -17,6 +17,7 @@ sources:
 - resource: .agents/AGENTS.md
 - resource: docs/knowledge/data/plans/20261029-catalog-scripts-python.md
 - resource: https://docs.astral.sh/uv/concepts/python-versions/
+- resource: docs/knowledge/data/plans/20261031-remove-codex.md
 ---
 
 # Bootstrap agentdev natively on macOS with Homebrew
@@ -42,6 +43,9 @@ stock macOS host:
 - The tools the catalog calls — `gh`, `jq`, `shellcheck`, `uv`, `bun`,
   `pre-commit`, `iwe`, `codebase-memory-mcp` — and the agent CLIs that install
   the plugin are absent.
+
+Claude Code is the agent CLI the bootstrap provisions: [Remove Codex
+support](20261031-remove-codex.md) drops Codex from the supported harnesses.
 
 ## Approach
 
@@ -71,8 +75,8 @@ on `PATH` for re-runs. Steps, each idempotent:
    re-run; never duplicate it.
 6. Unless `--skip-plugins` is passed: register the
    `plume-works/agent-devcontainer` GitHub marketplace in Claude Code at user
-   scope and install `agentdev` only; when `codex` is on `PATH`, do the
-   equivalent for Codex.
+   scope and install `agentdev` only. Codex is never touched, even when its CLI
+   is on `PATH`.
 7. Verify: print each tool's version, confirm the `python3` a fresh login shell
    resolves reports the recorded version, and exit nonzero naming whatever
    failed.
@@ -99,9 +103,9 @@ Assumptions:
   interactive `sudo` the script should not drive.
 - The bootstrap is a user-run command, not a skill script, so it does not adopt
   the `RESULT=` contract — it must run before the catalog is on disk.
-- Codex gets the same `agentdev` install when its CLI is present. The user
-  decided the plugin step covers Claude Code, plus Codex when present, and
-  installs `agentdev` only.
+- The plugin step covers Claude Code only and installs `agentdev` only. The user
+  decided both: `agentdev` only, and Claude Code only once the branch was
+  stacked on [Remove Codex support](20261031-remove-codex.md).
 - The recorded Python version is the lower bound of the root `pyproject.toml`'s
   `requires-python`, the oldest version the repository's own tests run the
   catalog on.
@@ -278,6 +282,25 @@ arguments; point `HOME` at a temporary directory.
     `data/architecture/catalog-script-language` and names the exception in its
     description and `## Decision`; `iwe schema validate` passes.
 
+### Task 6: Drop the Codex plugin step
+
+**Files:** Modify: `.agents/plugins/agentdev/bin/macos-bootstrap.zsh`,
+`.agents/plugins/agentdev/tests/test_macos_bootstrap.py`,
+`.agents/plugins/agentdev/README.md`
+
+- [ ] `install_plugins` makes no `codex` call even when `codex` is on `PATH`;
+  `test_plugin_step_includes_codex_when_present` is replaced by a test that
+  stubs `codex` on `PATH` and asserts the script never invokes it.
+- [ ] The script's `--help` text and the README's "Native macOS" section name
+  Claude Code as the only agent the plugin step installs into.
+- [ ] Task 1's tests pass:
+  `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
+
+### Task 7: Green macOS CI run without Codex
+
+- [ ] The `macos-bootstrap` job passes on the pull request at a commit that
+  includes Task 6.
+
 ## Spec changes
 
 Creates `spec/macos-native-bootstrap`:
@@ -349,13 +372,19 @@ on re-run and leaving all content outside it unchanged.
 
 Unless `--skip-plugins` is given, the script SHALL register the
 `plume-works/agent-devcontainer` marketplace and install `agentdev` at user
-scope in Claude Code, and in Codex when its CLI is on `PATH`. It SHALL NOT
-install `self-improve`.
+scope in Claude Code. It SHALL NOT install `self-improve`, and SHALL NOT invoke
+`codex`.
 
 #### Scenario: Plugins skipped
 
 - **WHEN** the script runs with `--skip-plugins`
-- **THEN** it invokes neither `claude` nor `codex`
+- **THEN** it does not invoke `claude`
+
+#### Scenario: Codex is installed
+
+- **WHEN** `codex` is on `PATH`
+- **THEN** the script installs `agentdev` in Claude Code
+- **AND** it does not invoke `codex`
 
 ### Requirement: the bootstrap verifies its result
 
@@ -391,7 +420,8 @@ Python](20261029-catalog-scripts-python.md)
 - The MCP gateway sidecar, the egress firewall, git SSH signing, and the keyring
   the devcontainer lifecycle sets up.
 - Installing `self-improve`.
-- Installing `iwec` or registering an IWE MCP server in Claude Code or Codex.
+- Installing `iwec` or registering an IWE MCP server in Claude Code.
+- Installing the plugin into any agent CLI other than Claude Code.
 - Xcode, Expo, and iOS Simulator setup.
 - Renovate automation for the script's release pins; the Task 1 sync test turns
   an image-only bump into a failing test instead.
@@ -405,17 +435,22 @@ Verified anchor points (line numbers as of 2026-10-31):
   `binaries: [iwe, iwes]` at `:63`)
 - `ansible/roles/dev_tools/defaults/main.yml:84` — `codebase-memory-mcp` entry
   (`v0.12.1`)
-- `ansible/roles/agentic_tools/tasks/install_catalog.yml:10` — the staged Claude
-  marketplace manifest; `:15` — the Codex manifest, the image's equivalent of
-  the plugin step
-- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:53`
-  `validate-agent-files` job; `:79` agentdev plugin test step
-- `.pre-commit-config.yaml:50` — the `shellcheck` hook
+- `ansible/roles/agentic_tools/tasks/install_catalog.yml:9` — the staged Claude
+  marketplace manifest, the image's equivalent of the plugin step
+- `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:52`
+  `validate-agent-files` job; `:78` agentdev plugin test step; `:102`
+  `macos-bootstrap` job
+- `.pre-commit-config.yaml:51` — the `shellcheck` hook
 - `AGENTS.md:95` — the Shell convention: bash and `shellcheck`
-- `.agents/plugins/agentdev/README.md:81` — `bin/` is on `PATH` while the plugin
-  is enabled
-- `docs/knowledge/data/architecture/template-boundary.md:272` — Publisher-only
-  source section listing `.agents/`
+- `.agents/plugins/agentdev/README.md:109` — `bin/` is on `PATH` while the
+  plugin is enabled; `:60` — `## Native macOS`, whose `:84` names Codex
+- `docs/knowledge/data/architecture/template-boundary.md:284` — Publisher-only
+  source section listing `.agents/`; `:273` — `## Native macOS host`
 - `.agents/AGENTS.md:16` — plugin tests must pass from a consumer's plugin
   cache, resolving scripts through `plugin_root`; `:36` — every `bin/` and
   `agent-code/` script is standard-library-only Python
+- `.agents/plugins/agentdev/bin/macos-bootstrap.zsh:111` — `install_plugins`;
+  `:120` — its Codex branch
+- `.agents/plugins/agentdev/tests/test_macos_bootstrap.py:71` — `CODEX_STUB`;
+  `:292` — `test_plugin_step_includes_codex_when_present`; `:304` —
+  `test_skip_plugins_calls_neither_agent_plugin_command`
