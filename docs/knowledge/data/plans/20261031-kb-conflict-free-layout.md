@@ -85,22 +85,22 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
 
 - [x] `plan`, `bug`, and `task` schemas accept an optional integer `rank` of at
   least 1, and a test rejects a non-integer and a zero rank
-  - **Evidence:** commit 36fa31c4;
+  - **Evidence:** commit 13b3c410;
     `uv run pytest docs/knowledge/tests/test_rank_and_base_schemas.py` passed
     (29 tests) — rank cases in `test_invalid_rank_is_rejected` and
     `test_positive_integer_rank_passes`
 - [x] No schema and no document under `data/` declares `status`
-  - **Evidence:** commit 36fa31c4; `test_no_schema_declares_status` passed, and
+  - **Evidence:** commit 13b3c410; `test_no_schema_declares_status` passed, and
     `grep -rn '^status:' docs/knowledge/data` finds only
     `releases/unreleased.md`, which Task 6 deletes
 - [x] `base.yaml` requires a non-empty `type` on every document under `data/`
   except `data/log`, and replaces the `okf` binding; a test rejects a document
   without `type`
-  - **Evidence:** commit 36fa31c4; `test_document_without_type_is_rejected`
+  - **Evidence:** commit 13b3c410; `test_document_without_type_is_rejected`
     passed for missing, absent, and empty `type`
 - [x] `log.yaml` carries the date-grouped body shape `okf-log.yaml` held, bound
   to `data/log`; the `okf-index` binding and schema are gone
-  - **Evidence:** commit 36fa31c4; `.iwe/schemas/log.yaml` bound by
+  - **Evidence:** commit 13b3c410; `.iwe/schemas/log.yaml` bound by
     `[schemas.log]` to `data/log`, no `okf` binding remains in
     `.iwe/config.toml`, and `iwe schema validate` exits 0
 
@@ -110,13 +110,13 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
 under `docs/knowledge/tests/`
 
 - [x] The hub schema binds every hub and rejects a `##` section in its body
-  - **Evidence:** commit 102bfc2d;
+  - **Evidence:** commit 43b4fa10;
     `uv run pytest docs/knowledge/tests/test_hub_order.py` passed (13 tests),
     including `test_every_hub_is_bound` and `test_sectioned_hub_is_rejected`
 - [x] A test fails when a hub's inclusion links are not sorted by member key
   with any `YYYYMMDD-` prefix removed, and names the hub and the first
   out-of-order link
-  - **Evidence:** commit 102bfc2d; `test_hub_links_are_sorted` passes for all
+  - **Evidence:** commit 43b4fa10; `test_hub_links_are_sorted` passes for all
     nine hubs, and `test_out_of_order_link_is_named` asserts the first
     out-of-order link is reported with its hub
 
@@ -128,12 +128,12 @@ under `docs/knowledge/tests/`
 
 - [x] Every hub is one sorted list of inclusion links with no sections, and
   every member it linked before is still linked
-  - **Evidence:** commit 854b910a; the set of link targets in each of the nine
+  - **Evidence:** commit f50217b4; the set of link targets in each of the nine
     hubs is identical to its parent commit's, and `test_hub_links_are_sorted`
     passes
 - [x] `data/index.md` is removed with `iwe delete`, the base schema binds every
   document under `data/` but the log, and `iwe stats` reports no broken link
-  - **Evidence:** commit 854b910a; `iwe delete data/index`, `[schemas.base]`
+  - **Evidence:** commit f50217b4; `iwe delete data/index`, `[schemas.base]`
     matches `data/**` except `data/log`, `iwe schema validate` exits 0, and
     `iwe stats` lists no broken link
 
@@ -145,7 +145,7 @@ under `docs/knowledge/tests/`
   order carries a `rank`: plans in their `## Active` order, open bugs at the
   positions the active plans' prose places them, and backlog tasks by priority
   and then their order within a priority section, stepping by 100
-  - **Evidence:** commit dafb1d94; 10 active plans, the 1 open bug an active
+  - **Evidence:** commit 27791e73; 10 active plans, the 1 open bug an active
     plan's `release` fixes, and 13 planned tasks carry ranks 100–2400; this plan
     sits right after Remove Codex support on the user's direction; open bugs no
     active plan places stay unsequenced
@@ -157,7 +157,7 @@ under `docs/knowledge/tests/`
   supplies corrections that are applied
   - **Evidence:** the maintainer approved the sequence
     `iwe find --filter '{rank: {$exists: true}}' --sort rank:1` prints at commit
-    40379eed, with no corrections
+    ba6e5cdc, with no corrections
 
 ### Task 6: Ship and the release cut follow the layout
 
@@ -170,12 +170,12 @@ under `docs/knowledge/tests/`
 - [x] Shipping sets `stage` and `completed`, removes `rank` from the plan and
   from each bug it fixes, sets each listed feature implemented, and writes no
   hub, release page, or log entry
-  - **Evidence:** commit 59a15b09; iwe-shipper Step 6 sets `stage`, `completed`,
+  - **Evidence:** commit 18f98893; iwe-shipper Step 6 sets `stage`, `completed`,
     implemented features and done bugs, removes `rank`, and writes no hub,
     release page, or log
 - [x] Cancelling sets `stage: cancelled` and removes `rank` without editing the
   hub
-  - **Evidence:** commit 59a15b09; iwe-shipper Step 2 sets `stage: cancelled`,
+  - **Evidence:** commit 18f98893; iwe-shipper Step 2 sets `stage: cancelled`,
     removes `rank`, and leaves `data/plans.md` untouched
 - [x] Release mode builds `releases/<X.Y.Z>.md` from
   `iwe find --filter '{type: plan, stage: done, completed: {$gt: <previous release date>}}'`
@@ -183,13 +183,13 @@ under `docs/knowledge/tests/`
   page under Added, one present under Changed, a bug under Fixed — links it from
   `data/releases.md` in sorted position, and adds one dated group to
   `data/log.md`
-  - **Evidence:** commit 59a15b09; iwe-shipper Step 8 lists plans by the
+  - **Evidence:** commit 18f98893; iwe-shipper Step 8 lists plans by the
     `completed` filter, classifies each `release` key against earlier release
     pages into Added, Changed, and Fixed, links the page in sorted position, and
     adds one `data/log.md` group
 - [x] Resuming a partial ship or release cut never writes a second copy of a
   release link or log group
-  - **Evidence:** commit 59a15b09; ship writes frontmatter only, and iwe-shipper
+  - **Evidence:** commit 18f98893; ship writes frontmatter only, and iwe-shipper
     Step 8 keeps an existing page's links, ensures exactly one release link and
     one dated log group, and adds only missing bullets
 - [x] The accumulated entries are cut as release 2.0.0, as the maintainer
@@ -198,16 +198,16 @@ under `docs/knowledge/tests/`
   dated, and `data/log.md` gains one release bullet for it. Plans that predate
   `release` and fixes that shipped without a plan cannot be rebuilt by the
   release cut, so they close with this last accumulator.
-  - **Evidence:** commit 45a9cae4;
+  - **Evidence:** commit 6c56f53b;
     `iwe rename data/releases/unreleased data/releases/2.0.0` kept all entries,
     the page is `stage: released` dated 2026-10-31, and `data/log.md` gained one
     `**Release**` bullet
 - [x] No `data/releases/unreleased.md` remains, and `data/releases.md` links
   only cut releases
-  - **Evidence:** commit 45a9cae4; `data/releases.md` links `1.0.0` and `2.0.0`
+  - **Evidence:** commit 6c56f53b; `data/releases.md` links `1.0.0` and `2.0.0`
     only, and `test_hub_links_are_sorted` passes for it
 - [x] `release` accepts only `stage: released`
-  - **Evidence:** commit 45a9cae4; `.iwe/schemas/release.yaml` declares
+  - **Evidence:** commit 6c56f53b; `.iwe/schemas/release.yaml` declares
     `stage: { const: released }`, copied to the scaffold, and
     `uv run pytest docs/knowledge/tests` passed (82)
 
@@ -223,26 +223,26 @@ under `docs/knowledge/tests/`
 - [x] Capture and Plan add a new member's link at its sorted position in the
   hub, never under a section, and Plan sets an optional `rank` when the user
   names the plan's place in the sequence
-  - **Evidence:** commit 91bbfe2c; iwe-capture Step 5 and iwe-planner Step 5
+  - **Evidence:** commit 627a5aab; iwe-capture Step 5 and iwe-planner Step 5
     insert the link at its sorted position, and iwe-planner sets `rank` to its
     neighbours' midpoint only when the user names the place
 - [x] Capture's someday promotion and Setup's onboarding-task completion edit
   frontmatter only, and remove a hub link only when the member leaves the hub
-  - **Evidence:** commit 91bbfe2c; iwe-capture promotion removes the
+  - **Evidence:** commit 627a5aab; iwe-capture promotion removes the
     `data/someday.md` link only because the document leaves that hub, and
     iwe-setup Step 6 sets `stage`, `completed`, and drops `rank` without moving
     a link
 - [x] Implement, Verify, Weekly, and Plan list active work with the two rank
   queries and select members by `type`, with no `--included-by` on a work hub
   and no reference to a hub section
-  - **Evidence:** commit 91bbfe2c;
+  - **Evidence:** commit 627a5aab;
     `grep -rn 'included-by data/\(plans\|backlog\|bugs\|features\)\|## Active\|## High\|## Done' .agents/plugins/agentdev/agents .agents/plugins/agentdev/skills/*/SKILL.md`
     finds nothing, and each new `iwe find` filter returns the expected keys
     against this graph
 - [x] Validation with
   `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes
-  - **Evidence:** commit 91bbfe2c;
+  - **Evidence:** commit 627a5aab;
     `uv run validate_agent_files --recommend . --require-marketplace claude`
     reported 66/66 skills valid, 0 errors, 0 warnings, and
     `uv run pytest .agents/plugins/agentdev/tests` passed (408)
@@ -257,14 +257,14 @@ under `docs/knowledge/tests/`
   hubs, and the release cut as the only writer of release pages and the log; no
   text describes dual representation, hub sections, OKF, `data/index.md`,
   `status`, or an unreleased accumulator
-  - **Evidence:** commit adefc667; the plan's Verification grep over
+  - **Evidence:** commit 35dd2c72; the plan's Verification grep over
     `docs/knowledge/AGENTS.md`, `SCHEMA.md`, the catalog agents, and the `iwe-*`
     skills finds no match, and
     `grep -n 'OKF\|index.md\|unreleased\|Dual\|status' docs/knowledge/{STRUCTURE,README}.md`
     finds none
 - [x] `SCHEMA.md` documents `rank`, the base schema, the log schema, and the
   flat hub body
-  - **Evidence:** commit adefc667; `SCHEMA.md` gains `## The build order — rank`
+  - **Evidence:** commit 35dd2c72; `SCHEMA.md` gains `## The build order — rank`
     and `## The log — data/log.md`, names `base.yaml`, and states the flat hub
     body under `## Hubs and the trackers`
 
@@ -276,16 +276,16 @@ releases, and onboarding tasks); Modify: `docs/knowledge/tests/test_iwe_seed.py`
 only where it asserts the old layout
 
 - [x] The scaffold's support files and `.iwe/` match the publisher workspace's
-  - **Evidence:** commit 73ba80b7;
+  - **Evidence:** commit 8a2f4241;
     `test_scaffold_support_files_match_the_publisher_workspace` passed
 - [x] The seed has flat sorted hubs, no `data/index.md`, no unreleased page, and
   a release example at `stage: released`
-  - **Evidence:** commit 73ba80b7; the seed hubs hold no `##` section and pass
+  - **Evidence:** commit 8a2f4241; the seed hubs hold no `##` section and pass
     the hub schema in `test_schema_validation_passes`, `data/index.md` and
     `releases/unreleased.md` were removed with `iwe delete`, and
     `releases/0.1.0.example.md` is `stage: released`
 - [x] `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passes
-  - **Evidence:** commit 73ba80b7;
+  - **Evidence:** commit 8a2f4241;
     `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passed (11)
 
 ### Task 10: The e2e workflow harness checks the new ship contract
@@ -297,12 +297,12 @@ only where it asserts the old layout
 
 - [x] The clone helper reports whether ship changed any hub, release page, or
   log, and the workflow tests assert that a ship changed none of them
-  - **Evidence:** commit 6494a782; `Clone.shared_diff` diffs every hub, release
+  - **Evidence:** commit fa3e89b5; `Clone.shared_diff` diffs every hub, release
     page, and the log against `base`,
     `test_shared_diff_covers_hubs_releases_and_log_only` checks it, and both
     `test_ship_approved` workflow tests assert it is empty
 - [x] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes
-  - **Evidence:** commit 6494a782;
+  - **Evidence:** commit fa3e89b5;
     `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passed (10)
 
 ### Task 11: CI warns about equal ranks
@@ -311,7 +311,7 @@ only where it asserts the old layout
 
 - [x] A step prints a GitHub `::warning::` naming every pair of documents that
   share a `rank`, and never fails the job
-  - **Evidence:** commit 3a0dfaed; actionlint and zizmor pass on
+  - **Evidence:** commit 89826910; actionlint and zizmor pass on
     `validate-knowledge-base.yml`; the step's jq program prints
     `::warning::rank 1 is shared by a, b` for two equal ranks and nothing for
     this graph, and `continue-on-error: true` keeps the job green
