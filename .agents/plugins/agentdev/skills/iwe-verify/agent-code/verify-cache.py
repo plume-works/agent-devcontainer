@@ -242,7 +242,7 @@ def run_save(options: Options, report: Path) -> int:
 
 def main() -> int:
     """Dispatch the subcommand and report its result."""
-    if any(argument in ('-h', '--help') for argument in sys.argv[1:]):
+    if sys.argv[1:2] in (['-h'], ['--help']):
         print(USAGE)
         return 0
     options = parse_arguments(sys.argv[1:])

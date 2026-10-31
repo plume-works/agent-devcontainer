@@ -123,3 +123,6 @@ runtime](features/standalone-remote-control-autostart.md)
 [Verify report cache](features/verify-report-cache.md)
 
 [Dev Container home volume](features/devcontainer-home-volume.md)
+
+[Claude Code and OpenCode are the only supported
+harnesses](features/claude-and-opencode-only-harnesses.md)

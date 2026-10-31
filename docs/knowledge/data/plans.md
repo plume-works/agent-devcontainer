@@ -26,6 +26,8 @@ Python](plans/20261029-catalog-scripts-python.md)
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
+[Remove Codex support](plans/20261031-remove-codex.md)
+
 [Run the Dev Container as a non-root account with one home
 volume](plans/20261030-devcontainer-home-volume.md)
 
