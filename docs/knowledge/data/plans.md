@@ -46,6 +46,8 @@ App](plans/20261030-responder-quill-app-identity.md)
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
 
+[Remove the codebase map](plans/20261031-remove-codebase-map.md)
+
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
 ## Done

@@ -68,7 +68,8 @@ Settled defaults the tasks apply:
 - Renumbering happens only in a reorder pull request.
 - Dependencies stay in plan prose.
 
-The codebase map (`data/codebase/`), its digests, and its hub stay as they are.
+No codebase map exists when this plan starts, so every hub follows the same
+rules.
 
 ## Implementation Steps
 
@@ -95,8 +96,7 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
 **Files:** Modify: `.iwe/config.toml`, `.iwe/schemas/hub.yaml`; Create: a test
 under `docs/knowledge/tests/`
 
-- [ ] The hub schema binds every hub except `data/codebase` and rejects a `##`
-  section in its body
+- [ ] The hub schema binds every hub and rejects a `##` section in its body
 - [ ] A test fails when a hub's inclusion links are not sorted by member key
   with any `YYYYMMDD-` prefix removed, and names the hub and the first
   out-of-order link
@@ -107,8 +107,8 @@ under `docs/knowledge/tests/`
 `features.md`, `spec.md`, `architecture.md`, `concept.md`, `someday.md`; Delete:
 `docs/knowledge/data/index.md`
 
-- [ ] Every hub except `data/codebase` is one sorted list of inclusion links
-  with no sections, and every member it linked before is still linked
+- [ ] Every hub is one sorted list of inclusion links with no sections, and
+  every member it linked before is still linked
 - [ ] `data/index.md` is removed with `iwe delete`, and `iwe stats` reports no
   broken link
 
@@ -159,7 +159,6 @@ under `docs/knowledge/tests/`
 `.agents/plugins/agentdev/agents/iwe-implementer.agent.md`,
 `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`,
 `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md`,
-`.agents/plugins/agentdev/skills/iwe-map/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md`
 
 - [ ] Capture and Plan add a new member's link at its sorted position in the
@@ -170,7 +169,6 @@ under `docs/knowledge/tests/`
 - [ ] Implement, Verify, Weekly, and Plan list active work with the two rank
   queries and select members by `type`, with no `--included-by` on a work hub
   and no reference to a hub section
-- [ ] Map writes no log entry
 - [ ] Validation with
   `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes
@@ -264,8 +262,7 @@ valid, and CI SHALL warn about them without failing.
 
 ### Requirement: Hubs are flat alphabetical membership lists
 
-Every hub except `data/codebase` SHALL be one list of inclusion links with no
-`##` sections, sorted by member key with any `YYYYMMDD-` prefix removed. A
+Every hub SHALL be one list of inclusion links with no `##` sections, sorted by member key with any `YYYYMMDD-` prefix removed. A
 skill SHALL edit a hub only when a member is created, removed, or renamed,
 never to record a stage or priority change.
 
@@ -477,6 +474,9 @@ convention.
 
 ## Depends on
 
+- [Remove the codebase map](20261031-remove-codebase-map.md) ships first: it
+  deletes the `data/codebase` hub and the Map skill, so no hub is exempt from
+  the flat-list rules and no skill writes map entries to the log.
 - [Remove Codex support](20261031-remove-codex.md) ships first: it removes the
   Codex marketplace from agent-file validation and the Codex e2e harness, and
   edits the same catalog agents and skills this plan rewrites.
@@ -499,10 +499,7 @@ convention.
 
 ## Out of scope
 
-- The codebase map: `data/codebase/` docs, their `source_digest` and `verified`
-  fields, the inventory text in map docs, the map's hub sections, and the
-  pre-push map freshness check.
-- The `generated` and `verified` provenance fields on non-map documents.
+- The `generated` and `verified` provenance fields.
 - Conflicts in Renovate-managed pin and workflow files.
 - Recording dependencies between work items in frontmatter.
 - Rewriting the history in `data/log.md` or the 1.0.0 release page.
@@ -546,8 +543,6 @@ Verified anchor points (line numbers as of 2026-10-31):
   from `## Active`
 - `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md:22` — backlog head from
   `## High`
-- `.agents/plugins/agentdev/skills/iwe-map/SKILL.md:117` — map refresh adds a
-  log bullet
 - `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md:50` — onboarding tasks
   moved to `## Done`
 - `docs/knowledge/AGENTS.md:35` — the Record step's hub and log transitions
