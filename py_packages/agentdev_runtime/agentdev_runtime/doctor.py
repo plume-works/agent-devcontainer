@@ -229,9 +229,12 @@ def auth(report: Report, settings: env.Settings) -> None:
         report.result('git credential helper', 'PASS', 'configured')
     else:
         report.result('git credential helper', 'FAIL', 'not configured')
-    name = git_config('user.name').stdout.strip()
-    email = git_config('user.email').stdout.strip()
-    if name and email:
+    # git var resolves identity as a commit would, including GIT_AUTHOR_* and GIT_COMMITTER_*.
+    roles = ('GIT_AUTHOR_IDENT', 'GIT_COMMITTER_IDENT')
+    identities = [
+        subprocess.run(['git', 'var', role], capture_output=True, check=False) for role in roles
+    ]
+    if all(result.returncode == 0 for result in identities):
         report.result('git user', 'PASS', 'name and email configured')
     else:
         report.result('git user', 'FAIL', 'name or email missing')

@@ -68,8 +68,9 @@ fi
 case "$command_name:$*" in
   "gh:auth status"*) printf '%s\\n' SHOULD_NOT_APPEAR ;;
   "git:config --get-all credential.https://github.com.helper") printf '%s\\n' 'helper-with-SECRET_VALUE' ;;
-  "git:config user.name") printf '%s\\n' 'Test User' ;;
-  "git:config user.email") printf '%s\\n' 'test@example.invalid' ;;
+  "git:var GIT_AUTHOR_IDENT"|"git:var GIT_COMMITTER_IDENT")
+    [[ -z "${{NO_GIT_IDENT:-}}" ]] || exit 128
+    printf '%s\\n' 'Test User <test@example.invalid> 0 +0000' ;;
   "sudo:iptables -S OUTPUT") printf '%s\\n' '-A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT' ;;
   "curl:"*) printf 200 ;;
   *) printf '%s\\n' ok ;;
@@ -246,3 +247,17 @@ def test_unknown_runtime_mode_and_firewall_value_fail(tmp_path: Path) -> None:
     assert re.search(r'^runtime mode\s+FAIL\b', result.stdout, re.MULTILINE)
     assert re.search(r'^runtime firewall\s+FAIL\b', result.stdout, re.MULTILINE)
     assert 'Overall: FAIL' in result.stdout
+
+
+def test_an_identity_git_resolves_passes_the_git_user_check(tmp_path: Path) -> None:
+    result = _run_health(tmp_path)
+    assert re.search(r'^git user\s+PASS\b', result.stdout, re.MULTILINE)
+    calls = (tmp_path / 'calls.log').read_text()
+    assert 'git var GIT_AUTHOR_IDENT' in calls
+    assert 'git var GIT_COMMITTER_IDENT' in calls
+
+
+def test_an_identity_git_cannot_resolve_fails_the_git_user_check(tmp_path: Path) -> None:
+    result = _run_health(tmp_path, environ={'NO_GIT_IDENT': '1'})
+    assert result.returncode == 1
+    assert re.search(r'^git user\s+FAIL\b', result.stdout, re.MULTILINE)
