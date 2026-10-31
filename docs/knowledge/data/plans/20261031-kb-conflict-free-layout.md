@@ -88,7 +88,10 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
     `uv run pytest docs/knowledge/tests/test_rank_and_base_schemas.py` passed
     (29 tests) — rank cases in `test_invalid_rank_is_rejected` and
     `test_positive_integer_rank_passes`
-- [ ] No schema and no document under `data/` declares `status`
+- [x] No schema and no document under `data/` declares `status`
+  - **Evidence:** commit 36fa31c4; `test_no_schema_declares_status` passed, and
+    `grep -rn '^status:' docs/knowledge/data` finds only
+    `releases/unreleased.md`, which Task 6 deletes
 - [ ] `base.yaml` requires a non-empty `type` on every document under `data/`
   except `data/log`, and replaces the `okf` binding; a test rejects a document
   without `type`
