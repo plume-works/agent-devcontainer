@@ -300,9 +300,13 @@ deletion of this one function; and running the responder as a host job through
   - **Evidence:** commit 052196c; `test_firewall_allowlist.py` covers the
     checkout copy, the image fallback, and deploy's setting and image copy,
     passing under `uv run pytest py_packages/agentdev_runtime`.
-- [ ] A set `FIREWALL_ALLOWLIST` names the allowlist in both profiles, ahead of
+- [x] A set `FIREWALL_ALLOWLIST` names the allowlist in both profiles, ahead of
   the checkout and image copies. `test_firewall_allowlist.py` proves it in the
   devcontainer profile with a checkout copy present.
+  - **Evidence:** commit bdcbd9ca;
+    `test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer` and
+    `test_deploy_reads_the_image_copy_or_the_setting` pass under
+    `uv run pytest py_packages/agentdev_runtime` (89 passed).
 - [x] The Ansible role keeps `iptables` and `ipset`, drops the script, the
   sudoers file, and any package only the script used once a repository grep
   confirms no other user.
