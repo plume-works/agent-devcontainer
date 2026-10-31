@@ -278,8 +278,12 @@ only where it asserts the old layout
 `scripts/e2e/iwe-workflows/test_iwe_workflows_opencode.py`,
 `scripts/tests/test_e2e_iwe_workflows_clone.py`
 
-- [ ] The clone helper reports whether ship changed any hub, release page, or
+- [x] The clone helper reports whether ship changed any hub, release page, or
   log, and the workflow tests assert that a ship changed none of them
+  - **Evidence:** commit 6494a782; `Clone.shared_diff` diffs every hub, release
+    page, and the log against `base`,
+    `test_shared_diff_covers_hubs_releases_and_log_only` checks it, and both
+    `test_ship_approved` workflow tests assert it is empty
 - [ ] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes
 
 ### Task 11: CI warns about equal ranks
