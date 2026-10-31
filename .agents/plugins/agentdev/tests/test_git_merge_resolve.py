@@ -132,7 +132,14 @@ def test_merge_in_progress_is_refused(plugin_root: Path, repository: Path) -> No
     git(repository, 'checkout', '--quiet', 'fixture-topic')
     commit_file(repository, 'fixture.txt', 'topic side\n', 'topic edit')
     git(repository, 'checkout', '--quiet', 'fixture-feature')
-    subprocess.run(['git', 'merge', 'fixture-topic'], cwd=repository, capture_output=True)
+    subprocess.run(
+        ['git', 'merge', 'fixture-topic'],
+        cwd=repository,
+        capture_output=True,
+        check=False,
+        env={**os.environ, **FIXTURE_ENV},
+    )
+    assert (repository / '.git' / 'MERGE_HEAD').is_file()
 
     completed = run_script(plugin_root, repository, 'fixture-topic')
 

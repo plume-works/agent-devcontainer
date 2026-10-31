@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:73a2f57389e46fc3eb4319e6a2bef37d21a4f7c9fe9188d15d2cc33fbccc4b28
+source_digest: sha256:2f9b9c711bed225cd1cf88e6e8d8d746c5d15f21bcdb93561816fec19e9b707d
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T01:42:14Z
+  at: 2026-10-31T03:45:30Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T01:42:14Z
+  at: 2026-10-31T03:45:30Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
