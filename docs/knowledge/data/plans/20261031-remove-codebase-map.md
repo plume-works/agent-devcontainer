@@ -129,16 +129,24 @@ Rejected:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py`.
 
-- [ ] `iwe-setup` step 3 drops the parenthetical that defers a per-module map to
+- [x] `iwe-setup` step 3 drops the parenthetical that defers a per-module map to
   `/agentdev:iwe-map`; the starting architecture document is the onboarding's
   code orientation.
-- [ ] `iwe-bootstrap` names only `/agentdev:iwe-setup` as the next step (rule 2,
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" edits `iwe-setup/SKILL.md` step 3.
+- [x] `iwe-bootstrap` names only `/agentdev:iwe-setup` as the next step (rule 2,
   the `SUCCESS` result row, completion criteria), and `bootstrap-iwe.py` prints
   `NEXT_SKILLS=iwe-setup`; `test_iwe_bootstrap.py` asserts that value.
-- [ ] Template-consume setup step 5 and the guide's "Onboard the consumer's
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update"; `uv run pytest .agents/plugins/agentdev/tests` passed
+    (424), including `test_iwe_bootstrap.py` asserting `NEXT_SKILLS=iwe-setup`.
+- [x] Template-consume setup step 5 and the guide's "Onboard the consumer's
   project memory" invoke only `/agentdev:iwe-setup`. The greenfield case no
   longer defers mapping, and verification drops the `stale-map-docs.py` check.
-- [ ] Template-consume update mode removes a consumer's codebase map without
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" edits `template-consume/SKILL.md` setup step 5 and the
+    guide's onboarding, greenfield, and verification text.
+- [x] Template-consume update mode removes a consumer's codebase map without
   asking, and reports each removal. The step sits in update mode's procedure,
   and step 8's "migrating their documents is the user's decision" names it as
   the exception. It removes, wherever present, every `data/codebase/` document
@@ -151,9 +159,15 @@ Rejected:
   `iwe schema validate` from the consumer root. The guide's update section
   states the same, and drops the sentence saying update mode never re-runs
   `/agentdev:iwe-map`.
-- [ ] The "metadata without template-consume" fixture in
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" adds update-mode step 9, names it as the exception in step
+    8, and states the removal in the guide's `## Ongoing maintenance`.
+- [x] The "metadata without template-consume" fixture in
   `test_template_consume_check_updates.py` uses a neutral key in place of
   `iwe-map`, and the test passes.
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" uses an `other-skill` key;
+    `uv run pytest .agents/plugins/agentdev/tests` passed (424).
 
 ### Task 3: Remove the map from the scaffold and this workspace's support files
 
