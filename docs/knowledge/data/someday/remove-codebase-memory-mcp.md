@@ -6,7 +6,7 @@ generated:
   at: 2026-10-31T23:30:00Z
 sources:
 - resource: AGENTS-codebase-memory-mcp.md
-- resource: .devcontainer/scripts/runtime-supervisor.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
 - resource: docs/knowledge/data/architecture/cbm-daemon-lifecycle.md
 - resource: https://github.com/plume-works/Dr.QP
 ---
