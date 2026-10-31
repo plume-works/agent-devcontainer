@@ -97,8 +97,11 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
   without `type`
   - **Evidence:** commit 36fa31c4; `test_document_without_type_is_rejected`
     passed for missing, absent, and empty `type`
-- [ ] `log.yaml` carries the date-grouped body shape `okf-log.yaml` held, bound
+- [x] `log.yaml` carries the date-grouped body shape `okf-log.yaml` held, bound
   to `data/log`; the `okf-index` binding and schema are gone
+  - **Evidence:** commit 36fa31c4; `.iwe/schemas/log.yaml` bound by
+    `[schemas.log]` to `data/log`, no `okf` binding remains in
+    `.iwe/config.toml`, and `iwe schema validate` exits 0
 
 ### Task 2: Hubs are flat and sorted
 
