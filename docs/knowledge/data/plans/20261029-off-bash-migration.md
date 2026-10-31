@@ -417,11 +417,17 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/reinstall-agentdev-codex.sh`,
 `.devcontainer/scripts/reinstall-agentdev-opencode.sh`
 
-- [ ] `agentdev-runtime state create|links|agent-policy|cbm` runs under one
+- [x] `agentdev-runtime state create|links|agent-policy|cbm` runs under one
   configuration lock, keeps deploy's fatal and the devcontainer's nonfatal CBM
   install, the user-tool registration, the auth directories, the
   `~/.claude.json` link, the Codex `auth.json` link repair, and the Claude
   pre-approval with its skip variable.
+  - **Evidence:** commit 39045fa; `test_agent_runtime_state.py` (17 passed,
+    including the lock taking turns across processes), `test_claude_state.py`,
+    `test_codex_config.py`, `test_opencode_config.py`, and the reworked
+    `test_configure_*` and `test_preapprove_claude_workspace.py` pass. Deploy
+    acceptance (24 passed) and the Dev Container image suite (5 passed) pass
+    against images built from 9732df9.
 - [ ] `agentdev-runtime catalog install <root> [--claude-scope user|local]`
   registers the Claude marketplace and plugins, the Codex marketplace with the
   already-registered short-circuit and the agents installer, and the OpenCode
