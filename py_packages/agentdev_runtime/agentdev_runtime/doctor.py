@@ -139,6 +139,27 @@ def ai_tools(report: Report) -> None:
         report.check_command(tool, tool, '--version')
 
 
+def gateway(report: Report) -> None:
+    """Check the mcp-gateway sidecar when Compose was asked to start it."""
+    # Compose starts it only under the opt-in profile devcontainer-init.sh enables.
+    if 'mcp' not in os.environ.get('COMPOSE_PROFILES', '').split(','):
+        report.result('mcp-gateway', 'SKIP', 'the mcp Compose profile is not enabled')
+        return
+    report.check('mcp-gateway DNS', 'getent', 'hosts', 'mcp-gateway')
+    report.check(
+        'mcp-gateway :8811',
+        'curl',
+        '-fsS',
+        '-o',
+        '/dev/null',
+        '-w',
+        '%{http_code}',
+        '--max-time',
+        '5',
+        'http://mcp-gateway:8811/sse',
+    )
+
+
 def services(report: Report, mode: str, firewall: str) -> None:
     print('== Services ==')
     report.check(
@@ -182,19 +203,7 @@ def services(report: Report, mode: str, firewall: str) -> None:
         report.result('mcp-gateway', 'SKIP', 'sidecar is not part of deploy mode')
     elif mode == env.DEVCONTAINER:
         report.check('sshd process', 'bash', '-c', 'pgrep -x sshd >/dev/null')
-        report.check('mcp-gateway DNS', 'getent', 'hosts', 'mcp-gateway')
-        report.check(
-            'mcp-gateway :8811',
-            'curl',
-            '-fsS',
-            '-o',
-            '/dev/null',
-            '-w',
-            '%{http_code}',
-            '--max-time',
-            '5',
-            'http://mcp-gateway:8811/sse',
-        )
+        gateway(report)
     else:
         report.result('sshd process', 'SKIP', 'runtime mode is invalid')
         report.result('mcp-gateway', 'SKIP', 'runtime mode is invalid')
