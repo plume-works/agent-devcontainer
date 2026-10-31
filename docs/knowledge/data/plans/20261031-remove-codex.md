@@ -7,7 +7,7 @@ release:
 description: Remove Codex from the images, the agentdev-runtime package, the agentdev catalog, CI, the e2e suites, and the knowledge graph, leaving Claude Code and OpenCode as the only supported harnesses.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:45:00Z
+  at: 2026-10-31T19:45:07Z
 sources:
 - resource: docs/knowledge/data/features/claude-and-opencode-only-harnesses.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -25,9 +25,9 @@ The maintainer decided that Claude Code and OpenCode are the only harnesses this
 repository supports, and that Codex goes entirely: [Claude Code and OpenCode are
 the only supported
 harnesses](../features/claude-and-opencode-only-harnesses.md). Codex support
-today reaches the image build, the `agentdev-runtime` package, the catalog's
-packaging, CI, the e2e suites, and about forty knowledge documents, and every
-plan that touches the runtime carries Codex work alongside it.
+reaches the image build, the `agentdev-runtime` package, the catalog's
+packaging, CI, the e2e suites, and the knowledge documents listed in Tasks 11
+and 12, and every plan that touches the runtime carries Codex work alongside it.
 
 This lands after [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md), which moves the Codex code this plan
@@ -157,8 +157,7 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 ### Task 6: Update the runtime tests under scripts/tests
 
 **Files:** Delete: `scripts/tests/test_configure_codex.py`,
-`scripts/tests/test_repair_codex_cbm_hooks_block.py` (where still present);
-Modify:
+`scripts/tests/test_repair_codex_cbm_hooks_block.py`; Modify:
 `scripts/tests/test_agent_runtime_{acceptance,cbm,identity,state,workspace}.py`,
 `scripts/tests/test_agentdev_devcontainer_{image,lifecycle,repository}.py`,
 `scripts/tests/test_environment_health.py`
@@ -260,8 +259,7 @@ Modify:
 `ai-responder-workflows`, `agent-sign-in-without-seeding`,
 `catalog-installed-in-image`, `opencode-catalog-host`; the planned backlog task
 `base-image-catalog-smoke-test`; the someday ideas
-`harness-refresh-restart-signal`, `nested-catalog-agent-dispatch`; and
-`data/codebase.md`
+`harness-refresh-restart-signal` and `nested-catalog-agent-dispatch`
 
 - [ ] Each listed document describes current behavior for Claude Code and
   OpenCode only; `explicit-only-workflow-agents` names only the
@@ -270,15 +268,7 @@ Modify:
 - [ ] Done plans, done backlog tasks, released notes, `data/log.md`, and
   `generated.by` provenance values are left unchanged.
 
-### Task 13: Refresh the codebase map
-
-**Files:** Modify: the `data/codebase/` documents `/agentdev:iwe-map` refresh
-reports stale
-
-- [ ] `/agentdev:iwe-map` refresh runs and its stale-document check reports none
-  stale.
-
-### Task 14: CI passes on the implementation branch
+### Task 13: CI passes on the implementation branch
 
 **Files:** none
 
@@ -646,7 +636,7 @@ report at any point that needs a user decision it was not given.
   `claude plugin list` and OpenCode's skill listing show the `agentdev` catalog.
 - `iwe normalize` and `iwe schema validate` pass, and `iwe stats` reports no
   broken links.
-- The pull request's CI passes (Task 14).
+- The pull request's CI passes (Task 13).
 
 ## Out of scope
 
@@ -664,8 +654,7 @@ report at any point that needs a user decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31, on
-`iwe/off-bash-migration/iter-1-impl` at `d68ba09`):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:22` —
   `CODEX_MANIFEST`
