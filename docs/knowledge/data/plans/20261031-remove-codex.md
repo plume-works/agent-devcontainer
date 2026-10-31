@@ -677,11 +677,11 @@ Verified anchor points (line numbers as of 2026-10-31):
   `link_codex_auth` call in `ready`
 - `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:28` — `AGENTS`
 - `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:42` — `AI_TOOLS`
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:240` —
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:252` —
   `codex auth link` check
 - `py_packages/agentdev_runtime/agentdev_runtime/settings.py:149` — `CODEX_HOME`
   variable
-- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:174` — `config`
+- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:173` — `config`
 - `py_packages/agentdev_runtime/agentdev_runtime/codex_config.py:1` — module to
   delete
 - `py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py:1` — module to
@@ -690,13 +690,13 @@ Verified anchor points (line numbers as of 2026-10-31):
   pin
 - `ansible/roles/agentic_tools/tasks/install_catalog.yml:15` — Codex
   marketplace, plugin, and agent install tasks (through line 90)
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:45` — Codex manifest
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:47` — Codex manifest
   version check
-- `.devcontainer/devcontainer.json:93` — `agentdev-codex` volume
-- `.devcontainer/docker-compose.yml:98` — Codex auth-link comment
+- `.devcontainer/devcontainer.json:101` — `agentdev-codex` volume
+- `.devcontainer/docker-compose.yml:100` — Codex auth-link comment
 - `.devcontainer/firewall-allowlist.txt:22` — OpenAI hosts
 - `docker/deploy/agentdev-deploy.Dockerfile:39` — `CODEX_HOME`
-- `.github/workflows/validate-agent-files.yml:102` —
+- `.github/workflows/validate-agent-files.yml:94` —
   `--require-marketplace claude codex`
 - `.github/workflows/validate-agent-files.yml:42` — `.codex/agents/**` filter
 - `.github/actions/run-claude-responder/action.yml:105` —
