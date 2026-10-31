@@ -1,5 +1,5 @@
 # Firewall domain allowlist for the devcontainer.
-# Read at container start by /usr/local/bin/init-firewall.sh.
+# Read at container start by `agentdev-runtime firewall apply`.
 # Edit this file to add or remove allowed destinations; changes take effect
 # on the next container start (no image rebuild needed).
 #

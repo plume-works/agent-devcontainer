@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import tomllib
 
@@ -13,8 +14,12 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/repair-codex-cbm-hooks-block.py'
-INSTALL = REPO_ROOT / '.devcontainer/scripts/codebase-memory-mcp-install.sh'
+REPAIR = [
+    sys.executable,
+    '-c',
+    'import sys; from agentdev_runtime import codex_hooks; sys.exit(codex_hooks.repair_config())',
+]
+INSTALL = [sys.executable, '-m', 'agentdev_runtime', 'cbm', 'install', '--config-only']
 # cbm 0.12.1's own Codex hook tables, after a Codex write, with the opening marker gone.
 ORPHANED = (Path(__file__).parent / 'fixtures/codex-config-orphaned-cbm-hooks.toml').read_text()
 INSTALLED = '/home/agent/.local/bin'
@@ -69,7 +74,7 @@ def codex_home(tmp_path: Path) -> Path:
 
 def run_script(codex_home: Path, check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [SCRIPT],
+        REPAIR,
         env=os.environ | {'CODEX_HOME': str(codex_home), 'CBM_INSTALL_DIR': INSTALLED},
         check=check,
         capture_output=True,
@@ -260,7 +265,7 @@ def install(home: Path, cbm_binary: Path) -> subprocess.CompletedProcess[str]:
         'CBM_INSTALL_DIR': str(home / '.local/bin'),
         'CBM_RUNTIME_DIR': str(home.parent / 'rendezvous'),
     }
-    return subprocess.run([INSTALL], env=env, capture_output=True, text=True, timeout=120)
+    return subprocess.run(INSTALL, env=env, capture_output=True, text=True, timeout=120)
 
 
 def hook_events(hooks: dict) -> set[str]:

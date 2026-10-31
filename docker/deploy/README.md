@@ -98,8 +98,8 @@ docker logs -f myproject-opencode-1
 docker inspect --format '{{.State.Health.Status}}' myproject-opencode-1
 ```
 
-If it stays unhealthy, `docker exec myproject-opencode-1
-/opt/agentdev-runtime/runtime-health.sh status` names what failed and how to retry
+If it stays unhealthy, `docker exec myproject-opencode-1 agentdev-runtime health
+status` names what failed and how to retry
 it. The README's [operating notes](../../README.md#operating-it) list the usual
 causes.
 
@@ -168,7 +168,7 @@ the proxy a static `ipv4_address` keeps that address stable.
 - **Claude Remote Control.** With `AGENTDEV_CLAUDE_RC_MODE` set, Remote Control
   starts by itself, in tmux session `claude-remote`, within seconds of the
   claude.ai login above, in every running project container that shares the login
-  and sets the mode; no restart is needed. Until then, `runtime-health.sh status`
+  and sets the mode; no restart is needed. Until then, `agentdev-runtime health status`
   shows `remote-control: waiting for a claude.ai login`. If the session exits, the
   runtime starts it again. To look at it:
 

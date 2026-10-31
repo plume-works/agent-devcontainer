@@ -114,7 +114,7 @@ def consumer() -> Iterator[Consumer]:
 @needs_image
 def test_a_migrated_consumer_reaches_runtime_readiness(consumer: Consumer):
     consumer.up()
-    consumer.sh('/opt/agentdev-runtime/runtime-health.sh ready')
+    consumer.sh('agentdev-runtime health ready')
     consumer.sh('test ! -e .devcontainer/scripts')
     marketplaces = json.loads(consumer.sh('cat ~/.claude/plugins/known_marketplaces.json'))
     assert marketplaces['agent-devcontainer']['installLocation'] == '/opt/agentdev'

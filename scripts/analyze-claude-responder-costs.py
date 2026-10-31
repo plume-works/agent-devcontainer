@@ -21,7 +21,7 @@ TOKEN_FIELDS = (
 def parse_args() -> argparse.Namespace:
     """Parse command-line options for the cost analyzer."""
     parser = argparse.ArgumentParser(
-        description=('Analyze artifacts downloaded by scripts/download-claude-responder-runs.sh.')
+        description=('Analyze artifacts downloaded by scripts/download-claude-responder-runs.py.')
     )
     parser.add_argument(
         '--data-dir',

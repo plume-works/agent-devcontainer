@@ -1,16 +1,19 @@
-"""Regression tests for the portable environment health check."""
+"""Regression tests for `agentdev-runtime doctor`, the portable environment health check."""
 
 from __future__ import annotations
 
 import os
 from pathlib import Path
 import re
-import shutil
 import stat
 import subprocess
+import sys
+
+import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-HEALTH = REPO_ROOT / '.devcontainer/scripts/environment-health.sh'
+DOCTOR_SOURCE = REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime/doctor.py'
+DOCTOR = [sys.executable, '-m', 'agentdev_runtime', 'doctor']
 
 
 def _executable(path: Path, content: str) -> None:
@@ -29,16 +32,9 @@ def _run_health(
     processes_present: bool = True,
     sleep_commands: frozenset[str] = frozenset(),
 ) -> subprocess.CompletedProcess[str]:
-    # The script beside stub helpers, as the image installs it, run from a workspace
-    # that has no copy of this repository's scripts.
+    # Run from a workspace with no copy of this repository, beside stub tools.
     project = tmp_path / 'project'
     project.mkdir(parents=True)
-    runtime = tmp_path / 'runtime'
-    runtime.mkdir()
-    health = runtime / HEALTH.name
-    shutil.copy2(HEALTH, health)
-    for name in ('runtime-keyring.sh', 'runtime-cbm.sh', 'opencode-web-command.sh'):
-        _executable(runtime / name, '#!/usr/bin/env bash\nexit 0\n')
 
     home = tmp_path / 'home'
     codex = home / '.codex'
@@ -79,6 +75,8 @@ case "$command_name:$*" in
 esac
 """
     commands = {
+        'actionlint',
+        'agentdev-runtime',
         'ansible',
         'bun',
         'clang-format',
@@ -92,6 +90,7 @@ esac
         'gdbus',
         'gemini',
         'getent',
+        'gitleaks',
         'gh',
         'git',
         'iwe',
@@ -127,7 +126,7 @@ esac
         'SLEEP_COMMANDS': ','.join(sorted(sleep_commands)),
     }
     return subprocess.run(
-        [health],
+        DOCTOR,
         cwd=project,
         env=env,
         capture_output=True,
@@ -136,20 +135,27 @@ esac
     )
 
 
-def test_script_is_executable_and_uses_runtime_home() -> None:
-    source = HEALTH.read_text()
-    assert os.access(HEALTH, os.X_OK)
-    assert '/root/.codex/auth.json' not in source
-    assert '/root/.claude.json' not in source
-    assert '"$HOME/.codex/auth.json"' in source
-    assert '"$HOME/.claude.json"' in source
+def test_links_are_read_from_the_runtime_home() -> None:
+    source = DOCTOR_SOURCE.read_text()
+    assert '/root/.codex' not in source and '/root/.claude.json' not in source
+    assert "home / '.codex/auth.json'" in source
+    assert "home / '.claude.json'" in source
 
 
-def test_script_uses_uv_project_environment_instead_of_workspace_slug() -> None:
-    source = HEALTH.read_text()
+def test_doctor_uses_the_uv_project_environment_instead_of_a_workspace_slug() -> None:
+    source = DOCTOR_SOURCE.read_text()
     assert '/uv/venvs/ws-project' not in source
-    assert 'uv run --no-sync python' in source
-    assert 'uv run --no-sync ruff' in source
+    assert "'uv', 'run', '--no-sync', 'python'" in source
+    assert "'uv', 'run', '--no-sync', 'ruff'" in source
+
+
+@pytest.mark.parametrize('tool', ['gitleaks', 'actionlint'])
+def test_a_missing_hook_binary_fails_the_toolchain(tmp_path: Path, tool: str) -> None:
+    result = _run_health(tmp_path, missing=frozenset({tool}))
+    assert result.returncode == 1
+    assert re.search(
+        rf'^{tool}\s+FAIL\s+required tool not installed$', result.stdout, re.MULTILINE
+    )
 
 
 def test_deploy_mode_skips_non_applicable_sidecars_and_redacts_auth_output(

@@ -1,5 +1,5 @@
 ---
-# Build-time catalog install, mirroring postCreateCommand's reinstall-agentdev-*.sh
+# Build-time catalog install, mirroring the create phase's `agentdev-runtime catalog install`
 # so a consumer running the image without the devcontainer lifecycle still resolves
 # agentdev:* skills; the devcontainer path shadows it via mounted volumes.
 # See spec/catalog-lifecycle and architecture/ci-agent-plugin-availability.

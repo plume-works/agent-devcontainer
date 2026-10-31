@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:9b370c02482a8872f264e1605b77071bd61cdc5e4cc76bfc3d0424ba45872c85
+source_digest: sha256:7a2d8b4577af7465f1a9b6089bf664b0f7050edd5e1dbfe73d40401618a1b930
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T08:00:00Z
+  at: 2026-10-31T11:10:05Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T08:00:00Z
+  at: 2026-10-31T11:10:05Z
 sources:
 - id: code
   resource: .github/workflows
@@ -54,33 +54,34 @@ including the pinned `gitleaks` and `actionlint` with no Go toolchain and a
 bundled Chromium launch. Each architecture reads the Playwright version from the
 role default and passes it into the base build, keeping the Renovate-owned pin,
 installed CLI, and image label identical. In parallel on each native
-architecture, `deploy-acceptance` runs `test-agent-runtime.sh` as root against
-the merged `agentdev-deploy`, and `devcontainer-acceptance` pulls the merged
-`agentdev-devcontainer` and runs the consumer, repository, and template-consume
-migration fixtures through the Dev Containers CLI. `promote-dev-image` then
-moves the event's public tags to the four tested digests without rebuilding. The
-responder only runs for `plume-works` and never for a fork PR; its preflight
-decides between a review and a task, resolves the review's effort tier, and
-`ai-review-present` reports whether an accepted review exists, waived for the
-bots in the workflow-level `TRUSTED_BOT_ACTORS`. `trusted-bot-approval` approves
-those bots' same-repository PRs instead of reviewing them, only while every
-commit is the bot's own and verified and every push since the head branch's
-latest creation came from the bot; otherwise it dismisses its approval.
-`renovate.yml` and the Renovate-config `validate` job run in
-`agentdev-devcontainer` at the digest `devcontainer-compose-pins.yml` pins, and
-both read the Renovate version from the `renovate-config-validator` hook's
-`bunx --package renovate@<version>` entry in `.pre-commit-config.yaml`; the bot
-authenticates with a GitHub App token and takes its global options from
-`RENOVATE_*` variables. A person's edit of the Dependency Dashboard issue or of
-a Renovate PR's body starts a run; the bot's own edits never do. PR edits arrive
-through `pull_request_target`, which still fires on a conflicted PR and never
-checks out PR code. Every run queues in one job-level concurrency group, so two
-never write the same branch at once and a skipped bot edit never enters it.
-Knowledge validation always checks this graph when its outer filter passes and
-runs the standalone iwe-bootstrap scaffold suite only when its inner filter
-passes. Agent-file validation's filter covers the union of codebase map `source`
-paths, then its final step verifies every recorded digest. The full traces are
-[the image build flow](../flow-image-build.md) and [the pull request checks
+architecture, `deploy-acceptance` runs the acceptance suite through
+`uv run pytest` as root against the merged `agentdev-deploy`, and
+`devcontainer-acceptance` pulls the merged `agentdev-devcontainer` and runs the
+consumer, repository, and template-consume migration fixtures through the Dev
+Containers CLI. `promote-dev-image` then moves the event's public tags to the
+four tested digests without rebuilding. The responder only runs for
+`plume-works` and never for a fork PR; its preflight decides between a review
+and a task, resolves the review's effort tier, and `ai-review-present` reports
+whether an accepted review exists, waived for the bots in the workflow-level
+`TRUSTED_BOT_ACTORS`. `trusted-bot-approval` approves those bots'
+same-repository PRs instead of reviewing them, only while every commit is the
+bot's own and verified and every push since the head branch's latest creation
+came from the bot; otherwise it dismisses its approval. `renovate.yml` and the
+Renovate-config `validate` job run in `agentdev-devcontainer` at the digest
+`devcontainer-compose-pins.yml` pins, and both read the Renovate version from
+the `renovate-config-validator` hook's `bunx --package renovate@<version>` entry
+in `.pre-commit-config.yaml`; the bot authenticates with a GitHub App token and
+takes its global options from `RENOVATE_*` variables. A person's edit of the
+Dependency Dashboard issue or of a Renovate PR's body starts a run; the bot's
+own edits never do. PR edits arrive through `pull_request_target`, which still
+fires on a conflicted PR and never checks out PR code. Every run queues in one
+job-level concurrency group, so two never write the same branch at once and a
+skipped bot edit never enters it. Knowledge validation always checks this graph
+when its outer filter passes and runs the standalone iwe-bootstrap scaffold
+suite only when its inner filter passes. Agent-file validation's filter covers
+the union of codebase map `source` paths, then its final step verifies every
+recorded digest. The full traces are [the image build
+flow](../flow-image-build.md) and [the pull request checks
 flow](../flow-pull-request-checks.md).
 
 ## Depends on

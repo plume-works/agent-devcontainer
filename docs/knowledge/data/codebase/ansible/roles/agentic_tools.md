@@ -2,14 +2,14 @@
 type: codebase
 description: Installs Claude Code, Codex, OpenCode v2, and the MCP inspector, optionally cc-filter, and stages and installs the agentdev catalog into the image.
 source: ansible/roles/agentic_tools
-source_digest: sha256:9450b591f24e8415a5ac88cb0771c14049c80aaedd040598c716057a666fbc84
+source_digest: sha256:e1b9448fbe9b9ab08594c9dfe6ec0ab5a8aff4a9fac648843484aedf7d0992bc
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
-stale_after: 2027-01-17
+  at: 2026-10-31T04:38:23Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:30:00Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: ansible/roles/agentic_tools
@@ -72,7 +72,7 @@ through `agentic_tools_catalog_source_dir` (`/provision` in the image build).
 - The catalog lives outside `$HOME` because `~/.claude` and `~/.codex` are
   mounted as volumes in a devcontainer, which would shadow anything there. The
   build-time install is likewise shadowed by those volumes, so
-  [postCreateCommand](../../devcontainer/scripts.md) installs again.
+  [postCreateCommand](../../py_packages/agentdev_runtime.md) installs again.
 - Bumping the catalog version means bumping four pins together; the version
   check at `stage_catalog.yml:68` is what turns a missed pin into a failed build
   rather than a mislabeled image.

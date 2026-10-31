@@ -3,7 +3,7 @@ type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:00:00Z
+  at: 2026-10-31T04:32:14Z
 ---
 
 # Module layout
@@ -22,8 +22,8 @@ boundary](template-boundary.md):
    Codex plugin: agents, skills, `bin/` scripts, and the plugin's own test suite
    (`.agents/plugins/agentdev/tests/`). Everything else that references the
    catalog (`.claude-plugin/`, `.agents/plugins/marketplace.json`, the
-   `reinstall-agentdev-*.sh` scripts) is derived from this tree, never edited
-   directly.
+   registration `agentdev-runtime catalog install` performs) is derived from
+   this tree, never edited directly.
 3. **Devcontainer scaffolding** (`.devcontainer/`) — the template surface a
    consuming project copies in: lifecycle scripts, MCP configuration, firewall
    allowlist, digest pin (`devcontainer-compose-pins.yml`).
@@ -39,7 +39,7 @@ How the three main surfaces come together for a consumer, per the README's
 "Runtime flow" (verbatim structure, condensed):
 
 ``` text
-ansible/ + docker/ + .devcontainer/scripts/ + catalog publisher source
+ansible/ + docker/ + py_packages/agentdev_runtime/ + catalog publisher source
         -> ghcr.io/plume-works/agentdev-devcontainer  (digest-pinned in devcontainer-compose-pins.yml)
         -> .devcontainer/devcontainer.json + docker-compose.yml
         -> image entrypoint: supervised dbus, keyring, dockerd, CBM, Xpra

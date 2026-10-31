@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:e9368a0e1af3a864c55501c4909ef2d06008519cc85ee93cc61c3266ba4d24f1
+source_digest: sha256:419ad22162a724517962941b5c7a46b3bc53381a2ddd77a3f217cf3bfd1fbbc5
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T07:34:45Z
-stale_after: 2027-01-28
+  at: 2026-10-31T04:38:23Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T07:34:45Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: .devcontainer
@@ -25,10 +25,6 @@ the workspace, mounts, sidecar, editor settings, and pin. The image's
 mode, and nested-Docker storage, so the descriptor declares none of them. The
 descriptor files are the surface `/agentdev:template-consume` keeps in another
 repository.
-
-## Contains
-
-[Lifecycle scripts](devcontainer/scripts.md)
 
 ## Public surface
 
@@ -66,19 +62,20 @@ its host path so worktrees resolve, and starts the MCP gateway only when the
 Compose-scoped volumes; only Claude and Codex credentials share the literal
 `agentdev-agents-auth` volume across instances. The `devcontainer` service has
 no `command` or `init`: the image's supervisor is PID 1, owns the persistent
-services, and reaps orphans. The image's create, start, and attach commands then
-run the [lifecycle scripts](devcontainer/scripts.md) baked at
-`/opt/agentdev-runtime`; the start phase also restores Codex and OpenCode
-full-access policies in their user configuration files.
+services, and reaps orphans. The image's create, start, and attach commands are
+`agentdev-runtime lifecycle created|ready|attached` from the [agentdev_runtime
+package](py_packages/agentdev_runtime.md) the image installs; the start phase
+also restores Codex and OpenCode full-access policies in their user
+configuration files.
 
-Both runtime images bake `scripts/` at `/opt/agentdev-runtime`; this directory's
-Compose and `devcontainer.json` reach only `agentdev-devcontainer`.
-`agentdev-deploy`'s deployment is the root `compose.opencode.yml`.
+This directory's Compose and `devcontainer.json` reach only
+`agentdev-devcontainer`. `agentdev-deploy`'s deployment is the root
+`compose.opencode.yml`.
 
 ## Depends on
 
 The [image runtime contract](api-image-runtime.md) — the env variables and
-scripts it reads exist because the image provides them. [Renovate](github.md)
+commands it reads exist because the image provides them. [Renovate](github.md)
 moves the digest pin.
 
 ## Invariants & gotchas
@@ -88,7 +85,7 @@ moves the digest pin.
   produced it.
 - `~/.claude.json` is a file; Docker volumes are directories, so the file is
   persisted inside the `agentdev-claude` volume and symlinked by
-  `setup-agent-state.sh create`, which the image's create command runs.
+  `agentdev-runtime state create`, which the image's create command runs.
 - Declaring lifecycle commands or the Docker-in-Docker Feature here as well
   would run each phase twice and start a second Docker engine.
 - The MCP gateway publishes no host port and runs `--allow-unauthenticated` on
@@ -105,7 +102,7 @@ moves the digest pin.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-29):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.devcontainer/devcontainer.json:3,7` — init command, layered compose files
 - `.devcontainer/devcontainer.json:15` — the SSH Feature, the only Feature
@@ -115,7 +112,7 @@ Verified anchor points (line numbers as of 2026-10-29):
 - `.devcontainer/docker-compose.yml:59` — launcher-derived hostname
 - `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
   auth volume
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:41-50` — the lifecycle
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:38-47` — the lifecycle
   the descriptor inherits
 - `.devcontainer/devcontainer-init.sh:11` — `HOME` default for Codespaces
 - `.devcontainer/devcontainer-init.sh:24` — shared auth volume creation

@@ -1,9 +1,10 @@
-"""Tests for runtime-supervisor.py driving the real supervisord.conf with scripted services."""
+"""Tests for `agentdev-runtime supervisor` driving the real supervisord.conf with scripted services."""
 
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 import configparser
+import inspect
 import json
 import os
 from pathlib import Path
@@ -15,11 +16,13 @@ import sys
 import time
 from uuid import uuid4
 
+from agentdev_runtime import health
 import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SUPERVISOR = REPO_ROOT / '.devcontainer/scripts/runtime-supervisor.py'
+SUPERVISOR = [sys.executable, '-m', 'agentdev_runtime', 'supervisor']
+SUPERVISOR_LINE = ' '.join(SUPERVISOR)
 CONFIG = REPO_ROOT / 'docker/deploy/supervisord.conf'
 STARTUP_ORDER = [
     'dbus',
@@ -80,7 +83,7 @@ FAKE_HEALTH = """#!/usr/bin/env bash
 [[ -f $STATE_DIR/$1.unhealthy ]] && cat "$STATE_DIR/$1.unhealthy"
 [[ -f $STATE_DIR/$1.ready && ! -f $STATE_DIR/$1.unhealthy ]]
 """
-HEALTH = REPO_ROOT / '.devcontainer/scripts/runtime-health.sh'
+HEALTH = [sys.executable, '-m', 'agentdev_runtime', 'health']
 
 FAKE_BOOTSTRAP = """#!/usr/bin/env bash
 echo "run bootstrap" >> "$STATE_DIR/events"
@@ -113,7 +116,7 @@ def build_config(
     parser['supervisorctl']['serverurl'] = f'unix://{run_dir}/supervisor.sock'
     parser['supervisord']['pidfile'] = str(run_dir / 'supervisord.pid')
     parser['supervisord']['childlogdir'] = str(run_dir)
-    parser['eventlistener:controller']['command'] = f'{sys.executable} {SUPERVISOR} control'
+    parser['eventlistener:controller']['command'] = f'{SUPERVISOR_LINE} control'
     for section in parser.sections():
         if not section.startswith('program:'):
             continue
@@ -122,7 +125,7 @@ def build_config(
         program.pop('user', None)
         program.pop('environment', None)
         fake = fake_oneshot if name in oneshots else fake_service
-        program['command'] = f'{sys.executable} {SUPERVISOR} exec {name} {fake} {name}'
+        program['command'] = f'{SUPERVISOR_LINE} exec {name} {fake} {name}'
     path = root / 'supervisord.conf'
     with path.open('w') as handle:
         parser.write(handle)
@@ -174,7 +177,7 @@ class Supervision:
 
     def start(self) -> None:
         self.process = subprocess.Popen(
-            [sys.executable, SUPERVISOR, 'run'],
+            [*SUPERVISOR, 'run'],
             env=self.env,
             text=True,
             stdout=subprocess.PIPE,
@@ -190,7 +193,7 @@ class Supervision:
 
     def health(self, check: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [HEALTH, check], env=self.env, text=True, capture_output=True, timeout=30
+            [*HEALTH, check], env=self.env, text=True, capture_output=True, timeout=30
         )
 
     def runtime(self) -> dict:
@@ -218,7 +221,7 @@ class Supervision:
 
     def retry(self, *component: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [sys.executable, SUPERVISOR, 'retry', *component],
+            [*SUPERVISOR, 'retry', *component],
             env=self.env,
             text=True,
             capture_output=True,
@@ -711,7 +714,7 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
         assert program['stdout_logfile'] == '/dev/stdout'
         assert program['killasgroup'] == 'true'
         assert ('user' in program) == (name != 'dockerd')
-        wrapper = '/opt/agentdev-runtime/runtime-supervisor.py exec'
+        wrapper = '/usr/local/bin/agentdev-runtime supervisor exec'
         assert program['command'].startswith(f'{wrapper} {name} /'), name
     priorities = sorted(STOP_ORDER, key=lambda n: -int(programs[n]['priority']))
     assert priorities == STOP_ORDER
@@ -719,10 +722,9 @@ def test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout():
 
 
 def test_every_supervised_service_has_a_real_probe():
-    health = (REPO_ROOT / '.devcontainer/scripts/runtime-health.sh').read_text()
-    probes = health.split('case "$service" in', 2)[2]
     for name in [*STOP_ORDER, 'remote-control']:
-        assert f'\n  {name})' in probes or f'\n  {name} |' in probes, name
+        assert name in health.SERVICES, name
+        assert f"service == '{name}'" in inspect.getsource(health.probe), name
 
 
 def test_recovery_kills_what_a_crashed_service_left_in_its_group(make):
@@ -772,7 +774,7 @@ def test_status_names_each_failure_and_its_retry_command(make):
     lines = shown.stdout
     assert 'runtime state: degraded' in lines
     assert 'project: failed (project failed (exit status 4))' in lines
-    assert 'runtime-supervisor.py retry project' in lines
+    assert 'agentdev-runtime supervisor retry project' in lines
     record = box.record()
     assert f'last failure: project, exit status 4, at {record["time"]}' in lines
 

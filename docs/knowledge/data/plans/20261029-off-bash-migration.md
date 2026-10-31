@@ -4,6 +4,7 @@ created: 2026-10-29
 release:
 - features/agentdev-runtime-cli
 - bugs/workspace-image-lacks-hook-binaries
+- bugs/remote-control-watcher-start-loop
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
@@ -55,6 +56,16 @@ alive beside their supervised twins ([CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
 bootstrap is removed at the user's decision.
 
+The user decided that the Coder template's agent-start parameter becomes a
+command defaulting to `agentdev-runtime coder start`, since a CLI subcommand is
+no path the template can test for; the template maps the legacy script path that
+existing workspaces stored onto that default.
+
+The user decided that the AI responder installs `agentdev-runtime` from the
+checkout when its pinned image lacks it, so the responder keeps working, on this
+plan's own pull request and after merge, until the image pin moves to an image
+built with the CLI.
+
 The user's decisions for this plan: one Python package installed as a uv tool
 the way `validate_agent_files` is; one CLI rather than per-script shims; the
 catalog's scripts in their own plan, [Port the catalog's bundled shell scripts
@@ -67,9 +78,9 @@ so](../bugs/workspace-image-lacks-hook-binaries.md) asks for, carried by
 
 Three other open bugs sit in scripts this plan ports. [Bug: the Remote Control
 watcher restarts a session that never comes up on every
-tick](../bugs/remote-control-watcher-start-loop.md) is fixed in shell before
-Task 10, so the port's baseline carries the fix. [Bug: a CBM daemon start
-failure latches the standalone runtime
+tick](../bugs/remote-control-watcher-start-loop.md) is fixed in shell as Task
+10, before the Remote Control port, so the port's baseline carries the fix.
+[Bug: a CBM daemon start failure latches the standalone runtime
 degraded](../bugs/cbm-start-failure-latches-degraded.md) and [Bug: Codex login
 stops being shared between standalone
 projects](../bugs/standalone-codex-auth-unshared.md) have no settled root cause
@@ -149,23 +160,32 @@ deletion of this one function; and running the responder as a host job through
 `uv.lock`, `.dockerignore`, `docker/deploy/agentdev-deploy.Dockerfile`,
 `docker/devcontainer/agentdev-devcontainer.Dockerfile`
 
-- [ ] The package declares `requires-python >= 3.12`, the console script
+- [x] The package declares `requires-python >= 3.12`, the console script
   `agentdev-runtime`, and dependencies `supervisor` at the version the root
   project pins today, `setuptools<85`, `tomlkit`, `json5`, and `pyyaml`. The
   root project takes the package as an editable dev dependency and drops its
   direct `supervisor` and `setuptools` pins; `uv.lock` is regenerated.
-- [ ] Both runtime Dockerfiles install the package with
+  - **Evidence:** commit cfaac26; `uv lock` and `uv sync` resolve the package
+    editable; `uv run pytest py_packages/agentdev_runtime` passes (26 tests).
+- [x] Both runtime Dockerfiles install the package with
   `uv tool install --reinstall --python /usr/bin/python3` from the bind-mounted
   build context, with `UV_TOOL_DIR=/opt/uv-tools`,
   `UV_TOOL_BIN_DIR=/usr/local/bin`, `UV_NO_CACHE=1`,
-  `UV_PYTHON_DOWNLOADS=never`, and `UV_LINK_MODE=copy`, and stop installing the
-  apt `supervisor` package. `.dockerignore` admits
+  `UV_PYTHON_DOWNLOADS=never`, and `UV_LINK_MODE=copy`. `.dockerignore` admits
   `py_packages/agentdev_runtime`. The `COPY .devcontainer/scripts/` lines stay
-  until Task 13.
-- [ ] `settings.py` parses every environment value the scripts and the
+  until Task 14.
+  - **Evidence:** commit cfaac26; both images build locally on
+    `agentdev-base:edge`, where `agentdev-runtime` resolves to `/usr/local/bin`
+    and `/opt/uv-tools/agentdev-runtime/bin/python` imports `supervisor`,
+    `tomlkit`, `json5`, and `yaml`.
+- [x] `settings.py` parses every environment value the scripts and the
   supervisor read, with one default per variable, keyed by profile where the
   scripts disagree; the package README lists each variable, its default, and the
   profiles that read it.
+  - **Evidence:** commit cfaac26;
+    `py_packages/agentdev_runtime/tests/test_settings.py` checks the profile
+    keying and that the README lists every declared variable, passing under
+    `uv run pytest py_packages/agentdev_runtime`.
 
 ### Task 2: Boot PID 1 and the healthcheck through the CLI
 
@@ -184,17 +204,34 @@ deletion of this one function; and running the responder as a host job through
 `.devcontainer/scripts/runtime-supervisor.py`,
 `.devcontainer/scripts/runtime-health.sh`
 
-- [ ] `runtime-supervisor.py` becomes
+- [x] `runtime-supervisor.py` becomes
   `agentdev-runtime supervisor run|control|exec|retry` with its behaviour
   unchanged; the `state.json`, retry-request, and failure-record shapes live in
   `state.py` and are the only way the package reads or writes them.
-- [ ] `runtime-health.sh` becomes
+  - **Evidence:** commit facf454; `test_agent_runtime_supervision.py`,
+    `test_agent_runtime_profiles.py`, and `test_state.py` pass through the CLI,
+    and the deploy acceptance suite passes (24, one skipped for want of a
+    previous image) against `agentdev-deploy` built from that commit.
+- [x] `runtime-health.sh` becomes
   `agentdev-runtime health <service>|ready|status`, reading state through
   `state.py`; user-scope probes still re-exec as the runtime user; probes call
   the service modules as they land and the remaining scripts until then.
-- [ ] `ENTRYPOINT`, `HEALTHCHECK`, the controller listener, and every `command=`
+  - **Evidence:** commit facf454; the supervision tests' `health ready` and
+    `health status` cases pass, and the deploy acceptance suite and
+    `test_agentdev_devcontainer_image.py` (5 passed) pass against images built
+    from that commit, whose user-scope probes run as the runtime account.
+- [x] `ENTRYPOINT`, `HEALTHCHECK`, the controller listener, and every `command=`
   in both supervisord configurations name the CLI, and the `exec` wrapper keeps
-  its output capture and failure record.
+  its output capture and failure record. Both images stop installing the apt
+  `supervisor` package, which PID 1 needs until it runs from the CLI.
+  - **Evidence:** commit facf454;
+    `test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout` and
+    the failure-record supervision tests pass, and both images built from that
+    commit boot to ready in the acceptance and image suites. The same commit
+    adds `py_packages/agentdev_runtime/**` to the image path filter, points
+    `ci.yml`, `devcontainer-ready.sh`, and `environment-health.sh` at the CLI,
+    and renames the deleted paths in the later tasks' lifecycle, image,
+    repository, migration, and acceptance tests.
 
 ### Task 3: Bootstrap and distribution integrity
 
@@ -206,17 +243,27 @@ deletion of this one function; and running the responder as a host job through
 `docker/devcontainer/agentdev-devcontainer.Dockerfile`; Delete:
 `.devcontainer/scripts/runtime-bootstrap.sh`
 
-- [ ] `agentdev-runtime bootstrap` reproduces both profiles: identity validation
+- [x] `agentdev-runtime bootstrap` reproduces both profiles: identity validation
   and account reuse or creation, the sudoers entry through `visudo`,
   instance-storage claims that chown only an empty mount root, the shared-auth
   lock, the runtime-directory reset, and the docker group. Account and privilege
   changes stay subprocess calls to `groupadd`, `useradd`, `usermod`, `visudo`,
   and `setpriv`.
-- [ ] `integrity.py` verifies the installed `agentdev_runtime` distribution
+  - **Evidence:** commit c8fff30; `test_agent_runtime_identity.py` (19 passed)
+    runs the bootstrap from source in containers for both profiles, and the
+    deploy acceptance suite (24 passed, one skipped for want of a previous
+    image) passes against `agentdev-deploy` built from that commit.
+- [x] `integrity.py` verifies the installed `agentdev_runtime` distribution
   against its `RECORD` hashes and file set before the bootstrap continues, and
-  refuses with the same remedy the manifest check names today. The sha256
-  manifest step leaves the Dockerfile, and the derived-image test patches a
-  package file instead of a script.
+  refuses with the remedy `integrity.py:18` names, extending the runtime only
+  through `/etc/agentdev/hooks` and documented environment. The sha256 manifest
+  step leaves the Dockerfile, and the derived-image test patches a package file
+  instead of a script.
+  - **Evidence:** commit c8fff30; `test_integrity.py` covers patched, added, and
+    removed files, a patched entry point, and a missing `RECORD`;
+    `test_a_derived_image_cannot_replace_the_managed_runtime` passes in
+    `test_agentdev_devcontainer_image.py` (5 passed) against
+    `agentdev-devcontainer` built from that commit.
 
 ### Task 4: Firewall
 
@@ -228,7 +275,7 @@ deletion of this one function; and running the responder as a host job through
 `ansible/roles/devcontainer_firewall/files/devcontainer-firewall-sudoers`,
 `.devcontainer/scripts/runtime-firewall.sh`, `.devcontainer/scripts/firewall.sh`
 
-- [ ] `agentdev-runtime firewall apply` reproduces `init-firewall.sh` and
+- [x] `agentdev-runtime firewall apply` reproduces `init-firewall.sh` and
   `runtime-firewall.sh`: the `ENABLE_FIREWALL` gate, allowlist validation,
   Docker DNS rule capture and restore, host SSH, loopback, the `allowed-domains`
   ipset from resolved A records and GitHub meta ranges collapsed with
@@ -236,13 +283,30 @@ deletion of this one function; and running the responder as a host job through
   block, the `DOCKER-USER` chain, deploy proxy ingress, and the two
   self-verification requests. `iptables` and `ipset` run as argument lists
   through subprocess.
-- [ ] The devcontainer profile reads
+  - **Evidence:** commit 052196c; `test_agent_runtime_firewall.py` (14 passed)
+    checks the rule sequence against a fake system and, in
+    `test_proxy_ingress_egress_and_nested_docker_together`, applies the real
+    rules in a privileged container on the pinned Dev Container image: egress
+    blocked, GitHub and nested pulls allowed, proxy-only ingress. Deploy
+    acceptance (24 passed) and the Dev Container image suite (5 passed) pass
+    against images built from merge ecf005c. The network test now sets
+    `AGENTDEV_RUNTIME_MODE=deploy`: against the current image pin it never
+    reached proxy ingress.
+- [x] The devcontainer profile reads
   `<workspace>/.devcontainer/firewall-allowlist.txt` when it exists and
   `/etc/agentdev/firewall-allowlist.txt` otherwise; deploy reads
   `FIREWALL_ALLOWLIST` or the image copy.
-- [ ] The Ansible role keeps `iptables` and `ipset`, drops the script, the
+  - **Evidence:** commit 052196c; `test_firewall_allowlist.py` covers the
+    checkout copy, the image fallback, and deploy's setting and image copy,
+    passing under `uv run pytest py_packages/agentdev_runtime`.
+- [x] The Ansible role keeps `iptables` and `ipset`, drops the script, the
   sudoers file, and any package only the script used once a repository grep
   confirms no other user.
+  - **Evidence:** commit 052196c; the role installs only `iptables` and `ipset`.
+    `dnsutils`, `iproute2`, and `aggregate` had no other user once the network
+    test resolved with `getent`; `jq` and `curl` stay installed by `dev_tools`
+    and `basic_prereqs`. `uv run ansible-lint ansible` and the playbook syntax
+    check pass.
 
 ### Task 5: Docker and keyring services
 
@@ -257,13 +321,21 @@ deletion of this one function; and running the responder as a host job through
 `.devcontainer/scripts/runtime-keyring.sh`,
 `.devcontainer/scripts/setup-keyring.sh`
 
-- [ ] `agentdev-runtime docker run` performs the privilege, storage, private
+- [x] `agentdev-runtime docker run` performs the privilege, storage, private
   endpoint, and single-engine preflights and then execs `dockerd`;
   `agentdev-runtime docker prune` keeps the 72-hour filter and warning-only
   failures.
-- [ ] `agentdev-runtime keyring dbus|keyring|check|wait` execs `dbus-daemon` and
+  - **Evidence:** commit cc0313b; `test_agent_runtime_docker.py` (guards, the
+    exact `dockerd` argv, and a real nested engine on the pinned image) and
+    `test_docker_image_prune.py` pass; deploy acceptance (24 passed) and the Dev
+    Container image suite (5 passed) pass against images built from that commit.
+- [x] `agentdev-runtime keyring dbus|keyring|check|wait` execs `dbus-daemon` and
   `gnome-keyring-daemon` after the bus wait, creates the login keyring once and
   never overwrites it, and `setup-keyring.sh` is deleted without a replacement.
+  - **Evidence:** commit cc0313b; `test_agent_runtime_keyring.py` runs the real
+    bus and keyring through the CLI (secrets served to a child, surviving
+    replacement, keyring never overwritten, the bus wait); both images built
+    from that commit start their supervised keyring to ready.
 
 ### Task 6: Xpra
 
@@ -272,11 +344,17 @@ Modify: `docker/deploy/supervisord.conf`,
 `docker/devcontainer/supervisord.conf`, `docker/base/agentdev-base.Dockerfile`;
 Delete: `docker/desktop/start-xpra.sh`
 
-- [ ] `agentdev-runtime xpra --supervised|--background|--stop` with `--host`,
+- [x] `agentdev-runtime xpra --supervised|--background|--stop` with `--host`,
   `--port`, and `--display` reproduces the launcher: display normalisation and
   lock clearing, orphaned X server reclaim, GPU detection and VirtualGL setup,
   the password through the environment, signal cleanup, and `exec` in supervised
   mode. The base image stops copying `/start-xpra.sh`.
+  - **Evidence:** commit a595858; the supervised-Xpra cases of
+    `test_agent_runtime_ingress.py` (password-gated sessions, no password on the
+    command line, duplicate refusal, display reclaim after a crash) pass against
+    a real Xpra through the CLI; deploy acceptance (24 passed) and the Dev
+    Container image suite (5 passed) pass against images built from ba9a48d. The
+    base image's own build is left to the plan's Verification.
 
 ### Task 7: OpenCode and the Coder start
 
@@ -291,11 +369,19 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/opencode-web-start.sh`,
 `.devcontainer/scripts/coder-agent-start.sh`
 
-- [ ] `agentdev-runtime opencode serve|probe|link|coder-start` keeps the
+- [x] `agentdev-runtime opencode serve|probe|link|coder-start` keeps the
   password requirement, the 0600 generated password file, the Coder tmux
   session, and the authenticated `/api/info` probe.
-- [ ] `agentdev-runtime coder start` runs prune, the credential helper, and the
+  - **Evidence:** commit ba9a48d; `test_opencode_web_start.py` (fake and real
+    tmux) and the serve and probe cases of `test_agent_runtime_ingress.py` pass
+    through the CLI; deploy acceptance (24 passed), whose OpenCode is supervised
+    and probed by `opencode serve` and `opencode probe`, passes against
+    `agentdev-deploy` built from that commit.
+- [x] `agentdev-runtime coder start` runs prune, the credential helper, and the
   OpenCode start as warnings on failure, then execs the Remote Control start.
+  - **Evidence:** commit ba9a48d; `test_coder_agent_start.py` (6 passed) covers
+    the order, each step's failure as a warning, and the caller environment
+    reaching the credential helper and the OpenCode start.
 
 ### Task 8: CBM
 
@@ -312,11 +398,19 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/codebase-memory-mcp-start.sh`,
 `.devcontainer/scripts/repair-codex-cbm-hooks-block.py`
 
-- [ ] `agentdev-runtime cbm install|start|check|index <repo>|run|stop` keeps the
+- [x] `agentdev-runtime cbm install|start|check|index <repo>|run|stop` keeps the
   daemon generation as PID plus `/proc` start time, the user-owned binary copy,
   the `~/.claude.json` materialise-and-restore as a context manager,
   `hooks.json` creation, the Codex hooks-block repair as a module, and the async
   index request with its acceptance check.
+  - **Evidence:** commit 8e12cec; `test_agent_runtime_cbm.py` and
+    `test_repair_codex_cbm_hooks_block.py` (29 passed) drive the pinned CBM
+    binary through the CLI as an isolated account, including the offline
+    install; `test_codebase_memory_mcp_index.py` and `test_codex_hooks.py` pass.
+    `cbm install --config-only` carries the Dev Container's nonfatal wiring, and
+    settings derived from the home directory follow `$HOME`, as every script
+    read it. Deploy acceptance (24 passed) and the Dev Container image suite (5
+    passed) pass against images built from that commit.
 
 ### Task 9: Agent state and catalog registration
 
@@ -343,17 +437,51 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/reinstall-agentdev-codex.sh`,
 `.devcontainer/scripts/reinstall-agentdev-opencode.sh`
 
-- [ ] `agentdev-runtime state create|links|agent-policy|cbm` runs under one
+- [x] `agentdev-runtime state create|links|agent-policy|cbm` runs under one
   configuration lock, keeps deploy's fatal and the devcontainer's nonfatal CBM
   install, the user-tool registration, the auth directories, the
   `~/.claude.json` link, the Codex `auth.json` link repair, and the Claude
   pre-approval with its skip variable.
-- [ ] `agentdev-runtime catalog install <root> [--claude-scope user|local]`
+  - **Evidence:** commit 39045fa; `test_agent_runtime_state.py` (17 passed,
+    including the lock taking turns across processes), `test_claude_state.py`,
+    `test_codex_config.py`, `test_opencode_config.py`, and the reworked
+    `test_configure_*` and `test_preapprove_claude_workspace.py` pass. Deploy
+    acceptance (24 passed) and the Dev Container image suite (5 passed) pass
+    against images built from 9732df9.
+- [x] `agentdev-runtime catalog install <root> [--claude-scope user|local]`
   registers the Claude marketplace and plugins, the Codex marketplace with the
   already-registered short-circuit and the agents installer, and the OpenCode
   bridge entry; the complete-catalog test is one function in the package.
+  - **Evidence:** commits 39045fa and 9732df9;
+    `test_switching_catalogs_replaces_managed_registrations_only` and
+    `test_rerunning_codex_registration_leaves_config_byte_identical` pass
+    against the real Claude and Codex CLIs; deploy acceptance (24 passed,
+    including the fake-`claude` Remote Control cases whose config phase
+    registers the catalog) passes against `agentdev-deploy` built from 9732df9.
+    `catalog complete <root>` exposes the one complete-catalog test to the shell
+    lifecycle scripts until Tasks 12 and 13 replace them.
 
-### Task 10: Remote Control
+### Task 10: Remote Control watcher ends on a start that never comes up
+
+**Files:** Modify: `.devcontainer/scripts/runtime-remote-control.sh`,
+`scripts/tests/test_runtime_remote_control.py`,
+`docs/knowledge/data/bugs/remote-control-watcher-start-loop.md`
+
+- [x] When the start script returns 0 and no live `claude-remote` session
+  follows, `runtime-remote-control.sh run` logs it and exits non-zero, the way a
+  seen session that disappears already does, so the runtime's recovery budget
+  bounds the retries; the retry that clears `checked` is gone.
+  - **Evidence:** commit f8b992c; `test_runtime_remote_control.py` and
+    `test_claude_remote_control_start.py` pass (38).
+- [x] A test in `test_runtime_remote_control.py` runs a start that leaves no
+  session and asserts the watcher exits non-zero after one start; the bug's
+  `## Fix` records the fix.
+  - **Evidence:** commit f8b992c;
+    `test_a_start_that_never_comes_up_ends_the_watcher` asserts one start and a
+    non-zero exit naming the session that did not come up; the bug's `## Fix`
+    records the change.
+
+### Task 11: Remote Control
 
 **Files:** Create:
 `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py`; Modify:
@@ -367,13 +495,20 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/claude-remote-control-session.sh`,
 `.devcontainer/scripts/claude-remote-control-pin.sh`
 
-- [ ] `agentdev-runtime remote-control run|check|start|session [name]|pin` keeps
+- [x] `agentdev-runtime remote-control run|check|start|session [name]|pin` keeps
   the credential-signature watch, the mode and spawn validation, the
   `tmux -L claude-remote` server, the pinned-conversation resume, and the
   SessionStart hook, whose command in `--settings` becomes
   `agentdev-runtime remote-control pin`.
+  - **Evidence:** commit e457d98; `test_runtime_remote_control.py`,
+    `test_claude_remote_control_start.py` (fake and real tmux),
+    `test_claude_remote_control_session.py`, and
+    `test_claude_remote_control_pin.py` pass through the CLI. Deploy acceptance
+    (24 passed, including the Remote Control login, start, and recovery cases)
+    and the Dev Container image suite pass against images built from merge
+    f3c202d.
 
-### Task 11: Workspace, project, and git helpers
+### Task 12: Workspace, project, and git helpers
 
 **Files:** Create: `py_packages/agentdev_runtime/agentdev_runtime/workspace.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
@@ -388,20 +523,36 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/setup-git-safe-directory.sh`,
 `.devcontainer/scripts/setup-gh-credential-helper.sh`
 
-- [ ] `agentdev-runtime workspace checkout|project|catalog|config|prepare` keeps
+- [x] `agentdev-runtime workspace checkout|project|catalog|config|prepare` keeps
   the clone marker, worktree validation, credential redaction, and deploy-only
   cloning.
-- [ ] `agentdev-runtime project sync|hooks` and
+  - **Evidence:** commit 4773feb; `test_agent_runtime_workspace.py` (25 passed,
+    including the real Claude and Codex catalog registration and the offline
+    hook registration) runs the command with the other modules' steps recorded.
+    Deploy acceptance (24 passed), whose prepare, config, and project phases run
+    it, and the Dev Container image suite (5 passed) pass against images built
+    from that commit. The forced-prepare acceptance case now swaps the phase
+    through `AGENTDEV_SUPERVISOR_CONFIG`, since the CLI's entry point is a
+    symlink into the integrity-checked tool.
+- [x] `agentdev-runtime project sync|hooks` and
   `agentdev-runtime git safe-directory|credential-helper` keep the managed
   `.venv` link cleanup, deploy's refusal to replace custom hooks, the skip
   variables, and the keyring-session environment read; root `AGENTS.md` and the
   microvm-sandbox skill stop naming `uv-sync.sh`.
-- [ ] `agentdev-runtime project hooks`, after registering the hooks, writes one
+  - **Evidence:** commit 4773feb; the project cases of
+    `test_agent_runtime_workspace.py` and `test_setup_gh_credential_helper.py`
+    pass through the CLI;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    passes after the skill edit.
+- [x] `agentdev-runtime project hooks`, after registering the hooks, writes one
   warning to stderr for each `language: system` hook whose `entry` executable is
   not on `PATH`, naming the hook and the executable, and keeps the exit status
   it has today; tests cover a missing and a present executable in both profiles.
+  - **Evidence:** commit 4773feb; `test_project_hooks.py` covers a missing and a
+    present executable in both profiles, a non-system hook, and deploy's
+    custom-hook refusal, which exits 1 before any warning.
 
-### Task 12: Lifecycle commands, hooks, and the no-supervisor start
+### Task 13: Lifecycle commands, hooks, and the no-supervisor start
 
 **Files:** Create: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/hooks.py`,
@@ -421,17 +572,31 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/postStartCommand.sh`,
 `.devcontainer/scripts/postAttachCommand.sh`
 
-- [ ] `agentdev-runtime lifecycle created [--wait]`, `ready [--no-wait]`,
+- [x] `agentdev-runtime lifecycle created [--wait]`, `ready [--no-wait]`,
   `attached`, and `hooks <phase>` keep each phase's content and ordering, the
   hook-directory containment check, and the readiness wait. `ready --no-wait` is
   one function: start the CBM daemon, then the per-start repairs.
-- [ ] The `devcontainer.metadata` label, the `created` wait program, and the
+  - **Evidence:** commit 70828d2; `test_agentdev_devcontainer_lifecycle.py` (19
+    passed) and `test_hooks.py` cover each phase's order, idempotence, the
+    readiness wait and its failure, the hook order, skips, failure, and
+    containment, and `ready --no-wait` starting CBM before the per-start
+    repairs. The Dev Container image suite (5 passed) runs the label's commands
+    against an image built from 76a1836.
+- [x] The `devcontainer.metadata` label, the `created` wait program, and the
   responder action's lifecycle step name the CLI; the responder keeps its
   environment and the client-state directory creation.
-- [ ] The lifecycle tests replace filename stubs with monkeypatched module
+  - **Evidence:** commit 70828d2;
+    `test_the_responder_runs_each_phase_through_the_cli` and the profiles test
+    on the `created` program pass, and the label names
+    `agentdev-runtime lifecycle created|ready|attached`; the responder step
+    keeps its environment and its `mkdir -p` of the client-state directories.
+- [x] The lifecycle tests replace filename stubs with monkeypatched module
   functions, and the image, repository, and migration tests call the CLI.
+  - **Evidence:** commit 70828d2; the lifecycle tests patch `agentdev_runtime`
+    module functions in a subprocess bootstrap, and the image, repository, and
+    migration tests reach the runtime only through `agentdev-runtime`.
 
-### Task 13: Remove the script tree, the health report, and the acceptance wrapper
+### Task 14: Remove the script tree, the health report, and the acceptance wrapper
 
 **Files:** Create: `py_packages/agentdev_runtime/agentdev_runtime/doctor.py`,
 `scripts/tests/conftest.py`; Modify: `.github/workflows/ci.yml`,
@@ -443,18 +608,32 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/ci-hooks-repro.sh`,
 `.devcontainer/scripts/test-agent-runtime.sh`
 
-- [ ] `agentdev-runtime doctor` reproduces the health report's sections, its
+- [x] `agentdev-runtime doctor` reproduces the health report's sections, its
   PASS/FAIL/SKIP tabulation, and its exit status.
-- [ ] `doctor`'s toolchain section also requires `gitleaks` and `actionlint`,
+  - **Evidence:** commit 76a1836; `test_environment_health.py` (13 passed) runs
+    the CLI against stub tools for both profiles, the firewall values, missing
+    tools, failures, timeouts, and the redaction.
+- [x] `doctor`'s toolchain section also requires `gitleaks` and `actionlint`,
   reporting `required tool not installed` for either when it is absent.
-- [ ] `ci.yml` runs the acceptance suite through `uv run pytest`; a conftest
+  - **Evidence:** commit 76a1836;
+    `test_a_missing_hook_binary_fails_the_toolchain` passes for each.
+- [x] `ci.yml` runs the acceptance suite through `uv run pytest`; a conftest
   fixture labels and removes the containers, volumes, and networks the suite
   creates, and a session hook fails the run when every test skipped.
-- [ ] The `COPY .devcontainer/scripts/` lines and the `.dockerignore` exception
+  - **Evidence:** commit 76a1836;
+    `uv run pytest -n 4 scripts/tests/test_agent_runtime_acceptance.py` passes
+    (24, one skipped) against `agentdev-deploy` built from that commit and
+    leaves no labelled container behind; selecting only the skipped upgrade case
+    with the image set prints `every acceptance test was skipped` and exits 1.
+- [x] The `COPY .devcontainer/scripts/` lines and the `.dockerignore` exception
   leave; `.devcontainer/scripts/` is gone from the tree, and
   `git ls-files '.devcontainer/**/*.sh'` lists only `devcontainer-init.sh`.
+  - **Evidence:** commit 76a1836; both images build without the copy, and
+    `git ls-files ':(glob).devcontainer/**/*.sh'` lists only
+    `.devcontainer/devcontainer-init.sh`. Git's default pathspec needs the
+    `:(glob)` magic for `**` to match no directory.
 
-### Task 14: Remove Codex Cloud
+### Task 15: Remove Codex Cloud
 
 **Files:** Modify: `.codex/README.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
@@ -463,12 +642,16 @@ Delete: `docker/desktop/start-xpra.sh`
 `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md`; Delete:
 `.codex/setup-codex-cloud.sh`
 
-- [ ] The script and every reference to it are gone;
+- [x] The script and every reference to it are gone;
   `git grep -iE 'codex[ -]cloud'` outside `data/plans/`, `data/log.md`, the
   feature document that describes the removal, and the codebase map Task 16
   refreshes prints nothing.
+  - **Evidence:** commit ab09896; `git grep -iE 'codex[ -]cloud'` with the four
+    exclusions as pathspecs prints nothing and exits 1;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    and `iwe schema validate` pass.
 
-### Task 15: Publisher scripts
+### Task 16: Publisher scripts
 
 **Files:** Create: `scripts/download-claude-responder-runs.py`,
 `scripts/renovate-post-upgrade.py`,
@@ -480,12 +663,17 @@ Delete: `docker/desktop/start-xpra.sh`
 `scripts/download-claude-responder-runs.sh`, `scripts/renovate-post-upgrade.sh`,
 `py_packages/validate_agent_files/tests/test_download_claude_responder_runs.py`
 
-- [ ] Both scripts are Python with the same usage and output; the responder
+- [x] Both scripts are Python with the same usage and output; the responder
   download test moves out of the validator package into `scripts/tests/`; the
   Renovate `postUpgradeTasks.commands`, the `managerFilePatterns` entry, and
   `RENOVATE_ALLOWED_COMMANDS` name the `.py` file.
+  - **Evidence:** commit 07bf978; `test_renovate_post_upgrade.py` (now with a
+    check that the custom manager's pattern still reads the CLI pin from the
+    `.py` file) and the moved
+    `scripts/tests/test_download_claude_responder_runs.py` pass, and the
+    renovate-config-validator hook passes on `.github/renovate.json`.
 
-### Task 16: Record the decisions and refresh the references
+### Task 17: Record the decisions and refresh the references
 
 **Files:** Create:
 `docs/knowledge/data/architecture/agentdev-runtime-package.md`; Modify:
@@ -503,23 +691,127 @@ Delete: `docker/desktop/start-xpra.sh`
 `ansible/roles/basic_prereqs/tasks/main.yml`,
 `ansible/roles/dev_tools/defaults/main.yml`, `docs/knowledge/data/codebase/`
 
-- [ ] The architecture document records the package over loose scripts, the
+- [x] The architecture document records the package over loose scripts, the
   `RECORD` integrity check, the firewall leaving the base image, the CBM-only
   no-supervisor start with the container-job alternatives rejected in its
   favour, and the other rejected alternatives above.
-- [ ] Every document and comment that names a runtime script names the CLI
+  - **Evidence:** commit ec9a98d;
+    `data/architecture/agentdev-runtime-package.md`, linked from
+    `data/architecture.md`, records the package, the `RECORD` integrity check,
+    the firewall run from the bootstrap with the role keeping only its packages,
+    the CBM-only no-supervisor start with the container-job alternatives
+    rejected, and the other rejected alternatives; `iwe schema validate` passes.
+- [x] Every document and comment that names a runtime script names the CLI
   subcommand instead; `product.md` describes the package in its stack and the
   firewall constraint by its command; root `AGENTS.md` points
   devcontainer-related code at the package.
-- [ ] `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
+  - **Evidence:** commits ec9a98d and d977ad2; a `git grep` for every retired
+    script name finds none outside the plan records, `data/log.md`, the specs
+    `## Spec changes` sends to Ship, the bugs, the implemented features and done
+    backlog items that record past work, and three tests that assert the old
+    tree is gone. `product.md` describes the package in its stack and the
+    firewall by its command, and root `AGENTS.md` points devcontainer runtime
+    code at the package.
+- [x] `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
+  - **Evidence:** commit 378fd09; the refresh moves the lifecycle-scripts doc to
+    `data/codebase/py_packages/agentdev_runtime` and refreshes the 17 stale
+    docs; `stale-map-docs.py` ends `RESULT=SUCCESS` with 28 fresh docs.
 
-### Task 17: Verify the published image family
+### Task 18: The responder runs on an image without the CLI
+
+**Files:** Modify: `.github/actions/run-claude-responder/action.yml`
+
+- [x] When `agentdev-runtime` is not on `PATH`, the responder's lifecycle step
+  installs it from the checkout's `py_packages/agentdev_runtime` as a uv tool
+  before running `agentdev-runtime lifecycle created|ready|attached`, so a
+  `container:` job on a pinned image built before this plan still runs its
+  lifecycle; an image that ships the CLI skips the install.
+  - **Evidence:** commit 5fb232d. The install builds from a temporary copy of
+    the package, so no `build/` tree is left in the checkout under review. The
+    step's script, run in this plan's Dev Container image, which ships the CLI,
+    exits 0 without invoking `uv tool install`.
+- [x] `actionlint` and `zizmor` pass through pre-commit, and the step's install
+  path runs in a container from the currently pinned `agentdev-devcontainer`
+  image.
+  - **Evidence:** commit 5fb232d. `pre-commit run actionlint` and `zizmor` pass
+    on the action and `ai-responder.yml`. The test used the step's script in the
+    pinned `edge@sha256:d1acc7f1…` image, run as a container job: the workspace
+    was mounted and the step's environment set. There, `agentdev-runtime` is
+    absent before the step; the step installs it to
+    `/usr/local/bin/agentdev-runtime`, then runs `lifecycle created`,
+    `ready --no-wait`, and `attached`, and exits 0. The package directory in the
+    checkout gains no `build/` tree.
+
+### Task 19: The Coder template starts the agent through the CLI
+
+**Files:** Modify, in
+[plume-works/coder-ide-baseline](https://github.com/plume-works/coder-ide-baseline):
+`template/main.tf`
+
+- [x] The `agent_start_script` parameter becomes a command run in the repository
+  checkout, defaulting to `agentdev-runtime coder start`; its `display_name` and
+  `description` say so. `coder_script.agent_start` runs the value when its first
+  word resolves through `command -v`, runs the default in place of the legacy
+  value `.devcontainer/scripts/coder-agent-start.sh` that existing workspaces
+  stored, runs the checkout's executable
+  `.devcontainer/scripts/coder-agent-start.sh` when the command does not resolve
+  but that script exists, and otherwise logs that the repository ships no
+  agent-start command and exits 0.
+  - **Evidence:** coder-ide-baseline commit 4a2d980 (squash of
+    [#31](https://github.com/plume-works/coder-ide-baseline/pull/31)), whose
+    `push.sh` also defaults the template name to `coder-ide-baseline`.
+    `terraform fmt -check` and `terraform validate` pass. The rendered script,
+    run under `sh`, takes every branch: default, legacy, script fallback, custom
+    command, empty, and unresolvable. On template version `main-4a2d980`:
+    - Case (a): `anton/agent-dev3` was updated with the parameter set to the
+      default, on its current image, which has no CLI. Its agent-start log at
+      05:53:44 shows `coder-agent-start.sh` running through the fallback: "A git
+      credential helper for github.com is already configured", "Started OpenCode
+      web …", "Started Claude Remote Control …". `opencode serve` and
+      `claude remote-control` restarted at 05:53:43, and Remote Control reports
+      Ready.
+    - Case (b): `anton/agent-dev4` was updated without a parameter change, so it
+      keeps the stored legacy value. It takes the same path, with the same three
+      lines at 05:55:14 and both processes restarted at 05:55:13. Its locked
+      worktree `bridge-cse_01Q7BhLtd7Zx6jbm3HGXyvW7` is still listed at 4b2302d
+      with no changes.
+    - Case (c): the default command was run in this plan's Dev Container image,
+      started under its supervisor with `health ready` passing and no script in
+      the checkout. It ran `agentdev-runtime coder start` and exited 0 with
+      "Started OpenCode web …"; gh and Claude, not logged in, were skipped as
+      logged.
+- [x] The template change merges through its own pull request with its
+  `Docker Build and Push` check passing, and the new template version is pushed
+  to Coder before this plan's pull request merges.
+  - **Evidence:** [coder-ide-baseline
+    #31](https://github.com/plume-works/coder-ide-baseline/pull/31) merged as
+    4a2d98085e34f0a7b4d266d86b90add036bf32f3, with `Docker Build and Push`
+    passing ([run
+    41172671181](https://github.com/plume-works/coder-ide-baseline/actions/runs/41172671181)).
+    `coder templates push coder-ide-baseline --directory template --name main-4a2d980`
+    from that commit made version `main-4a2d980` the active version at
+    2026-10-31T05:51:33Z, while this plan's pull request was still a draft.
+
+### Task 20: Verify the published image family
 
 **Files:** None.
 
-- [ ] **Closed by: CI on the current head.** Both architectures build the three
+- [x] **Closed by: CI on the current head.** Both architectures build the three
   images, the deploy and Dev Container acceptance jobs pass, and the canonical
   tags move.
+  - **Evidence:** [CI run
+    41182366195](https://github.com/plume-works/agent-devcontainer/actions/runs/41182366195)
+    on 796bf892. The run includes:
+    - `Development image` builds `agentdev-base`, `agentdev-deploy`, and
+      `agentdev-devcontainer` on amd64 and arm64, and `Merge development image`
+      merges them.
+    - `Devcontainer image`, `Deploy runtime acceptance`, and
+      `Dev Container runtime acceptance` pass on both architectures.
+    - `Promote development image` moves `pr-573` on all three images, and
+      `CI finished` passes. CI collects every test tree in one pytest session,
+      so the runtime's CLI tests are `tests/test_runtime_cli.py` and
+      `ACCEPTANCE_LABEL` lives in `scripts/tests/acceptance_label.py` (commit
+      f25e9e2b).
 
 ## Spec changes
 
@@ -612,9 +904,62 @@ scenario keeps its behaviour.
 | [Devcontainer Docker storage](../spec/devcontainer-docker-storage.md)   | `coder-agent-start.sh`, `docker-image-prune.sh`                                                                                                                           | `coder start`, `docker prune`                                                                       |
 | [Devcontainer Codex policy](../spec/devcontainer-codex-policy.md)       | `postStartCommand.sh`, `configure-codex.py`                                                                                                                               | `lifecycle ready`, `state agent-policy`                                                             |
 | [Devcontainer OpenCode policy](../spec/devcontainer-opencode-policy.md) | `postStartCommand.sh`, `configure-opencode.py`                                                                                                                            | `lifecycle ready`, `state agent-policy`                                                             |
-| [Coder IDE baseline](../spec/coder-ide-baseline.md)                     | `.devcontainer/scripts/coder-agent-start.sh`                                                                                                                              | `agentdev-runtime coder start`                                                                      |
 | [Xpra port forwarding](../spec/xpra-port-forwarding.md)                 | `start-xpra.sh`                                                                                                                                                           | `xpra`                                                                                              |
 | [Dependency updates](../spec/dependency-updates.md)                     | `scripts/renovate-post-upgrade.sh`                                                                                                                                        | `scripts/renovate-post-upgrade.py`                                                                  |
+
+[Claude Remote Control](../spec/claude-remote-control.md), Task 10: the
+requirement "the standalone runtime starts Remote Control when a mode is set"
+gains a normative outcome. A start that returns without leaving a live
+`claude-remote` session SHALL count as the session exiting, so the runtime
+restarts it and, once the recovery budget is exhausted, reports degraded naming
+`remote-control`, or latches failed under strict startup.
+
+[Coder IDE baseline](../spec/coder-ide-baseline.md), Task 19 — the start hook
+becomes a command, and every other mention of `coder-agent-start.sh` in the spec
+names `agentdev-runtime coder start`:
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: the agent-start command is the repository's only start hook
+
+The template SHALL run, on every start of the Dev Container's sub-agent, the
+command that the `agent_start_script` workspace parameter names, in the
+repository checkout. The value defaults to `agentdev-runtime coder start`. The
+command SHALL run under the sub-agent, so it inherits the agent's environment,
+including Coder user secrets. The legacy value
+`.devcontainer/scripts/coder-agent-start.sh`, the template's former default,
+SHALL run the default command. When the command does not resolve but the
+checkout ships an executable `.devcontainer/scripts/coder-agent-start.sh`, that
+script SHALL run, so a workspace on an image without the CLI keeps its start.
+When the value is empty, or its first word does not resolve to a command and no
+such script exists, nothing SHALL run and the script's log SHALL say so. The template SHALL NOT name any other command in
+this repository; new agent-start steps belong in `agentdev-runtime coder start`.
+
+#### Scenario: the repository ships the CLI
+
+- **WHEN** the workspace starts with the default parameter value
+- **THEN** `agentdev-runtime coder start` runs in the Dev Container with the
+  Coder user secrets in its environment.
+
+#### Scenario: a workspace stored the legacy script path
+
+- **WHEN** the workspace starts with `agent_start_script` set to
+  `.devcontainer/scripts/coder-agent-start.sh`
+- **THEN** `agentdev-runtime coder start` runs, as it would for the default.
+
+#### Scenario: an image without the CLI still ships the script
+
+- **WHEN** `agentdev-runtime` does not resolve and the checkout ships an
+  executable `.devcontainer/scripts/coder-agent-start.sh`
+- **THEN** that script runs with the Coder user secrets in its environment.
+
+#### Scenario: another repository has no agent-start command
+
+- **WHEN** the configured command does not resolve in the Dev Container
+- **THEN** the start script logs that the repository ships no agent-start
+  command and exits without error.
+```
 
 ## Depends on
 
@@ -626,13 +971,11 @@ image](20261023-reusable-agentdev-devcontainer.md)
 - `uv run pytest py_packages/agentdev_runtime`
 - `uv run pytest scripts/tests/test_agent_runtime_supervision.py scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_state.py scripts/tests/test_agent_runtime_identity.py scripts/tests/test_agent_runtime_firewall.py scripts/tests/test_agent_runtime_docker.py scripts/tests/test_agent_runtime_keyring.py scripts/tests/test_agent_runtime_cbm.py scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_agent_runtime_ingress.py scripts/tests/test_runtime_remote_control.py scripts/tests/test_agentdev_devcontainer_lifecycle.py scripts/tests/test_environment_health.py scripts/tests/test_renovate_post_upgrade.py scripts/tests/test_download_claude_responder_runs.py`
 - `uv run ruff check py_packages/agentdev_runtime scripts` and
-  `.agents/plugins/agentdev/bin/python-lint-check.sh`
+  `.agents/plugins/agentdev/bin/python_lint_check.py`
 - `shellcheck` on every remaining shell file;
-  `git ls-files '.devcontainer/**/*.sh' 'docker/**/*.sh' '.codex/**' 'scripts/*.sh'`
+  `git ls-files ':(glob).devcontainer/**/*.sh' ':(glob)docker/**/*.sh' ':(glob).codex/**' ':(glob)scripts/*.sh' ':!.codex/README.md'`
   prints exactly `.devcontainer/devcontainer-init.sh`,
-  `docker/ansible/setup-ansible.sh`, `docker/desktop/entrypoint.sh`, and
-  `scripts/validate-super-linter-tool-versions.sh` until the catalog plan ports
-  the last one
+  `docker/ansible/setup-ansible.sh`, and `docker/desktop/entrypoint.sh`
 - `uv run ansible-lint ansible` and
   `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml`
 - Build the three-image family locally through the repository's image-build
@@ -651,6 +994,16 @@ image](20261023-reusable-agentdev-devcontainer.md)
 - `iwe normalize`, `iwe schema validate`, the knowledge-base tests, and an
   `/agentdev:iwe-map` refresh with no stale mapped source
 - CI on the current head builds and accepts both architectures
+
+## Verification results
+
+- `agentdev-runtime doctor` in a started Dev Container is not shown passing. In
+  `agentdev-devcontainer` run under its supervisor, after `lifecycle created`
+  and `lifecycle ready`, it reports 39 PASS, 9 FAIL, and 4 SKIP. Every failure
+  is a check that needs something a bare container lacks: the Compose `sshd` and
+  `mcp-gateway` sidecars, the `gh`, git, Claude, and Codex credentials, and the
+  OpenCode server password. The toolchain section passes. Closing it takes one
+  `doctor` run in this repository's Compose Dev Container with credentials.
 
 ## Out of scope
 
@@ -679,69 +1032,49 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:12` — apt `supervisor`
-  install
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:19` —
+- `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
+  gone ends the watcher
+- `.devcontainer/scripts/runtime-remote-control.sh:62` — the `checked=""` retry
+  Task 10 removes
+- `scripts/tests/test_runtime_remote_control.py:185` — the disappearing-session
+  test the new start-loop test sits beside
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:21` —
   `COPY .devcontainer/scripts/`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:25` — sha256 runtime
-  manifest
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:41` —
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:39` —
   `devcontainer.metadata` lifecycle commands
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:58` — `HEALTHCHECK`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:56` — `HEALTHCHECK`
   command
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:60` — `ENTRYPOINT`
-- `docker/deploy/agentdev-deploy.Dockerfile:14` — apt `supervisor` install
-- `docker/deploy/agentdev-deploy.Dockerfile:22` — `COPY .devcontainer/scripts/`
-- `docker/deploy/agentdev-deploy.Dockerfile:62` — `HEALTHCHECK` command
-- `docker/deploy/agentdev-deploy.Dockerfile:64` — `ENTRYPOINT`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:58` — `ENTRYPOINT`
+- `docker/deploy/agentdev-deploy.Dockerfile:24` — `COPY .devcontainer/scripts/`
+- `docker/deploy/agentdev-deploy.Dockerfile:64` — `HEALTHCHECK` command
+- `docker/deploy/agentdev-deploy.Dockerfile:66` — `ENTRYPOINT`
 - `docker/devcontainer/supervisord.conf:25` — controller listener command
 - `docker/devcontainer/supervisord.conf:38` — first service `command=`
 - `docker/deploy/supervisord.conf:84` — `prepare` one-shot
-- `.devcontainer/scripts/runtime-supervisor.py:79` — `SettingsParser`
-- `.devcontainer/scripts/runtime-supervisor.py:306` — `DEVCONTAINER_SERVICES`
-- `.devcontainer/scripts/runtime-supervisor.py:953` — bootstrap command hook
-- `.devcontainer/scripts/runtime-supervisor.py:620` — `failing_dependency`, the
-  client-to-dependency escalation the port keeps; `:742` — `check_once`
-- `.devcontainer/scripts/runtime-supervisor.py:309` — `dockerd` is core in the
-  devcontainer profile
-- `.devcontainer/scripts/runtime-supervisor.py:173` — `AGENTDEV_SKIP_XPRA`
 - `.github/workflows/ai-responder.yml:422` — review job `container:` block
 - `.github/actions/run-claude-responder/action.yml:150` — composite
   `claude-code-action` step
-- `.devcontainer/scripts/runtime-health.sh:18` — `current_state` jq parse of
-  `state.json`
-- `.devcontainer/scripts/runtime-bootstrap.sh:177` — `verify_runtime_root`
-- `.devcontainer/scripts/runtime-bootstrap.sh:16` and
-  `.devcontainer/scripts/runtime-paths.sh:6` — one variable, two defaults
 - `.devcontainer/scripts/postStartCommand.sh:9` — no-supervisor branch
-- `.devcontainer/scripts/configure-codex.py:1` — `uv run --script` shebang
 - `.devcontainer/scripts/ci-hooks-repro.sh:20` — default image reference
-- `docker/desktop/start-xpra.sh:197` — `--supervised` mode
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:16` — script install task
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:24` — sudoers task
 - `ansible/roles/validate_agent_files/tasks/main.yml:61` — uv tool install to
   mirror
 - `ansible/roles/validate_agent_files/defaults/main.yml:17` — `/opt/uv-tools`
 - `.github/actions/run-claude-responder/action.yml:95` — lifecycle step
-- `.github/workflows/ci.yml:325` — `runtime-health.sh ready` in acceptance
+- `.github/workflows/ci.yml:325` — `agentdev-runtime health ready` in the Dev
+  Container image check
 - `.github/workflows/ci.yml:399` — `test-agent-runtime.sh` invocation
 - `.github/renovate.json:6` — `postUpgradeTasks.commands`
 - `.github/workflows/renovate.yml:110` — `RENOVATE_ALLOWED_COMMANDS`
-- `pyproject.toml:19` — root `supervisor` pin
-- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:26` — filename stubs
-- `scripts/tests/test_agentdev_devcontainer_image.py:216` — patched-script
-  integrity test
-- `scripts/e2e/iwe-workflows/harness_codex.py:22` — Codex reinstall path
-- `scripts/e2e/iwe-workflows/opencode_credential.py:24` — OpenCode start path
+- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:25` — filename stubs
 - `AGENTS.md:13` — `uv-sync.sh` reference
 - `README.md:205` — `runtime-health.sh status` operator command
 - `docker/deploy/README.md:102` — `runtime-health.sh status` operator command
 - `docs/knowledge/data/product.md:112` — firewall wrapper constraint
 - `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
 - `.codex/setup-codex-cloud.sh:4` — Codex Cloud bootstrap
-- `.devcontainer/scripts/environment-health.sh:79` — required toolchain list,
+- `.devcontainer/scripts/environment-health.sh:78` — required toolchain list,
   without `gitleaks` or `actionlint`
 - `.devcontainer/scripts/setup-pre-commit.sh:33` — deploy hook registration;
   `:41` — devcontainer hook install, neither checking hook executables

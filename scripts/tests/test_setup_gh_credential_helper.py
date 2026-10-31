@@ -1,13 +1,14 @@
+import inspect
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
+from agentdev_runtime import lifecycle
 import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/setup-gh-credential-helper.sh'
-POST_START = REPO_ROOT / '.devcontainer/scripts/postStartCommand.sh'
-READY = REPO_ROOT / '.devcontainer/scripts/devcontainer-ready.sh'
+HELPER = [sys.executable, '-m', 'agentdev_runtime', 'git', 'credential-helper']
 GH_HELPER = '!gh auth git-credential'
 
 
@@ -19,9 +20,7 @@ def run_setup(
     helper: str | None = None,
     keyring_env: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
-    script = tmp_path / 'workspace/.devcontainer/scripts' / SCRIPT.name
-    script.parent.mkdir(parents=True)
-    shutil.copy2(SCRIPT, script)
+    (tmp_path / 'workspace').mkdir()
     if keyring_env is not None:
         (tmp_path / 'workspace/.tmp').mkdir()
         (tmp_path / 'workspace/.tmp/keyring-session.env').write_text(keyring_env)
@@ -46,12 +45,13 @@ def run_setup(
         'GIT_CONFIG_GLOBAL': str(gitconfig),
         'GIT_CONFIG_NOSYSTEM': '1',
         'GH_TEST_AUTHENTICATED': '1' if authenticated else '0',
+        'DEV_WORKSPACE_FOLDER': str(tmp_path / 'workspace'),
     }
     if helper is not None:
         subprocess.run(
             ['git', 'config', '--global', 'credential.helper', helper], env=env, check=True
         )
-    result = subprocess.run([script], env=env, text=True, capture_output=True)
+    result = subprocess.run(HELPER, env=env, text=True, capture_output=True)
     configured = subprocess.run(
         ['git', 'config', '--get-urlmatch', 'credential.helper', 'https://github.com'],
         env=env,
@@ -91,10 +91,5 @@ def test_reads_gh_login_through_saved_keyring_session(tmp_path):
 
 
 def test_post_start_runs_setup_after_keyring():
-    post_start = POST_START.read_text()
-    assert post_start.index('"$script_dir/setup-keyring.sh"') < post_start.index(
-        'devcontainer-ready.sh" --no-wait'
-    )
-    ready = READY.read_text()
-    helper = ready.index('"$script_dir/setup-gh-credential-helper.sh"')
-    assert ready.index("'') wait_ready ;;") < helper
+    ready = inspect.getsource(lifecycle.ready)
+    assert ready.index('wait_ready(settings)') < ready.index('git.credential_helper')

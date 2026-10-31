@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 import uuid
 
@@ -10,8 +11,8 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/claude-remote-control-start.sh'
-PANE_SCRIPT = SCRIPT.with_name('claude-remote-control-session.sh')
+SCRIPT = [sys.executable, '-m', 'agentdev_runtime', 'remote-control', 'start']
+PANE_SCRIPT = 'agentdev-runtime remote-control session'
 COMPOSE = REPO_ROOT / '.devcontainer/docker-compose.yml'
 CLAUDE_AI_LOGIN = {'loggedIn': True, 'authMethod': 'claude.ai'}
 # Prints $CLAUDE_TEST_STATUS for `claude auth status`, refusing a leaked setup token.
@@ -72,7 +73,7 @@ def run_with_fake_tmux(
     if spawn is not None:
         env['AGENTDEV_CLAUDE_RC_SPAWN'] = spawn
     try:
-        result = subprocess.run([SCRIPT], env=env, text=True, capture_output=True)
+        result = subprocess.run(SCRIPT, env=env, text=True, capture_output=True)
         return result, log.read_text() if log.exists() else ''
     finally:
         shutil.rmtree(test_dir)
@@ -240,7 +241,7 @@ def test_real_tmux_starts_claude_without_setup_token(existing_server):
                 check=True,
             )
         caller_env = env | {'CLAUDE_TMUX_TEST_MARKER': marker}
-        result = subprocess.run([SCRIPT], env=caller_env, text=True, capture_output=True)
+        result = subprocess.run(SCRIPT, env=caller_env, text=True, capture_output=True)
         for _ in range(30):
             if result_file.exists():
                 break

@@ -3,15 +3,15 @@ type: architecture
 description: The Dev Container is to run as a non-root account whose whole home is one per-instance volume, like the deploy runtime, replacing the per-directory state volumes under /root; editor servers persisting on that volume are an accepted risk.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T06:30:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
 - resource: .devcontainer/devcontainer.json
 - resource: compose.opencode.yml
 - resource: docker/deploy/agentdev-deploy.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
 - resource: docker/base/agentdev-base.Dockerfile
-- resource: .devcontainer/scripts/runtime-bootstrap.sh
-- resource: .devcontainer/scripts/setup-agent-state.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 ---
 
 # Dev Container home volume

@@ -22,6 +22,7 @@ from scratch import TMP_ROOT
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = REPO_ROOT / 'scripts/tests/fixtures'
 IMAGE = os.environ.get('AGENTDEV_DEVCONTAINER_TEST_IMAGE', '')
+INSTALLED_PACKAGE = '/opt/uv-tools/agentdev-runtime/lib/python3.12/site-packages/agentdev_runtime'
 CLI = shlex.split(
     os.environ.get('AGENTDEV_DEVCONTAINER_CLI', 'bunx --bun @devcontainers/cli@0.80.2')
 )
@@ -124,7 +125,7 @@ def consumer() -> Iterator:
 
 
 def assert_ready(box: Consumer, required: list[str]) -> dict:
-    box.exec('/opt/agentdev-runtime/runtime-health.sh ready')
+    box.exec('agentdev-runtime health ready')
     state = box.runtime()
     assert state['profile'] == 'devcontainer' and state['ready'] is True
     assert sorted(state['probes']) == sorted(required)
@@ -142,7 +143,7 @@ def test_a_direct_consumer_gets_the_managed_runtime_without_lifecycle_scripts(co
     box.exec('test -s "${CODEX_HOME:-$HOME/.codex}/config.toml"')
     box.exec('grep -q agentdev "$HOME/.claude/plugins/installed_plugins.json"')
     box.exec('test -d "$AGENTDEV_CATALOG_DIR/.claude-plugin"')
-    box.exec('/opt/agentdev-runtime/runtime-health.sh cbm')
+    box.exec('agentdev-runtime health cbm')
     box.exec('curl -fsS -o /dev/null http://127.0.0.1:14500/')
     box.exec(
         'mkdir -p /tmp/ctx && echo hi > /tmp/ctx/f && printf "FROM scratch\\nCOPY f /f\\n" '
@@ -213,8 +214,8 @@ def test_a_derived_image_keeps_the_managed_lifecycle_and_runs_its_hooks_in_order
 @pytest.mark.parametrize(
     'change',
     [
-        "echo '# patched' >> /opt/agentdev-runtime/devcontainer-attached.sh",
-        'touch /opt/agentdev-runtime/extra.sh',
+        f"echo '# patched' >> {INSTALLED_PACKAGE}/health.py",
+        f'touch {INSTALLED_PACKAGE}/extra.py',
     ],
 )
 def test_a_derived_image_cannot_replace_the_managed_runtime(change):

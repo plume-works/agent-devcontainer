@@ -4,14 +4,14 @@ description: The Ansible playbook and roles that provision the agentdev-base ima
 source:
 - ansible
 - ansible.cfg
-source_digest: sha256:d84301a1d9e5f65b3c2a9c8da0f7c358ee8add5a1fda27c455aeaf2428b6f899
+source_digest: sha256:7f97be48db00b6fb83c4675ad20520fc3ac6cf628000f7ab9372e96cfebb9c7c
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:53:31Z
-stale_after: 2027-01-27
+  at: 2026-10-31T04:38:23Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:53:31Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: ansible

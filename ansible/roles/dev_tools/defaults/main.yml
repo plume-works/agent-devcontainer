@@ -77,7 +77,7 @@ dev_tools_pinned_tools:
   # linux build dynamically links glibc 2.38+ and fails on older bases (Debian 11,
   # Ubuntu 20.04) this image's roles target elsewhere.
   # Agent config wiring (`codebase-memory-mcp install`) is deliberately left to
-  # container-create time (see .devcontainer/scripts/postCreateCommand.sh),
+  # container-create time (see `agentdev-runtime lifecycle created`),
   # because it writes into ~/.claude.json and ~/.codex, which persistent volumes
   # mount over anything written at image-build time — the same reason
   # agentic_tools only stages its catalog at build time instead of installing it.

@@ -232,8 +232,9 @@ Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
    the consumer no longer builds `agentdev-devcontainer` itself; keep the pinned image
    reference and Renovate discovery behavior intact.
 
-The descriptor runs none of `.devcontainer/scripts/`: `agentdev-devcontainer`
-supplies the create, start, and attach commands, `waitFor`, and the supervised
+The descriptor runs no lifecycle script of its own: `agentdev-devcontainer`
+supplies the create, start, and attach commands (`agentdev-runtime lifecycle
+created`, `ready`, and `attached`), `waitFor`, and the supervised
 services through its image metadata. `devcontainer-init.sh` still runs on the
 host as `initializeCommand` and supplies the environment consumed by Compose.
 
@@ -250,8 +251,6 @@ Retain `.claude/` and `.codex/`, then review them as project policy:
   permissions.
 - Rewrite `.claude/README.md` so it no longer links to the deleted catalog
   publisher tree.
-- `.codex/setup-codex-cloud.sh` is useful only for Codex Cloud hosts that need
-  GitHub CLI; retaining it is harmless elsewhere.
 - Rewrite `.codex/README.md` to describe the consumer project without links to
   deleted publisher manifests.
 - Root `CLAUDE.md` continues to include root `AGENTS.md`.
@@ -1150,8 +1149,9 @@ in `## Choices`.
 5. **Copied scripts.** Delete `.devcontainer/scripts/`. Repoint any workflow
    step that ran `.devcontainer/scripts/postCreateCommand.sh`,
    `postStartCommand.sh`, or `postAttachCommand.sh` — the copied
-   `run-claude-responder` action does — at the same names under
-   `/opt/agentdev-runtime/`, and record that action as customized.
+   `run-claude-responder` action does — at `agentdev-runtime lifecycle created`,
+   `agentdev-runtime lifecycle ready --no-wait` (a job with no supervisor), and
+   `agentdev-runtime lifecycle attached`, and record that action as customized.
 6. **Marker.** Replace the `.devcontainer/` entry in `tracked_paths` with the
    files the consumer still owns, so later updates stop proposing the
    publisher's runtime scripts:

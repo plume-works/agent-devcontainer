@@ -6,8 +6,8 @@ completed: 2026-10-01
 priority: medium
 description: Remove the agentdev plugin's SessionStart hook, which never brought up a working devcontainer, and release the catalog as 4.0.0.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-01T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T04:18:32Z
 sources:
 - resource: .agents/plugins/agentdev/hooks/hooks.json
 - resource: .agents/plugins/agentdev/hooks/session-start.sh
@@ -44,9 +44,9 @@ Removing plugin surface is a breaking change, so the catalog version goes from
   `3.4.0` (`README.md`, `docker/ansible/setup-ansible.sh`, the `docker` and
   `ansible` codebase maps).
 
-Unaffected: the Codex manifest declares no hooks, `.codex/setup-codex-cloud.sh`
-is Codex Cloud's own setup, and the self-improve plugin keeps its own
-`SessionStart` hook. No test or CI workflow references the agentdev hook.
+Unaffected: the Codex manifest declares no hooks, and the self-improve plugin
+keeps its own `SessionStart` hook. No test or CI workflow references the
+agentdev hook.
 
 ## Done when
 

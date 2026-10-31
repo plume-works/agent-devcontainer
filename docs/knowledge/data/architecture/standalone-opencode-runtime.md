@@ -3,24 +3,24 @@ type: architecture
 description: agentdev-deploy runs supervisord in-process as PID 1 behind a root bootstrap; a controller event listener starts OpenCode on a core path with optional work around it, recovers each service within a bounded budget, degrades on optional failures, and latches failed on core ones until an explicit retry.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T04:35:08Z
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/runtime-supervisor.py
-- resource: .devcontainer/scripts/runtime-health.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/supervisor.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/health.py
 - resource: docker/deploy/supervisord.conf
 - resource: scripts/tests/test_agent_runtime_supervision.py
-- resource: .devcontainer/scripts/runtime-docker.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py
 - resource: scripts/tests/test_agent_runtime_docker.py
-- resource: .devcontainer/scripts/runtime-bootstrap.sh
-- resource: .devcontainer/scripts/runtime-workspace.sh
-- resource: .devcontainer/scripts/setup-agent-state.sh
-- resource: .devcontainer/scripts/runtime-firewall.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/workspace.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/firewall.py
 - resource: docker/deploy/agentdev-deploy.Dockerfile
-- resource: docker/desktop/start-xpra.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/xpra.py
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: compose.opencode.yml
 - resource: scripts/tests/test_agent_runtime_acceptance.py
-- resource: .devcontainer/scripts/runtime-remote-control.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 ---
 
 # Standalone OpenCode runtime
@@ -32,12 +32,12 @@ the two images share the supervisor, its primitives, and its recovery model.
 
 ## Shared helpers, not shared hooks
 
-The image bakes `.devcontainer/scripts/` into `/opt/agentdev-runtime` and calls
-the same primitives the Dev Container lifecycle commands call:
-`setup-agent-state.sh`, `runtime-paths.sh`, the CBM, keyring, and Git helpers.
-Every path those primitives touch is overridable, and the defaults are the
-devcontainer's root layout. `AGENTDEV_RUNTIME_MODE=deploy` makes every step
-fatal where the Dev Container lifecycle logs and continues.
+The image installs the `agentdev_runtime` package and calls the same primitives
+the Dev Container lifecycle commands call: `agentdev-runtime state`, the
+settings module, the CBM, keyring, and Git helpers. Every path those primitives
+touch is overridable, and the defaults are the devcontainer's root layout.
+`AGENTDEV_RUNTIME_MODE=deploy` makes every step fatal where the Dev Container
+lifecycle logs and continues.
 
 Running the lifecycle hooks unchanged was rejected. They assume root, a checkout
 that contains this repository's scaffolding, and the Dev Containers client's
@@ -47,11 +47,11 @@ that ships complete manifests overrides it per start.
 
 ## Identity and state
 
-`runtime-bootstrap.sh` creates `agent` from `AGENTDEV_UID`/`AGENTDEV_GID` at
-every container start, because a fresh container has no such account and the IDs
-are deployment settings. The image deletes the stock UID 1000 account and does
-not create `/home/agent`, so a fresh home volume starts empty, without Docker
-copying files into it, and is initialized after mounts.
+`agentdev-runtime bootstrap` creates `agent` from `AGENTDEV_UID`/`AGENTDEV_GID`
+at every container start, because a fresh container has no such account and the
+IDs are deployment settings. The image deletes the stock UID 1000 account and
+does not create `/home/agent`, so a fresh home volume starts empty, without
+Docker copying files into it, and is initialized after mounts.
 
 Only Claude and Codex credentials are shared, through one auth volume per
 UID/GID cohort. Sharing a whole home or agent directory was rejected: sessions,
@@ -96,8 +96,8 @@ stop.
 
 ## Process model
 
-PID 1 is `runtime-supervisor.py run`. It runs `runtime-bootstrap.sh` as root,
-which creates the runtime account before any program that names it is
+PID 1 is `agentdev-runtime supervisor run`. It runs `agentdev-runtime bootstrap`
+as root, which creates the runtime account before any program that names it is
 configured. It then calls `supervisor.supervisord.main()` in the same process.
 supervisord's own `main()` always exits `0`. Running it in-process lets PID 1
 exit `1` when the controller fails while supervisord remains the process that
@@ -146,12 +146,12 @@ delay every start.
 
 ## Readiness
 
-Each service is gated on `runtime-health.sh <service>` passing within the
+Each service is gated on `agentdev-runtime health <service>` passing within the
 service-start deadline; one-shots run once per container start under the
 preparation deadline. The controller publishes `/run/agentdev/state.json`
 (`pending`, `ready`, `degraded`, or `failed`, with each component's status) and
 refreshes its heartbeat every interval from a separate thread, so a long phase
-never looks like a dead controller. `runtime-health.sh ready`, the image
+never looks like a dead controller. `agentdev-runtime health ready`, the image
 healthcheck, passes only when that heartbeat is younger than three intervals,
 the state is `ready`, and the `dbus`, `keyring`, and `opencode` probes pass at
 that moment. The healthcheck's start period covers the core path alone.
@@ -162,8 +162,8 @@ A failure the runtime cannot recover from latches it `failed`: a failed
 bootstrap, an invalid setting or missing `XPRA_PASSWORD`, a failed core phase,
 or a core service exhausting its budget. PID 1 and supervisord stay up, OpenCode
 is stopped, nothing is restarted or rerun, and readiness stays withdrawn. Each
-program runs under `runtime-supervisor.py exec`, which streams its output and
-keeps its command, exit status, and last 200 lines, refreshed while it runs.
+program runs under `agentdev-runtime supervisor exec`, which streams its output
+and keeps its command, exit status, and last 200 lines, refreshed while it runs.
 Every failure writes those, the start's ID, and the time to `last-failure.json`
 on the home volume, taking output only from the attempt that failed. Startup
 never deletes that record. A failure before the home volume is validated goes to
@@ -173,9 +173,9 @@ PID 1 parses every boolean setting, `ENABLE_FIREWALL` included, and passes the
 firewall switch on as exactly `true` or `false`. A spelling the firewall would
 not recognize therefore latches the runtime instead of leaving egress open.
 
-`runtime-supervisor.py retry` resumes from the failed component in the same
-container. Before supervisord starts, PID 1 itself waits for the request and
-reruns the configuration check and bootstrap. The bootstrap runs in its own
+`agentdev-runtime supervisor retry` resumes from the failed component in the
+same container. Before supervisord starts, PID 1 itself waits for the request
+and reruns the configuration check and bootstrap. The bootstrap runs in its own
 session, and a failed or timed-out one is killed with every process it started,
 so nothing of it overlaps the retry. A successful retry restarts each client
 that was already serving and reads the retried component at startup: `config`
@@ -215,8 +215,8 @@ controller or supervisord fails, which leaves the restart policy for crashes.
 - Before restarting a service, the controller kills whatever is left of the
   failed process's group: supervisord signals a group only on an orderly stop.
   Xpra starts its X server in a separate session, beyond that group, so
-  `start-xpra.sh --supervised` also stops a leftover Xpra X server holding the
-  display when no live session owns it.
+  `agentdev-runtime xpra --supervised` also stops a leftover Xpra X server
+  holding the display when no live session owns it.
 - Exhaustion degrades the runtime for an optional service and latches it for a
   core one. A latch stops OpenCode even when OpenCode is what failed, since an
   exhausted probe budget leaves the process running.
@@ -226,16 +226,16 @@ controller or supervisord fails, which leaves the restart policy for crashes.
 ## Remote Control watcher
 
 Claude Remote Control is opt-in through `AGENTDEV_CLAUDE_RC_MODE`, and PID 1
-owns the gate: `claude-remote-control-start.sh` reads an unset mode as
+owns the gate: `agentdev-runtime remote-control start` reads an unset mode as
 `session`, so it cannot tell "off" from the default. Without a mode, the
 component is not configured at all.
 
-The component is a long-running watcher, `runtime-remote-control.sh run`, not a
-one-shot, because the usual first start has no claude.ai login yet. It re-runs
-`claude auth status` only when the credential file's inode, mtime, or size
-changes, which a login, a refresh, and an expiry all cause, so an idle wait
+The component is a long-running watcher, `agentdev-runtime remote-control run`,
+not a one-shot, because the usual first start has no claude.ai login yet. It
+re-runs `claude auth status` only when the credential file's inode, mtime, or
+size changes, which a login, a refresh, and an expiry all cause, so an idle wait
 costs one `stat` per interval. Without a login it reports waiting in
-`$XDG_RUNTIME_DIR/remote-control.status`, which `runtime-health.sh status`
+`$XDG_RUNTIME_DIR/remote-control.status`, which `agentdev-runtime health status`
 prints, and stays ready. With one, it runs the start script, which keeps Remote
 Control on its own `tmux -L claude-remote` server as on Coder. That tmux server
 daemonizes outside the watcher's process group, so a restarted watcher adopts
@@ -260,11 +260,11 @@ stop and take a program's whole process group with it.
 ## Nested Docker
 
 Both runtime images run the same supervised engine (see [Nested Docker
-provisioning](nested-docker-provisioning.md)). `runtime-docker.sh run` execs one
-root `dockerd` on `/var/run/docker.sock` with `--group docker`; the runtime user
-reaches it through that group. A `hosts` key in `daemon.json` is refused:
-dockerd rejects it beside `--host`, and any extra listener would widen the
-engine's reach.
+provisioning](nested-docker-provisioning.md)). `agentdev-runtime docker run`
+execs one root `dockerd` on `/var/run/docker.sock` with `--group docker`; the
+runtime user reaches it through that group. A `hosts` key in `daemon.json` is
+refused: dockerd rejects it beside `--host`, and any extra listener would widen
+the engine's reach.
 
 With no system containerd socket present, dockerd supervises its own containerd
 and roots it at `/var/lib/docker/containerd/daemon`. The containerd image
