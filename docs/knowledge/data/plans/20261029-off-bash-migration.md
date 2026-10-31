@@ -781,9 +781,17 @@ Delete: `docker/desktop/start-xpra.sh`
       the checkout. It ran `agentdev-runtime coder start` and exited 0 with
       "Started OpenCode web …"; gh and Claude, not logged in, were skipped as
       logged.
-- [ ] The template change merges through its own pull request with its
+- [x] The template change merges through its own pull request with its
   `Docker Build and Push` check passing, and the new template version is pushed
   to Coder before this plan's pull request merges.
+  - **Evidence:** [coder-ide-baseline
+    #31](https://github.com/plume-works/coder-ide-baseline/pull/31) merged as
+    4a2d98085e34f0a7b4d266d86b90add036bf32f3, with `Docker Build and Push`
+    passing ([run
+    41172671181](https://github.com/plume-works/coder-ide-baseline/actions/runs/41172671181)).
+    `coder templates push coder-ide-baseline --directory template --name main-4a2d980`
+    from that commit made version `main-4a2d980` the active version at
+    2026-10-31T05:51:33Z, while this plan's pull request was still a draft.
 
 ### Task 20: Verify the published image family
 
