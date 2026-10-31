@@ -267,7 +267,9 @@ only where it asserts the old layout
     the hub schema in `test_schema_validation_passes`, `data/index.md` and
     `releases/unreleased.md` were removed with `iwe delete`, and
     `releases/0.1.0.example.md` is `stage: released`
-- [ ] `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passes
+- [x] `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passes
+  - **Evidence:** commit 73ba80b7;
+    `uv run pytest docs/knowledge/tests/test_iwe_seed.py` passed (11)
 
 ### Task 10: The e2e workflow harness checks the new ship contract
 
