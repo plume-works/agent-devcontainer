@@ -57,6 +57,40 @@ absolute path in the `plugin` array of your OpenCode config — the project's
 
 The bridge has no dependencies to install. Restart OpenCode to load it.
 
+## Native macOS
+
+To run the catalog on a Mac without the devcontainer, install
+[Homebrew](https://brew.sh) and then run the bootstrap with macOS's own zsh:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/plume-works/agent-devcontainer/main/.agents/plugins/agentdev/bin/macos-bootstrap.zsh | zsh
+```
+
+Once the plugin is enabled, the same script is on `PATH` as
+`macos-bootstrap.zsh`, so re-running it is a plain command. Every step is safe
+to repeat. It changes the host in these ways:
+
+- **Homebrew packages** — `uv`, `jq`, `gh`, `shellcheck`, `bun`, `pre-commit`,
+  and the `claude-code` cask, at whatever version Homebrew ships.
+- **Python** — `uv python install --default` puts the Python version the catalog
+  is tested on in `~/.local/bin` as `python3`.
+- **`~/.local/bin`** — `iwe`, `iwes`, and `codebase-memory-mcp` from their
+  GitHub releases, at the versions the devcontainer image pins, each verified
+  against a recorded SHA-256.
+- **`~/.zprofile`** — one block between `# >>> agentdev macos-bootstrap >>>`
+  markers that loads `brew shellenv` and puts `~/.local/bin` first on `PATH`.
+  A re-run rewrites that block and leaves the rest of the file alone.
+- **Plugins** — registers this marketplace in Claude Code at user scope and
+  installs `agentdev`, and does the same in Codex when `codex` is on `PATH`.
+  Pass `--skip-plugins` (`curl ... | zsh -s -- --skip-plugins`) to leave both
+  agents untouched.
+
+It ends by checking every tool and the `python3` from a fresh login shell, and
+exits nonzero naming whatever failed. Open a new terminal afterwards to pick up
+the `PATH` change. Docker-backed skills such as `microvm-sandbox` and
+Super-Linter are not set up; escalate those to a Codespace with
+`remote-codespace-session`.
+
 ## Using it
 
 Skills are namespaced by the plugin name — `/agentdev:pr-open`,

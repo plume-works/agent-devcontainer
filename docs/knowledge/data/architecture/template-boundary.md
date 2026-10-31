@@ -10,6 +10,7 @@ sources:
 - resource: .devcontainer/devcontainer.json
 - resource: .agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
+- resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 ---
 
 # Template boundary
@@ -268,6 +269,17 @@ host for every consumer, empty when the host does not set it.
 The profile merges the Expo template's `AGENTS.md` into the root `AGENTS.md`,
 which therefore stops matching upstream: the consumer's progress document
 records it as customized, and update mode merges it by hand.
+
+## Native macOS host
+
+A macOS host that runs agents natively, with no devcontainer, consumes the
+`agentdev` catalog only. `bin/macos-bootstrap.zsh`, shipped inside the catalog,
+provisions it: Homebrew tools, a uv-managed Python, the release-only tools the
+image pins, and the plugin install. None of the `.devcontainer/` runtime surface
+applies to such a host — no image, lifecycle commands, MCP gateway, egress
+firewall, or shared agent volumes — and it takes no template paths. A repository
+that also keeps the devcontainer for other hosts keeps the Template surface as
+usual; the macOS host simply never starts it.
 
 ## Publisher-only source
 
