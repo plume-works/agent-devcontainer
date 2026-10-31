@@ -6,7 +6,7 @@ Codex stores the dispatch message encrypted, so no prompt text is asserted, and
 command's run is asserted instead.
 """
 
-from clone import Clone, CONFLICT, STRAY
+from clone import BUNDLE, Clone, CONFLICT, STRAY
 from harness_codex import (
     catalog_mismatch,
     CodexTranscript,
@@ -155,6 +155,28 @@ def test_verify_refuses_dirty_worktree(codex_clone: Clone) -> None:
     assert codex_clone.saved_report(HELLO_KEY) is None, 'nothing saved'
 
 
+def test_verify_fresh_reruns_without_forwarding(codex_clone: Clone) -> None:
+    """--fresh verifies again over a saved report, and the saved prompt never carries it."""
+    first = run(codex_clone, 'fresh-verify', f'$agentdev:iwe-verify {HELLO_KEY} — {APPROVAL}')
+    assert first.agent_spawns(VERIFIER) == 1, f'first spawn\n{first.spawns()}'
+    assert codex_clone.saved_report(HELLO_KEY) is not None, 'first report saved'
+    prompt = f'$agentdev:iwe-verify {HELLO_KEY} --fresh — {APPROVAL}'
+    second = run(codex_clone, 'fresh-verify-again', prompt)
+    assert second.agent_spawns(VERIFIER) == 1, f'fresh run spawned again\n{second.spawns()}'
+    saved = codex_clone.saved_prompt(HELLO_KEY, 'verifier_prompt')
+    assert saved is not None and '--fresh' not in saved, f'saved prompt\n{saved}'
+
+
+def test_dirtying_verification_is_not_saved(codex_clone: Clone) -> None:
+    """A verification command that leaves a file behind is CRITICAL, and nothing is saved."""
+    codex_clone.bundle_on_verify()
+    transcript = run(codex_clone, 'bundle-verify', f'$agentdev:iwe-verify {HELLO_KEY}')
+    reports = transcript.agent_results(VERIFIER)
+    assert len(reports) == 1, f'one iwe-verifier report\n{transcript.spawns()}'
+    assert BUNDLE in reports[0] and 'CRITICAL' in reports[0], f'left file named\n{reports[0]}'
+    assert codex_clone.saved_report(HELLO_KEY) is None, f'nothing saved\n{transcript.excerpt()}'
+
+
 def test_needs_decision_not_reused(codex_clone: Clone) -> None:
     """A Needs decision report is not saved, so the approved re-run verifies again."""
     first = run(codex_clone, 'decision-verify', f'$agentdev:iwe-verify {HELLO_KEY}')
@@ -198,6 +220,9 @@ def test_implement_verifies(codex_clone: Clone) -> None:
     assert transcript.fresh_spawns(), f'spawned with no conversation\n{transcript.spawns()}'
     assert codex_clone.loop_done(), (
         f'task ticked with evidence, file written\n{transcript.excerpt()}'
+    )
+    assert codex_clone.saved_field(LOOP_KEY, 'commit') == codex_clone.head(), (
+        f'loop verdict saved for HEAD\n{codex_clone.saved_report(LOOP_KEY)}'
     )
 
 
