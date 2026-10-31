@@ -158,19 +158,27 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `py_packages/agentdev_runtime/README.md`,
 `py_packages/agentdev_runtime/tests/test_settings.py`
 
-- [ ] `catalog install` registers Claude Code and OpenCode only, and
+- [x] `catalog install` registers Claude Code and OpenCode only, and
   `catalog.complete` treats a root as complete when it holds
   `.claude-plugin/marketplace.json` and the OpenCode bridge; a test covers a
   root without `.agents/plugins/marketplace.json` being complete.
-- [ ] `agent_state` shares only Claude's credentials, has no Codex auth link,
+  - **Evidence:** `d7cf8d03`; `tests/test_catalog_complete.py` covers a root
+    without `.agents/plugins/marketplace.json` being complete, and the package
+    suite passes (85 tests).
+- [x] `agent_state` shares only Claude's credentials, has no Codex auth link,
   applies only the OpenCode policy, and the `state links` subcommand is removed
   along with its call in `lifecycle.ready`.
-- [ ] `cbm install` neither creates `$CODEX_HOME/hooks.json` nor repairs a Codex
+  - **Evidence:** `d7cf8d03`.
+- [x] `cbm install` neither creates `$CODEX_HOME/hooks.json` nor repairs a Codex
   `config.toml`.
-- [ ] `bootstrap`, `doctor`, `settings`, `workspace`, and `cli` name no Codex
+  - **Evidence:** `d7cf8d03`.
+- [x] `bootstrap`, `doctor`, `settings`, `workspace`, and `cli` name no Codex
   agent, tool, link check, or `CODEX_HOME`; the package README's settings table
   has no `CODEX_HOME` row.
-- [ ] `uv run pytest py_packages/agentdev_runtime` passes.
+  - **Evidence:** `d7cf8d03`; `grep -rni codex py_packages/agentdev_runtime`
+    prints nothing.
+- [x] `uv run pytest py_packages/agentdev_runtime` passes.
+  - **Evidence:** `d7cf8d03`; 85 passed.
 
 ### Task 6: Update the runtime tests under scripts/tests
 
