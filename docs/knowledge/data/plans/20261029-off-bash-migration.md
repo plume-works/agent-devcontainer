@@ -506,8 +506,7 @@ Delete: `docker/desktop/start-xpra.sh`
     `test_claude_remote_control_pin.py` pass through the CLI. Deploy acceptance
     (24 passed, including the Remote Control login, start, and recovery cases)
     and the Dev Container image suite pass against images built from merge
-    f3c202d. One image-suite run failed once, on the open CBM start latch; the
-    test passed on both re-runs.
+    f3c202d.
 
 ### Task 12: Workspace, project, and git helpers
 
@@ -803,20 +802,16 @@ Delete: `docker/desktop/start-xpra.sh`
   - **Evidence:** [CI run
     41176206238](https://github.com/plume-works/agent-devcontainer/actions/runs/41176206238)
     on 8761041. The run includes:
-
     - `Development image` builds `agentdev-base`, `agentdev-deploy`, and
       `agentdev-devcontainer` on amd64 and arm64, and `Merge development image`
       merges them.
     - `Devcontainer image`, `Deploy runtime acceptance`, and
       `Dev Container runtime acceptance` pass on both architectures.
     - `Promote development image` moves `pr-573` on all three images, and
-      `CI finished` passes.
-
-    Getting there required one fix, commit f25e9e2b. CI collects every test tree
-    in one pytest session, so the runtime's `tests/test_cli.py` is now
-    `tests/test_runtime_cli.py`. `ACCEPTANCE_LABEL` moved to
-    `scripts/tests/acceptance_label.py`, so the acceptance module no longer
-    imports `conftest`, which resolved to another package's.
+      `CI finished` passes. CI collects every test tree in one pytest session,
+      so the runtime's CLI tests are `tests/test_runtime_cli.py` and
+      `ACCEPTANCE_LABEL` lives in `scripts/tests/acceptance_label.py` (commit
+      f25e9e2b).
 
 ## Spec changes
 
@@ -999,6 +994,16 @@ image](20261023-reusable-agentdev-devcontainer.md)
 - `iwe normalize`, `iwe schema validate`, the knowledge-base tests, and an
   `/agentdev:iwe-map` refresh with no stale mapped source
 - CI on the current head builds and accepts both architectures
+
+## Verification results
+
+- `agentdev-runtime doctor` in a started Dev Container is not shown passing. In
+  `agentdev-devcontainer` run under its supervisor, after `lifecycle created`
+  and `lifecycle ready`, it reports 39 PASS, 9 FAIL, and 4 SKIP. Every failure
+  is a check that needs something a bare container lacks: the Compose `sshd` and
+  `mcp-gateway` sidecars, the `gh`, git, Claude, and Codex credentials, and the
+  OpenCode server password. The toolchain section passes. Closing it takes one
+  `doctor` run in this repository's Compose Dev Container with credentials.
 
 ## Out of scope
 
