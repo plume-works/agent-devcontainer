@@ -318,10 +318,15 @@ Delete: the two `.sh` scripts and template-consume's `__common.sh`
 `.agents/plugins/agentdev/bin/result_codes.py`, whose docstring names the shell
 helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
 
-- [ ] The skill-scripts skill documents the Python contract only:
+- [x] The skill-scripts skill documents the Python contract only:
   `result_codes.py`, the stdout and stderr rules, the `sys.path` import, the
   stdlib-only rule, and the `python3 -S` check; the bash test case leaves with
   the helper, and `git ls-files '.agents/**/*.sh'` prints nothing.
+  - **Evidence:** commit 61b44cc "Retire the shell result-code contract";
+    `git ls-files '.agents/**/*.sh'` printed nothing,
+    `uv run pytest .agents/plugins/agentdev/tests` passed (468), and
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reported no errors.
 
 ### Task 11: Record the constraint and refresh the map
 
