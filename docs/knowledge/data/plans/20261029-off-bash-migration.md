@@ -848,10 +848,14 @@ Delete: `docker/desktop/start-xpra.sh`
     `test_the_gateway_is_skipped_without_the_mcp_profile` pass in
     `test_environment_health.py` (15 passed); `docker compose config` renders
     `COMPOSE_PROFILES: mcp` with the profile enabled and `""` without it.
-- [ ] `git user` passes when `git var GIT_AUTHOR_IDENT` and
+- [x] `git user` passes when `git var GIT_AUTHOR_IDENT` and
   `git var GIT_COMMITTER_IDENT` both resolve, so an identity set only through
   `GIT_AUTHOR_*` and `GIT_COMMITTER_*` passes and a missing one still fails.
   `test_environment_health.py` covers both.
+  - **Evidence:** commit 666da330;
+    `test_an_identity_git_resolves_passes_the_git_user_check` and
+    `test_an_identity_git_cannot_resolve_fails_the_git_user_check` pass in
+    `test_environment_health.py` (17 passed).
 - [ ] `agentdev-runtime doctor` ends `Overall: PASS` in this repository's
   Compose Dev Container under Coder with credentials.
 
