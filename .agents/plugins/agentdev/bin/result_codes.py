@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 """
-Shared result-code helpers for agentdev skill scripts written in Python.
+Shared result-code helpers for agentdev skill scripts.
 
-The Python counterpart of ``bin/result-codes.sh``: the same code-to-name table,
-the same ``RESULT=<NAME>`` line as the last thing on stdout for every exit path,
-and terminating signals named and then re-raised so a shell caller still
-observes signal death rather than a normal exit.
+One code-to-name table, one ``RESULT=<NAME>`` line as the last thing on stdout
+for every exit path, and terminating signals named and then re-raised so a
+shell caller still observes signal death rather than a normal exit.
 
 Codes 0, 1, 2, 129, 130, and 143 are shared. Scripts declare outcomes from 3
 through 125; a later assignment overrides an earlier name for the same code.
