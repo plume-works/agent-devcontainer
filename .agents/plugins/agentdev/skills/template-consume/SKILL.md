@@ -108,13 +108,12 @@ or scope interview.
    Workflow A, remove the copied `.iwe/` and `docs/knowledge/` only after
    proving them the untouched publisher copy; then invoke
    `/agentdev:iwe-bootstrap` for the consumer root, and on a fresh or already
-   initialized workspace invoke `/agentdev:iwe-setup` and `/agentdev:iwe-map`
-   in that order from the consumer root. Those skills own their interviews and confirmations —
-   never answer for the user or skip a gate. Existing consumer knowledge is
+   initialized workspace invoke `/agentdev:iwe-setup` from the consumer root.
+   That skill owns its interview and confirmations — never answer for the user
+   or skip a gate. Existing consumer knowledge is
    never replaced: a differing copy or a `RECONCILIATION_REQUIRED` result means
    asking how to reconcile it. Report onboarding as pending, not
-   complete, while any required input is outstanding, and report mapping as
-   deferred for a project with no code. Finish by writing the guide's thin
+   complete, while any required input is outstanding. Finish by writing the guide's thin
    adoption summary; keep the checklist only in the root progress document.
 6. **Run the guide's verification section** before declaring success.
 7. **Write the marker and complete the progress document**: resolve the exact
@@ -231,8 +230,7 @@ A marker section or legacy marker file exists.
    an upstream template change does not silently discard captured guidance or a
    consumer heading.
 8. **Never re-initialize or re-onboard.** Update mode has no
-   `/agentdev:iwe-bootstrap`, `/agentdev:iwe-setup`, or `/agentdev:iwe-map`
-   invocation. A change to the publisher's `docs/knowledge/data/` or to the
+   `/agentdev:iwe-bootstrap` or `/agentdev:iwe-setup` invocation. A change to the publisher's `docs/knowledge/data/` or to the
    catalog's bootstrap scaffold is not a consumer change and produces no
    consumer edit — neither is tracked, so neither should appear in
    `CHANGED_PATHS` at all; one that does means the marker was not narrowed in
@@ -242,21 +240,37 @@ A marker section or legacy marker file exists.
    it can invalidate documents the consumer already wrote. Before applying one,
    run `iwe schema validate` from the consumer root against the proposed
    schemas and show the user what fails. Migrating their documents is the
-   user's decision, not an automatic consequence of a template update.
+   user's decision, not an automatic consequence of a template update — except
+   the codebase-map removal in step 9.
 
-9. **Advance the marker and progress document**: set `consumed_ref` to the
-   upstream SHA the update
-   was taken from (not necessarily the latest — the user may stop partway
-   through the changed-paths list) and `last_synced_at` to now. Finish the
-   episode's progress tasks and evidence. Commit the applied changes, advanced
-   marker, and extended progress document together, or in clearly separated
-   commits whose final commit couples both state records — never leave the
-   marker advanced past what was actually applied.
+9. **Remove a retired codebase map** without asking: the catalog no longer
+   ships the map's tooling, so a kept map leaves a failing CI step. From the
+   consumer root, remove each of these that is present, reporting each removal:
+   - every `data/codebase/` document, then the `data/codebase.md` hub, through
+     `iwe delete`, and then the de-linked lines that deletion leaves in other
+     documents;
+   - `.iwe/schemas/codebase.yaml`, the `[schemas.codebase]` block, and
+     `"data/codebase"` in the hub schema's `match` list of `.iwe/config.toml`;
+   - the `iwe-map` key of every `.agent.metadata.json`, and each such file
+     left holding no key;
+   - any CI step or pre-commit hook that runs `stale-map-docs.py`.
 
-   When `optional_bundles` includes `knowledge-base`, refresh
-   `data/template-adoption` with the adopted SHA, workflow, settled choices, and
-   progress-document pointer at the end of the episode. A consumer without IWE
-   skips this summary entirely; its absence does not block the update.
+   Then run `iwe normalize` and `iwe schema validate` from the consumer root.
+   A consumer with no map artifact gets no change and no report about it.
+
+10. **Advance the marker and progress document**: set `consumed_ref` to the
+    upstream SHA the update
+    was taken from (not necessarily the latest — the user may stop partway
+    through the changed-paths list) and `last_synced_at` to now. Finish the
+    episode's progress tasks and evidence. Commit the applied changes, advanced
+    marker, and extended progress document together, or in clearly separated
+    commits whose final commit couples both state records — never leave the
+    marker advanced past what was actually applied.
+
+    When `optional_bundles` includes `knowledge-base`, refresh
+    `data/template-adoption` with the adopted SHA, workflow, settled choices, and
+    progress-document pointer at the end of the episode. A consumer without IWE
+    skips this summary entirely; its absence does not block the update.
 
 ## Default Template Surface
 
