@@ -295,7 +295,7 @@ def test_stop_is_bounded_while_a_client_holds_the_daemon(sandbox: Sandbox):
 
 def test_install_publishes_the_exact_pinned_binary_offline(sandbox: Sandbox):
     (sandbox.home / '.claude.json').write_text('{}\n')
-    for directory in ('.codex', '.config/opencode'):
+    for directory in ('.config/opencode',):
         (sandbox.home / directory).mkdir(parents=True)
     if IS_ROOT:
         for path in [sandbox.home, *sandbox.home.rglob('*')]:
