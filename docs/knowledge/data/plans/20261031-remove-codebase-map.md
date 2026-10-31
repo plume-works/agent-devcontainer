@@ -368,7 +368,12 @@ Modify, in this workspace and byte-identically in the scaffold:
 
 ### Task 8: CI passes
 
-- [ ] The pull request's CI is green.
+- [x] The pull request's CI is green.
+  - **Evidence:** PR #585 at merge commit 9ccdfba: Primary checks run
+    41222473715, Agent files validation 41222473792, Knowledge base validation
+    41222473641, Validate Renovate config 41222473748, and AI Responder
+    41222473660 all concluded success; the PR squash-merged to main as commit
+    5ee5e4c "Remove the codebase map (#585)".
 
 ## Spec changes
 
