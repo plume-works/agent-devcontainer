@@ -23,7 +23,7 @@ The agentdev workflow lays plans out first and has a coordinator work through
 them. A coordinator running `/agentdev:iwe-implement-all` hands plans to
 long-running peer sessions over cross-session messages, and each of those
 sessions is refused when it loads `/agentdev:iwe-implement`: the skill carries
-`disable-model-invocation: true`, and its rulebook forbids dispatching
+`disable-model-invocation: true`, and its text forbids dispatching
 `iwe-implementer` as a subagent. Every plan therefore waits for the user to type
 the command in that session.
 
@@ -41,11 +41,12 @@ catalog](../features/agentdev-iwe-workflow-skills.md).
 
 ## Approach
 
-Remove the gate from `iwe-implement` on every harness: the
-`disable-model-invocation` key (Claude Code, and OpenCode through the bridge's
-`deny`) and its `agents/openai.yaml` (Codex). Narrow its description to a
-request that names a plan, so an ordinary "implement this fix" does not load it.
-`iwe-implement-all`, `iwe-ship`, and `iwe-ship-all` stay explicit-only.
+This lands after [Remove Codex support](20261031-remove-codex.md), so the gate
+is the `disable-model-invocation` key alone: Claude Code reads it, and the
+OpenCode bridge turns it into a skill `deny`. Remove it from `iwe-implement`.
+Narrow its description to a request that names a plan, so an ordinary "implement
+this fix" does not load it. `iwe-implement-all`, `iwe-ship`, and `iwe-ship-all`
+stay explicit-only.
 
 A session that loads Implement on another session's message follows the rulebook
 in place, like a direct run. The plan comes from the request; every decision the
@@ -71,18 +72,15 @@ Rejected:
 
 ### Task 1: Remove the gate from iwe-implement
 
-**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`;
-Delete: `.agents/plugins/agentdev/skills/iwe-implement/agents/openai.yaml`
+**Files:** Modify: `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md`
 
-- [ ] `SKILL.md` carries no `disable-model-invocation` key, and
-  `agents/openai.yaml` is deleted (the `agents/` directory with it, if empty).
+- [ ] `SKILL.md` carries no `disable-model-invocation` key.
 - [ ] The description says the skill is for a request that names a plan to
   implement, so a request with no plan does not match it.
 - [ ] The body follows the rulebook "for the plan the request names" instead of
   "the plan the user named", and keeps its rule that only
   `/agentdev:iwe-implement-all` dispatches `iwe-implementer`.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests/test_explicit_only_parity.py`
-  and `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` pass.
+- [ ] `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts` passes.
 
 ### Task 2: Take decisions only from the session's own user
 
@@ -290,8 +288,8 @@ verbatim in the task that applies it and SHALL never paraphrase it.
 The Ship and Implement workflows SHALL each be defined once, as the catalog
 agents `iwe-shipper` and `iwe-implementer`. Ship's user entry skill and the
 `iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
-Claude Code, Codex, and OpenCode. Implement's entry skill SHALL be
-model-invocable on every harness, so a session asked to implement a named plan
+Claude Code and OpenCode. Implement's entry skill SHALL be model-invocable on
+both, so a session asked to implement a named plan
 may load it, including on a message from a coordinator session. Only those
 skills, those coordinators, and Plan revise mode answering a Ship blocker report
 SHALL start the workflows. Ship SHALL always run as a dispatched `iwe-shipper`
@@ -367,11 +365,20 @@ SHALL stop and report at any point that needs a user decision it was not given.
   blocker report Ship returned for it, and validation passes
 - **THEN** Plan dispatches `iwe-shipper` on that plan, whose Verify decides
   whether it ships.
+
+#### Scenario: The model tries to start a gated skill
+
+- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` or either
+  coordinator without a user request
+- **THEN** the harness withholds it.
 ```
+
+## Depends on
+
+- [Remove Codex support](20261031-remove-codex.md)
 
 ## Verification
 
-- `uv run pytest .agents/plugins/agentdev/tests/test_explicit_only_parity.py`
 - `bun test .agents/plugins/agentdev/tests/opencode/bridge.test.ts`
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest --collect-only scripts/e2e/iwe-workflows`, then the Task 5
@@ -389,8 +396,6 @@ SHALL stop and report at any point that needs a user decision it was not given.
 - `/agentdev:iwe-implement-all` stays explicit-only, and its skill text is
   unchanged: how a coordinator hands plans to peer sessions is not specified
   here, only how a session it asks behaves.
-- New Codex e2e scenarios; the Codex suite is removed by [Remove Codex
-  support](20261031-remove-codex.md), which is revised to depend on this plan.
 - Ship's and the Shipper's blocker reports, which keep naming
   `/agentdev:iwe-implement`.
 
@@ -401,8 +406,6 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:3` — `description`
 - `.agents/plugins/agentdev/skills/iwe-implement/SKILL.md:4` —
   `disable-model-invocation: true`
-- `.agents/plugins/agentdev/skills/iwe-implement/agents/openai.yaml:2` —
-  `allow_implicit_invocation: false`
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:20` — **In the
   user's session** mode
 - `.agents/plugins/agentdev/agents/iwe-implementer.agent.md:22` — **Dispatched**
@@ -417,8 +420,6 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:166` — `explicitOnly` read
   from the frontmatter
 - `.agents/plugins/agentdev/.opencode-plugin/index.ts:220` — skill `deny`
-- `.agents/plugins/agentdev/tests/test_explicit_only_parity.py:33` —
-  `parity_mismatches`
 - `.agents/plugins/agentdev/tests/opencode/bridge.test.ts:67` — deny test
 - `scripts/e2e/iwe-workflows/scenarios.py:39` — `WORKFLOW_SKILL`
 - `scripts/e2e/iwe-workflows/harness_opencode.py:207` — `OpenCodeServer.run`,
