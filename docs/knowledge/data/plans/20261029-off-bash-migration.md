@@ -228,17 +228,26 @@ deletion of this one function; and running the responder as a host job through
 `docker/devcontainer/agentdev-devcontainer.Dockerfile`; Delete:
 `.devcontainer/scripts/runtime-bootstrap.sh`
 
-- [ ] `agentdev-runtime bootstrap` reproduces both profiles: identity validation
+- [x] `agentdev-runtime bootstrap` reproduces both profiles: identity validation
   and account reuse or creation, the sudoers entry through `visudo`,
   instance-storage claims that chown only an empty mount root, the shared-auth
   lock, the runtime-directory reset, and the docker group. Account and privilege
   changes stay subprocess calls to `groupadd`, `useradd`, `usermod`, `visudo`,
   and `setpriv`.
-- [ ] `integrity.py` verifies the installed `agentdev_runtime` distribution
+  - **Evidence:** commit c8fff30; `test_agent_runtime_identity.py` (19 passed)
+    runs the bootstrap from source in containers for both profiles, and the
+    deploy acceptance suite (24 passed, one skipped for want of a previous
+    image) passes against `agentdev-deploy` built from that commit.
+- [x] `integrity.py` verifies the installed `agentdev_runtime` distribution
   against its `RECORD` hashes and file set before the bootstrap continues, and
   refuses with the same remedy the manifest check names today. The sha256
   manifest step leaves the Dockerfile, and the derived-image test patches a
   package file instead of a script.
+  - **Evidence:** commit c8fff30; `test_integrity.py` covers patched, added, and
+    removed files, a patched entry point, and a missing `RECORD`;
+    `test_a_derived_image_cannot_replace_the_managed_runtime` passes in
+    `test_agentdev_devcontainer_image.py` (5 passed) against
+    `agentdev-devcontainer` built from that commit.
 
 ### Task 4: Firewall
 
