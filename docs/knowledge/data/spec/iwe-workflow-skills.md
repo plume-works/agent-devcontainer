@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T12:00:00Z
+  at: 2026-10-31T03:33:48Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -22,6 +22,7 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: .agents/plugins/agentdev/skills/git-new-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-ship-all/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement-all/SKILL.md
@@ -294,18 +295,18 @@ evidence.
 
 When a plan's last task closes, the Implement orchestrator — the user's session
 for `/agentdev:iwe-implement`, and the `iwe-implement-all` coordinator for each
-plan it runs — SHALL dispatch `iwe-verifier` and SHALL act on every CRITICAL
-finding and every WARNING that names a concrete route, reporting SUGGESTIONs
-only. A code or evidence finding SHALL be fixed under the Implement rules and
-verified again, and a finding about the plan's intent SHALL go through an
-evaluated revision. The orchestrator SHALL stop when a finding recurs after a
+plan it runs — SHALL run Verify through `/agentdev:iwe-verify` and SHALL act on
+every CRITICAL finding and every WARNING that names a concrete route, reporting
+SUGGESTIONs only. A code or evidence finding SHALL be fixed under the Implement
+rules and verified again, and a finding about the plan's intent SHALL go through
+an evaluated revision. The orchestrator SHALL stop when a finding recurs after a
 fix attempt, after three Verify rounds, or after one approved revision in the
 run. No agent the loop dispatches SHALL dispatch another.
 
 #### Scenario: Verify finds nothing to act on
 
-- **WHEN** the plan's tasks are closed and `iwe-verifier` reports zero CRITICAL
-  findings and no WARNING with a concrete route
+- **WHEN** the plan's tasks are closed and Verify reports zero CRITICAL findings
+  and no WARNING with a concrete route
 - **THEN** the run ends with its rollup and the Verify verdict, and suggests
   `/agentdev:iwe-ship`
 
@@ -313,7 +314,7 @@ run. No agent the loop dispatches SHALL dispatch another.
 
 - **WHEN** the Verify report carries a CRITICAL whose route is code or evidence
 - **THEN** the orchestrator fixes it under the Implement rules, closes it with
-  evidence, and dispatches `iwe-verifier` again
+  evidence, and runs Verify again through `/agentdev:iwe-verify`
 
 #### Scenario: A finding recurs
 
@@ -324,8 +325,8 @@ run. No agent the loop dispatches SHALL dispatch another.
 
 #### Scenario: Verify needs an approval
 
-- **WHEN** `iwe-verifier` reports `Needs decision` for a command with effects
-  beyond the working tree
+- **WHEN** Verify reports `Needs decision` for a command with effects beyond the
+  working tree
 - **THEN** the run stops and names the approval, which the user grants by
   re-running the skill
 
@@ -430,6 +431,19 @@ an agent. Verify SHALL run a verification command whose effects reach beyond the
 working tree only under a quoted approval that names it, and otherwise SHALL
 stop before it and report the approval it needs.
 
+`/agentdev:iwe-verify` SHALL refuse to run on a dirty worktree, SHALL save each
+report whose verdict is `Ready to ship`, `Blocked`, or `Audit` as the one saved
+report for its plan or for audit mode, keyed by the commit it ran on and the
+digest of the active agentdev catalog, and SHALL never save a `Needs decision`
+report. On both routes it SHALL return the saved report, marked as saved and
+without running any check or verification command, when that report's commit is
+`HEAD` and its catalog digest is the active catalog's, unless the user's request
+carries `--fresh`. The saved report SHALL record the request
+`/agentdev:iwe-verify` was invoked with and the prompt the `iwe-verifier`
+rulebook ran under, whether dispatched or followed in place, and neither SHALL
+be part of the key. A verification command that leaves the worktree dirty SHALL
+be a CRITICAL finding.
+
 #### Scenario: Verification reports no critical findings
 
 - **WHEN** Ship invokes Verify for a completed plan and Verify returns zero
@@ -475,6 +489,50 @@ stop before it and report the approval it needs.
 - **WHEN** `iwe-shipper` reaches its Verify step
 - **THEN** it follows the `iwe-verifier` rulebook in its own context and
   dispatches no agent
+
+#### Scenario: Ship reuses the Implement loop's report
+
+- **WHEN** the Implement loop's Verify saved a report for the plan and
+  `iwe-shipper` reaches its Verify step on the same clean commit with the same
+  active catalog
+- **THEN** the skill returns the saved report, marked as saved from that commit,
+  without running any check or verification command, and Ship proceeds on its
+  verdict
+
+#### Scenario: The commit or the catalog changed
+
+- **WHEN** `HEAD` or the active catalog digest differs from the saved report's
+- **THEN** Verify runs in full and its report replaces the saved one
+
+#### Scenario: The worktree is dirty
+
+- **WHEN** `/agentdev:iwe-verify` is invoked with a tracked change or an
+  untracked file Git does not ignore
+- **THEN** it stops before any Verify step and reports the dirty worktree
+
+#### Scenario: A report that needs a decision is not saved
+
+- **WHEN** Verify reports `Needs decision` and the user re-runs it granting the
+  approval
+- **THEN** Verify runs again rather than returning the earlier report
+
+#### Scenario: The user asks for a fresh run
+
+- **WHEN** the user runs `/agentdev:iwe-verify <plan> --fresh` on a commit with
+  a saved report
+- **THEN** Verify runs in full and its report replaces the saved one
+
+#### Scenario: The saved report records how Verify was invoked
+
+- **WHEN** Verify saves a report on either route
+- **THEN** its frontmatter carries the request the skill was invoked with and
+  the verifier prompt, verbatim, including every approval the prompt quotes
+
+#### Scenario: A verification command dirties the worktree
+
+- **WHEN** a `## Verification` command leaves a tracked change or an unignored
+  file behind
+- **THEN** Verify reports a CRITICAL naming the dirty paths
 
 ### Requirement: Ship synchronizes durable specs by intelligent merge
 

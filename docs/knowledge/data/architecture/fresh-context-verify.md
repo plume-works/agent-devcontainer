@@ -3,11 +3,13 @@ type: architecture
 description: Why Verify's rulebook lives in the iwe-verifier catalog agent, which the iwe-verify skill dispatches with a conversation-free prompt and iwe-shipper follows in place, so every Verify run judges the code from a fresh context.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T12:00:00Z
+  at: 2026-10-30T14:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-verifier.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-verify/SKILL.md
 - resource: .agents/plugins/agentdev/agents/iwe-shipper.agent.md
+- resource: .agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py
+- resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 ---
 
 # Fresh-context Verify
@@ -24,7 +26,7 @@ it as a subagent.
 
 Every Verify run starts from a fresh context, so its verdict rests on the code
 and the graph, never on what a conversation asserted. `/agentdev:iwe-verify` is
-a thin router with two routes:
+a router with two routes, both behind one saved-report cache:
 
 - **From a session** — the skill builds a prompt carrying only the plan key (or
   audit mode) and the user's approvals quoted verbatim, dispatches
@@ -46,9 +48,28 @@ A verification command whose effects reach beyond the working tree runs only
 under a quoted approval that names it; otherwise Verify stops before it and
 reports the exact command — the Shipper's rule, applied to both routes.
 
-`/agentdev:iwe-verify` stays model-invocable: Verify mutates nothing, and a
-workflow that wants a fresh-context verdict dispatches the agent, not the skill,
-so an explicit-only gate would protect nothing.
+**A saved report is a fresh-context verdict reused.** The skill keeps one saved
+report per plan, and one for audit mode, in `.tmp/verify/`, keyed by the commit
+Verify ran on and a digest of every file of the active agentdev catalog. On
+either route, a lookup whose commit is `HEAD` and whose digest is the active
+catalog's returns that report without running any check, unless the user asks
+for `--fresh`. Verify refuses a dirty worktree, so a commit fully names what was
+judged, and a verification command that dirties it is a CRITICAL. A
+`Needs decision` report is never saved, so a re-run granting the approval runs
+Verify. The Implement loop runs Verify through the skill, so the Shipper's
+in-place Verify on the same commit reuses the loop's verdict instead of
+repeating its test and e2e runs. The lookup and save are a bundled script in the
+skill, the one place both routes reach on every harness. Trust in `.tmp/verify/`
+rests on a rule: only that script writes it.
+
+The catalog digest hashes the files of the catalog the script runs from, on disk
+rather than Git-tracked, because an installed plugin is not a Git checkout, and
+a session can load an installed catalog that differs from the one the commit
+holds.
+
+`/agentdev:iwe-verify` stays model-invocable: Verify mutates nothing, and the
+Implement loop invokes it to get a fresh-context verdict, so an explicit-only
+gate would protect nothing and block that loop.
 
 ## Rejected alternatives
 
@@ -62,4 +83,14 @@ so an explicit-only gate would protect nothing.
 - **A Codex sandbox override key read by the installer.** The maintainer chose
   `Write` in the tools list over a new installer contract.
 - **Make `/agentdev:iwe-verify` explicit-only.** It would gate a skill that
-  mutates nothing and that no dispatching workflow invokes.
+  mutates nothing and that the Implement loop invokes.
+- **Look up the saved report in the `iwe-verifier` rulebook.** An agent body
+  rendered into a Codex TOML cannot reach a skill's bundled script, and a hit
+  would still cost a dispatch.
+- **A handoff file the Implement side commits for the Shipper.** Committing it
+  changes the commit it fingerprints, and committing project state contradicts
+  report-only Verify.
+- **Key the report by a tree hash or by blob hashes of the plan's files.**
+  Verify and Ship run on one commit, so the commit is exact; hashes scoped to
+  the plan's files miss changes outside that scope that a verification command
+  can still depend on.

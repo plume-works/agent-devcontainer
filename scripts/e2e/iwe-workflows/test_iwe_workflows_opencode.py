@@ -1,6 +1,6 @@
 """Verify, Ship, Implement, and Explore on OpenCode, one isolated server per scenario."""
 
-from clone import Clone, CONFLICT, REVISE
+from clone import Clone, CONFLICT, REVISE, STRAY
 from harness_opencode import OpenCodeServer, PROMPT_COMMAND, Transcript
 import pytest
 from scenarios import (
@@ -109,6 +109,53 @@ def test_ship_approved(base_clone: Clone, opencode) -> None:
         f'internal plan adds no release entry\n{base_clone.unreleased_diff()}'
     )
     assert agent_prompts(transcript, VERIFIER) == [], f'Verify ran in place\n{dispatches}'
+
+
+def test_ship_reuses_saved_report(base_clone: Clone, opencode) -> None:
+    """Ship on the commit an approved Verify saved needs no approval and runs no command."""
+    server = opencode(base_clone)
+    text = f'{HELLO_KEY} — {APPROVAL}'
+    verify = run(server, 'saved-verify', 'agentdev:iwe-verify', text)
+    assert len(agent_prompts(verify, VERIFIER)) == 1, (
+        f'one iwe-verifier dispatch\n{verify.excerpt("subagent")}'
+    )
+    prompt = base_clone.saved_prompt(HELLO_KEY, 'verifier_prompt')
+    assert prompt is not None and APPROVAL in prompt, (
+        f'verifier prompt saved with the approval\n{base_clone.saved_report(HELLO_KEY)}'
+    )
+    verified = base_clone.head()
+    base_clone.remove_marker()
+    ship = run(server, 'saved-ship', 'agentdev:iwe-ship', HELLO_KEY)
+    reports = agent_results(ship, SHIPPER)
+    assert len(reports) == 1, f'one iwe-shipper report\n{ship.excerpt("subagent")}'
+    assert not reports[0].lstrip().startswith('Needs decision'), f'no approval asked\n{reports[0]}'
+    assert verified[:7] in reports[0], f'saved report named\n{reports[0]}'
+    assert not base_clone.has_marker(), f'publish did not run again\n{ship.excerpt()}'
+
+
+def test_verify_refuses_dirty_worktree(base_clone: Clone, opencode) -> None:
+    """Verify on a worktree with an untracked file dispatches nothing and names the file."""
+    base_clone.add_stray()
+    transcript = run(opencode(base_clone), 'dirty-verify', 'agentdev:iwe-verify', HELLO_KEY)
+    dispatches = transcript.excerpt('subagent')
+    assert agent_prompts(transcript, VERIFIER) == [], f'no iwe-verifier dispatch\n{dispatches}'
+    assert STRAY in transcript.excerpt(), f'dirty file named\n{transcript.excerpt()}'
+    assert base_clone.saved_report(HELLO_KEY) is None, 'nothing saved'
+
+
+def test_needs_decision_not_reused(base_clone: Clone, opencode) -> None:
+    """A Needs decision report is not saved, so the approved re-run verifies again."""
+    server = opencode(base_clone)
+    first = run(server, 'decision-verify', 'agentdev:iwe-verify', HELLO_KEY)
+    assert len(agent_prompts(first, VERIFIER)) == 1, f'first dispatch\n{first.excerpt("subagent")}'
+    assert base_clone.saved_report(HELLO_KEY) is None, 'Needs decision not saved'
+    second = run(
+        server, 'decision-verify-approved', 'agentdev:iwe-verify', f'{HELLO_KEY} — {APPROVAL}'
+    )
+    assert len(agent_prompts(second, VERIFIER)) == 1, (
+        f'second dispatch\n{second.excerpt("subagent")}'
+    )
+    assert base_clone.has_marker(), f'publish ran\n{second.excerpt()}'
 
 
 def test_ship_all(base_clone: Clone, opencode) -> None:

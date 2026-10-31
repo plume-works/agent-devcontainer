@@ -135,16 +135,19 @@ each plan it runs, before the next. A dispatched Implementer never does — it
 stops at its Finish report, and the coordinator picks up here. Every agent the
 loop dispatches is a leaf and dispatches nothing.
 
-1. **Dispatch `iwe-verifier`** once the plan's last task closes. Its prompt
-   carries only the plan key and each approval the user gave, quoted verbatim;
-   forward no conversation turns. Wait for its report.
+1. **Run Verify** once the plan's last task closes, through the
+   `/agentdev:iwe-verify` skill's session route, which dispatches
+   `iwe-verifier` and saves its report for the Shipper to reuse. Give it only
+   the plan key and each approval the user gave, quoted verbatim; forward no
+   conversation turns. Commit every change first: Verify refuses a dirty
+   worktree. Wait for its report.
 2. **Pick the findings to act on**: every CRITICAL, and every WARNING whose
    recommendation names a concrete route. Report SUGGESTIONs only. With none to
    act on, the run ends with the report (step 6) and suggests the
    `/agentdev:iwe-ship` skill.
 3. **Code route** — a finding about code or evidence. Fix it under the Steps
    above: the code, the test, its commit, then the task's evidence line. Then
-   dispatch `iwe-verifier` again (step 1). The coordinator re-dispatches
+   run Verify again (step 1). The coordinator re-dispatches
    `iwe-implementer` with the plan key and the findings to fix, quoted as
    reported, instead of fixing them itself.
 4. **Revision route** — a finding about the plan's intent, such as a

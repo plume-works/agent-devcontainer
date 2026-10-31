@@ -43,6 +43,8 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 
 ## Done
 
+[Verify report cache](plans/20261030-verify-report-cache.md)
+
 [Escalate a client failure to the dependency that caused
 it](plans/20261030-dbus-keyring-flaky-test.md)
 
