@@ -7,14 +7,14 @@ source:
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
 - py_packages/agentdev_runtime
-source_digest: sha256:45f6c7e739f8e6efbd9e4b2fbeba125530d395ac8a200e5071a9ce97f7e6acff
+source_digest: sha256:11deaa45e345daca42042fa4d79b4516ac2fcb07e4fb7aae3f6073c2fe11fb87
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:45:03Z
+  at: 2026-10-31T07:49:53Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:45:03Z
+  at: 2026-10-31T07:49:53Z
 sources:
 - id: code
   resource: docker
@@ -155,7 +155,7 @@ Operator surface, all through `docker exec`:
   `dbus`, `keyring`, and `opencode` for deploy; `agentdev-runtime health status`
   prints the state, each failed or blocked component with its retry command,
   what `remote-control` is doing when it runs, and the last failure —
-  `py_packages/agentdev_runtime/agentdev_runtime/health.py:114`, `:134`.
+  `py_packages/agentdev_runtime/agentdev_runtime/health.py:113`, `:128`.
 - `~/.local/state/agentdev/last-failure.json` on the home volume — startup ID,
   component, reason, command, exit status, at most 200 output lines from the
   attempt that failed, UTC time; only a later failure replaces it —

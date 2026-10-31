@@ -5,14 +5,14 @@ source:
 - .devcontainer
 - docker/devcontainer
 - py_packages/agentdev_runtime
-source_digest: sha256:2e908208b8d460c646b52a77ca21aca6ed75d3aae33462727df23db51176c601
+source_digest: sha256:fd23d21a8c6553c93a744a79695f051f29b844d3980c7cb186c28ef19bb4c0ef
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:45:03Z
+  at: 2026-10-31T07:49:53Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:45:03Z
+  at: 2026-10-31T07:49:53Z
 sources:
 - id: code
   resource: .devcontainer
