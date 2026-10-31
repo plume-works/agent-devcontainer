@@ -654,10 +654,15 @@ Delete: `docker/desktop/start-xpra.sh`
 `scripts/download-claude-responder-runs.sh`, `scripts/renovate-post-upgrade.sh`,
 `py_packages/validate_agent_files/tests/test_download_claude_responder_runs.py`
 
-- [ ] Both scripts are Python with the same usage and output; the responder
+- [x] Both scripts are Python with the same usage and output; the responder
   download test moves out of the validator package into `scripts/tests/`; the
   Renovate `postUpgradeTasks.commands`, the `managerFilePatterns` entry, and
   `RENOVATE_ALLOWED_COMMANDS` name the `.py` file.
+  - **Evidence:** commit 07bf978; `test_renovate_post_upgrade.py` (now with a
+    check that the custom manager's pattern still reads the CLI pin from the
+    `.py` file) and the moved
+    `scripts/tests/test_download_claude_responder_runs.py` pass, and the
+    renovate-config-validator hook passes on `.github/renovate.json`.
 
 ### Task 17: Record the decisions and refresh the references
 
