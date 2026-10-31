@@ -273,17 +273,32 @@ Assumptions:
 `docs/knowledge/data/features/ai-responder-workflows.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] On every action, `trusted-bot-approval` lists the repository activity for
+- [x] On every action, `trusted-bot-approval` lists the repository activity for
   `refs/heads/<head ref>` and fails the check, with the same dismissal and
   notice as a failing commit, when any `branch_creation`, `push`, or
   `force_push` entry has an actor other than the pull request's author; this
   replaces the `synchronize`-only `github.actor` check, and the job's
   `permissions` gain the read scope the activity endpoint needs.
-- [ ] The architecture note, the feature's `## Behaviour`, and the consumption
+  - **Evidence:** commit `9eaea89` — the script pages `repos.listActivities` for
+    `refs/heads/<head ref>` on every action and fails, with the same dismissal
+    and notice, on a `branch_creation`, `push`, or `force_push` entry whose
+    actor is not the author; the `synchronize` actor check is gone, and the job
+    gains `contents: read`, the "Contents" read permission GitHub's App and
+    fine-grained token permission tables list for
+    `GET /repos/{owner}/{repo}/activity`.
+- [x] The architecture note, the feature's `## Behaviour`, and the consumption
   guide describe the push-history check in place of the `synchronize` actor
   check.
-- [ ] `actionlint` and `zizmor` pass through pre-commit, and
+  - **Evidence:** commit `b58bf8c` — the architecture note's trusted-bot section
+    describes the push-history check and rejects the `synchronize`-only actor
+    check; the feature doc and consumption guide describe the push history in
+    its place.
+- [x] `actionlint` and `zizmor` pass through pre-commit, and
   `iwe schema validate` passes.
+  - **Evidence:** commits `9eaea89` and `b58bf8c` —
+    `uv run pre-commit run --files .github/workflows/ai-responder.yml` passed
+    actionlint and zizmor; `iwe schema validate` passed in the `b58bf8c`
+    pre-commit run.
 
 ### Task 7: A trusted-bot pull request merges without bypass
 
