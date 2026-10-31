@@ -19,6 +19,15 @@ to the current day's group.
   /workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md) fixed;
   [Port the catalog's bundled shell scripts to
   Python](plans/20261029-catalog-scripts-python.md) plan done.
+- **Update**: fixed [Bug: body-shape schema tests share one scratch graph across
+  concurrent runs](bugs/body-shape-schemas-shared-scratch.md) and refreshed the
+  [knowledge workspace](codebase/docs/knowledge.md) map doc.
+- **Update**: refreshed the [agentdev
+  catalog](codebase/agents/plugins/agentdev.md),
+  [skills](codebase/agents/plugins/agentdev/skills.md),
+  [.github](codebase/github.md), [workflows](codebase/github/workflows.md), and
+  [pull request checks flow](codebase/flow-pull-request-checks.md) map docs for
+  the AI review verdict rule and the trusted-bot approval job.
 - **Update**: [Verify report cache](features/verify-report-cache.md)
   implemented; [Verify report cache](plans/20261030-verify-report-cache.md) plan
   done.

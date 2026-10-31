@@ -12,6 +12,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+from uuid import uuid4
 
 import pytest
 
@@ -51,16 +52,17 @@ def _with_release(content: str, release: str | None) -> str:
 
 
 @pytest.fixture(scope='module')
-def workspace() -> Path:
-    """Copy the configuration and graph into an isolated workspace."""
+def workspace() -> Iterator[Path]:
+    """Copy the configuration and graph into a workspace private to this run."""
     TMP_ROOT.mkdir(exist_ok=True)
-    root = TMP_ROOT / 'plan-release-schema'
-    if root.exists():
-        shutil.rmtree(root)
-    (root / 'docs' / 'knowledge').mkdir(parents=True)
-    shutil.copytree(IWE_CONFIG, root / '.iwe')
-    shutil.copytree(DATA, root / 'docs' / 'knowledge' / 'data')
-    return root
+    root = TMP_ROOT / f'plan-release-schema-{uuid4().hex}'
+    try:
+        (root / 'docs' / 'knowledge').mkdir(parents=True)
+        shutil.copytree(IWE_CONFIG, root / '.iwe')
+        shutil.copytree(DATA, root / 'docs' / 'knowledge' / 'data')
+        yield root
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def _plan(workspace: Path, done: bool) -> Iterator[Path]:

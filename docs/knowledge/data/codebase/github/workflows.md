@@ -2,14 +2,14 @@
 type: codebase
 description: 'The nine workflows: primary-checks orchestrating reformat and ci, the agent-files, knowledge-base and Renovate-config validators, the self-hosted Renovate bot, the AI responder, and the manual container cleanup.'
 source: .github/workflows
-source_digest: sha256:2006cf02bb7219e12ecd9142ff556aa26fbf4bae73a418221cf5fe8c37580d7d
+source_digest: sha256:7a2d8b4577af7465f1a9b6089bf664b0f7050edd5e1dbfe73d40401618a1b930
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T11:10:05Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T11:10:05Z
 sources:
 - id: code
   resource: .github/workflows
@@ -31,7 +31,7 @@ scheduled Renovate bot, and one manual job.
 | `validate-knowledge-base.yml`  | PR, push, merge group                           | graph schema/normalization, plan-checkbox tests, path-filtered standalone scaffold tests                                                                                         |
 | `validate-renovate-config.yml` | PR, push, merge group, dispatch                 | `paths-filter` → `validate` (in `agentdev-devcontainer`, at the hook's Renovate pin) → `finished`                                                                                |
 | `renovate.yml`                 | push to `main`, schedule, checkboxes, dispatch  | `renovate`: the bot at the hook's Renovate pin, in `agentdev-devcontainer`, as the Renovate GitHub App                                                                           |
-| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`                                                                                                  |
+| `ai-responder.yml`             | `@claude` comments, PR events, issues, dispatch | `preflight` → `bridge` / `claude-respond` / `claude-task` → `ai-review-present`; `trusted-bot-approval` on trusted-bot PR events                                                 |
 | `delete-old-containers.yml`    | dispatch                                        | prune old package versions                                                                                                                                                       |
 
 ## How it works
@@ -62,8 +62,12 @@ Containers CLI. `promote-dev-image` then moves the event's public tags to the
 four tested digests without rebuilding. The responder only runs for
 `plume-works` and never for a fork PR; its preflight decides between a review
 and a task, resolves the review's effort tier, and `ai-review-present` reports
-whether an accepted review exists. `renovate.yml` and the Renovate-config
-`validate` job run in `agentdev-devcontainer` at the digest
+whether an accepted review exists, waived for the bots in the workflow-level
+`TRUSTED_BOT_ACTORS`. `trusted-bot-approval` approves those bots'
+same-repository PRs instead of reviewing them, only while every commit is the
+bot's own and verified and every push since the head branch's latest creation
+came from the bot; otherwise it dismisses its approval. `renovate.yml` and the
+Renovate-config `validate` job run in `agentdev-devcontainer` at the digest
 `devcontainer-compose-pins.yml` pins, and both read the Renovate version from
 the `renovate-config-validator` hook's `bunx --package renovate@<version>` entry
 in `.pre-commit-config.yaml`; the bot authenticates with a GitHub App token and
@@ -158,10 +162,13 @@ Verified anchor points (line numbers as of 2026-10-31):
   pinned iwe, and the check steps
 - `.github/workflows/validate-knowledge-base.yml:39-46,86-107` — paths filter,
   pinned iwe, graph validation, and the path-filtered scaffold suite
-- `.github/workflows/ai-responder.yml:82,348,414,461,502` — the five jobs
-- `.github/workflows/ai-responder.yml:185,187` — the skip and effort body
+- `.github/workflows/ai-responder.yml:84,350,416,463,504,562` — the six jobs
+- `.github/workflows/ai-responder.yml:81` — `TRUSTED_BOT_ACTORS`
+- `.github/workflows/ai-responder.yml:610-647` — the trusted-bot commit and
+  push-history checks
+- `.github/workflows/ai-responder.yml:187,189` — the skip and effort body
   markers, both anchored to their own line
-- `.github/workflows/ai-responder.yml:283,376,400` — `opensWith`, the bridge's
+- `.github/workflows/ai-responder.yml:285,378,402` — `opensWith`, the bridge's
   `@claude review` rejection, and its task dispatch
 - `.github/workflows/validate-renovate-config.yml:26,52,78` — `paths-filter`,
   `validate`, `finished`
