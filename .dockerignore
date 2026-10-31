@@ -1,6 +1,6 @@
 # The image build context is the repository root; keep it small. The build consumes only
 # ansible/, docker/, the seeded catalog (.claude-plugin/ and its .agents/ plugin tree),
-# and py_packages/validate_agent_files/.
+# py_packages/validate_agent_files/, and py_packages/agentdev_runtime/.
 .git
 .github
 .claude

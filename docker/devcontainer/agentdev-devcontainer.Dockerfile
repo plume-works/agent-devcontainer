@@ -14,6 +14,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && install -d -m 0755 /etc/agentdev/hooks/created.d /etc/agentdev/hooks/started.d \
       /etc/agentdev/hooks/attached.d
 
+# The runtime CLI is a uv tool on the system interpreter, like validate_agent_files; the
+# bind mount is writable because setuptools writes its egg-info beside the source.
+RUN --mount=type=bind,source=py_packages/agentdev_runtime,target=/tmp/agentdev-runtime,rw \
+    UV_TOOL_DIR=/opt/uv-tools UV_TOOL_BIN_DIR=/usr/local/bin UV_NO_CACHE=1 \
+    UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy \
+    uv tool install --reinstall --python /usr/bin/python3 /tmp/agentdev-runtime
+
 # The runtime root is image-owned; derived images extend it only through the hook
 # directories and documented environment. Spec: agentdev-runtime-images.
 COPY --chmod=0755 .devcontainer/scripts/ /opt/agentdev-runtime/

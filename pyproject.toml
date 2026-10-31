@@ -15,10 +15,7 @@ dev = [
   "ruff>=0.11.5",
   "pydantic>=2.0",
   "python-frontmatter>=1.1.0",
-  # Matches the apt supervisor the agentdev runtime images run; see runtime-supervisor.py.
-  "supervisor==4.3.0",
-  # supervisor 4.2.5 imports pkg_resources, as the apt python3-pkg-resources provides.
-  "setuptools<85",
+  "agentdev_runtime",
   "validate_agent_files",
 ]
 
@@ -27,6 +24,7 @@ package = false
 default-groups = ["dev"]
 
 [tool.uv.sources]
+agentdev_runtime = { path = "py_packages/agentdev_runtime", editable = true }
 validate_agent_files = { path = "py_packages/validate_agent_files", editable = true }
 
 [tool.pytest.ini_options]

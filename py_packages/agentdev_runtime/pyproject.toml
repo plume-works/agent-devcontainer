@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentdev_runtime"
+version = "0.1.0"
+description = "The agentdev-runtime CLI: PID 1, services, and lifecycle commands of the agentdev runtime images."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+  "supervisor==4.3.0",
+  # supervisor imports pkg_resources, which setuptools 85 drops.
+  "setuptools<85",
+  "tomlkit>=0.13",
+  "json5>=0.9",
+  "pyyaml>=6.0",
+]
+
+[project.scripts]
+agentdev-runtime = "agentdev_runtime.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agentdev_runtime*"]
+exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
