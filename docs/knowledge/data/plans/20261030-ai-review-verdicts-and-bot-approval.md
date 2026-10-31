@@ -337,10 +337,14 @@ Assumptions:
 
 ### Task 8: A trusted-bot pull request merges without bypass
 
-- [ ] After the change is on `main`, the next Renovate pull request receives the
+- [x] After the change is on `main`, the next Renovate pull request receives the
   bot approval and merges through Renovate's automerge with no ruleset bypass,
   or the plan records that the ruleset's
   `require_extra_approval_for_unattributed_changes` demanded another approval.
+  - **Evidence:** PR #582 — `plume-works-renovate[bot]` opened it; the
+    `trusted-bot-approval` job posted an `APPROVED` review from
+    `github-actions[bot]`, and Renovate merged it through automerge as
+    `ae8e1c73` with no further approval and no bypass.
 - [ ] A pull request opened by a bot outside `TRUSTED_BOT_ACTORS` receives no
   approval and no AI review.
 - [ ] A commit a person pushes to an approved trusted-bot pull request dismisses
