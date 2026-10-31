@@ -682,15 +682,31 @@ Delete: `docker/desktop/start-xpra.sh`
 `ansible/roles/basic_prereqs/tasks/main.yml`,
 `ansible/roles/dev_tools/defaults/main.yml`, `docs/knowledge/data/codebase/`
 
-- [ ] The architecture document records the package over loose scripts, the
+- [x] The architecture document records the package over loose scripts, the
   `RECORD` integrity check, the firewall leaving the base image, the CBM-only
   no-supervisor start with the container-job alternatives rejected in its
   favour, and the other rejected alternatives above.
-- [ ] Every document and comment that names a runtime script names the CLI
+  - **Evidence:** commit ec9a98d;
+    `data/architecture/agentdev-runtime-package.md`, linked from
+    `data/architecture.md`, records the package, the `RECORD` integrity check,
+    the firewall run from the bootstrap with the role keeping only its packages,
+    the CBM-only no-supervisor start with the container-job alternatives
+    rejected, and the other rejected alternatives; `iwe schema validate` passes.
+- [x] Every document and comment that names a runtime script names the CLI
   subcommand instead; `product.md` describes the package in its stack and the
   firewall constraint by its command; root `AGENTS.md` points
   devcontainer-related code at the package.
-- [ ] `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
+  - **Evidence:** commits ec9a98d and d977ad2; a `git grep` for every retired
+    script name finds none outside the plan records, `data/log.md`, the specs
+    `## Spec changes` sends to Ship, the bugs, the implemented features and done
+    backlog items that record past work, and three tests that assert the old
+    tree is gone. `product.md` describes the package in its stack and the
+    firewall by its command, and root `AGENTS.md` points devcontainer runtime
+    code at the package.
+- [x] `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
+  - **Evidence:** commit 378fd09; the refresh moves the lifecycle-scripts doc to
+    `data/codebase/py_packages/agentdev_runtime` and refreshes the 17 stale
+    docs; `stale-map-docs.py` ends `RESULT=SUCCESS` with 28 fresh docs.
 
 ### Task 18: Verify the published image family
 
