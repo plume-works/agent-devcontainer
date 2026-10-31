@@ -249,15 +249,25 @@ arguments; point `HOME` at a temporary directory.
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/architecture/catalog-script-language.md`
 
-- [ ] The catalog README gains a "Native macOS" section: the one-line
+- [x] The catalog README gains a "Native macOS" section: the one-line
   `curl -fsSL <raw URL> | zsh` invocation, what the script changes on the host
   (`~/.zprofile`, `~/.local/bin`, Homebrew packages, the uv-managed Python,
   plugin install), and `--skip-plugins`.
-- [ ] `template-boundary` states that a native macOS host consumes the catalog
+  - **Evidence:** commit `c8b1d7ac` adds `## Native macOS` to
+    `.agents/plugins/agentdev/README.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    → 0 errors, 0 warnings.
+- [x] `template-boundary` states that a native macOS host consumes the catalog
   only, provisioned by `bin/macos-bootstrap.zsh`, and that the `.devcontainer/`
   runtime surface does not apply to it.
-- [ ] `catalog-script-language` records the bootstrap as the catalog's one
+  - **Evidence:** commit `c8b1d7ac` adds `## Native macOS host` to
+    `data/architecture/template-boundary`; `iwe normalize` and
+    `iwe schema validate` pass.
+- [x] `catalog-script-language` records the bootstrap as the catalog's one
   non-Python script and the reason.
+  - **Evidence:** commit `c8b1d7ac` adds `## The one non-Python script` to
+    `data/architecture/catalog-script-language` and names the exception in its
+    description and `## Decision`; `iwe schema validate` passes.
 
 ## Spec changes
 
