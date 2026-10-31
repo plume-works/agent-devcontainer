@@ -564,7 +564,7 @@ class Guard:
         for layer in self.layers:
             recorded = recorded_tip.get(layer, '')
             remote = self.remote_tip.get(layer, '')
-            # A remote already at the local tip loses nothing, e.g. a layer a failed publish pushed.
+            # A remote already at the local tip loses nothing, e.g. one a failed publish pushed.
             current = verify(f'refs/heads/{layer}')
             if not recorded:
                 unrecorded.append(layer)

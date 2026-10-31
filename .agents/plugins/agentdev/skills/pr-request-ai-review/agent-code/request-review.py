@@ -130,7 +130,7 @@ def finish(check_url: str, comment_url: str, code: int) -> int:
 
 
 def reviewed(reviews: list[dict[str, Any]], head_sha: str) -> bool:
-    """Return whether an accepted AI review names the head (accepted reviewers: spec/ai-review-gate)."""
+    """Return whether an accepted AI review names the head (reviewers: spec/ai-review-gate)."""
     return any(
         (item.get('user') or {}).get('login') in ('claude[bot]', 'github-actions[bot]')
         and str(item.get('state') or '').upper() in ('APPROVED', 'CHANGES_REQUESTED', 'COMMENTED')

@@ -18,13 +18,19 @@ import github_issue  # noqa: E402  (path set above so the plugin's bin/ resolves
 import result_codes as rc  # noqa: E402
 
 COMMAND = github_issue.CloseCommand(
-    description='Close a GitHub issue that a captured document now tracks, linking the document in a comment.',
+    description=(
+        'Close a GitHub issue that a captured document now tracks, '
+        'linking the document in a comment.'
+    ),
     option='--doc',
     option_help='  --doc <path>       Repo-relative path of the captured document; it must exist.',
     comment_help='                     document path, the current branch, and the repository.',
     missing_label='document',
     not_found='Document not found',
-    comment='Captured in `{path}` on branch `{branch}` of {repo}. Closing; the document tracks the work from here.',
+    comment=(
+        'Captured in `{path}` on branch `{branch}` of {repo}. '
+        'Closing; the document tracks the work from here.'
+    ),
 )
 
 

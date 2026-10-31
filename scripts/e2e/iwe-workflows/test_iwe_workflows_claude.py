@@ -1,6 +1,6 @@
 """Verify, Ship, Implement, and Explore on Claude Code, one clone per scenario."""
 
-from clone import Clone, CONFLICT, REVISE, STRAY
+from clone import BUNDLE, Clone, CONFLICT, REVISE, STRAY
 from harness_claude import ClaudeTranscript, run_claude
 import pytest
 from scenarios import (
@@ -126,6 +126,31 @@ def test_verify_refuses_dirty_worktree(base_clone: Clone) -> None:
     assert base_clone.saved_report(HELLO_KEY) is None, 'nothing saved'
 
 
+def test_verify_fresh_reruns_without_forwarding(base_clone: Clone) -> None:
+    """--fresh verifies again over a saved report, and the dispatch prompt never carries it."""
+    first = run(base_clone, 'fresh-verify', f'/agentdev:iwe-verify {HELLO_KEY} — {APPROVAL}')
+    assert len(first.agent_prompts(VERIFIER)) == 1, f'first dispatch\n{first.excerpt("Agent")}'
+    assert base_clone.saved_report(HELLO_KEY) is not None, 'first report saved'
+    prompt = f'/agentdev:iwe-verify {HELLO_KEY} --fresh — {APPROVAL}'
+    second = run(base_clone, 'fresh-verify-again', prompt)
+    prompts = second.agent_prompts(VERIFIER)
+    dispatches = second.excerpt('Agent')
+    assert len(prompts) == 1, f'fresh run dispatched again\n{dispatches}'
+    assert '--fresh' not in prompts[0], f'--fresh kept out of the prompt\n{dispatches}'
+    saved = base_clone.saved_prompt(HELLO_KEY, 'verifier_prompt')
+    assert saved is not None and '--fresh' not in saved, f'saved prompt\n{saved}'
+
+
+def test_dirtying_verification_is_not_saved(base_clone: Clone) -> None:
+    """A verification command that leaves a file behind is CRITICAL, and nothing is saved."""
+    base_clone.bundle_on_verify()
+    transcript = run(base_clone, 'bundle-verify', f'/agentdev:iwe-verify {HELLO_KEY}')
+    reports = transcript.agent_results(VERIFIER)
+    assert len(reports) == 1, f'one iwe-verifier report\n{transcript.excerpt("Agent")}'
+    assert BUNDLE in reports[0] and 'CRITICAL' in reports[0], f'left file named\n{reports[0]}'
+    assert base_clone.saved_report(HELLO_KEY) is None, f'nothing saved\n{transcript.excerpt()}'
+
+
 def test_needs_decision_not_reused(base_clone: Clone) -> None:
     """A Needs decision report is not saved, so the approved re-run verifies again."""
     first = run(base_clone, 'decision-verify', f'/agentdev:iwe-verify {HELLO_KEY}')
@@ -172,6 +197,9 @@ def test_implement_verifies(base_clone: Clone) -> None:
     assert transcript.agent_prompts(EVALUATOR) == [], f'no evaluator\n{dispatches}'
     assert base_clone.loop_done(), (
         f'task ticked with evidence, file written\n{transcript.excerpt()}'
+    )
+    assert base_clone.saved_field(LOOP_KEY, 'commit') == base_clone.head(), (
+        f'loop verdict saved for HEAD\n{base_clone.saved_report(LOOP_KEY)}'
     )
 
 

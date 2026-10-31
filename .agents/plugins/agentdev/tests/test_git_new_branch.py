@@ -649,7 +649,7 @@ def test_worktree_parent_follows_root_runtime_mode_and_location(
     worktree_root: str,
     expected: tuple[str, bool],
 ) -> None:
-    """--worktree-root wins; standalone keeps .worktrees/; else a /workspaces checkout's sibling."""
+    """--worktree-root wins; standalone keeps .worktrees/; else a /workspaces sibling."""
     script = load_script(plugin_root)
 
     assert tuple(script.worktree_parent(main_dir, runtime_mode, worktree_root)) == expected

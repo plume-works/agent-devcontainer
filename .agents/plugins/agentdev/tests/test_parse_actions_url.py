@@ -54,7 +54,8 @@ def test_fields(plugin_root: Path, url: str, lines: list[str] | None) -> None:
         (RUN, [], 'gh run view 12345678901 --repo octo/repo'),
         (JOB, ['--log'], 'gh run view 12345678901 --repo octo/repo --job 23456789012 --log'),
         (JOB, ['--log', '--grep-failures'],
-         f'gh run view 12345678901 --repo octo/repo --job 23456789012 --log | grep -nE {FAILURES}'),
+         'gh run view 12345678901 --repo octo/repo --job 23456789012 --log '
+         f'| grep -nE {FAILURES}'),
         ("https://github.com/o'q/r$x/actions/runs/1", [],
          "gh run view 1 --repo o\\'q/r\\$x"),
     ],

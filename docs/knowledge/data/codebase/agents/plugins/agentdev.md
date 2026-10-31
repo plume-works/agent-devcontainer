@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:6450541f7010606ade4aa38ee161f1aa5a74191ea062c573ac09c7909fc55d4f
+source_digest: sha256:d2763709f54891a931f8831fa53c3442da12901e7577107b7c1900cf3d172b7b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T06:00:23Z
+  at: 2026-10-31T06:16:38Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T06:00:23Z
+  at: 2026-10-31T06:16:38Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev

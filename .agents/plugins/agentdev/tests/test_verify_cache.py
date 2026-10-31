@@ -311,6 +311,20 @@ def test_save_records_both_prompts_verbatim(installed_verify: Path, repository: 
     assert values['VERDICT'] == 'Ready to ship'
 
 
+@pytest.mark.parametrize('prompt', ['-h', '--help'])
+def test_help_flag_as_a_prompt_value_is_saved(
+    installed_verify: Path, repository: Path, prompt: str
+) -> None:
+    """A prompt that reads exactly like a help flag is saved, not taken as a help request."""
+    saved = save_current(
+        installed_verify,
+        repository,
+        prompts=('--skill-request', prompt, '--verifier-prompt', VERIFIER_PROMPT),
+    )
+
+    assert block_scalars(Path(saved['REPORT']))['skill_request'] == prompt
+
+
 @pytest.mark.parametrize('missing', ['--skill-request', '--verifier-prompt'])
 def test_save_requires_both_prompts(
     installed_verify: Path, repository: Path, missing: str

@@ -41,7 +41,8 @@ Usage:
   check-updates.py [--repo <owner/name>] [--repo-url <url>] [--root <path>]
 
 Options:
-  --repo <owner/name>  Template source repository, recorded for display. Default: plume-works/agent-devcontainer
+  --repo <owner/name>  Template source repository, recorded for display.
+                       Default: plume-works/agent-devcontainer
   --repo-url <url>     Clone URL to fetch, when it differs from https://github.com/<repo>.git
                         (a fork, a GitHub Enterprise host, or a local path).
   --root <path>        Consumer repository root. Default: discovered via `git rev-parse`.
