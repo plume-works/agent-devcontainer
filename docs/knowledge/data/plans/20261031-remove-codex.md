@@ -292,9 +292,14 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
     to plain text in `data/log.md`,
     `plans/20261005-pr-review-scenario-validation`, and
     `spec/devcontainer-codex-policy`, all reviewed in the diff.
-- [ ] The three open Codex bugs are `stage: cancelled`, `status: deprecated`,
+- [x] The three open Codex bugs are `stage: cancelled`, `status: deprecated`,
   each `## Fix` stating Codex support was removed, with their hub links moved
   accordingly; `bugs/cbm-codex-hooks-block-foreign-tables` stays `done`.
+  - **Evidence:** `028151ae` cancels `standalone-codex-auth-unshared`;
+    `cf6c7122` cancels `codex-catalog-agents-not-loaded` and
+    `codex-skill-dir-unresolved`, which were already `done`, on the maintainer's
+    direction to cancel every pending Codex bug. `data/bugs.md` is a flat hub,
+    so no link moves; `iwe schema validate` passes.
 
 ### Task 12: Update the knowledge documents that describe current Codex behavior
 
