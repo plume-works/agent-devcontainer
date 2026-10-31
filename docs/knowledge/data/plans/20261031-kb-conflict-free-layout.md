@@ -141,10 +141,14 @@ under `docs/knowledge/tests/`
 
 **Files:** Modify: the active plans, open bugs, and planned backlog tasks
 
-- [ ] Every active plan, open bug, and planned task named in the current hub
+- [x] Every active plan, open bug, and planned task named in the current hub
   order carries a `rank`: plans in their `## Active` order, open bugs at the
   positions the active plans' prose places them, and backlog tasks by priority
   and then their order within a priority section, stepping by 100
+  - **Evidence:** commit dafb1d94; 10 active plans, the 1 open bug an active
+    plan's `release` fixes, and 13 planned tasks carry ranks 100–2400; this plan
+    sits right after Remove Codex support on the user's direction; open bugs no
+    active plan places stay unsequenced
 
 ### Task 5: The maintainer approves the sequence
 
