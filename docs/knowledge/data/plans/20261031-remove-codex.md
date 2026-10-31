@@ -27,7 +27,7 @@ the only supported
 harnesses](../features/claude-and-opencode-only-harnesses.md). Codex support
 reaches the image build, the `agentdev-runtime` package, the catalog's
 packaging, CI, the e2e suites, and the knowledge documents listed in Tasks 11
-and 12, and every plan that touches the runtime carries Codex work alongside it.
+and 12.
 
 This lands after [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md), which moves the Codex code this plan
@@ -268,11 +268,13 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
   `codex login` step, and the validation command reads
   `--require-marketplace claude`.
   - **Evidence:** `0ec2b23e`.
-- [x] The top README carries an upgrade note: existing `agentdev-codex` volumes
+- [ ] The top README carries an upgrade note: existing `agentdev-codex` volumes
   and `codex/auth.json` on the shared auth volume are no longer used, nothing
-  removes them, and they can be deleted by hand.
-  - **Evidence:** `0ec2b23e`; `### Upgrading from an image with Codex` in
-    `README.md`.
+  removes them, and they can be deleted by hand. The note gives a command
+  example for each: removing a devcontainer's `agentdev-codex` volume, and
+  deleting `codex/auth.json` from the shared auth volume —
+  `agentdev-agents-auth` for the devcontainer, the `AGENTDEV_AUTH_VOLUME` volume
+  for `agentdev-deploy`.
 
 ### Task 11: Retire Codex documents in the knowledge graph
 
@@ -292,9 +294,10 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
     to plain text in `data/log.md`,
     `plans/20261005-pr-review-scenario-validation`, and
     `spec/devcontainer-codex-policy`, all reviewed in the diff.
-- [x] The three open Codex bugs are `stage: cancelled`, `status: deprecated`,
-  each `## Fix` stating Codex support was removed, with their hub links moved
-  accordingly; `bugs/cbm-codex-hooks-block-foreign-tables` stays `done`.
+- [x] The three Codex bugs `codex-catalog-agents-not-loaded`,
+  `codex-skill-dir-unresolved`, and `standalone-codex-auth-unshared` are
+  `stage: cancelled`, `status: deprecated`, each `## Fix` stating Codex support
+  was removed; `bugs/cbm-codex-hooks-block-foreign-tables` stays `done`.
   - **Evidence:** `028151ae` cancels `standalone-codex-auth-unshared`;
     `cf6c7122` cancels `codex-catalog-agents-not-loaded` and
     `codex-skill-dir-unresolved`, which were already `done`, on the maintainer's
@@ -689,8 +692,9 @@ report at any point that needs a user decision it was not given.
 
 - `git grep -i codex -- ':!docs' ':!py_packages/validate_agent_files'` prints
   only the `chatgpt-codex-connector[bot]` lines in
-  `.agents/plugins/agentdev/tests/test_request_review.py` and the actor pattern
-  in `.github/workflows/reformat.yml`.
+  `.agents/plugins/agentdev/tests/test_request_review.py`, the actor pattern in
+  `.github/workflows/reformat.yml`, and the Task 10 upgrade note in `README.md`
+  (`### Upgrading from an image with Codex`).
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest .agents/plugins/agentdev/tests py_packages/agentdev_runtime py_packages/validate_agent_files`
 - `uv run pytest` on every modified file under `scripts/tests/`, and
