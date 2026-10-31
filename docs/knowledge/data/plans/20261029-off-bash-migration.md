@@ -4,6 +4,7 @@ created: 2026-10-29
 release:
 - features/agentdev-runtime-cli
 - bugs/workspace-image-lacks-hook-binaries
+- bugs/remote-control-watcher-start-loop
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
@@ -67,9 +68,9 @@ so](../bugs/workspace-image-lacks-hook-binaries.md) asks for, carried by
 
 Three other open bugs sit in scripts this plan ports. [Bug: the Remote Control
 watcher restarts a session that never comes up on every
-tick](../bugs/remote-control-watcher-start-loop.md) is fixed in shell before
-Task 10, so the port's baseline carries the fix. [Bug: a CBM daemon start
-failure latches the standalone runtime
+tick](../bugs/remote-control-watcher-start-loop.md) is fixed in shell as Task
+10, before the Remote Control port, so the port's baseline carries the fix.
+[Bug: a CBM daemon start failure latches the standalone runtime
 degraded](../bugs/cbm-start-failure-latches-degraded.md) and [Bug: Codex login
 stops being shared between standalone
 projects](../bugs/standalone-codex-auth-unshared.md) have no settled root cause
@@ -162,7 +163,7 @@ deletion of this one function; and running the responder as a host job through
   `UV_TOOL_BIN_DIR=/usr/local/bin`, `UV_NO_CACHE=1`,
   `UV_PYTHON_DOWNLOADS=never`, and `UV_LINK_MODE=copy`. `.dockerignore` admits
   `py_packages/agentdev_runtime`. The `COPY .devcontainer/scripts/` lines stay
-  until Task 13.
+  until Task 14.
   - **Evidence:** commit cfaac26; both images build locally on
     `agentdev-base:edge`, where `agentdev-runtime` resolves to `/usr/local/bin`
     and `/opt/uv-tools/agentdev-runtime/bin/python` imports `supervisor`,
@@ -439,7 +440,21 @@ Delete: `docker/desktop/start-xpra.sh`
     including the fake-`claude` Remote Control cases whose config phase
     registers the catalog) passes against `agentdev-deploy` built from 9732df9.
 
-### Task 10: Remote Control
+### Task 10: Remote Control watcher ends on a start that never comes up
+
+**Files:** Modify: `.devcontainer/scripts/runtime-remote-control.sh`,
+`scripts/tests/test_runtime_remote_control.py`,
+`docs/knowledge/data/bugs/remote-control-watcher-start-loop.md`
+
+- [ ] When the start script returns 0 and no live `claude-remote` session
+  follows, `runtime-remote-control.sh run` logs it and exits non-zero, the way a
+  seen session that disappears already does, so the runtime's recovery budget
+  bounds the retries; the retry that clears `checked` is gone.
+- [ ] A test in `test_runtime_remote_control.py` runs a start that leaves no
+  session and asserts the watcher exits non-zero after one start; the bug's
+  `## Fix` records the fix.
+
+### Task 11: Remote Control
 
 **Files:** Create:
 `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py`; Modify:
@@ -459,7 +474,7 @@ Delete: `docker/desktop/start-xpra.sh`
   SessionStart hook, whose command in `--settings` becomes
   `agentdev-runtime remote-control pin`.
 
-### Task 11: Workspace, project, and git helpers
+### Task 12: Workspace, project, and git helpers
 
 **Files:** Create: `py_packages/agentdev_runtime/agentdev_runtime/workspace.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/project.py`,
@@ -487,7 +502,7 @@ Delete: `docker/desktop/start-xpra.sh`
   not on `PATH`, naming the hook and the executable, and keeps the exit status
   it has today; tests cover a missing and a present executable in both profiles.
 
-### Task 12: Lifecycle commands, hooks, and the no-supervisor start
+### Task 13: Lifecycle commands, hooks, and the no-supervisor start
 
 **Files:** Create: `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py`,
 `py_packages/agentdev_runtime/agentdev_runtime/hooks.py`,
@@ -517,7 +532,7 @@ Delete: `docker/desktop/start-xpra.sh`
 - [ ] The lifecycle tests replace filename stubs with monkeypatched module
   functions, and the image, repository, and migration tests call the CLI.
 
-### Task 13: Remove the script tree, the health report, and the acceptance wrapper
+### Task 14: Remove the script tree, the health report, and the acceptance wrapper
 
 **Files:** Create: `py_packages/agentdev_runtime/agentdev_runtime/doctor.py`,
 `scripts/tests/conftest.py`; Modify: `.github/workflows/ci.yml`,
@@ -540,7 +555,7 @@ Delete: `docker/desktop/start-xpra.sh`
   leave; `.devcontainer/scripts/` is gone from the tree, and
   `git ls-files '.devcontainer/**/*.sh'` lists only `devcontainer-init.sh`.
 
-### Task 14: Remove Codex Cloud
+### Task 15: Remove Codex Cloud
 
 **Files:** Modify: `.codex/README.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
@@ -554,7 +569,7 @@ Delete: `docker/desktop/start-xpra.sh`
   feature document that describes the removal, and the codebase map Task 16
   refreshes prints nothing.
 
-### Task 15: Publisher scripts
+### Task 16: Publisher scripts
 
 **Files:** Create: `scripts/download-claude-responder-runs.py`,
 `scripts/renovate-post-upgrade.py`,
@@ -571,7 +586,7 @@ Delete: `docker/desktop/start-xpra.sh`
   Renovate `postUpgradeTasks.commands`, the `managerFilePatterns` entry, and
   `RENOVATE_ALLOWED_COMMANDS` name the `.py` file.
 
-### Task 16: Record the decisions and refresh the references
+### Task 17: Record the decisions and refresh the references
 
 **Files:** Create:
 `docs/knowledge/data/architecture/agentdev-runtime-package.md`; Modify:
@@ -599,7 +614,7 @@ Delete: `docker/desktop/start-xpra.sh`
   devcontainer-related code at the package.
 - [ ] `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
 
-### Task 17: Verify the published image family
+### Task 18: Verify the published image family
 
 **Files:** None.
 
@@ -702,6 +717,13 @@ scenario keeps its behaviour.
 | [Xpra port forwarding](../spec/xpra-port-forwarding.md)                 | `start-xpra.sh`                                                                                                                                                           | `xpra`                                                                                              |
 | [Dependency updates](../spec/dependency-updates.md)                     | `scripts/renovate-post-upgrade.sh`                                                                                                                                        | `scripts/renovate-post-upgrade.py`                                                                  |
 
+[Claude Remote Control](../spec/claude-remote-control.md), Task 10: the
+requirement "the standalone runtime starts Remote Control when a mode is set"
+gains a normative outcome. A start that returns without leaving a live
+`claude-remote` session SHALL count as the session exiting, so the runtime
+restarts it and, once the recovery budget is exhausted, reports degraded naming
+`remote-control`, or latches failed under strict startup.
+
 ## Depends on
 
 [Publish the reusable agentdev Dev Container
@@ -765,6 +787,12 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 Verified anchor points (line numbers as of 2026-10-30):
 
+- `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
+  gone ends the watcher
+- `.devcontainer/scripts/runtime-remote-control.sh:62` — the `checked=""` retry
+  Task 10 removes
+- `scripts/tests/test_runtime_remote_control.py:185` — the disappearing-session
+  test the new start-loop test sits beside
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile:12` — apt `supervisor`
   install
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile:19` —
