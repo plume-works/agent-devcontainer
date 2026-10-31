@@ -182,8 +182,11 @@ under `docs/knowledge/tests/`
     `completed` filter, classifies each `release` key against earlier release
     pages into Added, Changed, and Fixed, links the page in sorted position, and
     adds one `data/log.md` group
-- [ ] Resuming a partial ship or release cut never writes a second copy of a
+- [x] Resuming a partial ship or release cut never writes a second copy of a
   release link or log group
+  - **Evidence:** commit 59a15b09; ship writes frontmatter only, and iwe-shipper
+    Step 8 keeps an existing page's links, ensures exactly one release link and
+    one dated log group, and adds only missing bullets
 - [ ] The release page this procedure builds for the plans completed since 1.0.0
   lists the same features and bugs, under the same Added, Changed, and Fixed
   headings, as `data/releases/unreleased.md` does
