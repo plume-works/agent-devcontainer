@@ -621,12 +621,25 @@ jobs:
               return '';
             };
             let failure = '';
-            const activities = await github.paginate(github.rest.repos.listActivities, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/heads/${payload.pull_request.head.ref}`,
-              per_page: 100,
-            });
+            // A reused branch name starts clean at its latest creation.
+            const activities = await github.paginate(
+              github.rest.repos.listActivities,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `refs/heads/${payload.pull_request.head.ref}`,
+                direction: 'desc',
+                per_page: 100,
+              },
+              (response, done) => {
+                const created = response.data.findIndex((activity) => activity.activity_type === 'branch_creation');
+                if (created === -1) {
+                  return response.data;
+                }
+                done();
+                return response.data.slice(0, created + 1);
+              },
+            );
             const foreignPush = activities.find(
               (activity) =>
                 ['branch_creation', 'push', 'force_push'].includes(activity.activity_type) &&
