@@ -162,9 +162,12 @@ under `docs/knowledge/tests/`
 `docs/knowledge/data/releases.md`, `.iwe/schemas/release.yaml`; Delete:
 `docs/knowledge/data/releases/unreleased.md`
 
-- [ ] Shipping sets `stage` and `completed`, removes `rank` from the plan and
+- [x] Shipping sets `stage` and `completed`, removes `rank` from the plan and
   from each bug it fixes, sets each listed feature implemented, and writes no
   hub, release page, or log entry
+  - **Evidence:** commit 59a15b09; iwe-shipper Step 6 sets `stage`, `completed`,
+    implemented features and done bugs, removes `rank`, and writes no hub,
+    release page, or log
 - [ ] Cancelling sets `stage: cancelled` and removes `rank` without editing the
   hub
 - [ ] Release mode builds `releases/<X.Y.Z>.md` from
