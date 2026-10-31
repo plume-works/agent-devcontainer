@@ -12,8 +12,9 @@ sources:
 - resource: docs/knowledge/data/plans/20261011-persist-coder-workspace-containerd.md
 - resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
-- resource: https://github.com/plume-works/coder-ide-baseline/blob/ff4e472/template/main.tf
-- resource: https://github.com/plume-works/coder-ide-baseline/blob/ff4e472/.github/workflows/root-container.yml
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/main.tf
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/.github/workflows/root-container.yml
+- resource: https://github.com/plume-works/coder-ide-baseline/blob/4a2d980/template/push.sh
 ---
 
 # Move the Coder template's knowledge into coder-ide-baseline
@@ -67,8 +68,9 @@ template, which takes this repository's half of mixed plans with it.
 This plan starts after the [off-bash migration](20261029-off-bash-migration.md)
 ships. That plan replaces `coder-agent-start.sh` with
 `agentdev-runtime coder start`, makes the template's `agent_start_script` a
-command defaulting to it (mapping the legacy script path onto that default), and
-rewrites the hook requirement as
+command defaulting to it (mapping the legacy script path onto that default, and
+running a checkout's `coder-agent-start.sh` when the command does not resolve),
+and rewrites the hook requirement as
 `the agent-start command is the repository's only start hook`. The requirements
 that move carry that wording, and the added requirement names the command.
 
@@ -118,10 +120,12 @@ Tasks 1-7 run in a `coder-ide-baseline` checkout (in a Coder workspace,
   `the workspace engine bounds its own storage`,
   `the template offers an OpenCode app`, and
   `an active template version comes from main`, followed by the whole
-  `## Working on the template` section. The text moves unchanged, with two
+  `## Working on the template` section. The text moves unchanged, with three
   exceptions: "this repository" becomes the Dev Container repository named by
-  the `repo` parameter, and relative links become `agent-devcontainer` URLs on
-  `main`. Its `sources` name the `agent-devcontainer` spec at the commit copied.
+  the `repo` parameter, relative links become `agent-devcontainer` URLs on
+  `main`, and `### Push a version` states the `TEMPLATE_NAME` default that
+  `template/push.sh` has on `main` (`coder-ide-baseline`). Its `sources` name
+  the `agent-devcontainer` spec at the commit copied.
 - [ ] The spec's introduction links `agent-devcontainer`'s
   `spec/coder-ide-baseline` as the Dev Container repository's side of the
   contract, and `spec.md` links the new spec.
@@ -223,7 +227,7 @@ bound, and [OpenCode web](../spec/opencode-web.md) links the dashboard app, to
   `grep -c '^### Requirement:' docs/knowledge/data/spec/workspace-template.md`
   prints `6`; `product.md` has no ✏️; `docs/knowledge/data/codebase/` exists.
 - Each requirement removed here appears in `spec/workspace-template` with the
-  same SHALL text and scenarios, apart from the two exceptions Task 4 names.
+  same SHALL text and scenarios, apart from the exceptions Task 4 names.
 - Here, after Ship:
   `grep -c '^### Requirement:' docs/knowledge/data/spec/coder-ide-baseline.md`
   prints `2`, and `iwe schema validate` passes.
@@ -281,8 +285,11 @@ Verified anchor points (line numbers as of 2026-10-31):
   requirement `the agent-start command is the repository's only start hook`
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh` —
   bootstrap helper, `--root <dir>`
-- `coder-ide-baseline@ff4e472:template/main.tf:104` — `agent_start_script`
-  parameter; `:259` — `coder_script.agent_start`; `:239` — `coder_app.opencode`;
-  `:322`, `:348`, `:373`, `:398` — state volumes; `:146` — image prune
-- `coder-ide-baseline@ff4e472:.github/workflows/root-container.yml:1` —
+- `coder-ide-baseline@4a2d980:template/main.tf:104` — `agent_start_script`
+  parameter, default `agentdev-runtime coder start` at `:110`; `:260` —
+  `coder_script.agent_start`; `:239` — `coder_app.opencode`; `:330`, `:356`,
+  `:381`, `:406` — state volumes; `:146` — image prune
+- `coder-ide-baseline@4a2d980:template/push.sh:6` — `TEMPLATE_NAME` defaults to
+  `coder-ide-baseline`
+- `coder-ide-baseline@4a2d980:.github/workflows/root-container.yml:1` —
   `Docker Build and Push`, runs on every pull request to `main`
