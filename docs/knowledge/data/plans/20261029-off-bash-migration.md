@@ -605,10 +605,14 @@ Delete: `docker/desktop/start-xpra.sh`
 `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md`; Delete:
 `.codex/setup-codex-cloud.sh`
 
-- [ ] The script and every reference to it are gone;
+- [x] The script and every reference to it are gone;
   `git grep -iE 'codex[ -]cloud'` outside `data/plans/`, `data/log.md`, the
   feature document that describes the removal, and the codebase map Task 16
   refreshes prints nothing.
+  - **Evidence:** commit ab09896; `git grep -iE 'codex[ -]cloud'` with the four
+    exclusions as pathspecs prints nothing and exits 1;
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    and `iwe schema validate` pass.
 
 ### Task 16: Publisher scripts
 
