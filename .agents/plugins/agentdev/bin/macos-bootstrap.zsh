@@ -96,7 +96,9 @@ $MARKER_END"
   else
     : >$work/zprofile
   fi
-  awk -v begin=$MARKER_BEGIN -v end=$MARKER_END -v block=$block '
+  # ENVIRON, not -v: macOS awk rejects a newline inside a -v value.
+  BEGIN_LINE=$MARKER_BEGIN END_LINE=$MARKER_END BLOCK=$block awk '
+    BEGIN { begin = ENVIRON["BEGIN_LINE"]; end = ENVIRON["END_LINE"]; block = ENVIRON["BLOCK"] }
     $0 == begin { if (inside || done) { bad = 1; exit } inside = 1; print block; next }
     $0 == end { if (!inside) { bad = 1; exit } inside = 0; done = 1; next }
     !inside { print }
