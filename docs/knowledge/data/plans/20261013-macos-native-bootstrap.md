@@ -344,8 +344,12 @@ arguments; point `HOME` at a temporary directory.
     `check_python` to the script and limits the test fixture's `PATH` to the
     host tools the script runs; at that commit the command → 18 passed under zsh
     5.9, and the whole plugin suite → 423 passed.
-- [ ] The README's "Native macOS" section lists
+- [x] The README's "Native macOS" section lists
   `~/.config/fish/conf.d/agentdev.fish` among the host changes.
+  - **Evidence:** commit `8f3b15f0` adds the fish bullet and the `$SHELL` check
+    to `## Native macOS` in `.agents/plugins/agentdev/README.md`;
+    `uv run validate_agent_files --recommend . --require-marketplace claude` → 0
+    errors, 0 warnings.
 - [ ] The `macos-bootstrap` job installs fish with Homebrew and runs the
   bootstrap with `SHELL` set to it, so the fish block and the `$SHELL` check run
   on a real macOS host.
