@@ -7,7 +7,7 @@ import sys
 
 CODER_START = [sys.executable, '-m', 'agentdev_runtime', 'coder', 'start']
 IMAGE_PRUNE = 'agentdev-runtime docker prune'
-HELPER_SETUP = 'setup-gh-credential-helper.sh'
+HELPER_SETUP = 'agentdev-runtime git credential-helper'
 OPENCODE_WEB = 'agentdev-runtime opencode coder-start'
 REMOTE_CONTROL = 'agentdev-runtime remote-control start'
 
@@ -20,18 +20,19 @@ def run_agent_start(
     opencode_exit: int = 0,
     env: dict[str, str] | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
-    """Run the start with a fake CLI on PATH and fake scripts in the runtime root."""
-    root = tmp_path / 'runtime'
+    """Run the start with a fake CLI on PATH that logs each step it is asked for."""
     bin_dir = tmp_path / 'bin'
-    root.mkdir()
     bin_dir.mkdir()
     log = tmp_path / 'calls.log'
+    # Each step logs the caller environment it must see: the token or the OpenCode password.
     fakes = {
-        bin_dir / 'agentdev-runtime': f'echo "agentdev-runtime $* '
-        f'password=${{OPENCODE_SERVER_PASSWORD:-}}" >> "{log}"\n'
-        f'case "$1" in docker) exit {prune_exit} ;; opencode) exit {opencode_exit} ;; esac\n',
-        root / HELPER_SETUP: f'echo "{HELPER_SETUP} token=${{GITHUB_TOKEN:-}}" >> "{log}"\n'
-        f'exit {helper_exit}\n',
+        bin_dir / 'agentdev-runtime': 'case "$1" in\n'
+        f'  git) echo "agentdev-runtime $* token=${{GITHUB_TOKEN:-}}" >> "{log}"; exit {helper_exit} ;;\n'
+        f'  opencode) echo "agentdev-runtime $* password=${{OPENCODE_SERVER_PASSWORD:-}}" >> "{log}";'
+        f' exit {opencode_exit} ;;\n'
+        f'  docker) echo "agentdev-runtime $*" >> "{log}"; exit {prune_exit} ;;\n'
+        f'  *) echo "agentdev-runtime $*" >> "{log}" ;;\n'
+        'esac\n',
     }
     for fake, body in fakes.items():
         fake.write_text('#!/usr/bin/env bash\n' + body)
@@ -40,7 +41,6 @@ def run_agent_start(
         CODER_START,
         env={
             'PATH': f'{bin_dir}:{os.environ["PATH"]}',
-            'AGENTDEV_RUNTIME_ROOT': str(root),
             **(env or {}),
         },
         text=True,

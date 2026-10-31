@@ -37,9 +37,9 @@ case "${1:-}" in
     ;;
 esac
 
-"$script_dir/setup-git-safe-directory.sh"
+agentdev-runtime git safe-directory
 # After the keyring: gh may keep its login there.
-"$script_dir/setup-gh-credential-helper.sh"
+agentdev-runtime git credential-helper
 # Repairs the shared auth.json symlink a `codex logout` can destroy.
 agentdev-runtime state links
 agentdev-runtime state agent-policy

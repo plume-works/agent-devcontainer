@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import base64
 from collections.abc import Callable, Iterator
+import configparser
 from dataclasses import dataclass, field
 import json
 import os
@@ -616,12 +617,28 @@ def test_preparation_failure_keeps_opencode_unavailable(make_runtime):
 
 
 FORCED_PREPARE = """#!/usr/bin/env bash
-if [[ ${1:-} == prepare && -f /srv/force/exit ]]; then
+if [[ -f /srv/force/exit ]]; then
   echo "forced preparation failure"
   exit "$(cat /srv/force/exit)"
 fi
-exec /opt/agentdev-runtime/runtime-workspace-real.sh "$@"
+exec agentdev-runtime workspace prepare
 """
+
+
+def forced_prepare_config(force: Path) -> Path:
+    """Write the shipped deploy config with its prepare phase behind ``FORCED_PREPARE``."""
+    stub = force / 'prepare'
+    stub.write_text(FORCED_PREPARE)
+    stub.chmod(0o755)
+    parser = configparser.RawConfigParser()
+    parser.read(REPO_ROOT / 'docker/deploy/supervisord.conf')
+    parser['program:prepare']['command'] = (
+        '/usr/local/bin/agentdev-runtime supervisor exec prepare /srv/force/prepare'
+    )
+    config = force / 'supervisord.conf'
+    with config.open('w') as handle:
+        parser.write(handle)
+    return config
 
 
 def opencode_answers(runtime: Runtime) -> bool:
@@ -638,10 +655,7 @@ def test_a_latched_start_stays_put_under_the_restart_policy(
     force = scratch / 'force'
     force.mkdir()
     (force / 'exit').write_text(str(status))
-    stub = scratch / 'runtime-workspace.sh'
-    stub.write_text(FORCED_PREPARE)
-    stub.chmod(0o755)
-    real = REPO_ROOT / '.devcontainer/scripts/runtime-workspace.sh'
+    forced_prepare_config(force)
     runtime = make_runtime(
         workspace=bind(make_checkout(scratch)),
         options=[
@@ -649,10 +663,8 @@ def test_a_latched_start_stays_put_under_the_restart_policy(
             'unless-stopped',
             '-v',
             f'{force}:/srv/force:ro',
-            '-v',
-            f'{stub}:{RUNTIME}/runtime-workspace.sh:ro',
-            '-v',
-            f'{real}:{RUNTIME}/runtime-workspace-real.sh:ro',
+            '-e',
+            'AGENTDEV_SUPERVISOR_CONFIG=/srv/force/supervisord.conf',
         ],
     )
     runtime.run()

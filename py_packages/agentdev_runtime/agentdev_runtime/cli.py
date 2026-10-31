@@ -91,7 +91,31 @@ def _xpra(argv: list[str]) -> int:
     return xpra.main(argv)
 
 
+def _git(argv: list[str]) -> int:
+    from agentdev_runtime import git
+
+    return git.main(argv)
+
+
+def _project(argv: list[str]) -> int:
+    from agentdev_runtime import project
+
+    return project.main(argv)
+
+
+def _workspace(argv: list[str]) -> int:
+    from agentdev_runtime import workspace
+
+    return workspace.main(argv)
+
+
 PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
+    'workspace': (
+        _workspace,
+        'deploy workspace phases: checkout, project, catalog, config, prepare',
+    ),
+    'project': (_project, "the checkout's uv sync and pre-commit hooks"),
+    'git': (_git, 'git trust and HTTPS credentials for the checkout'),
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
     'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),
     'catalog': (_catalog, 'register a catalog root with Claude Code, Codex, and OpenCode'),

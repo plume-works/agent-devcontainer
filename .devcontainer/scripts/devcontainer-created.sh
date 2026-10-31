@@ -40,10 +40,10 @@ cmd_create() {
   fi
   claim_mounts "$owner"
   # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
-  "$script_dir/setup-git-safe-directory.sh"
+  agentdev-runtime git safe-directory
   # Links ~/.claude.json, wires CBM into each client, and creates the shared auth directories.
   agentdev-runtime state create
-  "$script_dir/runtime-workspace.sh" project
+  agentdev-runtime workspace project
   # The client-state volumes shadow the build-time install, so install the staged catalog
   # again at user scope; the attach phase layers a complete checkout catalog on top.
   if [[ -n ${AGENTDEV_CATALOG_DIR:-} && -d $AGENTDEV_CATALOG_DIR ]]; then

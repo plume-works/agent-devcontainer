@@ -34,7 +34,7 @@ if [[ -z "${BARE:-}" ]]; then
 fi
 
 # The checkout is copied in, never bind-mounted: with UV_PROJECT_ENVIRONMENT
-# unset, uv-sync creates a .venv in the working tree, and a bind mount would
+# unset, the project sync creates a .venv in the working tree, and a bind mount would
 # leave that behind in the real repository.
 docker run --rm \
     -v "$repo_root:/src:ro" \

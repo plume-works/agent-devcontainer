@@ -142,7 +142,8 @@ def test_the_image_prune_runs_once_the_nested_engine_is_up():
     config = configparser.RawConfigParser()
     config.read(REPO_ROOT / 'docker/deploy/supervisord.conf')
     assert config['program:prune']['command'].endswith('/agentdev-runtime docker prune')
-    assert 'prune' not in (SCRIPTS / 'runtime-workspace.sh').read_text()
+    workspace = REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime/workspace.py'
+    assert 'prune' not in workspace.read_text()
 
 
 def desktop_image() -> str | None:

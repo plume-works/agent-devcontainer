@@ -16,7 +16,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
-GH_HELPER_SCRIPT = SCRIPTS / 'setup-gh-credential-helper.sh'
+GH_HELPER = [sys.executable, '-m', 'agentdev_runtime', 'git', 'credential-helper']
 STATE = [sys.executable, '-m', 'agentdev_runtime', 'state']
 TOKEN = 'ghs_injectedTokenValue0123456789'
 
@@ -238,9 +238,9 @@ def test_hooks_keep_their_call_order():
     assert ready.rstrip().endswith('"$script_dir/run-agentdev-hooks.sh" started')
     created = (SCRIPTS / 'devcontainer-created.sh').read_text()
     assert created.index('agentdev-runtime state create') < created.index(
-        'runtime-workspace.sh" project'
+        'agentdev-runtime workspace project'
     )
-    assert created.index('runtime-workspace.sh" project') < created.index(
+    assert created.index('agentdev-runtime workspace project') < created.index(
         'agentdev-runtime catalog install'
     )
     create = inspect.getsource(agent_state.create)
@@ -287,9 +287,7 @@ def test_injected_token_authenticates_https_before_any_checkout_exists(tmp_path:
     not_yet_cloned.mkdir()
     env = gh_env(tmp_path, GITHUB_TOKEN=TOKEN)
 
-    setup = subprocess.run(
-        [GH_HELPER_SCRIPT], env=env, cwd=not_yet_cloned, capture_output=True, text=True
-    )
+    setup = subprocess.run(GH_HELPER, env=env, cwd=not_yet_cloned, capture_output=True, text=True)
     assert setup.returncode == 0, setup.stderr
 
     filled = subprocess.run(
@@ -314,7 +312,7 @@ def test_keyring_environment_file_location_is_configurable(tmp_path: Path):
     keyring_env.write_text('export GH_TEST_AUTHENTICATED=1\n')
     env = gh_env(tmp_path, AGENTDEV_KEYRING_ENV_FILE=str(keyring_env))
 
-    setup = subprocess.run([GH_HELPER_SCRIPT], env=env, capture_output=True, text=True)
+    setup = subprocess.run(GH_HELPER, env=env, capture_output=True, text=True)
     assert setup.returncode == 0, setup.stderr
     assert 'Configured gh as the git credential helper.' in setup.stdout
 

@@ -14,7 +14,7 @@ if command -v codebase-memory-mcp >/dev/null 2>&1; then
   agentdev-runtime cbm index "$workspace"
 fi
 if [[ -f $workspace/pyproject.toml ]]; then
-  "$script_dir/uv-sync.sh"
+  agentdev-runtime project sync
 fi
 if agentdev-runtime catalog complete "$workspace"; then
   agentdev-runtime catalog install "$workspace"

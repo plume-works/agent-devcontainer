@@ -14,16 +14,15 @@ from agentdev_runtime import settings as env
 
 STEPS = (
     (('agentdev-runtime', 'docker', 'prune'), 'Docker image prune failed'),
-    (('{root}/setup-gh-credential-helper.sh',), 'git credential helper setup failed'),
+    (('agentdev-runtime', 'git', 'credential-helper'), 'git credential helper setup failed'),
     (('agentdev-runtime', 'opencode', 'coder-start'), 'OpenCode web startup failed'),
 )
 
 
 def start(settings: env.Settings) -> int:
     """Run each preparation step as a warning on failure, then hand over to Remote Control."""
-    root = str(settings.path('AGENTDEV_RUNTIME_ROOT'))
     for command, failure in STEPS:
-        argv = [part.format(root=root) for part in command]
+        argv = list(command)
         try:
             status = subprocess.run(argv, check=False).returncode
         except OSError as error:

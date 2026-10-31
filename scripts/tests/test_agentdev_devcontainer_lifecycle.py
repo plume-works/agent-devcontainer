@@ -22,12 +22,7 @@ REAL = [
     'postStartCommand.sh',
     'postAttachCommand.sh',
 ]
-STUBS = [
-    'runtime-workspace.sh',
-    'uv-sync.sh',
-    'setup-git-safe-directory.sh',
-    'setup-gh-credential-helper.sh',
-]
+STUBS: list[str] = []
 FAKE_HEALTH = """#!/usr/bin/env bash
 case "$1" in
   ready) [[ -f $LIFECYCLE_STATE/ready ]] ;;
@@ -44,8 +39,8 @@ fi
 echo "agentdev-runtime $*" >> "{log}"
 """
 START_STEPS = [
-    'setup-git-safe-directory.sh',
-    'setup-gh-credential-helper.sh',
+    'agentdev-runtime git safe-directory',
+    'agentdev-runtime git credential-helper',
     'agentdev-runtime state links',
     'agentdev-runtime state agent-policy',
 ]
@@ -156,9 +151,9 @@ def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(l
     assert_ok(lifecycle.run('devcontainer-created.sh'))
     # Trust the checkout first: pre-commit refuses a repository another UID owns.
     assert lifecycle.calls() == [
-        'setup-git-safe-directory.sh',
+        'agentdev-runtime git safe-directory',
         'agentdev-runtime state create',
-        'runtime-workspace.sh project',
+        'agentdev-runtime workspace project',
         f'agentdev-runtime catalog install {lifecycle.staged} --claude-scope user',
         'hook created/10-first created',
         'hook created/20-second created',
@@ -244,7 +239,7 @@ def test_attach_registers_a_complete_checkout_catalog(lifecycle):
     assert_ok(lifecycle.run('devcontainer-attached.sh'))
     assert lifecycle.calls() == [
         f'agentdev-runtime cbm index {lifecycle.workspace}',
-        'uv-sync.sh',
+        'agentdev-runtime project sync',
         f'agentdev-runtime catalog install {lifecycle.workspace}',
         'hook attached/refresh attached',
     ]
