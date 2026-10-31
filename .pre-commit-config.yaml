@@ -97,7 +97,7 @@ repos:
         name: validate-agent-files
         entry: uv run validate_agent_files
         language: system
-        files: '(\.agents/plugins/agentdev/skills/.*/SKILL\.md|\.agents/plugins/agentdev/agents/.*\.agent\.md|\.codex/agents/.*\.md)$'
+        files: '(\.agents/plugins/agentdev/skills/.*/SKILL\.md|\.agents/plugins/agentdev/agents/.*\.agent\.md)$'
         pass_filenames: true
 
       # `uv run` for the same reason as validate-agent-files above: the gate
