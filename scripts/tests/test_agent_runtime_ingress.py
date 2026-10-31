@@ -12,6 +12,7 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -22,7 +23,7 @@ from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 COMMAND = REPO_ROOT / '.devcontainer/scripts/opencode-web-command.sh'
-START_XPRA = REPO_ROOT / 'docker/desktop/start-xpra.sh'
+START_XPRA = [sys.executable, '-m', 'agentdev_runtime', 'xpra']
 PASSWORD = 'p@ss "quoted" \\ word'
 XPRA_SECRET = 'xpra-ingress-secret'
 
@@ -238,7 +239,7 @@ def supervised_xpra(scratch: Path, password: str | None) -> Iterator[tuple[int, 
     display = f':{200 + (os.getpid() + port) % 500}'
     env = xpra_env(scratch, password)
     server = subprocess.Popen(
-        [START_XPRA, '--supervised', '--port', str(port), '--display', display],
+        [*START_XPRA, '--supervised', '--port', str(port), '--display', display],
         env=env,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -294,7 +295,14 @@ def test_supervised_xpra_without_a_password_keeps_sessions_open(scratch: Path):
 def test_supervised_xpra_refuses_to_duplicate_a_live_session(xpra):
     port, env = xpra
     duplicate = subprocess.run(
-        [START_XPRA, '--supervised', '--port', str(free_port()), '--display', env['XPRA_DISPLAY']],
+        [
+            *START_XPRA,
+            '--supervised',
+            '--port',
+            str(free_port()),
+            '--display',
+            env['XPRA_DISPLAY'],
+        ],
         env=env,
         capture_output=True,
         text=True,
@@ -310,7 +318,7 @@ def test_supervised_xpra_reclaims_the_display_after_a_crash(scratch: Path):
         pytest.skip('requires xpra')
     port, display = free_port(), f':{700 + os.getpid() % 200}'
     env = xpra_env(scratch, XPRA_SECRET)
-    command = [START_XPRA, '--supervised', '--port', str(port), '--display', display]
+    command = [*START_XPRA, '--supervised', '--port', str(port), '--display', display]
     crashed = subprocess.Popen(
         command, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
     )

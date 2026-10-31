@@ -28,7 +28,7 @@ RUNTIME_SOURCES = [
     'docker/deploy/supervisord.conf',
     'docker/devcontainer/agentdev-devcontainer.Dockerfile',
     'docker/devcontainer/supervisord.conf',
-    'docker/desktop/start-xpra.sh',
+    'py_packages/agentdev_runtime/agentdev_runtime/xpra.py',
     'scripts/tests/test_agent_runtime_acceptance.py',
 ]
 DEPLOYMENT_ONLY = [

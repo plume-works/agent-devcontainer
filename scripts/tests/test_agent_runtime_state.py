@@ -218,7 +218,9 @@ def test_catalog_passes_the_scope_only_to_claude(scripts: Path, tmp_path: Path):
 
 def test_hooks_keep_their_call_order():
     post_start = (SCRIPTS / 'postStartCommand.sh').read_text()
-    assert post_start.index('start-xpra.sh') < post_start.index('devcontainer-ready.sh" --no-wait')
+    assert post_start.index('agentdev-runtime xpra') < post_start.index(
+        'devcontainer-ready.sh" --no-wait'
+    )
     ready = (SCRIPTS / 'devcontainer-ready.sh').read_text()
     assert ready.index('setup-agent-state.sh" links') < ready.index('agent-policy')
     assert ready.rstrip().endswith('"$script_dir/run-agentdev-hooks.sh" started')

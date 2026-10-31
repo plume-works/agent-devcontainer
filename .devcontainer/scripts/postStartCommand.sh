@@ -16,7 +16,7 @@ fi
 if [[ -n "${AGENTDEV_SKIP_XPRA:-}" ]]; then
   echo "AGENTDEV_SKIP_XPRA is set; skipping Xpra startup."
 else
-  /start-xpra.sh --background
+  agentdev-runtime xpra --background
 fi
 
 exec "$script_dir/devcontainer-ready.sh" --no-wait

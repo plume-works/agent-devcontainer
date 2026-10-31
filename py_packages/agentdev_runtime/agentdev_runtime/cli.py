@@ -49,12 +49,19 @@ def _health(argv: list[str]) -> int:
     return health.main(argv)
 
 
+def _xpra(argv: list[str]) -> int:
+    from agentdev_runtime import xpra
+
+    return xpra.main(argv)
+
+
 PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
     'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),
     'docker': (_docker, 'the nested Docker engine and its image prune'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),
     'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
+    'xpra': (_xpra, 'the Xpra server with its HTML5 client'),
     'keyring': (_keyring, 'the D-Bus session and the GNOME Keyring Secret Service'),
 }
 
