@@ -68,9 +68,11 @@ agents its skills dispatch, so the package would ship broken.
 
 **Files:** none
 
-- [ ] Both [off-bash-migration](20261029-off-bash-migration.md) and
+- [x] Both [off-bash-migration](20261029-off-bash-migration.md) and
   [catalog-scripts-python](20261029-catalog-scripts-python.md) are `stage: done`
   on `main`.
+  - **Evidence:** both plans carry `stage: done` on `main` at `d66fdf4d`, after
+    #591 merged.
 - [x] Every `## Key references` anchor resolves on `main` to the named symbol,
   and the base text of each `## Spec changes` MODIFIED requirement matches the
   shipped spec apart from the Codex wording this plan removes. Any mismatch
