@@ -130,3 +130,5 @@ devcontainers](architecture/sibling-devcontainer-testing.md)
 re-review](architecture/rereview-gate-pending.md)
 
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
+
+[Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)
