@@ -50,11 +50,10 @@ The spec here keeps its key, `spec/coder-ide-baseline`, so the documents that
 link it keep resolving; its title and introduction change to say it is this
 repository's side of the contract. It keeps
 `Coder user secrets reach only agent-started processes` and gains one
-requirement: the repository ships the agent-start entry point at the path the
-template defaults to. The six other requirements and the runbook move, as
-written, to the template workspace's `data/spec/workspace-template.md`. Links
-between the repositories are GitHub URLs on `main`; `## Verification` checks
-that each one resolves.
+requirement: the repository ships the agent-start command the template defaults
+to. The six other requirements and the runbook move, as written, to the template
+workspace's `data/spec/workspace-template.md`. Links between the repositories
+are GitHub URLs on `main`; `## Verification` checks that each one resolves.
 
 The template work lands first, through one pull request in `coder-ide-baseline`,
 so every URL this repository adds already resolves. This repository's spec edits
@@ -67,8 +66,11 @@ template, which takes this repository's half of mixed plans with it.
 
 This plan starts after the [off-bash migration](20261029-off-bash-migration.md)
 ships. That plan replaces `coder-agent-start.sh` with
-`agentdev-runtime coder start` and renames it in this spec, so the requirements
-that move carry its wording and the added requirement names the subcommand.
+`agentdev-runtime coder start`, makes the template's `agent_start_script` a
+command defaulting to it (mapping the legacy script path onto that default), and
+rewrites the hook requirement as
+`the agent-start command is the repository's only start hook`. The requirements
+that move carry that wording, and the added requirement names the command.
 
 ## Implementation Steps
 
@@ -110,7 +112,7 @@ Tasks 1-7 run in a `coder-ide-baseline` checkout (in a Coder workspace,
 - [ ] `spec/workspace-template` holds these requirements of
   `agent-devcontainer`'s `spec/coder-ide-baseline`, with all their scenarios, as
   they read once the off-bash migration has shipped:
-  `the agent-start script is the repository's only start hook`,
+  `the agent-start command is the repository's only start hook`,
   `start scripts never wait for the Dev Container`,
   `workspace state lives in per-workspace volumes`,
   `the workspace engine bounds its own storage`,
@@ -172,9 +174,9 @@ unchanged.
 ``` markdown
 ## ADDED Requirements (spec/coder-ide-baseline)
 
-### Requirement: the repository ships the Coder agent-start entry point
+### Requirement: the repository ships the Coder agent-start command
 
-The repository SHALL ship `agentdev-runtime coder start` as the entry point the
+The repository SHALL ship `agentdev-runtime coder start`, the command the
 `coder-ide-baseline` template's `agent_start_script` parameter defaults to.
 Every step that runs on a Coder agent start SHALL run from it; the repository
 SHALL NOT rely on the template running any other command in it.
@@ -196,7 +198,7 @@ SHALL NOT rely on the template running any other command in it.
 Each of these specifies the template, not this repository, and moves unchanged
 to `coder-ide-baseline`'s `spec/workspace-template`:
 
-- the agent-start script is the repository's only start hook
+- the agent-start command is the repository's only start hook
 - start scripts never wait for the Dev Container
 - workspace state lives in per-workspace volumes
 - the workspace engine bounds its own storage
@@ -274,7 +276,9 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.devcontainer/scripts/coder-agent-start.sh:1` — the agent-start entry point
   the off-bash migration deletes
 - `docs/knowledge/data/plans/20261029-off-bash-migration.md:297` —
-  `agentdev-runtime coder start` task
+  `agentdev-runtime coder start` task; its Task 19
+  (`The Coder template starts the agent through the CLI`) and its MODIFIED
+  requirement `the agent-start command is the repository's only start hook`
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh` —
   bootstrap helper, `--root <dir>`
 - `coder-ide-baseline@ff4e472:template/main.tf:104` — `agent_start_script`
