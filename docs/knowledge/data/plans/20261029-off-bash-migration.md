@@ -818,14 +818,15 @@ Delete: `docker/desktop/start-xpra.sh`
   images, the deploy and Dev Container acceptance jobs pass, and the canonical
   tags move.
   - **Evidence:** [CI run
-    41182366195](https://github.com/plume-works/agent-devcontainer/actions/runs/41182366195)
-    on 796bf892. The run includes:
+    41234466679](https://github.com/plume-works/agent-devcontainer/actions/runs/41234466679)
+    on 6efe8ea0 (PR #591), the head holding every code change; later commits
+    edit documents only. The run includes:
     - `Development image` builds `agentdev-base`, `agentdev-deploy`, and
       `agentdev-devcontainer` on amd64 and arm64, and `Merge development image`
       merges them.
     - `Devcontainer image`, `Deploy runtime acceptance`, and
       `Dev Container runtime acceptance` pass on both architectures.
-    - `Promote development image` moves `pr-573` on all three images, and
+    - `Promote development image` moves `pr-591` on all three images, and
       `CI finished` passes. CI collects every test tree in one pytest session,
       so the runtime's CLI tests are `tests/test_runtime_cli.py` and
       `ACCEPTANCE_LABEL` lives in `scripts/tests/acceptance_label.py` (commit
