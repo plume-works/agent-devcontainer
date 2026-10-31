@@ -248,7 +248,9 @@ arguments; point `HOME` at a temporary directory.
 
 ### Task 4: Green macOS CI run
 
-- [ ] The `macos-bootstrap` job passes on the pull request.
+- [x] The `macos-bootstrap` job passes on the pull request.
+  - **Evidence:** on PR #601 at commit `fc11e146`, Actions run 41241447306's
+    `macOS native bootstrap` job concluded `success`.
 
 ### Task 5: Document the native macOS path
 
