@@ -43,6 +43,9 @@ end](backlog/exercise-removed-delta-blocks.md)
 
 ## Low
 
+[Run Primary checks' ci job in parallel with the pre-commit
+job](backlog/parallel-ci-with-pre-commit.md)
+
 [Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
 
 [Smoke-test the agentdev-base catalog without lifecycle

@@ -28,6 +28,9 @@ CLI](plans/20261029-off-bash-migration.md)
 
 [Remove Codex support](plans/20261031-remove-codex.md)
 
+[Replace Super-Linter with pre-commit in
+CI](plans/20261031-pre-commit-replaces-super-linter.md)
+
 [Run the Dev Container as a non-root account with one home
 volume](plans/20261030-devcontainer-home-volume.md)
 
