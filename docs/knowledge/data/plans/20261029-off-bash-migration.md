@@ -626,13 +626,11 @@ image](20261023-reusable-agentdev-devcontainer.md)
 - `uv run pytest py_packages/agentdev_runtime`
 - `uv run pytest scripts/tests/test_agent_runtime_supervision.py scripts/tests/test_agent_runtime_profiles.py scripts/tests/test_agent_runtime_state.py scripts/tests/test_agent_runtime_identity.py scripts/tests/test_agent_runtime_firewall.py scripts/tests/test_agent_runtime_docker.py scripts/tests/test_agent_runtime_keyring.py scripts/tests/test_agent_runtime_cbm.py scripts/tests/test_agent_runtime_workspace.py scripts/tests/test_agent_runtime_ingress.py scripts/tests/test_runtime_remote_control.py scripts/tests/test_agentdev_devcontainer_lifecycle.py scripts/tests/test_environment_health.py scripts/tests/test_renovate_post_upgrade.py scripts/tests/test_download_claude_responder_runs.py`
 - `uv run ruff check py_packages/agentdev_runtime scripts` and
-  `.agents/plugins/agentdev/bin/python-lint-check.sh`
+  `.agents/plugins/agentdev/bin/python_lint_check.py`
 - `shellcheck` on every remaining shell file;
   `git ls-files '.devcontainer/**/*.sh' 'docker/**/*.sh' '.codex/**' 'scripts/*.sh'`
   prints exactly `.devcontainer/devcontainer-init.sh`,
-  `docker/ansible/setup-ansible.sh`, `docker/desktop/entrypoint.sh`, and
-  `scripts/validate-super-linter-tool-versions.sh` until the catalog plan ports
-  the last one
+  `docker/ansible/setup-ansible.sh`, and `docker/desktop/entrypoint.sh`
 - `uv run ansible-lint ansible` and
   `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml`
 - Build the three-image family locally through the repository's image-build
