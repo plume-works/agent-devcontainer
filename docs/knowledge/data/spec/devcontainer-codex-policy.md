@@ -17,8 +17,8 @@ sources:
 ## Purpose
 
 Defines the Codex sandbox and approval policy inside the devcontainer, which is
-itself the isolation boundary. Decision and constraints: [Codex full access in
-the devcontainer](../architecture/codex-full-access-in-devcontainer.md).
+itself the isolation boundary. Decision and constraints: Codex full access in
+the devcontainer.
 
 ## Requirements
 
