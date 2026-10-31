@@ -563,15 +563,29 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/postStartCommand.sh`,
 `.devcontainer/scripts/postAttachCommand.sh`
 
-- [ ] `agentdev-runtime lifecycle created [--wait]`, `ready [--no-wait]`,
+- [x] `agentdev-runtime lifecycle created [--wait]`, `ready [--no-wait]`,
   `attached`, and `hooks <phase>` keep each phase's content and ordering, the
   hook-directory containment check, and the readiness wait. `ready --no-wait` is
   one function: start the CBM daemon, then the per-start repairs.
-- [ ] The `devcontainer.metadata` label, the `created` wait program, and the
+  - **Evidence:** commit 70828d2; `test_agentdev_devcontainer_lifecycle.py` (19
+    passed) and `test_hooks.py` cover each phase's order, idempotence, the
+    readiness wait and its failure, the hook order, skips, failure, and
+    containment, and `ready --no-wait` starting CBM before the per-start
+    repairs. The Dev Container image suite (5 passed) runs the label's commands
+    against an image built from 76a1836.
+- [x] The `devcontainer.metadata` label, the `created` wait program, and the
   responder action's lifecycle step name the CLI; the responder keeps its
   environment and the client-state directory creation.
-- [ ] The lifecycle tests replace filename stubs with monkeypatched module
+  - **Evidence:** commit 70828d2;
+    `test_the_responder_runs_each_phase_through_the_cli` and the profiles test
+    on the `created` program pass, and the label names
+    `agentdev-runtime lifecycle created|ready|attached`; the responder step
+    keeps its environment and its `mkdir -p` of the client-state directories.
+- [x] The lifecycle tests replace filename stubs with monkeypatched module
   functions, and the image, repository, and migration tests call the CLI.
+  - **Evidence:** commit 70828d2; the lifecycle tests patch `agentdev_runtime`
+    module functions in a subprocess bootstrap, and the image, repository, and
+    migration tests reach the runtime only through `agentdev-runtime`.
 
 ### Task 14: Remove the script tree, the health report, and the acceptance wrapper
 
