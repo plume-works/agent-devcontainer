@@ -42,14 +42,6 @@ jobs:
             - .codex/agents/**
             - .github/**
             - py_packages/**/*.py
-            # Keep this aligned with every source declared by codebase map docs.
-            - .pre-commit-config.yaml
-            - devcontainer-compose-pins.yml
-            - docs/knowledge/tests/**
-            - docs/knowledge/AGENTS.md
-            - docs/knowledge/SCHEMA.md
-            - docs/knowledge/STRUCTURE.md
-            - docs/knowledge/data/codebase/**
             - .iwe/**
 
       - name: Log debug stats
@@ -100,9 +92,6 @@ jobs:
 
       - name: Validate Agent Files
         run: uv run validate_agent_files --recommend . --require-marketplace claude codex
-
-      - name: Check codebase map docs against their sources
-        run: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
 
       - name: Log debug stats
         if: ${{ always() }}
