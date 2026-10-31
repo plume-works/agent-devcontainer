@@ -193,18 +193,30 @@ deletion of this one function; and running the responder as a host job through
 `.devcontainer/scripts/runtime-supervisor.py`,
 `.devcontainer/scripts/runtime-health.sh`
 
-- [ ] `runtime-supervisor.py` becomes
+- [x] `runtime-supervisor.py` becomes
   `agentdev-runtime supervisor run|control|exec|retry` with its behaviour
   unchanged; the `state.json`, retry-request, and failure-record shapes live in
   `state.py` and are the only way the package reads or writes them.
-- [ ] `runtime-health.sh` becomes
+  - **Evidence:** commit facf454; `test_agent_runtime_supervision.py`,
+    `test_agent_runtime_profiles.py`, and `test_state.py` pass through the CLI,
+    and the deploy acceptance suite passes (24, one skipped for want of a
+    previous image) against `agentdev-deploy` built from that commit.
+- [x] `runtime-health.sh` becomes
   `agentdev-runtime health <service>|ready|status`, reading state through
   `state.py`; user-scope probes still re-exec as the runtime user; probes call
   the service modules as they land and the remaining scripts until then.
-- [ ] `ENTRYPOINT`, `HEALTHCHECK`, the controller listener, and every `command=`
+  - **Evidence:** commit facf454; the supervision tests' `health ready` and
+    `health status` cases pass, and the deploy acceptance suite and
+    `test_agentdev_devcontainer_image.py` (5 passed) pass against images built
+    from that commit, whose user-scope probes run as the runtime account.
+- [x] `ENTRYPOINT`, `HEALTHCHECK`, the controller listener, and every `command=`
   in both supervisord configurations name the CLI, and the `exec` wrapper keeps
   its output capture and failure record. Both images stop installing the apt
   `supervisor` package, which PID 1 needs until it runs from the CLI.
+  - **Evidence:** commit facf454;
+    `test_shipped_config_runs_user_services_unprivileged_and_logs_to_stdout` and
+    the failure-record supervision tests pass, and both images built from that
+    commit boot to ready in the acceptance and image suites.
 
 ### Task 3: Bootstrap and distribution integrity
 
