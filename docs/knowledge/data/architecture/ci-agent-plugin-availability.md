@@ -3,7 +3,7 @@ type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-10-31T11:49:47Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -32,9 +32,9 @@ job needs no `packages: read` permission.
 
 The agentdev images stage the plugin catalog at `/opt/agentdev` but does not
 install it: the marketplace is not registered and the plugin cache under
-`~/.claude` is empty. Installation belongs to the container's lifecycle scripts,
-because `~/.claude` and `~/.codex` are commonly mounted as volumes that would
-shadow anything the build wrote.
+`~/.claude` is empty. Installation belongs to the container's lifecycle
+commands, because `~/.claude` and `~/.codex` are commonly mounted as volumes
+that would shadow anything the build wrote.
 
 **A GitHub Actions `container:` job runs no lifecycle hooks.** It starts the
 image and runs steps. So a job that names a skill gets nothing, and the failure
@@ -73,7 +73,7 @@ supplies the load-bearing hook environment explicitly:
 
 | what                                  | why                                                                  |
 | ------------------------------------- | -------------------------------------------------------------------- |
-| `DEV_WORKSPACE_FOLDER`                | workspace root for every script                                      |
+| `DEV_WORKSPACE_FOLDER`                | workspace root for every lifecycle phase                             |
 | `CBM_CACHE_DIR`                       | every `agentdev-runtime cbm` step refuses to run without it          |
 | `UV_PROJECT_ENVIRONMENT`              | see below — unset is silent, not fatal                               |
 | `mkdir -p /root/.claude /root/.codex` | the create phase writes `claude.json` where a volume normally mounts |
@@ -90,10 +90,9 @@ would report success while having written into the very tree it is reviewing.
 That failure mode is invisible to CI, so the local reproducer checks for this
 side effect explicitly.
 
-Mounts have the same shape: `agentdev-runtime lifecycle created` chowns
-`$workspace/.cache` and `/uv`, which exist only because `devcontainer.json`
-mounts them, so that chown skips targets that are absent rather than aborting
-the script.
+Mounts have the same shape: `agentdev-runtime lifecycle created` chowns `/uv`,
+which exists only because `devcontainer.json` mounts it, and skips that chown
+when `/uv` is absent rather than failing the phase.
 
 **The settings handed to `claude-code-action` must include the hook-written user
 layer.** The hooks enable `agentdev@agent-devcontainer` in
@@ -171,7 +170,7 @@ exists and why upstream's 30-minute job timeout carries over unchanged.
 
 ## Consequences
 
-- The lifecycle scripts become a CI contract, not only a devcontainer one. They
+- The lifecycle commands become a CI contract, not only a devcontainer one. They
   must tolerate missing devcontainer mounts in `container:` jobs, not just the
   absence of an interactive editor session.
 - Skill availability is a property of the *job*, not the image — reading the

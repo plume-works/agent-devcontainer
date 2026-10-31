@@ -3,7 +3,7 @@ type: architecture
 description: Claude Code and Codex credentials live on one Docker volume pinned to a literal name and shared by every devcontainer instance, while OpenCode's logins and the rest of each agent's state are mounted per instance; a directory-backed volume cannot mount at ~/.claude.json, so that file is a symlink into the volume.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-10-31T11:49:47Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer.json
@@ -65,9 +65,9 @@ symlinked to it.
 The ordering this forces is load-bearing: `agentdev-runtime lifecycle created`
 establishes the symlink *before* the codebase-memory-mcp install runs. That
 installer cannot write through a symlink, so it materializes the target as a
-real file, installs, then folds the result back and relinks under an `EXIT`
-trap. With the symlink absent, the install writes outside the volume and the MCP
-entry does not survive a rebuild.
+real file, installs, then folds the result back and relinks it on every exit,
+success or failure. With the symlink absent, the install writes outside the
+volume and the MCP entry does not survive a rebuild.
 
 A pre-existing regular file at `~/.claude.json` is discarded rather than
 migrated, because its content predates the volume and would otherwise mask it.

@@ -3,7 +3,7 @@ type: someday
 description: Have the attach phase (agentdev-runtime lifecycle attached) signal long-running harness sessions started by the Coder agent through a marker file, so every harness restarts onto the catalog it just re-registered.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:39:39Z
+  at: 2026-10-31T11:49:47Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
@@ -19,7 +19,7 @@ configuration when they started, so they can keep serving the previous catalog
 until they restart.
 
 The idea: `agentdev-runtime lifecycle attached` touches one marker file after
-the reinstall scripts finish, and each Coder-started session watches it —
+its catalog install finishes, and each Coder-started session watches it —
 `inotifywait`, or a polling loop beside the process in its tmux session — and
 restarts its process when the marker changes. One signal covers every harness,
 present and future.
