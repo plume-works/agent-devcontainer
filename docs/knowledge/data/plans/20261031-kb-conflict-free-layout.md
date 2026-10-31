@@ -192,12 +192,16 @@ under `docs/knowledge/tests/`
   - **Evidence:** commit 59a15b09; ship writes frontmatter only, and iwe-shipper
     Step 8 keeps an existing page's links, ensures exactly one release link and
     one dated log group, and adds only missing bullets
-- [ ] The accumulated entries are cut as release 2.0.0, as the maintainer
+- [x] The accumulated entries are cut as release 2.0.0, as the maintainer
   directed: `iwe rename` moves `data/releases/unreleased.md` to
   `data/releases/2.0.0.md` with every entry kept, at `stage: released` and
   dated, and `data/log.md` gains one release bullet for it. Plans that predate
   `release` and fixes that shipped without a plan cannot be rebuilt by the
   release cut, so they close with this last accumulator.
+  - **Evidence:** commit 45a9cae4;
+    `iwe rename data/releases/unreleased data/releases/2.0.0` kept all entries,
+    the page is `stage: released` dated 2026-10-31, and `data/log.md` gained one
+    `**Release**` bullet
 - [ ] No `data/releases/unreleased.md` remains, and `data/releases.md` links
   only cut releases
 - [ ] `release` accepts only `stage: released`
