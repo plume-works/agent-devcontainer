@@ -9,11 +9,9 @@ nothing beyond the standard library.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 import subprocess
 import sys
-import tempfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'bin'))
 
@@ -24,7 +22,6 @@ from skill_common import (  # noqa: E402
     help_header,
     print_error,
     require_git_repo,
-    run_to_stderr,
     run_tool,
     Stop,
 )
@@ -32,36 +29,22 @@ from skill_common import (  # noqa: E402
 NOT_FAST_FORWARD = 3
 PUSH_REJECTED = 4
 PROTECTED_BRANCH = 5
-MAP_STALE = 6
-MAP_CHECK_FAILED = 7
 PREFLIGHT_ERROR = 2
-
-MAP_CHECK_SCRIPT = (
-    Path(__file__).resolve().parents[2] / 'iwe-map' / 'agent-code' / 'stale-map-docs.py'
-)
 
 DESCRIPTION = 'Push a branch to its pull request head ref without rewriting history.'
 
 USAGE = """
 Usage:
-  push-branch.py [--remote <name>] [--branch <name>] [--skip-map-check]
+  push-branch.py [--remote <name>] [--branch <name>]
 
 Options:
   --remote <name>    Remote to push to when no upstream is configured. Default: origin
   --branch <name>    Branch to push. Default: current branch
-  --skip-map-check   Push without the codebase-map staleness check. Pass it only
-                     when the user explicitly asks to push a stale map.
   -h, --help         Show this help text.
 
 Output (key=value lines):
   RESULT, BRANCH, UPSTREAM, ACTION
   When the branch has an upstream also: AHEAD, BEHIND
-  Unless blocked first also: MAP_CHECK=<fresh|skipped|stale|failed|overridden>
-
-The iwe-map stale-map-docs.py check runs in a temporary detached worktree at the
-branch head, including a head the upstream already has, since it may have been
-pushed outside this script. It is skipped when that commit has no
-.iwe/config.toml, the check script is absent, or the check finds no map docs.
 
 ACTION says what was done: 'none' when the upstream already matched, 'push'
 when an existing upstream was updated, and 'push-with-upstream' when the remote
@@ -72,8 +55,6 @@ Results (RESULT / exit code):
   NOT_FAST_FORWARD  3  Branch is behind or diverged from its upstream
   PUSH_REJECTED     4  Push failed
   PROTECTED_BRANCH  5  Branch is a protected default branch
-  MAP_STALE         6  The codebase map is stale at the branch head; nothing pushed
-  MAP_CHECK_FAILED  7  The map check could not run to a verdict; nothing pushed
   PREFLIGHT_ERROR   2  Usage or preflight error
   SCRIPT_FAILURE    1  Unhandled error
 """
@@ -84,9 +65,9 @@ def usage() -> str:
     return help_header(DESCRIPTION, __file__) + USAGE
 
 
-def parse_arguments(arguments: list[str]) -> tuple[str, bool, str, bool]:
-    """Return the remote, whether it was explicit, the branch, and --skip-map-check."""
-    remote, explicit, branch, skip = 'origin', False, '', False
+def parse_arguments(arguments: list[str]) -> tuple[str, bool, str]:
+    """Return the remote, whether it was explicit, and the branch."""
+    remote, explicit, branch = 'origin', False, ''
     remaining = list(arguments)
     while remaining:
         argument = remaining.pop(0)
@@ -98,8 +79,6 @@ def parse_arguments(arguments: list[str]) -> tuple[str, bool, str, bool]:
                 remote, explicit = remaining.pop(0), True
             else:
                 branch = remaining.pop(0)
-        elif argument == '--skip-map-check':
-            skip = True
         elif argument in ('-h', '--help'):
             print(usage(), end='')
             raise Stop(0)
@@ -107,7 +86,7 @@ def parse_arguments(arguments: list[str]) -> tuple[str, bool, str, bool]:
             print_error(f'Unknown argument: {argument}')
             print(usage(), end='', file=sys.stderr)
             raise Stop(PREFLIGHT_ERROR)
-    return remote, explicit, branch, skip
+    return remote, explicit, branch
 
 
 def captured(text: str) -> str:
@@ -115,7 +94,7 @@ def captured(text: str) -> str:
     return text.rstrip('\n') + '\n'
 
 
-def merged_output(*arguments: str, cwd: str | None = None) -> tuple[int, str]:
+def merged_output(*arguments: str) -> tuple[int, str]:
     """Run a command with stderr folded into stdout; return its status and output."""
     sys.stdout.flush()
     completed = subprocess.run(
@@ -124,59 +103,8 @@ def merged_output(*arguments: str, cwd: str | None = None) -> tuple[int, str]:
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
-        cwd=cwd,
     )
     return completed.returncode, completed.stdout
-
-
-def check_map_freshness(commit: str, skip: bool) -> None:
-    """
-    Print MAP_CHECK for `commit`, stopping the run when the map is stale or unchecked.
-
-    Map freshness gate: see spec/iwe-workflow-skills.
-    """
-    if skip:
-        print('MAP_CHECK=overridden')
-        return
-    if (
-        not MAP_CHECK_SCRIPT.is_file()
-        or run_tool('git', 'cat-file', '-e', f'{commit}:.iwe/config.toml').returncode != 0
-    ):
-        print('MAP_CHECK=skipped')
-        return
-
-    repo_root = Path(run_tool('git', 'rev-parse', '--show-toplevel').stdout.strip())
-    (repo_root / '.tmp').mkdir(parents=True, exist_ok=True)
-    check_dir = tempfile.mkdtemp(prefix='push-map-check.', dir=repo_root / '.tmp')
-    if run_to_stderr('git', 'worktree', 'add', '--quiet', '--detach', check_dir, commit):
-        try:
-            os.rmdir(check_dir)
-        except OSError:
-            print_error(f'Could not remove {check_dir}.')
-        print_error(f'Could not create a worktree at {commit} for the map check.')
-        print('MAP_CHECK=failed')
-        raise Stop(MAP_CHECK_FAILED)
-    status, output = merged_output(str(MAP_CHECK_SCRIPT), cwd=check_dir)
-    if run_to_stderr('git', 'worktree', 'remove', '--force', check_dir):
-        print_error(f'Could not remove worktree {check_dir}.')
-
-    if status == 0:
-        print('MAP_CHECK=fresh')
-    elif status == 4:
-        print('MAP_CHECK=skipped')
-    elif status == 3:
-        sys.stderr.write(captured(output))
-        print_error(
-            f'The codebase map is stale at {commit}. '
-            'Refresh it with /agentdev:iwe-map, commit, and rerun.'
-        )
-        print('MAP_CHECK=stale')
-        raise Stop(MAP_STALE)
-    else:
-        sys.stderr.write(captured(output))
-        print_error(f'The codebase map check exited {status} without a verdict.')
-        print('MAP_CHECK=failed')
-        raise Stop(MAP_CHECK_FAILED)
 
 
 def push(*arguments: str) -> int:
@@ -195,9 +123,7 @@ def count(revisions: str) -> int:
     return int(run_tool('git', 'rev-list', '--count', revisions).stdout.strip())
 
 
-def push_to_upstream(
-    branch: str, upstream_ref: str, remote: str, explicit: bool, skip: bool
-) -> int:
+def push_to_upstream(branch: str, upstream_ref: str, remote: str, explicit: bool) -> int:
     """Fast-forward the existing upstream, refusing a behind or diverged branch."""
     upstream_remote = upstream_ref.split('/', 1)[0]
     upstream_branch = upstream_ref.partition('/')[2] if '/' in upstream_ref else upstream_ref
@@ -244,7 +170,6 @@ def push_to_upstream(
         )
         return NOT_FAST_FORWARD
 
-    check_map_freshness(run_tool('git', 'rev-parse', f'refs/heads/{branch}').stdout.strip(), skip)
     if ahead == 0:
         print('ACTION=none')
         return 0
@@ -254,7 +179,7 @@ def push_to_upstream(
 
 def run(arguments: list[str]) -> int:
     """Push the branch and report what was done."""
-    remote, explicit, branch, skip = parse_arguments(arguments)
+    remote, explicit, branch = parse_arguments(arguments)
     require_git_repo()
     branch = branch or current_branch()
 
@@ -276,14 +201,13 @@ def run(arguments: list[str]) -> int:
         'git', 'rev-parse', '--abbrev-ref', '--symbolic-full-name', f'{branch}@{{u}}'
     )
     if upstream.returncode == 0:
-        return push_to_upstream(branch, upstream.stdout.strip(), remote, explicit, skip)
+        return push_to_upstream(branch, upstream.stdout.strip(), remote, explicit)
 
     if run_tool('git', 'remote', 'get-url', remote).returncode != 0:
         print_error(f'Remote not found: {remote}')
         return PREFLIGHT_ERROR
 
     print(f'UPSTREAM={remote}/{branch}')
-    check_map_freshness(run_tool('git', 'rev-parse', f'refs/heads/{branch}').stdout.strip(), skip)
     print('ACTION=push-with-upstream')
 
     if branch == current_branch():
@@ -307,8 +231,6 @@ if __name__ == '__main__':
             NOT_FAST_FORWARD: 'NOT_FAST_FORWARD',
             PUSH_REJECTED: 'PUSH_REJECTED',
             PROTECTED_BRANCH: 'PROTECTED_BRANCH',
-            MAP_STALE: 'MAP_STALE',
-            MAP_CHECK_FAILED: 'MAP_CHECK_FAILED',
         }
     )
     rc.install()

@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-10-31T16:40:07Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -74,10 +74,9 @@ layout](module-layout.md) for how these pieces compose internally.
 ### Adoption state
 
 The root `.agent.metadata.json` is classified per top-level key, unlike
-colocated metadata files that inherit their directory's class. Its `iwe-map`
-rules are Template content and travel with the directory whose sources they
-govern. Its `template-consume` section is consumer-created adoption state,
-written during setup and never copied from the publisher.
+colocated metadata files that inherit their directory's class. Its
+`template-consume` section is consumer-created adoption state, written during
+setup and never copied from the publisher.
 
 `.agentdev-template-progress.md` is Customize / consumer-created state. It is
 tracked in git, survives template updates, and never appears in `tracked_paths`.

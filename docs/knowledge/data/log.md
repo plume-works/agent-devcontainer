@@ -10,10 +10,10 @@ to the current day's group.
   package](architecture/agentdev-runtime-package.md) records the runtime as one
   `agentdev-runtime` CLI package, its `RECORD` integrity check, the firewall run
   from the bootstrap, and the CBM-only start of a container with no supervisor.
-- **Update**: the codebase map follows the runtime into [agentdev_runtime
-  package](codebase/py_packages/agentdev_runtime.md), which replaces the
-  lifecycle-scripts doc, and refreshes the Docker, Dev Container, lifecycle,
-  image-runtime, firewall, Ansible, GitHub, and validator docs it touched.
+- **Update**: the codebase map follows the runtime into agentdev_runtime
+  package, which replaces the lifecycle-scripts doc, and refreshes the Docker,
+  Dev Container, lifecycle, image-runtime, firewall, Ansible, GitHub, and
+  validator docs it touched.
 - **Update**: [Bug: git-new-branch worktree mode fails on a standalone
   deployment's root-owned
   /workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md) fixed;
@@ -21,24 +21,18 @@ to the current day's group.
   Python](plans/20261029-catalog-scripts-python.md) plan done.
 - **Update**: fixed [Bug: body-shape schema tests share one scratch graph across
   concurrent runs](bugs/body-shape-schemas-shared-scratch.md) and refreshed the
-  [knowledge workspace](codebase/docs/knowledge.md) map doc.
-- **Update**: refreshed the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md),
-  [skills](codebase/agents/plugins/agentdev/skills.md),
-  [.github](codebase/github.md), [workflows](codebase/github/workflows.md), and
-  [pull request checks flow](codebase/flow-pull-request-checks.md) map docs for
-  the AI review verdict rule and the trusted-bot approval job.
+  knowledge workspace map doc.
+- **Update**: refreshed the agentdev catalog, skills, .github, workflows, and
+  pull request checks flow map docs for the AI review verdict rule and the
+  trusted-bot approval job.
 - **Update**: [Verify report cache](features/verify-report-cache.md)
   implemented; [Verify report cache](plans/20261030-verify-report-cache.md) plan
   done.
 
 ## 2026-10-30
 
-- **Update**: refreshed the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md),
-  [skills](codebase/agents/plugins/agentdev/skills.md), and
-  [tests](codebase/agents/plugins/agentdev/tests.md) map docs for the saved
-  Verify report cache.
+- **Update**: refreshed the agentdev catalog, skills, and tests map docs for the
+  saved Verify report cache.
 - **Update**: revised the six active plans for the agreed sequence. [Share one
   BuildKit builder across Coder
   workspaces](plans/20261013-shared-buildkit-workspace.md) registers the builder
@@ -69,10 +63,9 @@ to the current day's group.
   recovered on its own budget before its dependency's failure is
   confirmed](bugs/supervisor-client-recovered-before-dependency.md) fixed and
   listed under Unreleased Fixed.
-- **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
-  [devcontainer scripts](codebase/py_packages/agentdev_runtime.md), and
-  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
-  the runtime controller escalating a client failure to its failing dependency.
+- **Update**: refreshed the devcontainer, devcontainer scripts, and devcontainer
+  lifecycle map docs for the runtime controller escalating a client failure to
+  its failing dependency.
 - **Update**: [iwe-branch-name v2: one iteration counter per
   plan](plans/20261030-iwe-branch-name-v2.md) done; merged the
   `iwe/<slug>/iter-<N>-<phase>` shape and shared counter into
@@ -80,12 +73,9 @@ to the current day's group.
   [iwe-workflow-skills](spec/iwe-workflow-skills.md);
   [iwe-branch-name](features/iwe-branch-name.md) stays implemented and listed
   under Unreleased Added.
-- **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
-  [agentdev skills](codebase/agents/plugins/agentdev/skills.md),
-  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md),
-  [agentdev tests](codebase/agents/plugins/agentdev/tests.md), and [knowledge
-  workspace](codebase/docs/knowledge.md) map docs for the
-  `iwe/<slug>/iter-<N>-<phase>` work branch shape.
+- **Update**: refreshed the agentdev, agentdev skills, iwe-bootstrap, agentdev
+  tests, and knowledge workspace map docs for the `iwe/<slug>/iter-<N>-<phase>`
+  work branch shape.
 - **Update**: [Persist the pre-commit hook
   cache](features/persist-pre-commit-cache.md) now uses its own
   `agentdev-pre-commit` volume at `~/.cache/pre-commit`; no cache volume is
@@ -100,19 +90,16 @@ to the current day's group.
 - **New**: [Dev Container home volume](architecture/devcontainer-home-volume.md)
   records the decision to run the Dev Container as a non-root account with one
   home volume, and the open editor-server cleanup risk.
-- **Update**: refreshed the [github](codebase/github.md) and [pull request
-  checks flow](codebase/flow-pull-request-checks.md) map docs for the single
-  Renovate group that now carries both agentdev image digests.
+- **Update**: refreshed the github and pull request checks flow map docs for the
+  single Renovate group that now carries both agentdev image digests.
 - **Update**: [Name Remote Control environments after their
   launcher](plans/20261029-remote-control-environment-names.md) done; merged the
   launcher hostname requirement into [Claude Remote
   Control](spec/claude-remote-control.md); [Remote Control environment
   names](features/remote-control-environment-names.md) implemented and listed
   under Unreleased Added.
-- **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
-  [devcontainer scripts](codebase/py_packages/agentdev_runtime.md), and
-  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
-  the launcher-derived container hostname.
+- **Update**: refreshed the devcontainer, devcontainer scripts, and devcontainer
+  lifecycle map docs for the launcher-derived container hostname.
 - **Update**: the launcher hostname is now derived inside
   `devcontainer-init.sh`, since a migrated consumer keeps no
   `.devcontainer/scripts/`; [Claude Remote
@@ -132,27 +119,20 @@ to the current day's group.
 
 ## 2026-10-29
 
-- **Update**: refreshed the [agentdev](codebase/agents/plugins/agentdev.md),
-  [agentdev tests](codebase/agents/plugins/agentdev/tests.md), [knowledge
-  workspace](codebase/docs/knowledge.md),
-  [validate_agent_files](codebase/py_packages/validate_agent_files.md), and [its
-  tests](codebase/py_packages/validate_agent_files/tests.md) map docs after test
-  scratch moved under `/tmp/agentdev-tests`.
-- **Update**: re-stamped the [agentdev](codebase/agents/plugins/agentdev.md),
-  [skills](codebase/agents/plugins/agentdev/skills.md),
-  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
-  [knowledge workspace](codebase/docs/knowledge.md) map docs after the
-  `generated.by` actor wording became a pattern.
-- **Update**: re-verified 10 [codebase map](codebase.md) docs after the agentdev
-  images were pinned to their promoted `edge` digests and the remaining
-  repository references named the canonical images.
-- **Update**: refreshed 14 [codebase map](codebase.md) docs for the agentdev
-  image family — the base and its deploy and Dev Container siblings, the
-  image-owned lifecycle commands and hooks, the four-image CI pipeline and its
-  acceptance jobs, the `agentdev-devcontainer` and `agentdev-deploy` pins, and
-  the template-consume image-family migration.
-- **Update**: refreshed the [devcontainer](codebase/devcontainer.md) and
-  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
+- **Update**: refreshed the agentdev, agentdev tests, knowledge workspace,
+  validate_agent_files, and its tests map docs after test scratch moved under
+  `/tmp/agentdev-tests`.
+- **Update**: re-stamped the agentdev, skills, iwe-bootstrap, and knowledge
+  workspace map docs after the `generated.by` actor wording became a pattern.
+- **Update**: re-verified 10 codebase map docs after the agentdev images were
+  pinned to their promoted `edge` digests and the remaining repository
+  references named the canonical images.
+- **Update**: refreshed 14 codebase map docs for the agentdev image family — the
+  base and its deploy and Dev Container siblings, the image-owned lifecycle
+  commands and hooks, the four-image CI pipeline and its acceptance jobs, the
+  `agentdev-devcontainer` and `agentdev-deploy` pins, and the template-consume
+  image-family migration.
+- **Update**: refreshed the devcontainer and devcontainer lifecycle map docs for
   the per-instance `/workspaces/project` volume.
 - **Update**: [Move the Expo bridge knowledge into its own
   repository](plans/20261028-move-expo-bridge-kb.md) done; no `data/spec/`
@@ -185,12 +165,8 @@ to the current day's group.
   the tick in a commit after the code rather than in the same one; bug
   [Command-result evidence is judged
   inconsistently](bugs/command-result-evidence-ambiguous.md) done.
-- **Map**: re-stamped the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md), its
-  [skills](codebase/agents/plugins/agentdev/skills.md),
-  [iwe-bootstrap](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), and
-  the [knowledge workspace](codebase/docs/knowledge.md) for the evidence rule
-  change.
+- **Map**: re-stamped the agentdev catalog, its skills, iwe-bootstrap, and the
+  knowledge workspace for the evidence rule change.
 - **Create**: [Make plan task evidence survive history
   rewrites](backlog/resilient-task-evidence.md).
 - **Create**: bug [Command-result evidence is judged
@@ -236,17 +212,11 @@ to the current day's group.
 - **Create**: someday ideas [Calibrate the revision evaluator against human
   review](someday/revision-evaluator-calibration.md) and [Nested dispatch from
   catalog agents](someday/nested-catalog-agent-dispatch.md).
-- **Map**: re-anchored the [scripts](codebase/py_packages/agentdev_runtime.md)
-  map for the Remote Control watcher's shorter header, and re-stamped
-  [devcontainer](codebase/devcontainer.md) and the [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md).
-- **Map**: refreshed the [scripts](codebase/py_packages/agentdev_runtime.md),
-  [docker](codebase/docker.md), and [image and
-  runtime](codebase/api-image-runtime.md) maps for the standalone Remote Control
-  watcher and its settings, and re-stamped
-  [devcontainer](codebase/devcontainer.md), the [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md), and the [image
-  build](codebase/flow-image-build.md).
+- **Map**: re-anchored the scripts map for the Remote Control watcher's shorter
+  header, and re-stamped devcontainer and the devcontainer lifecycle.
+- **Map**: refreshed the scripts, docker, and image and runtime maps for the
+  standalone Remote Control watcher and its settings, and re-stamped
+  devcontainer, the devcontainer lifecycle, and the image build.
 - **Update**: recorded [Holding the AI review gate during a
   re-review](architecture/rereview-gate-pending.md): a separate commit status is
   the leading candidate, and the marker-commit trigger and a merged
@@ -265,19 +235,13 @@ to the current day's group.
   and listed under Unreleased Fixed; [AI responder
   workflows](features/ai-responder-workflows.md) stays implemented and listed
   under Unreleased Changed.
-- **Map**: re-stamped the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md) and its
-  [skills](codebase/agents/plugins/agentdev/skills.md) after merging `main` into
-  the Implement loop branch.
-- **Map**: re-verified the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
-  plan-edit commit before a revision.
-- **Map**: refreshed the [agentdev
-  skills](codebase/agents/plugins/agentdev/skills.md) and
-  [catalog](codebase/agents/plugins/agentdev.md) for implement-all's
+- **Map**: re-stamped the agentdev catalog and its skills after merging `main`
+  into the Implement loop branch.
+- **Map**: re-verified the agentdev catalog for the Implement loop's plan-edit
+  commit before a revision.
+- **Map**: refreshed the agentdev skills and catalog for implement-all's
   conversation-free Implementer dispatch.
-- **Map**: re-verified the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md) for the Implement loop's
+- **Map**: re-verified the agentdev catalog for the Implement loop's
   restore-from-`HEAD` wording.
 - **Update**: [Let Implement verify, fix, and revise on its
   own](plans/20261026-autonomous-implement-loop.md) done; [IWE workflow
@@ -296,40 +260,30 @@ to the current day's group.
 - **Update**: [Verification in the main
   loop](features/verification-in-the-main-loop.md) gained fresh-context Verify;
   listed under Unreleased Changed.
-- **Map**: refreshed the agentdev [plugin
-  tests](codebase/agents/plugins/agentdev/tests.md) map for
-  `request-review.sh`'s assignee toggle, and re-stamped the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md) and its
-  [skills](codebase/agents/plugins/agentdev/skills.md).
-- **Map**: refreshed the [workflows](codebase/github/workflows.md) map for the
-  assignee re-review trigger and the `@claude review` rejection, re-anchored
-  [pull request checks](codebase/flow-pull-request-checks.md), and re-stamped
-  [GitHub](codebase/github.md), [actions](codebase/github/actions.md), and the
-  [agentdev catalog](codebase/agents/plugins/agentdev.md), its
-  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
-  tests](codebase/agents/plugins/agentdev/tests.md) after merging `main`.
+- **Map**: refreshed the agentdev plugin tests map for `request-review.sh`'s
+  assignee toggle, and re-stamped the agentdev catalog and its skills.
+- **Map**: refreshed the workflows map for the assignee re-review trigger and
+  the `@claude review` rejection, re-anchored pull request checks, and
+  re-stamped GitHub, actions, and the agentdev catalog, its skills and plugin
+  tests after merging `main`.
 
 ## 2026-10-26
 
-- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
-  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
-  `iwe-planner` and `iwe-revision-evaluator` agents, the thin `iwe-plan` skill,
-  and the Implement loop.
+- **Map**: refreshed the agentdev catalog and its skills for the `iwe-planner`
+  and `iwe-revision-evaluator` agents, the thin `iwe-plan` skill, and the
+  Implement loop.
 - **Create**: [Autonomous Implement
   loop](architecture/autonomous-implement-loop.md) architecture doc.
-- **Map**: refreshed the [agentdev catalog](codebase/agents/plugins/agentdev.md)
-  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
-  `iwe-verifier` agent and the dispatching `iwe-verify` skill.
+- **Map**: refreshed the agentdev catalog and its skills for the `iwe-verifier`
+  agent and the dispatching `iwe-verify` skill.
 - **Update**: [Configurable Remote Control spawn mode, worktree by
   default](plans/20261025-claude-remote-control-spawn-mode.md) done; merged the
   spawn mode into the [Claude Remote Control](spec/claude-remote-control.md)
   spec; [Remote Control server
   mode](features/claude-remote-control-server-mode.md) stays implemented and
   listed under Unreleased Added.
-- **Update**: refreshed the [devcontainer
-  scripts](codebase/py_packages/agentdev_runtime.md) map for the Remote Control
-  spawn mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
-  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
+- **Update**: refreshed the devcontainer scripts map for the Remote Control
+  spawn mode, and re-stamped devcontainer and devcontainer lifecycle.
 - **Update**: recorded [Assignee-triggered AI
   re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
   [Verify that auto-merge waits for an assignee-triggered
@@ -352,20 +306,12 @@ to the current day's group.
   `impl/<slug>/iter-<N>`.
 - **Update**: [iwe-branch-name](features/iwe-branch-name.md) implemented; listed
   under Unreleased Added.
-- **Map**: refreshed the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md), its
-  [skills](codebase/agents/plugins/agentdev/skills.md), and [plugin
-  tests](codebase/agents/plugins/agentdev/tests.md) for `iwe-branch-name`'s task
-  headings, empty plans, and `--repo` lookup.
-- **Map**: refreshed the [agentdev
-  catalog](codebase/agents/plugins/agentdev.md), its
-  [skills](codebase/agents/plugins/agentdev/skills.md) and [plugin
-  tests](codebase/agents/plugins/agentdev/tests.md), and the [knowledge
-  workspace](codebase/docs/knowledge.md) for the `iwe-branch-name` skill.
-- **Map**: refreshed the [iwe-bootstrap
-  skill](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) and the
-  [plugin tests](codebase/agents/plugins/agentdev/tests.md) for recovery of a
-  transaction interrupted at its first `OWNER` write.
+- **Map**: refreshed the agentdev catalog, its skills, and plugin tests for
+  `iwe-branch-name`'s task headings, empty plans, and `--repo` lookup.
+- **Map**: refreshed the agentdev catalog, its skills and plugin tests, and the
+  knowledge workspace for the `iwe-branch-name` skill.
+- **Map**: refreshed the iwe-bootstrap skill and the plugin tests for recovery
+  of a transaction interrupted at its first `OWNER` write.
 - **Update**: [Extract a reusable IWE bootstrap
   skill](plans/20261023-reusable-iwe-bootstrap.md) done; created the [IWE
   bootstrap](spec/iwe-bootstrap.md) spec, and [Template
@@ -379,9 +325,8 @@ to the current day's group.
 - **Update**: [Playwright browser in the development
   image](features/playwright-browser.md) implemented; listed under Unreleased
   Added.
-- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
-  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the
-  `exec-summary` skill.
+- **Map**: refreshed the agentdev plugin and its skills for the `exec-summary`
+  skill.
 - **Update**: [Reuse a matching Expo bridge build by
   fingerprint](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261023-expo-bridge-fingerprint-reuse.md)
   done; no `data/spec/` change, the protocol contract lives in the bridge's
@@ -394,26 +339,17 @@ to the current day's group.
   projects](bugs/standalone-codex-auth-unshared.md).
 - **Bug**: filed [plan tasks edit spec documents that only Ship may
   change](bugs/plan-tasks-edit-specs.md).
-- **Map**: moved the IWE seed component to the [iwe-bootstrap
-  skill](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md), now a child
-  of [Catalog skills](codebase/agents/plugins/agentdev/skills.md), and refreshed
-  the [agentdev catalog](codebase/agents/plugins/agentdev.md), its
-  [tests](codebase/agents/plugins/agentdev/tests.md), the [knowledge
-  workspace](codebase/docs/knowledge.md), [GitHub
-  automation](codebase/github.md) and its
-  [workflows](codebase/github/workflows.md), the [pull request
-  checks](codebase/flow-pull-request-checks.md), and the [validator
-  package](codebase/py_packages/validate_agent_files.md), its
-  [tests](codebase/py_packages/validate_agent_files/tests.md), and
-  [rules](codebase/py_packages/validate_agent_files/validators.md) for the
-  catalog-owned scaffold.
+- **Map**: moved the IWE seed component to the iwe-bootstrap skill, now a child
+  of Catalog skills, and refreshed the agentdev catalog, its tests, the
+  knowledge workspace, GitHub automation and its workflows, the pull request
+  checks, and the validator package, its tests, and rules for the catalog-owned
+  scaffold.
 - **Update**: filed [Bug: a comment-requested review's gate does not count
   toward merge](bugs/dispatched-review-gate-not-counted.md), reproduced on
   throwaway PR #472.
-- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
-  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
-  [tests](codebase/agents/plugins/agentdev/tests.md) for the removed
-  `pr-discover-ai-responder` skill and the new `request-review.sh` script.
+- **Map**: refreshed the agentdev plugin, its skills, and its tests for the
+  removed `pr-discover-ai-responder` skill and the new `request-review.sh`
+  script.
 
 ## 2026-10-24
 
@@ -442,48 +378,30 @@ to the current day's group.
 - **Update**: [Remote Control server
   mode](features/claude-remote-control-server-mode.md) implemented; listed under
   Unreleased Added.
-- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
-  [scripts](codebase/py_packages/agentdev_runtime.md), and the [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) for the Remote Control
-  launcher's `AGENTDEV_CLAUDE_RC_MODE` server mode.
+- **Map**: refreshed the devcontainer, its scripts, and the devcontainer
+  lifecycle for the Remote Control launcher's `AGENTDEV_CLAUDE_RC_MODE` server
+  mode.
 - **Bug**: filed and fixed [every gh call in the devcontainer leaks a D-Bus
   session and a keyring](bugs/devcontainer-dbus-autolaunch-leak.md).
-- **Map**: refreshed [GitHub automation](codebase/github.md), its
-  [workflows](codebase/github/workflows.md), and the [pull request
-  checks](codebase/flow-pull-request-checks.md) flow for the compose files in
-  the image filter, and the [image runtime](codebase/api-image-runtime.md) and
-  [.devcontainer scripts](codebase/py_packages/agentdev_runtime.md) for the
-  strict firewall switch and comment-keeping hooks repair.
-- **Map**: refreshed the [image runtime](codebase/api-image-runtime.md) and the
-  [.devcontainer scripts](codebase/py_packages/agentdev_runtime.md) for
+- **Map**: refreshed GitHub automation, its workflows, and the pull request
+  checks flow for the compose files in the image filter, and the image runtime
+  and .devcontainer scripts for the strict firewall switch and comment-keeping
+  hooks repair.
+- **Map**: refreshed the image runtime and the .devcontainer scripts for
   attempt-scoped failure output and client refresh on retry, and re-verified
-  [.devcontainer](codebase/devcontainer.md), [Docker](codebase/docker.md), and
-  the [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) and
-  [image build](codebase/flow-image-build.md) flows.
+  .devcontainer, Docker, and the devcontainer lifecycle and image build flows.
 
 ## 2026-10-23
 
-- **Map**: refreshed [Ansible](codebase/ansible.md),
-  [dev_tools](codebase/ansible/roles/dev_tools.md),
-  [.devcontainer](codebase/devcontainer.md), its
-  [scripts](codebase/py_packages/agentdev_runtime.md),
-  [Docker](codebase/docker.md), the [image
-  runtime](codebase/api-image-runtime.md), [GitHub
-  automation](codebase/github.md), its
-  [workflows](codebase/github/workflows.md), and the [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md), [image
-  build](codebase/flow-image-build.md), and [pull request
-  checks](codebase/flow-pull-request-checks.md) flows for the standalone
+- **Map**: refreshed Ansible, dev_tools, .devcontainer, its scripts, Docker, the
+  image runtime, GitHub automation, its workflows, and the devcontainer
+  lifecycle, image build, and pull request checks flows for the standalone
   runtime's failure latch, optional work, background indexing, and pinned hook
   binaries.
-- **Map**: refreshed [GitHub automation](codebase/github.md), its
-  [workflows](codebase/github/workflows.md), and the [pull request
-  checks](codebase/flow-pull-request-checks.md) flow for the removed pinned
-  runtime acceptance workflow.
-- **Map**: refreshed [Docker](codebase/docker.md), the [image
-  runtime](codebase/api-image-runtime.md), and the [image
-  build](codebase/flow-image-build.md) flow for the agent-opencode deployment
-  guide.
+- **Map**: refreshed GitHub automation, its workflows, and the pull request
+  checks flow for the removed pinned runtime acceptance workflow.
+- **Map**: refreshed Docker, the image runtime, and the image build flow for the
+  agent-opencode deployment guide.
 - **Update**: [Publish the Expo bridge to Open VSX through trusted
   publishing](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/plans/20261023-openvsx-trusted-publishing.md)
   done; internal, no release entry.
@@ -494,22 +412,18 @@ to the current day's group.
 - **Update**: [VS Code Expo
   bridge](https://github.com/plume-works/vscode-expo-bridge/blob/main/docs/knowledge/data/features/vscode-expo-bridge.md)
   implemented; listed under Unreleased Added.
-- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
-  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
-  profile's silenced Metro port and `eas-host` iOS build rule.
+- **Map**: refreshed the agentdev plugin and its skills for the Expo profile's
+  silenced Metro port and `eas-host` iOS build rule.
 - **Update**: [Template consumption](spec/template-consumption.md) now limits
   the bridge to Simulator builds, keeps the profile on the EAS cloud fallback,
   and has update mode reconcile the Expo profile on every run.
 
 ## 2026-10-22
 
-- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md)
-  and its [skills](codebase/agents/plugins/agentdev/skills.md) for the Expo
-  Bridge local-iOS path and EAS cloud fallback.
-- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
-  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
-  [tests](codebase/agents/plugins/agentdev/tests.md) for replay safeguards and
-  their regressions.
+- **Map**: refreshed the agentdev plugin and its skills for the Expo Bridge
+  local-iOS path and EAS cloud fallback.
+- **Map**: refreshed the agentdev plugin, its skills, and its tests for replay
+  safeguards and their regressions.
 - **Map**: refreshed the agentdev plugin, skills, and tests docs for replay
   boundary digests reading committed blobs with universal newlines.
 
@@ -522,17 +436,11 @@ to the current day's group.
 - **Update**: [Map masks version-only
   changes](features/map-masks-version-bumps.md) implemented; listed under
   Unreleased Added.
-- **Map**: refreshed the [agentdev plugin](codebase/agents/plugins/agentdev.md),
-  its [skills](codebase/agents/plugins/agentdev/skills.md), and its
-  [tests](codebase/agents/plugins/agentdev/tests.md) for
+- **Map**: refreshed the agentdev plugin, its skills, and its tests for
   `stale-map-docs.py --replay` and its test module.
-- **Map**: refreshed [Ansible](codebase/ansible.md), [image
-  runtime](codebase/api-image-runtime.md), [Docker](codebase/docker.md), the
-  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md), [image
-  build](codebase/flow-image-build.md), [pull request
-  checks](codebase/flow-pull-request-checks.md), [GitHub](codebase/github.md),
-  and [workflows](codebase/github/workflows.md) for the bundled Playwright CLI
-  and Chromium browser.
+- **Map**: refreshed Ansible, image runtime, Docker, the devcontainer lifecycle,
+  image build, pull request checks, GitHub, and workflows for the bundled
+  Playwright CLI and Chromium browser.
 - **Update**: [Show the full OpenCode slash-command
   invocation](plans/20261021-opencode-command-echo.md) done; [OpenCode catalog
   bridge](spec/opencode-catalog-bridge.md) now preserves the full namespaced
@@ -544,10 +452,8 @@ to the current day's group.
 - **Update**: [Bug: the Remote Control pin ignores
   `/clear`](bugs/remote-control-pin-ignores-clear.md) fixed; listed under
   Unreleased.
-- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
-  [scripts](codebase/py_packages/agentdev_runtime.md), and the [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) for the
-  `claude-remote-control-pin.sh` `SessionStart` hook.
+- **Map**: refreshed the devcontainer, its scripts, and the devcontainer
+  lifecycle for the `claude-remote-control-pin.sh` `SessionStart` hook.
 
 ## 2026-10-20
 
@@ -558,11 +464,9 @@ to the current day's group.
 - **Update**: [Bug: CI/CD publishes images before testing
   them](bugs/ci-publishes-images-before-acceptance.md) fixed; listed under
   Unreleased.
-- **Map**: refreshed the [image build](codebase/flow-image-build.md), [pull
-  request checks](codebase/flow-pull-request-checks.md),
-  [GitHub](codebase/github.md), [workflows](codebase/github/workflows.md), and
-  [composite actions](codebase/github/actions.md) for candidate-only
-  `sha-<commit>` tags, the `promote-dev-image` job, and queued `main` runs.
+- **Map**: refreshed the image build, pull request checks, GitHub, workflows,
+  and composite actions for candidate-only `sha-<commit>` tags, the
+  `promote-dev-image` job, and queued `main` runs.
 - **Update**: [Make OpenCode v2 the devcontainer
   default](plans/20261018-opencode-v2-default.md) done; specs synced for the
   [catalog bridge](spec/opencode-catalog-bridge.md), [OpenCode
@@ -573,33 +477,20 @@ to the current day's group.
 - **Update**: [Port the IWE workflow e2e suite to
   pytest](plans/20261019-iwe-workflows-e2e-pytest.md) done; internal, no release
   entry.
-- **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
-  [lifecycle scripts](codebase/py_packages/agentdev_runtime.md), and the
-  [lifecycle flow](codebase/flow-devcontainer-lifecycle.md) for the OpenCode
-  link that prints the server's root URL.
+- **Map**: refreshed the devcontainer, its lifecycle scripts, and the lifecycle
+  flow for the OpenCode link that prints the server's root URL.
 
 ## 2026-10-19
 
-- **Map**: refreshed [image runtime](codebase/api-image-runtime.md),
-  [docker](codebase/docker.md), the [lifecycle
-  scripts](codebase/py_packages/agentdev_runtime.md), the
-  [workflows](codebase/github/workflows.md), and the [pull request
-  checks](codebase/flow-pull-request-checks.md) for the required standalone
+- **Map**: refreshed image runtime, docker, the lifecycle scripts, the
+  workflows, and the pull request checks for the required standalone
   `XPRA_PASSWORD` and the pinned-acceptance gate that always runs on a changed
   OpenCode pin.
-- **Map**: refreshed [image runtime](codebase/api-image-runtime.md), the
-  [devcontainer](codebase/devcontainer.md), its [lifecycle
-  scripts](codebase/py_packages/agentdev_runtime.md), the [lifecycle
-  flow](codebase/flow-devcontainer-lifecycle.md), and the [image
-  build](codebase/flow-image-build.md) for the standalone runtime on OpenCode
-  v2.
-- **Map**: refreshed the [OpenCode
-  bridge](codebase/agents/plugins/agentdev/opencode-plugin.md), its
-  [tests](codebase/agents/plugins/agentdev/tests.md), the
-  [agentic_tools](codebase/ansible/roles/agentic_tools.md) role, the [lifecycle
-  scripts](codebase/py_packages/agentdev_runtime.md), the
-  [devcontainer](codebase/devcontainer.md), and the [lifecycle
-  flow](codebase/flow-devcontainer-lifecycle.md) for OpenCode v2 (`970a3ae`).
+- **Map**: refreshed image runtime, the devcontainer, its lifecycle scripts, the
+  lifecycle flow, and the image build for the standalone runtime on OpenCode v2.
+- **Map**: refreshed the OpenCode bridge, its tests, the agentic_tools role, the
+  lifecycle scripts, the devcontainer, and the lifecycle flow for OpenCode v2
+  (`970a3ae`).
 
 ## 2026-10-18
 
@@ -612,17 +503,12 @@ to the current day's group.
   workspace CBM indexing](spec/opencode-workspace-cbm-indexing.md) spec added;
   [Automatic CBM indexing for OpenCode
   workspaces](features/opencode-workspace-cbm-indexing.md) implemented.
-- **Update**: [OpenCode
-  bridge](codebase/agents/plugins/agentdev/opencode-plugin.md),
-  [catalog](codebase/agents/plugins/agentdev.md), and [plugin
-  tests](codebase/agents/plugins/agentdev/tests.md) maps refreshed for workspace
-  registration and bounded daemon startup (`8f2c5ef`, `2aa4304`).
+- **Update**: OpenCode bridge, catalog, and plugin tests maps refreshed for
+  workspace registration and bounded daemon startup (`8f2c5ef`, `2aa4304`).
 
 ## 2026-10-17
 
-- **Map**: refreshed [agentdev](codebase/agents/plugins/agentdev.md), its
-  [skills](codebase/agents/plugins/agentdev/skills.md), and its
-  [tests](codebase/agents/plugins/agentdev/tests.md) for the stack guard's
+- **Map**: refreshed agentdev, its skills, and its tests for the stack guard's
   partial-push rerun, remote-only merges, overwritten-push detection, leased
   push, verbatim patch matching, and queued-layer coverage.
 - **Update**: [Autostart the OpenCode web UI on
@@ -632,18 +518,13 @@ to the current day's group.
   IDE baseline template](spec/coder-ide-baseline.md) offers the OpenCode app;
   [OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)
   implemented.
-- **Update**: [Devcontainer scaffolding](codebase/devcontainer.md), [lifecycle
-  scripts](codebase/py_packages/agentdev_runtime.md), and [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs refreshed for the
-  OpenCode web UI autostart on Coder.
-- **Update**: [Lifecycle scripts](codebase/py_packages/agentdev_runtime.md) map
-  doc refreshed for the OpenCode workspace link; [devcontainer
-  scaffolding](codebase/devcontainer.md) and [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
-- **Update**: [Lifecycle scripts](codebase/py_packages/agentdev_runtime.md) map
-  doc re-anchored for the shorter `link-opencode-auth.sh` header; [devcontainer
-  scaffolding](codebase/devcontainer.md) and [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
+- **Update**: Devcontainer scaffolding, lifecycle scripts, and devcontainer
+  lifecycle map docs refreshed for the OpenCode web UI autostart on Coder.
+- **Update**: Lifecycle scripts map doc refreshed for the OpenCode workspace
+  link; devcontainer scaffolding and devcontainer lifecycle re-digested.
+- **Update**: Lifecycle scripts map doc re-anchored for the shorter
+  `link-opencode-auth.sh` header; devcontainer scaffolding and devcontainer
+  lifecycle re-digested.
 - **Update**: [Guard every gh stack push against overwriting a layer's remote
   commits](plans/20261017-gh-stack-push-guard.md) done; [Stacked
   PRs](spec/stacked-prs.md) and [PR merge conflicts](spec/pr-merge-conflicts.md)
@@ -663,11 +544,8 @@ to the current day's group.
   its release impact and Ship to apply it; [Ship's release-link rule is
   undefined for a plan with no feature or
   bug](bugs/ship-release-link-without-feature.md) fixed.
-- **Update**: [Agentdev plugin](codebase/agents/plugins/agentdev.md), [agentdev
-  skills](codebase/agents/plugins/agentdev/skills.md), [Knowledge
-  base](codebase/docs/knowledge.md), and [IWE
-  seed](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) map docs
-  refreshed for the plan `release` declaration.
+- **Update**: Agentdev plugin, agentdev skills, Knowledge base, and IWE seed map
+  docs refreshed for the plan `release` declaration.
 - **Update**: [Xpra port forwarding](features/xpra-port-forwarding.md)
   backfilled as implemented and listed under Added on the
   [1.0.0](releases/1.0.0.md) release, which shipped it.
@@ -698,15 +576,14 @@ to the current day's group.
   consumption](spec/template-consumption.md) now requires the template
   devcontainer to pass `EXPO_TOKEN` and an Expo consumer to be prepared for EAS
   cloud builds.
-- **Update**: [Devcontainer scaffolding](codebase/devcontainer.md) maps the
-  `EXPO_TOKEN` passthrough in `containerEnv`; the devcontainer lifecycle flow,
-  agentdev catalog, and agentdev skills map docs re-verified.
+- **Update**: Devcontainer scaffolding maps the `EXPO_TOKEN` passthrough in
+  `containerEnv`; the devcontainer lifecycle flow, agentdev catalog, and
+  agentdev skills map docs re-verified.
 
 ## 2026-10-15
 
-- **Update**: [agentdev skills](codebase/agents/plugins/agentdev/skills.md) maps
-  the template-consume Optional Expo profile; the agentdev catalog map doc
-  re-verified.
+- **Update**: agentdev skills maps the template-consume Optional Expo profile;
+  the agentdev catalog map doc re-verified.
 - **Update**: [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
   recorded; `.mcp.json` drops the IWE MCP server and the image stops installing
   `iwec`.
@@ -726,10 +603,9 @@ to the current day's group.
   storage, and the new [Devcontainer Docker
   storage](spec/devcontainer-docker-storage.md) spec records the Dev Container
   engine's 10 GB build-cache limit and agent-start image prune.
-- **Update**: [Devcontainer lifecycle
-  scripts](codebase/py_packages/agentdev_runtime.md) and [Flow: devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) map the agent-start image
-  prune; the ansible, devcontainer, and image-build map docs re-verified.
+- **Update**: Devcontainer lifecycle scripts and Flow: devcontainer lifecycle
+  map the agent-start image prune; the ansible, devcontainer, and image-build
+  map docs re-verified.
 - **Update**: [Resume the Remote Control conversation across
   restarts](features/claude-remote-control-resume.md) implemented.
 - **Update**: [Resume the autostarted Remote Control conversation by a pinned
@@ -737,8 +613,7 @@ to the current day's group.
   Control](spec/claude-remote-control.md) now resumes its pinned conversation on
   every start and falls back to a fresh pinned conversation when the resume
   fails.
-- **Update**: [Devcontainer lifecycle
-  scripts](codebase/py_packages/agentdev_runtime.md) map refreshed for
+- **Update**: Devcontainer lifecycle scripts map refreshed for
   `claude-remote-control-session.sh`, the pinned-conversation pane script, in
   commit "map: refresh devcontainer scripts for the Remote Control session
   script".
@@ -746,8 +621,8 @@ to the current day's group.
   ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
   in [Claude Remote Control
   resume](architecture/claude-remote-control-resume.md).
-- **Update**: [Codebase map](codebase.md) refreshed for the template-consume
-  guide stating the iwe version config version 4 needs: two docs re-verified.
+- **Update**: Codebase map refreshed for the template-consume guide stating the
+  iwe version config version 4 needs: two docs re-verified.
 
 ## 2026-10-12
 
@@ -778,30 +653,30 @@ to the current day's group.
   [update-branch](spec/update-branch.md).
 - **Update**: [update-branch](spec/update-branch.md) spec created with the
   upstream-sync and conflict-rerun requirements.
-- **Update**: [Codebase map](codebase.md) refreshed for `update-branch.sh`
-  bringing in the branch's upstream before the base: three docs re-verified.
+- **Update**: Codebase map refreshed for `update-branch.sh` bringing in the
+  branch's upstream before the base: three docs re-verified.
 - **Idea**: [Resume the Remote Control conversation across
   restarts](features/claude-remote-control-resume.md) filed with measured resume
   behavior; the downtime limit and lost-session detection stay open.
 
 ## 2026-10-11
 
-- **Update**: [Codebase map](codebase.md) refreshed for `coder-agent-start.sh`,
-  the Coder agent's entry point: three docs re-verified.
-- **Update**: [Codebase map](codebase.md) refreshed for the Remote Control
-  session taking its name from `CODER_WORKSPACE_NAME`: three docs re-verified.
-- **Update**: [Codebase map](codebase.md) re-verified for the `CBM_CACHE_DIR`
-  guard fix in the codebase-memory-mcp scripts: three devcontainer docs.
-- **Update**: [Codebase map](codebase.md) refreshed for Claude Remote Control
-  moving from postStart to the Coder template's `coder_script` on a dedicated
-  tmux server: three docs re-verified.
+- **Update**: Codebase map refreshed for `coder-agent-start.sh`, the Coder
+  agent's entry point: three docs re-verified.
+- **Update**: Codebase map refreshed for the Remote Control session taking its
+  name from `CODER_WORKSPACE_NAME`: three docs re-verified.
+- **Update**: Codebase map re-verified for the `CBM_CACHE_DIR` guard fix in the
+  codebase-memory-mcp scripts: three devcontainer docs.
+- **Update**: Codebase map refreshed for Claude Remote Control moving from
+  postStart to the Coder template's `coder_script` on a dedicated tmux server:
+  three docs re-verified.
 
 ## 2026-10-10
 
 - **Bug**: [gh-stack extension install needs a token the image build
   lacks](bugs/gh-stack-install-needs-token.md) fixed; the `github_cli` role now
-  installs the checksummed release binary, and [Codebase map](codebase.md)
-  refreshed: four docs re-verified.
+  installs the checksummed release binary, and Codebase map refreshed: four docs
+  re-verified.
 - **Update**: [Agent-owned Ship and Implement
   workflows](plans/20261007-agent-owned-ship-implement.md) done. Ship and
   Implement now run as the `iwe-shipper` and `iwe-implementer` catalog agents,
@@ -810,17 +685,16 @@ to the current day's group.
   skills](spec/iwe-workflow-skills.md).
 - **Update**: [IWE workflow skills](spec/iwe-workflow-skills.md) spec gains the
   explicit-only Ship and Implement dispatch requirement.
-- **Update**: [Codebase map](codebase.md) refreshed for the `iwe-shipper` and
-  `iwe-implementer` agents and the Codex explicit-only gates: three agentdev
-  docs re-verified.
-- **Update**: [Codebase map](codebase.md) re-verified for the Ship blocker
-  routing: two agentdev docs.
+- **Update**: Codebase map refreshed for the `iwe-shipper` and `iwe-implementer`
+  agents and the Codex explicit-only gates: three agentdev docs re-verified.
+- **Update**: Codebase map re-verified for the Ship blocker routing: two
+  agentdev docs.
 
 ## 2026-10-09
 
-- **Update**: [Codebase map](codebase.md) refreshed for the Codex hooks-block
-  repair ahead of the CBM install and the non-fatal CBM install in postCreate:
-  three docs re-verified. Bug: [Codex tables inside cbm hooks block break cbm
+- **Update**: Codebase map refreshed for the Codex hooks-block repair ahead of
+  the CBM install and the non-fatal CBM install in postCreate: three docs
+  re-verified. Bug: [Codex tables inside cbm hooks block break cbm
   install](bugs/cbm-codex-hooks-block-foreign-tables.md).
 - **Update**: [Remove Coder agent auth seeding; keep Claude Remote Control
   autostart](plans/20261009-remove-coder-agent-auth-seeding.md) done. Coder
@@ -829,12 +703,12 @@ to the current day's group.
   out. The devcontainer agent authentication spec is retired, split into [Claude
   Remote Control](spec/claude-remote-control.md) and [Devcontainer Git
   credentials](spec/devcontainer-git-credentials.md).
-- **Update**: [Codebase map](codebase.md) refreshed for the removal of Coder
-  agent auth seeding and the Claude login gate: six docs re-verified.
+- **Update**: Codebase map refreshed for the removal of Coder agent auth seeding
+  and the Claude login gate: six docs re-verified.
 - **Update**: Refreshed nine codebase map documents for the merge of `main` into
   the Codex catalog agent install and its `python3 -B` installer runs.
-- **Update**: [Codebase map](codebase.md) refreshed for the pinned iwe 0.26.1 in
-  CI and Renovate post-upgrade: eight docs re-verified.
+- **Update**: Codebase map refreshed for the pinned iwe 0.26.1 in CI and
+  Renovate post-upgrade: eight docs re-verified.
 - **Update**: [Run Node tooling through bun instead of
   npm](plans/20260925-bun-for-node-tooling.md) done. Prettier and the Renovate
   config validator run as local `bunx` hooks, the Renovate version lives in the
@@ -1221,15 +1095,10 @@ to the current day's group.
   visibility](bugs/validator-warning-visibility.md) fixed and recorded in
   [1.0.0](releases/1.0.0.md). The two skill validators are wired into the
   engine, `main.py` reads the real argparse destinations, `--no-warnings` is
-  gone, and the CLI contract is stated in [the validator CLI
-  interface](codebase/api-validate-agent-files-cli.md).
-- **Map**: refreshed [the validator
-  package](codebase/py_packages/validate_agent_files.md), [its
-  tests](codebase/py_packages/validate_agent_files/tests.md), [its
-  validators](codebase/py_packages/validate_agent_files/validators.md), [the
-  agentdev catalog](codebase/agents/plugins/agentdev.md), and [its
-  skills](codebase/agents/plugins/agentdev/skills.md) against their current
-  sources; all 27 map docs match their tracked-source digests.
+  gone, and the CLI contract is stated in the validator CLI interface.
+- **Map**: refreshed the validator package, its tests, its validators, the
+  agentdev catalog, and its skills against their current sources; all 27 map
+  docs match their tracked-source digests.
 
 ## 2026-09-06
 
@@ -1250,12 +1119,9 @@ to the current day's group.
   `codebase` schema's `commit` field are gone; a doc without a digest is
   `NO_DIGEST`. `stale-map-docs.py` now runs in the agent-files CI job, so a map
   doc that drifts from its sources fails the build.
-- **Map**: refreshed [the agentdev
-  catalog](codebase/agents/plugins/agentdev.md), [its
-  skills](codebase/agents/plugins/agentdev/skills.md), [its
-  tests](codebase/agents/plugins/agentdev/tests.md), and [the knowledge
-  workspace](codebase/docs/knowledge.md) against their current sources
-  (`b928025`); all 27 map docs match their tracked-source digests.
+- **Map**: refreshed the agentdev catalog, its skills, its tests, and the
+  knowledge workspace against their current sources (`b928025`); all 27 map docs
+  match their tracked-source digests.
 - **Update**: [Repository-owned IWE seed for
   consumers](plans/20260905-consumer-iwe-seed.md) done — both adoption workflows
   can seed and onboard fresh IWE project memory without replacing existing
@@ -1279,17 +1145,12 @@ to the current day's group.
 - **Update**: [Pin bumps invalidate map
   docs](bugs/pin-bumps-invalidate-map-docs.md) fixed and recorded in
   [1.0.0](releases/1.0.0.md).
-- **Update**: Refreshed the [codebase map](codebase.md): six changed scopes were
-  re-read, all source digests were verified, and the tested [consumer IWE
-  seed](codebase/agents/plugins/agentdev/skills/iwe-bootstrap.md) was added as
+- **Update**: Refreshed the codebase map: six changed scopes were re-read, all
+  source digests were verified, and the tested consumer IWE seed was added as
   the twenty-seventh mapped document.
-- **Update**: Refreshed the [codebase map](codebase.md) — the catalog, [bin
-  helpers](codebase/agents/plugins/agentdev/bin.md),
-  [skills](codebase/agents/plugins/agentdev/skills.md), [plugin
-  tests](codebase/agents/plugins/agentdev/tests.md), [knowledge
-  machinery](codebase/docs/knowledge.md), and the [devcontainer lifecycle
-  flow](codebase/flow-devcontainer-lifecycle.md) re-read against the checkout,
-  anchors re-verified, and source digests bumped.
+- **Update**: Refreshed the codebase map — the catalog, bin helpers, skills,
+  plugin tests, knowledge machinery, and the devcontainer lifecycle flow re-read
+  against the checkout, anchors re-verified, and source digests bumped.
 - **Creation**: [Xpra port forwarding](spec/xpra-port-forwarding.md) specifies
   the fixed container-port and VS Code local-remapping contracts.
 - **Update**: [Use VS Code port forwarding for
@@ -1312,7 +1173,7 @@ to the current day's group.
   one doc per component at its canonical key plus flow and api docs; refresh
   mode re-reads only the docs whose tracked source contents no longer match
   their `source_digest`, classified by the bundled `stale-map-docs.sh`. This
-  repository is mapped: 26 docs under [Codebase](codebase.md). Recorded in
+  repository is mapped: 26 docs under Codebase. Recorded in
   [1.0.0](releases/1.0.0.md) and specified in [IWE workflow
   skills](spec/iwe-workflow-skills.md); [its
   plan](plans/20260903-iwe-map-skill.md) is done.
@@ -1342,9 +1203,9 @@ to the current day's group.
 
 ## 2026-09-03
 
-- **Creation**: the codebase map — 26 documents under [Codebase](codebase.md)
-  (19 components, 3 flows, 2 interfaces), written by `/agentdev:iwe-map` in
-  initial mode from the tree at `eb60f60`, per [Add the iwe-map
+- **Creation**: the codebase map — 26 documents under Codebase (19 components, 3
+  flows, 2 interfaces), written by `/agentdev:iwe-map` in initial mode from the
+  tree at `eb60f60`, per [Add the iwe-map
   skill](plans/20260903-iwe-map-skill.md).
 - **Update**: [One AI review workflow with a needs-coupled
   gate](plans/20260903-single-ai-review-workflow.md) done — the responder and
@@ -1579,6 +1440,6 @@ to the current day's group.
   [milestones](milestone.md), and [someday](someday.md) for work, and
   [features](features.md), [bugs](bugs.md), and [releases](releases.md) for
   delivery.
-- **Creation**: Seeded the reference side — [spec](spec.md),
-  [codebase](codebase.md), [architecture](architecture.md), and
-  [concept](concept.md) — with example documents showing the shape of each type.
+- **Creation**: Seeded the reference side — [spec](spec.md), codebase,
+  [architecture](architecture.md), and [concept](concept.md) — with example
+  documents showing the shape of each type.

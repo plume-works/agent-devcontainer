@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Show the Verify report in the
+conversation](plans/20261031-verify-report-in-chat.md)
+
 [Move the Coder template's knowledge into
 coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
 
@@ -45,6 +48,10 @@ App](plans/20261030-responder-quill-app-identity.md)
 
 [Resume interrupted Claude PR reviews on a persistent
 runner](plans/20260909-resumable-claude-review-sessions.md)
+
+[Remove the codebase map](plans/20261031-remove-codebase-map.md)
+
+[Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
 ## Done
 

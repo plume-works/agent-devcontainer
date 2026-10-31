@@ -59,14 +59,11 @@ software project's memory and system of record. The division of labor:
      an afterthought.
    - Design decision made → `data/architecture/<slug>.md`, including the
      rejected alternatives.
-   - Code structure changed (module added, split, or moved) → the map skill's
-     refresh mode (`/agentdev:iwe-map`) re-reads the touched `data/codebase/`
-     docs and bumps their `source_digest` and `verified`; its
-     `stale-map-docs.py` finds the stale ones. A workspace with no map yet gets
-     one from the same skill's initial mode.
    - Vision insight → `data/concept/<slug>.md`.
    - Task finished → `stage: done` + `completed` on the task doc, link moved to
      `## Done` in `data/backlog.md`.
+   - Task dropped → `stage: cancelled` on the task doc, link moved to
+     `## Cancelled` in `data/backlog.md`.
    - Release cut → ship skill's release mode (rename unreleased, stamp
      version/date, fresh accumulator).
 5. **Stamp** — every document you create or meaningfully change gets
@@ -99,9 +96,8 @@ software project's memory and system of record. The division of labor:
   plans `done|cancelled` (absent = active, `done` requires `completed`);
   features `proposed|accepted|implemented|deprecated|cancelled`; bugs
   `done|cancelled` (absent = open); releases `released|unreleased`; backlog
-  `planned|done`. Reference docs (spec/architecture/concept/someday) carry a
-  `type` and no stage; codebase-map docs carry `source` + `source_digest` +
-  `verified` — provenance, not lifecycle.
+  `planned|done|cancelled`. Reference docs (spec/architecture/concept/someday)
+  carry a `type` and no stage.
 - **`data/` is an OKF v0.2 bundle** — the graph is portable knowledge any [Open
   Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
@@ -221,7 +217,6 @@ anchors: `--includes`, `--included-by`, `--references`, `--referenced-by`,
 | Skill                       | What it does                                                            |
 | --------------------------- | ----------------------------------------------------------------------- |
 | `/agentdev:iwe-setup`       | Brownfield onboarding: scans the codebase, drafts product/architecture  |
-| `/agentdev:iwe-map`         | Codebase archaeology: writes and refreshes the `data/codebase/` map     |
 | `/agentdev:iwe-explore`     | Thinking partner from an idea or a GitHub issue; never writes code      |
 | `/agentdev:iwe-plan`        | Files a plan: discovery, verified anchors, spec impact, Active listing  |
 | `/agentdev:iwe-capture`     | Files a complete bug, proposed feature, or backlog task, deduplicated   |

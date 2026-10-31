@@ -145,3 +145,6 @@ runs](bugs/body-shape-schemas-shared-scratch.md)
 
 [Bug: doctor fails a healthy Coder Dev
 Container](bugs/doctor-fails-healthy-coder-devcontainer.md)
+
+[Bug: Ship ships a plan whose prerequisite has not
+shipped](bugs/ship-ignores-unshipped-dependency.md)

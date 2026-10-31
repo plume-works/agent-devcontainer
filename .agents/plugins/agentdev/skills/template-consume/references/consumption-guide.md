@@ -878,17 +878,14 @@ publisher's own `.iwe/` and `docs/knowledge/` are never modified.
 ### Onboard the consumer's project memory
 
 A freshly bootstrapped workspace holds placeholders, not project memory. Fill it by
-invoking the two onboarding skills, in order, from the **consumer** repository
-root:
+invoking the onboarding skill from the **consumer** repository root:
 
 1. `/agentdev:iwe-setup` — reads the consumer's codebase, interviews the
    developer for what the code cannot answer, fills `data/product.md`, writes
    the first architecture doc, closes the `fill-product-doc` and
    `capture-current-architecture` backlog tasks, and deletes the `*.example.md`
    documents.
-2. `/agentdev:iwe-map` — writes the per-module `data/codebase/` map that setup
-   deliberately defers.
-3. At the end of the consumption episode, write the adoption summary described
+2. At the end of the consumption episode, write the adoption summary described
    below into the consumer graph. Record the adopted SHA, workflow, and settled
    choices, and point to `.agentdev-template-progress.md` as the live record.
    Do not copy the checklist into the graph.
@@ -900,15 +897,14 @@ The bootstrapped `.iwe/config.toml` binds that exact key to `[schemas.tracker]`.
 writes it and update mode refreshes it at the end of every episode. A consumer
 without IWE skips the summary entirely.
 
-Both skills own their own interviews and confirmation gates. This guide invokes
-them; it does not answer for the user, skip a confirmation, or pre-fill an
+Setup owns its own interview and confirmation gates. This guide invokes it; it
+does not answer for the user, skip a confirmation, or pre-fill an
 interview.
 
 Two states need naming explicitly:
 
-- **A greenfield consumer** — no code to map. Run setup, which works from the
-  interview alone, and report mapping as deferred until code exists. Do not run
-  map against an empty tree and do not record it as done.
+- **A greenfield consumer** — no code yet. Run setup, which works from the
+  interview alone.
 - **Onboarding interrupted** — a question unanswered, a confirmation not given,
   the session ended partway. Report onboarding as pending, naming what is
   outstanding and `.agentdev-template-progress.md` as the file holding that
@@ -919,9 +915,7 @@ Two states need naming explicitly:
 
 Verify the result from the consumer root: `iwe schema validate` and
 `iwe normalize` both clean, `data/product.md` free of `✏️` placeholders, and
-no `*.example.md` documents left under `data/`. For a mapped brownfield
-consumer, the installed iwe-map skill's `stale-map-docs.py` must report
-`RESULT=SUCCESS`.
+no `*.example.md` documents left under `data/`.
 
 ### When IWE is declined
 
@@ -1192,8 +1186,8 @@ episodes; template updates neither replace nor delete it.
 
 Project memory is outside that loop. `docs/knowledge/data/` is the consumer's
 own from the moment it is bootstrapped, so update mode neither compares it nor
-invokes `/agentdev:iwe-bootstrap`, and it never re-runs `/agentdev:iwe-setup` or
-`/agentdev:iwe-map`. A catalog update that changes the bootstrap scaffold never
+invokes `/agentdev:iwe-bootstrap`, and it never re-runs `/agentdev:iwe-setup`.
+A catalog update that changes the bootstrap scaffold never
 reaches an initialized workspace. Only the
 reusable scaffold listed above is tracked. A marker written before that
 distinction existed tracks `docs/knowledge/` wholesale; update mode narrows it
@@ -1204,3 +1198,15 @@ schema or config change applied from upstream can invalidate documents the
 consumer already wrote, so validate the consumer's graph against the proposed
 schemas — `iwe schema validate` from the consumer root — and decide with the
 user before applying.
+
+The one consumer-memory change update mode makes without asking is removing a
+retired codebase map: this catalog version no longer ships the map's tooling, so
+a kept map leaves a CI step that fails. Wherever present, update mode removes
+every `data/codebase/` document and the `data/codebase.md` hub through
+`iwe delete`, then the de-linked lines that deletion leaves in other documents;
+`.iwe/schemas/codebase.yaml`, the `[schemas.codebase]` block, and
+`"data/codebase"` in the hub schema's `match` list of `.iwe/config.toml`; the
+`iwe-map` key of every `.agent.metadata.json`, and each such file left holding
+no key; and any CI step or pre-commit hook that runs `stale-map-docs.py`. It
+reports each removal, then runs `iwe normalize` and `iwe schema validate` from
+the consumer root. A consumer that never adopted the map sees no change.

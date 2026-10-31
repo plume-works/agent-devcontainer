@@ -137,25 +137,24 @@ Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
 #### Knowledge-graph workflow (IWE)
 
 These skills run against an [IWE](https://iwe.md) workspace — a markdown
-knowledge graph with a `data/` bundle of product, spec, architecture, plan,
-and codebase-map documents. They are the project's memory across sessions.
+knowledge graph with a `data/` bundle of product, spec, architecture, and plan
+documents. They are the project's memory across sessions.
 
-| Skill                         | What it does                                                         |
-| ----------------------------- | -------------------------------------------------------------------- |
-| `/agentdev:iwe-bootstrap`     | Installs a blank IWE workspace without touching existing knowledge.  |
-| `/agentdev:iwe-setup`         | Brownfield onboarding: drafts the product and architecture docs.     |
-| `/agentdev:iwe-map`           | Codebase archaeology: writes and refreshes the `data/codebase/` map. |
-| `/agentdev:iwe-explore`       | Thinking partner from an idea or a GitHub issue; never writes code.  |
-| `/agentdev:iwe-plan`          | Files a plan with verified anchors and its spec impact.              |
-| `/agentdev:iwe-capture`       | Files a complete bug, proposed feature, or task, deduplicated.       |
-| `/agentdev:iwe-implement`     | Executes a plan task-by-task, ticking boxes with evidence.           |
-| `/agentdev:iwe-implement-all` | Implements every active plan in turn.                                |
-| `/agentdev:iwe-branch-name`   | Names a plan's next `iwe/` iteration branch.                         |
-| `/agentdev:iwe-verify`        | Pre-ship gate and drift audit: graph claims checked against code.    |
-| `/agentdev:iwe-ship`          | Closes the loop: spec sync, stage flips, release recording.          |
-| `/agentdev:iwe-ship-all`      | Ships every implemented plan in turn.                                |
-| `/agentdev:iwe-weekly`        | Read-only digest: shipped, in flight, bugs, backlog, graph health.   |
-| `/agentdev:iwe-audit`         | Prunes session residue from documents and comments.                  |
+| Skill                         | What it does                                                        |
+| ----------------------------- | ------------------------------------------------------------------- |
+| `/agentdev:iwe-bootstrap`     | Installs a blank IWE workspace without touching existing knowledge. |
+| `/agentdev:iwe-setup`         | Brownfield onboarding: drafts the product and architecture docs.    |
+| `/agentdev:iwe-explore`       | Thinking partner from an idea or a GitHub issue; never writes code. |
+| `/agentdev:iwe-plan`          | Files a plan with verified anchors and its spec impact.             |
+| `/agentdev:iwe-capture`       | Files a complete bug, proposed feature, or task, deduplicated.      |
+| `/agentdev:iwe-implement`     | Executes a plan task-by-task, ticking boxes with evidence.          |
+| `/agentdev:iwe-implement-all` | Implements every active plan in turn.                               |
+| `/agentdev:iwe-branch-name`   | Names a plan's next `iwe/` iteration branch.                        |
+| `/agentdev:iwe-verify`        | Pre-ship gate and drift audit: graph claims checked against code.   |
+| `/agentdev:iwe-ship`          | Closes the loop: spec sync, stage flips, release recording.         |
+| `/agentdev:iwe-ship-all`      | Ships every implemented plan in turn.                               |
+| `/agentdev:iwe-weekly`        | Read-only digest: shipped, in flight, bugs, backlog, graph health.  |
+| `/agentdev:iwe-audit`         | Prunes session residue from documents and comments.                 |
 
 ## What it expects
 

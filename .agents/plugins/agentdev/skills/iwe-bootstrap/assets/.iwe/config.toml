@@ -75,9 +75,6 @@ match = "data/releases/**"
 [schemas.task]
 match = "data/backlog/**"
 
-[schemas.codebase]
-match = "data/codebase/**"
-
 [schemas.spec]
 match = "data/spec/**"
 
@@ -98,7 +95,6 @@ match = [
   "data/architecture",
   "data/backlog",
   "data/bugs",
-  "data/codebase",
   "data/concept",
   "data/features",
   "data/plans",

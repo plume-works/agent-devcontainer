@@ -380,8 +380,7 @@ toggle-without-check case — one
 doc `stale-map-docs.py` reports
 
 - [x] `/agentdev:iwe-map` refresh mode re-reads the docs `stale-map-docs.py`
-  reports after Tasks 1-3 and 7, and the [agentdev
-  tests](../codebase/agents/plugins/agentdev/tests.md) map describes
+  reports after Tasks 1-3 and 7, and the agentdev tests map describes
   `test_request_review.py` against the toggle; `stale-map-docs.py` reports none
   stale
   - **Evidence:** commit "map: refresh the agentdev tests map for the assignee

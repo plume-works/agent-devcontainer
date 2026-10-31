@@ -168,7 +168,7 @@ def test_fresh_install_creates_the_packaged_scaffold(
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS'), completed.stderr
     assert output_values(completed, 'ROOT') == [str(unrelated_repository.resolve())]
-    assert output_values(completed, 'NEXT_SKILLS') == ['iwe-setup iwe-map']
+    assert output_values(completed, 'NEXT_SKILLS') == ['iwe-setup']
     assets = installed_iwe_bootstrap / ASSETS
     assert tree_files(unrelated_repository / '.iwe') == tree_files(assets / '.iwe')
     assert tree_files(unrelated_repository / 'docs') == tree_files(assets / 'docs')

@@ -52,7 +52,7 @@ def test_download_aggregates_only_current_run_artifacts(tmp_path: Path) -> None:
             fi
 
             if [[ "${{1:-}}" == "api" && "$*" == *"/actions/workflows/"*"/runs"* ]]; then
-              printf '%s\\n' '{{"databaseId":{current_run_id},"displayTitle":"Current run","event":"pull_request","headBranch":"iwe-map-skill","headSha":"abc123","conclusion":"success","status":"completed","createdAt":"2026-09-03T00:00:00Z","updatedAt":"2026-09-03T00:01:00Z","startedAt":"2026-09-03T00:00:10Z","url":"https://example.test/runs/{current_run_id}","workflowName":"AI Responder","attempt":1}}'
+              printf '%s\\n' '{{"databaseId":{current_run_id},"displayTitle":"Current run","event":"pull_request","headBranch":"feature-branch","headSha":"abc123","conclusion":"success","status":"completed","createdAt":"2026-09-03T00:00:00Z","updatedAt":"2026-09-03T00:01:00Z","startedAt":"2026-09-03T00:00:10Z","url":"https://example.test/runs/{current_run_id}","workflowName":"AI Responder","attempt":1}}'
               exit 0
             fi
 

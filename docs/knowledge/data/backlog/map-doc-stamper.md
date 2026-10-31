@@ -1,12 +1,13 @@
 ---
 type: task
 description: Bundle a script with the iwe-map skill that writes a refreshed map doc's current source_digest, verified, stale_after, generated, and anchor date in one step.
-stage: planned
+stage: cancelled
+status: deprecated
 priority: low
 created: 2026-10-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T18:56:30Z
+  at: 2026-10-31T16:46:08Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
