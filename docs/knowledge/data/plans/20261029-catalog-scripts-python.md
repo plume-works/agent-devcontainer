@@ -24,17 +24,17 @@ sources:
 
 ## Context
 
-The agentdev catalog ships 30 shell scripts under `skills/*/agent-code/` and 9
-under `bin/`; 26 of the 39 are named by no test file. The publisher's
-`scripts/validate-super-linter-tool-versions.sh` sources the catalog's
-`bin/super-linter-defaults.sh`, so it belongs with that cluster. [Python skill
-scripts](20260905-python-skill-scripts.md) ported the first catalog script,
-added `bin/result_codes.py` as the Python `RESULT=` contract, and recorded the
-constraint that binds every catalog script: it ships in the plugin cache of any
-consuming repository and runs on whatever host runs the agent, so it is
-stdlib-only on `#!/usr/bin/env python3` and reaches `bin/` through `sys.path`,
-never through a repository-relative path. The skill scripts `stale-map-docs.py`
-and `iwe-branch-name.py` already follow that pattern.
+When this plan was filed, the agentdev catalog shipped 30 shell scripts under
+`skills/*/agent-code/` and 9 under `bin/`; 26 of the 39 were named by no test
+file. The publisher's `scripts/validate-super-linter-tool-versions.sh` sources
+the catalog's `bin/super-linter-defaults.sh`, so it belongs with that cluster.
+[Python skill scripts](20260905-python-skill-scripts.md) ported the first
+catalog script, added `bin/result_codes.py` as the Python `RESULT=` contract,
+and recorded the constraint that binds every catalog script: it ships in the
+plugin cache of any consuming repository and runs on whatever host runs the
+agent, so it is stdlib-only on `#!/usr/bin/env python3` and reaches `bin/`
+through `sys.path`, never through a repository-relative path. The skill scripts
+`stale-map-docs.py` and `iwe-branch-name.py` already follow that pattern.
 
 This is the companion of [Replace the runtime shell scripts with one
 agentdev-runtime CLI](20261029-off-bash-migration.md), filed separately because
@@ -342,6 +342,29 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
     "Refresh the codebase map for the Python catalog scripts"; after it,
     `stale-map-docs.py` reported 28 fresh docs and `RESULT=SUCCESS`, and
     `iwe schema validate` passed.
+- [ ] Every feature and architecture document that still names a deleted `.sh`
+  script, in its body or under `sources:`, names the `.py` script that replaced
+  it: `features/native-stacked-prs`, `features/fresh-map-on-push`,
+  `features/uv-run-only-environment`, `features/pre-commit-owns-formatting`,
+  `features/update-branch-pulls-upstream`,
+  `architecture/ai-review-event-selection`,
+  `architecture/rereview-gate-pending`, and
+  `architecture/validator-image-install`;
+  `git grep -n '\.sh\b' docs/knowledge/data/features docs/knowledge/data/architecture`
+  names none of the deleted scripts.
+
+### Task 12: Unhandled errors print no traceback
+
+**Files:** Modify: `.agents/plugins/agentdev/bin/result_codes.py`,
+`.agents/plugins/agentdev/tests/test_result_codes.py`
+
+- [ ] An exception that escapes a script's `main` prints a one-line error to
+  stderr naming the script and the error, with a failed command's own stderr for
+  a `subprocess.CalledProcessError`, and no Python traceback; the exit status
+  and the `RESULT=` line stay what they are today.
+- [ ] A test raises an unhandled exception and a failed subprocess through
+  `result_codes` and asserts stderr carries no `Traceback` and the `RESULT=`
+  line is unchanged.
 
 ## Spec changes
 
@@ -409,8 +432,8 @@ requirement, whose delta is in its own entry below.
 
 - `uv run pytest .agents/plugins/agentdev/tests`
 - `uv run validate_agent_files --recommend . --require-marketplace claude codex`
-- For every ported script, a `/agentdev:semantic-refactor-audit` baseline
-  captured before the port matches the port's output
+- For every ported script, its tests run against the `.sh` script and the `.py`
+  port produce the same normalized stdout and exit status
 - `for f in $(git ls-files '.agents/plugins/agentdev/bin/*.py' '.agents/plugins/agentdev/skills/*/agent-code/*.py'); do python3 -S "$f" --help >/dev/null; done`
   succeeds, proving every script runs on the standard library alone
 - `uv run ruff check .agents scripts`
@@ -454,44 +477,41 @@ At commit 0181ce2 of `iwe/catalog-scripts-python/iter-1-impl`, after Task 11:
 - The runtime, docker, and publisher scripts of [Replace the runtime shell
   scripts with one agentdev-runtime CLI](20261029-off-bash-migration.md).
 - The self-improve plugin's `agent-code/si` launcher and `docker/bin/gh`.
-- Any change to a `RESULT` vocabulary, exit code, option, or output line.
+- Any change to a `RESULT` vocabulary, exit code, option, or output line, except
+  two the user accepted: `request-review` and `post-review` no longer need `jq`,
+  and their help text drops it; the Super-Linter version validator names each
+  tool whose version it cannot determine where the shell script crashed.
 - Installing the catalog's helpers as a package.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:22` —
   `sys.path` to `bin/`
 - `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:191`
   — `remote_default_branch`, which calls the `bin/git_default_branch.py` module
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/__common.sh:13` —
-  shell equivalent
-- `.agents/plugins/agentdev/bin/result-codes.sh:43` — `quit_by_code`
-- `.agents/plugins/agentdev/bin/result-codes.sh:62` — `report_signal`
-- `.agents/plugins/agentdev/bin/result_codes.py:49` — Python `quit_by_code`
-- `.agents/plugins/agentdev/tests/test_result_codes.py:13` — bash contract test
-  to retire
+- `.agents/plugins/agentdev/bin/result_codes.py:48` — Python `quit_by_code`
+- `.agents/plugins/agentdev/bin/result_codes.py:82` — `_excepthook`, which hands
+  an escaping exception to the default traceback printer Task 12 replaces
 - `.agents/plugins/agentdev/tests/test_result_codes.py:71` — Python contract
   test
 - `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root`
-- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:92` — shell helper
-  instructions
-- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:34` — `stack-guard.sh` link
-- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh:211`
-  — the `/workspaces` worktree-parent default Task 3 fixes
-- `.agents/plugins/agentdev/tests/test_git_new_branch.py:581` — the test that
-  skips without a writable `/workspaces`
+- `.agents/plugins/agentdev/skills/skill-scripts/SKILL.md:92` — the Python
+  implementation rules
+- `.agents/plugins/agentdev/skills/gh-stack/SKILL.md:34` — `stack-guard.py` link
+- `.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py:124`
+  — `worktree_parent`
 - `docs/knowledge/data/spec/git-new-branch.md:97` — the worktree requirement
 - `.agents/plugins/agentdev/skills/git-new-branch/SKILL.md:51` —
-  `git-new-branch.sh` link
+  `git-new-branch.py` link
 - `.github/workflows/reformat.yml:207` — `super_linter.py env --autofix`
 - `.github/workflows/reformat.yml:246` — `super_linter.py env`
 - `.github/workflows/reformat.yml:269` —
   `validate-super-linter-tool-versions.py`
 - `.agents/plugins/agentdev/skills/local-reformat/SKILL.md:34` —
   `super_linter.py` link
-- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:152` — `close-issue.sh`
+- `.agents/plugins/agentdev/agents/iwe-planner.agent.md:152` — `close-issue.py`
   in the rulebook
-- `AGENTS.md:7` — force-push exception naming `stack-guard.sh`
+- `AGENTS.md:7` — force-push exception naming `stack-guard.py`
 - `docs/knowledge/data/product.md:132` — the same exception
