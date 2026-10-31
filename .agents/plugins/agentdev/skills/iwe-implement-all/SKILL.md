@@ -24,3 +24,15 @@ reported, again forwarding no conversation, rather than fixing them yourself.
 
 Re-post each plan's rollup here, with each Verify verdict and each evaluator
 verdict, and any decision it stopped for.
+
+## Long-running peer sessions
+
+A dispatched subagent starts with a fresh context and needs none of this. When
+the user has you delegate to long-running peer sessions instead, their context
+carries over from one task to the next. You cannot clear or compact a peer: a
+message arrives as text, not as a command. Ask the user to type it in that
+session:
+
+- `/clear` once a peer's plan is shipped and its next plan is unrelated.
+- `/compact` after one of a plan's large PRs merges while the plan still has
+  more PRs or Ship ahead.
