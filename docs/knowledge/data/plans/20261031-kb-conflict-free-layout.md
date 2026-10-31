@@ -112,9 +112,12 @@ under `docs/knowledge/tests/`
   - **Evidence:** commit 102bfc2d;
     `uv run pytest docs/knowledge/tests/test_hub_order.py` passed (13 tests),
     including `test_every_hub_is_bound` and `test_sectioned_hub_is_rejected`
-- [ ] A test fails when a hub's inclusion links are not sorted by member key
+- [x] A test fails when a hub's inclusion links are not sorted by member key
   with any `YYYYMMDD-` prefix removed, and names the hub and the first
   out-of-order link
+  - **Evidence:** commit 102bfc2d; `test_hub_links_are_sorted` passes for all
+    nine hubs, and `test_out_of_order_link_is_named` asserts the first
+    out-of-order link is reported with its hub
 
 ### Task 3: Migrate the graph
 
