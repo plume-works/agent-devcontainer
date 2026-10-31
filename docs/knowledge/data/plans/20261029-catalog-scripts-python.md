@@ -341,7 +341,10 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
     Python" (the architecture document and its hub link) and commit 86e1a18
     "Refresh the codebase map for the Python catalog scripts"; after it,
     `stale-map-docs.py` reported 28 fresh docs and `RESULT=SUCCESS`, and
-    `iwe schema validate` passed.
+    `iwe schema validate` passed. Task 12's `result_codes` change re-staled
+    three map docs; commit 786e72b "Refresh the codebase map for the one-line
+    error report" refreshed them, and `stale-map-docs.py` again reported
+    `RESULT=SUCCESS`.
 - [x] Every feature and architecture document that still names a deleted `.sh`
   script, in its body or under `sources:`, names the `.py` script that replaced
   it: `features/native-stacked-prs`, `features/fresh-map-on-push`,
@@ -460,9 +463,9 @@ requirement, whose delta is in its own entry below.
 
 ## Verification results
 
-At commit 0181ce2 of `iwe/catalog-scripts-python/iter-1-impl`, after Task 11:
+At commit 786e72b of `iwe/catalog-scripts-python/iter-1-impl`, after Task 12:
 
-- `uv run pytest .agents/plugins/agentdev/tests` passed (468);
+- `uv run pytest .agents/plugins/agentdev/tests` passed (470);
   `uv run validate_agent_files --recommend . --require-marketplace claude codex`
   reported no errors or warnings; `uv run ruff check .agents scripts` passed;
   `uv run pytest scripts/tests/test_validate_super_linter_tool_versions.py`
@@ -475,7 +478,8 @@ At commit 0181ce2 of `iwe/catalog-scripts-python/iter-1-impl`, after Task 11:
   its counts. The intended differences are the dropped `jq` prerequisite of
   `request-review.py` and `post-review.py`, the version check naming each
   undeterminable tool where the shell one crashed on an empty image probe, and
-  stderr-only diagnostics on unhandled-error paths.
+  on an unhandled error a one-line `ERROR:` naming the script (Task 12) where
+  the shell printed the failing tool's own message.
 - The `python3 -S <script> --help` loop exits 0 for every script except
   `codespace-exec.py`, which exits 2 by its contract: it forwards `--help` to
   the remote command rather than printing its own help, and outside a recorded

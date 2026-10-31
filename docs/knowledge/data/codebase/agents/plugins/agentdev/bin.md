@@ -2,14 +2,14 @@
 type: codebase
 description: 'Helpers on PATH while the plugin is enabled: the shared Python modules every skill script imports (result contract, common helpers, default branch, GitHub issues), the Super-Linter entry points, the ruff and ShellCheck checks, and the Codex agent installer.'
 source: .agents/plugins/agentdev/bin
-source_digest: sha256:e89b30528e83d5dc8efe42e079476f64ca0dc212349b31bed2c98a18df7068d0
+source_digest: sha256:cb5137f2579d27f9cb34885bc40625f8b1f9583c302e697a199cf71a64b9fd2f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:03:28Z
+  at: 2026-10-31T01:42:14Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:03:28Z
+  at: 2026-10-31T01:42:14Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/bin
@@ -59,7 +59,9 @@ command line.
 A skill script returns a declared code from `main`, or raises `Stop` from a
 helper; `run` prints `RESULT=` as the last stdout line and exits with that code.
 The hooks keep the line total: `atexit` and `sys.excepthook` name an unhandled
-failure `SCRIPT_FAILURE`, and the signal handlers emit `SIGNAL_*`, restore
+failure `SCRIPT_FAILURE`, the exception hook printing one
+`ERROR: <script>: <Type>: <message>` line, plus a failed command's own stderr,
+in place of a traceback, and the signal handlers emit `SIGNAL_*`, restore
 `SIG_DFL`, and re-raise, so a shell caller still sees `128+N`. Because
 `SystemExit` bypasses `sys.excepthook`, `run` catches it to recover the status a
 bare `sys.exit` asked for. The subprocess runners never raise on a non-zero
@@ -87,9 +89,11 @@ plugin cache with no environment of its own.
 
 Verified anchor points (line numbers as of 2026-10-31):
 
-- `.agents/plugins/agentdev/bin/result_codes.py:23` — the reserved codes
-- `.agents/plugins/agentdev/bin/result_codes.py:88` — `run`
-- `.agents/plugins/agentdev/bin/result_codes.py:105` — `install`
+- `.agents/plugins/agentdev/bin/result_codes.py:25` — the reserved codes
+- `.agents/plugins/agentdev/bin/result_codes.py:83` — `_excepthook`, the
+  one-line report of an escaping exception
+- `.agents/plugins/agentdev/bin/result_codes.py:102` — `run`
+- `.agents/plugins/agentdev/bin/result_codes.py:119` — `install`
 - `.agents/plugins/agentdev/bin/skill_common.py:19` — `Stop`
 - `.agents/plugins/agentdev/bin/skill_common.py:33` — `bash_quote`
 - `.agents/plugins/agentdev/bin/skill_common.py:68` — `run_to_stderr`
