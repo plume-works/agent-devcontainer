@@ -3,7 +3,7 @@ type: bug
 description: In a standalone agent-opencode deployment, git-new-branch --worktree defaults the worktree parent to /workspaces, which is root-owned and outside every persistent mount, so the worktree cannot be created and would not persist if it could.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T23:15:11Z
+  at: 2026-10-31T07:40:01Z
 sources:
 - resource: .agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.sh
 - resource: .agents/plugins/agentdev/tests/test_git_new_branch.py
@@ -11,6 +11,7 @@ sources:
 - resource: docker/desktop/agent-desktop.Dockerfile
 - resource: compose.opencode.yml
 - resource: compose.opencode.bind.yml
+stage: done
 ---
 
 # Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned /workspaces
