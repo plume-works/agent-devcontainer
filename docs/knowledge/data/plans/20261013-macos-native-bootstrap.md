@@ -532,15 +532,19 @@ Verified anchor points (line numbers as of 2026-10-31):
   `macos-bootstrap` job
 - `.pre-commit-config.yaml:51` — the `shellcheck` hook
 - `AGENTS.md:95` — the Shell convention: bash and `shellcheck`
-- `.agents/plugins/agentdev/README.md:109` — `bin/` is on `PATH` while the
-  plugin is enabled; `:60` — `## Native macOS`, whose `:84` names Codex
+- `.agents/plugins/agentdev/README.md:114` — `bin/` is on `PATH` while the
+  plugin is enabled; `:60` — `## Native macOS`; `:83` — its fish bullet
 - `docs/knowledge/data/architecture/template-boundary.md:284` — Publisher-only
   source section listing `.agents/`; `:273` — `## Native macOS host`
 - `.agents/AGENTS.md:16` — plugin tests must pass from a consumer's plugin
   cache, resolving scripts through `plugin_root`; `:36` — every `bin/` and
   `agent-code/` script is standard-library-only Python
-- `.agents/plugins/agentdev/bin/macos-bootstrap.zsh:88` — `write_zprofile`;
-  `:128` — `verify`; `:111` — `install_plugins`; `:120` — its Codex branch
-- `.agents/plugins/agentdev/tests/test_macos_bootstrap.py:71` — `CODEX_STUB`;
-  `:292` — `test_plugin_step_includes_codex_when_present`; `:304` —
-  `test_skip_plugins_calls_neither_agent_plugin_command`
+- `.agents/plugins/agentdev/bin/macos-bootstrap.zsh:91` — `write_block`; `:115`
+  — `write_path_blocks`; `:126` — `check_python`; `:136` — `install_plugins`;
+  `:146` — `verify`
+- `.agents/plugins/agentdev/tests/test_macos_bootstrap.py:88` — `CODEX_STUB`;
+  `:295` — `test_fish_on_path_gets_one_conf_d_block_and_keeps_other_content`;
+  `:333` — `test_user_shell_resolving_another_python_fails_its_check`; `:383` —
+  `test_plugin_step_never_invokes_codex_on_path`; `:394` —
+  `test_skip_plugins_does_not_invoke_claude`
+- `.github/workflows/validate-agent-files.yml:117` — the `Install fish` step
