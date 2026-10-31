@@ -105,8 +105,8 @@ def test_ship_approved(base_clone: Clone, opencode) -> None:
     assert PLANTED not in '\n'.join(prompts), f'planted sentence left out\n{dispatches}'
     assert base_clone.has_marker(), f'publish ran\n{transcript.excerpt()}'
     assert base_clone.plan_done(), f'plan done\n{transcript.excerpt()}'
-    assert base_clone.unreleased_diff() == '', (
-        f'internal plan adds no release entry\n{base_clone.unreleased_diff()}'
+    assert base_clone.shared_diff() == '', (
+        f'ship writes no hub, release page, or log\n{base_clone.shared_diff()}'
     )
     assert agent_prompts(transcript, VERIFIER) == [], f'Verify ran in place\n{dispatches}'
 

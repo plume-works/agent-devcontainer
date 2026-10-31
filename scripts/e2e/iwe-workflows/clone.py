@@ -2,7 +2,7 @@
 The fixture repository and the per-test clones the IWE workflow suite runs in.
 
 The fixture repository is built once per worker from ``HEAD``: every active plan
-cancelled, the fixture plans committed as ``base``, and the open-question edit
+cancelled in its own frontmatter, the fixture plans committed as ``base``, and the open-question edit
 committed on top as ``open_question``, and, on a branch from ``base``, every
 fixture plan but the loop plan cancelled and the pair plan added beside it as
 ``implement_all``, and, on another,
@@ -31,7 +31,8 @@ CONFLICT = f'{DATA}/plans/20261027-e2e-conflict.md'
 PAIR = f'{DATA}/plans/20261027-e2e-pair.md'
 EVALUATOR_AGENT = '.agents/plugins/agentdev/agents/iwe-revision-evaluator.agent.md'
 PLANNER_AGENT = '.agents/plugins/agentdev/agents/iwe-planner.agent.md'
-UNRELEASED = f'{DATA}/releases/unreleased.md'
+# What Ship never writes: every hub, every release page, and the log.
+SHARED_PATHS = (f':(glob){DATA}/*.md', f'{DATA}/releases')
 FIXTURE_PLANS = (
     'plans/20261008-e2e-hello.md',
     'plans/20261008-e2e-greet.md',
@@ -52,7 +53,8 @@ TICKED_WITH_EVIDENCE = re.compile(
 TASK_HEADING = re.compile(r'^### Task \d+', re.MULTILINE)
 # The sections that state a plan's intent; ticks, evidence, and results live elsewhere.
 INTENT_SECTIONS = ('## Approach', '## Spec changes', '## Verification', '## Out of scope')
-_HUB_LINK = re.compile(r'^\[.*\]\((plans/[^)]*\.md)\)$')
+_HUB_LINK = re.compile(r'^\[.*\]\(([^)]*\.md)\)$')
+_DATE_PREFIX = re.compile(r'^\d{8}-')
 _ACTIVE_LINKS = (
     '[E2E hello fixture](plans/20261008-e2e-hello.md)',
     '[E2E greet fixture](plans/20261008-e2e-greet.md)',
@@ -124,38 +126,39 @@ class FixtureRepo:
 
 
 def cancel_active_plans(data: Path, keep: tuple[str, ...] = ()) -> list[str]:
-    """Cancel every ``## Active`` plan except those in ``keep``."""
-    hub = data / 'plans.md'
-    # iwe normalize wraps long link titles over several lines, so match paragraphs.
-    paragraphs = [p for p in re.split(r'\n[ \t]*\n', hub.read_text().strip('\n')) if p]
-    section, kept, moved, keys = '', [], [], []
-    for paragraph in paragraphs:
-        if paragraph.startswith('## '):
-            section = paragraph
-        link = _HUB_LINK.match(paragraph.replace('\n', ' '))
-        if section == '## Active' and link and link.group(1) not in keep:
-            keys.append(link.group(1))
-            moved.append(paragraph.replace('\n', ' '))
+    """Cancel every active plan except those in ``keep``; the hub is left as it is."""
+    keys = []
+    for plan in sorted((data / 'plans').glob('*.md')):
+        key = f'plans/{plan.name}'
+        text = plan.read_text()
+        if key in keep or re.search(r'^stage:', text, re.MULTILINE):
             continue
-        kept.append(paragraph)
-        if paragraph == '## Cancelled':
-            kept.extend(moved)
-    hub.write_text('\n\n'.join(kept) + '\n')
-    for key in keys:
-        plan = data / key
-        plan.write_text(
-            plan.read_text().replace(
-                '\ntype: plan\n', '\ntype: plan\nstage: cancelled\nstatus: deprecated\n', 1
-            )
-        )
+        text = re.sub(r'^rank:.*\n', '', text, count=1, flags=re.MULTILINE)
+        plan.write_text(text.replace('\ntype: plan\n', '\ntype: plan\nstage: cancelled\n', 1))
+        keys.append(key)
     return keys
 
 
-def _activate_fixtures(data: Path) -> None:
-    hub = data / 'plans.md'
-    text = hub.read_text()
-    entries = ''.join(f'\n{link}\n' for link in _ACTIVE_LINKS)
-    hub.write_text(text.replace('## Active\n', f'## Active\n{entries}', 1))
+def _sort_key(link: str) -> str:
+    target = _HUB_LINK.match(link.replace('\n', ' ')).group(1)
+    return _DATE_PREFIX.sub('', target.rsplit('/', 1)[-1].removesuffix('.md'))
+
+
+def add_hub_links(hub: Path, links: tuple[str, ...]) -> None:
+    """Insert each inclusion link at its sorted position in a flat hub."""
+    # iwe normalize wraps long link titles over several lines, so match paragraphs.
+    paragraphs = [p for p in re.split(r'\n[ \t]*\n', hub.read_text().strip('\n')) if p]
+    for link in links:
+        at = next(
+            (
+                i
+                for i, p in enumerate(paragraphs)
+                if _HUB_LINK.match(p.replace('\n', ' ')) and _sort_key(p) > _sort_key(link)
+            ),
+            len(paragraphs),
+        )
+        paragraphs.insert(at, link)
+    hub.write_text('\n\n'.join(paragraphs) + '\n')
 
 
 def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
@@ -183,7 +186,7 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     shutil.copy2(FIXTURES / 'plans/20261026-e2e-loop.md', path / LOOP)
     shutil.copy2(FIXTURES / 'plans/20261026-e2e-revise.md', path / REVISE)
     shutil.copy2(FIXTURES / 'plans/20261027-e2e-conflict.md', path / CONFLICT)
-    _activate_fixtures(data)
+    add_hub_links(data / 'plans.md', _ACTIVE_LINKS)
     repo.iwe_check()
     base = repo.commit_all('e2e fixtures')
 
@@ -194,8 +197,7 @@ def build_fixture_repo(source: Path, work: Path) -> FixtureRepo:
     repo.git('checkout', '-q', '-b', 'e2e-loop-only', base)
     cancel_active_plans(data, keep=('plans/20261026-e2e-loop.md',))
     shutil.copy2(FIXTURES / 'plans/20261027-e2e-pair.md', path / PAIR)
-    hub = data / 'plans.md'
-    hub.write_text(hub.read_text().replace('## Active\n', f'## Active\n\n{_PAIR_LINK}\n', 1))
+    add_hub_links(data / 'plans.md', (_PAIR_LINK,))
     repo.iwe_check()
     implement_all = repo.commit_all('e2e: only the loop and pair plans active')
 
@@ -322,9 +324,9 @@ class Clone(Repo):
         """Whether the hello plan was shipped."""
         return re.search(r'^stage: done$', self.hello(), re.MULTILINE) is not None
 
-    def unreleased_diff(self) -> str:
-        """Return the release accumulator's diff against ``base``; empty when unchanged."""
-        return self.git('diff', self.base, '--', UNRELEASED)
+    def shared_diff(self) -> str:
+        """Return the diff of every hub, release page, and the log against ``base``."""
+        return self.git('diff', self.base, '--', *SHARED_PATHS)
 
     def loop_done(self) -> bool:
         """Whether the loop task is ticked with an evidence line and its file holds ``loop``."""
