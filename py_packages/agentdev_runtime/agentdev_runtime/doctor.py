@@ -39,7 +39,7 @@ REQUIRED_TOOLS = (
 # gitleaks prints its version through a subcommand; every other tool takes --version.
 VERSION_ARGS = {'gitleaks': ('version',)}
 OPTIONAL_TOOLS = ('clang-format', 'copilot', 'gemini')
-AI_TOOLS = ('claude', 'codex', 'opencode')
+AI_TOOLS = ('claude', 'opencode')
 DETAIL_LIMIT = 160
 FALSE_WORDS = {'false', '0', 'no', 'off', ''}
 TRUE_WORDS = {'true', '1', 'yes', 'on'}
@@ -249,7 +249,6 @@ def auth(report: Report, settings: env.Settings) -> None:
     else:
         report.result('claude credentials', 'FAIL', 'credential directory missing')
     home = Path(os.environ.get('HOME') or Path.home())
-    report.check_link('codex auth link', home / '.codex/auth.json')
     report.check_link('claude.json link', home / '.claude.json')
 
 
