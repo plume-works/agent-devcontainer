@@ -130,8 +130,11 @@ under `docs/knowledge/tests/`
   - **Evidence:** commit 854b910a; the set of link targets in each of the nine
     hubs is identical to its parent commit's, and `test_hub_links_are_sorted`
     passes
-- [ ] `data/index.md` is removed with `iwe delete`, the base schema binds every
+- [x] `data/index.md` is removed with `iwe delete`, the base schema binds every
   document under `data/` but the log, and `iwe stats` reports no broken link
+  - **Evidence:** commit 854b910a; `iwe delete data/index`, `[schemas.base]`
+    matches `data/**` except `data/log`, `iwe schema validate` exits 0, and
+    `iwe stats` lists no broken link
 
 ### Task 4: Propose the initial sequence
 
