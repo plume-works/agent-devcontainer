@@ -29,12 +29,12 @@ def run_commit(
     *args: str,
     path_prefix: Path | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    """Run git-commit.sh with `args`, optionally with `path_prefix` first on PATH."""
+    """Run git-commit.py with `args`, optionally with `path_prefix` first on PATH."""
     env = {**os.environ, **FIXTURE_ENV}
     if path_prefix is not None:
         env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
     return subprocess.run(
-        [str(plugin_root / 'skills/git-commit/agent-code/git-commit.sh'), *args],
+        [str(plugin_root / 'skills/git-commit/agent-code/git-commit.py'), *args],
         cwd=cwd,
         check=False,
         capture_output=True,

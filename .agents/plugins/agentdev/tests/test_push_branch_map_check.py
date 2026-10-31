@@ -13,7 +13,7 @@ from types import ModuleType
 
 from git_fixtures import FIXTURE_ENV, git, outcome
 
-PUSH_SCRIPT = 'skills/pr-open/agent-code/push-branch.sh'
+PUSH_SCRIPT = 'skills/pr-open/agent-code/push-branch.py'
 MAP_SCRIPT = 'skills/iwe-map/agent-code/stale-map-docs.py'
 LIBRARY = 'docs/knowledge'
 BRANCH = 'fixture-feature'
@@ -74,7 +74,7 @@ def build_repository(path: Path, with_map: bool = True) -> Path:
 
 
 def push(plugin_root: Path, repository: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
-    """Run push-branch.sh inside `repository`."""
+    """Run push-branch.py inside `repository`."""
     return subprocess.run(
         [str(plugin_root / PUSH_SCRIPT), *arguments],
         cwd=repository,

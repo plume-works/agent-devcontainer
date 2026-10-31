@@ -2,14 +2,14 @@
 type: codebase
 description: Plugin script contract tests under pytest and catalog/workspace bridge tests under Bun.
 source: .agents/plugins/agentdev/tests
-source_digest: sha256:c315ae48c371fda36ce2aed19871d7703a3733945477aa00625f80ca064a54e1
+source_digest: sha256:bc83e8def448de4bed82120e0d66ac43d419aa4ec15dc3fbdfd1d9c6a5382f3a
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:07:41Z
+  at: 2026-10-31T06:14:58Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:07:41Z
+  at: 2026-10-31T06:14:58Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/tests
@@ -47,68 +47,77 @@ replacement of agents, commands, and skills, and the bridge's CBM warning in
   shared by the git-skill modules and the push-branch module
 - `iwe_branch_fixtures.py` — `Workspace`, `plan_document()`, `run_script()`, and
   `tools_without_gh()`, shared by the three `iwe-branch-name` modules
-- Modules: `test_capture_close_issue.py`, `test_close_issue.py`,
-  `test_explicit_only_parity.py`, `test_fetch_issue.py`,
-  `test_gh_stack_guard.py`, `test_git_commit.py`,
-  `test_install_codex_agents.py`, `test_iwe_bootstrap.py`,
-  `test_git_new_branch.py`, `test_iwe_branch_name_next.py`,
-  `test_iwe_branch_name_parse.py`, `test_iwe_branch_name_plan_state.py`,
-  `test_push_branch_map_check.py`, `test_remote_codespace_session.py`,
-  `test_request_review.py`, `test_result_codes.py`, `test_stale_map_docs.py`,
+- Modules for the `bin/` modules: `test_result_codes.py`,
+  `test_skill_common.py`, `test_git_default_branch.py`, `test_github_issue.py`,
+  `test_super_linter.py`, `test_lint_helpers.py`, `test_install_codex_agents.py`
+- Modules for the skill scripts: `test_capture_close_issue.py`,
+  `test_close_issue.py`, `test_fetch_issue.py`, `test_find_branch_pr.py`,
+  `test_gh_stack_guard.py`, `test_git_commit.py`, `test_git_merge_resolve.py`,
+  `test_git_new_branch.py`, `test_iwe_bootstrap.py`,
+  `test_iwe_branch_name_next.py`, `test_iwe_branch_name_parse.py`,
+  `test_iwe_branch_name_plan_state.py`, `test_parse_actions_url.py`,
+  `test_post_review.py`, `test_push_branch_map_check.py`,
+  `test_remote_codespace_session.py`, `test_request_review.py`,
+  `test_review_git_changes.py`, `test_stale_map_docs.py`,
   `test_stale_map_docs_masks.py`, `test_stale_map_docs_replay.py`,
   `test_template_consume_check_updates.py`, `test_update_branch.py`,
   `test_verify_cache.py`
+- `test_explicit_only_parity.py` — skill metadata parity
 
 ## How it works
 
 Each module builds a throwaway world — a `git init` repository, stub `gh` or
 `git` executables placed first on `PATH` — runs the script with
 `subprocess.run`, and asserts on the pair `(returncode, last stdout line)`.
-Signal handling is exercised by sending the signal to the running process, for
-both result-code libraries: `test_result_codes.py` drives the bash one through a
-fixture script and the Python one by generating a `main()` around a body of
-source. The `stale_map_docs` and masks modules also import the script by path so
-a fixture computes the expected digest from the same code under test rather than
-restating it; the masks module builds `.agent.metadata.json` files and checks
-that a masked pin bump stays `FRESH`, that structure around a masked value still
-moves the digest, that a rule reaches a subdirectory and a child adds to it,
-that a metadata file is not itself tracked content, and that unreadable,
-uncompilable, or inapplicable metadata is `BROKEN_METADATA` confined to its own
-subtree, including invalid replacements and masked binary files. The replay
-module reuses both modules' helpers, commits fixtures at fixed future dates so
-`--since` and `verified.at` cut history predictably, and pins `--replay`: a pin
-bump a new uncommitted rule covers is `ABSORBED` and its doc `RESTAMP` with the
-digest a plain run then records, working-tree absorption emits `WORKTREE` and
-`HIDDEN` evidence, and verdict ancestry cannot be narrowed by commit dates or
-`--since`. It also covers stale starting digests, current hidden values in
-unchanged files, non-ASCII and quoted filenames, historical masked-text decode
-failures, and a CRLF masked file whose starting digest still validates. A change
-outside the rule or an uncommitted unmasked edit is `REFRESH`; malformed
-metadata is `BROKEN_METADATA` even on an early refresh path.
-`test_gh_stack_guard.py` builds a two-layer stack on a bare remote with a peer
-clone that pushes behind the working clone's back, a stub `git` with
-after-ls-remote and before-push hooks, and a stub `gh` that models `stack view`,
-`api` for the stack number, `stack link` (a non-force atomic push of the named
-branches, in create or add mode), and `stack checkout`; it pins each
-`stack-guard.sh` result, including a squash-merged lower layer that GitHub-style
-rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only remote
-rewrite, a push leased on the checked tip, queued layers, link create and add
-modes, and a `publish` rerun after a failed link. `test_capture_close_issue.py`
-reuses `initialize_repository` from `test_update_branch.py` and a stub `gh` that
-logs closes, and pins each `close-issue.sh` result, including an already-closed
-issue left alone. `test_request_review.py` runs `request-review.sh` against a
-Python stub `gh` that answers the pull request, reviews, and check-run endpoints
-from a JSON fixture and logs every write call, and pins each result, including
-the remove-then-add and add-then-remove assignment toggles, a responder check on
-the head counted as a request unless skipped or cancelled, and a half-done
-toggle that names the assignment it left unrestored.
+Signal handling is exercised by sending the signal to the running process:
+`test_result_codes.py` generates a `main()` around a body of source under the
+result-code module, and also pins the one-line, traceback-free report of an
+uncaught exception and of a failed subprocess. `test_skill_common.py` checks
+`bash_quote` against bash's own `printf %q`, and `test_git_new_branch.py` calls
+the script's `worktree_parent` directly, by-path, for checkouts under
+`/workspaces` in each runtime mode. The `stale_map_docs` and masks modules also
+import the script by path so a fixture computes the expected digest from the
+same code under test rather than restating it; the masks module builds
+`.agent.metadata.json` files and checks that a masked pin bump stays `FRESH`,
+that structure around a masked value still moves the digest, that a rule reaches
+a subdirectory and a child adds to it, that a metadata file is not itself
+tracked content, and that unreadable, uncompilable, or inapplicable metadata is
+`BROKEN_METADATA` confined to its own subtree, including invalid replacements
+and masked binary files. The replay module reuses both modules' helpers, commits
+fixtures at fixed future dates so `--since` and `verified.at` cut history
+predictably, and pins `--replay`: a pin bump a new uncommitted rule covers is
+`ABSORBED` and its doc `RESTAMP` with the digest a plain run then records,
+working-tree absorption emits `WORKTREE` and `HIDDEN` evidence, and verdict
+ancestry cannot be narrowed by commit dates or `--since`. It also covers stale
+starting digests, current hidden values in unchanged files, non-ASCII and quoted
+filenames, historical masked-text decode failures, and a CRLF masked file whose
+starting digest still validates. A change outside the rule or an uncommitted
+unmasked edit is `REFRESH`; malformed metadata is `BROKEN_METADATA` even on an
+early refresh path. `test_gh_stack_guard.py` builds a two-layer stack on a bare
+remote with a peer clone that pushes behind the working clone's back, a stub
+`git` with after-ls-remote and before-push hooks, and a stub `gh` that models
+`stack view`, `api` for the stack number, `stack link` (a non-force atomic push
+of the named branches, in create or add mode), and `stack checkout`; it pins
+each `stack-guard.py` result, including a squash-merged lower layer that
+GitHub-style rebasing leaves `SUCCESS`, a peer merge of trunk, a whitespace-only
+remote rewrite, a push leased on the checked tip, queued layers, link create and
+add modes, and a `publish` rerun after a failed link.
+`test_capture_close_issue.py` reuses `initialize_repository` from
+`test_update_branch.py` and a stub `gh` that logs closes, and pins each
+`close-issue.py` result, including an already-closed issue left alone.
+`test_request_review.py` runs `request-review.py` against a Python stub `gh`
+that answers the pull request, reviews, and check-run endpoints from a JSON
+fixture and logs every write call, and pins each result, including the
+remove-then-add and add-then-remove assignment toggles, a responder check on the
+head counted as a request unless skipped or cancelled, and a half-done toggle
+that names the assignment it left unrestored.
 `test_template_consume_check_updates.py` builds the same metadata file to hold
 the marker section, and pins `NO_MARKER` for an absent file and for an absent
 section, and `INVALID_MARKER` for malformed metadata or a section missing
 `consumed_ref` or `tracked_paths`.
 
 `test_update_branch.py` builds a bare remote, a working clone on a pushed
-feature branch, and a publisher clone, and pins `update-branch.sh`'s upstream
+feature branch, and a publisher clone, and pins `update-branch.py`'s upstream
 sync: fast-forward and merge before the base, `ALREADY_UP_TO_DATE` after a
 fast-forward onto an upstream holding the base, a conflicted upstream merge
 followed by a rerun, a conflicted base merge, a gone upstream, an upstream that
@@ -121,7 +130,7 @@ not recreate `origin/HEAD`. `test_git_commit.py` commits in a throwaway
 repository with and without a configured remote. `test_push_branch_map_check.py`
 pushes to a bare remote from a repository that carries an IWE config and one map
 doc, computes that doc's digest through the by-path import of
-`stale-map-docs.py`, and pins `pr-open`'s `push-branch.sh` map gate: `MAP_STALE`
+`stale-map-docs.py`, and pins `pr-open`'s `push-branch.py` map gate: `MAP_STALE`
 leaves the remote ref untouched on both push paths, `--skip-map-check` pushes
 anyway, a repository without an IWE config is not gated, an up-to-date head is
 still checked and a stale one pushed outside the helper stops at `MAP_STALE`, an
@@ -141,17 +150,17 @@ across both phases, the `--repo` URL of `origin` or a second remote, each plan
 state's `NEXT_KIND`, and `GH_UNAVAILABLE` both for a `PATH` without `gh` and for
 a `gh` that fails its query.
 
-`test_iwe_bootstrap.py` runs `bootstrap-iwe.sh` only from the
+`test_iwe_bootstrap.py` runs `bootstrap-iwe.py` only from the
 `installed_iwe_bootstrap` copy and compares full path, byte, and mtime snapshots
 of the target: a fresh install equals `assets/` and validates and normalizes
 cleanly, a repeat and an onboarded workspace are `ALREADY_INITIALIZED` with no
 change, and partial, incompatible, colliding, symlinked, and foreign-transaction
 states are `RECONCILIATION_REQUIRED` with nothing written. A restricted `PATH`
-of symlinked tools plus stub `iwe` or `mv` scripts covers a missing `iwe`, a
-failing validation, and `SIGTERM` during staging or commit, each followed by a
-recovering run; a transaction left empty or holding only its first `OWNER.next`
-write is discarded on the next run. Tests that need the real `iwe` skip without
-it.
+of symlinked tools plus a stub `iwe` covers a missing `iwe`, a failing
+validation, and `SIGTERM` during staging, followed by a recovering run; a
+committing transaction built in place is completed by the next run; a
+transaction left empty or holding only its first `OWNER.next` write is discarded
+on the next run. Tests that need the real `iwe` skip without it.
 
 `test_explicit_only_parity.py` requires every skill that sets
 `disable-model-invocation: true` to carry an `agents/openai.yaml` with
@@ -175,22 +184,22 @@ bootstrap tests.
 
 - A path that climbs out of the plugin resolves nowhere once installed, so a
   script is reached only as
-  `plugin_root / 'skills/<name>/agent-code/<script>.sh'`.
+  `plugin_root / 'skills/<name>/agent-code/<script>.py'`.
 - Fixtures use invented identities, never this repository's published names.
 - Tests for the validator package live with that package, not here.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.agents/plugins/agentdev/tests/conftest.py:23` — `plugin_root`
 - `.agents/plugins/agentdev/tests/conftest.py:29` — `plugin_tmp_path`
 - `.agents/plugins/agentdev/tests/conftest.py:40` — `installed_iwe_bootstrap`
-- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:92` — `snapshot`, the
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:93` — `snapshot`, the
   path, byte, and mtime record every refusal is compared against
-- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:127` —
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:128` —
   `restricted_path`, the tool-only `PATH` with stub scripts
-- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:422` — interrupted
+- `.agents/plugins/agentdev/tests/test_iwe_bootstrap.py:423` — interrupted
   commit and its completing rerun
 - `.agents/plugins/agentdev/tests/test_update_branch.py:112` —
   `UpstreamFixture`, the remote/work/publisher triple for upstream sync
@@ -217,7 +226,7 @@ Verified anchor points (line numbers as of 2026-10-30):
   `_load_script_module`, the by-path import the digest fixtures share
 - `.agents/plugins/agentdev/tests/test_capture_close_issue.py:19` —
   `install_gh_stub`
-- `.agents/plugins/agentdev/tests/test_result_codes.py:50` — `run_python_helper`
+- `.agents/plugins/agentdev/tests/test_result_codes.py:13` — `run_python_helper`
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:33` —
   `write_metadata`, the masking-rule fixture builder
 - `.agents/plugins/agentdev/tests/test_stale_map_docs_masks.py:286` — invalid
@@ -234,6 +243,9 @@ Verified anchor points (line numbers as of 2026-10-30):
   `build_repository`, the remote-plus-map fixture
 - `.agents/plugins/agentdev/tests/test_request_review.py:29` — `GH_STUB`, the
   fixture-driven stub `gh`
+- `.agents/plugins/agentdev/tests/test_remote_codespace_session.py:107` —
+  `Session`, the repository, stateful stub `gh`, and recording `rsync`/`ssh` the
+  codespace scripts run against
 - `.agents/plugins/agentdev/tests/test_request_review.py:128` —
   `install_stub_path`, the hermetic `PATH`
 - `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py:321` —

@@ -1,11 +1,11 @@
 ---
 type: architecture
-description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.sh, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
+description: Why every remote update of a GitHub stack goes through the gh-stack skill's two-phase stack-guard.py, why the skill is repository-owned over upstream's reference pages, and why gh stack sync left the workflows.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T09:00:00Z
+  at: 2026-10-30T23:36:24Z
 sources:
-- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
+- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
 - resource: https://github.com/github/gh-stack/blob/v0.2.1/internal/git/gitops.go
 - resource: https://github.com/github/gh-stack/blob/v0.2.1/cmd/push.go
@@ -24,7 +24,7 @@ therefore never relies on gh-stack's lease.
 
 ## Decision
 
-**Two phases, one script.** The gh-stack skill's `agent-code/stack-guard.sh` has
+**Two phases, one script.** The gh-stack skill's `agent-code/stack-guard.py` has
 two subcommands:
 
 - `begin` runs before anything rewrites the stack. It fast-forwards a layer

@@ -9,9 +9,9 @@ enables them, so a link that climbs out of the plugin root resolves against an
 unrelated tree — or, worse, against the publishing repository's own files, which
 silently supplies the wrong conventions instead of failing. Per-repository
 artifacts (``AGENTS.md``, lint configuration, a pull request template) must be
-described in prose so they are resolved at runtime, exactly as ``bin/__utils.sh``
-resolves the target repository from the working directory rather than from its
-own location.
+described in prose so they are resolved at runtime, exactly as the catalog's
+``bin/`` helpers resolve the target repository from the working directory rather
+than from their own location.
 """
 
 from pathlib import Path

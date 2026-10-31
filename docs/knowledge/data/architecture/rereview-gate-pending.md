@@ -3,7 +3,7 @@ type: architecture
 description: How the required ai-review-present check could read pending while a re-review runs, so a merge or auto-merge waits for it; a separate commit status is the leading candidate, and the marker-commit trigger and a merged review-and-gate job are rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T18:00:00Z
+  at: 2026-10-31T01:33:40Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -96,7 +96,7 @@ only how the gate's result is published.
   pending as soon as a review run starts. The maintainer decided on 2026-10-27
   to keep the jobs as they are. Merged, every gate-only run would also pull the
   review container, take the `claude-review` environment, and hold the review's
-  write permissions, and `request-review.sh` could no longer tell a reviewing
+  write permissions, and `request-review.py` could no longer tell a reviewing
   run from a gate-only one by check name.
 
 - **Deleting or rewriting the earlier passing check.** GitHub has no API to

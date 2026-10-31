@@ -83,7 +83,7 @@ Delete these paths from the copied repository:
 .agents/
 .claude-plugin/
 py_packages/
-scripts/validate-super-linter-tool-versions.sh
+scripts/validate-super-linter-tool-versions.py
 docs/knowledge/tests/test_iwe_seed.py
 ```
 
@@ -285,8 +285,8 @@ In `.github/workflows/reformat.yml`:
 
 1. remove catalog, validator-source, Ansible, and excluded tool-version paths
    that no longer exist;
-2. remove the `scripts/validate-super-linter-tool-versions.sh` step;
-3. replace the two `./.agents/plugins/agentdev/bin/super-linter-env.sh` calls;
+2. remove the `scripts/validate-super-linter-tool-versions.py` step;
+3. replace the two `./.agents/plugins/agentdev/bin/super_linter.py env` calls;
    and
 4. update formatter path filters for the consuming project.
 

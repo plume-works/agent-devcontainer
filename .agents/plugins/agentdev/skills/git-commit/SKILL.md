@@ -23,15 +23,15 @@ Generate conventional commit messages from the relevant git diff.
 
 ## Create the Commit Through the Script
 
-Create every commit with [git-commit.sh](agent-code/git-commit.sh); never run
+Create every commit with [git-commit.py](agent-code/git-commit.py); never run
 `git commit` directly. It refuses — before `git commit` runs — on `main`,
 `master`, the remote's default branch, a detached `HEAD`, and — when the
 remote exists — a remote whose default branch cannot be determined. Pass the
 `git commit` arguments after `--`:
 
 ```bash
-agent-code/git-commit.sh -- -m "<subject>" -m "<body>"
-agent-code/git-commit.sh -- -F .tmp/commit-message.txt
+agent-code/git-commit.py -- -m "<subject>" -m "<body>"
+agent-code/git-commit.py -- -F .tmp/commit-message.txt
 ```
 
 `--remote <name>` selects the remote whose default branch is protected

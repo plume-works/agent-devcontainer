@@ -4,14 +4,17 @@
 
 from __future__ import annotations
 
+import importlib.util
 import os
 from pathlib import Path
 import shutil
 import subprocess
-from uuid import uuid4
+from types import ModuleType
 
 from git_fixtures import FIXTURE_ENV, git, outcome, stub_gh
 import pytest
+
+SCRIPT_PATH = 'skills/git-new-branch/agent-code/git-new-branch.py'
 
 
 def commit_file(repository: Path, name: str, content: str) -> None:
@@ -51,10 +54,14 @@ def run_script(
     cwd: Path,
     *args: str,
     path_prefix: Path | None = None,
+    runtime_mode: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], dict[str, str]]:
-    """Run git-new-branch.sh and parse its key=value stdout."""
-    script = plugin_root / 'skills/git-new-branch/agent-code/git-new-branch.sh'
+    """Run git-new-branch.py and parse its key=value stdout."""
+    script = plugin_root / SCRIPT_PATH
     env = {**os.environ, **FIXTURE_ENV}
+    env.pop('AGENTDEV_RUNTIME_MODE', None)
+    if runtime_mode is not None:
+        env['AGENTDEV_RUNTIME_MODE'] = runtime_mode
     if path_prefix is not None:
         env['PATH'] = f'{path_prefix}{os.pathsep}{env["PATH"]}'
     completed = subprocess.run(
@@ -189,7 +196,7 @@ def test_update_branch_merges_the_base_into_moved_commits(
     main_sha = git(fixture.work, 'rev-parse', 'main')
     _, keys = run_script(plugin_root, fixture.work, 'fixture-topic')
     assert keys['LOCAL_COMMITS'] == '1'
-    update_branch = plugin_root / 'skills/update-branch/agent-code/update-branch.sh'
+    update_branch = plugin_root / 'skills/update-branch/agent-code/update-branch.py'
 
     # Act
     merged = subprocess.run(
@@ -314,6 +321,25 @@ def test_uncommitted_and_untracked_changes_carry_over(
     assert (fixture.work / 'fixture.txt').read_text() == 'edited\n'
     assert (fixture.work / 'untracked.txt').read_text() == 'new\n'
     assert (fixture.work / 'late.txt').read_text() == 'late\n'
+
+
+def test_untracked_file_with_a_non_utf8_name_carries_over(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """Path lists are read as bytes, so a Latin-1 file name cannot crash the carry check."""
+    # Arrange
+    fixture.advance_remote('late.txt', 'late\n')
+    name = os.fsdecode(b'caf\xe9.txt')
+    (fixture.work / name).write_text('new\n')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert 'Traceback' not in completed.stderr
+    assert (fixture.work / name).read_text() == 'new\n'
 
 
 def test_changes_to_paths_the_base_moved_are_left_untouched(
@@ -575,36 +601,58 @@ def test_worktree_mode_defaults_to_an_ignored_worktrees_directory(
     assert git(fixture.work, 'status', '--porcelain') == ''
 
 
-WORKSPACES = Path('/workspaces')
-
-
-@pytest.mark.skipif(
-    not (WORKSPACES.is_dir() and os.access(WORKSPACES, os.W_OK)),
-    reason='needs a writable /workspaces',
-)
-def test_worktree_mode_under_workspaces_defaults_to_a_sibling(
+def test_standalone_worktree_mode_uses_the_ignored_worktrees_directory(
     plugin_root: Path,
     fixture: Fixture,
 ) -> None:
-    """A main checkout directly under /workspaces gets its worktree beside it there."""
-    # Arrange
-    name = f'fixture-{uuid4().hex}'
-    checkout = WORKSPACES / name
-    worktree_parent = WORKSPACES / f'{name}-fixture'
-    worktree = worktree_parent / 'topic'
-    git(fixture.root, 'clone', str(fixture.remote), str(checkout))
-    try:
-        # Act
-        completed, keys = run_script(plugin_root, checkout, 'fixture/topic', '--worktree')
+    """The standalone runtime puts the worktree in .worktrees/, which Git then ignores."""
+    # Act
+    completed, keys = run_script(
+        plugin_root, fixture.work, 'fixture/topic', '--worktree', runtime_mode='standalone'
+    )
 
-        # Assert
-        assert outcome(completed) == (0, 'RESULT=SUCCESS')
-        assert keys['WORKTREE'] == str(worktree)
-        assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
-        assert not (checkout / '.worktrees').exists()
-    finally:
-        shutil.rmtree(worktree_parent, ignore_errors=True)
-        shutil.rmtree(checkout)
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    worktree = fixture.work / '.worktrees' / 'work-fixture' / 'topic'
+    assert keys['WORKTREE'] == str(worktree)
+    assert git(worktree, 'rev-parse', '--abbrev-ref', 'HEAD') == 'fixture/topic'
+    exclude = (fixture.work / '.git' / 'info' / 'exclude').read_text()
+    assert '.worktrees/' in exclude.splitlines()
+
+
+def load_script(plugin_root: Path) -> ModuleType:
+    """Import git-new-branch.py as a module without running it."""
+    spec = importlib.util.spec_from_file_location('git_new_branch', plugin_root / SCRIPT_PATH)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize(
+    ('main_dir', 'runtime_mode', 'worktree_root', 'expected'),
+    [
+        ('/workspaces/project', 'standalone', '', ('/workspaces/project/.worktrees', True)),
+        ('/workspaces/project', 'devcontainer', '', ('/workspaces', False)),
+        ('/workspaces/project', '', '', ('/workspaces', False)),
+        ('/srv/project', 'standalone', '', ('/srv/project/.worktrees', True)),
+        ('/srv/project', '', '', ('/srv/project/.worktrees', True)),
+        ('/workspaces/project', 'standalone', '/elsewhere', ('/elsewhere', False)),
+        ('/workspaces/project', '', 'relative/root', ('relative/root', False)),
+        ('/workspaces/nested/project', '', '', ('/workspaces/nested/project/.worktrees', True)),
+    ],
+)
+def test_worktree_parent_follows_root_runtime_mode_and_location(
+    plugin_root: Path,
+    main_dir: str,
+    runtime_mode: str,
+    worktree_root: str,
+    expected: tuple[str, bool],
+) -> None:
+    """--worktree-root wins; standalone keeps .worktrees/; else a /workspaces sibling."""
+    script = load_script(plugin_root)
+
+    assert tuple(script.worktree_parent(main_dir, runtime_mode, worktree_root)) == expected
 
 
 def test_unreachable_remote_reports_fetch_failed(plugin_root: Path, fixture: Fixture) -> None:

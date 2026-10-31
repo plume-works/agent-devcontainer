@@ -79,7 +79,7 @@ the tools its definition lists. A skill that opts out of model invocation stays
 available as its command only.
 
 Scripts in `bin/` are on `PATH` while the plugin is enabled, so you can run e.g.
-`super-linter-local.sh` or `python-lint-check.sh` directly in a terminal.
+`super_linter.py local` or `python_lint_check.py` directly in a terminal.
 
 ### Agents
 

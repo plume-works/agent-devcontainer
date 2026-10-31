@@ -3,8 +3,8 @@ type: hub
 description: Codebase maps derived from the code, each pinned to the tracked-source fingerprint it was read from.
 stage: living
 generated:
-  by: codex/gpt-5
-  at: 2026-09-06T05:05:02Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T00:06:04Z
 ---
 
 # 🧭 Codebase
@@ -39,7 +39,7 @@ Python environment: `uv sync --all-groups` (the devcontainer runs
 (`.agents/plugins/agentdev/tests`, `docs/knowledge/tests`, `py_packages`);
 `uv run validate_agent_files --recommend . --require-marketplace claude codex`
 validates the catalog; `uv run pre-commit run --all-files` mirrors CI's
-formatters; `super-linter-local.sh` runs the full Super-Linter pass;
+formatters; `super_linter.py local` runs the full Super-Linter pass;
 `iwe schema validate` gates this workspace.
 
 **Entry points.** `.devcontainer/devcontainer.json` (the container),
@@ -61,7 +61,7 @@ image), `docker/deploy/agentdev-deploy.Dockerfile` and `compose.opencode.yml`
 | `py_packages/validate_agent_files/`                                                                                                                                                           | [validate_agent_files package](codebase/py_packages/validate_agent_files.md)                                                             |
 | `.github/`                                                                                                                                                                                    | [GitHub automation](codebase/github.md)                                                                                                  |
 | `.iwe/`, `docs/knowledge/`                                                                                                                                                                    | [Knowledge workspace machinery](codebase/docs/knowledge.md) — the `data/` inside it is this graph                                        |
-| `scripts/validate-super-linter-tool-versions.sh`                                                                                                                                              | checks pre-commit and local tool versions against the pinned Super-Linter image; no doc                                                  |
+| `scripts/validate-super-linter-tool-versions.py`                                                                                                                                              | checks pre-commit and local tool versions against the pinned Super-Linter image; no doc                                                  |
 | `scripts/renovate-post-upgrade.sh`, `scripts/refresh-pin-checksums.py`, `scripts/tests/`                                                                                                      | Renovate's post-upgrade task: recomputes role pin checksums and regenerates locks in the bump's commit; no doc                           |
 | `scripts/analyze-claude-responder-costs.py`, `scripts/download-claude-responder-runs.sh`                                                                                                      | download and summarize AI responder token and cost artifacts; no doc                                                                     |
 | `.codex/`, `.claude/`, `.mcp.json`, `.vscode/`                                                                                                                                                | project-local agent and editor configuration, not the catalog; no doc                                                                    |

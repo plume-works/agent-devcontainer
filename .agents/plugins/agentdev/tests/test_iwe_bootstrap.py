@@ -13,7 +13,7 @@ import time
 
 import pytest
 
-SCRIPT = Path('agent-code') / 'bootstrap-iwe.sh'
+SCRIPT = Path('agent-code') / 'bootstrap-iwe.py'
 ASSETS = Path('assets')
 # The transaction directory name is part of the skill's documented contract.
 TRANSACTION = '.iwe-bootstrap.txn'
@@ -50,6 +50,7 @@ HELPER_TOOLS = (
     'chmod',
     'realpath',
     'readlink',
+    'python3',
 )
 
 requires_iwe = pytest.mark.skipif(
@@ -420,37 +421,20 @@ def test_interrupted_first_owner_write_is_discarded_on_the_next_run(
 
 @requires_iwe
 def test_interrupted_commit_is_completed_on_the_next_run(
-    installed_iwe_bootstrap: Path, unrelated_repository: Path, plugin_tmp_path: Path
+    installed_iwe_bootstrap: Path, unrelated_repository: Path
 ) -> None:
-    real_mv = shutil.which('mv')
-    # Interrupt the helper just before it moves the staged knowledge tree.
-    interrupting_mv = (
-        '#!/usr/bin/env bash\n'
-        'for arg in "$@"; do\n'
-        '  if [[ "$arg" == */docs/knowledge ]]; then kill -TERM "$PPID"; exit 1; fi\n'
-        'done\n'
-        f'exec "{real_mv}" "$@"\n'
-    )
-    env = {
-        **os.environ,
-        'PATH': restricted_path(plugin_tmp_path / 'bin', extra={'mv': interrupting_mv})
-        + os.pathsep
-        + str(Path(shutil.which('iwe')).parent),
-    }
-
-    interrupted = run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository, env=env)
-
-    assert interrupted.returncode == -signal.SIGTERM, interrupted.stderr
-    assert interrupted.stdout.splitlines()[-1] == 'RESULT=SIGNAL_TERM'
-    assert (unrelated_repository / TRANSACTION).is_dir()
-    assert not (unrelated_repository / 'docs' / 'knowledge').exists()
+    # A commit interrupted after moving .iwe/ and before moving docs/knowledge/.
+    assets = installed_iwe_bootstrap / ASSETS
+    transaction = unrelated_repository / TRANSACTION
+    shutil.copytree(assets / '.iwe', unrelated_repository / '.iwe')
+    shutil.copytree(assets / 'docs' / 'knowledge', transaction / 'stage' / 'docs' / 'knowledge')
+    (transaction / 'OWNER').write_text('iwe-bootstrap transaction\nphase=committing\n')
 
     completed = run_bootstrap(installed_iwe_bootstrap, cwd=unrelated_repository)
 
     assert outcome(completed) == (0, 'RESULT=SUCCESS'), completed.stderr
     assert output_values(completed, 'RECOVERED_TRANSACTION') == ['completed']
     assert not (unrelated_repository / TRANSACTION).exists()
-    assets = installed_iwe_bootstrap / ASSETS
     assert tree_files(unrelated_repository / '.iwe') == tree_files(assets / '.iwe')
     assert tree_files(unrelated_repository / 'docs') == tree_files(assets / 'docs')
 

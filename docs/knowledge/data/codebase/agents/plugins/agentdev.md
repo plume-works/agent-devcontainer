@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:8c7c522841d2e8c66a7f139686f854e9263f9fe0ed87f01e5b8cb8a6470b3576
+source_digest: sha256:da2ea71123f6783ac6e6aaa79d64907dc45eb5c87a1ed6f56d46bb891165d1fe
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:07:41Z
+  at: 2026-10-31T06:14:58Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:07:41Z
+  at: 2026-10-31T06:14:58Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -63,8 +63,10 @@ layout are in [Module layout](../../../architecture/module-layout.md) and
   Implement orchestrator, which dispatches `iwe-revision-evaluator` to judge a
   drafted revision ([Autonomous Implement
   loop](../../../architecture/autonomous-implement-loop.md))
-- `bin/` on `PATH` while the plugin is enabled — the shell helpers plus
-  `result_codes.py`, which a Python skill script imports from there
+- `bin/` on `PATH` while the plugin is enabled — the standard-library Python
+  modules every skill script imports from there, and the lint and Super-Linter
+  entry points ([Catalog script
+  language](../../../architecture/catalog-script-language.md))
 - `.opencode-plugin/` — the directory an OpenCode `plugin` entry names
 - `version` — `4.2.0`, declared identically in both plugin manifests, the
   marketplace entry, and the Dockerfile pin
@@ -103,7 +105,7 @@ skills — whatever the skill in use shells out to. Validation comes from the
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.claude-plugin/marketplace.json:13` — the published plugin version
 - `.agents/plugins/agentdev/.claude-plugin/plugin.json:3` — Claude manifest

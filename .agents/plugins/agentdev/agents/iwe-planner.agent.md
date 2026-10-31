@@ -149,11 +149,11 @@ This rulebook is never dispatched. It runs in place, in one of two modes:
    GitHub issue, close that issue now with the bundled script, which posts a
    comment naming the plan and then closes it:
 
-   The script is the `iwe-plan` skill's bundled `agent-code/close-issue.sh`, run
+   The script is the `iwe-plan` skill's bundled `agent-code/close-issue.py`, run
    from that skill's directory:
 
    ```bash
-   agent-code/close-issue.sh \
+   agent-code/close-issue.py \
      --issue <url-or-ref> --plan docs/knowledge/data/plans/<YYYYMMDD>-<slug>.md
    ```
 

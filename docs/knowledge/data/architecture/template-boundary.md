@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:00:00Z
+  at: 2026-10-30T22:05:14Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -139,7 +139,7 @@ paths and must be reviewed in a copied project:
 | `.editorconfig`                      | Cross-editor whitespace and newline conventions.                                                                                                           |
 | `.gitignore`                         | Ignores devcontainer, agent, environment, test, and tool state.                                                                                            |
 
-`scripts/validate-super-linter-tool-versions.sh` is deliberately not in this
+`scripts/validate-super-linter-tool-versions.py` is deliberately not in this
 group. It checks this publisher repository's CI/tool pin synchronization and
 stays behind.
 
@@ -153,7 +153,7 @@ The `.github/` tree is template-related, but it is mixed rather than copy-ready:
 | `.github/pr-description-guidance.md`             | Customize | Consumer-created, absent from this publisher repository. Holds `pr-gen-description` instructions that take precedence over its default section generation; written when `template-consume` §4 captures a consumer's PR-template extras and the template is reduced to the stub above. |
 | `.github/renovate.json`                          | Customize | Contains image-publisher and catalog-release assumptions in addition to the consumer image pin.                                                                                                                                                                                       |
 | `.github/workflows/primary-checks.yml`           | Customize | Calls both reformatting and the optional image-building CI workflow.                                                                                                                                                                                                                  |
-| `.github/workflows/reformat.yml`                 | Customize | Calls `super-linter-env.sh` from the catalog and this repository's excluded tool-version check; both must be replaced inline.                                                                                                                                                         |
+| `.github/workflows/reformat.yml`                 | Customize | Calls `super_linter.py env` from the catalog and this repository's excluded tool-version check; both must be replaced inline.                                                                                                                                                         |
 | `.github/workflows/validate-agent-files.yml`     | Customize | Tests publisher sources and uses local validator packaging; consumers run validator-dependent CI through `agentdev-devcontainer` instead.                                                                                                                                             |
 | `.github/workflows/validate-knowledge-base.yml`  | Customize | Installs `iwe`, runs `iwe schema validate`/`normalize` and `docs/knowledge/tests`; retained only when the consumer keeps an IWE knowledge base, and it shares this repository's `paths-filter`.                                                                                       |
 | `.github/workflows/renovate.yml`                 | Customize | Runs Renovate in `container.image`, which names this image, and needs a GitHub App whose client ID and private key are the `RENOVATE_APP_CLIENT_ID` and `RENOVATE_APP_PRIVATE_KEY` secrets. `allowedCommands` names this repository's post-upgrade script.                            |
@@ -280,7 +280,7 @@ copy:
 | `.agents/`                                       | Canonical `agentdev` plugin source: agents, skills (the `iwe-bootstrap` scaffold among them), hooks, helper commands, and plugin-script tests. |
 | `.claude-plugin/`                                | Claude marketplace manifest for the catalog.                                                                                                   |
 | `py_packages/validate_agent_files/`              | Standalone validator package source and package tests.                                                                                         |
-| `scripts/validate-super-linter-tool-versions.sh` | Publisher CI consistency check.                                                                                                                |
+| `scripts/validate-super-linter-tool-versions.py` | Publisher CI consistency check.                                                                                                                |
 | `docs/knowledge/tests/test_iwe_seed.py`          | Validates the `iwe-bootstrap` scaffold in the catalog source, which no consumer keeps.                                                         |
 
 After deleting `py_packages/validate_agent_files/`, remove the now-empty
