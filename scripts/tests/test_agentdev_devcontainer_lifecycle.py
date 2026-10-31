@@ -101,6 +101,7 @@ class Lifecycle:
             'AGENTDEV_RUN_DIR': str(self.root / 'run'),
             'AGENTDEV_READY_TIMEOUT': '3',
             'AGENTDEV_SKIP_XPRA': '1',
+            'AGENTDEV_HEALTH_COMMAND': str(self.scripts / 'runtime-health.sh'),
             'LIFECYCLE_STATE': str(self.state),
             **extra,
         }

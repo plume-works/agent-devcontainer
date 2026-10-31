@@ -322,7 +322,7 @@ jobs:
           noCache: true
           runCmd: |
             # The image's supervised runtime must be ready, nested Docker included.
-            /opt/agentdev-runtime/runtime-health.sh ready
+            agentdev-runtime health ready
             docker run --rm hello-world | head -n 5
 
             # The provisioned toolchain must be present and on PATH

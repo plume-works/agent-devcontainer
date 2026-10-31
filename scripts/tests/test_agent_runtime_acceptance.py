@@ -144,7 +144,7 @@ class Runtime:
 
     def retry(self, *component: str) -> subprocess.CompletedProcess[str]:
         return docker(
-            'exec', self.name, f'{RUNTIME}/runtime-supervisor.py', 'retry', *component, check=False
+            'exec', self.name, 'agentdev-runtime', 'supervisor', 'retry', *component, check=False
         )
 
     def wait_unready_then_ready(self, timeout: float = 300) -> None:
@@ -581,10 +581,10 @@ def test_an_optional_failure_reports_unhealthy_while_opencode_serves(make_runtim
         assert time.monotonic() < deadline, runtime.inspect('{{json .State.Health}}')
         time.sleep(1)
     assert opencode_answers(runtime)
-    shown = runtime.sh(f'{RUNTIME}/runtime-health.sh status', user='root', check=False)
+    shown = runtime.sh('agentdev-runtime health status', user='root', check=False)
     assert shown.returncode == 1
     assert 'runtime state: degraded' in shown.stdout
-    assert 'runtime-supervisor.py retry project' in shown.stdout
+    assert 'agentdev-runtime supervisor retry project' in shown.stdout
     assert 'last failure: project, exit status' in shown.stdout
 
 
@@ -673,7 +673,7 @@ def test_a_latched_start_stays_put_under_the_restart_policy(
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
     assert opencode_answers(runtime)
 
-    docker('exec', runtime.name, 'pkill', '-KILL', '-f', 'runtime-supervisor.py control')
+    docker('exec', runtime.name, 'pkill', '-KILL', '-f', 'agentdev-runtime supervisor control')
     deadline = time.monotonic() + 120
     while runtime.inspect('{{.RestartCount}}') == '0' and time.monotonic() < deadline:
         time.sleep(1)
@@ -872,7 +872,7 @@ def test_remote_control_is_off_without_a_mode(make_runtime, scratch: Path):
     time.sleep(5)
     assert runtime.sh(CLAUDE_REMOTE, check=False).returncode != 0
     assert 'remote-control' not in runtime.runtime()['components']
-    status = docker('exec', runtime.name, f'{RUNTIME}/runtime-health.sh', 'status')
+    status = docker('exec', runtime.name, 'agentdev-runtime', 'health', 'status')
     assert 'remote-control' not in status.stdout
 
 
@@ -887,7 +887,7 @@ def test_remote_control_waits_for_a_login_then_starts_and_comes_back(make_runtim
 
     def status() -> str:
         return docker(
-            'exec', runtime.name, f'{RUNTIME}/runtime-health.sh', 'status', check=False
+            'exec', runtime.name, 'agentdev-runtime', 'health', 'status', check=False
         ).stdout
 
     wait_until(lambda: 'remote-control: waiting for a claude.ai login' in status())

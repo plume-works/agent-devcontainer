@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
 """
 PID 1 and service controller for the agentdev-deploy and agentdev-devcontainer runtimes.
 
 ``run`` is the container entrypoint: it selects the ``AGENTDEV_RUNTIME_MODE`` profile, runs the
-root bootstrap, then supervisord in this same process. ``control`` is the supervisord event listener that starts services in dependency order,
-gates them on readiness, and recovers failures within a bounded budget. A failure it cannot
-recover latches the runtime ``failed``: deploy waits for ``retry`` and exits nonzero only when
-the controller or supervisord itself fails, while devcontainer exits nonzero. ``exec`` wraps each
-program to keep its last result for the failure record. Spec: standalone-opencode-runtime,
-agentdev-runtime-images.
+root bootstrap, then supervisord in this same process. ``control`` is the supervisord event
+listener that starts services in dependency order, gates them on readiness, and recovers
+failures within a bounded budget. A failure it cannot recover latches the runtime ``failed``:
+deploy waits for ``retry`` and exits nonzero only when the controller or supervisord itself
+fails, while devcontainer exits nonzero. ``exec`` wraps each program to keep its last result for
+the failure record. Spec: standalone-opencode-runtime, agentdev-runtime-images.
 """
 
 from __future__ import annotations
@@ -16,13 +15,12 @@ from __future__ import annotations
 from collections import deque
 import configparser
 from dataclasses import dataclass, replace
-from datetime import datetime, timezone
 import json
-import math
 import os
 from pathlib import Path
 import pwd
 import queue
+import shlex
 import signal
 import subprocess
 import sys
@@ -32,101 +30,17 @@ from typing import NoReturn
 from uuid import uuid4
 import xmlrpc.client
 
-SCRIPT_DIR = Path(__file__).resolve().parent
+from agentdev_runtime import settings as env, state as files
+from agentdev_runtime.state import log, OUTPUT_TAIL, read_json, utc_now, write_json
+
 RUNNING_STATES = {'RUNNING'}
 DONE_STATES = {'EXITED', 'FATAL', 'STOPPED', 'BACKOFF', 'UNKNOWN'}
 SETTLED = {'ready', 'done'}
 SUPERVISOR_FAULT_NOT_RUNNING = 70
 SUPERVISOR_FAULT_ALREADY_STARTED = 60
-OUTPUT_TAIL = 200
 PROBE_TAIL = 500
 OUTPUT_INTERVAL = 1.0
-DEFAULT_CONFIG = '/etc/agentdev/supervisord.conf'
-
-
-def log(message: str) -> None:
-    """Write to stderr: in an event listener, stdout carries the protocol."""
-    print(f'runtime-supervisor: {message}', file=sys.stderr, flush=True)
-
-
-def utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat(timespec='seconds')
-
-
-def write_json(path: Path, data: dict, owner: tuple[int, int] | None = None) -> None:
-    """Replace ``path`` atomically, so a reader never sees a partial document."""
-    temp = path.with_name(f'.{path.name}.{os.getpid()}.{threading.get_ident()}')
-    temp.write_text(json.dumps(data, indent=2) + '\n')
-    if owner is not None:
-        os.chown(temp, *owner)
-    temp.replace(path)
-
-
-def read_json(path: Path) -> dict | None:
-    try:
-        return json.loads(path.read_text())
-    except FileNotFoundError:
-        return None
-    except (OSError, json.JSONDecodeError) as error:
-        log(f'ignoring unreadable {path}: {error}')
-        return None
-
-
-TRUE_WORDS = {'1', 'true', 'yes', 'on'}
-FALSE_WORDS = {'0', 'false', 'no', 'off', ''}
-
-
-class SettingsParser:
-    """Read AGENTDEV_* settings, collecting every malformed value instead of guessing."""
-
-    def __init__(self) -> None:
-        self.errors: list[str] = []
-
-    def boolean(self, name: str) -> bool:
-        raw = os.environ.get(name, '')
-        if raw.strip().lower() in TRUE_WORDS:
-            return True
-        if raw.strip().lower() not in FALSE_WORDS:
-            self.errors.append(
-                f'{name} must be 1, true, yes, on, 0, false, no, off, or empty; got {raw!r}'
-            )
-        return False
-
-    def positive(self, name: str, default: float) -> float:
-        raw = os.environ.get(name, '')
-        if not raw:
-            return default
-        try:
-            value = float(raw)
-        except ValueError:
-            value = math.nan
-        if not (math.isfinite(value) and value > 0):
-            self.errors.append(f'{name} must be a positive number; got {raw!r}')
-            return default
-        return value
-
-    def required(self, name: str, options: tuple[str, ...]) -> str:
-        raw = os.environ.get(name, '')
-        if raw not in options:
-            self.errors.append(f'{name} must be {" or ".join(options)}; got {raw!r}')
-            return ''
-        return raw
-
-    def choice(self, name: str, options: tuple[str, ...]) -> str:
-        raw = os.environ.get(name, '')
-        if raw and raw not in options:
-            self.errors.append(f'{name} must be {", ".join(options)}, or empty; got {raw!r}')
-            return ''
-        return raw
-
-    def count(self, name: str, default: int) -> int:
-        raw = os.environ.get(name, '')
-        if not raw:
-            return default
-        if not raw.strip().isdigit() or int(raw) <= 0:
-            self.errors.append(f'{name} must be a positive integer; got {raw!r}')
-            return default
-        return int(raw)
+RETRY_COMMAND = 'agentdev-runtime supervisor retry'
 
 
 @dataclass(frozen=True)
@@ -144,7 +58,9 @@ class Settings:
     # The service profile; empty only when the setting is invalid.
     mode: str = ''
     run_dir: Path = Path('/run/agentdev')
-    health_command: str = str(SCRIPT_DIR / 'runtime-health.sh')
+    health_command: str = 'agentdev-runtime health'
+    bootstrap_command: str = 'agentdev-runtime bootstrap'
+    home: Path = Path('/root')
     skip_xpra: bool = False
     # Starts OpenCode Web in a Dev Container; deploy always serves it.
     opencode_web: bool = False
@@ -156,20 +72,22 @@ class Settings:
     errors: tuple[str, ...] = ()
 
     @classmethod
-    def from_env(cls) -> Settings:
-        parse = SettingsParser()
+    def from_env(cls, environ: dict[str, str] | None = None) -> Settings:
+        parse = env.Settings(dict(os.environ) if environ is None else environ)
         settings = cls(
             mode=parse.required('AGENTDEV_RUNTIME_MODE', tuple(PROFILES)),
-            attempts=parse.count('AGENTDEV_RECOVERY_ATTEMPTS', cls.attempts),
-            backoff=parse.positive('AGENTDEV_RECOVERY_BACKOFF', cls.backoff),
-            healthy_reset=parse.positive('AGENTDEV_HEALTHY_RESET', cls.healthy_reset),
-            start_timeout=parse.positive('AGENTDEV_SERVICE_START_TIMEOUT', cls.start_timeout),
-            bootstrap_timeout=parse.positive('AGENTDEV_BOOTSTRAP_TIMEOUT', cls.bootstrap_timeout),
-            prepare_timeout=parse.positive('AGENTDEV_PREPARE_TIMEOUT', cls.prepare_timeout),
-            interval=parse.positive('AGENTDEV_HEALTH_INTERVAL', cls.interval),
-            probe_failures=parse.count('AGENTDEV_PROBE_FAILURES', cls.probe_failures),
-            run_dir=Path(os.environ.get('AGENTDEV_RUN_DIR') or cls.run_dir),
-            health_command=os.environ.get('AGENTDEV_HEALTH_COMMAND') or cls.health_command,
+            attempts=parse.count('AGENTDEV_RECOVERY_ATTEMPTS'),
+            backoff=parse.positive('AGENTDEV_RECOVERY_BACKOFF'),
+            healthy_reset=parse.positive('AGENTDEV_HEALTHY_RESET'),
+            start_timeout=parse.positive('AGENTDEV_SERVICE_START_TIMEOUT'),
+            bootstrap_timeout=parse.positive('AGENTDEV_BOOTSTRAP_TIMEOUT'),
+            prepare_timeout=parse.positive('AGENTDEV_PREPARE_TIMEOUT'),
+            interval=parse.positive('AGENTDEV_HEALTH_INTERVAL'),
+            probe_failures=parse.count('AGENTDEV_PROBE_FAILURES'),
+            run_dir=parse.path('AGENTDEV_RUN_DIR'),
+            health_command=parse.get('AGENTDEV_HEALTH_COMMAND'),
+            bootstrap_command=parse.get('AGENTDEV_BOOTSTRAP_COMMAND'),
+            home=Path(parse.raw('AGENTDEV_HOME') or Path.home()),
             skip_xpra=parse.boolean('AGENTDEV_SKIP_XPRA'),
             opencode_web=parse.boolean('AGENTDEV_OPENCODE_WEB'),
             remote_control=parse.choice('AGENTDEV_CLAUDE_RC_MODE', ('session', 'server')),
@@ -177,8 +95,8 @@ class Settings:
             firewall=parse.boolean('ENABLE_FIREWALL'),
         )
         # supervisord reads this one itself, as each program's stopwaitsecs.
-        parse.count('AGENTDEV_STOP_TIMEOUT', 30)
-        # claude-remote-control-start.sh reads the spawn mode; checked here to latch early.
+        parse.count('AGENTDEV_STOP_TIMEOUT')
+        # The Remote Control start reads the spawn mode; checked here to latch early.
         if settings.remote_control == 'server':
             parse.choice('AGENTDEV_CLAUDE_RC_SPAWN', ('worktree', 'same-dir'))
         return replace(settings, errors=tuple(parse.errors))
@@ -188,25 +106,28 @@ class Settings:
         return PROFILES.get(self.mode)
 
     @property
+    def files(self) -> files.RunFiles:
+        return files.RunFiles(self.run_dir)
+
+    @property
     def state_file(self) -> Path:
-        return self.run_dir / 'state.json'
+        return self.files.state
 
     @property
     def retry_file(self) -> Path:
-        return self.run_dir / 'retry-request.json'
+        return self.files.retry
 
     @property
     def output_dir(self) -> Path:
-        return self.run_dir / 'output'
+        return self.files.output_dir
 
     @property
     def crash_file(self) -> Path:
-        return self.run_dir / 'controller-failed'
+        return self.files.crash
 
     @property
     def failure_record(self) -> Path:
-        home = Path(os.environ.get('AGENTDEV_HOME') or Path.home())
-        return home / '.local/state/agentdev/last-failure.json'
+        return files.failure_record(self.home)
 
 
 def runtime_owner() -> tuple[int, int] | None:
@@ -246,7 +167,7 @@ class Captured:
         return 128 - status if status < 0 else status
 
     def result(self, status: int | None) -> dict:
-        return {'command': self.command, 'exit_status': status, 'output': list(self.tail)}
+        return files.program_result(self.command, status, list(self.tail))
 
     def kill_group(self, signum: int = signal.SIGKILL) -> None:
         """Signal the whole session, so no child outlives a failed or interrupted run."""
@@ -435,32 +356,27 @@ class Controller:
         )
 
     def probes(self) -> list[str]:
-        """Return the core services whose probes runtime-health.sh ready repeats."""
+        """Return the core services whose probes ``health ready`` repeats."""
         return [s.name for s in self.services if s.core and not s.oneshot]
 
     def publish(self) -> None:
         """Write the state file; its heartbeat is what tells health the controller is alive."""
         statuses, reasons = self.status.copy(), self.reasons.copy()
-        components = {
-            name: {'status': status, **({'reason': reasons[name]} if name in reasons else {})}
-            for name, status in statuses.items()
-        }
+        components = {name: files.component(s, reasons.get(name)) for name, s in statuses.items()}
         with self.publishing:
-            write_json(
+            files.publish(
                 self.settings.state_file,
-                {
-                    'startup_id': self.startup_id,
-                    'profile': self.profile.name,
-                    'state': self.runtime_state(),
-                    'ready': self.ready(),
-                    'probes': self.probes(),
-                    'latched': self.latched,
-                    'components': components,
-                    'retry': self.retry,
-                    'interval': self.settings.interval,
-                    'heartbeat': time.time(),
-                    'updated': utc_now(),
-                },
+                files.runtime_state(
+                    startup_id=self.startup_id,
+                    profile=self.profile.name,
+                    state=self.runtime_state(),
+                    ready=self.ready(),
+                    probes=self.probes(),
+                    latched=self.latched,
+                    components=components,
+                    retry=self.retry,
+                    interval=self.settings.interval,
+                ),
             )
 
     def beat(self) -> None:
@@ -479,21 +395,20 @@ class Controller:
 
     def record(self, failure: ComponentFailure) -> None:
         """Persist the failure on the home volume; only a later failure replaces it."""
-        result = read_json(self.settings.output_dir / f'{failure.name}.json') or {}
+        result = read_json(self.settings.files.output(failure.name)) or {}
         if result.get('started', 0) < self.started.get(failure.name, float('inf')):
             result = {}
         exit_status = failure.exit_status
         if exit_status is None:
             exit_status = result.get('exit_status')
-        record = {
-            'startup_id': self.startup_id,
-            'component': failure.name,
-            'reason': failure.reason,
-            'command': result.get('command') or self.commands.get(failure.name, ''),
-            'exit_status': exit_status,
-            'output': result.get('output', [])[-OUTPUT_TAIL:],
-            'time': utc_now(),
-        }
+        record = files.failure(
+            startup_id=self.startup_id,
+            component_name=failure.name,
+            reason=failure.reason,
+            command=result.get('command') or self.commands.get(failure.name, ''),
+            exit_status=exit_status,
+            output=result.get('output', []),
+        )
         path = self.settings.failure_record
         owner = runtime_owner()
         try:
@@ -517,9 +432,7 @@ class Controller:
         service = self.by_name[failure.name]
         if service.core or (self.settings.strict and not service.client):
             self.latch(failure.name)
-        log(
-            f'degraded: {failure.name} failed; retry with runtime-supervisor.py retry {failure.name}'
-        )
+        log(f'degraded: {failure.name} failed; retry with {RETRY_COMMAND} {failure.name}')
         self.publish()
 
     def latch(self, name: str) -> NoReturn:
@@ -532,7 +445,7 @@ class Controller:
         for other, status in self.status.items():
             if status == 'starting':
                 self.status[other] = 'pending'
-        log(f'latched failed on {name}; retry with runtime-supervisor.py retry')
+        log(f'latched failed on {name}; retry with {RETRY_COMMAND}')
         self.publish()
         raise Latched(name)
 
@@ -540,7 +453,7 @@ class Controller:
     def probe(self, name: str) -> bool:
         try:
             result = subprocess.run(
-                [self.settings.health_command, name],
+                [*shlex.split(self.settings.health_command), name],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -773,10 +686,7 @@ class Controller:
             return
 
     def take_retry(self) -> dict | None:
-        request = read_json(self.settings.retry_file)
-        if request is not None:
-            self.settings.retry_file.unlink(missing_ok=True)
-        return request
+        return files.take_retry(self.settings.retry_file)
 
     def handle_retry(self, request: dict) -> None:
         component = request.get('component')
@@ -819,7 +729,7 @@ class Controller:
             self.answer(request, ok, None if ok else 'the retry failed again')
 
     def answer(self, request: dict, ok: bool, message: str | None) -> None:
-        self.retry = {'id': request.get('id'), 'ok': ok, 'message': message}
+        self.retry = files.retry_answer(request.get('id'), ok, message)
         self.publish()
 
     def end(self) -> None:
@@ -861,7 +771,7 @@ class Controller:
 def program_commands(config: str | None = None) -> dict[str, str]:
     """Map each supervisord program to its command, for a failure the program never reported."""
     parser = configparser.RawConfigParser()
-    parser.read(config or os.environ.get('AGENTDEV_SUPERVISOR_CONFIG', DEFAULT_CONFIG))
+    parser.read(config or env.Settings().get('AGENTDEV_SUPERVISOR_CONFIG'))
     return {
         section.split(':', 1)[1]: parser[section].get('command', '')
         for section in parser.sections()
@@ -949,10 +859,7 @@ def preflight(settings: Settings, holder: dict) -> dict | None:
         )
         log(reason)
         return {'component': 'configuration', 'reason': reason, 'command': [], 'exit_status': 1}
-    bootstrap = os.environ.get(
-        'AGENTDEV_BOOTSTRAP_COMMAND', str(SCRIPT_DIR / 'runtime-bootstrap.sh')
-    )
-    child = Captured([bootstrap], session=True)
+    child = Captured(shlex.split(settings.bootstrap_command), session=True)
     holder['child'] = child
     try:
         status = child.wait(timeout=settings.bootstrap_timeout)
@@ -975,12 +882,11 @@ def wait_for_retry(settings: Settings, state: dict) -> str:
     """Keep ``state`` current until an operator asks for a retry; return the request's id."""
     published = 0.0
     while True:
-        request = read_json(settings.retry_file)
+        request = files.take_retry(settings.retry_file)
         if request is not None:
-            settings.retry_file.unlink(missing_ok=True)
             return str(request.get('id', ''))
         if time.monotonic() - published >= settings.interval:
-            write_json(settings.state_file, {**state, 'heartbeat': time.time()})
+            files.publish(settings.state_file, state)
             published = time.monotonic()
         time.sleep(0.5)
 
@@ -1020,27 +926,24 @@ def run() -> int:
             file=sys.stderr,
             flush=True,
         )
-        retry = {'id': retry_id, 'ok': False, 'message': failure['reason']} if retry_id else None
-        state = {
-            'startup_id': startup_id,
-            'profile': settings.mode,
-            'state': 'failed',
-            'ready': False,
-            'probes': [],
-            'latched': failure['component'],
-            'components': {
-                failure['component']: {'status': 'failed', 'reason': failure['reason']}
-            },
-            'retry': retry,
-            'interval': settings.interval,
-            'updated': utc_now(),
-        }
+        retry = files.retry_answer(retry_id, False, failure['reason']) if retry_id else None
+        state = files.runtime_state(
+            startup_id=startup_id,
+            profile=settings.mode,
+            state='failed',
+            ready=False,
+            probes=[],
+            latched=failure['component'],
+            components={failure['component']: files.component('failed', failure['reason'])},
+            retry=retry,
+            interval=settings.interval,
+        )
         # No profile, or one whose PID 1 cannot wait: nothing can start, so the container ends.
         if settings.profile is None or settings.profile.exit_on_latch:
-            write_json(settings.state_file, {**state, 'heartbeat': time.time()})
+            files.publish(settings.state_file, state)
             log(f'exiting: {failure["component"]} failed: {failure["reason"]}')
             return 1
-        log(f'latched failed on {failure["component"]}; retry with runtime-supervisor.py retry')
+        log(f'latched failed on {failure["component"]}; retry with {RETRY_COMMAND}')
         retry_id = wait_for_retry(settings, state)
     if retry_id:
         os.environ['AGENTDEV_RETRY_ID'] = retry_id
@@ -1052,7 +955,7 @@ def run() -> int:
 
     from supervisor import supervisord
 
-    config = os.environ.get('AGENTDEV_SUPERVISOR_CONFIG', DEFAULT_CONFIG)
+    config = env.Settings().get('AGENTDEV_SUPERVISOR_CONFIG')
     threading.Thread(
         target=watch_controller, args=(settings, config), name='watch', daemon=True
     ).start()
@@ -1063,17 +966,17 @@ def run() -> int:
     return 0
 
 
-def execute() -> int:
+def execute(args: list[str]) -> int:
     """``exec <name> <command...>``: run one supervised program and keep its last result."""
-    if len(sys.argv) < 4:
-        print('usage: runtime-supervisor.py exec <name> <command...>', file=sys.stderr)
+    if len(args) < 2:
+        print('usage: agentdev-runtime supervisor exec <name> <command...>', file=sys.stderr)
         return 2
-    name, command = sys.argv[2], sys.argv[3:]
+    name, command = args[0], args[1:]
     # supervisord signals the whole process group, so the command already has the signal.
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, lambda *_: None)
     started = time.time()
-    path = Settings.from_env().output_dir / f'{name}.json'
+    path = Settings.from_env().files.output(name)
     child = Captured(command)
 
     def keep(status: int | None) -> None:
@@ -1093,11 +996,10 @@ def execute() -> int:
     return status
 
 
-def retry() -> int:
+def retry(args: list[str]) -> int:
     """``retry [component]``: ask a latched or degraded runtime to rerun what failed."""
     settings = Settings.from_env()
-    component = sys.argv[2] if len(sys.argv) > 2 else None
-    request = {'id': uuid4().hex, 'component': component}
+    request = files.retry_request(args[0] if args else None)
     write_json(settings.retry_file, request)
     deadline = (
         time.monotonic()
@@ -1118,16 +1020,19 @@ def retry() -> int:
     return 1
 
 
-def main() -> int:
-    commands = {'run': run, 'control': control, 'exec': execute, 'retry': retry}
-    if len(sys.argv) < 2 or sys.argv[1] not in commands:
-        print(f'usage: {Path(sys.argv[0]).name} {"|".join(commands)}', file=sys.stderr)
+def main(argv: list[str]) -> int:
+    """Dispatch ``agentdev-runtime supervisor run|control|exec|retry``."""
+    commands = {
+        'run': lambda _: run(),
+        'control': lambda _: control(),
+        'exec': execute,
+        'retry': retry,
+    }
+    usage = f'usage: agentdev-runtime supervisor {"|".join(commands)}'
+    if not argv or argv[0] not in commands:
+        print(usage, file=sys.stderr)
         return 2
-    if sys.argv[1] in {'run', 'control'} and len(sys.argv) != 2:
-        print(f'usage: {Path(sys.argv[0]).name} {sys.argv[1]}', file=sys.stderr)
+    if argv[0] in {'run', 'control'} and len(argv) != 1:
+        print(f'usage: agentdev-runtime supervisor {argv[0]}', file=sys.stderr)
         return 2
-    return commands[sys.argv[1]]()
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+    return commands[argv[0]](argv[1:])

@@ -124,7 +124,7 @@ def consumer() -> Iterator:
 
 
 def assert_ready(box: Consumer, required: list[str]) -> dict:
-    box.exec('/opt/agentdev-runtime/runtime-health.sh ready')
+    box.exec('agentdev-runtime health ready')
     state = box.runtime()
     assert state['profile'] == 'devcontainer' and state['ready'] is True
     assert sorted(state['probes']) == sorted(required)
@@ -142,7 +142,7 @@ def test_a_direct_consumer_gets_the_managed_runtime_without_lifecycle_scripts(co
     box.exec('test -s "${CODEX_HOME:-$HOME/.codex}/config.toml"')
     box.exec('grep -q agentdev "$HOME/.claude/plugins/installed_plugins.json"')
     box.exec('test -d "$AGENTDEV_CATALOG_DIR/.claude-plugin"')
-    box.exec('/opt/agentdev-runtime/runtime-health.sh cbm')
+    box.exec('agentdev-runtime health cbm')
     box.exec('curl -fsS -o /dev/null http://127.0.0.1:14500/')
     box.exec(
         'mkdir -p /tmp/ctx && echo hi > /tmp/ctx/f && printf "FROM scratch\\nCOPY f /f\\n" '

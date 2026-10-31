@@ -59,7 +59,8 @@ this table from the code.
 | `AGENTDEV_HEALTH_INTERVAL`        | `2`                                              |                          | devcontainer, deploy | Seconds between health probes.                                             |
 | `AGENTDEV_PROBE_FAILURES`         | `2`                                              |                          | devcontainer, deploy | Consecutive failed probes that count as down.                              |
 | `AGENTDEV_STOP_TIMEOUT`           | `30`                                             |                          | devcontainer, deploy | Seconds supervisord waits for a program's stop.                            |
-| `AGENTDEV_HEALTH_COMMAND`         | `/opt/agentdev-runtime/runtime-health.sh`        |                          | devcontainer, deploy | Probe command the controller runs per service.                             |
+| `AGENTDEV_HEALTH_COMMAND`         | `agentdev-runtime health`                        |                          | devcontainer, deploy | Probe command the controller runs per service.                             |
+| `AGENTDEV_BOOTSTRAP_COMMAND`      | `/opt/agentdev-runtime/runtime-bootstrap.sh`     |                          | devcontainer, deploy | Root bootstrap PID 1 runs before supervisord.                              |
 | `AGENTDEV_STRICT_STARTUP`         | empty                                            |                          | devcontainer, deploy | True makes an optional-service failure fatal.                              |
 | `AGENTDEV_SKIP_XPRA`              | empty                                            |                          | devcontainer, deploy | True leaves Xpra out.                                                      |
 | `AGENTDEV_OPENCODE_WEB`           | empty                                            |                          | devcontainer         | True serves OpenCode Web in a Dev Container.                               |

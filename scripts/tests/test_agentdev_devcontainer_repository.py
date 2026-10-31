@@ -122,7 +122,7 @@ def assert_checkout_catalog(box: Checkout) -> None:
 def test_the_checkout_catalog_wins_and_state_keeps_its_boundaries(checkouts, kind):
     box = checkouts(kind)
     box.up()
-    box.sh('/opt/agentdev-runtime/runtime-health.sh ready')
+    box.sh('agentdev-runtime health ready')
     assert_checkout_catalog(box)
     box.sh('git status --short >/dev/null')
     first = box.startup_id()
@@ -147,7 +147,7 @@ def test_the_checkout_catalog_wins_and_state_keeps_its_boundaries(checkouts, kin
     old = box.container
     box.up('--remove-existing-container')
     assert box.container != old
-    box.sh('/opt/agentdev-runtime/runtime-health.sh ready')
+    box.sh('agentdev-runtime health ready')
     box.sh('test ! -e /var/tmp/boundary-probe && test -f ~/.claude/boundary-probe')
     box.sh('ls /root/.agents-auth/ | grep -q boundary-probe-')
     assert_checkout_catalog(box)

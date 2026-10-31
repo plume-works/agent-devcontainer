@@ -20,7 +20,7 @@ PROMOTE_ACTION = yaml.safe_load((ACTIONS / 'promote/action.yml').read_text())
 RENOVATE = json.loads((REPO_ROOT / '.github/renovate.json').read_text())
 PIN = 'opencode-compose-pins.yml'
 RUNTIME_SOURCES = [
-    '.devcontainer/scripts/runtime-supervisor.py',
+    'py_packages/agentdev_runtime/agentdev_runtime/supervisor.py',
     '.devcontainer/scripts/runtime-bootstrap.sh',
     '.devcontainer/firewall-allowlist.txt',
     'docker/base/agentdev-base.Dockerfile',

@@ -202,7 +202,12 @@ VARIABLES: tuple[Variable, ...] = (
     Variable(
         'AGENTDEV_HEALTH_COMMAND',
         'Probe command the controller runs per service.',
-        '/opt/agentdev-runtime/runtime-health.sh',
+        'agentdev-runtime health',
+    ),
+    Variable(
+        'AGENTDEV_BOOTSTRAP_COMMAND',
+        'Root bootstrap PID 1 runs before supervisord.',
+        '/opt/agentdev-runtime/runtime-bootstrap.sh',
     ),
     Variable('AGENTDEV_STRICT_STARTUP', 'True makes an optional-service failure fatal.'),
     Variable('AGENTDEV_SKIP_XPRA', 'True leaves Xpra out.'),

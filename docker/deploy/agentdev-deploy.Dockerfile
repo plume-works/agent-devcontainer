@@ -7,13 +7,8 @@ FROM $FROM_IMAGE
 ARG FROM_IMAGE
 
 # gh-stack moves out of root's home so any runtime account can register it.
-# Supervisor and UID rationale: see architecture/standalone-opencode-runtime.
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update \
-    && apt-get install -y --no-install-recommends supervisor \
-    && rm -f /etc/supervisor/conf.d/* \
-    && userdel --remove ubuntu \
+# UID rationale: see architecture/standalone-opencode-runtime.
+RUN userdel --remove ubuntu \
     && install -D -m 0755 /root/.local/share/gh/extensions/gh-stack/gh-stack \
       /usr/local/lib/agentdev/gh-stack/gh-stack \
     && install -m 0644 /root/.local/share/gh/extensions/gh-stack/manifest.yml \
@@ -64,9 +59,9 @@ WORKDIR /workspaces/project
 EXPOSE 4096 14500
 
 # Healthy only while a live controller reports ready and the core probes pass; the
-# start period covers the core path alone. See runtime-health.sh.
+# start period covers the core path alone. See agentdev_runtime.health.
 HEALTHCHECK --interval=15s --timeout=10s --start-period=10m --retries=3 \
-  CMD ["/opt/agentdev-runtime/runtime-health.sh", "ready"]
+  CMD ["/usr/local/bin/agentdev-runtime", "health", "ready"]
 
-ENTRYPOINT ["/opt/agentdev-runtime/runtime-supervisor.py", "run"]
+ENTRYPOINT ["/usr/local/bin/agentdev-runtime", "supervisor", "run"]
 CMD []

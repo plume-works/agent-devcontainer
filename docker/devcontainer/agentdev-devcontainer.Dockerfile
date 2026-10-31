@@ -6,12 +6,7 @@ FROM $FROM_IMAGE
 
 ARG FROM_IMAGE
 
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update \
-    && apt-get install -y --no-install-recommends supervisor \
-    && rm -f /etc/supervisor/conf.d/* \
-    && install -d -m 0755 /etc/agentdev/hooks/created.d /etc/agentdev/hooks/started.d \
+RUN install -d -m 0755 /etc/agentdev/hooks/created.d /etc/agentdev/hooks/started.d \
       /etc/agentdev/hooks/attached.d
 
 # The runtime CLI is a uv tool on the system interpreter, like validate_agent_files; the
@@ -62,7 +57,7 @@ LABEL org.opencontainers.image.base.name="$FROM_IMAGE"
 EXPOSE 14500
 
 HEALTHCHECK --interval=15s --timeout=10s --start-period=5m --retries=3 \
-  CMD ["/opt/agentdev-runtime/runtime-health.sh", "ready"]
+  CMD ["/usr/local/bin/agentdev-runtime", "health", "ready"]
 
-ENTRYPOINT ["/opt/agentdev-runtime/runtime-supervisor.py", "run"]
+ENTRYPOINT ["/usr/local/bin/agentdev-runtime", "supervisor", "run"]
 CMD []

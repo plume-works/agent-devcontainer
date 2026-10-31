@@ -133,7 +133,9 @@ def test_refuses_a_second_engine_but_clears_a_stale_pid_file(engine: Engine, tmp
 
 
 def test_the_image_prune_runs_once_the_nested_engine_is_up():
-    supervisor = (SCRIPTS / 'runtime-supervisor.py').read_text()
+    supervisor = (
+        REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime/supervisor.py'
+    ).read_text()
     assert "Service('prune', after=('dockerd',), oneshot=True)" in supervisor
     config = configparser.RawConfigParser()
     config.read(REPO_ROOT / 'docker/deploy/supervisord.conf')

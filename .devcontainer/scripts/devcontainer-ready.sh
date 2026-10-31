@@ -8,19 +8,19 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 workspace="${DEV_WORKSPACE_FOLDER:-$PWD}"
 export DEV_WORKSPACE_FOLDER="$workspace"
-health="${AGENTDEV_HEALTH_COMMAND:-$script_dir/runtime-health.sh}"
+read -ra health <<<"${AGENTDEV_HEALTH_COMMAND:-agentdev-runtime health}"
 timeout_s="${AGENTDEV_READY_TIMEOUT:-900}"
 
 fail() {
   echo "devcontainer-ready: $*" >&2
-  "$health" status >&2 || true
+  "${health[@]}" status >&2 || true
   exit 1
 }
 
 wait_ready() {
   local deadline=$((SECONDS + timeout_s)) state
-  until "$health" ready >/dev/null 2>&1; do
-    state="$("$health" status 2>/dev/null | head -n 1 || true)"
+  until "${health[@]}" ready >/dev/null 2>&1; do
+    state="$("${health[@]}" status 2>/dev/null | head -n 1 || true)"
     [[ $state != "runtime state: failed" ]] || fail "the runtime failed; the editor cannot attach"
     ((SECONDS < deadline)) || fail "the runtime was not ready within ${timeout_s}s"
     sleep 1
