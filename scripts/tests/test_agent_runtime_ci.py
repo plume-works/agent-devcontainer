@@ -96,7 +96,7 @@ def test_each_runtime_gets_its_own_manifest_and_native_acceptance():
         assert merged['with']['image'].endswith(f'${{{{ env.{env}_IMAGE_NAME }}}}')
         assert f'merge_{runtime}' in merge['outputs'][f'{runtime}_image_pinned']
     for job, script, variable in (
-        ('deploy-acceptance', 'test-agent-runtime.sh', 'AGENTDEV_RUNTIME_TEST_IMAGE'),
+        ('deploy-acceptance', 'test_agent_runtime_acceptance.py', 'AGENTDEV_RUNTIME_TEST_IMAGE'),
         (
             'devcontainer-acceptance',
             'test_agentdev_devcontainer_image.py',

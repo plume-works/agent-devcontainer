@@ -6,8 +6,7 @@
 .claude
 .codex
 .devcontainer
-# The runtime images bake only .devcontainer/scripts and the firewall allowlist.
-!.devcontainer/scripts
+# The runtime images bake only the firewall allowlist from .devcontainer.
 !.devcontainer/firewall-allowlist.txt
 .tmp
 .venv

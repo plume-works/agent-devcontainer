@@ -92,7 +92,6 @@ VARIABLES: tuple[Variable, ...] = (
         'Sudoers entry the bootstrap writes for the runtime account.',
         '/etc/sudoers.d/agentdev-runtime',
     ),
-    Variable('AGENTDEV_RUNTIME_ROOT', 'Image-owned runtime script tree.', '/opt/agentdev-runtime'),
     Variable('AGENTDEV_UV_DIR', 'uv cache, interpreter, and venv volume root.', '/uv'),
     Variable(
         'AGENTDEV_GH_STACK_DIR',

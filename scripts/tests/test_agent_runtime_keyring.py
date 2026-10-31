@@ -15,7 +15,6 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 KEYRING = [sys.executable, '-m', 'agentdev_runtime', 'keyring']
 CLIENT = Path(__file__).with_name('secret_service_client.py')
 SYSTEM_PYTHON = '/usr/bin/python3'

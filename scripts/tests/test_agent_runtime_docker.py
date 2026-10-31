@@ -15,7 +15,6 @@ from uuid import uuid4
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 DOCKER = [sys.executable, '-m', 'agentdev_runtime', 'docker']
 PACKAGE = REPO_ROOT / 'py_packages/agentdev_runtime'
 PINS = REPO_ROOT / 'devcontainer-compose-pins.yml'

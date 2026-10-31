@@ -396,7 +396,7 @@ jobs:
           AGENTDEV_RUNTIME_TEST_IMAGE: ${{ needs.merge-dev-image.outputs.deploy_image_pinned }}
         run: |
           sudo env "PATH=$PATH" "AGENTDEV_RUNTIME_TEST_IMAGE=$AGENTDEV_RUNTIME_TEST_IMAGE" \
-            .devcontainer/scripts/test-agent-runtime.sh
+            timeout 1500 uv run pytest scripts/tests/test_agent_runtime_acceptance.py -rs
 
       - name: Log debug stats
         if: ${{ always() }}

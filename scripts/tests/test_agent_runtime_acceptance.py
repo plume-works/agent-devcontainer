@@ -1,8 +1,8 @@
 """
 Container acceptance tests for agentdev-deploy, run against AGENTDEV_RUNTIME_TEST_IMAGE.
 
-Every container, volume, and network carries the ``agentdev.test=acceptance`` label so
-``.devcontainer/scripts/test-agent-runtime.sh`` can clean up after an interrupted run. No test
+Every container, volume, and network carries ``conftest.ACCEPTANCE_LABEL``, so the session
+cleans up after an interrupted run. No test
 spends provider or model usage.
 """
 
@@ -25,6 +25,7 @@ import urllib.error
 import urllib.request
 from uuid import uuid4
 
+from conftest import ACCEPTANCE_LABEL
 import pytest
 from scratch import TMP_ROOT
 
@@ -32,7 +33,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TESTS = Path(__file__).resolve().parent
 IMAGE = os.environ.get('AGENTDEV_RUNTIME_TEST_IMAGE', '')
 PREVIOUS_IMAGE = os.environ.get('AGENTDEV_RUNTIME_PREVIOUS_IMAGE', '')
-LABEL = 'agentdev.test=acceptance'
+LABEL = ACCEPTANCE_LABEL
 PASSWORD = 'acceptance-password'
 XPRA_PASSWORD = 'acceptance-xpra-password'
 AUTH_HEADER = 'Basic ' + base64.b64encode(f'opencode:{PASSWORD}'.encode()).decode()

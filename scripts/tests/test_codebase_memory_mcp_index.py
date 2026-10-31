@@ -10,7 +10,6 @@ import sys
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 PACKAGE = REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime'
 INDEX = [sys.executable, '-m', 'agentdev_runtime', 'cbm', 'index', '/workspaces/project']
 # Answers each call from $STUB_RESPONSE; `index_repository` with `--status` would mean a wait.
@@ -94,7 +93,7 @@ def test_a_refused_request_fails(stub: Path, response: str, extra: dict[str, str
 
 
 def test_no_startup_path_runs_a_blocking_index():
-    for source in [*SCRIPTS.glob('*.sh'), *PACKAGE.glob('*.py')]:
+    for source in PACKAGE.glob('*.py'):
         text = source.read_text()
         start = text.find('index_repository')
         while start != -1:

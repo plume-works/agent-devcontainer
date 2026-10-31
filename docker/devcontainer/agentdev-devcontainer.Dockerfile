@@ -18,7 +18,6 @@ RUN --mount=type=bind,source=py_packages/agentdev_runtime,target=/tmp/agentdev-r
 
 # The runtime root is image-owned; derived images extend it only through the hook
 # directories and documented environment. Spec: agentdev-runtime-images.
-COPY --chmod=0755 .devcontainer/scripts/ /opt/agentdev-runtime/
 COPY --chmod=0644 docker/devcontainer/supervisord.conf /etc/agentdev/supervisord.conf
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 

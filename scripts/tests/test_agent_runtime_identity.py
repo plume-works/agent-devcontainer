@@ -14,7 +14,6 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 PACKAGE = REPO_ROOT / 'py_packages/agentdev_runtime'
 # The bootstrap runs from source, as the image's system interpreter would run it.
 BOOTSTRAP = 'PYTHONPATH=/opt/agentdev-runtime-src python3 -m agentdev_runtime bootstrap'
@@ -120,8 +119,6 @@ def run(
         'docker',
         'run',
         '--rm',
-        '-v',
-        f'{SCRIPTS}:/opt/agentdev-runtime:ro',
         *SOURCE_MOUNT,
         *mounts,
         *env_args,
@@ -185,8 +182,6 @@ def test_rejects_a_uid_owned_by_another_account(image, volumes):
         'docker',
         'run',
         '--rm',
-        '-v',
-        f'{SCRIPTS}:/opt/agentdev-runtime:ro',
         *SOURCE_MOUNT,
         *volumes.args(),
         '-e',
@@ -206,8 +201,6 @@ def test_reuses_a_colliding_group(image, volumes):
         'docker',
         'run',
         '--rm',
-        '-v',
-        f'{SCRIPTS}:/opt/agentdev-runtime:ro',
         *SOURCE_MOUNT,
         *volumes.args(),
         '-e',

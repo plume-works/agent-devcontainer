@@ -15,7 +15,6 @@ from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 GH_HELPER = [sys.executable, '-m', 'agentdev_runtime', 'git', 'credential-helper']
 STATE = [sys.executable, '-m', 'agentdev_runtime', 'state']
 TOKEN = 'ghs_injectedTokenValue0123456789'

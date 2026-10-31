@@ -115,7 +115,14 @@ def _lifecycle(argv: list[str]) -> int:
     return lifecycle.main(argv)
 
 
+def _doctor(argv: list[str]) -> int:
+    from agentdev_runtime import doctor
+
+    return doctor.main(argv)
+
+
 PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
+    'doctor': (_doctor, 'the read-only environment health report'),
     'lifecycle': (
         _lifecycle,
         'the Dev Container create, start, and attach phases and their hooks',

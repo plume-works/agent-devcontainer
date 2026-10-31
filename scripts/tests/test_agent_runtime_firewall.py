@@ -14,7 +14,6 @@ from agentdev_runtime.settings import Settings
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 PACKAGE = REPO_ROOT / 'py_packages/agentdev_runtime'
 PINS = REPO_ROOT / 'devcontainer-compose-pins.yml'
 ALLOWLIST = 'github-meta\nregistry-1.docker.io\n*.example-cdn.net\n# comment\n\n'
@@ -281,8 +280,6 @@ def test_proxy_ingress_egress_and_nested_docker_together(network):
             'AGENTDEV_TRUSTED_PROXY_CIDRS=10.231.7.20/32',
             '-e',
             'AGENTDEV_RUNTIME_MODE=deploy',
-            '-v',
-            f'{SCRIPTS}:/opt/agentdev-runtime:ro',
             '-v',
             f'{PACKAGE}:/opt/agentdev-runtime-src:ro',
             '--tmpfs',

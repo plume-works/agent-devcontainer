@@ -21,7 +21,6 @@ RUN --mount=type=bind,source=py_packages/agentdev_runtime,target=/tmp/agentdev-r
     UV_PYTHON_DOWNLOADS=never UV_LINK_MODE=copy \
     uv tool install --reinstall --python /usr/bin/python3 /tmp/agentdev-runtime
 
-COPY --chmod=0755 .devcontainer/scripts/ /opt/agentdev-runtime/
 COPY --chmod=0644 docker/deploy/supervisord.conf /etc/agentdev/supervisord.conf
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
 
