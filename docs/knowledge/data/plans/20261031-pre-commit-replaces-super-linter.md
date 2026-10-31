@@ -129,9 +129,13 @@ path filter: pre-commit already skips hooks whose files did not change.
   - **Evidence:** commit `79f6f374`; the `dev_tools_pinned_tools` custom manager
     regex in `.github/renovate.json` matches all five new comments, and
     `git grep -i super-linter ansible/` returns nothing.
-- [ ] `.github/renovate.json` drops the Super-Linter sync rule, the npm regex
+- [x] `.github/renovate.json` drops the Super-Linter sync rule, the npm regex
   manager also matches the prettier `bunx` pin, no description names
   Super-Linter, and `bunx renovate-config-validator --strict` passes.
+  - **Evidence:** commit `13a7a15e`;
+    `bunx --package renovate@44.198.3 renovate-config-validator --strict .github/renovate.json`
+    passes, and the npm manager's match strings extract `renovate` and
+    `prettier` from `.pre-commit-config.yaml`.
 
 ### Task 3: Gate on the Task 1 image
 
