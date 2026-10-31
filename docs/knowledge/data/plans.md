@@ -17,6 +17,9 @@ moves them.*
 
 ## Active
 
+[Move the Coder template's knowledge into
+coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
+
 [AI review verdicts gate merge and trusted bots are
 auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
 
