@@ -197,8 +197,12 @@ under `docs/knowledge/tests/`
   - **Evidence:** commit 91bbfe2c; iwe-capture Step 5 and iwe-planner Step 5
     insert the link at its sorted position, and iwe-planner sets `rank` to its
     neighbours' midpoint only when the user names the place
-- [ ] Capture's someday promotion and Setup's onboarding-task completion edit
+- [x] Capture's someday promotion and Setup's onboarding-task completion edit
   frontmatter only, and remove a hub link only when the member leaves the hub
+  - **Evidence:** commit 91bbfe2c; iwe-capture promotion removes the
+    `data/someday.md` link only because the document leaves that hub, and
+    iwe-setup Step 6 sets `stage`, `completed`, and drops `rank` without moving
+    a link
 - [ ] Implement, Verify, Weekly, and Plan list active work with the two rank
   queries and select members by `type`, with no `--included-by` on a work hub
   and no reference to a hub section
