@@ -8,7 +8,7 @@ release:
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:03:19Z
+  at: 2026-10-31T16:54:51Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -41,18 +41,18 @@ a stock image, no longer binds the runtime. [Python skill
 scripts](20260905-python-skill-scripts.md) recorded that constraint and the rule
 that inline Python inside bash is neither testable nor lintable.
 
-The runtime is 41 shell scripts (2647 lines) beside a 1133-line Python
-supervisor. The scripts read 54 distinct `AGENTDEV_*` settings against the
-supervisor's 23, each file declaring its own defaults, and one variable defaults
-to two different paths in two files. The supervisor writes `state.json` in
-Python and `runtime-health.sh` parses it back with jq. Fourteen scripts are
-subcommand dispatchers, and thirteen call one another through
+Before this plan the runtime was 41 shell scripts (2647 lines) beside a
+1133-line Python supervisor. The scripts read 54 distinct `AGENTDEV_*` settings
+against the supervisor's 23, each file declaring its own defaults, and one
+variable defaulted to two different paths in two files. The supervisor wrote
+`state.json` in Python and `runtime-health.sh` parsed it back with jq. Fourteen
+scripts were subcommand dispatchers, and thirteen called one another through
 `$script_dir/<name>.sh`, with the environment as the parameter list. Three
-scripts run under `uv run --script` and resolve `tomlkit` and `json5` from PyPI
-the first time they run, inside the deploy profile's core `prepare` phase. A
+scripts ran under `uv run --script` and resolved `tomlkit` and `json5` from PyPI
+the first time they ran, inside the deploy profile's core `prepare` phase. A
 second, no-supervisor start path for GitHub `container:` jobs and Codex Cloud
-keeps `setup-keyring.sh`, `codebase-memory-mcp-start.sh`, and `firewall.sh`
-alive beside their supervised twins ([CI agent plugin
+kept `setup-keyring.sh`, `codebase-memory-mcp-start.sh`, and `firewall.sh` alive
+beside their supervised twins ([CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
 bootstrap is removed at the user's decision.
 
@@ -257,7 +257,7 @@ deletion of this one function; and running the responder as a host job through
     image) passes against `agentdev-deploy` built from that commit.
 - [x] `integrity.py` verifies the installed `agentdev_runtime` distribution
   against its `RECORD` hashes and file set before the bootstrap continues, and
-  refuses with the remedy `integrity.py:18` names, extending the runtime only
+  refuses with the remedy `integrity.REMEDY` names, extending the runtime only
   through `/etc/agentdev/hooks` and documented environment. The sha256 manifest
   step leaves the Dockerfile, and the derived-image test patches a package file
   instead of a script.
@@ -894,13 +894,70 @@ actually open or actually blocking required traffic.
 Normative outcome: the stable lifecycle commands SHALL be
 `agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready`, and
 `agentdev-runtime lifecycle attached`, published through the image's Dev
-Container metadata; the bootstrap SHALL refuse to run when the installed
-`agentdev_runtime` distribution differs from its recorded file hashes, which
-replaces the manifest over `/opt/agentdev-runtime`; `agentdev-base` SHALL NOT
-carry the package; `agentdev-runtime project hooks` SHALL warn, without failing,
-about each `language: system` pre-commit hook whose executable is not on `PATH`;
-and `agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as
-required tools.
+Container metadata; `agentdev-base` SHALL NOT carry the package;
+`agentdev-runtime project hooks` SHALL warn, without failing, about each
+`language: system` pre-commit hook whose executable is not on `PATH`; and
+`agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as required
+tools.
+
+The integrity check that replaces the manifest over `/opt/agentdev-runtime`
+guards what a derived image may change, so it is a delta:
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: consumers do not copy lifecycle implementation
+
+A direct or derived consumer SHALL be able to obtain the complete managed
+lifecycle by referencing `agentdev-devcontainer` and SHALL customize it through
+documented environment values and executable files in explicit ordered hook
+directories.
+
+#### Scenario: a direct consumer has no lifecycle scripts
+
+- **WHEN** its descriptor selects the image, mounts, workspace, and editor
+  settings without repository-local agentdev scripts
+- **THEN** managed startup, lifecycle commands, tools, and the staged catalog
+  remain available
+
+#### Scenario: a derived image adds a hook
+
+- **WHEN** it installs an executable hook in a documented phase directory
+- **THEN** the hook runs in deterministic order after the managed phase without
+  changing, adding, or removing any file of the installed `agentdev_runtime`
+  distribution
+
+#### Scenario: a mounted repository contains a similarly named script
+
+- **WHEN** no explicit image hook registers that script
+- **THEN** mounting or attaching the repository does not execute it
+
+## ADDED Requirements
+
+### Requirement: the bootstrap refuses a changed runtime package
+
+The root bootstrap SHALL refuse to run when a file of the installed
+`agentdev_runtime` distribution differs from the hash its `RECORD` holds, is
+missing, or was added beside the recorded files, and SHALL name the file and
+direct the consumer to the hook directories and documented environment.
+
+#### Scenario: a derived image edits a package file
+
+- **WHEN** a derived image replaces a file of the installed `agentdev_runtime`
+  distribution and the container starts
+- **THEN** the bootstrap fails naming that file and the extension points
+
+#### Scenario: a derived image adds a file to the package
+
+- **WHEN** a derived image adds a file below the installed distribution's
+  package directory
+- **THEN** the bootstrap fails naming the added file
+
+#### Scenario: an unmodified image starts
+
+- **WHEN** the installed distribution matches its `RECORD`
+- **THEN** the bootstrap continues
+```
 
 ### Specs that name a script
 
@@ -930,11 +987,19 @@ restarts it and, once the recovery budget is exhausted, reports degraded naming
 `remote-control`, or latches failed under strict startup.
 
 [Coder IDE baseline](../spec/coder-ide-baseline.md), Task 19 — the start hook
-becomes a command, and every other mention of `coder-agent-start.sh` in the spec
+becomes a command, so the script requirement is removed and a command
+requirement added, and every other mention of `coder-agent-start.sh` in the spec
 names `agentdev-runtime coder start`:
 
 ``` markdown
-## MODIFIED Requirements
+## REMOVED Requirements
+
+### Requirement: the agent-start script is the repository's only start hook
+
+Retired: the start hook is a command rather than a script path, which the added
+requirement below states.
+
+## ADDED Requirements
 
 ### Requirement: the agent-start command is the repository's only start hook
 
@@ -1102,6 +1167,14 @@ Verified anchor points (line numbers as of 2026-10-31):
   command
 - `docs/knowledge/data/product.md:112` — firewall constraint
 - `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
+- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:47` — `verify`:
+  changed, missing, or added package files against `RECORD`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:351` — the
+  bootstrap's integrity call
+- `docs/knowledge/data/spec/agentdev-runtime-images.md:97` — the hook scenario
+  naming `/opt/agentdev-runtime`
+- `docs/knowledge/data/spec/coder-ide-baseline.md:28` — the agent-start script
+  requirement the Task 19 delta removes
 - `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:19` —
   `REQUIRED_TOOLS`, with `gitleaks` (`:30`) and `actionlint` (`:31`)
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py:82` — `hooks`:
