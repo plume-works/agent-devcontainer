@@ -23,9 +23,6 @@ conversation](plans/20261031-verify-report-in-chat.md)
 [Move the Coder template's knowledge into
 coder-ide-baseline](plans/20261031-coder-template-knowledge-split.md)
 
-[Replace the runtime shell scripts with one agentdev-runtime
-CLI](plans/20261029-off-bash-migration.md)
-
 [Remove Codex support](plans/20261031-remove-codex.md)
 
 [Replace Super-Linter with pre-commit in
@@ -49,6 +46,9 @@ runner](plans/20260909-resumable-claude-review-sessions.md)
 [Conflict-free knowledge layout](plans/20261031-kb-conflict-free-layout.md)
 
 ## Done
+
+[Replace the runtime shell scripts with one agentdev-runtime
+CLI](plans/20261029-off-bash-migration.md)
 
 [AI review verdicts gate merge and trusted bots are
 auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)

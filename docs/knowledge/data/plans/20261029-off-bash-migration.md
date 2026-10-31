@@ -5,10 +5,11 @@ release:
 - features/agentdev-runtime-cli
 - bugs/workspace-image-lacks-hook-binaries
 - bugs/remote-control-watcher-start-loop
+- bugs/doctor-fails-healthy-coder-devcontainer
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:45:07Z
+  at: 2026-10-31T21:00:00Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -23,8 +24,11 @@ sources:
 - resource: docs/knowledge/data/plans/20260905-python-skill-scripts.md
 - resource: docs/knowledge/data/bugs/workspace-image-lacks-hook-binaries.md
 - resource: .pre-commit-config.yaml
+- resource: docs/knowledge/data/bugs/doctor-fails-healthy-coder-devcontainer.md
 - resource: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontaineroptions
 - resource: https://github.com/anthropics/claude-code-action/blob/v1/action.yml
+stage: done
+completed: 2026-10-31
 ---
 
 # Replace the runtime shell scripts with one agentdev-runtime CLI
@@ -41,18 +45,18 @@ a stock image, no longer binds the runtime. [Python skill
 scripts](20260905-python-skill-scripts.md) recorded that constraint and the rule
 that inline Python inside bash is neither testable nor lintable.
 
-The runtime is 41 shell scripts (2647 lines) beside a 1133-line Python
-supervisor. The scripts read 54 distinct `AGENTDEV_*` settings against the
-supervisor's 23, each file declaring its own defaults, and one variable defaults
-to two different paths in two files. The supervisor writes `state.json` in
-Python and `runtime-health.sh` parses it back with jq. Fourteen scripts are
-subcommand dispatchers, and thirteen call one another through
+Before this plan the runtime was 41 shell scripts (2647 lines) beside a
+1133-line Python supervisor. The scripts read 54 distinct `AGENTDEV_*` settings
+against the supervisor's 23, each file declaring its own defaults, and one
+variable defaulted to two different paths in two files. The supervisor wrote
+`state.json` in Python and `runtime-health.sh` parsed it back with jq. Fourteen
+scripts were subcommand dispatchers, and thirteen called one another through
 `$script_dir/<name>.sh`, with the environment as the parameter list. Three
-scripts run under `uv run --script` and resolve `tomlkit` and `json5` from PyPI
-the first time they run, inside the deploy profile's core `prepare` phase. A
+scripts ran under `uv run --script` and resolved `tomlkit` and `json5` from PyPI
+the first time they ran, inside the deploy profile's core `prepare` phase. A
 second, no-supervisor start path for GitHub `container:` jobs and Codex Cloud
-keeps `setup-keyring.sh`, `codebase-memory-mcp-start.sh`, and `firewall.sh`
-alive beside their supervised twins ([CI agent plugin
+kept `setup-keyring.sh`, `codebase-memory-mcp-start.sh`, and `firewall.sh` alive
+beside their supervised twins ([CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
 bootstrap is removed at the user's decision.
 
@@ -74,7 +78,8 @@ supervisor is present, with the legacy no-supervisor starters deleted; the
 firewall script ported rather than wrapped; and the detection that [Bug: a
 workspace on a pre-pin image has no gitleaks or actionlint and nothing says
 so](../bugs/workspace-image-lacks-hook-binaries.md) asks for, carried by
-`doctor` and `project hooks` as this plan's one behaviour change.
+`doctor` and `project hooks`, one of this plan's two behaviour changes; the
+other is Task 21's `doctor` checks.
 
 Three other open bugs sit in scripts this plan ports. [Bug: the Remote Control
 watcher restarts a session that never comes up on every
@@ -101,11 +106,11 @@ Every script becomes a subcommand of one CLI whose nouns are the runtime's
 concerns. One settings module parses every environment value once, with one
 default per variable, keyed by profile where the profiles differ. One state
 module defines the `state.json`, retry, and failure-record shapes for writer and
-reader alike. Behaviour behind each command is unchanged; this plan changes
-language and packaging, not policy, so every existing scenario in the affected
-specs holds as written.
+reader alike. Except for the two changes below, behaviour behind each command is
+unchanged; this plan changes language and packaging, not policy, so every
+existing scenario in the affected specs holds as written.
 
-The one exception is the hook-binary detection. After registering the hooks,
+The first exception is the hook-binary detection. After registering the hooks,
 `project hooks` warns about each `language: system` hook in the checkout's
 `.pre-commit-config.yaml` whose `entry` executable is not on `PATH`, and
 `doctor` requires `gitleaks` and `actionlint` in its toolchain section. A
@@ -113,12 +118,20 @@ missing hook executable is a warning, not a failure, in both profiles, so a
 consumer whose own hooks need tools the image lacks still starts; reading the
 hook configuration is why the package needs `pyyaml`.
 
+`doctor` also judges a healthy Compose Dev Container healthy, which the user
+directed. Compose passes `COMPOSE_PROFILES` from `.devcontainer/.env` into the
+container, and `doctor` checks the `mcp-gateway` sidecar only when that names
+the opt-in `mcp` profile, reporting it SKIP otherwise. Its `git user` check
+accepts whatever identity git itself resolves for author and committer, so the
+`GIT_AUTHOR_*` and `GIT_COMMITTER_*` values Coder sets count.
+
 The migration is incremental. The package installs beside the scripts first, PID
 1 and the healthcheck switch to the CLI next, and each service then moves with
 its supervisord `command=` and its tests, so the image boots at every task
 boundary. The last runtime task removes the `COPY` of the script tree and the
 sha256 manifest; integrity moves to the installed distribution's `RECORD`
-hashes, which keeps the derived-image protection the manifest provided.
+hashes, which, like the manifest, catches accidental edits by a derived image
+but is not a security boundary.
 
 A container with no supervisor socket runs `lifecycle ready --no-wait`, one
 function that starts the CBM daemon and then the per-start repairs. Nothing else
@@ -130,9 +143,11 @@ be PID 1 there; this function is the supported start for such a job.
 
 The firewall and the Xpra launcher join the package. The firewall runs as root
 from the bootstrap in both profiles, so its sudoers entry and the script in the
-Ansible role go; the role keeps the packages. The devcontainer profile reads the
-checkout's allowlist when present, as `spec/firewall` promises, and the image
-copy otherwise; deploy keeps the image copy.
+Ansible role go; the role keeps the packages. A set `FIREWALL_ALLOWLIST` names
+the allowlist in both profiles, as `init-firewall.sh` let it. Unset, the
+devcontainer profile reads the checkout's allowlist when present, as
+`spec/firewall` promises, and the image copy otherwise; deploy keeps the image
+copy.
 
 Rejected: loose stdlib scripts on the system interpreter, which keeps either the
 runtime PyPI fetch or an apt dependency hunt and keeps the file manifest; bash
@@ -255,7 +270,7 @@ deletion of this one function; and running the responder as a host job through
     image) passes against `agentdev-deploy` built from that commit.
 - [x] `integrity.py` verifies the installed `agentdev_runtime` distribution
   against its `RECORD` hashes and file set before the bootstrap continues, and
-  refuses with the remedy `integrity.py:18` names, extending the runtime only
+  refuses with the remedy `integrity.REMEDY` names, extending the runtime only
   through `/etc/agentdev/hooks` and documented environment. The sha256 manifest
   step leaves the Dockerfile, and the derived-image test patches a package file
   instead of a script.
@@ -263,7 +278,11 @@ deletion of this one function; and running the responder as a host job through
     removed files, a patched entry point, and a missing `RECORD`;
     `test_a_derived_image_cannot_replace_the_managed_runtime` passes in
     `test_agentdev_devcontainer_image.py` (5 passed) against
-    `agentdev-devcontainer` built from that commit.
+    `agentdev-devcontainer` built from that commit. Commit 0cd36222 refuses a
+    deleted `METADATA` and bytecode for no recorded module:
+    `test_a_removed_metadata_file_is_refused` and
+    `test_bytecode_for_no_recorded_module_is_refused` pass under
+    `uv run pytest py_packages/agentdev_runtime` (91 passed).
 
 ### Task 4: Firewall
 
@@ -292,13 +311,19 @@ deletion of this one function; and running the responder as a host job through
     against images built from merge ecf005c. The network test now sets
     `AGENTDEV_RUNTIME_MODE=deploy`: against the current image pin it never
     reached proxy ingress.
-- [x] The devcontainer profile reads
+- [x] With `FIREWALL_ALLOWLIST` unset, the devcontainer profile reads
   `<workspace>/.devcontainer/firewall-allowlist.txt` when it exists and
-  `/etc/agentdev/firewall-allowlist.txt` otherwise; deploy reads
-  `FIREWALL_ALLOWLIST` or the image copy.
+  `/etc/agentdev/firewall-allowlist.txt` otherwise; deploy reads the image copy.
   - **Evidence:** commit 052196c; `test_firewall_allowlist.py` covers the
     checkout copy, the image fallback, and deploy's setting and image copy,
     passing under `uv run pytest py_packages/agentdev_runtime`.
+- [x] A set `FIREWALL_ALLOWLIST` names the allowlist in both profiles, ahead of
+  the checkout and image copies. `test_firewall_allowlist.py` proves it in the
+  devcontainer profile with a checkout copy present.
+  - **Evidence:** commit bdcbd9ca;
+    `test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer` and
+    `test_deploy_reads_the_image_copy_or_the_setting` pass under
+    `uv run pytest py_packages/agentdev_runtime` (89 passed).
 - [x] The Ansible role keeps `iptables` and `ipset`, drops the script, the
   sudoers file, and any package only the script used once a repository grep
   confirms no other user.
@@ -546,8 +571,8 @@ Delete: `docker/desktop/start-xpra.sh`
     passes after the skill edit.
 - [x] `agentdev-runtime project hooks`, after registering the hooks, writes one
   warning to stderr for each `language: system` hook whose `entry` executable is
-  not on `PATH`, naming the hook and the executable, and keeps the exit status
-  it has today; tests cover a missing and a present executable in both profiles.
+  not on `PATH`, naming the hook and the executable, and keeps its exit status;
+  tests cover a missing and a present executable in both profiles.
   - **Evidence:** commit 4773feb; `test_project_hooks.py` covers a missing and a
     present executable in both profiles, a non-system hook, and deploy's
     custom-hook refusal, which exits 1 before any warning.
@@ -795,18 +820,47 @@ Delete: `docker/desktop/start-xpra.sh`
   images, the deploy and Dev Container acceptance jobs pass, and the canonical
   tags move.
   - **Evidence:** [CI run
-    41182366195](https://github.com/plume-works/agent-devcontainer/actions/runs/41182366195)
-    on 796bf892. The run includes:
+    41234466679](https://github.com/plume-works/agent-devcontainer/actions/runs/41234466679)
+    on 6efe8ea0 (PR #591), the head holding every code change; later commits
+    edit documents only. The run includes:
     - `Development image` builds `agentdev-base`, `agentdev-deploy`, and
       `agentdev-devcontainer` on amd64 and arm64, and `Merge development image`
       merges them.
     - `Devcontainer image`, `Deploy runtime acceptance`, and
       `Dev Container runtime acceptance` pass on both architectures.
-    - `Promote development image` moves `pr-573` on all three images, and
+    - `Promote development image` moves `pr-591` on all three images, and
       `CI finished` passes. CI collects every test tree in one pytest session,
       so the runtime's CLI tests are `tests/test_runtime_cli.py` and
       `ACCEPTANCE_LABEL` lives in `scripts/tests/acceptance_label.py` (commit
       f25e9e2b).
+
+### Task 21: doctor passes a healthy Coder Dev Container
+
+**Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/doctor.py`,
+`.devcontainer/docker-compose.yml`, `scripts/tests/test_environment_health.py`
+
+- [x] In the devcontainer profile, `doctor` checks `mcp-gateway` DNS and `:8811`
+  only when `COMPOSE_PROFILES` names `mcp`, and otherwise reports `mcp-gateway`
+  SKIP; the Compose `devcontainer` service passes `COMPOSE_PROFILES` through.
+  `test_environment_health.py` covers both.
+  - **Evidence:** commit 27c1ab21; `test_devcontainer_mode_checks_sidecars` and
+    `test_the_gateway_is_skipped_without_the_mcp_profile` pass in
+    `test_environment_health.py` (15 passed); `docker compose config` renders
+    `COMPOSE_PROFILES: mcp` with the profile enabled and `""` without it.
+- [x] `git user` passes when `git var GIT_AUTHOR_IDENT` and
+  `git var GIT_COMMITTER_IDENT` both resolve, so an identity set only through
+  `GIT_AUTHOR_*` and `GIT_COMMITTER_*` passes and a missing one still fails.
+  `test_environment_health.py` covers both.
+  - **Evidence:** commit 666da330;
+    `test_an_identity_git_resolves_passes_the_git_user_check` and
+    `test_an_identity_git_cannot_resolve_fails_the_git_user_check` pass in
+    `test_environment_health.py` (17 passed).
+- [x] `agentdev-runtime doctor` ends `Overall: PASS` in this repository's
+  Compose Dev Container under Coder with credentials.
+  - **Evidence:** commit 666da330; `uv run agentdev-runtime doctor` from the
+    package at that commit, in the Coder workspace's Compose Dev Container,
+    whose image predates the CLI, reports 45 PASS, 0 FAIL, 6 SKIP and
+    `Overall: PASS`, with `mcp-gateway` SKIP and `git user` PASS.
 
 ## Spec changes
 
@@ -832,11 +886,12 @@ with any other value it SHALL report that the firewall stays inert and exit 0.
 When enabled, `agentdev-runtime firewall apply` SHALL set IPv4
 `INPUT`/`FORWARD`/`OUTPUT` policies to `DROP` and block IPv6 entirely, while
 preserving Docker's embedded DNS NAT rules and allowing only hosts on the
-allowlist. The devcontainer profile SHALL read
+allowlist. When `FIREWALL_ALLOWLIST` is set, both profiles SHALL read the file
+it names. Otherwise the devcontainer profile SHALL read
 `<workspace>/.devcontainer/firewall-allowlist.txt` when it exists, so
 per-branch edits take effect on the next start without an image rebuild, and
 `/etc/agentdev/firewall-allowlist.txt` otherwise; the deploy profile SHALL read
-`FIREWALL_ALLOWLIST` or the image copy.
+the image copy.
 
 #### Scenario: a host not on the allowlist is requested
 
@@ -848,6 +903,12 @@ per-branch edits take effect on the next start without an image rebuild, and
 - **WHEN** a devcontainer restarts after `.devcontainer/firewall-allowlist.txt`
   changed in the checkout
 - **THEN** the new allowlist is in force without an image rebuild.
+
+#### Scenario: `FIREWALL_ALLOWLIST` is set in a devcontainer
+
+- **WHEN** a devcontainer starts with `FIREWALL_ALLOWLIST` naming a file and a
+  checkout allowlist present
+- **THEN** the firewall applies the file `FIREWALL_ALLOWLIST` names.
 
 ### Requirement: the firewall self-verifies at start and fails loudly
 
@@ -874,13 +935,76 @@ actually open or actually blocking required traffic.
 Normative outcome: the stable lifecycle commands SHALL be
 `agentdev-runtime lifecycle created`, `agentdev-runtime lifecycle ready`, and
 `agentdev-runtime lifecycle attached`, published through the image's Dev
-Container metadata; the bootstrap SHALL refuse to run when the installed
-`agentdev_runtime` distribution differs from its recorded file hashes, which
-replaces the manifest over `/opt/agentdev-runtime`; `agentdev-base` SHALL NOT
-carry the package; `agentdev-runtime project hooks` SHALL warn, without failing,
-about each `language: system` pre-commit hook whose executable is not on `PATH`;
-and `agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as
-required tools.
+Container metadata; `agentdev-base` SHALL NOT carry the package;
+`agentdev-runtime project hooks` SHALL warn, without failing, about each
+`language: system` pre-commit hook whose executable is not on `PATH`; and
+`agentdev-runtime doctor` SHALL report `gitleaks` and `actionlint` as required
+tools; and in the devcontainer profile `doctor` SHALL check the `mcp-gateway`
+sidecar only when the Compose `mcp` profile is enabled and SHALL accept the git
+identity git resolves, including one set through `GIT_AUTHOR_*` and
+`GIT_COMMITTER_*`.
+
+The integrity check that replaces the manifest over `/opt/agentdev-runtime`
+guards what a derived image may change, so it is a delta:
+
+``` markdown
+## MODIFIED Requirements
+
+### Requirement: consumers do not copy lifecycle implementation
+
+A direct or derived consumer SHALL be able to obtain the complete managed
+lifecycle by referencing `agentdev-devcontainer` and SHALL customize it through
+documented environment values and executable files in explicit ordered hook
+directories.
+
+#### Scenario: a direct consumer has no lifecycle scripts
+
+- **WHEN** its descriptor selects the image, mounts, workspace, and editor
+  settings without repository-local agentdev scripts
+- **THEN** managed startup, lifecycle commands, tools, and the staged catalog
+  remain available
+
+#### Scenario: a derived image adds a hook
+
+- **WHEN** it installs an executable hook in a documented phase directory
+- **THEN** the hook runs in deterministic order after the managed phase without
+  changing, adding, or removing any file of the installed `agentdev_runtime`
+  distribution
+
+#### Scenario: a mounted repository contains a similarly named script
+
+- **WHEN** no explicit image hook registers that script
+- **THEN** mounting or attaching the repository does not execute it
+
+## ADDED Requirements
+
+### Requirement: the bootstrap refuses a changed runtime package
+
+While the installed `agentdev_runtime` distribution's metadata is present, the
+root bootstrap SHALL refuse to run when a file its `RECORD` lists differs from
+the recorded hash or is missing, or a file was added beside the recorded files,
+and SHALL name the file and direct the consumer to the hook directories and
+documented environment. The check catches accidental or partial edits to the
+runtime and is not a security boundary: a derived image that deliberately
+deletes the distribution's metadata or rewrites its `RECORD` passes it.
+
+#### Scenario: a derived image edits a package file
+
+- **WHEN** a derived image replaces a file of the installed `agentdev_runtime`
+  distribution and the container starts
+- **THEN** the bootstrap fails naming that file and the extension points
+
+#### Scenario: a derived image adds a file to the package
+
+- **WHEN** a derived image adds a file below the installed distribution's
+  package directory
+- **THEN** the bootstrap fails naming the added file
+
+#### Scenario: an unmodified image starts
+
+- **WHEN** the installed distribution matches its `RECORD`
+- **THEN** the bootstrap continues
+```
 
 ### Specs that name a script
 
@@ -910,11 +1034,19 @@ restarts it and, once the recovery budget is exhausted, reports degraded naming
 `remote-control`, or latches failed under strict startup.
 
 [Coder IDE baseline](../spec/coder-ide-baseline.md), Task 19 — the start hook
-becomes a command, and every other mention of `coder-agent-start.sh` in the spec
+becomes a command, so the script requirement is removed and a command
+requirement added, and every other mention of `coder-agent-start.sh` in the spec
 names `agentdev-runtime coder start`:
 
 ``` markdown
-## MODIFIED Requirements
+## REMOVED Requirements
+
+### Requirement: the agent-start script is the repository's only start hook
+
+Retired: the start hook is a command rather than a script path, which the added
+requirement below states.
+
+## ADDED Requirements
 
 ### Requirement: the agent-start command is the repository's only start hook
 
@@ -991,13 +1123,12 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 ## Verification results
 
-- `agentdev-runtime doctor` in a started Dev Container is not shown passing. In
-  `agentdev-devcontainer` run under its supervisor, after `lifecycle created`
-  and `lifecycle ready`, it reports 39 PASS, 9 FAIL, and 4 SKIP. Every failure
-  is a check that needs something a bare container lacks: the Compose `sshd` and
-  `mcp-gateway` sidecars, the `gh`, git, Claude, and Codex credentials, and the
-  OpenCode server password. The toolchain section passes. Closing it takes one
-  `doctor` run in this repository's Compose Dev Container with credentials.
+- `agentdev-runtime doctor` ends `Overall: PASS` in this repository's Compose
+  Dev Container under Coder with credentials, run from the package because the
+  workspace image predates the CLI: 45 PASS, 0 FAIL, 6 SKIP (Task 21).
+- The task commits landed on `main` squashed as c96e1ef1 (#573); the per-task
+  SHAs the evidence cites are reachable on
+  `origin/iwe/off-bash-migration/iter-1-impl`.
 
 ## Out of scope
 
@@ -1018,8 +1149,9 @@ image](20261023-reusable-agentdev-devcontainer.md)
   pin.
 - Publishing `agentdev_runtime` to PyPI or installing it anywhere but the two
   runtime images.
-- Any other behaviour change: profile service sets, recovery budgets, catalog
-  policy, the managed `.venv` link cleanup, or any spec scenario.
+- Any other behaviour change beyond the hook-binary detection and Task 21's
+  `doctor` checks: profile service sets, recovery budgets, catalog policy, the
+  managed `.venv` link cleanup, or any spec scenario.
 - The fixes for the CBM start latch and the Codex auth link, which land after
   this plan, in the package.
 - Shims for the retired `/opt/agentdev-runtime/*.sh` names.
@@ -1028,49 +1160,69 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 Verified anchor points (line numbers as of 2026-10-31):
 
-- `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
-  gone ends the watcher
-- `.devcontainer/scripts/runtime-remote-control.sh:62` — the `checked=""` retry
-  Task 10 removes
-- `scripts/tests/test_runtime_remote_control.py:185` — the disappearing-session
-  test the new start-loop test sits beside
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:21` —
-  `COPY .devcontainer/scripts/`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:39` —
+- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py:97` —
+  `allowlist_path`: `FIREWALL_ALLOWLIST` first, in both profiles
+- `py_packages/agentdev_runtime/tests/test_firewall_allowlist.py:67` —
+  `test_deploy_reads_the_image_copy_or_the_setting`; `:76` —
+  `test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer`
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:249` — a seen
+  session that is gone ends the watcher; `:258` — a start that never comes up
+  ends it
+- `scripts/tests/test_runtime_remote_control.py:187` —
+  `test_a_session_that_disappears_ends_the_watcher`; `:197` —
+  `test_a_start_that_never_comes_up_ends_the_watcher`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:14` — the
+  `agentdev_runtime` uv tool install
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:38` —
   `devcontainer.metadata` lifecycle commands
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:56` — `HEALTHCHECK`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:54` — `HEALTHCHECK`
   command
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:58` — `ENTRYPOINT`
-- `docker/deploy/agentdev-deploy.Dockerfile:24` — `COPY .devcontainer/scripts/`
-- `docker/deploy/agentdev-deploy.Dockerfile:64` — `HEALTHCHECK` command
-- `docker/deploy/agentdev-deploy.Dockerfile:66` — `ENTRYPOINT`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:57` — `ENTRYPOINT`
+- `docker/deploy/agentdev-deploy.Dockerfile:19` — the `agentdev_runtime` uv tool
+  install
+- `docker/deploy/agentdev-deploy.Dockerfile:62` — `HEALTHCHECK` command
+- `docker/deploy/agentdev-deploy.Dockerfile:65` — `ENTRYPOINT`
 - `docker/devcontainer/supervisord.conf:25` — controller listener command
 - `docker/devcontainer/supervisord.conf:38` — first service `command=`
 - `docker/deploy/supervisord.conf:84` — `prepare` one-shot
-- `.github/workflows/ai-responder.yml:422` — review job `container:` block
-- `.github/actions/run-claude-responder/action.yml:150` — composite
+- `.github/workflows/ai-responder.yml:424` — review job `container:` block
+- `.github/actions/run-claude-responder/action.yml:159` — composite
   `claude-code-action` step
-- `.devcontainer/scripts/postStartCommand.sh:9` — no-supervisor branch
-- `.devcontainer/scripts/ci-hooks-repro.sh:20` — default image reference
-- `ansible/roles/validate_agent_files/tasks/main.yml:61` — uv tool install to
-  mirror
-- `ansible/roles/validate_agent_files/defaults/main.yml:17` — `/opt/uv-tools`
 - `.github/actions/run-claude-responder/action.yml:95` — lifecycle step
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:141` — `ready`:
+  the no-supervisor branch starts CBM through `start_cbm` (`:130`)
+- `ansible/roles/validate_agent_files/tasks/main.yml:61` — uv tool install the
+  runtime images mirror
+- `ansible/roles/validate_agent_files/defaults/main.yml:17` — `/opt/uv-tools`
 - `.github/workflows/ci.yml:325` — `agentdev-runtime health ready` in the Dev
   Container image check
-- `.github/workflows/ci.yml:399` — `test-agent-runtime.sh` invocation
+- `.github/workflows/ci.yml:399` — the acceptance suite through `uv run pytest`
 - `.github/renovate.json:6` — `postUpgradeTasks.commands`
 - `.github/workflows/renovate.yml:110` — `RENOVATE_ALLOWED_COMMANDS`
-- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:25` — filename stubs
-- `AGENTS.md:13` — `uv-sync.sh` reference
-- `README.md:205` — `runtime-health.sh status` operator command
-- `docker/deploy/README.md:102` — `runtime-health.sh status` operator command
-- `docs/knowledge/data/product.md:112` — firewall wrapper constraint
+- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:29` — module-function
+  stubs recording each step
+- `AGENTS.md:13` — `agentdev-runtime project sync` reference
+- `README.md:205` — `agentdev-runtime health status` operator command
+- `docker/deploy/README.md:101` — `agentdev-runtime health status` operator
+  command
+- `docs/knowledge/data/product.md:112` — firewall constraint
 - `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
-- `.codex/setup-codex-cloud.sh:4` — Codex Cloud bootstrap
-- `.devcontainer/scripts/environment-health.sh:78` — required toolchain list,
-  without `gitleaks` or `actionlint`
-- `.devcontainer/scripts/setup-pre-commit.sh:33` — deploy hook registration;
-  `:41` — devcontainer hook install, neither checking hook executables
+- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:55` — `verify`:
+  changed, missing, or added package files against `RECORD`
+- `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:351` — the
+  bootstrap's integrity call
+- `docs/knowledge/data/spec/agentdev-runtime-images.md:97` — the hook scenario
+  naming `/opt/agentdev-runtime`
+- `docs/knowledge/data/spec/coder-ide-baseline.md:28` — the agent-start script
+  requirement the Task 19 delta removes
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:142` — `gateway`:
+  `mcp-gateway` checked only when `COMPOSE_PROFILES` names `mcp`; `:233` —
+  `git user` resolving identity through `git var`
+- `.devcontainer/docker-compose.yml:70` — `COMPOSE_PROFILES` passed into the
+  `devcontainer` service
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:19` —
+  `REQUIRED_TOOLS`, with `gitleaks` (`:30`) and `actionlint` (`:31`)
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py:82` — `hooks`:
+  deploy and devcontainer hook registration; `:46` — `missing_executables`
 - `.pre-commit-config.yaml:56` — `gitleaks`, a `language: system` hook; `:62` —
   `actionlint`

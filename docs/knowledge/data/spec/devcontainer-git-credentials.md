@@ -3,13 +3,13 @@ type: spec
 description: Git identity passes from the outer workspace into the nested devcontainer, and HTTPS git reuses the gh login.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-12T00:00:00Z
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: .devcontainer/scripts/coder-agent-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/coder.py
 - resource: scripts/tests/test_coder_agent_start.py
 - resource: .devcontainer/docker-compose.yml
-- resource: .devcontainer/scripts/postStartCommand.sh
-- resource: .devcontainer/scripts/setup-gh-credential-helper.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/git.py
 - resource: scripts/tests/test_setup_gh_credential_helper.py
 ---
 
@@ -31,19 +31,20 @@ an empty value as an override of `user.name` or `user.email`:
 ### Requirement: HTTPS git uses the gh login
 
 When `gh` is authenticated to github.com and no git credential helper matches
-`https://github.com`, post-start SHALL configure `gh` as the helper, and so
-SHALL `coder-agent-start.sh`, which the Coder template's `coder_script` runs on
-every agent start. Both SHALL check authentication only after the keyring
-session is available, so git never waits at an interactive credential prompt. An
-existing helper SHALL be kept. A failed helper setup SHALL NOT stop
-`coder-agent-start.sh` from starting Remote Control.
+`https://github.com`, post-start (`agentdev-runtime lifecycle ready`) SHALL
+configure `gh` as the helper, and so SHALL `agentdev-runtime coder start`, which
+the Coder template's `coder_script` runs on every agent start. Both SHALL check
+authentication only after the keyring session is available, so git never waits
+at an interactive credential prompt. An existing helper SHALL be kept. A failed
+helper setup SHALL NOT stop `agentdev-runtime coder start` from starting Remote
+Control.
 
 #### Scenario: gh's only login is a Coder user secret
 
 - **WHEN** a Coder workspace supplies `GITHUB_TOKEN` as a user secret, `gh` has
   no stored login, and the agent starts
-- **THEN** `coder-agent-start.sh` configures `gh` as the github.com helper, and
-  `git push` over HTTPS completes without a prompt.
+- **THEN** `agentdev-runtime coder start` configures `gh` as the github.com
+  helper, and `git push` over HTTPS completes without a prompt.
 
 #### Scenario: gh has a stored login outside Coder
 
@@ -54,13 +55,14 @@ existing helper SHALL be kept. A failed helper setup SHALL NOT stop
 #### Scenario: a helper is already configured
 
 - **WHEN** a git credential helper already matches `https://github.com`
-- **THEN** neither post-start nor `coder-agent-start.sh` changes it.
+- **THEN** neither post-start nor `agentdev-runtime coder start` changes it.
 
 #### Scenario: helper setup fails at agent start
 
-- **WHEN** `setup-gh-credential-helper.sh` exits non-zero during
-  `coder-agent-start.sh`
-- **THEN** a warning is printed and `claude-remote-control-start.sh` still runs.
+- **WHEN** `agentdev-runtime git credential-helper` exits non-zero during
+  `agentdev-runtime coder start`
+- **THEN** a warning is printed and `agentdev-runtime remote-control start`
+  still runs.
 
 ## Supplying the identity
 

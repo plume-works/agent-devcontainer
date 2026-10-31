@@ -1,12 +1,14 @@
 ---
 type: spec
-description: Devcontainer OpenCode sessions allow every action and every external directory, configured in the user's OpenCode config on every start by a script that needs nothing from the consumer project.
+description: Devcontainer OpenCode sessions allow every action and every external directory, configured in the user's OpenCode config on every start by a runtime command that needs nothing from the consumer project.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-18T20:00:00Z
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: .devcontainer/scripts/configure-opencode.py
-- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: scripts/tests/test_configure_opencode.py
 ---
 
@@ -23,7 +25,8 @@ devcontainer](../architecture/opencode-full-access-in-devcontainer.md).
 
 ### Requirement: devcontainer OpenCode runs with unrestricted filesystem access
 
-On every container start, `postStartCommand.sh` SHALL set `$schema` to
+On every container start, `agentdev-runtime lifecycle ready` SHALL, through
+`agentdev-runtime state agent-policy`, set `$schema` to
 `https://opencode.ai/config.json`, `permission["*"]` to `"allow"`, and
 `permission.external_directory["/**"]` to `"allow"` in the OpenCode
 `opencode.json` resolved from `OPENCODE_CONFIG_DIR`, `XDG_CONFIG_HOME`, or the
@@ -61,9 +64,9 @@ the file SHALL have mode `0600`.
 
 ### Requirement: the OpenCode configure step is consumer-independent
 
-The configure script SHALL declare its pinned JSONC parser dependency inline
-with PEP 723 and run through `uv`, without depending on the consumer workspace's
-Python project or installed packages.
+`agentdev-runtime state agent-policy` SHALL take its pinned JSONC parser
+dependency from the `agentdev_runtime` package installed in the image, without
+depending on the consumer workspace's Python project or installed packages.
 
 #### Scenario: a consumer repository has no Python project
 
