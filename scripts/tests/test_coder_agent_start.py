@@ -5,7 +5,7 @@ import subprocess
 
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = REPO_ROOT / '.devcontainer/scripts/coder-agent-start.sh'
-IMAGE_PRUNE = 'docker-image-prune.sh'
+IMAGE_PRUNE = 'agentdev-runtime docker prune'
 HELPER_SETUP = 'setup-gh-credential-helper.sh'
 OPENCODE_WEB = 'opencode-web-start.sh'
 REMOTE_CONTROL = 'claude-remote-control-start.sh'
@@ -26,19 +26,26 @@ def run_agent_start(
     shutil.copy2(SCRIPT, script)
     log = tmp_path / 'calls.log'
     fakes = {
-        IMAGE_PRUNE: f'echo "{IMAGE_PRUNE}" >> "{log}"\nexit {prune_exit}\n',
         HELPER_SETUP: f'echo "{HELPER_SETUP} token=${{GITHUB_TOKEN:-}}" >> "{log}"\n'
         f'exit {helper_exit}\n',
         OPENCODE_WEB: f'echo "{OPENCODE_WEB} password=${{OPENCODE_SERVER_PASSWORD:-}}" >> "{log}"\n'
         f'exit {opencode_exit}\n',
         REMOTE_CONTROL: f'echo "{REMOTE_CONTROL}" >> "{log}"\n',
     }
+    bin_dir = tmp_path / 'bin'
+    bin_dir.mkdir()
+    fakes[f'../bin/{IMAGE_PRUNE.split()[0]}'] = (
+        f'echo "agentdev-runtime $*" >> "{log}"\nexit {prune_exit}\n'
+    )
     for name, body in fakes.items():
         fake = scripts / name
         fake.write_text('#!/usr/bin/env bash\n' + body)
         fake.chmod(0o755)
     result = subprocess.run(
-        [script], env={'PATH': os.environ['PATH'], **(env or {})}, text=True, capture_output=True
+        [script],
+        env={'PATH': f'{bin_dir}:{os.environ["PATH"]}', **(env or {})},
+        text=True,
+        capture_output=True,
     )
     calls = log.read_text().splitlines() if log.exists() else []
     return result, calls
@@ -47,8 +54,8 @@ def run_agent_start(
 def test_prune_helper_and_opencode_run_before_remote_control(tmp_path):
     result, calls = run_agent_start(tmp_path)
     assert result.returncode == 0, result.stderr
-    assert [call.split()[0] for call in calls] == [
-        IMAGE_PRUNE,
+    assert calls[0] == IMAGE_PRUNE
+    assert [call.split()[0] for call in calls[1:]] == [
         HELPER_SETUP,
         OPENCODE_WEB,
         REMOTE_CONTROL,
@@ -58,8 +65,8 @@ def test_prune_helper_and_opencode_run_before_remote_control(tmp_path):
 def test_remote_control_starts_when_prune_fails(tmp_path):
     result, calls = run_agent_start(tmp_path, prune_exit=3)
     assert result.returncode == 0, result.stderr
-    assert [call.split()[0] for call in calls] == [
-        IMAGE_PRUNE,
+    assert calls[0] == IMAGE_PRUNE
+    assert [call.split()[0] for call in calls[1:]] == [
         HELPER_SETUP,
         OPENCODE_WEB,
         REMOTE_CONTROL,

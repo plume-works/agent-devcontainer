@@ -6,7 +6,7 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-if ! "$script_dir/docker-image-prune.sh"; then
+if ! agentdev-runtime docker prune; then
   echo "Warning: Docker image prune failed; starting Remote Control anyway." >&2
 fi
 

@@ -31,7 +31,6 @@ STUBS = [
     'codebase-memory-mcp-start.sh',
     'setup-git-safe-directory.sh',
     'setup-gh-credential-helper.sh',
-    'setup-keyring.sh',
 ]
 FAKE_HEALTH = """#!/usr/bin/env bash
 case "$1" in
@@ -332,7 +331,6 @@ def test_an_unsupervised_start_starts_services_before_the_start_steps(lifecycle)
     assert_ok(lifecycle.run('postStartCommand.sh'))
     assert lifecycle.calls() == [
         'codebase-memory-mcp-start.sh',
-        'setup-keyring.sh',
         *START_STEPS,
     ]
 

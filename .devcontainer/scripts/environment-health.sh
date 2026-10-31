@@ -102,7 +102,7 @@ done
 echo '== Services =='
 check 'dockerd' docker info --format '{{.ServerVersion}} containers={{.Containers}} running={{.ContainersRunning}}'
 check 'dbus session' gdbus call --session --dest org.freedesktop.DBus --object-path /org/freedesktop/DBus --method org.freedesktop.DBus.GetId
-check 'keyring' "$runtime_scripts/runtime-keyring.sh" check
+check 'keyring' agentdev-runtime keyring check
 check 'cbm' "$runtime_scripts/runtime-cbm.sh" check
 check 'xpra http :14500' curl -fsS -o /dev/null -w '%{http_code}' --max-time 5 http://127.0.0.1:14500/
 check 'xpra process' bash -c "pgrep -f '[x]pra' >/dev/null"

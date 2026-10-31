@@ -11,7 +11,6 @@ if [[ -S ${AGENTDEV_RUN_DIR:-/run/agentdev}/supervisor.sock ]]; then
 fi
 
 "$script_dir/codebase-memory-mcp-start.sh"
-"$script_dir/setup-keyring.sh"
 # Headless callers — the CI responder job — opt out of the remote desktop
 # nothing will connect to. Unset (the devcontainer default) starts it as before.
 if [[ -n "${AGENTDEV_SKIP_XPRA:-}" ]]; then

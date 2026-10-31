@@ -91,10 +91,6 @@ def test_reads_gh_login_through_saved_keyring_session(tmp_path):
 
 
 def test_post_start_runs_setup_after_keyring():
-    post_start = POST_START.read_text()
-    assert post_start.index('"$script_dir/setup-keyring.sh"') < post_start.index(
-        'devcontainer-ready.sh" --no-wait'
-    )
     ready = READY.read_text()
     helper = ready.index('"$script_dir/setup-gh-credential-helper.sh"')
     assert ready.index("'') wait_ready ;;") < helper

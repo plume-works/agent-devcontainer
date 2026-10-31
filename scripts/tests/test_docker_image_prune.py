@@ -1,9 +1,10 @@
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/docker-image-prune.sh'
+PRUNE = [sys.executable, '-m', 'agentdev_runtime', 'docker', 'prune']
 PRUNE_ARGS = 'image prune -af --filter until=72h'
 RECLAIMED = 'Total reclaimed space: 1.5GB'
 
@@ -11,7 +12,7 @@ RECLAIMED = 'Total reclaimed space: 1.5GB'
 def run_prune(
     tmp_path: Path, *, docker_installed: bool = True, info_exit: int = 0, prune_exit: int = 0
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
-    """Run the script with a stub docker that logs its arguments."""
+    """Run the prune with a stub docker that logs its arguments."""
     fake_bin = tmp_path / 'bin'
     fake_bin.mkdir()
     for tool in ('bash', 'env'):
@@ -30,7 +31,7 @@ def run_prune(
             'fi\n'
         )
         (fake_bin / 'docker').chmod(0o755)
-    result = subprocess.run([SCRIPT], env={'PATH': str(fake_bin)}, text=True, capture_output=True)
+    result = subprocess.run(PRUNE, env={'PATH': str(fake_bin)}, text=True, capture_output=True)
     calls = log.read_text().splitlines() if log.exists() else []
     return result, calls
 

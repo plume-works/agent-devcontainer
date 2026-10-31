@@ -20,6 +20,7 @@ from agentdev_runtime.supervisor import RETRY_COMMAND
 SERVICES = ('dockerd', 'dbus', 'keyring', 'cbm', 'xpra', 'opencode', 'remote-control')
 # The session bus and the CBM rendezvous admit only the account that owns them.
 USER_SERVICES = frozenset({'dbus', 'keyring', 'cbm', 'opencode', 'xpra', 'remote-control'})
+SELF = (sys.executable, '-m', 'agentdev_runtime')
 USAGE = f'usage: agentdev-runtime health {"|".join(SERVICES)}|ready|status'
 
 
@@ -69,7 +70,7 @@ def probe(settings: env.Settings, service: str) -> bool:
             stderr=False,
         )
     if service == 'keyring':
-        return _run([_script(settings, 'runtime-keyring.sh'), 'check'], timeout=5)
+        return _run([*SELF, 'keyring', 'check'], timeout=5)
     if service == 'cbm':
         return _run([_script(settings, 'runtime-cbm.sh'), 'check'], timeout=10, stderr=False)
     if service == 'xpra':

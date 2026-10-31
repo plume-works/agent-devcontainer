@@ -224,7 +224,7 @@ FIREWALL_ALLOWLIST=/tmp/allowlist.txt PYTHONPATH=/opt/agentdev-runtime-src \\
 echo firewall-ready
 python3 -m http.server 4096 >/dev/null 2>&1 &
 python3 -m http.server 5000 >/dev/null 2>&1 &
-/opt/agentdev-runtime/runtime-docker.sh run > /tmp/dockerd.log 2>&1 &
+PYTHONPATH=/opt/agentdev-runtime-src python3 -m agentdev_runtime docker run > /tmp/dockerd.log 2>&1 &
 for _ in $(seq 120); do docker info >/dev/null 2>&1 && break; sleep 0.5; done
 docker run --rm hello-world >/dev/null && echo nested-pull-ok
 gh_ip=$(getent ahostsv4 api.github.com | awk 'NR == 1 {print $1}')

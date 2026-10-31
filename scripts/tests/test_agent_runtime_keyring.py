@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-import os
 from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import time
 from uuid import uuid4
 
@@ -16,8 +16,7 @@ from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
-RUNTIME_KEYRING = SCRIPTS / 'runtime-keyring.sh'
-SETUP_KEYRING = SCRIPTS / 'setup-keyring.sh'
+KEYRING = [sys.executable, '-m', 'agentdev_runtime', 'keyring']
 CLIENT = Path(__file__).with_name('secret_service_client.py')
 SYSTEM_PYTHON = '/usr/bin/python3'
 
@@ -48,7 +47,7 @@ class Instance:
 
     def start(self, piece: str) -> subprocess.Popen[bytes]:
         process = subprocess.Popen(
-            [RUNTIME_KEYRING, piece],
+            [*KEYRING, piece],
             env=self.env,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -57,11 +56,11 @@ class Instance:
         return process
 
     def wait_ready(self) -> None:
-        result = subprocess.run([RUNTIME_KEYRING, 'wait', '10'], env=self.env, capture_output=True)
+        result = subprocess.run([*KEYRING, 'wait', '10'], env=self.env, capture_output=True)
         assert result.returncode == 0, result.stderr
 
     def check(self) -> int:
-        return subprocess.run([RUNTIME_KEYRING, 'check'], env=self.env).returncode
+        return subprocess.run([*KEYRING, 'check'], env=self.env).returncode
 
     def child(self, *args: str) -> subprocess.CompletedProcess[str]:
         """Run the client the way OpenCode runs a tool: only the inherited environment."""
@@ -102,14 +101,6 @@ def wait_exit(process: subprocess.Popen[bytes], timeout: float = 10) -> bool:
     except subprocess.TimeoutExpired:
         return False
     return True
-
-
-def test_env_names_a_deterministic_private_socket(instance: Instance):
-    printed = subprocess.run(
-        [RUNTIME_KEYRING, 'env'], env=instance.env, capture_output=True, text=True, check=True
-    ).stdout
-    assert f"export DBUS_SESSION_BUS_ADDRESS='unix:path={instance.runtime}/bus'" in printed
-    assert f"export XDG_RUNTIME_DIR='{instance.runtime}'" in printed
 
 
 def test_foreground_services_serve_secrets_to_a_child_process(instance: Instance):
@@ -177,85 +168,3 @@ def test_keyring_waits_for_its_bus_instead_of_spawning_one(instance: Instance):
     assert not (instance.runtime / 'bus').exists()
     instance.start('dbus')
     instance.wait_ready()
-
-
-def test_background_lifecycle_still_starts_and_reuses_a_session(tmp_path: Path):
-    home = tmp_path / 'home'
-    home.mkdir()
-    env_file = tmp_path / 'state/keyring-session.env'
-    env = {'PATH': '/usr/bin:/bin', 'HOME': str(home), 'AGENTDEV_KEYRING_ENV_FILE': str(env_file)}
-    first = subprocess.run([SETUP_KEYRING], env=env, capture_output=True, text=True)
-    try:
-        assert first.returncode == 0, first.stderr
-        assert (env_file.stat().st_mode & 0o777) == 0o600
-        saved = env_file.read_text()
-        second = subprocess.run([SETUP_KEYRING], env=env, capture_output=True, text=True)
-        assert second.returncode == 0, second.stderr
-        assert env_file.read_text() == saved
-    finally:
-        pid = (
-            next(
-                line.split("'")[1]
-                for line in env_file.read_text().splitlines()
-                if 'DBUS_SESSION_BUS_PID' in line
-            )
-            if env_file.exists()
-            else ''
-        )
-        if pid:
-            os.kill(int(pid), signal.SIGTERM)
-
-
-def saved_bus_pid(env_file: Path) -> int | None:
-    for line in env_file.read_text().splitlines() if env_file.exists() else []:
-        if 'DBUS_SESSION_BUS_PID' in line and line.split("'")[1]:
-            return int(line.split("'")[1])
-    return None
-
-
-def test_a_fixed_address_gets_one_bus_that_every_client_reuses():
-    TMP_ROOT.mkdir(exist_ok=True)
-    root = TMP_ROOT / f'kf-{uuid4().hex[:8]}'
-    (root / 'home').mkdir(parents=True)
-    socket = root / 'bus/socket'
-    socket.parent.mkdir()
-    socket.write_text('left by a killed daemon')
-    env_file = root / 'state/keyring-session.env'
-    (root / 'run').mkdir(mode=0o700)
-    env = {
-        'PATH': '/usr/bin:/bin',
-        'HOME': str(root / 'home'),
-        'XDG_RUNTIME_DIR': str(root / 'run'),
-        'AGENTDEV_KEYRING_ENV_FILE': str(env_file),
-        'DBUS_SESSION_BUS_ADDRESS': f'unix:path={socket}',
-    }
-    try:
-        first = subprocess.run([SETUP_KEYRING], env=env, capture_output=True, text=True)
-        assert first.returncode == 0, first.stderr
-        assert socket.is_socket()
-        assert f"DBUS_SESSION_BUS_ADDRESS='unix:path={socket}'" in env_file.read_text()
-        bus = saved_bus_pid(env_file)
-        assert bus is not None
-
-        second = subprocess.run([SETUP_KEYRING], env=env, capture_output=True, text=True)
-        assert second.returncode == 0, second.stderr
-        assert saved_bus_pid(env_file) == bus, 'the running bus is reused'
-
-        client = {**env, 'DISPLAY': ':1'}
-        stored = subprocess.run(
-            [SYSTEM_PYTHON, CLIENT, 'store', 'gh', 'one-bus'], env=client, capture_output=True
-        )
-        assert stored.returncode == 0, stored.stderr
-        looked_up = subprocess.run(
-            [SYSTEM_PYTHON, CLIENT, 'lookup', 'gh'], env=client, capture_output=True, text=True
-        )
-        assert looked_up.stdout.strip() == 'one-bus', looked_up.stderr
-    finally:
-        bus = subprocess.run(
-            ['pgrep', '-f', f'dbus-daemon .*--address=unix:path={socket}'],
-            capture_output=True,
-            text=True,
-        ).stdout.split()
-        for pid in bus:
-            os.kill(int(pid), signal.SIGTERM)
-        shutil.rmtree(root, ignore_errors=True)
