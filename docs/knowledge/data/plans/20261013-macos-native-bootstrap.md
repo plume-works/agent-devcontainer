@@ -377,9 +377,13 @@ arguments; point `HOME` at a temporary directory.
     verification bullets of `## Behaviour` in
     `data/features/macos-native-bootstrap`; `iwe normalize` and
     `iwe schema validate` pass at that commit.
-- [ ] `## Edge cases` covers fish being absent and a `$SHELL` whose login shell
+- [x] `## Edge cases` covers fish being absent and a `$SHELL` whose login shell
   resolves another `python3`, and `iwe normalize` and `iwe schema validate`
   pass.
+  - **Evidence:** commit `e1330a3b` adds the **No fish** and **Another `python3`
+    in the user's shell** edge cases to `data/features/macos-native-bootstrap`
+    and stamps it; `iwe normalize` and `iwe schema validate` pass at that
+    commit.
 
 ## Spec changes
 
