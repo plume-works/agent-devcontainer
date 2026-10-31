@@ -152,7 +152,8 @@ tiers](../architecture/pr-review-effort-tiers.md).
 - **A pull request from a bot outside `TRUSTED_BOT_ACTORS`.** The
   `trusted-bot-approval` job runs, finds the author unlisted, and approves
   nothing; preflight skips every bot-authored pull request, so no review runs
-  and `ai-review-present` fails until a person approves.
+  and `ai-review-present` stays red, so merging needs a user with ruleset
+  bypass.
 - **A person pushes to an approved trusted-bot pull request.** The next run
   dismisses the bot approval and posts a notice; closing and reopening the pull
   request runs the same check and does not restore it.
