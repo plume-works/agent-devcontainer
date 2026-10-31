@@ -245,8 +245,11 @@ under `docs/knowledge/tests/`
     skills finds no match, and
     `grep -n 'OKF\|index.md\|unreleased\|Dual\|status' docs/knowledge/{STRUCTURE,README}.md`
     finds none
-- [ ] `SCHEMA.md` documents `rank`, the base schema, the log schema, and the
+- [x] `SCHEMA.md` documents `rank`, the base schema, the log schema, and the
   flat hub body
+  - **Evidence:** commit adefc667; `SCHEMA.md` gains `## The build order — rank`
+    and `## The log — data/log.md`, names `base.yaml`, and states the flat hub
+    body under `## Hubs and the trackers`
 
 ### Task 9: The bootstrap scaffold ships the layout
 
