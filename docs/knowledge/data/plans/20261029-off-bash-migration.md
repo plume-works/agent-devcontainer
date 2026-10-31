@@ -56,6 +56,11 @@ alive beside their supervised twins ([CI agent plugin
 availability](../architecture/ci-agent-plugin-availability.md)). The Codex Cloud
 bootstrap is removed at the user's decision.
 
+The user decided that the AI responder installs `agentdev-runtime` from the
+checkout when its pinned image lacks it, so the responder keeps working, on this
+plan's own pull request and after merge, until the image pin moves to an image
+built with the CLI.
+
 The user's decisions for this plan: one Python package installed as a uv tool
 the way `validate_agent_files` is; one CLI rather than per-script shims; the
 catalog's scripts in their own plan, [Port the catalog's bundled shell scripts
@@ -708,7 +713,20 @@ Delete: `docker/desktop/start-xpra.sh`
     `data/codebase/py_packages/agentdev_runtime` and refreshes the 17 stale
     docs; `stale-map-docs.py` ends `RESULT=SUCCESS` with 28 fresh docs.
 
-### Task 18: Verify the published image family
+### Task 18: The responder runs on an image without the CLI
+
+**Files:** Modify: `.github/actions/run-claude-responder/action.yml`
+
+- [ ] When `agentdev-runtime` is not on `PATH`, the responder's lifecycle step
+  installs it from the checkout's `py_packages/agentdev_runtime` as a uv tool
+  before running `agentdev-runtime lifecycle created|ready|attached`, so a
+  `container:` job on a pinned image built before this plan still runs its
+  lifecycle; an image that ships the CLI skips the install.
+- [ ] `actionlint` and `zizmor` pass through pre-commit, and the step's install
+  path runs in a container from the currently pinned `agentdev-devcontainer`
+  image.
+
+### Task 19: Verify the published image family
 
 **Files:** None.
 
@@ -830,7 +848,7 @@ image](20261023-reusable-agentdev-devcontainer.md)
 - `uv run ruff check py_packages/agentdev_runtime scripts` and
   `.agents/plugins/agentdev/bin/python_lint_check.py`
 - `shellcheck` on every remaining shell file;
-  `git ls-files '.devcontainer/**/*.sh' 'docker/**/*.sh' '.codex/**' 'scripts/*.sh'`
+  `git ls-files ':(glob).devcontainer/**/*.sh' ':(glob)docker/**/*.sh' ':(glob).codex/**' ':(glob)scripts/*.sh' ':!.codex/README.md'`
   prints exactly `.devcontainer/devcontainer-init.sh`,
   `docker/ansible/setup-ansible.sh`, and `docker/desktop/entrypoint.sh`
 - `uv run ansible-lint ansible` and
