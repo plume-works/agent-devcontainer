@@ -1,13 +1,13 @@
 ---
-# Pinned single-binary tools, each released as a per-arch tar.gz. Every entry is
-# downloaded, checksum-verified, extracted to a scratch tempdir, and only the
-# named binary is copied out to /usr/local/bin/<name> as root:root — the archive
+# Pinned single-binary tools, each released per arch as an archive or a bare
+# binary. Every entry is downloaded, checksum-verified, extracted (archives only)
+# to a scratch tempdir, and only the named binary is copied out to /usr/local/bin/<name> as root:root — the archive
 # itself is never unpacked directly into /usr/local/bin, so an unrelated owner
 # baked into the archive's own "./" entry (see zizmor below) can never leak onto
 # a shared system directory.
 #
 # The download URL is assembled as
-# "{{ url_prefix }}/{{ version }}/{{ asset_prefix }}{{ archives[system_arch].target }}.tar.gz",
+# "{{ url_prefix }}/{{ version }}/{{ asset_prefix }}{{ archives[system_arch].target }}.<extension>",
 # with any `{version}` in `asset_prefix` replaced by `version`, and any `{bare_version}`
 # by `version` without its leading `v`, so a bump edits one field.
 # Add an entry here (plus a checksum pair per architecture) to pin a new tool.
@@ -53,6 +53,34 @@ dev_tools_pinned_tools:
       arm64:
         target: linux_arm64
         checksum: 325e971b6ba9bfa504672e29be93c24981eeb1c07576d730e9f7c8805afff0c6
+
+  # Run by the hadolint and shellcheck pre-commit hooks.
+  - name: hadolint
+    version: v2.14.0
+    url_prefix: https://github.com/hadolint/hadolint/releases/download
+    asset_prefix: hadolint-linux-
+    bare_binary: true
+    archives:
+      amd64:
+        target: x86_64
+        checksum: 6bf226944684f56c84dd014e8b979d27425c0148f61b3bd99bcc6f39e9dc5a47
+      arm64:
+        target: arm64
+        checksum: 331f1d3511b84a4f1e3d18d52fec284723e4019552f4f47b19322a53ce9a40ed
+
+  - name: shellcheck
+    version: v0.11.0
+    url_prefix: https://github.com/koalaman/shellcheck/releases/download
+    asset_prefix: "shellcheck-{version}.linux."
+    extension: tar.xz
+    binaries_dir: "shellcheck-{version}"
+    archives:
+      amd64:
+        target: x86_64
+        checksum: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+      arm64:
+        target: aarch64
+        checksum: 12b331c1d2db6b9eb13cfca64306b1b157a86eb69db83023e261eaa7e7c14588
 
   # The tarball also ships iwec, the MCP server, which no agent config registers.
   - name: iwe
