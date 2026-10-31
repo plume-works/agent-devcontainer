@@ -263,13 +263,16 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 
 **Files:** Modify: `README.md`, `docker/deploy/README.md`
 
-- [ ] Both READMEs name Claude Code and OpenCode wherever they list the
+- [x] Both READMEs name Claude Code and OpenCode wherever they list the
   preinstalled agents, shared logins, or catalog consumers, show no
   `codex login` step, and the validation command reads
   `--require-marketplace claude`.
-- [ ] The top README carries an upgrade note: existing `agentdev-codex` volumes
+  - **Evidence:** `0ec2b23e`.
+- [x] The top README carries an upgrade note: existing `agentdev-codex` volumes
   and `codex/auth.json` on the shared auth volume are no longer used, nothing
   removes them, and they can be deleted by hand.
+  - **Evidence:** `0ec2b23e`; `### Upgrading from an image with Codex` in
+    `README.md`.
 
 ### Task 11: Retire Codex documents in the knowledge graph
 
