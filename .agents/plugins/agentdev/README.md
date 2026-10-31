@@ -80,13 +80,18 @@ to repeat. It changes the host in these ways:
 - **`~/.zprofile`** — one block between `# >>> agentdev macos-bootstrap >>>`
   markers that loads `brew shellenv` and puts `~/.local/bin` first on `PATH`.
   A re-run rewrites that block and leaves the rest of the file alone.
+- **`~/.config/fish/conf.d/agentdev.fish`** — when fish is installed or is your
+  login shell, the same kind of block for fish: `brew shellenv fish`, then
+  `fish_add_path` for `~/.local/bin`.
 - **Plugins** — registers this marketplace in Claude Code at user scope and
   installs `agentdev`; Claude Code is the only agent it configures. Pass
   `--skip-plugins` (`curl ... | zsh -s -- --skip-plugins`) to leave Claude
   Code's plugins untouched.
 
-It ends by checking every tool and the `python3` from a fresh login shell, and
-exits nonzero naming whatever failed. Open a new terminal afterwards to pick up
+It ends by checking every tool and the `python3` from a fresh zsh login shell,
+and `python3` again from your `$SHELL` when that is not zsh, and exits nonzero
+naming whatever failed. A shell configuration that later puts another `python3`
+first, such as a `config.fish` that re-runs `brew shellenv`, fails that check. Open a new terminal afterwards to pick up
 the `PATH` change. Docker-backed skills such as `microvm-sandbox` and
 Super-Linter are not set up; escalate those to a Codespace with
 `remote-codespace-session`.
