@@ -285,8 +285,13 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `data/bugs/codex-skill-dir-unresolved.md`,
 `data/bugs/standalone-codex-auth-unshared.md`, `data/bugs.md`
 
-- [ ] The three documents are deleted with `iwe delete` and every reference
+- [x] The three documents are deleted with `iwe delete` and every reference
   `iwe` rewrote is reviewed in `git diff`.
+  - **Evidence:** `8a2de6e4`; the rewritten references are the hub links in
+    `data/architecture.md` and `data/someday.md`, and three inline links turned
+    to plain text in `data/log.md`,
+    `plans/20261005-pr-review-scenario-validation`, and
+    `spec/devcontainer-codex-policy`, all reviewed in the diff.
 - [ ] The three open Codex bugs are `stage: cancelled`, `status: deprecated`,
   each `## Fix` stating Codex support was removed, with their hub links moved
   accordingly; `bugs/cbm-codex-hooks-block-foreign-tables` stays `done`.
