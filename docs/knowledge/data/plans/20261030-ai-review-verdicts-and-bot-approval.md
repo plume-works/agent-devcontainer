@@ -33,7 +33,7 @@ permission](../architecture/actions-approval-permission.md) records along with
 the organization setting it depends on. A pending `CHANGES_REQUESTED` blocks
 merge until the same reviewer approves or the review is dismissed.
 
-Two consequences followed for the setup this plan changes:
+Under the rule this plan replaces:
 
 - `pr-review` Step 9 submitted `COMMENT` whenever its blocking findings were all
   anchored inline or only non-blocking findings remained. A `COMMENT` never
@@ -41,8 +41,9 @@ Two consequences followed for the setup this plan changes:
   request, so such a pull request needed a clean re-review or ruleset bypass to
   merge.
 - Bot-authored pull requests got no AI review, and `ai-review-present` waived
-  its requirement for the trusted bots, but nothing approved them. Renovate's
-  automerged pull requests stayed `BLOCKED` on `REVIEW_REQUIRED`.
+  its requirement for the trusted bots, but nothing approved them, so a
+  trusted-bot pull request had no approving review and could not meet the
+  one-approval rule without bypass.
 
 The maintainer decided on 2026-10-30:
 
@@ -61,7 +62,10 @@ The maintainer decided on 2026-10-30:
 - the approval holds only while the pull request carries nothing but the bot's
   own commits, so no one can push a change past review under a bot's approval;
   the same check lets a person-triggered run approve a Dependabot pull request,
-  whose commits are Dependabot's alone.
+  whose commits are Dependabot's alone;
+- the bot must also have made every update to the head branch, read from the
+  repository activity on every run, so closing and reopening the pull request
+  cannot restore an approval a person's push withdrew.
 
 ## Approach
 
@@ -92,14 +96,16 @@ push does not stack approvals.
 Before approving, the job checks every commit on the pull request: its GitHub
 author is the pull request's author, its committer is that author or `web-flow`
 (GitHub's committer for commits an App creates through the API), and its
-signature verifies. A `synchronize` run also requires the triggering actor to be
-the pull request's author, because a commit created through the API by another
-account can name the bot as author and still verify. When any check fails, the
-job approves nothing, dismisses a standing `github-actions[bot]` approval, and
-posts a notice naming the failing commit; the ruleset keeps stale approvals on
-push, so a standing approval would otherwise cover the new commit. The trusted
-list moves to a workflow-level `TRUSTED_BOT_ACTORS` variable that both this job
-and `ai-review-present` read.
+signature verifies. It also reads the repository activity for the head branch
+and requires that the pull request's author made every creation, push, and force
+push recorded there, checked on every run: a commit another account creates
+through the API can name the bot as author and still verify, and only the
+repository activity still shows that push to a later run, such as a reopen. When
+any check fails, the job approves nothing, dismisses a standing
+`github-actions[bot]` approval, and posts a notice naming the failing commit or
+push; the ruleset keeps stale approvals on push, so a standing approval would
+otherwise cover the new commit. The trusted list moves to a workflow-level
+`TRUSTED_BOT_ACTORS` variable that both this job and `ai-review-present` read.
 
 Rejected alternatives, recorded in the architecture note:
 
@@ -260,14 +266,38 @@ Assumptions:
     actionlint and zizmor; `iwe schema validate` passed in the `c8c5676`
     pre-commit run.
 
-### Task 6: A trusted-bot pull request merges without bypass
+### Task 6: Trusted-bot approval requires the bot's own pushes
+
+**Files:** Modify: `.github/workflows/ai-responder.yml`,
+`docs/knowledge/data/architecture/ai-review-event-selection.md`,
+`docs/knowledge/data/features/ai-responder-workflows.md`,
+`.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
+
+- [ ] On every action, `trusted-bot-approval` lists the repository activity for
+  `refs/heads/<head ref>` and fails the check, with the same dismissal and
+  notice as a failing commit, when any `branch_creation`, `push`, or
+  `force_push` entry has an actor other than the pull request's author; this
+  replaces the `synchronize`-only `github.actor` check, and the job's
+  `permissions` gain the read scope the activity endpoint needs.
+- [ ] The architecture note, the feature's `## Behaviour`, and the consumption
+  guide describe the push-history check in place of the `synchronize` actor
+  check.
+- [ ] `actionlint` and `zizmor` pass through pre-commit, and
+  `iwe schema validate` passes.
+
+### Task 7: A trusted-bot pull request merges without bypass
 
 - [ ] After the change is on `main`, the next Renovate pull request receives the
   bot approval and merges through Renovate's automerge with no ruleset bypass,
   or the plan records that the ruleset's
   `require_extra_approval_for_unattributed_changes` demanded another approval.
+- [ ] A pull request opened by a bot outside `TRUSTED_BOT_ACTORS` receives no
+  approval and no AI review.
+- [ ] A commit a person pushes to an approved trusted-bot pull request dismisses
+  the bot approval, and closing and reopening the pull request does not restore
+  it.
 
-### Task 7: A review with only non-blocking findings approves
+### Task 8: A review with only non-blocking findings approves
 
 - [ ] A pull request reviewed after the change, whose validated findings are all
   non-blocking, carries an `APPROVED` review from `github-actions[bot]`, and
@@ -308,8 +338,9 @@ The AI responder workflow SHALL approve a same-repository pull request whose
 author is a `Bot` listed in `TRUSTED_BOT_ACTORS`, with a review body stating
 that the AI review was skipped, only when every commit on the pull request is
 authored by that bot, committed by that bot or `web-flow`, and carries a
-verified signature, and, for a push, only when that bot pushed. When any commit
-fails that check it SHALL NOT approve, and SHALL dismiss its own standing
+verified signature, and only when that bot made every creation, push, and force
+push of the head branch. When any commit or update fails that check it SHALL
+NOT approve, and SHALL dismiss its own standing
 approval. It SHALL NOT check out the pull request, SHALL NOT approve a pull
 request that already carries its approval, and SHALL skip a run triggered by
 `dependabot[bot]`, whose token cannot approve.
@@ -332,7 +363,8 @@ request that already carries its approval, and SHALL skip a run triggered by
 - **WHEN** an account other than the author bot pushes a commit to a
   trusted-bot pull request the workflow already approved
 - **THEN** the workflow dismisses its approval, approves nothing, and the pull
-  request needs a human approval to merge.
+  request needs a human approval to merge, even after it is closed and
+  reopened.
 ```
 
 [Template consumption](../spec/template-consumption.md):
@@ -365,7 +397,7 @@ branch's workflow and attach checks to that head.
   `COMMENT` only as the self-owned retry and in the Codex tool's accepted
   actions.
 - `iwe normalize` and `iwe schema validate` pass.
-- Tasks 6 and 7 are observed on live pull requests after merge; the maintainer
+- Tasks 7 and 8 are observed on live pull requests after merge; the maintainer
   accepted that live observation, with no automated test of the approval job, as
   the coverage for the spec scenarios.
 
@@ -379,7 +411,7 @@ branch's workflow and attach checks to that head.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.agents/plugins/agentdev/skills/pr-review/SKILL.md:27` — Codex single-call
   `action` values
@@ -400,6 +432,8 @@ Verified anchor points (line numbers as of 2026-10-30):
   `TRUSTED_BOT_ACTORS`
 - `.github/workflows/ai-responder.yml:562` — `trusted-bot-approval` job
 - `.github/workflows/ai-responder.yml:589` — Dependabot actor skip
+- `.github/workflows/ai-responder.yml:622` — `synchronize`-only actor check Task
+  6 replaces
 - `.github/workflows/ai-responder.yml:625` — commit check
 - `.github/workflows/ai-responder.yml:654` — `createReview` approval
 - `.github/actions/ai-review-status/action.yml:60` — trusted-bot waiver
