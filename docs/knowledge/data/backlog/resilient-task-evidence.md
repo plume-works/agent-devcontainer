@@ -6,7 +6,7 @@ priority: medium
 description: Explore a way for plan task evidence to stay traceable after rebases and squash merges, since evidence lines name commits whose ids those operations rewrite or erase.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T10:45:00Z
+  at: 2026-10-31T16:40:07Z
 sources:
 - resource: docs/knowledge/data/spec/plan-checkbox-evidence.md
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
@@ -50,9 +50,6 @@ answer:
 
 Alternatives to weigh against it:
 
-- The codebase map's `source_digest` already solved the same problem for map
-  docs: it fingerprints tracked content rather than naming a commit, so it stays
-  valid across squash merges and branch rewrites.
 - The PR number survives both rebase and squash and links the squashed commit to
   the branch's history.
 
