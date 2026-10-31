@@ -840,10 +840,14 @@ Delete: `docker/desktop/start-xpra.sh`
 **Files:** Modify: `py_packages/agentdev_runtime/agentdev_runtime/doctor.py`,
 `.devcontainer/docker-compose.yml`, `scripts/tests/test_environment_health.py`
 
-- [ ] In the devcontainer profile, `doctor` checks `mcp-gateway` DNS and `:8811`
+- [x] In the devcontainer profile, `doctor` checks `mcp-gateway` DNS and `:8811`
   only when `COMPOSE_PROFILES` names `mcp`, and otherwise reports `mcp-gateway`
   SKIP; the Compose `devcontainer` service passes `COMPOSE_PROFILES` through.
   `test_environment_health.py` covers both.
+  - **Evidence:** commit 27c1ab21; `test_devcontainer_mode_checks_sidecars` and
+    `test_the_gateway_is_skipped_without_the_mcp_profile` pass in
+    `test_environment_health.py` (15 passed); `docker compose config` renders
+    `COMPOSE_PROFILES: mcp` with the profile enabled and `""` without it.
 - [ ] `git user` passes when `git var GIT_AUTHOR_IDENT` and
   `git var GIT_COMMITTER_IDENT` both resolve, so an identity set only through
   `GIT_AUTHOR_*` and `GIT_COMMITTER_*` passes and a missing one still fails.
