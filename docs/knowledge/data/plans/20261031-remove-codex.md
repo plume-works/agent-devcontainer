@@ -87,13 +87,16 @@ agents its skills dispatch, so the package would ship broken.
 **Files:** Create: `docs/knowledge/data/architecture/supported-harnesses.md`;
 Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 
-- [ ] `architecture/supported-harnesses` states that Claude Code and OpenCode
+- [x] `architecture/supported-harnesses` states that Claude Code and OpenCode
   are the supported harnesses and Codex is not, records the rejected
   install-yourself package and why, and records that `validate_agent_files`
   keeps its Codex ecosystem; it is linked from `data/architecture.md`.
-- [ ] `data/product.md` names Claude Code and OpenCode wherever it names the
+  - **Evidence:** `ace7cc44`; `iwe schema validate` passes on it.
+- [x] `data/product.md` names Claude Code and OpenCode wherever it names the
   preinstalled agents or the catalog's audience, and its authoring rule about
   `.codex/` is removed.
+  - **Evidence:** `ace7cc44`; `grep -i codex docs/knowledge/data/product.md`
+    prints nothing.
 
 ### Task 3: Stop shipping a Codex package in the catalog
 
