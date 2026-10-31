@@ -6,6 +6,8 @@ to the current day's group.
 
 ## 2026-10-31
 
+- **Update**: [Remove the codebase map](plans/20261031-remove-codebase-map.md)
+  plan done; specs synced.
 - **Create**: [agentdev runtime
   package](architecture/agentdev-runtime-package.md) records the runtime as one
   `agentdev-runtime` CLI package, its `RECORD` integrity check, the firewall run

@@ -14,6 +14,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py
 - resource: .agents/plugins/agentdev/skills/template-consume/SKILL.md
 - resource: .github/workflows/validate-agent-files.yml
+stage: done
+completed: 2026-10-31
 ---
 
 # Remove the codebase map
