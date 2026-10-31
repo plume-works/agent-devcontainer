@@ -84,7 +84,7 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
 
 - [ ] `plan`, `bug`, and `task` schemas accept an optional integer `rank` of at
   least 1, and a test rejects a non-integer and a zero rank
-- [ ] No schema declares `status`; `release` accepts only `stage: released`
+- [ ] No schema and no document under `data/` declares `status`
 - [ ] `base.yaml` requires a non-empty `type` on every document under `data/`
   except `data/log`, and replaces the `okf` binding; a test rejects a document
   without `type`
@@ -109,8 +109,8 @@ under `docs/knowledge/tests/`
 
 - [ ] Every hub is one sorted list of inclusion links with no sections, and
   every member it linked before is still linked
-- [ ] `data/index.md` is removed with `iwe delete`, and `iwe stats` reports no
-  broken link
+- [ ] `data/index.md` is removed with `iwe delete`, the base schema binds every
+  document under `data/` but the log, and `iwe stats` reports no broken link
 
 ### Task 4: Propose the initial sequence
 
@@ -130,7 +130,7 @@ under `docs/knowledge/tests/`
 ### Task 6: Ship and the release cut follow the layout
 
 **Files:** Modify: `.agents/plugins/agentdev/agents/iwe-shipper.agent.md`,
-`docs/knowledge/data/releases.md`; Delete:
+`docs/knowledge/data/releases.md`, `.iwe/schemas/release.yaml`; Delete:
 `docs/knowledge/data/releases/unreleased.md`
 
 - [ ] Shipping sets `stage` and `completed`, removes `rank` from the plan and
@@ -151,6 +151,7 @@ under `docs/knowledge/tests/`
   headings, as `data/releases/unreleased.md` does
 - [ ] `data/releases/unreleased.md` is removed with `iwe delete`, and
   `data/releases.md` links only cut releases
+- [ ] `release` accepts only `stage: released`
 
 ### Task 7: The other skills read and write frontmatter, not hub sections
 
