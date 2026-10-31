@@ -4,9 +4,10 @@ stage: accepted
 description: One zsh bootstrap script in the agentdev catalog turns a stock macOS host into one that runs agentdev natively — the catalog's CLI tools through Homebrew, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-10-31T23:34:07Z
 sources:
 - resource: docs/knowledge/data/plans/20261013-macos-native-bootstrap.md
+- resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 ---
 
 # Native macOS bootstrap
@@ -48,7 +49,13 @@ once the plugin is enabled. Each run is idempotent:
 - **Not macOS.** The script refuses to run.
 - **No Homebrew.** The script prints Homebrew's install command and stops; it
   never drives the interactive `sudo` that installing Homebrew needs.
-- **Re-run.** The `~/.zprofile` block is rewritten in place, never duplicated.
+- **Re-run.** Each marker block is rewritten in place, never duplicated.
+- **No fish.** When fish is neither on `PATH` nor the user's `$SHELL`, no fish
+  configuration is written.
+- **Another `python3` in the user's shell.** When the user's `$SHELL` resolves
+  `python3` somewhere other than the uv-provisioned Python — another shell with
+  no block, or a later configuration that puts another `python3` first — the
+  script exits non-zero naming that shell's check.
 
 ## Open questions
 
