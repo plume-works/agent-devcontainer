@@ -149,22 +149,32 @@ deletion of this one function; and running the responder as a host job through
 `uv.lock`, `.dockerignore`, `docker/deploy/agentdev-deploy.Dockerfile`,
 `docker/devcontainer/agentdev-devcontainer.Dockerfile`
 
-- [ ] The package declares `requires-python >= 3.12`, the console script
+- [x] The package declares `requires-python >= 3.12`, the console script
   `agentdev-runtime`, and dependencies `supervisor` at the version the root
   project pins today, `setuptools<85`, `tomlkit`, `json5`, and `pyyaml`. The
   root project takes the package as an editable dev dependency and drops its
   direct `supervisor` and `setuptools` pins; `uv.lock` is regenerated.
-- [ ] Both runtime Dockerfiles install the package with
+  - **Evidence:** commit cfaac26; `uv lock` and `uv sync` resolve the package
+    editable; `uv run pytest py_packages/agentdev_runtime` passes (26 tests).
+- [x] Both runtime Dockerfiles install the package with
   `uv tool install --reinstall --python /usr/bin/python3` from the bind-mounted
   build context, with `UV_TOOL_DIR=/opt/uv-tools`,
   `UV_TOOL_BIN_DIR=/usr/local/bin`, `UV_NO_CACHE=1`,
   `UV_PYTHON_DOWNLOADS=never`, and `UV_LINK_MODE=copy`. `.dockerignore` admits
   `py_packages/agentdev_runtime`. The `COPY .devcontainer/scripts/` lines stay
   until Task 13.
-- [ ] `settings.py` parses every environment value the scripts and the
+  - **Evidence:** commit cfaac26; both images build locally on
+    `agentdev-base:edge`, where `agentdev-runtime` resolves to `/usr/local/bin`
+    and `/opt/uv-tools/agentdev-runtime/bin/python` imports `supervisor`,
+    `tomlkit`, `json5`, and `yaml`.
+- [x] `settings.py` parses every environment value the scripts and the
   supervisor read, with one default per variable, keyed by profile where the
   scripts disagree; the package README lists each variable, its default, and the
   profiles that read it.
+  - **Evidence:** commit cfaac26;
+    `py_packages/agentdev_runtime/tests/test_settings.py` checks the profile
+    keying and that the README lists every declared variable, passing under
+    `uv run pytest py_packages/agentdev_runtime`.
 
 ### Task 2: Boot PID 1 and the healthcheck through the CLI
 
