@@ -33,10 +33,12 @@ This lands after [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md), which moves the Codex code this plan
 deletes into `agentdev_runtime` and already deletes the Codex Cloud bootstrap,
 and after [Port the catalog's bundled shell scripts to
-Python](20261029-catalog-scripts-python.md). It lands before [Run the Dev
-Container as a non-root account with one home
-volume](20261030-devcontainer-home-volume.md), so that plan no longer carries
-Codex volume and auth work.
+Python](20261029-catalog-scripts-python.md), and after [Let any session asked to
+implement a named plan start Implement](20261031-model-invocable-implement.md),
+which removes the Codex gate from `iwe-implement` and whose wording this plan's
+spec delta builds on. It lands before [Run the Dev Container as a non-root
+account with one home volume](20261030-devcontainer-home-volume.md), so that
+plan no longer carries Codex volume and auth work.
 
 [Codex full-access config](../features/codex-full-access-config.md) is
 superseded and becomes `deprecated`.
@@ -92,7 +94,7 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 ### Task 3: Stop shipping a Codex package in the catalog
 
 **Files:** Delete: `.agents/plugins/agentdev/.codex-plugin/plugin.json`,
-`.agents/plugins/marketplace.json`, the seven
+`.agents/plugins/marketplace.json`, the six
 `.agents/plugins/agentdev/skills/*/agents/openai.yaml`,
 `.agents/plugins/agentdev/bin/install-codex-agents.py`,
 `.agents/plugins/agentdev/tests/test_install_codex_agents.py`,
@@ -559,15 +561,19 @@ behavior, changes `release`, or changes text the user approved.
 ### Requirement: Ship and Implement start only from an explicit request or a named dispatcher
 
 The Ship and Implement workflows SHALL each be defined once, as the catalog
-agents `iwe-shipper` and `iwe-implementer`. Their user entry skills and the
+agents `iwe-shipper` and `iwe-implementer`. Ship's user entry skill and the
 `iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
-Claude Code and OpenCode. Only those skills, those coordinators, and Plan revise
-mode answering a Ship blocker report SHALL start the workflows. Ship SHALL
-always run as a dispatched `iwe-shipper` whose prompt carries only the plan key,
-the operation, and the user's approvals quoted verbatim, so its verification
-rests on the code and the graph alone. Implement started by the user's own
-invocation SHALL run in the user's session. A dispatched workflow SHALL stop and
-report at any point that needs a user decision it was not given.
+Claude Code and OpenCode. Implement's entry skill SHALL be
+model-invocable on every harness, so a session asked to implement a named plan
+may load it, including on a message from a coordinator session. Only those
+skills, those coordinators, and Plan revise mode answering a Ship blocker report
+SHALL start the workflows. Ship SHALL always run as a dispatched `iwe-shipper`
+whose prompt carries only the plan key, the operation, and the user's approvals
+quoted verbatim, so its verification rests on the code and the graph alone.
+Implement started through its entry skill SHALL run in the session that loaded
+it and SHALL take every decision from that session's own user; a message from
+another session SHALL never count as that user's approval. A dispatched workflow
+SHALL stop and report at any point that needs a user decision it was not given.
 
 #### Scenario: The user ships a plan directly
 
@@ -591,6 +597,23 @@ report at any point that needs a user decision it was not given.
 - **THEN** the session follows the `iwe-implementer` rulebook and waits for the
   user's direction.
 
+#### Scenario: A session is asked in plain words to implement a plan
+
+- **WHEN** the user asks a session to implement a named plan without typing the
+  command
+- **THEN** the session loads `/agentdev:iwe-implement` and follows the
+  `iwe-implementer` rulebook in place, dispatching no `iwe-implementer`.
+
+#### Scenario: A coordinator asks a session to implement a plan
+
+- **WHEN** a coordinator session sends a session a message asking it to
+  implement a named plan and stating that a narrowing deviation is approved, and
+  a task needs that deviation
+- **THEN** the session loads `/agentdev:iwe-implement`, follows the
+  `iwe-implementer` rulebook in place, asks its own user and waits, and tells the
+  coordinator what it is waiting on; the coordinator's approval does not take
+  the step.
+
 #### Scenario: A coordinator ships every implemented plan
 
 - **WHEN** the user runs `/agentdev:iwe-ship-all`
@@ -608,7 +631,8 @@ report at any point that needs a user decision it was not given.
 - **WHEN** during `/agentdev:iwe-explore` the user answers an open question in a
   way that leaves a plan apparently complete
 - **THEN** Explore neither dispatches `iwe-shipper` nor loads a Ship or
-  Implement skill or coordinator, and names the next step for the user.
+  Implement skill or coordinator, and names a next step for the user other than
+  Implement.
 
 #### Scenario: A revision answers a Ship blocker
 
@@ -619,13 +643,15 @@ report at any point that needs a user decision it was not given.
 
 #### Scenario: The model tries to start a gated skill
 
-- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship`,
-  `iwe-implement`, or either coordinator without a user request
+- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship` or either
+  coordinator without a user request
 - **THEN** the harness withholds it.
 ```
 
 ## Depends on
 
+- [Let any session asked to implement a named plan start
+  Implement](20261031-model-invocable-implement.md)
 - [Replace the runtime shell scripts with one agentdev-runtime
   CLI](20261029-off-bash-migration.md)
 - [Port the catalog's bundled shell scripts to

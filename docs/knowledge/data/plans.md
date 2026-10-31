@@ -29,6 +29,9 @@ auto-approved](plans/20261030-ai-review-verdicts-and-bot-approval.md)
 [Replace the runtime shell scripts with one agentdev-runtime
 CLI](plans/20261029-off-bash-migration.md)
 
+[Let any session asked to implement a named plan start
+Implement](plans/20261031-model-invocable-implement.md)
+
 [Remove Codex support](plans/20261031-remove-codex.md)
 
 [Replace Super-Linter with pre-commit in
