@@ -8,7 +8,7 @@ release:
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-10-31T16:03:19Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -99,11 +99,11 @@ role. The package pins `supervisor`, `tomlkit`, `json5`, `pyyaml`, and
 
 Every script becomes a subcommand of one CLI whose nouns are the runtime's
 concerns. One settings module parses every environment value once, with one
-default per variable, keyed by profile where the scripts disagree today. One
-state module defines the `state.json`, retry, and failure-record shapes for
-writer and reader alike. Behaviour behind each command is unchanged; this plan
-changes language and packaging, not policy, so every existing scenario in the
-affected specs holds as written.
+default per variable, keyed by profile where the scripts disagreed. One state
+module defines the `state.json`, retry, and failure-record shapes for writer and
+reader alike. Behaviour behind each command is unchanged; this plan changes
+language and packaging, not policy, so every existing scenario in the affected
+specs holds as written.
 
 The one exception is the hook-binary detection. After registering the hooks,
 `project hooks` warns about each `language: system` hook in the checkout's
@@ -130,9 +130,11 @@ be PID 1 there; this function is the supported start for such a job.
 
 The firewall and the Xpra launcher join the package. The firewall runs as root
 from the bootstrap in both profiles, so its sudoers entry and the script in the
-Ansible role go; the role keeps the packages. The devcontainer profile reads the
-checkout's allowlist when present, as `spec/firewall` promises, and the image
-copy otherwise, as the supervised wrapper does; deploy keeps the image copy.
+Ansible role go; the role keeps the packages. A set `FIREWALL_ALLOWLIST` names
+the allowlist in both profiles, as `init-firewall.sh` let it. Unset, the
+devcontainer profile reads the checkout's allowlist when present, as
+`spec/firewall` promises, and the image copy otherwise, as the supervised
+wrapper did; deploy keeps the image copy.
 
 Rejected: loose stdlib scripts on the system interpreter, which keeps either the
 runtime PyPI fetch or an apt dependency hunt and keeps the file manifest; bash
@@ -161,10 +163,10 @@ deletion of this one function; and running the responder as a host job through
 `docker/devcontainer/agentdev-devcontainer.Dockerfile`
 
 - [x] The package declares `requires-python >= 3.12`, the console script
-  `agentdev-runtime`, and dependencies `supervisor` at the version the root
-  project pins today, `setuptools<85`, `tomlkit`, `json5`, and `pyyaml`. The
-  root project takes the package as an editable dev dependency and drops its
-  direct `supervisor` and `setuptools` pins; `uv.lock` is regenerated.
+  `agentdev-runtime`, and dependencies `supervisor==4.3.0`, `setuptools<85`,
+  `tomlkit`, `json5`, and `pyyaml`. The root project takes the package as an
+  editable dev dependency and drops its direct `supervisor` and `setuptools`
+  pins; `uv.lock` is regenerated.
   - **Evidence:** commit cfaac26; `uv lock` and `uv sync` resolve the package
     editable; `uv run pytest py_packages/agentdev_runtime` passes (26 tests).
 - [x] Both runtime Dockerfiles install the package with
@@ -292,13 +294,15 @@ deletion of this one function; and running the responder as a host job through
     against images built from merge ecf005c. The network test now sets
     `AGENTDEV_RUNTIME_MODE=deploy`: against the current image pin it never
     reached proxy ingress.
-- [x] The devcontainer profile reads
+- [x] With `FIREWALL_ALLOWLIST` unset, the devcontainer profile reads
   `<workspace>/.devcontainer/firewall-allowlist.txt` when it exists and
-  `/etc/agentdev/firewall-allowlist.txt` otherwise; deploy reads
-  `FIREWALL_ALLOWLIST` or the image copy.
+  `/etc/agentdev/firewall-allowlist.txt` otherwise; deploy reads the image copy.
   - **Evidence:** commit 052196c; `test_firewall_allowlist.py` covers the
     checkout copy, the image fallback, and deploy's setting and image copy,
     passing under `uv run pytest py_packages/agentdev_runtime`.
+- [ ] A set `FIREWALL_ALLOWLIST` names the allowlist in both profiles, ahead of
+  the checkout and image copies. `test_firewall_allowlist.py` proves it in the
+  devcontainer profile with a checkout copy present.
 - [x] The Ansible role keeps `iptables` and `ipset`, drops the script, the
   sudoers file, and any package only the script used once a repository grep
   confirms no other user.
@@ -546,8 +550,8 @@ Delete: `docker/desktop/start-xpra.sh`
     passes after the skill edit.
 - [x] `agentdev-runtime project hooks`, after registering the hooks, writes one
   warning to stderr for each `language: system` hook whose `entry` executable is
-  not on `PATH`, naming the hook and the executable, and keeps the exit status
-  it has today; tests cover a missing and a present executable in both profiles.
+  not on `PATH`, naming the hook and the executable, and keeps its exit status;
+  tests cover a missing and a present executable in both profiles.
   - **Evidence:** commit 4773feb; `test_project_hooks.py` covers a missing and a
     present executable in both profiles, a non-system hook, and deploy's
     custom-hook refusal, which exits 1 before any warning.
@@ -837,11 +841,12 @@ with any other value it SHALL report that the firewall stays inert and exit 0.
 When enabled, `agentdev-runtime firewall apply` SHALL set IPv4
 `INPUT`/`FORWARD`/`OUTPUT` policies to `DROP` and block IPv6 entirely, while
 preserving Docker's embedded DNS NAT rules and allowing only hosts on the
-allowlist. The devcontainer profile SHALL read
+allowlist. When `FIREWALL_ALLOWLIST` is set, both profiles SHALL read the file
+it names. Otherwise the devcontainer profile SHALL read
 `<workspace>/.devcontainer/firewall-allowlist.txt` when it exists, so
 per-branch edits take effect on the next start without an image rebuild, and
 `/etc/agentdev/firewall-allowlist.txt` otherwise; the deploy profile SHALL read
-`FIREWALL_ALLOWLIST` or the image copy.
+the image copy.
 
 #### Scenario: a host not on the allowlist is requested
 
@@ -853,6 +858,12 @@ per-branch edits take effect on the next start without an image rebuild, and
 - **WHEN** a devcontainer restarts after `.devcontainer/firewall-allowlist.txt`
   changed in the checkout
 - **THEN** the new allowlist is in force without an image rebuild.
+
+#### Scenario: `FIREWALL_ALLOWLIST` is set in a devcontainer
+
+- **WHEN** a devcontainer starts with `FIREWALL_ALLOWLIST` naming a file and a
+  checkout allowlist present
+- **THEN** the firewall applies the file `FIREWALL_ALLOWLIST` names.
 
 ### Requirement: the firewall self-verifies at start and fails loudly
 
@@ -1034,6 +1045,10 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 Verified anchor points (line numbers as of 2026-10-31):
 
+- `py_packages/agentdev_runtime/agentdev_runtime/firewall.py:97` —
+  `allowlist_path`: `FIREWALL_ALLOWLIST` first, in both profiles
+- `py_packages/agentdev_runtime/tests/test_firewall_allowlist.py:67` —
+  `test_deploy_reads_the_image_copy_or_the_setting`
 - `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
   gone ends the watcher
 - `.devcontainer/scripts/runtime-remote-control.sh:62` — the `checked=""` retry

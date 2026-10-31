@@ -3,7 +3,7 @@ type: architecture
 description: The agentdev runtime is one Python package, agentdev_runtime, installed as a uv tool in the two runtime images and run as the agentdev-runtime CLI; its integrity is the installed distribution's RECORD, the firewall runs from the bootstrap, and a container with no supervisor starts only CBM.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:04Z
+  at: 2026-10-31T16:03:19Z
 sources:
 - resource: py_packages/agentdev_runtime/pyproject.toml
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cli.py
@@ -62,8 +62,9 @@ configuration instead.
 profiles, before supervisord starts `dockerd`, so the flush keeps the engine's
 rules and no sudoers entry is needed. The `devcontainer_firewall` Ansible role
 installs only `iptables` and `ipset`; it carries no script and no sudoers entry.
-A Dev Container reads its checkout's allowlist when present and the image copy
-otherwise; deploy reads `FIREWALL_ALLOWLIST` or the image copy.
+A set `FIREWALL_ALLOWLIST` names the allowlist in both profiles. Unset, a Dev
+Container reads its checkout's allowlist when present and the image copy
+otherwise, and deploy reads the image copy.
 
 ## A container with no supervisor
 
