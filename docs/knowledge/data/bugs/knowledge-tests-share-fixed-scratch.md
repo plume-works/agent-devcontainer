@@ -3,7 +3,8 @@ type: bug
 description: Three knowledge-base test fixtures build their workspace at a fixed path under /tmp/agentdev-tests and delete it on entry, so two concurrent test runs destroy each other's workspace and fail intermittently.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T03:30:00Z
+  at: 2026-10-31T04:00:00Z
+stage: done
 sources:
 - resource: docs/knowledge/tests/test_body_shape_schemas.py
 - resource: docs/knowledge/tests/test_plan_release_schema.py
@@ -50,17 +51,21 @@ the same way. The other fixtures under `docs/knowledge/tests/` already create a
 
 ## Fix
 
-Not fixed yet.
+Commit `c535ab9`: the three fixtures create a `uuid4`-suffixed directory under
+`/tmp/agentdev-tests` per run and remove it on teardown, as the sibling fixtures
+do, so concurrent runs never share a workspace. With the fix, three rounds of
+two concurrent `uv run pytest docs/knowledge/tests` runs each ended `58 passed`,
+and no per-run directory was left behind.
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-31):
 
-- `docs/knowledge/tests/test_body_shape_schemas.py:79` — `workspace` fixture
-  deleting the fixed `body-shape-schemas` directory
-- `docs/knowledge/tests/test_plan_release_schema.py:54` — `workspace` fixture
-  deleting the fixed `plan-release-schema` directory
-- `docs/knowledge/tests/test_iwe_seed.py:73` — `consumer_workspace` fixture
-  deleting the fixed `iwe-seed-consumer` directory
+- `docs/knowledge/tests/test_body_shape_schemas.py:80` — `workspace` fixture,
+  per-run `body-shape-schemas-<uuid>` directory
+- `docs/knowledge/tests/test_plan_release_schema.py:55` — `workspace` fixture,
+  per-run `plan-release-schema-<uuid>` directory
+- `docs/knowledge/tests/test_iwe_seed.py:75` — `consumer_workspace` fixture,
+  per-run `iwe-seed-consumer-<uuid>` directory
 - `docs/knowledge/tests/test_pin_metadata_masks.py:94` — the per-run `uuid4`
-  directory the other fixtures use
+  directory the sibling fixtures already used
