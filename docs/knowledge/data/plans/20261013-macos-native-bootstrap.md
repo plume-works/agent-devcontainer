@@ -350,9 +350,14 @@ arguments; point `HOME` at a temporary directory.
     to `## Native macOS` in `.agents/plugins/agentdev/README.md`;
     `uv run validate_agent_files --recommend . --require-marketplace claude` → 0
     errors, 0 warnings.
-- [ ] The `macos-bootstrap` job installs fish with Homebrew and runs the
+- [x] The `macos-bootstrap` job installs fish with Homebrew and runs the
   bootstrap with `SHELL` set to it, so the fish block and the `$SHELL` check run
   on a real macOS host.
+  - **Evidence:** commit `c8c3ce1e` adds the `Install fish` step and runs the
+    bootstrap with `SHELL` set to Homebrew's fish; Actions run 41252562998 (job
+    `macOS native bootstrap`) writes
+    `/Users/runner/.config/fish/conf.d/agentdev.fish` and reports
+    `python3 in fish: /Users/runner/.local/bin/python3, Python 3.12.15`.
 
 ### Task 8: Green macOS CI run without Codex and with fish
 
