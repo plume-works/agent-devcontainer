@@ -10,6 +10,10 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Added
 
+- **`rank`, one build order.** Active plans, open bugs, and planned tasks may
+  carry a positive integer `rank`; lower builds first, and
+  `iwe find --filter '{rank: {$exists: true}}' --sort rank:1` lists the sequence
+  across all three types. Ship removes it.
 - `data/` is now a conformant [Open Knowledge
   Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md)
   v0.2 bundle — portable knowledge any OKF consumer can read, not just iwe.
@@ -58,6 +62,21 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 
 ### Removed
 
+- **OKF conformance, `status`, and `data/index.md`.** The graph no longer
+  follows OKF: the `okf`, `okf-index`, and `okf-log` schemas, the `status`
+  field, and `data/index.md` are gone. `base.yaml` still requires a non-empty
+  `type` on every document under `data/`, and `log.yaml` keeps the date-grouped
+  shape of `data/log.md`. If you cloned an earlier copy, delete the three `okf*`
+  schemas and their bindings, add `[schemas.base]` and `[schemas.log]` as in
+  `.iwe/config.toml`, drop `status:` from every document, and
+  `iwe delete data/index`.
+- **Hub sections and the unreleased page.** Hubs are one flat list of inclusion
+  links sorted by member key without a `YYYYMMDD-` prefix, and a work item's
+  state lives only in its frontmatter; Ship writes no hub, release page, or log
+  entry. The release cut builds `releases/<X.Y.Z>.md` from the plans completed
+  since the previous release. If you cloned an earlier copy, remove the `##`
+  sections from every hub and sort its links, and
+  `iwe delete data/releases/unreleased` once its entries are in a cut release.
 - **The codebase map.** The `data/codebase/` lane, its `codebase` schema, and
   the catalog's map skill are gone. If you cloned an earlier copy, delete
   `data/codebase/`, `data/codebase.md`, and `.iwe/schemas/codebase.yaml`, and
