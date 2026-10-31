@@ -2,15 +2,16 @@
 type: bug
 description: Codex never loads the agentdev catalog's agents/*.agent.md files, so every skill step that dispatches a catalog agent — iwe-plan's Durable Knowledge Auditor gate, pr-feedback-resolution's Principal Engineer delegation — cannot run as written on Codex.
 generated:
-  by: claude-code/opus-5-5
-  at: 2026-10-08T12:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T21:11:11Z
 sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: .agents/plugins/agentdev/.codex-plugin/plugin.json
 - resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
-stage: done
+stage: cancelled
+status: deprecated
 ---
 
 # Bug: Codex never loads the agentdev catalog agents
@@ -52,6 +53,10 @@ installed plugin tree. A project-scoped TOML agent with the same body does load
 and dispatch.
 
 ## Fix
+
+Cancelled: Codex support was removed ([Supported
+harnesses](../architecture/supported-harnesses.md)), so the catalog no longer
+ships for Codex and this fix no longer applies.
 
 Every Codex install of the catalog runs its `bin/install-codex-agents.py`, which
 writes one `~/.codex/agents/agentdev-<stem>.toml` per catalog agent, with the

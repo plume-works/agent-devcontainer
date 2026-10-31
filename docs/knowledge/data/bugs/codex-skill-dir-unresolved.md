@@ -3,14 +3,15 @@ type: bug
 description: Codex shows agentdev skill bodies verbatim and never defines CLAUDE_SKILL_DIR, so every bundled-script step written as ${CLAUDE_SKILL_DIR}/scripts/... resolves to /scripts/... unless the model repairs the path itself.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-02T18:00:00Z
+  at: 2026-10-31T21:11:11Z
 sources:
 - resource: .agents/AGENTS.md
 - resource: .agents/plugins/agentdev/skills
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/fragments.rs
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/catalog_prompt.rs
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/hooks/src/engine/discovery.rs
-stage: done
+stage: cancelled
+status: deprecated
 ---
 
 # Bug: Codex leaves `${CLAUDE_SKILL_DIR}` unresolved in agentdev skills
@@ -58,6 +59,10 @@ Codex only when the model notices the unresolved variable and rebuilds the path
 from `<path>`.
 
 ## Fix
+
+Cancelled: Codex support was removed ([Supported
+harnesses](../architecture/supported-harnesses.md)), so the catalog no longer
+ships for Codex and its Codex half no longer applies.
 
 A skill references its own bundled code as `agent-code/<file>`, relative to the
 skill directory, which Claude Code, Codex, and OpenCode all tell the model to
