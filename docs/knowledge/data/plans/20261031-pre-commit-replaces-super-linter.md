@@ -6,7 +6,7 @@ release:
 description: Replace Super-Linter and reformat.yml with a pre-commit job in the digest-pinned devcontainer image, make every hook a uv-locked or image-provisioned tool, scan gitleaks over commit ranges, and remove Super-Linter from the whole repository.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T13:00:00Z
+  at: 2026-10-31T19:45:07Z
 sources:
 - resource: .github/workflows/reformat.yml
 - resource: .github/workflows/primary-checks.yml
@@ -247,14 +247,7 @@ path filter: pre-commit already skips hooks whose files did not change.
   alternatives from `## Approach`; the other documents above describe the
   current gate. Shipped plans, `data/log.md`, and closed bugs stay as written.
 
-### Task 12: Refresh the codebase map
-
-**Files:** Modify: the `docs/knowledge/data/codebase/` documents
-`stale-map-docs.py` reports
-
-- [ ] `/agentdev:iwe-map` refresh leaves no stale map document.
-
-### Task 13: Green pre-commit job on the pull request
+### Task 12: Green pre-commit job on the pull request
 
 **Files:** none
 
@@ -365,7 +358,7 @@ Super-Linter module and version check it ported.
 - `git grep -n -i -E 'super-?linter|reformat\.yml|local-reformat'` returns only
   shipped plans, `data/log.md`, closed bugs, and released notes.
 - `iwe normalize` and `iwe schema validate`.
-- The pull request's Primary checks run (Task 13).
+- The pull request's Primary checks run (Task 12).
 
 ## Out of scope
 

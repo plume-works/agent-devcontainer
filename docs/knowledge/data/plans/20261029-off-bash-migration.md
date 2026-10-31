@@ -8,7 +8,7 @@ release:
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T16:18:33Z
+  at: 2026-10-31T19:45:07Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -689,7 +689,7 @@ Delete: `docker/desktop/start-xpra.sh`
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `.devcontainer/devcontainer.json`, `.devcontainer/docker-compose.yml`,
 `ansible/roles/basic_prereqs/tasks/main.yml`,
-`ansible/roles/dev_tools/defaults/main.yml`, `docs/knowledge/data/codebase/`
+`ansible/roles/dev_tools/defaults/main.yml`
 
 - [x] The architecture document records the package over loose scripts, the
   `RECORD` integrity check, the firewall leaving the base image, the CBM-only
@@ -712,10 +712,6 @@ Delete: `docker/desktop/start-xpra.sh`
     tree is gone. `product.md` describes the package in its stack and the
     firewall by its command, and root `AGENTS.md` points devcontainer runtime
     code at the package.
-- [x] `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
-  - **Evidence:** commit 378fd09; the refresh moves the lifecycle-scripts doc to
-    `data/codebase/py_packages/agentdev_runtime` and refreshes the 17 stale
-    docs; `stale-map-docs.py` ends `RESULT=SUCCESS` with 28 fresh docs.
 
 ### Task 18: The responder runs on an image without the CLI
 
@@ -991,8 +987,7 @@ image](20261023-reusable-agentdev-devcontainer.md)
 - In a started Dev Container with `gitleaks` moved off `PATH`,
   `agentdev-runtime doctor` fails its toolchain section naming it, and
   `agentdev-runtime project hooks` warns about the `gitleaks` hook and exits 0
-- `iwe normalize`, `iwe schema validate`, the knowledge-base tests, and an
-  `/agentdev:iwe-map` refresh with no stale mapped source
+- `iwe normalize`, `iwe schema validate`, and the knowledge-base tests
 - CI on the current head builds and accepts both architectures
 
 ## Verification results

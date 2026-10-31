@@ -7,7 +7,7 @@ release:
 description: Remove Codex from the images, the agentdev-runtime package, the agentdev catalog, CI, the e2e suites, and the knowledge graph, leaving Claude Code and OpenCode as the only supported harnesses.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:45:00Z
+  at: 2026-10-31T19:45:07Z
 sources:
 - resource: docs/knowledge/data/features/claude-and-opencode-only-harnesses.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -260,8 +260,7 @@ Modify:
 `ai-responder-workflows`, `agent-sign-in-without-seeding`,
 `catalog-installed-in-image`, `opencode-catalog-host`; the planned backlog task
 `base-image-catalog-smoke-test`; the someday ideas
-`harness-refresh-restart-signal`, `nested-catalog-agent-dispatch`; and
-`data/codebase.md`
+`harness-refresh-restart-signal` and `nested-catalog-agent-dispatch`
 
 - [ ] Each listed document describes current behavior for Claude Code and
   OpenCode only; `explicit-only-workflow-agents` names only the
@@ -270,15 +269,7 @@ Modify:
 - [ ] Done plans, done backlog tasks, released notes, `data/log.md`, and
   `generated.by` provenance values are left unchanged.
 
-### Task 13: Refresh the codebase map
-
-**Files:** Modify: the `data/codebase/` documents `/agentdev:iwe-map` refresh
-reports stale
-
-- [ ] `/agentdev:iwe-map` refresh runs and its stale-document check reports none
-  stale.
-
-### Task 14: CI passes on the implementation branch
+### Task 13: CI passes on the implementation branch
 
 **Files:** none
 
@@ -646,7 +637,7 @@ report at any point that needs a user decision it was not given.
   `claude plugin list` and OpenCode's skill listing show the `agentdev` catalog.
 - `iwe normalize` and `iwe schema validate` pass, and `iwe stats` reports no
   broken links.
-- The pull request's CI passes (Task 14).
+- The pull request's CI passes (Task 13).
 
 ## Out of scope
 
