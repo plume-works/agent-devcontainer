@@ -303,13 +303,21 @@ deletion of this one function; and running the responder as a host job through
 `.devcontainer/scripts/runtime-keyring.sh`,
 `.devcontainer/scripts/setup-keyring.sh`
 
-- [ ] `agentdev-runtime docker run` performs the privilege, storage, private
+- [x] `agentdev-runtime docker run` performs the privilege, storage, private
   endpoint, and single-engine preflights and then execs `dockerd`;
   `agentdev-runtime docker prune` keeps the 72-hour filter and warning-only
   failures.
-- [ ] `agentdev-runtime keyring dbus|keyring|check|wait` execs `dbus-daemon` and
+  - **Evidence:** commit cc0313b; `test_agent_runtime_docker.py` (guards, the
+    exact `dockerd` argv, and a real nested engine on the pinned image) and
+    `test_docker_image_prune.py` pass; deploy acceptance (24 passed) and the Dev
+    Container image suite (5 passed) pass against images built from that commit.
+- [x] `agentdev-runtime keyring dbus|keyring|check|wait` execs `dbus-daemon` and
   `gnome-keyring-daemon` after the bus wait, creates the login keyring once and
   never overwrites it, and `setup-keyring.sh` is deleted without a replacement.
+  - **Evidence:** commit cc0313b; `test_agent_runtime_keyring.py` runs the real
+    bus and keyring through the CLI (secrets served to a child, surviving
+    replacement, keyring never overwritten, the bus wait); both images built
+    from that commit start their supervised keyring to ready.
 
 ### Task 6: Xpra
 
