@@ -32,6 +32,8 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   appends to it on every release.
 - A GitHub Actions workflow that runs `iwe schema validate` and checks that
   `iwe normalize` is a no-op on every push and pull request.
+- Backlog tasks accept `stage: cancelled` (OKF `status: deprecated`); a dropped
+  task's link moves to `## Cancelled` in `data/backlog.md`.
 
 ### Changed
 
@@ -53,6 +55,14 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
 - **`data/index.md` is the bundle-root index.** Its only frontmatter is
   `okf_version: "0.2"`, and its body is sections of link bullets carrying each
   target's description.
+
+### Removed
+
+- **The codebase map.** The `data/codebase/` lane, its `codebase` schema, and
+  the catalog's map skill are gone. If you cloned an earlier copy, delete
+  `data/codebase/`, `data/codebase.md`, and `.iwe/schemas/codebase.yaml`, and
+  remove `[schemas.codebase]` and `"data/codebase"` from the hub `match` list in
+  `.iwe/config.toml`.
 
 ### Fixed
 

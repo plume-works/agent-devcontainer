@@ -50,7 +50,10 @@ schema and hub, the scaffold's example map, and every map document in this
 workspace. Every document, skill, and spec that hands work to the map loses that
 handoff. `.agent.metadata.json` stays as a format, because the root file's
 `template-consume` section is the adoption marker; only its `iwe-map` key goes,
-and the four files in this repository that hold nothing else are deleted.
+and the four files in this repository that hold nothing else are deleted. The
+map-doc stamper task is retired with the map; backlog tasks gain a `cancelled`
+stage, mapped to OKF `status: deprecated` as for cancelled plans and bugs, so
+that retirement stays listed like every other work item.
 
 Template-consume update mode removes a consumer's map without asking, as the one
 exception to its rule that migrating consumer documents is the user's decision:
@@ -86,20 +89,38 @@ Rejected:
 `.agents/plugins/agentdev/skills/pr-review/SKILL.md`,
 `.agents/plugins/agentdev/agents/iwe-verifier.agent.md`.
 
-- [ ] Delete the `iwe-map` skill directory and the seven test files that load
+- [x] Delete the `iwe-map` skill directory and the seven test files that load
   `stale-map-docs.py` or test the push gate.
-- [ ] `push-branch.py` runs no map check: drop `MAP_STALE`, `MAP_CHECK_FAILED`,
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" deletes `skills/iwe-map/` and the seven test files.
+- [x] `push-branch.py` runs no map check: drop `MAP_STALE`, `MAP_CHECK_FAILED`,
   `MAP_CHECK_SCRIPT`, the `--skip-map-check` option, the `MAP_CHECK=` output
   line, the check function, and their usage-text and result-name entries.
   Branch-up-to-date reports `SUCCESS` with `ACTION=none` directly.
-- [ ] `pr-open` step 8 lists no map result codes, no `--skip-map-check`, and no
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check"; `push-branch.py` holds no `MAP_` constant, `--skip-map-check`, or
+    `MAP_CHECK=` line, and `uv run pytest .agents/plugins/agentdev/tests` passed
+    (424).
+- [x] `pr-open` step 8 lists no map result codes, no `--skip-map-check`, and no
   `MAP_STALE` refresh; its stack-publish note no longer mentions a map check.
-- [ ] `update-branch` step 2 no longer names `MAP_STALE`.
-- [ ] `pr-review` drops its IGNORE rule for stale codebase-map docs.
-- [ ] The verifier's audit drops the stale-map-docs item.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests` passes, and the
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" edits `pr-open/SKILL.md` step 8 and its stack-publish note.
+- [x] `update-branch` step 2 no longer names `MAP_STALE`.
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" edits `update-branch/SKILL.md` step 2.
+- [x] `pr-review` drops its IGNORE rule for stale codebase-map docs.
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" removes the IGNORE rule from `pr-review/SKILL.md`.
+- [x] The verifier's audit drops the stale-map-docs item.
+  - **Evidence:** commit b5f5a4b "Remove the iwe-map skill and the push map
+    check" removes the item from `iwe-verifier.agent.md`.
+- [x] `uv run pytest .agents/plugins/agentdev/tests` passes, and the
   `Validate Agent Files` command CI runs
   (`.github/workflows/validate-agent-files.yml`) passes.
+  - **Evidence:** on commit b5f5a4b "Remove the iwe-map skill and the push map
+    check", `uv run pytest .agents/plugins/agentdev/tests` passed (424) and
+    `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+    reported 67/67 skills valid, 0 errors.
 
 ### Task 2: Remove the map from onboarding and template consumption
 
@@ -111,16 +132,24 @@ Rejected:
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `.agents/plugins/agentdev/tests/test_template_consume_check_updates.py`.
 
-- [ ] `iwe-setup` step 3 drops the parenthetical that defers a per-module map to
+- [x] `iwe-setup` step 3 drops the parenthetical that defers a per-module map to
   `/agentdev:iwe-map`; the starting architecture document is the onboarding's
   code orientation.
-- [ ] `iwe-bootstrap` names only `/agentdev:iwe-setup` as the next step (rule 2,
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" edits `iwe-setup/SKILL.md` step 3.
+- [x] `iwe-bootstrap` names only `/agentdev:iwe-setup` as the next step (rule 2,
   the `SUCCESS` result row, completion criteria), and `bootstrap-iwe.py` prints
   `NEXT_SKILLS=iwe-setup`; `test_iwe_bootstrap.py` asserts that value.
-- [ ] Template-consume setup step 5 and the guide's "Onboard the consumer's
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update"; `uv run pytest .agents/plugins/agentdev/tests` passed
+    (424), including `test_iwe_bootstrap.py` asserting `NEXT_SKILLS=iwe-setup`.
+- [x] Template-consume setup step 5 and the guide's "Onboard the consumer's
   project memory" invoke only `/agentdev:iwe-setup`. The greenfield case no
   longer defers mapping, and verification drops the `stale-map-docs.py` check.
-- [ ] Template-consume update mode removes a consumer's codebase map without
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" edits `template-consume/SKILL.md` setup step 5 and the
+    guide's onboarding, greenfield, and verification text.
+- [x] Template-consume update mode removes a consumer's codebase map without
   asking, and reports each removal. The step sits in update mode's procedure,
   and step 8's "migrating their documents is the user's decision" names it as
   the exception. It removes, wherever present, every `data/codebase/` document
@@ -133,9 +162,15 @@ Rejected:
   `iwe schema validate` from the consumer root. The guide's update section
   states the same, and drops the sentence saying update mode never re-runs
   `/agentdev:iwe-map`.
-- [ ] The "metadata without template-consume" fixture in
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" adds update-mode step 9, names it as the exception in step
+    8, and states the removal in the guide's `## Ongoing maintenance`.
+- [x] The "metadata without template-consume" fixture in
   `test_template_consume_check_updates.py` uses a neutral key in place of
   `iwe-map`, and the test passes.
+  - **Evidence:** commit 9bde574 "Drop the map from onboarding and remove it on
+    template update" uses an `other-skill` key;
+    `uv run pytest .agents/plugins/agentdev/tests` passed (424).
 
 ### Task 3: Remove the map from the scaffold and this workspace's support files
 
@@ -149,23 +184,43 @@ Modify, in this workspace and byte-identically in the scaffold:
 `docs/knowledge/CHANGELOG.md`. Modify, scaffold only:
 `assets/docs/knowledge/data/index.md`, `assets/docs/knowledge/data/log.md`.
 
-- [ ] Delete both `codebase.yaml` schemas, and remove `[schemas.codebase]` and
+- [x] Delete both `codebase.yaml` schemas, and remove `[schemas.codebase]` and
   `"data/codebase"` from the hub match list in both `config.toml` copies.
-- [ ] Delete the scaffold's `data/codebase.md` and its four `*.example.md` map
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" deletes both schemas and edits both `config.toml` copies,
+    byte-identical.
+- [x] Delete the scaffold's `data/codebase.md` and its four `*.example.md` map
   docs; the scaffold's `data/index.md` and `data/log.md` no longer name the
   codebase hub.
-- [ ] `AGENTS.md`: drop the "Code structure changed" operating-loop item, the
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" deletes the scaffold hub and its four example docs and edits
+    the scaffold's `data/index.md` and `data/log.md`.
+- [x] `AGENTS.md`: drop the "Code structure changed" operating-loop item, the
   codebase-map provenance clause, and the `/agentdev:iwe-map` skill-table row.
-- [ ] `SCHEMA.md`: drop the `## Codebase map` section and the codebase-map
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `AGENTS.md` copies, byte-identical.
+- [x] `SCHEMA.md`: drop the `## Codebase map` section and the codebase-map
   examples under `sources`, `verified`, and `stale_after`.
-- [ ] `STRUCTURE.md`: drop the "codebase map is derived truth" paragraph and
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `SCHEMA.md` copies, byte-identical.
+- [x] `STRUCTURE.md`: drop the "codebase map is derived truth" paragraph and
   `codebase` from the schema and hub listings.
-- [ ] `README.md` drops `codebase.md codebase/` from its tree.
-- [ ] `CHANGELOG.md` gains a `### Removed` entry under `[Unreleased]` telling a
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `STRUCTURE.md` copies, byte-identical, and also
+    drops `map` from the skill list.
+- [x] `README.md` drops `codebase.md codebase/` from its tree.
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `README.md` copies, byte-identical.
+- [x] `CHANGELOG.md` gains a `### Removed` entry under `[Unreleased]` telling a
   clone of an earlier copy to delete `data/codebase/`, `data/codebase.md`,
   `.iwe/schemas/codebase.yaml`, and their `config.toml` entries.
-- [ ] `uv run pytest docs/knowledge/tests` passes, including the
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" adds the `### Removed` entry to both `CHANGELOG.md` copies.
+- [x] `uv run pytest docs/knowledge/tests` passes, including the
   scaffold-matches-publisher and seed validation tests.
+  - **Evidence:** on commit a94e8d3 "Remove the codebase lane from the scaffold
+    and workspace docs", `uv run pytest docs/knowledge/tests` passed (40),
+    including `test_checked_in_seed_matches_normalized_output`.
 
 ### Task 4: Remove this repository's map and its CI and metadata
 
@@ -174,30 +229,79 @@ Modify, in this workspace and byte-identically in the scaffold:
 `.devcontainer/.agent.metadata.json`, `.github/.agent.metadata.json`,
 `ansible/roles/.agent.metadata.json`. Modify:
 `.github/workflows/validate-agent-files.yml`, `README.md`,
-`.agents/plugins/agentdev/README.md`, `docs/knowledge/data/index.md`.
+`.agents/plugins/agentdev/README.md`, `docs/knowledge/data/index.md`,
+`scripts/tests/test_download_claude_responder_runs.py`.
 
-- [ ] Remove every map document with `iwe delete`, the hub last, and remove the
+- [x] Remove every map document with `iwe delete`, the hub last, and remove the
   de-linked lines it leaves in `data/index.md` and
   `backlog/remove-agentdev-session-start-hook.md`. Plans and the log keep the
   flattened text as history.
-- [ ] Delete the four `.agent.metadata.json` files; each holds only an `iwe-map`
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" deletes the 28 map docs and the hub through `iwe delete`
+    and drops the de-linked lines from `data/index.md` and
+    `remove-agentdev-session-start-hook.md`; `iwe schema validate` passed.
+- [x] Delete the four `.agent.metadata.json` files; each holds only an `iwe-map`
   key.
-- [ ] `validate-agent-files.yml` drops the "Check codebase map docs against
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" deletes all four.
+- [x] `validate-agent-files.yml` drops the "Check codebase map docs against
   their sources" step, and the paths-filter comment and entries that track map
   sources (`.pre-commit-config.yaml`, `devcontainer-compose-pins.yml`,
   `docs/knowledge/tests/**`, `docs/knowledge/AGENTS.md`,
   `docs/knowledge/SCHEMA.md`, `docs/knowledge/STRUCTURE.md`,
   `docs/knowledge/data/codebase/**`). `.iwe/**` stays.
-- [ ] The root README's IWE section and the catalog README drop the map from
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" removes the step, the comment, and the seven paths,
+    keeping `.iwe/**`.
+- [x] The root README's IWE section and the catalog README drop the map from
   their descriptions and the `iwe-map` rows from their skill tables.
-- [ ] `git grep -n -I -E 'iwe-map|stale-map-docs|MAP_STALE|MAP_CHECK|data/codebase|source_digest'`
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" edits `README.md` and
+    `.agents/plugins/agentdev/README.md`.
+- [x] `git grep -n -I -E 'iwe-map|stale-map-docs|MAP_STALE|MAP_CHECK|data/codebase|source_digest'`
   matches nothing outside `docs/knowledge/data/plans/`,
   `docs/knowledge/data/log.md`, `docs/knowledge/data/releases/`,
   `docs/knowledge/data/spec/` (Ship merges the spec changes), both
-  `CHANGELOG.md` copies, and documents whose `stage` is `done`, `deprecated`, or
-  `cancelled`.
+  `CHANGELOG.md` copies, documents whose `stage` is `done`, `deprecated`, or
+  `cancelled`, a hub link whose title names such a document, the
+  template-consume `SKILL.md` and `consumption-guide.md` (update mode names the
+  artifacts it removes), and `data/someday/remove-codebase-memory-mcp.md` (its
+  evidence that no agent read the map).
+  - **Evidence:** on commit 21217a4a "Cancel the map-doc stamper task", the grep
+    matched only the exempt paths, `stage: done` bugs `missing-map-skill` and
+    `pin-bumps-invalidate-map-docs`, the `deprecated` features
+    `fresh-map-on-push` and `map-masks-version-bumps`, the `cancelled`
+    `map-doc-stamper`, and the hub links to a done plan (`data/plans.md`) and to
+    that task (`data/backlog.md`).
 
-### Task 5: Update the knowledge graph
+### Task 5: Let a backlog task be cancelled
+
+**Files:** Modify, in this workspace and byte-identically in the scaffold:
+`.iwe/schemas/task.yaml`, `docs/knowledge/AGENTS.md`,
+`docs/knowledge/SCHEMA.md`, `docs/knowledge/CHANGELOG.md`.
+
+- [x] `task.yaml` accepts `stage: cancelled` beside `planned` and `done`, in
+  both copies.
+  - **Evidence:** commit cf99950 "Let a backlog task be cancelled" edits both
+    `task.yaml` copies, byte-identical.
+- [x] `SCHEMA.md` lists `cancelled` in the task example's stage comment and maps
+  task `cancelled` to `status: deprecated` in the `stage` versus `status` table,
+  dropping `task` from the types that never set `status`; `AGENTS.md` lists
+  `planned|done|cancelled` for backlog and adds a "Task dropped" operating-loop
+  item: `stage: cancelled`, link moved to `## Cancelled` in `data/backlog.md`.
+  - **Evidence:** commit cf99950 "Let a backlog task be cancelled" edits both
+    `SCHEMA.md` and `AGENTS.md` copies, byte-identical.
+- [x] `CHANGELOG.md` gains an `### Added` entry under `[Unreleased]` for the
+  task `cancelled` stage.
+  - **Evidence:** commit cf99950 "Let a backlog task be cancelled" adds the
+    entry to both `CHANGELOG.md` copies.
+- [x] `uv run pytest docs/knowledge/tests` passes, and `iwe schema validate`
+  passes from the repository root.
+  - **Evidence:** on commit cf99950 "Let a backlog task be cancelled",
+    `uv run pytest docs/knowledge/tests` passed (40) and `iwe schema validate`
+    exited 0.
+
+### Task 6: Update the knowledge graph
 
 **Files:** Modify: `docs/knowledge/data/features/fresh-map-on-push.md`,
 `docs/knowledge/data/features/map-masks-version-bumps.md`,
@@ -212,33 +316,57 @@ Modify, in this workspace and byte-identically in the scaffold:
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/architecture/pr-review-correctness-bar.md`.
 
-- [ ] `fresh-map-on-push` and `map-masks-version-bumps` move to
+- [x] `fresh-map-on-push` and `map-masks-version-bumps` move to
   `stage: deprecated`, with OKF `status` set from the `SCHEMA.md` table.
-- [ ] `agentdev-iwe-workflow-skills` lists eight skills without Map, and drops
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph" sets both to `stage: deprecated` with `status: deprecated`;
+    `iwe schema validate` passed.
+- [x] `agentdev-iwe-workflow-skills` lists eight skills without Map, and drops
   the "Map owns the `data/codebase/` lane" behaviour, the Setup edge case, and
   the `iwe-map` source.
-- [ ] `consumer-iwe-seed` names only `iwe-setup` as the onboarding step after
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph".
+- [x] `consumer-iwe-seed` names only `iwe-setup` as the onboarding step after
   bootstrap.
-- [ ] `native-stacked-prs` drops the stack-push edge case about the map check.
-- [ ] The `map-doc-stamper` task is `stage: cancelled`, and its link moves to
-  `## Cancelled` in `data/backlog.md`.
-- [ ] `remove-agentdev-session-start-hook` drops its map-refresh steps and the
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph".
+- [x] `native-stacked-prs` drops the stack-push edge case about the map check.
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph".
+- [x] The `map-doc-stamper` task is `stage: cancelled` with
+  `status: deprecated`, and its link moves to a new `## Cancelled` section after
+  `## Done` in `data/backlog.md`.
+  - **Evidence:** commit 21217a4a "Cancel the map-doc stamper task" sets
+    `stage: cancelled` and `status: deprecated` and moves the link to a new
+    `## Cancelled` section; `iwe schema validate` exited 0.
+- [x] `remove-agentdev-session-start-hook` drops its map-refresh steps and the
   map docs from its version-pin sweep; `resilient-task-evidence` drops the
   `source_digest` alternative.
-- [ ] `agent-metadata-files` names template-consume's root section as the only
+  - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
+    step, and metadata" drops the map-refresh steps and commit 0340656 "Retire
+    the codebase map in the knowledge graph" the map docs from the pin sweep and
+    the `source_digest` alternative.
+- [x] `agent-metadata-files` names template-consume's root section as the only
   current consumer and drops the `iwe-map` example, the digest-mask consumer
   entry, and the `stale-map-docs.py` sources and references; the root-to-leaf
   resolution stays as the contract for a future colocated consumer.
   `template-boundary` drops the root file's `iwe-map` rules, and
   `pr-review-correctness-bar` drops the codebase-map review-ignore item.
+  - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
+    graph" edits all three architecture docs; `iwe schema validate` passed.
 
-### Task 6: Validate
+### Task 7: Validate
 
-- [ ] `iwe normalize` and `iwe schema validate` pass from the repository root.
-- [ ] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests`
+- [x] `iwe normalize` and `iwe schema validate` pass from the repository root.
+  - **Evidence:** on commit e199a638 "Record the stamper and grep evidence for
+    the codebase map removal", `iwe normalize` left the tree clean and
+    `iwe schema validate` exited 0.
+- [x] `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests`
   passes.
+  - **Evidence:** on commit e199a638 "Record the stamper and grep evidence for
+    the codebase map removal", the run passed (464).
 
-### Task 7: CI passes
+### Task 8: CI passes
 
 - [ ] The pull request's CI is green.
 
@@ -375,6 +503,23 @@ ships after this plan.
   section, and passes `iwe schema validate`.
 - CI on the pull request is green.
 
+## Verification results
+
+- `uv run pytest .agents/plugins/agentdev/tests docs/knowledge/tests` passed
+  (464); the `Validate Agent Files` command reported 0 errors; `iwe normalize`
+  and `iwe schema validate` passed; `push-branch.py --help` names no map option
+  or result code.
+- The Task 4 grep matched only the paths its revised check exempts.
+- A scratch consumer under `/tmp`, built from the pre-removal scaffold with four
+  `data/codebase/` docs, an `iwe-map` key beside `template-consume` in the root
+  metadata, an `iwe-map`-only `.github/.agent.metadata.json`, and a CI step
+  running `stale-map-docs.py`, was taken through update mode's step 9 as
+  written: no map document, hub, schema, config entry, `iwe-map` key, or CI step
+  remained, the root file kept `template-consume`, the `iwe-map`-only file was
+  deleted, and `iwe schema validate` passed. The consumer's scaffold
+  `AGENTS.md`, `SCHEMA.md`, and `STRUCTURE.md` still describe the map until
+  update mode's tracked-path diff applies this version's copies.
+
 ## Out of scope
 
 - The codebase-memory MCP server and its hooks; a separate plan owns them.
@@ -450,3 +595,9 @@ Verified anchor points (line numbers as of 2026-10-31):
   — the four removed requirements
 - `docs/knowledge/data/spec/iwe-bootstrap.md:66-77` — onboarding separation
 - `docs/knowledge/data/spec/template-consumption.md:322-352` — fresh adoption
+- `.iwe/schemas/task.yaml:11-13` — task `stage` enum
+- `docs/knowledge/SCHEMA.md:46-55`, `:146` — `stage` versus `status` table, task
+  stage comment
+- `docs/knowledge/AGENTS.md:63-64`, `:97` — task-finished loop item, backlog
+  stage vocabulary
+- `docs/knowledge/data/backlog.md:49`, `:63` — stamper link, `## Done`

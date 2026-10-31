@@ -33,7 +33,7 @@ OWNER_MARK = 'iwe-bootstrap transaction'
 WORKSPACE_PATH = 'docs/knowledge'
 # The two trees bootstrap owns; everything else in the repository is left alone.
 MANAGED_DIRS = ('.iwe', 'docs/knowledge')
-NEXT_SKILLS = 'NEXT_SKILLS=iwe-setup iwe-map'
+NEXT_SKILLS = 'NEXT_SKILLS=iwe-setup'
 
 USAGE = """\
 Install the blank IWE workspace this skill ships into a repository root.

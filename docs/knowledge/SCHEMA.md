@@ -30,14 +30,11 @@ OKF's optional families (SPEC §4.1, §5), declared on every schema and checked 
   for automation.
 - `sources` — the materials a document derives from, each
   `{ id, resource, title, author, usage_count, last_modified }` with `resource`
-  required. A `resource` may be a URL or a repo path, so a codebase map cites
-  the code it describes. Attribute individual claims with a markdown footnote
-  keyed to an entry's `id` (SPEC §5.1).
+  required. A `resource` may be a URL or a repo path. Attribute individual
+  claims with a markdown footnote keyed to an entry's `id` (SPEC §5.1).
 - `verified` — `{ by, at }` or a list, recording who confirmed the content
-  against its sources. Codebase maps use it for "this doc still matches the
-  code", which is what the old date-valued `verified` field meant.
-- `resource`, `tags`, `stale_after`, `usage_window` — optional. Set
-  `stale_after` on codebase maps, which go stale the moment the code moves.
+  against its sources.
+- `resource`, `tags`, `stale_after`, `usage_window` — optional.
 
 ### `stage` versus `status`
 
@@ -53,9 +50,10 @@ whenever you set `stage`, derive `status` from this table and set or clear it.
 | feature | `deprecated`, `cancelled` | `deprecated` |
 | plan    | `cancelled`               | `deprecated` |
 | release | `unreleased`              | `draft`      |
+| task    | `cancelled`               | `deprecated` |
 
-Every other `stage` value means the document is current — omit `status`. `task`
-and the reference types never set it.
+Every other `stage` value means the document is current — omit `status`. The
+reference types never set it.
 
 ## Reserved files
 
@@ -146,35 +144,12 @@ Atomic prioritized work items waiting to become plans.
 ``` yaml
 ---
 type: task # required
-stage: planned # planned | done — required
+stage: planned # planned | done | cancelled — required
 priority: high # high | medium | low
 created: 2026-08-01 # required, YYYY-MM-DD
 completed: 2026-08-14 # set when done
 ---
 ```
-
-## Codebase map — `data/codebase/<canonical-path>.md`
-
-Derived docs, written only by reading the code: one per component (crate,
-package, module), plus `flow-<name>` and `api-<name>`. Keys are canonical — a
-component's key mirrors its source path with wrapper segments elided
-(`crates/liwe/src/graph` → `data/codebase/crates/liwe/graph`). Their extra
-fields are provenance, not lifecycle.
-
-``` yaml
----
-type: codebase # required
-source: src/timer # required; one path, or a list of paths (first is primary)
-source_digest: sha256:... # required; deterministic tracked-source fingerprint
-verified: { by: human:author, at: 2026-07-25T00:00:00Z } # required; who last confirmed the doc against the code
-stale_after: 2026-11-01 # the day to re-check it
----
-```
-
-Component body: role paragraph, `## Contains` (inclusion links to children —
-this builds the tree), `## Public surface`, `## How it works`, `## Depends on`
-(one-way — "used by" is a backlink query), `## Invariants & gotchas`,
-`## Key references`. Flows: numbered `## Trace` + `## Failure modes`.
 
 ## Reference documents — type only
 

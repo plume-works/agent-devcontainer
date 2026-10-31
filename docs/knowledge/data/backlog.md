@@ -46,8 +46,6 @@ end](backlog/exercise-removed-delta-blocks.md)
 [Run Primary checks' ci job in parallel with the pre-commit
 job](backlog/parallel-ci-with-pre-commit.md)
 
-[Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)
-
 [Smoke-test the agentdev-base catalog without lifecycle
 commands](backlog/base-image-catalog-smoke-test.md)
 
@@ -97,3 +95,7 @@ hook](backlog/remove-agentdev-session-start-hook.md)
 [Write a capture skill](backlog/capture-skill.md)
 
 [Capture the current architecture](backlog/capture-current-architecture.md)
+
+## Cancelled
+
+[Bundle a map-doc stamper with the iwe-map skill](backlog/map-doc-stamper.md)

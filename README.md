@@ -301,14 +301,13 @@ and the comparative analysis behind it is in [`docs/research/`](docs/research/).
 
 ## IWE project memory
 
-IWE stores product context, architecture, specifications, plans, releases, and a
-source-backed codebase map as a Markdown knowledge graph. The catalog provides a
+IWE stores product context, architecture, specifications, plans, and releases as
+a Markdown knowledge graph. The catalog provides a
 complete workflow:
 
 | Skill                              | Purpose                                                               |
 | ---------------------------------- | --------------------------------------------------------------------- |
 | `iwe-setup`                        | Onboard an existing project and establish its product context.        |
-| `iwe-map`                          | Create and refresh the codebase map.                                  |
 | `iwe-explore`                      | Investigate ideas or GitHub issues without changing code.             |
 | `iwe-plan`                         | Plan work with verified anchors and risk-scaled specification impact. |
 | `iwe-capture`                      | File complete, deduplicated bugs, proposed features, and tasks.       |
