@@ -265,7 +265,11 @@ deletion of this one function; and running the responder as a host job through
     removed files, a patched entry point, and a missing `RECORD`;
     `test_a_derived_image_cannot_replace_the_managed_runtime` passes in
     `test_agentdev_devcontainer_image.py` (5 passed) against
-    `agentdev-devcontainer` built from that commit.
+    `agentdev-devcontainer` built from that commit. Commit 0cd36222 refuses a
+    deleted `METADATA` and bytecode for no recorded module:
+    `test_a_removed_metadata_file_is_refused` and
+    `test_bytecode_for_no_recorded_module_is_refused` pass under
+    `uv run pytest py_packages/agentdev_runtime` (91 passed).
 
 ### Task 4: Firewall
 
