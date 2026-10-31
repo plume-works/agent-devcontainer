@@ -4,7 +4,7 @@ stage: implemented
 description: Implement runs a fresh-context Verify itself, acts on its findings, and revises its own plan once an independent evaluator approves the revision, leaving the user only the decisions that narrow, drop, or re-word what was agreed.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T05:00:00Z
+  at: 2026-10-31T21:00:44Z
 sources:
 - resource: .agents/plugins/agentdev/agents/iwe-implementer.agent.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
@@ -79,8 +79,6 @@ narrows, drops, or re-words what they agreed to.
   revision commits.
 - **A Verify command that needs an approval** stops the loop with
   `Needs decision`, and the user re-runs the skill granting it.
-- **On Codex**, every dispatch in the loop forwards no conversation turns, so
-  the verifier and the evaluator start from a fresh context.
 
 ## Open questions
 

@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: Why the Ship and Implement rulebooks live in catalog agents that only explicit-only skills and named dispatchers start, why Ship always runs as a subagent with a conversation-free prompt, and the harness behavior on Claude Code, Codex, and OpenCode that the gate rests on.
+description: Why the Ship and Implement rulebooks live in catalog agents that only explicit-only skills and named dispatchers start, why Ship always runs as a subagent with a conversation-free prompt, and the harness behavior on Claude Code and OpenCode that the gate rests on.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-08T12:00:00Z
+  at: 2026-10-31T21:00:11Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-ship/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
@@ -28,12 +28,10 @@ skills that start them carry no rules of their own.
 
   Each agent's `description` names its dispatchers, so nothing else matches it.
 
-- **The gate is explicit-only on all three harnesses.** The two entry skills,
-  the two coordinators, and every other skill with
-  `disable-model-invocation: true` also ship `agents/openai.yaml` with
-  `policy.allow_implicit_invocation: false`. The first key gates Claude Code
-  and, through the bridge's `deny`, OpenCode; the second gates Codex. A test
-  keeps the two in step.
+- **The gate is explicit-only on both harnesses.** The two entry skills, the two
+  coordinators, and every other gated skill carry the
+  `disable-model-invocation: true` frontmatter key. It gates Claude Code
+  directly and OpenCode through the bridge's `deny`.
 
 - **Ship always runs as a dispatched subagent**, including the user's own
   `/agentdev:iwe-ship`. Its verification must rest on the code and the graph,
@@ -52,8 +50,8 @@ skills that start them carry no rules of their own.
 
 ## Host behavior the design rests on
 
-These hold for Claude Code 2.1.280, Codex 0.156.1, and OpenCode 1.18.34. A
-version bump is the point at which to recheck them.
+These hold for Claude Code 2.1.280 and OpenCode 1.18.34. A version bump is the
+point at which to recheck them.
 
 ### Fixture
 
@@ -63,14 +61,12 @@ Claude agents that preload them:
 ``` text
 <skills>/gated/SKILL.md          # disable-model-invocation: true
 <skills>/open/SKILL.md           # no gate (Claude fixture)
-<skills>/policy/SKILL.md         # disable-model-invocation: true (Codex fixture)
-<skills>/policy/agents/openai.yaml
 .claude/agents/preloader.md      # skills: [gated]
 .claude/agents/preloader-open.md # skills: [open]
 ```
 
-`<skills>` is `.claude/skills` for Claude Code and `.agents/skills` for Codex.
-Each skill body is one line naming a unique marker:
+`<skills>` is `.claude/skills` for Claude Code. Each skill body is one line
+naming a unique marker:
 
 ``` markdown
 ---
@@ -80,13 +76,6 @@ disable-model-invocation: true
 ---
 
 The marker is GATED-MARKER-4417.
-```
-
-`policy/agents/openai.yaml`:
-
-``` yaml
-policy:
-  allow_implicit_invocation: false
 ```
 
 `preloader.md` (and `preloader-open.md` with `open`):
@@ -133,19 +122,6 @@ Report the marker your preloaded skill gives, or NONE if no skill content was pr
   `prompt_id`, `effort`, `tool_use_id`, `tool_name`, and `tool_input` (for
   Agent: `description`, `prompt`, `subagent_type`, `run_in_background`). Nothing
   names the skill or the request that led to the call.
-
-### Codex
-
-- **`disable-model-invocation` is ignored.** Asked to list its available skills,
-  Codex lists `gated`, which carries only that key.
-
-- **`policy.allow_implicit_invocation: false` removes the skill from that list**
-  while `$policy` still runs it explicitly and returns POLICY-MARKER-5530.
-
-  ``` bash
-  codex exec 'List the name of every skill in your available-skills list, one per line.' </dev/null
-  codex exec '$policy — reply with the marker the skill gives.' </dev/null
-  ```
 
 ### OpenCode
 

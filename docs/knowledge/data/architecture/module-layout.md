@@ -3,7 +3,7 @@ type: architecture
 description: The three-part module layout (image build, devcontainer scaffolding, agent catalog) and how they compose at runtime.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:32:14Z
+  at: 2026-10-31T21:00:28Z
 ---
 
 # Module layout
@@ -19,11 +19,11 @@ boundary](template-boundary.md):
    `agentdev-deploy`) and its `ubuntu-ansible` base, multi-arch, pinned by tag
    and digest.
 2. **Agent catalog** (`.agents/plugins/agentdev/`) — the canonical Claude Code /
-   Codex plugin: agents, skills, `bin/` scripts, and the plugin's own test suite
-   (`.agents/plugins/agentdev/tests/`). Everything else that references the
-   catalog (`.claude-plugin/`, `.agents/plugins/marketplace.json`, the
-   registration `agentdev-runtime catalog install` performs) is derived from
-   this tree, never edited directly.
+   OpenCode plugin: agents, skills, `bin/` scripts, and the plugin's own test
+   suite (`.agents/plugins/agentdev/tests/`). Everything else that references
+   the catalog (`.claude-plugin/`, the OpenCode bridge, the registration
+   `agentdev-runtime catalog install` performs) is derived from this tree, never
+   edited directly.
 3. **Devcontainer scaffolding** (`.devcontainer/`) — the template surface a
    consuming project copies in: lifecycle scripts, MCP configuration, firewall
    allowlist, digest pin (`devcontainer-compose-pins.yml`).
@@ -44,7 +44,7 @@ ansible/ + docker/ + py_packages/agentdev_runtime/ + catalog publisher source
         -> .devcontainer/devcontainer.json + docker-compose.yml
         -> image entrypoint: supervised dbus, keyring, dockerd, CBM, Xpra
         -> postCreateCommand (once, from the image metadata): install the staged
-           agentdev catalog into persistent Claude/Codex state volumes
+           agentdev catalog into persistent Claude state volumes
         -> postAttachCommand (each attach): workspace catalog override if present
 ```
 
@@ -56,13 +56,12 @@ in [Template consumption](../spec/template-consumption.md).
 ## Key design decisions
 
 - **Catalog install happens in a lifecycle hook, not the image build.** The
-  `agentdev-claude` / `agentdev-codex` volumes mount over `~/.claude` /
-  `~/.codex` — exactly where each agent records installed plugins — so a
-  build-time install would be shadowed by the volume mount on every container
-  after the first. Installing in `postCreateCommand` instead means the install
-  runs once per devcontainer instance (volumes are scoped per instance), while
-  credentials alone are shared across worktrees via the separate
-  `agentdev-agents-auth` volume.
+  `agentdev-claude` volume mounts over `~/.claude` — exactly where Claude Code
+  records installed plugins — so a build-time install would be shadowed by the
+  volume mount on every container after the first. Installing in
+  `postCreateCommand` instead means the install runs once per devcontainer
+  instance (volumes are scoped per instance), while credentials alone are shared
+  across worktrees via the separate `agentdev-agents-auth` volume.
 - **This repository's own `postAttachCommand` re-registers the workspace
   marketplace on every editor attach**, overriding the image's staged copy —
   because this repo *develops* the catalog it ships, unlike a normal consumer
@@ -72,14 +71,10 @@ in [Template consumption](../spec/template-consumption.md).
   so a rebuild upstream never silently changes what a consumer runs; Renovate
   advances the pin deliberately.
 - **`.agents/plugins/agentdev/` is the single source of truth for the catalog.**
-  Codex consumes its skills directly, with no `.codex/agents` trampoline and no
-  symlink in this repository. Codex reads agents only from its home directory,
-  so every Codex install derives `~/.codex/agents/agentdev-<stem>.toml` from the
-  catalog's `agents/` through `bin/install-codex-agents.py`; those files are
-  install-time artifacts, never edited or committed. Scripts under `bin/`
-  resolve the target repository from the working directory rather than assuming
-  they run inside this checkout, since the same scripts run inside a consumer's
-  plugin cache.
+  Claude Code reads it through `.claude-plugin/` and OpenCode through the bridge
+  plugin, with no per-harness copy. Scripts under `bin/` resolve the target
+  repository from the working directory rather than assuming they run inside
+  this checkout, since the same scripts run inside a consumer's plugin cache.
 - **`validate_agent_files`'s test suite is deliberately kept separate** from the
   plugin's own test suite (`.agents/plugins/agentdev/tests/`) so the package
   continues to pass with no repository-specific fixtures, since it is released
