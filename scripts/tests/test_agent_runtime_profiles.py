@@ -156,7 +156,9 @@ def test_the_profiles_share_their_program_definitions(supervisor):
         assert dict(devcontainer[f'program:{name}']) == dict(deploy[f'program:{name}']), name
     for section in ('supervisord', 'unix_http_server', 'eventlistener:controller'):
         assert dict(devcontainer[section]) == dict(deploy[section]), section
-    assert devcontainer['program:created']['command'].endswith('devcontainer-created.sh wait')
+    assert devcontainer['program:created']['command'].endswith(
+        'agentdev-runtime lifecycle created --wait'
+    )
 
 
 @pytest.fixture

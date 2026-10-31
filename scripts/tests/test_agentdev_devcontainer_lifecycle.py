@@ -5,38 +5,48 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import shutil
-import socket
 import subprocess
+import sys
 import time
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
-REAL = [
-    'devcontainer-created.sh',
-    'devcontainer-ready.sh',
-    'devcontainer-attached.sh',
-    'run-agentdev-hooks.sh',
-    'postCreateCommand.sh',
-    'postStartCommand.sh',
-    'postAttachCommand.sh',
-]
-STUBS: list[str] = []
-FAKE_HEALTH = """#!/usr/bin/env bash
-case "$1" in
-  ready) [[ -f $LIFECYCLE_STATE/ready ]] ;;
-  status) echo "runtime state: $(cat "$LIFECYCLE_STATE/state" 2>/dev/null || echo pending)" ;;
-esac
-"""
-# Logs each call; answers `catalog complete` from the files, as the real check does.
-FAKE_CLI = """#!/usr/bin/env bash
-if [[ "$1 $2" == "catalog complete" ]]; then
-  [[ -f $3/.claude-plugin/marketplace.json && -f $3/.agents/plugins/marketplace.json &&
-    -d $3/.agents/plugins/agentdev/.opencode-plugin ]]
-  exit
-fi
-echo "agentdev-runtime $*" >> "{log}"
+# Runs `agentdev-runtime lifecycle` with the steps other modules own recorded instead of run;
+# the hooks, the catalog check, and the marker stay real.
+LIFECYCLE = """
+import os, sys
+from pathlib import Path
+from agentdev_runtime import agent_state, catalog, cbm, git, health, lifecycle, project, workspace
+
+state = Path(os.environ['LIFECYCLE_STATE'])
+
+def record(text, code=0):
+    with open(os.environ['CALL_LOG'], 'a') as handle:
+        handle.write(text + '\\n')
+    return code
+
+git.safe_directory = lambda settings: record('agentdev-runtime git safe-directory')
+git.credential_helper = lambda settings: record('agentdev-runtime git credential-helper')
+agent_state.create = lambda settings: record('agentdev-runtime state create')
+agent_state.link_codex_auth = lambda settings: record('agentdev-runtime state links')
+agent_state.apply_agent_policy = lambda: record('agentdev-runtime state agent-policy')
+workspace.Workspace.project = lambda self: record('agentdev-runtime workspace project')
+catalog.install = lambda settings, root, scope: record(
+    f'agentdev-runtime catalog install {root}' + (f' --claude-scope {scope}' if scope else '')
+)
+cbm.Daemon.start = lambda self: record('agentdev-runtime cbm start')
+cbm.Daemon.index = lambda self, repo: record(f'agentdev-runtime cbm index {repo}')
+project.sync = lambda settings: record('agentdev-runtime project sync')
+health.ready = lambda settings: 0 if (state / 'ready').exists() else 1
+
+def status(settings):
+    current = (state / 'state').read_text() if (state / 'state').exists() else 'pending'
+    print(f'runtime state: {current}')
+    return 1
+
+health.status = status
+sys.exit(lifecycle.main(sys.argv[1:]))
 """
 START_STEPS = [
     'agentdev-runtime git safe-directory',
@@ -47,27 +57,20 @@ START_STEPS = [
 
 
 class Lifecycle:
-    """A copied lifecycle tree whose helpers only record that they ran."""
+    """A workspace, hook root, and fake tools around one lifecycle command at a time."""
 
     def __init__(self, root: Path) -> None:
         self.root = root
-        self.scripts = root / 'scripts'
         self.bin = root / 'bin'
         self.workspace = root / 'workspace'
         self.hooks = root / 'hooks'
         self.state = root / 'state'
         self.staged = root / 'staged-catalog'
         self.log = root / 'calls.log'
-        for directory in (self.scripts, self.bin, self.workspace, self.state, self.staged):
+        for directory in (self.bin, self.workspace, self.state, self.staged):
             directory.mkdir(parents=True)
         (root / 'home').mkdir()
-        for name in REAL:
-            shutil.copy2(SCRIPTS / name, self.scripts / name)
-        for name in STUBS:
-            self.stub(self.scripts / name, name)
-        self.write(self.scripts / 'runtime-health.sh', FAKE_HEALTH)
         self.stub(self.bin / 'sudo', 'sudo')
-        self.write(self.bin / 'agentdev-runtime', FAKE_CLI.format(log=self.log))
         self.stub(self.bin / 'codebase-memory-mcp', 'codebase-memory-mcp')
 
     def write(self, path: Path, body: str) -> None:
@@ -100,15 +103,17 @@ class Lifecycle:
             'AGENTDEV_CATALOG_DIR': str(self.staged),
             'AGENTDEV_RUN_DIR': str(self.root / 'run'),
             'AGENTDEV_READY_TIMEOUT': '3',
-            'AGENTDEV_SKIP_XPRA': '1',
-            'AGENTDEV_HEALTH_COMMAND': str(self.scripts / 'runtime-health.sh'),
             'LIFECYCLE_STATE': str(self.state),
+            'CALL_LOG': str(self.log),
             **extra,
         }
 
-    def run(self, script: str, *args: str, **extra: str) -> subprocess.CompletedProcess[str]:
+    def argv(self, *args: str) -> list[str]:
+        return [sys.executable, '-c', LIFECYCLE, *args]
+
+    def run(self, *args: str, **extra: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [self.scripts / script, *args],
+            self.argv(*args),
             env=self.env(**extra),
             cwd=self.workspace,
             capture_output=True,
@@ -148,7 +153,7 @@ def assert_ok(result: subprocess.CompletedProcess[str]) -> None:
 def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(lifecycle):
     lifecycle.hook('created', '20-second')
     lifecycle.hook('created', '10-first')
-    assert_ok(lifecycle.run('devcontainer-created.sh'))
+    assert_ok(lifecycle.run('created'))
     # Trust the checkout first: pre-commit refuses a repository another UID owns.
     assert lifecycle.calls() == [
         'agentdev-runtime git safe-directory',
@@ -162,15 +167,15 @@ def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(l
 
 
 def test_create_is_idempotent(lifecycle):
-    assert_ok(lifecycle.run('devcontainer-created.sh'))
+    assert_ok(lifecycle.run('created'))
     first = lifecycle.calls()
-    assert_ok(lifecycle.run('devcontainer-created.sh'))
+    assert_ok(lifecycle.run('created'))
     assert lifecycle.calls() == first * 2
     assert lifecycle.marker.exists()
 
 
 def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
-    result = lifecycle.run('devcontainer-created.sh', AGENTDEV_CATALOG_DIR='')
+    result = lifecycle.run('created', AGENTDEV_CATALOG_DIR='')
     assert_ok(result)
     assert not any('catalog' in call for call in lifecycle.calls())
     assert 'No catalog staged in the image' in result.stdout
@@ -179,7 +184,7 @@ def test_create_without_a_staged_catalog_skips_its_install(lifecycle):
 @pytest.mark.skipif(os.geteuid() != 0, reason='ancestor ownership is claimed only as root')
 def test_create_claims_ancestors_but_never_checkout_contents(lifecycle):
     (lifecycle.workspace / '.cache').mkdir()
-    assert_ok(lifecycle.run('devcontainer-created.sh'))
+    assert_ok(lifecycle.run('created'))
     sudo = [line for line in lifecycle.log.read_text().splitlines() if line.startswith('sudo ')]
     assert f'sudo chown 0:0 {lifecycle.workspace}' in sudo
     assert f'sudo chown -R 0:0 {lifecycle.workspace}/.cache' not in sudo
@@ -187,13 +192,11 @@ def test_create_claims_ancestors_but_never_checkout_contents(lifecycle):
 
 
 def test_wait_returns_only_after_a_create_phase_finished(lifecycle):
-    waiter = subprocess.Popen(
-        [lifecycle.scripts / 'devcontainer-created.sh', 'wait'], env=lifecycle.env()
-    )
+    waiter = subprocess.Popen(lifecycle.argv('created', '--wait'), env=lifecycle.env())
     try:
         time.sleep(1.5)
         assert waiter.poll() is None
-        assert_ok(lifecycle.run('devcontainer-created.sh'))
+        assert_ok(lifecycle.run('created'))
         assert waiter.wait(timeout=10) == 0
     finally:
         waiter.kill()
@@ -202,7 +205,7 @@ def test_wait_returns_only_after_a_create_phase_finished(lifecycle):
 def test_start_waits_for_the_runtime_then_repairs_state_and_runs_hooks(lifecycle):
     lifecycle.hook('started', 'notify')
     ready = subprocess.Popen(
-        [lifecycle.scripts / 'devcontainer-ready.sh'],
+        lifecycle.argv('ready'),
         env=lifecycle.env(AGENTDEV_READY_TIMEOUT='30'),
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -217,7 +220,7 @@ def test_start_waits_for_the_runtime_then_repairs_state_and_runs_hooks(lifecycle
 
 def test_start_fails_when_the_runtime_failed(lifecycle):
     (lifecycle.state / 'state').write_text('failed')
-    result = lifecycle.run('devcontainer-ready.sh', AGENTDEV_READY_TIMEOUT='30')
+    result = lifecycle.run('ready', AGENTDEV_READY_TIMEOUT='30')
     assert result.returncode == 1
     assert 'the runtime failed; the editor cannot attach' in result.stderr
     assert 'runtime state: failed' in result.stderr
@@ -226,7 +229,7 @@ def test_start_fails_when_the_runtime_failed(lifecycle):
 
 def test_start_fails_when_the_runtime_is_not_ready_in_time(lifecycle):
     started = time.monotonic()
-    result = lifecycle.run('devcontainer-ready.sh', AGENTDEV_READY_TIMEOUT='2')
+    result = lifecycle.run('ready', AGENTDEV_READY_TIMEOUT='2')
     assert result.returncode == 1 and time.monotonic() - started < 20
     assert 'not ready within 2s' in result.stderr
     assert lifecycle.calls() == []
@@ -236,7 +239,7 @@ def test_attach_registers_a_complete_checkout_catalog(lifecycle):
     lifecycle.complete_catalog()
     (lifecycle.workspace / 'pyproject.toml').write_text('')
     lifecycle.hook('attached', 'refresh')
-    assert_ok(lifecycle.run('devcontainer-attached.sh'))
+    assert_ok(lifecycle.run('attached'))
     assert lifecycle.calls() == [
         f'agentdev-runtime cbm index {lifecycle.workspace}',
         'agentdev-runtime project sync',
@@ -255,7 +258,7 @@ def test_attach_keeps_the_staged_catalog_for_an_incomplete_checkout(lifecycle, m
         shutil.rmtree(target)
     else:
         target.unlink()
-    result = lifecycle.run('devcontainer-attached.sh')
+    result = lifecycle.run('attached')
     assert_ok(result)
     assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}']
     assert 'keeping the staged catalog' in result.stdout
@@ -263,7 +266,7 @@ def test_attach_keeps_the_staged_catalog_for_an_incomplete_checkout(lifecycle, m
 
 def test_repeated_attach_reruns_only_attach_scoped_work(lifecycle):
     for _ in range(3):
-        assert_ok(lifecycle.run('devcontainer-attached.sh'))
+        assert_ok(lifecycle.run('attached'))
     assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}'] * 3
     assert not lifecycle.marker.exists()
 
@@ -273,7 +276,7 @@ def test_hooks_run_executables_in_name_order_and_skip_the_rest(lifecycle):
     lifecycle.hook('attached', '10-first')
     lifecycle.hook('attached', 'README', executable=False)
     (lifecycle.hooks / 'attached.d/nested').mkdir()
-    result = lifecycle.run('run-agentdev-hooks.sh', 'attached')
+    result = lifecycle.run('hooks', 'attached')
     assert_ok(result)
     assert lifecycle.calls() == [
         'hook attached/10-first attached',
@@ -285,7 +288,7 @@ def test_hooks_run_executables_in_name_order_and_skip_the_rest(lifecycle):
 def test_a_failing_hook_names_itself_and_its_phase_and_stops_the_phase(lifecycle):
     lifecycle.hook('created', '10-broken', 'exit 7\n')
     lifecycle.hook('created', '20-after')
-    result = lifecycle.run('devcontainer-created.sh')
+    result = lifecycle.run('created')
     assert result.returncode == 1
     assert 'hook 10-broken failed in the created phase (exit status 7)' in result.stderr
     assert 'hook created/20-after created' not in lifecycle.calls()
@@ -293,8 +296,8 @@ def test_a_failing_hook_names_itself_and_its_phase_and_stops_the_phase(lifecycle
 
 
 def test_a_missing_hook_directory_is_not_an_error(lifecycle):
-    assert_ok(lifecycle.run('run-agentdev-hooks.sh', 'started'))
-    assert lifecycle.run('run-agentdev-hooks.sh', 'deployed').returncode == 2
+    assert_ok(lifecycle.run('hooks', 'started'))
+    assert lifecycle.run('hooks', 'deployed').returncode == 2
 
 
 def test_scripts_in_the_mounted_workspace_are_never_run_as_hooks(lifecycle):
@@ -305,47 +308,31 @@ def test_scripts_in_the_mounted_workspace_are_never_run_as_hooks(lifecycle):
                 f'#!/usr/bin/env bash\necho "evil {phase}" >> "{lifecycle.log}"\n',
             )
     (lifecycle.state / 'ready').touch()
-    assert_ok(lifecycle.run('devcontainer-created.sh'))
-    assert_ok(lifecycle.run('devcontainer-ready.sh'))
-    assert_ok(lifecycle.run('devcontainer-attached.sh'))
+    assert_ok(lifecycle.run('created'))
+    assert_ok(lifecycle.run('ready'))
+    assert_ok(lifecycle.run('attached'))
     assert not any(call.startswith('evil') for call in lifecycle.calls())
 
 
 def test_a_hook_root_inside_the_workspace_is_refused(lifecycle):
     inside = lifecycle.workspace / 'hooks'
     lifecycle.write(inside / 'attached.d/x', '#!/usr/bin/env bash\ntouch "$0.ran"\n')
-    result = lifecycle.run('run-agentdev-hooks.sh', 'attached', AGENTDEV_HOOKS_ROOT=str(inside))
+    result = lifecycle.run('hooks', 'attached', AGENTDEV_HOOKS_ROOT=str(inside))
     assert result.returncode == 1
     assert 'is inside the workspace' in result.stderr
     assert not (inside / 'attached.d/x.ran').exists()
 
 
-def test_checkout_relative_hooks_delegate_to_the_image_commands(lifecycle):
-    (lifecycle.state / 'ready').touch()
-    assert_ok(lifecycle.run('postCreateCommand.sh'))
-    assert lifecycle.marker.exists()
-    lifecycle.log.unlink()
-    assert_ok(lifecycle.run('postAttachCommand.sh'))
-    assert lifecycle.calls() == [f'agentdev-runtime cbm index {lifecycle.workspace}']
+def test_a_start_without_a_supervisor_starts_cbm_before_the_start_steps(lifecycle):
+    assert_ok(lifecycle.run('ready', '--no-wait'))
+    assert lifecycle.calls() == ['agentdev-runtime cbm start', *START_STEPS]
 
 
-def test_an_unsupervised_start_starts_services_before_the_start_steps(lifecycle):
-    assert_ok(lifecycle.run('postStartCommand.sh'))
-    assert lifecycle.calls() == [
-        'agentdev-runtime cbm start',
-        f'agentdev-runtime cbm index {lifecycle.workspace}',
-        *START_STEPS,
+def test_the_responder_runs_each_phase_through_the_cli():
+    action = (REPO_ROOT / '.github/actions/run-claude-responder/action.yml').read_text()
+    phases = [
+        'agentdev-runtime lifecycle created',
+        'agentdev-runtime lifecycle ready --no-wait',
+        'agentdev-runtime lifecycle attached',
     ]
-
-
-def test_a_supervised_start_never_starts_a_second_set_of_services(lifecycle):
-    run_dir = lifecycle.root / 'run'
-    run_dir.mkdir()
-    listener = socket.socket(socket.AF_UNIX)
-    listener.bind(str(run_dir / 'supervisor.sock'))
-    try:
-        (lifecycle.state / 'ready').touch()
-        assert_ok(lifecycle.run('postStartCommand.sh'))
-        assert lifecycle.calls() == START_STEPS
-    finally:
-        listener.close()
+    assert [action.index(phase) for phase in phases] == sorted(action.index(p) for p in phases)

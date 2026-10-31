@@ -109,7 +109,17 @@ def _workspace(argv: list[str]) -> int:
     return workspace.main(argv)
 
 
+def _lifecycle(argv: list[str]) -> int:
+    from agentdev_runtime import lifecycle
+
+    return lifecycle.main(argv)
+
+
 PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
+    'lifecycle': (
+        _lifecycle,
+        'the Dev Container create, start, and attach phases and their hooks',
+    ),
     'workspace': (
         _workspace,
         'deploy workspace phases: checkout, project, catalog, config, prepare',

@@ -6,7 +6,7 @@ import stat
 import subprocess
 import sys
 
-from agentdev_runtime import agent_state
+from agentdev_runtime import agent_state, lifecycle
 
 REPO_ROOT = Path(__file__).parents[2]
 SCRIPT = [
@@ -15,7 +15,6 @@ SCRIPT = [
     'from agentdev_runtime import claude_state, settings; '
     'claude_state.preapprove(settings.Settings())',
 ]
-POST_CREATE = REPO_ROOT / '.devcontainer/scripts/devcontainer-created.sh'
 RESPONDER_ACTION = REPO_ROOT / '.github/actions/run-claude-responder/action.yml'
 
 
@@ -86,7 +85,7 @@ def test_skips_when_opted_out(tmp_path):
 
 
 def test_post_create_runs_after_state_symlink():
-    assert 'agentdev-runtime state create' in POST_CREATE.read_text()
+    assert 'agent_state.create(settings)' in inspect.getsource(lifecycle.created)
     create = inspect.getsource(agent_state.create)
     assert create.index('claude_state.preapprove') > create.index('link_claude_json')
 

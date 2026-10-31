@@ -10,7 +10,7 @@ import subprocess
 import sys
 import time
 
-from agentdev_runtime import agent_state, catalog, cbm, claude_state
+from agentdev_runtime import agent_state, catalog, cbm, claude_state, lifecycle
 from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
 import pytest
 
@@ -229,20 +229,12 @@ def test_a_catalog_is_complete_only_with_every_client_manifest(tmp_path: Path, m
 
 
 def test_hooks_keep_their_call_order():
-    post_start = (SCRIPTS / 'postStartCommand.sh').read_text()
-    assert post_start.index('agentdev-runtime xpra') < post_start.index(
-        'devcontainer-ready.sh" --no-wait'
-    )
-    ready = (SCRIPTS / 'devcontainer-ready.sh').read_text()
-    assert ready.index('agentdev-runtime state links') < ready.index('agent-policy')
-    assert ready.rstrip().endswith('"$script_dir/run-agentdev-hooks.sh" started')
-    created = (SCRIPTS / 'devcontainer-created.sh').read_text()
-    assert created.index('agentdev-runtime state create') < created.index(
-        'agentdev-runtime workspace project'
-    )
-    assert created.index('agentdev-runtime workspace project') < created.index(
-        'agentdev-runtime catalog install'
-    )
+    ready = inspect.getsource(lifecycle.ready)
+    assert ready.index('link_codex_auth') < ready.index('apply_agent_policy')
+    assert ready.rstrip().endswith("hooks.run(settings, 'started')")
+    created = inspect.getsource(lifecycle.created)
+    assert created.index('agent_state.create') < created.index('.project()')
+    assert created.index('.project()') < created.index('catalog.install')
     create = inspect.getsource(agent_state.create)
     assert create.index('link_claude_json') < create.index('install_cbm')
 

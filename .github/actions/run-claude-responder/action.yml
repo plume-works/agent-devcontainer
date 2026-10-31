@@ -92,7 +92,7 @@ runs:
           }
 
     # See docs/knowledge/data/architecture/ci-agent-plugin-availability.md.
-    - name: Run devcontainer lifecycle scripts
+    - name: Run devcontainer lifecycle commands
       shell: bash
       env:
         DEV_WORKSPACE_FOLDER: ${{ github.workspace }}
@@ -103,9 +103,10 @@ runs:
         UV_PROJECT_ENVIRONMENT: /opt/ci-venv
       run: |
         mkdir -p /root/.claude /root/.codex
-        .devcontainer/scripts/postCreateCommand.sh
-        .devcontainer/scripts/postStartCommand.sh
-        .devcontainer/scripts/postAttachCommand.sh
+        agentdev-runtime lifecycle created
+        # No supervisor runs in a container job: start CBM, then the per-start repairs.
+        agentdev-runtime lifecycle ready --no-wait
+        agentdev-runtime lifecycle attached
 
     # claude-code-action merges its settings input into the user settings one
     # level deep, so the hook-written user layer rides underneath here or its

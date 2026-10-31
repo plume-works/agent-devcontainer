@@ -1,14 +1,14 @@
+import inspect
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 
+from agentdev_runtime import lifecycle
 import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 HELPER = [sys.executable, '-m', 'agentdev_runtime', 'git', 'credential-helper']
-POST_START = REPO_ROOT / '.devcontainer/scripts/postStartCommand.sh'
-READY = REPO_ROOT / '.devcontainer/scripts/devcontainer-ready.sh'
 GH_HELPER = '!gh auth git-credential'
 
 
@@ -91,6 +91,5 @@ def test_reads_gh_login_through_saved_keyring_session(tmp_path):
 
 
 def test_post_start_runs_setup_after_keyring():
-    ready = READY.read_text()
-    helper = ready.index('agentdev-runtime git credential-helper')
-    assert ready.index("'') wait_ready ;;") < helper
+    ready = inspect.getsource(lifecycle.ready)
+    assert ready.index('wait_ready(settings)') < ready.index('git.credential_helper')

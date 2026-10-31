@@ -41,9 +41,9 @@ LABEL devcontainer.metadata='[{ \
   "overrideCommand": false, \
   "mounts": [{"source": "dind-var-lib-docker-${devcontainerId}", "target": "/var/lib/docker", "type": "volume"}], \
   "remoteEnv": {"DEV_WORKSPACE_FOLDER": "${containerWorkspaceFolder}"}, \
-  "postCreateCommand": "/opt/agentdev-runtime/devcontainer-created.sh", \
-  "postStartCommand": "/opt/agentdev-runtime/devcontainer-ready.sh", \
-  "postAttachCommand": "/opt/agentdev-runtime/devcontainer-attached.sh", \
+  "postCreateCommand": "agentdev-runtime lifecycle created", \
+  "postStartCommand": "agentdev-runtime lifecycle ready", \
+  "postAttachCommand": "agentdev-runtime lifecycle attached", \
   "waitFor": "postStartCommand" \
 }]'
 LABEL org.opencontainers.image.title="agentdev-devcontainer"
