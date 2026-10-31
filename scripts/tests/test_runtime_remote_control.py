@@ -27,13 +27,14 @@ test -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" || exit 3
 echo auth >> "$STATE/claude.log"
 cat "$STATE/auth.json" 2>/dev/null
 """
-# A live session is the file $STATE/session; new-session fails when $STATE/tmux.fail exists.
+# A live session is the file $STATE/session; new-session fails when $STATE/tmux.fail exists
+# and leaves no session, as a pane that exits at once does, when $STATE/tmux.vanish exists.
 FAKE_TMUX = """#!/usr/bin/env bash
 case "$*" in
   *new-session*)
     printf '%s\\n' "$*" >> "$STATE/tmux.log"
     if [[ -f $STATE/tmux.fail ]]; then echo "no server" >&2; exit 1; fi
-    touch "$STATE/session"
+    [[ -f $STATE/tmux.vanish ]] || touch "$STATE/session"
     ;;
   *has-session*) [[ -f $STATE/session ]] ;;
 esac
@@ -190,6 +191,17 @@ def test_a_session_that_disappears_ends_the_watcher(make):
     (watch.state / 'session').unlink()
     assert watch.wait_exit() == 1
     assert len(watch.starts()) == 1
+
+
+def test_a_start_that_never_comes_up_ends_the_watcher(make):
+    watch = make()
+    watch.login()
+    (watch.state / 'tmux.vanish').touch()
+    watch.start()
+    assert watch.wait_exit() == 1
+    assert len(watch.starts()) == 1
+    assert watch.process is not None and watch.process.stderr is not None
+    assert 'did not come up' in watch.process.stderr.read()
 
 
 def test_a_failing_start_ends_the_watcher_with_its_status(make):

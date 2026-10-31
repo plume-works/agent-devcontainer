@@ -55,12 +55,14 @@ cmd_run() {
       exit 1
     else
       "$script_dir/claude-remote-control-start.sh"
-      if live; then
-        seen=1
-        report "running in tmux session $session"
-      else
-        checked=""
+      # A start that leaves no session counts as the session exiting, so the
+      # controller's recovery budget bounds the retries.
+      if ! live; then
+        log "tmux session $session did not come up"
+        exit 1
       fi
+      seen=1
+      report "running in tmux session $session"
     fi
     sleep "$interval"
   done
