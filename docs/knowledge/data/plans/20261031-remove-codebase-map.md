@@ -257,7 +257,7 @@ Modify, in this workspace and byte-identically in the scaffold:
   - **Evidence:** commit 7643d40 "Remove this repository's codebase map, its CI
     step, and metadata" edits `README.md` and
     `.agents/plugins/agentdev/README.md`.
-- [ ] `git grep -n -I -E 'iwe-map|stale-map-docs|MAP_STALE|MAP_CHECK|data/codebase|source_digest'`
+- [x] `git grep -n -I -E 'iwe-map|stale-map-docs|MAP_STALE|MAP_CHECK|data/codebase|source_digest'`
   matches nothing outside `docs/knowledge/data/plans/`,
   `docs/knowledge/data/log.md`, `docs/knowledge/data/releases/`,
   `docs/knowledge/data/spec/` (Ship merges the spec changes), both
@@ -266,6 +266,12 @@ Modify, in this workspace and byte-identically in the scaffold:
   template-consume `SKILL.md` and `consumption-guide.md` (update mode names the
   artifacts it removes), and `data/someday/remove-codebase-memory-mcp.md` (its
   evidence that no agent read the map).
+  - **Evidence:** on commit 21217a4a "Cancel the map-doc stamper task", the grep
+    matched only the exempt paths, `stage: done` bugs `missing-map-skill` and
+    `pin-bumps-invalidate-map-docs`, the `deprecated` features
+    `fresh-map-on-push` and `map-masks-version-bumps`, the `cancelled`
+    `map-doc-stamper`, and the hub links to a done plan (`data/plans.md`) and to
+    that task (`data/backlog.md`).
 
 ### Task 5: Let a backlog task be cancelled
 
@@ -326,9 +332,12 @@ Modify, in this workspace and byte-identically in the scaffold:
 - [x] `native-stacked-prs` drops the stack-push edge case about the map check.
   - **Evidence:** commit 0340656 "Retire the codebase map in the knowledge
     graph".
-- [ ] The `map-doc-stamper` task is `stage: cancelled` with
+- [x] The `map-doc-stamper` task is `stage: cancelled` with
   `status: deprecated`, and its link moves to a new `## Cancelled` section after
   `## Done` in `data/backlog.md`.
+  - **Evidence:** commit 21217a4a "Cancel the map-doc stamper task" sets
+    `stage: cancelled` and `status: deprecated` and moves the link to a new
+    `## Cancelled` section; `iwe schema validate` exited 0.
 - [x] `remove-agentdev-session-start-hook` drops its map-refresh steps and the
   map docs from its version-pin sweep; `resilient-task-evidence` drops the
   `source_digest` alternative.
