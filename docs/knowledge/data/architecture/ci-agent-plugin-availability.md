@@ -3,7 +3,7 @@ type: architecture
 description: Why a CI job that needs agentdev skills runs the devcontainer lifecycle hooks against its own checkout rather than relying on the image, and why installing the catalog at image build time was considered and rejected.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T11:49:47Z
+  at: 2026-10-31T20:58:57Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -33,8 +33,8 @@ job needs no `packages: read` permission.
 The agentdev images stage the plugin catalog at `/opt/agentdev` but does not
 install it: the marketplace is not registered and the plugin cache under
 `~/.claude` is empty. Installation belongs to the container's lifecycle
-commands, because `~/.claude` and `~/.codex` are commonly mounted as volumes
-that would shadow anything the build wrote.
+commands, because `~/.claude` is commonly mounted as a volume that would shadow
+anything the build wrote.
 
 **A GitHub Actions `container:` job runs no lifecycle hooks.** It starts the
 image and runs steps. So a job that names a skill gets nothing, and the failure
@@ -71,12 +71,12 @@ The hooks depend on `devcontainer.json` — its `containerEnv` and its `mounts` 
 not only on the image, and a `container:` job applies neither. The responder job
 supplies the load-bearing hook environment explicitly:
 
-| what                                  | why                                                                  |
-| ------------------------------------- | -------------------------------------------------------------------- |
-| `DEV_WORKSPACE_FOLDER`                | workspace root for every lifecycle phase                             |
-| `CBM_CACHE_DIR`                       | every `agentdev-runtime cbm` step refuses to run without it          |
-| `UV_PROJECT_ENVIRONMENT`              | see below — unset is silent, not fatal                               |
-| `mkdir -p /root/.claude /root/.codex` | the create phase writes `claude.json` where a volume normally mounts |
+| what                     | why                                                                  |
+| ------------------------ | -------------------------------------------------------------------- |
+| `DEV_WORKSPACE_FOLDER`   | workspace root for every lifecycle phase                             |
+| `CBM_CACHE_DIR`          | every `agentdev-runtime cbm` step refuses to run without it          |
+| `UV_PROJECT_ENVIRONMENT` | see below — unset is silent, not fatal                               |
+| `mkdir -p /root/.claude` | the create phase writes `claude.json` where a volume normally mounts |
 
 The remaining devcontainer `containerEnv` variables are not required here:
 `ENABLE_FIREWALL` is already inert by default; `UV_CACHE_DIR` and
@@ -126,7 +126,7 @@ owned by a different uid — which is why it runs as its own step,
 **Install the catalog into the image at build time.** Decided, then reversed
 before implementation. It would have made skills resolve for any raw-image
 consumer with no extra step, and the devcontainer path would have been
-unaffected because its volumes shadow `/root/.claude` and `/root/.codex`.
+unaffected because its volume shadows `/root/.claude`.
 
 Rejected once the checkout was recognized as always present: a review job clones
 the repository anyway, so the catalog is already there, and using it is strictly

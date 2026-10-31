@@ -3,7 +3,7 @@ type: architecture
 description: The publisher/template boundary — which tracked paths a consuming project keeps, customizes, or deletes, and why the boundary is drawn there.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:40:07Z
+  at: 2026-10-31T20:59:36Z
 sources:
 - resource: docs/repository-structure.md (folded and removed)
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -90,7 +90,7 @@ the image's `agentdev-runtime`, so no lifecycle script is part of it:
 | Path                                   | Responsibility                                                                                    |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `.devcontainer/devcontainer.json`      | Dev Container entry point, the SSH feature, mounts, ports, environment, and editor configuration. |
-| `.devcontainer/docker-compose.yml`     | Devcontainer service, MCP gateway, worktree mounts, and persistent Claude/Codex volumes.          |
+| `.devcontainer/docker-compose.yml`     | Devcontainer service, MCP gateway, worktree mounts, and persistent agent volumes.                 |
 | `.devcontainer/devcontainer-init.sh`   | Generates host-specific Compose state and creates shared agent volumes before startup.            |
 | `.devcontainer/devcontainer-lock.json` | Locks the SSH feature digest.                                                                     |
 | `.devcontainer/firewall-allowlist.txt` | Project-owned allowlist read when the opt-in firewall starts.                                     |
@@ -99,9 +99,10 @@ the image's `agentdev-runtime`, so no lifecycle script is part of it:
 
 The default runtime intentionally retains all capabilities currently supplied
 here: supervised nested Docker; Xpra and VirtualGL desktop access; the Docker
-Desktop MCP gateway and secret socket integration; shared Claude and Codex
-authentication/configuration volumes; image-staged `agentdev` installation; the
-opt-in egress firewall; and Codespaces SSH and worktree-safe mounts.
+Desktop MCP gateway and secret socket integration; shared Claude authentication
+and per-instance agent configuration volumes; image-staged `agentdev`
+installation; the opt-in egress firewall; and Codespaces SSH and worktree-safe
+mounts.
 
 ### Agent-facing repository configuration
 
@@ -110,7 +111,6 @@ opt-in egress firewall; and Codespaces SSH and worktree-safe mounts.
 | `AGENTS.md` | Template    | Reusable safety, workflow, language, testing, and spike guidance.                        |
 | `CLAUDE.md` | Template    | Includes the root `AGENTS.md` for Claude Code.                                           |
 | `.claude/`  | Customize   | Shared Claude permissions, official plugins, local ignore rules, and explanatory README. |
-| `.codex/`   | Customize   | Explanation of where the shared catalog lives.                                           |
 
 Publisher-only instructions are scoped below `.agents/`, `.claude-plugin/`,
 `ansible/`, and `py_packages/validate_agent_files/`. Deleting those sources also
@@ -171,10 +171,10 @@ claimed to run unchanged after publisher source is removed.
 
 ### Repository presentation
 
-`README.md` and `LICENSE` are template content. The root README and the READMEs
-under `.claude/` and `.codex/` must be rewritten to remove publisher-only
-descriptions and links. The MIT license and its existing notice remain unless
-the project deliberately adopts a compatible alternative.
+`README.md` and `LICENSE` are template content. The root README and the README
+under `.claude/` must be rewritten to remove publisher-only descriptions and
+links. The MIT license and its existing notice remain unless the project
+deliberately adopts a compatible alternative.
 
 ## Optional custom-image bundle
 
