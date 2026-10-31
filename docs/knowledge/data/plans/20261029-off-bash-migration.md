@@ -9,7 +9,7 @@ release:
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T17:23:43Z
+  at: 2026-10-31T19:18:32Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -665,9 +665,8 @@ Delete: `docker/desktop/start-xpra.sh`
 `.codex/setup-codex-cloud.sh`
 
 - [x] The script and every reference to it are gone;
-  `git grep -iE 'codex[ -]cloud'` outside `data/plans/`, `data/log.md`, the
-  feature document that describes the removal, and the codebase map Task 16
-  refreshes prints nothing.
+  `git grep -iE 'codex[ -]cloud'` outside `data/plans/`, `data/log.md`, and the
+  feature document that describes the removal prints nothing.
   - **Evidence:** commit ab09896; `git grep -iE 'codex[ -]cloud'` with the four
     exclusions as pathspecs prints nothing and exits 1;
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
@@ -711,7 +710,7 @@ Delete: `docker/desktop/start-xpra.sh`
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
 `.devcontainer/devcontainer.json`, `.devcontainer/docker-compose.yml`,
 `ansible/roles/basic_prereqs/tasks/main.yml`,
-`ansible/roles/dev_tools/defaults/main.yml`, `docs/knowledge/data/codebase/`
+`ansible/roles/dev_tools/defaults/main.yml`
 
 - [x] The architecture document records the package over loose scripts, the
   `RECORD` integrity check, the firewall leaving the base image, the CBM-only
@@ -734,10 +733,6 @@ Delete: `docker/desktop/start-xpra.sh`
     tree is gone. `product.md` describes the package in its stack and the
     firewall by its command, and root `AGENTS.md` points devcontainer runtime
     code at the package.
-- [x] `/agentdev:iwe-map` refresh leaves no changed mapped source stale.
-  - **Evidence:** commit 378fd09; the refresh moves the lifecycle-scripts doc to
-    `data/codebase/py_packages/agentdev_runtime` and refreshes the 17 stale
-    docs; `stale-map-docs.py` ends `RESULT=SUCCESS` with 28 fresh docs.
 
 ### Task 18: The responder runs on an image without the CLI
 
@@ -981,10 +976,13 @@ directories.
 
 ### Requirement: the bootstrap refuses a changed runtime package
 
-The root bootstrap SHALL refuse to run when a file of the installed
-`agentdev_runtime` distribution differs from the hash its `RECORD` holds, is
-missing, or was added beside the recorded files, and SHALL name the file and
-direct the consumer to the hook directories and documented environment.
+While the installed `agentdev_runtime` distribution's metadata is present, the
+root bootstrap SHALL refuse to run when a file its `RECORD` lists differs from
+the recorded hash or is missing, or a file was added beside the recorded files,
+and SHALL name the file and direct the consumer to the hook directories and
+documented environment. The check catches accidental or partial edits to the
+runtime and is not a security boundary: a derived image that deliberately
+deletes the distribution's metadata or rewrites its `RECORD` passes it.
 
 #### Scenario: a derived image edits a package file
 
@@ -1116,8 +1114,7 @@ image](20261023-reusable-agentdev-devcontainer.md)
 - In a started Dev Container with `gitleaks` moved off `PATH`,
   `agentdev-runtime doctor` fails its toolchain section naming it, and
   `agentdev-runtime project hooks` warns about the `gitleaks` hook and exits 0
-- `iwe normalize`, `iwe schema validate`, the knowledge-base tests, and an
-  `/agentdev:iwe-map` refresh with no stale mapped source
+- `iwe normalize`, `iwe schema validate`, and the knowledge-base tests
 - CI on the current head builds and accepts both architectures
 
 ## Verification results
