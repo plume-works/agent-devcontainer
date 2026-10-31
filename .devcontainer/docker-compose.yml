@@ -94,14 +94,11 @@ services:
       # uses the literal volume name instead of prefixing it with the per-project name,
       # which would otherwise isolate each devcontainer instance's auth state.
       #
-      # Both agents share only their credentials, one subdirectory each:
-      # CLAUDE_SECURESTORAGE_CONFIG_DIR in devcontainer.json points Claude Code's
-      # credential store at /root/.agents-auth/claude, and
-      # `agentdev-runtime state links` symlinks Codex's auth.json to
-      # /root/.agents-auth/codex/auth.json. A rebuild never requires re-authenticating.
-      # The rest of each agent's state records absolute workspace paths and is mounted
-      # per instance instead; see the agentdev-claude and agentdev-codex mounts in
-      # devcontainer.json.
+      # Only Claude Code's credentials are shared: CLAUDE_SECURESTORAGE_CONFIG_DIR in
+      # devcontainer.json points its credential store at /root/.agents-auth/claude, so a
+      # rebuild never requires re-authenticating. The rest of each agent's state records
+      # absolute workspace paths and is mounted per instance instead; see the
+      # agentdev-claude and agentdev-opencode mounts in devcontainer.json.
       - agentdev-agents-auth:/root/.agents-auth
 
 volumes:

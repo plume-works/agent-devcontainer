@@ -4,8 +4,6 @@
 # lets a package's postinstall run, which Bun blocks by default.
 # renovate: datasource=npm depName=@anthropic-ai/claude-code
 agentic_tools_claude_code_version: "2.1.316"
-# renovate: datasource=npm depName=@openai/codex
-agentic_tools_codex_version: "0.166.0"
 # renovate: datasource=npm depName=@opencode/cli
 agentic_tools_opencode_version: "2.2.5"
 # renovate: datasource=npm depName=@modelcontextprotocol/inspector
@@ -16,8 +14,6 @@ agentic_tools_bun_packages:
     version: "{{ agentic_tools_inspector_version }}"
   - package: "@anthropic-ai/claude-code"
     version: "{{ agentic_tools_claude_code_version }}"
-  - package: "@openai/codex"
-    version: "{{ agentic_tools_codex_version }}"
   - package: "@opencode/cli"
     version: "{{ agentic_tools_opencode_version }}"
     trust: true
@@ -51,7 +47,7 @@ agentic_tools_stage_catalog: false
 # Install the staged catalog into each agent's plugin state at build time, so a
 # consumer that runs the image without the devcontainer lifecycle hooks still
 # resolves agentdev:* skills. The devcontainer path re-installs into its mounted
-# ~/.claude and ~/.codex volumes, which shadow this build-time install.
+# ~/.claude volume, which shadows this build-time install.
 # See spec/catalog-lifecycle and architecture/ci-agent-plugin-availability.
 agentic_tools_install_catalog: false
 
@@ -60,25 +56,18 @@ agentic_tools_install_catalog: false
 # whose root holds a Claude Code marketplace manifest.
 agentic_tools_catalog_source_dir: "{{ role_path }}/../../.."
 agentic_tools_catalog_marketplace_manifest: .claude-plugin/marketplace.json
-# Codex resolves its marketplace from a separate manifest under .agents/plugins/.
-agentic_tools_catalog_codex_marketplace_manifest: .agents/plugins/marketplace.json
 agentic_tools_plugin_name: agentdev
-
-# Path of the Codex plugin manifest within the plugin, checked against the version
-# the Claude marketplace manifest declares.
-agentic_tools_catalog_codex_plugin_manifest: .codex-plugin/plugin.json
 
 # Optional pin. When set, the manifest must declare exactly this version or the
 # build fails, which is what keeps the image reproducible and its label honest.
 agentic_tools_plugin_version: ""
 
-# The staged catalog lives outside $HOME on purpose: ~/.claude and ~/.codex are
-# commonly mounted as volumes, which would shadow anything placed under them.
+# The staged catalog lives outside $HOME on purpose: ~/.claude is commonly
+# mounted as a volume, which would shadow anything placed under them.
 agentic_tools_catalog_root: /opt/agentdev
 
-# Copied whole so both marketplace manifests (.claude-plugin/marketplace.json and
-# .agents/plugins/marketplace.json) and the plugin they publish keep the
-# root-relative layout each manifest resolves its plugin by.
+# Copied whole so the marketplace manifest (.claude-plugin/marketplace.json) and the
+# plugin it publishes keep the root-relative layout the manifest resolves its plugin by.
 agentic_tools_catalog_trees:
   - .claude-plugin
   - .agents

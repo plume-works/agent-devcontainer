@@ -36,7 +36,6 @@ ENV AGENTDEV_RUNTIME_MODE=deploy \
     CLAUDE_SECURESTORAGE_CONFIG_DIR=/var/lib/agentdev/auth/claude \
     AGENTDEV_CLAUDE_DIR=/home/agent/.claude \
     AGENTDEV_CLAUDE_JSON=/home/agent/.claude.json \
-    CODEX_HOME=/home/agent/.codex \
     CBM_CACHE_DIR=/home/agent/.cache/codebase-memory-mcp \
     XDG_RUNTIME_DIR=/run/agentdev/xdg \
     DBUS_SESSION_BUS_ADDRESS=unix:path=/run/agentdev/xdg/bus \
