@@ -14,6 +14,11 @@ to the current day's group.
   package](codebase/py_packages/agentdev_runtime.md), which replaces the
   lifecycle-scripts doc, and refreshes the Docker, Dev Container, lifecycle,
   image-runtime, firewall, Ansible, GitHub, and validator docs it touched.
+- **Update**: [Bug: git-new-branch worktree mode fails on a standalone
+  deployment's root-owned
+  /workspaces](bugs/git-new-branch-worktree-unwritable-workspaces.md) fixed;
+  [Port the catalog's bundled shell scripts to
+  Python](plans/20261029-catalog-scripts-python.md) plan done.
 - **Update**: [Verify report cache](features/verify-report-cache.md)
   implemented; [Verify report cache](plans/20261030-verify-report-cache.md) plan
   done.

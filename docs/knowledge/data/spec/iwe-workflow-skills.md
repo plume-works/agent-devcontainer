@@ -3,20 +3,20 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Map, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T03:33:48Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-capture/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh
+- resource: .agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.py
 - resource: .iwe/schemas/bug.yaml
 - resource: .iwe/schemas/feature.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-explore/agent-code/fetch-issue.sh
-- resource: .agents/plugins/agentdev/skills/iwe-plan/agent-code/close-issue.sh
+- resource: .agents/plugins/agentdev/skills/iwe-explore/agent-code/fetch-issue.py
+- resource: .agents/plugins/agentdev/skills/iwe-plan/agent-code/close-issue.py
 - resource: .agents/plugins/agentdev/skills/iwe-map/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py
-- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh
+- resource: .agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
