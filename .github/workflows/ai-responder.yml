@@ -569,7 +569,9 @@ jobs:
       github.event.pull_request.user.type == 'Bot'
     runs-on: ubuntu-26.04
     timeout-minutes: 5
+    # contents: read lists the branch's push history.
     permissions:
+      contents: read
       pull-requests: write
     steps:
       - name: Approve on behalf of the trusted bot
@@ -619,8 +621,19 @@ jobs:
               return '';
             };
             let failure = '';
-            if (payload.action === 'synchronize' && context.actor !== login) {
-              failure = `head ${payload.pull_request.head.sha} pushed by ${context.actor}, not ${login}`;
+            const activities = await github.paginate(github.rest.repos.listActivities, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${payload.pull_request.head.ref}`,
+              per_page: 100,
+            });
+            const foreignPush = activities.find(
+              (activity) =>
+                ['branch_creation', 'push', 'force_push'].includes(activity.activity_type) &&
+                activity.actor?.login !== login,
+            );
+            if (foreignPush) {
+              failure = `${foreignPush.activity_type} to ${foreignPush.after} by ${foreignPush.actor?.login ?? 'an unknown actor'}`;
             } else {
               const commits = await github.paginate(github.rest.pulls.listCommits, {
                 ...pullRequest,
