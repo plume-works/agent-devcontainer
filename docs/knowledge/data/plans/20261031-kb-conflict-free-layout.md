@@ -92,9 +92,11 @@ every other `.iwe/schemas/*.yaml` that declares `status`; Create:
   - **Evidence:** commit 36fa31c4; `test_no_schema_declares_status` passed, and
     `grep -rn '^status:' docs/knowledge/data` finds only
     `releases/unreleased.md`, which Task 6 deletes
-- [ ] `base.yaml` requires a non-empty `type` on every document under `data/`
+- [x] `base.yaml` requires a non-empty `type` on every document under `data/`
   except `data/log`, and replaces the `okf` binding; a test rejects a document
   without `type`
+  - **Evidence:** commit 36fa31c4; `test_document_without_type_is_rejected`
+    passed for missing, absent, and empty `type`
 - [ ] `log.yaml` carries the date-grouped body shape `okf-log.yaml` held, bound
   to `data/log`; the `okf-index` binding and schema are gone
 
