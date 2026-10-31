@@ -370,9 +370,15 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
     a traceback"; `uv run pytest .agents/plugins/agentdev/tests` passed (470),
     including `test_template_consume_check_updates.py`'s unhandled-abort case,
     which still ends `RESULT=SCRIPT_FAILURE` with status 1.
-- [ ] A test raises an unhandled exception and a failed subprocess through
+- [x] A test raises an unhandled exception and a failed subprocess through
   `result_codes` and asserts stderr carries no `Traceback` and the `RESULT=`
   line is unchanged.
+  - **Evidence:** commit 5b99d2a;
+    `uv run pytest .agents/plugins/agentdev/tests/test_result_codes.py` passed
+    (7), including
+    `test_python_uncaught_exception_prints_one_line_and_no_traceback` and
+    `test_python_failed_subprocess_prints_its_own_stderr`, both of which failed
+    before the hook changed.
 
 ## Spec changes
 
