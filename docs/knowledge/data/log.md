@@ -6,9 +6,9 @@ to the current day's group.
 
 ## 2026-10-31
 
-- **Update**: fixed [Bug: knowledge-base tests share a fixed scratch directory
-  across concurrent runs](bugs/knowledge-tests-share-fixed-scratch.md) and
-  refreshed the [knowledge workspace](codebase/docs/knowledge.md) map doc.
+- **Update**: fixed [Bug: body-shape schema tests share one scratch graph across
+  concurrent runs](bugs/body-shape-schemas-shared-scratch.md) and refreshed the
+  [knowledge workspace](codebase/docs/knowledge.md) map doc.
 - **Update**: refreshed the [agentdev
   catalog](codebase/agents/plugins/agentdev.md),
   [skills](codebase/agents/plugins/agentdev/skills.md),
