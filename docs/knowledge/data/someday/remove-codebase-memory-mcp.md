@@ -71,11 +71,8 @@ available and unmentioned, and with the prompt telling the agent to use it.
 
 Observed with CBM 0.12.1:
 
-- A client that asks for a different cache directory than the running daemon
-  uses is refused, so every client on an account must share one cache. This
-  differs from [CBM daemon lifecycle](../architecture/cbm-daemon-lifecycle.md),
-  which records that such a client attaches to the live daemon.
-- The command-line client cannot load its settings when no daemon is running.
+- Every client on an account shares one cache directory; see [CBM daemon
+  lifecycle](../architecture/cbm-daemon-lifecycle.md).
 - A session in a git worktree queries the index of the main checkout, not its
   own tree.
 - An index is keyed to the checkout path, so moving the checkout leaves an index

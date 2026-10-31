@@ -3,7 +3,7 @@ type: architecture
 description: The codebase-memory-mcp daemon is one per account per rendezvous directory; a supervisor drives it only through daemon start/status/stop, identifies a generation by PID plus start time, and must close MCP clients before stopping it. Startup only submits an async index request, and cbm's Codex hooks live in hooks.json.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-31T08:34:10Z
 sources:
 - resource: .devcontainer/scripts/runtime-cbm.sh
 - resource: scripts/tests/test_agent_runtime_cbm.py
@@ -26,8 +26,9 @@ Every CBM process — daemon, MCP client, CLI, installer — meets at
 `HOME` and `CBM_CACHE_DIR` do not move it. Two consequences:
 
 - Isolating a test or a second runtime from a live daemon takes a different UID
-  or a different `CBM_RUNTIME_DIR`; a different cache alone attaches to the live
-  daemon and could stop it.
+  or a different `CBM_RUNTIME_DIR`. A different cache alone isolates nothing:
+  while the account's daemon serves one cache, CBM refuses to start a client
+  that names another, so every client on the account shares one `CBM_CACHE_DIR`.
 - Peers are authenticated by UID, so another account can neither see nor stop
   the daemon.
 
