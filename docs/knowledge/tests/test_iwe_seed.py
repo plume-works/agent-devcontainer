@@ -14,12 +14,14 @@ a consumer's first `git status` clean.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 import filecmp
 from pathlib import Path
 import re
 import shutil
 import subprocess
 import tomllib
+from uuid import uuid4
 
 import frontmatter
 import pytest
@@ -70,14 +72,15 @@ def _run_iwe(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
 
 
 @pytest.fixture(scope='module')
-def consumer_workspace() -> Path:
-    """Copy the packaged scaffold, and nothing else, into an isolated directory."""
+def consumer_workspace() -> Iterator[Path]:
+    """Copy the packaged scaffold, and nothing else, into a directory private to this run."""
     TMP_ROOT.mkdir(exist_ok=True)
-    workspace = TMP_ROOT / 'iwe-seed-consumer'
-    if workspace.exists():
-        shutil.rmtree(workspace)
-    shutil.copytree(SCAFFOLD, workspace)
-    return workspace
+    workspace = TMP_ROOT / f'iwe-seed-consumer-{uuid4().hex}'
+    try:
+        shutil.copytree(SCAFFOLD, workspace)
+        yield workspace
+    finally:
+        shutil.rmtree(workspace, ignore_errors=True)
 
 
 def test_seed_is_not_a_member_of_the_publisher_graph() -> None:
