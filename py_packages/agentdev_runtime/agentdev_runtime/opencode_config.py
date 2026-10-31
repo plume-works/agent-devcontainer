@@ -1,8 +1,3 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.12"
-# dependencies = ["json5==0.17.3"]
-# ///
 """Set OpenCode's full-access permission policy in its user config."""
 
 import json
@@ -86,15 +81,11 @@ def write_atomically(path: Path, content: str) -> None:
         raise
 
 
-def main() -> None:
-    """Configure OpenCode in the current user's config directory."""
-    directory = config_directory()
+def configure(directory: Path | None = None) -> None:
+    """Set the managed policy in OpenCode's user config."""
+    directory = directory or config_directory()
     directory.mkdir(parents=True, exist_ok=True)
     directory.chmod(0o700)
     config = config_path(directory)
     updated = apply_policy(load_config(config))
     write_atomically(config, json.dumps(updated, indent=2, ensure_ascii=False) + '\n')
-
-
-if __name__ == '__main__':
-    main()

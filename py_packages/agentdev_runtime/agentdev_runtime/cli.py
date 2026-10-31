@@ -25,6 +25,12 @@ def _opencode(argv: list[str]) -> int:
     return opencode.main(argv)
 
 
+def _state(argv: list[str]) -> int:
+    from agentdev_runtime import agent_state
+
+    return agent_state.main(argv)
+
+
 def _supervisor(argv: list[str]) -> int:
     from agentdev_runtime import supervisor
 
@@ -35,6 +41,12 @@ def _bootstrap(argv: list[str]) -> int:
     from agentdev_runtime import bootstrap
 
     return bootstrap.main(argv)
+
+
+def _catalog(argv: list[str]) -> int:
+    from agentdev_runtime import catalog
+
+    return catalog.main(argv)
 
 
 def _cbm(argv: list[str]) -> int:
@@ -76,11 +88,13 @@ def _xpra(argv: list[str]) -> int:
 PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
     'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),
+    'catalog': (_catalog, 'register a catalog root with Claude Code, Codex, and OpenCode'),
     'cbm': (_cbm, 'the codebase-memory-mcp daemon, its install, and its index request'),
     'coder': (_coder, "the Coder agent's start"),
     'docker': (_docker, 'the nested Docker engine and its image prune'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),
     'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
+    'state': (_state, 'agent state: links, policy, CBM wiring, and pre-approval'),
     'xpra': (_xpra, 'the Xpra server with its HTML5 client'),
     'opencode': (_opencode, 'the OpenCode server, its probe, its link, and its Coder start'),
     'keyring': (_keyring, 'the D-Bus session and the GNOME Keyring Secret Service'),

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -14,12 +15,22 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
 REAL_SCRIPTS = (
     'runtime-workspace.sh',
-    'runtime-paths.sh',
     'setup-git-safe-directory.sh',
     'uv-sync.sh',
     'setup-pre-commit.sh',
 )
-STUBBED_SCRIPTS = ('setup-gh-credential-helper.sh', 'setup-agent-state.sh')
+STUBBED_SCRIPTS = ('setup-gh-credential-helper.sh',)
+# Logs each call; answers `catalog complete` from the files, as the real check does.
+FAKE_CLI = """#!/usr/bin/env bash
+if [[ "$1 $2" == "catalog complete" ]]; then
+  [[ -f $3/.claude-plugin/marketplace.json && -f $3/.agents/plugins/marketplace.json &&
+    -d $3/.agents/plugins/agentdev/.opencode-plugin ]]
+  exit
+fi
+echo "agentdev-runtime $*" >> "{log}"
+exit "${{STUB_EXIT_AGENTDEV_RUNTIME:-0}}"
+"""
+CATALOG = [sys.executable, '-m', 'agentdev_runtime', 'catalog']
 SECRET = 'hunter2-not-for-logs'
 GIT_ID = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
 
@@ -42,6 +53,8 @@ class Runtime:
             self.stub(self.scripts / name, name)
         for tool in ('uv', 'pre-commit'):
             self.stub(self.bin / tool, tool)
+        (self.bin / 'agentdev-runtime').write_text(FAKE_CLI.format(log=self.log))
+        (self.bin / 'agentdev-runtime').chmod(0o755)
         (root / 'gitconfig').touch()
 
     def stub(self, path: Path, label: str) -> None:
@@ -312,7 +325,10 @@ def test_the_core_phase_prepares_agent_state_but_no_optional_work(runtime: Runti
         (runtime.workspace / name).write_text('')
     result = runtime.run('prepare')
     assert result.returncode == 0, result.stderr
-    assert runtime.calls() == ['setup-agent-state.sh create', 'setup-agent-state.sh agent-policy']
+    assert runtime.calls() == [
+        'agentdev-runtime state create',
+        'agentdev-runtime state agent-policy',
+    ]
 
 
 def test_the_config_step_registers_the_catalog_then_installs_cbm(runtime: Runtime):
@@ -320,8 +336,8 @@ def test_the_config_step_registers_the_catalog_then_installs_cbm(runtime: Runtim
     result = runtime.run('config')
     assert result.returncode == 0, result.stderr
     assert runtime.calls() == [
-        f'setup-agent-state.sh catalog {runtime.root / "image-catalog"} user',
-        'setup-agent-state.sh cbm',
+        f'agentdev-runtime catalog install {runtime.root / "image-catalog"} --claude-scope user',
+        'agentdev-runtime state cbm',
     ]
 
 
@@ -336,7 +352,9 @@ def test_checkout_catalog_wins_when_complete(runtime: Runtime):
     ship_catalog(runtime.workspace)
     (runtime.root / 'image-catalog').mkdir()
     assert runtime.run('catalog').returncode == 0
-    assert runtime.calls() == [f'setup-agent-state.sh catalog {runtime.workspace} user']
+    assert runtime.calls() == [
+        f'agentdev-runtime catalog install {runtime.workspace} --claude-scope user'
+    ]
 
 
 def test_image_catalog_is_used_otherwise(runtime: Runtime):
@@ -345,7 +363,7 @@ def test_image_catalog_is_used_otherwise(runtime: Runtime):
     (runtime.root / 'image-catalog').mkdir()
     assert runtime.run('catalog').returncode == 0
     assert runtime.calls() == [
-        f'setup-agent-state.sh catalog {runtime.root / "image-catalog"} user'
+        f'agentdev-runtime catalog install {runtime.root / "image-catalog"} --claude-scope user'
     ]
 
 
@@ -362,7 +380,7 @@ def test_devcontainer_helpers_keep_their_defaults(runtime: Runtime):
 
 
 @pytest.mark.skipif(
-    not all(shutil.which(tool) for tool in ('claude', 'codex', 'jq')),
+    not all(shutil.which(tool) for tool in ('claude', 'codex')),
     reason='requires the Claude and Codex CLIs',
 )
 def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
@@ -383,7 +401,7 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
 
     def register(catalog: Path) -> None:
         result = subprocess.run(
-            [SCRIPTS / 'setup-agent-state.sh', 'catalog', str(catalog), 'user'],
+            [*CATALOG, 'install', str(catalog), '--claude-scope', 'user'],
             env=env,
             capture_output=True,
             text=True,
@@ -425,9 +443,7 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
     assert (home / '.codex/agents/agentdev-iwe-implementer.toml').exists()
 
 
-@pytest.mark.skipif(
-    not all(shutil.which(tool) for tool in ('codex', 'jq')), reason='requires Codex'
-)
+@pytest.mark.skipif(not all(shutil.which(tool) for tool in ('codex',)), reason='requires Codex')
 def test_rerunning_codex_registration_leaves_config_byte_identical(tmp_path: Path):
     catalog = tmp_path / 'catalog'
     shutil.copytree(REPO_ROOT / '.agents/plugins', catalog / '.agents/plugins', symlinks=True)
@@ -437,7 +453,13 @@ def test_rerunning_codex_registration_leaves_config_byte_identical(tmp_path: Pat
 
     def register() -> str:
         result = subprocess.run(
-            [SCRIPTS / 'reinstall-agentdev-codex.sh', str(catalog)],
+            [
+                sys.executable,
+                '-c',
+                'import sys; from agentdev_runtime import catalog, settings; '
+                'catalog.codex(settings.Settings(), sys.argv[1])',
+                str(catalog),
+            ],
             env=env,
             capture_output=True,
             text=True,

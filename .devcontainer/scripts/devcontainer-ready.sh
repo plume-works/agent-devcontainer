@@ -40,7 +40,7 @@ esac
 "$script_dir/setup-git-safe-directory.sh"
 # After the keyring: gh may keep its login there.
 "$script_dir/setup-gh-credential-helper.sh"
-# Repairs the shared auth.json symlink a `codex logout` can destroy; see link-codex-auth.sh.
-"$script_dir/setup-agent-state.sh" links
-"$script_dir/setup-agent-state.sh" agent-policy
+# Repairs the shared auth.json symlink a `codex logout` can destroy.
+agentdev-runtime state links
+agentdev-runtime state agent-policy
 "$script_dir/run-agentdev-hooks.sh" started

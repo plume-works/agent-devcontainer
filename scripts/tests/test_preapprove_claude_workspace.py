@@ -1,13 +1,21 @@
+import inspect
 import json
 import os
 from pathlib import Path
 import stat
 import subprocess
+import sys
+
+from agentdev_runtime import agent_state
 
 REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/preapprove-claude-workspace.sh'
+SCRIPT = [
+    sys.executable,
+    '-c',
+    'from agentdev_runtime import claude_state, settings; '
+    'claude_state.preapprove(settings.Settings())',
+]
 POST_CREATE = REPO_ROOT / '.devcontainer/scripts/devcontainer-created.sh'
-AGENT_STATE = REPO_ROOT / '.devcontainer/scripts/setup-agent-state.sh'
 RESPONDER_ACTION = REPO_ROOT / '.github/actions/run-claude-responder/action.yml'
 
 
@@ -21,7 +29,7 @@ def run_preapprove(
         'AGENTDEV_CLAUDE_STATE_PATH': str(tmp_path / '.claude.json'),
         'DEV_WORKSPACE_FOLDER': str(workspace),
     }
-    result = subprocess.run([SCRIPT], env=env, text=True, capture_output=True)
+    result = subprocess.run(SCRIPT, env=env, text=True, capture_output=True)
     return result, workspace
 
 
@@ -78,11 +86,9 @@ def test_skips_when_opted_out(tmp_path):
 
 
 def test_post_create_runs_after_state_symlink():
-    assert '"$script_dir/setup-agent-state.sh" create' in POST_CREATE.read_text()
-    create = AGENT_STATE.read_text().split('cmd_create() {', 1)[1]
-    assert create.index('"$script_dir/preapprove-claude-workspace.sh"') > create.index(
-        'link_claude_json'
-    )
+    assert 'agentdev-runtime state create' in POST_CREATE.read_text()
+    create = inspect.getsource(agent_state.create)
+    assert create.index('claude_state.preapprove') > create.index('link_claude_json')
 
 
 def test_ci_responder_opts_out():

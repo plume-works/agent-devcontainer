@@ -18,13 +18,11 @@ REAL = [
     'devcontainer-ready.sh',
     'devcontainer-attached.sh',
     'run-agentdev-hooks.sh',
-    'runtime-paths.sh',
     'postCreateCommand.sh',
     'postStartCommand.sh',
     'postAttachCommand.sh',
 ]
 STUBS = [
-    'setup-agent-state.sh',
     'runtime-workspace.sh',
     'uv-sync.sh',
     'setup-git-safe-directory.sh',
@@ -36,11 +34,20 @@ case "$1" in
   status) echo "runtime state: $(cat "$LIFECYCLE_STATE/state" 2>/dev/null || echo pending)" ;;
 esac
 """
+# Logs each call; answers `catalog complete` from the files, as the real check does.
+FAKE_CLI = """#!/usr/bin/env bash
+if [[ "$1 $2" == "catalog complete" ]]; then
+  [[ -f $3/.claude-plugin/marketplace.json && -f $3/.agents/plugins/marketplace.json &&
+    -d $3/.agents/plugins/agentdev/.opencode-plugin ]]
+  exit
+fi
+echo "agentdev-runtime $*" >> "{log}"
+"""
 START_STEPS = [
     'setup-git-safe-directory.sh',
     'setup-gh-credential-helper.sh',
-    'setup-agent-state.sh links',
-    'setup-agent-state.sh agent-policy',
+    'agentdev-runtime state links',
+    'agentdev-runtime state agent-policy',
 ]
 
 
@@ -65,7 +72,7 @@ class Lifecycle:
             self.stub(self.scripts / name, name)
         self.write(self.scripts / 'runtime-health.sh', FAKE_HEALTH)
         self.stub(self.bin / 'sudo', 'sudo')
-        self.stub(self.bin / 'agentdev-runtime', 'agentdev-runtime')
+        self.write(self.bin / 'agentdev-runtime', FAKE_CLI.format(log=self.log))
         self.stub(self.bin / 'codebase-memory-mcp', 'codebase-memory-mcp')
 
     def write(self, path: Path, body: str) -> None:
@@ -150,9 +157,9 @@ def test_create_initializes_clients_project_and_staged_catalog_then_runs_hooks(l
     # Trust the checkout first: pre-commit refuses a repository another UID owns.
     assert lifecycle.calls() == [
         'setup-git-safe-directory.sh',
-        'setup-agent-state.sh create',
+        'agentdev-runtime state create',
         'runtime-workspace.sh project',
-        f'setup-agent-state.sh catalog {lifecycle.staged} user',
+        f'agentdev-runtime catalog install {lifecycle.staged} --claude-scope user',
         'hook created/10-first created',
         'hook created/20-second created',
     ]
@@ -238,7 +245,7 @@ def test_attach_registers_a_complete_checkout_catalog(lifecycle):
     assert lifecycle.calls() == [
         f'agentdev-runtime cbm index {lifecycle.workspace}',
         'uv-sync.sh',
-        f'setup-agent-state.sh catalog {lifecycle.workspace}',
+        f'agentdev-runtime catalog install {lifecycle.workspace}',
         'hook attached/refresh attached',
     ]
 

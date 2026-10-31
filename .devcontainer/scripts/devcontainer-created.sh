@@ -42,12 +42,12 @@ cmd_create() {
   # Before the project's hooks: pre-commit refuses a checkout another UID owns until trusted.
   "$script_dir/setup-git-safe-directory.sh"
   # Links ~/.claude.json, wires CBM into each client, and creates the shared auth directories.
-  "$script_dir/setup-agent-state.sh" create
+  agentdev-runtime state create
   "$script_dir/runtime-workspace.sh" project
   # The client-state volumes shadow the build-time install, so install the staged catalog
   # again at user scope; the attach phase layers a complete checkout catalog on top.
   if [[ -n ${AGENTDEV_CATALOG_DIR:-} && -d $AGENTDEV_CATALOG_DIR ]]; then
-    "$script_dir/setup-agent-state.sh" catalog "$AGENTDEV_CATALOG_DIR" user
+    agentdev-runtime catalog install "$AGENTDEV_CATALOG_DIR" --claude-scope user
   else
     echo "No catalog staged in the image; skipping the image-scoped plugin install."
   fi

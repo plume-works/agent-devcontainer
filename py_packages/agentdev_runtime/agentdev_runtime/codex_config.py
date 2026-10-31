@@ -1,8 +1,3 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.12"
-# dependencies = ["tomlkit"]
-# ///
 """
 Set Codex's full-access sandbox and approval policy in its config.toml.
 
@@ -57,15 +52,11 @@ def write_atomically(path: Path, content: str) -> None:
         raise
 
 
-def main() -> None:
-    """Configure Codex in the current Codex home."""
-    home = codex_home()
+def configure(home: Path | None = None) -> None:
+    """Set the managed policy in the Codex home's config.toml."""
+    home = home or codex_home()
     home.mkdir(parents=True, exist_ok=True)
     home.chmod(0o700)
     config = home / 'config.toml'
     current = config.read_text(encoding='utf-8') if config.exists() else ''
     write_atomically(config, render_config(current))
-
-
-if __name__ == '__main__':
-    main()

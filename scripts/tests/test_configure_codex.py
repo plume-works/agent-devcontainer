@@ -2,11 +2,16 @@ import os
 from pathlib import Path
 import stat
 import subprocess
+import sys
 import tomllib
 
 import pytest
 
-SCRIPT = Path(__file__).parents[2] / '.devcontainer/scripts/configure-codex.py'
+SCRIPT = [
+    sys.executable,
+    '-c',
+    'from agentdev_runtime import codex_config; codex_config.configure()',
+]
 MANAGED = {'sandbox_mode': 'danger-full-access', 'approval_policy': 'never'}
 MARKED_CONFIG = """\
 # >>> codebase-memory-mcp MCP >>>
@@ -24,7 +29,7 @@ def codex_home(tmp_path: Path) -> Path:
 
 
 def run_script(codex_home: Path) -> None:
-    subprocess.run([SCRIPT], env=os.environ | {'CODEX_HOME': str(codex_home)}, check=True)
+    subprocess.run(SCRIPT, env=os.environ | {'CODEX_HOME': str(codex_home)}, check=True)
 
 
 def mode(path: Path) -> int:
