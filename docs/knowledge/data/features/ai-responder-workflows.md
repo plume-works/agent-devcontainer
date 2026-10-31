@@ -4,7 +4,7 @@ stage: implemented
 description: One Claude-only GitHub Actions workflow gives the repository automated PR review with a read-only review responder, a write-capable task responder, and a gate job that depends on the review job and blocks merge until an AI review exists.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T02:00:00Z
+  at: 2026-10-31T19:30:00Z
 sources:
 - resource: .github/workflows/ai-responder.yml
 - resource: .github/actions/ai-review-status/action.yml
@@ -149,6 +149,13 @@ tiers](../architecture/pr-review-effort-tiers.md).
   naming the branch, and no review runs.
 - **A head branch whose workflow predates a dispatch input.** The dispatch
   carries only the inputs the request supplies, so an older branch still runs.
+- **A pull request from a bot outside `TRUSTED_BOT_ACTORS`.** The
+  `trusted-bot-approval` job runs, finds the author unlisted, and approves
+  nothing; preflight skips every bot-authored pull request, so no review runs
+  and `ai-review-present` fails until a person approves.
+- **A person pushes to an approved trusted-bot pull request.** The next run
+  dismisses the bot approval and posts a notice; closing and reopening the pull
+  request runs the same check and does not restore it.
 
 ## Open questions
 
