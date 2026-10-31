@@ -100,6 +100,15 @@ names](../features/remote-control-environment-names.md)
 
 ## Fixed
 
+[Bug: worktrees in one devcontainer share the uv
+environment](../bugs/shared-uv-environment-across-worktrees.md)
+
+[Bug: CBM pin staging races under
+pytest-xdist](../bugs/cbm-pin-staging-races-under-xdist.md)
+
+[Bug: opencode-web real-tmux tests share one tmux server under
+pytest-xdist](../bugs/opencode-web-tmux-shared-under-xdist.md)
+
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
 keyring](../bugs/devcontainer-dbus-autolaunch-leak.md)
 
