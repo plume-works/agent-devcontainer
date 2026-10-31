@@ -457,13 +457,19 @@ Delete: `docker/desktop/start-xpra.sh`
 `scripts/tests/test_runtime_remote_control.py`,
 `docs/knowledge/data/bugs/remote-control-watcher-start-loop.md`
 
-- [ ] When the start script returns 0 and no live `claude-remote` session
+- [x] When the start script returns 0 and no live `claude-remote` session
   follows, `runtime-remote-control.sh run` logs it and exits non-zero, the way a
   seen session that disappears already does, so the runtime's recovery budget
   bounds the retries; the retry that clears `checked` is gone.
-- [ ] A test in `test_runtime_remote_control.py` runs a start that leaves no
+  - **Evidence:** commit f8b992c; `test_runtime_remote_control.py` and
+    `test_claude_remote_control_start.py` pass (38).
+- [x] A test in `test_runtime_remote_control.py` runs a start that leaves no
   session and asserts the watcher exits non-zero after one start; the bug's
   `## Fix` records the fix.
+  - **Evidence:** commit f8b992c;
+    `test_a_start_that_never_comes_up_ends_the_watcher` asserts one start and a
+    non-zero exit naming the session that did not come up; the bug's `## Fix`
+    records the change.
 
 ### Task 11: Remote Control
 
