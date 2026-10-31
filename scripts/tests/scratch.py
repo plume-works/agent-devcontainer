@@ -2,4 +2,5 @@
 
 from pathlib import Path
 
+# Set TMP_ROOT to the agentdev-tests directory under /tmp.
 TMP_ROOT = Path('/tmp/agentdev-tests')
