@@ -33,9 +33,8 @@ Add a new tool by adding an entry to `dev_tools_pinned_tools`; no task
 changes are needed unless the archive ships binaries under names that differ
 from what `binaries` (or the default of `name`) can express.
 
-Unlike the version-only pins in the other roles' `defaults/`, these carry a
-per-architecture checksum, so Renovate cannot move them — it would advance the
-version and leave the hash behind. They are maintained by hand; see
+Each entry's `version` carries a `# renovate:` comment, so Renovate bumps it,
+and its post-upgrade task recomputes the checksums in the same commit; see
 `docs/knowledge/data/features/renovate-maintains-checksums.md`.
 
 ### codebase-memory-mcp
