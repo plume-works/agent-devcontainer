@@ -259,7 +259,7 @@ deletion of this one function; and running the responder as a host job through
 `ansible/roles/devcontainer_firewall/files/devcontainer-firewall-sudoers`,
 `.devcontainer/scripts/runtime-firewall.sh`, `.devcontainer/scripts/firewall.sh`
 
-- [ ] `agentdev-runtime firewall apply` reproduces `init-firewall.sh` and
+- [x] `agentdev-runtime firewall apply` reproduces `init-firewall.sh` and
   `runtime-firewall.sh`: the `ENABLE_FIREWALL` gate, allowlist validation,
   Docker DNS rule capture and restore, host SSH, loopback, the `allowed-domains`
   ipset from resolved A records and GitHub meta ranges collapsed with
@@ -267,13 +267,28 @@ deletion of this one function; and running the responder as a host job through
   block, the `DOCKER-USER` chain, deploy proxy ingress, and the two
   self-verification requests. `iptables` and `ipset` run as argument lists
   through subprocess.
-- [ ] The devcontainer profile reads
+  - **Evidence:** commit 052196c; `test_agent_runtime_firewall.py` (14 passed)
+    checks the rule sequence against a fake system and, in
+    `test_proxy_ingress_egress_and_nested_docker_together`, applies the real
+    rules in a privileged container on the pinned Dev Container image: egress
+    blocked, GitHub and nested pulls allowed, proxy-only ingress. Deploy
+    acceptance (24 passed) and the Dev Container image suite (5 passed) pass
+    against images built from merge ecf005c.
+- [x] The devcontainer profile reads
   `<workspace>/.devcontainer/firewall-allowlist.txt` when it exists and
   `/etc/agentdev/firewall-allowlist.txt` otherwise; deploy reads
   `FIREWALL_ALLOWLIST` or the image copy.
-- [ ] The Ansible role keeps `iptables` and `ipset`, drops the script, the
+  - **Evidence:** commit 052196c; `test_firewall_allowlist.py` covers the
+    checkout copy, the image fallback, and deploy's setting and image copy,
+    passing under `uv run pytest py_packages/agentdev_runtime`.
+- [x] The Ansible role keeps `iptables` and `ipset`, drops the script, the
   sudoers file, and any package only the script used once a repository grep
   confirms no other user.
+  - **Evidence:** commit 052196c; the role installs only `iptables` and `ipset`.
+    `dnsutils`, `iproute2`, and `aggregate` had no other user once the network
+    test resolved with `getent`; `jq` and `curl` stay installed by `dev_tools`
+    and `basic_prereqs`. `uv run ansible-lint ansible` and the playbook syntax
+    check pass.
 
 ### Task 5: Docker and keyring services
 
