@@ -181,23 +181,43 @@ Modify, in this workspace and byte-identically in the scaffold:
 `docs/knowledge/CHANGELOG.md`. Modify, scaffold only:
 `assets/docs/knowledge/data/index.md`, `assets/docs/knowledge/data/log.md`.
 
-- [ ] Delete both `codebase.yaml` schemas, and remove `[schemas.codebase]` and
+- [x] Delete both `codebase.yaml` schemas, and remove `[schemas.codebase]` and
   `"data/codebase"` from the hub match list in both `config.toml` copies.
-- [ ] Delete the scaffold's `data/codebase.md` and its four `*.example.md` map
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" deletes both schemas and edits both `config.toml` copies,
+    byte-identical.
+- [x] Delete the scaffold's `data/codebase.md` and its four `*.example.md` map
   docs; the scaffold's `data/index.md` and `data/log.md` no longer name the
   codebase hub.
-- [ ] `AGENTS.md`: drop the "Code structure changed" operating-loop item, the
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" deletes the scaffold hub and its four example docs and edits
+    the scaffold's `data/index.md` and `data/log.md`.
+- [x] `AGENTS.md`: drop the "Code structure changed" operating-loop item, the
   codebase-map provenance clause, and the `/agentdev:iwe-map` skill-table row.
-- [ ] `SCHEMA.md`: drop the `## Codebase map` section and the codebase-map
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `AGENTS.md` copies, byte-identical.
+- [x] `SCHEMA.md`: drop the `## Codebase map` section and the codebase-map
   examples under `sources`, `verified`, and `stale_after`.
-- [ ] `STRUCTURE.md`: drop the "codebase map is derived truth" paragraph and
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `SCHEMA.md` copies, byte-identical.
+- [x] `STRUCTURE.md`: drop the "codebase map is derived truth" paragraph and
   `codebase` from the schema and hub listings.
-- [ ] `README.md` drops `codebase.md codebase/` from its tree.
-- [ ] `CHANGELOG.md` gains a `### Removed` entry under `[Unreleased]` telling a
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `STRUCTURE.md` copies, byte-identical, and also
+    drops `map` from the skill list.
+- [x] `README.md` drops `codebase.md codebase/` from its tree.
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" edits both `README.md` copies, byte-identical.
+- [x] `CHANGELOG.md` gains a `### Removed` entry under `[Unreleased]` telling a
   clone of an earlier copy to delete `data/codebase/`, `data/codebase.md`,
   `.iwe/schemas/codebase.yaml`, and their `config.toml` entries.
-- [ ] `uv run pytest docs/knowledge/tests` passes, including the
+  - **Evidence:** commit a94e8d3 "Remove the codebase lane from the scaffold and
+    workspace docs" adds the `### Removed` entry to both `CHANGELOG.md` copies.
+- [x] `uv run pytest docs/knowledge/tests` passes, including the
   scaffold-matches-publisher and seed validation tests.
+  - **Evidence:** on commit a94e8d3 "Remove the codebase lane from the scaffold
+    and workspace docs", `uv run pytest docs/knowledge/tests` passed (40),
+    including `test_checked_in_seed_matches_normalized_output`.
 
 ### Task 4: Remove this repository's map and its CI and metadata
 
