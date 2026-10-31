@@ -114,8 +114,12 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Install fish
+        run: brew install fish
+
+      # A fish login shell makes the bootstrap write its fish block and check python3 there too.
       - name: Run the bootstrap
-        run: /bin/zsh .agents/plugins/agentdev/bin/macos-bootstrap.zsh
+        run: SHELL="$(brew --prefix)/bin/fish" /bin/zsh .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 
       - name: Run a catalog script on the provisioned Python
         run: /bin/zsh -l -c '.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py --help'
