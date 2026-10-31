@@ -504,11 +504,11 @@ Verified anchor points (line numbers as of 2026-10-30):
 - `docs/knowledge/data/spec/iwe-workflow-skills.md:419` — Normal shipping
   requires a clean independent verification
 - `docs/knowledge/data/architecture/fresh-context-verify.md:15` — `## Decision`
-- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:113` —
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:125` —
   `parse_arguments`
-- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:158` —
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:173` —
   `read_frontmatter`
-- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:191` —
+- `.agents/plugins/agentdev/skills/iwe-verify/agent-code/verify-cache.py:213` —
   `run_save`
 - `.agents/plugins/agentdev/skills/iwe-verify/SKILL.md:39` — the save step
 - `scripts/e2e/iwe-workflows/scenarios.py:17` — `APPROVAL`
