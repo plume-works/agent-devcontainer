@@ -568,5 +568,5 @@ Verified anchor points (line numbers as of 2026-10-31):
   `test_plugin_step_never_invokes_codex_on_path`; `:394` —
   `test_skip_plugins_does_not_invoke_claude`
 - `.github/workflows/validate-agent-files.yml:117` — the `Install fish` step
-- `docs/knowledge/data/features/macos-native-bootstrap.md:22` — `## Behaviour`,
-  whose `:36` names Codex; `:40` — `## Edge cases`
+- `docs/knowledge/data/features/macos-native-bootstrap.md:23` — `## Behaviour`;
+  `:47` — `## Edge cases`
