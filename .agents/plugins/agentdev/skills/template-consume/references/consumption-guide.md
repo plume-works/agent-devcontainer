@@ -421,9 +421,10 @@ Then adapt the workflows themselves:
   the job's approval and no AI review, while a pull request from any other bot
   gets neither and stays blocked, mergeable only by a user with ruleset bypass.
   The job approves only while every commit is the bot's own — authored by
-  it, committed by it or `web-flow`, signature verified — and a push comes from
-  the bot; otherwise it dismisses its approval, so a person's commit never
-  merges under a bot approval. A Dependabot-triggered run holds a read-only
+  it, committed by it or `web-flow`, signature verified — and every push in
+  the head branch's repository activity came from the bot; otherwise it
+  dismisses its approval, so a person's commit never merges under a bot
+  approval. Reading that activity needs `contents: read` on the job. A Dependabot-triggered run holds a read-only
   token and is skipped; a run a person triggers on a Dependabot pull request
   approves it when that check passes.
 - Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
