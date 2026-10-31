@@ -421,6 +421,34 @@ requirement, whose delta is in its own entry below.
 - `iwe normalize`, `iwe schema validate`, the knowledge-base tests, and an
   `/agentdev:iwe-map` refresh with no stale mapped source
 
+## Verification results
+
+At commit 0181ce2 of `iwe/catalog-scripts-python/iter-1-impl`, after Task 11:
+
+- `uv run pytest .agents/plugins/agentdev/tests` passed (468);
+  `uv run validate_agent_files --recommend . --require-marketplace claude codex`
+  reported no errors or warnings; `uv run ruff check .agents scripts` passed;
+  `uv run pytest scripts/tests/test_validate_super_linter_tool_versions.py`
+  passed (4);
+  `git ls-files '.agents/**/*.sh' 'scripts/validate-super-linter-tool-versions.sh'`
+  printed nothing.
+- Each port was compared with its shell original before the `.sh` was deleted,
+  by running the scripts' test modules against both implementations and diffing
+  normalized stdout, stderr, and exit codes; every task's evidence line names
+  its counts. The intended differences are the dropped `jq` prerequisite of
+  `request-review.py` and `post-review.py`, the version check naming each
+  undeterminable tool where the shell one crashed on an empty image probe, and
+  stderr-only diagnostics on unhandled-error paths.
+- The `python3 -S <script> --help` loop exits 0 for every script except
+  `codespace-exec.py`, which exits 2 by its contract: it forwards `--help` to
+  the remote command rather than printing its own help, and outside a recorded
+  codespace that is `PREFLIGHT_ERROR`. It imported and ran under `-S`.
+- `iwe normalize` and `iwe schema validate` passed,
+  `uv run pytest docs/knowledge/tests` passed (58), and `stale-map-docs.py`
+  reported `RESULT=SUCCESS`.
+- Not run: the reformat workflow on the current head, which needs a pull request
+  or a dispatched `primary-checks` run.
+
 ## Out of scope
 
 - The runtime, docker, and publisher scripts of [Replace the runtime shell
