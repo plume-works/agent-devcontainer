@@ -15,6 +15,8 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-implement/SKILL.md
 - resource: scripts/e2e/iwe-workflows/scenarios.py
 - resource: scripts/e2e/iwe-workflows/clone.py
+stage: done
+completed: 2026-10-31
 ---
 
 # Verify report cache
