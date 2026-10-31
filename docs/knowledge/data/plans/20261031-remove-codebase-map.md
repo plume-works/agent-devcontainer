@@ -229,7 +229,8 @@ Modify, in this workspace and byte-identically in the scaffold:
 `.devcontainer/.agent.metadata.json`, `.github/.agent.metadata.json`,
 `ansible/roles/.agent.metadata.json`. Modify:
 `.github/workflows/validate-agent-files.yml`, `README.md`,
-`.agents/plugins/agentdev/README.md`, `docs/knowledge/data/index.md`.
+`.agents/plugins/agentdev/README.md`, `docs/knowledge/data/index.md`,
+`scripts/tests/test_download_claude_responder_runs.py`.
 
 - [x] Remove every map document with `iwe delete`, the hub last, and remove the
   de-linked lines it leaves in `data/index.md` and
