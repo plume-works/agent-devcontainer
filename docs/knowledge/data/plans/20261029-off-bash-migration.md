@@ -241,9 +241,10 @@ deletion of this one function; and running the responder as a host job through
     image) passes against `agentdev-deploy` built from that commit.
 - [x] `integrity.py` verifies the installed `agentdev_runtime` distribution
   against its `RECORD` hashes and file set before the bootstrap continues, and
-  refuses with the same remedy the manifest check names today. The sha256
-  manifest step leaves the Dockerfile, and the derived-image test patches a
-  package file instead of a script.
+  refuses with the remedy `integrity.py:18` names, extending the runtime only
+  through `/etc/agentdev/hooks` and documented environment. The sha256 manifest
+  step leaves the Dockerfile, and the derived-image test patches a package file
+  instead of a script.
   - **Evidence:** commit c8fff30; `test_integrity.py` covers patched, added, and
     removed files, a patched entry point, and a missing `RECORD`;
     `test_a_derived_image_cannot_replace_the_managed_runtime` passes in
@@ -785,7 +786,7 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
   gone ends the watcher
@@ -793,67 +794,41 @@ Verified anchor points (line numbers as of 2026-10-30):
   Task 10 removes
 - `scripts/tests/test_runtime_remote_control.py:185` — the disappearing-session
   test the new start-loop test sits beside
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:12` — apt `supervisor`
-  install
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:19` —
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:21` —
   `COPY .devcontainer/scripts/`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:25` — sha256 runtime
-  manifest
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:41` —
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:39` —
   `devcontainer.metadata` lifecycle commands
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:58` — `HEALTHCHECK`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:56` — `HEALTHCHECK`
   command
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:60` — `ENTRYPOINT`
-- `docker/deploy/agentdev-deploy.Dockerfile:14` — apt `supervisor` install
-- `docker/deploy/agentdev-deploy.Dockerfile:22` — `COPY .devcontainer/scripts/`
-- `docker/deploy/agentdev-deploy.Dockerfile:62` — `HEALTHCHECK` command
-- `docker/deploy/agentdev-deploy.Dockerfile:64` — `ENTRYPOINT`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:58` — `ENTRYPOINT`
+- `docker/deploy/agentdev-deploy.Dockerfile:24` — `COPY .devcontainer/scripts/`
+- `docker/deploy/agentdev-deploy.Dockerfile:64` — `HEALTHCHECK` command
+- `docker/deploy/agentdev-deploy.Dockerfile:66` — `ENTRYPOINT`
 - `docker/devcontainer/supervisord.conf:25` — controller listener command
 - `docker/devcontainer/supervisord.conf:38` — first service `command=`
 - `docker/deploy/supervisord.conf:84` — `prepare` one-shot
-- `.devcontainer/scripts/runtime-supervisor.py:79` — `SettingsParser`
-- `.devcontainer/scripts/runtime-supervisor.py:306` — `DEVCONTAINER_SERVICES`
-- `.devcontainer/scripts/runtime-supervisor.py:953` — bootstrap command hook
-- `.devcontainer/scripts/runtime-supervisor.py:620` — `failing_dependency`, the
-  client-to-dependency escalation the port keeps; `:742` — `check_once`
-- `.devcontainer/scripts/runtime-supervisor.py:309` — `dockerd` is core in the
-  devcontainer profile
-- `.devcontainer/scripts/runtime-supervisor.py:173` — `AGENTDEV_SKIP_XPRA`
 - `.github/workflows/ai-responder.yml:422` — review job `container:` block
 - `.github/actions/run-claude-responder/action.yml:150` — composite
   `claude-code-action` step
-- `.devcontainer/scripts/runtime-health.sh:18` — `current_state` jq parse of
-  `state.json`
-- `.devcontainer/scripts/runtime-bootstrap.sh:177` — `verify_runtime_root`
-- `.devcontainer/scripts/runtime-bootstrap.sh:16` and
-  `.devcontainer/scripts/runtime-paths.sh:6` — one variable, two defaults
 - `.devcontainer/scripts/postStartCommand.sh:9` — no-supervisor branch
-- `.devcontainer/scripts/configure-codex.py:1` — `uv run --script` shebang
 - `.devcontainer/scripts/ci-hooks-repro.sh:20` — default image reference
-- `docker/desktop/start-xpra.sh:197` — `--supervised` mode
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:16` — script install task
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:24` — sudoers task
 - `ansible/roles/validate_agent_files/tasks/main.yml:61` — uv tool install to
   mirror
 - `ansible/roles/validate_agent_files/defaults/main.yml:17` — `/opt/uv-tools`
 - `.github/actions/run-claude-responder/action.yml:95` — lifecycle step
-- `.github/workflows/ci.yml:325` — `runtime-health.sh ready` in acceptance
+- `.github/workflows/ci.yml:325` — `agentdev-runtime health ready` in the Dev
+  Container image check
 - `.github/workflows/ci.yml:399` — `test-agent-runtime.sh` invocation
 - `.github/renovate.json:6` — `postUpgradeTasks.commands`
 - `.github/workflows/renovate.yml:110` — `RENOVATE_ALLOWED_COMMANDS`
-- `pyproject.toml:19` — root `supervisor` pin
-- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:26` — filename stubs
-- `scripts/tests/test_agentdev_devcontainer_image.py:216` — patched-script
-  integrity test
-- `scripts/e2e/iwe-workflows/harness_codex.py:22` — Codex reinstall path
-- `scripts/e2e/iwe-workflows/opencode_credential.py:24` — OpenCode start path
+- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:25` — filename stubs
 - `AGENTS.md:13` — `uv-sync.sh` reference
 - `README.md:205` — `runtime-health.sh status` operator command
 - `docker/deploy/README.md:102` — `runtime-health.sh status` operator command
 - `docs/knowledge/data/product.md:112` — firewall wrapper constraint
 - `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
 - `.codex/setup-codex-cloud.sh:4` — Codex Cloud bootstrap
-- `.devcontainer/scripts/environment-health.sh:79` — required toolchain list,
+- `.devcontainer/scripts/environment-health.sh:78` — required toolchain list,
   without `gitleaks` or `actionlint`
 - `.devcontainer/scripts/setup-pre-commit.sh:33` — deploy hook registration;
   `:41` — devcontainer hook install, neither checking hook executables
