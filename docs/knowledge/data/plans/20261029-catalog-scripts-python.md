@@ -490,8 +490,9 @@ At commit 786e72b of `iwe/catalog-scripts-python/iter-1-impl`, after Task 12:
 - `iwe normalize` and `iwe schema validate` passed,
   `uv run pytest docs/knowledge/tests` passed (58), and `stale-map-docs.py`
   reported `RESULT=SUCCESS`.
-- Not run: the reformat workflow on the current head, which needs a pull request
-  or a dispatched `primary-checks` run.
+- On draft pull request #567 at commit ad2fc9b, `primary-checks` ran
+  `Reformat code / Super-Linter` with the `.py` entry points and it passed, as
+  did `Validate agent files` and `Validate knowledge base`.
 
 ## Out of scope
 
