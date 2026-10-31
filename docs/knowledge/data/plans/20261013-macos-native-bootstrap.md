@@ -337,9 +337,13 @@ arguments; point `HOME` at a temporary directory.
     `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py` at
     that commit → 3 failed, 12 passed (the no-fish test holds before the change
     too).
-- [ ] The script writes the fish block and runs the `$SHELL` check as step 5 and
+- [x] The script writes the fish block and runs the `$SHELL` check as step 5 and
   step 7 of `## Approach` describe, and the tests pass:
   `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`.
+  - **Evidence:** commit `6f4f7b6a` adds `write_block`, `write_path_blocks`, and
+    `check_python` to the script and limits the test fixture's `PATH` to the
+    host tools the script runs; at that commit the command → 18 passed under zsh
+    5.9, and the whole plugin suite → 423 passed.
 - [ ] The README's "Native macOS" section lists
   `~/.config/fish/conf.d/agentdev.fish` among the host changes.
 - [ ] The `macos-bootstrap` job installs fish with Homebrew and runs the
