@@ -109,14 +109,18 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `.agents/AGENTS.md`, `.claude-plugin/AGENTS.md`,
 `.agents/plugins/agentdev/README.md`
 
-- [ ] The files above are gone and
+- [x] The files above are gone and
   `git ls-files .agents | grep -i -E 'codex|openai.yaml'` prints nothing.
-- [ ] `.agents/AGENTS.md`, `.claude-plugin/AGENTS.md`, and the plugin README
+  - **Evidence:** `751f6b27`; the `git ls-files` check prints nothing.
+- [x] `.agents/AGENTS.md`, `.claude-plugin/AGENTS.md`, and the plugin README
   describe the catalog as consumed by Claude Code and by OpenCode through the
   bridge, validate with `--require-marketplace claude`, and carry no manifest
   version-alignment rule for Codex.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+  - **Evidence:** `751f6b27`.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   and `uv run pytest .agents/plugins/agentdev/tests` pass.
+  - **Evidence:** `751f6b27`; the validator reports 66/66 skills valid with no
+    errors or warnings, and the plugin suite passes (408 tests).
 
 ### Task 4: Remove Codex instructions from catalog skills
 
