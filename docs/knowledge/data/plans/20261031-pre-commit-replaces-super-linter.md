@@ -34,7 +34,7 @@ keeps Renovate from bumping the tools it pins.
 
 Two tools already disagree with themselves: the ruff and ansible-lint hooks
 install `v0.15.17` and `v26.4.0` into pre-commit's own venvs while `uv.lock`
-holds `0.17.1` and `26.10.1`, which `python-lint-check.sh` runs. And the
+holds `0.17.1` and `26.10.1`, which `python_lint_check.py` runs. And the
 gitleaks hook, `gitleaks git --pre-commit --staged`, scans an empty diff at
 pre-push and would do the same in CI.
 
@@ -184,20 +184,22 @@ path filter: pre-commit already skips hooks whose files did not change.
 ### Task 8: Remove Super-Linter from the publisher
 
 **Files:** Delete: `.github/workflows/reformat.yml`,
-`scripts/tests/test_reformat_renovate_skip.py`, the version check the Python
-port leaves (`scripts/validate-super-linter-tool-versions.py` and its test);
-Modify: `.gitignore`, `.claude/settings.json`
+`scripts/tests/test_reformat_renovate_skip.py`,
+`scripts/validate-super-linter-tool-versions.py`,
+`scripts/tests/test_validate_super_linter_tool_versions.py`; Modify:
+`.gitignore`, `.claude/settings.json`
 
 - [ ] The files above are gone, `.gitignore` drops `super-linter-output/`,
-  `.claude/settings.json` drops the `super-linter-local` allow rule, and no
+  `.claude/settings.json` drops the `super_linter.py local` allow rule, and no
   workflow, test, or setting names Super-Linter or `reformat.yml`.
 
 ### Task 9: Remove Super-Linter from the catalog
 
 **Files:** Delete: `.agents/plugins/agentdev/skills/local-reformat/`,
-`.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/`, the
-Super-Linter module the Python port leaves (`bin/super_linter.py` and its test);
-Modify: `.agents/plugins/agentdev/README.md`,
+`.agents/plugins/agentdev/skills/sync-super-linter-tool-versions/`,
+`.agents/plugins/agentdev/bin/super_linter.py`,
+`.agents/plugins/agentdev/tests/test_super_linter.py`; Modify:
+`.agents/plugins/agentdev/README.md`,
 `.agents/plugins/agentdev/bin/python_lint_check.py`,
 `.agents/plugins/agentdev/skills/pr-merge/SKILL.md`,
 `.agents/plugins/agentdev/skills/pr-merge-stack/SKILL.md`,
@@ -234,6 +236,7 @@ Modify: `.agents/plugins/agentdev/README.md`,
 `docs/knowledge/data/architecture/validator-image-install.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
 `docs/knowledge/data/architecture/self-improve-consolidation.md`,
+`docs/knowledge/data/architecture/catalog-script-language.md`,
 `docs/knowledge/data/features/bun-only-javascript-runner.md`,
 `docs/knowledge/data/features/renovate-maintains-checksums.md`,
 `docs/knowledge/data/someday/host-filesystem-dedup.md`,
@@ -349,8 +352,8 @@ given, and the staged change otherwise.
 ## Depends on
 
 [Port the catalog's bundled shell scripts to
-Python](20261029-catalog-scripts-python.md) — its Task 2 ports the Super-Linter
-scripts and the version check; Tasks 8 and 9 delete what it leaves.
+Python](20261029-catalog-scripts-python.md) — shipped; Tasks 8 and 9 delete the
+Super-Linter module and version check it ported.
 
 ## Verification
 
@@ -389,7 +392,7 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.github/workflows/primary-checks.yml:32` — `reformat` job calling
   `reformat.yml`
 - `.github/workflows/primary-checks.yml:54` — `ci` job, `needs: [reformat]`
-- `.github/workflows/reformat.yml:212` — `Run Super-Linter autofixes` step
+- `.github/workflows/reformat.yml:209` — `Run Super-Linter autofixes` step
 - `.github/workflows/validate-renovate-config.yml:59` — a job running in the
   digest-pinned devcontainer image
 - `devcontainer-compose-pins.yml:14` — the `agentdev-devcontainer` pin
