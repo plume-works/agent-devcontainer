@@ -103,6 +103,14 @@ runs:
         UV_PROJECT_ENVIRONMENT: /opt/ci-venv
       run: |
         mkdir -p /root/.claude /root/.codex
+        # A pinned image built before the runtime package lacks the CLI. The build
+        # runs on a copy so its build/ tree stays out of the reviewed checkout.
+        if ! command -v agentdev-runtime >/dev/null; then
+          src="$(mktemp -d)"
+          cp -r "$GITHUB_WORKSPACE/py_packages/agentdev_runtime/." "$src"
+          UV_TOOL_DIR=/opt/uv-tools UV_TOOL_BIN_DIR=/usr/local/bin UV_PYTHON_DOWNLOADS=never \
+            uv tool install --python /usr/bin/python3 "$src"
+        fi
         agentdev-runtime lifecycle created
         # No supervisor runs in a container job: start CBM, then the per-start repairs.
         agentdev-runtime lifecycle ready --no-wait
