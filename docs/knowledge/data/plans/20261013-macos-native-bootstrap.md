@@ -146,7 +146,7 @@ arguments; point `HOME` at a temporary directory.
 ### Task 2: Implement `bin/macos-bootstrap.zsh`
 
 **Files:** Create: `.agents/plugins/agentdev/bin/macos-bootstrap.zsh`; Modify:
-`.pre-commit-config.yaml`, `AGENTS.md`
+`.pre-commit-config.yaml`, `AGENTS.md`, `.agents/AGENTS.md`
 
 - [ ] The seven steps in `## Approach`, with darwin `arm64` and `amd64` SHA-256
   values for the `iwe` and `codebase-memory-mcp` versions `dev_tools` pins at
@@ -157,7 +157,8 @@ arguments; point `HOME` at a temporary directory.
   `pre-commit run shellcheck --files .agents/plugins/agentdev/bin/macos-bootstrap.zsh`
   does not lint it, with an `exclude` on the hook if it would.
 - [ ] Root `AGENTS.md`'s Shell convention names the bootstrap as the one zsh
-  script and why it is zsh.
+  script and why it is zsh, and `.agents/AGENTS.md`'s rule that every `bin/`
+  script is Python names it as the exception.
 
 ### Task 3: Run the bootstrap on a macOS CI runner
 
@@ -323,10 +324,11 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.github/workflows/validate-agent-files.yml:20` — `paths-filter` job; `:53`
   `validate-agent-files` job; `:79` agentdev plugin test step
 - `.pre-commit-config.yaml:50` — the `shellcheck` hook
-- `AGENTS.md:97` — the Shell convention: bash and `shellcheck`
+- `AGENTS.md:95` — the Shell convention: bash and `shellcheck`
 - `.agents/plugins/agentdev/README.md:81` — `bin/` is on `PATH` while the plugin
   is enabled
 - `docs/knowledge/data/architecture/template-boundary.md:272` — Publisher-only
   source section listing `.agents/`
 - `.agents/AGENTS.md:16` — plugin tests must pass from a consumer's plugin
-  cache, resolving scripts through `plugin_root`
+  cache, resolving scripts through `plugin_root`; `:36` — every `bin/` and
+  `agent-code/` script is standard-library-only Python
