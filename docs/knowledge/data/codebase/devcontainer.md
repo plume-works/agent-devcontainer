@@ -4,14 +4,14 @@ description: 'The template surface a consuming project copies: devcontainer.json
 source:
 - .devcontainer
 - devcontainer-compose-pins.yml
-source_digest: sha256:419ad22162a724517962941b5c7a46b3bc53381a2ddd77a3f217cf3bfd1fbbc5
+source_digest: sha256:f0fa841e323d85fa5d3485e40ca62c687e2a43bd746441d2d42b88a669ce2f8b
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T17:30:28Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T17:30:28Z
 sources:
 - id: code
   resource: .devcontainer
@@ -36,8 +36,9 @@ repository.
   named volume mounts (`:60-119`), and the VS Code extension and settings block
 - `.devcontainer/docker-compose.yml` — the `mcp-gateway` sidecar (`:2`, profile
   `mcp`) and the privileged `devcontainer` service (`:53`) with its
-  launcher-derived `hostname` (`:59`), the pass-through `GIT_*` identity
-  variables (`:69-72`), and the shared `agentdev-agents-auth` volume (`:103`)
+  launcher-derived `hostname` (`:59`), the pass-through `COMPOSE_PROFILES`
+  (`:70`) and `GIT_*` identity variables (`:71-74`), and the shared
+  `agentdev-agents-auth` volume (`:105`)
 - `devcontainer-compose-pins.yml` — the `agentdev-devcontainer` tag-and-digest
   pin Renovate advances, shared with every workflow `container.image`
 - `.devcontainer/firewall-allowlist.txt` — read by the firewall at start, and
@@ -108,10 +109,10 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `.devcontainer/devcontainer.json:15` — the SSH Feature, the only Feature
 - `.devcontainer/devcontainer.json:53-59` — Xpra port forwarding
 - `.devcontainer/devcontainer.json:60-119` — the six volume mounts
-- `.devcontainer/docker-compose.yml:2,53,105` — sidecar, service, volumes
+- `.devcontainer/docker-compose.yml:2,53,107` — sidecar, service, volumes
 - `.devcontainer/docker-compose.yml:59` — launcher-derived hostname
-- `.devcontainer/docker-compose.yml:69-72,103` — identity pass-through, shared
-  auth volume
+- `.devcontainer/docker-compose.yml:70-74,105` — profile and identity
+  pass-through, shared auth volume
 - `docker/devcontainer/agentdev-devcontainer.Dockerfile:38-47` — the lifecycle
   the descriptor inherits
 - `.devcontainer/devcontainer-init.sh:11` — `HOME` default for Codespaces

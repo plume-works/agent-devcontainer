@@ -3,7 +3,7 @@ type: bug
 description: In a Compose Dev Container under Coder without the opt-in mcp profile, agentdev-runtime doctor fails the mcp-gateway and git user checks although the workspace is healthy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:53:25Z
+  at: 2026-10-31T17:30:54Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .devcontainer/devcontainer-init.sh
@@ -43,18 +43,23 @@ Both checks were carried over unchanged from the retired
 
 ## Fix
 
-Unfixed. The `mcp-gateway` checks should SKIP when the `mcp` profile is not
-enabled, which first needs a signal for that inside the container; the
-`git user` check should accept `GIT_AUTHOR_*` and `GIT_COMMITTER_*`.
+Task 21 of [Replace the runtime shell scripts with one agentdev-runtime
+CLI](../plans/20261029-off-bash-migration.md). Compose passes `COMPOSE_PROFILES`
+into the `devcontainer` service, and `doctor` checks `mcp-gateway` only when it
+names `mcp`, reporting it SKIP otherwise (commit 27c1ab21). `git user` passes
+when `git var GIT_AUTHOR_IDENT` and `GIT_COMMITTER_IDENT` both resolve (commit
+666da330).
 
 ## Key references
 
 Verified anchor points (line numbers as of 2026-10-31):
 
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:183` — the
-  devcontainer branch checking `mcp-gateway` DNS and `:8811` (`:196`)
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:223` — `git user`
-  reads git config only; `:228` — its FAIL
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:142` — `gateway`: the
+  `mcp-gateway` checks, skipped unless `COMPOSE_PROFILES` names `mcp` (`:145`)
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:233` — `git user`
+  resolves identity through `git var`; `:240` — its FAIL
+- `.devcontainer/docker-compose.yml:70` — `COMPOSE_PROFILES` passed into the
+  `devcontainer` service
 - `.devcontainer/devcontainer-init.sh:57` — `COMPOSE_PROFILES=mcp` (`:61`)
   written only when `~/.docker/mcp` exists
 - `.devcontainer/docker-compose.yml:7` — the sidecar's `profiles: ['mcp']`

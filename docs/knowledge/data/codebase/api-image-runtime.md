@@ -7,14 +7,14 @@ source:
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
 - py_packages/agentdev_runtime
-source_digest: sha256:5034356dbe0dc12d8d9c039f2fcf845a106d83954f3380ea8abb5b51936b2162
+source_digest: sha256:67097825e49e7de206e925f07f65fb7d2f63a9190899cd9b35154a4de66bbd49
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:27:53Z
+  at: 2026-10-31T17:30:28Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:27:53Z
+  at: 2026-10-31T17:30:28Z
 sources:
 - id: code
   resource: docker
@@ -54,6 +54,7 @@ acceptance.
 
 | Variable                                            | Read by                                                                                                       | Meaning                                                                                                                                |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `COMPOSE_PROFILES`                                  | `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:142`                                                 | `doctor` checks `mcp-gateway` only when it names `mcp`; Compose passes it from `.devcontainer/.env`                                    |
 | `DEV_WORKSPACE_FOLDER`                              | the firewall allowlist lookup, the lifecycle commands                                                         | the mounted workspace; falls back to the baked `WORKSPACE_FOLDER`                                                                      |
 | `ENABLE_FIREWALL`                                   | the bootstrap's `agentdev-runtime firewall apply`                                                             | `true` applies the egress firewall; anything else leaves it inert                                                                      |
 | `FIREWALL_ALLOWLIST`                                | `py_packages/agentdev_runtime/agentdev_runtime/firewall.py:97`                                                | overrides the allowlist path; unset, a Dev Container reads its checkout copy when present, else `/etc/agentdev/firewall-allowlist.txt` |
@@ -104,7 +105,7 @@ addition to those.
   the managed phase; a failing hook names itself and its phase —
   `py_packages/agentdev_runtime/agentdev_runtime/hooks.py:23`.
 - Changing, adding, or removing an installed `agentdev_runtime` file fails
-  startup — `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:47`.
+  startup — `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:55`.
 - `AGENTDEV_USER`, `AGENTDEV_HOME`, `CBM_CACHE_DIR`, and the bus and display
   defaults are overridable `ENV` — `:26-34`. OpenCode Web and Claude Remote
   Control are opt-in clients, never readiness gates.

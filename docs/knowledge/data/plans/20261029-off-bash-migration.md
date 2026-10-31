@@ -1214,11 +1214,11 @@ Verified anchor points (line numbers as of 2026-10-31):
   naming `/opt/agentdev-runtime`
 - `docs/knowledge/data/spec/coder-ide-baseline.md:28` — the agent-start script
   requirement the Task 19 delta removes
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:183` — the
-  devcontainer branch checking `mcp-gateway` unconditionally; `:223` —
-  `git user` reading git config only
-- `.devcontainer/docker-compose.yml:67` — the `devcontainer` service's
-  `environment`
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:142` — `gateway`:
+  `mcp-gateway` checked only when `COMPOSE_PROFILES` names `mcp`; `:233` —
+  `git user` resolving identity through `git var`
+- `.devcontainer/docker-compose.yml:70` — `COMPOSE_PROFILES` passed into the
+  `devcontainer` service
 - `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:19` —
   `REQUIRED_TOOLS`, with `gitleaks` (`:30`) and `actionlint` (`:31`)
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py:82` — `hooks`:

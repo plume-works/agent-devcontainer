@@ -2,14 +2,14 @@
 type: codebase
 description: The agentdev_runtime package and its agentdev-runtime CLI, which both runtime images install as a uv tool — PID 1 and its supervisor, the health probes, every supervised service, the bootstrap and firewall, the Dev Container lifecycle commands, and the doctor report.
 source: py_packages/agentdev_runtime
-source_digest: sha256:afa163e8b723dcfcd567c556bba63e8280ad99e6e40e02d85f0be700a7d10d9b
+source_digest: sha256:1fcc9f8a88a2dcbf4f9af4061389bfeb1e54b448daac8d369c035d0eae5164c3
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:27:53Z
+  at: 2026-10-31T17:30:28Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T16:27:53Z
+  at: 2026-10-31T17:30:28Z
 sources:
 - id: code
   resource: py_packages/agentdev_runtime
@@ -65,7 +65,9 @@ CBM daemon, then the per-start repairs.
 
 - Integrity covers the installed distribution: the image's
   `/usr/local/bin/agentdev-runtime` is a symlink into the tool's environment, so
-  a bind mount over it trips the bootstrap's `RECORD` check.
+  a bind mount over it trips the bootstrap's `RECORD` check. Only `__pycache__`
+  bytecode of a recorded module is exempt, and only a `.dist-info` install is
+  checked; a source checkout's egg-info is not.
 - `settings.Settings.get` refuses an undeclared variable; the README table must
   list every declared one (`tests/test_settings.py`).
 - Home-derived defaults follow `HOME`, falling back to `AGENTDEV_HOME`.
@@ -85,7 +87,7 @@ Verified anchor points (line numbers as of 2026-10-31):
   `:894` — `run`
 - `py_packages/agentdev_runtime/agentdev_runtime/state.py:127` — `current`, the
   stale-heartbeat read
-- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:47` — `verify`
+- `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:55` — `verify`
 - `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:145` — `Deploy`;
   `:345` — `main`
 - `py_packages/agentdev_runtime/agentdev_runtime/firewall.py:331` — `apply`
@@ -93,4 +95,5 @@ Verified anchor points (line numbers as of 2026-10-31):
   `:141` — `ready`; `:158` — `attached`
 - `py_packages/agentdev_runtime/agentdev_runtime/project.py:46` —
   `missing_executables`
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:256` — `main`
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:268` — `main`; `:142`
+  — `gateway`, skipped unless `COMPOSE_PROFILES` names `mcp`
