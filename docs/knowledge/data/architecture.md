@@ -39,6 +39,8 @@ rejected are as valuable as the one you picked.*
 
 [Nested Docker provisioning](architecture/nested-docker-provisioning.md)
 
+[agentdev runtime package](architecture/agentdev-runtime-package.md)
+
 [MCP gateway transport](architecture/mcp-gateway-transport.md)
 
 [IWE through the CLI, not MCP](architecture/iwe-cli-over-mcp.md)
@@ -132,3 +134,5 @@ re-review](architecture/rereview-gate-pending.md)
 [Dev Container home volume](architecture/devcontainer-home-volume.md)
 
 [Catalog script language](architecture/catalog-script-language.md)
+
+[Conflict-free knowledge layout](architecture/kb-conflict-free-layout.md)

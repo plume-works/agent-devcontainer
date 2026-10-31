@@ -3,9 +3,9 @@ type: architecture
 description: Once the session a Remote Control server pre-created in the workspace folder is archived on claude.ai, every later server start re-adopts that archived session, which ends within a second, and no replacement is pre-created, so the folder runs with no session until a new one is started on demand.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-26T18:50:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 ---
 
 # Claude Remote Control archived pre-created session

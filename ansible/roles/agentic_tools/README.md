@@ -45,10 +45,9 @@ Codespace, a CI job — still resolves `agentdev:*` skills. See
 The container's lifecycle scripts **also** install, and must: a devcontainer
 mounts persistent `~/.claude` and `~/.codex` volumes over where both agents keep
 their marketplace registry, enablement flags, and plugin cache, so the
-build-time install is shadowed there and would otherwise go stale. This
-repository's `.devcontainer/scripts/reinstall-agentdev-{claude,codex}.sh` take
-the staged root as their first argument and re-apply it on every container
-create.
+build-time install is shadowed there and would otherwise go stale. The
+runtime's `agentdev-runtime catalog install <root>` takes the staged root and
+re-applies it on every container create.
 
 Two properties constrain changes:
 

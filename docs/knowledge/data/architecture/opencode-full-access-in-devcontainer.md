@@ -2,11 +2,11 @@
 type: architecture
 description: Why devcontainer OpenCode sessions allow every action and external filesystem path, and how the policy is merged into JSON or JSONC on every start.
 generated:
-  by: codex/gpt-5
-  at: 2026-10-18T19:39:20Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/configure-opencode.py
-- resource: .devcontainer/scripts/postStartCommand.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/opencode_config.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
 - resource: https://opencode.ai/docs/config/
 ---
 
@@ -14,7 +14,7 @@ sources:
 
 The devcontainer is the isolation boundary, so OpenCode runs inside it without
 action or external-directory permission prompts. On every container start,
-`.devcontainer/scripts/configure-opencode.py` sets these managed values:
+`agentdev-runtime state agent-policy` sets these managed values:
 
 ``` json
 {
@@ -28,10 +28,10 @@ action or external-directory permission prompts. On every container start,
 }
 ```
 
-The script runs last from `postStartCommand.sh`, after the firewall, keyring,
-Xpra, and authentication setup. A malformed OpenCode config therefore fails the
-start hook visibly without preventing those services from starting, and the
-original config remains unchanged.
+The policy runs near the end of `agentdev-runtime lifecycle ready`, after the
+supervised services are ready and the authentication setup. A malformed OpenCode
+config therefore fails the start hook visibly without preventing those services
+from starting, and the original config remains unchanged.
 
 ## Configuration contract
 
@@ -50,8 +50,8 @@ ambiguously.
 
 The config directory is mode `0700`, and the selected config is atomically
 replaced at mode `0600` through a temporary file in the same directory. The
-script declares its parser in PEP 723 metadata and runs through
-`uv run --script`, so template consumers do not need to add a Python dependency.
+`opencode_config` module of the `agentdev_runtime` package carries `json5` as
+the package's own dependency, so template consumers add no Python dependency.
 
 ## Rejected alternatives
 

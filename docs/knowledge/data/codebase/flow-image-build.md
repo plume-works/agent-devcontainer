@@ -8,14 +8,14 @@ source:
 - docker
 - ansible
 - devcontainer-compose-pins.yml
-source_digest: sha256:ed68edbd169a0233f9b8ffedf8d4adcd179329ec31b31234308a90ae3e827248
+source_digest: sha256:0dd9f52818fe13648df688f2661d21647601c10660bdf19ecc10cf65b895ca72
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
-stale_after: 2027-01-27
+  at: 2026-10-31T04:38:23Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: .github/workflows/ci.yml
@@ -60,12 +60,12 @@ running the image it produced.
    [devcontainer](devcontainer.md) with `devcontainers/ci`, launches the bundled
    Chromium against a data URL, then runs the repository's pytest suites inside
    it — `.github/workflows/ci.yml:271-361`. `deploy-acceptance` runs
-   `test-agent-runtime.sh` on the merged `agentdev-deploy` —
-   `.github/workflows/ci.yml:369`. `devcontainer-acceptance` pulls the merged
-   `agentdev-devcontainer` and runs the direct and derived consumer fixtures,
-   this repository's clone and worktree, and the template-consume migration end
-   state through create, attach, restart, and rebuild —
-   `.github/workflows/ci.yml:407`
+   `uv run pytest scripts/tests/test_agent_runtime_acceptance.py` on the merged
+   `agentdev-deploy` — `.github/workflows/ci.yml:369`. `devcontainer-acceptance`
+   pulls the merged `agentdev-devcontainer` and runs the direct and derived
+   consumer fixtures, this repository's clone and worktree, and the
+   template-consume migration end state through create, attach, restart, and
+   rebuild — `.github/workflows/ci.yml:407`
 8. `promote-dev-image`, once all three pass, points the event's moving tags
    (`edge`, the branch, `pr-<n>`, release versions) at the four tested digests
    with `imagetools create`, skipping a tag whose image's revision label names a

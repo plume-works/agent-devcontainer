@@ -3,10 +3,9 @@ type: bug
 description: When claude-remote-control-start.sh succeeds but the claude-remote pane exits before the watcher's live check, the standalone Remote Control watcher re-runs the start every interval, with two claude auth status calls each time, and never reaches the controller's recovery budget.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T03:00:00Z
+  at: 2026-10-31T03:45:25Z
 sources:
-- resource: .devcontainer/scripts/runtime-remote-control.sh
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: scripts/tests/test_runtime_remote_control.py
 - resource: docs/knowledge/data/plans/20261027-standalone-remote-control-autostart.md
 ---
@@ -50,22 +49,26 @@ case is bounded.
 
 ## Fix
 
-Not fixed. A fix makes a start that leaves no live session end the watcher
-non-zero, as a seen session that disappears already does, so the controller's
-recovery budget bounds the retries; clearing `checked` then stops costing a
-Claude process per tick.
+A start that leaves no live session now ends the watcher non-zero, logging that
+the session did not come up, as a seen session that disappears already does; the
+controller's recovery budget bounds the retries. The retry that cleared
+`checked` is gone. `test_a_start_that_never_comes_up_ends_the_watcher` in
+`scripts/tests/test_runtime_remote_control.py` covers it: one start, then a
+non-zero exit.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-28):
+Verified anchor points (line numbers as of 2026-10-31):
 
-- `.devcontainer/scripts/runtime-remote-control.sh:43` — login re-check when the
-  credential signature changes
-- `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
-  gone ends the watcher
-- `.devcontainer/scripts/runtime-remote-control.sh:57` — start-script call
-- `.devcontainer/scripts/runtime-remote-control.sh:62` — `checked=""` retry path
-- `.devcontainer/scripts/claude-remote-control-start.sh:27` — the start script's
-  own `claude auth status` check, which exits 0 when it skips
-- `.devcontainer/scripts/claude-remote-control-start.sh:68` — `tmux new-session`
-  that returns before the pane's process runs
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:240` — `run`:
+  login re-check when the credential signature changes
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:249` — a seen
+  session that is gone ends the watcher
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:253` — the
+  `start()` call
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:257` — a
+  start that leaves no live session ends the watcher
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:115` —
+  `start`'s own `claude auth status` check, which returns 0 when it skips
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:143` —
+  `tmux new-session`, which returns before the pane's process runs

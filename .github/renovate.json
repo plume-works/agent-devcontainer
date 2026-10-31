@@ -3,7 +3,7 @@
   "extends": ["config:recommended", ":enablePreCommit"],
   "rebaseWhen": "auto",
   "postUpgradeTasks": {
-    "commands": ["scripts/renovate-post-upgrade.sh"],
+    "commands": ["scripts/renovate-post-upgrade.py"],
     "executionMode": "branch",
     "fileFilters": [
       "ansible/**",
@@ -19,7 +19,7 @@
       "pyproject.toml",
       "py_packages/*/pyproject.toml",
       "uv.lock",
-      "scripts/renovate-post-upgrade.sh"
+      "scripts/renovate-post-upgrade.py"
     ]
   },
   "lockFileMaintenance": {
@@ -120,9 +120,9 @@
     {
       "description": "The devcontainer CLI version the post-upgrade script regenerates the devcontainer lock with.",
       "customType": "regex",
-      "managerFilePatterns": ["/^scripts/renovate-post-upgrade\\.sh$/"],
+      "managerFilePatterns": ["/^scripts/renovate-post-upgrade\\.py$/"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n[A-Z0-9_]+=\"(?<currentValue>[^\"]+)\""
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\s*\\n[A-Z0-9_]+ = '(?<currentValue>[^']+)'"
       ]
     },
     {

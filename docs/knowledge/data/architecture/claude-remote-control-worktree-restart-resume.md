@@ -2,10 +2,10 @@
 type: architecture
 description: After a devcontainer rebuild or a server restart, sessions that `claude remote-control --spawn worktree` spawned on demand return in their own worktrees with their earlier turns and no user action, after a delay from seconds to several minutes.
 generated:
-  by: claude-code/opus-5
-  at: 2026-10-26T02:55:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: https://github.com/anthropics/claude-code/issues/104940
 ---
 

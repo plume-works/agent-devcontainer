@@ -1,15 +1,15 @@
 ---
 type: codebase
-description: Installs the egress firewall script and its sudoers entry into the image; the script stays inert until a container start enables it.
+description: Installs the iptables and ipset packages the runtime's egress firewall drives; nothing in the role applies a rule.
 source: ansible/roles/devcontainer_firewall
-source_digest: sha256:88cdce56ff1dd2b99e57258b8a43ee2fbbef082efa5de0850d11190337b5896a
+source_digest: sha256:515a48efe072880cb57978b2bb39ae3e3468b3823f90259cae95452e5265d2c8
 verified:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
-stale_after: 2026-12-24
+  at: 2026-10-31T04:38:23Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-09-25T00:00:00Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: ansible/roles/devcontainer_firewall
@@ -17,51 +17,30 @@ sources:
 
 # devcontainer_firewall role
 
-Places `init-firewall.sh` at `/usr/local/bin` with a NOPASSWD sudoers entry and
-installs the iptables/ipset tooling it needs. Nothing here runs at build time or
-on a plain container start.
+One apt task: `iptables` and `ipset`. The policy itself is
+`agentdev-runtime firewall apply` in the [agentdev_runtime
+package](../../py_packages/agentdev_runtime.md), which the runtime bootstrap
+runs as root when `ENABLE_FIREWALL=true`.
 
 ## Public surface
 
-- `/usr/local/bin/init-firewall.sh` — the script the runtime gate invokes
-- `FIREWALL_ALLOWLIST` (env) — overrides the allowlist path; default
-  `$DEV_WORKSPACE_FOLDER/.devcontainer/firewall-allowlist.txt`
-- The allowlist format: `github-meta`, one domain per line, `#` comments
-
-## How it works
-
-`init-firewall.sh` records Docker's embedded DNS rules, flushes iptables and
-ipsets, resolves each allowlist line (`github-meta` expands to the ranges from
-`api.github.com/meta`, other lines to their DNS answers) into an ipset, sets
-`INPUT`/`FORWARD`/`OUTPUT` to `DROP` for IPv4, blocks IPv6 entirely, and
-self-verifies at the end.
+- The `iptables` and `ipset` binaries on the image.
 
 ## Depends on
 
-The allowlist lives in the workspace
-([.devcontainer/firewall-allowlist.txt](../../devcontainer.md)) so it is
-branch-editable without a rebuild; the gate that decides whether to run at all
-is [firewall.sh](../../devcontainer/scripts.md) reading `ENABLE_FIREWALL`.
+Selected by `install_devcontainer_firewall`, which `agentdev-base` turns on and
+`group_vars/all.yml` leaves off.
 
 ## Invariants & gotchas
 
-- Installed but inert: `install_devcontainer_firewall` only places files;
-  `ENABLE_FIREWALL=true` applies them — the constraint recorded in
-  `data/product.md`.
-- The script is adapted from the Claude Code reference devcontainer firewall;
-  the allowlist indirection is the local addition.
+- Installing the packages enables nothing; the runtime applies rules only when
+  `ENABLE_FIREWALL=true`.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-09-25):
+Verified anchor points (line numbers as of 2026-10-31):
 
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:2` — the apt install
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:16` — install the script
-- `ansible/roles/devcontainer_firewall/tasks/main.yml:24` — sudoers entry
-- `ansible/roles/devcontainer_firewall/files/init-firewall.sh:14` — allowlist
-  path resolution
-- `ansible/roles/devcontainer_firewall/files/init-firewall.sh:76` —
-  `github-meta` expansion
-- `ansible/roles/devcontainer_firewall/files/init-firewall.sh:123-126` — default
-  DROP
-- `ansible/roles/devcontainer_firewall/files/init-firewall.sh:143` — IPv6 block
+- `ansible/roles/devcontainer_firewall/tasks/main.yml:3` — the apt install
+- `ansible/playbooks/setup-dev.yml:41` — the role's `when:` gate
+- `docker/base/agentdev-base.Dockerfile:58` —
+  `install_devcontainer_firewall=true`

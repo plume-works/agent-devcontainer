@@ -126,3 +126,5 @@ runtime](features/standalone-remote-control-autostart.md)
 
 [Claude Code and OpenCode are the only supported
 harnesses](features/claude-and-opencode-only-harnesses.md)
+
+[pre-commit is the CI gate](features/pre-commit-ci-gate.md)

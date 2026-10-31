@@ -1,35 +1,22 @@
-"""Tests for the identity-aware agent-state primitives shared with the standalone runtime."""
+"""Tests for `agentdev-runtime state` and `catalog install`: identity-aware agent state."""
 
 from __future__ import annotations
 
+import inspect
 import os
 from pathlib import Path
-import shutil
 import stat
 import subprocess
+import sys
 import time
 
+from agentdev_runtime import agent_state, catalog, cbm, claude_state, lifecycle
+from agentdev_runtime.settings import DEPLOY, DEVCONTAINER, Settings
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
-AGENT_STATE = SCRIPTS / 'setup-agent-state.sh'
-GH_HELPER_SCRIPT = SCRIPTS / 'setup-gh-credential-helper.sh'
-REAL_SCRIPTS = (
-    'setup-agent-state.sh',
-    'runtime-paths.sh',
-    'link-codex-auth.sh',
-)
-STUBBED_SCRIPTS = (
-    'runtime-cbm.sh',
-    'codebase-memory-mcp-install.sh',
-    'preapprove-claude-workspace.sh',
-    'configure-codex.py',
-    'configure-opencode.py',
-    'reinstall-agentdev-codex.sh',
-    'reinstall-agentdev-claude.sh',
-    'reinstall-agentdev-opencode.sh',
-)
+GH_HELPER = [sys.executable, '-m', 'agentdev_runtime', 'git', 'credential-helper']
+STATE = [sys.executable, '-m', 'agentdev_runtime', 'state']
 TOKEN = 'ghs_injectedTokenValue0123456789'
 
 
@@ -41,66 +28,58 @@ def runtime_env(root: Path, **extra: str) -> dict[str, str]:
         'HOME': str(home),
         'CODEX_HOME': str(home / '.codex'),
         'XDG_DATA_HOME': str(home / '.local/share'),
+        'XDG_CONFIG_HOME': str(home / '.config'),
         'AGENTDEV_AGENTS_AUTH_DIR': str(root / 'auth'),
         'AGENTDEV_CLAUDE_DIR': str(home / '.claude'),
         'AGENTDEV_CLAUDE_JSON': str(home / '.claude.json'),
+        'AGENTDEV_SKIP_CLAUDE_PREAPPROVE': '1',
         **extra,
     }
 
 
-@pytest.fixture
-def scripts(tmp_path: Path) -> Path:
-    """Copy the primitives beside stubs that log each call and the ~/.claude.json state."""
-    directory = tmp_path / 'scripts'
-    directory.mkdir()
-    for name in REAL_SCRIPTS:
-        shutil.copy2(SCRIPTS / name, directory / name)
-    log = tmp_path / 'calls.log'
-    for name in STUBBED_SCRIPTS:
-        stub = directory / name
-        stub.write_text(
-            '#!/usr/bin/env bash\n'
-            'link=plain; [[ -L "$AGENTDEV_CLAUDE_JSON" ]] && link=symlink\n'
-            f'echo "{name} $* claude.json=$link" >> "{log}"\n'
-            f'exit "${{STUB_EXIT_{name.split(".")[0].replace("-", "_").upper()}:-0}}"\n'
+class Recorder:
+    """Stands in for the CBM install and the pre-approval, recording each call in order."""
+
+    def __init__(self, monkeypatch: pytest.MonkeyPatch, settings: Settings) -> None:
+        self.calls: list[str] = []
+        self.cbm_status = 0
+        self.claude_json = Path(settings.get('AGENTDEV_CLAUDE_JSON'))
+
+        def link_state() -> str:
+            return 'symlink' if self.claude_json.is_symlink() else 'plain'
+
+        def configure_agents(_settings: Settings, _install_dir: Path, _path: str = '') -> int:
+            self.calls.append(f'cbm configure claude.json={link_state()}')
+            return self.cbm_status
+
+        def install(_daemon: cbm.Daemon) -> int:
+            self.calls.append(f'cbm install claude.json={link_state()}')
+            return self.cbm_status
+
+        monkeypatch.setattr(cbm, 'configure_agents', configure_agents)
+        monkeypatch.setattr(cbm, 'install', install)
+        monkeypatch.setattr(
+            claude_state, 'preapprove', lambda _settings: self.calls.append('preapprove')
         )
-        stub.chmod(0o755)
-    return directory
 
 
-def calls(tmp_path: Path) -> list[str]:
-    log = tmp_path / 'calls.log'
-    return log.read_text().splitlines() if log.exists() else []
-
-
-def run_state(scripts: Path, root: Path, *args: str, **extra: str):
-    return subprocess.run(
-        [scripts / 'setup-agent-state.sh', *args],
-        env=runtime_env(root, **extra),
-        capture_output=True,
-        text=True,
-    )
+def settings_for(tmp_path: Path, mode: str = DEVCONTAINER, **extra: str) -> Settings:
+    return Settings(runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE=mode, **extra))
 
 
 def mode(path: Path) -> int:
     return stat.S_IMODE(path.stat().st_mode)
 
 
-def test_defaults_are_the_devcontainer_root_layout():
-    printed = subprocess.run(
-        [
-            'bash',
-            '-c',
-            f'source "{SCRIPTS}/runtime-paths.sh"; echo "$agentdev_auth_dir '
-            '$agentdev_claude_dir $agentdev_claude_json $agentdev_codex_home '
-            '$agentdev_opencode_data"',
-        ],
-        env={'PATH': os.environ['PATH'], 'HOME': '/root'},
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.split()
-    assert printed == [
+def test_devcontainer_defaults_are_the_root_layout():
+    settings = Settings({'AGENTDEV_RUNTIME_MODE': DEVCONTAINER, 'HOME': '/root'})
+    assert [
+        settings.get('AGENTDEV_AGENTS_AUTH_DIR'),
+        settings.get('AGENTDEV_CLAUDE_DIR'),
+        settings.get('AGENTDEV_CLAUDE_JSON'),
+        settings.get('CODEX_HOME'),
+        f'{settings.get("XDG_DATA_HOME")}/opencode',
+    ] == [
         '/root/.agents-auth',
         '/root/.claude',
         '/root/.claude.json',
@@ -109,8 +88,14 @@ def test_defaults_are_the_devcontainer_root_layout():
     ]
 
 
-def test_links_explicit_roots_on_fresh_volumes(scripts: Path, tmp_path: Path):
-    result = run_state(scripts, tmp_path, 'links')
+def run_links(tmp_path: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [*STATE, 'links'], env=runtime_env(tmp_path), capture_output=True, text=True
+    )
+
+
+def test_links_explicit_roots_on_fresh_volumes(tmp_path: Path):
+    result = run_links(tmp_path)
     assert result.returncode == 0, result.stderr
 
     home, auth = tmp_path / 'home', tmp_path / 'auth'
@@ -120,7 +105,7 @@ def test_links_explicit_roots_on_fresh_volumes(scripts: Path, tmp_path: Path):
     assert not (home / '.local/share/opencode/auth.json').exists()
 
 
-def test_migrates_regular_credentials_and_preserves_other_config(scripts: Path, tmp_path: Path):
+def test_migrates_regular_credentials_and_preserves_other_config(tmp_path: Path):
     home = tmp_path / 'home'
     (home / '.codex').mkdir(parents=True)
     (home / '.codex/auth.json').write_text('{"codex": 1}')
@@ -129,7 +114,7 @@ def test_migrates_regular_credentials_and_preserves_other_config(scripts: Path, 
     (home / '.local/share/opencode/auth.json').write_text('{"opencode": 1}')
     (home / '.local/share/opencode/storage.db').write_text('sessions')
 
-    result = run_state(scripts, tmp_path, 'links')
+    result = run_links(tmp_path)
     assert result.returncode == 0, result.stderr
 
     auth = tmp_path / 'auth'
@@ -141,28 +126,33 @@ def test_migrates_regular_credentials_and_preserves_other_config(scripts: Path, 
     assert (home / '.local/share/opencode/storage.db').read_text() == 'sessions'
 
 
-def test_repairs_destroyed_and_wrong_links(scripts: Path, tmp_path: Path):
+def test_repairs_destroyed_and_wrong_links(tmp_path: Path):
     home, auth = tmp_path / 'home', tmp_path / 'auth'
     (auth / 'codex').mkdir(parents=True)
     (auth / 'codex/auth.json').write_text('shared')
+    (home / '.codex').mkdir(parents=True)
+    (home / '.codex/auth.json').symlink_to(tmp_path / 'elsewhere')
 
-    result = run_state(scripts, tmp_path, 'links')
+    result = run_links(tmp_path)
     assert result.returncode == 0, result.stderr
 
     assert (home / '.codex/auth.json').read_text() == 'shared'
 
 
-def test_standalone_create_order_migrates_the_users_claude_json(scripts: Path, tmp_path: Path):
+def test_standalone_create_order_migrates_the_users_claude_json(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
     home = tmp_path / 'home'
     home.mkdir()
     (home / '.claude.json').write_text('{"user": true}')
+    settings = settings_for(tmp_path, DEPLOY)
+    recorder = Recorder(monkeypatch, settings)
 
-    result = run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='deploy')
-    assert result.returncode == 0, result.stderr
+    agent_state.create(settings)
 
     assert (home / '.claude/claude.json').read_text() == '{"user": true}'
     assert os.readlink(home / '.claude.json') == str(home / '.claude/claude.json')
-    assert [line.split()[0] for line in calls(tmp_path)] == ['preapprove-claude-workspace.sh']
+    assert recorder.calls == ['preapprove']
     assert (home / '.codex/auth.json').is_symlink()
     for agent in ('claude', 'codex'):
         assert mode(tmp_path / 'auth' / agent) == 0o700
@@ -171,64 +161,81 @@ def test_standalone_create_order_migrates_the_users_claude_json(scripts: Path, t
 
 
 def test_devcontainer_create_discards_the_image_file_and_tolerates_cbm_failure(
-    scripts: Path, tmp_path: Path
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ):
     home = tmp_path / 'home'
     (home / '.claude').mkdir(parents=True)
     (home / '.claude/claude.json').write_text('{"volume": true}')
     (home / '.claude.json').write_text('{"image": true}')
+    settings = settings_for(tmp_path)
+    recorder = Recorder(monkeypatch, settings)
+    recorder.cbm_status = 1
 
-    result = run_state(scripts, tmp_path, 'create', STUB_EXIT_CODEBASE_MEMORY_MCP_INSTALL='1')
-    assert result.returncode == 0, result.stderr
+    agent_state.create(settings)
 
-    assert 'codebase-memory-mcp install failed' in result.stderr
+    assert 'codebase-memory-mcp install failed' in capsys.readouterr().err
     assert (home / '.claude.json').read_text() == '{"volume": true}'
-    assert calls(tmp_path)[0] == 'codebase-memory-mcp-install.sh  claude.json=symlink'
+    assert recorder.calls == ['cbm configure claude.json=symlink', 'preapprove']
 
 
 def test_standalone_cbm_step_installs_after_create_links_claude_json(
-    scripts: Path, tmp_path: Path
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ):
-    assert run_state(scripts, tmp_path, 'create', AGENTDEV_RUNTIME_MODE='deploy').returncode == 0
-    result = run_state(scripts, tmp_path, 'cbm', AGENTDEV_RUNTIME_MODE='deploy')
-    assert result.returncode == 0, result.stderr
-    assert calls(tmp_path)[-1] == 'runtime-cbm.sh install claude.json=symlink'
+    settings = settings_for(tmp_path, DEPLOY)
+    recorder = Recorder(monkeypatch, settings)
+    agent_state.create(settings)
+    agent_state.install_cbm(settings)
+    assert recorder.calls[-1] == 'cbm install claude.json=symlink'
 
 
-def test_standalone_cbm_step_fails_when_cbm_install_fails(scripts: Path, tmp_path: Path):
-    result = run_state(
-        scripts,
-        tmp_path,
-        'cbm',
-        AGENTDEV_RUNTIME_MODE='deploy',
-        STUB_EXIT_RUNTIME_CBM='1',
+def test_standalone_cbm_step_fails_when_cbm_install_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
+    settings = settings_for(tmp_path, DEPLOY)
+    Recorder(monkeypatch, settings).cbm_status = 1
+    with pytest.raises(agent_state.StateError):
+        agent_state.install_cbm(settings)
+
+
+def test_catalog_passes_the_scope_only_to_claude(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    calls: list[str] = []
+    monkeypatch.setattr(catalog, 'codex', lambda _s, root: calls.append(f'codex {root}'))
+    monkeypatch.setattr(
+        catalog, 'claude', lambda root, scope: calls.append(f'claude {root} {scope}')
     )
-    assert result.returncode == 1
-
-
-def test_catalog_passes_the_scope_only_to_claude(scripts: Path, tmp_path: Path):
-    result = run_state(scripts, tmp_path, 'catalog', '/opt/catalog', 'user')
-    assert result.returncode == 0, result.stderr
-    assert [line.rsplit(' claude.json', 1)[0] for line in calls(tmp_path)] == [
-        'reinstall-agentdev-codex.sh /opt/catalog',
-        'reinstall-agentdev-claude.sh /opt/catalog user',
-        'reinstall-agentdev-opencode.sh /opt/catalog',
+    monkeypatch.setattr(catalog, 'opencode', lambda _s, root: calls.append(f'opencode {root}'))
+    monkeypatch.setenv('HOME', str(tmp_path / 'home'))
+    assert catalog.main(['install', '/opt/catalog', '--claude-scope', 'user']) == 0
+    assert catalog.main(['install', '/opt/catalog']) == 0
+    assert calls == [
+        'codex /opt/catalog',
+        'claude /opt/catalog user',
+        'opencode /opt/catalog',
+        'codex /opt/catalog',
+        'claude /opt/catalog local',
+        'opencode /opt/catalog',
     ]
 
 
+@pytest.mark.parametrize('missing', [catalog.CLAUDE_MANIFEST, catalog.CODEX_MANIFEST, None])
+def test_a_catalog_is_complete_only_with_every_client_manifest(tmp_path: Path, missing):
+    for manifest in (catalog.CLAUDE_MANIFEST, catalog.CODEX_MANIFEST):
+        if manifest != missing:
+            (tmp_path / manifest).parent.mkdir(parents=True, exist_ok=True)
+            (tmp_path / manifest).write_text('{}')
+    (tmp_path / catalog.OPENCODE_BRIDGE).mkdir(parents=True)
+    assert catalog.complete(tmp_path) is (missing is None)
+
+
 def test_hooks_keep_their_call_order():
-    post_start = (SCRIPTS / 'postStartCommand.sh').read_text()
-    assert post_start.index('start-xpra.sh') < post_start.index('devcontainer-ready.sh" --no-wait')
-    ready = (SCRIPTS / 'devcontainer-ready.sh').read_text()
-    assert ready.index('setup-agent-state.sh" links') < ready.index('agent-policy')
-    assert ready.rstrip().endswith('"$script_dir/run-agentdev-hooks.sh" started')
-    created = (SCRIPTS / 'devcontainer-created.sh').read_text()
-    assert created.index('setup-agent-state.sh" create') < created.index(
-        'runtime-workspace.sh" project'
-    )
-    assert created.index('runtime-workspace.sh" project') < created.index(
-        'setup-agent-state.sh" catalog'
-    )
+    ready = inspect.getsource(lifecycle.ready)
+    assert ready.index('link_codex_auth') < ready.index('apply_agent_policy')
+    assert ready.rstrip().endswith("hooks.run(settings, 'started')")
+    created = inspect.getsource(lifecycle.created)
+    assert created.index('agent_state.create') < created.index('.project()')
+    assert created.index('.project()') < created.index('catalog.install')
+    create = inspect.getsource(agent_state.create)
+    assert create.index('link_claude_json') < create.index('install_cbm')
 
 
 def fake_gh(directory: Path) -> None:
@@ -271,9 +278,7 @@ def test_injected_token_authenticates_https_before_any_checkout_exists(tmp_path:
     not_yet_cloned.mkdir()
     env = gh_env(tmp_path, GITHUB_TOKEN=TOKEN)
 
-    setup = subprocess.run(
-        [GH_HELPER_SCRIPT], env=env, cwd=not_yet_cloned, capture_output=True, text=True
-    )
+    setup = subprocess.run(GH_HELPER, env=env, cwd=not_yet_cloned, capture_output=True, text=True)
     assert setup.returncode == 0, setup.stderr
 
     filled = subprocess.run(
@@ -298,33 +303,35 @@ def test_keyring_environment_file_location_is_configurable(tmp_path: Path):
     keyring_env.write_text('export GH_TEST_AUTHENTICATED=1\n')
     env = gh_env(tmp_path, AGENTDEV_KEYRING_ENV_FILE=str(keyring_env))
 
-    setup = subprocess.run([GH_HELPER_SCRIPT], env=env, capture_output=True, text=True)
+    setup = subprocess.run(GH_HELPER, env=env, capture_output=True, text=True)
     assert setup.returncode == 0, setup.stderr
     assert 'Configured gh as the git credential helper.' in setup.stdout
 
 
-@pytest.mark.parametrize('second', ['catalog', 'agent-policy', 'cbm'])
-def test_concurrent_config_writers_take_turns(scripts: Path, tmp_path: Path, second: str):
+HOLD_LOCK = """
+import sys, time
+from pathlib import Path
+from agentdev_runtime import agent_state, settings
+log = Path(sys.argv[1])
+with agent_state.config_lock(settings.Settings()):
+    log.write_text('begin\\n')
+    time.sleep(1)
+    with log.open('a') as handle:
+        handle.write('end\\n')
+"""
+
+
+@pytest.mark.parametrize('second', ['agent-policy', 'cbm'])
+def test_concurrent_config_writers_take_turns(tmp_path: Path, second: str):
     log = tmp_path / 'calls.log'
-    slow = scripts / 'reinstall-agentdev-codex.sh'
-    slow.write_text(f'#!/usr/bin/env bash\necho begin >> "{log}"\nsleep 1\necho end >> "{log}"\n')
-    for name in ('configure-codex.py', 'runtime-cbm.sh'):
-        (scripts / name).write_text(f'#!/usr/bin/env bash\necho other >> "{log}"\n')
-    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='deploy')
-    args = {
-        'catalog': ['catalog', '/opt/catalog'],
-        'agent-policy': ['agent-policy'],
-        'cbm': ['cbm'],
-    }
-    first = subprocess.Popen(
-        [scripts / 'setup-agent-state.sh', 'catalog', '/opt/catalog'], env=env
-    )
+    env = runtime_env(tmp_path, AGENTDEV_RUNTIME_MODE='deploy', AGENTDEV_CBM_BIN='/nonexistent')
+    first = subprocess.Popen([sys.executable, '-c', HOLD_LOCK, str(log)], env=env)
     deadline = time.monotonic() + 10
-    while 'begin' not in calls(tmp_path) and time.monotonic() < deadline:
+    while not log.exists() and time.monotonic() < deadline:
         time.sleep(0.05)
-    result = run_state(scripts, tmp_path, *args[second], AGENTDEV_RUNTIME_MODE='deploy')
+    subprocess.run([*STATE, second], env=env, capture_output=True, text=True)
+    finished = time.time()
     assert first.wait(timeout=30) == 0
-    assert result.returncode == 0, result.stderr
-    lines = [line for line in calls(tmp_path) if line in {'begin', 'end', 'other'}]
-    assert lines[:2] == ['begin', 'end'], lines
+    assert log.read_text().splitlines() == ['begin', 'end']
+    assert log.stat().st_mtime <= finished
     assert (tmp_path / 'home/.local/state/agentdev/agent-config.lock').exists()

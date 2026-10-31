@@ -3,14 +3,14 @@ type: architecture
 description: Claude Code and Codex credentials live on one Docker volume pinned to a literal name and shared by every devcontainer instance, while OpenCode's logins and the rest of each agent's state are mounted per instance; a directory-backed volume cannot mount at ~/.claude.json, so that file is a symlink into the volume.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-19T02:00:00Z
+  at: 2026-10-31T11:49:47Z
 sources:
 - resource: .devcontainer/docker-compose.yml
 - resource: .devcontainer/devcontainer.json
-- resource: .devcontainer/scripts/postCreateCommand.sh
-- resource: .devcontainer/scripts/link-codex-auth.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
 - resource: https://opencode.ai/v2/docs
-- resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
 - resource: https://github.com/Dr-QP/Dr.QP/pull/417
 - resource: https://github.com/Dr-QP/Dr.QP/pull/436
 - resource: https://github.com/Dr-QP/Dr.QP/pull/438
@@ -62,12 +62,12 @@ directory, and the agent fails to read its own configuration. The file therefore
 lives inside the volume at `/root/.claude/claude.json` and `~/.claude.json` is
 symlinked to it.
 
-The ordering this forces is load-bearing: `postCreateCommand.sh` establishes the
-symlink *before* the codebase-memory-mcp install runs. That installer cannot
-write through a symlink, so it materializes the target as a real file, installs,
-then folds the result back and relinks under an `EXIT` trap. With the symlink
-absent, the install writes outside the volume and the MCP entry does not survive
-a rebuild.
+The ordering this forces is load-bearing: `agentdev-runtime lifecycle created`
+establishes the symlink *before* the codebase-memory-mcp install runs. That
+installer cannot write through a symlink, so it materializes the target as a
+real file, installs, then folds the result back and relinks it on every exit,
+success or failure. With the symlink absent, the install writes outside the
+volume and the MCP entry does not survive a rebuild.
 
 A pre-existing regular file at `~/.claude.json` is discarded rather than
 migrated, because its content predates the volume and would otherwise mask it.

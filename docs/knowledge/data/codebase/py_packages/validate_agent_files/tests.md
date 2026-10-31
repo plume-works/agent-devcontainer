@@ -2,14 +2,14 @@
 type: codebase
 description: The self-contained pytest suite for the validator package, built on an invented mock catalog so it passes from an extracted package.
 source: py_packages/validate_agent_files/tests
-source_digest: sha256:433b84b1b5eacb26a87a23ac4f1b7a7bb2e7917da4b9ec33a38f66b2fae78802
+source_digest: sha256:03dfceb1c26f8bd53b6dc87b6cc8a3f669b3088ed713103f52f0dcdc1c6b5e40
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:15:00Z
-stale_after: 2027-01-27
+  at: 2026-10-31T04:38:23Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:15:00Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: py_packages/validate_agent_files/tests
@@ -27,11 +27,10 @@ directory with `pytest`, or in isolation with
   organization, paths) are defined
 - `package_tmp_path` fixture — scratch under `/tmp/agentdev-tests`
 - Modules: `test_agent_validation.py`, `test_bundled_markdown_containment.py`,
-  `test_cli.py`, `test_download_claude_responder_runs.py`,
-  `test_entrypoints.py`, `test_formatters.py`, `test_gitignore_discovery.py`,
-  `test_loaders.py`, `test_path_resolution.py`, `test_plugin_layout.py`,
-  `test_plugin_link_containment.py`, `test_plugin_mode.py`,
-  `test_prompt_validation.py`, `test_recommendations.py`,
+  `test_cli.py`, `test_entrypoints.py`, `test_formatters.py`,
+  `test_gitignore_discovery.py`, `test_loaders.py`, `test_path_resolution.py`,
+  `test_plugin_layout.py`, `test_plugin_link_containment.py`,
+  `test_plugin_mode.py`, `test_prompt_validation.py`, `test_recommendations.py`,
   `test_require_marketplace.py`, `test_skill_validation.py`
 
 ## How it works

@@ -1,9 +1,9 @@
 ---
 type: architecture
-description: The AI reviewer prefers COMMENT over REQUEST_CHANGES so an author unblocks by resolving inline threads without forcing a re-review; REQUEST_CHANGES is used only for a blocking finding with no inline anchor, where no thread would gate merge.
+description: The AI reviewer picks its review event from finding severity alone — APPROVE for no or only non-blocking findings, REQUEST_CHANGES for any blocking finding — because the one-approval main ruleset needs its approval and only its own APPROVE lifts its earlier change request.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T01:33:40Z
+  at: 2026-10-31T02:00:00Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml
@@ -15,133 +15,131 @@ sources:
 
 ## Decision
 
-The `pr-review` skill selects its GitHub pull request review event by whether a
-blocking finding has a **live inline anchor**:
+The `pr-review` skill selects its GitHub pull request review event from the
+severity of the validated findings alone:
 
-- no validated findings → `APPROVE`;
-- every blocking finding is attached as an inline comment → `COMMENT`;
-- at least one blocking finding has no live inline anchor → `REQUEST_CHANGES`.
+| Validated findings          | Event             |
+| --------------------------- | ----------------- |
+| none                        | `APPROVE`         |
+| non-blocking only           | `APPROVE`         |
+| any blocking, inline or not | `REQUEST_CHANGES` |
 
-The anchor-less case is a PR-wide judgment (the metadata gate) or a blocking
-finding whose inline location GitHub rejected and that fell back to a prose PR
-comment. Non-blocking findings never select `REQUEST_CHANGES`. Severity tiers
-still drive dedup priority and inline emphasis; they select the event only
-through the anchor test above.
+The Step-3 metadata gate is a blocking finding and submits `REQUEST_CHANGES`.
+`COMMENT` is never a chosen event; it is only the retry when GitHub rejects a
+verdict because the reviewer owns the pull request (see below).
 
-The rule is stated at four points in `pr-review/SKILL.md` (the event-decision
-step, the tier definitions, the metadata gate in Step 3, and the
-`post-review.py` fallback contract), and `post-review.py` accepts all three
-events.
+The rule is stated in `pr-review/SKILL.md` at the event-decision step, the tier
+definitions, the Codex single-call option, and the `post-review.py` fallback
+contract. The Codex single-call tool accepts only `APPROVE` or `COMMENT`, so a
+Codex review that must request changes posts through `post-review.py`.
 
-## Why prefer COMMENT over REQUEST_CHANGES for anchored findings
+## Why the verdict follows severity
 
-A merge in this repo is gated by unresolved **inline threads**
-(`required_review_thread_resolution`), not by the review verdict — the `main`
-ruleset sets `required_approving_review_count: 0`, so `reviewDecision` never
-gates merge. An anchored blocking finding therefore already blocks the merge
-through its thread, and the author unblocks by **resolving the thread** once the
-finding is addressed — no further review needed.
+The `main` ruleset requires one approving review, keeps stale reviews on push,
+and requires every review thread to be resolved. The AI reviewer's `APPROVE`
+satisfies the required approval (see [Actions approval
+permission](actions-approval-permission.md)), and a `COMMENT` never does. Two
+consequences fix the rule:
 
-`REQUEST_CHANGES` on such a finding would add no enforcement (the thread already
-blocks) but would set a **sticky `CHANGES_REQUESTED` decision that only a fresh
-review can dismiss**. Resolving the threads does not clear it. That forces a
-second AI review run purely to lift the verdict — a real cost, in dollars and
-latency, for no added blocking. Avoiding that re-review is the reason `COMMENT`
-is preferred wherever the finding is anchored.
+- A review that should not block must `APPROVE`, or the pull request cannot
+  merge without ruleset bypass.
+- A pending `CHANGES_REQUESTED` blocks merge until the same reviewer approves or
+  the review is dismissed. A clean re-review must therefore `APPROVE` to replace
+  the reviewer's own earlier change request; a `COMMENT` leaves it standing.
 
-## Why REQUEST_CHANGES is required for anchor-less findings
-
-A finding with no inline anchor creates no thread, so
-`required_review_thread_resolution` has nothing to hold and a `COMMENT` review
-gates **nothing** — the merge stays green. This is the case the metadata gate
-falls into (it is a review body, PR-wide by nature) and the Step-8 inline-reject
-fallback (the finding is posted as a prose PR comment). With no thread
-available, the review **verdict is the only lever**, so `REQUEST_CHANGES` is
-required to block merge. Its re-review cost is not a drawback here: there is no
-thread the author could resolve instead, so a fresh review is the intended way
-to clear it.
+Inline comments on an approving review still open threads, and thread resolution
+holds the merge until each is resolved, so approving with non-blocking findings
+loses no enforcement. Blocking findings always block: an approval shown beside
+an unaddressed blocking finding would read as sign-off on it.
 
 See [AI review gate](../spec/ai-review-gate.md) for what the gate accepts.
 
-## The self-review API rule (a separate constraint)
+## The self-review API rule
 
 GitHub rejects **both** verdict events — `APPROVE` and `REQUEST_CHANGES` — when
-the reviewer identity equals the PR **author** identity; only `COMMENT` (no
-verdict) is allowed on one's own PR. This is an identity-collision rule, not a
-"same token" or "reviewed its own review" rule.
+the reviewer identity equals the pull request **author** identity; only
+`COMMENT` is allowed on one's own pull request. This is an identity-collision
+rule, not a "same token" rule.
 
-It therefore fires only on a PR **authored by the reviewer identity itself** —
-in practice a bot- or automation-authored PR whose author matches the responder
-identity (`claude[bot]` under OIDC App auth, or `github-actions[bot]` under
-`github.token`). A human-authored PR reviewed by the bot is a normal
-cross-identity review, and the bot may submit `APPROVE` or `REQUEST_CHANGES`
-without rejection. This repository already keeps bot-authored PRs out of the
-responder path (`ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and
-its `ai-review-present` job trust-lists the Renovate and Dependabot bots), so
-the collision case does not arise for the AI reviewer here in normal operation.
+It fires only on a pull request authored by the reviewer identity itself —
+`github-actions[bot]` under `github.token`, or `claude[bot]` under OIDC App
+auth. A human-authored pull request reviewed by the bot is a cross-identity
+review. That is why the skill retries a rejected `APPROVE` or `REQUEST_CHANGES`
+as `COMMENT` with a note in the body. Bot-authored pull requests get no AI
+review here: `ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and its
+`trusted-bot-approval` job approves the bots listed in `TRUSTED_BOT_ACTORS`
+instead.
 
-This is why `REQUEST_CHANGES` carries a retry-to-`COMMENT` fallback in the
-skill: on a bot- or self-authored PR the verdict event is rejected, and a
-`COMMENT` noting the downgrade is the best available. On the normal
-human-authored PR the bot is a distinct identity and `REQUEST_CHANGES` succeeds.
-This repository already keeps bot-authored PRs out of the responder path anyway
-(`ai-responder.yml` skips `pull_request.user.type == 'Bot'`, and its
-`ai-review-present` job trust-lists the Renovate and Dependabot bots), so the
-collision rarely arises for the AI reviewer here.
+## Trusted-bot approval covers only the bot's commits and pushes
 
-### Consequence for a verdict gate
+The `trusted-bot-approval` job approves a trusted-bot pull request only while
+every commit on it is the bot's own: its GitHub author is the pull request's
+author, its committer is that author or `web-flow` (GitHub's committer for
+commits an App creates through the API), and its signature verifies.
 
-If the gate were changed to `required_approving_review_count: 1`, an AI
-`APPROVE` would become load-bearing and would succeed on human-authored PRs
-(distinct identities). It would fail only on a PR authored by the reviewer
-identity — the same bot-authored edge case — which this repository already
-excludes from the responder. The barrier to a verdict gate is therefore a policy
-choice (should an AI approval alone unblock merge), not the self-review API
-rule.
+Commit metadata alone cannot prove who pushed: a commit another account creates
+through the API can name the bot as author and still verify. On every run, the
+job therefore also reads the head branch's repository activity, newest first,
+back to its latest `branch_creation`, and requires that entry and every `push`
+and `force_push` after it to have the pull request's author as actor. Checking
+the branch's push history, rather than the actor of the run that triggered it,
+keeps a reopened pull request or a cancelled run from restoring an approval
+after a person's push. Stopping at the latest creation lets a reused branch
+name, such as Renovate's `renovate/<dep>`, start clean once the old branch is
+deleted. The activity endpoint needs `contents: read`.
+
+When a check fails, the job approves nothing, dismisses its own standing
+approval, and posts a notice naming the failing push or commit. The `main`
+ruleset keeps stale approvals on push, so without the dismissal an approval
+given to the bot's commits would also cover a person's commit pushed after it.
+
+The same checks let a person-triggered run approve a Dependabot pull request
+whose commits are Dependabot's alone. Only a run `dependabot[bot]` triggers is
+skipped, because its `GITHUB_TOKEN` is read-only.
+
+The approval is only as strong as the trust in the repository's writers. The job
+runs on `pull_request` from a same-repository head, so it runs the pull
+request's own copy of the workflow: a writer who pushes a commit that also edits
+the job can skip the checks and post an approval. The checks hold against a
+commit that leaves the workflow unchanged; guarding the job against a writer who
+edits it is out of scope.
 
 ## Alternatives rejected
 
-**Map severity tier to event unconditionally (`REQUEST_CHANGES` for every
-blocking finding).** The original design, briefly mandatory. Rejected because it
-forces a sticky `CHANGES_REQUESTED` verdict on findings that are already
-blocking through their inline thread — the author resolves the thread but merge
-stays blocked until a fresh AI review dismisses the verdict, an extra review run
-for no added enforcement. The `## Why` above is the correction: use
-`REQUEST_CHANGES` only where no thread exists to gate.
+**`COMMENT` for anchored blocking findings.** The superseded rule: `COMMENT`
+when every blocking finding was attached inline, `REQUEST_CHANGES` only for a
+blocking finding with no inline anchor. It assumed merge was gated by thread
+resolution alone. Under the one-approval ruleset a `COMMENT` neither satisfies
+the required approval nor replaces the reviewer's earlier change request, so a
+pull request it reviewed needed a clean re-review or ruleset bypass to merge.
 
-**Ban `REQUEST_CHANGES` unconditionally (`COMMENT` for every finding).** The
-prior state of this skill, and simpler. Rejected because a blocking finding with
-no inline anchor — the metadata gate, or a Step-8 inline-reject fallback — then
-gates nothing: `COMMENT` sets no verdict and there is no thread, so merge stays
-green on a finding meant to block it. The anchor test restores a block for
-exactly that case without reintroducing the re-review cost on anchored findings.
+**`APPROVE` with anchored blocking findings, relying on thread resolution.** The
+open thread would still hold the merge, but blocking findings always block: an
+approval beside an unaddressed blocking finding reads as sign-off on it.
+
+**Check only the actor of a `synchronize` run.** A person could push a commit
+that names the bot as author, then close and reopen the pull request; the
+`reopened` run sees only bot-looking commits and approves again.
+
+**Skip Dependabot pull requests by author.** The commit check already keeps a
+person's change out of a bot approval, so an author skip would only withhold
+approval from pull requests holding Dependabot's commits alone.
+
+**Ban `REQUEST_CHANGES` unconditionally (`COMMENT` for every finding).** A
+blocking finding then never blocks through the verdict, and no review ever
+satisfies the required approval.
 
 ## Consequences
 
-- On an anchored finding a human reader sees `COMMENT`, not `REQUEST_CHANGES`,
-  even for a critical one; the severity is conveyed in the inline comment text.
-  The finding still blocks merge through its thread, and resolving the thread
-  unblocks it with no re-review.
-- On an anchor-less blocking finding the review is `REQUEST_CHANGES`, and the
-  block is lifted only by a fresh review — the intended cost, since there is no
-  thread to resolve instead.
-- The metadata gate now blocks merge. Before this change it posted a `COMMENT`
-  body that gated nothing (see [AI review gate](../spec/ai-review-gate.md)); it
-  now posts `REQUEST_CHANGES`.
+- A review with only non-blocking findings is an `APPROVE` with inline comments;
+  merge waits only for those threads to be resolved.
+- A review with any blocking finding is `REQUEST_CHANGES`, and the pull request
+  stays blocked until a later review from the same reviewer approves it.
+- Every merge through the ruleset carries an approval from the AI reviewer or
+  the trusted-bot approval job, unless it is merged by bypass.
 
 ## Provenance
 
-The rule was inherited into this repository with the `pr-review` skill when the
-`agentdev` catalog was extracted from the Dr.QP workspace. It originated in
-Dr.QP commit `d836554c1` (2026-07-06, "Drop REQUEST_CHANGES from pr-review
-skill, always use COMMENT"), which shipped in [Dr.QP PR
-#409](https://github.com/Dr-QP/Dr.QP/pull/409).
-
-The operative reason for preferring `COMMENT` is the re-review cost under
-`## Why` (a sticky `CHANGES_REQUESTED` verdict that resolving threads cannot
-clear), not the self-review rejection.
-
-That commit made the rule a **blanket** ban on `REQUEST_CHANGES`. This
-repository later refined it to the conditional rule under `## Decision`, once
-the blanket ban was found to leave anchor-less blocking findings (the metadata
-gate) unable to gate merge.
+The `pr-review` skill was inherited from the Dr.QP workspace, where commit
+`d836554c1` ([Dr.QP PR #409](https://github.com/Dr-QP/Dr.QP/pull/409)) banned
+`REQUEST_CHANGES` under a ruleset that required no approving review.

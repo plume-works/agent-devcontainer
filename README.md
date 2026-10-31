@@ -202,7 +202,7 @@ supervisord fails.
 - `docker logs` carries every service's output. The image healthcheck reports healthy
   only while a live controller reports `ready` and the core probes pass; `pending`,
   `degraded`, and `failed` all report unhealthy.
-- `docker exec <container> /opt/agentdev-runtime/runtime-health.sh status` prints the
+- `docker exec <container> agentdev-runtime health status` prints the
   state, each failed or blocked component, the last failure record, and the retry
   command for each failure.
 - Every failure writes `~/.local/state/agentdev/last-failure.json` on the `home`
@@ -210,8 +210,8 @@ supervisord fails.
   lines of its output, and the time. A later start never deletes it; only a later
   failure replaces it. A failure before the home volume is checked, such as an invalid
   setting or a failed bootstrap, goes to `docker logs` only.
-- After fixing the cause, `docker exec <container>
-/opt/agentdev-runtime/runtime-supervisor.py retry` resumes a latched runtime from
+- After fixing the cause, `docker exec <container> agentdev-runtime supervisor
+retry` resumes a latched runtime from
   the failed component in the same container, and `retry <component>` reruns one
   failed optional component. The usual causes are an unwritable checkout, an auth
   volume from another identity, a missing worktree `.git`, or a failed project setup.
@@ -377,7 +377,7 @@ Xpra starts on display `:100` and container port `14500`. Open the **Xpra HTML5*
 entry in VS Code's Ports panel to reach the desktop; concurrent worktrees receive
 distinct local ports. Prefix graphical applications with `vglrun` for GPU
 acceleration. Advanced users can manage the service with
-`/start-xpra.sh --background`, `--stop`, or `--port <n>`.
+`agentdev-runtime xpra --background`, `--stop`, or `--port <n>`.
 
 ## Build and contribute
 

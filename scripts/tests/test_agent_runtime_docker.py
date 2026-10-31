@@ -1,4 +1,4 @@
-"""Tests for runtime-docker.sh: guards, the exact dockerd invocation, and a real nested engine."""
+"""Tests for `agentdev-runtime docker`: guards, the exact dockerd invocation, and a real nested engine."""
 
 from __future__ import annotations
 
@@ -9,13 +9,14 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 from uuid import uuid4
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
-SCRIPT = SCRIPTS / 'runtime-docker.sh'
+DOCKER = [sys.executable, '-m', 'agentdev_runtime', 'docker']
+PACKAGE = REPO_ROOT / 'py_packages/agentdev_runtime'
 PINS = REPO_ROOT / 'devcontainer-compose-pins.yml'
 PRIVILEGED_CAPS = 'CapEff:\t000001ffffffffff\n'
 UNPRIVILEGED_CAPS = 'CapEff:\t00000000a80425fb\n'
@@ -61,7 +62,7 @@ class Engine:
             'AGENTDEV_DOCKER_PIDFILE': str(self.pidfile),
             'AGENTDEV_PROC_STATUS': str(self.status),
         }
-        return subprocess.run([SCRIPT, *args], env=env, capture_output=True, text=True)
+        return subprocess.run([*DOCKER, *args], env=env, capture_output=True, text=True)
 
 
 @pytest.fixture
@@ -133,12 +134,15 @@ def test_refuses_a_second_engine_but_clears_a_stale_pid_file(engine: Engine, tmp
 
 
 def test_the_image_prune_runs_once_the_nested_engine_is_up():
-    supervisor = (SCRIPTS / 'runtime-supervisor.py').read_text()
+    supervisor = (
+        REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime/supervisor.py'
+    ).read_text()
     assert "Service('prune', after=('dockerd',), oneshot=True)" in supervisor
     config = configparser.RawConfigParser()
     config.read(REPO_ROOT / 'docker/deploy/supervisord.conf')
-    assert config['program:prune']['command'].endswith('/docker-image-prune.sh')
-    assert 'docker-image-prune.sh' not in (SCRIPTS / 'runtime-workspace.sh').read_text()
+    assert config['program:prune']['command'].endswith('/agentdev-runtime docker prune')
+    workspace = REPO_ROOT / 'py_packages/agentdev_runtime/agentdev_runtime/workspace.py'
+    assert 'prune' not in workspace.read_text()
 
 
 def desktop_image() -> str | None:
@@ -171,7 +175,7 @@ NESTED_SCRIPT = """
 set -euo pipefail
 useradd --uid 2000 --gid docker --no-create-home builder
 start() {
-  /opt/agentdev-runtime/runtime-docker.sh run >/tmp/dockerd.log 2>&1 &
+  PYTHONPATH=/opt/agentdev-runtime-src python3 -m agentdev_runtime docker run >/tmp/dockerd.log 2>&1 &
   for _ in $(seq 120); do docker info >/dev/null 2>&1 && return; sleep 0.5; done
   cat /tmp/dockerd.log; exit 1
 }
@@ -197,7 +201,7 @@ def test_nested_engine_builds_as_user_and_keeps_images_across_restarts(nested):
         '--rm',
         '--privileged',
         '-v',
-        f'{SCRIPTS}:/opt/agentdev-runtime:ro',
+        f'{PACKAGE}:/opt/agentdev-runtime-src:ro',
         '-v',
         f'{volume}:/var/lib/docker',
         '--entrypoint',
@@ -213,7 +217,7 @@ def test_nested_engine_builds_as_user_and_keeps_images_across_restarts(nested):
     assert lines[-1] == '/var/lib/docker'
 
     replacement = (
-        '/opt/agentdev-runtime/runtime-docker.sh run >/tmp/d.log 2>&1 & '
+        'PYTHONPATH=/opt/agentdev-runtime-src python3 -m agentdev_runtime docker run >/tmp/d.log 2>&1 & '
         'for _ in $(seq 120); do docker info >/dev/null 2>&1 && break; sleep 0.5; done; '
         'docker image inspect agentdev-nested:probe >/dev/null && echo kept-after-replacement'
     )

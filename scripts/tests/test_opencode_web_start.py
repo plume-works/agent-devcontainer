@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil
 import stat
 import subprocess
+import sys
 import time
 import uuid
 
@@ -10,7 +11,7 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/opencode-web-start.sh'
+CODER_START = [sys.executable, '-m', 'agentdev_runtime', 'opencode', 'coder-start']
 SERVE = 'opencode serve --port 4096 --hostname'
 EXPOSED_COMMAND = f'exec env -u DISPLAY {SERVE} 0.0.0.0'
 PASSWORD_FILE = '.local/share/opencode/agentdev-server-password'
@@ -41,7 +42,7 @@ def run_with_fake_tmux(
     missing: str | None = None,
     proxy_uri: str | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], str]:
-    """Run the script beside a fake tmux that logs its arguments."""
+    """Run the Coder start beside a fake tmux that logs its arguments."""
     test_dir = make_test_dir()
     log = test_dir / 'tmux.log'
     fake_bin = test_dir / 'bin'
@@ -74,9 +75,7 @@ def run_with_fake_tmux(
     if password is not None:
         env['OPENCODE_SERVER_PASSWORD'] = password
     try:
-        result = subprocess.run(
-            [shutil.which('bash'), SCRIPT], env=env, text=True, capture_output=True
-        )
+        result = subprocess.run(CODER_START, env=env, text=True, capture_output=True)
         return result, log.read_text() if log.exists() else ''
     finally:
         shutil.rmtree(test_dir)
@@ -211,7 +210,7 @@ def run_with_real_tmux(test_dir: Path, password: str | None) -> str:
     if password is not None:
         env['OPENCODE_SERVER_PASSWORD'] = password
     try:
-        result = subprocess.run([SCRIPT], env=env, text=True, capture_output=True)
+        result = subprocess.run(CODER_START, env=env, text=True, capture_output=True)
         assert result.returncode == 0, result.stderr
         for _ in range(30):
             if result_file.exists() and result_file.read_text():

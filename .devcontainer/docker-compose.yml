@@ -95,7 +95,7 @@ services:
       # Both agents share only their credentials, one subdirectory each:
       # CLAUDE_SECURESTORAGE_CONFIG_DIR in devcontainer.json points Claude Code's
       # credential store at /root/.agents-auth/claude, and
-      # .devcontainer/scripts/link-codex-auth.sh symlinks Codex's auth.json to
+      # `agentdev-runtime state links` symlinks Codex's auth.json to
       # /root/.agents-auth/codex/auth.json. A rebuild never requires re-authenticating.
       # The rest of each agent's state records absolute workspace paths and is mounted
       # per instance instead; see the agentdev-claude and agentdev-codex mounts in

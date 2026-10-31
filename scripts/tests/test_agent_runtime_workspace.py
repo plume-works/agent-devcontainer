@@ -1,4 +1,4 @@
-"""Tests for runtime-workspace.sh: reuse, clone, project preparation, and catalog choice."""
+"""Tests for `agentdev-runtime workspace`: reuse, clone, project preparation, and catalog choice."""
 
 from __future__ import annotations
 
@@ -7,19 +7,34 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
-REAL_SCRIPTS = (
-    'runtime-workspace.sh',
-    'runtime-paths.sh',
-    'setup-git-safe-directory.sh',
-    'uv-sync.sh',
-    'setup-pre-commit.sh',
+# Runs `agentdev-runtime workspace` with the steps other modules own recorded instead of run.
+WORKSPACE = """
+import os, sys
+from agentdev_runtime import agent_state, catalog, git, workspace
+
+def record(text, code=0):
+    with open(os.environ['CALL_LOG'], 'a') as handle:
+        handle.write(text + '\\n')
+    return code
+
+agent_state.create = lambda settings: record('agentdev-runtime state create')
+agent_state.apply_agent_policy = lambda: record('agentdev-runtime state agent-policy')
+agent_state.install_cbm = lambda settings: record('agentdev-runtime state cbm')
+catalog.install = lambda settings, root, scope: record(
+    f'agentdev-runtime catalog install {root} --claude-scope {scope}'
 )
-STUBBED_SCRIPTS = ('setup-gh-credential-helper.sh', 'setup-agent-state.sh')
+git.credential_helper = lambda settings: record(
+    'agentdev-runtime git credential-helper', int(os.environ.get('STUB_EXIT_HELPER', '0'))
+)
+sys.exit(workspace.main(sys.argv[1:]))
+"""
+HOOKS = [sys.executable, '-m', 'agentdev_runtime', 'project', 'hooks']
+CATALOG = [sys.executable, '-m', 'agentdev_runtime', 'catalog']
 SECRET = 'hunter2-not-for-logs'
 GIT_ID = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid']
 
@@ -29,17 +44,12 @@ class Runtime:
 
     def __init__(self, root: Path) -> None:
         self.root = root
-        self.scripts = root / 'scripts'
         self.bin = root / 'bin'
         self.home = root / 'home'
         self.workspace = root / 'workspace'
         self.log = root / 'calls.log'
-        for directory in (self.scripts, self.bin, self.home, self.workspace):
+        for directory in (self.bin, self.home, self.workspace):
             directory.mkdir(parents=True)
-        for name in REAL_SCRIPTS:
-            shutil.copy2(SCRIPTS / name, self.scripts / name)
-        for name in STUBBED_SCRIPTS:
-            self.stub(self.scripts / name, name)
         for tool in ('uv', 'pre-commit'):
             self.stub(self.bin / tool, tool)
         (root / 'gitconfig').touch()
@@ -60,12 +70,13 @@ class Runtime:
             'DEV_WORKSPACE_FOLDER': str(self.workspace),
             'AGENTDEV_RUNTIME_MODE': 'deploy',
             'AGENTDEV_CATALOG_DIR': str(self.root / 'image-catalog'),
+            'CALL_LOG': str(self.log),
             **extra,
         }
 
     def run(self, *args: str, **extra: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [self.scripts / 'runtime-workspace.sh', *args],
+            [sys.executable, '-c', WORKSPACE, *args],
             env=self.env(**extra),
             capture_output=True,
             text=True,
@@ -114,7 +125,7 @@ def test_first_start_clones_after_configuring_github_credentials(runtime: Runtim
     assert result.returncode == 0, result.stderr
     assert (runtime.workspace / 'README.md').read_text() == 'hello\n'
     assert runtime.git('describe', '--tags') == 'v1'
-    assert runtime.calls() == ['setup-gh-credential-helper.sh ']
+    assert runtime.calls() == ['agentdev-runtime git credential-helper']
 
 
 def test_valid_checkout_wins_without_network_and_dirty_state_survives(runtime: Runtime):
@@ -289,7 +300,7 @@ def test_standalone_hook_registration_builds_no_environment_offline(runtime: Run
     cache = runtime.root / 'pre-commit-home'
     cache.mkdir()
     result = subprocess.run(
-        ['unshare', '-n', runtime.scripts / 'setup-pre-commit.sh'],
+        ['unshare', '-n', *HOOKS],
         env=runtime.env(
             PATH=f'{Path(shutil.which("pre-commit")).parent}:/usr/bin:/bin',
             PRE_COMMIT_HOME=str(cache),
@@ -312,7 +323,10 @@ def test_the_core_phase_prepares_agent_state_but_no_optional_work(runtime: Runti
         (runtime.workspace / name).write_text('')
     result = runtime.run('prepare')
     assert result.returncode == 0, result.stderr
-    assert runtime.calls() == ['setup-agent-state.sh create', 'setup-agent-state.sh agent-policy']
+    assert runtime.calls() == [
+        'agentdev-runtime state create',
+        'agentdev-runtime state agent-policy',
+    ]
 
 
 def test_the_config_step_registers_the_catalog_then_installs_cbm(runtime: Runtime):
@@ -320,8 +334,8 @@ def test_the_config_step_registers_the_catalog_then_installs_cbm(runtime: Runtim
     result = runtime.run('config')
     assert result.returncode == 0, result.stderr
     assert runtime.calls() == [
-        f'setup-agent-state.sh catalog {runtime.root / "image-catalog"} user',
-        'setup-agent-state.sh cbm',
+        f'agentdev-runtime catalog install {runtime.root / "image-catalog"} --claude-scope user',
+        'agentdev-runtime state cbm',
     ]
 
 
@@ -336,7 +350,9 @@ def test_checkout_catalog_wins_when_complete(runtime: Runtime):
     ship_catalog(runtime.workspace)
     (runtime.root / 'image-catalog').mkdir()
     assert runtime.run('catalog').returncode == 0
-    assert runtime.calls() == [f'setup-agent-state.sh catalog {runtime.workspace} user']
+    assert runtime.calls() == [
+        f'agentdev-runtime catalog install {runtime.workspace} --claude-scope user'
+    ]
 
 
 def test_image_catalog_is_used_otherwise(runtime: Runtime):
@@ -345,14 +361,14 @@ def test_image_catalog_is_used_otherwise(runtime: Runtime):
     (runtime.root / 'image-catalog').mkdir()
     assert runtime.run('catalog').returncode == 0
     assert runtime.calls() == [
-        f'setup-agent-state.sh catalog {runtime.root / "image-catalog"} user'
+        f'agentdev-runtime catalog install {runtime.root / "image-catalog"} --claude-scope user'
     ]
 
 
 def test_devcontainer_helpers_keep_their_defaults(runtime: Runtime):
     runtime.git('init', '-q')
     result = subprocess.run(
-        [runtime.scripts / 'setup-pre-commit.sh'],
+        HOOKS,
         capture_output=True,
         text=True,
         env=runtime.env(AGENTDEV_RUNTIME_MODE='', STUB_EXIT_PRE_COMMIT='3'),
@@ -362,7 +378,7 @@ def test_devcontainer_helpers_keep_their_defaults(runtime: Runtime):
 
 
 @pytest.mark.skipif(
-    not all(shutil.which(tool) for tool in ('claude', 'codex', 'jq')),
+    not all(shutil.which(tool) for tool in ('claude', 'codex')),
     reason='requires the Claude and Codex CLIs',
 )
 def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
@@ -383,7 +399,7 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
 
     def register(catalog: Path) -> None:
         result = subprocess.run(
-            [SCRIPTS / 'setup-agent-state.sh', 'catalog', str(catalog), 'user'],
+            [*CATALOG, 'install', str(catalog), '--claude-scope', 'user'],
             env=env,
             capture_output=True,
             text=True,
@@ -425,9 +441,7 @@ def test_switching_catalogs_replaces_managed_registrations_only(tmp_path: Path):
     assert (home / '.codex/agents/agentdev-iwe-implementer.toml').exists()
 
 
-@pytest.mark.skipif(
-    not all(shutil.which(tool) for tool in ('codex', 'jq')), reason='requires Codex'
-)
+@pytest.mark.skipif(not all(shutil.which(tool) for tool in ('codex',)), reason='requires Codex')
 def test_rerunning_codex_registration_leaves_config_byte_identical(tmp_path: Path):
     catalog = tmp_path / 'catalog'
     shutil.copytree(REPO_ROOT / '.agents/plugins', catalog / '.agents/plugins', symlinks=True)
@@ -437,7 +451,13 @@ def test_rerunning_codex_registration_leaves_config_byte_identical(tmp_path: Pat
 
     def register() -> str:
         result = subprocess.run(
-            [SCRIPTS / 'reinstall-agentdev-codex.sh', str(catalog)],
+            [
+                sys.executable,
+                '-c',
+                'import sys; from agentdev_runtime import catalog, settings; '
+                'catalog.codex(settings.Settings(), sys.argv[1])',
+                str(catalog),
+            ],
             env=env,
             capture_output=True,
             text=True,

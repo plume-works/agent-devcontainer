@@ -1,25 +1,23 @@
-"""Tests for the deploy and devcontainer service profiles of runtime-supervisor.py."""
+"""Tests for the deploy and devcontainer service profiles of `agentdev-runtime supervisor`."""
 
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
 import configparser
-import importlib.util
 from pathlib import Path
 import shutil
 import signal
-import sys
 import time
 from types import ModuleType
 from uuid import uuid4
 
+from agentdev_runtime import supervisor as supervisor_module
 import pytest
 from test_agent_runtime_supervision import (
     CONFIG,
     REPO_ROOT,
     started,
     Supervision,
-    SUPERVISOR,
     TMP_ROOT,
 )
 
@@ -29,18 +27,9 @@ SHARED = {'dbus', 'keyring', 'dockerd', 'cbm', 'xpra', 'opencode', 'remote-contr
 DEVCONTAINER_REQUIRED = ['dbus', 'keyring', 'dockerd', 'cbm', 'xpra']
 
 
-def load_supervisor() -> ModuleType:
-    spec = importlib.util.spec_from_file_location('runtime_supervisor', SUPERVISOR)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
 @pytest.fixture(scope='module')
 def supervisor() -> ModuleType:
-    return load_supervisor()
+    return supervisor_module
 
 
 def settings(supervisor: ModuleType, monkeypatch: pytest.MonkeyPatch, **env: str):
@@ -167,7 +156,9 @@ def test_the_profiles_share_their_program_definitions(supervisor):
         assert dict(devcontainer[f'program:{name}']) == dict(deploy[f'program:{name}']), name
     for section in ('supervisord', 'unix_http_server', 'eventlistener:controller'):
         assert dict(devcontainer[section]) == dict(deploy[section]), section
-    assert devcontainer['program:created']['command'].endswith('devcontainer-created.sh wait')
+    assert devcontainer['program:created']['command'].endswith(
+        'agentdev-runtime lifecycle created --wait'
+    )
 
 
 @pytest.fixture

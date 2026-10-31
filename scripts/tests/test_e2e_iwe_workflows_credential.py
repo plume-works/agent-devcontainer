@@ -129,7 +129,7 @@ def test_source_reads_port_and_password_like_the_web_ui(tmp_path):
 
 def test_source_without_a_password_names_the_start_script(tmp_path):
     """No password anywhere means no source, and the reason says how to start one."""
-    with pytest.raises(cred.SourceUnavailable, match='opencode-web-start.sh'):
+    with pytest.raises(cred.SourceUnavailable, match='agentdev-runtime opencode coder-start'):
         cred.source_from_environment({}, tmp_path)
 
 
@@ -149,7 +149,7 @@ def test_anything_else_is_unavailable(source, case):
     else:
         source.httpd.shutdown()
         source.httpd.server_close()
-    with pytest.raises(cred.SourceUnavailable, match='opencode-web-start.sh'):
+    with pytest.raises(cred.SourceUnavailable, match='agentdev-runtime opencode coder-start'):
         cred.require_v2(server)
 
 

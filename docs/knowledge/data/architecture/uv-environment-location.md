@@ -2,11 +2,11 @@
 type: architecture
 description: Why the uv environment lives out of tree on the /uv volume at a fixed path, rather than as an in-tree .venv or a symlink to one.
 generated:
-  by: claude-code/opus-5
-  at: 2026-08-15T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T04:32:14Z
 sources:
 - resource: .devcontainer/devcontainer.json
-- resource: .devcontainer/scripts/uv-sync.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/project.py
 - resource: .devcontainer/docker-compose.yml
 ---
 
@@ -52,13 +52,13 @@ convention most Python tooling expects. Rejected: it breaks cache-to-environment
 hardlinking, as above.
 
 **Keep the `.venv` symlink to the out-of-tree environment.** This was the prior
-state — the environment lived on `/uv`, and `uv-sync.sh` recreated `.venv` as a
-symlink to it on every postCreate and postAttach, as a shim for tooling
-expecting the conventional path. Rejected: the repository's stated convention is
-to run project commands through `uv run`, and the symlink was the one affordance
-contradicting it. Once every consumer routes through `uv run` or an absolute
-path, the shim has no remaining benefit and two costs — a second name for one
-environment, and a stale link whenever the target path changes.
+state — the environment lived on `/uv`, and the project sync step recreated
+`.venv` as a symlink to it on every postCreate and postAttach, as a shim for
+tooling expecting the conventional path. Rejected: the repository's stated
+convention is to run project commands through `uv run`, and the symlink was the
+one affordance contradicting it. Once every consumer routes through `uv run` or
+an absolute path, the shim has no remaining benefit and two costs — a second
+name for one environment, and a stale link whenever the target path changes.
 
 ## Consequences
 
@@ -76,11 +76,11 @@ environment, and a stale link whenever the target path changes.
   lint prunes keep covering it. CI no longer *activates* that environment — the
   setup action provisions it and callers use `uv run` — so the invocation
   contract is the same in both places even though the location is not.
-- `uv-sync.sh` carries a narrow migration cleanup that removes `.venv` only when
-  it is a symlink **and** its target is under `/uv/venvs/` — the shape earlier
-  revisions created with `ln -s "$UV_PROJECT_ENVIRONMENT" .venv`. A real
-  directory, or a link a developer deliberately pointed somewhere else, is
-  reported and left in place. The prefix is matched rather than the current
-  `UV_PROJECT_ENVIRONMENT` because stale links predate the path change and still
-  carry the old per-workspace basename. It is removable once every active
-  worktree has re-synced.
+- `agentdev-runtime project sync` carries a narrow migration cleanup that
+  removes `.venv` only when it is a symlink **and** its target is under
+  `/uv/venvs/` — the shape earlier revisions created with
+  `ln -s "$UV_PROJECT_ENVIRONMENT" .venv`. A real directory, or a link a
+  developer deliberately pointed somewhere else, is reported and left in place.
+  The prefix is matched rather than the current `UV_PROJECT_ENVIRONMENT` because
+  stale links predate the path change and still carry the old per-workspace
+  basename. It is removable once every active worktree has re-synced.

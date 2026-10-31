@@ -6,14 +6,15 @@ source:
 - ansible/roles/agentic_tools
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
-source_digest: sha256:ac42a6ace816082c13c096c6e81425795386b32189b0d40d4f3cc84835c2522a
+- py_packages/agentdev_runtime
+source_digest: sha256:11deaa45e345daca42042fa4d79b4516ac2fcb07e4fb7aae3f6073c2fe11fb87
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
-stale_after: 2027-01-27
+  at: 2026-10-31T07:49:53Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:16:01Z
+  at: 2026-10-31T07:49:53Z
 sources:
 - id: code
   resource: docker
@@ -42,8 +43,8 @@ acceptance.
 - `ghcr.io/plume-works/agentdev-deploy` — the standalone runtime, built on the
   same run's `agentdev-base` digest; pinned in `opencode-compose-pins.yml`
 - Both runtime images carry `org.opencontainers.image.base.name` with that
-  digest — `docker/deploy/agentdev-deploy.Dockerfile:53`,
-  `docker/devcontainer/agentdev-devcontainer.Dockerfile:53`
+  digest — `docker/deploy/agentdev-deploy.Dockerfile:54`,
+  `docker/devcontainer/agentdev-devcontainer.Dockerfile:50`
 - Labels `org.opencontainers.image.version.agentdev`,
   `org.opencontainers.image.version.playwright`, and
   `org.opencontainers.image.version.validate-agent-files`, inherited from
@@ -51,24 +52,25 @@ acceptance.
 
 ## Environment the image reads
 
-| Variable                                            | Read by                                                                    | Meaning                                                                  |
-| --------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `DEV_WORKSPACE_FOLDER`                              | firewall allowlist lookup, lifecycle scripts                               | the mounted workspace; falls back to the baked `WORKSPACE_FOLDER`        |
-| `ENABLE_FIREWALL`                                   | `.devcontainer/scripts/firewall.sh`                                        | `true` applies `init-firewall.sh`; anything else leaves it inert         |
-| `FIREWALL_ALLOWLIST`                                | `init-firewall.sh:14`                                                      | overrides the allowlist path                                             |
-| `XPRA_HOST`, `XPRA_VIDEO_ENCODERS`, `XPRA_LOG_FILE` | `/start-xpra.sh:6-14`                                                      | bind host, encoders, log path                                            |
-| `XPRA_PASSWORD`                                     | `/start-xpra.sh:285-287`                                                   | nonempty: every TCP/WebSocket session must authenticate with it          |
-| `AGENTDEV_CATALOG_DIR`                              | set by `agentdev-base.Dockerfile:75`, read by `devcontainer-created.sh:51` | where the catalog is staged (`/opt/agentdev`)                            |
-| `PLAYWRIGHT_BROWSERS_PATH`                          | set by the image                                                           | shared, runtime-writable browser binaries at `/opt/playwright`           |
-| `CBM_CACHE_DIR`                                     | the `codebase-memory-mcp-*.sh` scripts                                     | required; cache and logs location                                        |
-| `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`    | `setup-pre-commit.sh` and the runtime profiles                             | opt out of hook install and desktop start                                |
-| `GH_TOKEN` / `GITHUB_TOKEN`, `VERBOSE_GH`           | the `gh` wrapper                                                           | an explicit token wins; otherwise derived from the git credential helper |
+| Variable                                            | Read by                                                                                                       | Meaning                                                                                                                                |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `DEV_WORKSPACE_FOLDER`                              | the firewall allowlist lookup, the lifecycle commands                                                         | the mounted workspace; falls back to the baked `WORKSPACE_FOLDER`                                                                      |
+| `ENABLE_FIREWALL`                                   | the bootstrap's `agentdev-runtime firewall apply`                                                             | `true` applies the egress firewall; anything else leaves it inert                                                                      |
+| `FIREWALL_ALLOWLIST`                                | `py_packages/agentdev_runtime/agentdev_runtime/firewall.py:97`                                                | overrides the allowlist path; unset, a Dev Container reads its checkout copy when present, else `/etc/agentdev/firewall-allowlist.txt` |
+| `XPRA_HOST`, `XPRA_VIDEO_ENCODERS`, `XPRA_LOG_FILE` | `agentdev-runtime xpra`                                                                                       | bind host, encoders, log path                                                                                                          |
+| `XPRA_PASSWORD`                                     | `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:190`                                                   | nonempty: every TCP/WebSocket session must authenticate with it                                                                        |
+| `AGENTDEV_CATALOG_DIR`                              | set by `agentdev-base.Dockerfile:75`, read by `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:91` | where the catalog is staged (`/opt/agentdev`)                                                                                          |
+| `PLAYWRIGHT_BROWSERS_PATH`                          | set by the image                                                                                              | shared, runtime-writable browser binaries at `/opt/playwright`                                                                         |
+| `CBM_CACHE_DIR`                                     | `agentdev-runtime cbm`                                                                                        | required; cache and logs location                                                                                                      |
+| `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`    | `agentdev-runtime project hooks` and the runtime profiles                                                     | opt out of hook install and desktop start                                                                                              |
+| `GH_TOKEN` / `GITHUB_TOKEN`, `VERBOSE_GH`           | the `gh` wrapper                                                                                              | an explicit token wins; otherwise derived from the git credential helper                                                               |
 
 ## Files and tools
 
-- `/entrypoint.sh` (`exec "$@"`), `/start-xpra.sh`,
-  `/usr/local/bin/init-firewall.sh` with a NOPASSWD sudoers entry, the `gh`
-  wrapper ahead of the real `gh`
+- `/entrypoint.sh` (`exec "$@"`) on `agentdev-base`; `agentdev-runtime` on the
+  two runtime images, from the `agentdev_runtime` uv tool in `/opt/uv-tools`;
+  `iptables` and `ipset` for the firewall; the `gh` wrapper ahead of the real
+  `gh`
 - `/opt/agentdev` — the staged catalog, root-owned and read-only, with the
   plugin already installed for Claude Code and Codex at build time, its agents
   in `~/.codex/agents/agentdev-<stem>.toml`, and its OpenCode bridge listed in
@@ -79,30 +81,32 @@ acceptance.
   Chromium, `pre-commit`, `xpra`, `gnome-keyring-daemon`, Docker CE with buildx
   and compose
 - `EXPOSE 14500` — the Xpra HTML5 container port, fixed by default and
-  overridable with `/start-xpra.sh --port`; the devcontainer forwards `14500`
+  overridable with `agentdev-runtime xpra --port`; the devcontainer forwards
+  `14500`
 
 ## agentdev-devcontainer
 
-The image runs itself: `runtime-supervisor.py run` is PID 1 in the
+The image runs itself: `agentdev-runtime supervisor run` is PID 1 in the
 `devcontainer` profile and supervises D-Bus, keyring, Docker, CBM, and Xpra as
-core services, with a `runtime-health.sh ready` healthcheck and a 5-minute start
-period — `docker/devcontainer/agentdev-devcontainer.Dockerfile:57-61`. Its
+core services, with an `agentdev-runtime health ready` healthcheck and a
+5-minute start period —
+`docker/devcontainer/agentdev-devcontainer.Dockerfile:54-57`. Its
 `devcontainer.metadata` label supplies, to every descriptor that selects it,
 `privileged`, `overrideCommand: false`, a per-container volume at
 `/var/lib/docker`, `DEV_WORKSPACE_FOLDER`, and the lifecycle commands —
-`/opt/agentdev-runtime/devcontainer-created.sh` (`postCreateCommand`),
-`devcontainer-ready.sh` (`postStartCommand`, and `waitFor`), and
-`devcontainer-attached.sh` (`postAttachCommand`) — `:41-50`. A descriptor's own
-lifecycle commands run in addition to those.
+`agentdev-runtime lifecycle created` (`postCreateCommand`), `lifecycle ready`
+(`postStartCommand`, and `waitFor`), and `lifecycle attached`
+(`postAttachCommand`) — `:38-47`. A descriptor's own lifecycle commands run in
+addition to those.
 
 - A derived image extends each phase with executable files in
   `/etc/agentdev/hooks/{created,started,attached}.d/`, run in name order after
   the managed phase; a failing hook names itself and its phase —
-  `.devcontainer/scripts/run-agentdev-hooks.sh:9`.
-- Changing, adding, or removing a file below `/opt/agentdev-runtime` fails
-  startup — `.devcontainer/scripts/runtime-bootstrap.sh:176`.
+  `py_packages/agentdev_runtime/agentdev_runtime/hooks.py:23`.
+- Changing, adding, or removing an installed `agentdev_runtime` file fails
+  startup — `py_packages/agentdev_runtime/agentdev_runtime/integrity.py:47`.
 - `AGENTDEV_USER`, `AGENTDEV_HOME`, `CBM_CACHE_DIR`, and the bus and display
-  defaults are overridable `ENV` — `:29-37`. OpenCode Web and Claude Remote
+  defaults are overridable `ENV` — `:26-34`. OpenCode Web and Claude Remote
   Control are opt-in clients, never readiness gates.
 - A mounted checkout that carries the complete agentdev catalog is registered
   over the staged one on every attach; any other workspace keeps the staged
@@ -111,9 +115,9 @@ lifecycle commands run in addition to those.
 ## agentdev-deploy
 
 The image runs itself:
-`ENTRYPOINT ["/opt/agentdev-runtime/runtime-supervisor.py", "run"]`,
-`EXPOSE 4096 14500`, and a `HEALTHCHECK` of `runtime-health.sh ready` with a
-10-minute start period — `docker/deploy/agentdev-deploy.Dockerfile:57-65`. It
+`ENTRYPOINT ["/usr/local/bin/agentdev-runtime", "supervisor", "run"]`,
+`EXPOSE 4096 14500`, and a `HEALTHCHECK` of `agentdev-runtime health ready` with
+a 10-minute start period — `docker/deploy/agentdev-deploy.Dockerfile:58-65`. It
 must run privileged, with volumes at `/home/agent`, `/uv`, `/var/lib/docker`,
 `/workspaces/project` (or a bind checkout), and `/var/lib/agentdev/auth`; the
 supported deployment is the root `compose.opencode.yml`.
@@ -124,7 +128,7 @@ supported deployment is the root `compose.opencode.yml`.
 | `AGENTDEV_UID`, `AGENTDEV_GID`                                                          | numeric runtime identity, default `1000`; must match within one auth-volume cohort                                                                                                |
 | `AGENTDEV_REPOSITORY_URL`, `AGENTDEV_REPOSITORY_REF`                                    | clone an empty workspace once, optionally at a branch or tag                                                                                                                      |
 | `GH_TOKEN`, `GITHUB_TOKEN`                                                              | HTTPS Git through `gh`, configured before a clone; never written to disk                                                                                                          |
-| `XPRA_PASSWORD`                                                                         | required, nonempty, unless `AGENTDEV_SKIP_XPRA` is true; Xpra's session password, separate from OpenCode's                                                                        |
+| `XPRA_PASSWORD`                                                                         | `py_packages/agentdev_runtime/agentdev_runtime/xpra.py:190`                                                                                                                       |
 | `AGENTDEV_SKIP_XPRA`, `AGENTDEV_STRICT_STARTUP`, `ENABLE_FIREWALL`                      | booleans: `1`/`true`/`yes`/`on` or `0`/`false`/`no`/`off`/empty, any case; strict makes every optional failure latch; the bootstrap sees the firewall switch as `true` or `false` |
 | `AGENTDEV_TRUSTED_PROXY_CIDRS`, `FIREWALL_ALLOWLIST`                                    | opt-in egress firewall; proxy sources allowed to 4096/14500; allowlist override of `/etc/agentdev/firewall-allowlist.txt`                                                         |
 | `AGENTDEV_RECOVERY_ATTEMPTS`, `AGENTDEV_PROBE_FAILURES`, `AGENTDEV_STOP_TIMEOUT`        | positive integers: 3 attempts, 2 failed probes, 30 s stop                                                                                                                         |
@@ -133,34 +137,38 @@ supported deployment is the root `compose.opencode.yml`.
 | `AGENTDEV_CLAUDE_RC_MODE`, `AGENTDEV_CLAUDE_RC_SPAWN`                                   | `session` or `server` adds the `remote-control` component, empty leaves it out; in server mode the spawn mode is `worktree` (or empty) or `same-dir`                              |
 
 Any other spelling or a non-positive value latches a configuration failure
-naming the variable — `.devcontainer/scripts/runtime-supervisor.py:79`, `:159`.
-`docker exec` sessions see the same `DISPLAY`, `DOCKER_HOST`, `XDG_RUNTIME_DIR`,
-and `DBUS_SESSION_BUS_ADDRESS` as OpenCode's tools.
+naming the variable —
+`py_packages/agentdev_runtime/agentdev_runtime/settings.py:308`,
+`py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:75`. `docker exec`
+sessions see the same `DISPLAY`, `DOCKER_HOST`, `XDG_RUNTIME_DIR`, and
+`DBUS_SESSION_BUS_ADDRESS` as OpenCode's tools.
 
 Operator surface, all through `docker exec`:
 
 - `/run/agentdev/state.json` — `state` (`pending`, `ready`, `degraded`,
   `failed`), `latched`, each component's `status` and `reason`, and a
   `heartbeat` refreshed every interval, plus the `profile` and the core `probes`
-  readiness repeats — `.devcontainer/scripts/runtime-supervisor.py:441`.
-- `runtime-health.sh ready` passes only with a heartbeat under three intervals
-  old, state `ready`, and every probe the state lists passing — `dbus`,
-  `keyring`, and `opencode` for deploy; `runtime-health.sh status` prints the
-  state, each failed or blocked component with its retry command, what
-  `remote-control` is doing when it runs, and the last failure —
-  `.devcontainer/scripts/runtime-health.sh:49`, `:62`.
+  readiness repeats —
+  `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:362`.
+- `agentdev-runtime health ready` passes only with a heartbeat under three
+  intervals old, state `ready`, and every probe the state lists passing —
+  `dbus`, `keyring`, and `opencode` for deploy; `agentdev-runtime health status`
+  prints the state, each failed or blocked component with its retry command,
+  what `remote-control` is doing when it runs, and the last failure —
+  `py_packages/agentdev_runtime/agentdev_runtime/health.py:113`, `:128`.
 - `~/.local/state/agentdev/last-failure.json` on the home volume — startup ID,
   component, reason, command, exit status, at most 200 output lines from the
   attempt that failed, UTC time; only a later failure replaces it —
-  `.devcontainer/scripts/runtime-supervisor.py:480`.
-- `runtime-supervisor.py retry [component]` — resumes a latched runtime, or
-  reruns one failed component, restarts the serving clients that read it, and
+  `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:396`.
+- `agentdev-runtime supervisor retry [component]` — resumes a latched runtime,
+  or reruns one failed component, restarts the serving clients that read it, and
   exits `0` when it succeeded —
-  `.devcontainer/scripts/runtime-supervisor.py:1074`.
+  `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:999`.
 
 A failed bootstrap, configuration check, core phase, or core service latches the
 runtime with PID 1 running; the container exits nonzero only when the controller
-or supervisord fails — `.devcontainer/scripts/runtime-supervisor.py:890`. The
+or supervisord fails —
+`py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:822`, `:894`. The
 Dev Container profile instead exits on a latch, so the editor sees the failure.
 
 ## Guarantees

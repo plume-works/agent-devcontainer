@@ -322,7 +322,7 @@ jobs:
           noCache: true
           runCmd: |
             # The image's supervised runtime must be ready, nested Docker included.
-            /opt/agentdev-runtime/runtime-health.sh ready
+            agentdev-runtime health ready
             docker run --rm hello-world | head -n 5
 
             # The provisioned toolchain must be present and on PATH
@@ -337,7 +337,7 @@ jobs:
             actionlint --version | head -n 1
             if command -v go; then echo 'unexpected Go toolchain on PATH' >&2; exit 1; fi
             command -v xpra
-            command -v init-firewall.sh
+            command -v iptables ipset
             command -v gnome-keyring-daemon
 
             # The image must carry a launchable browser; this command cannot
@@ -396,7 +396,7 @@ jobs:
           AGENTDEV_RUNTIME_TEST_IMAGE: ${{ needs.merge-dev-image.outputs.deploy_image_pinned }}
         run: |
           sudo env "PATH=$PATH" "AGENTDEV_RUNTIME_TEST_IMAGE=$AGENTDEV_RUNTIME_TEST_IMAGE" \
-            .devcontainer/scripts/test-agent-runtime.sh
+            timeout 1500 uv run pytest scripts/tests/test_agent_runtime_acceptance.py -rs
 
       - name: Log debug stats
         if: ${{ always() }}

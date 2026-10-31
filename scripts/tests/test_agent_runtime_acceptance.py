@@ -1,8 +1,8 @@
 """
 Container acceptance tests for agentdev-deploy, run against AGENTDEV_RUNTIME_TEST_IMAGE.
 
-Every container, volume, and network carries the ``agentdev.test=acceptance`` label so
-``.devcontainer/scripts/test-agent-runtime.sh`` can clean up after an interrupted run. No test
+Every container, volume, and network carries ``ACCEPTANCE_LABEL``, so the session
+cleans up after an interrupted run. No test
 spends provider or model usage.
 """
 
@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import base64
 from collections.abc import Callable, Iterator
+import configparser
 from dataclasses import dataclass, field
 import json
 import os
@@ -24,6 +25,7 @@ import urllib.error
 import urllib.request
 from uuid import uuid4
 
+from acceptance_label import ACCEPTANCE_LABEL
 import pytest
 from scratch import TMP_ROOT
 
@@ -31,7 +33,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TESTS = Path(__file__).resolve().parent
 IMAGE = os.environ.get('AGENTDEV_RUNTIME_TEST_IMAGE', '')
 PREVIOUS_IMAGE = os.environ.get('AGENTDEV_RUNTIME_PREVIOUS_IMAGE', '')
-LABEL = 'agentdev.test=acceptance'
+LABEL = ACCEPTANCE_LABEL
 PASSWORD = 'acceptance-password'
 XPRA_PASSWORD = 'acceptance-xpra-password'
 AUTH_HEADER = 'Basic ' + base64.b64encode(f'opencode:{PASSWORD}'.encode()).decode()
@@ -144,7 +146,7 @@ class Runtime:
 
     def retry(self, *component: str) -> subprocess.CompletedProcess[str]:
         return docker(
-            'exec', self.name, f'{RUNTIME}/runtime-supervisor.py', 'retry', *component, check=False
+            'exec', self.name, 'agentdev-runtime', 'supervisor', 'retry', *component, check=False
         )
 
     def wait_unready_then_ready(self, timeout: float = 300) -> None:
@@ -443,7 +445,7 @@ def test_enabled_xpra_needs_its_password_to_start(make_runtime, scratch: Path):
     assert runtime.runtime()['latched'] == 'configuration'
     logs = runtime.logs()
     assert 'XPRA_PASSWORD must be set' in logs and 'AGENTDEV_SKIP_XPRA=1' in logs
-    assert 'runtime-bootstrap:' not in logs
+    assert 'agentdev-runtime bootstrap:' not in logs
     skipped = make_runtime(
         workspace=bind(make_checkout(scratch / 'b')), XPRA_PASSWORD=None, AGENTDEV_SKIP_XPRA='1'
     )
@@ -581,10 +583,10 @@ def test_an_optional_failure_reports_unhealthy_while_opencode_serves(make_runtim
         assert time.monotonic() < deadline, runtime.inspect('{{json .State.Health}}')
         time.sleep(1)
     assert opencode_answers(runtime)
-    shown = runtime.sh(f'{RUNTIME}/runtime-health.sh status', user='root', check=False)
+    shown = runtime.sh('agentdev-runtime health status', user='root', check=False)
     assert shown.returncode == 1
     assert 'runtime state: degraded' in shown.stdout
-    assert 'runtime-supervisor.py retry project' in shown.stdout
+    assert 'agentdev-runtime supervisor retry project' in shown.stdout
     assert 'last failure: project, exit status' in shown.stdout
 
 
@@ -616,12 +618,28 @@ def test_preparation_failure_keeps_opencode_unavailable(make_runtime):
 
 
 FORCED_PREPARE = """#!/usr/bin/env bash
-if [[ ${1:-} == prepare && -f /srv/force/exit ]]; then
+if [[ -f /srv/force/exit ]]; then
   echo "forced preparation failure"
   exit "$(cat /srv/force/exit)"
 fi
-exec /opt/agentdev-runtime/runtime-workspace-real.sh "$@"
+exec agentdev-runtime workspace prepare
 """
+
+
+def forced_prepare_config(force: Path) -> Path:
+    """Write the shipped deploy config with its prepare phase behind ``FORCED_PREPARE``."""
+    stub = force / 'prepare'
+    stub.write_text(FORCED_PREPARE)
+    stub.chmod(0o755)
+    parser = configparser.RawConfigParser()
+    parser.read(REPO_ROOT / 'docker/deploy/supervisord.conf')
+    parser['program:prepare']['command'] = (
+        '/usr/local/bin/agentdev-runtime supervisor exec prepare /srv/force/prepare'
+    )
+    config = force / 'supervisord.conf'
+    with config.open('w') as handle:
+        parser.write(handle)
+    return config
 
 
 def opencode_answers(runtime: Runtime) -> bool:
@@ -638,10 +656,7 @@ def test_a_latched_start_stays_put_under_the_restart_policy(
     force = scratch / 'force'
     force.mkdir()
     (force / 'exit').write_text(str(status))
-    stub = scratch / 'runtime-workspace.sh'
-    stub.write_text(FORCED_PREPARE)
-    stub.chmod(0o755)
-    real = REPO_ROOT / '.devcontainer/scripts/runtime-workspace.sh'
+    forced_prepare_config(force)
     runtime = make_runtime(
         workspace=bind(make_checkout(scratch)),
         options=[
@@ -649,10 +664,8 @@ def test_a_latched_start_stays_put_under_the_restart_policy(
             'unless-stopped',
             '-v',
             f'{force}:/srv/force:ro',
-            '-v',
-            f'{stub}:{RUNTIME}/runtime-workspace.sh:ro',
-            '-v',
-            f'{real}:{RUNTIME}/runtime-workspace-real.sh:ro',
+            '-e',
+            'AGENTDEV_SUPERVISOR_CONFIG=/srv/force/supervisord.conf',
         ],
     )
     runtime.run()
@@ -673,7 +686,7 @@ def test_a_latched_start_stays_put_under_the_restart_policy(
     assert runtime.wait() == 'ready', runtime.logs()[-4000:]
     assert opencode_answers(runtime)
 
-    docker('exec', runtime.name, 'pkill', '-KILL', '-f', 'runtime-supervisor.py control')
+    docker('exec', runtime.name, 'pkill', '-KILL', '-f', 'agentdev-runtime supervisor control')
     deadline = time.monotonic() + 120
     while runtime.inspect('{{.RestartCount}}') == '0' and time.monotonic() < deadline:
         time.sleep(1)
@@ -872,7 +885,7 @@ def test_remote_control_is_off_without_a_mode(make_runtime, scratch: Path):
     time.sleep(5)
     assert runtime.sh(CLAUDE_REMOTE, check=False).returncode != 0
     assert 'remote-control' not in runtime.runtime()['components']
-    status = docker('exec', runtime.name, f'{RUNTIME}/runtime-health.sh', 'status')
+    status = docker('exec', runtime.name, 'agentdev-runtime', 'health', 'status')
     assert 'remote-control' not in status.stdout
 
 
@@ -887,7 +900,7 @@ def test_remote_control_waits_for_a_login_then_starts_and_comes_back(make_runtim
 
     def status() -> str:
         return docker(
-            'exec', runtime.name, f'{RUNTIME}/runtime-health.sh', 'status', check=False
+            'exec', runtime.name, 'agentdev-runtime', 'health', 'status', check=False
         ).stdout
 
     wait_until(lambda: 'remote-control: waiting for a claude.ai login' in status())

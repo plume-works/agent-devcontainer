@@ -40,3 +40,5 @@ exposure](someday/devcontainer-forwarded-agent-exposure.md)
 review](someday/revision-evaluator-calibration.md)
 
 [Nested dispatch from catalog agents](someday/nested-catalog-agent-dispatch.md)
+
+[Remove codebase-memory-mcp](someday/remove-codebase-memory-mcp.md)
