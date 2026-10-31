@@ -21,10 +21,10 @@ The default setup SHALL retain all runtime capabilities provided by the
 template's devcontainer: the digest-pinned `agentdev-devcontainer` image
 with its supervised nested Docker, and Codespaces SSH; worktree-safe workspace mounts;
 Xpra/VirtualGL desktop access; the Docker Desktop MCP gateway and secrets
-socket integration; persistent state volumes (one shared volume holding both
-agents' credentials, the rest of each agent's state scoped per devcontainer
+socket integration; persistent state volumes (one shared volume holding Claude
+Code's credentials, the rest of each agent's state scoped per devcontainer
 instance); the `agentdev` catalog staged in the image and installed after
-volume mounts; Codex devcontainer policy configuration; keyring and GitHub
+volume mounts; keyring and GitHub
 authentication support; uv environment caching and pre-commit setup; and an
 opt-in egress firewall with a project-owned allowlist.
 
@@ -61,11 +61,11 @@ authentication/configuration should remain shared with other local projects.
 
 The supplied configuration uses the literal Docker volume
 `agentdev-agents-auth`, mounted at `/root/.agents-auth` with one subdirectory
-per agent. Keeping it shares Claude Code's and Codex's credentials only —
+per agent. Keeping it shares Claude Code's credentials only —
 nothing else — across this project, its worktrees, and other projects using the
 same volume name. That is the default behavior supplied here. The rest of each
-agent's state — plugins, marketplaces, sessions, `~/.claude.json`, `~/.codex`'s
-logs and sqlite state — lives in the `agentdev-claude` and `agentdev-codex`
+agent's state — plugins, marketplaces, sessions, `~/.claude.json`, OpenCode's
+provider logins and sessions — lives in the `agentdev-claude` and `agentdev-opencode`
 mounts, which Compose scopes per devcontainer instance because that state
 records absolute workspace paths that differ between worktrees.
 
@@ -96,13 +96,13 @@ empty directory rather than leaving it behind. The same applies to the
 is gone.
 
 The catalog is not lost: the published image stages it at `/opt/agentdev`, and
-the retained post-create scripts install it through the Claude and Codex plugin
-CLIs. The validator source is also unnecessary — the image installs
+the retained post-create scripts install it through the Claude plugin CLI and
+OpenCode's bridge plugin. The validator source is also unnecessary — the image installs
 `validate_agent_files` at `/usr/local/bin/validate_agent_files`, so the command
 works in the devcontainer with no `uv run` prefix. Confirm it with
 `command -v validate_agent_files`.
 
-Do not delete `.claude/` or `.codex/`; those are project-facing configuration.
+Do not delete `.claude/`; it is project-facing configuration.
 Do not delete the root `AGENTS.md` or `CLAUDE.md`; publisher-only instructions
 were split into the source trees removed above.
 
@@ -240,7 +240,7 @@ host as `initializeCommand` and supplies the environment consumed by Compose.
 
 ### 7. Review agent configuration
 
-Retain `.claude/` and `.codex/`, then review them as project policy:
+Retain `.claude/`, then review it as project policy:
 
 - `.claude/settings.json` is strict JSON. Review allowed paths, Bash commands,
   web domains, MCP tools, and enabled official plugins. Remove the
@@ -251,8 +251,6 @@ Retain `.claude/` and `.codex/`, then review them as project policy:
   permissions.
 - Rewrite `.claude/README.md` so it no longer links to the deleted catalog
   publisher tree.
-- Rewrite `.codex/README.md` to describe the consumer project without links to
-  deleted publisher manifests.
 - Root `CLAUDE.md` continues to include root `AGENTS.md`.
 
 The project does not need to declare `agentdev` in `.claude/settings.json`
@@ -308,8 +306,8 @@ owns. The template's `.github/workflows/validate-agent-files.yml` builds a
 working-tree_ validator — the same publisher-only package step 2 deletes.
 Copying that workflow as-is fails once `py_packages/` is gone. Remove: the
 `py_packages/validate_agent_files/tests` step; the
-`.agents/plugins/agentdev/tests` step; the `--require-marketplace claude
-codex` argument, which asserts publisher manifests a consumer does not have;
+`.agents/plugins/agentdev/tests` step; the `--require-marketplace claude`
+argument, which asserts publisher manifests a consumer does not have;
 and path filters for deleted catalog/package source in the `paths-filter`
 job's `extra-filter`.
 
@@ -535,8 +533,8 @@ Run these checks from the new repository:
 5. Create or rebuild the devcontainer and confirm the post-create and
    post-start commands finish successfully.
 
-6. Confirm Claude and Codex list `agentdev@agent-devcontainer` after starting
-   new sessions.
+6. Confirm Claude Code lists `agentdev@agent-devcontainer` and OpenCode lists the
+   catalog's skills after starting new sessions.
 
 7. When agent files are present, run the image-provided validator against
    their actual locations.
@@ -599,7 +597,6 @@ Copy or merge:
 AGENTS.md
 CLAUDE.md
 .claude/
-.codex/
 ```
 
 When the existing repository already has agent instructions or settings,

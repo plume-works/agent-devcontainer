@@ -36,13 +36,6 @@ intended changes.
 - The shared clang-format configuration is `.clang-format` at the repository
   root.
 
-## Codex Managed-Sandbox Execution
-
-The Super-Linter container needs Docker daemon access and the repository mount,
-so when this skill runs under Codex, invoke `super_linter.py local` with
-`sandbox_permissions: "require_escalated"`. The local wrapper's Ansible,
-clang-format, and Prettier autofixes run under the same escalated permission.
-
 ## Full Workflow
 
 1. Run Super-Linter using the pinned CI image and configuration. This is the
