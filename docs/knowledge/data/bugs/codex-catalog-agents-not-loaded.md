@@ -11,7 +11,6 @@ sources:
 - resource: .agents/plugins/agentdev/skills/iwe-plan/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 stage: cancelled
-status: deprecated
 ---
 
 # Bug: Codex never loads the agentdev catalog agents

@@ -1,5 +1,5 @@
 $schema: https://document-schema.org/draft/2026-06/schema
-description: OKF v0.2 log file — date-grouped update history (SPEC §9)
+description: The project log — date-grouped history, one dated group per release cut
 frontmatter:
   type: object
   additionalProperties: false

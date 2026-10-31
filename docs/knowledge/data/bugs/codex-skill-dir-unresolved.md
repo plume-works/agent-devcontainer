@@ -11,7 +11,6 @@ sources:
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/ext/skills/src/catalog_prompt.rs
 - resource: https://github.com/openai/codex/blob/444da31/codex-rs/hooks/src/engine/discovery.rs
 stage: cancelled
-status: deprecated
 ---
 
 # Bug: Codex leaves `${CLAUDE_SKILL_DIR}` unresolved in agentdev skills
