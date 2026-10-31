@@ -20,7 +20,8 @@ from agentdev_runtime.supervisor import RETRY_COMMAND
 SERVICES = ('dockerd', 'dbus', 'keyring', 'cbm', 'xpra', 'opencode', 'remote-control')
 # The session bus and the CBM rendezvous admit only the account that owns them.
 USER_SERVICES = frozenset({'dbus', 'keyring', 'cbm', 'opencode', 'xpra', 'remote-control'})
-SELF = (sys.executable, '-m', 'agentdev_runtime')
+# -P keeps the probe's working directory, often a checkout, off sys.path.
+SELF = (sys.executable, '-P', '-m', 'agentdev_runtime')
 USAGE = f'usage: agentdev-runtime health {"|".join(SERVICES)}|ready|status'
 
 
@@ -101,9 +102,7 @@ def _as_runtime_user(settings: env.Settings, service: str) -> int | None:
         'env',
         f'HOME={home}',
         f'USER={user}',
-        sys.executable,
-        '-m',
-        'agentdev_runtime',
+        *SELF,
         'health',
         service,
     ]
@@ -118,12 +117,7 @@ def ready(settings: env.Settings) -> int:
     if state in {'stale', 'missing', 'unreadable'} or document.get('ready') is not True:
         print(f'runtime state: {state}')
         return 1
-    probe_command = shlex.split(settings.raw('AGENTDEV_HEALTH_COMMAND')) or [
-        sys.executable,
-        '-m',
-        'agentdev_runtime',
-        'health',
-    ]
+    probe_command = shlex.split(settings.raw('AGENTDEV_HEALTH_COMMAND')) or [*SELF, 'health']
     for core in document.get('probes') or []:
         if not _run([*probe_command, core], stdout=False, stderr=False):
             print(f'core probe failed: {core}')
