@@ -25,9 +25,9 @@ The maintainer decided that Claude Code and OpenCode are the only harnesses this
 repository supports, and that Codex goes entirely: [Claude Code and OpenCode are
 the only supported
 harnesses](../features/claude-and-opencode-only-harnesses.md). Codex support
-today reaches the image build, the `agentdev-runtime` package, the catalog's
-packaging, CI, the e2e suites, and about forty knowledge documents, and every
-plan that touches the runtime carries Codex work alongside it.
+reaches the image build, the `agentdev-runtime` package, the catalog's
+packaging, CI, the e2e suites, and the knowledge documents listed in Tasks 11
+and 12, and every plan that touches the runtime carries Codex work alongside it.
 
 This lands after [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md), which moves the Codex code this plan
@@ -157,8 +157,7 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 ### Task 6: Update the runtime tests under scripts/tests
 
 **Files:** Delete: `scripts/tests/test_configure_codex.py`,
-`scripts/tests/test_repair_codex_cbm_hooks_block.py` (where still present);
-Modify:
+`scripts/tests/test_repair_codex_cbm_hooks_block.py`; Modify:
 `scripts/tests/test_agent_runtime_{acceptance,cbm,identity,state,workspace}.py`,
 `scripts/tests/test_agentdev_devcontainer_{image,lifecycle,repository}.py`,
 `scripts/tests/test_environment_health.py`
@@ -655,8 +654,7 @@ report at any point that needs a user decision it was not given.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-31, on
-`iwe/off-bash-migration/iter-1-impl` at `d68ba09`):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `py_packages/agentdev_runtime/agentdev_runtime/catalog.py:22` —
   `CODEX_MANIFEST`

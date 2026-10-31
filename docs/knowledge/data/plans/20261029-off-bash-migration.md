@@ -99,11 +99,11 @@ role. The package pins `supervisor`, `tomlkit`, `json5`, `pyyaml`, and
 
 Every script becomes a subcommand of one CLI whose nouns are the runtime's
 concerns. One settings module parses every environment value once, with one
-default per variable, keyed by profile where the scripts disagree today. One
-state module defines the `state.json`, retry, and failure-record shapes for
-writer and reader alike. Behaviour behind each command is unchanged; this plan
-changes language and packaging, not policy, so every existing scenario in the
-affected specs holds as written.
+default per variable, keyed by profile where the profiles differ. One state
+module defines the `state.json`, retry, and failure-record shapes for writer and
+reader alike. Behaviour behind each command is unchanged; this plan changes
+language and packaging, not policy, so every existing scenario in the affected
+specs holds as written.
 
 The one exception is the hook-binary detection. After registering the hooks,
 `project hooks` warns about each `language: system` hook in the checkout's
@@ -132,7 +132,7 @@ The firewall and the Xpra launcher join the package. The firewall runs as root
 from the bootstrap in both profiles, so its sudoers entry and the script in the
 Ansible role go; the role keeps the packages. The devcontainer profile reads the
 checkout's allowlist when present, as `spec/firewall` promises, and the image
-copy otherwise, as the supervised wrapper does; deploy keeps the image copy.
+copy otherwise; deploy keeps the image copy.
 
 Rejected: loose stdlib scripts on the system interpreter, which keeps either the
 runtime PyPI fetch or an apt dependency hunt and keeps the file manifest; bash
@@ -161,10 +161,10 @@ deletion of this one function; and running the responder as a host job through
 `docker/devcontainer/agentdev-devcontainer.Dockerfile`
 
 - [x] The package declares `requires-python >= 3.12`, the console script
-  `agentdev-runtime`, and dependencies `supervisor` at the version the root
-  project pins today, `setuptools<85`, `tomlkit`, `json5`, and `pyyaml`. The
-  root project takes the package as an editable dev dependency and drops its
-  direct `supervisor` and `setuptools` pins; `uv.lock` is regenerated.
+  `agentdev-runtime`, and dependencies `supervisor==4.3.0`, `setuptools<85`,
+  `tomlkit`, `json5`, and `pyyaml`. The root project takes the package as an
+  editable dev dependency and drops its direct `supervisor` and `setuptools`
+  pins; `uv.lock` is regenerated.
   - **Evidence:** commit cfaac26; `uv lock` and `uv sync` resolve the package
     editable; `uv run pytest py_packages/agentdev_runtime` passes (26 tests).
 - [x] Both runtime Dockerfiles install the package with
@@ -180,7 +180,7 @@ deletion of this one function; and running the responder as a host job through
     `tomlkit`, `json5`, and `yaml`.
 - [x] `settings.py` parses every environment value the scripts and the
   supervisor read, with one default per variable, keyed by profile where the
-  scripts disagree; the package README lists each variable, its default, and the
+  profiles differ; the package README lists each variable, its default, and the
   profiles that read it.
   - **Evidence:** commit cfaac26;
     `py_packages/agentdev_runtime/tests/test_settings.py` checks the profile
@@ -627,7 +627,8 @@ Delete: `docker/desktop/start-xpra.sh`
     with the image set prints `every acceptance test was skipped` and exits 1.
 - [x] The `COPY .devcontainer/scripts/` lines and the `.dockerignore` exception
   leave; `.devcontainer/scripts/` is gone from the tree, and
-  `git ls-files '.devcontainer/**/*.sh'` lists only `devcontainer-init.sh`.
+  `git ls-files ':(glob).devcontainer/**/*.sh'` lists only
+  `.devcontainer/devcontainer-init.sh`.
   - **Evidence:** commit 76a1836; both images build without the copy, and
     `git ls-files ':(glob).devcontainer/**/*.sh'` lists only
     `.devcontainer/devcontainer-init.sh`. Git's default pathspec needs the
@@ -638,14 +639,12 @@ Delete: `docker/desktop/start-xpra.sh`
 **Files:** Modify: `.codex/README.md`,
 `docs/knowledge/data/architecture/template-boundary.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`,
-`docs/knowledge/data/codebase.md`,
 `docs/knowledge/data/backlog/remove-agentdev-session-start-hook.md`; Delete:
 `.codex/setup-codex-cloud.sh`
 
 - [x] The script and every reference to it are gone;
-  `git grep -iE 'codex[ -]cloud'` outside `data/plans/`, `data/log.md`, the
-  feature document that describes the removal, and the codebase map Task 16
-  refreshes prints nothing.
+  `git grep -iE 'codex[ -]cloud'` outside `data/plans/`, `data/log.md`, and the
+  feature document that describes the removal prints nothing.
   - **Evidence:** commit ab09896; `git grep -iE 'codex[ -]cloud'` with the four
     exclusions as pathspecs prints nothing and exits 1;
     `uv run validate_agent_files --recommend . --require-marketplace claude codex`
