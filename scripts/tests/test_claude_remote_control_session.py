@@ -3,14 +3,15 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import uuid
 
 import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/claude-remote-control-session.sh'
-PIN_SCRIPT = SCRIPT.with_name('claude-remote-control-pin.sh')
+SCRIPT = [sys.executable, '-m', 'agentdev_runtime', 'remote-control', 'session']
+PIN_SCRIPT = 'agentdev-runtime remote-control pin'
 ID_FILE_NAME = 'remote-control-session-id'
 STORED_ID = '11111111-2222-4333-8444-555555555555'
 # Logs each call's arguments as a JSON array and fails `--resume` with $CLAUDE_TEST_RESUME_EXIT.
@@ -48,13 +49,13 @@ def run_session(
         'CLAUDE_TEST_LOG': str(log),
         'CLAUDE_TEST_RESUME_EXIT': str(resume_exit),
     }
-    result = subprocess.run([SCRIPT, *args], env=env, text=True, capture_output=True)
+    result = subprocess.run([*SCRIPT, *args], env=env, text=True, capture_output=True)
     assert result.returncode == 0, result.stderr
     return [json.loads(line) for line in log.read_text().splitlines()], id_file
 
 
 EXPECTED_SETTINGS = {
-    'hooks': {'SessionStart': [{'hooks': [{'type': 'command', 'command': str(PIN_SCRIPT)}]}]}
+    'hooks': {'SessionStart': [{'hooks': [{'type': 'command', 'command': PIN_SCRIPT}]}]}
 }
 
 

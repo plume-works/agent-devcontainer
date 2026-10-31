@@ -9,7 +9,7 @@ CODER_START = [sys.executable, '-m', 'agentdev_runtime', 'coder', 'start']
 IMAGE_PRUNE = 'agentdev-runtime docker prune'
 HELPER_SETUP = 'setup-gh-credential-helper.sh'
 OPENCODE_WEB = 'agentdev-runtime opencode coder-start'
-REMOTE_CONTROL = 'claude-remote-control-start.sh'
+REMOTE_CONTROL = 'agentdev-runtime remote-control start'
 
 
 def run_agent_start(
@@ -32,7 +32,6 @@ def run_agent_start(
         f'case "$1" in docker) exit {prune_exit} ;; opencode) exit {opencode_exit} ;; esac\n',
         root / HELPER_SETUP: f'echo "{HELPER_SETUP} token=${{GITHUB_TOKEN:-}}" >> "{log}"\n'
         f'exit {helper_exit}\n',
-        root / REMOTE_CONTROL: f'echo "{REMOTE_CONTROL}" >> "{log}"\n',
     }
     for fake, body in fakes.items():
         fake.write_text('#!/usr/bin/env bash\n' + body)
@@ -82,7 +81,7 @@ def test_remote_control_starts_when_prune_fails(tmp_path):
 def test_remote_control_starts_when_helper_setup_fails(tmp_path):
     result, calls = run_agent_start(tmp_path, helper_exit=3)
     assert result.returncode == 0, result.stderr
-    assert calls[-1] == REMOTE_CONTROL
+    assert first_words(calls)[-1] == REMOTE_CONTROL
     assert result.stderr.strip()
 
 
@@ -95,7 +94,7 @@ def test_helper_setup_sees_caller_environment(tmp_path):
 def test_remote_control_starts_when_opencode_web_fails(tmp_path):
     result, calls = run_agent_start(tmp_path, opencode_exit=3)
     assert result.returncode == 0, result.stderr
-    assert calls[-1] == REMOTE_CONTROL
+    assert first_words(calls)[-1] == REMOTE_CONTROL
     assert result.stderr.strip()
 
 

@@ -25,6 +25,12 @@ def _opencode(argv: list[str]) -> int:
     return opencode.main(argv)
 
 
+def _remote_control(argv: list[str]) -> int:
+    from agentdev_runtime import remote_control
+
+    return remote_control.main(argv)
+
+
 def _state(argv: list[str]) -> int:
     from agentdev_runtime import agent_state
 
@@ -94,6 +100,7 @@ PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'docker': (_docker, 'the nested Docker engine and its image prune'),
     'firewall': (_firewall, 'apply the egress firewall when ENABLE_FIREWALL=true'),
     'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
+    'remote-control': (_remote_control, 'the Claude Remote Control watcher, start, pane, and pin'),
     'state': (_state, 'agent state: links, policy, CBM wiring, and pre-approval'),
     'xpra': (_xpra, 'the Xpra server with its HTML5 client'),
     'opencode': (_opencode, 'the OpenCode server, its probe, its link, and its Coder start'),

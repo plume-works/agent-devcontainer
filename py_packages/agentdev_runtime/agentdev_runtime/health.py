@@ -44,11 +44,6 @@ def _run(
     return result.returncode == 0
 
 
-def _script(settings: env.Settings, name: str) -> str:
-    """Return a runtime script not yet ported into the package."""
-    return str(settings.path('AGENTDEV_RUNTIME_ROOT') / name)
-
-
 def probe(settings: env.Settings, service: str) -> bool:
     if service == 'dockerd':
         return _run(['docker', 'info'], timeout=10, stdout=False, stderr=False)
@@ -81,7 +76,7 @@ def probe(settings: env.Settings, service: str) -> bool:
     if service == 'opencode':
         return _run([*SELF, 'opencode', 'probe'])
     if service == 'remote-control':
-        return _run([_script(settings, 'runtime-remote-control.sh'), 'check'])
+        return _run([*SELF, 'remote-control', 'check'])
     raise ValueError(service)
 
 

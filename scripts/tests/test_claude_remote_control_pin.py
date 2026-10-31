@@ -3,13 +3,14 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import uuid
 
 import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/claude-remote-control-pin.sh'
+SCRIPT = [sys.executable, '-m', 'agentdev_runtime', 'remote-control', 'pin']
 ID_FILE_NAME = 'remote-control-session-id'
 STORED_ID = '11111111-2222-4333-8444-555555555555'
 NEW_ID = '66666666-7777-4888-9999-aaaaaaaaaaaa'
@@ -25,7 +26,7 @@ def config_dir():
 
 def run_pin(config_dir: Path, stdin: str) -> subprocess.CompletedProcess[str]:
     env = os.environ | {'CLAUDE_CONFIG_DIR': str(config_dir)}
-    return subprocess.run([SCRIPT], env=env, input=stdin, text=True, capture_output=True)
+    return subprocess.run(SCRIPT, env=env, input=stdin, text=True, capture_output=True)
 
 
 def hook_input(**fields: str) -> str:

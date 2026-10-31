@@ -1,4 +1,4 @@
-"""Tests for runtime-remote-control.sh, the standalone runtime's Remote Control watcher."""
+"""Tests for `agentdev-runtime remote-control run`, the standalone runtime's Remote Control watcher."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 from uuid import uuid4
 
@@ -15,7 +16,7 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-WATCHER = REPO_ROOT / '.devcontainer/scripts/runtime-remote-control.sh'
+WATCHER = [sys.executable, '-m', 'agentdev_runtime', 'remote-control']
 CLAUDE_AI_LOGIN = {'loggedIn': True, 'authMethod': 'claude.ai'}
 WAITING = 'waiting for a claude.ai login'
 RUNNING = 'running in tmux session claude-remote'
@@ -74,7 +75,7 @@ class Watch:
 
     def start(self) -> None:
         self.process = subprocess.Popen(
-            [WATCHER, 'run'], env=self.env, text=True, stderr=subprocess.PIPE
+            [*WATCHER, 'run'], env=self.env, text=True, stderr=subprocess.PIPE
         )
 
     def status(self) -> str:
@@ -92,7 +93,7 @@ class Watch:
         return path.read_text().splitlines() if path.exists() else []
 
     def check(self) -> int:
-        return subprocess.run([WATCHER, 'check'], env=self.env).returncode
+        return subprocess.run([*WATCHER, 'check'], env=self.env).returncode
 
     def wait_for(self, predicate: Callable[[], bool], timeout: float = 10) -> None:
         deadline = time.monotonic() + timeout

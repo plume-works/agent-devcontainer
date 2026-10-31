@@ -33,8 +33,7 @@ def start(settings: env.Settings) -> int:
             print(
                 f'Warning: {failure}; starting Remote Control anyway.', file=sys.stderr, flush=True
             )
-    remote_control = f'{root}/claude-remote-control-start.sh'
-    os.execvp(remote_control, [remote_control])
+    os.execvp('agentdev-runtime', ['agentdev-runtime', 'remote-control', 'start'])
 
 
 def main(argv: list[str]) -> int:
