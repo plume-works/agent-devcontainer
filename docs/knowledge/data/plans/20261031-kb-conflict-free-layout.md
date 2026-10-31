@@ -235,11 +235,16 @@ under `docs/knowledge/tests/`
 **Files:** Modify: `docs/knowledge/AGENTS.md`, `docs/knowledge/SCHEMA.md`,
 `docs/knowledge/STRUCTURE.md`, `docs/knowledge/README.md`
 
-- [ ] The operating loop, conventions, and cheatsheet describe frontmatter as
+- [x] The operating loop, conventions, and cheatsheet describe frontmatter as
   the only stage record, the rank sequence and its two queries, flat sorted
   hubs, and the release cut as the only writer of release pages and the log; no
   text describes dual representation, hub sections, OKF, `data/index.md`,
   `status`, or an unreleased accumulator
+  - **Evidence:** commit adefc667; the plan's Verification grep over
+    `docs/knowledge/AGENTS.md`, `SCHEMA.md`, the catalog agents, and the `iwe-*`
+    skills finds no match, and
+    `grep -n 'OKF\|index.md\|unreleased\|Dual\|status' docs/knowledge/{STRUCTURE,README}.md`
+    finds none
 - [ ] `SCHEMA.md` documents `rank`, the base schema, the log schema, and the
   flat hub body
 
