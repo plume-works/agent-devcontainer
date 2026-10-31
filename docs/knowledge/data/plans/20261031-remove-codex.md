@@ -71,10 +71,16 @@ agents its skills dispatch, so the package would ship broken.
 - [ ] Both [off-bash-migration](20261029-off-bash-migration.md) and
   [catalog-scripts-python](20261029-catalog-scripts-python.md) are `stage: done`
   on `main`.
-- [ ] Every `## Key references` anchor resolves on `main` to the named symbol,
+- [x] Every `## Key references` anchor resolves on `main` to the named symbol,
   and the base text of each `## Spec changes` MODIFIED requirement matches the
   shipped spec apart from the Codex wording this plan removes. Any mismatch
   stops implementation for `/agentdev:iwe-plan` revise mode.
+  - **Evidence:** `0f27fb32` refreshes six moved line numbers, checked on the
+    off-bash migration head (#591) merged with `main` at `51468efd`; the
+    MODIFIED requirements in `spec/catalog-lifecycle`,
+    `spec/agentdev-runtime-images`, `spec/standalone-opencode-runtime`, and
+    `spec/iwe-workflow-skills` differ from the shipped text only in Codex
+    wording.
 
 ### Task 2: Record the supported-harness decision
 
