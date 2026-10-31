@@ -19,6 +19,12 @@ def _supervisor(argv: list[str]) -> int:
     return supervisor.main(argv)
 
 
+def _bootstrap(argv: list[str]) -> int:
+    from agentdev_runtime import bootstrap
+
+    return bootstrap.main(argv)
+
+
 def _health(argv: list[str]) -> int:
     from agentdev_runtime import health
 
@@ -27,6 +33,7 @@ def _health(argv: list[str]) -> int:
 
 PASSTHROUGH: dict[str, tuple[Passthrough, str]] = {
     'supervisor': (_supervisor, 'PID 1, the controller listener, the exec wrapper, and retry'),
+    'bootstrap': (_bootstrap, 'the root bootstrap PID 1 runs before supervisord'),
     'health': (_health, 'per-service probes, aggregate readiness, and the status report'),
 }
 

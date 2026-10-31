@@ -21,10 +21,6 @@ RUN --mount=type=bind,source=py_packages/agentdev_runtime,target=/tmp/agentdev-r
 COPY --chmod=0755 .devcontainer/scripts/ /opt/agentdev-runtime/
 COPY --chmod=0644 docker/devcontainer/supervisord.conf /etc/agentdev/supervisord.conf
 COPY --chmod=0644 .devcontainer/firewall-allowlist.txt /etc/agentdev/firewall-allowlist.txt
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# hadolint ignore=DL3003
-RUN cd /opt/agentdev-runtime && find . -type f -not -path '*/__pycache__/*' -print0 | LC_ALL=C sort -z \
-    | xargs -0 sha256sum > /etc/agentdev/runtime.sha256
 
 # Defaults a consumer's descriptor or derived image may override; see
 # architecture/devcontainer-runtime.

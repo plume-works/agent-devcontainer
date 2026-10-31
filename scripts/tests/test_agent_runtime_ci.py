@@ -21,7 +21,7 @@ RENOVATE = json.loads((REPO_ROOT / '.github/renovate.json').read_text())
 PIN = 'opencode-compose-pins.yml'
 RUNTIME_SOURCES = [
     'py_packages/agentdev_runtime/agentdev_runtime/supervisor.py',
-    '.devcontainer/scripts/runtime-bootstrap.sh',
+    'py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py',
     '.devcontainer/firewall-allowlist.txt',
     'docker/base/agentdev-base.Dockerfile',
     'docker/deploy/agentdev-deploy.Dockerfile',

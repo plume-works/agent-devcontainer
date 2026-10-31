@@ -30,7 +30,6 @@ this table from the code.
 | `AGENTDEV_SUPERVISOR_CONFIG`      | `/etc/agentdev/supervisord.conf`                 |                          | devcontainer, deploy | supervisord configuration PID 1 runs.                                      |
 | `AGENTDEV_SUDOERS_FILE`           | `/etc/sudoers.d/agentdev-runtime`                |                          | devcontainer, deploy | Sudoers entry the bootstrap writes for the runtime account.                |
 | `AGENTDEV_RUNTIME_ROOT`           | `/opt/agentdev-runtime`                          |                          | devcontainer, deploy | Image-owned runtime script tree.                                           |
-| `AGENTDEV_RUNTIME_MANIFEST`       | `/etc/agentdev/runtime.sha256`                   |                          | devcontainer, deploy | sha256 manifest of the runtime script tree.                                |
 | `AGENTDEV_UV_DIR`                 | `/uv`                                            |                          | devcontainer, deploy | uv cache, interpreter, and venv volume root.                               |
 | `AGENTDEV_GH_STACK_DIR`           | `/usr/local/lib/agentdev/gh-stack`               |                          | devcontainer, deploy | Image copy of the gh-stack extension.                                      |
 | `AGENTDEV_REQUIRE_MOUNTS`         | `1`                                              |                          | deploy               | `1` makes the bootstrap refuse unmounted instance storage.                 |
@@ -60,7 +59,7 @@ this table from the code.
 | `AGENTDEV_PROBE_FAILURES`         | `2`                                              |                          | devcontainer, deploy | Consecutive failed probes that count as down.                              |
 | `AGENTDEV_STOP_TIMEOUT`           | `30`                                             |                          | devcontainer, deploy | Seconds supervisord waits for a program's stop.                            |
 | `AGENTDEV_HEALTH_COMMAND`         | `agentdev-runtime health`                        |                          | devcontainer, deploy | Probe command the controller runs per service.                             |
-| `AGENTDEV_BOOTSTRAP_COMMAND`      | `/opt/agentdev-runtime/runtime-bootstrap.sh`     |                          | devcontainer, deploy | Root bootstrap PID 1 runs before supervisord.                              |
+| `AGENTDEV_BOOTSTRAP_COMMAND`      | `agentdev-runtime bootstrap`                     |                          | devcontainer, deploy | Root bootstrap PID 1 runs before supervisord.                              |
 | `AGENTDEV_STRICT_STARTUP`         | empty                                            |                          | devcontainer, deploy | True makes an optional-service failure fatal.                              |
 | `AGENTDEV_SKIP_XPRA`              | empty                                            |                          | devcontainer, deploy | True leaves Xpra out.                                                      |
 | `AGENTDEV_OPENCODE_WEB`           | empty                                            |                          | devcontainer         | True serves OpenCode Web in a Dev Container.                               |

@@ -93,11 +93,6 @@ VARIABLES: tuple[Variable, ...] = (
         '/etc/sudoers.d/agentdev-runtime',
     ),
     Variable('AGENTDEV_RUNTIME_ROOT', 'Image-owned runtime script tree.', '/opt/agentdev-runtime'),
-    Variable(
-        'AGENTDEV_RUNTIME_MANIFEST',
-        'sha256 manifest of the runtime script tree.',
-        '/etc/agentdev/runtime.sha256',
-    ),
     Variable('AGENTDEV_UV_DIR', 'uv cache, interpreter, and venv volume root.', '/uv'),
     Variable(
         'AGENTDEV_GH_STACK_DIR',
@@ -207,7 +202,7 @@ VARIABLES: tuple[Variable, ...] = (
     Variable(
         'AGENTDEV_BOOTSTRAP_COMMAND',
         'Root bootstrap PID 1 runs before supervisord.',
-        '/opt/agentdev-runtime/runtime-bootstrap.sh',
+        'agentdev-runtime bootstrap',
     ),
     Variable('AGENTDEV_STRICT_STARTUP', 'True makes an optional-service failure fatal.'),
     Variable('AGENTDEV_SKIP_XPRA', 'True leaves Xpra out.'),

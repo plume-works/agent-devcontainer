@@ -1,4 +1,4 @@
-"""Container tests for runtime-bootstrap.sh: account creation and volume ownership rules."""
+"""Container tests for `agentdev-runtime bootstrap`: account creation and volume ownership rules."""
 
 from __future__ import annotations
 
@@ -15,11 +15,15 @@ from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS = REPO_ROOT / '.devcontainer/scripts'
+PACKAGE = REPO_ROOT / 'py_packages/agentdev_runtime'
+# The bootstrap runs from source, as the image's system interpreter would run it.
+BOOTSTRAP = 'PYTHONPATH=/opt/agentdev-runtime-src python3 -m agentdev_runtime bootstrap'
+SOURCE_MOUNT = ['-v', f'{PACKAGE}:/opt/agentdev-runtime-src:ro']
 BASE = 'ubuntu:24.04'
 # Mirrors the account layout agentdev-deploy builds: no stock UID 1000 account, a docker group.
 BASE_DOCKERFILE = f"""\
 FROM {BASE}
-RUN apt-get update && apt-get install -y --no-install-recommends sudo \\
+RUN apt-get update && apt-get install -y --no-install-recommends sudo python3 \\
  && rm -rf /var/lib/apt/lists/* && userdel --remove ubuntu && groupadd --system docker
 """
 MOUNTS = {
@@ -118,12 +122,13 @@ def run(
         '--rm',
         '-v',
         f'{SCRIPTS}:/opt/agentdev-runtime:ro',
+        *SOURCE_MOUNT,
         *mounts,
         *env_args,
         image,
         'bash',
         '-c',
-        f'/opt/agentdev-runtime/runtime-bootstrap.sh && {script or "true"}',
+        f'{BOOTSTRAP} && {script or "true"}',
     ]
     if detach:
         return subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -150,7 +155,7 @@ def test_creates_the_account_and_claims_fresh_instance_storage(image, volumes, u
     result = run(image, volumes.args(), CHECKS, uid=uid, gid=gid)
     assert_ok(result)
     want_uid, want_gid = uid or 1000, gid or 1000
-    tail = result.stdout.split('runtime-bootstrap: identity')[1].splitlines()[1:]
+    tail = result.stdout.split('agentdev-runtime bootstrap: identity')[1].splitlines()[1:]
     lines = [line for line in tail if not line.startswith('runtime-firewall:')]
     owner = f'{want_uid}:{want_gid}'
     assert lines == [
@@ -182,13 +187,14 @@ def test_rejects_a_uid_owned_by_another_account(image, volumes):
         '--rm',
         '-v',
         f'{SCRIPTS}:/opt/agentdev-runtime:ro',
+        *SOURCE_MOUNT,
         *volumes.args(),
         '-e',
         'AGENTDEV_RUNTIME_MODE=deploy',
         image,
         'bash',
         '-c',
-        f'{collide}/opt/agentdev-runtime/runtime-bootstrap.sh',
+        f'{collide}{BOOTSTRAP}',
     ]
     result = subprocess.run(command, capture_output=True, text=True, timeout=120)
     assert result.returncode == 1
@@ -202,13 +208,14 @@ def test_reuses_a_colliding_group(image, volumes):
         '--rm',
         '-v',
         f'{SCRIPTS}:/opt/agentdev-runtime:ro',
+        *SOURCE_MOUNT,
         *volumes.args(),
         '-e',
         'AGENTDEV_RUNTIME_MODE=deploy',
         image,
         'bash',
         '-c',
-        'groupadd --gid 1000 staff2 && /opt/agentdev-runtime/runtime-bootstrap.sh && id -gn agent',
+        f'groupadd --gid 1000 staff2 && {BOOTSTRAP} && id -gn agent',
     ]
     result = subprocess.run(command, capture_output=True, text=True, timeout=120)
     assert_ok(result)
@@ -311,7 +318,7 @@ def test_accepts_a_checkout_owned_by_the_runtime_identity(image, volumes, checko
 def test_restart_rewrites_nothing_and_resets_runtime_state(image, volumes):
     script = (
         f'first=$(stat -c %Z {AUTH} /home/agent); touch /run/user/1000/stale.pid; '
-        '/opt/agentdev-runtime/runtime-bootstrap.sh >/tmp/second.log; '
+        f'{BOOTSTRAP} >/tmp/second.log; '
         f'[ "$first" = "$(stat -c %Z {AUTH} /home/agent)" ] && echo unchanged; '
         'test ! -e /run/user/1000/stale.pid && echo reset; grep -c "reusing account" '
         '/tmp/second.log'

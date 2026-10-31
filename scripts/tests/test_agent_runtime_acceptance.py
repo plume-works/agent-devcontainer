@@ -443,7 +443,7 @@ def test_enabled_xpra_needs_its_password_to_start(make_runtime, scratch: Path):
     assert runtime.runtime()['latched'] == 'configuration'
     logs = runtime.logs()
     assert 'XPRA_PASSWORD must be set' in logs and 'AGENTDEV_SKIP_XPRA=1' in logs
-    assert 'runtime-bootstrap:' not in logs
+    assert 'agentdev-runtime bootstrap:' not in logs
     skipped = make_runtime(
         workspace=bind(make_checkout(scratch / 'b')), XPRA_PASSWORD=None, AGENTDEV_SKIP_XPRA='1'
     )

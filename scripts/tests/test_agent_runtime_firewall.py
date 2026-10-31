@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+import inspect
 from pathlib import Path
 import shutil
 import subprocess
 from uuid import uuid4
 
+from agentdev_runtime import bootstrap
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -114,8 +116,8 @@ def test_self_check_failure_propagates(firewall: Firewall):
 
 
 def test_bootstrap_applies_the_firewall_last():
-    bootstrap = (SCRIPTS / 'runtime-bootstrap.sh').read_text()
-    assert bootstrap.rstrip().endswith('/runtime-firewall.sh"')
+    main = inspect.getsource(bootstrap.main).rstrip()
+    assert main.endswith('return firewall(settings)')
 
 
 def desktop_image() -> str | None:
