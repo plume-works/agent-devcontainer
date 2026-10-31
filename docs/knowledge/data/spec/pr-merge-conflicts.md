@@ -3,13 +3,13 @@ type: spec
 description: How pr-feedback-resolution and pr-merge detect a pull request's merge conflicts and resolve them — through update-branch against the PR's own base branch, or through gh stack for a stacked PR.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-17T15:00:00Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/update-branch/SKILL.md
 - resource: .agents/plugins/agentdev/skills/gh-stack/SKILL.md
-- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh
+- resource: .agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py
 ---
 
 # PR merge conflicts
@@ -29,8 +29,8 @@ The pr-feedback-resolution skill SHALL read the PR's `mergeable`,
 `mergeStateStatus`, and `baseRefName` before any feedback edit. When `mergeable`
 is `CONFLICTING` or `mergeStateStatus` is `DIRTY`, it SHALL resolve the conflict
 before collecting feedback. A PR in a GitHub stack is resolved through the
-gh-stack skill's guarded refresh: `stack-guard.sh begin`, `gh stack rebase`,
-then `stack-guard.sh publish`. Any other PR is resolved by merging its
+gh-stack skill's guarded refresh: `stack-guard.py begin`, `gh stack rebase`,
+then `stack-guard.py publish`. Any other PR is resolved by merging its
 `baseRefName` through `update-branch` and pushing the merge. When `mergeable` is
 `UNKNOWN`, it SHALL re-poll before deciding. A PR that is only `BEHIND` its base
 SHALL NOT be updated.
@@ -52,8 +52,8 @@ SHALL NOT be updated.
 #### Scenario: Stacked PR
 
 - **WHEN** a conflicted PR belongs to a GitHub stack
-- **THEN** `stack-guard.sh begin` runs, the conflict is resolved with
-  `gh stack rebase`, and the stack is published with `stack-guard.sh publish`
+- **THEN** `stack-guard.py begin` runs, the conflict is resolved with
+  `gh stack rebase`, and the stack is published with `stack-guard.py publish`
 - **AND** `update-branch` is not run
 
 #### Scenario: Mergeability not yet computed
