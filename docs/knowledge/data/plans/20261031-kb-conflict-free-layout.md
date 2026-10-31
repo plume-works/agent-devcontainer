@@ -210,9 +210,13 @@ under `docs/knowledge/tests/`
     `grep -rn 'included-by data/\(plans\|backlog\|bugs\|features\)\|## Active\|## High\|## Done' .agents/plugins/agentdev/agents .agents/plugins/agentdev/skills/*/SKILL.md`
     finds nothing, and each new `iwe find` filter returns the expected keys
     against this graph
-- [ ] Validation with
+- [x] Validation with
   `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes
+  - **Evidence:** commit 91bbfe2c;
+    `uv run validate_agent_files --recommend . --require-marketplace claude`
+    reported 66/66 skills valid, 0 errors, 0 warnings, and
+    `uv run pytest .agents/plugins/agentdev/tests` passed (408)
 
 ### Task 8: The workspace manuals describe the layout
 
