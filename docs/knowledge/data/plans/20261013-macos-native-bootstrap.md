@@ -6,7 +6,7 @@ release:
 description: A zsh bootstrap in the agentdev catalog's bin/ that turns a stock macOS host into one that runs agentdev without a devcontainer — Homebrew tools including uv, a uv-provisioned Python first on PATH, pinned release-only tools, and the agentdev plugin.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T21:42:30Z
+  at: 2026-10-31T23:31:23Z
 sources:
 - resource: .agents/plugins/agentdev/bin
 - resource: ansible/roles/dev_tools/defaults/main.yml
@@ -113,7 +113,6 @@ Assumptions:
 - The recorded Python version is the lower bound of the root `pyproject.toml`'s
   `requires-python`, the oldest version the repository's own tests run the
   catalog on.
-- uv's `--default` install of the `python3` executable needs no `--preview`.
 - The user decided that fish gets its own PATH block and that the final check
   also tests the user's `$SHELL`. A `$SHELL` other than zsh or fish gets no
   block, so its check fails and names it rather than reporting a `PATH` the
@@ -367,6 +366,17 @@ arguments; point `HOME` at a temporary directory.
     `c2915879` and Task 7's `6f4f7b6a`, Actions run 41252562998's
     `macOS native bootstrap` job concluded `success`.
 
+### Task 9: Bring the feature doc in line with the plan
+
+**Files:** Modify: `docs/knowledge/data/features/macos-native-bootstrap.md`
+
+- [ ] `## Behaviour` says the plugin step installs `agentdev` into Claude Code
+  only, and describes the fish block in `~/.config/fish/conf.d/agentdev.fish`
+  and the `python3` check in the user's `$SHELL`.
+- [ ] `## Edge cases` covers fish being absent and a `$SHELL` whose login shell
+  resolves another `python3`, and `iwe normalize` and `iwe schema validate`
+  pass.
+
 ## Spec changes
 
 Creates `spec/macos-native-bootstrap`:
@@ -491,6 +501,8 @@ when that is not zsh, resolve `python3` to the recorded version in
 [Port the catalog's bundled shell scripts to
 Python](20261029-catalog-scripts-python.md)
 
+[Remove Codex support](20261031-remove-codex.md)
+
 ## Verification
 
 - `uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py scripts/tests/test_macos_bootstrap_pins.py`
@@ -548,3 +560,5 @@ Verified anchor points (line numbers as of 2026-10-31):
   `test_plugin_step_never_invokes_codex_on_path`; `:394` —
   `test_skip_plugins_does_not_invoke_claude`
 - `.github/workflows/validate-agent-files.yml:117` — the `Install fish` step
+- `docs/knowledge/data/features/macos-native-bootstrap.md:22` — `## Behaviour`,
+  whose `:36` names Codex; `:40` — `## Edge cases`
