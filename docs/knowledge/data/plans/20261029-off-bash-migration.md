@@ -428,10 +428,16 @@ Delete: `docker/desktop/start-xpra.sh`
     `test_configure_*` and `test_preapprove_claude_workspace.py` pass. Deploy
     acceptance (24 passed) and the Dev Container image suite (5 passed) pass
     against images built from 9732df9.
-- [ ] `agentdev-runtime catalog install <root> [--claude-scope user|local]`
+- [x] `agentdev-runtime catalog install <root> [--claude-scope user|local]`
   registers the Claude marketplace and plugins, the Codex marketplace with the
   already-registered short-circuit and the agents installer, and the OpenCode
   bridge entry; the complete-catalog test is one function in the package.
+  - **Evidence:** commits 39045fa and 9732df9;
+    `test_switching_catalogs_replaces_managed_registrations_only` and
+    `test_rerunning_codex_registration_leaves_config_byte_identical` pass
+    against the real Claude and Codex CLIs; deploy acceptance (24 passed,
+    including the fake-`claude` Remote Control cases whose config phase
+    registers the catalog) passes against `agentdev-deploy` built from 9732df9.
 
 ### Task 10: Remote Control
 
