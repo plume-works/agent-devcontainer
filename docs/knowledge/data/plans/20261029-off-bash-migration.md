@@ -800,8 +800,8 @@ Delete: `docker/desktop/start-xpra.sh`
   images, the deploy and Dev Container acceptance jobs pass, and the canonical
   tags move.
   - **Evidence:** [CI run
-    41176206238](https://github.com/plume-works/agent-devcontainer/actions/runs/41176206238)
-    on 8761041. The run includes:
+    41182366195](https://github.com/plume-works/agent-devcontainer/actions/runs/41182366195)
+    on 796bf892. The run includes:
     - `Development image` builds `agentdev-base`, `agentdev-deploy`, and
       `agentdev-devcontainer` on amd64 and arm64, and `Merge development image`
       merges them.
