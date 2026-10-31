@@ -3,14 +3,11 @@ type: spec
 description: Every startup path submits a background CBM index request for the workspace instead of a blocking index, and CBM installation keeps its Codex hooks in hooks.json, recovering an orphaned hooks block in config.toml only when it is exactly CBM's own.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-28T02:36:16Z
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: .devcontainer/scripts/codebase-memory-mcp-index.sh
-- resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
-- resource: .devcontainer/scripts/codebase-memory-mcp-start.sh
-- resource: .devcontainer/scripts/postAttachCommand.sh
-- resource: .devcontainer/scripts/runtime-cbm.sh
-- resource: .devcontainer/scripts/repair-codex-cbm-hooks-block.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py
 ---
 
 # CBM startup integration

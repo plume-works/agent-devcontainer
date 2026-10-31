@@ -2,8 +2,8 @@
 type: bug
 description: A Coder workspace keeps the Dev Container image it was built with, so one built before gitleaks and actionlint were pinned fails every commit and push on those pre-commit hooks while the health report says nothing is missing.
 generated:
-  by: claude-code/fable-5.1
-  at: 2026-10-29T20:20:34Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T21:00:00Z
 sources:
 - resource: .pre-commit-config.yaml
 - resource: ansible/roles/dev_tools/defaults/main.yml
@@ -12,6 +12,7 @@ sources:
 - resource: .devcontainer/scripts/setup-pre-commit.sh
 - resource: docs/knowledge/data/spec/coder-ide-baseline.md
 - resource: https://github.com/plume-works/agent-devcontainer/pull/440
+stage: done
 ---
 
 # Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing says so
@@ -57,14 +58,14 @@ exist.
 
 ## Fix
 
-Unfixed. The workspace itself is repaired by rebuilding its Dev Container, which
-picks up the current digest pin. The lasting fix is detection: the health report
-lists `gitleaks` and `actionlint` as required tools, and the pre-commit setup
-step reports a missing `language: system` executable when it installs the hooks
-instead of leaving the failure to the first commit. The agentdev-runtime CLI
-planned in [Replace the runtime shell scripts with one agentdev-runtime
-CLI](../plans/20261029-off-bash-migration.md) carries both checks in its
-`doctor` and `project hooks` commands.
+The workspace itself is repaired by rebuilding its Dev Container, which picks up
+the current digest pin. The lasting fix is detection, shipped by [Replace the
+runtime shell scripts with one agentdev-runtime
+CLI](../plans/20261029-off-bash-migration.md): `agentdev-runtime doctor` lists
+`gitleaks` and `actionlint` as required tools (commit 76a1836), and
+`agentdev-runtime project hooks` warns about each `language: system` hook whose
+executable is not on `PATH` when it installs the hooks, instead of leaving the
+failure to the first commit (commit 4773feb).
 
 ## Key references
 

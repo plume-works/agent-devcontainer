@@ -9,7 +9,7 @@ release:
 description: Replace the runtime's shell scripts, the Xpra launcher, the firewall script, and two publisher scripts with one agentdev-runtime Python CLI packaged as an embedded uv tool in the runtime images, and remove the Codex Cloud bootstrap.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:49:18Z
+  at: 2026-10-31T21:00:00Z
 sources:
 - resource: .devcontainer/scripts/
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
@@ -27,6 +27,8 @@ sources:
 - resource: docs/knowledge/data/bugs/doctor-fails-healthy-coder-devcontainer.md
 - resource: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idcontaineroptions
 - resource: https://github.com/anthropics/claude-code-action/blob/v1/action.yml
+stage: done
+completed: 2026-10-31
 ---
 
 # Replace the runtime shell scripts with one agentdev-runtime CLI

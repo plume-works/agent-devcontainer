@@ -6,6 +6,14 @@ to the current day's group.
 
 ## 2026-10-31
 
+- **Update**: [agentdev-runtime CLI](features/agentdev-runtime-cli.md)
+  implemented; [Replace the runtime shell scripts with one agentdev-runtime
+  CLI](plans/20261029-off-bash-migration.md) plan done; fixed [Bug: a workspace
+  on a pre-pin image has no gitleaks or actionlint and nothing says
+  so](bugs/workspace-image-lacks-hook-binaries.md), [Bug: the Remote Control
+  watcher restarts a session that never comes up on every
+  tick](bugs/remote-control-watcher-start-loop.md), and [Bug: doctor fails a
+  healthy Coder Dev Container](bugs/doctor-fails-healthy-coder-devcontainer.md).
 - **Update**: [Remove the codebase map](plans/20261031-remove-codebase-map.md)
   plan done; specs synced.
 - **Create**: [agentdev runtime
