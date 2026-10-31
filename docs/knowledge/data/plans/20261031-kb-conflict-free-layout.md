@@ -206,7 +206,10 @@ under `docs/knowledge/tests/`
   only cut releases
   - **Evidence:** commit 45a9cae4; `data/releases.md` links `1.0.0` and `2.0.0`
     only, and `test_hub_links_are_sorted` passes for it
-- [ ] `release` accepts only `stage: released`
+- [x] `release` accepts only `stage: released`
+  - **Evidence:** commit 45a9cae4; `.iwe/schemas/release.yaml` declares
+    `stage: { const: released }`, copied to the scaffold, and
+    `uv run pytest docs/knowledge/tests` passed (82)
 
 ### Task 7: The other skills read and write frontmatter, not hub sections
 
