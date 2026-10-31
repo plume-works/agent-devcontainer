@@ -2,14 +2,14 @@
 type: codebase
 description: The agentdev_runtime package and its agentdev-runtime CLI, which both runtime images install as a uv tool — PID 1 and its supervisor, the health probes, every supervised service, the bootstrap and firewall, the Dev Container lifecycle commands, and the doctor report.
 source: py_packages/agentdev_runtime
-source_digest: sha256:a2dede5b986892ea028f1b9296baebe42d571c6a413a7259da3211d3b310087f
+source_digest: sha256:84c0384d0dcb7a1e8c32087b73848412804c0b49e6674d55fc47cb57263fe711
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:34:44Z
+  at: 2026-10-31T05:45:03Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:34:44Z
+  at: 2026-10-31T05:45:03Z
 sources:
 - id: code
   resource: py_packages/agentdev_runtime

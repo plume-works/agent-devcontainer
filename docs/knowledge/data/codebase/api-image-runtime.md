@@ -7,14 +7,14 @@ source:
 - ansible/roles/devcontainer_firewall
 - compose.opencode.yml
 - py_packages/agentdev_runtime
-source_digest: sha256:9a15df6b27cc7cac7e9ae70cbe4e536c0d56489ca8b16f633701db2cd075f495
+source_digest: sha256:45f6c7e739f8e6efbd9e4b2fbeba125530d395ac8a200e5071a9ce97f7e6acff
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T05:45:03Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T05:45:03Z
 sources:
 - id: code
   resource: docker
