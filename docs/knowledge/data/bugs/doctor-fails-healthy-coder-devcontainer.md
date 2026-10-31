@@ -3,11 +3,12 @@ type: bug
 description: In a Compose Dev Container under Coder without the opt-in mcp profile, agentdev-runtime doctor fails the mcp-gateway and git user checks although the workspace is healthy.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T17:30:54Z
+  at: 2026-10-31T21:00:00Z
 sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/doctor.py
 - resource: .devcontainer/devcontainer-init.sh
 - resource: .devcontainer/docker-compose.yml
+stage: done
 ---
 
 # Bug: doctor fails a healthy Coder Dev Container
