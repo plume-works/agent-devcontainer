@@ -1052,50 +1052,53 @@ Verified anchor points (line numbers as of 2026-10-31):
 - `py_packages/agentdev_runtime/agentdev_runtime/firewall.py:97` —
   `allowlist_path`: `FIREWALL_ALLOWLIST` first, in both profiles
 - `py_packages/agentdev_runtime/tests/test_firewall_allowlist.py:67` —
-  `test_deploy_reads_the_image_copy_or_the_setting`
-- `.devcontainer/scripts/runtime-remote-control.sh:53` — a seen session that is
-  gone ends the watcher
-- `.devcontainer/scripts/runtime-remote-control.sh:62` — the `checked=""` retry
-  Task 10 removes
-- `scripts/tests/test_runtime_remote_control.py:185` — the disappearing-session
-  test the new start-loop test sits beside
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:21` —
-  `COPY .devcontainer/scripts/`
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:39` —
+  `test_deploy_reads_the_image_copy_or_the_setting`; `:76` —
+  `test_a_set_allowlist_wins_over_the_checkout_copy_in_a_devcontainer`
+- `py_packages/agentdev_runtime/agentdev_runtime/remote_control.py:249` — a seen
+  session that is gone ends the watcher; `:258` — a start that never comes up
+  ends it
+- `scripts/tests/test_runtime_remote_control.py:187` —
+  `test_a_session_that_disappears_ends_the_watcher`; `:197` —
+  `test_a_start_that_never_comes_up_ends_the_watcher`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:14` — the
+  `agentdev_runtime` uv tool install
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:38` —
   `devcontainer.metadata` lifecycle commands
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:56` — `HEALTHCHECK`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:54` — `HEALTHCHECK`
   command
-- `docker/devcontainer/agentdev-devcontainer.Dockerfile:58` — `ENTRYPOINT`
-- `docker/deploy/agentdev-deploy.Dockerfile:24` — `COPY .devcontainer/scripts/`
-- `docker/deploy/agentdev-deploy.Dockerfile:64` — `HEALTHCHECK` command
-- `docker/deploy/agentdev-deploy.Dockerfile:66` — `ENTRYPOINT`
+- `docker/devcontainer/agentdev-devcontainer.Dockerfile:57` — `ENTRYPOINT`
+- `docker/deploy/agentdev-deploy.Dockerfile:19` — the `agentdev_runtime` uv tool
+  install
+- `docker/deploy/agentdev-deploy.Dockerfile:62` — `HEALTHCHECK` command
+- `docker/deploy/agentdev-deploy.Dockerfile:65` — `ENTRYPOINT`
 - `docker/devcontainer/supervisord.conf:25` — controller listener command
 - `docker/devcontainer/supervisord.conf:38` — first service `command=`
 - `docker/deploy/supervisord.conf:84` — `prepare` one-shot
-- `.github/workflows/ai-responder.yml:422` — review job `container:` block
-- `.github/actions/run-claude-responder/action.yml:150` — composite
+- `.github/workflows/ai-responder.yml:424` — review job `container:` block
+- `.github/actions/run-claude-responder/action.yml:159` — composite
   `claude-code-action` step
-- `.devcontainer/scripts/postStartCommand.sh:9` — no-supervisor branch
-- `.devcontainer/scripts/ci-hooks-repro.sh:20` — default image reference
-- `ansible/roles/validate_agent_files/tasks/main.yml:61` — uv tool install to
-  mirror
-- `ansible/roles/validate_agent_files/defaults/main.yml:17` — `/opt/uv-tools`
 - `.github/actions/run-claude-responder/action.yml:95` — lifecycle step
+- `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:141` — `ready`:
+  the no-supervisor branch starts CBM through `start_cbm` (`:130`)
+- `ansible/roles/validate_agent_files/tasks/main.yml:61` — uv tool install the
+  runtime images mirror
+- `ansible/roles/validate_agent_files/defaults/main.yml:17` — `/opt/uv-tools`
 - `.github/workflows/ci.yml:325` — `agentdev-runtime health ready` in the Dev
   Container image check
-- `.github/workflows/ci.yml:399` — `test-agent-runtime.sh` invocation
+- `.github/workflows/ci.yml:399` — the acceptance suite through `uv run pytest`
 - `.github/renovate.json:6` — `postUpgradeTasks.commands`
 - `.github/workflows/renovate.yml:110` — `RENOVATE_ALLOWED_COMMANDS`
-- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:25` — filename stubs
-- `AGENTS.md:13` — `uv-sync.sh` reference
-- `README.md:205` — `runtime-health.sh status` operator command
-- `docker/deploy/README.md:102` — `runtime-health.sh status` operator command
-- `docs/knowledge/data/product.md:112` — firewall wrapper constraint
+- `scripts/tests/test_agentdev_devcontainer_lifecycle.py:29` — module-function
+  stubs recording each step
+- `AGENTS.md:13` — `agentdev-runtime project sync` reference
+- `README.md:205` — `agentdev-runtime health status` operator command
+- `docker/deploy/README.md:101` — `agentdev-runtime health status` operator
+  command
+- `docs/knowledge/data/product.md:112` — firewall constraint
 - `docs/knowledge/data/architecture/template-boundary.md:114` — `.codex/` row
-- `.codex/setup-codex-cloud.sh:4` — Codex Cloud bootstrap
-- `.devcontainer/scripts/environment-health.sh:78` — required toolchain list,
-  without `gitleaks` or `actionlint`
-- `.devcontainer/scripts/setup-pre-commit.sh:33` — deploy hook registration;
-  `:41` — devcontainer hook install, neither checking hook executables
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:19` —
+  `REQUIRED_TOOLS`, with `gitleaks` (`:30`) and `actionlint` (`:31`)
+- `py_packages/agentdev_runtime/agentdev_runtime/project.py:82` — `hooks`:
+  deploy and devcontainer hook registration; `:46` — `missing_executables`
 - `.pre-commit-config.yaml:56` — `gitleaks`, a `language: system` hook; `:62` —
   `actionlint`
