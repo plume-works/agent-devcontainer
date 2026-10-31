@@ -191,9 +191,12 @@ under `docs/knowledge/tests/`
 `.agents/plugins/agentdev/skills/iwe-weekly/SKILL.md`,
 `.agents/plugins/agentdev/skills/iwe-setup/SKILL.md`
 
-- [ ] Capture and Plan add a new member's link at its sorted position in the
+- [x] Capture and Plan add a new member's link at its sorted position in the
   hub, never under a section, and Plan sets an optional `rank` when the user
   names the plan's place in the sequence
+  - **Evidence:** commit 91bbfe2c; iwe-capture Step 5 and iwe-planner Step 5
+    insert the link at its sorted position, and iwe-planner sets `rank` to its
+    neighbours' midpoint only when the user names the place
 - [ ] Capture's someday promotion and Setup's onboarding-task completion edit
   frontmatter only, and remove a hub link only when the member leaves the hub
 - [ ] Implement, Verify, Weekly, and Plan list active work with the two rank
