@@ -13,8 +13,8 @@ frontmatter:
       type: string
       description: version must be a string (e.g. 0.6.0)
     stage:
-      enum: [released, unreleased]
-      description: 'stage must be one of: released, unreleased'
+      const: released
+      description: 'stage must be released'
     date:
       type: string
       format: date
