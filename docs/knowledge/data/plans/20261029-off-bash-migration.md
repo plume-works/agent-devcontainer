@@ -1012,13 +1012,19 @@ image](20261023-reusable-agentdev-devcontainer.md)
 
 ## Verification results
 
-- `agentdev-runtime doctor` in a started Dev Container is not shown passing. In
-  `agentdev-devcontainer` run under its supervisor, after `lifecycle created`
-  and `lifecycle ready`, it reports 39 PASS, 9 FAIL, and 4 SKIP. Every failure
-  is a check that needs something a bare container lacks: the Compose `sshd` and
-  `mcp-gateway` sidecars, the `gh`, git, Claude, and Codex credentials, and the
-  OpenCode server password. The toolchain section passes. Closing it takes one
-  `doctor` run in this repository's Compose Dev Container with credentials.
+- `agentdev-runtime doctor` does not end `Overall: PASS` in this repository's
+  Compose Dev Container under Coder with credentials. Run from the package at
+  ef21b750 (the workspace image predates the CLI), it reports 44 PASS, 3 FAIL,
+  and 5 SKIP: the runtime state, the toolchain including `gitleaks` and
+  `actionlint`, the services, and the auth links pass. The three failures are
+  checks carried over unchanged from `environment-health.sh` that misjudge this
+  workspace — `mcp-gateway` DNS and `:8811` without the opt-in `mcp` Compose
+  profile, and `git user` with Coder's environment identity — filed as [Bug:
+  doctor fails a healthy Coder Dev
+  Container](../bugs/doctor-fails-healthy-coder-devcontainer.md).
+- The task commits landed on `main` squashed as c96e1ef1 (#573); the per-task
+  SHAs the evidence cites are reachable on
+  `origin/iwe/off-bash-migration/iter-1-impl`.
 
 ## Out of scope
 
