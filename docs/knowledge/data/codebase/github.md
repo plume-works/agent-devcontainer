@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:c86c03364c754f8406ef66da7f03e7a5a511d697bd410f498c45d25b7c5afc90
+source_digest: sha256:b77d0d9a0b73f18855a063991f2b18b2533f239179c32214ce750b7adf24678e
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:05:52Z
+  at: 2026-10-31T04:38:23Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T00:05:52Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: .github
@@ -37,7 +37,7 @@ the composite actions they share, `renovate.json`, and
   and the Ansible role pins its custom regex managers extract from `# renovate:`
   comments under `ansible/roles/*/defaults/`, checksum-carrying `dev_tools`
   entries included; a further regex manager extracts that `bunx` pin from
-  `.pre-commit-config.yaml`; runs `scripts/renovate-post-upgrade.sh` after every
+  `.pre-commit-config.yaml`; runs `scripts/renovate-post-upgrade.py` after every
   upgrade that touches the listed paths; disables Renovate for the Super-Linter
   family, which `/agentdev:sync-super-linter-tool-versions` moves by hand, and
   for the `ubuntu` base of `docker/ansible/Dockerfile`, which stays at 24.04

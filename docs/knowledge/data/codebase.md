@@ -28,7 +28,7 @@ then `docker/devcontainer/agentdev-devcontainer.Dockerfile` or
 `docker/deploy/agentdev-deploy.Dockerfile` with
 `--build-arg FROM_IMAGE=local/agentdev-base` from the repository root. The
 Python environment: `uv sync --all-groups` (the devcontainer runs
-`.devcontainer/scripts/uv-sync.sh` for you).
+`agentdev-runtime project sync` for you).
 
 **Run.** Open the folder in a devcontainer, or
 `devcontainer up --workspace-folder .`; the lifecycle hooks do the rest
@@ -36,7 +36,9 @@ Python environment: `uv sync --all-groups` (the devcontainer runs
 `uv run ansible-playbook --syntax-check ansible/playbooks/setup-dev.yml`.
 
 **Test.** `uv run pytest` runs the three suites `pyproject.toml` lists
-(`.agents/plugins/agentdev/tests`, `docs/knowledge/tests`, `py_packages`);
+(`.agents/plugins/agentdev/tests`, `docs/knowledge/tests`, `py_packages`,
+`scripts/tests`); the deploy acceptance suite runs with
+`AGENTDEV_RUNTIME_TEST_IMAGE` set;
 `uv run validate_agent_files --recommend . --require-marketplace claude codex`
 validates the catalog; `uv run pre-commit run --all-files` mirrors CI's
 formatters; `super_linter.py local` runs the full Super-Linter pass;
@@ -48,7 +50,8 @@ formatters; `super_linter.py local` runs the full Super-Linter pass;
 image), `docker/deploy/agentdev-deploy.Dockerfile` and `compose.opencode.yml`
 (the standalone OpenCode runtime), `ansible/playbooks/setup-dev.yml`
 (provisioning), `.github/workflows/primary-checks.yml` (CI), the
-`validate_agent_files` console script, and `/agentdev:<skill>` (the catalog).
+`validate_agent_files` and `agentdev-runtime` console scripts, and
+`/agentdev:<skill>` (the catalog).
 
 | Path                                                                                                                                                                                          | Component                                                                                                                                |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
@@ -57,12 +60,13 @@ image), `docker/deploy/agentdev-deploy.Dockerfile` and `compose.opencode.yml`
 | `.devcontainer/`, `devcontainer-compose-pins.yml`                                                                                                                                             | [Devcontainer scaffolding](codebase/devcontainer.md)                                                                                     |
 | `compose.opencode.yml`, `compose.opencode.bind.yml`, `opencode-compose-pins.yml`                                                                                                              | the standalone runtime's Compose deployment and its digest pin, described in [the image runtime contract](codebase/api-image-runtime.md) |
 | `.agents/plugins/agentdev/`, `.agents/plugins/marketplace.json`, `.claude-plugin/`                                                                                                            | [The agentdev catalog](codebase/agents/plugins/agentdev.md)                                                                              |
+| `py_packages/agentdev_runtime/`                                                                                                                                                               | [agentdev_runtime package](codebase/py_packages/agentdev_runtime.md)                                                                     |
 | `py_packages/validate_agent_files/`                                                                                                                                                           | [validate_agent_files package](codebase/py_packages/validate_agent_files.md)                                                             |
 | `.github/`                                                                                                                                                                                    | [GitHub automation](codebase/github.md)                                                                                                  |
 | `.iwe/`, `docs/knowledge/`                                                                                                                                                                    | [Knowledge workspace machinery](codebase/docs/knowledge.md) — the `data/` inside it is this graph                                        |
 | `scripts/validate-super-linter-tool-versions.py`                                                                                                                                              | checks pre-commit and local tool versions against the pinned Super-Linter image; no doc                                                  |
-| `scripts/renovate-post-upgrade.sh`, `scripts/refresh-pin-checksums.py`, `scripts/tests/`                                                                                                      | Renovate's post-upgrade task: recomputes role pin checksums and regenerates locks in the bump's commit; no doc                           |
-| `scripts/analyze-claude-responder-costs.py`, `scripts/download-claude-responder-runs.sh`                                                                                                      | download and summarize AI responder token and cost artifacts; no doc                                                                     |
+| `scripts/renovate-post-upgrade.py`, `scripts/refresh-pin-checksums.py`, `scripts/tests/`                                                                                                      | Renovate's post-upgrade task: recomputes role pin checksums and regenerates locks in the bump's commit; no doc                           |
+| `scripts/analyze-claude-responder-costs.py`, `scripts/download-claude-responder-runs.py`                                                                                                      | download and summarize AI responder token and cost artifacts; no doc                                                                     |
 | `.codex/`, `.claude/`, `.mcp.json`, `.vscode/`                                                                                                                                                | project-local agent and editor configuration, not the catalog; no doc                                                                    |
 | `README.md`, `AGENTS.md`, `CLAUDE.md`, `AGENTS-codebase-memory-mcp.md`, `LICENSE`                                                                                                             | the human and agent entry documents; `CLAUDE.md` only includes `AGENTS.md`                                                               |
 | `pyproject.toml`, `uv.lock`, `.ruff.toml`                                                                                                                                                     | the uv project and Python style                                                                                                          |
@@ -79,6 +83,8 @@ image), `docker/deploy/agentdev-deploy.Dockerfile` and `compose.opencode.yml`
 [Devcontainer scaffolding](codebase/devcontainer.md)
 
 [The agentdev catalog](codebase/agents/plugins/agentdev.md)
+
+[agentdev_runtime package](codebase/py_packages/agentdev_runtime.md)
 
 [validate_agent_files package](codebase/py_packages/validate_agent_files.md)
 

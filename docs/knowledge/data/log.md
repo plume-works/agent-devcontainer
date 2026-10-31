@@ -4,6 +4,17 @@ The history of this workspace, newest first. The `ship` skill appends a dated
 group on every release; any skill that creates or retires a document adds a line
 to the current day's group.
 
+## 2026-10-31
+
+- **Create**: [agentdev runtime
+  package](architecture/agentdev-runtime-package.md) records the runtime as one
+  `agentdev-runtime` CLI package, its `RECORD` integrity check, the firewall run
+  from the bootstrap, and the CBM-only start of a container with no supervisor.
+- **Update**: the codebase map follows the runtime into [agentdev_runtime
+  package](codebase/py_packages/agentdev_runtime.md), which replaces the
+  lifecycle-scripts doc, and refreshes the Docker, Dev Container, lifecycle,
+  image-runtime, firewall, Ansible, GitHub, and validator docs it touched.
+
 ## 2026-10-30
 
 - **Update**: refreshed the [agentdev
@@ -42,9 +53,9 @@ to the current day's group.
   confirmed](bugs/supervisor-client-recovered-before-dependency.md) fixed and
   listed under Unreleased Fixed.
 - **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
-  [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the runtime
-  controller escalating a client failure to its failing dependency.
+  [devcontainer scripts](codebase/py_packages/agentdev_runtime.md), and
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
+  the runtime controller escalating a client failure to its failing dependency.
 - **Update**: [iwe-branch-name v2: one iteration counter per
   plan](plans/20261030-iwe-branch-name-v2.md) done; merged the
   `iwe/<slug>/iter-<N>-<phase>` shape and shared counter into
@@ -82,9 +93,9 @@ to the current day's group.
   names](features/remote-control-environment-names.md) implemented and listed
   under Unreleased Added.
 - **Update**: refreshed the [devcontainer](codebase/devcontainer.md),
-  [devcontainer scripts](codebase/devcontainer/scripts.md), and [devcontainer
-  lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for the
-  launcher-derived container hostname.
+  [devcontainer scripts](codebase/py_packages/agentdev_runtime.md), and
+  [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs for
+  the launcher-derived container hostname.
 - **Update**: the launcher hostname is now derived inside
   `devcontainer-init.sh`, since a migrated consumer keeps no
   `.devcontainer/scripts/`; [Claude Remote
@@ -208,11 +219,11 @@ to the current day's group.
 - **Create**: someday ideas [Calibrate the revision evaluator against human
   review](someday/revision-evaluator-calibration.md) and [Nested dispatch from
   catalog agents](someday/nested-catalog-agent-dispatch.md).
-- **Map**: re-anchored the [scripts](codebase/devcontainer/scripts.md) map for
-  the Remote Control watcher's shorter header, and re-stamped
+- **Map**: re-anchored the [scripts](codebase/py_packages/agentdev_runtime.md)
+  map for the Remote Control watcher's shorter header, and re-stamped
   [devcontainer](codebase/devcontainer.md) and the [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md).
-- **Map**: refreshed the [scripts](codebase/devcontainer/scripts.md),
+- **Map**: refreshed the [scripts](codebase/py_packages/agentdev_runtime.md),
   [docker](codebase/docker.md), and [image and
   runtime](codebase/api-image-runtime.md) maps for the standalone Remote Control
   watcher and its settings, and re-stamped
@@ -299,8 +310,8 @@ to the current day's group.
   mode](features/claude-remote-control-server-mode.md) stays implemented and
   listed under Unreleased Added.
 - **Update**: refreshed the [devcontainer
-  scripts](codebase/devcontainer/scripts.md) map for the Remote Control spawn
-  mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
+  scripts](codebase/py_packages/agentdev_runtime.md) map for the Remote Control
+  spawn mode, and re-stamped [devcontainer](codebase/devcontainer.md) and
   [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md).
 - **Update**: recorded [Assignee-triggered AI
   re-reviews](architecture/assignee-review-trigger.md) and filed backlog task
@@ -415,7 +426,7 @@ to the current day's group.
   mode](features/claude-remote-control-server-mode.md) implemented; listed under
   Unreleased Added.
 - **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
-  [scripts](codebase/devcontainer/scripts.md), and the [devcontainer
+  [scripts](codebase/py_packages/agentdev_runtime.md), and the [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) for the Remote Control
   launcher's `AGENTDEV_CLAUDE_RC_MODE` server mode.
 - **Bug**: filed and fixed [every gh call in the devcontainer leaks a D-Bus
@@ -424,11 +435,11 @@ to the current day's group.
   [workflows](codebase/github/workflows.md), and the [pull request
   checks](codebase/flow-pull-request-checks.md) flow for the compose files in
   the image filter, and the [image runtime](codebase/api-image-runtime.md) and
-  [.devcontainer scripts](codebase/devcontainer/scripts.md) for the strict
-  firewall switch and comment-keeping hooks repair.
+  [.devcontainer scripts](codebase/py_packages/agentdev_runtime.md) for the
+  strict firewall switch and comment-keeping hooks repair.
 - **Map**: refreshed the [image runtime](codebase/api-image-runtime.md) and the
-  [.devcontainer scripts](codebase/devcontainer/scripts.md) for attempt-scoped
-  failure output and client refresh on retry, and re-verified
+  [.devcontainer scripts](codebase/py_packages/agentdev_runtime.md) for
+  attempt-scoped failure output and client refresh on retry, and re-verified
   [.devcontainer](codebase/devcontainer.md), [Docker](codebase/docker.md), and
   the [devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md) and
   [image build](codebase/flow-image-build.md) flows.
@@ -438,8 +449,9 @@ to the current day's group.
 - **Map**: refreshed [Ansible](codebase/ansible.md),
   [dev_tools](codebase/ansible/roles/dev_tools.md),
   [.devcontainer](codebase/devcontainer.md), its
-  [scripts](codebase/devcontainer/scripts.md), [Docker](codebase/docker.md), the
-  [image runtime](codebase/api-image-runtime.md), [GitHub
+  [scripts](codebase/py_packages/agentdev_runtime.md),
+  [Docker](codebase/docker.md), the [image
+  runtime](codebase/api-image-runtime.md), [GitHub
   automation](codebase/github.md), its
   [workflows](codebase/github/workflows.md), and the [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md), [image
@@ -516,7 +528,7 @@ to the current day's group.
   `/clear`](bugs/remote-control-pin-ignores-clear.md) fixed; listed under
   Unreleased.
 - **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
-  [scripts](codebase/devcontainer/scripts.md), and the [devcontainer
+  [scripts](codebase/py_packages/agentdev_runtime.md), and the [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) for the
   `claude-remote-control-pin.sh` `SessionStart` hook.
 
@@ -545,22 +557,22 @@ to the current day's group.
   pytest](plans/20261019-iwe-workflows-e2e-pytest.md) done; internal, no release
   entry.
 - **Map**: refreshed the [devcontainer](codebase/devcontainer.md), its
-  [lifecycle scripts](codebase/devcontainer/scripts.md), and the [lifecycle
-  flow](codebase/flow-devcontainer-lifecycle.md) for the OpenCode link that
-  prints the server's root URL.
+  [lifecycle scripts](codebase/py_packages/agentdev_runtime.md), and the
+  [lifecycle flow](codebase/flow-devcontainer-lifecycle.md) for the OpenCode
+  link that prints the server's root URL.
 
 ## 2026-10-19
 
 - **Map**: refreshed [image runtime](codebase/api-image-runtime.md),
   [docker](codebase/docker.md), the [lifecycle
-  scripts](codebase/devcontainer/scripts.md), the
+  scripts](codebase/py_packages/agentdev_runtime.md), the
   [workflows](codebase/github/workflows.md), and the [pull request
   checks](codebase/flow-pull-request-checks.md) for the required standalone
   `XPRA_PASSWORD` and the pinned-acceptance gate that always runs on a changed
   OpenCode pin.
 - **Map**: refreshed [image runtime](codebase/api-image-runtime.md), the
   [devcontainer](codebase/devcontainer.md), its [lifecycle
-  scripts](codebase/devcontainer/scripts.md), the [lifecycle
+  scripts](codebase/py_packages/agentdev_runtime.md), the [lifecycle
   flow](codebase/flow-devcontainer-lifecycle.md), and the [image
   build](codebase/flow-image-build.md) for the standalone runtime on OpenCode
   v2.
@@ -568,7 +580,7 @@ to the current day's group.
   bridge](codebase/agents/plugins/agentdev/opencode-plugin.md), its
   [tests](codebase/agents/plugins/agentdev/tests.md), the
   [agentic_tools](codebase/ansible/roles/agentic_tools.md) role, the [lifecycle
-  scripts](codebase/devcontainer/scripts.md), the
+  scripts](codebase/py_packages/agentdev_runtime.md), the
   [devcontainer](codebase/devcontainer.md), and the [lifecycle
   flow](codebase/flow-devcontainer-lifecycle.md) for OpenCode v2 (`970a3ae`).
 
@@ -604,15 +616,15 @@ to the current day's group.
   [OpenCode web UI autostart on Coder](features/opencode-web-coder-autostart.md)
   implemented.
 - **Update**: [Devcontainer scaffolding](codebase/devcontainer.md), [lifecycle
-  scripts](codebase/devcontainer/scripts.md), and [devcontainer
+  scripts](codebase/py_packages/agentdev_runtime.md), and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) map docs refreshed for the
   OpenCode web UI autostart on Coder.
-- **Update**: [Lifecycle scripts](codebase/devcontainer/scripts.md) map doc
-  refreshed for the OpenCode workspace link; [devcontainer
+- **Update**: [Lifecycle scripts](codebase/py_packages/agentdev_runtime.md) map
+  doc refreshed for the OpenCode workspace link; [devcontainer
   scaffolding](codebase/devcontainer.md) and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
-- **Update**: [Lifecycle scripts](codebase/devcontainer/scripts.md) map doc
-  re-anchored for the shorter `link-opencode-auth.sh` header; [devcontainer
+- **Update**: [Lifecycle scripts](codebase/py_packages/agentdev_runtime.md) map
+  doc re-anchored for the shorter `link-opencode-auth.sh` header; [devcontainer
   scaffolding](codebase/devcontainer.md) and [devcontainer
   lifecycle](codebase/flow-devcontainer-lifecycle.md) re-digested.
 - **Update**: [Guard every gh stack push against overwriting a layer's remote
@@ -697,10 +709,10 @@ to the current day's group.
   storage, and the new [Devcontainer Docker
   storage](spec/devcontainer-docker-storage.md) spec records the Dev Container
   engine's 10 GB build-cache limit and agent-start image prune.
-- **Update**: [Devcontainer lifecycle scripts](codebase/devcontainer/scripts.md)
-  and [Flow: devcontainer lifecycle](codebase/flow-devcontainer-lifecycle.md)
-  map the agent-start image prune; the ansible, devcontainer, and image-build
-  map docs re-verified.
+- **Update**: [Devcontainer lifecycle
+  scripts](codebase/py_packages/agentdev_runtime.md) and [Flow: devcontainer
+  lifecycle](codebase/flow-devcontainer-lifecycle.md) map the agent-start image
+  prune; the ansible, devcontainer, and image-build map docs re-verified.
 - **Update**: [Resume the Remote Control conversation across
   restarts](features/claude-remote-control-resume.md) implemented.
 - **Update**: [Resume the autostarted Remote Control conversation by a pinned
@@ -708,10 +720,11 @@ to the current day's group.
   Control](spec/claude-remote-control.md) now resumes its pinned conversation on
   every start and falls back to a fresh pinned conversation when the resume
   fails.
-- **Update**: [Devcontainer lifecycle scripts](codebase/devcontainer/scripts.md)
-  map refreshed for `claude-remote-control-session.sh`, the pinned-conversation
-  pane script, in commit "map: refresh devcontainer scripts for the Remote
-  Control session script".
+- **Update**: [Devcontainer lifecycle
+  scripts](codebase/py_packages/agentdev_runtime.md) map refreshed for
+  `claude-remote-control-session.sh`, the pinned-conversation pane script, in
+  commit "map: refresh devcontainer scripts for the Remote Control session
+  script".
 - **Plan**: [Resume the autostarted Remote Control conversation by a pinned
   ID](plans/20261013-resume-claude-remote-control.md) filed, with its decision
   in [Claude Remote Control

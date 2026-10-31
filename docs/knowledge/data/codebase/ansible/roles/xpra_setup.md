@@ -22,8 +22,9 @@ desktop reachable through a browser.
 
 ## Public surface
 
-- `xpra` and the HTML5 client on the image; started by
-  [/start-xpra.sh](../../docker.md) at container start
+- `xpra` and the HTML5 client on the image; started by `agentdev-runtime xpra`
+  in the [agentdev_runtime package](../../py_packages/agentdev_runtime.md) at
+  container start
 - VirtualGL and Mesa/llvmpipe for GL inside the container
 
 ## How it works

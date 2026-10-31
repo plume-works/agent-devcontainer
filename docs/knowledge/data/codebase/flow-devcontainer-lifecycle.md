@@ -4,15 +4,15 @@ description: 'From opening the folder to a working session: host init, Compose, 
 source:
 - .devcontainer
 - docker/devcontainer
-- docker/desktop
-source_digest: sha256:12208362a621197763215c142c9e2592e3b3147fd9702799c12daa26e9a898a0
+- py_packages/agentdev_runtime
+source_digest: sha256:440ad39e2ad1d134023b526be03a4b7c1fec89d77d3e7fe754657c6ee2500fbd
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T07:34:45Z
-stale_after: 2027-01-28
+  at: 2026-10-31T04:38:23Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T07:34:45Z
+  at: 2026-10-31T04:38:23Z
 sources:
 - id: code
   resource: .devcontainer
@@ -39,42 +39,42 @@ state.
    the kept entrypoint, the `/var/lib/docker` volume, and the three lifecycle
    commands — under the descriptor — `.devcontainer/devcontainer.json:7`,
    `.devcontainer/docker-compose.yml:2,53,59`,
-   `docker/devcontainer/agentdev-devcontainer.Dockerfile:41-50`
-3. PID 1 is `runtime-supervisor.py run` in the `devcontainer` profile: the root
-   bootstrap checks `/opt/agentdev-runtime` against the image manifest and
-   accepts the mounted account and workspace, then supervisord starts D-Bus,
-   keyring, Docker, CBM, and Xpra as core services and publishes readiness in
-   `/run/agentdev/state.json` once their probes pass —
-   `.devcontainer/scripts/runtime-supervisor.py:988`,
-   `.devcontainer/scripts/runtime-bootstrap.sh:190`, in [lifecycle
-   scripts](devcontainer/scripts.md)
-4. `postCreateCommand` (once per container): ancestor and mount ownership,
-   `safe.directory`, then `setup-agent-state.sh create` — the `~/.claude.json`
-   symlink into the `agentdev-claude` volume, `codebase-memory-mcp install` (a
-   failure only warns), auth directories, Claude first-run pre-approval unless
+   `docker/devcontainer/agentdev-devcontainer.Dockerfile:38-47`
+3. PID 1 is `agentdev-runtime supervisor run` in the `devcontainer` profile: the
+   root bootstrap checks the installed `agentdev_runtime` distribution against
+   its `RECORD` and accepts the mounted account and workspace, then supervisord
+   starts D-Bus, keyring, Docker, CBM, and Xpra as core services and publishes
+   readiness in `/run/agentdev/state.json` once their probes pass —
+   `py_packages/agentdev_runtime/agentdev_runtime/supervisor.py:894`,
+   `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:314`, in the
+   [agentdev_runtime package](py_packages/agentdev_runtime.md)
+4. `postCreateCommand`, `agentdev-runtime lifecycle created` (once per
+   container): ancestor and mount ownership, `safe.directory`, then
+   `agentdev-runtime state create` — the `~/.claude.json` symlink into the
+   `agentdev-claude` volume, the CBM agent wiring (a failure only warns), auth
+   directories, Claude first-run pre-approval unless
    `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` is set, and the Codex auth link — uv sync
-   and pre-commit hooks for present configuration, and
-   `setup-agent-state.sh catalog` for the image-staged catalog; then the image's
-   `created` hooks and the create marker, which releases the opt-in OpenCode and
-   Remote Control programs —
-   `.devcontainer/scripts/devcontainer-created.sh:34-56`
-5. `postStartCommand` (every start, and the `waitFor` target): wait until
-   `runtime-health.sh ready` passes, failing when the runtime failed or is late;
-   then `safe.directory`, the gh git credential helper,
-   `setup-agent-state.sh links` and `agent-policy`, and the `started` hooks —
-   `.devcontainer/scripts/devcontainer-ready.sh:20-46`. Claude Remote Control is
-   not part of it: in Coder, the template's `coder_script` on the dev
-   container's sub-agent runs `coder-agent-start.sh` after the agent starts,
-   which prunes unused images in the nested Docker engine, repeats the gh helper
-   setup with the agent's environment, starts the OpenCode web UI on
-   `tmux -L opencode`, then execs `claude-remote-control-start.sh` —
-   `.devcontainer/scripts/coder-agent-start.sh:9-21`
-6. `postAttachCommand` (every editor attach): a background CBM index request, uv
-   sync, and, only when the checkout carries the complete catalog,
-   `setup-agent-state.sh catalog` for it at local scope, with OpenCode's bridge
-   entry repointed at it, which is how this repository develops the catalog in
-   place; then the `attached` hooks —
-   `.devcontainer/scripts/devcontainer-attached.sh:15-24`
+   and pre-commit hooks for present configuration, and the image-staged
+   catalog's install; then the image's `created` hooks and the create marker,
+   which releases the opt-in OpenCode and Remote Control programs —
+   `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:76`
+5. `postStartCommand`, `agentdev-runtime lifecycle ready` (every start, and the
+   `waitFor` target): wait until `agentdev-runtime health ready` passes, failing
+   when the runtime failed or is late; then `safe.directory`, the gh git
+   credential helper, the Codex auth link, the agent policies, and the `started`
+   hooks — `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:141`. In
+   Coder, the template's `coder_script` on the dev container's sub-agent runs
+   `agentdev-runtime coder start` after the agent starts, which prunes unused
+   images in the nested Docker engine, repeats the gh helper setup with the
+   agent's environment, starts the OpenCode web UI on `tmux -L opencode`, then
+   execs `agentdev-runtime remote-control start` —
+   `py_packages/agentdev_runtime/agentdev_runtime/coder.py:22`
+6. `postAttachCommand`, `agentdev-runtime lifecycle attached` (every editor
+   attach): a background CBM index request, uv sync, and, only when the checkout
+   carries the complete catalog, its catalog install at local scope, with
+   OpenCode's bridge entry repointed at it, which is how this repository
+   develops the catalog in place; then the `attached` hooks —
+   `py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py:158`
 
 ## Failure modes
 
@@ -84,20 +84,21 @@ state.
 - A required service that exhausts recovery withdraws readiness; the
   devcontainer profile then exits nonzero, and step 5 fails naming the runtime
   state, so the editor never attaches to a partial runtime.
-- A file changed, added, or removed below `/opt/agentdev-runtime` fails step 3.
-- `CBM_CACHE_DIR` unset aborts the first CBM script; a missing
+- An installed package file changed, added, or removed fails step 3.
+- `CBM_CACHE_DIR` unset aborts the first CBM step; a missing
   `codebase-memory-mcp` binary is skipped instead. Any other step 4 failure ends
   the create phase; a failed CBM install only warns.
 - `ENABLE_FIREWALL=true` in an image built without the firewall role fails the
   bootstrap.
-- A CI `container:` job runs no image lifecycle and no supervisor; it calls the
-  checkout's `post*Command.sh` wrappers, whose start wrapper starts the services
-  itself, and `ci-hooks-repro.sh` reproduces that environment locally.
+- A CI `container:` job runs no image lifecycle and no supervisor; it runs
+  `agentdev-runtime lifecycle created`, `ready --no-wait`, and `attached`, and
+  `ready --no-wait` starts only the CBM daemon before the per-start repairs.
 - `AGENTDEV_SKIP_PRE_COMMIT`, `AGENTDEV_SKIP_XPRA`, and
   `AGENTDEV_SKIP_CLAUDE_PREAPPROVE` are the documented opt-outs for callers that
   never commit, never attach a desktop, or must not enable project MCP servers.
 - Remote Control stays down when `claude auth status` reports no live claude.ai
   login; a setup token alone does not start it. Running
-  `claude-remote-control-start.sh` by hand from a Coder terminal after `/login`
-  starts it on the `tmux -L claude-remote` server. Outside Coder nothing starts
-  it.
+  `agentdev-runtime remote-control start` by hand from a Coder terminal after
+  `/login` starts it on the `tmux -L claude-remote` server. Outside Coder, the
+  supervised `remote-control` program starts it when `AGENTDEV_CLAUDE_RC_MODE`
+  is set.
