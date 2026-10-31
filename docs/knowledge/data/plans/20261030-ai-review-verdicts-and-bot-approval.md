@@ -361,9 +361,13 @@ Assumptions:
 
 ### Task 9: A review with only non-blocking findings approves
 
-- [ ] A pull request reviewed after the change, whose validated findings are all
+- [x] A pull request reviewed after the change, whose validated findings are all
   non-blocking, carries an `APPROVED` review from `github-actions[bot]`, and
   merges once its threads are resolved.
+  - **Evidence:** PR #594 — the review was `APPROVED` with one inline
+    non-blocking AGENTS.md compliance finding; once the thread was resolved, the
+    pull request reached `CLEAN`. PR #592 showed the blocking side: blocking
+    findings drew `REQUEST_CHANGES`, and a clean re-review approved.
 
 ## Spec changes
 
