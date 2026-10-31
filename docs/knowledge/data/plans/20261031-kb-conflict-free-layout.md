@@ -203,9 +203,13 @@ under `docs/knowledge/tests/`
     `data/someday.md` link only because the document leaves that hub, and
     iwe-setup Step 6 sets `stage`, `completed`, and drops `rank` without moving
     a link
-- [ ] Implement, Verify, Weekly, and Plan list active work with the two rank
+- [x] Implement, Verify, Weekly, and Plan list active work with the two rank
   queries and select members by `type`, with no `--included-by` on a work hub
   and no reference to a hub section
+  - **Evidence:** commit 91bbfe2c;
+    `grep -rn 'included-by data/\(plans\|backlog\|bugs\|features\)\|## Active\|## High\|## Done' .agents/plugins/agentdev/agents .agents/plugins/agentdev/skills/*/SKILL.md`
+    finds nothing, and each new `iwe find` filter returns the expected keys
+    against this graph
 - [ ] Validation with
   `uv run validate_agent_files --recommend . --require-marketplace claude`
   passes
