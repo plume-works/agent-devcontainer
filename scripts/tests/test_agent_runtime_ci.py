@@ -20,15 +20,15 @@ PROMOTE_ACTION = yaml.safe_load((ACTIONS / 'promote/action.yml').read_text())
 RENOVATE = json.loads((REPO_ROOT / '.github/renovate.json').read_text())
 PIN = 'opencode-compose-pins.yml'
 RUNTIME_SOURCES = [
-    '.devcontainer/scripts/runtime-supervisor.py',
-    '.devcontainer/scripts/runtime-bootstrap.sh',
+    'py_packages/agentdev_runtime/agentdev_runtime/supervisor.py',
+    'py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py',
     '.devcontainer/firewall-allowlist.txt',
     'docker/base/agentdev-base.Dockerfile',
     'docker/deploy/agentdev-deploy.Dockerfile',
     'docker/deploy/supervisord.conf',
     'docker/devcontainer/agentdev-devcontainer.Dockerfile',
     'docker/devcontainer/supervisord.conf',
-    'docker/desktop/start-xpra.sh',
+    'py_packages/agentdev_runtime/agentdev_runtime/xpra.py',
     'scripts/tests/test_agent_runtime_acceptance.py',
 ]
 DEPLOYMENT_ONLY = [
@@ -96,7 +96,7 @@ def test_each_runtime_gets_its_own_manifest_and_native_acceptance():
         assert merged['with']['image'].endswith(f'${{{{ env.{env}_IMAGE_NAME }}}}')
         assert f'merge_{runtime}' in merge['outputs'][f'{runtime}_image_pinned']
     for job, script, variable in (
-        ('deploy-acceptance', 'test-agent-runtime.sh', 'AGENTDEV_RUNTIME_TEST_IMAGE'),
+        ('deploy-acceptance', 'test_agent_runtime_acceptance.py', 'AGENTDEV_RUNTIME_TEST_IMAGE'),
         (
             'devcontainer-acceptance',
             'test_agentdev_devcontainer_image.py',

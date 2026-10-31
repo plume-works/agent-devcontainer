@@ -3,12 +3,11 @@ type: architecture
 description: Why the self-improvement plugin lives in this repository as a second catalog plugin, and the constraints that placement creates.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:00:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
 - resource: https://github.com/plume-works/agent-self-improvement
   title: agent-self-improvement, merged at e94031a
-- resource: .devcontainer/scripts/reinstall-agentdev-claude.sh
-- resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
 - resource: ansible/roles/agentic_tools/defaults/main.yml
 - resource: py_packages/validate_agent_files/validate_agent_files/core.py
 ---
@@ -61,12 +60,11 @@ carries rather than on what one machine's settings say.
 
 ### The catalog is no longer single-plugin
 
-`reinstall-agentdev-claude.sh` and `reinstall-agentdev-codex.sh` resolve the
-plugin to install with `jq -er '.plugins[0].name'`, and
-`agentic_tools_plugin_name` is a scalar. Marketplace *names* were deliberately
-de-hardcoded so a rename needs no edit; plugin arity never was. A second entry
-is otherwise installed never and uninstalled never — a silent no-op rather than
-an error.
+`agentdev-runtime catalog install` resolves the Codex plugin to install from the
+Codex manifest's first entry, and `agentic_tools_plugin_name` is a scalar.
+Marketplace *names* were deliberately de-hardcoded so a rename needs no edit;
+plugin arity never was. A second entry is otherwise installed never and
+uninstalled never — a silent no-op rather than an error.
 
 `validate_agent_files` is the exception: it already enumerates every plugin a
 marketplace manifest publishes.

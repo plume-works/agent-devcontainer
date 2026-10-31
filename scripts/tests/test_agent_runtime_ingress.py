@@ -12,17 +12,20 @@ import re
 import shutil
 import socket
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
 from uuid import uuid4
 
+from agentdev_runtime import opencode
+from agentdev_runtime.settings import Settings
 import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-COMMAND = REPO_ROOT / '.devcontainer/scripts/opencode-web-command.sh'
-START_XPRA = REPO_ROOT / 'docker/desktop/start-xpra.sh'
+COMMAND = [sys.executable, '-m', 'agentdev_runtime', 'opencode']
+START_XPRA = [sys.executable, '-m', 'agentdev_runtime', 'xpra']
 PASSWORD = 'p@ss "quoted" \\ word'
 XPRA_SECRET = 'xpra-ingress-secret'
 
@@ -74,7 +77,7 @@ def test_serve_requires_a_nonempty_password(scratch: Path, password: str | None)
     env = command_env(scratch, fake_tools(scratch))
     if password is not None:
         env['OPENCODE_SERVER_PASSWORD'] = password
-    result = subprocess.run([COMMAND, 'serve'], env=env, capture_output=True, text=True)
+    result = subprocess.run([*COMMAND, 'serve'], env=env, capture_output=True, text=True)
     assert result.returncode == 1
     assert 'OPENCODE_SERVER_PASSWORD must be set' in result.stderr
     assert not (scratch / 'opencode.log').exists()
@@ -82,7 +85,7 @@ def test_serve_requires_a_nonempty_password(scratch: Path, password: str | None)
 
 def test_serve_binds_the_proxy_network_and_keeps_display(scratch: Path):
     env = command_env(scratch, fake_tools(scratch), OPENCODE_SERVER_PASSWORD='x')
-    result = subprocess.run([COMMAND, 'serve'], env=env, capture_output=True, text=True)
+    result = subprocess.run([*COMMAND, 'serve'], env=env, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
     workdir, display, args = (scratch / 'opencode.log').read_text().strip().split('|')
     assert (workdir, display) == (str(scratch / 'workspace'), ':100')
@@ -91,13 +94,10 @@ def test_serve_binds_the_proxy_network_and_keeps_display(scratch: Path):
 
 def test_coder_pane_serves_without_display(scratch: Path):
     for password, host in (('', '127.0.0.1'), ('x', '0.0.0.0')):
-        printed = subprocess.run(
-            [COMMAND, 'coder-pane'],
-            capture_output=True,
-            text=True,
-            check=True,
-            env=command_env(scratch, OPENCODE_SERVER_PASSWORD=password),
-        ).stdout.strip()
+        environ = command_env(scratch, OPENCODE_SERVER_PASSWORD=password)
+        with pytest.MonkeyPatch.context() as patch:
+            patch.setenv('HOME', environ['HOME'])
+            printed = opencode.coder_pane(Settings(environ))
         assert f'exec env -u DISPLAY opencode serve --port 4096 --hostname {host}' in printed
 
 
@@ -164,10 +164,10 @@ def opencode_server(scratch: Path) -> Iterator[tuple[Path, int, dict[str, str]]]
         scratch, bin_dir, OPENCODE_SERVER_PASSWORD=PASSWORD, AGENTDEV_OPENCODE_PORT=str(port)
     )
     server = subprocess.Popen(
-        [COMMAND, 'serve'], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        [*COMMAND, 'serve'], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
     )
     try:
-        ready = wait_for(lambda: subprocess.run([COMMAND, 'probe'], env=env).returncode == 0)
+        ready = wait_for(lambda: subprocess.run([*COMMAND, 'probe'], env=env).returncode == 0)
         assert ready, 'authenticated readiness never passed'
         yield scratch, port, env
     finally:
@@ -184,9 +184,9 @@ def test_opencode_rejects_api_requests_without_its_password(opencode_server):
         ['opencode', '--version'], capture_output=True, text=True, check=True
     ).stdout
     assert status == 200 and json.loads(body)['version'] in shipped
-    assert subprocess.run([COMMAND, 'probe'], env=env).returncode == 0
+    assert subprocess.run([*COMMAND, 'probe'], env=env).returncode == 0
     wrong = {**env, 'OPENCODE_SERVER_PASSWORD': 'wrong'}
-    assert subprocess.run([COMMAND, 'probe'], env=wrong).returncode != 0
+    assert subprocess.run([*COMMAND, 'probe'], env=wrong).returncode != 0
 
 
 def test_opencode_serves_its_web_ui_and_websockets_at_the_root(opencode_server):
@@ -238,7 +238,7 @@ def supervised_xpra(scratch: Path, password: str | None) -> Iterator[tuple[int, 
     display = f':{200 + (os.getpid() + port) % 500}'
     env = xpra_env(scratch, password)
     server = subprocess.Popen(
-        [START_XPRA, '--supervised', '--port', str(port), '--display', display],
+        [*START_XPRA, '--supervised', '--port', str(port), '--display', display],
         env=env,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
@@ -294,7 +294,14 @@ def test_supervised_xpra_without_a_password_keeps_sessions_open(scratch: Path):
 def test_supervised_xpra_refuses_to_duplicate_a_live_session(xpra):
     port, env = xpra
     duplicate = subprocess.run(
-        [START_XPRA, '--supervised', '--port', str(free_port()), '--display', env['XPRA_DISPLAY']],
+        [
+            *START_XPRA,
+            '--supervised',
+            '--port',
+            str(free_port()),
+            '--display',
+            env['XPRA_DISPLAY'],
+        ],
         env=env,
         capture_output=True,
         text=True,
@@ -310,7 +317,7 @@ def test_supervised_xpra_reclaims_the_display_after_a_crash(scratch: Path):
         pytest.skip('requires xpra')
     port, display = free_port(), f':{700 + os.getpid() % 200}'
     env = xpra_env(scratch, XPRA_SECRET)
-    command = [START_XPRA, '--supervised', '--port', str(port), '--display', display]
+    command = [*START_XPRA, '--supervised', '--port', str(port), '--display', display]
     crashed = subprocess.Popen(
         command, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
     )

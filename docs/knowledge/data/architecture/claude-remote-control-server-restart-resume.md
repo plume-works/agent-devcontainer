@@ -3,9 +3,9 @@ type: architecture
 description: After a Remote Control server restart, a same-dir session spawned on demand returns when the claude.ai service dispatches it to the server as a pair of initialize control requests; the service skips some sessions at server start and dispatches them later on its own.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-24T02:45:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 ---
 
 # Claude Remote Control server restart resume

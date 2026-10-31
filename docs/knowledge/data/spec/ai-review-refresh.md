@@ -3,14 +3,14 @@ type: spec
 description: When the agentdev pr-* skills evaluate whether a reviewed pull request needs a fresh AI review, how they request one at most once per head commit, and how they judge a requested review's progress.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T12:00:00Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-open/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-merge/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-feedback-resolution/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-eval-review-needed/SKILL.md
 - resource: .agents/plugins/agentdev/skills/pr-request-ai-review/SKILL.md
-- resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.sh
+- resource: .agents/plugins/agentdev/skills/pr-request-ai-review/agent-code/request-review.py
 - resource: .github/workflows/ai-responder.yml
 ---
 
@@ -45,7 +45,7 @@ from the pull request rather than from the session that made the change.
 ## Requirement: one AI review trigger per head commit
 
 The catalog SHALL request an AI review only through `pr-request-ai-review`'s
-`request-review.sh`, and SHALL request it by toggling the pull request author's
+`request-review.py`, and SHALL request it by toggling the pull request author's
 assignment: an assigned author is removed and added back, and an unassigned
 author is added and removed, so the assignees end as they were found. The
 catalog SHALL NOT post an `@claude review` comment.

@@ -21,7 +21,7 @@ DEFAULT_PORT = 4096
 PASSWORD_ENV = 'OPENCODE_SERVER_PASSWORD'
 PASSWORD_FILE = '.local/share/opencode/agentdev-server-password'
 USERNAME = 'opencode'
-START_SCRIPT = '.devcontainer/scripts/opencode-web-start.sh'
+START_SCRIPT = 'agentdev-runtime opencode coder-start'
 INTEGRATION = 'openai'
 WITHHELD = 'withheld'
 REFRESH_MODEL = {'providerID': 'openai', 'id': 'gpt-6-luna'}
@@ -113,7 +113,7 @@ class Server:
 def source_from_environment(
     environ: dict[str, str] | None = None, home: Path | None = None
 ) -> Server:
-    """Locate the web UI server the way ``opencode-web-start.sh`` configures it."""
+    """Locate the web UI server the way ``agentdev-runtime opencode coder-start`` configures it."""
     environ = os.environ if environ is None else environ
     home = Path.home() if home is None else home
     port = environ.get(PORT_ENV) or str(DEFAULT_PORT)

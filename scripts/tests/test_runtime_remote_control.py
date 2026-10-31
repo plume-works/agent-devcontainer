@@ -1,4 +1,4 @@
-"""Tests for runtime-remote-control.sh, the standalone runtime's Remote Control watcher."""
+"""Tests for `agentdev-runtime remote-control run`, the standalone runtime's Remote Control watcher."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 from uuid import uuid4
 
@@ -15,7 +16,7 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-WATCHER = REPO_ROOT / '.devcontainer/scripts/runtime-remote-control.sh'
+WATCHER = [sys.executable, '-m', 'agentdev_runtime', 'remote-control']
 CLAUDE_AI_LOGIN = {'loggedIn': True, 'authMethod': 'claude.ai'}
 WAITING = 'waiting for a claude.ai login'
 RUNNING = 'running in tmux session claude-remote'
@@ -27,13 +28,14 @@ test -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" || exit 3
 echo auth >> "$STATE/claude.log"
 cat "$STATE/auth.json" 2>/dev/null
 """
-# A live session is the file $STATE/session; new-session fails when $STATE/tmux.fail exists.
+# A live session is the file $STATE/session; new-session fails when $STATE/tmux.fail exists
+# and leaves no session, as a pane that exits at once does, when $STATE/tmux.vanish exists.
 FAKE_TMUX = """#!/usr/bin/env bash
 case "$*" in
   *new-session*)
     printf '%s\\n' "$*" >> "$STATE/tmux.log"
     if [[ -f $STATE/tmux.fail ]]; then echo "no server" >&2; exit 1; fi
-    touch "$STATE/session"
+    [[ -f $STATE/tmux.vanish ]] || touch "$STATE/session"
     ;;
   *has-session*) [[ -f $STATE/session ]] ;;
 esac
@@ -73,7 +75,7 @@ class Watch:
 
     def start(self) -> None:
         self.process = subprocess.Popen(
-            [WATCHER, 'run'], env=self.env, text=True, stderr=subprocess.PIPE
+            [*WATCHER, 'run'], env=self.env, text=True, stderr=subprocess.PIPE
         )
 
     def status(self) -> str:
@@ -91,7 +93,7 @@ class Watch:
         return path.read_text().splitlines() if path.exists() else []
 
     def check(self) -> int:
-        return subprocess.run([WATCHER, 'check'], env=self.env).returncode
+        return subprocess.run([*WATCHER, 'check'], env=self.env).returncode
 
     def wait_for(self, predicate: Callable[[], bool], timeout: float = 10) -> None:
         deadline = time.monotonic() + timeout
@@ -190,6 +192,17 @@ def test_a_session_that_disappears_ends_the_watcher(make):
     (watch.state / 'session').unlink()
     assert watch.wait_exit() == 1
     assert len(watch.starts()) == 1
+
+
+def test_a_start_that_never_comes_up_ends_the_watcher(make):
+    watch = make()
+    watch.login()
+    (watch.state / 'tmux.vanish').touch()
+    watch.start()
+    assert watch.wait_exit() == 1
+    assert len(watch.starts()) == 1
+    assert watch.process is not None and watch.process.stderr is not None
+    assert 'did not come up' in watch.process.stderr.read()
 
 
 def test_a_failing_start_ends_the_watcher_with_its_status(make):

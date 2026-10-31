@@ -22,6 +22,6 @@ install_playwright_browser: false
 # that package.
 install_validate_agent_files: false
 
-# Egress firewall. Installing it only places init-firewall.sh and its sudoers
-# entry in the image; ENABLE_FIREWALL=true at container start actually applies it.
+# Egress firewall tools. Installing them applies nothing; ENABLE_FIREWALL=true at
+# container start makes `agentdev-runtime firewall apply` use them.
 install_devcontainer_firewall: false

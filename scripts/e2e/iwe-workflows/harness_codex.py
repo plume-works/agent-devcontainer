@@ -19,7 +19,7 @@ from typing import Any
 
 from clone import Clone
 
-REINSTALL = '.devcontainer/scripts/reinstall-agentdev-codex.sh'
+REINSTALL = 'agentdev-runtime catalog install "$PWD"'
 # Only a command, alone or chained, that executes the script counts; reads of it do not.
 # The chain prefix may hold escaped quotes, and an escaped newline separates commands.
 PUBLISH_COMMAND = re.compile(

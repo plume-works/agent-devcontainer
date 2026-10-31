@@ -4,7 +4,7 @@ description: What the product is, who it is for, and the decisions every plan an
 stage: living
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T23:36:24Z
+  at: 2026-10-31T04:32:14Z
 ---
 
 # Product
@@ -80,9 +80,10 @@ the driver of design decisions — internal needs come first.
   - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
   - `docker/base/`, `docker/devcontainer/`, `docker/deploy/`, `docker/ansible/`
     — image build.
-  - `.devcontainer/` — the devcontainer descriptor, and in `scripts/` the
-    runtime the images install at `/opt/agentdev-runtime/` (supervisor,
-    lifecycle commands, firewall, Xpra startup).
+  - `.devcontainer/` — the devcontainer descriptor and the firewall allowlist.
+  - `py_packages/agentdev_runtime/` — the `agentdev-runtime` CLI both runtime
+    images install as a uv tool: PID 1 and its supervisor, the health probes,
+    every supervised service, the lifecycle commands, the firewall, and Xpra.
 - **Tests**: two independent pytest suites declared in `pyproject.toml`'s
   `testpaths` — `.agents/plugins/agentdev/tests/` (plugin script behavior, via a
   `plugin_root` fixture, not repo-relative paths) and `py_packages/` (the
@@ -108,10 +109,9 @@ the driver of design decisions — internal needs come first.
   updating it requires rebuilding the image, not a runtime patch.
 - `py_packages/validate_agent_files` must remain installable and testable with
   zero knowledge of this repository — it is released independently.
-- The firewall lifecycle wrapper (`.devcontainer/scripts/firewall.sh`) leaves
-  `init-firewall.sh` inert by default (`ENABLE_FIREWALL` opt-in); when enabled,
-  the init script default-DROPs IPv4 egress and blocks IPv6 entirely,
-  self-verifying at start.
+- `agentdev-runtime firewall apply`, run as root by the runtime bootstrap, is
+  inert by default (`ENABLE_FIREWALL` opt-in); when enabled, it default-DROPs
+  IPv4 egress and blocks IPv6 entirely, self-verifying at start.
 - License: MIT.
 
 No additional performance budgets, compatibility promises, or privacy/security
@@ -147,7 +147,8 @@ it):
 - Prefer the structured-question tool (`AskUserQuestion` /
   `vscode/askQuestions`) for yes/no and multiple-choice questions over free
   text.
-- Keep devcontainer-related scripts under `.devcontainer/scripts`.
+- Keep devcontainer runtime code in the `agentdev_runtime` package
+  (`py_packages/agentdev_runtime/`).
 - OpenCode tests and e2e runs default to `openai/gpt-6.1-sol` (big model) and
   `openai/gpt-6-luna` (small model); a costlier model only when the user names
   it.

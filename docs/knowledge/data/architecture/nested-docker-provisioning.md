@@ -3,10 +3,10 @@ type: architecture
 description: The agentdev-devcontainer runtime supervises the nested dockerd instead of the Docker-in-Docker feature, on a per-container /var/lib/docker volume, and SSH comes from the sshd feature plus image-level packages, so the same image works from a Codespace.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T21:00:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
-- resource: .devcontainer/scripts/runtime-docker.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/docker.py
 - resource: .devcontainer/devcontainer.json
 - resource: .devcontainer/devcontainer-lock.json
 - resource: .devcontainer/devcontainer-init.sh
@@ -21,9 +21,9 @@ sources:
 ## Decision
 
 The nested Docker engine is a supervised service of the `agentdev-devcontainer`
-runtime: `runtime-docker.sh run` starts `dockerd`, and the runtime controller
-gates readiness on it and recovers it within its budget. The image's Dev
-Container metadata mounts a per-container volume at `/var/lib/docker`.
+runtime: `agentdev-runtime docker run` starts `dockerd`, and the runtime
+controller gates readiness on it and recovers it within its budget. The image's
+Dev Container metadata mounts a per-container volume at `/var/lib/docker`.
 
 SSH is provided by the `devcontainers/features/sshd` feature, while the packages
 it needs (`openssh-server`, `rsync`) are installed in the image by Ansible.
@@ -34,7 +34,8 @@ A nested `dockerd` cannot use the container's own overlay-mounted writable layer
 for `/var/lib/docker`, so the engine needs a separate mount and someone has to
 start, watch, and restart it. The runtime already supervises every other service
 the editor relies on, with readiness and bounded recovery; the engine joins that
-graph, and `runtime-docker.sh` refuses to start without the separate mount.
+graph, and `agentdev-runtime docker` refuses to start without the separate
+mount.
 
 The upstream `ghcr.io/devcontainers/features/docker-in-docker` feature was the
 previous provider. Keeping it beside the supervised engine was rejected because

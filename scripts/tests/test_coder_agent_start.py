@@ -1,14 +1,15 @@
+"""Tests for `agentdev-runtime coder start`: each step warns on failure, then Remote Control."""
+
 import os
 from pathlib import Path
-import shutil
 import subprocess
+import sys
 
-REPO_ROOT = Path(__file__).parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/coder-agent-start.sh'
-IMAGE_PRUNE = 'docker-image-prune.sh'
-HELPER_SETUP = 'setup-gh-credential-helper.sh'
-OPENCODE_WEB = 'opencode-web-start.sh'
-REMOTE_CONTROL = 'claude-remote-control-start.sh'
+CODER_START = [sys.executable, '-m', 'agentdev_runtime', 'coder', 'start']
+IMAGE_PRUNE = 'agentdev-runtime docker prune'
+HELPER_SETUP = 'agentdev-runtime git credential-helper'
+OPENCODE_WEB = 'agentdev-runtime opencode coder-start'
+REMOTE_CONTROL = 'agentdev-runtime remote-control start'
 
 
 def run_agent_start(
@@ -19,35 +20,45 @@ def run_agent_start(
     opencode_exit: int = 0,
     env: dict[str, str] | None = None,
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
-    """Run a copy of the script beside fakes that append their name to a log."""
-    scripts = tmp_path / 'scripts'
-    scripts.mkdir()
-    script = scripts / SCRIPT.name
-    shutil.copy2(SCRIPT, script)
+    """Run the start with a fake CLI on PATH that logs each step it is asked for."""
+    bin_dir = tmp_path / 'bin'
+    bin_dir.mkdir()
     log = tmp_path / 'calls.log'
+    # Each step logs the caller environment it must see: the token or the OpenCode password.
     fakes = {
-        IMAGE_PRUNE: f'echo "{IMAGE_PRUNE}" >> "{log}"\nexit {prune_exit}\n',
-        HELPER_SETUP: f'echo "{HELPER_SETUP} token=${{GITHUB_TOKEN:-}}" >> "{log}"\n'
-        f'exit {helper_exit}\n',
-        OPENCODE_WEB: f'echo "{OPENCODE_WEB} password=${{OPENCODE_SERVER_PASSWORD:-}}" >> "{log}"\n'
-        f'exit {opencode_exit}\n',
-        REMOTE_CONTROL: f'echo "{REMOTE_CONTROL}" >> "{log}"\n',
+        bin_dir / 'agentdev-runtime': 'case "$1" in\n'
+        f'  git) echo "agentdev-runtime $* token=${{GITHUB_TOKEN:-}}" >> "{log}"; exit {helper_exit} ;;\n'
+        f'  opencode) echo "agentdev-runtime $* password=${{OPENCODE_SERVER_PASSWORD:-}}" >> "{log}";'
+        f' exit {opencode_exit} ;;\n'
+        f'  docker) echo "agentdev-runtime $*" >> "{log}"; exit {prune_exit} ;;\n'
+        f'  *) echo "agentdev-runtime $*" >> "{log}" ;;\n'
+        'esac\n',
     }
-    for name, body in fakes.items():
-        fake = scripts / name
+    for fake, body in fakes.items():
         fake.write_text('#!/usr/bin/env bash\n' + body)
         fake.chmod(0o755)
     result = subprocess.run(
-        [script], env={'PATH': os.environ['PATH'], **(env or {})}, text=True, capture_output=True
+        CODER_START,
+        env={
+            'PATH': f'{bin_dir}:{os.environ["PATH"]}',
+            **(env or {}),
+        },
+        text=True,
+        capture_output=True,
     )
     calls = log.read_text().splitlines() if log.exists() else []
     return result, calls
 
 
+def first_words(calls: list[str]) -> list[str]:
+    """Name each call by its command, without the environment it logged."""
+    return [call.split(' password=')[0].split(' token=')[0] for call in calls]
+
+
 def test_prune_helper_and_opencode_run_before_remote_control(tmp_path):
     result, calls = run_agent_start(tmp_path)
     assert result.returncode == 0, result.stderr
-    assert [call.split()[0] for call in calls] == [
+    assert first_words(calls) == [
         IMAGE_PRUNE,
         HELPER_SETUP,
         OPENCODE_WEB,
@@ -58,7 +69,7 @@ def test_prune_helper_and_opencode_run_before_remote_control(tmp_path):
 def test_remote_control_starts_when_prune_fails(tmp_path):
     result, calls = run_agent_start(tmp_path, prune_exit=3)
     assert result.returncode == 0, result.stderr
-    assert [call.split()[0] for call in calls] == [
+    assert first_words(calls) == [
         IMAGE_PRUNE,
         HELPER_SETUP,
         OPENCODE_WEB,
@@ -70,7 +81,7 @@ def test_remote_control_starts_when_prune_fails(tmp_path):
 def test_remote_control_starts_when_helper_setup_fails(tmp_path):
     result, calls = run_agent_start(tmp_path, helper_exit=3)
     assert result.returncode == 0, result.stderr
-    assert calls[-1] == REMOTE_CONTROL
+    assert first_words(calls)[-1] == REMOTE_CONTROL
     assert result.stderr.strip()
 
 
@@ -83,7 +94,7 @@ def test_helper_setup_sees_caller_environment(tmp_path):
 def test_remote_control_starts_when_opencode_web_fails(tmp_path):
     result, calls = run_agent_start(tmp_path, opencode_exit=3)
     assert result.returncode == 0, result.stderr
-    assert calls[-1] == REMOTE_CONTROL
+    assert first_words(calls)[-1] == REMOTE_CONTROL
     assert result.stderr.strip()
 
 

@@ -83,9 +83,6 @@ LABEL org.opencontainers.image.version.validate-agent-files="$VALIDATE_AGENT_FIL
 
 WORKDIR $WORKSPACE_FOLDER
 
-# Xpra HTML5 client startup script
-COPY --chmod=755 docker/desktop/start-xpra.sh /start-xpra.sh
-
 # Default Xpra HTML5 container port.
 EXPOSE 14500
 

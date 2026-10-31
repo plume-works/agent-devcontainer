@@ -1,4 +1,4 @@
-"""Lifecycle tests for runtime-cbm.sh against the shipped codebase-memory-mcp pin."""
+"""Lifecycle tests for `agentdev-runtime cbm` against the shipped codebase-memory-mcp pin."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import time
 from uuid import uuid4
 
@@ -18,7 +19,7 @@ import pytest
 from scratch import TMP_ROOT
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = REPO_ROOT / '.devcontainer/scripts/runtime-cbm.sh'
+CBM = [sys.executable, '-m', 'agentdev_runtime', 'cbm']
 ISOLATED_UID = 54321
 IS_ROOT = os.geteuid() == 0
 
@@ -77,11 +78,11 @@ class Sandbox:
         )
 
     def adapter(self, *args: str, **extra: str):
-        return self.run(SCRIPT, *args, **extra)
+        return self.run(*CBM, *args, **extra)
 
     def popen_adapter(self, *args: str, **extra: str) -> subprocess.Popen[str]:
         return subprocess.Popen(
-            self.argv(SCRIPT, *args),
+            self.argv(*CBM, *args),
             env=self.env(**extra),
             text=True,
             stdout=subprocess.PIPE,
@@ -300,7 +301,7 @@ def test_install_publishes_the_exact_pinned_binary_offline(sandbox: Sandbox):
         for path in [sandbox.home, *sandbox.home.rglob('*')]:
             os.chown(path, sandbox.uid, sandbox.uid)
 
-    result = sandbox.run(SCRIPT, 'install', offline=True)
+    result = sandbox.run(*CBM, 'install', offline=True)
     assert result.returncode == 0, result.stdout + result.stderr
 
     installed = sandbox.home / '.local/bin/codebase-memory-mcp'

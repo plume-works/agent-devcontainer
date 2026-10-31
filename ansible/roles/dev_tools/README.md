@@ -44,8 +44,8 @@ directly and installs the binary from that archive. Linux always uses the
 glibc bases.
 
 This role installs only the binary. Agent config wiring runs from
-`postCreateCommand` after volumes mount, alongside
-`reinstall-agentdev-claude.sh` and `reinstall-agentdev-codex.sh`.
+`agentdev-runtime lifecycle created` after volumes mount, alongside
+`agentdev-runtime catalog install`.
 
 ## Example Usage
 

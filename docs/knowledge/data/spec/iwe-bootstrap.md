@@ -3,10 +3,10 @@ type: spec
 description: How the iwe-bootstrap skill installs a blank IWE workspace from the installed agentdev catalog without overwriting existing knowledge, and stops before onboarding.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-25T15:52:57Z
+  at: 2026-10-31T07:39:19Z
 sources:
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md
-- resource: .agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh
+- resource: .agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py
 - resource: .agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md
 - resource: .agents/plugins/agentdev/tests/test_iwe_bootstrap.py
 ---

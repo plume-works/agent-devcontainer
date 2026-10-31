@@ -27,7 +27,7 @@ Use this skill to review a pull request's diff and publish feedback as a GitHub 
   - `review`: the short overall summary body
   - `file_comments`: every validated inline finding, using `path`, `line`, `side`, and `body`
 
-  This still creates a proper pull request review with inline comments, not a standalone PR comment.
+  This still creates a proper pull request review with inline comments, not a standalone PR comment. The tool cannot request changes, so a review whose Step 9 event is `REQUEST_CHANGES` goes through the single-call fallback script instead.
 
 - If those review tools are unavailable or uncertain, use the single-call fallback flow described after Step 9. **Never construct `gh api` review-posting calls by hand**.
 
@@ -77,9 +77,9 @@ Flag only significant bugs; ignore nitpicks and likely false positives. Every co
 
 **Severity tiers** (carried through Steps 4–9 on every candidate/validated finding):
 
-- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, wrong outcomes of a reachable scenario, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority, inline emphasis, and the submit event per Step 9.
+- **Blocking (critical/P1)** — anything from a **correctness pass** (compile/parse failures, wrong outcomes of a reachable scenario, security implications) or a **durable-knowledge pass** (session residue a rule forbids). Governs Step-5 dedup priority and inline emphasis; any blocking finding, inline or not, makes the review `REQUEST_CHANGES` (Step 9).
 - **Blocking metadata gate** — a material PR title/description mismatch from the **PR metadata focus**. Stops the review before the in-depth passes and submits a `REQUEST_CHANGES` review with the metadata finding in the review body (Step 3).
-- **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed.
+- **Non-blocking** — anything from a **compliance pass**: repo-convention/style violations, even though they're quoted-rule-confirmed. A review whose findings are all non-blocking is an `APPROVE`; its inline threads still hold the merge until resolved.
 
 ## Effort Tiers
 
@@ -145,15 +145,14 @@ Both tiers run the same checks. The Step 3 metadata gate and the Step 4 durable-
    - Use the same runner-specific parallel-vs-sequential approach as Step 4 — foreground `Agent` calls on Claude Code — and the same blocking policy in "Waiting on parallel passes" below. On Codex, a validator that does not return inside its ceiling counts as "cannot confirm" — drop the candidate, or at light effort every candidate in the batch.
 7. Create a pending review with `create_pending_pull_request_review`.
 8. For every validated finding, attach it as an inline comment on the exact file/line with `add_comment_to_pending_review` — this is the only place finding text goes; never describe a finding's location in prose. If GitHub rejects an inline location, do not drop the finding and do not let it block the review: continue with the remaining inline comments, and after submitting the review in Step 9 post that finding as a normal PR comment (`gh pr comment` or `add_issue_comment`) stating the file/line in prose and noting it could not be attached inline. This is the sole permitted use of a standalone PR comment.
-9. Submit the review with `submit_pending_pull_request_review`, choosing `event` from the validated findings that survived Step 6:
-   - **No validated findings → `APPROVE`.** Do not leave a clean pass as a silent `COMMENT`.
-   - **A blocking finding with no live inline anchor** — the Step-3 metadata gate, or a blocking finding whose inline location GitHub rejected in Step 8 and that fell back to a prose PR comment — **→ `REQUEST_CHANGES`.** Name those findings in the body.
-   - **Otherwise (every blocking finding is attached inline, or only non-blocking findings remain) → `COMMENT`.**
+9. Submit the review with `submit_pending_pull_request_review`, choosing `event` by the severity of the validated findings that survived Step 6 alone:
+   - **No validated findings, or only non-blocking findings → `APPROVE`.** Inline comments on an approving review still open threads that must be resolved before merge.
+   - **Any blocking finding, inline or not → `REQUEST_CHANGES`.** That includes the Step-3 metadata gate; name in the body any blocking finding that has no inline anchor.
 
-   `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments); for an `APPROVE` with zero findings, state plainly that no issues were found. If GitHub rejects `REQUEST_CHANGES` because the account owns the PR, retry as `COMMENT` and note in the body that the account could not request changes on its own PR.
+   `body` is limited to a short overall summary (no per-finding detail — that lives in the inline comments); for an `APPROVE` with zero findings, state plainly that no issues were found. If GitHub rejects `APPROVE` or `REQUEST_CHANGES` because the account owns the PR, retry as `COMMENT` and note in the body that the account cannot approve or request changes on its own PR. That retry is the only review submitted as `COMMENT`.
 
-   Codex: if using `mcp__codex_apps__github._add_review_to_pr` instead of Steps 7-9, pass the same event as `action`,
-   the summary as `review`, and all validated inline findings as `file_comments`.
+   Codex: if using `mcp__codex_apps__github._add_review_to_pr` instead of Steps 7-9 for an `APPROVE`, pass it as `action`,
+   the summary as `review`, and all validated inline findings as `file_comments`; submit a `REQUEST_CHANGES` through the single-call fallback script.
 
 ### Waiting on Parallel Passes
 
@@ -187,7 +186,7 @@ Write two plain files under `./.tmp` (never assemble this JSON live in a shell c
 - a summary file containing only the short overall review body (no per-finding detail)
 - a comments file containing a JSON array of every validated finding: `[{"path": "file.py", "line": 42, "side": "RIGHT", "body": "finding text"}, ...]` (use `[]` or omit the file entirely if no findings survived Step 6)
 
-Then run `agent-code/post-review.py --pr <PR_NUMBER> --event <COMMENT|APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule. Do not fall further back to typing `gh api` calls by hand.
+Then run `agent-code/post-review.py --pr <PR_NUMBER> --event <APPROVE|REQUEST_CHANGES> --summary-file <path> --comments-file <path>` (run with `-h` for full usage; `--repo` defaults to the current repo via `gh repo view`). This single call replaces Steps 7–9 entirely; pick the `event` by the Step 9 rule, and pass `--event COMMENT` only for its self-owned retry. Do not fall further back to typing `gh api` calls by hand.
 
 The last line of stdout is always `RESULT=<NAME>`; match on that name, not on a bare number:
 

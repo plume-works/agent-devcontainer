@@ -5,15 +5,13 @@ generated:
   by: claude-code/opus-5.5
   at: 2026-10-31T08:34:10Z
 sources:
-- resource: .devcontainer/scripts/runtime-cbm.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
 - resource: scripts/tests/test_agent_runtime_cbm.py
 - resource: https://github.com/DeusData/codebase-memory-mcp/blob/v0.12.1/src/daemon/ipc.c
 - resource: https://github.com/DeusData/codebase-memory-mcp/blob/v0.12.1/src/daemon/bootstrap.c
 - resource: https://github.com/DeusData/codebase-memory-mcp/blob/v0.12.1/src/cli/activation_transaction.c
-- resource: .devcontainer/scripts/codebase-memory-mcp-index.sh
-- resource: .devcontainer/scripts/codebase-memory-mcp-install.sh
-- resource: .devcontainer/scripts/repair-codex-cbm-hooks-block.py
-- resource: .devcontainer/scripts/runtime-workspace.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/workspace.py
 - resource: .devcontainer/devcontainer.json
 ---
 
@@ -47,9 +45,10 @@ UID owns](../bugs/cbm-cache-under-foreign-owned-checkout.md)).
 
 ## Supervising it
 
-[runtime-cbm.sh](../../../../.devcontainer/scripts/runtime-cbm.sh) is the only
-supported control surface for supervisors. It uses `daemon start|status|stop`
-and never the internal `--cbm-daemon-internal` entry point.
+[`agentdev-runtime cbm`](../../../../py_packages/agentdev_runtime/agentdev_runtime/cbm.py)
+is the only supported control surface for supervisors. It uses
+`daemon start|status|stop` and never the internal `--cbm-daemon-internal` entry
+point.
 
 - `daemon start` returns after detaching; readiness is `daemon status` exiting
   `0` with `active`. A dead daemon reports `not running` (exit `1`); a hung
@@ -77,7 +76,7 @@ fixed and needs no network.
 
 Startup never waits for an index. Every startup path, the devcontainer hooks and
 the standalone runtime alike, runs
-[codebase-memory-mcp-index.sh](../../../../.devcontainer/scripts/codebase-memory-mcp-index.sh),
+[`agentdev-runtime cbm index`](../../../../py_packages/agentdev_runtime/agentdev_runtime/cbm.py),
 which sends `cli --json index_repository --async true` for the workspace and
 returns once CBM accepts the job: `queued`, `running`, or joined to one already
 in flight. The daemon then indexes in the background.

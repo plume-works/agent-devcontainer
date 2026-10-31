@@ -3,10 +3,15 @@ import os
 from pathlib import Path
 import stat
 import subprocess
+import sys
 
 import pytest
 
-SCRIPT = Path(__file__).parents[2] / '.devcontainer/scripts/configure-opencode.py'
+SCRIPT = [
+    sys.executable,
+    '-c',
+    'from agentdev_runtime import opencode_config; opencode_config.configure()',
+]
 SCHEMA = 'https://opencode.ai/config.json'
 MANAGED = {
     '$schema': SCHEMA,
@@ -23,7 +28,7 @@ def config_dir(tmp_path: Path) -> Path:
 def run_script(config_dir: Path) -> None:
     """Run the configure script against ``config_dir``."""
     subprocess.run(
-        [SCRIPT],
+        SCRIPT,
         env=os.environ | {'OPENCODE_CONFIG_DIR': str(config_dir)},
         check=True,
     )
@@ -120,7 +125,7 @@ def test_opencode_config_dir_takes_precedence(tmp_path: Path) -> None:
     explicit = tmp_path / 'explicit'
     xdg = tmp_path / 'xdg'
     subprocess.run(
-        [SCRIPT],
+        SCRIPT,
         env=os.environ
         | {
             'HOME': str(tmp_path / 'home'),
@@ -139,7 +144,7 @@ def test_xdg_config_home_is_used_when_no_override(tmp_path: Path) -> None:
     env = os.environ | {'HOME': str(tmp_path / 'home'), 'XDG_CONFIG_HOME': str(xdg)}
     env.pop('OPENCODE_CONFIG_DIR', None)
 
-    subprocess.run([SCRIPT], env=env, check=True)
+    subprocess.run(SCRIPT, env=env, check=True)
 
     assert (xdg / 'opencode/opencode.json').exists()
 

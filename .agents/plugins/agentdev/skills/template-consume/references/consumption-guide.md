@@ -232,8 +232,9 @@ Keep the complete `.devcontainer/` tree, `devcontainer-compose-pins.yml`, and
    the consumer no longer builds `agentdev-devcontainer` itself; keep the pinned image
    reference and Renovate discovery behavior intact.
 
-The descriptor runs none of `.devcontainer/scripts/`: `agentdev-devcontainer`
-supplies the create, start, and attach commands, `waitFor`, and the supervised
+The descriptor runs no lifecycle script of its own: `agentdev-devcontainer`
+supplies the create, start, and attach commands (`agentdev-runtime lifecycle
+created`, `ready`, and `attached`), `waitFor`, and the supervised
 services through its image metadata. `devcontainer-init.sh` still runs on the
 host as `initializeCommand` and supplies the environment consumed by Compose.
 
@@ -250,8 +251,6 @@ Retain `.claude/` and `.codex/`, then review them as project policy:
   permissions.
 - Rewrite `.claude/README.md` so it no longer links to the deleted catalog
   publisher tree.
-- `.codex/setup-codex-cloud.sh` is useful only for Codex Cloud hosts that need
-  GitHub CLI; retaining it is harmless elsewhere.
 - Rewrite `.codex/README.md` to describe the consumer project without links to
   deleted publisher manifests.
 - Root `CLAUDE.md` continues to include root `AGENTS.md`.
@@ -403,29 +402,41 @@ the head SHA as a change in policy, not a bug fix.
 
 Then adapt the workflows themselves:
 
-- Change the owner gate. The preflight `if:` opens with
-  `github.repository_owner == 'plume-works'`; a copy that keeps that literal
-  never runs anywhere else. This gate is deliberate — it stops the workflow
-  running in forks of the template.
+- Change the owner gate. The preflight and `trusted-bot-approval` `if:`
+  conditions open with `github.repository_owner == 'plume-works'`; a copy that
+  keeps that literal never runs anywhere else. This gate is deliberate — it
+  stops the workflow running in forks of the template.
 - Keep the fork gate and the write-access gate exactly as written. They are
   the security spine: together they ensure no fork's code is checked out and
   no actor without write access can drive the responder.
-- Keep the two bot gates as they are: the responder does not auto-review any
-  bot author, while `ai-review-present` waives its requirement only for the
-  bots named in `TRUSTED_BOT_ACTORS`. The asymmetry is deliberate. Bot-authored
-  pull requests get no automatic review — that is a decision about what the
+- Keep the bot gates as they are: the responder does not auto-review any
+  bot author, while `ai-review-present` waives its requirement, and the
+  `trusted-bot-approval` job approves, only for the bots named in
+  `TRUSTED_BOT_ACTORS`. The asymmetry is deliberate. Bot-authored pull
+  requests get no automatic review — that is a decision about what the
   responder is for, not a limitation. Waiving the _requirement_ is a separate
   statement of trust, so it is spelled out as a list rather than inferred from
-  the author being a bot: routine dependency bumps from Renovate and
-  Dependabot merge unreviewed, while a pull request from any other bot gets no
-  AI review and stays blocked, mergeable only by a user with ruleset bypass.
+  the author being a bot: routine dependency bumps from Renovate merge with
+  the job's approval and no AI review, while a pull request from any other bot
+  gets neither and stays blocked, mergeable only by a user with ruleset bypass.
+  The job approves only while every commit is the bot's own — authored by
+  it, committed by it or `web-flow`, signature verified — and every push in
+  the head branch's repository activity came from the bot; otherwise it
+  dismisses its approval, so a person's commit never merges under a bot
+  approval. Reading that activity needs `contents: read` on the job. A Dependabot-triggered run holds a read-only
+  token and is skipped; a run a person triggers on a Dependabot pull request
+  approves it when that check passes.
 - Review `TRUSTED_BOT_ACTORS` when adopting this workflow. It is a
   comma-separated list of bot logins, matched exactly and only for authors
   whose `user.type` is `Bot`. A consuming project running its own Renovate
   app, or another bot whose pull requests should merge without review, adds
-  that login here. Widening it to every bot restores the old blanket
-  exemption and hands a green required check to any app that can open a pull
-  request.
+  that login here; the one list drives both the gate waiver and the approval.
+  Widening it to every bot restores the old blanket exemption and hands a green
+  required check and an approval to any app that can open a pull request.
+- A ruleset that requires an approving review needs the organization setting
+  **Allow GitHub Actions to create and approve pull requests**, inherited by
+  the repository. Both the AI reviewer's verdict and the trusted-bot approval
+  post with the workflow's `GITHUB_TOKEN`, which cannot approve without it.
 - Repoint `container.image` at whichever image the consuming project uses.
 - Review the `Run devcontainer lifecycle scripts` step against that image's
   own lifecycle scripts. It exists because a `container:` job runs no
@@ -1138,8 +1149,9 @@ in `## Choices`.
 5. **Copied scripts.** Delete `.devcontainer/scripts/`. Repoint any workflow
    step that ran `.devcontainer/scripts/postCreateCommand.sh`,
    `postStartCommand.sh`, or `postAttachCommand.sh` — the copied
-   `run-claude-responder` action does — at the same names under
-   `/opt/agentdev-runtime/`, and record that action as customized.
+   `run-claude-responder` action does — at `agentdev-runtime lifecycle created`,
+   `agentdev-runtime lifecycle ready --no-wait` (a job with no supervisor), and
+   `agentdev-runtime lifecycle attached`, and record that action as customized.
 6. **Marker.** Replace the `.devcontainer/` entry in `tracked_paths` with the
    files the consumer still owns, so later updates stop proposing the
    publisher's runtime scripts:

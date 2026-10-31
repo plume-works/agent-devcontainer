@@ -3,11 +3,9 @@ type: architecture
 description: The autostarted Remote Control resumes one pinned conversation per agentdev-claude volume, keeps the pin on the pane's current conversation through a pane-only SessionStart hook, and falls back to a fresh pinned conversation on a non-zero resume exit; Claude Code itself mints a fresh remote session when the recorded one is gone or belongs to another account.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-21T02:10:00Z
+  at: 2026-10-31T04:32:14Z
 sources:
-- resource: .devcontainer/scripts/claude-remote-control-start.sh
-- resource: .devcontainer/scripts/claude-remote-control-session.sh
-- resource: .devcontainer/scripts/claude-remote-control-pin.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/remote_control.py
 - resource: .devcontainer/devcontainer.json
 - resource: https://code.claude.com/docs/en/remote-control
 - resource: https://code.claude.com/docs/en/hooks

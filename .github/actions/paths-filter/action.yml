@@ -46,6 +46,7 @@ runs:
           # The validator is built from source into the image, so the same
           # applies to it.
           - py_packages/validate_agent_files/**
+          - py_packages/agentdev_runtime/**
         YAML
           if [ -n "$EXTRA" ]; then
             printf '%s\n' "$EXTRA"
