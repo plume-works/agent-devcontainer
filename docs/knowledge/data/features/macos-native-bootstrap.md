@@ -31,11 +31,17 @@ once the plugin is enabled. Each run is idempotent:
   default `python3`.
 - It installs `iwe` and `codebase-memory-mcp` from their release tarballs at the
   versions the image pins, each checked against a recorded SHA-256.
-- It keeps one marker-delimited block in `~/.zprofile` so every new login shell
-  resolves `env python3` to the uv-provisioned Python.
-- It installs the `agentdev` plugin into Claude Code, and into Codex when its
-  CLI is present, unless `--skip-plugins` is passed.
-- It prints each tool's version and exits non-zero naming whatever failed.
+- It keeps one marker-delimited block in `~/.zprofile` so every new zsh login
+  shell resolves `env python3` to the uv-provisioned Python. When fish is
+  installed or is the user's `$SHELL`, it keeps the same kind of block in
+  `~/.config/fish/conf.d/agentdev.fish`, which runs `brew shellenv` for fish and
+  then puts `~/.local/bin` ahead of it with `fish_add_path`.
+- It installs the `agentdev` plugin into Claude Code, the only agent it
+  configures, unless `--skip-plugins` is passed.
+- It prints each tool's version, checks that a fresh zsh login shell — and a
+  fresh login shell of the user's `$SHELL` when that is not zsh — resolves
+  `python3` to the uv-provisioned Python, and exits non-zero naming whatever
+  failed.
 
 ## Edge cases
 
