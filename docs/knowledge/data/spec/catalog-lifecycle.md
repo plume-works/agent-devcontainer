@@ -3,21 +3,17 @@ type: spec
 description: When and how the agentdev catalog gets installed into the persistent Claude/Codex plugin state and the OpenCode user config — during the agentdev-base build and again by the agentdev-devcontainer postCreateCommand.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T02:01:26Z
+  at: 2026-10-31T20:55:00Z
 sources:
-- resource: .devcontainer/scripts/postCreateCommand.sh
-- resource: .devcontainer/scripts/postAttachCommand.sh
-- resource: .devcontainer/scripts/reinstall-agentdev-opencode.sh
-- resource: .devcontainer/scripts/reinstall-agentdev-codex.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/lifecycle.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
 - resource: .agents/plugins/agentdev/bin/install-codex-agents.py
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/devcontainer/agentdev-devcontainer.Dockerfile
-- resource: .devcontainer/scripts/devcontainer-created.sh
-- resource: .devcontainer/scripts/devcontainer-attached.sh
 - resource: README.md
-- resource: .devcontainer/scripts/setup-agent-state.sh
-- resource: .devcontainer/scripts/runtime-workspace.sh
+- resource: py_packages/agentdev_runtime/agentdev_runtime/agent_state.py
+- resource: py_packages/agentdev_runtime/agentdev_runtime/workspace.py
 ---
 
 # Catalog lifecycle
@@ -99,8 +95,8 @@ produce, and SHALL NOT modify any other file in that directory.
 
 ### Scenario: the catalog is installed into Codex
 
-- **WHEN** `reinstall-agentdev-codex.sh` or the image build installs a catalog
-  whose `agents/` holds `durable-knowledge-auditor.agent.md`
+- **WHEN** `agentdev-runtime catalog install` or the image build installs a
+  catalog whose `agents/` holds `durable-knowledge-auditor.agent.md`
 - **THEN** Codex lists `durable-knowledge-auditor` as a spawnable agent type,
   and dispatching it runs the agent file's body with a read-only sandbox.
 
