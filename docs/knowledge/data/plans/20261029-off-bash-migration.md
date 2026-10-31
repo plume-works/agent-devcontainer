@@ -351,11 +351,19 @@ Delete: `docker/desktop/start-xpra.sh`
 `.devcontainer/scripts/opencode-web-start.sh`,
 `.devcontainer/scripts/coder-agent-start.sh`
 
-- [ ] `agentdev-runtime opencode serve|probe|link|coder-start` keeps the
+- [x] `agentdev-runtime opencode serve|probe|link|coder-start` keeps the
   password requirement, the 0600 generated password file, the Coder tmux
   session, and the authenticated `/api/info` probe.
-- [ ] `agentdev-runtime coder start` runs prune, the credential helper, and the
+  - **Evidence:** commit ba9a48d; `test_opencode_web_start.py` (fake and real
+    tmux) and the serve and probe cases of `test_agent_runtime_ingress.py` pass
+    through the CLI; deploy acceptance (24 passed), whose OpenCode is supervised
+    and probed by `opencode serve` and `opencode probe`, passes against
+    `agentdev-deploy` built from that commit.
+- [x] `agentdev-runtime coder start` runs prune, the credential helper, and the
   OpenCode start as warnings on failure, then execs the Remote Control start.
+  - **Evidence:** commit ba9a48d; `test_coder_agent_start.py` (6 passed) covers
+    the order, each step's failure as a warning, and the caller environment
+    reaching the credential helper and the OpenCode start.
 
 ### Task 8: CBM
 
