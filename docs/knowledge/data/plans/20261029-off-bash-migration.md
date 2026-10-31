@@ -717,14 +717,26 @@ Delete: `docker/desktop/start-xpra.sh`
 
 **Files:** Modify: `.github/actions/run-claude-responder/action.yml`
 
-- [ ] When `agentdev-runtime` is not on `PATH`, the responder's lifecycle step
+- [x] When `agentdev-runtime` is not on `PATH`, the responder's lifecycle step
   installs it from the checkout's `py_packages/agentdev_runtime` as a uv tool
   before running `agentdev-runtime lifecycle created|ready|attached`, so a
   `container:` job on a pinned image built before this plan still runs its
   lifecycle; an image that ships the CLI skips the install.
-- [ ] `actionlint` and `zizmor` pass through pre-commit, and the step's install
+  - **Evidence:** commit 5fb232d. The install builds from a temporary copy of
+    the package, so no `build/` tree is left in the checkout under review. The
+    step's script, run in this plan's Dev Container image, which ships the CLI,
+    exits 0 without invoking `uv tool install`.
+- [x] `actionlint` and `zizmor` pass through pre-commit, and the step's install
   path runs in a container from the currently pinned `agentdev-devcontainer`
   image.
+  - **Evidence:** commit 5fb232d. `pre-commit run actionlint` and `zizmor` pass
+    on the action and `ai-responder.yml`. The test used the step's script in the
+    pinned `edge@sha256:d1acc7f1…` image, run as a container job: the workspace
+    was mounted and the step's environment set. There, `agentdev-runtime` is
+    absent before the step; the step installs it to
+    `/usr/local/bin/agentdev-runtime`, then runs `lifecycle created`,
+    `ready --no-wait`, and `attached`, and exits 0. The package directory in the
+    checkout gains no `build/` tree.
 
 ### Task 19: Verify the published image family
 
