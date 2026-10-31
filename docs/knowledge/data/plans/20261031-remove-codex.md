@@ -213,14 +213,20 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `.devcontainer/docker-compose.yml`, `.devcontainer/firewall-allowlist.txt`,
 `.dockerignore`; Delete: `.codex/`
 
-- [ ] The `agentic_tools` role installs no `@openai/codex` package (its Renovate
+- [x] The `agentic_tools` role installs no `@openai/codex` package (its Renovate
   annotation goes with it), registers no Codex marketplace or plugin, installs
   no Codex agents, and no longer compares a Codex manifest version.
-- [ ] `devcontainer.json` declares no `agentdev-codex` volume, the deploy image
+  - **Evidence:** `ee1d21aa`; `uv run ansible-lint ansible` and the
+    `setup-dev.yml` syntax check pass. The image build itself runs in CI (Task
+    13).
+- [x] `devcontainer.json` declares no `agentdev-codex` volume, the deploy image
   sets no `CODEX_HOME`, and no comment in the touched files names `~/.codex`.
-- [ ] The firewall allowlist keeps `api.openai.com` and `chatgpt.com`, now
+  - **Evidence:** `ee1d21aa`.
+- [x] The firewall allowlist keeps `api.openai.com` and `chatgpt.com`, now
   labelled as OpenAI provider hosts for OpenCode.
-- [ ] `.codex/` and its `.dockerignore` entry are gone.
+  - **Evidence:** `ee1d21aa`.
+- [x] `.codex/` and its `.dockerignore` entry are gone.
+  - **Evidence:** `ee1d21aa`.
 
 ### Task 8: Remove Codex from CI and repository configuration
 
