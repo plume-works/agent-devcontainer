@@ -104,14 +104,13 @@ Assumptions:
 - The bootstrap is a user-run command, not a skill script, so it does not adopt
   the `RESULT=` contract — it must run before the catalog is on disk.
 - The plugin step covers Claude Code only and installs `agentdev` only. The user
-  decided both: `agentdev` only, and Claude Code only once the branch was
-  stacked on [Remove Codex support](20261031-remove-codex.md).
+  decided both; Claude Code only follows [Remove Codex
+  support](20261031-remove-codex.md).
 - The recorded Python version is the lower bound of the root `pyproject.toml`'s
   `requires-python`, the oldest version the repository's own tests run the
   catalog on.
-- uv's `--default` install of the `python3` executable works without `--preview`
-  at the uv version Homebrew ships. Task 3's macOS run confirms it; if it does
-  not, the plan returns to revise mode before Task 4.
+- uv's `--default` install of the `python3` executable works without
+  `--preview`; Task 3's macOS run confirms it.
 
 ## Implementation Steps
 
