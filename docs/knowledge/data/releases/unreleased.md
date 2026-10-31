@@ -86,6 +86,8 @@ names](../features/remote-control-environment-names.md)
 
 [Verify report cache](../features/verify-report-cache.md)
 
+[agentdev-runtime CLI](../features/agentdev-runtime-cli.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)
@@ -150,3 +152,15 @@ confirmed](../bugs/supervisor-client-recovered-before-dependency.md)
 
 [Bug: git-new-branch worktree mode fails on a standalone deployment's root-owned
 /workspaces](../bugs/git-new-branch-worktree-unwritable-workspaces.md)
+
+[Bug: a workspace on a pre-pin image has no gitleaks or actionlint and nothing
+says so](../bugs/workspace-image-lacks-hook-binaries.md)
+
+[Bug: the Remote Control watcher restarts a session that never comes up on every
+tick](../bugs/remote-control-watcher-start-loop.md)
+
+[Bug: doctor fails a healthy Coder Dev
+Container](../bugs/doctor-fails-healthy-coder-devcontainer.md)
+
+[Bug: an AI re-review that comments leaves its own change request blocking
+merge](../bugs/ai-rereview-comment-keeps-changes-requested.md)

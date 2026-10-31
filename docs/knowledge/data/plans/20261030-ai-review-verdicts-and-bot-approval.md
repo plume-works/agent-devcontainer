@@ -16,6 +16,8 @@ sources:
 - resource: docs/knowledge/data/architecture/actions-approval-permission.md
 - resource: docs/knowledge/data/spec/ai-review-gate.md
 - resource: docs/knowledge/data/spec/template-consumption.md
+stage: done
+completed: 2026-10-31
 ---
 
 # AI review verdicts gate merge and trusted bots are auto-approved
