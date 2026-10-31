@@ -326,11 +326,17 @@ Modify: `docker/deploy/supervisord.conf`,
 `docker/devcontainer/supervisord.conf`, `docker/base/agentdev-base.Dockerfile`;
 Delete: `docker/desktop/start-xpra.sh`
 
-- [ ] `agentdev-runtime xpra --supervised|--background|--stop` with `--host`,
+- [x] `agentdev-runtime xpra --supervised|--background|--stop` with `--host`,
   `--port`, and `--display` reproduces the launcher: display normalisation and
   lock clearing, orphaned X server reclaim, GPU detection and VirtualGL setup,
   the password through the environment, signal cleanup, and `exec` in supervised
   mode. The base image stops copying `/start-xpra.sh`.
+  - **Evidence:** commit a595858; the supervised-Xpra cases of
+    `test_agent_runtime_ingress.py` (password-gated sessions, no password on the
+    command line, duplicate refusal, display reclaim after a crash) pass against
+    a real Xpra through the CLI; deploy acceptance (24 passed) and the Dev
+    Container image suite (5 passed) pass against images built from ba9a48d. The
+    base image's own build is left to the plan's Verification.
 
 ### Task 7: OpenCode and the Coder start
 
