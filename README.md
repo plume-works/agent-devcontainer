@@ -168,8 +168,8 @@ name instead, for example `docker volume rm myproject_home myproject_uv`.
 ### Startup and failures
 
 The core path is the root bootstrap (account, volumes, and the opt-in firewall), the
-session bus and keyring, then the core phase (checkout, the Claude login link, agent
-policy), then OpenCode. Everything else is optional work:
+session bus and keyring, then the core phase (checkout, the Claude credential links,
+agent policy), then OpenCode. Everything else is optional work:
 
 - before OpenCode, which reads them when it starts: catalog registration, the
   Codebase Memory MCP client configuration, and the CBM daemon its MCP client
