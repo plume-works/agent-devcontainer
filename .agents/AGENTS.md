@@ -33,6 +33,9 @@ repository can delete the publisher source without inheriting its maintenance ru
   `.agents/plugins/agentdev/.opencode-plugin/`. The bridge takes no runtime dependencies:
   type-only imports and Bun built-ins, nothing to install.
 - Update `.agents/plugins/agentdev/` sources directly.
+- Every script under the agentdev plugin's `bin/` and `skills/*/agent-code/` is standard-library-only
+  Python on `#!/usr/bin/env python3`, reaching `bin/` through `sys.path`; the `skill-scripts`
+  skill holds its output contract.
 - Never write a repository-relative catalog path inside the plugin. A skill references its
   own bundled code as `agent-code/<file>`, relative to the skill directory, and reaches a
   sibling skill by its namespaced invocation. `${CLAUDE_SKILL_DIR}` appears only in

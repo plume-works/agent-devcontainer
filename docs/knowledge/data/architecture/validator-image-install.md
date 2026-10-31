@@ -3,7 +3,7 @@ type: architecture
 description: Why validate_agent_files is built from the repository build context and installed as an isolated uv tool in the agentdev-base image, rather than published to PyPI or installed another way.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-29T22:00:00Z
+  at: 2026-10-31T01:33:40Z
 sources:
 - resource: docs/agents/specs/template-reuse-validation/ (folded and removed)
 ---
@@ -95,7 +95,7 @@ consumption](../spec/template-consumption.md):
 - Formatter adoption rewriting verbatim third-party captures — now a named
   requirement there.
 - `reformat.yml`'s dependency on
-  `.agents/plugins/agentdev/bin/super-linter-env.sh` being under-specified in
+  `.agents/plugins/agentdev/bin/super_linter.py env` being under-specified in
   the old guide — now stated concretely as an inline-heredoc instruction.
 - Smaller documentation gaps (empty `py_packages/`/`scripts/` after deletion,
   missing `pyproject.toml` dependencies, an orphaned `clean_build` workflow

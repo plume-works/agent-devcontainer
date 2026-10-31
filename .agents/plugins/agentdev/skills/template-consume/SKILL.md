@@ -51,7 +51,7 @@ git at the consumer repository root:
 | `tracked_paths`    | The template-owned paths this consumer still wants compared on update — start from [Default Template Surface](#default-template-surface) and prune what setup mode deleted.                                                                                                                                                |
 | `last_synced_at`   | When `consumed_ref` was last advanced.                                                                                                                                                                                                                                                                                     |
 
-`consumed_ref` is what [check-updates.sh](agent-code/check-updates.sh) diffs
+`consumed_ref` is what [check-updates.py](agent-code/check-updates.py) diffs
 from; `tracked_paths` is what it diffs. Both must stay accurate — a stale
 `tracked_paths` after setup mode deletes a bundle produces false positives
 forever after. This section is read only from the repository-root metadata
@@ -166,7 +166,7 @@ A marker section or legacy marker file exists.
 
    A marker that never tracked knowledge needs none of this; skip to step 4.
 
-4. Run [check-updates.sh](agent-code/check-updates.sh) from the consumer
+4. Run [check-updates.py](agent-code/check-updates.py) from the consumer
    repository. It clones the template repository into a scratch directory
    under `./.tmp/`, diffs every path in `tracked_paths` between `consumed_ref`
    and the clone's current default-branch HEAD, and cleans up the clone on
@@ -314,7 +314,7 @@ bootstrap scaffold lives in the installed catalog, not in the template
 checkout, so it is never a `tracked_paths` entry either.
 
 Never add `.agents/`, `.claude-plugin/`, `py_packages/`,
-`scripts/validate-super-linter-tool-versions.sh`, or
+`scripts/validate-super-linter-tool-versions.py`, or
 `docs/knowledge/tests/test_iwe_seed.py` — those are publisher-only source this
 guide has the consumer delete during setup, so they can never be legitimate
 members of a consumer's `tracked_paths`.

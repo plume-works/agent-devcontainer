@@ -6,7 +6,7 @@ description: 'Synchronize pre-commit hooks and local linter binaries with the pi
 # Sync Super-Linter Tool Versions
 
 Treat the image configured by
-[super-linter-defaults.sh](../../bin/super-linter-defaults.sh) as the
+[super_linter.py](../../bin/super_linter.py) as the
 source of truth for versions shared by Super-Linter, pre-commit, and local
 hooks. The validator reads the image directly, so do not add a manually
 maintained version table.
@@ -14,7 +14,7 @@ maintained version table.
 ## Workflow
 
 1. Update the Super-Linter image in
-   [super-linter-defaults.sh](../../bin/super-linter-defaults.sh) and
+   [super_linter.py](../../bin/super_linter.py) and
    both `super-linter/super-linter@...` references in the repository's
    `.github/workflows/reformat.yml`.
 
@@ -22,7 +22,7 @@ maintained version table.
    pin:
 
    ```bash
-   scripts/validate-super-linter-tool-versions.sh
+   scripts/validate-super-linter-tool-versions.py
    ```
 
 3. Update the matching values in the repository's `.pre-commit-config.yaml`:
@@ -40,7 +40,7 @@ maintained version table.
 
 5. Re-run the validator. It must report every tool as `OK` before considering
    the upgrade complete. Then run the affected hooks or
-   [super-linter-local.sh](../../bin/super-linter-local.sh) if the
+   [super_linter.py local](../../bin/super_linter.py) if the
    version upgrade can change formatting or lint findings.
 
 ## Boundaries

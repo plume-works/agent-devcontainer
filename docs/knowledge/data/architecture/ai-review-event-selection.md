@@ -2,8 +2,8 @@
 type: architecture
 description: The AI reviewer prefers COMMENT over REQUEST_CHANGES so an author unblocks by resolving inline threads without forcing a re-review; REQUEST_CHANGES is used only for a blocking finding with no inline anchor, where no thread would gate merge.
 generated:
-  by: claude-code/fable-5-1
-  at: 2026-09-03T03:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-31T01:33:40Z
 sources:
 - resource: .agents/plugins/agentdev/skills/pr-review/SKILL.md
 - resource: .github/workflows/ai-responder.yml
@@ -30,7 +30,7 @@ through the anchor test above.
 
 The rule is stated at four points in `pr-review/SKILL.md` (the event-decision
 step, the tier definitions, the metadata gate in Step 3, and the
-`post-review.sh` fallback contract), and `post-review.sh` accepts all three
+`post-review.py` fallback contract), and `post-review.py` accepts all three
 events.
 
 ## Why prefer COMMENT over REQUEST_CHANGES for anchored findings

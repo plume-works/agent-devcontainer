@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-SCRIPT_PATH = 'skills/pr-request-ai-review/agent-code/request-review.sh'
+SCRIPT_PATH = 'skills/pr-request-ai-review/agent-code/request-review.py'
 
 REPO = 'octo/repo'
 PR_NUMBER = '42'
@@ -129,7 +129,7 @@ def install_stub_path(path: Path, *, with_gh: bool = True) -> Path:
     """Create a PATH directory holding only the commands the script needs."""
     stub_directory = path / 'stub-bin'
     stub_directory.mkdir(parents=True, exist_ok=True)
-    for command in ('bash', 'cat', 'dirname', 'jq'):
+    for command in ('cat', 'dirname', 'python3'):
         executable = shutil.which(command)
         assert executable is not None
         (stub_directory / command).symlink_to(executable)

@@ -2,12 +2,12 @@
 type: architecture
 description: Every formatter has exactly one owner, Super-Linter's pinned image is the version source of truth, and a script checks the pre-commit and Ansible-provisioned versions against that image so local runs cannot disagree with CI.
 generated:
-  by: claude-code/opus-5
-  at: 2026-09-04T00:00:00Z
+  by: claude-code/opus-5.5
+  at: 2026-10-30T22:05:14Z
 sources:
 - resource: .pre-commit-config.yaml
-- resource: .agents/plugins/agentdev/bin/super-linter-defaults.sh
-- resource: scripts/validate-super-linter-tool-versions.sh
+- resource: .agents/plugins/agentdev/bin/super_linter.py
+- resource: scripts/validate-super-linter-tool-versions.py
 - resource: .github/workflows/reformat.yml
 - resource: ansible/roles/dev_tools/defaults/main.yml
 - resource: https://github.com/Dr-QP/Dr.QP/pull/440
@@ -21,14 +21,14 @@ sources:
 Each formatter and linter has **one owner**. Locally the pre-commit hooks apply
 formatting on every commit; in CI the pinned Super-Linter image runs the same
 tools as the gate. The pinned image is the **source of truth for versions**, and
-`scripts/validate-super-linter-tool-versions.sh` checks the versions used by
+`scripts/validate-super-linter-tool-versions.py` checks the versions used by
 pre-commit and by the Ansible-provisioned binaries against the versions actually
 inside that image.
 
 The pin lives in two places that must move together:
-`SUPER_LINTER_DEFAULT_IMAGE` in `super-linter-defaults.sh`, read by the local
-wrapper and by the version check, and the action refs in `reformat.yml`, which
-pin the same version independently and never read that file.
+`SUPER_LINTER_DEFAULT_IMAGE` in `super_linter.py`, read by the local wrapper and
+by the version check, and the action refs in `reformat.yml`, which pin the same
+version independently and never read that file.
 
 ## Why single ownership
 

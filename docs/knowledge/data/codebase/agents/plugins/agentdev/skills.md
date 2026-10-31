@@ -2,14 +2,14 @@
 type: codebase
 description: The 41 skills the agentdev plugin ships, grouped by family, with the ones that bundle scripts or reference pages.
 source: .agents/plugins/agentdev/skills
-source_digest: sha256:98d434479f6695558e16285b7b4d3e0a7ac3eb225b1737f7e2898ff734fc0f57
+source_digest: sha256:fdbdd1417cbba8eebe3e411b56a682432c3199030be3b56c6ca768a1fa452ed7
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:07:41Z
+  at: 2026-10-31T06:14:58Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T05:07:41Z
+  at: 2026-10-31T06:14:58Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills
@@ -75,58 +75,61 @@ report for the plan under `.tmp/verify/` when its commit is `HEAD` and its
 catalog digest, over the files of the catalog the script runs from, still
 matches; `save` overwrites that report, recording the skill request and the
 verifier prompt in its frontmatter, and refuses a `Needs decision` verdict.
-Scripts are bash or Python, pull in the matching [result-code helpers](bin.md),
+Scripts are standard-library Python, import the [shared bin modules](bin.md),
 and end every path with `RESULT=<NAME>` on stdout; the `SKILL.md` carries a
 table keyed on those names. `iwe-capture` and `iwe-plan` each bundle a
-`close-issue.sh` that parses its arguments and delegates the view-then-close
-step to the shared `close_issue_with_comment` helper, so both report the same
-results. `iwe-map`'s `stale-map-docs.py` is the Python case: it fingerprints the
-tracked source behind every `data/codebase/` doc, normalizing content that an
-`iwe-map.digest_ignore` rule in an `.agent.metadata.json` designates
-machine-managed so an automerged pin bump does not register as a change. The
-metadata files themselves stay out of that fingerprint; a rule reaches a digest
-only as the pattern and replacement that applied. Its `--explain` flag prints
-one `MASK` line per applied rule, and it adds `BROKEN_METADATA` (exit 5) to the
-shared result vocabulary for metadata it cannot read, compile, or apply to a
-masked text file. `--replay [--since <date>]` bounds each verdict by the
-first-parent commit that established the document's recorded digest; the date
-can add evidence but cannot exclude that ancestry. A digest boundary is trusted
-only when that revision's source computes to the recorded digest, with committed
-blobs read under the same newline translation as the working tree. Replay uses
-NUL-separated Git paths, inventories hidden values across every current masked
-file, and prints `ABSORBED` or `MOVED` per commit or working-tree edit and file,
-then `RESTAMP` with a new digest for a non-fresh doc the rules explain and
-`REFRESH` for the rest. Metadata or masked-text failures found while collecting
-evidence become document-scoped `BROKEN_METADATA`. Refresh mode records docs
-that quote old values before shared masks and excludes them from re-stamping.
-The IWE family runs against the [knowledge
-workspace](../../../docs/knowledge.md). `template-consume` optionally
-initializes a consumer's knowledge by invoking `iwe-bootstrap` — after removing
-a copied publisher workspace only when it is byte-identical to the adopted ref —
-then hands onboarding to `iwe-setup` and `iwe-map`; update mode tracks only the
-reusable knowledge support files, never invokes bootstrap, and never replaces
-consumer-owned project memory. An optional Expo profile edits files the consumer
-already has, enables the official Expo plugin, and adds the Expo Bridge
-extension, Metro's port 8081 forwarded silently, and an `eas-host` iOS build
-rule with an EAS cloud fallback; it adds no tracked paths, so update mode
-reconciles it against the guide on every run. An update that finds the consumer
-still pinned to `agent-desktop` while the template pins `agentdev-devcontainer`
-first applies the guide's image-family migration as one unit — pins, Compose,
-descriptor, copied scripts, and tracked paths together — or, when declined,
-nothing. Its state is split three ways: the `template-consume` section of the
-consumer root's `.agent.metadata.json` is the only machine-parsed record of the
-adopted ref and the tracked paths — `check-updates.sh` reads nothing else, and a
-legacy `.agentdev-template.json` is consolidated into it on the next update;
-`.agentdev-template-progress.md` is the consumer-owned task and choice ledger
-that survives an interrupted setup; and `data/template-adoption` summarizes the
-episode for a consumer that kept the knowledge base.
+`close-issue.py` that supplies only its wording and option name to the shared
+`run_close` flow, so both report the same results. `iwe-map`'s
+`stale-map-docs.py` fingerprints the tracked source behind every
+`data/codebase/` doc, normalizing content that an `iwe-map.digest_ignore` rule
+in an `.agent.metadata.json` designates machine-managed so an automerged pin
+bump does not register as a change. The metadata files themselves stay out of
+that fingerprint; a rule reaches a digest only as the pattern and replacement
+that applied. Its `--explain` flag prints one `MASK` line per applied rule, and
+it adds `BROKEN_METADATA` (exit 5) to the shared result vocabulary for metadata
+it cannot read, compile, or apply to a masked text file.
+`--replay [--since <date>]` bounds each verdict by the first-parent commit that
+established the document's recorded digest; the date can add evidence but cannot
+exclude that ancestry. A digest boundary is trusted only when that revision's
+source computes to the recorded digest, with committed blobs read under the same
+newline translation as the working tree. Replay uses NUL-separated Git paths,
+inventories hidden values across every current masked file, and prints
+`ABSORBED` or `MOVED` per commit or working-tree edit and file, then `RESTAMP`
+with a new digest for a non-fresh doc the rules explain and `REFRESH` for the
+rest. Metadata or masked-text failures found while collecting evidence become
+document-scoped `BROKEN_METADATA`. Refresh mode records docs that quote old
+values before shared masks and excludes them from re-stamping. The IWE family
+runs against the [knowledge workspace](../../../docs/knowledge.md).
+`template-consume` optionally initializes a consumer's knowledge by invoking
+`iwe-bootstrap` — after removing a copied publisher workspace only when it is
+byte-identical to the adopted ref — then hands onboarding to `iwe-setup` and
+`iwe-map`; update mode tracks only the reusable knowledge support files, never
+invokes bootstrap, and never replaces consumer-owned project memory. An optional
+Expo profile edits files the consumer already has, enables the official Expo
+plugin, and adds the Expo Bridge extension, Metro's port 8081 forwarded
+silently, and an `eas-host` iOS build rule with an EAS cloud fallback; it adds
+no tracked paths, so update mode reconciles it against the guide on every run.
+An update that finds the consumer still pinned to `agent-desktop` while the
+template pins `agentdev-devcontainer` first applies the guide's image-family
+migration as one unit — pins, Compose, descriptor, copied scripts, and tracked
+paths together — or, when declined, nothing. Its state is split three ways: the
+`template-consume` section of the consumer root's `.agent.metadata.json` is the
+only machine-parsed record of the adopted ref and the tracked paths —
+`check-updates.py` reads nothing else, and a legacy `.agentdev-template.json` is
+consolidated into it on the next update; `.agentdev-template-progress.md` is the
+consumer-owned task and choice ledger that survives an interrupted setup; and
+`data/template-adoption` summarizes the episode for a consumer that kept the
+knowledge base.
 
-`git-new-branch.sh` and `git-commit.sh` share the default-branch lookup in
-`bin/git-default-branch.sh`: the first falls back to it when `--base` does not
+`git-new-branch.py` and `git-commit.py` share the default-branch lookup in
+`bin/git_default_branch.py`: the first falls back to it when `--base` does not
 exist on the remote, the second refuses to commit on the branch it names and,
 when a configured remote's default is unknown, refuses with `DEFAULT_UNKNOWN`.
-`git-new-branch.sh` stashes only with `--stash` and pops only the entry it
-created, located by its commit.
+`git-new-branch.py` stashes only with `--stash` and pops only the entry it
+created, located by its commit. In worktree mode it puts the worktree under
+`/workspaces` beside a main checkout that lives there, unless
+`AGENTDEV_RUNTIME_MODE` is `standalone`, and otherwise under the checkout's
+ignored `.worktrees/`.
 
 `iwe-branch-name.py` names a plan's work branches
 `iwe/<slug>/iter-<N>-<impl|ship>` and creates none; `iwe-implementer` and
@@ -136,19 +139,19 @@ branches, `git ls-remote --heads`, and
 `gh pr list --repo <remote URL> --state all`, so pull requests come from the
 remote's own repository, and reports `GH_UNAVAILABLE` (6) rather than a number
 when `gh` cannot answer. `plan-state` fetches the remote default branch,
-resolved through `bin/git-default-branch.sh`, and reads the plan from that tree,
+resolved through `bin/git_default_branch.py`, and reads the plan from that tree,
 never the working tree; it counts task checkboxes under
 `## Implementation Steps` or `## Tasks`, and a plan with none is `incomplete`.
 Without `--phase`, `next` maps a `complete` plan to `ship`, an `incomplete` one
 to `impl`, and any other to the default branch.
 
-`update-branch.sh` brings in the branch's configured upstream — a fast-forward
+`update-branch.py` brings in the branch's configured upstream — a fast-forward
 when only behind, a merge when diverged — before it merges `<remote>/<base>`,
-and reports it as `UPSTREAM_ACTION`. Both merges run `git-merge-resolve.sh` as a
+and reports it as `UPSTREAM_ACTION`. Both merges run `git-merge-resolve.py` as a
 child process; a run stops at the first conflicted merge, `SOURCE` naming it,
 and a rerun continues with the next.
 
-`pr-open`'s `push-branch.sh` is the push path for `pr-open`, `pr-sync`,
+`pr-open`'s `push-branch.py` is the push path for `pr-open`, `pr-sync`,
 `update-branch`, `pr-feedback-resolution`, and `pr-merge`. Before it pushes, and
 before it reports `ACTION=none` for a head the upstream already has, it runs
 `iwe-map`'s `stale-map-docs.py` in a temporary detached worktree at the branch
@@ -156,7 +159,7 @@ head and prints `MAP_CHECK=<fresh|skipped|stale|failed|overridden>`; a stale map
 exits `MAP_STALE` (6) and a check without a verdict `MAP_CHECK_FAILED` (7),
 neither pushing. A commit without `.iwe/config.toml` is not checked, and
 `--skip-map-check` bypasses the check. A branch of a GitHub stack is pushed with
-the gh-stack skill's `stack-guard.sh publish` instead, which runs no map check;
+the gh-stack skill's `stack-guard.py publish` instead, which runs no map check;
 `update-branch` refuses such a branch, and `pr-merge` hands a stacked PR with
 unmerged layers below it to `pr-merge-stack`, which lands the stack with one
 `gh stack merge`.
@@ -176,7 +179,7 @@ The [bin helpers](bin.md) for scripts; the tools each skill names in prose.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.agents/plugins/agentdev/skills/create-skill/SKILL.md:1` — the authoring
   rules every skill follows
@@ -186,8 +189,8 @@ Verified anchor points (line numbers as of 2026-10-30):
   section that selects setup or update mode
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:61` — the progress
   document
-- `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.sh:124`
-  — the only read of the marker section
+- `.agents/plugins/agentdev/skills/template-consume/agent-code/check-updates.py:108`
+  — `read_marker`, the only read of the marker section
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:985`
   — the `eas-host` iOS build rule: action order, Metro start, cloud fallback
 - `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md:829`
@@ -196,15 +199,15 @@ Verified anchor points (line numbers as of 2026-10-30):
   — the image-family migration update mode applies first
 - `.agents/plugins/agentdev/skills/template-consume/SKILL.md:198` — update
   mode's migration step
-- `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.sh:109` —
+- `.agents/plugins/agentdev/skills/iwe-capture/agent-code/close-issue.py:33` —
   the shared issue-closing call, identical in `iwe-plan`
-- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:141`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.py:137`
   — `classify_upstream`, which picks the `UPSTREAM_ACTION`
-- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.sh:55`
+- `.agents/plugins/agentdev/skills/update-branch/agent-code/update-branch.py:116`
   — `merge_ref`, the child-process merge and its result mapping
-- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.sh:487` —
-  `run_begin`, the guard every stack push starts from
-- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.sh:87` —
+- `.agents/plugins/agentdev/skills/gh-stack/agent-code/stack-guard.py:537` —
+  `Guard.begin`, the guard every stack push starts from
+- `.agents/plugins/agentdev/skills/pr-open/agent-code/push-branch.py:132` —
   `check_map_freshness`, the push-time map gate
 - `.agents/plugins/agentdev/skills/iwe-ship/SKILL.md:28` — the `iwe-shipper`
   dispatch
@@ -244,7 +247,7 @@ Verified anchor points (line numbers as of 2026-10-30):
   `replay_verdict`, the `RESTAMP`/`REFRESH` rule
 - `.agents/plugins/agentdev/skills/iwe-map/agent-code/stale-map-docs.py:369` —
   `source_digest_for_paths`
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:291`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:283`
   — `read_plan_state`, the remote-default-branch plan read
-- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:355`
+- `.agents/plugins/agentdev/skills/iwe-branch-name/agent-code/iwe-branch-name.py:347`
   — `next_iteration`, the three sources of used iterations

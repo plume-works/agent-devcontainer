@@ -21,7 +21,7 @@ bare number, which resolves against the current repository. Read it with the
 bundled script before forming any view of the problem:
 
 ```bash
-agent-code/fetch-issue.sh 123
+agent-code/fetch-issue.py 123
 ```
 
 It prints `ISSUE_REPO`, `ISSUE_NUMBER`, `ISSUE_URL`, `ISSUE_STATE`,

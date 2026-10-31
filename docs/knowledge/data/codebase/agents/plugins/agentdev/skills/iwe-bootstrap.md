@@ -2,14 +2,14 @@
 type: codebase
 description: The iwe-bootstrap skill — a packaged blank IWE workspace and the fail-closed helper that installs it into a repository root.
 source: .agents/plugins/agentdev/skills/iwe-bootstrap
-source_digest: sha256:d525245b5760b0bcc04e5cd6dde32899238a3e24cc2298c6a311cd32327f3e3b
+source_digest: sha256:e17ee7ac8efe39ec370b78a905edfeabf5a6a9099ed9f430c61593ce977d37d4
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
-stale_after: 2027-01-28
+  at: 2026-10-31T00:04:36Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T12:00:00Z
+  at: 2026-10-31T00:04:36Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev/skills/iwe-bootstrap
@@ -19,12 +19,12 @@ sources:
 
 The skill that installs a blank IWE workspace — `.iwe/` plus `docs/knowledge/` —
 into one repository root from files it ships, then stops. `assets/` is laid out
-as a repository root; `agent-code/bootstrap-iwe.sh` classifies the target,
+as a repository root; `agent-code/bootstrap-iwe.py` classifies the target,
 stages and validates the copy, and moves it into place.
 
 ## Public surface
 
-- `agent-code/bootstrap-iwe.sh [--root <dir>]` — prints `ROOT`, optionally
+- `agent-code/bootstrap-iwe.py [--root <dir>]` — prints `ROOT`, optionally
   `RECOVERED_TRANSACTION`, `CONFLICT=<reason>:<path>` lines, and `NEXT_SKILLS`,
   ending `RESULT=` `SUCCESS`, `MISSING_DEPENDENCY` (3), `ALREADY_INITIALIZED`
   (4), `RECONCILIATION_REQUIRED` (5), or `VALIDATION_FAILED` (6)
@@ -55,8 +55,9 @@ outside the document folders under `data/` — exists, the workspace path is
 
 ## Depends on
 
-The [bin helpers](../bin.md)' `result-codes.sh`, `git`, and the `iwe` CLI.
-`template-consume` invokes this skill for knowledge initialization.
+The [bin helpers](../bin.md)' `result_codes` and `skill_common`, `git`, `diff`,
+and the `iwe` CLI. `template-consume` invokes this skill for knowledge
+initialization.
 
 ## Invariants & gotchas
 
@@ -74,22 +75,22 @@ The [bin helpers](../bin.md)' `result-codes.sh`, `git`, and the `iwe` CLI.
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-25):
+Verified anchor points (line numbers as of 2026-10-31):
 
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:14`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:24`
   — the declared results
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:143`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:164`
   — `discard_transaction`, cleanup that removes `OWNER` last
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:157`
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:181`
   — `transaction_phase`, recognition of owned state
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:192`
-  — interrupted-transaction recovery
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:233`
-  — `required_files`, the completeness set
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:301`
-  — staged validation and the normalize no-op check
-- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.sh:320`
-  — the commit phase
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:215`
+  — `recover`, interrupted-transaction recovery
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:117`
+  — `required_files`, the completeness set, in the locale's collation order
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:272`
+  — `validate_stage`, staged validation and the normalize no-op check
+- `.agents/plugins/agentdev/skills/iwe-bootstrap/agent-code/bootstrap-iwe.py:289`
+  — `install`, the staging and commit phases
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/SKILL.md:53` — the result table
 - `.agents/plugins/agentdev/skills/iwe-bootstrap/references/scaffold.md:26` —
   ownership and import attribution

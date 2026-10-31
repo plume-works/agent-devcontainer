@@ -21,7 +21,7 @@ The GitHub CLI (`gh`) is the primary GitHub client for this skill, and a
 connected GitHub MCP server is a secondary fallback used only when `gh` is
 missing or unauthenticated. Every GitHub step below is written against `gh`:
 
-- `gh pr list` (through `find-branch-pr.sh`) - detect an existing pull request
+- `gh pr list` (through `find-branch-pr.py`) - detect an existing pull request
 - `gh pr create` - create the pull request
 - `gh pr edit` - update an existing pull request's title and body
 - `gh issue list` - list recent issues when an issue number is missing
@@ -31,13 +31,13 @@ If `gh` is unavailable or unauthenticated, fall back to the equivalent GitHub
 MCP operations (for example a pull-request listing tool for detection, or a
 `create_pull_request` tool for creation) only when the active environment
 documents them; do not assume particular MCP tool names. That fallback covers
-existing-PR detection too: `find-branch-pr.sh` reports every unusable-`gh`
+existing-PR detection too: `find-branch-pr.py` reports every unusable-`gh`
 condition as `RESULT=GH_UNAVAILABLE` (exit `6`) — distinct from the preflight
 failures no fallback can rescue — and prints `HEAD_BRANCH` before it checks
 `gh`, so the head branch to look up is available even then. If neither path
 works, stop and report the blocker.
 
-The branch is always pushed with local `git` through `push-branch.sh` — never
+The branch is always pushed with local `git` through `push-branch.py` — never
 through a GitHub API or MCP tool.
 
 ## PR Description Source of Truth
@@ -58,8 +58,8 @@ The pr-open skill is responsible for:
 
 Use these exact helper scripts instead of retyping inline shell commands:
 
-- [find-branch-pr.sh](agent-code/find-branch-pr.sh) resolves the single pull request whose head is the current branch, and fails loudly when more than one matches.
-- [push-branch.sh](agent-code/push-branch.sh) verifies upstream tracking, pushes the branch when needed, and blocks on divergence without ever rewriting history.
+- [find-branch-pr.py](agent-code/find-branch-pr.py) resolves the single pull request whose head is the current branch, and fails loudly when more than one matches.
+- [push-branch.py](agent-code/push-branch.py) verifies upstream tracking, pushes the branch when needed, and blocks on divergence without ever rewriting history.
 
 The detailed PR description structure, section requirements, and quality checks
 are defined in the [pr-gen-description](../pr-gen-description/) skill
@@ -92,7 +92,7 @@ Context signals for PR type:
 Before doing any work, resolve whether this branch already has a pull request:
 
 ```bash
-agent-code/find-branch-pr.sh
+agent-code/find-branch-pr.py
 ```
 
 The last stdout line is `RESULT=<NAME>`; it decides the rest of the run:
@@ -115,7 +115,7 @@ The script also prints `HEAD_BRANCH` on every run. That is the pull request
 head: the configured upstream branch name when the local branch tracks a
 differently named ref, and the local branch name otherwise. Use `HEAD_BRANCH`
 — never the local branch name — as the head when creating the PR, so it matches
-the ref `push-branch.sh` writes to.
+the ref `push-branch.py` writes to.
 
 ### 3. Commit Any Uncommitted PR Scope
 
@@ -227,7 +227,7 @@ reports a stale map.
 Otherwise, run the bundled helper:
 
 ```bash
-agent-code/push-branch.sh
+agent-code/push-branch.py
 ```
 
 The script handles these cases:
@@ -291,7 +291,7 @@ gh pr create --title "<title>" --body-file ./.tmp/pr-body.md \
   [pr-gen-description](../pr-gen-description/) skill
 - `--base` (required): target branch. If not explicitly provided by user or
   repo policy, use `main`
-- `--head` (required): the `HEAD_BRANCH` value reported by `find-branch-pr.sh`,
+- `--head` (required): the `HEAD_BRANCH` value reported by `find-branch-pr.py`,
   which is the configured upstream branch name rather than the local branch
   name whenever the two differ
 - `--draft` (optional): pass when the user wants a draft PR
@@ -342,7 +342,7 @@ If you are falling back to a GitHub MCP server, verify its authentication and
 token scopes instead.
 ```
 
-**Not on a feature branch** (`find-branch-pr.sh` or `push-branch.sh` reports `PROTECTED_BRANCH`):
+**Not on a feature branch** (`find-branch-pr.py` or `push-branch.py` reports `PROTECTED_BRANCH`):
 
 ```
 Cannot continue: you're on the main/master branch.
@@ -354,7 +354,7 @@ freshly fetched remote base and pushes it with its own upstream.
 Then rerun this skill.
 ```
 
-**Multiple pull requests share the branch** (`find-branch-pr.sh` reports `MULTIPLE_PRS`):
+**Multiple pull requests share the branch** (`find-branch-pr.py` reports `MULTIPLE_PRS`):
 
 ```
 Found several pull requests with this head branch.

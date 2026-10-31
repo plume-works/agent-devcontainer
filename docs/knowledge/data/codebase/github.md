@@ -2,14 +2,14 @@
 type: codebase
 description: Workflows, composite actions, Renovate policy, and the pull request template that gate and publish this repository.
 source: .github
-source_digest: sha256:186185f51b87d9563d3ddbe51714ee86dddd740b4b60b18c6201f211e878b0bb
+source_digest: sha256:c86c03364c754f8406ef66da7f03e7a5a511d697bd410f498c45d25b7c5afc90
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:44:40Z
-stale_after: 2027-01-28
+  at: 2026-10-31T00:05:52Z
+stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-30T01:44:40Z
+  at: 2026-10-31T00:05:52Z
 sources:
 - id: code
   resource: .github
@@ -42,7 +42,7 @@ the composite actions they share, `renovate.json`, and
   family, which `/agentdev:sync-super-linter-tool-versions` moves by hand, and
   for the `ubuntu` base of `docker/ansible/Dockerfile`, which stays at 24.04
 - `actionlint.yml` — runner labels newer than the pinned actionlint knows, read
-  by the pre-commit hook and, through `super-linter-env.sh`, Super-Linter
+  by the pre-commit hook and, through `super_linter.py env`, Super-Linter
 - `.agent.metadata.json` — `iwe-map.digest_ignore` masks for runner labels and
   `agentdev-devcontainer` digests, so automerged bumps leave map digests
   unchanged
@@ -85,7 +85,7 @@ and the [validator](py_packages/validate_agent_files.md) for the check jobs;
 
 ## Key references
 
-Verified anchor points (line numbers as of 2026-10-30):
+Verified anchor points (line numbers as of 2026-10-31):
 
 - `.github/renovate.json:5-24` — `postUpgradeTasks`
 - `.github/renovate.json:25-30` — lock-file maintenance automerge

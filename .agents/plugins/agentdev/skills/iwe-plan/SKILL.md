@@ -14,4 +14,4 @@ answer.
 Read [the iwe-planner rulebook](../../agents/iwe-planner.agent.md) in full and
 follow it in place for the topic or plan the user named, in its
 **From `/agentdev:iwe-plan`** mode. Do not dispatch it as a subagent. Its
-issue-closing step runs this skill's bundled `agent-code/close-issue.sh`.
+issue-closing step runs this skill's bundled `agent-code/close-issue.py`.

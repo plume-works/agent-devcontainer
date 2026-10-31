@@ -31,12 +31,12 @@ layers, read `references/upstream/stack-design.md`.
 `gh stack push`, `submit`, and `sync` fetch each layer and then take their `--force-with-lease`
 from the ref they just fetched, so a stale local layer silently replaces commits pushed from
 elsewhere. Every remote update of a stack therefore goes through
-[stack-guard.sh](agent-code/stack-guard.sh), and its own leased push is the only force-push:
+[stack-guard.py](agent-code/stack-guard.py), and its own leased push is the only force-push:
 
-- `agent-code/stack-guard.sh begin` — before anything rewrites the stack: the first commit on a
+- `agent-code/stack-guard.py begin` — before anything rewrites the stack: the first commit on a
   layer, a `gh stack rebase`, or adopting an existing branch.
-- `agent-code/stack-guard.sh publish` — in place of `gh stack push`.
-- `agent-code/stack-guard.sh publish --submit` — in place of `gh stack submit --auto`. After its
+- `agent-code/stack-guard.py publish` — in place of `gh stack push`.
+- `agent-code/stack-guard.py publish --submit` — in place of `gh stack submit --auto`. After its
   push it runs `gh stack link`, which pushes without force and opens the missing draft PRs, then
   `gh stack checkout <stack#>` to record those PRs locally, since `link` writes no local state.
 
@@ -91,7 +91,7 @@ config.
 | Always run | Never run bare | Why |
 |---|---|---|
 | `gh stack view --json` | `gh stack view` | opens a TUI under a PTY |
-| `stack-guard.sh publish --submit` | `gh stack submit` | prompts for a title per new PR; unguarded |
+| `stack-guard.py publish --submit` | `gh stack submit` | prompts for a title per new PR; unguarded |
 | `gh stack merge <target> --yes` | `gh pr merge` | `gh pr merge` cannot merge a stack |
 | `gh stack init <branch>...` | `gh stack init` | prompts for branch names |
 | `gh stack add <branch>` | `gh stack add` | prompts for a name, and fails even when piped |
@@ -115,11 +115,11 @@ later. Put one dependent concern in each layer, bottom to top. Branch names are 
 
 ```bash
 gh stack init auth                      # create the stack and check out its branch
-agent-code/stack-guard.sh begin
+agent-code/stack-guard.py begin
 git add ... && git commit -m "Add auth middleware"
 gh stack add api                        # next layer, branched from the current one
 git add ... && git commit -m "Add API routes"
-agent-code/stack-guard.sh publish --submit   # push every branch and open draft PRs
+agent-code/stack-guard.py publish --submit   # push every branch and open draft PRs
 gh stack view --json                    # confirm
 ```
 
@@ -135,7 +135,7 @@ the local branch from the remote first, and run `begin` right after `init`:
 ```bash
 git switch <branch>                     # creates it from <remote>/<branch>
 gh stack init <branch>
-agent-code/stack-guard.sh begin
+agent-code/stack-guard.py begin
 ```
 
 ## Editing an existing stack
@@ -145,12 +145,12 @@ the current top branch. Run `gh stack view --json`; if ownership is unclear, ins
 `git log --all -- <path>`.
 
 ```bash
-agent-code/stack-guard.sh begin         # before the first commit
+agent-code/stack-guard.py begin         # before the first commit
 gh stack down                           # or: gh stack checkout api
 git add ... && git commit -m "Add get-user endpoint"
 gh stack rebase --upstack               # replay every branch above onto the change
 gh stack top                            # return to where you were
-agent-code/stack-guard.sh publish
+agent-code/stack-guard.py publish
 ```
 
 ## Refreshing the stack
@@ -158,9 +158,9 @@ agent-code/stack-guard.sh publish
 After a layer merges, or when the trunk moved, rebase the remaining layers onto the trunk:
 
 ```bash
-agent-code/stack-guard.sh begin
+agent-code/stack-guard.py begin
 gh stack rebase                         # fetch, fast-forward, skip merged layers, rebase; no push
-agent-code/stack-guard.sh publish
+agent-code/stack-guard.py publish
 ```
 
 `begin` accepts a layer that GitHub rebased after a lower layer merged, because its remote holds

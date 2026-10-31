@@ -21,7 +21,7 @@ removed, and the assignees end as the script found them. An `@claude review`
 comment requests nothing; the responder rejects it.
 
 ```bash
-agent-code/request-review.sh --pr <pr> [--rationale '<one line>']
+agent-code/request-review.py --pr <pr> [--rationale '<one line>']
 ```
 
 It prints `PR_NUMBER`, `HEAD_SHA`, `CHECK_URL` — the responder check already
@@ -35,7 +35,7 @@ covering this head — and `COMMENT_URL` — the posted rationale — and ends w
 | `ALREADY_REQUESTED` | 4                   | The responder check at `CHECK_URL` already covers the head. Report it and confirm that one; do not retry.                                          |
 | `PR_NOT_OPEN`       | 5                   | The pull request is closed, merged, or not found. Stop and report.                                                                                 |
 | `GH_UNAVAILABLE`    | 6                   | `gh` is missing, unauthenticated, or failed, the toggle included. Stop and report stderr, which names any assignment left unrestored.              |
-| `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr`, a multi-line rationale, or no `jq`. Fix the call.                                                                     |
+| `PREFLIGHT_ERROR`   | 2                   | Usage error: missing `--pr` or a multi-line rationale. Fix the call.                                                                               |
 | `SCRIPT_FAILURE`    | 1                   | Unhandled error. Stop and report stderr.                                                                                                           |
 | `SIGNAL_*`          | `129`, `130`, `143` | Interrupted by HUP, INT, or TERM. Stop; check the pull request's assignees, since an interrupted toggle can leave the author's assignment changed. |
 
@@ -97,7 +97,7 @@ unit: it is what makes an existing review stale, and it is what justifies the
 next request. Push the work first, then request the review for the head that
 push produced.
 
-Request at most one review per head SHA. `request-review.sh` enforces the rule
+Request at most one review per head SHA. `request-review.py` enforces the rule
 whoever started the review: a `Claude PR Review Responder` check on the head
 that is queued, in progress, or completed other than skipped or cancelled is
 that head's request. A skipped responder is the gate-only run a push to a
