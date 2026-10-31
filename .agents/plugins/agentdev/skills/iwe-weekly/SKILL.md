@@ -12,18 +12,22 @@ next. Numbers come from frontmatter and git — never from memory.
 ## Steps
 
 1. **Shipped.** Plans completed in the last 7 days:
-   `iwe find --filter '{stage: done}' --included-by data/plans -f json` and
-   keep those with a `completed` date in range; cross-check with
+   `iwe find --filter '{type: plan, stage: done, completed: {$gte: <7 days ago>}}' -f keys`; cross-check with
    `git log --since '7 days ago' --oneline`. List releases cut, if any.
-2. **In flight.** Active plans (no `stage`) under `## Active` in
-   `data/plans.md`; flag any untouched for 14+ days (last commit touching the
-   file) as possibly stalled or silently done.
-3. **Open bugs.** Docs under `data/bugs.md` without `stage: done/cancelled`.
-4. **Backlog head.** `## High` items in `data/backlog.md`, plus how long
-   they've sat (`created`).
+2. **In flight.** The build order, plans, bugs, and tasks together:
+   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`,
+   then unsequenced active plans:
+   `iwe find --filter '{type: plan, stage: {$exists: false}, rank: {$exists: false}}' -f keys`.
+   Flag any plan untouched for 14+ days (last commit touching the file) as
+   possibly stalled or silently done.
+3. **Open bugs.** `iwe find --filter '{type: bug, stage: {$exists: false}}' -f keys`.
+4. **Backlog head.** The first planned tasks in the build order, then
+   unsequenced high-priority ones:
+   `iwe find --filter '{type: task, stage: planned, priority: high, rank: {$exists: false}}' -f keys`,
+   plus how long they've sat (`created`).
 5. **Graph health.** `iwe schema validate` (report violations) and `iwe stats`
-   (dangling links, plus any `data/` document listed under Orphans other than
-   `data/index` — every content doc should be reachable from a hub). Healthy
+   (dangling links, plus any `data/` document listed under Orphans — every
+   content doc should be reachable from a hub). Healthy
    means zero of each.
 6. **Print the digest** — shipped / in flight / bugs / backlog / health — and
    end with **the single most leveraged next action**, chosen from what the
@@ -32,6 +36,6 @@ next. Numbers come from frontmatter and git — never from memory.
 ## Rules
 
 - Read-only: this skill writes no files and changes no statuses; if the sweep
-  finds inconsistencies (a done plan still under Active), report them as the
+  finds inconsistencies (a done plan that still carries a `rank`), report them as the
   next action instead of fixing silently.
 - Every number in the digest traces to a query or git — no estimates.

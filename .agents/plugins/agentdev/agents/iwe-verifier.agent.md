@@ -43,9 +43,12 @@ runs in one of two modes:
 1. **Pick the mode.** A plan named in your prompt → plan mode. Audit mode, or
    no plan ("audit the docs", "check for drift") → audit mode (step 5).
 2. **Select the plan.** If the plan key resolves to no plan or to more than
-   one, list the plans under `## Active` in `data/plans.md` (a just-finished
-   plan may also sit under `## Done`), report them under `Needs decision`, and
-   stop. Announce: "Verifying: <plan>". Read the full plan, every spec named in
+   one, list the active plans in build order from
+   `iwe find --filter '{rank: {$exists: true}}' --sort rank:1 -f keys`
+   and the unsequenced ones from
+   `iwe find --filter '{type: plan, stage: {$exists: false}, rank: {$exists: false}}' -f keys`
+   (a just-finished plan may carry `stage: done`), report them under
+   `Needs decision`, and stop. Announce: "Verifying: <plan>". Read the full plan, every spec named in
    its `## Spec changes`, and the linked feature/bug docs
    (`iwe retrieve -k data/plans/<key>`).
 3. **Check three dimensions**, collecting issues as CRITICAL / WARNING /
@@ -110,11 +113,11 @@ runs in one of two modes:
      behavior with no feature doc.
    - Open bugs (no `stage`) — still reproducible? Point at ones whose
      `## Key references` no longer exist.
-   - Consistency: plans with `stage: done` still linked under `## Active`
-     (`iwe find --filter '{stage: done}' --included-by data/plans -f keys`
-     cross-checked against the hub sections); `iwe schema validate`
-     violations; `iwe stats` dangling links and `data/` orphans other than
-     `data/index`.
+   - Consistency: a done or cancelled plan, bug, or task that still carries a
+     `rank`
+     (`iwe find --filter '{rank: {$exists: true}, stage: {$in: [done, cancelled]}}' -f keys`);
+     `iwe schema validate` violations; `iwe stats` dangling links and `data/`
+     documents listed under Orphans.
    - Report in the same CRITICAL/WARNING/SUGGESTION format, grouped by fix
      owner: "run `/agentdev:iwe-ship` on X", "update spec Y", "close bug Z".
 
