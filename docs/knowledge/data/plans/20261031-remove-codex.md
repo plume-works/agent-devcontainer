@@ -188,10 +188,14 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `scripts/tests/test_agentdev_devcontainer_{image,lifecycle,repository}.py`,
 `scripts/tests/test_environment_health.py`
 
-- [ ] No test asserts Codex behavior, and the catalog-root fixtures in
+- [x] No test asserts Codex behavior, and the catalog-root fixtures in
   `test_agent_runtime_workspace.py` and
   `test_agentdev_devcontainer_lifecycle.py` no longer write
   `.agents/plugins/marketplace.json`.
+  - **Evidence:** `126cf3a1`; Docker-free tests in the nine modified files pass
+    (health 17, workspace 24, lifecycle 19, cbm 8, the other five 33), and the
+    33 tests that need the runtime images are skipped here — CI runs them (Task
+    13).
 - [ ] `git grep -i codex -- scripts/tests` prints nothing, and each modified
   test file passes under `uv run pytest`.
 
