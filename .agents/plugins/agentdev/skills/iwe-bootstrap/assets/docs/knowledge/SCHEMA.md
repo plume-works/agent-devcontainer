@@ -50,9 +50,10 @@ whenever you set `stage`, derive `status` from this table and set or clear it.
 | feature | `deprecated`, `cancelled` | `deprecated` |
 | plan    | `cancelled`               | `deprecated` |
 | release | `unreleased`              | `draft`      |
+| task    | `cancelled`               | `deprecated` |
 
-Every other `stage` value means the document is current — omit `status`. `task`
-and the reference types never set it.
+Every other `stage` value means the document is current — omit `status`. The
+reference types never set it.
 
 ## Reserved files
 
@@ -143,7 +144,7 @@ Atomic prioritized work items waiting to become plans.
 ``` yaml
 ---
 type: task # required
-stage: planned # planned | done — required
+stage: planned # planned | done | cancelled — required
 priority: high # high | medium | low
 created: 2026-08-01 # required, YYYY-MM-DD
 completed: 2026-08-14 # set when done

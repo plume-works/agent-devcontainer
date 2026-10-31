@@ -32,6 +32,8 @@ you cloned an earlier copy, they tell you what to change in your own workspace.
   appends to it on every release.
 - A GitHub Actions workflow that runs `iwe schema validate` and checks that
   `iwe normalize` is a no-op on every push and pull request.
+- Backlog tasks accept `stage: cancelled` (OKF `status: deprecated`); a dropped
+  task's link moves to `## Cancelled` in `data/backlog.md`.
 
 ### Changed
 

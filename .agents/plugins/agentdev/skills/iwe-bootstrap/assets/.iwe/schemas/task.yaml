@@ -9,8 +9,8 @@ frontmatter:
   properties:
     type: { const: task }
     stage:
-      enum: [planned, done]
-      description: 'stage must be one of: planned, done'
+      enum: [planned, done, cancelled]
+      description: 'stage must be one of: planned, done, cancelled'
     priority:
       enum: [high, medium, low]
       description: 'priority must be one of: high, medium, low'
