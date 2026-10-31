@@ -5,14 +5,14 @@ source:
 - .agents/plugins/agentdev
 - .agents/plugins/marketplace.json
 - .claude-plugin
-source_digest: sha256:ade47a34c970ebb11687560d4fcaebd903eb49f76c7fd1dbc8368be846394276
+source_digest: sha256:6450541f7010606ade4aa38ee161f1aa5a74191ea062c573ac09c7909fc55d4f
 verified:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T06:00:23Z
 stale_after: 2027-01-29
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T04:38:23Z
+  at: 2026-10-31T06:00:23Z
 sources:
 - id: code
   resource: .agents/plugins/agentdev
@@ -79,12 +79,12 @@ source. The image build copies `.claude-plugin/` and `.agents/` whole into
 ([agentic_tools](../../ansible/roles/agentic_tools.md)); the devcontainer
 lifecycle installs again over the mounted volumes and, for this repository only,
 re-registers the workspace copy on attach ([lifecycle
-scripts](../../py_packages/agentdev_runtime.md)). Codex reads the same skills;
-its agents are the one generated copy, written into `~/.codex/agents/` at
-install by `bin/install-codex-agents.py`. OpenCode reads them too, translated at
-startup by the bridge rather than copied; v2 command execution keeps the full
-namespaced invocation in the user message. With enabled local CBM configuration,
-the bridge also registers the active Git worktree for background indexing.
+scripts](../../devcontainer/scripts.md)). Codex reads the same skills; its
+agents are the one generated copy, written into `~/.codex/agents/` at install by
+`bin/install-codex-agents.py`. OpenCode reads them too, translated at startup by
+the bridge rather than copied; v2 command execution keeps the full namespaced
+invocation in the user message. With enabled local CBM configuration, the bridge
+also registers the active Git worktree for background indexing.
 
 ## Depends on
 

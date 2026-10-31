@@ -323,6 +323,25 @@ def test_uncommitted_and_untracked_changes_carry_over(
     assert (fixture.work / 'late.txt').read_text() == 'late\n'
 
 
+def test_untracked_file_with_a_non_utf8_name_carries_over(
+    plugin_root: Path,
+    fixture: Fixture,
+) -> None:
+    """Path lists are read as bytes, so a Latin-1 file name cannot crash the carry check."""
+    # Arrange
+    fixture.advance_remote('late.txt', 'late\n')
+    name = os.fsdecode(b'caf\xe9.txt')
+    (fixture.work / name).write_text('new\n')
+
+    # Act
+    completed, _ = run_script(plugin_root, fixture.work, 'fixture-topic')
+
+    # Assert
+    assert outcome(completed) == (0, 'RESULT=SUCCESS')
+    assert 'Traceback' not in completed.stderr
+    assert (fixture.work / name).read_text() == 'new\n'
+
+
 def test_changes_to_paths_the_base_moved_are_left_untouched(
     plugin_root: Path,
     fixture: Fixture,
