@@ -362,10 +362,14 @@ helper; Delete: `.agents/plugins/agentdev/bin/result-codes.sh`
 **Files:** Modify: `.agents/plugins/agentdev/bin/result_codes.py`,
 `.agents/plugins/agentdev/tests/test_result_codes.py`
 
-- [ ] An exception that escapes a script's `main` prints a one-line error to
+- [x] An exception that escapes a script's `main` prints a one-line error to
   stderr naming the script and the error, with a failed command's own stderr for
   a `subprocess.CalledProcessError`, and no Python traceback; the exit status
   and the `RESULT=` line stay what they are today.
+  - **Evidence:** commit 5b99d2a "Name an unhandled error in one line instead of
+    a traceback"; `uv run pytest .agents/plugins/agentdev/tests` passed (470),
+    including `test_template_consume_check_updates.py`'s unhandled-abort case,
+    which still ends `RESULT=SCRIPT_FAILURE` with status 1.
 - [ ] A test raises an unhandled exception and a failed subprocess through
   `result_codes` and asserts stderr carries no `Traceback` and the `RESULT=`
   line is unchanged.
