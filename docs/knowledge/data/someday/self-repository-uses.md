@@ -3,7 +3,7 @@ type: someday
 description: Move every same-repository `uses:` from workspace-relative `./` to GitHub's `$/` self-repository syntax once actionlint accepts it, then re-enable zizmor's self-repository audit.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-11-01T16:12:27Z
+  at: 2026-11-01T19:00:00Z
 sources:
 - resource: zizmor.yaml
 - resource: .github/workflows/ai-responder.yml
@@ -51,9 +51,6 @@ file.
 
 - Every `uses: ./` under `.github/workflows/` and `.github/actions/`, including
   nested composite-action calls.
-- `scripts/tests/test_paths_filter_last_pass.py` and
-  `scripts/tests/test_agent_runtime_ci.py` match the literal `./.github/...`
-  strings.
 - Remove the `self-repository` entry from `zizmor.yaml`.
 - Drop the action-only sparse checkouts.
 

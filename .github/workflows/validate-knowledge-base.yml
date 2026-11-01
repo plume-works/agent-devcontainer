@@ -71,7 +71,7 @@ jobs:
         id: seed-filter
         uses: dorny/paths-filter@v4.0.3
         with:
-          base: ${{ github.event_name == 'pull_request' && '' || 'main' }}
+          base: ${{ github.event_name != 'pull_request' && 'main' || '' }}
           filters: |
             seed:
               - .agents/plugins/agentdev/skills/iwe-bootstrap/assets/**
