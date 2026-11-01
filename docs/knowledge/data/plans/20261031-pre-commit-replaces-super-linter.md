@@ -141,9 +141,14 @@ path filter: pre-commit already skips hooks whose files did not change.
 
 **Files:** none
 
-- [ ] The `agentdev-devcontainer` digest in `devcontainer-compose-pins.yml` on
+- [x] The `agentdev-devcontainer` digest in `devcontainer-compose-pins.yml` on
   `main` names an image with `hadolint --version` at `2.14.0` and
   `shellcheck --version` at `0.11.0`.
+  - **Evidence:** #609 (`b04c9524`) pins `sha256:0f3620b5…`, built from
+    `29a639e4` (#605); its amd64 image reports
+    `Haskell Dockerfile Linter 2.14.0` and shellcheck `0.11.0`, and the arm64
+    build installing the same checksum-verified pins passed in Primary checks
+    run 41262583568.
 
 ### Task 4: Lock the Python hook tools in uv
 
