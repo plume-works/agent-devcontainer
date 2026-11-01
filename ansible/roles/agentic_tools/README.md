@@ -78,12 +78,12 @@ Two properties constrain changes:
 
 ### Agent CLIs
 
-| Variable                            | Default             | Description                                                                                     |
-| ----------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------- |
-| `agentic_tools_claude_code_version` | pinned              | `@anthropic-ai/claude-code` version.                                                            |
-| `agentic_tools_opencode_version`    | pinned              | `@opencode/cli` version; the OpenCode CLI.                                                      |
-| `agentic_tools_inspector_version`   | pinned              | `@modelcontextprotocol/inspector` version.                                                      |
-| `agentic_tools_bun_packages`        | the four CLIs above | Packages installed as Bun globals, each at its pin; `trust: true` runs a package's postinstall. |
+| Variable                            | Default              | Description                                                                                     |
+| ----------------------------------- | -------------------- | ----------------------------------------------------------------------------------------------- |
+| `agentic_tools_claude_code_version` | pinned               | `@anthropic-ai/claude-code` version.                                                            |
+| `agentic_tools_opencode_version`    | pinned               | `@opencode/cli` version; the OpenCode CLI.                                                      |
+| `agentic_tools_inspector_version`   | pinned               | `@modelcontextprotocol/inspector` version.                                                      |
+| `agentic_tools_bun_packages`        | the three CLIs above | Packages installed as Bun globals, each at its pin; `trust: true` runs a package's postinstall. |
 
 ### cc-filter
 
