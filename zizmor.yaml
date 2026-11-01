@@ -3,3 +3,6 @@ rules:
     disable: true
   known-vulnerable-actions:
     disable: true
+  # actionlint rejects `$/` uses; see someday/self-repository-uses.
+  self-repository:
+    disable: true
