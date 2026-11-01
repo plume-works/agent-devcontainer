@@ -1,7 +1,6 @@
 ---
 type: feature
-stage: proposed
-status: draft
+stage: accepted
 description: Work that depends on an open pull request is a normal pull request based on its predecessor's branch, kept current with merges and never rewritten, restacked after a squash merge by one pr-restack-all run.
 generated:
   by: claude-code/opus-5.5
