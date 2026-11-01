@@ -158,7 +158,9 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `py_packages/agentdev_runtime/tests/test_codex_hooks.py`; Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/{catalog,agent_state,cbm,bootstrap,doctor,lifecycle,settings,workspace,cli}.py`,
 `py_packages/agentdev_runtime/README.md`,
-`py_packages/agentdev_runtime/tests/test_settings.py`
+`py_packages/agentdev_runtime/pyproject.toml`, `uv.lock`,
+`py_packages/agentdev_runtime/tests/test_settings.py`; Delete:
+`py_packages/agentdev_runtime/uv.lock`
 
 - [x] `catalog install` registers Claude Code and OpenCode only, and
   `catalog.complete` treats a root as complete when it holds
@@ -181,6 +183,9 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
     prints nothing.
 - [x] `uv run pytest py_packages/agentdev_runtime` passes.
   - **Evidence:** `264e4bea`; 85 passed.
+- [ ] The package declares no `tomlkit` dependency, which only the Codex policy
+  module used, the root `uv.lock` is re-locked without it, and the package
+  carries no lockfile of its own beside the root `uv.lock`.
 
 ### Task 6: Update the runtime tests under scripts/tests
 
@@ -229,6 +234,8 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
   - **Evidence:** `0d62d327`.
 - [x] `.codex/` and its `.dockerignore` entry are gone.
   - **Evidence:** `0d62d327`.
+- [ ] `devcontainer.json` no longer recommends the Codex VS Code extension
+  (`openai.chatgpt`).
 
 ### Task 8: Remove Codex from CI and repository configuration
 
