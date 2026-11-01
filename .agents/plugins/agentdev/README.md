@@ -1,6 +1,6 @@
-# `agentdev` — a shared agent catalog for Claude Code, Codex, and OpenCode
+# `agentdev` — a shared agent catalog for Claude Code and OpenCode
 
-A Claude Code, Codex, and OpenCode plugin with the agents, skills, and helper scripts for
+A Claude Code and OpenCode plugin with the agents, skills, and helper scripts for
 everyday development work: git and pull requests, code review, CI log triage,
 formatting and linting, and escalating a command to a container or Codespace when
 the host lacks the toolchain.
@@ -34,12 +34,6 @@ and no trailing commas (unlike `devcontainer.json`):
 ```
 
 Restart Claude Code (or run `/plugin`) and the catalog is available.
-
-The same `.agents/plugins/agentdev/` directory is packaged for Codex by
-`.codex-plugin/plugin.json`; its agents and skills remain the same canonical
-files. This repository's devcontainer installs the staged plugin during
-`postCreateCommand` and refreshes the workspace copy on every editor attachment;
-start a new Codex session after attaching or reloading the window.
 
 ## Installing in OpenCode
 
@@ -180,4 +174,4 @@ package happens to live alongside it.
 
 `.agents/plugins/agentdev/` is the canonical source for the catalog, and this repository is where
 it is developed. See the [repository README](https://github.com/plume-works/agent-devcontainer#the-agent-catalog) for
-the editing rules, the `.codex/` mirror, and how to validate a change.
+the editing rules and how to validate a change.

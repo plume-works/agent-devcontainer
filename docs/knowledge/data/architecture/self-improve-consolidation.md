@@ -59,25 +59,15 @@ carries rather than on what one machine's settings say.
 
 ### The catalog is no longer single-plugin
 
-`agentdev-runtime catalog install` resolves the Codex plugin to install from the
-Codex manifest's first entry, and `agentic_tools_plugin_name` is a scalar.
-Marketplace *names* were deliberately de-hardcoded so a rename needs no edit;
-plugin arity never was. A second entry is otherwise installed never and
-uninstalled never — a silent no-op rather than an error.
+`agentic_tools_plugin_name` is a scalar, so the image build stages and installs
+one plugin by name. Marketplace *names* were deliberately de-hardcoded so a
+rename needs no edit; plugin arity never was. A second entry is installed at
+build time never — a silent no-op rather than an error — while
+`agentdev-runtime catalog install` installs every plugin the Claude marketplace
+manifest publishes.
 
 `validate_agent_files` is the exception: it already enumerates every plugin a
 marketplace manifest publishes.
-
-### The two ecosystems publish different plugin sets
-
-`self-improve` ships no Codex manifest, and Codex integration is analysed but
-unimplemented. The manifests are therefore asymmetric by design, and neither
-should be made to mirror the other:
-
-``` text
-.claude-plugin/marketplace.json     -> agentdev, self-improve
-.agents/plugins/marketplace.json    -> agentdev
-```
 
 ### The runtime imports the standard library only
 

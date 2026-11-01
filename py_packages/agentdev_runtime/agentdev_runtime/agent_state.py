@@ -19,12 +19,11 @@ import time
 from agentdev_runtime import (
     cbm,
     claude_state,
-    codex_config,
     opencode_config,
     settings as env,
 )
 
-AGENTS_WITH_SHARED_AUTH = ('claude', 'codex')
+AGENTS_WITH_SHARED_AUTH = ('claude',)
 
 
 class StateError(Exception):
@@ -121,30 +120,7 @@ def register_user_tools(settings: env.Settings) -> None:
     )
 
 
-def link_codex_auth(settings: env.Settings) -> None:
-    """
-    Share Codex's ``auth.json`` through the auth volume as a symlink.
-
-    Codex has no secure-storage directory setting, so only the file is shared. ``codex logout``
-    unlinks the local path; every start repairs the link.
-    """
-    auth_dir = settings.path('AGENTDEV_AGENTS_AUTH_DIR') / 'codex'
-    codex_home = settings.path('CODEX_HOME')
-    target = auth_dir / 'auth.json'
-    local = codex_home / 'auth.json'
-    auth_dir.mkdir(parents=True, exist_ok=True)
-    codex_home.mkdir(parents=True, exist_ok=True)
-    auth_dir.chmod(0o700)
-    if local.is_file() and not local.is_symlink():
-        shutil.move(local, target)
-        target.chmod(0o600)
-    if local.is_symlink() or local.exists():
-        local.unlink()
-    local.symlink_to(target)
-
-
 def apply_agent_policy() -> None:
-    codex_config.configure()
     opencode_config.configure()
 
 
@@ -156,7 +132,6 @@ def create(settings: env.Settings) -> None:
         install_cbm(settings)
     ensure_auth_dirs(settings)
     claude_state.preapprove(settings)
-    link_codex_auth(settings)
 
 
 def main(argv: list[str]) -> int:
@@ -165,8 +140,6 @@ def main(argv: list[str]) -> int:
         if argv == ['create']:
             with config_lock(settings):
                 create(settings)
-        elif argv == ['links']:
-            link_codex_auth(settings)
         elif argv == ['agent-policy']:
             with config_lock(settings):
                 apply_agent_policy()
@@ -174,7 +147,7 @@ def main(argv: list[str]) -> int:
             with config_lock(settings):
                 install_cbm(settings)
         else:
-            print('usage: agentdev-runtime state create|links|agent-policy|cbm', file=sys.stderr)
+            print('usage: agentdev-runtime state create|agent-policy|cbm', file=sys.stderr)
             return 2
     except StateError as error:
         print(f'agentdev-runtime state: {error}', file=sys.stderr)

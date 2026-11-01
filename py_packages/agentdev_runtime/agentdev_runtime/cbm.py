@@ -21,7 +21,7 @@ import subprocess
 import sys
 import time
 
-from agentdev_runtime import codex_hooks, settings as env
+from agentdev_runtime import settings as env
 
 PREFIX = 'agentdev-runtime cbm'
 BINARY = 'codebase-memory-mcp'
@@ -321,8 +321,8 @@ def configure_agents(settings: env.Settings, install_dir: Path, extra_path: str 
     """
     Wire the image's CBM binary into the user's agent configuration.
 
-    This runs at container start because the persistent ``~/.claude``/``~/.codex`` volumes
-    mount over anything an image build writes; ``install -y --force`` is idempotent.
+    This runs at container start because the persistent ``~/.claude`` volume mounts
+    over anything an image build writes; ``install -y --force`` is idempotent.
     """
     environ = dict(os.environ)
     if extra_path:
@@ -360,17 +360,6 @@ def configure_agents(settings: env.Settings, install_dir: Path, extra_path: str 
             print(f'preflight stat: {path} does not exist', flush=True)
     claude_json = Path(settings.raw('AGENTDEV_CLAUDE_JSON') or home / '.claude.json')
     with materialized(claude_json):
-        # cbm writes Codex hooks to hooks.json only when it exists, outside the config.toml
-        # Codex rewrites. Spec: cbm-startup-integration.
-        codex_home = Path(settings.raw('CODEX_HOME') or home / '.codex')
-        codex_home.mkdir(parents=True, exist_ok=True)
-        hooks = codex_home / 'hooks.json'
-        if not hooks.exists() and not hooks.is_symlink():
-            hooks.write_text('{}\n')
-        # See bugs/cbm-codex-hooks-block-foreign-tables.
-        repaired = codex_hooks.repair_config(codex_home, str(install_dir))
-        if repaired != 0:
-            return repaired
         environ['CBM_LOG_LEVEL'] = settings.get('CBM_LOG_LEVEL')
         environ['CBM_INSTALL_DIR'] = str(install_dir)
         sys.stdout.flush()

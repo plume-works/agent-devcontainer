@@ -98,7 +98,7 @@ consumption](../spec/template-consumption.md):
   missing `pyproject.toml` dependencies, an orphaned `clean_build` workflow
   input, the `zizmor` pre-commit hook needing a host-portable alternative,
   `.gitignore` entries for generated devcontainer env files, and
-  `--require-marketplace claude codex` asserting manifests a consumer does not
+  `--require-marketplace` asserting publisher manifests a consumer does not
   have) — all folded into the guide.
 
 One item was out of scope and stayed with its owning repository: a pre-existing

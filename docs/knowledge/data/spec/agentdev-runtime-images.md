@@ -3,7 +3,7 @@ type: spec
 description: The agentdev image family — a lifecycle-neutral agentdev-base and sibling agentdev-deploy and agentdev-devcontainer runtimes — and the supervised services, lifecycle phases, and hook interface the Dev Container image gives consumers without copied lifecycle scripts.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T20:55:00Z
+  at: 2026-11-01T03:25:00Z
 sources:
 - resource: docker/base/agentdev-base.Dockerfile
 - resource: docker/deploy/agentdev-deploy.Dockerfile
@@ -160,10 +160,10 @@ SHALL continue using the staged version.
 
 #### Scenario: an agentdev developer reloads the editor
 
-- **WHEN** the checkout contains the Claude, Codex, and OpenCode catalog
-  manifests and the attach lifecycle runs
-- **THEN** all three clients register the checkout catalog without rebuilding
-  the image
+- **WHEN** the checkout contains the Claude and OpenCode catalog manifests and
+  the attach lifecycle runs
+- **THEN** both clients register the checkout catalog without rebuilding the
+  image
 
 ### Requirement: full adoption remains supported
 

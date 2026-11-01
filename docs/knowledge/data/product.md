@@ -16,8 +16,8 @@ development, published as `ghcr.io/plume-works/agentdev-devcontainer`.
 
 The repository has three responsibilities in one checkout: it publishes the
 agentdev image family (Python + Node, nested Docker, an Xpra remote desktop,
-Claude Code and Codex preinstalled, an opt-in egress firewall), it publishes the
-`agentdev` catalog of agents and skills for Claude Code and Codex, and it
+Claude Code and OpenCode preinstalled, an opt-in egress firewall), it publishes
+the `agentdev` catalog of agents and skills for Claude Code and OpenCode, and it
 carries reusable devcontainer scaffolding. Other projects point a descriptor at
 `agentdev-devcontainer`, derive their own image from it, or copy the template
 surface — descriptor, MCP config, GitHub workflows — through
@@ -74,9 +74,9 @@ the driver of design decisions — internal needs come first.
     package (its own `pyproject.toml`, isolated test suite) that validates
     agent/skill definitions.
   - `.agents/plugins/agentdev/` — the canonical source for the `agentdev` Claude
-    Code / Codex plugin (agents, skills, `bin/` scripts); this directory is the
-    source of truth, everything else under `.claude-plugin/`,
-    `.agents/plugins/marketplace.json`, and the reinstall scripts is derived.
+    Code / OpenCode plugin (agents, skills, `bin/` scripts); this directory is
+    the source of truth, everything else under `.claude-plugin/` and the
+    reinstall scripts is derived.
   - `ansible/playbooks/`, `ansible/roles/` — image provisioning.
   - `docker/base/`, `docker/devcontainer/`, `docker/deploy/`, `docker/ansible/`
     — image build.
@@ -151,8 +151,6 @@ it):
 - OpenCode tests and e2e runs default to `openai/gpt-6.1-sol` (big model) and
   `openai/gpt-6-luna` (small model); a costlier model only when the user names
   it.
-- Edit `.agents/plugins/agentdev/` for catalog changes, never `.codex/`; Codex
-  reads the canonical plugin tree directly.
 - Consult the **Principal Engineer** agent for
   architecture/design/implementation strategy decisions ("When in Doubt").
 - Python: PEP 8, 99-char line limit, type hints + PEP 257 docstrings, ruff for

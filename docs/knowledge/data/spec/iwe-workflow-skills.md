@@ -3,7 +3,7 @@ type: spec
 description: Behavioral contracts and handoffs for IWE's Explore, Capture, Plan, Implement, Verify, and Ship skills.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T18:00:00Z
+  at: 2026-11-01T03:25:00Z
 sources:
 - resource: .iwe/schemas/plan.yaml
 - resource: .agents/plugins/agentdev/skills/iwe-explore/SKILL.md
@@ -373,7 +373,7 @@ behavior, changes `release`, or changes text the user approved.
 
 - **WHEN** the orchestrator dispatches `iwe-revision-evaluator`
 - **THEN** the prompt holds the plan key and the quoted finding and nothing else
-  from the conversation, and on Codex the spawn forwards no turns
+  from the conversation
 
 ### Requirement: Plans record intent, not the path taken to it
 
@@ -587,13 +587,13 @@ to resume after a partial prior attempt.
 The Ship and Implement workflows SHALL each be defined once, as the catalog
 agents `iwe-shipper` and `iwe-implementer`. Their user entry skills and the
 `iwe-ship-all` and `iwe-implement-all` coordinators SHALL be explicit-only on
-Claude Code, Codex, and OpenCode. Only those skills, those coordinators, and
-Plan revise mode answering a Ship blocker report SHALL start the workflows. Ship
-SHALL always run as a dispatched `iwe-shipper` whose prompt carries only the
-plan key, the operation, and the user's approvals quoted verbatim, so its
-verification rests on the code and the graph alone. Implement started by the
-user's own invocation SHALL run in the user's session. A dispatched workflow
-SHALL stop and report at any point that needs a user decision it was not given.
+Claude Code and OpenCode. Only those skills, those coordinators, and Plan revise
+mode answering a Ship blocker report SHALL start the workflows. Ship SHALL
+always run as a dispatched `iwe-shipper` whose prompt carries only the plan key,
+the operation, and the user's approvals quoted verbatim, so its verification
+rests on the code and the graph alone. Implement started by the user's own
+invocation SHALL run in the user's session. A dispatched workflow SHALL stop and
+report at any point that needs a user decision it was not given.
 
 #### Scenario: The user ships a plan directly
 
@@ -645,7 +645,7 @@ SHALL stop and report at any point that needs a user decision it was not given.
 
 #### Scenario: The model tries to start a gated skill
 
-- **WHEN** a model on Claude Code, Codex, or OpenCode tries to load `iwe-ship`,
+- **WHEN** a model on Claude Code or OpenCode tries to load `iwe-ship`,
   `iwe-implement`, or either coordinator without a user request
 - **THEN** the harness withholds it.
 

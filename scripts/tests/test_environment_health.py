@@ -38,14 +38,8 @@ def _run_health(
     project.mkdir(parents=True)
 
     home = tmp_path / 'home'
-    codex = home / '.codex'
     claude = home / '.claude'
-    shared = tmp_path / 'auth/codex'
-    codex.mkdir(parents=True)
     claude.mkdir(parents=True)
-    shared.mkdir(parents=True)
-    (shared / 'auth.json').write_text('{}')
-    (codex / 'auth.json').symlink_to(shared / 'auth.json')
     (claude / 'claude.json').write_text('{}')
     (home / '.claude.json').symlink_to(claude / 'claude.json')
 
@@ -85,7 +79,6 @@ esac
         'claude',
         'cmake',
         'codebase-memory-mcp',
-        'codex',
         'copilot',
         'curl',
         'docker',
@@ -141,8 +134,7 @@ esac
 
 def test_links_are_read_from_the_runtime_home() -> None:
     source = DOCTOR_SOURCE.read_text()
-    assert '/root/.codex' not in source and '/root/.claude.json' not in source
-    assert "home / '.codex/auth.json'" in source
+    assert '/root/.claude.json' not in source
     assert "home / '.claude.json'" in source
 
 
@@ -171,15 +163,17 @@ def test_deploy_mode_skips_non_applicable_sidecars_and_redacts_auth_output(
     assert re.search(r'^sshd process\s+SKIP\b', result.stdout, re.MULTILINE)
     assert 'SHOULD_NOT_APPEAR' not in result.stdout
     assert 'SECRET_VALUE' not in result.stdout
-    assert 'codex auth link' in result.stdout
+    assert 'claude.json link' in result.stdout
     assert 'PASS' in result.stdout
     assert 'Overall: PASS' in result.stdout
 
 
 def test_missing_required_tool_fails_health_check(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, missing=frozenset({'codex'}))
+    result = _run_health(tmp_path, missing=frozenset({'opencode'}))
     assert result.returncode == 1
-    assert re.search(r'^codex\s+FAIL\s+required tool not installed$', result.stdout, re.MULTILINE)
+    assert re.search(
+        r'^opencode\s+FAIL\s+required tool not installed$', result.stdout, re.MULTILINE
+    )
     assert 'Overall: FAIL' in result.stdout
 
 
@@ -192,9 +186,9 @@ def test_absent_processes_fail_without_printing_command_lines(tmp_path: Path) ->
 
 
 def test_command_failure_sets_aggregate_failure(tmp_path: Path) -> None:
-    result = _run_health(tmp_path, fail_commands=frozenset({'codex'}))
+    result = _run_health(tmp_path, fail_commands=frozenset({'opencode'}))
     assert result.returncode == 1
-    assert re.search(r'^codex\s+FAIL\s+rc=9', result.stdout, re.MULTILINE)
+    assert re.search(r'^opencode\s+FAIL\s+rc=9', result.stdout, re.MULTILINE)
     assert 'Overall: FAIL' in result.stdout
 
 
@@ -202,10 +196,10 @@ def test_command_timeout_sets_aggregate_failure(tmp_path: Path) -> None:
     result = _run_health(
         tmp_path,
         health_timeout='0.1',
-        sleep_commands=frozenset({'codex'}),
+        sleep_commands=frozenset({'opencode'}),
     )
     assert result.returncode == 1
-    assert re.search(r'^codex\s+FAIL\s+rc=124', result.stdout, re.MULTILINE)
+    assert re.search(r'^opencode\s+FAIL\s+rc=124', result.stdout, re.MULTILINE)
     assert 'Overall: FAIL' in result.stdout
 
 

@@ -148,3 +148,9 @@ Container](bugs/doctor-fails-healthy-coder-devcontainer.md)
 
 [Bug: Ship ships a plan whose prerequisite has not
 shipped](bugs/ship-ignores-unshipped-dependency.md)
+
+[Bug: OpenCode's config is reordered on the first
+restart](bugs/opencode-config-reordered-on-restart.md)
+
+[Bug: a metadata-gate review blocks the re-review it asks
+for](bugs/metadata-gate-review-blocks-rerequest.md)

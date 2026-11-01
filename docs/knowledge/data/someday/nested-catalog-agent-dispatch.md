@@ -3,7 +3,7 @@ type: someday
 description: Let a dispatched catalog agent dispatch another catalog agent, which every IWE workflow avoids today by keeping agents as leaves, if a workflow appears that a leaf design cannot express.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-27T14:00:44Z
+  at: 2026-10-31T21:01:06Z
 sources:
 - resource: .agents/plugins/agentdev/agents
 - resource: docs/knowledge/data/architecture/nested-subagent-dispatch.md
@@ -16,15 +16,15 @@ coordinator dispatches; `iwe-implementer`, `iwe-verifier`,
 `iwe-revision-evaluator`, and `iwe-shipper` never do ([Autonomous Implement
 loop](../architecture/autonomous-implement-loop.md), [Fresh-context
 Verify](../architecture/fresh-context-verify.md)). That is why each workflow
-runs on Claude Code, Codex, and OpenCode unchanged.
+runs on Claude Code and OpenCode unchanged.
 
 Letting an agent dispatch another would allow a self-contained `iwe-shipper`
 that starts its own fresh-context Verify, and coordinators that delegate a whole
 plan's loop to one agent. [Nested subagent
 dispatch](../architecture/nested-subagent-dispatch.md) records what it costs per
-harness: an `Agent` entry in the agent's Claude Code `tools:` list, an explicit
-no-forwarded-turns request on every Codex `spawn_agent`, and OpenCode's
-`experimental.subagent_depth`, an experimental key OpenCode may rename or drop.
+harness: an `Agent` entry in the agent's Claude Code `tools:` list and
+OpenCode's `experimental.subagent_depth`, an experimental key OpenCode may
+rename or drop.
 
 ## Promotion criteria
 

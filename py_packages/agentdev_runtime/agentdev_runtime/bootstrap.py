@@ -25,7 +25,7 @@ from agentdev_runtime import firewall as egress, integrity, settings as env
 
 PREFIX = 'agentdev-runtime bootstrap'
 MAX_ID = 2147483647
-AGENTS = ('claude', 'codex', 'opencode')
+AGENTS = ('claude', 'opencode')
 
 
 class BootstrapError(Exception):

@@ -110,8 +110,8 @@ dev_tools_pinned_tools:
   # Ubuntu 20.04) this image's roles target elsewhere.
   # Agent config wiring (`codebase-memory-mcp install`) is deliberately left to
   # container-create time (see `agentdev-runtime lifecycle created`),
-  # because it writes into ~/.claude.json and ~/.codex, which persistent volumes
-  # mount over anything written at image-build time — the same reason
+  # because it writes into ~/.claude.json, which a persistent volume
+  # mounts over anything written at image-build time — the same reason
   # agentic_tools only stages its catalog at build time instead of installing it.
   - name: codebase-memory-mcp
     # renovate: datasource=github-releases depName=DeusData/codebase-memory-mcp

@@ -1,16 +1,21 @@
 ---
 type: feature
-stage: implemented
+stage: deprecated
+status: deprecated
 description: Codex CLI sessions in the devcontainer run with full sandbox access and no approval prompts, written into Codex's config.toml on every container start without disturbing other tools' sections.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-16T12:00:00Z
+  at: 2026-10-31T23:20:47Z
 sources:
 - resource: docs/knowledge/data/plans/20261005-codex-full-access-config.md
 - resource: .devcontainer/scripts/configure-codex.py
 ---
 
 # Codex full-access config
+
+Deprecated: superseded by [Claude Code and OpenCode are the only supported
+harnesses](claude-and-opencode-only-harnesses.md). The runtime no longer
+configures Codex; this page records the behavior it had.
 
 ## Purpose
 
@@ -28,8 +33,7 @@ its own sandbox and approval prompts.
 kept. `tomlkit` is declared inline in the script, so it runs in a consumer
 repository whatever its `pyproject.toml` holds.
 
-The contract is [Devcontainer Codex
-policy](../spec/devcontainer-codex-policy.md).
+The contract is Devcontainer Codex policy.
 
 ## Edge cases
 

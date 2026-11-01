@@ -3,11 +3,10 @@ type: plan
 created: 2026-10-31
 release:
 - features/claude-and-opencode-only-harnesses
-- features/codex-full-access-config
 description: Remove Codex from the images, the agentdev-runtime package, the agentdev catalog, CI, the e2e suites, and the knowledge graph, leaving Claude Code and OpenCode as the only supported harnesses.
 generated:
   by: claude-code/opus-5.5
-  at: 2026-10-31T19:45:07Z
+  at: 2026-11-01T03:30:00Z
 sources:
 - resource: docs/knowledge/data/features/claude-and-opencode-only-harnesses.md
 - resource: py_packages/agentdev_runtime/agentdev_runtime/catalog.py
@@ -15,6 +14,8 @@ sources:
 - resource: py_packages/agentdev_runtime/agentdev_runtime/cbm.py
 - resource: ansible/roles/agentic_tools/tasks/install_catalog.yml
 - resource: scripts/e2e/iwe-workflows/harness_codex.py
+stage: done
+completed: 2026-11-01
 ---
 
 # Remove Codex support
@@ -27,7 +28,7 @@ the only supported
 harnesses](../features/claude-and-opencode-only-harnesses.md). Codex support
 reaches the image build, the `agentdev-runtime` package, the catalog's
 packaging, CI, the e2e suites, and the knowledge documents listed in Tasks 11
-and 12, and every plan that touches the runtime carries Codex work alongside it.
+and 12.
 
 This lands after [Replace the runtime shell scripts with one agentdev-runtime
 CLI](20261029-off-bash-migration.md), which moves the Codex code this plan
@@ -39,7 +40,8 @@ volume](20261030-devcontainer-home-volume.md), so that plan no longer carries
 Codex volume and auth work.
 
 [Codex full-access config](../features/codex-full-access-config.md) is
-superseded and becomes `deprecated`.
+superseded and becomes `deprecated`. Task 11 deprecates it; it stays out of
+`release`, because Ship sets every feature listed there to `implemented`.
 
 ## Approach
 
@@ -68,26 +70,37 @@ agents its skills dispatch, so the package would ship broken.
 
 **Files:** none
 
-- [ ] Both [off-bash-migration](20261029-off-bash-migration.md) and
+- [x] Both [off-bash-migration](20261029-off-bash-migration.md) and
   [catalog-scripts-python](20261029-catalog-scripts-python.md) are `stage: done`
   on `main`.
-- [ ] Every `## Key references` anchor resolves on `main` to the named symbol,
+  - **Evidence:** both plans carry `stage: done` on `main` at `d66fdf4d`, after
+    #591 merged.
+- [x] Every `## Key references` anchor resolves on `main` to the named symbol,
   and the base text of each `## Spec changes` MODIFIED requirement matches the
   shipped spec apart from the Codex wording this plan removes. Any mismatch
   stops implementation for `/agentdev:iwe-plan` revise mode.
+  - **Evidence:** `32abddd3` refreshes six moved line numbers, checked against
+    the off-bash migration code `main` holds since #591 merged (`d66fdf4d`); the
+    MODIFIED requirements in `spec/catalog-lifecycle`,
+    `spec/agentdev-runtime-images`, `spec/standalone-opencode-runtime`, and
+    `spec/iwe-workflow-skills` differ from the shipped text only in Codex
+    wording.
 
 ### Task 2: Record the supported-harness decision
 
 **Files:** Create: `docs/knowledge/data/architecture/supported-harnesses.md`;
 Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 
-- [ ] `architecture/supported-harnesses` states that Claude Code and OpenCode
+- [x] `architecture/supported-harnesses` states that Claude Code and OpenCode
   are the supported harnesses and Codex is not, records the rejected
   install-yourself package and why, and records that `validate_agent_files`
   keeps its Codex ecosystem; it is linked from `data/architecture.md`.
-- [ ] `data/product.md` names Claude Code and OpenCode wherever it names the
+  - **Evidence:** `e8016f57`; `iwe schema validate` passes on it.
+- [x] `data/product.md` names Claude Code and OpenCode wherever it names the
   preinstalled agents or the catalog's audience, and its authoring rule about
   `.codex/` is removed.
+  - **Evidence:** `e8016f57`; `grep -i codex docs/knowledge/data/product.md`
+    prints nothing.
 
 ### Task 3: Stop shipping a Codex package in the catalog
 
@@ -100,14 +113,18 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `.agents/AGENTS.md`, `.claude-plugin/AGENTS.md`,
 `.agents/plugins/agentdev/README.md`
 
-- [ ] The files above are gone and
+- [x] The files above are gone and
   `git ls-files .agents | grep -i -E 'codex|openai.yaml'` prints nothing.
-- [ ] `.agents/AGENTS.md`, `.claude-plugin/AGENTS.md`, and the plugin README
+  - **Evidence:** `86558fc0`; the `git ls-files` check prints nothing.
+- [x] `.agents/AGENTS.md`, `.claude-plugin/AGENTS.md`, and the plugin README
   describe the catalog as consumed by Claude Code and by OpenCode through the
   bridge, validate with `--require-marketplace claude`, and carry no manifest
   version-alignment rule for Codex.
-- [ ] `uv run validate_agent_files --recommend . --require-marketplace claude`
+  - **Evidence:** `86558fc0`.
+- [x] `uv run validate_agent_files --recommend . --require-marketplace claude`
   and `uv run pytest .agents/plugins/agentdev/tests` pass.
+  - **Evidence:** `86558fc0`; the validator reports 66/66 skills valid with no
+    errors or warnings, and the plugin suite passes (408 tests).
 
 ### Task 4: Remove Codex instructions from catalog skills
 
@@ -118,16 +135,21 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `.agents/plugins/agentdev/skills/template-consume/SKILL.md`,
 `.agents/plugins/agentdev/skills/template-consume/references/consumption-guide.md`
 
-- [ ] No skill gives Codex-specific instructions: `create-skill` loses its Codex
+- [x] No skill gives Codex-specific instructions: `create-skill` loses its Codex
   skill-creator pointer, `codex plugin add`, and `openai.yaml` guidance;
   `local-reformat` loses its Codex managed-sandbox section; `pr-review` loses
   its Codex tool, model column, and Codex waiting and budget rules;
   `create-agent` names Claude Code and OpenCode as consumers.
-- [ ] `template-consume` and its consumption guide no longer list `.codex/`, the
+  - **Evidence:** `6f2f02a1`; validator 66/66 valid and the plugin suite passes
+    (408 tests).
+- [x] `template-consume` and its consumption guide no longer list `.codex/`, the
   `agentdev-codex` volume, Codex policy configuration, or Codex in the
   catalog-install check, and recommend `--require-marketplace claude`.
-- [ ] `git grep -i codex -- .agents` prints only lines about the
+  - **Evidence:** `6f2f02a1`.
+- [x] `git grep -i codex -- .agents` prints only lines about the
   `chatgpt-codex-connector[bot]` GitHub actor.
+  - **Evidence:** `6f2f02a1`; the grep prints only the
+    `chatgpt-codex-connector[bot]` line in `test_request_review.py`.
 
 ### Task 5: Remove Codex from the agentdev-runtime package
 
@@ -138,21 +160,37 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `py_packages/agentdev_runtime/tests/test_codex_hooks.py`; Modify:
 `py_packages/agentdev_runtime/agentdev_runtime/{catalog,agent_state,cbm,bootstrap,doctor,lifecycle,settings,workspace,cli}.py`,
 `py_packages/agentdev_runtime/README.md`,
-`py_packages/agentdev_runtime/tests/test_settings.py`
+`py_packages/agentdev_runtime/pyproject.toml`, `uv.lock`,
+`py_packages/agentdev_runtime/tests/test_settings.py`; Delete:
+`py_packages/agentdev_runtime/uv.lock`
 
-- [ ] `catalog install` registers Claude Code and OpenCode only, and
+- [x] `catalog install` registers Claude Code and OpenCode only, and
   `catalog.complete` treats a root as complete when it holds
   `.claude-plugin/marketplace.json` and the OpenCode bridge; a test covers a
   root without `.agents/plugins/marketplace.json` being complete.
-- [ ] `agent_state` shares only Claude's credentials, has no Codex auth link,
+  - **Evidence:** `7dcd525e`; `tests/test_catalog_complete.py` covers a root
+    without `.agents/plugins/marketplace.json` being complete, and the package
+    suite passes (85 tests).
+- [x] `agent_state` shares only Claude's credentials, has no Codex auth link,
   applies only the OpenCode policy, and the `state links` subcommand is removed
   along with its call in `lifecycle.ready`.
-- [ ] `cbm install` neither creates `$CODEX_HOME/hooks.json` nor repairs a Codex
+  - **Evidence:** `7dcd525e`.
+- [x] `cbm install` neither creates `$CODEX_HOME/hooks.json` nor repairs a Codex
   `config.toml`.
-- [ ] `bootstrap`, `doctor`, `settings`, `workspace`, and `cli` name no Codex
+  - **Evidence:** `7dcd525e`.
+- [x] `bootstrap`, `doctor`, `settings`, `workspace`, and `cli` name no Codex
   agent, tool, link check, or `CODEX_HOME`; the package README's settings table
   has no `CODEX_HOME` row.
-- [ ] `uv run pytest py_packages/agentdev_runtime` passes.
+  - **Evidence:** `7dcd525e`; `grep -rni codex py_packages/agentdev_runtime`
+    prints nothing.
+- [x] `uv run pytest py_packages/agentdev_runtime` passes.
+  - **Evidence:** `7dcd525e`; 85 passed.
+- [x] The package declares no `tomlkit` dependency, which only the Codex policy
+  module used, the root `uv.lock` is re-locked without it, and the package
+  carries no lockfile of its own beside the root `uv.lock`.
+  - **Evidence:** `5b18cbc1`; `uv lock` removed `tomlkit` v0.15.2,
+    `git ls-files` lists only the root `uv.lock`, and the package suite passes
+    (86).
 
 ### Task 6: Update the runtime tests under scripts/tests
 
@@ -162,12 +200,18 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `scripts/tests/test_agentdev_devcontainer_{image,lifecycle,repository}.py`,
 `scripts/tests/test_environment_health.py`
 
-- [ ] No test asserts Codex behavior, and the catalog-root fixtures in
+- [x] No test asserts Codex behavior, and the catalog-root fixtures in
   `test_agent_runtime_workspace.py` and
   `test_agentdev_devcontainer_lifecycle.py` no longer write
   `.agents/plugins/marketplace.json`.
-- [ ] `git grep -i codex -- scripts/tests` prints nothing, and each modified
+  - **Evidence:** `219d3bb6`; Docker-free tests in the nine modified files pass
+    (health 17, workspace 24, lifecycle 19, cbm 8, the other five 33), and the
+    33 tests that need the runtime images are skipped here — CI runs them (Task
+    13).
+- [x] `git grep -i codex -- scripts/tests` prints nothing, and each modified
   test file passes under `uv run pytest`.
+  - **Evidence:** `219d3bb6` and `dc2d699e`; the grep prints nothing after
+    `dc2d699e`, and each modified file passes as recorded for the box above.
 
 ### Task 7: Stop installing Codex in the images and the devcontainer
 
@@ -181,25 +225,36 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `.devcontainer/docker-compose.yml`, `.devcontainer/firewall-allowlist.txt`,
 `.dockerignore`; Delete: `.codex/`
 
-- [ ] The `agentic_tools` role installs no `@openai/codex` package (its Renovate
+- [x] The `agentic_tools` role installs no `@openai/codex` package (its Renovate
   annotation goes with it), registers no Codex marketplace or plugin, installs
   no Codex agents, and no longer compares a Codex manifest version.
-- [ ] `devcontainer.json` declares no `agentdev-codex` volume, the deploy image
+  - **Evidence:** `a722169f`; `uv run ansible-lint ansible` and the
+    `setup-dev.yml` syntax check pass. The image build itself runs in CI (Task
+    13).
+- [x] `devcontainer.json` declares no `agentdev-codex` volume, the deploy image
   sets no `CODEX_HOME`, and no comment in the touched files names `~/.codex`.
-- [ ] The firewall allowlist keeps `api.openai.com` and `chatgpt.com`, now
+  - **Evidence:** `a722169f`.
+- [x] The firewall allowlist keeps `api.openai.com` and `chatgpt.com`, now
   labelled as OpenAI provider hosts for OpenCode.
-- [ ] `.codex/` and its `.dockerignore` entry are gone.
+  - **Evidence:** `a722169f`.
+- [x] `.codex/` and its `.dockerignore` entry are gone.
+  - **Evidence:** `a722169f`.
+- [x] `devcontainer.json` no longer recommends the Codex VS Code extension
+  (`openai.chatgpt`).
+  - **Evidence:** `5b18cbc1`.
 
 ### Task 8: Remove Codex from CI and repository configuration
 
 **Files:** Modify: `.github/workflows/validate-agent-files.yml`,
 `.github/actions/run-claude-responder/action.yml`, `.pre-commit-config.yaml`
 
-- [ ] `validate-agent-files.yml` runs
+- [x] `validate-agent-files.yml` runs
   `validate_agent_files --recommend . --require-marketplace claude` and its path
   filter has no `.codex/agents/**` entry.
-- [ ] The responder action no longer creates `/root/.codex`, and the pre-commit
+  - **Evidence:** `9fc9f634`; actionlint and zizmor pass in its pre-commit run.
+- [x] The responder action no longer creates `/root/.codex`, and the pre-commit
   hook's `files` pattern no longer names `.codex/agents`.
+  - **Evidence:** `9fc9f634`.
 
 ### Task 9: Remove Codex from the e2e suites
 
@@ -210,23 +265,35 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `scripts/e2e/iwe-workflows/scenarios.py`,
 `scripts/tests/test_e2e_iwe_workflows_clone.py`
 
-- [ ] `scenarios.py` has no `CODEX_BUDGET`, no scenario branches on Codex, and
+- [x] `scenarios.py` has no `CODEX_BUDGET`, no scenario branches on Codex, and
   `git grep -i codex -- scripts/e2e` prints nothing.
-- [ ] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes and
+  - **Evidence:** `dc2d699e`; `git grep -i codex -- scripts/e2e` prints nothing.
+- [x] `uv run pytest scripts/tests/test_e2e_iwe_workflows_clone.py` passes and
   the Claude and OpenCode e2e modules still collect
   (`uv run pytest --collect-only scripts/e2e/iwe-workflows`).
+  - **Evidence:** `dc2d699e`; the clone test passes (8), and `--collect-only`
+    collects 42 Claude and OpenCode e2e tests.
 
 ### Task 10: Rewrite the README for two harnesses
 
 **Files:** Modify: `README.md`, `docker/deploy/README.md`
 
-- [ ] Both READMEs name Claude Code and OpenCode wherever they list the
+- [x] Both READMEs name Claude Code and OpenCode wherever they list the
   preinstalled agents, shared logins, or catalog consumers, show no
   `codex login` step, and the validation command reads
   `--require-marketplace claude`.
-- [ ] The top README carries an upgrade note: existing `agentdev-codex` volumes
+  - **Evidence:** `1b92383e`.
+- [x] The top README carries an upgrade note: existing `agentdev-codex` volumes
   and `codex/auth.json` on the shared auth volume are no longer used, nothing
-  removes them, and they can be deleted by hand.
+  removes them, and they can be deleted by hand. The note gives a command
+  example for each: removing a devcontainer's `agentdev-codex` volume, and
+  deleting `codex/auth.json` from the shared auth volume —
+  `agentdev-agents-auth` for the devcontainer, the `AGENTDEV_AUTH_VOLUME` volume
+  for `agentdev-deploy`.
+  - **Evidence:** `1b92383e` and `2ac04bb7`;
+    `### Upgrading from an image with Codex` in `README.md` removes the
+    `agentdev-codex` volume and the `codex/` login directory on both auth
+    volumes.
 
 ### Task 11: Retire Codex documents in the knowledge graph
 
@@ -239,11 +306,27 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `data/bugs/codex-skill-dir-unresolved.md`,
 `data/bugs/standalone-codex-auth-unshared.md`, `data/bugs.md`
 
-- [ ] The three documents are deleted with `iwe delete` and every reference
+- [x] The three documents are deleted with `iwe delete` and every reference
   `iwe` rewrote is reviewed in `git diff`.
-- [ ] The three open Codex bugs are `stage: cancelled`, `status: deprecated`,
-  each `## Fix` stating Codex support was removed, with their hub links moved
-  accordingly; `bugs/cbm-codex-hooks-block-foreign-tables` stays `done`.
+  - **Evidence:** `09f2efb3`; the rewritten references are the hub links in
+    `data/architecture.md` and `data/someday.md`, and three inline links turned
+    to plain text in `data/log.md`,
+    `plans/20261005-pr-review-scenario-validation`, and
+    `spec/devcontainer-codex-policy`, all reviewed in the diff.
+- [x] The three Codex bugs `codex-catalog-agents-not-loaded`,
+  `codex-skill-dir-unresolved`, and `standalone-codex-auth-unshared` are
+  `stage: cancelled`, `status: deprecated`, each `## Fix` stating Codex support
+  was removed; `bugs/cbm-codex-hooks-block-foreign-tables` stays `done`.
+  - **Evidence:** `547168f6` cancels `standalone-codex-auth-unshared`;
+    `22112a95` cancels `codex-catalog-agents-not-loaded` and
+    `codex-skill-dir-unresolved`, which were already `done`, on the maintainer's
+    direction to cancel every pending Codex bug. `data/bugs.md` is a flat hub,
+    so no link moves; `iwe schema validate` passes.
+- [x] `features/codex-full-access-config` is `stage: deprecated` with
+  `status: deprecated`, and its body states that [Claude Code and OpenCode are
+  the only supported
+  harnesses](../features/claude-and-opencode-only-harnesses.md) supersedes it.
+  - **Evidence:** `51acc1cb`; `iwe schema validate` passes.
 
 ### Task 12: Update the knowledge documents that describe current Codex behavior
 
@@ -261,23 +344,35 @@ Modify: `docs/knowledge/data/architecture.md`, `docs/knowledge/data/product.md`
 `base-image-catalog-smoke-test`; the someday ideas
 `harness-refresh-restart-signal` and `nested-catalog-agent-dispatch`
 
-- [ ] Each listed document describes current behavior for Claude Code and
+- [x] Each listed document describes current behavior for Claude Code and
   OpenCode only; `explicit-only-workflow-agents` names only the
   `disable-model-invocation` frontmatter gate; `template-boundary` has no
   `.codex/` row.
-- [ ] Done plans, done backlog tasks, released notes, `data/log.md`, and
+  - **Evidence:** `2e46aef7`; `iwe schema validate` passes and `iwe stats`
+    reports no broken links. The Codex mentions left in the listed documents
+    concern the third-party Codex reviewer and responder on GitHub
+    (`assignee-review-trigger`, `ai-responder-workflows`), a removed Coder
+    secret (`agent-sign-in-without-seeding`), a history bullet
+    (`template-boundary`), and `generated.by` values.
+- [x] Done plans, done backlog tasks, released notes, `data/log.md`, and
   `generated.by` provenance values are left unchanged.
+  - **Evidence:** `2e46aef7` touches none of them, and keeps every
+    `generated.by` that names a Codex model.
 
 ### Task 13: CI passes on the implementation branch
 
 **Files:** none
 
-- [ ] The pull request's CI, including Super-Linter, `validate-agent-files`, and
+- [x] The pull request's CI, including Super-Linter, `validate-agent-files`, and
   the image builds, passes on its head commit.
+  - **Evidence:** Primary checks run 41264857697 on head `7123c2c5` passes:
+    Super-Linter, the development and Dev Container image builds, and Deploy and
+    Dev Container runtime acceptance on amd64 and arm64; Agent files validation
+    run 41264857477 and Knowledge base validation run 41264857744 pass.
 
 ## Spec changes
 
-### [Devcontainer Codex policy](../spec/devcontainer-codex-policy.md)
+### Devcontainer Codex policy
 
 Every requirement is removed; Ship deletes the spec document with `iwe delete`.
 
@@ -369,7 +464,8 @@ volume, and no image content is folded into it.
 The attach lifecycle SHALL register this checkout's complete Claude and
 OpenCode catalog over the staged copy and SHALL leave the staged copy selected
 when the mounted repository does not contain a complete catalog. A complete
-catalog SHALL NOT require a Codex marketplace manifest.
+catalog SHALL consist of `.claude-plugin/marketplace.json` and the OpenCode
+bridge directory.
 
 #### Scenario: an agentdev developer reloads the editor
 
@@ -381,7 +477,7 @@ catalog SHALL NOT require a Codex marketplace manifest.
 - **WHEN** its repository has no complete agentdev catalog
 - **THEN** attach succeeds without changing the staged catalog registration.
 
-#### Scenario: a checkout without a Codex manifest
+#### Scenario: a checkout with only the Claude manifest and the OpenCode bridge
 
 - **WHEN** the checkout holds `.claude-plugin/marketplace.json` and the
   OpenCode bridge but no `.agents/plugins/marketplace.json`, and attach runs
@@ -624,9 +720,10 @@ report at any point that needs a user decision it was not given.
 ## Verification
 
 - `git grep -i codex -- ':!docs' ':!py_packages/validate_agent_files'` prints
-  only the `chatgpt-codex-connector[bot]` lines in
-  `.agents/plugins/agentdev/tests/test_request_review.py` and the actor pattern
-  in `.github/workflows/reformat.yml`.
+  only the `chatgpt-codex-connector[bot]` line in
+  `.agents/plugins/agentdev/tests/test_request_review.py`, the actor pattern in
+  `.github/workflows/reformat.yml`, and the Task 10 upgrade note in `README.md`
+  (`### Upgrading from an image with Codex`).
 - `uv run validate_agent_files --recommend . --require-marketplace claude`
 - `uv run pytest .agents/plugins/agentdev/tests py_packages/agentdev_runtime py_packages/validate_agent_files`
 - `uv run pytest` on every modified file under `scripts/tests/`, and
@@ -677,11 +774,11 @@ Verified anchor points (line numbers as of 2026-10-31):
   `link_codex_auth` call in `ready`
 - `py_packages/agentdev_runtime/agentdev_runtime/bootstrap.py:28` — `AGENTS`
 - `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:42` — `AI_TOOLS`
-- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:240` —
+- `py_packages/agentdev_runtime/agentdev_runtime/doctor.py:252` —
   `codex auth link` check
 - `py_packages/agentdev_runtime/agentdev_runtime/settings.py:149` — `CODEX_HOME`
   variable
-- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:174` — `config`
+- `py_packages/agentdev_runtime/agentdev_runtime/workspace.py:173` — `config`
 - `py_packages/agentdev_runtime/agentdev_runtime/codex_config.py:1` — module to
   delete
 - `py_packages/agentdev_runtime/agentdev_runtime/codex_hooks.py:1` — module to
@@ -690,13 +787,13 @@ Verified anchor points (line numbers as of 2026-10-31):
   pin
 - `ansible/roles/agentic_tools/tasks/install_catalog.yml:15` — Codex
   marketplace, plugin, and agent install tasks (through line 90)
-- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:45` — Codex manifest
+- `ansible/roles/agentic_tools/tasks/stage_catalog.yml:47` — Codex manifest
   version check
-- `.devcontainer/devcontainer.json:93` — `agentdev-codex` volume
-- `.devcontainer/docker-compose.yml:98` — Codex auth-link comment
+- `.devcontainer/devcontainer.json:101` — `agentdev-codex` volume
+- `.devcontainer/docker-compose.yml:100` — Codex auth-link comment
 - `.devcontainer/firewall-allowlist.txt:22` — OpenAI hosts
 - `docker/deploy/agentdev-deploy.Dockerfile:39` — `CODEX_HOME`
-- `.github/workflows/validate-agent-files.yml:102` —
+- `.github/workflows/validate-agent-files.yml:94` —
   `--require-marketplace claude codex`
 - `.github/workflows/validate-agent-files.yml:42` — `.codex/agents/**` filter
 - `.github/actions/run-claude-responder/action.yml:105` —
