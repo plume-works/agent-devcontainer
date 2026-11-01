@@ -82,11 +82,13 @@ repos:
         args: [--fix]
         require_serial: true
 
+      # shellcheck cannot parse zsh; the macOS bootstrap is checked with `zsh -n`.
       - id: shellcheck
         name: shellcheck
         entry: shellcheck
         language: system
         types: [shell]
+        exclude: '^\.agents/plugins/agentdev/bin/macos-bootstrap\.zsh$'
         require_serial: true
 
       # Scans GITLEAKS_LOG_OPTS when set (CI), the pushed range at pre-push, and the

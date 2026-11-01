@@ -6,6 +6,9 @@ to the current day's group.
 
 ## 2026-11-01
 
+- **Update**: [Native macOS bootstrap](features/macos-native-bootstrap.md)
+  implemented; [Bootstrap agentdev natively on macOS with
+  Homebrew](plans/20261013-macos-native-bootstrap.md) plan done; specs synced.
 - **Update**: [Claude Code and OpenCode are the only supported
   harnesses](features/claude-and-opencode-only-harnesses.md) implemented;
   [Remove Codex support](plans/20261031-remove-codex.md) plan done; specs synced

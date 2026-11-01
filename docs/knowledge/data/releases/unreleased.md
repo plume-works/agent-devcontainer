@@ -91,6 +91,8 @@ names](../features/remote-control-environment-names.md)
 [Claude Code and OpenCode are the only supported
 harnesses](../features/claude-and-opencode-only-harnesses.md)
 
+[Native macOS bootstrap](../features/macos-native-bootstrap.md)
+
 ## Changed
 
 [Verification in the main loop](../features/verification-in-the-main-loop.md)
@@ -104,6 +106,12 @@ harnesses](../features/claude-and-opencode-only-harnesses.md)
 [Resumable template consumption](../features/resumable-template-consumption.md)
 
 ## Fixed
+
+[Bug: CBM pin staging races under
+pytest-xdist](../bugs/cbm-pin-staging-races-under-xdist.md)
+
+[Bug: opencode-web real-tmux tests share one tmux server under
+pytest-xdist](../bugs/opencode-web-tmux-shared-under-xdist.md)
 
 [Bug: every gh call in the devcontainer leaks a D-Bus session and a
 keyring](../bugs/devcontainer-dbus-autolaunch-leak.md)

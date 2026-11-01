@@ -98,9 +98,38 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
+  # Provisions a stock macOS runner with the catalog's bootstrap; see spec/macos-native-bootstrap.
+  macos-bootstrap:
+    name: macOS native bootstrap
+    runs-on: macos-latest
+    needs: paths-filter
+    permissions:
+      contents: read
+    if: needs.paths-filter.outputs.pass == 'true'
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install fish
+        run: brew install fish
+
+      # A fish login shell makes the bootstrap write its fish block and check python3 there too.
+      - name: Run the bootstrap
+        run: SHELL="$(brew --prefix)/bin/fish" /bin/zsh .agents/plugins/agentdev/bin/macos-bootstrap.zsh
+
+      - name: Run a catalog script on the provisioned Python
+        run: /bin/zsh -l -c '.agents/plugins/agentdev/skills/git-new-branch/agent-code/git-new-branch.py --help'
+
+      - name: Test the bootstrap
+        run: /bin/zsh -l -c 'uv run pytest .agents/plugins/agentdev/tests/test_macos_bootstrap.py'
+
   finished:
     name: Agent files validation finished
-    needs: [paths-filter, validate-agent-files]
+    needs: [paths-filter, validate-agent-files, macos-bootstrap]
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -200,7 +200,8 @@ def run_with_real_tmux(test_dir: Path, password: str | None) -> str:
     env = os.environ | {
         'PATH': f'{fake_bin}:{os.environ["PATH"]}',
         'HOME': str(test_dir),
-        'TMUX_TMPDIR': str(TMP_ROOT),
+        # Per test: xdist workers would otherwise share, and kill, one tmux server.
+        'TMUX_TMPDIR': str(test_dir),
         'OPENCODE_TEST_RESULT': str(result_file),
         'DISPLAY': ':100',
         'DEV_WORKSPACE_FOLDER': str(REPO_ROOT),
@@ -212,7 +213,7 @@ def run_with_real_tmux(test_dir: Path, password: str | None) -> str:
     try:
         result = subprocess.run(CODER_START, env=env, text=True, capture_output=True)
         assert result.returncode == 0, result.stderr
-        for _ in range(30):
+        for _ in range(100):
             if result_file.exists() and result_file.read_text():
                 break
             time.sleep(0.1)

@@ -75,3 +75,5 @@ whenever a plan ships, so this section never drifts from the code.*
 [CBM startup integration](spec/cbm-startup-integration.md)
 
 [agentdev runtime images](spec/agentdev-runtime-images.md)
+
+[macOS native bootstrap](spec/macos-native-bootstrap.md)

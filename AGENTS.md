@@ -95,6 +95,7 @@ Practice 8.
 ### Shell
 
 - All scripts are `#!/usr/bin/env bash` with `set -euo pipefail`, and must pass `shellcheck` (enforced by the pre-commit hooks, locally and in CI)
+- The one exception is the agentdev catalog's `bin/macos-bootstrap.zsh`: it is zsh because it runs on a stock macOS host before anything is installed, where `/bin/zsh` is the only modern shell. `shellcheck` cannot parse zsh, so it is checked with `zsh -n` instead
 - Quote every expansion; prefer `"${var:-default}"` over assuming a variable is set
 
 ### C++

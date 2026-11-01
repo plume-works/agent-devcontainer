@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tempfile
 
 from scratch import TMP_ROOT
 import yaml
@@ -31,24 +33,31 @@ def stage_pinned_cbm() -> Path:
     Stage the pinned CBM binary under /tmp, copying the image's when it matches the pin.
 
     The isolated account cannot traverse the invoking user's home, where the image installs it.
+    xdist workers share the path, so a binary is staged aside and renamed into place: writing over
+    one another worker is executing fails with ETXTBSY.
     """
     version = pinned_version()
     destination = TMP_ROOT / f'cbm-pin-{version}'
     binary = destination / 'codebase-memory-mcp'
-    installed = shutil.which('codebase-memory-mcp')
-    if installed and binary_version(Path(installed)) == version:
-        destination.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(installed, binary)
-    elif not binary.exists() or binary_version(binary) != version:
-        subprocess.run(
-            [
-                sys.executable,
-                REPO_ROOT / 'scripts/fetch-pinned-tool.py',
-                'codebase-memory-mcp',
-                destination,
-                '--repo-root',
-                REPO_ROOT,
-            ],
-            check=True,
-        )
+    if binary.exists() and binary_version(binary) == version:
+        return binary
+    destination.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=destination) as staging:
+        staged = Path(staging) / binary.name
+        installed = shutil.which('codebase-memory-mcp')
+        if installed and binary_version(Path(installed)) == version:
+            shutil.copy2(installed, staged)
+        else:
+            subprocess.run(
+                [
+                    sys.executable,
+                    REPO_ROOT / 'scripts/fetch-pinned-tool.py',
+                    'codebase-memory-mcp',
+                    staging,
+                    '--repo-root',
+                    REPO_ROOT,
+                ],
+                check=True,
+            )
+        os.replace(staged, binary)
     return binary

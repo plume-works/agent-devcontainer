@@ -1,6 +1,6 @@
 ---
 type: architecture
-description: Every script the agentdev catalog ships under bin/ and skills/*/agent-code/ is standard-library-only Python that reaches the shared bin/ modules through sys.path, because the catalog runs from any consuming repository's plugin cache on a host that installs nothing for it.
+description: Every script the agentdev catalog ships under bin/ and skills/*/agent-code/ is standard-library-only Python that reaches the shared bin/ modules through sys.path, because the catalog runs from any consuming repository's plugin cache on a host that installs nothing for it; the zsh macOS bootstrap, which provisions that Python, is the one exception.
 generated:
   by: claude-code/opus-5.5
   at: 2026-11-01T04:32:17Z
@@ -9,6 +9,7 @@ sources:
 - resource: .agents/plugins/agentdev/bin/skill_common.py
 - resource: .agents/plugins/agentdev/skills/skill-scripts/SKILL.md
 - resource: .agents/AGENTS.md
+- resource: .agents/plugins/agentdev/bin/macos-bootstrap.zsh
 ---
 
 # Catalog script language
@@ -16,7 +17,8 @@ sources:
 ## Decision
 
 Every script under the agentdev plugin's `bin/` and `skills/*/agent-code/` is
-Python on `#!/usr/bin/env python3` that imports only the standard library. A
+Python on `#!/usr/bin/env python3` that imports only the standard library,
+except the macOS bootstrap described [below](#the-one-non-python-script). A
 script reaches the shared modules in `bin/` by inserting that directory into
 `sys.path`, resolved from its own file location:
 
@@ -48,6 +50,16 @@ as `agent-code/<name>_common.py`. The output contract itself is the
   handed to a shell, as an SSH remote command or a printed `gh` invocation, it
   is quoted by `bash_quote`, which reproduces bash's `printf %q`, so the shell
   that re-reads it sees the words the script meant.
+
+## The one non-Python script
+
+`bin/macos-bootstrap.zsh` is zsh. It provisions the `python3` every other
+catalog script runs on, so it runs on a stock macOS host before that Python — or
+anything else — is installed, and is fetched with `curl` before the plugin
+exists. `/bin/zsh` is the one modern shell every supported macOS ships; its
+`/bin/bash` is 3.2. `shellcheck` cannot parse zsh, so the script is checked with
+`zsh -n` and excluded from the `shellcheck` hook. It is a user-run command, not
+a skill script, and does not follow the `RESULT=` contract.
 
 ## Rejected alternatives
 
