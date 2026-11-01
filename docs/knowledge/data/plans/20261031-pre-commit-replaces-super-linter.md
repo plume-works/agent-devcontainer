@@ -328,9 +328,14 @@ path filter: pre-commit already skips hooks whose files did not change.
 
 **Files:** none
 
-- [ ] The pull request's Primary checks run shows the `pre-commit` job passing
+- [x] The pull request's Primary checks run shows the `pre-commit` job passing
   with `uv sync`, `pre-commit install-hooks`, and `pre-commit run` as separate
   timed steps, and `CI/CD` starting after it.
+  - **Evidence:** #611, Primary checks run 41273765302 at `18e1f090`: the
+    `pre-commit` job succeeded, with `uv sync` (6 s), `pre-commit install-hooks`
+    (1 s), and `pre-commit run` (6 s) as separate steps, and
+    `CI/CD / Need to run?` started at 04:38:06Z, after the job finished at
+    04:38:01Z.
 
 ## Spec changes
 
