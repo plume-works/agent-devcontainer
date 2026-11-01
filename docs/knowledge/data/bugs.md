@@ -46,6 +46,9 @@ token](bugs/coder-askpass-push-hang.md)
 [Bug: Coder workspace Dev Container is lost on
 restart](bugs/coder-devcontainer-lost-on-restart.md)
 
+[Bug: Docker storage accumulates on long-running Coder
+workspaces](bugs/coder-docker-storage-accumulates.md)
+
 [Codex never loads the agentdev catalog
 agents](bugs/codex-catalog-agents-not-loaded.md)
 
