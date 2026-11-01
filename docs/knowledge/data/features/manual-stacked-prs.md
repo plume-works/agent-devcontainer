@@ -26,7 +26,9 @@ working on.
 
 ## Behaviour
 
-**Cutting a dependent branch.** `/agentdev:git-new-branch <name> --depends-on
+**Cutting a dependent branch.** `git-new-branch --depends-on P`, repeatable,
+cuts the branch from open pull request P's head branch, adds an empty commit
+with a `Depends-on: #P` trailer, and pushes it without force.
 
 **Opening its pull request.** `/agentdev:pr-open` reads the trailer, sets the
 pull request's base to P's head branch so GitHub shows only this work's diff,
