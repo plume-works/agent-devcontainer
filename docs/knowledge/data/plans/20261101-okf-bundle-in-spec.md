@@ -54,9 +54,12 @@ maintainer asked for a pre-commit test instead.
 
 **Files:** Create: `docs/knowledge/tests/test_no_status_field.py`
 
-- [ ] A document under `docs/knowledge/data/` or the bootstrap scaffold's
+- [x] A document under `docs/knowledge/data/` or the bootstrap scaffold's
   `docs/knowledge/data/` that carries `status` in its frontmatter fails the
   test, and the failure names that document
+  - **Evidence:** commit 319d2820; `test_a_status_key_is_named` passed, and with
+    `status: deprecated` added to `features/codex-full-access-config.md`
+    `test_no_document_sets_status[workspace]` failed naming that file
 - [ ] The test passes on the current graph and scaffold
 
 ### Task 2: Pre-commit runs the check
